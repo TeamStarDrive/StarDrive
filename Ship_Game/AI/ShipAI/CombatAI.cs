@@ -38,6 +38,7 @@ namespace Ship_Game.AI
             Owner.AI.PotentialTargets.Clear();
         }
 
+        /* Checking Alternative Logic
         public ShipWeight ShipCommandTargeting(ShipWeight weight, TargetParameterTotals targetPrefs)
         {
             // target prefs is a collection of averages from all targets. 
@@ -112,7 +113,7 @@ namespace Ship_Game.AI
                 Empire.Universe.DebugWin?.DrawText(battleCenter, $"Battle Center", Color.Yellow, 0.3f);
             }
             return weight;
-        }
+        } */
 
         private Vector2 BattleCenters(TargetParameterTotals targetPrefs, ref Vector2 friendlyCenter, ref Vector2 ownerCenter)
         {

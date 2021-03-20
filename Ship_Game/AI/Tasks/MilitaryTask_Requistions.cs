@@ -361,7 +361,8 @@ namespace Ship_Game.AI.Tasks
             float geodeticOffense = TargetPlanet.BuildingGeodeticOffense;
 
             float lowerBound = (geodeticOffense + Owner.KnownEmpireOffensiveStrength(enemy) / 10)
-                   .LowerBound(geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.ParentSystem, Owner, enemy));
+                   .LowerBound(geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.ParentSystem, Owner, enemy))
+                   .LowerBound(Owner.OffensiveStrength / (Owner.GetPlanets().Count / 10).LowerBound(3));
 
             EnemyStrength = GetEnemyShipStrengthInAO() + geodeticOffense;
             UpdateMinimumTaskForceStrength(geodeticOffense, lowerBound);
@@ -390,7 +391,8 @@ namespace Ship_Game.AI.Tasks
             float geodeticOffense = TargetPlanet.BuildingGeodeticOffense;
 
             float lowerBound = (geodeticOffense + Owner.KnownEmpireOffensiveStrength(enemy) / 10)
-                   .LowerBound(geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.ParentSystem, Owner, enemy));
+                   .LowerBound(geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.ParentSystem, Owner, enemy))
+                   .LowerBound(Owner.OffensiveStrength / (Owner.GetPlanets().Count / 10).LowerBound(3));
 
             EnemyStrength = GetEnemyShipStrengthInAO() + geodeticOffense;
             UpdateMinimumTaskForceStrength(TargetPlanet.BuildingGeodeticOffense, lowerBound);
@@ -521,15 +523,42 @@ namespace Ship_Game.AI.Tasks
                 return ReqStatus;
             }
 
-            float totalStr = TaskForce.Sum(s => s.BaseStrength);
-            if (type == TaskType.DefendClaim)
-                Log.Info("lala");
             CreateFleet(TaskForce, fleetName);
             Owner.Pool.CurrentUseableFleets -= fleetShips.ShipSetsExtracted.LowerBound(1);
             {
                 ReqStatus = RequisitionStatus.Complete;
                 return ReqStatus;
             }
+        }
+
+        public bool GetMoreTroops(Planet p, out Array<Ship> moreTroops)
+        {
+            moreTroops = new Array<Ship>();
+            if (p == null)
+                return false;
+
+            SetTargetPlanet(p);
+            FleetShips fleetShips = Owner.Pool.EmpireReadyFleets;
+            NeededTroopStrength   = (int)(GetTargetPlanetGroundStrength(40) * Owner.DifficultyModifiers.EnemyTroopStrength);
+            if (!AreThereEnoughTroopsToInvade(fleetShips.InvasionTroopStrength, out _, TargetPlanet.Center, true))
+                return false;
+
+            moreTroops     = fleetShips.ExtractTroops(NeededTroopStrength);
+            float troopStr = moreTroops.Count == 0 ? 0 : moreTroops.Sum(s => s.GetOurTroopStrength(maxTroops: 500));
+
+            while (troopStr < NeededTroopStrength)
+            {
+                Owner.GetTroopShipForRebase(out Ship troopShip, TargetPlanet.Center);
+                if (troopShip == null)
+                    break; // No more troops
+
+                Vector2 dir = troopShip.Center.DirectionToTarget(TargetPlanet.ParentSystem.Position);
+                troopShip.AI.OrderMoveTo(TargetPlanet.ParentSystem.Position, dir, true, AIState.MoveTo);
+                troopStr += troopShip.GetOurTroopStrength(maxTroops: 500);
+                moreTroops.Add(troopShip);
+            }
+
+            return moreTroops.Count > 0;
         }
 
         private int WantedNumberOfFleets()

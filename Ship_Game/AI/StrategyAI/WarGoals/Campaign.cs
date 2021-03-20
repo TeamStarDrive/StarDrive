@@ -216,7 +216,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         protected GoalStep CreateTargetSystemList(Array<SolarSystem> targets)
         {
-            // attempt to sort targets by systems in AO that are nearest to rally AO.
+            // attempt to sort targets by systems in AO by war type.
             // the create a winnable targets list evaluating each system 
 
             var winnableTargets = new Array<SolarSystem>();

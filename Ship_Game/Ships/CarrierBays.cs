@@ -79,6 +79,27 @@ namespace Ship_Game.Ships
         public ShipModule[] AllActiveTroopBays => AllTroopBays.Filter(module => module.Active);
         public int NumActiveHangars            => AllHangars.Count(hangar => hangar.Active);
 
+        public float EstimateFightersDps
+        {
+            get
+            {
+                if (Owner == null)
+                    return 0;
+
+                float dps = 0;
+                for (int i = 0; i < AllFighterHangars.Length; i++)
+                {
+                    ShipModule hangar = AllFighterHangars[i];
+                    if (hangar.TryGetHangarShip(out Ship fighter))
+                        dps += fighter.TotalDps;
+                    else
+                        dps += hangar.MaximumHangarShipSize * 10;
+                }
+
+                return dps;
+            }
+        }
+
         // this will return the number of assault shuttles ready to launch (regardless of troopcount)
         public int AvailableAssaultShuttles => 
             AllTroopBays.Count(hangar => hangar.Active && hangar.hangarTimer <= 0 && !hangar.IsHangarShipActive);
