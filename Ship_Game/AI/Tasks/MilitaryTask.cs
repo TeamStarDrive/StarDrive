@@ -763,7 +763,7 @@ namespace Ship_Game.AI.Tasks
             float currentEnemyStrength = Owner.GetEmpireAI().ThreatMatrix
                                         .StrengthOfHostilesInRadius(Owner, AO, AORadius);
 
-            if (!fleet.CanTakeThisFight(currentEnemyStrength))
+            if (!fleet.CanTakeThisFight(currentEnemyStrength, fleet.FleetTask))
             {
                 EndTask();
                 return;
