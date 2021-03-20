@@ -114,7 +114,7 @@ namespace Ship_Game.Universe.SolarBodies
         {
             for (int i = 1; i <= 4; i++) // send 4 troops to explore, if possible
             {
-                if (e.GetTroopShipForRebase(out Ship troopShip, p))
+                if (e.GetTroopShipForRebase(out Ship troopShip, p.Center, p.Name))
                     troopShip.AI.OrderLandAllTroops(p);
                 else
                     break;
