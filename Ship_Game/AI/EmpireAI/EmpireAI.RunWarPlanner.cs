@@ -331,7 +331,7 @@ namespace Ship_Game.AI
                 MinWarPriority = 10;
                 if (activeWars.Count > 0)
                 {
-                    MinWarPriority = activeWars.Min(w => w.Them.isFaction ? 8 : w.GetPriority());
+                    MinWarPriority = activeWars.Min(w => w.Them.isFaction ? 8 : w.GetPriority()); // FB - in GetPriority the faction returns 1. so why 8 here?
                 }
 
                 foreach (War war in activeWars.SortedDescending(w => w.GetPriority()))

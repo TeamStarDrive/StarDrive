@@ -552,13 +552,14 @@ namespace Ship_Game
             return numTroops + numCombatBuildings;
         }
 
-        public Array<Troop> EmpireTroops(Empire empire, int maxToTake)
+        public Array<Troop> TakeEmpireTroops(Empire empire, int maxToTake)
         {
             var troops = new Array<Troop>();
             for (int x = 0; x < TroopList.Count; x++)
             {
                 Troop troop = TroopList[x];
-                if (troop.Loyalty != empire) continue;
+                if (troop.Loyalty != empire || !troop.CanMove) 
+                    continue;
 
                 if (maxToTake-- > 0)
                     troops.Add(troop);

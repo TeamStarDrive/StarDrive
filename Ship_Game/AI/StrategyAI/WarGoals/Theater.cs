@@ -3,6 +3,7 @@ using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Debug;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
@@ -174,9 +175,15 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             // setting priority by the nearness to rally.
             float distanceFromPosition = TheaterAO.Center.Distance(position) + distanceToThem;
             
-            float distanceMod            =  distanceFromPosition - baseDistance;
-            distanceMod /= Us.GetProjectorRadius() + (WarValue * 100);
-            Priority                     = (int)distanceMod.LowerBound(1);
+            float distanceMod        =  distanceFromPosition - baseDistance;
+            // FB - trying to give better priority to long time enemies and to more anger.
+            Relationship usToThem    = Us.GetRelations(Them);
+            int previousWarsModifier = usToThem.WarHistory.Count + 1;
+            float warAnger           = usToThem.WarAnger;
+            float modifiedWarValue   = WarValue * previousWarsModifier * warAnger * 100;
+            distanceMod             /= Us.GetProjectorRadius() + modifiedWarValue;
+
+            Priority = (int)distanceMod.LowerBound(1);
         }
 
         public DebugTextBlock DebugText(DebugTextBlock debug, string pad, string pad2)
