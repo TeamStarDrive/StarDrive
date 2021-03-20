@@ -347,7 +347,7 @@ namespace Ship_Game
 
         void OnSendTroopsClicked(UIButton b)
         {
-            if (Player.GetTroopShipForRebase(out Ship troopShip, Planet))
+            if (Player.GetTroopShipForRebase(out Ship troopShip, Planet.Center, Planet.Name))
             {
                 GameAudio.EchoAffirmative();
                 troopShip.AI.OrderLandAllTroops(Planet);
