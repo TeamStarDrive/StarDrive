@@ -162,6 +162,7 @@ namespace Ship_Game
 
         void UpdateWarRallyPlanetsWonPlanet(Planet p, Empire enemy)
         {
+            // todo - might need to transfer AO details, like core fleet so prevent issues later.
             foreach (Theater theater in AllActiveWarTheaters.Filter(t => t.GetWar().Them == enemy))
             {
                 War war = theater.GetWar();
@@ -176,6 +177,7 @@ namespace Ship_Game
 
         void UpdateWarRallyPlanetsLostPlanet(Planet p, Empire enemy)
         {
+            // todo - might need to transfer AO details, like core fleet so prevent issues later.
             foreach (Theater theater in AllActiveWarTheaters.Filter(t => t.GetWar().Them == enemy))
             {
                 War war = theater.GetWar();
