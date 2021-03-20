@@ -19,7 +19,7 @@ namespace Ship_Game.Ships
         {
             P        = p;
             Owner    = owner;
-            Thrust   = thrust.LowerBound(100);
+            Thrust   = thrust.LowerBound(owner.IsPlatformOrStation ? 100 : 200);
             CrashPos = P.Center.GenerateRandomPointInsideCircle(P.ObjectRadius);
             Distance = Owner.Position.Distance(CrashPos).LowerBound(1);
 
@@ -34,7 +34,7 @@ namespace Ship_Game.Ships
         public void Update(FixedSimTime timeStep)
         {
             Vector2 dir = Owner.Position.DirectionToTarget(CrashPos);
-            Owner.Position += dir.Normalized() * Thrust * timeStep.FixedTime;
+            Owner.Position += dir.Normalized() * Thrust.UpperBound(200) * timeStep.FixedTime;
             Scale = Owner.Position.Distance(CrashPos) / Distance;
 
             if (Owner.Position.InRadius(CrashPos, 200))

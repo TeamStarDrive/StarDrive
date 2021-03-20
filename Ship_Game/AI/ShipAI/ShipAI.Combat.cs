@@ -29,12 +29,12 @@ namespace Ship_Game.AI
         public bool HasPriorityTarget;
         private float TriggerDelay;
         
-        readonly Array<ShipWeight> ScannedNearby      = new Array<ShipWeight>();
+        //readonly Array<ShipWeight> ScannedNearby      = new Array<ShipWeight>(); Checking Alternative Logic
         readonly Array<Ship> ScannedTargets           = new Array<Ship>();
         readonly Array<Ship> ScannedFriendlies        = new Array<Ship>();
         readonly Array<Projectile> ScannedProjectiles = new Array<Projectile>();
-        public Vector2 FriendliesSwarmCenter { get; private set; }
-        public Vector2 ProjectileSwarmCenter { get; private set; }
+        // public Vector2 FriendliesSwarmCenter { get; private set; } Checking Alternative Logic
+        // public Vector2 ProjectileSwarmCenter { get; private set; } Checking Alternative Logic
         Ship ScannedTarget = null;
         
         bool ScanComplete = true;
@@ -139,12 +139,13 @@ namespace Ship_Game.AI
                     if (missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
                     {
                         ScannedProjectiles.AddUniqueRef(missile);
-                        ProjectileSwarmCenter += missile.Center;
+                        //ProjectileSwarmCenter += missile.Center; Checking Alternative Logic
                     }
                 }
             }
+            /* Checking Alternative Logic
             if (ScannedProjectiles.Count > 0)
-                ProjectileSwarmCenter /= ScannedProjectiles.Count;
+                ProjectileSwarmCenter /= ScannedProjectiles.Count; */
             ScannedProjectiles.Sort(missile => Owner.Center.SqDist(missile.Center));
         }
 
@@ -229,9 +230,9 @@ namespace Ship_Game.AI
             BadGuysNear = false;
             ScannedFriendlies.Clear();
             ScannedTargets.Clear();
-            ScannedNearby.Clear();
-            FriendliesSwarmCenter = Owner.Center;
-            var targetPrefs = new TargetParameterTotals();
+            // ScannedNearby.Clear(); Checking Alternative Logic
+            //FriendliesSwarmCenter = Owner.Center; Checking Alternative Logic
+            // var targetPrefs = new TargetParameterTotals(); Checking Alternative Logic
             if (HasPriorityTarget)
             {
                 if (Target == null)
@@ -265,7 +266,7 @@ namespace Ship_Game.AI
             int maxResults   = Owner.System?.ShipList.Count.LowerBound(128) ?? 128;
             GameplayObject[] scannedShips = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
                                                                     Owner, scanRadius, maxResults);
- 
+
             for (int x = 0; x < scannedShips.Length; x++)
             {
                 var go = scannedShips[x];
@@ -282,7 +283,7 @@ namespace Ship_Game.AI
                 if (empire == Owner.loyalty && !nearbyShip.IsHangarShip)
                 {
                     ScannedFriendlies.Add(nearbyShip);
-                    FriendliesSwarmCenter += nearbyShip.Center;
+                    //FriendliesSwarmCenter += nearbyShip.Center; Checking Alternative Logic
                     continue;
                 }
 
@@ -290,11 +291,13 @@ namespace Ship_Game.AI
                 if (canAttack)
                 {
                     BadGuysNear = true;
-                    
+                    ScannedTargets.Add(nearbyShip);
+                    /* Checking Alternative Logic
                     if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero())
                     {
                         ScannedTargets.Add(nearbyShip);
                     }
+                    
                     else
                     {
                         // this radius <1 hack needs investigation. 
@@ -304,15 +307,16 @@ namespace Ship_Game.AI
                             continue;
                         
                         targetPrefs.AddTargetValue(nearbyShip);
-                        ScannedNearby.Add(new ShipWeight(nearbyShip, 0)); 
-                    }
+                        ScannedNearby.Add(new ShipWeight(nearbyShip, 0));  
+                    }*/
                 }
             }
 
+            /*
             if (ScannedFriendlies.Count > 0)
             {
                 FriendliesSwarmCenter = Vector2.Divide(FriendliesSwarmCenter, ScannedFriendlies.Count + 1);
-            }
+            }*/
 
             if (Target is Ship target)
             {
@@ -331,20 +335,21 @@ namespace Ship_Game.AI
             }
 
             // non combat ships dont process combat weight concepts. 
-            if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero() || ScannedNearby.Count == 0)
+            if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero() /* ||ScannedNearby.Count == 0 Checking Alternative Logic */ )
                 return Target;
 
+            /*
             if (EscortTarget?.Active == true && IsTargetValid(EscortTarget) && !scannedShips.Contains(EscortTarget))
             {
                 var sw = new ShipWeight(EscortTarget.AI.Target, 0);
-                ScannedNearby.Add(sw);
+                ScannedNearby.Add(sw); Checking Alternative Logic
                 targetPrefs.AddTargetValue(EscortTarget);
-            }
-            SetTargetWeights(targetPrefs);
+            }*/ // Checking Alternative Logic
+            // SetTargetWeights(targetPrefs); Checking Alternative Logic
 
-            ShipWeight[] sortedTargets = ScannedNearby.SortedDescending(weight => weight.Weight);
+            // ShipWeight[] sortedTargets = ScannedNearby.SortedDescending(weight => weight.Weight); Checking Alternative Logic
 
-            ScannedTargets.AddRange(sortedTargets.Select(ship => ship.Ship));
+            // ScannedTargets.AddRange(sortedTargets.Select(ship => ship.Ship)); Checking Alternative Logic
 
             // check target validity
             if (Target?.Active != true)
@@ -360,14 +365,58 @@ namespace Ship_Game.AI
                 return Target;
             }
 
+
+            /* Checking Alternative Logic
             if (sortedTargets.Length > 0 && (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars))
             {
                 if (sortedTargets.FindFirstValid(sortedTargets.Length, w=> w.Weight > -10000f, out _, out var shipWeight))
                     return shipWeight.Ship;
             }
-            return null;
+            return null; */
+            return TryGetTarget(out Ship t) ? t : null; // This is thr alternative logic
         }
 
+        bool TryGetTarget(out Ship target)
+        {
+            target = null;
+
+            if (Owner.Weapons.Count == 0 && !Owner.Carrier.HasActiveHangars)
+                return false;
+
+            bool isCommandShip        = Owner.fleet?.CommandShip == Owner;
+            bool commandShipHasTarget = Owner.fleet?.CommandShip?.AI.Target != null;
+            Ship commandShipTarget    = commandShipHasTarget ? Owner.fleet.CommandShip.AI.Target : null;
+
+            // Get the Target of the Command ship if the owner is not a hangar ship
+            if (commandShipHasTarget && Owner.Mothership == null)
+            {
+                target = commandShipTarget;
+                return true;
+            }
+
+            if (ScannedTargets.Count > 0 && (isCommandShip || !commandShipHasTarget || Owner.Mothership != null))
+            {
+                target = ScannedTargets.FindMax(GetTargetPriority);
+                return true;
+            }
+
+            return false;
+        }
+
+        float GetTargetPriority(Ship ship)
+        {
+            float minimumDistance = Owner.Radius * 2;
+            float value           = ship.TotalDps;
+            value += ship.Carrier.EstimateFightersDps;
+            value += ship.TroopCapacity * 1000;
+            value += ship.HasBombs && ship.AI.OrbitTarget?.Owner == Owner.loyalty 
+                       ? ship.BombBays.Count * 1000 
+                       : ship.BombBays.Count * 100;
+
+            return value / Owner.Center.Distance(ship.Center).LowerBound(minimumDistance);
+        }
+
+        /* Checking Alternative Logic
         void SetTargetWeights(TargetParameterTotals targetPrefs)
         {
             targetPrefs     = targetPrefs.GetAveragedValues();
@@ -415,7 +464,8 @@ namespace Ship_Game.AI
                 ScannedNearby[i] = copyWeight;
             }
         }
-        
+        */
+
         public void ScanForTargets()
         {
             float radius = GetSensorRadius(out Ship sensorShip);

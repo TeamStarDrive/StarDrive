@@ -216,8 +216,18 @@ namespace Ship_Game.AI
             }
             else if (FleetGuid != Guid.Empty)
             {
-                string fleetName = WhichFleet != -1 ? owner.GetFleetsDict()[WhichFleet].Name : "";
-                Log.Warning($"Savegame FleetGuid {FleetGuid} ({owner.Name} fleetIdx:{WhichFleet} [{fleetName}]) not found in owner FleetsDict!!");
+                if (WhichFleet == -1)
+                    return;
+
+                if (owner.GetFleetsDict().TryGetValue(WhichFleet, out Fleet f))
+                {
+                    string fleetName = WhichFleet != -1 ? f.Name : "";
+                    Log.Warning($"Savegame FleetGuid {FleetGuid} ({owner.Name} fleetIdx:{WhichFleet} [{fleetName}]) not found in owner FleetsDict!!");
+                }
+                else
+                {
+                    Log.Warning($"Savegame FleetGuid {FleetGuid} ({owner.Name} fleetIdx:{WhichFleet}) not found in owner FleetsDict!!");
+                }
             }
         }
 

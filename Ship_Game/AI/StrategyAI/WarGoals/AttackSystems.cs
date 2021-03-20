@@ -42,7 +42,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         protected abstract GoalStep SetupTargets();
         protected virtual GoalStep AssesCampaign()
         {
-            if (!TargetSystems.Any(s=> s.OwnerList.Contains(Them)))
+            if (!TargetSystems.Any(s=> s.HasPlanetsOwnedBy(Them)))
             {
                 OwnerTheater.RemoveCampaign(this);
                 return GoalStep.GoalComplete;
