@@ -128,7 +128,7 @@ namespace Ship_Game
         public float GetGroundStrengthOther(Empire allButThisEmpire)
             => TroopManager.GroundStrengthOther(allButThisEmpire);
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) 
-            => TroopManager.EmpireTroops(empire, maxToTake);
+            => TroopManager.TakeEmpireTroops(empire, maxToTake);
 
         public GameplayObject[] FindNearbyFriendlyShips()
             => UniverseScreen.Spatial.FindNearby(GameObjectType.Ship, Center, GravityWellRadius,
@@ -571,11 +571,12 @@ namespace Ship_Game
             for (int j = 0; j < enemyShips.Length; ++j)
             {
                 var ship = (Ship)enemyShips[j];
-                if (ship.engineState == Ship.MoveState.Warp || !Owner.IsEmpireAttackable(ship.loyalty))
+                if (!ship.Active || ship.dying || ship.IsInWarp || !Owner.IsEmpireAttackable(ship.loyalty))
                     continue;
 
                 float dist = Center.Distance(ship.Center);
-                if (ship.shipData.Role == ShipData.RoleName.troop && dist < closestTroop)
+                if ((ship.shipData.Role == ShipData.RoleName.troop 
+                     || ship.DesignRole == ShipData.RoleName.bomber) && dist < closestTroop)
                 {
                     closestTroop = dist;
                     troop = ship;
@@ -587,7 +588,7 @@ namespace Ship_Game
                 }
             }
 
-            // always prefer to target troop ships first (so evil!)
+            // always prefer to target troop ships or bombers first (so evil!)
             if (troop != null)
                 closest = troop;
 
@@ -1173,7 +1174,7 @@ namespace Ship_Game
                 if (!ship.IsMeteor)
                     return false; // only meteors can hit shields
 
-                float damage = ship.SurfaceArea * ship.HealthPercent;
+                float damage = ship.SurfaceArea * 2 * ship.HealthPercent;
                 if (damage > ShieldStrengthCurrent)
                     return false; // Shield not strong enough
 

@@ -71,7 +71,8 @@ namespace Ship_Game.Ships
                 movePosition = Owner.fleet.FinalPosition;
             }
 
-            if (!Owner.Center.InRadius(Owner.fleet.FinalPosition + Owner.FleetOffset, 1000))
+            if (!Owner.Center.InRadius(Owner.fleet.FinalPosition + Owner.FleetOffset, 1000)
+                && Owner.AI.State != AIState.AwaitingOrders)
             {
                 float facingFleetDirection = Owner.AngleDifferenceToPosition(movePosition);
                 if (facingFleetDirection > 0.02)
