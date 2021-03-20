@@ -38,6 +38,9 @@ namespace Ship_Game.AI.Tasks
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
         [XmlIgnore] [JsonIgnore] public Campaign WarCampaign = null;
 
+        // FB - Do not disband the fleet, it is held for a new task - this is done at once and does not need save
+        [XmlIgnore] [JsonIgnore] public bool FleetNeededForNextTask { get; private set; }
+
         [XmlIgnore] [JsonIgnore] public Planet TargetPlanet { get; private set; }
         [XmlIgnore] [JsonIgnore] public SolarSystem TargetSystem { get; private set; }
         [XmlIgnore] [JsonIgnore] public Ship TargetShip { get; private set; }
@@ -264,6 +267,11 @@ namespace Ship_Game.AI.Tasks
             return strWanted;
         }
 
+        public void FlagFleetNeededForAnotherTask()
+        {
+            FleetNeededForNextTask = true;
+        }
+
         public void ChangeTargetPlanet(Planet planet)
         {
             TargetPlanet     = planet;
@@ -302,7 +310,7 @@ namespace Ship_Game.AI.Tasks
                 return;
             }
 
-            if (Fleet != null && !Fleet.IsCoreFleet)
+            if (Fleet != null && !Fleet.IsCoreFleet && !FleetNeededForNextTask)
                 Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
 
             if (FindClosestAO() == null)
@@ -323,7 +331,8 @@ namespace Ship_Game.AI.Tasks
             if (Fleet.IsCoreFleet || Owner.isPlayer)
                 return;
 
-            DisbandFleet(Fleet);
+            if (!FleetNeededForNextTask)
+                DisbandFleet(Fleet);
 
             if (type == TaskType.Exploration && TargetPlanet != null)
                 RemoveTaskTroopsFromPlanet();
