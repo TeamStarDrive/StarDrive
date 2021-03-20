@@ -2170,10 +2170,10 @@ namespace Ship_Game
             return false;
         }
 
-        public bool GetTroopShipForRebase(out Ship troopShip, Planet planet)
+        public bool GetTroopShipForRebase(out Ship troopShip, Vector2 pos, string planetName = "")
         {
             // Try free troop ships first if there is not one free, launch a troop from the nearest planet to space if possible
-            return NearestFreeTroopShip(out troopShip, planet.Center) || LaunchNearestTroopForRebase(out troopShip, planet.Center, planet.Name);
+            return NearestFreeTroopShip(out troopShip, pos) || LaunchNearestTroopForRebase(out troopShip, pos, planetName);
         }
 
         public bool GetTroopShipForRebase(out Ship troopShip, Ship ship)
