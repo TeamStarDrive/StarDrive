@@ -925,7 +925,7 @@ namespace Ship_Game.Fleets
         void DoClaimDefense(MilitaryTask task)
         {
             if (EndInvalidTask(task.TargetPlanet.Owner != null && !task.TargetPlanet.Owner.isFaction
-                               || !CanTakeThisFight(task.EnemyStrength)))
+                               || !CanTakeThisFight(task.EnemyStrength, task)))
             {
                 return;
             }
@@ -1109,7 +1109,7 @@ namespace Ship_Game.Fleets
 
         void DoDefendVsRemnant(MilitaryTask task)
         {
-            if (EndInvalidTask(!CanTakeThisFight(task.EnemyStrength) || !Owner.GetEmpireAI().Goals.Any(g => g.Fleet == this)))
+            if (EndInvalidTask(!CanTakeThisFight(task.EnemyStrength, task) || !Owner.GetEmpireAI().Goals.Any(g => g.Fleet == this)))
             {
                 ClearOrders();
                 return;
@@ -1133,7 +1133,7 @@ namespace Ship_Game.Fleets
 
         void DoAssaultPirateBase(MilitaryTask task)
         {
-            if (EndInvalidTask(!CanTakeThisFight(task.EnemyStrength)))
+            if (EndInvalidTask(!CanTakeThisFight(task.EnemyStrength, task)))
                 return;
 
             if (EndInvalidTask(task.TargetShip == null || !task.TargetShip.Active)) // Pirate base is dead
@@ -1314,7 +1314,7 @@ namespace Ship_Game.Fleets
             float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
             bool threatIncoming = Owner.SystemWithThreat.Any(t=> !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
             bool stillThreats = threatIncoming || (enemyStrength > 1 || TaskStep < 5);
-            if (EndInvalidTask(!CanTakeThisFight(enemyStrength*0.5f))) 
+            if (EndInvalidTask(!CanTakeThisFight(enemyStrength*0.5f, task))) 
                 return;
 
             if (EndInvalidTask(!stillThreats))
@@ -1693,7 +1693,7 @@ namespace Ship_Game.Fleets
             => Empire.Universe?.DebugWin?.DebugLogText($"{task.type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
 
         // @return TRUE if we can take this fight, potentially, maybe...
-        public bool CanTakeThisFight(float enemyFleetStrength, bool debug = false)
+        public bool CanTakeThisFight(float enemyFleetStrength, MilitaryTask task, bool debug = false)
         {
             float ourStrengthThreshold = GetStrength() * 2;
             if (enemyFleetStrength < ourStrengthThreshold)
@@ -1701,7 +1701,7 @@ namespace Ship_Game.Fleets
 
             // We cannot win, update fleet multipliers for next time
             if (!debug)
-                Owner.IncreaseFleetStrEmpireMultiplier(FleetTask.TargetEmpire);
+                Owner.IncreaseFleetStrEmpireMultiplier(task.TargetEmpire);
 
             return false;
         }
@@ -1709,7 +1709,7 @@ namespace Ship_Game.Fleets
         bool StillCombatEffective(MilitaryTask task)
         {
             float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
-            if (CanTakeThisFight(enemyStrength))
+            if (CanTakeThisFight(enemyStrength, task))
                 return true;
 
             DebugInfo(task, $"Enemy Strength too high. Them: {enemyStrength} Us: {GetStrength()}");

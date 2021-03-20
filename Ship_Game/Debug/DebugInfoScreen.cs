@@ -1002,7 +1002,7 @@ namespace Ship_Game.Debug
                     if (task.WhichFleet != -1)
                     {
                         DrawString(15f, "Fleet: " + task.Fleet?.Name);
-                        DrawString(15f, $" Ships: {task.Fleet?.Ships.Count} CanWin: {task.Fleet?.CanTakeThisFight(task.EnemyStrength, true)}");
+                        DrawString(15f, $" Ships: {task.Fleet?.Ships.Count} CanWin: {task.Fleet?.CanTakeThisFight(task.EnemyStrength, task,true)}");
                     }
                 }
 
