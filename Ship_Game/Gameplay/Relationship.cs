@@ -113,7 +113,8 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] public Empire Them => EmpireManager.GetEmpireByName(Name);
         [XmlIgnore][JsonIgnore] public float AvailableTrust => Trust - TrustUsed;
         [XmlIgnore][JsonIgnore] Empire Player => Empire.Universe.PlayerEmpire;
-        [XmlIgnore] [JsonIgnore] public EmpireInformation KnownInformation;
+        [XmlIgnore][JsonIgnore] public EmpireInformation KnownInformation;
+        [XmlIgnore][JsonIgnore] public int WarAnger => (int)(TotalAnger - Trust.LowerBound(-50));
 
         private readonly int FirstDemand   = 50;
         public readonly int SecondDemand   = 75;
@@ -1713,7 +1714,7 @@ namespace Ship_Game.Gameplay
             debug.AddLine($" WarStatus: {ActiveWar?.GetWarScoreState()}");
             debug.AddLine($" {Us.data.PortraitName} Strength: {Us.CurrentMilitaryStrength}");
             debug.AddLine($" {Them.data.PortraitName} Strength: {Them.CurrentMilitaryStrength}");
-            debug.AddLine($" WarAnger: {(int)(TotalAnger - Trust)}");
+            debug.AddLine($" WarAnger: {WarAnger}");
             debug.AddLine($" Previous Wars: {WarHistory.Count}");
 
             ActiveWar?.WarDebugData(ref debug);
