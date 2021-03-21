@@ -137,12 +137,12 @@ namespace Ship_Game.Ships
         }
 
         // NOTE: In case of a rebellion, usually
-        public void SwitchTroopLoyalty(Empire newLoyalty)
+        public void SwitchTroopLoyalty(Empire oldLoyalty, Empire newLoyalty)
         {
             for (int i = 0; i < OurTroops.Count; i++)
             {
                 Troop troop = OurTroops[i];
-                if (troop.Loyalty != newLoyalty)
+                if (troop.Loyalty == oldLoyalty)
                     troop.ChangeLoyalty(newLoyalty);
             }
         }
