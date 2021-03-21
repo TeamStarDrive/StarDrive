@@ -528,6 +528,13 @@ namespace Ship_Game.AI
             float valueToUs       = 10 + theirOffer.ArtifactsOffered.Count * 15f; // default value is 10
             float valueToThem     = 10 + ourOffer.ArtifactsOffered.Count * 15f; // default value is 10
 
+
+            if (usToThem.ActiveWar != null)
+            {
+                if (Empire.Universe.StarDate - usToThem.ActiveWar.StartDate < 100)
+                    return ProcessPeace("REJECT_OFFER_PEACE_UNWILLING_BC");
+            }
+
             foreach (string tech in ourOffer.TechnologiesOffered)
                 valueToThem += ResourceManager.Tech(tech).DiplomaticValueTo(us);
 
