@@ -76,7 +76,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public float GetPriority()
         {
             if (Them.isFaction) 
-                return 75;
+                return 100; // This might be changed in the future, if we want more meaningful wars vs factions
 
             var warState = Score.GetWarScoreState();
             if (Us != Them)
@@ -84,7 +84,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 var strength      = Us.GetRelationsOrNull(Them)?.KnownInformation.OffensiveStrength ?? Us.CurrentMilitaryStrength;
                 float strengthMod = Us.CurrentMilitaryStrength / strength.LowerBound(1);
                 int warHistory    = OurRelationToThem.WarHistory.Count + 1;
-                float priority    = 100 - ((int)warState * strengthMod * warHistory).UpperBound(100);
+                float priority    = 100 - ((int)warState * strengthMod * warHistory).UpperBound(99);
                 return priority;
             }
             return 0;

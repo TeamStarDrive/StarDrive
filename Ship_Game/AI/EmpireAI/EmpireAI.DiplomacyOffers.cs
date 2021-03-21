@@ -165,6 +165,14 @@ namespace Ship_Game.AI
         {
             if (ourOffer.PeaceTreaty || theirOffer.PeaceTreaty)
             {
+                Relationship rel = OwnerEmpire.GetRelations(them);
+                bool neededPeace = them.isPlayer  // player asked peace since they is in a real bad state
+                                     && rel.ActiveWar.GetWarScoreState() == WarState.Dominating
+                                     && them.TotalPopBillion < OwnerEmpire.TotalPopBillion / (int)(CurrentGame.Difficulty + 1);
+
+                if (!neededPeace && them.TheyAreAlliedWithOurEnemies(OwnerEmpire, out Array<Empire> empiresAlliedWithThem))
+                    CheckAIEmpiresResponse(OwnerEmpire, empiresAlliedWithThem, them, true);
+
                 us.SignTreatyWith(them, TreatyType.Peace);
                 AcceptPeaceTreaty(us, them, attitude);
                 AcceptPeaceTreaty(them, us, attitude);
@@ -174,13 +182,6 @@ namespace Ship_Game.AI
                      EmpireManager.Player.IsKnown(them)))
                 {
                     Empire.Universe.NotificationManager.AddPeaceTreatyEnteredNotification(us, them);
-                    Relationship rel = them.GetRelations(OwnerEmpire);
-                    bool neededPeace = them.isPlayer  // player asked peace since they is in a real bad state
-                                         && rel.ActiveWar.GetWarScoreState() == WarState.Dominating
-                                         && them.TotalPopBillion < OwnerEmpire.TotalPopBillion / (int)(CurrentGame.Difficulty + 1);
-
-                    if (!neededPeace && them.TheyAreAlliedWithOurEnemies(OwnerEmpire, out Array<Empire> empiresAlliedWithThem))
-                        CheckAIEmpiresResponse(OwnerEmpire, empiresAlliedWithThem, them, true);
                 }
             }
 

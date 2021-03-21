@@ -239,7 +239,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (RandomMath.RollDice(75))
             {
                 planet.MakeTileHabitable(tile);
-                if (planet.Owner == EmpireManager.Player)
+                if (planet.Owner == EmpireManager.Player && !GlobalStats.DisableVolcanoWarning)
                     Empire.Universe.NotificationManager.AddVolcanoRelated(planet, new LocalizedText(4266).Text, lavaPath);
             }
         }
