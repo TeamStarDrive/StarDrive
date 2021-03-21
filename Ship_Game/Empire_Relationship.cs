@@ -569,10 +569,10 @@ namespace Ship_Game
         public bool TryGetActiveWars(out Array<War> activeWars)
         {
             activeWars = new Array<War>();
-            foreach (var rel in AllRelations)
+            foreach ((Empire them, Relationship rel) in AllRelations)
             {
-                if (rel.Rel.ActiveWar != null)
-                    activeWars.Add(rel.Rel.ActiveWar);
+                if (rel.ActiveWar != null && !them.isFaction && !them.data.Defeated)
+                    activeWars.Add(rel.ActiveWar);
             }
 
             return activeWars.Count > 0;
