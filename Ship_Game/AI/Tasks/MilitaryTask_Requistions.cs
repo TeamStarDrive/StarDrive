@@ -41,9 +41,12 @@ namespace Ship_Game.AI.Tasks
             for (int x = 0; x < troopSystems.Length; x++)
             {
                 SolarSystem system     = troopSystems[x];
-                SystemCommander sysCom = defenseDict[system];
-                if (!sysCom.IsEnoughTroopStrength && !troopPriorityHigh) 
+
+                if (!defenseDict.TryGetValue(system, out SystemCommander sysCom)
+                    || !sysCom.IsEnoughTroopStrength && !troopPriorityHigh)
+                {
                     continue;
+                }
                 
                 for (int i = 0; i < system.PlanetList.Count; i++)
                 {
