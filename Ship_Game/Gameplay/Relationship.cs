@@ -1399,7 +1399,7 @@ namespace Ship_Game.Gameplay
                     ChangeToHostileIfPossible(us);
                     break;
                 case Posture.Hostile when ActiveWar != null:
-                    if (us.OffensiveStrength < them.CurrentMilitaryStrength) // todo this should be improved with demanding tech instead of checking str.
+                    if (us.GetAverageWarGrade().LessOrEqual(us.PersonalityModifiers.WarGradeThresholdForPeace))
                         RequestPeace(us);
 
                     us.GetEmpireAI().RequestHelpFromAllies(this, them, FirstDemand);
