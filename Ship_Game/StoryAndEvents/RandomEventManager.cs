@@ -27,7 +27,7 @@ namespace Ship_Game
             else if (random <= 3) ShiftInOrbit();
             else if (random <= 5) FoundMinerals();
             else if (random <= 7) VolcanicToHabitable();
-            else if (random <= 12) Meteors();
+            else if (random <= 15) Meteors();
         }
 
         static bool GetAffectedPlanet(Potentials potential, out Planet affectedPlanet, bool allowCapital = true)

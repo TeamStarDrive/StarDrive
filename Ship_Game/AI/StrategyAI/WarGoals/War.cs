@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
-using Ship_Game.AI.Tasks;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -49,6 +47,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         [JsonIgnore][XmlIgnore] public SolarSystem[] ContestedSystems { get; private set; }
         [JsonIgnore][XmlIgnore] public float LostColonyPercent  => ColoniesLost / (OurStartingColonies + 0.01f + ColoniesWon);
         [JsonIgnore][XmlIgnore] public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.LowerBound(0.01f);
+        [JsonIgnore][XmlIgnore] public const float MaxWarGrade = 10;
         [JsonIgnore][XmlIgnore] public float SpaceWarKd
         {
             get
@@ -74,15 +73,19 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         int GetMinPriority() => WarTheaters.MinPriority() - (int)GetWarScoreState();
 
-        public int GetPriority()
+        public float GetPriority()
         {
-            if (Them.isFaction) return 1;
+            if (Them.isFaction) 
+                return 75;
+
             var warState = Score.GetWarScoreState();
             if (Us != Them)
             {
-                var strength = Us.GetRelationsOrNull(Them)?.KnownInformation.OffensiveStrength ?? Us.CurrentMilitaryStrength;
+                var strength      = Us.GetRelationsOrNull(Them)?.KnownInformation.OffensiveStrength ?? Us.CurrentMilitaryStrength;
                 float strengthMod = Us.CurrentMilitaryStrength / strength.LowerBound(1);
-                return 8 - (int)((int)warState * strengthMod).UpperBound(8);
+                int warHistory    = OurRelationToThem.WarHistory.Count + 1;
+                float priority    = 100 - ((int)warState * strengthMod * warHistory).UpperBound(100);
+                return priority;
             }
             return 0;
         }
@@ -215,6 +218,21 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             SystemAssaultFailures.TryGetValue(system.guid, out int count);
             SystemAssaultFailures[system.guid] = ++count;
+        }
+
+        public float GetGrade()
+        {
+            switch (WarType == WarType.BorderConflict ? GetBorderConflictState() : GetWarScoreState())
+            {
+                default:
+                case WarState.ColdWar:
+                case WarState.EvenlyMatched:
+                case WarState.NotApplicable:   return MaxWarGrade * 0.5f;
+                case WarState.WinningSlightly: return MaxWarGrade * 0.75f;
+                case WarState.Dominating:      return MaxWarGrade;
+                case WarState.LosingSlightly:  return MaxWarGrade * 0.25f;
+                case WarState.LosingBadly:     return 1;
+            }
         }
 
         public void WarDebugData(ref DebugTextBlock debug)
