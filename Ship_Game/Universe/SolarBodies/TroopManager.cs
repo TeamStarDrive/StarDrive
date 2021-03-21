@@ -54,6 +54,9 @@ namespace Ship_Game
             if (Empire.Universe.Paused) 
                 return;
 
+            if (Init)
+                ChangeLoyaltyAbsorbed();
+
             bool startCombatTimer = false;
             if (InCombatTimer > 0 || Init)
             {
@@ -91,6 +94,18 @@ namespace Ship_Game
 
                 else if (tile.BuildingOnTile)
                     PerformGroundActions(tile.Building, tile);
+            }
+        }
+
+        // This is a workaround to solve troop loyalties not changed from some reason after federation on some planets.
+        // It runs only after a save is loaded
+        // To reproduce - need a before federation save
+        void ChangeLoyaltyAbsorbed()
+        {
+            foreach (Troop t in TroopList)
+            {
+                if (t.Loyalty.data.AbsorbedBy.NotEmpty())
+                    t.ChangeLoyalty(EmpireManager.GetEmpireByName(t.Loyalty.data.AbsorbedBy));
             }
         }
 
