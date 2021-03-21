@@ -47,7 +47,7 @@ namespace Ship_Game.AI
 
         [XmlIgnore][JsonIgnore] public Planet CoreWorld { get; private set; }
         [XmlIgnore][JsonIgnore] Array<Ship> OffensiveForcePool                     = new Array<Ship>();
-        [XmlIgnore][JsonIgnore] Fleet CoreFleet;
+        [XmlIgnore][JsonIgnore] public Fleet CoreFleet { get; private set; }
         [XmlIgnore][JsonIgnore] Array<Ship> ShipsWaitingForCoreFleet               = new Array<Ship>();
         [XmlIgnore][JsonIgnore] Planet[] PlanetsInAo                               = NoPlanets;
         AOPlanetData[] PlanetData;
@@ -133,6 +133,31 @@ namespace Ship_Game.AI
             CoreFleet.FinalPosition             = p.Center;
             CoreFleet.Owner                     = p.Owner;
             CoreFleet.IsCoreFleet               = true;
+            Center                              = CoreWorld.Center;
+            SetupPlanetsInAO();
+        }
+
+        public AO(Planet p, float radius, int whichFleet, Fleet coreFleet)
+        {
+            Radius                              = radius;
+            CoreWorld                           = p;
+            CoreWorldGuid                       = p.guid;
+            Owner                               = p.Owner;
+            WhichFleet                          = whichFleet;
+            if (coreFleet == null)
+            {
+                CoreFleet                           = new Fleet();
+                p.Owner.GetFleetsDict()[WhichFleet] = CoreFleet;
+                CoreFleet.Name                      = "Core Fleet";
+                CoreFleet.FinalPosition             = p.Center;
+                CoreFleet.Owner                     = p.Owner;
+                CoreFleet.IsCoreFleet               = true;
+            }
+            else
+            {
+                CoreFleet = coreFleet;
+            }
+
             Center                              = CoreWorld.Center;
             SetupPlanetsInAO();
         }

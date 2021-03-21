@@ -145,7 +145,7 @@ namespace Ship_Game
                 ship.shipStatusChanged = true;
                 ship.loyalty = changeTo;
 
-                ship.SwitchTroopLoyalty(ship.loyalty);
+                ship.SwitchTroopLoyalty(oldLoyalty, ship.loyalty);
                 ship.ReCalculateTroopsAfterBoard();
                 ship.ScuttleTimer = -1f; // Cancel any active self destruct 
                 changeTo.AddShip(ship);
