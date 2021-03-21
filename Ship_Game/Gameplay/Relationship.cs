@@ -1055,13 +1055,20 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        void RequestPeace(Empire us, bool onlyBadly = false)
+        public void RequestPeaceNow(Empire us) => RequestPeace(us, true);
+
+        void RequestPeace(Empire us, bool requestNow = false)
         {
-            if ((ActiveWar.TurnsAtWar % 100).NotZero())
+            if ((ActiveWar.TurnsAtWar % 100).NotZero() && !requestNow)
                 return;
 
-            Empire them = Them;
             WarState warState;
+            Empire them          = Them;
+            float warsGrade      = us.GetAverageWarGrade();
+            float gradeThreshold = us.PersonalityModifiers.WarGradeThresholdForPeace;
+            if (warsGrade > gradeThreshold)
+                return;
+
             switch (ActiveWar.WarType)
             {
                 case WarType.BorderConflict:
@@ -1069,8 +1076,6 @@ namespace Ship_Game.Gameplay
                         return;
 
                     warState = ActiveWar.GetBorderConflictState();
-                    if (CheckLosingBadly("OFFERPEACE_LOSINGBC"))
-                        break;
 
                     switch (warState)
                     {
@@ -1083,8 +1088,6 @@ namespace Ship_Game.Gameplay
                     break;
                 case WarType.ImperialistWar:
                     warState = ActiveWar.GetWarScoreState();
-                    if (CheckLosingBadly("OFFERPEACE_PLEADING"))
-                        break;
 
                     switch (warState)
                     {
@@ -1098,9 +1101,6 @@ namespace Ship_Game.Gameplay
                     break;
                 case WarType.DefensiveWar:
                     warState = ActiveWar.GetBorderConflictState();
-                    if (CheckLosingBadly("OFFERPEACE_PLEADING"))
-                        break;
-
                     switch (warState)
                     {
                         case WarState.LosingSlightly:
@@ -1114,18 +1114,6 @@ namespace Ship_Game.Gameplay
             }
 
             turnsSinceLastContact = 0;
-
-            // Aggressive / Xenophobic / Ruthless will request peace only if losing badly
-            bool CheckLosingBadly(string whichPeace)
-            {
-                if (!onlyBadly)
-                    return false;
-
-                if (warState == WarState.LosingBadly)
-                    OfferPeace(us, them, whichPeace);
-
-                return true;
-            }
         }
 
         void OfferPeace(Empire us, Empire them, string whichPeace)
@@ -1481,7 +1469,7 @@ namespace Ship_Game.Gameplay
                     ChangeToHostileIfPossible(us);
                     break;
                 case Posture.Hostile when ActiveWar != null:
-                    RequestPeace(us, onlyBadly: true);
+                    RequestPeace(us);
                     us.GetEmpireAI().RequestHelpFromAllies(this, them, FirstDemand);
                     break;
                 case Posture.Hostile:
@@ -1508,7 +1496,7 @@ namespace Ship_Game.Gameplay
                     ChangeToHostileIfPossible(us);
                     break;
                 case Posture.Hostile when ActiveWar != null:
-                    RequestPeace(us, onlyBadly: true);
+                    RequestPeace(us);
                     break;
                 case Posture.Hostile:
                     if (them.isPlayer)
