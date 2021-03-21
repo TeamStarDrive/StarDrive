@@ -76,8 +76,8 @@ namespace Ship_Game.Debug.Page
                 if (them.data.Defeated) continue;
                 var war = rel.ActiveWar;
                 if (war == null ||  war.Them.isFaction) continue;
-                int minPri = EmpireAtWar.GetEmpireAI().MinWarPriority;
-                int warPri = war.GetPriority();
+                float minPri = EmpireAtWar.GetEmpireAI().MinWarPriority;
+                float warPri = war.GetPriority();
                 if (warPri > minPri) 
                     continue;
 

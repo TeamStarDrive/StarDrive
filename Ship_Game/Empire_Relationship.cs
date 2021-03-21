@@ -412,7 +412,7 @@ namespace Ship_Game
             return allied;
         }
 
-        public void RespondToPlayerThirdPartyTreatiesWithEnemies(Empire them, bool treatySigned)
+        public void RespondToPlayerThirdPartyTreatiesWithEnemies(Empire them, Empire empireTheySignedWith, bool treatySigned)
         {
             if (!them.isPlayer)
                 return; // works only for player
@@ -431,33 +431,57 @@ namespace Ship_Game
                         rel.Trust -= 75 * multiplier;
                         rel.AddAngerDiplomaticConflict(25 * multiplier);
                         BreakAllianceWith(them);
+                        if (IsAtWarWith(empireTheySignedWith))
+                            GetRelations(empireTheySignedWith).RequestPeaceNow(this);
+
                         break;
                     case PersonalityType.Ruthless:
                         rel.Trust -= 75 * multiplier;
                         rel.AddAngerDiplomaticConflict(30 * multiplier);
                         BreakAllTreatiesWith(them);
+                        if (IsAtWarWith(empireTheySignedWith))
+                            GetRelations(empireTheySignedWith).RequestPeaceNow(this);
+
                         break;
                     case PersonalityType.Xenophobic:
                         rel.Trust -= 150 * multiplier;
                         rel.AddAngerDiplomaticConflict(75 * multiplier);
                         BreakAllianceWith(them);
                         rel.PreparingForWar = true;
+                        if (IsAtWarWith(empireTheySignedWith))
+                            GetRelations(empireTheySignedWith).RequestPeaceNow(this);
+
                         break;
                     case PersonalityType.Pacifist:
-                        rel.AddAngerDiplomaticConflict(15 * multiplier);
-                        rel.Trust -= 50 * multiplier;
+                        rel.AddAngerDiplomaticConflict(5 * multiplier);
+                        if (treatySigned && IsAtWarWith(empireTheySignedWith))
+                            SignPeaceWithEmpireTheySignedWith();
+
                         break;
                     case PersonalityType.Cunning:
                         rel.AddAngerDiplomaticConflict(20 * multiplier);
                         rel.Trust -= 50 * multiplier;
                         rel.PreparingForWar = true;
+                        if (treatySigned && IsAtWarWith(empireTheySignedWith))
+                            SignPeaceWithEmpireTheySignedWith();
+
                         break;
                     case PersonalityType.Honorable:
                         rel.AddAngerDiplomaticConflict(100 * multiplier);
                         rel.Trust -= 50 * multiplier;
+                        if (IsAtWarWith(empireTheySignedWith))
+                            SignPeaceWithEmpireTheySignedWith();
+
                         them.AddToDiplomacyContactView(this, "DECLAREWAR");
                         return;
                 }
+            }
+
+            // Local Method
+            void SignPeaceWithEmpireTheySignedWith()
+            {
+                EmpireAI.AcceptOffer(new Offer { PeaceTreaty = true }, new Offer { PeaceTreaty = true },
+                    this, empireTheySignedWith, Offer.Attitude.Respectful);
             }
         }
 
@@ -540,6 +564,30 @@ namespace Ship_Game
 
             // Note - Allied parties will always detect colonization efforts since they share scan info.
             return (GetSpyDefense() - them.GetSpyDefense()).LowerBound(minChance);
+        }
+
+        public bool TryGetActiveWars(out Array<War> activeWars)
+        {
+            activeWars = new Array<War>();
+            foreach ((Empire them, Relationship rel) in AllRelations)
+            {
+                if (rel.ActiveWar != null && !them.isFaction && !them.data.Defeated)
+                    activeWars.Add(rel.ActiveWar);
+            }
+
+            return activeWars.Count > 0;
+        }
+
+        /// <summary>
+        /// This will Get a grade from 1 to 10 indicating if our wars in bad state or good
+        /// 10 is very good, 1 is bad
+        /// </summary>
+        public float GetAverageWarGrade()
+        {
+            if (!TryGetActiveWars(out Array<War> activeWars))
+                return 5;
+
+            return activeWars.Sum(w => w.GetGrade()) / activeWars.Count;
         }
     }
 }
