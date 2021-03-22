@@ -34,19 +34,19 @@ namespace Ship_Game.Debug
             DebugText[column].MultilineText = lines;
         }
 
-        protected void SetTextCursor(float x, float y, Color color)
+        void SetTextCursor(float x, float y, Color color)
         {
             TextCursor = new Vector2(x, y);
             TextColor = color;
         }
 
-        protected void DrawString(string text)
+        void DrawString(string text)
         {
             ScreenManager.SpriteBatch.DrawString(TextFont, text, TextCursor, TextColor);
             NewLine(text.Count(c => c == '\n') + 1);
         }
 
-        protected void DrawString(float offsetX, string text)
+        void DrawString(float offsetX, string text)
         {
             Vector2 pos = TextCursor;
             pos.X += offsetX;
@@ -54,7 +54,7 @@ namespace Ship_Game.Debug
             NewLine(text.Count(c => c == '\n') + 1);
         }
 
-        protected void DrawString(Color color, string text)
+        void DrawString(Color color, string text)
         {
             ScreenManager.SpriteBatch.DrawString(TextFont, text, TextCursor, color);
             NewLine(text.Count(c => c == '\n') + 1);
