@@ -143,9 +143,9 @@ namespace Ship_Game
 
         void TryPlaceBuildable(InputState input)
         {
-            Vector3 nearPoint = Screen.Viewport.Unproject(new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 0f),
+            Vector3 nearPoint = Screen.Viewport.Unproject(new Vector3(input.CursorPosition, 0f),
                 Screen.Projection, Screen.View, Matrix.Identity);
-            Vector3 farPoint = Screen.Viewport.Unproject(new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 1f),
+            Vector3 farPoint = Screen.Viewport.Unproject(new Vector3(input.CursorPosition, 1f),
                 Screen.Projection, Screen.View, Matrix.Identity);
             var pickRay = new Ray(nearPoint, nearPoint.DirectionToTarget(farPoint));
             float k = -pickRay.Position.Z / pickRay.Direction.Z;
