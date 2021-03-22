@@ -167,12 +167,12 @@ namespace Ship_Game
 
             if (ActiveModule != null)
             {
-                batch.Draw(ResourceManager.Texture(ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath), new Rectangle(Input.MouseCurr.X, Input.MouseCurr.Y, 16 * ActiveModule.XSIZE, 16 * ActiveModule.YSIZE), Color.White);
+                batch.Draw(ResourceManager.Texture(ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath), new Rectangle(Input.MouseX, Input.MouseY, 16 * ActiveModule.XSIZE, 16 * ActiveModule.YSIZE), Color.White);
                 
                 for (int i = 0; i < ActiveModule.XSIZE; i++)
                 for (int j = 0; j < ActiveModule.YSIZE; j++)
                 {
-                    var pq = new PrimitiveQuad(new Rectangle(Input.MouseCurr.X + i * 16, Input.MouseCurr.Y + j * 16, 16, 16));
+                    var pq = new PrimitiveQuad(new Rectangle(Input.MouseX + i * 16, Input.MouseY + j * 16, 16, 16));
                     pq.Draw(batch, Color.White);
                 }
             }
@@ -314,11 +314,11 @@ namespace Ship_Game
 
             if (input.LeftMouseClick)
             {
-                SelectionBox = new Rectangle(Input.MouseCurr.X, Input.MouseCurr.Y, 0, 0);
+                SelectionBox = new Rectangle(Input.MouseX, Input.MouseY, 0, 0);
             }
             if (input.LeftMouseHeld(0.1f))
             {
-                SelectionBox = new Rectangle(SelectionBox.X, SelectionBox.Y, Input.MouseCurr.X - SelectionBox.X, Input.MouseCurr.Y - SelectionBox.Y);
+                SelectionBox = new Rectangle(SelectionBox.X, SelectionBox.Y, Input.MouseX - SelectionBox.X, Input.MouseY - SelectionBox.Y);
             }
             else if (input.LeftMouseReleased)
             {

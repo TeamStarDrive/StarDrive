@@ -118,8 +118,12 @@ namespace Microsoft.Xna.Framework
 
     internal event EventHandler Resume;
 
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    internal static extern bool SetProcessDPIAware();
+
     public WindowsGameWindow()
     {
+      SetProcessDPIAware();
       this.mainForm = new WindowsGameForm();
       Icon defaultIcon = WindowsGameWindow.GetDefaultIcon();
       if (defaultIcon != null)
