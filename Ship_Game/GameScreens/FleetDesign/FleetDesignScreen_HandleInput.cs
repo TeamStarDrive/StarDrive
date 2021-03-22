@@ -35,7 +35,7 @@ namespace Ship_Game
                 return;
             }
 
-            Vector2 mousePos = new Vector2(input.MouseCurr.X, input.MouseCurr.Y);
+            Vector2 mousePos = input.CursorPosition;
             PresentationParameters pp = ScreenManager.GraphicsDevice.PresentationParameters;
             Vector2 upperLeftWorldSpace = GetWorldSpaceFromScreenSpace(new Vector2(0f, 0f));
             Vector2 lowerRightWorldSpace =
@@ -264,8 +264,7 @@ namespace Ship_Game
                     }
                 }
 
-                if (input.MouseCurr.RightButton == ButtonState.Pressed &&
-                    input.MousePrev.RightButton == ButtonState.Released)
+                if (input.RightMouseClick)
                 {
                     ActiveShipDesign = null;
                 }
@@ -412,7 +411,7 @@ namespace Ship_Game
                 return;
             }
 
-            Vector2 mousePosition = new Vector2(input.MouseCurr.X, input.MouseCurr.Y);
+            Vector2 mousePosition = input.CursorPosition;
             HoveredNodeList.Clear();
             bool hovering = false;
             foreach (ClickableSquad squad in ClickableSquads)
@@ -492,19 +491,19 @@ namespace Ship_Game
             {
                 if (Input.LeftMouseHeld())
                 {
-                    SelectionBox = new Rectangle(input.MouseCurr.X, input.MouseCurr.Y, 0, 0);
+                    SelectionBox = new Rectangle(input.MouseX, input.MouseY, 0, 0);
                 }
 
                 if (Input.LeftMouseHeldDown)
                 {
-                    if (input.MouseCurr.X < SelectionBox.X)
+                    if (input.MouseX < SelectionBox.X)
                     {
-                        SelectionBox.X = input.MouseCurr.X;
+                        SelectionBox.X = input.MouseX;
                     }
 
-                    if (input.MouseCurr.Y < SelectionBox.Y)
+                    if (input.MouseY < SelectionBox.Y)
                     {
-                        SelectionBox.Y = input.MouseCurr.Y;
+                        SelectionBox.Y = input.MouseY;
                     }
 
                     SelectionBox.Width = Math.Abs(SelectionBox.Width);
@@ -525,14 +524,14 @@ namespace Ship_Game
 
                 if (input.LeftMouseClick)
                 {
-                    if (input.MouseCurr.X < SelectionBox.X)
+                    if (input.MouseX < SelectionBox.X)
                     {
-                        SelectionBox.X = input.MouseCurr.X;
+                        SelectionBox.X = input.MouseX;
                     }
 
-                    if (input.MouseCurr.Y < SelectionBox.Y)
+                    if (input.MouseY < SelectionBox.Y)
                     {
-                        SelectionBox.Y = input.MouseCurr.Y;
+                        SelectionBox.Y = input.MouseY;
                     }
 
                     SelectionBox.Width = Math.Abs(SelectionBox.Width);

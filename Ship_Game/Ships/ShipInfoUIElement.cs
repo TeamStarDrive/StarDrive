@@ -249,7 +249,7 @@ namespace Ship_Game.Ships
             //fbedard: Display race icon
             batch.Draw(ResourceManager.Flag(Ship.loyalty), FlagRect, Ship.loyalty.EmpireColor);
 
-            Vector2 mousePos = Mouse.GetState().Pos();
+            Vector2 mousePos = Screen.Input.CursorPosition;
 
             //Added by McShooterz: new experience level display
             var star     = new Rectangle(TroopRect.X, TroopRect.Y + 23, 22, 22);
