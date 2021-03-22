@@ -6,10 +6,6 @@ namespace Ship_Game
 {
 	public sealed class VariableUIElement : UIElement
 	{
-		private Array<TippedItem> ToolTipItems = new Array<TippedItem>();
-
-		//private Rectangle SliderRect;
-
 		private UniverseScreen screen;
 
 		public Rectangle LeftRect;
@@ -23,16 +19,6 @@ namespace Ship_Game
 		public Rectangle Shields;
 
 		public Rectangle Ordnance;
-
-		//private ProgressBar pBar;
-
-		//private ProgressBar sBar;
-
-		//private ProgressBar oBar;
-
-		//private SlidingElement sliding_element;
-
-		//private string fmt = "0";
 
 		public VariableUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
 		{
@@ -58,13 +44,6 @@ namespace Ship_Game
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, TitleText, NamePos, tColor);
 			Vector2 BodyPos = new Vector2(NamePos.X, Housing.Y + 115);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, BodyText, BodyPos, tColor);
-		}
-
-		private struct TippedItem
-		{   //there seems to be no reason for this struct to exist at all
-			//public Rectangle r;
-
-			//public int TIP_ID;
 		}
 	}
 }
