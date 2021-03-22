@@ -592,6 +592,7 @@ namespace Ship_Game.Fleets
                 case MilitaryTask.TaskType.RemnantEngagement:          DoRemnantEngagement(FleetTask);          break;
                 case MilitaryTask.TaskType.DefendVsRemnants:           DoDefendVsRemnant(FleetTask);            break;
                 case MilitaryTask.TaskType.GuardBeforeColonize:        DoPreColonizationGuard(FleetTask);       break;
+                case MilitaryTask.TaskType.ReclaimPlanet:              DoReclaimPlanet(FleetTask);              break;
             }
         }
 
@@ -705,37 +706,21 @@ namespace Ship_Game.Fleets
             }
         }
 
-        public static void CreatePostInvasionFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner)
+        public static void CreatePostInvasionFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner, string name)
         {
             fleet.TaskStep   = 0;
             task.FlagFleetNeededForAnotherTask();
             var postInvasion = MilitaryTask.CreatePostInvasion(task.TargetPlanet, task.WhichFleet, owner);
-            fleet.Name       = "Post Invasion Defense";
+            fleet.Name       = name;
             fleet.FleetTask  = postInvasion;
             owner.GetEmpireAI().QueueForRemoval(task);
             owner.GetEmpireAI().AddPendingTask(postInvasion);
         }
 
-        bool TryOrderPostAssaultFleet(MilitaryTask task, int minimumTaskStep)
-        {
-            if (TaskStep < minimumTaskStep ||
-                (task.TargetPlanet.Owner != Owner &&
-                 !task.TargetPlanet.AnyOfOurTroops(Owner))) return false;
-            CreatePostInvasionFromCurrentTask(this, task, Owner);
-
-            for (int x = 0; x < Ships.Count; ++x)
-            {
-                var ship = Ships[x];
-                if (ship.Carrier.AnyAssaultOpsAvailable)
-                    RemoveShip(ship);
-            }
-            return true;
-        }
-
         bool TryOrderPostBombFleet(MilitaryTask task, int minimumTaskStep)
         {
             if (TaskStep < minimumTaskStep || task.TargetPlanet.Owner != null) return false;
-            CreatePostInvasionFromCurrentTask(this, task, Owner);
+            CreatePostInvasionFromCurrentTask(this, task, Owner, "Post Invasion Defense");
 
             for (int x = 0; x < Ships.Count; ++x)
             {
@@ -867,7 +852,7 @@ namespace Ship_Game.Fleets
                     }
                     else
                     {
-                        CreatePostInvasionFromCurrentTask(this, task, Owner);
+                        CreatePostInvasionFromCurrentTask(this, task, Owner, "Post Invasion Defense");
                         return;
                     }
                     break;
@@ -1306,28 +1291,57 @@ namespace Ship_Game.Fleets
             }
         }
 
-        void DoClearAreaOfEnemies(MilitaryTask task)
+        void DoReclaimPlanet(MilitaryTask task)
         {
-            if (task.TargetEmpire == null && FleetTask.TargetSystem != null)
-                task.TargetEmpire = Owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(FleetTask.TargetSystem);
-
-            float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
-            bool threatIncoming = Owner.SystemWithThreat.Any(t=> !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
-            bool stillThreats = threatIncoming || (enemyStrength > 1 || TaskStep < 5);
-            if (EndInvalidTask(!CanTakeThisFight(enemyStrength*0.5f, task))) 
-                return;
-
-            if (EndInvalidTask(!stillThreats))
+            if (EndInvalidTask(task.TargetPlanet.Owner == Owner
+                || task.TargetPlanet.ParentSystem.GetActualStrengthPresent(Owner) < 1 
+                    && task.TargetPlanet.ParentSystem.DangerousForcesPresent(Owner)))
             {
-                Owner.DecreaseFleetStrEmpireMultiplier(task.TargetEmpire);
                 return;
             }
 
             switch (TaskStep)
             {
                 case 0:
+                    if (!task.TargetPlanet.ParentSystem.IsExclusivelyOwnedBy(Owner))
+                        AddFleetProjectorGoal();
+
                     GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius());
-                    TaskStep++;
+                    TaskStep = 1;
+                    break;
+                case 1:
+                    if (FleetProjectorGoalInProgress(task.TargetPlanet.ParentSystem))
+                        break;
+
+                    TaskStep = 2;
+                    break;
+                case 2:
+                    if (!ArrivedAtCombatRally(FinalPosition))
+                        break;
+
+                    foreach (Ship ship in Ships)
+                        ship.AI.OrderLandAllTroops(task.TargetPlanet);
+
+                    TaskStep = 3;
+                    break;
+            }
+        }
+
+        void DoClearAreaOfEnemies(MilitaryTask task)
+        {
+            if (task.TargetEmpire == null && FleetTask.TargetSystem != null)
+                task.TargetEmpire = Owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(FleetTask.TargetSystem);
+
+            float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
+
+            if (EndInvalidTask(!CanTakeThisFight(enemyStrength*0.5f, task))) 
+                return;
+
+            switch (TaskStep)
+            {
+                case 0:
+                    GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius());
+                    TaskStep = 1;
                     break;
                 case 1:
                     if (!ArrivedAtCombatRally(FinalPosition))
@@ -1335,27 +1349,53 @@ namespace Ship_Game.Fleets
                         ClearPriorityOrderForShipsInAO(Ships, task.AO, Owner.GetProjectorRadius());
                         break;
                     }
-                    TaskStep++;
+
+                    TaskStep = 2;
                     break;
                 case 2:
                     ClearPriorityOrderForShipsInAO(Ships, task.AO, Owner.GetProjectorRadius());
                     if (AttackEnemyStrengthClumpsInAO(task, Ships))
+                        break;
+
+                    TaskStep = 3;
+                    break;
+                case 3:
+                    if (task.TargetPlanet != null)
+                        DoOrbitTaskArea(task);
+                    else
+                        DoCombatMoveToTaskArea(task, true);
+
+                    bool threatIncoming = Owner.SystemWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
+                    bool stillThreats = threatIncoming || enemyStrength > 1;
+                    if (!stillThreats)
+                        TaskStep = 4;
+
+                    break;
+                case 4:
+                    SolarSystem  system = task.TargetSystem;
+                    if (!system.PlanetList.Any(p => p.Owner != null && Owner.IsAtWarWith(p.Owner)))
                     {
-                        TaskStep++;
-                    }
-                    else if (task.TargetPlanet != null)
-                    {
-                        if (DoOrbitTaskArea(task))
-                            TaskStep++;
+                        EndInvalidTask(true);
                     }
                     else
                     {
-                        DoCombatMoveToTaskArea(task, true);
-                        TaskStep++;
+                        Planet newTarget = system.PlanetList.FindMaxFiltered(p => p.Owner != null
+                                                                                  && Owner.IsAtWarWith(p.Owner), p => p.ColonyPotentialValue(Owner));
+
+                        if (task.GetMoreTroops(newTarget, out Array<Ship> troopShips))
+                        {
+                            task.SetTargetPlanet(newTarget);
+                            task.AO         = task.TargetPlanet.Center;
+                            var reclaimTask = MilitaryTask.CreateReclaimTask(Owner, newTarget, troopShips);
+                            Owner.GetEmpireAI().AddPendingTask(reclaimTask);
+                            CreatePostInvasionFromCurrentTask(this, task, Owner, "Guard Fleet");
+                        }
+                        else
+                        {
+                            EndInvalidTask(true);
+                        }
                     }
-                    break;
-                default:
-                    if (TaskStep++ > 6) TaskStep = 2;
+
                     break;
             }
         }
