@@ -1,5 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Drawing;
 
 namespace Ship_Game
 {
@@ -25,7 +27,7 @@ namespace Ship_Game
         public KeyboardState KeysPrev;
         public GamePadState GamepadCurr;
         public GamePadState GamepadPrev;
-        public MouseState MouseCurr;
+        public MouseState MouseCurr; // DO NOT USE, NOT ADJUSTED TO DPI, Use CursorPosition instead.
         public MouseState MousePrev;
 
         public int ScrollWheelPrev;
@@ -33,8 +35,9 @@ namespace Ship_Game
 
         // Mouse position
         public Vector2 CursorPosition { get; private set; }
-        public Vector2 CursorDirection => MousePrev.Pos().DirectionToTarget(CursorPosition);
-        public Vector2 CursorVelocity  => MousePrev.Pos() - CursorPosition;
+        public Vector2 PrevCursorPos { get; private set; }
+        public Vector2 CursorDirection => PrevCursorPos.DirectionToTarget(CursorPosition);
+        public Vector2 CursorVelocity  => PrevCursorPos - CursorPosition;
         public float CursorX => CursorPosition.X;
         public float CursorY => CursorPosition.Y;
         public int MouseX { get; private set; }
@@ -220,24 +223,39 @@ namespace Ship_Game
 
         public bool DesignMirrorToggled => KeyPressed(Keys.M);
 
+        float CursorScaling = 1.0f;
+
+        public InputState()
+        {
+            //using (Graphics graphics = Graphics.FromHwnd(IntPtr.Zero))
+            //{
+            //    DPI = graphics.DpiX;
+            //}
+        }
+
         public void Update(UpdateTimes elapsed)
         {
             KeysPrev    = KeysCurr;
             GamepadPrev = GamepadCurr;
             MousePrev   = MouseCurr;
             ScrollWheelPrev = MouseCurr.ScrollWheelValue;
+            PrevCursorPos = CursorPosition;
 
             MouseCurr = Provider.GetMouse();
             KeysCurr = Provider.GetKeyboard();
             GamepadCurr = Provider.GetGamePad();
 
-            CursorPosition = new Vector2(MouseCurr.X, MouseCurr.Y);
-            MouseX = MouseCurr.X;
-            MouseY = MouseCurr.Y;
-            MouseMoved = CursorPosition.Distance(MousePrev.Pos()) > 1;
+            // XNA gives DPI-adjusted coordinates, so we un-adjust them here,
+            // since our game is not yet DPI-aware (no UI scaling implemented)
+            MouseX = (int)(CursorPosition.X * CursorScaling);
+            MouseY = (int)(CursorPosition.Y * CursorScaling);
+            CursorPosition = new Vector2(MouseX, MouseY);
+            MouseMoved = CursorPosition.Distance(PrevCursorPos) > 1;
 
             UpdateDoubleClick(elapsed);
             UpdateHolding(elapsed);
+
+            Log.Write($"{MouseX.X} {MouseY.Y} {LeftMouseDown}");
         }
     }
 }

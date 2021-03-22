@@ -693,7 +693,7 @@ namespace Ship_Game
                 if (ai.HasGoal(goal.guid))
                 {
                     string titleText = $"({ResourceManager.GetShipTemplate(SelectedItem.UID).Name})";
-                    string bodyText = Localizer.Token(1410) + goal.PlanetBuildingAt.Name;
+                    string bodyText = Localizer.Token(GameText.UnderConstructionAt) + goal.PlanetBuildingAt.Name;
                     vuiElement.Draw(titleText, bodyText);
                     DrawItemInfoForUI();
                 }
