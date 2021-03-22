@@ -1,7 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Drawing;
 
 namespace Ship_Game
 {
@@ -22,13 +21,13 @@ namespace Ship_Game
 
     public sealed partial class InputState
     {
-        public IInputProvider Provider = new DefaultInputProvider();
+        public IInputProvider Provider;
         public KeyboardState KeysCurr;
         public KeyboardState KeysPrev;
         public GamePadState GamepadCurr;
         public GamePadState GamepadPrev;
-        public MouseState MouseCurr; // DO NOT USE, NOT ADJUSTED TO DPI, Use CursorPosition instead.
-        public MouseState MousePrev;
+        public MouseState MouseCurr; // Use CursorPosition for mouse position
+        public MouseState MousePrev; // Use PrevCursorPos for previous frame's mouse pos
 
         public int ScrollWheelPrev;
         public float ExitScreenTimer;
@@ -223,14 +222,9 @@ namespace Ship_Game
 
         public bool DesignMirrorToggled => KeyPressed(Keys.M);
 
-        float CursorScaling = 1.0f;
-
         public InputState()
         {
-            //using (Graphics graphics = Graphics.FromHwnd(IntPtr.Zero))
-            //{
-            //    DPI = graphics.DpiX;
-            //}
+            Provider = new DefaultInputProvider();
         }
 
         public void Update(UpdateTimes elapsed)
@@ -245,17 +239,13 @@ namespace Ship_Game
             KeysCurr = Provider.GetKeyboard();
             GamepadCurr = Provider.GetGamePad();
 
-            // XNA gives DPI-adjusted coordinates, so we un-adjust them here,
-            // since our game is not yet DPI-aware (no UI scaling implemented)
-            MouseX = (int)(CursorPosition.X * CursorScaling);
-            MouseY = (int)(CursorPosition.Y * CursorScaling);
+            MouseX = MouseCurr.X;
+            MouseY = MouseCurr.Y;
             CursorPosition = new Vector2(MouseX, MouseY);
             MouseMoved = CursorPosition.Distance(PrevCursorPos) > 1;
 
             UpdateDoubleClick(elapsed);
             UpdateHolding(elapsed);
-
-            Log.Write($"{MouseX.X} {MouseY.Y} {LeftMouseDown}");
         }
     }
 }
