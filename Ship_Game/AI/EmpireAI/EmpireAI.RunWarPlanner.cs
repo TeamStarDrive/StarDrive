@@ -297,17 +297,11 @@ namespace Ship_Game.AI
 
             if (!OwnerEmpire.isPlayer)
             {
-
                 WarState worstWar = WarState.NotApplicable;
-                bool preparingForWar = false;
 
                 var activeWars = new Array<War>();
-                bool empireWar = false; ;
                 foreach ((Empire other, Relationship rel) in OwnerEmpire.AllRelations)
                 {
-                    //if (GlobalStats.RestrictAIPlayerInteraction && other.isPlayer) 
-                    //    continue;
-
                     if (other.data.Defeated && rel.ActiveWar != null)
                     {
                         rel.AtWar = false;
@@ -318,13 +312,8 @@ namespace Ship_Game.AI
                         continue;
                     }
 
-                    preparingForWar |= rel.PreparingForWar;
-                    if (rel.ActiveWar == null)
-                        continue;
-
-                    activeWars.Add(rel.ActiveWar);
-                    if (!other.isFaction)
-                        empireWar = true;
+                    if (rel.ActiveWar != null)
+                        activeWars.Add(rel.ActiveWar);
                 }
 
                 // Process wars by their success.
