@@ -144,6 +144,22 @@ namespace Ship_Game.AI.Tasks
             return militaryTask;
         }
 
+        public static MilitaryTask CreateReclaimTask(Empire owner, Planet targetPlanet, Array<Ship> troopShips)
+        {
+            var militaryTask = new MilitaryTask
+            {
+                TargetPlanet = targetPlanet,
+                AO           = targetPlanet.Center,
+                type         = TaskType.ReclaimPlanet,
+                AORadius     = targetPlanet.ParentSystem.Radius,
+                Owner        = owner,
+                Priority     = 0,
+                TaskForce    = troopShips
+            };
+
+            return militaryTask;
+        }
+
         public static MilitaryTask CreateAssaultPirateBaseTask(Ship targetShip, Empire empire)
         {
             var threatMatrix = empire.GetEmpireAI().ThreatMatrix;
@@ -485,6 +501,16 @@ namespace Ship_Game.AI.Tasks
             }
             switch (type)
             {
+                case TaskType.ReclaimPlanet:
+                    switch (Step)
+                    {
+                        case 0:
+                            CreateFleet(TaskForce, "Reclaim Fleet");
+                            Step = 1;
+                            break;
+                    }
+
+                    break;
                 case TaskType.GuardBeforeColonize:
                     switch (Step)
                     {
@@ -868,7 +894,8 @@ namespace Ship_Game.AI.Tasks
             Patrol,
             RemnantEngagement,
             DefendVsRemnants,
-            GuardBeforeColonize
+            GuardBeforeColonize,
+            ReclaimPlanet
         }
 
         [Flags]
@@ -895,6 +922,7 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.AssaultPlanet:
                 case TaskType.DefendPostInvasion:
                 case TaskType.GlassPlanet:
+                case TaskType.ReclaimPlanet:
                 case TaskType.CorsairRaid:        taskCat |= TaskCategory.War; break;
                 case TaskType.AssaultPirateBase:
                 case TaskType.DefendSystem:
