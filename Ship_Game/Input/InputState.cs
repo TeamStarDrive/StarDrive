@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace Ship_Game
 {
@@ -20,21 +21,22 @@ namespace Ship_Game
 
     public sealed partial class InputState
     {
-        public IInputProvider Provider = new DefaultInputProvider();
+        public IInputProvider Provider;
         public KeyboardState KeysCurr;
         public KeyboardState KeysPrev;
         public GamePadState GamepadCurr;
         public GamePadState GamepadPrev;
-        public MouseState MouseCurr;
-        public MouseState MousePrev;
+        public MouseState MouseCurr; // Use CursorPosition for mouse position
+        public MouseState MousePrev; // Use PrevCursorPos for previous frame's mouse pos
 
         public int ScrollWheelPrev;
         public float ExitScreenTimer;
 
         // Mouse position
         public Vector2 CursorPosition { get; private set; }
-        public Vector2 CursorDirection => MousePrev.Pos().DirectionToTarget(CursorPosition);
-        public Vector2 CursorVelocity  => MousePrev.Pos() - CursorPosition;
+        public Vector2 PrevCursorPos { get; private set; }
+        public Vector2 CursorDirection => PrevCursorPos.DirectionToTarget(CursorPosition);
+        public Vector2 CursorVelocity  => PrevCursorPos - CursorPosition;
         public float CursorX => CursorPosition.X;
         public float CursorY => CursorPosition.Y;
         public int MouseX { get; private set; }
@@ -220,21 +222,27 @@ namespace Ship_Game
 
         public bool DesignMirrorToggled => KeyPressed(Keys.M);
 
+        public InputState()
+        {
+            Provider = new DefaultInputProvider();
+        }
+
         public void Update(UpdateTimes elapsed)
         {
             KeysPrev    = KeysCurr;
             GamepadPrev = GamepadCurr;
             MousePrev   = MouseCurr;
             ScrollWheelPrev = MouseCurr.ScrollWheelValue;
+            PrevCursorPos = CursorPosition;
 
             MouseCurr = Provider.GetMouse();
             KeysCurr = Provider.GetKeyboard();
             GamepadCurr = Provider.GetGamePad();
 
-            CursorPosition = new Vector2(MouseCurr.X, MouseCurr.Y);
             MouseX = MouseCurr.X;
             MouseY = MouseCurr.Y;
-            MouseMoved = CursorPosition.Distance(MousePrev.Pos()) > 1;
+            CursorPosition = new Vector2(MouseX, MouseY);
+            MouseMoved = CursorPosition.Distance(PrevCursorPos) > 1;
 
             UpdateDoubleClick(elapsed);
             UpdateHolding(elapsed);
