@@ -660,6 +660,9 @@ namespace Ship_Game
 
         private void DrawAnomalies(RenderState rs)
         {
+            if (anomalyManager == null)
+                return;
+
             rs.DepthBufferWriteEnable = true;
             rs.SourceBlend = Blend.SourceAlpha;
             rs.DestinationBlend = Blend.One;
