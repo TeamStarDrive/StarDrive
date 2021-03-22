@@ -30,6 +30,9 @@ namespace Ship_Game
         public string HeaderText;
         public int HeaderMaxWidth = 350; // maximum allowed header width limit
 
+        // EVT: Triggered if ScrollList has Click events enabled and this Item is clicked
+        public Action OnClick;
+
         protected Array<ScrollListItemBase> SubEntries;
 
         // Lightweight dynamic elements
@@ -195,7 +198,9 @@ namespace Ship_Game
                 {
                     GameAudio.AcceptClick();
                     Expand(!Expanded);
+
                     List.OnItemClicked(this);
+                    OnClick?.Invoke();
                     return true;
                 }
             }

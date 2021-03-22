@@ -82,7 +82,7 @@ namespace Ship_Game.Debug.Page
         {
             if (!Visible)
                 return;
-            
+
             SetTextCursor(50f, 150f, Color.White);
             DrawString($"Spatial.Type: {Spatial.Name}");
             DrawString($"Spatial.Collisions: {Spatial.Collisions}");
@@ -114,6 +114,5 @@ namespace Ship_Game.Debug.Page
             }
             return false;
         }
-
     }
 }

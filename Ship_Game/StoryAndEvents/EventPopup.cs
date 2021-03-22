@@ -7,25 +7,21 @@ namespace Ship_Game
 {
     public sealed class EventPopup : PopupWindow
     {
-        public bool Fade;
-        public bool FromGame;
         public ExplorationEvent ExpEvent;
-        private readonly Outcome _outcome;
-        private Rectangle _blackRect;
+        private readonly Outcome Outcome;
+        private Rectangle BlackRect;
         private Planet Planet;
         public Map<Packagetypes, Array<DrawPackage>> DrawPackages = new Map<Packagetypes, Array<DrawPackage>>();
 
         public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, 
-            Outcome outcome, bool triggerNow, Planet p = null) : base(s, 600, 600)
+            Outcome outcome, bool triggerNow, Planet p = null) : base(s, 800, 720)
         {
             if (triggerNow)
                 e.TriggerOutcome(playerEmpire, outcome);
 
-            _outcome          = outcome;
+            Outcome           = outcome;
             ExpEvent          = e;
-            Fade              = true;
             IsPopup           = true;
-            FromGame          = true;
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0f;
             Planet            = p;
@@ -35,112 +31,141 @@ namespace Ship_Game
                 DrawPackages.Add(packagetype,new Array<DrawPackage>());
             }
         }
-
-        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
-        {
-            if (Fade)
-            {
-                ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            }
-            base.Draw(batch, elapsed);
-
-            ScreenManager.SpriteBatch.Begin();
-            Vector2 theirTextPos = new Vector2(_blackRect.X + 10, _blackRect.Y + 10);
-            string description = Fonts.Verdana10.ParseText(_outcome.DescriptionText, _blackRect.Width - 40);			
-            theirTextPos = DrawString(Fonts.Verdana10, description, theirTextPos, Color.White);
-
-            if (_outcome.SelectRandomPlanet && _outcome.GetPlanet() != null)
-            {
-                theirTextPos = DrawString(Fonts.Arial12Bold, "Relevant Planet: "+_outcome.GetPlanet().Name, theirTextPos, Color.LightGreen);				
-            }
-            if (_outcome.GetArtifact() != null)
-            {
-                //theirTextPos.Y = theirTextPos.Y + Fonts.Arial12Bold.LineSpacing ;
-                string theirText = "Artifact Granted: "+_outcome.GetArtifact().Name;
-                theirTextPos = DrawString(Fonts.Arial12Bold, theirText, theirTextPos, Color.LightGreen);
-                
-                Rectangle icon = new Rectangle((int)theirTextPos.X, (int)theirTextPos.Y, 64, 64);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Artifact Icons/"+_outcome.GetArtifact().Name), icon, Color.White);
-                theirTextPos.Y += icon.Height;
-                
-                //theirTextPos.Y = theirTextPos.Y + 36f;			    
-                theirText = Fonts.Arial12.ParseText(_outcome.GetArtifact().Description, _blackRect.Width - 40);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, theirText, theirTextPos, Color.White);
-                theirTextPos.Y = theirTextPos.Y + Fonts.Arial12.MeasureString(theirText).Y;
-
-                foreach (DrawPackage artifactDrawPackage in DrawPackages[Packagetypes.Artifact])
-                {
-                    theirTextPos.Y +=artifactDrawPackage.Font.LineSpacing;			        			        
-                    ScreenManager.SpriteBatch.DrawString(artifactDrawPackage.Font, artifactDrawPackage.Text, theirTextPos, artifactDrawPackage.Color);
-                }               
-            }
-            if (_outcome.UnlockTech != null)
-            {
-                if (!_outcome.WeHadIt)
-                {                                        
-                    string theirText = "Technology Acquired: "+Localizer.Token(ResourceManager.TechTree[_outcome.UnlockTech].NameIndex);
-                    theirTextPos = DrawString(Fonts.Arial12Bold, theirText, theirTextPos, Color.White);
-                    if (ResourceManager.TechTree[_outcome.UnlockTech].ModulesUnlocked.Count > 0)
-                    {
-                        ShipModule unlockedMod = ResourceManager.GetModuleTemplate(ResourceManager.TechTree[_outcome.UnlockTech].ModulesUnlocked[0].ModuleUID);
-                        Rectangle IconRect = new Rectangle((int) theirTextPos.X, (int) theirTextPos.Y, 16 * unlockedMod.XSIZE,
-                            16 * unlockedMod.YSIZE);
-
-                        IconRect.X = IconRect.X + 48 - IconRect.Width / 2;
-                        IconRect.Y = IconRect.Y + 48 - IconRect.Height / 2;
-
-                        while (IconRect.Height > 96)
-                        {
-                            IconRect.Height = IconRect.Height - unlockedMod.YSIZE;
-                            IconRect.Width = IconRect.Width - unlockedMod.XSIZE;
-                            IconRect.X = IconRect.X + 48 - IconRect.Width / 2;
-                            IconRect.Y = IconRect.Y + 48 - IconRect.Height / 2;
-                        }
-                        ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture(ResourceManager.GetModuleTemplate(unlockedMod.UID).IconTexturePath),
-                            IconRect, Color.White);
-                        string moduleName = Localizer.Token(unlockedMod.NameIndex);
-                        DrawString(Fonts.Arial20Bold, moduleName,
-                            new Vector2(theirTextPos.X + 100f, theirTextPos.Y), Color.Orange);
-                        string desc = Fonts.Arial12Bold.ParseText(Localizer.Token(unlockedMod.DescriptionIndex),
-                            _blackRect.Width - 120);
-                        DrawString(Fonts.Arial12Bold, desc, new Vector2(theirTextPos.X + 100f, theirTextPos.Y + 22f), Color.White);
-                    }
-                }
-                else
-                {			        
-                    string theirText = "We found some alien technology, but we already possessed this knowledge.";
-                    theirTextPos = DrawString(Fonts.Arial12Bold, theirText, theirTextPos, Color.White);			        
-                }
-            }
-            if (_outcome.MoneyGranted > 0)
-            {				
-                string theirText = "Money Granted: "+_outcome.MoneyGranted.ToString();
-                theirTextPos = DrawString(Fonts.Arial12Bold, theirText, theirTextPos, Color.White);
-            }
-            if (_outcome.ScienceBonus > 0f)
-            {				
-                int scienceBonus = (int)(_outcome.ScienceBonus * 100f);
-                string theirText = string.Concat("Research Bonus Granted: ", scienceBonus.ToString(), "%");
-                theirTextPos = DrawString(Fonts.Arial12Bold, theirText, theirTextPos, Color.White);			
-            }
-            ScreenManager.SpriteBatch.End();
-        }
-
+        
         public override void LoadContent()
         {
             string planetName = Planet != null ? $"{Planet.Name}: " : "";
             TitleText         = planetName + ExpEvent.Name;
-            MiddleText        = _outcome.TitleText;
+            MiddleText        = Outcome.TitleText;
 
             base.LoadContent();
             Rectangle fitRect = new Rectangle(TitleRect.X - 4, TitleRect.Y + TitleRect.Height + MidContainer.Height + 10, TitleRect.Width, 600 - (TitleRect.Height + MidContainer.Height));
-            _blackRect        = new Rectangle(fitRect.X, fitRect.Y, fitRect.Width, 450);
+            BlackRect = new Rectangle(fitRect.X, fitRect.Y, fitRect.Width, 450);
 
             if (Planet != null)
             {
                 string message = $"Event unfolded on {Planet.Name}\n{ExpEvent.Name}";
                 Empire.Universe.NotificationManager.AddAnomalyInvestigated(Planet, message);
+            }
+        }
+
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+        {
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+
+            base.Draw(batch, elapsed);
+
+            batch.Begin();
+
+            Vector2 textPos = new Vector2(BlackRect.X + 10, BlackRect.Y + 10);
+            
+            if (Outcome.Image.NotEmpty())
+            {
+                SubTexture texture = TransientContent.LoadSubTexture("Textures/" + Outcome.Image);
+                batch.Draw(texture, new Vector2(CenterX - texture.CenterX, textPos.Y), Color.White);
+                textPos.Y += texture.Height + 10;
+            }
+
+            string description = Fonts.Verdana10.ParseText(Outcome.DescriptionText, BlackRect.Width - 40);
+            DrawString(batch, Fonts.Verdana10, description, ref textPos, Color.White);
+
+            if (Outcome.SelectRandomPlanet && Outcome.GetPlanet() != null)
+            {
+                DrawString(batch, Fonts.Arial12Bold, "Relevant Planet: "+Outcome.GetPlanet().Name, ref textPos, Color.LightGreen);				
+            }
+
+            Artifact art = Outcome.GetArtifact();
+            if (art != null)
+            {
+                DrawString(batch, Fonts.Arial12Bold, $"Artifact Granted: {art.Name}", ref textPos, Color.LightGreen);
+                
+                Rectangle iconRect = new Rectangle((int)textPos.X, (int)textPos.Y, 64, 64);
+                SubTexture artTex = TransientContent.LoadSubTexture("Textures/Artifact Icons/"+art.Name);
+                batch.Draw(artTex, iconRect, Color.White);
+                textPos.Y += iconRect.Height;
+                
+                string artDescr = Fonts.Arial12.ParseText(art.Description, BlackRect.Width - 40);
+                batch.DrawString(Fonts.Arial12, artDescr, textPos, Color.White);
+                textPos.Y += Fonts.Arial12.MeasureString(artDescr).Y;
+
+                foreach (DrawPackage artifactDrawPackage in DrawPackages[Packagetypes.Artifact])
+                {
+                    textPos.Y += artifactDrawPackage.Font.LineSpacing;
+                    batch.DrawString(artifactDrawPackage.Font, artifactDrawPackage.Text, textPos, artifactDrawPackage.Color);
+                }
+            }
+
+            if (Outcome.UnlockTech != null)
+            {
+                DrawUnlockedTech(batch, ref textPos);
+            }
+
+            if (Outcome.MoneyGranted > 0)
+            {
+                DrawString(batch, Fonts.Arial12Bold, $"Money Granted: {Outcome.MoneyGranted}", ref textPos, Color.White);
+            }
+
+            if (Outcome.ScienceBonus > 0f)
+            {
+                int scienceBonus = (int)(Outcome.ScienceBonus * 100f);
+                DrawString(batch, Fonts.Arial12Bold, $"Research Bonus Granted: {scienceBonus}%", ref textPos, Color.White);			
+            }
+
+            batch.End();
+        }
+
+        void DrawString(SpriteBatch batch, SpriteFont font, string text, ref Vector2 textPos, Color color)
+        {
+            textPos.Y += font.LineSpacing;
+            batch.DrawString(font, text, textPos, color);
+            textPos.Y += font.MeasureString(text).Y;
+            textPos.Y += font.LineSpacing;
+        }
+
+        void DrawUnlockedTech(SpriteBatch batch, ref Vector2 textPos)
+        {
+            if (Outcome.WeHadIt)
+            {
+                string alreadyPosess = "We found some alien technology, but we already possessed this knowledge.";
+                DrawString(batch, Fonts.Arial12Bold, alreadyPosess, ref textPos, Color.White);
+                return;
+            }
+
+            if (!ResourceManager.TryGetTech(Outcome.UnlockTech, out Technology tech))
+            {
+                DrawString(batch, Fonts.Arial12Bold, $"Missing Technology: {tech.UID}", ref textPos, Color.Red);
+                return;
+            }
+
+            string text = "Technology Acquired: " + Localizer.Token(tech.NameIndex);
+            DrawString(batch, Fonts.Arial12Bold, text, ref textPos, Color.White);
+
+            if (tech.ModulesUnlocked.Count > 0)
+            {
+                ShipModule unlockedMod = ResourceManager.GetModuleTemplate(tech.ModulesUnlocked[0].ModuleUID);
+                Rectangle IconRect = new Rectangle((int)textPos.X, (int)textPos.Y, 
+                                                   16 * unlockedMod.XSIZE, 16 * unlockedMod.YSIZE);
+
+                IconRect.X = IconRect.X + 48 - IconRect.Width / 2;
+                IconRect.Y = IconRect.Y + 48 - IconRect.Height / 2;
+
+                while (IconRect.Height > 96)
+                {
+                    IconRect.Height = IconRect.Height - unlockedMod.YSIZE;
+                    IconRect.Width = IconRect.Width - unlockedMod.XSIZE;
+                    IconRect.X = IconRect.X + 48 - IconRect.Width / 2;
+                    IconRect.Y = IconRect.Y + 48 - IconRect.Height / 2;
+                }
+
+                batch.Draw(ResourceManager.Texture(ResourceManager.GetModuleTemplate(unlockedMod.UID).IconTexturePath), IconRect, Color.White);
+                string moduleName = Localizer.Token(unlockedMod.NameIndex);
+
+                var moduleNamePos = new Vector2(textPos.X + 100f, textPos.Y);
+                DrawString(batch, Fonts.Arial20Bold, moduleName, ref moduleNamePos, Color.Orange);
+
+                string desc = Fonts.Arial12Bold.ParseText(Localizer.Token(unlockedMod.DescriptionIndex), BlackRect.Width - 120);
+                var moduleDescrPos = new Vector2(textPos.X + 100f, textPos.Y + 22f);
+                DrawString(batch, Fonts.Arial12Bold, desc, ref moduleDescrPos, Color.White);
             }
         }
 
@@ -157,7 +182,6 @@ namespace Ship_Game
             Artifact,
             Technology,
             Planet
-
         }
 
         public class DrawPackage
