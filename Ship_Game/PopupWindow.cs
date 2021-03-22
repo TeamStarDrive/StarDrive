@@ -86,15 +86,6 @@ namespace Ship_Game
             base.Draw(batch, elapsed);
 
             batch.End();
-        }        
-
-        public Vector2 DrawString(SpriteFont font, string theirText, Vector2 theirTextPos, Color color)
-        {
-            theirTextPos.Y = theirTextPos.Y + font.LineSpacing;
-            ScreenManager.SpriteBatch.DrawString(font, theirText, theirTextPos, color);
-            theirTextPos.Y += font.MeasureString(theirText).Y;
-            theirTextPos.Y = theirTextPos.Y + font.LineSpacing;
-            return theirTextPos;
         }
 
         public override void LoadContent()

@@ -402,6 +402,7 @@ namespace Ship_Game.Data
         }
 
         // @return null if texture not found
+        // @example LoadSubTexture("Textures/NewUI/x_red");
         public SubTexture LoadSubTexture(string textureName)
         {
             int i = textureName.LastIndexOf('/');
