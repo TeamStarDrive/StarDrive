@@ -592,7 +592,6 @@ namespace Ship_Game.Fleets
                 case MilitaryTask.TaskType.RemnantEngagement:          DoRemnantEngagement(FleetTask);          break;
                 case MilitaryTask.TaskType.DefendVsRemnants:           DoDefendVsRemnant(FleetTask);            break;
                 case MilitaryTask.TaskType.GuardBeforeColonize:        DoPreColonizationGuard(FleetTask);       break;
-                case MilitaryTask.TaskType.ReclaimPlanet:              DoReclaimPlanet(FleetTask);              break;
             }
         }
 
@@ -636,7 +635,7 @@ namespace Ship_Game.Fleets
                 case 3:
                     if (ArrivedAtCombatRally(FinalPosition))
                     {
-                        TaskStep = 3;
+                        TaskStep = 4;
                         var combatOffset = task.AO.OffsetTowards(AveragePosition(), targetPlanet.GravityWellRadius);
                         EscortingToPlanet(combatOffset, false);
                     }
@@ -708,13 +707,24 @@ namespace Ship_Game.Fleets
 
         public static void CreatePostInvasionFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner, string name)
         {
-            fleet.TaskStep   = 0;
             task.FlagFleetNeededForAnotherTask();
+            fleet.TaskStep   = 0;
             var postInvasion = MilitaryTask.CreatePostInvasion(task.TargetPlanet, task.WhichFleet, owner);
             fleet.Name       = name;
             fleet.FleetTask  = postInvasion;
             owner.GetEmpireAI().QueueForRemoval(task);
             owner.GetEmpireAI().AddPendingTask(postInvasion);
+        }
+
+        public static void CreateReclaimFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner)
+        {
+            task.FlagFleetNeededForAnotherTask();
+            fleet.TaskStep   = 0;
+            var reclaim      = MilitaryTask.CreateReclaimTask(owner, task.TargetPlanet, task.WhichFleet);
+            fleet.Name       = "Reclaim Fleet";
+            fleet.FleetTask  = reclaim;
+            owner.GetEmpireAI().QueueForRemoval(task);
+            owner.GetEmpireAI().AddPendingTask(reclaim);
         }
 
         bool TryOrderPostBombFleet(MilitaryTask task, int minimumTaskStep)
@@ -758,9 +768,9 @@ namespace Ship_Game.Fleets
                     if (!task.TargetPlanet.ParentSystem.IsExclusivelyOwnedBy(Owner))
                         AddFleetProjectorGoal();
 
-                    TaskStep = 2;
+                    TaskStep = 2; 
                     break;
-                case 2:
+                case 2: 
                     if (FleetProjectorGoalInProgress(task.TargetPlanet.ParentSystem))
                         break;
 
@@ -773,7 +783,7 @@ namespace Ship_Game.Fleets
                     if (!ArrivedAtCombatRally(FinalPosition))
                         break;
                     
-                    TaskStep = 4;
+                    TaskStep = 4; // Note - Reclaim fleets (from clear area) are set to this step number whe created
                     SetOrdersRadius(Ships, 5000f);
                     break;
                 case 4:
@@ -813,21 +823,19 @@ namespace Ship_Game.Fleets
                 case 7:
                     switch (StatusOfPlanetAssault(task))
                     {
-                        case Status.NotApplicable: TaskStep = 5; break;
-                        case Status.Good: TaskStep = 7; break;
-                        case Status.Critical:
-                            {
-                                EndInvalidTask(true);
-                                break;
-                            }
+                        case Status.NotApplicable: TaskStep = 6; break;
+                        case Status.Good:          TaskStep = 8; break;
+                        case Status.Critical: 
+                            if (EndInvalidTask(true)) 
+                                return;
+
+                            break;
                     }
+
                     break;
                 case 8:
                     if (ShipsOffMission(task))
                     {
-                        //Vector2 returnToCombat = task.AO.OffsetTowards(AveragePosition(), 500);
-                        //EngageCombatToPlanet(returnToCombat, true);
-                        //RearShipsToCombat(returnToCombat, false);
                         TaskStep = 6;
                         break;
                     }
@@ -836,8 +844,7 @@ namespace Ship_Game.Fleets
                 case 9:
                     bool inSystem     = AveragePos.InRadius(task.TargetPlanet.Center, task.TargetPlanet.ParentSystem.Radius);
                     var currentSystem = task.RallyPlanet.ParentSystem;
-
-                    var newTarget = currentSystem.PlanetList.Find(p => Owner.IsAtWarWith(p.Owner));
+                    var newTarget     = currentSystem.PlanetList.Find(p => Owner.IsAtWarWith(p.Owner));
                     if (!inSystem)
                         break;
 
@@ -1385,10 +1392,15 @@ namespace Ship_Game.Fleets
                         if (task.GetMoreTroops(newTarget, out Array<Ship> troopShips))
                         {
                             task.SetTargetPlanet(newTarget);
-                            task.AO         = task.TargetPlanet.Center;
-                            var reclaimTask = MilitaryTask.CreateReclaimTask(Owner, newTarget, troopShips);
-                            Owner.GetEmpireAI().AddPendingTask(reclaimTask);
-                            CreatePostInvasionFromCurrentTask(this, task, Owner, "Guard Fleet");
+                            task.AO = task.TargetPlanet.Center;
+                            AddShips(troopShips);
+                            AutoArrange();
+                            CreateReclaimFromCurrentTask(this, task, Owner);
+                            if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
+                                AddFleetProjectorGoal();
+
+                            GatherAtAO(task, distanceFromAO: 20000);
+                            TaskStep = 4;
                         }
                         else
                         {
