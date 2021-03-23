@@ -361,13 +361,14 @@ namespace Ship_Game
             Name              = name;
             int starRadius    = (int)(IntBetween(250, 500) * systemScale);
             float ringMax     = starRadius * 300;
-            float ringBase    = ringMax * .1f;
+            float ringBase    = ringMax * 0.1f;
             int minR          = AvgRandomBetween(GlobalStats.ExtraPlanets, 3, iterations: 2);
             int maxR          = IntBetween(minR, 7 + minR);
             NumberOfRings     = IntBetween(minR, maxR);
 
+            // when generating homeworld systems, we want at least 5 rings
             if (owner != null)
-                NumberOfRings = NumberOfRings.UpperBound(5);
+                NumberOfRings = NumberOfRings.LowerBound(5);
 
             RingList.Capacity = NumberOfRings;
             float ringSpace   = ringMax / NumberOfRings;
@@ -376,34 +377,48 @@ namespace Ship_Game
             if (owner != null)
                 markovNameGenerator = ResourceManager.GetRandomNames(owner);
 
-            for (int i = 1; i < NumberOfRings + 1; i++)
+            float NextRingRadius(int ringNum) => ringBase + RandomBetween(0, ringSpace / (1 + NumberOfRings - ringNum));
+
+            float GeneratePlanet(int ringNum)
             {
-                ringBase        += 5000;
-                float ringRadius = ringBase + RandomBetween(0, ringSpace / (1 + NumberOfRings - i));
+                float ringRadius = NextRingRadius(ringNum);
+                float randomAngle = RandomBetween(0f, 360f);
+                string planetName = markovNameGenerator?.NextName ?? Name + " " + RomanNumerals.ToRoman(ringNum);
+                var newOrbital    = new Planet(this, randomAngle, ringRadius, planetName, ringMax, owner);
+
+                PlanetList.Add(newOrbital);
+                ringRadius += newOrbital.ObjectRadius;
+                var ring = new Ring
+                {
+                    OrbitalDistance  = ringRadius,
+                    Asteroids = false,
+                    planet    = newOrbital
+                };
+                RingList.Add(ring);
+                return ringRadius;
+            }
+
+            int ringNumber = 1;
+            for (; ringNumber < NumberOfRings + 1; ringNumber++)
+            {
+                ringBase += 5000;
                 if (!GlobalStats.DisableAsteroids && RollDice(10))
                 {
+                    float ringRadius = NextRingRadius(ringNumber);
                     float spread = ringRadius - ringBase;
-                    GenerateAsteroidRing(ringRadius + spread *.25f, spread: spread *.5f);
-                    ringRadius += spread / 2;
+                    GenerateAsteroidRing(ringRadius + spread * 0.25f, spread: spread * 0.5f);
+                    ringBase = ringRadius + spread / 2;
                 }
                 else
                 {
-                    float randomAngle = RandomBetween(0f, 360f);
-                    string planetName = markovNameGenerator?.NextName ?? Name + " " + RomanNumerals.ToRoman(i);
-                    var newOrbital    = new Planet(this, randomAngle, ringRadius, planetName, ringMax, owner);
-
-                    PlanetList.Add(newOrbital);
-                    ringRadius += newOrbital.ObjectRadius;
-                    var ring = new Ring
-                    {
-                        OrbitalDistance  = ringRadius,
-                        Asteroids = false,
-                        planet    = newOrbital
-                    };
-                    RingList.Add(ring);
+                    ringBase = GeneratePlanet(ringNumber);
                 }
+            }
 
-                ringBase = ringRadius;
+            // for homeworld systems, force generate a planet if none was generated
+            if (owner != null && PlanetList.Count == 0)
+            {
+                GeneratePlanet(ringNumber + 1);
             }
 
             // now, if number of planets is <= 2 and they are barren,
