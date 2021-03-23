@@ -83,11 +83,11 @@ namespace Ship_Game.AI.Tasks
             return potentialTroops;
         }
 
-        private void CreateFleet(Array<Ship> ships, string Name)
+        private void CreateFleet(Array<Ship> ships, string name)
         {
             var newFleet = new Fleet
             {
-                Name = Name,
+                Name  = name,
                 Owner = Owner
             };
 
@@ -224,7 +224,7 @@ namespace Ship_Game.AI.Tasks
 
             AO = TargetPlanet?.Center ?? AO;
 
-            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 0, minBombMinutes: 0);
+            InitFleetRequirements(minFleetStrength: MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: 0);
 
             if (CreateTaskFleet("Defensive Fleet", Completeness) == RequisitionStatus.Complete)
             {
