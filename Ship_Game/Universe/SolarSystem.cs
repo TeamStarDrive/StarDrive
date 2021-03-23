@@ -254,6 +254,11 @@ namespace Ship_Game
             return null;
         }
 
+        public float PotentialValueFor(Empire e)
+        {
+            return PlanetList.Sum(p => p.ColonyPotentialValue(e));
+        }
+
         public float AverageValueForEmpires(Array<Empire> empireList)
         {
             float totalValue = 0;

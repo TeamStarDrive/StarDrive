@@ -1,7 +1,6 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Empires.DataPackets;
-using static Ship_Game.AI.ThreatMatrix;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
@@ -62,6 +61,56 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
  
             return GoalStep.GoToNextStep;
+        }
+
+        protected override GoalStep AssesCampaign()
+        {
+            if (Tasks.NewTasks.Count == 0) // We have defense tasks
+                return GoalStep.RestartGoal;
+
+            foreach (MilitaryTask defenseTask in Tasks.NewTasks.Filter(t => t.type == MilitaryTask.TaskType.ClearAreaOfEnemies))
+            {
+                if (defenseTask.Fleet != null)
+                    continue; // We have a fleet for this task
+
+                foreach (MilitaryTask possibleTask in Owner.GetEmpireAI().GetPotentialTasksToCompare())
+                {
+                    if (possibleTask != defenseTask) // Since we also check other defense tasks, we dont want to compare same task
+                    {
+                        if (DefenseTaskHasHigherPriority(defenseTask, possibleTask))
+                        {
+                            possibleTask.EndTask();
+                            return GoalStep.RestartGoal;
+                        }
+                    }
+                }
+            }
+
+            return GoalStep.RestartGoal;
+        }
+
+        bool DefenseTaskHasHigherPriority(MilitaryTask defenseTask, MilitaryTask possibleTask)
+        {
+            SolarSystem system  = defenseTask.TargetSystem ?? defenseTask.TargetPlanet.ParentSystem;
+            Planet target       = possibleTask.TargetPlanet;
+            float defenseValue  = system.PotentialValueFor(Owner) * 10 * Owner.PersonalityModifiers.DefenseTaskWeight;
+            float possibleValue = target.ParentSystem.PotentialValueFor(Owner);
+
+            if (possibleTask.Fleet != null) // compare distances as well
+            {
+                float defenseDist   = possibleTask.Fleet.AveragePosition().Distance(system.Position) / 10000;
+                float expansionDist = possibleTask.Fleet.AveragePosition().Distance(target.Center) / 10000;
+                defenseValue       /= defenseDist.LowerBound(1);
+                possibleValue      /= expansionDist.LowerBound(1);
+            }
+
+            if (defenseValue.GreaterOrEqual(possibleValue))
+            {
+                possibleTask.EndTask();
+                return true;
+            }
+
+            return false;
         }
     }
 }
