@@ -34,12 +34,12 @@ namespace Ship_Game
         
         public override void LoadContent()
         {
-            string planetName = Planet != null ? $"{Planet.Name}: " : "";
-            TitleText         = planetName + ExpEvent.Name;
-            MiddleText        = Outcome.TitleText;
+            TitleText  = (Planet != null ? $"{Planet.Name}: " : "") + ExpEvent.Name;
+            MiddleText = Outcome.TitleText;
 
             base.LoadContent();
-            Rectangle fitRect = new Rectangle(TitleRect.X - 4, TitleRect.Y + TitleRect.Height + MidContainer.Height + 10, TitleRect.Width, 600 - (TitleRect.Height + MidContainer.Height));
+            Rectangle fitRect = new Rectangle(TitleRect.X - 4, TitleRect.Bottom + MidContainer.Height + 10, 
+                                              TitleRect.Width, 600 - (TitleRect.Height + MidContainer.Height));
             BlackRect = new Rectangle(fitRect.X, fitRect.Y, fitRect.Width, 450);
 
             if (Planet != null)
