@@ -294,6 +294,19 @@ namespace Ship_Game
             UnloadGraphicsResources(manager);
         }
 
+        static void ExportAllXnbTextures()
+        {
+            string outputPath = "/Projects/BlackBox/StarDrive/ExportedTextures";
+            FileInfo[] files = Dir.GetFiles("Content/", "*.xnb", SearchOption.AllDirectories);
+            Parallel.For(files.Length, (start, end) =>
+            {
+                for (int i = start; i < end; ++i)
+                {
+
+                }
+            });
+        }
+
         static void TestLoad()
         {
             if (!GlobalStats.TestLoad) return;
