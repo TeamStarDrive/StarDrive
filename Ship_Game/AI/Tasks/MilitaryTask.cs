@@ -144,6 +144,23 @@ namespace Ship_Game.AI.Tasks
             return militaryTask;
         }
 
+        public static MilitaryTask CreateReclaimTask(Empire owner, Planet targetPlanet, int fleetId)
+        {
+            var militaryTask = new MilitaryTask
+            {
+                TargetPlanet = targetPlanet,
+                AO           = targetPlanet.Center,
+                type         = TaskType.AssaultPlanet,
+                AORadius     = targetPlanet.ParentSystem.Radius,
+                Owner        = owner,
+                WhichFleet   = fleetId,
+                Priority     = 0,
+                Step         = 1 // We have ships
+            };
+
+            return militaryTask;
+        }
+
         public static MilitaryTask CreateAssaultPirateBaseTask(Ship targetShip, Empire empire)
         {
             var threatMatrix = empire.GetEmpireAI().ThreatMatrix;
@@ -288,7 +305,6 @@ namespace Ship_Game.AI.Tasks
 
         public void EndTask()
         {
-            Debug_TallyFailedTasks();
             if (Owner == null)
                 return;
 
@@ -377,41 +393,6 @@ namespace Ship_Game.AI.Tasks
         {
             Fleet.Reset();
             TaskForce.Clear();
-        }
-
-        private void Debug_TallyFailedTasks()
-        {
-            DebugInfoScreen.CanceledMtasksCount++;
-            switch (type)
-            {
-                case TaskType.Exploration:
-                {
-                    DebugInfoScreen.CanceledMtask1Count++;
-                    DebugInfoScreen.CanceledMTask1Name = TaskType.Exploration.ToString();
-                    break;
-                }
-
-                case TaskType.AssaultPlanet:
-                {
-                    DebugInfoScreen.CanceledMtask2Count++;
-                    DebugInfoScreen.CanceledMTask2Name = TaskType.AssaultPlanet.ToString();
-                    break;
-                }
-
-                case TaskType.CohesiveClearAreaOfEnemies:
-                {
-                    DebugInfoScreen.CanceledMtask3Count++;
-                    DebugInfoScreen.CanceledMTask3Name = TaskType.CohesiveClearAreaOfEnemies.ToString();
-                    break;
-                }
-
-                default:
-                {
-                    DebugInfoScreen.CanceledMtask4Count++;
-                    DebugInfoScreen.CanceledMTask4Name = type.ToString();
-                    break;
-                }
-            }
         }
 
         private void ClearHoldOnGoal()
@@ -763,7 +744,7 @@ namespace Ship_Game.AI.Tasks
             float currentEnemyStrength = Owner.GetEmpireAI().ThreatMatrix
                                         .StrengthOfHostilesInRadius(Owner, AO, AORadius);
 
-            if (!fleet.CanTakeThisFight(currentEnemyStrength))
+            if (!fleet.CanTakeThisFight(currentEnemyStrength, fleet.FleetTask))
             {
                 EndTask();
                 return;

@@ -17,7 +17,7 @@ namespace Ship_Game.AI
         public War EmpireDefense;
         public float TotalWarValue { get; private set; }
         public float WarStrength = 0;
-        public int MinWarPriority { get; private set; }
+        public float MinWarPriority { get; private set; }
         public WarTasks WarTasks { get; private set; }
         private bool SkipFirstRun = true;
         public void SetTotalWarValue()
@@ -297,17 +297,11 @@ namespace Ship_Game.AI
 
             if (!OwnerEmpire.isPlayer)
             {
-
                 WarState worstWar = WarState.NotApplicable;
-                bool preparingForWar = false;
 
                 var activeWars = new Array<War>();
-                bool empireWar = false; ;
                 foreach ((Empire other, Relationship rel) in OwnerEmpire.AllRelations)
                 {
-                    //if (GlobalStats.RestrictAIPlayerInteraction && other.isPlayer) 
-                    //    continue;
-
                     if (other.data.Defeated && rel.ActiveWar != null)
                     {
                         rel.AtWar = false;
@@ -318,23 +312,18 @@ namespace Ship_Game.AI
                         continue;
                     }
 
-                    preparingForWar |= rel.PreparingForWar;
-                    if (rel.ActiveWar == null)
-                        continue;
-
-                    activeWars.Add(rel.ActiveWar);
-                    if (!other.isFaction)
-                        empireWar = true;
+                    if (rel.ActiveWar != null)
+                        activeWars.Add(rel.ActiveWar);
                 }
 
                 // Process wars by their success.
-                MinWarPriority = 10;
+                MinWarPriority = 100;
                 if (activeWars.Count > 0)
                 {
-                    MinWarPriority = activeWars.Min(w => w.Them.isFaction ? 8 : w.GetPriority()); // FB - in GetPriority the faction returns 1. so why 8 here?
+                    MinWarPriority = activeWars.Min(w => w.GetPriority());
                 }
-
-                foreach (War war in activeWars.SortedDescending(w => w.GetPriority()))
+                var sortedActiveWars = activeWars.Sorted(w => w.GetPriority());
+                foreach (War war in sortedActiveWars)
                 {
                     var currentWar = war.ConductWar();
                     if (war.Them.isFaction) continue;

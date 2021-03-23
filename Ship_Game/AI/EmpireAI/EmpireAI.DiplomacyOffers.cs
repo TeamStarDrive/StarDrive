@@ -165,6 +165,14 @@ namespace Ship_Game.AI
         {
             if (ourOffer.PeaceTreaty || theirOffer.PeaceTreaty)
             {
+                Relationship rel = OwnerEmpire.GetRelations(them);
+                bool neededPeace = them.isPlayer  // player asked peace since they is in a real bad state
+                                     && rel.ActiveWar.GetWarScoreState() == WarState.Dominating
+                                     && them.TotalPopBillion < OwnerEmpire.TotalPopBillion / (int)(CurrentGame.Difficulty + 1);
+
+                if (!neededPeace && them.TheyAreAlliedWithOurEnemies(OwnerEmpire, out Array<Empire> empiresAlliedWithThem))
+                    CheckAIEmpiresResponse(OwnerEmpire, empiresAlliedWithThem, them, true);
+
                 us.SignTreatyWith(them, TreatyType.Peace);
                 AcceptPeaceTreaty(us, them, attitude);
                 AcceptPeaceTreaty(them, us, attitude);
@@ -210,7 +218,7 @@ namespace Ship_Game.AI
             if (OwnerEmpire.TheyAreAlliedWithOurEnemies(them, out Array<Empire> empiresAlliedWithThem))
             {
                 usToThem.AddAngerDiplomaticConflict(OwnerEmpire.PersonalityModifiers.AddAngerAlliedWithEnemy);
-                if (!OwnerEmpire.IsPacifist || !OwnerEmpire.isFaction) // Only pacifist and cunning will ally
+                if (!OwnerEmpire.IsPacifist || !OwnerEmpire.IsCunning) // Only pacifist and cunning will ally
                 {
                     allowAlliance   = false;
                     answer          = rejection;
@@ -222,7 +230,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            CheckAIEmpiresResponse(them, empiresAlliedWithThem, allowAlliance);
+            CheckAIEmpiresResponse(them, empiresAlliedWithThem, OwnerEmpire, allowAlliance);
             return allowAlliance;
         }
 
@@ -231,7 +239,7 @@ namespace Ship_Game.AI
         {
             PeaceAnswer answer = AnalyzePeaceOffer(theirOffer, ourOffer, them, attitude);
             Relationship rel   = OwnerEmpire.GetRelations(them);
-            bool neededPeace   = them.isPlayer  // player asked peace since he is in a real bad state
+            bool neededPeace   = them.isPlayer  // player asked peace since they is in a real bad state
                                  && rel.ActiveWar.GetWarScoreState() == WarState.Dominating
                                  && them.TotalPopBillion < OwnerEmpire.TotalPopBillion / (int)(CurrentGame.Difficulty + 1);
 
@@ -239,17 +247,17 @@ namespace Ship_Game.AI
                 AcceptOffer(ourOffer, theirOffer, OwnerEmpire, them, attitude);
 
             if (!neededPeace && OwnerEmpire.TheyAreAlliedWithOurEnemies(them, out Array<Empire> empiresAlliedWithThem))
-                CheckAIEmpiresResponse(them, empiresAlliedWithThem, answer.Peace);
+                CheckAIEmpiresResponse(them, empiresAlliedWithThem, OwnerEmpire, answer.Peace);
 
             return answer.Answer;
         }
 
-        public void CheckAIEmpiresResponse(Empire them, Array<Empire> otherEmpires, bool treatySigned)
+        public void CheckAIEmpiresResponse(Empire them, Array<Empire> otherEmpires, Empire empireSignedWith, bool treatySigned)
         {
             foreach (Empire e in otherEmpires)
             {
                 if (!e.isPlayer)
-                    e.RespondToPlayerThirdPartyTreatiesWithEnemies(them, treatySigned);
+                    e.RespondToPlayerThirdPartyTreatiesWithEnemies(them, empireSignedWith, treatySigned);
             }
         }
 
@@ -517,8 +525,15 @@ namespace Ship_Game.AI
             WarState state;
             Empire us             = OwnerEmpire;
             Relationship usToThem = us.GetRelations(them);
-            float valueToUs       = theirOffer.ArtifactsOffered.Count * 15f;
-            float valueToThem     = ourOffer.ArtifactsOffered.Count * 15f;
+            float valueToUs       = 10 + theirOffer.ArtifactsOffered.Count * 15f; // default value is 10
+            float valueToThem     = 10 + ourOffer.ArtifactsOffered.Count * 15f; // default value is 10
+
+
+            if (usToThem.ActiveWar != null)
+            {
+                if (Empire.Universe.StarDate - usToThem.ActiveWar.StartDate < 100)
+                    return ProcessPeace("REJECT_OFFER_PEACE_UNWILLING_BC");
+            }
 
             foreach (string tech in ourOffer.TechnologiesOffered)
                 valueToThem += ResourceManager.Tech(tech).DiplomaticValueTo(us);
@@ -550,36 +565,13 @@ namespace Ship_Game.AI
                 }
             }
 
-            WarType warType   = usToThem.ActiveWar.WarType;
-            WarState warState = WarState.NotApplicable;
-            switch (warType)
-            {
-                case WarType.BorderConflict: warState = usToThem.ActiveWar.GetBorderConflictState(planetsToUs); break;
-                case WarType.ImperialistWar: warState = usToThem.ActiveWar.GetWarScoreState();                  break;
-                case WarType.DefensiveWar:   warState = usToThem.ActiveWar.GetWarScoreState();                  break;
-            }
-
-            switch (us.Personality)
-            {
-                case PersonalityType.Pacifist:
-                case PersonalityType.Honorable when warType == WarType.DefensiveWar:
-                    AddToValue(warState, 10, 5, 5, 10, ref valueToUs, ref valueToThem); break;
-                case PersonalityType.Honorable:
-                    AddToValue(warState, 15, 8, 8, 15, ref valueToUs, ref valueToThem); break;
-                case PersonalityType.Xenophobic when warType == WarType.DefensiveWar:
-                    AddToValue(warState, 10, 5, 5, 10, ref valueToUs, ref valueToThem); break;
-                case PersonalityType.Xenophobic:
-                    AddToValue(warState, 15, 8, 8, 15, ref valueToUs, ref valueToThem); break;
-                case PersonalityType.Aggressive:
-                    AddToValue(warState, 10, 5, 75, 200, ref valueToUs, ref valueToThem); break;
-                case PersonalityType.Ruthless:
-                    AddToValue(warState, 5, 1, 120, 300, ref valueToUs, ref valueToThem); break;
-                case PersonalityType.Cunning:
-                    AddToValue(warState, 10, 5, 5, 10, ref valueToUs, ref valueToThem); break;
-            }
-
             valueToUs += valueToUs * them.data.Traits.DiplomacyMod; // TODO FB - need to be smarter here
             valueToUs *= us.AlliancesValueMultiplierThirdParty(them, out bool reject);
+
+            float ourWarsGrade      = us.GetAverageWarGrade();
+            float ourPeaceThreshold = us.PersonalityModifiers.WarGradeThresholdForPeace;
+            valueToUs *= ourPeaceThreshold / ourWarsGrade; // If we are losing in our wars, this will increase the value of their offer
+
             OfferQuality offerQuality = ProcessQuality(valueToUs, valueToThem, out _);
             PeaceAnswer response      = ProcessPeace("REJECT_OFFER_PEACE_POOROFFER"); // Default response is reject
             if (reject)
@@ -706,18 +698,6 @@ namespace Ship_Game.AI
             if (offerDiff > 0.65f) return OfferQuality.Poor;
 
             return OfferQuality.Insulting;
-        }
-
-        void AddToValue(WarState warState, float losingBadly, float losingSlightly, float winningSlightly, float dominating, 
-            ref float valueToUs, ref float valueToThem)
-        {
-            switch (warState)
-            {
-                case WarState.LosingBadly:     valueToUs   += losingBadly;       break;
-                case WarState.LosingSlightly:  valueToUs   += losingSlightly;    break;
-                case WarState.WinningSlightly: valueToThem += winningSlightly;   break;
-                case WarState.Dominating:      valueToThem += dominating;        break;
-            }
         }
 
         enum OfferQuality

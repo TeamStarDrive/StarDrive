@@ -281,28 +281,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             return GoalStep.GoToNextStep;
         }
 
-        protected void DefendSystemsInList(Array<SolarSystem> currentTargets, Array<int> priorities, float strength, int fleetCount)
-        {
-            int priority = OwnerTheater.Priority + 1;
-            //int fleetCount = Owner.Pool.InitialReadyFleets / 2;
-
-            for (int i = 0; i < currentTargets.Count; i++)
-            {
-                //if (--fleetCount < 1)
-                //    break;
-                var currentTarget = currentTargets[i];
-                int targetIndex  = currentTargets.IndexOf(currentTarget);
-                Tasks.StandardSystemDefense(currentTarget, priorities[targetIndex], strength, fleetCount, this);
-            }
-        }
-
-        protected void AttackArea(Vector2 center, float radius, float strength)
-        {
-            int priority = 0;
-            if (priority > 10) return;
-            Tasks.StandardAreaClear(center, radius, priority, strength, this);
-        }
-
         SolarSystem[] SortSystemsByWarType(Array<SolarSystem> systems)
         {
             switch (OwnerWar.WarType)
