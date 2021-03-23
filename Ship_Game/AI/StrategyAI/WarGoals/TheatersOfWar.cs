@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
@@ -176,24 +175,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             bool replaceExistingAOs = false;
             switch (OwnerWar.WarType)
             {
-                case WarType.BorderConflict:
-                    //{
-                    //    campaignTypes.AddUnique(Campaign.CampaignType.CaptureBorder);
-                    //    aos = CreateBorderAOs();
-                    //    break;
-                    //}
                 case WarType.ImperialistWar:
                 case WarType.GenocidalWar:
-                    campaignTypes.AddUnique(Campaign.CampaignType.CaptureAll);
-                    campaignTypes.AddUnique(Campaign.CampaignType.SystemDefense);
-                    aos = CreateImperialisticAO();
-                    if (!Them.isFaction)
-                        aos.AddUnique(Them.EmpireAO()); // FB: Try to attack quality planets, not sure it works
-
-                    break;
                 case WarType.DefensiveWar:
                     campaignTypes.AddUnique(Campaign.CampaignType.CaptureAll);
-                    campaignTypes.AddUnique(Campaign.CampaignType.SystemDefense);
+                    campaignTypes.AddUnique(Campaign.CampaignType.Defense);
                     aos = CreateImperialisticAO();
                     break;
                 // until defensive wars can end remarking this. 
@@ -201,10 +187,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 //    aos                = CreateBorderAOs();
                 //    campaignTypes.AddUnique(Campaign.CampaignType.CaptureAll);
                 //    break;
+                case WarType.BorderConflict:
                 case WarType.SkirmishWar:
                     campaignTypes.AddUnique(Campaign.CampaignType.CaptureBorder);
                     campaignTypes.AddUnique(Campaign.CampaignType.Defense);
-                    campaignTypes.AddUnique(Campaign.CampaignType.SystemDefense);
                     aos = CreateImperialisticAO();
                     break;
                 case WarType.EmpireDefense:

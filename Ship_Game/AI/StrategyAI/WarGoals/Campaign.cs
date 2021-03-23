@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using Ship_Game.Ships;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
