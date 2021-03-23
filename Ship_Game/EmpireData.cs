@@ -134,7 +134,6 @@ namespace Ship_Game
                         = new SerializableDictionary<WeaponTag, WeaponTagModifier>();
         [Serialize(1)] public string WarpStart { get; set; }
         [Serialize(2)] public string WarpEnd { get; set; }
-        [Serialize(3)] public Difficulty difficulty;
         [Serialize(4)] public string CurrentAutoFreighter = "";
         [Serialize(5)] public string CurrentAutoColony    = "";
         [Serialize(6)] public string CurrentAutoScout     = "";

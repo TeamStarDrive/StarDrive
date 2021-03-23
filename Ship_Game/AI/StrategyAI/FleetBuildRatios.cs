@@ -1,4 +1,5 @@
-﻿using Ship_Game.AI;
+﻿using System;
+using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 
 #pragma warning disable 649
@@ -21,21 +22,24 @@ namespace Ship_Game
         [StarData] readonly int Carriers;
         [StarData] readonly int Support;
 
-        public static int[] GetRatiosFor(Array<FleetBuildRatios> counts, BuildRatio canBuild)
+        public static int[] GetRatiosFor(Array<FleetBuildRatios> ratios, BuildRatio canBuild)
         {
-            var hullTypeCount = counts.Find(c => c.CanBuild == canBuild);
+            FleetBuildRatios matchingRatios = ratios.Find(c => c.CanBuild == canBuild);
+            if (matchingRatios == null)
+                throw new Exception($"Failed to find matching FleetBuildRatios for {canBuild}");
+
             int[] countsForWhatWeCanBuild =
             {
-                hullTypeCount.Fighters,
-                hullTypeCount.Corvettes,
-                hullTypeCount.Frigates,
-                hullTypeCount.Cruisers,
-                hullTypeCount.Battleships,
-                hullTypeCount.Capitals,
-                hullTypeCount.TroopShips,
-                hullTypeCount.Bombers,
-                hullTypeCount.Carriers,
-                hullTypeCount.Support
+                matchingRatios.Fighters,
+                matchingRatios.Corvettes,
+                matchingRatios.Frigates,
+                matchingRatios.Cruisers,
+                matchingRatios.Battleships,
+                matchingRatios.Capitals,
+                matchingRatios.TroopShips,
+                matchingRatios.Bombers,
+                matchingRatios.Carriers,
+                matchingRatios.Support
             };
 
             return countsForWhatWeCanBuild;

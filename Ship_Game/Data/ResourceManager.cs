@@ -1638,8 +1638,14 @@ namespace Ship_Game
                 PlanetTypeMap[type.Id] = type;
         }
 
+        public static PlanetCategory RandomPlanetCategoryFor(SunZone sunZone)
+        {
+            return ZoneDistribution[sunZone].RandItem();
+        }
+
         static void LoadSunZoneData()
         {
+            ZoneDistribution.Clear();
             using (var parser = new YamlParser("SunZoneData.yaml"))
             {
                 var zones = parser.DeserializeArray<SunZoneData>();
@@ -1652,35 +1658,20 @@ namespace Ship_Game
 
         public static int[] GetFleetRatios(BuildRatio canBuild)
         {
-            switch (canBuild)
-            {
-                default:
-                case BuildRatio.CanBuildFighters:    return BuildRatios[BuildRatio.CanBuildFighters];
-                case BuildRatio.CanBuildCorvettes:   return BuildRatios[BuildRatio.CanBuildCorvettes];
-                case BuildRatio.CanBuildFrigates:    return BuildRatios[BuildRatio.CanBuildFrigates];
-                case BuildRatio.CanBuildCruisers:    return BuildRatios[BuildRatio.CanBuildCruisers];
-                case BuildRatio.CanBuildBattleships: return BuildRatios[BuildRatio.CanBuildBattleships];
-                case BuildRatio.CanBuildCapitals:    return BuildRatios[BuildRatio.CanBuildCapitals];
-            }
+            return BuildRatios[canBuild];
         }
 
         static void LoadBuildRatios()
         {
+            BuildRatios.Clear();
             using (var parser = new YamlParser("FleetBuildRatios.yaml"))
             {
                 var ratios = parser.DeserializeArray<FleetBuildRatios>();
-                BuildRatios[BuildRatio.CanBuildFighters]    = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildFighters);
-                BuildRatios[BuildRatio.CanBuildCorvettes]   = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCorvettes);
-                BuildRatios[BuildRatio.CanBuildFrigates]    = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildFrigates);
-                BuildRatios[BuildRatio.CanBuildCruisers]    = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCruisers);
-                BuildRatios[BuildRatio.CanBuildBattleships] = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildBattleships);
-                BuildRatios[BuildRatio.CanBuildCapitals]    = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCapitals);
+                foreach (BuildRatio canBuild in Enum.GetValues(typeof(BuildRatio)))
+                {
+                    BuildRatios[canBuild] = FleetBuildRatios.GetRatiosFor(ratios, canBuild);
+                }
             }
-        }
-
-        public static PlanetCategory RandomPlanetCategoryFor(SunZone sunZone)
-        {
-            return ZoneDistribution[sunZone].RandItem();
         }
 
         // Added by RedFox

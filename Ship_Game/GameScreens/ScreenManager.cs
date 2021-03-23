@@ -29,7 +29,7 @@ namespace Ship_Game
         public LightingSystemManager LightSysManager;
         public LightingSystemEditor editor;
         public SceneEnvironment Environment;
-        public InputState input = new InputState();
+        public InputState input;
         public AudioHandle Music = new AudioHandle();
 
         public GraphicsDeviceManager Graphics;
@@ -63,6 +63,7 @@ namespace Ship_Game
             {
                 throw new InvalidOperationException("No graphics device service.");
             }
+            input = new InputState();
             LightSysManager = new LightingSystemManager(game.Services);
             GameSceneState = new SceneState();
             SceneInter = new SceneInterface(graphics);

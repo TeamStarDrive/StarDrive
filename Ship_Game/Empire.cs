@@ -3107,7 +3107,7 @@ namespace Ship_Game
                     foreach (Troop troop in planet.TroopsHere)
                     {
                         if (troop.Loyalty == target)
-                            troop.SetOwner(this);
+                            troop.ChangeLoyalty(this);
                     }
                 }
             }

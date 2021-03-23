@@ -1,4 +1,6 @@
-﻿namespace Ship_Game
+﻿using Ship_Game.AI.StrategyAI.WarGoals;
+
+namespace Ship_Game
 {
     public struct PersonalityModifiers
     {
@@ -12,6 +14,7 @@
         public int TurnsAbove95FederationNeeded;
         public float FederationPopRatioWar;
         public float PlanetStoleTrustMultiplier;
+        public float WarGradeThresholdForPeace; // How bad should our total wars grade be to request peace
         public readonly float FleetStrMultiplier; // Add or decrease str addition to fleets after win / lose vs. another empire.
 
         public PersonalityModifiers(PersonalityType type)
@@ -25,6 +28,7 @@
                     AllianceValueAlliedWithEnemy = 0.5f;
                     WantedAgentMissionMultiplier = 0.1f;
                     PlanetStoleTrustMultiplier   = 0.75f;
+                    WarGradeThresholdForPeace    = 0.5f * War.MaxWarGrade;
                     AddAngerAlliedWithEnemy      = 0;
                     FleetStrMultiplier    = 1;
                     FederationPopRatioWar = 1.5f;
@@ -37,6 +41,7 @@
                     TurnsAbove95FederationNeeded = 350;
                     AllianceValueAlliedWithEnemy = 0.4f;
                     WantedAgentMissionMultiplier = 0.115f;
+                    WarGradeThresholdForPeace    = 0.4f * War.MaxWarGrade;
                     PlanetStoleTrustMultiplier   = 0.5f;
                     AddAngerAlliedWithEnemy      = 50;
                     FleetStrMultiplier    = 1.4f;
@@ -50,6 +55,7 @@
                     TurnsAbove95FederationNeeded = 420;
                     AllianceValueAlliedWithEnemy = 0.5f;
                     WantedAgentMissionMultiplier = 0.115f;
+                    WarGradeThresholdForPeace    = 0.4f * War.MaxWarGrade;
                     PlanetStoleTrustMultiplier   = 0.6f;
                     AddAngerAlliedWithEnemy      = 25;
                     FleetStrMultiplier    = 1.3f;
@@ -64,6 +70,7 @@
                     AllianceValueAlliedWithEnemy = 0.5f;
                     WantedAgentMissionMultiplier = 0.13f;
                     PlanetStoleTrustMultiplier   = 0.1f;
+                    WarGradeThresholdForPeace    = 0.3f * War.MaxWarGrade;
                     AddAngerAlliedWithEnemy      = 100;
                     FleetStrMultiplier    = 1.05f;
                     FederationPopRatioWar = 1.45f;
@@ -77,6 +84,7 @@
                     AllianceValueAlliedWithEnemy = 0.6f;
                     WantedAgentMissionMultiplier = 0.13f;
                     PlanetStoleTrustMultiplier   = 0.7f;
+                    WarGradeThresholdForPeace    = 0.7f * War.MaxWarGrade;
                     AddAngerAlliedWithEnemy      = 0;
                     FleetStrMultiplier    = 0.95f;
                     FederationPopRatioWar = 1.2f;
@@ -90,6 +98,7 @@
                     AllianceValueAlliedWithEnemy = 0.5f;
                     WantedAgentMissionMultiplier = 0.1f;
                     PlanetStoleTrustMultiplier   = 0.4f;
+                    WarGradeThresholdForPeace    = 0.5f * War.MaxWarGrade;
                     AddAngerAlliedWithEnemy      = 75;
                     FleetStrMultiplier    = 1f;
                     FederationPopRatioWar = 1.25f;
@@ -102,6 +111,7 @@
                     TurnsAbove95FederationNeeded = 300;
                     AllianceValueAlliedWithEnemy = 0.8f;
                     WantedAgentMissionMultiplier = 0.1f;
+                    WarGradeThresholdForPeace    = 0.85f * War.MaxWarGrade;
                     PlanetStoleTrustMultiplier   = 0.8f;
                     AddAngerAlliedWithEnemy      = 0;
                     FleetStrMultiplier    = 0.9f;

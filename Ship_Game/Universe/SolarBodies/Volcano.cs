@@ -31,8 +31,8 @@ namespace Ship_Game.Universe.SolarBodies
         public Empire Player           => EmpireManager.Player;
         public bool Dormant            => !Active;
         float DeactivationChance       => ActivationChance * 3;
-        float ActiveEruptionChance     => ActivationChance * 15;
-        float InitActivationChance()   => RandomMath.RandomBetween(0.05f, 0.2f) * GlobalStats.VolcanicActivity;
+        float ActiveEruptionChance     => ActivationChance * 10;
+        float InitActivationChance()   => RandomMath.RandomBetween(0.05f, 0.1f) * GlobalStats.VolcanicActivity;
         string ActiveVolcanoTexPath    => "Buildings/icon_Active_Volcano_64x64";
         string DormantVolcanoTexPath   => "Buildings/icon_Dormant_Volcano_64x64";
         string EruptingVolcanoTexPath  => "Buildings/icon_Erupting_Volcano_64x64";
@@ -142,7 +142,7 @@ namespace Ship_Game.Universe.SolarBodies
                 P.MineralRichness += increaseBy;
             }
 
-            if (ShouldNotifyPlayer)
+            if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
                 Empire.Universe.NotificationManager.AddVolcanoRelated(P, message, DormantVolcanoTexPath);
         }
 
@@ -239,7 +239,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (RandomMath.RollDice(75))
             {
                 planet.MakeTileHabitable(tile);
-                if (planet.Owner == EmpireManager.Player)
+                if (planet.Owner == EmpireManager.Player && !GlobalStats.DisableVolcanoWarning)
                     Empire.Universe.NotificationManager.AddVolcanoRelated(planet, new LocalizedText(4266).Text, lavaPath);
             }
         }

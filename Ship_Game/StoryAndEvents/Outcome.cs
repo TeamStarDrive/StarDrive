@@ -33,6 +33,9 @@ namespace Ship_Game
         public float ChangeBaseMaxFertility;
         public float ChangeRichness;
 
+        // relative path to Image asset to be used while displaying the event
+        public string Image;
+
         public Artifact GetArtifact()
         {
             return GrantedArtifact;
