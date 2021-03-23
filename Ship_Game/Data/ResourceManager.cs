@@ -16,6 +16,7 @@ using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.SpriteSystem;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.AI;
+using Ship_Game.Data.Texture;
 
 namespace Ship_Game
 {
@@ -219,13 +220,16 @@ namespace Ship_Game
             LoadAsteroids();    // @todo SLOW [0.40%]
             LoadProjTexts();    // @todo SLOW [0.47%]
             LoadProjectileMeshes();
-
+            
             SunType.LoadAll();
+
+            GameLoadingScreen.SetStatus("LoadShields", "");
             ShieldManager.LoadContent(RootContent);
             Beam.BeamEffect = RootContent.Load<Effect>("Effects/BeamFX");
             BackgroundItem.QuadEffect = new BasicEffect(manager.GraphicsDevice, null) { TextureEnabled = true };
             Blank = Texture("blank");
-
+            
+            GameLoadingScreen.SetStatus("LoadFonts", "");
             Fonts.LoadContent(RootContent);
 
             // Load non-critical resources:
@@ -239,6 +243,7 @@ namespace Ship_Game
 
             //LoadNonCritical();
             BackgroundLoad = Parallel.Run(LoadNonCritical);
+            GameLoadingScreen.SetStatus("", "");
         }
 
         public static void UnloadGraphicsResources(ScreenManager manager)
@@ -294,17 +299,36 @@ namespace Ship_Game
             UnloadGraphicsResources(manager);
         }
 
-        static void ExportAllXnbTextures()
+        public static void ExportAllXnbTextures()
         {
-            string outputPath = "/Projects/BlackBox/StarDrive/ExportedTextures";
+            string outputPath = "/Projects/BlackBox/ExportedTextures";
             FileInfo[] files = Dir.GetFiles("Content/", "*.xnb", SearchOption.AllDirectories);
-            Parallel.For(files.Length, (start, end) =>
+            void ExportFiles(int start, int end)
             {
+                var exporter = new TextureExporter(RootContent);
                 for (int i = start; i < end; ++i)
                 {
-
+                    FileInfo file = files[i];
+                    string relPath = file.RelPath().Remove(0, "Content/".Length);
+                    string outFile = Path.Combine(outputPath, Path.ChangeExtension(relPath, ".png"));
+                    bool saved = false;
+                    try
+                    {
+                        GameLoadingScreen.SetStatus("Export", relPath);
+                        using (Texture2D tex = RootContent.Load<Texture2D>(relPath))
+                            saved = exporter.Save(tex, outFile, png:true);
+                    }
+                    catch // not a texture
+                    {
+                    }
+                    if (saved)
+                        Log.Info($"Saved {outFile}");
+                    else
+                        Log.Warning($"Ignored {relPath}");
                 }
-            });
+            }
+            //ExportFiles(0, files.Length);
+            Parallel.For(files.Length, ExportFiles);
         }
 
         static void TestLoad()
@@ -312,6 +336,7 @@ namespace Ship_Game
             if (!GlobalStats.TestLoad) return;
 
             Log.ShowConsoleWindow();
+            //ExportAllXnbTextures();
             //TestTechTextures();
 
             if (!Debugger.IsAttached)
@@ -439,6 +464,7 @@ namespace Ship_Game
         {
             try
             {
+                GameLoadingScreen.SetStatus(id, info.RelPath());
                 using (FileStream stream = info.OpenRead())
                     entity = (T)s.Deserialize(stream);
                 return true;
@@ -682,6 +708,7 @@ namespace Ship_Game
 
         static void LoadAtlas(string folder)
         {
+            GameLoadingScreen.SetStatus("LoadAtlas", folder);
             var atlas = RootContent.LoadTextureAtlas(folder, useCache: true);
             if (atlas == null) Log.Warning($"LoadAtlas {folder} failed");
         }
@@ -1012,6 +1039,7 @@ namespace Ship_Game
                     FileInfo info = hullFiles[i];
                     try
                     {
+                        GameLoadingScreen.SetStatus("LoadShipHull", info.RelPath());
                         string dirName     = info.Directory?.Name ?? "";
                         ShipData shipData  = ShipData.Parse(info);
                         shipData.Hull      = dirName + "/" + shipData.Hull;
@@ -1120,6 +1148,7 @@ namespace Ship_Game
 
         static void LoadStars()
         {
+            GameLoadingScreen.SetStatus("LoadStars", "");
             SmallStars  = RootContent.LoadTextureAtlas("SmallStars");
             MediumStars = RootContent.LoadTextureAtlas("MediumStars");
             LargeStars  = RootContent.LoadTextureAtlas("LargeStars");
@@ -1132,6 +1161,7 @@ namespace Ship_Game
         // Refactored by RedFox
         static void LoadNebulae()
         {
+            GameLoadingScreen.SetStatus("LoadNebulae", "");
             BigNebulae.Clear();
             MedNebulae.Clear();
             SmallNebulae.Clear();
@@ -1191,6 +1221,7 @@ namespace Ship_Game
 
         public static void LoadProjectileMeshes()
         {
+            GameLoadingScreen.SetStatus("LoadProjectileMeshes", "");
             ProjectileMeshDict.Clear();
             ProjectileModelDict.Clear();
             const string projectileDir = "Model/Projectiles/";
@@ -1313,6 +1344,7 @@ namespace Ship_Game
                         continue;
                     try
                     {
+                        GameLoadingScreen.SetStatus("LoadShipTemplate", info.RelPath());
                         ShipData shipData = ShipData.Parse(info);
                         if (shipData.Role == ShipData.RoleName.disabled)
                             continue;
@@ -1432,6 +1464,7 @@ namespace Ship_Game
 
         static void TechValidator()
         {
+            GameLoadingScreen.SetStatus("TechValidator", "");
             Array<Technology> techs = TechTree.Values.ToArrayList();
             var rootTechs = new Array<Technology>();
             foreach (Technology rootTech in techs)
@@ -1640,6 +1673,7 @@ namespace Ship_Game
 
         static void LoadPlanetTypes()
         {
+            GameLoadingScreen.SetStatus("PlanetTypes", "");
             using (var parser = new YamlParser("PlanetTypes.yaml"))
             {
                 PlanetTypes = parser.DeserializeArray<PlanetType>();
@@ -1658,6 +1692,7 @@ namespace Ship_Game
 
         static void LoadSunZoneData()
         {
+            GameLoadingScreen.SetStatus("SunZoneData", "");
             ZoneDistribution.Clear();
             using (var parser = new YamlParser("SunZoneData.yaml"))
             {
@@ -1676,6 +1711,7 @@ namespace Ship_Game
 
         static void LoadBuildRatios()
         {
+            GameLoadingScreen.SetStatus("FleetBuildRatios", "");
             BuildRatios.Clear();
             using (var parser = new YamlParser("FleetBuildRatios.yaml"))
             {
