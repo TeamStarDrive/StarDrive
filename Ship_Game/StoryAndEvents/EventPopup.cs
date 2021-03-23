@@ -9,7 +9,7 @@ namespace Ship_Game
     {
         public ExplorationEvent ExpEvent;
         private readonly Outcome Outcome;
-        private Rectangle BlackRect;
+        private Rectangle TextArea;
         private Planet Planet;
         public Map<Packagetypes, Array<DrawPackage>> DrawPackages = new Map<Packagetypes, Array<DrawPackage>>();
 
@@ -38,9 +38,8 @@ namespace Ship_Game
             MiddleText = Outcome.TitleText;
 
             base.LoadContent();
-            Rectangle fitRect = new Rectangle(TitleRect.X - 4, TitleRect.Bottom + MidContainer.Height + 10, 
-                                              TitleRect.Width, 600 - (TitleRect.Height + MidContainer.Height));
-            BlackRect = new Rectangle(fitRect.X, fitRect.Y, fitRect.Width, 450);
+            TextArea = new Rectangle(TitleRect.X - 4, TitleRect.Bottom + MidContainer.Height + 10, 
+                                     TitleRect.Width, 600 - (TitleRect.Height + MidContainer.Height));
 
             if (Planet != null)
             {
@@ -57,7 +56,7 @@ namespace Ship_Game
 
             batch.Begin();
 
-            Vector2 textPos = new Vector2(BlackRect.X + 10, BlackRect.Y + 10);
+            Vector2 textPos = new Vector2(TextArea.X + 10, TextArea.Y + 10);
             
             if (Outcome.Image.NotEmpty())
             {
@@ -66,7 +65,7 @@ namespace Ship_Game
                 textPos.Y += texture.Height + 10;
             }
 
-            string description = Fonts.Verdana10.ParseText(Outcome.DescriptionText, BlackRect.Width - 40);
+            string description = Fonts.Verdana10.ParseText(Outcome.DescriptionText, TextArea.Width - 40);
             DrawString(batch, Fonts.Verdana10, description, ref textPos, Color.White);
 
             if (Outcome.SelectRandomPlanet && Outcome.GetPlanet() != null)
@@ -84,7 +83,7 @@ namespace Ship_Game
                 batch.Draw(artTex, iconRect, Color.White);
                 textPos.Y += iconRect.Height;
                 
-                string artDescr = Fonts.Arial12.ParseText(art.Description, BlackRect.Width - 40);
+                string artDescr = Fonts.Arial12.ParseText(art.Description, TextArea.Width - 40);
                 batch.DrawString(Fonts.Arial12, artDescr, textPos, Color.White);
                 textPos.Y += Fonts.Arial12.MeasureString(artDescr).Y;
 
@@ -163,7 +162,7 @@ namespace Ship_Game
                 var moduleNamePos = new Vector2(textPos.X + 100f, textPos.Y);
                 DrawString(batch, Fonts.Arial20Bold, moduleName, ref moduleNamePos, Color.Orange);
 
-                string desc = Fonts.Arial12Bold.ParseText(Localizer.Token(unlockedMod.DescriptionIndex), BlackRect.Width - 120);
+                string desc = Fonts.Arial12Bold.ParseText(Localizer.Token(unlockedMod.DescriptionIndex), TextArea.Width - 120);
                 var moduleDescrPos = new Vector2(textPos.X + 100f, textPos.Y + 22f);
                 DrawString(batch, Fonts.Arial12Bold, desc, ref moduleDescrPos, Color.White);
             }
