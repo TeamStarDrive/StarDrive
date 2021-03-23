@@ -305,7 +305,6 @@ namespace Ship_Game.AI.Tasks
 
         public void EndTask()
         {
-            Debug_TallyFailedTasks();
             if (Owner == null)
                 return;
 
@@ -394,41 +393,6 @@ namespace Ship_Game.AI.Tasks
         {
             Fleet.Reset();
             TaskForce.Clear();
-        }
-
-        private void Debug_TallyFailedTasks()
-        {
-            DebugInfoScreen.CanceledMtasksCount++;
-            switch (type)
-            {
-                case TaskType.Exploration:
-                {
-                    DebugInfoScreen.CanceledMtask1Count++;
-                    DebugInfoScreen.CanceledMTask1Name = TaskType.Exploration.ToString();
-                    break;
-                }
-
-                case TaskType.AssaultPlanet:
-                {
-                    DebugInfoScreen.CanceledMtask2Count++;
-                    DebugInfoScreen.CanceledMTask2Name = TaskType.AssaultPlanet.ToString();
-                    break;
-                }
-
-                case TaskType.CohesiveClearAreaOfEnemies:
-                {
-                    DebugInfoScreen.CanceledMtask3Count++;
-                    DebugInfoScreen.CanceledMTask3Name = TaskType.CohesiveClearAreaOfEnemies.ToString();
-                    break;
-                }
-
-                default:
-                {
-                    DebugInfoScreen.CanceledMtask4Count++;
-                    DebugInfoScreen.CanceledMTask4Name = type.ToString();
-                    break;
-                }
-            }
         }
 
         private void ClearHoldOnGoal()

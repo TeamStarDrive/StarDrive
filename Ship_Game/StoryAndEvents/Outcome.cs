@@ -32,6 +32,9 @@ namespace Ship_Game
         public bool OnlyTriggerOnce;
         public bool AlreadyTriggered;
 
+        // relative path to Image asset to be used while displaying the event
+        public string Image;
+
         public Artifact GetArtifact()
         {
             return GrantedArtifact;
