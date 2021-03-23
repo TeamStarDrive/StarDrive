@@ -54,7 +54,7 @@ namespace Ship_Game
         }
 
 
-        static SpriteFont LoadFont(GameContentManager content, string name, int extraLineSpacing = 0)
+        public static SpriteFont LoadFont(GameContentManager content, string name, int extraLineSpacing = 0)
         {
             var font = content.Load<SpriteFont>("Fonts/" + name);
             if (extraLineSpacing != 0)
