@@ -12,7 +12,7 @@ namespace Ship_Game.AI
                 return;
 
             VerifyTroopGoals(out int troopGoals);
-            if (troopGoals > 2)
+            if (troopGoals > (OwnerEmpire.GetPlanets().Count / 10).LowerBound(2))
                 return;
 
             Troop[] troops = ResourceManager.GetTroopTemplatesFor(OwnerEmpire);

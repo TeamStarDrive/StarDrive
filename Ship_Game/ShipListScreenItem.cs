@@ -29,7 +29,6 @@ namespace Ship_Game
         readonly UITextEntry ShipNameEntry = new UITextEntry();
         readonly TexturedButton RefitButton;
         readonly TexturedButton ScrapButton;
-        TexturedButton PatrolButton; //System Defence button for ShipListScreen
         readonly TexturedButton ExploreButton; //Auto-explore button for ShipListScreen
 
         public ShipListScreen Screen;

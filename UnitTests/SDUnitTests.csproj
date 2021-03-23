@@ -178,4 +178,8 @@
     <Error Condition="!Exists('..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.targets'))" />
   </Target>
   <Import Project="..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.targets" Condition="Exists('..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.targets')" />
+  <PropertyGroup>
+    <PostBuildEvent>:: Copy from output dir to StarDrive content dir
+powershell -ExecutionPolicy Bypass -File $(ProjectDir)CopyBuildContent.ps1 $(TargetDir) $(SolutionDir)</PostBuildEvent>
+  </PropertyGroup>
 </Project>

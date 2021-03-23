@@ -247,7 +247,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public void UpdateRallyAo(Planet p)
         {
             var aoManager = Us.GetEmpireAI().OffensiveForcePoolManager;
-            var newAO     = aoManager.CreateAO(p, Us.GetProjectorRadius(p));
+            var newAO     = aoManager.CreateAO(p, Us.GetProjectorRadius(p), RallyAO);
             RallyAO       = newAO;
         }
 

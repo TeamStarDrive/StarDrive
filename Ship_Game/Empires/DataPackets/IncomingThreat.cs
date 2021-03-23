@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ship_Game.AI.Tasks;
+﻿using Ship_Game.AI.Tasks;
 using Ship_Game.Fleets;
 
 namespace Ship_Game.Empires.DataPackets
@@ -77,7 +72,8 @@ namespace Ship_Game.Empires.DataPackets
                     continue;
                 }
 
-                if (fleet.Owner.isPlayer || fleet.FleetTask?.GetTaskCategory() == MilitaryTask.TaskCategory.War)
+                MilitaryTask.TaskCategory cat = MilitaryTask.TaskCategory.FleetNeeded | MilitaryTask.TaskCategory.War;
+                if (fleet.Owner.isPlayer || fleet.FleetTask?.GetTaskCategory() == cat)
                 {
                     HighPriority = true;
                 }

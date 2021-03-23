@@ -122,7 +122,7 @@ namespace Ship_Game
             if (Empire.Universe.StarDate.GreaterOrEqual(NextLevelUpDate))
             {
                 int turnsLevelUp = TurnsLevelUp + ExtraLevelUpEffort;
-                turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier() * CurrentGame.Pace);
+                turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier() * CurrentGame.ProductionPace);
                 HibernationTurns = 0;
                 NextLevelUpDate += turnsLevelUp / 10f;
 
@@ -274,17 +274,9 @@ namespace Ship_Game
 
             switch (Story)
             {
-                case RemnantStory.AncientBalancers:
-                    target = FindStrongestByAveragePop(empiresList);
-                    break;
-                case RemnantStory.AncientExterminators: 
-                    target = empiresList.FindMin(e => e.CurrentMilitaryStrength);
-                    break;
-                case RemnantStory.AncientRaidersRandom:
-                    target = empiresList.RandItem();
-                    break;
-                default: 
-                    return false;
+                case RemnantStory.AncientBalancers:     target = FindStrongestByAveragePop(empiresList); break;
+                case RemnantStory.AncientExterminators: target = FindWeakestEmpire(empiresList);         break;
+                case RemnantStory.AncientRaidersRandom: target = empiresList.RandItem();                 break;
             }
 
             return target != null;
@@ -311,6 +303,20 @@ namespace Ship_Game
             Empire bestEmpire = empiresList.FindMax(e => e.TotalPopBillion);
 
             return bestEmpire.TotalPopBillion > averagePop * 1.25f ? bestEmpire : null;
+        }
+
+        Empire FindWeakestEmpire(Empire[] empiresList)
+        {
+            if (empiresList.Length == 1)
+                return empiresList.First();
+
+            var potentialTargets = empiresList.Filter(e =>
+            {
+                var planets = e.GetPlanets();
+                return planets.Count > 1 || planets.Count == 1 && Level > planets[0].Level + 1;
+            });
+
+            return potentialTargets.Length == 0 ? null : potentialTargets.FindMin(e => e.CurrentMilitaryStrength);
         }
 
         public bool AssignShipInPortalSystem(Ship portal, int bombersNeeded, float neededStr, out Array<Ship> ships)

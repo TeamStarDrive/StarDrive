@@ -82,7 +82,8 @@ namespace Ship_Game.AI
             systems = new HashSet<SolarSystem>();
             int planetCount = 0;
             foreach (AO ao in AreasOfOperations)
-                planetCount += ao.GetOurPlanets().Length;            
+                planetCount += ao.GetOurPlanets().Length;
+
             Planet[] allPlanets = new Planet[planetCount];
             int x = 0;
             foreach (AO ao in AreasOfOperations)
@@ -115,6 +116,13 @@ namespace Ship_Game.AI
         public AO CreateAO(Planet coreWorld, float radius)
         {
             var newAO = new AO(coreWorld, radius);
+            AreasOfOperations.Add(newAO);
+            return newAO;
+        }
+
+        public AO CreateAO(Planet coreWorld, float radius, AO fromAO)
+        {
+            var newAO = new AO(coreWorld, radius, fromAO.WhichFleet, fromAO.CoreFleet);
             AreasOfOperations.Add(newAO);
             return newAO;
         }
