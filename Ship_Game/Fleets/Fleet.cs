@@ -1298,42 +1298,6 @@ namespace Ship_Game.Fleets
             }
         }
 
-        void DoReclaimPlanet(MilitaryTask task)
-        {
-            if (EndInvalidTask(task.TargetPlanet.Owner == Owner
-                || task.TargetPlanet.ParentSystem.GetActualStrengthPresent(Owner) < 1 
-                    && task.TargetPlanet.ParentSystem.DangerousForcesPresent(Owner)))
-            {
-                return;
-            }
-
-            switch (TaskStep)
-            {
-                case 0:
-                    if (!task.TargetPlanet.ParentSystem.IsExclusivelyOwnedBy(Owner))
-                        AddFleetProjectorGoal();
-
-                    GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius());
-                    TaskStep = 1;
-                    break;
-                case 1:
-                    if (FleetProjectorGoalInProgress(task.TargetPlanet.ParentSystem))
-                        break;
-
-                    TaskStep = 2;
-                    break;
-                case 2:
-                    if (!ArrivedAtCombatRally(FinalPosition))
-                        break;
-
-                    foreach (Ship ship in Ships)
-                        ship.AI.OrderLandAllTroops(task.TargetPlanet);
-
-                    TaskStep = 3;
-                    break;
-            }
-        }
-
         void DoClearAreaOfEnemies(MilitaryTask task)
         {
             if (task.TargetEmpire == null && FleetTask.TargetSystem != null)
