@@ -31,7 +31,7 @@ namespace Ship_Game.Universe.SolarBodies
         public Empire Player           => EmpireManager.Player;
         public bool Dormant            => !Active;
         float DeactivationChance       => ActivationChance * 3;
-        float ActiveEruptionChance     => ActivationChance * 15;
+        float ActiveEruptionChance     => ActivationChance * 10;
         float InitActivationChance()   => RandomMath.RandomBetween(0.05f, 0.1f) * GlobalStats.VolcanicActivity;
         string ActiveVolcanoTexPath    => "Buildings/icon_Active_Volcano_64x64";
         string DormantVolcanoTexPath   => "Buildings/icon_Dormant_Volcano_64x64";

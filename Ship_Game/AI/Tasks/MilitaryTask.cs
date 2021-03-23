@@ -144,6 +144,23 @@ namespace Ship_Game.AI.Tasks
             return militaryTask;
         }
 
+        public static MilitaryTask CreateReclaimTask(Empire owner, Planet targetPlanet, int fleetId)
+        {
+            var militaryTask = new MilitaryTask
+            {
+                TargetPlanet = targetPlanet,
+                AO           = targetPlanet.Center,
+                type         = TaskType.AssaultPlanet,
+                AORadius     = targetPlanet.ParentSystem.Radius,
+                Owner        = owner,
+                WhichFleet   = fleetId,
+                Priority     = 0,
+                Step         = 1 // We have ships
+            };
+
+            return militaryTask;
+        }
+
         public static MilitaryTask CreateAssaultPirateBaseTask(Ship targetShip, Empire empire)
         {
             var threatMatrix = empire.GetEmpireAI().ThreatMatrix;
