@@ -67,7 +67,7 @@ namespace Ship_Game
 
         void TryCreateVolcano(int hardDamage)
         {
-            if (RandomMath.RollDice((hardDamage / 12f).UpperBound(0.25f)))
+            if (RandomMath.RollDice((hardDamage / 15f).UpperBound(0.25f)))
                 TargetTile.CreateVolcano(Surface);
         }
 
