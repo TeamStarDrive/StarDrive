@@ -30,14 +30,16 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             int normal           = basePriority;
             int casual           = basePriority + 1;
             int unImportant      = basePriority + 2;
-            var systems = new Array<IncomingThreat>();
-            var ownedSystems = Owner.GetOwnedSystems();
+            var systems          = new Array<IncomingThreat>();
+            var ownedSystems     = Owner.GetOwnedSystems();
+
             if (OwnerWar.WarType == WarType.EmpireDefense)
             {
                 foreach (IncomingThreat threatenedSystem in Owner.SystemWithThreat)
                 {
-                    if (threatenedSystem.ThreatTimedOut) continue;
-                    if (!threatenedSystem.HighPriority) continue;
+                    if (threatenedSystem.ThreatTimedOut || !threatenedSystem.HighPriority)
+                        continue;
+
                     systems.Add(threatenedSystem);
                 }
 
