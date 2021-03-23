@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Ship_Game.AI.StrategyAI.WarGoals
+﻿namespace Ship_Game.AI.StrategyAI.WarGoals
 {
     public sealed class Defense : AttackSystems
     {
