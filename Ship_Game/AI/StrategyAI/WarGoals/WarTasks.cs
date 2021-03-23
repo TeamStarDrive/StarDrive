@@ -161,7 +161,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             {
                 Priority      = priority,
                 FleetCount    = fleetCount,
-                WarCampaign   = campaign
+                WarCampaign   = campaign,
+                MinimumTaskForceStrength = strengthWanted
             });
         }
 

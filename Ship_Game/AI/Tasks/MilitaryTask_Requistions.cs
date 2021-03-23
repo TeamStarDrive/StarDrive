@@ -224,7 +224,7 @@ namespace Ship_Game.AI.Tasks
 
             AO = TargetPlanet?.Center ?? AO;
 
-            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 0, minBombMinutes: 0);
+            InitFleetRequirements(minFleetStrength: MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: 0);
 
             if (CreateTaskFleet("Defensive Fleet", Completeness) == RequisitionStatus.Complete)
             {
