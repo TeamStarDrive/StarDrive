@@ -191,6 +191,19 @@ namespace Ship_Game.AI
                 (task.type == MilitaryTask.TaskType.DefendClaim || task.type == MilitaryTask.TaskType.Exploration));
         }
 
+        public MilitaryTask[] GetPotentialTasksToCompare() 
+        {
+            var expansionTasks        = GetExpansionTasks();
+            var warTasks              = GetWarTasks();
+            var defenseTasks          = TaskList.Filter(task => task.type == MilitaryTask.TaskType.ClearAreaOfEnemies);
+            Array<MilitaryTask> tasks = new Array<MilitaryTask>();
+
+            tasks.AddRange(expansionTasks);
+            tasks.AddRange(warTasks);
+            tasks.AddRange(defenseTasks);
+            return tasks.ToArray();
+        }
+
         public int GetNumClaimTasks()
         {
             return TaskList.Filter(t => t.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.Expansion)).Length;
