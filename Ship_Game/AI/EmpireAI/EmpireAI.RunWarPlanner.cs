@@ -1,13 +1,7 @@
-using Microsoft.Xna.Framework;
-using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
-using Ship_Game.Ships;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.GameScreens.DiplomacyScreen;
-using Ship_Game.Fleets;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
