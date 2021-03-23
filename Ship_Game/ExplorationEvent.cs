@@ -47,18 +47,18 @@ namespace Ship_Game
                 }
             }
 
-            if (triggeredOutcome == null) 
-                return;
-
-            EventPopup popup = null;
-            if (triggeredBy == EmpireManager.Player)
-                popup = new EventPopup(screen, triggeredBy, this, triggeredOutcome,false, p);
-
-            triggeredOutcome.CheckOutComes(p, eventLocation, triggeredBy,popup);
-            if (popup != null)
+            if (triggeredOutcome != null)
             {
-                screen.ScreenManager.AddScreenDeferred(popup);
-                GameAudio.PlaySfxAsync("sd_notify_alert");
+                EventPopup popup = null;
+                if (triggeredBy == EmpireManager.Player)
+                    popup = new EventPopup(screen, triggeredBy, this, triggeredOutcome, false, p);
+
+                triggeredOutcome.CheckOutComes(p, eventLocation, triggeredBy, popup);
+                if (popup != null)
+                {
+                    screen.ScreenManager.AddScreenDeferred(popup);
+                    GameAudio.PlaySfxAsync("sd_notify_alert");
+                }
             }
         }
 
@@ -80,6 +80,15 @@ namespace Ship_Game
             return p.ParentSystem.IsStartingSystem || p.ParentSystem.PlanetList.Any(planet => planet.Habitable && planet.HasCapital)
                      ? PotentialOutcomes.Filter(o => o.PirateShipsToSpawn.Count == 0 && o.RemnantShipsToSpawn.Count == 0)
                      : PotentialOutcomes.ToArray();
+        }
+
+        public void DebugTriggerOutcome(Planet p, Empire triggeredBy, Outcome outcome,
+                                        PlanetGridSquare eventLocation)
+        {
+            var popup = new EventPopup(Empire.Universe, triggeredBy, this, outcome, false);
+            outcome.CheckOutComes(p, eventLocation, triggeredBy, popup);
+            Empire.Universe.ScreenManager.AddScreenDeferred(popup);
+            GameAudio.PlaySfxAsync("sd_notify_alert");
         }
 
         private Outcome GetRandomOutcome()
