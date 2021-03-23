@@ -1,0 +1,82 @@
+﻿<ExplorationEvent>
+  <Name>Discover Crashed Ship</Name>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>30</Chance>
+      <TitleText>A sad wreck</TitleText>
+      <DescriptionText>Your forces examine the wreckage of what is clearly a very, very ancient shipwreck. Time and nature have taken their toll on the wreckage. Even so, there are some curiosities among the wreckage that will have some value on the open market.</DescriptionText>
+      <MoneyGranted>150</MoneyGranted>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/CrashedShip.png</Image>
+    </Outcome>
+    <Outcome>
+      <Chance>10</Chance>
+      <TitleText>Awesome find</TitleText>
+      <DescriptionText>Here you have made a truly awesome discovery - what appeared from orbit to be a shipwreck was in fact not a wreck at all but a completely intact cruiser! What's more, it appears to be spaceworthy and your forces are taking it into orbit now.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/CrashedShip.png</Image>
+      <FriendlyShipsToSpawn>
+        <string>Ancient Torpedo Cruiser</string>
+      </FriendlyShipsToSpawn>
+    </Outcome>
+    <Outcome>
+      <Chance>30</Chance>
+      <TitleText>Excellent find</TitleText>
+      <DescriptionText>Here you have made an excellent discovery - what appeared from orbit to be a shipwreck was in fact not a wreck at all but a completely intact alien light frigate! What's more, it appears to be spaceworthy and your forces are taking it into orbit now.</DescriptionText>
+      <Image>Encounters/CrashedShip.png</Image>
+      <FriendlyShipsToSpawn>
+        <string>Heavy Drone</string>
+      </FriendlyShipsToSpawn>
+      <RemoveTrigger>true</RemoveTrigger>
+    </Outcome>
+    <Outcome>
+      <Chance>10</Chance>
+      <TitleText>Mysteries</TitleText>
+      <DescriptionText>As your forces approach the downed vessel, they note that it is in surprisingly excellent shape. They are able to breach the hull through an airlock and they begin to explore the ship. They report finding an extremely odd piece of equipment in what they assume to be the engineering room. They take the equipment and leave. However, their presence has not gone unnoticed! Indigenous carnivores are attacking!</DescriptionText>
+      <UnlockTech>Ancient Shield Technology</UnlockTech>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/CrashedShip.png</Image>
+      <TroopsToSpawn>
+        <string>Antlion</string>
+        <string>Antlion</string>
+        <string>Antlion</string>
+        <string>Antlion</string>
+        <string>Antlion</string>
+      </TroopsToSpawn>
+    </Outcome>
+    <Outcome>
+      <Chance>10</Chance>
+      <TitleText>Mysteries</TitleText>
+      <DescriptionText>As your forces approach the downed vessel, they note that it is in surprisingly excellent shape. A weapon module extends out of the wreckage and they are able to detach it for further examination. They find nothing of interest in the rest of the ship. However, their presence has not gone unnoticed! Indigenous carnivores are attacking!</DescriptionText>
+      <UnlockTech>Ancient Repulsor</UnlockTech>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/CrashedShip.png</Image>
+      <TroopsToSpawn>
+        <string>Antlion</string>
+        <string>Antlion</string>
+        <string>Antlion</string>
+        <string>Antlion</string>
+        <string>Antlion</string>
+      </TroopsToSpawn>
+    </Outcome>
+    <Outcome>
+      <Chance>10</Chance>
+      <TitleText>Mysteries</TitleText>
+      <DescriptionText>As your forces approach the downed vessel, they note that it is in surprisingly excellent shape. They are able to breach the hull through an airlock and they begin to explore the ship. They report finding an extremely odd piece of equipment in what appears to be a weapons station. They take the equipment and leave. However, their presence has not gone unnoticed! Indigenous carnivores are attacking!</DescriptionText>
+      <UnlockTech>Ancient Ion Technology</UnlockTech>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/CrashedShip.png</Image>
+      <TroopsToSpawn>
+        <string>Antlion</string>
+        <string>Antlion</string>
+        <string>Antlion</string>
+        <string>Antlion</string>
+        <string>Antlion</string>
+      </TroopsToSpawn>
+    </Outcome>
+    
+  </PotentialOutcomes>
+  
+  
+  
+</ExplorationEvent>

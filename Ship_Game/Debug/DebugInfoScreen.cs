@@ -37,6 +37,7 @@ namespace Ship_Game.Debug
         Agents,
         Relationship,
         FleetMulti,
+        StoryAndEvents,
         Last // dummy value
     }
 
@@ -46,21 +47,14 @@ namespace Ship_Game.Debug
         public bool IsOpen = true;
         readonly UniverseScreen Screen;
         Rectangle Win = new Rectangle(30, 100, 1200, 700);
+
+        // TODO: Use these stats in some DebugPage
         public static int ShipsDied;
         public static int ProjDied;
         public static int ProjCreated;
         public static int ModulesCreated;
         public static int ModulesDied;
-        public static string CanceledMTaskName;
-        public static int CanceledMtasksCount;
-        public static string CanceledMTask1Name;
-        public static string CanceledMTask2Name;
-        public static string CanceledMTask3Name;
-        public static string CanceledMTask4Name;
-        public static int CanceledMtask1Count;
-        public static int CanceledMtask2Count;
-        public static int CanceledMtask3Count;
-        public static int CanceledMtask4Count;
+
         int ShipsNotInForcePool;
         int ShipsInDefForcePool;
         int ShipsInAoPool;
@@ -169,12 +163,14 @@ namespace Ship_Game.Debug
             {
                 switch (Mode)
                 {
-                    case DebugModes.PathFinder: Page   = Add(new PathFinderDebug(Screen,  this)); break;
-                    case DebugModes.Trade:   Page      = Add(new TradeDebug(Screen, this)); break;
-                    case DebugModes.Planets: Page      = Add(new PlanetDebug(Screen,this)); break;
-                    case DebugModes.Solar:   Page      = Add(new SolarDebug(Screen, this)); break;
-                    case DebugModes.RelationsWar: Page = Add(new DebugWar(Screen, this)); break;
-                    case DebugModes.AO: Page           = Add(new DebugAO(Screen, this)); break;
+                    case DebugModes.PathFinder: Page = Add(new PathFinderDebug(Screen, this)); break;
+                    case DebugModes.Trade:      Page = Add(new TradeDebug(Screen, this)); break;
+                    case DebugModes.Planets:    Page = Add(new PlanetDebug(Screen,this)); break;
+                    case DebugModes.Solar:      Page = Add(new SolarDebug(Screen, this)); break;
+                    case DebugModes.RelationsWar:   Page = Add(new DebugWar(Screen, this)); break;
+                    case DebugModes.AO:             Page = Add(new DebugAO(Screen, this)); break;
+                    case DebugModes.SpatialManager: Page = Add(new SpatialDebug(Screen, this)); break;
+                    case DebugModes.StoryAndEvents: Page = Add(new StoryAndEventsDebug(Screen, this)); break;
                 }
             }
 
@@ -215,22 +211,10 @@ namespace Ship_Game.Debug
                 SetTextCursor(50f, 50f, Color.Red);
 
                 DrawString(Color.Yellow, Mode.ToString());
-                //DrawString("Ships Died:   " + ShipsDied);
-                //DrawString("Proj Died:    " + ProjDied);
-                //DrawString("Proj Created: " + ProjCreated);
-                //DrawString("Mods Created: " + ModulesCreated);
-                //DrawString("Mods Died:    " + ModulesDied);
 
                 TextCursor.Y -= (float)(Fonts.Arial20Bold.LineSpacing + 2) * 4;
                 TextCursor.X += Fonts.Arial20Bold.TextWidth("XXXXXXXXXXXXXXXXXXXX");
-                //DrawString("LastMTaskCanceled: " + CanceledMTaskName);
 
-                //DrawString(CanceledMTask1Name + ": " + CanceledMtask1Count);
-                //DrawString(CanceledMTask2Name + ": " + CanceledMtask2Count);
-                //DrawString(CanceledMTask3Name + ": " + CanceledMtask3Count);
-                //DrawString(CanceledMTask4Name + ": " + CanceledMtask4Count);
-
-                //DrawString($"Ships not in Any Pool: {ShipsNotInForcePool} In Defenspool: {ShipsInDefForcePool} InAoPools: {ShipsInAoPool} ");
                 DrawDebugPrimitives(elapsed.RealTime.Seconds);
                 TextFont = Fonts.Arial12Bold;
                 switch (Mode)
@@ -1074,16 +1058,6 @@ namespace Ship_Game.Debug
                         increaser + pin.Ship.Radius, 3, e.EmpireColor);
                 }
             }
-        }
-
-        void SpatialManagement()
-        {
-            SetTextCursor(50f, 150f, Color.White);
-            SpatialManager manager = UniverseScreen.Spatial;
-            DrawString($"Spatial.Type: {manager.Name}");
-            DrawString($"Spatial.Collisions: {manager.Collisions}");
-            DrawString($"Spatial.ActiveObjects: {manager.Count}");
-            manager.DebugVisualize(Screen);
         }
 
         void InputDebug()
