@@ -314,6 +314,7 @@ namespace Ship_Game
                 step.Advance();
                 if (e.isFaction)
                     continue;
+
                 SolarSystem sys;
                 SolarSystemData systemData = ResourceManager.LoadSolarSystemData(e.data.Traits.HomeSystemName);
                 if (systemData == null)
@@ -321,9 +322,16 @@ namespace Ship_Game
                     sys = new SolarSystem();
                     sys.GenerateStartingSystem(e.data.Traits.HomeSystemName, 1f, e);
                 }
-                else sys = SolarSystem.GenerateSystemFromData(systemData, e);
+                else
+                {
+                    sys = SolarSystem.GenerateSystemFromData(systemData, e);
+                }
 
-                sys.IsStartingSystem = true;
+                if (e.GetOwnedSystems().Count == 0)
+                {
+                    Log.Error($"Failed to create starting system for {e}");
+                }
+
                 Data.SolarSystemsList.Add(sys);
             }
         }
