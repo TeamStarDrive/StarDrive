@@ -13,46 +13,58 @@ namespace Ship_Game.Debug.Page
     {
         ExplorationEvent[] DebugExpEvents;
 
-        class ExpEventItem : ScrollListItem<ExpEventItem>
+        class EvtItem : ScrollListItem<EvtItem>
         {
-            readonly UILabel Story;
-            readonly UILabel Outcome;
-            public ExpEventItem(ExplorationEvent e, Outcome o)
+            readonly UILabel First;
+            readonly UILabel Second;
+            public EvtItem(ExplorationEvent e, Outcome o)
             {
-                Story = new UILabel($"Story: {e.Story} Event: {e.Name}");
+                First = new UILabel($"Story: {e.Story} Event: {e.Name}");
                 int idx = e.PotentialOutcomes.IndexOf(o);
-                Outcome = new UILabel($"Outcome: #{idx} {o.TitleText}");
+                Second = new UILabel($"Outcome: #{idx} {o.TitleText}");
+            }
+            public EvtItem(Encounter e)
+            {
+                First = new UILabel($"Faction: {e.Faction} Encounter: {e.Name}");
+                Second = new UILabel(e.DescriptionText);
             }
             public override void PerformLayout()
             {
-                Story.Pos = Pos;
-                Outcome.Pos = new Vector2(Pos.X, Pos.Y + 16f);
+                First.Pos = Pos;
+                Second.Pos = new Vector2(Pos.X, Pos.Y + 16f);
                 RequiresLayout = false;
             }
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
-                Story.Draw(batch, elapsed);
-                Outcome.Draw(batch, elapsed);
+                First.Draw(batch, elapsed);
+                Second.Draw(batch, elapsed);
             }
         }
+
+        Submenu Menu;
+        ScrollList2<EvtItem> ExplorationEvents;
+        ScrollList2<EvtItem> EncounterDialogs;
 
         public StoryAndEventsDebug(UniverseScreen screen, DebugInfoScreen parent)
             : base(parent, DebugModes.StoryAndEvents)
         {
             DebugExpEvents = ResourceManager.EventsDict.Values.ToArray();
 
-            Label(new Vector2(50, 150), "Click to trigger Exploration Events:");
+            Menu = Add(new Submenu(50, 200, 400, 800));
+            Menu.AddTab("ExpEvts");
+            Menu.AddTab("Encounters");
+            Menu.OnTabChange = OnTabChanged;
 
-            var eventsList = Add(new ScrollList2<ExpEventItem>(new Rectangle(50, 210, 400, 800)));
-            eventsList.EnableItemEvents = true;
-            eventsList.EnableItemHighlight = true;
+            ExplorationEvents = Menu.Add(new ScrollList2<EvtItem>(new Submenu(Menu.Rect)));
+            ExplorationEvents.EnableItemEvents = true;
+            ExplorationEvents.EnableItemHighlight = true;
 
             foreach (ExplorationEvent evt in DebugExpEvents)
             {
                 for (int i = 0; i < evt.PotentialOutcomes.Count; ++i)
                 {
                     Outcome outcome = evt.PotentialOutcomes[i];
-                    var item = eventsList.AddItem(new ExpEventItem(evt, outcome));
+                    var item = ExplorationEvents.AddItem(new EvtItem(evt, outcome));
                     item.OnClick = () =>
                     {
                         Planet homeworld = screen.player.GetPlanets()[0];
@@ -61,6 +73,31 @@ namespace Ship_Game.Debug.Page
                     };
                 }
             }
+
+            EncounterDialogs = Menu.Add(new ScrollList2<EvtItem>(new Submenu(Menu.Rect)));
+            EncounterDialogs.EnableItemEvents = true;
+            EncounterDialogs.EnableItemHighlight = true;
+
+            foreach (Encounter e in ResourceManager.Encounters)
+            {
+                foreach (Message m in e.MessageList)
+                {
+                    Empire faction = EmpireManager.GetEmpireByName(e.Faction) ?? EmpireManager.Corsairs;
+                    var item = EncounterDialogs.AddItem(new EvtItem(e));
+                    item.OnClick = () =>
+                    {
+                        EncounterPopup.Show(screen, screen.player, faction, e);
+                    };
+                }
+            }
+
+            Menu.SelectedIndex = 0;
+        }
+
+        private void OnTabChanged(int tab)
+        {
+            ExplorationEvents.Visible = tab == 0;
+            EncounterDialogs.Visible = tab == 1;
         }
     }
 }
