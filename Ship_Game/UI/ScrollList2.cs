@@ -100,15 +100,17 @@ namespace Ship_Game
             return r;
         }
 
+        // WARNING: ScrollList2 will take ownership of `background`
         public ScrollList2(UIElementV2 background, ListStyle style = ListStyle.Default)
             : this(background, 40, style)
         {
         }
         
+        // WARNING: ScrollList2 will take ownership of `background`
         public ScrollList2(UIElementV2 background, int entryHeight, ListStyle style = ListStyle.Default)
             : this(GetOurRectFromBackground(background), entryHeight, style)
         {
-            Background = background;
+            TakeOwnershipOfBackground(background);
         }
 
         public ScrollList2(float x, float y, float w, float h, int entryHeight, ListStyle style = ListStyle.Default)
