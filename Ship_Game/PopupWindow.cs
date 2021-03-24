@@ -26,8 +26,8 @@ namespace Ship_Game
         public Rectangle TitleRight;
         public Rectangle EmpireFlagRect;
         public Rectangle MidContainer;
-        private Rectangle MidSepTop;
-        private Rectangle MidSepBot;
+        protected Rectangle MidSepTop;
+        protected Rectangle MidSepBot;
         public string TitleText;
         public string MiddleText;
 
@@ -70,16 +70,12 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture("Popup/popup_filler_lower"), BottomFill, Color.White);
             batch.Draw(ResourceManager.Texture("Popup/popup_filler_lower"), BottomBigFill, Color.White);
 
-            if (MiddleText != null)
-            {
+            if (MidContainer.Height != 0)
                 batch.Draw(ResourceManager.Texture("Popup/popup_filler_lower"), MidContainer, Color.White);
+            if (MidSepTop.Height != 0)
                 batch.Draw(ResourceManager.Texture("Popup/popup_separator"), MidSepTop, Color.White);
+            if (MidSepBot.Height != 0)
                 batch.Draw(ResourceManager.Texture("Popup/popup_separator"), MidSepBot, Color.White);
-            }
-            else
-            {
-                batch.Draw(ResourceManager.Texture("Popup/popup_separator"), MidSepTop, Color.White);
-            }
 
             batch.Draw(ResourceManager.Texture("Popup/popup_filler_title"), TitleRect, Color.White);
             batch.Draw(ResourceManager.Texture("Popup/popup_filler_title"), TitleLeft, Color.White);
@@ -128,7 +124,6 @@ namespace Ship_Game
             BRc        = new Rectangle(BR.X, Rect.Bottom - 30, 28, 30);
             BottomFill = new Rectangle(BL.Right, BL.Y, Rect.Width - BL.Width - BR.Width, BL.Height - 12);
 
-
             EmpireFlagRect = new Rectangle(TitleRight.X-75, TitleRight.Y-22, 45, 45);
 
             Close = CloseButton(Rect.Right - 44, Rect.Y + 19);
@@ -143,7 +138,6 @@ namespace Ship_Game
             {
                 MidContainer = new Rectangle(TitleLeft.X, TitleRect.Bottom, TitleRect.Width + TitleLeft.Width + TitleRight.Width, 88);
                 MiddleText = Fonts.Arial12Bold.ParseText(MiddleText, MidContainer.Width - 50);
-
                 var textSize = Fonts.Arial12Bold.MeasureString(MiddleText);
                 var pos = new Vector2(MidContainer.CenterX() - textSize.X / 2f, 
                                       MidContainer.CenterY() - textSize.Y / 2f);
@@ -154,8 +148,8 @@ namespace Ship_Game
                 MidContainer = new Rectangle(TitleLeft.X, TitleRect.Bottom, TitleRect.Width + TitleLeft.Width + TitleRight.Width, 0);
             }
 
-            MidSepTop    = new Rectangle(MidContainer.X, MidContainer.Y, MidContainer.Width, 2);
-            MidSepBot    = new Rectangle(MidContainer.X, MidContainer.Bottom - 2, MidContainer.Width, 2);
+            MidSepTop = new Rectangle(MidContainer.X, MidContainer.Y, MidContainer.Width, 2);
+            MidSepBot = new Rectangle(MidContainer.X, MidContainer.Bottom - 2, MidContainer.Width, 2);
             BottomBigFill = new Rectangle(MidContainer.X, MidContainer.Bottom, MidContainer.Width, BottomFill.Y - MidContainer.Bottom);
 
             BodyTextStart = new Vector2(BottomBigFill.Left +12, BottomBigFill.Top + 12);

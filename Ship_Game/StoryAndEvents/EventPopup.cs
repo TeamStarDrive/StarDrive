@@ -11,10 +11,12 @@ namespace Ship_Game
         private readonly Outcome Outcome;
         private Rectangle TextArea;
         private Planet Planet;
+        SubTexture Image;
+        Rectangle ImageRect;
         public Map<Packagetypes, Array<DrawPackage>> DrawPackages = new Map<Packagetypes, Array<DrawPackage>>();
 
         public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, 
-            Outcome outcome, bool triggerNow, Planet p = null) : base(s, 800, 720)
+            Outcome outcome, bool triggerNow, Planet p = null) : base(s, 600, 720)
         {
             if (triggerNow)
                 e.TriggerOutcome(playerEmpire, outcome);
@@ -45,9 +47,21 @@ namespace Ship_Game
 
             if (Planet != null)
             {
-                string message = $"Event unfolded on {Planet.Name}\n{ExpEvent.Name}";
-                Empire.Universe.NotificationManager.AddAnomalyInvestigated(Planet, message);
+                Empire.Universe.NotificationManager.AddAnomalyInvestigated(Planet, TitleText);
             }
+
+            string image = Outcome.Image.NotEmpty() ? Outcome.Image : "Encounters/CrashedShip.png";
+            Image = TransientContent.LoadSubTexture("Textures/" + image);
+            ImageRect = new RectF(MidContainer.X, MidContainer.Bottom + 2,
+                                  MidContainer.Width, MidContainer.Width/Image.AspectRatio);
+            MidSepBot = new Rectangle(MidContainer.X, ImageRect.Bottom, MidContainer.Width, 2);
+
+            Button(ButtonStyle.DanButton, new Vector2(Right-200, Bottom - 50), "Beam them up, Scotty!", OnDismissClicked);
+        }
+
+        void OnDismissClicked(UIButton btn)
+        {
+            ExitScreen();
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -58,14 +72,9 @@ namespace Ship_Game
 
             batch.Begin();
 
-            Vector2 textPos = new Vector2(TextArea.X + 10, TextArea.Y + 10);
+            batch.Draw(Image, ImageRect, Color.White);
             
-            if (Outcome.Image.NotEmpty())
-            {
-                SubTexture texture = TransientContent.LoadSubTexture("Textures/" + Outcome.Image);
-                batch.Draw(texture, new Vector2(CenterX - texture.CenterX, textPos.Y), Color.White);
-                textPos.Y += texture.Height + 10;
-            }
+            Vector2 textPos = new Vector2(TextArea.X + 10, ImageRect.Bottom + 10);
 
             string description = Fonts.Verdana10.ParseText(Outcome.DescriptionText, TextArea.Width - 40);
             DrawString(batch, Fonts.Verdana10, description, ref textPos, Color.White);
