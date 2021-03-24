@@ -1,0 +1,20 @@
+﻿<ExplorationEvent>
+  <Name>Discover Ancient Mine</Name>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <TitleText>It's infested!</TitleText>
+      <DescriptionText>As your troops approach the mine entrance, they see clearly that this machinery, while ancient, is still in excellent shape. Unfortunately, a nest of Antlions has made its home here and your troops find themselves surrounded by foes very suddenly.</DescriptionText>
+      <ConfirmText>Kill them before they lay eggs!</ConfirmText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ReplaceWith>Nano Mine</ReplaceWith>
+      <TroopsToSpawn>
+        <string>Antlion</string>
+        <string>Antlion</string>
+        <string>Antlion</string>
+      </TroopsToSpawn>
+    </Outcome>
+    
+  </PotentialOutcomes>
+  
+</ExplorationEvent>

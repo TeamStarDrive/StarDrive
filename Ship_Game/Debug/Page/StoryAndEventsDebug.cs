@@ -1,9 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,22 +8,19 @@ namespace Ship_Game.Debug.Page
 {
     class StoryAndEventsDebug : DebugPage
     {
-        ExplorationEvent[] DebugExpEvents;
-
         class EvtItem : ScrollListItem<EvtItem>
         {
             readonly UILabel First;
             readonly UILabel Second;
             public EvtItem(ExplorationEvent e, Outcome o)
             {
-                First = new UILabel($"Story: {e.Story} Event: {e.Name}");
-                int idx = e.PotentialOutcomes.IndexOf(o);
-                Second = new UILabel($"Outcome: #{idx} {o.TitleText}");
+                First = new UILabel($"{e.Story} - {e.Name}");
+                Second = new UILabel($"Outcome-{e.PotentialOutcomes.IndexOf(o)} {o.TitleText}");
             }
             public EvtItem(Encounter e)
             {
-                First = new UILabel($"Faction: {e.Faction} Encounter: {e.Name}");
-                Second = new UILabel(e.DescriptionText);
+                First = new UILabel($"{e.Faction} - {e.Name}");
+                Second = new UILabel(e.DescriptionText.Substring(0, 20));
             }
             public override void PerformLayout()
             {
@@ -42,13 +36,13 @@ namespace Ship_Game.Debug.Page
         }
 
         Submenu Menu;
-        ScrollList2<EvtItem> ExplorationEvents;
-        ScrollList2<EvtItem> EncounterDialogs;
+        readonly ScrollList2<EvtItem> ExplorationEvents;
+        readonly ScrollList2<EvtItem> EncounterDialogs;
 
         public StoryAndEventsDebug(UniverseScreen screen, DebugInfoScreen parent)
             : base(parent, DebugModes.StoryAndEvents)
         {
-            DebugExpEvents = ResourceManager.EventsDict.Values.ToArray();
+            ExplorationEvent[] events = ResourceManager.EventsDict.Values.ToArray();
 
             Menu = Add(new Submenu(50, 200, 400, 800));
             Menu.AddTab("ExpEvts");
@@ -59,7 +53,7 @@ namespace Ship_Game.Debug.Page
             ExplorationEvents.EnableItemEvents = true;
             ExplorationEvents.EnableItemHighlight = true;
 
-            foreach (ExplorationEvent evt in DebugExpEvents)
+            foreach (ExplorationEvent evt in events)
             {
                 for (int i = 0; i < evt.PotentialOutcomes.Count; ++i)
                 {
@@ -94,7 +88,7 @@ namespace Ship_Game.Debug.Page
             Menu.SelectedIndex = 0;
         }
 
-        private void OnTabChanged(int tab)
+        void OnTabChanged(int tab)
         {
             ExplorationEvents.Visible = tab == 0;
             EncounterDialogs.Visible = tab == 1;
