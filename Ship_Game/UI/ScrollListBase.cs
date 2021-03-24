@@ -84,19 +84,16 @@ namespace Ship_Game
 
         // If set to a valid UIElement instance, then this element will be drawn in the background
         UIElementV2 TheBackground;
-        public UIElementV2 Background
+        protected void TakeOwnershipOfBackground(UIElementV2 background)
         {
-            set
+            if (TheBackground != background)
             {
-                if (TheBackground != value)
+                TheBackground?.RemoveFromParent();
+                TheBackground = background;
+                if (background != null)
                 {
-                    TheBackground?.RemoveFromParent();
-                    TheBackground = value;
-                    if (value != null)
-                    {
-                        // attach with relative position, so it moves along with us
-                        Add(value).SetRelPos(Pos - value.Pos);
-                    }
+                    // attach with relative position, so it moves along with us
+                    Add(background).SetRelPos(Pos - background.Pos);
                 }
             }
         }
