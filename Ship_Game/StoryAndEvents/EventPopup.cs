@@ -8,11 +8,12 @@ namespace Ship_Game
     public sealed class EventPopup : PopupWindow
     {
         public ExplorationEvent ExpEvent;
-        private readonly Outcome Outcome;
-        private Rectangle TextArea;
-        private Planet Planet;
+        readonly Outcome Outcome;
+        readonly Planet Planet;
+        Rectangle TextArea;
         SubTexture Image;
         Rectangle ImageRect;
+
         public Map<Packagetypes, Array<DrawPackage>> DrawPackages = new Map<Packagetypes, Array<DrawPackage>>();
 
         public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, 
@@ -22,11 +23,11 @@ namespace Ship_Game
                 e.TriggerOutcome(playerEmpire, outcome);
 
             Outcome           = outcome;
+            Planet            = p;
             ExpEvent          = e;
             IsPopup           = true;
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0f;
-            Planet            = p;
 
             foreach (Packagetypes packagetype in Enum.GetValues(typeof(Packagetypes)))
             {
@@ -56,6 +57,9 @@ namespace Ship_Game
                                   MidContainer.Width, MidContainer.Width/Image.AspectRatio);
             MidSepBot = new Rectangle(MidContainer.X, ImageRect.Bottom, MidContainer.Width, 2);
 
+            Panel(ImageRect, Image);
+
+            string confirm = Outcome."Great.";
             Button(ButtonStyle.DanButton, new Vector2(Right-200, Bottom - 50), "Beam them up, Scotty!", OnDismissClicked);
         }
 
@@ -71,10 +75,8 @@ namespace Ship_Game
             base.Draw(batch, elapsed);
 
             batch.Begin();
-
-            batch.Draw(Image, ImageRect, Color.White);
             
-            Vector2 textPos = new Vector2(TextArea.X + 10, ImageRect.Bottom + 10);
+            var textPos = new Vector2(TextArea.X + 10, ImageRect.Bottom + 10);
 
             string description = Fonts.Verdana10.ParseText(Outcome.DescriptionText, TextArea.Width - 40);
             DrawString(batch, Fonts.Verdana10, description, ref textPos, Color.White);
@@ -89,7 +91,7 @@ namespace Ship_Game
             {
                 DrawString(batch, Fonts.Arial12Bold, $"Artifact Granted: {art.Name}", ref textPos, Color.LightGreen);
                 
-                Rectangle iconRect = new Rectangle((int)textPos.X, (int)textPos.Y, 64, 64);
+                var iconRect = new Rectangle((int)textPos.X, (int)textPos.Y, 64, 64);
                 SubTexture artTex = TransientContent.LoadSubTexture("Textures/Artifact Icons/"+art.Name);
                 batch.Draw(artTex, iconRect, Color.White);
                 textPos.Y += iconRect.Height;
