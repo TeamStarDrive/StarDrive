@@ -34,8 +34,10 @@ namespace Ship_Game
         
         public override void LoadContent()
         {
-            TitleText  = (Planet != null ? $"{Planet.Name}: " : "") + ExpEvent.Name;
-            MiddleText = Outcome.TitleText;
+            if (Planet != null)
+                TitleText = $"{Outcome.TitleText} at {Planet.Name}";
+            else
+                TitleText = $"{Outcome.TitleText} in Deep Space";
 
             base.LoadContent();
             TextArea = new Rectangle(TitleRect.X - 4, TitleRect.Bottom + MidContainer.Height + 10, 
