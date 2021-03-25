@@ -1421,8 +1421,11 @@ namespace Ship_Game
         // Bump out an enemy troop to make room available (usually for spawned troops via events)
         public bool BumpOutTroop(Empire empire)
         {
-            Troop randomEnemyTroop = TroopsHere.Filter(t => t.Loyalty != empire).RandItem();
-            return randomEnemyTroop.Launch() != null;
+            Troop[] enemyTroops = TroopsHere.Filter(t => t.Loyalty != empire);
+            if (enemyTroops.Length == 0) // we completely filled the planet by ourselves
+                return false;
+            Troop lastEnemyTroop = enemyTroops[enemyTroops.Length - 1];
+            return lastEnemyTroop.Launch() != null;
         }
 
         public int TotalInvadeInjure         => BuildingList.Sum(b => b.InvadeInjurePoints);
