@@ -16,7 +16,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             Text.DropShadow = true;
             Text.Color = Color.White;
             Text.Highlight = Color.LightYellow;
-            Text.Align = TextAlign.VerticalCenter;
+            Text.TextAlign = TextAlign.VerticalCenter;
         }
 
         public override void PerformLayout()

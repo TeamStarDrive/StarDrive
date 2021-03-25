@@ -41,9 +41,9 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             designIssueLabel.Pos     = new Vector2(x, y - 10);
             descriptionLabel.Pos     = new Vector2(x + 180, y - 10);
             remediationLabel.Pos     = new Vector2(x + 550, y - 10);
-            designIssueLabel.Align   = TextAlign.HorizontalCenter;
-            descriptionLabel.Align   = TextAlign.HorizontalCenter;
-            remediationLabel.Align   = TextAlign.HorizontalCenter;
+            designIssueLabel.TextAlign   = TextAlign.HorizontalCenter;
+            descriptionLabel.TextAlign   = TextAlign.HorizontalCenter;
+            remediationLabel.TextAlign   = TextAlign.HorizontalCenter;
         }
 
         void PopulateIssues()
