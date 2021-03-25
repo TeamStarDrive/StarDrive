@@ -118,8 +118,8 @@ namespace Ship_Game
             IsPopup           = true;
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
-            TitleText         = Localizer.Token(4);
-            MiddleText        = Localizer.Token(4004);
+            TitleText         = Localizer.Token(GameText.Options);
+            MiddleText        = Localizer.Token(GameText.ChangeAudioVideoAndGameplay);
             Original = GraphicsSettings.FromGlobalStats();
             New = Original.GetClone();
         }

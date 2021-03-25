@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.StoryAndEvents;
 
 namespace Ship_Game
 {
@@ -10,7 +11,8 @@ namespace Ship_Game
         public bool fade;
         public bool FromGame;
         public string UID;
-        public Encounter encounter;
+        public Encounter Encounter;
+        public EncounterInstance Instance;
         private readonly SubTexture EmpireTex;
         private readonly Color EmpireColor;
 
@@ -18,14 +20,11 @@ namespace Ship_Game
         Rectangle BlackRect;
         ScrollList2<ResponseListItem> ResponseSL;
 
-        EncounterPopup(UniverseScreen s, Empire playerEmpire, Empire targetEmp, Encounter e) : base(s, 600, 600)
+        EncounterPopup(UniverseScreen s, Empire player, Empire targetEmp, Encounter e) : base(s, 600, 600)
         {
             Screen = s;
-            encounter = e;
-            encounter.CurrentMessageId = 0;
-            encounter.SetPlayerEmpire(playerEmpire);
-            encounter.SetSys(null);
-            encounter.SetTarEmp(targetEmp);
+            Encounter = e;
+            Instance = new EncounterInstance(e, player, targetEmp);
             fade = true;
             IsPopup = true;
             FromGame = true;
@@ -40,7 +39,7 @@ namespace Ship_Game
 
         public static void Show(UniverseScreen s, Empire player, Empire them, Encounter e)
         {
-            var screen = new EncounterPopup(s, player, them, e);
+            var screen = new EncounterPopup(s, player, them, e); 
             ScreenManager.Instance.AddScreenDeferred(screen);
         }
 
@@ -62,12 +61,12 @@ namespace Ship_Game
         {
             batch.FillRectangle(BlackRect, Color.Black);
             batch.FillRectangle(ResponseRect, Color.Black);
-            Vector2 theirTextPos = new Vector2(BlackRect.X + 10, BlackRect.Y + 10);
-            string theirText = encounter.ParseCurrentEncounterText(BlackRect.Width - 20, Fonts.Verdana12Bold);
-            theirTextPos.X = (int)theirTextPos.X;
-            theirTextPos.Y = (int)theirTextPos.Y;
-            batch.DrawString(Fonts.Verdana12Bold, theirText, theirTextPos, Color.White);
-            if (encounter.Current.EndTransmission)
+
+            Vector2 encounterTextPos = new Vector2(BlackRect.X + 10, BlackRect.Y + 10).Rounded();
+            string encounterText = Instance.ParseCurrentEncounterText(BlackRect.Width - 20, Fonts.Verdana12Bold);
+            batch.DrawString(Fonts.Verdana12Bold, encounterText, encounterTextPos, Color.White);
+
+            if (Instance.Message.EndTransmission)
             {
                 var responsePos = new Vector2(ResponseRect.X + 10, ResponseRect.Y + 10);
                 batch.DrawString(Fonts.Arial12Bold, "Escape or Click on Close Button to End Transmission:", responsePos, Color.White);
@@ -88,11 +87,12 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            CanEscapeFromScreen = encounter.Current.EndTransmission;
+            CanEscapeFromScreen = Instance.Message.EndTransmission;
+            Close.Visible = CanEscapeFromScreen;
             if (input.RightMouseClick)
                 return false; // dont let this screen exit on right click
 
-            if (encounter.Current.EndTransmission && input.Escaped)
+            if (Instance.Message.EndTransmission && input.Escaped)
             {
                 ExitScreen();
                 return true;
@@ -102,8 +102,8 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            TitleText = encounter.Name;
-            MiddleText = encounter.DescriptionText;
+            TitleText = Encounter.Name;
+            MiddleText = Encounter.DescriptionText;
             base.LoadContent();
             Rectangle fitRect = new Rectangle(TitleRect.X - 4, TitleRect.Y + TitleRect.Height + MidContainer.Height + 10, 
                 TitleRect.Width, 600 - (TitleRect.Height + MidContainer.Height));
@@ -118,11 +118,11 @@ namespace Ship_Game
         void LoadResponseScrollList()
         {
             ResponseSL.Reset();
-            foreach (Response r in encounter.Current.ResponseOptions)
+            foreach (Response r in Instance.Message.ResponseOptions)
             {
                 ResponseSL.AddItem(new ResponseListItem(r));
             }
-            ResponseSL.OnClick = encounter.OnResponseItemClicked;
+            ResponseSL.OnClick = Instance.OnResponseItemClicked;
         }
 
     }
