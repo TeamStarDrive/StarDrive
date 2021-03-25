@@ -1,0 +1,21 @@
+﻿<ExplorationEvent>
+  <Name>Owlwok Freedom</Name>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <TitleText>Freed from their Cordrazine masters, a group of Owlwoks approaches us with an offer</TitleText>
+      <DescriptionText>We have successfully conquered our first Cordrazine world. The Cordrazine are an odd race of completely immobile mollusk-like creatures. They have a hard outer shell and a single large sensory organ. 
+      
+The Cordrazine have developed complex pheromonal emitters that allow them to manipulate the native creatures on their home planet. The Cordrazine have a symbiotic relationship with a species called Owlwoks, who are enslaved by the Cordrazines' pheromones. With the death of so many Cordrazine in our invasion, many Owlwoks are awaking from their drug-fueled slavery and hailing us as liberators.
+
+One particular Owlwok approaches our troops. It is gnarled and graying with age, its wide eyes clouded with cataracts. "Thank you, liberators, for freeing us from the Masters. KWAK! Know this: that while we are slaves, we all know we are slaves. We all yearn for our freedom. If you can free us from the Masters' drugs, then we will join you, fight for you. KWAK! Come with us, let us show you how they enslave us. Perhaps you can discover a way to free us all."
+
+A new research path has become available.
+      </DescriptionText>
+      <SecretTechDiscovered>Owlwok Freedom</SecretTechDiscovered>
+     
+    </Outcome>
+    
+  </PotentialOutcomes>
+  
+</ExplorationEvent>
