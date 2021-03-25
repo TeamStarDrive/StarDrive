@@ -2634,7 +2634,13 @@
     <Content Include="Content\Textures\TacticalIcons\symbol_status.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Textures\UI\dan_button_brown_wide.png">
+    <Content Include="Content\Textures\UI\btn_event_confirm_big.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\UI\btn_event_confirm_big_hover.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\UI\btn_event_confirm_big_pressed.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\UI\dan_button_red.png">

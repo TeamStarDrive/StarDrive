@@ -359,17 +359,20 @@ namespace Ship_Game
             VisibleItemsEnd   = end.Clamped(0, FlatEntries.Count);
         }
 
+        protected void SetItemsHousing()
+        {
+            ItemsHousing = new Rectangle((int)X + PaddingLeft,
+                                         (int)Y + PaddingTop,
+                                         (int)Width - (PaddingLeft + PaddingRight),
+                                         (int)Height - (PaddingTop + PaddingBot));
+        }
+
         public override void PerformLayout()
         {
             base.PerformLayout();
 
+            SetItemsHousing();
             ScrollListStyleTextures s = GetStyle();
-
-            ItemsHousing = new Rectangle((int)X + PaddingLeft,
-                                      (int)Y + PaddingTop,
-                                      (int)Width - (PaddingLeft + PaddingRight),
-                                      (int)Height - (PaddingTop + PaddingBot));
-
             SubTexture up = s.ScrollBarArrowUp.Normal;
             SubTexture dn = s.ScrollBarArrowDown.Normal;
             ScrollUp   = new Rectangle((int)(Right - (up.Width + 5)), (int)Y + PaddingTop, up.Width, up.Height);
