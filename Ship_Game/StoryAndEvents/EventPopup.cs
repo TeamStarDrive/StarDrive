@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Data;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -8,45 +9,99 @@ namespace Ship_Game
     public sealed class EventPopup : PopupWindow
     {
         public ExplorationEvent ExpEvent;
-        private readonly Outcome Outcome;
-        private Rectangle BlackRect;
-        private Planet Planet;
-        public Map<Packagetypes, Array<DrawPackage>> DrawPackages = new Map<Packagetypes, Array<DrawPackage>>();
+        readonly Outcome Outcome;
+        readonly Planet Planet;
+        UITextBox TextBox;
+        SubTexture Image;
+        readonly Array<ArtifactEffect> ArtifactEffects = new Array<ArtifactEffect>();
 
-        public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, 
-            Outcome outcome, bool triggerNow, Planet p = null) : base(s, 800, 720)
+        public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e,
+                          Outcome outcome, bool triggerNow, Planet p = null)
+            : base(s, 600, 720)
         {
             if (triggerNow)
                 e.TriggerOutcome(playerEmpire, outcome);
 
-            Outcome           = outcome;
-            ExpEvent          = e;
-            IsPopup           = true;
+            Outcome = outcome;
+            Planet  = p;
+            ExpEvent = e;
+            IsPopup  = true;
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0f;
-            Planet            = p;
-
-            foreach (Packagetypes packagetype in Enum.GetValues(typeof(Packagetypes)))
-            {
-                DrawPackages.Add(packagetype,new Array<DrawPackage>());
-            }
+        }
+        
+        public void AddArtifactEffect(ArtifactEffect effect)
+        {
+            ArtifactEffects.Add(effect);
         }
         
         public override void LoadContent()
         {
-            string planetName = Planet != null ? $"{Planet.Name}: " : "";
-            TitleText         = planetName + ExpEvent.Name;
-            MiddleText        = Outcome.TitleText;
+            if (Planet != null)
+                TitleText = $"{Outcome.TitleText} at {Planet.Name}";
+            else
+                TitleText = $"{Outcome.TitleText} in Deep Space";
 
             base.LoadContent();
-            Rectangle fitRect = new Rectangle(TitleRect.X - 4, TitleRect.Y + TitleRect.Height + MidContainer.Height + 10, TitleRect.Width, 600 - (TitleRect.Height + MidContainer.Height));
-            BlackRect = new Rectangle(fitRect.X, fitRect.Y, fitRect.Width, 450);
 
             if (Planet != null)
             {
-                string message = $"Event unfolded on {Planet.Name}\n{ExpEvent.Name}";
-                Empire.Universe.NotificationManager.AddAnomalyInvestigated(Planet, message);
+                Empire.Universe.NotificationManager.AddAnomalyInvestigated(Planet, TitleText);
             }
+
+            string image = Outcome.Image.NotEmpty() ? Outcome.Image : "Encounters/CrashedShip.png";
+            Image = TransientContent.LoadSubTexture("Textures/" + image);
+            Rectangle imgRect = new RectF(MidContainer.X, MidContainer.Bottom + 2,
+                                          MidContainer.Width, MidContainer.Width/Image.AspectRatio);
+            MidSepBot = new Rectangle(MidContainer.X, imgRect.Bottom, MidContainer.Width, 2);
+            Panel(imgRect, Image);
+
+            Close.Visible = false; // the X just confuses people, a big OK button is better
+
+            string confirm = Outcome.ConfirmText.NotEmpty() ? Outcome.ConfirmText : "Great!";
+            var btn = Button(ButtonStyle.EventConfirm, Vector2.Zero, confirm, OnDismissClicked);
+            btn.SetPosToCenterOf(this).SetDistanceFromBottomOf(this, 24);
+            
+            float textBoxBottom = btn.Y - 2;
+            Rectangle textArea = new RectF(X + 8, imgRect.Bottom - 16, Width - 24, textBoxBottom - imgRect.Bottom);
+            TextBox = Add(new UITextBox(new Submenu(textArea)));
+            CreateTextBoxContent(TextBox);
+        }
+
+        void CreateTextBoxContent(UITextBox textBox)
+        {
+            textBox.AddLines(Outcome.DescriptionText, Fonts.Verdana10, Color.White);
+
+            if (Outcome.SelectRandomPlanet && Outcome.GetPlanet() != null)
+            {
+                textBox.AddLine($"Relevant Planet: {Outcome.GetPlanet().Name}", Fonts.Arial12Bold, Color.LightGreen);
+            }
+
+            if (Outcome.GetArtifact() != null)
+            {
+                textBox.AddElement(new ArtifactItem(TransientContent, Outcome.GetArtifact(), ArtifactEffects, textBox.ItemsRect.Width));
+            }
+
+            if (Outcome.UnlockTech != null)
+            {
+                AddUnlockedTechToTextBox(textBox, Outcome.UnlockTech);
+            }
+
+            if (Outcome.MoneyGranted > 0)
+            {
+                textBox.AddLine($"Money Granted: {Outcome.MoneyGranted}", Fonts.Arial12Bold, Color.Green);
+            }
+
+            if (Outcome.ScienceBonus > 0f)
+            {
+                int scienceBonus = (int)(Outcome.ScienceBonus * 100f);
+                textBox.AddLine($"Research Bonus Granted: {scienceBonus}%", Fonts.Arial12Bold, Color.Blue);
+            }
+        }
+
+        void OnDismissClicked(UIButton btn)
+        {
+            ExitScreen();
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -57,115 +112,96 @@ namespace Ship_Game
 
             batch.Begin();
 
-            Vector2 textPos = new Vector2(BlackRect.X + 10, BlackRect.Y + 10);
-            
-            if (Outcome.Image.NotEmpty())
-            {
-                SubTexture texture = TransientContent.LoadSubTexture("Textures/" + Outcome.Image);
-                batch.Draw(texture, new Vector2(CenterX - texture.CenterX, textPos.Y), Color.White);
-                textPos.Y += texture.Height + 10;
-            }
-
-            string description = Fonts.Verdana10.ParseText(Outcome.DescriptionText, BlackRect.Width - 40);
-            DrawString(batch, Fonts.Verdana10, description, ref textPos, Color.White);
-
-            if (Outcome.SelectRandomPlanet && Outcome.GetPlanet() != null)
-            {
-                DrawString(batch, Fonts.Arial12Bold, "Relevant Planet: "+Outcome.GetPlanet().Name, ref textPos, Color.LightGreen);				
-            }
-
-            Artifact art = Outcome.GetArtifact();
-            if (art != null)
-            {
-                DrawString(batch, Fonts.Arial12Bold, $"Artifact Granted: {art.Name}", ref textPos, Color.LightGreen);
-                
-                Rectangle iconRect = new Rectangle((int)textPos.X, (int)textPos.Y, 64, 64);
-                SubTexture artTex = TransientContent.LoadSubTexture("Textures/Artifact Icons/"+art.Name);
-                batch.Draw(artTex, iconRect, Color.White);
-                textPos.Y += iconRect.Height;
-                
-                string artDescr = Fonts.Arial12.ParseText(art.Description, BlackRect.Width - 40);
-                batch.DrawString(Fonts.Arial12, artDescr, textPos, Color.White);
-                textPos.Y += Fonts.Arial12.MeasureString(artDescr).Y;
-
-                foreach (DrawPackage artifactDrawPackage in DrawPackages[Packagetypes.Artifact])
-                {
-                    textPos.Y += artifactDrawPackage.Font.LineSpacing;
-                    batch.DrawString(artifactDrawPackage.Font, artifactDrawPackage.Text, textPos, artifactDrawPackage.Color);
-                }
-            }
-
-            if (Outcome.UnlockTech != null)
-            {
-                DrawUnlockedTech(batch, ref textPos);
-            }
-
-            if (Outcome.MoneyGranted > 0)
-            {
-                DrawString(batch, Fonts.Arial12Bold, $"Money Granted: {Outcome.MoneyGranted}", ref textPos, Color.White);
-            }
-
-            if (Outcome.ScienceBonus > 0f)
-            {
-                int scienceBonus = (int)(Outcome.ScienceBonus * 100f);
-                DrawString(batch, Fonts.Arial12Bold, $"Research Bonus Granted: {scienceBonus}%", ref textPos, Color.White);			
-            }
-
             batch.End();
         }
 
-        void DrawString(SpriteBatch batch, SpriteFont font, string text, ref Vector2 textPos, Color color)
+        class TechItem : UIElementV2
         {
-            textPos.Y += font.LineSpacing;
-            batch.DrawString(font, text, textPos, color);
-            textPos.Y += font.MeasureString(text).Y;
-            textPos.Y += font.LineSpacing;
+            readonly GameContentManager Content;
+            readonly Technology Tech;
+            readonly ShipModule Mod;
+            readonly SubTexture IconTex;
+            public TechItem(GameContentManager content, Technology tech, float width)
+            {
+                Content = content;
+                Tech = tech;
+                Width = width;
+                Mod = ResourceManager.GetModuleTemplate(Tech.ModulesUnlocked[0].ModuleUID);
+                IconTex = Content.LoadSubTexture("Textures/" + Mod.IconTexturePath);
+            }
+            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+            {
+                var iconRect = new Rectangle((int)X, (int)Y, 16 * Mod.XSIZE, 16 * Mod.YSIZE);
+                iconRect.X += 48 - iconRect.Width / 2;
+                iconRect.Y += 48 - iconRect.Height / 2;
+                while (iconRect.Height > 96)
+                {
+                    iconRect.Height -= Mod.YSIZE;
+                    iconRect.Width  -= Mod.XSIZE;
+                    iconRect.X += 48 - iconRect.Width / 2;
+                    iconRect.Y += 48 - iconRect.Height / 2;
+                }
+
+                batch.Draw(IconTex, iconRect, Color.White);
+
+                var pos = new Vector2(X + 100f, Y);
+                batch.DrawString(Fonts.Arial20Bold, Mod.NameText, pos, Color.Orange);
+                pos.Y += Fonts.Arial20Bold.LineSpacing;
+
+                string desc = Fonts.Arial12Bold.ParseText(Mod.DescriptionText, Width - 120);
+                batch.DrawString(Fonts.Arial12Bold, desc, pos, Color.White);
+            }
+            public override bool HandleInput(InputState input)
+            {
+                return false;
+            }
         }
 
-        void DrawUnlockedTech(SpriteBatch batch, ref Vector2 textPos)
+        class ArtifactItem : UIElementContainer
         {
+            public ArtifactItem(GameContentManager content, Artifact art, 
+                                Array<ArtifactEffect> effects, float width)
+            {
+                SubTexture artTex = content.LoadSubTexture("Textures/Artifact Icons/" + art.Name);
+
+                float y = 0;
+                LabelRel($"Artifact Granted: {art.Name}", Fonts.Arial12Bold, Color.LightGreen, 0, y);
+                y += Fonts.Arial12Bold.LineSpacing;
+                PanelRel(new RectF(0, y, 64, 64), artTex);
+                y += 64;
+                foreach (string line in Fonts.Arial12.ParseTextToLines(art.Description, width))
+                {
+                    LabelRel(line, Fonts.Arial12, 0, y);
+                    y += Fonts.Arial12.LineSpacing;
+                }
+                foreach (ArtifactEffect effect in effects)
+                {
+                    LabelRel(effect.Text, Fonts.Arial12Bold, Color.Orange, 0, y);
+                    y += Fonts.Arial12Bold.LineSpacing;
+                }
+            }
+        }
+
+        void AddUnlockedTechToTextBox(UITextBox textBox, string unlockTech)
+        {
+            if (!ResourceManager.TryGetTech(unlockTech, out Technology tech))
+            {
+                textBox.AddLine($"Missing Technology: {unlockTech}", Fonts.Arial12Bold, Color.Red);
+                return;
+            }
+
             if (Outcome.WeHadIt)
             {
-                string alreadyPosess = "We found some alien technology, but we already possessed this knowledge.";
-                DrawString(batch, Fonts.Arial12Bold, alreadyPosess, ref textPos, Color.White);
+                textBox.AddLine($"We found some {tech.Name.Text}, but we already possessed this knowledge.",
+                                Fonts.Arial12Bold, Color.LightYellow);
                 return;
             }
 
-            if (!ResourceManager.TryGetTech(Outcome.UnlockTech, out Technology tech))
-            {
-                DrawString(batch, Fonts.Arial12Bold, $"Missing Technology: {tech.UID}", ref textPos, Color.Red);
-                return;
-            }
-
-            string text = "Technology Acquired: " + Localizer.Token(tech.NameIndex);
-            DrawString(batch, Fonts.Arial12Bold, text, ref textPos, Color.White);
+            textBox.AddLine($"New Technology Acquired: {tech.Name.Text}", Fonts.Arial12Bold, Color.AliceBlue);
 
             if (tech.ModulesUnlocked.Count > 0)
             {
-                ShipModule unlockedMod = ResourceManager.GetModuleTemplate(tech.ModulesUnlocked[0].ModuleUID);
-                Rectangle IconRect = new Rectangle((int)textPos.X, (int)textPos.Y, 
-                                                   16 * unlockedMod.XSIZE, 16 * unlockedMod.YSIZE);
-
-                IconRect.X = IconRect.X + 48 - IconRect.Width / 2;
-                IconRect.Y = IconRect.Y + 48 - IconRect.Height / 2;
-
-                while (IconRect.Height > 96)
-                {
-                    IconRect.Height = IconRect.Height - unlockedMod.YSIZE;
-                    IconRect.Width = IconRect.Width - unlockedMod.XSIZE;
-                    IconRect.X = IconRect.X + 48 - IconRect.Width / 2;
-                    IconRect.Y = IconRect.Y + 48 - IconRect.Height / 2;
-                }
-
-                batch.Draw(ResourceManager.Texture(ResourceManager.GetModuleTemplate(unlockedMod.UID).IconTexturePath), IconRect, Color.White);
-                string moduleName = Localizer.Token(unlockedMod.NameIndex);
-
-                var moduleNamePos = new Vector2(textPos.X + 100f, textPos.Y);
-                DrawString(batch, Fonts.Arial20Bold, moduleName, ref moduleNamePos, Color.Orange);
-
-                string desc = Fonts.Arial12Bold.ParseText(Localizer.Token(unlockedMod.DescriptionIndex), BlackRect.Width - 120);
-                var moduleDescrPos = new Vector2(textPos.X + 100f, textPos.Y + 22f);
-                DrawString(batch, Fonts.Arial12Bold, desc, ref moduleDescrPos, Color.White);
+                textBox.AddElement(new TechItem(TransientContent, tech, textBox.Width));
             }
         }
 
@@ -177,41 +213,14 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public enum Packagetypes
-        {
-            Artifact,
-            Technology,
-            Planet
-        }
-
-        public class DrawPackage
+        public struct ArtifactEffect
         {
             public string Text;
-            public SpriteFont Font;
             public int Value;
-            public Texture2D Icon;
-            public Color Color;
-
-            public DrawPackage()
+            public ArtifactEffect(string text, float value, bool percent)
             {
-            }
-
-            public DrawPackage(string text, SpriteFont font, int value,
-                Color color)
-            {
-                Text = text;
-                Font = font;
-                Value = value;
-                Color = color;
-            }
-
-            public DrawPackage(string text, SpriteFont font, float value,
-                Color color, string postFix)
-            {
-                Value = postFix == "%" ? (int)(value * 100f) : (int)value;
-                Text  = text + Value + postFix;
-                Font  = font;
-                Color = color;
+                Value = percent ? (int)(value * 100f) : (int)value;
+                Text  = text + Value + (percent ? "%" : "");
             }
         }
     }

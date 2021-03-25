@@ -33,6 +33,9 @@ namespace Ship_Game
         public int NameIndex;
         public int DescriptionIndex;
 
+        public LocalizedText Name => new LocalizedText(NameIndex);
+        public LocalizedText Description => new LocalizedText(DescriptionIndex);
+
         public Array<LeadsToTech> LeadsTo                = new Array<LeadsToTech>();
         public Array<LeadsToTech> ComesFrom              = new Array<LeadsToTech>();
         public Array<UnlockedMod> ModulesUnlocked        = new Array<UnlockedMod>();
