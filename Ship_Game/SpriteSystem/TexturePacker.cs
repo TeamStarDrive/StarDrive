@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Data;
+using Ship_Game.Data.Texture;
 
 namespace Ship_Game.SpriteSystem
 {
@@ -31,8 +33,16 @@ namespace Ship_Game.SpriteSystem
         public Array<Rectangle> DebugFreeSpotFills = new Array<Rectangle>();
         public Array<Rectangle> DebugOverlapError = new Array<Rectangle>();
 
-        int CursorX, CursorY, BottomY;
         TextureInfo[] Textures;
+        string CachePath;
+        int Iteration = 0;
+        GameContentManager Content;
+
+        public TexturePacker(GameContentManager content, string cachePath)
+        {
+            CachePath = cachePath;
+            Content = content;
+        }
 
         void PrepareToPack(TextureInfo[] textures)
         {
@@ -46,17 +56,39 @@ namespace Ship_Game.SpriteSystem
                 return diff;
             });
             FreeSpots.Clear();
+
+            // filter out textures which shouldn't be packed
+            foreach (TextureInfo t in textures)
+            {
+                t.NoPack = (t.Width + t.Height) > MaxWidthHeightSum;
+            }
+
+            // always set the Width/Height to minimum
+            // to achieve maximum packing
+            // pre-calculating the size is detrimental to efficient packing
             Width = 128;
             Height = 128;
-            CursorX = CursorY = BottomY = 0;
         }
 
-        void ResetPack(int width, int height)
+        void SortFreeSpots()
         {
-            FreeSpots.Clear();
-            Width  = width;
-            Height = height;
-            CursorX = CursorY = BottomY = 0;
+            // sort free spots, Ascending, so that we always use the smallest possible free spot
+            FreeSpots.Sort((a, b) =>
+            {
+                int diff = a.r.Area() - b.r.Area();
+                if (diff == 0) // prefer wide spots first
+                    return a.r.Width - b.r.Width;
+                return diff;
+            });
+        }
+
+        void ResetTextureCoords(TextureInfo[] textures)
+        {
+            for (int i = 0; i < textures.Length; ++i)
+            {
+                TextureInfo t = textures[i];
+                t.X = t.Y = -1;
+            }
         }
 
         int FinalizePack()
@@ -67,13 +99,6 @@ namespace Ship_Game.SpriteSystem
             else CheckInRange();
             Textures = null;
             return packed;
-        }
-
-        static bool IsExcludedFromPack(TextureInfo t)
-        {
-            if (t.NoPack) return true; // NoPack already set by someone
-            t.NoPack = (t.Width + t.Height) > MaxWidthHeightSum;
-            return t.NoPack;
         }
 
         void CheckInRange()
@@ -95,12 +120,14 @@ namespace Ship_Game.SpriteSystem
         // checks for 1px padded overlap
         bool CheckForOverlap(int tIndex, TextureInfo t)
         {
-            var ra = new Rectangle(t.X - 1, t.Y - 1, t.Width + 2, t.Height + 2);
+            const int p1 = Padding / 2;
+            const int p2 = Padding;
+            var ra = new Rectangle(t.X - p1, t.Y - p1, t.Width + p2, t.Height + p2);
             for (int i = 0; i < tIndex; ++i)
             {
                 TextureInfo u = Textures[i];
                 if (u.NoPack) continue;
-                var rb = new Rectangle(u.X - 1, u.Y - 1, u.Width + 2, u.Height + 2);
+                var rb = new Rectangle(u.X - p1, u.Y - p1, u.Width + p2, u.Height + p2);
                 if (ra.GetIntersectingRect(rb, out Rectangle intersection))
                 {
                     DebugOverlapError.Add(intersection);
@@ -111,54 +138,97 @@ namespace Ship_Game.SpriteSystem
             return false;
         }
 
-
-
-        // @note PERF: This is fast enough
-        // @return Number of textures that were packed. Big textures are excluded from packing.
-        public int PackTextures(TextureInfo[] textures)
+        void SaveFreeSpotsDebug(TextureInfo[] textures)
         {
-            //Stopwatch s = Stopwatch.StartNew();
-            PrepareToPack(textures);
+            var data = new Color[Width * Height];
+            ImageUtils.FillPixels(data, Width, Height, 0, 0, Color.Black, Width, Height);
 
-            for (int i = 0; i < textures.Length; ++i)
+            foreach (TextureInfo t in textures)
+            {
+                if (t.X != -1)
+                    ImageUtils.DrawRectangle(data, Width, Height, new Rectangle(t.X, t.Y, t.Width, t.Height), Color.YellowGreen);
+            }
+
+            foreach (FreeSpot fs in FreeSpots)
+                ImageUtils.DrawRectangle(data, Width, Height, fs.r, Color.AliceBlue);
+
+            foreach (FreeSpot f in FreeSpots)
+                ImageUtils.DrawRectangle(data, Width, Height, f.r, Color.AliceBlue);
+
+            ImageUtils.ConvertToRGBA(Width, Height, data);
+            ImageUtils.SaveAsDds($"{CachePath}.{Iteration}.dds", Width, Height, data); // save compressed!
+        }
+
+        void ResetState(TextureInfo[] textures, int width, int height)
+        {
+            if (TextureAtlas.DebugPackerExpansion)
+                SaveFreeSpotsDebug(textures);
+            ResetTextureCoords(textures);
+            Width  = width;
+            Height = height;
+            DebugFreeSpotFills.Clear();
+            FreeSpots.Clear();
+            ++Iteration;
+        }
+
+        void PackByLinearWalk(TextureInfo[] textures)
+        {
+            int cursorX = 0;
+            int cursorY = 0;
+            int bottomY = 0;
+            int i;
+
+            void ResetPack(int width, int height)
+            {
+                ResetState(textures, width, height);
+                cursorX = cursorY = bottomY = 0;
+                i = -1;
+            }
+
+            for (i = 0; i < textures.Length; ++i)
             {
                 TextureInfo t = textures[i];
-                if (IsExcludedFromPack(t) || FillFreeSpot(i, t))
+                if (t.NoPack || FillFreeSpot(i, t))
                     continue;
 
                 if (t.Width > Width)
                 {
                     while (t.Width > Width) Width *= 2;
-                    i = -1; ResetPack(Width, 128); continue;
+                    ResetPack(Width, 128);
+                    continue;
                 }
 
-                int remainingX = Width - CursorX;
+                int remainingX = Width - cursorX;
                 if (remainingX < t.Width)
                 {
-                    int remainingY = (BottomY - CursorY);
+                    int remainingY = (bottomY - cursorY);
                     if (remainingX >= MinFreeSpotSize && remainingY >= MinFreeSpotSize)
                     {
-                        FreeSpots.Add(new FreeSpot(CursorX, CursorY, remainingX, remainingY, "endOfX"));
+                        FreeSpots.Add(new FreeSpot(cursorX, cursorY, remainingX, remainingY, "endOfX"));
                     }
-                    CursorX = 0;
-                    CursorY = BottomY + Padding;
+                    cursorX = 0;
+                    cursorY = bottomY + Padding;
                 }
-                int newBottomY = CursorY + (t.Height);
-                if (newBottomY > BottomY)
+                int newBottomY = cursorY + (t.Height);
+                if (newBottomY > bottomY)
                 {
-                    BottomY = newBottomY;
-                    while (BottomY > Height) { Height += 64; }
+                    bottomY = newBottomY;
+                    while (bottomY > Height) { Height += 64; }
                     if (Height >= Width * 2) // reset everything if Height is double of Width
                     {
-                        i = -1; ResetPack(Width * 2, 128); continue;
+                        ResetPack(Width * 2, 128);
+                        continue;
                     }
                 }
 
-                t.X = CursorX;
-                t.Y = CursorY;
+                t.X = cursorX;
+                t.Y = cursorY;
                 if (TextureAtlas.DebugCheckOverlap)
                     CheckForOverlap(i, t);
-                CursorX += (t.Width + Padding);
+
+                int fillX = t.Width + Padding;
+                int fillY = t.Height + Padding;
+                cursorX += fillX;
 
                 // After filling our spot, there is a potential free spot.
                 // We know this because we fill our objects in size descending order.
@@ -168,15 +238,27 @@ namespace Ship_Game.SpriteSystem
                 // | freespot ||
                 if (t.Width >= MinFreeSpotSize)
                 {
-                    int freeSpotY = (t.Y + t.Height + Padding);
-                    int freeSpotH = (BottomY - freeSpotY - Padding);
+                    int freeSpotY = (cursorY + fillY);
+                    int freeSpotH = (bottomY - freeSpotY - Padding);
                     if (freeSpotH >= MinFreeSpotSize)
                     {
                         FreeSpots.Add(new FreeSpot(t.X, freeSpotY, t.Width, freeSpotH, "belowFill"));
                     }
                 }
             }
-            return FinalizePack();
+        }
+
+        // @note PERF: This is fast enough
+        // @return Number of textures that were packed. Big textures are excluded from packing.
+        public int PackTextures(TextureInfo[] textures)
+        {
+            var s = Stopwatch.StartNew();
+            PrepareToPack(textures);
+            PackByLinearWalk(textures);
+            
+            int packed = FinalizePack();
+            //Log.Write($"PackTextures elapsed: {s.Elapsed.TotalMilliseconds}ms");
+            return packed;
         }
 
 
@@ -186,7 +268,9 @@ namespace Ship_Game.SpriteSystem
             {
                 FreeSpot fs = FreeSpots[i];
                 Rectangle r = fs.r;
-                if (t.Width > r.Width || t.Height > r.Height)
+                int fillX = t.Width + Padding;
+                int fillY = t.Height + Padding;
+                if (fillX > r.Width || fillY > r.Height)
                     continue;
 
                 t.X = r.X;
@@ -199,8 +283,6 @@ namespace Ship_Game.SpriteSystem
                     DebugFreeSpotFills.Add(new Rectangle(t.X, t.Y, t.Width, t.Height));
 
                 FreeSpots.RemoveAt(i);
-                int fillX = t.Width  + Padding;
-                int fillY = t.Height + Padding;
                 int remX = r.Width  - fillX - Padding;
                 int remY = r.Height - fillY - Padding;
                 // We have remaining sections A, B that could be recycled
@@ -224,6 +306,7 @@ namespace Ship_Game.SpriteSystem
                 {
                     FreeSpots.Insert(i, new FreeSpot(r.X, r.Y + fillY, fillX + remX, remY, "BB"));
                 }
+                //SortFreeSpots();
                 return true; // success! we filled the free spot
             }
             return false;

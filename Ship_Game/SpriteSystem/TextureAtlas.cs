@@ -23,8 +23,9 @@ namespace Ship_Game.SpriteSystem
         public static readonly bool ExportDds = false; // also use DDS?
         public static readonly bool DebugDrawBounds = false; // draw bounds over every SubTexture
         public static readonly bool DebugDrawFreeSpots = false; // draw remaining Free spots left during Packing
-        public static readonly bool DebugDrawFreeSpotFills = true; // draw on free spots that were filled with SubTexture
-        public static readonly bool DebugCheckOverlap = true; // whether to validate all Packed SubTextures to ensure no overlap
+        public static readonly bool DebugDrawFreeSpotFills = false; // draw on free spots that were filled with SubTexture
+        public static readonly bool DebugCheckOverlap = false; // whether to validate all Packed SubTextures to ensure no overlap
+        public static readonly bool DebugPackerExpansion = false; // saves failed packer state for analysis
 
         ulong Hash;
         int NumPacked; // number of packed textures (not all textures are packed)
@@ -147,7 +148,7 @@ namespace Ship_Game.SpriteSystem
             TextureInfo[] textures = LoadTextureInfo(content, path, textureFiles);
             int load = perf.NextMillis();
 
-            var packer = new TexturePacker();
+            var packer = new TexturePacker(content, path.Texture);
             NumPacked = packer.PackTextures(textures);
             Width = packer.Width;
             Height = packer.Height;
