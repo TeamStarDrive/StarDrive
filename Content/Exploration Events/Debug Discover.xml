@@ -9,13 +9,20 @@
       <Image>Encounters/CrashedShip.png</Image>
       <RemoveTrigger>true</RemoveTrigger>
 
+      <SecretTechDiscovered>Ascension</SecretTechDiscovered>
       <ReplaceWith>Nano Mine</ReplaceWith>
       <UnlockTech>Ascension Schematics</UnlockTech>
+
       <FriendlyShipsToSpawn>
         <string>Ancient Torpedo Cruiser</string>
       </FriendlyShipsToSpawn>
+
+      
+      <GrantArtifact>true</GrantArtifact> <!-- Grants a random artifact -->
+
       <TroopsToSpawn>
-        <string>Antlion</string>
+        <string>Skeleton</string>
+        <string>Skeleton</string>
         <string>Antlion</string>
         <string>Antlion</string>
       </TroopsToSpawn>
