@@ -115,7 +115,7 @@ struct ImageCopy final
         dst += dst_stride;
         src += src_stride;
     }
-    __forceinline void rect()
+    __forceinline void fill_rows()
     {
         for (; dst < end; next_row())
             memcpy(dst, src, sizeof(Color) * src_stride);
@@ -134,11 +134,12 @@ struct ImageCopy final
     }
 };
 
-ImageCopy image_copy(const Image& d, const Image& s, int dx, int dy, int sx, int sy)
+ImageCopy select_region(const Image& d, const Image& s, 
+                        int destX, int destY, int srcX, int srcY)
 {
     ImageCopy ic {};
-    ic.dst = d.data + (d.width * dy) + dx;
-    ic.src = s.data + (s.width * sy) + sx;
+    ic.dst = d.data + (d.width * destY) + destX;
+    ic.src = s.data + (s.width * srcY) + srcX;
     ic.end = ic.dst + (d.width * s.height);
     ic.dst_stride = d.width;
     ic.src_stride = s.width;
@@ -160,28 +161,29 @@ DLLEXPORT void __stdcall CopyPixelsPadded(Image dst, int x, int y, Image src)
     RangeCheck((x + src.width)  > dst.width);
     RangeCheck((y + src.height) > dst.height);
 
-    image_copy(dst, src, x, y, 0, 0).rect(); // main image rect
+    select_region(dst, src, x, y, 0, 0).fill_rows(); // main image rect
 
-    // o-------o 1px Padding
+    // o-------o {p}px Padding
     // |o-----o|
     // || src ||
     // |o-----S|
     // o-------D
-    const Point D { x + src.width, y + src.height }; // lower-right point of padding in dst image
-    const Point S { src.width - 1, src.height - 1 }; // lower-right point inside src image
+    const Point S { src.width - 1, src.height - 1 }; // lower-right point inside src image (last pixel of the src image)
+    const Point D { x + src.width, y + src.height }; // lower-right point of padding in dst image (one pixel outside the dst rect)
     const bool left = x > 0;
     const bool top  = y > 0;
     const bool right  = D.x < dst.width;  // in image bounds? 
     const bool bottom = D.y < dst.height;
-    // padding:
-    if (top)    { image_copy(dst, src, x,   y-1, 0, 0  ).row(); }
-    if (bottom) { image_copy(dst, src, x,   D.y, 0, S.y).row(); }
-    if (left)   { image_copy(dst, src, x-1, y,   0, 0  ).column(); }
-    if (right)  { image_copy(dst, src, D.x, y, S.x, 0  ).column(); }
-    if (top && left)     { image_copy(dst, src, x-1, y-1, 0,   0  ).pixel(); }
-    if (top && right)    { image_copy(dst, src, D.x, y-1, S.x, 0  ).pixel(); }
-    if (bottom && left)  { image_copy(dst, src, x-1, D.y, 0,   S.y).pixel(); }
-    if (bottom && right) { image_copy(dst, src, D.x, D.y, S.x, S.y).pixel(); }
+    // padding rect around the image
+    if (top)    { select_region(dst, src, x, y-1, /*dst*/0,   0).row(); } // copy rows and cols
+    if (bottom) { select_region(dst, src, x, D.y, /*dst*/0, S.y).row(); }
+    if (left)   { select_region(dst, src, x-1, y, /*dst*/0,   0).column(); }
+    if (right)  { select_region(dst, src, D.x, y, /*dst*/S.x, 0).column(); }
+    // also fill corners
+    if (top && left)     { select_region(dst, src, x-1, y-1, /*dst*/0,   0  ).pixel(); }
+    if (top && right)    { select_region(dst, src, D.x, y-1, /*dst*/S.x, 0  ).pixel(); }
+    if (bottom && left)  { select_region(dst, src, x-1, D.y, /*dst*/0,   S.y).pixel(); }
+    if (bottom && right) { select_region(dst, src, D.x, D.y, /*dst*/S.x, S.y).pixel(); }
 }
 
 DLLEXPORT void __stdcall FillPixels(Image dst, int x, int y, Color color, int w, int h)

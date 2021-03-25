@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
 using Ship_Game.Data.Texture;
@@ -13,13 +14,17 @@ namespace Ship_Game.SpriteSystem
     /// for related textures and animation sequences
     public class TextureAtlas : IDisposable
     {
-        const int Version = 15; // changing this will force all caches to regenerate
+        const int Version = 16; // changing this will force all caches to regenerate
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
         //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
-        static bool ExportTextures = false;
-        static bool ExportPng = true;  // DEBUG: IF exporting, use PNG
-        static bool ExportDds = false; // also use DDS?
+        public static readonly bool ExportTextures = false;
+        public static readonly bool ExportPng = true;  // DEBUG: IF exporting, use PNG
+        public static readonly bool ExportDds = false; // also use DDS?
+        public static readonly bool DebugDrawBounds = false; // draw bounds over every SubTexture
+        public static readonly bool DebugDrawFreeSpots = false; // draw remaining Free spots left during Packing
+        public static readonly bool DebugDrawFreeSpotFills = true; // draw on free spots that were filled with SubTexture
+        public static readonly bool DebugCheckOverlap = true; // whether to validate all Packed SubTextures to ensure no overlap
 
         ulong Hash;
         int NumPacked; // number of packed textures (not all textures are packed)
@@ -152,16 +157,34 @@ namespace Ship_Game.SpriteSystem
             {
                 var atlasPixels = new Color[Width * Height];
 
-                //foreach (Rectangle r in FreeSpots) // DEBUG only!
-                //    ImageUtils.DrawRectangle(atlasPixels, Width, Height, r, Color.AliceBlue);
+                if (DebugDrawFreeSpots)
+                {
+                    foreach (TexturePacker.FreeSpot fs in packer.FreeSpots) // DEBUG only!
+                        ImageUtils.DrawRectangle(atlasPixels, Width, Height, fs.r, Color.AliceBlue);
+                }
 
                 foreach (TextureInfo t in textures) // copy pixels
                 {
                     if (ExportTextures) ExportTexture(t, path);
                     if (t.NoPack) continue;
                     t.TransferTextureToAtlas(atlasPixels, Width, Height);
+                    if (DebugDrawBounds)
+                        ImageUtils.DrawRectangle(atlasPixels, Width, Height, new Rectangle(t.X, t.Y, t.Width, t.Height), Color.YellowGreen);
                     t.DisposeTexture();
                 }
+
+                if (DebugDrawFreeSpotFills)
+                {
+                    foreach (Rectangle r in packer.DebugFreeSpotFills)
+                        ImageUtils.DrawRectangle(atlasPixels, Width, Height, r, Color.BlueViolet);
+                }
+
+                if (DebugCheckOverlap)
+                {
+                    foreach (Rectangle r in packer.DebugOverlapError)
+                        ImageUtils.DrawRectangle(atlasPixels, Width, Height, r, Color.Red);
+                }
+
                 transfer = perf.NextMillis();
 
                 SaveAtlasTexture(content, atlasPixels, path.Texture);
@@ -324,9 +347,9 @@ namespace Ship_Game.SpriteSystem
             public string GetExportPath(TextureInfo t)
             {
                 string prefix = t.NoPack ? "NoPack/" : "";
-                string dir = $"{CacheDir}/{AtlasName}/{prefix}{t.Name}";
-                Directory.CreateDirectory(dir);
-                return dir;
+                string folder = $"{CacheDir}/{AtlasName}/{prefix}";
+                Directory.CreateDirectory(folder);
+                return $"{folder}{t.Name}";
             }
         }
 
