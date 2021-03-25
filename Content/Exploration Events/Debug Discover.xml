@@ -1,0 +1,25 @@
+<ExplorationEvent>
+  <Name>Debug Exploration Event</Name>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <TitleText>It's debugging time</TitleText>
+      <DescriptionText>As your troops approach the mine entrance, they see clearly that this machinery, while ancient, is still in excellent shape. Unfortunately, a nest of DEBUG Antlions has made its home here and your troops find themselves surrounded by foes very suddenly. The surroundings quickly transform into a Dwemer Mine and out of the blazing lava fields, an Ancient Torpedo Cruiser emerges. As our troops heroically board the Torpedo Cruiser and take control, we discover marvellous new technologies. Many Bothans died to get this information.</DescriptionText>
+      <ConfirmText>Kill them before they lay eggs!</ConfirmText>
+      <Image>Encounters/CrashedShip.png</Image>
+      <RemoveTrigger>true</RemoveTrigger>
+
+      <ReplaceWith>Nano Mine</ReplaceWith>
+      <UnlockTech>Ascension Schematics</UnlockTech>
+      <FriendlyShipsToSpawn>
+        <string>Ancient Torpedo Cruiser</string>
+      </FriendlyShipsToSpawn>
+      <TroopsToSpawn>
+        <string>Antlion</string>
+        <string>Antlion</string>
+        <string>Antlion</string>
+      </TroopsToSpawn>
+      
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>
