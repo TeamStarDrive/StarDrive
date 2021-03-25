@@ -5,7 +5,7 @@
       <Chance>20</Chance>
       <TitleText>Riches of the Ancients</TitleText>
       <DescriptionText>Your forces enter the mysterious tomb and find evidence of a long dead civilization. The artifacts and other curiosities found there will sell well on the open market. </DescriptionText>
-      <ConfirmText>Apparently they stopped reproducing because it was deemed racist.</ConfirmText>
+      <ConfirmText>Apparently reproduction was deemed racist.</ConfirmText>
       <MoneyGranted>750</MoneyGranted>
       <RemoveTrigger>true</RemoveTrigger>
     </Outcome>

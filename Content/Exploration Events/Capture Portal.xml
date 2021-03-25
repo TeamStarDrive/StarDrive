@@ -1,0 +1,16 @@
+﻿<ExplorationEvent>
+  <Name>A Fire Upon the Deep</Name>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <TitleText>Your forces have encountered a massive Stargate </TitleText>
+      <DescriptionText>Your assault team arrives at source of the Remnant control signal. What becomes clear immediately is that the building on the planet's surface is not broadcasting the signal. Instead, it seems to be a portal of some sort, massive in size and swirling with energy. The signal is coming from the other side of the portal. \n \n Who would place this portal here, and for what purpose? Where does it lead? Seeing only one way to find out, a scouting party is dispatched through the portal. Almost immediately, the ground begins to shake violently. Fissures open beneath your troops' feet. A frantic transmission is received from your scouting party. "The portal...it leads to a ship! *gunfire*...heavily armed...*explosion*...equipped with bio-weaponry and *static". The transmission ends. As it does so, a monstrous ship emerges from the ground. Buried for Eons, a sleeping menace has awoken. </DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <RemnantShipsToSpawn>
+        <string>Remnant Mothership</string>
+      </RemnantShipsToSpawn>
+    </Outcome>
+    
+  </PotentialOutcomes>
+  
+</ExplorationEvent>
