@@ -1,0 +1,26 @@
+﻿<ExplorationEvent>
+  <Name>A Mysterious Signal</Name>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <TitleText>You have built the Remnant Detection Array</TitleText>
+      <DescriptionText>Your quest to discover the secrets of The Remnant continues. It appears that your scientists' theories are correct: upon activating the Remnant Detection Array, they immediately identified an anomalous subspace data stream that is, so far as they can tell, coming from everywhere at once and no where in particular. With this omnipresent quality, the data stream bears a remarkable similarity to the universal background radation detectable with normal radio telescopes - the signal strength is equal in all directions and extremely faint. Nothing in the known Remnant ships would be capable of detecting this signal.
+
+However, the Array has detected a second, more conventional subspace signal. Analysis suggests that it is an amplified version of the fainter signal and that it is originating inside our galaxy! \n \n The location of the Remnant signal is now revealed. If we wish to learn more then we will need to find it and see what secrets it holds!
+      </DescriptionText>
+      <SelectRandomPlanet>true</SelectRandomPlanet>
+      <SpawnBuildingOnPlanet>Signal Origin</SpawnBuildingOnPlanet>
+      <SpawnFleetInOrbitOfPlanet>Planetary Shield</SpawnFleetInOrbitOfPlanet>
+
+      <TroopsToSpawn>
+        <string>Remnant Defender</string>
+        <string>Remnant Defender</string>
+        <string>Remnant Defender</string>
+        <string>Remnant Defender</string>
+      </TroopsToSpawn>
+      
+    </Outcome>
+    
+  </PotentialOutcomes>
+  
+</ExplorationEvent>

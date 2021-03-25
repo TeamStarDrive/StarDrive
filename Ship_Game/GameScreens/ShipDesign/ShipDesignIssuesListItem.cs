@@ -31,7 +31,7 @@ namespace Ship_Game
             string parsedText = font.ParseText(text, sizeX-30);
             UILabel label     = Add(new UILabel(parsedText, font, color));
             label.Size        = new Vector2(sizeX, 80);
-            label.Align       = align;
+            label.TextAlign       = align;
             label.SetRelPos(relativeX, 0);
            return label;
         }
