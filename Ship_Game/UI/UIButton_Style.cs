@@ -20,7 +20,7 @@ namespace Ship_Game
         DanButton,     // UI/dan_button  -- wide brown button
         DanButtonBlue, // UI/dan_button_blue -- blue version of dan_button
         DanButtonRed, // UI/dan_button_red -- red version of dan_button
-        DanButtonBrownWide, // UI/dan_button_brown_wide -- a wider version of dan_button
+        EventConfirm, // UI/btn_event_confirm -- a big wide confirm button for Event Popups
     }
 
     public partial class UIButton
@@ -66,7 +66,6 @@ namespace Ship_Game
                 {
                     default:
                     case ButtonStyle.DanButton:
-                    case ButtonStyle.DanButtonBrownWide:
                         HoverTextColor = new Color(255, 255, 255, 150);
                         PressTextColor = new Color(255, 255, 255, 150);
                         break;
@@ -110,7 +109,7 @@ namespace Ship_Game
                 new StyleTextures("UI/dan_button", ButtonStyle.DanButton),
                 new StyleTextures("UI/dan_button_blue", ButtonStyle.DanButtonBlue),
                 new StyleTextures("UI/dan_button_red", ButtonStyle.DanButtonRed),
-                new StyleTextures("UI/dan_button_brown_wide", ButtonStyle.DanButtonBrownWide),
+                new StyleTextures("UI/btn_event_confirm_big"),
             };
             return Styling[(int) style];
         }

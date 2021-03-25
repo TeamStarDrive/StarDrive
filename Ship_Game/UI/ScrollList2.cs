@@ -123,6 +123,7 @@ namespace Ship_Game
             Rect = rect;
             Style = style;
             EntryHeight = entryHeight;
+            SetItemsHousing();
         }
 
         public override void OnItemHovered(ScrollListItemBase item)
