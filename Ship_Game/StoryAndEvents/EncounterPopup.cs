@@ -88,6 +88,7 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             CanEscapeFromScreen = Instance.Message.EndTransmission;
+            Close.Visible = CanEscapeFromScreen;
             if (input.RightMouseClick)
                 return false; // dont let this screen exit on right click
 

@@ -10,21 +10,33 @@ namespace Ship_Game
 {
     public class UITextBox : UIPanel
     {
-        readonly ScrollList2<TextBoxItem> TextBox;
+        readonly ScrollList2<TextBoxItem> ItemsList;
 
         public UITextBox(in Rectangle rect) : base(rect, Color.TransparentBlack)
         {
-            TextBox = Add(new ScrollList2<TextBoxItem>(rect));
+            ItemsList = Add(new ScrollList2<TextBoxItem>(rect));
         }
+
+        public bool EnableTextBoxDebug
+        {
+            get => ItemsList.DebugDrawScrollList;
+            set
+            {
+                ItemsList.DebugDrawScrollList = value;
+                ItemsList.EnableItemHighlight = value;
+            }
+        }
+
+        public Rectangle ItemsRect => ItemsList.ItemsHousing;
 
         public UITextBox(Submenu background) : base(background.Rect, Color.TransparentBlack)
         {
-            TextBox = Add(new ScrollList2<TextBoxItem>(background));
+            ItemsList = Add(new ScrollList2<TextBoxItem>(background));
         }
 
         public void Clear()
         {
-            TextBox.Reset();
+            ItemsList.Reset();
         }
 
         public void AddLine(string line)
@@ -34,20 +46,20 @@ namespace Ship_Game
 
         public void AddLine(string line, SpriteFont font, Color color)
         {
-            TextBox.AddItem(new TextBoxItem(line, font, color));
+            ItemsList.AddItem(new TextBoxItem(line, font, color));
         }
 
-        // Parses a textblock into separate lines
+        // Parses and WRAPS textblock into separate lines
         public void AddLines(string textBlock, SpriteFont font, Color color)
         {
-            string[] lines = font.ParseTextToLines(textBlock, Width);
+            string[] lines = font.ParseTextToLines(textBlock, ItemsList.ItemsHousing.Width);
             foreach (string line in lines)
                 AddLine(line, font, color);
         }
 
         public void AddElement(UIElementV2 element)
         {
-            TextBox.AddItem(new TextBoxItem(element));
+            ItemsList.AddItem(new TextBoxItem(element));
         }
 
         class TextBoxItem : ScrollListItem<TextBoxItem>

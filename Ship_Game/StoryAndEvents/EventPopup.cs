@@ -54,44 +54,44 @@ namespace Ship_Game
             Rectangle imgRect = new RectF(MidContainer.X, MidContainer.Bottom + 2,
                                           MidContainer.Width, MidContainer.Width/Image.AspectRatio);
             MidSepBot = new Rectangle(MidContainer.X, imgRect.Bottom, MidContainer.Width, 2);
-
             Panel(imgRect, Image);
 
             Close.Visible = false; // the X just confuses people, a big OK button is better
 
             string confirm = Outcome.ConfirmText.NotEmpty() ? Outcome.ConfirmText : "Great!";
-            var btn = Button(ButtonStyle.DanButtonBrownWide, Vector2.Zero, confirm, OnDismissClicked);
+            var btn = Button(ButtonStyle.EventConfirm, Vector2.Zero, confirm, OnDismissClicked);
             btn.SetPosToCenterOf(this).SetDistanceFromBottomOf(this, 24);
             
-            var textArea = new Rectangle(TitleRect.X - 4, imgRect.Bottom + 10,  TitleRect.Width, 
-                                         (int)(Bottom - imgRect.Bottom - 32));
+            float textBoxBottom = btn.Y - 12;
+            Rectangle textArea = new RectF(X + 8, imgRect.Bottom - 14, Width - 20, textBoxBottom - imgRect.Bottom);
             TextBox = Add(new UITextBox(new Submenu(textArea)));
-            CreateTextBoxContent();
+            TextBox.EnableTextBoxDebug = true;
+            CreateTextBoxContent(TextBox);
         }
 
-        void CreateTextBoxContent()
+        void CreateTextBoxContent(UITextBox textBox)
         {
-            TextBox.AddLines(Outcome.DescriptionText, Fonts.Verdana10, Color.White);
+            textBox.AddLines(Outcome.DescriptionText, Fonts.Verdana10, Color.White);
 
             if (Outcome.SelectRandomPlanet && Outcome.GetPlanet() != null)
             {
-                TextBox.AddLine($"Relevant Planet: {Outcome.GetPlanet().Name}", Fonts.Arial12Bold, Color.LightGreen);
+                textBox.AddLine($"Relevant Planet: {Outcome.GetPlanet().Name}", Fonts.Arial12Bold, Color.LightGreen);
             }
 
             if (Outcome.UnlockTech != null)
             {
-                AddUnlockedTechToTextBox(TextBox, Outcome.UnlockTech);
+                AddUnlockedTechToTextBox(textBox, Outcome.UnlockTech);
             }
 
             if (Outcome.MoneyGranted > 0)
             {
-                TextBox.AddLine($"Money Granted: {Outcome.MoneyGranted}", Fonts.Arial12Bold, Color.Green);
+                textBox.AddLine($"Money Granted: {Outcome.MoneyGranted}", Fonts.Arial12Bold, Color.Green);
             }
 
             if (Outcome.ScienceBonus > 0f)
             {
                 int scienceBonus = (int)(Outcome.ScienceBonus * 100f);
-                TextBox.AddLine($"Research Bonus Granted: {scienceBonus}%", Fonts.Arial12Bold, Color.Blue);
+                textBox.AddLine($"Research Bonus Granted: {scienceBonus}%", Fonts.Arial12Bold, Color.Blue);
             }
         }
 
@@ -108,16 +108,6 @@ namespace Ship_Game
 
             batch.Begin();
             
-            //var textPos = new Vector2(TextArea.X + 10, ImageRect.Bottom + 10);
-
-            //string description = Fonts.Verdana10.ParseText(Outcome.DescriptionText, TextArea.Width - 40);
-            //DrawString(batch, Fonts.Verdana10, description, ref textPos, Color.White);
-
-            //if (Outcome.SelectRandomPlanet && Outcome.GetPlanet() != null)
-            //{
-            //    DrawString(batch, Fonts.Arial12Bold, "Relevant Planet: "+Outcome.GetPlanet().Name, ref textPos, Color.LightGreen);
-            //}
-
             //Artifact art = Outcome.GetArtifact();
             //if (art != null)
             //{
@@ -137,22 +127,6 @@ namespace Ship_Game
             //        textPos.Y += artifactDrawPackage.Font.LineSpacing;
             //        batch.DrawString(artifactDrawPackage.Font, artifactDrawPackage.Text, textPos, artifactDrawPackage.Color);
             //    }
-            //}
-
-            //if (Outcome.UnlockTech != null)
-            //{
-            //    DrawUnlockedTech(batch, ref textPos);
-            //}
-
-            //if (Outcome.MoneyGranted > 0)
-            //{
-            //    DrawString(batch, Fonts.Arial12Bold, $"Money Granted: {Outcome.MoneyGranted}", ref textPos, Color.White);
-            //}
-
-            //if (Outcome.ScienceBonus > 0f)
-            //{
-            //    int scienceBonus = (int)(Outcome.ScienceBonus * 100f);
-            //    DrawString(batch, Fonts.Arial12Bold, $"Research Bonus Granted: {scienceBonus}%", ref textPos, Color.White);			
             //}
 
             batch.End();
@@ -197,20 +171,20 @@ namespace Ship_Game
 
         void AddUnlockedTechToTextBox(UITextBox textBox, string unlockTech)
         {
+            if (!ResourceManager.TryGetTech(unlockTech, out Technology tech))
+            {
+                textBox.AddLine($"Missing Technology: {unlockTech}", Fonts.Arial12Bold, Color.Red);
+                return;
+            }
+
             if (Outcome.WeHadIt)
             {
-                textBox.AddLine("We found some alien technology, but we already possessed this knowledge.",
+                textBox.AddLine($"We found some {tech.Name.Text}, but we already possessed this knowledge.",
                                 Fonts.Arial12Bold, Color.LightYellow);
                 return;
             }
 
-            if (!ResourceManager.TryGetTech(unlockTech, out Technology tech))
-            {
-                textBox.AddLine($"Missing Technology: {tech.UID}", Fonts.Arial12Bold, Color.Red);
-                return;
-            }
-
-            textBox.AddLine($"Technology Acquired: {Localizer.Token(tech.NameIndex)}");
+            textBox.AddLine($"New Technology Acquired: {tech.Name.Text}", Fonts.Arial12Bold, Color.Blue);
 
             if (tech.ModulesUnlocked.Count > 0)
             {
