@@ -26,7 +26,10 @@ namespace Ship_Game.SpriteSystem
                 this.from = from;
             }
         }
+
         public Array<FreeSpot> FreeSpots = new Array<FreeSpot>();
+        public Array<Rectangle> DebugFreeSpotFills = new Array<Rectangle>();
+        public Array<Rectangle> DebugOverlapError = new Array<Rectangle>();
 
         int CursorX, CursorY, BottomY;
         TextureInfo[] Textures;
@@ -90,7 +93,7 @@ namespace Ship_Game.SpriteSystem
         }
 
         // checks for 1px padded overlap
-        void CheckForOverlap(int tIndex, TextureInfo t)
+        bool CheckForOverlap(int tIndex, TextureInfo t)
         {
             var ra = new Rectangle(t.X - 1, t.Y - 1, t.Width + 2, t.Height + 2);
             for (int i = 0; i < tIndex; ++i)
@@ -98,12 +101,17 @@ namespace Ship_Game.SpriteSystem
                 TextureInfo u = Textures[i];
                 if (u.NoPack) continue;
                 var rb = new Rectangle(u.X - 1, u.Y - 1, u.Width + 2, u.Height + 2);
-                if (ra.Intersects(rb))
+                if (ra.GetIntersectingRect(rb, out Rectangle intersection))
                 {
-                    Log.Error($"{t} overlaps with existing tex: {u}");
+                    DebugOverlapError.Add(intersection);
+                    Log.Warning(ConsoleColor.Red, $"{t} overlaps with existing tex: {u}  intersection: {intersection}");
+                    return true;
                 }
             }
+            return false;
         }
+
+
 
         // @note PERF: This is fast enough
         // @return Number of textures that were packed. Big textures are excluded from packing.
@@ -148,7 +156,8 @@ namespace Ship_Game.SpriteSystem
 
                 t.X = CursorX;
                 t.Y = CursorY;
-                //CheckForOverlap(i, t);
+                if (TextureAtlas.DebugCheckOverlap)
+                    CheckForOverlap(i, t);
                 CursorX += (t.Width + Padding);
 
                 // After filling our spot, there is a potential free spot.
@@ -179,9 +188,16 @@ namespace Ship_Game.SpriteSystem
                 Rectangle r = fs.r;
                 if (t.Width > r.Width || t.Height > r.Height)
                     continue;
+
                 t.X = r.X;
                 t.Y = r.Y;
-                //CheckForOverlap(tIndex, t);
+
+                if (TextureAtlas.DebugCheckOverlap)
+                    CheckForOverlap(tIndex, t);
+
+                if (TextureAtlas.DebugDrawFreeSpotFills)
+                    DebugFreeSpotFills.Add(new Rectangle(t.X, t.Y, t.Width, t.Height));
+
                 FreeSpots.RemoveAt(i);
                 int fillX = t.Width  + Padding;
                 int fillY = t.Height + Padding;
