@@ -273,12 +273,10 @@ namespace Ship_Game
             return lines;
         }
 
-        public static void ResetWithParseText(
-            this ScrollList2<TextListItem> list, SpriteFont font, string text, float maxLineWidth)
+        public static void ResetWithParseText(this ScrollList2<TextListItem> list, 
+            SpriteFont font, string text, float maxLineWidth)
         {
-            string parsed = ParseText(font, text, maxLineWidth);
-            list.Reset();
-            string[] lines = parsed.Split('\n');
+            string[] lines = ParseTextToLines(font, text, maxLineWidth);
             TextListItem[] textItems = lines.Select(line => new TextListItem(line, font));
             list.SetItems(textItems);
         }
