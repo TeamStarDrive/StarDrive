@@ -32,6 +32,7 @@ namespace Ship_Game.SpriteSystem
         public Array<FreeSpot> FreeSpots = new Array<FreeSpot>();
         public Array<Rectangle> DebugFreeSpotFills = new Array<Rectangle>();
         public Array<Rectangle> DebugOverlapError = new Array<Rectangle>();
+        public Array<Rectangle> DebugFreeSpotOverlapError = new Array<Rectangle>();
 
         TextureInfo[] Textures;
         string CachePath;
@@ -42,6 +43,12 @@ namespace Ship_Game.SpriteSystem
         {
             CachePath = cachePath;
             Content = content;
+        }
+
+        // @return True if size is close to target size
+        static bool IsNearToPadSize(int size, int target)
+        {
+            return (target - Padding) <= size && size <= target;
         }
 
         void PrepareToPack(TextureInfo[] textures)
@@ -60,7 +67,13 @@ namespace Ship_Game.SpriteSystem
             // filter out textures which shouldn't be packed
             foreach (TextureInfo t in textures)
             {
-                t.NoPack = (t.Width + t.Height) > MaxWidthHeightSum;
+                t.NoPack |= (t.Width + t.Height) >= MaxWidthHeightSum;
+                // for perfectly square 512x512, packing will be waste of texture memory
+                if (IsNearToPadSize(t.Width, 512) &&
+                    IsNearToPadSize(t.Height, 512))
+                {
+                    t.NoPack = true;
+                }
             }
 
             // always set the Width/Height to minimum
@@ -138,6 +151,23 @@ namespace Ship_Game.SpriteSystem
             return false;
         }
 
+        void CheckFreeSpotOverlap()
+        {
+            for (int i = 0; i < FreeSpots.Count; ++i)
+            {
+                var ra = FreeSpots[i].r;
+                for (int j = i + 1; j < FreeSpots.Count; ++j)
+                {
+                    var rb = FreeSpots[j].r;
+                    if (ra.GetIntersectingRect(rb, out Rectangle intersection))
+                    {
+                        DebugFreeSpotOverlapError.Add(intersection);
+                        Log.Warning(ConsoleColor.Red, $"FreeSpot {ra} overlaps with FreeSpot: {rb}  intersection: {intersection}");
+                    }
+                }
+            }
+        }
+
         void SaveFreeSpotsDebug(TextureInfo[] textures)
         {
             var data = new Color[Width * Height];
@@ -205,6 +235,8 @@ namespace Ship_Game.SpriteSystem
                     if (remainingX >= MinFreeSpotSize && remainingY >= MinFreeSpotSize)
                     {
                         FreeSpots.Add(new FreeSpot(cursorX, cursorY, remainingX, remainingY, "endOfX"));
+                        if (TextureAtlas.DebugCheckOverlap)
+                            CheckFreeSpotOverlap();
                     }
                     cursorX = 0;
                     cursorY = bottomY + Padding;
@@ -243,6 +275,8 @@ namespace Ship_Game.SpriteSystem
                     if (freeSpotH >= MinFreeSpotSize)
                     {
                         FreeSpots.Add(new FreeSpot(t.X, freeSpotY, t.Width, freeSpotH, "belowFill"));
+                        if (TextureAtlas.DebugCheckOverlap)
+                            CheckFreeSpotOverlap();
                     }
                 }
             }
@@ -252,12 +286,10 @@ namespace Ship_Game.SpriteSystem
         // @return Number of textures that were packed. Big textures are excluded from packing.
         public int PackTextures(TextureInfo[] textures)
         {
-            var s = Stopwatch.StartNew();
             PrepareToPack(textures);
             PackByLinearWalk(textures);
             
             int packed = FinalizePack();
-            //Log.Write($"PackTextures elapsed: {s.Elapsed.TotalMilliseconds}ms");
             return packed;
         }
 
@@ -283,8 +315,8 @@ namespace Ship_Game.SpriteSystem
                     DebugFreeSpotFills.Add(new Rectangle(t.X, t.Y, t.Width, t.Height));
 
                 FreeSpots.RemoveAt(i);
-                int remX = r.Width  - fillX - Padding;
-                int remY = r.Height - fillY - Padding;
+                int remX = r.Width  - fillX;
+                int remY = r.Height - fillY;
                 // We have remaining sections A, B that could be recycled
                 // So split it up if >= MinFreeSpotSize and insert to freeSpots
                 // _____________
@@ -306,7 +338,9 @@ namespace Ship_Game.SpriteSystem
                 {
                     FreeSpots.Insert(i, new FreeSpot(r.X, r.Y + fillY, fillX + remX, remY, "BB"));
                 }
-                //SortFreeSpots();
+
+                if (TextureAtlas.DebugCheckOverlap)
+                    CheckFreeSpotOverlap();
                 return true; // success! we filled the free spot
             }
             return false;

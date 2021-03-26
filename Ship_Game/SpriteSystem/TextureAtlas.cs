@@ -24,7 +24,7 @@ namespace Ship_Game.SpriteSystem
         public static readonly bool DebugDrawBounds = false; // draw bounds over every SubTexture
         public static readonly bool DebugDrawFreeSpots = false; // draw remaining Free spots left during Packing
         public static readonly bool DebugDrawFreeSpotFills = false; // draw on free spots that were filled with SubTexture
-        public static readonly bool DebugCheckOverlap = false; // whether to validate all Packed SubTextures to ensure no overlap
+        public static readonly bool DebugCheckOverlap = true; // whether to validate all Packed SubTextures to ensure no overlap
         public static readonly bool DebugPackerExpansion = false; // saves failed packer state for analysis
 
         ulong Hash;
@@ -184,6 +184,8 @@ namespace Ship_Game.SpriteSystem
                 {
                     foreach (Rectangle r in packer.DebugOverlapError)
                         ImageUtils.DrawRectangle(atlasPixels, Width, Height, r, Color.Red);
+                    foreach (Rectangle r in packer.DebugFreeSpotOverlapError)
+                        ImageUtils.DrawRectangle(atlasPixels, Width, Height, r, Color.Magenta);
                 }
 
                 transfer = perf.NextMillis();
@@ -377,8 +379,9 @@ namespace Ship_Game.SpriteSystem
         }
 
         // @note Guaranteed to load an atlas with at least 1 texture
+        // @param useTextureCache if true try to load texture from existing texture cache folder
         // @return null if no textures in atlas {folder}
-        public static TextureAtlas FromFolder(GameContentManager content, string folder, bool useCache = true)
+        public static TextureAtlas FromFolder(GameContentManager content, string folder, bool useTextureCache = true)
         {
             TextureAtlas atlas = null;
             try
@@ -396,7 +399,7 @@ namespace Ship_Game.SpriteSystem
                 atlas.Hash = CreateHash(files);
                 var path = new AtlasPath(folder);
 
-                if (useCache && atlas.TryLoadCache(content, path))
+                if (useTextureCache && atlas.TryLoadCache(content, path))
                     return atlas;
 
                 atlas.CreateAtlas(content, files, path);
