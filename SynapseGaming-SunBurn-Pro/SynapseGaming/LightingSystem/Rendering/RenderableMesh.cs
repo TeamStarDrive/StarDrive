@@ -41,10 +41,10 @@ namespace SynapseGaming.LightingSystem.Rendering
         internal int elementStart;
         internal PrimitiveType Type;
         internal int int_5;
-        internal int int_6;
+        internal int EffectHash;
         internal int int_7;
         internal TransparencyMode Transparency;
-        internal bool bool_1;
+        internal bool AddedToEffectGroup;
         internal bool HasTransparency;
         internal bool IsDoubleSided;
         internal bool SupportsShadows;
@@ -261,7 +261,7 @@ namespace SynapseGaming.LightingSystem.Rendering
             if (this.effect == null)
                 return;
             int_7 = indexBuffer == null ? CoreUtils.smethod_17(vertexBuffer.GetHashCode(), vertexStreamOffset, stride) : CoreUtils.smethod_18(indexBuffer.GetHashCode(), vertexBuffer.GetHashCode(), vertexStreamOffset, stride);
-            int_6 = this.effect.GetHashCode();
+            EffectHash = this.effect.GetHashCode();
             SetWorldAndWorldToObject(Matrix.Identity, Matrix.Identity);
             CalculateMaterialInfo();
         }
