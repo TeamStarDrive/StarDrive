@@ -391,13 +391,13 @@ namespace Ship_Game.Data
         }
 
         // @note Guaranteed to load an atlas with at least 1 texture
-        public TextureAtlas LoadTextureAtlas(string folderWithTextures, bool useCache = true)
+        public TextureAtlas LoadTextureAtlas(string folderWithTextures, bool useAssetCache = true)
         {
-            if (useCache && TryGetAsset(folderWithTextures, out TextureAtlas existing))
+            if (useAssetCache && TryGetAsset(folderWithTextures, out TextureAtlas existing))
                 return existing;
 
             TextureAtlas atlas = TextureAtlas.FromFolder(this, folderWithTextures);
-            if (atlas != null && useCache) RecordCacheObject(folderWithTextures, atlas);
+            if (atlas != null && useAssetCache) RecordCacheObject(folderWithTextures, atlas);
             return atlas;
         }
 
@@ -412,7 +412,7 @@ namespace Ship_Game.Data
 
             string folder = textureName.Substring(0, i);
             // @note LoadTextureAtlas useCache MUST be true, otherwise TextureAtlas will be destroyed
-            TextureAtlas atlas = LoadTextureAtlas(folder, useCache: true);
+            TextureAtlas atlas = LoadTextureAtlas(folder, useAssetCache: true);
             if (atlas == null)
                 return null;
 
