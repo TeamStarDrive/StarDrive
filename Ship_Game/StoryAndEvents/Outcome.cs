@@ -33,6 +33,9 @@ namespace Ship_Game
         public float ChangeBaseMaxFertility;
         public float ChangeRichness;
 
+        // Text to show on the confirmation button
+        public string ConfirmText;
+
         // relative path to Image asset to be used while displaying the event
         public string Image;
 
