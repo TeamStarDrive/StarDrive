@@ -7,7 +7,7 @@ namespace Ship_Game
 {
     public enum TextAlign
     {
-        // normal text alignment:
+        // normal text alignment: TopLeft
         //    x
         //      TEXT
         Default,
@@ -63,7 +63,7 @@ namespace Ship_Game
         public bool IsMouseOver { get; private set; }
 
         // Text Alignment will change the alignment axis along which the text is drawn
-        public TextAlign Align;
+        public TextAlign TextAlign = TextAlign.Default;
 
         public LocalizedText Text
         {
@@ -199,7 +199,7 @@ namespace Ship_Game
 
         void DrawTextLine(SpriteBatch batch, string text, Vector2 pos, Color color)
         {
-            switch (Align)
+            switch (TextAlign)
             {
                 // NOTE: Text pos MUST be rounded to pixel boundaries
                 default:

@@ -494,6 +494,7 @@
     <Compile Include="Ship_Game\SpriteSystem\DrawableSprite.cs" />
     <Compile Include="Ship_Game\GameScreens\Espionage\AgentListItem.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\ArtifactItemListItem.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\EncounterInstance.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\ResponseListItem.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\WikiHelpCategoryListItem.cs" />
     <Compile Include="Ship_Game\Threading\ActionQueue.cs" />
@@ -522,6 +523,7 @@
     <Compile Include="Ship_Game\UI\UIGraphView.cs" />
     <Compile Include="Ship_Game\UI\UIList.cs" />
     <Compile Include="Ship_Game\UI\UIPanel.cs" />
+    <Compile Include="Ship_Game\UI\UITextBox.cs" />
     <Compile Include="Ship_Game\Universe\EmpireSolarSystemStatus.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Volcano.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\DynamicCrashSite.cs" />
@@ -2041,10 +2043,34 @@
     <Content Include="Content\Encounter Dialogs\Corsairs000_ToPlayerDemandtMoney.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Exploration Events\BuiltRDA.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\Capture Portal.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\Debug Discover.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Exploration Events\Default.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Exploration Events\DefeatedMothership.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\Discover Array.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\Discover Mine.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Exploration Events\Discover Ship.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\Discover Tomb.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\OwlwokFreedom.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Exploration Events\RemnantAllStories01.xml">
@@ -2621,6 +2647,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\TacticalIcons\symbol_status.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\UI\btn_event_confirm_big.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\UI\btn_event_confirm_big_hover.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\UI\btn_event_confirm_big_pressed.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\UI\dan_button_red.png">
