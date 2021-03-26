@@ -42,7 +42,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     {
                         int extraFleets = 0;
                         extraFleets = task.TargetPlanet != null ? HardTargets.Count(g => g == task.TargetPlanet.guid) : 0;
-                        task.FleetCount += extraFleets > 0 ?1 :0;
+                        task.FleetCount += extraFleets > 0 ? 1 :0;
                     }
                     task.Evaluate(Owner);
                 }
