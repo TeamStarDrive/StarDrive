@@ -1,0 +1,15 @@
+﻿<ExplorationEvent>
+  <Name>Mystery of the Remnant</Name>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <TitleText>Unraveling the mystery of the Remnant</TitleText>
+      <DescriptionText>As your troops enter the mysterious ruins, their scans immediately reveal that this structure is older than any known structure in the galaxy. The building is massive in size and has a single large open space inside. A platform stands suspended over a central shaft leading deep into the planetary core. \n \n The inside walls of the structure are covered in ornate engravings from floor to ceiling. The images depict a humanoid creature standing on the platform as a great energy overtakes him. Over and over this imagery is repeated. \n \n At the far end of this massive hall your troops discover an active energy source - a small device contained within some sort of stasis field. Upon inspection, the device is a sort of quantum data storage unit. It contains the schematics for this building!</DescriptionText>
+      <ConfirmText>Ooh, shiny!</ConfirmText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <UnlockTech>Ascension Schematics</UnlockTech>
+    </Outcome>
+    
+  </PotentialOutcomes>
+  
+</ExplorationEvent>

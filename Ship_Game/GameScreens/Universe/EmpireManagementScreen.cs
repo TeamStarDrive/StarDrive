@@ -37,7 +37,7 @@ namespace Ship_Game
             var titleRect = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             Add(new Menu2(titleRect));
             Add(new UILabel(titleRect, GameText.EmpireManagement, Fonts.Laserian14, Cream)
-                { Align = TextAlign.Center });
+                { TextAlign = TextAlign.Center });
 
             var mainBkg = new Rectangle(2, titleRect.Bottom + 5, ScreenWidth - 10, ScreenHeight - titleRect.Bottom - 7);
             Add(new Menu2(mainBkg));
