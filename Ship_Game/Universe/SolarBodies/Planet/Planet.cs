@@ -403,6 +403,9 @@ namespace Ship_Game
 
         public float ColonyPotentialValue(Empire empire)
         {
+            if (!Habitable)
+                return 0;
+
             float value = 0;
             if (empire.NonCybernetic)
                 value += PotentialMaxFertilityFor(empire) * 10;

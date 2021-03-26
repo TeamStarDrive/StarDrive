@@ -35,7 +35,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             Words = words;
             IsHeader = isHeader;
             Text = Add(new UILabel(words, Font));
-            Text.Align = TextAlign.VerticalCenter;
+            Text.TextAlign = TextAlign.VerticalCenter;
         }
 
         public override void PerformLayout()

@@ -85,7 +85,7 @@ namespace Ship_Game
         public void DebugTriggerOutcome(Planet p, Empire triggeredBy, Outcome outcome,
                                         PlanetGridSquare eventLocation)
         {
-            var popup = new EventPopup(Empire.Universe, triggeredBy, this, outcome, false);
+            var popup = new EventPopup(Empire.Universe, triggeredBy, this, outcome, false, p);
             outcome.CheckOutComes(p, eventLocation, triggeredBy, popup);
             Empire.Universe.ScreenManager.AddScreenDeferred(popup);
             GameAudio.PlaySfxAsync("sd_notify_alert");

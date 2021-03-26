@@ -1,7 +1,6 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Empires.DataPackets;
-using static Ship_Game.AI.ThreatMatrix;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
@@ -51,8 +50,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     var priority = casual - threatenedSystem.TargetSystem.PlanetList
                         .FindMax(p => p.Owner == Owner ? p.Level : 0)?.Level ?? 0;
 
-                    float minStr = 
-                        threatenedSystem.Strength.Greater(500) ? threatenedSystem.Strength: 1000;
+                    float minStr = threatenedSystem.Strength.Greater(500) ? threatenedSystem.Strength: 1000;
 
                     if (threatenedSystem.Enemies.Length > 0)
                         minStr *= Owner.GetFleetStrEmpireMultiplier(threatenedSystem.Enemies[0]).UpperBound(Owner.OffensiveStrength / 5);
@@ -62,6 +60,65 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
  
             return GoalStep.GoToNextStep;
+        }
+
+        protected override GoalStep AssesCampaign()
+        {
+            if (Tasks.NewTasks.Count == 0) // We have defense tasks
+                return GoalStep.RestartGoal;
+
+            foreach (MilitaryTask defenseTask in Tasks.NewTasks.Filter(t => t.type == MilitaryTask.TaskType.ClearAreaOfEnemies))
+            {
+                if (defenseTask.Fleet != null)
+                    continue; // We have a fleet for this task
+
+                foreach (MilitaryTask possibleTask in Owner.GetEmpireAI().GetPotentialTasksToCompare())
+                {
+                    if (possibleTask != defenseTask) 
+                    {
+                        if (DefenseTaskHasHigherPriority(defenseTask, possibleTask))
+                        {
+                            possibleTask.EndTask();
+                            return GoalStep.RestartGoal;
+                        }
+                    }
+                }
+            }
+
+            return GoalStep.RestartGoal;
+        }
+
+        bool DefenseTaskHasHigherPriority(MilitaryTask defenseTask, MilitaryTask possibleTask)
+        {
+            if (possibleTask == defenseTask)
+                return false; // Since we also check other defense tasks, we dont want to compare same task
+
+            SolarSystem system  = defenseTask.TargetSystem ?? defenseTask.TargetPlanet.ParentSystem;
+            if (system.PlanetList.Any(p => p.Owner == Owner && p.HasCapital)
+                && !possibleTask.TargetSystem?.PlanetList.Any(p => p.Owner == Owner && p.HasCapital) == true)
+            {
+                return true; // Defend our home systems at all costs (unless the other task also has a home system)!
+            }
+
+            Planet target       = possibleTask.TargetPlanet;
+            float defenseValue  = system.PotentialValueFor(Owner) * 10 * Owner.PersonalityModifiers.DefenseTaskWeight;
+            float possibleValue = target.ParentSystem.PotentialValueFor(Owner);
+
+            if (possibleTask.Fleet != null) // compare distances as well
+            {
+                float defenseDist   = possibleTask.Fleet.AveragePosition().Distance(system.Position) / 10000;
+                float expansionDist = possibleTask.Fleet.AveragePosition().Distance(target.Center) / 10000;
+                defenseValue       /= defenseDist.LowerBound(1);
+                possibleValue      /= expansionDist.LowerBound(1);
+            }
+
+            if (defenseValue.GreaterOrEqual(possibleValue))
+            {
+                possibleTask.EndTask();
+                return true;
+            }
+
+            return false;
         }
     }
 }

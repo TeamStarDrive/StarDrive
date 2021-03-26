@@ -22,18 +22,15 @@ namespace Ship_Game
         [Serialize(14)] public float ModuleHPMod;
 
 
-        private bool TrySetArtifactEffect(ref float outModifier, float inModifier, RacialTrait traits,
-            string text, EventPopup popup, bool percent = true)
+        bool TrySetArtifactEffect(ref float outModifier, float inModifier, RacialTrait traits,
+                                  string text, EventPopup popup, bool percent = true)
         {
             if (inModifier <= 0f)
                 return false;
+
             outModifier += inModifier + inModifier * traits.Spiritual;
-            if (popup != null)
-            {
-                var drawpackage = new EventPopup.DrawPackage(text, Fonts.Arial12Bold, outModifier, Color.White, percent ? "%" : "");
-                popup.DrawPackages[EventPopup.Packagetypes.Artifact].Add(drawpackage);
-            }
-            return true;            
+            popup?.AddArtifactEffect(new EventPopup.ArtifactEffect(text, outModifier, percent));
+            return true;
         }
 
         public void CheckGrantArtifact(Empire triggerer, Outcome triggeredOutcome, EventPopup popup)

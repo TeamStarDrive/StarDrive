@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace Ship_Game
 {
@@ -16,9 +17,10 @@ namespace Ship_Game
         ResearchQueueUp, // "ResearchMenu/button_queue_up"
         ResearchQueueDown, // "ResearchMenu/button_queue_down"
         ResearchQueueCancel, // "ResearchMenu/button_queue_cancel"
-        DanButton,     // UI/dan_button
-        DanButtonBlue, // UI/dan_button_blue
-        DanButtonRed // UI/dan_button_red
+        DanButton,     // UI/dan_button  -- wide brown button
+        DanButtonBlue, // UI/dan_button_blue -- blue version of dan_button
+        DanButtonRed, // UI/dan_button_red -- red version of dan_button
+        EventConfirm, // UI/btn_event_confirm -- a big wide confirm button for Event Popups
     }
 
     public partial class UIButton
@@ -62,6 +64,11 @@ namespace Ship_Game
                 Normal = Hover = Pressed = ResourceManager.Texture(normal);
                 switch (style)
                 {
+                    default:
+                    case ButtonStyle.DanButton:
+                        HoverTextColor = new Color(255, 255, 255, 150);
+                        PressTextColor = new Color(255, 255, 255, 150);
+                        break;
                     case ButtonStyle.DanButtonBlue:
                         DefaultTextColor = new Color(205, 229, 255);
                         HoverTextColor   = new Color(174, 202, 255);
@@ -71,11 +78,6 @@ namespace Ship_Game
                         DefaultTextColor = Color.Red;
                         HoverTextColor   = Color.White;
                         PressTextColor   = Color.Green;
-                        break;
-                    case ButtonStyle.DanButton:
-                    default:
-                        HoverTextColor = new Color(255, 255, 255, 150);
-                        PressTextColor = new Color(255, 255, 255, 150);
                         break;
                 }
             }
@@ -106,7 +108,8 @@ namespace Ship_Game
                 new StyleTextures("ResearchMenu/button_queue_cancel", "ResearchMenu/button_queue_cancel_hover"),
                 new StyleTextures("UI/dan_button", ButtonStyle.DanButton),
                 new StyleTextures("UI/dan_button_blue", ButtonStyle.DanButtonBlue),
-                new StyleTextures("UI/dan_button_red", ButtonStyle.DanButtonRed)
+                new StyleTextures("UI/dan_button_red", ButtonStyle.DanButtonRed),
+                new StyleTextures("UI/btn_event_confirm_big"),
             };
             return Styling[(int) style];
         }

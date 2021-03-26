@@ -17,6 +17,7 @@ namespace Ship_Game
         TaskResult LoadResult;
         readonly bool ShowSplash;
         readonly bool ResetResources;
+        SpriteFont StatusFont;
 
         public GameLoadingScreen(bool showSplash, bool resetResources) : base(null/*no parent*/)
         {
@@ -27,6 +28,22 @@ namespace Ship_Game
             SplashPlayer  = new ScreenMediaPlayer(TransientContent);
         }
         
+        static string StatusCategory;
+        static string StatusText;
+        public static void SetStatus(string category, string item)
+        {
+            SetCategory(category);
+            SetItem(item);
+        }
+        public static void SetCategory(string category)
+        {
+            StatusCategory = category;
+        }
+        public static void SetItem(string item)
+        {
+            StatusText = item.NotEmpty() ? StatusCategory+":"+item : StatusCategory;
+        }
+
         bool ShowSplashVideo => ShowSplash && !Debugger.IsAttached;
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -46,24 +63,36 @@ namespace Ship_Game
             {
                 Device.Clear(Color.Black);
 
-                
                 try
                 {
                     batch.Begin();
-                    LoadingPlayer.Draw(batch);
-                    SplashPlayer.Draw(batch);
-                }
-                catch
-                {
-                    Log.Warning($"Video Player thread error Begin cannot be called again. Line 52 of Game loading screen." );
+                    try
+                    {
+                        LoadingPlayer.Draw(batch);
+                        SplashPlayer.Draw(batch);
+                    }
+                    catch
+                    {
+                    }
+
+                    if (BridgeTexture != null)
+                        batch.Draw(BridgeTexture, BridgeRect, Color.White);
+
+                    string status = StatusText;
+                    if (status.NotEmpty())
+                        DrawCentered(batch, status, Height*0.8f, Color.White);
                 }
                 finally
                 {
-                    if (BridgeTexture != null)
-                        batch.Draw(BridgeTexture, BridgeRect, Color.White);
                     batch.End();
                 }
             }
+        }
+
+        void DrawCentered(SpriteBatch batch, string text, float y, Color c)
+        {
+            int width = StatusFont.TextWidth(text);
+            batch.DrawString(StatusFont, text, CenterX - width/2, y, c);
         }
 
         public override void Update(float fixedDeltaTime)
@@ -100,6 +129,8 @@ namespace Ship_Game
 
             int w = ScreenWidth, h = ScreenHeight;
             int screenCx = w / 2, screenCy = h / 2;
+
+            StatusFont = Fonts.LoadFont(TransientContent, "Arial12");
 
             BridgeTexture = TransientContent.Load<Texture2D>("Textures/GameScreens/Bridge");
             // fit to screen width
