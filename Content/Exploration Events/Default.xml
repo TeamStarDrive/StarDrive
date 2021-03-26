@@ -5,6 +5,7 @@
       <Chance>100</Chance>
       <TitleText>ERROR</TitleText>
       <DescriptionText>CRASH! Your troops curse the gods or universe or whatever is that created this version of the world as a giant sign says "Out of Order please contact creator of mod" on what looks like the most powerful weapon to have ever existed. With a frown commander James McGill eyes the device and quickly calculates its black market value...</DescriptionText>
+      <ConfirmText>Incompetent fools, all of them!</ConfirmText>
       <MoneyGranted>150</MoneyGranted>
       <RemoveTrigger>true</RemoveTrigger>
     </Outcome>

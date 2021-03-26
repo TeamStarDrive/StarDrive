@@ -11,7 +11,8 @@ namespace Ship_Game
     }
 
     /// <summary>
-    /// Text localization utility struct to lazily bind localized text to UI elements
+    /// Text localization utility struct to lazily bind localized text to UI elements.
+    /// This enables UI Text elements that adapt to language change
     /// </summary>
     public struct LocalizedText : IEquatable<LocalizedText>
     {

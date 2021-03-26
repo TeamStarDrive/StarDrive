@@ -6,7 +6,8 @@
     <Outcome>
       <Chance>100</Chance>
       <TitleText>Remnants In The Galaxy</TitleText>
-      <DescriptionText>We have encountered a strange group of decidedly hostile aliens in our exploration efforts. These aliens are aggressive, unwilling or unable to communicate, and have no regard for their personal safety. The leading theory is that these ships are the remains of some former and now fallen space empire. For this reason, we haved named this race "The Remnant." \n \n By destroying Remnant vessels and analyzing their fragments, our scientists should be able to uncover more details regarding these Remnants.</DescriptionText>
+      <DescriptionText>We have encountered a strange group of decidedly hostile aliens in our exploration efforts. These aliens are aggressive, unwilling or unable to communicate, and have no regard for their personal safety. The leading theory is that these ships are the remains of some former and now fallen space empire. For this reason, we have named this race "The Remnant." \n \n By destroying Remnant vessels and analyzing their fragments, our scientists should be able to uncover more details regarding these Remnants.</DescriptionText>
+      <ConfirmText>I'll be sure to note that in my log.</ConfirmText>
     </Outcome>
   </PotentialOutcomes>
 </ExplorationEvent>
