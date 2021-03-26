@@ -27,22 +27,22 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
         private int int_4 = 1;
         private List<ISceneObject> list_2 = new List<ISceneObject>();
         private List<RenderableMesh> renderableMeshes = new List<RenderableMesh>();
-        private List<Class63> list_4 = new List<Class63>();
-        private List<Class63> list_5 = new List<Class63>();
-        private List<Class63> list_6 = new List<Class63>();
+        private List<EffectMeshGroup> list_4 = new List<EffectMeshGroup>();
+        private List<EffectMeshGroup> list_5 = new List<EffectMeshGroup>();
+        private List<EffectMeshGroup> list_6 = new List<EffectMeshGroup>();
         private ShaderSamplerData class65_0 = new ShaderSamplerData();
         private ShaderMeshData ShaderMesh = new ShaderMeshData();
         private List<ILight> list_8 = new List<ILight>();
         private List<RenderableMesh> list_9 = new List<RenderableMesh>();
-        private List<Class63> list_10 = new List<Class63>();
-        private List<Class63> list_11 = new List<Class63>();
-        private List<Class63> list_12 = new List<Class63>();
+        private List<EffectMeshGroup> list_10 = new List<EffectMeshGroup>();
+        private List<EffectMeshGroup> list_11 = new List<EffectMeshGroup>();
+        private List<EffectMeshGroup> list_12 = new List<EffectMeshGroup>();
         private List<RenderableMesh> list_13 = new List<RenderableMesh>();
         private Dictionary<ISceneObject, bool> dictionary_0 = new Dictionary<ISceneObject, bool>();
         private Vector3[] vector3_0 = new Vector3[8];
         private bool[] bool_5 = new bool[6];
-        private bool bool_3;
-        private const bool bool_4 = false;
+        private bool HasDepthStencil;
+        private const bool UnusedDebugFlag = false;
         private FogEffect fogEffect_0;
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             FillMode fillMode = graphicsDevice.RenderState.FillMode;
             graphicsDevice.RenderState.FillMode = FillMode.Solid;
             DepthStencilBuffer depthStencilBuffer = graphicsDevice.DepthStencilBuffer;
-            bool_3 = depthStencilBuffer != null && depthStencilBuffer.Format == DepthFormat.Depth24Stencil8;
+            HasDepthStencil = depthStencilBuffer != null && depthStencilBuffer.Format == DepthFormat.Depth24Stencil8;
             if (fogEffect_0 == null)
                 fogEffect_0 = new FogEffect(graphicsDevice);
             list_2.Clear();
@@ -129,9 +129,9 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                 }
             }
             renderableMeshes.Sort(class61_0);
-            class64_0.method_0(SceneState.View, SceneState.ViewToWorld, SceneState.Projection, SceneState.ProjectionToView, list_4, renderableMeshes, Enum7.flag_0 | Enum7.flag_1 | Enum7.flag_2 | Enum7.flag_3);
-            class64_0.method_0(SceneState.View, SceneState.ViewToWorld, SceneState.Projection, SceneState.ProjectionToView, list_5, renderableMeshes, Enum7.flag_0);
-            class64_0.method_0(SceneState.View, SceneState.ViewToWorld, SceneState.Projection, SceneState.ProjectionToView, list_6, renderableMeshes, Enum7.flag_0 | Enum7.flag_1);
+            class64_0.CreateGroups(SceneState.View, SceneState.ViewToWorld, SceneState.Projection, SceneState.ProjectionToView, list_4, renderableMeshes, Enum7.flag_0 | Enum7.flag_1 | Enum7.flag_2 | Enum7.flag_3);
+            class64_0.CreateGroups(SceneState.View, SceneState.ViewToWorld, SceneState.Projection, SceneState.ProjectionToView, list_5, renderableMeshes, Enum7.flag_0);
+            class64_0.CreateGroups(SceneState.View, SceneState.ViewToWorld, SceneState.Projection, SceneState.ProjectionToView, list_6, renderableMeshes, Enum7.flag_0 | Enum7.flag_1);
             FrameShadowRenderTargetGroups.Clear();
             var manager2 = (IShadowMapManager)ServiceProvider.GetManager(SceneInterface.ShadowMapManagerType, false);
             if (manager2 == null)
@@ -167,7 +167,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             {
                 Color color = new Color(state.Environment.FogColor);
                 ClearOptions options = ClearOptions.Target | ClearOptions.DepthBuffer;
-                if (MultiPassEdgeCleanupEnabled && bool_3)
+                if (MultiPassEdgeCleanupEnabled && HasDepthStencil)
                     options |= ClearOptions.Stencil;
                 graphicsDevice.Clear(options, color, 1f, 0);
             }
@@ -199,7 +199,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                             ObjectFilter objectfilter = shadowGroup.ShadowSource.ShadowType != ShadowType.AllObjects ? ObjectFilter.Static : ObjectFilter.DynamicAndStatic;
                             manager1.Find(list_9, shadowGroup.BoundingBox, objectfilter);
                             list_9.Sort(class61_0);
-                            class64_0.method_1(list_10, list_9, false, bool_4);
+                            class64_0.method_1(list_10, list_9, false, UnusedDebugFlag);
                             if (manager2 != null)
                                 manager2.BeginShadowGroupRendering(shadowGroup);
                             Vector3 shadowPosition = shadowGroup.ShadowSource.ShadowPosition;
@@ -228,7 +228,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                                             }
                                         }
                                     }
-                                    foreach (Class63 class63 in list_10)
+                                    foreach (EffectMeshGroup class63 in list_10)
                                     {
                                         if (class63.HasRenderableObjects)
                                         {
@@ -302,8 +302,8 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                 fogEffect_0.StartDistance = SceneState.Environment.FogStartDistance;
                 fogEffect_0.EndDistance = SceneState.Environment.FogEndDistance;
                 fogEffect_0.Color = SceneState.Environment.FogColor;
-                class64_0.method_1(list_12, renderableMeshes, false, bool_4);
-                foreach (Class63 class63 in list_12)
+                class64_0.method_1(list_12, renderableMeshes, false, UnusedDebugFlag);
+                foreach (EffectMeshGroup class63 in list_12)
                 {
                     EffectHelper.SyncObjectAndShadowEffects(class63.Effect, fogEffect_0);
                     fogEffect_0.Skinned = false;
@@ -330,7 +330,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             ILightManager manager = (ILightManager)ServiceProvider.GetManager(SceneInterface.LightManagerType, false);
             if (manager != null)
                 manager.RenderVolumeLights(null);
-            class64_0.method_2();
+            class64_0.ResetPool();
         }
 
         /// <summary>
@@ -355,8 +355,8 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             class57_0.lightingSystemStatistic_7.AccumulationValue += shadowGroup.Lights.Count;
             bool flag1 = shadowGroup.ShadowSource is IPointSource;
             GraphicsDevice graphicsDevice = GraphicsDeviceManager.GraphicsDevice;
-            List<Class63> list_14 = flag1 ? list_5 : list_6;
-            foreach (Class63 class63 in list_14)
+            List<EffectMeshGroup> list_14 = flag1 ? list_5 : list_6;
+            foreach (EffectMeshGroup class63 in list_14)
             {
                 class63.HasRenderableObjects = false;
                 foreach (RenderableMesh renderableMesh in class63.Objects.All)
@@ -387,12 +387,12 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             {
                 IShadowMap shadow = shadowGroup.Shadow as IShadowMap;
                 list_11.Clear();
-                class64_0.method_1(list_11, renderableMeshes, true, bool_4);
+                class64_0.method_1(list_11, renderableMeshes, true, UnusedDebugFlag);
                 graphicsDevice.RenderState.AlphaBlendEnable = false;
                 graphicsDevice.RenderState.SourceBlend = Blend.One;
                 graphicsDevice.RenderState.DestinationBlend = Blend.Zero;
                 graphicsDevice.RenderState.ColorWriteChannels = ColorWriteChannels.Alpha;
-                foreach (Class63 class63_0 in list_11)
+                foreach (EffectMeshGroup class63_0 in list_11)
                 {
                     if (class63_0.HasRenderableObjects)
                     {
@@ -413,7 +413,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                 graphicsDevice.RenderState.DestinationBlend = Blend.One;
             }
             bool flag4;
-            if ((flag4 = shadowGroup.Lights.Count == 1) && MultiPassEdgeCleanupEnabled && bool_3)
+            if ((flag4 = shadowGroup.Lights.Count == 1) && MultiPassEdgeCleanupEnabled && HasDepthStencil)
             {
                 graphicsDevice.RenderState.StencilEnable = true;
                 graphicsDevice.RenderState.StencilFunction = CompareFunction.NotEqual;
@@ -429,7 +429,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                     int_4 = 1;
             }
             method_2(list_14, shadowGroup.Lights, true, TransparencyMode.const_2);
-            if (flag4 && MultiPassEdgeCleanupEnabled && bool_3)
+            if (flag4 && MultiPassEdgeCleanupEnabled && HasDepthStencil)
                 graphicsDevice.RenderState.StencilEnable = false;
             if (flag2)
                 graphicsDevice.RenderState.ScissorTestEnable = false;
@@ -438,7 +438,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             graphicsDevice.RenderState.ColorWriteChannels = ColorWriteChannels.All;
         }
 
-        private void method_1(ShadowRenderTargetGroup shadowRenderTargetGroup_1, ShadowGroup shadowGroup_0, Class63 class63_0)
+        private void method_1(ShadowRenderTargetGroup shadowRenderTargetGroup_1, ShadowGroup shadowGroup_0, EffectMeshGroup class63_0)
         {
             if (class63_0.Objects.All.Count < 1 || shadowGroup_0.Lights.Count < 1 || !(shadowGroup_0.Shadow is IShadowMap))
                 return;
@@ -464,10 +464,10 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             shadow.EndRendering();
         }
 
-        private void method_2(List<Class63> list_14, List<ILight> list_15, bool bool_6, TransparencyMode enum6_0)
+        private void method_2(List<EffectMeshGroup> list_14, List<ILight> list_15, bool bool_6, TransparencyMode enum6_0)
         {
             LightingSystemPerformance.Begin("RenderManager.RenderObjectBatches");
-            foreach (Class63 class63 in list_14)
+            foreach (EffectMeshGroup class63 in list_14)
             {
                 if (!bool_6 || class63.HasRenderableObjects)
                 {
