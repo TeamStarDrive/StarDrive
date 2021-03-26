@@ -76,7 +76,7 @@ namespace Ship_Game
             if (input.ZoomToShip) InputZoomToShip();
             if (input.ZoomOut) InputZoomOut();
             if (input.Escaped) DefaultZoomPoints();
-            if (input.Tab) ShowShipNames = !ShowShipNames;
+            if (input.Tab && !input.LeftCtrlShift) ShowShipNames = !ShowShipNames;
 
             HandleFleetSelections(input);
             HandleShipSelectionAndOrders();

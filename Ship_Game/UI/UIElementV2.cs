@@ -144,6 +144,30 @@ namespace Ship_Game
             RequiresLayout = true;
         }
 
+        /// <summary>
+        /// Using this element size, moves the element to
+        /// the center of the target element.
+        /// NOTE: Coordinates are rounded to pixel boundary
+        /// </summary>
+        public UIElementV2 SetPosToCenterOf(UIElementV2 target)
+        {
+            Vector2 centered = (target.Center - Size*0.5f).Rounded();
+            SetAbsPos(centered.X, centered.Y);
+            return this;
+        }
+
+        /// <summary>
+        /// Moves this element Y pos to the bottom of target.
+        /// Perfect for aligning elements a few pixels offset from a Panel's bottom.
+        /// NOTE: Coordinates are rounded to pixel boundary
+        /// </summary>
+        public UIElementV2 SetDistanceFromBottomOf(UIElementV2 target, float distance)
+        {
+            float y = (float)Math.Round(target.Bottom - distance - Height);
+            SetAbsPos(X, y);
+            return this;
+        }
+
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
         protected UIElementV2()

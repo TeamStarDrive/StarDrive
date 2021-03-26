@@ -353,6 +353,16 @@ namespace Ship_Game
         public UILabel Label(float x, float y, in LocalizedText text) => Label(new Vector2(x, y), text);
         public UILabel Label(float x, float y, in LocalizedText text, SpriteFont font) => Label(new Vector2(x, y), text, font);
 
+        public UILabel LabelRel(in LocalizedText text, SpriteFont font, float x, float y)
+            => LabelRel(text, font, Color.White, x, y);
+
+        public UILabel LabelRel(in LocalizedText text, SpriteFont font, Color color, float x, float y)
+        {
+            UILabel label = Add(new UILabel(text, font, color));
+            label.SetRelPos(x, y);
+            return label;
+        }
+
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
         public UIPanel Panel(in Rectangle r, Color c, DrawableSprite s = null)
@@ -369,6 +379,13 @@ namespace Ship_Game
 
         public UIPanel Panel(float x, float y, SubTexture s)
             => Add(new UIPanel(new Vector2(x,y), s));
+
+        public UIPanel PanelRel(in Rectangle r, SubTexture s)
+        {
+            var panel = Add(new UIPanel(r, s));
+            panel.SetRelPos(r.X, r.Y);
+            return panel;
+        }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
