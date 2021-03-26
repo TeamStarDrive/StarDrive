@@ -50,8 +50,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     var priority = casual - threatenedSystem.TargetSystem.PlanetList
                         .FindMax(p => p.Owner == Owner ? p.Level : 0)?.Level ?? 0;
 
-                    float minStr = 
-                        threatenedSystem.Strength.Greater(500) ? threatenedSystem.Strength: 1000;
+                    float minStr = threatenedSystem.Strength.Greater(500) ? threatenedSystem.Strength: 1000;
 
                     if (threatenedSystem.Enemies.Length > 0)
                         minStr *= Owner.GetFleetStrEmpireMultiplier(threatenedSystem.Enemies[0]).UpperBound(Owner.OffensiveStrength / 5);
@@ -75,7 +74,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
                 foreach (MilitaryTask possibleTask in Owner.GetEmpireAI().GetPotentialTasksToCompare())
                 {
-                    if (possibleTask != defenseTask) // Since we also check other defense tasks, we dont want to compare same task
+                    if (possibleTask != defenseTask) 
                     {
                         if (DefenseTaskHasHigherPriority(defenseTask, possibleTask))
                         {
@@ -91,7 +90,16 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         bool DefenseTaskHasHigherPriority(MilitaryTask defenseTask, MilitaryTask possibleTask)
         {
+            if (possibleTask == defenseTask)
+                return false; // Since we also check other defense tasks, we dont want to compare same task
+
             SolarSystem system  = defenseTask.TargetSystem ?? defenseTask.TargetPlanet.ParentSystem;
+            if (system.PlanetList.Any(p => p.Owner == Owner && p.HasCapital)
+                && !possibleTask.TargetSystem?.PlanetList.Any(p => p.Owner == Owner && p.HasCapital) == true)
+            {
+                return true; // Defend our home systems at all costs (unless the other task also has a home system)!
+            }
+
             Planet target       = possibleTask.TargetPlanet;
             float defenseValue  = system.PotentialValueFor(Owner) * 10 * Owner.PersonalityModifiers.DefenseTaskWeight;
             float possibleValue = target.ParentSystem.PotentialValueFor(Owner);
