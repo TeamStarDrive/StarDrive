@@ -241,6 +241,7 @@ namespace Ship_Game.SpriteSystem
                     cursorX = 0;
                     cursorY = bottomY + Padding;
                 }
+
                 int newBottomY = cursorY + (t.Height);
                 if (newBottomY > bottomY)
                 {
