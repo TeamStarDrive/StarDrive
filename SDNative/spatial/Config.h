@@ -30,7 +30,7 @@ namespace spatial
     /// <summary>
     /// Size of a single linear allocator slab
     /// </summary>
-    constexpr int AllocatorSlabSize = 256 * 1024;
+    constexpr size_t AllocatorSlabSize = 256 * 1024;
 
     /// <summary>
     /// How many objects to store per quad tree cell before subdividing

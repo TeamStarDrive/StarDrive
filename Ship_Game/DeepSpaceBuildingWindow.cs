@@ -43,7 +43,7 @@ namespace Ship_Game
             {
                 if (s == "Subspace Projector")
                 {
-                    SL.AddItem(new ConstructionListItem{Ship = ResourceManager.ShipsDict[s]});
+                    SL.AddItem(new ConstructionListItem{Ship = ResourceManager.GetShipTemplate(s)});
                     break;
                 }
             }
@@ -51,7 +51,7 @@ namespace Ship_Game
             {
                 if (s != "Subspace Projector")
                 {
-                    SL.AddItem(new ConstructionListItem{Ship = ResourceManager.ShipsDict[s]});
+                    SL.AddItem(new ConstructionListItem{Ship = ResourceManager.GetShipTemplate(s)});
                 }
             }
 

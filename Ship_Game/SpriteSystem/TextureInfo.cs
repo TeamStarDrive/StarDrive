@@ -8,6 +8,7 @@ namespace Ship_Game.SpriteSystem
     {
         public string Name;
         public string Type; // xnb, png, dds, ...
+        public string UnpackedPath; // where we can load the unpacked texture
         public int X, Y;
         public int Width;
         public int Height;
@@ -19,14 +20,6 @@ namespace Ship_Game.SpriteSystem
         // @note this will destroy Texture after transferring it to atlas
         public void TransferTextureToAtlas(Color[] atlas, int atlasWidth, int atlasHeight)
         {
-            if (Texture == null)
-            {
-                Log.Error($"TextureData Texture2D ref already disposed: {Name}.{Type}. "
-                          +"Filling atlas rectangle with RED.");
-                ImageUtils.FillPixels(atlas, atlasWidth, atlasHeight, X, Y, Color.Red, Width, Height);
-                return;
-            }
-
             Color[] colorData;
             SurfaceFormat format = Texture.Format;
             if (format == SurfaceFormat.Dxt5)
@@ -42,6 +35,11 @@ namespace Ship_Game.SpriteSystem
                 colorData = new Color[Texture.Width * Texture.Height];
                 Texture.GetData(colorData);
             }
+            else if (format == SurfaceFormat.Bgr32)
+            {
+                colorData = new Color[Texture.Width * Texture.Height];
+                Texture.GetData(colorData);
+            }
             else
             {
                 Log.Error($"Unsupported format '{format}' from texture '{Name}.{Type}': "
@@ -51,6 +49,17 @@ namespace Ship_Game.SpriteSystem
             }
 
             ImageUtils.CopyPixelsWithPadding(atlas, atlasWidth, atlasHeight, X, Y, colorData, Width, Height);
+        }
+
+        public bool HasAlpha
+        {
+            get
+            {
+                SurfaceFormat format = Texture.Format;
+                return format == SurfaceFormat.Color
+                    || format == SurfaceFormat.Dxt5
+                    || format == SurfaceFormat.Dxt3;
+            }
         }
 
         public void DisposeTexture()
@@ -73,13 +82,20 @@ namespace Ship_Game.SpriteSystem
             }
             else if (format == SurfaceFormat.Color)
             {
-                var colorData = new Color[Texture.Width * Texture.Height];
-                Texture.GetData(colorData);
-                ImageUtils.SaveAsDds(filename, Width, Height, colorData);
+                var color = new Color[Texture.Width * Texture.Height];
+                Texture.GetData(color);
+                ImageUtils.SaveAsDds(filename, Width, Height, color, DDSFlags.Dxt5BGRA);
+            }
+            else if (format == SurfaceFormat.Bgr32)
+            {
+                var color = new Color[Texture.Width * Texture.Height];
+                Texture.GetData(color);
+                ImageUtils.SaveAsDds(filename, Width, Height, color, DDSFlags.Dxt1BGRA);
             }
             else
             {
-                Log.Error($"Unsupported texture format: {Texture.Format}");
+                Log.Error($"Unsupported format '{format}' from texture '{Name}.{Type}': "
+                          +"Ensure you are using BGRA32 or BGR32 textures.");
             }
         }
     }

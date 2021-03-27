@@ -92,7 +92,7 @@ namespace Ship_Game
             var toRemove = new Array<FleetDataNode>();
             foreach (FleetDataNode node in fleet.DataNodes)
             {
-                if ((!ResourceManager.ShipsDict.ContainsKey(node.ShipName) && node.Ship == null) ||
+                if ((!ResourceManager.GetShipTemplate(node.ShipName, out Ship _) && node.Ship == null) ||
                     (node.Ship == null && !EmpireManager.Player.WeCanBuildThis(node.ShipName)))
                     toRemove.Add(node);
             }
@@ -336,14 +336,15 @@ namespace Ship_Game
             roles.Sort();
             foreach (string role in roles)
             {
-                FleetDesignShipListItem header = ShipSL.AddItem(
-                    new FleetDesignShipListItem(this, role));
+                FleetDesignShipListItem header = ShipSL.AddItem(new FleetDesignShipListItem(this, role));
 
                 foreach (string shipName in EmpireManager.Player.ShipsWeCanBuild)
                 {
-                    Ship ship = ResourceManager.ShipsDict[shipName];
-                    if (IsCandidateShip(ship) && ship.DesignRoleName == header.HeaderText)
+                    if (ResourceManager.GetShipTemplate(shipName, out Ship ship) && 
+                        IsCandidateShip(ship) && ship.DesignRoleName == header.HeaderText)
+                    {
                         header.AddSubItem(new FleetDesignShipListItem(this, ship));
+                    }
                 }
             }
         }

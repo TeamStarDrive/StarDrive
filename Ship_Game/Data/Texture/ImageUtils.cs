@@ -5,6 +5,20 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Data.Texture
 {
+    [Flags]
+    public enum DDSFlags
+    {
+        //! Use DXT1 compression. Alpha channel will be discarded.
+        Dxt1 = ( 1 << 0 ),
+        //! Use DXT5 compression.
+        Dxt5 = ( 1 << 1 ),
+        //! Source is BGRA rather than RGBA
+        SourceBGRA = ( 1 << 2 ),
+        //! Source is BGRA rather than RGBA
+        Dxt1BGRA = Dxt1 | SourceBGRA,
+        Dxt5BGRA = Dxt5 | SourceBGRA,
+    }
+
     public static class ImageUtils
     {
         // Color is a BGRA little-endian struct
@@ -63,15 +77,16 @@ namespace Ship_Game.Data.Texture
             }
         }
 
+
         [DllImport("SDNative.dll")]
         static extern unsafe IntPtr SaveImageAsDDS(
-            [MarshalAs(UnmanagedType.LPStr)] string filename, int width, int height, Color* rgbaImage);
+            [MarshalAs(UnmanagedType.LPStr)] string filename, int width, int height, Color* rgbaImage, DDSFlags flags);
 
-        public static unsafe void SaveAsDds(string filename, int width, int height, Color[] rgbaImage)
+        public static unsafe void SaveAsDds(string filename, int width, int height, Color[] rgbaImage, DDSFlags flags)
         {
             fixed (Color* pColor = rgbaImage)
             {
-                IntPtr error = SaveImageAsDDS(filename, width, height, pColor);
+                IntPtr error = SaveImageAsDDS(filename, width, height, pColor, flags);
                 if (error != IntPtr.Zero)
                 {
                     string message = Marshal.PtrToStringAnsi(error);

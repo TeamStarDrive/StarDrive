@@ -368,6 +368,7 @@ namespace Ship_Game.Data
             }
         }
 
+        /// Loads a texture and DOES NOT store it inside GameContentManager
         public Texture2D LoadUncachedTexture(FileInfo file, string ext)
         {
             if (EnableLoadInfoLog)
@@ -379,25 +380,14 @@ namespace Ship_Game.Data
             return ReadAsset<Texture2D>(file.CleanResPath(), DoNothingWithDisposable);
         }
 
-        public Texture2D LoadUncachedTexture(TextureInfo t, string folder)
-        {
-            if (EnableLoadInfoLog)
-                Log.Info(ConsoleColor.Cyan, $"Load<{typeof(Texture2D).Name}> {folder}/{t.Name}.{t.Type}");
-
-            if (t.Type != "xnb")
-                return RawContent.LoadImageAsTexture(folder+"/"+t.Name+"."+t.Type);
-
-            return ReadAsset<Texture2D>(folder+"/"+t.Name, DoNothingWithDisposable);
-        }
-
         // @note Guaranteed to load an atlas with at least 1 texture
-        public TextureAtlas LoadTextureAtlas(string folderWithTextures, bool useCache = true)
+        public TextureAtlas LoadTextureAtlas(string folderWithTextures, bool useAssetCache = true)
         {
-            if (useCache && TryGetAsset(folderWithTextures, out TextureAtlas existing))
+            if (useAssetCache && TryGetAsset(folderWithTextures, out TextureAtlas existing))
                 return existing;
 
             TextureAtlas atlas = TextureAtlas.FromFolder(this, folderWithTextures);
-            if (atlas != null && useCache) RecordCacheObject(folderWithTextures, atlas);
+            if (atlas != null && useAssetCache) RecordCacheObject(folderWithTextures, atlas);
             return atlas;
         }
 
@@ -412,7 +402,7 @@ namespace Ship_Game.Data
 
             string folder = textureName.Substring(0, i);
             // @note LoadTextureAtlas useCache MUST be true, otherwise TextureAtlas will be destroyed
-            TextureAtlas atlas = LoadTextureAtlas(folder, useCache: true);
+            TextureAtlas atlas = LoadTextureAtlas(folder, useAssetCache: true);
             if (atlas == null)
                 return null;
 

@@ -87,13 +87,14 @@ namespace Ship_Game.GameScreens.NewGame
 
         static void MarkShipsUnlockable(Map<Technology, Array<string>> shipTechs, ProgressCounter step)
         {
-            step.Start(ResourceManager.ShipsDict.Count);
+            var templates = ResourceManager.GetShipTemplates();
+            step.Start(templates.Count);
 
-            foreach (var kv in ResourceManager.ShipsDict)
+            foreach (Ship ship in templates)
             {
                 step.Advance();
 
-                ShipData shipData = kv.Value.shipData;
+                ShipData shipData = ship.shipData;
                 if (shipData == null)
                     continue;
                 shipData.UnLockable = false;
@@ -116,7 +117,7 @@ namespace Ship_Game.GameScreens.NewGame
                 if (shipData.HullUnlockable)
                 {
                     shipData.AllModulesUnlocakable = true;
-                    foreach (ModuleSlotData module in kv.Value.shipData.ModuleSlots)
+                    foreach (ModuleSlotData module in ship.shipData.ModuleSlots)
                     {
                         if (module.InstalledModuleUID == "Dummy" || module.InstalledModuleUID == null)
                             continue;
@@ -149,7 +150,7 @@ namespace Ship_Game.GameScreens.NewGame
                 {
                     shipData.UnLockable = true;
                     if (shipData.BaseStrength <= 0f)
-                        shipData.BaseStrength = kv.Value.CalculateShipStrength();
+                        shipData.BaseStrength = ship.CalculateShipStrength();
 
                     shipData.TechScore = 0;
                     foreach (string techname in shipData.TechsNeeded)

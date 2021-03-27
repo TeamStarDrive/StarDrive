@@ -516,6 +516,23 @@ namespace Ship_Game
             return true;
         }
 
+        // Given 2 rectangles, returns out the intersecting rectangle area, or returns false if no intersection
+        public static bool GetIntersectingRect(this Rectangle a, in Rectangle b, out Rectangle intersection)
+        {
+            int leftX   = Max(a.X, b.X);
+            int rightX  = Min(a.X + a.Width, b.X + b.Width);
+            int topY    = Max(a.Y, b.Y);
+            int bottomY = Min(a.Y + a.Height, b.Y + b.Height);
+
+            if (leftX < rightX && topY < bottomY)
+            {
+                intersection = new Rectangle(leftX, topY, rightX-leftX, bottomY-topY);
+                return true;
+            }
+            intersection = Rectangle.Empty;
+            return false;
+        }
+
         public static Vector2 OffsetTowards(this Vector2 center, Vector2 target, float distance)
         {
             return center + center.DirectionToTarget(target) * distance;
