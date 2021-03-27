@@ -14,7 +14,7 @@ namespace Ship_Game.SpriteSystem
     /// for related textures and animation sequences
     public class TextureAtlas : IDisposable
     {
-        const int Version = 19; // changing this will force all caches to regenerate
+        const int Version = 20; // changing this will force all caches to regenerate
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
         //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
@@ -148,14 +148,33 @@ namespace Ship_Game.SpriteSystem
             return Fnv1AHash(ms.ToArray());
         }
 
-        void SaveAtlasTexture(GameContentManager content, Color[] color, bool hasAlpha, string texturePath)
+        [Flags]
+        enum AtlasFlags
         {
-            // We compress the DDS color into DXT5 and then reload it through XNA
-            DDSFlags format = hasAlpha ? DDSFlags.Dxt5BGRA : DDSFlags.Dxt1BGRA;
-            ImageUtils.SaveAsDds(texturePath, Width, Height, color, format);
+            None = 0,
+            Alpha = (1 << 0),
+            Compress = (1 << 1)
+        }
 
-            // DXT5 size in mem after loading is 4x smaller than RGBA, but quality sucks!
-            Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, texturePath);
+        void CreateAtlasTexture(GameContentManager content, Color[] color, AtlasFlags flags, string texturePath)
+        {
+            if ((flags & AtlasFlags.Compress) != 0)
+            {
+                // We compress the DDS color into DXT5 and then reload it through XNA
+                DDSFlags format = (flags&AtlasFlags.Alpha)!=0 ? DDSFlags.Dxt5BGRA : DDSFlags.Dxt1BGRA;
+                ImageUtils.SaveAsDds(texturePath, Width, Height, color, format);
+
+                // DXT5 size in mem after loading is 4x smaller than RGBA, but quality sucks!
+                Atlas = Texture2D.FromFile(content.Device, texturePath);
+            }
+            else
+            {
+                // For this atlas, compression is forbidden, so we save with BGRA color
+                // Although this will take 4x more memory
+                Atlas = new Texture2D(content.Device, Width, Height, 1, TextureUsage.None, SurfaceFormat.Color);
+                Atlas.SetData(color);
+                Atlas.Save(texturePath, ImageFileFormat.Dds);
+            }
         }
 
         static void ExportTexture(TextureInfo t, AtlasPath path)
@@ -204,13 +223,20 @@ namespace Ship_Game.SpriteSystem
                         ImageUtils.DrawRectangle(atlasPixels, Width, Height, fs.r, Color.AliceBlue);
                 }
 
-                bool hasAlpha = false;
+                var flags = AtlasFlags.None;
+                if (!ResourceManager.AtlasNoCompressFolders.Contains(path.OriginalName))
+                {
+                    Log.Write(ConsoleColor.Blue, $"Compression Disabled for Atlas: {path.OriginalName}");
+                    flags |= AtlasFlags.Compress;
+                }
+
                 foreach (TextureInfo t in textures) // copy pixels
                 {
                     if (ExportTextures) ExportTexture(t, path);
                     if (!t.NoPack)
                     {
-                        hasAlpha |= t.HasAlpha;
+                        if (t.HasAlpha)
+                            flags |= AtlasFlags.Alpha;
                         t.TransferTextureToAtlas(atlasPixels, Width, Height);
                         if (DebugDrawBounds)
                             ImageUtils.DrawRectangle(atlasPixels, Width, Height, new Rectangle(t.X, t.Y, t.Width, t.Height), Color.YellowGreen);
@@ -234,7 +260,7 @@ namespace Ship_Game.SpriteSystem
 
                 transfer = perf.NextMillis();
 
-                SaveAtlasTexture(content, atlasPixels, hasAlpha, path.Texture);
+                CreateAtlasTexture(content, atlasPixels, flags, path.Texture);
                 save = perf.NextMillis();
             }
 
