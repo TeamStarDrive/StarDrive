@@ -368,6 +368,7 @@ namespace Ship_Game.Data
             }
         }
 
+        /// Loads a texture and DOES NOT store it inside GameContentManager
         public Texture2D LoadUncachedTexture(FileInfo file, string ext)
         {
             if (EnableLoadInfoLog)
@@ -379,15 +380,16 @@ namespace Ship_Game.Data
             return ReadAsset<Texture2D>(file.CleanResPath(), DoNothingWithDisposable);
         }
 
-        public Texture2D LoadUncachedTexture(TextureInfo t, string folder)
+        /// Loads a texture and DOES NOT store it inside GameContentManager
+        public Texture2D LoadUncachedTexture(string name, string type, string folder)
         {
             if (EnableLoadInfoLog)
-                Log.Info(ConsoleColor.Cyan, $"Load<{typeof(Texture2D).Name}> {folder}/{t.Name}.{t.Type}");
+                Log.Info(ConsoleColor.Cyan, $"Load<{typeof(Texture2D).Name}> {folder}/{name}.{type}");
 
-            if (t.Type != "xnb")
-                return RawContent.LoadImageAsTexture(folder+"/"+t.Name+"."+t.Type);
+            if (type != "xnb")
+                return RawContent.LoadImageAsTexture(folder+"/"+name+"."+type);
 
-            return ReadAsset<Texture2D>(folder+"/"+t.Name, DoNothingWithDisposable);
+            return ReadAsset<Texture2D>(folder+"/"+name, DoNothingWithDisposable);
         }
 
         // @note Guaranteed to load an atlas with at least 1 texture
