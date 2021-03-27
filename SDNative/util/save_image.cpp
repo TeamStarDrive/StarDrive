@@ -56,7 +56,7 @@ constexpr DxtEncoders DxtEncoder = LibSoil2;
  * @return Error string or null if no error happened
  */
 DLLEXPORT const char* __stdcall SaveImageAsDDS(
-    const char* filename, int w, int h, const Color* rgbaImage)
+    const char* filename, int w, int h, const Color* rgbaImage, int flags)
 {
     if constexpr (DxtEncoder == LibSquish)
     {
@@ -75,7 +75,12 @@ DLLEXPORT const char* __stdcall SaveImageAsDDS(
         header.dwPitchOrLinearSize = dxt_size;
         header.sPixelFormat.dwSize = 32;
         header.sPixelFormat.dwFlags = DDPF_FOURCC;
-        header.sPixelFormat.dwFourCC = ('D' << 0) | ('X' << 8) | ('T' << 16) | ('5' << 24);
+    	if (flags & squish::kDxt5)
+			header.sPixelFormat.dwFourCC = ('D' << 0) | ('X' << 8) | ('T' << 16) | ('5' << 24);
+    	else if (flags & squish::kDxt3)
+			header.sPixelFormat.dwFourCC = ('D' << 0) | ('X' << 8) | ('T' << 16) | ('3' << 24);
+    	else if (flags & squish::kDxt1)
+			header.sPixelFormat.dwFourCC = ('D' << 0) | ('X' << 8) | ('T' << 16) | ('1' << 24);
         header.sCaps.dwCaps1 = DDSCAPS_TEXTURE;
 
         if (FILE* f = fopen(filename, "wb")) {

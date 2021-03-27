@@ -14,7 +14,7 @@ namespace Ship_Game.SpriteSystem
     /// for related textures and animation sequences
     public class TextureAtlas : IDisposable
     {
-        const int Version = 17; // changing this will force all caches to regenerate
+        const int Version = 19; // changing this will force all caches to regenerate
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
         //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
@@ -42,15 +42,18 @@ namespace Ship_Game.SpriteSystem
             public SubTexture SubTex;
             public Texture2D Texture;
             public string Name;
-            public string Type;
-            public SubTexture GetOrLoadTexture(string atlasFolder)
+            public string UnpackedPath;
+            public SubTexture GetOrLoadTexture(string folder)
             {
                 if (SubTex != null)
                     return SubTex;
 
                 // load the texture if we already didn't
                 if (Texture == null)
-                    Texture = ResourceManager.RootContent.LoadUncachedTexture(Name, Type, atlasFolder);
+                {
+                    var file = new FileInfo(UnpackedPath);
+                    Texture = ResourceManager.RootContent.LoadUncachedTexture(file, folder);
+                }
 
                 SubTex = new SubTexture(Name, Texture);
                 return SubTex;
@@ -70,7 +73,6 @@ namespace Ship_Game.SpriteSystem
             {
                 TextureLookup l = Sorted[i];
                 l.Texture?.Dispose(ref l.Texture);
-                l.SubTex = null;
             }
             Sorted = Empty<TextureLookup>.Array;
             Lookup.Clear();
@@ -87,7 +89,7 @@ namespace Ship_Game.SpriteSystem
         public SubTexture RandomTexture() => RandomMath.RandItem(Sorted).GetOrLoadTexture(Name);
 
         // Try to get a texture out of this Atlas
-        // @warning This MAY incurr a sudden texture load
+        // @warning This MAY incur a sudden texture load
         public bool TryGetTexture(string name, out SubTexture texture)
         {
             if (Lookup.TryGetValue(name, out TextureLookup lookup))
@@ -150,8 +152,7 @@ namespace Ship_Game.SpriteSystem
         {
             // We compress the DDS color into DXT5 and then reload it through XNA
             ImageUtils.ConvertToRGBA(Width, Height, color);
-            ImageUtils.SaveAsDds(texturePath, Width, Height, color); // save compressed!
-            //ImageUtils.SaveAsPng(TexturePathPNG, Width, Height, atlasColorData); // DEBUG!
+            ImageUtils.SaveAsDds(texturePath, Width, Height, color, DDSFlags.Dxt5);
 
             // DXT5 size in mem after loading is 4x smaller than RGBA, but quality sucks!
             Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, texturePath);
@@ -179,6 +180,19 @@ namespace Ship_Game.SpriteSystem
             Width = packer.Width;
             Height = packer.Height;
             int pack = perf.NextMillis();
+
+            if (NonPacked > 0)
+            {
+                string compressedCacheDir = path.GetCompressedCacheDir();
+                foreach (TextureInfo t in textures)
+                {
+                    if (t.NoPack)
+                    {
+                        t.UnpackedPath = $"{compressedCacheDir}{t.Name}.dds";
+                        t.SaveAsDds(t.UnpackedPath);
+                    }
+                }
+            }
 
             if (NumPacked > 0)
             {
@@ -222,7 +236,7 @@ namespace Ship_Game.SpriteSystem
                 save = perf.NextMillis();
             }
 
-            CreateLookup(content, textures);
+            CreateLookup(textures);
             SaveAtlasDescriptor(textures, path.Descriptor);
 
             int elapsed = total.NextMillis();
@@ -236,6 +250,7 @@ namespace Ship_Game.SpriteSystem
                 fs.WriteLine(Hash);
                 fs.WriteLine(Name);
                 fs.WriteLine(NumPacked);
+                fs.WriteLine(NonPacked);
                 foreach (TextureInfo t in textures)
                 {
                     string pack = t.NoPack ? "nopack" : "atlas";
@@ -263,6 +278,7 @@ namespace Ship_Game.SpriteSystem
                 Height = 0;
                 Name   = fs.ReadLine();
                 int.TryParse(fs.ReadLine(), out NumPacked);
+                int.TryParse(fs.ReadLine(), out NonPacked);
                 if (NumPacked > 0)
                 {
                     if (!File.Exists(path.Texture)) return false; // regenerate!!
@@ -271,8 +287,9 @@ namespace Ship_Game.SpriteSystem
                     Height = Atlas.Height;
                 }
 
-                var textures = new Array<TextureInfo>();
+                string compressedCacheDir = NonPacked > 0 ? path.GetCompressedCacheDir() : "";
 
+                var textures = new Array<TextureInfo>();
                 var separator = new[] { ' ' };
                 string line;
                 while ((line = fs.ReadLine()) != null)
@@ -286,9 +303,11 @@ namespace Ship_Game.SpriteSystem
                     int.TryParse(entry[4], out t.Width);
                     int.TryParse(entry[5], out t.Height);
                     t.Name = entry[6];
+                    
+                    t.UnpackedPath = $"{compressedCacheDir}{t.Name}.dds";
                     textures.Add(t);
                 }
-                CreateLookup(content, textures);
+                CreateLookup(textures);
             }
 
             int elapsed = s.NextMillis();
@@ -296,7 +315,7 @@ namespace Ship_Game.SpriteSystem
             return true; // we loaded everything
         }
 
-        void CreateLookup(GameContentManager content, IReadOnlyList<TextureInfo> textures)
+        void CreateLookup(IReadOnlyList<TextureInfo> textures)
         {
             foreach (TextureInfo t in textures)
             {
@@ -305,7 +324,7 @@ namespace Ship_Game.SpriteSystem
                     SubTex = t.NoPack ? null : new SubTexture(t.Name, t.X, t.Y, t.Width, t.Height, Atlas),
                     Texture = null,
                     Name = t.Name,
-                    Type = t.Type,
+                    UnpackedPath = t.UnpackedPath,
                 };
             }
             Sorted = Lookup.Values.ToArray();
@@ -361,6 +380,12 @@ namespace Ship_Game.SpriteSystem
                 string folder = $"{CacheDir}/{AtlasName}/{prefix}";
                 Directory.CreateDirectory(folder);
                 return $"{folder}{t.Name}";
+            }
+            public string GetCompressedCacheDir()
+            {
+                string folder = $"{CacheDir}/{AtlasName}/";
+                Directory.CreateDirectory(folder);
+                return folder;
             }
         }
 
