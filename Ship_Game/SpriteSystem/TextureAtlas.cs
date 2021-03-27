@@ -148,11 +148,11 @@ namespace Ship_Game.SpriteSystem
             return Fnv1AHash(ms.ToArray());
         }
 
-        void SaveAtlasTexture(GameContentManager content, Color[] color, string texturePath)
+        void SaveAtlasTexture(GameContentManager content, Color[] color, bool hasAlpha, string texturePath)
         {
             // We compress the DDS color into DXT5 and then reload it through XNA
-            ImageUtils.ConvertToRGBA(Width, Height, color);
-            ImageUtils.SaveAsDds(texturePath, Width, Height, color, DDSFlags.Dxt5);
+            DDSFlags format = hasAlpha ? DDSFlags.Dxt5BGRA : DDSFlags.Dxt1BGRA;
+            ImageUtils.SaveAsDds(texturePath, Width, Height, color, format);
 
             // DXT5 size in mem after loading is 4x smaller than RGBA, but quality sucks!
             Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, texturePath);
@@ -204,11 +204,13 @@ namespace Ship_Game.SpriteSystem
                         ImageUtils.DrawRectangle(atlasPixels, Width, Height, fs.r, Color.AliceBlue);
                 }
 
+                bool hasAlpha = false;
                 foreach (TextureInfo t in textures) // copy pixels
                 {
                     if (ExportTextures) ExportTexture(t, path);
                     if (!t.NoPack)
                     {
+                        hasAlpha |= t.HasAlpha;
                         t.TransferTextureToAtlas(atlasPixels, Width, Height);
                         if (DebugDrawBounds)
                             ImageUtils.DrawRectangle(atlasPixels, Width, Height, new Rectangle(t.X, t.Y, t.Width, t.Height), Color.YellowGreen);
@@ -232,7 +234,7 @@ namespace Ship_Game.SpriteSystem
 
                 transfer = perf.NextMillis();
 
-                SaveAtlasTexture(content, atlasPixels, path.Texture);
+                SaveAtlasTexture(content, atlasPixels, hasAlpha, path.Texture);
                 save = perf.NextMillis();
             }
 
