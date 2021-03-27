@@ -111,7 +111,10 @@ namespace Ship_Game
             float cost = 0f;
             foreach (FleetDataNode node in F.DataNodes)
             {
-                cost = cost + node.Ship?.GetCost(F.Owner) ?? cost + ResourceManager.ShipsDict[node.ShipName].GetCost(F.Owner);
+                if (node.Ship != null)
+                    cost += node.Ship.GetCost(F.Owner);
+                else if (ResourceManager.GetShipTemplate(node.ShipName, out Ship ship))
+                    cost += ship.GetCost(F.Owner);
             }
             DrawStat("Total Production Cost:", (int)cost, ref Cursor);
             Cursor.Y += 20f;

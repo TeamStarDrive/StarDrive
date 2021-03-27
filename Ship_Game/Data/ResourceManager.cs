@@ -48,7 +48,10 @@ namespace Ship_Game
         // Dictionaries set to ignore case actively replace the xml UID settings, if there, to the filename.
         // the dictionary uses the file name as the key for the item. Case in these cases is not useful
         static readonly Map<string, SubTexture> Textures = new Map<string, SubTexture>();
-        public static Map<string, Ship> ShipsDict               = new Map<string, Ship>();
+
+        // Ship designs, mapped by ship.Name
+        static readonly Map<string, Ship> ShipsDict = new Map<string, Ship>();
+
         public static Map<string, Technology> TechTree          = new Map<string, Technology>(GlobalStats.CaseControl);
         static readonly Array<ToolTip> ToolTips                 = new Array<ToolTip>();
         public static Array<Encounter> Encounters               = new Array<Encounter>();
@@ -1333,7 +1336,7 @@ namespace Ship_Game
 
             lock (ShipsDict)
             {
-                ShipsDict[shipData.Name] = shipTemplate;
+                ShipsDict[shipTemplate.Name] = shipTemplate;
             }
             return shipTemplate;
         }
@@ -1390,6 +1393,16 @@ namespace Ship_Game
         public static bool GetShipTemplate(string shipName, out Ship template)
         {
             return ShipsDict.TryGetValue(shipName, out template);
+        }
+
+        public static Map<string, Ship>.ValueCollection GetShipTemplates()
+        {
+            return ShipsDict.Values;
+        }
+
+        public static Map<string, Ship>.KeyCollection GetShipTemplateIds()
+        {
+            return ShipsDict.Keys;
         }
 
         static void CombineOverwrite(Map<string, ShipDesignInfo> designs, FileInfo[] filesToAdd, bool readOnly, bool playerDesign)
