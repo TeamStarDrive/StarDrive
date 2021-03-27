@@ -269,6 +269,7 @@ namespace Ship_Game
 
             return GetRelationsOrNull(otherEmpire)?.AtWar == true
                    || otherEmpire?.isFaction == true && !IsNAPactWith(otherEmpire)
+                   || data.IsRebelFaction
                    || this == EmpireManager.Unknown
                    || WeAreRemnants;
         }
