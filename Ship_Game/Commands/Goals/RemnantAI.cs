@@ -108,7 +108,7 @@ namespace Ship_Game.Commands.Goals
                 if (ship.SurfaceArea < 50) shipName = "Heavy Drone";
                 else if (ship.SurfaceArea < 100) shipName = "Remnant Slaver";
                 else if (ship.SurfaceArea >= 100) shipName = "Remnant Exterminator";
-                ResourceManager.ShipsDict.TryGetValue(shipName, out Ship template);
+                ResourceManager.GetShipTemplate(shipName, out Ship template);
 
                 if (template != null)
                 {

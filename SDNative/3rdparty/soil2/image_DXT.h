@@ -19,7 +19,7 @@ int save_image_as_DDS
 (
     const char *filename,
     int width, int height, int channels,
-    const unsigned char *const data
+    const unsigned char* data
 );
 
 /**

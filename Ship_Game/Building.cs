@@ -235,7 +235,7 @@ namespace Ship_Game
             UpdateOffense(p.Level);
             Ship pickedShip = ShipBuilder.PickFromCandidates(DefenseShipsRole, empire);
 
-            if (pickedShip != null && ResourceManager.ShipsDict.TryGetValue(pickedShip.Name, out Ship ship))
+            if (pickedShip != null && ResourceManager.GetShipTemplate(pickedShip.Name, out Ship ship))
                 DefenseShipStrength = ship.CalculateShipStrength() * DefenseShipsCapacity;
 
             Offense += DefenseShipStrength;

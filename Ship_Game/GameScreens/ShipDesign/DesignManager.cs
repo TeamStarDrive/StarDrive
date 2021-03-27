@@ -81,7 +81,8 @@ namespace Ship_Game
 
         bool CheckExistingDesignNames(string shipName, out Ship[] shipList)
         {
-            shipList = ResourceManager.ShipsDict.Values.Filter(s =>  !s.Deleted && s.Name.ToLower().Contains(shipName.ToLower()));
+            shipList = ResourceManager.GetShipTemplates()
+                .Filter(s => !s.Deleted && s.Name.ToLower().Contains(shipName.ToLower()));
             return shipList != null;
         }
 
@@ -115,10 +116,16 @@ namespace Ship_Game
         void OverWriteAccepted()
         {
             GameAudio.AffirmativeClick();
-            Screen?.SaveShipDesign(EnterNameArea.Text);
+
+            string shipName = EnterNameArea.Text;
+            Screen?.SaveShipDesign(shipName);
+            if (!ResourceManager.GetShipTemplate(shipName, out Ship ship))
+            {
+                Log.Error("Failed to get Ship Template after Save: ");
+                return;
+            }
 
             Empire emp = EmpireManager.Player;
-            Ship ship = ResourceManager.ShipsDict[EnterNameArea.Text];
             try
             {
                 ship.BaseStrength = ship.GetStrength();
@@ -126,7 +133,7 @@ namespace Ship_Game
                 {
                     foreach (QueueItem qi in p.ConstructionQueue)
                     {
-                        if (qi.isShip && qi.sData.Name == EnterNameArea.Text)
+                        if (qi.isShip && qi.sData.Name == shipName)
                         {
                             qi.sData = ship.shipData;
                             qi.Cost = ship.GetCost(emp);
@@ -145,7 +152,7 @@ namespace Ship_Game
         {
             bool saveOk = true;
             bool reserved = false;
-            foreach (Ship ship in ResourceManager.ShipsDict.Values)
+            foreach (Ship ship in ResourceManager.GetShipTemplates())
             {
                 if (EnterNameArea.Text == ship.Name)
                 {

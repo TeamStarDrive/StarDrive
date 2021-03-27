@@ -473,7 +473,7 @@ namespace Ship_Game.Ships
                         ? CarrierBays.GetDynamicShipNameShipDesign(this)
                         : hangarShipUID;
 
-                    if (ResourceManager.ShipsDict.TryGetValue(hangarShipName, out Ship template))
+                    if (ResourceManager.GetShipTemplate(hangarShipName, out Ship template))
                         ordnancePerSecond = (template.ShipOrdLaunchCost) / hangarTimerConstant;
                 }
 
