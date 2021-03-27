@@ -14,9 +14,6 @@
     <Filter Include="3rdparty">
       <UniqueIdentifier>{cc21df4a-6643-494a-817e-c36ded919759}</UniqueIdentifier>
     </Filter>
-    <Filter Include="3rdparty\libsquish">
-      <UniqueIdentifier>{7b7a5b71-d968-4f1c-9d52-eaa66d7e9450}</UniqueIdentifier>
-    </Filter>
     <Filter Include="3rdparty\lodepng">
       <UniqueIdentifier>{8c121ee7-8b1c-4abc-9c44-6c8b4c0a5c7f}</UniqueIdentifier>
     </Filter>
@@ -87,33 +84,6 @@
     </ClCompile>
     <ClCompile Include="3rdparty\lodepng\lodepng.cpp">
       <Filter>3rdparty\lodepng</Filter>
-    </ClCompile>
-    <ClCompile Include="3rdparty\libsquish\alpha.cpp">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClCompile>
-    <ClCompile Include="3rdparty\libsquish\clusterfit.cpp">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClCompile>
-    <ClCompile Include="3rdparty\libsquish\colourblock.cpp">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClCompile>
-    <ClCompile Include="3rdparty\libsquish\colourfit.cpp">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClCompile>
-    <ClCompile Include="3rdparty\libsquish\colourset.cpp">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClCompile>
-    <ClCompile Include="3rdparty\libsquish\maths.cpp">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClCompile>
-    <ClCompile Include="3rdparty\libsquish\rangefit.cpp">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClCompile>
-    <ClCompile Include="3rdparty\libsquish\singlecolourfit.cpp">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClCompile>
-    <ClCompile Include="3rdparty\libsquish\squish.cpp">
-      <Filter>3rdparty\libsquish</Filter>
     </ClCompile>
     <ClCompile Include="NanoMesh\src\Mesh.cpp">
       <Filter>3rdparty\nano</Filter>
@@ -215,48 +185,6 @@
     </ClInclude>
     <ClInclude Include="3rdparty\lodepng\lodepng.h">
       <Filter>3rdparty\lodepng</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\libsquish\alpha.h">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\libsquish\clusterfit.h">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\libsquish\colourblock.h">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\libsquish\colourfit.h">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\libsquish\colourset.h">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\libsquish\config.h">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\libsquish\maths.h">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\libsquish\rangefit.h">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\libsquish\simd.h">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\libsquish\simd_float.h">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\libsquish\simd_sse.h">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\libsquish\simd_ve.h">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\libsquish\singlecolourfit.h">
-      <Filter>3rdparty\libsquish</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\libsquish\squish.h">
-      <Filter>3rdparty\libsquish</Filter>
     </ClInclude>
     <ClInclude Include="3rdparty\stb\stb_dxt.h">
       <Filter>3rdparty\stb</Filter>
@@ -377,22 +305,5 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="fbxsdk\libfbxsdk.dll" />
-    <None Include="3rdparty\libsquish\config">
-      <Filter>3rdparty\libsquish</Filter>
-    </None>
-    <None Include="3rdparty\libsquish\singlecolourlookup.inl">
-      <Filter>3rdparty\libsquish</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="3rdparty\libsquish\ChangeLog.txt">
-      <Filter>3rdparty\libsquish</Filter>
-    </Text>
-    <Text Include="3rdparty\libsquish\CMakeLists.txt">
-      <Filter>3rdparty\libsquish</Filter>
-    </Text>
-    <Text Include="3rdparty\libsquish\README.txt">
-      <Filter>3rdparty\libsquish</Filter>
-    </Text>
   </ItemGroup>
 </Project>

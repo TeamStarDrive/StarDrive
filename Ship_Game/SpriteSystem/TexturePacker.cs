@@ -185,8 +185,7 @@ namespace Ship_Game.SpriteSystem
             foreach (FreeSpot f in FreeSpots)
                 ImageUtils.DrawRectangle(data, Width, Height, f.r, Color.AliceBlue);
 
-            ImageUtils.ConvertToRGBA(Width, Height, data);
-            ImageUtils.SaveAsDds($"{CachePath}.{Iteration}.dds", Width, Height, data, DDSFlags.Dxt5); // save compressed!
+            ImageUtils.SaveAsDds($"{CachePath}.{Iteration}.dds", Width, Height, data, DDSFlags.Dxt5BGRA); // save compressed!
         }
 
         void ResetState(TextureInfo[] textures, int width, int height)
