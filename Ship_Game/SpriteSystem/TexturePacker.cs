@@ -223,7 +223,7 @@ namespace Ship_Game.SpriteSystem
 
                 if (t.Width > Width)
                 {
-                    while (t.Width > Width) Width *= 2;
+                    while (t.Width > Width) Width += 64;
                     ResetPack(Width, 128);
                     continue;
                 }
@@ -249,7 +249,7 @@ namespace Ship_Game.SpriteSystem
                     while (bottomY > Height) { Height += 64; }
                     if (Height >= Width * 2) // reset everything if Height is double of Width
                     {
-                        ResetPack(Width * 2, 128);
+                        ResetPack(Width + 128, 128);
                         continue;
                     }
                 }
