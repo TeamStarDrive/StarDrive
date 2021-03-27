@@ -49,12 +49,12 @@ namespace spatial
         /**
          * Number of objects that are pending insertion
          */
-        int numPending() const { return PendingInsert.size(); }
+        int numPending() const { return (int)PendingInsert.size(); }
 
         /**
          * Number of Free ID-s that will be reused during next inserts
          */
-        int numFreeIds() const { return FreeIds.size(); }
+        int numFreeIds() const { return (int)FreeIds.size(); }
 
         /** Total bytes used */
         uint32_t totalMemory() const;
