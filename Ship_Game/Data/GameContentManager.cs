@@ -380,18 +380,6 @@ namespace Ship_Game.Data
             return ReadAsset<Texture2D>(file.CleanResPath(), DoNothingWithDisposable);
         }
 
-        /// Loads a texture and DOES NOT store it inside GameContentManager
-        public Texture2D LoadUncachedTexture(string name, string type, string folder)
-        {
-            if (EnableLoadInfoLog)
-                Log.Info(ConsoleColor.Cyan, $"Load<{typeof(Texture2D).Name}> {folder}/{name}.{type}");
-
-            if (type != "xnb")
-                return RawContent.LoadImageAsTexture(folder+"/"+name+"."+type);
-
-            return ReadAsset<Texture2D>(folder+"/"+name, DoNothingWithDisposable);
-        }
-
         // @note Guaranteed to load an atlas with at least 1 texture
         public TextureAtlas LoadTextureAtlas(string folderWithTextures, bool useAssetCache = true)
         {
