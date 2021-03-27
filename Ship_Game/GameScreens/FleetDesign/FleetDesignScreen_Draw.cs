@@ -285,11 +285,11 @@ namespace Ship_Game
                 if (node.Ship == null || CamPos.Z <= 15000f)
                 {
                     if (node.Ship != null || node.ShipName == "Troop Shuttle")
-                    {
                         continue;
-                    }
 
-                    Ship ship = ResourceManager.ShipsDict[node.ShipName];
+                    if (!ResourceManager.GetShipTemplate(node.ShipName, out Ship ship))
+                        continue;
+
                     float radius = 150f;
                     viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View,

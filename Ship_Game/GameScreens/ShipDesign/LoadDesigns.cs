@@ -163,7 +163,6 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         void DeleteAccepted()
         {            
             GameAudio.EchoAffirmative();
-            ResourceManager.ShipsDict[ShipToDelete].Deleted = true;
             ShipsToLoad.Clear();
             AvailableDesignsList.Reset();
             ResourceManager.DeleteShip(ShipToDelete);
@@ -206,30 +205,30 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
             var shipRoles = new Array<string>();
 
-            foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict)
+            foreach (Ship ship in ResourceManager.GetShipTemplates())
             {
                 //added by gremlin HIDING ERRORS
                 try
                 {
-                    if (!ShowAllDesigns && !ResourceManager.ShipsDict[Ship.Key].IsPlayerDesign)
+                    if (!ShowAllDesigns && !ship.IsPlayerDesign)
                         continue;
 
-                    if (!EmpireManager.Player.WeCanBuildThis(Ship.Key) ||
-                        shipRoles.Contains(Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player)) || 
+                    if (!EmpireManager.Player.WeCanBuildThis(ship.Name) ||
+                        shipRoles.Contains(Localizer.GetRole(ship.DesignRole, EmpireManager.Player)) || 
                         Empire.Universe?.Debug != true &&
-                        ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
+                        ResourceManager.ShipRoles[ship.shipData.Role].Protected)
                     {
-                        Log.Info($"Ship Design excluded by filter {Ship.Key}");
+                        Log.Info($"Ship Design excluded by filter {ship.Name}");
                         continue;
                     }
 
-                    string headerText = Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player);
+                    string headerText = Localizer.GetRole(ship.DesignRole, EmpireManager.Player);
                     shipRoles.Add(headerText);
                     AvailableDesignsList.AddItem(new DesignListItem(this, headerText));
                 }
                 catch
                 {
-                    Log.Warning($"Failed to load ship design {Ship.Key}");
+                    Log.Warning($"Failed to load ship design {ship.Name}");
                 }
             }
 
@@ -239,26 +238,26 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 AvailableDesignsList.AddItem(new DesignListItem(this, "WIP"));
             }
 
-            KeyValuePair<string, Ship>[] ships = ResourceManager.ShipsDict
-                .OrderBy(kv => !kv.Value.IsPlayerDesign)
-                .ThenBy(kv => kv.Value.BaseHull.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
-                .ThenBy(kv => kv.Value.BaseHull.ShipStyle)
-                .ThenByDescending(kv => kv.Value.BaseStrength)
-                .ThenBy(kv => kv.Value.Name)
+            Ship[] ships = ResourceManager.GetShipTemplates()
+                .OrderBy(s => !s.IsPlayerDesign)
+                .ThenBy(s => s.BaseHull.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
+                .ThenBy(s => s.BaseHull.ShipStyle)
+                .ThenByDescending(s => s.BaseStrength)
+                .ThenBy(s => s.Name)
                 .ToArray();
 
             foreach (DesignListItem headerItem in AvailableDesignsList.AllEntries.ToArray())
             {
-                foreach (KeyValuePair<string, Ship> ship in ships)
+                foreach (Ship ship in ships)
                 {
-                    if (!ship.Value.Deleted
-                        && !ship.Value.shipData.IsShipyard
-                        && EmpireManager.Player.WeCanBuildThis(ship.Key)
-                        && Localizer.GetRole(ship.Value.DesignRole, EmpireManager.Player) == headerItem.HeaderText
-                        && (Empire.Universe?.Debug == true || !ship.Value.IsSubspaceProjector)
-                        && !ResourceManager.ShipRoles[ship.Value.shipData.Role].Protected)
+                    if (!ship.Deleted
+                        && !ship.shipData.IsShipyard
+                        && EmpireManager.Player.WeCanBuildThis(ship.Name)
+                        && Localizer.GetRole(ship.DesignRole, EmpireManager.Player) == headerItem.HeaderText
+                        && (Empire.Universe?.Debug == true || !ship.IsSubspaceProjector)
+                        && !ResourceManager.ShipRoles[ship.shipData.Role].Protected)
                     {
-                        headerItem.AddSubItem(new DesignListItem(this, ship.Value));
+                        headerItem.AddSubItem(new DesignListItem(this, ship));
                     }
                 }
 

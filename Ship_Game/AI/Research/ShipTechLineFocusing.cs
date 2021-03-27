@@ -116,14 +116,13 @@ namespace Ship_Game.AI.Research
             return researchableShips;
         }
 
-        private Array<Ship> FilterRacialShips()
+        Array<Ship> FilterRacialShips()
         {
             var racialShips = new Array<Ship>();
-            foreach (Ship shortTermBest in ResourceManager.ShipsDict.Values)
+            foreach (Ship shortTermBest in ResourceManager.GetShipTemplates())
             {
-
-                //restrict to to ships available to this empire.
-                string shipStyle = shortTermBest?.shipData?.ShipStyle ?? shortTermBest?.shipData?.BaseHull?.ShipStyle;
+                // restrict to to ships available to this empire.
+                string shipStyle = shortTermBest.shipData.ShipStyle ?? shortTermBest.shipData.BaseHull?.ShipStyle;
                 if (shipStyle.IsEmpty())
                 {
                     Log.Warning($"Ship {shortTermBest?.Name} Tech FilterRacialShip found a bad ship");
@@ -154,7 +153,7 @@ namespace Ship_Game.AI.Research
             return racialShips;
         }
 
-        private SortedList<int, Array<Ship>> BucketShips(Array<Ship> ships, Func<Ship, int> bucketSort)
+        SortedList<int, Array<Ship>> BucketShips(Array<Ship> ships, Func<Ship, int> bucketSort)
         {
             //SortRoles
             /*
@@ -198,13 +197,13 @@ namespace Ship_Game.AI.Research
             return keyChosen;
         }
 
-        private bool GetLineFocusedShip(Array<Ship> researchableShips, HashSet<string> shipTechs)
+        bool GetLineFocusedShip(Array<Ship> researchableShips, HashSet<string> shipTechs)
         {
             // Bucket ships by how many techs they have that are not already researched
             SortedList<int, Array<Ship>> techCountSorter = TechCountSorter(researchableShips,shipTechs);
-            //Bail if there aren't any ships to research
             if (techCountSorter.Count == 0)
-                return false;
+                return false; // Bail if there aren't any ships to research
+
             int techCountKey = PickRandomKey(techCountSorter, 1.5f);
 
             SortedList<int, Array<Ship>> techSorter = TechCostSorter(techCountSorter[techCountKey]);
@@ -237,79 +236,74 @@ namespace Ship_Game.AI.Research
             return false;
         }
 
-        private SortedList<int, Array<Ship>> RoleSorter(SortedList<int, Array<Ship>> hullSorter, int hullKey)
+        SortedList<int, Array<Ship>> RoleSorter(SortedList<int, Array<Ship>> hullSorter, int hullKey)
         {
-            var roleSorter = BucketShips(hullSorter[hullKey],
-                s =>
+            return BucketShips(hullSorter[hullKey], s =>
+            {
+                switch (s.DesignRole)
                 {
-                    switch (s.DesignRole)
-                    {
-                        case ShipData.RoleName.platform:
-                        case ShipData.RoleName.station:
-                        case ShipData.RoleName.scout:
-                        case ShipData.RoleName.drone:
-                        case ShipData.RoleName.fighter:
-                        case ShipData.RoleName.freighter:  return 0;
-                        case ShipData.RoleName.colony:
-                        case ShipData.RoleName.supply:
-                        case ShipData.RoleName.troop:
-                        case ShipData.RoleName.troopShip:
-                        case ShipData.RoleName.support:
-                        case ShipData.RoleName.carrier:    return 4;
-                        case ShipData.RoleName.gunboat:
-                        case ShipData.RoleName.corvette:   return 5;
-                        case ShipData.RoleName.bomber:
-                        case ShipData.RoleName.frigate:
-                        case ShipData.RoleName.destroyer:
-                        case ShipData.RoleName.cruiser:    return 1;
-                        case ShipData.RoleName.battleship: return 2;
-                        case ShipData.RoleName.capital:    return 3;
-                        default: return (int)s.DesignRole;
-                    }
-                });
-            return roleSorter;
+                    case ShipData.RoleName.platform:
+                    case ShipData.RoleName.station:
+                    case ShipData.RoleName.scout:
+                    case ShipData.RoleName.drone:
+                    case ShipData.RoleName.fighter:
+                    case ShipData.RoleName.freighter:  return 0;
+                    case ShipData.RoleName.colony:
+                    case ShipData.RoleName.supply:
+                    case ShipData.RoleName.troop:
+                    case ShipData.RoleName.troopShip:
+                    case ShipData.RoleName.support:
+                    case ShipData.RoleName.carrier:    return 4;
+                    case ShipData.RoleName.gunboat:
+                    case ShipData.RoleName.corvette:   return 5;
+                    case ShipData.RoleName.bomber:
+                    case ShipData.RoleName.frigate:
+                    case ShipData.RoleName.destroyer:
+                    case ShipData.RoleName.cruiser:    return 1;
+                    case ShipData.RoleName.battleship: return 2;
+                    case ShipData.RoleName.capital:    return 3;
+                    default: return (int)s.DesignRole;
+                }
+            });
         }
 
         SortedList<int, Array<Ship>> HullSorter(SortedList<int, Array<Ship>> costSorter, int key)
         {
-            var hullSorter = BucketShips(costSorter[key], hull =>
+            return BucketShips(costSorter[key], hull =>
             {
                 int countOfHullTechs = hull.shipData.BaseHull.TechsNeeded.Except(OwnerEmpire.ShipTechs).Count();
                 if (hull.DesignRole < ShipData.RoleName.troopShip)
                     countOfHullTechs += 1;
                 return countOfHullTechs < 2 ? 0 : 1;
             });
-            return hullSorter;
         }
 
         SortedList<int, Array<Ship>> TechCostSorter(Array<Ship> shipsToSort)
         {
-            var techSorter = BucketShips(shipsToSort, shortTermBest =>
+            return BucketShips(shipsToSort, shortTermBest =>
             {
                 int costNormalizer = shortTermBest.shipData.BaseHull.Role <= ShipData.RoleName.freighter ? 20 : 50;
                 int techCost = OwnerEmpire.TechCost(shortTermBest);
                 techCost /= (int)(OwnerEmpire.Research.MaxResearchPotential + 1) * costNormalizer;
                 return techCost;
             });
-            return techSorter;
         }
 
-        private SortedList<int, Array<Ship>> TechCountSorter(Array<Ship> shipsToSort, HashSet<string> shipTechs)
+        SortedList<int, Array<Ship>> TechCountSorter(Array<Ship> shipsToSort, HashSet<string> shipTechs)
         {
-            var techSorter = BucketShips(shipsToSort, shortTermBest =>
+            return BucketShips(shipsToSort, shortTermBest =>
             {
                 int costNormalizer = shortTermBest.shipData.BaseHull.Role <= ShipData.RoleName.freighter ? 2 : 3;
                 int techCount = shortTermBest.shipData.TechsNeeded.Except(OwnerEmpire.ShipTechs).Count() / costNormalizer;
                 return techCount;
             });
-            return techSorter;
         }
 
-        private HashSet<string> FindBestShip(string modifier, Array<TechEntry> availableTechs, string command)
+        HashSet<string> FindBestShip(string modifier, Array<TechEntry> availableTechs, string command)
         {
-            HashSet<string> shipTechs       = new HashSet<string>();
-            HashSet<string> nonShipTechs    = new HashSet<string>();
-            var needShipTech = modifier.Contains("Ship");
+            var shipTechs = new HashSet<string>();
+            var nonShipTechs = new HashSet<string>();
+            bool needShipTech = modifier.Contains("Ship");
 
             foreach (TechEntry techEntry in availableTechs)
             {
@@ -331,7 +325,7 @@ namespace Ship_Game.AI.Research
 
             // Doesn't have a best ship so find one
             // Filter out ships we cant use
-            Array<Ship> racialShips        = FilterRacialShips();
+            Array<Ship> racialShips = FilterRacialShips();
             Array<Ship> researchableShips = GetResearchableShips(racialShips);
 
             if (researchableShips.Count <= 0) return nonShipTechs;

@@ -14,12 +14,12 @@ namespace Ship_Game
             var spawnedMeshes = new HashSet<string>();
             void SpawnUniqueMeshes(ShipData.RoleName role)
             {
-                foreach (KeyValuePair<string, Ship> kv in ResourceManager.ShipsDict)
+                foreach (Ship ship in ResourceManager.GetShipTemplates())
                 {
-                    if (kv.Value.DesignRole == role && !spawnedMeshes.Contains(kv.Value.shipData.ModelPath))
+                    if (ship.DesignRole == role && !spawnedMeshes.Contains(ship.shipData.ModelPath))
                     {
-                        Ship.CreateShipAtPoint(kv.Key, player, mouseWorldPos + RandomMath.Vector2D(500f));
-                        spawnedMeshes.Add(kv.Value.shipData.ModelPath);
+                        Ship.CreateShipAtPoint(ship.Name, player, mouseWorldPos + RandomMath.Vector2D(500f));
+                        spawnedMeshes.Add(ship.shipData.ModelPath);
                     }
                 }
             }

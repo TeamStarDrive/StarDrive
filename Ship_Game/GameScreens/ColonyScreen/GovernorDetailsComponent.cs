@@ -694,8 +694,7 @@ namespace Ship_Game
 
         void OnBuildShipyardClick(UIButton b)
         {
-            string shipyardName = ResourceManager.ShipsDict[Planet.Owner.data.DefaultShipyard].Name;
-            Ship shipyard       = ResourceManager.GetShipTemplate(shipyardName);
+            Ship shipyard = ResourceManager.GetShipTemplate(Planet.Owner.data.DefaultShipyard);
 
             if (Planet.Owner.CanBuildShipyards && BuildOrbital(shipyard))
                 GameAudio.AffirmativeClick();
