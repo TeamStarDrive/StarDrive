@@ -15,23 +15,23 @@ namespace Mesh
 {
   internal class Class64
   {
-    private static TrackingPool<Class63> class21_0 = new TrackingPool<Class63>();
+    private static TrackingPool<EffectMeshGroup> Pool = new TrackingPool<EffectMeshGroup>();
 
-    public void method_0(Matrix matrix_0, Matrix matrix_1, Matrix matrix_2, Matrix matrix_3, List<Class63> list_0, List<RenderableMesh> list_1, Enum7 enum7_0)
+    public void CreateGroups(Matrix matrix_0, Matrix matrix_1, Matrix matrix_2, Matrix matrix_3, List<EffectMeshGroup> groups, List<RenderableMesh> meshes, Enum7 enum7_0)
     {
-      list_0.Clear();
-      for (int index = 0; index < list_1.Count; ++index)
+      groups.Clear();
+      for (int i = 0; i < meshes.Count; ++i)
       {
-        RenderableMesh renderableMesh = list_1[index];
-        if (renderableMesh != null)
-          renderableMesh.bool_1 = false;
+        RenderableMesh mesh = meshes[i];
+        if (mesh != null)
+          mesh.AddedToEffectGroup = false;
       }
-      for (int index1 = 0; index1 < list_1.Count; ++index1)
+      for (int index1 = 0; index1 < meshes.Count; ++index1)
       {
-        RenderableMesh renderableMesh_0_1 = list_1[index1];
-        if (renderableMesh_0_1 != null && !renderableMesh_0_1.bool_1)
+        RenderableMesh mesh = meshes[index1];
+        if (mesh != null && !mesh.AddedToEffectGroup)
         {
-          Effect effect0 = renderableMesh_0_1.effect;
+          Effect effect0 = mesh.effect;
           if (effect0 is ILightingEffect)
           {
             if ((enum7_0 & Enum7.flag_0) == 0)
@@ -57,21 +57,21 @@ namespace Mesh
             else
               continue;
           }
-          Class63 class63 = class21_0.New();
-          class63.method_0();
-          class63.Effect = effect0;
-          list_0.Add(class63);
-          class63.Objects.method_0(renderableMesh_0_1);
-          renderableMesh_0_1.bool_1 = true;
+          EffectMeshGroup group = Pool.New();
+          group.Initialize();
+          group.Effect = effect0;
+          groups.Add(group);
+          group.Objects.Add(mesh);
+          mesh.AddedToEffectGroup = true;
           if (flag)
           {
-            for (int index2 = index1 + 1; index2 < list_1.Count; ++index2)
+            for (int index2 = index1 + 1; index2 < meshes.Count; ++index2)
             {
-              RenderableMesh renderableMesh_0_2 = list_1[index2];
-              if (renderableMesh_0_2 != null && !renderableMesh_0_2.bool_1 && renderableMesh_0_1.int_6 == renderableMesh_0_2.int_6)
+              RenderableMesh mesh2 = meshes[index2];
+              if (mesh2 != null && !mesh2.AddedToEffectGroup && mesh.EffectHash == mesh2.EffectHash)
               {
-                class63.Objects.method_0(renderableMesh_0_2);
-                renderableMesh_0_2.bool_1 = true;
+                group.Objects.Add(mesh2);
+                mesh2.AddedToEffectGroup = true;
               }
             }
           }
@@ -79,45 +79,45 @@ namespace Mesh
       }
     }
 
-    public void method_1(List<Class63> list_0, List<RenderableMesh> list_1, bool bool_0, bool bool_1)
+    public void method_1(List<EffectMeshGroup> groups, List<RenderableMesh> meshes, bool bool_0, bool bool_1)
     {
-      list_0.Clear();
-      for (int i = 0; i < list_1.Count; ++i)
+      groups.Clear();
+      for (int i = 0; i < meshes.Count; ++i)
       {
-        RenderableMesh renderableMesh = list_1[i];
-        if (renderableMesh != null)
-          renderableMesh.bool_1 = false;
+        RenderableMesh mesh = meshes[i];
+        if (mesh != null)
+          mesh.AddedToEffectGroup = false;
       }
-      for (int i = 0; i < list_1.Count; ++i)
+      for (int i = 0; i < meshes.Count; ++i)
       {
-        RenderableMesh renderableMesh_0_1 = list_1[i];
-        if (renderableMesh_0_1 != null && !renderableMesh_0_1.bool_1 && (!bool_0 || renderableMesh_0_1.ShadowInFrustum))
+        RenderableMesh mesh = meshes[i];
+        if (mesh != null && !mesh.AddedToEffectGroup && (!bool_0 || mesh.ShadowInFrustum))
         {
-          Class63 class63 = class21_0.New();
-          class63.method_0();
-          class63.Effect = renderableMesh_0_1.effect;
-          class63.Transparent = renderableMesh_0_1.HasTransparency;
-          class63.DoubleSided = renderableMesh_0_1.IsDoubleSided;
-          class63.CustomShadowGeneration = renderableMesh_0_1.SupportsShadows;
-          class63.Objects.method_0(renderableMesh_0_1);
-          list_0.Add(class63);
-          renderableMesh_0_1.bool_1 = true;
-          for (int j = i + 1; j < list_1.Count; ++j)
+          EffectMeshGroup group = Pool.New();
+          group.Initialize();
+          group.Effect = mesh.effect;
+          group.Transparent = mesh.HasTransparency;
+          group.DoubleSided = mesh.IsDoubleSided;
+          group.CustomShadowGeneration = mesh.SupportsShadows;
+          group.Objects.Add(mesh);
+          groups.Add(group);
+          mesh.AddedToEffectGroup = true;
+          for (int j = i + 1; j < meshes.Count; ++j)
           {
-            RenderableMesh renderableMesh_0_2 = list_1[j];
-            if (renderableMesh_0_2 != null && !renderableMesh_0_2.bool_1 && (!bool_0 || renderableMesh_0_2.ShadowInFrustum) && (renderableMesh_0_1.int_6 == renderableMesh_0_2.int_6 || !renderableMesh_0_1.HasTransparency && !renderableMesh_0_2.HasTransparency && (!renderableMesh_0_1.SupportsShadows && !renderableMesh_0_2.SupportsShadows) && (renderableMesh_0_1.IsDoubleSided == renderableMesh_0_2.IsDoubleSided && !renderableMesh_0_1.IsTerrain && !renderableMesh_0_2.IsTerrain)))
+            RenderableMesh mesh2 = meshes[j];
+            if (mesh2 != null && !mesh2.AddedToEffectGroup && (!bool_0 || mesh2.ShadowInFrustum) && (mesh.EffectHash == mesh2.EffectHash || !mesh.HasTransparency && !mesh2.HasTransparency && (!mesh.SupportsShadows && !mesh2.SupportsShadows) && (mesh.IsDoubleSided == mesh2.IsDoubleSided && !mesh.IsTerrain && !mesh2.IsTerrain)))
             {
-              class63.Objects.method_0(renderableMesh_0_2);
-              renderableMesh_0_2.bool_1 = true;
+              group.Objects.Add(mesh2);
+              mesh2.AddedToEffectGroup = true;
             }
           }
         }
       }
     }
 
-    public void method_2()
+    public void ResetPool()
     {
-      class21_0.RecycleAllTracked();
+      Pool.RecycleAllTracked();
     }
   }
 }

@@ -5,6 +5,31 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Data.Texture
 {
+    [Flags]
+    public enum DDSFlags
+    {
+        //! Use DXT1 compression.
+        Dxt1 = ( 1 << 0 ),
+        //! Use DXT3 compression.
+        Dxt3 = ( 1 << 1 ),
+        //! Use DXT5 compression.
+        Dxt5 = ( 1 << 2 ),
+        //! Use BC4 compression.
+        //Bc4 = ( 1 << 3 ), // DIRECTX11
+        //! Use BC5 compression.
+        //Bc5 = ( 1 << 4 ), // DIRECTX11
+        //! Use a slow but high quality colour compressor (the default).
+        ColourClusterFit = ( 1 << 5 ),
+        //! Use a fast but low quality colour compressor.
+        ColourRangeFit = ( 1 << 6 ),
+        //! Weight the colour by alpha during cluster fit (disabled by default).
+        WeightColourByAlpha = ( 1 << 7 ),
+        //! Use a very slow but very high quality colour compressor.
+        ColourIterativeClusterFit = ( 1 << 8 ),
+        //! Source is BGRA rather than RGBA
+        SourceBGRA = ( 1 << 9 )
+    }
+
     public static class ImageUtils
     {
         // Color is a BGRA little-endian struct
@@ -63,15 +88,16 @@ namespace Ship_Game.Data.Texture
             }
         }
 
+
         [DllImport("SDNative.dll")]
         static extern unsafe IntPtr SaveImageAsDDS(
-            [MarshalAs(UnmanagedType.LPStr)] string filename, int width, int height, Color* rgbaImage);
+            [MarshalAs(UnmanagedType.LPStr)] string filename, int width, int height, Color* rgbaImage, DDSFlags flags);
 
-        public static unsafe void SaveAsDds(string filename, int width, int height, Color[] rgbaImage)
+        public static unsafe void SaveAsDds(string filename, int width, int height, Color[] rgbaImage, DDSFlags flags)
         {
             fixed (Color* pColor = rgbaImage)
             {
-                IntPtr error = SaveImageAsDDS(filename, width, height, pColor);
+                IntPtr error = SaveImageAsDDS(filename, width, height, pColor, flags);
                 if (error != IntPtr.Zero)
                 {
                     string message = Marshal.PtrToStringAnsi(error);

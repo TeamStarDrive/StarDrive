@@ -709,7 +709,7 @@ namespace Ship_Game
         static void LoadAtlas(string folder)
         {
             GameLoadingScreen.SetStatus("LoadAtlas", folder);
-            var atlas = RootContent.LoadTextureAtlas(folder, useCache: true);
+            var atlas = RootContent.LoadTextureAtlas(folder, useAssetCache: true);
             if (atlas == null) Log.Warning($"LoadAtlas {folder} failed");
         }
 

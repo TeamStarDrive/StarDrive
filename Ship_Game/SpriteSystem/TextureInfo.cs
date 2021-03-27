@@ -8,6 +8,7 @@ namespace Ship_Game.SpriteSystem
     {
         public string Name;
         public string Type; // xnb, png, dds, ...
+        public string UnpackedPath; // where we can load the unpacked texture
         public int X, Y;
         public int Width;
         public int Height;
@@ -38,6 +39,11 @@ namespace Ship_Game.SpriteSystem
                 colorData = ImageUtils.DecompressDxt1(Texture);
             }
             else if (format == SurfaceFormat.Color)
+            {
+                colorData = new Color[Texture.Width * Texture.Height];
+                Texture.GetData(colorData);
+            }
+            else if (format == SurfaceFormat.Bgr32)
             {
                 colorData = new Color[Texture.Width * Texture.Height];
                 Texture.GetData(colorData);
@@ -73,13 +79,22 @@ namespace Ship_Game.SpriteSystem
             }
             else if (format == SurfaceFormat.Color)
             {
-                var colorData = new Color[Texture.Width * Texture.Height];
-                Texture.GetData(colorData);
-                ImageUtils.SaveAsDds(filename, Width, Height, colorData);
+                var color = new Color[Texture.Width * Texture.Height];
+                Texture.GetData(color);
+                ImageUtils.ConvertToRGBA(Width, Height, color);
+                ImageUtils.SaveAsDds(filename, Width, Height, color,  DDSFlags.Dxt5);
+            }
+            else if (format == SurfaceFormat.Bgr32)
+            {
+                var color = new Color[Texture.Width * Texture.Height];
+                Texture.GetData(color);
+                ImageUtils.ConvertToRGBA(Width, Height, color);
+                ImageUtils.SaveAsDds(filename, Width, Height, color, DDSFlags.Dxt1);
             }
             else
             {
-                Log.Error($"Unsupported texture format: {Texture.Format}");
+                Log.Error($"Unsupported format '{format}' from texture '{Name}.{Type}': "
+                          +"Ensure you are using RGBA32 textures.");
             }
         }
     }
