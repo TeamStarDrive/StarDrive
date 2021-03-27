@@ -14,7 +14,7 @@ namespace Ship_Game.SpriteSystem
     /// for related textures and animation sequences
     public class TextureAtlas : IDisposable
     {
-        const int Version = 16; // changing this will force all caches to regenerate
+        const int Version = 17; // changing this will force all caches to regenerate
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
         //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
@@ -148,24 +148,13 @@ namespace Ship_Game.SpriteSystem
 
         void SaveAtlasTexture(GameContentManager content, Color[] color, string texturePath)
         {
-            bool compress = Width > 1024 && Height > 1024;
-            if (compress)
-            {
-                // We compress the DDS color into DXT5 and then reload it through XNA
-                ImageUtils.ConvertToRGBA(Width, Height, color);
-                ImageUtils.SaveAsDds(texturePath, Width, Height, color); // save compressed!
-                //ImageUtils.SaveAsPng(TexturePathPNG, Width, Height, atlasColorData); // DEBUG!
+            // We compress the DDS color into DXT5 and then reload it through XNA
+            ImageUtils.ConvertToRGBA(Width, Height, color);
+            ImageUtils.SaveAsDds(texturePath, Width, Height, color); // save compressed!
+            //ImageUtils.SaveAsPng(TexturePathPNG, Width, Height, atlasColorData); // DEBUG!
 
-                // DXT5 size in mem after loading is 4x smaller than RGBA, but quality sucks!
-                Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, texturePath);
-            }
-            else
-            {
-                // Uncompressed DDS, loss-less quality, fast loading, big size in memory :(
-                Atlas = new Texture2D(content.Manager.GraphicsDevice, Width, Height, 1, TextureUsage.None, SurfaceFormat.Color);
-                Atlas.SetData(color);
-                Atlas.Save(texturePath, ImageFileFormat.Dds);
-            }
+            // DXT5 size in mem after loading is 4x smaller than RGBA, but quality sucks!
+            Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, texturePath);
         }
 
         static void ExportTexture(TextureInfo t, AtlasPath path)
