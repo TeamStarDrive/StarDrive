@@ -17,7 +17,7 @@ namespace Ship_Game.AI
             foreach (Goal g in Goals)
             {
                 if (g is BuildConstructionShip)
-                    maintenance += ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(OwnerEmpire);
+                    maintenance += ResourceManager.GetShipTemplate(g.ToBuildUID).GetMaintCost(OwnerEmpire);
             }
             return maintenance;
         }
@@ -98,7 +98,7 @@ namespace Ship_Game.AI
             if (!OwnerEmpire.CanBuildPlatforms || OwnerEmpire.isPlayer && !OwnerEmpire.AutoBuild)
                 return;
 
-            float perNodeMaintenance  = ResourceManager.ShipsDict["Subspace Projector"].GetMaintCost(OwnerEmpire);
+            float perNodeMaintenance  = ResourceManager.GetShipTemplate("Subspace Projector").GetMaintCost(OwnerEmpire);
             float roadMaintenance     = GetCurrentProjectorCount() * perNodeMaintenance;
             float underConstruction   = GetTotalConstructionGoalsMaintenance();
             float availableRoadBudget = OwnerEmpire.data.SSPBudget -roadMaintenance - underConstruction;

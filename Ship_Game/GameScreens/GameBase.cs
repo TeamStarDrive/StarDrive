@@ -49,7 +49,7 @@ namespace Ship_Game
             {
                 MinimumPixelShaderProfile = ShaderProfile.PS_2_0,
                 MinimumVertexShaderProfile = ShaderProfile.VS_2_0,
-                PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8,
+                PreferredDepthStencilFormat = DepthFormat.Depth16, // only supported: Depth24Stencil8, 
                 PreferMultiSampling = false
             };
 

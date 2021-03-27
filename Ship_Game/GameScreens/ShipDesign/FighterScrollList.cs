@@ -38,7 +38,7 @@ namespace Ship_Game
                     continue;
                 if (hangarShip.SurfaceArea > ActiveModule.MaximumHangarShipSize)
                     continue;
-                AddShip(ResourceManager.ShipsDict[shipId]);
+                AddShip(hangarShip);
             }
         }
         

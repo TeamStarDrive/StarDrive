@@ -8,28 +8,29 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Mesh
 {
-  internal class Class63
-  {
-      public bool HasRenderableObjects { get; set; } = true;
-
-      public bool Transparent { get; set; }
-
-      public bool DoubleSided { get; set; }
-
-      public bool CustomShadowGeneration { get; set; }
-
-      public Effect Effect { get; set; }
-
-      public Class62 Objects { get; } = new Class62();
-
-      public void method_0()
+    // Groups an Effect with all meshes that use it
+    internal class EffectMeshGroup
     {
-      this.HasRenderableObjects = true;
-      this.Transparent = false;
-      this.DoubleSided = false;
-      this.CustomShadowGeneration = false;
-      this.Effect = null;
-      this.Objects.method_1();
+        public bool HasRenderableObjects { get; set; } = true;
+
+        public bool Transparent { get; set; }
+
+        public bool DoubleSided { get; set; }
+
+        public bool CustomShadowGeneration { get; set; }
+
+        public Effect Effect { get; set; }
+
+        public MeshContainer Objects { get; } = new MeshContainer();
+
+        public void Initialize()
+        {
+            this.HasRenderableObjects = true;
+            this.Transparent = false;
+            this.DoubleSided = false;
+            this.CustomShadowGeneration = false;
+            this.Effect = null;
+            this.Objects.Clear();
+        }
     }
-  }
 }

@@ -10,30 +10,30 @@ using SynapseGaming.LightingSystem.Rendering;
 
 namespace Mesh
 {
-  internal class Class62
-  {
-      public List<RenderableMesh> All { get; } = new List<RenderableMesh>(128);
-
-      public List<RenderableMesh> NonSkinned { get; } = new List<RenderableMesh>(128);
-
-      public List<RenderableMesh> Skinned { get; } = new List<RenderableMesh>(128);
-
-      public void method_0(RenderableMesh renderableMesh_0)
+    internal class MeshContainer
     {
-      if (renderableMesh_0 == null)
-        return;
-      this.All.Add(renderableMesh_0);
-      if (renderableMesh_0.effect is ISkinnedEffect && (renderableMesh_0.effect as ISkinnedEffect).Skinned)
-        this.Skinned.Add(renderableMesh_0);
-      else
-        this.NonSkinned.Add(renderableMesh_0);
-    }
+        public List<RenderableMesh> All { get; } = new List<RenderableMesh>(128);
 
-    public void method_1()
-    {
-      this.All.Clear();
-      this.Skinned.Clear();
-      this.NonSkinned.Clear();
+        public List<RenderableMesh> NonSkinned { get; } = new List<RenderableMesh>(128);
+
+        public List<RenderableMesh> Skinned { get; } = new List<RenderableMesh>(128);
+
+        public void Add(RenderableMesh mesh)
+        {
+            if (mesh == null)
+                return;
+            All.Add(mesh);
+            if (mesh.effect is ISkinnedEffect && (mesh.effect as ISkinnedEffect).Skinned)
+                Skinned.Add(mesh);
+            else
+                NonSkinned.Add(mesh);
+        }
+
+        public void Clear()
+        {
+            All.Clear();
+            Skinned.Clear();
+            NonSkinned.Clear();
+        }
     }
-  }
 }

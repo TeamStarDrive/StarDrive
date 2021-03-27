@@ -34,12 +34,12 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     private bool[] bool_6 = new bool[6];
     private List<ISceneObject> list_3 = new List<ISceneObject>();
     private List<RenderableMesh> list_4 = new List<RenderableMesh>();
-    private List<Class63> list_5 = new List<Class63>();
-    private List<Class63> list_6 = new List<Class63>();
+    private List<EffectMeshGroup> list_5 = new List<EffectMeshGroup>();
+    private List<EffectMeshGroup> list_6 = new List<EffectMeshGroup>();
       private ShaderSamplerData class65_0 = new ShaderSamplerData();
     private ShaderMeshData class67_0 = new ShaderMeshData();
     private List<RenderableMesh> list_8 = new List<RenderableMesh>();
-    private List<Class63> list_9 = new List<Class63>();
+    private List<EffectMeshGroup> list_9 = new List<EffectMeshGroup>();
     private Dictionary<ISceneObject, bool> dictionary_0 = new Dictionary<ISceneObject, bool>();
     private const float float_1 = 1.2f;
       private const bool bool_5 = false;
@@ -191,7 +191,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
         }
       }
       this.list_4.Sort(class61_0);
-      class64_0.method_0(this.SceneState.View, this.SceneState.ViewToWorld, this.SceneState.Projection, this.SceneState.ProjectionToView, this.list_5, this.list_4, Enum7.flag_0 | Enum7.flag_1 | Enum7.flag_2 | Enum7.flag_3);
+      class64_0.CreateGroups(this.SceneState.View, this.SceneState.ViewToWorld, this.SceneState.Projection, this.SceneState.ProjectionToView, this.list_5, this.list_4, Enum7.flag_0 | Enum7.flag_1 | Enum7.flag_2 | Enum7.flag_3);
       this.FrameShadowRenderTargetGroups.Clear();
       IShadowMapManager manager2 = (IShadowMapManager) this.ServiceProvider.GetManager(SceneInterface.ShadowMapManagerType, false);
       if (manager2 == null)
@@ -357,7 +357,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       Vector3 down = Vector3.Down;
       ISceneState sceneState = this.SceneState;
       ISceneEnvironment environment = sceneState.Environment;
-      foreach (Class63 class63 in this.list_5)
+      foreach (EffectMeshGroup class63 in this.list_5)
       {
         if (class63.Effect is IDeferredObjectEffect)
         {
@@ -404,7 +404,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       if (manager != null)
         manager.RenderVolumeLights(this.deferredBuffers_0);
       this.deferredBuffers_0.EndFrameRendering();
-      class64_0.method_2();
+      class64_0.ResetPool();
     }
 
     /// <summary>
@@ -647,7 +647,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
               }
             }
           }
-          foreach (Class63 class63 in this.list_9)
+          foreach (EffectMeshGroup class63 in this.list_9)
           {
             if (class63.HasRenderableObjects)
             {
@@ -706,9 +706,9 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       iavatarManager_0.EndShadowGroupRendering(shadowGroup_0);
     }
 
-    private void method_5(List<Class63> list_10, ShadowGroup shadowGroup_0, bool bool_7, DeferredEffectOutput deferredEffectOutput_0, bool bool_8, bool bool_9, int int_4)
+    private void method_5(List<EffectMeshGroup> list_10, ShadowGroup shadowGroup_0, bool bool_7, DeferredEffectOutput deferredEffectOutput_0, bool bool_8, bool bool_9, int int_4)
     {
-      foreach (Class63 class63 in list_10)
+      foreach (EffectMeshGroup class63 in list_10)
       {
         if (!bool_7 || class63.HasRenderableObjects)
         {

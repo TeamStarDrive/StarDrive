@@ -206,8 +206,8 @@ namespace Ship_Game
         public Array<string> CarrierTech     = new Array<string>();
         public Array<string> SupportShipTech = new Array<string>();
         public Planet[] RallyPoints          = Empty<Planet>.Array;
-        public Ship BoardingShuttle          => ResourceManager.ShipsDict["Assault Shuttle"];
-        public Ship SupplyShuttle            => ResourceManager.ShipsDict["Supply_Shuttle"];
+        public Ship BoardingShuttle          => ResourceManager.GetShipTemplate("Assault Shuttle");
+        public Ship SupplyShuttle            => ResourceManager.GetShipTemplate("Supply_Shuttle");
         public bool IsCybernetic             => data.Traits.Cybernetic != 0;
         public bool NonCybernetic            => data.Traits.Cybernetic == 0;
         public bool WeArePirates             => Pirates != null; // Use this to figure out if this empire is pirate faction
@@ -1210,12 +1210,12 @@ namespace Ship_Game
         public Array<Ship> GetOurFactionShips()
         {
             var ourFactionShips = new Array<Ship>();
-            foreach (var kv in ResourceManager.ShipsDict)
+            foreach (Ship template in ResourceManager.GetShipTemplates())
             {
-                if (ShipStyleMatch(kv.Value.shipData.ShipStyle)
-                    || kv.Value.shipData.ShipStyle == "Platforms" || kv.Value.shipData.ShipStyle == "Misc")
+                if (ShipStyleMatch(template.shipData.ShipStyle)
+                    || template.shipData.ShipStyle == "Platforms" || template.shipData.ShipStyle == "Misc")
                 {
-                    ourFactionShips.Add(kv.Value);
+                    ourFactionShips.Add(template);
                 }
             }
 
@@ -2017,14 +2017,14 @@ namespace Ship_Game
         public void FactionShipsWeCanBuild()
         {
             if (!isFaction) return;
-            foreach (var ship in ResourceManager.ShipsDict)
+            foreach (Ship ship in ResourceManager.GetShipTemplates())
             {
-                if (data.Traits.ShipType == ship.Value.shipData.ShipStyle
-                    || ship.Value.shipData.ShipStyle == "Misc"
-                    || ship.Value.shipData.ShipStyle.IsEmpty())
+                if (data.Traits.ShipType == ship.shipData.ShipStyle
+                    || ship.shipData.ShipStyle == "Misc"
+                    || ship.shipData.ShipStyle.IsEmpty())
                 {
-                    ShipsWeCanBuild.Add(ship.Key);
-                    foreach (var hangar in ship.Value.Carrier.AllHangars)
+                    ShipsWeCanBuild.Add(ship.Name);
+                    foreach (ShipModule hangar in ship.Carrier.AllHangars)
                         ShipsWeCanBuild.Add(hangar.hangarShipUID);
                 }
             }
@@ -2040,9 +2040,8 @@ namespace Ship_Game
                 return;
             }
 
-            foreach (KeyValuePair<string, Ship> kv in ResourceManager.ShipsDict)
+            foreach (Ship ship in ResourceManager.GetShipTemplates())
             {
-                var ship = kv.Value;
                 if (hulls != null && !hulls.Contains(ship.shipData.Hull))
                     continue;
 
@@ -3294,15 +3293,17 @@ namespace Ship_Game
 
         public bool ChooseScoutShipToBuild(out Ship scout)
         {
-            if (isPlayer && ResourceManager.ShipsDict.TryGetValue(EmpireManager.Player.data.CurrentAutoScout, out scout))
+            if (isPlayer && ResourceManager.GetShipTemplate(EmpireManager.Player.data.CurrentAutoScout, out scout))
                 return true;
 
             var scoutShipsWeCanBuild = new Array<Ship>();
-            foreach (string shipUid in ShipsWeCanBuild)
+            foreach (string shipName in ShipsWeCanBuild)
             {
-                Ship ship = ResourceManager.ShipsDict[shipUid];
-                if (ship.shipData.Role == ShipData.RoleName.scout)
+                if (ResourceManager.GetShipTemplate(shipName, out Ship ship) &&
+                    ship.shipData.Role == ShipData.RoleName.scout)
+                {
                     scoutShipsWeCanBuild.Add(ship);
+                }
             }
 
             if (scoutShipsWeCanBuild.IsEmpty)

@@ -43,7 +43,7 @@ int save_image_as_DDS
 	(
 		const char *filename,
 		int width, int height, int channels,
-		const unsigned char *const data
+		const unsigned char* data
 	)
 {
     unsigned char *DDS_data;
@@ -57,12 +57,13 @@ int save_image_as_DDS
 	{
 		return 1;
 	}
-	/*	Convert the image	*/
-	if( (channels & 1) == 1 )
+	/*	Convert the image depending on channel count */
+	if (channels == 1 || channels == 3)
 	{
 		/*	no alpha, just use DXT1	*/
 		DDS_data = convert_image_to_DXT1( data, width, height, channels, &DDS_size );
-	} else
+	}
+	else
 	{
 		/*	has alpha, so use DXT5	*/
 		DDS_data = convert_image_to_DXT5( data, width, height, channels, &DDS_size );
@@ -77,14 +78,16 @@ int save_image_as_DDS
 	header.dwPitchOrLinearSize = DDS_size;
 	header.sPixelFormat.dwSize = 32;
 	header.sPixelFormat.dwFlags = DDPF_FOURCC;
-	if( (channels & 1) == 1 )
+	if (channels == 1 || channels == 3)
 	{
 		header.sPixelFormat.dwFourCC = ('D' << 0) | ('X' << 8) | ('T' << 16) | ('1' << 24);
-	} else
+	}
+	else
 	{
 		header.sPixelFormat.dwFourCC = ('D' << 0) | ('X' << 8) | ('T' << 16) | ('5' << 24);
 	}
 	header.sCaps.dwCaps1 = DDSCAPS_TEXTURE;
+	
 	/*	write it out	*/
 	FILE* f = fopen(filename, "wb");
     if (!f) return 2;

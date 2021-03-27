@@ -89,7 +89,7 @@ namespace Ship_Game
                 CloudPos -= ((movement * 0.3f) * 1f);
                 CloudEffectPos.SetValue(CloudPos);
                 CloudEffect.CurrentTechnique.Passes[0].Begin();
-                batch.Draw(CloudTex.Texture, StarFieldR, null, new Color(255, 0, 0, 255), 0f, Vector2.Zero, SpriteEffects.None, 1f);
+                batch.Draw(CloudTex, StarFieldR, new Color(255, 0, 0, 255));
                 CloudEffect.CurrentTechnique.Passes[0].End();
                 CloudEffect.End();
                 batch.End();
