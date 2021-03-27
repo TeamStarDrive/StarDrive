@@ -322,10 +322,9 @@ namespace Ship_Game
                 if (qisave.isShip)
                 {
                     qi.isShip = true;
-                    if (!ResourceManager.ShipsDict.ContainsKey(qisave.UID))
+                    if (!ResourceManager.GetShipTemplate(qisave.UID, out Ship shipTemplate))
                         continue;
 
-                    Ship shipTemplate  = ResourceManager.GetShipTemplate(qisave.UID);
                     qi.sData           = shipTemplate.shipData;
                     qi.DisplayName     = qisave.DisplayName;
                     qi.Cost            = qisave.Cost;

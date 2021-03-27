@@ -53,12 +53,10 @@ namespace UnitTests.AITests.Empire
             AddPlanetToUniverse(P,true, Vector2.Zero);
             AddHomeWorldToEmpire(Enemy, out P);
             AddPlanetToUniverse(P, true, new Vector2(2000));
-            LoadStarterShips(new[] { "Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle"
-                , "Flak Fang", "Akagi-Class Mk Ia Escort Carrier", "Rocket Inquisitor" });
-            foreach (var ship in ResourceManager.ShipsDict.Keys)
-            {
-                Player.ShipsWeCanBuild.Add(ship);
-            }
+            LoadStarterShips("Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle",
+                             "Flak Fang", "Akagi-Class Mk Ia Escort Carrier", "Rocket Inquisitor");
+            foreach (string uid in ResourceManager.GetShipTemplateIds())
+                Player.ShipsWeCanBuild.Add(uid);
         }
 
         void ClearEmpireShips()
@@ -80,7 +78,6 @@ namespace UnitTests.AITests.Empire
 
             var markedPlanet = expansionAI.GetColonizationGoalPlanets();
             Assert.AreEqual(3, markedPlanet.Length, "Expected 3 colony goals ");
-
 
             //mock colonization success
             expansionAI.DesiredPlanets[0].Owner = TestEmpire;
