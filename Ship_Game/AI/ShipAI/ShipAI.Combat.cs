@@ -408,7 +408,7 @@ namespace Ship_Game.AI
             float minimumDistance = Owner.Radius * 2;
             float value           = ship.TotalDps;
             value += ship.Carrier.EstimateFightersDps;
-            value += ship.TroopCapacity * 1000;
+            value += ship.DesignRole == ShipData.RoleName.troop ? 5000 : ship.TroopCapacity * 1000;
             value += ship.HasBombs && ship.AI.OrbitTarget?.Owner == Owner.loyalty 
                        ? ship.BombBays.Count * 1000 
                        : ship.BombBays.Count * 100;

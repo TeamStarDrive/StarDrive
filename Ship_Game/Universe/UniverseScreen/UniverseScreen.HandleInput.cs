@@ -843,8 +843,9 @@ namespace Ship_Game
 
             if (onlyPlayer && ships.Count > 0 && ships.First.fleet != null)
             {
-                Fleet tryFleet = ships.First.fleet;
-                fleet = ships.Any(s => s.fleet != tryFleet) ? null : tryFleet;
+                Fleet groupFleet = ships.Any(s => s.fleet != ships.First.fleet) ? null : ships.First.fleet;
+                if (groupFleet != null && groupFleet.Ships.Count == ships.Count)
+                    fleet = groupFleet; // All the fleet was selected
             }
 
             return ships;
