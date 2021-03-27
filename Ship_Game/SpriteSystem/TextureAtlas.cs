@@ -29,15 +29,36 @@ namespace Ship_Game.SpriteSystem
 
         ulong Hash;
         int NumPacked; // number of packed textures (not all textures are packed)
+        int NonPacked; // non packed textures
 
         public string Name { get; private set; }
         public int Width  { get; private set; }
         public int Height { get; private set; }
         public Texture2D Atlas { get; private set; }
 
-                 SubTexture[]            Sorted    = Empty<SubTexture>.Array;
-        readonly Map<string, SubTexture> Lookup    = new Map<string, SubTexture>();
-        readonly Array<Texture2D>        NonPacked = new Array<Texture2D>();
+        // To enable lazy loading non-packed textures
+        class TextureLookup
+        {
+            public SubTexture SubTex;
+            public Texture2D Texture;
+            public string Name;
+            public string Type;
+            public SubTexture GetOrLoadTexture(string atlasFolder)
+            {
+                if (SubTex != null)
+                    return SubTex;
+
+                // load the texture if we already didn't
+                if (Texture == null)
+                    Texture = ResourceManager.RootContent.LoadUncachedTexture(Name, Type, atlasFolder);
+
+                SubTex = new SubTexture(Name, Texture);
+                return SubTex;
+            }
+        }
+
+        TextureLookup[] Sorted = Empty<TextureLookup>.Array;
+        readonly Map<string, TextureLookup> Lookup = new Map<string, TextureLookup>();
 
         ~TextureAtlas() { Destroy(); }
         public void Dispose() { Destroy(); GC.SuppressFinalize(this); }
@@ -45,23 +66,38 @@ namespace Ship_Game.SpriteSystem
         void Destroy()
         {
             Atlas?.Dispose();
-            for (int i = 0; i < NonPacked.Count; ++i) NonPacked[i]?.Dispose();
-            NonPacked.Clear();
+            for (int i = 0; i < Sorted.Length; ++i)
+            {
+                TextureLookup l = Sorted[i];
+                l.Texture?.Dispose(ref l.Texture);
+                l.SubTex = null;
+            }
+            Sorted = Empty<TextureLookup>.Array;
+            Lookup.Clear();
         }
 
         public string SizeString => $"{$"{Width}x{Height}",-9}";
-        public override string ToString() => $"{Name,-24} {SizeString} refs:{Lookup.Count,-3} packed:{NumPacked,-3} non-packed:{NonPacked.Count,-3}";
+        public override string ToString() => $"{Name,-24} {SizeString} refs:{Lookup.Count,-3} packed:{NumPacked,-3} non-packed:{NonPacked,-3}";
 
-        public IReadOnlyList<SubTexture> Textures => Sorted;
         public int Count => Sorted.Length;
-        public SubTexture this[int index] => Sorted[index];
-        public SubTexture this[string name] => Lookup[name];
+        public SubTexture this[int index] => Sorted[index].GetOrLoadTexture(Name);
+        public SubTexture this[string name] => Lookup[name].GetOrLoadTexture(Name);
 
         // Grabs a random texture from this texture atlas
-        public SubTexture RandomTexture() => RandomMath.RandItem(Sorted);
+        public SubTexture RandomTexture() => RandomMath.RandItem(Sorted).GetOrLoadTexture(Name);
 
+        // Try to get a texture out of this Atlas
+        // @warning This MAY incurr a sudden texture load
         public bool TryGetTexture(string name, out SubTexture texture)
-            => Lookup.TryGetValue(name, out texture);
+        {
+            if (Lookup.TryGetValue(name, out TextureLookup lookup))
+            {
+                texture = lookup.GetOrLoadTexture(Name);
+                return true;
+            }
+            texture = null;
+            return false;
+        }
 
         static string Mod => GlobalStats.HasMod ? $"[{GlobalStats.ActiveModInfo.ModName}]" : "[Vanilla]";
 
@@ -145,11 +181,12 @@ namespace Ship_Game.SpriteSystem
             Stopwatch total = Stopwatch.StartNew();
             Stopwatch perf = Stopwatch.StartNew();
 
-            TextureInfo[] textures = LoadTextureInfo(content, path, textureFiles);
+            TextureInfo[] textures = CreateTextureInfos(content, path, textureFiles);
             int load = perf.NextMillis();
 
             var packer = new TexturePacker(content, path.Texture);
             NumPacked = packer.PackTextures(textures);
+            NonPacked = textures.Length - NumPacked;
             Width = packer.Width;
             Height = packer.Height;
             int pack = perf.NextMillis();
@@ -167,11 +204,13 @@ namespace Ship_Game.SpriteSystem
                 foreach (TextureInfo t in textures) // copy pixels
                 {
                     if (ExportTextures) ExportTexture(t, path);
-                    if (t.NoPack) continue;
-                    t.TransferTextureToAtlas(atlasPixels, Width, Height);
-                    if (DebugDrawBounds)
-                        ImageUtils.DrawRectangle(atlasPixels, Width, Height, new Rectangle(t.X, t.Y, t.Width, t.Height), Color.YellowGreen);
-                    t.DisposeTexture();
+                    if (!t.NoPack)
+                    {
+                        t.TransferTextureToAtlas(atlasPixels, Width, Height);
+                        if (DebugDrawBounds)
+                            ImageUtils.DrawRectangle(atlasPixels, Width, Height, new Rectangle(t.X, t.Y, t.Width, t.Height), Color.YellowGreen);
+                    }
+                    t.DisposeTexture(); // dispose all, even nonpacked textures, we don't know if they will be used so need to free the mem
                 }
 
                 if (DebugDrawFreeSpotFills)
@@ -194,14 +233,8 @@ namespace Ship_Game.SpriteSystem
                 save = perf.NextMillis();
             }
 
-            foreach (TextureInfo t in textures)
-            {
-                Lookup[t.Name] = new SubTexture(t.Name, t.X, t.Y, t.Width, t.Height, (t.NoPack ? t.Texture : Atlas));
-                if (t.NoPack) NonPacked.Add(t.Texture);
-            }
-
+            CreateLookup(content, textures);
             SaveAtlasDescriptor(textures, path.Descriptor);
-            SortLoadedTextures();
 
             int elapsed = total.NextMillis();
             Log.Write(ConsoleColor.Blue, $"{Mod} CreateAtlas {this} t:{elapsed,4}ms l:{load} p:{pack} t:{transfer} s:{save}");
@@ -264,11 +297,9 @@ namespace Ship_Game.SpriteSystem
                     int.TryParse(entry[4], out t.Width);
                     int.TryParse(entry[5], out t.Height);
                     t.Name = entry[6];
-                    t.Texture = t.NoPack ? null : Atlas;
                     textures.Add(t);
                 }
-                LoadTextures(content, textures);
-                SortLoadedTextures();
+                CreateLookup(content, textures);
             }
 
             int elapsed = s.NextMillis();
@@ -276,35 +307,23 @@ namespace Ship_Game.SpriteSystem
             return true; // we loaded everything
         }
 
-        void LoadTextures(GameContentManager content, Array<TextureInfo> textures)
+        void CreateLookup(GameContentManager content, IReadOnlyList<TextureInfo> textures)
         {
-            TextureInfo[] noPack = textures.Filter(t => t.NoPack);
-            Parallel.For(noPack.Length, (start, end) =>
-            {
-                for (int i = start; i < end; ++i)
-                {
-                    TextureInfo t = noPack[i];
-                    t.Texture = content.LoadUncachedTexture(t, Name);
-                    if (t.Texture == null)
-                        Log.Error($"TextureAtlas LoadUncachedTexture null! {t.Name}");
-                }
-            });
             foreach (TextureInfo t in textures)
             {
-                if (t.Texture == null) // useful for catching rare bugs
-                    Log.Error($"TextureAtlas invalid null texture {t.Name}");
-                Lookup[t.Name] = new SubTexture(t.Name, t.X, t.Y, t.Width, t.Height, t.Texture);
-                if (t.NoPack) NonPacked.Add(t.Texture);
+                Lookup[t.Name] = new TextureLookup
+                {
+                    SubTex = t.NoPack ? null : new SubTexture(t.Name, t.X, t.Y, t.Width, t.Height, Atlas),
+                    Texture = null,
+                    Name = t.Name,
+                    Type = t.Type,
+                };
             }
-        }
-
-        void SortLoadedTextures()
-        {
             Sorted = Lookup.Values.ToArray();
             Array.Sort(Sorted, (a, b) => string.CompareOrdinal(a.Name, b.Name));
         }
 
-        static TextureInfo[] LoadTextureInfo(GameContentManager content, AtlasPath path, FileInfo[] textureFiles)
+        static TextureInfo[] CreateTextureInfos(GameContentManager content, AtlasPath path, FileInfo[] textureFiles)
         {
             var textures = new TextureInfo[textureFiles.Length];
 
