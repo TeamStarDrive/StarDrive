@@ -4,6 +4,7 @@
 #include "DebugGfxWindow.h"
 #include <spatial/SpatialDebug.h>
 #include <rpp/timer.h>
+#include <algorithm> // std::max
 
 using spatial::Color;
 
