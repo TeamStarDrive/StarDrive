@@ -14,7 +14,7 @@ namespace Ship_Game.SpriteSystem
     /// for related textures and animation sequences
     public class TextureAtlas : IDisposable
     {
-        const int Version = 20; // changing this will force all caches to regenerate
+        const int Version = 21; // changing this will force all caches to regenerate
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
         //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
@@ -193,11 +193,12 @@ namespace Ship_Game.SpriteSystem
             TextureInfo[] textures = CreateTextureInfos(content, path, textureFiles);
             int load = perf.NextMillis();
 
-            var packer = new TexturePacker(content, path.Texture);
+            var packer = new TexturePacker(path.Texture);
             NumPacked = packer.PackTextures(textures);
             NonPacked = textures.Length - NumPacked;
             Width = packer.Width;
             Height = packer.Height;
+            var flags = AtlasFlags.None;
             int pack = perf.NextMillis();
 
             if (NonPacked > 0)
@@ -216,17 +217,8 @@ namespace Ship_Game.SpriteSystem
             if (NumPacked > 0)
             {
                 var atlasPixels = new Color[Width * Height];
-
-                if (DebugDrawFreeSpots)
-                {
-                    foreach (TexturePacker.FreeSpot fs in packer.FreeSpots) // DEBUG only!
-                        ImageUtils.DrawRectangle(atlasPixels, Width, Height, fs.r, Color.AliceBlue);
-                }
-
-                var flags = AtlasFlags.None;
                 if (!ResourceManager.AtlasNoCompressFolders.Contains(path.OriginalName))
                 {
-                    Log.Write(ConsoleColor.Blue, $"Compression Disabled for Atlas: {path.OriginalName}");
                     flags |= AtlasFlags.Compress;
                 }
 
@@ -244,20 +236,7 @@ namespace Ship_Game.SpriteSystem
                     t.DisposeTexture(); // dispose all, even nonpacked textures, we don't know if they will be used so need to free the mem
                 }
 
-                if (DebugDrawFreeSpotFills)
-                {
-                    foreach (Rectangle r in packer.DebugFreeSpotFills)
-                        ImageUtils.DrawRectangle(atlasPixels, Width, Height, r, Color.BlueViolet);
-                }
-
-                if (DebugCheckOverlap)
-                {
-                    foreach (Rectangle r in packer.DebugOverlapError)
-                        ImageUtils.DrawRectangle(atlasPixels, Width, Height, r, Color.Red);
-                    foreach (Rectangle r in packer.DebugFreeSpotOverlapError)
-                        ImageUtils.DrawRectangle(atlasPixels, Width, Height, r, Color.Magenta);
-                }
-
+                packer.DrawDebug(atlasPixels, Width, Height);
                 transfer = perf.NextMillis();
 
                 CreateAtlasTexture(content, atlasPixels, flags, path.Texture);
@@ -269,6 +248,8 @@ namespace Ship_Game.SpriteSystem
 
             int elapsed = total.NextMillis();
             Log.Write(ConsoleColor.Blue, $"{Mod} CreateAtlas {this} t:{elapsed,4}ms l:{load} p:{pack} t:{transfer} s:{save}");
+            if ((flags & AtlasFlags.Compress) == 0)
+                Log.Write(ConsoleColor.Blue, $"Compression Disabled: {path.OriginalName}");
         }
 
         void SaveAtlasDescriptor(TextureInfo[] textures, string descriptorPath)

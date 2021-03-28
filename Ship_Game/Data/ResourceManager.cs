@@ -711,7 +711,7 @@ namespace Ship_Game
         // For these Atlases, quality suffers too much, so compression is forbidden
         public static readonly HashSet<string> AtlasNoCompressFolders = new HashSet<string>(new []
         {
-            "NewUI",
+            "NewUI", "EmpireTopBar", "Popup"
         });
 
         static void LoadAtlas(string folder)
