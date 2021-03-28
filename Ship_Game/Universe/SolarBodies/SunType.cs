@@ -91,14 +91,7 @@ namespace Ship_Game.Universe.SolarBodies
             Map.Clear();
             foreach (SunType sun in all)
             {
-                try
-                {
-                    sun.Icon = ResourceManager.RootContent.LoadTextureOrDefault("Textures/"+sun.IconPath);
-                }
-                catch
-                {
-                    sun.Icon = ResourceManager.RootContent.DefaultTexture();
-                }
+                sun.Icon = ResourceManager.RootContent.LoadTextureOrDefault("Textures/"+sun.IconPath);
                 Map[sun.Id] = sun;
             }
 
