@@ -93,8 +93,7 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 try
                 {
-                    var loRes = ResourceManager.RootContent.Load<Texture2D>("Textures/"+sun.IconPath);
-                    sun.Icon = new SubTexture(sun.IconPath, loRes);
+                    sun.Icon = ResourceManager.RootContent.LoadTextureOrDefault("Textures/"+sun.IconPath);
                 }
                 catch
                 {
