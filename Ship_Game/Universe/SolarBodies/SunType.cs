@@ -207,7 +207,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (info.AnimationPath.NotEmpty())
                 Sprite = DrawableSprite.Animation(content, info.AnimationPath, looping: true);
             else
-                Sprite = DrawableSprite.Texture2D(content, info.TexturePath);
+                Sprite = DrawableSprite.SubTex(content, info.TexturePath);
             
             Sprite.Effects = SpriteEffects.FlipVertically;
             Sprite.Rotation = info.RotationStart.Generate();
