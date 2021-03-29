@@ -10,11 +10,49 @@ using Ship_Game.Data.Texture;
 
 namespace Ship_Game.SpriteSystem
 {
+    // Enables lazy loading for textures
+    public class TextureBinding
+    {
+        public SubTexture SubTex;
+        public Texture2D Texture;
+        public int Width;
+        public int Height;
+        public string Name;
+        public string UnpackedPath;
+        public string AtlasFolder;
+
+        public TextureBinding(SubTexture tex, int w, int h, string name, string unpackedPath, string atlasFolder)
+        {
+            SubTex = tex;
+            Width = w;
+            Height = h;
+            Name = name;
+            UnpackedPath = unpackedPath;
+            AtlasFolder = atlasFolder;
+        }
+
+        public SubTexture GetOrLoadTexture()
+        {
+            if (SubTex != null)
+                return SubTex;
+
+            // load the texture if we already didn't
+            if (Texture == null)
+            {
+                var file = new FileInfo(UnpackedPath);
+                Texture = ResourceManager.RootContent.LoadUncachedTexture(file, AtlasFolder);
+            }
+
+            SubTex = new SubTexture(Name, Texture);
+            return SubTex;
+        }
+    }
+
     /// Generic TextureAtlas which is used as a container
     /// for related textures and animation sequences
     public class TextureAtlas : IDisposable
     {
-        const int Version = 20; // changing this will force all caches to regenerate
+        const int Version = 21; // changing this will force all caches to regenerate
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
         //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
@@ -36,32 +74,8 @@ namespace Ship_Game.SpriteSystem
         public int Height { get; private set; }
         public Texture2D Atlas { get; private set; }
 
-        // To enable lazy loading non-packed textures
-        class TextureLookup
-        {
-            public SubTexture SubTex;
-            public Texture2D Texture;
-            public string Name;
-            public string UnpackedPath;
-            public SubTexture GetOrLoadTexture(string folder)
-            {
-                if (SubTex != null)
-                    return SubTex;
-
-                // load the texture if we already didn't
-                if (Texture == null)
-                {
-                    var file = new FileInfo(UnpackedPath);
-                    Texture = ResourceManager.RootContent.LoadUncachedTexture(file, folder);
-                }
-
-                SubTex = new SubTexture(Name, Texture);
-                return SubTex;
-            }
-        }
-
-        TextureLookup[] Sorted = Empty<TextureLookup>.Array;
-        readonly Map<string, TextureLookup> Lookup = new Map<string, TextureLookup>();
+        TextureBinding[] Sorted = Empty<TextureBinding>.Array;
+        readonly Map<string, TextureBinding> Lookup = new Map<string, TextureBinding>();
 
         ~TextureAtlas() { Destroy(); }
         public void Dispose() { Destroy(); GC.SuppressFinalize(this); }
@@ -71,10 +85,10 @@ namespace Ship_Game.SpriteSystem
             Atlas?.Dispose();
             for (int i = 0; i < Sorted.Length; ++i)
             {
-                TextureLookup l = Sorted[i];
+                TextureBinding l = Sorted[i];
                 l.Texture?.Dispose(ref l.Texture);
             }
-            Sorted = Empty<TextureLookup>.Array;
+            Sorted = Empty<TextureBinding>.Array;
             Lookup.Clear();
         }
 
@@ -82,19 +96,21 @@ namespace Ship_Game.SpriteSystem
         public override string ToString() => $"{Name,-24} {SizeString} refs:{Lookup.Count,-3} packed:{NumPacked,-3} non-packed:{NonPacked,-3}";
 
         public int Count => Sorted.Length;
-        public SubTexture this[int index] => Sorted[index].GetOrLoadTexture(Name);
-        public SubTexture this[string name] => Lookup[name].GetOrLoadTexture(Name);
+        public SubTexture this[int index] => Sorted[index].GetOrLoadTexture();
+        public SubTexture this[string name] => Lookup[name].GetOrLoadTexture();
+
+        public TextureBinding GetBinding(int index) => Sorted[index];
 
         // Grabs a random texture from this texture atlas
-        public SubTexture RandomTexture() => RandomMath.RandItem(Sorted).GetOrLoadTexture(Name);
+        public SubTexture RandomTexture() => RandomMath.RandItem(Sorted).GetOrLoadTexture();
 
         // Try to get a texture out of this Atlas
         // @warning This MAY incur a sudden texture load
         public bool TryGetTexture(string name, out SubTexture texture)
         {
-            if (Lookup.TryGetValue(name, out TextureLookup lookup))
+            if (Lookup.TryGetValue(name, out TextureBinding lookup))
             {
-                texture = lookup.GetOrLoadTexture(Name);
+                texture = lookup.GetOrLoadTexture();
                 return true;
             }
             texture = null;
@@ -193,11 +209,12 @@ namespace Ship_Game.SpriteSystem
             TextureInfo[] textures = CreateTextureInfos(content, path, textureFiles);
             int load = perf.NextMillis();
 
-            var packer = new TexturePacker(content, path.Texture);
+            var packer = new TexturePacker(path.Texture);
             NumPacked = packer.PackTextures(textures);
             NonPacked = textures.Length - NumPacked;
             Width = packer.Width;
             Height = packer.Height;
+            var flags = AtlasFlags.None;
             int pack = perf.NextMillis();
 
             if (NonPacked > 0)
@@ -216,17 +233,8 @@ namespace Ship_Game.SpriteSystem
             if (NumPacked > 0)
             {
                 var atlasPixels = new Color[Width * Height];
-
-                if (DebugDrawFreeSpots)
-                {
-                    foreach (TexturePacker.FreeSpot fs in packer.FreeSpots) // DEBUG only!
-                        ImageUtils.DrawRectangle(atlasPixels, Width, Height, fs.r, Color.AliceBlue);
-                }
-
-                var flags = AtlasFlags.None;
                 if (!ResourceManager.AtlasNoCompressFolders.Contains(path.OriginalName))
                 {
-                    Log.Write(ConsoleColor.Blue, $"Compression Disabled for Atlas: {path.OriginalName}");
                     flags |= AtlasFlags.Compress;
                 }
 
@@ -244,20 +252,7 @@ namespace Ship_Game.SpriteSystem
                     t.DisposeTexture(); // dispose all, even nonpacked textures, we don't know if they will be used so need to free the mem
                 }
 
-                if (DebugDrawFreeSpotFills)
-                {
-                    foreach (Rectangle r in packer.DebugFreeSpotFills)
-                        ImageUtils.DrawRectangle(atlasPixels, Width, Height, r, Color.BlueViolet);
-                }
-
-                if (DebugCheckOverlap)
-                {
-                    foreach (Rectangle r in packer.DebugOverlapError)
-                        ImageUtils.DrawRectangle(atlasPixels, Width, Height, r, Color.Red);
-                    foreach (Rectangle r in packer.DebugFreeSpotOverlapError)
-                        ImageUtils.DrawRectangle(atlasPixels, Width, Height, r, Color.Magenta);
-                }
-
+                packer.DrawDebug(atlasPixels, Width, Height);
                 transfer = perf.NextMillis();
 
                 CreateAtlasTexture(content, atlasPixels, flags, path.Texture);
@@ -269,6 +264,8 @@ namespace Ship_Game.SpriteSystem
 
             int elapsed = total.NextMillis();
             Log.Write(ConsoleColor.Blue, $"{Mod} CreateAtlas {this} t:{elapsed,4}ms l:{load} p:{pack} t:{transfer} s:{save}");
+            if (NumPacked > 0 && (flags & AtlasFlags.Compress) == 0)
+                Log.Write(ConsoleColor.Blue, $"Compression Disabled: {path.OriginalName}");
         }
 
         void SaveAtlasDescriptor(TextureInfo[] textures, string descriptorPath)
@@ -347,13 +344,8 @@ namespace Ship_Game.SpriteSystem
         {
             foreach (TextureInfo t in textures)
             {
-                Lookup[t.Name] = new TextureLookup
-                {
-                    SubTex = t.NoPack ? null : new SubTexture(t.Name, t.X, t.Y, t.Width, t.Height, Atlas),
-                    Texture = null,
-                    Name = t.Name,
-                    UnpackedPath = t.UnpackedPath,
-                };
+                var tex = t.NoPack ? null : new SubTexture(t.Name, t.X, t.Y, t.Width, t.Height, Atlas);
+                Lookup[t.Name] = new TextureBinding(tex, t.Width, t.Height, t.Name, t.UnpackedPath, Name);
             }
             Sorted = Lookup.Values.ToArray();
             Array.Sort(Sorted, (a, b) => string.CompareOrdinal(a.Name, b.Name));

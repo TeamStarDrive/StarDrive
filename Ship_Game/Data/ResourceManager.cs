@@ -711,7 +711,7 @@ namespace Ship_Game
         // For these Atlases, quality suffers too much, so compression is forbidden
         public static readonly HashSet<string> AtlasNoCompressFolders = new HashSet<string>(new []
         {
-            "NewUI",
+            "NewUI", "EmpireTopBar", "Popup"
         });
 
         static void LoadAtlas(string folder)
@@ -750,6 +750,7 @@ namespace Ship_Game
                 "Textures/Minimap",
                 "Textures/Ships",
                 "Textures/hqspace",
+                "Textures/Suns",
                 "Textures/PlanetGlows",
                 "Textures/TacticalIcons",
                 "Textures/Planets",
@@ -1162,9 +1163,10 @@ namespace Ship_Game
             LargeStars  = RootContent.LoadTextureAtlas("LargeStars");
         }
 
-        static readonly Array<Texture2D> BigNebulae   = new Array<Texture2D>();
-        static readonly Array<Texture2D> MedNebulae   = new Array<Texture2D>();
-        static readonly Array<Texture2D> SmallNebulae = new Array<Texture2D>();
+        static TextureAtlas Nebulae;
+        static Array<TextureBinding> BigNebulae = new Array<TextureBinding>();
+        static Array<TextureBinding> MedNebulae = new Array<TextureBinding>();
+        static Array<TextureBinding> SmallNebulae = new Array<TextureBinding>();
 
         // Refactored by RedFox
         static void LoadNebulae()
@@ -1173,36 +1175,33 @@ namespace Ship_Game
             BigNebulae.Clear();
             MedNebulae.Clear();
             SmallNebulae.Clear();
+            Nebulae?.Dispose();
+            Nebulae = RootContent.LoadTextureAtlas("Nebulas", useAssetCache: false);
 
-            FileInfo[] files = Dir.GetFiles("Content/Nebulas", "xnb");
-            var nebulae = new Texture2D[files.Length];
-            Parallel.For(files.Length, (start, end) =>
+            for (int i = 0; i < Nebulae.Count; ++i)
             {
-                for (int i = start; i < end; ++i)
-                    nebulae[i] = RootContent.Load<Texture2D>("Nebulas/" + files[i].NameNoExt());
-            });
-            foreach (Texture2D tex in nebulae)
-            {
+                TextureBinding tex = Nebulae.GetBinding(i);
                 if      (tex.Width >= 2048) { BigNebulae.Add(tex); }
                 else if (tex.Width >= 1024) { MedNebulae.Add(tex); }
                 else                        { SmallNebulae.Add(tex); }
             }
         }
+
         public static SubTexture SmallNebulaRandom()
         {
-            return new SubTexture("small_nebula", RandomMath.RandItem(SmallNebulae));
+            return SmallNebulae.RandItem().GetOrLoadTexture();
         }
         public static SubTexture NebulaMedRandom()
         {
-            return new SubTexture("med_nebula", RandomMath.RandItem(MedNebulae));
+            return MedNebulae.RandItem().GetOrLoadTexture(); 
         }
         public static SubTexture NebulaBigRandom()
         {
-            return new SubTexture("big_nebula", RandomMath.RandItem(BigNebulae));
+            return BigNebulae.RandItem().GetOrLoadTexture();
         }
         public static SubTexture BigNebula(int index)
         {
-            return new SubTexture("big_nebula", BigNebulae[index]);
+            return BigNebulae[index].GetOrLoadTexture();
         }
 
 
