@@ -83,14 +83,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             
         }
 
-        public void StandardAssault(IEnumerable<SolarSystem> systemsToAttack, int priority, Campaign campaign)
-        {
-            foreach (var system in systemsToAttack)
-            {
-                StandardAssault(system, priority, campaign);
-            }
-        }
-
         public void StandardAssault(SolarSystem system, int priority, Campaign campaign, int fleetsPerTarget = 1)
         {
             foreach (var planet in system.PlanetList.SortedDescending(p => p.ColonyBaseValue(Owner)))
@@ -98,11 +90,24 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 if (planet.Owner != campaign.GetWar().Them || IsAlreadyAssaultingPlanet(planet))
                     continue;
 
-                CreateTask(new MilitaryTask(planet, Owner)
+
+                if (IsAlreadyStriking())
                 {
-                    Priority    = priority,
-                    WarCampaign = campaign
-                });
+                    CreateTask(new MilitaryTask(planet, Owner)
+                    {
+                        Priority = priority,
+                        WarCampaign = campaign
+                    });
+                }
+                else
+                {
+                    CreateTask(new MilitaryTask(planet, Owner)
+                    {
+                        Priority    = priority,
+                        type        = MilitaryTask.TaskType.StrikeForce,
+                        WarCampaign = campaign
+                    });
+                }
 
                 if (Owner.canBuildBombers && !IsAlreadyGlassingPlanet(planet))
                 {
@@ -127,6 +132,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             bool assaults    = NewTasks.Any(t => t.type == MilitaryTask.TaskType.AssaultPlanet && t.TargetPlanet == planetToAssault);
             return assaults;// || Owner.GetEmpireAI().IsAssaultingPlanet(planetToAssault, OwnerCampaign);
+        }
+
+        bool IsAlreadyStriking()
+        {
+            return  NewTasks.Any(t => t.type == MilitaryTask.TaskType.StrikeForce);
         }
 
         bool IsAlreadyGlassingPlanet(Planet planetToAssault)
