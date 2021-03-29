@@ -49,8 +49,15 @@ namespace Ship_Game
                 Empire.Universe.NotificationManager.AddAnomalyInvestigated(Planet, TitleText);
             }
 
-            string image = Outcome.Image.NotEmpty() ? Outcome.Image : "Encounters/CrashedShip.png";
+            const string defaultImage = "Encounters/CrashedShip.png";
+            string image = Outcome.Image.NotEmpty() ? Outcome.Image : defaultImage;
             Image = TransientContent.LoadSubTexture("Textures/" + image);
+            if (Image == null)
+            {
+                Log.Error($"Failed to load image: {Outcome.Image}, using default");
+                Image = TransientContent.LoadTextureOrDefault(defaultImage);
+            }
+
             Rectangle imgRect = new RectF(MidContainer.X, MidContainer.Bottom + 2,
                                           MidContainer.Width, MidContainer.Width/Image.AspectRatio);
             MidSepBot = new Rectangle(MidContainer.X, imgRect.Bottom, MidContainer.Width, 2);
