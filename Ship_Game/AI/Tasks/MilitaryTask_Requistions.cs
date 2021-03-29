@@ -40,7 +40,7 @@ namespace Ship_Game.AI.Tasks
             
             for (int x = 0; x < troopSystems.Length; x++)
             {
-                SolarSystem system     = troopSystems[x];
+                SolarSystem system = troopSystems[x];
 
                 if (!defenseDict.TryGetValue(system, out SystemCommander sysCom)
                     || !sysCom.IsEnoughTroopStrength && !troopPriorityHigh)
@@ -348,7 +348,7 @@ namespace Ship_Game.AI.Tasks
             }
         }
 
-        void RequisitionAssaultForces()
+        void RequisitionAssaultForces(bool strike = false)
         {
             if (AO.AlmostZero())
                 Log.Error($"no area of operation set for task: {type}");
@@ -368,13 +368,11 @@ namespace Ship_Game.AI.Tasks
                    .LowerBound(Owner.OffensiveStrength / (Owner.GetPlanets().Count / 10).LowerBound(3));
 
             EnemyStrength = GetEnemyShipStrengthInAO() + geodeticOffense;
-            UpdateMinimumTaskForceStrength(geodeticOffense, lowerBound);
+            UpdateMinimumTaskForceStrength(geodeticOffense, strike ? lowerBound * 2 : lowerBound);
             InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 40 ,minBombMinutes: 3);
 
-            if (CreateTaskFleet("Invasion Fleet", Completeness, true) == RequisitionStatus.Complete)
-            {
+            if (CreateTaskFleet(strike ? "Strike Fleet" : "Invasion Fleet", Completeness, true) == RequisitionStatus.Complete)
                 Step = 1;
-            }
         }
 
         void RequisitionGlassForce()
