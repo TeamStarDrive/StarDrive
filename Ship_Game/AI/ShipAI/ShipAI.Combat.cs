@@ -373,7 +373,7 @@ namespace Ship_Game.AI
                     return shipWeight.Ship;
             }
             return null; */
-            return TryGetTarget(out Ship t) ? t : null; // This is thr alternative logic
+            return TryGetTarget(out Ship t) ? t : null; // This is the alternative logic
         }
 
         bool TryGetTarget(out Ship target)
@@ -387,8 +387,8 @@ namespace Ship_Game.AI
             bool commandShipHasTarget = Owner.fleet?.CommandShip?.AI.Target != null;
             Ship commandShipTarget    = commandShipHasTarget ? Owner.fleet.CommandShip.AI.Target : null;
 
-            // Get the Target of the Command ship if the owner is not a hangar ship
-            if (commandShipHasTarget && Owner.Mothership == null)
+            // Get the Target of the Command ship if the owner is not a hangar ship or a small craft
+            if (commandShipHasTarget && Owner.Mothership == null && Owner.DesignRole >= ShipData.RoleName.frigate)
             {
                 target = commandShipTarget;
                 return true;
