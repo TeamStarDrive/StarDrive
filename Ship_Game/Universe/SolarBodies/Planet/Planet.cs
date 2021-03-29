@@ -1262,7 +1262,7 @@ namespace Ship_Game
                 {
                     foundCache = true;
                     b.FoodCache -= b.PlusFlatFoodAmount;
-                    if (b.FoodCache.AlmostZero())
+                    if (b.FoodCache.LessOrEqual(0))
                     {
                         if (Owner == EmpireManager.Player)
                             Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, new LocalizedText(4299).Text);
@@ -1275,7 +1275,7 @@ namespace Ship_Game
                 {
                     foundCache = true;
                     b.ProdCache -= Prod.Percent * PopulationBillion * b.PlusProdPerColonist;
-                    if (b.ProdCache.AlmostZero())
+                    if (b.ProdCache.LessOrEqual(0))
                     {
                         if (Owner == EmpireManager.Player)
                             Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, new LocalizedText(4299).Text);
