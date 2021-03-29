@@ -15,6 +15,7 @@ namespace Ship_Game.SpriteSystem
         public Texture2D Texture;
         public bool NoPack; // This texture should not be packed
 
+        public int Bottom => Y + Height;
         public override string ToString() => $"X:{X} Y:{Y} W:{Width} H:{Height} Name:{Name} Type:{Type} Format:{Texture?.Format.ToString() ?? ""}";
 
         // @note this will destroy Texture after transferring it to atlas

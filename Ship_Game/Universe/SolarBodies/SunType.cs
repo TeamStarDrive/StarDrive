@@ -91,15 +91,7 @@ namespace Ship_Game.Universe.SolarBodies
             Map.Clear();
             foreach (SunType sun in all)
             {
-                try
-                {
-                    var loRes = ResourceManager.RootContent.Load<Texture2D>("Textures/"+sun.IconPath);
-                    sun.Icon = new SubTexture(sun.IconPath, loRes);
-                }
-                catch
-                {
-                    sun.Icon = ResourceManager.RootContent.DefaultTexture();
-                }
+                sun.Icon = ResourceManager.RootContent.LoadTextureOrDefault("Textures/"+sun.IconPath);
                 Map[sun.Id] = sun;
             }
 
@@ -207,7 +199,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (info.AnimationPath.NotEmpty())
                 Sprite = DrawableSprite.Animation(content, info.AnimationPath, looping: true);
             else
-                Sprite = DrawableSprite.Texture2D(content, info.TexturePath);
+                Sprite = DrawableSprite.SubTex(content, info.TexturePath);
             
             Sprite.Effects = SpriteEffects.FlipVertically;
             Sprite.Rotation = info.RotationStart.Generate();
