@@ -513,6 +513,7 @@ namespace Ship_Game.AI.Tasks
                         }
                         break;
                     }
+                case TaskType.StrikeForce:
                 case TaskType.AssaultPlanet:
                     {
                         if (TargetPlanet.Owner == null || !Owner.IsEmpireHostile(TargetPlanet.Owner))
@@ -525,7 +526,7 @@ namespace Ship_Game.AI.Tasks
                         }
                         if (Step == 0)
                         {
-                            RequisitionAssaultForces();
+                            RequisitionAssaultForces(type == TaskType.StrikeForce);
                             if (Step == 0) Step = -1;
                         }
                         else
@@ -849,7 +850,8 @@ namespace Ship_Game.AI.Tasks
             Patrol,
             RemnantEngagement,
             DefendVsRemnants,
-            GuardBeforeColonize
+            GuardBeforeColonize,
+            StrikeForce
         }
 
         [Flags]
@@ -873,6 +875,7 @@ namespace Ship_Game.AI.Tasks
 
             switch (type)
             {
+                case TaskType.StrikeForce:
                 case TaskType.AssaultPlanet:
                 case TaskType.DefendPostInvasion:
                 case TaskType.GlassPlanet:
