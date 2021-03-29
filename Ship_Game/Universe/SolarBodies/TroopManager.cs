@@ -573,11 +573,11 @@ namespace Ship_Game
             for (int x = 0; x < TroopList.Count; x++)
             {
                 Troop troop = TroopList[x];
-                if (troop.Loyalty != empire || !troop.CanMove) 
-                    continue;
-
-                if (maxToTake-- > 0)
-                    troops.Add(troop);
+                if (troop.Loyalty == empire && troop.CanMove)
+                {
+                    if (maxToTake-- > 0)
+                        troops.Add(troop);
+                }
             }
 
             return troops;
