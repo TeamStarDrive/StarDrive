@@ -128,12 +128,6 @@ namespace Ship_Game
 
         public float StrengthMax => ResourceManager.GetBuildingTemplate(BID).Strength;
 
-        public void SetPlanet(Planet p)
-        {
-            p.BuildingList.Add(this);
-            AssignBuildingToTile(p);
-        }
-
         public Building Clone()
         {
             var b       = (Building)MemberwiseClone();
