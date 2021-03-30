@@ -443,6 +443,23 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
+        public void RefitShipsBeingBuilt(Ship oldShip, Ship newShip)
+        {
+            float refitCost = oldShip.RefitCost(newShip);
+            foreach (QueueItem q in ConstructionQueue)
+            {
+                if (q.isShip && q.sData.Name == oldShip.Name)
+                {
+                    float percentCompleted = q.ProductionSpent / q.ActualCost;
+                    q.sData                = newShip.shipData;
+                    q.Cost                 = percentCompleted.AlmostZero() 
+                                            ? newShip.GetCost(Owner) 
+                                            : q.Cost + refitCost * percentCompleted * P.ShipBuildingModifier;
+
+                }
+            }
+        }
+
         public void PrioritizeTroop()
         {
             for (int i = 0; i < ConstructionQueue.Count; ++i)

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Audio;
+using Ship_Game.Fleets;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -150,6 +151,12 @@ namespace Ship_Game
                 if (ship.Name == ShipToRefit.Name)
                     EmpireManager.Player.GetEmpireAI().Goals.Add(GetRefitGoal(ship));
             }
+
+            foreach (Planet planet in EmpireManager.Player.GetPlanets())
+                planet.Construction.RefitShipsBeingBuilt(ShipToRefit, RefitTo);
+
+            foreach (Fleet fleet in EmpireManager.Player.GetFleetsDict().Values)
+                fleet.RefitNodeName(ShipToRefit.Name, RefitTo.Name);
 
             GameAudio.EchoAffirmative();
             ExitScreen();
