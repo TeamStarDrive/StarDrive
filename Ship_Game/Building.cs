@@ -121,7 +121,6 @@ namespace Ship_Game
 
         public void SetPlanet(Planet p)
         {
-            p.BuildingList.Add(this);
             AssignBuildingToTile(p);
         }
 
