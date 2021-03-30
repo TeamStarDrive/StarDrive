@@ -1005,7 +1005,7 @@ namespace Ship_Game
                     spacePort = true;
             }
 
-            InfraStructure = InfraStructure.LowerBound(0);
+            InfraStructure = InfraStructure.LowerBound(1);
             RepairPerTurn  = RepairPerTurn.LowerBound(0);
 
             if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.usePlanetaryProjection)
