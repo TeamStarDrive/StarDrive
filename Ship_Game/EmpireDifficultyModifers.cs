@@ -28,6 +28,7 @@
         public readonly int TrustLostStoleColony; // Vs players
         public readonly float FleetStrModifier; // AI increase/decrease str of fleets needs, when they win or lose vs another empire
         public readonly int NumSystemsToSniff; // Number of system the AI will try to re-scout until it is fully explored
+        public readonly float TechValueModifier; // AI tech value vs players
 
         // AI Buffs/Nerfs
         public readonly float FlatMoneyBonus;
@@ -53,6 +54,7 @@
             ShipCostMod           = 0;
             ResearchTaxMultiplier = 0;
             ModHpModifier         = 0;
+            TechValueModifier     = 1;
             switch (difficulty)
             {
                 case UniverseData.GameDifficulty.Easy:
@@ -152,6 +154,7 @@
                         TaxMod                = 0.5f;
                         ShipCostMod           = -0.2f;
                         ResearchTaxMultiplier = 0.7f;
+                        TechValueModifier     = 1.25f;
                     }
 
                     break;
@@ -188,6 +191,7 @@
                         TaxMod                = 1f;
                         ShipCostMod           = -0.5f;
                         ResearchTaxMultiplier = 0.3f;
+                        TechValueModifier     = 1.5f;
                     }
 
                     break;

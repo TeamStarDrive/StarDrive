@@ -36,7 +36,7 @@ namespace Ship_Game.AI
                 Log.Info(System.ConsoleColor.White, $"{us.Name} gave {tech} to {them.Name}");
                 if (Empire.Universe.PlayerEmpire != us)
                 {
-                    float cost = ResourceManager.Tech(tech).DiplomaticValueTo(us);
+                    float cost = ResourceManager.Tech(tech).DiplomaticValueTo(us, them);
                     usToThem.AddTrustEntry(attitude, TrustEntryType.Technology, cost, turnTimer:40);
                 }
             }
@@ -307,14 +307,14 @@ namespace Ship_Game.AI
 
             foreach (string tech in theirOffer.TechnologiesOffered)
             {
-                valueToUs += ResourceManager.Tech(tech).DiplomaticValueTo(us, 0.02f);
+                valueToUs += ResourceManager.Tech(tech).DiplomaticValueTo(us, them, 0.02f);
             }
 
             if (ourOffer.TechnologiesOffered.Count > 0)
             {
                 foreach (string tech in ourOffer.TechnologiesOffered)
                 {
-                    float value = ResourceManager.Tech(tech).DiplomaticValueTo(them, 0.02f);
+                    float value = ResourceManager.Tech(tech).DiplomaticValueTo(them, us, 0.02f);
                     valueToThem += value;
                     totalTrustRequiredFromUs += value;
                 }
@@ -536,10 +536,10 @@ namespace Ship_Game.AI
             }
 
             foreach (string tech in ourOffer.TechnologiesOffered)
-                valueToThem += ResourceManager.Tech(tech).DiplomaticValueTo(us);
+                valueToThem += ResourceManager.Tech(tech).DiplomaticValueTo(us, them);
 
             foreach (string tech in theirOffer.TechnologiesOffered)
-                valueToUs += ResourceManager.Tech(tech).DiplomaticValueTo(us);
+                valueToUs += ResourceManager.Tech(tech).DiplomaticValueTo(us, them);
 
             foreach (string planetName in ourOffer.ColoniesOffered)
             {
