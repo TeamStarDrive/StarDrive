@@ -137,7 +137,7 @@ namespace Ship_Game.Universe.SolarBodies
             float plusPerColonist = 0f;
             foreach (Building b in Planet.BuildingList)
             {
-                plusPerColonist += b.PlusFoodPerColonist;
+                plusPerColonist += b.PlusFoodPerColonist.LowerBound(0);
                 FlatBonus       += b.PlusFlatFoodAmount;
             }
 
@@ -172,8 +172,8 @@ namespace Ship_Game.Universe.SolarBodies
             float plusPerColonist = 0f;
             foreach (Building b in Planet.BuildingList)
             {
-                plusPerColonist += b.PlusProdPerColonist;
-                FlatBonus       += b.PlusProdPerRichness * richness;
+                plusPerColonist += b.PlusProdPerColonist.LowerBound(0);
+                FlatBonus       += (b.PlusProdPerRichness * richness);
                 FlatBonus       += b.PlusFlatProductionAmount;
             }
             float productMod = Planet.Owner.data.Traits.ProductionMod;
@@ -205,9 +205,11 @@ namespace Ship_Game.Universe.SolarBodies
             float plusPerColonist = 0f;
             foreach (Building b in Planet.BuildingList)
             {
-                plusPerColonist += b.PlusResearchPerColonist;
+                plusPerColonist += b.PlusResearchPerColonist.LowerBound(0);
                 FlatBonus       += b.PlusFlatResearchAmount;
             }
+
+            FlatBonus         = FlatBonus.LowerBound(0); 
             float researchMod = Planet.Owner.data.Traits.ResearchMod;
             // @note Research only comes from buildings
             // Outposts and Capital Cities always grant a small bonus
