@@ -995,6 +995,7 @@ namespace Ship_Game
 
                 if (b.SensorRange > sensorRange)
                     sensorRange = b.SensorRange;
+
                 projectorRange = Math.Max(projectorRange, b.ProjectorRange + ObjectRadius);
                 if (b.AllowInfantry)
                     AllowInfantry = true;
@@ -1003,6 +1004,9 @@ namespace Ship_Game
                 if (b.AllowShipBuilding || b.IsSpacePort)
                     spacePort = true;
             }
+
+            InfraStructure = InfraStructure.LowerBound(0);
+            RepairPerTurn  = RepairPerTurn.LowerBound(0);
 
             if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.usePlanetaryProjection)
                 ProjectorRange = Owner.GetProjectorRadius() + ObjectRadius;
