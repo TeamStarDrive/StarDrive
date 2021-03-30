@@ -170,12 +170,12 @@ namespace Ship_Game
         }
 
         // @param baseValue base value per research point
-        public float DiplomaticValueTo(Empire them, float valuePerTechCost = 0.01f)
+        public float DiplomaticValueTo(Empire us, Empire offeringEmpire, float valuePerTechCost = 0.01f)
         {
             float value = Cost * valuePerTechCost;
-            // Technologists appreciate tech scores +25% higher:
-            if (them.data.EconomicPersonality.Name == "Technologists")
-                value *= 1.25f;
+            if (us.isPlayer) // Some modifiers vs. Player based on Difficulty and AI personality
+                value *= offeringEmpire.PersonalityModifiers.TechValueModifier 
+                         * offeringEmpire.DifficultyModifiers.TechValueModifier;
 
             return value;
         }
