@@ -85,13 +85,17 @@ namespace Ship_Game.SpriteSystem
             {
                 var color = new Color[Texture.Width * Texture.Height];
                 Texture.GetData(color);
-                ImageUtils.SaveAsDds(filename, Width, Height, color, DDSFlags.Dxt5BGRA);
+
+                bool alpha = ImageUtils.HasTransparentPixels(color, Width, Height);
+                
+                DDSFlags flags = alpha ? DDSFlags.Dxt5BGRA : DDSFlags.Dxt1BGRA;
+                ImageUtils.ConvertToDDS(filename, Width, Height, color, flags);
             }
             else if (format == SurfaceFormat.Bgr32)
             {
                 var color = new Color[Texture.Width * Texture.Height];
                 Texture.GetData(color);
-                ImageUtils.SaveAsDds(filename, Width, Height, color, DDSFlags.Dxt1BGRA);
+                ImageUtils.ConvertToDDS(filename, Width, Height, color, DDSFlags.Dxt1BGRA);
             }
             else
             {
