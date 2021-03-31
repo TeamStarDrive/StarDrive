@@ -1736,11 +1736,11 @@ namespace Ship_Game
             {
                 // Mod videos currently use .xnb pointer which references .wmv
                 // but the internal XNA asset system can't handle relative paths correctly
-                // so we need an extra "../" here
-                string modVideo = "../" + GlobalStats.ModPath + path + ".wmv";
+                // for mods, so we need an extra "../" in front of the path
+                string modVideo = "Content/../" + GlobalStats.ModPath + path + ".xnb";
                 var info = new FileInfo(modVideo);
                 if (info.Exists)
-                    path = modVideo;
+                    path = "../" + GlobalStats.ModPath + path + ".xnb";
             }
 
             Log.Write(ConsoleColor.Green, $"LoadVideo: {path}");
