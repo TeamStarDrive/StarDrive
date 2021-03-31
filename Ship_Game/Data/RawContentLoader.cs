@@ -195,13 +195,14 @@ namespace Ship_Game.Data
         void ExportTexture(FileInfo file, string outDir, TextureFileFormat fmt)
         {
             string relPath = file.RelPath();
-            string ext = (fmt == TextureFileFormat.DDS) ? ".dds" : ".png";
-            string outFile = Path.Combine(outDir, Path.ChangeExtension(relPath, ext));
+            string outExt = (fmt == TextureFileFormat.DDS) ? ".dds" : ".png";
+            string outFile = Path.Combine(outDir, Path.ChangeExtension(relPath, outExt));
             bool saved = false;
             try
             {
                 GameLoadingScreen.SetStatus("Export", outFile);
-                using (Texture2D tex = Content.LoadUncachedTexture(file, file.Extension))
+                string ext = file.Extension.Remove(0, 1).ToLower(); // '.Xnb' -> 'xnb'
+                using (Texture2D tex = Content.LoadUncachedTexture(file, ext))
                     saved = TexExport.Save(tex, outFile, fmt);
             }
             catch // not a texture
