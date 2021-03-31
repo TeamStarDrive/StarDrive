@@ -628,7 +628,7 @@ namespace Ship_Game.Fleets
 
                     break;
                 case 1:
-                    if (!HasArrivedAtRallySafely() || task.RallyPlanet.ParentSystem.DangerousForcesPresent(Owner)) 
+                    if (!HasArrivedAtRallySafely() || Ships.Any(s => s?.System == task.RallyPlanet.ParentSystem && s?.InCombat == true))
                         break;
 
                     if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
@@ -774,8 +774,11 @@ namespace Ship_Game.Fleets
 
                     break;
                 case 1:
-                    if (!HasArrivedAtRallySafely(GetRelativeSize().Length()) || task.RallyPlanet.ParentSystem.DangerousForcesPresent(Owner))
+                    if (!HasArrivedAtRallySafely(GetRelativeSize().Length())
+                        || Ships.Any(s => s?.System == task.RallyPlanet.ParentSystem && s?.InCombat == true))
+                    {
                         break;
+                    }
 
                     if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
                         AddFleetProjectorGoal();
@@ -984,8 +987,11 @@ namespace Ship_Game.Fleets
 
                     break;
                 case 1:
-                    if (!HasArrivedAtRallySafely() || task.RallyPlanet.ParentSystem.DangerousForcesPresent(Owner))
+                    if (!HasArrivedAtRallySafely()
+                        || Ships.Any(s => s?.System == task.RallyPlanet.ParentSystem && s?.InCombat == true))
+                    {
                         break;
+                    }
 
                     if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
                         AddFleetProjectorGoal();
@@ -1000,7 +1006,7 @@ namespace Ship_Game.Fleets
                     TaskStep = 3;
                     break;
                 case 3:
-                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / 2))
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() * 2))
                         break;
 
                     TaskStep = 4;
@@ -1011,7 +1017,7 @@ namespace Ship_Game.Fleets
                     TaskStep = 5;
                     break;
                 case 5:
-                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / 2))
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() * 2))
                         break;
 
                     TaskStep = 6;
@@ -1197,8 +1203,11 @@ namespace Ship_Game.Fleets
 
                     break;
                 case 1:
-                    if (!HasArrivedAtRallySafely(task.RallyPlanet.ParentSystem.Radius) || task.RallyPlanet.ParentSystem.DangerousForcesPresent(Owner))
+                    if (!HasArrivedAtRallySafely(task.RallyPlanet.ParentSystem.Radius)
+                        || Ships.Any(s => s?.System == task.RallyPlanet.ParentSystem && s?.InCombat == true))
+                    {
                         break;
+                    }
 
                     GatherAtAO(task, 3000);
                     TaskStep = 2;
