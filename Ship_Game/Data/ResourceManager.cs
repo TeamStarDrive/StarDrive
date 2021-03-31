@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using Ship_Game.Gameplay;
@@ -8,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Xml.Serialization;
 using Ship_Game.Data;
 using Ship_Game.Data.Yaml;
@@ -16,7 +14,6 @@ using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.SpriteSystem;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.AI;
-using Ship_Game.Data.Texture;
 
 namespace Ship_Game
 {
@@ -67,8 +64,6 @@ namespace Ship_Game
         public static Map<string, Artifact> ArtifactsDict      = new Map<string, Artifact>();
         public static Map<string, ExplorationEvent> EventsDict = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
         public static XmlSerializer HeaderSerializer           = new XmlSerializer(typeof(HeaderData));
-
-        static Map<string, SoundEffect> SoundEffectDict;
 
         public static HostileFleets HostileFleets                = new HostileFleets();
         public static ShipNames ShipNames                        = new ShipNames();
@@ -204,6 +199,7 @@ namespace Ship_Game
             LoadBlackboxSpecific();
 
             TestLoad();
+            RunExportTasks();
 
             LoadGraphicsResources(manager);
             HelperFunctions.CollectMemory();
@@ -287,7 +283,6 @@ namespace Ship_Game
             TechTree.Clear();
             ArtifactsDict.Clear();
             ShipsDict.Clear();
-            SoundEffectDict = null;
             ToolTips.Clear();
             GoodsDict.Clear();
             Encounters.Clear();
@@ -302,36 +297,22 @@ namespace Ship_Game
             UnloadGraphicsResources(manager);
         }
 
-        public static void ExportAllXnbTextures()
+        static void RunExportTasks()
         {
-            string outputPath = "/Projects/BlackBox/ExportedTextures";
-            FileInfo[] files = Dir.GetFiles("Content/", "*.xnb", SearchOption.AllDirectories);
-            void ExportFiles(int start, int end)
-            {
-                var exporter = new TextureExporter(RootContent);
-                for (int i = start; i < end; ++i)
-                {
-                    FileInfo file = files[i];
-                    string relPath = file.RelPath().Remove(0, "Content/".Length);
-                    string outFile = Path.Combine(outputPath, Path.ChangeExtension(relPath, ".png"));
-                    bool saved = false;
-                    try
-                    {
-                        GameLoadingScreen.SetStatus("Export", relPath);
-                        using (Texture2D tex = RootContent.Load<Texture2D>(relPath))
-                            saved = exporter.Save(tex, outFile, png:true);
-                    }
-                    catch // not a texture
-                    {
-                    }
-                    if (saved)
-                        Log.Info($"Saved {outFile}");
-                    else
-                        Log.Warning($"Ignored {relPath}");
-                }
-            }
-            //ExportFiles(0, files.Length);
-            Parallel.For(files.Length, ExportFiles);
+            if (!GlobalStats.ExportTextures)
+                return;
+
+            if (!Debugger.IsAttached)
+                Log.ShowConsoleWindow();
+
+            if (GlobalStats.ExportTextures)
+                RootContent.RawContent.ExportAllTextures();
+
+            if (GlobalStats.ExportMeshes)
+                RootContent.RawContent.ExportAllXnbMeshes();
+
+            if (!Debugger.IsAttached)
+                Log.HideConsoleWindow();
         }
 
         static void TestLoad()
@@ -339,7 +320,6 @@ namespace Ship_Game
             if (!GlobalStats.TestLoad) return;
 
             Log.ShowConsoleWindow();
-            //ExportAllXnbTextures();
             //TestTechTextures();
 
             if (!Debugger.IsAttached)
@@ -711,7 +691,7 @@ namespace Ship_Game
         // For these Atlases, quality suffers too much, so compression is forbidden
         public static readonly HashSet<string> AtlasNoCompressFolders = new HashSet<string>(new []
         {
-            "NewUI", "EmpireTopBar", "Popup"
+            "NewUI", "EmpireTopBar", "Popup", "ResearchMenu"
         });
 
         static void LoadAtlas(string folder)
@@ -794,10 +774,10 @@ namespace Ship_Game
 
         public static Texture2D LoadRandomLoadingScreen(GameContentManager content)
         {
-            var files = GatherFilesModOrVanilla("LoadingScreen", "xnb");
+            FileInfo[] files = GatherFilesModOrVanilla("LoadingScreen", "xnb");
 
             FileInfo file = files[RandomMath.InRange(0, files.Length)];
-            return content.Load<Texture2D>(file.CleanResPath());
+            return content.LoadTexture(file, "xnb");
         }
 
         // advice is temporary and only sticks around while loading
@@ -1089,7 +1069,7 @@ namespace Ship_Game
                     if (nameNoExt.StartsWith(modelPrefix) &&
                         int.TryParse(nameNoExt.Substring(modelPrefix.Length), out int _))
                     {
-                        models.Add(RootContent.Load<Model>(info.CleanResPath()));
+                        models.Add(RootContent.Load<Model>(info.RelPath()));
                     }
                 }
                 catch (Exception e)
@@ -1250,7 +1230,7 @@ namespace Ship_Game
                 string nameNoExt = info.NameNoExt();
                 try
                 {
-                    var projModel = RootContent.Load<Model>(info.CleanResPath());
+                    var projModel = RootContent.Load<Model>(info.RelPath());
 
                     ProjectileMeshDict[nameNoExt] = projModel.Meshes[0];
                     ProjectileModelDict[nameNoExt] = projModel;
@@ -1269,7 +1249,7 @@ namespace Ship_Game
             ProjTextDict.Clear();
             foreach (FileInfo info in GatherFilesUnified("Model/Projectiles/textures", "xnb"))
             {
-                var tex = RootContent.Load<Texture2D>(info.CleanResPath());
+                Texture2D tex = RootContent.LoadTexture(info, "xnb");
                 ProjTextDict[info.NameNoExt()] = tex;
             }
         }
@@ -1747,32 +1727,28 @@ namespace Ship_Game
             TryDeserialize("ShipNames/ShipNames.xml",            ref ShipNames);
             TryDeserialize("MainMenu/MainMenuShipList.xml",      ref MainMenuShipList);
             TryDeserialize("AgentMissions/AgentMissionData.xml", ref AgentMissionData);
-
-            FileInfo[] sfxFiles = GatherFilesUnified("SoundEffects", "xnb");
-            if (sfxFiles.Length != 0)
-            {
-                SoundEffectDict = new Map<string, SoundEffect>();
-                foreach (FileInfo info in sfxFiles)
-                {
-                    var se = RootContent.Load<SoundEffect>(info.CleanResPath());
-                    SoundEffectDict[info.NameNoExt()] = se;
-                }
-            }
-        }
-
-        public static bool GetModSoundEffect(string cueName, out SoundEffect sfx)
-        {
-            sfx = null;
-            return SoundEffectDict?.TryGetValue(cueName, out sfx) == true;
         }
 
         public static Video LoadVideo(GameContentManager content, string videoPath)
         {
-            var video = content.Load<Video>("Video/" + videoPath);
+            string path = "Video/" + videoPath;
+            if (GlobalStats.HasMod)
+            {
+                // Mod videos currently use .xnb pointer which references .wmv
+                // but the internal XNA asset system can't handle relative paths correctly
+                // for mods, so we need an extra "../" in front of the path
+                string modVideo = "Content/../" + GlobalStats.ModPath + path + ".xnb";
+                var info = new FileInfo(modVideo);
+                if (info.Exists)
+                    path = "../" + GlobalStats.ModPath + path + ".xnb";
+            }
+
+            Log.Write(ConsoleColor.Green, $"LoadVideo: {path}");
+            var video = content.Load<Video>(path);
             if (video != null)
                 return video;
 
-            Log.Error($"LoadVideo failed: {videoPath}");
+            Log.Error($"LoadVideo failed: {path}");
             return content.Load<Video>("Video/Loading 2");
         }
 
