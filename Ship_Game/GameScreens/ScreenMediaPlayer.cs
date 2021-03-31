@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Media;
 using Ship_Game.Audio;
 using Ship_Game.Data;
 using System;
-using System.ComponentModel.Design;
 
 namespace Ship_Game.GameScreens
 {
@@ -20,7 +19,6 @@ namespace Ship_Game.GameScreens
         readonly GameContentManager Content;
         Texture2D Frame; // last good frame, used for looping video transition delay
         public bool Active = true;
-
         public bool Visible = true;
 
         /// <summary>
@@ -45,7 +43,9 @@ namespace Ship_Game.GameScreens
         public string Name { get; private set; } = "";
         public Vector2 Size => Video != null ? new Vector2(Video.Width, Video.Height) : Vector2.Zero;
 
-        public bool ReadyToPlay => Frame !=null || IsPlaying || IsPaused;
+        public bool ReadyToPlay => Frame != null || IsPlaying || IsPaused;
+        public bool PlaybackFailed { get; private set; }
+        public bool PlaybackSuccess { get; private set; }
 
         // Player.Play() is too slow, so we start it in a background thread
         TaskResult BeginPlayTask;
@@ -75,6 +75,9 @@ namespace Ship_Game.GameScreens
 
         public void PlayVideo(string videoPath, bool looping = true, bool startPaused = false)
         {
+            if (BeginPlayTask != null)
+                return; // video has already started
+
             try
             {
                 Video = ResourceManager.LoadVideo(Content, videoPath);
@@ -87,13 +90,23 @@ namespace Ship_Game.GameScreens
 
                 BeginPlayTask = Parallel.Run(() =>
                 {
-                    Player.Play(Video);
-                    if (startPaused)
+                    try
                     {
-                        CaptureThumbnail = true;
-                        Player.Pause();
+                        Player.Play(Video);
+                        if (startPaused)
+                        {
+                            CaptureThumbnail = true;
+                            Player.Pause();
+                        }
+                        PlaybackSuccess = true;
+                        OnPlayStatusChange?.Invoke();
                     }
-                    OnPlayStatusChange?.Invoke();
+                    catch (Exception ex)
+                    {
+                        Log.Warning($"Player.Play failed: 'Video/{videoPath}' reason: {ex.Message}");
+                        PlaybackFailed = true;
+                        BeginPlayTask = null;
+                    }
                 });
             }
             catch (Exception ex)
@@ -104,6 +117,9 @@ namespace Ship_Game.GameScreens
 
         public void PlayVideoAndMusic(Empire empire, bool warMusic)
         {
+            if (BeginPlayTask != null)
+                return; // video has already started
+
             PlayVideo(empire.data.Traits.VideoPath);
 
             if (empire.data.MusicCue != null && Player.State != MediaState.Playing)
@@ -114,7 +130,7 @@ namespace Ship_Game.GameScreens
             }
         }
 
-        public bool IsPlaying => Video != null && Player.State == MediaState.Playing;
+        public bool IsPlaying => BeginPlayTask != null || (Video != null && Player.State == MediaState.Playing);
         public bool IsPaused  => Video != null && Player.State == MediaState.Paused;
         public bool IsStopped => Video == null || Player.IsDisposed ||
                                                   Player.State == MediaState.Stopped;
@@ -203,7 +219,7 @@ namespace Ship_Game.GameScreens
 
         public void Update(GameScreen screen)
         {
-            if (BeginPlayTask?.IsComplete != true)
+            if (!PlaybackSuccess)
                 return;
 
             if (Video != null && Player.State != MediaState.Stopped)
@@ -238,7 +254,7 @@ namespace Ship_Game.GameScreens
 
         public void Draw(SpriteBatch batch, in Rectangle rect, Color color, float rotation, SpriteEffects effects)
         {
-            if (BeginPlayTask?.IsComplete != true || Player.IsDisposed || !Active)
+            if (!PlaybackSuccess || Player.IsDisposed || !Active)
                 return;
             
             if (!Visible)

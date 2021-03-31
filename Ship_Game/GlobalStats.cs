@@ -67,9 +67,9 @@ namespace Ship_Game
         public static ModEntry ActiveMod;
         public static bool HasMod => ActiveMod != null;
         public static ModInformation ActiveModInfo;
-        public static string ModName = "";
-        public static string ModPath = ""; // "Mods/MyMod/"
-        public static string ModFile => ModPath.NotEmpty() ? $"{ModPath}{ModName}.xml" : ""; // "Mods/MyMod/MyMod.xml"
+        public static string ModName = ""; // "Combined Arms"
+        public static string ModPath = ""; // "Mods/Combined Arms/"
+        public static string ModFile => ModPath.NotEmpty() ? $"{ModPath}{ModName}.xml" : ""; // "Mods/Combined Arms/Combined Arms.xml"
         public static string ModOrVanillaName => HasMod ? ModName : "Vanilla";
         public static string ResearchRootUIDToDisplay = "Colonization";
         public static bool CordrazinePlanetCaptured;
@@ -173,6 +173,9 @@ namespace Ship_Game
 
         // Unsupported Experimental options
         public static float Unsupported_ProjectorRadius = -1;
+
+        public static bool ExportTextures; // export all XNB and PNG textures into StarDrive/ExportedTextures
+        public static bool ExportMeshes; // export all XNB meshes into StarDrive/ExportedMeshes
 
         public static void SetShadowDetail(int shadowDetail)
         {

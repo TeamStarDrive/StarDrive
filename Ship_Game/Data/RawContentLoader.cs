@@ -176,5 +176,42 @@ namespace Ship_Game.Data
             //Parallel.For(files.Count, ExportMeshes, Parallel.NumPhysicalCores * 2);
             ExportMeshes(0, files.Count);
         }
+
+        public void ExportAllTextures()
+        {
+            string outDir = Path.GetFullPath("ExportedTextures");
+            Log.Write(ConsoleColor.Blue, $"ExportTextures to: {outDir}");
+
+            Parallel.ForEach(Dir.GetFiles("Content/", "xnb"), f => ExportTexture(f, outDir, TextureFileFormat.DDS));
+            Parallel.ForEach(Dir.GetFiles("Content/", "png"), f => ExportTexture(f, outDir, TextureFileFormat.PNG));
+
+            if (GlobalStats.HasMod)
+            {
+                Parallel.ForEach(Dir.GetFiles(GlobalStats.ModPath, "xnb"), f => ExportTexture(f, outDir, TextureFileFormat.DDS));
+                Parallel.ForEach(Dir.GetFiles(GlobalStats.ModPath, "png"), f => ExportTexture(f, outDir, TextureFileFormat.PNG));
+            }
+        }
+
+        void ExportTexture(FileInfo file, string outDir, TextureFileFormat fmt)
+        {
+            string relPath = file.RelPath();
+            string outExt = (fmt == TextureFileFormat.DDS) ? ".dds" : ".png";
+            string outFile = Path.Combine(outDir, Path.ChangeExtension(relPath, outExt));
+            bool saved = false;
+            try
+            {
+                GameLoadingScreen.SetStatus("Export", outFile);
+                string ext = file.Extension.Remove(0, 1).ToLower(); // '.Xnb' -> 'xnb'
+                using (Texture2D tex = Content.LoadUncachedTexture(file, ext))
+                    saved = TexExport.Save(tex, outFile, fmt);
+            }
+            catch // not a texture
+            {
+            }
+            if (saved)
+                Log.Info($"Saved {outFile}");
+            else
+                Log.Warning($"Ignored {relPath}");
+        }
     }
 }
