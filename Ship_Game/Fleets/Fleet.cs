@@ -1272,7 +1272,7 @@ namespace Ship_Game.Fleets
                                         && EmpireManager.Remnants.GetFleetsDict().Values.ToArray()
                                            .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == task.TargetPlanet.ParentSystem);
 
-            if (EndInvalidTask(remnantsTargeting || !StillCombatEffective(task)))
+            if (EndInvalidTask(task.TargetPlanet.Owner == null || remnantsTargeting || !StillCombatEffective(task)))
                 return;
 
             bool endTask = task.TargetPlanet.Owner == Owner || task.TargetPlanet.Owner?.IsAtWarWith(Owner) == false;
