@@ -84,6 +84,9 @@ namespace Ship_Game.Data.Texture
 
         public static unsafe void ConvertToDDS(string filename, int width, int height, Color[] rgbaImage, DDSFlags flags)
         {
+            if (width == 0 || height == 0)
+                throw new ArgumentException($"DDS Width/Height cannot be zero: {width}x{height}");
+
             fixed (Color* pColor = rgbaImage)
             {
                 IntPtr error = SaveImageAsDDS(filename, width, height, pColor, flags);

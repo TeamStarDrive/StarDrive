@@ -18,7 +18,9 @@ namespace Ship_Game.Data.Texture
         {
             using (var fs = new FileStream(texturePath, FileMode.Open))
             {
-                return Texture2D.FromFile(Device, fs);
+                Texture2D tex = Texture2D.FromFile(Device, fs);
+                tex.Name = texturePath;
+                return tex;
             }
         }
         
@@ -26,7 +28,9 @@ namespace Ship_Game.Data.Texture
         {
             using (FileStream fs = textureFile.OpenRead())
             {
-                return Texture2D.FromFile(Device, fs);
+                Texture2D tex = Texture2D.FromFile(Device, fs);
+                tex.Name = textureFile.RelPath();
+                return tex;
             }
         }
     }
