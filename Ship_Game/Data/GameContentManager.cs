@@ -27,7 +27,7 @@ namespace Ship_Game.Data
         public string Name { get; }
 
         // Enables verbose logging for all asset loads and disposes
-        public bool EnableLoadInfoLog { get; set; } = false && Debugger.IsAttached;
+        public bool EnableLoadInfoLog { get; set; } = true && Debugger.IsAttached;
 
         public RawContentLoader RawContent { get; private set; }
 
@@ -237,53 +237,34 @@ namespace Ship_Game.Data
         {
         }
 
-        struct AssetName
+        readonly struct AssetName
         {
-            public readonly string NoExt;     // XNA friendly name without an extension
+            public readonly string RelPathWithExt; // "Textures/hqspace.xnb"
             public readonly string Extension; // ".obj" or ".png" for raw resource loader
-
-            public bool NonXnaAsset => Extension.Length > 0 && Extension != "xnb";
+            public readonly bool NonXnaAsset;
 
             public AssetName(string assetName)
             {
-                if (assetName.IsEmpty())
-                    throw new ArgumentNullException(nameof(assetName));
-
-                NoExt = assetName;
-                Extension = "";
                 if (assetName[assetName.Length - 4] == '.')
                 {
+                    RelPathWithExt = assetName;
                     Extension = assetName.Substring(assetName.Length - 3).ToLower();
-                    NoExt     = assetName.Substring(0, assetName.Length - 4);
+                    NonXnaAsset = Extension != "xnb" && Extension != "wmv";
                 }
-
-                NoExt = NoExt.NormalizedFilePath(); // normalize path
-
-                if (NoExt.StartsWith("./"))
-                    NoExt = NoExt.Substring(2);
-
-                // starts with active mod, eg: "Mods/MyMod/" ?
-                if (GlobalStats.HasMod && NoExt.StartsWith(GlobalStats.ModPath))
+                else
                 {
-                    // We only remove the Mod prefix for the active mod
-                    NoExt = NoExt.Substring(GlobalStats.ModPath.Length);
+                    RelPathWithExt = assetName + ".xnb";
+                    Extension = "xnb"; // assume xnb
+                    NonXnaAsset = false;
                 }
-                //if (assetNoExt.StartsWith("Content/", StringComparison.OrdinalIgnoreCase))
-                //    assetNoExt = assetNoExt.Substring("Content/".Length);
 
             #if true // #if DEBUG
-                // if we forbid relative paths, we can streamline our resource manager and eliminate almost all duplicate loading
-                if (NoExt.Contains("..") || NoExt.Contains("./"))
-                    throw new ArgumentException($"Asset name cannot contain relative paths: '{NoExt}'");
-
                 // absolute paths would break all the modding support, so forbid that as well
-                if (NoExt.Contains(":/"))
-                    throw new ArgumentException($"Asset name cannot contain absolute paths: '{NoExt}'");
+                if (assetName.Contains(":/"))
+                    throw new ArgumentException($"Asset name cannot contain absolute paths: '{assetName}'");
             #endif
             }
         }
-
-
 
         // Load the asset with the given name or path
         // Path must be relative to project root, such as:
@@ -293,57 +274,44 @@ namespace Ship_Game.Data
             return LoadAsset<T>(assetName, useCache:true);
         }
 
-        public T LoadUncached<T>(string assetName)
+        T LoadAsset<T>(string assetName, bool useCache)
         {
-            return LoadAsset<T>(assetName, useCache: false);
-        }
-
-        public T LoadAsset<T>(string assetName, bool useCache)
-        {
-            var asset = new AssetName(assetName);
             if (LoadedAssets == null)
                 throw new ObjectDisposedException(ToString());
 
-            if (EnableLoadInfoLog)
-                Log.Info(ConsoleColor.Cyan, $"Load<{typeof(T).Name}> {assetName}");
+            //if (EnableLoadInfoLog)
+            //    Log.Info(ConsoleColor.Cyan, $"Load<{typeof(T).Name}> {assetName}");
 
             Type assetType = typeof(T);
             if (assetType == typeof(SubTexture))   return (T)(object)LoadSubTexture(assetName);
             if (assetType == typeof(TextureAtlas)) return (T)(object)LoadTextureAtlas(assetName, useCache);
-
-
-
-            if (useCache && TryGetAsset(assetName, out T existing))
+            
+            var asset = new AssetName(assetName);
+            if (useCache && TryGetAsset(asset.RelPathWithExt, out T existing))
                 return existing;
+            
             T loaded;
-
-            var xnaPath = asset.NoExt;
-
-            // hack to make sure the video asset is loaded with the mod WMV path
-            if (GlobalStats.HasMod && assetType == typeof(Video))
-            {
-                var info = new FileInfo(GlobalStats.ModPath + assetName + ".xnb");
-                if (info.Exists)
-                {
-                    xnaPath = "../" + GlobalStats.ModPath + assetName;
-                }
-            }
-
             if (asset.NonXnaAsset)
-                loaded = (T) RawContent.LoadAsset(assetName, asset.Extension);
+                loaded = (T)RawContent.LoadAsset(asset.RelPathWithExt, asset.Extension);
             else
-                loaded = ReadAsset<T>(xnaPath, DoNothingWithDisposable);
+                loaded = ReadXnaAsset<T>(asset.RelPathWithExt);
+
+            if (useCache)
+                RecordCacheObject(asset.RelPathWithExt, loaded);
 
             // detect possible resource leaks -- this is very slow, so only enable on demand
             #if false
-                SlowCheckForResourceLeaks(assetName);
+                SlowCheckForResourceLeaks(asset.RelPathWithExt);
             #endif
-            if (useCache)
-            {
-                RecordCacheObject(assetName, loaded);
-                if (loaded is Texture2D texture)
-                    texture.Name = assetName;
-            }
+
+            return loaded;
+        }
+
+        T ReadXnaAsset<T>(string assetName)
+        {
+            T loaded = ReadAsset<T>(assetName, DoNothingWithDisposable);
+            if (loaded is Texture2D texture)
+                texture.Name = assetName;
             return loaded;
         }
 
@@ -371,13 +339,28 @@ namespace Ship_Game.Data
         /// Loads a texture and DOES NOT store it inside GameContentManager
         public Texture2D LoadUncachedTexture(FileInfo file, string ext)
         {
+            string assetName = file.RelPath();
             if (EnableLoadInfoLog)
-                Log.Info(ConsoleColor.Cyan, $"Load<{typeof(Texture2D).Name}> {file.CleanResPath(false)}");
+                Log.Info(ConsoleColor.Cyan, $"LoadUncachedTexture {assetName}");
 
             if (ext != "xnb")
                 return RawContent.LoadImageAsTexture(file);
 
-            return ReadAsset<Texture2D>(file.CleanResPath(), DoNothingWithDisposable);
+            return ReadXnaAsset<Texture2D>(assetName);
+        }
+
+        public Texture2D LoadTexture(FileInfo file, string ext)
+        {
+            string assetName = file.RelPath();
+            if (EnableLoadInfoLog)
+                Log.Info(ConsoleColor.Cyan, $"LoadTexture {assetName}");
+
+            if (ext != "xnb")
+                return RawContent.LoadImageAsTexture(file);
+
+            Texture2D tex = ReadXnaAsset<Texture2D>(assetName);
+            RecordCacheObject(assetName, tex);
+            return tex;
         }
 
         // @note Guaranteed to load an atlas with at least 1 texture
@@ -387,7 +370,8 @@ namespace Ship_Game.Data
                 return existing;
 
             TextureAtlas atlas = TextureAtlas.FromFolder(this, folderWithTextures);
-            if (atlas != null && useAssetCache) RecordCacheObject(folderWithTextures, atlas);
+            if (atlas != null && useAssetCache)
+                RecordCacheObject(folderWithTextures, atlas);
             return atlas;
         }
 
@@ -461,34 +445,53 @@ namespace Ship_Game.Data
             }
         }
 
-        protected override Stream OpenStream(string assetName)
+        protected override Stream OpenStream(string assetNameWithExt)
         {
             try
             {
-                // NOTE: This will not create the path properly for XNB pointer files like video.
+                string assetPath = assetNameWithExt.NormalizedFilePath();
 
                 // trying to do a direct Mod asset load, this may be different from currently active mod
-                if (assetName.StartsWith("Mods/", StringComparison.OrdinalIgnoreCase)) 
+                if (assetPath.StartsWith("Mods/", StringComparison.OrdinalIgnoreCase)) 
                 {
-                    var info = new FileInfo(assetName + ".xnb");
-                    if (info.Exists) return info.OpenRead();
-                }
-                if (GlobalStats.HasMod)
-                {
-                    var info = new FileInfo(GlobalStats.ModPath + assetName + ".xnb");
+                    var info = new FileInfo(assetPath);
                     if (info.Exists)
                     {
+                        if (EnableLoadInfoLog)
+                            Log.Info(ConsoleColor.Cyan, $"OpenStream {assetPath}");
+                        return info.OpenRead();
+                    }
+                    throw new FileNotFoundException(assetPath);
+                }
+
+                if (assetPath.StartsWith("Content"))
+                    assetPath = assetPath.Substring("Content/".Length);
+
+                // if Mod has file with the same name, use it instead of Vanilla file
+                if (GlobalStats.HasMod)
+                {
+                    string modAssetPath = GlobalStats.ModPath + assetPath;
+                    var info = new FileInfo(modAssetPath);
+                    if (info.Exists)
+                    {
+                        if (EnableLoadInfoLog)
+                            Log.Info(ConsoleColor.Cyan, $"OpenStream {modAssetPath}");
                         return info.OpenRead();
                     }
                 }
-                return File.OpenRead("Content/" + assetName + ".xnb");
+
+                // Vanilla content load
+                string vanillaAssetPath = "Content/" + assetPath;
+                if (EnableLoadInfoLog)
+                    Log.Info(ConsoleColor.Cyan, $"OpenStream {vanillaAssetPath}");
+                return File.OpenRead(vanillaAssetPath);
             }
             catch (Exception ex)
             {
                 if (ex is FileNotFoundException || ex is DirectoryNotFoundException)
-                    throw new ContentLoadException($"Asset '{assetName}' was not found", ex);
+                    throw new ContentLoadException($"Asset '{assetNameWithExt}' was not found", ex);
                 if (ex is ArgumentException || ex is NotSupportedException || ex is IOException || ex is UnauthorizedAccessException)
-                    throw new ContentLoadException($"Asset '{assetName}' could not be opened", ex);
+                    throw new ContentLoadException($"Asset '{assetNameWithExt}' could not be opened", ex);
                 throw;
             }
         }
