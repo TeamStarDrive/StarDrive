@@ -251,23 +251,11 @@ namespace Ship_Game.Audio
 
         static void PlaySfx(string cueName, AudioEmitter emitter, IAudioHandle handle)
         {
-            IAudioInstance instance;
-            if (ResourceManager.GetModSoundEffect(cueName, out SoundEffect sfx))
-            {
-                SoundEffectInstance inst = sfx.CreateInstance();
-                if (emitter != null)
-                    inst.Apply3D(Listener, emitter);
-                inst.Volume = GlobalStats.EffectsVolume;
-                instance = new SfxInstance(inst);
-            }
-            else
-            {
-                Cue cue = SoundBank.GetCue(cueName);
-                if (emitter != null)
-                    cue.Apply3D(Listener, emitter);
-                instance = new CueInstance(cue);
-            }
+            Cue cue = SoundBank.GetCue(cueName);
+            if (emitter != null)
+                cue.Apply3D(Listener, emitter);
 
+            IAudioInstance instance = new CueInstance(cue);
             TrackedHandle tracked;
             if (handle != null)
             {

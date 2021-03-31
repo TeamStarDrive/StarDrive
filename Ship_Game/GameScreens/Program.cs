@@ -52,6 +52,17 @@ namespace Ship_Game
             }
         }
 
+        static void ParseMainArgs(string[] args)
+        {
+            foreach (string arg in args)
+            {
+                if (arg == "--export-textures")
+                    GlobalStats.ExportTextures = true;
+                else if (arg == "--export-meshes")
+                    GlobalStats.ExportMeshes = true;
+            }
+        }
+
         [STAThread]
         static void Main(string[] args)
         {
@@ -69,21 +80,13 @@ namespace Ship_Game
                 GlobalStats.LoadConfig();
                 Log.Initialize();
 
-                using (var instance = new SingleGlobalInstance())
-                {
-                    if (!instance.UniqueInstance)
-                    {
-                        // TODO: Uncomment this
-                        //MessageBox.Show("Another instance of SD-BlackBox is already running!");
-                        //return;
-                    }
+                ParseMainArgs(args);
 
-                    Thread.CurrentThread.Name = "Main Thread";
-                    Log.AddThreadMonitor();
+                Thread.CurrentThread.Name = "Main Thread";
+                Log.AddThreadMonitor();
 
-                    using (var game = new StarDriveGame())
-                        game.Run();
-                }
+                using (var game = new StarDriveGame())
+                    game.Run();
 
                 Log.Write("The game exited normally.");
                 RunCleanupAndExit(0);
