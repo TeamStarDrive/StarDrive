@@ -684,7 +684,7 @@ namespace Ship_Game.AI
         bool DoBombard(FixedSimTime timeStep, ShipGoal goal)
         {
             Planet planet = goal.TargetPlanet;
-            if (planet.TroopsHere.Count == 0 && planet.Population <= 0f //Everyone is dead
+            if (!planet.TroopsHereAreEnemies(Owner.loyalty) && planet.Population <= 0f // Everyone is dead
                 || planet.Owner != null && !Owner.loyalty.IsEmpireAttackable(planet.Owner))
             {
                 ClearOrders();
