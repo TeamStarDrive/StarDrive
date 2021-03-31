@@ -1,21 +1,23 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.SpriteSystem;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ship_Game.Data.Texture
 {
+    public enum TextureFileFormat
+    {
+        PNG,
+        DDS,
+    }
+
     public class TextureExporter : TextureInterface
     {
         public TextureExporter(GameContentManager content) : base(content)
         {
         }
 
-        public bool Save(Texture2D texture, string outPath, bool png = false)
+        public bool Save(Texture2D texture, string outPath, TextureFileFormat fmt = TextureFileFormat.DDS)
         {
             try
             {
@@ -27,16 +29,17 @@ namespace Ship_Game.Data.Texture
                 }
 
                 string dir = Path.GetDirectoryName(outPath);
-                var d = Directory.CreateDirectory(dir);
+                DirectoryInfo d = Directory.CreateDirectory(dir);
                 if (!d.Exists)
                     return false;
 
                 var texInfo = new TextureInfo();
                 texInfo.Texture = texture;
-                if (png)
-                    texInfo.SaveAsPng(outPath);
-                else
-                    texInfo.SaveAsDds(outPath);
+                switch (fmt)
+                {
+                    case TextureFileFormat.PNG: texInfo.SaveAsPng(outPath); break;
+                    case TextureFileFormat.DDS: texInfo.SaveAsDds(outPath); break;
+                }
                 return true;
             }
             catch
