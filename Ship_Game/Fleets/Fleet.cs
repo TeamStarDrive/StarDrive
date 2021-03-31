@@ -416,6 +416,15 @@ namespace Ship_Game.Fleets
             
         }
 
+        public void RefitNodeName(string oldName, string newName)
+        {
+            foreach (FleetDataNode node in DataNodes)
+            {
+                if (node.ShipName == oldName)
+                    node.ShipName = newName;
+            }
+        }
+
         enum SquadSortType
         {
             Size,
