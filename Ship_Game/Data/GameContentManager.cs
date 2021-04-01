@@ -27,7 +27,7 @@ namespace Ship_Game.Data
         public string Name { get; }
 
         // Enables verbose logging for all asset loads and disposes
-        public bool EnableLoadInfoLog { get; set; } = true && Debugger.IsAttached;
+        public bool EnableLoadInfoLog { get; set; } = false && Debugger.IsAttached;
 
         public RawContentLoader RawContent { get; private set; }
 
@@ -134,7 +134,7 @@ namespace Ship_Game.Data
         public GraphicsDeviceManager Manager => (GraphicsDeviceManager)ServiceProvider.GetService(typeof(IGraphicsDeviceManager));
         public GraphicsDevice Device => Manager.GraphicsDevice;
 
-        static int TextureSize(Texture2D tex)
+        public static int TextureSize(Texture2D tex)
         {
             if (tex == null || tex.IsDisposed)
                 return 0;
@@ -144,6 +144,9 @@ namespace Ship_Game.Data
                 case SurfaceFormat.Dxt1: mul = 0.5f; break;
                 case SurfaceFormat.Dxt3: mul = 1.0f; break;
                 case SurfaceFormat.Dxt5: mul = 1.0f; break;
+                case SurfaceFormat.Rgb32: mul = 4.0f; break;
+                case SurfaceFormat.Rgba32: mul = 4.0f; break;
+                case SurfaceFormat.Color: mul = 4.0f; break;
             }
             try { if (tex.LevelCount > 1) mul *= 1.75f; } // mip maps 
             catch (Exception) {}
@@ -166,7 +169,7 @@ namespace Ship_Game.Data
                 }
                 else if (asset is TextureAtlas atlas)
                 {
-                    numBytes += TextureSize(atlas.Atlas);
+                    numBytes += atlas.GetUsedMemory();
                 }
                 else if (asset is Video vid)
                 {
@@ -339,25 +342,16 @@ namespace Ship_Game.Data
         /// Loads a texture and DOES NOT store it inside GameContentManager
         public Texture2D LoadUncachedTexture(FileInfo file, string ext)
         {
-            string assetName = file.RelPath();
-            if (EnableLoadInfoLog)
-                Log.Info(ConsoleColor.Cyan, $"LoadUncachedTexture {assetName}");
-
             if (ext != "xnb")
                 return RawContent.LoadImageAsTexture(file);
-
-            return ReadXnaAsset<Texture2D>(assetName);
+            return ReadXnaAsset<Texture2D>(file.RelPath());
         }
 
         public Texture2D LoadTexture(FileInfo file, string ext)
         {
-            string assetName = file.RelPath();
-            if (EnableLoadInfoLog)
-                Log.Info(ConsoleColor.Cyan, $"LoadTexture {assetName}");
-
             if (ext != "xnb")
                 return RawContent.LoadImageAsTexture(file);
-
+            string assetName = file.RelPath();
             Texture2D tex = ReadXnaAsset<Texture2D>(assetName);
             RecordCacheObject(assetName, tex);
             return tex;
