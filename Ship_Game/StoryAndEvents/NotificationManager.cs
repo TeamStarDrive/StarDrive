@@ -203,6 +203,18 @@ namespace Ship_Game
             }, "smallservo");
         }
 
+        public void AddEnemyLaunchedTroopsVsFleet(Planet p, Empire enemy)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire  = enemy,
+                Message         = new LocalizedText(4298).Text,
+                ReferencedItem1 = p,
+                IconPath        = p.IconPath,
+                Action          = "SnapToPlanet"
+            }, "sd_notify_alert");
+        }
+
 
         public void AddBuildingDestroyedByLava(Planet p, Building b)   => AddBuildingDestroyed(p, b, new LocalizedText(4276).Text);
         public void AddBuildingDestroyedByMeteor(Planet p, Building b) => AddBuildingDestroyed(p, b, new LocalizedText(4287).Text);
