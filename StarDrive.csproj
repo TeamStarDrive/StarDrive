@@ -243,6 +243,7 @@
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Ship_Game\Commands\Goals\AssaultBombers.cs" />
     <Compile Include="Ship_Game\Commands\Goals\ScoutSystem.cs" />
     <Compile Include="Ship_Game\Debug\Page\StoryAndEventsDebug.cs" />
     <Compile Include="Ship_Game\SearchTechItem.cs" />
@@ -508,6 +509,7 @@
     <Compile Include="Ship_Game\SpriteSystem\AnimationCurve.cs" />
     <Compile Include="Ship_Game\SpriteSystem\DrawableSprite.cs" />
     <Compile Include="Ship_Game\GameScreens\Espionage\AgentListItem.cs" />
+    <Compile Include="Ship_Game\SpriteSystem\TextureBinding.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\ArtifactItemListItem.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\EncounterInstance.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\ResponseListItem.cs" />

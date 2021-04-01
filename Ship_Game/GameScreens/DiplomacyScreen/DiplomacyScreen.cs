@@ -1096,9 +1096,11 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
             if (RacialVideo == null)
                 RacialVideo = new ScreenMediaPlayer(TransientContent);
-            RacialVideo.PlayVideoAndMusic(Them, WarDeclared);
-            RacialVideo.Rect = Portrait;
 
+            if (!RacialVideo.PlaybackFailed)
+                RacialVideo.PlayVideoAndMusic(Them, WarDeclared);
+
+            RacialVideo.Rect = Portrait;
             RacialVideo.Update(this);
 
             if (Discuss != null) Discuss.ToggleOn = DState == DialogState.Discuss;
