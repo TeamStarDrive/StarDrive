@@ -42,6 +42,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             var potentialTargets = PlanetBuildingAt.ParentSystem.ShipList.Filter(s => s.loyalty == TargetEmpire);
             potentialTargets     = potentialTargets.Sorted(s => s.Center.Distance(PlanetBuildingAt.Center));
+            bool launchedTroops  = false;
             foreach (Ship ship in potentialTargets)
             {
                 float defenseToOvercome = ship.BoardingDefenseTotal * 1.2f;
@@ -56,6 +57,13 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                         {
                             defenseToOvercome -= str;
                             numTroopsWanted   -= 1;
+                            if (launchedTroops == false)
+                            {
+                                launchedTroops = true;
+                                if (TargetEmpire.isPlayer)
+                                    Empire.Universe.NotificationManager.AddEnemyLaunchedTroopsVsFleet(PlanetBuildingAt, empire);
+                            }
+
                             if (ship.Center.InRadius(PlanetBuildingAt.Center, PlanetBuildingAt.ObjectRadius + 1000))
                                 troopShip.Position = ship.Center.GenerateRandomPointOnCircle(300);
 
