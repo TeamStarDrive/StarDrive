@@ -2609,6 +2609,18 @@ namespace Ship_Game
             }
         }
 
+        public void CreateAssaultBombersGoal(Empire enemy, Planet planet)
+        {
+            if (enemy == this || !enemy.isPlayer || isPlayer
+                || EmpireAI.Goals.Any(g => g.type == GoalType.AssaultBombers && g.PlanetBuildingAt == planet))
+            {
+                return;
+            }
+
+            var goal = new AssaultBombers(planet, this, enemy);
+            EmpireAI.Goals.Add(goal);
+        }
+
         public void TryAutoRequisitionShip(Fleet fleet, Ship ship)
         {
             if (!isPlayer || fleet == null || !fleet.AutoRequisition)
