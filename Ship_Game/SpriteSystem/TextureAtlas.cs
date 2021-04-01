@@ -11,48 +11,12 @@ using Ship_Game.Data.Texture;
 namespace Ship_Game.SpriteSystem
 {
     // Enables lazy loading for textures
-    public class TextureBinding
-    {
-        public SubTexture SubTex;
-        public Texture2D Texture;
-        public int Width;
-        public int Height;
-        public string Name;
-        public string UnpackedPath;
-        public string AtlasFolder;
-
-        public TextureBinding(SubTexture tex, int w, int h, string name, string unpackedPath, string atlasFolder)
-        {
-            SubTex = tex;
-            Width = w;
-            Height = h;
-            Name = name;
-            UnpackedPath = unpackedPath;
-            AtlasFolder = atlasFolder;
-        }
-
-        public SubTexture GetOrLoadTexture()
-        {
-            if (SubTex != null)
-                return SubTex;
-
-            // load the texture if we already didn't
-            if (Texture == null)
-            {
-                var file = new FileInfo(UnpackedPath);
-                Texture = ResourceManager.RootContent.LoadUncachedTexture(file, AtlasFolder);
-            }
-
-            SubTex = new SubTexture(Name, Texture);
-            return SubTex;
-        }
-    }
 
     /// Generic TextureAtlas which is used as a container
     /// for related textures and animation sequences
     public class TextureAtlas : IDisposable
     {
-        const int Version = 21; // changing this will force all caches to regenerate
+        const int Version = 22; // changing this will force all caches to regenerate
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
         //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
@@ -62,7 +26,7 @@ namespace Ship_Game.SpriteSystem
         public static readonly bool DebugDrawBounds = false; // draw bounds over every SubTexture
         public static readonly bool DebugDrawFreeSpots = false; // draw remaining Free spots left during Packing
         public static readonly bool DebugDrawFreeSpotFills = false; // draw on free spots that were filled with SubTexture
-        public static readonly bool DebugCheckOverlap = true; // whether to validate all Packed SubTextures to ensure no overlap
+        public static readonly bool DebugCheckOverlap = false; // whether to validate all Packed SubTextures to ensure no overlap
         public static readonly bool DebugPackerExpansion = false; // saves failed packer state for analysis
 
         ulong Hash;
@@ -178,7 +142,7 @@ namespace Ship_Game.SpriteSystem
             {
                 // We compress the DDS color into DXT5 and then reload it through XNA
                 DDSFlags format = (flags&AtlasFlags.Alpha)!=0 ? DDSFlags.Dxt5BGRA : DDSFlags.Dxt1BGRA;
-                ImageUtils.SaveAsDds(texturePath, Width, Height, color, format);
+                ImageUtils.ConvertToDDS(texturePath, Width, Height, color, format);
 
                 // DXT5 size in mem after loading is 4x smaller than RGBA, but quality sucks!
                 Atlas = Texture2D.FromFile(content.Device, texturePath);

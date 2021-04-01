@@ -82,8 +82,11 @@ namespace Ship_Game.Data.Texture
         static extern unsafe IntPtr SaveImageAsDDS(
             [MarshalAs(UnmanagedType.LPStr)] string filename, int width, int height, Color* rgbaImage, DDSFlags flags);
 
-        public static unsafe void SaveAsDds(string filename, int width, int height, Color[] rgbaImage, DDSFlags flags)
+        public static unsafe void ConvertToDDS(string filename, int width, int height, Color[] rgbaImage, DDSFlags flags)
         {
+            if (width == 0 || height == 0)
+                throw new ArgumentException($"DDS Width/Height cannot be zero: {width}x{height}");
+
             fixed (Color* pColor = rgbaImage)
             {
                 IntPtr error = SaveImageAsDDS(filename, width, height, pColor, flags);
@@ -151,5 +154,16 @@ namespace Ship_Game.Data.Texture
             }
         }
 
+        [DllImport("SDNative.dll")]
+        static extern unsafe bool HasTransparentPixels(Color* img, int width, int height);
+
+        // @return TRUE if image has at least 1 transparent pixel (A != 255)
+        public static unsafe bool HasTransparentPixels(Color[] img, int width, int height)
+        {
+            fixed (Color* pImg = img)
+            {
+                return HasTransparentPixels(pImg, width, height);
+            }
+        }
     }
 }

@@ -1269,7 +1269,7 @@ namespace Ship_Game
                     if (b.FoodCache.LessOrEqual(0))
                     {
                         if (Owner == EmpireManager.Player)
-                            Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, new LocalizedText(4299).Text);
+                            Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, new LocalizedText(4300).Text);
 
                         RemoveBuildingFromPlanet(b, destroy: true);
                     }
@@ -1282,7 +1282,7 @@ namespace Ship_Game
                     if (b.ProdCache.LessOrEqual(0))
                     {
                         if (Owner == EmpireManager.Player)
-                            Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, new LocalizedText(4299).Text);
+                            Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, new LocalizedText(4300).Text);
 
                         RemoveBuildingFromPlanet(b, destroy: true);
                     }
