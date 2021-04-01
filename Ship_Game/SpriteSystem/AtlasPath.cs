@@ -13,7 +13,10 @@ namespace Ship_Game.SpriteSystem
         {
             OriginalName = Path.GetFileName(name);
             AtlasName = name.Replace('/', '_');
-            CacheDir = Dir.StarDriveAppData + "/TextureCache";
+
+            // put mod atlases into a separate folder to reduce invalidations
+            string cache = GlobalStats.HasMod ? $"/TC-{GlobalStats.ModName}" : "/TextureCache";
+            CacheDir = Dir.StarDriveAppData + cache;
             Directory.CreateDirectory(CacheDir);
             Texture    = $"{CacheDir}/{AtlasName}.dds";
             Descriptor = $"{CacheDir}/{AtlasName}.atlas";
