@@ -243,14 +243,18 @@ namespace Ship_Game.AI
                 if (ship.AI.BadGuysNear
                     || ship.AI.HasPriorityOrder
                     || ship.AI.HasPriorityTarget
-                    || ship.CanBeRefitted)
+                    || !ship.CanBeRefitted)
                 {
                     continue;
                 }
 
                 Ship newShip = ShipBuilder.PickShipToRefit(ship, OwnerEmpire);
                 if (newShip != null)
+                {
                     Goals.Add(new RefitShip(ship, newShip.Name, OwnerEmpire));
+                    foreach (Planet p in OwnerEmpire.GetPlanets())
+                        p.Construction.RefitShipsBeingBuilt(ship, newShip);
+                }
             }
         }
 

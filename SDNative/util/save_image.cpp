@@ -259,3 +259,17 @@ DLLEXPORT void __stdcall FillPixels(Image dst, int x, int y, Color color, int w,
         }
     }
 }
+
+DLLEXPORT int __stdcall HasTransparentPixels(Image img)
+{
+	for (int y = 0; y < img.height; ++y)
+	{
+		Color* row = &img.data[img.width * y];
+		for (int x = 0; x < img.width; ++x)
+		{
+            if (row[x].a != byte{255})
+                return true;
+		}
+	}
+	return false; // all pixel Alphas were 255
+}

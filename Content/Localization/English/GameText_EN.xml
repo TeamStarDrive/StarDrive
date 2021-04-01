@@ -8669,18 +8669,22 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4298</Index>
-      <Text>was destroyed in an exploration event.</Text>
+      <Text>The Enemy has launched a sneak assault force in an attempt to\nboard our Bombers and escorting ships!</Text>
     </Token>
     <Token>
       <Index>4299</Index>
-      <Text>was removed since it's resource cache\n was depleted.</Text>
+      <Text>was destroyed in an exploration event.</Text>
     </Token>
     <Token>
       <Index>4300</Index>
-      <Text>Food Remaining here. This building will be removed when the cache is depleted.</Text>
+      <Text>was removed since it's resource cache\n was depleted.</Text>
     </Token>
     <Token>
       <Index>4301</Index>
+      <Text>Food Remaining here. This building will be removed when the cache is depleted.</Text>
+    </Token>
+    <Token>
+      <Index>4302</Index>
       <Text>Production Remaining here. This building will be removed when the cache is depleted.</Text>
     </Token>
     <Token>

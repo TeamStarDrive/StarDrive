@@ -17,6 +17,8 @@ namespace Ship_Game
         public float WarGradeThresholdForPeace; // How bad should our total wars grade be to request peace
         public float FleetStrMultiplier; // Add or decrease str addition to fleets after win / lose vs. another empire.
         public float DefenseTaskWeight; // How much the AI values defense task over other (it will cancel other tasks for defense), bigger is more value
+        public float TechValueModifier; // Some personalities value techs more vs player
+        public float AssaultBomberRatio; // Percent of existing troops to launch in order to board attacking fleets when planet is bombed
 
         public PersonalityModifiers(PersonalityType type)
         {
@@ -34,7 +36,9 @@ namespace Ship_Game
                     DefenseTaskWeight     = 2;
                     FleetStrMultiplier    = 1;
                     FederationPopRatioWar = 1.5f;
+                    AssaultBomberRatio    = 0.5f;
                     TrustCostTradePact    = 0;
+                    TechValueModifier     = 1;
                     TrustCostNaPact       = 0;
                     break;
                 case PersonalityType.Aggressive:
@@ -49,8 +53,10 @@ namespace Ship_Game
                     DefenseTaskWeight     = 2.4f;
                     FleetStrMultiplier    = 1.4f;
                     FederationPopRatioWar = 1.25f;
+                    AssaultBomberRatio    = 0.75f;
                     TrustCostTradePact    = 20;
                     TrustCostNaPact       = 35;
+                    TechValueModifier     = 1.05f;
                     break;
                 case PersonalityType.Ruthless:
                     ColonizationClaimRatioWarningThreshold = 0.6f;
@@ -64,8 +70,10 @@ namespace Ship_Game
                     DefenseTaskWeight     = 2.8f;
                     FleetStrMultiplier    = 1.3f;
                     FederationPopRatioWar = 1.2f;
+                    AssaultBomberRatio    = 1;
                     TrustCostTradePact    = 15;
                     TrustCostNaPact       = 45f;
+                    TechValueModifier     = 1.1f;
                     break;
                 case PersonalityType.Xenophobic:
                     ColonizationClaimRatioWarningThreshold = 0;
@@ -79,8 +87,10 @@ namespace Ship_Game
                     DefenseTaskWeight     = 3f;
                     FleetStrMultiplier    = 1.05f;
                     FederationPopRatioWar = 1.45f;
+                    AssaultBomberRatio    = 0.5f;
                     TrustCostTradePact    = 15;
                     TrustCostNaPact       = 15;
+                    TechValueModifier     = 1.2f;
                     break;
                 case PersonalityType.Cunning:
                     ColonizationClaimRatioWarningThreshold = 1;
@@ -94,8 +104,10 @@ namespace Ship_Game
                     DefenseTaskWeight     = 4f;
                     FleetStrMultiplier    = 0.95f;
                     FederationPopRatioWar = 1.2f;
+                    AssaultBomberRatio    = 0.8f;
                     TrustCostTradePact    = 5;
                     TrustCostNaPact       = 5;
+                    TechValueModifier     = 1.1f;
                     break;
                 case PersonalityType.Honorable:
                     ColonizationClaimRatioWarningThreshold = 1;
@@ -109,8 +121,10 @@ namespace Ship_Game
                     DefenseTaskWeight     = 6f;
                     FleetStrMultiplier    = 1f;
                     FederationPopRatioWar = 1.25f;
+                    AssaultBomberRatio    = 0.6f;
                     TrustCostTradePact    = 10;
                     TrustCostNaPact       = 10;
+                    TechValueModifier     = 1;
                     break;
                 case PersonalityType.Pacifist:
                     ColonizationClaimRatioWarningThreshold = 1.25f;
@@ -124,8 +138,10 @@ namespace Ship_Game
                     DefenseTaskWeight     = 8f;
                     FleetStrMultiplier    = 0.9f;
                     FederationPopRatioWar = 1.1f;
+                    AssaultBomberRatio    = 0.5f;
                     TrustCostTradePact    = 12;
                     TrustCostNaPact       = 3;
+                    TechValueModifier     = 1;
                     break;
             }
         }
