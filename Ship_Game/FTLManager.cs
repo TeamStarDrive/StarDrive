@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
-using Ship_Game.SpriteSystem;
+using Ship_Game.UI.Effects;
 
 namespace Ship_Game
 {

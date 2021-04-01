@@ -274,7 +274,6 @@ namespace Ship_Game
                             Log.Error(x, "Fatal Loop in draw batch"); 
                             screen.Dispose();
                             GameScreens.Remove(screen);
-
                         }
                     }
                 }
