@@ -51,12 +51,8 @@ namespace Ship_Game.SpriteSystem
 
         void CreateAtlas(FileInfo[] textureFiles)
         {
-            int transfer = 0, save = 0;
             Stopwatch total = Stopwatch.StartNew();
-            Stopwatch perf = Stopwatch.StartNew();
-
             TextureInfo[] textures = CreateTextureInfos(Path, textureFiles);
-            int load = perf.NextMillis();
 
             var packer = new TexturePacker(Path.Texture);
             NumPacked = packer.PackTextures(textures);
@@ -64,7 +60,6 @@ namespace Ship_Game.SpriteSystem
             Width = packer.Width;
             Height = packer.Height;
             var flags = AtlasFlags.None;
-            int pack = perf.NextMillis();
 
             if (NonPacked > 0)
             {
@@ -104,26 +99,20 @@ namespace Ship_Game.SpriteSystem
                 }
 
                 packer.DrawDebug(atlasPixels, Width, Height);
-                transfer = perf.NextMillis();
-
                 CreateAtlasTexture(atlasPixels, flags, Path.Texture);
-                save = perf.NextMillis();
             }
 
             CreateLookup(textures);
             SaveAtlasDescriptor(textures, Path.Descriptor);
 
             int elapsed = total.NextMillis();
-            Log.Write(ConsoleColor.Blue,
-                $"{Mod} CreateAtlas {this} t:{elapsed,4}ms l:{load} p:{pack} t:{transfer} s:{save}");
-            if (NumPacked > 0 && (flags & AtlasFlags.Compress) == 0)
-                Log.Write(ConsoleColor.Blue, $"Compression Disabled: {Path.OriginalName}");
+            Log.Write(ConsoleColor.Blue, $"{Mod} Create {this} t:{elapsed,4}ms");
         }
 
         bool TryLoadCache()
         {
-            Stopwatch s = Stopwatch.StartNew();
-            if (!File.Exists(Path.Descriptor)) return false; // regenerate!!
+            if (!File.Exists(Path.Descriptor))
+                return false; // regenerate!!
 
             using (var fs = new StreamReader(Path.Descriptor))
             {
@@ -170,8 +159,7 @@ namespace Ship_Game.SpriteSystem
                 CreateLookup(textures);
             }
 
-            int elapsed = s.NextMillis();
-            Log.Write(ConsoleColor.Blue, $"{Mod} LoadAtlas   {this} t:{elapsed,4}ms");
+            Log.Write(ConsoleColor.Blue, $"{Mod} Load   {this}");
             return true; // we loaded everything
         }
 

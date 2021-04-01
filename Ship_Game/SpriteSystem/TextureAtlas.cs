@@ -28,24 +28,29 @@ namespace Ship_Game.SpriteSystem
         int NonPacked; // non packed textures
         AtlasPath Path; // atlas path info
         Texture2D Atlas;
-
-        TextureBinding[] Sorted = Empty<TextureBinding>.Array;
-        readonly Map<string, TextureBinding> Lookup = new Map<string, TextureBinding>();
         
         public string Name { get; private set; }
         public int Width  { get; private set; }
         public int Height { get; private set; }
-        public override string ToString() => $"{Name,-24} {$"{Width}x{Height}",-9} refs:{Lookup.Count,-3} packed:{NumPacked,-3} non-packed:{NonPacked,-3}";
+        
+        TextureBinding[] Sorted = Empty<TextureBinding>.Array;
+        readonly Map<string, TextureBinding> Lookup = new Map<string, TextureBinding>();
+        
+        public override string ToString() => $"{Name,-32} {$"{Width}x{Height}",-9} n:{Lookup.Count,-3} pack:{NumPacked,-3} nopack:{NonPacked,-3}";
+        
         public int Count => Sorted.Length;
+
         public SubTexture this[int index] => Sorted[index].GetOrLoadTexture();
         public SubTexture this[string name] => Lookup[name].GetOrLoadTexture();
         public TextureBinding GetBinding(int index) => Sorted[index];
+
         // Grabs a random texture from this texture atlas
         public SubTexture RandomTexture() => RandomMath.RandItem(Sorted).GetOrLoadTexture();
         
         public TextureAtlas() {}
         ~TextureAtlas() { Destroy(); }
         public void Dispose() { Destroy(); GC.SuppressFinalize(this); }
+
         void Destroy()
         {
             Atlas?.Dispose(ref Atlas);
@@ -101,7 +106,7 @@ namespace Ship_Game.SpriteSystem
             return numBytes;
         }
 
-        static string Mod => GlobalStats.HasMod ? $"[{GlobalStats.ActiveModInfo.ModName}]" : "[Vanilla]";
+        static string Mod => $"[{GlobalStats.ModOrVanillaName}]";
 
         // To enable multi-threaded background pre-loading
         static readonly Map<string, TextureAtlas> Loading = new Map<string, TextureAtlas>();
