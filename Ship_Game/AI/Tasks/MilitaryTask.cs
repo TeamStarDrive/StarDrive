@@ -516,9 +516,6 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.StrikeForce:
                 case TaskType.AssaultPlanet:
                     {
-                        if (TargetPlanet.Owner == null || !Owner.IsEmpireHostile(TargetPlanet.Owner))
-                            EndTask();
-
                         if (Step < 0)
                         {
                             Step++;
@@ -526,6 +523,9 @@ namespace Ship_Game.AI.Tasks
                         }
                         if (Step == 0)
                         {
+                            if (TargetPlanet.Owner == null || !Owner.IsEmpireHostile(TargetPlanet.Owner))
+                                EndTask();
+
                             RequisitionAssaultForces(type == TaskType.StrikeForce);
                             if (Step == 0) Step = -1;
                         }
@@ -666,20 +666,14 @@ namespace Ship_Game.AI.Tasks
                     }
                 case TaskType.GlassPlanet:
                     {
-                        if (TargetPlanet.Owner == null || !Owner.IsEmpireHostile(TargetPlanet.Owner))
-                            EndTask();
-
-                        if (Step == 0) RequisitionGlassForce();
-                        else
+                        if (Step == 0)
                         {
-                            if (Owner.GetFleetsDict().TryGetValue(WhichFleet, out Fleet fleet))
-                            {
-                                if (fleet.Ships.Count > 0)
-                                    break;
-                            }
+                            if (TargetPlanet.Owner == null || !Owner.IsEmpireHostile(TargetPlanet.Owner))
+                                EndTask();
 
-                            EndTask();
+                            RequisitionGlassForce();
                         }
+
                         break;
                     }
             }

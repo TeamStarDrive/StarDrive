@@ -441,8 +441,7 @@ namespace Ship_Game
                 else
                     ship.AI.OrderFormationWarp(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove: offensiveMove);
 
-                if (ship.loyalty == EmpireManager.Player)
-                    ship.AI.OrderHoldPositionOffensive(FinalPosition + ship.FleetOffset, finalDirection);
+                ship.AI.OrderHoldPositionOffensive(FinalPosition + ship.FleetOffset, finalDirection);
             }
         }
 
@@ -458,6 +457,7 @@ namespace Ship_Game
                 {
                     ship.AI.ResetPriorityOrder(true);
                     ship.AI.OrderMoveDirectlyTo(FinalPosition + ship.FleetOffset, finalDirection, true, AIState.MoveTo);
+                    ship.AI.OrderHoldPositionOffensive(FinalPosition + ship.FleetOffset, finalDirection);
                 }
             }
         }
@@ -471,8 +471,8 @@ namespace Ship_Game
                 ship.AI.SetPriorityOrder(true);
                 
                 ship.AI.ResetPriorityOrder(false);
-                ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset, finalDirection, true, 
-                    AIState.MoveTo, null, offensiveMove);
+                ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset, finalDirection, true, AIState.MoveTo, null, offensiveMove);
+                ship.AI.OrderHoldPositionOffensive(FinalPosition + ship.FleetOffset, finalDirection);
             }
         }
 
@@ -526,9 +526,8 @@ namespace Ship_Game
                 if (moveStatus.HasFlag(MoveStatus.All)) break;
 
                 Ship ship = Ships[i];
-                if (ship.AI.State == AIState.HoldPosition || ship.AI.State == AIState.Bombard 
-                                                          || ship.AI.State == AIState.AssaultPlanet
-                                                          || ship.AI.State == AIState.Resupply)
+                if (ship.AI.State == AIState.Bombard || ship.AI.State == AIState.AssaultPlanet
+                                                     || ship.AI.State == AIState.Resupply)
                 {
                     continue;
                 }
