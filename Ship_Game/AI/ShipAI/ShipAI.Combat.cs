@@ -325,8 +325,9 @@ namespace Ship_Game.AI
                     ScannedTarget = null;
                     HasPriorityTarget = false;
                 }
-                else if (!Intercepting && target.engineState == Ship.MoveState.Warp)
+                else if (!Intercepting && target.IsInWarp)
                 {
+                    Target = null;
                     ScannedTarget = null;
                     if (!HasPriorityOrder && Owner.loyalty != Empire.Universe.player)
                         State = AIState.AwaitingOrders;
@@ -405,6 +406,9 @@ namespace Ship_Game.AI
 
         float GetTargetPriority(Ship ship)
         {
+            if (ship.IsInWarp)
+                return 0;
+
             float minimumDistance = Owner.Radius * 2;
             float value           = ship.TotalDps;
             value += ship.Carrier.EstimateFightersDps;
