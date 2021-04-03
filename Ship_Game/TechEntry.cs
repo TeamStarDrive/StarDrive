@@ -141,6 +141,11 @@ namespace Ship_Game
             return false;
         }
 
+        public bool IsMilitary()
+        {
+            return ContainsShipTech() || IsTechnologyType(TechnologyType.GroundCombat);
+        }
+
         public bool IsOnlyShipTech()
         {
             return !ContainsNonShipTechOrBonus();
