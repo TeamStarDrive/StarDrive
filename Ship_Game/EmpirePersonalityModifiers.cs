@@ -19,6 +19,7 @@ namespace Ship_Game
         public float DefenseTaskWeight; // How much the AI values defense task over other (it will cancel other tasks for defense), bigger is more value
         public float TechValueModifier; // Some personalities value techs more vs player
         public float AssaultBomberRatio; // Percent of existing troops to launch in order to board attacking fleets when planet is bombed
+        public float AllyCallToWarRatio; // The tolerance the AI has to join war with an ally vs 3rd party
 
         public PersonalityModifiers(PersonalityType type)
         {
@@ -37,6 +38,7 @@ namespace Ship_Game
                     FleetStrMultiplier    = 1;
                     FederationPopRatioWar = 1.5f;
                     AssaultBomberRatio    = 0.5f;
+                    AllyCallToWarRatio    = 1.2f;
                     TrustCostTradePact    = 0;
                     TechValueModifier     = 1;
                     TrustCostNaPact       = 0;
@@ -54,6 +56,7 @@ namespace Ship_Game
                     FleetStrMultiplier    = 1.4f;
                     FederationPopRatioWar = 1.25f;
                     AssaultBomberRatio    = 0.75f;
+                    AllyCallToWarRatio    = 1.15f;
                     TrustCostTradePact    = 20;
                     TrustCostNaPact       = 35;
                     TechValueModifier     = 1.05f;
@@ -71,6 +74,7 @@ namespace Ship_Game
                     FleetStrMultiplier    = 1.3f;
                     FederationPopRatioWar = 1.2f;
                     AssaultBomberRatio    = 1;
+                    AllyCallToWarRatio    = 1.2f;
                     TrustCostTradePact    = 15;
                     TrustCostNaPact       = 45f;
                     TechValueModifier     = 1.1f;
@@ -87,6 +91,7 @@ namespace Ship_Game
                     DefenseTaskWeight     = 3f;
                     FleetStrMultiplier    = 1.05f;
                     FederationPopRatioWar = 1.45f;
+                    AllyCallToWarRatio    = 1.1f;
                     AssaultBomberRatio    = 0.5f;
                     TrustCostTradePact    = 15;
                     TrustCostNaPact       = 15;
@@ -105,6 +110,7 @@ namespace Ship_Game
                     FleetStrMultiplier    = 0.95f;
                     FederationPopRatioWar = 1.2f;
                     AssaultBomberRatio    = 0.8f;
+                    AllyCallToWarRatio    = 1.25f;
                     TrustCostTradePact    = 5;
                     TrustCostNaPact       = 5;
                     TechValueModifier     = 1.1f;
@@ -122,6 +128,7 @@ namespace Ship_Game
                     FleetStrMultiplier    = 1f;
                     FederationPopRatioWar = 1.25f;
                     AssaultBomberRatio    = 0.6f;
+                    AllyCallToWarRatio    = 1f;
                     TrustCostTradePact    = 10;
                     TrustCostNaPact       = 10;
                     TechValueModifier     = 1;
@@ -139,6 +146,7 @@ namespace Ship_Game
                     FleetStrMultiplier    = 0.9f;
                     FederationPopRatioWar = 1.1f;
                     AssaultBomberRatio    = 0.5f;
+                    AllyCallToWarRatio    = 1.35f;
                     TrustCostTradePact    = 12;
                     TrustCostNaPact       = 3;
                     TechValueModifier     = 1;
