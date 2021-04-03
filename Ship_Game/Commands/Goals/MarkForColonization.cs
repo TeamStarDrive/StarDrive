@@ -2,6 +2,7 @@
 using Ship_Game.AI.Tasks;
 using Ship_Game.Ships;
 using System;
+using Ship_Game.AI.ExpansionAI;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.Commands.Goals
@@ -56,6 +57,9 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep TargetPlanetStatus()
         {
+            if (!empire.isPlayer && PlanetRanker.IsColonizeBlockedByMorals(ColonizationTarget.ParentSystem, empire))
+                return GoalStep.GoalFailed;
+
             if (ColonizationTarget.Owner != null)
             {
                 if (ColonizationTarget.Owner == empire)
