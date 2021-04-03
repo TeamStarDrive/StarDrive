@@ -93,12 +93,18 @@ namespace Ship_Game.AI
             PrepareToAttackXenophobic(potentialTargets);
         }
 
-        public bool TradableTechs(Empire them, out Array<TechEntry> tradableTechs)
+        public bool TradableTechs(Empire them, out Array<TechEntry> tradableTechs, bool forceAllTechs = false)
         {
             tradableTechs = new Array<TechEntry>();
+            if (!forceAllTechs && !OwnerEmpire.IsTradeTreaty(them))
+                return false; // Do not allow trading tech if no trade treaty
+
             var available = OwnerEmpire.TechsAvailableForTrade(them);
             foreach (TechEntry tech in available)
             {
+                if (tech.IsMilitary() && !OwnerEmpire.IsAlliedWith(them))
+                    continue; // Need Alliance in order to trade military tech
+
                 if (tech.TheyCanUseThis(OwnerEmpire, them))
                     tradableTechs.Add(tech);
             }
