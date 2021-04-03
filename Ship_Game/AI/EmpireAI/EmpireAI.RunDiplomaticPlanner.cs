@@ -29,31 +29,6 @@ namespace Ship_Game.AI
             }
         }
 
-        public void RequestHelpFromAllies(Relationship usToEnemy, Empire enemy, int contactThreshold)
-        {
-            if (usToEnemy.ActiveWar == null) // They Accepted Peace
-                return;
-
-            var allies = new Array<Empire>();
-            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
-            {
-                if (rel.Treaty_Alliance 
-                    && them.IsKnown(enemy) && !them.IsAtWarWith(enemy))
-                {
-                    allies.Add(them);
-                }
-            }
-            foreach (Empire ally in allies)
-            {
-                if (!usToEnemy.ActiveWar.AlliesCalled.Contains(ally.data.Traits.Name)
-                    && OwnerEmpire.GetRelations(ally).turnsSinceLastContact > contactThreshold)
-                {
-                    CallAllyToWar(ally, enemy);
-                    usToEnemy.ActiveWar.AlliesCalled.Add(ally.data.Traits.Name);
-                }
-            }
-        }
-
         void DoConservativeRelations()
         {
             float territorialDiv = OwnerEmpire.Personality == PersonalityType.Pacifist ? 50 : 10;

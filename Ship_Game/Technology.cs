@@ -173,7 +173,7 @@ namespace Ship_Game
         public float DiplomaticValueTo(Empire us, Empire offeringEmpire, float valuePerTechCost = 0.01f)
         {
             float value = Cost * valuePerTechCost;
-            if (us.isPlayer) // Some modifiers vs. Player based on Difficulty and AI personality
+            if (us.isPlayer && !us.IsAlliedWith(offeringEmpire)) // Some modifiers vs. Player based on Difficulty and AI personality
                 value *= offeringEmpire.PersonalityModifiers.TechValueModifier 
                          * offeringEmpire.DifficultyModifiers.TechValueModifier;
 

@@ -32,11 +32,19 @@ namespace Ship_Game.AI
             {
                 Empire.Universe.NotificationManager?.AddWarDeclaredNotification(us, them);
             }
-
         }
 
         public void CallAllyToWar(Empire ally, Empire enemy)
         {
+            if (!ally.isPlayer)
+            {
+                if (ally.ProcessAllyCallToWar(OwnerEmpire, enemy, out _))
+                    ally.GetEmpireAI().DeclareWarOnViaCall(enemy, WarType.ImperialistWar);
+
+                return;
+            }
+
+            // For player allies
             var offer = new Offer
             {
                 AcceptDL = "HelpUS_War_Yes",
@@ -69,8 +77,7 @@ namespace Ship_Game.AI
                 })
             };
 
-            if (ally.isPlayer)
-                DiplomacyScreen.Show(OwnerEmpire, dialogue, ourOffer, offer, enemy);
+            DiplomacyScreen.Show(OwnerEmpire, dialogue, ourOffer, offer, enemy);
         }
 
         public void DeclareWarFromEvent(Empire them, WarType wt)
