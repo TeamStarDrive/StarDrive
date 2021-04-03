@@ -529,7 +529,7 @@ namespace Ship_Game
         {
             if (Paused)
             {
-                DrawTopCenterStatusText(batch, GameText.Paused, Color.White, 0);
+                DrawTopCenterStatusText(batch, GameText.Paused, Color.Gold, 0);
             }
 
             if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
