@@ -1302,6 +1302,35 @@ namespace Ship_Game.Gameplay
                 us.GetEmpireAI().DeclareWarOn(them, WarType.ImperialistWar);
         }
 
+        public void RequestHelpFromAllies(Empire us, Empire enemy, int contactThreshold)
+        {
+            if (ActiveWar == null) // They Accepted Peace
+                return;
+
+            var allies = new Array<Empire>();
+            foreach ((Empire them, Relationship rel) in us.AllRelations)
+            {
+                if (rel.Treaty_Alliance
+                    && them.IsKnown(enemy) && !them.IsAtWarWith(enemy))
+                {
+                    allies.Add(them);
+                }
+            }
+            foreach (Empire ally in allies)
+            {
+                Relationship usToAlly = us.GetRelations(ally);
+                if (!ActiveWar.AlliesCalled.Contains(ally.data.Traits.Name)
+                    && usToAlly.turnsSinceLastContact > contactThreshold)
+                {
+                    us.GetEmpireAI().CallAllyToWar(ally, enemy);
+                    if (ally.IsAtWarWith(enemy))
+                        ActiveWar.AlliesCalled.Add(ally.data.Traits.Name);
+
+                    usToAlly.turnsSinceLastContact = 0;
+                }
+            }
+        }
+
         void AssessDiplomaticAnger(Empire us)
         {
             if (!Known)
@@ -1402,7 +1431,7 @@ namespace Ship_Game.Gameplay
                     if (us.GetAverageWarGrade().LessOrEqual(us.PersonalityModifiers.WarGradeThresholdForPeace))
                         RequestPeace(us);
 
-                    us.GetEmpireAI().RequestHelpFromAllies(this, them, FirstDemand);
+                    RequestHelpFromAllies(us, them, FirstDemand);
                     break;
                 case Posture.Hostile:
                     AssessDiplomaticAnger(us);
@@ -1432,7 +1461,7 @@ namespace Ship_Game.Gameplay
                     ReferToMilitary(us, threatForInsult: -20, compliment: false);
                     break;
                 case Posture.Hostile when ActiveWar != null:
-                    us.GetEmpireAI().RequestHelpFromAllies(this, them, FirstDemand);
+                    RequestHelpFromAllies(us, them, FirstDemand);
                     break;
                 case
                     Posture.Hostile:
@@ -1470,7 +1499,7 @@ namespace Ship_Game.Gameplay
                     break;
                 case Posture.Hostile when ActiveWar != null:
                     RequestPeace(us);
-                    us.GetEmpireAI().RequestHelpFromAllies(this, them, FirstDemand);
+                    RequestHelpFromAllies(us, them, FirstDemand);
                     break;
                 case Posture.Hostile:
                     theyArePotentialTargets = TheyArePotentialTargetAggressive(us, them);

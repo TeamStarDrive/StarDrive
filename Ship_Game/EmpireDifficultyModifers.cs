@@ -154,7 +154,7 @@
                         TaxMod                = 0.5f;
                         ShipCostMod           = -0.2f;
                         ResearchTaxMultiplier = 0.7f;
-                        TechValueModifier     = 1.25f;
+                        TechValueModifier     = 1.1f;
                     }
 
                     break;
@@ -191,7 +191,7 @@
                         TaxMod                = 1f;
                         ShipCostMod           = -0.5f;
                         ResearchTaxMultiplier = 0.3f;
-                        TechValueModifier     = 1.5f;
+                        TechValueModifier     = 1.2f;
                     }
 
                     break;
