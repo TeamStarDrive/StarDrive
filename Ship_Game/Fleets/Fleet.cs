@@ -879,6 +879,9 @@ namespace Ship_Game.Fleets
 
                             TaskStep = 2;
                         }
+
+                        task.SetTargetPlanet(newTarget);
+                        task.AO = newTarget.Center;
                     }
                     else
                     {
@@ -1267,28 +1270,10 @@ namespace Ship_Game.Fleets
 
         void DoGlassPlanet(MilitaryTask task)
         {
-            bool remnantsTargeting = !Owner.WeAreRemnants
-                                        && CommandShip?.System == task.TargetPlanet.ParentSystem
-                                        && EmpireManager.Remnants.GetFleetsDict().Values.ToArray()
-                                           .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == task.TargetPlanet.ParentSystem);
-
-            if (EndInvalidTask(task.TargetPlanet.Owner == null || remnantsTargeting || !StillCombatEffective(task)))
-                return;
-
-            bool endTask = task.TargetPlanet.Owner == Owner || task.TargetPlanet.Owner?.IsAtWarWith(Owner) == false;
-            endTask |= task.TargetPlanet.Owner == null && task.TargetPlanet.GetGroundStrengthOther(Owner) < 1;
-            bool bombOk = Ships.Select(s => s.Bomb60SecStatus()).Any(bt => bt != Status.NotApplicable && bt != Status.Critical);
-            if (!bombOk)
-            {
-                EndInvalidTask(!TryOrderPostBombFleet(task, 4));
-                return;
-            }
-
-            if (endTask)
-            {
-                Owner.DecreaseFleetStrEmpireMultiplier(task.TargetEmpire);
-                TaskStep = 5;
-            }
+            if (task.TargetPlanet.Owner == null || !Owner.IsEmpireAttackable(task.TargetPlanet.Owner))
+                TaskStep = 6;
+            else
+                task.TargetEmpire = task.TargetPlanet.Owner;
 
             if (TaskStep < 2)
             {
@@ -1343,24 +1328,48 @@ namespace Ship_Game.Fleets
                     StartBombing(task.TargetPlanet);
                     break;
                 case 6:
-
-                    bool inSystem = AveragePos.InRadius(task.TargetPlanet.Center, task.TargetPlanet.ParentSystem.Radius);
-                    var currentSystem = task.RallyPlanet.ParentSystem;
-
-                    var newTarget = currentSystem.PlanetList.Find(p => Owner.IsAtWarWith(p.Owner));
-                    if (EndInvalidTask(newTarget == null || !inSystem))
+                    Owner.DecreaseFleetStrEmpireMultiplier(task.TargetEmpire);
+                    if (TryGetNewTargetPlanet(task, out Planet newTarget))
                     {
-                        break;
+                        FinalPosition = task.TargetPlanet.Center;
+                        task.AO       = task.TargetPlanet.Center;
+                        bool inSystem = AveragePos.InRadius(newTarget.ParentSystem.Position, newTarget.ParentSystem.Radius);
+                        if (inSystem)
+                        {
+                            TaskStep = 3;
+                            GatherAtAO(task, distanceFromAO: 30000);
+                        }
+                        else
+                        {
+                            if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
+                                AddFleetProjectorGoal();
+
+                            TaskStep = 2;
+                        }
+
+                        task.SetTargetPlanet(newTarget);
+                        task.AO = newTarget.Center;
+                    }
+                    else
+                    {
+                        CreatePostInvasionFromCurrentTask(this, task, Owner, "Post Invasion Defense");
+                        return;
                     }
 
-                    task.SetTargetPlanet(newTarget);
-                    EngageCombatToPlanet(newTarget.Center, true);
-                    StartBombing(newTarget);
-                    FinalPosition = task.TargetPlanet.Center;
-                    task.AO = newTarget.Center;
-                    task.Step = 4;
                     break;
             }
+
+            bool remnantsTargeting = !Owner.WeAreRemnants
+                                        && CommandShip?.System == task.TargetPlanet.ParentSystem
+                                        && EmpireManager.Remnants.GetFleetsDict().Values.ToArray()
+                                           .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == task.TargetPlanet.ParentSystem);
+
+            if (EndInvalidTask(task.TargetPlanet.Owner == null || remnantsTargeting || !StillCombatEffective(task)))
+                return;
+
+            bool bombOk  = Ships.Select(s => s.Bomb60SecStatus()).Any(bt => bt != Status.NotApplicable && bt != Status.Critical);
+            if (!bombOk)
+                EndInvalidTask(true);
         }
 
         void DoClearAreaOfEnemies(MilitaryTask task)
