@@ -1343,7 +1343,7 @@ namespace Ship_Game.Gameplay
                 AddAngerMilitaryConflict(us.data.DiplomaticPersonality.AngerDissipation + 0.1f * angerMod);
             }
 
-            if (Anger_MilitaryConflict > 30 && !AtWar && !Treaty_Peace)
+            if (Anger_MilitaryConflict > 50 && !AtWar && !Treaty_Peace)
             {
                 if (Anger_MilitaryConflict > 99)
                 {
