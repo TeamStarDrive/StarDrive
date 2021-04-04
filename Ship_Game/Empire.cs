@@ -1747,18 +1747,17 @@ namespace Ship_Game
             }
 
             var knownFleets = new Array<Fleet>();
-            for ( int i = 0; i < AllRelations.Count; i++)
+            for (int i = 0; i < AllRelations.Count; i++)
             {
-                var war = AllRelations[i];
-                if (!IsAtWarWith(war.Them)) continue;
-                var enemy = war.Them;
-
-                foreach (var fleet in enemy.FleetsDict)
+                var relations = AllRelations[i];
+                if (IsAtWarWith(relations.Them) || relations.Them.isPlayer && !IsNAPactWith(relations.Them))
                 {
-                    if (fleet.Value.Ships.Any(s => s.IsInBordersOf(this) || s.KnownByEmpires.KnownBy(this)))
+                    var enemy = relations.Them;
+                    foreach (var fleet in enemy.FleetsDict)
                     {
-                        knownFleets.Add(fleet.Value);
-                    } 
+                        if (fleet.Value.Ships.Any(s => s.IsInBordersOf(this) || s.KnownByEmpires.KnownBy(this)))
+                            knownFleets.Add(fleet.Value);
+                    }
                 }
             }
 

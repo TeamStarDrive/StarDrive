@@ -590,5 +590,45 @@ namespace Ship_Game
 
             return activeWars.Sum(w => w.GetGrade()) / activeWars.Count;
         }
+
+        public bool ProcessAllyCallToWar(Empire ally, Empire enemy, out string dialog)
+        {
+            dialog = "JoinWar_Reject_TooDangerous";
+            if (GetAverageWarGrade().Less(5) && !IsHonorable)
+                return false; // We have our hands in other wars and it is not looking good for us
+
+            float combinedStr = OffensiveStrength + ally.OffensiveStrength;
+            if (IsAlliedWith(enemy))
+            {
+                switch (Personality)
+                {
+                    case PersonalityType.Pacifist:
+                    case PersonalityType.Honorable:
+                        dialog = "JoinWar_Allied_DECLINE";
+                        return false;
+                    case PersonalityType.Aggressive when OffensiveStrength > enemy.CurrentMilitaryStrength: 
+                    case PersonalityType.Ruthless   when combinedStr > enemy.CurrentMilitaryStrength:
+                        dialog = "JoinWar_Allied_OK";
+                        return true;
+                    case PersonalityType.Xenophobic when combinedStr > enemy.CurrentMilitaryStrength:       break;
+                    case PersonalityType.Cunning    when combinedStr > enemy.CurrentMilitaryStrength:       break;
+                }
+
+            }
+
+            float enemyStr = IsAlliedWith(enemy) ? enemy.CurrentMilitaryStrength : KnownEmpireStrength(enemy);
+            if (enemyStr.AlmostZero())
+                return false;
+
+            float ratio = combinedStr / enemyStr;
+            if (ratio > PersonalityModifiers.AllyCallToWarRatio)
+            {
+                dialog = "JoinWar_Allied_OK";
+                return true;
+            }
+
+            dialog = "JoinWar_Reject_TooDangerous";
+            return false;
+        }
     }
 }
