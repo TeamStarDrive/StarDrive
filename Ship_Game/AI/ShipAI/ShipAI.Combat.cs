@@ -353,7 +353,7 @@ namespace Ship_Game.AI
             // ScannedTargets.AddRange(sortedTargets.Select(ship => ship.Ship)); Checking Alternative Logic
 
             // check target validity
-            if (Target?.Active != true)
+            if (Target != null && !Target.Active)
             {
                 Target = null;
                 ScannedTarget = null;
@@ -363,9 +363,9 @@ namespace Ship_Game.AI
             {
                 if (Owner.loyalty.IsEmpireAttackable(ship.loyalty, ship))
                     BadGuysNear = true;
+
                 return Target;
             }
-
 
             /* Checking Alternative Logic
             if (sortedTargets.Length > 0 && (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars))
@@ -380,16 +380,24 @@ namespace Ship_Game.AI
         bool TryGetTarget(out Ship target)
         {
             target = null;
-
             if (Owner.Weapons.Count == 0 && !Owner.Carrier.HasActiveHangars)
                 return false;
 
+            if (ScannedTargets.Count > 0)
+            {
+                target = ScannedTargets.FindMax(GetTargetPriority);
+                return true;
+            }
+
+            return false;
+
+            /*  FB - Commented my own logic as well to try simple targeting not dependent of command ship targeting
             bool isCommandShip        = Owner.fleet?.CommandShip == Owner;
             bool commandShipHasTarget = Owner.fleet?.CommandShip?.AI.Target != null;
             Ship commandShipTarget    = commandShipHasTarget ? Owner.fleet.CommandShip.AI.Target : null;
 
             // Get the Target of the Command ship if the owner is not a hangar ship or a small craft
-            if (commandShipHasTarget && Owner.Mothership == null && Owner.DesignRole >= ShipData.RoleName.frigate)
+            if (commandShipHasTarget && Owner.Mothership == null && Owner.shipData.HullRole >= ShipData.RoleName.frigate)
             {
                 target = commandShipTarget;
                 return true;
@@ -397,11 +405,12 @@ namespace Ship_Game.AI
 
             if (ScannedTargets.Count > 0 && (isCommandShip || !commandShipHasTarget || Owner.Mothership != null))
             {
-                target = ScannedTargets.FindMax(GetTargetPriority);
+
+                // target = ScannedTargets.FindMax(GetTargetPriority);
                 return true;
             }
 
-            return false;
+            return false;*/
         }
 
         float GetTargetPriority(Ship ship)
@@ -412,12 +421,13 @@ namespace Ship_Game.AI
             float minimumDistance = Owner.Radius * 2;
             float value           = ship.TotalDps;
             value += ship.Carrier.EstimateFightersDps;
-            value += ship.DesignRole == ShipData.RoleName.troop ? 5000 : ship.TroopCapacity * 1000;
+            value += ship.TroopCapacity * 100;
             value += ship.HasBombs && ship.AI.OrbitTarget?.Owner == Owner.loyalty 
-                       ? ship.BombBays.Count * 1000 
-                       : ship.BombBays.Count * 100;
+                       ? ship.BombBays.Count * 50 
+                       : ship.BombBays.Count * 10;
 
-            return value / Owner.Center.Distance(ship.Center).LowerBound(minimumDistance);
+            float distance = Owner.Center.Distance(ship.Center).LowerBound(minimumDistance);
+            return value / distance;
         }
 
         /* Checking Alternative Logic

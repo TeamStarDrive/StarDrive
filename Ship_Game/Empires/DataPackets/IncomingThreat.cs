@@ -9,7 +9,6 @@ namespace Ship_Game.Empires.DataPackets
         public float ThreatTimer { get; private set; }
         const float ThreatResetTime = 1;
         public bool ThreatTimedOut => ThreatTimer <= 0;
-        bool Notified;
         public float Strength { get; private set; } = 0;
         Array<Fleet> Fleets;
         public Fleet NearestFleet { get; private set; }
@@ -17,7 +16,7 @@ namespace Ship_Game.Empires.DataPackets
         public float PulseTime { get; private set; } = 5;
 
         public Empire[] Enemies => Fleets?.FilterSelect(f => f != null, f=>f.Owner);
-        Empire Owner;
+        readonly Empire Owner;
         public bool HighPriority { get; private set; } = false;
 
         public IncomingThreat (Empire owner, SolarSystem system, Fleet[] fleets)
@@ -25,7 +24,6 @@ namespace Ship_Game.Empires.DataPackets
             TargetSystem = system;
             Owner        = owner;
             ThreatTimer  = ThreatResetTime;
-            Notified     = false;
             Strength     = fleets.Sum(f => f.GetStrength() * Owner.GetFleetStrEmpireMultiplier(f.Owner));
             Fleets       = new Array<Fleet>(fleets);
             ProcessFleetThreat();
