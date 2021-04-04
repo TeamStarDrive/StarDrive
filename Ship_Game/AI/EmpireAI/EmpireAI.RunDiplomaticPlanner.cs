@@ -95,9 +95,11 @@ namespace Ship_Game.AI
 
         public bool TradableTechs(Empire them, out Array<TechEntry> tradableTechs, bool forceAllTechs = false)
         {
+            // Do not allow trading tech if no trade treaty, if the owner is the player, allow them 
+            // to offer techs as part of peace request or other stuff
             tradableTechs = new Array<TechEntry>();
-            if (!forceAllTechs && !OwnerEmpire.IsTradeTreaty(them))
-                return false; // Do not allow trading tech if no trade treaty
+            if (!forceAllTechs && !OwnerEmpire.IsTradeTreaty(them) && !OwnerEmpire.isPlayer)
+                return false; 
 
             var available = OwnerEmpire.TechsAvailableForTrade(them);
             foreach (TechEntry tech in available)
