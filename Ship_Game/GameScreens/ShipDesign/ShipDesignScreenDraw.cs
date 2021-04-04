@@ -699,7 +699,7 @@ namespace Ship_Game
             
             var cursor = new Vector2(StatsSub.X + 10, ShipStats.Y + 18);
             DrawHullBonuses(ref cursor, stats.Cost, ActiveHull.Bonuses);
-            DrawUpkeepSizeMass(ref cursor, stats.Cost, size, stats.Mass, totalHangarArea);
+            DrawUpkeepSizeMass(ref cursor, stats.Cost, size, stats.Mass, totalHangarArea, troopCount);
             WriteLine(ref cursor);
 
             DrawPowerConsumedAndRecharge(ref cursor, weaponPowerNeeded, powerRecharge, powerCapacity, out float powerConsumed);
@@ -950,9 +950,9 @@ namespace Ship_Game
             DrawStatColor(ref cursor, TintedValue(111, powerRecharge, 101, Color.LightSkyBlue));
         }
 
-        void DrawUpkeepSizeMass(ref Vector2 cursor, float cost, int size, float mass, int totalHangarArea)
+        void DrawUpkeepSizeMass(ref Vector2 cursor, float cost, int size, float mass, int totalHangarArea, int troopCount)
         {
-            float upkeep = GetMaintenanceCost(ActiveHull, (int)cost, totalHangarArea);
+            float upkeep = GetMaintenanceCost(ActiveHull, (int)cost, totalHangarArea, troopCount);
 
             DrawStatColor(ref cursor, TintedValue("Upkeep Cost", upkeep, 175, Color.White));
             DrawStatColor(ref cursor, TintedValue("Total Module Slots", size, 230, Color.White));
