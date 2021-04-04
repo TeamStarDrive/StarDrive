@@ -1320,7 +1320,7 @@ namespace Ship_Game.Gameplay
             {
                 Relationship usToAlly = us.GetRelations(ally);
                 if (!ActiveWar.AlliesCalled.Contains(ally.data.Traits.Name)
-                    && usToAlly.turnsSinceLastContact > contactThreshold)
+                    && usToAlly.turnsSinceLastContact > (ally.isPlayer ? contactThreshold * 2 : contactThreshold))
                 {
                     us.GetEmpireAI().CallAllyToWar(ally, enemy);
                     if (ally.IsAtWarWith(enemy))
