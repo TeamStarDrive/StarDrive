@@ -84,7 +84,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 var strength      = Us.GetRelationsOrNull(Them)?.KnownInformation.OffensiveStrength ?? Us.CurrentMilitaryStrength;
                 float strengthMod = Us.CurrentMilitaryStrength / strength.LowerBound(1);
                 int warHistory    = OurRelationToThem.WarHistory.Count + 1;
-                float priority    = 100 - ((int)warState * strengthMod * warHistory).UpperBound(99);
+                int upperBound    = Them.isPlayer ? Us.DifficultyModifiers.PlayerWarPriorityLimit : 99;
+                float priority    = ((int)warState * strengthMod / warHistory).UpperBound(upperBound);
                 return priority;
             }
             return 0;
