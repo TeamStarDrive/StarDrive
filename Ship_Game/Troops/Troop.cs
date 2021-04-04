@@ -59,15 +59,15 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] float UpdateTimer;
         [XmlIgnore][JsonIgnore] public string DisplayName    => DisplayNameEmpire(Owner);
-        [XmlIgnore] [JsonIgnore] public float ActualCost     => Cost * CurrentGame.ProductionPace;
-        [XmlIgnore] [JsonIgnore] public bool CanMove         => AvailableMoveActions > 0;
-        [XmlIgnore] [JsonIgnore] public bool CanAttack       => AvailableAttackActions > 0;
-        [XmlIgnore] [JsonIgnore] public int ActualHardAttack => (int)(HardAttack + 0.05f * Level * HardAttack);
-        [XmlIgnore] [JsonIgnore] public int ActualSoftAttack => (int)(SoftAttack + 0.05f * Level * SoftAttack);
-        [XmlIgnore] [JsonIgnore] public Empire Loyalty       => Owner ?? (Owner = EmpireManager.GetEmpireByName(OwnerString));
-        [XmlIgnore] [JsonIgnore] public int ActualRange      => Level < 5 ? Range : Range + 1;  // veterans have bigger range
+        [XmlIgnore][JsonIgnore] public float ActualCost     => Cost * CurrentGame.ProductionPace;
+        [XmlIgnore][JsonIgnore] public bool CanMove         => AvailableMoveActions > 0;
+        [XmlIgnore][JsonIgnore] public bool CanAttack       => AvailableAttackActions > 0;
+        [XmlIgnore][JsonIgnore] public int ActualHardAttack => (int)(HardAttack + 0.05f * Level * HardAttack);
+        [XmlIgnore][JsonIgnore] public int ActualSoftAttack => (int)(SoftAttack + 0.05f * Level * SoftAttack);
+        [XmlIgnore][JsonIgnore] public Empire Loyalty       => Owner ?? (Owner = EmpireManager.GetEmpireByName(OwnerString));
+        [XmlIgnore][JsonIgnore] public int ActualRange      => Level < 5 ? Range : Range + 1;  // veterans have bigger range
 
-        [XmlIgnore] [JsonIgnore] public SubTexture TextureDefault => ResourceManager.Texture("Troops/" + TexturePath);
+        [XmlIgnore][JsonIgnore] public SubTexture TextureDefault => ResourceManager.Texture("Troops/" + TexturePath);
 
         string WhichFrameString => WhichFrame.ToString("00");
 
