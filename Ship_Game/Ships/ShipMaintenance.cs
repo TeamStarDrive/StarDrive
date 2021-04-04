@@ -6,6 +6,7 @@ namespace Ship_Game.Ships
     {
         private const float MaintModifierRealism = 0.004f;
         private const float MaintModifierBySize  = 0.01f;
+        public static float TroopMaint           = 0.1f;
 
         private static bool IsFreeUpkeepShip(Empire empire, Ship ship)
         {
@@ -16,21 +17,21 @@ namespace Ship_Game.Ships
         }
 
         // Note, this is for ship design screen only. So it is always for the Player empire
-        public static float GetMaintenanceCost(ShipData ship, float cost, int totalHangarArea)
+        public static float GetMaintenanceCost(ShipData ship, float cost, int totalHangarArea, int troopCount)
         {
             float maint = GetBaseMainCost(ship.HullRole, ship.FixedCost > 0 ? ship.FixedCost : cost, 
-                ship.ModuleSlots.Length + totalHangarArea, EmpireManager.Player);
+                ship.ModuleSlots.Length + totalHangarArea, EmpireManager.Player, troopCount);
 
             return (float)Math.Round(maint, 2);
         }
 
-        public static float GetMaintenanceCost(Ship ship, Empire empire)
+        public static float GetMaintenanceCost(Ship ship, Empire empire, int troopCount)
         {
             if (IsFreeUpkeepShip(empire, ship))
                 return 0;
 
             float hangarArea = ship.Carrier.AllFighterHangars.Sum(m => m.MaximumHangarShipSize);
-            float maint      = GetBaseMainCost(ship.shipData.HullRole, ship.GetCost(empire), ship.SurfaceArea + hangarArea, empire);
+            float maint      = GetBaseMainCost(ship.shipData.HullRole, ship.GetCost(empire), ship.SurfaceArea + hangarArea, empire, troopCount);
 
             // Projectors do not get any more modifiers
 
@@ -44,7 +45,7 @@ namespace Ship_Game.Ships
             return maint;
         }
 
-        private static float GetBaseMainCost(ShipData.RoleName role, float shipCost, float surfaceArea, Empire empire)
+        private static float GetBaseMainCost(ShipData.RoleName role, float shipCost, float surfaceArea, Empire empire, int numTroops)
         {
             bool realism = GlobalStats.ActiveModInfo != null
                            && GlobalStats.ActiveModInfo.UseProportionalUpkeep;
@@ -71,7 +72,7 @@ namespace Ship_Game.Ships
                     maint *= 0.5f;
             }
 
-            maint += maint * empire.data.Traits.MaintMod;
+            maint += maint * empire.data.Traits.MaintMod + numTroops * TroopMaint;
 
             return maint * GlobalStats.ShipMaintenanceMulti;
         }

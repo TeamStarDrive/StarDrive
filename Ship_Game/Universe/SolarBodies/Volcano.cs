@@ -9,6 +9,7 @@ namespace Ship_Game.Universe.SolarBodies
         public float ActivationChance { get; private set; }
         public readonly PlanetGridSquare Tile;
         public readonly Planet P;
+        private const float MaxActivationChance = 0.1f;
 
         public Volcano(PlanetGridSquare tile, Planet planet)
         {
@@ -30,9 +31,9 @@ namespace Ship_Game.Universe.SolarBodies
 
         public Empire Player           => EmpireManager.Player;
         public bool Dormant            => !Active;
-        float DeactivationChance       => ActivationChance * 3;
+        float DeactivationChance       => ActivationChance * 5;
         float ActiveEruptionChance     => ActivationChance * 10;
-        float InitActivationChance()   => RandomMath.RandomBetween(0.05f, 0.1f) * GlobalStats.VolcanicActivity;
+        float InitActivationChance()   => RandomMath.RandomBetween(0.01f, MaxActivationChance) * GlobalStats.VolcanicActivity;
         string ActiveVolcanoTexPath    => "Buildings/icon_Active_Volcano_64x64";
         string DormantVolcanoTexPath   => "Buildings/icon_Dormant_Volcano_64x64";
         string EruptingVolcanoTexPath  => "Buildings/icon_Erupting_Volcano_64x64";
@@ -271,10 +272,10 @@ namespace Ship_Game.Universe.SolarBodies
             string text;
             if (Dormant)
             {
-                if      (ActivationChance < 0.01f) text = new LocalizedText(4243).Text;
-                else if (ActivationChance < 0.05f) text = new LocalizedText(4244).Text;
-                else if (ActivationChance < 0.1f)  text = new LocalizedText(4245).Text;
-                else                               text = new LocalizedText(4246).Text;
+                if      (ActivationChance < 0.1f * MaxActivationChance)  text = new LocalizedText(4243).Text;
+                else if (ActivationChance < 0.33f * MaxActivationChance) text = new LocalizedText(4244).Text;
+                else if (ActivationChance < 0.66f * MaxActivationChance) text = new LocalizedText(4245).Text;
+                else                                                     text = new LocalizedText(4246).Text;
 
                 color = Color.Yellow;
                 return $"{text} {new LocalizedText(4239).Text}";
@@ -282,10 +283,10 @@ namespace Ship_Game.Universe.SolarBodies
 
             if (Active)
             {
-                if      (ActiveEruptionChance < 0.1f) text = new LocalizedText(4245).Text;
-                else if (ActiveEruptionChance < 0.5f) text = new LocalizedText(4246).Text;
-                else if (ActiveEruptionChance < 1f)   text = new LocalizedText(4247).Text;
-                else                                  text = new LocalizedText(4248).Text;
+                if      (ActiveEruptionChance < 0.25f) text = new LocalizedText(4245).Text;
+                else if (ActiveEruptionChance < 0.5f)  text = new LocalizedText(4246).Text;
+                else if (ActiveEruptionChance < 0.75f) text = new LocalizedText(4247).Text;
+                else                                   text = new LocalizedText(4248).Text;
 
                 color = Color.Red;
                 return $"{text} {new LocalizedText(4242).Text}";

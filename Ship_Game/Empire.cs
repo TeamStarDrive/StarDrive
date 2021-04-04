@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.AI.ExpansionAI;
-using Ship_Game.AI.Research;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Empires;
 using Ship_Game.Empires.DataPackets;
@@ -148,6 +147,9 @@ namespace Ship_Game
         public float MaxContactTimer = 0f;
         private bool HostilesDictForPlayerInitialized;
         public float NetPlanetIncomes { get; private set; }
+        public float TroopCostOnPlanets { get; private set; } // Maintenance in all Owned planets
+        public float TroopInSpaceFoodNeeds { get; private set; }
+        public float TotalFoodPerColonist { get; private set; }
         public float GrossPlanetIncome { get; private set; }
         public float PotentialIncome { get; private set; }
         public float ExcessGoodsMoneyAddedThisTurn { get; private set; } // money tax from excess goods
@@ -218,9 +220,9 @@ namespace Ship_Game
         // Income this turn before deducting ship maintenance
         public float GrossIncome              => GrossPlanetIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus;
         public float NetIncome                => GrossIncome - AllSpending;
-        public float TotalBuildingMaintenance => GrossPlanetIncome - NetPlanetIncomes;
+        public float TotalBuildingMaintenance =>  GrossPlanetIncome - (NetPlanetIncomes + TroopCostOnPlanets);
         public float BuildingAndShipMaint     => TotalBuildingMaintenance + TotalShipMaintenance;
-        public float AllSpending              => BuildingAndShipMaint + MoneySpendOnProductionThisTurn;
+        public float AllSpending              => BuildingAndShipMaint + MoneySpendOnProductionThisTurn + TroopCostOnPlanets;
         public bool IsExpansionists           => data.EconomicPersonality?.Name == "Expansionists";
         public bool IsIndustrialists          => data.EconomicPersonality?.Name == "Industrialists";
         public bool IsGeneralists             => data.EconomicPersonality?.Name == "Generalists";
@@ -1652,6 +1654,7 @@ namespace Ship_Game
                 UpdateTimer = GlobalStats.TurnTimer + (Id -1) * timeStep.FixedTime;
                 UpdateEmpirePlanets();
                 UpdatePopulation();
+                UpdateTroopsInSpaceConsumption();
                 UpdateAI(); // Must be done before DoMoney
                 GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game
                 DoMoney();
@@ -1661,6 +1664,15 @@ namespace Ship_Game
             UpdateFleets(timeStep);
             OwnedShips.ApplyPendingRemovals();
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
+        }
+
+        public void UpdateTroopsInSpaceConsumption()
+        {
+            int numTroops;
+            using (OwnedShips.AcquireReadLock())
+                numTroops = OwnedShips.Sum(s => s.TroopCount);
+
+            TroopInSpaceFoodNeeds = numTroops * Troop.Consumption * (1 + data.Traits.ConsumptionModifier);
         }
 
         public void UpdatePopulation()
@@ -1810,6 +1822,16 @@ namespace Ship_Game
             }
         }
 
+        public float GetTroopMaintThisTurn()
+        {
+            // Troops maintenance on ships are calculated as part of ship maintenance
+            int troopsOnPlanets;
+            using (OwnedPlanets.AcquireReadLock())
+                troopsOnPlanets = OwnedPlanets.Sum(p => p.TroopsHere.Count);
+
+            return troopsOnPlanets * ShipMaintenance.TroopMaint;
+        }
+
         public DebugTextBlock DebugEmpireTradeInfo()
         {
             int foodShips      = NumFreightersTrading(Goods.Food);
@@ -1905,17 +1927,25 @@ namespace Ship_Game
         public void UpdateNetPlanetIncomes()
         {
             NetPlanetIncomes              = 0;
+            TroopCostOnPlanets            = 0;
             GrossPlanetIncome             = 0;
             ExcessGoodsMoneyAddedThisTurn = 0;
             PotentialIncome               = 0;
+            TotalFoodPerColonist          = 0;
+
             using (OwnedPlanets.AcquireReadLock())
-                foreach (Planet planet in OwnedPlanets)
+                for (int i = 0; i < OwnedPlanets.Count; i++)
                 {
-                    planet.UpdateIncomes(false);
-                    NetPlanetIncomes              += planet.Money.NetRevenue;
-                    GrossPlanetIncome             += planet.Money.GrossRevenue;
-                    PotentialIncome               += planet.Money.PotentialRevenue;
-                    ExcessGoodsMoneyAddedThisTurn += planet.ExcessGoodsIncome;
+                    Planet p = OwnedPlanets[i];
+                    p.UpdateIncomes(false);
+                    NetPlanetIncomes              += p.Money.NetRevenue;
+                    GrossPlanetIncome             += p.Money.GrossRevenue;
+                    PotentialIncome               += p.Money.PotentialRevenue;
+                    ExcessGoodsMoneyAddedThisTurn += p.ExcessGoodsIncome;
+                    TroopCostOnPlanets            += p.Money.TroopMaint;
+
+                    if      (p.IsCybernetic && p.Prod.NetIncome.Greater(0))  TotalFoodPerColonist += p.Prod.NetMaxPotential;
+                    else if (p.NonCybernetic && p.Food.NetIncome.Greater(0)) TotalFoodPerColonist += p.Food.NetMaxPotential;
                 }
         }
 
