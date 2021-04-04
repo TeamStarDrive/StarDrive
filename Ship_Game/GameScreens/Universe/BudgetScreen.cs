@@ -77,13 +77,13 @@ namespace Ship_Game.GameScreens
 
         public override void LoadContent()
         {
-            Window = Add(new Menu2(new Rectangle(ScreenWidth / 2 - 197, ScreenHeight / 2 - 225, 394, 450)));
+            Window = Add(new Menu2(new Rectangle(ScreenWidth / 2 - 197, ScreenHeight / 2 - 234, 394, 468)));
             CloseButton(Window.Menu.Right - 40, Window.Menu.Y + 20);
 
             //Setup containers
             var taxRect    = new Rectangle(Window.Menu.X + 20, Window.Menu.Y + 37, 350, 84); // top area for tax rate slider
-            var incomeRect = new Rectangle(taxRect.X, taxRect.Bottom + 6, 168, 112); // Middle-Left
-            var costRect   = new Rectangle(incomeRect.Right + 12, incomeRect.Y, 168, 112); // Middle-Right
+            var incomeRect = new Rectangle(taxRect.X, taxRect.Bottom + 6, 168, 130); // Middle-Left
+            var costRect   = new Rectangle(incomeRect.Right + 12, incomeRect.Y, 168, 130); // Middle-Right
             var tradeRect  = new Rectangle(taxRect.X, incomeRect.Bottom + 6, 168, 188); // Bottom left
             var budgetRect = new Rectangle(costRect.X, costRect.Bottom + 6, 168, 112); // Bottom right
             var footerRect = new Rectangle(budgetRect.X, budgetRect.Bottom + 6, 168, 86);
@@ -176,8 +176,9 @@ namespace Ship_Game.GameScreens
 
             costs.AddItem(316, ()   => -Player.TotalBuildingMaintenance); // "Building Maint."
             costs.AddItem(317, ()   => -Player.TotalShipMaintenance); // "Ship Maint."
+            costs.AddItem(4999, ()  => -Player.GetTroopMaintThisTurn()); // "Troop Maint."
             costs.AddItem(1819, ()  => -Player.MoneySpendOnProductionThisTurn); // "production costs."
-            costs.SetTotalFooter(()       => -Player.AllSpending); // "Total"
+            costs.SetTotalFooter(() => -Player.AllSpending); // "Total"
         }
 
         private void IncomesTab(Rectangle incomeRect)

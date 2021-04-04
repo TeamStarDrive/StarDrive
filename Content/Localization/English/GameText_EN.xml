@@ -8672,6 +8672,34 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>The Enemy has launched a sneak assault force in an attempt to\nboard our Bombers and escorting ships!</Text>
     </Token>
     <Token>
+      <Index>4993</Index>
+      <Text>on surface</Text> <!-- Food consumption per turn for Troops -->
+    </Token>
+    <Token>
+      <Index>4994</Index>
+      <Text>in space</Text> <!-- Food consumption per turn for Troops -->
+    </Token>
+    <Token>
+      <Index>4995</Index>
+      <Text>on surface and in space</Text> <!-- Food consumption per turn for Troops -->
+    </Token>
+    <Token>
+      <Index>4996</Index>
+      <Text>Food consumption per turn for Troops</Text>
+    </Token>
+    <Token>
+      <Index>4997</Index>
+      <Text>Production consumption per turn for Troops</Text>
+    </Token>
+    <Token>
+      <Index>4998</Index>
+      <Text>Credits per turn for Troop maintenance</Text>
+    </Token>
+    <Token>
+      <Index>4999</Index>
+      <Text>Troop Maint.</Text>
+    </Token>
+    <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
     </Token>

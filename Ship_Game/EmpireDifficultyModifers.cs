@@ -29,6 +29,7 @@
         public readonly float FleetStrModifier; // AI increase/decrease str of fleets needs, when they win or lose vs another empire
         public readonly int NumSystemsToSniff; // Number of system the AI will try to re-scout until it is fully explored
         public readonly float TechValueModifier; // AI tech value vs players
+        public readonly int PlayerWarPriorityLimit; // Priority of wars vs player (war priority is 1 to 99 where 1 means more priority)
 
         // AI Buffs/Nerfs
         public readonly float FlatMoneyBonus;
@@ -46,15 +47,16 @@
 
         public DifficultyModifiers(Empire empire, UniverseData.GameDifficulty difficulty)
         {
-            DataVisibleToPlayer   = false;
-            FlatMoneyBonus        = 0;
-            ProductionMod         = 0;
-            ResearchMod           = 0;
-            TaxMod                = 0;
-            ShipCostMod           = 0;
-            ResearchTaxMultiplier = 0;
-            ModHpModifier         = 0;
-            TechValueModifier     = 1;
+            DataVisibleToPlayer    = false;
+            FlatMoneyBonus         = 0;
+            ProductionMod          = 0;
+            ResearchMod            = 0;
+            TaxMod                 = 0;
+            ShipCostMod            = 0;
+            ResearchTaxMultiplier  = 0;
+            ModHpModifier          = 0;
+            TechValueModifier      = 1;
+            PlayerWarPriorityLimit = 99;
             switch (difficulty)
             {
                 case UniverseData.GameDifficulty.Easy:
@@ -118,7 +120,10 @@
                     NumSystemsToSniff    = 2;
 
                     if (!empire.isPlayer)
-                        FlatMoneyBonus = 5;
+                    {
+                        FlatMoneyBonus         = 5;
+                        PlayerWarPriorityLimit = 75;
+                    }
 
                     break;
                 case UniverseData.GameDifficulty.Hard:
@@ -148,13 +153,14 @@
 
                     if (!empire.isPlayer)
                     {
-                        FlatMoneyBonus        = 10;
-                        ProductionMod         = 0.3f;
-                        ResearchMod           = 0.75f;
-                        TaxMod                = 0.5f;
-                        ShipCostMod           = -0.2f;
-                        ResearchTaxMultiplier = 0.7f;
-                        TechValueModifier     = 1.1f;
+                        FlatMoneyBonus         = 10;
+                        ProductionMod          = 0.3f;
+                        ResearchMod            = 0.75f;
+                        TaxMod                 = 0.5f;
+                        ShipCostMod            = -0.2f;
+                        ResearchTaxMultiplier  = 0.7f;
+                        TechValueModifier      = 1.1f;
+                        PlayerWarPriorityLimit = 50;
                     }
 
                     break;
@@ -185,13 +191,14 @@
 
                     if (!empire.isPlayer)
                     {
-                        FlatMoneyBonus        = 20;
-                        ProductionMod         = 0.75f;
-                        ResearchMod           = 1.33f;
-                        TaxMod                = 1f;
-                        ShipCostMod           = -0.5f;
-                        ResearchTaxMultiplier = 0.3f;
-                        TechValueModifier     = 1.2f;
+                        FlatMoneyBonus         = 20;
+                        ProductionMod          = 0.75f;
+                        ResearchMod            = 1.33f;
+                        TaxMod                 = 1f;
+                        ShipCostMod            = -0.5f;
+                        ResearchTaxMultiplier  = 0.3f;
+                        TechValueModifier      = 1.2f;
+                        PlayerWarPriorityLimit = 25;
                     }
 
                     break;
