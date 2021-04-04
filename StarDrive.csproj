@@ -506,9 +506,12 @@
     <Compile Include="Ship_Game\Spatial\SearchOptions.cs" />
     <Compile Include="Ship_Game\Spatial\SpatialObj.cs" />
     <Compile Include="Ship_Game\Spatial\VisualizerOptions.cs" />
-    <Compile Include="Ship_Game\SpriteSystem\AnimationCurve.cs" />
+    <Compile Include="Ship_Game\SpriteSystem\TextureAtlas.CreateAtlas.cs" />
+    <Compile Include="Ship_Game\UI\Effects\AnimationCurve.cs" />
+    <Compile Include="Ship_Game\SpriteSystem\AtlasPath.cs" />
     <Compile Include="Ship_Game\SpriteSystem\DrawableSprite.cs" />
     <Compile Include="Ship_Game\GameScreens\Espionage\AgentListItem.cs" />
+    <Compile Include="Ship_Game\SpriteSystem\TextureAtlas.Utils.cs" />
     <Compile Include="Ship_Game\SpriteSystem\TextureBinding.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\ArtifactItemListItem.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\EncounterInstance.cs" />
