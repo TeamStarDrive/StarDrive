@@ -21,6 +21,7 @@ namespace Ship_Game
         int UpdateTimer;
         bool Blockade;
         bool BioSpheresResearched;
+        float TroopConsumption;
 
         void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, string texture,
             string toolTip, bool percent = false, bool signs = true, int digits = 2)
@@ -660,6 +661,10 @@ namespace Ship_Game
             DrawBuildingInfo(ref cursor, batch, P.Res.NetFlatBonus, "NewUI/icon_science", Localizer.Token(1881), digits: 1);
             DrawBuildingInfo(ref cursor, batch, P.CurrentProductionToQueue, "NewUI/icon_queue_rushconstruction",
                 $"{Localizer.Token(1873)} ({P.InfraStructure} taken from Storage)", digits: 1);
+
+            DrawBuildingInfo(ref cursor, batch, -P.Money.TroopMaint, "UI/icon_troop_shipUI", Localizer.Token(4998), digits: 2);
+            string troopConsumptionText = P.Owner.IsCybernetic ? new LocalizedText(4997).Text : new LocalizedText(4996).Text;
+            DrawBuildingInfo(ref cursor, batch, -TroopConsumption, "UI/icon_troop_shipUI", troopConsumptionText, digits: 2);
         }
 
         void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch batch, Building b, PlanetGridSquare tile = null)
@@ -739,7 +744,7 @@ namespace Ship_Game
             DrawBuildingInfo(ref cursor, batch, b.ActualFireDelay(P), "UI/icon_offense", "Fire Delay", signs: false);
         }
 
-        void UpdateData() // This will update freighters in an interval to reduce threading issues
+        void UpdateData() // This will update statistics in an interval to reduce threading issues
         {
             if (UpdateTimer <= 0)
             {
@@ -756,6 +761,7 @@ namespace Ship_Game
                 IncomingProd           = TotalIncomingCargo(Goods.Production).RoundUpTo(1);
                 IncomingPop            = (TotalIncomingCargo(Goods.Colonists) / 1000).RoundToFractionOf100();
                 Blockade               = P.Quarantine || P.SpaceCombatNearPlanet;
+                TroopConsumption       = P.GetTotalTroopConsumption();
                 UpdateTimer            = 300;
             }
             else if (!Empire.Universe.Paused)

@@ -220,6 +220,7 @@ namespace Ship_Game
                                           .Count(s => s?.AI.OrderQueue.Any(goal => goal.TargetPlanet == this) == true);
                 return (GetFreeTiles(empire) - rebasingTroops).Clamped(0, TileArea);
         }
+
         void CreateManagers()
         {
             TroopManager    = new TroopManager(this);
@@ -325,6 +326,16 @@ namespace Ship_Game
                     troopship?.AI.OrderRebaseToNearest();
                 }
             }
+        }
+
+        public float GetTotalTroopConsumption()
+        {
+            int numTroops;
+            using (TroopsHere.AcquireReadLock())
+                numTroops = TroopsHere.Count(t => t.Loyalty == Owner);
+
+            float consumption = numTroops * ShipMaintenance.TroopMaint;
+            return consumption * (1 + Owner.data.Traits.ConsumptionModifier);
         }
 
         public float GravityWellForEmpire(Empire empire)
@@ -1021,7 +1032,7 @@ namespace Ship_Game
             //this is a hack to prevent research planets from wasting workers on production.
 
             // greedy bastards
-            Consumption = (ConsumptionPerColonist * PopulationBillion);
+            Consumption = (ConsumptionPerColonist * PopulationBillion) + GetTotalTroopConsumption();
             Food.Update(NonCybernetic ? Consumption : 0f);
             Prod.Update(IsCybernetic  ? Consumption : 0f);
             Res.Update(0f);
