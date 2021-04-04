@@ -211,7 +211,8 @@ namespace Ship_Game
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(TextFont, Localizer.Token(386) + ":", vector2_2, Color.Orange);
             string fertility;
-            if (P.FertilityFor(Player).AlmostEqual(P.MaxFertilityFor(Player)))
+            if (P.FertilityFor(Player).AlmostEqual(P.MaxFertilityFor(Player))
+                || P.FertilityFor(Player).AlmostZero() && P.MaxFertilityFor(Player).LessOrEqual(0))
             {
                 fertility = P.FertilityFor(Player).String(2);
                 batch.DrawString(TextFont, fertility, position3, color);
