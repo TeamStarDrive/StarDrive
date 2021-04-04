@@ -1302,22 +1302,58 @@ namespace Ship_Game.Gameplay
                 us.GetEmpireAI().DeclareWarOn(them, WarType.ImperialistWar);
         }
 
+        public void RequestHelpFromAllies(Empire us, Empire enemy, int contactThreshold)
+        {
+            if (ActiveWar == null) // They Accepted Peace
+                return;
+
+            var allies = new Array<Empire>();
+            foreach ((Empire them, Relationship rel) in us.AllRelations)
+            {
+                if (rel.Treaty_Alliance
+                    && them.IsKnown(enemy) && !them.IsAtWarWith(enemy))
+                {
+                    allies.Add(them);
+                }
+            }
+            foreach (Empire ally in allies)
+            {
+                Relationship usToAlly = us.GetRelations(ally);
+                if (!ActiveWar.AlliesCalled.Contains(ally.data.Traits.Name)
+                    && usToAlly.turnsSinceLastContact > contactThreshold)
+                {
+                    us.GetEmpireAI().CallAllyToWar(ally, enemy);
+                    if (ally.IsAtWarWith(enemy))
+                        ActiveWar.AlliesCalled.Add(ally.data.Traits.Name);
+
+                    usToAlly.turnsSinceLastContact = 0;
+                }
+            }
+        }
+
         void AssessDiplomaticAnger(Empire us)
         {
             if (!Known)
                 return;
 
             Empire them = Them;
-            if (us.IsAggressive && Threat < -15f)
+            if (us.IsAggressive && Threat < -15f && us.GetAverageWarGrade().GreaterOrEqual(5) && !us.IsAtWar)
             {
-                float angerMod = -Threat / 15;// every -15 threat will give +0.1 anger
+                float angerMod = -Threat / 15; // every -15 threat will give +0.1 anger
                 AddAngerMilitaryConflict(us.data.DiplomaticPersonality.AngerDissipation + 0.1f * angerMod);
             }
 
-            if (Anger_MilitaryConflict >= 15 && !AtWar && !Treaty_Peace)
+            if (Anger_MilitaryConflict > 30 && !AtWar && !Treaty_Peace)
             {
-                PreparingForWar = true;
-                PreparingForWarType = WarType.DefensiveWar;
+                if (Anger_MilitaryConflict > 99)
+                {
+                    us.GetEmpireAI().DeclareWarOn(them, WarType.ImperialistWar);
+                }
+                else
+                {
+                    PreparingForWar     = true;
+                    PreparingForWarType = WarType.DefensiveWar;
+                }
                 return;
             }
 
@@ -1402,7 +1438,7 @@ namespace Ship_Game.Gameplay
                     if (us.GetAverageWarGrade().LessOrEqual(us.PersonalityModifiers.WarGradeThresholdForPeace))
                         RequestPeace(us);
 
-                    us.GetEmpireAI().RequestHelpFromAllies(this, them, FirstDemand);
+                    RequestHelpFromAllies(us, them, FirstDemand);
                     break;
                 case Posture.Hostile:
                     AssessDiplomaticAnger(us);
@@ -1432,7 +1468,7 @@ namespace Ship_Game.Gameplay
                     ReferToMilitary(us, threatForInsult: -20, compliment: false);
                     break;
                 case Posture.Hostile when ActiveWar != null:
-                    us.GetEmpireAI().RequestHelpFromAllies(this, them, FirstDemand);
+                    RequestHelpFromAllies(us, them, FirstDemand);
                     break;
                 case
                     Posture.Hostile:
@@ -1470,7 +1506,7 @@ namespace Ship_Game.Gameplay
                     break;
                 case Posture.Hostile when ActiveWar != null:
                     RequestPeace(us);
-                    us.GetEmpireAI().RequestHelpFromAllies(this, them, FirstDemand);
+                    RequestHelpFromAllies(us, them, FirstDemand);
                     break;
                 case Posture.Hostile:
                     theyArePotentialTargets = TheyArePotentialTargetAggressive(us, them);
@@ -1632,8 +1668,8 @@ namespace Ship_Game.Gameplay
         public void LostAShip(Ship ourShip)
         {
             ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(ourShip);
-
-            AddAngerMilitaryConflict(killedExpSettings.KillExp);
+            float angerToAdd = ourShip.isColonyShip ? 10 : killedExpSettings.KillExp / 10;
+            AddAngerMilitaryConflict(angerToAdd);
             ActiveWar?.ShipWeLost(ourShip);
 
         }
