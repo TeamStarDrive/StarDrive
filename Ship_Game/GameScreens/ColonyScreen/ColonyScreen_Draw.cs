@@ -664,8 +664,7 @@ namespace Ship_Game
                 $"{Localizer.Token(1873)} ({P.InfraStructure} taken from Storage)", digits: 1);
 
             DrawBuildingInfo(ref cursor, batch, -P.Money.TroopMaint, "UI/icon_troop_shipUI", Localizer.Token(4998), digits: 2);
-            string troopConsumptionText = P.Owner.IsCybernetic ? new LocalizedText(4997).Text : new LocalizedText(4996).Text;
-            DrawBuildingInfo(ref cursor, batch, -TroopConsumption, "UI/icon_troop_shipUI", troopConsumptionText, digits: 2);
+            DrawBuildingInfo(ref cursor, batch, -TroopConsumption, "UI/icon_troop_shipUI", GetTroopsConsumptionText(), digits: 2);
         }
 
         void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch batch, Building b, PlanetGridSquare tile = null)
@@ -698,6 +697,22 @@ namespace Ship_Game
 
             if (tile?.VolcanoHere == true)
                 DrawVolcanoChance(ref bCursor, batch, tile.Volcano.ActivationChanceText(out Color color), color);
+        }
+
+        string GetTroopsConsumptionText()
+        {
+            string troopConsumptionText = P.Owner.IsCybernetic
+                ? new LocalizedText(4997).Text // Prod consumption for cybernetic troops
+                : new LocalizedText(4996).Text; // Food consumption for cybernetic troops
+
+            if (P.AnyOfOurTroops(P.Owner) && P.Owner.TroopInSpaceFoodNeeds.LessOrEqual(0))
+                troopConsumptionText = $"{troopConsumptionText} {new LocalizedText(4993).Text}"; // On surface only
+            else if (!P.AnyOfOurTroops(P.Owner) && P.Owner.TroopInSpaceFoodNeeds.Greater(0))
+                troopConsumptionText = $"{troopConsumptionText} {new LocalizedText(4994).Text}"; // In space only
+            else
+                troopConsumptionText = $"{troopConsumptionText} {new LocalizedText(4995).Text}"; // On surface and In space
+
+            return troopConsumptionText;
         }
 
         void DrawVolcanoChance(ref Vector2 cursor, SpriteBatch batch, string text, Color color)
