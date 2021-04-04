@@ -148,6 +148,7 @@ namespace Ship_Game
         public float MaxContactTimer = 0f;
         private bool HostilesDictForPlayerInitialized;
         public float NetPlanetIncomes { get; private set; }
+        public float TroopCostOnPlanets { get; private set; } // Maintenance in all Owned planets
         public float GrossPlanetIncome { get; private set; }
         public float PotentialIncome { get; private set; }
         public float ExcessGoodsMoneyAddedThisTurn { get; private set; } // money tax from excess goods
@@ -218,9 +219,9 @@ namespace Ship_Game
         // Income this turn before deducting ship maintenance
         public float GrossIncome              => GrossPlanetIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus;
         public float NetIncome                => GrossIncome - AllSpending;
-        public float TotalBuildingMaintenance => GrossPlanetIncome - NetPlanetIncomes;
+        public float TotalBuildingMaintenance =>  GrossPlanetIncome - (NetPlanetIncomes + TroopCostOnPlanets);
         public float BuildingAndShipMaint     => TotalBuildingMaintenance + TotalShipMaintenance;
-        public float AllSpending              => BuildingAndShipMaint + MoneySpendOnProductionThisTurn;
+        public float AllSpending              => BuildingAndShipMaint + MoneySpendOnProductionThisTurn + TroopCostOnPlanets;
         public bool IsExpansionists           => data.EconomicPersonality?.Name == "Expansionists";
         public bool IsIndustrialists          => data.EconomicPersonality?.Name == "Industrialists";
         public bool IsGeneralists             => data.EconomicPersonality?.Name == "Generalists";
@@ -1810,6 +1811,16 @@ namespace Ship_Game
             }
         }
 
+        public float GetTroopMaintThisTurn()
+        {
+            // Troops maintenance on ships are calculated as part of ship maintenance
+            int troopsOnPlanets;
+            using (OwnedPlanets.AcquireReadLock())
+                troopsOnPlanets = OwnedPlanets.Sum(p => p.TroopsHere.Count);
+
+            return troopsOnPlanets * ShipMaintenance.TroopMaint;
+        }
+
         public DebugTextBlock DebugEmpireTradeInfo()
         {
             int foodShips      = NumFreightersTrading(Goods.Food);
@@ -1905,6 +1916,7 @@ namespace Ship_Game
         public void UpdateNetPlanetIncomes()
         {
             NetPlanetIncomes              = 0;
+            TroopCostOnPlanets            = 0;
             GrossPlanetIncome             = 0;
             ExcessGoodsMoneyAddedThisTurn = 0;
             PotentialIncome               = 0;
@@ -1916,6 +1928,7 @@ namespace Ship_Game
                     GrossPlanetIncome             += planet.Money.GrossRevenue;
                     PotentialIncome               += planet.Money.PotentialRevenue;
                     ExcessGoodsMoneyAddedThisTurn += planet.ExcessGoodsIncome;
+                    TroopCostOnPlanets            += planet.Money.TroopMaint;
                 }
         }
 
