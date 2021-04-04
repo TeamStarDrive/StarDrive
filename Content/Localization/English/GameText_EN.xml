@@ -8672,6 +8672,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>The Enemy has launched a sneak assault force in an attempt to\nboard our Bombers and escorting ships!</Text>
     </Token>
     <Token>
+      <Index>4996</Index>
+      <Text>Food per turn for Troops</Text>
+    </Token>
+    <Token>
+      <Index>4997</Index>
+      <Text>Production per turn for Troops</Text>
+    </Token>
+    <Token>
+      <Index>4998</Index>
+      <Text>Credits per turn for Troop maintenance</Text>
+    </Token>
+    <Token>
       <Index>4999</Index>
       <Text>Troop Maint.</Text>
     </Token>
