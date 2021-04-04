@@ -624,10 +624,11 @@ namespace Ship_Game.Gameplay
         {
             UpdateAngerBorders(us, them);
             UpdatePeace(us, them);
-            AddAngerTerritorialConflict(-personality.AngerDissipation);
-            AddAngerShipsInOurBorders(-personality.AngerDissipation);
-            AddAngerDiplomaticConflict(-personality.AngerDissipation);
-            AddAngerMilitaryConflict(-personality.AngerDissipation);
+            float angerDissipation = Treaty_Peace ? -personality.AngerDissipation * 2 : -personality.AngerDissipation;
+            AddAngerTerritorialConflict(angerDissipation);
+            AddAngerShipsInOurBorders(angerDissipation);
+            AddAngerDiplomaticConflict(angerDissipation);
+            AddAngerMilitaryConflict(angerDissipation);
 
             TotalAnger = (Anger_DiplomaticConflict
                          + Anger_FromShipsInOurBorders
@@ -1343,7 +1344,7 @@ namespace Ship_Game.Gameplay
                 AddAngerMilitaryConflict(us.data.DiplomaticPersonality.AngerDissipation + 0.1f * angerMod);
             }
 
-            if (Anger_MilitaryConflict > 50 && !AtWar && !Treaty_Peace)
+            if (Anger_MilitaryConflict > 80 && !AtWar && !Treaty_Peace)
             {
                 if (Anger_MilitaryConflict > 99)
                 {
