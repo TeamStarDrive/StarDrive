@@ -4,7 +4,6 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Linq;
-using System.Text;
 using static Ship_Game.AI.CombatStanceType;
 
 namespace Ship_Game.AI
@@ -18,8 +17,8 @@ namespace Ship_Game.AI
         void DoBoardShip(FixedSimTime timeStep)
         {
             HasPriorityTarget = true;
-            State = AIState.Boarding;
-            var escortTarget = EscortTarget;
+            State             = AIState.Boarding;
+            var escortTarget  = EscortTarget;
             if (escortTarget == null || !escortTarget.Active || escortTarget.loyalty == Owner.loyalty)
             {
                 ClearOrders(State);
