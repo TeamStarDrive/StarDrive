@@ -791,7 +791,7 @@ namespace Ship_Game.Ships
 
         public float GetMaintCost(Empire empire)
         {
-            return GetMaintenanceCost(this, empire);
+            return GetMaintenanceCost(this, empire, TroopCount);
         }
 
         public void DoEscort(Ship escortTarget)
