@@ -8673,11 +8673,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4996</Index>
-      <Text>Food per turn for Troops</Text>
+      <Text>Food per turn for Troops on ground and/or space</Text>
     </Token>
     <Token>
       <Index>4997</Index>
-      <Text>Production per turn for Troops</Text>
+      <Text>Production per turn for Troops on ground and/or space</Text>
     </Token>
     <Token>
       <Index>4998</Index>

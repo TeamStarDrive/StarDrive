@@ -56,9 +56,10 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Rectangle FromRect { get; private set; }
         [XmlIgnore][JsonIgnore] public Rectangle ClickRect { get; private set; }
         [XmlIgnore][JsonIgnore] public bool Hovered;
+        [XmlIgnore][JsonIgnore] public static float Consumption = 0.1f; // Consumption of food per turn (or prod, if cybernetic)
 
         [XmlIgnore][JsonIgnore] float UpdateTimer;
-        [XmlIgnore][JsonIgnore] public string DisplayName    => DisplayNameEmpire(Owner);
+        [XmlIgnore][JsonIgnore] public string DisplayName   => DisplayNameEmpire(Owner);
         [XmlIgnore][JsonIgnore] public float ActualCost     => Cost * CurrentGame.ProductionPace;
         [XmlIgnore][JsonIgnore] public bool CanMove         => AvailableMoveActions > 0;
         [XmlIgnore][JsonIgnore] public bool CanAttack       => AvailableAttackActions > 0;

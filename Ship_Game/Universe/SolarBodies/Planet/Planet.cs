@@ -334,8 +334,25 @@ namespace Ship_Game
             using (TroopsHere.AcquireReadLock())
                 numTroops = TroopsHere.Count(t => t.Loyalty == Owner);
 
-            float consumption = numTroops * ShipMaintenance.TroopMaint;
-            return consumption * (1 + Owner.data.Traits.ConsumptionModifier);
+            float consumption = numTroops * Troop.Consumption * (1 + Owner.data.Traits.ConsumptionModifier);
+
+            return consumption + GetFoodNeededForTroopsInSpace();
+
+            // Local method
+            float GetFoodNeededForTroopsInSpace()
+            {
+                if (Owner.TroopInSpaceFoodNeeds.AlmostZero() || Owner.TotalFoodPerColonist.AlmostZero())
+                    return 0;
+
+                float foodIncome = IsCybernetic ? Prod.NetMaxPotential : Food.NetMaxPotential;
+                if (Owner.TroopInSpaceFoodNeeds.Greater(0) && foodIncome.Greater(0))
+                {
+                    float ratio = foodIncome / Owner.TotalFoodPerColonist;
+                    return Owner.TroopInSpaceFoodNeeds * ratio;
+                }
+
+                return 0;
+            }
         }
 
         public float GravityWellForEmpire(Empire empire)
