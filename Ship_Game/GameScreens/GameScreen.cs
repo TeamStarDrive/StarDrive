@@ -376,11 +376,6 @@ namespace Ship_Game
         {
             ScreenManager.SpriteBatch.DrawString(font, text, posOnScreen, textColor, rotation, Vector2.Zero, textScale, SpriteEffects.None, 1f);
         }
-        public float Spacing(float amount)
-        {          
-            if (GlobalStats.IsGermanFrenchOrPolish) amount += 20f;
-            return amount;
-        }
 
         public void MakeMessageBox(GameScreen screen, Action cancelled, Action accepted, int localId, string okText, string cancelledText)
         {
