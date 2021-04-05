@@ -4,22 +4,6 @@ using System.Linq;
 
 namespace SDGameTextToEnum
 {
-    public struct Token
-    {
-        public int Index;
-        public string Text;
-        public Token(int index, string text)
-        {
-            Index = index;
-            Text = text;
-        }
-        public void Deconstruct(out int id, out string text)
-        {
-            id = Index;
-            text = Text;
-        }
-    }
-
     public class LangText
     {
         public string Lang;
@@ -29,12 +13,6 @@ namespace SDGameTextToEnum
             Lang = lang;
             Text = text;
         }
-    }
-
-    public struct EnumIdentifier
-    {
-        public int Line;
-        public string Identifier;
     }
 
     public class Localization

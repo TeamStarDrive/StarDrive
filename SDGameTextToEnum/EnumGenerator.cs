@@ -10,7 +10,7 @@ namespace SDGameTextToEnum
     {
         public readonly string Namespace;
         protected string Name;
-        protected readonly Dictionary<int, EnumIdentifier> ExistingIdentifiers = new Dictionary<int, EnumIdentifier>();
+        protected readonly Dictionary<int, LangToken> ExistingIds = new Dictionary<int, LangToken>();
         protected readonly List<Localization> LocalizedText = new List<Localization>();
         protected readonly HashSet<string> EnumNames = new HashSet<string>();
         readonly char[] Space = { ' ' };
@@ -25,7 +25,7 @@ namespace SDGameTextToEnum
         {
             Namespace = gen.Namespace;
             Name = gen.Name;
-            ExistingIdentifiers = new Dictionary<int, EnumIdentifier>(gen.ExistingIdentifiers);
+            ExistingIds = new Dictionary<int, LangToken>(gen.ExistingIds);
             EnumNames = new HashSet<string>(gen.EnumNames);
             foreach (Localization loc in gen.LocalizedText)
                 LocalizedText.Add(new Localization(loc));
@@ -45,42 +45,24 @@ namespace SDGameTextToEnum
         void ReadIdentifiersFromCsharp(string enumFile)
         {
             string fileName = Path.GetFileName(enumFile);
-            string[] lines = File.ReadAllLines(enumFile);
-            var splitter = new [] { '=', ',', ' ', '\t' };
-            int lineNumber = 0;
-            foreach (string line in lines)
+            List<LangToken> tokens = LangToken.FromCSharp(enumFile);
+            foreach (LangToken t in tokens)
             {
-                ++lineNumber;
-                if (!line.Contains("=")) continue;
-                string[] parts = line.Split(splitter, StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length != 2) continue;
-                string identifier = parts[0];
-                int id = int.Parse(parts[1]);
-                if (ExistingIdentifiers.TryGetValue(id, out EnumIdentifier existing))
-                    Log.Write(ConsoleColor.Red, $"{Name} ID CONFLICT:\n"
-                                               +$"  existing at {fileName} line {existing.Line}: {existing.Identifier} = {id}\n"
-                                               +$"  addition at {fileName} line {lineNumber}: {identifier} = {id}");
+                if (ExistingIds.TryGetValue(t.Id, out LangToken e))
+                    Log.Write(ConsoleColor.Red, $"{Name} ID CONFLICT:"
+                                               +$"\n  existing at {fileName} line {e.Line}: {e.NameId} = {t.Id}"
+                                               +$"\n  addition at {fileName} line {t.Line}: {t.NameId} = {t.Id}");
                 else
-                    ExistingIdentifiers.Add(id, new EnumIdentifier{Line = lineNumber, Identifier=identifier});
+                    ExistingIds.Add(t.Id, t);
             }
         }
 
         void ReadIdentifiersFromYaml(string yamlFile)
         {
-            string[] lines = File.ReadAllLines(yamlFile);
-            var splitter = new [] { ':', ' ', '\t' };
-            int lineNumber = 0;
-            foreach (string line in lines)
-            {
-                ++lineNumber;
-                if (!line.Contains(":") || line[0] == ' ') continue;
-                string[] parts = line.Split(splitter, StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length != 2) continue;
-                string identifier = parts[0];
-                int id = int.Parse(parts[1]);
-                if (!ExistingIdentifiers.ContainsKey(id))
-                    ExistingIdentifiers.Add(id, new EnumIdentifier{Line = lineNumber, Identifier=identifier});
-            }
+            List<LangToken> tokens = LangToken.FromYaml(yamlFile);
+            foreach (LangToken token in tokens)
+                if (!ExistingIds.ContainsKey(token.Id))
+                    ExistingIds.Add(token.Id, token);
         }
 
         string GetCapitalizedIdentifier(string word)
@@ -104,10 +86,10 @@ namespace SDGameTextToEnum
         string GetIdentifier(int id, string[] words)
         {
             string name = "";
-            if (ExistingIdentifiers.TryGetValue(id, out EnumIdentifier existing) &&
-                !string.IsNullOrWhiteSpace(existing.Identifier))
+            if (ExistingIds.TryGetValue(id, out LangToken existing) &&
+                !string.IsNullOrWhiteSpace(existing.NameId))
             {
-                name = existing.Identifier;
+                name = existing.NameId;
             }
             else
             {
@@ -175,9 +157,9 @@ namespace SDGameTextToEnum
             return loc != null;
         }
 
-        public void AddLocalizations(string lang, IEnumerable<Token> localizations)
+        public void AddLocalizations(IEnumerable<LangToken> localizations)
         {
-            foreach ((int id, string text) in localizations)
+            foreach ((string lang, int id, string text) in localizations)
             {
                 if (GetLocalization(LocalizedText, id, out Localization loc))
                     loc.AddText(lang, id, text);
@@ -224,16 +206,33 @@ namespace SDGameTextToEnum
             var sw = new StringWriter();
             sw.WriteLine( "# Version 1");
             sw.WriteLine($"# This file was auto-generated by SDGameTextToEnum.exe and is in sync with {Name}.cs");
-            foreach (Localization loc in LocalizedText)
-            {
-                sw.WriteLine($"{loc.NameId}: {loc.Id}");
-                foreach (LangText lt in loc.LangTexts)
-                {
-                    sw.WriteLine($"  {lt.Lang}: {lt.Text}");
-                }
-            }
+            WriteYamlLoc(sw, LocalizedText);
             File.WriteAllText(outPath, sw.ToString(), Encoding.UTF8);
             Log.Write(ConsoleColor.Green, $"Wrote {outPath}");
+        }
+
+        protected string GetEscapedYamlString(string text)
+        {
+            string escaped = text;
+            escaped = escaped.Replace("\r\n", "\\n");
+            escaped = escaped.Replace("\n", "\\n");
+            escaped = escaped.Replace("\t", "\\t");
+            escaped = escaped.Replace("\"", "\\\"");
+            return "\"" + escaped + "\"";
+        }
+
+        protected void WriteYamlLoc(StringWriter sw, List<Localization> localizations)
+        {
+            foreach (Localization loc in localizations)
+            {
+                sw.WriteLine($"{loc.NameId}:");
+                sw.WriteLine($" Id: {loc.Id}");
+                foreach (LangText lt in loc.LangTexts)
+                {
+                    string text = GetEscapedYamlString(lt.Text);
+                    sw.WriteLine($" {lt.Lang}: {text}");
+                }
+            }
         }
     }
 }
