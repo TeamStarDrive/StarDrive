@@ -15,7 +15,7 @@ namespace Ship_Game
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
         public bool Biosphere;
         public bool Terraformable; // This tile can be habitable if terraformed
-        public Building Building;
+        public Building Building; // FB - should use get private set here
         public bool Habitable; // FB - this also affects max population (because of pop per habitable tile)
         public QueueItem QItem;
         public Rectangle ClickRect = new Rectangle();
