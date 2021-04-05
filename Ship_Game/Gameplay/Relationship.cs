@@ -624,10 +624,11 @@ namespace Ship_Game.Gameplay
         {
             UpdateAngerBorders(us, them);
             UpdatePeace(us, them);
-            AddAngerTerritorialConflict(-personality.AngerDissipation);
-            AddAngerShipsInOurBorders(-personality.AngerDissipation);
-            AddAngerDiplomaticConflict(-personality.AngerDissipation);
-            AddAngerMilitaryConflict(-personality.AngerDissipation);
+            float angerDissipation = Treaty_Peace ? -personality.AngerDissipation * 2 : -personality.AngerDissipation;
+            AddAngerTerritorialConflict(angerDissipation);
+            AddAngerShipsInOurBorders(angerDissipation);
+            AddAngerDiplomaticConflict(angerDissipation);
+            AddAngerMilitaryConflict(angerDissipation);
 
             TotalAnger = (Anger_DiplomaticConflict
                          + Anger_FromShipsInOurBorders
@@ -1320,7 +1321,7 @@ namespace Ship_Game.Gameplay
             {
                 Relationship usToAlly = us.GetRelations(ally);
                 if (!ActiveWar.AlliesCalled.Contains(ally.data.Traits.Name)
-                    && usToAlly.turnsSinceLastContact > contactThreshold)
+                    && usToAlly.turnsSinceLastContact > (ally.isPlayer ? contactThreshold * 2 : contactThreshold))
                 {
                     us.GetEmpireAI().CallAllyToWar(ally, enemy);
                     if (ally.IsAtWarWith(enemy))
@@ -1343,7 +1344,7 @@ namespace Ship_Game.Gameplay
                 AddAngerMilitaryConflict(us.data.DiplomaticPersonality.AngerDissipation + 0.1f * angerMod);
             }
 
-            if (Anger_MilitaryConflict > 30 && !AtWar && !Treaty_Peace)
+            if (Anger_MilitaryConflict > 80 && !AtWar && !Treaty_Peace)
             {
                 if (Anger_MilitaryConflict > 99)
                 {
@@ -1668,7 +1669,7 @@ namespace Ship_Game.Gameplay
         public void LostAShip(Ship ourShip)
         {
             ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(ourShip);
-            float angerToAdd = ourShip.isColonyShip ? 10 : killedExpSettings.KillExp / 10;
+            float angerToAdd = ourShip.isColonyShip ? 10 : (killedExpSettings.KillExp / 10).LowerBound(1);
             AddAngerMilitaryConflict(angerToAdd);
             ActiveWar?.ShipWeLost(ourShip);
 

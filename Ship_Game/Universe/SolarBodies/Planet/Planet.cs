@@ -221,6 +221,7 @@ namespace Ship_Game
                                           .Count(s => s?.AI.OrderQueue.Any(goal => goal.TargetPlanet == this) == true);
                 return (GetFreeTiles(empire) - rebasingTroops).Clamped(0, TileArea);
         }
+
         void CreateManagers()
         {
             TroopManager    = new TroopManager(this);
@@ -325,6 +326,33 @@ namespace Ship_Game
                     Ship troopship = t.Launch(ignoreMovement: true);
                     troopship?.AI.OrderRebaseToNearest();
                 }
+            }
+        }
+
+        public float GetTotalTroopConsumption()
+        {
+            int numTroops;
+            using (TroopsHere.AcquireReadLock())
+                numTroops = TroopsHere.Count(t => t.Loyalty == Owner);
+
+            float consumption = numTroops * Troop.Consumption * (1 + Owner.data.Traits.ConsumptionModifier);
+
+            return consumption + GetFoodNeededForTroopsInSpace();
+
+            // Local method
+            float GetFoodNeededForTroopsInSpace()
+            {
+                if (Owner.TroopInSpaceFoodNeeds.AlmostZero() || Owner.TotalFoodPerColonist.AlmostZero())
+                    return 0;
+
+                float foodIncome = IsCybernetic ? Prod.NetMaxPotential : Food.NetMaxPotential;
+                if (Owner.TroopInSpaceFoodNeeds.Greater(0) && foodIncome.Greater(0))
+                {
+                    float ratio = foodIncome / Owner.TotalFoodPerColonist;
+                    return Owner.TroopInSpaceFoodNeeds * ratio;
+                }
+
+                return 0;
             }
         }
 
@@ -1026,7 +1054,7 @@ namespace Ship_Game
             //this is a hack to prevent research planets from wasting workers on production.
 
             // greedy bastards
-            Consumption = (ConsumptionPerColonist * PopulationBillion);
+            Consumption = (ConsumptionPerColonist * PopulationBillion) + GetTotalTroopConsumption();
             Food.Update(NonCybernetic ? Consumption : 0f);
             Prod.Update(IsCybernetic  ? Consumption : 0f);
             Res.Update(0f);

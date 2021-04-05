@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data.Texture;
 
@@ -84,15 +85,17 @@ namespace Ship_Game.SpriteSystem
 
         public void SaveAsPng(string filename)
         {
-            Texture.Save(filename, ImageFileFormat.Png);
+            string path = Path.ChangeExtension(filename, "png");
+            Texture.Save(path, ImageFileFormat.Png);
         }
 
         public void SaveAsDds(string filename)
         {
+            string path = Path.ChangeExtension(filename, "dds");
             SurfaceFormat format = Texture.Format;
             if (format == SurfaceFormat.Dxt5 || format == SurfaceFormat.Dxt1)
             {
-                Texture.Save(filename, ImageFileFormat.Dds); // already compressed
+                Texture.Save(path, ImageFileFormat.Dds); // already compressed
             }
             else if (format == SurfaceFormat.Color)
             {
@@ -102,13 +105,13 @@ namespace Ship_Game.SpriteSystem
                 bool alpha = ImageUtils.HasTransparentPixels(color, Width, Height);
                 
                 DDSFlags flags = alpha ? DDSFlags.Dxt5BGRA : DDSFlags.Dxt1BGRA;
-                ImageUtils.ConvertToDDS(filename, Width, Height, color, flags);
+                ImageUtils.ConvertToDDS(path, Width, Height, color, flags);
             }
             else if (format == SurfaceFormat.Bgr32)
             {
                 var color = new Color[Texture.Width * Texture.Height];
                 Texture.GetData(color);
-                ImageUtils.ConvertToDDS(filename, Width, Height, color, DDSFlags.Dxt1BGRA);
+                ImageUtils.ConvertToDDS(path, Width, Height, color, DDSFlags.Dxt1BGRA);
             }
             else
             {

@@ -21,6 +21,7 @@ namespace Ship_Game
         int UpdateTimer;
         bool Blockade;
         bool BioSpheresResearched;
+        float TroopConsumption;
 
         void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, string texture,
             string toolTip, bool percent = false, bool signs = true, int digits = 2)
@@ -210,7 +211,8 @@ namespace Ship_Game
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(TextFont, Localizer.Token(386) + ":", vector2_2, Color.Orange);
             string fertility;
-            if (P.FertilityFor(Player).AlmostEqual(P.MaxFertilityFor(Player)))
+            if (P.FertilityFor(Player).AlmostEqual(P.MaxFertilityFor(Player))
+                || P.FertilityFor(Player).AlmostZero() && P.MaxFertilityFor(Player).LessOrEqual(0))
             {
                 fertility = P.FertilityFor(Player).String(2);
                 batch.DrawString(TextFont, fertility, position3, color);
@@ -660,6 +662,9 @@ namespace Ship_Game
             DrawBuildingInfo(ref cursor, batch, P.Res.NetFlatBonus, "NewUI/icon_science", Localizer.Token(1881), digits: 1);
             DrawBuildingInfo(ref cursor, batch, P.CurrentProductionToQueue, "NewUI/icon_queue_rushconstruction",
                 $"{Localizer.Token(1873)} ({P.InfraStructure} taken from Storage)", digits: 1);
+
+            DrawBuildingInfo(ref cursor, batch, -P.Money.TroopMaint, "UI/icon_troop_shipUI", Localizer.Token(4998), digits: 2);
+            DrawBuildingInfo(ref cursor, batch, -TroopConsumption, "UI/icon_troop_shipUI", GetTroopsConsumptionText(), digits: 2);
         }
 
         void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch batch, Building b, PlanetGridSquare tile = null)
@@ -694,6 +699,22 @@ namespace Ship_Game
 
             if (tile?.VolcanoHere == true)
                 DrawVolcanoChance(ref bCursor, batch, tile.Volcano.ActivationChanceText(out Color color), color);
+        }
+
+        string GetTroopsConsumptionText()
+        {
+            string troopConsumptionText = P.Owner.IsCybernetic
+                ? new LocalizedText(4997).Text // Prod consumption for cybernetic troops
+                : new LocalizedText(4996).Text; // Food consumption for cybernetic troops
+
+            if (P.AnyOfOurTroops(P.Owner) && P.Owner.TroopInSpaceFoodNeeds.LessOrEqual(0))
+                troopConsumptionText = $"{troopConsumptionText} {new LocalizedText(4993).Text}"; // On surface only
+            else if (!P.AnyOfOurTroops(P.Owner) && P.Owner.TroopInSpaceFoodNeeds.Greater(0))
+                troopConsumptionText = $"{troopConsumptionText} {new LocalizedText(4994).Text}"; // In space only
+            else
+                troopConsumptionText = $"{troopConsumptionText} {new LocalizedText(4995).Text}"; // On surface and In space
+
+            return troopConsumptionText;
         }
 
         void DrawVolcanoChance(ref Vector2 cursor, SpriteBatch batch, string text, Color color)
@@ -741,7 +762,7 @@ namespace Ship_Game
             DrawBuildingInfo(ref cursor, batch, b.ActualFireDelay(P), "UI/icon_offense", "Fire Delay", signs: false);
         }
 
-        void UpdateData() // This will update freighters in an interval to reduce threading issues
+        void UpdateData() // This will update statistics in an interval to reduce threading issues
         {
             if (UpdateTimer <= 0)
             {
@@ -758,6 +779,7 @@ namespace Ship_Game
                 IncomingProd           = TotalIncomingCargo(Goods.Production).RoundUpTo(1);
                 IncomingPop            = (TotalIncomingCargo(Goods.Colonists) / 1000).RoundToFractionOf100();
                 Blockade               = P.Quarantine || P.SpaceCombatNearPlanet;
+                TroopConsumption       = P.GetTotalTroopConsumption();
                 UpdateTimer            = 300;
             }
             else if (!Empire.Universe.Paused)
