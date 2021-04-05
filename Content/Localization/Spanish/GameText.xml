@@ -2715,10 +2715,6 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Text>Blindaje básico</Text>
     </Token>
     <Token>
-      <Index>939</Index>
-      <Text />
-    </Token>
-    <Token>
       <Index>940</Index>
       <Text>Tubo de torpedos PEM</Text>
     </Token>
@@ -6612,10 +6608,6 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
     </Token>
     <Token>
       <Index>4046</Index>
-      <Text>Pequeño</Text>
-    </Token>
-    <Token>
-      <Index>4046</Index>
       <Text>Normal</Text>
     </Token>
     <Token>
@@ -6658,18 +6650,6 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
     <Token>
       <Index>4056</Index>
       <Text>Vista general de diseño de flotas</Text>
-    </Token>
-    <Token>
-      <Index>4057</Index>
-      <Text>Añade diseños de naves a esta flota desde el panel de la derecha. Cuando hayas terminado, pulsa el botón "Solicitar" y se iniciará una búsqueda en tu imperio de naves que puedan conformar tu flota. Si no dispones de esas naves, se enviará la orden de que sean construidas en un planeta adecuado.\n\nVuelve aquí cuando quieras solicitar reemplazos para las naves perdidas en combate.</Text>
-    </Token>
-    <Token>
-      <Index>4056</Index>
-      <Text>Vista general de diseño de flotas</Text>
-    </Token>
-    <Token>
-      <Index>4057</Index>
-      <Text>Solo cazas</Text>
     </Token>
     <Token>
       <Index>4058</Index>
@@ -7947,14 +7927,6 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Text>Rayo SR</Text>
     </Token>
   <Token>
-      <Index>6172</Index>
-      <Text>Servoarmadura</Text>
-    </Token>
-  <Token>
-      <Index>6173</Index>
-      <Text>mamparo</Text>
-    </Token>
-  <Token>
       <Index>6174</Index>
       <Text>Proteccion EMP</Text>
     </Token>
@@ -8055,10 +8027,6 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
   <Token>
       <Index>7007</Index>
       <Text>Indica el nivel de experiencia de la nave. por cada nivel de experencia la nave gana un bonus del 5% a su velocidad de reparación, velocidad de giro y al daño de sus armas.</Text>
-    </Token>
-  <Token>
-      <Index>7008</Index>
-      <Text></Text>
     </Token>
   <Token>
       <Index>7009</Index>
