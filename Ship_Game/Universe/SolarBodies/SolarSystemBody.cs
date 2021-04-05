@@ -276,10 +276,9 @@ namespace Ship_Game
                     }
                     else
                     {
-                        PlanetGridSquare pgs = ResourceManager.CreateBuilding(template).AssignBuildingToRandomTile(this as Planet);
-                        (this as Planet)?.MakeTileHabitable(pgs);
-                        BuildingList.Add(pgs.Building);
-                        Log.Info($"Resource Created : '{pgs.Building.Name}' : on '{Name}' ");
+                        Building b = ResourceManager.CreateBuilding(template);
+                        b.AssignBuildingToRandomTile(this as Planet, !b.CanBuildAnywhere);
+                        Log.Info($"Resource Created : '{b.Name}' : on '{Name}' ");
                     }
                 }
             }
