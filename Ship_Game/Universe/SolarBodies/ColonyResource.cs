@@ -138,8 +138,8 @@ namespace Ship_Game.Universe.SolarBodies
             float plusPerColonist = 0f;
             for (int i = 0; i < Planet.BuildingList.Count; i++)
             {
-                Building b       = Planet.BuildingList[i];
-                plusPerColonist += b.PlusFoodPerColonist;
+                Building b = Planet.BuildingList[i];
+                plusPerColonist += b.PlusFoodPerColonist.LowerBound(0);
                 FlatBonus       += b.PlusFlatFoodAmount;
             }
 
@@ -174,8 +174,8 @@ namespace Ship_Game.Universe.SolarBodies
             float plusPerColonist = 0f;
             for (int i = 0; i < Planet.BuildingList.Count; i++)
             {
-                Building b       = Planet.BuildingList[i];
-                plusPerColonist += b.PlusProdPerColonist;
+                Building b = Planet.BuildingList[i];
+                plusPerColonist += b.PlusProdPerColonist.LowerBound(0);
                 FlatBonus       += b.PlusProdPerRichness * richness;
                 FlatBonus       += b.PlusFlatProductionAmount;
             }
@@ -209,11 +209,14 @@ namespace Ship_Game.Universe.SolarBodies
             float plusPerColonist = 0f;
             for (int i = 0; i < Planet.BuildingList.Count; i++)
             {
-                Building b       = Planet.BuildingList[i];
-                plusPerColonist += b.PlusResearchPerColonist;
+                Building b = Planet.BuildingList[i];
+                plusPerColonist += b.PlusResearchPerColonist.LowerBound(0);
                 FlatBonus       += b.PlusFlatResearchAmount;
             }
 
+            // We allow negative flat bonus per building to offset other efforts.
+            // But net bonus cannot be negative - so negative flat research buildings are an offset
+            FlatBonus         = FlatBonus.LowerBound(0); 
             float researchMod = Planet.Owner.data.Traits.ResearchMod;
             // @note Research only comes from buildings
             // Outposts and Capital Cities always grant a small bonus
