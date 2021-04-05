@@ -316,9 +316,6 @@ namespace Ship_Game
 
             Vector2 textPos = new Vector2(RightRect.X + 18, MarkedRect.Y + 12 - Font12.LineSpacing / 2 - 2);
             batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), MarkedRect, Color.White);
-            if (GlobalStats.IsGermanOrPolish)
-                textPos.X -= 9f;
-
 
             int tipId             = 24;
             LocalizedText tipText = new LocalizedText(GameText.Colonize);

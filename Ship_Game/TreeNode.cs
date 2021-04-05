@@ -43,7 +43,7 @@ namespace Ship_Game
 
         public TreeNode(Vector2 position, TechEntry theEntry, ResearchScreenNew screen)
         {
-            if (GlobalStats.IsRussian || GlobalStats.IsPolish)
+            if (GlobalStats.IsRussian)
             {
                 TitleFont = Fonts.Arial10;
             }
@@ -170,13 +170,6 @@ namespace Ship_Game
             UnlocksRect.Y = UnlocksRect.Y - 2;
             UnlocksRect.Height = UnlocksRect.Height + 4;
             TitleRect = new Rectangle(BaseRect.X, BaseRect.Y - 20, 90, 36);
-            if (GlobalStats.IsGermanOrPolish)
-            {
-                TitleRect.X = TitleRect.X - 5;
-                TitleRect.Width = TitleRect.Width + 5;
-                TreeNode titleWidth = this;
-                titleWidth.TitleWidth = titleWidth.TitleWidth + 10f;
-            }
             CostPos = new Vector2(62f, 70f) + new Vector2(BaseRect.X, BaseRect.Y);
             float x = CostPos.X;
             SpriteFont titleFont = TitleFont;

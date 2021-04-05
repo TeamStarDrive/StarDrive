@@ -71,7 +71,7 @@ namespace Ship_Game
 
             // hack fix for french, Polish and Russian font error. 
             Arial10       = LoadFont(c, "Arial10", reload ? 0 : -2);
-            Arial11Bold   = GlobalStats.IsFrench || GlobalStats.IsPolish || GlobalStats.IsRussian ? Arial10 : LoadFont(c, "Arial11Bold");
+            Arial11Bold   = GlobalStats.IsRussian ? Arial10 : LoadFont(c, "Arial11Bold");
             Arial8Bold    = LoadFont(c, "Arial8Bold");
             Arial12       = LoadFont(c, "Arial12", reload ? 0 : -2);
             //Stratum72     = LoadFont(c, "stratum72");
@@ -81,9 +81,9 @@ namespace Ship_Game
             Pirulen20     = LoadFont(c, "Pirulen20");
             Consolas18    = LoadFont(c, "consolas18", reload ? 0 : -4);
             Tahoma10      = LoadFont(c, "Tahoma10");
-            Tahoma11      = GlobalStats.IsFrench || GlobalStats.IsPolish || GlobalStats.IsRussian ? Tahoma10 : LoadFont(c, "Tahoma11");
-            TahomaBold9   = GlobalStats.IsFrench || GlobalStats.IsPolish || GlobalStats.IsRussian ? Tahoma10 : LoadFont(c, "TahomaBold9");
-            Visitor10     = GlobalStats.IsFrench || GlobalStats.IsPolish || GlobalStats.IsRussian ? Arial10  : LoadFont(c, "Visitor10");
+            Tahoma11      = GlobalStats.IsRussian ? Tahoma10 : LoadFont(c, "Tahoma11");
+            TahomaBold9   = GlobalStats.IsRussian ? Tahoma10 : LoadFont(c, "TahomaBold9");
+            Visitor10     = GlobalStats.IsRussian ? Arial10  : LoadFont(c, "Visitor10");
             //Visitor12     = LoadFont(c, "Visitor12");
             Verdana14Bold = LoadFont(c, "Verdana14Bold");
             Verdana12     = LoadFont(c, "Verdana12");
@@ -93,20 +93,9 @@ namespace Ship_Game
             if (!reload)
                 Consolas18.Spacing -= 2f;
 
-            //Stratum72.Spacing = 1f;
             Visitor10.Spacing = 1f;
-            //Visitor12.Spacing = 1f;
 
-            if (GlobalStats.IsRussian || GlobalStats.IsPolish)
-            {
-                Pirulen12 = LoadFont(c, "Arial12Bold");
-                //if (GlobalStats.IsRussian)
-                 //   Pirulen12.Spacing -= 3f;
-            }
-            else
-            {
-                Pirulen12 = LoadFont(c, "Pirulen12a");
-            }
+            Pirulen12 = GlobalStats.IsRussian ? LoadFont(c, "Arial12Bold") : LoadFont(c, "Pirulen12a");
         }
     }
 }

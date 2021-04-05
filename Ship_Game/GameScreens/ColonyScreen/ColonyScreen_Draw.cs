@@ -181,8 +181,6 @@ namespace Ship_Game
             batch.Draw(P.PlanetTexture, PlanetIcon, Color.White);
 
             float num5 = 80f;
-            if (GlobalStats.IsGermanOrPolish)
-                num5 += 20f;
             var vector2_2 = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
             P.Name = PlanetName.Text;
             PlanetName.Draw(batch, elapsed, Font20, vector2_2, Colors.Cream);
