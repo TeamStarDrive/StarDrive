@@ -1108,28 +1108,35 @@ namespace Ship_Game
             Localizer.Reset();
             LocalizedText.ClearCache();
 
-            foreach (var loc in LoadVanillaEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
-                Localizer.AddTokens(loc.TokenList);
-
-            if (language != Language.English)
+            if (File.Exists("Content/GameText.yaml"))
             {
-                foreach (var loc in LoadVanillaEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
+                Localizer.AddFromYaml("Content/GameText.yaml", language);
+            }
+            else
+            {
+                foreach (var loc in LoadVanillaEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
                     Localizer.AddTokens(loc.TokenList);
+                if (language != Language.English)
+                    foreach (var loc in LoadVanillaEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
+                        Localizer.AddTokens(loc.TokenList);
             }
 
             // Now replace any vanilla tokens with mod tokens
             if (GlobalStats.HasMod)
             {
-                foreach (var loc in LoadModEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
-                    Localizer.AddTokens(loc.TokenList);
-
-                if (language != Language.English)
+                if (File.Exists($"{ModContentDirectory}/GameText.yaml"))
                 {
-                    foreach (var loc in LoadModEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
+                    Localizer.AddFromYaml($"{ModContentDirectory}/GameText.yaml", language);
+                }
+                else
+                {
+                    foreach (var loc in LoadModEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
                         Localizer.AddTokens(loc.TokenList);
+                    if (language != Language.English)
+                        foreach (var loc in LoadModEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
+                            Localizer.AddTokens(loc.TokenList);
                 }
             }
-
         }
 
 
