@@ -6,14 +6,12 @@ namespace Ship_Game
     public sealed class Outcome
     {
         private Planet SelectedPlanet; 
-        public bool BeginArmageddon;
         public int Chance;
         private Artifact GrantedArtifact;
         public Array<string> TroopsToSpawn;
         public Array<string> FriendlyShipsToSpawn;
         public Array<string> PirateShipsToSpawn;
         public Array<string> RemnantShipsToSpawn;
-        public bool UnlockSecretBranch;
         public string SecretTechDiscovered;
         public string TitleText;
         public string UnlockTech;
@@ -24,13 +22,16 @@ namespace Ship_Game
         public string DescriptionText;
         public int MoneyGranted;
         public Array<string> TroopsGranted;
-        public float FoodProductionBonus;
         public float IndustryBonus;
         public float ScienceBonus;
         public bool SelectRandomPlanet;
-        public string SpawnBuildingOnPlanet;
         public bool OnlyTriggerOnce;
         public bool AlreadyTriggered;
+        public int NumTilesToMakeHabitable;
+        public int NumTilesToMakeUnhabitable;
+        public float ChangeBaseFertility;
+        public float ChangeBaseMaxFertility;
+        public float ChangeRichness;
 
         // Text to show on the confirmation button
         public string ConfirmText;
@@ -86,6 +87,44 @@ namespace Ship_Game
             }
         }
 
+        void PlanetGrants(Empire triggeredBy, Planet p, PlanetGridSquare eventTile)
+        {
+            MakeTilesHabitable(p, eventTile);
+            MakeTilesUnhabitable(p, eventTile);
+            p.AddBaseFertility(ChangeBaseFertility);
+            p.AddMaxBaseFertility(ChangeBaseMaxFertility);
+            p.MineralRichness = (p.MineralRichness + ChangeRichness).LowerBound(0);
+        }
+
+        void MakeTilesHabitable(Planet p, PlanetGridSquare eventTile)
+        {
+            for (int i = 0; i < NumTilesToMakeHabitable; i++)
+            {
+                var potentialTiles = p.TilesList.Filter(t => !t.Habitable && t != eventTile);
+                if (potentialTiles.Length == 0)
+                    break;
+
+                PlanetGridSquare tile = potentialTiles.RandItem();
+                p.MakeTileHabitable(tile);
+            }
+        }
+
+        void MakeTilesUnhabitable(Planet p, PlanetGridSquare eventTile)
+        {
+            for (int i = 0; i < NumTilesToMakeUnhabitable; i++)
+            {
+                var potentialTiles = p.TilesList.Filter(t => t.Habitable && !t.Biosphere && t != eventTile);
+                if (potentialTiles.Length == 0)
+                    break;
+
+                PlanetGridSquare tile = potentialTiles.RandItem();
+                if (p.Owner == EmpireManager.Player && tile.BuildingOnTile && !tile.VolcanoHere)
+                    Empire.Universe.NotificationManager.AddBuildingDestroyed(p, tile.Building, new LocalizedText(4299).Text);
+
+                p.DestroyTile(tile);
+            }
+        }
+
         private void ShipGrants(Empire triggeredBy ,Planet p)
         {
             foreach (string shipName in FriendlyShipsToSpawn)
@@ -114,13 +153,12 @@ namespace Ship_Game
         {
             if (RemoveTrigger)
             {
-                p.BuildingList.Remove(eventLocation.Building);
-                eventLocation.Building = null;
+                p.DestroyBuildingOn(eventLocation);
             }
+
             if (!string.IsNullOrEmpty(ReplaceWith))
             {
-                eventLocation.Building = ResourceManager.CreateBuilding(ReplaceWith);
-                p.BuildingList.Add(eventLocation.Building);
+                eventLocation.PlaceBuilding(ResourceManager.CreateBuilding(ReplaceWith), p);
             }
         }
 
@@ -223,6 +261,7 @@ namespace Ship_Game
             FlatGrants(triggeredBy);
             TechGrants(triggeredBy);
             ShipGrants(triggeredBy, p);
+            PlanetGrants(triggeredBy, p, eventLocation);
 
             //planet triggered events
             if (p != null)
