@@ -1,21 +1,35 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
 using Ship_Game.Ships;
 
 namespace Ship_Game
 {
+    // TODO: DEPRECATED
     public struct Token
     {
         public int Index;
         public string Text;
     }
-
+    
+    // TODO: DEPRECATED
     public sealed class LocalizationFile
     {
         public Array<Token> TokenList;
+    }
+    
+    [StarDataType]
+    public class LangToken
+    {
+        public string NameId;
+        [StarData] public int Id;
+        [StarData] public string ENG;
+        [StarData] public string RUS;
+        [StarData] public string SPA;
     }
 
     public static class Localizer
@@ -97,19 +111,10 @@ namespace Ship_Game
             }
         }
 
-        class LangToken
-        {
-            public string NameId;
-            public int Id;
-            public string ENG;
-            public string RUS;
-            public string SPA;
-        }
-
-        public static void AddFromYaml(string yamlFile, Language language)
+        public static void AddFromYaml(FileInfo file, Language language)
         {
             var tokens = new Array<LangToken>();
-            using (var parser = new YamlParser(yamlFile))
+            using (var parser = new YamlParser(file))
             {
                 foreach (KeyValuePair<object, LangToken> kv in parser.DeserializeMap<LangToken>())
                 {
@@ -136,8 +141,13 @@ namespace Ship_Game
                     case Language.Russian: text = t.RUS; break;
                     case Language.Spanish: text = t.SPA; break;
                 }
+                
+                // if this ID already exist, overwrite by using new text
                 Strings[t.Id - 1] = text;
-                NameIdToString.Add(t.NameId, text);
+                if (NameIdToString.ContainsKey(t.NameId))
+                    NameIdToString[t.NameId] = text;
+                else
+                    NameIdToString.Add(t.NameId, text);
             }
         }
 
