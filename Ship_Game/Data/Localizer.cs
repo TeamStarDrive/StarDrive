@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Ship_Game.Data.Yaml;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -36,6 +38,7 @@ namespace Ship_Game
         public static string BudgetScreenTaxSlider => Token(311);
 
         static string[] Strings = Empty<string>.Array;
+        static Map<string, string> NameIdToString = new Map<string, string>();
 
         public static bool Contains(int locIndex)
         {
@@ -60,9 +63,20 @@ namespace Ship_Game
             return "<localization missing>";
         }
 
+        /// <summary>
+        /// Gets a Token by using its assigned UID string
+        /// string text = Localizer.Token("AttackRunsOrder"); // "Attack Runs Order"
+        /// </summary>
+        public static string Token(string nameId)
+        {
+            return NameIdToString.TryGetValue(nameId, out string text)
+                ? text : "<"+nameId+">";
+        }
+
         public static void Reset()
         {
             Strings = Empty<string>.Array;
+            NameIdToString = new Map<string, string>();
         }
 
         // add extra localization tokens to the localizer
@@ -79,8 +93,51 @@ namespace Ship_Game
             {
                 Token t = tokens[i];
                 string text = t.Text.Replace("\\n", "\n"); // only creates new string if \\n is found
-
                 Strings[t.Index - 1] = text;
+            }
+        }
+
+        class LangToken
+        {
+            public string NameId;
+            public int Id;
+            public string ENG;
+            public string RUS;
+            public string SPA;
+        }
+
+        public static void AddFromYaml(string yamlFile, Language language)
+        {
+            var tokens = new Array<LangToken>();
+            using (var parser = new YamlParser(yamlFile))
+            {
+                foreach (KeyValuePair<object, LangToken> kv in parser.DeserializeMap<LangToken>())
+                {
+                    kv.Value.NameId = (string)kv.Key;
+                    tokens.Add(kv.Value);
+                }
+            }
+            
+            // Index entries aren't guaranteed to be ordered properly (due to messy mods)
+            int limit = tokens.Max(t => t.Id);
+
+            // Fill sparse map with empty entries
+            if (Strings.Length < limit)
+                Array.Resize(ref Strings, limit);
+
+            for (int i = 0; i < tokens.Count; ++i)
+            {
+                LangToken t = tokens[i];
+                string text;
+                switch (language)
+                {
+                    default:
+                    case Language.English: text = t.ENG; break;
+                    case Language.Russian: text = t.RUS; break;
+                    case Language.Spanish: text = t.SPA; break;
+                }
+                Strings[t.Id - 1] = text;
+                NameIdToString.Add(t.NameId, text);
             }
         }
 
