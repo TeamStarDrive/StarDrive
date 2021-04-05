@@ -39,7 +39,7 @@ namespace Ship_Game
             Rectangle desRect = new Rectangle(RangeRect.X, RangeRect.Y, LeftRect.Width + 8, 110);
             Submenu sub       = new Submenu(desRect);
             DescriptionSL     = new ScrollList2<TextListItem>(sub, Fonts.Arial12.LineSpacing + 1);
-
+            
             ToolTipItems.Add(new TippedItem
             {
                 R = DefenseRect,
@@ -60,6 +60,12 @@ namespace Ship_Game
                 R = RangeRect,
                 TIP_ID = 251
             });
+        }
+
+        public override void Update(UpdateTimes elapsed)
+        {
+            base.Update(elapsed);
+            DescriptionSL.Update(elapsed.RealTime.Seconds);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed) // refactored by  Fat Bastard Aug 6, 2018
