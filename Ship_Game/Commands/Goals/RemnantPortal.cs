@@ -37,25 +37,27 @@ namespace Ship_Game.Commands.Goals
 
         void UpdatePosition()
         {
-            if (Portal.HealthPercent < 0.9f)
-                LureEnemy();
+            if (Portal.HealthPercent < 0.9f && LureEnemy())
+                return;
 
-            int roll = Portal.AI.Target?.System == Portal.System ? 50 : 5;
+            int roll = Portal.AI.Target?.System == Portal.System ? 35 : 5;
             if (Portal.AI.Target != null && Portal.System != null && RandomMath.RollDice(roll))
                 JumpToEnemy();
             else
                 ReturnToSpawnPos();
         }
 
-        void LureEnemy()
+        bool LureEnemy()
         {
-            if (!RandomMath.RollDice(25))
-                return;
+            if (RandomMath.RollDice((Portal.HealthPercent * 100).Clamped(25, 75)))
+                return false;
 
             if (Portal.System == null)
                 ReturnToSpawnPos();
             else
-                MoveToPos(Portal.System.Position.GenerateRandomPointOnCircle(10000));
+                MoveToPos(Portal.System.Position.GenerateRandomPointOnCircle(10000 * Portal.HealthPercent.LowerBound(0.5f)));
+
+            return true;
         }
 
         void JumpToEnemy()
@@ -65,7 +67,8 @@ namespace Ship_Game.Commands.Goals
 
             if (nearest != null && !nearest.Center.InRadius(Portal.Center, desiredRange))
             {
-                Vector2 pos = nearest.Center + nearest.Center.DirectionToTarget(Portal.Center).Normalized() * (desiredRange + nearest.Radius);
+                int frontOrRear = RandomMath.RollDice((Portal.HealthPercent * 100).Clamped(25, 80)) ? 1 : -1;
+                Vector2 pos = nearest.Center + frontOrRear * nearest.Center.DirectionToTarget(Portal.Center).Normalized() * (desiredRange + nearest.Radius);
                 MoveToPos(pos);
             }
         }

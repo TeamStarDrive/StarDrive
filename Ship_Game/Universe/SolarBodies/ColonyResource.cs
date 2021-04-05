@@ -1,4 +1,5 @@
 ﻿using System;
+using Ship_Game.Ships;
 
 namespace Ship_Game.Universe.SolarBodies
 {
@@ -135,8 +136,9 @@ namespace Ship_Game.Universe.SolarBodies
         protected override void RecalculateModifiers()
         {
             float plusPerColonist = 0f;
-            foreach (Building b in Planet.BuildingList)
+            for (int i = 0; i < Planet.BuildingList.Count; i++)
             {
+                Building b = Planet.BuildingList[i];
                 plusPerColonist += b.PlusFoodPerColonist.LowerBound(0);
                 FlatBonus       += b.PlusFlatFoodAmount;
             }
@@ -170,12 +172,14 @@ namespace Ship_Game.Universe.SolarBodies
         {
             float richness = Planet.MineralRichness;
             float plusPerColonist = 0f;
-            foreach (Building b in Planet.BuildingList)
+            for (int i = 0; i < Planet.BuildingList.Count; i++)
             {
+                Building b = Planet.BuildingList[i];
                 plusPerColonist += b.PlusProdPerColonist.LowerBound(0);
-                FlatBonus       += (b.PlusProdPerRichness * richness);
+                FlatBonus       += b.PlusProdPerRichness * richness;
                 FlatBonus       += b.PlusFlatProductionAmount;
             }
+
             float productMod = Planet.Owner.data.Traits.ProductionMod;
             YieldPerColonist = richness * (1 + plusPerColonist) * (1 + productMod);
 
@@ -203,12 +207,15 @@ namespace Ship_Game.Universe.SolarBodies
         protected override void RecalculateModifiers()
         {
             float plusPerColonist = 0f;
-            foreach (Building b in Planet.BuildingList)
+            for (int i = 0; i < Planet.BuildingList.Count; i++)
             {
+                Building b = Planet.BuildingList[i];
                 plusPerColonist += b.PlusResearchPerColonist.LowerBound(0);
                 FlatBonus       += b.PlusFlatResearchAmount;
             }
 
+            // We allow negative flat bonus per building to offset other efforts.
+            // But net bonus cannot be negative - so negative flat research buildings are an offset
             FlatBonus         = FlatBonus.LowerBound(0); 
             float researchMod = Planet.Owner.data.Traits.ResearchMod;
             // @note Research only comes from buildings
@@ -239,6 +246,9 @@ namespace Ship_Game.Universe.SolarBodies
         // revenue after maintenance was deducted
         public float NetRevenue { get; private set; }
 
+        // Troops on planet Maintenance
+        public float TroopMaint { get; private set; }
+
         // Maximum Revenue from this planet if Tax is 100%
         public float PotentialRevenue { get; private set; }
 
@@ -262,16 +272,20 @@ namespace Ship_Game.Universe.SolarBodies
             Maintenance             = 0f;
             IncomePerColonist       = 1f;
             float taxRateMultiplier = 1f + Planet.Owner.data.Traits.TaxMod;
-            foreach (Building b in Planet.BuildingList)
+            for (int i = 0; i < Planet.BuildingList.Count; i++)
             {
+                Building b         = Planet.BuildingList[i];
                 IncomePerColonist += b.CreditsPerColonist;
                 taxRateMultiplier += b.PlusTaxPercentage;
                 Maintenance       += b.Maintenance;
             }
 
+            TroopMaint = Planet.TroopsHere.Count * ShipMaintenance.TroopMaint; // We count enemy troops as well
+
             // And finally we adjust local TaxRate by the bonus multiplier
             TaxRate     *= taxRateMultiplier;
             Maintenance *= Planet.Owner.data.Traits.MaintMultiplier;
+            Maintenance += TroopMaint;
 
             GrossRevenue = Planet.PopulationBillion * IncomePerColonist * TaxRate;
             NetRevenue   = GrossRevenue - Maintenance;
