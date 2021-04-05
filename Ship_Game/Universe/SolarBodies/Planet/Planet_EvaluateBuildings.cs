@@ -472,6 +472,7 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.ProdFlat],        b.PlusFlatProductionAmount);
             score += EvalTraits(Priorities[ColonyPriority.ProdPerCol],      b.PlusProdPerColonist);
             score += EvalTraits(Priorities[ColonyPriority.ProdPerRichness], b.PlusProdPerRichness);
+            score += EvalTraits(Priorities[ColonyPriority.ProdPerRichness], b.IncreaseRichness * 50);
             score += EvalTraits(Priorities[ColonyPriority.PopGrowth],       b.PlusFlatPopulation / 10);
             score += EvalTraits(Priorities[ColonyPriority.PopCap],          b.MaxPopIncrease / 200);
             score += EvalTraits(Priorities[ColonyPriority.StorageNeeds],    b.StorageAdded / 50f);
