@@ -62,12 +62,6 @@ namespace Ship_Game
             });
         }
 
-        public override void Update(UpdateTimes elapsed)
-        {
-            base.Update(elapsed);
-            DescriptionSL.Update(elapsed.RealTime.Seconds);
-        }
-
         public override void Draw(SpriteBatch batch, DrawTimes elapsed) // refactored by  Fat Bastard Aug 6, 2018
         {
             if (Tile == null || Tile.NothingOnTile)
