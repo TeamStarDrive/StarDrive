@@ -1,14 +1,19 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Data.Serialization;
+using Ship_Game.Data.Yaml;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public sealed class ToolTip
     {
-        public int TIP_ID; // Serialized from: Tooltips.xml
-        public int Data; // Serialized from: Tooltips.xml
-        public string Title; // Serialized from: Tooltips.xml
+        public string NameId;            // Serialized from: ToolTips.yaml
+        [StarData] public int Id;        // Serialized from: ToolTips.yaml
+        [StarData] public string TextId; // Serialized from: ToolTips.yaml
 
         // minimum hover time until tip is shown
         const float TipShowTimePoint = 0.5f;
@@ -198,6 +203,67 @@ namespace Ship_Game
                 }
             }
             batch.End();
+        }
+        
+        static readonly Array<ToolTip> ToolTips = new Array<ToolTip>();
+        static readonly HashSet<int> MissingTooltips = new HashSet<int>();
+
+        public static void ClearToolTips()
+        {
+            ToolTips.Clear();
+            MissingTooltips.Clear();
+        }
+
+        public static void LoadToolTips()
+        {
+            ClearToolTips();
+
+            var gameTips = new FileInfo("Content/ToolTips.yaml");
+            AddToolTips(gameTips);
+            if (GlobalStats.HasMod)
+            {
+                var modTips = new FileInfo($"{GlobalStats.ModPath}/ToolTips.yaml");
+                if (modTips.Exists)
+                    AddToolTips(modTips);
+            }
+        }
+
+        public static ToolTip GetToolTip(int tipId)
+        {
+            if (tipId > ToolTips.Count)
+            {
+                if (!MissingTooltips.Contains(tipId))
+                {
+                    MissingTooltips.Add(tipId);
+                    Log.Warning($"Missing ToolTip: {tipId}");
+                }
+                return null;
+            }
+            return ToolTips[tipId - 1];
+        }
+
+        static void AddToolTips(FileInfo file)
+        {
+            var tips = new Array<ToolTip>();
+            using (var parser = new YamlParser(file))
+            {
+                foreach (KeyValuePair<object, ToolTip> kv in parser.DeserializeMap<ToolTip>())
+                {
+                    kv.Value.NameId = (string)kv.Key;
+                    tips.Add(kv.Value);
+                }
+            }
+            
+            ToolTips.Clear();
+            if (ToolTips.Capacity < tips.Count)
+                ToolTips.Capacity = tips.Count;
+
+            foreach (ToolTip tip in tips)
+            {
+                int idx = tip.Id - 1;
+                while (ToolTips.Count <= idx) ToolTips.Add(null); // sparse List
+                ToolTips[idx] = tip;
+            }
         }
     }
 }
