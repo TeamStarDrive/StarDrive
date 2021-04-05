@@ -23,17 +23,32 @@
   </PropertyGroup>
   <PropertyGroup>
     <ProjectGuid>{598A4045-5354-4205-90F7-2BB4E01D6775}</ProjectGuid>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="EnumGenerator.cs" />
     <Compile Include="GameTextToEnum_Main.cs" />
-    <Compile Include="LangToken.cs" />
+    <Compile Include="TextToken.cs" />
     <Compile Include="Localization.cs" />
     <Compile Include="ModTextExporter.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\StarDrive.csproj">
+      <Project>{8071e07a-300e-485d-b139-066e15e82178}</Project>
+      <Name>StarDrive</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

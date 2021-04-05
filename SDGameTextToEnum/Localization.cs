@@ -21,6 +21,7 @@ namespace SDGameTextToEnum
         public readonly string NameId;
         public readonly string Comment;
         public readonly List<LangText> LangTexts;
+        public string TipId;
         public Localization(string lang, int id, string nameId, string comment, string text)
         {
             Id = id;
