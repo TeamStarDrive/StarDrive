@@ -505,7 +505,7 @@ namespace Ship_Game
 
                 // Add buildings to planet
                 foreach (string building in ringData.BuildingList)
-                    ResourceManager.CreateBuilding(building).SetPlanet(newOrbital);
+                    ResourceManager.CreateBuilding(building).AssignBuildingToTile(newOrbital);
 
                 // Add moons to planets
                 for (int j = 0; j < ringData.Moons.Count; j++)
@@ -736,7 +736,8 @@ namespace Ship_Game
                     OutgoingFreighters   = planet.OutgoingFreighterIds,
                     StationsList         = planet.OrbitalStations.Where(s => s.Active).Select(s => s.guid).ToArray(),
                     ExploredBy           = planet.ExploredByEmpires.Select(e => e.data.Traits.Name),
-                    BaseFertilityTerraformRatio = planet.BaseFertilityTerraformRatio
+                    BaseFertilityTerraformRatio  = planet.BaseFertilityTerraformRatio,
+                    HasLimitedResourcesBuildings = planet.HasLimitedResourceBuilding
                 };
 
 

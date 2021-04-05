@@ -228,20 +228,26 @@ namespace Ship_Game
 
         protected void AddTileEvents()
         {
-            if (Habitable && RandomMath.RandomBetween(0.0f, 100f) <= 15)
-            {
-                var buildingIds = new Array<int>();
-                foreach (var kv in ResourceManager.BuildingsDict)
-                {
-                    if (!kv.Value.NoRandomSpawn && kv.Value.EventHere)
-                        buildingIds.Add(kv.Value.BID);
-                }
+            if (!Habitable)
+                return;
 
-                Building building    = ResourceManager.CreateBuilding(buildingIds.RandItem());
+            var potentialEvents = ResourceManager.BuildingsDict.FilterValues(b => b.EventHere && !b.NoRandomSpawn);
+            if (potentialEvents.Length == 0)
+                return;
+
+            Building selectedBuilding = potentialEvents.RandItem();
+            if (selectedBuilding.IsBadCacheResourceBuilding)
+            {
+                Log.Warning($"{selectedBuilding.Name} is FoodCache with no PlusFlatFood or ProdCache with no PlusProdPerColonist." +
+                            " Cannot use it for events.");
+                return;
+            }
+
+            if (RandomMath.RollDice(selectedBuilding.EventSpawnChance))
+            {
+                Building building    = ResourceManager.CreateBuilding(selectedBuilding.BID);
                 Planet thisPlanet    = this as Planet;
                 PlanetGridSquare pgs = building.AssignBuildingToRandomTile(thisPlanet);
-
-                BuildingList.Add(pgs.Building);
                 if (!pgs.SetEventOutComeNum(thisPlanet, building))
                     thisPlanet?.DestroyBuildingOn(pgs);
 
@@ -260,7 +266,7 @@ namespace Ship_Game
                 if (template == null)
                     return;
 
-                int itemCount = RandomMath.RollDie(instanceMax) - 1;
+                int itemCount = RandomMath.RollDie(instanceMax);
                 for (int i = 0; i < itemCount; ++i)
                 {
                     if (template.BID == Building.VolcanoId)
@@ -270,10 +276,9 @@ namespace Ship_Game
                     }
                     else
                     {
-                        PlanetGridSquare pgs = ResourceManager.CreateBuilding(template).AssignBuildingToRandomTile(this as Planet);
-                        (this as Planet)?.MakeTileHabitable(pgs);
-                        BuildingList.Add(pgs.Building);
-                        Log.Info($"Resource Created : '{pgs.Building.Name}' : on '{Name}' ");
+                        Building b = ResourceManager.CreateBuilding(template);
+                        b.AssignBuildingToRandomTile(this as Planet, !b.CanBuildAnywhere);
+                        Log.Info($"Resource Created : '{b.Name}' : on '{Name}' ");
                     }
                 }
             }
