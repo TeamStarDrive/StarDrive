@@ -27,6 +27,7 @@
   <ItemGroup>
     <Compile Include="EnumGenerator.cs" />
     <Compile Include="GameTextToEnum_Main.cs" />
+    <Compile Include="LangToken.cs" />
     <Compile Include="Localization.cs" />
     <Compile Include="ModTextExporter.cs" />
   </ItemGroup>

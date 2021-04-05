@@ -6,23 +6,26 @@ using System.Xml.Serialization;
 
 namespace SDGameTextToEnum
 {
+    public struct Token
+    {
+        public int Index;
+        public string Text;
+    }
     public sealed class LocalizationFile
     {
         public List<Token> TokenList;
+        public IEnumerable<LangToken> GetTokens(string lang) => TokenList.Select(t => new LangToken(lang, t.Index, null, t.Text));
     }
-
     public sealed class ToolTip
     {
-        public int TIP_ID; // Serialized from: Tooltips.xml
-        public int Data; // Serialized from: Tooltips.xml
+        public int TIP_ID;   // Serialized from: Tooltips.xml
+        public int Data;     // Serialized from: Tooltips.xml
         public string Title; // Serialized from: Tooltips.xml
-
     }
-
     public sealed class Tooltips
     {
         public List<ToolTip> ToolTipsList;
-        public IEnumerable<Token> GetTokens() => ToolTipsList.Select(t => new Token(t.TIP_ID, t.Title));
+        public IEnumerable<LangToken> GetTokens(string lang) => ToolTipsList.Select(t => new LangToken(lang, t.TIP_ID, null, t.Title));
     }
     
     /// <summary>
@@ -36,9 +39,16 @@ namespace SDGameTextToEnum
             return (T)ser.Deserialize(File.OpenRead(path));
         }
 
-        static LocalizationFile LoadYaml(string yamlFile)
+        static IEnumerable<LangToken> GetGameText(string lang, string path)
         {
-            return null;
+            Log.Write(ConsoleColor.Cyan, $"GetGameText: {lang} {path}");
+            return Deserialize<LocalizationFile>(path).GetTokens(lang);
+        }
+
+        static IEnumerable<LangToken> GetToolTips(string lang, string path)
+        {
+            Log.Write(ConsoleColor.Cyan, $"GetToolTips: {lang} {path}");
+            return Deserialize<Tooltips>(path).GetTokens(lang);
         }
 
         static void CreateGameTextEnum(string contentDir, string modDir, string outputDir)
@@ -46,13 +56,17 @@ namespace SDGameTextToEnum
             string enumFile = $"{outputDir}/GameText.cs";
             string yamlFile = $"{contentDir}/GameText.yaml";
             var gen = new EnumGenerator("Ship_Game", "GameText");
-            var eng = Deserialize<LocalizationFile>($"{contentDir}/Localization/English/GameText_EN.xml");
-            var spa = Deserialize<LocalizationFile>($"{contentDir}/Localization/Spanish/GameText.xml");
-            var rus = Deserialize<LocalizationFile>($"{contentDir}/Localization/Russian/GameText_RU.xml");
             gen.LoadIdentifiers(enumFile, yamlFile);
-            gen.AddLocalizations("ENG", eng.TokenList);
-            gen.AddLocalizations("SPA", spa.TokenList);
-            gen.AddLocalizations("RUS", rus.TokenList);
+            if (File.Exists(yamlFile))
+            {
+                gen.AddLocalizations(LangToken.FromYaml(yamlFile));
+            }
+            else
+            {
+                gen.AddLocalizations(GetGameText("ENG", $"{contentDir}/Localization/English/GameText_EN.xml"));
+                gen.AddLocalizations(GetGameText("SPA", $"{contentDir}/Localization/Spanish/GameText.xml"));
+                gen.AddLocalizations(GetGameText("RUS", $"{contentDir}/Localization/Russian/GameText_RU.xml"));
+            }
             gen.ExportCsharp(enumFile);
             gen.ExportYaml(yamlFile);
 
@@ -60,10 +74,15 @@ namespace SDGameTextToEnum
             {
                 string modYamlFile = $"{modDir}/GameText.yaml";
                 var mod = new ModTextExporter(gen, "ModGameText");
-                var eng2 = Deserialize<LocalizationFile>($"{modDir}/Localization/English/GameText_EN.xml");
-                var rus2 = Deserialize<LocalizationFile>($"{modDir}/Localization/Russian/GameText_RU.xml");
-                mod.AddModLocalizations("ENG", eng2.TokenList);
-                mod.AddModLocalizations("RUS", rus2.TokenList);
+                if (File.Exists(modYamlFile))
+                {
+                    gen.AddLocalizations(LangToken.FromYaml(modYamlFile));
+                }
+                else
+                {
+                    mod.AddModLocalizations(GetGameText("ENG", $"{modDir}/Localization/English/GameText_EN.xml"));
+                    mod.AddModLocalizations(GetGameText("RUS", $"{modDir}/Localization/Russian/GameText_RU.xml"));
+                }
                 mod.ExportModYaml(modYamlFile);
             }
         }
@@ -73,9 +92,15 @@ namespace SDGameTextToEnum
             string enumFile = $"{outputDir}/GameTips.cs";
             string yamlFile = $"{contentDir}/ToolTips.yaml";
             var gen = new EnumGenerator("Ship_Game", "GameTips");
-            var tips = Deserialize<Tooltips>($"{contentDir}/Tooltips/Tooltips.xml");
             gen.LoadIdentifiers(enumFile, yamlFile);
-            gen.AddLocalizations("ENG", tips.GetTokens());
+            if (File.Exists(yamlFile))
+            {
+                gen.AddLocalizations(LangToken.FromYaml(yamlFile));
+            }
+            else
+            {
+                gen.AddLocalizations(GetToolTips("ENG", $"{contentDir}/Tooltips/Tooltips.xml"));
+            }
             gen.ExportCsharp(enumFile);
             gen.ExportYaml(yamlFile);
 
