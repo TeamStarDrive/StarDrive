@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace SDGameTextToEnum
@@ -9,31 +9,39 @@ namespace SDGameTextToEnum
     class ModTextExporter : EnumGenerator
     {
         readonly List<Localization> ModText = new List<Localization>();
+        readonly HashSet<int> ModIgnored = new HashSet<int>();
+        public int NumModLocalizations => ModText.Count;
 
-        public ModTextExporter(EnumGenerator gen, string name) : base(gen)
+        public ModTextExporter(EnumGenerator gen, string name) : base(gen, name)
         {
-            Name = name;
         }
 
-        public void AddModLocalizations(IEnumerable<LangToken> localizations)
+        public void AddModLocalizations(IEnumerable<TextToken> localizations)
         {
             int numIgnored = 0;
             foreach ((string lang, int id, string text) in localizations)
             {
+                if (ModIgnored.Contains(id))
+                    continue;
+
+                if (GetLocalization(ModText, id, out Localization loc))
+                {
+                    loc.AddText(lang, id, text);
+                    continue;
+                }
+
                 if (GetLocalization(LocalizedText, id, out Localization vanilla))
                 {
                     if (vanilla.TryGetText(lang, out LangText vanillaText) &&
                         vanillaText.Text.Trim() == text.Trim())
                     {
                         ++numIgnored;
+                        ModIgnored.Add(id);
                         continue; // duplicate text, ignore silently
                     }
                 }
 
-                if (GetLocalization(ModText, id, out Localization loc))
-                    loc.AddText(lang, id, text);
-                else
-                    AddLocalization(lang, id, vanilla?.NameId, text);
+                AddLocalization(ModText, lang, id, vanilla?.NameId, text);
             }
 
             if (numIgnored > 0)

@@ -9,9 +9,10 @@ namespace SDGameTextToEnum
     public class EnumGenerator
     {
         public readonly string Namespace;
-        protected string Name;
-        protected readonly Dictionary<int, LangToken> ExistingIds = new Dictionary<int, LangToken>();
+        public readonly string Name;
+        protected readonly Dictionary<int, TextToken> ExistingIds = new Dictionary<int, TextToken>();
         protected readonly List<Localization> LocalizedText = new List<Localization>();
+        protected readonly List<Localization> ToolTips = new List<Localization>();
         protected readonly HashSet<string> EnumNames = new HashSet<string>();
         readonly char[] Space = { ' ' };
 
@@ -21,12 +22,13 @@ namespace SDGameTextToEnum
             Name = enumName;
         }
 
-        public EnumGenerator(EnumGenerator gen) // copy
+        public EnumGenerator(EnumGenerator gen, string newName) // copy
         {
             Namespace = gen.Namespace;
-            Name = gen.Name;
-            ExistingIds = new Dictionary<int, LangToken>(gen.ExistingIds);
+            Name = newName;
+            ExistingIds = new Dictionary<int, TextToken>(gen.ExistingIds);
             EnumNames = new HashSet<string>(gen.EnumNames);
+            ToolTips = new List<Localization>(gen.ToolTips);
             foreach (Localization loc in gen.LocalizedText)
                 LocalizedText.Add(new Localization(loc));
         }
@@ -35,6 +37,8 @@ namespace SDGameTextToEnum
         // First from the Csharp enum file, then supplement with entries from yaml file
         public void LoadIdentifiers(string enumFile, string yamlFile)
         {
+            ExistingIds.Clear();
+            EnumNames.Clear();
             if (File.Exists(enumFile))
                 ReadIdentifiersFromCsharp(enumFile);
 
@@ -45,13 +49,13 @@ namespace SDGameTextToEnum
         void ReadIdentifiersFromCsharp(string enumFile)
         {
             string fileName = Path.GetFileName(enumFile);
-            List<LangToken> tokens = LangToken.FromCSharp(enumFile);
-            foreach (LangToken t in tokens)
+            List<TextToken> tokens = TextToken.FromCSharp(enumFile);
+            foreach (TextToken t in tokens)
             {
-                if (ExistingIds.TryGetValue(t.Id, out LangToken e))
+                if (ExistingIds.TryGetValue(t.Id, out TextToken e))
                     Log.Write(ConsoleColor.Red, $"{Name} ID CONFLICT:"
-                                               +$"\n  existing at {fileName} line {e.Line}: {e.NameId} = {t.Id}"
-                                               +$"\n  addition at {fileName} line {t.Line}: {t.NameId} = {t.Id}");
+                                               +$"\n  existing at {fileName}: {e.NameId} = {t.Id}"
+                                               +$"\n  addition at {fileName}: {t.NameId} = {t.Id}");
                 else
                     ExistingIds.Add(t.Id, t);
             }
@@ -59,8 +63,8 @@ namespace SDGameTextToEnum
 
         void ReadIdentifiersFromYaml(string yamlFile)
         {
-            List<LangToken> tokens = LangToken.FromYaml(yamlFile);
-            foreach (LangToken token in tokens)
+            List<TextToken> tokens = TextToken.FromYaml(yamlFile);
+            foreach (TextToken token in tokens)
                 if (!ExistingIds.ContainsKey(token.Id))
                     ExistingIds.Add(token.Id, token);
         }
@@ -86,7 +90,7 @@ namespace SDGameTextToEnum
         string GetIdentifier(int id, string[] words)
         {
             string name = "";
-            if (ExistingIds.TryGetValue(id, out LangToken existing) &&
+            if (ExistingIds.TryGetValue(id, out TextToken existing) &&
                 !string.IsNullOrWhiteSpace(existing.NameId))
             {
                 name = existing.NameId;
@@ -123,7 +127,7 @@ namespace SDGameTextToEnum
             return name;
         }
 
-        protected void AddLocalization(string lang, int id, string nameId, string text)
+        protected Localization AddLocalization(List<Localization> localizations, string lang, int id, string nameId, string text)
         {
             string[] words = text.Split(Space, StringSplitOptions.RemoveEmptyEntries);
             const int maxCommentWords = 10;
@@ -143,11 +147,14 @@ namespace SDGameTextToEnum
             if (!string.IsNullOrEmpty(nameId))
             {
                 EnumNames.Add(nameId);
-                LocalizedText.Add(new Localization(lang, id, nameId, comment, text));
+                var loc = new Localization(lang, id, nameId, comment, text);
+                localizations.Add(loc);
+                return loc;
             }
             else
             {
                 Log.Write(ConsoleColor.Yellow, $"{Name}: Skipping empty enum entry {lang} {nameId} {id}: '{text}'");
+                return null;
             }
         }
 
@@ -157,17 +164,45 @@ namespace SDGameTextToEnum
             return loc != null;
         }
 
-        public void AddLocalizations(IEnumerable<LangToken> localizations)
+        public int NumLocalizations => LocalizedText.Count;
+        public int NumToolTips => ToolTips.Count;
+
+        public void AddLocalizations(IEnumerable<TextToken> localizations)
         {
             foreach ((string lang, int id, string text) in localizations)
             {
                 if (GetLocalization(LocalizedText, id, out Localization loc))
                     loc.AddText(lang, id, text);
                 else
-                    AddLocalization(lang, id, "", text);
+                    AddLocalization(LocalizedText, lang, id, "", text);
             }
         }
+        
+        string GetNameId(int id)
+        {
+            if (GetLocalization(LocalizedText, id, out Localization loc))
+                return loc.NameId;
 
+            Log.Write(ConsoleColor.Red, $"{Name}: failed to find tooltip data with id={id}");
+            return id.ToString();
+        }
+
+        public void AddToolTips(IEnumerable<TextToken> toolTips)
+        {
+            foreach (TextToken t in toolTips)
+            {
+                if (GetLocalization(ToolTips, t.Id, out Localization _))
+                    Log.Write(ConsoleColor.Red, $"{Name}: duplicate tooltip with id={t.Id}");
+                else
+                {
+                    Localization loc = AddLocalization(ToolTips, "ANY", t.Id, "", t.Text);
+                    if (loc != null)
+                    {
+                        loc.TipId = GetNameId(t.ToolTipData);
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Uses all the collected Localization data to output a new C# Enum file
@@ -186,7 +221,8 @@ namespace SDGameTextToEnum
             sw.WriteLine( "    /// </summary>");
             sw.WriteLine($"    public enum {Name}");
             sw.WriteLine( "    {");
-            foreach (Localization loc in LocalizedText)
+            List<Localization> locs = ToolTips.Count > 0 ? ToolTips : LocalizedText;
+            foreach (Localization loc in locs)
             {
                 sw.WriteLine($"        /// <summary>{loc.Comment}</summary>");
                 sw.WriteLine($"        {loc.NameId} = {loc.Id},");
@@ -233,6 +269,21 @@ namespace SDGameTextToEnum
                     sw.WriteLine($" {lt.Lang}: {text}");
                 }
             }
+        }
+
+        public void ExportTipsYaml(string outPath)
+        {
+            var sw = new StringWriter();
+            sw.WriteLine( "# Version 1");
+            sw.WriteLine($"# This file was auto-generated by SDGameTextToEnum.exe and is in sync with {Name}.cs");
+            foreach (Localization loc in ToolTips)
+            {
+                sw.WriteLine($"{loc.NameId}:");
+                sw.WriteLine($" Id: {loc.Id}");
+                sw.WriteLine($" TextId: {loc.TipId}");
+            }
+            File.WriteAllText(outPath, sw.ToString(), Encoding.UTF8);
+            Log.Write(ConsoleColor.Green, $"Wrote {outPath}");
         }
     }
 }
