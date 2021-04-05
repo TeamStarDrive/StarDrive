@@ -40,6 +40,7 @@ namespace Ship_Game
         protected bool DraggingScrollBar;
         protected bool ScrollBarPosChanged;
         protected bool ShouldDrawScrollBar;
+        protected bool FirstUpdateDone; // If true, ScrollList.Update() has been called
 
         // Minimum time that must be elapsed before we start dragging
         protected const float DragBeginDelay = 0.075f;
@@ -482,6 +483,7 @@ namespace Ship_Game
             if (!Visible)
                 return;
             
+            FirstUpdateDone = true;
             base.Update(fixedDeltaTime);
 
             for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
@@ -515,9 +517,9 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            //if (!FirstUpdateDone)
-            //    Log.Error($"{TypeName}.Update() has not been called. This is a bug!"
-            //              +" Make sure the ScrollList is being updated in GameScreen.Update() or screen.Add(list) for automatic update.");
+            if (!FirstUpdateDone)
+                Log.Error($"{TypeName}.Update() has not been called. This is a bug!"
+                          + " Make sure the ScrollList is being updated in GameScreen.Update() or screen.Add(list) for automatic update.");
             base.Draw(batch, elapsed);
 
             if (ShouldDrawScrollBar)
