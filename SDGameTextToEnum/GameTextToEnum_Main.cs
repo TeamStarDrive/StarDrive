@@ -35,7 +35,7 @@ namespace SDGameTextToEnum
     /// </summary>
     public static class GameTextToEnum_Main
     {
-        static bool UseYAMLFileAsSource = false;
+        static bool UseYAMLFileAsSource = true;
 
         static T Deserialize<T>(string path)
         {
