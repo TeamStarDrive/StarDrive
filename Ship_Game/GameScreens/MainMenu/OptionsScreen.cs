@@ -203,15 +203,15 @@ namespace Ship_Game
             New.EffectDetail = New.EffectDetail == 3 ? 0 : New.EffectDetail + 1;
         }
 
-        void Add(UIList graphics, string title, Func<UILabel, string> getText, Action<UILabel> onClick)
+        void Add(UIList graphics, LocalizedText title, Func<UILabel, string> getText, Action<UILabel> onClick)
         {
-            graphics.AddSplit(new UILabel($"{title}:"), new UILabel(getText, onClick))
+            graphics.AddSplit(new UILabel($"{title.Text}:"), new UILabel(getText, onClick))
                 .Split = graphics.Width*0.4f;
         }
 
-        void Add(UIList graphics, string title, UIElementV2 second)
+        void Add(UIList graphics, LocalizedText title, UIElementV2 second)
         {
-            graphics.AddSplit(new UILabel($"{title}:"), second)
+            graphics.AddSplit(new UILabel($"{title.Text}:"), second)
                 .Split = graphics.Width*0.4f;
         }
 
@@ -224,13 +224,13 @@ namespace Ship_Game
             graphics.Padding = new Vector2(2f, 4f);
             ResolutionDropDown = new DropOptions<DisplayMode>(105, 18);
 
-            Add(graphics, new LocalizedText(9).Text, ResolutionDropDown);
-            Add(graphics, new LocalizedText(10).Text,   l => New.Mode.ToString(),               Fullscreen_OnClick);
-            Add(graphics, new LocalizedText(4147).Text, l => AntiAliasString(),                 AntiAliasing_OnClick);
-            Add(graphics, new LocalizedText(4148).Text, l => QualityString(New.TextureQuality), TextureQuality_OnClick);
-            Add(graphics, new LocalizedText(4149).Text, l => TextureFilterString(),             TextureFiltering_OnClick);
-            Add(graphics, new LocalizedText(4150).Text, l => ShadowQualStr(New.ShadowDetail),   ShadowQuality_OnClick);
-            Add(graphics, new LocalizedText(4151).Text, l => QualityString(New.EffectDetail),   EffectsQuality_OnClick);
+            Add(graphics, new LocalizedText(9), ResolutionDropDown);
+            Add(graphics, new LocalizedText(10),   l => New.Mode.ToString(),               Fullscreen_OnClick);
+            Add(graphics, new LocalizedText(4147), l => AntiAliasString(),                 AntiAliasing_OnClick);
+            Add(graphics, new LocalizedText(4148), l => QualityString(New.TextureQuality), TextureQuality_OnClick);
+            Add(graphics, new LocalizedText(4149), l => TextureFilterString(),             TextureFiltering_OnClick);
+            Add(graphics, new LocalizedText(4150), l => ShadowQualStr(New.ShadowDetail),   ShadowQuality_OnClick);
+            Add(graphics, new LocalizedText(4151), l => QualityString(New.EffectDetail),   EffectsQuality_OnClick);
             graphics.AddCheckbox(() => New.RenderBloom, 4145, 4146);
 
             graphics.ReverseZOrder(); // @todo This is a hacky workaround to zorder limitations
@@ -240,20 +240,20 @@ namespace Ship_Game
             botLeft.Padding = new Vector2(2f, 8f);
             botLeft.LayoutStyle = ListLayoutStyle.Clip;
             SoundDevices = new DropOptions<MMDevice>(180, 18);
-            botLeft.AddSplit(new UILabel(new LocalizedText(4142).Text), SoundDevices);
-            MusicVolumeSlider   = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, new LocalizedText(4143).Text, 0f, 1f, GlobalStats.MusicVolume));
-            EffectsVolumeSlider = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, new LocalizedText(4144).Text, 0f, 1f, GlobalStats.EffectsVolume));
+            botLeft.AddSplit(new UILabel(new LocalizedText(4142)), SoundDevices);
+            MusicVolumeSlider   = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, new LocalizedText(4143), 0f, 1f, GlobalStats.MusicVolume));
+            EffectsVolumeSlider = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, new LocalizedText(4144), 0f, 1f, GlobalStats.EffectsVolume));
 
             botLeft.ReverseZOrder(); // @todo This is a hacky workaround to zorder limitations
 
             UIList botRight = AddList(new Vector2(RightArea.X, RightArea.Y + 180), RightArea.Size());
             botRight.Padding = new Vector2(2f, 8f);
             botRight.LayoutStyle = ListLayoutStyle.Clip;
-            IconSize      = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, new LocalizedText(4140).Text, 0,  30, GlobalStats.IconSize));
-            AutoSaveFreq  = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, new LocalizedText(4141).Text, 60, 540, GlobalStats.AutoSaveFreq));
-            SimulationFps = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, new LocalizedText(4138).Text, 10, 120, GlobalStats.SimulationFramesPerSecond));
+            IconSize      = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, new LocalizedText(4140), 0,  30, GlobalStats.IconSize));
+            AutoSaveFreq  = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, new LocalizedText(4141), 60, 540, GlobalStats.AutoSaveFreq));
+            SimulationFps = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, new LocalizedText(4138), 10, 120, GlobalStats.SimulationFramesPerSecond));
             AutoSaveFreq.Tip = GameText.TheDelayBetweenAutoSaves;
-            SimulationFps.Tip = new LocalizedText(4139).Text;
+            SimulationFps.Tip = new LocalizedText(4139);
 
             UIList right = AddList(RightArea.PosVec(), RightArea.Size());
             right.Padding = new Vector2(2f, 4f);
@@ -266,7 +266,7 @@ namespace Ship_Game
             right.AddCheckbox(() => GlobalStats.EnableSaveExportButton,       title: 4136, tooltip: 4137);
 
             CurrentLanguage = new DropOptions<Language>(105, 18);
-            Add(right, new LocalizedText(4117).Text, CurrentLanguage);
+            Add(right, new LocalizedText(4117), CurrentLanguage);
 
             Add(new UIButton(new Vector2(RightArea.Right - 172, RightArea.Bottom + 60), Localizer.Token(13)))
                 .OnClick = button => ApplyOptions();

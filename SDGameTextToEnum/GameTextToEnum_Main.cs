@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 
 namespace SDGameTextToEnum
@@ -55,73 +56,131 @@ namespace SDGameTextToEnum
             return Deserialize<Tooltips>(path).GetTokens(lang);
         }
 
-        static EnumGenerator CreateGameTextEnum(string contentDir, string modDir, string outputDir)
+        static string MakeModPrefix(string modDir)
+        {
+            string dir = Path.GetDirectoryName(modDir);
+            if (modDir.Last() != '/' && modDir.Last() != '\\')
+                dir = Path.GetFileName(modDir);
+            string[] words = dir.Split(new[]{' '}, StringSplitOptions.RemoveEmptyEntries);
+            return string.Join("", words.Select(word => char.ToUpper(word[0])));
+        }
+
+        static LocalizationDB CreateGameTextEnum(string bbDir, string modDir, string outputDir)
         {
             string enumFile = $"{outputDir}/GameText.cs";
-            string yamlFile = $"{contentDir}/GameText.yaml";
-            var gen = new EnumGenerator("Ship_Game", "GameText");
-            gen.LoadIdentifiers(enumFile, yamlFile);
+            string yamlFile = $"{bbDir}/GameText.yaml";
+            var db = new LocalizationDB("Ship_Game", "GameText");
+            db.LoadIdentifiers(enumFile, yamlFile);
             if (UseYAMLFileAsSource)
             {
-                if (gen.AddFromYaml(yamlFile))
+                if (db.AddFromYaml(yamlFile, "BB"))
                 {
-                    gen.AddFromYaml($"{contentDir}/GameText.Missing.RUS.yaml", logMerge:true);
-                    gen.AddFromYaml($"{contentDir}/GameText.Missing.SPA.yaml", logMerge:true);
+                    db.AddFromYaml($"{bbDir}/GameText.Missing.RUS.yaml", "BB", logMerge:true);
+                    db.AddFromYaml($"{bbDir}/GameText.Missing.SPA.yaml", "BB", logMerge:true);
                 }
             }
-            if (gen.NumLocalizations == 0)
+            if (db.NumLocalizations == 0)
             {
-                gen.AddLocalizations(GetGameText("ENG", $"{contentDir}/Localization/English/GameText_EN.xml"));
-                gen.AddLocalizations(GetGameText("SPA", $"{contentDir}/Localization/Spanish/GameText.xml"));
-                gen.AddLocalizations(GetGameText("RUS", $"{contentDir}/Localization/Russian/GameText_RU.xml"));
+                db.AddLocalizations(GetGameText("ENG", $"{bbDir}/Localization/English/GameText_EN.xml"), "BB");
+                db.AddLocalizations(GetGameText("RUS", $"{bbDir}/Localization/Russian/GameText_RU.xml"), "BB");
+                db.AddLocalizations(GetGameText("SPA", $"{bbDir}/Localization/Spanish/GameText.xml"), "BB");
             }
-            gen.ExportCsharp(enumFile);
-            gen.ExportYaml(yamlFile);
-            gen.ExportMissingTranslationsYaml("RUS", $"{contentDir}/GameText.Missing.RUS.yaml");
-            gen.ExportMissingTranslationsYaml("SPA", $"{contentDir}/GameText.Missing.SPA.yaml");
+            db.ExportCsharp(enumFile);
+            db.ExportYaml(yamlFile);
+            db.ExportMissingTranslationsYaml("RUS", $"{bbDir}/GameText.Missing.RUS.yaml");
+            db.ExportMissingTranslationsYaml("SPA", $"{bbDir}/GameText.Missing.SPA.yaml");
 
             if (Directory.Exists(modDir))
             {
-                var mod = new ModTextExporter(gen, "ModGameText");
+                string prefix = MakeModPrefix(modDir);
                 if (UseYAMLFileAsSource)
                 {
-                    if (mod.AddFromModYaml($"{modDir}/GameText.yaml"))
+                    if (db.AddFromModYaml($"{modDir}/GameText.yaml", prefix))
                     {
-                        mod.AddFromModYaml($"{modDir}/GameText.Missing.RUS.yaml", logMerge:true);
-                        mod.AddFromModYaml($"{modDir}/GameText.Missing.SPA.yaml", logMerge:true);
+                        db.AddFromModYaml($"{modDir}/GameText.Missing.RUS.yaml", prefix, logMerge:true);
+                        db.AddFromModYaml($"{modDir}/GameText.Missing.SPA.yaml", prefix, logMerge:true);
                     }
                 }
-                if (mod.NumModLocalizations == 0)
+                if (db.NumModLocalizations == 0)
                 {
-                    mod.AddModLocalizations(GetGameText("ENG", $"{modDir}/Localization/English/GameText_EN.xml"));
-                    mod.AddModLocalizations(GetGameText("RUS", $"{modDir}/Localization/Russian/GameText_RU.xml"));
+                    db.AddModLocalizations(GetGameText("ENG", $"{modDir}/Localization/English/GameText_EN.xml"), prefix);
+                    db.AddModLocalizations(GetGameText("RUS", $"{modDir}/Localization/Russian/GameText_RU.xml"), prefix);
                 }
-                mod.ExportModYaml($"{modDir}/GameText.yaml");
-                mod.ExportMissingModYaml("RUS", $"{modDir}/GameText.Missing.RUS.yaml");
-                mod.ExportMissingModYaml("SPA", $"{modDir}/GameText.Missing.SPA.yaml");
+                db.FinalizeModLocalization();
+                db.ExportModYaml($"{modDir}/GameText.yaml");
+                db.ExportMissingModYaml("RUS", $"{modDir}/GameText.Missing.RUS.yaml");
+                db.ExportMissingModYaml("SPA", $"{modDir}/GameText.Missing.SPA.yaml");
             }
-            return gen;
+            return db;
         }
 
         // Tooltips is mostly a hack, because we don't use half of the EnumGenerator features
-        static void CreateGameTipsEnum(string contentDir, EnumGenerator gameText, string outputDir)
+        static void CreateGameTipsEnum(string bbDir, string sourceDir, LocalizationDB db)
         {
-            string enumFile = $"{outputDir}/GameTips.cs";
-            string yamlFile = $"{contentDir}/ToolTips.yaml";
-            var gen = new EnumGenerator(gameText, "GameTips");
+            string enumFile = $"{sourceDir}/GameTips.cs";
+            string yamlFile = $"{bbDir}/ToolTips.yaml";
+            var gen = new LocalizationDB(db, "GameTips");
             gen.LoadIdentifiers(enumFile, yamlFile);
-            if (UseYAMLFileAsSource && File.Exists(yamlFile))
+            if (UseYAMLFileAsSource)
             {
                 gen.AddToolTips(TextToken.FromYaml(yamlFile));
             }
             if (gen.NumToolTips == 0)
             {
-                gen.AddToolTips(GetToolTips("ANY", $"{contentDir}/Tooltips/Tooltips.xml"));
+                gen.AddToolTips(GetToolTips("ANY", $"{bbDir}/Tooltips/Tooltips.xml"));
             }
             gen.ExportCsharp(enumFile);
             gen.ExportTipsYaml(yamlFile);
-
             // no tooltips for Mods
+        }
+
+        static void UpgradeGameXmls(string contentDir, LocalizationDB db)
+        {
+            UpgradeXmls(db, $"{contentDir}/Buildings", 
+                             "NameTranslationIndex", "DescriptionIndex", "ShortDescriptionIndex");
+        }
+
+        static void UpgradeXmls(LocalizationDB db, string contentFolder, params string[] tags)
+        {
+            string[] xmls = Directory.GetFiles(contentFolder, "*.xml");
+            foreach (string xmlFile in xmls)
+                UpgradeXml(db, xmlFile, tags);
+        }
+
+        static void UpgradeXml(LocalizationDB db, string xmlFile, string[] tags)
+        {
+            if (!File.Exists(xmlFile))
+                return;
+
+            Log.Write(ConsoleColor.Blue, $"Upgrading XML Localizations: {xmlFile}");
+            string[] lines = File.ReadAllLines(xmlFile);
+            int modified = 0;
+            Regex[] patterns = tags.Select(tag => new Regex($"<{tag}>.+\\d+.+<\\/{tag}>")).ToArray();
+            Regex numberMatcher = new Regex($"\\d+");
+            for (int i = 0; i < lines.Length; ++i)
+            {
+                string line = lines[i];
+                foreach (Regex pattern in patterns)
+                {
+                    if (pattern.Match(line).Success)
+                    {
+                        // replace number with the new id
+                        int id = int.Parse(numberMatcher.Match(line).Value);
+                        string nameId = db.GetNameId(id);
+                        string replacement = numberMatcher.Replace(line, nameId);
+                        Log.Write(ConsoleColor.Cyan, $"replace {id} => {nameId}");
+                        ++modified;
+                        lines[i] = replacement;
+                        break;
+                    }
+                }
+            }
+
+            if (modified > 0)
+            {
+                //Log.Write(ConsoleColor.Green, $"Modified {modified} entries");
+                //File.WriteAllLines(xmlFile, lines);
+            }
         }
 
         public static void Main(string[] args)
@@ -136,8 +195,10 @@ namespace SDGameTextToEnum
             }
             else
             {
-                EnumGenerator gameText = CreateGameTextEnum(contentDir, modDir, outputDir);
-                CreateGameTipsEnum(contentDir, gameText, outputDir);
+                TextDatabases dbs = CreateGameTextEnum(contentDir, modDir, outputDir);
+                CreateGameTipsEnum(contentDir, outputDir, dbs.Game);
+                UpgradeGameXmls(contentDir, dbs.Game);
+                UpgradeGameXmls(modDir, dbs.Mod);
             }
 
             Log.Write(ConsoleColor.Gray, "Press any key to continue...");

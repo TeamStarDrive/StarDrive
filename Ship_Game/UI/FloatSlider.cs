@@ -15,7 +15,7 @@ namespace Ship_Game
     {
         Rectangle SliderRect; // colored slider
         Rectangle KnobRect;   // knob area used to move the slider value
-        public string Text;
+        public LocalizedText Text;
         public ToolTipText Tip;
 
         public Action<FloatSlider> OnChange;
@@ -61,7 +61,7 @@ namespace Ship_Game
         static SubTexture SliderMinuteHover;
         static SubTexture SliderGradient;   // background gradient for the slider
 
-        public FloatSlider(Rectangle r, string text, float min = 0f, float max = 10000f, float value = 5000f)
+        public FloatSlider(Rectangle r, LocalizedText text, float min = 0f, float max = 10000f, float value = 5000f)
             : base(r)
         {
             if (SliderKnob == null || ContentId != ResourceManager.ContentId)
@@ -81,19 +81,19 @@ namespace Ship_Game
             UpdateSliderRect();
         }
 
-        public FloatSlider(SliderStyle style, Rectangle r, string text, float min, float max, float value)
+        public FloatSlider(SliderStyle style, Rectangle r, LocalizedText text, float min, float max, float value)
             : this(r, text, min, max, value)
         {
             Style = style;
         }
 
-        public FloatSlider(SliderStyle style, Vector2 size, string text, float min, float max, float value)
+        public FloatSlider(SliderStyle style, Vector2 size, LocalizedText text, float min, float max, float value)
             : this(new Rectangle(0, 0,(int)size.X, (int)size.Y), text, min, max, value)
         {
             Style = style;
         }
 
-        public FloatSlider(SliderStyle style, float w, float h, string text, float min, float max, float value)
+        public FloatSlider(SliderStyle style, float w, float h, LocalizedText text, float min, float max, float value)
         {
             if (SliderKnob == null || ContentId != ResourceManager.ContentId)
             {
