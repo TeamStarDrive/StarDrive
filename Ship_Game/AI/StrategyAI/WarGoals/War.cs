@@ -76,16 +76,20 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public float GetPriority()
         {
             if (Them.isFaction) 
-                return 100; // This might be changed in the future, if we want more meaningful wars vs factions
+                return 11; // This might be changed in the future, if we want more meaningful wars vs factions
 
             var warState = Score.GetWarScoreState();
             if (Us != Them)
             {
-                var strength      = Us.GetRelationsOrNull(Them)?.KnownInformation.OffensiveStrength ?? Us.CurrentMilitaryStrength;
-                float strengthMod = Us.CurrentMilitaryStrength / strength.LowerBound(1);
+                var strength      = Them.KnownEmpireStrength(Us);
+                float strengthMod = (Us.OffensiveStrength / strength.LowerBound(1)).Clamped(0.3f,3);
+
+                if (Them.isPlayer && ColoniesLost - ColoniesWon < 0 && strengthMod > 1)
+                    return 0;
+
                 int warHistory    = OurRelationToThem.WarHistory.Count + 1;
-                int upperBound    = Them.isPlayer ? Us.DifficultyModifiers.PlayerWarPriorityLimit : 99;
-                float priority    = ((int)warState * strengthMod / warHistory).UpperBound(upperBound);
+                int upperBound    = Them.isPlayer ? Us.DifficultyModifiers.PlayerWarPriorityLimit : 10;
+                float priority    = 10 - (((int)warState * strengthMod * warHistory).Clamped(0, upperBound));
                 return priority;
             }
             return 0;
