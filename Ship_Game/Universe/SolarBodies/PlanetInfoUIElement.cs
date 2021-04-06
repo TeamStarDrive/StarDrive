@@ -327,8 +327,8 @@ namespace Ship_Game
 
             TippedItem ti = new TippedItem { r = MarkedRect, TIP_ID = tipId};
             ToolTipItems.Add(ti);
-            batch.DrawString(Font12, tipText.Text, textPos, MarkedRect.HitTest(mousePos) ? ButtonTextColor 
-                                                                                         : ButtonHoverColor);
+            batch.DrawString(Font12, tipText, textPos, MarkedRect.HitTest(mousePos) ? ButtonTextColor 
+                                                                                    : ButtonHoverColor);
         }
 
         void DrawFertProdStats(SpriteBatch batch)

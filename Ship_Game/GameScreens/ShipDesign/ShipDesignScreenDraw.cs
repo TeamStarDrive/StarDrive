@@ -105,7 +105,7 @@ namespace Ship_Game
             if (weaponRange < focalPoint)
             {
                 DrawCircle(new Vector2(x, y), weaponRange * Camera.Zoom, Color.OrangeRed.Alpha(0.5f), 1);
-                DrawString(new Vector2(x, y - weaponRange * Camera.Zoom - 10), 0, 1, Color.OrangeRed.Alpha(0.5f), new LocalizedText(GameText.Range3).Text + " : " + weaponRange);
+                DrawString(new Vector2(x, y - weaponRange * Camera.Zoom - 10), 0, 1, Color.OrangeRed.Alpha(0.5f), Localizer.Token(GameText.Range3) + " : " + weaponRange);
 
                 radius = weaponRange * Camera.Zoom;
             }
@@ -126,12 +126,12 @@ namespace Ship_Game
             if (weaponRange > focalPoint)
             {
                 DrawCircle(new Vector2(x, y), radius, Color.Red, thickness);
-                DrawString(new Vector2(rightEdge + 20, y), .95f, 1, Color.Red, $"{new LocalizedText(GameText.Range).Text} {focalPoint}");
+                DrawString(new Vector2(rightEdge + 20, y), .95f, 1, Color.Red, $"{Localizer.Token(GameText.Range)} {focalPoint}");
 
                 if (multiplier > 1)
                 {
                     DrawCircle(new Vector2(x, topEdge), 100 * 8 * Camera.Zoom, Color.Red);
-                    DrawString(new Vector2(x, topEdge + (20 + 100 * 8) * Camera.Zoom), 0, 1, Color.Red, new LocalizedText(GameText.Capital).Text);
+                    DrawString(new Vector2(x, topEdge + (20 + 100 * 8) * Camera.Zoom), 0, 1, Color.Red, Localizer.Token(GameText.Capital));
                 }
 
                 if (multiplier > 0.25f)
@@ -139,12 +139,12 @@ namespace Ship_Game
                     DrawCircle(new Vector2(leftEdge, y), 30 * 8 * Camera.Zoom, Color.Red);
                     if (multiplier > 0.5 || Camera.Zoom > 0.2f)
                     {
-                        DrawString(new Vector2(leftEdge, y + 20 + (30 * 8) * Camera.Zoom), 0, 1, Color.Red, new LocalizedText(GameText.Cruiser).Text);
+                        DrawString(new Vector2(leftEdge, y + 20 + (30 * 8) * Camera.Zoom), 0, 1, Color.Red, Localizer.Token(GameText.Cruiser));
                     }
                 }
 
                 DrawCircle(new Vector2(x, bottomEdge), 10 * 8 * Camera.Zoom, Color.Red);
-                DrawString(new Vector2(x, bottomEdge + (10 + 10 * 8) * Camera.Zoom), 0, 1, Color.Red, new LocalizedText(GameText.Fighter).Text);
+                DrawString(new Vector2(x, bottomEdge + (10 + 10 * 8) * Camera.Zoom), 0, 1, Color.Red, Localizer.Token(GameText.Fighter));
                 return true;
             }
             return false;

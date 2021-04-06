@@ -26,12 +26,12 @@ namespace Ship_Game
             RemediationLabel  = AddIssueLabel(IssueDetails.Remediation, 370, 560, NormalFont, TextAlign.VerticalCenter, White);
         }
 
-        UILabel AddIssueLabel(string text, float sizeX, float relativeX, SpriteFont font, TextAlign align, Color color)
+        UILabel AddIssueLabel(LocalizedText text, float sizeX, float relativeX, SpriteFont font, TextAlign align, Color color)
         {
             string parsedText = font.ParseText(text, sizeX-30);
-            UILabel label     = Add(new UILabel(parsedText, font, color));
-            label.Size        = new Vector2(sizeX, 80);
-            label.TextAlign       = align;
+            UILabel label = Add(new UILabel(parsedText, font, color));
+            label.Size = new Vector2(sizeX, 80);
+            label.TextAlign = align;
             label.SetRelPos(relativeX, 0);
            return label;
         }

@@ -234,7 +234,7 @@ namespace Ship_Game
                 string terraformText = Localizer.Token(683); // Terraform Planet is the default text
                 if (P.HasVolcanoesToTerraform)
                 {
-                    terraformText = new LocalizedText(4267).Text;
+                    terraformText = Localizer.Token(4267);
                 }
                 else if (P.HasTilesToTerraform)
                 {
@@ -309,7 +309,7 @@ namespace Ship_Game
             incomingTitle.Y  += lineDown;
             incomingData.Y   += lineDown;
 
-            batch.DrawString(TextFont, $"{new LocalizedText(text).Text}:", incomingTitle, Color.Gray);
+            batch.DrawString(TextFont, $"{Localizer.Token(text)}:", incomingTitle, Color.Gray);
             batch.DrawString(TextFont, freighters, incomingData, Color.LightGreen);
             if (incomingCargo == "0" || incomingCargo == "0m")
                 return;
@@ -327,7 +327,7 @@ namespace Ship_Game
             int lineDown     = TextFont.LineSpacing + 2;
             outgoingTitle.Y += lineDown;
             outgoingData.Y  += lineDown;
-            batch.DrawString(TextFont, $"{new LocalizedText(text).Text}:", outgoingTitle, Color.Gray);
+            batch.DrawString(TextFont, $"{Localizer.Token(text)}:", outgoingTitle, Color.Gray);
             batch.DrawString(TextFont, numFreighters.String(), outgoingData, Color.Gold);
         }
 
@@ -636,7 +636,7 @@ namespace Ship_Game
             }
             else
             {
-                string bioText = new LocalizedText(GameText.MillionColonistsCouldBeLiving).Text;
+                string bioText = Localizer.Token(GameText.MillionColonistsCouldBeLiving);
                 if (BioSpheresResearched && tile.CanTerraform)
                 {
                     batch.DrawString(TextFont, "This tile can be terraformed as part of terraforming operations.", cursor, Player.EmpireColor);
@@ -701,18 +701,18 @@ namespace Ship_Game
 
         string GetTroopsConsumptionText()
         {
-            string troopConsumptionText = P.Owner.IsCybernetic
-                ? new LocalizedText(4997).Text // Prod consumption for cybernetic troops
-                : new LocalizedText(4996).Text; // Food consumption for cybernetic troops
+            string text = P.Owner.IsCybernetic
+                ? Localizer.Token(4997) // Prod consumption for cybernetic troops
+                : Localizer.Token(4996); // Food consumption for cybernetic troops
 
             if (P.AnyOfOurTroops(P.Owner) && P.Owner.TroopInSpaceFoodNeeds.LessOrEqual(0))
-                troopConsumptionText = $"{troopConsumptionText} {new LocalizedText(4993).Text}"; // On surface only
+                text = $"{text} {Localizer.Token(4993)}"; // On surface only
             else if (!P.AnyOfOurTroops(P.Owner) && P.Owner.TroopInSpaceFoodNeeds.Greater(0))
-                troopConsumptionText = $"{troopConsumptionText} {new LocalizedText(4994).Text}"; // In space only
+                text = $"{text} {Localizer.Token(4994)}"; // In space only
             else
-                troopConsumptionText = $"{troopConsumptionText} {new LocalizedText(4995).Text}"; // On surface and In space
+                text = $"{text} {Localizer.Token(4995)}"; // On surface and In space
 
-            return troopConsumptionText;
+            return text;
         }
 
         void DrawVolcanoChance(ref Vector2 cursor, SpriteBatch batch, string text, Color color)
