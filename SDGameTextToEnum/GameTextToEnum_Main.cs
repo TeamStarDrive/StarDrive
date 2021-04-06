@@ -36,7 +36,7 @@ namespace SDGameTextToEnum
     /// </summary>
     public static class GameTextToEnum_Main
     {
-        static bool UseYAMLFileAsSource = false;
+        static bool UseYAMLFileAsSource = true;
 
         static T Deserialize<T>(string path)
         {
@@ -60,6 +60,16 @@ namespace SDGameTextToEnum
         {
             public LocalizationDB Game; // all game localizations
             public ModLocalizationDB Mod; // all mod localizations
+        }
+
+        static string MakeModPrefix(string modDir)
+        {
+            string dir = Path.GetDirectoryName(modDir);
+            if (modDir.Last() != '/' && modDir.Last() != '\\')
+                dir = Path.GetFileName(modDir);
+            string[] words = dir.Split(new[]{' '}, StringSplitOptions.RemoveEmptyEntries);
+            string prefix = string.Join("", words.Select(word => char.ToUpper(word[0])));
+            return prefix + "_";
         }
 
         static TextDatabases CreateGameTextEnum(string contentDir, string modDir, string outputDir)
@@ -91,18 +101,19 @@ namespace SDGameTextToEnum
             if (Directory.Exists(modDir))
             {
                 mod = new ModLocalizationDB(gen, "ModGameText");
+                string prefix = MakeModPrefix(modDir);
                 if (UseYAMLFileAsSource)
                 {
-                    if (mod.AddFromModYaml($"{modDir}/GameText.yaml"))
+                    if (mod.AddFromModYaml($"{modDir}/GameText.yaml", prefix))
                     {
-                        mod.AddFromModYaml($"{modDir}/GameText.Missing.RUS.yaml", logMerge:true);
-                        mod.AddFromModYaml($"{modDir}/GameText.Missing.SPA.yaml", logMerge:true);
+                        mod.AddFromModYaml($"{modDir}/GameText.Missing.RUS.yaml", prefix, logMerge:true);
+                        mod.AddFromModYaml($"{modDir}/GameText.Missing.SPA.yaml", prefix, logMerge:true);
                     }
                 }
                 if (mod.NumModLocalizations == 0)
                 {
-                    mod.AddModLocalizations(GetGameText("ENG", $"{modDir}/Localization/English/GameText_EN.xml"));
-                    mod.AddModLocalizations(GetGameText("RUS", $"{modDir}/Localization/Russian/GameText_RU.xml"));
+                    mod.AddModLocalizations(GetGameText("ENG", $"{modDir}/Localization/English/GameText_EN.xml"), prefix);
+                    mod.AddModLocalizations(GetGameText("RUS", $"{modDir}/Localization/Russian/GameText_RU.xml"), prefix);
                 }
                 mod.FinalizeModLocalization();
                 mod.ExportModYaml($"{modDir}/GameText.yaml");
