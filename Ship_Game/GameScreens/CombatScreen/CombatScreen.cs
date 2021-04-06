@@ -45,18 +45,17 @@ namespace Ship_Game
 
         public CombatScreen(GameScreen parent, Planet p) : base(parent)
         {
-            this.P              = p;
-            int screenWidth     = ScreenWidth;
-            GridRect            = new Rectangle(screenWidth / 2 - 639, ScreenHeight - 490, 1278, 437);
-            Rectangle titleRect = new Rectangle(screenWidth / 2 - 250, 44, 500, 80);
+            P = p;
+            GridRect            = new Rectangle(ScreenWidth / 2 - 639, ScreenHeight - 490, 1278, 437);
+            Rectangle titleRect = new Rectangle(ScreenWidth / 2 - 250, 44, 500, 80);
             TitlePos            = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Arial20Bold.MeasureString(p.Name).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             AssetsRect          = new Rectangle(10, 48, 225, 200);
             SelectedItemRect    = new Rectangle(10, 250, 225, 250);
             HoveredItemRect     = new Rectangle(10, 248, 225, 200);
-            AssetsUI            = new OrbitalAssetsUIElement(AssetsRect, ScreenManager, Empire.Universe, p);
-            TInfo               = new TroopInfoUIElement(SelectedItemRect, ScreenManager, Empire.Universe);
-            HInfo               = new TroopInfoUIElement(HoveredItemRect, ScreenManager, Empire.Universe);
-            var colonyGrid      = new Rectangle(screenWidth / 2 - screenWidth * 2 / 3 / 2, 130, screenWidth * 2 / 3, screenWidth * 2 / 3 * 5 / 7);
+            AssetsUI = Add(new OrbitalAssetsUIElement(AssetsRect, ScreenManager, Empire.Universe, p));
+            TInfo = Add(new TroopInfoUIElement(SelectedItemRect, ScreenManager, Empire.Universe));
+            HInfo = Add(new TroopInfoUIElement(HoveredItemRect, ScreenManager, Empire.Universe));
+            TInfo.Visible = HInfo.Visible = false;
             
             int assetsX = AssetsRect.X + 20;
 
@@ -78,7 +77,8 @@ namespace Ship_Game
             OrbitSL.OnDragOut = OnTroopItemDrag;
             OrbitSL.EnableDragOutEvents = true;
 
-            GridPos   = new Rectangle(colonyGrid.X + 20, colonyGrid.Y + 20, colonyGrid.Width - 40, colonyGrid.Height - 40);
+            var colonyGrid = new Rectangle(ScreenWidth / 2 - ScreenWidth * 2 / 3 / 2, 130, ScreenWidth * 2 / 3, ScreenWidth * 2 / 3 * 5 / 7);
+            GridPos = new Rectangle(colonyGrid.X + 20, colonyGrid.Y + 20, colonyGrid.Width - 40, colonyGrid.Height - 40);
             int xSize = GridPos.Width / 7;
             int ySize = GridPos.Height / 5;
             foreach (PlanetGridSquare pgs in p.TilesList)
@@ -232,12 +232,6 @@ namespace Ship_Game
                 DrawTileIcons(pgs);
                 DrawCombatInfo(pgs);
             }
-            if (ActiveTile != null)
-            {
-                TInfo.Draw(batch, elapsed);
-            }
-
-            AssetsUI.Draw(batch, elapsed);
 
             DrawTroopDragDestinations();
             
@@ -561,11 +555,11 @@ namespace Ship_Game
             }
         }
 
+
         public override bool HandleInput(InputState input)
         {
-            bool selectedSomethingThisFrame = false;
+            bool inputCaptured = base.HandleInput(input);
 
-            AssetsUI.HandleInput(input);
             if (Empire.Universe?.Debug == true && (input.SpawnRemnant || input.SpawnPlayerTroop))
             {
                 Empire spawnFor = input.SpawnRemnant ? EmpireManager.Remnants : EmpireManager.Player;
@@ -579,9 +573,6 @@ namespace Ship_Game
                 }
             }
 
-            if (ActiveTile != null && TInfo.HandleInput(input))
-                selectedSomethingThisFrame = true;
-
             HoveredSquare = null;
             foreach (PlanetGridSquare pgs in P.TilesList)
             {
@@ -589,18 +580,21 @@ namespace Ship_Game
                     HoveredSquare = pgs;
             }
 
-            selectedSomethingThisFrame |= HandleInputPlanetGridSquares();
+            inputCaptured |= HandleInputPlanetGridSquares();
             
-            if (ActiveTile != null && !selectedSomethingThisFrame && Input.LeftMouseClick && !SelectedItemRect.HitTest(input.CursorPosition))
+            if (ActiveTile != null && !inputCaptured && Input.LeftMouseClick && !SelectedItemRect.HitTest(input.CursorPosition))
                 ActiveTile = null;
-
-            if (ActiveTile != null)
-                TInfo.Tile = ActiveTile;
-
-            DetermineAttackAndMove(); 
+            
+            TInfo.SetTile(ActiveTile);
             HInfo.SetTile(HoveredSquare);
+            if (HInfo.Visible)
+                TInfo.Visible = false;
+            else
+                TInfo.Visible = ActiveTile != null;
 
-            return base.HandleInput(input);
+            DetermineAttackAndMove();
+
+            return inputCaptured;
         }
 
         bool HandleInputPlanetGridSquares()

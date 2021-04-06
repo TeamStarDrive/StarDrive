@@ -2751,7 +2751,7 @@ namespace Ship_Game
                         Empire remnants = EmpireManager.Remnants;
                         if (remnants.Remnants.Story == Remnants.RemnantStory.None || remnants.data.Defeated || !remnants.Remnants.Activated)
                         {
-                            Universe.ScreenManager.AddScreenDeferred(new YouWinScreen(Universe));
+                            Universe.ScreenManager.AddScreen(new YouWinScreen(Universe));
                             Universe.GameOver = true;
                         }
                         else 
@@ -2765,7 +2765,7 @@ namespace Ship_Game
                 {
                     if (planet.HasWinBuilding)
                     {
-                        Universe.ScreenManager.AddScreenDeferred(new YouWinScreen(Universe, Localizer.Token(5085)));
+                        Universe.ScreenManager.AddScreen(new YouWinScreen(Universe, Localizer.Token(5085)));
                         return;
                     }
                 }
@@ -2953,7 +2953,7 @@ namespace Ship_Game
             Universe.Paused = true;
             HelperFunctions.CollectMemory();
             StarDriveGame.Instance?.EndingGame(false);
-            Universe.ScreenManager.AddScreenDeferred(new YouLoseScreen(Universe));
+            Universe.ScreenManager.AddScreen(new YouLoseScreen(Universe));
             Universe.Paused = false;
             return true;
         }

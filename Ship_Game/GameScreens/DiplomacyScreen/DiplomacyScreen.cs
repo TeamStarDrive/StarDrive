@@ -177,7 +177,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         }
 
         // The screen is loaded during next frame by using deferred add
-        static void AddScreen(GameScreen screen) => ScreenManager.Instance.AddScreenDeferred(screen);
+        static void AddScreen(GameScreen screen) => ScreenManager.Instance.AddScreen(screen);
         static Empire Player => Empire.Universe.PlayerEmpire;
 
         public static void Show(Empire them, string which, GameScreen parent)
@@ -246,12 +246,12 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         static void StoleColonyClaim(Planet claimedPlanet, Empire victim, string dialog)
         {
-            ScreenManager.Instance.AddScreenDeferred(new DiplomacyScreen(victim, Empire.Universe.PlayerEmpire, dialog, claimedPlanet.ParentSystem));
+            ScreenManager.Instance.AddScreen(new DiplomacyScreen(victim, Empire.Universe.PlayerEmpire, dialog, claimedPlanet.ParentSystem));
         }
 
         public static void ContactPlayerFromDiplomacyQueue(Empire responder, string dialog)
         {
-            ScreenManager.Instance.AddScreenDeferred(new DiplomacyScreen(responder, 
+            ScreenManager.Instance.AddScreen(new DiplomacyScreen(responder, 
                 Empire.Universe.PlayerEmpire, dialog, null, endOnly: true));
         }
 

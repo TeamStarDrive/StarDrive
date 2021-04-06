@@ -810,7 +810,7 @@ namespace Ship_Game
 
             EmpireShipBonuses.RefreshBonuses();
 
-            ScreenManager.AddScreen(us);
+            ScreenManager.AddScreenImmediate(us);
 
             Log.Info("CreatingNewGameScreen.Objects.Update(0.01)");
             us.Objects.Update(new FixedSimTime(0.01f));

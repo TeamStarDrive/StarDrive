@@ -43,7 +43,7 @@ namespace Ship_Game
         readonly SafeQueue<Action> PendingEmpireThreadActions = new SafeQueue<Action>();
 
         public Rectangle TitleSafeArea { get; private set; }
-        public int NumScreens => GameScreens.Count;
+        public int NumScreens => GameScreens.Count + PendingScreens.Count;
         public GameScreen Current => GameScreens[GameScreens.Count-1];
         public IReadOnlyList<GameScreen> Screens => GameScreens;
 
@@ -87,12 +87,12 @@ namespace Ship_Game
         }
 
         // @warning This is not thread safe!
-        public void AddScreen(GameScreen screen)
+        public void AddScreenImmediate(GameScreen screen)
         {
             if (GameBase.MainThreadId != Thread.CurrentThread.ManagedThreadId)
             {
-                Log.Error("GameScreens can only be added on the main thread! Use AddScreenDeferred!");
-                AddScreenDeferred(screen);
+                Log.Error("GameScreens can only be added on the main thread! Use AddScreen!");
+                AddScreen(screen);
                 return;
             }
 
@@ -108,7 +108,7 @@ namespace Ship_Game
         }
 
         // @note This is thread safe. Screen is added during next update of ScreenManager
-        public void AddScreenDeferred(GameScreen screen)
+        public void AddScreen(GameScreen screen)
         {
             PendingScreens.PushToFront(screen);
         }
@@ -116,14 +116,14 @@ namespace Ship_Game
         void AddPendingScreens()
         {
             while (PendingScreens.TryDequeue(out GameScreen screen))
-                AddScreen(screen);
+                AddScreenImmediate(screen);
         }
 
         // exits all other screens and goes to specified screen
         public void GoToScreen(GameScreen screen, bool clear3DObjects)
         {
             ExitAll(clear3DObjects);
-            AddScreen(screen);
+            AddScreenImmediate(screen);
         }
 
         public void AddScreenNoLoad(GameScreen screen)
