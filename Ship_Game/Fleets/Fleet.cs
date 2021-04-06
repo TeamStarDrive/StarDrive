@@ -623,6 +623,13 @@ namespace Ship_Game.Fleets
             switch (TaskStep)
             {
                 case 0:
+                    if (AveragePos.Distance(task.TargetPlanet.ParentSystem.Position) < AveragePos.Distance(task.RallyPlanet.ParentSystem.Position))
+                    {
+                        AddFleetProjectorGoal();
+                        TaskStep = 2;
+                        break;
+                    }
+
                     if (FleetTaskGatherAtRally(task))
                         TaskStep = 1;
 
@@ -769,16 +776,20 @@ namespace Ship_Game.Fleets
                         break;
                     }
 
+                    if (AveragePos.Distance(task.TargetPlanet.ParentSystem.Position) < AveragePos.Distance(task.RallyPlanet.ParentSystem.Position))
+                    {
+                        AddFleetProjectorGoal();
+                        TaskStep = 2;
+                        break;
+                    }
+
                     if (FleetTaskGatherAtRally(task))
                         TaskStep = 1;
 
                     break;
                 case 1:
-                    if (!HasArrivedAtRallySafely(GetRelativeSize().Length())
-                        || Ships.Any(s => s?.System == task.RallyPlanet.ParentSystem && s?.InCombat == true))
-                    {
+                    if (!HasArrivedAtRallySafely(GetRelativeSize().Length()))
                         break;
-                    }
 
                     if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
                         AddFleetProjectorGoal();
@@ -790,7 +801,6 @@ namespace Ship_Game.Fleets
                         break;
 
                     SetOrdersRadius(Ships, 5000);
-                    FleetTaskGatherAtRally(task);
                     GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius() * 2f);
                     TaskStep = 3;
                     break;
@@ -846,7 +856,7 @@ namespace Ship_Game.Fleets
                     {
                         case Status.NotApplicable: TaskStep = 6;         break;
                         case Status.Good:          TaskStep = 8;         break;
-                        case Status.Critical:      EndInvalidTask(true); return;
+                        case Status.Critical:      TaskStep = 9;         return;
                     }
 
                     break;
@@ -904,6 +914,12 @@ namespace Ship_Game.Fleets
         bool TryGetNewTargetPlanet(MilitaryTask task, out Planet newTarget)
         {
             Planet currentTarget = task.TargetPlanet;
+            if (currentTarget.Owner != null && Owner.IsAtWarWith(currentTarget.Owner))
+            {
+                newTarget = currentTarget; // Invasion or bombing was not effective, retry
+                return true; 
+            }
+
             var currentSystem    = currentTarget.ParentSystem;
             newTarget            = currentSystem.PlanetList.Find(p => Owner.IsAtWarWith(p.Owner));
 
@@ -985,6 +1001,13 @@ namespace Ship_Game.Fleets
             switch (TaskStep)
             {
                 case 0:
+                    if (AveragePos.Distance(task.TargetPlanet.ParentSystem.Position) < AveragePos.Distance(task.RallyPlanet.ParentSystem.Position))
+                    {
+                        AddFleetProjectorGoal();
+                        TaskStep = 2;
+                        break;
+                    }
+
                     if (FleetTaskGatherAtRally(task))
                         TaskStep = 1;
 
@@ -1290,6 +1313,13 @@ namespace Ship_Game.Fleets
             switch (TaskStep)
             {
                 case 0:
+                    if (AveragePos.Distance(task.TargetPlanet.ParentSystem.Position) < AveragePos.Distance(task.RallyPlanet.ParentSystem.Position))
+                    {
+                        AddFleetProjectorGoal();
+                        TaskStep = 2;
+                        break;
+                    }
+
                     if (FleetTaskGatherAtRally(task))
                         TaskStep = 1;
 
@@ -1457,7 +1487,10 @@ namespace Ship_Game.Fleets
 
         bool EndInvalidTask(bool condition)
         {
+
             if (!condition) return false;
+            if (Owner.data.Traits.Pack)
+                Log.Info("la");
             FleetTask.EndTask();
             FleetTask = null;
             TaskStep = 0;
