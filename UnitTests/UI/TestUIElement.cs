@@ -51,7 +51,7 @@ namespace UnitTests.UI
         public void UIElementEventOrder()
         {
             var screen = new MockGameScreen();
-            Game.Manager.AddScreen(screen);
+            Game.Manager.AddScreenImmediate(screen);
             MockInput.MousePos = new Vector2(512, 512);
 
             var element = new SimpleElement(Vector2.Zero, new Vector2(100, 100));
