@@ -318,7 +318,7 @@ namespace Ship_Game.AI
                 }
 
                 // Process wars by their success.
-                MinWarPriority = 100;
+                MinWarPriority = 11;
                 if (activeWars.Count > 0)
                 {
                     MinWarPriority = activeWars.Min(w => w.GetPriority());

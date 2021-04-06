@@ -138,7 +138,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void SetTheaterPriority(float baseDistance)
         {
-
             // empire defense
             if (OwnerWar.WarType == WarType.EmpireDefense)
             {
