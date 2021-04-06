@@ -100,7 +100,7 @@ namespace Ship_Game.Universe.SolarBodies
             Active     = true;
             CreateVolcanoBuilding(Building.ActiveVolcanoId);
             if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
-                Empire.Universe.NotificationManager.AddVolcanoRelated(P, new LocalizedText(4256).Text, ActiveVolcanoTexPath);
+                Empire.Universe.NotificationManager.AddVolcanoRelated(P, Localizer.Token(4256), ActiveVolcanoTexPath);
         }
 
         void TryErupt()
@@ -109,7 +109,7 @@ namespace Ship_Game.Universe.SolarBodies
                 return;
 
             RemoveVolcanoBeforeReplacing();
-            string message = new LocalizedText(4260).Text;
+            string message = Localizer.Token(4260);
             Erupting       = true;
             Erupt(out string eruptionSeverityText);
             message = $"{message}\n{eruptionSeverityText}";
@@ -117,11 +117,11 @@ namespace Ship_Game.Universe.SolarBodies
             if (RandomMath.RollDice(5) && P.BasePopPerTile > 300)
             {
                 P.BasePopPerTile *= 0.9f;
-                message = $"{message}\n{new LocalizedText(4262).Text}";
+                message = $"{message}\n{Localizer.Token(4262)}";
             }
             else
             {
-                message = $"{message}\n{new LocalizedText(4261).Text}";
+                message = $"{message}\n{Localizer.Token(4261)}";
             }
 
             if (ShouldNotifyPlayer)
@@ -134,12 +134,12 @@ namespace Ship_Game.Universe.SolarBodies
                 return;
 
             CreateDormantVolcano();
-            string message   = new LocalizedText(4258).Text;
+            string message   = Localizer.Token(4258);
             ActivationChance = InitActivationChance();
             if (RandomMath.RollDice(ActiveEruptionChance * 2))
             {
                 float increaseBy   = RandomMath.RollDice(75) ? 0.1f : 0.2f;
-                message            = $"{message}\n{new LocalizedText(4259).Text} {increaseBy.String(1)}.";
+                message            = $"{message}\n{Localizer.Token(4259)} {increaseBy.String(1)}.";
                 P.MineralRichness += increaseBy;
             }
 
@@ -156,7 +156,7 @@ namespace Ship_Game.Universe.SolarBodies
             Erupting = false;
             CreateDormantVolcano();
             if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
-                Empire.Universe.NotificationManager.AddVolcanoRelated(P, new LocalizedText(4257).Text, DormantVolcanoTexPath);
+                Empire.Universe.NotificationManager.AddVolcanoRelated(P, Localizer.Token(4257), DormantVolcanoTexPath);
 
             return true;
         }
@@ -186,9 +186,9 @@ namespace Ship_Game.Universe.SolarBodies
         string GetEruptionText(int numLavaPoolsCreated)
         {
             string text;
-            if (numLavaPoolsCreated == 0)     text = new LocalizedText(4263).Text;
-            else if (numLavaPoolsCreated <=3) text = new LocalizedText(4264).Text;
-            else                              text = new LocalizedText(4265).Text;
+            if (numLavaPoolsCreated == 0)     text = Localizer.Token(4263);
+            else if (numLavaPoolsCreated <=3) text = Localizer.Token(4264);
+            else                              text = Localizer.Token(4265);
 
             return text;
         }
@@ -241,7 +241,7 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 planet.MakeTileHabitable(tile);
                 if (planet.Owner == EmpireManager.Player && !GlobalStats.DisableVolcanoWarning)
-                    Empire.Universe.NotificationManager.AddVolcanoRelated(planet, new LocalizedText(4266).Text, lavaPath);
+                    Empire.Universe.NotificationManager.AddVolcanoRelated(planet, Localizer.Token(4266), lavaPath);
             }
         }
 
@@ -272,24 +272,24 @@ namespace Ship_Game.Universe.SolarBodies
             string text;
             if (Dormant)
             {
-                if      (ActivationChance < 0.1f * MaxActivationChance)  text = new LocalizedText(4243).Text;
-                else if (ActivationChance < 0.33f * MaxActivationChance) text = new LocalizedText(4244).Text;
-                else if (ActivationChance < 0.66f * MaxActivationChance) text = new LocalizedText(4245).Text;
-                else                                                     text = new LocalizedText(4246).Text;
+                if      (ActivationChance < 0.1f * MaxActivationChance)  text = Localizer.Token(4243);
+                else if (ActivationChance < 0.33f * MaxActivationChance) text = Localizer.Token(4244);
+                else if (ActivationChance < 0.66f * MaxActivationChance) text = Localizer.Token(4245);
+                else                                                     text = Localizer.Token(4246);
 
                 color = Color.Yellow;
-                return $"{text} {new LocalizedText(4239).Text}";
+                return $"{text} {Localizer.Token(4239)}";
             }
 
             if (Active)
             {
-                if      (ActiveEruptionChance < 0.25f) text = new LocalizedText(4245).Text;
-                else if (ActiveEruptionChance < 0.5f)  text = new LocalizedText(4246).Text;
-                else if (ActiveEruptionChance < 0.75f) text = new LocalizedText(4247).Text;
-                else                                   text = new LocalizedText(4248).Text;
+                if      (ActiveEruptionChance < 0.25f) text = Localizer.Token(4245);
+                else if (ActiveEruptionChance < 0.5f)  text = Localizer.Token(4246);
+                else if (ActiveEruptionChance < 0.75f) text = Localizer.Token(4247);
+                else                                   text = Localizer.Token(4248);
 
                 color = Color.Red;
-                return $"{text} {new LocalizedText(4242).Text}";
+                return $"{text} {Localizer.Token(4242)}";
             }
 
             return "";

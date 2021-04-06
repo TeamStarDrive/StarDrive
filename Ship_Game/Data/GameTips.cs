@@ -8,575 +8,575 @@ namespace Ship_Game
     /// </summary>
     public enum GameTips
     {
-        /// <summary>Attack Runs Order</summary>
+        /// <summary>ShipWillMakeHeadonAttack: Attack Runs Order</summary>
         AttackRunsOrder = 1,
-        /// <summary>Artillery Order</summary>
+        /// <summary>ShipWillRotateSoThat: Artillery Order</summary>
         ArtilleryOrder = 2,
-        /// <summary>Orbit Left Order</summary>
+        /// <summary>ShipWillManeuverToKeep: Orbit Left Order</summary>
         OrbitLeftOrder = 3,
-        /// <summary>Orbit Right Order</summary>
+        /// <summary>ShipWillManeuverToKeep2: Orbit Right Order</summary>
         OrbitRightOrder = 4,
-        /// <summary>Maintain Order</summary>
+        /// <summary>ShipWillAttemptToMaintain: Maintain Order</summary>
         MaintainOrder = 5,
-        /// <summary>Evade Order</summary>
+        /// <summary>ShipWillAvoidEngagingIn: Evade Order</summary>
         EvadeOrder = 6,
-        /// <summary>Assist Slider</summary>
+        /// <summary>AMeasureOfHowCooperative: Assist Slider</summary>
         AssistSlider = 7,
-        /// <summary>Defender Slider</summary>
+        /// <summary>AMeasureOfHowProtective: Defender Slider</summary>
         DefenderSlider = 8,
-        /// <summary>Vulture Slider</summary>
+        /// <summary>AMeasureOfHowOpportunistic: Vulture Slider</summary>
         VultureSlider = 9,
-        /// <summary>Armor Slider</summary>
+        /// <summary>TheWeightGivenToTargeting: Armor Slider</summary>
         ArmorSlider = 10,
-        /// <summary>Shielded Slider</summary>
+        /// <summary>TheWeightGivenToTargeting2: Shielded Slider</summary>
         ShieldedSlider = 11,
-        /// <summary>DPS Slider</summary>
+        /// <summary>TheWeightGivenToTargeting3: DPS Slider</summary>
         DpsSlider = 12,
-        /// <summary>Operational Radius</summary>
+        /// <summary>DefinesTheAreaInWhich: Operational Radius</summary>
         OperationalRadius = 13,
-        /// <summary>Size Slider</summary>
+        /// <summary>DeterminesWhetherAShipPrefers: Size Slider</summary>
         SizeSlider = 14,
-        /// <summary>Define AO</summary>
+        /// <summary>AllowsYouToCustomizeAn: Define AO</summary>
         DefineAo = 15,
-        /// <summary>Trade Food</summary>
+        /// <summary>ManualTradeOrdersThisFreighter2: Trade Food</summary>
         TradeFood = 16,
-        /// <summary>Trade Production</summary>
+        /// <summary>ManualTradeOrdersThisFreighter3: Trade Production</summary>
         TradeProduction = 17,
-        /// <summary>Send_Troops_Supply</summary>
+        /// <summary>SendTroopsToThisShip: Send_Troops_Supply</summary>
         ShieldToggle = 18,
-        /// <summary>Launch Fighters</summary>
+        /// <summary>WhenActiveAllAvailableFighters: Launch Fighters</summary>
         LaunchFighters = 19,
-        /// <summary>Food Icon</summary>
+        /// <summary>IndicatesHowMuchFoodThis: Food Icon</summary>
         FoodIcon = 20,
-        /// <summary>Production Icon</summary>
+        /// <summary>APlanetsMineralRichnessDirectly: Production Icon</summary>
         ProductionIcon = 21,
-        /// <summary>Research Icon</summary>
+        /// <summary>IndicatesHowMuchResearchThis: Research Icon</summary>
         ResearchIcon = 22,
-        /// <summary>Ore Icon</summary>
+        /// <summary>APlanetsMineralRichnessDirectly: Ore Icon</summary>
         OreIcon = 23,
-        /// <summary>Mark for Colonization</summary>
+        /// <summary>MarkThisPlanetForColonization: Mark for Colonization</summary>
         MarkForColonization = 24,
-        /// <summary>UnMark for Colonization</summary>
+        /// <summary>CancelTheColonizationMissionThat: UnMark for Colonization</summary>
         UnmarkForColonization = 25,
-        /// <summary>Flag indicating marked</summary>
+        /// <summary>IndicatesThatYourEmpireHas: Flag indicating marked</summary>
         FlagIndicatingMarked = 26,
-        /// <summary>Ship Selector Power</summary>
+        /// <summary>IndicatesThisShipsCurrentPower: Ship Selector Power</summary>
         ShipSelectorPower = 27,
-        /// <summary>Ship Selector Shields</summary>
+        /// <summary>IndicatesTheTotalPowerOf: Ship Selector Shields</summary>
         ShipSelectorShields = 28,
-        /// <summary>Ship Selector Ordnance</summary>
+        /// <summary>IndicatesThisShipsCurrentStores: Ship Selector Ordnance</summary>
         ShipSelectorOrdnance = 29,
-        /// <summary>Ship Selector Defense</summary>
+        /// <summary>IndicatesThisShipsCurrentDefense: Ship Selector Defense</summary>
         ShipSelectorDefense = 30,
-        /// <summary>Planet Selector Defense</summary>
+        /// <summary>IndicatesThisColonysTotalStrength: Planet Selector Defense</summary>
         PlanetSelectorDefense = 31,
-        /// <summary>orbital asset bombard</summary>
+        /// <summary>OrdersAllBombequippedShipsIn: orbital asset bombard</summary>
         OrbitalAssetBombard = 32,
-        /// <summary>unit defense</summary>
+        /// <summary>IndicatesThisUnitsGroundCombat: unit defense</summary>
         UnitDefense = 33,
-        /// <summary>soft attack</summary>
+        /// <summary>IndicatesThisUnitsCombatEffectiveness: soft attack</summary>
         SoftAttack = 34,
-        /// <summary>hard attack</summary>
+        /// <summary>IndicatesThisUnitsCombatEffectiveness2: hard attack</summary>
         HardAttack = 35,
-        /// <summary>land troops button</summary>
+        /// <summary>OpensAPanelDisplayingAny: land troops button</summary>
         LandTroopsButton = 36,
-        /// <summary>ship troop capacity</summary>
+        /// <summary>IndicatesTheNumberOfTroops: ship troop capacity</summary>
         ShipTroopCapacity = 37,
-        /// <summary>Intelligence Penetration</summary>
+        /// <summary>ThisRepresentsHowFullyYour: Intelligence Penetration</summary>
         IntelligencePenetration = 38,
-        /// <summary>Intelligence Budget</summary>
+        /// <summary>TheMoreYouSpendOn: Intelligence Budget</summary>
         IntelligenceBudget = 39,
-        /// <summary>Counterspy Budget</summary>
+        /// <summary>YourCounterespionageBudgetReducesThe: Counterspy Budget</summary>
         CounterspyBudget = 40,
-        /// <summary>Plant mole</summary>
+        /// <summary>RandomlyPlacesAnAgentOn: Plant mole</summary>
         PlantMole = 41,
-        /// <summary>Discover Plot</summary>
+        /// <summary>ActivateYourIntelligenceAssetsTo: Discover Plot</summary>
         DiscoverPlot = 42,
-        /// <summary>damage relations</summary>
+        /// <summary>UseYourAgentsToStir: damage relations</summary>
         DamageRelations = 43,
-        /// <summary>Plant saboteur</summary>
+        /// <summary>PutAnAgentInPlace: Plant saboteur</summary>
         PlantSaboteur = 44,
-        /// <summary>activate saboteur</summary>
+        /// <summary>ActivatesAllSaboteursSimultaneouslyThe: activate saboteur</summary>
         ActivateSaboteur = 45,
-        /// <summary>steal technology</summary>
+        /// <summary>WillStealARandomTechnology: steal technology</summary>
         StealTechnology = 46,
-        /// <summary>trust</summary>
+        /// <summary>ThisIndicatesHowMuchA: trust</summary>
         Trust = 47,
-        /// <summary>anger</summary>
+        /// <summary>ThisIndicatesHowAngryA: anger</summary>
         Anger = 48,
-        /// <summary>fear</summary>
+        /// <summary>ThisIndicatesHowMuchA2: fear</summary>
         Fear = 49,
-        /// <summary>Rush Production</summary>
+        /// <summary>ClickToRushProductionFrom: Rush Production</summary>
         RushProduction = 50,
-        /// <summary>Add to Q</summary>
+        /// <summary>AddThisItemToThe: Add to Q</summary>
         AddToQ = 51,
-        /// <summary>Edit ship</summary>
+        /// <summary>EditThisShipInThe: Edit ship</summary>
         EditShip = 52,
-        /// <summary>Cancel Production</summary>
+        /// <summary>CancelProductionAndRemoveThis: Cancel Production</summary>
         CancelProduction = 53,
-        /// <summary>DSBW</summary>
+        /// <summary>OpensTheDeepSpaceBuilding: DSBW</summary>
         Dsbw = 54,
-        /// <summary>Ships List</summary>
+        /// <summary>OpensTheShipsListWhich: Ships List</summary>
         ShipsList = 55,
-        /// <summary>Planets List</summary>
+        /// <summary>OpensPlanetReconnaissancePanel: Planets List</summary>
         PlanetsList = 56,
-        /// <summary>Home</summary>
+        /// <summary>ZoomsToYourCurrentlySelected: Home</summary>
         Home = 57,
-        /// <summary>Zoom out</summary>
+        /// <summary>ZoomOutToTheGalaxy: Zoom out</summary>
         ZoomOut = 58,
-        /// <summary>Automation</summary>
+        /// <summary>OpensTheAutomationPanelWhich: Automation</summary>
         Automation = 59,
-        /// <summary>Fleets</summary>
+        /// <summary>OpensTheFleetsScreenWhich: Fleets</summary>
         Fleets = 60,
-        /// <summary>View Planet</summary>
+        /// <summary>ViewPlanetDetails: View Planet</summary>
         ViewPlanet = 61,
-        /// <summary>View Tactical</summary>
+        /// <summary>OpenTheGroundAssaultView: View Tactical</summary>
         ViewTactical = 62,
-        /// <summary>Queue up</summary>
+        /// <summary>ClickToMoveUpIn: Queue up</summary>
         QueueUp = 63,
-        /// <summary>Queue down</summary>
+        /// <summary>ClickToMoveDownIn: Queue down</summary>
         QueueDown = 64,
-        /// <summary>Hold Position Order</summary>
+        /// <summary>ShipWillAttemptToHold: Hold Position Order</summary>
         HoldPositionOrder = 65,
-        /// <summary>Taxes</summary>
+        /// <summary>TaxesAreCollectedFromYour: Taxes</summary>
         Taxes = 66,
-        /// <summary>Launch Troop</summary>
+        /// <summary>LaunchThisTroopIntoOrbit: Launch Troop</summary>
         LaunchTroop = 67,
-        /// <summary>Experience</summary>
+        /// <summary>IndicatesAShipsExperienceLevel: Experience</summary>
         Experience = 68,
-        /// <summary>Lock</summary>
+        /// <summary>LocksThisSliderPreventingThe: Lock</summary>
         Lock = 69,
-        /// <summary>Food</summary>
+        /// <summary>FoodIsEatenByYour: Food</summary>
         Food = 70,
-        /// <summary>prod</summary>
+        /// <summary>ProductionIsRequiredForThe: prod</summary>
         Prod = 71,
-        /// <summary>Res</summary>
+        /// <summary>ResearchPointsAreAddedInto: Res</summary>
         Res = 72,
-        /// <summary>prod</summary>
+        /// <summary>IndicatesTheAmountOfFood: prod</summary>
         Prod2 = 73,
-        /// <summary>Res</summary>
+        /// <summary>IndicatesTheAmountOfProduction: Res</summary>
         Res2 = 74,
-        /// <summary>Population</summary>
+        /// <summary>AColonysPopulationIsA: Population</summary>
         Population = 75,
-        /// <summary>view colony</summary>
+        /// <summary>OpensColonyOverviewScreen: view colony</summary>
         ViewColony = 76,
-        /// <summary>cybernetic food</summary>
+        /// <summary>YourPeopleAreCyberneticAnd: cybernetic food</summary>
         CyberneticFood = 77,
-        /// <summary>delete design</summary>
+        /// <summary>DeleteThisShipDesign: delete design</summary>
         DeleteDesign = 78,
-        /// <summary>ship mass</summary>
+        /// <summary>AShipsTotalMassDetermines: ship mass</summary>
         ShipMass = 79,
-        /// <summary>mod health</summary>
+        /// <summary>AModulesHealthRepresentsHow: mod health</summary>
         ModHealth = 80,
-        /// <summary>mod health</summary>
+        /// <summary>IndicatesHowMuchPowerThis: mod health</summary>
         ModHealth2 = 81,
-        /// <summary>mod health</summary>
+        /// <summary>IndicatesTheMaximumRangeOf: mod health</summary>
         ModHealth3 = 82,
-        /// <summary>wpn damage</summary>
+        /// <summary>IndicatesTheMaximumAmountOf: wpn damage</summary>
         WpnDamage = 83,
-        /// <summary>mod cost</summary>
+        /// <summary>IndicatesTheProductionCostOf: mod cost</summary>
         ModCost = 84,
-        /// <summary>proj speed</summary>
+        /// <summary>IndicatesTheDistanceAProjectile: proj speed</summary>
         ProjSpeed = 85,
-        /// <summary>DPS</summary>
+        /// <summary>IndicatesTheMaximumDamagePer: DPS</summary>
         Dps = 86,
-        /// <summary>beam cps</summary>
+        /// <summary>TheAmountOfPowerThis: beam cps</summary>
         BeamCps = 87,
-        /// <summary>field of fire</summary>
+        /// <summary>AWeaponMayOnlyFire: field of fire</summary>
         FieldOfFire = 88,
-        /// <summary>ord per shot</summary>
+        /// <summary>IndicatesTheAmountOfOrdnance: ord per shot</summary>
         OrdPerShot = 89,
-        /// <summary>pwr per shot</summary>
+        /// <summary>IndicatesTheAmountOfPower: pwr per shot</summary>
         PwrPerShot = 90,
-        /// <summary>thrust</summary>
+        /// <summary>IndicatesTheAmountOfThrust: thrust</summary>
         Thrust = 91,
-        /// <summary>warp thrust</summary>
+        /// <summary>IndicatesTheAmountOfThrust2: warp thrust</summary>
         WarpThrust = 92,
-        /// <summary>shield hp</summary>
+        /// <summary>IndicatesTheHitpointsOfThis: shield hp</summary>
         ShieldHp = 93,
-        /// <summary>shield rad</summary>
+        /// <summary>IndicatesTheProtectiveRadiusOf: shield rad</summary>
         ShieldRad = 94,
-        /// <summary>shield regen</summary>
+        /// <summary>IndicatesTheNumberOfHitpoints: shield regen</summary>
         ShieldRegen = 95,
-        /// <summary>sensor range</summary>
+        /// <summary>IndicatesTheAdditionalSensorRange: sensor range</summary>
         SensorRange = 96,
-        /// <summary>repair rate</summary>
+        /// <summary>IndicatesTheBonusToOutofcombat: repair rate</summary>
         RepairRate = 97,
-        /// <summary>hangar</summary>
+        /// <summary>HangarsAreCapableOfSustaning: hangar</summary>
         Hangar = 98,
-        /// <summary>ship cost</summary>
+        /// <summary>IndicatesTheTotalProductionValue: ship cost</summary>
         ShipCost = 99,
-        /// <summary>ship power</summary>
+        /// <summary>IndicatesTheMaximumAmountOf2: ship power</summary>
         ShipPower = 100,
-        /// <summary>ship powerdraw</summary>
+        /// <summary>IndicatesTheNetPowerFlow: ship powerdraw</summary>
         ShipPowerdraw = 101,
-        /// <summary>ship warp powerdraw</summary>
+        /// <summary>IndicatesTheNetPowerFlow2: ship warp powerdraw</summary>
         ShipWarpPowerdraw = 102,
-        /// <summary>total hp</summary>
+        /// <summary>IndicatesTheTotalHitpointsOf: total hp</summary>
         TotalHp = 103,
-        /// <summary>shield hp</summary>
+        /// <summary>IndicatesTheTotalHitpointsOf2: shield hp</summary>
         ShieldHp2 = 104,
-        /// <summary>speed sublight</summary>
+        /// <summary>IndicatesTheDistanceThisShip: speed sublight</summary>
         SpeedSublight = 105,
-        /// <summary>speed warp</summary>
+        /// <summary>IndicatesTheDistanceThisShip2: speed warp</summary>
         SpeedWarp = 106,
-        /// <summary>turn</summary>
+        /// <summary>IndicatesTheNumberOfDegrees: turn</summary>
         Turn = 107,
-        /// <summary>ord</summary>
+        /// <summary>IndicatesTheMaximumAmountOf3: ord</summary>
         Ord = 108,
-        /// <summary>cargo</summary>
+        /// <summary>IndicatesTheTotalCargoSpace: cargo</summary>
         Cargo = 109,
-        /// <summary>emp</summary>
+        /// <summary>IndicatesTheAmountOfEmp: emp</summary>
         Emp = 110,
-        /// <summary>ascension</summary>
+        /// <summary>InTheAscensionGameMode: ascension</summary>
         Ascension = 111,
-        /// <summary>sandbox</summary>
+        /// <summary>InTheSandboxGameMode: sandbox</summary>
         Sandbox = 112,
-        /// <summary>food carry</summary>
+        /// <summary>IndicatesHowManyUnitsOf: food carry</summary>
         FoodCarry = 113,
-        /// <summary>prod carry</summary>
+        /// <summary>IndicatesHowManyUnitsOf2: prod carry</summary>
         ProdCarry = 114,
-        /// <summary>colo carry</summary>
+        /// <summary>IndicatesHowManyUnitsOf3: colo carry</summary>
         ColoCarry = 115,
-        /// <summary>EMP disabled</summary>
+        /// <summary>IndicatesThatThisShipIs: EMP disabled</summary>
         EmpDisabled = 116,
-        /// <summary>inhibited</summary>
+        /// <summary>IndicatesThatThisShipCannot: inhibited</summary>
         Inhibited = 117,
-        /// <summary>boarding</summary>
+        /// <summary>IndicatesThatThisShipIs2: boarding</summary>
         Boarding = 118,
-        /// <summary>ground com</summary>
+        /// <summary>IndicatesThatGroundCombatIs: ground com</summary>
         GroundCom = 119,
-        /// <summary>spy</summary>
+        /// <summary>IndicatesThatAFriendlyAgent: spy</summary>
         Spy = 120,
-        /// <summary>anomaly</summary>
+        /// <summary>IndicatesThatAnAnomalyWas: anomaly</summary>
         Anomaly = 121,
-        /// <summary>space combat</summary>
+        /// <summary>IndicatesThatSpaceCombatIs: space combat</summary>
         SpaceCombat = 122,
-        /// <summary>enemy here</summary>
+        /// <summary>IndicatesThatHostileForcesWere: enemy here</summary>
         EnemyHere = 123,
-        /// <summary>ord cap added</summary>
+        /// <summary>IndicatesTheAmountOfOrdnance2: ord cap added</summary>
         OrdCapAdded = 124,
-        /// <summary>scale</summary>
+        /// <summary>IncreasingTheScaleOfA: scale</summary>
         Scale = 125,
-        /// <summary>pacing</summary>
+        /// <summary>TheGamesPaceModifiesThe: pacing</summary>
         Pacing = 126,
-        /// <summary>troop level</summary>
+        /// <summary>IndicatesThisTroopsExperienceLevel: troop level</summary>
         TroopLevel = 127,
-        /// <summary>can't declare war peace treaty</summary>
+        /// <summary>YouCurrentlyHaveAPeace: can't declare war peace treaty</summary>
         CantDeclareWarPeaceTreaty = 128,
-        /// <summary>Non Aggression</summary>
+        /// <summary>ANonaggressionPactIsA: Non Aggression</summary>
         NonAggression = 129,
-        /// <summary>open borders</summary>
+        /// <summary>AnOpenBordersTreatyWill: open borders</summary>
         OpenBorders = 130,
-        /// <summary>Peace Treaty</summary>
+        /// <summary>PeaceTreatiesLastForTurns: Peace Treaty</summary>
         PeaceTreaty = 131,
-        /// <summary>trade Treaty</summary>
+        /// <summary>TradeTreatiesCreateWealthFor: trade Treaty</summary>
         TradeTreaty = 132,
-        /// <summary>alliance Treaty</summary>
+        /// <summary>AlliancesAreSeriousCommitmentsBetween: alliance Treaty</summary>
         AllianceTreaty = 133,
-        /// <summary>fire arcs</summary>
+        /// <summary>TogglesTheWeaponFireArc: fire arcs</summary>
         FireArcs = 134,
-        /// <summary>Warp Speed</summary>
+        /// <summary>IndicatesTheDistanceThisShip3: Warp Speed</summary>
         WarpSpeed = 135,
-        /// <summary>Explore</summary>
+        /// <summary>OrdersThisShipToExplore: Explore</summary>
         Explore = 136,
-        /// <summary>pass tran</summary>
+        /// <summary>ManualTradeOrdersThisFreighter: pass tran</summary>
         PassTran = 137,
-        /// <summary>pass tran</summary>
+        /// <summary>IndicatesThatAnAnomalyHas: pass tran</summary>
         PassTran2 = 138,
-        /// <summary>empire screen food</summary>
+        /// <summary>TheNetAmountOfFood: empire screen food</summary>
         EmpireScreenFood = 139,
-        /// <summary>empire screen prod</summary>
+        /// <summary>TheNetAmountOfProduction: empire screen prod</summary>
         EmpireScreenProd = 140,
-        /// <summary>empire screen res</summary>
+        /// <summary>TheNetAmountOfResearch: empire screen res</summary>
         EmpireScreenRes = 141,
-        /// <summary>empire screen money</summary>
+        /// <summary>TheNetIncomeOfThis: empire screen money</summary>
         EmpireScreenMoney = 142,
-        /// <summary>boarding defense</summary>
+        /// <summary>IndicatesTheCombatStrengthAdded: boarding defense</summary>
         BoardingDefense = 143,
-        /// <summary>inhib</summary>
+        /// <summary>IndicatesTheWarpInhibitionRange: inhib</summary>
         Inhib = 144,
-        /// <summary>power store max</summary>
+        /// <summary>IndicatesTheAmountOfPower2: power store max</summary>
         PowerStoreMax = 145,
-        /// <summary>recall fighters</summary>
+        /// <summary>ClickToToggleWhetherThis: recall fighters</summary>
         RecallFighters = 146,
-        /// <summary>vs armor</summary>
+        /// <summary>IndicatesAnyBonusOrPenalty: vs armor</summary>
         VsArmor = 147,
-        /// <summary>rot thrust</summary>
+        /// <summary>IndicatesTheAmountOfRotational: rot thrust</summary>
         RotThrust = 148,
-        /// <summary>resupply</summary>
+        /// <summary>OrdersSelectedShipOrShips: resupply</summary>
         Resupply = 149,
-        /// <summary>empire defense</summary>
+        /// <summary>OrdersThisShipOrShips: empire defense</summary>
         EmpireDefense = 150,
-        /// <summary>trade</summary>
+        /// <summary>OrderTheseShipsToBegin: trade</summary>
         Trade = 151,
-        /// <summary>trade</summary>
+        /// <summary>OrderTheseShipsToBegin2: trade</summary>
         Trade2 = 152,
-        /// <summary>trade</summary>
+        /// <summary>OrderTheseShipsToBegin2: trade</summary>
         Trade3 = 153,
-        /// <summary>ECM value</summary>
+        /// <summary>IndicatesTheChanceOfEcm: ECM value</summary>
         EcmValue = 154,
-        /// <summary>ECM Resistance value</summary>
+        /// <summary>IndicatesTheResistanceOfThis: ECM Resistance value</summary>
         EcmResistanceValue = 155,
-        /// <summary>Beam Duration</summary>
+        /// <summary>IndicatesTheMaximumDurationFor: Beam Duration</summary>
         BeamDuration = 156,
-        /// <summary>Scrap Ship</summary>
+        /// <summary>OrderShipBackToThe: Scrap Ship</summary>
         ScrapShip = 157,
-        /// <summary>Refit Ship</summary>
+        /// <summary>OrderShipRefit: Refit Ship</summary>
         RefitShip = 158,
-        /// <summary>Broadside Port</summary>
+        /// <summary>ShipWillMoveWithinMaximum: Broadside Port</summary>
         BroadsidePort = 159,
-        /// <summary>Broadside Starboard</summary>
+        /// <summary>ShipWillMoveWithinMaximum2: Broadside Starboard</summary>
         BroadsideStarboard = 160,
-        /// <summary>New Experience</summary>
+        /// <summary>IndicatesAShipsExperienceLevel2: New Experience</summary>
         NewExperience = 161,
-        /// <summary>Ordance recovered per sec.</summary>
+        /// <summary>IndicatesTheAmountOfOrdnance3: Ordance recovered per sec.</summary>
         OrdanceRecoveredPerSec = 162,
-        /// <summary>Seconds until out of power or INFinite</summary>
+        /// <summary>IndicatesTheMaximumTimeIn: Seconds until out of power or INFinite</summary>
         SecondsUntilOutOfPower = 163,
-        /// <summary>Seconds until out of ordnance or INFinite</summary>
+        /// <summary>IndicatesTheMaximumTimeIn2: Seconds until out of ordnance or INFinite</summary>
         SecondsUntilOutOfOrdnance = 164,
-        /// <summary>Elimination Game mode</summary>
+        /// <summary>InTheCapitalEliminationGame: Elimination Game mode</summary>
         EliminationGameMode = 165,
-        /// <summary>Repair Beam</summary>
+        /// <summary>IndicatesTheMaximumAmountOf4: Repair Beam</summary>
         RepairBeam = 166,
-        /// <summary>Repair Beam</summary>
+        /// <summary>IndicatesSensorBonusAddedBy: Repair Beam</summary>
         RepairBeam2 = 167,
-        /// <summary>Transporter Range</summary>
+        /// <summary>IndicatesTheRangeOfThis: Transporter Range</summary>
         TransporterRange = 168,
-        /// <summary>Transporter Power</summary>
+        /// <summary>IndicatesThePowerUsedBy: Transporter Power</summary>
         TransporterPower = 169,
-        /// <summary>Transporter Time</summary>
+        /// <summary>IndicatesTheDelayBetweenTransports: Transporter Time</summary>
         TransporterTime = 170,
-        /// <summary>Transporter Ordnance</summary>
+        /// <summary>IndicatesTheAmountOfOrdnance4: Transporter Ordnance</summary>
         TransporterOrdnance = 171,
-        /// <summary>Transporter Troop Landing</summary>
+        /// <summary>IndicatesTheNumberOfTroops2: Transporter Troop Landing</summary>
         TransporterTroopLanding = 172,
-        /// <summary>Troop Capacity</summary>
+        /// <summary>IndicatesTheNumberOfTroops3: Troop Capacity</summary>
         TroopCapacity = 173,
-        /// <summary>Troop Heal</summary>
+        /// <summary>IndicatesTheAmountTroopsAre: Troop Heal</summary>
         TroopHeal = 174,
-        /// <summary>Shipyard Upkeep</summary>
+        /// <summary>IndicatesTheCreditsPerTick: Shipyard Upkeep</summary>
         ShipyardUpkeep = 175,
-        /// <summary>FTL Timer</summary>
+        /// <summary>IndicatesThisShipsMaximumSustained: FTL Timer</summary>
         FtlTimer = 176,
-        /// <summary>FTL Spool</summary>
+        /// <summary>IndicatesTheTimeInSeconds: FTL Spool</summary>
         FtlSpool = 177,
-        /// <summary>Module power draw at warp</summary>
+        /// <summary>TheEffectivePowerDrainOf: Module power draw at warp</summary>
         ModulePowerDrawAtWarp = 178,
-        /// <summary>Module troop capacity</summary>
+        /// <summary>TheNumberOfTroopsThis: Module troop capacity</summary>
         ModuleTroopCapacity = 179,
-        /// <summary>Ship troop capacity</summary>
+        /// <summary>IndicatesTheTotalComplementOf: Ship troop capacity</summary>
         ShipTroopCapacity2 = 180,
-        /// <summary>Weapon Shield Pen</summary>
+        /// <summary>RandomChanceThisWeaponWill: Weapon Shield Pen</summary>
         WeaponShieldPen = 181,
-        /// <summary>Salvo Count</summary>
+        /// <summary>ThisWeaponsFireASalvo: Salvo Count</summary>
         SalvoCount = 182,
-        /// <summary>Fire Delay</summary>
+        /// <summary>TimeBetweenShots: Fire Delay</summary>
         FireDelay = 183,
-        /// <summary>Siphon Damage</summary>
+        /// <summary>IndicatesTheAmountOfShields: Siphon Damage</summary>
         SiphonDamage = 184,
-        /// <summary>Mass Damage</summary>
+        /// <summary>IndicatesTheAmountOfDrag: Mass Damage</summary>
         MassDamage = 185,
-        /// <summary>Power Damage</summary>
+        /// <summary>IndicatesTheAmountOfPower3: Power Damage</summary>
         PowerDamage = 186,
-        /// <summary>Transporter Assault</summary>
+        /// <summary>IndicatesTheNumberOfTroops4: Transporter Assault</summary>
         TransporterAssault = 187,
-        /// <summary>Transporter Assault</summary>
+        /// <summary>TheDurationABeamWill: Transporter Assault</summary>
         TransporterAssault2 = 188,
-        /// <summary>Kinetic Resistance</summary>
+        /// <summary>IndicatesResistanceToKinetictypeDamage: Kinetic Resistance</summary>
         KineticResistance = 189,
-        /// <summary>Energy Resistance</summary>
+        /// <summary>IndicatesResistanceToEnergyWeapon: Energy Resistance</summary>
         EnergyResistance = 190,
-        /// <summary>Guided Resistance</summary>
+        /// <summary>IndicatesResistanceToGuidedWeapon: Guided Resistance</summary>
         GuidedResistance = 191,
-        /// <summary>Missile Resistance</summary>
+        /// <summary>IndicatesResistanceToMissileWeapon: Missile Resistance</summary>
         MissileResistance = 192,
-        /// <summary>Hybrid Resistance</summary>
+        /// <summary>IndicatesResistanceToHybridWeapon: Hybrid Resistance</summary>
         HybridResistance = 193,
-        /// <summary>Beam Resistance</summary>
+        /// <summary>IndicatesResistanceToBeamWeapon: Beam Resistance</summary>
         BeamResistance = 194,
-        /// <summary>Explosive Resistance</summary>
+        /// <summary>IndicatesResistanceToExplosiveDamage: Explosive Resistance</summary>
         ExplosiveResistance = 195,
-        /// <summary>Intercept Resistance</summary>
+        /// <summary>IndicatesResistanceToInterceptableWeapon: Intercept Resistance</summary>
         InterceptResistance = 196,
-        /// <summary>Railgun Resistance</summary>
+        /// <summary>IndicatesResistanceToRailgunWeapon: Railgun Resistance</summary>
         RailgunResistance = 197,
-        /// <summary>Spacebomb Resistance</summary>
+        /// <summary>IndicatesResistanceToSpatialBomb: Spacebomb Resistance</summary>
         SpacebombResistance = 198,
-        /// <summary>Bomb Resistance</summary>
+        /// <summary>IndicatesResistanceToBombardmentWeapon: Bomb Resistance</summary>
         BombResistance = 199,
-        /// <summary>Bioweapon Resistance</summary>
+        /// <summary>IndicatesResistanceToBiologicalWeapon: Bioweapon Resistance</summary>
         BioweaponResistance = 200,
-        /// <summary>Drone Resistance</summary>
+        /// <summary>IndicatesResistanceToDroneWeapon: Drone Resistance</summary>
         DroneResistance = 201,
-        /// <summary>Warp Resistance</summary>
+        /// <summary>IndicatesResistanceToWarpWeapon: Warp Resistance</summary>
         WarpResistance = 202,
-        /// <summary>Torpedo Resistance</summary>
+        /// <summary>IndicatesResistanceToTorpedoWeapon: Torpedo Resistance</summary>
         TorpedoResistance = 203,
-        /// <summary>Cannon Resistance</summary>
+        /// <summary>IndicatesResistanceToCannonWeapon: Cannon Resistance</summary>
         CannonResistance = 204,
-        /// <summary>Subspace Resistance</summary>
+        /// <summary>IndicatesResistanceToSubspaceWeapon: Subspace Resistance</summary>
         SubspaceResistance = 205,
-        /// <summary>PD Resistance</summary>
+        /// <summary>IndicatesResistanceToPdWeapon: PD Resistance</summary>
         PdResistance = 206,
-        /// <summary>Flak Resistance</summary>
+        /// <summary>IndicatesResistanceToFlakWeapon: Flak Resistance</summary>
         FlakResistance = 207,
-        /// <summary>AP Resistance</summary>
+        /// <summary>IndicatesResistanceToArmourPiercing: AP Resistance</summary>
         ApResistance = 208,
-        /// <summary>Shield Kinetic Resistance</summary>
+        /// <summary>IndicatesShieldBubblesResistanceTo: Shield Kinetic Resistance</summary>
         ShieldKineticResistance = 209,
-        /// <summary>Shield Energy Resistance</summary>
+        /// <summary>IndicatesShieldBubblesResistanceTo2: Shield Energy Resistance</summary>
         ShieldEnergyResistance = 210,
-        /// <summary>Shield Explosive Resistance</summary>
+        /// <summary>IndicatesShieldBubblesResistanceTo3: Shield Explosive Resistance</summary>
         ShieldExplosiveResistance = 211,
-        /// <summary>Shield Missile Resistance</summary>
+        /// <summary>IndicatesShieldBubblesResistanceTo4: Shield Missile Resistance</summary>
         ShieldMissileResistance = 212,
-        /// <summary>Shield Flak Resistance</summary>
+        /// <summary>IndicatesShieldBubblesResistanceTo5: Shield Flak Resistance</summary>
         ShieldFlakResistance = 213,
-        /// <summary>Shield Hybrid Resistance</summary>
+        /// <summary>IndicatesShieldBubblesResistanceTo6: Shield Hybrid Resistance</summary>
         ShieldHybridResistance = 214,
-        /// <summary>Shield Railgun Resistance</summary>
+        /// <summary>IndicatesShieldBubblesResistanceTo7: Shield Railgun Resistance</summary>
         ShieldRailgunResistance = 215,
-        /// <summary>Shield Subspace Resistance</summary>
+        /// <summary>IndicatesShieldBubblesResistanceTo8: Shield Subspace Resistance</summary>
         ShieldSubspaceResistance = 216,
-        /// <summary>Shield Warp Resistance</summary>
+        /// <summary>IndicatesShieldBubblesResistanceTo9: Shield Warp Resistance</summary>
         ShieldWarpResistance = 217,
-        /// <summary>Shield Beam Resistance</summary>
+        /// <summary>IndicatesShieldBubblesResistanceTo10: Shield Beam Resistance</summary>
         ShieldBeamResistance = 218,
-        /// <summary>EMP Protection</summary>
+        /// <summary>IndicatesTheAmountOfEmp2: EMP Protection</summary>
         EmpProtection = 219,
-        /// <summary>EMP Protection ShipTotal</summary>
+        /// <summary>TheTotalEmpProtectionOf: EMP Protection ShipTotal</summary>
         EmpProtectionShiptotal = 220,
-        /// <summary>Damage Threshold</summary>
+        /// <summary>WeaponsWhichDoLessDamage: Damage Threshold</summary>
         DamageThreshold = 221,
-        /// <summary>Shield Damage Threshold</summary>
+        /// <summary>WeaponsWhichDoLessDamage2: Shield Damage Threshold</summary>
         ShieldDamageThreshold = 222,
-        /// <summary>FTL Overlay</summary>
+        /// <summary>FtlOverlayVisualisesSubspaceProjection: FTL Overlay</summary>
         FtlOverlay = 223,
-        /// <summary>Weapons Range overlay</summary>
+        /// <summary>WeaponsRangeOverlayVisualisesShips: Weapons Range overlay</summary>
         WeaponsRangeOverlay = 224,
-        /// <summary>Launch Shuttles</summary>
+        /// <summary>TogglesWhetherThisShipsAssault: Launch Shuttles</summary>
         LaunchShuttles = 225,
-        /// <summary>Target Tracking</summary>
+        /// <summary>ThisIsABonusTo: Target Tracking</summary>
         TargetTracking = 226,
-        /// <summary>Offensive Strength</summary>
+        /// <summary>EstimatedOffensiveStrengthOfThe: Offensive Strength</summary>
         OffensiveStrength = 227,
-        /// <summary>Short range order</summary>
+        /// <summary>ShipWillRotateSoThat2: Short range order</summary>
         ShortRangeOrder = 228,
-        /// <summary>Corners Game</summary>
+        /// <summary>CornersIsARaceMatch: Corners Game</summary>
         CornersGame = 229,
-        /// <summary>Total Module Slots</summary>
+        /// <summary>TheTotalNumberOfModule: Total Module Slots</summary>
         TotalModuleSlots = 230,
-        /// <summary>Targets</summary>
+        /// <summary>ThisValueRepresentsTheComplexity: Targets</summary>
         Targets = 231,
-        /// <summary>Max Targets</summary>
+        /// <summary>ThisIsTheTotalNumber: Max Targets</summary>
         MaxTargets = 232,
-        /// <summary>Max Targets 1</summary>
+        /// <summary>ThisIsTheTotalNumber2: Max Targets 1</summary>
         MaxTargets2 = 233,
-        /// <summary>Total Ship ECM</summary>
+        /// <summary>ThisIsTheTotalElectronic: Total Ship ECM</summary>
         TotalShipEcm = 234,
-        /// <summary>Ship Sensor Range</summary>
+        /// <summary>ThisIsTheMaximumSensor: Ship Sensor Range</summary>
         ShipSensorRange = 235,
-        /// <summary>Ship Repair Rate</summary>
+        /// <summary>ThisIsThisShipsSelfrepair: Ship Repair Rate</summary>
         ShipRepairRate = 236,
-        /// <summary>Player Designs</summary>
+        /// <summary>ToggleToDisplayOnlyPlayerdesigned: Player Designs</summary>
         PlayerDesigns = 237,
-        /// <summary>Explosion Damage</summary>
+        /// <summary>TheDamageCausedToNearby: Explosion Damage</summary>
         ExplosionDamage = 238,
-        /// <summary>Explosion Radius</summary>
+        /// <summary>TheDamageRadiusOfThis: Explosion Radius</summary>
         ExplosionRadius = 239,
-        /// <summary>Shield Combat Recharge</summary>
+        /// <summary>ThisShieldCanRechargeEven: Shield Combat Recharge</summary>
         ShieldCombatRecharge = 240,
-        /// <summary>Complexity</summary>
+        /// <summary>TheMoreComplexTheModule: Complexity</summary>
         Complexity = 241,
-        /// <summary>Projectiles</summary>
+        /// <summary>ThisWeaponFiresMoreThan: Projectiles</summary>
         Projectiles = 242,
-        /// <summary>Total Weapons Power Usage per second when firing</summary>
+        /// <summary>ThisIndicatesThatThereIs2: Total Weapons Power Usage per second when firing</summary>
         TotalWeaponsPowerUsagePer = 243,
-        /// <summary>Weapons Peak Power drain during full beam duration</summary>
+        /// <summary>ThisIndicatesThatThereIs: Weapons Peak Power drain during full beam duration</summary>
         WeaponsPeakPowerDrainDuring = 244,
-        /// <summary>Weapons Peak Power Time during full beam duration</summary>
+        /// <summary>TheTotalTimeTheShip: Weapons Peak Power Time during full beam duration</summary>
         WeaponsPeakPowerTimeDuring = 245,
-        /// <summary>Symmetric Ship Design Mode</summary>
+        /// <summary>YouCanSwitchFromNormal: Symmetric Ship Design Mode</summary>
         SymmetricShipDesignMode = 246,
-        /// <summary>Powered Command Module</summary>
+        /// <summary>AFunctionalShipNeedsA: Powered Command Module</summary>
         PoweredCommandModule = 247,
-        /// <summary>Empty slots</summary>
+        /// <summary>InOrderToCompleteYour: Empty slots</summary>
         EmptySlots = 248,
-        /// <summary>Injury level inflicted to invading troops</summary>
+        /// <summary>EveryTroopInvadingThisPlanet: Injury level inflicted to invading troops</summary>
         InjuryLevelInflictedToInvading = 249,
-        /// <summary>Planet's space offense</summary>
+        /// <summary>ThePlanetsSpaceOffenseVs: Planet's space offense</summary>
         PlanetsSpaceOffense = 250,
-        /// <summary>Troop Weapon Range</summary>
+        /// <summary>IndicatesTheTileRangeThis: Troop Weapon Range</summary>
         TroopWeaponRange = 251,
-        /// <summary>Allow Inter-Empire Trade</summary>
+        /// <summary>ManualTradeAllowSelectedFreighters: Allow Inter-Empire Trade</summary>
         AllowInterempireTrade = 252,
-        /// <summary>Define Trade Routes</summary>
+        /// <summary>ChooseAListOfPlanets: Define Trade Routes</summary>
         DefineTradeRoutes = 253,
-        /// <summary>Population vs. Max Population</summary>
+        /// <summary>PopulationInBillionsVsMax: Population vs. Max Population</summary>
         PopulationVsMaxPopulation = 254,
-        /// <summary>Treasury Goal Projection</summary>
+        /// <summary>TreasuryGoalIsTheTarget: Treasury Goal Projection</summary>
         TreasuryGoalProjection = 255,
-        /// <summary>Relative Strength</summary>
+        /// <summary>ThisIsTheStrengthOf: Relative Strength</summary>
         RelativeStrength = 256,
-        /// <summary>Ship Total Shield Amp</summary>
+        /// <summary>EachOfTheShipShields: Ship Total Shield Amp</summary>
         ShipShieldAmplify = 257,
-        /// <summary>Module Shield Amp</summary>
+        /// <summary>WhenPoweredThisAmplifiesThe: Module Shield Amp</summary>
         ModuleShieldAmplify = 258,
-        /// <summary>Regeneration</summary>
+        /// <summary>ThisModuleHasSelfRegeneration: Regeneration</summary>
         SelfRegeneration = 259,
-        /// <summary>Habitable Tiles</summary>
+        /// <summary>ThisIndicatesHowManyTiles: Habitable Tiles</summary>
         NumhabitableTiles = 260,
-        /// <summary>Pop Per Tile</summary>
+        /// <summary>ThisIndicatesHowMuchPopulation: Pop Per Tile</summary>
         PopPerTile = 261,
-        /// <summary>Biosphered Pop</summary>
+        /// <summary>ThisIndicatesWhatWouldThe: Biosphered Pop</summary>
         BiospheredPopPotential = 262,
-        /// <summary>Terraformed Pop</summary>
+        /// <summary>ThisIndicatesWhatWouldThe2: Terraformed Pop</summary>
         TerraformedPopPotential = 263,
-        /// <summary>Planetary Shield Strength</summary>
+        /// <summary>IndicatesTheCurrentStrengthOf: Planetary Shield Strength</summary>
         PlanetaryShieldStr = 264,
-        /// <summary>Planet Panel</summary>
+        /// <summary>PlanetTypeAndRichnessThe: Planet Panel</summary>
         PlanetPanel = 265,
-        /// <summary>Big Clusters</summary>
+        /// <summary>EachEmpireStartsInA: Big Clusters</summary>
         BigClusters = 266,
-        /// <summary>Small Clusters</summary>
+        /// <summary>TheGalaxyWillBeConsisted: Small Clusters</summary>
         SmallClusters = 267,
-        /// <summary>Hangar Size</summary>
+        /// <summary>ThisIsTheMaximumNumber: Hangar Size</summary>
         HangarSize = 268,
-        /// <summary>Terminal Phase Range</summary>
+        /// <summary>ThisMissileHasTerminalPhase: Terminal Phase Range</summary>
         TerminalPhaseRange = 269,
-        /// <summary>Terminal Phase Speed</summary>
+        /// <summary>ThisIsTheSpeedThe: Terminal Phase Speed</summary>
         TerminalPhaseSpeed = 270,
-        /// <summary>Delayed Ignition</summary>
+        /// <summary>ThisMissileHasDelayedIgnition: Delayed Ignition</summary>
         DelayedIgnition = 271,
-        /// <summary>MIRV</summary>
+        /// <summary>ThisWeaponHasMirvMeaning: MIRV</summary>
         Mirv = 272,
-        /// <summary>Imprecision</summary>
+        /// <summary>MaximumImprecisionAngleInDegrees: Imprecision</summary>
         Imprecision = 273,
-        /// <summary>Accuracy</summary>
+        /// <summary>WeaponTargetError: Accuracy</summary>
         Accuracy = 274,
-        /// <summary>TargetTracking</summary>
+        /// <summary>FireControlSystemsOrFcs: TargetTracking</summary>
         Targettracking = 275,
-        /// <summary>Armor Pen</summary>
+        /// <summary>ArmorPenetrationEnablesThisWeapon: Armor Pen</summary>
         ArmorPen = 276,
-        /// <summary>Explosion Radius</summary>
+        /// <summary>TheRadiusOfTheProjectiles: Explosion Radius</summary>
         ExplosionRadius2 = 277,
-        /// <summary>Number Of Colonists</summary>
+        /// <summary>ProsperInTerranWorldsAnd: Number Of Colonists</summary>
         NumberOfColonists = 278,
-        /// <summary>Colony Rank</summary>
+        /// <summary>TheRankOfTheColony: Colony Rank</summary>
         ColonyRank = 279,
-        /// <summary>Civilian Budget</summary>
+        /// <summary>CivilianBuildingsExpenditurebudgetInByc: Civilian Budget</summary>
         CivilianBudget = 280,
-        /// <summary>Ground Defense Budget</summary>
+        /// <summary>GroundDefenseBuildingsExpenditurebudgetIn: Ground Defense Budget</summary>
         GroundDefenseBudget = 281,
-        /// <summary>Orbitals Budget</summary>
+        /// <summary>OrbitalsExpenditurebudgetInByc: Orbitals Budget</summary>
         OrbitalsBudget = 282,
-        /// <summary>Civilian Expense</summary>
+        /// <summary>CivilianBuildingsExpenditureInByc: Civilian Expense</summary>
         CivilianExpense = 283,
-        /// <summary>Ground Defense Expense</summary>
+        /// <summary>GroundDefenseBuildingsExpenditureIn: Ground Defense Expense</summary>
         GroundDefenseExpense = 284,
-        /// <summary>Orbitals Expense</summary>
+        /// <summary>OrbitalsExpenditureInByc: Orbitals Expense</summary>
         OrbitalsExpense = 285,
     }
 }

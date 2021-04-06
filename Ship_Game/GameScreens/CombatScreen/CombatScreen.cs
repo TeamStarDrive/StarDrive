@@ -64,7 +64,7 @@ namespace Ship_Game
             Bombard   = Button(ButtonStyle.DanButtonBlue, assetsX, AssetsRect.Y + 140, BombardDefaultText, OnBombardClicked);
             LandAll.Tooltip   = GameText.LandAllTroopsListedIn;
             LaunchAll.Tooltip = GameText.LaunchToSpaceAllTroops;
-            Bombard.Tooltip   = new LocalizedText(GameText.OrdersAllBombequippedShipsIn).Text;
+            Bombard.Tooltip   = GameText.OrdersAllBombequippedShipsIn;
             LandAll.TextAlign = LaunchAll.TextAlign = Bombard.TextAlign = ButtonTextAlign.Left;
 
             if (IsPlayerBombing())

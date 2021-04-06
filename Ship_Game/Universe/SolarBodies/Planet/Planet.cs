@@ -1239,12 +1239,12 @@ namespace Ship_Game
             bool richness;
             switch (RandomMath.RollDie(20))
             {
-                case 1:  bid = Building.Crater1Id; message = new LocalizedText(4280).Text; richness = false; break;
-                case 2:  bid = Building.Crater2Id; message = new LocalizedText(4281).Text; richness = false; break;
-                case 3:  bid = Building.Crater3Id; message = new LocalizedText(4282).Text; richness = false; break;
+                case 1:  bid = Building.Crater1Id; message = Localizer.Token(4280); richness = false; break;
+                case 2:  bid = Building.Crater2Id; message = Localizer.Token(4281); richness = false; break;
+                case 3:  bid = Building.Crater3Id; message = Localizer.Token(4282); richness = false; break;
                 case 4:
-                case 5:  bid = Building.Crater4Id; message = new LocalizedText(4283).Text; richness = true;  break; 
-                default: bid = Building.Crater4Id; message = new LocalizedText(4283).Text; richness = false; break;
+                case 5:  bid = Building.Crater4Id; message = Localizer.Token(4283); richness = true;  break; 
+                default: bid = Building.Crater4Id; message = Localizer.Token(4283); richness = false; break;
             }
 
             float popKilled = meteor.SurfaceArea * meteor.HealthPercent * (tile.Habitable ? 1 : 0.5f);
@@ -1253,16 +1253,16 @@ namespace Ship_Game
             if (tile.Biosphere)
             {
                 DestroyBioSpheres(tile, false);
-                message = $"{message}\n{new LocalizedText(4284).Text}";
+                message = $"{message}\n{Localizer.Token(4284)}";
             }
 
             if (popKilled.Greater(0))
-                message = $"{message}\n{popKilled.String(0)} {new LocalizedText(4285).Text}";
+                message = $"{message}\n{popKilled.String(0)} {Localizer.Token(4285)}";
 
             if (richness)
             {
                 MineralRichness += 0.1f;
-                message = $"{message}\n{new LocalizedText(4286).Text}";
+                message = $"{message}\n{Localizer.Token(4286)}";
             }
 
             Building b = ResourceManager.CreateBuilding(bid);
@@ -1297,7 +1297,7 @@ namespace Ship_Game
                     if (b.FoodCache.LessOrEqual(0))
                     {
                         if (Owner == EmpireManager.Player)
-                            Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, new LocalizedText(4300).Text);
+                            Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, Localizer.Token(4300));
 
                         RemoveBuildingFromPlanet(b, destroy: true);
                     }
@@ -1310,7 +1310,7 @@ namespace Ship_Game
                     if (b.ProdCache.LessOrEqual(0))
                     {
                         if (Owner == EmpireManager.Player)
-                            Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, new LocalizedText(4300).Text);
+                            Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, Localizer.Token(4300));
 
                         RemoveBuildingFromPlanet(b, destroy: true);
                     }
@@ -1371,7 +1371,7 @@ namespace Ship_Game
                 MineralRichness  -= 0.02f;
                 if (notifyPlayer)
                 {
-                    string fullText = $"{Name} {new LocalizedText(1866).Text}";
+                    string fullText = $"{Name} {Localizer.Token(1866)}";
                     Empire.Universe.NotificationManager.AddRandomEventNotification(
                         fullText, Type.IconPath, "SnapToPlanet", this);
                 }

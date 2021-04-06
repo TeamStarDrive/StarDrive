@@ -59,7 +59,7 @@ namespace Ship_Game
             StatusText = GetStatusText(Ship);
             ShipIconRect = new Rectangle(ShipNameRect.X + 5, ShipNameRect.Y + 2, 28, 28);
             string shipName = !string.IsNullOrEmpty(Ship.VanityName) ? Ship.VanityName : Ship.Name;
-            SystemName = Ship.System?.Name ?? new LocalizedText(GameText.DeepSpace).Text;
+            SystemName = Ship.System?.Name ?? Localizer.Token(GameText.DeepSpace);
             ShipNameEntry.ClickableArea = new Rectangle(ShipIconRect.X + ShipIconRect.Width + 10, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
             ShipNameEntry.Text = shipName;
             float width = (int)(OrdersRect.Width * 0.8f);
