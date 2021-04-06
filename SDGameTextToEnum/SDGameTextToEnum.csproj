@@ -26,9 +26,13 @@
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>SDGameTextToEnum</RootNamespace>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="LocalizationDB.cs" />
     <Compile Include="GameTextToEnum_Main.cs" />
+    <Compile Include="LocalizationUsage.cs" />
     <Compile Include="TextToken.cs" />
     <Compile Include="Localization.cs" />
     <Compile Include="ModLocalizationDB.cs" />
