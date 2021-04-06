@@ -135,7 +135,7 @@ namespace Ship_Game
             IsLoaded = true;
 
             if (ScreenManager.NumScreens == 0)
-                ScreenManager.AddScreen(new GameLoadingScreen(showSplash: true, resetResources: false));
+                ScreenManager.AddScreenImmediate(new GameLoadingScreen(showSplash: true, resetResources: false));
         }
 
         protected override void UnloadContent()
