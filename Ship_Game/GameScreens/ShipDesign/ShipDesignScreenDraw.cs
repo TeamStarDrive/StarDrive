@@ -775,9 +775,6 @@ namespace Ship_Game
         {
             float amount    = 165f;
             SpriteFont font = Fonts.Arial12Bold;
-            if (GlobalStats.IsGermanFrenchOrPolish) 
-                amount += 35f;
-
             cursor.Y += lineSpacing > 0 ? font.LineSpacing + lineSpacing : 0;
             ScreenManager.SpriteBatch.DrawString(font, words, cursor, Color.White);
             float percentComplete = PercentComplete(numSlots, size);
@@ -1019,7 +1016,7 @@ namespace Ship_Game
             SpriteFont font = Fonts.Arial12Bold;
             cursor.Y += lineSpacing > 0 ? font.LineSpacing + lineSpacing : 0;
 
-            var statCursor = new Vector2(cursor.X + Spacing(spacing), cursor.Y);
+            var statCursor = new Vector2(cursor.X + spacing, cursor.Y);
             Vector2 statNameCursor = FontSpace(statCursor, -20, words, font);
 
             DrawString(statNameCursor, nameColor, words, font);
@@ -1203,7 +1200,7 @@ namespace Ship_Game
             WriteLine(ref cursor);
             cursor.Y += stat.LineSpacing;
 
-            Vector2 statCursor = new Vector2(cursor.X + Spacing(stat.Spacing), cursor.Y);
+            Vector2 statCursor = new Vector2(cursor.X + stat.Spacing, cursor.Y);
             DrawString(FontSpace(statCursor, -20, stat.Title, font), stat.TitleColor, stat.Title, font); // @todo Replace with DrawTitle?
 
             string valueText = stat.ValueText;

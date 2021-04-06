@@ -152,7 +152,7 @@ namespace Ship_Game
             if (PlanetSL.NumEntries > 0)
             {
                 PlanetListScreenItem e1 = PlanetSL.ItemAtTop;
-                SpriteFont fontStyle    = GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold;
+                SpriteFont fontStyle    = Fonts.Arial20Bold;
 
                 var textCursor = TextCursorVector(e1.SysNameRect, 192);
                 sb_Sys.Update(textCursor);

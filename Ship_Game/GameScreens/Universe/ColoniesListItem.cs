@@ -85,11 +85,6 @@ namespace Ship_Game
             };
 
             int ddwidth = (int)(0.2f * StorageRect.Width);
-            if (GlobalStats.IsGermanOrPolish)
-            {
-                ddwidth = (int)Fonts.Arial12.MeasureString(Localizer.Token(330)).X + 22;
-            }
-
             FoodDropDown = new DropDownMenu(new Rectangle(StorageRect.X + 50 + (int)(0.4f * StorageRect.Width) + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, ddwidth, 18));
             FoodDropDown.AddOption(Localizer.Token(329));
             FoodDropDown.AddOption(Localizer.Token(330));
