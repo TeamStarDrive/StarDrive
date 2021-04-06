@@ -384,7 +384,7 @@ namespace Ship_Game
 
         public void MakeMessageBox(GameScreen screen, Action cancelled, Action accepted, int localId, string okText, string cancelledText)
         {
-            ScreenManager.AddScreenDeferred(new MessageBoxScreen(screen, localId, okText, cancelledText)
+            ScreenManager.AddScreen(new MessageBoxScreen(screen, localId, okText, cancelledText)
             {
                 Cancelled = cancelled,
                 Accepted = accepted

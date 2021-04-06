@@ -6,7 +6,7 @@ using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-    public sealed class TroopInfoUIElement : UIElement
+    public sealed class TroopInfoUIElement : UIElementContainer
     {
         private readonly UniverseScreen screen;
         private readonly Rectangle LeftRect;
@@ -17,18 +17,14 @@ namespace Ship_Game
         private Rectangle ItemDisplayRect;
         private DanButton LaunchTroop;
         private readonly Selector Sel;
-        private ScrollList2<TextListItem> DescriptionSL;
-        public PlanetGridSquare Tile;
+        private readonly UITextBox DescriptionBox;
+        public PlanetGridSquare Tile { get; private set; }
         private readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
 
         public TroopInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
             this.screen       = screen;
-            ScreenManager     = sm;
-            ElementRect       = r;
             Sel               = new Selector(r, Color.Black);
-            TransitionOnTime  = TimeSpan.FromSeconds(0.25);
-            TransitionOffTime = TimeSpan.FromSeconds(0.25);
             LeftRect          = new Rectangle(r.X, r.Y + 44, 200, r.Height - 44);
             DefenseRect       = new Rectangle(LeftRect.X + 12, LeftRect.Y + 18, 22, 22);
             SoftAttackRect    = new Rectangle(LeftRect.X + 12, DefenseRect.Y + 22 + 5, 16, 16);
@@ -38,8 +34,8 @@ namespace Ship_Game
             ItemDisplayRect   = new Rectangle(LeftRect.X + 85, LeftRect.Y + 5, 128, 128);
             Rectangle desRect = new Rectangle(RangeRect.X, RangeRect.Y, LeftRect.Width + 8, 110);
             Submenu sub       = new Submenu(desRect);
-            DescriptionSL     = new ScrollList2<TextListItem>(sub, Fonts.Arial12.LineSpacing + 1);
-            
+            DescriptionBox = Add(new UITextBox(sub));
+
             ToolTipItems.Add(new TippedItem
             {
                 R = DefenseRect,
@@ -67,8 +63,8 @@ namespace Ship_Game
             if (Tile == null || Tile.NothingOnTile)
                 return;
 
-            MathHelper.SmoothStep(0f, 1f, TransitionPosition);
-            ScreenManager.SpriteBatch.FillRectangle(Sel.Rect, Color.Black);
+            //MathHelper.SmoothStep(0f, 1f, TransitionPosition);
+            batch.FillRectangle(Sel.Rect, Color.Black);
 
             float x          = Mouse.GetState().X;
             MouseState state = Mouse.GetState();
@@ -116,7 +112,7 @@ namespace Ship_Game
             }
 
             slant.Draw(batch, elapsed);
-            DescriptionSL.Draw(batch, elapsed);
+            base.Draw(batch, elapsed);
         }
 
         private void DrawTroopStats(SpriteBatch batch, Troop troop, Header slant, Vector2 mousePos, Color color)
@@ -133,8 +129,8 @@ namespace Ship_Game
             DrawInfoData(batch, HardAttackRect, troop.ActualHardAttack.ToString(), color, 5, 8);
             DrawInfoData(batch, RangeRect, troop.ActualRange.ToString(), color, 5, 8);
             ItemDisplayRect = new Rectangle(LeftRect.X + 85 + 16, LeftRect.Y + 5 + 16, 64, 64);
-            DrawLaunchButton(troop, slant);
-            DrawLevelStars(troop.Level, mousePos);
+            DrawLaunchButton(batch, troop, slant);
+            DrawLevelStars(batch, troop.Level, mousePos);
             slant.text = troop.Name;
         }
 
@@ -145,21 +141,21 @@ namespace Ship_Game
             batch.DrawString(font, data, pos, color);
         }
 
-        private void DrawLaunchButton(Troop troop, Header slant)
+        private void DrawLaunchButton(SpriteBatch batch, Troop troop, Header slant)
         {
-            troop.Draw(ScreenManager.SpriteBatch, ItemDisplayRect);
+            troop.Draw(batch, ItemDisplayRect);
             if (troop.Loyalty != EmpireManager.Player)
                 LaunchTroop = null;
             else
             {
                 string buttonText =  troop.AvailableAttackActions >= 1 ? "" : string.Concat(" (", troop.MoveTimer.ToString("0"), ")");
-                LaunchTroop = new DanButton(new Vector2(slant.leftRect.X + 5, ElementRect.Y + ElementRect.Height + 15), 
+                LaunchTroop = new DanButton(new Vector2(slant.leftRect.X + 5, Sel.Bottom + 15), 
                                             Localizer.Token(1435)+buttonText);
-                LaunchTroop.DrawBlue(ScreenManager.SpriteBatch);
+                LaunchTroop.DrawBlue(batch);
             }
         }
 
-        private void DrawLevelStars(int level, Vector2 mousePos)
+        private void DrawLevelStars(SpriteBatch batch, int level, Vector2 mousePos)
         {
             if (level <= 0)
                 return;
@@ -183,20 +179,14 @@ namespace Ship_Game
                 if (star.HitTest(mousePos))
                     ToolTip.CreateTooltip(127);
 
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_star"), star, color);
+                batch.Draw(ResourceManager.Texture("UI/icon_star"), star, color);
             }
         }
 
         public override bool HandleInput(InputState input)
         {
-            try
-            {
-                DescriptionSL.HandleInput(input);
-            }
-            catch
-            {
-                return false;
-            }
+            if (base.HandleInput(input))
+                return true;
 
             foreach (TippedItem ti in ToolTipItems)
             {
@@ -215,7 +205,6 @@ namespace Ship_Game
                         GameAudio.TroopTakeOff();
                     else
                         GameAudio.NegativeClick();
-
                     return true;
                 }
             }
@@ -233,17 +222,22 @@ namespace Ship_Game
 
         public void SetTile(PlanetGridSquare pgs, Troop troop = null)
         {
+            if (Tile == pgs)
+                return;
+
             Tile = pgs;
+            Visible = Tile != null;
             if (Tile == null)
                 return;
 
+            DescriptionBox.Clear();
             if (troop != null)
             {
-                DescriptionSL.ResetWithParseText(Fonts.Arial12, troop.Description, LeftRect.Width - 15);
+                DescriptionBox.AddLines(troop.Description, Fonts.Arial12, Color.White);
             }
             else if (pgs.BuildingOnTile)
             {
-                DescriptionSL.ResetWithParseText(Fonts.Arial12, Localizer.Token(pgs.Building.DescriptionIndex), LeftRect.Width - 15);
+                DescriptionBox.AddLines(Localizer.Token(pgs.Building.DescriptionIndex), Fonts.Arial12, Color.White);
             }
         }
 

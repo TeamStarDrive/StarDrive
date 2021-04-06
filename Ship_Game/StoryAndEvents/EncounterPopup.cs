@@ -40,7 +40,7 @@ namespace Ship_Game
         public static void Show(UniverseScreen s, Empire player, Empire them, Encounter e)
         {
             var screen = new EncounterPopup(s, player, them, e); 
-            ScreenManager.Instance.AddScreenDeferred(screen);
+            ScreenManager.Instance.AddScreen(screen);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)

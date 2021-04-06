@@ -586,7 +586,7 @@ namespace Ship_Game.Ships
         public bool DoingRefit
         {
             get => AI.State == AIState.Refit;
-            set => Empire.Universe.ScreenManager.AddScreenDeferred(new RefitToWindow(Empire.Universe, this));
+            set => Empire.Universe.ScreenManager.AddScreen(new RefitToWindow(Empire.Universe, this));
         }
 
         public bool IsInhibitedByUnfriendlyGravityWell
@@ -1603,7 +1603,7 @@ namespace Ship_Game.Ships
             if (BaseHull.EventOnDeath != null)
             {
                 var evt = ResourceManager.EventsDict[BaseHull.EventOnDeath];
-                Empire.Universe.ScreenManager.AddScreenDeferred(
+                Empire.Universe.ScreenManager.AddScreen(
                     new EventPopup(Empire.Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
             }
 
