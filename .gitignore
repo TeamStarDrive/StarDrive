@@ -40,3 +40,5 @@ ExportedTextures/
 StarDrive.csproj.jorma.nvuser
 SDNative/SDNativeTests/Release-2017/
 .vs/
+Content/GameText.Missing.RUS.yaml
+Content/GameText.Missing.SPA.yaml
