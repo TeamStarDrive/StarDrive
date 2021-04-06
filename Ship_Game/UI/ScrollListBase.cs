@@ -518,7 +518,7 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!FirstUpdateDone)
-                Log.Error($"{TypeName}.Update() has not been called. This is a bug!"
+                Log.Error($"{TypeName}.Update() Name={Name} has not been called. This is a bug!"
                           + " Make sure the ScrollList is being updated in GameScreen.Update() or screen.Add(list) for automatic update.");
             base.Draw(batch, elapsed);
 

@@ -56,7 +56,7 @@ namespace Ship_Game
                 triggeredOutcome.CheckOutComes(p, eventLocation, triggeredBy, popup);
                 if (popup != null)
                 {
-                    screen.ScreenManager.AddScreenDeferred(popup);
+                    screen.ScreenManager.AddScreen(popup);
                     GameAudio.PlaySfxAsync("sd_notify_alert");
                 }
             }
@@ -87,7 +87,7 @@ namespace Ship_Game
         {
             var popup = new EventPopup(Empire.Universe, triggeredBy, this, outcome, false, p);
             outcome.CheckOutComes(p, eventLocation, triggeredBy, popup);
-            Empire.Universe.ScreenManager.AddScreenDeferred(popup);
+            Empire.Universe.ScreenManager.AddScreen(popup);
             GameAudio.PlaySfxAsync("sd_notify_alert");
         }
 
@@ -121,7 +121,7 @@ namespace Ship_Game
             Outcome triggeredOutcome = GetRandomOutcome();
 
             Empire empire = EmpireManager.Player;
-            screen.ScreenManager.AddScreenDeferred(new EventPopup(screen, empire, this, triggeredOutcome, false));
+            screen.ScreenManager.AddScreen(new EventPopup(screen, empire, this, triggeredOutcome, false));
             TriggerOutcome(empire, triggeredOutcome);
         }
     }

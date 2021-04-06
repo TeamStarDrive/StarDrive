@@ -124,6 +124,7 @@ namespace Ship_Game
                 draw.AddSubItem(new DebugStatItem("ShipOveray", DrawShips, DrawPerf));
                 draw.AddSubItem(new DebugStatItem("Icons", DrawIcons, DrawPerf));
                 draw.AddSubItem(new DebugStatItem("UI", DrawUI, DrawPerf));
+                DebugStats.Update(0f);
             }
         }
     }
