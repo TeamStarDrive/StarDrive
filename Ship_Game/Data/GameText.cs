@@ -406,9 +406,9 @@ namespace Ship_Game
         AvailableDesigns = 198,
         /// <summary>Choose a Ship to Load</summary>
         ChooseAShipToLoad = 199,
-        /// <summary>Attack Runs:   Ship will make head-on attack runs on its</summary>
+        /// <summary>Attack Runs: \n\nShip will make head-on attack runs on its</summary>
         ShipWillMakeHeadonAttack = 200,
-        /// <summary>Maximum Range:   Ship will rotate so that forward-firing weapons are</summary>
+        /// <summary>Maximum Range: \n\nShip will rotate so that forward-firing weapons are</summary>
         ShipWillRotateSoThat = 201,
         /// <summary>Ship will maneuver to keep its target on the port</summary>
         ShipWillManeuverToKeep = 202,
@@ -1966,7 +1966,7 @@ namespace Ship_Game
         DedicatedCarrier = 1473,
         /// <summary>This ship is a dedicated Carrier. The fighter launch range</summary>
         ThisShipIsADedicated = 1474,
-        /// <summary>Current Selected Fighter Launch Range is:  </summary>
+        /// <summary>Current Selected Fighter Launch Range is: \n</summary>
         CurrentSelectedFighterLaunchRange = 1475,
         /// <summary>Sensor Range of</summary>
         SensorRangeOf = 1476,
@@ -1998,7 +1998,7 @@ namespace Ship_Game
         TroopsAreLandingOn = 1507,
         /// <summary>No</summary>
         No = 1508,
-        /// <summary>agents are in our empire!  Refunding 10 Intelligence Penetration</summary>
+        /// <summary>agents are in our empire!\n\nRefunding 10 Intelligence Penetration</summary>
         AgentsAreInOurEmpirennrefunding = 1509,
         /// <summary>Successfully placed agent on</summary>
         SuccessfullyPlacedAgentOn = 1510,
@@ -2006,7 +2006,7 @@ namespace Ship_Game
         TheLastColonistOn = 1511,
         /// <summary>has been killed</summary>
         HasBeenKilled = 1512,
-        /// <summary>was Colonized Click for Colony Screen</summary>
+        /// <summary>was Colonized\nClick for Colony Screen</summary>
         WasColonizednclickForColonyScreen = 1513,
         /// <summary>unlocked</summary>
         Unlocked = 1514,
@@ -2300,9 +2300,9 @@ namespace Ship_Game
         ProductionFees = 1819,
         /// <summary>Waiting for Refit Ship</summary>
         WaitingForRefitShip = 1820,
-        /// <summary>Mutiny On a ship was averted  The mutiny was incited</summary>
+        /// <summary>Mutiny On a ship was averted\n The mutiny was incited</summary>
         MutinyAverted = 1821,
-        /// <summary>One of your ships was lost during a mutiny  The</summary>
+        /// <summary>One of your ships was lost during a mutiny\n The</summary>
         MutinySucceeded = 1822,
         /// <summary>Maximum imprecision angle (in degrees) this weapon has. This is</summary>
         MaximumImprecisionAngleInDegrees = 1823,
@@ -2392,7 +2392,7 @@ namespace Ship_Game
         ThisIsTheMaximumNumber = 1865,
         /// <summary>Mineral Richness has gone down below 1.</summary>
         MineralRichnessHasGoneDown = 1866,
-        /// <summary>- Raw minerals were discovered. Mineral Richness increased by</summary>
+        /// <summary>- Raw minerals were discovered.\nMineral Richness increased by</summary>
         RawMineralsWereDiscoverednmineralRichness = 1867,
         /// <summary>Disable Pirates</summary>
         DisablePirates = 1868,
@@ -2400,7 +2400,7 @@ namespace Ship_Game
         DisablesAllPirateFactionsFor = 1869,
         /// <summary>Clears the buildable items filter.</summary>
         ClearBuildableItemsFilter = 1870,
-        /// <summary>We Managed to destroy a pirate base!  We found equipment</summary>
+        /// <summary>We Managed to destroy a pirate base!\n We found equipment</summary>
         DestroyedPirateBase = 1871,
         /// <summary>Production Infrastructure</summary>
         ProductionInfrastructure = 1872,
@@ -2494,7 +2494,7 @@ namespace Ship_Game
         TreasuryGoalIsTheTarget = 1918,
         /// <summary>Removing Biospheres</summary>
         RemovingBiospheres = 1919,
-        /// <summary>Was Terraformed to a new heaven.  Your Terraformers will now</summary>
+        /// <summary>Was Terraformed to a new heaven. \nYour Terraformers will now</summary>
         WasTerraformedToANew = 1920,
         /// <summary>The number of Colonists (in Millions) which can be loaded.</summary>
         ProsperInTerranWorldsAnd = 1921,
@@ -2504,9 +2504,9 @@ namespace Ship_Game
         WasRemovedAsPartOf = 1930,
         /// <summary>This Construction module provides the infrastructure required for building Platforms</summary>
         ConstructionModule = 1931,
-        /// <summary>was reverse engineered during the scrap process. This hull can now</summary>
+        /// <summary>was reverse engineered during the scrap process.\nThis hull can now</summary>
         ReverseEngineered = 1932,
-        /// <summary>was scrapped, helping us advance in our own research toward this</summary>
+        /// <summary>was scrapped, helping us advance in our own research\ntoward this</summary>
         HullScrappedAdvancingResearch = 1933,
         /// <summary>You have managed to capture a ship! You can scrap</summary>
         ShipCapturedByYou = 1934,
@@ -3208,7 +3208,7 @@ namespace Ship_Game
         ThisTechnologyIsALogical = 2294,
         /// <summary>An event requires your attention</summary>
         AnEventRequiresYourAttention = 2295,
-        /// <summary>Treasury Warning! Running out of money  can have dire consequences!</summary>
+        /// <summary>Treasury Warning! Running out of money \ncan have dire consequences!</summary>
         TreasuryWarningRunningOutOf = 2296,
         /// <summary>Opens the Shipyard</summary>
         OpensTheShipyard = 2297,
@@ -3508,7 +3508,7 @@ namespace Ship_Game
         WeWouldGiveYourPeople = 3062,
         /// <summary>We require that you take control of the following colonies:</summary>
         WeRequireThatYouTake = 3063,
-        /// <summary>Click to rush production from this colony's storage.   A single</summary>
+        /// <summary>Click to rush production from this colony's storage.\n \nA single</summary>
         ClickToRushProductionFrom = 248,
         /// <summary>Manual Trade: Orders this freighter to transport food. This ship</summary>
         ManualTradeOrdersThisFreighter2 = 215,
@@ -3648,13 +3648,13 @@ namespace Ship_Game
         InsystemFtlSpeedModifier = 4007,
         /// <summary>Planetary Gravity Wells</summary>
         PlanetaryGravityWells = 4008,
-        /// <summary>The Hyperspace Flux has abated  Ships may once again warp</summary>
+        /// <summary>The Hyperspace Flux has abated \nShips may once again warp</summary>
         TheHyperspaceFluxHasAbatednships = 4009,
         /// <summary>A massive hyperspace flux is inhibiting warp travel throughout the</summary>
         AMassiveHyperspaceFluxnisInhibiting = 4010,
         /// <summary>has suddenly shifted in its orbit, resulting in an improved</summary>
         HasSuddenlyShiftedInIts = 4011,
-        /// <summary>has experienced a massive volcanic eruption  The environment has been</summary>
+        /// <summary>has experienced a massive volcanic eruption \nThe environment has been</summary>
         HasExperiencedAMassiveVolcanic = 4012,
         /// <summary>Load Modification</summary>
         LoadModification = 4013,
@@ -3838,7 +3838,7 @@ namespace Ship_Game
         CornersIsARaceMatch = 4103,
         /// <summary>The total number of module slots available on the selected</summary>
         TheTotalNumberOfModule = 4104,
-        /// <summary>has been struck by a meteor!  The environment was adversely</summary>
+        /// <summary>has been struck by a meteor! \nThe environment was adversely</summary>
         HasBeenStruckByA = 4105,
         /// <summary>Support</summary>
         Support = 4106,
@@ -3852,9 +3852,9 @@ namespace Ship_Game
         Destroyer = 4110,
         /// <summary>Bomber</summary>
         Bomber = 4111,
-        /// <summary>has transformed to a Habitable planet!  We might want to</summary>
+        /// <summary>has transformed to a Habitable planet!\n We might want to</summary>
         HasTransformedToAHabitable = 4112,
-        /// <summary>has been struck by a meteor!  The environment was adversely</summary>
+        /// <summary>has been struck by a meteor! \nThe environment was adversely</summary>
         HasBeenStruckByA2 = 4113,
         /// <summary>Weapon target error radius measured in ship slots. An accuracy</summary>
         WeaponTargetError = 4114,
@@ -3932,7 +3932,7 @@ namespace Ship_Game
         ShadowQuality = 4150,
         /// <summary>Effects Quality</summary>
         EffectsQuality = 4151,
-        /// <summary> Threat level vs. our forces there is</summary>
+        /// <summary>\nThreat level vs. our forces\nthere is</summary>
         NthreatLevelVsOurForcesnthere = 4152,
         /// <summary>negligible.</summary>
         Negligible = 4153,
@@ -3960,19 +3960,19 @@ namespace Ship_Game
         WasFinishedAt = 4164,
         /// <summary>has been defeated</summary>
         HasBeenDefeated = 4165,
-        /// <summary>We returned the ship which was raided by rival pirates due</summary>
+        /// <summary>We returned the ship which was raided by rival pirates\ndue</summary>
         WeReturnedTheShipWhich = 4166,
         /// <summary>Our Spies report that</summary>
         OurSpiesReportThat = 4167,
-        /// <summary>are getting stronger. They have around</summary>
+        /// <summary>are getting stronger.\nThey have around</summary>
         AreGettingStrongerntheyHaveAround = 4168,
         /// <summary>bases.</summary>
         Bases = 4169,
-        /// <summary>Our Scientists report that they observed increased radiation signatures in the</summary>
+        /// <summary>Our Scientists report that they observed increased\nradiation signatures in the</summary>
         OurScientistsReportThatThey = 4170,
-        /// <summary>Our Scientists report that they observed increased radiation signatures in the</summary>
+        /// <summary>Our Scientists report that they observed increased\nradiation signatures in the</summary>
         OurScientistsReportThatThey2 = 4171,
-        /// <summary>Your Scientists report massive radiation increase in the galaxy. They suspect</summary>
+        /// <summary>Your Scientists report massive radiation increase\nin the galaxy. They suspect</summary>
         YourScientistsReportMassiveRadiation = 4172,
         /// <summary>is not producing anything.</summary>
         IsNotProducingAnything = 4173,
@@ -3982,19 +3982,19 @@ namespace Ship_Game
         AreNowAtWar = 4175,
         /// <summary>are now at peace</summary>
         AreNowAtPeace = 4176,
-        /// <summary>Peace Treaty expired with </summary>
+        /// <summary>Peace Treaty expired with\n</summary>
         PeaceTreatyExpiredWithn = 4177,
         /// <summary>Our troops stationed on</summary>
         OurTroopsStationedOn = 4179,
-        /// <summary>had to evacuate since </summary>
+        /// <summary>had to evacuate since\n</summary>
         HadToEvacuateSincen = 4180,
         /// <summary>owns the planet now</summary>
         OwnsThePlanetNow = 4181,
         /// <summary>Foreign troops evacuated from</summary>
         ForeignTroopsEvacuatedFrom = 4182,
-        /// <summary>number of bases was reduced to around</summary>
+        /// <summary>number of bases was reduced\nto around</summary>
         NumberOfBasesWasReducednto = 4183,
-        /// <summary>have a flagship lurking somewhere in the galaxy.</summary>
+        /// <summary>have a flagship\nlurking somewhere in the galaxy.</summary>
         HaveAFlagshipnlurkingSomewhereIn = 4184,
         /// <summary>Omit Old Modules</summary>
         OmitOldModules = 4185,
@@ -4138,13 +4138,13 @@ namespace Ship_Game
         DisableVolcanoAlerts = 4254,
         /// <summary>Disable Volcano Activation or Deactivation alerts. You will still be</summary>
         DisableVolcanoActivationOrDeactivation = 4255,
-        /// <summary>A Dormant Volcano became active. It might erupt or become dormant.</summary>
+        /// <summary>A Dormant Volcano became active.\nIt might erupt or become dormant.</summary>
         ADormantVolcanoBecameActivenit = 4256,
         /// <summary>An Active Volcano became dormant.</summary>
         AnActiveVolcanoBecameDormant = 4257,
-        /// <summary>A Volcano eruption ended. The environment is starting to recover.</summary>
+        /// <summary>A Volcano eruption ended.\nThe environment is starting to recover.</summary>
         AVolcanoEruptionEndedntheEnvironment = 4258,
-        /// <summary>A new Mineral vain was uncovered  and Richness was increased</summary>
+        /// <summary>A new Mineral vain was uncovered\n and Richness was increased</summary>
         ANewMineralVainWas = 4259,
         /// <summary>An active volcano erupted.</summary>
         AnActiveVolcanoErupted = 4260,
@@ -4180,17 +4180,17 @@ namespace Ship_Game
         ThisWillControlTheChances = 4275,
         /// <summary>was destroyed by A Lava pool.</summary>
         WasDestroyedByALava = 4276,
-        /// <summary>Could not place this orbital since orbital limit was reached. Orbital's</summary>
+        /// <summary>Could not place this orbital since orbital limit was reached.\nOrbital's</summary>
         CouldNotPlaceThisOrbital = 4277,
         /// <summary>Do you wish to scrap the Biospheres on this tile?</summary>
         DoYouWishToScrap = 4278,
         /// <summary>Meteor Part</summary>
         MeteorPart = 4279,
-        /// <summary>A Meteor has crashed on the surface! Mysterious substance was found</summary>
+        /// <summary>A Meteor has crashed on the surface!\nMysterious substance was found</summary>
         AMeteorHasCrashedOn = 4280,
-        /// <summary>A Meteor has crashed on the surface! Precious metals were found</summary>
+        /// <summary>A Meteor has crashed on the surface!\nPrecious metals were found</summary>
         AMeteorHasCrashedOn2 = 4281,
-        /// <summary>A Meteor has crashed on the surface! It was mineral rich.</summary>
+        /// <summary>A Meteor has crashed on the surface!\nIt was mineral rich.</summary>
         AMeteorHasCrashedOn3 = 4282,
         /// <summary>A Meteor has crashed on the surface!</summary>
         AMeteorHasCrashedOn4 = 4283,
@@ -4224,6 +4224,14 @@ namespace Ship_Game
         Fertility2 = 4297,
         /// <summary>The Enemy has launched a sneak assault force in an</summary>
         TheEnemyHasLaunchedA = 4298,
+        /// <summary>was destroyed in an exploration event.</summary>
+        WasDestroyedInAnExploration = 4299,
+        /// <summary>was removed since it's resource cache\n was depleted.</summary>
+        WasRemovedSinceItsResource = 4300,
+        /// <summary>Food Remaining here. This building will be removed when the</summary>
+        FoodRemainingHereThisBuilding = 4301,
+        /// <summary>Production Remaining here. This building will be removed when the</summary>
+        ProductionRemainingHereThisBuilding = 4302,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>
@@ -4464,9 +4472,9 @@ namespace Ship_Game
         Level = 6023,
         /// <summary>Recovering</summary>
         Recovering = 6024,
-        /// <summary>has successfully complete training The Agent's performance exceeded expectations.</summary>
+        /// <summary>has successfully complete training\nThe Agent's performance exceeded expectations.</summary>
         HasSuccessfullyCompleteTrainingntheAgents = 6025,
-        /// <summary>has successfully completed training and has gained valuable knowledge.</summary>
+        /// <summary>has successfully completed training\nand has gained valuable knowledge.</summary>
         HasSuccessfullyCompletedTrainingnandHas = 6026,
         /// <summary>was injured in a training accident.</summary>
         WasInjuredInATraining = 6027,
@@ -4476,35 +4484,35 @@ namespace Ship_Game
         HasCompletedTrainingButFailed = 6029,
         /// <summary>successfully infiltrated a colony:</summary>
         SuccessfullyInfiltratedAColony = 6030,
-        /// <summary> The Agent was not detected.</summary>
+        /// <summary>\nThe Agent was not detected.</summary>
         NtheAgentWasNotDetected = 6031,
-        /// <summary>was unable to infiltrate a colony and was wounded avoiding capture</summary>
+        /// <summary>was unable to infiltrate a colony\nand was wounded avoiding capture</summary>
         WasUnableToInfiltrateA = 6032,
-        /// <summary>An enemy Agent was foiled trying to infiltrate a colony The</summary>
+        /// <summary>An enemy Agent was foiled trying to infiltrate a colony\nThe</summary>
         AnEnemyAgentWasFoiled = 6033,
         /// <summary>was killed trying to infiltrate a colony.</summary>
         WasKilledTryingToInfiltrate = 6034,
         /// <summary>An enemy Agent was killed trying to infiltrate one of</summary>
         AnEnemyAgentWasKilled = 6035,
-        /// <summary>was unable to infiltrate a colony and had to abort the</summary>
+        /// <summary>was unable to infiltrate a colony\nand had to abort the</summary>
         WasUnableToInfiltrateA2 = 6036,
         /// <summary>One of our Agents was assassinated:</summary>
         OneOfOurAgentsWas = 6037,
-        /// <summary>could not assassinate an enemy Agent  because target empire has</summary>
+        /// <summary>could not assassinate an enemy Agent \nbecause target empire has</summary>
         CouldNotAssassinateAnEnemy = 6038,
         /// <summary>assassinated an enemy Agent:</summary>
         AssassinatedAnEnemyAgent = 6039,
-        /// <summary> Our agent escaped unharmed and undetected.</summary>
+        /// <summary>\nOur agent escaped unharmed and undetected.</summary>
         NourAgentEscapedUnharmedAnd = 6040,
-        /// <summary> The Assassin was sent by</summary>
+        /// <summary>\nThe Assassin was sent by</summary>
         NtheAssassinWasSentBy = 6041,
-        /// <summary> Our agent was detected but escaped.</summary>
+        /// <summary>\nOur agent was detected but escaped.</summary>
         NourAgentWasDetectedBut = 6042,
         /// <summary>We managed to detect an enemy Assassin before it could</summary>
         WeManagedToDetectAn = 6043,
         /// <summary>was wounded trying to assassinate an enemy agent, but managed</summary>
         WasWoundedTryingToAssassinate = 6044,
-        /// <summary>An enemy Agent was killed during an assassination attempt The Assassin</summary>
+        /// <summary>An enemy Agent was killed during an assassination attempt\nThe Assassin</summary>
         AnEnemyAgentWasKilled2 = 6045,
         /// <summary>was killed trying to assassinate an enemy agent.</summary>
         WasKilledTryingToAssassinate = 6046,
@@ -4512,9 +4520,9 @@ namespace Ship_Game
         WasFoiledTryingToAssassinate = 6047,
         /// <summary>An enemy Agent has sabotaged production on</summary>
         AnEnemyAgentHasSabotaged = 6048,
-        /// <summary> The Agent was sent by</summary>
+        /// <summary>\nThe Agent was sent by</summary>
         NtheAgentWasSentBy = 6049,
-        /// <summary>was detected while attempting to steal a technology and was wounded</summary>
+        /// <summary>was detected while attempting to steal a technology\nand was wounded</summary>
         WasDetectedWhileAttemptingTo = 6050,
         /// <summary>We foiled an enemy Agent trying to sabotage production on</summary>
         WeFoiledAnEnemyAgent = 6051,
@@ -4526,7 +4534,7 @@ namespace Ship_Game
         WasKilledTryingToSabotage = 6054,
         /// <summary>escaped after being detected while trying to sabotage</summary>
         EscapedAfterBeingDetectedWhile = 6055,
-        /// <summary>An enemy spy stole some technology from us  but we</summary>
+        /// <summary>An enemy spy stole some technology from us \nbut we</summary>
         AnEnemySpyStoleSome = 6056,
         /// <summary>stole some technology data related to:</summary>
         StoleTechnologyDataChipsFor = 6057,
@@ -4538,17 +4546,17 @@ namespace Ship_Game
         AnEnemyAgentWasKilled3 = 6060,
         /// <summary>was killed trying to steal technology</summary>
         WasKilledTryingToSteal = 6061,
-        /// <summary>was detected while attempting to steal a technology but managed to</summary>
+        /// <summary>was detected while attempting to steal a technology\nbut managed to</summary>
         WasDetectedWhileAttemptingTo2 = 6062,
-        /// <summary>aborted the Steal Technology mission because there is nothing to steal;</summary>
+        /// <summary>aborted the Steal Technology mission because\nthere is nothing to steal;</summary>
         AbortedTheStealTechnologyMission = 6063,
         /// <summary>Credits are therefore refunded.</summary>
         CreditsAreThereforeRefunded = 6064,
-        /// <summary>credits were mysteriously stolen from our treasury. We have no suspects</summary>
+        /// <summary>credits were mysteriously stolen from our treasury.\nWe have no suspects</summary>
         CreditsWereMysteriouslyStolenFrom = 6065,
         /// <summary>could not rob</summary>
         CouldNotRob = 6066,
-        /// <summary> because they have no money</summary>
+        /// <summary>\nbecause they have no money</summary>
         NbecauseTheyHaveNoMoney = 6067,
         /// <summary>stole</summary>
         Stole = 6068,
@@ -4558,13 +4566,13 @@ namespace Ship_Game
         CreditsWereStolenFromOur = 6070,
         /// <summary>We foiled an enemy plot to rob our treasury</summary>
         WeFoiledAnEnemyPlot2 = 6071,
-        /// <summary>was unable to steal any credits and was wounded while escaping.</summary>
+        /// <summary>was unable to steal any credits\nand was wounded while escaping.</summary>
         WasUnableToStealAny = 6072,
         /// <summary>We killed an enemy Agent during an attempted robbery</summary>
         WeKilledAnEnemyAgent2 = 6073,
         /// <summary>was killed trying to steal credits from</summary>
         WasKilledTryingToSteal2 = 6074,
-        /// <summary>was unable to steal any credits but managed to escape unharmed.</summary>
+        /// <summary>was unable to steal any credits\nbut managed to escape unharmed.</summary>
         WasUnableToStealAny2 = 6075,
         /// <summary>We foiled an enemy plot to incite rebellion on</summary>
         WeFoiledAnEnemyPlot3 = 6076,
@@ -4572,7 +4580,7 @@ namespace Ship_Game
         IncitedASeriousRebellionOn = 6077,
         /// <summary>An enemy Agent has incited rebellion on</summary>
         AnEnemyAgentHasIncited = 6078,
-        /// <summary> However, they know we are behind it.</summary>
+        /// <summary>\nHowever, they know we are behind it.</summary>
         NhoweverTheyKnowWeAre = 6079,
         /// <summary>was wounded while trying to incite a rebellion on</summary>
         WasWoundedWhileTryingTo2 = 6080,
@@ -4964,7 +4972,7 @@ namespace Ship_Game
         ThisIsABonusTo = 7083,
         /// <summary>Estimated offensive strength of the ship or module. This is</summary>
         EstimatedOffensiveStrengthOfThe = 7084,
-        /// <summary>Short Range:   Ship will rotate so that forward-firing weapons are</summary>
+        /// <summary>Short Range: \n\nShip will rotate so that forward-firing weapons are</summary>
         ShipWillRotateSoThat2 = 7085,
         /// <summary>This value represents the complexity of this command module's fire</summary>
         ThisValueRepresentsTheComplexity = 7086,
