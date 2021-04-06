@@ -14,16 +14,17 @@ namespace SDGameTextToEnum
         {
         }
 
-        public bool AddFromModYaml(string yamlFile, bool logMerge = false)
+        public bool AddFromModYaml(string yamlFile, string nameIdPrefix, bool logMerge = false)
         {
             List<TextToken> tokens = TextToken.FromYaml(yamlFile);
             if (tokens.Count == 0)
                 return false;
-            AddModLocalizations(tokens, logMerge);
+            AddModLocalizations(tokens, nameIdPrefix, logMerge);
             return true;
         }
 
-        public void AddModLocalizations(IEnumerable<TextToken> localizations, bool logMerge = false)
+        public void AddModLocalizations(IEnumerable<TextToken> localizations, 
+                                        string nameIdPrefix, bool logMerge = false)
         {
             // build ModTexts
             var uniqueToMod = new List<TextToken>();
@@ -33,7 +34,7 @@ namespace SDGameTextToEnum
                     token.NameId = vanilla.NameId; // keep NameId from vanilla
                 else
                     uniqueToMod.Add(token); // this is unique to the mod
-                AddLocalization(ModText, token, logMerge);
+                AddLocalization(ModText, token, nameIdPrefix, logMerge);
             }
         }
 

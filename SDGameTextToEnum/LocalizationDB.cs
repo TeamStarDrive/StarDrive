@@ -14,7 +14,8 @@ namespace SDGameTextToEnum
         protected readonly List<Localization> LocalizedText = new List<Localization>();
         protected readonly List<Localization> ToolTips = new List<Localization>();
         protected readonly HashSet<string> EnumNames = new HashSet<string>();
-        readonly char[] Space = { ' ' };
+        readonly string[] WordSeparators = { " ", "\t", "\r", "\n", "\"",
+                                                 "\\t","\\r","\\n", "\\\"" };
 
         public LocalizationDB(string enumNamespace, string enumName)
         {
@@ -82,14 +83,9 @@ namespace SDGameTextToEnum
             return sb.ToString();
         }
 
-        string GetCommentSafeWord(string word)
+        string CreateNameId(string nameIdPrefix, int id, string[] words)
         {
-            return word.Replace('\n', ' ');
-        }
-
-        string CreateNameId(int id, string[] words)
-        {
-            string name = "";
+            string name = nameIdPrefix ?? "";
             if (ExistingIds.TryGetValue(id, out TextToken existing) &&
                 !string.IsNullOrWhiteSpace(existing.NameId))
             {
@@ -127,22 +123,23 @@ namespace SDGameTextToEnum
             return name;
         }
 
-        protected Localization AddNewLocalization(List<Localization> localizations, TextToken token)
+        protected Localization AddNewLocalization(List<Localization> localizations, 
+                                                  TextToken token, string nameIdPrefix)
         {
-            string[] words = token.Text.Split(Space, StringSplitOptions.RemoveEmptyEntries);
+            string[] words = token.Text.Split(WordSeparators, StringSplitOptions.RemoveEmptyEntries);
             const int maxCommentWords = 10;
             string comment = "";
 
             for (int i = 0; i < maxCommentWords && i < words.Length; ++i)
             {
-                comment += GetCommentSafeWord(words[i]);
+                comment += words[i];
                 if (i != (words.Length - 1) && i != (maxCommentWords - 1))
                     comment += " ";
             }
 
             // only generate a new name if not specified
             if (string.IsNullOrEmpty(token.NameId))
-                token.NameId = CreateNameId(token.Id, words);
+                token.NameId = CreateNameId(nameIdPrefix, token.Id, words);
 
             if (!string.IsNullOrEmpty(token.NameId))
             {
@@ -173,11 +170,11 @@ namespace SDGameTextToEnum
             List<TextToken> tokens = TextToken.FromYaml(yamlFile);
             if (tokens.Count == 0)
                 return false;
-            AddLocalizations(tokens, logMerge);
+            AddLocalizations(tokens, logMerge:logMerge);
             return true;
         }
 
-        protected void AddLocalization(List<Localization> localizations, TextToken token, bool logMerge)
+        protected void AddLocalization(List<Localization> localizations, TextToken token, string nameIdPrefix, bool logMerge)
         {
             if (string.IsNullOrEmpty(token.Text))
                 return;
@@ -190,7 +187,7 @@ namespace SDGameTextToEnum
             }
             else
             {
-                AddNewLocalization(localizations, token);
+                AddNewLocalization(localizations, token, nameIdPrefix);
             }
         }
 
@@ -198,7 +195,7 @@ namespace SDGameTextToEnum
         {
             foreach (TextToken token in localizations)
             {
-                AddLocalization(LocalizedText, token, logMerge);
+                AddLocalization(LocalizedText, token, null, logMerge);
             }
         }
         
@@ -219,7 +216,7 @@ namespace SDGameTextToEnum
                     Log.Write(ConsoleColor.Red, $"{Name}: duplicate tooltip with id={t.Id}");
                 else
                 {
-                    Localization loc = AddNewLocalization(ToolTips, t);
+                    Localization loc = AddNewLocalization(ToolTips, t, null);
                     if (loc != null)
                     {
                         loc.TipId = GetNameId(t.ToolTipData);
