@@ -48,10 +48,10 @@ namespace Ship_Game
         {
             if (Id > 0)
             {
-                ToolTip tooltip = ResourceManager.GetToolTip(Id);
+                ToolTip tooltip = ToolTip.GetToolTip(Id);
                 if (tooltip != null)
                 {
-                    return "TIP/"+(GameTips)Id+"/: \""+Localizer.Token(tooltip.Data)+"\"";
+                    return "TIP/"+(GameTips)Id+"/: \""+Localizer.Token(tooltip.TextId)+"\"";
                 }
                 if (Text.IsEmpty()) // try to recover.. somehow
                 {
@@ -68,10 +68,10 @@ namespace Ship_Game
             {
                 if (Id > 0)
                 {
-                    ToolTip tooltip = ResourceManager.GetToolTip(Id);
+                    ToolTip tooltip = ToolTip.GetToolTip(Id);
                     if (tooltip != null)
                     {
-                        return Localizer.Token(tooltip.Data);
+                        return Localizer.Token(tooltip.TextId);
                     }
                     if (Text.IsEmpty()) // try to recover.. somehow
                     {

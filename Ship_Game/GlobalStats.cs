@@ -12,9 +12,6 @@ namespace Ship_Game
     public enum Language
     {
         English,
-        French,
-        German,
-        Polish,
         Russian,
         Spanish
     }
@@ -147,18 +144,9 @@ namespace Ship_Game
 
         // Language options
         public static bool IsEnglish => Language == Language.English;
-        public static bool IsFrench  => Language == Language.French;
-        public static bool IsGerman  => Language == Language.German;
-        public static bool IsPolish  => Language == Language.Polish;
         public static bool IsRussian => Language == Language.Russian;
         public static bool IsSpanish => Language == Language.Spanish;
-
-        public static bool IsGermanOrPolish       => IsGerman || IsPolish;
-        public static bool IsGermanFrenchOrPolish => IsGerman || IsPolish || IsFrench;
-
-        public static bool NotEnglish             => Language != Language.English;
-        public static bool NotGerman              => Language != Language.German;
-        public static bool NotEnglishOrSpanish    => IsGerman || IsPolish || IsRussian || IsFrench;
+        public static bool NotEnglish => Language != Language.English;
 
         // Debug log options
         public static bool VerboseLogging;
