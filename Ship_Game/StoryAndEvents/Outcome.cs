@@ -87,8 +87,11 @@ namespace Ship_Game
             }
         }
 
-        void PlanetGrants(Empire triggeredBy, Planet p, PlanetGridSquare eventTile)
+        void PlanetGrants(Planet p, PlanetGridSquare eventTile)
         {
+            if (p == null)
+                return;
+
             MakeTilesHabitable(p, eventTile);
             MakeTilesUnhabitable(p, eventTile);
             p.AddBaseFertility(ChangeBaseFertility);
@@ -261,7 +264,7 @@ namespace Ship_Game
             FlatGrants(triggeredBy);
             TechGrants(triggeredBy);
             ShipGrants(triggeredBy, p);
-            PlanetGrants(triggeredBy, p, eventLocation);
+            PlanetGrants(p, eventLocation);
 
             //planet triggered events
             if (p != null)
