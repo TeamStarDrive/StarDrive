@@ -1753,7 +1753,6 @@ Tradehub:
  Id: 393
  ENG: "Trade Hub"
  RUS: "Торговый центр"
- SPA: "Centro de comercio"
 GovernorWillControlProductionLevels:
  Id: 394
  ENG: "Governor will control production levels as a core system, but will not build any structures. It will start importing if stores are below 20% and continue importing until they reach 40%. It will start exporting if stores are above 80% and continue exporting until stores go down to 40%."
@@ -10067,6 +10066,18 @@ Fertility2:
 TheEnemyHasLaunchedA:
  Id: 4298
  ENG: "The Enemy has launched a sneak assault force in an attempt to\nboard our Bombers and escorting ships!"
+WasDestroyedInAnExploration:
+ Id: 4299
+ ENG: "was destroyed in an exploration event."
+WasRemovedSinceItsResource:
+ Id: 4300
+ ENG: "was removed since it's resource cache\n was depleted."
+FoodRemainingHereThisBuilding:
+ Id: 4301
+ ENG: "Food Remaining here. This building will be removed when the cache is depleted."
+ProductionRemainingHereThisBuilding:
+ Id: 4302
+ ENG: "Production Remaining here. This building will be removed when the cache is depleted."
 OnSurface:
  Id: 4993
  ENG: "on surface"

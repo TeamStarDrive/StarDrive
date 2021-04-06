@@ -69,7 +69,7 @@ namespace Ship_Game
             if (isBuilding)
             {
                 batch.Draw(Building.IconTex, r);
-                batch.DrawString(Fonts.Arial12Bold, Building.TranslatedName.Text, tCursor, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, Building.TranslatedName, tCursor, Color.White);
                 pb.Draw(batch);
             }
             else if (isShip)

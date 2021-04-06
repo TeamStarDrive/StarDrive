@@ -4,82 +4,91 @@ using System.Linq;
 
 namespace SDGameTextToEnum
 {
-    public class LangText
-    {
-        public string Lang;
-        public string Text;
-        public LangText(string lang, string text)
-        {
-            Lang = lang;
-            Text = text;
-        }
-
-        // properly escaped yaml safe string
-        public string YamlString
-        {
-            get
-            {
-                string escaped = Text;
-                escaped = escaped.Replace("\r\n", "\\n");
-                escaped = escaped.Replace("\n", "\\n");
-                escaped = escaped.Replace("\t", "\\t");
-                escaped = escaped.Replace("\"", "\\\"");
-                return "\"" + escaped + "\"";
-            }
-        }
-    }
-
     public class Localization
     {
         public static string[] SupportedLangs = new[]{ "ENG", "RUS", "SPA" };
-
         public readonly int Id;
         public readonly string NameId;
         public readonly string Comment;
-        public readonly List<LangText> LangTexts;
+        public readonly List<Translation> Translations;
         public string TipId;
-        public Localization(string lang, int id, string nameId, string comment, string text)
+
+        public override string ToString() => $"{NameId}({Id}) {Translations[0]}";
+
+        public Localization(TextToken token, string comment)
         {
-            Id = id;
-            NameId = nameId;
+            Id = token.Id;
+            NameId = token.NameId;
             Comment = comment;
-            LangTexts = new List<LangText>{ new LangText(lang, text) };
+            Translations = new List<Translation>{new Translation(token.Id, token.Lang, token.Text)};
         }
+
         public Localization(Localization copy)
         {
             Id = copy.Id;
             NameId = copy.NameId;
             Comment = copy.Comment;
-            LangTexts = new List<LangText>(copy.LangTexts.Select(x => new LangText(x.Lang, x.Text)));
+            Translations = new List<Translation>(copy.Translations.Select(x => new Translation(x)));
         }
-        public bool TryGetText(string lang, out LangText text)
+
+        public bool TryGetText(string lang, out Translation text)
         {
-            text = LangTexts.FirstOrDefault(x => x.Lang == lang);
+            text = Translations.FirstOrDefault(x => x.Lang == lang);
             return text != null;
         }
-        public LangText GetText(string lang)
+
+        public Translation GetText(string lang)
         {
-            LangText text = LangTexts.FirstOrDefault(x => x.Lang == lang);
+            Translation text = Translations.FirstOrDefault(x => x.Lang == lang);
             if (text == null)
                 throw new Exception($"{NameId}({Id}) failed to get lang={lang}");
             return text;
         }
-        public void AddText(string lang, int id, string text)
+
+        public void AddTranslation(Translation tr)
         {
-            if (!SupportedLangs.Contains(lang))
+            if (!SupportedLangs.Contains(tr.Lang))
             {
-                Log.Write(ConsoleColor.Yellow, $"unsupported langugage: {lang}");
+                Log.Write(ConsoleColor.Yellow, $"unsupported langugage: {tr.Lang}");
             }
-            else if (TryGetText(lang, out LangText lt))
+            else if (TryGetText(tr.Lang, out Translation ex))
             {
-                Log.Write(ConsoleColor.Yellow,  "id already exists:\n" +
-                                                $"  existing {lang}: {id}={lt.Text}\n" +
-                                                $"  addition {lang}: {id}={text}");
+                Log.Write(ConsoleColor.Yellow, "id already exists:\n" +
+                                              $"  existing {ex.Lang}: {ex.Id}={ex.Text}\n" +
+                                              $"  addition {tr.Lang}: {tr.Id}={tr.Text}");
             }
             else
             {
-                LangTexts.Add(new LangText(lang, text));
+                Translations.Add(tr);
             }
+        }
+
+        public bool Equals(Localization other)
+        {
+            if (Id != other.Id || Translations.Count != other.Translations.Count)
+                return false;
+
+            foreach (Translation ourTr in Translations)
+            {
+                if (other.TryGetText(ourTr.Lang, out Translation otherTr))
+                {
+                    if (ourTr.Text != otherTr.Text)
+                        return false;
+                }
+                else
+                {
+                    return false; // other Localization does not have this translation
+                }
+            }
+            return true;
+        }
+
+        public bool HasLang(string lang)
+        {
+            foreach (Translation tr in Translations)
+                if (tr.Lang == lang)
+                    return true;
+            return false;
         }
     }
 }

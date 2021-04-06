@@ -5,9 +5,10 @@ namespace Ship_Game
 {
     public enum LocalizationMethod
     {
-        Id, // Localization token id is used to look up the actual strings
+        Id,      // Localization token id is used to look up the actual strings
+        NameId,  // Localization via name id
         RawText, // No extra localization steps are done, this is RAW text
-        Parse, // Text is parsed for localization tags and replaced on demand
+        Parse,   // Text is parsed for localization tags and replaced on demand
     }
 
     /// <summary>
@@ -35,7 +36,10 @@ namespace Ship_Game
             String = null;
             Method = LocalizationMethod.Id;
         }
-
+        
+        // if LocalizationMethod.NameId then text is fetched via localization name
+        // if LocalizationMethod.RawText then text is just pure raw text
+        // if LocalizationMethod.Parse then text is evaluated dynamically for tokens
         public LocalizedText(string text, LocalizationMethod method)
         {
             Id = 0;
@@ -108,6 +112,7 @@ namespace Ship_Game
             switch (Method)
             {
                 case LocalizationMethod.Id:      return "ID/"+(GameText)Id+"/: \""+Text+"\"";
+                case LocalizationMethod.NameId:  return "NAMEID/"+Text+"/: \""+Text+"\"";
                 case LocalizationMethod.RawText: return "RAW: \""+Text+"\"";
                 case LocalizationMethod.Parse:   return "PARSED: \""+Text+"\"";
             }
@@ -122,7 +127,8 @@ namespace Ship_Game
                 switch (Method)
                 {
                     default:                         return "";
-                    case LocalizationMethod.Id:      return Localizer.Token(Id); // quite fast
+                    case LocalizationMethod.Id:      return Localizer.Token(Id); // super fast
+                    case LocalizationMethod.NameId:  return Localizer.Token(String); // moderate lookup cost
                     case LocalizationMethod.RawText: return String; // super fast
                     case LocalizationMethod.Parse:   return ParseText(String); // very slow
                 }
@@ -191,12 +197,12 @@ namespace Ship_Game
                     }
                     else if (char.IsLetter(idString[0]))
                     {
-                        if (!Enum.TryParse(idString, out GameText gameText))
+                        if (!Localizer.Token(idString, out string parsedText))
                         {
                             Log.Error($"Failed to parse localization id: {idString}! -- LocalizedText not parsed correctly: {text}");
                             continue;
                         }
-                        sb.Append(Localizer.Token(gameText));
+                        sb.Append(parsedText);
                     }
                     else
                     {

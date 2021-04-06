@@ -100,7 +100,7 @@ namespace Ship_Game
             {
                 Index = Tabs.Count,
                 Title = title.Text,
-                Rect  = new Rectangle(tabX, UpperLeft.Y, (int)Font.MeasureString(title.Text).X + 2, 25),
+                Rect  = new Rectangle(tabX, UpperLeft.Y, (int)Font.MeasureString(title).X + 2, 25),
             });
         }
 

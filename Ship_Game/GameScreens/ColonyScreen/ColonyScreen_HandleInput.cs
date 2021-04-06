@@ -148,7 +148,7 @@ namespace Ship_Game
                             && bioRect.HitTest(input.CursorPosition) && Input.RightMouseClick)
                         {
                             BioToScrap     = pgs;
-                            string message = new LocalizedText(4278).Text;
+                            string message = Localizer.Token(4278);
                             var messageBox = new MessageBoxScreen(Empire.Universe, message);
                             messageBox.Accepted = ScrapBioAccepted;
                             ScreenManager.AddScreen(messageBox);
