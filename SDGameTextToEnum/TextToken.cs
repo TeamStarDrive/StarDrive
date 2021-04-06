@@ -29,9 +29,13 @@ namespace SDGameTextToEnum
 
         public static List<TextToken> FromYaml(string yamlFile)
         {
-            Log.Write(ConsoleColor.Cyan, $"FromYaml: {yamlFile}");
             var tokens = new List<TextToken>();
-            using var parser = new YamlParser(yamlFile);
+            var file = new FileInfo(yamlFile);
+            if (!file.Exists)
+                return tokens;
+            
+            Log.Write(ConsoleColor.Cyan, $"FromYaml: {yamlFile}");
+            using var parser = new YamlParser(file);
             foreach (KeyValuePair<object, LangToken> kv in parser.DeserializeMap<LangToken>())
             {
                 string nameId = (string)kv.Key;
