@@ -90,8 +90,6 @@ namespace Ship_Game
             FoodCache.Greater(0) && PlusFlatFoodAmount.AlmostZero() 
             || ProdCache.Greater(0) && PlusProdPerColonist.AlmostZero();
 
-
-
         public override string ToString()
             => $"BID:{BID} Name:{Name} ActualCost:{ActualCost} +Tax:{PlusTaxPercentage}  Short:{ShortDescrText}";
 

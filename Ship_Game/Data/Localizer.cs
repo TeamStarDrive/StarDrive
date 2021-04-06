@@ -83,8 +83,11 @@ namespace Ship_Game
         /// </summary>
         public static string Token(string nameId)
         {
-            return NameIdToString.TryGetValue(nameId, out string text)
-                ? text : "<"+nameId+">";
+            return NameIdToString.TryGetValue(nameId, out string text) ? text : "<"+nameId+">";
+        }
+        public static bool Token(string nameId, out string text)
+        {
+            return NameIdToString.TryGetValue(nameId, out text);
         }
 
         public static void Reset()
