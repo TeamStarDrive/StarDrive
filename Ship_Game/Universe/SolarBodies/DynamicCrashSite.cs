@@ -244,7 +244,7 @@ namespace Ship_Game.Universe.SolarBodies
             // Remove the Crater
             string path = tile.BuildingOnTile ? tile.Building.IconPath64 : "";
             if (planet.Owner == EmpireManager.Player)
-                Empire.Universe.NotificationManager.AddMeteorRelated(planet, new LocalizedText(4288).Text, path);
+                Empire.Universe.NotificationManager.AddMeteorRelated(planet, Localizer.Token(4288), path);
 
             planet.DestroyBuildingOn(tile);
         }

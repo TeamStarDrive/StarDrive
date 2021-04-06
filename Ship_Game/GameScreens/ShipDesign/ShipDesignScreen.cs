@@ -528,7 +528,7 @@ namespace Ship_Game
             {
                 ToggleOverlay = !ToggleOverlay;
             }).ClickSfx = "blip_click";
-            BtnSymmetricDesign = bottomListRight.Add(ButtonStyle.Medium, new LocalizedText(1985).Text, click: b =>
+            BtnSymmetricDesign = bottomListRight.Add(ButtonStyle.Medium, Localizer.Token(1985), click: b =>
             {
                 OnSymmetricDesignToggle();
             });
@@ -543,14 +543,14 @@ namespace Ship_Game
             bottomListLeft.Direction = new Vector2(+1, 0);
             bottomListLeft.Padding = new Vector2(16f, 2f);
 
-            BtnStripShip = bottomListLeft.Add(ButtonStyle.Medium, new LocalizedText(1986).Text, click: b =>
+            BtnStripShip = bottomListLeft.Add(ButtonStyle.Medium, Localizer.Token(1986), click: b =>
             {
                 OnStripShipToggle();
             });
             BtnStripShip.ClickSfx = "blip_click";
             BtnStripShip.Tooltip = Localizer.Token(1895);
 
-            BtnFilterModules = bottomListLeft.Add(ButtonStyle.Medium, new LocalizedText(4185).Text, click: b =>
+            BtnFilterModules = bottomListLeft.Add(ButtonStyle.Medium, Localizer.Token(4185), click: b =>
             {
                 OnFilterModuleToggle();
             });

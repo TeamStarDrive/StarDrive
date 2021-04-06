@@ -2987,12 +2987,12 @@ namespace Ship_Game
                 string hullString = ship.BaseHull.ToString();
                 if (hullTech.Unlocked)
                 {
-                    string message = $"{hullString}{new LocalizedText(GameText.ReverseEngineered).Text}";
+                    string message = $"{hullString}{Localizer.Token(GameText.ReverseEngineered)}";
                     Universe.NotificationManager.AddScrapUnlockNotification(message, modelIcon, "ShipDesign");
                 }
                 else
                 {
-                    string message = $"{hullString}{new LocalizedText(GameText.HullScrappedAdvancingResearch).Text}";
+                    string message = $"{hullString}{Localizer.Token(GameText.HullScrappedAdvancingResearch)}";
                     Universe.NotificationManager.AddScrapProgressNotification(message, modelIcon, "ResearchScreen", hullTech.UID);
                 }
             }
@@ -3056,9 +3056,8 @@ namespace Ship_Game
         {
             if (!isPlayer)
                 return;
-
-            string message = new LocalizedText(GameText.ShipCapturedByYou).Text;
-            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship, null);
+            Universe.NotificationManager.AddBoardNotification(Localizer.Token(GameText.ShipCapturedByYou),
+                                                              ship.BaseHull.ActualIconPath, "SnapToShip", ship, null);
         }
 
         public void AddBoardedNotification(Ship ship)
@@ -3066,7 +3065,7 @@ namespace Ship_Game
             if (!isPlayer) 
                 return;
 
-            string message = $"{new LocalizedText(GameText.YourShipWasCaptured).Text} {ship.loyalty.Name}!";
+            string message = $"{Localizer.Token(GameText.YourShipWasCaptured)} {ship.loyalty.Name}!";
             Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship, ship.loyalty);
         }
 
@@ -3075,7 +3074,7 @@ namespace Ship_Game
             if (!isPlayer)
                 return;
 
-            string message = $"{new LocalizedText(text).Text} {initiator.Name}!";
+            string message = $"{Localizer.Token(text)} {initiator.Name}!";
             Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship, initiator);
         }
 
