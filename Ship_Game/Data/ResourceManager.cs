@@ -50,7 +50,6 @@ namespace Ship_Game
         static readonly Map<string, Ship> ShipsDict = new Map<string, Ship>();
 
         public static Map<string, Technology> TechTree          = new Map<string, Technology>(GlobalStats.CaseControl);
-        static readonly Array<ToolTip> ToolTips                 = new Array<ToolTip>();
         public static Array<Encounter> Encounters               = new Array<Encounter>();
         public static Map<string, Building> BuildingsDict       = new Map<string, Building>();
         public static Map<string, Good> GoodsDict               = new Map<string, Good>();
@@ -171,7 +170,7 @@ namespace Ship_Game
             InitContentDir();
             Log.Write($"Load {(GlobalStats.HasMod ? ModContentDirectory : "Vanilla")}");
             LoadLanguage(GlobalStats.Language); // @todo Slower than expected [0.36]
-            LoadToolTips();
+            ToolTip.LoadToolTips();
             LoadHullBonuses();
             LoadHullData(); // we need Hull Data for main menu ship
             LoadEmpires();  // empire for NewGame @todo Very slow [0.54%]
@@ -283,7 +282,7 @@ namespace Ship_Game
             TechTree.Clear();
             ArtifactsDict.Clear();
             ShipsDict.Clear();
-            ToolTips.Clear();
+            ToolTip.ClearToolTips();
             GoodsDict.Clear();
             Encounters.Clear();
             EventsDict.Clear();
@@ -1108,28 +1107,37 @@ namespace Ship_Game
             Localizer.Reset();
             LocalizedText.ClearCache();
 
-            foreach (var loc in LoadVanillaEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
-                Localizer.AddTokens(loc.TokenList);
-
-            if (language != Language.English)
+            var gameText = new FileInfo(ContentDirectory + "GameText.yaml");
+            if (gameText.Exists)
             {
-                foreach (var loc in LoadVanillaEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
+                Localizer.AddFromYaml(gameText, language);
+            }
+            else
+            {
+                foreach (var loc in LoadVanillaEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
                     Localizer.AddTokens(loc.TokenList);
+                if (language != Language.English)
+                    foreach (var loc in LoadVanillaEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
+                        Localizer.AddTokens(loc.TokenList);
             }
 
             // Now replace any vanilla tokens with mod tokens
             if (GlobalStats.HasMod)
             {
-                foreach (var loc in LoadModEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
-                    Localizer.AddTokens(loc.TokenList);
-
-                if (language != Language.English)
+                var modText = new FileInfo(ModContentDirectory + "GameText.yaml");
+                if (modText.Exists)
                 {
-                    foreach (var loc in LoadModEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
+                    Localizer.AddFromYaml(modText, language);
+                }
+                else
+                {
+                    foreach (var loc in LoadModEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
                         Localizer.AddTokens(loc.TokenList);
+                    if (language != Language.English)
+                        foreach (var loc in LoadModEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
+                            Localizer.AddTokens(loc.TokenList);
                 }
             }
-
         }
 
 
@@ -1540,35 +1548,6 @@ namespace Ship_Game
                 // categorize extra techs
                 tech.UpdateTechnologyTypesFromUnlocks();
             }
-        }
-
-        static void LoadToolTips()
-        {
-            foreach (var tooltips in LoadEntities<Tooltips>("Tooltips", "LoadToolTips"))
-            {
-                ToolTips.Capacity = tooltips.ToolTipsList.Count;
-                foreach (ToolTip tip in tooltips.ToolTipsList)
-                {
-                    int idx = tip.TIP_ID - 1;
-                    while (ToolTips.Count <= idx) ToolTips.Add(null); // sparse List
-                    ToolTips[idx] = tip;
-                }
-            }
-        }
-
-        static readonly HashSet<int> MissingTooltips = new HashSet<int>();
-        public static ToolTip GetToolTip(int tipId)
-        {
-            if (tipId > ToolTips.Count)
-            {
-                if (!MissingTooltips.Contains(tipId))
-                {
-                    MissingTooltips.Add(tipId);
-                    Log.Warning($"Missing ToolTip: {tipId}");
-                }
-                return null;
-            }
-            return ToolTips[tipId - 1];
         }
 
         static readonly Map<string, Weapon> WeaponsDict = new Map<string, Weapon>();

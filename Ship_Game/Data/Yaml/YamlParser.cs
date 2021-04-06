@@ -373,7 +373,7 @@ namespace Ship_Game.Data.Yaml
                 ++current;
             }
 
-        finished:
+            finished:
             int length = current - start;
             view.Skip(length);
             return new StringView(chars, start, length);
@@ -404,16 +404,16 @@ namespace Ship_Game.Data.Yaml
                 }
             }
 
-        carriage:
+            carriage:
             if (Reader.Peek() == 10) // skip newline
                 Reader.Read();
 
-        newline:
+            newline:
             line = new StringView(buffer, 0, length); // allow 0 length
             outDepth = depth;
             return true;
 
-        end_of_stream:
+            end_of_stream:
             if (length > 0)
             {
                 line = new StringView(buffer, 0, length);
@@ -445,6 +445,19 @@ namespace Ship_Game.Data.Yaml
             LoggedErrors.Add(e);
         }
 
+        /// <summary>
+        /// Deserialize a sequence of root elements
+        /// ...
+        /// Planet:
+        ///   Name: Mars
+        /// Planet:
+        ///   Name: Venus
+        /// ...
+        /// struct Planet
+        /// {
+        ///     public string Name;
+        /// }
+        /// </summary>
         public Array<T> DeserializeArray<T>() where T : new()
         {
             var items = new Array<T>();
@@ -456,6 +469,19 @@ namespace Ship_Game.Data.Yaml
             return items;
         }
 
+        /// <summary>
+        /// Deserialize a single root element
+        /// ...
+        /// List:
+        ///   Rect: [-20, 0.22, 200, 600]
+        ///   AxisAlign: CenterRight
+        /// ...
+        /// struct List
+        /// {
+        ///     public Rectangle Rect;
+        ///     public AxisAlignment AxisAlign;
+        /// }
+        /// </summary>
         public T DeserializeOne<T>() where T : new()
         {
             var ser = new YamlSerializer.YamlSerializer(typeof(T));
@@ -464,6 +490,29 @@ namespace Ship_Game.Data.Yaml
                 return (T)ser.Deserialize(child);
             }
             return default;
+        }
+
+        /// <summary>
+        /// Deserializes a map of root elements with unique identifiers
+        /// ...
+        /// AttackRunsOrder:
+        ///  Id: 1
+        ///  ENG: "Attack Runs Order"
+        /// ArtilleryOrder:
+        ///  Id: 2
+        ///  ENG: "Artillery Order"
+        /// ...
+        /// </summary>
+        public Array<KeyValuePair<object, T>> DeserializeMap<T>() where T : new()
+        {
+            var items = new Array<KeyValuePair<object, T>>();
+            var ser = new YamlSerializer.YamlSerializer(typeof(T));
+            foreach (YamlNode child in Root)
+            {
+                var val = (T)ser.Deserialize(child);
+                items.Add(new KeyValuePair<object, T>(child.Key, val));
+            }
+            return items;
         }
     }
 }

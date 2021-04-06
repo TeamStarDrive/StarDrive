@@ -2728,7 +2728,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>939</Index>
-      <Text />
+      <Text>Dummy</Text>
     </Token>
     <Token>
       <Index>940</Index>
@@ -7651,10 +7651,6 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4046</Index>
-      <Text>Small</Text>
-    </Token>
-    <Token>
-      <Index>4046</Index>
       <Text>Normal</Text>
     </Token>
     <Token>
@@ -7697,10 +7693,6 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>4056</Index>
       <Text>Fleet Design Overview</Text>
-    </Token>
-    <Token>
-      <Index>4057</Index>
-      <Text>Add ship designs to this fleet from the panel on the right. Use shift key to place multiple ships of the same type. When you are done, you can press the 'Requisition' button, which will search your empire for ships that can fill your fleet. If you do not have the ships, it will order that they are built at a suitable planet.\n\nReturn here at any time to requisition replacements for any ships that are lost in combat.</Text>
     </Token>
     <Token>
       <Index>4058</Index>
@@ -9873,10 +9865,6 @@ An empire's counter-espionage budget reduces your intelligence penetration
   <Token>
       <Index>7007</Index>
       <Text>Indicates a ship's experience level. For each experience level, a ship gains a 5% bonus each to repair rate, turning speed, and weapons damage.</Text>
-    </Token>
-  <Token>
-      <Index>7008</Index>
-      <Text></Text>
     </Token>
   <Token>
       <Index>7009</Index>

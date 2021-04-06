@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDUnitTests", "UnitTests\SD
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDNativeTests", "SDNative\SDNativeTests\SDNativeTests.vcxproj", "{6F2834B1-0D9B-479B-BEFA-F04EE326CC41}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDGameTextToEnum", "SDGameTextToEnum\SDGameTextToEnum.csproj", "{598A4045-5354-4205-90F7-2BB4E01D6775}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug - Auto Fast|x86 = Debug - Auto Fast|x86
@@ -100,6 +102,18 @@ Global
 		{6F2834B1-0D9B-479B-BEFA-F04EE326CC41}.Release|x86.Build.0 = Release|Win32
 		{6F2834B1-0D9B-479B-BEFA-F04EE326CC41}.Release-2017|x86.ActiveCfg = Release-2017|Win32
 		{6F2834B1-0D9B-479B-BEFA-F04EE326CC41}.Release-2017|x86.Build.0 = Release-2017|Win32
+		{598A4045-5354-4205-90F7-2BB4E01D6775}.Debug - Auto Fast|x86.ActiveCfg = Debug|x86
+		{598A4045-5354-4205-90F7-2BB4E01D6775}.Debug - Auto Fast|x86.Build.0 = Debug|x86
+		{598A4045-5354-4205-90F7-2BB4E01D6775}.Debug|x86.ActiveCfg = Debug|x86
+		{598A4045-5354-4205-90F7-2BB4E01D6775}.Debug|x86.Build.0 = Debug|x86
+		{598A4045-5354-4205-90F7-2BB4E01D6775}.Deploy|x86.ActiveCfg = Debug|x86
+		{598A4045-5354-4205-90F7-2BB4E01D6775}.Deploy|x86.Build.0 = Debug|x86
+		{598A4045-5354-4205-90F7-2BB4E01D6775}.Release - Auto Fast|x86.ActiveCfg = Release|x86
+		{598A4045-5354-4205-90F7-2BB4E01D6775}.Release - Auto Fast|x86.Build.0 = Release|x86
+		{598A4045-5354-4205-90F7-2BB4E01D6775}.Release|x86.ActiveCfg = Release|x86
+		{598A4045-5354-4205-90F7-2BB4E01D6775}.Release|x86.Build.0 = Release|x86
+		{598A4045-5354-4205-90F7-2BB4E01D6775}.Release-2017|x86.ActiveCfg = Release|x86
+		{598A4045-5354-4205-90F7-2BB4E01D6775}.Release-2017|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
