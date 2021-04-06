@@ -204,8 +204,8 @@ namespace Ship_Game.ShipDesignIssues
             if (percentCanFire.AlmostZero())
                 efficiency = 0;
 
-            string strNumCanFire = $" {(100 - percentCanFire).String(0)}% {new LocalizedText(1468).Text}";
-            string strEfficiency = $" {new LocalizedText(1469).Text} {efficiency.String(0)}%.";
+            string strNumCanFire = $" {(100 - percentCanFire).String(0)}% {Localizer.Token(1468)}";
+            string strEfficiency = $" {Localizer.Token(1469)} {efficiency.String(0)}%.";
 
             if (severity > WarningLevel.None)
                 AddDesignIssue(DesignIssueType.OneTimeFireEfficiency, severity, $"{strNumCanFire}{strEfficiency}");
@@ -246,8 +246,8 @@ namespace Ship_Game.ShipDesignIssues
             else if (warpSpeed.Less(averageWarpSpeed / 2)) severity = WarningLevel.Minor;
 
 
-            string civilianOrMilitary = Civilian(Role) ? new LocalizedText(2556).Text
-                                                       : new LocalizedText(2557).Text;
+            string civilianOrMilitary = Civilian(Role) ? Localizer.Token(2556)
+                                                       : Localizer.Token(2557);
 
             float averageEmpireWarpSpeed = EmpireStats.AverageEmpireWarpSpeed(Role);
             string averageWarpString = $" {civilianOrMilitary} ({averageEmpireWarpSpeed.GetNumberString()}).";
@@ -336,7 +336,7 @@ namespace Ship_Game.ShipDesignIssues
 
             if (severity > WarningLevel.None)
             {
-                string efficiencyText = $" {new LocalizedText(2565).Text} {netEfficiency.String(0)}%.";
+                string efficiencyText = $" {Localizer.Token(2565)} {netEfficiency.String(0)}%.";
                 AddDesignIssue(DesignIssueType.NotIdealCombatEfficiency, severity, efficiencyText);
             }
         }
@@ -382,7 +382,7 @@ namespace Ship_Game.ShipDesignIssues
                 return;
 
             int diff             = numTroopBays - numTroops;
-            string troopsMissing = $" {diff} {new LocalizedText(2564).Text}";
+            string troopsMissing = $" {diff} {Localizer.Token(2564)}";
             AddDesignIssue(DesignIssueType.LowTroopsForBays, WarningLevel.Major, troopsMissing);
         }
 
@@ -395,10 +395,10 @@ namespace Ship_Game.ShipDesignIssues
             string rangeText = shortRange  // short range or attack runs
                 ? $"\n{GetRangeLaunchText(maxWeaponRange, out int minLaunchRangeWeapons, out minCarrier)} " +
                   $"{HelperFunctions.GetNumberString(maxWeaponRange.LowerBound(minLaunchRangeWeapons))}" 
-                : $"\n{new LocalizedText(1476).Text} {HelperFunctions.GetNumberString(sensorRange)}";
+                : $"\n{Localizer.Token(1476)} {HelperFunctions.GetNumberString(sensorRange)}";
 
             if (minCarrier) // too low max weapon range, using default minimum hangar launch from carrier bays
-                rangeText = $" {rangeText}{new LocalizedText(1481).Text} {HelperFunctions.GetNumberString(maxWeaponRange)}.";
+                rangeText = $" {rangeText}{Localizer.Token(1481)} {HelperFunctions.GetNumberString(maxWeaponRange)}.";
 
             AddDesignIssue(DesignIssueType.DedicatedCarrier, WarningLevel.Informative, rangeText);
         }
@@ -412,7 +412,7 @@ namespace Ship_Game.ShipDesignIssues
                                $" {HelperFunctions.GetNumberString(maxWeaponRange.LowerBound(minLaunchRangeWeapons))}";
 
             if (minCarrier) // too low max weapon range, using default minimum hangar launch from carrier bays
-                rangeText = $" {rangeText}{new LocalizedText(1481).Text} {HelperFunctions.GetNumberString(maxWeaponRange)}.";
+                rangeText = $" {rangeText}{Localizer.Token(1481)} {HelperFunctions.GetNumberString(maxWeaponRange)}.";
 
             AddDesignIssue(DesignIssueType.SecondaryCarrier, WarningLevel.Informative, rangeText);
         }
@@ -424,10 +424,10 @@ namespace Ship_Game.ShipDesignIssues
             if (maxWeaponRange < minLaunchRangeWeapons)
             {
                 usingMinimumCarrierRange = true;
-                return new LocalizedText(1480).Text;
+                return Localizer.Token(1480);
             }
 
-            return new LocalizedText(1477).Text;
+            return Localizer.Token(1477);
         }
 
         public void CheckTroops(int numTroops, int size)
@@ -461,8 +461,8 @@ namespace Ship_Game.ShipDesignIssues
             else if (average > 2.5f) severity = WarningLevel.Informative;
             else                     return;
 
-            string remediation = $" {new LocalizedText(GameText.Average).Text}" +
-                                 $" {new LocalizedText(GameText.Accuracy).Text}:" +
+            string remediation = $" {Localizer.Token(GameText.Average)}" +
+                                 $" {Localizer.Token(GameText.Accuracy)}:" +
                                  $" {Math.Round(average, 1)}";
 
             AddDesignIssue(DesignIssueType.Accuracy, severity, remediation);
@@ -489,9 +489,9 @@ namespace Ship_Game.ShipDesignIssues
             else if (ratioToTargets > 1) severity = WarningLevel.Informative;
             else return;
 
-            string target     = $" {new LocalizedText(GameText.FcsPower).Text}: {maxTargets.String(1)}, ";
-            string fireArcs   = $"{new LocalizedText(GameText.FireArc).Text}: {count.String(1)} ";
-            string baseString = !IsPlatform ? "" : $" {new LocalizedText(GameText.OrbitalTracking).Text}";
+            string target     = $" {Localizer.Token(GameText.FcsPower)}: {maxTargets.String(1)}, ";
+            string fireArcs   = $"{Localizer.Token(GameText.FireArc)}: {count.String(1)} ";
+            string baseString = !IsPlatform ? "" : $" {Localizer.Token(GameText.OrbitalTracking)}";
 
             AddDesignIssue(DesignIssueType.Targets, severity, baseString + target + fireArcs);
         }
@@ -559,9 +559,9 @@ namespace Ship_Game.ShipDesignIssues
         public readonly DesignIssueType Type;
         public readonly WarningLevel Severity;
         public readonly Color Color;
-        public readonly string Title;
-        public readonly string Problem;
-        public readonly string Remediation;
+        public readonly LocalizedText Title;
+        public readonly LocalizedText Problem;
+        public readonly LocalizedText Remediation;
         public readonly SubTexture Texture;
 
         public DesignIssueDetails(DesignIssueType issueType, WarningLevel severity, string addToRemediationText)
@@ -573,177 +573,177 @@ namespace Ship_Game.ShipDesignIssues
             {
                 default:
                 case DesignIssueType.NoCommand:
-                    Title       = new LocalizedText(2501).Text;
-                    Problem     = new LocalizedText(2502).Text;
-                    Remediation = new LocalizedText(2503).Text;
+                    Title       = new LocalizedText(2501);
+                    Problem     = new LocalizedText(2502);
+                    Remediation = new LocalizedText(2503);
                     Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
                     break;
                 case DesignIssueType.BackUpCommand:
-                    Title       = new LocalizedText(2504).Text;
-                    Problem     = new LocalizedText(2505).Text;
-                    Remediation = new LocalizedText(2506).Text;
+                    Title       = new LocalizedText(2504);
+                    Problem     = new LocalizedText(2505);
+                    Remediation = new LocalizedText(2506);
                     Texture     = ResourceManager.Texture("NewUI/IssueBackupCommand");
                     break;
                 case DesignIssueType.UnpoweredModules:
-                    Title       = new LocalizedText(2507).Text;
-                    Problem     = new LocalizedText(2508).Text;
-                    Remediation = new LocalizedText(2509).Text;
+                    Title       = new LocalizedText(2507);
+                    Problem     = new LocalizedText(2508);
+                    Remediation = new LocalizedText(2509);
                     Texture     = ResourceManager.Texture("NewUI/IssueUnpowered");
                     break;
                 case DesignIssueType.NoOrdnance:
-                    Title       = new LocalizedText(2510).Text;
-                    Problem     = new LocalizedText(2511).Text;
-                    Remediation = new LocalizedText(2512).Text;
+                    Title       = new LocalizedText(2510);
+                    Problem     = new LocalizedText(2511);
+                    Remediation = new LocalizedText(2512);
                     Texture     = ResourceManager.Texture("NewUI/IssueNoOrdnance");
                     break;
                 case DesignIssueType.LowOrdnance:
-                    Title       = new LocalizedText(2513).Text;
-                    Problem     = new LocalizedText(2514).Text;
-                    Remediation = new LocalizedText(2515).Text;
+                    Title       = new LocalizedText(2513);
+                    Problem     = new LocalizedText(2514);
+                    Remediation = new LocalizedText(2515);
                     Texture     = ResourceManager.Texture("NewUI/IssueLowOrdnance");
                     break;
                 case DesignIssueType.LowWarpTime:
-                    Title       = new LocalizedText(2516).Text;
-                    Problem     = new LocalizedText(2517).Text;
-                    Remediation = new LocalizedText(2518).Text;
+                    Title       = new LocalizedText(2516);
+                    Problem     = new LocalizedText(2517);
+                    Remediation = new LocalizedText(2518);
                     Texture     = ResourceManager.Texture("NewUI/IssueLowWarpTime");
                     break;
                 case DesignIssueType.NoWarp:
-                    Title       = new LocalizedText(2522).Text;
-                    Problem     = new LocalizedText(2523).Text;
-                    Remediation = new LocalizedText(2524).Text;
+                    Title       = new LocalizedText(2522);
+                    Problem     = new LocalizedText(2523);
+                    Remediation = new LocalizedText(2524);
                     Texture     = ResourceManager.Texture("NewUI/IssueNoWarp");
                     break;
                 case DesignIssueType.SlowWarp:
-                    Title       = new LocalizedText(2525).Text;
-                    Problem     = new LocalizedText(2526).Text;
-                    Remediation = new LocalizedText(2527).Text; 
+                    Title       = new LocalizedText(2525);
+                    Problem     = new LocalizedText(2526);
+                    Remediation = new LocalizedText(2527); 
                     Texture     = ResourceManager.Texture("NewUI/IssueSlowWarp");
                     break;
                 case DesignIssueType.NegativeRecharge:
-                    Title       = new LocalizedText(2519).Text;
-                    Problem     = new LocalizedText(2520).Text;
-                    Remediation = new LocalizedText(2521).Text;
+                    Title       = new LocalizedText(2519);
+                    Problem     = new LocalizedText(2520);
+                    Remediation = new LocalizedText(2521);
                     Texture     = ResourceManager.Texture("NewUI/IssueNegativeRecharge");
                     break;
                 case DesignIssueType.NoSpeed:
-                    Title       = new LocalizedText(2528).Text;
-                    Problem     = new LocalizedText(2529).Text;
-                    Remediation = new LocalizedText(2530).Text;
+                    Title       = new LocalizedText(2528);
+                    Problem     = new LocalizedText(2529);
+                    Remediation = new LocalizedText(2530);
                     Texture     = ResourceManager.Texture("NewUI/IssueNoSublight");
                     break;
                 case DesignIssueType.CantTargetFighters:
-                    Title       = new LocalizedText(2531).Text;
-                    Problem     = new LocalizedText(2532).Text;
-                    Remediation = new LocalizedText(2533).Text;
+                    Title       = new LocalizedText(2531);
+                    Problem     = new LocalizedText(2532);
+                    Remediation = new LocalizedText(2533);
                     Texture     = ResourceManager.Texture("NewUI/IssueCantTargetFighters");
                     break;
                 case DesignIssueType.CantTargetCorvettes:
-                    Title       = new LocalizedText(2534).Text;
-                    Problem     = new LocalizedText(2535).Text;
-                    Remediation = new LocalizedText(2536).Text;
+                    Title       = new LocalizedText(2534);
+                    Problem     = new LocalizedText(2535);
+                    Remediation = new LocalizedText(2536);
                     Texture     = ResourceManager.Texture("NewUI/IssueCantTargetCorvettes");
                     break;
                 case DesignIssueType.CantTargetCapitals:
-                    Title       = new LocalizedText(2537).Text;
-                    Problem     = new LocalizedText(2538).Text;
-                    Remediation = new LocalizedText(2539).Text;
+                    Title       = new LocalizedText(2537);
+                    Problem     = new LocalizedText(2538);
+                    Remediation = new LocalizedText(2539);
                     Texture     = ResourceManager.Texture("NewUI/IssueCantTargetCapitals");
                     break;
                 case DesignIssueType.LowPdValue:
-                    Title       = new LocalizedText(2540).Text;
-                    Problem     = new LocalizedText(2541).Text;
-                    Remediation = new LocalizedText(2542).Text;
+                    Title       = new LocalizedText(2540);
+                    Problem     = new LocalizedText(2541);
+                    Remediation = new LocalizedText(2542);
                     Texture     = ResourceManager.Texture("NewUI/IssueLowPD");
                     break;
                 case DesignIssueType.LowWeaponPowerTime:
-                    Title       = new LocalizedText(2543).Text;
-                    Problem     = new LocalizedText(2544).Text;
-                    Remediation = new LocalizedText(2545).Text;
+                    Title       = new LocalizedText(2543);
+                    Problem     = new LocalizedText(2544);
+                    Remediation = new LocalizedText(2545);
                     Texture     = ResourceManager.Texture("NewUI/IssueLowEnergyWeaponTime");
                     break;
                 case DesignIssueType.LowBurstPowerTime:
-                    Title       = new LocalizedText(2547).Text;
-                    Problem     = new LocalizedText(2548).Text;
-                    Remediation = new LocalizedText(2549).Text;
+                    Title       = new LocalizedText(2547);
+                    Problem     = new LocalizedText(2548);
+                    Remediation = new LocalizedText(2549);
                     Texture     = ResourceManager.Texture("NewUI/IssueLowEnergyBurstTime");
                     break;
                 case DesignIssueType.NoOrdnanceResupplyCombat:
-                    Title       = new LocalizedText(2550).Text;
-                    Problem     = new LocalizedText(2551).Text;
-                    Remediation = new LocalizedText(2552).Text;
+                    Title       = new LocalizedText(2550);
+                    Problem     = new LocalizedText(2551);
+                    Remediation = new LocalizedText(2552);
                     Texture     = ResourceManager.Texture("NewUI/IssueNoAmmoResupplyCombat");
                     break;
                 case DesignIssueType.NoOrdnanceResupplyPlayerOrder:
-                    Title       = new LocalizedText(2553).Text;
-                    Problem     = new LocalizedText(2554).Text;
-                    Remediation = new LocalizedText(2555).Text;
+                    Title       = new LocalizedText(2553);
+                    Problem     = new LocalizedText(2554);
+                    Remediation = new LocalizedText(2555);
                     Texture     = ResourceManager.Texture("NewUI/IssueNoAmmoResupplyPlayer");
                     break;
                 case DesignIssueType.LowTroopsForBays:
-                    Title       = new LocalizedText(2558).Text;
-                    Problem     = new LocalizedText(2559).Text;
-                    Remediation = new LocalizedText(2560).Text;
+                    Title       = new LocalizedText(2558);
+                    Problem     = new LocalizedText(2559);
+                    Remediation = new LocalizedText(2560);
                     Texture     = ResourceManager.Texture("NewUI/IssueLowTroopsForBays");
                     break;
                 case DesignIssueType.LowTroops:
-                    Title       = new LocalizedText(2561).Text;
-                    Problem     = new LocalizedText(2562).Text;
-                    Remediation = new LocalizedText(2563).Text;
+                    Title       = new LocalizedText(2561);
+                    Problem     = new LocalizedText(2562);
+                    Remediation = new LocalizedText(2563);
                     Texture     = ResourceManager.Texture("NewUI/IssueLowTroops");
                     break;
                 case DesignIssueType.NotIdealCombatEfficiency:
-                    Title       = new LocalizedText(2566).Text;
-                    Problem     = new LocalizedText(2567).Text;
-                    Remediation = new LocalizedText(2568).Text;
+                    Title       = new LocalizedText(2566);
+                    Problem     = new LocalizedText(2567);
+                    Remediation = new LocalizedText(2568);
                     Texture     = ResourceManager.Texture("NewUI/IssueLowWeaponPowerEfficiency");
                     break;
                 case DesignIssueType.HighBurstOrdnance:
-                    Title       = new LocalizedText(2569).Text;
-                    Problem     = new LocalizedText(2570).Text;
-                    Remediation = new LocalizedText(2571).Text;
+                    Title       = new LocalizedText(2569);
+                    Problem     = new LocalizedText(2570);
+                    Remediation = new LocalizedText(2571);
                     Texture     = ResourceManager.Texture("NewUI/IssueHighBurstOrdnance");
                     break;
                 case DesignIssueType.Accuracy:
-                    Title       = new LocalizedText(GameText.LowAccuracy).Text;
-                    Problem     = new LocalizedText(GameText.WeaponAccuracy).Text;
-                    Remediation = new LocalizedText(GameText.ImproveAccuracy).Text;
+                    Title       = new LocalizedText(GameText.LowAccuracy);
+                    Problem     = new LocalizedText(GameText.WeaponAccuracy);
+                    Remediation = new LocalizedText(GameText.ImproveAccuracy);
                     Texture     = ResourceManager.Texture("NewUI/IssuesLowAccuracy");
                     break;
                 case DesignIssueType.Targets:
-                    Title       = new LocalizedText(GameText.LowTracking).Text;
-                    Problem     = new LocalizedText(GameText.TrackingTargets).Text;
-                    Remediation = new LocalizedText(GameText.ImproveTracking).Text;
+                    Title       = new LocalizedText(GameText.LowTracking);
+                    Problem     = new LocalizedText(GameText.TrackingTargets);
+                    Remediation = new LocalizedText(GameText.ImproveTracking);
                     Texture     = ResourceManager.Texture("NewUI/IssueLowTracking");
                     break;
                 case DesignIssueType.LongRechargeTime:
-                    Title       = new LocalizedText(1462).Text;
-                    Problem     = new LocalizedText(1463).Text;
-                    Remediation = new LocalizedText(1464).Text;
+                    Title       = new LocalizedText(1462);
+                    Problem     = new LocalizedText(1463);
+                    Remediation = new LocalizedText(1464);
                     Texture     = ResourceManager.Texture("NewUI/issueLongRechargeTime");
                     break;
                 case DesignIssueType.OneTimeFireEfficiency:
-                    Title       = new LocalizedText(1465).Text;
-                    Problem     = new LocalizedText(1466).Text;
-                    Remediation = new LocalizedText(1467).Text;
+                    Title       = new LocalizedText(1465);
+                    Problem     = new LocalizedText(1466);
+                    Remediation = new LocalizedText(1467);
                     Texture     = ResourceManager.Texture("NewUI/IssueNegativeRecharge");
                     break;
                 case DesignIssueType.ExcessPowerCells:
-                    Title       = new LocalizedText(1470).Text;
-                    Problem     = new LocalizedText(1471).Text;
-                    Remediation = new LocalizedText(1472).Text;
+                    Title       = new LocalizedText(1470);
+                    Problem     = new LocalizedText(1471);
+                    Remediation = new LocalizedText(1472);
                     Texture     = ResourceManager.Texture("NewUI/IssueExcessPowerCells");
                     break;
                 case DesignIssueType.DedicatedCarrier:
-                    Title       = new LocalizedText(1473).Text;
-                    Problem     = new LocalizedText(1474).Text;
-                    Remediation = new LocalizedText(1475).Text;
+                    Title       = new LocalizedText(1473);
+                    Problem     = new LocalizedText(1474);
+                    Remediation = new LocalizedText(1475);
                     Texture     = ResourceManager.Texture("NewUI/IssueDedicatedCarrier");
                     break;
                 case DesignIssueType.SecondaryCarrier:
-                    Title       = new LocalizedText(1478).Text;
-                    Problem     = new LocalizedText(1479).Text;
-                    Remediation = new LocalizedText(1475).Text;
+                    Title       = new LocalizedText(1478);
+                    Problem     = new LocalizedText(1479);
+                    Remediation = new LocalizedText(1475);
                     Texture     = ResourceManager.Texture("NewUI/IssueSecondaryCarrier");
                     break;
             }

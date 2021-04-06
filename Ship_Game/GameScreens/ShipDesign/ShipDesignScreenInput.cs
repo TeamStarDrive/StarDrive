@@ -583,7 +583,7 @@ namespace Ship_Game
             if (!DisplayedBulkReplacementHint && ModuleGrid.RepeatedReplaceActionsThreshold())
             {
                 Vector2 pos = new Vector2(ModuleSelectComponent.X + ModuleSelectComponent.Width + 20, ModuleSelectComponent.Y + 100);
-                ToolTip.CreateFloatingText(new LocalizedText(GameText.YouCanUseShiftClick).Text, "", pos, 10);
+                ToolTip.CreateFloatingText(GameText.YouCanUseShiftClick, "", pos, 10);
                 DisplayedBulkReplacementHint = true;
             }
         }

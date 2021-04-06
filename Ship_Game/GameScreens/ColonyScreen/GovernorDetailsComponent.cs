@@ -112,8 +112,8 @@ namespace Ship_Game
             OverrideGrd    = Add(new UICheckBox(() => OverrideGrdBudget, Font, title: 4226, tooltip: 4227));
             OverrideSpc    = Add(new UICheckBox(() => OverrideSpcBudget, Font, title: 4226, tooltip: 4227));
 
-            Garrison        = Slider(200, 200, 160, 40, new LocalizedText(4211).Text, 0, 25,Planet.GarrisonSize);
-            ManualPlatforms = Slider(200, 200, 120, 40, new LocalizedText(4212).Text, 0, 15, Planet.WantedPlatforms);
+            Garrison        = Slider(200, 200, 160, 40, new LocalizedText(4211), 0, 25,Planet.GarrisonSize);
+            ManualPlatforms = Slider(200, 200, 120, 40, new LocalizedText(4212), 0, 15, Planet.WantedPlatforms);
             ManualShipyards = Slider(200, 200, 120, 40, "", 0, 2, Planet.WantedShipyards);
             ManualStations  = Slider(200, 200, 120, 40, "", 0, 10, Planet.WantedStations);
 
@@ -135,26 +135,26 @@ namespace Ship_Game
             ColonyTypeList.OnValueChange = OnColonyTypeChanged;
 
             ButtonUpdateTimer = 1;
-            LaunchAllTroops   = Button(ButtonStyle.Default, new LocalizedText(4213).Text, OnLaunchTroopsClicked);
-            LaunchSingleTroop = Button(ButtonStyle.Default, new LocalizedText(4214).Text, OnLaunchSingleTroopClicked);
-            CallTroops        = Button(ButtonStyle.Default, new LocalizedText(4215).Text, OnSendTroopsClicked);
+            LaunchAllTroops   = Button(ButtonStyle.Default, new LocalizedText(4213), OnLaunchTroopsClicked);
+            LaunchSingleTroop = Button(ButtonStyle.Default, new LocalizedText(4214), OnLaunchSingleTroopClicked);
+            CallTroops        = Button(ButtonStyle.Default, new LocalizedText(4215), OnSendTroopsClicked);
 
-            LaunchAllTroops.Tooltip   = new LocalizedText(1952).Text;
-            LaunchSingleTroop.Tooltip = new LocalizedText(1950).Text;
-            CallTroops.Tooltip        = new LocalizedText(1949).Text;
+            LaunchAllTroops.Tooltip   = new LocalizedText(1952);
+            LaunchSingleTroop.Tooltip = new LocalizedText(1950);
+            CallTroops.Tooltip        = new LocalizedText(1949);
 
-            BuildShipyard = Button(ButtonStyle.Medium, new LocalizedText(4216).Text, OnBuildShipyardClick);
-            BuildStation  = Button(ButtonStyle.Medium, new LocalizedText(4217).Text, OnBuildStationClick);
-            BuildPlatform = Button(ButtonStyle.Medium, new LocalizedText(4218).Text, OnBuildPlatformClick);
+            BuildShipyard = Button(ButtonStyle.Medium, new LocalizedText(4216), OnBuildShipyardClick);
+            BuildStation  = Button(ButtonStyle.Medium, new LocalizedText(4217), OnBuildStationClick);
+            BuildPlatform = Button(ButtonStyle.Medium, new LocalizedText(4218), OnBuildPlatformClick);
 
-            BuildShipyard.Tooltip = new LocalizedText(1948).Text;
-            BuildStation.Tooltip  = new LocalizedText(1947).Text;
-            BuildPlatform.Tooltip = new LocalizedText(1946).Text;
+            BuildShipyard.Tooltip = new LocalizedText(1948);
+            BuildStation.Tooltip  = new LocalizedText(1947);
+            BuildPlatform.Tooltip = new LocalizedText(1946);
 
             PlatformsText    = Add(new UILabel(" "));
             ShipyardsText    = Add(new UILabel(" "));
             StationsText     = Add(new UILabel(" "));
-            NoGovernor       = Add(new UILabel(new LocalizedText(4219).Text, Font, Color.Gray));
+            NoGovernor       = Add(new UILabel(new LocalizedText(4219), Font, Color.Gray));
             ColonyRank       = Add(new UILabel(" ", Font, Color.LightGreen));
 
             CivBudgetRect    = new Rectangle((int)X + 57, (int)Y + 40, (int)(Width*0.33f), 20);
@@ -192,9 +192,9 @@ namespace Ship_Game
             NoGovernorSpcExpense = Add(new UILabel(" ", FontBig, Color.SteelBlue));
 
             Tabs = Add(new Submenu(Rect));
-            Tabs.AddTab(new LocalizedText(4209).Text); // Governor
-            Tabs.AddTab(new LocalizedText(4210).Text); // Defense
-            Tabs.AddTab(new LocalizedText(4225).Text); // Budget
+            Tabs.AddTab(new LocalizedText(4209)); // Governor
+            Tabs.AddTab(new LocalizedText(4210)); // Defense
+            Tabs.AddTab(new LocalizedText(4225)); // Budget
 
             if (selectedIndex < Tabs.NumTabs)
                 Tabs.SelectedIndex = selectedIndex;
@@ -289,7 +289,7 @@ namespace Ship_Game
         string GetParsedDescription()
         {
             float maxWidth = (Right - 10 - WorldType.X);
-            return Fonts.Arial12Bold.ParseText(Planet.ColonyTypeInfoText.Text, maxWidth);
+            return Fonts.Arial12Bold.ParseText(Planet.ColonyTypeInfoText, maxWidth);
         }
 
         void OnColonyTypeChanged(Planet.ColonyType type)
@@ -517,16 +517,16 @@ namespace Ship_Game
 
             if (troopsLanding > 0)
             {
-                CallTroops.Text = $"{new LocalizedText(4220).Text} {troopsLanding}"; // "Incoming Troops
+                CallTroops.Text = $"{Localizer.Token(4220)} {troopsLanding}"; // "Incoming Troops
                 CallTroops.Style = ButtonStyle.Military;
             }
             else
             {
-                CallTroops.Text = new LocalizedText(4215).Text; // "Call Troops"
+                CallTroops.Text = new LocalizedText(4215); // "Call Troops"
                 CallTroops.Style = ButtonStyle.Default;
             }
 
-            UpdateButtonText(LaunchAllTroops, Planet.TroopsHere.Count(t => t.CanMove), new LocalizedText(4213).Text);
+            UpdateButtonText(LaunchAllTroops, Planet.TroopsHere.Count(t => t.CanMove), Localizer.Token(4213));
         }
 
         void UpdateGovOrbitalStats()
@@ -541,13 +541,13 @@ namespace Ship_Game
             int currentPlatforms = Planet.NumPlatforms + Planet.OrbitalsBeingBuilt(ShipData.RoleName.platform);
             int currentStations  = Planet.NumStations + Planet.OrbitalsBeingBuilt(ShipData.RoleName.station);
             int currentShipyards = Planet.NumShipyards + Planet.ShipyardsBeingBuilt();
-            ColonyRank.Text      = $"{new LocalizedText(4221).Text} {rank}/15";
+            ColonyRank.Text      = $"{Localizer.Token(4221)} {rank}/15";
 
             if ((Planet.GovOrbitals || !Planet.Owner.isPlayer) && GovernorOn)
             {
-                PlatformsText.Text  = $"{new LocalizedText(4222).Text} {currentPlatforms}/{Planet.WantedPlatforms}";
-                ShipyardsText.Text  = $"{new LocalizedText(4223).Text} {currentShipyards}/{Planet.WantedShipyards}";
-                StationsText.Text   = $"{new LocalizedText(4224).Text} {currentStations}/{Planet.WantedStations}";
+                PlatformsText.Text  = $"{Localizer.Token(4222)} {currentPlatforms}/{Planet.WantedPlatforms}";
+                ShipyardsText.Text  = $"{Localizer.Token(4223)} {currentShipyards}/{Planet.WantedShipyards}";
+                StationsText.Text   = $"{Localizer.Token(4224)} {currentStations}/{Planet.WantedStations}";
                 PlatformsText.Color = GetColor(currentPlatforms, Planet.WantedPlatforms);
                 ShipyardsText.Color = GetColor(currentShipyards, Planet.WantedShipyards);
                 StationsText.Color  = GetColor(currentStations, Planet.WantedStations);
@@ -641,8 +641,8 @@ namespace Ship_Game
             if (GovernorOn)
             {
                 float percentSpent  = spent / budget.TotalAlloc.LowerBound(0.01f) * 100;
-                BudgetSum.Text      = $"{new LocalizedText(4234).Text} {spent.String(1)}" +
-                                      $" {new LocalizedText(4235).Text} {budget.TotalAlloc.String(1)} BC/Y";
+                BudgetSum.Text      = $"{Localizer.Token(4234)} {spent.String(1)}" +
+                                      $" {Localizer.Token(4235)} {budget.TotalAlloc.String(1)} BC/Y";
                 BudgetPercent.Text  = $" ({percentSpent.String(1)}%)";
                 BudgetPercent.Color = GetColor();
             }
@@ -651,7 +651,7 @@ namespace Ship_Game
                 NoGovernorCivExpense.Text = $"{Planet.CivilianBuildingsMaintenance.String(2)} BC/Y";
                 NoGovernorGrdExpense.Text = $"{Planet.GroundDefMaintenance.String(2)} BC/Y";
                 NoGovernorSpcExpense.Text = $"{Planet.SpaceDefMaintenance.String(2)} BC/Y";
-                BudgetSum.Text            = $"{new LocalizedText(4234).Text} {spent.String(2)} BC/Y";
+                BudgetSum.Text            = $"{Localizer.Token(4234)} {spent.String(2)} BC/Y";
                 BudgetPercent.Text        = "";
             }
 

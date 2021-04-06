@@ -6,7 +6,6 @@ using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
-using Ship_Game.SpriteSystem;
 
 namespace Ship_Game
 {

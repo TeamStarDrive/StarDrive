@@ -26,18 +26,26 @@
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>SDGameTextToEnum</RootNamespace>
+  </PropertyGroup>
   <ItemGroup>
-    <Compile Include="EnumGenerator.cs" />
+    <Compile Include="LocalizationDB.cs" />
     <Compile Include="GameTextToEnum_Main.cs" />
+    <Compile Include="LocalizationUsage.cs" />
     <Compile Include="TextToken.cs" />
     <Compile Include="Localization.cs" />
-    <Compile Include="ModTextExporter.cs" />
+    <Compile Include="ModLocalizationDB.cs" />
+    <Compile Include="Translation.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
