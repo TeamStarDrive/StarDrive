@@ -167,10 +167,25 @@ namespace SDGameTextToEnum
         public int NumLocalizations => LocalizedText.Count;
         public int NumToolTips => ToolTips.Count;
 
-        public void AddLocalizations(IEnumerable<TextToken> localizations)
+        public bool AddFromYaml(string yamlFile, bool logMerge = false)
+        {
+            List<TextToken> tokens = TextToken.FromYaml(yamlFile);
+            if (tokens.Count == 0)
+                return false;
+            AddLocalizations(tokens, logMerge);
+            return true;
+        }
+
+        public void AddLocalizations(IEnumerable<TextToken> localizations, bool logMerge = false)
         {
             foreach ((string lang, int id, string text) in localizations)
             {
+                if (string.IsNullOrEmpty(text))
+                    continue;
+
+                if (logMerge)
+                    Log.Write(ConsoleColor.Green, $"Merged {lang} {id}: {text}");
+
                 if (GetLocalization(LocalizedText, id, out Localization loc))
                     loc.AddText(lang, id, text);
                 else
@@ -282,7 +297,7 @@ namespace SDGameTextToEnum
         {
             var missing = new List<Localization>();
             foreach (Localization loc in localizations)
-                if (!loc.TryGetText(lang, out LangText _))
+                if (!loc.TryGetText(lang, out LangText lt) || string.IsNullOrEmpty(lt.Text))
                     missing.Add(loc);
             return missing;
         }

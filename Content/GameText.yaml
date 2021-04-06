@@ -1753,6 +1753,7 @@ Tradehub:
  Id: 393
  ENG: "Trade Hub"
  RUS: "Торговый центр"
+ SPA: "Centro de comercio"
 GovernorWillControlProductionLevels:
  Id: 394
  ENG: "Governor will control production levels as a core system, but will not build any structures. It will start importing if stores are below 20% and continue importing until they reach 40%. It will start exporting if stores are above 80% and continue exporting until stores go down to 40%."
