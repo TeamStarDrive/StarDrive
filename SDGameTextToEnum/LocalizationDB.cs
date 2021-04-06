@@ -6,7 +6,7 @@ using System.Text;
 
 namespace SDGameTextToEnum
 {
-    public class EnumGenerator
+    public class LocalizationDB
     {
         public readonly string Namespace;
         public readonly string Name;
@@ -16,13 +16,13 @@ namespace SDGameTextToEnum
         protected readonly HashSet<string> EnumNames = new HashSet<string>();
         readonly char[] Space = { ' ' };
 
-        public EnumGenerator(string enumNamespace, string enumName)
+        public LocalizationDB(string enumNamespace, string enumName)
         {
             Namespace = enumNamespace;
             Name = enumName;
         }
 
-        public EnumGenerator(EnumGenerator gen, string newName) // copy
+        public LocalizationDB(LocalizationDB gen, string newName) // copy
         {
             Namespace = gen.Namespace;
             Name = newName;
@@ -87,7 +87,7 @@ namespace SDGameTextToEnum
             return word.Replace('\n', ' ');
         }
 
-        string GetIdentifier(int id, string[] words)
+        string CreateNameId(int id, string[] words)
         {
             string name = "";
             if (ExistingIds.TryGetValue(id, out TextToken existing) &&
@@ -127,9 +127,9 @@ namespace SDGameTextToEnum
             return name;
         }
 
-        protected Localization AddLocalization(List<Localization> localizations, string lang, int id, string nameId, string text)
+        protected Localization AddNewLocalization(List<Localization> localizations, TextToken token)
         {
-            string[] words = text.Split(Space, StringSplitOptions.RemoveEmptyEntries);
+            string[] words = token.Text.Split(Space, StringSplitOptions.RemoveEmptyEntries);
             const int maxCommentWords = 10;
             string comment = "";
 
@@ -141,19 +141,20 @@ namespace SDGameTextToEnum
             }
 
             // only generate a new name if not specified
-            if (string.IsNullOrEmpty(nameId))
-                nameId = GetIdentifier(id, words);
+            if (string.IsNullOrEmpty(token.NameId))
+                token.NameId = CreateNameId(token.Id, words);
 
-            if (!string.IsNullOrEmpty(nameId))
+            if (!string.IsNullOrEmpty(token.NameId))
             {
-                EnumNames.Add(nameId);
-                var loc = new Localization(lang, id, nameId, comment, text);
+                EnumNames.Add(token.NameId);
+                var loc = new Localization(token, comment);
                 localizations.Add(loc);
                 return loc;
             }
             else
             {
-                Log.Write(ConsoleColor.Yellow, $"{Name}: Skipping empty enum entry {lang} {nameId} {id}: '{text}'");
+                Log.Write(ConsoleColor.Yellow, 
+                    $"{Name}: skipping empty enum entry {token.Lang} {token.NameId} {token.Id}: '{token.Text}'");
                 return null;
             }
         }
@@ -176,24 +177,32 @@ namespace SDGameTextToEnum
             return true;
         }
 
+        protected void AddLocalization(List<Localization> localizations, TextToken token, bool logMerge)
+        {
+            if (string.IsNullOrEmpty(token.Text))
+                return;
+
+            if (GetLocalization(localizations, token.Id, out Localization loc))
+            {
+                if (logMerge)
+                    Log.Write(ConsoleColor.Green, $"Merged {token.Lang} {token.Id}: {token.Text}");
+                loc.AddTranslation(new Translation(token.Id, token.Lang, token.Text));
+            }
+            else
+            {
+                AddNewLocalization(localizations, token);
+            }
+        }
+
         public void AddLocalizations(IEnumerable<TextToken> localizations, bool logMerge = false)
         {
-            foreach ((string lang, int id, string text) in localizations)
+            foreach (TextToken token in localizations)
             {
-                if (string.IsNullOrEmpty(text))
-                    continue;
-
-                if (logMerge)
-                    Log.Write(ConsoleColor.Green, $"Merged {lang} {id}: {text}");
-
-                if (GetLocalization(LocalizedText, id, out Localization loc))
-                    loc.AddText(lang, id, text);
-                else
-                    AddLocalization(LocalizedText, lang, id, "", text);
+                AddLocalization(LocalizedText, token, logMerge);
             }
         }
         
-        string GetNameId(int id)
+        public virtual string GetNameId(int id)
         {
             if (GetLocalization(LocalizedText, id, out Localization loc))
                 return loc.NameId;
@@ -210,7 +219,7 @@ namespace SDGameTextToEnum
                     Log.Write(ConsoleColor.Red, $"{Name}: duplicate tooltip with id={t.Id}");
                 else
                 {
-                    Localization loc = AddLocalization(ToolTips, "ANY", t.Id, "", t.Text);
+                    Localization loc = AddNewLocalization(ToolTips, t);
                     if (loc != null)
                     {
                         loc.TipId = GetNameId(t.ToolTipData);
@@ -288,7 +297,7 @@ namespace SDGameTextToEnum
             {
                 sw.WriteLine($"{loc.NameId}:");
                 sw.WriteLine($" Id: {loc.Id}");
-                foreach (LangText lt in loc.LangTexts)
+                foreach (Translation lt in loc.Translations)
                     sw.WriteLine($" {lt.Lang}: {lt.YamlString}");
             }
         }
@@ -297,7 +306,7 @@ namespace SDGameTextToEnum
         {
             var missing = new List<Localization>();
             foreach (Localization loc in localizations)
-                if (!loc.TryGetText(lang, out LangText lt) || string.IsNullOrEmpty(lt.Text))
+                if (!loc.TryGetText(lang, out Translation t) || string.IsNullOrEmpty(t.Text))
                     missing.Add(loc);
             return missing;
         }
@@ -306,7 +315,7 @@ namespace SDGameTextToEnum
         {
             foreach (Localization m in missing)
             {
-                LangText eng = m.GetText("ENG");
+                Translation eng = m.GetText("ENG");
                 sw.WriteLine($"{m.NameId}:");
                 sw.WriteLine($" Id: {m.Id}");
                 sw.WriteLine($" {lang}: \"\" # ENG: {eng.YamlString}");
