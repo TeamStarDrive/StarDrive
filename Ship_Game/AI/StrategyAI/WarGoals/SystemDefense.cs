@@ -79,7 +79,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                         if (DefenseTaskHasHigherPriority(defenseTask, possibleTask))
                         {
                             possibleTask.EndTask();
-                            return GoalStep.RestartGoal;
                         }
                     }
                 }
@@ -101,24 +100,23 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
 
             Planet target       = possibleTask.TargetPlanet;
-            float defenseValue  = system.PotentialValueFor(Owner) * 10 * Owner.PersonalityModifiers.DefenseTaskWeight;
+            float defenseValue  = system.PotentialValueFor(Owner) * Owner.PersonalityModifiers.DefenseTaskWeight;
             float possibleValue = target.ParentSystem.PotentialValueFor(Owner);
 
-            if (possibleTask.Fleet != null) // compare distances as well
+            if (possibleTask.Fleet != null) // compare fleet distances
             {
                 float defenseDist   = possibleTask.Fleet.AveragePosition().Distance(system.Position) / 10000;
                 float expansionDist = possibleTask.Fleet.AveragePosition().Distance(target.Center) / 10000;
                 defenseValue       /= defenseDist.LowerBound(1);
                 possibleValue      /= expansionDist.LowerBound(1);
             }
-
-            if (defenseValue.GreaterOrEqual(possibleValue))
+            else // compare planet distances
             {
-                possibleTask.EndTask();
-                return true;
+                defenseValue  /= Owner.WeightedCenter.Distance(target.Center).LowerBound(1);
+                possibleValue /= Owner.WeightedCenter.Distance(target.Center).LowerBound(1);
             }
 
-            return false;
+            return defenseValue.GreaterOrEqual(possibleValue);
         }
     }
 }
