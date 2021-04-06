@@ -73,6 +73,8 @@ namespace SDGameTextToEnum
             }
             gen.ExportCsharp(enumFile);
             gen.ExportYaml(yamlFile);
+            gen.ExportMissingTranslationsYaml("RUS", $"{contentDir}/GameText.Missing.RUS.yaml");
+            gen.ExportMissingTranslationsYaml("SPA", $"{contentDir}/GameText.Missing.SPA.yaml");
 
             if (Directory.Exists(modDir))
             {
@@ -88,6 +90,8 @@ namespace SDGameTextToEnum
                     mod.AddModLocalizations(GetGameText("RUS", $"{modDir}/Localization/Russian/GameText_RU.xml"));
                 }
                 mod.ExportModYaml(modYamlFile);
+                mod.ExportMissingModYaml("RUS", $"{modDir}/GameText.Missing.RUS.yaml");
+                mod.ExportMissingModYaml("SPA", $"{modDir}/GameText.Missing.SPA.yaml");
             }
             return gen;
         }
