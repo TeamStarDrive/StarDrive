@@ -16,13 +16,25 @@ namespace SDGameTextToEnum
         {
         }
 
-        public void AddModLocalizations(IEnumerable<TextToken> localizations)
+        public bool AddFromModYaml(string yamlFile, bool logMerge = false)
+        {
+            List<TextToken> tokens = TextToken.FromYaml(yamlFile);
+            if (tokens.Count == 0)
+                return false;
+            AddModLocalizations(tokens, logMerge);
+            return true;
+        }
+
+        public void AddModLocalizations(IEnumerable<TextToken> localizations, bool logMerge = false)
         {
             int numIgnored = 0;
             foreach ((string lang, int id, string text) in localizations)
             {
-                if (ModIgnored.Contains(id))
+                if (string.IsNullOrEmpty(text) || ModIgnored.Contains(id))
                     continue;
+
+                if (logMerge)
+                    Log.Write(ConsoleColor.Green, $"Merged {lang} {id}: {text}");
 
                 if (GetLocalization(ModText, id, out Localization loc))
                 {

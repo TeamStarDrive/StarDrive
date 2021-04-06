@@ -61,9 +61,13 @@ namespace SDGameTextToEnum
             string yamlFile = $"{contentDir}/GameText.yaml";
             var gen = new EnumGenerator("Ship_Game", "GameText");
             gen.LoadIdentifiers(enumFile, yamlFile);
-            if (File.Exists(yamlFile))
+            if (UseYAMLFileAsSource)
             {
-                gen.AddLocalizations(TextToken.FromYaml(yamlFile));
+                if (gen.AddFromYaml(yamlFile))
+                {
+                    gen.AddFromYaml($"{contentDir}/GameText.Missing.RUS.yaml", logMerge:true);
+                    gen.AddFromYaml($"{contentDir}/GameText.Missing.SPA.yaml", logMerge:true);
+                }
             }
             if (gen.NumLocalizations == 0)
             {
@@ -78,18 +82,21 @@ namespace SDGameTextToEnum
 
             if (Directory.Exists(modDir))
             {
-                string modYamlFile = $"{modDir}/GameText.yaml";
                 var mod = new ModTextExporter(gen, "ModGameText");
-                if (UseYAMLFileAsSource && File.Exists(modYamlFile))
+                if (UseYAMLFileAsSource)
                 {
-                    mod.AddModLocalizations(TextToken.FromYaml(modYamlFile));
+                    if (mod.AddFromModYaml($"{modDir}/GameText.yaml"))
+                    {
+                        mod.AddFromModYaml($"{modDir}/GameText.Missing.RUS.yaml", logMerge:true);
+                        mod.AddFromModYaml($"{modDir}/GameText.Missing.SPA.yaml", logMerge:true);
+                    }
                 }
                 if (mod.NumModLocalizations == 0)
                 {
                     mod.AddModLocalizations(GetGameText("ENG", $"{modDir}/Localization/English/GameText_EN.xml"));
                     mod.AddModLocalizations(GetGameText("RUS", $"{modDir}/Localization/Russian/GameText_RU.xml"));
                 }
-                mod.ExportModYaml(modYamlFile);
+                mod.ExportModYaml($"{modDir}/GameText.yaml");
                 mod.ExportMissingModYaml("RUS", $"{modDir}/GameText.Missing.RUS.yaml");
                 mod.ExportMissingModYaml("SPA", $"{modDir}/GameText.Missing.SPA.yaml");
             }
