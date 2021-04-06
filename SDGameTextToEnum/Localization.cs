@@ -13,10 +13,26 @@ namespace SDGameTextToEnum
             Lang = lang;
             Text = text;
         }
+
+        // properly escaped yaml safe string
+        public string YamlString
+        {
+            get
+            {
+                string escaped = Text;
+                escaped = escaped.Replace("\r\n", "\\n");
+                escaped = escaped.Replace("\n", "\\n");
+                escaped = escaped.Replace("\t", "\\t");
+                escaped = escaped.Replace("\"", "\\\"");
+                return "\"" + escaped + "\"";
+            }
+        }
     }
 
     public class Localization
     {
+        public static string[] SupportedLangs = new[]{ "ENG", "RUS", "SPA" };
+
         public readonly int Id;
         public readonly string NameId;
         public readonly string Comment;
@@ -41,9 +57,20 @@ namespace SDGameTextToEnum
             text = LangTexts.FirstOrDefault(x => x.Lang == lang);
             return text != null;
         }
+        public LangText GetText(string lang)
+        {
+            LangText text = LangTexts.FirstOrDefault(x => x.Lang == lang);
+            if (text == null)
+                throw new Exception($"{NameId}({Id}) failed to get lang={lang}");
+            return text;
+        }
         public void AddText(string lang, int id, string text)
         {
-            if (TryGetText(lang, out LangText lt))
+            if (!SupportedLangs.Contains(lang))
+            {
+                Log.Write(ConsoleColor.Yellow, $"unsupported langugage: {lang}");
+            }
+            else if (TryGetText(lang, out LangText lt))
             {
                 Log.Write(ConsoleColor.Yellow,  "id already exists:\n" +
                                                 $"  existing {lang}: {id}={lt.Text}\n" +
