@@ -1,36 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 
 namespace Ship_Game.Tools.Localization
 {
-    public struct Token
-    {
-        public int Index;
-        public string Text;
-    }
-    public sealed class LocalizationFile
-    {
-        public List<Token> TokenList;
-        public IEnumerable<TextToken> GetTokens(string lang) => TokenList.Select(t => new TextToken(lang, t.Index, null, t.Text));
-    }
-    public sealed class ToolTip
-    {
-        public int TIP_ID;   // Serialized from: Tooltips.xml
-        public int Data;     // Serialized from: Tooltips.xml
-        public string Title; // Serialized from: Tooltips.xml
-    }
-    public sealed class Tooltips
-    {
-        public List<ToolTip> ToolTipsList;
-        public IEnumerable<TextToken> GetTokens(string lang)
-            => ToolTipsList.Select(t 
-                => new TextToken(lang, t.TIP_ID, null, t.Title){ ToolTipData = t.Data });
-    }
-    
     /// <summary>
     /// Converts StarDrive GameText into C# enums
     /// </summary>
@@ -38,16 +13,12 @@ namespace Ship_Game.Tools.Localization
     {
         public static bool UseYAMLFileAsSource = true;
 
-        static T Deserialize<T>(string path)
-        {
-            var ser = new XmlSerializer(typeof(T));
-            return (T)ser.Deserialize(File.OpenRead(path));
-        }
-
         static IEnumerable<TextToken> GetGameText(string lang, string path)
         {
             Log.Write(ConsoleColor.Cyan, $"GetGameText: {lang} {path}");
-            return Deserialize<LocalizationFile>(path).GetTokens(lang);
+            var ser = new XmlSerializer(typeof(LocalizationFile));
+            var loc = (LocalizationFile)ser.Deserialize(File.OpenRead(path));
+            return loc.TokenList.Select(t => new TextToken(lang, t.Index, null, t.Text));
         }
 
         static LocalizationDB CreateGameTextEnum(string gameContent, string modContent, string outputDir)
@@ -75,6 +46,7 @@ namespace Ship_Game.Tools.Localization
 
             if (Directory.Exists(outputDir))
                 db.ExportCsharp(enumFile);
+
             db.ExportYaml(yamlFile);
             db.ExportMissingTranslationsYaml("RUS", $"{gameContent}/GameText.Missing.RUS.yaml");
             db.ExportMissingTranslationsYaml("SPA", $"{gameContent}/GameText.Missing.SPA.yaml");
@@ -211,36 +183,30 @@ namespace Ship_Game.Tools.Localization
         public static void Run(string mod = "")
         {
             string starDrive = Directory.GetCurrentDirectory();
-            string solutionDir = Path.GetFullPath($"{starDrive}/..");
-
-            string gameContent = $"{solutionDir}/Content";
-            string bbDir = $"{solutionDir}/Content";
-            string codeDir = $"{solutionDir}/Ship_Game";
-            string outputDir = $"{solutionDir}/Ship_Game/Data";
-
+            string gameContent = $"{starDrive}/Content";
             string modContent = mod.NotEmpty() ? $"{starDrive}/Mods/{mod}" : "";
-            Directory.SetCurrentDirectory($"{solutionDir}/StarDrive");
-
+            
             if (!Directory.Exists(gameContent))
                 throw new Exception($"Could not find StarDrive/Content at: {gameContent}");
+            
+            if (mod.NotEmpty() && !Directory.Exists(modContent))
+                throw new Exception($"Could not find Mod at: {modContent}");
 
-            if (!Directory.Exists(gameContent))
-                throw new Exception($"Could not find StarDrive/Content at: {gameContent}");
+            string solutionDir = Path.GetFullPath($"{starDrive}/..");
+            string bbContent = $"{solutionDir}/Content"; // OPTIONAL
+            string codeDir = $"{solutionDir}/Ship_Game"; // OPTIONAL
+            string outputDir = $"{codeDir}/Data"; // OPTIONAL
 
-            if (!Directory.Exists(gameContent) ||
-                !Directory.Exists(bbDir)   ||
-                !Directory.Exists(outputDir))
-            {
-                Log.Write(ConsoleColor.Red, "WorkingDir must be BlackBox code directory with Content and Ship_Game/Data folders!");
-            }
-            else
-            {
-                LocalizationDB db = CreateGameTextEnum(gameContent, modContent, outputDir);
-                UpgradeGameXmls(bbDir, db, mod:false);
-                if (mod.NotEmpty())
-                    UpgradeGameXmls(modContent, db, mod:true);
+            LocalizationDB db = CreateGameTextEnum(gameContent, modContent, outputDir);
+
+            if (Directory.Exists(bbContent))
+                UpgradeGameXmls(bbContent, db, mod:false);
+
+            if (mod.NotEmpty())
+                UpgradeGameXmls(modContent, db, mod:true);
+
+            if (Directory.Exists(codeDir))
                 ReplaceCsharpTokens(codeDir, db);
-            }
         }
     }
 }

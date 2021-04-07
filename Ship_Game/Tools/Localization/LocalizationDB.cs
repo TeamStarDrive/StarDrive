@@ -61,6 +61,7 @@ namespace Ship_Game.Tools.Localization
         {
             ExistingIds.Clear();
             EnumNames.Clear();
+
             if (File.Exists(enumFile))
                 ReadIdentifiersFromCsharp(enumFile);
 
