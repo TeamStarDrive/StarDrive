@@ -65,7 +65,7 @@ namespace Ship_Game
             if (ActiveEvent.TurnTimer <= 0)
             {
                 ActiveEvent = null;
-                Empire.Universe.NotificationManager.AddRandomEventNotification(Localizer.Token(4009), null, null, null);
+                Empire.Universe.NotificationManager.AddRandomEventNotification(Localizer.Token(GameText.TheHyperspaceFluxHasAbatednships), null, null, null);
             }
         }
 
@@ -111,7 +111,7 @@ namespace Ship_Game
             {
                 TurnTimer          = (int)RandomMath.AvgRandomBetween(1f, 30f),
                 Name               = "Hyperspace Flux",
-                NotificationString = Localizer.Token(4010),
+                NotificationString = Localizer.Token(GameText.AMassiveHyperspaceFluxnisInhibiting),
                 InhibitWarp        = true
             };
 

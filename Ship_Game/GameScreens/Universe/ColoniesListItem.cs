@@ -86,9 +86,9 @@ namespace Ship_Game
 
             int ddwidth = (int)(0.2f * StorageRect.Width);
             FoodDropDown = new DropDownMenu(new Rectangle(StorageRect.X + 50 + (int)(0.4f * StorageRect.Width) + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, ddwidth, 18));
-            FoodDropDown.AddOption(Localizer.Token(329));
-            FoodDropDown.AddOption(Localizer.Token(330));
-            FoodDropDown.AddOption(Localizer.Token(331));
+            FoodDropDown.AddOption(Localizer.Token(GameText.Store));
+            FoodDropDown.AddOption(Localizer.Token(GameText.Import));
+            FoodDropDown.AddOption(Localizer.Token(GameText.Export));
             FoodDropDown.ActiveIndex = (int)P.FS;
             FoodStorageIcon = new Rectangle(StorageRect.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - ResourceManager.Texture("NewUI/icon_food").Height / 2, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
             ProdStorage = new ProgressBar(new Rectangle(StorageRect.X + 50, FoodStorage.pBar.Y + FoodStorage.pBar.Height + 10, (int)(0.4f * StorageRect.Width), 18))
@@ -98,9 +98,9 @@ namespace Ship_Game
             };
             ProdStorageIcon = new Rectangle(StorageRect.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - ResourceManager.Texture("NewUI/icon_production").Height / 2, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
             ProdDropDown = new DropDownMenu(new Rectangle(StorageRect.X + 50 + (int)(0.4f * StorageRect.Width) + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, ddwidth, 18));
-            ProdDropDown.AddOption(Localizer.Token(329));
-            ProdDropDown.AddOption(Localizer.Token(330));
-            ProdDropDown.AddOption(Localizer.Token(331));
+            ProdDropDown.AddOption(Localizer.Token(GameText.Store));
+            ProdDropDown.AddOption(Localizer.Token(GameText.Import));
+            ProdDropDown.AddOption(Localizer.Token(GameText.Export));
             ProdDropDown.ActiveIndex = (int)P.PS;
             ApplyProductionRect = new Rectangle(QueueRect.X + QueueRect.Width - 50, QueueRect.Y + 10, ResourceManager.Texture("NewUI/icon_queue_rushconstruction").Width, ResourceManager.Texture("NewUI/icon_queue_rushconstruction").Height);
             CancelProductionRect = new Rectangle(QueueRect.X + QueueRect.Width - 20, QueueRect.Y + 10, ResourceManager.Texture("NewUI/icon_queue_delete").Width, ResourceManager.Texture("NewUI/icon_queue_delete").Height);

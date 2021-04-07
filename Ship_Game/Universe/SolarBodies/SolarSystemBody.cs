@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -288,11 +288,11 @@ namespace Ship_Game
         {
             get
             {
-                if (MineralRichness > 2.5) return Localizer.Token(1442);
-                if (MineralRichness > 1.5) return Localizer.Token(1443);
-                if (MineralRichness > 0.75) return Localizer.Token(1444);
-                if (MineralRichness > 0.25) return Localizer.Token(1445);
-                return Localizer.Token(1446);
+                if (MineralRichness > 2.5) return Localizer.Token(GameText.UltraRich);
+                if (MineralRichness > 1.5) return Localizer.Token(GameText.Rich);
+                if (MineralRichness > 0.75) return Localizer.Token(GameText.Average);
+                if (MineralRichness > 0.25) return Localizer.Token(GameText.Poor);
+                return Localizer.Token(GameText.UltraPoor);
             }
         }
 
@@ -374,89 +374,89 @@ namespace Ship_Game
                 {
                     switch (Type.Id)
                     {
-                        case 21: Description += Localizer.Token(1729); break;
+                        case 21: Description += Localizer.Token(GameText.TheLushVibranceOfThis); break;
                         case 13:
-                        case 22: Description += Localizer.Token(1730); break;
-                        default: Description += Localizer.Token(1731); break;
+                        case 22: Description += Localizer.Token(GameText.ItIsAnExtremelyFertile); break;
+                        default: Description += Localizer.Token(GameText.ItIsAnExtremelyFertile2); break;
                     }
                 }
                 else if (BaseMaxFertility > 1)
                 {
                     switch (Type.Id)
                     {
-                        case 19: Description += Localizer.Token(1732); break;
-                        case 21: Description += Localizer.Token(1733); break;
+                        case 19: Description += Localizer.Token(GameText.TheCombinationOfExtremeHeat); break;
+                        case 21: Description += Localizer.Token(GameText.WhileThisIsUnquestionablyA); break;
                         case 13:
-                        case 22: Description += Localizer.Token(1734); break;
-                        default: Description += Localizer.Token(1735); break;
+                        case 22: Description += Localizer.Token(GameText.MountainsDesertsTundrasForestsOceans); break;
+                        default: Description += Localizer.Token(GameText.ItHasAmpleNaturalResources); break;
                     }
                 }
                 else if (BaseMaxFertility > 0.6f)
                 {
                     switch (Type.Id)
                     {
-                        case 14: Description += Localizer.Token(1736); break;
-                        case 21: Description += Localizer.Token(1737); break;
-                        case 17: Description += Localizer.Token(1738); break;
-                        case 19: Description += Localizer.Token(1739); break;
-                        case 18: Description += Localizer.Token(1740); break;
-                        case 11: Description += Localizer.Token(1741); break;
+                        case 14: Description += Localizer.Token(GameText.DunesOfSunscorchedSandRise); break;
+                        case 21: Description += Localizer.Token(GameText.ScansRevealThatThisPlanet); break;
+                        case 17: Description += Localizer.Token(GameText.HoweverScansRevealGeothermalActivity); break;
+                        case 19: Description += Localizer.Token(GameText.ThisPlanetAppearsLushAnd); break;
+                        case 18: Description += Localizer.Token(GameText.ThisPlanetsEcosystemIsDivided); break;
+                        case 11: Description += Localizer.Token(GameText.ACoolPlanetaryTemperatureAnd); break;
                         case 13:
-                        case 22: Description += Localizer.Token(1742); break;
-                        default: Description += Localizer.Token(1743); break;
+                        case 22: Description += Localizer.Token(GameText.ItAppearsThatSomeEcological); break;
+                        default: Description += Localizer.Token(GameText.ItHasADifficultBut); break;
                     }
                 }
                 else
                 {
                     switch (Type.Id) {
                         case 9:
-                        case 23: Description += Localizer.Token(1744); break;
+                        case 23: Description += Localizer.Token(GameText.ToxicGasesPermeateTheAtmosphere); break;
                         case 20:
-                        case 15: Description += Localizer.Token(1745); break;
-                        case 17: Description += Localizer.Token(1746); break;
-                        case 18: Description += Localizer.Token(1747); break;
-                        case 11: Description += Localizer.Token(1748); break;
-                        case 14: Description += Localizer.Token(1749); break;
+                        case 15: Description += Localizer.Token(GameText.ItsAtmosphereIsComprisedLargely); break;
+                        case 17: Description += Localizer.Token(GameText.WithNoAtmosphereToSpeak); break;
+                        case 18: Description += Localizer.Token(GameText.ThisPlanetsRoughTerrainAnd); break;
+                        case 11: Description += Localizer.Token(GameText.LargeLifelessPlainsDominateThe); break;
+                        case 14: Description += Localizer.Token(GameText.DunesOfSunscorchedSandTower); break;
                         case 2:
                         case 6:
-                        case 10: Description += Localizer.Token(1750); break;
+                        case 10: Description += Localizer.Token(GameText.GasGiantsLikeThisPlanet); break;
                         case 3:
                         case 4:
-                        case 16: Description += Localizer.Token(1751); break;
-                        case 1:  Description += Localizer.Token(1752); break;
+                        case 16: Description += Localizer.Token(GameText.TheAtmosphereHereIsVery); break;
+                        case 1:  Description += Localizer.Token(GameText.TheLifeCycleOnThis); break;
                         default:
                             if (Habitable)
                                 Description = Description ?? "";
                             else
-                                Description += Localizer.Token(1753);
+                                Description += Localizer.Token(GameText.ColonizationOfThisPlanetIs);
                             break;
                     }
                 }
                 if (BaseMaxFertility < 0.6f && MineralRichness >= 2 && Habitable)
                 {
-                    Description += Localizer.Token(1754);
-                    if      (MineralRichness > 3)  Description += Localizer.Token(1755);
-                    else if (MineralRichness >= 2) Description += Localizer.Token(1756);
-                    else if (MineralRichness >= 1) Description += Localizer.Token(1757);
+                    Description += Localizer.Token(GameText.However2);
+                    if      (MineralRichness > 3)  Description += Localizer.Token(GameText.ScansRevealThatThisIs);
+                    else if (MineralRichness >= 2) Description += Localizer.Token(GameText.ScansRevealThatThisPlanet2);
+                    else if (MineralRichness >= 1) Description += Localizer.Token(GameText.ScansRevealThatThisPlanet3);
                 }
                 else if (MineralRichness > 3 && Habitable)
                 {
-                    Description += Localizer.Token(1758);
+                    Description += Localizer.Token(GameText.ScansRevealThatThisIs2);
                 }
                 else if (MineralRichness >= 2 && Habitable)
                 {
-                    Description += Name + Localizer.Token(1759);
+                    Description += Name + Localizer.Token(GameText.IsRelativelyMineralRichAnd);
                 }
                 else if (MineralRichness >= 1 && Habitable)
                 {
-                    Description += Name + Localizer.Token(1760);
+                    Description += Name + Localizer.Token(GameText.HasAnAverageAbundanceOf);
                 }
                 else if (MineralRichness < 1 && Habitable)
                 {
                     if (Type.Id == 14)
-                        Description += Name + Localizer.Token(1761);
+                        Description += Name + Localizer.Token(GameText.SuffersFromALackOf);
                     else
-                        Description += Name + Localizer.Token(1762);
+                        Description += Name + Localizer.Token(GameText.LacksSignificantVeinsOfValuable);
                 }
             }
         }

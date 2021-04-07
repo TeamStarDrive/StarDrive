@@ -19,14 +19,14 @@ namespace Ship_Game
         void LoadMenuNodes(bool Owned, bool Habitable)
         {
             planetMenu.Children.Clear();
-            planetMenu.Add(new PieMenuNode(Localizer.Token(1421), ResourceManager.Texture("UI/viewPlanetIcon"),
+            planetMenu.Add(new PieMenuNode(Localizer.Token(GameText.ViewPlanet), ResourceManager.Texture("UI/viewPlanetIcon"),
                 SnapViewColony));
             if (!Owned && Habitable)
-                planetMenu.Add(new PieMenuNode(Localizer.Token(1422),
+                planetMenu.Add(new PieMenuNode(Localizer.Token(GameText.MarkForColonization),
                     ResourceManager.Texture("UI/ColonizeIcon"), MarkForColonization));
             if (!Habitable)
                 return;
-            planetMenu.Add(new PieMenuNode(Localizer.Token(1423), ResourceManager.Texture("UI/ColonizeIcon"),
+            planetMenu.Add(new PieMenuNode(Localizer.Token(GameText.TacticalView), ResourceManager.Texture("UI/ColonizeIcon"),
                 OpenCombatMenu));
         }
 
@@ -62,15 +62,15 @@ namespace Ship_Game
 
             if (which == 1)
             {
-                var newChild1 = new PieMenuNode(Localizer.Token(1413), ResourceManager.Texture("UI/OrdersIcon"), null);
+                var newChild1 = new PieMenuNode(Localizer.Token(GameText.Orders2), ResourceManager.Texture("UI/OrdersIcon"), null);
                 shipMenu.Add(newChild1);
-                newChild1.Add(new PieMenuNode(Localizer.Token(1416), ResourceManager.Texture("UI/marketIcon"), DoExplore));
+                newChild1.Add(new PieMenuNode(Localizer.Token(GameText.GoExploring), ResourceManager.Texture("UI/marketIcon"), DoExplore));
                 newChild1.Add(new PieMenuNode("Empire Defense", ResourceManager.Texture("UI/PatrolIcon"), DoDefense));
-                var newChild6 = new PieMenuNode(Localizer.Token(1417), ResourceManager.Texture("UI/FollowIcon"), null);
+                var newChild6 = new PieMenuNode(Localizer.Token(GameText.Other), ResourceManager.Texture("UI/FollowIcon"), null);
                 shipMenu.Add(newChild6);
                 if (SelectedShip != null && !SelectedShip.IsPlatformOrStation && SelectedShip.CanBeScrapped)
                 {
-                    newChild6.Add(new PieMenuNode(Localizer.Token(1418), ResourceManager.Texture("UI/FollowIcon"), RefitTo));
+                    newChild6.Add(new PieMenuNode(Localizer.Token(GameText.RefitTo), ResourceManager.Texture("UI/FollowIcon"), RefitTo));
                 }
                 if (SelectedShip != null && SelectedShip.IsPlatformOrStation)
                 {
@@ -80,13 +80,13 @@ namespace Ship_Game
                 {
                     if (SelectedShip == null || SelectedShip.shipData.Role > ShipData.RoleName.construction)
                         return;
-                    newChild6.Add(new PieMenuNode(Localizer.Token(1419),
+                    newChild6.Add(new PieMenuNode(Localizer.Token(GameText.OrderScrap),
                         ResourceManager.Texture("UI/HoldPositionIcon"), OrderScrap));
                 }
             }
             else
             {
-                shipMenu.Add(new PieMenuNode(Localizer.Token(1420), ResourceManager.Texture("UI/viewPlanetIcon"), ContactLeader));
+                shipMenu.Add(new PieMenuNode(Localizer.Token(GameText.ContactLeader), ResourceManager.Texture("UI/viewPlanetIcon"), ContactLeader));
             }
         }
 

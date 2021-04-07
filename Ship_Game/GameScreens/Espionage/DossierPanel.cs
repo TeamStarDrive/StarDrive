@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.GameScreens.Espionage
@@ -41,7 +41,7 @@ namespace Ship_Game.GameScreens.Espionage
             cursor.Y += 4;
             DrawText(6109, agent.HomePlanet, Color.LightGray);
             DrawText(6110, agent.Age.String(0), Color.LightGray);
-            DrawText(6111, agent.ServiceYears.String(1) + Localizer.Token(6119), Color.LightGray);
+            DrawText(6111, agent.ServiceYears.String(1) + Localizer.Token(GameText.Years), Color.LightGray);
             cursor.Y += 16;
             DrawValue(6112, agent.Training);
             DrawValue(6113, agent.Assassinations);

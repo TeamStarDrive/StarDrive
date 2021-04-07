@@ -76,19 +76,19 @@ namespace Ship_Game
 
         public void AddBeingInvadedNotification(SolarSystem beingInvaded, Empire invader, float strRatio)
         {
-            string threatLevel = Localizer.Token(4152);
-            if      (strRatio < 0.1f)  threatLevel = $"{threatLevel} {Localizer.Token(4153)}"; // negligible
-            else if (strRatio < 0.3f)  threatLevel = $"{threatLevel} {Localizer.Token(4154)}"; // very low
-            else if (strRatio < 0.5f)  threatLevel = $"{threatLevel} {Localizer.Token(4155)}"; // low
-            else if (strRatio < 0.75f) threatLevel = $"{threatLevel} {Localizer.Token(4156)}"; // medium
-            else if (strRatio < 1f)    threatLevel = $"{threatLevel} {Localizer.Token(4157)}"; // high
-            else if (strRatio < 1.5f)  threatLevel = $"{threatLevel} {Localizer.Token(4158)}"; // very high
-            else                       threatLevel = $"{threatLevel} {Localizer.Token(4159)}"; // overwhelming
+            string threatLevel = Localizer.Token(GameText.NthreatLevelVsOurForcesnthere);
+            if      (strRatio < 0.1f)  threatLevel = $"{threatLevel} {Localizer.Token(GameText.Negligible)}"; // negligible
+            else if (strRatio < 0.3f)  threatLevel = $"{threatLevel} {Localizer.Token(GameText.VeryLow)}"; // very low
+            else if (strRatio < 0.5f)  threatLevel = $"{threatLevel} {Localizer.Token(GameText.Low)}"; // low
+            else if (strRatio < 0.75f) threatLevel = $"{threatLevel} {Localizer.Token(GameText.Medium)}"; // medium
+            else if (strRatio < 1f)    threatLevel = $"{threatLevel} {Localizer.Token(GameText.High)}"; // high
+            else if (strRatio < 1.5f)  threatLevel = $"{threatLevel} {Localizer.Token(GameText.VeryHigh)}"; // very high
+            else                       threatLevel = $"{threatLevel} {Localizer.Token(GameText.Overwhelming)}"; // overwhelming
 
             string message = invader.data.Traits.Singular
-                             + Localizer.Token(1500) + '\n'
-                             + Localizer.Token(1501) + beingInvaded.Name
-                             + Localizer.Token(1502) + threatLevel;
+                             + Localizer.Token(GameText.ForcesSpottedIn) + '\n'
+                             + Localizer.Token(GameText.The2) + beingInvaded.Name
+                             + Localizer.Token(GameText.System2) + threatLevel;
 
             AddNotification(new Notification
             {
@@ -105,7 +105,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 RelevantEmpire  = emp,
-                Message         = wasColonized.Name + Localizer.Token(1513),
+                Message         = wasColonized.Name + Localizer.Token(GameText.WasColonizednclickForColonyScreen),
                 ReferencedItem1 = wasColonized,
                 IconPath        = wasColonized.IconPath,
                 Action          = "SnapToPlanet"
@@ -117,18 +117,18 @@ namespace Ship_Game
             string treaty = "";
             switch (type)
             {
-                case TreatyType.Alliance:      treaty = Localizer.Token(1612); break;
-                case TreatyType.OpenBorders:   treaty = Localizer.Token(1216); break;
-                case TreatyType.Trade:         treaty = Localizer.Token(1215); break;
-                case TreatyType.NonAggression: treaty = Localizer.Token(1214); break;
+                case TreatyType.Alliance:      treaty = Localizer.Token(GameText.Alliance); break;
+                case TreatyType.OpenBorders:   treaty = Localizer.Token(GameText.OpenBordersTreaty); break;
+                case TreatyType.Trade:         treaty = Localizer.Token(GameText.TradeTreaty); break;
+                case TreatyType.NonAggression: treaty = Localizer.Token(GameText.NonaggressionPact); break;
             }
 
             if (treaty.IsEmpty())
                 return;
 
-            string our        = Localizer.Token(4160);
-            string with       = Localizer.Token(4161);
-            string wasRevoked = Localizer.Token(4162);
+            string our        = Localizer.Token(GameText.Our);
+            string with       = Localizer.Token(GameText.With);
+            string wasRevoked = Localizer.Token(GameText.WasRevoked);
             AddNotification(new Notification
             {
                 RelevantEmpire = empire,
@@ -160,7 +160,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 RelevantEmpire  = conqueror,
-                Message         = conqueror.data.Traits.Name + Localizer.Token(1503) + p.Name + "\n" + Localizer.Token(1504) + loser.data.Traits.Name,
+                Message         = conqueror.data.Traits.Name + Localizer.Token(GameText.Captured) + p.Name + "\n" + Localizer.Token(GameText.From) + loser.data.Traits.Name,
                 ReferencedItem1 = item,
                 IconPath        = p.IconPath,
                 Action          = action
@@ -183,7 +183,7 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                Message         = $"{p.Name}: {Localizer.Token(4277)} ({cost}).",
+                Message         = $"{p.Name}: {Localizer.Token(GameText.CouldNotPlaceThisOrbital)} ({cost}).",
                 ReferencedItem1 = p,
                 IconPath        = path,
                 Action          = "SnapToPlanet"
@@ -192,8 +192,8 @@ namespace Ship_Game
 
         public void AddBuildingConstructed(Planet p, Building b)
         {
-            string constructionOf = Localizer.Token(4163);
-            string wasFinishedAt  = Localizer.Token(4164);
+            string constructionOf = Localizer.Token(GameText.ConstructionOf);
+            string wasFinishedAt  = Localizer.Token(GameText.WasFinishedAt);
             AddNotification(new Notification
             {
                 Message         = $"{constructionOf} {b.TranslatedName.Text}\n{wasFinishedAt} {p.Name}",
@@ -208,7 +208,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 RelevantEmpire  = enemy,
-                Message         = Localizer.Token(4298),
+                Message         = Localizer.Token(GameText.TheEnemyHasLaunchedA),
                 ReferencedItem1 = p,
                 IconPath        = p.IconPath,
                 Action          = "SnapToPlanet"
@@ -216,8 +216,8 @@ namespace Ship_Game
         }
 
 
-        public void AddBuildingDestroyedByLava(Planet p, Building b)   => AddBuildingDestroyed(p, b, Localizer.Token(4276));
-        public void AddBuildingDestroyedByMeteor(Planet p, Building b) => AddBuildingDestroyed(p, b, Localizer.Token(4287));
+        public void AddBuildingDestroyedByLava(Planet p, Building b)   => AddBuildingDestroyed(p, b, Localizer.Token(GameText.WasDestroyedByALava));
+        public void AddBuildingDestroyedByMeteor(Planet p, Building b) => AddBuildingDestroyed(p, b, Localizer.Token(GameText.WasDestroyedByAMeteor));
 
         public void AddBuildingDestroyed(Planet p, Building b, string text)
         {
@@ -235,7 +235,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 RelevantEmpire  = thatDied,
-                Message         = $"{thatDied.data.Traits.Name} {Localizer.Token(4165)}",
+                Message         = $"{thatDied.data.Traits.Name} {Localizer.Token(GameText.HasBeenDefeated)}",
                 IconPath        = "NewUI/icon_planet_terran_01_mid",
                 ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect
@@ -247,7 +247,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 RelevantEmpire  = pirates,
-                Message         = Localizer.Token(4166),
+                Message         = Localizer.Token(GameText.WeReturnedTheShipWhich),
                 Action          = "SnapToShip",
                 ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect
@@ -256,9 +256,9 @@ namespace Ship_Game
 
         public void AddPiratesAreGettingStronger(Empire pirates, int numBases)
         {
-            string yourSpiesReportThat = Localizer.Token(4167);
-            string areGettingStronger  = Localizer.Token(4168);
-            string bases               = Localizer.Token(4169);
+            string yourSpiesReportThat = Localizer.Token(GameText.OurSpiesReportThat);
+            string areGettingStronger  = Localizer.Token(GameText.AreGettingStrongerntheyHaveAround);
+            string bases               = Localizer.Token(GameText.Bases);
             AddNotification(new Notification
             {
                 RelevantEmpire  = pirates,
@@ -275,7 +275,7 @@ namespace Ship_Game
                 RelevantEmpire = remnants,
                 ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect,
-                Message         = Localizer.Token(4170)
+                Message         = Localizer.Token(GameText.OurScientistsReportThatThey)
             }, "sd_ui_notification_warning");;
         }
 
@@ -286,7 +286,7 @@ namespace Ship_Game
                 RelevantEmpire  = remnants,
                 ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect,
-                Message         = Localizer.Token(4171)
+                Message         = Localizer.Token(GameText.OurScientistsReportThatThey2)
             }, "sd_ui_notification_warning");
         }
 
@@ -297,7 +297,7 @@ namespace Ship_Game
                 RelevantEmpire  = remnants,
                 ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect,
-                Message         = Localizer.Token(4172)
+                Message         = Localizer.Token(GameText.YourScientistsReportMassiveRadiation)
             }, "sd_ui_notification_encounter");
         }
 
@@ -306,7 +306,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 RelevantEmpire  = pirates,
-                Message         = $"{Localizer.Token(4167)} {pirates.Name} {Localizer.Token(4183)} {numBases}.",
+                Message         = $"{Localizer.Token(GameText.OurSpiesReportThat)} {pirates.Name} {Localizer.Token(GameText.NumberOfBasesWasReducednto)} {numBases}.",
                 ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect
             }, "sd_troop_march_01");
@@ -317,7 +317,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 RelevantEmpire  = pirates,
-                Message         = $"{Localizer.Token(4167)} {pirates.Name} {Localizer.Token(4184)}",
+                Message         = $"{Localizer.Token(GameText.OurSpiesReportThat)} {pirates.Name} {Localizer.Token(GameText.HaveAFlagshipnlurkingSomewhereIn)}",
                 ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect
             }, "sd_troop_march_01");
@@ -328,7 +328,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 RelevantEmpire  = invader,
-                Message         = invader.data.Traits.Singular + Localizer.Token(1507) + where.Name + "!",
+                Message         = invader.data.Traits.Singular + Localizer.Token(GameText.TroopsAreLandingOn) + where.Name + "!",
                 ReferencedItem1 = where,
                 IconPath        = where.IconPath,
                 Action          = "CombatScreen"
@@ -339,7 +339,7 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                Message         = $"{Localizer.Token(4182)} {where.Name}",
+                Message         = $"{Localizer.Token(GameText.ForeignTroopsEvacuatedFrom)} {where.Name}",
                 ReferencedItem1 = where,
                 IconPath        = where.IconPath,
                 Action          = "SnapToPlanet"
@@ -348,9 +348,9 @@ namespace Ship_Game
 
         public void AddTroopsRemovedNotification(Planet where)
         {
-            string ourTroopsOn   = Localizer.Token(4179);
-            string hadToEvacuate = Localizer.Token(4180);
-            string ownsThePlanet = Localizer.Token(4181);
+            string ourTroopsOn   = Localizer.Token(GameText.OurTroopsStationedOn);
+            string hadToEvacuate = Localizer.Token(GameText.HadToEvacuateSincen);
+            string ownsThePlanet = Localizer.Token(GameText.OwnsThePlanetNow);
             AddNotification(new Notification
             {
                 Message         = $"{ourTroopsOn} {where.Name} {hadToEvacuate}{where.Owner.data.Traits.Name} {ownsThePlanet}",
@@ -378,7 +378,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 Pause           = false,
-                Message         = Localizer.Token(2295),
+                Message         = Localizer.Token(GameText.AnEventRequiresYourAttention),
                 ReferencedItem1 = expEvent,
                 IconPath        = "ResearchMenu/icon_event_science",
                 Action          = "LoadEvent"
@@ -421,7 +421,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 Pause           = false,
-                Message         = Localizer.Token(1505) + p.Name + Localizer.Token(1506),
+                Message         = Localizer.Token(GameText.ScansOf) + p.Name + Localizer.Token(GameText.RevealedAnAnomaly),
                 ReferencedItem1 = p.ParentSystem,
                 ReferencedItem2 = p,
                 IconPath        = p.IconPath,
@@ -471,7 +471,7 @@ namespace Ship_Game
 
         public void AddMoneyWarning()
         {
-            string message = Localizer.Token(2296);
+            string message = Localizer.Token(GameText.TreasuryWarningRunningOutOf);
             if (IsNotificationPresent(message))
                 return;
 
@@ -488,7 +488,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 RelevantEmpire = absorber,
-                Message        = absorber.data.Traits.Name + " " + Localizer.Token(2258) + target.data.Traits.Name,
+                Message        = absorber.data.Traits.Name + " " + Localizer.Token(GameText.HasPeacefullyMergedIntoA) + target.data.Traits.Name,
                 IconPath       = "NewUI/icon_planet_terran_01_mid"
             }, "sd_troop_march_01");
         }
@@ -498,7 +498,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 Pause    = false,
-                Message  = $"{first.data.Traits.Name} {Localizer.Token(4174)} {second.data.Traits.Name}\n{Localizer.Token(4176)}",
+                Message  = $"{first.data.Traits.Name} {Localizer.Token(GameText.And3)} {second.data.Traits.Name}\n{Localizer.Token(GameText.AreNowAtPeace)}",
                 IconPath = "UI/icon_peace"
             }, "sd_ui_notification_conquer_01");
         }
@@ -508,7 +508,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 Pause    = false,
-                Message  = $"{Localizer.Token(4177)} {otherEmpire.data.Traits.Name}",
+                Message  = $"{Localizer.Token(GameText.PeaceTreatyExpiredWithn)} {otherEmpire.data.Traits.Name}",
                 IconPath = "UI/icon_peace_cancel"
             }, "sd_ui_notification_warning");
         }
@@ -517,7 +517,7 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                Message         = Localizer.Token(1511) + p.Name + Localizer.Token(1512),
+                Message         = Localizer.Token(GameText.TheLastColonistOn) + p.Name + Localizer.Token(GameText.HasBeenKilled),
                 ReferencedItem1 = p.ParentSystem,
                 IconPath        = p.IconPath,
                 Action          = "SnapToSystem"
@@ -632,7 +632,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 Tech            = true,
-                Message         = Localizer.Token(tech.NameIndex) + Localizer.Token(1514),
+                Message         = Localizer.Token(tech.NameIndex) + Localizer.Token(GameText.Unlocked),
                 ReferencedItem1 = unlocked,
                 IconPath        = hasTechIcon ? techIcon : "TechIcons/" + unlocked,
                 Action          = "ResearchScreen"
@@ -644,7 +644,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 RelevantEmpire = absorber,
-                Message        = target.data.Traits.Name + " " + Localizer.Token(2259) + absorber.data.Traits.Name,
+                Message        = target.data.Traits.Name + " " + Localizer.Token(GameText.HasSurrenderedTo) + absorber.data.Traits.Name,
                 IconPath       = "NewUI/icon_planet_terran_01_mid"
             }, "sd_troop_march_01");
         }
@@ -653,7 +653,7 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                Message = $"{declarant.data.Traits.Name} {Localizer.Token(4174)} {other.data.Traits.Name}\n{Localizer.Token(4175)}",
+                Message = $"{declarant.data.Traits.Name} {Localizer.Token(GameText.And3)} {other.data.Traits.Name}\n{Localizer.Token(GameText.AreNowAtWar)}",
                 IconPath = "ResearchMenu/icons_techroot_infantry_hover",
                 Pause    = declarant.isPlayer || other.isPlayer
             }, "sd_troop_march_01", "sd_notify_alert");
@@ -663,7 +663,7 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                Message  = $"{first.data.Traits.Name} {Localizer.Token(4174)} {second.data.Traits.Name}\n{Localizer.Token(4175)}",
+                Message  = $"{first.data.Traits.Name} {Localizer.Token(GameText.And3)} {second.data.Traits.Name}\n{Localizer.Token(GameText.AreNowAtWar)}",
                 IconPath = "UI/icon_warning_money",
                 Pause    = first.isPlayer || second.isPlayer
             }, "sd_ui_notification_startgame");
@@ -671,7 +671,7 @@ namespace Ship_Game
 
         public void AddEmptyQueueNotification(Planet planet)
         {
-            string message = $"{planet.Name} {Localizer.Token(4173)}";
+            string message = $"{planet.Name} {Localizer.Token(GameText.IsNotProducingAnything)}";
             if (IsNotificationPresent(message))
                 return;
 

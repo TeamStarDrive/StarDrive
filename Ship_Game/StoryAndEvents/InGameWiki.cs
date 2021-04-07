@@ -33,8 +33,8 @@ namespace Ship_Game
             if (help.Length  != 0)
                 HelpTopics    = help[0].Deserialize<HelpTopics>();
 
-            TitleText  = Localizer.Token(2304);
-            MiddleText = Localizer.Token(2303);
+            TitleText  = Localizer.Token(GameText.StardriveHelp2);
+            MiddleText = Localizer.Token(GameText.ThisHelpMenuContainsInformation);
         }
 
         void InitHelpEntries()
@@ -68,8 +68,8 @@ namespace Ship_Game
             };
             ActiveTopic = new HelpTopic
             {
-                Title = Localizer.Token(1401),
-                Text  = Localizer.Token(1400)
+                Title = Localizer.Token(GameText.StardriveHelp),
+                Text  = Localizer.Token(GameText.SelectATopicOnThe)
             };
 
             InitHelpEntries();

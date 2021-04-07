@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
@@ -11,16 +11,16 @@ namespace Ship_Game
         {
             switch (category)
             {
-                case PlanetCategory.Terran:   return Localizer.Token(1447);
-                case PlanetCategory.Barren:   return Localizer.Token(1448);
-                case PlanetCategory.GasGiant: return Localizer.Token(1449);
-                case PlanetCategory.Volcanic: return Localizer.Token(1450);
-                case PlanetCategory.Tundra:   return Localizer.Token(1451);
-                case PlanetCategory.Desert:   return Localizer.Token(1452);
-                case PlanetCategory.Steppe:   return Localizer.Token(1453);
-                case PlanetCategory.Swamp:    return Localizer.Token(1454);
-                case PlanetCategory.Ice:      return Localizer.Token(1455);
-                case PlanetCategory.Oceanic:  return Localizer.Token(1456);
+                case PlanetCategory.Terran:   return Localizer.Token(GameText.Terran);
+                case PlanetCategory.Barren:   return Localizer.Token(GameText.Barren);
+                case PlanetCategory.GasGiant: return Localizer.Token(GameText.GasGiant);
+                case PlanetCategory.Volcanic: return Localizer.Token(GameText.Volcanic);
+                case PlanetCategory.Tundra:   return Localizer.Token(GameText.Tundra);
+                case PlanetCategory.Desert:   return Localizer.Token(GameText.Desert);
+                case PlanetCategory.Steppe:   return Localizer.Token(GameText.Steppe);
+                case PlanetCategory.Swamp:    return Localizer.Token(GameText.Swamp);
+                case PlanetCategory.Ice:      return Localizer.Token(GameText.Ice);
+                case PlanetCategory.Oceanic:  return Localizer.Token(GameText.Oceanic);
                 default: return "";
             }
         }
@@ -300,7 +300,7 @@ namespace Ship_Game
                 RemoveTerraformers();
                 if (Owner.isPlayer) // Notify player that the planet was terraformed
                     Empire.Universe.NotificationManager.AddRandomEventNotification(
-                        Name + " " + Localizer.Token(1971), Type.IconPath, "SnapToPlanet", this);
+                        Name + " " + Localizer.Token(GameText.TerraformingCompletedAndTerraformersWere), Type.IconPath, "SnapToPlanet", this);
                 return;
             }
 

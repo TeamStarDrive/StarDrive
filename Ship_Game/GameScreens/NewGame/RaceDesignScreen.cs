@@ -122,7 +122,7 @@ namespace Ship_Game
         public override void LoadContent()
         {
             TitleBar = Add(new Menu2(ScreenWidth / 2 - 203, (LowRes ? 10 : 44), 406, 80));
-            var titlePos = new Vector2(TitleBar.CenterX - Fonts.Laserian14.MeasureString(Localizer.Token(18)).X / 2f,
+            var titlePos = new Vector2(TitleBar.CenterX - Fonts.Laserian14.MeasureString(Localizer.Token(GameText.DesignYourRace)).X / 2f,
                                        TitleBar.CenterY - Fonts.Laserian14.LineSpacing / 2);
             Add(new UILabel(titlePos, GameText.DesignYourRace, Fonts.Laserian14, Colors.Cream));
 
@@ -162,9 +162,9 @@ namespace Ship_Game
                 traitsList.Height = 580;
 
             Traits = new Submenu(traitsList.Bevel(-20));
-            Traits.AddTab(Localizer.Token(19));
-            Traits.AddTab(Localizer.Token(20));
-            Traits.AddTab(Localizer.Token(21));
+            Traits.AddTab(Localizer.Token(GameText.Physical));
+            Traits.AddTab(Localizer.Token(GameText.Sociological));
+            Traits.AddTab(Localizer.Token(GameText.HistoryAndTradition));
             Traits.OnTabChange = OnTraitsTabChanged;
             Traits.Background = new Menu1(traitsList); 
 
@@ -736,7 +736,7 @@ namespace Ship_Game
                             : Screen.DescriptionTextList.Y;
 
                 var r = new Vector2(Screen.DescriptionTextList.X + 20, start + 20);
-                string title = Localizer.Token(30);
+                string title = Localizer.Token(GameText.PointsToSpend);
                 batch.DrawString(Font, $"{title}: {Screen.TotalPointsUsed}", r, Color.White);
                 r.Y += (Font.LineSpacing + 8);
                 Vector2 cursor = r;

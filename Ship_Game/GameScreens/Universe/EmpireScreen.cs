@@ -66,7 +66,7 @@ namespace Ship_Game
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2(
                 titleRect.X + titleRect.Width / 2 -
-                Fonts.Laserian14.MeasureString(Localizer.Token(383)).X / 2f,
+                Fonts.Laserian14.MeasureString(Localizer.Token(GameText.EmpireManagement)).X / 2f,
                 titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5,
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10,
@@ -100,12 +100,12 @@ namespace Ship_Game
             SelectedPlanet = ColoniesList.ItemAtTop<EmpireScreenEntry>().p;
             GovernorDropdown = new DropOptions<int>(new Rectangle(0, 0, 100, 18));
             GovernorDropdown.AddOption("--", 1);
-            GovernorDropdown.AddOption(Localizer.Token(4064), 0);
-            GovernorDropdown.AddOption(Localizer.Token(4065), 2);
-            GovernorDropdown.AddOption(Localizer.Token(4066), 4);
-            GovernorDropdown.AddOption(Localizer.Token(4067), 3);
-            GovernorDropdown.AddOption(Localizer.Token(4068), 5);
-            GovernorDropdown.AddOption(Localizer.Token(393), 6);
+            GovernorDropdown.AddOption(Localizer.Token(GameText.Core), 0);
+            GovernorDropdown.AddOption(Localizer.Token(GameText.Industrial), 2);
+            GovernorDropdown.AddOption(Localizer.Token(GameText.Agricultural), 4);
+            GovernorDropdown.AddOption(Localizer.Token(GameText.Research), 3);
+            GovernorDropdown.AddOption(Localizer.Token(GameText.Military), 5);
+            GovernorDropdown.AddOption(Localizer.Token(GameText.Tradehub), 6);
             GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(SelectedPlanet);
             if (GovernorDropdown.ActiveValue != (int) SelectedPlanet.colonyType)
             {
@@ -124,7 +124,7 @@ namespace Ship_Game
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
             TitleBar.Draw(batch);
-            batch.DrawString(Fonts.Laserian14, Localizer.Token(383), TitlePos, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Laserian14, Localizer.Token(GameText.EmpireManagement), TitlePos, new Color(255, 239, 208));
             EMenu.Draw(batch);
             Color TextColor = new Color(118, 102, 67, 50);
             ColoniesList.Draw(batch);
@@ -141,32 +141,32 @@ namespace Ship_Game
             {
                 amount = amount + 25f;
             }
-            batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(384), ":"), PNameCursor, Color.Orange);
+            batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(GameText.Class), ":"), PNameCursor, Color.Orange);
             Vector2 InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
             batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.CategoryName, InfoCursor, new Color(255, 239, 208));
             PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
             InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(385), ":"), PNameCursor, Color.Orange);
+            batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(GameText.Population), ":"), PNameCursor, Color.Orange);
             batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.PopulationStringForPlayer, InfoCursor, new Color(255, 239, 208));
-            Rectangle hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(385), ":")).X, Fonts.Arial12Bold.LineSpacing);
+            Rectangle hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(GameText.Population), ":")).X, Fonts.Arial12Bold.LineSpacing);
             if (hoverRect.HitTest(MousePos))
             {
                 ToolTip.CreateTooltip(75);
             }
             PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
             InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(386), ":"), PNameCursor, Color.Orange);
+            batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(GameText.Fertility), ":"), PNameCursor, Color.Orange);
             batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.FertilityFor(EmpireManager.Player).String(), InfoCursor, new Color(255, 239, 208));
-            hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(386), ":")).X, Fonts.Arial12Bold.LineSpacing);
+            hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(GameText.Fertility), ":")).X, Fonts.Arial12Bold.LineSpacing);
             if (hoverRect.HitTest(MousePos))
             {
                 ToolTip.CreateTooltip(20);
             }
             PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
             InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(387), ":"), PNameCursor, Color.Orange);
+            batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(GameText.Richness), ":"), PNameCursor, Color.Orange);
             batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.MineralRichness.String(), InfoCursor, new Color(255, 239, 208));
-            hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(387), ":")).X, Fonts.Arial12Bold.LineSpacing);
+            hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(GameText.Richness), ":")).X, Fonts.Arial12Bold.LineSpacing);
             if (hoverRect.HitTest(MousePos))
             {
                 ToolTip.CreateTooltip(21);
@@ -252,37 +252,37 @@ namespace Ship_Game
             {
                 case Planet.ColonyType.Core:
                 {
-                    Localizer.Token(372);
+                    Localizer.Token(GameText.CoreWorld);
                     break;
                 }
                 case Planet.ColonyType.Colony:
                 {
-                    Localizer.Token(376);
+                    Localizer.Token(GameText.CustomColony);
                     break;
                 }
                 case Planet.ColonyType.Industrial:
                 {
-                    Localizer.Token(373);
+                    Localizer.Token(GameText.IndustrialWorld);
                     break;
                 }
                 case Planet.ColonyType.Research:
                 {
-                    Localizer.Token(375);
+                    Localizer.Token(GameText.ResearchWorld);
                     break;
                 }
                 case Planet.ColonyType.Agricultural:
                 {
-                    Localizer.Token(371);
+                    Localizer.Token(GameText.AgriculturalWorld);
                     break;
                 }
                 case Planet.ColonyType.Military:
                 {
-                    Localizer.Token(374);
+                    Localizer.Token(GameText.MilitaryOutpost);
                     break;
                 }
                 case Planet.ColonyType.TradeHub:
                 {
-                    Localizer.Token(393);
+                    Localizer.Token(GameText.Tradehub);
                     break;
                 }
             }
@@ -293,42 +293,42 @@ namespace Ship_Game
             {
                 case Planet.ColonyType.Core:
                 {
-                    desc = Fonts.Arial12Bold.ParseText(Localizer.Token(378), GovernorRect.Width - 50 - portraitRect.Width - 25);
+                    desc = Fonts.Arial12Bold.ParseText(Localizer.Token(GameText.GovernorWillBuildABalanced), GovernorRect.Width - 50 - portraitRect.Width - 25);
                     break;
                 }
                 case Planet.ColonyType.Colony:
                 {
-                    desc = Fonts.Arial12Bold.ParseText(Localizer.Token(382), GovernorRect.Width - 50 - portraitRect.Width - 25);
+                    desc = Fonts.Arial12Bold.ParseText(Localizer.Token(GameText.YouAreManagingThisColony), GovernorRect.Width - 50 - portraitRect.Width - 25);
                     break;
                 }
                 case Planet.ColonyType.Industrial:
                 {
-                    desc = Fonts.Arial12Bold.ParseText(Localizer.Token(379), GovernorRect.Width - 50 - portraitRect.Width - 25);
+                    desc = Fonts.Arial12Bold.ParseText(Localizer.Token(GameText.GovernorWillFocusEntirelyOn), GovernorRect.Width - 50 - portraitRect.Width - 25);
                     break;
                 }
                 case Planet.ColonyType.Research:
                 {
-                    desc = Fonts.Arial12Bold.ParseText(Localizer.Token(381), GovernorRect.Width - 50 - portraitRect.Width - 25);
+                    desc = Fonts.Arial12Bold.ParseText(Localizer.Token(GameText.GovernorWillBuildADedicated), GovernorRect.Width - 50 - portraitRect.Width - 25);
                     break;
                 }
                 case Planet.ColonyType.Agricultural:
                 {
-                    desc = Fonts.Arial12Bold.ParseText(Localizer.Token(377), GovernorRect.Width - 50 - portraitRect.Width - 25);
+                    desc = Fonts.Arial12Bold.ParseText(Localizer.Token(GameText.GovernorWillBuildAgriculturalBuildings), GovernorRect.Width - 50 - portraitRect.Width - 25);
                     break;
                 }
                 case Planet.ColonyType.Military:
                 {
-                    desc = Fonts.Arial12Bold.ParseText(Localizer.Token(380), GovernorRect.Width - 50 - portraitRect.Width - 25);
+                    desc = Fonts.Arial12Bold.ParseText(Localizer.Token(GameText.GovernorWillBuildALimited), GovernorRect.Width - 50 - portraitRect.Width - 25);
                     break;
                 }
                 case Planet.ColonyType.TradeHub:
                 {
-                    desc = Fonts.Arial12Bold.ParseText(Localizer.Token(394), GovernorRect.Width - 50 - portraitRect.Width - 25);
+                    desc = Fonts.Arial12Bold.ParseText(Localizer.Token(GameText.GovernorWillControlProductionLevels), GovernorRect.Width - 50 - portraitRect.Width - 25);
                     break;
                 }
             }
             batch.DrawString(Fonts.Arial12Bold, desc, TextPosition, Color.White);
-            desc = Localizer.Token(388);
+            desc = Localizer.Token(GameText.Change2);
             TextPosition = new Vector2(AutoButton.X + AutoButton.Width / 2 - Fonts.Pirulen16.MeasureString(desc).X / 2f, AutoButton.Y + AutoButton.Height / 2 - Fonts.Pirulen16.LineSpacing / 2);
 
             GovernorDropdown.SetAbsPos(GovPos.X, GovPos.Y + Fonts.Arial12Bold.LineSpacing + 5);
@@ -339,9 +339,9 @@ namespace Ship_Game
             {
                 EmpireScreenEntry entry = ColoniesList.ItemAtTop<EmpireScreenEntry>();
                 Vector2 TextCursor = new Vector2(entry.SysNameRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
-                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(192), TextCursor, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(GameText.System), TextCursor, new Color(255, 239, 208));
                 TextCursor = new Vector2(entry.PlanetNameRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
-                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(389), TextCursor, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(GameText.Planet), TextCursor, new Color(255, 239, 208));
                 pop.rect = new Rectangle(entry.PopRect.X + 15 - ResourceManager.Texture("NewUI/icon_food").Width / 2, (int)TextCursor.Y, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
                 batch.Draw(ResourceManager.Texture("UI/icon_pop"), pop.rect, Color.White);
                 food.rect = new Rectangle(entry.FoodRect.X + 15 - ResourceManager.Texture("NewUI/icon_food").Width / 2, (int)TextCursor.Y, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
@@ -353,11 +353,11 @@ namespace Ship_Game
                 money.rect = new Rectangle(entry.MoneyRect.X + 15 - ResourceManager.Texture("NewUI/icon_money").Width / 2, (int)TextCursor.Y, ResourceManager.Texture("NewUI/icon_money").Width, ResourceManager.Texture("NewUI/icon_money").Height);
                 batch.Draw(ResourceManager.Texture("NewUI/icon_money"), money.rect, Color.White);
                 TextCursor = new Vector2(entry.SliderRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
-                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(390), TextCursor, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(GameText.Labor), TextCursor, new Color(255, 239, 208));
                 TextCursor = new Vector2(entry.StorageRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
-                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(391), TextCursor, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(GameText.Storage2), TextCursor, new Color(255, 239, 208));
                 TextCursor = new Vector2(entry.QueueRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
-                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(392), TextCursor, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(GameText.Construction2), TextCursor, new Color(255, 239, 208));
             }
             Color smallHighlight = TextColor;
             smallHighlight.A = (byte)(TextColor.A / 2);

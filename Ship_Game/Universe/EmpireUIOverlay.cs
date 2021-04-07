@@ -119,7 +119,7 @@ namespace Ship_Game
                     ShipList.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military");
                     ShipList.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_hover");
                     ShipList.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_pressed");
-                    ShipList.Text = Localizer.Token(104);
+                    ShipList.Text = Localizer.Token(GameText.ShipsArray);
                     ShipList.launches = "ShipList";
 
                     Buttons.Add(ShipList);
@@ -130,7 +130,7 @@ namespace Ship_Game
                     Fleets.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military");
                     Fleets.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_hover");
                     Fleets.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_pressed");
-                    Fleets.Text = Localizer.Token(103);
+                    Fleets.Text = Localizer.Token(GameText.Fleets);
                     Fleets.launches = "Fleets";
 
                     Buttons.Add(Fleets);
@@ -149,7 +149,7 @@ namespace Ship_Game
                 Shipyard.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military");
                 Shipyard.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_hover");
                 Shipyard.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_pressed");
-                Shipyard.Text = Localizer.Token(98);
+                Shipyard.Text = Localizer.Token(GameText.Shipyard);
                 Shipyard.launches = "Shipyard";
                 
                 Buttons.Add(Shipyard);
@@ -160,7 +160,7 @@ namespace Ship_Game
                 empire.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_hover");
                 empire.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_pressed");
                 empire.launches = "Empire";
-                empire.Text = Localizer.Token(99);
+                empire.Text = Localizer.Token(GameText.Empire);
                 
                 Buttons.Add(empire);
                 Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_hover").Width + 40;
@@ -170,7 +170,7 @@ namespace Ship_Game
                 Espionage.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_dip");
                 Espionage.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_dip_hover");
                 Espionage.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_dip_pressed");
-                Espionage.Text = Localizer.Token(6088);
+                Espionage.Text = Localizer.Token(GameText.Espionage2);
                 Espionage.launches = "Espionage";
 
                 Buttons.Add(Espionage);
@@ -182,7 +182,7 @@ namespace Ship_Game
                 Diplomacy.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_dip_hover");
                 Diplomacy.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_dip_pressed");
                 Diplomacy.launches = "Diplomacy";
-                Diplomacy.Text = Localizer.Token(100);
+                Diplomacy.Text = Localizer.Token(GameText.Diplomacy);
                 
                 Buttons.Add(Diplomacy);
                 Cursor.X = Cursor.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_hover").Width + 7);
@@ -193,7 +193,7 @@ namespace Ship_Game
                     MainMenu.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_hover");
                     MainMenu.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_pressed");
                     MainMenu.launches = "Main Menu";
-                    MainMenu.Text = Localizer.Token(101);
+                    MainMenu.Text = Localizer.Token(GameText.MainMenu);
                 
                 Buttons.Add(MainMenu);
                 Cursor.X = Cursor.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover").Width + 5);
@@ -274,7 +274,7 @@ namespace Ship_Game
                 NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px"),
                 HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover"),
                 PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_pressed"),
-                Text = Localizer.Token(98),
+                Text = Localizer.Token(GameText.Shipyard),
                 launches = "Shipyard"
             };
             Buttons.Add(Shipyard0);
@@ -291,7 +291,7 @@ namespace Ship_Game
                 ShipList.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military");
                 ShipList.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_hover");
                 ShipList.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_pressed");
-                ShipList.Text = Localizer.Token(104);
+                ShipList.Text = Localizer.Token(GameText.ShipsArray);
                 ShipList.launches = "ShipList";
 
                 Buttons.Add(ShipList);
@@ -302,7 +302,7 @@ namespace Ship_Game
                 Fleets.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military");
                 Fleets.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_hover");
                 Fleets.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_pressed");
-                Fleets.Text = Localizer.Token(103);
+                Fleets.Text = Localizer.Token(GameText.Fleets);
                 Fleets.launches = "Fleets";
 
                 Buttons.Add(Fleets);
@@ -318,7 +318,7 @@ namespace Ship_Game
                 HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover"),
                 PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_pressed"),
                 launches = "Empire",
-                Text = Localizer.Token(99)
+                Text = Localizer.Token(GameText.Empire)
             };
             Buttons.Add(Empire0);
             Cursor0.X = Cursor0.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover").Width + 18);
@@ -329,7 +329,7 @@ namespace Ship_Game
                 HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover"),
                 PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_pressed"),
                 launches = "Espionage",
-                Text = Localizer.Token(6088)
+                Text = Localizer.Token(GameText.Espionage2)
             };
             Buttons.Add(Espionage0);
             Cursor0.X = Cursor0.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover").Width + 6);
@@ -340,7 +340,7 @@ namespace Ship_Game
                 HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover"),
                 PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_pressed"),
                 launches = "Diplomacy",
-                Text = Localizer.Token(100)
+                Text = Localizer.Token(GameText.Diplomacy)
             };
             Buttons.Add(Diplomacy0);
             Cursor0.X = Cursor0.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover").Width + 6);
@@ -351,7 +351,7 @@ namespace Ship_Game
                 HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px_hover"),
                 PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px_pressed"),
                 launches = "Main Menu",
-                Text = Localizer.Token(101)
+                Text = Localizer.Token(GameText.MainMenu)
             };
             Buttons.Add(MainMenu0);
             Cursor0.X = Cursor0.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px_hover").Width + 5);
@@ -446,9 +446,9 @@ namespace Ship_Game
             {
                 if (empire.Research.NoTopic)
                 {
-                    textCursor.X = res2.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(Localizer.Token(102)+"...").X;
+                    textCursor.X = res2.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Choose)+"...").X;
                     textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
-                    spriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(102)+"...", textCursor, new Color(255, 240, 189));
+                    spriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Choose)+"...", textCursor, new Color(255, 240, 189));
                     return;
                 }
                 int xOffset = (int)(empire.Research.Current.PercentResearched * res2.Width);
@@ -502,9 +502,9 @@ namespace Ship_Game
                     spriteBatch.DrawString(Fonts.Tahoma10, text, textCursor, new Color(255, 240, 189));
                     return;
                 }
-                textCursor.X = res2.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(Localizer.Token(102)+"...").X;
+                textCursor.X = res2.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Choose)+"...").X;
                 textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
-                spriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(102)+"...", textCursor, new Color(255, 240, 189));
+                spriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Choose)+"...", textCursor, new Color(255, 240, 189));
             }
         }
 
@@ -585,52 +585,52 @@ namespace Ship_Game
                         {
                             case "Research":
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(2306)+"\n\n"+Localizer.Token(1405)+": "+empire.Research.TopicLocText, "R");
+                                ToolTip.CreateTooltip(Localizer.Token(GameText.ResearchScreen)+"\n\n"+Localizer.Token(GameText.CurrentResearch)+": "+empire.Research.TopicLocText, "R");
                                 break;
                             }
                             case "Budget":
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(2305), "T");
+                                ToolTip.CreateTooltip(Localizer.Token(GameText.EconomicOverview2), "T");
                                 break;
                             }
                             case "Main Menu":
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(2301), "O");
+                                ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheMainMenu), "O");
                                 break;
                             }
                             case "Shipyard":
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(2297), "Y");
+                                ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheShipyard), "Y");
                                 break;
                             }
                             case "Empire":
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(2298), "U");
+                                ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheEmpireOverviewScreen), "U");
                                 break;
                             }
                             case "Diplomacy":
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(2299), "I");
+                                ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheDiplomacyOverviewScreen), "I");
                                 break;
                             }
                             case "Espionage":
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(7043), "E");
+                                ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheEspionageManagementScreen), "E");
                                 break;
                             }
                             case "ShipList":
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(7044), "K");
+                                ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheShipRoster), "K");
                                 break;
                             }
                             case "Fleets":
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(7045), "J");
+                                ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheFleetManager), "J");
                                 break;
                             }
                             case "?":
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(2302), "P");
+                                ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheHelpMenu), "P");
                                 break;
                             }
                         }
@@ -897,7 +897,7 @@ namespace Ship_Game
                 NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px"),
                 HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover"),
                 PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_pressed"),
-                Text = Localizer.Token(98),
+                Text = Localizer.Token(GameText.Shipyard),
                 launches = "Shipyard"
             };
             Buttons.Add(Shipyard);
@@ -909,7 +909,7 @@ namespace Ship_Game
                 HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover"),
                 PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_pressed"),
                 launches = "Empire",
-                Text = Localizer.Token(99)
+                Text = Localizer.Token(GameText.Empire)
             };
             Buttons.Add(empire);
             Cursor.X = Cursor.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover").Width + 18);
@@ -920,7 +920,7 @@ namespace Ship_Game
                 HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover"),
                 PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_pressed"),
                 launches = "Espionage",
-                Text = Localizer.Token(6088)
+                Text = Localizer.Token(GameText.Espionage2)
             };
             Buttons.Add(Espionage);
             Cursor.X = Cursor.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover").Width + 6);
@@ -931,7 +931,7 @@ namespace Ship_Game
                 HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover"),
                 PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_pressed"),
                 launches = "Diplomacy",
-                Text = Localizer.Token(100)
+                Text = Localizer.Token(GameText.Diplomacy)
             };
             Buttons.Add(Diplomacy);
             Cursor.X = Cursor.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover").Width + 6);
@@ -942,7 +942,7 @@ namespace Ship_Game
                 HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px_hover"),
                 PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px_pressed"),
                 launches = "Main Menu",
-                Text = Localizer.Token(101)
+                Text = Localizer.Token(GameText.MainMenu)
             };
             Buttons.Add(MainMenu);
             Cursor.X = Cursor.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px_hover").Width + 5);

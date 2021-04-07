@@ -844,34 +844,34 @@ namespace Ship_Game
             if (PopulationBillion <= 0.5f)
             {
                 newLevel = (int)DevelopmentLevel.Solitary;
-                DevelopmentStatus = Localizer.Token(1763);
-                if      (MaxPopulationBillion >= 2f  && !IsBarrenType) DevelopmentStatus += Localizer.Token(1764);
-                else if (MaxPopulationBillion >= 2f  &&  IsBarrenType) DevelopmentStatus += Localizer.Token(1765);
-                else if (MaxPopulationBillion < 0.0f && !IsBarrenType) DevelopmentStatus += Localizer.Token(1766);
-                else if (MaxPopulationBillion < 0.5f &&  IsBarrenType) DevelopmentStatus += Localizer.Token(1767);
+                DevelopmentStatus = Localizer.Token(GameText.ASolitaryOutpostHasTaken);
+                if      (MaxPopulationBillion >= 2f  && !IsBarrenType) DevelopmentStatus += Localizer.Token(GameText.WhileAllOfTheEconomic);
+                else if (MaxPopulationBillion >= 2f  &&  IsBarrenType) DevelopmentStatus += Localizer.Token(GameText.VastBiodomeComplexesStandReady);
+                else if (MaxPopulationBillion < 0.0f && !IsBarrenType) DevelopmentStatus += Localizer.Token(GameText.TheHarshnessOfThisPlanets);
+                else if (MaxPopulationBillion < 0.5f &&  IsBarrenType) DevelopmentStatus += Localizer.Token(GameText.TheBarrenLandscapeBeyondThe);
             }
             else if (PopulationBillion > 0.5f && PopulationBillion <= 2)
             {
                 newLevel = (int)DevelopmentLevel.Meager;
-                DevelopmentStatus = Localizer.Token(1768);
-                DevelopmentStatus += MaxPopulationBillion >= 2 ? Localizer.Token(1769) : Localizer.Token(1770);
+                DevelopmentStatus = Localizer.Token(GameText.ThisColonyIsWellOn);
+                DevelopmentStatus += MaxPopulationBillion >= 2 ? Localizer.Token(GameText.EvenSoThereIsStill) : Localizer.Token(GameText.InFactHabitableLandHere);
             }
             else if (PopulationBillion > 2.0 && PopulationBillion <= 5.0)
             {
                 newLevel = (int)DevelopmentLevel.Vibrant;
-                DevelopmentStatus = Localizer.Token(1771);
-                if      (MaxPopulationBillion >= 5.0) DevelopmentStatus += Localizer.Token(1772);
-                else if (MaxPopulationBillion <  5.0) DevelopmentStatus += Localizer.Token(1773);
+                DevelopmentStatus = Localizer.Token(GameText.ThisIsAVibrantColony);
+                if      (MaxPopulationBillion >= 5.0) DevelopmentStatus += Localizer.Token(GameText.EvenSoThereIsStill2);
+                else if (MaxPopulationBillion <  5.0) DevelopmentStatus += Localizer.Token(GameText.InFactHabitableLandHere2);
             }
             else if (PopulationBillion > 5.0 && PopulationBillion <= 10.0)
             {
                 newLevel = (int)DevelopmentLevel.CoreWorld;
-                DevelopmentStatus = Localizer.Token(1774);
+                DevelopmentStatus = Localizer.Token(GameText.WithAVibrantEconomyAnd);
             }
             else if (PopulationBillion > 10.0)
             {
                 newLevel = (int)DevelopmentLevel.MegaWorld;
-                DevelopmentStatus = Localizer.Token(1775); // densely populated
+                DevelopmentStatus = Localizer.Token(GameText.ThisDenselyPopulatedPlanetIs); // densely populated
             }
 
             if (newLevel != Level) // need to update building offense
@@ -886,14 +886,14 @@ namespace Ship_Game
             }
 
             if (Prod.NetIncome >= 10.0 && HasSpacePort)
-                DevelopmentStatus += Localizer.Token(1776); // fine shipwright
+                DevelopmentStatus += Localizer.Token(GameText.ThisPlanetIsParticularlyNotable); // fine shipwright
             else if (Fertility >= 2.0 && Food.NetIncome > MaxPopulation)
-                DevelopmentStatus += Localizer.Token(1777); // fine agriculture
+                DevelopmentStatus += Localizer.Token(GameText.ThisPlanetIsWellKnown); // fine agriculture
             else if (Res.NetIncome > 5.0)
-                DevelopmentStatus += Localizer.Token(1778); // universities are good
+                DevelopmentStatus += Localizer.Token(GameText.TheQualityOfTheUniversities); // universities are good
 
             if (AllowInfantry && TroopsHere.Count > 6)
-                DevelopmentStatus += Localizer.Token(1779); // military culture
+                DevelopmentStatus += Localizer.Token(GameText.ThisPlanetIsHeavilyFortified); // military culture
         }
 
         void UpdateOrbitalsMaintenance()
@@ -1239,12 +1239,12 @@ namespace Ship_Game
             bool richness;
             switch (RandomMath.RollDie(20))
             {
-                case 1:  bid = Building.Crater1Id; message = Localizer.Token(4280); richness = false; break;
-                case 2:  bid = Building.Crater2Id; message = Localizer.Token(4281); richness = false; break;
-                case 3:  bid = Building.Crater3Id; message = Localizer.Token(4282); richness = false; break;
+                case 1:  bid = Building.Crater1Id; message = Localizer.Token(GameText.AMeteorHasCrashedOn); richness = false; break;
+                case 2:  bid = Building.Crater2Id; message = Localizer.Token(GameText.AMeteorHasCrashedOn2); richness = false; break;
+                case 3:  bid = Building.Crater3Id; message = Localizer.Token(GameText.AMeteorHasCrashedOn3); richness = false; break;
                 case 4:
-                case 5:  bid = Building.Crater4Id; message = Localizer.Token(4283); richness = true;  break; 
-                default: bid = Building.Crater4Id; message = Localizer.Token(4283); richness = false; break;
+                case 5:  bid = Building.Crater4Id; message = Localizer.Token(GameText.AMeteorHasCrashedOn4); richness = true;  break; 
+                default: bid = Building.Crater4Id; message = Localizer.Token(GameText.AMeteorHasCrashedOn4); richness = false; break;
             }
 
             float popKilled = meteor.SurfaceArea * meteor.HealthPercent * (tile.Habitable ? 1 : 0.5f);
@@ -1253,16 +1253,16 @@ namespace Ship_Game
             if (tile.Biosphere)
             {
                 DestroyBioSpheres(tile, false);
-                message = $"{message}\n{Localizer.Token(4284)}";
+                message = $"{message}\n{Localizer.Token(GameText.BiospheresInTheCrashSite)}";
             }
 
             if (popKilled.Greater(0))
-                message = $"{message}\n{popKilled.String(0)} {Localizer.Token(4285)}";
+                message = $"{message}\n{popKilled.String(0)} {Localizer.Token(GameText.MillionCiviliansWereKilled)}";
 
             if (richness)
             {
                 MineralRichness += 0.1f;
-                message = $"{message}\n{Localizer.Token(4286)}";
+                message = $"{message}\n{Localizer.Token(GameText.MineralRichnessWasIncreasedBy)}";
             }
 
             Building b = ResourceManager.CreateBuilding(bid);
@@ -1297,7 +1297,7 @@ namespace Ship_Game
                     if (b.FoodCache.LessOrEqual(0))
                     {
                         if (Owner == EmpireManager.Player)
-                            Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, Localizer.Token(4300));
+                            Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, Localizer.Token(GameText.WasRemovedSinceItsResource));
 
                         RemoveBuildingFromPlanet(b, destroy: true);
                     }
@@ -1310,7 +1310,7 @@ namespace Ship_Game
                     if (b.ProdCache.LessOrEqual(0))
                     {
                         if (Owner == EmpireManager.Player)
-                            Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, Localizer.Token(4300));
+                            Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, Localizer.Token(GameText.WasRemovedSinceItsResource));
 
                         RemoveBuildingFromPlanet(b, destroy: true);
                     }
@@ -1371,7 +1371,7 @@ namespace Ship_Game
                 MineralRichness  -= 0.02f;
                 if (notifyPlayer)
                 {
-                    string fullText = $"{Name} {Localizer.Token(1866)}";
+                    string fullText = $"{Name} {Localizer.Token(GameText.MineralRichnessHasGoneDown)}";
                     Empire.Universe.NotificationManager.AddRandomEventNotification(
                         fullText, Type.IconPath, "SnapToPlanet", this);
                 }

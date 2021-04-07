@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -172,7 +172,7 @@ namespace Ship_Game
                 if (type == ShipModuleType.PowerPlant || type == ShipModuleType.Engine)
                     AddCategoryItem((int)type, type.ToString(), m);
                 else if (type == ShipModuleType.FuelCell)
-                    AddCategoryItem((int)type, Localizer.Token(6191), m);
+                    AddCategoryItem((int)type, Localizer.Token(GameText.PowerCell), m);
             }
             if (!OpenCategory((int)ShipModuleType.PowerPlant))
                 OpenCategoryByIndex(0);
@@ -193,11 +193,11 @@ namespace Ship_Game
                 // is needed for vsArmor damage calculations - don't want to use new moduletype therefore.
                 else if (m.IsPowerArmor && type == ShipModuleType.Armor)
                 {
-                    AddCategoryItem(6172, Localizer.Token(6172), m);
+                    AddCategoryItem(6172, Localizer.Token(GameText.PowerArmour), m);
                 }
                 else if (m.IsBulkhead && type == ShipModuleType.Armor)
                 {
-                    AddCategoryItem(6173, Localizer.Token(6173), m);
+                    AddCategoryItem(6173, Localizer.Token(GameText.Bulkhead), m);
                 }
             }
             if (!OpenCategory((int)ShipModuleType.Shield))

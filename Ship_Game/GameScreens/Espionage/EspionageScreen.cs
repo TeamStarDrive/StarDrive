@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -29,7 +29,7 @@ namespace Ship_Game.GameScreens.Espionage
                 Add(new Menu2(titleRect));
 
                 // "Espionage"
-                string espionage = Localizer.Token(6089);
+                string espionage = Localizer.Token(GameText.EspionageOverview);
                 var titlePos = new Vector2(titleRect.Center.X - Fonts.Laserian14.MeasureString(espionage).X / 2f, 
                                            titleRect.Center.Y - Fonts.Laserian14.LineSpacing / 2);
                 Label(titlePos, espionage, Fonts.Laserian14, Colors.Cream);

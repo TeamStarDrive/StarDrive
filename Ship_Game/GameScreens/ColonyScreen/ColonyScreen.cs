@@ -90,9 +90,9 @@ namespace Ship_Game
             FoodStorage.Progress = p.FoodHere;
             FoodStorage.color = "green";
             FoodDropDown = new DropDownMenu(PStorage.X + 100 + 0.4f * PStorage.Width + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, 0.2f*PStorage.Width, 18);
-            FoodDropDown.AddOption(Localizer.Token(329));
-            FoodDropDown.AddOption(Localizer.Token(330));
-            FoodDropDown.AddOption(Localizer.Token(331));
+            FoodDropDown.AddOption(Localizer.Token(GameText.Store));
+            FoodDropDown.AddOption(Localizer.Token(GameText.Import));
+            FoodDropDown.AddOption(Localizer.Token(GameText.Export));
             FoodDropDown.ActiveIndex = (int)p.FS;
             var iconStorageFood = ResourceManager.Texture("NewUI/icon_storage_food");
             FoodStorageIcon = new Rectangle((int)PStorage.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageFood.Width, iconStorageFood.Height);
@@ -102,13 +102,13 @@ namespace Ship_Game
             var iconStorageProd = ResourceManager.Texture("NewUI/icon_storage_production");
             ProfStorageIcon = new Rectangle((int)PStorage.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageProd.Width, iconStorageFood.Height);
             ProdDropDown = new DropDownMenu(PStorage.X + 100 + 0.4f*PStorage.Width + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, 0.2f*PStorage.Width, 18);
-            ProdDropDown.AddOption(Localizer.Token(329));
-            ProdDropDown.AddOption(Localizer.Token(330));
-            ProdDropDown.AddOption(Localizer.Token(331));
+            ProdDropDown.AddOption(Localizer.Token(GameText.Store));
+            ProdDropDown.AddOption(Localizer.Token(GameText.Import));
+            ProdDropDown.AddOption(Localizer.Token(GameText.Export));
             ProdDropDown.ActiveIndex = (int)p.PS;
 
             SubColonyGrid = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, PlanetInfo.Y, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height * 0.5f);
-            SubColonyGrid.AddTab(Localizer.Token(332));
+            SubColonyGrid.AddTab(Localizer.Token(GameText.Colony));
             PFacilities = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, SubColonyGrid.Bottom + 20, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height - 20 - SubColonyGrid.Height - 40);
             PFacilities.AddTab(new LocalizedText(4198)); // Statistics
             //PFacilities.AddTab(new LocalizedText(4199).Text); // Trade
@@ -148,7 +148,7 @@ namespace Ship_Game
             ResetBuildableTabs();
 
             var queue = new Submenu(RightMenu.X + 20, RightMenu.Y + 60 + BuildableTabs.Height, RightMenu.Width - 40, RightMenu.Height - BuildableTabs.Height - 75);
-            queue.AddTab(Localizer.Token(337));
+            queue.AddTab(Localizer.Token(GameText.ConstructionQueue));
 
             ConstructionQueue = Add(new ScrollList2<ConstructionQueueScrollListItem>(queue));
             ConstructionQueue.EnableItemHighlight = true;

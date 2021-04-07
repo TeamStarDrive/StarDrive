@@ -134,34 +134,34 @@ namespace Ship_Game
                     aftermath.GoodResult = true;
                     Assassinations++; 
                     AssassinateEnemyAgent(us, victim, out string targetNameGreat);
-                    aftermath.MessageToVictim = $"{Localizer.Token(6037)} {targetNameGreat}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.OneOfOurAgentsWas)} {targetNameGreat}";
                     break;
                 case SpyMissionStatus.Success:
                     aftermath.MessageId  = 6039;
                     aftermath.GoodResult = true;
                     Assassinations++;
                     AssassinateEnemyAgent(us, victim, out string targetNameGood);
-                    aftermath.MessageToVictim = $"{Localizer.Token(6037)} {targetNameGood}, {Localizer.Token(6041)} {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.OneOfOurAgentsWas)} {targetNameGood}, {Localizer.Token(GameText.NtheAssassinWasSentBy)} {us.data.Traits.Name}";
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying";
                     break;
                 case SpyMissionStatus.Failed:
                     aftermath.MessageId       = 6047; // Foiled but escaped
-                    aftermath.MessageToVictim = $"{Localizer.Token(6043)} {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeManagedToDetectAn)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying";
                     break;
                 case SpyMissionStatus.FailedBadly:
                     aftermath.MessageId       = 6044; // Injured
                     aftermath.AgentInjured    = true;
-                    aftermath.MessageToVictim = $"{Localizer.Token(6043)} {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeManagedToDetectAn)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.RelationDamage  = 15;
                     aftermath.DamageReason    = "Caught Spying";
                     break;
                 case SpyMissionStatus.FailedCritically:
                     aftermath.MessageId       = 6046; // Died
                     aftermath.AgentKilled     = true;
-                    aftermath.MessageToVictim = $"{Localizer.Token(6045)} {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentWasKilled2)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying Failed";
                     break;
@@ -188,25 +188,25 @@ namespace Ship_Game
                     Infiltrations++;
                     InfiltratePlanet(us, victim, out string planetName);
                     AssignMission(AgentMission.Undercover, us, victim.data.Traits.Name);
-                    aftermath.CustomMessage = $"{Name}, {Localizer.Token(6030)} {planetName} {Localizer.Token(6031)}";
+                    aftermath.CustomMessage = $"{Name}, {Localizer.Token(GameText.SuccessfullyInfiltratedAColony)} {planetName} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
                     break;
                 case SpyMissionStatus.Failed:
                     aftermath.MessageId       = 6036;
-                    aftermath.MessageToVictim = $"{Localizer.Token(6033)} {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentWasFoiled)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.RelationDamage = 10;
                     aftermath.DamageReason   = "Caught Spying";
                     break;
                 case SpyMissionStatus.FailedBadly:
                     aftermath.MessageId       = 6032;
                     aftermath.AgentInjured    = true;
-                    aftermath.MessageToVictim = $"{Localizer.Token(6033)} {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentWasFoiled)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying";
                     break;
                 case SpyMissionStatus.FailedCritically:
                     aftermath.MessageId       = 6034;
                     aftermath.AgentKilled     = true;
-                    aftermath.MessageToVictim = $"{Localizer.Token(6035)} {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentWasKilled)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying Failed";
                     break;
@@ -241,36 +241,36 @@ namespace Ship_Game
                     Sabotages++;
                     crippledTurns               = 5 + Level*5;
                     targetPlanet.CrippledTurns += crippledTurns;
-                    aftermath.MessageToVictim   = $"{Localizer.Token(6048)}  {targetPlanet.Name}";
-                    aftermath.CustomMessage     = $"{Name} {Localizer.Token(6084)} {crippledTurns} {Localizer.Token(6085)} " +
-                                                  $"{targetPlanet.Name} {Localizer.Token(6031)}";
+                    aftermath.MessageToVictim   = $"{Localizer.Token(GameText.AnEnemyAgentHasSabotaged)}  {targetPlanet.Name}";
+                    aftermath.CustomMessage     = $"{Name} {Localizer.Token(GameText.SabotagedProductionFor)} {crippledTurns} {Localizer.Token(GameText.Turns3)} " +
+                                                  $"{targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
                     break;
                 case SpyMissionStatus.Success:
                     aftermath.GoodResult = true;
                     Sabotages++;
                     crippledTurns               = 5 + Level*3;
                     targetPlanet.CrippledTurns += crippledTurns;
-                    aftermath.MessageToVictim   = $"{Localizer.Token(6048)}  {targetPlanet.Name} {Localizer.Token(6049)} {us.data.Traits.Name}";
-                    aftermath.CustomMessage     = $"{Name} {Localizer.Token(6084)} {crippledTurns} {Localizer.Token(6085)} " +
-                                                  $"{targetPlanet.Name} {Localizer.Token(6031)}";
+                    aftermath.MessageToVictim   = $"{Localizer.Token(GameText.AnEnemyAgentHasSabotaged)}  {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
+                    aftermath.CustomMessage     = $"{Name} {Localizer.Token(GameText.SabotagedProductionFor)} {crippledTurns} {Localizer.Token(GameText.Turns3)} " +
+                                                  $"{targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
                     break;
                 case SpyMissionStatus.Failed:
-                    aftermath.MessageToVictim = $"{Localizer.Token(6051)}  {targetPlanet.Name} {Localizer.Token(6049)} {us.data.Traits.Name}";
-                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(6055)} {targetPlanet.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeFoiledAnEnemyAgent)}  {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
+                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(GameText.EscapedAfterBeingDetectedWhile)} {targetPlanet.Name}";
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying";
                     break;
                 case SpyMissionStatus.FailedBadly:
                     aftermath.AgentInjured    = true;
-                    aftermath.MessageToVictim = $"{Localizer.Token(6051)}  {targetPlanet.Name} {Localizer.Token(6049)} {us.data.Traits.Name}";
-                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(6052)} {targetPlanet.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeFoiledAnEnemyAgent)}  {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
+                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(GameText.WasWoundedWhileTryingTo)} {targetPlanet.Name}";
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying";
                     break;
                 case SpyMissionStatus.FailedCritically:
                     aftermath.MessageId       = 6054;
                     aftermath.AgentKilled     = true;
-                    aftermath.MessageToVictim = $"{Localizer.Token(6053)}  {targetPlanet.Name}, {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeKilledAnEnemyAgent)}  {targetPlanet.Name}, {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying Failed";
                     break;
@@ -284,7 +284,7 @@ namespace Ship_Game
             MissionResolve aftermath = new MissionResolve(us, victim);
             if (victim == null || victim.Money <= 0)
             {
-                aftermath.CustomMessage = $"Name  {Localizer.Token(6066)} {TargetEmpire} {Localizer.Token(6067)}";
+                aftermath.CustomMessage = $"Name  {Localizer.Token(GameText.CouldNotRob)} {TargetEmpire} {Localizer.Token(GameText.NbecauseTheyHaveNoMoney)}";
                 aftermath.ShouldAddXp = false;
                 return aftermath;
             }
@@ -298,9 +298,9 @@ namespace Ship_Game
                     us.AddMoney(amount);
                     Robberies++;
                     aftermath.GoodResult      = true;
-                    aftermath.MessageToVictim = $"{amount} {Localizer.Token(6065)}";
-                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(6068)} {amount} {Localizer.Token(6069)} {TargetEmpire}. " +
-                                                $"{Localizer.Token(6031)}";
+                    aftermath.MessageToVictim = $"{amount} {Localizer.Token(GameText.CreditsWereMysteriouslyStolenFrom)}";
+                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(GameText.Stole)} {amount} {Localizer.Token(GameText.CreditsFrom)} {TargetEmpire}. " +
+                                                $"{Localizer.Token(GameText.NtheAgentWasNotDetected)}";
 
                     break;
                 case SpyMissionStatus.Success:
@@ -310,26 +310,26 @@ namespace Ship_Game
                     Robberies++;
                     aftermath.RelationDamage  = 10;
                     aftermath.DamageReason    = "Caught Spying";
-                    aftermath.MessageToVictim = $"{amount} {Localizer.Token(6070)} {Localizer.Token(6049)} {us.data.Traits.Name}";
-                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(6068)} {amount} {Localizer.Token(6069)} {TargetEmpire}";
+                    aftermath.MessageToVictim = $"{amount} {Localizer.Token(GameText.CreditsWereStolenFromOur)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
+                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(GameText.Stole)} {amount} {Localizer.Token(GameText.CreditsFrom)} {TargetEmpire}";
 
                     break;
                 case SpyMissionStatus.Failed:
                     aftermath.MessageId       = 6075;
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying";
-                    aftermath.MessageToVictim = $"{Localizer.Token(6071)} {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeFoiledAnEnemyPlot2)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     break;
                 case SpyMissionStatus.FailedBadly:
                     aftermath.MessageId       = 6071;
-                    aftermath.MessageToVictim = $"{Localizer.Token(6073)} {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeKilledAnEnemyAgent2)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.AgentInjured    = true;
                     aftermath.RelationDamage  = 15;
                     aftermath.DamageReason    = "Caught Spying";
                     break;
                 case SpyMissionStatus.FailedCritically:
-                    aftermath.MessageToVictim = $"{Localizer.Token(6073)} {Localizer.Token(6049)} {us.data.Traits.Name}";
-                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(6074)} {TargetEmpire}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeKilledAnEnemyAgent2)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
+                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(GameText.WasKilledTryingToSteal2)} {TargetEmpire}";
                     aftermath.AgentKilled     = true;
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying Failed";
@@ -355,21 +355,21 @@ namespace Ship_Game
                     aftermath.GoodResult = true;
                     Rebellions++;
                     AddRebellion(victim, targetPlanet, (int)(Level * 1.5));
-                    aftermath.MessageToVictim = $"{Localizer.Token(6078)} {targetPlanet.Name}";
-                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(6077)} {targetPlanet.Name} {Localizer.Token(6031)}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentHasIncited)} {targetPlanet.Name}";
+                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(GameText.IncitedASeriousRebellionOn)} {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
                     break;
                 case SpyMissionStatus.Success:
                     aftermath.GoodResult = true;
                     Rebellions++;
                     AddRebellion(victim, targetPlanet, Level);
-                    aftermath.MessageToVictim = $"{Localizer.Token(6078)} {targetPlanet.Name} {Localizer.Token(6049)} {us.data.Traits.Name}";
-                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(6077)} {targetPlanet.Name} {Localizer.Token(6079)}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentHasIncited)} {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
+                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(GameText.IncitedASeriousRebellionOn)} {targetPlanet.Name} {Localizer.Token(GameText.NhoweverTheyKnowWeAre)}";
                     aftermath.RelationDamage  = 25;
                     aftermath.DamageReason    = "Caught Spying";
                     break;
                 case SpyMissionStatus.Failed:
-                    aftermath.MessageToVictim = $"{Localizer.Token(6076)} {targetPlanet.Name} { Localizer.Token(6049)} {us.data.Traits.Name}";
-                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(6083)} {targetPlanet.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeFoiledAnEnemyPlot3)} {targetPlanet.Name} { Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
+                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(GameText.EscapedAfterBeingDetectedWhile2)} {targetPlanet.Name}";
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying";
                     break;
@@ -377,13 +377,13 @@ namespace Ship_Game
                     aftermath.AgentInjured    = true;
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying";
-                    aftermath.MessageToVictim = $"{Localizer.Token(6076)} {targetPlanet.Name} {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeFoiledAnEnemyPlot3)} {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     break;
                 case SpyMissionStatus.FailedCritically:
                     aftermath.AgentKilled     = true;
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying Failed";
-                    aftermath.MessageToVictim = $"{Localizer.Token(6081)} {targetPlanet.Name} {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeKilledAnEnemyAgent3)} {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     break;
             }
 
@@ -416,35 +416,35 @@ namespace Ship_Game
                     us.AcquireTech(stolenTech, victim, TechUnlockType.Spy);
                     TechStolen++;
                     aftermath.GoodResult      = true;
-                    aftermath.MessageToVictim = $"{Localizer.Token(6056)}";
-                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(6057)} {stolenTechName} {Localizer.Token(6031)}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemySpyStoleSome)}";
+                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(GameText.StoleTechnologyDataChipsFor)} {stolenTechName} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
                     break;
                 case SpyMissionStatus.Success:
                     us.AcquireTech(stolenTech, victim, TechUnlockType.Spy);
                     TechStolen++;
                     aftermath.GoodResult = true;
-                    aftermath.MessageToVictim = $"{Localizer.Token(6058)} {stolenTechName} {Localizer.Token(6049)} {us.data.Traits.Name}";
-                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(6057)} {stolenTechName} {Localizer.Token(6042)}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentStoleA)} {stolenTechName} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
+                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(GameText.StoleTechnologyDataChipsFor)} {stolenTechName} {Localizer.Token(GameText.NourAgentWasDetectedBut)}";
                     break;
                 case SpyMissionStatus.Failed:
                     aftermath.MessageId       = 6062;
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying";
-                    aftermath.MessageToVictim = $"{Localizer.Token(6059)} {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeFoiledAnEnemyPlot)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     break;
                 case SpyMissionStatus.FailedBadly:
                     aftermath.MessageId       = 6050;
                     aftermath.AgentInjured    = true;
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying";
-                    aftermath.MessageToVictim = $"{Localizer.Token(6059)} {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeFoiledAnEnemyPlot)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     break;
                 case SpyMissionStatus.FailedCritically:
                     aftermath.MessageId       = 6061;
                     aftermath.AgentKilled     = true;
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying Failed";
-                    aftermath.MessageToVictim = $"{Localizer.Token(6060)} {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentWasKilled3)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     break;
             }
 
@@ -574,7 +574,7 @@ namespace Ship_Game
                     Level++;
                     if (!spyMute)
                     {
-                        string message = $"{Name} {Localizer.Token(6087)}";
+                        string message = $"{Name} {Localizer.Token(GameText.HasBeenPromotedAndGains)}";
                         if (Mission == AgentMission.Training && Level == 3 && owner.data.SpyMissionRepeat)
                             message += "\nTraining is stopped since the agent has reached Level 3";
 

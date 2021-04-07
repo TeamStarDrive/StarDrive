@@ -515,7 +515,7 @@ namespace Ship_Game
             {
                 if (!CheckDesign()) {
                     GameAudio.NegativeClick();
-                    ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(2049)));
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(GameText.ThisShipDesignIsInvalid)));
                     return;
                 }
                 ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
@@ -528,12 +528,12 @@ namespace Ship_Game
             {
                 ToggleOverlay = !ToggleOverlay;
             }).ClickSfx = "blip_click";
-            BtnSymmetricDesign = bottomListRight.Add(ButtonStyle.Medium, Localizer.Token(1985), click: b =>
+            BtnSymmetricDesign = bottomListRight.Add(ButtonStyle.Medium, Localizer.Token(GameText.SymmetricDesign), click: b =>
             {
                 OnSymmetricDesignToggle();
             });
             BtnSymmetricDesign.ClickSfx = "blip_click";
-            BtnSymmetricDesign.Tooltip  = Localizer.Token(1984);
+            BtnSymmetricDesign.Tooltip  = Localizer.Token(GameText.YouCanSwitchFromNormal);
             BtnSymmetricDesign.HotKey   = "M";
             BtnSymmetricDesign.Style    = SymmetricDesignBtnStyle;
 
@@ -543,14 +543,14 @@ namespace Ship_Game
             bottomListLeft.Direction = new Vector2(+1, 0);
             bottomListLeft.Padding = new Vector2(16f, 2f);
 
-            BtnStripShip = bottomListLeft.Add(ButtonStyle.Medium, Localizer.Token(1986), click: b =>
+            BtnStripShip = bottomListLeft.Add(ButtonStyle.Medium, Localizer.Token(GameText.NormalDesign), click: b =>
             {
                 OnStripShipToggle();
             });
             BtnStripShip.ClickSfx = "blip_click";
-            BtnStripShip.Tooltip = Localizer.Token(1895);
+            BtnStripShip.Tooltip = Localizer.Token(GameText.StripsTheShipOfAny);
 
-            BtnFilterModules = bottomListLeft.Add(ButtonStyle.Medium, Localizer.Token(4185), click: b =>
+            BtnFilterModules = bottomListLeft.Add(ButtonStyle.Medium, Localizer.Token(GameText.OmitOldModules), click: b =>
             {
                 OnFilterModuleToggle();
             });
@@ -578,7 +578,7 @@ namespace Ship_Game
             var hullSelectionBkg = new Submenu(ScreenWidth - 285, hullSelY, hullSelW, hullSelH);
             // rounded black background
             hullSelectionBkg.Background = new Selector(hullSelectionBkg.Rect.CutTop(25), new Color(0,0,0,210));
-            hullSelectionBkg.AddTab(Localizer.Token(107));
+            hullSelectionBkg.AddTab(Localizer.Token(GameText.SelectHull));
 
             HullSelectList = Add(new ScrollList2<ShipHullListItem>(hullSelectionBkg));
             HullSelectList.OnClick = OnHullListItemClicked;
@@ -602,7 +602,7 @@ namespace Ship_Game
             var shipStatsPanel = new Rectangle((int)HullSelectList.X + 50, (int)HullSelectList.Bottom - 20, 280, 320);
             ShipStats = new Menu1(shipStatsPanel);
             StatsSub  = new Submenu(shipStatsPanel);
-            StatsSub.AddTab(Localizer.Token(108));
+            StatsSub.AddTab(Localizer.Token(GameText.ShipStats));
             ArcsButton = new GenericButton(new Vector2(HullSelectList.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
             DesignIssuesButton = new GenericButton(new Vector2(HullSelectList.X + 60, HullSelectList.Y  + HullSelectList.Height + 40)
                 , "Design Issues", Fonts.Pirulen20, Fonts.Pirulen16);

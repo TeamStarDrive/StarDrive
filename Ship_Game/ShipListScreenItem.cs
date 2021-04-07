@@ -187,89 +187,89 @@ namespace Ship_Game
                             return first.Plan.ToString();
 
                         if (first.Plan == ShipAI.Plan.LandTroop)
-                            return $"{Localizer.Token(1963)} {first.TargetPlanet.Name}";
+                            return $"{Localizer.Token(GameText.LandingTroopsOn)} {first.TargetPlanet.Name}";
 
                         return first.Plan + " to " + first.TargetPlanet.Name;
                     }
                     return ship.AI.State.ToString();
 
-                case AIState.DoNothing: return Localizer.Token(183);
+                case AIState.DoNothing: return Localizer.Token(GameText.AwaitingOrders2);
                 case AIState.Combat:
                 {
                     if (ship.AI.Intercepting)
                     {
                         if (ship.AI.Target == null)
                             return "";
-                        return string.Concat(Localizer.Token(157), " ", (ship.AI.Target as Ship).VanityName);
+                        return string.Concat(Localizer.Token(GameText.Intercepting), " ", (ship.AI.Target as Ship).VanityName);
                     }
 
                     if (ship.AI.Target == null)
-                        return string.Concat(Localizer.Token(155), "\n", Localizer.Token(156));
+                        return string.Concat(Localizer.Token(GameText.InCombat), "\n", Localizer.Token(GameText.SearchingForTargets));
 
-                    return string.Concat(Localizer.Token(158), " ", (ship.AI.Target as Ship).loyalty.data.Traits.Name);
+                    return string.Concat(Localizer.Token(GameText.InCombatWith), " ", (ship.AI.Target as Ship).loyalty.data.Traits.Name);
                 }
-                case AIState.HoldPosition:   return Localizer.Token(180);
-                case AIState.AwaitingOrders: return Localizer.Token(153);
+                case AIState.HoldPosition:   return Localizer.Token(GameText.HoldingPosition);
+                case AIState.AwaitingOrders: return Localizer.Token(GameText.AwaitingOrders);
                 case AIState.AttackTarget:
                     if (ship.AI.Target == null)
-                        return string.Concat(Localizer.Token(155), "\n", Localizer.Token(156));
-                    return string.Concat(Localizer.Token(154), " ", (ship.AI.Target as Ship).VanityName);
+                        return string.Concat(Localizer.Token(GameText.InCombat), "\n", Localizer.Token(GameText.SearchingForTargets));
+                    return string.Concat(Localizer.Token(GameText.Attacking), " ", (ship.AI.Target as Ship).VanityName);
                 case AIState.Escort:
                     if (ship.AI.EscortTarget == null)
                         return "";
-                    return string.Concat(Localizer.Token(179), " ", ship.AI.EscortTarget.Name);
+                    return string.Concat(Localizer.Token(GameText.Escorting), " ", ship.AI.EscortTarget.Name);
                 case AIState.SystemTrader:
                     if (ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last2))
                     {
                         string goodsType = last2.Trade?.Goods.ToString();
-                        string blockade  = last2.Trade?.BlockadeTimer < 120 ? Localizer.Token(1964) : "";
+                        string blockade  = last2.Trade?.BlockadeTimer < 120 ? Localizer.Token(GameText.Blockade) : "";
                         string status    = "";
                         switch (last2.Plan)
                         {
-                            case ShipAI.Plan.PickupGoods:  status = Localizer.Token(160); break;
-                            case ShipAI.Plan.DropOffGoods: status = Localizer.Token(163); break;
+                            case ShipAI.Plan.PickupGoods:  status = Localizer.Token(GameText.PickingUp); break;
+                            case ShipAI.Plan.DropOffGoods: status = Localizer.Token(GameText.Delivering); break;
                         }
                         return $"{status} {goodsType} from {last2.Trade?.ExportFrom.Name} to {last2.Trade?.ImportTo.Name} {blockade}";
                     }
-                    return $"{Localizer.Token(164)} \n {Localizer.Token(165)}";
+                    return $"{Localizer.Token(GameText.TradingGoods)} \n {Localizer.Token(GameText.SeekingRoute)}";
                 case AIState.AttackRunner:
                 case AIState.PatrolSystem:
                 case AIState.Flee:                
                     if (ship.AI.OrbitTarget == null)
-                        return Localizer.Token(182);
+                        return Localizer.Token(GameText.Orbiting);
                     return string.Concat("Fleeing to", " ", ship.AI.OrbitTarget.Name);
                 case AIState.Orbit:
                     if (ship.AI.OrbitTarget == null)
-                        return Localizer.Token(182);
+                        return Localizer.Token(GameText.Orbiting);
 
                     Planet planet    = ship.AI.OrbitTarget;
-                    string orbitText = $"{Localizer.Token(182)} ";
+                    string orbitText = $"{Localizer.Token(GameText.Orbiting)} ";
                     if (!ship.AI.HasPriorityOrder && ship.Center.Distance(planet.Center) > planet.ObjectRadius * 3)
-                        orbitText = $"{Localizer.Token(1893)} {orbitText}"; // offensive move to orbit
+                        orbitText = $"{Localizer.Token(GameText.Offensively)} {orbitText}"; // offensive move to orbit
 
                     return $"{orbitText} {planet.Name}";
                 case AIState.Colonize:
                     if (ship.AI.ColonizeTarget == null)
                         return "";
 
-                    return string.Concat(Localizer.Token(169), " ", ship.AI.ColonizeTarget.Name);
+                    return string.Concat(Localizer.Token(GameText.EnRouteToColonize), " ", ship.AI.ColonizeTarget.Name);
                 case AIState.MoveTo:
                     if (ship.Velocity.NotZero() || ship.IsTurning)
                     {
-                        string moveText = $"{Localizer.Token(187)} ";
+                        string moveText = $"{Localizer.Token(GameText.MovingTo)} ";
                         if (!ship.AI.HasPriorityOrder)
-                            moveText = $"{Localizer.Token(1893)} {moveText}"; // offensive move
+                            moveText = $"{Localizer.Token(GameText.Offensively)} {moveText}"; // offensive move
 
                         if (!ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last))
                         {
                             SolarSystem system = UniverseScreen.SolarSystemList.FindMin(s => s.Position.Distance(ship.AI.MovePosition));
                             if (system.IsExploredBy(EmpireManager.Player))
-                                return string.Concat(moveText, Localizer.Token(189), " ", system.Name);
-                            return Localizer.Token(174);
+                                return string.Concat(moveText, Localizer.Token(GameText.DeepSpaceNear), " ", system.Name);
+                            return Localizer.Token(GameText.ExploringTheGalaxy);
                         }
                         if (last.Plan == ShipAI.Plan.DeployStructure || last.Plan == ShipAI.Plan.DeployOrbital)
                         {
-                            moveText = moveText+Localizer.Token(188);
+                            moveText = moveText+Localizer.Token(GameText.Deploy);
                             if (last.Goal != null && ResourceManager.GetShipTemplate(last.Goal.ToBuildUID, out Ship toBuild))
                                 moveText = string.Concat(moveText, " ", toBuild.Name);
                             return moveText;
@@ -279,38 +279,38 @@ namespace Ship_Game
                             SolarSystem system = UniverseScreen.SolarSystemList.FindMin(s => s.Position.Distance(ship.AI.MovePosition));
                             if (system.IsExploredBy(EmpireManager.Player))
                                 return moveText + system.Name;
-                            return Localizer.Token(174);
+                            return Localizer.Token(GameText.ExploringTheGalaxy);
                         }
                     }
-                    return Localizer.Token(180);
-                case AIState.Explore:        return Localizer.Token(174);
-                case AIState.SystemDefender: return Localizer.Token(170);
+                    return Localizer.Token(GameText.HoldingPosition);
+                case AIState.Explore:        return Localizer.Token(GameText.ExploringTheGalaxy);
+                case AIState.SystemDefender: return Localizer.Token(GameText.SystemDefenseDuty);
                 case AIState.Resupply:
                     if (ship.AI.ResupplyTarget == null)
-                        return Localizer.Token(173);
-                    return string.Concat(Localizer.Token(172), " ", ship.AI.ResupplyTarget.Name);
+                        return Localizer.Token(GameText.ReturningToBaseForResupply);
+                    return string.Concat(Localizer.Token(GameText.ResupplyingAt), " ", ship.AI.ResupplyTarget.Name);
                 case AIState.Rebase:
                     var planetName = ship.AI.OrderQueue.PeekLast?.TargetPlanet.Name;                    
-                    return Localizer.Token(178) + $" to {planetName ?? "ERROR" }";  //fbedard
+                    return Localizer.Token(GameText.TransferringTroops) + $" to {planetName ?? "ERROR" }";  //fbedard
                 case AIState.RebaseToShip:
-                    return Localizer.Token(178) + $" to {ship.AI.EscortTarget?.VanityName ?? "ERROR" }";  
+                    return Localizer.Token(GameText.TransferringTroops) + $" to {ship.AI.EscortTarget?.VanityName ?? "ERROR" }";  
                 case AIState.Bombard:
                     if (ship.AI.OrderQueue.IsEmpty || ship.AI.OrderQueue.PeekFirst.TargetPlanet == null)
                         return "";
                     if (ship.Center.Distance(ship.AI.OrderQueue.PeekFirst.TargetPlanet.Center) >= 2500f)
-                        return string.Concat(Localizer.Token(176), " ", ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name);
-                    return string.Concat(Localizer.Token(175), " ", ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name);
-                case AIState.Boarding:         return Localizer.Token(177);
-                case AIState.ReturnToHangar:   return Localizer.Token(181);
-                case AIState.Ferrying:         return Localizer.Token(185);
-                case AIState.Refit:            return ship.IsPlatformOrStation ? Localizer.Token(1820) : Localizer.Token(184);
+                        return string.Concat(Localizer.Token(GameText.EnRouteToBombard), " ", ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name);
+                    return string.Concat(Localizer.Token(GameText.Bombarding), " ", ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name);
+                case AIState.Boarding:         return Localizer.Token(GameText.ExecutingBoardingAssaultAction);
+                case AIState.ReturnToHangar:   return Localizer.Token(GameText.ReturningToHangar);
+                case AIState.Ferrying:         return Localizer.Token(GameText.FerryingOrdnance);
+                case AIState.Refit:            return ship.IsPlatformOrStation ? Localizer.Token(GameText.WaitingForRefitShip) : Localizer.Token(GameText.MovingToShipyardForRefit);
                 case AIState.FormationWarp:    return "Moving in Formation";
                 case AIState.Scuttle:          return "Self Destruct: " + ship.ScuttleTimer.ToString("#");
                 case AIState.ReturnHome:       return "Defense Ship Returning Home";
                 case AIState.SupplyReturnHome: return "Supply Ship Returning Home";
                 case AIState.Scrap:
                     string scrapInPlanet = ship.AI.OrbitTarget != null ? $" in {ship.AI.OrbitTarget.Name}" : "";
-                    return Localizer.Token(186) + scrapInPlanet;
+                    return Localizer.Token(GameText.ScrappingShip) + scrapInPlanet;
             }
         }
 

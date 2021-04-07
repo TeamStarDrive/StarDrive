@@ -302,7 +302,7 @@ namespace Ship_Game.Ships
             float damageModifier = Ship.PackDamageModifier * 100f;
             batch.DrawString(Fonts.Arial12, damageModifier.ToString("0")+"%", textPos, Color.White);
             if (packRect.HitTest(mousePos))
-                ToolTip.CreateTooltip(Localizer.Token(2245));
+                ToolTip.CreateTooltip(Localizer.Token(GameText.IndicatesThisShipsCurrentBonus));
 
             numStatus++;
         }
@@ -332,7 +332,7 @@ namespace Ship_Game.Ships
                 return;
 
             SubTexture iconDisabled = ResourceManager.Texture("StatusIcons/icon_disabled");
-            DrawIconWithTooltip(batch, iconDisabled, () => Localizer.Token(1975), mousePos,
+            DrawIconWithTooltip(batch, iconDisabled, () => Localizer.Token(GameText.EmpOverloadShipIsDisabled), mousePos,
                 Color.White, numStatus);
 
             var textPos    = new Vector2((int)StatusArea.X + 25 + numStatus * 53, (int)StatusArea.Y);
@@ -347,7 +347,7 @@ namespace Ship_Game.Ships
                 return;
 
             SubTexture iconStructure = ResourceManager.Texture("StatusIcons/icon_structure");
-            DrawIconWithTooltip(batch, iconStructure, () => Localizer.Token(1976), mousePos,
+            DrawIconWithTooltip(batch, iconStructure, () => Localizer.Token(GameText.StructuralIntegrityOfTheShip), mousePos,
                 Color.White, numStatus);
 
             var textPos              = new Vector2((int)StatusArea.X + 33 + numStatus * 53, (int)StatusArea.Y + 15);
@@ -369,17 +369,17 @@ namespace Ship_Game.Ships
             if (Ship.IsInhibitedByUnfriendlyGravityWell) // planet well
             {
                 DrawInhibitWarning(batch, numStatus, mousePos);
-                DrawIconWithTooltip(batch, iconGravwell, () => Localizer.Token(2287), mousePos,
+                DrawIconWithTooltip(batch, iconGravwell, () => Localizer.Token(GameText.IndicatesThatThisShipCannot4), mousePos,
                     Color.White, numStatus);
             }
             else if (RandomEventManager.ActiveEvent == null || !RandomEventManager.ActiveEvent.InhibitWarp) // event
             {
-                DrawIconWithTooltip(batch, iconInhibited, () => Localizer.Token(2113), mousePos,
+                DrawIconWithTooltip(batch, iconInhibited, () => Localizer.Token(GameText.IndicatesThatThisShipCannot), mousePos,
                     Color.White, numStatus);
             }
             else // ship inhibitor
             {
-                DrawIconWithTooltip(batch, iconFlux, () => Localizer.Token(2285), mousePos,
+                DrawIconWithTooltip(batch, iconFlux, () => Localizer.Token(GameText.IndicatesThatThisShipCannot3), mousePos,
                     Color.White, numStatus);
             }
 
@@ -506,7 +506,7 @@ namespace Ship_Game.Ships
                 CarrierBays.HangarInfo currentHangarStatus = Ship.Carrier.GrossHangarStatus;
                 var hangarRect = new Rectangle(Housing.X + 180, Housing.Y + 210, 26, 20);
                 if (hangarRect.HitTest(mousePos))
-                    ToolTip.CreateTooltip(Localizer.Token(1981));
+                    ToolTip.CreateTooltip(Localizer.Token(GameText.ThisShowsTheHangarStatus));
 
                 var hangarTextPos = new Vector2(hangarRect.X + hangarRect.Width + 4, hangarRect.Y + 9 - Fonts.Arial12Bold.LineSpacing / 2);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_hangar"), hangarRect, Color.White);
@@ -567,7 +567,7 @@ namespace Ship_Game.Ships
             }
 
             if (GridButton.Rect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(Localizer.Token(2204));
+                ToolTip.CreateTooltip(Localizer.Token(GameText.ToggleTheModuleGridOverlay));
 
             if (GridButton.HandleInput(input))
             {

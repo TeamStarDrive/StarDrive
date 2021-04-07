@@ -108,7 +108,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             Rect = new Rectangle(ScreenWidth / 2 - 250, ScreenHeight / 2 - 300, 500, 600);
             var background = new Submenu(X + 20, Y + 60, Width - 40, Height - 80);
             background.Background = new Menu1(Rect);
-            background.AddTab(Localizer.Token(198));
+            background.AddTab(Localizer.Token(GameText.AvailableDesigns));
 
             AvailableDesignsList = Add(new ScrollList2<DesignListItem>(background));
             AvailableDesignsList.EnableItemHighlight = true;
@@ -125,7 +125,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             };
             
             PopulateEntries();
-            EnterNameArea = Add(new UITextEntry(new Vector2(X + 20, Y + 20), Localizer.Token(199)));
+            EnterNameArea = Add(new UITextEntry(new Vector2(X + 20, Y + 20), Localizer.Token(GameText.ChooseAShipToLoad)));
             ButtonSmall(background.Right - 88, EnterNameArea.Y - 2, text:8, click: b =>
             {
                 LoadShipToScreen();

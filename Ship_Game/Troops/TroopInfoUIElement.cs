@@ -150,7 +150,7 @@ namespace Ship_Game
             {
                 string buttonText =  troop.AvailableAttackActions >= 1 ? "" : string.Concat(" (", troop.MoveTimer.ToString("0"), ")");
                 LaunchTroop = new DanButton(new Vector2(slant.leftRect.X + 5, Sel.Bottom + 15), 
-                                            Localizer.Token(1435)+buttonText);
+                                            Localizer.Token(GameText.Launch)+buttonText);
                 LaunchTroop.DrawBlue(batch);
             }
         }
