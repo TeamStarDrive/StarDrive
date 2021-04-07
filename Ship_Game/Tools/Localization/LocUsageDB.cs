@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Xml;
-using System.Xml.Serialization;
 
-namespace SDGameTextToEnum
+namespace Ship_Game.Tools.Localization
 {
-    public class LocalizationUsages
+    public class LocUsageDB
     {
-        Dictionary<int, LocalizationUsage> Usages = new Dictionary<int, LocalizationUsage>();
-        LocalizationUsages() {}
-        public bool Get(int id, out LocalizationUsage usage) => Usages.TryGetValue(id, out usage);
-        public LocalizationUsage Get(int id) => Get(id, out LocalizationUsage usage) ? usage : null;
+        Dictionary<int, LocUsage> Usages = new Dictionary<int, LocUsage>();
+        LocUsageDB() {}
+        public bool Get(int id, out LocUsage usage) => Usages.TryGetValue(id, out usage);
+        public LocUsage Get(int id) => Get(id, out LocUsage usage) ? usage : null;
         public bool Contains(int id) => Usages.ContainsKey(id);
 
         static List<string> GetXmlFiles(string contentDir)
@@ -115,46 +112,13 @@ namespace SDGameTextToEnum
                         }
                     }
 
-                    var usage = new LocalizationUsage(id, usageEnum, name, suffix, file);
+                    var usage = new LocUsage(id, usageEnum, name, suffix, file);
                     lock (Usages)
                     {
                         if (!Usages.ContainsKey(id))
                             Usages.Add(id, usage);
                     }
                 }
-            }
-        }
-
-        void Load(string gameDir, string modDir)
-        {
-            var xmlFiles = GetXmlFiles(gameDir);
-            xmlFiles.AddRange(GetXmlFiles(modDir));
-
-            void ProcessFiles(int start, int end)
-            {
-                for (int fileId = start; fileId < end; ++fileId)
-                {
-                    LoadFile(xmlFiles[fileId]);
-                }
-            }
-
-            ProcessFiles(0, xmlFiles.Count);
-            //Ship_Game.Parallel.For(xmlFiles.Count, ProcessFiles);
-
-            LocalizationUsage[] flatUsages = Usages.Values.ToArray();
-            Array.Sort(flatUsages, (a, b) => string.Compare(a.NameId, b.NameId));
-
-            int progress = 0;
-            foreach (LocalizationUsage u in flatUsages)
-            {
-                ++progress;
-
-                string prefix = "BB";
-                if (u.File.Contains("Combined Arms"))
-                    prefix = "CA";
-
-                string nameId = prefix+"_"+u.NameId;
-                Log.Write(ConsoleColor.Gray, $"usage {progress} Id={u.Id} {nameId}");
             }
         }
 
@@ -174,11 +138,38 @@ namespace SDGameTextToEnum
             return Usage.Unknown;
         }
 
-        public static LocalizationUsages Create(string gameDir, string modDir)
+        public LocUsageDB(string gameDir, string modDir, string gamePrefix, string modPrefix)
         {
-            var usages = new LocalizationUsages();
-            usages.Load(gameDir, modDir);
-            return usages;
+            var xmlFiles = GetXmlFiles(gameDir);
+            if (modDir.NotEmpty())
+                xmlFiles.AddRange(GetXmlFiles(modDir));
+
+            void ProcessFiles(int start, int end)
+            {
+                for (int fileId = start; fileId < end; ++fileId)
+                {
+                    LoadFile(xmlFiles[fileId]);
+                }
+            }
+
+            ProcessFiles(0, xmlFiles.Count);
+            //Ship_Game.Parallel.For(xmlFiles.Count, ProcessFiles);
+
+            LocUsage[] flatUsages = Usages.Values.ToArray();
+            Array.Sort(flatUsages, (a, b) => string.Compare(a.NameId, b.NameId));
+
+            int progress = 0;
+            foreach (LocUsage u in flatUsages)
+            {
+                ++progress;
+
+                string prefix = gamePrefix;
+                if (u.File.Contains(modDir))
+                    prefix = modPrefix;
+
+                string nameId = prefix+"_"+u.NameId;
+                Log.Write(ConsoleColor.Gray, $"usage {progress} Id={u.Id} {nameId}");
+            }
         }
     }
 }
