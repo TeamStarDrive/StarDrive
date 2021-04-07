@@ -116,7 +116,7 @@ namespace Ship_Game
         {
             public ScrollListItemBase Parent;
             public Vector2 RelPos;
-            public ToolTipText Tooltip;
+            public LocalizedText Tooltip;
             public Action OnClick;
             public Func<ScrollListStyleTextures.Hoverable> GetHoverable;
             Rectangle AbsRect;

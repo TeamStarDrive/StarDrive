@@ -170,7 +170,6 @@ namespace Ship_Game
             InitContentDir();
             Log.Write($"Load {(GlobalStats.HasMod ? ModContentDirectory : "Vanilla")}");
             LoadLanguage(GlobalStats.Language); // @todo Slower than expected [0.36]
-            ToolTip.LoadToolTips();
             LoadHullBonuses();
             LoadHullData(); // we need Hull Data for main menu ship
             LoadEmpires();  // empire for NewGame @todo Very slow [0.54%]
@@ -282,7 +281,6 @@ namespace Ship_Game
             TechTree.Clear();
             ArtifactsDict.Clear();
             ShipsDict.Clear();
-            ToolTip.ClearToolTips();
             GoodsDict.Clear();
             Encounters.Clear();
             EventsDict.Clear();

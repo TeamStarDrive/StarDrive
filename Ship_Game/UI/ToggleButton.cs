@@ -146,7 +146,7 @@ namespace Ship_Game
         public bool Hover;
         bool WasClicked; // purely visual
 
-        public ToolTipText Tooltip;
+        public LocalizedText Tooltip;
 
         readonly ToggleButtonStyle Style;
         SubTexture IconTexture, IconActive;

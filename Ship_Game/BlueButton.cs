@@ -16,7 +16,7 @@ namespace Ship_Game
 
 		public object Value;
 
-		public ToolTipText Tooltip;
+		public LocalizedText Tooltip;
 
 		private Vector2 TextPos;
 

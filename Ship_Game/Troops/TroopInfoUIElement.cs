@@ -244,7 +244,7 @@ namespace Ship_Game
         private struct TippedItem
         {
             public Rectangle R;
-            public ToolTipText Tooltip;
+            public LocalizedText Tooltip;
         }
     }
 }

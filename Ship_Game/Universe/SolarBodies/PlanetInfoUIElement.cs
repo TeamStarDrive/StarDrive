@@ -317,7 +317,7 @@ namespace Ship_Game
             Vector2 textPos = new Vector2(RightRect.X + 18, MarkedRect.Y + 12 - Font12.LineSpacing / 2 - 2);
             batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), MarkedRect, Color.White);
 
-            ToolTipText tip = GameText.MarkThisPlanetForColonization;
+            LocalizedText tip = GameText.MarkThisPlanetForColonization;
             LocalizedText tipText = GameText.Colonize;
             if (EmpireManager.Player.GetEmpireAI().Goals.Any(g => g.ColonizationTarget == P))
             {
@@ -571,7 +571,7 @@ namespace Ship_Game
         struct TippedItem
         {
             public Rectangle r;
-            public ToolTipText Tooltip;
+            public LocalizedText Tooltip;
         }
     }
 }

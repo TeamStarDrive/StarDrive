@@ -319,10 +319,10 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        protected UICheckBox Checkbox(Vector2 pos, Expression<Func<bool>> binding, in LocalizedText title, in ToolTipText tooltip)
+        protected UICheckBox Checkbox(Vector2 pos, Expression<Func<bool>> binding, in LocalizedText title, in LocalizedText tooltip)
             => Add(new UICheckBox(pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
 
-        protected UICheckBox Checkbox(float x, float y, Expression<Func<bool>> binding, in LocalizedText title, in ToolTipText tooltip)
+        protected UICheckBox Checkbox(float x, float y, Expression<Func<bool>> binding, in LocalizedText title, in LocalizedText tooltip)
             => Add(new UICheckBox(x, y, binding, Fonts.Arial12Bold, title, tooltip));
 
         /////////////////////////////////////////////////////////////////////////////////////////////////

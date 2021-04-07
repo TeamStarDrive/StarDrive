@@ -20,7 +20,7 @@ namespace Ship_Game
 
 		//private string fmt = "0.#";
 
-		public ToolTipText Tooltip;
+		public LocalizedText Tooltip;
 
 		private Rectangle redRect;
 
