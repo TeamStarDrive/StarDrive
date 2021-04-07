@@ -12,8 +12,11 @@ namespace Ship_Game
     public sealed class ShipListInfoUIElement : UIElement
     {
         public readonly UniverseScreen Screen;
+
         public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
         readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
+        public Array<OrdersButton> Orders = new Array<OrdersButton>();
+
         Array<Ship> ShipList = new Array<Ship>();
         readonly Selector Selector;
         public Rectangle LeftRect;
@@ -26,7 +29,6 @@ namespace Ship_Game
         readonly Rectangle Housing;
         readonly SlidingElement SlidingElement;
         private readonly Rectangle FlagRect;
-        public Array<OrdersButton> Orders = new Array<OrdersButton>();
         readonly Rectangle DefenseRect;
         readonly Rectangle TroopRect;
         bool IsFleet;
