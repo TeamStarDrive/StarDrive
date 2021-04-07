@@ -12,7 +12,6 @@ namespace Ship_Game
         public bool IsToggle = true;
         public bool Toggled;
         public bool Hover;
-        public bool HasToolTip;
         public Color HoverColor            = Color.White;
         public Color BaseColor             = Color.White;
         private readonly Color ToggleColor = new Color(33, 26, 18);

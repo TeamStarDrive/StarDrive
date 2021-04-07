@@ -15,24 +15,24 @@ namespace Ship_Game
         public Ref<bool> RightClickValueToModify;
         public Rectangle ClickRect;
         public bool SimpleToggle;
-        public LocalizedText IdTip;
+        public LocalizedText Tooltip;
         public Array<Ship> ShipList = new Array<Ship>();
         public bool Active;
 
-        public OrdersButton(Ship ship, Vector2 location, OrderType ot, LocalizedText tipId)
+        public OrdersButton(Ship ship, OrderType ot, LocalizedText tooltip)
         {
-            IdTip     = tipId;
+            Tooltip = tooltip;
             OrderType = ot;
             Ship      = ship;
-            ClickRect = new Rectangle((int)location.X, (int)location.Y, 48, 48);
+            ClickRect = new Rectangle(0, 0, 48, 48);
         }
 
-        public OrdersButton(Array<Ship> shipList, Vector2 location, OrderType ot, LocalizedText tipId)
+        public OrdersButton(Array<Ship> shipList, OrderType ot, LocalizedText tooltip)
         {
-            IdTip     = tipId;
+            Tooltip = tooltip;
             ShipList  = shipList;
             OrderType = ot;
-            ClickRect = new Rectangle((int)location.X, (int)location.Y, 48, 48);
+            ClickRect = new Rectangle(0, 0, 48, 48);
         }
 
         public void Draw(SpriteBatch batch, Vector2 cursor, Rectangle rect)
@@ -122,7 +122,7 @@ namespace Ship_Game
                 return Hovering;
             }
 
-            ToolTip.CreateTooltip(IdTip);
+            ToolTip.CreateTooltip(Tooltip);
             if (SimpleToggle && (input.InGameSelect || input.RightMouseClick))
             {
                 GameAudio.AcceptClick();

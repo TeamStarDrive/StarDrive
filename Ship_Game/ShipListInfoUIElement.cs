@@ -449,7 +449,7 @@ namespace Ship_Game
 
             }
 
-            OrdersButton resupply = new OrdersButton(shipList, Vector2.Zero, OrderType.OrderResupply, GameText.OrdersSelectedShipOrShips)
+            OrdersButton resupply = new OrdersButton(shipList, OrderType.OrderResupply, GameText.OrdersSelectedShipOrShips)
             {
                 SimpleToggle = true,
                 Active = allResupply
@@ -458,7 +458,7 @@ namespace Ship_Game
 
             if (allCombat)
             {  
-                OrdersButton explore = new OrdersButton(shipList, Vector2.Zero, OrderType.Explore, GameText.OrdersThisShipToExplore)
+                OrdersButton explore = new OrdersButton(shipList, OrderType.Explore, GameText.OrdersThisShipToExplore)
                 {
                     SimpleToggle = true,
                     Active = false
@@ -468,13 +468,13 @@ namespace Ship_Game
 
             if (carriersHere)
             {
-                OrdersButton launchFighters = new OrdersButton(shipList, Vector2.Zero, OrderType.FighterToggle, GameText.WhenActiveAllAvailableFighters)
+                OrdersButton launchFighters = new OrdersButton(shipList, OrderType.FighterToggle, GameText.WhenActiveAllAvailableFighters)
                 {
                     SimpleToggle = true,
                     Active = false
                 };
                 Orders.Add(launchFighters);
-                OrdersButton waitForFighters = new OrdersButton(shipList, Vector2.Zero, OrderType.FighterRecall, GameText.ClickToToggleWhetherThis)
+                OrdersButton waitForFighters = new OrdersButton(shipList, OrderType.FighterRecall, GameText.ClickToToggleWhetherThis)
                 {
                     SimpleToggle = true,
                     Active = true
@@ -484,14 +484,14 @@ namespace Ship_Game
 
             if (troopShipsHere)
             {
-                OrdersButton launchTroops = new OrdersButton(shipList, Vector2.Zero, OrderType.TroopToggle, GameText.TogglesWhetherThisShipsAssault)
+                OrdersButton launchTroops = new OrdersButton(shipList, OrderType.TroopToggle, GameText.TogglesWhetherThisShipsAssault)
                 {
                     SimpleToggle = true,
                     Active = true
                 };
                 Orders.Add(launchTroops);
 
-                OrdersButton sendTroops = new OrdersButton(shipList, Vector2.Zero, OrderType.SendTroops, GameText.SendTroopsToThisShip)
+                OrdersButton sendTroops = new OrdersButton(shipList, OrderType.SendTroops, GameText.SendTroopsToThisShip)
                 {
                     SimpleToggle = true,
                     Active = true
@@ -500,7 +500,7 @@ namespace Ship_Game
 
                 if (!carriersHere)
                 {
-                    OrdersButton waitForTroops = new OrdersButton(shipList, Vector2.Zero, OrderType.FighterRecall, GameText.ClickToToggleWhetherThis)
+                    OrdersButton waitForTroops = new OrdersButton(shipList, OrderType.FighterRecall, GameText.ClickToToggleWhetherThis)
                     {
                         SimpleToggle = true,
                         Active = true
@@ -511,22 +511,22 @@ namespace Ship_Game
 
             if (allFreighters)
             {
-                OrdersButton tradeFood = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeFood, GameText.ManualTradeOrdersThisFreighter2)
+                OrdersButton tradeFood = new OrdersButton(shipList, OrderType.TradeFood, GameText.ManualTradeOrdersThisFreighter2)
                 {
                     SimpleToggle = true
                 };
                 Orders.Add(tradeFood);
-                OrdersButton tradeProduction = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeProduction, GameText.ManualTradeOrdersThisFreighter2)
+                OrdersButton tradeProduction = new OrdersButton(shipList, OrderType.TradeProduction, GameText.ManualTradeOrdersThisFreighter2)
                 {
                     SimpleToggle = true
                 };
                 Orders.Add(tradeProduction);
-                OrdersButton transportColonists = new OrdersButton(shipList, Vector2.Zero, OrderType.TransportColonists, GameText.OrderTheseShipsToBegin2)
+                OrdersButton transportColonists = new OrdersButton(shipList, OrderType.TransportColonists, GameText.OrderTheseShipsToBegin2)
                 {
                     SimpleToggle = true
                 };
                 Orders.Add(transportColonists);
-                OrdersButton allowInterEmpireTrade = new OrdersButton(shipList, Vector2.Zero, OrderType.AllowInterTrade, GameText.ManualTradeAllowSelectedFreighters)
+                OrdersButton allowInterEmpireTrade = new OrdersButton(shipList, OrderType.AllowInterTrade, GameText.ManualTradeAllowSelectedFreighters)
                 {
                     SimpleToggle = true
                 };
@@ -534,7 +534,7 @@ namespace Ship_Game
             }
 
             //Added by McShooterz: fleet scrap button
-            OrdersButton scrap = new OrdersButton(shipList, Vector2.Zero, OrderType.Scrap, GameText.OrderShipBackToThe)
+            OrdersButton scrap = new OrdersButton(shipList, OrderType.Scrap, GameText.OrderShipBackToThe)
             {
                 SimpleToggle = true,
                 Active = false

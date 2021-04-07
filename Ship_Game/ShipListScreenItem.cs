@@ -459,7 +459,7 @@ namespace Ship_Game
                 Rectangle patrol = new Rectangle(RefitRect.X + RefitRect.Width / 4 + 10, RefitRect.Y + RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_order_patrol_hover2").Height / 2, ResourceManager.Texture("NewUI/icon_order_patrol_hover2").Width, ResourceManager.Texture("NewUI/icon_order_patrol_hover2").Height);
                 ExploreButton.r = explore;
                 //PatrolButton.r = patrol; // FB - Disabled until we make it better
-                ExploreButton.LocalizerTip = 2171;
+                ExploreButton.Tooltip = GameText.OrdersThisShipToExplore;
                 //PatrolButton.LocalizerTip = 7080; // FB - Disabled until we make it better
             }
 
@@ -467,8 +467,8 @@ namespace Ship_Game
             Rectangle scrap = new Rectangle(RefitRect.X + RefitRect.Width / 4 + 20 + ResourceManager.Texture("NewUI/icon_order_patrol_hover1").Width + ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1").Width, RefitRect.Y + RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_queue_delete_hover1").Height / 2, ResourceManager.Texture("NewUI/icon_queue_delete_hover1").Width, ResourceManager.Texture("NewUI/icon_queue_delete_hover1").Height);                       
             RefitButton.r = refit;
             ScrapButton.r = scrap;
-            RefitButton.LocalizerTip = 2213;
-            ScrapButton.LocalizerTip = 2214;
+            RefitButton.Tooltip = GameText.OpensAMenuAllowingYou;
+            ScrapButton.Tooltip = GameText.OrdersTheShipToReturn;
 
             float width = (int)(OrdersRect.Width * 0.8f);
             while (width % 10f != 0f)
