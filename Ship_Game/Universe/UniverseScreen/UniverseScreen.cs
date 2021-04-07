@@ -127,7 +127,7 @@ namespace Ship_Game
         public AnomalyManager anomalyManager;
         public ShipInfoUIElement ShipInfoUIElement;
         public PlanetInfoUIElement pInfoUI;
-        public SystemInfoUIElement sInfoUI;
+        public SolarsystemOverlay SystemInfoOverlay;
         public ShipListInfoUIElement shipListInfoUI;
         public VariableUIElement vuiElement;
         public Empire player;
@@ -354,8 +354,8 @@ namespace Ship_Game
             Empire.Universe = this;
 
             GlobalStats.ResearchRootUIDToDisplay = "Colonization";
-            SystemInfoUIElement.SysFont  = Fonts.Arial12Bold;
-            SystemInfoUIElement.DataFont = Fonts.Arial10;
+            SolarsystemOverlay.SysFont  = Fonts.Arial12Bold;
+            SolarsystemOverlay.DataFont = Fonts.Arial10;
 
             NotificationManager = new NotificationManager(ScreenManager, this);
             aw = Add(new AutomationWindow(this));
@@ -551,7 +551,7 @@ namespace Ship_Game
             mmShowBorders      = new Rectangle(MinimapDisplayRect.X, MinimapDisplayRect.Y - 25, 32, 32);
             SelectedStuffRect  = new Rectangle(0, height - 247, 407, 242);
             ShipInfoUIElement  = new ShipInfoUIElement(SelectedStuffRect, ScreenManager, this);
-            sInfoUI            = new SystemInfoUIElement(SelectedStuffRect, ScreenManager, this);
+            SystemInfoOverlay            = new SolarsystemOverlay(SelectedStuffRect, ScreenManager, this);
             pInfoUI            = new PlanetInfoUIElement(SelectedStuffRect, ScreenManager, this);
             shipListInfoUI     = new ShipListInfoUIElement(SelectedStuffRect, ScreenManager, this);
             vuiElement         = new VariableUIElement(SelectedStuffRect, ScreenManager, this);
@@ -728,10 +728,10 @@ namespace Ship_Game
 
         void UpdateSelectedItems(UpdateTimes elapsed)
         {
-            if (ShowSystemInfo)
+            if (ShowSystemInfoOverlay)
             {
-                sInfoUI.SetSystem(SelectedSystem);
-                sInfoUI.Update(elapsed);
+                SystemInfoOverlay.SetSystem(SelectedSystem);
+                SystemInfoOverlay.Update(elapsed);
             }
 
             if (ShowPlanetInfo)
