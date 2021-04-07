@@ -506,6 +506,15 @@
     <Compile Include="Ship_Game\Spatial\SpatialObj.cs" />
     <Compile Include="Ship_Game\Spatial\VisualizerOptions.cs" />
     <Compile Include="Ship_Game\SpriteSystem\TextureAtlas.CreateAtlas.cs" />
+    <Compile Include="Ship_Game\Tools\Localization\LocalizationTool.cs" />
+    <Compile Include="Ship_Game\Tools\Localization\LocText.cs" />
+    <Compile Include="Ship_Game\Tools\Localization\LocalizationDB.cs" />
+    <Compile Include="Ship_Game\Tools\Localization\LocalizationDB_Export.cs" />
+    <Compile Include="Ship_Game\Tools\Localization\LocUsage.cs" />
+    <Compile Include="Ship_Game\Tools\Localization\LocUsageDB.cs" />
+    <Compile Include="Ship_Game\Tools\Localization\TextToken.cs" />
+    <Compile Include="Ship_Game\Tools\Localization\Translation.cs" />
+    <Compile Include="Ship_Game\Tools\Localization\Usage.cs" />
     <Compile Include="Ship_Game\UI\Effects\AnimationCurve.cs" />
     <Compile Include="Ship_Game\SpriteSystem\AtlasPath.cs" />
     <Compile Include="Ship_Game\SpriteSystem\DrawableSprite.cs" />

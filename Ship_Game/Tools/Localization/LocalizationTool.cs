@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 
-namespace SDGameTextToEnum
+namespace Ship_Game.Tools.Localization
 {
     public struct Token
     {
@@ -34,9 +34,9 @@ namespace SDGameTextToEnum
     /// <summary>
     /// Converts StarDrive GameText into C# enums
     /// </summary>
-    public static class GameTextToEnum_Main
+    public static class LocalizationTool
     {
-        static bool UseYAMLFileAsSource = true;
+        public static bool UseYAMLFileAsSource = true;
 
         static T Deserialize<T>(string path)
         {
@@ -50,70 +50,54 @@ namespace SDGameTextToEnum
             return Deserialize<LocalizationFile>(path).GetTokens(lang);
         }
 
-        static IEnumerable<TextToken> GetToolTips(string lang, string path)
-        {
-            Log.Write(ConsoleColor.Cyan, $"GetToolTips: {lang} {path}");
-            return Deserialize<Tooltips>(path).GetTokens(lang);
-        }
-
-        static string MakeModPrefix(string modDir)
-        {
-            string dir = Path.GetDirectoryName(modDir);
-            if (modDir.Last() != '/' && modDir.Last() != '\\')
-                dir = Path.GetFileName(modDir);
-            string[] words = dir.Split(new[]{' '}, StringSplitOptions.RemoveEmptyEntries);
-            return string.Join("", words.Select(word => char.ToUpper(word[0])));
-        }
-
-        static LocalizationDB CreateGameTextEnum(string gameDir, string bbDir, string modDir, string outputDir)
+        static LocalizationDB CreateGameTextEnum(string gameContent, string modContent, string outputDir)
         {
             string enumFile = $"{outputDir}/GameText.cs";
-            string yamlFile = $"{bbDir}/GameText.yaml";
+            string yamlFile = $"{gameContent}/GameText.yaml";
 
-            var usages = LocalizationUsages.Create(gameDir, modDir);
-            var db = new LocalizationDB("Ship_Game", "GameText", usages);
+            var db = new LocalizationDB("Ship_Game", "GameText", gameContent, modContent);
             db.LoadIdentifiers(enumFile, yamlFile);
-            db.Prefix = "BB";
-            db.ModPrefix = MakeModPrefix(modDir);
 
             if (UseYAMLFileAsSource)
             {
                 if (db.AddFromYaml(yamlFile))
                 {
-                    db.AddFromYaml($"{bbDir}/GameText.Missing.RUS.yaml", logMerge:true);
-                    db.AddFromYaml($"{bbDir}/GameText.Missing.SPA.yaml", logMerge:true);
+                    db.AddFromYaml($"{gameContent}/GameText.Missing.RUS.yaml", logMerge:true);
+                    db.AddFromYaml($"{gameContent}/GameText.Missing.SPA.yaml", logMerge:true);
                 }
             }
             if (db.NumLocalizations == 0)
             {
-                db.AddLocalizations(GetGameText("ENG", $"{bbDir}/Localization/English/GameText_EN.xml"));
-                db.AddLocalizations(GetGameText("RUS", $"{bbDir}/Localization/Russian/GameText_RU.xml"));
-                db.AddLocalizations(GetGameText("SPA", $"{bbDir}/Localization/Spanish/GameText.xml"));
+                db.AddLocalizations(GetGameText("ENG", $"{gameContent}/Localization/English/GameText_EN.xml"));
+                db.AddLocalizations(GetGameText("RUS", $"{gameContent}/Localization/Russian/GameText_RU.xml"));
+                db.AddLocalizations(GetGameText("SPA", $"{gameContent}/Localization/Spanish/GameText.xml"));
             }
-            db.ExportCsharp(enumFile);
-            db.ExportYaml(yamlFile);
-            db.ExportMissingTranslationsYaml("RUS", $"{bbDir}/GameText.Missing.RUS.yaml");
-            db.ExportMissingTranslationsYaml("SPA", $"{bbDir}/GameText.Missing.SPA.yaml");
 
-            if (Directory.Exists(modDir))
+            if (Directory.Exists(outputDir))
+                db.ExportCsharp(enumFile);
+            db.ExportYaml(yamlFile);
+            db.ExportMissingTranslationsYaml("RUS", $"{gameContent}/GameText.Missing.RUS.yaml");
+            db.ExportMissingTranslationsYaml("SPA", $"{gameContent}/GameText.Missing.SPA.yaml");
+
+            if (Directory.Exists(modContent))
             {
                 if (UseYAMLFileAsSource)
                 {
-                    if (db.AddFromModYaml($"{modDir}/GameText.yaml"))
+                    if (db.AddFromModYaml($"{modContent}/GameText.yaml"))
                     {
-                        db.AddFromModYaml($"{modDir}/GameText.Missing.RUS.yaml", logMerge:true);
-                        db.AddFromModYaml($"{modDir}/GameText.Missing.SPA.yaml", logMerge:true);
+                        db.AddFromModYaml($"{modContent}/GameText.Missing.RUS.yaml", logMerge:true);
+                        db.AddFromModYaml($"{modContent}/GameText.Missing.SPA.yaml", logMerge:true);
                     }
                 }
                 if (db.NumModLocalizations == 0)
                 {
-                    db.AddModLocalizations(GetGameText("ENG", $"{modDir}/Localization/English/GameText_EN.xml"));
-                    db.AddModLocalizations(GetGameText("RUS", $"{modDir}/Localization/Russian/GameText_RU.xml"));
+                    db.AddModLocalizations(GetGameText("ENG", $"{modContent}/Localization/English/GameText_EN.xml"));
+                    db.AddModLocalizations(GetGameText("RUS", $"{modContent}/Localization/Russian/GameText_RU.xml"));
                 }
                 db.FinalizeModLocalization();
-                db.ExportModYaml($"{modDir}/GameText.yaml");
-                db.ExportMissingModYaml("RUS", $"{modDir}/GameText.Missing.RUS.yaml");
-                db.ExportMissingModYaml("SPA", $"{modDir}/GameText.Missing.SPA.yaml");
+                db.ExportModYaml($"{modContent}/GameText.yaml");
+                db.ExportMissingModYaml("RUS", $"{modContent}/GameText.Missing.RUS.yaml");
+                db.ExportMissingModYaml("SPA", $"{modContent}/GameText.Missing.SPA.yaml");
             }
             return db;
         }
@@ -139,7 +123,7 @@ namespace SDGameTextToEnum
             Log.Write(ConsoleColor.Blue, $"Upgrading XML Localizations: {xmlFile}");
             string[] lines = File.ReadAllLines(xmlFile);
             int modified = 0;
-            Regex[] patterns = tags.Select(tag => new Regex($"<{tag}>.+\\d+.+<\\/{tag}>")).ToArray();
+            Regex[] patterns = tags.Select(tag => new Regex($"<{tag}>.+\\d+.+<\\/{tag}>"));
             Regex numberMatcher = new Regex("\\d+");
             for (int i = 0; i < lines.Length; ++i)
             {
@@ -224,17 +208,26 @@ namespace SDGameTextToEnum
             }
         }
 
-        public static void Main(string[] args)
+        public static void Run(string mod = "")
         {
-            string solutionDir = Directory.GetCurrentDirectory();
-            string gameDir = $"{solutionDir}/StarDrive/Content";
+            string starDrive = Directory.GetCurrentDirectory();
+            string solutionDir = Path.GetFullPath($"{starDrive}/..");
+
+            string gameContent = $"{solutionDir}/Content";
             string bbDir = $"{solutionDir}/Content";
             string codeDir = $"{solutionDir}/Ship_Game";
             string outputDir = $"{solutionDir}/Ship_Game/Data";
-            string modDir = $"{solutionDir}/StarDrive/Mods/Combined Arms";
+
+            string modContent = mod.NotEmpty() ? $"{starDrive}/Mods/{mod}" : "";
             Directory.SetCurrentDirectory($"{solutionDir}/StarDrive");
 
-            if (!Directory.Exists(gameDir) ||
+            if (!Directory.Exists(gameContent))
+                throw new Exception($"Could not find StarDrive/Content at: {gameContent}");
+
+            if (!Directory.Exists(gameContent))
+                throw new Exception($"Could not find StarDrive/Content at: {gameContent}");
+
+            if (!Directory.Exists(gameContent) ||
                 !Directory.Exists(bbDir)   ||
                 !Directory.Exists(outputDir))
             {
@@ -242,26 +235,12 @@ namespace SDGameTextToEnum
             }
             else
             {
-                LocalizationDB db = CreateGameTextEnum(gameDir, bbDir, modDir, outputDir);
+                LocalizationDB db = CreateGameTextEnum(gameContent, modContent, outputDir);
                 UpgradeGameXmls(bbDir, db, mod:false);
-                UpgradeGameXmls(modDir, db, mod:true);
+                if (mod.NotEmpty())
+                    UpgradeGameXmls(modContent, db, mod:true);
                 ReplaceCsharpTokens(codeDir, db);
             }
-
-            Log.Write(ConsoleColor.Gray, "Press any key to continue...");
-            Console.ReadKey(false);
-            Ship_Game.Parallel.ClearPool();
-        }
-    }
-
-    public static class Log
-    {
-        public static void Write(ConsoleColor color, string message)
-        {
-            var original = Console.ForegroundColor;
-            Console.ForegroundColor = color;
-            Console.WriteLine(message);
-            Console.ForegroundColor = original;
         }
     }
 }
