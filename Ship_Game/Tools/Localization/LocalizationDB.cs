@@ -4,16 +4,16 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace SDGameTextToEnum
+namespace Ship_Game.Tools.Localization
 {
     public partial class LocalizationDB
     {
         readonly string Namespace;
         readonly string Name;
-        readonly LocalizationUsages Usages;
+        readonly LocUsageDB Usages;
         readonly Dictionary<int, TextToken> ExistingIds = new Dictionary<int, TextToken>();
-        readonly List<Localization> LocalizedText = new List<Localization>();
-        readonly List<Localization> ModText = new List<Localization>();
+        readonly List<LocText> LocalizedText = new List<LocText>();
+        readonly List<LocText> ModText = new List<LocText>();
         readonly HashSet<string> EnumNames = new HashSet<string>();
         readonly string[] WordSeparators = { " ", "\t", "\r", "\n", "\"",
                                                  "\\t","\\r","\\n", "\\\"" };
@@ -24,11 +24,13 @@ namespace SDGameTextToEnum
         public int NumModLocalizations => ModText.Count;
         public int NumLocalizations => LocalizedText.Count;
 
-        public LocalizationDB(string enumNamespace, string enumName, LocalizationUsages usages)
+        public LocalizationDB(string enumNamespace, string enumName, string gameContent, string modContent)
         {
             Namespace = enumNamespace;
             Name = enumName;
-            Usages = usages;
+            Prefix = "BB";
+            ModPrefix = MakeModPrefix(modContent);
+            Usages = new LocUsageDB(gameContent, modContent, Prefix, ModPrefix);
         }
 
         public LocalizationDB(LocalizationDB gen, string newName) // copy
@@ -38,8 +40,19 @@ namespace SDGameTextToEnum
             Usages = gen.Usages;
             ExistingIds = new Dictionary<int, TextToken>(gen.ExistingIds);
             EnumNames = new HashSet<string>(gen.EnumNames);
-            foreach (Localization loc in gen.LocalizedText)
-                LocalizedText.Add(new Localization(loc));
+            foreach (LocText loc in gen.LocalizedText)
+                LocalizedText.Add(new LocText(loc));
+        }
+        
+        static string MakeModPrefix(string modDir)
+        {
+            if (modDir.IsEmpty())
+                return "";
+            string dir = Path.GetDirectoryName(modDir);
+            if (modDir.Last() != '/' && modDir.Last() != '\\')
+                dir = Path.GetFileName(modDir);
+            string[] words = dir.Split(new[]{' '}, StringSplitOptions.RemoveEmptyEntries);
+            return string.Join("", words.Select(word => char.ToUpper(word[0])));
         }
 
         // Load existing identifiers
@@ -131,7 +144,7 @@ namespace SDGameTextToEnum
             return name;
         }
 
-        protected Localization AddNewLocalization(List<Localization> localizations, 
+        protected LocText AddNewLocalization(List<LocText> localizations, 
                                                   TextToken token, string nameIdPrefix)
         {
             string[] words = token.Text.Split(WordSeparators, StringSplitOptions.RemoveEmptyEntries);
@@ -153,7 +166,7 @@ namespace SDGameTextToEnum
             if (!string.IsNullOrEmpty(token.NameId))
             {
                 EnumNames.Add(token.NameId);
-                var loc = new Localization(token, comment);
+                var loc = new LocText(token, comment);
                 localizations.Add(loc);
                 return loc;
             }
@@ -165,7 +178,7 @@ namespace SDGameTextToEnum
             }
         }
 
-        protected bool GetLocalization(List<Localization> localizedText, int id, out Localization loc)
+        protected bool GetLocalization(List<LocText> localizedText, int id, out LocText loc)
         {
             loc = localizedText.FirstOrDefault(x => x.Id == id);
             return loc != null;
@@ -180,12 +193,12 @@ namespace SDGameTextToEnum
             return true;
         }
 
-        protected void AddLocalization(List<Localization> localizations, TextToken token, string nameIdPrefix, bool logMerge)
+        protected void AddLocalization(List<LocText> localizations, TextToken token, string nameIdPrefix, bool logMerge)
         {
             if (string.IsNullOrEmpty(token.Text))
                 return;
 
-            if (GetLocalization(localizations, token.Id, out Localization loc))
+            if (GetLocalization(localizations, token.Id, out LocText loc))
             {
                 if (logMerge)
                     Log.Write(ConsoleColor.Green, $"Merged {token.Lang} {token.Id}: {token.Text}");
@@ -207,14 +220,14 @@ namespace SDGameTextToEnum
         
         public string GetModNameId(int id)
         {
-            if (GetLocalization(ModText, id, out Localization mod))
+            if (GetLocalization(ModText, id, out LocText mod))
                 return mod.NameId;
             return GetNameId(id);
         }
 
         public string GetNameId(int id)
         {
-            if (GetLocalization(LocalizedText, id, out Localization loc))
+            if (GetLocalization(LocalizedText, id, out LocText loc))
                 return loc.NameId;
 
             Log.Write(ConsoleColor.Red, $"{Name}: failed to find tooltip data with id={id}");
@@ -236,7 +249,7 @@ namespace SDGameTextToEnum
             var uniqueToMod = new List<TextToken>();
             foreach (TextToken token in localizations)
             {
-                if (GetLocalization(LocalizedText, token.Id, out Localization vanilla))
+                if (GetLocalization(LocalizedText, token.Id, out LocText vanilla))
                     token.NameId = vanilla.NameId; // keep NameId from vanilla
                 else
                     uniqueToMod.Add(token); // this is unique to the mod
@@ -247,9 +260,9 @@ namespace SDGameTextToEnum
         public void FinalizeModLocalization()
         {
             // add in missing translations
-            foreach (Localization mod in ModText)
+            foreach (LocText mod in ModText)
             {
-                if (GetLocalization(LocalizedText, mod.Id, out Localization vanilla))
+                if (GetLocalization(LocalizedText, mod.Id, out LocText vanilla))
                 {
                     foreach (Translation tr in vanilla.Translations)
                         if (!mod.HasLang(tr.Lang))
@@ -264,7 +277,7 @@ namespace SDGameTextToEnum
                 // then remove ModTexts which are complete duplicates from vanilla
                 int numRemoved = ModText.RemoveAll(mod =>
                 {
-                    Localization dup = LocalizedText.FirstOrDefault(vanilla => vanilla.Equals(mod));
+                    LocText dup = LocalizedText.FirstOrDefault(vanilla => vanilla.Equals(mod));
                     if (dup == null)
                         return false;
                     Log.Write(ConsoleColor.Gray, $"{Name}: remove duplicate {mod.Id} {mod.NameId}"

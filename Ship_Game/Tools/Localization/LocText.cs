@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SDGameTextToEnum
+namespace Ship_Game.Tools.Localization
 {
-    public class Localization
+    public class LocText
     {
         public static string[] SupportedLangs = new[]{ "ENG", "RUS", "SPA" };
         public int Id;
@@ -15,7 +15,7 @@ namespace SDGameTextToEnum
 
         public override string ToString() => $"{NameId}({Id}) {Translations[0]}";
 
-        public Localization(TextToken token, string comment)
+        public LocText(TextToken token, string comment)
         {
             Id = token.Id;
             NameId = token.NameId;
@@ -23,7 +23,7 @@ namespace SDGameTextToEnum
             Translations = new List<Translation>{new Translation(token.Id, token.Lang, token.Text)};
         }
 
-        public Localization(Localization copy)
+        public LocText(LocText copy)
         {
             Id = copy.Id;
             NameId = copy.NameId;
@@ -63,7 +63,7 @@ namespace SDGameTextToEnum
             }
         }
 
-        public bool Equals(Localization other)
+        public bool Equals(LocText other)
         {
             if (Id != other.Id || Translations.Count != other.Translations.Count)
                 return false;
