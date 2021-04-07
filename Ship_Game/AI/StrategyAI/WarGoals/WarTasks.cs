@@ -48,12 +48,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 }
             }
 
-            var ai = Owner.GetEmpireAI();
-            float warHunger = Owner.GetWarOffensiveRatio();
-            float warTurns = 100 * warHunger;
+            var ai         = Owner.GetEmpireAI();
+            float warTurns = 100 * Owner.GetWarOffensiveRatio();
 
-            if (NewTasks.Count == 0) ai.PauseWarTimer = (int)warTurns;
-            else if (ai.PauseWarTimer >= 10 * Owner.GetExpansionRatio()) ai.PauseWarTimer = -(int)warTurns;
+            float expansion = 25 * Owner.GetExpansionRatio();
+            if (ai.PauseWarTimer > expansion) 
+                ai.PauseWarTimer = -(int)warTurns;
 
             bool nonFactionWars = Owner.AllActiveWars.Any(t => !t.Them.isFaction && t.Them != Owner);
             for (int i = 0; i < NewTasks.Count; i++)
