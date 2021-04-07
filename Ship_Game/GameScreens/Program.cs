@@ -52,15 +52,56 @@ namespace Ship_Game
             }
         }
 
-        static void ParseMainArgs(string[] args)
+        // @return false if Help should be printed to console
+        static bool ParseMainArgs(string[] args)
         {
             foreach (string arg in args)
             {
-                if (arg == "--export-textures")
+                string[] parts = arg.Split('=');
+                string key = parts[0];
+                string value = parts.Length > 1 ? parts[1] : "";
+
+                if (key == "--help")
+                {
+                    return false;
+                }
+                else if (key == "--mod")
+                {
+                    GlobalStats.LoadModInfo(value);
+                    if (!GlobalStats.HasMod)
+                        throw new Exception($"Mod {value} not found. Argument was: {arg}");
+                }
+                else if (key == "--export-textures")
+                {
                     GlobalStats.ExportTextures = true;
-                else if (arg == "--export-meshes")
+                }
+                else if (key == "--export-meshes")
+                {
                     GlobalStats.ExportMeshes = true;
+                }
+                else if (key == "--run-localizer")
+                {
+                    GlobalStats.RunLocalizer = true;
+                }
             }
+            return true; // all ok
+        }
+
+        static void PrintHelp()
+        {
+            Log.Write("StarDrive BlackBox Command Line Interface (CLI)");
+            Log.Write("  --help             Shows this help message");
+            Log.Write("  --mod=\"<mod>\"    Load the game with the specified <mod>, eg: --mod=\"Combined Arms\" ");
+            Log.Write("  --export-textures  Exports all texture files as PNG and DDS");
+            Log.Write("  --export-meshes    Exports all mesh files as FBX");
+            Log.Write("  --run-localizer    Run localization tool to merge missing translations and generate id-s");
+            PressAnyKey();
+        }
+
+        static void PressAnyKey()
+        {
+            Log.Write(ConsoleColor.Gray, "Press any key to continue...");
+            Console.ReadKey(false);
         }
 
         [STAThread]
@@ -79,14 +120,23 @@ namespace Ship_Game
                 // @note This will override and initialize global system settings
                 GlobalStats.LoadConfig();
                 Log.Initialize();
-
-                ParseMainArgs(args);
-
                 Thread.CurrentThread.Name = "Main Thread";
                 Log.AddThreadMonitor();
-
-                using (var game = new StarDriveGame())
-                    game.Run();
+                
+                if (!ParseMainArgs(args))
+                {
+                    PrintHelp();
+                }
+                else if (GlobalStats.RunLocalizer)
+                {
+                    Tools.Localization.LocalizationTool.Run(GlobalStats.ModName);
+                    PressAnyKey();
+                }
+                else
+                {
+                    using (var game = new StarDriveGame())
+                        game.Run();
+                }
 
                 Log.Write("The game exited normally.");
                 RunCleanupAndExit(0);
