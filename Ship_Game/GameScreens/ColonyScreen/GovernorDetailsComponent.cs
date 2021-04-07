@@ -125,12 +125,12 @@ namespace Ship_Game
             // Dropdown will go on top of everything else
             ColonyTypeList = Add(new DropOptions<Planet.ColonyType>(100, 18));
             ColonyTypeList.AddOption(option:"--", Planet.ColonyType.Colony);
-            ColonyTypeList.AddOption(option:4064, Planet.ColonyType.Core);
-            ColonyTypeList.AddOption(option:4065, Planet.ColonyType.Industrial);
-            ColonyTypeList.AddOption(option:4066, Planet.ColonyType.Agricultural);
-            ColonyTypeList.AddOption(option:4067, Planet.ColonyType.Research);
-            ColonyTypeList.AddOption(option:4068, Planet.ColonyType.Military);
-            ColonyTypeList.AddOption(option:5087, Planet.ColonyType.TradeHub);
+            ColonyTypeList.AddOption(option:GameText.Core, Planet.ColonyType.Core);
+            ColonyTypeList.AddOption(option:GameText.Industrial, Planet.ColonyType.Industrial);
+            ColonyTypeList.AddOption(option:GameText.Agricultural, Planet.ColonyType.Agricultural);
+            ColonyTypeList.AddOption(option:GameText.Research, Planet.ColonyType.Research);
+            ColonyTypeList.AddOption(option:GameText.Military, Planet.ColonyType.Military);
+            ColonyTypeList.AddOption(option:GameText.TradeHub, Planet.ColonyType.TradeHub);
             ColonyTypeList.ActiveValue = Planet.colonyType;
             ColonyTypeList.OnValueChange = OnColonyTypeChanged;
 

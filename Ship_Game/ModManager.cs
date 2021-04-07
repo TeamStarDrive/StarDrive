@@ -64,9 +64,9 @@ namespace Ship_Game
             EnterNameArea = new UITextEntry {Text = ""};
             EnterNameArea.ClickableArea = new Rectangle((int)EnternamePos.X, (int)EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
 
-            ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, text:8, click: OnLoadClicked);
-            Visit = Button(Window.X + 3, Window.Y + Window.Height + 20, text:4015, click: OnVisitClicked);
-            Button(Window.X + 200, Window.Y + Window.Height + 20, text:4044, click: OnShipToolClicked);
+            ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, text:GameText.Load, click: OnLoadClicked);
+            Visit = Button(Window.X + 3, Window.Y + Window.Height + 20, text:GameText.LoadModsWeb, click: OnVisitClicked);
+            Button(Window.X + 200, Window.Y + Window.Height + 20, text:GameText.ModderTools, click: OnShipToolClicked);
             UnloadMod = Button(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, "Unload Mod", click:OnUnloadModClicked);
             UnloadMod.Enabled = GlobalStats.HasMod;
 

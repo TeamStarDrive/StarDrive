@@ -93,9 +93,9 @@ namespace Ship_Game
 
             ConfirmRefit = new DanButton(new Vector2(shipDesignsRect.X, (shipDesignsRect.Y + 505)), "Do Refit");
 
-            RefitOne = ButtonMedium(shipDesignsRect.X + 25, shipDesignsRect.Y + 505, text:2265, click: OnRefitOneClicked);
+            RefitOne = ButtonMedium(shipDesignsRect.X + 25, shipDesignsRect.Y + 505, text:GameText.RefitOne, click: OnRefitOneClicked);
             RefitOne.Tooltip = Localizer.Token(GameText.RefitOnlyThisShipTo);
-            RefitAll = ButtonMedium(shipDesignsRect.X + 250, shipDesignsRect.Y + 505, text:2266, click: OnRefitAllClicked);
+            RefitAll = ButtonMedium(shipDesignsRect.X + 250, shipDesignsRect.Y + 505, text:GameText.RefitAll, click: OnRefitAllClicked);
             RefitAll.Tooltip = Localizer.Token(GameText.RefitAllShipsOfThis);
 
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));

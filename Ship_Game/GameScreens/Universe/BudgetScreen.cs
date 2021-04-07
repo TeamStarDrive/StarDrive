@@ -116,7 +116,7 @@ namespace Ship_Game.GameScreens
             BudgetTab(budgetRect);
 
             EmpireNetIncome = Label(Window.Menu.Right - 200,Window.Menu.Bottom - 47,
-                                    text:324, Fonts.Arial20Bold);
+                                    text:GameText.NetGain, Fonts.Arial20Bold);
             EmpireNetIncome.DropShadow  = true;
             EmpireNetIncome.DynamicText = DynamicText(
                 ()   => Player.NetIncome,

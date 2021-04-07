@@ -243,8 +243,8 @@ namespace Ship_Game
             Picker = Add(new UIColorPicker(new Rectangle(ScreenWidth / 2 - 310, ScreenHeight / 2 - 280, 620, 560)));
             Picker.Visible = false;
 
-            ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, text:22, click: OnEngageClicked);
-            ButtonMedium(10, ScreenHeight - 40, text:23, click: OnAbortClicked);
+            ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, text:GameText.Engage, click: OnEngageClicked);
+            ButtonMedium(10, ScreenHeight - 40, text:GameText.Abort, click: OnAbortClicked);
             DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked).SetRelPos(DescriptionTextList.Width - 150, DescriptionTextList.Height - 40);
 
             DoRaceDescription();
@@ -289,7 +289,7 @@ namespace Ship_Game
 
             ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked);
             ButtonMedium(pos.X + 178, pos.Y, "Save Setup", OnSaveSetupClicked);
-            Button(pos.X, pos.Y, text: 4006, click: OnRuleOptionsClicked);
+            Button(pos.X, pos.Y, text: GameText.RuleOptions, click: OnRuleOptionsClicked);
 
             ChooseRaceList.StartTransitionFrom(ChooseRaceList.Pos - new Vector2(ChooseRaceList.Width, 0), TransitionOnTime);
             DescriptionTextList.StartTransitionFrom(DescriptionTextList.Pos + new Vector2(DescriptionTextList.Width, 0), TransitionOnTime);
