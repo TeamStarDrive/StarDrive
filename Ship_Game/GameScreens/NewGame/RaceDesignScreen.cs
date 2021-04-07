@@ -229,7 +229,7 @@ namespace Ship_Game
             AddOption("{SolarSystems} : ", OnNumberStarsClicked, label => StarEnum.ToString(), tip: solarSystemsTip);
             AddOption("{Opponents} : ",  OnNumOpponentsClicked,  label => NumOpponents.ToString(), tip: opponentsTip);
             ModeBtn = AddOption("{GameMode} : ",   OnGameModeClicked, label => GetModeText().Text, tip:GetModeTip());
-            AddOption("{Pacing} : ",     OnPacingClicked,     label => Pacing+"%", tip:GameTips.Pacing);
+            AddOption("{Pacing} : ",     OnPacingClicked,     label => Pacing+"%", tip:GameText.TheGamesPaceModifiesThe);
             AddOption("{Difficulty} : ", OnDifficultyClicked, label => SelectedDifficulty.ToString(),
                 tip:"Hard and Brutal increase AI Aggressiveness and gives them extra bonuses");
             AddOption("{RemnantPresence} : ", OnExtraRemnantClicked, label => ExtraRemnant.ToString(),
@@ -449,11 +449,11 @@ namespace Ship_Game
             switch (Mode)
             {
                 default:
-                case GameMode.Sandbox:       return GameTips.Sandbox;
-                case GameMode.Elimination:   return GameTips.EliminationGameMode;
-                case GameMode.Corners:       return GameTips.CornersGame;
-                case GameMode.BigClusters:   return GameTips.BigClusters;
-                case GameMode.SmallClusters: return GameTips.SmallClusters;
+                case GameMode.Sandbox:       return GameText.InTheSandboxGameMode;
+                case GameMode.Elimination:   return GameText.InTheCapitalEliminationGame;
+                case GameMode.Corners:       return GameText.CornersIsARaceMatch;
+                case GameMode.BigClusters:   return GameText.EachEmpireStartsInA;
+                case GameMode.SmallClusters: return GameText.TheGalaxyWillBeConsisted;
             }
         }
 
