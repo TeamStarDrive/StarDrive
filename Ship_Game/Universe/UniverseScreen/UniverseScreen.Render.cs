@@ -344,7 +344,7 @@ namespace Ship_Game
                 else
                     vector2.Y += num2;
 
-                vector2.X -= SystemInfoUIElement.SysFont.MeasureString(solarSystem.Name).X / 2f;
+                vector2.X -= SolarsystemOverlay.SysFont.MeasureString(solarSystem.Name).X / 2f;
                 Vector2 pos = Input.CursorPosition;
 
                 Array<Empire> owners = new Array<Empire>();
@@ -368,11 +368,11 @@ namespace Ship_Game
                 {
                     if (SelectedSystem != solarSystem ||
                         viewState < UnivScreenState.GalaxyView)
-                        ScreenManager.SpriteBatch.DrawString(SystemInfoUIElement.SysFont,
+                        ScreenManager.SpriteBatch.DrawString(SolarsystemOverlay.SysFont,
                             solarSystem.Name, vector2, Color.Gray);
                     int num3 = 0;
                     --vector2.Y;
-                    vector2.X += SystemInfoUIElement.SysFont.MeasureString(solarSystem.Name).X + 6f;
+                    vector2.X += SolarsystemOverlay.SysFont.MeasureString(solarSystem.Name).X + 6f;
                     bool flag = false;
                     foreach (Planet planet in solarSystem.PlanetList)
                     {
@@ -432,7 +432,7 @@ namespace Ship_Game
                         if (SelectedSystem != solarSystem ||
                             viewState < UnivScreenState.GalaxyView)
                             HelperFunctions.DrawDropShadowText(batch, solarSystem.Name,
-                                vector2, SystemInfoUIElement.SysFont,
+                                vector2, SolarsystemOverlay.SysFont,
                                 owners.ToList()[0].EmpireColor);
                     }
                     else if (SelectedSystem != solarSystem ||
@@ -447,19 +447,19 @@ namespace Ship_Game
                             if (index2 + 1 > num4 + num4 * index1)
                                 ++index1;
                             HelperFunctions.DrawDropShadowText(batch,
-                                solarSystem.Name[index2].ToString(), Pos, SystemInfoUIElement.SysFont,
+                                solarSystem.Name[index2].ToString(), Pos, SolarsystemOverlay.SysFont,
                                 owners.Count > index1
                                     ? owners.ToList()[index1].EmpireColor
                                     : (owners).Last()
                                     .EmpireColor);
-                            Pos.X += SystemInfoUIElement.SysFont
+                            Pos.X += SolarsystemOverlay.SysFont
                                 .MeasureString(solarSystem.Name[index2].ToString())
                                 .X;
                         }
                     }
 
                     --vector2.Y;
-                    vector2.X += SystemInfoUIElement.SysFont.MeasureString(solarSystem.Name).X + 6f;
+                    vector2.X += SolarsystemOverlay.SysFont.MeasureString(solarSystem.Name).X + 6f;
                     bool flag = false;
                     foreach (Planet planet in solarSystem.PlanetList)
                     {
@@ -514,7 +514,7 @@ namespace Ship_Game
                 }
             }
             else
-                vector2.X -= SystemInfoUIElement.SysFont.MeasureString(solarSystem.Name).X / 2f;
+                vector2.X -= SolarsystemOverlay.SysFont.MeasureString(solarSystem.Name).X / 2f;
         }
 
 

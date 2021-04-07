@@ -641,8 +641,8 @@ namespace Ship_Game
             }
         }
 
-        bool ShowSystemInfo => SelectedSystem != null && !LookingAtPlanet && !IsCinematicModeEnabled
-                                                      && viewState == UnivScreenState.GalaxyView;
+        bool ShowSystemInfoOverlay => SelectedSystem != null && !LookingAtPlanet && !IsCinematicModeEnabled
+                                   && viewState == UnivScreenState.GalaxyView;
 
         bool ShowPlanetInfo => SelectedPlanet != null && !LookingAtPlanet && !IsCinematicModeEnabled;
 
@@ -657,9 +657,9 @@ namespace Ship_Game
             if (SelectedShipList.Count == 0)
                 shipListInfoUI.ClearShipList();
 
-            if (ShowSystemInfo)
+            if (ShowSystemInfoOverlay)
             {
-                sInfoUI.Draw(batch, elapsed);
+                SystemInfoOverlay.Draw(batch, elapsed);
             }
 
             if (ShowPlanetInfo)
