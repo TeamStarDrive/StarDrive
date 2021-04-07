@@ -39,7 +39,7 @@ namespace Ship_Game
             int obsoleteH = ResourceManager.Texture("NewUI/icon_queue_delete").Height;
             Rectangle obsoletePos = new Rectangle((int)(ActiveModSubMenu.X + ActiveModSubMenu.Width - obsoleteW - 10), (int)ActiveModSubMenu.Y + 38, obsoleteW, obsoleteH);
             Obsolete = new TexturedButton(obsoletePos, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
-            Obsolete.LocalizerTip = 4189;
+            Obsolete.Tooltip = GameText.MarkThisModuleAsObsolete;
             var chooseFighterRect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y - 90, 240, 270);
             if (chooseFighterRect.Bottom > Screen.ScreenHeight)
             {
