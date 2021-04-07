@@ -540,7 +540,7 @@ namespace Ship_Game
             }
             if (isBeam)
             {
-                string beamText = repair ? Localizer.Token(135) : Localizer.Token(127);
+                string beamText = repair ? Localizer.Token(GameText.Repair) : Localizer.Token(GameText.Damage);
                 DrawStat(ref cursor, beamText, beamDamage, repair ? 166 : 83);
                 DrawStat(ref cursor, "Duration", w.BeamDuration, 188);
             }

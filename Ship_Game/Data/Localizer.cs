@@ -35,21 +35,21 @@ namespace Ship_Game
     public static class Localizer
     {
         //Hull Bonus Text
-        public static string HullArmorBonus => Token(6016); 
+        public static string HullArmorBonus => Token(GameText.ArmorProtection); 
         public static string HullShieldBonus => "Shield Strength";
-        public static string HullSensorBonus => Token(6016);
-        public static string HullSpeedBonus => Token(6018);
-        public static string HullCargoBonus => Token(6019);
+        public static string HullSensorBonus => Token(GameText.ArmorProtection);
+        public static string HullSpeedBonus => Token(GameText.MaxSpeed);
+        public static string HullCargoBonus => Token(GameText.CargoSpace2);
         public static string HullDamageBonus => "Weapon Damage";
-        public static string HullFireRateBonus => Token(6020);
-        public static string HullRepairBonus => Token(6013);
-        public static string HullCostBonus => Token(6021);
-        public static string Trade => Token(321);
-        public static string GovernorBudget => Token(1916);
-        public static string TreasuryGoal => Token(1917);
+        public static string HullFireRateBonus => Token(GameText.FireRate);
+        public static string HullRepairBonus => Token(GameText.RepairRate);
+        public static string HullCostBonus => Token(GameText.CostReduction);
+        public static string Trade => Token(GameText.Trade);
+        public static string GovernorBudget => Token(GameText.GovernorBudget);
+        public static string TreasuryGoal => Token(GameText.TreasuryGoal);
 
-        public static string AutoTaxes => Token(6138);
-        public static string BudgetScreenTaxSlider => Token(311);
+        public static string AutoTaxes => Token(GameText.AutoTaxes);
+        public static string BudgetScreenTaxSlider => Token(GameText.TaxRate);
 
         static string[] Strings = Empty<string>.Array;
         static Map<string, string> NameIdToString = new Map<string, string>();
