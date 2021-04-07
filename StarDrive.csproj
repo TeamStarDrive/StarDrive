@@ -1857,9 +1857,6 @@
     <None Include="Content\Textures\UI\icon_offense.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\ToolTips.yaml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Content\UI\MainMenu.Mod.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -6161,10 +6158,6 @@
     </Content>
     <Content Include="Content\Textures\Suns\x3.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Content\Tooltips\Tooltips.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
     </Content>
     <Content Include="Content\StarterShips\Type V Prototype.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
