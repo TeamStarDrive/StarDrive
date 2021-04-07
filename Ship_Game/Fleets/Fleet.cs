@@ -745,20 +745,6 @@ namespace Ship_Game.Fleets
             owner.GetEmpireAI().AddPendingTask(reclaim);
         }
 
-        bool TryOrderPostBombFleet(MilitaryTask task, int minimumTaskStep)
-        {
-            if (TaskStep < minimumTaskStep || task.TargetPlanet.Owner != null) return false;
-            CreatePostInvasionFromCurrentTask(this, task, Owner, "Post Invasion Defense");
-
-            for (int x = 0; x < Ships.Count; ++x)
-            {
-                var ship = Ships[x];
-                if (ship.Carrier.AnyAssaultOpsAvailable)
-                    RemoveShip(ship);
-            }
-            return true;
-        }
-
         bool GatherAtRallyFirst(MilitaryTask task)
         {
             return task.RallyPlanet.ParentSystem.Position.SqDist(task.TargetPlanet.ParentSystem.Position)
