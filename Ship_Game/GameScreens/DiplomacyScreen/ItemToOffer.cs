@@ -81,19 +81,19 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 switch (Response)
                 {
                     case "NAPact":
-                        ToolTip.CreateTooltip(GameTips.NonAggression, "", TipPos);
+                        ToolTip.CreateTooltip(GameText.ANonaggressionPactIsA, "", TipPos);
                         break;
                     case "OpenBorders":
-                        ToolTip.CreateTooltip(GameTips.OpenBorders, "", TipPos);
+                        ToolTip.CreateTooltip(GameText.AnOpenBordersTreatyWill, "", TipPos);
                         break;
                     case "Peace Treaty":
-                        ToolTip.CreateTooltip(GameTips.PeaceTreaty, "", TipPos);
+                        ToolTip.CreateTooltip(GameText.PeaceTreatiesLastForTurns, "", TipPos);
                         break;
                     case "TradeTreaty":
-                        ToolTip.CreateTooltip(GameTips.TradeTreaty, "", TipPos);
+                        ToolTip.CreateTooltip(GameText.TradeTreatiesCreateWealthFor, "", TipPos);
                         break;
                     case "OfferAlliance":
-                        ToolTip.CreateTooltip(GameTips.AllianceTreaty, "", TipPos);
+                        ToolTip.CreateTooltip(GameText.AlliancesAreSeriousCommitmentsBetween, "", TipPos);
                         break;
                 }
             }

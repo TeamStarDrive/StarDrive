@@ -179,7 +179,7 @@ namespace Ship_Game
             
             SubTexture flash = ResourceManager.Texture("Ground_UI/EnemyHere");
             UIPanel enemyHere = Panel(SysNameRect.X + SysNameRect.Width - 40, SysNameRect.Y + 5, flash);
-            enemyHere.Tooltip = GameTips.EnemyHere;
+            enemyHere.Tooltip = GameText.IndicatesThatHostileForcesWere;
         }
 
         void AddPlanetTextureAndStatus()
@@ -187,7 +187,7 @@ namespace Ship_Game
             var planetIcon = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, PlanetNameRect.Height - 10, PlanetNameRect.Height - 10);
             Add( new UIPanel(planetIcon, ResourceManager.Texture(Planet.IconPath))
             {
-                Tooltip = GameTips.PlanetPanel
+                Tooltip = GameText.PlanetTypeAndRichnessThe
             });
 
             if (Planet.Owner != null)
@@ -216,7 +216,7 @@ namespace Ship_Game
             offset += 18;
             var statusRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
             UIPanel status = Panel(statusRect, ResourceManager.Texture("UI/icon_fighting_small"));
-            status.Tooltip = GameTips.GroundCom;
+            status.Tooltip = GameText.IndicatesThatGroundCombatIs;
         }
 
         void AddMoleIcons(Vector2 statusIcons, ref int offset) // Haha, moles..
@@ -231,7 +231,7 @@ namespace Ship_Game
                     offset += 20;
                     var spyRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
                     UIPanel spy = Panel(spyRect, ResourceManager.Texture("UI/icon_spy_small"));
-                    spy.Tooltip = GameTips.Spy;
+                    spy.Tooltip = GameText.IndicatesThatAFriendlyAgent;
                     break;
                 }
             }
