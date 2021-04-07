@@ -770,7 +770,10 @@ namespace Ship_Game.Debug
                     if (rel.PreparingForWar)
                         DrawString(them.EmpireColor, $"*** {rel.PreparingForWarType} ***");
                     if (rel.ActiveWar != null)
+                    {
                         DrawString(them.EmpireColor, $"*** {rel.ActiveWar.WarType} - Priority:{e.GetEmpireAI().PauseWarTimer < 0 }***");
+                        DrawString(them.EmpireColor, $"*** Timer: {e.GetEmpireAI().PauseWarTimer}");
+                    }
 
                     DrawString(e.EmpireColor, "----------------------------");
                 }
