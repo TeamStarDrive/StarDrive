@@ -2102,37 +2102,37 @@ ProductionPerAssignedColonist:
  ENG: "+1 production per assigned colonist, +2 Infrastructure"
  RUS: "+1 к производству за каждого занятого колониста,+2 к Инфраструктуре"
  SPA: "+0,5 de producción por colono asignado"
-AdvancedMaterials:
+BB_Tech_AdvancedMaterials_Name:
  Id: 500
  ENG: "Advanced Materials"
  RUS: "Композитные материалы"
  SPA: "Materiales avanzados"
-AlthoughSteelArmorIsInexpensive:
+BB_Tech_AdvancedMaterials_Desc:
  Id: 501
  ENG: "Although steel armor is inexpensive, it is extremely heavy and reduces the maneuverability of our ships significantly. By focusing our research efforts on developing new construction materials, we can reduce the mass of all of our ship components across the board."
  RUS: "Хотя стальная броня и недорога, она слишком тяжела и значительно снижает маневренность кораблей. Сосредоточив научный потенциал на разработке новых материалов для строительства кораблей, мы можем снизить массу всех их модулей."
  SPA: "Aunque el blindaje de acero no es caro, pesa muchísimo y reduce bastante la maniobrabilidad de las naves. Al centrar los esfuerzos de investigación en desarrollar nuevos materiales de construcción, se puede reducir la masa de todos los componentes de todas las naves por igual."
-NewMaterialsReduceEffectiveShip:
+BB_Tech_AdvancedMaterials_PercentMassAdjustment_Bonus:
  Id: 502
  ENG: "New materials reduce effective ship mass by 10% across the board. "
  RUS: "Новые материалы позволяют снизить массу корабля на 10%."
  SPA: "Los nuevos materiales reducen la masa efectiva de todas las naves en un 10%. "
-Aeroponics:
+BB_Tech_Aeroponics_Name:
  Id: 503
  ENG: "Aeroponics"
  RUS: "Аэропоника"
  SPA: "Aeroponia"
-ColonizingBarrenPlanetsOrPlanets:
+BB_Tech_Aeroponics_Desc:
  Id: 504
  ENG: "Colonizing barren planets or planets with a low fertility score means that food production will be critical to that colony's survival. Aeroponic farming techniques provide a basic level of sustenance to support a small colony. "
  RUS: "При колонизации планет с бесплодными или низкоплодородными почвами производство еды становится ключевым вопросом выживания. Аэропонные технологии позволяют выращивать в любых условиях достаточно продуктов, чтобы прокормить небольшую колонию."
  SPA: "Al colonizar planetas áridos o poco fértiles, la producción de comida resultará fundamental para la supervivencia de la colonia.  Las técnicas de cultivo con aeroponia proporcionan un nivel básico de sustento para alimentar a una colonia pequeña. "
-AncientIonTech:
+BB_Tech_AncientIonTechnology_Name:
  Id: 505
  ENG: "Ancient Ion Tech"
  RUS: "Древние ионные технологии"
  SPA: "Tecnología antigua de iones"
-ThisTechnologyWasRecoveredFrom:
+BB_Tech_AncientIonTechnology_Desc:
  Id: 506
  ENG: "This technology was recovered from an ancient ship."
  RUS: "Эта технология была найдена на древнем космическом корабле."
@@ -2147,112 +2147,112 @@ ThisTechnologyWasRecoveredFrom2:
  ENG: "This technology was recovered from an ancient ship."
  RUS: "Эта технология была найдена на древнем космическом корабле."
  SPA: "Esta tecnología se obtuvo de una nave antiquísima."
-AncientRepulsor2:
+BB_Tech_AncientRepulsor_Name:
  Id: 509
  ENG: "Ancient Repulsor"
  RUS: "Древний репульсор"
  SPA: "Repulsor antiguo"
-ThisTechnologyWasRecoveredFrom3:
+BB_Tech_AncientRepulsor_Desc:
  Id: 510
  ENG: "This technology was recovered from an ancient ship."
  RUS: "Эта технология была найдена на древнем космическом корабле."
  SPA: "Esta tecnología se obtuvo de una nave antiquísima."
-AncientShieldTech:
+BB_Tech_AncientShieldTechnology_Name:
  Id: 511
  ENG: "Ancient Shield Tech"
  RUS: "Древние технологии щитов"
  SPA: "Tecnología antigua de escudos"
-ThisTechnologyWasRecoveredFrom4:
+BB_Tech_AncientShieldTechnology_Desc:
  Id: 512
  ENG: "This technology was recovered from an ancient ship."
  RUS: "Эта технология была найдена на древнем космическом корабле."
  SPA: "Esta tecnología se obtuvo de una nave antiquísima."
-AntimatterReactor:
+BB_Tech_AntiMatter_Name:
  Id: 513
  ENG: "Anti-Matter Reactor"
  RUS: "Большой антиматер. реактор"
  SPA: "Reactor antimateria"
-ByStabilizingAMatterAntimatter:
+BB_Tech_AntiMatter_Desc:
  Id: 514
  ENG: "By stabilizing a matter / anti-matter reaction, we can harness the energy output for a massive increase to our power levels. For now, we require a large reaction chamber, but future advances may miniaturize this process. "
  RUS: "Стабилизировав реакцию материи и антиматерии, мы сможем вырабатывать огромное количество энергии для всех наших нужд. Пока что для этого требуется осень большая реакционная камера, но впоследствии процесс, возможно, удастся миниатюризировать."
  SPA: "Al estabilizar una reacción de materia/antimateria, se puede aprovechar mejor la energía y aumentar mucho los niveles de potencia. Por el momento, hace falta una cámara de reacción grande, pero con avances futuros serán mucho más pequeñas. "
-ArmorTheory:
+BB_Tech_ArmorTheory_Name:
  Id: 515
  ENG: "Armor Theory"
  RUS: "Теория брони"
  SPA: "Teoría del blindaje"
-TheBenefitsOfArmoringOur:
+BB_Tech_ArmorTheory_Desc:
  Id: 516
  ENG: "The benefits of armoring our spaceships are self-evident. The use of steel is already common in our planetary industries, and so it is quite inexpensive to adapt this technology for use in space. "
  RUS: "То, что космические корабли должны быть защищены броней, не подлежит сомнению. Сталь уже активно применяется почти во всех отраслях промышленности, так что адаптировать уже существующие планетарные технологии для использования в космосе будет достаточно легко."
  SPA: "Las ventajas de blindar las naves espaciales es evidente. El uso de acero ya es habitual en nuestras industrias planetarias, por lo que no cuesta mucho adaptar esta tecnología para usarla en el espacio. "
-Assimilation:
+BB_Tech_Assimilation_Name:
  Id: 517
  ENG: "Assimilation"
  RUS: "Ассимиляция"
  SPA: "Asimilación"
-WeHaveReachedOurMaximum:
+BB_Tech_Assimilation_Desc:
  Id: 518
  ENG: "We have reached our maximum genetic potential and require new genetic sources to continue growth. "
  RUS: "Мы достигли максимума своего генетического потенциала, и для продолжения развития нам нужны новые гены."
  SPA: "Hemos alcanzado nuestro máximo potencial genético y necesitamos nuevas fuentes genéticas para seguir creciendo. "
-GainAllOfThePositive:
+BB_Tech_Assimilation_AllowAssimilation_Bonus:
  Id: 519
  ENG: "Gain all of the positive genetic traits of any race conquered via ground invasion The planet has to have at least 2 Billion colonists for the assimilation to succeed."
  RUS: "Дает возможность получить все положительные генетические особенности любой расы, завоеванной при помощи наземного вторжения."
  SPA: "Consigue todos los rasgos genéticos positivos de cualquier raza conquistada mediante una invasión terrestre. "
-BattleRaiders:
+BB_Tech_BattleRaiders_Name:
  Id: 520
  ENG: "Battle Raiders"
  RUS: "Боевые рейдеры"
  SPA: "Buques corsarios"
-OurMostMassiveShipsCan:
+BB_Tech_BattleRaiders_Desc:
  Id: 521
  ENG: "Our most massive ships can deploy corvette-sized vessels as well as smaller frigates from these gargantuan berths.  When these \"battle raiders\" are destroyed, however, there is no respawn until the mothership returns to a shipyard for resupply. "
  RUS: "С этих гигантских пристаней могут стартовать даже корветы и фрегаты. Однако если \"боевой рейдер\" будет уничтожен, пополнения не будет до возврата материнского корабля на базу."
  SPA: "Nuestras naves más grandes pueden desplegar naves de clase corbeta y pequeñas fragatas desde sus gigantescos atracaderos.  Sin embargo, cuando estos \"buques corsarios\" son destruidos, no reaparecen hasta que la nave nodriza regresa a un astillero para reabastecerse. "
-BattleshipConstruction:
+BB_Tech_Battleships_Name:
  Id: 522
  ENG: "Battleship Construction"
  RUS: "Линейный корабль"
  SPA: "Construcción de naves"
-TheseMassiveShipsAreUnrivaled:
+BB_Tech_Battleships_Desc:
  Id: 523
  ENG: "These massive ships are unrivaled for their size and cost."
  RUS: "Эти огромные корабли не имеют себе равных - и по стоимости тоже."
  SPA: "Estas enormes naves no tienen rival por su tamaño y coste."
-Biospheres2:
+BB_Tech_Biospheres_Name:
  Id: 524
  ENG: "Biospheres"
  RUS: "Биосферы"
  SPA: "Biosferas"
-BiospheresAreLargeGeodesicDome:
+BB_Tech_Biospheres_Desc:
  Id: 525
  ENG: "Biospheres are large geodesic dome structures capable of supporting many colonists in an artificial environment. For a barren planet to house a large population, biospheres are absolutely necessary. Build biospheres on uninhabitable land to make that land habitable. "
  RUS: "Биосферы - это большие куполообразные сооружения для поддержания жизнедеятельности колонистов в искусственно созданной среде. В бесплодных мирах биосферы абсолютно необходимы - иначе планета не сможет вместить много населения. Стройте биосферы на непригодной для жизни территории, чтобы потом заселить ее."
  SPA: "Las biosferas son estructuras en forma de cúpula geodésica capaces de albergar muchos colonos en un entorno artificial. Las biosferas son absolutamente necesarias para que un planeta árido pueda ser habitado. Constrúyelas en zonas inhabitables para crear asentamientos de población. "
-CanopyShielding:
+BB_Tech_CanopyShields_Name:
  Id: 526
  ENG: "Canopy Shielding"
  RUS: "Купольный щит"
  SPA: "Protección de cubierta"
-CentralizedBanking:
+BB_Tech_CentralizedBanking_Name:
  Id: 528
  ENG: "Centralized Banking"
  RUS: "Центральные финансы"
  SPA: "Banca centralizada"
-ItIsClearThatFinancing:
+BB_Tech_CentralizedBanking_Desc:
  Id: 529
  ENG: "It is clear that financing a large interstellar empire is too large and too important a task to leave in the hands of non-government entities. With the government directly financing all expansion activities, we will reap the interest rewards and not private corporations."
  RUS: "Очевидно, что в огромной империи управление финансовыми потоками является слишком важным делом, чтобы его можно было доверить сторонним компаниям. Непосредственно финансируя все операции по экспансии, правительство гарантирует, что все дивиденды достанутся ему, а не частным структурам."
  SPA: "Está claro que financiar un imperio interestelar es una tarea demasiado ardua e importante como para dejarla en manos de entidades no gubernamentales. Como el gobierno financia directamente todas las actividades de expansión, seremos nosotros quienes cosechemos los beneficios de los intereses y no las empresas privadas."
-Colonization:
+BB_Tech_Colonization_Name:
  Id: 530
  ENG: "Colonization"
  RUS: "Колонизация"
  SPA: "Colonización"
-BoldlyGoingToStrangeNew:
+BB_Tech_Colonization_Desc:
  Id: 531
  ENG: "Boldly going to strange new worlds is just the first step. What to do when we get there is quite a bit more important. This technology branch explores various scientific, industrial, and military enhancements we can make to our colonies. "
  RUS: "Смело отправиться вперед к новым мирам - лишь первый шаг. Что делать потом, когда мы прибудем туда - намного более важный вопрос. Эта область технологий охватывает различные научные, промышленные и военные улучшения для наших колоний."
@@ -2267,242 +2267,242 @@ UnlocksTheMilitaryTransportA:
  ENG: "Unlocks the Military Transport, a combat ready hull that can fill multiple roles."
  RUS: "Открывает доступ к боевым транспортам, которые могут выполнять множество задач."
  SPA: "Desbloquea el Transporte militar, un casco listo para el combate que puede desempeñar múltiples funciones."
-CombatReadiness:
+BB_Tech_CombatReadiness_Name:
  Id: 534
  ENG: "Combat Readiness"
  RUS: "Боевая готовность"
  SPA: "Disposición para el combate"
-ResearchingThisTechnologyWillAllow:
+BB_Tech_CombatReadiness_Desc:
  Id: 535
  ENG: "Researching this technology will allow us to build certain armored components that can take more hits than their unarmored versions."
  RUS: "Исследование этой технологии позволит нам создавать бронированные модули с большим запасом прочности, чем их не  защищенные броней аналоги."
  SPA: "Al investigar esta tecnología, podremos construir ciertos componentes blindados que aguantan más impactos que las versiones sin blindar."
-CruiserConstruction:
+BB_Tech_Cruisers_Name:
  Id: 536
  ENG: "Cruiser Construction"
  RUS: "Крейсер"
  SPA: "Construcción de cruceros"
-CruisersAreLargeHeavyShips:
+BB_Tech_Cruisers_Desc:
  Id: 537
  ENG: "Cruisers are large, heavy ships that can serve in a number of offensive or defensive roles.  Cruisers are often seen as the command ship for fleets of smaller frigates or fighter class vessels, and are large enough to house multiple fighter bays for carrier roles."
  RUS: "Крейсеры - это большие тяжелые корабли, которые могут нести как атакующие, так и оборонительные функции. Крейсеры могут служить флагманами небольших флотов, состоящих из фрегатов и кораблей-истребителей; также они достаточно велики, чтобы выполнять роль авианосцев."
  SPA: "Los cruceros son naves grandes y pesadas que desempeñan diversas funciones ofensivas y defensivas.  Los cruceros actúan a veces como naves de mando de flotas compuestas por fragatas más pequeñas o cazas y son lo suficientemente grandes para albergar varios muelles de cazas y transportar escuadrillas de combate."
-Cryogenics:
+BB_Tech_Cryogenics_Name:
  Id: 538
  ENG: "Cryogenics"
  RUS: "Криогеника"
  SPA: "Criogenia"
-CryogenicsIsTheScienceOf:
+BB_Tech_Cryogenics_Desc:
  Id: 539
  ENG: "Cryogenics is the science of suspending an organism's life functions by freezing it. Even though cryogenics equipment is bulky, it is possible to transport many more people with cryogenics than without it. "
  RUS: "Криогеника - отрасль науки, изучающая приостановку жизненных процессов организма путем его глубокого замораживания. Криогенное оборудование очень громоздко, но с помощью криогеники можно перевозить больше колонистов, чем без нее."
  SPA: "La criogenia es la ciencia de suspender temporalmente las funciones vitales de un organismo mediante la congelación. Aunque el equipo de criogenia es voluminoso, con él se pueden transportar muchas más personas que sin él. "
-DoublesTheAmountOfColonists:
+BB_Tech_Cryogenics_PassengerModifier_Bonus:
  Id: 540
  ENG: "Doubles the amount of colonists carried by passenger ships within your empire"
  RUS: "Удваивает количество колонистов, перевозимых пассажирскими кораблями в пределах вашей империи"
  SPA: "Duplica la cantidad de colonos que pueden llevar las naves de pasajeros dentro de tu imperio"
-DeepCoreMining:
+BB_Tech_DeepCoreMining_Name:
  Id: 541
  ENG: "Deep Core Mining"
  RUS: "Сверхглубокие шахты"
  SPA: "Minería de núcleo profundo"
-WhenResourceExtractionMattersMore:
+BB_Tech_DeepCoreMining_Desc:
  Id: 542
  ENG: "When resource extraction matters more than the environment, Deep Core Mines are the solution. Deep Core mines will ruin all but the hardiest planetary ecosystems and are best suited for barren worlds. "
  RUS: "Когда добыча ресурсов приоритетнее защиты окружающей среды, сверхглубокие шахты становятся отличным решением. Они быстро приводят в упадок большинство экосистем, поэтому лучше всего строить их в бесплодных мирах."
  SPA: "Cuando la extracción de recursos importa más que el medio ambiente, la solución son las minas de núcleo profundo. Estas minas destruirán todo menos los ecosistemas planetarios más resistentes y son óptimas para mundos áridos. "
-DisintegratorArray:
+BB_Tech_DisintegratorArray_Name:
  Id: 543
  ENG: "Disintegrator Array"
  RUS: "Дезинтеграция"
  SPA: "Matriz de desintegración"
-TheDisintegratorArrayIsA:
+BB_Tech_DisintegratorArray_Desc:
  Id: 544
  ENG: "The Disintegrator Array is a massively powerful beam weapon suitable only for a fixed spinal mount."
  RUS: "Дезинтегратор - мощное лучевое оружие, которое можно использовать только с фиксированным креплением наверху."
  SPA: "La matriz de desintegración es un arma que dispara potentes rayos y que solo se puede montar de forma fija en el lomo de una nave."
-Disruptors:
+BB_Tech_Disruptors_Name:
  Id: 545
  ENG: "Disruptors"
  RUS: "Разрушители"
  SPA: "Disruptores"
-DisruptorsCannonsAreSimilarIn:
+BB_Tech_Disruptors_Desc:
  Id: 546
  ENG: "Disruptors Cannons are similar in function to Laser Cannons -- an ionized packet of high-energy plasma is shot from the cannon. However, the disruptor payload is engineered with a denser and much more volatile plasma charge.   "
  RUS: "Пушки-разрушители работают аналогично лазерным пушкам - из оружия выстреливается заряд высокоэнергетической плазмы. Однако снаряд разрушителя обладает большей плотностью и быстрее рассеивается."
  SPA: "Los cañones disruptores tienen una función similar a la de los cañones láser y disparan un haz ionizado de plasma de gran energía. Eso sí, su carga explosiva se compone de una carga de plasma más densa y mucho más volátil.   "
-Ecm:
+BB_Tech_ECM_Name:
  Id: 547
  ENG: "ECM"
  RUS: "РПД"
  SPA: "MCE"
-ElectronicCounterMeasuresSuchInfrared:
+BB_Tech_ECM_Desc:
  Id: 548
  ENG: "Electronic Counter Measures such infrared and subspace frequency jammers can confuse enemy point defense sensors into missing their targets."
  RUS: "Меры радиопротиводействия, такие как ИК-помехи и радиопомехи, нарушают работу сенсоров механизмов точечной защиты, в результате чего те не могут эффективно поражать свои цели."
  SPA: "Las medidas contraelectrónicas (MCE) como los inhibidores de frecuencia subespaciales e infrarrojos pueden engañar a los sensores de defensa puntual y hacer que fallen sus blancos."
-GrantsMissileWeaponSuchAs:
+BB_Tech_ECM_MissileDodgeChangeBonus_Bonus:
  Id: 549
  ENG: "Grants missile weapon (such as rockets, guided missiles, and torpedoes) a 25% chance to dodge intercepting fire."
  RUS: "Дает ракетному оружию (ракеты, самонаводящиеся ракеты и торпеды) 25% вероятность уклониться от перехвата."
  SPA: "Proporcionan a los proyectiles autopropulsados (como cohetes, misiles guiados o torpedos) un 25% de posibilidades de esquivar el fuego de interceptación."
-EmpCannons:
+BB_Tech_EMPCannons_Name:
  Id: 550
  ENG: "EMP Cannons"
  RUS: "ЭМИ-орудия"
  SPA: "Cañones PEM"
-EmpCannonsAreUsedTo:
+BB_Tech_EMPCannons_Desc:
  Id: 551
  ENG: "EMP Cannons are used to disable targeted ships by overloading their power grids with random energy. All ships have a natural EMP defense based on their size.  EMP weapons are ineffective against shielded targets. "
  RUS: "ЭМИ-орудия выводят из строя вражеские суда, перегружая их энергосети. Все корабли обладают естественной защитой от ЭМИ в зависимости от размера корабля. ЭМИ-оружие неэффективно против щитов."
  SPA: "Los cañones de pulsos electromagnéticos (PEM) sirven para sobrecargar el suministro eléctrico de las naves enemigas con energía aleatoria y así neutralizarlas. Todas las naves tienen una defensa contra PEM según su tamaño.  Las armas PEM no son eficaces contra escudos. "
-EmpTorpedoes:
+BB_Tech_EMPTorpedo_Name:
  Id: 552
  ENG: "EMP Torpedoes"
  RUS: "ЭМИ-торпеды"
  SPA: "Torpedos PEM"
-ElectromagneticPulseTorpedoesDeliverA:
+BB_Tech_EMPTorpedo_Desc:
  Id: 553
  ENG: "Electromagnetic pulse torpedoes deliver a massive shock to an area of effect that includes friendly targets. If this blast overwhelms a ship's EMP defenses, the ship will be stunned for 3 seconds. "
  RUS: "Торпеды, создающие при детонации мощный электромагнитный импульс в определенной зоне действия (также затрагивает и союзные корабли). Если взрыв пробьет ЭМИ-защиту корабля, тот будет выведен из строя на 3 секунды."
  SPA: "Los torpedos de impulsos electromagnéticos generan una descarga tremenda en un radio que puede afectar también a objetivos aliados. Si dicha descarga acaba con las defensas PEM de una nave, quedará paralizada 3 segundos. "
-EnergyCannons:
+BB_Tech_EnergyCannons_Name:
  Id: 554
  ENG: "Energy Cannons"
  RUS: "Энергопушки"
  SPA: "Cañones de energía"
-LaserCannonsAreSomewhatOf:
+BB_Tech_EnergyCannons_Desc:
  Id: 555
  ENG: "\"Laser\" Cannons are somewhat of a misnomer because the cannon in fact fires an ionized magnetic shell filled with superheated plasma. The cannon gains its name because the plasma is heated by laser before being magnetically accelerated and shot towards its target. "
  RUS: "\"Лазерные пушки\" - не совсем точное название для этого оружия, поскольку на самом деле они выстреливают ионизированный магнитный снаряд, наполненный перегретой плазмой. Плазма нагревается лазером, после чего выстреливается в цель ЭМ-ускорителем."
  SPA: "Los cañones \"láser\" tienen un nombre poco apropiado porque en realidad lo que disparan es un proyectil magnético ionizado lleno de plasma supercalentado. El cañón se llama así porque el plasma se calienta por láser antes de ser magnéticamente acelerado y disparado contra su objetivo. "
-EnergyWeapons:
+BB_Tech_EnergyWeapons_Name:
  Id: 556
  ENG: "Energy Weapons"
  RUS: "Энергетическое оружие"
  SPA: "Armas de energía"
-ManyOfOurTopMilitary:
+BB_Tech_EnergyWeapons_Desc:
  Id: 557
  ENG: "Many of our top military scientists believe that directed energy weapons are the future of space combat. Other scientists favor the encapsulation of various energies into ionized packets, creating energy \"cannons\". This technology represents our first steps into this field."
  RUS: "Многие ученые в области военного дела полагают, что будущее космических боев - за направленным энергетическим оружием. Другие считают, что предпочтительнее использовать ионизированные \"капсулы\", то есть энергопушки. Эта технология - наши первые шаги в этой области."
  SPA: "Muchos de nuestros más brillantes científicos militares creen que las armas de energía dirigida son el futuro del combate espacial. Otros se decantan por la encapsulación de varias energías en paquetes ionizados, creando así \"cañones\" de energía. Con esta tecnología damos nuestros primeros pasos en este campo."
-Energy:
+BB_Tech_Energy_Name:
  Id: 558
  ENG: "Energy"
  RUS: "Энергия"
  SPA: "Energía"
-TheTechnologyBranchExploresPower:
+BB_Tech_Energy_Desc:
  Id: 559
  ENG: "The technology branch explores power creation and energy fields, with applications both industrial and military. "
  RUS: "Эта область технологий изучает выработку энергии и энергетические поля, а также их промышленное и военное применение."
  SPA: "Rama de la tecnología que explora la creación de electricidad y campos de energía con aplicaciones tanto industriales como militares. "
-EnergyShielding:
+BB_Tech_EnergyShielding_Name:
  Id: 560
  ENG: "Energy Shielding"
  RUS: "Энергетические щиты"
  SPA: "Escudos de energía"
-EnergyShieldsAreARequirement:
+BB_Tech_EnergyShielding_Desc:
  Id: 561
  ENG: "Energy shields are a requirement for any Captain expecting to engage in combat.  These devices extend an absorbent energy field towards projectiles entering its sphere of protection. Shields 'recharge' by shedding the energy captured. Shields vary in strength, recharge rate, and protection radius"
  RUS: "Энергетические щиты совершенно необходимы любому командиру, ожидающему боя. Эти устройства создают абсорбирующее энергетическое поле, перехватывающие снаряды, попадающие в область защиты. Щиты подзаряжаются за счет поглощаемой энергии. Поглотив слишком много энергии, щит будет перегружен и выйдет из строя. Щиты различаются по мощности, скорости подзарядки и радиусу защиты."
  SPA: "Los escudos de energía son imprescindibles para cualquier capitán que quiera entrar en combate.  Estos dispositivos extienden un campo de energía absorbente hacia los proyectiles que penetran en su zona protegida.  Los escudos se \"recargan\" derivando la energía capturada.  El escudo se sobrecargará y quedará destruido si absorbe demasiados impactos. La resistencia, velocidad de recarga y radio de protección varían de un escudo a otro.  "
-FighterShields:
+BB_Tech_FighterShields_Name:
  Id: 562
  ENG: "Fighter Shields"
  RUS: "Щиты истребителей"
  SPA: "Escudos de cazas"
-SomeFleetCommandersQuestionThe:
+BB_Tech_FighterShields_Desc:
  Id: 563
  ENG: "Some fleet commanders question the prudence of shielding fighters, believing it to be a waste of resources for a disposable asset. Even so, there is no quesiton that a fighter with a shield is better than one without, and perhaps other uses can be found for these small shields. "
  RUS: "Некоторые командиры подвергают сомнению необходимость защиты истребителей щитами, полагая это пустой тратой ресурсов, учитывая, что истребители являются, по сути, расходным материалом. Однако в любом случае защищенный истребитель лучше, чем незащищенный; кроме того, этим миниатюрным щитам может найтись и другое применение."
  SPA: "Algunos comandantes de flotas cuestionan que sea prudente proteger los cazas con escudos: creen que es un desperdicio de recursos para un activo prescindible. Aun así, no cabe duda de que un caza con escudo es mejor que otro que carezca de él, y a lo mejor podrían encontrarse otros usos para estos pequeños escudos. "
-FighterTheory:
+BB_Tech_FighterTheory_Name:
  Id: 564
  ENG: "Fighter Theory"
  RUS: "Теория истребителей"
  SPA: "Teoría de los cazas"
-AsOurAbilityToBuild:
+BB_Tech_FighterTheory_Desc:
  Id: 565
  ENG: "As our ability to build larger ships improves, we can begin to build motherships capable of providing berths to smaller ships. Ultimately, we envision large cruisers capable of deploying dozens of fighters or bombers into a combat situation. Note that carrier ship capabilities will increase the carrier's maintenance cost, as the fighters there need to be maintained as well."
  RUS: "По мере улучшения наших возможностей строительства крупных кораблей мы можем переходить к строительству материнских кораблей, перевозящих маленькие корабли. В конечном счете мы придем к сооружению огромных крейсеров, бросающих в бой десятки малых истребителей и бомбардировщиков."
  SPA: "A medida que aumenta nuestra capacidad para construir naves más grandes, podemos empezar a fabricar naves nodrizas donde puedan atracar aeronaves más pequeñas.  En última instancia, contemplamos el uso de grandes cruceros capaces de desplegar docenas de cazas o bombarderos en operaciones de combate."
-FleetSupply:
+BB_Tech_FleetSupply_Name:
  Id: 566
  ENG: "Fleet Supply"
  RUS: "Снабжение флота"
  SPA: "Abastecimiento de flotas"
-ForAFleetOnExtended:
+BB_Tech_FleetSupply_Desc:
  Id: 567
  ENG: "For a fleet on extended deployment, running out of ammunition can be a major problem. Supply ships have therefore been an integral part of large fleet actions since the dawn of the naval age."
  RUS: "Для флота, выполняющего затяжную миссию, нехватка боеприпасов может стать серьезной проблемой - поэтому корабли снабжения играли очень важную роль в боевых операциях с самого начала развития космического флота."
  SPA: "Para un despliegue prolongado de una flota, la falta de munición puede suponer un gran problema. Las naves de abastecimiento desempeñan, por tanto, un papel fundamental en las acciones de la flota desde los albores de la edad naval."
-FrigateConstruction:
+BB_Tech_FrigateConstruction_Name:
  Id: 568
  ENG: "Frigate Construction"
  RUS: "Фрегат"
  SPA: "Construcción de fragatas"
-WithInvestmentIntoFrigateConstruction:
+BB_Tech_FrigateConstruction_Desc:
  Id: 569
  ENG: "With investment into frigate construction, we can begin to build heartier ships that are more prepared for whatever dangers are out there than our comparatively flimsy cargo ships."
  RUS: "Корабли класса 'Фрегат' - серьезный шаг вперед в развитии космического флота. Они гораздо лучше подготовлены к встрече с опасностями в космосе, чем хлипкие грузовые корабли."
  SPA: "Si investigamos en la construcción de fragatas, podemos construir naves más vigorosas y preparadas para potenciales peligros que nuestras endebles naves de carga."
-DeuteriumPowerCells:
+BB_Tech_FuelCell1_Name:
  Id: 570
  ENG: "Deuterium Power Cells"
  RUS: "Дейтериевые энергоблоки"
  SPA: "Celdas de energía de deuterio"
-ThisTechnologyWillSwitchAll:
+BB_Tech_FuelCell1_Desc:
  Id: 571
  ENG: "This technology will switch all of your ships' dedicated power cells over to the newer Deuterium standard.  Deuterium cells can hold 20% more power than a standard cell, which translates into longer effective range for ships as well as greater energy pools available for combat systems. "
  RUS: "Эта технология позволяет переоборудовать все корабли под использование более современных дейтериевых энергоблоков. Дейтериевые блоки позволяют запасать на 20% больше энергии по сравнению со стандартными, что позволяет кораблям путешествовать на большие расстояния, а также предоставить больше энергии боевым системам."
  SPA: "Esta tecnología cambiará todas las celdas de energía de tus naves por otras nuevas de deuterio,  que pueden contener 20% más de energía que una celda normal. Esto se traduce en un alcance efectivo mayor para las naves y en más reservas de energía para los sistemas de combate. "
-GainAnEmpirewideBonusTo:
+BB_Tech_FuelCell1_FuelCellBonus_Bonus:
  Id: 572
  ENG: "Gain an empire-wide 20% bonus to the amount of power that is stored in dedicated power cells"
  RUS: "Дает по всей империи 20% бонус к запасу энергии, накопленной в энергоблоках"
  SPA: "Añade una bonificación del 20% a la cantidad de energía almacenada en celdas de combustible"
-IridiumPowerCells:
+BB_Tech_FuelCell2_Name:
  Id: 573
  ENG: "Iridium Power Cells"
  RUS: "Иридиевые энергоблоки"
  SPA: "Celdas de energía de iridio"
-IridiumHasProvenItselfThe:
+BB_Tech_FuelCell2_Desc:
  Id: 574
  ENG: "Iridium has proven itself the superior element for power storage purposes.  This technology switches all of your empire's dedicated power cells to the Iridium standard, increasing dedicated power cell efficiency by a total of 50%. "
  RUS: "Иридий - оптимальный элемент для использования в энергетической промышленности. Переводит все корабли в империи на иридиевые энергоблоки, увеличивая их ресурс в сумме на 50%."
  SPA: "El iridio ha demostrado ser lo mejor para el almacenamiento de energía.  Esta tecnología cambia todas las celdas de combustible de tu imperio por otras de iridio, aumentando su eficiencia en un 50%. "
-FusionBeams:
+BB_Tech_FusionBeam_Name:
  Id: 576
  ENG: "Fusion Beams"
  RUS: "Термоядерные лучи"
  SPA: "Rayos de fusión"
-TheFusionBeamDirectsTwo:
+BB_Tech_FusionBeam_Desc:
  Id: 577
  ENG: "The fusion beam directs two narrow streams of atomic particles at a convergence point, where the atoms are fused and the energy is released. The result is a high-powered beam weapon."
  RUS: "Термоядерный луч направляет два узких пучка атомных частиц в точку схождения, где атомы сливаются друг с другом, высвобождая энергию. Это мощное лучевое оружие."
  SPA: "Los rayos de fusión dirigen dos corrientes estrechas de partículas atómicas hacia un punto de convergencia, donde los átomos se fusionan y se libera la energía. El resultado es un arma sumamente poderosa."
-GeneticManipulation:
+BB_Tech_GeneticManipulation_Name:
  Id: 578
  ENG: "Genetic Manipulation"
  RUS: "Генетические манипуляции"
  SPA: "Manipulación genética"
-OurUnderstandingOfGeneticsIs:
+BB_Tech_GeneticManipulation_Desc:
  Id: 579
  ENG: "Our understanding of genetics is blossoming to the point where we have almost total control over our own DNA. "
  RUS: "Наше понимание генетики скоро выйдет на такой уровень, что мы сможем практически полностью контролировать свою ДНК."
  SPA: "Nuestros conocimientos sobre genética van mejorando hasta el punto de que tenemos un control casi absoluto de nuestro ADN. "
-GainASuperSoliderBonus:
+BB_Tech_GeneticManipulation_TroopStrengthModifierBonus_Bonus:
  Id: 580
  ENG: "Gain a 25% super solider bonus to all troop strengths"
  RUS: "Дает 25% бонус суперсолдата всем параметрам войск"
  SPA: "Añade una bonificación del 25% de supersoldado a todas las cualidades de las tropas"
-AntifrigateMissiles:
+BB_Tech_GuidedMissiles_Name:
  Id: 581
  ENG: "Anti-Frigate Missiles"
  RUS: "Противофрегатные ракеты"
  SPA: "Misiles antifragata"
-ToEngageLargerEnemyThreats:
+BB_Tech_GuidedMissiles_Desc:
  Id: 582
  ENG: "To engage larger enemy threats we need to upgrade our current missile technology to have longer ranges and increased payloads"
  RUS: "Для эффективного противостояния крупным вражеским угрозам мы должны улучшить текущие ракетные технологии. В первую очередь требуется увеличить мощность боеголовок и дальность."
@@ -2517,42 +2517,42 @@ HeavyWeaponsSquadsAreBetter:
  ENG: "Heavy weapons squads are better equipped and are more effective against hard targets than regular space marines.  "
  RUS: "Отряды тяжеловооруженной пехоты лучше вооружены и более эффективны против защищенных целей, чем обычные морпехи."
  SPA: "Los pelotones con armas pesadas están mejor equipados y son más efectivos contra objetivos fuertes que los marines espaciales regulares.  "
-CorvetteHull:
+BB_Tech_HeavyFighterHull_Name:
  Id: 585
  ENG: "Corvette Hull"
  RUS: "Корвет"
  SPA: "Casco de corbeta"
-ThisHullRepresentsOurFirst:
+BB_Tech_HeavyFighterHull_Desc:
  Id: 586
  ENG: "This hull represents our first effort at a combat ready hull.  It is larger and sleeker than our shuttlecraft hull and is capable of filling the role of a heavy scout or fighter. "
  RUS: "Этот корпус - классический пример первого разработанного корпуса боевого корабля. Он больше и легче, чем корпуса для шаттлов. Такие корабли уже могут выполнять функции тяжелого разведчика или истребителя."
  SPA: "Este casco representa nuestro primer esfuerzo por conseguir un casco preparado para el combate.  Es más grande y más aerodinámico que los cascos de nuestros cohetes espaciales y puede desempeñar la función de caza o explorador pesado. "
-HeavyShielding:
+BB_Tech_HeavyShields_Name:
  Id: 587
  ENG: "Heavy Shielding"
  RUS: "Тяжелые щиты"
  SPA: "Escudos pesados"
-HeavyShieldsAreTwiceAs:
+BB_Tech_HeavyShields_Desc:
  Id: 588
  ENG: "Heavy shields are twice as large and can take 10 times the hits than a basic 1k shield model.  However, the power cost for a shield like this is substantial. "
  RUS: "Тяжелые щиты вдвое крупнее и могут абсорбировать в 10 раз больше урона, чем базовая модель. Однако, такие щиты также потребляют значительно больше энергии."
  SPA: "Los escudos pesados son el doble de grandes y pueden soportar 10 veces más impactos que un modelo de escudo básico 1k.  Sin embargo, el consumo de energía de un escudo así es considerable. "
-IndustrialFoundations:
+BB_Tech_IndustrialFoundations_Name:
  Id: 589
  ENG: "Industrial Foundations"
  RUS: "Основы производства"
  SPA: "Infraestructuras industriales"
-BuildingAColonyLiterallyInvolves:
+BB_Tech_IndustrialFoundations_Desc:
  Id: 590
  ENG: "Building a colony literally involves a lot of heavy lifting, and a lot of raw materials.  This technology allows a colony to utilize manned and automated rovers to do the heavy lifting.  Additionally, this technology allows a colony to build a warehouse to increase its maximum possible storage of food and production. "
  RUS: "При строительстве колонии приходится перемещать много тяжелых грузов и множество строительных материалов. Эта технология позволяет колонии использовать управляемые и автоматические подъемники, что значительно снижает трудозатраты, а также построить склад, увеличивающий максимальное количество хранимой продукции и еды."
  SPA: "La construcción de una colonia implica, literalmente, muchas materias primas y el manejo de muchos materiales pesados.  Esta tecnología permite a una colonia utilizar vehículos planetarios tripulados y automatizados para hacer el trabajo pesado.  Además, permite a una colonia construir un almacén para aumentar al máximo su capacidad potencial para almacenar alimentos y producción. "
-InertialDampers:
+BB_Tech_InertialDampers_Name:
  Id: 591
  ENG: "Inertial Dampers"
  RUS: "Гасители инерции"
  SPA: "Amortiguadores de inercia"
-InertialDamperSystemsEffectivelyLower:
+BB_Tech_InertialDampers_Desc:
  Id: 592
  ENG: "Inertial Damper systems effectively lower the mass of a ship by enveloping it in a weak subspace field.  Lower ship mass translates to higher speed and greater handling.  This process is very power-hungry, however.  "
  RUS: "Системы гашения инерции снижают массу корабля, окутывая его слабым субпространственным полем. Меньшая масса означает лучшую управляемость и большую скорость. Однако эти системы требуют очень много энергии."
@@ -2567,162 +2567,162 @@ BoldlyGoWhereNoOne:
  ENG: "Boldly go where no one has gone before, explore strange new worlds, meet new civilizations, and invade their homeworlds with power armor. This research tree can make that a reality. "
  RUS: "Исследовать новые миры, встречаться с новыми цивилизациями - и захватывать их миры в силовой броне. Это дерево исследований поможет сделать мечты реальностью."
  SPA: "Atreverse a ir a donde nadie ha estado antes, explorar nuevos y extraños planetas, conocer nuevas civilizaciones e invadir sus mundos con servoarmaduras: esta rama de investigación puede hacerlo realidad. "
-IntegratedSystems:
+BB_Tech_IntegratedSystems_Name:
  Id: 595
  ENG: "Integrated Systems"
  RUS: "Встроенные системы"
  SPA: "Sistemas integrados"
-AStarshipIsAComplicated:
+BB_Tech_IntegratedSystems_Desc:
  Id: 596
  ENG: "A starship is a complicated web of interdependent systems, and the bigger they are the harder they are to control. This technology brings command and engineering functions in to the next generation.  "
  RUS: "Космический корабль - сложный комплекс взаимозависимых систем, и чем их больше, тем сложнее ими управлять. Эта технология позволяет вывести командование кораблем и инженерные процедуры на качественно новый уровень."
  SPA: "Una nave estelar es una compleja maraña de sistemas interdependientes, y cuanto más grandes son, más difíciles es controlarlos. Esta tecnología permite dominar y diseñar funciones de próxima generación.  "
-IonicWeaponry:
+BB_Tech_IonicWeaponry_Name:
  Id: 597
  ENG: "Ionic Weaponry"
  RUS: "Ионное оружие"
  SPA: "Armamento iónico"
-IonStreamParticleWeaponsHave:
+BB_Tech_IonicWeaponry_Desc:
  Id: 598
  ENG: "Ion stream particle weapons have the unique effect of causing a target ship's capacitors to discharge. The result is a beam weapon that drains a target's power stores. However, Ion weapons are completely ineffective against shielded targets."
  RUS: "Оружие, стреляющее пучками ионов, имеет интересный побочный эффект - разряжает конденсаторы корабля-цели. В итоге получается лучевое оружие, истощающее энергоресурсы цели. Тем не менее, ионное оружие совершенно неэффективно против целей, защищенных щитами."
  SPA: "Las armas de partículas por flujo de iones tienen un efecto singular: hacen que los condensadores de la nave enemiga se descarguen. El resultado es un arma de rayos que drena las reservas de energía de un objetivo. Sin embargo, las armas de iones no tienen ningún efecto contra blancos blindados."
-InterstellarGovernance:
+BB_Tech_ISGovernment_Name:
  Id: 599
  ENG: "Interstellar Governance"
  RUS: "Межзвездное правительство"
  SPA: "Gobierno interestelar"
-ManagingASpaceEmpireIs:
+BB_Tech_ISGovernment_Desc:
  Id: 600
  ENG: "Managing a space empire is a major logistical task, requiring advanced coordination between the public and private sector over vast distances and spans of time."
  RUS: "Управление космической империей - очень непростая с точки зрения логистики задача. Требуется идеальная координация между общественным и частным секторами на больших расстояниях и во времени."
  SPA: "Gestionar un imperio espacial es una tarea logística ardua que requiere una coordinación avanzada entre los sectores público y privado para salvar inmensas distancias, tanto espaciales como temporales."
-LargeFreighters:
+BB_Tech_LargeFreighters_Name:
  Id: 601
  ENG: "Large Freighters"
  RUS: "Большие транспорты"
  SPA: "Cargueros grandes"
-UnlockTheLargestCargoHull:
+BB_Tech_LargeFreighters_Desc:
  Id: 602
  ENG: "Unlock the largest cargo hull possible."
  RUS: "Открывает максимально вместительный грузовой корпус."
  SPA: "Desbloquea el casco de carga más grande posible."
-Sociologistics:
+BB_Tech_Logistics_Name:
  Id: 603
  ENG: "Socio-Logistics"
  RUS: "Социологистика"
  SPA: "Sociologística"
-SociologisticsIsABroadTerm:
+BB_Tech_Logistics_Desc:
  Id: 604
  ENG: "Socio-Logistics is a broad term for studies that increase the social and economic efficiency of our empire and fleets"
  RUS: "Социологистика - это достаточно широкий термин, описывающий исследования в области социально-экономической эффективности империи и флотов."
  SPA: "Sociologística es un término amplio utilizado para referirse a los estudios que aumentan la eficacia económica y social de nuestro imperio y sus flotas"
-YouMayScrapAndRefit:
+BB_Tech_Logistics_Bonus:
  Id: 605
  ENG: "You may scrap and refit your ships."
  RUS: "Вы можете утилизировать и переоборудовать ваши корабли."
  SPA: "Puedes desguazar y reequipar tus naves."
-MagneticArtillery:
+BB_Tech_MagneticArtillery_Name:
  Id: 606
  ENG: "Magnetic Artillery"
  RUS: "Магнитная артиллерия"
  SPA: "Artillería magnética"
-FiringWeaponsUsingPowderCharges:
+BB_Tech_MagneticArtillery_Desc:
  Id: 607
  ENG: "Firing weapons using powder charges alone is inefficient. By adding a magnetic push to our projectiles we can put more ordnance on target in a more efficient manner.  "
  RUS: "Оружие, использующие обычные пороховые снаряды, малоэффективно. Используя магнитный разгон боеприпасов, можно посылать в цель больше снарядов с большей эффективностью."
  SPA: "Disparar armas con cargas de pólvora no es eficaz. Si añadimos un impulso magnético a los proyectiles, podemos poner más carga en la munición y hacer más daño.  "
-MediumFreighters:
+BB_Tech_MediumFreighters_Name:
  Id: 608
  ENG: "Medium Freighters"
  RUS: "Средние транспорты"
  SPA: "Cargueros medios"
-AllowsTheConstructionOfLarger:
+BB_Tech_MediumFreighters_Desc:
  Id: 609
  ENG: "Allows the construction of larger cargo ships, which can move more goods and passengers."
  RUS: "Позволяет строить более крупные транспортные корабли, перевозящие больше товаров и пассажиров."
  SPA: "Permite la construcción de naves de carga de mayor tamaño que pueden transportar más bienes y pasajeros."
-Mercantilism:
+BB_Tech_Mercantilism_Name:
  Id: 610
  ENG: "Mercantilism"
  RUS: "Меркантилизм"
  SPA: "Mercantilismo"
-TradeIsAVitalComponent:
+BB_Tech_Mercantilism_Desc:
  Id: 611
  ENG: "Trade is a vital component in any economy. By investing in our private economy, we can profit by taxing trade in our empire."
  RUS: "Торговля - важнейшая составляющая часть любой экономики. Инвестируя в частный сектор, мы сможем собирать больше налогов с экономики."
  SPA: "El comercio es un componente vital en cualquier economía.  Si invertimos en nuestra economía privada, podemos tasar el comercio en nuestro imperio y obtener beneficios. "
-EveryUnitOfFoodOr:
+BB_Tech_Mercantilism_Bonus:
  Id: 612
  ENG: "Every unit of Food or Production moved via transport within your empire is taxed by current tax rate and this tax is added to our empire money."
  RUS: "Позволяет зарабатывать 1 кредит за каждую единицу еды и продукции, перевезенную транспортами в пределах вашей империи."
  SPA: "Suma 1 crédito por cada unidad de alimentos o producción transportada dentro de los límites de tu imperio"
-MilitaryOutpost3:
+BB_Tech_Military_Name:
  Id: 613
  ENG: "Military Outpost"
  RUS: "Военный аванпост"
  SPA: "Base militar"
-AMilitaryPresenceIsA:
+BB_Tech_Military_Desc:
  Id: 614
  ENG: "A military presence is a crucial first step on a colony's journey to relevance. This building allows you to train infantry-class troops at your colony. "
  RUS: "Военное присутствие - очень важный элемент развития колонии. Это строение позволит вам набирать в колонии отряды пехоты."
  SPA: "La presencia militar es un primer paso fundamental para que una colonia destaque. Este edificio te permite adiestrar tropas de infantería en tu colonia. "
-MissileArmor:
+BB_Tech_MissileArmor_Name:
  Id: 615
  ENG: "Missile Armor"
  RUS: "Ракетная броня"
  SPA: "Blindaje de misiles"
-WeCanSubstantiallyIncreaseThe:
+BB_Tech_MissileArmor_Desc:
  Id: 616
  ENG: "We can substantially increase the survivability of our missile-based weaponry by protecting our missiles with armor plating."
  RUS: "Мы можем значительно увеличить жизнеспособность ракет, защитив их дополнительным бронированием."
  SPA: "Podemos aumentar considerablemente las posibilidades de supervivencia de nuestros misiles si los revestimos con blindaje."
-IncreasesTheHitpointsOfMissilebased:
+BB_Tech_MissileArmor_Weapon_HP_Bonus:
  Id: 617
  ENG: "Increases the hitpoints of missile-based weaponry by 25%."
  RUS: "Увеличивает очки прочности всего ракетного оружия на 25%."
  SPA: "Aumenta en un 25% los puntos de vida de las armas que lanzan misiles."
-MissileTheory:
+BB_Tech_MissileTheory_Name:
  Id: 618
  ENG: "Missile Theory"
  RUS: "Ракетная теория"
  SPA: "Teoría de los misiles"
-AdaptingMissileTechnologyToThe:
+BB_Tech_MissileTheory_Desc:
  Id: 619
  ENG: "Adapting missile technology to the rigors of space travel is not overly difficult. We can pursue further advances to missile propulsion, payload, and durability. "
  RUS: "Адаптация ракетных технологий под реалии путешествий в космическом пространстве не так уж сложно. Мы сможем дополнительно увеличить скорость ракет, их прочность и мощность заряда."
  SPA: "Adaptar la tecnología de misiles a los rigores de los viajes espaciales no es excesivamente difícil. Podemos conseguir más avances en materia de propulsión, carga explosiva y durabilidad de los misiles. "
-NanoweaveMetallurgy:
+BB_Tech_NanoweaveMetallurgy_Name:
  Id: 620
  ENG: "Nanoweave Metallurgy"
  RUS: "Нано металлургия"
  SPA: "Metalurgia de nanotextura"
-WithNanoweaveMetallurgyMetalSheets:
+BB_Tech_NanoweaveMetallurgy_Desc:
  Id: 621
  ENG: "With Nanoweave Metallurgy, metal sheets are constructed one molecule at a time by a swarm of nanites. This results in a metal that is absolutely free of imperfections."
  RUS: "Технологии металлургии в наши дни не слишком отличаются от тех, что использовались в древние времена. Расплавленные металлы смешиваются и охлаждаются; возможно, сплав подвергается процедуре очистки. Однако нанометаллургия - настоящая революция в технологии металлов. Металлические листы создаются слоями по одной молекуле за раз. В результате получается металл безупречного качества."
  SPA: "Las técnicas de metalurgia no difieren mucho de las empleadas en épocas antiguas: los metales calientes se mezclan y enfrían, pasando tal vez por un proceso de refinamiento para hacerlos más resistentes. Eso sí, con la metalurgia de nanotextura, un enjambre de nanorobots construye las planchas metálicas de molécula en molécula. El resultado es un metal sin la mínima imperfección."
-ProvidesAHitPointBonus:
+BB_Tech_NanoweaveMetallurgy_ModuleHPBonus_Bonus:
  Id: 622
  ENG: "Provides a 10% hit point bonus to all ship modules"
  RUS: "Дает 10% бонус к очкам прочности всех космических модулей."
  SPA: "Proporciona una bonificación del 10% a los puntos de vida de todos los módulos de naves"
-Phasors:
+BB_Tech_Phasors_Name:
  Id: 623
  ENG: "Phasors"
  RUS: "Фазоры"
  SPA: "Fasores"
-PhasorsAreExtremelyEfficientDirected:
+BB_Tech_Phasors_Desc:
  Id: 624
  ENG: "Phasors are extremely efficient directed energy weapons capable of longer and more powerful firing bursts."
  RUS: "Фазоры - исключительно эффективное направленное энергетическое оружие, способное излучать долгие и мощные энергоимпульсы."
  SPA: "Los fasores son armas de energía dirigida de suma eficiencia capaces de disparar más lejos ráfagas más potentes."
-PhotonCannons:
+BB_Tech_PhotonCannons_Name:
  Id: 625
  ENG: "Photon Cannons"
  RUS: "Фотонные пушки"
  SPA: "Cañones de fotones"
-ByPackingMatterAndAntimatter:
+BB_Tech_PhotonCannons_Desc:
  Id: 626
  ENG: "By packing matter and anti-matter into separate magnetic compartments, the photon cannon can launch an explosive projectile a substantial distance.  Upon impact, the chambers are merged and the matter/anti-matter explosion occurs. "
  RUS: "Фотонная пушка посылает снаряд, состоящий из раздельных камер с материей и антиматерией, на значительное расстояние. При ударе камеры сливаются, материя аннигилирует с антиматерией, и происходит мощный взрыв."
@@ -2737,202 +2737,202 @@ WhilePhotonsThemselvesAreCompletely:
  ENG: "While photons themselves are completely harmless particle waves of light, the matter/anti-matter detonation caused by a photon projectile is in fact quite destructive. "
  RUS: "Хотя фотоны сами по себе являются совершенно безобидными волно-частицами , детонация материи/антиматерии, вызванная фотонным зарядом, наносит весьма серьезный ущерб."
  SPA: "Mientras que los fotones en sí son partículas de luz ondulantes inofensivas, la detonación de materia/antimateria desencadenada por un proyectil de fotones es bastante destructiva. "
-Physics:
+BB_Tech_Physics_Name:
  Id: 629
  ENG: "Physics"
  RUS: "Физика"
  SPA: "Física"
-PhysicsIsTheLanguageOf:
+BB_Tech_Physics_Desc:
  Id: 630
  ENG: "Physics is the language of the universe. By mastering physics, we master the universe. "
  RUS: "Физика - язык Вселенной. Постигнув язык Вселенной, мы станем ее повелителями."
  SPA: "La física es el lenguaje del universo. Dominando la física, dominamos el universo. "
-GainTheAbilityToBuild:
+BB_Tech_Physics_Bonus:
  Id: 631
  ENG: "Gain the ability to build subspace projector platforms in deep space. "
  RUS: "Дает возможность строить в глубоком космосе платформы-субпространственные проекторы."
  SPA: "Aprende a construir plataformas de proyectores subespaciales en el espacio profundo. "
-PlanetaryDefense:
+BB_Tech_PlanetaryDefense_Name:
  Id: 632
  ENG: "Planetary Defense"
  RUS: "Планетарная оборона"
  SPA: "Defensa planetaria"
-ItIsWiseToImprove:
+BB_Tech_PlanetaryDefense_Desc:
  Id: 633
  ENG: "It is wise to improve our planetary defense abilities with weapons that can deter invaders. A series of giant ground-based cannons should be a good start."
  RUS: "Усилить планетарную оборону оружием, способным отразить нападение противника, никогда не будет лишним. Построить огромные наземные пушки - уже неплохое начало."
  SPA: "Conviene mejorar nuestras defensas planetarias con armas que disuadan a los invasores. Un buen comienzo sería con cañones terrestres gigantescos."
-PlanetaryShielding:
+BB_Tech_PlanetaryShielding_Name:
  Id: 634
  ENG: "Planetary Shielding"
  RUS: "Планетарные щиты"
  SPA: "Escudos planetarios"
-SurprisinglyShieldingAnEntirePlanet:
+BB_Tech_PlanetaryShielding_Desc:
  Id: 635
  ENG: "Surprisingly, shielding an entire planet is easier than shielding an entire ship because we needn't worry about mass, size, and power restrictions when building on terra firma. The result is a massive and powerful shield that provides protection from bombardment. "
  RUS: "Удивительно, но накрыть щитом целую планету на самом деле проще, чем космический корабль, потому что для планетарного щита не нужно принимать во внимание ограничения по массе, размеру и энергопотреблению. В результате получается мощный массивный щит, защищающий планету от бомбардировок."
  SPA: "Sorprendentemente, es más fácil proteger con escudos un planeta entero que una nave, porque en tierra firme no hay que preocuparse por limitaciones de masa, tamaño y energía. El resultado es un escudo potente y enorme que resguarda contra bombardeos. "
-PlasmaVectoring:
+BB_Tech_PlasmaThrowers_Name:
  Id: 636
  ENG: "Plasma Vectoring"
  RUS: "Плазменная векторизация"
  SPA: "Vectores de plasma"
-IfWeChanneledHighlyionizedPlasma:
+BB_Tech_PlasmaThrowers_Desc:
  Id: 637
  ENG: "If we channeled highly-ionized Plasma directly from a ship reactor through a magnetized, high-pressure system, then we could spray our enemies with super-heated energy to devastating effect. "
  RUS: "Если направить поток высокоионизированной плазмы непосредственно из корабельного генератора через магнитную систему высокого давления, можно эффективно уничтожать противника волнами тепловой энергии."
  SPA: "Si canalizamos el plasma altamente ionizado directamente desde el reactor de una nave a través de un sistema magnetizado a alta presión, podemos rociar a nuestros enemigos de energía supercalentada con efectos devastadores. "
-PolaronCannons:
+BB_Tech_PolaronCannons_Name:
  Id: 638
  ENG: "Polaron Cannons"
  RUS: "Фазовые поляроновые пушки"
  SPA: "Cañones de polarones fásicos"
-PhasedPolaronCannonsEncapsulateTheir:
+BB_Tech_PolaronCannons_Desc:
  Id: 639
  ENG: "Phased polaron cannons encapsulate their payloads in a phased energy shell rather than an ionized magnetic shell, granting the projectile the ability to phase directly through shields. The unstable phased energy shell results in a lower effective range on these weapons. "
  RUS: "Фазовые поляроновые пушки используют снаряды, заключенные в оболочку фазированной энергии, а не ионизованную магнитную оболочку. Это позволяет им проходить сквозь щиты. К сожалению, фазированная энергия нестабильна, поэтому дальность стрельбы этих пушек невелика."
  SPA: "Los cañones de polarones fásicos encapsulan sus cargas explosivas en proyectiles de energía fásica en vez de en proyectiles magnéticos ionizados, lo que les permite atravesar directamente los escudos. Debido a la inestabilidad de los proyectiles de energía fásica, estas armas tienen un alcance efectivo menor. "
-Privatization:
+BB_Tech_Privatization_Name:
  Id: 640
  ENG: "Privatization"
  RUS: "Приватизация"
  SPA: "Privatización"
-PrivatizationAllowsPrivateEntitiesTo:
+BB_Tech_Privatization_Desc:
  Id: 641
  ENG: "Privatization allows private entities to own shares in public operations, therby subsidizing the maintenance costs for freighters and deep space installations (Platforms and Stations)."
  RUS: "Приватизация позволяет частным лицам владеть долями в государственных и общественных предприятиях, что позволяет снизить расходы на содержание транспортов и объектов в глубоком космосе."
  SPA: "La privatización permite a las entidades privadas comprar acciones de operaciones públicas, sufragando así parte del coste de mantenimiento de cargueros e instalaciones de espacio profundo. "
-PlatformAndFreighterMaintenanceIs:
+BB_Tech_Privatization_Bonus:
  Id: 642
  ENG: "Platform and Freighter maintenance is reduced by 50%"
  RUS: "Расходы на содержание платформ и транспортов снижаются на 50%."
  SPA: "El mantenimiento de plataformas y cargueros se reduce en un 50%"
-PulseCapacitors:
+BB_Tech_PulseCapacitors_Name:
  Id: 643
  ENG: "Pulse Capacitors"
  RUS: "Импульсные конденсаторы"
  SPA: "Condensadores de pulsos"
-WeBelieveThatEncounteringElectromagnetic:
+BB_Tech_PulseCapacitors_Desc:
  Id: 644
  ENG: "We believe that encountering Electromagnetic Pulse weaponry is distinctly possible. As a result it would be prudent to have defensive measures prepared for that eventuality. "
  RUS: "Мы полагаем, что рано или поздно нам придется столкнуться с ЭМИ-оружием. Соответственно, к этому времени было бы весьма желательно разработать превентивные меры."
  SPA: "Creemos que es más que posible que alguien nos ataque algún día con armamento de pulsos electromagnéticos. Por ello, sería prudente contar con medidas defensivas para tal eventualidad. "
-QuantumCannon:
+BB_Tech_QuantumTorpedoCannon_Name:
  Id: 645
  ENG: "Quantum Cannon"
  RUS: "Пушка квантовых торпед"
  SPA: "Cañón de torpedos cuánticos"
-TheUltimateInCannonWeaponry:
+BB_Tech_QuantumTorpedoCannon_Desc:
  Id: 646
  ENG: "The ultimate in cannon weaponry, this weapon fires extremely powerful energy torpedoes at a high energy cost. "
  RUS: "Высшее достижение в области артиллерии. Эта пушка выстреливает мощнейшие энергетические торпеды, расходуя большое количество энергии."
  SPA: "Lo último en cañones es esta arma que dispara torpedos de energía de gran potencia con un consumo muy alto. "
-RapidCloning:
+BB_Tech_RapidCloning_Name:
  Id: 647
  ENG: "Rapid Cloning"
  RUS: "Быстрое клонирование"
  SPA: "Clonación rápida"
-WeHaveBeenAbleTo:
+BB_Tech_RapidCloning_Desc:
  Id: 648
  ENG: "We have been able to clone things for a long time but we have not been able to increase the maturation rate until now. With this technology we can raise a clone to adult maturity in weeks rather than years. "
  RUS: "Мы давно уже отладили процесс клонирования, но до недавнего времени нам никак не удавалось ускорить процесс роста клонов. С этой технологией клоны будут достигать зрелости за считанные недели, а не годы."
  SPA: "Llevamos mucho tiempo clonando, pero hasta ahora no hemos podido incrementar el ritmo de maduración. Con esta tecnología, podemos lograr que un clon alcance la madurez en cuestión de semanas y no de años. "
-ReactionDrive:
+BB_Tech_ReactionDrive_Name:
  Id: 649
  ENG: "Reaction Drive"
  RUS: "Сверх реактивный двигатель"
  SPA: "Impulsión de reacción"
-TheReactionDriveChannelsStrongly:
+BB_Tech_ReactionDrive_Desc:
  Id: 650
  ENG: "The reaction drive channels strongly ionized plasma through a subspace field which excites and unleashes the potential energy held within.  The resulting torrent can be harnessed and redicted for propulsion purposes.   "
  RUS: "Сверхреактивный двигатель прокачивает высокоионизованную плазму через субпространственное поле. Возбуждаясь, плазма высвобождает заключенную в ней потенциальную энергию, которая может быть сосредоточена и использована для движения."
  SPA: "La impulsión de reacción canaliza plasma altamente ionizado a través de un campo subespacial que excita y desencadena la energía potencial que contiene.  El torrente que resulta puede controlarse y redirigirse con fines de propulsión.   "
-ByConvertingAllOfOur:
+BB_Tech_ReactionDrive_STLSpeedBonus_Bonus:
  Id: 651
  ENG: "By converting all of our engines to the reaction drive standard, we can achieve 20% faster sub-light speeds and maneuverability."
  RUS: "Переведя все корабли на новые двигатели, мы сможем получить 20% бонус к субсветовым скоростям и маневренности."
  SPA: "Al pasar todos nuestros motores al estándar de impulsión de reacción, podemos aumentar un 20% la maniobrabilidad y las velocidades infraluminales."
-ScientificFoundations:
+BB_Tech_ScientificFoundations_Name:
  Id: 652
  ENG: "Scientific Foundations"
  RUS: "Научные фонды"
  SPA: "Infraestructuras científicas"
-EachNewColonyPresentsA:
+BB_Tech_ScientificFoundations_Desc:
  Id: 653
  ENG: "Each new colony presents a fresh opportunity for scientific discovery, be it biological, geological, archeological, or otherwise.  Basic scientific facilities are critical to understanding our new homes and increasing our knowledge of the universe."
  RUS: "Каждая новая колония - это новая возможность для совершения научных открытий в самых разных сферах - биологии, геологии, археологии и т.п. Для понимания того, как устроены наши новые дома, и расширения наших знаний о Вселенной требуются как минимум базовые научные учреждения."
  SPA: "Cada nueva colonia es una flamante oportunidad de realizar descubrimientos científicos, ya sean biológicos, geológicos, arqueológicos o de otro tipo.  Las instalaciones científicas básicas son fundamentales para entender los nuevos mundos y aumentar nuestro conocimiento del universo."
-ShipAssault:
+BB_Tech_ShipboardAssault_Name:
  Id: 654
  ENG: "Ship Assault"
  RUS: "Космический абордаж"
  SPA: "Asalto naval"
-FeedingHousingAndEquippingMarines:
+BB_Tech_ShipboardAssault_Desc:
  Id: 655
  ENG: "Feeding, housing, and equipping marines in deep space requires precise logistical planning. Marines can carry assaults out on enemy vessels if their ship is equipped with an assault shuttle bay.  "
  RUS: "Обеспечение морпехов в космосе жильем, питанием и снаряжением требует тщательного логистического планирования. Морпехи могут пытаться брать вражеские суда на абордаж, если их корабль оснащен штурмовыми шаттлами."
  SPA: "Alimentar, alojar y equipar a los marines en el espacio profundo requiere una planificación logística precisa. Los marines pueden abordar naves enemigas si disponen de un muelle de lanzadera de asalto.  "
-EnergySiphonBeam:
+BB_Tech_SiphonBeam_Name:
  Id: 656
  ENG: "Energy Siphon Beam"
  RUS: "Энерго высасывающий луч"
  SPA: "Rayo de absorción de energía"
-SiphonBeamsCreateAConnection:
+BB_Tech_SiphonBeam_Desc:
  Id: 657
  ENG: "Siphon beams create a connection between the firing ship and the target ship's energy shields. The beam depletes the shield energy and transfers is into the firing ship's power stores. The weapon is ineffective otherwise."
  RUS: "Этот луч создает связь между энергетическими щитами двух кораблей, понижая энергию щита вражеского корабля и передавая ее на свой корабль. Это единственное применение данного оружия."
  SPA: "Los rayos de absorción establecen una conexión entre la nave que dispara y los escudos de energía de la nave objetivo. El rayo consume la energía de los escudos y la transfiere a las reservas de la nave atacante. El arma no tiene otra utilidad."
-SlipstreamProjection:
+BB_Tech_SlipstreamProjection_Name:
  Id: 658
  ENG: "Slipstream Projection"
  RUS: "Слипстрим-проекция"
  SPA: "Proyección de estela"
-ByFocusingSubspaceManipulationsAt:
+BB_Tech_SlipstreamProjection_Desc:
  Id: 659
  ENG: "By focusing subspace manipulations at an area in front of a nearby ship, a subspace projector can effectively \"plow\" subspace, if only for a moment, to increase a local ship's FTL speed."
  RUS: "Сосредоточив манипуляции с субпространством перед кораблем, субпространственный проектор буквально разрывает пространство, позволяя кораблю еще более увеличить свою сверхсветовую скорость."
  SPA: "Al enfocar las manipulaciones subespaciales delante de una nave cercana, un proyector subespacial puede \"roturar\" el subespacio, aunque solo sea momentáneamente, para aumentar la velocidad supraluminal de una nave."
-ShipsTravelingWithinYourOwn:
+BB_Tech_SlipstreamProjection_InBordersFTLBonus_Bonus:
  Id: 660
  ENG: "Ships traveling within your own empire's borders gain 20% bonus to their FTL speeds. "
  RUS: "Корабли, путешествующие в пределах вашей империи, получают 20% бонус к сверхсветовым скоростям."
  SPA: "Las naves que viajen entre las fronteras de tu imperio lo harán a una velocidad supraluminal un 20% mayor. "
-Ballistics:
+BB_Tech_SpaceWeapons_Name:
  Id: 661
  ENG: "Ballistics"
  RUS: "Космическое вооружение"
  SPA: "Armas espaciales"
-TakingACueFromNaval:
+BB_Tech_SpaceWeapons_Desc:
  Id: 662
  ENG: "Taking a cue from naval tradition, early spacecraft rely heavily on bullets, shells, flak, and other kinetic weapons. Their raw destructive power and relative cheapness make them an excellent value, though they do require ammunition. Research into energy weapons will provide our empire with weapons suitable for longer deployments. We can also focus our efforts on developing spaceworthy self-guided missile technologies."
  RUS: "Взяв эстафету у традиционного флота, ранние космические корабли преимущественно вооружались обычными пушками и другим кинетическим оружием. Высокая огневая мощь и относительная дешевизна делает такие оружия хорошим выбором, даже несмотря на необходимость боеприпасов. Исследования в области энергетического оружия еще более усилят военную мощь нашей империи. Также следует разработать технологии самонаводящихся космических ракет."
  SPA: "Siguiendo el ejemplo de la tradición naval, las primeras naves espaciales dependen mucho de balas, proyectiles, fuego antiaéreo y otras armas cinéticas. Su poder de destrucción bruto y de bajo coste relativo le confieren una gran importancia, pero necesitan munición. La investigación de armas de energía dotará a nuestro imperio de armamento apto para despliegues más prolongados. También podemos centrar nuestros esfuerzos en desarrollar tecnologías de misiles autoguiados para el espacio."
-StarshipConstruction:
+BB_Tech_StarshipConstruction_Name:
  Id: 663
  ENG: "Starship Construction"
  RUS: "Космический корабль"
  SPA: "Construcción de naves estelares"
-ACoreOfBasicStarship:
+BB_Tech_StarshipConstruction_Desc:
  Id: 664
  ENG: "A core of basic starship design knowledge was needed for us to even begin reaching into the stars.  This core technology represents having discovered basic starship command, propulsion, and hull technologies."
  RUS: "Чтобы путешествовать к другим мирам, необходимы хотя бы самые простейшие корабли, способные бороздить космос. Для строительства таких кораблей необходимы технологии космического двигателя, корпуса корабля и управления кораблем."
  SPA: "Para empezar siquiera a pensar en llegar a otras estrellas, necesitamos fundamentos básicos para el diseño de naves estelares.  Si desarrollamos esto, podremos investigar tecnologías básicas como el mando de naves estelares, la propulsión y los cascos."
-SubspaceArtillery:
+BB_Tech_SubspaceArtillery_Name:
  Id: 665
  ENG: "Subspace Artillery"
  RUS: "Космическая артиллерия"
  SPA: "Artillería subespacial"
-OurScientistsHaveConcludedThat:
+BB_Tech_SubspaceArtillery_Desc:
  Id: 666
  ENG: "Our scientists have concluded that conventional weapons, when packed with enough high explosives, can rival even the most modern energy weapons for raw destructive power. Accelerate this explosive using subspatial techniques and you have a very massive cannon."
  RUS: "Наши ученые пришли к выводу, что традиционная артиллерия, использующая мощные бризантные снаряды, по части разрушительной мощи запросто может соперничать с самыми современными видами вооружения. Для ускорения снарядов потребуется субпространственный акселератор, так что пушка получится немаленькая."
  SPA: "Nuestros científicos han llegado a la conclusión de que las armas convencionales, equipadas con explosivos lo bastante potentes, pueden rivalizar en capacidad destructiva con las armas de energía más modernas. Si aceleramos estos explosivos a través de técnicas subespaciales, tendremos un cañón colosal."
-SubspaceCommunication:
+BB_Tech_SubspaceCommunication_Name:
  Id: 667
  ENG: "Subspace Communication"
  RUS: "Коммуникация в космосе"
  SPA: "Comunicación subespacial"
-TheAbilityToPackageLightspeed:
+BB_Tech_SubspaceCommunication_Desc:
  Id: 668
  ENG: "The ability to package light-speed communications into a faster-than-light subspace packet allows for near instantaneous communication over great distances.  This discovery has profound implications for deep space scanning.  "
  RUS: "Возможность упаковывать световую информацию в подпространственные \"пакеты\", перемещаемые со сверхсветовыми скоростями, открывает практически неограниченные возможности в области связи. Это открытие также сыграет важнейшую роль в развитии технологий сканирования глубокого космоса."
@@ -2952,37 +2952,37 @@ ShipsTravelingWithinYourOwn2:
  ENG: "Ships traveling within your own empire's borders gain 20% bonus to their FTL speeds. "
  RUS: "Корабли, путешествующие в пределах вашей империи, получают 20% бонус к сверхсветовым скоростям."
  SPA: "Las naves que viajen entre las fronteras de tu imperio lo harán a una velocidad supraluminal un 20% mayor. "
-SubspaceTheory:
+BB_Tech_SubspaceTheory_Name:
  Id: 672
  ENG: "Subspace Theory"
  RUS: "Теория суб пространства"
  SPA: "Teoría del subespacio"
-WeHaveKnownForA:
+BB_Tech_SubspaceTheory_Desc:
  Id: 673
  ENG: "We have known for a long time that forces beyond our observable reality have an effect on our observable reality.  With a deeper understanding of subspace theory, we can begin to benefit from practical applications of this knowledge.  "
  RUS: "Мы уже давно установили, что силы, действующие за пределами нашей наблюдаемой реальности, оказывают влияние на наблюдаемую нами реальность. Глубже поняв теорию субпространства, мы сможем найти этому знанию практическое применение."
  SPA: "Sabemos desde hace tiempo que las fuerzas más allá de nuestra realidad observable influyen sobre ella.  Con un mejor conocimiento de la teoría del subespacio, podemos empezar a beneficiarnos de sus aplicaciones prácticas.  "
-IncreaseEffectiveStardriveSpeedsBy:
+BB_Tech_SubspaceTheory_FTLSpeedBonus_Bonus:
  Id: 674
  ENG: "Increase effective StarDrive speeds by 20% for all ships in your empire"
  RUS: "Увеличивает эффективную скорость всех кораблей в вашей империи на 20%"
  SPA: "Aumenta las velocidades efectivas de StarDrive en un 20% para todas las naves de tu imperio"
-SubspatialDynamics:
+BB_Tech_SubspatialDynamics_Name:
  Id: 675
  ENG: "Sub-spatial Dynamics"
  RUS: "Динамика суб пространства"
  SPA: "Dinámica subespacial"
-WeHaveDiscoveredThatThe:
+BB_Tech_SubspatialDynamics_Desc:
  Id: 676
  ENG: "We have discovered that the efficiency of traveling through subspace is affected by the shape of a ship's subspace bubble.  This technology allows for the construction of subspace \"plows\", which manipulate that shape to increase a ship's speed at warp. "
  RUS: "Мы сделали открытие, что эффективность перемещения через субпространство зависит от формы субпространственного пузыря вокруг корабля. Эта технология позволяет создавать субпространственные \"волнорезы\", которые изменяют эту форму, увеличивая скорость корабля в варпе."
  SPA: "Hemos descubierto que la eficacia de viajar por el subespacio depende de la forma de la burbuja subespacial de una nave.  Esta tecnología permite la construcción de \"roturaciones\" subespaciales, que manipulan esa forma para aumentar la velocidad estelar supraluminal de una nave. "
-ThePowerPenaltyIncurredBy:
+BB_Tech_SubspatialDynamics_FTLEfficiencyBonus_Bonus:
  Id: 677
  ENG: "The power penalty incurred by ships at warp is reduced by 20%"
  RUS: "Штраф к энергии от пребывания корабля в варпе снижен на 20%"
  SPA: "La penalización sobre la potencia que sufren las naves a velocidad estelar supraluminal se reduce un 20%"
-GrantsABonusToEmpire:
+BB_Tech_SubspatialDynamics_FTLSpeedBonus_Bonus:
  Id: 678
  ENG: "Grants a 50% bonus to empire FTL speeds "
  RUS: "Корабли, путешествующие в пределах вашей империи, получают 50% бонус к сверхсветовым скоростям."
@@ -2992,132 +2992,132 @@ EnemyShipsCannotWarpInside:
  ENG: "Enemy Ships cannot warp inside your territory using conventional subspace methods. "
  RUS: "Вражеские корабли не могут войти в варп на вашей территории, используя стандартные манипуляции с субпространством."
  SPA: "Las naves enemigas no pueden viajar a velocidad estelar supraluminal dentro de tu territorio usando métodos subespaciales convencionales. "
-TachyonScanning:
+BB_Tech_TachyonScanning_Name:
  Id: 680
  ENG: "Tachyon Scanning"
  RUS: "Тахионное сканирование"
  SPA: "Escaneo de taquiones"
-TachyonsAreParticlesThatMove:
+BB_Tech_TachyonScanning_Desc:
  Id: 681
  ENG: "Tachyons are particles that move substantially faster than the speed of light. By retuning our sensors to detect Tachyons we can substantially increase their effectiveness. "
  RUS: "Тахионы - частицы, способные двигаться со скоростями, значительно превышающими скорость света. \"Научив\" наши сканеры фиксировать тахионы, мы сможем значительно повысить их эффективность."
  SPA: "Los taquiones son partículas que se mueven mucho más rápido que la velocidad de la luz. Si nuestros sensores fueran capaces de detectarlos, aumentaríamos considerablemente su eficacia. "
-DoublesTheRangeOfAll:
+BB_Tech_TachyonScanning_SensorRangeBonus_Bonus:
  Id: 682
  ENG: "Doubles the range of all sensors"
  RUS: "Удваивает радиус действия всех сенсоров"
  SPA: "Dobla el alcance de todos los sensores"
-TerraformingPlanet:
+BB_Tech_Terraforming_Name:
  Id: 683
  ENG: "Terraforming Planet"
  RUS: "Терраформинг"
  SPA: "Terraformación"
-ThalaronBlaster:
+BB_Tech_ThalaronBlaster_Name:
  Id: 685
  ENG: "Thalaron Blaster"
  RUS: "Таларонский бластер"
  SPA: "Descargas Thalaron"
-TheresNothingLikeAGood:
+BB_Tech_ThalaronBlaster_Desc:
  Id: 686
  ENG: "There's nothing like a good dose of face-melting Thalaron radiation to weaken a space marine's resolve and cellular cohesion. Very useful for pre-boarding volleys. "
  RUS: "Чтобы поколебать решимость (и клеточные связи) космопехотинца, ударная доза таларонского излучения подойдет как нельзя лучше. Идеальное оружие для подготовки к абордажу."
  SPA: "No hay nada como una buena dosis de la imponente radiación Thalaron para debilitar el ahínco de un marine espacial y su cohesión celular. Muy útil para salvas previas al abordaje. "
-TitanConstruction:
+BB_Tech_Titans_Name:
  Id: 687
  ENG: "Titan Construction"
  RUS: "Титан"
  SPA: "Construcción de titanes"
-TheseUltramassiveShipsAreThe:
+BB_Tech_Titans_Desc:
  Id: 688
  ENG: "These ultra-massive ships are the absolute pinnacle of spaceship construction. These hulking behemoths are almost impractically slow and large, but their firepower and defensive potential is enormous."
  RUS: "Эти сверхгромоздкие корабли - абсолютная вершина кораблестроения. Они чудовищно огромны и неповоротливы, и это зачастую бывает непрактично, но их защитный потенциал и невероятная огневая мощь компенсируют все недостатки."
  SPA: "Estas naves megacolosales son el culmen de la construcción aeroespacial. Estos mastodontes gigantescos son lentos y grandes, pero su potencia de fuego y capacidad defensiva es enorme."
-ConventionalTorpedoes:
+BB_Tech_Torpedo_Name:
  Id: 689
  ENG: "Conventional Torpedoes"
  RUS: "Обычные торпеды"
  SPA: "Torpedos convencionales"
-ATorpedoIsEssentiallyA:
+BB_Tech_Torpedo_Desc:
  Id: 690
  ENG: "A torpedo is essentially a massive missile, loaded to the brim with high explosives.  It trades speed and maneuverability for payload. "
  RUS: "Торпеда по сути является огромной ракетой, под завязку начиненной взрывчаткой. Скорость и маневренность в данном случае принесены в жертву ради увеличения мощности заряда."
  SPA: "Un torpedo es básicamente un misil enorme cargado hasta los topes de potentes explosivos.  Sacrifica velocidad y maniobrabilidad en aras de capacidad destructiva. "
-TractorBeam:
+BB_Tech_TractorBeam_Name:
  Id: 691
  ENG: "Tractor Beam"
  RUS: "Луч притяжения"
  SPA: "Rayo tractor"
-TractorBeamsCreateAMiniature:
+BB_Tech_TractorBeam_Desc:
  Id: 692
  ENG: "Tractor beams create a miniature point singularity that effectively increases the mass of the targeted ship, slowing it down. Tractor beams are only half as effective against shielded targets."
  RUS: "Луч притяжения создает миниатюрную точечную сингулярность, которая увеличивает массу целевого корабля, тем самым замедляя его. Против кораблей, защищенных щитами, это оружие вдвое менее эффективно."
  SPA: "Los rayos tractores crean una singularidad de punto en miniatura que aumenta de manera efectiva la masa de la nave enemiga provocando que se ralentice. Los rayos tractores son solo la mitad de efectivos contra objetivos protegidos con escudos."
-XenoComputing:
+BB_Tech_XenoComputing_Name:
  Id: 693
  ENG: "Xeno Computing"
  RUS: "Ксенокомпьютеры"
  SPA: "Xenocomputación"
-OurComputerScientistsBelieveThat:
+BB_Tech_XenoComputing_Desc:
  Id: 694
  ENG: "Our computer scientists believe that they can apply the lessons learned while studying other languages to improve our computing efficiency substantially. "
  RUS: "Наши ученые в области кибернетики полагают, что смогут применить на практике уроки, вынесенные от изучения других языков, что позволит значительно увеличить производительность наших компьютеров."
  SPA: "Nuestros científicos en computación creen que pueden aplicar las lecciones aprendidas en el estudio de otras lenguas para mejorar considerablemente nuestra eficacia informática. "
-AppliesKnowledgeOfAlienLanguages:
+BB_Tech_XenoComputing_ResearchBonus_Bonus:
  Id: 695
  ENG: "Applies knowledge of alien languages to computing sciences, granting a +10% research bonus for your empire."
  RUS: "Прикладное применение инопланетных языков в кибернетике дает 10% бонус к науке по всей империи."
  SPA: "Aplica el conocimiento de lenguas alienígenas a las ciencias de la informática, otorgando a tu imperio una bonificación del +10% en investigación."
-XenoLinguistics:
+BB_Tech_XenoLinguistics_Name:
  Id: 696
  ENG: "Xeno Linguistics"
  RUS: "Ксено лингвистика"
  SPA: "Xenolingüística"
-SpacefaringRacesTypicallyPossessSufficient:
+BB_Tech_XenoLinguistics_Desc:
  Id: 697
  ENG: "Spacefaring races typically possess sufficient computing and linguistic sciences to \"shake hands\" on a workable trade speech in a matter of minutes. But the nuance of language can be lost in this translation and there are also those rare occasions where a language is so foreign that our computers cannot decipher it at all. "
  RUS: "У рас, путешествующих по Вселенной, кибернетика и лингвистика обычно развиты достаточно, чтобы в течение буквально несколько минут выработать язык-пиджин для общения с другой расой. Однако при этом безвозвратно утрачиваются нюансы обоих языков; кроме того, в редких случаях язык другой расы может отказаться настолько чужим, что наши компьютеры не смогут его расшифровать."
  SPA: "Las razas que dominan los vuelos espaciales suelen poseer suficientes ciencias lingüísticas y computacionales para cerrar acuerdos comerciales viables en cuestión de minutos. Sin embargo, el matiz de la lengua puede perderse en esta traducción y también hay ocasiones en las que la lengua es tan extraña que nuestros ordenadores no pueden descifrarla. "
-UnlocksTheAbilityToUnderstand:
+BB_Tech_XenoLinguistics_Bonus:
  Id: 698
  ENG: "Unlocks the ability to understand truly foreign creatures that you might encounter"
  RUS: "Разблокирует способность понимать всех инопланетян, с которыми вы можете повстречаться"
  SPA: "Desbloquea la facultad de entender a criaturas verdaderamente exóticas que te puedas encontrar"
-AMoreNuancedUnderstandingOf:
+BB_Tech_XenoLinguistics_DiplomacyBonus_Bonus:
  Id: 699
  ENG: "A more nuanced understanding of alien languages provides a 10% bonus to diplomatic efforts"
  RUS: "Более глубокое понимание тонкостей языка инопланетян дает 10% бонус к дипломатии"
  SPA: "Un conocimiento más matizado de las lenguas alienígenas proporciona un 10% de bonificación a los esfuerzos diplomáticos"
-XenoFarming:
+BB_Tech_XenoFarming_Name:
  Id: 700
  ENG: "Xeno Farming"
  RUS: "Ксено фермы"
  SPA: "Xenoagricultura"
-FarmingOnManyAlienPlanets:
+BB_Tech_XenoFarming_Desc:
  Id: 701
  ENG: "Farming on many alien planets isn't as simple as planting some seeds and adding water.  In fact, many planets that are technically quite fertile are nevertheless rich with nutrients that are incompatible with or even toxic to our crops and animals.  Xeno Farming helps overcomes these problems. "
  RUS: "Ведение сельского хозяйства на чужих планетах гораздо сложнее, чем просто посадить семена в почву и поливать ростки. Многие планеты могут иметь объективно плодородные почвы, богатые питательными веществами, но в то же время быть несовместимыми с нашими растениями и животными. Ксенофермерство поможет решить эти проблемы."
  SPA: "En muchos planetas alienígenas la agricultura no es tan sencilla como plantar semillas y regar.  De hecho, muchos planetas que son técnicamente fértiles son ricos, sin embargo, en nutrientes que son incompatibles —o incluso tóxicos— para nuestras cosechas y animales.  La xenoagricultura ayuda a subsanar estos problemas. "
-XenoGenetics:
+BB_Tech_XenoGenetics_Name:
  Id: 702
  ENG: "Xeno Genetics"
  RUS: "Ксеногенетика"
  SPA: "Xenogenética"
-ByStudyingAlienPlantsAnimals:
+BB_Tech_XenoGenetics_Desc:
  Id: 703
  ENG: "By studying alien plants, animals, and microganisms, we have learned many new genetic secrets.  By applying some of what we have learned to our own bodies, we are able to live much longer and healthier lives. "
  RUS: "Изучая инопланетные растения, животных и микроорганизмы, вы узнали много нового. Применяя эти знания к себе, мы сможем укрепить свое здоровье и прожить дольше."
  SPA: "Al estudiar las plantas, animales y microorganismos alienígenas, hemos aprendido muchos secretos genéticos.  Si aplicamos parte de lo aprendido a nuestros propios cuerpos, podemos vivir mucho más tiempo y de manera más saludable. "
-GainAnEmpirewideBonusTo2:
+BB_Tech_XenoGenetics_PopulationGrowthBonus_Bonus:
  Id: 704
  ENG: "Gain an empire-wide 25% bonus to population growth from increased lifespans"
  RUS: "За счет увеличения продолжительности жизни рост населения по всей империи увеличивается на 25%"
  SPA: "Añade una bonificación del 25% al crecimiento de la población en todo el imperio porque se amplía la esperanza de vida"
-XenoMining:
+BB_Tech_XenoMining_Name:
  Id: 705
  ENG: "Xeno Mining"
  RUS: "Ксеноминералогия"
  SPA: "Xenominería"
-WithTheProperIndustrialFoundations:
+BB_Tech_XenoMining_Desc:
  Id: 706
  ENG: "With the proper industrial foundations laid, exploitation of an alien world's mineral resources can begin in earnest.  "
  RUS: "При условии достаточных капиталовложений разработка минеральных месторождений в других мирах может быть начата уже сейчас."
@@ -3555,7 +3555,7 @@ Mrls:
  ENG: "MRLS"
  RUS: "РСЗО"
  SPA: "SLCM"
-ThisIsAMultipleRocket:
+BB_Tech_ImprovedMRMPlatforms_Desc:
  Id: 999
  ENG: "This is a multiple rocket launching system housed on a swivel turret for an enhanced field of fire. "
  RUS: "Реактивная система залпового огня, смонтированная на поворотной станине для расширения сектора обстрела."
@@ -6371,7 +6371,7 @@ ExpDmg:
  Id: 1998
  ENG: "Exp Dmg"
  RUS: "Урон взр."
-PlasmaOrdnanceProvidesADamage:
+BB_Tech_PlasmaOrdnance_Weapon_ExplosionRadius_Bonus:
  Id: 1999
  ENG: "Plasma Ordnance provides a 25% damage bonus to all of our Ordnance-based weapons."
  RUS: "Плазменные боеприпасы обеспечивают 25% бонус к урону всему нашему оружию, основанному на боеприпасах."
@@ -6380,47 +6380,47 @@ WasDestroyedByUnknownForces:
  ENG: "was destroyed by unknown forces"
  RUS: "была уничтожена неизвестными силами"
  SPA: "fue destruido por fuerzas desconocidas"
-PlasmaOrdnance:
+BB_Tech_PlasmaOrdnance_Name:
  Id: 2001
  ENG: "Plasma Ordnance"
  RUS: "Плазменные боеприпасы"
  SPA: "Munición de plasma"
-BySwitchingOurOrdnanceTo:
+BB_Tech_PlasmaOrdnance_Desc:
  Id: 2002
  ENG: "By switching our Ordnance to a plasma-based standard, we can deliver a denser, higher-energy payload in our weapons for greater damage and effect."
  RUS: "Перейдя на плазменные боеприпасы, мы сможем использовать более плотные и мощные высокоэнергетические заряды, наносящие больший урон."
  SPA: "Al cambiar a munición de plasma, podemos dotar nuestras armas de una carga de energía mayor y más densa para causar más daño y otros efectos."
-PlasmaOrdnanceProvidesAGreater:
+BB_Tech_PlasmaOrdnance_Weapon_Damage_Bonus:
  Id: 2003
  ENG: "Plasma Ordnance provides a 25% greater explosive radius to all of our Ordnance-based weapons."
  RUS: "Плазменные боеприпасы позволяют увеличить радиус взрыва на 25% ,всему оружию использующему боеприпасы."
  SPA: "La munición de plasma aumenta el radio explosivo en un 25% y concede una bonificación de daño del 25% a todas nuestras armas que usen munición."
-ReinforcedComponents:
+BB_Tech_ReactiveArmor_Name:
  Id: 2004
  ENG: "Reinforced Components"
  RUS: "Реактивная броня"
  SPA: "Blindaje reactivo"
-IntegrationOfHardenedShipComponents:
+BB_Tech_ReactiveArmor_Desc:
  Id: 2005
  ENG: "Integration of hardened ship components reduces the effectiveness of explosion damage."
  RUS: "Реактивная броня задействует базовое энергетическое поле, которое создает в броне направленные микровзрывы в ожидаемой точке попадания вражеского снаряда, что снижает его пробивную силу."
  SPA: "El blindaje reactivo utiliza un campo de energía básico para detectar impactos inminentes, con lo que activa microexplosivos incluidos en el blindaje que explotan para contrarrestar los proyectiles enemigos. Con ello se debilita el ataque contrario. "
-AllShipModulesAreNow:
+BB_Tech_ReactiveArmor_ArmorExplosionReduction_Bonus:
  Id: 2006
  ENG: "All ship modules are now slightly reinforced. Reducing radius of explosions by 25%."
  RUS: "Вся броня оснащается реактивными системами, снижающими эффективность вражеского взрывчатого оружия на 25%."
  SPA: "Ahora todos los blindajes están equipados con sistemas reactivos, que reducen la eficacia de las armas explosivas en un 25%."
-PhasedOrdnance:
+BB_Tech_PhasedOrdnance_Name:
  Id: 2007
  ENG: "Phased Ordnance"
  RUS: "Фазовые боеприпасы"
  SPA: "Artillería fásica"
-WhenWeAccelerateOurProjectiles:
+BB_Tech_PhasedOrdnance_Desc:
  Id: 2008
  ENG: "When we accelerate our projectiles using a subspace field, we believe it is possible to initiate a subspace phase loop where the projectile's energy signature will rotate in and out of real space. If the projectile is phased into subspace when it would contact a shield, then the shield will ignore it because it cannot detect its energy signature."
  RUS: "Когда мы разгоняем наши снаряды при помощи субпространственного поля, мы рассчитываем, что есть возможность инициировать возникновение субпространственной фазовой петли, в которой энергетическая сигнатура снаряда будет перемещаться в реальное пространство и из него. Если эта петля возникнет в момент контакта снаряда со щитом, тот не задержит его, потому что не сможет распознать его сигнатуру. Фактически мы \"проталкиваем\" наши снаряды прямо сквозь щиты."
  SPA: "Si aceleramos nuestros proyectiles mediante un campo subespacial, creemos que es posible iniciar un bucle de fase subespacial en el que la energía característica del proyectil entrará y saldrá del espacio real. Si el proyectil se mueve por fases en el subespacio al entrar en contacto con un escudo, este último lo ignorará porque no podrá detectar su energía característica. Básicamente, estamos usando artillería que atravesará sus escudos a velocidad supraluminal. "
-ProvidesAShieldPenetrationChance:
+BB_Tech_PhasedOrdnance_Weapon_ShieldPenetration_Bonus:
  Id: 2009
  ENG: "Provides a 50% shield penetration chance to projectiles fired from Ballistic Cannons"
  RUS: "Дает снарядам, выпущенным из баллистических орудий, 50% вероятность пробить щиты"
@@ -6430,32 +6430,32 @@ IndicatesAShipsExperienceLevel:
  ENG: "Indicates a ship's experience level, up to a maximum of 5 stars. For each experience level, a ship gains a 5% bonus each to repair rate, turning speed, and weapons damage. "
  RUS: "Увеличивает уровень опыта корабля вплоть до максимум 5 звезд. За каждый уровень опыта корабль получает 5% бонус к скорости ремонта, урону от оружия и скорости поворота. "
  SPA: "Indica el nivel de experiencia de una nave hasta un máximo de 5 estrellas. Por cada nivel de experiencia, una nave gana una bonificación del 5% en ritmo de reparación y daño de sus armas. "
-AceTraining:
+BB_Tech_AceTraining_Name:
  Id: 2011
  ENG: "Ace Training"
  RUS: "Обучение асов"
  SPA: "Adiestramiento de ases"
-OurFighterPilotsShouldBe:
+BB_Tech_AceTraining_Desc:
  Id: 2012
  ENG: "Our fighter pilots should be the best of the best. By investing in rigorous candidate screening and intense pilot training protocols, we can make our pilots the top guns in the galaxy. "
  RUS: "Наши пилоты должны быть лучшими из лучших. Вкладывая усилия в отбор только самых лучших кандидатов и их интенсивное обучение, мы сделаем своих пилотов лучшими асами в галактике. "
  SPA: "Nuestros pilotos de cazas deben ser lo mejor de lo mejor. Al invertir en una selección rigurosa de los candidatos e intensificar los protocolos de adiestramiento, podemos conseguir que los pilotos sean nuestras mejores armas en la galaxia. "
-AllFighterClassVesselsReceive:
+BB_Tech_AceTraining_BonusFighterLevels_Bonus:
  Id: 2013
  ENG: "All fighter class vessels receive 2 free experience levels."
  RUS: "Все корабли класса истребителей получают 2 \"бесплатных\" уровня опыта."
  SPA: "Todas las naves de clase caza reciben 2 niveles de experiencia gratis."
-XenoIntelligence:
+BB_Tech_XenoIntelligence_Name:
  Id: 2014
  ENG: "Xeno Intelligence"
  RUS: "Ксено разведка"
  SPA: "Xenointeligencia"
-UnderstandingAnAliensLanguageHelps:
+BB_Tech_XenoIntelligence_Desc:
  Id: 2015
  ENG: "Understanding an alien's language helps us understand how that alien thinks. Understanding how an alien thinks is the key to deceiving it. "
  RUS: "Понимание языка инопланетян помогает нам понять логику их мыслей. Понимание логики мыслей инопланетянина позволит предсказать его действия. "
  SPA: "Conocer bien el lenguaje de una raza alienígena nos ayuda a entender su manera de pensar; y entender su manera de pensar es fundamental para poder engañarlos. "
-GainABonusToDefensive:
+BB_Tech_XenoIntelligence_SpyDefenseRollBonus_Bonus:
  Id: 2016
  ENG: "Gain a +10 bonus to Defensive Agent rolls"
  RUS: "Дает +10 бонус к проверкам действий агентов контрразведки"
@@ -6520,57 +6520,57 @@ TheOccupantsOfThisPlanet:
  ENG: "The occupants of this planet are cybernetic and have no need of food."
  RUS: "Обитатели этой планеты являются киборгами и не потребляют еду."
  SPA: "Los residentes de este planeta son cibernéticos y no necesitan comida."
-ArmorPiercing:
+BB_Tech_ArmorPiercing_Name:
  Id: 2029
  ENG: "Armor Piercing"
  RUS: "Пробитие брони"
  SPA: "Penetración de blindaje"
-ByReformulatingTheMaterialsUsed:
+BB_Tech_ArmorPiercing_Desc:
  Id: 2030
  ENG: "By reformulating the materials used in missile and ballistic weapons, we are able to create a sturdier projectile that will punch right through thinner armors, allowing our explosives to potentially reach the more vital innards of a ship. "
  RUS: "Модифицировав материалы, используемые в ракетном и баллистическом оружии, мы смогли создать более прочные снаряды, которые прошивают тонкую броню насквозь, позволяя доставить заряд взрывчатки к потенциально важным модулям корабля. "
  SPA: "Mediante la reformulación de los materiales empleados y de las armas balísticas podemos crear un proyectil más robusto que penetre los blindajes más débiles, con lo que nuestros explosivos podrían llegar a los centros neurálgicos de una nave. "
-BallisticAndMissileWeaponsWill:
+BB_Tech_ArmorPiercing_Bonus:
  Id: 2031
  ENG: "Kinetic projectiles will pass through the first small-sized armor module encountered. The armor will take no damage."
  RUS: "Баллистическое и ракетное оружие пробивает насквозь первый бронемодуль на своем пути. Броня при этом не получает урона."
  SPA: "Las armas balísticas y los misiles atravesarán el primer módulo de pequeño tamaño que se encuentren. El blindaje no sufrirá daños."
-ArmorPhasing:
+BB_Tech_ArmorPhasing_Name:
  Id: 2032
  ENG: "Armor Phasing"
  RUS: "Фазирование брони"
  SPA: "Antiblindaje fásico"
-ThisTechnologyEquipsOurBallistics:
+BB_Tech_ArmorPhasing_Desc:
  Id: 2033
  ENG: "This technology equips our ballistics with a small subspace field projector capable of producing a short-lived, tightly focused subspace field. At the moment of impact, the projector comes online and effectively lowers the density of any mass it encounters. This allows the projectile to penetrate even the thickest of armors. "
  RUS: "Эта технология позволяет оснастить наши баллистические снаряды небольшим проектором субпространственного поля, способным создать кратковременное сфокусированное субпространственное поле. В момент соприкосновения проектор активируется и снижает плотность любой массы на его пути. Это позволяет снарядам пробивать даже самую толстую броню. "
  SPA: "Esta tecnología equipa nuestros proyectiles balísticos con un pequeño proyector que produce un campo subespacial efímero y altamente concentrado. En el momento del impacto, el proyector se activa y logra reducir la densidad de cualquier masa que se encuentre. Esto le permite traspasar hasta los blindajes más fuertes. "
-BallisticAndMissileWeaponsWill2:
+BB_Tech_ArmorPhasing_Bonus:
  Id: 2034
  ENG: "Kinetic projectiles will pass through up to three slots worth of armor."
  RUS: "Баллистическое и ракетное оружие пробивает до трех ячеек брони."
  SPA: "Las armas balísticas y de misiles atravesarán hasta tres capas (ranuras) de blindaje."
-Shipyards:
+BB_Tech_Shipyards_Name:
  Id: 2035
  ENG: "Shipyards"
  RUS: "Верфи"
  SPA: "Astilleros"
-DedicatedOrbitalShipbuildingFacilitiesWill:
+BB_Tech_Shipyards_Desc:
  Id: 2036
  ENG: "Dedicated orbital shipbuilding facilities will allow us to streamline our production process and provide large efficiency bonuses to our efforts. When built at a colony, a station will be placed in geosynchronous orbit (limited to 2 Shipyards per colony, 27 total orbital stytuctures). Stations may also be built in deep space. See the help menu for details."
  RUS: "Орбитальные судостроительные верфи позволят нам поставить производственный процесс на поток и значительно повысить его эффективность. При строительстве в колонии станция будет размещена на геостационарной орбите. Также станции можно строить в глубоком космосе. Подробнее см. в меню справки."
  SPA: "Son instalaciones orbitales dedicadas a la construcción de naves que nos permiten racionalizar nuestros procesos de producción y aportan grandes bonificaciones. Si se construyen en una colonia, se situarán en órbita geosincrónica. Estas estaciones también pueden edificarse en el espacio profundo. Encontrarás más detalles en el menú de ayuda."
-ThisTechnologyUnlocksAUnique:
+BB_Tech_Shipyards_Bonus:
  Id: 2037
  ENG: "This technology unlocks a unique \"Shipyard\" space station that boosts ship production by 25% at the planet where it is constructed. Each colony can support up to 2 Shipyards"
  RUS: "Эта технология разблокирует уникальную космическую станцию \"Верфь\", дающую 25% бонус к строительству кораблей на своей планете.  "
  SPA: "Esta tecnología desbloquea una estación espacial de tipo \"Astillero\" exclusiva que mejora la producción de naves en un 25% en el planeta donde se construya.  "
-ShipboardMedicine:
+BB_Tech_ShipboardMedicine_Name:
  Id: 2038
  ENG: "Shipboard Medicine"
  RUS: "Корабельная медицина"
  SPA: "Medicina a bordo"
-TroopsAreAnInvestmentAnd:
+BB_Tech_ShipboardMedicine_Desc:
  Id: 2039
  ENG: "Troops are an investment and we should protect that investment by providing medical facilities. These sickbay facilities can be placed on stations or larger ships and will slowly heal any troops stationed there. Multiple sickbays will have cumulative results. "
  RUS: "Войска - это инвестиции, и мы должны защищать их, оказывая им необходимые медицинские услуги. Корабельные лазареты могут размещаться на станциях или крупных кораблях, и они будут постепенно лечить все находящиеся там войска. Эффекты от нескольких лазаретов складываются. "
@@ -7075,42 +7075,42 @@ Difficulty:
  ENG: "Difficulty"
  RUS: "Сложность"
  SPA: "Dificultad"
-Armor:
+BB_Tech_Armor_Name:
  Id: 2140
  ENG: "Armor"
  RUS: "Танк"
  SPA: "Blindado"
-NotToBeConfusedWith:
+BB_Tech_Armor_Desc:
  Id: 2141
  ENG: "Not to be confused with ship armor, this technology unlocks an Armored Spider Tank for use in planetary assaults. Spider Tanks are Hard targets with strong attacks versus other Hard targets."
  RUS: "Эта технология разблокирует бронированный танк-паук, который может быть использован при нападении на другие планеты. Танки-пауки представляют собой защищенные цели с мощной атакой по другим защищенным целям."
  SPA: "No confundir con el blindaje de una nave; esta tecnología desbloquea el tanque araña blindado para usar en asaltos planetarios. Los tanques araña son objetivos fuertes que asestan ataques fuertes a otros objetivos fuertes."
-Secrets:
+BB_Tech_Secret_Name:
  Id: 2142
  ENG: "Secrets"
  RUS: "Секреты"
  SPA: "Secretos"
-SecretTechnologies:
+BB_Tech_Secret_Desc:
  Id: 2143
  ENG: "Secret Technologies"
  RUS: "Секретные технологии"
  SPA: "Tecnologías secretas"
-RemnantStudies:
+BB_Tech_RemnantStudies_Name:
  Id: 2144
  ENG: "Remnant Studies"
  RUS: "Исследования Выживших"
  SPA: "Estudios sobre los Remanentes"
-WeAreLiterallyPiecingTogether:
+BB_Tech_RemnantStudies_Desc:
  Id: 2145
  ENG: "We are literally piecing together the mystery of the Remnant using the salvage we have obtained from destroyed Remnant ships. Some of this technology should be relatively simple to reverse engineer. Capturing or destroying additional Remnant ships may help us discover more about their race."
  RUS: "Сейчас мы буквально по крупицам собираем информацию о Предтечах, используя в своем анализе найденные фрагменты их уничтоженных кораблей. Некоторые из их технологий должны довольно легко поддаваться обратному инжинирингу. Захват или уничтожение других кораблей Выживших поможет нам еще больше узнать об их расе."
  SPA: "Utilizamos los restos recuperados de naves Remanentes destruidas para reunir las piezas del puzle del misterio de los Remanentes. Parte de esta tecnología debería ser relativamente fácil de descifrar con ingeniería inversa. La captura o destrucción de más naves Remanentes nos ayudaría a averiguar más sobre su raza."
-RemnantComputing:
+BB_Tech_RemnantComputing_Name:
  Id: 2146
  ENG: "Remnant Computing"
  RUS: "Компьютеры Предтечь"
  SPA: "Computación Remanente"
-OurStudyOfRemnantComputing:
+BB_Tech_RemnantComputing_Desc:
  Id: 2147
  ENG: "Our study of Remnant Ships has led us to believe we can build a structure that will detect incoming Remnant ships, should they every target us."
  RUS: "Наше исследование кораблей-Предтечь привело нас к мысли, что мы можем построить радар, который будет обнаруживать прибывающие корабли-Предтечей, если те будут лететь на нас."
@@ -7175,12 +7175,12 @@ AnAncientPortalOfSome:
  ENG: "An ancient portal of some kind"
  RUS: "Какой-то древний портал"
  SPA: "Un portal antiguo de algún tipo"
-OwlwokFreedom:
+BB_Tech_OwlwokFreedom_Name:
  Id: 2160
  ENG: "Owlwok Freedom"
  RUS: "Свобода соворков"
  SPA: "Libertad Owlwok"
-WeBelieveThatWeCan:
+BB_Tech_OwlwokFreedom_Desc:
  Id: 2161
  ENG: "We believe that we can engineer an antidote to the Cordrazine control serum used to enslave the Owlwoks. Ideally we could spread this antidote via a bomb dropped into the atmosphere of a Cordrazine world, freeing the Owlwoks from their slavery."
  RUS: "Мы полагаем, что сможем синтезировать антидот к сыворотке Кордразинов, с помощью которой они порабощают соворков. В идеале его нужно будет разбрызгать над планетой, взорвав в атмосфере химическую бомбу. После этого соворки освободятся от рабства."
@@ -7390,7 +7390,7 @@ Sabotaged:
  ENG: "Sabotaged"
  RUS: "Диверсия"
  SPA: "Saboteado"
-GainABonusToOffensive:
+BB_Tech_XenoIntelligence_SpyOffenseRollBonus_Bonus:
  Id: 2203
  ENG: "Gain a +5 bonus to Offensive Agent rolls"
  RUS: "Дает +5 бонус к проверкам действий шпионов"
@@ -7415,7 +7415,7 @@ AutoGroundCombat:
  ENG: "Auto Ground Combat"
  RUS: "Автоматический наземный бой"
  SPA: "Combate terrestre automático"
-RemnantSchematics:
+BB_Tech_AscensionSchematics_Name:
  Id: 2208
  ENG: "Remnant Schematics"
  RUS: "Чертежи Предтечь"
@@ -7630,7 +7630,7 @@ TheTimcorpFletchetteAntifighterTurret:
  ENG: "The TimCorp Fletchette Anti-Fighter turret is very effective versus unarmored craft but suffers a -50% damage penalty to Armor and Shields."
  RUS: "Зенитная турель \"Флешетта\" - ближайший родственник \"Фаланги\". Выпускаемые ей небольшие снаряды разлетаются в точке попадания, нанося легкобронированным целям значительный урон. Это оружие получает 50% штраф к урону против брони и щитов."
  SPA: "La torreta anticazas dispara proyectiles muy parecidos a los de la torreta de defensa puntual de falange. Los proyectiles que dispara este cañón están diseñados para hacerse añicos al impactar y así causar el mayor daño posible a blancos con poco blindaje. Esta arma sufre una penalización del -50% ante blindaje y escudos."
-VsArmor:
+BB_Tech_ImprovedMRMPlatforms_Name:
  Id: 2251
  ENG: "VS Armor"
  RUS: "По броне"
@@ -7640,12 +7640,12 @@ IndicatesAnyBonusOrPenalty:
  ENG: "Indicates any bonus or penalty applied to this weapon's damage when attacking armor modules"
  RUS: "Указывает бонус или штраф данного оружия к урону при атаке бронемодулей"
  SPA: "Indica la bonificación o penalización aplicada al daño del arma al atacar módulos blindados"
-PointDefense:
+BB_Tech_PointDefense_Name:
  Id: 2253
  ENG: "Point Defense"
  RUS: "Точечная защита"
  SPA: "Defensa puntual"
-FightersAndMissilesCanPose:
+BB_Tech_PointDefense_Desc:
  Id: 2254
  ENG: "Fighters and missiles can pose a serious threat to a ship unprepared to defend against their attacks. This research path explores various ways to mitigate those threats."
  RUS: "Истребители и ракеты могут представлять очень серьезную угрозу для корабля, не подготовленного ко встрече с ними. Эта ветка технологий исследует различные способы борьбы с ними."
@@ -7795,12 +7795,12 @@ ThisMegastructureEmploysAdvancedAgricultural:
  ENG: "This megastructure employs advanced agricultural techniques and robotics to create massive quantities of food"
  RUS: "Эта мегаструктура задействует самые совершенные аграрные технологии и робототехнику, что позволяет производить продукты в огромных количествах"
  SPA: "Esta megaestructura emplea técnicas agrícolas avanzadas y robótica para crear cantidades enormes de alimentos"
-VerticalFarming:
+BB_Tech_VerticalFarming_Name:
  Id: 2293
  ENG: "Vertical Farming"
  RUS: "Вертикальные фермы"
  SPA: "Agricultura vertical"
-ThisTechnologyIsALogical:
+BB_Tech_VerticalFarming_Desc:
  Id: 2294
  ENG: "This technology is a logical extension of our forays into aeroponics and xenobiology. We can now create incredibly nutrient rich food extremely efficiently in these agricultural arcologies."
  RUS: "Эта технология - логическое продолжение наших исследований в сфере аэропоники и ксенобиологии. На этих суперсовременных фермах можно выращивать огромное количество продуктов, богатых питательными веществами."
@@ -8548,7 +8548,7 @@ ThisSmallShieldIsCapable:
  ENG: "This small shield is capable of absorbing up to 500 damage in a radius of 50. Its quick recharge rate makes it ideal for small fighter craft. "
  RUS: "Этот маленький щит имеет ресурс поглощения в 500 ОП в радиусе 50 метров. Быстрая скорость перезарядки делает его идеальным выбором для защиты небольших истребителей. "
  SPA: "Este pequeño escudo absorbe hasta 500 puntos de daño en un radio de 50 metros. Su rapidez de recarga hace que sea ideal para pequeños cazas. "
-TerraformingPlanetsIsASlow:
+BB_Tech_Terraforming_Desc:
  Id: 684
  ENG: "Terraforming planets is a slow process but it can produce excellent results. Any planet with a fertility score lower than 1.0 can benefit from the effects of a terraformer. Terraforming will never increase a planet's fertility beyond 1.0. "
  RUS: "Терраформирование планеты - процесс не быстрый, но он может принести прекрасные результаты. Любая планета с индексом плодородия ниже 1,0 выиграет от терраформирования. Терраформирование ни при каких условиях не может повысить индекс плодородия планеты выше 1,0."
@@ -8563,7 +8563,7 @@ XenoFarmsAreLargeComplexes:
  ENG: "Xeno Farms are large complexes dedicated to the successful integration of our farming and husbandry techniques with alien soils and nutrients.  The production of this building scales with the number of farmers assigned on this planet. Provides +1 food per turn per assigned colonist. "
  RUS: "Ксенофермы - это крупные комплексы, направленные на адаптацию наших сельскохозяйственных и животноводческих технологий под инопланетные почвы и питательные вещества. Производительность этого строения зависит от количества фермеров на планете. Дает +1 еды в ход за каждого занятого колониста. "
  SPA: "Las xenogranjas son grandes complejos dedicados a la integración de nuestras técnicas agrícolas y ganaderas con suelos y nutrientes alienígenas.  La producción de este edificio se corresponde al número de granjeros asignados en este planeta. Proporciona +0,5 de alimentos por turno y por colono asignado. "
-ThisIsAMonstrousShield:
+BB_Tech_CanopyShields_Desc:
  Id: 527
  ENG: "This is a monstrous shield with the a high resistance and a massive protection radius, making it ideal for capital ships or specialized shield ships.  The power costs are enormous."
  RUS: "Этот колоссальный щит с огромным ресурсом и радиусом защиты имеет смысл устанавливать только на флагманские корабли и специализированные корабли-щиты. Его энергопотребление просто невероятно."
@@ -8608,7 +8608,7 @@ ShipWillAvoidEngagingIn:
  ENG: "Ship will avoid engaging in combat. Good for scouts or non-combat ships"
  RUS: "Корабли будут избегать боя. Хорошая опция для разведчиков и небоевых кораблей"
  SPA: "La nave evitará entrar en combate. Es bueno para naves exploradoras y que no estén diseñadas para combatir"
-GainAnEmpirewideBonusTo3:
+BB_Tech_FuelCell2_FuelCellBonus_Bonus:
  Id: 575
  ENG: "Gain an empire-wide 50% bonus to the amount of power that is stored in fuel cells"
  RUS: "Дает по всей империи 50% бонус к энергии, запасаемой топливными блоками"
@@ -10509,12 +10509,12 @@ TreesWhoNeedsTreesWhat:
  ENG: "Trees? Who needs trees. What your people needed was room for more factories. +1 homeworld richness, -1 homeworld fertility"
  RUS: "Деревья? Кому нужны деревья. Вашим людям нужно было место для новых заводов. +1 богатство родного мира, -1 плодородие родного мира"
  SPA: "¿Árboles? ¿Quien nesesita arboles?. Lo que tu gente nesesita es mas espacio para fabricas. +1 a la riqueza del planeta natal, -1 a la fertilidad del planeta natal."
-Ascension2:
+BB_Tech_Ascension_Name:
  Id: 5083
  ENG: "Ascension"
  RUS: "Вознесение"
  SPA: "Ascensión"
-TheDatastreamFromTheRemnant:
+BB_Tech_Ascension_Desc:
  Id: 5084
  ENG: "The data-stream from the Remnant Mothership holds the key to the Mystery of the Remnant. We need to study it immediately, before we're all destroyed!"
  RUS: "В потоке данных с корабля-Предтечь хранится ключ к Тайне Предтечей. Нам нужно изучить его немедленно, пока мы все не уничтожены!"

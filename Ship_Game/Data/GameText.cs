@@ -851,339 +851,339 @@ namespace Ship_Game
         /// <summary>+1 production per assigned colonist, +2 Infrastructure</summary>
         ProductionPerAssignedColonist = 475,
         /// <summary>Advanced Materials</summary>
-        AdvancedMaterials = 500,
+        BB_Tech_AdvancedMaterials_Name = 500,
         /// <summary>Although steel armor is inexpensive, it is extremely heavy and</summary>
-        AlthoughSteelArmorIsInexpensive = 501,
+        BB_Tech_AdvancedMaterials_Desc = 501,
         /// <summary>New materials reduce effective ship mass by 10% across the</summary>
-        NewMaterialsReduceEffectiveShip = 502,
+        BB_Tech_AdvancedMaterials_PercentMassAdjustment_Bonus = 502,
         /// <summary>Aeroponics</summary>
-        Aeroponics = 503,
+        BB_Tech_Aeroponics_Name = 503,
         /// <summary>Colonizing barren planets or planets with a low fertility score</summary>
-        ColonizingBarrenPlanetsOrPlanets = 504,
+        BB_Tech_Aeroponics_Desc = 504,
         /// <summary>Ancient Ion Tech</summary>
-        AncientIonTech = 505,
+        BB_Tech_AncientIonTechnology_Name = 505,
         /// <summary>This technology was recovered from an ancient ship.</summary>
-        ThisTechnologyWasRecoveredFrom = 506,
+        BB_Tech_AncientIonTechnology_Desc = 506,
         /// <summary>Ancient Repulsor</summary>
         AncientRepulsor = 507,
         /// <summary>This technology was recovered from an ancient ship.</summary>
         ThisTechnologyWasRecoveredFrom2 = 508,
         /// <summary>Ancient Repulsor</summary>
-        AncientRepulsor2 = 509,
+        BB_Tech_AncientRepulsor_Name = 509,
         /// <summary>This technology was recovered from an ancient ship.</summary>
-        ThisTechnologyWasRecoveredFrom3 = 510,
+        BB_Tech_AncientRepulsor_Desc = 510,
         /// <summary>Ancient Shield Tech</summary>
-        AncientShieldTech = 511,
+        BB_Tech_AncientShieldTechnology_Name = 511,
         /// <summary>This technology was recovered from an ancient ship.</summary>
-        ThisTechnologyWasRecoveredFrom4 = 512,
+        BB_Tech_AncientShieldTechnology_Desc = 512,
         /// <summary>Anti-Matter Reactor</summary>
-        AntimatterReactor = 513,
+        BB_Tech_AntiMatter_Name = 513,
         /// <summary>By stabilizing a matter / anti-matter reaction, we can harness</summary>
-        ByStabilizingAMatterAntimatter = 514,
+        BB_Tech_AntiMatter_Desc = 514,
         /// <summary>Armor Theory</summary>
-        ArmorTheory = 515,
+        BB_Tech_ArmorTheory_Name = 515,
         /// <summary>The benefits of armoring our spaceships are self-evident. The use</summary>
-        TheBenefitsOfArmoringOur = 516,
+        BB_Tech_ArmorTheory_Desc = 516,
         /// <summary>Assimilation</summary>
-        Assimilation = 517,
+        BB_Tech_Assimilation_Name = 517,
         /// <summary>We have reached our maximum genetic potential and require new</summary>
-        WeHaveReachedOurMaximum = 518,
+        BB_Tech_Assimilation_Desc = 518,
         /// <summary>Gain all of the positive genetic traits of any race</summary>
-        GainAllOfThePositive = 519,
+        BB_Tech_Assimilation_AllowAssimilation_Bonus = 519,
         /// <summary>Battle Raiders</summary>
-        BattleRaiders = 520,
+        BB_Tech_BattleRaiders_Name = 520,
         /// <summary>Our most massive ships can deploy corvette-sized vessels as well</summary>
-        OurMostMassiveShipsCan = 521,
+        BB_Tech_BattleRaiders_Desc = 521,
         /// <summary>Battleship Construction</summary>
-        BattleshipConstruction = 522,
+        BB_Tech_Battleships_Name = 522,
         /// <summary>These massive ships are unrivaled for their size and cost.</summary>
-        TheseMassiveShipsAreUnrivaled = 523,
+        BB_Tech_Battleships_Desc = 523,
         /// <summary>Biospheres</summary>
-        Biospheres2 = 524,
+        BB_Tech_Biospheres_Name = 524,
         /// <summary>Biospheres are large geodesic dome structures capable of supporting many</summary>
-        BiospheresAreLargeGeodesicDome = 525,
+        BB_Tech_Biospheres_Desc = 525,
         /// <summary>Canopy Shielding</summary>
-        CanopyShielding = 526,
+        BB_Tech_CanopyShields_Name = 526,
         /// <summary>Centralized Banking</summary>
-        CentralizedBanking = 528,
+        BB_Tech_CentralizedBanking_Name = 528,
         /// <summary>It is clear that financing a large interstellar empire is</summary>
-        ItIsClearThatFinancing = 529,
+        BB_Tech_CentralizedBanking_Desc = 529,
         /// <summary>Colonization</summary>
-        Colonization = 530,
+        BB_Tech_Colonization_Name = 530,
         /// <summary>Boldly going to strange new worlds is just the first</summary>
-        BoldlyGoingToStrangeNew = 531,
+        BB_Tech_Colonization_Desc = 531,
         /// <summary>Military Transports</summary>
         MilitaryTransports = 532,
         /// <summary>Unlocks the Military Transport, a combat ready hull that can</summary>
         UnlocksTheMilitaryTransportA = 533,
         /// <summary>Combat Readiness</summary>
-        CombatReadiness = 534,
+        BB_Tech_CombatReadiness_Name = 534,
         /// <summary>Researching this technology will allow us to build certain armored</summary>
-        ResearchingThisTechnologyWillAllow = 535,
+        BB_Tech_CombatReadiness_Desc = 535,
         /// <summary>Cruiser Construction</summary>
-        CruiserConstruction = 536,
+        BB_Tech_Cruisers_Name = 536,
         /// <summary>Cruisers are large, heavy ships that can serve in a</summary>
-        CruisersAreLargeHeavyShips = 537,
+        BB_Tech_Cruisers_Desc = 537,
         /// <summary>Cryogenics</summary>
-        Cryogenics = 538,
+        BB_Tech_Cryogenics_Name = 538,
         /// <summary>Cryogenics is the science of suspending an organism's life functions</summary>
-        CryogenicsIsTheScienceOf = 539,
+        BB_Tech_Cryogenics_Desc = 539,
         /// <summary>Doubles the amount of colonists carried by passenger ships within</summary>
-        DoublesTheAmountOfColonists = 540,
+        BB_Tech_Cryogenics_PassengerModifier_Bonus = 540,
         /// <summary>Deep Core Mining</summary>
-        DeepCoreMining = 541,
+        BB_Tech_DeepCoreMining_Name = 541,
         /// <summary>When resource extraction matters more than the environment, Deep Core</summary>
-        WhenResourceExtractionMattersMore = 542,
+        BB_Tech_DeepCoreMining_Desc = 542,
         /// <summary>Disintegrator Array</summary>
-        DisintegratorArray = 543,
+        BB_Tech_DisintegratorArray_Name = 543,
         /// <summary>The Disintegrator Array is a massively powerful beam weapon suitable</summary>
-        TheDisintegratorArrayIsA = 544,
+        BB_Tech_DisintegratorArray_Desc = 544,
         /// <summary>Disruptors</summary>
-        Disruptors = 545,
+        BB_Tech_Disruptors_Name = 545,
         /// <summary>Disruptors Cannons are similar in function to Laser Cannons --</summary>
-        DisruptorsCannonsAreSimilarIn = 546,
+        BB_Tech_Disruptors_Desc = 546,
         /// <summary>ECM</summary>
-        Ecm = 547,
+        BB_Tech_ECM_Name = 547,
         /// <summary>Electronic Counter Measures such infrared and subspace frequency jammers can</summary>
-        ElectronicCounterMeasuresSuchInfrared = 548,
+        BB_Tech_ECM_Desc = 548,
         /// <summary>Grants missile weapon (such as rockets, guided missiles, and torpedoes)</summary>
-        GrantsMissileWeaponSuchAs = 549,
+        BB_Tech_ECM_MissileDodgeChangeBonus_Bonus = 549,
         /// <summary>EMP Cannons</summary>
-        EmpCannons = 550,
+        BB_Tech_EMPCannons_Name = 550,
         /// <summary>EMP Cannons are used to disable targeted ships by overloading</summary>
-        EmpCannonsAreUsedTo = 551,
+        BB_Tech_EMPCannons_Desc = 551,
         /// <summary>EMP Torpedoes</summary>
-        EmpTorpedoes = 552,
+        BB_Tech_EMPTorpedo_Name = 552,
         /// <summary>Electromagnetic pulse torpedoes deliver a massive shock to an area</summary>
-        ElectromagneticPulseTorpedoesDeliverA = 553,
+        BB_Tech_EMPTorpedo_Desc = 553,
         /// <summary>Energy Cannons</summary>
-        EnergyCannons = 554,
+        BB_Tech_EnergyCannons_Name = 554,
         /// <summary>Laser Cannons are somewhat of a misnomer because the cannon</summary>
-        LaserCannonsAreSomewhatOf = 555,
+        BB_Tech_EnergyCannons_Desc = 555,
         /// <summary>Energy Weapons</summary>
-        EnergyWeapons = 556,
+        BB_Tech_EnergyWeapons_Name = 556,
         /// <summary>Many of our top military scientists believe that directed energy</summary>
-        ManyOfOurTopMilitary = 557,
+        BB_Tech_EnergyWeapons_Desc = 557,
         /// <summary>Energy</summary>
-        Energy = 558,
+        BB_Tech_Energy_Name = 558,
         /// <summary>The technology branch explores power creation and energy fields, with</summary>
-        TheTechnologyBranchExploresPower = 559,
+        BB_Tech_Energy_Desc = 559,
         /// <summary>Energy Shielding</summary>
-        EnergyShielding = 560,
+        BB_Tech_EnergyShielding_Name = 560,
         /// <summary>Energy shields are a requirement for any Captain expecting to</summary>
-        EnergyShieldsAreARequirement = 561,
+        BB_Tech_EnergyShielding_Desc = 561,
         /// <summary>Fighter Shields</summary>
-        FighterShields = 562,
+        BB_Tech_FighterShields_Name = 562,
         /// <summary>Some fleet commanders question the prudence of shielding fighters, believing</summary>
-        SomeFleetCommandersQuestionThe = 563,
+        BB_Tech_FighterShields_Desc = 563,
         /// <summary>Fighter Theory</summary>
-        FighterTheory = 564,
+        BB_Tech_FighterTheory_Name = 564,
         /// <summary>As our ability to build larger ships improves, we can</summary>
-        AsOurAbilityToBuild = 565,
+        BB_Tech_FighterTheory_Desc = 565,
         /// <summary>Fleet Supply</summary>
-        FleetSupply = 566,
+        BB_Tech_FleetSupply_Name = 566,
         /// <summary>For a fleet on extended deployment, running out of ammunition</summary>
-        ForAFleetOnExtended = 567,
+        BB_Tech_FleetSupply_Desc = 567,
         /// <summary>Frigate Construction</summary>
-        FrigateConstruction = 568,
+        BB_Tech_FrigateConstruction_Name = 568,
         /// <summary>With investment into frigate construction, we can begin to build</summary>
-        WithInvestmentIntoFrigateConstruction = 569,
+        BB_Tech_FrigateConstruction_Desc = 569,
         /// <summary>Deuterium Power Cells</summary>
-        DeuteriumPowerCells = 570,
+        BB_Tech_FuelCell1_Name = 570,
         /// <summary>This technology will switch all of your ships' dedicated power</summary>
-        ThisTechnologyWillSwitchAll = 571,
+        BB_Tech_FuelCell1_Desc = 571,
         /// <summary>Gain an empire-wide 20% bonus to the amount of power</summary>
-        GainAnEmpirewideBonusTo = 572,
+        BB_Tech_FuelCell1_FuelCellBonus_Bonus = 572,
         /// <summary>Iridium Power Cells</summary>
-        IridiumPowerCells = 573,
+        BB_Tech_FuelCell2_Name = 573,
         /// <summary>Iridium has proven itself the superior element for power storage</summary>
-        IridiumHasProvenItselfThe = 574,
+        BB_Tech_FuelCell2_Desc = 574,
         /// <summary>Fusion Beams</summary>
-        FusionBeams = 576,
+        BB_Tech_FusionBeam_Name = 576,
         /// <summary>The fusion beam directs two narrow streams of atomic particles</summary>
-        TheFusionBeamDirectsTwo = 577,
+        BB_Tech_FusionBeam_Desc = 577,
         /// <summary>Genetic Manipulation</summary>
-        GeneticManipulation = 578,
+        BB_Tech_GeneticManipulation_Name = 578,
         /// <summary>Our understanding of genetics is blossoming to the point where</summary>
-        OurUnderstandingOfGeneticsIs = 579,
+        BB_Tech_GeneticManipulation_Desc = 579,
         /// <summary>Gain a 25% super solider bonus to all troop strengths</summary>
-        GainASuperSoliderBonus = 580,
+        BB_Tech_GeneticManipulation_TroopStrengthModifierBonus_Bonus = 580,
         /// <summary>Anti-Frigate Missiles</summary>
-        AntifrigateMissiles = 581,
+        BB_Tech_GuidedMissiles_Name = 581,
         /// <summary>To engage larger enemy threats we need to upgrade our</summary>
-        ToEngageLargerEnemyThreats = 582,
+        BB_Tech_GuidedMissiles_Desc = 582,
         /// <summary>Heavy Infantry</summary>
         HeavyInfantry = 583,
         /// <summary>Heavy weapons squads are better equipped and are more effective</summary>
         HeavyWeaponsSquadsAreBetter = 584,
         /// <summary>Corvette Hull</summary>
-        CorvetteHull = 585,
+        BB_Tech_HeavyFighterHull_Name = 585,
         /// <summary>This hull represents our first effort at a combat ready</summary>
-        ThisHullRepresentsOurFirst = 586,
+        BB_Tech_HeavyFighterHull_Desc = 586,
         /// <summary>Heavy Shielding</summary>
-        HeavyShielding = 587,
+        BB_Tech_HeavyShields_Name = 587,
         /// <summary>Heavy shields are twice as large and can take 10</summary>
-        HeavyShieldsAreTwiceAs = 588,
+        BB_Tech_HeavyShields_Desc = 588,
         /// <summary>Industrial Foundations</summary>
-        IndustrialFoundations = 589,
+        BB_Tech_IndustrialFoundations_Name = 589,
         /// <summary>Building a colony literally involves a lot of heavy lifting,</summary>
-        BuildingAColonyLiterallyInvolves = 590,
+        BB_Tech_IndustrialFoundations_Desc = 590,
         /// <summary>Inertial Dampers</summary>
-        InertialDampers = 591,
+        BB_Tech_InertialDampers_Name = 591,
         /// <summary>Inertial Damper systems effectively lower the mass of a ship</summary>
-        InertialDamperSystemsEffectivelyLower = 592,
+        BB_Tech_InertialDampers_Desc = 592,
         /// <summary>Infantry</summary>
         Infantry = 593,
         /// <summary>Boldly go where no one has gone before, explore strange</summary>
         BoldlyGoWhereNoOne = 594,
         /// <summary>Integrated Systems</summary>
-        IntegratedSystems = 595,
+        BB_Tech_IntegratedSystems_Name = 595,
         /// <summary>A starship is a complicated web of interdependent systems, and</summary>
-        AStarshipIsAComplicated = 596,
+        BB_Tech_IntegratedSystems_Desc = 596,
         /// <summary>Ionic Weaponry</summary>
-        IonicWeaponry = 597,
+        BB_Tech_IonicWeaponry_Name = 597,
         /// <summary>Ion stream particle weapons have the unique effect of causing</summary>
-        IonStreamParticleWeaponsHave = 598,
+        BB_Tech_IonicWeaponry_Desc = 598,
         /// <summary>Interstellar Governance</summary>
-        InterstellarGovernance = 599,
+        BB_Tech_ISGovernment_Name = 599,
         /// <summary>Managing a space empire is a major logistical task, requiring</summary>
-        ManagingASpaceEmpireIs = 600,
+        BB_Tech_ISGovernment_Desc = 600,
         /// <summary>Large Freighters</summary>
-        LargeFreighters = 601,
+        BB_Tech_LargeFreighters_Name = 601,
         /// <summary>Unlock the largest cargo hull possible.</summary>
-        UnlockTheLargestCargoHull = 602,
+        BB_Tech_LargeFreighters_Desc = 602,
         /// <summary>Socio-Logistics</summary>
-        Sociologistics = 603,
+        BB_Tech_Logistics_Name = 603,
         /// <summary>Socio-Logistics is a broad term for studies that increase the</summary>
-        SociologisticsIsABroadTerm = 604,
+        BB_Tech_Logistics_Desc = 604,
         /// <summary>You may scrap and refit your ships.</summary>
-        YouMayScrapAndRefit = 605,
+        BB_Tech_Logistics_Bonus = 605,
         /// <summary>Magnetic Artillery</summary>
-        MagneticArtillery = 606,
+        BB_Tech_MagneticArtillery_Name = 606,
         /// <summary>Firing weapons using powder charges alone is inefficient. By adding</summary>
-        FiringWeaponsUsingPowderCharges = 607,
+        BB_Tech_MagneticArtillery_Desc = 607,
         /// <summary>Medium Freighters</summary>
-        MediumFreighters = 608,
+        BB_Tech_MediumFreighters_Name = 608,
         /// <summary>Allows the construction of larger cargo ships, which can move</summary>
-        AllowsTheConstructionOfLarger = 609,
+        BB_Tech_MediumFreighters_Desc = 609,
         /// <summary>Mercantilism</summary>
-        Mercantilism = 610,
+        BB_Tech_Mercantilism_Name = 610,
         /// <summary>Trade is a vital component in any economy. By investing</summary>
-        TradeIsAVitalComponent = 611,
+        BB_Tech_Mercantilism_Desc = 611,
         /// <summary>Every unit of Food or Production moved via transport within</summary>
-        EveryUnitOfFoodOr = 612,
+        BB_Tech_Mercantilism_Bonus = 612,
         /// <summary>Military Outpost</summary>
-        MilitaryOutpost3 = 613,
+        BB_Tech_Military_Name = 613,
         /// <summary>A military presence is a crucial first step on a</summary>
-        AMilitaryPresenceIsA = 614,
+        BB_Tech_Military_Desc = 614,
         /// <summary>Missile Armor</summary>
-        MissileArmor = 615,
+        BB_Tech_MissileArmor_Name = 615,
         /// <summary>We can substantially increase the survivability of our missile-based weaponry</summary>
-        WeCanSubstantiallyIncreaseThe = 616,
+        BB_Tech_MissileArmor_Desc = 616,
         /// <summary>Increases the hitpoints of missile-based weaponry by 25%.</summary>
-        IncreasesTheHitpointsOfMissilebased = 617,
+        BB_Tech_MissileArmor_Weapon_HP_Bonus = 617,
         /// <summary>Missile Theory</summary>
-        MissileTheory = 618,
+        BB_Tech_MissileTheory_Name = 618,
         /// <summary>Adapting missile technology to the rigors of space travel is</summary>
-        AdaptingMissileTechnologyToThe = 619,
+        BB_Tech_MissileTheory_Desc = 619,
         /// <summary>Nanoweave Metallurgy</summary>
-        NanoweaveMetallurgy = 620,
+        BB_Tech_NanoweaveMetallurgy_Name = 620,
         /// <summary>With Nanoweave Metallurgy, metal sheets are constructed one molecule at</summary>
-        WithNanoweaveMetallurgyMetalSheets = 621,
+        BB_Tech_NanoweaveMetallurgy_Desc = 621,
         /// <summary>Provides a 10% hit point bonus to all ship modules</summary>
-        ProvidesAHitPointBonus = 622,
+        BB_Tech_NanoweaveMetallurgy_ModuleHPBonus_Bonus = 622,
         /// <summary>Phasors</summary>
-        Phasors = 623,
+        BB_Tech_Phasors_Name = 623,
         /// <summary>Phasors are extremely efficient directed energy weapons capable of longer</summary>
-        PhasorsAreExtremelyEfficientDirected = 624,
+        BB_Tech_Phasors_Desc = 624,
         /// <summary>Photon Cannons</summary>
-        PhotonCannons = 625,
+        BB_Tech_PhotonCannons_Name = 625,
         /// <summary>By packing matter and anti-matter into separate magnetic compartments, the</summary>
-        ByPackingMatterAndAntimatter = 626,
+        BB_Tech_PhotonCannons_Desc = 626,
         /// <summary>Anti-Matter Weapons</summary>
         AntimatterWeapons = 627,
         /// <summary>While photons themselves are completely harmless particle waves of light,</summary>
         WhilePhotonsThemselvesAreCompletely = 628,
         /// <summary>Physics</summary>
-        Physics = 629,
+        BB_Tech_Physics_Name = 629,
         /// <summary>Physics is the language of the universe. By mastering physics,</summary>
-        PhysicsIsTheLanguageOf = 630,
+        BB_Tech_Physics_Desc = 630,
         /// <summary>Gain the ability to build subspace projector platforms in deep</summary>
-        GainTheAbilityToBuild = 631,
+        BB_Tech_Physics_Bonus = 631,
         /// <summary>Planetary Defense</summary>
-        PlanetaryDefense = 632,
+        BB_Tech_PlanetaryDefense_Name = 632,
         /// <summary>It is wise to improve our planetary defense abilities with</summary>
-        ItIsWiseToImprove = 633,
+        BB_Tech_PlanetaryDefense_Desc = 633,
         /// <summary>Planetary Shielding</summary>
-        PlanetaryShielding = 634,
+        BB_Tech_PlanetaryShielding_Name = 634,
         /// <summary>Surprisingly, shielding an entire planet is easier than shielding an</summary>
-        SurprisinglyShieldingAnEntirePlanet = 635,
+        BB_Tech_PlanetaryShielding_Desc = 635,
         /// <summary>Plasma Vectoring</summary>
-        PlasmaVectoring = 636,
+        BB_Tech_PlasmaThrowers_Name = 636,
         /// <summary>If we channeled highly-ionized Plasma directly from a ship reactor</summary>
-        IfWeChanneledHighlyionizedPlasma = 637,
+        BB_Tech_PlasmaThrowers_Desc = 637,
         /// <summary>Polaron Cannons</summary>
-        PolaronCannons = 638,
+        BB_Tech_PolaronCannons_Name = 638,
         /// <summary>Phased polaron cannons encapsulate their payloads in a phased energy</summary>
-        PhasedPolaronCannonsEncapsulateTheir = 639,
+        BB_Tech_PolaronCannons_Desc = 639,
         /// <summary>Privatization</summary>
-        Privatization = 640,
+        BB_Tech_Privatization_Name = 640,
         /// <summary>Privatization allows private entities to own shares in public operations,</summary>
-        PrivatizationAllowsPrivateEntitiesTo = 641,
+        BB_Tech_Privatization_Desc = 641,
         /// <summary>Platform and Freighter maintenance is reduced by 50%</summary>
-        PlatformAndFreighterMaintenanceIs = 642,
+        BB_Tech_Privatization_Bonus = 642,
         /// <summary>Pulse Capacitors</summary>
-        PulseCapacitors = 643,
+        BB_Tech_PulseCapacitors_Name = 643,
         /// <summary>We believe that encountering Electromagnetic Pulse weaponry is distinctly possible.</summary>
-        WeBelieveThatEncounteringElectromagnetic = 644,
+        BB_Tech_PulseCapacitors_Desc = 644,
         /// <summary>Quantum Cannon</summary>
-        QuantumCannon = 645,
+        BB_Tech_QuantumTorpedoCannon_Name = 645,
         /// <summary>The ultimate in cannon weaponry, this weapon fires extremely powerful</summary>
-        TheUltimateInCannonWeaponry = 646,
+        BB_Tech_QuantumTorpedoCannon_Desc = 646,
         /// <summary>Rapid Cloning</summary>
-        RapidCloning = 647,
+        BB_Tech_RapidCloning_Name = 647,
         /// <summary>We have been able to clone things for a long</summary>
-        WeHaveBeenAbleTo = 648,
+        BB_Tech_RapidCloning_Desc = 648,
         /// <summary>Reaction Drive</summary>
-        ReactionDrive = 649,
+        BB_Tech_ReactionDrive_Name = 649,
         /// <summary>The reaction drive channels strongly ionized plasma through a subspace</summary>
-        TheReactionDriveChannelsStrongly = 650,
+        BB_Tech_ReactionDrive_Desc = 650,
         /// <summary>By converting all of our engines to the reaction drive</summary>
-        ByConvertingAllOfOur = 651,
+        BB_Tech_ReactionDrive_STLSpeedBonus_Bonus = 651,
         /// <summary>Scientific Foundations</summary>
-        ScientificFoundations = 652,
+        BB_Tech_ScientificFoundations_Name = 652,
         /// <summary>Each new colony presents a fresh opportunity for scientific discovery,</summary>
-        EachNewColonyPresentsA = 653,
+        BB_Tech_ScientificFoundations_Desc = 653,
         /// <summary>Ship Assault</summary>
-        ShipAssault = 654,
+        BB_Tech_ShipboardAssault_Name = 654,
         /// <summary>Feeding, housing, and equipping marines in deep space requires precise</summary>
-        FeedingHousingAndEquippingMarines = 655,
+        BB_Tech_ShipboardAssault_Desc = 655,
         /// <summary>Energy Siphon Beam</summary>
-        EnergySiphonBeam = 656,
+        BB_Tech_SiphonBeam_Name = 656,
         /// <summary>Siphon beams create a connection between the firing ship and</summary>
-        SiphonBeamsCreateAConnection = 657,
+        BB_Tech_SiphonBeam_Desc = 657,
         /// <summary>Slipstream Projection</summary>
-        SlipstreamProjection = 658,
+        BB_Tech_SlipstreamProjection_Name = 658,
         /// <summary>By focusing subspace manipulations at an area in front of</summary>
-        ByFocusingSubspaceManipulationsAt = 659,
+        BB_Tech_SlipstreamProjection_Desc = 659,
         /// <summary>Ships traveling within your own empire's borders gain 20% bonus</summary>
-        ShipsTravelingWithinYourOwn = 660,
+        BB_Tech_SlipstreamProjection_InBordersFTLBonus_Bonus = 660,
         /// <summary>Ballistics</summary>
-        Ballistics = 661,
+        BB_Tech_SpaceWeapons_Name = 661,
         /// <summary>Taking a cue from naval tradition, early spacecraft rely heavily</summary>
-        TakingACueFromNaval = 662,
+        BB_Tech_SpaceWeapons_Desc = 662,
         /// <summary>Starship Construction</summary>
-        StarshipConstruction = 663,
+        BB_Tech_StarshipConstruction_Name = 663,
         /// <summary>A core of basic starship design knowledge was needed for</summary>
-        ACoreOfBasicStarship = 664,
+        BB_Tech_StarshipConstruction_Desc = 664,
         /// <summary>Subspace Artillery</summary>
-        SubspaceArtillery = 665,
+        BB_Tech_SubspaceArtillery_Name = 665,
         /// <summary>Our scientists have concluded that conventional weapons, when packed with</summary>
-        OurScientistsHaveConcludedThat = 666,
+        BB_Tech_SubspaceArtillery_Desc = 666,
         /// <summary>Subspace Communication</summary>
-        SubspaceCommunication = 667,
+        BB_Tech_SubspaceCommunication_Name = 667,
         /// <summary>The ability to package light-speed communications into a faster-than-light subspace</summary>
-        TheAbilityToPackageLightspeed = 668,
+        BB_Tech_SubspaceCommunication_Desc = 668,
         /// <summary>Subspace Damper</summary>
         SubspaceDamper = 669,
         /// <summary>By focusing subspace manipulations at an area in front of</summary>
@@ -1191,73 +1191,73 @@ namespace Ship_Game
         /// <summary>Ships traveling within your own empire's borders gain 20% bonus</summary>
         ShipsTravelingWithinYourOwn2 = 671,
         /// <summary>Subspace Theory</summary>
-        SubspaceTheory = 672,
+        BB_Tech_SubspaceTheory_Name = 672,
         /// <summary>We have known for a long time that forces beyond</summary>
-        WeHaveKnownForA = 673,
+        BB_Tech_SubspaceTheory_Desc = 673,
         /// <summary>Increase effective StarDrive speeds by 20% for all ships in</summary>
-        IncreaseEffectiveStardriveSpeedsBy = 674,
+        BB_Tech_SubspaceTheory_FTLSpeedBonus_Bonus = 674,
         /// <summary>Sub-spatial Dynamics</summary>
-        SubspatialDynamics = 675,
+        BB_Tech_SubspatialDynamics_Name = 675,
         /// <summary>We have discovered that the efficiency of traveling through subspace</summary>
-        WeHaveDiscoveredThatThe = 676,
+        BB_Tech_SubspatialDynamics_Desc = 676,
         /// <summary>The power penalty incurred by ships at warp is reduced</summary>
-        ThePowerPenaltyIncurredBy = 677,
+        BB_Tech_SubspatialDynamics_FTLEfficiencyBonus_Bonus = 677,
         /// <summary>Grants a 50% bonus to empire FTL speeds</summary>
-        GrantsABonusToEmpire = 678,
+        BB_Tech_SubspatialDynamics_FTLSpeedBonus_Bonus = 678,
         /// <summary>Enemy Ships cannot warp inside your territory using conventional subspace</summary>
         EnemyShipsCannotWarpInside = 679,
         /// <summary>Tachyon Scanning</summary>
-        TachyonScanning = 680,
+        BB_Tech_TachyonScanning_Name = 680,
         /// <summary>Tachyons are particles that move substantially faster than the speed</summary>
-        TachyonsAreParticlesThatMove = 681,
+        BB_Tech_TachyonScanning_Desc = 681,
         /// <summary>Doubles the range of all sensors</summary>
-        DoublesTheRangeOfAll = 682,
+        BB_Tech_TachyonScanning_SensorRangeBonus_Bonus = 682,
         /// <summary>Terraforming Planet</summary>
-        TerraformingPlanet = 683,
+        BB_Tech_Terraforming_Name = 683,
         /// <summary>Thalaron Blaster</summary>
-        ThalaronBlaster = 685,
+        BB_Tech_ThalaronBlaster_Name = 685,
         /// <summary>There's nothing like a good dose of face-melting Thalaron radiation</summary>
-        TheresNothingLikeAGood = 686,
+        BB_Tech_ThalaronBlaster_Desc = 686,
         /// <summary>Titan Construction</summary>
-        TitanConstruction = 687,
+        BB_Tech_Titans_Name = 687,
         /// <summary>These ultra-massive ships are the absolute pinnacle of spaceship construction.</summary>
-        TheseUltramassiveShipsAreThe = 688,
+        BB_Tech_Titans_Desc = 688,
         /// <summary>Conventional Torpedoes</summary>
-        ConventionalTorpedoes = 689,
+        BB_Tech_Torpedo_Name = 689,
         /// <summary>A torpedo is essentially a massive missile, loaded to the</summary>
-        ATorpedoIsEssentiallyA = 690,
+        BB_Tech_Torpedo_Desc = 690,
         /// <summary>Tractor Beam</summary>
-        TractorBeam = 691,
+        BB_Tech_TractorBeam_Name = 691,
         /// <summary>Tractor beams create a miniature point singularity that effectively increases</summary>
-        TractorBeamsCreateAMiniature = 692,
+        BB_Tech_TractorBeam_Desc = 692,
         /// <summary>Xeno Computing</summary>
-        XenoComputing = 693,
+        BB_Tech_XenoComputing_Name = 693,
         /// <summary>Our computer scientists believe that they can apply the lessons</summary>
-        OurComputerScientistsBelieveThat = 694,
+        BB_Tech_XenoComputing_Desc = 694,
         /// <summary>Applies knowledge of alien languages to computing sciences, granting a</summary>
-        AppliesKnowledgeOfAlienLanguages = 695,
+        BB_Tech_XenoComputing_ResearchBonus_Bonus = 695,
         /// <summary>Xeno Linguistics</summary>
-        XenoLinguistics = 696,
+        BB_Tech_XenoLinguistics_Name = 696,
         /// <summary>Spacefaring races typically possess sufficient computing and linguistic sciences to</summary>
-        SpacefaringRacesTypicallyPossessSufficient = 697,
+        BB_Tech_XenoLinguistics_Desc = 697,
         /// <summary>Unlocks the ability to understand truly foreign creatures that you</summary>
-        UnlocksTheAbilityToUnderstand = 698,
+        BB_Tech_XenoLinguistics_Bonus = 698,
         /// <summary>A more nuanced understanding of alien languages provides a 10%</summary>
-        AMoreNuancedUnderstandingOf = 699,
+        BB_Tech_XenoLinguistics_DiplomacyBonus_Bonus = 699,
         /// <summary>Xeno Farming</summary>
-        XenoFarming = 700,
+        BB_Tech_XenoFarming_Name = 700,
         /// <summary>Farming on many alien planets isn't as simple as planting</summary>
-        FarmingOnManyAlienPlanets = 701,
+        BB_Tech_XenoFarming_Desc = 701,
         /// <summary>Xeno Genetics</summary>
-        XenoGenetics = 702,
+        BB_Tech_XenoGenetics_Name = 702,
         /// <summary>By studying alien plants, animals, and microganisms, we have learned</summary>
-        ByStudyingAlienPlantsAnimals = 703,
+        BB_Tech_XenoGenetics_Desc = 703,
         /// <summary>Gain an empire-wide 25% bonus to population growth from increased</summary>
-        GainAnEmpirewideBonusTo2 = 704,
+        BB_Tech_XenoGenetics_PopulationGrowthBonus_Bonus = 704,
         /// <summary>Xeno Mining</summary>
-        XenoMining = 705,
+        BB_Tech_XenoMining_Name = 705,
         /// <summary>With the proper industrial foundations laid, exploitation of an alien</summary>
-        WithTheProperIndustrialFoundations = 706,
+        BB_Tech_XenoMining_Desc = 706,
         /// <summary>Ancient Reactor</summary>
         AncientReactor = 900,
         /// <summary>This is an ancient but powerful anti-matter reactor.</summary>
@@ -1433,7 +1433,7 @@ namespace Ship_Game
         /// <summary>MRLS</summary>
         Mrls = 998,
         /// <summary>This is a multiple rocket launching system housed on a</summary>
-        ThisIsAMultipleRocket = 999,
+        BB_Tech_ImprovedMRMPlatforms_Desc = 999,
         /// <summary>Tactical Nuclear Bomb Bay</summary>
         TacticalNuclearBombBay = 1000,
         /// <summary>A bomb bay that allows a ship to strike a</summary>
@@ -2633,41 +2633,41 @@ namespace Ship_Game
         /// <summary>Exp Dmg</summary>
         ExpDmg = 1998,
         /// <summary>Plasma Ordnance provides a 25% damage bonus to all of</summary>
-        PlasmaOrdnanceProvidesADamage = 1999,
+        BB_Tech_PlasmaOrdnance_Weapon_ExplosionRadius_Bonus = 1999,
         /// <summary>was destroyed by unknown forces</summary>
         WasDestroyedByUnknownForces = 2000,
         /// <summary>Plasma Ordnance</summary>
-        PlasmaOrdnance = 2001,
+        BB_Tech_PlasmaOrdnance_Name = 2001,
         /// <summary>By switching our Ordnance to a plasma-based standard, we can</summary>
-        BySwitchingOurOrdnanceTo = 2002,
+        BB_Tech_PlasmaOrdnance_Desc = 2002,
         /// <summary>Plasma Ordnance provides a 25% greater explosive radius to all</summary>
-        PlasmaOrdnanceProvidesAGreater = 2003,
+        BB_Tech_PlasmaOrdnance_Weapon_Damage_Bonus = 2003,
         /// <summary>Reinforced Components</summary>
-        ReinforcedComponents = 2004,
+        BB_Tech_ReactiveArmor_Name = 2004,
         /// <summary>Integration of hardened ship components reduces the effectiveness of explosion</summary>
-        IntegrationOfHardenedShipComponents = 2005,
+        BB_Tech_ReactiveArmor_Desc = 2005,
         /// <summary>All ship modules are now slightly reinforced. Reducing radius of</summary>
-        AllShipModulesAreNow = 2006,
+        BB_Tech_ReactiveArmor_ArmorExplosionReduction_Bonus = 2006,
         /// <summary>Phased Ordnance</summary>
-        PhasedOrdnance = 2007,
+        BB_Tech_PhasedOrdnance_Name = 2007,
         /// <summary>When we accelerate our projectiles using a subspace field, we</summary>
-        WhenWeAccelerateOurProjectiles = 2008,
+        BB_Tech_PhasedOrdnance_Desc = 2008,
         /// <summary>Provides a 50% shield penetration chance to projectiles fired from</summary>
-        ProvidesAShieldPenetrationChance = 2009,
+        BB_Tech_PhasedOrdnance_Weapon_ShieldPenetration_Bonus = 2009,
         /// <summary>Indicates a ship's experience level, up to a maximum of</summary>
         IndicatesAShipsExperienceLevel = 2010,
         /// <summary>Ace Training</summary>
-        AceTraining = 2011,
+        BB_Tech_AceTraining_Name = 2011,
         /// <summary>Our fighter pilots should be the best of the best.</summary>
-        OurFighterPilotsShouldBe = 2012,
+        BB_Tech_AceTraining_Desc = 2012,
         /// <summary>All fighter class vessels receive 2 free experience levels.</summary>
-        AllFighterClassVesselsReceive = 2013,
+        BB_Tech_AceTraining_BonusFighterLevels_Bonus = 2013,
         /// <summary>Xeno Intelligence</summary>
-        XenoIntelligence = 2014,
+        BB_Tech_XenoIntelligence_Name = 2014,
         /// <summary>Understanding an alien's language helps us understand how that alien</summary>
-        UnderstandingAnAliensLanguageHelps = 2015,
+        BB_Tech_XenoIntelligence_Desc = 2015,
         /// <summary>Gain a +10 bonus to Defensive Agent rolls</summary>
-        GainABonusToDefensive = 2016,
+        BB_Tech_XenoIntelligence_SpyDefenseRollBonus_Bonus = 2016,
         /// <summary>Locks this slider, preventing the assigned labor percentage from being</summary>
         LocksThisSliderPreventingThe = 2017,
         /// <summary>Food is eaten by your colonists each turn. The number</summary>
@@ -2693,27 +2693,27 @@ namespace Ship_Game
         /// <summary>The occupants of this planet are cybernetic and have no</summary>
         TheOccupantsOfThisPlanet = 2028,
         /// <summary>Armor Piercing</summary>
-        ArmorPiercing = 2029,
+        BB_Tech_ArmorPiercing_Name = 2029,
         /// <summary>By reformulating the materials used in missile and ballistic weapons,</summary>
-        ByReformulatingTheMaterialsUsed = 2030,
+        BB_Tech_ArmorPiercing_Desc = 2030,
         /// <summary>Kinetic projectiles will pass through the first small-sized armor module</summary>
-        BallisticAndMissileWeaponsWill = 2031,
+        BB_Tech_ArmorPiercing_Bonus = 2031,
         /// <summary>Armor Phasing</summary>
-        ArmorPhasing = 2032,
+        BB_Tech_ArmorPhasing_Name = 2032,
         /// <summary>This technology equips our ballistics with a small subspace field</summary>
-        ThisTechnologyEquipsOurBallistics = 2033,
+        BB_Tech_ArmorPhasing_Desc = 2033,
         /// <summary>Kinetic projectiles will pass through up to three slots worth</summary>
-        BallisticAndMissileWeaponsWill2 = 2034,
+        BB_Tech_ArmorPhasing_Bonus = 2034,
         /// <summary>Shipyards</summary>
-        Shipyards = 2035,
+        BB_Tech_Shipyards_Name = 2035,
         /// <summary>Dedicated orbital shipbuilding facilities will allow us to streamline our</summary>
-        DedicatedOrbitalShipbuildingFacilitiesWill = 2036,
+        BB_Tech_Shipyards_Desc = 2036,
         /// <summary>This technology unlocks a unique Shipyard space station that boosts</summary>
-        ThisTechnologyUnlocksAUnique = 2037,
+        BB_Tech_Shipyards_Bonus = 2037,
         /// <summary>Shipboard Medicine</summary>
-        ShipboardMedicine = 2038,
+        BB_Tech_ShipboardMedicine_Name = 2038,
         /// <summary>Troops are an investment and we should protect that investment</summary>
-        TroopsAreAnInvestmentAnd = 2039,
+        BB_Tech_ShipboardMedicine_Desc = 2039,
         /// <summary>Sickbay</summary>
         Sickbay = 2040,
         /// <summary>(Orbits Planet)</summary>
@@ -2915,21 +2915,21 @@ namespace Ship_Game
         /// <summary>Difficulty</summary>
         Difficulty = 2139,
         /// <summary>Armor</summary>
-        Armor = 2140,
+        BB_Tech_Armor_Name = 2140,
         /// <summary>Not to be confused with ship armor, this technology unlocks</summary>
-        NotToBeConfusedWith = 2141,
+        BB_Tech_Armor_Desc = 2141,
         /// <summary>Secrets</summary>
-        Secrets = 2142,
+        BB_Tech_Secret_Name = 2142,
         /// <summary>Secret Technologies</summary>
-        SecretTechnologies = 2143,
+        BB_Tech_Secret_Desc = 2143,
         /// <summary>Remnant Studies</summary>
-        RemnantStudies = 2144,
+        BB_Tech_RemnantStudies_Name = 2144,
         /// <summary>We are literally piecing together the mystery of the Remnant</summary>
-        WeAreLiterallyPiecingTogether = 2145,
+        BB_Tech_RemnantStudies_Desc = 2145,
         /// <summary>Remnant Computing</summary>
-        RemnantComputing = 2146,
+        BB_Tech_RemnantComputing_Name = 2146,
         /// <summary>Our study of Remnant Ships has led us to believe</summary>
-        OurStudyOfRemnantComputing = 2147,
+        BB_Tech_RemnantComputing_Desc = 2147,
         /// <summary>Remnant Detection Array</summary>
         RemnantDetectionArray = 2148,
         /// <summary>Our scientists believe that this building will allow us to</summary>
@@ -2955,9 +2955,9 @@ namespace Ship_Game
         /// <summary>An ancient portal of some kind</summary>
         AnAncientPortalOfSome = 2159,
         /// <summary>Owlwok Freedom</summary>
-        OwlwokFreedom = 2160,
+        BB_Tech_OwlwokFreedom_Name = 2160,
         /// <summary>We believe that we can engineer an antidote to the</summary>
-        WeBelieveThatWeCan = 2161,
+        BB_Tech_OwlwokFreedom_Desc = 2161,
         /// <summary>Owlwok Liberator</summary>
         OwlwokLiberator = 2162,
         /// <summary>This device will spread a fast-acting antidote to the mind</summary>
@@ -3041,7 +3041,7 @@ namespace Ship_Game
         /// <summary>Sabotaged</summary>
         Sabotaged = 2202,
         /// <summary>Gain a +5 bonus to Offensive Agent rolls</summary>
-        GainABonusToOffensive = 2203,
+        BB_Tech_XenoIntelligence_SpyOffenseRollBonus_Bonus = 2203,
         /// <summary>Toggle the module grid overlay on or off</summary>
         ToggleTheModuleGridOverlay = 2204,
         /// <summary>You can increase or decrease the game speed with the</summary>
@@ -3051,7 +3051,7 @@ namespace Ship_Game
         /// <summary>Auto Ground Combat</summary>
         AutoGroundCombat = 2207,
         /// <summary>Remnant Schematics</summary>
-        RemnantSchematics = 2208,
+        BB_Tech_AscensionSchematics_Name = 2208,
         /// <summary>Kulrathi Might</summary>
         KulrathiMight = 2209,
         /// <summary>Other races may seek to build bigger ships; we seek</summary>
@@ -3137,13 +3137,13 @@ namespace Ship_Game
         /// <summary>The TimCorp Fletchette Anti-Fighter turret is very effective versus unarmored</summary>
         TheTimcorpFletchetteAntifighterTurret = 2250,
         /// <summary>VS Armor</summary>
-        VsArmor = 2251,
+        BB_Tech_ImprovedMRMPlatforms_Name = 2251,
         /// <summary>Indicates any bonus or penalty applied to this weapon's damage</summary>
         IndicatesAnyBonusOrPenalty = 2252,
         /// <summary>Point Defense</summary>
-        PointDefense = 2253,
+        BB_Tech_PointDefense_Name = 2253,
         /// <summary>Fighters and missiles can pose a serious threat to a</summary>
-        FightersAndMissilesCanPose = 2254,
+        BB_Tech_PointDefense_Desc = 2254,
         /// <summary>Combat Thruster</summary>
         CombatThruster = 2255,
         /// <summary>Combat Thrusters excel at providing sublight thrust but are incapable</summary>
@@ -3203,9 +3203,9 @@ namespace Ship_Game
         /// <summary>This megastructure employs advanced agricultural techniques and robotics to create</summary>
         ThisMegastructureEmploysAdvancedAgricultural = 2292,
         /// <summary>Vertical Farming</summary>
-        VerticalFarming = 2293,
+        BB_Tech_VerticalFarming_Name = 2293,
         /// <summary>This technology is a logical extension of our forays into</summary>
-        ThisTechnologyIsALogical = 2294,
+        BB_Tech_VerticalFarming_Desc = 2294,
         /// <summary>An event requires your attention</summary>
         AnEventRequiresYourAttention = 2295,
         /// <summary>Treasury Warning! Running out of money can have dire consequences!</summary>
@@ -3535,13 +3535,13 @@ namespace Ship_Game
         /// <summary>This small shield is capable of absorbing up to 500</summary>
         ThisSmallShieldIsCapable = 949,
         /// <summary>Terraforming planets is a slow process but it can produce</summary>
-        TerraformingPlanetsIsASlow = 684,
+        BB_Tech_Terraforming_Desc = 684,
         /// <summary>Cloning Centers increase the population growth of a planet at</summary>
         CloningCentersIncreaseThePopulation = 413,
         /// <summary>Xeno Farms are large complexes dedicated to the successful integration</summary>
         XenoFarmsAreLargeComplexes = 471,
         /// <summary>This is a monstrous shield with the a high resistance</summary>
-        ThisIsAMonstrousShield = 527,
+        BB_Tech_CanopyShields_Desc = 527,
         /// <summary>This shield provides 25,000 hp of protection in a radius</summary>
         ThisShieldProvidesHpOf = 917,
         /// <summary>Deep Core Mines are extremely effective at rapidly extracting minerals</summary>
@@ -3559,7 +3559,7 @@ namespace Ship_Game
         /// <summary>Ship will avoid engaging in combat. Good for scouts or</summary>
         ShipWillAvoidEngagingIn = 205,
         /// <summary>Gain an empire-wide 50% bonus to the amount of power</summary>
-        GainAnEmpirewideBonusTo3 = 575,
+        BB_Tech_FuelCell2_FuelCellBonus_Bonus = 575,
         /// <summary>This heavy laser beam has pinpoint accuracy over large distances</summary>
         ThisHeavyLaserBeamHas = 977,
         /// <summary>Ships equipped with a subspace scanning module have a substantially</summary>
@@ -4411,9 +4411,9 @@ namespace Ship_Game
         /// <summary>Trees? Who needs trees. What your people needed was room</summary>
         TreesWhoNeedsTreesWhat = 5082,
         /// <summary>Ascension</summary>
-        Ascension2 = 5083,
+        BB_Tech_Ascension_Name = 5083,
         /// <summary>The data-stream from the Remnant Mothership holds the key to</summary>
-        TheDatastreamFromTheRemnant = 5084,
+        BB_Tech_Ascension_Desc = 5084,
         /// <summary>As the Remnant Exterminators sweep across the galaxy, burning and</summary>
         AsTheRemnantExterminatorsSweep = 5085,
         /// <summary>WARNING: CPU INTENSE! This option will force a full combat</summary>
