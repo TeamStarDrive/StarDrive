@@ -280,7 +280,6 @@
     <Compile Include="Ship_Game\Commands\Goals\ScrapShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantAI.cs" />
     <Compile Include="Ship_Game\Data\GameText.cs" />
-    <Compile Include="Ship_Game\Data\GameTips.cs" />
     <Compile Include="Ship_Game\Data\LocalizedText.cs" />
     <Compile Include="Ship_Game\Debug\Page\DebugWar.cs" />
     <Compile Include="Ship_Game\Debug\Page\SpatialDebug.cs" />
