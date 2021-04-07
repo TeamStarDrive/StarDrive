@@ -6,7 +6,7 @@ namespace Ship_Game.GameScreens.Espionage
     {
         public AgentsPanel(EspionageScreen screen, in Rectangle rect) : base(rect, EspionageScreen.PanelBackground)
         {
-            Label(rect.X + 20, rect.Y + 10, 6090, Fonts.Arial20Bold);
+            Label(rect.X + 20, rect.Y + 10, GameText.EspionageAgents, Fonts.Arial20Bold);
         }
     }
 }

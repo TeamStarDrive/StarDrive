@@ -511,7 +511,7 @@ namespace Ship_Game
             bottomListRight.LayoutStyle = ListLayoutStyle.ResizeList;
             bottomListRight.Direction = new Vector2(-1, 0);
             bottomListRight.Padding = new Vector2(16f, 2f);
-            bottomListRight.Add(ButtonStyle.Medium, 105, click: b =>
+            bottomListRight.Add(ButtonStyle.Medium, GameText.SaveAs, click: b =>
             {
                 if (!CheckDesign()) {
                     GameAudio.NegativeClick();
@@ -520,11 +520,11 @@ namespace Ship_Game
                 }
                 ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
             });
-            bottomListRight.Add(ButtonStyle.Medium, 8, click: b =>
+            bottomListRight.Add(ButtonStyle.Medium, GameText.Load, click: b =>
             {
                 ScreenManager.AddScreen(new LoadDesigns(this));
             });
-            bottomListRight.Add(ButtonStyle.Medium, 106, click: b =>
+            bottomListRight.Add(ButtonStyle.Medium, GameText.ToggleOverlay, click: b =>
             {
                 ToggleOverlay = !ToggleOverlay;
             }).ClickSfx = "blip_click";

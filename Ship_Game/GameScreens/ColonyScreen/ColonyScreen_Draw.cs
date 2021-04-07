@@ -438,7 +438,7 @@ namespace Ship_Game
 
         void DrawCommoditiesArea(Vector2 bCursor)
         {
-            ScreenManager.SpriteBatch.DrawString(TextFont, MultiLineFormat(4097), bCursor, TextColor);
+            ScreenManager.SpriteBatch.DrawString(TextFont, MultiLineFormat(GameText.CommoditiesAreSpecialResourcesThat), bCursor, TextColor);
         }
 
         void DrawDetailInfo(SpriteBatch batch, Vector2 bCursor)
@@ -510,13 +510,13 @@ namespace Ship_Game
                         case null when pgs.Habitable && pgs.Biosphere:
                             batch.DrawString(Font20, Localizer.Token(GameText.HabitableBiosphere), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
-                            batch.DrawString(TextFont, MultiLineFormat(349), bCursor, color);
+                            batch.DrawString(TextFont, MultiLineFormat(GameText.DragAStructureFromThe), bCursor, color);
                             DrawTilePopInfo(ref bCursor, batch, pgs);
                             return;
                         case null when pgs.Habitable:
                             batch.DrawString(Font20, Localizer.Token(GameText.HabitableLand), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
-                            batch.DrawString(TextFont, MultiLineFormat(349), bCursor, color);
+                            batch.DrawString(TextFont, MultiLineFormat(GameText.DragAStructureFromThe), bCursor, color);
                             DrawTilePopInfo(ref bCursor, batch, pgs);
                             return;
                     }
@@ -527,13 +527,13 @@ namespace Ship_Game
                         {
                             batch.DrawString(Font20, Localizer.Token(GameText.UninhabitableLand), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
-                            batch.DrawString(TextFont, MultiLineFormat(352), bCursor, color);
+                            batch.DrawString(TextFont, MultiLineFormat(GameText.ThisLandIsNotHabitable), bCursor, color);
                         }
                         else
                         {
                             batch.DrawString(Font20, Localizer.Token(GameText.UninhabitableLand), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
-                            batch.DrawString(TextFont, MultiLineFormat(353), bCursor, color);
+                            batch.DrawString(TextFont, MultiLineFormat(GameText.ThisLandIsNotHabitable), bCursor, color);
                         }
 
                         DrawTilePopInfo(ref bCursor, batch, pgs);
@@ -546,7 +546,7 @@ namespace Ship_Game
                     batch.Draw(ResourceManager.Texture("Ground_UI/GC_Square Selection"), bRect, Color.White);
                     batch.DrawString(Font20, Localizer.Token(pgs.Building.NameTranslationIndex), bCursor, color);
                     bCursor.Y   += Font20.LineSpacing + 5;
-                    string buildingDescription  = MultiLineFormat(pgs.Building.DescriptionIndex);
+                    string buildingDescription  = MultiLineFormat(Localizer.Token(pgs.Building.DescriptionIndex));
                     batch.DrawString(TextFont, buildingDescription, bCursor, color);
                     bCursor.Y   += TextFont.MeasureString(buildingDescription).Y + Font20.LineSpacing;
                     DrawSelectedBuildingInfo(ref bCursor, batch, pgs.Building, pgs);
@@ -561,7 +561,7 @@ namespace Ship_Game
                 case Building selectedBuilding:
                     batch.DrawString(Font20, Localizer.Token(selectedBuilding.NameTranslationIndex), bCursor, color);
                     bCursor.Y += Font20.LineSpacing + 5;
-                    string selectionText = MultiLineFormat(selectedBuilding.DescriptionIndex);
+                    string selectionText = MultiLineFormat(Localizer.Token(selectedBuilding.DescriptionIndex));
                     batch.DrawString(TextFont, selectionText, bCursor, color);
                     bCursor.Y += TextFont.MeasureString(selectionText).Y + Font20.LineSpacing;
                     if (selectedBuilding.isWeapon)
@@ -605,20 +605,20 @@ namespace Ship_Game
             cursor.Y += Font20.LineSpacing * spacing;
             if (tile.LavaHere)
             {
-                batch.DrawString(TextFont, $"{MultiLineFormat(4272)}", cursor, Color.Orange);
+                batch.DrawString(TextFont, $"{MultiLineFormat(GameText.NoOneCanLiveOn)}", cursor, Color.Orange);
                 return;
             }
 
             if (tile.VolcanoHere && !tile.Habitable)
             {
-                batch.DrawString(TextFont, $"{MultiLineFormat(4273)}", cursor, Color.Orange);
+                batch.DrawString(TextFont, $"{MultiLineFormat(GameText.TheVolcanoHerePreventsBuilding)}", cursor, Color.Orange);
                 return;
             }
 
             if (tile.Habitable && tile.Biosphere)
             {
                 batch.DrawString(TextFont, $"{(P.PopPerBiosphere(Player) + popBonus).String(1)}" +
-                                         $" {MultiLineFormat(1897)}", cursor, Player.EmpireColor);
+                                         $" {MultiLineFormat(GameText.MillionColonistsCanLiveUnder)}", cursor, Player.EmpireColor);
 
                 cursor.Y += Font20.LineSpacing;
                 if (tile.BioCanTerraform)
@@ -632,7 +632,7 @@ namespace Ship_Game
             }
             else if (tile.Habitable)
             {
-                batch.DrawString(TextFont, $"{(popPerTile + popBonus).String(1)} {MultiLineFormat(1898)}", cursor, Color.LightGreen);
+                batch.DrawString(TextFont, $"{(popPerTile + popBonus).String(1)} {MultiLineFormat(GameText.MillionColonistsCanLiveOn)}", cursor, Color.LightGreen);
             }
             else
             {

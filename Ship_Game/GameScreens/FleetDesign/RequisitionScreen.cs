@@ -241,7 +241,7 @@ namespace Ship_Game
                 Tooltip   = GameText.BuildAllShipsNowPrioritize
             };
 
-            AutoRequisition = Add(new UICheckBox(() => F.AutoRequisition, Fonts.Arial12Bold, title: 1833, tooltip: GameText.IfCheckedEveryTimeA));
+            AutoRequisition = Add(new UICheckBox(() => F.AutoRequisition, Fonts.Arial12Bold, title: GameText.AutomaticRequisition, tooltip: GameText.IfCheckedEveryTimeA));
             AutoRequisition.Pos = new Vector2(FleetStatsRect.X + 85, FleetStatsRect.Y + 480);
             AutoRequisitionRect = new Rectangle((int)AutoRequisition.Pos.X - 40, (int)AutoRequisition.Pos.Y - 14, 30, 40);
             UpdateRequisitionStatus();

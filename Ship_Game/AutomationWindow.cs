@@ -65,14 +65,14 @@ namespace Ship_Game
 
             UIList rest = AddList(new Vector2(win.X + 10f, win.Y + 200f));
             rest.Padding = new Vector2(2f, 10f);
-            rest.AddCheckbox(() => EmpireManager.Player.AutoPickBestColonizer, title: 1837, tooltip: GameText.TheBestColonyShipWill);
-            rest.AddCheckbox(() => EmpireManager.Player.AutoPickBestFreighter, title: 1958, tooltip: GameText.IfAutoTradeIsChecked);
-            rest.AddCheckbox(() => EmpireManager.Player.AutoResearch,          title: 6136, tooltip: GameText.YourEmpireWillAutomaticallySelect);
-            rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes,        title: 6138, tooltip: GameText.YourEmpireWillAutomaticallyManage3);
-            rest.AddCheckbox(() => RushConstruction,                           title: 1824, tooltip: GameText.RushAllConstructionTip);
-            rest.AddCheckbox(() => GlobalStats.SuppressOnBuildNotifications,   title: 1835, tooltip: GameText.NormallyWhenYouManuallyAdd);
-            rest.AddCheckbox(() => GlobalStats.DisableInhibitionWarning,       title: 1842, tooltip: GameText.InhibitionAlertsAreDisplayedWhen);
-            rest.AddCheckbox(() => GlobalStats.DisableVolcanoWarning,          title: 4254, tooltip: GameText.DisableVolcanoActivationOrDeactivation);
+            rest.AddCheckbox(() => EmpireManager.Player.AutoPickBestColonizer, title: GameText.AutoPickColonyShip, tooltip: GameText.TheBestColonyShipWill);
+            rest.AddCheckbox(() => EmpireManager.Player.AutoPickBestFreighter, title: GameText.AutoPickFreighter, tooltip: GameText.IfAutoTradeIsChecked);
+            rest.AddCheckbox(() => EmpireManager.Player.AutoResearch,          title: GameText.AutoResearch, tooltip: GameText.YourEmpireWillAutomaticallySelect);
+            rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes,        title: GameText.AutoTaxes, tooltip: GameText.YourEmpireWillAutomaticallyManage3);
+            rest.AddCheckbox(() => RushConstruction,                           title: GameText.RushAllConstruction, tooltip: GameText.RushAllConstructionTip);
+            rest.AddCheckbox(() => GlobalStats.SuppressOnBuildNotifications,   title: GameText.DisableBuildingAlerts, tooltip: GameText.NormallyWhenYouManuallyAdd);
+            rest.AddCheckbox(() => GlobalStats.DisableInhibitionWarning,       title: GameText.DisableInhibitionAlerts, tooltip: GameText.InhibitionAlertsAreDisplayedWhen);
+            rest.AddCheckbox(() => GlobalStats.DisableVolcanoWarning,          title: GameText.DisableVolcanoAlerts, tooltip: GameText.DisableVolcanoActivationOrDeactivation);
 
             UIList ticks = AddList(new Vector2(win.X + 10f, win.Y + 26f));
             ticks.Padding = new Vector2(2f, 10f);

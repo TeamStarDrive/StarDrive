@@ -126,7 +126,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             
             PopulateEntries();
             EnterNameArea = Add(new UITextEntry(new Vector2(X + 20, Y + 20), Localizer.Token(GameText.ChooseAShipToLoad)));
-            ButtonSmall(background.Right - 88, EnterNameArea.Y - 2, text:8, click: b =>
+            ButtonSmall(background.Right - 88, EnterNameArea.Y - 2, text:GameText.Load, click: b =>
             {
                 LoadShipToScreen();
             });
