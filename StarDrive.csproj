@@ -1271,7 +1271,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Universe\SolarBodies\SystemInfoUIElement.cs">
+    <Compile Include="Ship_Game\Universe\SolarBodies\SolarsystemOverlay.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

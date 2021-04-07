@@ -60,30 +60,23 @@ namespace Ship_Game
 			Options.Add(option.Text);
 		}
 
-		public void Draw(SpriteBatch spriteBatch)
+		public void Draw(SpriteBatch batch)
 		{
-			bool hover = false;
-			float x = Mouse.GetState().X;
-			MouseState state = Mouse.GetState();
-			Vector2 MousePos = new Vector2(x, state.Y);
-			if (this.r.HitTest(MousePos))
-			{
-				hover = true;
-			}
+			bool hover = r.HitTest(GameBase.Base.Manager.input.CursorPosition);
 			if (hover)
 			{
-				spriteBatch.FillRectangle(r, new Color(128, 87, 43, 50));
+				batch.FillRectangle(r, new Color(128, 87, 43, 50));
 			}
 			foreach (RecTexPair r in container)
 			{
-				spriteBatch.Draw(ResourceManager.Texture(r.tex), r.r, Color.White);
+				batch.Draw(ResourceManager.Texture(r.tex), r.r, Color.White);
 			}
 			if (hover)
 			{
-				spriteBatch.DrawString(Fonts.Arial12Bold, Options[ActiveIndex], new Vector2(r.X + 8, r.Y + r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2), Color.White);
+				batch.DrawString(Fonts.Arial12Bold, Options[ActiveIndex], new Vector2(r.X + 8, r.Y + r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2), Color.White);
 				return;
 			}
-			spriteBatch.DrawString(Fonts.Arial12Bold, Options[ActiveIndex], new Vector2(this.r.X + 8, this.r.Y + this.r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2), Colors.Cream);
+			batch.DrawString(Fonts.Arial12Bold, Options[ActiveIndex], new Vector2(this.r.X + 8, this.r.Y + this.r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2), Colors.Cream);
 		}
 
 		public void DrawGrayed(SpriteBatch spriteBatch)

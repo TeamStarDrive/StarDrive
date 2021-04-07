@@ -43,11 +43,11 @@ namespace Ship_Game
 
             if (SelectedSystem == null)
             {
-                sInfoUI.SelectionTimer = 0.0f;
+                SystemInfoOverlay.SelectionTimer = 0.0f;
             }
             else
             {
-                captured |= !LookingAtPlanet && sInfoUI.HandleInput(input);
+                captured |= !LookingAtPlanet && SystemInfoOverlay.HandleInput(input);
             }
 
             if (minimap.HandleInput(input, this))
@@ -688,7 +688,7 @@ namespace Ship_Game
             {
                 if ((SelectedSystem = CheckSolarSystemClick()) != null)
                 {
-                    sInfoUI.SetSystem(SelectedSystem);
+                    SystemInfoOverlay.SetSystem(SelectedSystem);
                     return;
                 }
             }
