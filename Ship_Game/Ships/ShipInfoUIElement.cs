@@ -37,78 +37,48 @@ namespace Ship_Game.Ships
 
         public ShipInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
-            Screen               = screen;
-            ScreenManager        = sm;
-            ElementRect          = r;
-            FlagRect             = new Rectangle(r.X + 365, r.Y + 71, 18, 18);
-            Sel                  = new Selector(r, Color.Black);
-            TransitionOnTime     = TimeSpan.FromSeconds(0.25);
-            TransitionOffTime    = TimeSpan.FromSeconds(0.25);
-            Rectangle sliderRect = new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130);
-            SlidingElement       = new SlidingElement(sliderRect);
-            Housing              = r;
-            LeftRect             = new Rectangle(r.X, r.Y + 44, 180, r.Height - 44);
-            RightRect            = new Rectangle(LeftRect.X + LeftRect.Width, LeftRect.Y, 220, LeftRect.Height);
-            int spacing          = 2;
-            Power                = new Rectangle(Housing.X + 187, Housing.Y + 110, 20, 20);
-            Rectangle pBarRect   = new Rectangle(Power.X + Power.Width + 15, Power.Y, 150, 18);
-            ShipNameArea         = new UITextEntry
+            Screen = screen;
+            ScreenManager = sm;
+            ElementRect = r;
+            FlagRect = new Rectangle(r.X + 365, r.Y + 71, 18, 18);
+            Sel = new Selector(r, Color.Black);
+            TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            SlidingElement = new SlidingElement(new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130));
+            Housing = r;
+            LeftRect = new Rectangle(r.X, r.Y + 44, 180, r.Height - 44);
+            RightRect = new Rectangle(LeftRect.X + LeftRect.Width, LeftRect.Y, 220, LeftRect.Height);
+            int spacing = 2;
+            ShipNameArea = new UITextEntry
             {
                 ClickableArea = new Rectangle(Housing.X + 41, Housing.Y + 65, 200, Fonts.Arial20Bold.LineSpacing)
             };
+            
+            Power = new Rectangle(Housing.X + 187, Housing.Y + 110, 20, 20);
+            PBar = new ProgressBar(Power.X + Power.Width + 15, Power.Y, 150, 18) { color = "green" };
+            ToolTipItems.Add(new TippedItem(Power, GameText.IndicatesThisShipsCurrentPower));
 
-            PBar = new ProgressBar(pBarRect)
-            {
-                color = "green"
-            };
-            var ti = new TippedItem
-            {
-                r = Power,
-                Tooltip = GameText.IndicatesThisShipsCurrentPower
-            };
-            ToolTipItems.Add(ti);
             Shields = new Rectangle(Housing.X + 187, Housing.Y + 110 + 20 + spacing, 20, 20);
-            var pShieldsRect = new Rectangle(Shields.X + Shields.Width + 15, Shields.Y, 150, 18);
-            SBar = new ProgressBar(pShieldsRect)
-            {
-                color = "blue"
-            };
-            ti = new TippedItem
-            {
-                r = Shields,
-                Tooltip = GameText.IndicatesTheTotalPowerOf
-            };
-            ToolTipItems.Add(ti);
-            Ordnance           = new Rectangle(Housing.X + 187, Housing.Y + 110 + 20 + spacing + 20 + spacing, 20, 20);
-            Rectangle pOrderRect = new Rectangle(Ordnance.X + Ordnance.Width + 15, Ordnance.Y, 150, 18);
-            OBar               = new ProgressBar(pOrderRect);
-            ti                 = new TippedItem
-            {
-                r = Ordnance,
-                Tooltip = GameText.IndicatesThisShipsCurrentStores
-            };
-            ToolTipItems.Add(ti);
+            SBar = new ProgressBar(Shields.X + Shields.Width + 15, Shields.Y, 150, 18) { color = "blue" };
+            ToolTipItems.Add(new TippedItem(Shields, GameText.IndicatesTheTotalPowerOf));
+
+            Ordnance = new Rectangle(Housing.X + 187, Housing.Y + 110 + 20 + spacing + 20 + spacing, 20, 20);
+            OBar = new ProgressBar(Ordnance.X + Ordnance.Width + 15, Ordnance.Y, 150, 18);
+            ToolTipItems.Add(new TippedItem(Ordnance, GameText.IndicatesThisShipsCurrentStores));
+
             DefenseRect = new Rectangle(Housing.X + 13, Housing.Y + 112, 22, 22);
-            ti = new TippedItem
-            {
-                r = DefenseRect,
-                Tooltip = GameText.IndicatesThisShipsCurrentDefense
-            };
-            ToolTipItems.Add(ti);
+            ToolTipItems.Add(new TippedItem(DefenseRect, GameText.IndicatesThisShipsCurrentDefense));
+            
             TroopRect = new Rectangle(Housing.X + 13, Housing.Y + 137, 22, 22);
-            ti = new TippedItem
-            {
-                r = TroopRect,
-                Tooltip = GameText.IndicatesTheNumberOfTroops
-            };
-            ToolTipItems.Add(ti);
+            ToolTipItems.Add(new TippedItem(TroopRect, GameText.IndicatesTheNumberOfTroops));
+
             ShipInfoRect = new Rectangle(Housing.X + 60, Housing.Y + 110, 115, 115);
             Vector2 gridRect = new Vector2(Housing.X + 16, Screen.ScreenHeight - 45);
             GridButton = new ToggleButton(gridRect, ToggleButtonStyle.Grid, "SelectionBox/icon_grid")
             {
                 IsToggled = true
             };
-            OrderButtons(spacing, pOrderRect);
+            OrderButtons(spacing, OBar.pBar);
         }
 
         public void OrderButtons(int spacing, Rectangle pOrderRect)
@@ -598,7 +568,7 @@ namespace Ship_Game.Ships
 
             foreach (TippedItem tippedItem in ToolTipItems)
             {
-                if (tippedItem.r.HitTest(input.CursorPosition))
+                if (tippedItem.Rect.HitTest(input.CursorPosition))
                     ToolTip.CreateTooltip(tippedItem.Tooltip);
             }
                
@@ -780,12 +750,6 @@ namespace Ship_Game.Ships
                 ob.ClickRect.Y = SlidingElement.Housing.Y + 15 + y * 52;
                 y++;
             }
-        }
-
-        private struct TippedItem
-        {
-            public Rectangle r;
-            public LocalizedText Tooltip;
         }
     }
 }

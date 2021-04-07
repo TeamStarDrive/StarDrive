@@ -23,8 +23,6 @@ namespace Ship_Game
 
         private Rectangle res5;
 
-        private Array<ToolTip> ToolTips = new Array<ToolTip>();
-
         private Array<Button> Buttons = new Array<Button>();
 
         private bool LowRes;

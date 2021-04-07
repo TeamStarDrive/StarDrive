@@ -552,6 +552,7 @@
     <Compile Include="Ship_Game\UI\UIPanel.cs" />
     <Compile Include="Ship_Game\UI\UITextBox.cs" />
     <Compile Include="Ship_Game\Universe\EmpireSolarSystemStatus.cs" />
+    <Compile Include="Ship_Game\Universe\TippedItem.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Volcano.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\DynamicCrashSite.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\GeodeticManager.cs" />
@@ -1275,10 +1276,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\StoryAndEvents\ArtifactEntry.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Operation.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

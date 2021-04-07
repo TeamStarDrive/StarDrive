@@ -353,7 +353,7 @@ namespace Ship_Game
 
             foreach (TippedItem ti in ToolTipItems)
             {
-                if (ti.r.HitTest(input.CursorPosition))
+                if (ti.Rect.HitTest(input.CursorPosition))
                     ToolTip.CreateTooltip(ti.Tooltip);
             }
 
@@ -553,12 +553,6 @@ namespace Ship_Game
                 ob.ClickRect.Y = SlidingElement.Housing.Y + 15 + y * 52;
                 y++;
             }
-        }
-
-        struct TippedItem
-        {
-            public Rectangle r;
-            public LocalizedText Tooltip;
         }
     }
 }
