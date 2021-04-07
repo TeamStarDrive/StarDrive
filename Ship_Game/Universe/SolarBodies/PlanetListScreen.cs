@@ -77,13 +77,13 @@ namespace Ship_Game
             PlanetSL = Add(new ScrollList2<PlanetListScreenItem>(eRect));
             PlanetSL.EnableItemHighlight = true;
 
-            sb_Sys      = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(GameText.System));
-            sb_Name     = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(GameText.Planet));
-            sb_Fert     = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(GameText.Fertility) );
-            sb_Rich     = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(GameText.Richness));
-            sb_Pop      = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(GameText.MaxPopulation));
-            sb_Owned    = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(GameText.Owner));
-            sb_Distance = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(GameText.Proximity));
+            sb_Sys      = new SortButton(empireUi.Player.data.PLSort, Localizer.Token(GameText.System));
+            sb_Name     = new SortButton(empireUi.Player.data.PLSort, Localizer.Token(GameText.Planet));
+            sb_Fert     = new SortButton(empireUi.Player.data.PLSort,Localizer.Token(GameText.Fertility) );
+            sb_Rich     = new SortButton(empireUi.Player.data.PLSort,Localizer.Token(GameText.Richness));
+            sb_Pop      = new SortButton(empireUi.Player.data.PLSort,Localizer.Token(GameText.MaxPopulation));
+            sb_Owned    = new SortButton(empireUi.Player.data.PLSort, Localizer.Token(GameText.Owner));
+            sb_Distance = new SortButton(empireUi.Player.data.PLSort, Localizer.Token(GameText.Proximity));
 
             foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance => distance.Position.Distance(EmpireManager.Player.WeightedCenter)))
             {

@@ -126,16 +126,16 @@ namespace Ship_Game
             ShowRoles.AddOption("All Structures", 12);
             ShowRoles.AddOption("Civilian", 13);
 
-            SortSystem = new SortButton(EmpireUi.empire.data.SLSort, Localizer.Token(GameText.System));
-            SortName   = new SortButton(EmpireUi.empire.data.SLSort, Localizer.Token(GameText.Ship));
-            SortRole   = new SortButton(EmpireUi.empire.data.SLSort, Localizer.Token(GameText.Role));
-            SortOrder  = new SortButton(EmpireUi.empire.data.SLSort, Localizer.Token(GameText.Orders));
-            SortFleet  = new SortButton(EmpireUi.empire.data.SLSort, "Fleet");
-            Maint      = new SortButton(EmpireUi.empire.data.SLSort, "maint");
-            SB_FTL     = new SortButton(EmpireUi.empire.data.SLSort, "FTL");
-            SB_STL     = new SortButton(EmpireUi.empire.data.SLSort, "STL");
-            SB_Troop   = new SortButton(EmpireUi.empire.data.SLSort, "TROOP");
-            SB_STR     = new SortButton(EmpireUi.empire.data.SLSort, "STR");
+            SortSystem = new SortButton(EmpireUi.Player.data.SLSort, Localizer.Token(GameText.System));
+            SortName   = new SortButton(EmpireUi.Player.data.SLSort, Localizer.Token(GameText.Ship));
+            SortRole   = new SortButton(EmpireUi.Player.data.SLSort, Localizer.Token(GameText.Role));
+            SortOrder  = new SortButton(EmpireUi.Player.data.SLSort, Localizer.Token(GameText.Orders));
+            SortFleet  = new SortButton(EmpireUi.Player.data.SLSort, "Fleet");
+            Maint      = new SortButton(EmpireUi.Player.data.SLSort, "maint");
+            SB_FTL     = new SortButton(EmpireUi.Player.data.SLSort, "FTL");
+            SB_STL     = new SortButton(EmpireUi.Player.data.SLSort, "STL");
+            SB_Troop   = new SortButton(EmpireUi.Player.data.SLSort, "TROOP");
+            SB_STR     = new SortButton(EmpireUi.Player.data.SLSort, "STR");
             ShowRoles.ActiveIndex = IndexLast;  //fbedard: remember last filter
             ResetList(ShowRoles.ActiveValue);
         }

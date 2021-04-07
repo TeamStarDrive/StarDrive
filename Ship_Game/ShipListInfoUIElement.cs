@@ -126,8 +126,8 @@ namespace Ship_Game
                 foreach (OrdersButton ob in Orders)
                 {
                     Rectangle r = ob.ClickRect;
-                    r.X = r.X - (int)(transitionOffset * 300f);
-                    ob.Draw(ScreenManager, r);
+                    r.X -= (int)(transitionOffset * 300f);
+                    ob.Draw(batch, ScreenManager.input.CursorPosition, r);
                 }
             }
             batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);

@@ -60,7 +60,7 @@ namespace Ship_Game
         {
             P = p;
             Eui = empUI;
-            empUI.empire.UpdateShipsWeCanBuild();
+            empUI.Player.UpdateShipsWeCanBuild();
             TextFont = LowRes ? Font8 : Font12;
             var titleBar = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             TitleBar = new Menu2(titleBar);
