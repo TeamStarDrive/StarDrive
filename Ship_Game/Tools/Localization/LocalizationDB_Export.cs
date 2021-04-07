@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace SDGameTextToEnum
+namespace Ship_Game.Tools.Localization
 {
     public partial class LocalizationDB
     {
@@ -31,7 +31,7 @@ namespace SDGameTextToEnum
             sw.WriteLine( "    /// </summary>");
             sw.WriteLine($"    public enum {Name}");
             sw.WriteLine( "    {");
-            foreach (Localization loc in LocalizedText)
+            foreach (LocText loc in LocalizedText)
             {
                 sw.WriteLine($"        /// <summary>{loc.Comment}</summary>");
                 sw.WriteLine($"        {loc.NameId} = {loc.Id},");
@@ -70,9 +70,9 @@ namespace SDGameTextToEnum
             WriteToFile(sw, outPath);
         }
         
-        protected void WriteYamlLoc(StringWriter sw, List<Localization> localizations)
+        protected void WriteYamlLoc(StringWriter sw, List<LocText> localizations)
         {
-            foreach (Localization loc in localizations)
+            foreach (LocText loc in localizations)
             {
                 sw.WriteLine($"{loc.NameId}:");
                 sw.WriteLine($" Id: {loc.Id}");
@@ -83,18 +83,18 @@ namespace SDGameTextToEnum
             }
         }
 
-        protected List<Localization> GetMissingLocalizations(string lang, List<Localization> localizations)
+        protected List<LocText> GetMissingLocalizations(string lang, List<LocText> localizations)
         {
-            var missing = new List<Localization>();
-            foreach (Localization loc in localizations)
+            var missing = new List<LocText>();
+            foreach (LocText loc in localizations)
                 if (!loc.TryGetText(lang, out Translation t) || string.IsNullOrEmpty(t.Text))
                     missing.Add(loc);
             return missing;
         }
         
-        protected void WriteMissingYamlLoc(StringWriter sw, string lang, List<Localization> missing)
+        protected void WriteMissingYamlLoc(StringWriter sw, string lang, List<LocText> missing)
         {
-            foreach (Localization m in missing)
+            foreach (LocText m in missing)
             {
                 Translation eng = m.GetText("ENG");
                 sw.WriteLine($"{m.NameId}:");

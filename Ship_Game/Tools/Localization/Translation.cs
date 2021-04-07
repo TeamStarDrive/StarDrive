@@ -1,4 +1,4 @@
-﻿namespace SDGameTextToEnum
+﻿namespace Ship_Game.Tools.Localization
 {
     public class Translation
     {

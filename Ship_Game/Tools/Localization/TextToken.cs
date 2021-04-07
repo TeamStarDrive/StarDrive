@@ -4,7 +4,7 @@ using System.IO;
 using Ship_Game;
 using Ship_Game.Data.Yaml;
 
-namespace SDGameTextToEnum
+namespace Ship_Game.Tools.Localization
 {
     public class TextToken
     {
@@ -35,14 +35,16 @@ namespace SDGameTextToEnum
                 return tokens;
             
             Log.Write(ConsoleColor.Cyan, $"FromYaml: {yamlFile}");
-            using var parser = new YamlParser(file);
-            foreach (KeyValuePair<object, LangToken> kv in parser.DeserializeMap<LangToken>())
+            using (var parser = new YamlParser(file))
             {
-                string nameId = (string)kv.Key;
-                LangToken t = kv.Value;
-                if (t.ENG != null) tokens.Add(new TextToken("ENG", t.Id, nameId, t.ENG));
-                if (t.RUS != null) tokens.Add(new TextToken("RUS", t.Id, nameId, t.RUS));
-                if (t.SPA != null) tokens.Add(new TextToken("SPA", t.Id, nameId, t.SPA));
+                foreach (KeyValuePair<object, LangToken> kv in parser.DeserializeMap<LangToken>())
+                {
+                    string nameId = (string)kv.Key;
+                    LangToken t = kv.Value;
+                    if (t.ENG != null) tokens.Add(new TextToken("ENG", t.Id, nameId, t.ENG));
+                    if (t.RUS != null) tokens.Add(new TextToken("RUS", t.Id, nameId, t.RUS));
+                    if (t.SPA != null) tokens.Add(new TextToken("SPA", t.Id, nameId, t.SPA));
+                }
             }
             return tokens;
         }

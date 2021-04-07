@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace SDGameTextToEnum
+namespace Ship_Game.Tools.Localization
 {
-    public class LocalizationUsage
+    public class LocUsage
     {
         public string NameId;
         public int Id;
@@ -13,7 +13,7 @@ namespace SDGameTextToEnum
         public string Suffix;
         public string File;
 
-        public LocalizationUsage(int id, Usage usage, string name, string suffix, string file)
+        public LocUsage(int id, Usage usage, string name, string suffix, string file)
         {
             Id = id;
             Usage = usage;
