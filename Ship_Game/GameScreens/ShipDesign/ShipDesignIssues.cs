@@ -444,7 +444,7 @@ namespace Ship_Game.ShipDesignIssues
             else if (diff == 1) severity = WarningLevel.Informative;
             else                return;
 
-            string troopsMissing = $" {diff} {new LocalizedText(2564).Text}";
+            string troopsMissing = $" {diff} {Localizer.Token(2564)}";
             AddDesignIssue(DesignIssueType.LowTroops, severity, troopsMissing);
         }
 

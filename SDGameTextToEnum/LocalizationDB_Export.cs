@@ -79,7 +79,9 @@ namespace SDGameTextToEnum
                 sw.WriteLine($"{loc.NameId}:");
                 sw.WriteLine($" Id: {loc.Id}");
                 foreach (Translation lt in loc.Translations)
+                {
                     sw.WriteLine($" {lt.Lang}: {lt.YamlString}");
+                }
             }
         }
 

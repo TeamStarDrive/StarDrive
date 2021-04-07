@@ -1,49 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace SDGameTextToEnum
 {
-    public enum Usage
-    {
-        Unknown,    //
-        Building,   // prefix=Bldg
-        Technology, // prefix=Tech
-        Tooltip,    // prefix=Tips
-        Ship,       // prefix=Ship
-        Weapon,     // prefix=Weps
-    }
-
     public class LocalizationUsage
     {
+        public string NameId;
         public int Id;
         public Usage Usage;
-        public string Tag;
+        public string Name;
+        public string Suffix;
         public string File;
 
-        public string UsagePrefix
+        public LocalizationUsage(int id, Usage usage, string name, string suffix, string file)
         {
-            get
-            {
-                switch (Usage)
-                {
-                    default:
-                    case Usage.Unknown: throw new Exception($"Unknown usage Tag={Tag} File={File}");
-                    case Usage.Building:   return "Bldg";
-                    case Usage.Technology: return "Tech";
-                    case Usage.Tooltip:    return "Tips";
-                    case Usage.Ship:       return "Ship";
-                    case Usage.Weapon:     return "Weps";
-                }
-            }
+            Id = id;
+            Usage = usage;
+            Name = name;
+            Suffix = suffix;
+            File = file;
+            NameId = GetUsagePrefix(Usage) + "_" + name + "_" + suffix;
         }
 
-        public string CreateNameId(string prefix)
+        static string GetUsagePrefix(Usage usage)
         {
-            string nameId = prefix + "_" + ;
-            return null;
+            switch (usage)
+            {
+                default:
+                case Usage.Unknown:    return "Text";
+                case Usage.Building:   return "Bldg";
+                case Usage.Technology: return "Tech";
+                case Usage.Tooltip:    return "Tips";
+                case Usage.Weapon:     return "Weps";
+                case Usage.Module:     return "Modu";
+                case Usage.Artifact:   return "Arti";
+                case Usage.Troop:      return "Troop";
+                case Usage.Races:      return "Race";
+            }
         }
     }
 }

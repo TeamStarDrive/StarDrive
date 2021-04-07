@@ -10,6 +10,7 @@ namespace SDGameTextToEnum
     {
         readonly string Namespace;
         readonly string Name;
+        readonly LocalizationUsages Usages;
         readonly Dictionary<int, TextToken> ExistingIds = new Dictionary<int, TextToken>();
         readonly List<Localization> LocalizedText = new List<Localization>();
         readonly List<Localization> ModText = new List<Localization>();
@@ -17,20 +18,26 @@ namespace SDGameTextToEnum
         readonly HashSet<string> EnumNames = new HashSet<string>();
         readonly string[] WordSeparators = { " ", "\t", "\r", "\n", "\"",
                                                  "\\t","\\r","\\n", "\\\"" };
+
+        public string Prefix;
+        public string ModPrefix;
+
         public int NumModLocalizations => ModText.Count;
         public int NumLocalizations => LocalizedText.Count;
         public int NumToolTips => ToolTips.Count;
 
-        public LocalizationDB(string enumNamespace, string enumName)
+        public LocalizationDB(string enumNamespace, string enumName, LocalizationUsages usages)
         {
             Namespace = enumNamespace;
             Name = enumName;
+            Usages = usages;
         }
 
         public LocalizationDB(LocalizationDB gen, string newName) // copy
         {
             Namespace = gen.Namespace;
             Name = newName;
+            Usages = gen.Usages;
             ExistingIds = new Dictionary<int, TextToken>(gen.ExistingIds);
             EnumNames = new HashSet<string>(gen.EnumNames);
             ToolTips = new List<Localization>(gen.ToolTips);
@@ -89,7 +96,7 @@ namespace SDGameTextToEnum
 
         string CreateNameId(string nameIdPrefix, int id, string[] words)
         {
-            string name = nameIdPrefix ?? "";
+            string name = nameIdPrefix + "_" ?? "";
             if (ExistingIds.TryGetValue(id, out TextToken existing) &&
                 !string.IsNullOrWhiteSpace(existing.NameId))
             {
@@ -141,8 +148,9 @@ namespace SDGameTextToEnum
                     comment += " ";
             }
 
-            // only generate a new name if not specified
-            if (string.IsNullOrEmpty(token.NameId))
+            if (Usages.Contains(token.Id))
+                token.NameId = nameIdPrefix + "_" + Usages.Get(token.Id).NameId;
+            else if (string.IsNullOrEmpty(token.NameId))
                 token.NameId = CreateNameId(nameIdPrefix, token.Id, words);
 
             if (!string.IsNullOrEmpty(token.NameId))
@@ -166,12 +174,12 @@ namespace SDGameTextToEnum
             return loc != null;
         }
 
-        public bool AddFromYaml(string yamlFile, string nameIdPrefix, bool logMerge = false)
+        public bool AddFromYaml(string yamlFile, bool logMerge = false)
         {
             List<TextToken> tokens = TextToken.FromYaml(yamlFile);
             if (tokens.Count == 0)
                 return false;
-            AddLocalizations(tokens, nameIdPrefix, logMerge:logMerge);
+            AddLocalizations(tokens, logMerge:logMerge);
             return true;
         }
 
@@ -192,11 +200,11 @@ namespace SDGameTextToEnum
             }
         }
 
-        public void AddLocalizations(IEnumerable<TextToken> localizations, string nameIdPrefix, bool logMerge = false)
+        public void AddLocalizations(IEnumerable<TextToken> localizations, bool logMerge = false)
         {
             foreach (TextToken token in localizations)
             {
-                AddLocalization(LocalizedText, token, nameIdPrefix, logMerge);
+                AddLocalization(LocalizedText, token, Prefix, logMerge);
             }
         }
         
@@ -228,22 +236,22 @@ namespace SDGameTextToEnum
                     if (loc != null)
                     {
                         loc.TipId = GetNameId(t.ToolTipData);
+                        loc.Comment = $"{loc.TipId}: {loc.Comment}";
                     }
                 }
             }
         }
         
-        public bool AddFromModYaml(string yamlFile, string nameIdPrefix, bool logMerge = false)
+        public bool AddFromModYaml(string yamlFile, bool logMerge = false)
         {
             List<TextToken> tokens = TextToken.FromYaml(yamlFile);
             if (tokens.Count == 0)
                 return false;
-            AddModLocalizations(tokens, nameIdPrefix, logMerge);
+            AddModLocalizations(tokens, logMerge);
             return true;
         }
 
-        public void AddModLocalizations(IEnumerable<TextToken> localizations, 
-                                        string nameIdPrefix, bool logMerge = false)
+        public void AddModLocalizations(IEnumerable<TextToken> localizations, bool logMerge = false)
         {
             // build ModTexts
             var uniqueToMod = new List<TextToken>();
@@ -253,7 +261,7 @@ namespace SDGameTextToEnum
                     token.NameId = vanilla.NameId; // keep NameId from vanilla
                 else
                     uniqueToMod.Add(token); // this is unique to the mod
-                AddLocalization(ModText, token, nameIdPrefix, logMerge);
+                AddLocalization(ModText, token, ModPrefix, logMerge);
             }
         }
 
@@ -289,7 +297,5 @@ namespace SDGameTextToEnum
                     Log.Write(ConsoleColor.Gray, $"{Name}: removed {numRemoved} text entries that already matched vanilla text");
             }
         }
-
-
     }
 }
