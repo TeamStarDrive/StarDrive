@@ -29,7 +29,7 @@
         public readonly float FleetStrModifier; // AI increase/decrease str of fleets needs, when they win or lose vs another empire
         public readonly int NumSystemsToSniff; // Number of system the AI will try to re-scout until it is fully explored
         public readonly float TechValueModifier; // AI tech value vs players
-        public readonly int PlayerWarPriorityLimit; // Priority of wars vs player (war priority is 1 to 99 where 1 means more priority)
+        public readonly int PlayerWarPriorityLimit; // Priority of wars vs player (war priority is 0 to 10 where 0 means more priority)
 
         // AI Buffs/Nerfs
         public readonly float FlatMoneyBonus;
@@ -56,7 +56,7 @@
             ResearchTaxMultiplier  = 0;
             ModHpModifier          = 0;
             TechValueModifier      = 1;
-            PlayerWarPriorityLimit = 99;
+            PlayerWarPriorityLimit = 10;
             switch (difficulty)
             {
                 case UniverseData.GameDifficulty.Easy:
@@ -122,7 +122,7 @@
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 5;
-                        PlayerWarPriorityLimit = 75;
+                        PlayerWarPriorityLimit = 7;
                     }
 
                     break;
@@ -160,7 +160,7 @@
                         ShipCostMod            = -0.2f;
                         ResearchTaxMultiplier  = 0.7f;
                         TechValueModifier      = 1.1f;
-                        PlayerWarPriorityLimit = 50;
+                        PlayerWarPriorityLimit = 5;
                     }
 
                     break;
@@ -198,7 +198,7 @@
                         ShipCostMod            = -0.5f;
                         ResearchTaxMultiplier  = 0.3f;
                         TechValueModifier      = 1.2f;
-                        PlayerWarPriorityLimit = 25;
+                        PlayerWarPriorityLimit = 2;
                     }
 
                     break;
