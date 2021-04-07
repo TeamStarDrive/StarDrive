@@ -72,12 +72,12 @@ namespace Ship_Game
             var eftlRect = new Rectangle(x, leftRect.Y + 150, 270, 50);
             EnemyFTLPenaltySlider = SliderPercent(eftlRect, Localizer.Token(GameText.InsystemEnemyFtlSpeedModifier), 0f, 1f, GlobalStats.EnemyFTLInSystemModifier);
             int indent = (int)(width / 4.5f); 
-            Checkbox(ftlRect.X + indent, ftlRect.Y, () => GlobalStats.PlanetaryGravityWells, title: 4008, tooltip: GameText.EnablesPlanetaryGravityWellsWhich);
-            Checkbox(ftlRect.X + indent, ftlRect.Y + 25, () => GlobalStats.PreventFederations,    title: 6022, tooltip: GameText.PreventsAiEmpiresFromMerging);
-            Checkbox(ftlRect.X + indent, ftlRect.Y + 50,() => GlobalStats.WarpInSystem,          title: 6178, tooltip: GameText.TreatNeutralSystemsAsUnfriendly);
-            Checkbox(ftlRect.X + indent, ftlRect.Y + 75, () => GlobalStats.FixedPlayerCreditCharge, title: 1861, tooltip: GameText.KeepFixedCreditCostOf);
-            Checkbox(ftlRect.X + indent, ftlRect.Y + 100, () => GlobalStats.DisablePirates, title: 1868, tooltip: GameText.DisablesAllPirateFactionsFor);
-            Checkbox(ftlRect.X + indent, ftlRect.Y + 125, () => GlobalStats.DisableRemnantStory, title: 1844, tooltip: GameText.IfCheckedRemnantForcesIn);
+            Checkbox(ftlRect.X + indent, ftlRect.Y, () => GlobalStats.PlanetaryGravityWells, title: GameText.PlanetaryGravityWells, tooltip: GameText.EnablesPlanetaryGravityWellsWhich);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 25, () => GlobalStats.PreventFederations,    title: GameText.PreventAiFederations, tooltip: GameText.PreventsAiEmpiresFromMerging);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 50,() => GlobalStats.WarpInSystem,          title: GameText.TreatNeutralSystemsAsUnfriendly, tooltip: GameText.TreatNeutralSystemsAsUnfriendly);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 75, () => GlobalStats.FixedPlayerCreditCharge, title: GameText.FixedShipAndBuildingsCost, tooltip: GameText.KeepFixedCreditCostOf);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 100, () => GlobalStats.DisablePirates, title: GameText.DisablePirates, tooltip: GameText.DisablesAllPirateFactionsFor);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 125, () => GlobalStats.DisableRemnantStory, title: GameText.DisableRemnantStory, tooltip: GameText.IfCheckedRemnantForcesIn);
 
             var mdRect = new Rectangle(ftlRect.X + indent+2, ftlRect.Y + 170, 270, 50);
             CustomMineralDecay = SliderDecimal1(mdRect, Localizer.Token(GameText.MineralDecayRate), 0.5f, 3, GlobalStats.CustomMineralDecay);

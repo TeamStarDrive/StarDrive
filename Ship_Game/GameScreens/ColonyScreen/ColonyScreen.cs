@@ -71,7 +71,7 @@ namespace Ship_Game
             RightMenu = new Menu1(titleBar.Right + 10, titleBar.Y, ScreenWidth / 3 - 15, ScreenHeight - titleBar.Y - 2);
             Add(new CloseButton(RightMenu.Right - 52, RightMenu.Y + 22));
             PlanetInfo = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20, (int)(0.4f * LeftMenu.Width), (int)(0.23f * (LeftMenu.Height - 80)));
-            PlanetInfo.AddTab(title:326);
+            PlanetInfo.AddTab(title:GameText.PlanetInfo);
             PDescription = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 40 + PlanetInfo.Height, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
 
 
@@ -81,7 +81,7 @@ namespace Ship_Game
             AssignLabor = Add(new AssignLaborComponent(P, labor, useTitleFrame: true));
 
             PStorage = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + PDescription.Height + labor.H + 60, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
-            PStorage.AddTab(title:328);
+            PStorage.AddTab(title:GameText.Storage);
 
             Vector2 blockadePos = new Vector2(PStorage.X + 20, PStorage.Y + 35);
             BlockadeLabel = Add(new UILabel(blockadePos, "Blockade!", Fonts.Pirulen16, Color.Red));

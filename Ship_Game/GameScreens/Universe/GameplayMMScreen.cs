@@ -123,12 +123,12 @@ namespace Ship_Game
             list.Padding = new Vector2(2f, 12f);
             list.LayoutStyle = ListLayoutStyle.ResizeList;
 
-            Save = list.AddButton(300, Save_OnClick);
-            list.AddButton(text: 2,   Load_OnClick);
-            list.AddButton(text: 4,   Options_OnClick);
-            list.AddButton(text: 301, Return_OnClick);
-            list.AddButton(text: 302, ExitToMain_OnClick);
-            list.AddButton(text: 303, Exit_OnClick);
+            Save = list.AddButton(GameText.Save, Save_OnClick);
+            list.AddButton(text: GameText.LoadGame,   Load_OnClick);
+            list.AddButton(text: GameText.Options,   Options_OnClick);
+            list.AddButton(text: GameText.ReturnToGame, Return_OnClick);
+            list.AddButton(text: GameText.ExitToMainMenu, ExitToMain_OnClick);
+            list.AddButton(text: GameText.ExitToWindows, Exit_OnClick);
         }  
     }
 }

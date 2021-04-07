@@ -9,7 +9,7 @@ namespace Ship_Game.GameScreens.Espionage
         public DossierPanel(EspionageScreen screen, in Rectangle rect) : base(rect, EspionageScreen.PanelBackground)
         {
             Screen = screen;
-            Label(rect.X + 20, rect.Y + 10, 6092, Fonts.Arial20Bold);
+            Label(rect.X + 20, rect.Y + 10, GameText.AgentDossier, Fonts.Arial20Bold);
         }
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {

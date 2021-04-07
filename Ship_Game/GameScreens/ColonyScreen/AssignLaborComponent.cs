@@ -27,7 +27,7 @@ namespace Ship_Game
             if (useTitleFrame)
             {
                 Title = Add(new Submenu(rect));
-                Title.AddTab(title:327); // "Assign Labor"
+                Title.AddTab(title:GameText.AssignLabor);
             }
 
             RequiresLayout = true;

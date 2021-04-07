@@ -113,7 +113,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             ItemToOffer artifacts = AddHeader(GameText.Artifacts);
             foreach (Artifact artifact in Us.data.OwnedArtifacts)
             {
-                artifacts.AddSubItem(new ItemToOffer(artifact.NameIndex, "Artifacts") { SpecialInquiry = artifact.Name });
+                artifacts.AddSubItem(new ItemToOffer(new LocalizedText(artifact.NameIndex), "Artifacts") { SpecialInquiry = artifact.Name });
             }
 
             ItemToOffer colonies = AddHeader(GameText.Colonies);

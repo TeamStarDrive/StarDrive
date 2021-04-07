@@ -157,7 +157,7 @@ namespace Ship_Game
             if (Planet.Owner != null)
                 singular = Planet.Owner.data.Traits.Singular;
             else
-                singular = (Planet.Habitable ? 2263 : 2264);
+                singular = (Planet.Habitable ? GameText.None3 : GameText.Impossible);
 
             var distancePos  = new Vector2(DistanceRect.X + 35, DistanceRect.Y + DistanceRect.Height / 2 - SmallFont.LineSpacing / 2);
             var fertilityPos = new Vector2(FertRect.X + 35, FertRect.Y + FertRect.Height / 2 - SmallFont.LineSpacing / 2);

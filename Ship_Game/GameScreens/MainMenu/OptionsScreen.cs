@@ -257,13 +257,13 @@ namespace Ship_Game
 
             UIList right = AddList(RightArea.PosVec(), RightArea.Size());
             right.Padding = new Vector2(2f, 4f);
-            right.AddCheckbox(() => GlobalStats.PauseOnNotification,          title: 6007, tooltip: GameText.PausesGameOnNotificationsClearing);
-            right.AddCheckbox(() => GlobalStats.AltArcControl,                title: 6184, tooltip: GameText.WhenActiveArcsInThe);
-            right.AddCheckbox(() => GlobalStats.ZoomTracking,                 title: 6185, tooltip: GameText.ZoomWillCenterOnSelected);
-            right.AddCheckbox(() => GlobalStats.AutoErrorReport,              title: 4130, tooltip: GameText.SendAutomaticErrorReportsTo);
-            right.AddCheckbox(() => GlobalStats.DisableAsteroids,             title: 4132, tooltip: GameText.ThisWillPreventAsteroidsFrom);
-            right.AddCheckbox(() => GlobalStats.NotifyEnemyInSystemAfterLoad, title: 4134, tooltip: GameText.AddNotificationsRegardingEnemiesIn);
-            right.AddCheckbox(() => GlobalStats.EnableSaveExportButton,       title: 4136, tooltip: GameText.ThisWillLetYouEasily);
+            right.AddCheckbox(() => GlobalStats.PauseOnNotification,          title: GameText.PauseOnNotifications, tooltip: GameText.PausesGameOnNotificationsClearing);
+            right.AddCheckbox(() => GlobalStats.AltArcControl,                title: GameText.KeyboardFireArcLocking, tooltip: GameText.WhenActiveArcsInThe);
+            right.AddCheckbox(() => GlobalStats.ZoomTracking,                 title: GameText.ToggleZoomTracking, tooltip: GameText.ZoomWillCenterOnSelected);
+            right.AddCheckbox(() => GlobalStats.AutoErrorReport,              title: GameText.AutomaticErrorReport, tooltip: GameText.SendAutomaticErrorReportsTo);
+            right.AddCheckbox(() => GlobalStats.DisableAsteroids,             title: GameText.DisableAsteroids, tooltip: GameText.ThisWillPreventAsteroidsFrom);
+            right.AddCheckbox(() => GlobalStats.NotifyEnemyInSystemAfterLoad, title: GameText.AlertEnemyPresenceAfterLoad, tooltip: GameText.AddNotificationsRegardingEnemiesIn);
+            right.AddCheckbox(() => GlobalStats.EnableSaveExportButton,       title: GameText.EnableSaveExport, tooltip: GameText.ThisWillLetYouEasily);
 
             CurrentLanguage = new DropOptions<Language>(105, 18);
             Add(right, GameText.Language, CurrentLanguage);

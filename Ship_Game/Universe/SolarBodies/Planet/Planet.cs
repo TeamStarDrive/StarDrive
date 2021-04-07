@@ -923,13 +923,13 @@ namespace Ship_Game
                 switch (colonyType)
                 {
                     default:
-                    case ColonyType.Core:         return 378;
-                    case ColonyType.Colony:       return 382;
-                    case ColonyType.Industrial:   return 379;
-                    case ColonyType.Research:     return 381;
-                    case ColonyType.Agricultural: return 377;
-                    case ColonyType.Military:     return 380;
-                    case ColonyType.TradeHub:     return 394;
+                    case ColonyType.Core:         return GameText.GovernorWillBuildABalanced;
+                    case ColonyType.Colony:       return GameText.YouAreManagingThisColony;
+                    case ColonyType.Industrial:   return GameText.GovernorWillFocusEntirelyOn;
+                    case ColonyType.Research:     return GameText.GovernorWillBuildADedicated;
+                    case ColonyType.Agricultural: return GameText.GovernorWillBuildAgriculturalBuildings;
+                    case ColonyType.Military:     return GameText.GovernorWillBuildALimited;
+                    case ColonyType.TradeHub:     return GameText.GovernorWillControlProductionLevels;
                 }
             }
         }
@@ -941,13 +941,13 @@ namespace Ship_Game
                 switch (colonyType)
                 {
                     default:
-                    case ColonyType.Core:         return 372;
-                    case ColonyType.Colony:       return 376;
-                    case ColonyType.Industrial:   return 373;
-                    case ColonyType.Research:     return 375;
-                    case ColonyType.Agricultural: return 371;
-                    case ColonyType.Military:     return 374;
-                    case ColonyType.TradeHub:     return 393;
+                    case ColonyType.Core:         return GameText.CoreWorld;
+                    case ColonyType.Colony:       return GameText.CustomColony;
+                    case ColonyType.Industrial:   return GameText.IndustrialWorld;
+                    case ColonyType.Research:     return GameText.ResearchWorld;
+                    case ColonyType.Agricultural: return GameText.AgriculturalWorld;
+                    case ColonyType.Military:     return GameText.MilitaryOutpost;
+                    case ColonyType.TradeHub:     return GameText.Tradehub;
                 }
             }
         }

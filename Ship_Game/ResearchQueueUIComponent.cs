@@ -70,7 +70,7 @@ namespace Ship_Game
 
             ResearchQueueList.Visible = visible;
             CurrentResearchPanel.Visible = visible;
-            BtnShowQueue.Text = ResearchQueueList.Visible ? 2136 : 2135;
+            BtnShowQueue.Text = ResearchQueueList.Visible ? GameText.HideQueue : GameText.ShowQueue;
         }
 
         public override bool HandleInput(InputState input)
