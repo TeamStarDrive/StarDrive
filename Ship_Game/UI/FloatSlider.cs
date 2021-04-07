@@ -16,7 +16,7 @@ namespace Ship_Game
         Rectangle SliderRect; // colored slider
         Rectangle KnobRect;   // knob area used to move the slider value
         public LocalizedText Text;
-        public ToolTipText Tip;
+        public LocalizedText Tip;
 
         public Action<FloatSlider> OnChange;
 

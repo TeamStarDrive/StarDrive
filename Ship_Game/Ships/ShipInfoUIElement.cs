@@ -115,7 +115,7 @@ namespace Ship_Game.Ships
         {
             float startX = pOrderRect.X - 15;
             var ordersBarPos = new Vector2(startX, (Ordnance.Y + Ordnance.Height + spacing + 3));
-            void AddOrderBtn(string icon, CombatState state, ToolTipText toolTip)
+            void AddOrderBtn(string icon, CombatState state, LocalizedText toolTip)
             {
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon)
                 {
@@ -785,7 +785,7 @@ namespace Ship_Game.Ships
         private struct TippedItem
         {
             public Rectangle r;
-            public ToolTipText Tooltip;
+            public LocalizedText Tooltip;
         }
     }
 }

@@ -118,26 +118,6 @@ namespace SDGameTextToEnum
             return db;
         }
 
-        // Tooltips is mostly a hack, because we don't use half of the EnumGenerator features
-        static void CreateGameTipsEnum(string bbDir, string sourceDir, LocalizationDB db)
-        {
-            string enumFile = $"{sourceDir}/GameTips.cs";
-            string yamlFile = $"{bbDir}/ToolTips.yaml";
-            var gen = new LocalizationDB(db, "GameTips");
-            gen.LoadIdentifiers(enumFile, yamlFile);
-            if (UseYAMLFileAsSource)
-            {
-                gen.AddToolTips(TextToken.FromYaml(yamlFile));
-            }
-            if (gen.NumToolTips == 0)
-            {
-                gen.AddToolTips(GetToolTips("ANY", $"{bbDir}/Tooltips/Tooltips.xml"));
-            }
-            gen.ExportCsharp(enumFile);
-            gen.ExportTipsYaml(yamlFile);
-            // no tooltips for Mods
-        }
-
         static void UpgradeGameXmls(string contentDir, LocalizationDB db, bool mod)
         {
             UpgradeXmls(db, mod, $"{contentDir}/Buildings", 
@@ -263,7 +243,6 @@ namespace SDGameTextToEnum
             else
             {
                 LocalizationDB db = CreateGameTextEnum(gameDir, bbDir, modDir, outputDir);
-                CreateGameTipsEnum(bbDir, outputDir, db);
                 UpgradeGameXmls(bbDir, db, mod:false);
                 UpgradeGameXmls(modDir, db, mod:true);
                 ReplaceCsharpTokens(codeDir, db);

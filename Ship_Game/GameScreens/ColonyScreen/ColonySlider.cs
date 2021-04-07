@@ -60,7 +60,7 @@ namespace Ship_Game
                                      Rect.Center.Y + 2 - Lock.Height / 2, Lock.Width, Lock.Height);
         }
 
-        ToolTipText Tooltip()
+        LocalizedText Tooltip()
         {
             switch (Type)
             {

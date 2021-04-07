@@ -191,7 +191,7 @@ namespace Ship_Game
             SelectedStuffRect = new Rectangle(ScreenWidth / 2 - 220, -13 + ScreenHeight - 200, 440, 210);
 
             var ordersBarPos = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 65);
-            void AddOrdersBtn(CombatState state, string icon, ToolTipText toolTip)
+            void AddOrdersBtn(CombatState state, string icon, LocalizedText toolTip)
             {
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon)
                 {

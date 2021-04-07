@@ -1,20 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Data.Serialization;
-using Ship_Game.Data.Yaml;
 
 namespace Ship_Game
 {
-    [StarDataType]
     public sealed class ToolTip
     {
-        public string NameId;            // Serialized from: ToolTips.yaml
-        [StarData] public int Id;        // Serialized from: ToolTips.yaml
-        [StarData] public string TextId; // Serialized from: ToolTips.yaml
-
         // minimum hover time until tip is shown
         const float TipShowTimePoint = 0.5f;
 
@@ -40,15 +31,15 @@ namespace Ship_Game
             => CreateTooltip($"{locationText}\n{spots} Landing Spots");
 
         // Allows a tool tip which floats regardless of hovering on the position
-        public static void CreateFloatingText(in ToolTipText tip, string hotKey, Vector2? position, float lifeTime) 
+        public static void CreateFloatingText(in LocalizedText tip, string hotKey, Vector2? position, float lifeTime) 
             => CreateTooltip(tip, hotKey, position, lifeTime);
 
         /**
          * Sets the currently active ToolTip
          */
-        public static void CreateTooltip(in ToolTipText tip, string hotKey, Vector2? position, float forceNoneHoverTime = 0)
+        public static void CreateTooltip(in LocalizedText tip, string hotKey, Vector2? position, float forceNoneHoverTime = 0)
         {
-            string rawText = tip.LocalizedText;
+            string rawText = tip.Text;
             if (rawText.IsEmpty())
             {
                 Log.Error($"Invalid Tooltip: tip.Id={tip.Id} tip.Text={tip.Text}");
@@ -86,8 +77,8 @@ namespace Ship_Game
             tipItem.Rect = tipRect;
         }
 
-        public static void CreateTooltip(in ToolTipText tip, string hotKey) => CreateTooltip(tip, hotKey, null);
-        public static void CreateTooltip(in ToolTipText tip) => CreateTooltip(tip, "", null);
+        public static void CreateTooltip(in LocalizedText tip, string hotKey) => CreateTooltip(tip, hotKey, null);
+        public static void CreateTooltip(in LocalizedText tip) => CreateTooltip(tip, "", null);
         
         // Clears the current tooltip (if any)
         public static void Clear()
@@ -201,67 +192,6 @@ namespace Ship_Game
                 }
             }
             batch.End();
-        }
-        
-        static readonly Array<ToolTip> ToolTips = new Array<ToolTip>();
-        static readonly HashSet<int> MissingTooltips = new HashSet<int>();
-
-        public static void ClearToolTips()
-        {
-            ToolTips.Clear();
-            MissingTooltips.Clear();
-        }
-
-        public static void LoadToolTips()
-        {
-            ClearToolTips();
-
-            var gameTips = new FileInfo("Content/ToolTips.yaml");
-            AddToolTips(gameTips);
-            if (GlobalStats.HasMod)
-            {
-                var modTips = new FileInfo($"{GlobalStats.ModPath}/ToolTips.yaml");
-                if (modTips.Exists)
-                    AddToolTips(modTips);
-            }
-        }
-
-        public static ToolTip GetToolTip(int tipId)
-        {
-            if (tipId > ToolTips.Count)
-            {
-                if (!MissingTooltips.Contains(tipId))
-                {
-                    MissingTooltips.Add(tipId);
-                    Log.Warning($"Missing ToolTip: {tipId}");
-                }
-                return null;
-            }
-            return ToolTips[tipId - 1];
-        }
-
-        static void AddToolTips(FileInfo file)
-        {
-            var tips = new Array<ToolTip>();
-            using (var parser = new YamlParser(file))
-            {
-                foreach (KeyValuePair<object, ToolTip> kv in parser.DeserializeMap<ToolTip>())
-                {
-                    kv.Value.NameId = (string)kv.Key;
-                    tips.Add(kv.Value);
-                }
-            }
-            
-            ToolTips.Clear();
-            if (ToolTips.Capacity < tips.Count)
-                ToolTips.Capacity = tips.Count;
-
-            foreach (ToolTip tip in tips)
-            {
-                int idx = tip.Id - 1;
-                while (ToolTips.Count <= idx) ToolTips.Add(null); // sparse List
-                ToolTips[idx] = tip;
-            }
         }
     }
 }

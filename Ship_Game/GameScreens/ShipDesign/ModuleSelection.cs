@@ -293,7 +293,7 @@ namespace Ship_Game
             }
         }
 
-        void DrawStat(ref Vector2 cursor, string text, float stat, ToolTipText toolTipId, bool isPercent = false)
+        void DrawStat(ref Vector2 cursor, string text, float stat, LocalizedText toolTipId, bool isPercent = false)
         {
             if (stat.AlmostEqual(0))
                 return;
@@ -301,7 +301,7 @@ namespace Ship_Game
             Screen.DrawStat(ref cursor, text, stat, Color.White, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
         }
 
-        void DrawStat(ref Vector2 cursor, int textId, float stat, ToolTipText toolTipId, bool isPercent = false)
+        void DrawStat(ref Vector2 cursor, int textId, float stat, LocalizedText toolTipId, bool isPercent = false)
         {
             if (stat.AlmostEqual(0.0f))
                 return;
@@ -309,7 +309,7 @@ namespace Ship_Game
             Screen.DrawStat(ref cursor, Localizer.Token(textId), stat, Color.White, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
         }
 
-        void DrawStat(ref Vector2 cursor, string text, string stat, ToolTipText toolTipId)
+        void DrawStat(ref Vector2 cursor, string text, string stat, LocalizedText toolTipId)
         {
             if (stat.IsEmpty())
                 return;
@@ -318,7 +318,7 @@ namespace Ship_Game
             WriteLine(ref cursor);
         }
 
-        void DrawStatCustomColor(ref Vector2 cursor, int titleId, float stat, ToolTipText toolTipId, Color color, bool isPercent = true)
+        void DrawStatCustomColor(ref Vector2 cursor, int titleId, float stat, LocalizedText toolTipId, Color color, bool isPercent = true)
         {
             if (stat.AlmostEqual(0.0f))
                 return;
@@ -655,7 +655,7 @@ namespace Ship_Game
             actualShieldPenChance += weaponTag.ShieldPenetration;
         }
 
-        void DrawStatPercentLine(ref Vector2 cursor, string text, float stat, ToolTipText tooltipId)
+        void DrawStatPercentLine(ref Vector2 cursor, string text, float stat, LocalizedText tooltipId)
         {
             DrawStat(ref cursor, text, stat, tooltipId, isPercent: true);
             WriteLine(ref cursor);

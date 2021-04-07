@@ -201,7 +201,7 @@ namespace Ship_Game
             var customStyle = new UIButton.StyleTextures();
             // [ btn_title : ]  lbl_text
             UIButton AddOption(string title, Action<UIButton> onClick,
-                               Func<UILabel, string> getText, ToolTipText tip = default)
+                               Func<UILabel, string> getText, LocalizedText tip = default)
             {
                 var button = new UIButton(customStyle, new Vector2(160, 18), LocalizedText.Parse(title))
                 {
@@ -444,7 +444,7 @@ namespace Ship_Game
             }
         }
 
-        ToolTipText GetModeTip()
+        LocalizedText GetModeTip()
         {
             switch (Mode)
             {

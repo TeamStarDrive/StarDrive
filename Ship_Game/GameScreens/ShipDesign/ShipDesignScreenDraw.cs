@@ -771,7 +771,7 @@ namespace Ship_Game
         float PercentComplete(int numSlots, int size) => DesignComplete(numSlots, size) ? 1f : numSlots / (float)size;
         bool DesignComplete(int numSlots, int size)   => numSlots == size;
 
-        void DrawCompletion(ref Vector2 cursor, string words, int numSlots, int size, ToolTipText tooltip, float lineSpacing = 2)
+        void DrawCompletion(ref Vector2 cursor, string words, int numSlots, int size, LocalizedText tooltip, float lineSpacing = 2)
         {
             float amount    = 165f;
             SpriteFont font = Fonts.Arial12Bold;
@@ -1011,7 +1011,7 @@ namespace Ship_Game
             DrawStatColor(ref cursor, TintedValue(GameText.ProductionCost, cost, GameText.IndicatesTheTotalProductionValue, Color.White));
         }
 
-        public void DrawStat(ref Vector2 cursor, string words, string stat, ToolTipText tooltip, Color nameColor, Color statColor, float spacing = 165f, float lineSpacing = 2)
+        public void DrawStat(ref Vector2 cursor, string words, string stat, LocalizedText tooltip, Color nameColor, Color statColor, float spacing = 165f, float lineSpacing = 2)
         {
             SpriteFont font = Fonts.Arial12Bold;
             cursor.Y += lineSpacing > 0 ? font.LineSpacing + lineSpacing : 0;
@@ -1024,46 +1024,46 @@ namespace Ship_Game
             CheckToolTip(tooltip, cursor, words, stat, font, MousePos);
         }
 
-        public void DrawStat(ref Vector2 cursor, string words, float stat, Color color, ToolTipText tooltipId, bool doGoodBadTint = true, bool isPercent = false, float spacing = 165)
+        public void DrawStat(ref Vector2 cursor, string words, float stat, Color color, LocalizedText tooltipId, bool doGoodBadTint = true, bool isPercent = false, float spacing = 165)
         {
             StatValue sv = isPercent ? TintedPercent(words, stat, tooltipId, color, spacing, 0)
                                      : TintedValue(words, stat, tooltipId, color, spacing, 0);
             DrawStatColor(ref cursor, sv);
         }
 
-        public void DrawStat(ref Vector2 cursor, string words, float stat, Color color, ToolTipText tooltipId, float spacing = 165)
+        public void DrawStat(ref Vector2 cursor, string words, float stat, Color color, LocalizedText tooltipId, float spacing = 165)
         {
             StatValue sv = PercentBadLower1(words, stat, tooltipId, color, spacing, 0);
             DrawStatColor(ref cursor, sv);
         }
 
-        public void DrawStatBadPercentLower1(ref Vector2 cursor, string words, float stat, Color color, ToolTipText tooltipId, float spacing = 165)
+        public void DrawStatBadPercentLower1(ref Vector2 cursor, string words, float stat, Color color, LocalizedText tooltipId, float spacing = 165)
         {
             StatValue sv = PercentBadLower1(words, stat, tooltipId, color, spacing, 0);
             DrawStatColor(ref cursor, sv);
         }
 
-        void DrawStatEnergy(ref Vector2 cursor, string words, string stat, ToolTipText tooltipId)
+        void DrawStatEnergy(ref Vector2 cursor, string words, string stat, LocalizedText tooltipId)
         {
             DrawStat(ref cursor, words, stat, tooltipId, Color.LightSkyBlue, Color.LightGreen);
         }
 
-        void DrawStatPropulsion(ref Vector2 cursor, string words, string stat, ToolTipText tooltipId)
+        void DrawStatPropulsion(ref Vector2 cursor, string words, string stat, LocalizedText tooltipId)
         {
             DrawStat(ref cursor, words, stat, tooltipId, Color.DarkSeaGreen, Color.LightGreen);
         }
 
-        void DrawStatOrdnance(ref Vector2 cursor, string words, string stat, ToolTipText tooltipId)
+        void DrawStatOrdnance(ref Vector2 cursor, string words, string stat, LocalizedText tooltipId)
         {
             DrawStat(ref cursor, words, stat, tooltipId, Color.IndianRed, Color.LightGreen);
         }
 
-        void DrawStatBad(ref Vector2 cursor, string words, string stat, ToolTipText tooltipId)
+        void DrawStatBad(ref Vector2 cursor, string words, string stat, LocalizedText tooltipId)
         {
             DrawStat(ref cursor, words, stat, tooltipId, Color.White, Color.LightPink);
         }
 
-        void DrawStat(ref Vector2 cursor, string words, string stat, ToolTipText tooltipId)
+        void DrawStat(ref Vector2 cursor, string words, string stat, LocalizedText tooltipId)
         {
             DrawStat(ref cursor, words, stat, tooltipId, Color.White, Color.LightGreen);
         }
@@ -1141,7 +1141,7 @@ namespace Ship_Game
             public Color TitleColor;
             public float Value;
             public float CompareValue;
-            public ToolTipText Tooltip;
+            public LocalizedText Tooltip;
             public ValueTint Tint;
             public bool IsPercent;
             public float Spacing;
@@ -1168,25 +1168,25 @@ namespace Ship_Game
             public string ValueText => IsPercent ? Value.ToString("P0") : Value.GetNumberString();
         }
 
-        static StatValue NormalValue(LocalizedText title, float value, ToolTipText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+        static StatValue NormalValue(LocalizedText title, float value, LocalizedText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.None, Spacing = spacing, LineSpacing = lineSpacing };
 
-        static StatValue BadValue(LocalizedText title, float value, ToolTipText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+        static StatValue BadValue(LocalizedText title, float value, LocalizedText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.Bad, Spacing = spacing, LineSpacing = lineSpacing };
 
-        static StatValue TintedValue(LocalizedText title, float value, ToolTipText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+        static StatValue TintedValue(LocalizedText title, float value, LocalizedText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title.Text+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, Spacing = spacing, LineSpacing = lineSpacing };
 
-        static StatValue LowBadValue(LocalizedText title, float value, ToolTipText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+        static StatValue LowBadValue(LocalizedText title, float value, LocalizedText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title + ":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.BadLowerThan2, Spacing = spacing, LineSpacing = lineSpacing };
 
-        static StatValue CompareValues(LocalizedText title, float value, float compareValue, ToolTipText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+        static StatValue CompareValues(LocalizedText title, float value, float compareValue, LocalizedText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title.Text+":", Value = value, CompareValue = compareValue, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.CompareValue, Spacing = spacing, LineSpacing = lineSpacing };
 
-        static StatValue TintedPercent(LocalizedText title, float value, ToolTipText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+        static StatValue TintedPercent(LocalizedText title, float value, LocalizedText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor,  Tint = ValueTint.GoodBad, IsPercent = true, Spacing = spacing, LineSpacing = lineSpacing };
 
-        static StatValue PercentBadLower1(LocalizedText title, float value, ToolTipText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+        static StatValue PercentBadLower1(LocalizedText title, float value, LocalizedText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.BadPercentLowerThan1, IsPercent = true, Spacing = spacing, LineSpacing = lineSpacing };
 
         void DrawStatColor(ref Vector2 cursor, StatValue stat)
