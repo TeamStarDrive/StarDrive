@@ -1,0 +1,631 @@
+Category: Default
+  Volume: 1.00
+ - Sfx: sd_battle_ambient
+   Volume: 0.25
+   - Sound: { File: "Default/sd_battle_ambient.wav" }
+ - Sfx: sd_warp_start_cordrazine_01
+   Volume: 0.25
+   - Sound: { File: "Default/sd_warp_start_cordrazine_01.wav" }
+ - Sfx: sd_warp_start_draylok_01
+   Volume: 0.25
+   - Sound: { File: "Default/sd_warp_start_draylok_01.wav" }
+ - Sfx: sd_warp_start_kulrathi_01
+   Volume: 0.25
+   - Sound: { File: "Default/sd_warp_start_kulrathi_01.wav" }
+ - Sfx: sd_warp_start_opteris_01
+   Volume: 0.25
+   - Sound: { File: "Default/sd_warp_start_opteris_01.wav" }
+ - Sfx: sd_warp_start_pollops_01
+   Volume: 0.25
+   - Sound: { File: "Default/sd_warp_start_pollops_01.wav" }
+ - Sfx: sd_warp_start_ralyeh_01
+   Volume: 0.25
+   - Sound: { File: "Default/sd_warp_start_ralyeh_01.wav" }
+ - Sfx: sd_warp_start_vulfen_01
+   Volume: 0.25
+   - Sound: { File: "Default/sd_warp_start_vulfen_01.wav" }
+ - Sfx: sd_warp_stop_cordrazine_01
+   Volume: 0.25
+   - Sound: { File: "Default/sd_warp_stop_cordrazine_01.wav" }
+ - Sfx: sd_warp_stop_draylok_01
+   Volume: 0.25
+   - Sound: { File: "Default/sd_warp_stop_draylok_01.wav" }
+ - Sfx: sd_warp_stop_kulrathi_01
+   Volume: 0.25
+   - Sound: { File: "Default/sd_warp_stop_kulrathi_01.wav" }
+ - Sfx: sd_warp_stop_opteris_01
+   Volume: 0.25
+   - Sound: { File: "Default/sd_warp_stop_opteris_01.wav" }
+ - Sfx: sd_warp_stop_pollops_01
+   Volume: 0.25
+   - Sound: { File: "Default/sd_warp_stop_pollops_01.wav" }
+ - Sfx: sd_warp_stop_ralyeh_01
+   Volume: 0.25
+   - Sound: { File: "Default/sd_warp_stop_ralyeh_01.wav" }
+ - Sfx: sd_warp_stop_vulfen_01
+   Volume: 0.25
+   - Sound: { File: "Default/sd_warp_stop_vulfen_01.wav" }
+Category: Weapons
+  Volume: 1.00
+ - Sfx: alarm
+   Volume: 0.25
+   - Sound: { File: "Weapons/alarm.wav" }
+ - Sfx: simple_beep
+   Volume: 0.25
+   - Sound: { File: "Weapons/simple_beep.wav" }
+ - Sfx: fastalarm
+   Volume: 0.25
+   - Sound: { File: "Weapons/fastalarm.wav" }
+ - Sfx: cloaksound
+   Volume: 0.25
+   - Sound: { File: "Weapons/cloaksound.wav" }
+ - Sfx: echo_affirm1
+   Volume: 0.25
+   - Sound: { File: "Weapons/echo_affirm1.wav" }
+ - Sfx: sub_bass_whoosh
+   Volume: 0.25
+   - Sound: { File: "Weapons/sub_bass_whoosh.wav" }
+ - Sfx: blip_click
+   Volume: 0.25
+   - Sound: { File: "Weapons/blip_click.wav" }
+ - Sfx: xylophone_affirm1
+   Volume: 0.25
+   - Sound: { File: "Weapons/xylophone_affirm1.wav" }
+ - Sfx: weak laser
+   Volume: 0.25
+   - Sound: { File: "Weapons/weak laser.wav" }
+ - Sfx: analogue_click2
+   Volume: 0.25
+   - Sound: { File: "Weapons/analogue_click2.wav" }
+ - Sfx: Money
+   Volume: 0.25
+   - Sound: { File: "Weapons/Money.wav" }
+ - Sfx: echo_affirm
+   Volume: 0.25
+   - Sound: { File: "Weapons/echo_affirm.wav" }
+ - Sfx: disruptor
+   Volume: 0.25
+   - Sound: { File: "Weapons/disruptor.wav" }
+ - Sfx: Afterburner
+   Volume: 0.25
+   - Sound: { File: "Weapons/Afterburner.wav" }
+ - Sfx: ShipSlow
+   Volume: 0.03
+   - Sound: { File: "Weapons/ShipSlow.wav" }
+ - Sfx: starcruiser_drone01
+   Volume: 0.81
+   - Sound: { File: "Weapons/starcruiser_drone01.wav" }
+ - Sfx: short muffle impact
+   Volume: 0.25
+   - Sound: { File: "Weapons/short muffle impact.wav" }
+ - Sfx: hyperspace
+   Volume: 0.25
+   - Sound: { File: "Weapons/hyperspace.wav" }
+ - Sfx: smallservo
+   Volume: 0.25
+   - Sound: { File: "Weapons/smallservo.wav" }
+ - Sfx: roid_destroy
+   Volume: 0.25
+   - Sound: { File: "Weapons/roid_destroy.wav" }
+ - Sfx: roid_impact
+   Volume: 0.25
+   - Sound: { File: "Weapons/roid_impact.wav" }
+ - Sfx: stone_smallimpact11
+   Volume: 0.25
+   - Sound: { File: "Weapons/stone_smallimpact11.wav" }
+ - Sfx: missile01
+   Volume: 0.25
+   - Sound: { File: "Weapons/missile01.wav" }
+ - Sfx: mediumAfterburner
+   Volume: 0.25
+   - Sound: { File: "Weapons/mediumAfterburner.wav" }
+ - Sfx: hyperspace_return
+   Volume: 0.25
+   - Sound: { File: "Weapons/hyperspace_return.wav" }
+ - Sfx: sub_bass_mouseover
+   Volume: 0.25
+   - Sound: { File: "Weapons/sub_bass_mouseover.wav" }
+ - Sfx: torpedo
+   Volume: 0.25
+   - Sound: { File: "Weapons/torpedo.wav" }
+ - Sfx: mouse_over4
+   Volume: 0.25
+   - Sound: { File: "Weapons/mouse_over4.wav" }
+ - Sfx: plasmathrower
+   Volume: 0.25
+   - Sound: { File: "Weapons/plasmathrower.wav" }
+ - Sfx: sd_weapon_vulcan_spinloop_02
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_vulcan_spinloop_02.wav" }
+ - Sfx: sd_weapon_vulcan_spinloop_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_vulcan_spinloop_01.wav" }
+ - Sfx: sd_ui_mouseover
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ui_mouseover.wav" }
+ - Sfx: sd_planet_barren_01
+   Volume: 1.76
+   - Sound: { File: "Weapons/sd_planet_barren_01.wav" }
+ - Sfx: sd_planet_colonized_01
+   Volume: 1.76
+   - Sound: { File: "Weapons/sd_planet_colonized_01.wav" }
+ - Sfx: sd_planet_forest_01
+   Volume: 1.04
+   - Sound: { File: "Weapons/sd_planet_forest_01.wav" }
+ - Sfx: sd_planet_gasgiant_01
+   Volume: 1.76
+   - Sound: { File: "Weapons/sd_planet_gasgiant_01.wav" }
+ - Sfx: sd_planet_volcanic_01
+   Volume: 1.76
+   - Sound: { File: "Weapons/sd_planet_volcanic_01.wav" }
+ - Sfx: sd_planet_water_01
+   Volume: 1.76
+   - Sound: { File: "Weapons/sd_planet_water_01.wav" }
+ - Sfx: sd_explosion_ship_warpdet_small
+   Volume: 1.19
+   - Sound: { File: "Weapons/sd_explosion_ship_warpdet_small.wav" }
+ - Sfx: sd_explosion_ship_warpdet_medium
+   Volume: 1.16
+   - Sound: { File: "Weapons/sd_explosion_ship_warpdet_medium.wav" }
+ - Sfx: sd_ui_notification_colonized_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ui_notification_colonized_01.wav" }
+ - Sfx: uzi_loop
+   Volume: 0.25
+   - Sound: { File: "Weapons/uzi_loop.wav" }
+ - Sfx: sd_weapon_flame_loop_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_flame_loop_01.wav" }
+ - Sfx: sd_ui_colonize_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ui_colonize_01.wav" }
+ - Sfx: sd_shield_static_1
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_shield_static_1.wav" }
+ - Sfx: sd_weapon_beam_02
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_beam_02.wav" }
+ - Sfx: sd_weapon_beam_01_loop
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_beam_01_loop.wav" }
+ - Sfx: sd_weapon_pulse_alt14_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_pulse_alt14_01.wav" }
+ - Sfx: sd_ui_tactical_pause
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ui_tactical_pause.wav" }
+ - Sfx: sd_troop_kulrathi
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_troop_kulrathi.wav" }
+ - Sfx: sd_troop_attack_miss
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_troop_attack_miss.wav" }
+ - Sfx: sd_troop_attack_hit
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_troop_attack_hit.wav" }
+ - Sfx: sd_weapon_missile_heavy_flight
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_missile_heavy_flight.wav" }
+ - Sfx: sd_troop_land
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_troop_land.wav" }
+ - Sfx: sd_troop_takeoff
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_troop_takeoff.wav" }
+ - Sfx: sd_planet_barren_01 2
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_planet_barren_01 2.wav" }
+ - Sfx: sd_planet_colonized_01 2
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_planet_colonized_01 2.wav" }
+ - Sfx: sd_planet_forest_01 2
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_planet_forest_01 2.wav" }
+ - Sfx: sd_planet_gasgiant_01 2
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_planet_gasgiant_01 2.wav" }
+ - Sfx: sd_planet_volcanic_01 2
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_planet_volcanic_01 2.wav" }
+ - Sfx: sd_planet_water_01 2
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_planet_water_01 2.wav" }
+ - Sfx: sd_weapon_pulse_alt3_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_pulse_alt3_01.wav" }
+ - Sfx: sd_notify_alert
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_notify_alert.wav" }
+ - Sfx: sd_weapon_pulse_alt15_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_pulse_alt15_01.wav" }
+ - Sfx: sd_ui_notification_encounter
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ui_notification_encounter.wav" }
+ - Sfx: sd_ui_research_select
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ui_research_select.wav" }
+ - Sfx: sd_weapon_railgun_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_railgun_01.wav" }
+ - Sfx: sd_weapon_railgun_massive_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_railgun_massive_01.wav" }
+ - Sfx: sd_explosion_ship_det_small
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_explosion_ship_det_small.wav" }
+ - Sfx: sd_ui_notification_research_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ui_notification_research_01.wav" }
+ - Sfx: sd_ui_notification_startgame
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ui_notification_startgame.wav" }
+ - Sfx: sd_explosion_ship_det_large
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_explosion_ship_det_large.wav" }
+ - Sfx: sd_explosion_ship_warpdet_large
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_explosion_ship_warpdet_large.wav" }
+ - Sfx: sd_explosion_ship_det_medium
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_explosion_ship_det_medium.wav" }
+ - Sfx: sd_warp_flight_loop
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_warp_flight_loop.wav" }
+ - Sfx: sd_weapon_vulcan_alt03_03
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_vulcan_alt03_03.wav" }
+ - Sfx: sd_ui_notification_technology_bad
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ui_notification_technology_bad.wav" }
+ - Sfx: sd_ui_notification_warning
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ui_notification_warning.wav" }
+ - Sfx: sd_trade_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_trade_01.wav" }
+ - Sfx: sd_ui_notification_conquer_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ui_notification_conquer_01.wav" }
+ - Sfx: sd_weapon_beam_ion_med
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_beam_ion_med.wav" }
+ - Sfx: sd_mech_march_03
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_mech_march_03.wav" }
+ - Sfx: sd_mech_attack_02
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_mech_attack_02.wav" }
+ - Sfx: sd_mech_attack_03
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_mech_attack_03.wav" }
+ - Sfx: sd_mech_attack_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_mech_attack_01.wav" }
+ - Sfx: sd_ground_bugs_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ground_bugs_01.wav" }
+ - Sfx: sd_ground_cordrazine_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ground_cordrazine_01.wav" }
+ - Sfx: sd_ground_pollup_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ground_pollup_01.wav" }
+ - Sfx: sd_ground_wulv_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ground_wulv_01.wav" }
+ - Sfx: sd_ui_spy_fail_02
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ui_spy_fail_02.wav" }
+ - Sfx: sd_ui_spy_win_02
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ui_spy_win_02.wav" }
+ - Sfx: sd_weapon_beam_electric_med
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_beam_electric_med.wav" }
+ - Sfx: sd_ground_drayloktrooper_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ground_drayloktrooper_01.wav" }
+ - Sfx: sd_ground_humantrooper_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ground_humantrooper_01.wav" }
+ - Sfx: sd_ground_kulrathigunner_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ground_kulrathigunner_01.wav" }
+ - Sfx: sd_ground_ralyeh_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ground_ralyeh_01.wav" }
+ - Sfx: sd_ground_remenantdefender_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ground_remenantdefender_01.wav" }
+ - Sfx: sd_ground_skeleton_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ground_skeleton_01.wav" }
+ - Sfx: sd_ground_spidertank_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ground_spidertank_01.wav" }
+ - Sfx: sd_ground_vulfargrunt_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ground_vulfargrunt_01.wav" }
+ - Sfx: sd_weapon_vulcan_burst_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_vulcan_burst_01.wav" }
+ - Sfx: sd_weapon_vulcan_shotgun_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_vulcan_shotgun_01.wav" }
+ - Sfx: sd_weapon_laser_burst_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_laser_burst_01.wav" }
+ - Sfx: sd_weapon_beam_plasma_small
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_beam_plasma_small.wav" }
+ - Sfx: sd_weapon_beam_neutron_med
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_beam_neutron_med.wav" }
+ - Sfx: sd_bomb_release
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_bomb_release.wav" }
+ - Sfx: explosionMedium
+   Volume: 0.25
+   - Sound: { File: "Weapons/explosionMedium.wav" }
+ - Sfx: heavydisruptor
+   Volume: 0.25
+   - Sound: { File: "Weapons/heavydisruptor.wav" }
+ - Sfx: techy_affirm1
+   Volume: 0.25
+   - Sound: { File: "Weapons/techy_affirm1.wav" }
+ - Sfx: Explo1
+   Volume: 0.25
+   - Sound: { File: "Weapons/Explo1.0.wav" }
+   - Sound: { File: "Weapons/Explo1.1.wav" }
+   - Sound: { File: "Weapons/Explo1.2.wav" }
+   - Sound: { File: "Weapons/Explo1.3.wav" }
+ - Sfx: short_whoosh1
+   Volume: 0.25
+   - Sound: { File: "Weapons/short_whoosh1.0.wav" }
+   - Sound: { File: "Weapons/short_whoosh1.1.wav" }
+ - Sfx: mining_laser
+   Volume: 0.08
+   - Sound: { File: "Weapons/mining_laser.0.wav" }
+   - Sound: { File: "Weapons/mining_laser.1.wav" }
+   - Sound: { File: "Weapons/mining_laser.2.wav" }
+ - Sfx: autocannon
+   Volume: 0.14
+   - Sound: { File: "Weapons/autocannon.0.wav" }
+   - Sound: { File: "Weapons/autocannon.1.wav" }
+   - Sound: { File: "Weapons/autocannon.2.wav" }
+ - Sfx: heavylaser1
+   Volume: 0.25
+   - Sound: { File: "Weapons/heavylaser1.0.wav" }
+   - Sound: { File: "Weapons/heavylaser1.1.wav" }
+   - Sound: { File: "Weapons/heavylaser1.2.wav" }
+ - Sfx: Flak
+   Volume: 0.25
+   - Sound: { File: "Weapons/Flak.wav" }
+ - Sfx: sd_weapon_flakcannon_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_flakcannon_01.0.wav" }
+   - Sound: { File: "Weapons/sd_weapon_flakcannon_01.1.wav" }
+   - Sound: { File: "Weapons/sd_weapon_flakcannon_01.2.wav" }
+ - Sfx: sd_weapon_rocket_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_rocket_01.0.wav" }
+   - Sound: { File: "Weapons/sd_weapon_rocket_01.1.wav" }
+   - Sound: { File: "Weapons/sd_weapon_rocket_01.2.wav" }
+   - Sound: { File: "Weapons/sd_weapon_rocket_01.3.wav" }
+   - Sound: { File: "Weapons/sd_weapon_rocket_01.4.wav" }
+ - Sfx: sd_impact_bullet_small_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_impact_bullet_small_01.0.wav" }
+   - Sound: { File: "Weapons/sd_impact_bullet_small_01.1.wav" }
+   - Sound: { File: "Weapons/sd_impact_bullet_small_01.2.wav" }
+   - Sound: { File: "Weapons/sd_impact_bullet_small_01.3.wav" }
+   - Sound: { File: "Weapons/sd_impact_bullet_small_01.4.wav" }
+   - Sound: { File: "Weapons/sd_impact_bullet_small_01.5.wav" }
+   - Sound: { File: "Weapons/sd_impact_bullet_small_01.6.wav" }
+   - Sound: { File: "Weapons/sd_impact_bullet_small_01.7.wav" }
+   - Sound: { File: "Weapons/sd_impact_bullet_small_01.8.wav" }
+   - Sound: { File: "Weapons/sd_impact_bullet_small_01.9.wav" }
+   - Sound: { File: "Weapons/sd_impact_bullet_small_01.10.wav" }
+   - Sound: { File: "Weapons/sd_impact_bullet_small_01.11.wav" }
+ - Sfx: sd_explosion_module_small
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_explosion_module_small.0.wav" }
+   - Sound: { File: "Weapons/sd_explosion_module_small.1.wav" }
+ - Sfx: sd_weapon_rocket_explode_01
+   Volume: 1.04
+   - Sound: { File: "Weapons/sd_weapon_rocket_explode_01.wav" }
+ - Sfx: sd_weapon_flakcannon_explode_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_flakcannon_explode_01.wav" }
+ - Sfx: sd_weapon_rocket_flight_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_rocket_flight_01.wav" }
+ - Sfx: sd_weapon_vulcan_alt02_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_vulcan_alt02_01.0.wav" }
+   - Sound: { File: "Weapons/sd_weapon_vulcan_alt02_01.1.wav" }
+   - Sound: { File: "Weapons/sd_weapon_vulcan_alt02_01.2.wav" }
+   - Sound: { File: "Weapons/sd_weapon_vulcan_alt02_01.3.wav" }
+   - Sound: { File: "Weapons/sd_weapon_vulcan_alt02_01.4.wav" }
+   - Sound: { File: "Weapons/sd_weapon_vulcan_alt02_01.5.wav" }
+   - Sound: { File: "Weapons/sd_weapon_vulcan_alt02_01.6.wav" }
+   - Sound: { File: "Weapons/sd_weapon_vulcan_alt02_01.7.wav" }
+   - Sound: { File: "Weapons/sd_weapon_vulcan_alt02_01.8.wav" }
+   - Sound: { File: "Weapons/sd_weapon_vulcan_alt02_01.9.wav" }
+   - Sound: { File: "Weapons/sd_weapon_vulcan_alt02_01.10.wav" }
+   - Sound: { File: "Weapons/sd_weapon_vulcan_alt02_01.11.wav" }
+ - Sfx: sd_weapon_laser_small_alt_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_laser_small_alt_01.wav" }
+ - Sfx: sd_warp_start_02
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_warp_start_02.wav" }
+ - Sfx: sd_warp_stop
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_warp_stop.wav" }
+ - Sfx: sd_warp_flight
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_warp_flight.wav" }
+ - Sfx: sd_weapon_laser_small_alt5_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_laser_small_alt5_01.wav" }
+ - Sfx: sd_weapon_pulse_alt2_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_pulse_alt2_01.0.wav" }
+   - Sound: { File: "Weapons/sd_weapon_pulse_alt2_01.1.wav" }
+   - Sound: { File: "Weapons/sd_weapon_pulse_alt2_01.2.wav" }
+   - Sound: { File: "Weapons/sd_weapon_pulse_alt2_01.3.wav" }
+   - Sound: { File: "Weapons/sd_weapon_pulse_alt2_01.4.wav" }
+   - Sound: { File: "Weapons/sd_weapon_pulse_alt2_01.5.wav" }
+ - Sfx: sd_weapon_photon_flight_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_photon_flight_01.wav" }
+ - Sfx: sd_impact_shield_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_impact_shield_01.0.wav" }
+   - Sound: { File: "Weapons/sd_impact_shield_01.1.wav" }
+   - Sound: { File: "Weapons/sd_impact_shield_01.2.wav" }
+ - Sfx: sd_ui_accept_alt3
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_ui_accept_alt3.wav" }
+ - Sfx: sd_weapon_bigcannon_01
+   Volume: 0.50
+   - Sound: { File: "Weapons/sd_weapon_bigcannon_01.0.wav" }
+   - Sound: { File: "Weapons/sd_weapon_bigcannon_01.1.wav" }
+   - Sound: { File: "Weapons/sd_weapon_bigcannon_01.2.wav" }
+ - Sfx: sd_weapon_photonmedium_alt1_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_photonmedium_alt1_01.wav" }
+ - Sfx: sd_weapon_torpedo_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_torpedo_01.wav" }
+ - Sfx: sd_weapon_flame_start_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_flame_start_01.0.wav" }
+   - Sound: { File: "Weapons/sd_weapon_flame_start_01.1.wav" }
+   - Sound: { File: "Weapons/sd_weapon_flame_start_01.2.wav" }
+ - Sfx: sd_weapon_phasor_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_phasor_01.wav" }
+ - Sfx: sd_weapon_laser_large_alt_04
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_laser_large_alt_04.0.wav" }
+   - Sound: { File: "Weapons/sd_weapon_laser_large_alt_04.1.wav" }
+ - Sfx: sd_weapon_BeamPulse_alt2_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_BeamPulse_alt2_01.0.wav" }
+   - Sound: { File: "Weapons/sd_weapon_BeamPulse_alt2_01.1.wav" }
+   - Sound: { File: "Weapons/sd_weapon_BeamPulse_alt2_01.2.wav" }
+   - Sound: { File: "Weapons/sd_weapon_BeamPulse_alt2_01.3.wav" }
+ - Sfx: sd_weapon_emptorpedo
+   Volume: 0.06
+   - Sound: { File: "Weapons/sd_weapon_emptorpedo.wav" }
+ - Sfx: sd_bomb_impact_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_bomb_impact_01.0.wav" }
+   - Sound: { File: "Weapons/sd_bomb_impact_01.1.wav" }
+   - Sound: { File: "Weapons/sd_bomb_impact_01.2.wav" }
+   - Sound: { File: "Weapons/sd_bomb_impact_01.3.wav" }
+ - Sfx: sd_troop_attack_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_troop_attack_01.0.wav" }
+   - Sound: { File: "Weapons/sd_troop_attack_01.1.wav" }
+   - Sound: { File: "Weapons/sd_troop_attack_01.2.wav" }
+ - Sfx: sd_weapon_missile_heavy_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_missile_heavy_01.0.wav" }
+   - Sound: { File: "Weapons/sd_weapon_missile_heavy_01.1.wav" }
+   - Sound: { File: "Weapons/sd_weapon_missile_heavy_01.2.wav" }
+   - Sound: { File: "Weapons/sd_weapon_missile_heavy_01.3.wav" }
+   - Sound: { File: "Weapons/sd_weapon_missile_heavy_01.4.wav" }
+ - Sfx: sd_troop_march_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_troop_march_01.0.wav" }
+   - Sound: { File: "Weapons/sd_troop_march_01.1.wav" }
+   - Sound: { File: "Weapons/sd_troop_march_01.2.wav" }
+ - Sfx: sd_weapon_beam_fusion_small
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_beam_fusion_small.wav" }
+ - Sfx: sd_weapon_beam_fusion_large
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_beam_fusion_large.wav" }
+ - Sfx: sd_weapon_beam_fusion_med
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_weapon_beam_fusion_med.wav" }
+ - Sfx: sd_tank_march_01
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_tank_march_01.0.wav" }
+   - Sound: { File: "Weapons/sd_tank_march_01.1.wav" }
+   - Sound: { File: "Weapons/sd_tank_march_01.2.wav" }
+ - Sfx: sd_warp_start_large
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_warp_start_large.wav" }
+ - Sfx: sd_warp_stop_large
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_warp_stop_large.wav" }
+ - Sfx: sd_warp_stop_small
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_warp_stop_small.wav" }
+ - Sfx: sd_warp_start_small
+   Volume: 0.25
+   - Sound: { File: "Weapons/sd_warp_start_small.wav" }
+ - Sfx: sd_weapon_Turretgun_001
+   Volume: 0.08
+   - Sound: { File: "Weapons/sd_weapon_Turretgun_001.0.wav" }
+   - Sound: { File: "Weapons/sd_weapon_Turretgun_001.1.wav" }
+   - Sound: { File: "Weapons/sd_weapon_Turretgun_001.2.wav" }
+   - Sound: { File: "Weapons/sd_weapon_Turretgun_001.3.wav" }
+   - Sound: { File: "Weapons/sd_weapon_Turretgun_001.4.wav" }
+   - Sound: { File: "Weapons/sd_weapon_Turretgun_001.5.wav" }
+ - Sfx: UI_Misc20
+   Volume: 0.25
+   - Sound: { File: "Weapons/UI_Misc20.wav" }
+Category: Music
+  Volume: 1.00
+ - Sfx: SD_Theme_Reprise_06
+   Volume: 0.25
+   - Sound: { File: "Music/SD_Theme_Reprise_06.wav" }
+ - Sfx: AmbientMusic
+   Volume: 0.25
+   - Sound: { File: "Music/AmbientMusic.0.wav" }
+   - Sound: { File: "Music/AmbientMusic.1.wav" }
+   - Sound: { File: "Music/AmbientMusic.2.wav" }
+   - Sound: { File: "Music/AmbientMusic.3.wav" }
+   - Sound: { File: "Music/AmbientMusic.4.wav" }
+   - Sound: { File: "Music/AmbientMusic.5.wav" }
+Category: RacialMusic
+  Volume: 1.00
+ - Sfx: sd_races_Kulrathi
+   Volume: 0.25
+   - Sound: { File: "RacialMusic/sd_races_Kulrathi.wav" }
+ - Sfx: sd_races_Terran
+   Volume: 0.25
+   - Sound: { File: "RacialMusic/sd_races_Terran.wav" }
+ - Sfx: TitleTheme
+   Volume: 0.25
+   - Sound: { File: "RacialMusic/TitleTheme.wav" }
+ - Sfx: sd_races_Wulv_01
+   Volume: 0.25
+   - Sound: { File: "RacialMusic/sd_races_Wulv_01.wav" }
+ - Sfx: sd_races_Gracie
+   Volume: 0.25
+   - Sound: { File: "RacialMusic/sd_races_Gracie.wav" }
+ - Sfx: CombatMusic
+   Volume: 0.25
+   - Sound: { File: "RacialMusic/CombatMusic.wav" }
+ - Sfx: Colomn_03_loop
+   Volume: 0.25
+   - Sound: { File: "RacialMusic/Colomn_03_loop.wav" }
+ - Sfx: Ralyeh_03_loop
+   Volume: 0.25
+   - Sound: { File: "RacialMusic/Ralyeh_03_loop.wav" }
+ - Sfx: Bug_02_loop
+   Volume: 0.25
+   - Sound: { File: "RacialMusic/Bug_02_loop.wav" }
+ - Sfx: Female_02_loop
+   Volume: 0.25
+   - Sound: { File: "RacialMusic/Female_02_loop.wav" }
+ - Sfx: Stardrive_Combat 1c_114BPM
+   Volume: 0.25
+   - Sound: { File: "RacialMusic/Stardrive_Combat 1c_114BPM.wav" }
