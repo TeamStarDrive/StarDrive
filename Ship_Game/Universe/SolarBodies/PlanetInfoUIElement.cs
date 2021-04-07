@@ -15,6 +15,8 @@ namespace Ship_Game
     {
         Planet P;
         readonly UniverseScreen Screen;
+        readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
+
         Rectangle MoneyRect;
         readonly Rectangle SendTroops;
         readonly Rectangle MarkedRect;
@@ -39,7 +41,6 @@ namespace Ship_Game
         readonly Rectangle PopPerTileRect;
         readonly Rectangle BiospheredPopRect;
         readonly Rectangle TerraformedPopRect;
-        readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
         AssignLaborComponent AssignLabor;
 
         readonly SpriteFont Font8  = Fonts.Arial8Bold;
@@ -388,11 +389,8 @@ namespace Ship_Game
             }
             foreach (TippedItem ti in ToolTipItems)
             {
-                if (!ti.Rect.HitTest(input.CursorPosition))
-                {
-                    continue;
-                }
-                ToolTip.CreateTooltip(ti.Tooltip);
+                if (ti.Rect.HitTest(input.CursorPosition))
+                    ToolTip.CreateTooltip(ti.Tooltip);
             }
             if (P.Owner == null && MarkedRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
@@ -401,9 +399,7 @@ namespace Ship_Game
                 foreach (Goal g in EmpireManager.Player.GetEmpireAI().Goals)
                 {
                     if (g.ColonizationTarget == null || g.ColonizationTarget != P)
-                    {
                         continue;
-                    }
                     marked = true;
                     markedGoal = g;
                 }
@@ -422,7 +418,6 @@ namespace Ship_Game
             }
             if (SendTroops.HitTest(input.CursorPosition) && input.InGameSelect)
             {
-
                 if (EmpireManager.Player.GetTroopShipForRebase(out Ship troopShip, P.Center, P.Name))
                 {
                     GameAudio.EchoAffirmative();
@@ -476,9 +471,7 @@ namespace Ship_Game
                 }
             }
             if (!ElementRect.HitTest(input.CursorPosition))
-            {
                 return false;
-            }
 
             if (AssignLabor != null && AssignLabor.HandleInput(input))
                 return true;
