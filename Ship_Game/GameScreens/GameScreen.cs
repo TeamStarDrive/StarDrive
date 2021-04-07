@@ -349,16 +349,16 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.Draw(texture, posOnScreen, color, rotation, Vector2.Zero, 0.5f, SpriteEffects.None, 1f);
         }
 
-        public void CheckToolTip(int toolTipId, Rectangle rectangle, Vector2 mousePos)
+        public void CheckToolTip(ToolTipText toolTip, Rectangle rectangle, Vector2 mousePos)
         {
             if (rectangle.HitTest(mousePos))
-                ToolTip.CreateTooltip(toolTipId);
+                ToolTip.CreateTooltip(toolTip);
         }
-        public void CheckToolTip(int toolTipId, Vector2 cursor, string words, string numbers, SpriteFont font, Vector2 mousePos)
+        public void CheckToolTip(ToolTipText toolTip, Vector2 cursor, string words, string numbers, SpriteFont font, Vector2 mousePos)
         {
             var rect = new Rectangle((int)cursor.X, (int)cursor.Y, 
                 font.TextWidth(words) + font.TextWidth(numbers), font.LineSpacing);
-            CheckToolTip(toolTipId, rect, mousePos);
+            CheckToolTip(toolTip, rect, mousePos);
         }
         public Vector2 FontSpace(Vector2 cursor, float spacing, string drawnString, SpriteFont font)
         {
@@ -615,13 +615,13 @@ namespace Ship_Game
         public void DrawTextureProjected(SubTexture texture, Vector2 posInWorld, float textureScale, float rotation, Color color)
             => DrawTexture(texture, ProjectToScreenPosition(posInWorld), textureScale, rotation, color);
 
-        public void DrawTextureWithToolTip(SubTexture texture, Color color, int tooltipID, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
+        public void DrawTextureWithToolTip(SubTexture texture, Color color, ToolTipText tooltip, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
         {
             var rectangle = new Rectangle(rectangleX, rectangleY, width, height);
             ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
             
             if (rectangle.HitTest(mousePos))
-                ToolTip.CreateTooltip(tooltipID);                
+                ToolTip.CreateTooltip(tooltip);                
         }
 
         public void DrawTextureWithToolTip(SubTexture texture, Color color, string text, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)

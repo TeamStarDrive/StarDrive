@@ -204,7 +204,7 @@ namespace Ship_Game
             batch.DrawString(TextFont, P.PopulationStringForPlayer, position3, color);
             var rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Population) + ":").X, TextFont.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
-                ToolTip.CreateTooltip(75);
+                ToolTip.CreateTooltip(GameText.AColonysPopulationIsA);
             vector2_2.Y += TextFont.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(TextFont, Localizer.Token(GameText.Fertility) + ":", vector2_2, Color.Orange);
@@ -282,14 +282,14 @@ namespace Ship_Game
 
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Fertility) + ":").X, TextFont.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
-                ToolTip.CreateTooltip(20);
+                ToolTip.CreateTooltip(GameText.IndicatesHowMuchFoodThis);
             vector2_2.Y += TextFont.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(TextFont, Localizer.Token(GameText.Richness) + ":", vector2_2, Color.Orange);
             batch.DrawString(TextFont, P.MineralRichness.String(), position3, Colors.Cream);
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Richness) + ":").X, TextFont.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
-                ToolTip.CreateTooltip(21);
+                ToolTip.CreateTooltip(GameText.APlanetsMineralRichnessDirectly);
 
             DrawFoodAndStorage(batch);
             BlockadeLabel.Visible = Blockade;
@@ -360,9 +360,9 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), ProfStorageIcon, Color.White);
 
             if (FoodStorageIcon.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
-                ToolTip.CreateTooltip(73);
+                ToolTip.CreateTooltip(GameText.IndicatesTheAmountOfFood);
             if (ProfStorageIcon.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
-                ToolTip.CreateTooltip(74);
+                ToolTip.CreateTooltip(GameText.IndicatesTheAmountOfProduction);
         }
 
         void DrawPlanetSurfaceGrid(SpriteBatch batch)

@@ -10,10 +10,10 @@ namespace Ship_Game
         public static readonly ToolTipText None = new ToolTipText();
         public bool IsValid => Id > 0 || Text.NotEmpty();
 
-        public static implicit operator ToolTipText(int id)
-        {
-            return new ToolTipText{ Id = id };
-        }
+        //public static implicit operator ToolTipText(int id)
+        //{
+        //    return new ToolTipText{ Id = id };
+        //}
 
         //// Allows button.Tooltip = GameTips.AttackRunsOrder;
         //public static implicit operator ToolTipText(GameTips gameTip)

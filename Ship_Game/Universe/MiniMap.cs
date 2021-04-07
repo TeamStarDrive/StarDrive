@@ -351,25 +351,25 @@ namespace Ship_Game
         {
             if (!Housing.HitTest(input.CursorPosition)) return false;
             if (ZoomToShip.Rect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(57, "Page Up");
+                ToolTip.CreateTooltip(GameText.ZoomsToYourCurrentlySelected, "Page Up");
 
             if (ZoomOut.Rect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(58, "Page Down");
+                ToolTip.CreateTooltip(GameText.ZoomOutToTheGalaxy, "Page Down");
 
             if (DeepSpaceBuild.Rect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(54, "B");
+                ToolTip.CreateTooltip(GameText.OpensTheDeepSpaceBuilding, "B");
 
             if (PlanetScreen.Rect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(56, "L");
+                ToolTip.CreateTooltip(GameText.OpensPlanetReconnaissancePanel, "L");
 
             if (ShipScreen.Rect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(223, "F1");
+                ToolTip.CreateTooltip(GameText.FtlOverlayVisualisesSubspaceProjection, "F1");
 
             if (Fleets.Rect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(224, "F2");
+                ToolTip.CreateTooltip(GameText.WeaponsRangeOverlayVisualisesShips, "F2");
 
             if (AIScreen.Rect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(59, "H");
+                ToolTip.CreateTooltip(GameText.OpensTheAutomationPanelWhich, "H");
 
             return HandleInput(input);
         }

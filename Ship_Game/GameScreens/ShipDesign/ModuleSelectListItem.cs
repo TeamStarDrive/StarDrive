@@ -93,7 +93,7 @@ namespace Ship_Game
                 var obsoleteRect = new Rectangle((int)bCursor.X + 220, (int)bCursor.Y + 22, 17, 17);
                 batch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete"), obsoleteRect, Color.Red);
                 if (obsoleteRect.HitTest(GameBase.ScreenManager.input.CursorPosition))
-                    ToolTip.CreateTooltip(4188);
+                    ToolTip.CreateTooltip(GameText.ThisModuleWasMarkedAs);
             }
         }
     }

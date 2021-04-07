@@ -20,7 +20,7 @@ namespace Ship_Game
 
 		//private string fmt = "0.#";
 
-		public int Tip_ID;
+		public ToolTipText Tooltip;
 
 		private Rectangle redRect;
 
@@ -94,9 +94,9 @@ namespace Ship_Game
 				text = "Similar";
 			}
 			SpriteBatch.DrawString(Fonts.Arial12Bold, text, textPos, Colors.Cream);
-			if (Hover && Tip_ID != 0)
+			if (Hover && Tooltip.IsValid)
 			{
-				ToolTip.CreateTooltip(Tip_ID);
+				ToolTip.CreateTooltip(Tooltip);
 			}
 		}
 

@@ -100,11 +100,11 @@ namespace Ship_Game
             CalcPlanetsDistances();
             cb_hideOwned = Add(new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 15,
                 () => HideOwned, 
-                x => { HideOwned = x; ResetList(); }, Fonts.Arial12Bold, "Hide Owned", 0));
+                x => { HideOwned = x; ResetList(); }, Fonts.Arial12Bold, "Hide Owned", ""));
 
             cb_hideUninhabitable = Add(new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 35,
                 () => HideUninhab, 
-                x => { HideUninhab = x; ResetList(); }, Fonts.Arial12Bold, "Hide Uninhabitable", 0));
+                x => { HideUninhab = x; ResetList(); }, Fonts.Arial12Bold, "Hide Uninhabitable", ""));
 
             Vector2 troopPos = new Vector2(TitleBar.Menu.X + TitleBar.Menu.Width + 17, TitleBar.Menu.Y + 55);
             AvailableTroops  = Add(new UILabel(troopPos, $"Available Troops: ", Fonts.Arial20Bold, Color.LightGreen));

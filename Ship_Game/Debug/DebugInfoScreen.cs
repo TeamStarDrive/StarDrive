@@ -73,7 +73,7 @@ namespace Ship_Game.Debug
             {
                 SpeedLimitSlider = Slider(RelativeToAbsolute(-200f, 400f), 200, 40, "Debug SpeedLimit", 0f, 1f, 1f);
                 DebugPlatformSpeed = Slider(RelativeToAbsolute(-200f, 440f), 200, 40, "Platform Speed", -500f, 500f, 0f);
-                Checkbox(RelativeToAbsolute(-200f, 480f), () => CanDebugPlatformFire, "Start Firing", 0);
+                Checkbox(RelativeToAbsolute(-200f, 480f), () => CanDebugPlatformFire, "Start Firing", "");
             }
 
             foreach (Empire empire in EmpireManager.Empires)

@@ -1330,7 +1330,7 @@ namespace Ship_Game
 
                     if (planet.RecentCombat)
                     {
-                        DrawTextureWithToolTip(icon_fighting_small, Color.White, 121, mousePos, (int)posOffSet.X,
+                        DrawTextureWithToolTip(icon_fighting_small, Color.White, GameText.IndicatesThatAnAnomalyWas, mousePos, (int)posOffSet.X,
                             (int)posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
@@ -1342,7 +1342,7 @@ namespace Ship_Game
                             if (mole.PlanetGuid == planet.guid)
                             {
                                 posOffSet.X += (18 * drawLocationOffset);
-                                DrawTextureWithToolTip(icon_spy_small, Color.White, 120, mousePos,
+                                DrawTextureWithToolTip(icon_spy_small, Color.White, GameText.IndicatesThatAFriendlyAgent, mousePos,
                                     (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                                 ++drawLocationOffset;
                                 break;

@@ -75,7 +75,7 @@ namespace Ship_Game
                 Rectangle hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Population)+":").X, Fonts.Arial12Bold.LineSpacing);
                 if (hoverRect.HitTest(MousePos))
                 {
-                    ToolTip.CreateTooltip(75);
+                    ToolTip.CreateTooltip(GameText.AColonysPopulationIsA);
                 }
                 PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
@@ -84,7 +84,7 @@ namespace Ship_Game
                 hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Fertility)+":").X, Fonts.Arial12Bold.LineSpacing);
                 if (hoverRect.HitTest(MousePos))
                 {
-                    ToolTip.CreateTooltip(20);
+                    ToolTip.CreateTooltip(GameText.IndicatesHowMuchFoodThis);
                 }
                 PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
@@ -93,7 +93,7 @@ namespace Ship_Game
                 hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Richness)+":").X, Fonts.Arial12Bold.LineSpacing);
                 if (hoverRect.HitTest(MousePos))
                 {
-                    ToolTip.CreateTooltip(21);
+                    ToolTip.CreateTooltip(GameText.APlanetsMineralRichnessDirectly);
                 }
             }
             PNameCursor.Y = PlanetIcon.Y + PlanetIcon.Height + 20;
