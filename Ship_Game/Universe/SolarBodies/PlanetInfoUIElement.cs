@@ -102,12 +102,7 @@ namespace Ship_Game
 
             MathHelper.SmoothStep(0f, 1f, TransitionPosition);
             ToolTipItems.Clear();
-            var population = new TippedItem
-            {
-                r = PopRect,
-                Tooltip = GameText.PopulationInBillionsVsMax
-            };
-            ToolTipItems.Add(population);
+            ToolTipItems.Add(new TippedItem(PopRect, GameText.PopulationInBillionsVsMax));
 
             float x = Mouse.GetState().X;
             MouseState state = Mouse.GetState();
@@ -325,25 +320,19 @@ namespace Ship_Game
                 tipText = GameText.CancelColonize;
             }
 
-            TippedItem ti = new TippedItem { r = MarkedRect, Tooltip = tip };
-            ToolTipItems.Add(ti);
+            ToolTipItems.Add(new TippedItem(MarkedRect, tip));
             batch.DrawString(Font12, tipText, textPos, MarkedRect.HitTest(mousePos) ? ButtonTextColor 
                                                                                     : ButtonHoverColor);
         }
 
         void DrawFertProdStats(SpriteBatch batch)
         {
-            Rectangle fIcon = new Rectangle(200,Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.Texture("NewUI/icon_food").Height,
-                ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
+            var foodTex = ResourceManager.Texture("NewUI/icon_food");
+            var fIcon = new Rectangle(200,Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - foodTex.Height, foodTex.Width, foodTex.Height);
+            batch.Draw(foodTex, fIcon, Color.White);
+            ToolTipItems.Add(new TippedItem(fIcon, GameText.IndicatesHowMuchFoodThis));
 
-            batch.Draw(ResourceManager.Texture("NewUI/icon_food"), fIcon, Color.White);
-            TippedItem ti = new TippedItem
-            {
-                r = fIcon,
-                Tooltip = GameText.IndicatesHowMuchFoodThis
-            };
-            ToolTipItems.Add(ti);
-            Vector2 tcurs     = new Vector2(fIcon.X + 25, Housing.Y + 205);
+            var tcurs = new Vector2(fIcon.X + 25, Housing.Y + 205);
             float fertility   = P.FertilityFor(EmpireManager.Player);
             float maxFert     = P.MaxFertilityFor(EmpireManager.Player);
             string fertString = fertility.AlmostEqual(maxFert) ? fertility.String(2) : $"{fertility.String(2)}/{maxFert.String(2)}";
@@ -357,17 +346,10 @@ namespace Ship_Game
                 batch.DrawString(Font8, $"(x {fertEnvMultiplier.String(2)})", fertMultiplier, fertEnvColor);
             }
 
-            Rectangle pIcon = new Rectangle(325, Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.Texture("NewUI/icon_production").Height,
-                ResourceManager.Texture("NewUI/icon_production").Width,
-                ResourceManager.Texture("NewUI/icon_production").Height);
-
-            batch.Draw(ResourceManager.Texture("NewUI/icon_production"), pIcon, Color.White);
-            ti = new TippedItem
-            {
-                r = pIcon,
-                Tooltip = GameText.APlanetsMineralRichnessDirectly
-            };
-            ToolTipItems.Add(ti);
+            var prodTex = ResourceManager.Texture("NewUI/icon_production");
+            var pIcon = new Rectangle(325, Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - prodTex.Height, prodTex.Width, prodTex.Height);
+            batch.Draw(prodTex, pIcon, Color.White);
+            ToolTipItems.Add(new TippedItem(pIcon, GameText.APlanetsMineralRichnessDirectly));
 
             tcurs = new Vector2(350f, Housing.Y + 205);
             batch.DrawString(Fonts.Arial12Bold, P.MineralRichness.String(), tcurs, tColor);
@@ -375,64 +357,19 @@ namespace Ship_Game
 
         void AddExploredTips()
         {
-            TippedItem ti = new TippedItem
-            {
-                r = DefenseRect,
-                Tooltip = GameText.IndicatesThisColonysTotalStrength
-            };
-            ToolTipItems.Add(ti);
-            ti = new TippedItem
-            {
-                r = InjuryRect,
-                Tooltip = GameText.EveryTroopInvadingThisPlanet
-            };
-            ToolTipItems.Add(ti);
-            ti = new TippedItem
-            {
-                r = OffenseRect,
-                Tooltip = GameText.ThePlanetsSpaceOffenseVs
-            };
-            ToolTipItems.Add(ti);
-            ti = new TippedItem
-            {
-                r = ShieldRect,
-                Tooltip = GameText.IndicatesTheCurrentStrengthOf
-            };
-            ToolTipItems.Add(ti);
-            ti = new TippedItem
-            {
-                r = DefenseShipsRect,
-                Tooltip = GameText.IndicatesTheTileRangeThis
-            };
-            ToolTipItems.Add(ti);
+            ToolTipItems.Add(new TippedItem(DefenseRect, GameText.IndicatesThisColonysTotalStrength));
+            ToolTipItems.Add(new TippedItem(InjuryRect, GameText.EveryTroopInvadingThisPlanet));
+            ToolTipItems.Add(new TippedItem(OffenseRect, GameText.ThePlanetsSpaceOffenseVs));
+            ToolTipItems.Add(new TippedItem(ShieldRect, GameText.IndicatesTheCurrentStrengthOf));
+            ToolTipItems.Add(new TippedItem(DefenseShipsRect, GameText.IndicatesTheTileRangeThis));
         }
 
         void AddUnExploredTips()
         {
-            TippedItem ti = new TippedItem
-            {
-                r = TilesRect,
-                Tooltip = GameText.ThisIndicatesHowManyTiles
-            };
-            ToolTipItems.Add(ti);
-            ti = new TippedItem
-            {
-                r = PopPerTileRect,
-                Tooltip = GameText.ThisIndicatesHowMuchPopulation
-            };
-            ToolTipItems.Add(ti);
-            ti = new TippedItem
-            {
-                r = BiospheredPopRect,
-                Tooltip = GameText.ThisIndicatesWhatWouldThe
-            };
-            ToolTipItems.Add(ti);
-            ti = new TippedItem
-            {
-                r = TerraformedPopRect,
-                Tooltip = GameText.ThisIndicatesWhatWouldThe2
-            };
-            ToolTipItems.Add(ti);
+            ToolTipItems.Add(new TippedItem(TilesRect, GameText.ThisIndicatesHowManyTiles));
+            ToolTipItems.Add(new TippedItem(PopPerTileRect, GameText.ThisIndicatesHowMuchPopulation));
+            ToolTipItems.Add(new TippedItem(BiospheredPopRect, GameText.ThisIndicatesWhatWouldThe));
+            ToolTipItems.Add(new TippedItem(TerraformedPopRect, GameText.ThisIndicatesWhatWouldThe2));
         }
 
         void DrawPlanetStats(Rectangle rect, string data, string texturePath, Color color, Color texcolor)
@@ -451,7 +388,7 @@ namespace Ship_Game
             }
             foreach (TippedItem ti in ToolTipItems)
             {
-                if (!ti.r.HitTest(input.CursorPosition))
+                if (!ti.Rect.HitTest(input.CursorPosition))
                 {
                     continue;
                 }
@@ -566,12 +503,6 @@ namespace Ship_Game
                     AssignLabor = null;
                 }
             };
-        }
-
-        struct TippedItem
-        {
-            public Rectangle r;
-            public LocalizedText Tooltip;
         }
     }
 }
