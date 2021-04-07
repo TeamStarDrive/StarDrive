@@ -89,18 +89,18 @@ namespace Ship_Game
             var epRect = new Rectangle(x, leftRect.Y + 270, 270, 50);
             var richnessRect = new Rectangle(x, leftRect.Y + 330, 270, 50);
 
-            GravityWellSize  = Slider(gwRect,  new LocalizedText(6002), 0, 20000, GlobalStats.GravityWellRange);
-            ExtraPlanets     = Slider(epRect, new LocalizedText(4118), 0, 3f, GlobalStats.ExtraPlanets);
-            StartingRichness = Slider(richnessRect, new LocalizedText(4121), 0, 5f, GlobalStats.StartingPlanetRichness);
+            GravityWellSize  = Slider(gwRect,  GameText.GravityWellRadius, 0, 20000, GlobalStats.GravityWellRange);
+            ExtraPlanets     = Slider(epRect, GameText.ExtraPlanets, 0, 3f, GlobalStats.ExtraPlanets);
+            StartingRichness = Slider(richnessRect, GameText.StartingPlanetRichnessBonus, 0, 5f, GlobalStats.StartingPlanetRichness);
 
 
             var optionTurnTimer  = new Rectangle(x, leftRect.Y + 390, 270, 50);
             var minimumWarpRange = new Rectangle(x, leftRect.Y + 450, 270, 50);
             var maintenanceRect  = new Rectangle(x, leftRect.Y + 510, 270, 50);
 
-            TurnTimer           = Slider(optionTurnTimer,  new LocalizedText(4125), 2, 18f,      GlobalStats.TurnTimer);
-            MinimumWarpRange    = Slider(minimumWarpRange, new LocalizedText(4123), 0, 1200000f, GlobalStats.MinimumWarpRange);
-            IncreaseMaintenance = Slider(maintenanceRect,  new LocalizedText(4127), 1, 10f,      GlobalStats.ShipMaintenanceMulti);
+            TurnTimer           = Slider(optionTurnTimer,  GameText.SecondsPerTurn, 2, 18f,      GlobalStats.TurnTimer);
+            MinimumWarpRange    = Slider(minimumWarpRange, GameText.MinimumWarpRange, 0, 1200000f, GlobalStats.MinimumWarpRange);
+            IncreaseMaintenance = Slider(maintenanceRect,  GameText.MaintenanceMultiplier, 1, 10f,      GlobalStats.ShipMaintenanceMulti);
 
             FTLPenaltySlider.Tip      = 2286;
             EnemyFTLPenaltySlider.Tip = 7041;
@@ -113,14 +113,14 @@ namespace Ship_Game
                 extraPlanetsTip = $"{extraPlanetsTip} {Localizer.Token(GameText.ThisWillSlightlyIncreaseResearch)}";
 
             ExtraPlanets.Tip        = extraPlanetsTip;
-            MinimumWarpRange.Tip    = new LocalizedText(4124);
-            IncreaseMaintenance.Tip = new LocalizedText(4128);
-            TurnTimer.Tip           = new LocalizedText(4126);
-            StartingRichness.Tip    = new LocalizedText(4122);
+            MinimumWarpRange.Tip    = GameText.MinimumWarpRangeAShip;
+            IncreaseMaintenance.Tip = GameText.MultiplyGlobalMaintenanceCostBy;
+            TurnTimer.Tip           = GameText.TimeInSecondsPerTurn;
+            StartingRichness.Tip    = GameText.AddToAllStartingEmpire;
 
 
 
-            Label(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40, new LocalizedText(4129), Fonts.Arial20Bold);
+            Label(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40, GameText.AdvancedRuleOptions, Fonts.Arial20Bold);
             string text = Fonts.Arial12.ParseText(Localizer.Token(GameText.InThisPanelYouMay), MainMenu.Menu.Width - 80);
             Label(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40 + Fonts.Arial20Bold.LineSpacing + 2, text, Fonts.Arial12);
         }

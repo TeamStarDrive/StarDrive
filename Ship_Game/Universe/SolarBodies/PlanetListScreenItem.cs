@@ -65,12 +65,12 @@ namespace Ship_Game
             RemoveAll();
 
             ButtonStyle colonizeStyle  = MarkedForColonization ? ButtonStyle.Default : ButtonStyle.BigDip;
-            LocalizedText colonizeText = !MarkedForColonization ? new LocalizedText(1425) : "Cancel Colonize";
+            LocalizedText colonizeText = !MarkedForColonization ? GameText.Colonize : GameText.CancelColonize;
             Colonize   = Button(colonizeStyle, colonizeText, OnColonizeClicked);
             SendTroops = Button(ButtonStyle.BigDip, "Send Troops", OnSendTroopsClicked);
-            SendTroops.Tooltip = new LocalizedText(1900);
+            SendTroops.Tooltip = GameText.SendAvailableTroopsToThis;
             RecallTroops = Button(ButtonStyle.Medium, $"Recall Troops ({Planet.NumTroopsCanLaunchFor(Player)})", OnRecallTroopsClicked);
-            RecallTroops.Tooltip = new LocalizedText(1894);
+            RecallTroops.Tooltip = GameText.RecallAllTroopsBasedOn;
 
             int nextX = x;
             Rectangle NextRect(float width)

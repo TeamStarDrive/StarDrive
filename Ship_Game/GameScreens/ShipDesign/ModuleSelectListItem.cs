@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Ships;
 
@@ -71,21 +71,21 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("UI/icon_can_rotate"), rotateRect, Color.White);
                 batch.Draw(ResourceManager.Texture("NewUI/icon_turret"), turretRect, Color.White);
                 if (rotateRect.HitTest(GameBase.ScreenManager.input.CursorPosition) || turretRect.HitTest(GameBase.ScreenManager.input.CursorPosition))
-                    ToolTip.CreateTooltip(new LocalizedText(4197));
+                    ToolTip.CreateTooltip(GameText.ThisModuleCanBeRotated);
             }
             else if (!mod.DisableRotation)
             {
                 var rotateRect = new Rectangle((int)bCursor.X + 240, (int)bCursor.Y + 3, 20, 22);
                 batch.Draw(ResourceManager.Texture("UI/icon_can_rotate"), rotateRect, Color.White);
                 if (rotateRect.HitTest(GameBase.ScreenManager.input.CursorPosition))
-                    ToolTip.CreateTooltip(new LocalizedText(4187));
+                    ToolTip.CreateTooltip(GameText.IndicatesThatThisModuleCan);
             }
             else if (mod.InstalledWeapon?.isTurret == true)
             {
                 var turretRect = new Rectangle((int)bCursor.X + 235, (int)bCursor.Y + 3, 25, 23);
                 batch.Draw(ResourceManager.Texture("NewUI/icon_turret"), turretRect, Color.White);
                 if (turretRect.HitTest(GameBase.ScreenManager.input.CursorPosition))
-                    ToolTip.CreateTooltip(new LocalizedText(4196));
+                    ToolTip.CreateTooltip(GameText.IndicatesThisModuleHasA);
             }
 
             if (IsObsolete)
