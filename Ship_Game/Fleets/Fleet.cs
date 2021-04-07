@@ -623,7 +623,7 @@ namespace Ship_Game.Fleets
             switch (TaskStep)
             {
                 case 0:
-                    if (AveragePos.Distance(task.TargetPlanet.ParentSystem.Position) < AveragePos.Distance(task.RallyPlanet.ParentSystem.Position))
+                    if (!GatherAtRallyFirst(task))
                     {
                         AddFleetProjectorGoal();
                         TaskStep = 2;
@@ -759,6 +759,11 @@ namespace Ship_Game.Fleets
             return true;
         }
 
+        bool GatherAtRallyFirst(MilitaryTask task)
+        {
+            return task.RallyPlanet.ParentSystem.Position.SqDist(task.TargetPlanet.ParentSystem.Position)
+                   < AveragePos.SqDist(task.RallyPlanet.ParentSystem.Position);
+        }
 
         void DoAssaultPlanet(MilitaryTask task)
         {
@@ -776,7 +781,7 @@ namespace Ship_Game.Fleets
                         break;
                     }
 
-                    if (AveragePos.Distance(task.TargetPlanet.ParentSystem.Position) < AveragePos.Distance(task.RallyPlanet.ParentSystem.Position))
+                    if (!GatherAtRallyFirst(task))
                     {
                         AddFleetProjectorGoal();
                         TaskStep = 2;
@@ -1001,7 +1006,7 @@ namespace Ship_Game.Fleets
             switch (TaskStep)
             {
                 case 0:
-                    if (AveragePos.Distance(task.TargetPlanet.ParentSystem.Position) < AveragePos.Distance(task.RallyPlanet.ParentSystem.Position))
+                    if (!GatherAtRallyFirst(task))
                     {
                         AddFleetProjectorGoal();
                         TaskStep = 2;
@@ -1299,21 +1304,11 @@ namespace Ship_Game.Fleets
             else
                 task.TargetEmpire = task.TargetPlanet.Owner;
 
-            if (TaskStep < 2)
-            {
-                bool targetCloser = AveragePos.SqDist(task.RallyPlanet.Center) > AveragePos.SqDist(task.TargetPlanet.Center);
-                if (targetCloser)
-                {
-                    TaskStep = 2;
-                    GatherAtAO(task, 400000);
-                }
-            }
-
             task.AO = task.TargetPlanet.Center;
             switch (TaskStep)
             {
                 case 0:
-                    if (AveragePos.Distance(task.TargetPlanet.ParentSystem.Position) < AveragePos.Distance(task.RallyPlanet.ParentSystem.Position))
+                    if (!GatherAtRallyFirst(task))
                     {
                         AddFleetProjectorGoal();
                         TaskStep = 2;
