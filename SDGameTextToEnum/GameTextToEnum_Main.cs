@@ -201,9 +201,6 @@ namespace SDGameTextToEnum
             string[] lines = File.ReadAllLines(fileName);
             int modified = 0;
             int i = 0;
-            var matchLocalizerToken = new Regex("Localizer\\.Token\\(\\d+\\)");
-            var numberMatcher = new Regex("\\d+");
-
             void ModifyCurrentLine(string newValue)
             {
                 lines[i] = newValue;
@@ -211,22 +208,35 @@ namespace SDGameTextToEnum
                 --i; // after we modify current line, skip back to reprocess this line
             }
 
-            for (; i < lines.Length; ++i)
+            var mInteger = new Regex("\\d+");
+            var mLocToken = new Regex("Localizer\\.Token\\(\\d+\\)");
+            var mLocText  = new Regex("new LocalizedText\\(\\d+\\)");
+            Func<string, string> rLocToken = (nameId) => $"Localizer.Token(GameText.{nameId})";
+            Func<string, string> rLocText = (nameId) => $"GameText.{nameId}";
+
+            bool ReplaceIntWithNameId(string line, Regex matcher, Func<string, string> replacement)
             {
-                string line = lines[i];
-                var locTokenMatch = matchLocalizerToken.Match(line);
-                if (locTokenMatch.Success)
+                var m = matcher.Match(line);
+                if (m.Success)
                 {
-                    string localizerToken = locTokenMatch.Value;
-                    var integerMatch = numberMatcher.Match(localizerToken);
-                    if (integerMatch.Success && int.TryParse(integerMatch.Value, out int id))
+                    var intM = mInteger.Match(m.Value);
+                    if (intM.Success && int.TryParse(intM.Value, out int id))
                     {
                         string nameId = db.GetNameId(id);
-                        ModifyCurrentLine(line.Replace(localizerToken, $"Localizer.Token(GameText.{nameId})"));
-                        continue;
+                        string replaceWith = replacement(nameId);
+                        ModifyCurrentLine(line.Replace(m.Value, replaceWith));
+                        return true;
                     }
                 }
+                return false;
             }
+
+            for (; i < lines.Length; ++i)
+            {
+                if (ReplaceIntWithNameId(lines[i], mLocToken, rLocToken)) continue;
+                if (ReplaceIntWithNameId(lines[i], mLocText, rLocText)) continue;
+            }
+
             if (modified > 0)
             {
                 Log.Write(ConsoleColor.Green, $"Modified  {fileName}  ({modified})");
