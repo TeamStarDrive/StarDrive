@@ -193,7 +193,7 @@ namespace Ship_Game
                             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_anomaly_small"), flashRect, screen.CurrentFlashColor);
                             if (flashRect.HitTest(new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
                             {
-                                ToolTip.CreateTooltip(121);
+                                ToolTip.CreateTooltip(GameText.IndicatesThatAnAnomalyWas);
                             }
                             sideSpacing += flashRect.Width;
                         }
@@ -204,7 +204,7 @@ namespace Ship_Game
                             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/marketIcon"), flashRect, screen.CurrentFlashColor);
                             if (flashRect.HitTest(new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
                             {
-                                ToolTip.CreateTooltip(121);
+                                ToolTip.CreateTooltip(GameText.IndicatesThatAnAnomalyWas);
                             }
                             sideSpacing += flashRect.Width;
                         }
@@ -215,7 +215,7 @@ namespace Ship_Game
                             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop"), flashRect, screen.CurrentFlashColor);
                             if (flashRect.HitTest(new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
                             {
-                                ToolTip.CreateTooltip(121);
+                                ToolTip.CreateTooltip(GameText.IndicatesThatAnAnomalyWas);
                             }
                             sideSpacing += flashRect.Width;
                         }
@@ -298,7 +298,7 @@ namespace Ship_Game
                             {
                                 continue;
                             }
-                            ToolTip.CreateTooltip(26);
+                            ToolTip.CreateTooltip(GameText.IndicatesThatYourEmpireHas);
                         }
                     }
                 }

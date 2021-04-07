@@ -511,9 +511,9 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             if (!Visible || !Enabled)
                 return false;
 
-            if (TrustRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(47);
-            if (AngerRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(48);
-            if (FearRect.HitTest(input.CursorPosition))  ToolTip.CreateTooltip(49);
+            if (TrustRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GameText.ThisIndicatesHowMuchA);
+            if (AngerRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GameText.ThisIndicatesHowAngryA);
+            if (FearRect.HitTest(input.CursorPosition))  ToolTip.CreateTooltip(GameText.ThisIndicatesHowMuchA2);
 
             if (Exit.HandleInput(input) && DState != DialogState.TheirOffer)
             {
@@ -550,7 +550,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 }
                 else if (DeclareWar != null && DeclareWar.R.HitTest(input.CursorPosition))
                 {
-                    ToolTip.CreateTooltip(128);
+                    ToolTip.CreateTooltip(GameText.YouCurrentlyHaveAPeace);
                 }
 
                 if (Discuss != null && Discuss.HandleInput(input))

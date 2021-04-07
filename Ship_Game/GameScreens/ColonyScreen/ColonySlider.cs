@@ -64,9 +64,9 @@ namespace Ship_Game
         {
             switch (Type)
             {
-                default: return P.IsCybernetic ? 77 : 70;
-                case ColonyResType.Prod: return 71;
-                case ColonyResType.Res:  return 72;
+                default: return P.IsCybernetic ? GameText.YourPeopleAreCyberneticAnd : GameText.FoodIsEatenByYour;
+                case ColonyResType.Prod: return GameText.ProductionIsRequiredForThe;
+                case ColonyResType.Res:  return GameText.ResearchPointsAreAddedInto;
             }
         }
 
@@ -140,7 +140,7 @@ namespace Ship_Game
                         LockedByUser = !LockedByUser;
                         GameAudio.AcceptClick();
                     }
-                    ToolTip.CreateTooltip(69);
+                    ToolTip.CreateTooltip(GameText.LocksThisSliderPreventingThe);
                 }
             }
             if (DrawIcons && !LockHover) // maybe hovering over icon?

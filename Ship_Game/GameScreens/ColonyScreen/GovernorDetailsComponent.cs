@@ -102,25 +102,25 @@ namespace Ship_Game
             if      (Screen.Width < 1600) {Font = Font8;  FontBig = Font10; }
             else if (Screen.Width < 1920) {Font = Font10; FontBig = Font12; }
 
-            GovOrbitals    = Add(new UICheckBox(() => Planet.GovOrbitals, Font, title:1960, tooltip:1961));
-            AutoTroops     = Add(new UICheckBox(() => Planet.AutoBuildTroops, Font, title:1956, tooltip:1957));
-            GovNoScrap     = Add(new UICheckBox(() => Planet.DontScrapBuildings, Font, title:1941, tooltip:1942));
-            Quarantine     = Add(new UICheckBox(() => Planet.Quarantine, Font, title: 1888, tooltip: 1887));
-            ManualOrbitals = Add(new UICheckBox(() => Planet.ManualOrbitals, Font, title: 4201, tooltip: 4202));
-            GovGround      = Add(new UICheckBox(() => Planet.GovGroundDefense, Font, title: 4207, tooltip: 4208));
-            OverrideCiv    = Add(new UICheckBox(() => OverrideCivBudget, Font, title: 4226, tooltip: 4227));
-            OverrideGrd    = Add(new UICheckBox(() => OverrideGrdBudget, Font, title: 4226, tooltip: 4227));
-            OverrideSpc    = Add(new UICheckBox(() => OverrideSpcBudget, Font, title: 4226, tooltip: 4227));
+            GovOrbitals    = Add(new UICheckBox(() => Planet.GovOrbitals, Font, title:GameText.GovernorManagesOrbitals, tooltip:GameText.TheGovernorWillBuildStations));
+            AutoTroops     = Add(new UICheckBox(() => Planet.AutoBuildTroops, Font, title:GameText.GovernorBuildsMilitia, tooltip:GameText.TheGovernorWillCreateA));
+            GovNoScrap     = Add(new UICheckBox(() => Planet.DontScrapBuildings, Font, title:GameText.GovernorWillNotScrapBuildings, tooltip:GameText.NormallyGovernorsOperateWithinA));
+            Quarantine     = Add(new UICheckBox(() => Planet.Quarantine, Font, title: GameText.QuarantinePlanet, tooltip: GameText.PreventGoodsTransportationInAnd));
+            ManualOrbitals = Add(new UICheckBox(() => Planet.ManualOrbitals, Font, title: GameText.ManualOrbitalLimit, tooltip: GameText.OverrideGovernorDecisionsRegardingOrbital));
+            GovGround      = Add(new UICheckBox(() => Planet.GovGroundDefense, Font, title: GameText.GovernorManagesGroundDefense, tooltip: GameText.TheGovernorWillManageGround));
+            OverrideCiv    = Add(new UICheckBox(() => OverrideCivBudget, Font, title: GameText.Override, tooltip: GameText.OverrideThisBudgetAndSet));
+            OverrideGrd    = Add(new UICheckBox(() => OverrideGrdBudget, Font, title: GameText.Override, tooltip: GameText.OverrideThisBudgetAndSet));
+            OverrideSpc    = Add(new UICheckBox(() => OverrideSpcBudget, Font, title: GameText.Override, tooltip: GameText.OverrideThisBudgetAndSet));
 
             Garrison        = Slider(200, 200, 160, 40, GameText.GarrisonSize, 0, 25,Planet.GarrisonSize);
             ManualPlatforms = Slider(200, 200, 120, 40, GameText.ManualLimit, 0, 15, Planet.WantedPlatforms);
             ManualShipyards = Slider(200, 200, 120, 40, "", 0, 2, Planet.WantedShipyards);
             ManualStations  = Slider(200, 200, 120, 40, "", 0, 10, Planet.WantedStations);
 
-            Garrison.Tip        = 1903;
-            ManualPlatforms.Tip = 4204;
-            ManualShipyards.Tip = 4205;
-            ManualStations.Tip  = 4206;
+            Garrison.Tip        = GameText.GarrisonSizeEnsuresANumber;
+            ManualPlatforms.Tip = GameText.ManuallyAdjustTheNumberOf;
+            ManualShipyards.Tip = GameText.ManuallyAdjustTheNumberOf2;
+            ManualStations.Tip  = GameText.ManuallyAdjustTheNumberOf3;
 
             // Dropdown will go on top of everything else
             ColonyTypeList = Add(new DropOptions<Planet.ColonyType>(100, 18));
@@ -717,13 +717,13 @@ namespace Ship_Game
                 UpdateGovOrbitalStats();
 
             if (ColonyRank.Visible && ColonyRank.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(279);
+                ToolTip.CreateTooltip(GameText.TheRankOfTheColony);
 
             if (BudgetTabView)
             {
-                if      (CivBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GovernorOn ? 280 : 283);
-                else if (GrdBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GovernorOn ? 281 : 284);
-                else if (SpcBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GovernorOn ? 282 : 285);
+                if      (CivBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GovernorOn ? GameText.CivilianBuildingsExpenditurebudgetInByc : GameText.CivilianBuildingsExpenditureInByc);
+                else if (GrdBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GovernorOn ? GameText.GroundDefenseBuildingsExpenditurebudgetIn : GameText.GroundDefenseBuildingsExpenditureIn);
+                else if (SpcBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GovernorOn ? GameText.OrbitalsExpenditurebudgetInByc : GameText.OrbitalsExpenditureInByc);
             }
 
             ManualCivBudget.HandlingInput = ManualCivBudget.HitTest(input.CursorPosition);

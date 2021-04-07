@@ -16,11 +16,11 @@ namespace Ship_Game
         public Ref<bool> RightClickValueToModify;
         public Rectangle ClickRect;
         public bool SimpleToggle;
-        public int IdTip;
+        public ToolTipText IdTip;
         public Array<Ship> ShipList = new Array<Ship>();
         public bool Active;
 
-        public OrdersButton(Ship ship, Vector2 location, OrderType ot, int tipId)
+        public OrdersButton(Ship ship, Vector2 location, OrderType ot, ToolTipText tipId)
         {
             IdTip     = tipId;
             OrderType = ot;
@@ -28,7 +28,7 @@ namespace Ship_Game
             ClickRect = new Rectangle((int)location.X, (int)location.Y, 48, 48);
         }
 
-        public OrdersButton(Array<Ship> shipList, Vector2 location, OrderType ot, int tipId)
+        public OrdersButton(Array<Ship> shipList, Vector2 location, OrderType ot, ToolTipText tipId)
         {
             IdTip     = tipId;
             ShipList  = shipList;

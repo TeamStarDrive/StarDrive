@@ -72,12 +72,12 @@ namespace Ship_Game
             var eftlRect = new Rectangle(x, leftRect.Y + 150, 270, 50);
             EnemyFTLPenaltySlider = SliderPercent(eftlRect, Localizer.Token(GameText.InsystemEnemyFtlSpeedModifier), 0f, 1f, GlobalStats.EnemyFTLInSystemModifier);
             int indent = (int)(width / 4.5f); 
-            Checkbox(ftlRect.X + indent, ftlRect.Y, () => GlobalStats.PlanetaryGravityWells, title: 4008, tooltip: 2288);
-            Checkbox(ftlRect.X + indent, ftlRect.Y + 25, () => GlobalStats.PreventFederations,    title: 6022, tooltip: 7011);
-            Checkbox(ftlRect.X + indent, ftlRect.Y + 50,() => GlobalStats.WarpInSystem,          title: 6178, tooltip: 6178);
-            Checkbox(ftlRect.X + indent, ftlRect.Y + 75, () => GlobalStats.FixedPlayerCreditCharge, title: 1861, tooltip: 1862);
-            Checkbox(ftlRect.X + indent, ftlRect.Y + 100, () => GlobalStats.DisablePirates, title: 1868, tooltip: 1869);
-            Checkbox(ftlRect.X + indent, ftlRect.Y + 125, () => GlobalStats.DisableRemnantStory, title: 1844, tooltip: 1845);
+            Checkbox(ftlRect.X + indent, ftlRect.Y, () => GlobalStats.PlanetaryGravityWells, title: 4008, tooltip: GameText.EnablesPlanetaryGravityWellsWhich);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 25, () => GlobalStats.PreventFederations,    title: 6022, tooltip: GameText.PreventsAiEmpiresFromMerging);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 50,() => GlobalStats.WarpInSystem,          title: 6178, tooltip: GameText.TreatNeutralSystemsAsUnfriendly);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 75, () => GlobalStats.FixedPlayerCreditCharge, title: 1861, tooltip: GameText.KeepFixedCreditCostOf);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 100, () => GlobalStats.DisablePirates, title: 1868, tooltip: GameText.DisablesAllPirateFactionsFor);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 125, () => GlobalStats.DisableRemnantStory, title: 1844, tooltip: GameText.IfCheckedRemnantForcesIn);
 
             var mdRect = new Rectangle(ftlRect.X + indent+2, ftlRect.Y + 170, 270, 50);
             CustomMineralDecay = SliderDecimal1(mdRect, Localizer.Token(GameText.MineralDecayRate), 0.5f, 3, GlobalStats.CustomMineralDecay);
@@ -102,11 +102,11 @@ namespace Ship_Game
             MinimumWarpRange    = Slider(minimumWarpRange, GameText.MinimumWarpRange, 0, 1200000f, GlobalStats.MinimumWarpRange);
             IncreaseMaintenance = Slider(maintenanceRect,  GameText.MaintenanceMultiplier, 1, 10f,      GlobalStats.ShipMaintenanceMulti);
 
-            FTLPenaltySlider.Tip      = 2286;
-            EnemyFTLPenaltySlider.Tip = 7041;
-            GravityWellSize.Tip       = 6003;
-            CustomMineralDecay.Tip    = 4116;
-            VolcanicActivity.Tip      = 4275;
+            FTLPenaltySlider.Tip      = GameText.UsingThisSliderYouCan;
+            EnemyFTLPenaltySlider.Tip = GameText.UsingThisSliderYouCan2;
+            GravityWellSize.Tip       = GameText.DefinesTheRadiusOfPlanetary;
+            CustomMineralDecay.Tip    = GameText.HigherMineralDecayIncreasesThe;
+            VolcanicActivity.Tip      = GameText.ThisWillControlTheChances;
 
             string extraPlanetsTip = Localizer.Token(GameText.AddExtraPlanetsToEach);
             if (GlobalStats.ModChangeResearchCost)

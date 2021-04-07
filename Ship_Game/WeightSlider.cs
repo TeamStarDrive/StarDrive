@@ -20,7 +20,7 @@ namespace Ship_Game
 
 		private string fmt = "0.#";
 
-		public int Tip_ID;
+		public ToolTipText Tooltip;
 
 		private Rectangle redRect;
 
@@ -79,9 +79,9 @@ namespace Ship_Game
 			{
 				batch.Draw(ResourceManager.Texture("NewUI/slider_crosshair"), drawRect, Color.White);
 			}
-			if (Hover && Tip_ID != 0)
+			if (Hover && Tooltip.IsValid)
 			{
-				ToolTip.CreateTooltip(Tip_ID);
+				ToolTip.CreateTooltip(Tooltip);
 			}
 			Vector2 textPos = new Vector2(rect.X + rect.Width + 8, rect.Y + rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
 			float single = 2f * (amount - 0.5f);

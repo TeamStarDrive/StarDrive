@@ -231,7 +231,7 @@ namespace Ship_Game
             Add(graphics, GameText.TextureFiltering, l => TextureFilterString(),             TextureFiltering_OnClick);
             Add(graphics, GameText.ShadowQuality, l => ShadowQualStr(New.ShadowDetail),   ShadowQuality_OnClick);
             Add(graphics, GameText.EffectsQuality, l => QualityString(New.EffectDetail),   EffectsQuality_OnClick);
-            graphics.AddCheckbox(() => New.RenderBloom, 4145, 4146);
+            graphics.AddCheckbox(() => New.RenderBloom, GameText.Bloom, GameText.DisablingBloomEffectWillIncrease);
 
             graphics.ReverseZOrder(); // @todo This is a hacky workaround to zorder limitations
             graphics.ZOrder = 10;
@@ -257,13 +257,13 @@ namespace Ship_Game
 
             UIList right = AddList(RightArea.PosVec(), RightArea.Size());
             right.Padding = new Vector2(2f, 4f);
-            right.AddCheckbox(() => GlobalStats.PauseOnNotification,          title: 6007, tooltip: 7004);
-            right.AddCheckbox(() => GlobalStats.AltArcControl,                title: 6184, tooltip: 7081);
-            right.AddCheckbox(() => GlobalStats.ZoomTracking,                 title: 6185, tooltip: 7082);
-            right.AddCheckbox(() => GlobalStats.AutoErrorReport,              title: 4130, tooltip: 4131);
-            right.AddCheckbox(() => GlobalStats.DisableAsteroids,             title: 4132, tooltip: 4133);
-            right.AddCheckbox(() => GlobalStats.NotifyEnemyInSystemAfterLoad, title: 4134, tooltip: 4135);
-            right.AddCheckbox(() => GlobalStats.EnableSaveExportButton,       title: 4136, tooltip: 4137);
+            right.AddCheckbox(() => GlobalStats.PauseOnNotification,          title: 6007, tooltip: GameText.PausesGameOnNotificationsClearing);
+            right.AddCheckbox(() => GlobalStats.AltArcControl,                title: 6184, tooltip: GameText.WhenActiveArcsInThe);
+            right.AddCheckbox(() => GlobalStats.ZoomTracking,                 title: 6185, tooltip: GameText.ZoomWillCenterOnSelected);
+            right.AddCheckbox(() => GlobalStats.AutoErrorReport,              title: 4130, tooltip: GameText.SendAutomaticErrorReportsTo);
+            right.AddCheckbox(() => GlobalStats.DisableAsteroids,             title: 4132, tooltip: GameText.ThisWillPreventAsteroidsFrom);
+            right.AddCheckbox(() => GlobalStats.NotifyEnemyInSystemAfterLoad, title: 4134, tooltip: GameText.AddNotificationsRegardingEnemiesIn);
+            right.AddCheckbox(() => GlobalStats.EnableSaveExportButton,       title: 4136, tooltip: GameText.ThisWillLetYouEasily);
 
             CurrentLanguage = new DropOptions<Language>(105, 18);
             Add(right, GameText.Language, CurrentLanguage);

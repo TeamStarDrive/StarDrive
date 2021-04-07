@@ -728,7 +728,7 @@ namespace Ship_Game
 
             var cursorReq = new Vector2(StatsSub.X - 180, ShipStats.Y + Fonts.Arial12Bold.LineSpacing + 5);
 
-            DrawCompletion(ref cursorReq, Localizer.Token(GameText.NoEmptySlots), numSlots, size, 1982);
+            DrawCompletion(ref cursorReq, Localizer.Token(GameText.NoEmptySlots), numSlots, size, GameText.InOrderToCompleteYour);
             CheckDesignIssues();
 
             void CheckDesignIssues()
@@ -771,7 +771,7 @@ namespace Ship_Game
         float PercentComplete(int numSlots, int size) => DesignComplete(numSlots, size) ? 1f : numSlots / (float)size;
         bool DesignComplete(int numSlots, int size)   => numSlots == size;
 
-        void DrawCompletion(ref Vector2 cursor, string words, int numSlots, int size, int tooltipId = 0, float lineSpacing = 2)
+        void DrawCompletion(ref Vector2 cursor, string words, int numSlots, int size, ToolTipText tooltip, float lineSpacing = 2)
         {
             float amount    = 165f;
             SpriteFont font = Fonts.Arial12Bold;
@@ -782,8 +782,8 @@ namespace Ship_Game
             cursor.X += amount - font.MeasureString(stats).X;
             ScreenManager.SpriteBatch.DrawString(font, stats, cursor, TextColor(percentComplete));
             cursor.X -= amount - font.MeasureString(stats).X;
-            if (tooltipId > 0) 
-                CheckToolTip(tooltipId, cursor, words, stats, font, MousePos);
+            if (tooltip.IsValid) 
+                CheckToolTip(tooltip, cursor, words, stats, font, MousePos);
 
             Color TextColor(float percent)
             {
@@ -806,9 +806,9 @@ namespace Ship_Game
             float strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense);
             if (strength > 0)
             {
-                DrawStatColor(ref cursor, TintedValue(6190, strength, 227, Color.White));
+                DrawStatColor(ref cursor, TintedValue(GameText.ShipOffense, strength, GameText.EstimatedOffensiveStrengthOfThe, Color.White));
                 float relativeStrength = (float)Math.Round(strength / ActiveHull.ModuleSlots.Length, 2);
-                DrawStatColor(ref cursor, TintedValue(1914, relativeStrength, 256, Color.White));
+                DrawStatColor(ref cursor, TintedValue(GameText.RelativeStrength, relativeStrength, GameText.ThisIsTheStrengthOf, Color.White));
             }
         }
 
@@ -825,11 +825,11 @@ namespace Ship_Game
             if (!(powerConsumedWithBeams > 0))
                 return;
 
-            DrawStatColor(ref cursor, NormalValue("Burst Wpn Pwr Drain", -powerConsumedWithBeams, 244, Color.LightSkyBlue));
+            DrawStatColor(ref cursor, NormalValue("Burst Wpn Pwr Drain", -powerConsumedWithBeams, GameText.ThisIndicatesThatThereIs, Color.LightSkyBlue));
             if (burstEnergyDuration < beamLongestDuration)
-                DrawStatColor(ref cursor, BadValue("Burst Wpn Pwr Time", burstEnergyDuration, 245, Color.LightSkyBlue));
+                DrawStatColor(ref cursor, BadValue("Burst Wpn Pwr Time", burstEnergyDuration, GameText.TheTotalTimeTheShip, Color.LightSkyBlue));
             else
-                DrawStatEnergy(ref cursor, "Burst Wpn Pwr Time:", "INF", 245);
+                DrawStatEnergy(ref cursor, "Burst Wpn Pwr Time:", "INF", GameText.TheTotalTimeTheShip);
         }
 
         void DrawEnergyStats(ref Vector2 cursor, bool bEnergyWeapons, float powerConsumed, float powerCapacity, 
@@ -841,30 +841,30 @@ namespace Ship_Game
 
             if (powerConsumed > 0) // There is power drain from ship's reserves when firing its energy weapons after taking into account recharge
             {
-                DrawStatColor(ref cursor, NormalValue("Excess Wpn Pwr Drain", -powerConsumed, 243, Color.LightSkyBlue));
+                DrawStatColor(ref cursor, NormalValue("Excess Wpn Pwr Drain", -powerConsumed, GameText.ThisIndicatesThatThereIs2, Color.LightSkyBlue));
                 weaponFirePowerTime = powerCapacity / powerConsumed;
-                DrawStatColor(ref cursor, LowBadValue("Wpn Fire Power Time", weaponFirePowerTime, 163, Color.LightSkyBlue));
+                DrawStatColor(ref cursor, LowBadValue("Wpn Fire Power Time", weaponFirePowerTime, GameText.IndicatesTheMaximumTimeIn, Color.LightSkyBlue));
             }
             else
-                DrawStatEnergy(ref cursor, "Wpn Fire Power Time:", "INF", 163);
+                DrawStatEnergy(ref cursor, "Wpn Fire Power Time:", "INF", GameText.IndicatesTheMaximumTimeIn);
         }
 
         void DrawOrdnanceAndTroops(ref Vector2 cursor, float ordnanceCap, float ordnanceUsed, float ordnanceRecovered, 
             float troopCount, out float ammoTime)
         {
             ammoTime = ordnanceCap / (ordnanceUsed - ordnanceRecovered);
-            if (ordnanceRecovered > 0) DrawStatColor(ref cursor, TintedValue("Ordnance Created / s", ordnanceRecovered, 162, Color.IndianRed));
+            if (ordnanceRecovered > 0) DrawStatColor(ref cursor, TintedValue("Ordnance Created / s", ordnanceRecovered, GameText.IndicatesTheAmountOfOrdnance3, Color.IndianRed));
             if (!(ordnanceCap > 0))
                 return;
 
-            DrawStatColor(ref cursor, TintedValue(118, ordnanceCap, 108, Color.IndianRed));
+            DrawStatColor(ref cursor, TintedValue(GameText.OrdnanceCapacity, ordnanceCap, GameText.IndicatesTheMaximumAmountOf3, Color.IndianRed));
             if (ordnanceUsed - ordnanceRecovered > 0)
-                DrawStatColor(ref cursor, TintedValue("Ammo Time", ammoTime, 164, Color.IndianRed));
+                DrawStatColor(ref cursor, TintedValue("Ammo Time", ammoTime, GameText.IndicatesTheMaximumTimeIn2, Color.IndianRed));
             else
-                DrawStatOrdnance(ref cursor, "Ammo Time", "INF", 164);
+                DrawStatOrdnance(ref cursor, "Ammo Time", "INF", GameText.IndicatesTheMaximumTimeIn2);
 
             if (troopCount > 0) 
-                DrawStatColor(ref cursor, TintedValue(6132, troopCount, 180, Color.IndianRed));
+                DrawStatColor(ref cursor, TintedValue(GameText.TroopCapacity, troopCount, GameText.IndicatesTheTotalComplementOf, Color.IndianRed));
         }
 
         void DrawPropulsion(ref Vector2 cursor, float modifiedSpeed, float turn, float afterburnerSpd)
@@ -872,10 +872,10 @@ namespace Ship_Game
             if (Stationary)
                 return;
 
-            DrawStatColor(ref cursor, TintedValue(116, modifiedSpeed, 105, Color.DarkSeaGreen));
-            DrawStatColor(ref cursor, TintedValue(117, turn, 107, Color.DarkSeaGreen));
+            DrawStatColor(ref cursor, TintedValue(GameText.SublightSpeed, modifiedSpeed, GameText.IndicatesTheDistanceThisShip, Color.DarkSeaGreen));
+            DrawStatColor(ref cursor, TintedValue(GameText.TurnRate, turn, GameText.IndicatesTheNumberOfDegrees, Color.DarkSeaGreen));
             if (afterburnerSpd > 0) 
-                DrawStatColor(ref cursor, TintedValue("Afterburner Speed", afterburnerSpd, 105, Color.DarkSeaGreen));
+                DrawStatColor(ref cursor, TintedValue("Afterburner Speed", afterburnerSpd, GameText.IndicatesTheDistanceThisShip, Color.DarkSeaGreen));
         }
 
         void DrawWarpPropulsion(ref Vector2 cursor, float warpSpeed, float warpSpoolTimer)
@@ -884,34 +884,34 @@ namespace Ship_Game
                 return;
 
             string warpString = warpSpeed.GetNumberString();
-            DrawStatPropulsion(ref cursor, Localizer.Token(GameText.FtlSpeed) + ":", warpString, 135);
+            DrawStatPropulsion(ref cursor, Localizer.Token(GameText.FtlSpeed) + ":", warpString, GameText.IndicatesTheDistanceThisShip3);
         }
 
         void DrawEmpAndEcm(ref Vector2 cursor, float empResist, float totalEcm)
         {
             if (empResist > 0) 
-                DrawStatColor(ref cursor, TintedValue(6177, empResist, 220, Color.Goldenrod));
+                DrawStatColor(ref cursor, TintedValue(GameText.EmpProtection, empResist, GameText.TheTotalEmpProtectionOf, Color.Goldenrod));
 
             if (totalEcm > 0) 
-                DrawStatColor(ref cursor, TintedValue(6189, totalEcm, 234, Color.Goldenrod));
+                DrawStatColor(ref cursor, TintedValue(GameText.Ecm3, totalEcm, GameText.ThisIsTheTotalElectronic, Color.Goldenrod));
         }
 
         void DrawShieldsStats(ref Vector2 cursor, float totalShieldAmplify, float shieldPower, float shieldAmplifyPerShield, bool mainShieldsPresent)
         {
             Color shieldMaxColor = totalShieldAmplify > 0 && mainShieldsPresent ? Color.Gold : Color.Goldenrod;
             if (shieldPower > 0) 
-                DrawStatColor(ref cursor, TintedValue(114, shieldPower, 104, shieldMaxColor));
+                DrawStatColor(ref cursor, TintedValue(GameText.ShieldPower, shieldPower, GameText.IndicatesTheTotalHitpointsOf2, shieldMaxColor));
 
             if (shieldAmplifyPerShield > 0) 
-                DrawStatColor(ref cursor, TintedValue(1913, (int)shieldAmplifyPerShield, 257, Color.Goldenrod));
+                DrawStatColor(ref cursor, TintedValue(GameText.ShieldAmplify, (int)shieldAmplifyPerShield, GameText.EachOfTheShipShields, Color.Goldenrod));
         }
 
         void DrawHitPointsAndRepair(ref Vector2 cursor, float hitPoints, float repairRate)
         {
-            DrawStatColor(ref cursor, TintedValue(113, hitPoints, 103, Color.Goldenrod));
+            DrawStatColor(ref cursor, TintedValue(GameText.TotalHitpoints, hitPoints, GameText.IndicatesTheTotalHitpointsOf, Color.Goldenrod));
             // Added by McShooterz: draw total repair
             if (repairRate > 0) 
-                DrawStatColor(ref cursor, TintedValue(6013, repairRate, 236, Color.Goldenrod)); 
+                DrawStatColor(ref cursor, TintedValue(GameText.RepairRate, repairRate, GameText.ThisIsThisShipsSelfrepair, Color.Goldenrod)); 
         }
 
         void DrawFtlTime(ref Vector2 cursor, float powerCapacity, float fDrawAtWarp, float warpSpeed, out float fWarpTime)
@@ -921,11 +921,11 @@ namespace Ship_Game
                 return;
 
             if (fDrawAtWarp < 0)
-                DrawStatColor(ref cursor, TintedValue("FTL Time", fWarpTime, 176, Color.LightSkyBlue));
+                DrawStatColor(ref cursor, TintedValue("FTL Time", fWarpTime, GameText.IndicatesThisShipsMaximumSustained, Color.LightSkyBlue));
             else if (fWarpTime > 900)
-                DrawStatEnergy(ref cursor, "FTL Time:", "INF", 176);
+                DrawStatEnergy(ref cursor, "FTL Time:", "INF", GameText.IndicatesThisShipsMaximumSustained);
             else
-                DrawStatEnergy(ref cursor, "FTL Time:", "INF", 176);
+                DrawStatEnergy(ref cursor, "FTL Time:", "INF", GameText.IndicatesThisShipsMaximumSustained);
         }
 
         //added by McShooterz: Allow Warp draw and after burner values be displayed in ship info
@@ -936,42 +936,42 @@ namespace Ship_Game
                 return;
 
             if (warpSpeed > 0)
-                DrawStatColor(ref cursor, TintedValue(112, fDrawAtWarp, 102, Color.LightSkyBlue));
+                DrawStatColor(ref cursor, TintedValue(GameText.RechargeAtWarp, fDrawAtWarp, GameText.IndicatesTheNetPowerFlow2, Color.LightSkyBlue));
         }
 
         void DrawPowerConsumedAndRecharge(ref Vector2 cursor, float weaponPowerNeeded, float powerRecharge, 
             float powerCapacity, out float powerConsumed)
         {
             powerConsumed = weaponPowerNeeded - powerRecharge;
-            DrawStatColor(ref cursor, CompareValues(110, powerCapacity, powerConsumed, 100, Color.LightSkyBlue));
-            DrawStatColor(ref cursor, TintedValue(111, powerRecharge, 101, Color.LightSkyBlue));
+            DrawStatColor(ref cursor, CompareValues(GameText.PowerCapacity, powerCapacity, powerConsumed, GameText.IndicatesTheMaximumAmountOf2, Color.LightSkyBlue));
+            DrawStatColor(ref cursor, TintedValue(GameText.PowerRecharge, powerRecharge, GameText.IndicatesTheNetPowerFlow, Color.LightSkyBlue));
         }
 
         void DrawUpkeepSizeMass(ref Vector2 cursor, float cost, int size, float mass, int totalHangarArea, int troopCount)
         {
             float upkeep = GetMaintenanceCost(ActiveHull, (int)cost, totalHangarArea, troopCount);
 
-            DrawStatColor(ref cursor, TintedValue("Upkeep Cost", upkeep, 175, Color.White));
-            DrawStatColor(ref cursor, TintedValue("Total Module Slots", size, 230, Color.White));
-            DrawStatColor(ref cursor, TintedValue(115, (int)mass, 79, Color.White));
+            DrawStatColor(ref cursor, TintedValue("Upkeep Cost", upkeep, GameText.IndicatesTheCreditsPerTick, Color.White));
+            DrawStatColor(ref cursor, TintedValue("Total Module Slots", size, GameText.TheTotalNumberOfModule, Color.White));
+            DrawStatColor(ref cursor, TintedValue(GameText.Mass, (int)mass, GameText.AShipsTotalMassDetermines, Color.White));
         }
 
         void DrawCargoTargetsAndSensors(ref Vector2 cursor, float cargoSpace, float targets, float sensorRange, 
             float sensorBonus, HullBonus bonus)
         {
             if (cargoSpace > 0) 
-                DrawStatColor(ref cursor, TintedValue(119, cargoSpace* bonus.CargoModifier, 109, Color.White));
+                DrawStatColor(ref cursor, TintedValue(GameText.CargoSpace, cargoSpace* bonus.CargoModifier, GameText.IndicatesTheTotalCargoSpace, Color.White));
 
             if (FireControlLevel > 0)
-                DrawStatColor(ref cursor, TintedValue(6187, FireControlLevel, 275, Color.White));
+                DrawStatColor(ref cursor, TintedValue(GameText.FireControl, FireControlLevel, GameText.FireControlSystemsOrFcs, Color.White));
 
             if (targets > 0)
-                DrawStatColor(ref cursor, TintedValue(6188, targets, 232, Color.White));
+                DrawStatColor(ref cursor, TintedValue(GameText.FcsPower, targets, GameText.ThisIsTheTotalNumber, Color.White));
 
             if (sensorRange > 0)
             {
                 float modifiedSensorRange = (sensorRange + sensorBonus) * bonus.SensorModifier;
-                DrawStatColor(ref cursor, TintedValue(6130, modifiedSensorRange, 235, Color.White));
+                DrawStatColor(ref cursor, TintedValue(GameText.SensorRange3, modifiedSensorRange, GameText.ThisIsTheMaximumSensor, Color.White));
             }
 
             
@@ -1008,10 +1008,10 @@ namespace Ship_Game
                 HullBonus(ref cursor, bonus.RepairBonus, Localizer.HullRepairBonus);
                 HullBonus(ref cursor, bonus.CostBonus, Localizer.HullCostBonus);
             }
-            DrawStatColor(ref cursor, TintedValue(109, cost, 99, Color.White));
+            DrawStatColor(ref cursor, TintedValue(GameText.ProductionCost, cost, GameText.IndicatesTheTotalProductionValue, Color.White));
         }
 
-        public void DrawStat(ref Vector2 cursor, string words, string stat, int tooltipId, Color nameColor, Color statColor, float spacing = 165f, float lineSpacing = 2)
+        public void DrawStat(ref Vector2 cursor, string words, string stat, ToolTipText tooltip, Color nameColor, Color statColor, float spacing = 165f, float lineSpacing = 2)
         {
             SpriteFont font = Fonts.Arial12Bold;
             cursor.Y += lineSpacing > 0 ? font.LineSpacing + lineSpacing : 0;
@@ -1021,49 +1021,49 @@ namespace Ship_Game
 
             DrawString(statNameCursor, nameColor, words, font);
             DrawString(statCursor, statColor, stat, font);
-            CheckToolTip(tooltipId, cursor, words, stat, font, MousePos);
+            CheckToolTip(tooltip, cursor, words, stat, font, MousePos);
         }
 
-        public void DrawStat(ref Vector2 cursor, string words, float stat, Color color, int tooltipId, bool doGoodBadTint = true, bool isPercent = false, float spacing = 165)
+        public void DrawStat(ref Vector2 cursor, string words, float stat, Color color, ToolTipText tooltipId, bool doGoodBadTint = true, bool isPercent = false, float spacing = 165)
         {
             StatValue sv = isPercent ? TintedPercent(words, stat, tooltipId, color, spacing, 0)
                                      : TintedValue(words, stat, tooltipId, color, spacing, 0);
             DrawStatColor(ref cursor, sv);
         }
 
-        public void DrawStat(ref Vector2 cursor, string words, float stat, Color color, int tooltipId, float spacing = 165)
+        public void DrawStat(ref Vector2 cursor, string words, float stat, Color color, ToolTipText tooltipId, float spacing = 165)
         {
             StatValue sv = PercentBadLower1(words, stat, tooltipId, color, spacing, 0);
             DrawStatColor(ref cursor, sv);
         }
 
-        public void DrawStatBadPercentLower1(ref Vector2 cursor, string words, float stat, Color color, int tooltipId, float spacing = 165)
+        public void DrawStatBadPercentLower1(ref Vector2 cursor, string words, float stat, Color color, ToolTipText tooltipId, float spacing = 165)
         {
             StatValue sv = PercentBadLower1(words, stat, tooltipId, color, spacing, 0);
             DrawStatColor(ref cursor, sv);
         }
 
-        void DrawStatEnergy(ref Vector2 cursor, string words, string stat, int tooltipId)
+        void DrawStatEnergy(ref Vector2 cursor, string words, string stat, ToolTipText tooltipId)
         {
             DrawStat(ref cursor, words, stat, tooltipId, Color.LightSkyBlue, Color.LightGreen);
         }
 
-        void DrawStatPropulsion(ref Vector2 cursor, string words, string stat, int tooltipId)
+        void DrawStatPropulsion(ref Vector2 cursor, string words, string stat, ToolTipText tooltipId)
         {
             DrawStat(ref cursor, words, stat, tooltipId, Color.DarkSeaGreen, Color.LightGreen);
         }
 
-        void DrawStatOrdnance(ref Vector2 cursor, string words, string stat, int tooltipId)
+        void DrawStatOrdnance(ref Vector2 cursor, string words, string stat, ToolTipText tooltipId)
         {
             DrawStat(ref cursor, words, stat, tooltipId, Color.IndianRed, Color.LightGreen);
         }
 
-        void DrawStatBad(ref Vector2 cursor, string words, string stat, int tooltipId)
+        void DrawStatBad(ref Vector2 cursor, string words, string stat, ToolTipText tooltipId)
         {
             DrawStat(ref cursor, words, stat, tooltipId, Color.White, Color.LightPink);
         }
 
-        void DrawStat(ref Vector2 cursor, string words, string stat, int tooltipId)
+        void DrawStat(ref Vector2 cursor, string words, string stat, ToolTipText tooltipId)
         {
             DrawStat(ref cursor, words, stat, tooltipId, Color.White, Color.LightGreen);
         }
@@ -1137,11 +1137,11 @@ namespace Ship_Game
 
         struct StatValue
         {
-            public string Title;
+            public LocalizedText Title;
             public Color TitleColor;
             public float Value;
             public float CompareValue;
-            public int Tooltip;
+            public ToolTipText Tooltip;
             public ValueTint Tint;
             public bool IsPercent;
             public float Spacing;
@@ -1168,28 +1168,25 @@ namespace Ship_Game
             public string ValueText => IsPercent ? Value.ToString("P0") : Value.GetNumberString();
         }
 
-        static StatValue NormalValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+        static StatValue NormalValue(LocalizedText title, float value, ToolTipText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.None, Spacing = spacing, LineSpacing = lineSpacing };
 
-        static StatValue BadValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+        static StatValue BadValue(LocalizedText title, float value, ToolTipText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.Bad, Spacing = spacing, LineSpacing = lineSpacing };
 
-        static StatValue TintedValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
-            => new StatValue { Title = title+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, Spacing = spacing, LineSpacing = lineSpacing };
+        static StatValue TintedValue(LocalizedText title, float value, ToolTipText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+            => new StatValue { Title = title.Text+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, Spacing = spacing, LineSpacing = lineSpacing };
 
-        static StatValue LowBadValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+        static StatValue LowBadValue(LocalizedText title, float value, ToolTipText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title + ":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.BadLowerThan2, Spacing = spacing, LineSpacing = lineSpacing };
 
-        static StatValue CompareValues(int titleId, float value, float compareValue, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
-            => new StatValue { Title = Localizer.Token(titleId)+ ":", Value = value, CompareValue = compareValue, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.CompareValue, Spacing = spacing, LineSpacing = lineSpacing };
+        static StatValue CompareValues(LocalizedText title, float value, float compareValue, ToolTipText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+            => new StatValue { Title = title.Text+":", Value = value, CompareValue = compareValue, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.CompareValue, Spacing = spacing, LineSpacing = lineSpacing };
 
-        static StatValue TintedValue(int titleId, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
-            => new StatValue { Title = Localizer.Token(titleId)+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, Spacing = spacing, LineSpacing = lineSpacing };
-
-        static StatValue TintedPercent(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+        static StatValue TintedPercent(LocalizedText title, float value, ToolTipText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor,  Tint = ValueTint.GoodBad, IsPercent = true, Spacing = spacing, LineSpacing = lineSpacing };
 
-        static StatValue PercentBadLower1(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+        static StatValue PercentBadLower1(LocalizedText title, float value, ToolTipText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.BadPercentLowerThan1, IsPercent = true, Spacing = spacing, LineSpacing = lineSpacing };
 
         void DrawStatColor(ref Vector2 cursor, StatValue stat)
@@ -1201,11 +1198,12 @@ namespace Ship_Game
             cursor.Y += stat.LineSpacing;
 
             Vector2 statCursor = new Vector2(cursor.X + stat.Spacing, cursor.Y);
-            DrawString(FontSpace(statCursor, -20, stat.Title, font), stat.TitleColor, stat.Title, font); // @todo Replace with DrawTitle?
+            string title = stat.Title.Text;
+            DrawString(FontSpace(statCursor, -20, title, font), stat.TitleColor, title, font); // @todo Replace with DrawTitle?
 
             string valueText = stat.ValueText;
             DrawString(statCursor, stat.ValueColor, valueText, font);
-            CheckToolTip(stat.Tooltip, cursor, stat.Title, valueText, font, MousePos);
+            CheckToolTip(stat.Tooltip, cursor, title, valueText, font, MousePos);
         }
     }
 }

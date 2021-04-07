@@ -39,22 +39,22 @@ namespace Ship_Game
             ToolTipItems.Add(new TippedItem
             {
                 R = DefenseRect,
-                TIP_ID = 33
+                Tooltip = GameText.IndicatesThisUnitsGroundCombat
             });
             ToolTipItems.Add(new TippedItem
             {
                 R = SoftAttackRect,
-                TIP_ID = 34
+                Tooltip = GameText.IndicatesThisUnitsCombatEffectiveness
             });
             ToolTipItems.Add(new TippedItem
             {
                 R = HardAttackRect,
-                TIP_ID = 35
+                Tooltip = GameText.IndicatesThisUnitsCombatEffectiveness2
             });
             ToolTipItems.Add(new TippedItem
             {
                 R = RangeRect,
-                TIP_ID = 251
+                Tooltip = GameText.IndicatesTheTileRangeThis
             });
         }
 
@@ -177,7 +177,7 @@ namespace Ship_Game
             {
                 var star = new Rectangle(LeftRect.X + LeftRect.Width - 20 - 12 * i, LeftRect.Y + 12, 12, 11);
                 if (star.HitTest(mousePos))
-                    ToolTip.CreateTooltip(127);
+                    ToolTip.CreateTooltip(GameText.IndicatesThisTroopsExperienceLevel);
 
                 batch.Draw(ResourceManager.Texture("UI/icon_star"), star, color);
             }
@@ -191,13 +191,13 @@ namespace Ship_Game
             foreach (TippedItem ti in ToolTipItems)
             {
                 if (ti.R.HitTest(input.CursorPosition))
-                    ToolTip.CreateTooltip(ti.TIP_ID);
+                    ToolTip.CreateTooltip(ti.Tooltip);
             }
 
             // currently selected troop Launch
             if (LaunchTroop != null && LaunchTroop.r.HitTest(input.CursorPosition))
             {
-                ToolTip.CreateTooltip(67);
+                ToolTip.CreateTooltip(GameText.LaunchThisTroopIntoOrbit);
                 if (LaunchTroop.HandleInput(input))
                 {
                     var combatScreen = (CombatScreen)screen.workersPanel;
@@ -244,7 +244,7 @@ namespace Ship_Game
         private struct TippedItem
         {
             public Rectangle R;
-            public int TIP_ID;
+            public ToolTipText Tooltip;
         }
     }
 }

@@ -281,7 +281,7 @@ namespace Ship_Game
             float starty = modTitlePos.Y;
             modTitlePos.X = 10;
             float strength = mod.CalculateModuleOffenseDefense(Screen.ActiveHull.ModuleSlots.Length);
-            DrawStat(ref modTitlePos, "Offense", strength, 227);
+            DrawStat(ref modTitlePos, "Offense", strength, GameText.EstimatedOffensiveStrengthOfThe);
 
             if (mod.BombType == null && !mod.isWeapon || mod.InstalledWeapon == null)
             {
@@ -293,7 +293,7 @@ namespace Ship_Game
             }
         }
 
-        void DrawStat(ref Vector2 cursor, string text, float stat, int toolTipId, bool isPercent = false)
+        void DrawStat(ref Vector2 cursor, string text, float stat, ToolTipText toolTipId, bool isPercent = false)
         {
             if (stat.AlmostEqual(0))
                 return;
@@ -301,7 +301,7 @@ namespace Ship_Game
             Screen.DrawStat(ref cursor, text, stat, Color.White, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
         }
 
-        void DrawStat(ref Vector2 cursor, int textId, float stat, int toolTipId, bool isPercent = false)
+        void DrawStat(ref Vector2 cursor, int textId, float stat, ToolTipText toolTipId, bool isPercent = false)
         {
             if (stat.AlmostEqual(0.0f))
                 return;
@@ -309,7 +309,7 @@ namespace Ship_Game
             Screen.DrawStat(ref cursor, Localizer.Token(textId), stat, Color.White, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
         }
 
-        void DrawStat(ref Vector2 cursor, string text, string stat, int toolTipId)
+        void DrawStat(ref Vector2 cursor, string text, string stat, ToolTipText toolTipId)
         {
             if (stat.IsEmpty())
                 return;
@@ -318,7 +318,7 @@ namespace Ship_Game
             WriteLine(ref cursor);
         }
 
-        void DrawStatCustomColor(ref Vector2 cursor, int titleId, float stat, int toolTipId, Color color, bool isPercent = true)
+        void DrawStatCustomColor(ref Vector2 cursor, int titleId, float stat, ToolTipText toolTipId, Color color, bool isPercent = true)
         {
             if (stat.AlmostEqual(0.0f))
                 return;
@@ -336,120 +336,120 @@ namespace Ship_Game
 
         void DrawModuleStats(SpriteBatch batch, ShipModule mod, Vector2 modTitlePos, float starty)
         {
-            DrawStat(ref modTitlePos, 128, mod.ActualCost, 84);
-            DrawStat(ref modTitlePos, 123, mod.GetActualMass(EmpireManager.Player, 1), 79);
-            DrawStat(ref modTitlePos, 124, mod.ActualMaxHealth, 80);
+            DrawStat(ref modTitlePos, 128, mod.ActualCost, GameText.IndicatesTheProductionCostOf);
+            DrawStat(ref modTitlePos, 123, mod.GetActualMass(EmpireManager.Player, 1), GameText.AShipsTotalMassDetermines);
+            DrawStat(ref modTitlePos, 124, mod.ActualMaxHealth, GameText.AModulesHealthRepresentsHow);
 
             float powerDraw = mod.Is(ShipModuleType.PowerPlant) ? mod.ActualPowerFlowMax : -mod.PowerDraw;
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.Power), powerDraw, 81);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.Defense), mod.MechanicalBoardingDefense, 143);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.Repair)+"+", mod.ActualBonusRepairRate, 97);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.Power), powerDraw, GameText.IndicatesHowMuchPowerThis);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.Defense), mod.MechanicalBoardingDefense, GameText.IndicatesTheCombatStrengthAdded);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.Repair)+"+", mod.ActualBonusRepairRate, GameText.IndicatesTheBonusToOutofcombat);
 
             float maxDepth = modTitlePos.Y;
             modTitlePos.X = modTitlePos.X + 152f;
             modTitlePos.Y = starty;
 
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.Thrust), mod.thrust, 91);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.Warp), mod.WarpThrust, 92);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.Turn), mod.TurnThrust, 148);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.Thrust), mod.thrust, GameText.IndicatesTheAmountOfThrust);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.Warp), mod.WarpThrust, GameText.IndicatesTheAmountOfThrust2);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.Turn), mod.TurnThrust, GameText.IndicatesTheAmountOfRotational);
 
 
             float shieldMax           = mod.ActualShieldPowerMax;
             float amplifyShields      = mod.AmplifyShields;
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.ShieldAmp), amplifyShields, 258);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.ShieldAmp), amplifyShields, GameText.WhenPoweredThisAmplifiesThe);
 
             if (mod.IsAmplified)
-                DrawStatCustomColor(ref modTitlePos, 132, shieldMax, 93, Color.Gold, isPercent: false);
+                DrawStatCustomColor(ref modTitlePos, 132, shieldMax, GameText.IndicatesTheHitpointsOfThis, Color.Gold, isPercent: false);
             else
-                DrawStat(ref modTitlePos, Localizer.Token(GameText.ShldStr), shieldMax, 93);
+                DrawStat(ref modTitlePos, Localizer.Token(GameText.ShldStr), shieldMax, GameText.IndicatesTheHitpointsOfThis);
 
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.ShldSize), mod.shield_radius, 94);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.Recharge), mod.shield_recharge_rate, 95);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.Crecharge), mod.shield_recharge_combat_rate, 1993);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.ShldSize), mod.shield_radius, GameText.IndicatesTheProtectiveRadiusOf);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.Recharge), mod.shield_recharge_rate, GameText.IndicatesTheNumberOfHitpoints);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.Crecharge), mod.shield_recharge_combat_rate, GameText.ThisShieldCanRechargeEven);
 
             // Doc: new shield resistances, UI info.
             Color shieldResistColor = Color.LightSkyBlue;
-            DrawStatCustomColor(ref modTitlePos, 6162, mod.shield_kinetic_resist, 209, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, 6163, mod.shield_energy_resist, 210, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, 6164, mod.shield_explosive_resist, 211, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, 6165, mod.shield_missile_resist, 212, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, 6166, mod.shield_flak_resist, 213, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, 6167, mod.shield_hybrid_resist, 214, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, 6168, mod.shield_railgun_resist, 215, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, 6169, mod.shield_subspace_resist, 216, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, 6170, mod.shield_warp_resist, 217, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, 6171, mod.shield_beam_resist, 218, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, 6176, mod.shield_threshold, 222, shieldResistColor, isPercent: false);
+            DrawStatCustomColor(ref modTitlePos, 6162, mod.shield_kinetic_resist, GameText.IndicatesShieldBubblesResistanceTo, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6163, mod.shield_energy_resist, GameText.IndicatesShieldBubblesResistanceTo2, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6164, mod.shield_explosive_resist, GameText.IndicatesShieldBubblesResistanceTo3, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6165, mod.shield_missile_resist, GameText.IndicatesShieldBubblesResistanceTo4, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6166, mod.shield_flak_resist, GameText.IndicatesShieldBubblesResistanceTo5, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6167, mod.shield_hybrid_resist, GameText.IndicatesShieldBubblesResistanceTo6, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6168, mod.shield_railgun_resist, GameText.IndicatesShieldBubblesResistanceTo7, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6169, mod.shield_subspace_resist, GameText.IndicatesShieldBubblesResistanceTo8, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6170, mod.shield_warp_resist, GameText.IndicatesShieldBubblesResistanceTo9, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6171, mod.shield_beam_resist, GameText.IndicatesShieldBubblesResistanceTo10, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6176, mod.shield_threshold, GameText.WeaponsWhichDoLessDamage2, shieldResistColor, isPercent: false);
 
-            DrawStat(ref modTitlePos, 1908, mod.Regenerate, 1909);
-            DrawStat(ref modTitlePos, 126,  mod.SensorRange, 96);
-            DrawStat(ref modTitlePos, 6121, mod.SensorBonus, 167);
-            DrawStat(ref modTitlePos, 6131, mod.HealPerTurn, 174);
-            DrawStat(ref modTitlePos, 126,  mod.TransporterRange, 168);
-            DrawStat(ref modTitlePos, 6123, mod.TransporterPower, 169);
-            DrawStat(ref modTitlePos, 6122, mod.TransporterTimerConstant, 170);
-            DrawStat(ref modTitlePos, 6124, mod.TransporterOrdnance, 171);
-            DrawStat(ref modTitlePos, 6135, mod.TransporterTroopAssault, 187);
-            DrawStat(ref modTitlePos, 6128, mod.TransporterTroopLanding, 172);
-            DrawStat(ref modTitlePos, 2129, mod.OrdinanceCapacity, 124);
-            DrawStat(ref modTitlePos, 119,  mod.Cargo_Capacity, 109);
-            DrawStat(ref modTitlePos, 6120, mod.OrdnanceAddedPerSecond, 162);
-            DrawStat(ref modTitlePos, 2233, mod.InhibitionRadius, 144);
-            DrawStat(ref modTitlePos, 336,  mod.TroopCapacity, 173);
-            DrawStat(ref modTitlePos, 2235, mod.ActualPowerStoreMax, 145);
+            DrawStat(ref modTitlePos, 1908, mod.Regenerate, GameText.ThisModuleHasSelfRegeneration);
+            DrawStat(ref modTitlePos, 126,  mod.SensorRange, GameText.IndicatesTheAdditionalSensorRange);
+            DrawStat(ref modTitlePos, 6121, mod.SensorBonus, GameText.IndicatesSensorBonusAddedBy);
+            DrawStat(ref modTitlePos, 6131, mod.HealPerTurn, GameText.IndicatesTheAmountTroopsAre);
+            DrawStat(ref modTitlePos, 126,  mod.TransporterRange, GameText.IndicatesTheRangeOfThis);
+            DrawStat(ref modTitlePos, 6123, mod.TransporterPower, GameText.IndicatesThePowerUsedBy);
+            DrawStat(ref modTitlePos, 6122, mod.TransporterTimerConstant, GameText.IndicatesTheDelayBetweenTransports);
+            DrawStat(ref modTitlePos, 6124, mod.TransporterOrdnance, GameText.IndicatesTheAmountOfOrdnance4);
+            DrawStat(ref modTitlePos, 6135, mod.TransporterTroopAssault, GameText.IndicatesTheNumberOfTroops4);
+            DrawStat(ref modTitlePos, 6128, mod.TransporterTroopLanding, GameText.IndicatesTheNumberOfTroops2);
+            DrawStat(ref modTitlePos, 2129, mod.OrdinanceCapacity, GameText.IndicatesTheAmountOfOrdnance2);
+            DrawStat(ref modTitlePos, 119,  mod.Cargo_Capacity, GameText.IndicatesTheTotalCargoSpace);
+            DrawStat(ref modTitlePos, 6120, mod.OrdnanceAddedPerSecond, GameText.IndicatesTheAmountOfOrdnance3);
+            DrawStat(ref modTitlePos, 2233, mod.InhibitionRadius, GameText.IndicatesTheWarpInhibitionRange);
+            DrawStat(ref modTitlePos, 336,  mod.TroopCapacity, GameText.IndicatesTheNumberOfTroops3);
+            DrawStat(ref modTitlePos, 2235, mod.ActualPowerStoreMax, GameText.IndicatesTheAmountOfPower2);
 
             // added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
             // FB improved it to use the Power struct
             ShipModule[] modList = { mod };
             Power modNetWarpPowerDraw = Power.Calculate(modList, EmpireManager.Player, true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.PowerWarp), -modNetWarpPowerDraw.NetWarpPowerDraw, 178);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.PowerWarp), -modNetWarpPowerDraw.NetWarpPowerDraw, GameText.TheEffectivePowerDrainOf);
 
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM)
             {
-                DrawStat(ref modTitlePos, Localizer.Token(GameText.Ecm2), mod.ECM, 154, isPercent: true);
+                DrawStat(ref modTitlePos, Localizer.Token(GameText.Ecm2), mod.ECM, GameText.IndicatesTheChanceOfEcm, isPercent: true);
 
             }
             if (mod.ModuleType == ShipModuleType.Hangar)
             {
-                DrawStat(ref modTitlePos, Localizer.Token(GameText.SpawnTimer), mod.hangarTimerConstant, 98);
-                DrawStat(ref modTitlePos, Localizer.Token(GameText.HangarSize), mod.MaximumHangarShipSize, 268);
+                DrawStat(ref modTitlePos, Localizer.Token(GameText.SpawnTimer), mod.hangarTimerConstant, GameText.HangarsAreCapableOfSustaning);
+                DrawStat(ref modTitlePos, Localizer.Token(GameText.HangarSize), mod.MaximumHangarShipSize, GameText.ThisIsTheMaximumNumber);
             }
             if (mod.explodes)
             {
-                DrawStatCustomColor(ref modTitlePos, 1998, mod.ExplosionDamage, 238, Color.Red, isPercent: false);
-                DrawStatCustomColor(ref modTitlePos, 1997, mod.ExplosionRadius / 16f, 239, Color.Red, isPercent: false);
+                DrawStatCustomColor(ref modTitlePos, 1998, mod.ExplosionDamage, GameText.TheDamageCausedToNearby, Color.Red, isPercent: false);
+                DrawStatCustomColor(ref modTitlePos, 1997, mod.ExplosionRadius / 16f, GameText.TheDamageRadiusOfThis, Color.Red, isPercent: false);
             }
 
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.KineticRes), mod.KineticResist, 189, true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.EnergyRes), mod.EnergyResist, 190,  true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.GuidedRes), mod.GuidedResist, 191,  true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.MissileRes), mod.MissileResist, 192, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.HybridRes), mod.HybridResist, 193, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.BeamRes), mod.BeamResist, 194, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.ExplRes), mod.ExplosiveResist, 195, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.IntcptRes), mod.InterceptResist, 196, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.RailRes), mod.RailgunResist, 197, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.SpbRes), mod.SpaceBombResist, 198, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.BombRes), mod.BombResist, 199, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.BioRes), mod.BioWeaponResist, 200, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.DroneRes), mod.DroneResist, 201, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.WarpRes), mod.WarpResist, 202, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.TorpRes), mod.TorpedoResist, 203, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.CannonRes), mod.CannonResist, 204, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.SubRes), mod.SubspaceResist, 205, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.PdRes), mod.PDResist, 206, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.FlakRes), mod.FlakResist, 207, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.ApRes), mod.APResist, 208);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.Deflection), mod.DamageThreshold, 221);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.EmpProt), mod.EMP_Protection, 219);
-            DrawStat(ref modTitlePos, Localizer.Token(GameText.FireControl), mod.TargetingAccuracy, 231);
-            DrawStat(ref modTitlePos, $"+{Localizer.Token(GameText.FcsPower)}", mod.TargetTracking, 226);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.KineticRes), mod.KineticResist, GameText.IndicatesResistanceToKinetictypeDamage, true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.EnergyRes), mod.EnergyResist, GameText.IndicatesResistanceToEnergyWeapon,  true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.GuidedRes), mod.GuidedResist, GameText.IndicatesResistanceToGuidedWeapon,  true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.MissileRes), mod.MissileResist, GameText.IndicatesResistanceToMissileWeapon, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.HybridRes), mod.HybridResist, GameText.IndicatesResistanceToHybridWeapon, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.BeamRes), mod.BeamResist, GameText.IndicatesResistanceToBeamWeapon, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.ExplRes), mod.ExplosiveResist, GameText.IndicatesResistanceToExplosiveDamage, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.IntcptRes), mod.InterceptResist, GameText.IndicatesResistanceToInterceptableWeapon, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.RailRes), mod.RailgunResist, GameText.IndicatesResistanceToRailgunWeapon, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.SpbRes), mod.SpaceBombResist, GameText.IndicatesResistanceToSpatialBomb, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.BombRes), mod.BombResist, GameText.IndicatesResistanceToBombardmentWeapon, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.BioRes), mod.BioWeaponResist, GameText.IndicatesResistanceToBiologicalWeapon, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.DroneRes), mod.DroneResist, GameText.IndicatesResistanceToDroneWeapon, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.WarpRes), mod.WarpResist, GameText.IndicatesResistanceToWarpWeapon, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.TorpRes), mod.TorpedoResist, GameText.IndicatesResistanceToTorpedoWeapon, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.CannonRes), mod.CannonResist, GameText.IndicatesResistanceToCannonWeapon, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.SubRes), mod.SubspaceResist, GameText.IndicatesResistanceToSubspaceWeapon, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.PdRes), mod.PDResist, GameText.IndicatesResistanceToPdWeapon, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.FlakRes), mod.FlakResist, GameText.IndicatesResistanceToFlakWeapon, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.ApRes), mod.APResist, GameText.IndicatesResistanceToArmourPiercing);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.Deflection), mod.DamageThreshold, GameText.WeaponsWhichDoLessDamage);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.EmpProt), mod.EMP_Protection, GameText.IndicatesTheAmountOfEmp2);
+            DrawStat(ref modTitlePos, Localizer.Token(GameText.FireControl), mod.TargetingAccuracy, GameText.ThisValueRepresentsTheComplexity);
+            DrawStat(ref modTitlePos, $"+{Localizer.Token(GameText.FcsPower)}", mod.TargetTracking, GameText.ThisIsABonusTo);
 
             if (mod.RepairDifficulty.NotZero()) 
-                DrawStat(ref modTitlePos, Localizer.Token(GameText.Complexity), mod.RepairDifficulty, 241); // Complexity
+                DrawStat(ref modTitlePos, Localizer.Token(GameText.Complexity), mod.RepairDifficulty, GameText.TheMoreComplexTheModule); // Complexity
 
             if (mod.numberOfColonists.Greater(0))
-                DrawStat(ref modTitlePos, "Colonists", mod.numberOfColonists, 1921); // Number of Colonists
+                DrawStat(ref modTitlePos, "Colonists", mod.numberOfColonists, GameText.ProsperInTerranWorldsAnd); // Number of Colonists
 
             if (mod.PermittedHangarRoles.Length == 0)
                 return;
@@ -470,10 +470,10 @@ namespace Ship_Game
             DrawString(batch, ref shipSelectionPos, string.Concat(Localizer.Token(GameText.Fighter), " : ", name), color, Fonts.Arial12Bold);
             shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y-20);
             shipSelectionPos.Y += Fonts.Arial12Bold.LineSpacing * 2;
-            DrawStat(ref shipSelectionPos, "Ord. Cost", ship.ShipOrdLaunchCost, -1);
-            DrawStat(ref shipSelectionPos, "Weapons", ship.Weapons.Count, -1);
-            DrawStat(ref shipSelectionPos, "Health", ship.HealthMax, -1);
-            DrawStat(ref shipSelectionPos, "FTL", ship.MaxFTLSpeed, -1);
+            DrawStat(ref shipSelectionPos, "Ord. Cost", ship.ShipOrdLaunchCost, "");
+            DrawStat(ref shipSelectionPos, "Weapons", ship.Weapons.Count, "");
+            DrawStat(ref shipSelectionPos, "Health", ship.HealthMax, "");
+            DrawStat(ref shipSelectionPos, "FTL", ship.MaxFTLSpeed, "");
 
             if (hangarOption != DynamicHangarOptions.Static)
             {
@@ -528,48 +528,48 @@ namespace Ship_Game
             float cost  = m.ActualCost;
             float power = m.ModuleType != ShipModuleType.PowerPlant ? -m.PowerDraw : m.PowerFlowMax;
 
-            DrawStat(ref cursor, Localizer.Token(GameText.Cost), cost, 84);
-            DrawStat(ref cursor, Localizer.Token(GameText.Mass2), m.GetActualMass(EmpireManager.Player, 1), 79);
-            DrawStat(ref cursor, Localizer.Token(GameText.Health), m.ActualMaxHealth, 80);
-            DrawStat(ref cursor, Localizer.Token(GameText.Power), power, 81);
-            DrawStat(ref cursor, Localizer.Token(GameText.Range), range, 82);
+            DrawStat(ref cursor, Localizer.Token(GameText.Cost), cost, GameText.IndicatesTheProductionCostOf);
+            DrawStat(ref cursor, Localizer.Token(GameText.Mass2), m.GetActualMass(EmpireManager.Player, 1), GameText.AShipsTotalMassDetermines);
+            DrawStat(ref cursor, Localizer.Token(GameText.Health), m.ActualMaxHealth, GameText.AModulesHealthRepresentsHow);
+            DrawStat(ref cursor, Localizer.Token(GameText.Power), power, GameText.IndicatesHowMuchPowerThis);
+            DrawStat(ref cursor, Localizer.Token(GameText.Range), range, GameText.IndicatesTheMaximumRangeOf);
             if (!w.Tag_Guided)
             {
                 float accuracy = w.BaseTargetError((int)Screen.FireControlLevel).LowerBound(1) / 16;
-                DrawStat(ref cursor, LocalizedText.ParseText("{Accuracy}"), -1 * accuracy, 4114);
+                DrawStat(ref cursor, LocalizedText.ParseText("{Accuracy}"), -1 * accuracy, GameText.WeaponTargetError);
             }
             if (isBeam)
             {
                 string beamText = repair ? Localizer.Token(GameText.Repair) : Localizer.Token(GameText.Damage);
-                DrawStat(ref cursor, beamText, beamDamage, repair ? 166 : 83);
-                DrawStat(ref cursor, "Duration", w.BeamDuration, 188);
+                DrawStat(ref cursor, beamText, beamDamage, repair ? GameText.IndicatesTheMaximumAmountOf4 : GameText.IndicatesTheMaximumAmountOf);
+                DrawStat(ref cursor, "Duration", w.BeamDuration, GameText.TheDurationABeamWill);
             }
             else
             {
-                DrawStat(ref cursor, Localizer.Token(GameText.Damage), isBallistic ? ballisticDamage : energyDamage, 83);
+                DrawStat(ref cursor, Localizer.Token(GameText.Damage), isBallistic ? ballisticDamage : energyDamage, GameText.IndicatesTheMaximumAmountOf);
             }
 
             if (wOrMirv.explodes)
             {
-                DrawStat(ref cursor, "Blast Rad", wOrMirv.DamageRadius / 16, 277);
+                DrawStat(ref cursor, "Blast Rad", wOrMirv.DamageRadius / 16, GameText.TheRadiusOfTheProjectiles);
             }
 
             if (wOrMirv.TerminalPhaseAttack)
             {
-                DrawStat(ref cursor, "T.Range", wOrMirv.TerminalPhaseDistance, 269);
-                DrawStat(ref cursor, "T.Speed", wOrMirv.TerminalPhaseSpeedMod * speed, 270);
+                DrawStat(ref cursor, "T.Range", wOrMirv.TerminalPhaseDistance, GameText.ThisMissileHasTerminalPhase);
+                DrawStat(ref cursor, "T.Speed", wOrMirv.TerminalPhaseSpeedMod * speed, GameText.ThisIsTheSpeedThe);
             }
 
             if (w.DelayedIgnition.Greater(0))
-                DrawStat(ref cursor, "Ignition", w.DelayedIgnition, 271);
+                DrawStat(ref cursor, "Ignition", w.DelayedIgnition, GameText.ThisMissileHasDelayedIgnition);
 
             if (w.MirvWarheads > 0)
-                DrawStat(ref cursor, "MIRV", w.MirvWarheads, 272);
+                DrawStat(ref cursor, "MIRV", w.MirvWarheads, GameText.ThisWeaponHasMirvMeaning);
 
             cursor.X += 152f;
             cursor.Y = startY;
 
-            if (!isBeam) DrawStat(ref cursor, Localizer.Token(GameText.Speed), speed, 85);
+            if (!isBeam) DrawStat(ref cursor, Localizer.Token(GameText.Speed), speed, GameText.IndicatesTheDistanceAProjectile);
 
             if (rawDamage > 0f)
             {
@@ -580,32 +580,32 @@ namespace Ship_Game
                                                       * (isBallistic ? ballisticDamage : energyDamage) 
                                                       * w.MirvWarheads.LowerBound(1);
 
-                DrawStat(ref cursor, "DPS", dps, 86);
-                if (salvos > 1) DrawStat(ref cursor, "Salvo", salvos, 182);
-                if (projectiles > 1) DrawStat(ref cursor, "Projectiles", projectiles, 242);
+                DrawStat(ref cursor, "DPS", dps, GameText.IndicatesTheMaximumDamagePer);
+                if (salvos > 1) DrawStat(ref cursor, "Salvo", salvos, GameText.ThisWeaponsFireASalvo);
+                if (projectiles > 1) DrawStat(ref cursor, "Projectiles", projectiles, GameText.ThisWeaponFiresMoreThan);
             }
 
             if (w.FireImprecisionAngle > 0)
-                DrawStat(ref cursor, "Imprecision", w.FireImprecisionAngle, 273);
+                DrawStat(ref cursor, "Imprecision", w.FireImprecisionAngle, GameText.MaximumImprecisionAngleInDegrees);
 
-            DrawStat(ref cursor, "Pwr/s", w.BeamPowerCostPerSecond, 87);
-            DrawStat(ref cursor, "Delay", delay, 183);
-            DrawStat(ref cursor, "EMP", w.EMPDamage, 110);
+            DrawStat(ref cursor, "Pwr/s", w.BeamPowerCostPerSecond, GameText.TheAmountOfPowerThis);
+            DrawStat(ref cursor, "Delay", delay, GameText.TimeBetweenShots);
+            DrawStat(ref cursor, "EMP", w.EMPDamage, GameText.IndicatesTheAmountOfEmp);
 
             float siphon = w.SiphonDamage + w.SiphonDamage * beamMultiplier;
-            DrawStat(ref cursor, "Siphon", siphon, 184);
+            DrawStat(ref cursor, "Siphon", siphon, GameText.IndicatesTheAmountOfShields);
 
             float tractor = w.MassDamage + w.MassDamage * beamMultiplier;
-            DrawStat(ref cursor, "Tractor", tractor, 185);
+            DrawStat(ref cursor, "Tractor", tractor, GameText.IndicatesTheAmountOfDrag);
 
             float powerDamage = w.PowerDamage + w.PowerDamage * beamMultiplier;
-            DrawStat(ref cursor, "Pwr Dmg", powerDamage, 186);
-            DrawStat(ref cursor, Localizer.Token(GameText.FireArc), m.FieldOfFire.ToDegrees(), 88);
-            DrawStat(ref cursor, "Ord / Shot", w.OrdinanceRequiredToFire, 89);
-            DrawStat(ref cursor, "Pwr / Shot", w.PowerRequiredToFire, 90);
+            DrawStat(ref cursor, "Pwr Dmg", powerDamage, GameText.IndicatesTheAmountOfPower3);
+            DrawStat(ref cursor, Localizer.Token(GameText.FireArc), m.FieldOfFire.ToDegrees(), GameText.AWeaponMayOnlyFire);
+            DrawStat(ref cursor, "Ord / Shot", w.OrdinanceRequiredToFire, GameText.IndicatesTheAmountOfOrdnance);
+            DrawStat(ref cursor, "Pwr / Shot", w.PowerRequiredToFire, GameText.IndicatesTheAmountOfPower);
 
             if (w.Tag_Guided && GlobalStats.HasMod && GlobalStats.ActiveModInfo.enableECM)
-                DrawStatPercentLine(ref cursor, Localizer.Token(GameText.EcmResist), w.ECMResist, 155);
+                DrawStatPercentLine(ref cursor, Localizer.Token(GameText.EcmResist), w.ECMResist, GameText.IndicatesTheResistanceOfThis);
 
             DrawResistancePercent(ref cursor, wOrMirv, "VS Armor", WeaponStat.Armor);
             DrawResistancePercent(ref cursor, wOrMirv, "VS Shield", WeaponStat.Shield);
@@ -613,9 +613,9 @@ namespace Ship_Game
             {
                 int actualArmorPen = wOrMirv.ArmorPen + (wOrMirv.Tag_Kinetic ? EmpireManager.Player.data.ArmorPiercingBonus : 0);
                 if (actualArmorPen > wOrMirv.ArmorPen)
-                    DrawStatCustomColor(ref cursor, 1829, actualArmorPen, 276, Color.Gold, isPercent: false);
+                    DrawStatCustomColor(ref cursor, 1829, actualArmorPen, GameText.ArmorPenetrationEnablesThisWeapon, Color.Gold, isPercent: false);
                 else
-                    DrawStat(ref cursor, "Armor Pen", actualArmorPen, 276);
+                    DrawStat(ref cursor, "Armor Pen", actualArmorPen, GameText.ArmorPenetrationEnablesThisWeapon);
 
                 float actualShieldPenChance = EmpireManager.Player.data.ShieldPenBonusChance + wOrMirv.ShieldPenChance / 100;
                 for (int i = 0; i < wOrMirv.ActiveWeaponTags.Length; ++i)
@@ -624,13 +624,13 @@ namespace Ship_Game
                 }
 
                 if (actualShieldPenChance.Greater(wOrMirv.ShieldPenChance / 100))
-                    DrawStatCustomColor(ref cursor, 1828, actualShieldPenChance.UpperBound(1), 181, Color.Gold);
+                    DrawStatCustomColor(ref cursor, 1828, actualShieldPenChance.UpperBound(1), GameText.RandomChanceThisWeaponWill, Color.Gold);
                 else
-                    DrawStat(ref cursor, "Shield Pen", actualShieldPenChance.UpperBound(100), 181, isPercent: true);
+                    DrawStat(ref cursor, "Shield Pen", actualShieldPenChance.UpperBound(100), GameText.RandomChanceThisWeaponWill, isPercent: true);
             }
-            DrawStat(ref cursor, Localizer.Token(GameText.Ordnance), m.OrdinanceCapacity, 124);
-            DrawStat(ref cursor, Localizer.Token(GameText.Deflection), m.DamageThreshold, 221);
-            if (m.RepairDifficulty > 0) DrawStat(ref cursor, Localizer.Token(GameText.Complexity), m.RepairDifficulty, 241); // Complexity
+            DrawStat(ref cursor, Localizer.Token(GameText.Ordnance), m.OrdinanceCapacity, GameText.IndicatesTheAmountOfOrdnance2);
+            DrawStat(ref cursor, Localizer.Token(GameText.Deflection), m.DamageThreshold, GameText.WeaponsWhichDoLessDamage);
+            if (m.RepairDifficulty > 0) DrawStat(ref cursor, Localizer.Token(GameText.Complexity), m.RepairDifficulty, GameText.TheMoreComplexTheModule); // Complexity
 
             if (wOrMirv.TruePD)
             {
@@ -655,7 +655,7 @@ namespace Ship_Game
             actualShieldPenChance += weaponTag.ShieldPenetration;
         }
 
-        void DrawStatPercentLine(ref Vector2 cursor, string text, float stat, int tooltipId)
+        void DrawStatPercentLine(ref Vector2 cursor, string text, float stat, ToolTipText tooltipId)
         {
             DrawStat(ref cursor, text, stat, tooltipId, isPercent: true);
             WriteLine(ref cursor);
@@ -698,7 +698,7 @@ namespace Ship_Game
         {
             float effect = ModifiedWeaponStat(weapon, stat);
             if (effect.NotEqual(1))
-                Screen.DrawStatBadPercentLower1(ref cursor, description, effect, Color.White, 147, ActiveModStatSpacing);
+                Screen.DrawStatBadPercentLower1(ref cursor, description, effect, Color.White, GameText.IndicatesAnyBonusOrPenalty, ActiveModStatSpacing);
         }
 
         float GetHullDamageBonus()
