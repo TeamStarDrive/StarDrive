@@ -7,10 +7,10 @@ namespace SDGameTextToEnum
     public class Localization
     {
         public static string[] SupportedLangs = new[]{ "ENG", "RUS", "SPA" };
-        public readonly int Id;
-        public readonly string NameId;
-        public readonly string Comment;
-        public readonly List<Translation> Translations;
+        public int Id;
+        public string NameId;
+        public string Comment;
+        public List<Translation> Translations;
         public string TipId;
 
         public override string ToString() => $"{NameId}({Id}) {Translations[0]}";
