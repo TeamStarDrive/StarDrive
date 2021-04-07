@@ -67,7 +67,7 @@ namespace Ship_Game
             SelectedFleet = new Fleet() { Owner = EmpireManager.Player }; ;
             EmpireUI = empireUI;
             TransitionOnTime = 0.75f;
-            EmpireUI.empire.UpdateShipsWeCanBuild();
+            EmpireUI.Player.UpdateShipsWeCanBuild();
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
         }
 

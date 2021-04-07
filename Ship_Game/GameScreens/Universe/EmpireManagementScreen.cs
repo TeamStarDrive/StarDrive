@@ -50,11 +50,11 @@ namespace Ship_Game
             ColoniesList.EnableItemHighlight = true;
             eRect = ColoniesList.Rect;
 
-            SbPop   = new SortButton(eui.empire.data.ESSort, "pop");
-            SbFood  = new SortButton(eui.empire.data.ESSort, "food");
-            SbProd  = new SortButton(eui.empire.data.ESSort, "prod");
-            SbRes   = new SortButton(eui.empire.data.ESSort, "res");
-            SbMoney = new SortButton(eui.empire.data.ESSort, "money");
+            SbPop   = new SortButton(eui.Player.data.ESSort, "pop");
+            SbFood  = new SortButton(eui.Player.data.ESSort, "food");
+            SbProd  = new SortButton(eui.Player.data.ESSort, "prod");
+            SbRes   = new SortButton(eui.Player.data.ESSort, "res");
+            SbMoney = new SortButton(eui.Player.data.ESSort, "money");
 
             var planets = EmpireManager.Player.GetPlanets();
             int sidePanelWidths = (int)(ScreenWidth * 0.3f);

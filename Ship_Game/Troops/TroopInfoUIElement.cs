@@ -8,22 +8,23 @@ namespace Ship_Game
 {
     public sealed class TroopInfoUIElement : UIElementContainer
     {
-        private readonly UniverseScreen screen;
-        private readonly Rectangle LeftRect;
-        private readonly Rectangle DefenseRect;
-        private readonly Rectangle SoftAttackRect;
-        private readonly Rectangle HardAttackRect;
-        private readonly Rectangle RangeRect;
-        private Rectangle ItemDisplayRect;
-        private DanButton LaunchTroop;
-        private readonly Selector Sel;
-        private readonly UITextBox DescriptionBox;
+        readonly UniverseScreen Universe;
+        readonly Rectangle LeftRect;
+        readonly Rectangle DefenseRect;
+        readonly Rectangle SoftAttackRect;
+        readonly Rectangle HardAttackRect;
+        readonly Rectangle RangeRect;
+        Rectangle ItemDisplayRect;
+        DanButton LaunchTroop;
+        readonly Selector Sel;
+        readonly UITextBox DescriptionBox;
+        readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
+
         public PlanetGridSquare Tile { get; private set; }
-        private readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
 
         public TroopInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
-            this.screen       = screen;
+            Universe          = screen;
             Sel               = new Selector(r, Color.Black);
             LeftRect          = new Rectangle(r.X, r.Y + 44, 200, r.Height - 44);
             DefenseRect       = new Rectangle(LeftRect.X + 12, LeftRect.Y + 18, 22, 22);
@@ -50,12 +51,9 @@ namespace Ship_Game
             //MathHelper.SmoothStep(0f, 1f, TransitionPosition);
             batch.FillRectangle(Sel.Rect, Color.Black);
 
-            float x          = Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
-            Vector2 mousePos = new Vector2(x, state.Y);
-            Header slant     = new Header(new Rectangle(Sel.Rect.X, Sel.Rect.Y, Sel.Rect.Width, 41), "");
-            Body body        = new Body(new Rectangle(slant.leftRect.X, Sel.Rect.Y + 44, Sel.Rect.Width, Sel.Rect.Height - 44));
-            Color color      = Color.White;
+            var slant = new Header(new Rectangle(Sel.Rect.X, Sel.Rect.Y, Sel.Rect.Width, 41), "");
+            var body = new Body(new Rectangle(slant.leftRect.X, Sel.Rect.Y + 44, Sel.Rect.Width, Sel.Rect.Height - 44));
+            Color color = Color.White;
             body.Draw(batch, elapsed);
             batch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, color);
             batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), SoftAttackRect, color);
@@ -78,7 +76,7 @@ namespace Ship_Game
                             troopToDraw = troop;
                     }
 
-                    DrawTroopStats(batch, troopToDraw, slant, mousePos, color);
+                    DrawTroopStats(batch, troopToDraw, slant, Universe.Input.CursorPosition, color);
                 }
             }
             else // draw building stats
@@ -99,7 +97,7 @@ namespace Ship_Game
             base.Draw(batch, elapsed);
         }
 
-        private void DrawTroopStats(SpriteBatch batch, Troop troop, Header slant, Vector2 mousePos, Color color)
+        void DrawTroopStats(SpriteBatch batch, Troop troop, Header slant, Vector2 mousePos, Color color)
         {
             if (troop == null)
                 return;
@@ -118,14 +116,14 @@ namespace Ship_Game
             slant.text = troop.Name;
         }
 
-        private void DrawInfoData(SpriteBatch batch, Rectangle rect, string data, Color color, int xOffSet, int yOffSet)
+        void DrawInfoData(SpriteBatch batch, Rectangle rect, string data, Color color, int xOffSet, int yOffSet)
         {
             SpriteFont font = Fonts.Arial12;
             Vector2 pos = new Vector2((rect.X + rect.Width + xOffSet), (rect.Y + yOffSet - font.LineSpacing / 2));
             batch.DrawString(font, data, pos, color);
         }
 
-        private void DrawLaunchButton(SpriteBatch batch, Troop troop, Header slant)
+        void DrawLaunchButton(SpriteBatch batch, Troop troop, Header slant)
         {
             troop.Draw(batch, ItemDisplayRect);
             if (troop.Loyalty != EmpireManager.Player)
@@ -139,10 +137,11 @@ namespace Ship_Game
             }
         }
 
-        private void DrawLevelStars(SpriteBatch batch, int level, Vector2 mousePos)
+        void DrawLevelStars(SpriteBatch batch, int level, Vector2 mousePos)
         {
             if (level <= 0)
                 return;
+
             Color color;
             switch (level)
             {
@@ -154,16 +153,16 @@ namespace Ship_Game
                 case 7:
                 case 9:  color = Color.DodgerBlue; break;
                 case 10: color = Color.Gold;  break;
-
             }
 
+            var starIcon = ResourceManager.Texture("UI/icon_star");
             for (int i = 0; i < level; i++)
             {
                 var star = new Rectangle(LeftRect.X + LeftRect.Width - 20 - 12 * i, LeftRect.Y + 12, 12, 11);
                 if (star.HitTest(mousePos))
                     ToolTip.CreateTooltip(GameText.IndicatesThisTroopsExperienceLevel);
 
-                batch.Draw(ResourceManager.Texture("UI/icon_star"), star, color);
+                batch.Draw(starIcon, star, color);
             }
         }
 
@@ -184,7 +183,7 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(GameText.LaunchThisTroopIntoOrbit);
                 if (LaunchTroop.HandleInput(input))
                 {
-                    var combatScreen = (CombatScreen)screen.workersPanel;
+                    var combatScreen = (CombatScreen)Universe.workersPanel;
                     if (combatScreen.TryLaunchTroopFromActiveTile())
                         GameAudio.TroopTakeOff();
                     else

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
@@ -105,9 +104,6 @@ namespace Ship_Game
             ToolTipItems.Clear();
             ToolTipItems.Add(new TippedItem(PopRect, GameText.PopulationInBillionsVsMax));
 
-            float x = Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
-            var mousePos = new Vector2(x, state.Y);
             batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
             var namePos = new Vector2(Housing.X + 15, Housing.Y + 65);
 
@@ -119,7 +115,7 @@ namespace Ship_Game
             P.UpdateMaxPopulation();
             if (P.Owner == null || !P.IsExploredBy(EmpireManager.Player))
             {
-                DrawUnexploredUninhabited(namePos, mousePos);
+                DrawUnexploredUninhabited(namePos, Screen.Input.CursorPosition);
                 return;
             }
 
@@ -180,8 +176,8 @@ namespace Ship_Game
 
             DrawColonyType(batch);
             DrawFertProdStats(batch);
-            DrawColonization(batch, mousePos);
-            DrawSendTroops(batch, mousePos);
+            DrawColonization(batch, Screen.Input.CursorPosition);
+            DrawSendTroops(batch, Screen.Input.CursorPosition);
             Inspect.Draw(batch);
             Invade.Draw(batch);
 
