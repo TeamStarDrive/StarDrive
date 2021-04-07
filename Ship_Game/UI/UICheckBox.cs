@@ -11,7 +11,7 @@ namespace Ship_Game
     {
         readonly SpriteFont Font;
         readonly LocalizedText Text;
-        readonly LocalizedText TipText;
+        readonly LocalizedText Tooltip;
         Ref<bool> Binding;
 
         Vector2 TextPos;
@@ -30,7 +30,7 @@ namespace Ship_Game
             Binding = binding;
             Font    = font;
             Text    = title;
-            TipText = tooltip;
+            Tooltip = tooltip;
             PerformLayout();
         }
 
@@ -40,7 +40,7 @@ namespace Ship_Game
             Binding = new Ref<bool>(binding);
             Font    = font;
             Text    = title;
-            TipText = tooltip;
+            Tooltip = tooltip;
             PerformLayout();
         }
 
@@ -87,9 +87,9 @@ namespace Ship_Game
                 Binding.Value = !Binding.Value;
                 OnChange?.Invoke(this);
             }
-            else if (TipText.IsValid)
+            else if (Tooltip.IsValid)
             {
-                ToolTip.CreateTooltip(TipText);
+                ToolTip.CreateTooltip(Tooltip);
             }
 
             // always capture input to prevent clicks from reaching elements under us
