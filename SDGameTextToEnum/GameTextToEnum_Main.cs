@@ -160,7 +160,7 @@ namespace SDGameTextToEnum
             string[] lines = File.ReadAllLines(xmlFile);
             int modified = 0;
             Regex[] patterns = tags.Select(tag => new Regex($"<{tag}>.+\\d+.+<\\/{tag}>")).ToArray();
-            Regex numberMatcher = new Regex($"\\d+");
+            Regex numberMatcher = new Regex("\\d+");
             for (int i = 0; i < lines.Length; ++i)
             {
                 string line = lines[i];
@@ -187,11 +187,59 @@ namespace SDGameTextToEnum
             }
         }
 
+        static void ReplaceCsharpTokens(string codeDir, LocalizationDB db)
+        {
+            string[] codeFiles = Directory.GetFiles(codeDir, "*.cs", SearchOption.AllDirectories);
+            foreach (string fileName in codeFiles)
+            {
+                ReplaceInCsharpFile(fileName, db);
+            }
+        }
+
+        static void ReplaceInCsharpFile(string fileName, LocalizationDB db)
+        {
+            string[] lines = File.ReadAllLines(fileName);
+            int modified = 0;
+            int i = 0;
+            var matchLocalizerToken = new Regex("Localizer\\.Token\\(\\d+\\)");
+            var numberMatcher = new Regex("\\d+");
+
+            void ModifyCurrentLine(string newValue)
+            {
+                lines[i] = newValue;
+                ++modified;
+                --i; // after we modify current line, skip back to reprocess this line
+            }
+
+            for (; i < lines.Length; ++i)
+            {
+                string line = lines[i];
+                var locTokenMatch = matchLocalizerToken.Match(line);
+                if (locTokenMatch.Success)
+                {
+                    string localizerToken = locTokenMatch.Value;
+                    var integerMatch = numberMatcher.Match(localizerToken);
+                    if (integerMatch.Success && int.TryParse(integerMatch.Value, out int id))
+                    {
+                        string nameId = db.GetNameId(id);
+                        ModifyCurrentLine(line.Replace(localizerToken, $"Localizer.Token(GameText.{nameId})"));
+                        continue;
+                    }
+                }
+            }
+            if (modified > 0)
+            {
+                Log.Write(ConsoleColor.Green, $"Modified  {fileName}  ({modified})");
+                File.WriteAllLines(fileName, lines);
+            }
+        }
+
         public static void Main(string[] args)
         {
             string solutionDir = Directory.GetCurrentDirectory();
             string gameDir = $"{solutionDir}/StarDrive/Content";
             string bbDir = $"{solutionDir}/Content";
+            string codeDir = $"{solutionDir}/Ship_Game";
             string outputDir = $"{solutionDir}/Ship_Game/Data";
             string modDir = $"{solutionDir}/StarDrive/Mods/Combined Arms";
             Directory.SetCurrentDirectory($"{solutionDir}/StarDrive");
@@ -208,6 +256,7 @@ namespace SDGameTextToEnum
                 CreateGameTipsEnum(bbDir, outputDir, db);
                 UpgradeGameXmls(bbDir, db, mod:false);
                 UpgradeGameXmls(modDir, db, mod:true);
+                ReplaceCsharpTokens(codeDir, db);
             }
 
             Log.Write(ConsoleColor.Gray, "Press any key to continue...");
