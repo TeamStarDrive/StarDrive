@@ -32,7 +32,7 @@ namespace Ship_Game
         /// </summary>
         public Func<string> DynamicText;
 
-        public ToolTipText Tooltip;
+        public LocalizedText Tooltip;
         public string HotKey;
         public string ClickSfx = "echo_affirm";
 

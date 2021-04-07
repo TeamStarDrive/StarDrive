@@ -21,7 +21,7 @@ namespace Ship_Game
         public bool CaptureInput;
 
         // If set to a valid tooltip, will display a tooltip on hover
-        public ToolTipText Tooltip;
+        public LocalizedText Tooltip;
 
         public override string ToString()
         {

@@ -14,7 +14,6 @@ namespace SDGameTextToEnum
         readonly Dictionary<int, TextToken> ExistingIds = new Dictionary<int, TextToken>();
         readonly List<Localization> LocalizedText = new List<Localization>();
         readonly List<Localization> ModText = new List<Localization>();
-        readonly List<Localization> ToolTips = new List<Localization>();
         readonly HashSet<string> EnumNames = new HashSet<string>();
         readonly string[] WordSeparators = { " ", "\t", "\r", "\n", "\"",
                                                  "\\t","\\r","\\n", "\\\"" };
@@ -24,7 +23,6 @@ namespace SDGameTextToEnum
 
         public int NumModLocalizations => ModText.Count;
         public int NumLocalizations => LocalizedText.Count;
-        public int NumToolTips => ToolTips.Count;
 
         public LocalizationDB(string enumNamespace, string enumName, LocalizationUsages usages)
         {
@@ -40,7 +38,6 @@ namespace SDGameTextToEnum
             Usages = gen.Usages;
             ExistingIds = new Dictionary<int, TextToken>(gen.ExistingIds);
             EnumNames = new HashSet<string>(gen.EnumNames);
-            ToolTips = new List<Localization>(gen.ToolTips);
             foreach (Localization loc in gen.LocalizedText)
                 LocalizedText.Add(new Localization(loc));
         }
@@ -224,24 +221,6 @@ namespace SDGameTextToEnum
             return id.ToString();
         }
 
-        public void AddToolTips(IEnumerable<TextToken> toolTips)
-        {
-            foreach (TextToken t in toolTips)
-            {
-                if (GetLocalization(ToolTips, t.Id, out Localization _))
-                    Log.Write(ConsoleColor.Red, $"{Name}: duplicate tooltip with id={t.Id}");
-                else
-                {
-                    Localization loc = AddNewLocalization(ToolTips, t, null);
-                    if (loc != null)
-                    {
-                        loc.TipId = GetNameId(t.ToolTipData);
-                        loc.Comment = $"{loc.TipId}: {loc.Comment}";
-                    }
-                }
-            }
-        }
-        
         public bool AddFromModYaml(string yamlFile, bool logMerge = false)
         {
             List<TextToken> tokens = TextToken.FromYaml(yamlFile);

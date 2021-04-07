@@ -74,6 +74,7 @@ namespace Ship_Game
 
         public bool IsEmpty  => Id == 0 && String.IsEmpty();
         public bool NotEmpty => Id > 0 || String.NotEmpty();
+        public bool IsValid  => Id > 0 || String.NotEmpty();
 
         public static bool operator==(in LocalizedText a, in LocalizedText b)
         {
