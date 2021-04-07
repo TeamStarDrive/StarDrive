@@ -124,13 +124,13 @@ namespace Ship_Game.Ships
             Ship.shipStatusChanged = true;
         }
 
-        void DrawOrderButtons(float transitionOffset)
+        void DrawOrderButtons(SpriteBatch batch, float transitionOffset)
         {
             foreach (OrdersButton ob in Orders)
             {
                 Rectangle r = ob.ClickRect;
                 r.X -= (int)(transitionOffset * 300f);
-                ob.Draw(ScreenManager, r);
+                ob.Draw(batch, ScreenManager.input.CursorPosition, r);
             }
         }
 
@@ -152,12 +152,13 @@ namespace Ship_Game.Ships
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            if (Screen.SelectedShip == null) return;  //fbedard
+            if (Screen.SelectedShip == null)
+                return;  //fbedard
 
             float transitionOffset = MathHelper.SmoothStep(0f, 1f, TransitionPosition);
             int columns = Orders.Count / 2 + Orders.Count % 2;
             SlidingElement.Draw(ScreenManager, (int)(columns * 55 * (1f - TransitionPosition)) + (SlidingElement.Open ? 20 - columns : 0));
-            DrawOrderButtons(transitionOffset);
+            DrawOrderButtons(batch, transitionOffset);
 
             batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
             GridButton.Draw(batch, elapsed);

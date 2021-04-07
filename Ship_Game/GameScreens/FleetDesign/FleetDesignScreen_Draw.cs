@@ -292,17 +292,15 @@ namespace Ship_Game
 
                     float radius = 150f;
                     viewport = Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View,
-                        Matrix.Identity);
+                    Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View, Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     Vector2 radialPos = node.FleetOffset.PointFromAngle(90f, radius);
                     viewport = Viewport;
-                    Vector3 insetRadialPos =
-                        viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
+                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     radius = Vector2.Distance(insetRadialSS, pPos);
-                    Rectangle r = new Rectangle((int) pPos.X - (int) radius, (int) pPos.Y - (int) radius,
-                        (int) radius * 2, (int) radius * 2);
+                    var r = new Rectangle((int) pPos.X - (int) radius, (int) pPos.Y - (int) radius, 
+                                          (int) radius * 2, (int) radius * 2);
 
                     SubTexture icon = ship.GetTacticalIcon(out SubTexture secondary, out _);
                     if (node.GoalGUID == Guid.Empty)
@@ -368,28 +366,17 @@ namespace Ship_Game
 
             if (ActiveShipDesign != null)
             {
-                float scale;
-                Vector2 iconOrigin;
-                Ship ship       = ActiveShipDesign;
-                SubTexture icon = ship.GetTacticalIcon(out SubTexture secondary, out _);
-                {
-                    scale = ship.SurfaceArea /
-                            (float) (30 + ResourceManager.Texture("TacticalIcons/symbol_fighter").Width);
-                    iconOrigin = new Vector2(ResourceManager.Texture("TacticalIcons/symbol_fighter").Width / 2f,
-                        ResourceManager.Texture("TacticalIcons/symbol_fighter").Width / 2f);
-                    scale = scale * 4000f / CamPos.Z;
+                SubTexture icon = ActiveShipDesign.GetTacticalIcon(out SubTexture secondary, out _);
+                Vector2 iconOrigin = new Vector2(icon.Width, icon.Width) / 2f;
+                float scale = ActiveShipDesign.SurfaceArea / (float)(30 + icon.Width);
+                scale = scale * 4000f / CamPos.Z;
+                if (scale > 1f)    scale = 1f;
+                if (scale < 0.15f) scale = 0.15f;
 
-                    if (scale > 1f)    scale = 1f;
-                    if (scale < 0.15f) scale = 0.15f;
-                }
-
-                float single     = Mouse.GetState().X;
-                MouseState state = Mouse.GetState();
-                Vector2 pos      = new Vector2(single, state.Y);
-                Color color      = EmpireManager.Player.EmpireColor;
-                batch.Draw(icon, pos, color , 0f, iconOrigin, scale, SpriteEffects.None, 1f);
+                Color color = EmpireManager.Player.EmpireColor;
+                batch.Draw(icon, Input.CursorPosition, color, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
                 if (secondary != null)
-                    batch.Draw(secondary, pos, color, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
+                    batch.Draw(secondary, Input.CursorPosition, color, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
             }
 
             DrawSelectedData(batch, elapsed);
