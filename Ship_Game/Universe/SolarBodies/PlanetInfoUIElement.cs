@@ -318,11 +318,11 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), MarkedRect, Color.White);
 
             int tipId             = 24;
-            LocalizedText tipText = new LocalizedText(GameText.Colonize);
+            LocalizedText tipText =GameText.Colonize;
             if (EmpireManager.Player.GetEmpireAI().Goals.Any(g => g.ColonizationTarget == P))
             {
                 tipId   = 25;
-                tipText = new LocalizedText(GameText.Cancel2);
+                tipText = GameText.CancelColonize;
             }
 
             TippedItem ti = new TippedItem { r = MarkedRect, TIP_ID = tipId};
