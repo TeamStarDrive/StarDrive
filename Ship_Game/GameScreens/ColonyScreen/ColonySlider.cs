@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
@@ -222,8 +222,8 @@ namespace Ship_Game
             float value = NetValue;
             string text;
             if      (IsDisabled) text = "n/a";
-            else if (IsCrippled) text = Localizer.Token(2202);/*sabotaged*/
-            else if (IsInvasion) text = Localizer.Token(2257);/*invasion!*/
+            else if (IsCrippled) text = Localizer.Token(GameText.Sabotaged);/*sabotaged*/
+            else if (IsInvasion) text = Localizer.Token(GameText.Invasion);/*invasion!*/
             else                 text = value.String();
             batch.DrawString(font, text, pos, (value < 0.0f ? Color.LightPink : Colors.Cream));
         }

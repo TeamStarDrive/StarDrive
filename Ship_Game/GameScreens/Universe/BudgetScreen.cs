@@ -120,7 +120,7 @@ namespace Ship_Game.GameScreens
             EmpireNetIncome.DropShadow  = true;
             EmpireNetIncome.DynamicText = DynamicText(
                 ()   => Player.NetIncome,
-                (f) => $"{( f >= 0f ? Localizer.Token(324) : Localizer.Token(325) )} : {f.MoneyString()}");
+                (f) => $"{( f >= 0f ? Localizer.Token(GameText.NetGain) : Localizer.Token(GameText.NetLoss) )} : {f.MoneyString()}");
 
             base.LoadContent();
         }
