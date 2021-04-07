@@ -11,7 +11,6 @@ namespace SDGameTextToEnum
     public class LocalizationUsages
     {
         Dictionary<int, LocalizationUsage> Usages = new Dictionary<int, LocalizationUsage>();
-        HashSet<int> Tooltips;
         LocalizationUsages() {}
         public bool Get(int id, out LocalizationUsage usage) => Usages.TryGetValue(id, out usage);
         public LocalizationUsage Get(int id) => Get(id, out LocalizationUsage usage) ? usage : null;
@@ -39,18 +38,6 @@ namespace SDGameTextToEnum
                 }
             }
             return files;
-        }
-
-        static HashSet<int> GetTooltipIds(string gameDir)
-        {
-            var ser = new XmlSerializer(typeof(Tooltips));
-            var tt = (Tooltips)ser.Deserialize(File.OpenRead($"{gameDir}/Tooltips/Tooltips.xml"));
-            var tips = new HashSet<int>();
-            foreach (ToolTip tip in tt.ToolTipsList)
-            {
-                tips.Add(tip.Data);
-            }
-            return tips;
         }
 
         XmlNode FindElement(XmlNode parent, string exactTagName)
@@ -143,8 +130,6 @@ namespace SDGameTextToEnum
             var xmlFiles = GetXmlFiles(gameDir);
             xmlFiles.AddRange(GetXmlFiles(modDir));
 
-            Tooltips = GetTooltipIds(gameDir);
-
             void ProcessFiles(int start, int end)
             {
                 for (int fileId = start; fileId < end; ++fileId)
@@ -175,10 +160,8 @@ namespace SDGameTextToEnum
 
         Usage GetUsage(int id, string tag, string path)
         {
-            if (Tooltips.Contains(id)) return Usage.Tooltip;
             if (tag == "TroopName" || tag == "TroopDescription")
                 return Usage.Troop;
-
             if (path.Contains("/Buildings/"))   return Usage.Building;
             if (path.Contains("/Weapons/"))     return Usage.Weapon;
             if (path.Contains("/ShipModules/")) return Usage.Module;
