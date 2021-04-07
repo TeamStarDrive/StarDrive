@@ -496,16 +496,16 @@ namespace Ship_Game
                 ordersBarPos.X += 29f;
             }
 
-            AddCombatStatusBtn(CombatState.AttackRuns,   "SelectionBox/icon_formation_headon", toolTip: 1);
-            AddCombatStatusBtn(CombatState.Artillery,    "SelectionBox/icon_formation_aft",    toolTip: 2);
-            AddCombatStatusBtn(CombatState.ShortRange,   "SelectionBox/icon_grid",             toolTip: 228);
-            AddCombatStatusBtn(CombatState.HoldPosition, "SelectionBox/icon_formation_x",      toolTip: 65);
-            AddCombatStatusBtn(CombatState.OrbitLeft,    "SelectionBox/icon_formation_left",   toolTip: 3);
-            AddCombatStatusBtn(CombatState.OrbitRight,   "SelectionBox/icon_formation_right",  toolTip: 4);
-            AddCombatStatusBtn(CombatState.Evade,        "SelectionBox/icon_formation_stop",   toolTip: 6);
+            AddCombatStatusBtn(CombatState.AttackRuns,   "SelectionBox/icon_formation_headon", toolTip: GameText.ShipWillMakeHeadonAttack);
+            AddCombatStatusBtn(CombatState.Artillery,    "SelectionBox/icon_formation_aft",    toolTip: GameText.ShipWillRotateSoThat);
+            AddCombatStatusBtn(CombatState.ShortRange,   "SelectionBox/icon_grid",             toolTip: GameText.ShipWillRotateSoThat2);
+            AddCombatStatusBtn(CombatState.HoldPosition, "SelectionBox/icon_formation_x",      toolTip: GameText.ShipWillAttemptToHold);
+            AddCombatStatusBtn(CombatState.OrbitLeft,    "SelectionBox/icon_formation_left",   toolTip: GameText.ShipWillManeuverToKeep);
+            AddCombatStatusBtn(CombatState.OrbitRight,   "SelectionBox/icon_formation_right",  toolTip: GameText.ShipWillManeuverToKeep2);
+            AddCombatStatusBtn(CombatState.Evade,        "SelectionBox/icon_formation_stop",   toolTip: GameText.ShipWillAvoidEngagingIn);
             ordersBarPos = new Vector2(ordersBarX + 4*29f, ordersBarPos.Y + 29f);
-            AddCombatStatusBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft", 159);
-            AddCombatStatusBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", 160);
+            AddCombatStatusBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft", GameText.ShipWillMoveWithinMaximum);
+            AddCombatStatusBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", GameText.ShipWillMoveWithinMaximum2);
             
             UIList bottomListRight = AddList(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));
             bottomListRight.LayoutStyle = ListLayoutStyle.ResizeList;
@@ -555,7 +555,7 @@ namespace Ship_Game
                 OnFilterModuleToggle();
             });
             BtnFilterModules.ClickSfx = "blip_click";
-            BtnFilterModules.Tooltip  = 4186;
+            BtnFilterModules.Tooltip  = GameText.WhenToggledRedAnyModule;
             BtnFilterModules.Style    = FilterModulesBtnStyle;
 
             SearchBar = new Rectangle((int)ScreenCenter.X, (int)bottomListRight.Y, 210, 25);
@@ -597,7 +597,7 @@ namespace Ship_Game
                 HangarOptionsList.AddOption(item.ToString(), item);
 
             var carrierOnlyPos  = new Vector2(dropdownRect.X - 200, dropdownRect.Y);
-            CarrierOnlyCheckBox = Checkbox(carrierOnlyPos, () => ActiveHull.CarrierShip, "Carrier Only", 1978);
+            CarrierOnlyCheckBox = Checkbox(carrierOnlyPos, () => ActiveHull.CarrierShip, "Carrier Only", GameText.WhenMarkedThisShipCan);
             
             var shipStatsPanel = new Rectangle((int)HullSelectList.X + 50, (int)HullSelectList.Bottom - 20, 280, 320);
             ShipStats = new Menu1(shipStatsPanel);

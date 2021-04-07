@@ -48,9 +48,6 @@ namespace Ship_Game
         public static string GovernorBudget => Token(GameText.GovernorBudget);
         public static string TreasuryGoal => Token(GameText.TreasuryGoal);
 
-        public static string AutoTaxes => Token(GameText.AutoTaxes);
-        public static string BudgetScreenTaxSlider => Token(GameText.TaxRate);
-
         static string[] Strings = Empty<string>.Array;
         static Map<string, string> NameIdToString = new Map<string, string>();
 

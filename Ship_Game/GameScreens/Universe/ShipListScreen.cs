@@ -95,21 +95,21 @@ namespace Ship_Game
                 (x) => {
                     PlayerDesignsOnly = x;
                     ResetList(ShowRoles.ActiveValue);
-                }, Fonts.Arial12Bold, title: 191, tooltip: 4190));
+                }, Fonts.Arial12Bold, title: 191, tooltip: GameText.ShowPlayerDesignsOnly));
 
             Add(new UICheckBox(TitleBar.Menu.Right + 10, TitleBar.Menu.Y + 35,
                 () => InFleetsOnly,
                 (x) => {
                     InFleetsOnly = x;
                     ResetList(ShowRoles.ActiveValue);
-                }, Fonts.Arial12Bold, title: 4191, tooltip: 4192));
+                }, Fonts.Arial12Bold, title: 4191, tooltip: GameText.ShowOnlyShipsWhichAre));
 
             Add(new UICheckBox(TitleBar.Menu.Right + 10, TitleBar.Menu.Y + 55,
                 () => NotInFleets,
                 (x) => {
                     NotInFleets = x;
                     ResetList(ShowRoles.ActiveValue);
-                }, Fonts.Arial12Bold, title: 4193, tooltip: 4194));
+                }, Fonts.Arial12Bold, title: 4193, tooltip: GameText.ShowOnlyShipsWhichAre2));
 
             ShowRoles = new DropOptions<int>(new Rectangle(TitleBar.Menu.Right + 175, TitleBar.Menu.Y + 15, 175, 18));
             ShowRoles.AddOption("All Ships", 1);

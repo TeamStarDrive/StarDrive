@@ -105,7 +105,7 @@ namespace Ship_Game
             var population = new TippedItem
             {
                 r = PopRect,
-                TIP_ID = 254
+                Tooltip = GameText.PopulationInBillionsVsMax
             };
             ToolTipItems.Add(population);
 
@@ -317,15 +317,15 @@ namespace Ship_Game
             Vector2 textPos = new Vector2(RightRect.X + 18, MarkedRect.Y + 12 - Font12.LineSpacing / 2 - 2);
             batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), MarkedRect, Color.White);
 
-            int tipId             = 24;
-            LocalizedText tipText =GameText.Colonize;
+            ToolTipText tip = GameText.MarkThisPlanetForColonization;
+            LocalizedText tipText = GameText.Colonize;
             if (EmpireManager.Player.GetEmpireAI().Goals.Any(g => g.ColonizationTarget == P))
             {
-                tipId   = 25;
+                tip = GameText.CancelTheColonizationMissionThat;
                 tipText = GameText.CancelColonize;
             }
 
-            TippedItem ti = new TippedItem { r = MarkedRect, TIP_ID = tipId};
+            TippedItem ti = new TippedItem { r = MarkedRect, Tooltip = tip };
             ToolTipItems.Add(ti);
             batch.DrawString(Font12, tipText, textPos, MarkedRect.HitTest(mousePos) ? ButtonTextColor 
                                                                                     : ButtonHoverColor);
@@ -340,7 +340,7 @@ namespace Ship_Game
             TippedItem ti = new TippedItem
             {
                 r = fIcon,
-                TIP_ID = 20
+                Tooltip = GameText.IndicatesHowMuchFoodThis
             };
             ToolTipItems.Add(ti);
             Vector2 tcurs     = new Vector2(fIcon.X + 25, Housing.Y + 205);
@@ -365,7 +365,7 @@ namespace Ship_Game
             ti = new TippedItem
             {
                 r = pIcon,
-                TIP_ID = 21
+                Tooltip = GameText.APlanetsMineralRichnessDirectly
             };
             ToolTipItems.Add(ti);
 
@@ -378,31 +378,31 @@ namespace Ship_Game
             TippedItem ti = new TippedItem
             {
                 r = DefenseRect,
-                TIP_ID = 31
+                Tooltip = GameText.IndicatesThisColonysTotalStrength
             };
             ToolTipItems.Add(ti);
             ti = new TippedItem
             {
                 r = InjuryRect,
-                TIP_ID = 249
+                Tooltip = GameText.EveryTroopInvadingThisPlanet
             };
             ToolTipItems.Add(ti);
             ti = new TippedItem
             {
                 r = OffenseRect,
-                TIP_ID = 250
+                Tooltip = GameText.ThePlanetsSpaceOffenseVs
             };
             ToolTipItems.Add(ti);
             ti = new TippedItem
             {
                 r = ShieldRect,
-                TIP_ID = 264
+                Tooltip = GameText.IndicatesTheCurrentStrengthOf
             };
             ToolTipItems.Add(ti);
             ti = new TippedItem
             {
                 r = DefenseShipsRect,
-                TIP_ID = 251
+                Tooltip = GameText.IndicatesTheTileRangeThis
             };
             ToolTipItems.Add(ti);
         }
@@ -412,25 +412,25 @@ namespace Ship_Game
             TippedItem ti = new TippedItem
             {
                 r = TilesRect,
-                TIP_ID = 1904
+                Tooltip = GameText.ThisIndicatesHowManyTiles
             };
             ToolTipItems.Add(ti);
             ti = new TippedItem
             {
                 r = PopPerTileRect,
-                TIP_ID = 1905
+                Tooltip = GameText.ThisIndicatesHowMuchPopulation
             };
             ToolTipItems.Add(ti);
             ti = new TippedItem
             {
                 r = BiospheredPopRect,
-                TIP_ID = 1906
+                Tooltip = GameText.ThisIndicatesWhatWouldThe
             };
             ToolTipItems.Add(ti);
             ti = new TippedItem
             {
                 r = TerraformedPopRect,
-                TIP_ID = 1907
+                Tooltip = GameText.ThisIndicatesWhatWouldThe2
             };
             ToolTipItems.Add(ti);
         }
@@ -455,7 +455,7 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                ToolTip.CreateTooltip(ti.TIP_ID);
+                ToolTip.CreateTooltip(ti.Tooltip);
             }
             if (P.Owner == null && MarkedRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
@@ -516,16 +516,16 @@ namespace Ship_Game
             {
                 if (P.Owner == null || P.Owner != EmpireManager.Player)
                 {
-                    ToolTip.CreateTooltip(61);
+                    ToolTip.CreateTooltip(GameText.ViewPlanetDetails);
                 }
                 else
                 {
-                    ToolTip.CreateTooltip(76);
+                    ToolTip.CreateTooltip(GameText.OpensColonyOverviewScreen);
                 }
             }
             if (Invade.Hover)
             {
-                ToolTip.CreateTooltip(62);
+                ToolTip.CreateTooltip(GameText.OpenTheGroundAssaultView);
             }
             if (P.Habitable)
             {
@@ -571,7 +571,7 @@ namespace Ship_Game
         struct TippedItem
         {
             public Rectangle r;
-            public int TIP_ID;
+            public ToolTipText Tooltip;
         }
     }
 }

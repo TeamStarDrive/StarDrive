@@ -399,7 +399,7 @@ namespace Ship_Game
                         ScreenManager.SpriteBatch.Draw(
                             ResourceManager.Texture("UI/icon_anomaly_small"), rectangle2, CurrentFlashColor);
                         if (rectangle2.HitTest(pos))
-                            ToolTip.CreateTooltip(138);
+                            ToolTip.CreateTooltip(GameText.IndicatesThatAnAnomalyHas);
                         ++num3;
                     }
 
@@ -410,7 +410,7 @@ namespace Ship_Game
                         Rectangle rectangle2 = new Rectangle((int)vector2.X, (int)vector2.Y, enemyHere.Width, enemyHere.Height);
                         ScreenManager.SpriteBatch.Draw(enemyHere, rectangle2, CurrentFlashColor);
                         if (rectangle2.HitTest(pos))
-                            ToolTip.CreateTooltip(123);
+                            ToolTip.CreateTooltip(GameText.IndicatesThatHostileForcesWere);
                         ++num3;
 
                         if (solarSystem.HasPlanetsOwnedBy(EmpireManager.Player) && solarSystem.PlanetList.Any(p => p.SpaceCombatNearPlanet))
@@ -420,7 +420,7 @@ namespace Ship_Game
                             Rectangle rectangle3 = new Rectangle((int)vector2.X, (int)vector2.Y, groundAttack.Width,groundAttack.Height);
                             ScreenManager.SpriteBatch.Draw(groundAttack, rectangle3, CurrentFlashColor);
                             if (rectangle3.HitTest(pos))
-                                ToolTip.CreateTooltip(122);
+                                ToolTip.CreateTooltip(GameText.IndicatesThatSpaceCombatIs);
                         }
                     }
                 }
@@ -486,7 +486,7 @@ namespace Ship_Game
                         ScreenManager.SpriteBatch.Draw(
                             ResourceManager.Texture("UI/icon_anomaly_small"), rectangle2, CurrentFlashColor);
                         if (rectangle2.HitTest(pos))
-                            ToolTip.CreateTooltip(138);
+                            ToolTip.CreateTooltip(GameText.IndicatesThatAnAnomalyHas);
                         ++num3;
                     }
 
@@ -497,7 +497,7 @@ namespace Ship_Game
                         Rectangle rectangle3 = new Rectangle((int)vector2.X, (int)vector2.Y, enemyHere.Width, enemyHere.Height);
                         ScreenManager.SpriteBatch.Draw(enemyHere, rectangle3, CurrentFlashColor);
                         if (rectangle3.HitTest(pos))
-                            ToolTip.CreateTooltip(123);
+                            ToolTip.CreateTooltip(GameText.IndicatesThatHostileForcesWere);
                         ++num3;
 
 
@@ -508,7 +508,7 @@ namespace Ship_Game
                             var rectangle2 = new Rectangle((int)vector2.X, (int)vector2.Y, groundAttack.Width, groundAttack.Height);
                             ScreenManager.SpriteBatch.Draw(groundAttack, rectangle2, CurrentFlashColor);
                             if (rectangle2.HitTest(pos))
-                                ToolTip.CreateTooltip(122);
+                                ToolTip.CreateTooltip(GameText.IndicatesThatSpaceCombatIs);
                         }
                     }
                 }

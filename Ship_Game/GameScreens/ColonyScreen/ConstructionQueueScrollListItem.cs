@@ -20,10 +20,10 @@ namespace Ship_Game
             LowRes = lowRes;
             if (Planet.Owner.isPlayer || Empire.Universe.Debug)
             {
-                AddUp(new Vector2(-120, 0), /*Queue up*/63, OnUpClicked);
-                AddDown(new Vector2(-90, 0), /*Queue down*/64, OnDownClicked);
-                AddApply(new Vector2(-60, 0), /*Cancel production*/50, OnApplyClicked);
-                AddCancel(new Vector2(-30, 0), /*Cancel production*/53, OnCancelClicked);
+                AddUp(new Vector2(-120, 0), /*Queue up*/GameText.ClickToMoveUpIn, OnUpClicked);
+                AddDown(new Vector2(-90, 0), /*Queue down*/GameText.ClickToMoveDownIn, OnDownClicked);
+                AddApply(new Vector2(-60, 0), /*Cancel production*/GameText.ClickToRushProductionFrom, OnApplyClicked);
+                AddCancel(new Vector2(-30, 0), /*Cancel production*/GameText.CancelProductionAndRemoveThis, OnCancelClicked);
             }
         }
 

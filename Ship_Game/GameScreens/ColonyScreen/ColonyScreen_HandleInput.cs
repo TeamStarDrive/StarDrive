@@ -39,7 +39,7 @@ namespace Ship_Game
                 return base.HandleInput(input);
 
             if (BlockadeLabel.Visible && BlockadeLabel.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(1840);
+                ToolTip.CreateTooltip(GameText.IndicatesThatThisPlanetIs);
 
             if (HandleCycleColoniesLeftRight(input))
                 return true;
@@ -164,8 +164,8 @@ namespace Ship_Game
 
         bool HandleCycleColoniesLeftRight(InputState input)
         {
-            if     (RightColony.Rect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(2279);
-            else if (LeftColony.Rect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(2280);
+            if     (RightColony.Rect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GameText.ViewNextColony);
+            else if (LeftColony.Rect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GameText.ViewPreviousColony);
 
             bool canView = (Empire.Universe.Debug || P.Owner == EmpireManager.Player);
             if (!canView)

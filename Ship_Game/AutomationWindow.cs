@@ -29,10 +29,7 @@ namespace Ship_Game
         {
             UICheckBox Check;
             DropOptions<int> Options;
-            public DropOptions<int> Create(Expression<Func<bool>> binding, int title, int tooltip)
-                => Create(binding, Localizer.Token(title), tooltip);
-
-            public DropOptions<int> Create(Expression<Func<bool>> binding, string title, int tooltip)
+            public DropOptions<int> Create(Expression<Func<bool>> binding, LocalizedText title, ToolTipText tooltip)
             {
                 Check = new UICheckBox(0f, 0f, binding, Fonts.Arial12Bold, title, tooltip);
                 Options = new DropOptions<int>(new Vector2(0f, 25f), 190, 18);
@@ -68,29 +65,29 @@ namespace Ship_Game
 
             UIList rest = AddList(new Vector2(win.X + 10f, win.Y + 200f));
             rest.Padding = new Vector2(2f, 10f);
-            rest.AddCheckbox(() => EmpireManager.Player.AutoPickBestColonizer, title: 1837, tooltip: 1838);
-            rest.AddCheckbox(() => EmpireManager.Player.AutoPickBestFreighter, title: 1958, tooltip: 1959);
-            rest.AddCheckbox(() => EmpireManager.Player.AutoResearch,          title: 6136, tooltip: 7039);
-            rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes,        title: 6138, tooltip: 7040);
-            rest.AddCheckbox(() => RushConstruction,                           title: 1824, tooltip: 1825);
-            rest.AddCheckbox(() => GlobalStats.SuppressOnBuildNotifications,   title: 1835, tooltip: 1836);
-            rest.AddCheckbox(() => GlobalStats.DisableInhibitionWarning,       title: 1842, tooltip: 1843);
-            rest.AddCheckbox(() => GlobalStats.DisableVolcanoWarning,          title: 4254, tooltip: 4255);
+            rest.AddCheckbox(() => EmpireManager.Player.AutoPickBestColonizer, title: 1837, tooltip: GameText.TheBestColonyShipWill);
+            rest.AddCheckbox(() => EmpireManager.Player.AutoPickBestFreighter, title: 1958, tooltip: GameText.IfAutoTradeIsChecked);
+            rest.AddCheckbox(() => EmpireManager.Player.AutoResearch,          title: 6136, tooltip: GameText.YourEmpireWillAutomaticallySelect);
+            rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes,        title: 6138, tooltip: GameText.YourEmpireWillAutomaticallyManage3);
+            rest.AddCheckbox(() => RushConstruction,                           title: 1824, tooltip: GameText.RushAllConstructionTip);
+            rest.AddCheckbox(() => GlobalStats.SuppressOnBuildNotifications,   title: 1835, tooltip: GameText.NormallyWhenYouManuallyAdd);
+            rest.AddCheckbox(() => GlobalStats.DisableInhibitionWarning,       title: 1842, tooltip: GameText.InhibitionAlertsAreDisplayedWhen);
+            rest.AddCheckbox(() => GlobalStats.DisableVolcanoWarning,          title: 4254, tooltip: GameText.DisableVolcanoActivationOrDeactivation);
 
             UIList ticks = AddList(new Vector2(win.X + 10f, win.Y + 26f));
             ticks.Padding = new Vector2(2f, 10f);
 
             ScoutDropDown = ticks.Add(new CheckedDropdown())
-                .Create(() => EmpireManager.Player.AutoExplore, title:305, tooltip:2226);
+                .Create(() => EmpireManager.Player.AutoExplore, title:GameText.Autoexplore, tooltip:GameText.YourEmpireWillAutomaticallyManage);
 
             ColonyShipDropDown = ticks.Add(new CheckedDropdown())
-                .Create(() => EmpireManager.Player.AutoColonize, title:306, tooltip:2227);
+                .Create(() => EmpireManager.Player.AutoColonize, title:GameText.Autocolonize, tooltip:GameText.YourEmpireWillAutomaticallyCreate);
 
             ConstructorDropDown = ticks.Add(new CheckedDropdown())
-                .Create(() => EmpireManager.Player.AutoBuild, Localizer.Token(GameText.Autobuild) + " Projectors", 2228);
+                .Create(() => EmpireManager.Player.AutoBuild, Localizer.Token(GameText.Autobuild) + " Projectors", GameText.YourEmpireWillAutomaticallyCreate2);
 
             FreighterDropDown = ticks.Add(new CheckedDropdown())
-                .Create(() => EmpireManager.Player.AutoFreighters, title: 308, tooltip: 2229);
+                .Create(() => EmpireManager.Player.AutoFreighters, title: GameText.AutomaticTrade, tooltip: GameText.YourEmpireWillAutomaticallyManage2);
 
             // draw ordering is still imperfect, this is a hack
             ticks.ReverseZOrder();

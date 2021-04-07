@@ -97,11 +97,11 @@ namespace Ship_Game.GameScreens
             var taxTitle     = Player.data.AutoTaxes ? 6138 : 311;
 
             TaxSlider = tax.AddSlider(Localizer.Token(taxTitle), 0.25f);
-            TaxSlider.Tip = 66;
+            TaxSlider.Tip = GameText.TaxesAreCollectedFromYour;
             TaxSlider.OnChange = TaxSliderOnChange;
 
             TreasuryGoal = tax.AddSlider(Localizer.TreasuryGoal, 0.20f);
-            TreasuryGoal.Tip = 255;
+            TreasuryGoal.Tip = GameText.TreasuryGoalIsTheTarget;
             TreasuryGoal.OnChange = TreasurySliderOnChange;
             
 
@@ -128,9 +128,9 @@ namespace Ship_Game.GameScreens
         private void AutoTaxCheckBox(Rectangle footerRect)
         {
             var autoTax = Checkbox(new Vector2(footerRect.X, footerRect.Y)
-                , () => Player.data.AutoTaxes
-                , Localizer.AutoTaxes
-                , ToolTip.AutoTaxToolTip);
+                        , () => Player.data.AutoTaxes
+                        , GameText.AutoTaxes
+                        , GameText.YourEmpireWillAutomaticallyManage3);
 
             autoTax.OnChange = cb =>
             {
@@ -141,8 +141,7 @@ namespace Ship_Game.GameScreens
                 }
 
                 TaxSlider.Enabled = !cb.Checked;
-                var taxChange = Player.data.AutoTaxes ? Localizer.AutoTaxes : Localizer.BudgetScreenTaxSlider;
-                TaxSlider.Text = taxChange;
+                TaxSlider.Text = Player.data.AutoTaxes ? GameText.AutoTaxes : GameText.TaxRate;
             };
         }
 

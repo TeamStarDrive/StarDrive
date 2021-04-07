@@ -64,7 +64,7 @@ namespace Ship_Game.Ships
             var ti = new TippedItem
             {
                 r = Power,
-                TipId = 27
+                Tooltip = GameText.IndicatesThisShipsCurrentPower
             };
             ToolTipItems.Add(ti);
             Shields = new Rectangle(Housing.X + 187, Housing.Y + 110 + 20 + spacing, 20, 20);
@@ -76,7 +76,7 @@ namespace Ship_Game.Ships
             ti = new TippedItem
             {
                 r = Shields,
-                TipId = 28
+                Tooltip = GameText.IndicatesTheTotalPowerOf
             };
             ToolTipItems.Add(ti);
             Ordnance           = new Rectangle(Housing.X + 187, Housing.Y + 110 + 20 + spacing + 20 + spacing, 20, 20);
@@ -85,21 +85,21 @@ namespace Ship_Game.Ships
             ti                 = new TippedItem
             {
                 r = Ordnance,
-                TipId = 29
+                Tooltip = GameText.IndicatesThisShipsCurrentStores
             };
             ToolTipItems.Add(ti);
             DefenseRect = new Rectangle(Housing.X + 13, Housing.Y + 112, 22, 22);
             ti = new TippedItem
             {
                 r = DefenseRect,
-                TipId = 30
+                Tooltip = GameText.IndicatesThisShipsCurrentDefense
             };
             ToolTipItems.Add(ti);
             TroopRect = new Rectangle(Housing.X + 13, Housing.Y + 137, 22, 22);
             ti = new TippedItem
             {
                 r = TroopRect,
-                TipId = 37
+                Tooltip = GameText.IndicatesTheNumberOfTroops
             };
             ToolTipItems.Add(ti);
             ShipInfoRect = new Rectangle(Housing.X + 60, Housing.Y + 110, 115, 115);
@@ -115,7 +115,7 @@ namespace Ship_Game.Ships
         {
             float startX = pOrderRect.X - 15;
             var ordersBarPos = new Vector2(startX, (Ordnance.Y + Ordnance.Height + spacing + 3));
-            void AddOrderBtn(string icon, CombatState state, int toolTip)
+            void AddOrderBtn(string icon, CombatState state, ToolTipText toolTip)
             {
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon)
                 {
@@ -127,17 +127,17 @@ namespace Ship_Game.Ships
                 ordersBarPos.X += 25f;
             }
 
-            AddOrderBtn("SelectionBox/icon_formation_headon", CombatState.AttackRuns, toolTip: 1);
-            AddOrderBtn("SelectionBox/icon_grid", CombatState.ShortRange,          toolTip: 228);
-            AddOrderBtn("SelectionBox/icon_formation_aft", CombatState.Artillery, toolTip: 2);
-            AddOrderBtn("SelectionBox/icon_formation_x", CombatState.HoldPosition, toolTip: 65);
-            AddOrderBtn("SelectionBox/icon_formation_left", CombatState.OrbitLeft,  toolTip: 3);
-            AddOrderBtn("SelectionBox/icon_formation_right", CombatState.OrbitRight, toolTip: 4);
-            AddOrderBtn("SelectionBox/icon_formation_stop", CombatState.Evade,  toolTip: 6);
+            AddOrderBtn("SelectionBox/icon_formation_headon", CombatState.AttackRuns, toolTip: GameText.ShipWillMakeHeadonAttack);
+            AddOrderBtn("SelectionBox/icon_grid", CombatState.ShortRange,          toolTip: GameText.ShipWillRotateSoThat2);
+            AddOrderBtn("SelectionBox/icon_formation_aft", CombatState.Artillery, toolTip: GameText.ShipWillRotateSoThat);
+            AddOrderBtn("SelectionBox/icon_formation_x", CombatState.HoldPosition, toolTip: GameText.ShipWillAttemptToHold);
+            AddOrderBtn("SelectionBox/icon_formation_left", CombatState.OrbitLeft,  toolTip: GameText.ShipWillManeuverToKeep);
+            AddOrderBtn("SelectionBox/icon_formation_right", CombatState.OrbitRight, toolTip: GameText.ShipWillManeuverToKeep2);
+            AddOrderBtn("SelectionBox/icon_formation_stop", CombatState.Evade,  toolTip: GameText.ShipWillAvoidEngagingIn);
 
             ordersBarPos = new Vector2(startX + 4*25f, ordersBarPos.Y + 25f);
-            AddOrderBtn("SelectionBox/icon_formation_bleft", CombatState.BroadsideLeft,  toolTip: 159);
-            AddOrderBtn("SelectionBox/icon_formation_bright", CombatState.BroadsideLeft, toolTip: 160);
+            AddOrderBtn("SelectionBox/icon_formation_bleft", CombatState.BroadsideLeft,  toolTip: GameText.ShipWillMoveWithinMaximum);
+            AddOrderBtn("SelectionBox/icon_formation_bright", CombatState.BroadsideLeft, toolTip: GameText.ShipWillMoveWithinMaximum2);
         }
 
         void OnOrderButtonClicked(CombatState state)
@@ -257,7 +257,7 @@ namespace Ship_Game.Ships
             batch.Draw(ResourceManager.Texture("UI/icon_experience_shipUI"), star, Color.White);
             batch.DrawString(Fonts.Arial12Bold, Ship.Level.ToString(), levelPos, Color.White);
             if (star.HitTest(mousePos))
-                ToolTip.CreateTooltip(161);
+                ToolTip.CreateTooltip(GameText.IndicatesAShipsExperienceLevel2);
 
             //Added by McShooterz: kills display
             star       = new Rectangle(star.X, star.Y + 19, 22, 22);
@@ -397,7 +397,7 @@ namespace Ship_Game.Ships
                         (int)font.MeasureString(text).X, (int)font.MeasureString(text).Y);
 
             batch.DrawString(Fonts.Arial20Bold, text, rect.PosVec(), Screen.CurrentFlashColorRed);
-            if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(1841);
+            if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(GameText.ThisShipIsInhibitedAnd);
 
             Planet p = Ship.System?.IdentifyGravityWell(Ship);
             if (p == null)
@@ -599,7 +599,7 @@ namespace Ship_Game.Ships
             foreach (TippedItem tippedItem in ToolTipItems)
             {
                 if (tippedItem.r.HitTest(input.CursorPosition))
-                    ToolTip.CreateTooltip(tippedItem.TipId);
+                    ToolTip.CreateTooltip(tippedItem.Tooltip);
             }
                
             if (ElementRect.HitTest(input.CursorPosition))
@@ -645,7 +645,7 @@ namespace Ship_Game.Ships
             }
             if (Ship.shipData.Role > ShipData.RoleName.station)
             {
-                OrdersButton resupply = new OrdersButton(Ship, Vector2.Zero, OrderType.OrderResupply, 149)
+                OrdersButton resupply = new OrdersButton(Ship, Vector2.Zero, OrderType.OrderResupply, GameText.OrdersSelectedShipOrShips)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.DoingResupply, x => Ship.DoingResupply = x)
                 };
@@ -657,7 +657,7 @@ namespace Ship_Game.Ships
 
             if (Ship.IsFreighter)
             {
-                var ao = new OrdersButton(Ship, Vector2.Zero, OrderType.DefineAO, 15)
+                var ao = new OrdersButton(Ship, Vector2.Zero, OrderType.DefineAO, GameText.AllowsYouToCustomizeAn)
                 {
                     ValueToModify = new Ref<bool>(() => Screen.DefiningAO, x => {
                         Screen.DefiningAO = x;
@@ -665,27 +665,27 @@ namespace Ship_Game.Ships
                     })
                 };
                 Orders.Add(ao);
-                var tradeFood = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeFood, 16)
+                var tradeFood = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeFood, GameText.ManualTradeOrdersThisFreighter2)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.TransportingFood),
                 };
                 Orders.Add(tradeFood);
-                var tradeProduction = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeProduction, 17)
+                var tradeProduction = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeProduction, GameText.ManualTradeOrdersThisFreighter3)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.TransportingProduction)
                 };
                 Orders.Add(tradeProduction);
-                var transportColonists = new OrdersButton(Ship, Vector2.Zero, OrderType.TransportColonists, 137)
+                var transportColonists = new OrdersButton(Ship, Vector2.Zero, OrderType.TransportColonists, GameText.ManualTradeOrdersThisFreighter)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.TransportingColonists)
                 };
                 Orders.Add(transportColonists);
-                var allowInterEmpireTrade = new OrdersButton(Ship, Vector2.Zero, OrderType.AllowInterTrade, 252)
+                var allowInterEmpireTrade = new OrdersButton(Ship, Vector2.Zero, OrderType.AllowInterTrade, GameText.ManualTradeAllowSelectedFreighters)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.AllowInterEmpireTrade)
                 };
                 Orders.Add(allowInterEmpireTrade);
-                var tradeRoutes = new OrdersButton(Ship, Vector2.Zero, OrderType.DefineTradeRoutes, 253)
+                var tradeRoutes = new OrdersButton(Ship, Vector2.Zero, OrderType.DefineTradeRoutes, GameText.ChooseAListOfPlanets)
                 {
                     ValueToModify = new Ref<bool>(() => Screen.DefiningTradeRoutes, x => { Screen.DefiningTradeRoutes = x; })
                 };
@@ -693,13 +693,13 @@ namespace Ship_Game.Ships
             }
             if (Ship.Carrier.HasTroopBays)
             {
-                var ob = new OrdersButton(Ship, Vector2.Zero, OrderType.SendTroops, 18)
+                var ob = new OrdersButton(Ship, Vector2.Zero, OrderType.SendTroops, GameText.SendTroopsToThisShip)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.Carrier.SendTroopsToShip)
                 };
                 Orders.Add(ob);
 
-                var ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.TroopToggle, 225)
+                var ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.TroopToggle, GameText.TogglesWhetherThisShipsAssault)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.Carrier.TroopsOut, x => {
                         Ship.Carrier.TroopsOut = !Ship.Carrier.TroopsOut;
@@ -710,7 +710,7 @@ namespace Ship_Game.Ships
             
             if (Ship.Carrier.HasFighterBays)
             {
-                var ob = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterToggle, 19)
+                var ob = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterToggle, GameText.WhenActiveAllAvailableFighters)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.Carrier.FightersOut, x =>
                     {
@@ -722,7 +722,7 @@ namespace Ship_Game.Ships
 
             if (Ship.shipData.Role != ShipData.RoleName.station && (Ship.Carrier.HasTroopBays || Ship.Carrier.HasFighterBays))
             {
-                var ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterRecall, 146)
+                var ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterRecall, GameText.ClickToToggleWhetherThis)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.Carrier.RecallFightersBeforeFTL, x =>
                         {
@@ -736,7 +736,7 @@ namespace Ship_Game.Ships
 
             if (Ship.shipData.Role >= ShipData.RoleName.fighter && Ship.Mothership == null && Ship.AI.State != AIState.Colonize && Ship.shipData.ShipCategory != ShipData.Category.Civilian)
             {
-                var exp = new OrdersButton(Ship, Vector2.Zero, OrderType.Explore, 136)
+                var exp = new OrdersButton(Ship, Vector2.Zero, OrderType.Explore, GameText.OrdersThisShipToExplore)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.DoingExplore, x => Ship.DoingExplore = x)
                 };
@@ -752,13 +752,13 @@ namespace Ship_Game.Ships
             }
             if (Ship.CanBeScrapped)
             {
-                var rf = new OrdersButton(Ship, Vector2.Zero, OrderType.Refit, 158)
+                var rf = new OrdersButton(Ship, Vector2.Zero, OrderType.Refit, GameText.OrderShipRefit)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.DoingRefit, x => Ship.DoingRefit = x),
                     Active = false
                 };
                 Orders.Add(rf);
-                var sc = new OrdersButton(Ship, Vector2.Zero, OrderType.Scrap, 157)
+                var sc = new OrdersButton(Ship, Vector2.Zero, OrderType.Scrap, GameText.OrderShipBackToThe)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.DoingScrap, x => Ship.DoingScrap = x),
                     Active = false
@@ -785,7 +785,7 @@ namespace Ship_Game.Ships
         private struct TippedItem
         {
             public Rectangle r;
-            public int TipId;
+            public ToolTipText Tooltip;
         }
     }
 }

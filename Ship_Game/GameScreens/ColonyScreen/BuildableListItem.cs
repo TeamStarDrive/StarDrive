@@ -40,8 +40,8 @@ namespace Ship_Game
         {
             Screen = screen;
             LowRes = screen.LowRes;
-            if (plus) AddPlus(new Vector2(LowRes ? -36 : -50, 0), /*Add to Q: */51, OnPlusClicked);
-            if (edit) AddEdit(new Vector2(LowRes ? -14 : -20, 0), /*Edit Ship:*/52, OnEditClicked);
+            if (plus) AddPlus(new Vector2(LowRes ? -36 : -50, 0), GameText.AddThisItemToThe, OnPlusClicked);
+            if (edit) AddEdit(new Vector2(LowRes ? -14 : -20, 0), GameText.EditThisShipInThe, OnEditClicked);
         }
 
         void OnPlusClicked()

@@ -80,8 +80,8 @@ namespace Ship_Game.GameScreens.Espionage
             {
                 Toggled = true
             };
-            Checkbox(OpsSubRect.X - 10, RecruitButton.r.Y,      () => EmpireManager.Player.data.SpyMissionRepeat, "Repeat Missions", 0);
-            Checkbox(OpsSubRect.X - 10, RecruitButton.r.Y + 15, () => EmpireManager.Player.data.SpyMute,          "Mute Spies",      0);
+            Checkbox(OpsSubRect.X - 10, RecruitButton.r.Y,      () => EmpireManager.Player.data.SpyMissionRepeat, "Repeat Missions", "");
+            Checkbox(OpsSubRect.X - 10, RecruitButton.r.Y + 15, () => EmpireManager.Player.data.SpyMute,          "Mute Spies",      "");
             //PerformLayout();
         }
 

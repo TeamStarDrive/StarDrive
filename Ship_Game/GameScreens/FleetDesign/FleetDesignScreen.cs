@@ -191,7 +191,7 @@ namespace Ship_Game
             SelectedStuffRect = new Rectangle(ScreenWidth / 2 - 220, -13 + ScreenHeight - 200, 440, 210);
 
             var ordersBarPos = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 65);
-            void AddOrdersBtn(CombatState state, string icon, int toolTip)
+            void AddOrdersBtn(CombatState state, string icon, ToolTipText toolTip)
             {
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon)
                 {
@@ -205,16 +205,16 @@ namespace Ship_Game
                 ordersBarPos.X += 29f;
             }
 
-            AddOrdersBtn(CombatState.AttackRuns,   "SelectionBox/icon_formation_headon", toolTip: 1);
-            AddOrdersBtn(CombatState.Artillery,    "SelectionBox/icon_formation_aft",    toolTip: 2);
-            AddOrdersBtn(CombatState.HoldPosition, "SelectionBox/icon_formation_x",      toolTip: 65);
-            AddOrdersBtn(CombatState.OrbitLeft,    "SelectionBox/icon_formation_left",   toolTip: 3);
-            AddOrdersBtn(CombatState.OrbitRight,   "SelectionBox/icon_formation_right",  toolTip: 4);
-            AddOrdersBtn(CombatState.Evade,        "SelectionBox/icon_formation_stop",   toolTip: 6);
+            AddOrdersBtn(CombatState.AttackRuns,   "SelectionBox/icon_formation_headon", toolTip: GameText.ShipWillMakeHeadonAttack);
+            AddOrdersBtn(CombatState.Artillery,    "SelectionBox/icon_formation_aft",    toolTip: GameText.ShipWillRotateSoThat);
+            AddOrdersBtn(CombatState.HoldPosition, "SelectionBox/icon_formation_x",      toolTip: GameText.ShipWillAttemptToHold);
+            AddOrdersBtn(CombatState.OrbitLeft,    "SelectionBox/icon_formation_left",   toolTip: GameText.ShipWillManeuverToKeep);
+            AddOrdersBtn(CombatState.OrbitRight,   "SelectionBox/icon_formation_right",  toolTip: GameText.ShipWillManeuverToKeep2);
+            AddOrdersBtn(CombatState.Evade,        "SelectionBox/icon_formation_stop",   toolTip: GameText.ShipWillAvoidEngagingIn);
 
             ordersBarPos = new Vector2(SelectedStuffRect.X + 20 + 3*29f, ordersBarPos.Y + 29f);
-            AddOrdersBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft",  toolTip: 159);
-            AddOrdersBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", toolTip: 160);
+            AddOrdersBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft",  toolTip: GameText.ShipWillMoveWithinMaximum);
+            AddOrdersBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", toolTip: GameText.ShipWillMoveWithinMaximum2);
 
 
             RequisitionForces = new BlueButton(new Vector2(SelectedStuffRect.X + 240, SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20), "Requisition...");
@@ -227,44 +227,44 @@ namespace Ship_Game
             var assistRect = new Rectangle(OperationsRect.X + 15, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 150, 40);
             SliderAssist = new WeightSlider(assistRect, "Assist Nearby Weight")
             {
-                Tip_ID = 7
+                Tooltip = GameText.AMeasureOfHowCooperative
             };
             var defenderRect = new Rectangle(OperationsRect.X + 15, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 70, 150, 40);
             SliderDefend = new WeightSlider(defenderRect, "Defend Nearby Weight")
             {
-                Tip_ID = 8
+                Tooltip = GameText.AMeasureOfHowProtective
             };
             var vultureRect = new Rectangle(OperationsRect.X + 15, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 120, 150, 40);
             SliderVulture = new WeightSlider(vultureRect, "Target Damaged Weight")
             {
-                Tip_ID = 9
+                Tooltip = GameText.AMeasureOfHowOpportunistic
             };
             var armoredRect = new Rectangle(OperationsRect.X + 15 + 180, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 150, 40);
             SliderArmor = new WeightSlider(armoredRect, "Target Armored Weight")
             {
-                Tip_ID = 10
+                Tooltip = GameText.TheWeightGivenToTargeting
             };
             var shieldedRect = new Rectangle(OperationsRect.X + 15 + 180, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 70, 150, 40);
             SliderShield = new WeightSlider(shieldedRect, "Target Shielded Weight")
             {
-                Tip_ID = 11
+                Tooltip = GameText.TheWeightGivenToTargeting2
             };
             var dpsRect = new Rectangle(OperationsRect.X + 15 + 180, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 120, 150, 40);
             SliderDps = new WeightSlider(dpsRect, "Target DPS Weight")
             {
-                Tip_ID = 12
+                Tooltip = GameText.TheWeightGivenToTargeting3
             };
             PrioritiesRect = new Rectangle(SelectedStuffRect.X - OperationsRect.Width - 2, OperationsRect.Y, OperationsRect.Width, OperationsRect.Height);
             var oprect = new Rectangle(PrioritiesRect.X + 15, PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 300, 40);
             OperationalRadius = new FloatSlider(oprect, "Operational Radius", max: 500000, value: 10000)
             {
                 RelativeValue = 0.2f,
-                Tip = 13
+                Tip = GameText.DefinesTheAreaInWhich
             };
             var sizerect = new Rectangle(PrioritiesRect.X + 15, PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 70, 300, 40);
             SliderSize = new SizeSlider(sizerect, "Target UniverseRadius Preference");
             SliderSize.SetAmount(0.5f);
-            SliderSize.Tip_ID = 14;
+            SliderSize.Tooltip = GameText.DeterminesWhetherAShipPrefers;
             StarField = new StarField(this);
             Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, Viewport.AspectRatio, 100f, 15000f);
             foreach (Ship ship in SelectedFleet.Ships)

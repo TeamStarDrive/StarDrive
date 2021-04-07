@@ -39,8 +39,6 @@ namespace Ship_Game
         public static void PlanetLandingSpotsTip(string locationText, int spots)
             => CreateTooltip($"{locationText}\n{spots} Landing Spots");
 
-        public static int AutoTaxToolTip => 7040;
-
         // Allows a tool tip which floats regardless of hovering on the position
         public static void CreateFloatingText(in ToolTipText tip, string hotKey, Vector2? position, float lifeTime) 
             => CreateTooltip(tip, hotKey, position, lifeTime);

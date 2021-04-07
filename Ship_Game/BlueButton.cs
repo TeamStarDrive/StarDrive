@@ -16,7 +16,7 @@ namespace Ship_Game
 
 		public object Value;
 
-		public int Tip_ID;
+		public ToolTipText Tooltip;
 
 		private Vector2 TextPos;
 
@@ -41,9 +41,9 @@ namespace Ship_Game
 			{
 				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover2"), Button, Color.White);
 			}
-			if (Hover && Tip_ID != 0)
+			if (Hover && Tooltip.IsValid)
 			{
-				ToolTip.CreateTooltip(Tip_ID);
+				ToolTip.CreateTooltip(Tooltip);
 			}
 			ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, Text, TextPos, Color.White);
 		}
@@ -63,9 +63,9 @@ namespace Ship_Game
 			{
 				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover2"), b, Color.White);
 			}
-			if (Hover && Tip_ID != 0)
+			if (Hover && Tooltip.IsValid)
 			{
-				ToolTip.CreateTooltip(Tip_ID);
+				ToolTip.CreateTooltip(Tooltip);
 			}
 			ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, Text, TextPos, Color.White);
 		}

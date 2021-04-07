@@ -233,7 +233,7 @@ namespace Ship_Game
                 return true;
 
             if (ArcsButton.R.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(134, "Tab");
+                ToolTip.CreateTooltip(GameText.TogglesTheWeaponFireArc, "Tab");
 
             if (ArcsButton.HandleInput(input))
             {
@@ -377,7 +377,7 @@ namespace Ship_Game
                 return false ;
 
             if (DesignIssuesButton.R.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(2546);
+                ToolTip.CreateTooltip(GameText.StatesAnyDesignIssuesThe);
 
 
             if (DesignIssues.CurrentWarningLevel > ShipDesignIssues.WarningLevel.Informative 

@@ -117,10 +117,10 @@ namespace Ship_Game
             CancelProdHover = CancelProductionRect.HitTest(input.CursorPosition);
 
             if (ApplyProductionRect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(50);
+                ToolTip.CreateTooltip(GameText.ClickToRushProductionFrom);
 
             if (CancelProductionRect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(53);
+                ToolTip.CreateTooltip(GameText.CancelProductionAndRemoveThis);
 
             if (input.LeftMouseClick)
             {
@@ -332,12 +332,13 @@ namespace Ship_Game
 
             if (FoodStorageIcon.HitTest(Screen.Input.CursorPosition))
             {
-                ToolTip.CreateTooltip(P.Owner.IsCybernetic ? 77 : 73);
+                ToolTip.CreateTooltip(P.Owner.IsCybernetic ? GameText.YourPeopleAreCyberneticAnd
+                                                           : GameText.IndicatesTheAmountOfFood);
             }
 
             if (ProdStorageIcon.HitTest(Screen.Input.CursorPosition))
             {
-                ToolTip.CreateTooltip(74);
+                ToolTip.CreateTooltip(GameText.IndicatesTheAmountOfProduction);
             }
         }
 
