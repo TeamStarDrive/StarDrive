@@ -33,11 +33,11 @@ namespace Ship_Game
             TimeLeftLabel = TimeLeft.Label(labelPos, "", Fonts.Verdana14Bold, new Color(205, 229, 255));
 
             CurrentResearchPanel = Add(new Submenu(current, SubmenuStyle.Blue));
-            CurrentResearchPanel.AddTab(Localizer.Token(1405));
+            CurrentResearchPanel.AddTab(Localizer.Token(GameText.CurrentResearch));
             
             var queue = new Rectangle(current.X, current.Y + 165, container.Width, container.Height - 165);
             var queuePanel = new Submenu(queue, SubmenuStyle.Blue);
-            queuePanel.AddTab(Localizer.Token(1404));
+            queuePanel.AddTab(Localizer.Token(GameText.ResearchQueue));
             ResearchQueueList = Add(new ScrollList2<ResearchQItem>(queuePanel, 125, ListStyle.Blue));
             // FB Disabled due to being able to drag stuff to be before other research mandatory for it.
             //ResearchQueueList.OnDragReorder = OnResearchItemReorder; 

@@ -589,7 +589,7 @@ namespace Ship_Game
             cursor1 = new Vector2(PrioritiesRect.X + 20, PrioritiesRect.Y + 10);
             batch.DrawString(Fonts.Pirulen12, "Fleet Design Overview", cursor1, Colors.Cream);
             cursor1.Y = cursor1.Y + (Fonts.Pirulen12.LineSpacing + 2);
-            string txt0 = Localizer.Token(4043);
+            string txt0 = Localizer.Token(GameText.AddShipDesignsToThis);
             txt0 = Fonts.Arial12Bold.ParseText(txt0, PrioritiesRect.Width - 40);
             batch.DrawString(Fonts.Arial12Bold, txt0, cursor1, Colors.Cream);
         }

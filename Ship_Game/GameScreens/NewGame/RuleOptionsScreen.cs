@@ -67,10 +67,10 @@ namespace Ship_Game
             CloseButton(leftRect.X + leftRect.Width - 40, leftRect.Y + 20);
 
             var ftlRect = new Rectangle(x, leftRect.Y + 100, 270, 50);
-            FTLPenaltySlider = SliderPercent(ftlRect, Localizer.Token(4007), 0f, 1f, GlobalStats.FTLInSystemModifier);
+            FTLPenaltySlider = SliderPercent(ftlRect, Localizer.Token(GameText.InsystemFtlSpeedModifier), 0f, 1f, GlobalStats.FTLInSystemModifier);
 
             var eftlRect = new Rectangle(x, leftRect.Y + 150, 270, 50);
-            EnemyFTLPenaltySlider = SliderPercent(eftlRect, Localizer.Token(6139), 0f, 1f, GlobalStats.EnemyFTLInSystemModifier);
+            EnemyFTLPenaltySlider = SliderPercent(eftlRect, Localizer.Token(GameText.InsystemEnemyFtlSpeedModifier), 0f, 1f, GlobalStats.EnemyFTLInSystemModifier);
             int indent = (int)(width / 4.5f); 
             Checkbox(ftlRect.X + indent, ftlRect.Y, () => GlobalStats.PlanetaryGravityWells, title: 4008, tooltip: 2288);
             Checkbox(ftlRect.X + indent, ftlRect.Y + 25, () => GlobalStats.PreventFederations,    title: 6022, tooltip: 7011);
@@ -80,10 +80,10 @@ namespace Ship_Game
             Checkbox(ftlRect.X + indent, ftlRect.Y + 125, () => GlobalStats.DisableRemnantStory, title: 1844, tooltip: 1845);
 
             var mdRect = new Rectangle(ftlRect.X + indent+2, ftlRect.Y + 170, 270, 50);
-            CustomMineralDecay = SliderDecimal1(mdRect, Localizer.Token(4115), 0.5f, 3, GlobalStats.CustomMineralDecay);
+            CustomMineralDecay = SliderDecimal1(mdRect, Localizer.Token(GameText.MineralDecayRate), 0.5f, 3, GlobalStats.CustomMineralDecay);
 
             var vaRect = new Rectangle(ftlRect.X + indent + 2, ftlRect.Y + 230, 270, 50);
-            VolcanicActivity = SliderDecimal1(vaRect, Localizer.Token(4274), 0.5f, 3, GlobalStats.VolcanicActivity);
+            VolcanicActivity = SliderDecimal1(vaRect, Localizer.Token(GameText.VolcanicActivity), 0.5f, 3, GlobalStats.VolcanicActivity);
 
             var gwRect = new Rectangle(x, leftRect.Y + 210, 270, 50);
             var epRect = new Rectangle(x, leftRect.Y + 270, 270, 50);
@@ -108,9 +108,9 @@ namespace Ship_Game
             CustomMineralDecay.Tip    = 4116;
             VolcanicActivity.Tip      = 4275;
 
-            string extraPlanetsTip = Localizer.Token(4119);
+            string extraPlanetsTip = Localizer.Token(GameText.AddExtraPlanetsToEach);
             if (GlobalStats.ModChangeResearchCost)
-                extraPlanetsTip = $"{extraPlanetsTip} {Localizer.Token(4120)}";
+                extraPlanetsTip = $"{extraPlanetsTip} {Localizer.Token(GameText.ThisWillSlightlyIncreaseResearch)}";
 
             ExtraPlanets.Tip        = extraPlanetsTip;
             MinimumWarpRange.Tip    = new LocalizedText(4124);
@@ -121,7 +121,7 @@ namespace Ship_Game
 
 
             Label(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40, new LocalizedText(4129), Fonts.Arial20Bold);
-            string text = Fonts.Arial12.ParseText(Localizer.Token(2289), MainMenu.Menu.Width - 80);
+            string text = Fonts.Arial12.ParseText(Localizer.Token(GameText.InThisPanelYouMay), MainMenu.Menu.Width - 80);
             Label(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40 + Fonts.Arial20Bold.LineSpacing + 2, text, Fonts.Arial12);
         }
     }

@@ -199,9 +199,9 @@ namespace Ship_Game
             if (!P.IsExploredBy(EmpireManager.Player))
             {
                 batch.DrawString(Fonts.Arial20Bold,
-                    Localizer.Token(1429) + P.LocalizedCategory, namePos, tColor);
+                    Localizer.Token(GameText.Unexplored) + P.LocalizedCategory, namePos, tColor);
 
-                string text = Localizer.Token(1430);
+                string text = Localizer.Token(GameText.SendAShipToThis);
                 var cursor = new Vector2(Housing.X + 20, Housing.Y + 115);
                 batch.DrawString(Fonts.Arial12Bold, text, cursor, tColor);
                 return true;
@@ -210,7 +210,7 @@ namespace Ship_Game
             if (!P.Habitable)
             {
                 batch.DrawString(Fonts.Arial20Bold, P.Name, namePos, tColor);
-                string text = Localizer.Token(1427);
+                string text = Localizer.Token(GameText.ThisPlanetIsNotHabitable);
                 Vector2 cursor = new Vector2(Housing.X + 20, Housing.Y + 115);
                 batch.DrawString(Fonts.Arial12Bold, text, cursor, tColor);
                 return true;

@@ -79,30 +79,30 @@ namespace Ship_Game
             
             var PNameCursor = new Vector2(PlanetIconRect.X + PlanetIconRect.Width + 5, nameCursor.Y + 20f);
             var InfoCursor = new Vector2(PNameCursor.X + 80f, PNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(384)+":", PNameCursor, Color.Orange);
+            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Class)+":", PNameCursor, Color.Orange);
             batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.CategoryName, InfoCursor, Cream);
             PNameCursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
             
             InfoCursor = new Vector2(PNameCursor.X + 80f, PNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(385)+":", PNameCursor, Color.Orange);
+            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Population)+":", PNameCursor, Color.Orange);
             batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.PopulationStringForPlayer, InfoCursor, Cream);
-            var hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(385)+":").X, Fonts.Arial12Bold.LineSpacing);
+            var hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Population)+":").X, Fonts.Arial12Bold.LineSpacing);
             if (hoverRect.HitTest(Input.CursorPosition))
                 ToolTip.CreateTooltip(75);
 
             PNameCursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
             InfoCursor = new Vector2(PNameCursor.X + 80f, PNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(386)+":", PNameCursor, Color.Orange);
+            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Fertility)+":", PNameCursor, Color.Orange);
             batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.FertilityFor(EmpireManager.Player).String(), InfoCursor, Cream);
-            hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(386)+":").X, Fonts.Arial12Bold.LineSpacing);
+            hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Fertility)+":").X, Fonts.Arial12Bold.LineSpacing);
             if (hoverRect.HitTest(MousePos))
                 ToolTip.CreateTooltip(20);
 
             PNameCursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
             InfoCursor = new Vector2(PNameCursor.X + 80f, PNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(387)+":", PNameCursor, Color.Orange);
+            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Richness)+":", PNameCursor, Color.Orange);
             batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.MineralRichness.String(), InfoCursor, Cream);
-            hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(387)+":").X, Fonts.Arial12Bold.LineSpacing);
+            hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Richness)+":").X, Fonts.Arial12Bold.LineSpacing);
             if (hoverRect.HitTest(MousePos))
             {
                 ToolTip.CreateTooltip(21);
@@ -174,9 +174,9 @@ namespace Ship_Game
                 SubTexture iconRes     = ResourceManager.Texture("NewUI/icon_science");
                 SubTexture iconMoney   = ResourceManager.Texture("NewUI/icon_money");
 
-                batch.DrawString(NormalFont, Localizer.Token(192), textCursor, Cream);
+                batch.DrawString(NormalFont, Localizer.Token(GameText.System), textCursor, Cream);
                 textCursor = new Vector2(entry.PlanetNameRect.X + 30, eRect.Y);
-                batch.DrawString(NormalFont, Localizer.Token(389), textCursor, Cream);
+                batch.DrawString(NormalFont, Localizer.Token(GameText.Planet), textCursor, Cream);
                 SbPop.rect   = DrawStatTexture(entry.PopRect.X, (int)textCursor.Y, iconPop);
                 SbFood.rect  = DrawStatTexture(entry.FoodRect.X, (int)textCursor.Y, iconFood);
                 SbProd.rect  = DrawStatTexture(entry.ProdRect.X, (int)textCursor.Y, iconProd);
@@ -188,11 +188,11 @@ namespace Ship_Game
                 batch.Draw(iconRes, SbRes.rect, White);
                 batch.Draw(iconMoney, SbMoney.rect, White);
                 textCursor = new Vector2(entry.SliderRect.X + 30, eRect.Y);
-                batch.DrawString(NormalFont, Localizer.Token(390), textCursor, Cream);
+                batch.DrawString(NormalFont, Localizer.Token(GameText.Labor), textCursor, Cream);
                 textCursor = new Vector2(entry.StorageRect.X + 30, eRect.Y);
-                batch.DrawString(NormalFont, Localizer.Token(391), textCursor, Cream);
+                batch.DrawString(NormalFont, Localizer.Token(GameText.Storage2), textCursor, Cream);
                 textCursor = new Vector2(entry.QueueRect.X + 30, eRect.Y);
-                batch.DrawString(NormalFont, Localizer.Token(392), textCursor, Cream);
+                batch.DrawString(NormalFont, Localizer.Token(GameText.Construction2), textCursor, Cream);
             }
 
             var lineColor = new Color(118, 102, 67, 255);

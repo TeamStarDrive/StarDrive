@@ -782,7 +782,7 @@ namespace Ship_Game
             if (BackgroundTask.IsComplete)
             {
                 position.Y = (float)(position.Y - Fonts.Pirulen16.LineSpacing - 10.0);
-                string token = Localizer.Token(2108);
+                string token = Localizer.Token(GameText.ClickToContinue);
                 position.X = ScreenCenter.X - Fonts.Pirulen16.MeasureString(token).X / 2f;
 
                 GameTime gameTime = Game1.Instance.GameTime;

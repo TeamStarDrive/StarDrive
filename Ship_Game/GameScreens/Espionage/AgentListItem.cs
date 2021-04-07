@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -34,7 +34,7 @@ namespace Ship_Game.GameScreens.Espionage
                 {
                     Vector2 targetCursor = namecursor;
                     targetCursor.X += 75f;
-                    string mission = Localizer.Token(2199) + ": " +
+                    string mission = Localizer.Token(GameText.Target) + ": " +
                                      EmpireManager.GetEmpireByName(Agent.TargetEmpire).data.Traits.Plural;
                     batch.DrawString(Fonts.Arial12, mission, targetCursor, Color.Gray);
                 }
@@ -42,7 +42,7 @@ namespace Ship_Game.GameScreens.Espionage
                 {
                     Vector2 targetCursor = namecursor;
                     targetCursor.X += 75f;
-                    string mission = Localizer.Token(2199) + ": " + Empire.Universe.PlanetsDict[Agent.TargetGUID].Name;
+                    string mission = Localizer.Token(GameText.Target) + ": " + Empire.Universe.PlanetsDict[Agent.TargetGUID].Name;
                     batch.DrawString(Fonts.Arial12, mission, targetCursor, Color.Gray);
                 }
 
@@ -50,7 +50,7 @@ namespace Ship_Game.GameScreens.Espionage
                 {
                     Vector2 turnsCursor = namecursor;
                     turnsCursor.X += 193f;
-                    string mission = Localizer.Token(2200) + ": " + Agent.TurnsRemaining;
+                    string mission = Localizer.Token(GameText.Turns) + ": " + Agent.TurnsRemaining;
                     batch.DrawString(Fonts.Arial12, mission, turnsCursor, Color.Gray);
                 }
             }

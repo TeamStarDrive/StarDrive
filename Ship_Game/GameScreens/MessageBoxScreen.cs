@@ -29,7 +29,7 @@ namespace Ship_Game
 
         public MessageBoxScreen(GameScreen parent, string message,
                                 MessageBoxButtons buttons = MessageBoxButtons.Default, int width = 270)
-            : this(parent, message, Localizer.Token(15), Localizer.Token(16), buttons, width)
+            : this(parent, message, Localizer.Token(GameText.Ok), Localizer.Token(GameText.Cancel), buttons, width)
         {
         }
 
@@ -40,7 +40,7 @@ namespace Ship_Game
 
         public MessageBoxScreen(GameScreen parent, string message, float timer,
                                 MessageBoxButtons buttons = MessageBoxButtons.Default)
-            : this(parent, message, Localizer.Token(15), Localizer.Token(16), buttons)
+            : this(parent, message, Localizer.Token(GameText.Ok), Localizer.Token(GameText.Cancel), buttons)
         {
             Timed = true;
             Timer = timer;
@@ -118,7 +118,7 @@ namespace Ship_Game
             Timer -= elapsed.RealTime.Seconds;
             if (Timed && !IsExiting)
             {
-                ToAppend = string.Concat(" ", Timer.String(0), " ", Localizer.Token(17));
+                ToAppend = string.Concat(" ", Timer.String(0), " ", Localizer.Token(GameText.Seconds));
                 if (Timer <= 0f)
                 {
                     Cancelled?.Invoke();

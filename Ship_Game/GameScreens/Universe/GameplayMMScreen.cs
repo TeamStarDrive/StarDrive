@@ -86,8 +86,8 @@ namespace Ship_Game
         {
             ScreenManager.AddScreen(new OptionsScreen(universe: screen)
             {
-                TitleText  = Localizer.Token(4),
-                MiddleText = Localizer.Token(4004)
+                TitleText  = Localizer.Token(GameText.Options),
+                MiddleText = Localizer.Token(GameText.ChangeAudioVideoAndGameplay)
             });
         }
 

@@ -728,7 +728,7 @@ namespace Ship_Game
 
             var cursorReq = new Vector2(StatsSub.X - 180, ShipStats.Y + Fonts.Arial12Bold.LineSpacing + 5);
 
-            DrawCompletion(ref cursorReq, Localizer.Token(121), numSlots, size, 1982);
+            DrawCompletion(ref cursorReq, Localizer.Token(GameText.NoEmptySlots), numSlots, size, 1982);
             CheckDesignIssues();
 
             void CheckDesignIssues()
@@ -884,7 +884,7 @@ namespace Ship_Game
                 return;
 
             string warpString = warpSpeed.GetNumberString();
-            DrawStatPropulsion(ref cursor, Localizer.Token(2170) + ":", warpString, 135);
+            DrawStatPropulsion(ref cursor, Localizer.Token(GameText.FtlSpeed) + ":", warpString, 135);
         }
 
         void DrawEmpAndEcm(ref Vector2 cursor, float empResist, float totalEcm)
@@ -987,7 +987,7 @@ namespace Ship_Game
                     || bonus.FireRateBonus != 0 || bonus.RepairBonus != 0
                     || bonus.CostBonus != 0)
                 {
-                    DrawString(cursor, Color.Orange, Localizer.Token(6015), Fonts.Verdana14Bold);
+                    DrawString(cursor, Color.Orange, Localizer.Token(GameText.HullBonus), Fonts.Verdana14Bold);
                     cursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
                 }
 

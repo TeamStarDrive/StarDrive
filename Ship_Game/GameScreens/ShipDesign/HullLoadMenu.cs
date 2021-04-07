@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
@@ -20,7 +20,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             Screen = screen;
             var background = new Submenu(Screen.ScreenWidth - 285, 100, 280, 400);
             background.Background = new Selector(background.Rect.CutTop(25), new Color(0, 0, 0, 210)); // black background
-            background.AddTab(Localizer.Token(107));
+            background.AddTab(Localizer.Token(GameText.SelectHull));
             HullSL = Add(new ScrollList2<HullListItem>(background));
             HullSL.EnableItemHighlight = true;
             HullSL.OnClick = (item) => ChangeHull(item.Hull);

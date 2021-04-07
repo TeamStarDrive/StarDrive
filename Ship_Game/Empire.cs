@@ -2765,7 +2765,7 @@ namespace Ship_Game
                 {
                     if (planet.HasWinBuilding)
                     {
-                        Universe.ScreenManager.AddScreen(new YouWinScreen(Universe, Localizer.Token(5085)));
+                        Universe.ScreenManager.AddScreen(new YouWinScreen(Universe, Localizer.Token(GameText.AsTheRemnantExterminatorsSweep)));
                         return;
                     }
                 }

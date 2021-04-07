@@ -66,7 +66,7 @@ namespace Ship_Game
             }
             Rectangle titleRect = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             TitleBar = new Menu2(titleRect);
-            TitlePos = new Vector2((titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(1402)).X / 2f, (titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
+            TitlePos = new Vector2((titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(GameText.PlanetArray)).X / 2f, (titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
             Rectangle leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenWidth - 10, ScreenHeight - titleRect.Bottom - 7);
             EMenu    = new Menu2(leftRect);
             Add(new CloseButton(leftRect.Right - 40, leftRect.Y + 20));
@@ -77,13 +77,13 @@ namespace Ship_Game
             PlanetSL = Add(new ScrollList2<PlanetListScreenItem>(eRect));
             PlanetSL.EnableItemHighlight = true;
 
-            sb_Sys      = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(192));
-            sb_Name     = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(389));
-            sb_Fert     = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(386) );
-            sb_Rich     = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(387));
-            sb_Pop      = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(1403));
-            sb_Owned    = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(1940));
-            sb_Distance = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(1939));
+            sb_Sys      = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(GameText.System));
+            sb_Name     = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(GameText.Planet));
+            sb_Fert     = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(GameText.Fertility) );
+            sb_Rich     = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(GameText.Richness));
+            sb_Pop      = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(GameText.MaxPopulation));
+            sb_Owned    = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(GameText.Owner));
+            sb_Distance = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(GameText.Proximity));
 
             foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance => distance.Position.Distance(EmpireManager.Player.WeightedCenter)))
             {
@@ -143,7 +143,7 @@ namespace Ship_Game
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
             TitleBar.Draw(batch, elapsed);
-            batch.DrawString(Fonts.Laserian14, Localizer.Token(1402), TitlePos, Colors.Cream);
+            batch.DrawString(Fonts.Laserian14, Localizer.Token(GameText.PlanetArray), TitlePos, Colors.Cream);
             EMenu.Draw(batch, elapsed);
             AvailableTroops.Text = $"Available Troops: {NumAvailableTroops}";
             AvailableTroops.Color = NumAvailableTroops == 0 ? Color.Gray : Color.LightGreen;

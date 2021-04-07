@@ -29,52 +29,52 @@ namespace Ship_Game
             var text = new StringBuilder();
             if (PeaceTreaty)
             {
-                text.Append(Localizer.Token(3022), "\n\n");
+                text.Append(Localizer.Token(GameText.PleaseEnoughLetUsFind), "\n\n");
             }
             if (Alliance)
             {
-                text.Append(Localizer.Token(3023), "\n\n");
+                text.Append(Localizer.Token(GameText.JoinUsInFriendshipBy2), "\n\n");
             }
             if (OpenBorders)
             {
-                text.Append(TheirOffer.OpenBorders ? Localizer.Token(3024) : Localizer.Token(3025));
+                text.Append(TheirOffer.OpenBorders ? Localizer.Token(GameText.DearFriendWouldntWeBoth) : Localizer.Token(GameText.WeWouldGladlyOfferYou));
                 if (NAPact)
                 {
-                    text.Append(Localizer.Token(3026));
+                    text.Append(Localizer.Token(GameText.AdditionallyWeAreWillingTo2));
                 }
             }
             else if (TheirOffer.OpenBorders)
             {
-                text.Append(Localizer.Token(3027));
+                text.Append(Localizer.Token(GameText.PleaseFriendAllowUsThe));
                 if (NAPact)
                 {
-                    text.Append(Localizer.Token(3028));
+                    text.Append(Localizer.Token(GameText.WeHumblyBeseechYouTo));
                 }
             }
             else if (NAPact)
             {
-                text.Append(Localizer.Token(3029));
+                text.Append(Localizer.Token(GameText.SurelyWeAreBetterOff));
             }
             if (ArtifactsOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3030));
+                text.Append(Localizer.Token(GameText.WeBegYouToAccept));
                 text.Append(ArtifactStringsToText());
             }
             if (TheirOffer.ArtifactsOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3031));
+                text.Append(Localizer.Token(GameText.WeCouldntPossiblySurviveWithout));
                 text.Append(TheirOffer.ArtifactStringsToText());
-                //text.Append(Localizer.Token(3032)
+                //text.Append(Localizer.Token(GameText.WeCouldntPossiblySurviveWithout2)
             }
             if (TradeTreaty)
             {
                 if (NAPact || OpenBorders || TheirOffer.OpenBorders)
                 {
-                    text.Append("\n\n", Localizer.Token(3033));
+                    text.Append("\n\n", Localizer.Token(GameText.AlsoOurInfrastructureIsSo));
                 }
                 else
                 {
-                    text.Append(Localizer.Token(3034));
+                    text.Append(Localizer.Token(GameText.DearFriendWeNeedNew));
                 }
             }
             if (TradeTreaty || OpenBorders || TheirOffer.OpenBorders || NAPact)
@@ -83,38 +83,38 @@ namespace Ship_Game
             }
             if (TechnologiesOffered.Count > 0 && TheirOffer.TechnologiesOffered.Count == 0)
             {
-                text.Append(Localizer.Token(3035));
+                text.Append(Localizer.Token(GameText.WeWouldBeHappyTo));
                 text.Append(TechStringsToText());
             }
             else if (TechnologiesOffered.Count == 0 && TheirOffer.TechnologiesOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3036));
+                text.Append(Localizer.Token(GameText.YourScientistsAreSoBrilliant));
                 text.Append(TheirOffer.TechStringsToText());
             }
             else if (TechnologiesOffered.Count > 0 && TheirOffer.TechnologiesOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3037));
+                text.Append(Localizer.Token(GameText.ItWouldBeAGreat));
                 text.Append(TheirOffer.TechStringsToText());
 
-                text.Append(Localizer.Token(3038));
+                text.Append(Localizer.Token(GameText.HumbleAsOurKnowledgeMay));
                 text.Append(TechStringsToText());
             }
             if (TheirOffer.ColoniesOffered.Count > 0 && ColoniesOffered.Count == 0)
             {
-                text.Append(Localizer.Token(3039));
+                text.Append(Localizer.Token(GameText.SurelyOurEmpireWouldCrumble));
                 text.Append(TheirOffer.ColonyStringsToText());
             }
             else if (TheirOffer.ColoniesOffered.Count > 0 && ColoniesOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3040));
+                text.Append(Localizer.Token(GameText.SurelyOurEmpireWouldCrumble2));
                 text.Append(TheirOffer.ColonyStringsToText());
 
-                text.Append(Localizer.Token(3041));
+                text.Append(Localizer.Token(GameText.InExchangeWeWouldCede2));
                 text.Append(ColonyStringsToText());
             }
             else if (ColoniesOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3042));
+                text.Append(Localizer.Token(GameText.PleaseAcceptOurGiftOf));
                 text.Append(ColonyStringsToText());
             }
             if (TheirOffer.EmpiresToWarOn.Count > 0)
@@ -210,41 +210,41 @@ namespace Ship_Game
             var text = new StringBuilder();
             if (PeaceTreaty)
             {
-                text.Append(Localizer.Token(3000), "\n\n");
+                text.Append(Localizer.Token(GameText.WeFeelThatTheTime), "\n\n");
             }
             if (Alliance)
             {
-                text.Append(Localizer.Token(3001), "\n\n");
+                text.Append(Localizer.Token(GameText.JoinUsInFriendshipBy), "\n\n");
             }
             if (OpenBorders)
             {
-                text.Append(TheirOffer.OpenBorders ? Localizer.Token(3002) : Localizer.Token(3003));
+                text.Append(TheirOffer.OpenBorders ? Localizer.Token(GameText.WeProposeOpeningOurBorders) : Localizer.Token(GameText.WeWillOpenOurBorders));
                 if (NAPact)
                 {
-                    text.Append(Localizer.Token(3004));
+                    text.Append(Localizer.Token(GameText.AdditionallyWeAreWillingTo));
                 }
             }
             else if (TheirOffer.OpenBorders)
             {
-                text.Append(Localizer.Token(3005));
+                text.Append(Localizer.Token(GameText.YouMustOpenYourBorders));
                 if (NAPact)
                 {
-                    text.Append(Localizer.Token(3006));
+                    text.Append(Localizer.Token(GameText.SoLongAsYouComply));
                 }
             }
             else if (NAPact)
             {
-                text.Append(Localizer.Token(3007));
+                text.Append(Localizer.Token(GameText.WeAreWillingToMake));
             }
             if (TradeTreaty)
             {
                 if (NAPact || OpenBorders || TheirOffer.OpenBorders)
                 {
-                    text.Append("\n", Localizer.Token(3008));
+                    text.Append("\n", Localizer.Token(GameText.FurthermoreWeRequestATreaty));
                 }
                 else
                 {
-                    text.Append(Localizer.Token(3009));
+                    text.Append(Localizer.Token(GameText.WeProposeATreatyAllowing));
                 }
             }
             if (TradeTreaty || OpenBorders || TheirOffer.OpenBorders || NAPact)
@@ -253,50 +253,50 @@ namespace Ship_Game
             }
             if (ArtifactsOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3010));
+                text.Append(Localizer.Token(GameText.WeOfferYouTheFollowing));
                 text.Append(ArtifactStringsToText());
             }
             if (TheirOffer.ArtifactsOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3012));
+                text.Append(Localizer.Token(GameText.YouWouldProvideUsWith));
                 text.Append(TheirOffer.ArtifactStringsToText());
                
             }
             if (TechnologiesOffered.Count > 0 && TheirOffer.TechnologiesOffered.Count == 0)
             {
-                text.Append(Localizer.Token(3014));
+                text.Append(Localizer.Token(GameText.WeWouldProvideYouKnowledge));
                 text.Append(TechStringsToText());
             }
             else if (TechnologiesOffered.Count == 0 && TheirOffer.TechnologiesOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3015));
+                text.Append(Localizer.Token(GameText.YouWouldProvideOurScientists));
                 text.Append(TheirOffer.TechStringsToText());
             }
             else if (TechnologiesOffered.Count > 0 && TheirOffer.TechnologiesOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3016));
+                text.Append(Localizer.Token(GameText.WeWouldProposeThatYou));
                 text.Append(TheirOffer.TechStringsToText());
 
-                text.Append(Localizer.Token(3017));
+                text.Append(Localizer.Token(GameText.InExchangeWeWouldTeach));
                 text.Append(TechStringsToText());
 
             }
             if (TheirOffer.ColoniesOffered.Count > 0 && ColoniesOffered.Count == 0)
             {
-                text.Append(Localizer.Token(3018));
+                text.Append(Localizer.Token(GameText.YouWouldCedeOwnershipOf));
                 text.Append(TheirOffer.ColonyStringsToText());
             }
             else if (TheirOffer.ColoniesOffered.Count > 0 && ColoniesOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3019));
+                text.Append(Localizer.Token(GameText.WeProposeExchangingControlOver));
                 text.Append(TheirOffer.ColonyStringsToText());
 
-                text.Append(Localizer.Token(3020));
+                text.Append(Localizer.Token(GameText.InExchangeWeWouldCede));
                 text.Append(ColonyStringsToText());
             }
             else if (ColoniesOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3021));
+                text.Append(Localizer.Token(GameText.WeWouldCedeControlOf));
                 text.Append(ColonyStringsToText());
             }
             if (TheirOffer.EmpiresToWarOn.Count > 0)
@@ -404,7 +404,7 @@ namespace Ship_Game
                 {
                     if (i >= stringList.Count - 1)
                     {
-                        text.Append(Localizer.Token(3013), localization(i), ". ");
+                        text.Append(Localizer.Token(GameText.And2), localization(i), ". ");
                     }
                     else
                     {
@@ -414,7 +414,7 @@ namespace Ship_Game
             }
             else if (stringList.Count == 2)
             {
-                text.Append(localization(0), Localizer.Token(3011), localization(1), ". ");
+                text.Append(localization(0), Localizer.Token(GameText.And), localization(1), ". ");
             }
             return text;
         }
@@ -424,41 +424,41 @@ namespace Ship_Game
             var text = new StringBuilder();
             if (PeaceTreaty)
             {
-                text.Append(Localizer.Token(3043), "\n\n");
+                text.Append(Localizer.Token(GameText.YouMustAcceptOurPeace), "\n\n");
             }
             if (Alliance)
             {
-                text.Append(Localizer.Token(3044), "\n\n");
+                text.Append(Localizer.Token(GameText.JoinUsInFriendshipBy3), "\n\n");
             }
             if (OpenBorders)
             {
-                text.Append(TheirOffer.OpenBorders ? Localizer.Token(3045) : Localizer.Token(3046));
+                text.Append(TheirOffer.OpenBorders ? Localizer.Token(GameText.OpenYourBordersWeShall) : Localizer.Token(GameText.WeWouldGrantYouThe));
                 if (NAPact)
                 {
-                    text.Append(Localizer.Token(3047));
+                    text.Append(Localizer.Token(GameText.AndBecauseWeAreStrong));
                 }
             }
             else if (TheirOffer.OpenBorders)
             {
-                text.Append(Localizer.Token(3048));
+                text.Append(Localizer.Token(GameText.YouWillAllowUsTo));
                 if (NAPact)
                 {
-                    text.Append(Localizer.Token(3049));
+                    text.Append(Localizer.Token(GameText.ObeyOurCommandsAndWe));
                 }
             }
             else if (NAPact)
             {
-                text.Append(Localizer.Token(3050));
+                text.Append(Localizer.Token(GameText.YouWillAgreeToA));
             }
             if (TradeTreaty)
             {
                 if (NAPact || OpenBorders || TheirOffer.OpenBorders)
                 {
-                    text.Append("\n\n", Localizer.Token(3051));
+                    text.Append("\n\n", Localizer.Token(GameText.FurthermoreWeRequireThatYou));
                 }
                 else
                 {
-                    text.Append(Localizer.Token(3052));
+                    text.Append(Localizer.Token(GameText.YouMustOpenYourPlanets));
                 }
             }
             if (TradeTreaty || OpenBorders || TheirOffer.OpenBorders || NAPact)
@@ -467,50 +467,50 @@ namespace Ship_Game
             }
             if (ArtifactsOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3053));
+                text.Append(Localizer.Token(GameText.YouWillAcceptTheseGifts));
                 text.Append(ArtifactStringsToText());
             }
             if (TheirOffer.ArtifactsOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3054));
+                text.Append(Localizer.Token(GameText.YouAreRequiredToProvide));
                 text.Append(TheirOffer.ArtifactStringsToText());
             }
             if (TechnologiesOffered.Count > 0 && TheirOffer.TechnologiesOffered.Count == 0)
             {
-                text.Append(Localizer.Token(3055));
+                text.Append(Localizer.Token(GameText.WeWouldTeachYourMeager));
                 text.Append(TechStringsToText());
-                text.Append(Localizer.Token(3056));
+                text.Append(Localizer.Token(GameText.ConsiderThisAGiftFrom));
             }
             else if (TechnologiesOffered.Count == 0 && TheirOffer.TechnologiesOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3057));
+                text.Append(Localizer.Token(GameText.ItIsInYourBest));
                 text.Append(TheirOffer.TechStringsToText());
             }
             else if (TechnologiesOffered.Count > 0 && TheirOffer.TechnologiesOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3058));
+                text.Append(Localizer.Token(GameText.ItIsInYourBest2));
                 text.Append(TheirOffer.TechStringsToText());
 
-                text.Append(Localizer.Token(3059));
+                text.Append(Localizer.Token(GameText.HoweverWeCouldProvideA));
                 text.Append(TechStringsToText());
 
             }
             if (TheirOffer.ColoniesOffered.Count > 0 && ColoniesOffered.Count == 0)
             {
-                text.Append(Localizer.Token(3060));
+                text.Append(Localizer.Token(GameText.WeHaveClaimedTheFollowing));
                 text.Append(TheirOffer.ColonyStringsToText());
             }
             else if (TheirOffer.ColoniesOffered.Count > 0 && ColoniesOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3061));
+                text.Append(Localizer.Token(GameText.WeDemandThatYouTrade));
                 text.Append(TheirOffer.ColonyStringsToText());
 
-                text.Append(Localizer.Token(3062));
+                text.Append(Localizer.Token(GameText.WeWouldGiveYourPeople));
                 text.Append(ColonyStringsToText());
             }
             else if (ColoniesOffered.Count > 0)
             {
-                text.Append(Localizer.Token(3063));
+                text.Append(Localizer.Token(GameText.WeRequireThatYouTake));
                 text.Append(ColonyStringsToText());
             }
             if (TheirOffer.EmpiresToWarOn.Count > 0)

@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 
@@ -62,7 +62,7 @@ namespace Ship_Game
         public override void LoadContent()
         {
             CloseButton(Window.Menu.Right - 40, Window.Menu.Y + 20);
-            string title    = Localizer.Token(1780);
+            string title    = Localizer.Token(GameText.SearchTechnology);
             Vector2 menuPos = new Vector2(Window.Menu.CenterTextX(title, LargeFont), Window.Menu.Y + 35);
             Label(menuPos, title, LargeFont, Cream);
             PopulateTechs();

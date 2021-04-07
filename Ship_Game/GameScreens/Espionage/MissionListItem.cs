@@ -71,7 +71,7 @@ namespace Ship_Game.GameScreens.Espionage
             {
                 ToolTip.CreateTooltip(!DoMission.Rect.HitTest(input.CursorPosition)
                     ? Localizer.Token(DescriptionIndex)
-                    : Localizer.Token(2198));
+                    : Localizer.Token(GameText.ExecuteThisMissionForThe));
             }
             return captured;
         }

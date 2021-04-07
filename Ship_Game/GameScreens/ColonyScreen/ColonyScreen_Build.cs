@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
@@ -10,9 +10,9 @@ namespace Ship_Game
         bool ResetBuildableList;
         string FilterItemsText;
 
-        readonly string BuildingsTabText = Localizer.Token(334); // BUILDINGS
-        readonly string ShipsTabText = Localizer.Token(335); // SHIPS
-        readonly string TroopsTabText = Localizer.Token(336); // TROOPS
+        readonly string BuildingsTabText = Localizer.Token(GameText.Buildings); // BUILDINGS
+        readonly string ShipsTabText = Localizer.Token(GameText.Ships); // SHIPS
+        readonly string TroopsTabText = Localizer.Token(GameText.Troops); // TROOPS
 
         void OnBuildableTabChanged(int tabIndex)
         {

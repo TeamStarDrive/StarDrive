@@ -65,7 +65,7 @@ namespace Ship_Game.GameScreens
 
             public void SetTotalFooter(Func<float> getValue)
             {
-                Footer = new SplitElement(new UILabel($"{Localizer.Token(320)}:"),
+                Footer = new SplitElement(new UILabel($"{Localizer.Token(GameText.Total2)}:"),
                                           new UILabel(DynamicText(getValue, f => f.MoneyString())) );
             }
 
@@ -89,7 +89,7 @@ namespace Ship_Game.GameScreens
             var footerRect = new Rectangle(budgetRect.X, budgetRect.Bottom + 6, 168, 86);
 
             //Screen Title
-            string title   = Localizer.Token(310);
+            string title   = Localizer.Token(GameText.EconomicOverview);
             Label(Window.Menu.CenterTextX(title), Window.Menu.Y + 20, title);
 
             // background panels for TaxRate, incomes, cost, trade: 6138
@@ -120,7 +120,7 @@ namespace Ship_Game.GameScreens
             EmpireNetIncome.DropShadow  = true;
             EmpireNetIncome.DynamicText = DynamicText(
                 ()   => Player.NetIncome,
-                (f) => $"{Localizer.Token(f >= 0f ? 324 : 325)} : {f.MoneyString()}");
+                (f) => $"{( f >= 0f ? Localizer.Token(324) : Localizer.Token(325) )} : {f.MoneyString()}");
 
             base.LoadContent();
         }

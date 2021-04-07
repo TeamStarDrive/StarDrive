@@ -268,7 +268,7 @@ namespace Ship_Game
             CurrentLanguage = new DropOptions<Language>(105, 18);
             Add(right, new LocalizedText(4117), CurrentLanguage);
 
-            Add(new UIButton(new Vector2(RightArea.Right - 172, RightArea.Bottom + 60), Localizer.Token(13)))
+            Add(new UIButton(new Vector2(RightArea.Right - 172, RightArea.Bottom + 60), Localizer.Token(GameText.ApplySettings)))
                 .OnClick = button => ApplyOptions();
 
             RefreshZOrder();
@@ -370,7 +370,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(14), 10f)
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(GameText.KeepChangesRevertingIn), 10f)
                     {
                         Accepted = AcceptChanges,
                         Cancelled = CancelChanges
