@@ -15,11 +15,11 @@ namespace Ship_Game
             return new ToolTipText{ Id = id };
         }
 
-        // Allows button.Tooltip = GameTips.AttackRunsOrder;
-        public static implicit operator ToolTipText(GameTips gameTip)
-        {
-            return new ToolTipText{ Id = (int)gameTip };
-        }
+        //// Allows button.Tooltip = GameTips.AttackRunsOrder;
+        //public static implicit operator ToolTipText(GameTips gameTip)
+        //{
+        //    return new ToolTipText{ Id = (int)gameTip };
+        //}
 
         // Allows button.Tooltip = GameText.LandAllTroopsListedIn;
         public static implicit operator ToolTipText(GameText gameText)
