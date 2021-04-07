@@ -30,13 +30,15 @@
     <RootNamespace>SDGameTextToEnum</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="LocalizationDB_Export.cs" />
     <Compile Include="LocalizationDB.cs" />
     <Compile Include="GameTextToEnum_Main.cs" />
     <Compile Include="LocalizationUsage.cs" />
+    <Compile Include="LocalizationUsages.cs" />
     <Compile Include="TextToken.cs" />
     <Compile Include="Localization.cs" />
-    <Compile Include="ModLocalizationDB.cs" />
     <Compile Include="Translation.cs" />
+    <Compile Include="Usage.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
