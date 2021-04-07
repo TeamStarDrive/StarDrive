@@ -76,7 +76,7 @@ namespace Ship_Game
             IsPopup = true;
             var titleRect = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             TitleBar = new Menu2(titleRect);
-            TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(190)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
+            TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(GameText.ShipArray)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             LeftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenWidth - 10, ScreenHeight - (titleRect.Y + titleRect.Height) - 7);
             EMenu = new Menu2(LeftRect);
             Add(new CloseButton(LeftRect.Right - 40, LeftRect.Y + 20));
@@ -126,10 +126,10 @@ namespace Ship_Game
             ShowRoles.AddOption("All Structures", 12);
             ShowRoles.AddOption("Civilian", 13);
 
-            SortSystem = new SortButton(EmpireUi.empire.data.SLSort, Localizer.Token(192));
-            SortName   = new SortButton(EmpireUi.empire.data.SLSort, Localizer.Token(193));
-            SortRole   = new SortButton(EmpireUi.empire.data.SLSort, Localizer.Token(194));
-            SortOrder  = new SortButton(EmpireUi.empire.data.SLSort, Localizer.Token(195));
+            SortSystem = new SortButton(EmpireUi.empire.data.SLSort, Localizer.Token(GameText.System));
+            SortName   = new SortButton(EmpireUi.empire.data.SLSort, Localizer.Token(GameText.Ship));
+            SortRole   = new SortButton(EmpireUi.empire.data.SLSort, Localizer.Token(GameText.Role));
+            SortOrder  = new SortButton(EmpireUi.empire.data.SLSort, Localizer.Token(GameText.Orders));
             SortFleet  = new SortButton(EmpireUi.empire.data.SLSort, "Fleet");
             Maint      = new SortButton(EmpireUi.empire.data.SLSort, "maint");
             SB_FTL     = new SortButton(EmpireUi.empire.data.SLSort, "FTL");
@@ -145,7 +145,7 @@ namespace Ship_Game
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
             TitleBar.Draw(batch, elapsed);
-            batch.DrawString(Fonts.Laserian14, Localizer.Token(190), TitlePos, Colors.Cream);
+            batch.DrawString(Fonts.Laserian14, Localizer.Token(GameText.ShipArray), TitlePos, Colors.Cream);
             EMenu.Draw(batch, elapsed);
 
             base.Draw(batch, elapsed);

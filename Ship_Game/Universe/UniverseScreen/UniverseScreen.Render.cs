@@ -547,7 +547,7 @@ namespace Ship_Game
 
             if ((DefiningAO || DefiningTradeRoutes) && SelectedShip != null)
             {
-                string title  = DefiningAO ? Localizer.Token(1411) + " (ESC to exit)" : Localizer.Token(1943);
+                string title  = DefiningAO ? Localizer.Token(GameText.AssignAreaOfOperation) + " (ESC to exit)" : Localizer.Token(GameText.AssignPlanetsToTradeRoute);
                 int cursorY   = 100;
                 int numAo     = SelectedShip.AreaOfOperation.Count;
                 int numRoutes = SelectedShip.TradeRoutes.Count;

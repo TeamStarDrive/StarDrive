@@ -53,11 +53,11 @@ namespace Ship_Game
             SaveMenu = new Menu1(Window);
             Rectangle sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
             NameSave = new Submenu(sub);
-            NameSave.AddTab(Localizer.Token(4013));
+            NameSave.AddTab(Localizer.Token(GameText.LoadModification));
             TitlePosition = new Vector2(sub.X + 20, sub.Y + 45);
             Rectangle scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, Window.Height - sub.Height - 50);
             AllSaves = new Submenu(scrollList);
-            AllSaves.AddTab(Localizer.Token(4013));
+            AllSaves.AddTab(Localizer.Token(GameText.LoadModification));
 
             LoadMods();
             EnternamePos  = TitlePosition;
@@ -105,7 +105,7 @@ namespace Ship_Game
         {
             SelectedMod = item.Mod;
             EnterNameArea.Text = SelectedMod.ModName;
-            Visit.Text = SelectedMod.mi.URL.IsEmpty() ? Localizer.Token(4015) : "Goto Mod URL";
+            Visit.Text = SelectedMod.mi.URL.IsEmpty() ? Localizer.Token(GameText.LoadModsWeb) : "Goto Mod URL";
         }
 
         public override bool HandleInput(InputState input)

@@ -717,16 +717,16 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             Attitude_Threaten_Rect   = new Rectangle(Attitude_Respectful_Rect.Left + 200, Attitude_Respectful_Rect.Top, 180, 48);
 
             ToneContainerRect = new Rectangle(ScreenWidth / 2 - 324, Attitude_Pleading_Rect.Y, 648, 48);
-            OurAttitudeBtn_Pleading   = new GenericButton(Attitude_Pleading_Rect,   Localizer.Token(1207), Fonts.Pirulen12);
-            OurAttitudeBtn_Respectful = new GenericButton(Attitude_Respectful_Rect, Localizer.Token(1209), Fonts.Pirulen12) { ToggleOn = true };
-            OurAttitudeBtn_Threaten   = new GenericButton(Attitude_Threaten_Rect,   Localizer.Token(1208), Fonts.Pirulen12);
+            OurAttitudeBtn_Pleading   = new GenericButton(Attitude_Pleading_Rect,   Localizer.Token(GameText.Pleading), Fonts.Pirulen12);
+            OurAttitudeBtn_Respectful = new GenericButton(Attitude_Respectful_Rect, Localizer.Token(GameText.Respectful), Fonts.Pirulen12) { ToggleOn = true };
+            OurAttitudeBtn_Threaten   = new GenericButton(Attitude_Threaten_Rect,   Localizer.Token(GameText.Threatening), Fonts.Pirulen12);
 
             AccRejRect = new Rectangle(R.X + R.Width / 2 - 220, R.Y + R.Height - 48, 440, 48);
-            Accept = new GenericButton(new Rectangle(AccRejRect.X, AccRejRect.Y, 220, 48), Localizer.Token(1210), Fonts.Pirulen12);
-            Reject = new GenericButton(new Rectangle(AccRejRect.X + 220, AccRejRect.Y, 220, 48), Localizer.Token(1211), Fonts.Pirulen12);
+            Accept = new GenericButton(new Rectangle(AccRejRect.X, AccRejRect.Y, 220, 48), Localizer.Token(GameText.Accept), Fonts.Pirulen12);
+            Reject = new GenericButton(new Rectangle(AccRejRect.X + 220, AccRejRect.Y, 220, 48), Localizer.Token(GameText.Reject), Fonts.Pirulen12);
 
 
-            SendOffer = new GenericButton(new Rectangle(R.X + R.Width / 2 - 90, R.Y - 40, 180, 33), Localizer.Token(1212), Fonts.Pirulen20);
+            SendOffer = new GenericButton(new Rectangle(R.X + R.Width / 2 - 90, R.Y - 40, 180, 33), Localizer.Token(GameText.SendOffer), Fonts.Pirulen20);
 
             var offerTextMenu = new Rectangle(R.X, R.Y, R.Width, R.Height - 30);
             OfferTextSL  = Add(new ScrollList2<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
@@ -1038,7 +1038,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 if (other != Us && rel.Known && !other.isFaction
                     && !other.data.Defeated && Us.IsKnown(other))
                 {
-                    var option = new DialogOption(n1, Localizer.Token(2220) + " " + other.data.Traits.Name)
+                    var option = new DialogOption(n1, Localizer.Token(GameText.LetsDiscuss) + " " + other.data.Traits.Name)
                     {
                         Target = other
                     };

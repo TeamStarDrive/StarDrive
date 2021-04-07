@@ -76,7 +76,7 @@ namespace Ship_Game.GameScreens.Espionage
             OpsSL.AddItem(StealTech);
             OpsSL.AddItem(StealShip);
             OpsSL.AddItem(InciteRebellion);
-            RecruitButton = new DanButton(new Vector2(ComponentRect.X, ComponentRect.Y + ComponentRect.Height + 5f), Localizer.Token(2179))
+            RecruitButton = new DanButton(new Vector2(ComponentRect.X, ComponentRect.Y + ComponentRect.Height + 5f), Localizer.Token(GameText.TrainNew))
             {
                 Toggled = true
             };
@@ -177,7 +177,7 @@ namespace Ship_Game.GameScreens.Espionage
 
             if (RecruitButton.r.HitTest(input.CursorPosition))
             {
-                ToolTip.CreateTooltip(Localizer.Token(2180));
+                ToolTip.CreateTooltip(Localizer.Token(GameText.RecruitANewAgentTo));
             }
 
             if (RecruitButton.HandleInput(input))

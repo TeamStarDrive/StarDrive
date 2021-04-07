@@ -64,7 +64,7 @@ namespace Ship_Game
 
             Rectangle win = Rect;
             ConstructionSubMenu = new Submenu(win);
-            ConstructionSubMenu.AddTab(Localizer.Token(304));
+            ConstructionSubMenu.AddTab(Localizer.Token(GameText.Automation));
 
             UIList rest = AddList(new Vector2(win.X + 10f, win.Y + 200f));
             rest.Padding = new Vector2(2f, 10f);
@@ -87,7 +87,7 @@ namespace Ship_Game
                 .Create(() => EmpireManager.Player.AutoColonize, title:306, tooltip:2227);
 
             ConstructorDropDown = ticks.Add(new CheckedDropdown())
-                .Create(() => EmpireManager.Player.AutoBuild, Localizer.Token(307) + " Projectors", 2228);
+                .Create(() => EmpireManager.Player.AutoBuild, Localizer.Token(GameText.Autobuild) + " Projectors", 2228);
 
             FreighterDropDown = ticks.Add(new CheckedDropdown())
                 .Create(() => EmpireManager.Player.AutoFreighters, title: 308, tooltip: 2229);

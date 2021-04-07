@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.Xna.Framework.Graphics;
@@ -204,8 +204,8 @@ namespace Ship_Game.ShipDesignIssues
             if (percentCanFire.AlmostZero())
                 efficiency = 0;
 
-            string strNumCanFire = $" {(100 - percentCanFire).String(0)}% {Localizer.Token(1468)}";
-            string strEfficiency = $" {Localizer.Token(1469)} {efficiency.String(0)}%.";
+            string strNumCanFire = $" {(100 - percentCanFire).String(0)}% {Localizer.Token(GameText.OfTheShipssEnergyWeapons)}";
+            string strEfficiency = $" {Localizer.Token(GameText.TheEfficiencyOfTheShipss)} {efficiency.String(0)}%.";
 
             if (severity > WarningLevel.None)
                 AddDesignIssue(DesignIssueType.OneTimeFireEfficiency, severity, $"{strNumCanFire}{strEfficiency}");
@@ -246,8 +246,8 @@ namespace Ship_Game.ShipDesignIssues
             else if (warpSpeed.Less(averageWarpSpeed / 2)) severity = WarningLevel.Minor;
 
 
-            string civilianOrMilitary = Civilian(Role) ? Localizer.Token(2556)
-                                                       : Localizer.Token(2557);
+            string civilianOrMilitary = Civilian(Role) ? Localizer.Token(GameText.CivilianShips)
+                                                       : Localizer.Token(GameText.MilitaryShips);
 
             float averageEmpireWarpSpeed = EmpireStats.AverageEmpireWarpSpeed(Role);
             string averageWarpString = $" {civilianOrMilitary} ({averageEmpireWarpSpeed.GetNumberString()}).";
@@ -336,7 +336,7 @@ namespace Ship_Game.ShipDesignIssues
 
             if (severity > WarningLevel.None)
             {
-                string efficiencyText = $" {Localizer.Token(2565)} {netEfficiency.String(0)}%.";
+                string efficiencyText = $" {Localizer.Token(GameText.CombatEfficiencyAfterPowerReserves)} {netEfficiency.String(0)}%.";
                 AddDesignIssue(DesignIssueType.NotIdealCombatEfficiency, severity, efficiencyText);
             }
         }
@@ -382,7 +382,7 @@ namespace Ship_Game.ShipDesignIssues
                 return;
 
             int diff             = numTroopBays - numTroops;
-            string troopsMissing = $" {diff} {Localizer.Token(2564)}";
+            string troopsMissing = $" {diff} {Localizer.Token(GameText.MoreTroopsNeeded)}";
             AddDesignIssue(DesignIssueType.LowTroopsForBays, WarningLevel.Major, troopsMissing);
         }
 
@@ -395,10 +395,10 @@ namespace Ship_Game.ShipDesignIssues
             string rangeText = shortRange  // short range or attack runs
                 ? $"\n{GetRangeLaunchText(maxWeaponRange, out int minLaunchRangeWeapons, out minCarrier)} " +
                   $"{HelperFunctions.GetNumberString(maxWeaponRange.LowerBound(minLaunchRangeWeapons))}" 
-                : $"\n{Localizer.Token(1476)} {HelperFunctions.GetNumberString(sensorRange)}";
+                : $"\n{Localizer.Token(GameText.SensorRangeOf)} {HelperFunctions.GetNumberString(sensorRange)}";
 
             if (minCarrier) // too low max weapon range, using default minimum hangar launch from carrier bays
-                rangeText = $" {rangeText}{Localizer.Token(1481)} {HelperFunctions.GetNumberString(maxWeaponRange)}.";
+                rangeText = $" {rangeText}{Localizer.Token(GameText.SinceTheShipsMaximumWeapon)} {HelperFunctions.GetNumberString(maxWeaponRange)}.";
 
             AddDesignIssue(DesignIssueType.DedicatedCarrier, WarningLevel.Informative, rangeText);
         }
@@ -412,7 +412,7 @@ namespace Ship_Game.ShipDesignIssues
                                $" {HelperFunctions.GetNumberString(maxWeaponRange.LowerBound(minLaunchRangeWeapons))}";
 
             if (minCarrier) // too low max weapon range, using default minimum hangar launch from carrier bays
-                rangeText = $" {rangeText}{Localizer.Token(1481)} {HelperFunctions.GetNumberString(maxWeaponRange)}.";
+                rangeText = $" {rangeText}{Localizer.Token(GameText.SinceTheShipsMaximumWeapon)} {HelperFunctions.GetNumberString(maxWeaponRange)}.";
 
             AddDesignIssue(DesignIssueType.SecondaryCarrier, WarningLevel.Informative, rangeText);
         }
@@ -424,10 +424,10 @@ namespace Ship_Game.ShipDesignIssues
             if (maxWeaponRange < minLaunchRangeWeapons)
             {
                 usingMinimumCarrierRange = true;
-                return Localizer.Token(1480);
+                return Localizer.Token(GameText.MinimumLaunchRangeOf);
             }
 
-            return Localizer.Token(1477);
+            return Localizer.Token(GameText.MaximumWeaponRangeOf);
         }
 
         public void CheckTroops(int numTroops, int size)
@@ -444,7 +444,7 @@ namespace Ship_Game.ShipDesignIssues
             else if (diff == 1) severity = WarningLevel.Informative;
             else                return;
 
-            string troopsMissing = $" {diff} {Localizer.Token(2564)}";
+            string troopsMissing = $" {diff} {Localizer.Token(GameText.MoreTroopsNeeded)}";
             AddDesignIssue(DesignIssueType.LowTroops, severity, troopsMissing);
         }
 

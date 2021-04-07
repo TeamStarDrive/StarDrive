@@ -849,7 +849,7 @@ namespace Ship_Game
             if (BackgroundTask?.IsComplete == true)
             {
                 position.Y = (float)(position.Y - Fonts.Pirulen16.LineSpacing - 10.0);
-                string token = Localizer.Token(2108);
+                string token = Localizer.Token(GameText.ClickToContinue);
                 position.X = ScreenCenter.X - Fonts.Pirulen16.MeasureString(token).X / 2f;
 
                 batch.DrawString(Fonts.Pirulen16, token, position, CurrentFlashColor);

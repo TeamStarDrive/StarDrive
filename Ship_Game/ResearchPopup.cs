@@ -196,7 +196,7 @@ namespace Ship_Game
                         privateName = hull.Name,
                         HullUnlocked = hullData.Name
                     };
-                    unlock.Description = Localizer.Token(4042) + " " +
+                    unlock.Description = Localizer.Token(GameText.UnlocksANewHullType) + " " +
                                          Localizer.GetRole(hullData.Role, EmpireManager.Player);
                     UnlockSL.AddItem(new UnlockListItem(unlock));
                 }

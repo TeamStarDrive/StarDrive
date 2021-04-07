@@ -168,7 +168,7 @@ namespace Ship_Game
             TitleBar.Draw(batch, elapsed);
             LeftColony.Draw(batch, elapsed);
             RightColony.Draw(batch, elapsed);
-            batch.DrawString(Fonts.Laserian14, Localizer.Token(369), TitlePos, Colors.Cream);
+            batch.DrawString(Fonts.Laserian14, Localizer.Token(GameText.ColonyOverview), TitlePos, Colors.Cream);
 
             PlanetInfo.Draw(batch, elapsed);
             PDescription.Draw(batch, elapsed);
@@ -194,20 +194,20 @@ namespace Ship_Game
                 vector2_2.Y += Font20.LineSpacing * 2;
             else
                 vector2_2.Y += Font20.LineSpacing;
-            batch.DrawString(TextFont, Localizer.Token(384) + ":", vector2_2, Color.Orange);
+            batch.DrawString(TextFont, Localizer.Token(GameText.Class) + ":", vector2_2, Color.Orange);
             Vector2 position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(TextFont, P.CategoryName, position3, Colors.Cream);
             vector2_2.Y += TextFont.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(TextFont, Localizer.Token(385) + ":", vector2_2, Color.Orange);
+            batch.DrawString(TextFont, Localizer.Token(GameText.Population) + ":", vector2_2, Color.Orange);
             var color = Colors.Cream;
             batch.DrawString(TextFont, P.PopulationStringForPlayer, position3, color);
-            var rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)TextFont.MeasureString(Localizer.Token(385) + ":").X, TextFont.LineSpacing);
+            var rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Population) + ":").X, TextFont.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(75);
             vector2_2.Y += TextFont.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(TextFont, Localizer.Token(386) + ":", vector2_2, Color.Orange);
+            batch.DrawString(TextFont, Localizer.Token(GameText.Fertility) + ":", vector2_2, Color.Orange);
             string fertility;
             if (P.FertilityFor(Player).AlmostEqual(P.MaxFertilityFor(Player))
                 || P.FertilityFor(Player).AlmostZero() && P.MaxFertilityFor(Player).LessOrEqual(0))
@@ -231,20 +231,20 @@ namespace Ship_Game
             if (P.TerraformPoints > 0)
             {
                 Color terraformColor = P.Owner?.EmpireColor ?? Color.White;
-                string terraformText = Localizer.Token(683); // Terraform Planet is the default text
+                string terraformText = Localizer.Token(GameText.BB_Tech_Terraforming_Name); // Terraform Planet is the default text
                 if (P.HasVolcanoesToTerraform)
                 {
-                    terraformText = Localizer.Token(4267);
+                    terraformText = Localizer.Token(GameText.RemovingAVolcano);
                 }
                 else if (P.HasTilesToTerraform)
                 {
-                    terraformText  = Localizer.Token(1972);
+                    terraformText  = Localizer.Token(GameText.TerraformingATile);
                 }
                 else if (P.BioSpheresToTerraform
                       && P.Category == P.Owner?.data.PreferredEnv 
                       && P.BaseMaxFertility.GreaterOrEqual(P.TerraformedMaxFertility))
                 {
-                    terraformText = Localizer.Token(1919);
+                    terraformText = Localizer.Token(GameText.RemovingBiospheres);
                 }
 
                 int terraformOffSetX = LowRes ? 30 : 20;
@@ -280,14 +280,14 @@ namespace Ship_Game
                 DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingColoFreighters, GameText.Colonists);
             }
 
-            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)TextFont.MeasureString(Localizer.Token(386) + ":").X, TextFont.LineSpacing);
+            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Fertility) + ":").X, TextFont.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(20);
             vector2_2.Y += TextFont.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(TextFont, Localizer.Token(387) + ":", vector2_2, Color.Orange);
+            batch.DrawString(TextFont, Localizer.Token(GameText.Richness) + ":", vector2_2, Color.Orange);
             batch.DrawString(TextFont, P.MineralRichness.String(), position3, Colors.Cream);
-            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)TextFont.MeasureString(Localizer.Token(387) + ":").X, TextFont.LineSpacing);
+            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Richness) + ":").X, TextFont.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(21);
 
@@ -473,12 +473,12 @@ namespace Ship_Game
                 case string _:
                     DrawMultiLine(ref bCursor, P.Description);
                     string desc = "";
-                    if (P.IsCybernetic)  desc = Localizer.Token(2028);
+                    if (P.IsCybernetic)  desc = Localizer.Token(GameText.TheOccupantsOfThisPlanet);
                     else switch (P.FS)
                     {
-                        case Planet.GoodState.EXPORT: desc = Localizer.Token(2025); break;
-                        case Planet.GoodState.IMPORT: desc = Localizer.Token(2026); break;
-                        case Planet.GoodState.STORE:  desc = Localizer.Token(2027); break;
+                        case Planet.GoodState.EXPORT: desc = Localizer.Token(GameText.ThisColonyIsSetTo); break;
+                        case Planet.GoodState.IMPORT: desc = Localizer.Token(GameText.ThisColonyIsSetTo2); break;
+                        case Planet.GoodState.STORE:  desc = Localizer.Token(GameText.ThisPlanetIsNeitherImporting); break;
                     }
 
                     DrawMultiLine(ref bCursor, desc);
@@ -487,34 +487,34 @@ namespace Ship_Game
                     {
                         switch (P.PS)
                         {
-                            case Planet.GoodState.EXPORT: desc = Localizer.Token(345); break;
-                            case Planet.GoodState.IMPORT: desc = Localizer.Token(346); break;
-                            case Planet.GoodState.STORE:  desc = Localizer.Token(347); break;
+                            case Planet.GoodState.EXPORT: desc = Localizer.Token(GameText.ThisPlanetIsManuallyExporting); break;
+                            case Planet.GoodState.IMPORT: desc = Localizer.Token(GameText.ThisPlanetIsManuallyImporting); break;
+                            case Planet.GoodState.STORE:  desc = Localizer.Token(GameText.ThisPlanetIsManuallyStoring); break;
                         }
                     }
                     else
                         switch (P.PS)
                         {
-                            case Planet.GoodState.EXPORT: desc = Localizer.Token(1953); break;
-                            case Planet.GoodState.IMPORT: desc = Localizer.Token(1954); break;
-                            case Planet.GoodState.STORE:  desc = Localizer.Token(1955); break;
+                            case Planet.GoodState.EXPORT: desc = Localizer.Token(GameText.TheGovernorIsExportingProduction); break;
+                            case Planet.GoodState.IMPORT: desc = Localizer.Token(GameText.TheGovernorIsImportingProduction); break;
+                            case Planet.GoodState.STORE:  desc = Localizer.Token(GameText.TheGovernorIsStoringProduction); break;
                         }
                     DrawMultiLine(ref bCursor, desc);
                     if (P.IsStarving)
-                        DrawMultiLine(ref bCursor, Localizer.Token(344), Color.LightPink);
+                        DrawMultiLine(ref bCursor, Localizer.Token(GameText.ThisPlanetsPopulationIsShrinking), Color.LightPink);
 
                     break;
                 case PlanetGridSquare pgs:
                     switch (pgs.Building)
                     {
                         case null when pgs.Habitable && pgs.Biosphere:
-                            batch.DrawString(Font20, Localizer.Token(348), bCursor, color);
+                            batch.DrawString(Font20, Localizer.Token(GameText.HabitableBiosphere), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
                             batch.DrawString(TextFont, MultiLineFormat(349), bCursor, color);
                             DrawTilePopInfo(ref bCursor, batch, pgs);
                             return;
                         case null when pgs.Habitable:
-                            batch.DrawString(Font20, Localizer.Token(350), bCursor, color);
+                            batch.DrawString(Font20, Localizer.Token(GameText.HabitableLand), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
                             batch.DrawString(TextFont, MultiLineFormat(349), bCursor, color);
                             DrawTilePopInfo(ref bCursor, batch, pgs);
@@ -525,13 +525,13 @@ namespace Ship_Game
                     {
                         if (P.IsBarrenType)
                         {
-                            batch.DrawString(Font20, Localizer.Token(351), bCursor, color);
+                            batch.DrawString(Font20, Localizer.Token(GameText.UninhabitableLand), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
                             batch.DrawString(TextFont, MultiLineFormat(352), bCursor, color);
                         }
                         else
                         {
-                            batch.DrawString(Font20, Localizer.Token(351), bCursor, color);
+                            batch.DrawString(Font20, Localizer.Token(GameText.UninhabitableLand), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
                             batch.DrawString(TextFont, MultiLineFormat(353), bCursor, color);
                         }
@@ -574,10 +574,10 @@ namespace Ship_Game
 
         void DrawMoney(ref Vector2 cursor, SpriteBatch batch)
         {
-            string gIncome = Localizer.Token(6125);
-            string gUpkeep = Localizer.Token(6126);
-            string nIncome = Localizer.Token(6127);
-            string nLosses = Localizer.Token(6129);
+            string gIncome = Localizer.Token(GameText.GrossIncome);
+            string gUpkeep = Localizer.Token(GameText.Expenditure2);
+            string nIncome = Localizer.Token(GameText.NetIncome);
+            string nLosses = Localizer.Token(GameText.NetLosses);
 
             float grossIncome = P.Money.GrossRevenue;
             float grossUpkeep = P.Money.Maintenance + P.SpaceDefMaintenance;
@@ -650,46 +650,46 @@ namespace Ship_Game
 
         void DrawPlanetStat(ref Vector2 cursor, SpriteBatch batch)
         {
-            DrawBuildingInfo(ref cursor, batch, P.PopPerTileFor(Player) / 1000, "UI/icon_pop_22", Localizer.Token(1874));
-            DrawBuildingInfo(ref cursor, batch, P.PopPerBiosphere(Player) / 1000, "UI/icon_pop_22", Localizer.Token(1875));
-            DrawBuildingInfo(ref cursor, batch, P.Food.NetYieldPerColonist - P.FoodConsumptionPerColonist, "NewUI/icon_food", Localizer.Token(1876), digits: 1);
-            DrawBuildingInfo(ref cursor, batch, P.Food.NetFlatBonus, "NewUI/icon_food", Localizer.Token(1877), digits: 1);
-            DrawBuildingInfo(ref cursor, batch, P.Prod.NetYieldPerColonist - P.ProdConsumptionPerColonist, "NewUI/icon_production", Localizer.Token(1878), digits: 1);
-            DrawBuildingInfo(ref cursor, batch, P.Prod.NetFlatBonus, "NewUI/icon_production", Localizer.Token(1879), digits: 1);
-            DrawBuildingInfo(ref cursor, batch, P.Res.NetYieldPerColonist, "NewUI/icon_science", Localizer.Token(1880), digits: 1);
-            DrawBuildingInfo(ref cursor, batch, P.Res.NetFlatBonus, "NewUI/icon_science", Localizer.Token(1881), digits: 1);
+            DrawBuildingInfo(ref cursor, batch, P.PopPerTileFor(Player) / 1000, "UI/icon_pop_22", Localizer.Token(GameText.ColonistsPerHabitableTileBillions));
+            DrawBuildingInfo(ref cursor, batch, P.PopPerBiosphere(Player) / 1000, "UI/icon_pop_22", Localizer.Token(GameText.ColonistsPerBiosphereBillions));
+            DrawBuildingInfo(ref cursor, batch, P.Food.NetYieldPerColonist - P.FoodConsumptionPerColonist, "NewUI/icon_food", Localizer.Token(GameText.NetFoodPerColonistAllocated), digits: 1);
+            DrawBuildingInfo(ref cursor, batch, P.Food.NetFlatBonus, "NewUI/icon_food", Localizer.Token(GameText.NetFlatFoodGeneratedPer), digits: 1);
+            DrawBuildingInfo(ref cursor, batch, P.Prod.NetYieldPerColonist - P.ProdConsumptionPerColonist, "NewUI/icon_production", Localizer.Token(GameText.NetProductionPerColonistAllocated), digits: 1);
+            DrawBuildingInfo(ref cursor, batch, P.Prod.NetFlatBonus, "NewUI/icon_production", Localizer.Token(GameText.NetFlatProductionGeneratedPer), digits: 1);
+            DrawBuildingInfo(ref cursor, batch, P.Res.NetYieldPerColonist, "NewUI/icon_science", Localizer.Token(GameText.NetResearchPerColonistAllocated), digits: 1);
+            DrawBuildingInfo(ref cursor, batch, P.Res.NetFlatBonus, "NewUI/icon_science", Localizer.Token(GameText.NetFlatResearchGeneratedPer), digits: 1);
             DrawBuildingInfo(ref cursor, batch, P.CurrentProductionToQueue, "NewUI/icon_queue_rushconstruction",
-                $"{Localizer.Token(1873)} ({P.InfraStructure} taken from Storage)", digits: 1);
+                $"{Localizer.Token(GameText.MaximumProductionToQueuePer)} ({P.InfraStructure} taken from Storage)", digits: 1);
 
-            DrawBuildingInfo(ref cursor, batch, -P.Money.TroopMaint, "UI/icon_troop_shipUI", Localizer.Token(4998), digits: 2);
+            DrawBuildingInfo(ref cursor, batch, -P.Money.TroopMaint, "UI/icon_troop_shipUI", Localizer.Token(GameText.CreditsPerTurnForTroop), digits: 2);
             DrawBuildingInfo(ref cursor, batch, -TroopConsumption, "UI/icon_troop_shipUI", GetTroopsConsumptionText(), digits: 2);
         }
 
         void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch batch, Building b, PlanetGridSquare tile = null)
         {
-            DrawBuildingInfo(ref bCursor, batch, b.PlusFlatFoodAmount, "NewUI/icon_food", Localizer.Token(354));
-            DrawBuildingInfo(ref bCursor, batch, b.FoodCache, "NewUI/icon_food", Localizer.Token(4301), signs: false, digits: 0);
-            DrawBuildingInfo(ref bCursor, batch, b.PlusFoodPerColonist, "NewUI/icon_food", Localizer.Token(2042));
-            DrawBuildingInfo(ref bCursor, batch, b.SensorRange, "NewUI/icon_sensors", Localizer.Token(6000), signs: false);
-            DrawBuildingInfo(ref bCursor, batch, b.ProjectorRange, "NewUI/icon_projection", Localizer.Token(6001), signs: false);
-            DrawBuildingInfo(ref bCursor, batch, b.PlusFlatProductionAmount, "NewUI/icon_production", Localizer.Token(355));
-            DrawBuildingInfo(ref bCursor, batch, b.PlusProdPerColonist, "NewUI/icon_production", Localizer.Token(356));
-            DrawBuildingInfo(ref bCursor, batch, b.ProdCache, "NewUI/icon_production", Localizer.Token(4302), signs: false, digits: 0);
-            DrawBuildingInfo(ref bCursor, batch, b.PlusFlatPopulation / 1000, "NewUI/icon_population", Localizer.Token(2043));
-            DrawBuildingInfo(ref bCursor, batch, b.PlusFlatResearchAmount, "NewUI/icon_science", Localizer.Token(357));
-            DrawBuildingInfo(ref bCursor, batch, b.PlusResearchPerColonist, "NewUI/icon_science", Localizer.Token(358));
-            DrawBuildingInfo(ref bCursor, batch, b.PlusTaxPercentage * 100, "NewUI/icon_money", Localizer.Token(359), percent: true);
-            DrawBuildingInfo(ref bCursor, batch, b.MaxFertilityOnBuildFor(Player, P.Category), "NewUI/icon_food", Localizer.Token(360));
-            DrawBuildingInfo(ref bCursor, batch, b.PlanetaryShieldStrengthAdded, "NewUI/icon_planetshield", Localizer.Token(361));
-            DrawBuildingInfo(ref bCursor, batch, b.CreditsPerColonist, "NewUI/icon_money", Localizer.Token(362));
-            DrawBuildingInfo(ref bCursor, batch, b.PlusProdPerRichness, "NewUI/icon_production", Localizer.Token(363));
-            DrawBuildingInfo(ref bCursor, batch, b.ShipRepair * 10, "NewUI/icon_queue_rushconstruction", Localizer.Token(6137));
-            DrawBuildingInfo(ref bCursor, batch, b.Infrastructure, "NewUI/icon_queue_rushconstruction", Localizer.Token(1872));
-            DrawBuildingInfo(ref bCursor, batch, b.CombatStrength, "Ground_UI/Ground_Attack", Localizer.Token(364));
+            DrawBuildingInfo(ref bCursor, batch, b.PlusFlatFoodAmount, "NewUI/icon_food", Localizer.Token(GameText.FoodPerTurn));
+            DrawBuildingInfo(ref bCursor, batch, b.FoodCache, "NewUI/icon_food", Localizer.Token(GameText.FoodRemainingHereThisBuilding), signs: false, digits: 0);
+            DrawBuildingInfo(ref bCursor, batch, b.PlusFoodPerColonist, "NewUI/icon_food", Localizer.Token(GameText.FoodPerTurnPerAssigned));
+            DrawBuildingInfo(ref bCursor, batch, b.SensorRange, "NewUI/icon_sensors", Localizer.Token(GameText.SensorRange), signs: false);
+            DrawBuildingInfo(ref bCursor, batch, b.ProjectorRange, "NewUI/icon_projection", Localizer.Token(GameText.SubspaceProjectionArea), signs: false);
+            DrawBuildingInfo(ref bCursor, batch, b.PlusFlatProductionAmount, "NewUI/icon_production", Localizer.Token(GameText.ProductionPerTurn));
+            DrawBuildingInfo(ref bCursor, batch, b.PlusProdPerColonist, "NewUI/icon_production", Localizer.Token(GameText.ProductionPerTurnPerAssigned));
+            DrawBuildingInfo(ref bCursor, batch, b.ProdCache, "NewUI/icon_production", Localizer.Token(GameText.ProductionRemainingHereThisBuilding), signs: false, digits: 0);
+            DrawBuildingInfo(ref bCursor, batch, b.PlusFlatPopulation / 1000, "NewUI/icon_population", Localizer.Token(GameText.ColonistsPerTurn));
+            DrawBuildingInfo(ref bCursor, batch, b.PlusFlatResearchAmount, "NewUI/icon_science", Localizer.Token(GameText.ResearchPerTurn));
+            DrawBuildingInfo(ref bCursor, batch, b.PlusResearchPerColonist, "NewUI/icon_science", Localizer.Token(GameText.ResearchPerTurnPerAssigned));
+            DrawBuildingInfo(ref bCursor, batch, b.PlusTaxPercentage * 100, "NewUI/icon_money", Localizer.Token(GameText.IncreaseToTaxIncomes), percent: true);
+            DrawBuildingInfo(ref bCursor, batch, b.MaxFertilityOnBuildFor(Player, P.Category), "NewUI/icon_food", Localizer.Token(GameText.MaxFertilityChangeOnBuild));
+            DrawBuildingInfo(ref bCursor, batch, b.PlanetaryShieldStrengthAdded, "NewUI/icon_planetshield", Localizer.Token(GameText.PlanetaryShieldStrengthAdded));
+            DrawBuildingInfo(ref bCursor, batch, b.CreditsPerColonist, "NewUI/icon_money", Localizer.Token(GameText.CreditsAddedPerColonist));
+            DrawBuildingInfo(ref bCursor, batch, b.PlusProdPerRichness, "NewUI/icon_production", Localizer.Token(GameText.ProductionPerRichness));
+            DrawBuildingInfo(ref bCursor, batch, b.ShipRepair * 10, "NewUI/icon_queue_rushconstruction", Localizer.Token(GameText.ShipRepair));
+            DrawBuildingInfo(ref bCursor, batch, b.Infrastructure, "NewUI/icon_queue_rushconstruction", Localizer.Token(GameText.ProductionInfrastructure));
+            DrawBuildingInfo(ref bCursor, batch, b.CombatStrength, "Ground_UI/Ground_Attack", Localizer.Token(GameText.CombatStrength));
             DrawBuildingInfo(ref bCursor, batch, b.DefenseShipsCapacity, "UI/icon_hangar", b.DefenseShipsRole + " Defense Ships", signs: false);
 
             float maintenance = -b.ActualMaintenance(P);
-            DrawBuildingInfo(ref bCursor, batch, maintenance, "NewUI/icon_money", Localizer.Token(365));
+            DrawBuildingInfo(ref bCursor, batch, maintenance, "NewUI/icon_money", Localizer.Token(GameText.CreditsPerTurnInMaintenance));
 
             DrawBuildingWeaponStats(ref bCursor, batch, b);
             DrawTerraformerStats(ref bCursor, batch, b);
@@ -702,15 +702,15 @@ namespace Ship_Game
         string GetTroopsConsumptionText()
         {
             string text = P.Owner.IsCybernetic
-                ? Localizer.Token(4997) // Prod consumption for cybernetic troops
-                : Localizer.Token(4996); // Food consumption for cybernetic troops
+                ? Localizer.Token(GameText.ProductionConsumptionPerTurnFor) // Prod consumption for cybernetic troops
+                : Localizer.Token(GameText.FoodConsumptionPerTurnFor); // Food consumption for cybernetic troops
 
             if (P.AnyOfOurTroops(P.Owner) && P.Owner.TroopInSpaceFoodNeeds.LessOrEqual(0))
-                text = $"{text} {Localizer.Token(4993)}"; // On surface only
+                text = $"{text} {Localizer.Token(GameText.OnSurface)}"; // On surface only
             else if (!P.AnyOfOurTroops(P.Owner) && P.Owner.TroopInSpaceFoodNeeds.Greater(0))
-                text = $"{text} {Localizer.Token(4994)}"; // In space only
+                text = $"{text} {Localizer.Token(GameText.InSpace)}"; // In space only
             else
-                text = $"{text} {Localizer.Token(4995)}"; // On surface and In space
+                text = $"{text} {Localizer.Token(GameText.OnSurfaceAndInSpace)}"; // On surface and In space
 
             return text;
         }

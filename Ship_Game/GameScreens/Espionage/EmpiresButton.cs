@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
@@ -78,7 +78,7 @@ namespace Ship_Game.GameScreens.Espionage
                 batch.DrawString(Fonts.Arial12Bold, espionageDefense.String(1), defPos, Color.White);
 
                 if (defenseIcon.HitTest(Screen.Input.CursorPosition))
-                    ToolTip.CreateTooltip(Localizer.Token(7031));
+                    ToolTip.CreateTooltip(Localizer.Token(GameText.IndicatesTheCounterespionageStrengthOf));
             }
             else if (EmpireManager.Player != Empire)
             {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -517,7 +517,7 @@ namespace Ship_Game
 
             if (troopsLanding > 0)
             {
-                CallTroops.Text = $"{Localizer.Token(4220)} {troopsLanding}"; // "Incoming Troops
+                CallTroops.Text = $"{Localizer.Token(GameText.IncomingTroops)} {troopsLanding}"; // "Incoming Troops
                 CallTroops.Style = ButtonStyle.Military;
             }
             else
@@ -526,7 +526,7 @@ namespace Ship_Game
                 CallTroops.Style = ButtonStyle.Default;
             }
 
-            UpdateButtonText(LaunchAllTroops, Planet.TroopsHere.Count(t => t.CanMove), Localizer.Token(4213));
+            UpdateButtonText(LaunchAllTroops, Planet.TroopsHere.Count(t => t.CanMove), Localizer.Token(GameText.LaunchAllTroops));
         }
 
         void UpdateGovOrbitalStats()
@@ -541,13 +541,13 @@ namespace Ship_Game
             int currentPlatforms = Planet.NumPlatforms + Planet.OrbitalsBeingBuilt(ShipData.RoleName.platform);
             int currentStations  = Planet.NumStations + Planet.OrbitalsBeingBuilt(ShipData.RoleName.station);
             int currentShipyards = Planet.NumShipyards + Planet.ShipyardsBeingBuilt();
-            ColonyRank.Text      = $"{Localizer.Token(4221)} {rank}/15";
+            ColonyRank.Text      = $"{Localizer.Token(GameText.GovernorColonyRank)} {rank}/15";
 
             if ((Planet.GovOrbitals || !Planet.Owner.isPlayer) && GovernorOn)
             {
-                PlatformsText.Text  = $"{Localizer.Token(4222)} {currentPlatforms}/{Planet.WantedPlatforms}";
-                ShipyardsText.Text  = $"{Localizer.Token(4223)} {currentShipyards}/{Planet.WantedShipyards}";
-                StationsText.Text   = $"{Localizer.Token(4224)} {currentStations}/{Planet.WantedStations}";
+                PlatformsText.Text  = $"{Localizer.Token(GameText.Platforms)} {currentPlatforms}/{Planet.WantedPlatforms}";
+                ShipyardsText.Text  = $"{Localizer.Token(GameText.Shipyards2)} {currentShipyards}/{Planet.WantedShipyards}";
+                StationsText.Text   = $"{Localizer.Token(GameText.Stations)} {currentStations}/{Planet.WantedStations}";
                 PlatformsText.Color = GetColor(currentPlatforms, Planet.WantedPlatforms);
                 ShipyardsText.Color = GetColor(currentShipyards, Planet.WantedShipyards);
                 StationsText.Color  = GetColor(currentStations, Planet.WantedStations);
@@ -641,8 +641,8 @@ namespace Ship_Game
             if (GovernorOn)
             {
                 float percentSpent  = spent / budget.TotalAlloc.LowerBound(0.01f) * 100;
-                BudgetSum.Text      = $"{Localizer.Token(4234)} {spent.String(1)}" +
-                                      $" {Localizer.Token(4235)} {budget.TotalAlloc.String(1)} BC/Y";
+                BudgetSum.Text      = $"{Localizer.Token(GameText.Total3)} {spent.String(1)}" +
+                                      $" {Localizer.Token(GameText.Of)} {budget.TotalAlloc.String(1)} BC/Y";
                 BudgetPercent.Text  = $" ({percentSpent.String(1)}%)";
                 BudgetPercent.Color = GetColor();
             }
@@ -651,7 +651,7 @@ namespace Ship_Game
                 NoGovernorCivExpense.Text = $"{Planet.CivilianBuildingsMaintenance.String(2)} BC/Y";
                 NoGovernorGrdExpense.Text = $"{Planet.GroundDefMaintenance.String(2)} BC/Y";
                 NoGovernorSpcExpense.Text = $"{Planet.SpaceDefMaintenance.String(2)} BC/Y";
-                BudgetSum.Text            = $"{Localizer.Token(4234)} {spent.String(2)} BC/Y";
+                BudgetSum.Text            = $"{Localizer.Token(GameText.Total3)} {spent.String(2)} BC/Y";
                 BudgetPercent.Text        = "";
             }
 

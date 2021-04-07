@@ -169,7 +169,7 @@ namespace Ship_Game
                 var textColor = new Color(255, 239, 208, (byte) alpha);
                 if (HotKey.NotEmpty())
                 {
-                    string title = Localizer.Token(2300) + ": ";
+                    string title = Localizer.Token(GameText.Hotkey) + ": ";
 
                     batch.DrawString(Fonts.Arial12Bold, title, textPos, textColor);
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Ships;
@@ -159,7 +159,7 @@ namespace Ship_Game
 
         static string GetShipName(Ship ship)
         {
-            return ship.IsPlatformOrStation ? ship.Name + " " + Localizer.Token(2041)
+            return ship.IsPlatformOrStation ? ship.Name + " " + Localizer.Token(GameText.OrbitsPlanet)
                                             : ship.Name;
         }
 

@@ -69,7 +69,7 @@ namespace Ship_Game
         private Selector Selector;
         private Rectangle EditNameButton;
         private Array<Building> BuildingsCanBuild = new Array<Building>();
-        private GenericButton ChangeGovernor = new GenericButton(new Rectangle(), Localizer.Token(370), Fonts.Pirulen16);
+        private GenericButton ChangeGovernor = new GenericButton(new Rectangle(), Localizer.Token(GameText.Change), Fonts.Pirulen16);
         private static bool Popup;  //fbedard
         private readonly SpriteFont Font8 = Fonts.Arial8Bold;
         private readonly SpriteFont Font12 = Fonts.Arial12Bold;
@@ -94,19 +94,19 @@ namespace Ship_Game
             close = new CloseButton(this, new Rectangle(theMenu3.X + theMenu3.Width - 52, theMenu3.Y + 22, 20, 20));
             var theMenu4 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
             PlanetInfo = new Submenu(theMenu4);
-            PlanetInfo.AddTab(Localizer.Token(326));
+            PlanetInfo.AddTab(Localizer.Token(GameText.PlanetInfo));
             var theMenu5 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
             pDescription = new Submenu(theMenu5);
 
             var laborPanel = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height + theMenu5.Height + 20, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
             pLabor = new Submenu(laborPanel);
-            pLabor.AddTab(Localizer.Token(327));
+            pLabor.AddTab(Localizer.Token(GameText.AssignLabor));
 
             CreateSliders(laborPanel);
 
             var theMenu7 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height + theMenu5.Height + laborPanel.Height + 40, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
             pStorage = new Submenu(theMenu7);
-            pStorage.AddTab(Localizer.Token(328));
+            pStorage.AddTab(Localizer.Token(GameText.Storage));
 
             if (GlobalStats.HardcoreRuleset)
             {
@@ -123,9 +123,9 @@ namespace Ship_Game
                 FoodStorage.Progress = p.FoodHere;
                 FoodStorage.color = "green";
                 foodDropDown = new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
-                foodDropDown.AddOption(Localizer.Token(329));
-                foodDropDown.AddOption(Localizer.Token(330));
-                foodDropDown.AddOption(Localizer.Token(331));
+                foodDropDown.AddOption(Localizer.Token(GameText.Store));
+                foodDropDown.AddOption(Localizer.Token(GameText.Import));
+                foodDropDown.AddOption(Localizer.Token(GameText.Export));
                 foodDropDown.ActiveIndex = (int)p.FS;
                 var iconStorageFood = ResourceManager.Texture("NewUI/icon_storage_food");
                 FoodStorageIcon = new Rectangle(theMenu7.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageFood.Width, iconStorageFood.Height);
@@ -135,17 +135,17 @@ namespace Ship_Game
                 var iconStorageProd = ResourceManager.Texture("NewUI/icon_storage_production");
                 ProfStorageIcon = new Rectangle(theMenu7.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageProd.Width, iconStorageFood.Height);
                 prodDropDown = new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
-                prodDropDown.AddOption(Localizer.Token(329));
-                prodDropDown.AddOption(Localizer.Token(330));
-                prodDropDown.AddOption(Localizer.Token(331));
+                prodDropDown.AddOption(Localizer.Token(GameText.Store));
+                prodDropDown.AddOption(Localizer.Token(GameText.Import));
+                prodDropDown.AddOption(Localizer.Token(GameText.Export));
                 prodDropDown.ActiveIndex = (int)p.PS;
             }
             var theMenu8 = new Rectangle(theMenu2.X + 20 + theMenu4.Width + 20, theMenu4.Y, theMenu2.Width - 60 - theMenu4.Width, (int)(theMenu2.Height * 0.5));
             subColonyGrid = new Submenu(theMenu8);
-            subColonyGrid.AddTab(Localizer.Token(332));
+            subColonyGrid.AddTab(Localizer.Token(GameText.Colony));
             var theMenu9 = new Rectangle(theMenu2.X + 20 + theMenu4.Width + 20, theMenu8.Y + theMenu8.Height + 20, theMenu2.Width - 60 - theMenu4.Width, theMenu2.Height - 20 - theMenu8.Height - 40);
             pFacilities = new Submenu(theMenu9);
-            pFacilities.AddTab(Localizer.Token(333));
+            pFacilities.AddTab(Localizer.Token(GameText.Detail));
 
             launchTroops = Button(theMenu9.X + theMenu9.Width - 175, theMenu9.Y - 5, "Launch Troops", OnLaunchTroopsClicked);
             SendTroops = Button(theMenu9.X + theMenu9.Width - launchTroops.Rect.Width - 185,
@@ -154,7 +154,7 @@ namespace Ship_Game
             CommoditiesSL = new ScrollList(pFacilities, 40);
             var theMenu10 = new Rectangle(theMenu3.X + 20, theMenu3.Y + 20, theMenu3.Width - 40, (int)(0.5 * (theMenu3.Height - 60)));
             build = new Submenu(theMenu10);
-            build.AddTab(Localizer.Token(334));
+            build.AddTab(Localizer.Token(GameText.Buildings));
             buildSL = new ScrollList(build);
             PlayerDesignsToggle = new ToggleButton(
                 new Vector2(build.Menu.X + build.Menu.Width - 270, build.Menu.Y),
@@ -162,12 +162,12 @@ namespace Ship_Game
 
             PlayerDesignsToggle.Active = GlobalStats.ShowAllDesigns;
             if (p.HasSpacePort)
-                build.AddTab(Localizer.Token(335));
+                build.AddTab(Localizer.Token(GameText.Ships));
             if (p.AllowInfantry)
-                build.AddTab(Localizer.Token(336));
+                build.AddTab(Localizer.Token(GameText.Troops));
             var theMenu11 = new Rectangle(theMenu3.X + 20, theMenu3.Y + 20 + 20 + theMenu10.Height, theMenu3.Width - 40, theMenu3.Height - 40 - theMenu10.Height - 20 - 3);
             queue = new Submenu(theMenu11);
-            queue.AddTab(Localizer.Token(337));
+            queue.AddTab(Localizer.Token(GameText.ConstructionQueue));
 
             QSL = new ScrollList(queue, ListOptions.Draggable);
 
@@ -184,15 +184,15 @@ namespace Ship_Game
                 ShipsCanBuildLast = p.Owner.ShipsWeCanBuild.Count;
                 DetailInfo = p.Description;
                 var rectangle4 = new Rectangle(pDescription.Menu.X + 10, pDescription.Menu.Y + 30, 124, 148);
-                var rectangle5 = new Rectangle(rectangle4.X + rectangle4.Width + 20, rectangle4.Y + rectangle4.Height - 15, (int)Fonts.Pirulen16.MeasureString(Localizer.Token(370)).X, Fonts.Pirulen16.LineSpacing);
+                var rectangle5 = new Rectangle(rectangle4.X + rectangle4.Width + 20, rectangle4.Y + rectangle4.Height - 15, (int)Fonts.Pirulen16.MeasureString(Localizer.Token(GameText.Change)).X, Fonts.Pirulen16.LineSpacing);
                 GovernorDropdown = new DropOptions<int>(this, new Rectangle(rectangle5.X + 30, rectangle5.Y + 30, 100, 18));
                 GovernorDropdown.AddOption("--", 1);
-                GovernorDropdown.AddOption(Localizer.Token(4064), 0);
-                GovernorDropdown.AddOption(Localizer.Token(4065), 2);
-                GovernorDropdown.AddOption(Localizer.Token(4066), 4);
-                GovernorDropdown.AddOption(Localizer.Token(4067), 3);
-                GovernorDropdown.AddOption(Localizer.Token(4068), 5);
-                GovernorDropdown.AddOption(Localizer.Token(5087), 6);
+                GovernorDropdown.AddOption(Localizer.Token(GameText.Core), 0);
+                GovernorDropdown.AddOption(Localizer.Token(GameText.Industrial), 2);
+                GovernorDropdown.AddOption(Localizer.Token(GameText.Agricultural), 4);
+                GovernorDropdown.AddOption(Localizer.Token(GameText.Research), 3);
+                GovernorDropdown.AddOption(Localizer.Token(GameText.Military), 5);
+                GovernorDropdown.AddOption(Localizer.Token(GameText.TradeHub), 6);
                 GovernorDropdown.ActiveIndex = GetIndex(p);
 
                 P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
@@ -221,7 +221,7 @@ namespace Ship_Game
             TitleBar.Draw(batch);
             LeftColony.Draw(ScreenManager);
             RightColony.Draw(ScreenManager);
-            batch.DrawString(Fonts.Laserian14, Localizer.Token(369), TitlePos, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Laserian14, Localizer.Token(GameText.ColonyOverview), TitlePos, new Color(255, 239, 208));
             if (!GlobalStats.HardcoreRuleset)
             {
                 FoodStorage.Max = P.Storage.Max;
@@ -331,20 +331,20 @@ namespace Ship_Game
                 vector2_2.Y += Font20.LineSpacing * 2;
             else
                 vector2_2.Y += Font20.LineSpacing;
-            batch.DrawString(Font12, Localizer.Token(384) + ":", vector2_2, Color.Orange);
+            batch.DrawString(Font12, Localizer.Token(GameText.Class) + ":", vector2_2, Color.Orange);
             Vector2 position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(Font12, P.CategoryName, position3, new Color(255, 239, 208));
             vector2_2.Y += Font12.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(Font12, Localizer.Token(385) + ":", vector2_2, Color.Orange);
+            batch.DrawString(Font12, Localizer.Token(GameText.Population) + ":", vector2_2, Color.Orange);
             var color = new Color(255, 239, 208);
             batch.DrawString(Font12, P.PopulationString, position3, color);
-            var rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(385) + ":").X, Font12.LineSpacing);
+            var rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(GameText.Population) + ":").X, Font12.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(75);
             vector2_2.Y += Font12.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(Font12, Localizer.Token(386) + ":", vector2_2, Color.Orange);
+            batch.DrawString(Font12, Localizer.Token(GameText.Fertility) + ":", vector2_2, Color.Orange);
             if (P.Fertility.AlmostEqual(P.MaxFertility))
                 batch.DrawString(Font12, P.Fertility.String(), position3, color);
             else
@@ -353,22 +353,22 @@ namespace Ship_Game
                 batch.DrawString(Font12, $"{P.Fertility.String()} / {P.MaxFertility.String()}", position3, fertColor);
             }
 
-            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(386) + ":").X, Font12.LineSpacing);
+            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(GameText.Fertility) + ":").X, Font12.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(20);
             vector2_2.Y += Font12.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(Font12, Localizer.Token(387) + ":", vector2_2, Color.Orange);
+            batch.DrawString(Font12, Localizer.Token(GameText.Richness) + ":", vector2_2, Color.Orange);
             batch.DrawString(Font12, P.MineralRichness.String(), position3, new Color(255, 239, 208));
-            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(387) + ":").X, Font12.LineSpacing);
+            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(GameText.Richness) + ":").X, Font12.LineSpacing);
 
 
             // The Doctor: For planet income breakdown
 
-            string gIncome = Localizer.Token(6125);
-            string gUpkeep = Localizer.Token(6126);
-            string nIncome = Localizer.Token(6127);
-            string nLosses = Localizer.Token(6129);
+            string gIncome = Localizer.Token(GameText.GrossIncome);
+            string gUpkeep = Localizer.Token(GameText.Expenditure2);
+            string nIncome = Localizer.Token(GameText.NetIncome);
+            string nLosses = Localizer.Token(GameText.NetLosses);
 
             float grossIncome = P.Money.GrossRevenue;
             float grossUpkeep = P.Money.Maintenance;
@@ -617,7 +617,7 @@ namespace Ship_Game
                     var position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
                     batch.DrawString(Font12,
                         ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform
-                            ? ship.Name + " " + Localizer.Token(2041)
+                            ? ship.Name + " " + Localizer.Token(GameText.OrbitsPlanet)
                             : ship.Name, position, Color.White);
                     position.Y += Font12.LineSpacing;
 
@@ -670,7 +670,7 @@ namespace Ship_Game
                     Vector2 position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
                     batch.DrawString(Font12,
                         ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform
-                            ? ship.Name + " " + Localizer.Token(2041)
+                            ? ship.Name + " " + Localizer.Token(GameText.OrbitsPlanet)
                             : ship.Name, position, Color.White);
                     position.Y += Font12.LineSpacing;
 
@@ -988,17 +988,17 @@ namespace Ship_Game
                 case string _:
                     DrawMultiLine(ref bCursor, P.Description);
                     string desc = "";
-                    if (P.IsCybernetic)  desc = Localizer.Token(2028);
+                    if (P.IsCybernetic)  desc = Localizer.Token(GameText.TheOccupantsOfThisPlanet);
                     else switch (P.FS)
                     {
                         case Planet.GoodState.EXPORT:
-                            desc = Localizer.Token(2025);
+                            desc = Localizer.Token(GameText.ThisColonyIsSetTo);
                             break;
                         case Planet.GoodState.IMPORT:
-                            desc = Localizer.Token(2026);
+                            desc = Localizer.Token(GameText.ThisColonyIsSetTo2);
                             break;
                         case Planet.GoodState.STORE:
-                            desc = Localizer.Token(2027);
+                            desc = Localizer.Token(GameText.ThisPlanetIsNeitherImporting);
                             break;
                     }
 
@@ -1007,18 +1007,18 @@ namespace Ship_Game
                     switch (P.PS)
                     {
                         case Planet.GoodState.EXPORT:
-                            desc = Localizer.Token(345);
+                            desc = Localizer.Token(GameText.ThisPlanetIsManuallyExporting);
                             break;
                         case Planet.GoodState.IMPORT:
-                            desc = Localizer.Token(346);
+                            desc = Localizer.Token(GameText.ThisPlanetIsManuallyImporting);
                             break;
                         case Planet.GoodState.STORE:
-                            desc = Localizer.Token(347);
+                            desc = Localizer.Token(GameText.ThisPlanetIsManuallyStoring);
                             break;
                     }
                     DrawMultiLine(ref bCursor, desc);
                     if (P.IsStarving)
-                        DrawMultiLine(ref bCursor, Localizer.Token(344), Color.LightPink);
+                        DrawMultiLine(ref bCursor, Localizer.Token(GameText.ThisPlanetsPopulationIsShrinking), Color.LightPink);
                     DrawPlanetStat(ref bCursor, spriteBatch);
                     break;
 
@@ -1026,12 +1026,12 @@ namespace Ship_Game
                     switch (pgs.building)
                     {
                         case null when pgs.Habitable && pgs.Biosphere:
-                            spriteBatch.DrawString(Font20, Localizer.Token(348), bCursor, color);
+                            spriteBatch.DrawString(Font20, Localizer.Token(GameText.HabitableBiosphere), bCursor, color);
                             bCursor.Y +=Font20.LineSpacing + 5;
                             spriteBatch.DrawString(Font12, MultiLineFormat(349), bCursor, color);
                             return;
                         case null when pgs.Habitable:
-                            spriteBatch.DrawString(Font20, Localizer.Token(350), bCursor, color);
+                            spriteBatch.DrawString(Font20, Localizer.Token(GameText.HabitableLand), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
                             spriteBatch.DrawString(Font12, MultiLineFormat(349), bCursor, color);
                             return;
@@ -1041,12 +1041,12 @@ namespace Ship_Game
                     {
                         if (P.IsBarrenType)
                         {
-                            spriteBatch.DrawString(Font20, Localizer.Token(351), bCursor, color);
+                            spriteBatch.DrawString(Font20, Localizer.Token(GameText.UninhabitableLand), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
                             spriteBatch.DrawString(Font12, MultiLineFormat(352), bCursor, color);
                             return;
                         }
-                        spriteBatch.DrawString(Font20, Localizer.Token(351), bCursor, color);
+                        spriteBatch.DrawString(Font20, Localizer.Token(GameText.UninhabitableLand), bCursor, color);
                         bCursor.Y += Font20.LineSpacing + 5;
                         spriteBatch.DrawString(Font12, MultiLineFormat(353), bCursor, color);
                         return;
@@ -1101,40 +1101,40 @@ namespace Ship_Game
         private void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch spriteBatch, Building building)
         {
             DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusFlatFoodAmount,
-                ResourceManager.Texture("NewUI/icon_food"), Localizer.Token(354));
+                ResourceManager.Texture("NewUI/icon_food"), Localizer.Token(GameText.FoodPerTurn));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusFoodPerColonist,
-                ResourceManager.Texture("NewUI/icon_food"), Localizer.Token(2042));
+                ResourceManager.Texture("NewUI/icon_food"), Localizer.Token(GameText.FoodPerTurnPerAssigned));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.SensorRange,
-                ResourceManager.Texture("NewUI/icon_sensors"), Localizer.Token(6000), signs: false);
+                ResourceManager.Texture("NewUI/icon_sensors"), Localizer.Token(GameText.SensorRange), signs: false);
             DrawBuildingInfo(ref bCursor, spriteBatch, building.ProjectorRange,
-                ResourceManager.Texture("NewUI/icon_projection"), Localizer.Token(6001), signs: false);
+                ResourceManager.Texture("NewUI/icon_projection"), Localizer.Token(GameText.SubspaceProjectionArea), signs: false);
             DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusFlatProductionAmount,
-                ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(355));
+                ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(GameText.ProductionPerTurn));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusProdPerColonist,
-                ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(356));
+                ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(GameText.ProductionPerTurnPerAssigned));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusFlatPopulation / 1000,
-                ResourceManager.Texture("NewUI/icon_population"), Localizer.Token(2043));
+                ResourceManager.Texture("NewUI/icon_population"), Localizer.Token(GameText.ColonistsPerTurn));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusFlatResearchAmount,
-                ResourceManager.Texture("NewUI/icon_science"), Localizer.Token(357));
+                ResourceManager.Texture("NewUI/icon_science"), Localizer.Token(GameText.ResearchPerTurn));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusResearchPerColonist,
-                ResourceManager.Texture("NewUI/icon_science"), Localizer.Token(358));
+                ResourceManager.Texture("NewUI/icon_science"), Localizer.Token(GameText.ResearchPerTurnPerAssigned));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusTaxPercentage * 100,
-                ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(359), percent: true);
+                ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(GameText.IncreaseToTaxIncomes), percent: true);
             DrawBuildingInfo(ref bCursor, spriteBatch, -building.MinusFertilityOnBuild,
-                ResourceManager.Texture("NewUI/icon_food"), Localizer.Token(360));
+                ResourceManager.Texture("NewUI/icon_food"), Localizer.Token(GameText.MaxFertilityChangeOnBuild));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.PlanetaryShieldStrengthAdded,
-                ResourceManager.Texture("NewUI/icon_planetshield"), Localizer.Token(361));
+                ResourceManager.Texture("NewUI/icon_planetshield"), Localizer.Token(GameText.PlanetaryShieldStrengthAdded));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.CreditsPerColonist,
-                ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(362));
+                ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(GameText.CreditsAddedPerColonist));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusProdPerRichness,
-                ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(363));
+                ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(GameText.ProductionPerRichness));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.ShipRepair * 10 * P.Level,
-                ResourceManager.Texture("NewUI/icon_queue_rushconstruction"), Localizer.Token(6137));
+                ResourceManager.Texture("NewUI/icon_queue_rushconstruction"), Localizer.Token(GameText.ShipRepair));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.CombatStrength,
-                ResourceManager.Texture("Ground_UI/Ground_Attack"), Localizer.Token(364));
+                ResourceManager.Texture("Ground_UI/Ground_Attack"), Localizer.Token(GameText.CombatStrength));
             float maintenance = -(building.Maintenance + building.Maintenance * P.Owner.data.Traits.MaintMod);
             DrawBuildingInfo(ref bCursor, spriteBatch, maintenance,
-                ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(365));
+                ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(GameText.CreditsPerTurnInMaintenance));
             if (building.TheWeapon == null)
                 return;
 
@@ -1326,7 +1326,7 @@ namespace Ship_Game
             {
                 if (PlayerDesignsToggle.Rect.HitTest(input.CursorPosition))
                 {
-                    ToolTip.CreateTooltip(Localizer.Token(2225));
+                    ToolTip.CreateTooltip(Localizer.Token(GameText.ToggleToDisplayOnlyPlayerdesigned));
                 }
                 if (PlayerDesignsToggle.HandleInput(input) && !input.LeftMouseReleased)
                 {
@@ -1434,8 +1434,8 @@ namespace Ship_Game
 
         bool HandleCycleColoniesLeftRight(InputState input)
         {
-            if      (RightColony.Rect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(Localizer.Token(2279));
-            else if (LeftColony.Rect.HitTest(input.CursorPosition))  ToolTip.CreateTooltip(Localizer.Token(2280));
+            if      (RightColony.Rect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(Localizer.Token(GameText.ViewNextColony));
+            else if (LeftColony.Rect.HitTest(input.CursorPosition))  ToolTip.CreateTooltip(Localizer.Token(GameText.ViewPreviousColony));
 
             bool canView = (Empire.Universe.Debug || P.Owner == EmpireManager.Player);
             if (!canView)
@@ -1907,7 +1907,7 @@ namespace Ship_Game
                 bool remove = false;
                 foreach (Submenu.Tab tab in build.Tabs)
                 {
-                    if (tab.Title != Localizer.Token(336))
+                    if (tab.Title != Localizer.Token(GameText.Troops))
                     {
                         continue;
                     }
@@ -1916,10 +1916,10 @@ namespace Ship_Game
                 if (remove)
                 {
                     build.Tabs.Clear();
-                    build.AddTab(Localizer.Token(334));
+                    build.AddTab(Localizer.Token(GameText.Buildings));
                     if (P.HasSpacePort)
                     {
-                        build.AddTab(Localizer.Token(335));
+                        build.AddTab(Localizer.Token(GameText.Ships));
                     }
                 }
             }
@@ -1928,7 +1928,7 @@ namespace Ship_Game
                 bool add = true;
                 foreach (Submenu.Tab tab in build.Tabs)
                 {
-                    if (tab.Title != Localizer.Token(336))
+                    if (tab.Title != Localizer.Token(GameText.Troops))
                         continue;
                     add = false;
                     foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
@@ -1938,12 +1938,12 @@ namespace Ship_Game
                 if (add)
                 {
                     build.Tabs.Clear();
-                    build.AddTab(Localizer.Token(334));
+                    build.AddTab(Localizer.Token(GameText.Buildings));
                     if (P.HasSpacePort)
                     {
-                        build.AddTab(Localizer.Token(335));
+                        build.AddTab(Localizer.Token(GameText.Ships));
                     }
-                    build.AddTab(Localizer.Token(336));
+                    build.AddTab(Localizer.Token(GameText.Troops));
                 }
             }
             if (!P.HasSpacePort)
@@ -1951,7 +1951,7 @@ namespace Ship_Game
                 bool remove = false;
                 foreach (Submenu.Tab tab in build.Tabs)
                 {
-                    if (tab.Title != Localizer.Token(335))
+                    if (tab.Title != Localizer.Token(GameText.Ships))
                     {
                         continue;
                     }
@@ -1960,10 +1960,10 @@ namespace Ship_Game
                 if (remove)
                 {
                     build.Tabs.Clear();
-                    build.AddTab(Localizer.Token(334));
+                    build.AddTab(Localizer.Token(GameText.Buildings));
                     if (P.AllowInfantry)
                     {
-                        build.AddTab(Localizer.Token(336));
+                        build.AddTab(Localizer.Token(GameText.Troops));
                     }
                 }
             }
@@ -1972,7 +1972,7 @@ namespace Ship_Game
                 bool add = true;
                 foreach (Submenu.Tab tab in build.Tabs)
                 {
-                    if (tab.Title != Localizer.Token(335))
+                    if (tab.Title != Localizer.Token(GameText.Ships))
                     {
                         continue;
                     }
@@ -1981,11 +1981,11 @@ namespace Ship_Game
                 if (add)
                 {
                     build.Tabs.Clear();
-                    build.AddTab(Localizer.Token(334));
-                    build.AddTab(Localizer.Token(335));
+                    build.AddTab(Localizer.Token(GameText.Buildings));
+                    build.AddTab(Localizer.Token(GameText.Ships));
                     if (P.AllowInfantry)
                     {
-                        build.AddTab(Localizer.Token(336));
+                        build.AddTab(Localizer.Token(GameText.Troops));
                     }
                 }
             }
