@@ -224,13 +224,13 @@ namespace Ship_Game
             graphics.Padding = new Vector2(2f, 4f);
             ResolutionDropDown = new DropOptions<DisplayMode>(105, 18);
 
-            Add(graphics, new LocalizedText(9), ResolutionDropDown);
-            Add(graphics, new LocalizedText(10),   l => New.Mode.ToString(),               Fullscreen_OnClick);
-            Add(graphics, new LocalizedText(4147), l => AntiAliasString(),                 AntiAliasing_OnClick);
-            Add(graphics, new LocalizedText(4148), l => QualityString(New.TextureQuality), TextureQuality_OnClick);
-            Add(graphics, new LocalizedText(4149), l => TextureFilterString(),             TextureFiltering_OnClick);
-            Add(graphics, new LocalizedText(4150), l => ShadowQualStr(New.ShadowDetail),   ShadowQuality_OnClick);
-            Add(graphics, new LocalizedText(4151), l => QualityString(New.EffectDetail),   EffectsQuality_OnClick);
+            Add(graphics, GameText.Resolution, ResolutionDropDown);
+            Add(graphics, GameText.ScreenMode,   l => New.Mode.ToString(),               Fullscreen_OnClick);
+            Add(graphics, GameText.AntiAliasing, l => AntiAliasString(),                 AntiAliasing_OnClick);
+            Add(graphics, GameText.TextureQuality, l => QualityString(New.TextureQuality), TextureQuality_OnClick);
+            Add(graphics, GameText.TextureFiltering, l => TextureFilterString(),             TextureFiltering_OnClick);
+            Add(graphics, GameText.ShadowQuality, l => ShadowQualStr(New.ShadowDetail),   ShadowQuality_OnClick);
+            Add(graphics, GameText.EffectsQuality, l => QualityString(New.EffectDetail),   EffectsQuality_OnClick);
             graphics.AddCheckbox(() => New.RenderBloom, 4145, 4146);
 
             graphics.ReverseZOrder(); // @todo This is a hacky workaround to zorder limitations
@@ -240,20 +240,20 @@ namespace Ship_Game
             botLeft.Padding = new Vector2(2f, 8f);
             botLeft.LayoutStyle = ListLayoutStyle.Clip;
             SoundDevices = new DropOptions<MMDevice>(180, 18);
-            botLeft.AddSplit(new UILabel(new LocalizedText(4142)), SoundDevices);
-            MusicVolumeSlider   = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, new LocalizedText(4143), 0f, 1f, GlobalStats.MusicVolume));
-            EffectsVolumeSlider = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, new LocalizedText(4144), 0f, 1f, GlobalStats.EffectsVolume));
+            botLeft.AddSplit(new UILabel(GameText.SoundDevice), SoundDevices);
+            MusicVolumeSlider   = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, GameText.MusicVolume, 0f, 1f, GlobalStats.MusicVolume));
+            EffectsVolumeSlider = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, GameText.EffectsVolume, 0f, 1f, GlobalStats.EffectsVolume));
 
             botLeft.ReverseZOrder(); // @todo This is a hacky workaround to zorder limitations
 
             UIList botRight = AddList(new Vector2(RightArea.X, RightArea.Y + 180), RightArea.Size());
             botRight.Padding = new Vector2(2f, 8f);
             botRight.LayoutStyle = ListLayoutStyle.Clip;
-            IconSize      = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, new LocalizedText(4140), 0,  30, GlobalStats.IconSize));
-            AutoSaveFreq  = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, new LocalizedText(4141), 60, 540, GlobalStats.AutoSaveFreq));
-            SimulationFps = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, new LocalizedText(4138), 10, 120, GlobalStats.SimulationFramesPerSecond));
+            IconSize      = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, GameText.IconSizes, 0,  30, GlobalStats.IconSize));
+            AutoSaveFreq  = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, GameText.AutosaveFrequency, 60, 540, GlobalStats.AutoSaveFreq));
+            SimulationFps = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, GameText.SimulationFps, 10, 120, GlobalStats.SimulationFramesPerSecond));
             AutoSaveFreq.Tip = GameText.TheDelayBetweenAutoSaves;
-            SimulationFps.Tip = new LocalizedText(4139);
+            SimulationFps.Tip = GameText.ChangesTheSimulationFrequencyLower;
 
             UIList right = AddList(RightArea.PosVec(), RightArea.Size());
             right.Padding = new Vector2(2f, 4f);
@@ -266,7 +266,7 @@ namespace Ship_Game
             right.AddCheckbox(() => GlobalStats.EnableSaveExportButton,       title: 4136, tooltip: 4137);
 
             CurrentLanguage = new DropOptions<Language>(105, 18);
-            Add(right, new LocalizedText(4117), CurrentLanguage);
+            Add(right, GameText.Language, CurrentLanguage);
 
             Add(new UIButton(new Vector2(RightArea.Right - 172, RightArea.Bottom + 60), Localizer.Token(GameText.ApplySettings)))
                 .OnClick = button => ApplyOptions();

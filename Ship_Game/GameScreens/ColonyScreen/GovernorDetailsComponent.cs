@@ -112,8 +112,8 @@ namespace Ship_Game
             OverrideGrd    = Add(new UICheckBox(() => OverrideGrdBudget, Font, title: 4226, tooltip: 4227));
             OverrideSpc    = Add(new UICheckBox(() => OverrideSpcBudget, Font, title: 4226, tooltip: 4227));
 
-            Garrison        = Slider(200, 200, 160, 40, new LocalizedText(4211), 0, 25,Planet.GarrisonSize);
-            ManualPlatforms = Slider(200, 200, 120, 40, new LocalizedText(4212), 0, 15, Planet.WantedPlatforms);
+            Garrison        = Slider(200, 200, 160, 40, GameText.GarrisonSize, 0, 25,Planet.GarrisonSize);
+            ManualPlatforms = Slider(200, 200, 120, 40, GameText.ManualLimit, 0, 15, Planet.WantedPlatforms);
             ManualShipyards = Slider(200, 200, 120, 40, "", 0, 2, Planet.WantedShipyards);
             ManualStations  = Slider(200, 200, 120, 40, "", 0, 10, Planet.WantedStations);
 
@@ -135,26 +135,26 @@ namespace Ship_Game
             ColonyTypeList.OnValueChange = OnColonyTypeChanged;
 
             ButtonUpdateTimer = 1;
-            LaunchAllTroops   = Button(ButtonStyle.Default, new LocalizedText(4213), OnLaunchTroopsClicked);
-            LaunchSingleTroop = Button(ButtonStyle.Default, new LocalizedText(4214), OnLaunchSingleTroopClicked);
-            CallTroops        = Button(ButtonStyle.Default, new LocalizedText(4215), OnSendTroopsClicked);
+            LaunchAllTroops   = Button(ButtonStyle.Default, GameText.LaunchAllTroops, OnLaunchTroopsClicked);
+            LaunchSingleTroop = Button(ButtonStyle.Default, GameText.LaunchOneTroop, OnLaunchSingleTroopClicked);
+            CallTroops        = Button(ButtonStyle.Default, GameText.CallTroops, OnSendTroopsClicked);
 
-            LaunchAllTroops.Tooltip   = new LocalizedText(1952);
-            LaunchSingleTroop.Tooltip = new LocalizedText(1950);
-            CallTroops.Tooltip        = new LocalizedText(1949);
+            LaunchAllTroops.Tooltip   = GameText.LaunchToSpaceAllTroops;
+            LaunchSingleTroop.Tooltip = GameText.LaunchASingleRandomTroop;
+            CallTroops.Tooltip        = GameText.RebaseASingleTroopFrom;
 
-            BuildShipyard = Button(ButtonStyle.Medium, new LocalizedText(4216), OnBuildShipyardClick);
-            BuildStation  = Button(ButtonStyle.Medium, new LocalizedText(4217), OnBuildStationClick);
-            BuildPlatform = Button(ButtonStyle.Medium, new LocalizedText(4218), OnBuildPlatformClick);
+            BuildShipyard = Button(ButtonStyle.Medium, GameText.BuildShipyard, OnBuildShipyardClick);
+            BuildStation  = Button(ButtonStyle.Medium, GameText.BuildStation, OnBuildStationClick);
+            BuildPlatform = Button(ButtonStyle.Medium, GameText.BuildPlatform, OnBuildPlatformClick);
 
-            BuildShipyard.Tooltip = new LocalizedText(1948);
-            BuildStation.Tooltip  = new LocalizedText(1947);
-            BuildPlatform.Tooltip = new LocalizedText(1946);
+            BuildShipyard.Tooltip = GameText.BuildAShipyardOrbitingThis;
+            BuildStation.Tooltip  = GameText.BuildAStationTheStrongest;
+            BuildPlatform.Tooltip = GameText.BuildAPlatformTheStrongest;
 
             PlatformsText    = Add(new UILabel(" "));
             ShipyardsText    = Add(new UILabel(" "));
             StationsText     = Add(new UILabel(" "));
-            NoGovernor       = Add(new UILabel(new LocalizedText(4219), Font, Color.Gray));
+            NoGovernor       = Add(new UILabel(GameText.NoGovernor, Font, Color.Gray));
             ColonyRank       = Add(new UILabel(" ", Font, Color.LightGreen));
 
             CivBudgetRect    = new Rectangle((int)X + 57, (int)Y + 40, (int)(Width*0.33f), 20);
@@ -192,9 +192,9 @@ namespace Ship_Game
             NoGovernorSpcExpense = Add(new UILabel(" ", FontBig, Color.SteelBlue));
 
             Tabs = Add(new Submenu(Rect));
-            Tabs.AddTab(new LocalizedText(4209)); // Governor
-            Tabs.AddTab(new LocalizedText(4210)); // Defense
-            Tabs.AddTab(new LocalizedText(4225)); // Budget
+            Tabs.AddTab(GameText.Governor); // Governor
+            Tabs.AddTab(GameText.Defense2); // Defense
+            Tabs.AddTab(GameText.Budget); // Budget
 
             if (selectedIndex < Tabs.NumTabs)
                 Tabs.SelectedIndex = selectedIndex;
@@ -522,7 +522,7 @@ namespace Ship_Game
             }
             else
             {
-                CallTroops.Text = new LocalizedText(4215); // "Call Troops"
+                CallTroops.Text = GameText.CallTroops; // "Call Troops"
                 CallTroops.Style = ButtonStyle.Default;
             }
 

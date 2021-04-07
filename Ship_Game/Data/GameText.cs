@@ -1868,8 +1868,8 @@ namespace Ship_Game
         PopulationMax = 1424,
         /// <summary>Colonize</summary>
         Colonize = 1425,
-        /// <summary>Cancel</summary>
-        Cancel2 = 1426,
+        /// <summary>Cancel Colonize</summary>
+        CancelColonize = 1426,
         /// <summary>This planet is not habitable by your species</summary>
         ThisPlanetIsNotHabitable = 1427,
         /// <summary>Uninhabitable</summary>

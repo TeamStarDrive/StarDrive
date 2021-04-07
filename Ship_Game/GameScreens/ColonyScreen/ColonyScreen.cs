@@ -110,9 +110,9 @@ namespace Ship_Game
             SubColonyGrid = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, PlanetInfo.Y, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height * 0.5f);
             SubColonyGrid.AddTab(Localizer.Token(GameText.Colony));
             PFacilities = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, SubColonyGrid.Bottom + 20, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height - 20 - SubColonyGrid.Height - 40);
-            PFacilities.AddTab(new LocalizedText(4198)); // Statistics
-            //PFacilities.AddTab(new LocalizedText(4199).Text); // Trade
-            PFacilities.AddTab(new LocalizedText(4200)); // Description
+            PFacilities.AddTab(GameText.Statistics2); // Statistics
+            //PFacilities.AddTab(GameText.Trade2.Text); // Trade
+            PFacilities.AddTab(GameText.Description); // Description
 
             FilterBuildableItems = Add(new UITextEntry(new Vector2(RightMenu.X + 80, RightMenu.Y + 17), ""));
             FilterBuildableItems.Font = Font12;

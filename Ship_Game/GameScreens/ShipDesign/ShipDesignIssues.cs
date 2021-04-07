@@ -573,177 +573,177 @@ namespace Ship_Game.ShipDesignIssues
             {
                 default:
                 case DesignIssueType.NoCommand:
-                    Title       = new LocalizedText(2501);
-                    Problem     = new LocalizedText(2502);
-                    Remediation = new LocalizedText(2503);
+                    Title       = GameText.MissingCommandModule;
+                    Problem     = GameText.TheShipDoesNotHave;
+                    Remediation = GameText.AddACommandModuleTo;
                     Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
                     break;
                 case DesignIssueType.BackUpCommand:
-                    Title       = new LocalizedText(2504);
-                    Problem     = new LocalizedText(2505);
-                    Remediation = new LocalizedText(2506);
+                    Title       = GameText.NoBackupCommandModule;
+                    Problem     = GameText.TheShipCurrentlyHasOnly;
+                    Remediation = GameText.AddABackupCommandModule;
                     Texture     = ResourceManager.Texture("NewUI/IssueBackupCommand");
                     break;
                 case DesignIssueType.UnpoweredModules:
-                    Title       = new LocalizedText(2507);
-                    Problem     = new LocalizedText(2508);
-                    Remediation = new LocalizedText(2509);
+                    Title       = GameText.UnpoweredModulesDetected;
+                    Problem     = GameText.SomeOfThePowerConsuming;
+                    Remediation = GameText.YouCanAddAReactor;
                     Texture     = ResourceManager.Texture("NewUI/IssueUnpowered");
                     break;
                 case DesignIssueType.NoOrdnance:
-                    Title       = new LocalizedText(2510);
-                    Problem     = new LocalizedText(2511);
-                    Remediation = new LocalizedText(2512);
+                    Title       = GameText.NoOrdnanceDetected;
+                    Problem     = GameText.ThisShipDesignNeedsOrdnance;
+                    Remediation = GameText.YouMustAddOrdnanceStores;
                     Texture     = ResourceManager.Texture("NewUI/IssueNoOrdnance");
                     break;
                 case DesignIssueType.LowOrdnance:
-                    Title       = new LocalizedText(2513);
-                    Problem     = new LocalizedText(2514);
-                    Remediation = new LocalizedText(2515);
+                    Title       = GameText.LowOrdnanceTime;
+                    Problem     = GameText.TheShipHasLowEffective;
+                    Remediation = GameText.AddOrdnanceStoresOrOrdnance;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowOrdnance");
                     break;
                 case DesignIssueType.LowWarpTime:
-                    Title       = new LocalizedText(2516);
-                    Problem     = new LocalizedText(2517);
-                    Remediation = new LocalizedText(2518);
+                    Title       = GameText.LowWarpTime;
+                    Problem     = GameText.TheShipsAbilityToSustain;
+                    Remediation = GameText.AddReactorsToIncreaseThe;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowWarpTime");
                     break;
                 case DesignIssueType.NoWarp:
-                    Title       = new LocalizedText(2522);
-                    Problem     = new LocalizedText(2523);
-                    Remediation = new LocalizedText(2524);
+                    Title       = GameText.NoWarpSpeed;
+                    Problem     = GameText.TheShipIsNotWarp;
+                    Remediation = GameText.AddWarpCapableModulesUsually;
                     Texture     = ResourceManager.Texture("NewUI/IssueNoWarp");
                     break;
                 case DesignIssueType.SlowWarp:
-                    Title       = new LocalizedText(2525);
-                    Problem     = new LocalizedText(2526);
-                    Remediation = new LocalizedText(2527); 
+                    Title       = GameText.SlowWarpSpeed;
+                    Problem     = GameText.TheShipsWarpSpeedBelow;
+                    Remediation = GameText.AddWarpCapableModulesUsually2; 
                     Texture     = ResourceManager.Texture("NewUI/IssueSlowWarp");
                     break;
                 case DesignIssueType.NegativeRecharge:
-                    Title       = new LocalizedText(2519);
-                    Problem     = new LocalizedText(2520);
-                    Remediation = new LocalizedText(2521);
+                    Title       = GameText.NegativePowerRecharge;
+                    Problem     = GameText.TheShipDoesNotHave2;
+                    Remediation = GameText.AddReactorsToIncreaseThe2;
                     Texture     = ResourceManager.Texture("NewUI/IssueNegativeRecharge");
                     break;
                 case DesignIssueType.NoSpeed:
-                    Title       = new LocalizedText(2528);
-                    Problem     = new LocalizedText(2529);
-                    Remediation = new LocalizedText(2530);
+                    Title       = GameText.NoSubLightSpeed;
+                    Problem     = GameText.TheShipCannotMoveAt;
+                    Remediation = GameText.AddSubLightEnginesTo;
                     Texture     = ResourceManager.Texture("NewUI/IssueNoSublight");
                     break;
                 case DesignIssueType.CantTargetFighters:
-                    Title       = new LocalizedText(2531);
-                    Problem     = new LocalizedText(2532);
-                    Remediation = new LocalizedText(2533);
+                    Title       = GameText.CannotTargetFighters;
+                    Problem     = GameText.NoWeaponOnBoardThe;
+                    Remediation = GameText.AddWeaponSystemsWhichCan;
                     Texture     = ResourceManager.Texture("NewUI/IssueCantTargetFighters");
                     break;
                 case DesignIssueType.CantTargetCorvettes:
-                    Title       = new LocalizedText(2534);
-                    Problem     = new LocalizedText(2535);
-                    Remediation = new LocalizedText(2536);
+                    Title       = GameText.CannotTargetCorvettes;
+                    Problem     = GameText.NoWeaponOnBoardThe2;
+                    Remediation = GameText.AddWeaponSystemsWhichCan2;
                     Texture     = ResourceManager.Texture("NewUI/IssueCantTargetCorvettes");
                     break;
                 case DesignIssueType.CantTargetCapitals:
-                    Title       = new LocalizedText(2537);
-                    Problem     = new LocalizedText(2538);
-                    Remediation = new LocalizedText(2539);
+                    Title       = GameText.CannotTargetCapitals;
+                    Problem     = GameText.NoWeaponOnBoardThe3;
+                    Remediation = GameText.AddWeaponSystemsWhichCan3;
                     Texture     = ResourceManager.Texture("NewUI/IssueCantTargetCapitals");
                     break;
                 case DesignIssueType.LowPdValue:
-                    Title       = new LocalizedText(2540);
-                    Problem     = new LocalizedText(2541);
-                    Remediation = new LocalizedText(2542);
+                    Title       = GameText.LowNumberOfPdWeapons;
+                    Problem     = GameText.TheShipDoesNotHave3;
+                    Remediation = GameText.AddPointDefenseCapableWeapons;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowPD");
                     break;
                 case DesignIssueType.LowWeaponPowerTime:
-                    Title       = new LocalizedText(2543);
-                    Problem     = new LocalizedText(2544);
-                    Remediation = new LocalizedText(2545);
+                    Title       = GameText.LowWeaponTime;
+                    Problem     = GameText.TheShipCanFireAll;
+                    Remediation = GameText.AddEnergyStorageToIncrease;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowEnergyWeaponTime");
                     break;
                 case DesignIssueType.LowBurstPowerTime:
-                    Title       = new LocalizedText(2547);
-                    Problem     = new LocalizedText(2548);
-                    Remediation = new LocalizedText(2549);
+                    Title       = GameText.LowBeamBurstTime;
+                    Problem     = GameText.TheShipCannotSustainAll;
+                    Remediation = GameText.AddReactorsOrEnergyStorage;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowEnergyBurstTime");
                     break;
                 case DesignIssueType.NoOrdnanceResupplyCombat:
-                    Title       = new LocalizedText(2550);
-                    Problem     = new LocalizedText(2551);
-                    Remediation = new LocalizedText(2552);
+                    Title       = GameText.NoAmmoResupplyInCombat;
+                    Problem     = GameText.DueToHighRatioOf;
+                    Remediation = GameText.GenerallyTheShipWillStay;
                     Texture     = ResourceManager.Texture("NewUI/IssueNoAmmoResupplyCombat");
                     break;
                 case DesignIssueType.NoOrdnanceResupplyPlayerOrder:
-                    Title       = new LocalizedText(2553);
-                    Problem     = new LocalizedText(2554);
-                    Remediation = new LocalizedText(2555);
+                    Title       = GameText.EnergyAndKineticBlend;
+                    Problem     = GameText.ThisShipHasABlend;
+                    Remediation = GameText.TheShipMightHaveReduced;
                     Texture     = ResourceManager.Texture("NewUI/IssueNoAmmoResupplyPlayer");
                     break;
                 case DesignIssueType.LowTroopsForBays:
-                    Title       = new LocalizedText(2558);
-                    Problem     = new LocalizedText(2559);
-                    Remediation = new LocalizedText(2560);
+                    Title       = GameText.NotEnoughTroopsToLaunch;
+                    Problem     = GameText.TheCurrentNumberOfTroops;
+                    Remediation = GameText.AddMoreBarracksModulesTo;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowTroopsForBays");
                     break;
                 case DesignIssueType.LowTroops:
-                    Title       = new LocalizedText(2561);
-                    Problem     = new LocalizedText(2562);
-                    Remediation = new LocalizedText(2563);
+                    Title       = GameText.LowGarrison;
+                    Problem     = GameText.TheShipHasLessThan;
+                    Remediation = GameText.AddMoreBarracksModulesTo2;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowTroops");
                     break;
                 case DesignIssueType.NotIdealCombatEfficiency:
-                    Title       = new LocalizedText(2566);
-                    Problem     = new LocalizedText(2567);
-                    Remediation = new LocalizedText(2568);
+                    Title       = GameText.PartialWeaponEfficiency;
+                    Problem     = GameText.TheShipConsumesMoreEnergy;
+                    Remediation = GameText.AddReactorsToOffsetThe;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowWeaponPowerEfficiency");
                     break;
                 case DesignIssueType.HighBurstOrdnance:
-                    Title       = new LocalizedText(2569);
-                    Problem     = new LocalizedText(2570);
-                    Remediation = new LocalizedText(2571);
+                    Title       = GameText.BurstOrdnanceHigherThanStorage;
+                    Problem     = GameText.TheShipConsumesMoreOrdnance;
+                    Remediation = GameText.AddOrdnanceStorageToSupport;
                     Texture     = ResourceManager.Texture("NewUI/IssueHighBurstOrdnance");
                     break;
                 case DesignIssueType.Accuracy:
-                    Title       = new LocalizedText(GameText.LowAccuracy);
-                    Problem     = new LocalizedText(GameText.WeaponAccuracy);
-                    Remediation = new LocalizedText(GameText.ImproveAccuracy);
+                    Title       = GameText.LowAccuracy;
+                    Problem     = GameText.WeaponAccuracy;
+                    Remediation = GameText.ImproveAccuracy;
                     Texture     = ResourceManager.Texture("NewUI/IssuesLowAccuracy");
                     break;
                 case DesignIssueType.Targets:
-                    Title       = new LocalizedText(GameText.LowTracking);
-                    Problem     = new LocalizedText(GameText.TrackingTargets);
-                    Remediation = new LocalizedText(GameText.ImproveTracking);
+                    Title       = GameText.LowTracking;
+                    Problem     = GameText.TrackingTargets;
+                    Remediation = GameText.ImproveTracking;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowTracking");
                     break;
                 case DesignIssueType.LongRechargeTime:
-                    Title       = new LocalizedText(1462);
-                    Problem     = new LocalizedText(1463);
-                    Remediation = new LocalizedText(1464);
+                    Title       = GameText.LongRechargeTime;
+                    Problem     = GameText.TheShipTakesLongTime;
+                    Remediation = GameText.AddReactorsWhichWillIncrease;
                     Texture     = ResourceManager.Texture("NewUI/issueLongRechargeTime");
                     break;
                 case DesignIssueType.OneTimeFireEfficiency:
-                    Title       = new LocalizedText(1465);
-                    Problem     = new LocalizedText(1466);
-                    Remediation = new LocalizedText(1467);
+                    Title       = GameText.LowPowerCapacity;
+                    Problem     = GameText.TheShipsPowerCapacityIt;
+                    Remediation = GameText.AddPowerCellsToThe;
                     Texture     = ResourceManager.Texture("NewUI/IssueNegativeRecharge");
                     break;
                 case DesignIssueType.ExcessPowerCells:
-                    Title       = new LocalizedText(1470);
-                    Problem     = new LocalizedText(1471);
-                    Remediation = new LocalizedText(1472);
+                    Title       = GameText.ExcessPowerCells;
+                    Problem     = GameText.TheShipHasExcessiveNumber;
+                    Remediation = GameText.ReplaceSomeOfYourPower;
                     Texture     = ResourceManager.Texture("NewUI/IssueExcessPowerCells");
                     break;
                 case DesignIssueType.DedicatedCarrier:
-                    Title       = new LocalizedText(1473);
-                    Problem     = new LocalizedText(1474);
-                    Remediation = new LocalizedText(1475);
+                    Title       = GameText.DedicatedCarrier;
+                    Problem     = GameText.ThisShipIsADedicated;
+                    Remediation = GameText.CurrentSelectedFighterLaunchRange;
                     Texture     = ResourceManager.Texture("NewUI/IssueDedicatedCarrier");
                     break;
                 case DesignIssueType.SecondaryCarrier:
-                    Title       = new LocalizedText(1478);
-                    Problem     = new LocalizedText(1479);
-                    Remediation = new LocalizedText(1475);
+                    Title       = GameText.SecondaryCarrier;
+                    Problem     = GameText.ThisShipHasSomeFighter;
+                    Remediation = GameText.CurrentSelectedFighterLaunchRange;
                     Texture     = ResourceManager.Texture("NewUI/IssueSecondaryCarrier");
                     break;
             }

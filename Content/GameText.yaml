@@ -4645,9 +4645,9 @@ Colonize:
  ENG: "Colonize"
  RUS: "Колонизировать"
  SPA: "Colonizar"
-Cancel2:
+CancelColonize:
  Id: 1426
- ENG: "Cancel"
+ ENG: "Cancel Colonize"
  RUS: "Отмена"
  SPA: "Cancelar"
 ThisPlanetIsNotHabitable:
