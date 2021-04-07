@@ -36,26 +36,10 @@ namespace Ship_Game
             Submenu sub       = new Submenu(desRect);
             DescriptionBox = Add(new UITextBox(sub));
 
-            ToolTipItems.Add(new TippedItem
-            {
-                R = DefenseRect,
-                Tooltip = GameText.IndicatesThisUnitsGroundCombat
-            });
-            ToolTipItems.Add(new TippedItem
-            {
-                R = SoftAttackRect,
-                Tooltip = GameText.IndicatesThisUnitsCombatEffectiveness
-            });
-            ToolTipItems.Add(new TippedItem
-            {
-                R = HardAttackRect,
-                Tooltip = GameText.IndicatesThisUnitsCombatEffectiveness2
-            });
-            ToolTipItems.Add(new TippedItem
-            {
-                R = RangeRect,
-                Tooltip = GameText.IndicatesTheTileRangeThis
-            });
+            ToolTipItems.Add(new TippedItem(DefenseRect, GameText.IndicatesThisUnitsGroundCombat));
+            ToolTipItems.Add(new TippedItem(SoftAttackRect, GameText.IndicatesThisUnitsCombatEffectiveness));
+            ToolTipItems.Add(new TippedItem(HardAttackRect, GameText.IndicatesThisUnitsCombatEffectiveness2));
+            ToolTipItems.Add(new TippedItem(RangeRect, GameText.IndicatesTheTileRangeThis));
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed) // refactored by  Fat Bastard Aug 6, 2018
@@ -190,7 +174,7 @@ namespace Ship_Game
 
             foreach (TippedItem ti in ToolTipItems)
             {
-                if (ti.R.HitTest(input.CursorPosition))
+                if (ti.Rect.HitTest(input.CursorPosition))
                     ToolTip.CreateTooltip(ti.Tooltip);
             }
 
@@ -239,12 +223,6 @@ namespace Ship_Game
             {
                 DescriptionBox.AddLines(Localizer.Token(pgs.Building.DescriptionIndex), Fonts.Arial12, Color.White);
             }
-        }
-
-        private struct TippedItem
-        {
-            public Rectangle R;
-            public LocalizedText Tooltip;
         }
     }
 }
