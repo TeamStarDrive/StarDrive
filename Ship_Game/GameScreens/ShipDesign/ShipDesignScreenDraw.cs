@@ -1058,16 +1058,6 @@ namespace Ship_Game
             DrawStat(ref cursor, words, stat, tooltipId, Color.IndianRed, Color.LightGreen);
         }
 
-        void DrawStatBad(ref Vector2 cursor, string words, string stat, LocalizedText tooltipId)
-        {
-            DrawStat(ref cursor, words, stat, tooltipId, Color.White, Color.LightPink);
-        }
-
-        void DrawStat(ref Vector2 cursor, string words, string stat, LocalizedText tooltipId)
-        {
-            DrawStat(ref cursor, words, stat, tooltipId, Color.White, Color.LightGreen);
-        }
-
         static void WriteLine(ref Vector2 cursor, int lines = 1)
         {
             cursor.Y += Fonts.Arial12Bold.LineSpacing * lines;

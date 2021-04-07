@@ -309,15 +309,6 @@ namespace Ship_Game
             Screen.DrawStat(ref cursor, Localizer.Token(textId), stat, Color.White, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
         }
 
-        void DrawStat(ref Vector2 cursor, string text, string stat, LocalizedText toolTipId)
-        {
-            if (stat.IsEmpty())
-                return;
-
-            Screen.DrawStat(ref cursor, text, stat, toolTipId, Color.White, Color.LightGreen, spacing: ActiveModStatSpacing, lineSpacing: 0);
-            WriteLine(ref cursor);
-        }
-
         void DrawStatCustomColor(ref Vector2 cursor, int titleId, float stat, LocalizedText toolTipId, Color color, bool isPercent = true)
         {
             if (stat.AlmostEqual(0.0f))
@@ -325,14 +316,6 @@ namespace Ship_Game
 
             Screen.DrawStat(ref cursor, Localizer.Token(titleId), stat, color, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
         }
-
-        void DrawString(SpriteBatch batch, ref Vector2 cursor, string text, bool valueCheck)
-        {
-            if (!valueCheck)
-                return;
-            WriteLine(ref cursor);
-            batch.DrawString(Fonts.Arial12Bold, text, cursor, Color.OrangeRed);
-    }
 
         void DrawModuleStats(SpriteBatch batch, ShipModule mod, Vector2 modTitlePos, float starty)
         {
