@@ -1,15 +1,18 @@
 ﻿using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
+using SynapseGaming.LightingSystem.Core;
 using System;
+using System.Collections.Generic;
 using Ship_Game.Data;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Ships
 {
     public partial class Ship
     {
         // You can also call Ship.CreateShip... functions to spawn ships
-        protected Ship(Empire empire, ShipData data, bool fromSave, bool isTemplate) : base(GameObjectType.Ship)
+        Ship(Empire empire, ShipData data, bool fromSave, bool isTemplate) : base(GameObjectType.Ship)
         {
             if (!data.IsValidForCurrentMod)
             {
@@ -105,7 +108,7 @@ namespace Ship_Game.Ships
             return ResourceManager.GetShipTemplate("Vulcan Scout", out template) ? template : null;
         }
 
-        protected bool CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave, bool isTemplate = false)
+        bool CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave, bool isTemplate = false)
         {
             bool hasLegacyDummySlots = false;
             int count = 0;
@@ -124,6 +127,12 @@ namespace Ship_Game.Ships
                     return false;
                 }
                 ++count;
+            }
+
+            if (count == 0)
+            {
+                Log.Warning($"Failed to load ship '{Name}' due to all dummy modules!");
+                return false;
             }
 
             ModuleSlotList = new ShipModule[count];
