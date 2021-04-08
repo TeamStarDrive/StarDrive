@@ -23,15 +23,17 @@ namespace Ship_Game
             IssueTexture.Size = new Vector2(60, 60);
             TitleLabel        = AddIssueLabel(IssueDetails.Title, 150, 65, NormalFont, TextAlign.VerticalCenter, IssueDetails.Color);
             ProblemLabel      = AddIssueLabel(IssueDetails.Problem, 370, 200, NormalFont, TextAlign.VerticalCenter, White);
-            RemediationLabel  = AddIssueLabel(IssueDetails.Remediation, 370, 560, NormalFont, TextAlign.VerticalCenter, White);
+            RemediationLabel  = AddIssueLabel(IssueDetails.Remediation, 370, 560, NormalFont,
+                TextAlign.VerticalCenter, White, IssueDetails.AdditionalText);
         }
 
-        UILabel AddIssueLabel(LocalizedText text, float sizeX, float relativeX, SpriteFont font, TextAlign align, Color color)
+        UILabel AddIssueLabel(LocalizedText text, float sizeX, float relativeX, SpriteFont font,
+            TextAlign align, Color color, string additionalText = "")
         {
-            string parsedText = font.ParseText(text, sizeX-30);
-            UILabel label = Add(new UILabel(parsedText, font, color));
-            label.Size = new Vector2(sizeX, 80);
-            label.TextAlign = align;
+            string parsedText = font.ParseText($"{text.Text}{additionalText}", sizeX-30);
+            UILabel label     = Add(new UILabel(parsedText, font, color));
+            label.Size        = new Vector2(sizeX, 80);
+            label.TextAlign   = align;
             label.SetRelPos(relativeX, 0);
            return label;
         }
@@ -71,9 +73,9 @@ namespace Ship_Game
                 switch(IssueDetails.Severity)
                 {
                     default:
-                    case WarningLevel.None: return "None";
-                    case WarningLevel.Minor: return "Minor";
-                    case WarningLevel.Major: return "Major";
+                    case WarningLevel.None:     return "None";
+                    case WarningLevel.Minor:    return "Minor";
+                    case WarningLevel.Major:    return "Major";
                     case WarningLevel.Critical: return "Critical";
                 }
             }
