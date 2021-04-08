@@ -63,6 +63,22 @@ namespace UnitTests.Data
             Assert.AreEqual("Parsed: Nueva partida Cargar partida ", parsed2.Text);
         }
 
+        [TestMethod]
+        public void ParsedTextSupportsNameIds()
+        {
+            var parsed1 = new LocalizedText("Parsed: {NewGame} ", LocalizationMethod.Parse);
+            var parsed2 = new LocalizedText("Parsed: {NewGame} {LoadGame} ", LocalizationMethod.Parse);
+            Assert.IsTrue(parsed1.NotEmpty);
+
+            ResourceManager.LoadLanguage(Language.English);
+            Assert.AreEqual("Parsed: New Game ", parsed1.Text);
+            Assert.AreEqual("Parsed: New Game Load Game ", parsed2.Text);
+
+            ResourceManager.LoadLanguage(Language.Spanish);
+            Assert.AreEqual("Parsed: Nueva partida ", parsed1.Text);
+            Assert.AreEqual("Parsed: Nueva partida Cargar partida ", parsed2.Text);
+        }
+
         double MB(long mem) => mem / (1024.0*1024.0);
 
         [TestMethod]
