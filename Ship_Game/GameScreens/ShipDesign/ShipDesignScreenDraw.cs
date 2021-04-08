@@ -513,32 +513,16 @@ namespace Ship_Game
             batch.DrawDropShadowText(Operation.ToString(), pos, Fonts.Arial20Bold);
         }
 
-        class DesignShip : Ship
-        {
-            public DesignShip(ShipData designHull)
-                : base(EmpireManager.Player, designHull, fromSave:false, isTemplate:true) {}
-            public void UpdateDesign(ModuleSlotData[] placedSlots)
-            {
-                CreateModuleSlotsFromData(placedSlots, fromSave:false, isTemplate:true);
-                InitializeShip();
-            }
-        }
-
-        DesignShip DesignedShip;
-
         // @todo - need to make all these calcs in one place. Right now they are also done in Ship.cs
         void DrawShipInfoPanel()
         {
-            // TODO
-            if (DesignedShip == null || DesignedShip.shipData != ActiveHull)
-                DesignedShip = new DesignShip(ActiveHull);
-
             float hitPoints                = 0f;
             float powerCapacity            = 0f;
             float ordnanceCap              = 0f;
             float powerFlow                = 0f;
             float shieldPower              = 0f;
             float cargoSpace               = 0f;
+            int size                       = 0;
             float warpableMass             = 0f;
             float warpDraw                 = 0f;
             float repairRate               = 0f;
@@ -579,12 +563,18 @@ namespace Ship_Game
             Map<ShipModule, float> weaponAccuracyList = new Map<ShipModule, float>();
             Array<float> weaponsPowerFirePerShot      = new Array<float>();
             DesignIssues.Reset();
+            var modules = new ModuleCache(ModuleGrid.CopyModulesList());
 
-            ShipModule[] placedModules = ModuleGrid.CopyModulesList();
-            //DesignedShip.UpdateDesign(CreateModuleSlots()); // TODO
-
-            foreach (ShipModule module in placedModules)
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
+                bool wasOffenseDefenseAdded = false;
+                size += 1;
+
+                if (slot.Module == null)
+                    continue;
+
+                ShipModule module = slot.Module;
+
                 numSlots      += module.Area;
                 hitPoints     += module.ActualMaxHealth;
                 troopCount    += module.TroopCapacity;
@@ -594,7 +584,6 @@ namespace Ship_Game
                 cargoSpace    += module.Cargo_Capacity;
                 hasPowerCells |= module.ModuleType == ShipModuleType.FuelCell && module.PowerStoreMax > 0;
 
-                bool wasOffenseDefenseAdded = false;
                 if (module.PowerDraw <= 0) // some modules might not need power to operate, we still need their offense
                 {
                     offense  += module.CalculateModuleOffense();
@@ -690,14 +679,10 @@ namespace Ship_Game
 
                 weaponAccuracyList[module] = weapon.Tag_Guided ? 0 :  weapon.BaseTargetError((int)FireControlLevel).LowerBound(1) / 16;
             }
-
             FireControlLevel   = accuracy;
             WeaponAccuracyList = weaponAccuracyList;
             FireControlLevel  += 1 + EmpireManager.Player.data.Traits.Militaristic + (ActiveHull.Role == ShipData.RoleName.platform ? 3 : 0);
             targets           += 1 + EmpireManager.Player.data.Traits.Militaristic + (ActiveHull.Role == ShipData.RoleName.platform ? 3 : 0);
-            
-            var modules = new ModuleCache(placedModules);
-            int size = placedModules.Length;
 
             var stats = new ShipStats();
             stats.Update(modules.Modules, ActiveHull, EmpireManager.Player, 0,  size, 1);
