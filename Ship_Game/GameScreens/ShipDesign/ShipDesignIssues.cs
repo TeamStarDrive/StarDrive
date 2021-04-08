@@ -563,12 +563,14 @@ namespace Ship_Game.ShipDesignIssues
         public readonly LocalizedText Problem;
         public readonly LocalizedText Remediation;
         public readonly SubTexture Texture;
+        public readonly string AdditionalText;
 
         public DesignIssueDetails(DesignIssueType issueType, WarningLevel severity, string addToRemediationText)
         {
-            Type     = issueType;
-            Severity = severity;
-            Color    = ShipDesignIssues.IssueColor(severity);
+            Type           = issueType;
+            Severity       = severity;
+            Color          = ShipDesignIssues.IssueColor(severity);
+            AdditionalText = addToRemediationText;
             switch (issueType)
             {
                 default:
@@ -747,8 +749,6 @@ namespace Ship_Game.ShipDesignIssues
                     Texture     = ResourceManager.Texture("NewUI/IssueSecondaryCarrier");
                     break;
             }
-
-            Remediation += addToRemediationText;
         }
     }
 }
