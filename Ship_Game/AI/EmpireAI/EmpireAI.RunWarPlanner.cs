@@ -63,17 +63,19 @@ namespace Ship_Game.AI
                     }
 
                     Relationship ourRelationToAlly = OwnerEmpire.GetRelations(ally);
-
-                    float anger = 30f;
-                    if (OwnerEmpire.IsHonorable)
-                    {
-                        anger = 60f;
-                        offer.RejectDL  = "HelpUS_War_No_BreakAlliance";
-                        OwnerEmpire.BreakAllianceWith(ally);
-                    }
-
+                    float anger = OwnerEmpire.IsHonorable ? 60f : 30f;
                     ourRelationToAlly.Trust -= anger;
                     ourRelationToAlly.AddAngerDiplomaticConflict(anger);
+                    if (ourRelationToAlly.Anger_DiplomaticConflict.GreaterOrEqual(60))
+                    {
+                        offer.RejectDL = "HelpUS_War_No_BreakAlliance";
+                        OwnerEmpire.BreakAllianceWith(ally);
+                        if (!OwnerEmpire.IsPacifist && !OwnerEmpire.IsCunning)
+                        {
+                            ourRelationToAlly.PreparingForWar     = true;
+                            ourRelationToAlly.PreparingForWarType = WarType.ImperialistWar;
+                        }
+                    }
                 })
             };
 
