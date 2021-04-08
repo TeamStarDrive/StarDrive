@@ -825,9 +825,9 @@ namespace Ship_Game
             if (!(powerConsumedWithBeams > 0))
                 return;
 
-            DrawStatColor(ref cursor, NormalValue("Burst Wpn Pwr Drain", -powerConsumedWithBeams, GameText.ThisIndicatesThatThereIs, Color.LightSkyBlue));
+            DrawStatColor(ref cursor, MakeStat("Burst Wpn Pwr Drain", -powerConsumedWithBeams, GameText.ThisIndicatesThatThereIs, Color.LightSkyBlue));
             if (burstEnergyDuration < beamLongestDuration)
-                DrawStatColor(ref cursor, BadValue("Burst Wpn Pwr Time", burstEnergyDuration, GameText.TheTotalTimeTheShip, Color.LightSkyBlue));
+                DrawStatColor(ref cursor, MakeStat("Burst Wpn Pwr Time", burstEnergyDuration, GameText.TheTotalTimeTheShip, Color.LightSkyBlue, ValueTint.Bad));
             else
                 DrawStatEnergy(ref cursor, "Burst Wpn Pwr Time:", "INF", GameText.TheTotalTimeTheShip);
         }
@@ -841,9 +841,9 @@ namespace Ship_Game
 
             if (powerConsumed > 0) // There is power drain from ship's reserves when firing its energy weapons after taking into account recharge
             {
-                DrawStatColor(ref cursor, NormalValue("Excess Wpn Pwr Drain", -powerConsumed, GameText.ThisIndicatesThatThereIs2, Color.LightSkyBlue));
+                DrawStatColor(ref cursor, MakeStat("Excess Wpn Pwr Drain", -powerConsumed, GameText.ThisIndicatesThatThereIs2, Color.LightSkyBlue));
                 weaponFirePowerTime = powerCapacity / powerConsumed;
-                DrawStatColor(ref cursor, LowBadValue("Wpn Fire Power Time", weaponFirePowerTime, GameText.IndicatesTheMaximumTimeIn, Color.LightSkyBlue));
+                DrawStatColor(ref cursor, MakeStat("Wpn Fire Power Time", weaponFirePowerTime, GameText.IndicatesTheMaximumTimeIn, Color.LightSkyBlue, ValueTint.BadLowerThan2));
             }
             else
                 DrawStatEnergy(ref cursor, "Wpn Fire Power Time:", "INF", GameText.IndicatesTheMaximumTimeIn);
@@ -943,7 +943,9 @@ namespace Ship_Game
             float powerCapacity, out float powerConsumed)
         {
             powerConsumed = weaponPowerNeeded - powerRecharge;
-            DrawStatColor(ref cursor, CompareValues(GameText.PowerCapacity, powerCapacity, powerConsumed, GameText.IndicatesTheMaximumAmountOf2, Color.LightSkyBlue));
+            var capacityStat = MakeStat(GameText.PowerCapacity, powerCapacity, GameText.IndicatesTheMaximumAmountOf2, Color.LightSkyBlue, ValueTint.CompareValue);
+            capacityStat.CompareValue = powerConsumed;
+            DrawStatColor(ref cursor, capacityStat);
             DrawStatColor(ref cursor, TintedValue(GameText.PowerRecharge, powerRecharge, GameText.IndicatesTheNetPowerFlow, Color.LightSkyBlue));
         }
 
@@ -1026,20 +1028,15 @@ namespace Ship_Game
 
         public void DrawStat(ref Vector2 cursor, string words, float stat, Color color, LocalizedText tooltipId, bool doGoodBadTint = true, bool isPercent = false, float spacing = 165)
         {
-            StatValue sv = isPercent ? TintedPercent(words, stat, tooltipId, color, spacing, 0)
-                                     : TintedValue(words, stat, tooltipId, color, spacing, 0);
-            DrawStatColor(ref cursor, sv);
-        }
-
-        public void DrawStat(ref Vector2 cursor, string words, float stat, Color color, LocalizedText tooltipId, float spacing = 165)
-        {
-            StatValue sv = PercentBadLower1(words, stat, tooltipId, color, spacing, 0);
+            StatValue sv = TintedValue(words, stat, tooltipId, color, spacing, 0);
+            sv.IsPercent = isPercent;
             DrawStatColor(ref cursor, sv);
         }
 
         public void DrawStatBadPercentLower1(ref Vector2 cursor, string words, float stat, Color color, LocalizedText tooltipId, float spacing = 165)
         {
-            StatValue sv = PercentBadLower1(words, stat, tooltipId, color, spacing, 0);
+            StatValue sv = MakeStat(words, stat, tooltipId, color, ValueTint.BadPercentLowerThan1, spacing, 0);
+            sv.IsPercent = true;
             DrawStatColor(ref cursor, sv);
         }
 
@@ -1137,6 +1134,20 @@ namespace Ship_Game
             public float Spacing;
             public int LineSpacing;
 
+            public StatValue(in LocalizedText title, float value, in LocalizedText tooltip, 
+                             Color titleColor, ValueTint tint = ValueTint.None, float spacing = 165, int lineSpacing = 1)
+            {
+                Title = title;
+                TitleColor = titleColor;
+                Value = value;
+                CompareValue = 0f;
+                Tooltip = tooltip;
+                Tint = tint;
+                IsPercent = false;
+                Spacing = spacing;
+                LineSpacing = lineSpacing;
+            }
+
             public Color ValueColor
             {
                 get
@@ -1154,35 +1165,18 @@ namespace Ship_Game
                 }
             }
 
-
             public string ValueText => IsPercent ? Value.ToString("P0") : Value.GetNumberString();
         }
 
-        static StatValue NormalValue(LocalizedText title, float value, LocalizedText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
-            => new StatValue { Title = title+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.None, Spacing = spacing, LineSpacing = lineSpacing };
-
-        static StatValue BadValue(LocalizedText title, float value, LocalizedText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
-            => new StatValue { Title = title+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.Bad, Spacing = spacing, LineSpacing = lineSpacing };
+        static StatValue MakeStat(LocalizedText title, float value, LocalizedText tooltip, Color titleColor, ValueTint tint = ValueTint.None, float spacing = 165, int lineSpacing = 1)
+            => new StatValue(title.Text+":", value, tooltip, titleColor, tint, spacing, lineSpacing);
 
         static StatValue TintedValue(LocalizedText title, float value, LocalizedText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
-            => new StatValue { Title = title.Text+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, Spacing = spacing, LineSpacing = lineSpacing };
-
-        static StatValue LowBadValue(LocalizedText title, float value, LocalizedText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
-            => new StatValue { Title = title + ":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.BadLowerThan2, Spacing = spacing, LineSpacing = lineSpacing };
-
-        static StatValue CompareValues(LocalizedText title, float value, float compareValue, LocalizedText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
-            => new StatValue { Title = title.Text+":", Value = value, CompareValue = compareValue, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.CompareValue, Spacing = spacing, LineSpacing = lineSpacing };
-
-        static StatValue TintedPercent(LocalizedText title, float value, LocalizedText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
-            => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor,  Tint = ValueTint.GoodBad, IsPercent = true, Spacing = spacing, LineSpacing = lineSpacing };
-
-        static StatValue PercentBadLower1(LocalizedText title, float value, LocalizedText tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
-            => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.BadPercentLowerThan1, IsPercent = true, Spacing = spacing, LineSpacing = lineSpacing };
+            => new StatValue(title.Text+":", value, tooltip, titleColor, ValueTint.GoodBad, spacing, lineSpacing);
 
         void DrawStatColor(ref Vector2 cursor, StatValue stat)
         {
             SpriteFont font = Fonts.Arial12Bold;
-            //const float spacing = 165f;
 
             WriteLine(ref cursor);
             cursor.Y += stat.LineSpacing;
