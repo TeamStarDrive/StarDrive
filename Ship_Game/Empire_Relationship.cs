@@ -267,6 +267,10 @@ namespace Ship_Game
             if (this == otherEmpire)
                 return false;
 
+            // rebel factions seems not to enter the relationship data so no relations are being retrieved
+            if (otherEmpire?.data.IsRebelFaction == true)
+                return true;
+
             return GetRelationsOrNull(otherEmpire)?.AtWar == true
                    || otherEmpire?.isFaction == true && !IsNAPactWith(otherEmpire)
                    || data.IsRebelFaction
