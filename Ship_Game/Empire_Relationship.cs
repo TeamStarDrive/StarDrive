@@ -581,7 +581,8 @@ namespace Ship_Game
 
         /// <summary>
         /// This will Get a grade from 1 to 10 indicating if our wars in bad state or good
-        /// 10 is very good, 1 is bad
+        /// 10 is very good, 1 is bad.
+        /// If there are no wars, it returns 5f
         /// </summary>
         public float GetAverageWarGrade()
         {
