@@ -350,7 +350,7 @@ namespace Ship_Game
         {
             dead = false;
             Strength = (Strength - amount).Clamped(0, ActualStrengthMax);
-            if (Strength.AlmostZero())
+            if (Strength.LessOrEqual(0))
             {
                 planet.TroopsHere.Remove(this);
                 tile.TroopsHere.Remove(this);

@@ -1056,7 +1056,10 @@ namespace Ship_Game.Fleets
                     break;
                 case 8:
                     if (StillInvasionEffective(task))
+                    {
+                        OrderShipsToInvade(Ships, task, false);
                         break;
+                    }
 
                     TaskStep = 9;
                     break;
