@@ -740,6 +740,8 @@ namespace Ship_Game.Debug
                 DrawString("--------------------------");
                 DrawString(e.Name);
                 DrawString($"{e.Personality}");
+                DrawString($"Average War Grade: {e.GetAverageWarGrade()}");
+                DrawString(e.EmpireColor, $"War Timer: {-e.GetEmpireAI().PauseWarTimer}");
                 DrawString("----------------------------");
                 foreach ((Empire them, Relationship rel) in e.AllRelations)
                 {
@@ -770,10 +772,7 @@ namespace Ship_Game.Debug
                     if (rel.PreparingForWar)
                         DrawString(them.EmpireColor, $"*** {rel.PreparingForWarType} ***");
                     if (rel.ActiveWar != null)
-                    {
                         DrawString(them.EmpireColor, $"*** {rel.ActiveWar.WarType} - Priority:{e.GetEmpireAI().PauseWarTimer < 0 }***");
-                        DrawString(them.EmpireColor, $"*** Timer: {e.GetEmpireAI().PauseWarTimer}");
-                    }
 
                     DrawString(e.EmpireColor, "----------------------------");
                 }

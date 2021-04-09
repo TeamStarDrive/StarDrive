@@ -52,7 +52,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             float warTurns = 100 * Owner.GetWarOffensiveRatio();
 
             float expansion = 25 * Owner.GetExpansionRatio();
-            if (ai.PauseWarTimer > expansion) 
+            if (ai.PauseWarTimer > expansion || Owner.GetAverageWarGrade().Less(5)) 
                 ai.PauseWarTimer = -(int)warTurns;
 
             bool nonFactionWars = Owner.AllActiveWars.Any(t => !t.Them.isFaction && t.Them != Owner);
