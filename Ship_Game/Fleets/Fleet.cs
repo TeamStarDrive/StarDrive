@@ -704,21 +704,19 @@ namespace Ship_Game.Fleets
 
         void DoPostInvasionDefense(MilitaryTask task)
         {
-            if (EndInvalidTask(--DefenseTurns <= 0))
-                return;
-
             switch (TaskStep)
             {
                 case 0:
                     SetPostInvasionFleetCombat();
-                    DefenseTurns = 50;
-                    TaskStep = 1;
+                    DefenseTurns = Owner.PersonalityModifiers.PostInvasionTurns;
+                    TaskStep     = 1;
                     break;
                 case 1:
                     if (!DoOrbitTaskArea(task))
-                    {
                         AttackEnemyStrengthClumpsInAO(task);
-                    }
+                    else
+                        EndInvalidTask(--DefenseTurns <= 0 && !Owner.SystemWithThreat.Any(t => t.TargetSystem == task.TargetPlanet.ParentSystem));
+
                     break;
             }
         }
@@ -747,8 +745,10 @@ namespace Ship_Game.Fleets
 
         bool GatherAtRallyFirst(MilitaryTask task)
         {
-            return task.RallyPlanet.ParentSystem.Position.SqDist(task.TargetPlanet.ParentSystem.Position)
-                   < AveragePos.SqDist(task.RallyPlanet.ParentSystem.Position);
+            Vector2 enemySystemPos = task.TargetPlanet.ParentSystem.Position;
+            Vector2 rallySystemPos = task.RallyPlanet.ParentSystem.Position;
+
+            return rallySystemPos.Distance(enemySystemPos) > AveragePos.Distance(rallySystemPos);
         }
 
         void DoAssaultPlanet(MilitaryTask task)
@@ -887,9 +887,9 @@ namespace Ship_Game.Fleets
                     else
                     {
                         CreatePostInvasionFromCurrentTask(this, task, Owner, "Post Invasion Defense");
-                        return;
                     }
-                    break;
+
+                    return;
             }
 
             bool invasionEffective = StillInvasionEffective(task);
@@ -982,7 +982,9 @@ namespace Ship_Game.Fleets
 
         void DoClaimDefense(MilitaryTask task)
         {
-            if (EndInvalidTask(task.TargetPlanet.Owner != null && !task.TargetPlanet.Owner.isFaction
+            if (EndInvalidTask(task.TargetPlanet.Owner != null 
+                               && !task.TargetPlanet.Owner.isFaction 
+                               && !task.TargetPlanet.Owner.data.IsRebelFaction
                                || !CanTakeThisFight(task.EnemyStrength, task)))
             {
                 return;
@@ -1049,6 +1051,22 @@ namespace Ship_Game.Fleets
                         AttackEnemyStrengthClumpsInAO(task);
 
                     OrderShipsToInvade(Ships, task, false);
+                    TaskStep = task.TargetPlanet != null ? 8 : 9; // if we need to capture the planet, go to 8.
+
+                    break;
+                case 8:
+                    if (StillInvasionEffective(task))
+                    {
+                        OrderShipsToInvade(Ships, task, false);
+                        break;
+                    }
+
+                    TaskStep = 9;
+                    break;
+                case 9: // waiting for colonization goal to issue orders to this fleet
+                    if (!DoOrbitTaskArea(task, excludeInvade: true))
+                        AttackEnemyStrengthClumpsInAO(task);
+
                     break;
             }
         }
@@ -1365,10 +1383,9 @@ namespace Ship_Game.Fleets
                     else
                     {
                         CreatePostInvasionFromCurrentTask(this, task, Owner, "Post Invasion Defense");
-                        return;
                     }
 
-                    break;
+                    return;
             }
 
             bool remnantsTargeting = !Owner.WeAreRemnants
@@ -1469,12 +1486,12 @@ namespace Ship_Game.Fleets
         bool EndInvalidTask(bool condition)
         {
 
-            if (!condition) return false;
-            if (Owner.data.Traits.Pack)
-                Log.Info("la");
+            if (!condition) 
+                return false;
+
             FleetTask.EndTask();
             FleetTask = null;
-            TaskStep = 0;
+            TaskStep  = 0;
             return true;
         }
 
@@ -1577,8 +1594,12 @@ namespace Ship_Game.Fleets
         bool FleetTaskGatherAtRally(MilitaryTask task)
         {
             var ownerSystems = Owner.GetOwnedSystems().Filter(s => AveragePos.InRadius(s.Position, s.Radius));
-            if (ownerSystems.Length == 1 && ownerSystems.First().DangerousForcesPresent(Owner))
-                return false;
+            if (ownerSystems.Length == 1)
+            {
+                SolarSystem system = ownerSystems.First();
+                if (system.DangerousForcesPresent(Owner) && Ships.Any(s => s.System == system && s.InCombat))
+                    return false;
+            }
             
             Planet planet       = task.RallyPlanet;
             Vector2 movePoint   = planet.Center;

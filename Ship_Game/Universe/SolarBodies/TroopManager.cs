@@ -320,6 +320,7 @@ namespace Ship_Game
                     for (int i = TilesList.Count - 1; i >= 0; i--)
                     {
                         TilesList[i].TroopsHere.RemoveRef(troop);
+                        Log.Warning("Removed Ghost 0 Str troop");
                     }
                     TroopList.RemoveAtSwapLast(x);
                     continue;
@@ -430,22 +431,9 @@ namespace Ship_Game
             Empire newOwner = null;
             switch (empires.Count)
             {
-                case 0:                        return;
-                case 1: newOwner = empires[0]; break;
-                default: // more than one invading empire
-                    float highestStr = float.MinValue;
-                    for (int i = 0; i < empires.Count; i++)
-                    {
-                        Empire e  = empires[i];
-                        float str = GroundStrength(e);
-                        if (str > highestStr)
-                        {
-                            highestStr = str;
-                            newOwner   = e;
-                        }
-                    }
-
-                    break;
+                case 0:                                                            return;
+                case 1: newOwner = empires[0];                                     break;
+                default: if (TroopList.Count > 1) newOwner = TroopList[0].Loyalty; break;
             }
 
             if (Owner != null)
@@ -545,12 +533,13 @@ namespace Ship_Game
                     if (t.Loyalty == empire)
                         continue;
 
-                    if (!empire.GetRelations(t.Loyalty, out Relationship trouble) || trouble.AtWar)
+                    if (empire.IsAtWarWith(t.Loyalty))
                     {
                         enemies = true;
                         break;
                     }
                 }
+
             return enemies;
         }
 

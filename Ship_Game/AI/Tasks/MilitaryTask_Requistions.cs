@@ -238,10 +238,6 @@ namespace Ship_Game.AI.Tasks
                 throw new Exception();
             if (Owner.Pool.CurrentUseableFleets < 0) return;
 
-            AO closestAO = FindClosestAO();
-            if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
-                return;
-
             int requiredTroopStrength = 0;
             if (TargetPlanet != null)
             {
