@@ -35,7 +35,7 @@ namespace Ship_Game.AI
         public float DefStr;
         public ExpansionAI.ExpansionPlanner ExpansionAI;
 
-        public int PauseWarTimer { get; set; } = 0;
+        public int PauseWarTimer { get; set; } = -10;
 
         public EmpireAI(Empire e, bool fromSave)
         {
