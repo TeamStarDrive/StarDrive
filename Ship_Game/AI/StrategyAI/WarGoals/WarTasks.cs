@@ -63,8 +63,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
                 if (task.Fleet == null)
                     task.EndTask();
-                if (task.TargetPlanet != null && !task.TargetPlanet.Owner?.IsAtWarWith(Owner) == true)
-                    task.EndTask();
 
                 if (task.QueuedForRemoval)
                 {
