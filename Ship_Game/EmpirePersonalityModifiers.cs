@@ -20,6 +20,7 @@ namespace Ship_Game
         public float TechValueModifier; // Some personalities value techs more vs player
         public float AssaultBomberRatio; // Percent of existing troops to launch in order to board attacking fleets when planet is bombed
         public float AllyCallToWarRatio; // The tolerance the AI has to join war with an ally vs 3rd party
+        public int PostInvasionTurns; // How many turns a post invasion defense fleet will stay
 
         public PersonalityModifiers(PersonalityType type)
         {
@@ -41,6 +42,7 @@ namespace Ship_Game
                     AllyCallToWarRatio    = 1.2f;
                     TrustCostTradePact    = 0;
                     TechValueModifier     = 1;
+                    PostInvasionTurns     = 50;
                     TrustCostNaPact       = 0;
                     break;
                 case PersonalityType.Aggressive:
@@ -59,6 +61,7 @@ namespace Ship_Game
                     AllyCallToWarRatio    = 1.15f;
                     TrustCostTradePact    = 20;
                     TrustCostNaPact       = 35;
+                    PostInvasionTurns     = 25;
                     TechValueModifier     = 1.05f;
                     break;
                 case PersonalityType.Ruthless:
@@ -77,6 +80,7 @@ namespace Ship_Game
                     AllyCallToWarRatio    = 1.2f;
                     TrustCostTradePact    = 15;
                     TrustCostNaPact       = 45f;
+                    PostInvasionTurns     = 25;
                     TechValueModifier     = 1.1f;
                     break;
                 case PersonalityType.Xenophobic:
@@ -95,6 +99,7 @@ namespace Ship_Game
                     AssaultBomberRatio    = 0.5f;
                     TrustCostTradePact    = 15;
                     TrustCostNaPact       = 15;
+                    PostInvasionTurns     = 50;
                     TechValueModifier     = 1.2f;
                     break;
                 case PersonalityType.Cunning:
@@ -113,6 +118,7 @@ namespace Ship_Game
                     AllyCallToWarRatio    = 1.25f;
                     TrustCostTradePact    = 5;
                     TrustCostNaPact       = 5;
+                    PostInvasionTurns     = 60;
                     TechValueModifier     = 1.1f;
                     break;
                 case PersonalityType.Honorable:
@@ -131,6 +137,7 @@ namespace Ship_Game
                     AllyCallToWarRatio    = 1f;
                     TrustCostTradePact    = 10;
                     TrustCostNaPact       = 10;
+                    PostInvasionTurns     = 70;
                     TechValueModifier     = 1;
                     break;
                 case PersonalityType.Pacifist:
@@ -149,6 +156,7 @@ namespace Ship_Game
                     AllyCallToWarRatio    = 1.35f;
                     TrustCostTradePact    = 12;
                     TrustCostNaPact       = 3;
+                    PostInvasionTurns     = 75;
                     TechValueModifier     = 1;
                     break;
             }

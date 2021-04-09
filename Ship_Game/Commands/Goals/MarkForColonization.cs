@@ -111,7 +111,7 @@ namespace Ship_Game.Commands.Goals
 
             if (TryGetClaimTask(out MilitaryTask task))
             {
-                if (!PositiveEnemyPresence(out float enemyStr) || task.Fleet?.TaskStep == 7)
+                if (!PositiveEnemyPresence(out float enemyStr) || task.Fleet?.TaskStep == 9)
                     return GoalStep.GoToNextStep;
 
                 if (enemyStr > empire.OffensiveStrength)
