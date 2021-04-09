@@ -348,11 +348,11 @@ namespace Ship_Game
         /// </summary>
         public void DamageTroop(float amount, Planet planet, PlanetGridSquare tile, out bool dead)
         {
-            dead = false;
+            dead     = false;
             Strength = (Strength - amount).Clamped(0, ActualStrengthMax);
             if (Strength.LessOrEqual(0))
             {
-                planet.TroopsHere.Remove(this);
+                planet.TroopsHere.Remove(this); // not using RemoveSwapLast since the order of troop is important for allied invasion
                 tile.TroopsHere.Remove(this);
                 dead = true;
             }
@@ -429,8 +429,7 @@ namespace Ship_Game
             {
                 using (tile.TroopsHere.AcquireWriteLock())
                 {
-
-                    tile.TroopsHere.Clear();
+                    tile.TroopsHere.Remove(this);
                     HostPlanet.TroopsHere.Remove(this);
                     Ship troopShip = CreateShipForTroop(HostPlanet);
                     HostPlanet     = null;
