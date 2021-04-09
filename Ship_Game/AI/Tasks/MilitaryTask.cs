@@ -581,7 +581,8 @@ namespace Ship_Game.AI.Tasks
                             case 0:
                                 if (Owner.GetEmpireAI().TroopShuttleCapacity > 0)
                                 {
-                                    if (TargetPlanet.Owner != null && TargetPlanet.Owner != EmpireManager.Unknown)
+                                    if (TargetPlanet.Owner != null 
+                                        && TargetPlanet.Owner != EmpireManager.Unknown && !TargetPlanet.Owner.data.IsRebelFaction)
                                     {
                                         Owner.GetRelations(TargetPlanet.Owner, out Relationship rel);
 
@@ -621,10 +622,13 @@ namespace Ship_Game.AI.Tasks
                                     else
                                         EndTask();
 
-                                    if (TargetPlanet.Owner == null || TargetPlanet.Owner == EmpireManager.Unknown)
-                                        return;
+                                    if (TargetPlanet.Owner != null
+                                        && TargetPlanet.Owner != EmpireManager.Unknown
+                                        && !TargetPlanet.Owner.data.IsRebelFaction)
+                                    {
+                                        EndTask();
+                                    }
 
-                                    EndTask();
                                     return;
                                 }
 
