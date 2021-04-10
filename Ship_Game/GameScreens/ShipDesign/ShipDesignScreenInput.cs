@@ -60,6 +60,8 @@ namespace Ship_Game
                 ActiveHull.ModuleSlots[i] = data;
             }
 
+            DesignedShip = new DesignShip(ActiveHull);
+
             BindListsToActiveHull();
             CreateSOFromActiveHull();
             UpdateActiveCombatButton();

@@ -22,6 +22,7 @@ namespace Ship_Game
     {
         public Camera2D Camera;
         public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
+        DesignShip DesignedShip;
         public ShipData ActiveHull;
         public EmpireUIOverlay EmpireUI;
         SceneObject shipSO;

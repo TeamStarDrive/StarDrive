@@ -53,8 +53,8 @@ namespace Ship_Game.Ships
         public Vector2 FleetOffset;
         public Vector2 RelativeFleetOffset;
 
-        ShipModule[] Shields;
-        ShipModule[] Amplifiers;
+        public ShipModule[] Shields;
+        public ShipModule[] Amplifiers;
         public Array<ShipModule> BombBays = new Array<ShipModule>();
         public CarrierBays Carrier;
         public ShipResupply Supply;
@@ -642,7 +642,7 @@ namespace Ship_Game.Ships
 
         public float GetCost(Empire empire)
         {
-            return ShipStats.GetCost(BaseCost, shipData, empire, IsPlatformOrStation);
+            return Stats.GetCost(BaseCost, empire, IsPlatformOrStation);
         }
 
         public float GetScrapCost()
@@ -1183,6 +1183,15 @@ namespace Ship_Game.Ships
 
             if (ShouldRecalculatePower) // must be before ShipStatusChange
                 RecalculatePower();
+            
+            if (OrdAddedPerSecond > 0f)
+                ChangeOrdnance(OrdAddedPerSecond); // Add ordnance
+
+            if (OrdnanceChanged)
+            {
+                OrdnanceChanged = false;
+                shipStatusChanged = true;
+            }
 
             if (shipStatusChanged)
                 ShipStatusChange();
@@ -1206,10 +1215,6 @@ namespace Ship_Game.Ships
                     shield_power = (shield_power + shield.ShieldPower).Clamped(0, shield_max);
                 }
             }
-
-            // Add ordnance
-            ChangeOrdnance(OrdAddedPerSecond);
-            UpdateMovementFromOrdnanceChange();
 
             // Update max health if needed
             int latestRevision = EmpireShipBonuses.GetBonusRevisionId(loyalty);
@@ -1239,7 +1244,6 @@ namespace Ship_Game.Ships
 
             UpdateResupply();
             UpdateTroops(timeSinceLastUpdate);
-
 
             if (!AI.BadGuysNear)
                 ShieldManager.RemoveShieldLights(Shields);
@@ -1404,9 +1408,9 @@ namespace Ship_Game.Ships
             CargoSpaceMax  *= shipData.Bonuses.CargoModifier;
             SensorRange    *= shipData.Bonuses.SensorModifier;
 
-            (Thrust, WarpThrust, TurnThrust) = ShipStats.GetThrust(ModuleSlotList, shipData);
-            Mass         = ShipStats.GetMass(ModuleSlotList, loyalty, SurfaceArea, OrdnancePercent);
-            FTLSpoolTime = ShipStats.GetFTLSpoolTime(ModuleSlotList, loyalty);
+            (Thrust, WarpThrust, TurnThrust) = Stats.GetThrust(ModuleSlotList);
+            Mass         = Stats.GetMass(ModuleSlotList, loyalty, SurfaceArea, OrdnancePercent);
+            FTLSpoolTime = Stats.GetFTLSpoolTime(ModuleSlotList, loyalty);
 
             CurrentStrength = CalculateShipStrength();
             UpdateWeaponRanges();

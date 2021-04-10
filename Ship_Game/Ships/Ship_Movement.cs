@@ -81,9 +81,9 @@ namespace Ship_Game.Ships
 
         void UpdateMaxVelocity()
         {
-            VelocityMaximum = ShipStats.GetVelocityMax(Thrust, Mass);
+            VelocityMaximum = Stats.GetVelocityMax(Thrust, Mass);
             SetSpeedLimit(VelocityMaximum); // This is overwritten at the end of Update
-            RotationRadiansPerSecond = ShipStats.GetTurnRadsPerSec(TurnThrust, Mass, Level);
+            RotationRadiansPerSecond = Stats.GetTurnRadsPerSec(TurnThrust, Mass, Level);
         }
 
         public void SetSpeedLimit(float value)
@@ -109,26 +109,12 @@ namespace Ship_Game.Ships
                 FTLModifier += loyalty.data.Traits.InBordersSpeedBonus;
             FTLModifier *= projectorBonus;
 
-            MaxFTLSpeed = ShipStats.GetFTLSpeed(WarpThrust, Mass, loyalty) * FTLModifier * WarpPercent;
+            MaxFTLSpeed = Stats.GetFTLSpeed(WarpThrust, Mass, loyalty) * FTLModifier * WarpPercent;
         }
 
         void SetMaxSTLSpeed()
         {
-            MaxSTLSpeed = ShipStats.GetSTLSpeed(Thrust, Mass, loyalty);
-        }
-
-        void UpdateMovementFromOrdnanceChange()
-        {
-            if (!OrdnanceChanged)
-                return;
-
-            OrdnanceChanged = false;
-            var shipStats   = new ShipStats();
-            shipStats.Update(ModuleSlotList, shipData, loyalty, Level,  SurfaceArea, OrdnancePercent);
-            Mass                     = shipStats.Mass;
-            MaxFTLSpeed              = shipStats.MaxFTLSpeed;
-            MaxSTLSpeed              = shipStats.MaxSTLSpeed;
-            RotationRadiansPerSecond = shipStats.TurnRadsPerSec;
+            MaxSTLSpeed = Stats.GetSTLSpeed(Thrust, Mass, loyalty);
         }
 
         public void RotateToFacing(FixedSimTime timeStep, float angleDiff, float rotationDir)

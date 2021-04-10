@@ -442,7 +442,6 @@
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
     <Compile Include="Ship_Game\Ships\DataPackets\KnownByEmpire.cs" />
     <Compile Include="Ship_Game\Ships\DataPackets\ShipWeight.cs" />
-    <Compile Include="Ship_Game\Ships\ModuleCache.cs" />
     <Compile Include="Ship_Game\Ships\PlanetCrash.cs" />
     <Compile Include="Ship_Game\Ships\ShipStats.cs" />
     <Compile Include="Ship_Game\Ships\ShipUtils.cs" />
