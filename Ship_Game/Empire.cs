@@ -1065,11 +1065,11 @@ namespace Ship_Game
         {
             bool alreadyAdded;
             if (s.IsSubspaceProjector)
-                alreadyAdded = OwnedProjectors.AddUniqueRef(s);
+                alreadyAdded = !OwnedProjectors.AddUniqueRef(s);
             else
-                alreadyAdded = OwnedShips.AddUniqueRef(s);
+                alreadyAdded = !OwnedShips.AddUniqueRef(s);
             if (alreadyAdded && (s.IsSubspaceProjector || s.DesignRole == ShipData.RoleName.ssp))
-                Log.DebugInfo(ConsoleColor.Yellow, "Structure BUG: https://bitbucket.org/codegremlins/stardrive-blackbox/issues/147/doubled-projectors");
+                Log.DebugInfo(ConsoleColor.Yellow, "Empire.AddShip BUG: https://bitbucket.org/codegremlins/stardrive-blackbox/issues/147/doubled-projectors");
         }
 
         void InitDifficultyModifiers()
