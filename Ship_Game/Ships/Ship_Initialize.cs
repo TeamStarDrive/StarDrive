@@ -412,19 +412,19 @@ namespace Ship_Game.Ships
 
         void InitializeStatus(bool fromSave)
         {
-            PowerStoreMax            = 0f;
-            PowerFlowMax             = 0f;
-            shield_max               = 0f;
-            shield_power             = 0f;
-            armor_max                = 0f;
-            SensorRange              = 0f;
-            OrdinanceMax             = 0f;
-            OrdAddedPerSecond        = 0f;
-            Health                   = 0f;
-            TroopCapacity            = 0;
-            ECMValue                 = 0f;
-            BaseCost                 = ShipStats.GetBaseCost(ModuleSlotList);
-            MaxBank                  = GetMaxBank();
+            PowerStoreMax     = 0f;
+            PowerFlowMax      = 0f;
+            shield_max        = 0f;
+            shield_power      = 0f;
+            armor_max         = 0f;
+            SensorRange       = 0f;
+            OrdinanceMax      = 0f;
+            OrdAddedPerSecond = 0f;
+            Health        = 0f;
+            TroopCapacity = 0;
+            ECMValue      = 0f;
+            BaseCost      = ShipStats.GetBaseCost(ModuleSlotList);
+            MaxBank       = GetMaxBank();
 
             Carrier     = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
             Supply      = new ShipResupply(this);
@@ -432,13 +432,10 @@ namespace Ship_Game.Ships
 
             InitializeStatusFromModules(fromSave);
             ActiveInternalSlotCount = InternalSlotCount;
-
+            
+            UpdateMassRelated();
             UpdateWeaponRanges();
-
             InitDefendingTroopStrength();
-            UpdateMaxVelocity();
-            SetMaxFTLSpeed();
-            SetMaxSTLSpeed();
             UpdateShields();
 
             // initialize strength for our empire:
@@ -448,11 +445,24 @@ namespace Ship_Game.Ships
                 shipData.BaseStrength = BaseStrength;
         }
 
+        void UpdateMassRelated()
+        {
+            Stats.UpdateMassRelated();
+
+            Thrust     = Stats.Thrust;
+            WarpThrust = Stats.WarpThrust;
+            TurnThrust = Stats.TurnThrust;
+            Mass       = Stats.Mass;
+
+            UpdateMaxVelocity();
+            SetMaxFTLSpeed();
+            SetMaxSTLSpeed();
+        }
+
         void InitializeStatusFromModules(bool fromSave)
         {
             RepairBeams.Clear();
 
-            float sensorBonus = 0f;
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
                 ShipModule module = ModuleSlotList[i];
@@ -464,13 +474,6 @@ namespace Ship_Game.Ships
 
                 TroopCapacity += module.TroopCapacity;
                 MechanicalBoardingDefense += module.MechanicalBoardingDefense;
-
-                if (module.SensorRange > SensorRange)           SensorRange            = module.SensorRange;
-                if (module.SensorBonus > sensorBonus)           sensorBonus            = module.SensorBonus;
-                if (module.ECM > ECMValue)                      ECMValue               = module.ECM.Clamped(0f, 1f);
-                if (module.InhibitionRadius > InhibitionRadius) InhibitionRadius       = module.InhibitionRadius;
-                if (module.Regenerate > 0)                      HasRegeneratingModules = true;
-
 
                 switch (module.ModuleType)
                 {
@@ -495,28 +498,26 @@ namespace Ship_Game.Ships
                     hasRepairBeam = true;
                 }
 
-                if (module.HasInternalRestrictions)
-                    InternalSlotCount += module.XSIZE * module.YSIZE;
                 HasRepairModule |= module.IsRepairModule;
-
-                Health    += module.Health;
-                HealthMax += module.Health;
-                // Added by McShooterz: fuel cell modifier apply to all modules with power store
-                PowerStoreMax += module.ActualPowerStoreMax;
-                PowerCurrent  += module.ActualPowerStoreMax;
-                PowerFlowMax  += module.ActualPowerFlowMax;
+                Health += module.Health;
                 if (module.Is(ShipModuleType.Armor))
                     armor_max += module.ActualMaxHealth;
 
-                CargoSpaceMax   += module.Cargo_Capacity;
-                OrdinanceMax    += module.OrdinanceCapacity;
-
                 if (!fromSave)
                     ChangeOrdnance(module.OrdinanceCapacity);
+
+                if (module.Regenerate > 0)
+                    HasRegeneratingModules = true;
             }
 
+            Stats.UpdateCoreStats();
+            PowerCurrent = PowerStoreMax;
+            HealthMax = Health;
+            
+            UpdateMassRelated();
+
             if (!fromSave)
-                InitShieldsPower();
+                InitShieldsPower(Stats.ShieldAmplifyPerShield);
 
             RecalculatePower();
             NetPower = Power.Calculate(ModuleSlotList, loyalty);
@@ -528,24 +529,20 @@ namespace Ship_Game.Ships
             if (InhibitionRadius.Greater(0))
                 loyalty.Inhibitors.Add(this); // Start inhibiting at spawn
 
-            (Thrust, WarpThrust, TurnThrust) = Stats.GetThrust(ModuleSlotList);
-            Mass         = Stats.GetMass(ModuleSlotList, loyalty, SurfaceArea, OrdnancePercent);
-            FTLSpoolTime = Stats.GetFTLSpoolTime(ModuleSlotList, loyalty);
-
             MechanicalBoardingDefense = MechanicalBoardingDefense.LowerBound(1);
-            shipStatusChanged         = true;
-            SensorRange              += sensorBonus;
-            DesignRole                = GetDesignRole();
+            DesignRole = GetDesignRole();
             //these base values are kinda f'd up. BaseCanWarp isn't being set for the shipdata and so gets passed around a lot but isn't ever properly set.
             //also there appear to be two of them and i think that makes no sense.
             // the shipdata should have the base but the ship should have live values. no sense in having in the ship. Think this has been messed up for a while.
-            shipData.BaseCanWarp      = WarpThrust > 0;
-            BaseCanWarp               = WarpThrust > 0;
+            shipData.BaseCanWarp = WarpThrust > 0;
+            BaseCanWarp          = WarpThrust > 0;
+
+            // force it to run the actual ship status update
+            shipStatusChanged = true;
         }
 
-        void InitShieldsPower()
+        void InitShieldsPower(float shieldAmplify)
         {
-            float shieldAmplify = ShipUtils.GetShieldAmplification(Amplifiers, Shields);
             for (int i = 0; i < Shields.Length; i++)
             {
                 ShipModule shield = Shields[i];

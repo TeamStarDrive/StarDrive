@@ -22,7 +22,7 @@ namespace Ship_Game.Ships
         CargoContainer Cargo;
 
         public bool OrdnanceChanged { get; private set; }
-        public float CargoSpaceMax { get; private set; }
+        public float CargoSpaceMax;
         public float CargoSpaceUsed    => Cargo?.TotalCargo ?? 0;
         public float CargoSpaceFree    => CargoSpaceMax - CargoSpaceUsed;
         public float PassengerModifier => loyalty.data.Traits.PassengerModifier;

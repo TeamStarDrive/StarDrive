@@ -176,14 +176,18 @@ namespace Ship_Game.ShipDesignIssues
                 AddDesignIssue(DesignIssueType.LongRechargeTime, severity);
         }
 
-        public void CheckPowerRequiredToFireOnce(Array<float> weaponsPowerPerShot, float powerCapacity)
+        public void CheckPowerRequiredToFireOnce(Ship s)
         {
-            if (weaponsPowerPerShot.Count == 0)
+            float powerCapacity = s.PowerStoreMax;
+
+            float[] weaponsPowerPerShot = s.Weapons.FilterSelect(w => !w.isBeam && w.PowerRequiredToFire > 0, 
+                                                                 w => w.PowerRequiredToFire);
+            if (weaponsPowerPerShot.Length == 0)
                 return;
 
-            weaponsPowerPerShot.Sort();
+            Array.Sort(weaponsPowerPerShot);
             int numCanFire = 0;
-            for (int i = 0; i < weaponsPowerPerShot.Count; i++)
+            for (int i = 0; i < weaponsPowerPerShot.Length; i++)
             {
                 float weaponPower = weaponsPowerPerShot[i];
                 if (weaponPower.LessOrEqual(powerCapacity))
@@ -192,7 +196,7 @@ namespace Ship_Game.ShipDesignIssues
                     break;
             }
 
-            float percentCanFire  = 100f * numCanFire / weaponsPowerPerShot.Count;
+            float percentCanFire  = 100f * numCanFire / weaponsPowerPerShot.Length;
             float efficiency      = 100 * powerCapacity / weaponsPowerPerShot.Sum().LowerBound(1);
             WarningLevel severity = WarningLevel.None;
 
@@ -386,7 +390,8 @@ namespace Ship_Game.ShipDesignIssues
             AddDesignIssue(DesignIssueType.LowTroopsForBays, WarningLevel.Major, troopsMissing);
         }
 
-        public void CheckDedicatedCarrier(bool hasFighterHangars, ShipData.RoleName role, int maxWeaponRange, int sensorRange, bool shortRange)
+        public void CheckDedicatedCarrier(bool hasFighterHangars, ShipData.RoleName role, 
+                                          int maxWeaponRange, float sensorRange, bool shortRange)
         {
             if (role != ShipData.RoleName.carrier  && !Stationary || !hasFighterHangars)
                 return;
