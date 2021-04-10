@@ -8,7 +8,7 @@ using Ship_Game.Audio;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
-using Ship_Game.GameScreens.ShipDesignScreen;
+using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace
@@ -72,7 +72,10 @@ namespace Ship_Game
             ModuleSelectComponent.SelectedIndex = -1;
 
             ZoomCameraToEncloseHull(ActiveHull);
-            DesignIssues = new ShipDesignIssues.ShipDesignIssues(ActiveHull);
+
+            // TODO: remove DesignIssues from this page
+            InfoPanel.SetActiveDesign(DesignedShip);
+            DesignIssues = InfoPanel.DesignIssues;
         }
 
         void UpdateCarrierShip()
@@ -375,21 +378,21 @@ namespace Ship_Game
 
         bool HandleDesignIssuesButton(InputState input)
         {
-            if (DesignIssues.CurrentWarningLevel == ShipDesignIssues.WarningLevel.None)
+            if (DesignIssues.CurrentWarningLevel == WarningLevel.None)
                 return false ;
 
             if (DesignIssuesButton.R.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.StatesAnyDesignIssuesThe);
 
 
-            if (DesignIssues.CurrentWarningLevel > ShipDesignIssues.WarningLevel.Informative 
+            if (DesignIssues.CurrentWarningLevel > WarningLevel.Informative 
                 && DesignIssuesButton.HandleInput(input))
             {
                 AddDesignIssuesScreen();
                 return true;
             }
 
-            if (DesignIssues.CurrentWarningLevel == ShipDesignIssues.WarningLevel.Informative  
+            if (DesignIssues.CurrentWarningLevel == WarningLevel.Informative  
                 && InformationButton.HandleInput(input))
             {
                 AddDesignIssuesScreen();

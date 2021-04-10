@@ -109,6 +109,9 @@ namespace Ship_Game.Ships
         protected bool CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave, 
                                                  bool isTemplate = false, bool shipyardDesign = false)
         {
+            Weapons.Clear();
+            BombBays.Clear();
+
             bool hasLegacyDummySlots = false;
             int count = 0;
             for (int i = 0; i < templateSlots.Length; ++i)
@@ -355,6 +358,8 @@ namespace Ship_Game.Ships
             AI.SetPriorityOrder(aiSave.PriorityOrder);
         }
 
+        // This should be called when a Ship is ready to enter the universe
+        // Before this call, the ship doesn't have an AI instance
         public void InitializeShip(bool loadingFromSaveGame = false)
         {
             Center = Position;
@@ -386,7 +391,6 @@ namespace Ship_Game.Ships
             if (!loadingFromSaveGame)
                 InitializeStatus(false);
 
-            InitExternalSlots();
             Initialize();
 
             ShipStatusChange();
