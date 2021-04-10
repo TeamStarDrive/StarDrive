@@ -105,7 +105,7 @@ namespace Ship_Game.Ships
         public float PowerFlowMax;
         public float PowerStoreMax;
         public float PowerDraw;
-        public Power NetPower { get; private set; }
+        public Power NetPower;
         public bool FromSave;
         public bool HasRepairModule;
         readonly AudioHandle JumpSfx = new AudioHandle();
@@ -121,7 +121,7 @@ namespace Ship_Game.Ships
         public float ScreenRadius;
         public bool ShouldRecalculatePower;
         public bool Deleted;
-        private float BonusEMP_Protection;
+        public float BonusEMP_Protection;
         public bool inSensorRange => KnownByEmpires.KnownByPlayer;
         public KnownByEmpire KnownByEmpires;
         public KnownByEmpire HasSeenEmpires;
@@ -136,7 +136,6 @@ namespace Ship_Game.Ships
         public PlanetCrash PlanetCrash;
         private bool reallyDie;
         private bool HasExploded;
-        public float FTLSpoolTime;
         public int TotalDps { get; private set; }
 
         public Array<ShipModule> RepairBeams = new Array<ShipModule>();
@@ -365,8 +364,9 @@ namespace Ship_Game.Ships
             if (IsTethered || EnginesKnockedOut)
                 return;
 
-            Mass += hittingShields ? massDamage/2 : massDamage;
-            UpdateMaxVelocity();
+            float massIncrease = hittingShields ? massDamage/2 : massDamage;
+            Mass += massIncrease;
+            UpdateMassRelated();
             shipStatusChanged = true;
         }
 
@@ -621,7 +621,7 @@ namespace Ship_Game.Ships
             float travelSTL    = distanceSTL / MaxSTLSpeed.LowerBound(1);
             float travelFTL    = distanceFTL / MaxFTLSpeed.LowerBound(1);
 
-            return (travelFTL + travelSTL + rotationTime + FTLSpoolTime) / GlobalStats.TurnTimer;
+            return (travelFTL + travelSTL + rotationTime + Stats.FTLSpoolTime) / GlobalStats.TurnTimer;
         }
 
         public void TetherToPlanet(Planet p)
@@ -640,9 +640,9 @@ namespace Ship_Game.Ships
             return (Ship)MemberwiseClone();
         }
 
-        public float GetCost(Empire empire)
+        public float GetCost(Empire empire = null)
         {
-            return Stats.GetCost(BaseCost, empire, IsPlatformOrStation);
+            return Stats.GetCost(BaseCost, empire ?? loyalty, IsPlatformOrStation);
         }
 
         public float GetScrapCost()
@@ -1337,52 +1337,8 @@ namespace Ship_Game.Ships
         public void ShipStatusChange()
         {
             shipStatusChanged = false;
-
-            float sensorBonus           = 0f;
-            shield_max                  = 0f;
-            ActiveInternalSlotCount     = 0;
-            BonusEMP_Protection         = 0f;
-            PowerStoreMax               = 0f;
-            PowerFlowMax                = 0f;
-            OrdinanceMax                = 0f;
-            RepairRate                  = 0f;
-            CargoSpaceMax               = 0f;
-            SensorRange                 = 1000f;
-            InhibitionRadius            = 0f;
-            OrdAddedPerSecond           = 0f;
-            HealPerTurn                 = 0;
-            ECMValue                    = 0f;
-            hasCommand                  = IsPlatform;
-            TrackingPower               = 0;
-            TargetingAccuracy           = 0;
-
-            for (int i = 0; i < ModuleSlotList.Length; i++)
-            {
-                ShipModule module = ModuleSlotList[i];
-                // active internal slots
-                if (module.HasInternalRestrictions && module.Active)
-                    ActiveInternalSlotCount += module.XSIZE * module.YSIZE;
-
-                RepairRate += module.Active ? module.ActualBonusRepairRate : module.ActualBonusRepairRate / 10; // FB - so destroyed modules with repair wont have full repair rate
-
-                if (module.Active && (module.Powered || module.PowerDraw <= 0f))
-                {
-                    hasCommand |= module.IsCommandModule;
-                    
-                    OrdinanceMax        += module.OrdinanceCapacity;
-                    CargoSpaceMax       += module.Cargo_Capacity;
-                    BonusEMP_Protection += module.EMP_Protection;
-                    OrdAddedPerSecond   += module.OrdnanceAddedPerSecond;
-                    HealPerTurn         += module.HealPerTurn;
-                    InhibitionRadius     = module.InhibitionRadius.LowerBound(InhibitionRadius);
-                    SensorRange          = module.SensorRange.LowerBound(SensorRange);
-                    sensorBonus          = module.SensorBonus.LowerBound(sensorBonus);
-                    TrackingPower       += module.TargetTracking;
-                    TargetingAccuracy    = module.TargetingAccuracy.LowerBound(TargetingAccuracy);
-                    ECMValue             = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.
-                    module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
-                }
-            }
+            Stats.UpdateCoreStats();
+            UpdateMassRelated();
 
             if (IsTethered)
             {
@@ -1390,33 +1346,12 @@ namespace Ship_Game.Ships
                 if (planet?.Owner != null && (planet.Owner == loyalty || loyalty.IsAlliedWith(planet.Owner)))
                 {
                     TrackingPower     = TrackingPower.LowerBound(planet.Level);
-                    TargetingAccuracy = TrackingPower.LowerBound(planet.Level);
+                    TargetingAccuracy = TargetingAccuracy.LowerBound(planet.Level);
                 }
             }
 
-            shield_max     = ShipUtils.UpdateShieldAmplification(Amplifiers, Shields);
-            NetPower       = Power.Calculate(ModuleSlotList, loyalty);
-            PowerStoreMax  = NetPower.PowerStoreMax;
-            PowerFlowMax   = NetPower.PowerFlowMax;
-            shield_percent = (100.0 * shield_power / shield_max.LowerBound(0.1f)).LowerBound(0);
-            SensorRange   += sensorBonus;
-
-            // Apply modifiers to stats
-            if (IsPlatform) SensorRange = SensorRange.LowerBound(10000);
-            RepairRate     += (float)(RepairRate * Level * 0.05);
-            SensorRange    *= loyalty.data.SensorModifier;
-            CargoSpaceMax  *= shipData.Bonuses.CargoModifier;
-            SensorRange    *= shipData.Bonuses.SensorModifier;
-
-            (Thrust, WarpThrust, TurnThrust) = Stats.GetThrust(ModuleSlotList);
-            Mass         = Stats.GetMass(ModuleSlotList, loyalty, SurfaceArea, OrdnancePercent);
-            FTLSpoolTime = Stats.GetFTLSpoolTime(ModuleSlotList, loyalty);
-
             CurrentStrength = CalculateShipStrength();
             UpdateWeaponRanges();
-            UpdateMaxVelocity();
-            SetMaxFTLSpeed();
-            SetMaxSTLSpeed();
         }
 
         public bool IsTethered => TetheredTo != null;
@@ -1944,7 +1879,7 @@ namespace Ship_Game.Ships
                 return true;
 
             NetPower = Power.Calculate(ModuleSlotList, empire);
-            return ShipIsGoodForGoals(float.MinValue, empire);
+            return ShipIsGoodForGoals(0f, empire);
         }
 
         public Status ToShipStatus(float valueToCheck, float maxValue)

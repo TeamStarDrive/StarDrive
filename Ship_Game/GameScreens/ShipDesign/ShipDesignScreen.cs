@@ -22,7 +22,7 @@ namespace Ship_Game
     {
         public Camera2D Camera;
         public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
-        DesignShip DesignedShip;
+        public DesignShip DesignedShip { get; private set; }
         public ShipData ActiveHull;
         public EmpireUIOverlay EmpireUI;
         SceneObject shipSO;
@@ -61,8 +61,6 @@ namespace Ship_Game
         CategoryDropDown CategoryList;
         HangarDesignationDropDown HangarOptionsList;
         Map<ShipModule, float> WeaponAccuracyList = new Map<ShipModule, float>();
-        public float FireControlLevel { get; private set; } = 0;
-        
 
         bool ShowAllArcs;
         public bool ToggleOverlay = true;
