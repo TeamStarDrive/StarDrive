@@ -1086,6 +1086,9 @@ namespace Ship_Game
 
         public void Initialize()
         {
+            InitDifficultyModifiers();
+            InitPersonalityModifiers();
+
             for (int i = 1; i < 10; ++i)
             {
                 Fleet fleet = new Fleet {Owner = this};
@@ -1134,8 +1137,6 @@ namespace Ship_Game
             if (EmpireManager.NumEmpires ==0)
                 UpdateTimer = 0;
 
-            InitDifficultyModifiers();
-            InitPersonalityModifiers();
             CreateThrusterColors();
             EmpireAI = new EmpireAI(this, fromSave: false);
             Research.Update();
@@ -2114,7 +2115,6 @@ namespace Ship_Game
                 
             UpdateBestOrbitals();
             UpdateDefenseShipBuildingOffense();
-
         }
 
         public bool WeCanBuildThis(string shipName)

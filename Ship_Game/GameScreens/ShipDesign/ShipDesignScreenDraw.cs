@@ -516,23 +516,21 @@ namespace Ship_Game
         class DesignShip : Ship
         {
             public DesignShip(ShipData designHull)
-                : base(EmpireManager.Player, designHull, fromSave:false, isTemplate:true) {}
+                : base(EmpireManager.Player, designHull, fromSave:false, 
+                       isTemplate:true, shipyardDesign:true) {}
             public void UpdateDesign(ModuleSlotData[] placedSlots)
             {
-                CreateModuleSlotsFromData(placedSlots, fromSave:false, isTemplate:true);
+                CreateModuleSlotsFromData(placedSlots, fromSave:false, 
+                                          isTemplate:true, shipyardDesign:true);
                 InitializeShip();
             }
         }
 
-        DesignShip DesignedShip;
+        
 
         // @todo - need to make all these calcs in one place. Right now they are also done in Ship.cs
         void DrawShipInfoPanel()
         {
-            // TODO
-            if (DesignedShip == null || DesignedShip.shipData != ActiveHull)
-                DesignedShip = new DesignShip(ActiveHull);
-
             float hitPoints                = 0f;
             float powerCapacity            = 0f;
             float ordnanceCap              = 0f;
@@ -580,10 +578,9 @@ namespace Ship_Game
             Array<float> weaponsPowerFirePerShot      = new Array<float>();
             DesignIssues.Reset();
 
-            ShipModule[] placedModules = ModuleGrid.CopyModulesList();
-            //DesignedShip.UpdateDesign(CreateModuleSlots()); // TODO
+            DesignedShip.UpdateDesign(CreateModuleSlots()); // TODO
 
-            foreach (ShipModule module in placedModules)
+            foreach (ShipModule module in DesignedShip.Modules)
             {
                 numSlots      += module.Area;
                 hitPoints     += module.ActualMaxHealth;
@@ -696,24 +693,23 @@ namespace Ship_Game
             FireControlLevel  += 1 + EmpireManager.Player.data.Traits.Militaristic + (ActiveHull.Role == ShipData.RoleName.platform ? 3 : 0);
             targets           += 1 + EmpireManager.Player.data.Traits.Militaristic + (ActiveHull.Role == ShipData.RoleName.platform ? 3 : 0);
             
-            var modules = new ModuleCache(placedModules);
-            int size = placedModules.Length;
+            int surfaceArea = DesignedShip.SurfaceArea;
 
-            var stats = new ShipStats();
-            stats.Update(modules.Modules, ActiveHull, EmpireManager.Player, 0,  size, 1);
-            float shieldAmplifyPerShield = ShipUtils.GetShieldAmplification(modules.Amplifiers, modules.Shields);
-            shieldPower                  = ShipUtils.UpdateShieldAmplification(modules.Amplifiers, modules.Shields);
-            bool mainShieldsPresent      = modules.Shields.Any(s => s.ModuleType == ShipModuleType.Shield);
-            Power netPower               = Power.Calculate(modules.Modules, EmpireManager.Player);
+            ShipStats stats = DesignedShip.Stats;
+            stats.Update(DesignedShip.Modules, EmpireManager.Player, 0, surfaceArea, 1);
+            float shieldAmplifyPerShield = ShipUtils.GetShieldAmplification(DesignedShip.Amplifiers, DesignedShip.Shields);
+            shieldPower  = ShipUtils.UpdateShieldAmplification(DesignedShip.Amplifiers, DesignedShip.Shields);
+            bool mainShieldsPresent = DesignedShip.Shields.Any(s => s.ModuleType == ShipModuleType.Shield);
+            Power netPower = Power.Calculate(DesignedShip.Modules, EmpireManager.Player);
 
             // Other modification to the ship and draw values
-            empResist += size; // FB: so the player will know the true EMP Tolerance
+            empResist += surfaceArea; // FB: so the player will know the true EMP Tolerance
             
             float powerRecharge = powerFlow - netPower.NetSubLightPowerDraw;
             
             var cursor = new Vector2(StatsSub.X + 10, ShipStats.Y + 18);
             DrawHullBonuses(ref cursor, stats.Cost, ActiveHull.Bonuses);
-            DrawUpkeepSizeMass(ref cursor, stats.Cost, size, stats.Mass, totalHangarArea, troopCount);
+            DrawUpkeepSizeMass(ref cursor, stats.Cost, surfaceArea, stats.Mass, totalHangarArea, troopCount);
             WriteLine(ref cursor);
 
             DrawPowerConsumedAndRecharge(ref cursor, weaponPowerNeeded, powerRecharge, powerCapacity, out float powerConsumed);
@@ -738,20 +734,20 @@ namespace Ship_Game
             WriteLine(ref cursor);
 
             DrawCargoTargetsAndSensors(ref cursor, cargoSpace, targets, sensorRange, sensorBonus, ActiveHull.Bonuses);
-            DrawOffense(ref cursor, offense, defense, size, numWeaponSlots + numHangarSlots);
+            DrawOffense(ref cursor, offense, defense, surfaceArea, numWeaponSlots + numHangarSlots);
 
             var cursorReq = new Vector2(StatsSub.X - 180, ShipStats.Y + Fonts.Arial12Bold.LineSpacing + 5);
 
-            DrawCompletion(ref cursorReq, Localizer.Token(GameText.NoEmptySlots), numSlots, size, GameText.InOrderToCompleteYour);
+            DrawCompletion(ref cursorReq, Localizer.Token(GameText.NoEmptySlots), numSlots, surfaceArea, GameText.InOrderToCompleteYour);
             CheckDesignIssues();
 
             void CheckDesignIssues()
             {
-                if (PercentComplete(numSlots, size) < 0.75f)
+                if (PercentComplete(numSlots, surfaceArea) < 0.75f)
                     return;
 
                 DesignIssues.CheckIssueNoCommand(numCommandModules);
-                DesignIssues.CheckIssueBackupCommand(numCommandModules, size);
+                DesignIssues.CheckIssueBackupCommand(numCommandModules, surfaceArea);
                 DesignIssues.CheckIssueUnpoweredModules(unpoweredModules);
                 DesignIssues.CheckIssueOrdnance(avgOrdnanceUsed, ordnanceRecovered, ammoTime);
                 DesignIssues.CheckIssuePowerRecharge(bEnergyWeapons, powerRecharge, powerCapacity, powerConsumed);
@@ -762,14 +758,14 @@ namespace Ship_Game
                 DesignIssues.CheckIssueSlowWarp(stats.MaxFTLSpeed);
                 DesignIssues.CheckIssueNoSpeed(stats.MaxSTLSpeed);
                 DesignIssues.CheckTargetExclusions(numWeaponSlots > 0, canTargetFighters, canTargetCorvettes, canTargetCapitals);
-                DesignIssues.CheckTruePD(size, pointDefenseValue);
+                DesignIssues.CheckTruePD(surfaceArea, pointDefenseValue);
                 DesignIssues.CheckWeaponPowerTime(bEnergyWeapons, powerConsumed > 0, energyDuration);
                 DesignIssues.CheckCombatEfficiency(powerConsumed, energyDuration, powerRecharge, numWeapons, numOrdnanceWeapons);
                 DesignIssues.CheckExcessPowerCells(beamPeakPowerNeeded > 0, burstEnergyDuration, powerConsumed, hasPowerCells);
                 DesignIssues.CheckBurstPowerTime(beamPeakPowerNeeded > 0, burstEnergyDuration);
                 DesignIssues.CheckOrdnanceVsEnergyWeapons(numWeapons, numOrdnanceWeapons, avgOrdnanceUsed, ordnanceRecovered);
                 DesignIssues.CheckTroopsVsBays(troopCount, numTroopBays);
-                DesignIssues.CheckTroops(troopCount, size);
+                DesignIssues.CheckTroops(troopCount, surfaceArea);
                 DesignIssues.CheckAccuracy(WeaponAccuracyList);
                 DesignIssues.CheckTargets(WeaponAccuracyList, targets);
                 DesignIssues.CheckSecondaryCarrier(totalHangarArea > 0, Role, maxWeaponRange);

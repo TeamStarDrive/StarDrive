@@ -8,8 +8,13 @@ namespace Ship_Game.Ships
 {
     public partial class Ship
     {
+        public readonly ShipStats Stats;
+
+        // Create a ship from a savegame or a template or in shipyard
         // You can also call Ship.CreateShip... functions to spawn ships
-        protected Ship(Empire empire, ShipData data, bool fromSave, bool isTemplate) : base(GameObjectType.Ship)
+        // @param shipyardDesign This is a potentially incomplete design from Shipyard
+        protected Ship(Empire empire, ShipData data, bool fromSave, 
+                       bool isTemplate, bool shipyardDesign = false) : base(GameObjectType.Ship)
         {
             if (!data.IsValidForCurrentMod)
             {
@@ -24,21 +29,25 @@ namespace Ship_Game.Ships
             loyalty    = empire;
             SetShipData(data);
 
-            if (!CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate))
+            if (!CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate, shipyardDesign))
             {
                 Log.Warning(ConsoleColor.DarkRed, $"Unexpected failure while spawning ship '{Name}'. Is the module list corrupted??");
                 return;
             }
+            
+            Stats = new ShipStats(this);
+            KnownByEmpires = new DataPackets.KnownByEmpire(this);
+            HasSeenEmpires = new DataPackets.KnownByEmpire(this);
 
             foreach (ShipToolScreen.ThrusterZone t in data.ThrusterList)
                 ThrusterList.Add(new Thruster(this, t.Scale, t.Position));
+
             InitializeStatus(fromSave);
             InitializeThrusters();
             DesignRole = GetDesignRole();
-            KnownByEmpires = new DataPackets.KnownByEmpire(this);
-            HasSeenEmpires = new DataPackets.KnownByEmpire(this);
         }
 
+        // create a new ship from template
         Ship(Ship template, Empire owner, Vector2 position) : base(GameObjectType.Ship)
         {
             if (template == null)
@@ -56,13 +65,15 @@ namespace Ship_Game.Ships
             BaseCanWarp  = template.BaseCanWarp;
             loyalty      = owner;
             SetShipData(template.shipData);
+            SetInitialCrewLevel();
 
             if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
             {
                 Log.Warning(ConsoleColor.DarkRed, $"Unexpected failure while spawning ship '{Name}'. Is the module list corrupted??");
                 return; // return and crash again...
             }
-
+            
+            Stats = new ShipStats(this);
             KnownByEmpires = new DataPackets.KnownByEmpire(this);
             HasSeenEmpires = new DataPackets.KnownByEmpire(this);
 
@@ -74,17 +85,7 @@ namespace Ship_Game.Ships
             if (GlobalStats.HasMod)
                 VanityName = ResourceManager.ShipNames.GetName(owner.data.Traits.ShipType, shipData.Role);
 
-            if (shipData.Role == ShipData.RoleName.fighter)
-                Level += owner.data.BonusFighterLevels;
-
-            Level += owner.data.BaseShipLevel;
-            // during new game creation, universeScreen can still be null its not supposed to work on players.
-            if (Empire.Universe != null && !owner.isPlayer)
-                Level += owner.DifficultyModifiers.ShipLevel;
-
             InitializeShip(loadingFromSaveGame: false);
-            if (!BaseCanWarp && DesignRoleType == ShipData.RoleType.Warship)
-                Log.Warning($"Warning: Ship base warp is false: {this}");
 
             owner.AddShip(this);
             Empire.Universe?.Objects.Add(this);
@@ -105,7 +106,8 @@ namespace Ship_Game.Ships
             return ResourceManager.GetShipTemplate("Vulcan Scout", out template) ? template : null;
         }
 
-        protected bool CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave, bool isTemplate = false)
+        protected bool CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave, 
+                                                 bool isTemplate = false, bool shipyardDesign = false)
         {
             bool hasLegacyDummySlots = false;
             int count = 0;
@@ -115,6 +117,9 @@ namespace Ship_Game.Ships
                 string uid = slot.InstalledModuleUID;
                 if (uid == null || uid == "Dummy") // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
                 {
+                    // incomplete shipyard designs are a new feature, so no legacy dummies here
+                    if (shipyardDesign)
+                        continue;
                     hasLegacyDummySlots = true;
                     continue;
                 }
@@ -142,15 +147,15 @@ namespace Ship_Game.Ships
                 ModuleSlotList[count++] = module;
             }
 
-            CreateModuleGrid();
+            CreateModuleGrid(templateSlots);
             if (hasLegacyDummySlots)
                 FixLegacyInternalRestrictions(templateSlots);
             return true;
         }
 
-        public static Ship CreateShipFromShipData(Empire empire, ShipData data, bool fromSave, bool isTemplate = false)
+        public static Ship CreateNewShipTemplate(ShipData data, bool fromSave)
         {
-            var ship = new Ship(empire, data, fromSave, isTemplate);
+            var ship = new Ship(EmpireManager.Void, data, fromSave, isTemplate:true);
             return ship.HasModules ? ship : null;
         }
 
@@ -166,7 +171,6 @@ namespace Ship_Game.Ships
 
         void InitializeFromSaveData(SavedGame.ShipSaveData save)
         {
-
             guid             = save.guid;
             Position         = save.Position;
             experience       = save.experience;
@@ -231,6 +235,18 @@ namespace Ship_Game.Ships
             LoadColonists(save.PopCount);
         }
 
+        void SetInitialCrewLevel()
+        {
+            Level = shipData.Level;
+
+            if (shipData.Role == ShipData.RoleName.fighter)
+                Level += loyalty.data.BonusFighterLevels;
+
+            Level += loyalty.data.BaseShipLevel;
+
+            if (!loyalty.isPlayer)
+                Level += loyalty.DifficultyModifiers.ShipLevel;
+        }
 
         void InitializeThrusters()
         {
@@ -268,19 +284,6 @@ namespace Ship_Game.Ships
         public static Ship CreateShipAt(string shipName, Empire owner, Planet p, bool doOrbit)
         {
             return CreateShipAt(shipName, owner, p, RandomMath.Vector2D(300), doOrbit);
-        }
-
-        // Added by McShooterz: for refit to keep name
-        // Refactored by RedFox
-        public static Ship CreateShipAt(string shipName, Empire owner, Planet p, bool doOrbit,
-                                        string refitName, int refitLevel)
-        {
-            Ship ship = CreateShipAt(shipName, owner, p, doOrbit);
-
-            // Added by McShooterz: add automatic ship naming
-            ship.VanityName = refitName;
-            ship.Level      = refitLevel;
-            return ship;
         }
 
         // Hangar Ship Creation
@@ -389,6 +392,9 @@ namespace Ship_Game.Ships
             ShipStatusChange();
             InitializeThrusters();
             DesignRole = GetDesignRole();
+
+            if (!BaseCanWarp && DesignRoleType == ShipData.RoleType.Warship)
+                Log.Warning($"Warning: Ship base warp is false: {this}");
         }
 
         void InitDefendingTroopStrength()
@@ -522,9 +528,9 @@ namespace Ship_Game.Ships
             if (InhibitionRadius.Greater(0))
                 loyalty.Inhibitors.Add(this); // Start inhibiting at spawn
 
-            (Thrust, WarpThrust, TurnThrust) = ShipStats.GetThrust(ModuleSlotList, shipData);
-            Mass         = ShipStats.GetMass(ModuleSlotList, loyalty, SurfaceArea, OrdnancePercent);
-            FTLSpoolTime = ShipStats.GetFTLSpoolTime(ModuleSlotList, loyalty);
+            (Thrust, WarpThrust, TurnThrust) = Stats.GetThrust(ModuleSlotList);
+            Mass         = Stats.GetMass(ModuleSlotList, loyalty, SurfaceArea, OrdnancePercent);
+            FTLSpoolTime = Stats.GetFTLSpoolTime(ModuleSlotList, loyalty);
 
             MechanicalBoardingDefense = MechanicalBoardingDefense.LowerBound(1);
             shipStatusChanged         = true;

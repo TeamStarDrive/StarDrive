@@ -9,6 +9,8 @@ namespace Ship_Game.Ships
     /// </summary>
     public class ShipStats
     {
+        readonly Ship S;
+        ShipData Hull;
         public float Cost;
         public float Mass;
         
@@ -24,14 +26,22 @@ namespace Ship_Game.Ships
 
         public float FTLSpoolTime;
 
-        public bool IsStationary(ShipData hull) => hull.HullRole == ShipData.RoleName.station || hull.HullRole == ShipData.RoleName.platform;
+        public bool IsStationary => Hull.HullRole == ShipData.RoleName.station
+                                 || Hull.HullRole == ShipData.RoleName.platform;
 
-        public void Update(ShipModule[] modules, ShipData hull, Empire e, int level, int surfaceArea, float ordnancePercent)
+        public ShipStats(Ship theShip)
         {
-            Cost = GetCost(GetBaseCost(modules), hull, e, IsStationary(hull));
+            S = theShip;
+            Hull = theShip.shipData;
+        }
+
+        public void Update(ShipModule[] modules, Empire e, int level, int surfaceArea, float ordnancePercent)
+        {
+            Hull = S.shipData;
+            Cost = GetCost(GetBaseCost(modules), e, IsStationary);
             Mass = GetMass(modules, e, surfaceArea, ordnancePercent);
 
-            (Thrust,WarpThrust,TurnThrust) = GetThrust(modules, hull);
+            (Thrust,WarpThrust,TurnThrust) = GetThrust(modules);
             VelocityMax    = GetVelocityMax(Thrust, Mass);
             TurnRadsPerSec = GetTurnRadsPerSec(TurnThrust, Mass, level);
 
@@ -49,24 +59,24 @@ namespace Ship_Game.Ships
             return baseCost;
         }
 
-        public static float GetCost(float baseCost, ShipData hull, Empire e, bool isOrbital)
+        public float GetCost(float baseCost, Empire e, bool isOrbital)
         {
-            if (hull.HasFixedCost)
-                return hull.FixedCost * CurrentGame.ProductionPace;
+            if (Hull.HasFixedCost)
+                return Hull.FixedCost * CurrentGame.ProductionPace;
 
             float cost = baseCost * CurrentGame.ProductionPace;
-            cost += hull.Bonuses.StartingCost;
+            cost += Hull.Bonuses.StartingCost;
             cost += cost * e.data.Traits.ShipCostMod;
-            cost *= 1f - hull.Bonuses.CostBonus; // @todo Sort out (1f - CostBonus) weirdness
+            cost *= 1f - Hull.Bonuses.CostBonus; // @todo Sort out (1f - CostBonus) weirdness
             if (isOrbital)
                 cost *= 0.7f;
 
             return (int)cost;
         }
 
-        public static float GetMass(ShipModule[] modules, Empire loyalty, int surfaceArea, float ordnancePercent)
+        public float GetMass(ShipModule[] modules, Empire loyalty, int surfaceArea, float ordnancePercent)
         {
-            float minMass = surfaceArea *0.5f * (1 + surfaceArea / 500);
+            float minMass = surfaceArea * 0.5f * (1 + surfaceArea / 500);
             float mass    = minMass;
             for (int i = 0; i < modules.Length; i++)
                 mass += modules[i].GetActualMass(loyalty, ordnancePercent, useMassModifier: false);
@@ -75,12 +85,12 @@ namespace Ship_Game.Ships
             return mass.LowerBound(minMass);
         }
 
-        public static float GetMass(float mass, Empire loyalty)
+        public float GetMass(float mass, Empire loyalty)
         {
             return mass * loyalty.data.MassModifier; // apply overall mass modifier
         }
 
-        public static (float STL, float Warp, float Turn) GetThrust(ShipModule[] modules, ShipData hull)
+        public (float STL, float Warp, float Turn) GetThrust(ShipModule[] modules)
         {
             float stl = 0f;
             float warp = 0f;
@@ -96,11 +106,11 @@ namespace Ship_Game.Ships
                 }
             }
 
-            float modifier = hull.Bonuses.SpeedModifier;
+            float modifier = Hull.Bonuses.SpeedModifier;
             return (STL: stl * modifier, Warp: warp * modifier, Turn: turn * modifier);
         }
 
-        public static float GetTurnRadsPerSec(float turnThrust, float mass, int level)
+        public float GetTurnRadsPerSec(float turnThrust, float mass, int level)
         {
             float radsPerSec = turnThrust / mass / 700f;
             if (level > 0)
@@ -108,12 +118,12 @@ namespace Ship_Game.Ships
             return radsPerSec.UpperBound(Ship.MaxTurnRadians);
         }
 
-        public static float GetVelocityMax(float thrust, float mass)
+        public float GetVelocityMax(float thrust, float mass)
         {
             return thrust / mass;
         }
 
-        public static float GetFTLSpeed(float warpThrust, float mass, Empire e)
+        public float GetFTLSpeed(float warpThrust, float mass, Empire e)
         {
             if (warpThrust.AlmostZero())
                 return 0;
@@ -121,14 +131,14 @@ namespace Ship_Game.Ships
             return (warpThrust / mass * e.data.FTLModifier).LowerBound(Ship.LightSpeedConstant);
         }
 
-        public static float GetSTLSpeed(float thrust, float mass, Empire e)
+        public float GetSTLSpeed(float thrust, float mass, Empire e)
         {
             float thrustWeightRatio = thrust / mass;
             float speed = thrustWeightRatio * e.data.SubLightModifier;
             return speed.UpperBound(Ship.MaxSubLightSpeed);
         }
 
-        public static float GetFTLSpoolTime(ShipModule[] modules, Empire e)
+        public float GetFTLSpoolTime(ShipModule[] modules, Empire e)
         {
             float spoolTime = 0f;
             for (int i = 0; i < modules.Length; i++)

@@ -61,7 +61,7 @@ namespace Ship_Game.ShipDesignIssues
                 foreach (string name in empire.ShipsWeCanBuild)
                 {
                     Ship ship = ResourceManager.GetShipTemplate(name);
-                    float warpSpeed = ShipStats.GetFTLSpeed(ship.WarpThrust, ship.Mass, empire);
+                    float warpSpeed = ship.Stats.GetFTLSpeed(ship.WarpThrust, ship.Mass, empire);
                     if (warpSpeed < 2000 || Scout(ship.shipData.Role))
                         continue;
 

@@ -409,6 +409,8 @@ namespace Ship_Game.Ships
             return module;
         }
 
+        public const float ModuleSlotOffset = 264f;
+
         void Initialize(Vector2 pos, bool isTemplate)
         {
             if (Parent == null)
@@ -422,7 +424,7 @@ namespace Ship_Game.Ships
             //Vector2 topLeftCenter = pos - new Vector2(256f, 256f);
 
             // top left position of this module
-            Position = new Vector2(pos.X - 264f, pos.Y - 264f);
+            Position = new Vector2(pos.X - ModuleSlotOffset, pos.Y - ModuleSlotOffset);
             LocalCenter = new Vector2(Position.X + XSIZE * 8f, Position.Y + YSIZE * 8f);
             // center of this module
             Center.X = Position.X + XSIZE * 8f;
