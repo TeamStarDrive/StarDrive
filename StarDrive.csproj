@@ -444,7 +444,6 @@
     <Compile Include="Ship_Game\Ships\DataPackets\ShipWeight.cs" />
     <Compile Include="Ship_Game\Ships\PlanetCrash.cs" />
     <Compile Include="Ship_Game\Ships\ShipStats.cs" />
-    <Compile Include="Ship_Game\Ships\ShipUtils.cs" />
     <Compile Include="Ship_Game\Ships\ShipEngines.cs" />
     <Compile Include="Ship_Game\Ships\Ship_ProjectorInfluence.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Troop.cs" />
