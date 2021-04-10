@@ -246,6 +246,8 @@
     <Compile Include="Ship_Game\Commands\Goals\AssaultBombers.cs" />
     <Compile Include="Ship_Game\Commands\Goals\ScoutSystem.cs" />
     <Compile Include="Ship_Game\Debug\Page\StoryAndEventsDebug.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\DesignShip.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignInfoPanel.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenDraw_DrawHelpers.cs" />
     <Compile Include="Ship_Game\SearchTechItem.cs" />
     <Compile Include="Ship_Game\Commands\Goals\DefendVsRemnants.cs" />
@@ -539,6 +541,7 @@
     <Compile Include="Ship_Game\UI\LayoutParser.cs" />
     <Compile Include="Ship_Game\UI\LayoutParserTypes.cs" />
     <Compile Include="Ship_Game\UI\MultiLayerDrawContainer.cs" />
+    <Compile Include="Ship_Game\UI\PrettyText.cs" />
     <Compile Include="Ship_Game\UI\ScrollList2.cs" />
     <Compile Include="Ship_Game\UI\ScrollListBase.cs" />
     <Compile Include="Ship_Game\UI\ScrollListItem.cs" />

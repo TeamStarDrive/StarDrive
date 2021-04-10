@@ -56,6 +56,8 @@ namespace Ship_Game.Ships
                 UpdateGridSlot(SparseModuleGrid, ModuleSlotList[i], becameActive: true);
             }
 
+            InitExternalSlots();
+
             var shields    = new Array<ShipModule>();
             var amplifiers = new Array<ShipModule>();
 

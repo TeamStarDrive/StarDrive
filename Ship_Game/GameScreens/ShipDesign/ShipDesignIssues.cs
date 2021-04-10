@@ -6,13 +6,13 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Linq;
 
-namespace Ship_Game.ShipDesignIssues
+namespace Ship_Game.GameScreens.ShipDesign
 {
     public class ShipDesignIssues
     {
         public readonly ShipData Hull;
         public readonly ShipData.RoleName Role;
-        public Array<DesignIssueDetails> CurrentDesignIssues { get; }
+        public Array<DesignIssueDetails> CurrentDesignIssues { get; } = new Array<DesignIssueDetails>();
         public WarningLevel CurrentWarningLevel { get; private set; }
         private readonly Empire Player;
         private EmpireShipDesignStats EmpireStats;
@@ -22,7 +22,6 @@ namespace Ship_Game.ShipDesignIssues
             Hull   = hull;
             Role   = hull.Role;
             Player = EmpireManager.Player;
-            CurrentDesignIssues = new Array<DesignIssueDetails>();
             EmpireStats         = new EmpireShipDesignStats(Player);
         }
 
