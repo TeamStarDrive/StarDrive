@@ -72,10 +72,10 @@ namespace Ship_Game
             new Menu2(Rect).Draw(batch, elapsed);
 
             ship.RenderOverlay(batch, shipOverlay, true, moduleHealthColor: false);
-            float mass          = ShipStats.GetMass(ship.Mass, EmpireManager.Player);
-            float warpSpeed     = ShipStats.GetFTLSpeed(ship.WarpThrust, mass, EmpireManager.Player);
-            float subLightSpeed = ShipStats.GetSTLSpeed(ship.Thrust, mass, EmpireManager.Player);
-            float turnRateDeg   = ShipStats.GetTurnRadsPerSec(ship.TurnThrust, mass, ship.Level).ToDegrees();
+            float mass          = ship.Stats.GetMass(ship.Mass, EmpireManager.Player);
+            float warpSpeed     = ship.Stats.GetFTLSpeed(ship.WarpThrust, mass, EmpireManager.Player);
+            float subLightSpeed = ship.Stats.GetSTLSpeed(ship.Thrust, mass, EmpireManager.Player);
+            float turnRateDeg   = ship.Stats.GetTurnRadsPerSec(ship.TurnThrust, mass, ship.Level).ToDegrees();
             var cursor = new Vector2(X + (Width*0.06f).RoundTo10(), Y + (int)(Height * 0.025f));
             DrawShipValueLine(batch, TitleFont, ref cursor, ship.Name, "", Color.White);
             DrawShipValueLine(batch, Font, ref cursor, ship.shipData.ShipCategory + ", " + ship.shipData.CombatState, "", Color.Gray);
