@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Ship_Game.GameScreens.ShipDesign;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -47,9 +48,9 @@ namespace Ship_Game
             ArcsButton.DrawWithShadowCaps(batch);
             switch (DesignIssues.CurrentWarningLevel)
             {
-                case ShipDesignIssues.WarningLevel.None:                                                      break;
-                case ShipDesignIssues.WarningLevel.Informative: InformationButton.DrawWithShadowCaps(batch);  break;
-                default:                                        DesignIssuesButton.DrawWithShadowCaps(batch); break;
+                case WarningLevel.None:                                                      break;
+                case WarningLevel.Informative: InformationButton.DrawWithShadowCaps(batch);  break;
+                default:                       DesignIssuesButton.DrawWithShadowCaps(batch); break;
             }
 
             if (Debug)
@@ -341,15 +342,20 @@ namespace Ship_Game
             Color fill = Color.Black.Alpha(0.33f);
             Color edge = (slot.Module == HighlightedModule) ? Color.DarkOrange : fill;
             DrawRectangle(slot.ModuleRect, edge, fill);
-            DrawString(slot.Center, 0, 1, Color.Orange, slot.Module.FacingDegrees.ToString(CultureInfo.CurrentCulture));
+            DrawString(slot.Center, 0, 1, Color.Orange, slot.Module.FacingDegrees.String(0));
         }
 
         void DrawHangarShipText(SlotStruct s)
         {
+            string hangarShipUID = s.Module.hangarShipUID;
             Color color = Color.Black.Alpha(0.33f);
-            Color textC = ShipBuilder.GetHangarTextColor(s.Module.hangarShipUID);
+            Color textC = ShipBuilder.GetHangarTextColor(hangarShipUID);
             DrawRectangle(s.ModuleRect, textC, color);
-            DrawString(s.Center, 0, 0.4f, textC, s.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
+
+            if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship hangarShip))
+            {
+                DrawString(s.Center, 0, 0.4f, textC, hangarShip.Name);
+            }
         }
 
         static void DrawArc(SpriteBatch batch, float shipFacing, Weapon w, ShipModule m,
@@ -513,50 +519,15 @@ namespace Ship_Game
             batch.DrawDropShadowText(Operation.ToString(), pos, Fonts.Arial20Bold);
         }
 
-        public class DesignShip : Ship
-        {
-            public DesignShip(ShipData designHull)
-                : base(EmpireManager.Player, designHull, fromSave:false, 
-                       isTemplate:true, shipyardDesign:true) {}
-            public void UpdateDesign(ModuleSlotData[] placedSlots)
-            {
-                CreateModuleSlotsFromData(placedSlots, fromSave:false, 
-                                          isTemplate:true, shipyardDesign:true);
-                InitializeShip();
-            }
-        }
-
         // Refactored again by RedFox in 2021
         void DrawShipInfoPanel()
         {
-            // these are unique to ShipDesignScreen and not calculated in Ship.cs or ShipStats.cs
-            float beamPeakPowerNeeded = 0f;
-            float beamLongestDuration = 0f;
-            float weaponPowerNeededNoBeams = 0f;
-
             DesignIssues.Reset();
-            DesignedShip.UpdateDesign(CreateModuleSlots());
-            
-            Ship s = DesignedShip;
-            ShipStats stats = s.Stats;
 
+            Ship s = DesignedShip;
             // select only powered modules and powered weapons
             ShipModule[] modules = s.Modules.Filter(m => m.PowerDraw <= 0 || m.Powered);
             Weapon[] weapons = modules.FilterSelect(m => m.InstalledWeapon != null, m => m.InstalledWeapon);
-
-            foreach (Weapon w in weapons)
-            {
-                if (w.isBeam) // added by Fat Bastard for Energy power calcs
-                {
-                    beamPeakPowerNeeded += w.BeamPowerCostPerSecond;
-                    beamLongestDuration = Math.Max(beamLongestDuration, w.BeamDuration);
-                }
-                else
-                {
-                    // FB: need non beam weapons power cost to add to the beam peak power cost
-                    weaponPowerNeededNoBeams += w.PowerFireUsagePerSecond;
-                }
-            }
 
             WeaponAccuracyList = new Map<ShipModule, float>();
             foreach (var w in weapons)
@@ -575,6 +546,11 @@ namespace Ship_Game
             float burstOrdnance = weapons.Sum(w => w.BurstOrdnanceUsagePerSecond);
             float avgOrdnanceUsed = modules.Sum(m => m.BayOrdnanceUsagePerSecond)
                                   + weapons.Sum(w => w.AverageOrdnanceUsagePerSecond);
+
+            float beamPeakPowerNeeded = weapons.Sum(w => w.isBeam ? w.BeamPowerCostPerSecond : 0);
+            float beamLongestDuration = weapons.Max(w => w.isBeam ? w.BeamDuration : 0);
+            float weaponPowerNeededNoBeams = weapons.Sum(w => !w.isBeam ? w.PowerFireUsagePerSecond : 0);
+
             float offense = modules.Sum(m => m.CalculateModuleOffense());
             float defense = modules.Sum(m => m.CalculateModuleDefense(ModuleGrid.SlotsCount));
 
@@ -585,7 +561,7 @@ namespace Ship_Game
             bool canTargetCorvettes = weapons.Any(w => !w.Excludes_Corvettes);
             bool canTargetCapitals  = weapons.Any(w => !w.Excludes_Capitals);
             bool hasEnergyWeapons   = weapons.Any(w => w.PowerRequiredToFire > 0 || w.BeamPowerCostPerSecond > 0);
-            bool unpoweredModules   = modules.Any(m => m.PowerDraw > 0 && !m.Powered);
+            bool unpoweredModules   = s.Modules.Any(m => m.PowerDraw > 0 && !m.Powered);
 
             // TODO: Everything below this is not refactored
             var cursor = new Vector2(StatsSub.X + 10, ShipStats.Y + 18);
@@ -635,10 +611,10 @@ namespace Ship_Game
                 DesignIssues.CheckIssuePowerRecharge(hasEnergyWeapons, powerRecharge, s.PowerStoreMax, powerConsumed);
                 DesignIssues.CheckPowerRequiredToFireOnce(s);
                 DesignIssues.CheckIssueOrdnanceBurst(burstOrdnance, s.OrdinanceMax);
-                DesignIssues.CheckIssueLowWarpTime(fDrawAtWarp, fWarpTime, stats.MaxFTLSpeed);
-                DesignIssues.CheckIssueNoWarp(stats.MaxSTLSpeed, stats.MaxFTLSpeed);
-                DesignIssues.CheckIssueSlowWarp(stats.MaxFTLSpeed);
-                DesignIssues.CheckIssueNoSpeed(stats.MaxSTLSpeed);
+                DesignIssues.CheckIssueLowWarpTime(fDrawAtWarp, fWarpTime, s.MaxFTLSpeed);
+                DesignIssues.CheckIssueNoWarp(s.MaxSTLSpeed, s.MaxFTLSpeed);
+                DesignIssues.CheckIssueSlowWarp(s.MaxFTLSpeed);
+                DesignIssues.CheckIssueNoSpeed(s.MaxSTLSpeed);
                 DesignIssues.CheckTargetExclusions(numWeaponSlots > 0, canTargetFighters, canTargetCorvettes, canTargetCapitals);
                 DesignIssues.CheckTruePD(s.SurfaceArea, pointDefenseValue);
                 DesignIssues.CheckWeaponPowerTime(hasEnergyWeapons, powerConsumed > 0, energyDuration);
