@@ -1944,8 +1944,8 @@ namespace Ship_Game
                     ExcessGoodsMoneyAddedThisTurn += p.ExcessGoodsIncome;
                     TroopCostOnPlanets            += p.Money.TroopMaint;
 
-                    if      (p.IsCybernetic && p.Prod.NetIncome.Greater(0))  TotalFoodPerColonist += p.Prod.NetMaxPotential;
-                    else if (p.NonCybernetic && p.Food.NetIncome.Greater(0)) TotalFoodPerColonist += p.Food.NetMaxPotential;
+                    if      (p.IsCybernetic && p.Prod.NetMaxPotential.Greater(0))  TotalFoodPerColonist += p.Prod.NetMaxPotential;
+                    else if (p.NonCybernetic && p.Food.NetMaxPotential.Greater(0)) TotalFoodPerColonist += p.Food.NetMaxPotential;
                 }
         }
 
