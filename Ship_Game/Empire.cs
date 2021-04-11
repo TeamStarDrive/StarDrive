@@ -1022,6 +1022,10 @@ namespace Ship_Game
             }
         }
 
+        /// <summary>
+        /// WARNING. Use this list ONLY for manipulating the live empire ship list.
+        /// Use GetShipsAtomic() in all other cases such as UI use.
+        /// </summary>
         public BatchRemovalCollection<Ship> GetShips() => OwnedShips;
         public Ship[] GetShipsAtomic() => OwnedShips.ToArray();
 
