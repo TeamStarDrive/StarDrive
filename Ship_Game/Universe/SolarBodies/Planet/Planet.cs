@@ -1418,7 +1418,11 @@ namespace Ship_Game
 
         public bool OurShipsCanScanSurface(Empire us)
         {
-            var ships = us.GetShips();
+            // this is one of the reasons i want to change the way sensors are done to have a class containing sensor information.
+            // so we dont have to do this scan more than once. 
+            // todo: Build common sensor container class. 
+            // this scan should only need to be done once.
+            var ships = us.GetShips().ToArrayList();
             ships.AddRange(us.GetProjectors());
 
             for (int i = 0; i < ships.Count; i++)
