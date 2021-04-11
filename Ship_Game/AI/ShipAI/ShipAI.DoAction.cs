@@ -296,7 +296,10 @@ namespace Ship_Game.AI
                 return DoExploreEmptySystem(timeStep, ExplorationTarget); // Lone Star
 
             if (!TryGetClosestUnexploredPlanet(ExplorationTarget, out PatrolTarget))
+            {
+                ExplorationTarget.UpdateFullyExploredBy(Owner.loyalty);
                 return true; // All planets explored
+            }
 
             MovePosition           = PatrolTarget.Center;
             float distanceToTarget = Owner.Center.Distance(MovePosition);
