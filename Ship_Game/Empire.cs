@@ -1022,6 +1022,7 @@ namespace Ship_Game
             }
         }
 
+        // pr to protect ship list
         /// <summary>
         /// WARNING. Use this list ONLY for manipulating the live empire ship list.
         /// Use GetShipsAtomic() in all other cases such as UI use.
