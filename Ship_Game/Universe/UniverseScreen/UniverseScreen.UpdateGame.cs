@@ -347,9 +347,10 @@ namespace Ship_Game
             {
                 Ship projector = ourSSPs[i];
                 Vector2 center = projector.Center;
-                if (ourSSPs.Filter(s => s.Center == center).Length > 1)
+                var sspInSameSpot = ourSSPs.Filter(s => s.Center.AlmostEqual(center, 1));
+                if (sspInSameSpot.Length > 1)
                 {
-                    ourSSPs.Remove(projector);
+                    empire.RemoveShip(projector);
                     projector.QueueTotalRemoval();
                     Log.Warning($"Removed Duplicate SSP for {empire.Name} - Center {center}");
                 }
