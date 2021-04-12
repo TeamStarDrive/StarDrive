@@ -777,7 +777,7 @@ namespace Ship_Game
                 IncomingProd           = TotalIncomingCargo(Goods.Production).RoundUpTo(1);
                 IncomingPop            = (TotalIncomingCargo(Goods.Colonists) / 1000).RoundToFractionOf100();
                 Blockade               = P.Quarantine || P.SpaceCombatNearPlanet;
-                TroopConsumption       = P.GetTotalTroopConsumption();
+                TroopConsumption       = P.TotalTroopConsumption;
                 UpdateTimer            = 300;
             }
             else if (!Empire.Universe.Paused)

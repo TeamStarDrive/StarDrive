@@ -65,12 +65,16 @@ namespace Ship_Game
         public static Vector2 AbsVec(this Vector2 v)  => new Vector2(Abs(v.X), Abs(v.Y));
         public static Vector2 Swapped(this Vector2 v) => new Vector2(v.Y, v.X);
 
+        public static bool AlmostEqual(this Vector2 a, in Vector2 b, float tolerance)
+        {
+            return a.X.AlmostEqual(b.X, tolerance) && a.Y.AlmostEqual(b.Y, tolerance);
+        }
 
-        
         public static bool AlmostEqual(this Vector2 a, in Vector2 b)
         {
             return a.X.AlmostEqual(b.X) && a.Y.AlmostEqual(b.Y);
         }
+
         public static bool NotEqual(this Vector2 a, in Vector2 b)
         {
             return a.X.NotEqual(b.X) || a.Y.NotEqual(b.Y);

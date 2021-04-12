@@ -51,6 +51,7 @@ namespace Ship_Game
 
         public int CrippledTurns;
         public int TotalDefensiveStrength { get; private set; }
+        public float TotalTroopConsumption { get; private set; }
 
         public bool HasWinBuilding;
         float ShipBuildingModifierValue;
@@ -329,7 +330,7 @@ namespace Ship_Game
             }
         }
 
-        public float GetTotalTroopConsumption()
+        float GetTotalTroopConsumption()
         {
             int numTroops;
             using (TroopsHere.AcquireReadLock())
@@ -755,6 +756,7 @@ namespace Ship_Game
             TroopManager.HealTroops(2);
             RepairBuildings(1);
             CallForHelp();
+            TotalTroopConsumption = GetTotalTroopConsumption();
         }
 
         void CalcAverageImportTurns()
@@ -1054,7 +1056,7 @@ namespace Ship_Game
             //this is a hack to prevent research planets from wasting workers on production.
 
             // greedy bastards
-            Consumption = (ConsumptionPerColonist * PopulationBillion) + GetTotalTroopConsumption();
+            Consumption = (ConsumptionPerColonist * PopulationBillion) + TotalTroopConsumption;
             Food.Update(NonCybernetic ? Consumption : 0f);
             Prod.Update(IsCybernetic  ? Consumption : 0f);
             Res.Update(0f);
@@ -1418,7 +1420,11 @@ namespace Ship_Game
 
         public bool OurShipsCanScanSurface(Empire us)
         {
-            var ships = us.GetShips();
+            // this is one of the reasons i want to change the way sensors are done to have a class containing sensor information.
+            // so we dont have to do this scan more than once. 
+            // todo: Build common sensor container class. 
+            // this scan should only need to be done once.
+            var ships = us.GetShips().ToArrayList();
             ships.AddRange(us.GetProjectors());
 
             for (int i = 0; i < ships.Count; i++)

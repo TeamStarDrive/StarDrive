@@ -59,6 +59,8 @@ namespace Ship_Game
 
         public static void LoadContent(GameContentManager content)
         {
+            GameLoadingScreen.SetStatus("LoadExplosions", "");
+
             foreach (KeyValuePair<ExplosionType, Array<Explosion>> kv in Types)
                 kv.Value.Clear();
 
