@@ -112,7 +112,7 @@ namespace Ship_Game
         bool LoadingFinished()
         {
             bool ready = LoadResult?.WaitNoThrow(1) == true;
-            if (ready && (Input.InGameSelect ||  SplashPlayer?.IsPlaying != true))
+            if (ready && SplashPlayer?.IsPlaying != true)
             {
                 ScreenManager.GoToScreen(new MainMenuScreen(), clear3DObjects:true);
                 return true;

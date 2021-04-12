@@ -1022,6 +1022,10 @@ namespace Ship_Game
             }
         }
 
+        /// <summary>
+        /// WARNING. Use this list ONLY for manipulating the live empire ship list.
+        /// Use GetShipsAtomic() in all other cases such as UI use.
+        /// </summary>
         public BatchRemovalCollection<Ship> GetShips() => OwnedShips;
         public Ship[] GetShipsAtomic() => OwnedShips.ToArray();
 
@@ -1063,10 +1067,13 @@ namespace Ship_Game
 
         public void AddShip(Ship s)
         {
+            bool alreadyAdded;
             if (s.IsSubspaceProjector)
-                OwnedProjectors.AddUniqueRef(s);
+                alreadyAdded = !OwnedProjectors.AddUniqueRef(s);
             else
-                OwnedShips.AddUniqueRef(s);
+                alreadyAdded = !OwnedShips.AddUniqueRef(s);
+            if (alreadyAdded && (s.IsSubspaceProjector || s.DesignRole == ShipData.RoleName.ssp))
+                Log.DebugInfo(ConsoleColor.Yellow, "Empire.AddShip BUG: https://bitbucket.org/codegremlins/stardrive-blackbox/issues/147/doubled-projectors");
         }
 
         void InitDifficultyModifiers()
@@ -1945,8 +1952,8 @@ namespace Ship_Game
                     ExcessGoodsMoneyAddedThisTurn += p.ExcessGoodsIncome;
                     TroopCostOnPlanets            += p.Money.TroopMaint;
 
-                    if      (p.IsCybernetic && p.Prod.NetIncome.Greater(0))  TotalFoodPerColonist += p.Prod.NetMaxPotential;
-                    else if (p.NonCybernetic && p.Food.NetIncome.Greater(0)) TotalFoodPerColonist += p.Food.NetMaxPotential;
+                    if      (p.IsCybernetic && p.Prod.NetMaxPotential.Greater(0))  TotalFoodPerColonist += p.Prod.NetMaxPotential;
+                    else if (p.NonCybernetic && p.Food.NetMaxPotential.Greater(0)) TotalFoodPerColonist += p.Food.NetMaxPotential;
                 }
         }
 

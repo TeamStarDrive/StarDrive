@@ -212,7 +212,7 @@ namespace Ship_Game
             LoadTextureAtlases();
             LoadNebulae();
             LoadStars();
-            LoadFlagTextures(); // @todo Very slow for some reason [1.04%]
+            LoadFlagTextures();
             LoadJunk();         // @todo SLOW [0.47%]
             LoadAsteroids();    // @todo SLOW [0.40%]
             LoadProjTexts();    // @todo SLOW [0.47%]
@@ -228,6 +228,7 @@ namespace Ship_Game
             
             GameLoadingScreen.SetStatus("LoadFonts", "");
             Fonts.LoadContent(RootContent);
+            GameLoadingScreen.SetStatus("", "");
 
             // Load non-critical resources:
             void LoadNonCritical()
@@ -240,7 +241,6 @@ namespace Ship_Game
 
             //LoadNonCritical();
             BackgroundLoad = Parallel.Run(LoadNonCritical);
-            GameLoadingScreen.SetStatus("", "");
         }
 
         public static void UnloadGraphicsResources(ScreenManager manager)
@@ -691,11 +691,11 @@ namespace Ship_Game
             "NewUI", "EmpireTopBar", "Popup", "ResearchMenu"
         });
 
-        static void LoadAtlas(string folder)
+        static TextureAtlas LoadAtlas(string folder)
         {
-            GameLoadingScreen.SetStatus("LoadAtlas", folder);
             var atlas = RootContent.LoadTextureAtlas(folder, useAssetCache: true);
-            if (atlas == null) Log.Warning($"LoadAtlas {folder} failed");
+            if (atlas == null) Log.Error($"LoadAtlas {folder} failed");
+            return atlas;
         }
 
         // This is just to speed up initial atlas generation and avoid noticeable framerate hiccups
@@ -977,7 +977,7 @@ namespace Ship_Game
         public static int NumFlags => FlagTextures.Count;
         static void LoadFlagTextures() // Refactored by RedFox
         {
-            FlagTextures = RootContent.LoadTextureAtlas("Flags");
+            FlagTextures = LoadAtlas("Flags");
         }
 
         public static SubTexture FleetIcon(int index)
@@ -1143,10 +1143,9 @@ namespace Ship_Game
 
         static void LoadStars()
         {
-            GameLoadingScreen.SetStatus("LoadStars", "");
-            SmallStars  = RootContent.LoadTextureAtlas("SmallStars");
-            MediumStars = RootContent.LoadTextureAtlas("MediumStars");
-            LargeStars  = RootContent.LoadTextureAtlas("LargeStars");
+            SmallStars  = LoadAtlas("SmallStars");
+            MediumStars = LoadAtlas("MediumStars");
+            LargeStars  = LoadAtlas("LargeStars");
         }
 
         static TextureAtlas Nebulae;
@@ -1157,7 +1156,6 @@ namespace Ship_Game
         // Refactored by RedFox
         static void LoadNebulae()
         {
-            GameLoadingScreen.SetStatus("LoadNebulae", "");
             BigNebulae.Clear();
             MedNebulae.Clear();
             SmallNebulae.Clear();
@@ -1253,7 +1251,7 @@ namespace Ship_Game
         static void LoadProjTexts()
         {
             ProjTextDict.Clear();
-            foreach (FileInfo info in GatherFilesUnified("Model/Projectiles/textures", "xnb"))
+            foreach (FileInfo info in GatherFilesUnified("Model/Projectiles/textures", "xnb", recursive: false))
             {
                 Texture2D tex = RootContent.LoadTexture(info, "xnb");
                 ProjTextDict[info.NameNoExt()] = tex;
