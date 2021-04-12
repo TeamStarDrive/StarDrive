@@ -71,8 +71,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public IReadOnlyList<SolarSystem> GetHistoricLostSystems() => HistoricLostSystems;
         Relationship OurRelationToThem;
 
-        int GetMinPriority() => WarTheaters.MinPriority() - (int)GetWarScoreState();
-
         public float GetPriority()
         {
             if (Them.isFaction) 
