@@ -54,13 +54,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     return;
             }
 
-            if (OwnerWar.GetPriority() <= Us.GetEmpireAI().MinWarPriority)
+            //if (OwnerWar.GetPriority() <= Us.GetEmpireAI().MinWarPriority)
             {
                 Vector2 ourCenter = Us.WeightedCenter;
                 Vector2 theirCenter = Them.WeightedCenter;
 
                 Map<int, Array<Theater>> possibleTheaters;
-                if (OwnerWar.WarType == WarType.GenocidalWar || OwnerWar.WarType == WarType.ImperialistWar)
+                var theirSystems = Them.GetOwnedSystems();
+                if (theirSystems.Count > 0 && (OwnerWar.WarType == WarType.GenocidalWar || OwnerWar.WarType == WarType.ImperialistWar))
                 {
                     theirCenter = Them.GetOwnedSystems().FindMax(s => s.WarValueTo(Us)).Position;
                     ourCenter = Us.GetOwnedSystems().FindMin(s => s.Position.SqDist(theirCenter)).Position;
@@ -82,8 +83,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 else
                     ActiveTheaters = new Theater[0];
             }
-            else
-                ActiveTheaters = new Theater[0];
+            //else
+            //    ActiveTheaters = new Theater[0];
         }
 
         public void Evaluate()
