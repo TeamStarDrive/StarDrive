@@ -254,12 +254,8 @@ namespace Ship_Game
             if (Goals.Any(g => g.IsRaid && (g.Fleet == null || g.Fleet.TaskStep == 0)))
                 return false;  // Limit building fleet to 1 at a time
 
-            int maxRaids     = NumPortals();
-            if (Goals.Any(g => g.IsRaid && g.TargetEmpire != EmpireManager.Player))
-                maxRaids += 1;
-
             int ongoingRaids = Goals.Count(g => g.IsRaid);
-            return ongoingRaids < maxRaids;
+            return ongoingRaids < NumPortals();
         }
 
         public bool FindValidTarget(Ship portal, out Empire target)
