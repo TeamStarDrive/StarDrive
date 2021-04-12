@@ -363,7 +363,7 @@ namespace Ship_Game.Data
             if (useAssetCache && TryGetAsset(folderWithTextures, out TextureAtlas existing))
                 return existing;
 
-            TextureAtlas atlas = TextureAtlas.FromFolder(this, folderWithTextures);
+            TextureAtlas atlas = TextureAtlas.FromFolder(folderWithTextures);
             if (atlas != null && useAssetCache)
                 RecordCacheObject(folderWithTextures, atlas);
             return atlas;
