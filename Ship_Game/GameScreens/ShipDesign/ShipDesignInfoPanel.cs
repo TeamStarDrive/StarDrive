@@ -24,20 +24,25 @@ namespace Ship_Game.GameScreens.ShipDesign
         public ShipDesignInfoPanel(ShipDesignScreen screen, in Rectangle rect) : base(rect)
         {
             Screen = screen;
+            BtnDesignIssues = AddTextButton("Design Issues");
+            BtnInformation = AddTextButton("Information");
+            DebugDraw = true;
+        }
 
-            BtnDesignIssues = Add(new UIButton(ButtonStyle.Text));
-            BtnDesignIssues.Pos = new Vector2(Rect.X, Rect.Y);
-            BtnDesignIssues.RichText.AddText("D", Fonts.Pirulen20);
-            BtnDesignIssues.RichText.AddText("esign Issues", Fonts.Pirulen16);
-            BtnDesignIssues.DefaultTextColor = Color.Green;
-            BtnDesignIssues.HoverTextColor = Color.White;
+        UIButton AddTextButton(string text)
+        {
+            string firstLetter = text[0].ToString().ToUpper();
+			string remaining = text.Remove(0, 1);
 
-            BtnInformation = Add(new UIButton(ButtonStyle.Text));
-            BtnInformation.Pos = new Vector2(Rect.X, Rect.Y);
-            BtnInformation.RichText.AddText("I", Fonts.Pirulen20);
-            BtnInformation.RichText.AddText("nformation", Fonts.Pirulen16);
-            BtnInformation.DefaultTextColor = Color.Green;
-            BtnInformation.HoverTextColor = Color.White;
+            var btn = Add(new UIButton(ButtonStyle.Text));
+            btn.Pos = new Vector2(Rect.X, Rect.Y);
+            btn.RichText.AddText(firstLetter, Fonts.Pirulen20);
+            btn.RichText.AddText(remaining, Fonts.Pirulen16);
+            btn.DefaultTextColor = Color.Green;
+            btn.HoverTextColor = Color.White;
+            btn.PressTextColor = Color.Green;
+            btn.TextShadows = true;
+            return btn;
         }
 
         public void SetActiveDesign(DesignShip ship)
@@ -48,6 +53,16 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         public override void Update(float fixedDeltaTime)
         {
+            if (!Visible)
+                return;
+
+            BtnInformation.Visible = BtnDesignIssues.Visible = false;
+            switch (DesignIssues.CurrentWarningLevel)
+            {
+                case WarningLevel.None:                                        break;
+                case WarningLevel.Informative: BtnInformation.Visible = true;  break;
+                default:                       BtnDesignIssues.Visible = true; break;
+            }
             base.Update(fixedDeltaTime);
         }
 
