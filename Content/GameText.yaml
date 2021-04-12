@@ -3295,6 +3295,7 @@ BasicArmor:
 Dummy:
  Id: 939
  ENG: "Dummy"
+ RUS: "Макет"
 EmpTorpedoTube:
  Id: 940
  ENG: "EMP Torpedo Tube"
@@ -9594,6 +9595,7 @@ IsNotProducingAnything:
 And3:
  Id: 4174
  ENG: "and"
+ RUS: "и"
 AreNowAtWar:
  Id: 4175
  ENG: "are now at war"
@@ -10009,96 +10011,127 @@ DoYouWishToScrap:
 MeteorPart:
  Id: 4279
  ENG: "Meteor Part"
+ RUS: "Кусок метеора"
 AMeteorHasCrashedOn:
  Id: 4280
  ENG: "A Meteor has crashed on the surface!\nMysterious substance was found around the crash site."
+ RUS: "Метеор упал на поверхность!\nВокруг места крушения было обнаружено загадочное вещество."
 AMeteorHasCrashedOn2:
  Id: 4281
  ENG: "A Meteor has crashed on the surface!\nPrecious metals were found around the crash site."
+ RUS: "Метеор упал на поверхность!\nВокруг места крушения были обнаружены драгоценные металлы."
 AMeteorHasCrashedOn3:
  Id: 4282
  ENG: "A Meteor has crashed on the surface!\nIt was mineral rich."
+ RUS: "Метеор упал на поверхность!\nОн был богат минералами."
 AMeteorHasCrashedOn4:
  Id: 4283
  ENG: "A Meteor has crashed on the surface!"
+ RUS: "Метеор упал на поверхность!"
 BiospheresInTheCrashSite:
  Id: 4284
  ENG: "Biospheres in the Crash site were destroyed."
+ RUS: "Биосферы, возле места крушения были уничтожены."
 MillionCiviliansWereKilled:
  Id: 4285
  ENG: "Million civilians were killed."
+ RUS: "Погибли миллионы мирных жителей."
 MineralRichnessWasIncreasedBy:
  Id: 4286
  ENG: "Mineral Richness was increased by 0.1."
+ RUS: "Минеральное богатство было увеличено на 0.1."
 WasDestroyedByAMeteor:
  Id: 4287
  ENG: "was destroyed by A Meteor Crash."
+ RUS: "уничтожено в результате крушения метеора."
 AMeteorCraterWasFlattened:
  Id: 4288
  ENG: "A Meteor crater was flattened out."
+ RUS: "Метеоритный кратер расплющился."
 MeteorCrater:
  Id: 4289
  ENG: "Meteor Crater"
+ RUS: "Метеоритный кратер"
 ThisMeteorCraterContainsFascinating:
  Id: 4290
  ENG: "This Meteor Crater contains fascinating and rare materials which may help us with research efforts. Unfortunately, this effect is temporary."
+ RUS: "Метеоритный кратер содержит удивительные и редкие материалы, которые могут помочь нам в исследованиях. К сожалению,это временный эффект."
 FlatResearchPerTurn:
  Id: 4291
  ENG: "+1 Flat Research per turn"
+ RUS: "+1 к науке за ход"
 ThisMeteorCraterContainsPrecious:
  Id: 4292
  ENG: "This Meteor Crater contains precious metals which can be traded for credits. Unfortunately, this effect is temporary."
+ RUS: "Метеоритный кратер содержит драгоценные металлы, которые можно обменять на кредиты. К сожалению,это временный эффект."
 CreditsPerColonist2:
  Id: 4293
  ENG: "+1 Credits per Colonist"
+ RUS: "+1 к кредитам за колониста"
 ThisMeteorCraterContainsLarge:
  Id: 4294
  ENG: "This Meteor Crater contains large quantities of Minerals, which can help with production. Unfortunately, this effect is temporary."
+ RUS: "Метеоритный кратер содержит большое количество минералов, которые могут помочь в производстве. К сожалению,это временный эффект."
 FlatProduction:
  Id: 4295
  ENG: "+2 Flat Production"
+ RUS: "+2 к производству"
 ThisMeteorCraterIsSlightly:
  Id: 4296
  ENG: "This Meteor Crater is slightly damaging the planet's environment. Fortunately, this effect is temporary."
+ RUS: "Метеоритный кратер слегка повредил окружающую среду планеты. К счастью, это временный эффект."
 Fertility2:
  Id: 4297
  ENG: " (-0.1) Fertility"
+ RUS: " (-0.1) плодородие"
 TheEnemyHasLaunchedA:
  Id: 4298
  ENG: "The Enemy has launched a sneak assault force in an attempt to\nboard our Bombers and escorting ships!"
+ RUS: "Штурмовая группа противника предприняла попытку захвата\nнаших бомбардировщиков и кораблей эскорта!"
 WasDestroyedInAnExploration:
  Id: 4299
  ENG: "was destroyed in an exploration event."
+ RUS: "был уничтожен во время разведки"
 WasRemovedSinceItsResource:
  Id: 4300
  ENG: "was removed since it's resource cache\n was depleted."
+ RUS: "был удален, так как это склад ресурсов\n был истощен"
 FoodRemainingHereThisBuilding:
  Id: 4301
  ENG: "Food Remaining here. This building will be removed when the cache is depleted."
+ RUS: "Здесь харнится еда. Это здание будет удалено, когда запас будет исчерпан."
 ProductionRemainingHereThisBuilding:
  Id: 4302
  ENG: "Production Remaining here. This building will be removed when the cache is depleted."
+ RUS: "Здесь харнится производство. Это здание будет удалено, когда запас будет исчерпан."
 OnSurface:
  Id: 4993
  ENG: "on surface"
+ RUS: "на поверхности"
 InSpace:
  Id: 4994
  ENG: "in space"
+ RUS: "в космосе"
 OnSurfaceAndInSpace:
  Id: 4995
  ENG: "on surface and in space"
+ RUS: "на поверхности и в космосе"
 FoodConsumptionPerTurnFor:
  Id: 4996
  ENG: "Food consumption per turn for Troops"
+ RUS: "Еда за ход для войск"
 ProductionConsumptionPerTurnFor:
  Id: 4997
  ENG: "Production consumption per turn for Troops"
+ RUS: "Продукция за ход для войск"
 CreditsPerTurnForTroop:
  Id: 4998
  ENG: "Credits per turn for Troop maintenance"
+ RUS: "Кредиты за ход на содержание войск"
 TroopMaint:
  Id: 4999
  ENG: "Troop Maint."
+ RUS: "Содерж. войск"
 ForAShipToBe:
  Id: 5000
  ENG: "For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel."
