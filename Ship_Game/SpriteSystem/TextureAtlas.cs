@@ -133,11 +133,12 @@ namespace Ship_Game.SpriteSystem
         // @note Guaranteed to load an atlas with at least 1 texture
         // @param useTextureCache if true try to load texture from existing texture cache folder
         // @return null if no textures in atlas {folder}
-        public static TextureAtlas FromFolder(GameContentManager content, string folder, bool useTextureCache = true)
+        public static TextureAtlas FromFolder(string folder, bool useTextureCache = true)
         {
             TextureAtlas atlas = null;
             try
             {
+                GameLoadingScreen.SetStatus("LoadAtlas", folder);
                 if (GetLoadedAtlas(folder, out atlas))
                     return atlas;
 
@@ -153,7 +154,8 @@ namespace Ship_Game.SpriteSystem
 
                 if (useTextureCache && atlas.TryLoadCache())
                     return atlas;
-
+                
+                GameLoadingScreen.SetStatus("CreateAtlas", folder);
                 atlas.CreateAtlas(files);
                 HelperFunctions.CollectMemorySilent();
                 return atlas;
