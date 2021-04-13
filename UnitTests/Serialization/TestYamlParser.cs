@@ -227,6 +227,7 @@ namespace UnitTests.Serialization
                 Sequence:
                   - { Id: 0, Size: 5 }
                   - { Id: 1, Size: 10 }
+                  - NamedItem: { Id: 2, Size: 15 }
                 ";
             using (var parser = new YamlParser(">SequenceOfInlineMaps<", new StringReader(yaml)))
             {
@@ -234,15 +235,20 @@ namespace UnitTests.Serialization
 
                 var seq = parser.Root["Sequence"];
                 Assert.IsTrue(seq.HasSequence);
-                Assert.AreEqual(2, seq.Count);
+                Assert.AreEqual(3, seq.Count);
                 
-                Assert.AreEqual("Id", seq.Sequence[0].Name);
-                Assert.AreEqual(0, seq.Sequence[0].Value);
+                Assert.AreEqual(null, seq.Sequence[0].Name);
+                Assert.AreEqual(null, seq.Sequence[0].Value);
+
+                Assert.AreEqual(0, seq.Sequence[0]["Id"].Value);
                 Assert.AreEqual(5, seq.Sequence[0]["Size"].Value);
 
-                Assert.AreEqual("Id", seq.Sequence[1].Name);
-                Assert.AreEqual(1, seq.Sequence[1].Value);
+                Assert.AreEqual(1, seq.Sequence[1]["Id"].Value);
                 Assert.AreEqual(10, seq.Sequence[1]["Size"].Value);
+
+                Assert.AreEqual("NamedItem", seq.Sequence[2].Name);
+                Assert.AreEqual(2, seq.Sequence[2]["Id"].Value);
+                Assert.AreEqual(15, seq.Sequence[2]["Size"].Value);
             }
         }
 
