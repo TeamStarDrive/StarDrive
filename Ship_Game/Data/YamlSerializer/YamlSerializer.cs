@@ -27,10 +27,16 @@ namespace Ship_Game.Data.YamlSerializer
                 ResolveTypes();
 
             object item = Activator.CreateInstance(TheType);
-            bool hasPrimaryValue = (node.Value != null);
-            if (hasPrimaryValue)
+
+            bool hasKey = (node.Key != null);
+            bool hasValue = (node.Value != null);
+            if (hasKey)
             {
-                Primary?.SetConverted(item, node.Value);
+                PrimaryKeyName?.SetConverted(item, node.Key);
+            }
+            if (hasValue)
+            {
+                PrimaryKeyValue?.SetConverted(item, node.Value);
             }
 
             if (node.HasSubNodes && node.HasSequence)
@@ -48,8 +54,10 @@ namespace Ship_Game.Data.YamlSerializer
                         continue;
                     }
 
-                    if (hasPrimaryValue && leafInfo == Primary)
-                        continue; // ignore primary key if we already set it
+                    if (hasKey && leafInfo == PrimaryKeyName)
+                        continue;
+                    if (hasValue && leafInfo == PrimaryKeyValue)
+                        continue; // ignore primary key value if we already set it
 
                     leafInfo.SetDeserialized(item, leaf);
                 }
