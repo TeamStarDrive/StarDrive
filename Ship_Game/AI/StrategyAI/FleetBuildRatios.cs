@@ -10,7 +10,7 @@ namespace Ship_Game
     [StarDataType]
     public class FleetBuildRatios
     {
-        [StarDataKeyValue] readonly BuildRatio CanBuild;
+        [StarData] readonly BuildRatio CanBuild;
         [StarData] readonly int Fighters;
         [StarData] readonly int Corvettes;
         [StarData] readonly int Frigates;
