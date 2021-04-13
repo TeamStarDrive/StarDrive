@@ -1,6 +1,7 @@
 # This will set the Fleet Desired Ratios for the AI ship build logic.
 # You should use only the below 5 containers and every one should have the 9 role types.
-FleetBuildRatios: CanBuildFighters
+- FleetBuildRatios:
+  CanBuild: CanBuildFighters
   Fighters: 24
   Corvettes: 0
   Frigates: 0
@@ -12,7 +13,8 @@ FleetBuildRatios: CanBuildFighters
   Carriers: 1
   Support: 1
 
-FleetBuildRatios: CanBuildCorvettes
+- FleetBuildRatios:
+  CanBuild: CanBuildCorvettes
   Fighters: 12
   Corvettes: 6
   Frigates: 0
@@ -24,7 +26,8 @@ FleetBuildRatios: CanBuildCorvettes
   Carriers: 1
   Support: 1
 
-FleetBuildRatios: CanBuildFrigates
+- FleetBuildRatios:
+  CanBuild: CanBuildFrigates
   Fighters: 6
   Corvettes: 6
   Frigates: 4
@@ -36,7 +39,8 @@ FleetBuildRatios: CanBuildFrigates
   Carriers: 1
   Support: 1
 
-FleetBuildRatios: CanBuildCruisers
+- FleetBuildRatios:
+  CanBuild: CanBuildCruisers
   Fighters: 3
   Corvettes: 9
   Frigates: 6
@@ -48,7 +52,8 @@ FleetBuildRatios: CanBuildCruisers
   Carriers: 3
   Support: 1
 
-FleetBuildRatios: CanBuildBattleships
+- FleetBuildRatios:
+  CanBuild: CanBuildBattleships
   Fighters: 2
   Corvettes: 8
   Frigates: 6
@@ -60,7 +65,8 @@ FleetBuildRatios: CanBuildBattleships
   Carriers: 3
   Support: 1
 
-FleetBuildRatios: CanBuildCapitals
+- FleetBuildRatios:
+  CanBuild: CanBuildCapitals
   Fighters: 1
   Corvettes: 4
   Frigates: 6
