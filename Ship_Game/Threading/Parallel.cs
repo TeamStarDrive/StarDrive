@@ -418,15 +418,56 @@ namespace Ship_Game
 
         // Runs Parallel select over each element in the List
         // Each item T yields a new item of type U
-        public static U[] Select<T, U>(IReadOnlyList<T> list, Func<T, U> body)
+        public static U[] Select<T, U>(IReadOnlyList<T> list, Func<T, U> selector)
         {
             var results = new U[list.Count];
             For(0, list.Count, (start, end) =>
             {
                 for (int i = start; i < end; ++i)
-                    results[i] = body(list[i]);
+                    results[i] = selector(list[i]);
             });
             return results;
+        }
+
+        // Filters out Selected items that are null
+        public static U[] FilterSelect<T, U>(IReadOnlyList<T> list, Func<T, U> selector)
+            where U : class
+        {
+            bool hasNulls = false;
+            var results = new U[list.Count];
+            For(0, list.Count, (start, end) =>
+            {
+                for (int i = start; i < end; ++i)
+                {
+                    U selected = selector(list[i]);
+                    results[i] = selected;
+                    if (selected == null)
+                        hasNulls = true;
+                }
+            });
+            return hasNulls ? results.Filter(x => x != null) : results;
+        }
+
+        // Filters out items by using a filter, or if selected item is null
+        public static U[] FilterSelect<T, U>(IReadOnlyList<T> list, Predicate<T> filter, Func<T, U> selector)
+            where U : class
+        {
+            bool hasNulls = false;
+            var results = new U[list.Count];
+            For(0, list.Count, (start, end) =>
+            {
+                for (int i = start; i < end; ++i)
+                {
+                    T item = list[i];
+                    U selected = null;
+                    if (filter(item))
+                        selected = selector(list[i]);
+                    results[i] = selected;
+                    if (selected == null)
+                        hasNulls = true;
+                }
+            });
+            return hasNulls ? results.Filter(x => x != null) : results;
         }
 
         public static TaskResult Run(Action action)
