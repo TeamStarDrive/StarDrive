@@ -118,7 +118,7 @@ namespace Ship_Game
         {
             if (shipGuid != Guid.Empty)
             {
-                Array<Ship> ownedShips = empire.GetShips();
+                var ownedShips = empire.GetShips();
                 foreach (Ship ship in ownedShips)
                     if (ship.guid == shipGuid)
                         return ship;

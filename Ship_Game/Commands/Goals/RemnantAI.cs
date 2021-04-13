@@ -32,7 +32,7 @@ namespace Ship_Game.Commands.Goals
 
         Ship GetAvailableColonyShips()
         {
-            return empire.GetShips().FindMinFiltered(assimilate =>
+            return empire.GetShipsAtomic().FindMinFiltered(assimilate =>
                 (assimilate.isColonyShip && assimilate.AI.State != AIState.Colonize) ||
                 (assimilate.AI.State != AIState.Refit &&
                 assimilate.shipData.ShipStyle != "Remnant" &&

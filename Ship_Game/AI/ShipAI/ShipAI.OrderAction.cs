@@ -585,7 +585,7 @@ namespace Ship_Game.AI
 
             if (AwaitClosest == null)
             {
-                var solarSystem = Owner.loyalty.GetShips()
+                var solarSystem = Owner.loyalty.GetShipsAtomic()
                     .FindMinFiltered(ship => ship.System != null,
                                      ship => Owner.Center.SqDist(ship.Center))?.System;
 
