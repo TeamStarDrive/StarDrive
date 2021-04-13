@@ -16,7 +16,7 @@ namespace Ship_Game.Ships
         {
             if (!data.IsValidForCurrentMod)
             {
-                Log.Info($"Design {data.Name} [Mod:{data.ModName}] ignored for [{GlobalStats.ModOrVanillaName}]");
+                Log.Info($"Design '{data.Name}' [Mod:{data.ModName}] ignored for [{GlobalStats.ModOrVanillaName}]");
                 return;
             }
 
@@ -28,10 +28,7 @@ namespace Ship_Game.Ships
             SetShipData(data);
 
             if (!CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate))
-            {
-                Log.Warning(ConsoleColor.DarkRed, $"Unexpected failure while spawning ship '{Name}'. Is the module list corrupted??");
                 return;
-            }
 
             foreach (ShipToolScreen.ThrusterZone t in data.ThrusterList)
                 ThrusterList.Add(new Thruster(this, t.Scale, t.Position));
@@ -61,10 +58,7 @@ namespace Ship_Game.Ships
             SetShipData(template.shipData);
 
             if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
-            {
-                Log.Warning(ConsoleColor.DarkRed, $"Unexpected failure while spawning ship '{Name}'. Is the module list corrupted??");
                 return; // return and crash again...
-            }
 
             KnownByEmpires = new DataPackets.KnownByEmpire(this);
             HasSeenEmpires = new DataPackets.KnownByEmpire(this);

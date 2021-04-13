@@ -964,20 +964,9 @@ namespace Ship_Game
             foreach (Encounter encounter in Encounters)
             {
                 foreach (Message message in encounter.MessageList)
-                {
                     foreach (Response response in message.ResponseOptions)
-                    {
                         if (TechTree.TryGetValue(response.UnlockTech ?? "", out Technology tech))
-                        {
-                            if (tech.Unlockable)
-                                continue;
                             tech.Unlockable = true;
-
-                            if (GlobalStats.VerboseLogging)
-                                Log.WarningVerbose($"Technology can be unlocked by encounter '{encounter.Name}' : '{tech.UID}'");
-                        }
-                    }
-                }
             }
         }
 
@@ -989,17 +978,9 @@ namespace Ship_Game
                 foreach (var outcome in pair.Entity.PotentialOutcomes)
                 {
                     if (TechTree.TryGetValue(outcome.UnlockTech ?? "", out Technology tech))
-                    {
-                        if (tech.Unlockable) continue;
                         tech.Unlockable = true;
-                        Log.WarningVerbose($"Technology can be unlocked by event '{pair.Entity.Name}' : '{tech.UID}'");
-                    }
                     if (TechTree.TryGetValue(outcome.SecretTechDiscovered ?? "", out tech))
-                    {
-                        if (tech.Unlockable) continue;
                         tech.Unlockable = true;
-                        Log.WarningVerbose($"Secret Technology can be unlocked by event '{pair.Entity.Name}' : '{tech.UID}'");
-                    }
                 }
             }
         }

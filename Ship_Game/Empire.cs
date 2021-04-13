@@ -209,7 +209,7 @@ namespace Ship_Game
         public Array<string> SupportShipTech = new Array<string>();
         public Planet[] RallyPoints          = Empty<Planet>.Array;
         public Ship BoardingShuttle          => ResourceManager.GetShipTemplate("Assault Shuttle");
-        public Ship SupplyShuttle            => ResourceManager.GetShipTemplate("Supply_Shuttle");
+        public Ship SupplyShuttle            => ResourceManager.GetShipTemplate("Supply Shuttle");
         public bool IsCybernetic             => data.Traits.Cybernetic != 0;
         public bool NonCybernetic            => data.Traits.Cybernetic == 0;
         public bool WeArePirates             => Pirates != null; // Use this to figure out if this empire is pirate faction
