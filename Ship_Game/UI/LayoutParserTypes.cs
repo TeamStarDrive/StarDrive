@@ -11,11 +11,12 @@ using Ship_Game.Data.Serialization;
 namespace Ship_Game.UI
 {
     [StarDataType]
-    internal class ScreenInfo
+    internal class RootElementInfo
     {
         #pragma warning disable 649
-        [StarDataKey] public readonly string Name;
+        [StarData] public readonly string Name;
         [StarData] public readonly Vector2 VirtualSize;
+        [StarData] public readonly ElementInfo[] Elements = new ElementInfo[0];
         #pragma warning restore 649
     }
 
@@ -23,7 +24,8 @@ namespace Ship_Game.UI
     internal class ElementInfo // generic info for all elements (I'm just lazy)
     {
         #pragma warning disable 649
-        [StarDataKey] public readonly string Name;
+        [StarDataKeyName] public readonly string Type;
+        [StarData] public readonly string Name;
         [StarData] public readonly string Texture;
         [StarData] public readonly bool Visible = true; // Visible by default
         [StarData] public readonly DrawDepth? DrawDepth;
@@ -49,6 +51,7 @@ namespace Ship_Game.UI
         [StarData] public readonly AnimInfo Animation = null;
         [StarData] public readonly SpriteAnimInfo SpriteAnim = null;
         [StarData] public readonly bool DebugDraw;
+        [StarData] public readonly ElementInfo[] Children = new ElementInfo[0];
         #pragma warning restore 649
 
         // these are initialized after parsing:
@@ -64,7 +67,7 @@ namespace Ship_Game.UI
     {
         #pragma warning disable 649
         // Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
-        [StarDataKey] public readonly float[] Params;
+        [StarData] public readonly float[] Params;
         [StarData] public readonly Color? MinColor;
         [StarData] public readonly Color? MaxColor;
         [StarData] public readonly AnimPattern Pattern = AnimPattern.None;
@@ -76,7 +79,7 @@ namespace Ship_Game.UI
     internal class SpriteAnimInfo
     {
         #pragma warning disable 649
-        [StarDataKey] public readonly string Path;
+        [StarData] public readonly string Path;
         [StarData] public readonly float Delay;
         [StarData] public readonly float Duration;
         [StarData] public readonly float StartAt;

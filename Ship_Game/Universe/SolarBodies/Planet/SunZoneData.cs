@@ -14,14 +14,14 @@ namespace Ship_Game
     [StarDataType]
     public class TypeWeight // Created by Fat Bastard - to select odds of planet category to be created per sun zone
     {
-        [StarDataKey] public readonly PlanetCategory Type; // Barren
+        [StarDataKeyValue] public readonly PlanetCategory Type; // Barren
         [StarData]    public readonly int Count; // 10
     }
     
     [StarDataType]
     public class SunZoneData
     {
-        [StarDataKey] readonly SunZone Zone;
+        [StarDataKeyValue] readonly SunZone Zone;
         [StarData]    readonly Array<TypeWeight> Distribution;
 
         public static Array<PlanetCategory> CreateDistribution(Array<SunZoneData> sunZones, SunZone sunZone)
