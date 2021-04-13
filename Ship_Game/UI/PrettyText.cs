@@ -21,7 +21,7 @@ namespace Ship_Game
     {
         class TextBlock
         {
-            public float OffsetX;
+            public Vector2 Offset;
             public LocalizedText Text;
             public SpriteFont Font;
             public Color? Color;
@@ -71,12 +71,14 @@ namespace Ship_Game
             Vector2 newSize = Vector2.Zero;
             foreach (TextBlock block in Blocks)
             {
-                block.OffsetX = newSize.X;
+                block.Offset.X = newSize.X;
 
                 SpriteFont font = block.Font ?? TheFont;
                 Vector2 size = font.MeasureString(block.Text);
                 newSize.X += size.X;
                 newSize.Y = Math.Max(Size.Y, size.Y);
+
+                block.Offset.Y = (newSize.Y / 2) - (size.Y / 2);
             }
             Size = newSize;
         }
@@ -86,7 +88,7 @@ namespace Ship_Game
             foreach (TextBlock block in Blocks)
             {
                 string text = block.Text.Text;
-                var blockPos = new Vector2(pos.X + block.OffsetX, pos.Y);
+                Vector2 blockPos = pos + block.Offset;
                 SpriteFont font = block.Font ?? TheFont;
                 Color color = block.Color ?? defaultColor;
                 if (shadows)
