@@ -1,4 +1,5 @@
-﻿Sun: star_red
+﻿- Sun:
+  Id: star_red
   IconPath: Suns/star_red.png # lo res icon is used in background star field
   LightIntensity: 1.4 # intensity of the light source
   Radius: 100000 # radius of the light source
@@ -23,7 +24,8 @@
       PulseScale: [1,1]
       PulseColor: [1.0,1.20]
 
-Sun: star_red2 # Yellowish Giant?
+- Sun:
+  Id: star_red2 # Yellowish Giant?
   IconPath: Suns/star_red2_icon.png
   IconLayer: 2 # Layer "star_red2.png"
   IconScale: 2.5
@@ -70,7 +72,8 @@ Sun: star_red2 # Yellowish Giant?
       PulseScale: [1.0,1.0]
       PulseColor: [0.2,0.5]
 
-Sun: star_red3
+- Sun:
+  Id: star_red3
   IconPath: Suns/red_giant_icon.png
   IconLayer: 2 # Layer "red_giant.png"
   IconScale: 3.5
@@ -118,7 +121,8 @@ Sun: star_red3
       PulseColor: [0.1,0.4]
 
 # default yellowish-orange star
-Sun: star_yellow
+- Sun:
+  Id: star_yellow
   IconPath: Suns/star_yellow.png
   LightIntensity: 1.5
   Radius: 150000
@@ -138,7 +142,8 @@ Sun: star_yellow
       PulseScale: [0.96,1.04]
       PulseColor: [1.0,1.20]
 
-Sun: star_yellow3
+- Sun:
+  Id: star_yellow3
   IconPath: Suns/star_yellow.png
   LightIntensity: 1.5
   Radius: 150000
@@ -170,7 +175,8 @@ Sun: star_yellow3
       PulseColor: [1.01,1.2]
 
 # 6-pointed yellow star
-Sun: star_yellow2
+- Sun:
+  Id: star_yellow2
   IconPath: Suns/star_yellow2.png
   LightIntensity: 1.5
   Radius: 150000
@@ -192,7 +198,8 @@ Sun: star_yellow2
       PulseScale: [0.96,1.04]
       PulseColor: [1.0,1.20]
 
-Sun: star_green
+- Sun:
+  Id: star_green
   IconPath: Suns/star_green.png
   LightIntensity: 1.5
   Radius: 150000
@@ -214,7 +221,8 @@ Sun: star_green
       PulseScale: [0.96,1.04]
       PulseColor: [1.0,1.20]
 
-Sun: star_blue
+- Sun:
+  Id: star_blue
   IconPath: Suns/star_blue.png
   LightIntensity: 1.5
   Radius: 150000
@@ -236,7 +244,8 @@ Sun: star_blue
       PulseScale: [0.96,1.04]
       PulseColor: [1.0,1.20]
 
-Sun: star_binary
+- Sun:
+  Id: star_binary
   IconPath: Suns/star_binary.png
   LightIntensity: 1.7
   Radius: 100000
@@ -254,7 +263,8 @@ Sun: star_binary
 
 # more docile neutron star, not emitting a pulsar beam
 # but there is still a gentle additive neutron blast
-Sun: star_neutron
+- Sun:
+  Id: star_neutron
   IconPath: Suns/neutron_blast.png
   IconLayer: 2 # get rotation from glow flare
   LightIntensity: 1.4
@@ -310,7 +320,8 @@ Sun: star_neutron
       PulseColor: [0.5,0.9]
 
 # more intense neutron pulsar, with a massive beam
-Sun: star_pulsar
+- Sun:
+  Id: star_pulsar
   IconPath: Suns/star_neutron2.png
   IconLayer: 6 # Layer "neutron" beam
   LightIntensity: 1.4
@@ -391,7 +402,8 @@ Sun: star_pulsar
 
 
 # a black hole of epic proportions
-Sun: gargantua_black_hole
+- Sun:
+  Id: gargantua_black_hole
   IconPath: Suns/gargantua_icon.png
   IconLayer: 0 # rotation from layer 0
   IconScale: 5.0
