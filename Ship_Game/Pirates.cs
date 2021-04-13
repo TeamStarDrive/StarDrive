@@ -306,7 +306,6 @@ namespace Ship_Game
                 return;
 
             var shipList = Owner.GetShips();
-            using (shipList.AcquireReadLock())
             {
                 if (shipList.Any(s => s.Name == Owner.data.PirateFlagShip))
                     return;

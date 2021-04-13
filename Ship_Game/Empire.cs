@@ -1027,7 +1027,7 @@ namespace Ship_Game
         /// WARNING. Use this list ONLY for manipulating the live empire ship list.
         /// Use GetShipsAtomic() in all other cases such as UI use.
         /// </summary>
-        public BatchRemovalCollection<Ship> GetShips() => OwnedShips;
+        public IReadOnlyList<Ship> GetShips() => OwnedShips;
         public Ship[] GetShipsAtomic() => OwnedShips.ToArray();
 
         public Ship[] AllFleetReadyShips()
@@ -2921,7 +2921,6 @@ namespace Ship_Game
                     }
 
                     Ship pirate = null;
-                    using (GetShips().AcquireReadLock())
                         foreach (Ship pirateChoice in GetShips())
                         {
                             if (pirateChoice == null || !pirateChoice.Active)
@@ -3173,8 +3172,8 @@ namespace Ship_Game
                 ship.ChangeLoyalty(this);
             }
 
-            target.GetShips().Clear();
-            target.GetProjectors().Clear();
+            target.OwnedShips.Clear();
+            target.OwnedProjectors.Clear();
             AssimilateTech(target);
             foreach (TechEntry techEntry in target.TechEntries)
             {
