@@ -1694,13 +1694,10 @@ namespace Ship_Game
         {
             GameLoadingScreen.SetStatus("FleetBuildRatios");
             BuildRatios.Clear();
-            using (var parser = new YamlParser("FleetBuildRatios.yaml"))
+            var ratios = YamlParser.DeserializeArray<FleetBuildRatios>("FleetBuildRatios.yaml");
+            foreach (BuildRatio canBuild in Enum.GetValues(typeof(BuildRatio)))
             {
-                var ratios = parser.DeserializeArray<FleetBuildRatios>();
-                foreach (BuildRatio canBuild in Enum.GetValues(typeof(BuildRatio)))
-                {
-                    BuildRatios[canBuild] = FleetBuildRatios.GetRatiosFor(ratios, canBuild);
-                }
+                BuildRatios[canBuild] = FleetBuildRatios.GetRatiosFor(ratios, canBuild);
             }
         }
 
