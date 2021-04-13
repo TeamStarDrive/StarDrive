@@ -550,7 +550,9 @@ namespace Ship_Game
             InformationButton.HoveredColor   = Color.White;
             InformationButton.UnHoveredColor = Color.Green;
 
-            InfoPanel = Add(new ShipDesignInfoPanel(this, shipStatsPanel));
+            var infoRect = RectF.FromPoints(HullSelectList.X - 50, ScreenWidth - 20,
+                                            HullSelectList.Bottom, BlackBar.Y);
+            InfoPanel = Add(new ShipDesignInfoPanel(this, infoRect));
 
             CloseButton(ScreenWidth - 27, 99);
         }
