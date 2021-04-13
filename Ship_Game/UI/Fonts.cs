@@ -62,9 +62,10 @@ namespace Ship_Game
             return font;
         }
 
-        public static void ReloadContent(GameContentManager c) => LoadContent(c, true);
-        public static void LoadContent(GameContentManager c, bool reload = false)
+        public static void ReloadContent(GameContentManager c) => LoadFonts(c, true);
+        public static void LoadFonts(GameContentManager c, bool reload = false)
         {
+            GameLoadingScreen.SetStatus("LoadFonts");
             Arial20Bold   = LoadFont(c, "Arial20Bold", reload ? 0 : -3);
             Arial14Bold   = LoadFont(c, "Arial14Bold");
             Arial12Bold   = LoadFont(c, "Arial12Bold", reload ? 0 : -2);

@@ -405,6 +405,8 @@ namespace Ship_Game
             For(0, rangeLength, body, maxParallelism);
         }
 
+        // Iterates in Parallel over each element in the list
+        // Only use when a single item takes significant amount of time
         public static void ForEach<T>(IReadOnlyList<T> list, Action<T> body)
         {
             For(0, list.Count, (start, end) =>
@@ -412,6 +414,19 @@ namespace Ship_Game
                 for (int i = start; i < end; ++i)
                     body(list[i]);
             });
+        }
+
+        // Runs Parallel select over each element in the List
+        // Each item T yields a new item of type U
+        public static U[] Select<T, U>(IReadOnlyList<T> list, Func<T, U> body)
+        {
+            var results = new U[list.Count];
+            For(0, list.Count, (start, end) =>
+            {
+                for (int i = start; i < end; ++i)
+                    results[i] = body(list[i]);
+            });
+            return results;
         }
 
         public static TaskResult Run(Action action)

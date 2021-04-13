@@ -50,7 +50,7 @@ namespace Ship_Game
             set
             {
                 TheSunType = value;
-                SunLayers = value.CreateLayers();
+                SunLayers = value.CreateLayers(Empire.Universe.TransientContent);
             }
         }
 

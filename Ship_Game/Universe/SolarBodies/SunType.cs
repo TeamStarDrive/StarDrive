@@ -12,6 +12,7 @@ using Ship_Game;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
 using Ship_Game.SpriteSystem;
+using System.Diagnostics;
 
 namespace Ship_Game.Universe.SolarBodies
 {
@@ -67,7 +68,7 @@ namespace Ship_Game.Universe.SolarBodies
             return Map.FilterValues(s => s.Icon != null).Select(s => s.Icon);
         }
 
-        public static void LoadAll()
+        public static void LoadSunTypes()
         {
             GameLoadingScreen.SetStatus("LoadSunTypes");
             FileInfo file = ResourceManager.GetModOrVanillaFile("Suns.yaml");
@@ -84,16 +85,20 @@ namespace Ship_Game.Universe.SolarBodies
 
         static void LoadSuns(FileInfo file)
         {
+            var sw = Stopwatch.StartNew();
             Array<SunType> all;
             using (var parser = new YamlParser(file))
                 all = parser.DeserializeArray<SunType>();
-            
-            Map.Clear();
-            foreach (SunType sun in all)
+
+            // load all sun icons
+            Parallel.ForEach(all, sun =>
             {
                 sun.Icon = ResourceManager.RootContent.LoadTextureOrDefault("Textures/"+sun.IconPath);
+            });
+
+            Map.Clear();
+            foreach (SunType sun in all)
                 Map[sun.Id] = sun;
-            }
 
             HabitableSuns = all.Filter(s => s.Habitable);
             BarrenSuns    = all.Filter(s => !s.Habitable);
@@ -155,11 +160,11 @@ namespace Ship_Game.Universe.SolarBodies
             sys.SunLayers[whichLayer].DrawLoRes(batch, sys.Sun.Icon, pos, scale);
         }
 
-        public SunLayerState[] CreateLayers()
+        public SunLayerState[] CreateLayers(GameContentManager universeContent)
         {
             var states = new SunLayerState[Layers.Count];
             for (int i = 0; i < Layers.Count; ++i)
-                states[i] = new SunLayerState(ResourceManager.RootContent, Layers[i]);
+                states[i] = new SunLayerState(universeContent, Layers[i]);
             return states;
         }
         
@@ -190,7 +195,6 @@ namespace Ship_Game.Universe.SolarBodies
         public float Intensity { get; private set; } = 1f; // current sun intensity
         float ScaleIntensity = 1f;
         float ColorIntensity = 1f;
-
 
         public SunLayerState(GameContentManager content, SunLayerInfo info)
         {
