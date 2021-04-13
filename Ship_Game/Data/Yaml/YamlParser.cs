@@ -17,10 +17,10 @@ namespace Ship_Game.Data.Yaml
         readonly Array<Error> LoggedErrors = new Array<Error>();
         public IReadOnlyList<Error> Errors => LoggedErrors;
 
-        public YamlParser(string file)
+        public YamlParser(string modOrVanillaFile)
         {
-            FileInfo f = ResourceManager.GetModOrVanillaFile(file);
-            Reader = OpenStream(f, file);
+            FileInfo f = ResourceManager.GetModOrVanillaFile(modOrVanillaFile);
+            Reader = OpenStream(f, modOrVanillaFile);
             Root = new YamlNode { Key = f?.NameNoExt() ?? "", Value = null };
             Parse();
         }
@@ -467,6 +467,12 @@ namespace Ship_Game.Data.Yaml
                 items.Add((T)ser.Deserialize(child));
             }
             return items;
+        }
+
+        public static Array<T> DeserializeArray<T>(string modOrVanillaFile) where T : new()
+        {
+            using (var parser = new YamlParser(modOrVanillaFile))
+                return parser.DeserializeArray<T>();
         }
 
         /// <summary>
