@@ -167,7 +167,6 @@ namespace Ship_Game
             PerfProfile.Clear();
             PerfStopwatch.Start();
         }
-
         static void Profiled(string uniqueName, Action body)
         {
             var sw = Stopwatch.StartNew();
@@ -175,21 +174,17 @@ namespace Ship_Game
             double elapsed = sw.Elapsed.TotalSeconds;
             PerfProfile.Add(new KeyValuePair<string, double>(uniqueName, elapsed));
         }
-
         static void Profiled(Action body) => Profiled(body.Method.Name, body);
-
         static void EndPerfProfile()
         {
             PerfStopwatch.Stop();
             double elapsed = PerfStopwatch.Elapsed.TotalSeconds;
-
             PerfProfile.Sort(kv => kv.Value);
             PerfProfile.Reverse();
-
             foreach (var kv in PerfProfile)
             {
                 double percent = (kv.Value / elapsed) * 100.0;
-                Log.Write(ConsoleColor.Cyan, $"{kv.Key,-20}  {kv.Value*1000:0.0}ms  {percent:0.00}%");
+                Log.Write(ConsoleColor.Cyan, $"{kv.Key,-20} {kv.Value*1000:0.0}ms  {percent:0.00}%");
             }
         }
 
@@ -211,7 +206,7 @@ namespace Ship_Game
 
             Profiled(LoadTroops);
             Profiled(LoadWeapons);
-            Profiled(LoadShipModules);
+            Profiled(LoadShipModules); // Hotspot #4 124.9ms  5.65%
             Profiled(LoadGoods);
             Profiled(LoadShipRoles);
             Profiled(LoadShipTemplates); // Hotspot #1  502.9ms  22.75%
@@ -253,7 +248,7 @@ namespace Ship_Game
             Profiled(LoadAsteroids);
             Profiled(LoadProjTexts);
             Profiled(LoadProjectileMeshes);
-            Profiled(SunType.LoadSunTypes);
+            Profiled(SunType.LoadSunTypes); // Hotspot #3 174.8ms  7.91%
             Profiled("LoadBeamFX", () =>
             {
                 ShieldManager.LoadContent(RootContent);
@@ -1307,13 +1302,16 @@ namespace Ship_Game
 
         static void LoadShipModules()
         {
-            foreach (var pair in LoadEntitiesWithInfo<ShipModule_Deserialize>("ShipModules", "LoadShipModules"))
+            // 95% spent loading these XML files:
+            var entities = LoadEntitiesWithInfo<ShipModule_Deserialize>("ShipModules", "LoadShipModules");
+
+            foreach (var pair in entities)
             {
                 // Added by gremlin support tech level disabled folder.
                 if (pair.Info.DirectoryName?.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) > 0)
                     continue;
-                ShipModule_Deserialize data = pair.Entity;
 
+                ShipModule_Deserialize data = pair.Entity;
                 data.UID = string.Intern(pair.Info.NameNoExt());
                 data.IconTexturePath = string.Intern(data.IconTexturePath);
                 if (data.WeaponType != null)
@@ -1325,23 +1323,17 @@ namespace Ship_Game
                         Log.Info($"ShipModule UID already found. Conflicting name:  {data.UID}");
                     if (!Localizer.Contains(data.NameIndex))
                         Log.Warning($"{data.UID} missing NameIndex: {data.NameIndex}");
-
                 }
-                // if the values
                 if (data.IsCommandModule && data.TargetTracking == 0)  data.TargetTracking = (sbyte) (int)(data.XSIZE * data.YSIZE * 1.25f );
                 if (data.IsCommandModule && data.TargetAccuracy == 0)  data.TargetAccuracy = data.TargetTracking;
 
                 data.DisableRotation = data.DisableRotation || data.XSIZE == data.YSIZE;
 
-                ModuleTemplates[data.UID] = ShipModule.CreateTemplate(data);
+                ShipModule template = ShipModule.CreateTemplate(data);
+                template.SetAttributes();
+                ModuleTemplates[template.UID] = template;
             }
-
-            //Log.Info("Num ShipModuleFlyweight: {0}", ShipModuleFlyweight.TotalNumModules);
-
-            foreach (var entry in ModuleTemplates)
-                entry.Value.SetAttributes();
         }
-
 
         struct ShipDesignInfo
         {
