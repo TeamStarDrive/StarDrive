@@ -475,6 +475,12 @@ namespace Ship_Game.Data.Yaml
                 return parser.DeserializeArray<T>();
         }
 
+        public static Array<T> DeserializeArray<T>(FileInfo file) where T : new()
+        {
+            using (var parser = new YamlParser(file))
+                return parser.DeserializeArray<T>();
+        }
+
         /// <summary>
         /// Deserialize a single root element
         /// ...
