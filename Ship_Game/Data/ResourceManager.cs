@@ -1662,11 +1662,7 @@ namespace Ship_Game
         static void LoadPlanetTypes()
         {
             GameLoadingScreen.SetStatus("PlanetTypes");
-            using (var parser = new YamlParser("PlanetTypes.yaml"))
-            {
-                PlanetTypes = parser.DeserializeArray<PlanetType>();
-            }
-
+            PlanetTypes = YamlParser.DeserializeArray<PlanetType>("PlanetTypes.yaml");
             PlanetTypes.Sort(p => p.Id);
             PlanetTypeMap = new Map<int, PlanetType>(PlanetTypes.Count);
             foreach (PlanetType type in PlanetTypes)
