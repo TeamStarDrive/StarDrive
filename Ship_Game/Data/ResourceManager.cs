@@ -220,15 +220,14 @@ namespace Ship_Game
             
             SunType.LoadAll();
 
-            GameLoadingScreen.SetStatus("LoadShields", "");
+            GameLoadingScreen.SetStatus("LoadShields");
             ShieldManager.LoadContent(RootContent);
             Beam.BeamEffect = RootContent.Load<Effect>("Effects/BeamFX");
             BackgroundItem.QuadEffect = new BasicEffect(manager.GraphicsDevice, null) { TextureEnabled = true };
             Blank = Texture("blank");
             
-            GameLoadingScreen.SetStatus("LoadFonts", "");
+            GameLoadingScreen.SetStatus("LoadFonts");
             Fonts.LoadContent(RootContent);
-            GameLoadingScreen.SetStatus("", "");
 
             // Load non-critical resources:
             void LoadNonCritical()
@@ -238,7 +237,8 @@ namespace Ship_Game
                 LoadNonEssentialAtlases(BackgroundLoad);
                 Log.Write("Finished loading non-critical resources");
             }
-
+            
+            GameLoadingScreen.SetStatus("LoadNonCritical");
             //LoadNonCritical();
             BackgroundLoad = Parallel.Run(LoadNonCritical);
         }
@@ -748,6 +748,7 @@ namespace Ship_Game
                 if (task?.IsCancelRequested != true)
                     LoadAtlas(atlas);
             });
+            GameLoadingScreen.SetStatus("Click to Continue");
             Log.Write($"LoadAtlases (background) elapsed:{s.Elapsed.TotalMilliseconds}ms  Total Parallel Tasks: {Parallel.PoolSize}");
         }
 
@@ -1212,7 +1213,7 @@ namespace Ship_Game
 
         public static void LoadProjectileMeshes()
         {
-            GameLoadingScreen.SetStatus("LoadProjectileMeshes", "");
+            GameLoadingScreen.SetStatus("LoadProjectileMeshes");
             ProjectileMeshDict.Clear();
             ProjectileModelDict.Clear();
             const string projectileDir = "Model/Projectiles/";
@@ -1465,7 +1466,7 @@ namespace Ship_Game
 
         static void TechValidator()
         {
-            GameLoadingScreen.SetStatus("TechValidator", "");
+            GameLoadingScreen.SetStatus("TechValidator");
             Array<Technology> techs = TechTree.Values.ToArrayList();
             var rootTechs = new Array<Technology>();
             foreach (Technology rootTech in techs)
@@ -1645,7 +1646,7 @@ namespace Ship_Game
 
         static void LoadPlanetTypes()
         {
-            GameLoadingScreen.SetStatus("PlanetTypes", "");
+            GameLoadingScreen.SetStatus("PlanetTypes");
             using (var parser = new YamlParser("PlanetTypes.yaml"))
             {
                 PlanetTypes = parser.DeserializeArray<PlanetType>();
@@ -1664,7 +1665,7 @@ namespace Ship_Game
 
         static void LoadSunZoneData()
         {
-            GameLoadingScreen.SetStatus("SunZoneData", "");
+            GameLoadingScreen.SetStatus("SunZoneData");
             ZoneDistribution.Clear();
             using (var parser = new YamlParser("SunZoneData.yaml"))
             {
@@ -1683,7 +1684,7 @@ namespace Ship_Game
 
         static void LoadBuildRatios()
         {
-            GameLoadingScreen.SetStatus("FleetBuildRatios", "");
+            GameLoadingScreen.SetStatus("FleetBuildRatios");
             BuildRatios.Clear();
             using (var parser = new YamlParser("FleetBuildRatios.yaml"))
             {
