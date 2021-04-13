@@ -32,18 +32,26 @@ namespace Ship_Game.Data.Yaml
         // chooses subnodes instead
         public Array<YamlNode> SequenceOrSubNodes => SeqNodes ?? SubNodes;
 
-        // SubNode indexing
+        // SubNode or SeqNode indexing (depends which one is available)
         // ThisNode:
         //   SubNode0: Value0
         //   SubNode1: Value1
         // this[0] => YamlNode Key=SubNode0 Value=Value0
+        // | or |
+        // ThisNode:
+        //   - SeqNode0: Value0
+        //   - SeqNode1: Value1
+        // this[0] => YamlNode Key=SeqNode0 Value=Value0
         public YamlNode this[int subNodeIndex]
         {
             get
             {
-                if (SubNodes == null || (uint)subNodeIndex >= SubNodes.Count)
+                var container = SubNodes ?? SeqNodes;
+                if (container == null || (uint)subNodeIndex >= SubNodes.Count)
+                {
                     ThrowSubNodeIndexOutOfBounds(subNodeIndex);
-                return SubNodes[subNodeIndex];
+                }
+                return container[subNodeIndex];
             }
         }
 
@@ -51,7 +59,7 @@ namespace Ship_Game.Data.Yaml
         void ThrowSubNodeIndexOutOfBounds(int index)
         {
             throw new IndexOutOfRangeException(
-                $"YamlNode Key('{Key}') SUB-NODE Index [{index}] out of range({SubNodes?.Count??0})");
+                $"YamlNode Key('{Key}') SUB-NODE Index [{index}] out of range({(SubNodes ?? SeqNodes)?.Count??0})");
         }
 
         // SubNode access by name (throws exception if not found)
@@ -162,9 +170,12 @@ namespace Ship_Game.Data.Yaml
         // Safe SubNode enumerator
         public IEnumerator<YamlNode> GetEnumerator()
         {
-            if (SubNodes == null) yield break;
-            foreach (YamlNode node in SubNodes)
-                yield return node;
+            var nodes = SequenceOrSubNodes;
+            if (nodes != null)
+            {
+                for (int i = 0; i < nodes.Count; ++i)
+                    yield return nodes[i];
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
