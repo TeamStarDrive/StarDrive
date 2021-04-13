@@ -1677,15 +1677,12 @@ namespace Ship_Game
         static void LoadSunZoneData()
         {
             GameLoadingScreen.SetStatus("SunZoneData");
+            var zones = YamlParser.DeserializeArray<SunZoneData>("SunZoneData.yaml");
             ZoneDistribution.Clear();
-            using (var parser = new YamlParser("SunZoneData.yaml"))
-            {
-                var zones = parser.DeserializeArray<SunZoneData>();
-                ZoneDistribution[SunZone.Near]    = SunZoneData.CreateDistribution(zones, SunZone.Near);
-                ZoneDistribution[SunZone.Habital] = SunZoneData.CreateDistribution(zones, SunZone.Habital);
-                ZoneDistribution[SunZone.Far]     = SunZoneData.CreateDistribution(zones, SunZone.Far);
-                ZoneDistribution[SunZone.VeryFar] = SunZoneData.CreateDistribution(zones, SunZone.VeryFar);
-            }
+            ZoneDistribution[SunZone.Near]    = SunZoneData.CreateDistribution(zones, SunZone.Near);
+            ZoneDistribution[SunZone.Habital] = SunZoneData.CreateDistribution(zones, SunZone.Habital);
+            ZoneDistribution[SunZone.Far]     = SunZoneData.CreateDistribution(zones, SunZone.Far);
+            ZoneDistribution[SunZone.VeryFar] = SunZoneData.CreateDistribution(zones, SunZone.VeryFar);
         }
 
         public static int[] GetFleetRatios(BuildRatio canBuild)
