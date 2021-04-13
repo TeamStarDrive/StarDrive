@@ -160,6 +160,39 @@ namespace Ship_Game
             Log.Write($"LoadItAll elapsed: {s.Elapsed.TotalSeconds}s");
         }
 
+        static readonly Array<KeyValuePair<string, double>> PerfProfile = new Array<KeyValuePair<string, double>>();
+        static Stopwatch PerfStopwatch = new Stopwatch();
+        static void BeginPerfProfile()
+        {
+            PerfProfile.Clear();
+            PerfStopwatch.Start();
+        }
+
+        static void Profiled(string uniqueName, Action body)
+        {
+            var sw = Stopwatch.StartNew();
+            body();
+            double elapsed = sw.Elapsed.TotalSeconds;
+            PerfProfile.Add(new KeyValuePair<string, double>(uniqueName, elapsed));
+        }
+
+        static void Profiled(Action body) => Profiled(body.Method.Name, body);
+
+        static void EndPerfProfile()
+        {
+            PerfStopwatch.Stop();
+            double elapsed = PerfStopwatch.Elapsed.TotalSeconds;
+
+            PerfProfile.Sort(kv => kv.Value);
+            PerfProfile.Reverse();
+
+            foreach (var kv in PerfProfile)
+            {
+                double percent = (kv.Value / elapsed) * 100.0;
+                Log.Write(ConsoleColor.Cyan, $"{kv.Key,-20}  {kv.Value*1000:0.0}ms  {percent:0.00}%");
+            }
+        }
+
         static void LoadAllResources(ScreenManager manager, ModEntry mod)
         {
             if (mod != null)
@@ -169,35 +202,37 @@ namespace Ship_Game
 
             InitContentDir();
             Log.Write($"Load {(GlobalStats.HasMod ? ModContentDirectory : "Vanilla")}");
-            LoadLanguage(GlobalStats.Language); // @todo Slower than expected [0.36]
-            LoadHullBonuses();
-            LoadHullData(); // we need Hull Data for main menu ship
-            LoadEmpires();  // empire for NewGame @todo Very slow [0.54%]
 
-            LoadTroops();
-            LoadWeapons();     // @todo Also slow [0.87%]
-            LoadShipModules(); // @todo Extremely slow [1.29%]
-            LoadGoods();
-            LoadShipRoles();
-            LoadShipTemplates(); // @note Extremely fast :))) Loads everything in [0.16%]
-            LoadBuildings();
-            LoadRandomItems();
-            LoadDialogs();  // @todo SLOW [0.44%]
-            LoadTechTree(); // @todo This is VERY slow, about 4x slower than loading textures [0.97%]
-            LoadEncounters();
-            LoadExpEvents();
-            TechValidator();
+            BeginPerfProfile();
+            Profiled("LoadLanguage", () => LoadLanguage(GlobalStats.Language));
+            Profiled(LoadHullBonuses);
+            Profiled(LoadHullData); // we need Hull Data for main menu ship
+            Profiled(LoadEmpires); // Hotspot #2 187.4ms  8.48%
 
-            LoadArtifacts();
-            LoadPlanetEdicts();
-            LoadPlanetTypes();
-            LoadSunZoneData();
-            LoadBuildRatios();
-            LoadEconomicResearchStrategies();
-            LoadBlackboxSpecific();
+            Profiled(LoadTroops);
+            Profiled(LoadWeapons);
+            Profiled(LoadShipModules);
+            Profiled(LoadGoods);
+            Profiled(LoadShipRoles);
+            Profiled(LoadShipTemplates); // Hotspot #1  502.9ms  22.75%
+            Profiled(LoadBuildings);
+            Profiled(LoadRandomItems);
+            Profiled(LoadDialogs);
+            Profiled(LoadTechTree);
+            Profiled(LoadEncounters);
+            Profiled(LoadExpEvents);
+            Profiled(TechValidator);
 
-            TestLoad();
-            RunExportTasks();
+            Profiled(LoadArtifacts);
+            Profiled(LoadPlanetEdicts);
+            Profiled(LoadPlanetTypes);
+            Profiled(LoadSunZoneData);
+            Profiled(LoadBuildRatios);
+            Profiled(LoadEcoResearchStrats);
+            Profiled(LoadBlackboxSpecific);
+
+            Profiled(TestLoad);
+            Profiled(RunExportTasks);
 
             LoadGraphicsResources(manager);
             HelperFunctions.CollectMemory();
@@ -209,33 +244,33 @@ namespace Ship_Game
 
             ++ContentId; // LoadContent will see a new content id
 
-            LoadTextureAtlases();
-            LoadNebulae();
-            LoadStars();
-            LoadFlagTextures();
-            LoadJunk();         // @todo SLOW [0.47%]
-            LoadAsteroids();    // @todo SLOW [0.40%]
-            LoadProjTexts();    // @todo SLOW [0.47%]
-            LoadProjectileMeshes();
-            
-            SunType.LoadAll();
+            Profiled(LoadTextureAtlases);
+            Profiled(LoadNebulae);
+            Profiled(LoadStars);
+            Profiled(LoadFlagTextures);
 
-            GameLoadingScreen.SetStatus("LoadShields");
-            ShieldManager.LoadContent(RootContent);
-            Beam.BeamEffect = RootContent.Load<Effect>("Effects/BeamFX");
-            BackgroundItem.QuadEffect = new BasicEffect(manager.GraphicsDevice, null) { TextureEnabled = true };
-            Blank = Texture("blank");
-            
-            GameLoadingScreen.SetStatus("LoadFonts");
-            Fonts.LoadContent(RootContent);
+            Profiled(LoadJunk);
+            Profiled(LoadAsteroids);
+            Profiled(LoadProjTexts);
+            Profiled(LoadProjectileMeshes);
+            Profiled(SunType.LoadSunTypes);
+            Profiled("LoadBeamFX", () =>
+            {
+                ShieldManager.LoadContent(RootContent);
+                Beam.BeamEffect = RootContent.Load<Effect>("Effects/BeamFX");
+                BackgroundItem.QuadEffect = new BasicEffect(manager.GraphicsDevice, null) { TextureEnabled = true };
+                Blank = Texture("blank");
+            });
+            Profiled("LoadFonts", () => Fonts.LoadFonts(RootContent));
 
             // Load non-critical resources:
             void LoadNonCritical()
             {
                 Log.Write("Load non-critical resources");
-                ExplosionManager.LoadContent(RootContent);
-                LoadNonEssentialAtlases(BackgroundLoad);
+                Profiled("LoadExplosions", () => ExplosionManager.LoadExplosions(RootContent));
+                Profiled("LoadNonEssential", () => LoadNonEssentialAtlases(BackgroundLoad));
                 Log.Write("Finished loading non-critical resources");
+                EndPerfProfile();
             }
             
             GameLoadingScreen.SetStatus("LoadNonCritical");
@@ -702,11 +737,13 @@ namespace Ship_Game
         static void LoadTextureAtlases()
         {
             // these are essential for main menu, so we load them as blocking
-            LoadAtlas("Textures");
-            LoadAtlas("Textures/GameScreens");
-            LoadAtlas("Textures/MainMenu");
-            LoadAtlas("Textures/EmpireTopBar");
-            LoadAtlas("Textures/NewUI");
+            string[] atlases =
+            {
+                "Textures",
+                "Textures/GameScreens", "Textures/MainMenu",
+                "Textures/EmpireTopBar", "Textures/NewUI"
+            };
+            Parallel.ForEach(atlases, atlas => LoadAtlas(atlas));
         }
 
         static void LoadNonEssentialAtlases(TaskResult task)
@@ -1252,11 +1289,15 @@ namespace Ship_Game
         static void LoadProjTexts()
         {
             ProjTextDict.Clear();
-            foreach (FileInfo info in GatherFilesUnified("Model/Projectiles/textures", "xnb", recursive: false))
+            var files = GatherFilesUnified("Model/Projectiles/textures", "xnb", recursive: false);
+
+            Parallel.ForEach(files, file =>
             {
-                Texture2D tex = RootContent.LoadTexture(info, "xnb");
-                ProjTextDict[info.NameNoExt()] = tex;
-            }
+                string shortName = file.NameNoExt();
+                GameLoadingScreen.SetStatus("LoadProjectileTex", shortName);
+                Texture2D tex = RootContent.LoadTexture(file, "xnb");
+                ProjTextDict[shortName] = tex;
+            });
         }
 
         static void LoadRandomItems()
@@ -1327,6 +1368,7 @@ namespace Ship_Game
 
         static void LoadShipTemplates(ShipDesignInfo[] shipDescriptors)
         {
+            Log.Info($"Loading {shipDescriptors.Length} Ship Templates");
             void LoadShips(int start, int end)
             {
                 for (int i = start; i < end; ++i)
@@ -1443,7 +1485,7 @@ namespace Ship_Game
             LoadTroops();
             LoadDialogs(); // for CreateEmpire
             LoadEmpires();
-            LoadEconomicResearchStrategies();
+            LoadEcoResearchStrats();
             LoadBuildings();
         }
 
@@ -1453,7 +1495,7 @@ namespace Ship_Game
             LoadPlanetTypes();
             LoadSunZoneData();
             LoadBuildRatios();
-            SunType.LoadAll();
+            SunType.LoadSunTypes();
         }
 
         public static void LoadTechContentForTesting()
@@ -1461,7 +1503,7 @@ namespace Ship_Game
             LoadBasicContentForTesting();
             LoadTechTree();
             TechValidator();
-            SunType.LoadAll();
+            SunType.LoadSunTypes();
         }
 
         static void TechValidator()
@@ -1612,7 +1654,7 @@ namespace Ship_Game
 
         static readonly Map<string, EconomicResearchStrategy> EconStrategies = new Map<string, EconomicResearchStrategy>();
         public static EconomicResearchStrategy GetEconomicStrategy(string name) => EconStrategies[name];
-        static void LoadEconomicResearchStrategies()
+        static void LoadEcoResearchStrats()
         {
             EconStrategies.Clear();
             foreach (var pair in LoadEntitiesWithInfo<EconomicResearchStrategy>("EconomicResearchStrategy", "LoadEconResearchStrats"))
