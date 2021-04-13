@@ -38,7 +38,7 @@ namespace Ship_Game
         sealed class Explosion
         {
             #pragma warning disable 649 // They are serialized
-            [StarDataKey] public readonly ExplosionType Type;
+            [StarDataKeyValue] public readonly ExplosionType Type;
             [StarData]    public readonly string Path;
             [StarData]    public readonly float Scale = 1.0f;
             #pragma warning restore 649
