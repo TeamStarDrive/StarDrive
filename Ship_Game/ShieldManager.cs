@@ -17,6 +17,7 @@ namespace Ship_Game
 
         public static void LoadContent(GameContentManager content)
         {
+            GameLoadingScreen.SetStatus("LoadShields");
             ShieldModel     = content.Load<Model>("Model/Projectiles/shield");
             ShieldTexture   = content.Load<Texture2D>("Model/Projectiles/shield_d");
             GradientTexture = content.Load<Texture2D>("Model/Projectiles/shieldgradient");

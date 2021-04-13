@@ -57,7 +57,7 @@ namespace Ship_Game
             (ExplosionType.Warp,       new Array<Explosion>()),
         });
 
-        public static void LoadContent(GameContentManager content)
+        public static void LoadExplosions(GameContentManager content)
         {
             GameLoadingScreen.SetStatus("LoadExplosions");
 
