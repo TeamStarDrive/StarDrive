@@ -12,7 +12,7 @@ namespace Ship_Game
     [StarDataType]
     public class PlanetType
     {
-        [StarDataKeyValue] public readonly int Id;
+        [StarData] public readonly int Id;
         [StarData] public readonly PlanetCategory Category;
         [StarData] public readonly LocalizedText Composition;
         [StarData] public readonly string IconPath;

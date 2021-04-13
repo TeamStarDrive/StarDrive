@@ -38,9 +38,9 @@ namespace Ship_Game
         sealed class Explosion
         {
             #pragma warning disable 649 // They are serialized
-            [StarDataKeyValue] public readonly ExplosionType Type;
-            [StarData]    public readonly string Path;
-            [StarData]    public readonly float Scale = 1.0f;
+            [StarData] public readonly ExplosionType Type;
+            [StarData] public readonly string Path;
+            [StarData] public readonly float Scale = 1.0f;
             #pragma warning restore 649
             public TextureAtlas Atlas;
         }
@@ -67,18 +67,15 @@ namespace Ship_Game
             ExplosionPixel = ResourceManager.Texture("blank");
             if (ResourceManager.IsLoadCancelRequested) return;
 
-            using (var parser = new YamlParser("Explosions.yaml"))
+            Array<Explosion> explosions = YamlParser.DeserializeArray<Explosion>("Explosions.yaml");
+            foreach (Explosion e in explosions)
             {
-                Array<Explosion> explosions = parser.DeserializeArray<Explosion>();
-                foreach (Explosion e in explosions)
-                {
-                    // @note LoadAtlas is very slow, so we have to check for cancel before starting
-                    if (ResourceManager.IsLoadCancelRequested) return;
-                    e.Atlas = content.LoadTextureAtlas(e.Path); // guaranteed to load an atlas with at least 1 tex
-                    if (e.Atlas == null)
-                        continue;
-                    Types[e.Type].Add(e);
-                }
+                // @note LoadAtlas is very slow, so we have to check for cancel before starting
+                if (ResourceManager.IsLoadCancelRequested) return;
+                e.Atlas = content.LoadTextureAtlas(e.Path); // guaranteed to load an atlas with at least 1 tex
+                if (e.Atlas == null)
+                    continue;
+                Types[e.Type].Add(e);
             }
         }
 
