@@ -449,7 +449,7 @@ namespace Ship_Game.AI
         void DoOrdinanceTransporterLogic(ShipModule module)
         {
             Ship repairMe = module.GetParent()
-                    .loyalty.GetShips()
+                    .loyalty.GetShipsAtomic()
                     .FindMinFiltered(
                         filter: ship => Owner.Center.Distance(ship.Center) <= module.TransporterRange + 500f
                                         && ship.Ordinance < ship.OrdinanceMax && !ship.Carrier.HasOrdnanceTransporters,

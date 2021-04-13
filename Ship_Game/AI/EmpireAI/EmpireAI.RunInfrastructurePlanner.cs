@@ -198,7 +198,7 @@ namespace Ship_Game.AI
                                 break;
                         }
 
-                        Ship[] ships = OwnerEmpire.GetShips().AtomicCopy();
+                        Ship[] ships = OwnerEmpire.GetShipsAtomic();
                         for (int si = 0; si < ships.Length; si++)
                         {
                             Ship ship = ships[si];
