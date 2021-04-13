@@ -39,6 +39,7 @@
     <Name>Corsairs</Name>
     <Singular>Corsair</Singular>
     <Plural>Corsairs</Plural>
+    <ShipType>Corsair</ShipType>
     <HomeSystemName>Sol</HomeSystemName>
     <HomeworldName>Earth</HomeworldName>
     <FlagIndex>64</FlagIndex>
