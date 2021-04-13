@@ -35,7 +35,7 @@ namespace Ship_Game.Universe.SolarBodies
     [StarDataType]
     public class SunType
     {
-        [StarDataKey] public string Id;
+        [StarData] public string Id;
         [StarData] public readonly string IconPath;
         [StarData] public readonly int IconLayer = 0; // which layer for icon?
         [StarData] public readonly float IconScale = 1.0f; // icon scale in low-res draw
@@ -86,10 +86,7 @@ namespace Ship_Game.Universe.SolarBodies
         static void LoadSuns(FileInfo file)
         {
             var sw = Stopwatch.StartNew();
-            Array<SunType> all;
-            using (var parser = new YamlParser(file))
-                all = parser.DeserializeArray<SunType>();
-
+            Array<SunType> all = YamlParser.DeserializeArray<SunType>(file);
             // load all sun icons
             Parallel.ForEach(all, sun =>
             {
