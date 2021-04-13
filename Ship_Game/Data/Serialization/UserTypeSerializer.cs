@@ -15,7 +15,8 @@ namespace Ship_Game.Data.Serialization
         protected Map<string, DataField> Mapping;
         public TypeSerializerMap TypeMap { get; private set; }
         protected Array<DataField> Index;
-        protected DataField Primary;
+        protected DataField PrimaryKeyName;
+        protected DataField PrimaryKeyValue;
         protected readonly Type TheType;
 
         public IReadOnlyList<DataField> Fields => Index;
@@ -70,11 +71,17 @@ namespace Ship_Game.Data.Serialization
             Mapping.Add(name, field);
             Index.Add(field);
 
-            if (a.IsPrimaryKey)
+            if (a.IsPrimaryKeyName)
             {
-                if (Primary != null)
-                    throw new InvalidDataException($"StarDataSerializer cannot have more than 1 [StarDataKey] attributes! Original {Primary}, New {field}");
-                Primary = field;
+                if (PrimaryKeyName != null)
+                    throw new InvalidDataException($"StarDataSerializer cannot have more than 1 [StarDataKeyName] attributes! Original {PrimaryKeyValue}, New {field}");
+                PrimaryKeyName = field;
+            }
+            else if (a.IsPrimaryKeyValue)
+            {
+                if (PrimaryKeyValue != null)
+                    throw new InvalidDataException($"StarDataSerializer cannot have more than 1 [StarDataKeyValue] attributes! Original {PrimaryKeyValue}, New {field}");
+                PrimaryKeyValue = field;
             }
         }
     }

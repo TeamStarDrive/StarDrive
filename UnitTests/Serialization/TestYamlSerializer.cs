@@ -41,13 +41,13 @@ namespace UnitTests.Serialization
         [StarDataType]
         public class TypeWeight
         {
-            [StarDataKey] public readonly PlanetCategory Type; // Barren
+            [StarDataKeyValue] public readonly PlanetCategory Type; // Barren
             [StarData] public readonly int Weight; // 20
         }
         [StarDataType]
         public class SunZoneData
         {
-            [StarDataKey] public readonly SunZone Zone; // Near
+            [StarDataKeyValue] public readonly SunZone Zone; // Near
             [StarData] public readonly TypeWeight[] Weights;
         }
 
@@ -93,7 +93,7 @@ namespace UnitTests.Serialization
         struct LayoutElement
         {
             #pragma warning disable 649
-            [StarDataKey] public string Name;
+            [StarDataKeyValue] public string Name;
             [StarData] public Vector4 Rect;
             [StarData] public Align AxisAlign;
             [StarData] public LayoutElement[] Children1;

@@ -35,7 +35,7 @@ namespace Ship_Game.Universe.SolarBodies
     [StarDataType]
     public class SunType
     {
-        [StarDataKey] public string Id;
+        [StarDataKeyValue] public string Id;
         [StarData] public readonly string IconPath;
         [StarData] public readonly int IconLayer = 0; // which layer for icon?
         [StarData] public readonly float IconScale = 1.0f; // icon scale in low-res draw
