@@ -13,7 +13,7 @@ namespace Ship_Game
         {
             var ships      = new Array<Ship>();
             troopsInFleets = 0;
-            BatchRemovalCollection<Ship> collection = empire.GetShips();
+            var collection = empire.GetShips();
             for (int x = 0; x < collection.Count; x++)
             {
                 Ship ship = collection[x];
