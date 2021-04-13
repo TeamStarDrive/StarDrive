@@ -1,1 +1,833 @@
-<?xml version="1.0" encoding="utf-8"?><ShipData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">  <Name>Meteor C</Name>  <Hull>Meteor C</Hull>  <Role>platform</Role>  <IconPath>ShipIcons/terran_platform</IconPath>  <SelectionGraphic>13e</SelectionGraphic>  <ModelPath>Model/Asteroids/asteroid5</ModelPath>  <DefaultAIState>AwaitingOrders</DefaultAIState>  <Animated>false</Animated>  <IsOrbitalDefense>false</IsOrbitalDefense>  <ThrusterList>  </ThrusterList>  <ModuleSlotList>    <ModuleSlotData>      <Position>        <X>168</X>        <Y>184</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>168</X>        <Y>200</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>168</X>        <Y>216</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>168</X>        <Y>232</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>184</X>        <Y>168</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>184</X>        <Y>184</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>184</X>        <Y>200</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>184</X>        <Y>216</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>184</X>        <Y>232</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>184</X>        <Y>248</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>184</X>        <Y>264</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>200</X>        <Y>168</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>200</X>        <Y>184</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>200</X>        <Y>200</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>200</X>        <Y>216</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>200</X>        <Y>232</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>200</X>        <Y>248</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>200</X>        <Y>264</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>200</X>        <Y>280</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>200</X>        <Y>296</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>216</X>        <Y>168</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>216</X>        <Y>184</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>216</X>        <Y>200</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>216</X>        <Y>216</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>216</X>        <Y>232</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>216</X>        <Y>248</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>216</X>        <Y>264</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>216</X>        <Y>280</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>216</X>        <Y>296</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>216</X>        <Y>312</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>232</X>        <Y>168</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>232</X>        <Y>184</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>232</X>        <Y>200</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>232</X>        <Y>216</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>232</X>        <Y>232</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>232</X>        <Y>248</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>232</X>        <Y>264</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>232</X>        <Y>280</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>232</X>        <Y>296</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>232</X>        <Y>312</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>232</X>        <Y>328</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>248</X>        <Y>184</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>248</X>        <Y>200</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>248</X>        <Y>216</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>248</X>        <Y>232</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>248</X>        <Y>248</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>248</X>        <Y>264</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>248</X>        <Y>280</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>248</X>        <Y>296</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>248</X>        <Y>312</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>248</X>        <Y>328</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>248</X>        <Y>344</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>264</X>        <Y>184</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>264</X>        <Y>200</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>264</X>        <Y>216</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>264</X>        <Y>232</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>264</X>        <Y>248</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>264</X>        <Y>264</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>264</X>        <Y>280</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>264</X>        <Y>296</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>264</X>        <Y>312</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>264</X>        <Y>328</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>264</X>        <Y>344</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>280</X>        <Y>200</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>280</X>        <Y>216</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>280</X>        <Y>232</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>280</X>        <Y>248</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>280</X>        <Y>264</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>280</X>        <Y>280</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>280</X>        <Y>296</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>280</X>        <Y>312</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>280</X>        <Y>328</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>280</X>        <Y>344</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>296</X>        <Y>216</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>296</X>        <Y>232</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>296</X>        <Y>248</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>296</X>        <Y>264</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>296</X>        <Y>280</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>296</X>        <Y>296</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>296</X>        <Y>312</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>296</X>        <Y>328</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>296</X>        <Y>344</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>312</X>        <Y>232</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>312</X>        <Y>248</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>312</X>        <Y>264</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>312</X>        <Y>280</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>312</X>        <Y>296</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>312</X>        <Y>312</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>312</X>        <Y>328</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>312</X>        <Y>344</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>328</X>        <Y>248</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>328</X>        <Y>264</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>328</X>        <Y>280</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>328</X>        <Y>296</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>328</X>        <Y>312</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>328</X>        <Y>328</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>328</X>        <Y>344</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>344</X>        <Y>264</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>344</X>        <Y>280</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>344</X>        <Y>296</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>344</X>        <Y>312</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>    <ModuleSlotData>      <Position>        <X>344</X>        <Y>328</Y>      </Position>      <Restrictions>I</Restrictions>      <SlotOptions>NotApplicable</SlotOptions>    </ModuleSlotData>  </ModuleSlotList></ShipData>
+<?xml version="1.0" encoding="utf-8"?>
+<ShipData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>Meteor C</Name>
+  <Hull>Meteor C</Hull>
+  <Role>platform</Role>
+  <IconPath>ShipIcons/terran_platform</IconPath>
+  <SelectionGraphic>13e</SelectionGraphic>
+  <ModelPath>Model/Asteroids/asteroid5</ModelPath>
+  <DefaultAIState>AwaitingOrders</DefaultAIState>
+  <Animated>false</Animated>
+  <IsOrbitalDefense>false</IsOrbitalDefense>
+  <ThrusterList>
+  </ThrusterList>
+  <ModuleSlotList>
+    <ModuleSlotData>
+      <Position>
+        <X>168</X>
+        <Y>184</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>168</X>
+        <Y>200</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>168</X>
+        <Y>216</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>168</X>
+        <Y>232</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>184</X>
+        <Y>168</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>184</X>
+        <Y>184</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>184</X>
+        <Y>200</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>184</X>
+        <Y>216</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>184</X>
+        <Y>232</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>184</X>
+        <Y>248</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>184</X>
+        <Y>264</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>200</X>
+        <Y>168</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>200</X>
+        <Y>184</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>200</X>
+        <Y>200</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>200</X>
+        <Y>216</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>200</X>
+        <Y>232</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>200</X>
+        <Y>248</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>200</X>
+        <Y>264</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>200</X>
+        <Y>280</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>200</X>
+        <Y>296</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>216</X>
+        <Y>168</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>216</X>
+        <Y>184</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>216</X>
+        <Y>200</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>216</X>
+        <Y>216</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>216</X>
+        <Y>232</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>216</X>
+        <Y>248</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>216</X>
+        <Y>264</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>216</X>
+        <Y>280</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>216</X>
+        <Y>296</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>216</X>
+        <Y>312</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>232</X>
+        <Y>168</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>232</X>
+        <Y>184</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>232</X>
+        <Y>200</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>232</X>
+        <Y>216</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>232</X>
+        <Y>232</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>232</X>
+        <Y>248</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>232</X>
+        <Y>264</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>232</X>
+        <Y>280</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>232</X>
+        <Y>296</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>232</X>
+        <Y>312</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>232</X>
+        <Y>328</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>248</X>
+        <Y>184</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>248</X>
+        <Y>200</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>248</X>
+        <Y>216</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>248</X>
+        <Y>232</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>248</X>
+        <Y>248</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>248</X>
+        <Y>264</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>248</X>
+        <Y>280</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>248</X>
+        <Y>296</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>248</X>
+        <Y>312</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>248</X>
+        <Y>328</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>248</X>
+        <Y>344</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>264</X>
+        <Y>184</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>264</X>
+        <Y>200</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>264</X>
+        <Y>216</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>264</X>
+        <Y>232</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>264</X>
+        <Y>248</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>264</X>
+        <Y>264</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>264</X>
+        <Y>280</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>264</X>
+        <Y>296</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>264</X>
+        <Y>312</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>264</X>
+        <Y>328</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>264</X>
+        <Y>344</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>280</X>
+        <Y>200</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>280</X>
+        <Y>216</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>280</X>
+        <Y>232</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>280</X>
+        <Y>248</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>280</X>
+        <Y>264</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>280</X>
+        <Y>280</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>280</X>
+        <Y>296</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>280</X>
+        <Y>312</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>280</X>
+        <Y>328</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>280</X>
+        <Y>344</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>296</X>
+        <Y>216</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>296</X>
+        <Y>232</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>296</X>
+        <Y>248</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>296</X>
+        <Y>264</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>296</X>
+        <Y>280</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>296</X>
+        <Y>296</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>296</X>
+        <Y>312</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>296</X>
+        <Y>328</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>296</X>
+        <Y>344</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>312</X>
+        <Y>232</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>312</X>
+        <Y>248</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>312</X>
+        <Y>264</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>312</X>
+        <Y>280</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>312</X>
+        <Y>296</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>312</X>
+        <Y>312</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>312</X>
+        <Y>328</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>312</X>
+        <Y>344</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>328</X>
+        <Y>248</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>328</X>
+        <Y>264</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>328</X>
+        <Y>280</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>328</X>
+        <Y>296</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>328</X>
+        <Y>312</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>328</X>
+        <Y>328</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>328</X>
+        <Y>344</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>344</X>
+        <Y>264</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>344</X>
+        <Y>280</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>344</X>
+        <Y>296</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>344</X>
+        <Y>312</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>344</X>
+        <Y>328</Y>
+      </Position>
+      <Restrictions>I</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+  </ModuleSlotList>
+</ShipData>
+
