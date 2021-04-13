@@ -1662,11 +1662,7 @@ namespace Ship_Game
         static void LoadPlanetTypes()
         {
             GameLoadingScreen.SetStatus("PlanetTypes");
-            using (var parser = new YamlParser("PlanetTypes.yaml"))
-            {
-                PlanetTypes = parser.DeserializeArray<PlanetType>();
-            }
-
+            PlanetTypes = YamlParser.DeserializeArray<PlanetType>("PlanetTypes.yaml");
             PlanetTypes.Sort(p => p.Id);
             PlanetTypeMap = new Map<int, PlanetType>(PlanetTypes.Count);
             foreach (PlanetType type in PlanetTypes)
@@ -1681,15 +1677,12 @@ namespace Ship_Game
         static void LoadSunZoneData()
         {
             GameLoadingScreen.SetStatus("SunZoneData");
+            var zones = YamlParser.DeserializeArray<SunZoneData>("SunZoneData.yaml");
             ZoneDistribution.Clear();
-            using (var parser = new YamlParser("SunZoneData.yaml"))
-            {
-                var zones = parser.DeserializeArray<SunZoneData>();
-                ZoneDistribution[SunZone.Near]    = SunZoneData.CreateDistribution(zones, SunZone.Near);
-                ZoneDistribution[SunZone.Habital] = SunZoneData.CreateDistribution(zones, SunZone.Habital);
-                ZoneDistribution[SunZone.Far]     = SunZoneData.CreateDistribution(zones, SunZone.Far);
-                ZoneDistribution[SunZone.VeryFar] = SunZoneData.CreateDistribution(zones, SunZone.VeryFar);
-            }
+            ZoneDistribution[SunZone.Near]    = SunZoneData.CreateDistribution(zones, SunZone.Near);
+            ZoneDistribution[SunZone.Habital] = SunZoneData.CreateDistribution(zones, SunZone.Habital);
+            ZoneDistribution[SunZone.Far]     = SunZoneData.CreateDistribution(zones, SunZone.Far);
+            ZoneDistribution[SunZone.VeryFar] = SunZoneData.CreateDistribution(zones, SunZone.VeryFar);
         }
 
         public static int[] GetFleetRatios(BuildRatio canBuild)
@@ -1701,13 +1694,10 @@ namespace Ship_Game
         {
             GameLoadingScreen.SetStatus("FleetBuildRatios");
             BuildRatios.Clear();
-            using (var parser = new YamlParser("FleetBuildRatios.yaml"))
+            var ratios = YamlParser.DeserializeArray<FleetBuildRatios>("FleetBuildRatios.yaml");
+            foreach (BuildRatio canBuild in Enum.GetValues(typeof(BuildRatio)))
             {
-                var ratios = parser.DeserializeArray<FleetBuildRatios>();
-                foreach (BuildRatio canBuild in Enum.GetValues(typeof(BuildRatio)))
-                {
-                    BuildRatios[canBuild] = FleetBuildRatios.GetRatiosFor(ratios, canBuild);
-                }
+                BuildRatios[canBuild] = FleetBuildRatios.GetRatiosFor(ratios, canBuild);
             }
         }
 
