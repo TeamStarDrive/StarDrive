@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Graphics;
 
 namespace Ship_Game
 {
@@ -129,32 +130,32 @@ namespace Ship_Game
                        color, rotation, origin, effects, layerDepth);
         }
 
-        public static void DrawString(this SpriteBatch batch, SpriteFont font,
+        public static void DrawString(this SpriteBatch batch, Font font,
                                       in LocalizedText text, Vector2 position, Color color)
         {
-            batch.DrawString(font, text.Text, position, color);
+            batch.DrawString(font.XnaFont, text.Text, position, color);
         }
 
-        public static void DrawString(this SpriteBatch batch, SpriteFont font,
+        public static void DrawString(this SpriteBatch batch, Font font,
                                       string text, float x, float y)
         {
-            batch.DrawString(font, text, new Vector2(x, y), Color.White);
+            batch.DrawString(font.XnaFont, text, new Vector2(x, y), Color.White);
         }
 
-        public static void DrawString(this SpriteBatch batch, SpriteFont font,
+        public static void DrawString(this SpriteBatch batch, Font font,
                                       string text, float x, float y, Color color)
         {
-            batch.DrawString(font, text, new Vector2(x, y), color);
+            batch.DrawString(font.XnaFont, text, new Vector2(x, y), color);
         }
 
         // Special Multi-Colored line draw
         // batch.DrawLine(Fonts.Arial12, X, Y, ("A: ", Color.White), ("100", Color.Red));
-        public static void DrawLine(this SpriteBatch batch, SpriteFont font, float x, float y,
+        public static void DrawLine(this SpriteBatch batch, Font font, float x, float y,
                                     params (string Text, Color Color)[] textSequence)
         {
             for (int i = 0; i < textSequence.Length; ++i)
             {
-                batch.DrawString(font, textSequence[i].Text, new Vector2(x, y), textSequence[i].Color);
+                batch.DrawString(font.XnaFont, textSequence[i].Text, new Vector2(x, y), textSequence[i].Color);
                 x += font.TextWidth(textSequence[i].Text);
             }
         }

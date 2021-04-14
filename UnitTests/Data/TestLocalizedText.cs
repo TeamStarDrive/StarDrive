@@ -71,9 +71,15 @@ namespace UnitTests.Data
 
         void ParseAllText(string[] tokens)
         {
-            var fonts = new Map<string, SpriteFont>();
-            fonts.Add("Arial12", Fonts.Arial12);
-            fonts.Add("Arial12Bold", Fonts.Arial12Bold);
+            var fonts = new Map<string, SpriteFont>(new []
+            {
+                ("Arial8Bold", Fonts.Arial8Bold), 
+                ("Arial10", Fonts.Arial10), ("Arial11Bold", Fonts.Arial11Bold),
+                ("Arial12", Fonts.Arial12), ("Arial12Bold", Fonts.Arial12Bold),
+                ("Arial14Bold", Fonts.Arial14Bold), ("Arial20Bold", Fonts.Arial20Bold),
+                ("Consolas18", Fonts.Consolas18), ("Laserian14", Fonts.Laserian14),
+                ("Consolas18", Fonts.Consolas18), ("Laserian14", Fonts.Laserian14),
+            });
 
             foreach (var font in fonts)
             {
