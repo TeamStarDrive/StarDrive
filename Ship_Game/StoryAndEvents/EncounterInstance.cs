@@ -87,7 +87,7 @@ namespace Ship_Game.StoryAndEvents
         int CustomMoneyDemand => NetMoneyDemand(0); // For the parser only
 
         
-        public string ParseCurrentEncounterText(float maxLineWidth, SpriteFont font)
+        public string ParseCurrentEncounterText(float maxLineWidth, Graphics.Font font)
         {
             string[] words = Message.Text.Split(' ');
             for (int i = 0; i < words.Length; ++i)

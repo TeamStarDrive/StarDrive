@@ -27,7 +27,7 @@ namespace Ship_Game
         // If TRUE, this text element will capture input
         public bool InputEnabled = true;
 
-        public SpriteFont Font = Fonts.Arial20Bold;
+        public Graphics.Font Font = Fonts.Arial20Bold;
         public Color Color = Color.Orange;
         public Color HoverColor = Color.White;
         public Color InputColor = Color.BurlyWood;
@@ -44,7 +44,7 @@ namespace Ship_Game
         {
         }
 
-        public UITextEntry(Vector2 pos, SpriteFont font, string text)
+        public UITextEntry(Vector2 pos, Graphics.Font font, string text)
         {
             TextInputCaptured = false; // reset this global flag
             Font = font;
@@ -132,7 +132,7 @@ namespace Ship_Game
         }
 
         // TODO: This is only here for legacy compat
-        public void Draw(SpriteBatch batch, DrawTimes elapsed, SpriteFont font, Vector2 pos, Color c)
+        public void Draw(SpriteBatch batch, DrawTimes elapsed, Graphics.Font font, Vector2 pos, Color c)
         {
             Font = font;
             Pos = pos;

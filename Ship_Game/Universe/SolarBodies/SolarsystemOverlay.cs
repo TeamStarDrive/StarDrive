@@ -12,8 +12,8 @@ namespace Ship_Game
     /// </summary>
     public sealed class SolarsystemOverlay : UIElement
     {
-        public static SpriteFont SysFont;
-        public static SpriteFont DataFont;
+        public static Graphics.Font SysFont;
+        public static Graphics.Font DataFont;
         public float SelectionTimer;
 
         UniverseScreen Universe;

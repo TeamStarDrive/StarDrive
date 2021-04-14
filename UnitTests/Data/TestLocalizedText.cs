@@ -71,15 +71,19 @@ namespace UnitTests.Data
 
         void ParseAllText(string[] tokens)
         {
-            var fonts = new Map<string, SpriteFont>(new []
+            var fonts = new []
             {
-                ("Arial8Bold", Fonts.Arial8Bold), 
-                ("Arial10", Fonts.Arial10), ("Arial11Bold", Fonts.Arial11Bold),
-                ("Arial12", Fonts.Arial12), ("Arial12Bold", Fonts.Arial12Bold),
-                ("Arial14Bold", Fonts.Arial14Bold), ("Arial20Bold", Fonts.Arial20Bold),
-                ("Consolas18", Fonts.Consolas18), ("Laserian14", Fonts.Laserian14),
-                ("Consolas18", Fonts.Consolas18), ("Laserian14", Fonts.Laserian14),
-            });
+                Fonts.Arial8Bold,
+                Fonts.Arial10,
+                Fonts.Arial11Bold,
+                Fonts.Arial12,
+                Fonts.Arial12Bold,
+                Fonts.Arial14Bold,
+                Fonts.Arial20Bold,
+                Fonts.Consolas18,
+                Fonts.Arial20Bold,
+                Fonts.Laserian14,
+            };
 
             foreach (var font in fonts)
             {
@@ -87,11 +91,11 @@ namespace UnitTests.Data
                 {
                     try
                     {
-                        font.Value.MeasureString(text);
+                        font.MeasureString(text);
                     }
                     catch (Exception e)
                     {
-                        throw new Exception($"MeasureString failed Font={font.Key} Text={text} Error={e.Message}");
+                        throw new Exception($"MeasureString failed Font={font.Name} Text={text} Error={e.Message}");
                     }
                 }
             }
@@ -102,8 +106,7 @@ namespace UnitTests.Data
         {
             Fonts.LoadFonts(ResourceManager.RootContent);
             ResourceManager.LoadLanguage(Language.Russian);
-            string[] tokens = Localizer.EnumerateTokens().ToArray();
-            ParseAllText(tokens);
+            ParseAllText(Localizer.EnumerateTokens().ToArray());
         }
 
         [TestMethod]
@@ -111,8 +114,7 @@ namespace UnitTests.Data
         {
             Fonts.LoadFonts(ResourceManager.RootContent);
             ResourceManager.LoadLanguage(Language.Spanish);
-            string[] tokens = Localizer.EnumerateTokens().ToArray();
-            ParseAllText(tokens);
+            ParseAllText(Localizer.EnumerateTokens().ToArray());
         }
 
         [TestMethod]

@@ -117,7 +117,7 @@ namespace Ship_Game
             }
         }
 
-        static void DrawString(SpriteBatch batch, ref Vector2 cursorPos, string text, SpriteFont font = null)
+        static void DrawString(SpriteBatch batch, ref Vector2 cursorPos, string text, Graphics.Font font = null)
         {
             if (font == null) 
                 font = Fonts.Arial8Bold;
@@ -125,7 +125,7 @@ namespace Ship_Game
             cursorPos.X += font.TextWidth(text);
         }
 
-        static void DrawStringRed(SpriteBatch batch, ref Vector2 cursorPos, string text, SpriteFont font = null)
+        static void DrawStringRed(SpriteBatch batch, ref Vector2 cursorPos, string text, Graphics.Font font = null)
         {
             if (font == null) 
                 font = Fonts.Arial10;
@@ -135,7 +135,7 @@ namespace Ship_Game
             cursorPos.X += font.TextWidth(text)+2;
         }
 
-        static void DrawString(SpriteBatch batch, ref Vector2 cursorPos, string text, Color color, SpriteFont font = null)
+        static void DrawString(SpriteBatch batch, ref Vector2 cursorPos, string text, Color color, Graphics.Font font = null)
         {
             if (font == null) font = Fonts.Arial8Bold;
             batch.DrawString(font, text, cursorPos, color);

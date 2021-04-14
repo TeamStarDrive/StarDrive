@@ -264,7 +264,7 @@ namespace Ship_Game
                 }
 
                 Vector2 num = new Vector2(rect.Value.X + 4, rect.Value.Y + 4);
-                SpriteFont pirulen12 = Fonts.Pirulen12;
+                Graphics.Font pirulen12 = Fonts.Pirulen12;
                 int key = rect.Key;
                 batch.DrawString(pirulen12, key.ToString(), num, Color.Orange);
                 num.X = num.X + (rect.Value.Width + 5);
@@ -497,14 +497,14 @@ namespace Ship_Game
                 Vector2 cursor = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
                 if (SelectedNodeList[0].Ship == null)
                 {
-                    SpriteFont arial20Bold = Fonts.Arial20Bold;
+                    Graphics.Font arial20Bold = Fonts.Arial20Bold;
                     int count = SelectedNodeList.Count;
                     batch.DrawString(arial20Bold, string.Concat("Group of ", count.ToString(), " ships selected"),
                         cursor, Colors.Cream);
                 }
                 else
                 {
-                    SpriteFont spriteFont = Fonts.Arial20Bold;
+                    Graphics.Font spriteFont = Fonts.Arial20Bold;
                     int num = SelectedNodeList.Count;
                     batch.DrawString(spriteFont, string.Concat("Group of ", num.ToString(), " ships selected"), cursor,
                         Colors.Cream);
