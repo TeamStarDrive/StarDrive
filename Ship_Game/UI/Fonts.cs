@@ -46,8 +46,10 @@ namespace Ship_Game
             return new Font(content, name);
         }
 
-        public static void LoadFonts(GameContentManager c)
+        public static void LoadFonts(GameContentManager c, Language language)
         {
+            bool russian = language == Language.Russian;
+            bool notEnglish = language != Language.English;
             GameLoadingScreen.SetStatus("LoadFonts");
             Arial20Bold   = LoadFont(c, "Arial20Bold");
             Arial14Bold   = LoadFont(c, "Arial14Bold");
@@ -55,7 +57,7 @@ namespace Ship_Game
 
             // hack fix for french, Polish and Russian font error. 
             Arial10       = LoadFont(c, "Arial10");
-            Arial11Bold   = GlobalStats.IsRussian ? Arial10 : LoadFont(c, "Arial11Bold");
+            Arial11Bold   = notEnglish ? Arial10 : LoadFont(c, "Arial11Bold");
             Arial8Bold    = LoadFont(c, "Arial8Bold");
             Arial12       = LoadFont(c, "Arial12");
             //Stratum72     = LoadFont(c, "stratum72");
@@ -65,9 +67,9 @@ namespace Ship_Game
             Pirulen20     = LoadFont(c, "Pirulen20");
             Consolas18    = LoadFont(c, "consolas18");
             Tahoma10      = LoadFont(c, "Tahoma10");
-            Tahoma11      = GlobalStats.IsRussian ? Tahoma10 : LoadFont(c, "Tahoma11");
-            TahomaBold9   = GlobalStats.IsRussian ? Tahoma10 : LoadFont(c, "TahomaBold9");
-            Visitor10     = GlobalStats.IsRussian ? Arial10  : LoadFont(c, "Visitor10");
+            Tahoma11      = russian ? Tahoma10 : LoadFont(c, "Tahoma11");
+            TahomaBold9   = russian ? Tahoma10 : LoadFont(c, "TahomaBold9");
+            Visitor10     = russian ? Arial10  : LoadFont(c, "Visitor10");
             Visitor10.Spacing = 1f;
 
             //Visitor12     = LoadFont(c, "Visitor12");
@@ -76,7 +78,7 @@ namespace Ship_Game
             Verdana12Bold = LoadFont(c, "Verdana12Bold");
             Verdana10     = LoadFont(c, "Verdana10");
 
-            Pirulen12 = GlobalStats.IsRussian ? LoadFont(c, "Arial12Bold") : LoadFont(c, "Pirulen12a");
+            Pirulen12 = russian ? LoadFont(c, "Arial12Bold") : LoadFont(c, "Pirulen12a");
         }
     }
 }

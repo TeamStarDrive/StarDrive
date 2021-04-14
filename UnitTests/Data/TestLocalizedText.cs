@@ -69,8 +69,9 @@ namespace UnitTests.Data
             Assert.AreEqual("Parsed: Nueva partida Cargar partida ", parsed2.Text);
         }
 
-        void ParseAllText(string[] tokens)
+        Array<string> GetTextErrors(string[] tokens)
         {
+            var errors = new Array<string>();
             var fonts = new []
             {
                 Fonts.Arial8Bold,
@@ -84,7 +85,6 @@ namespace UnitTests.Data
                 Fonts.Arial20Bold,
                 Fonts.Laserian14,
             };
-
             foreach (var font in fonts)
             {
                 foreach (string text in tokens)
@@ -95,26 +95,32 @@ namespace UnitTests.Data
                     }
                     catch (Exception e)
                     {
-                        throw new Exception($"MeasureString failed Font={font.Name} Text={text} Error={e.Message}");
+                        errors.Add($"MeasureString failed Font={font.Name} Text={text} Error={e.Message}");
+                        break;
                     }
                 }
             }
+            return errors;
         }
 
         [TestMethod]
         public void EnsureRussianTextIsDrawable()
         {
-            Fonts.LoadFonts(ResourceManager.RootContent);
             ResourceManager.LoadLanguage(Language.Russian);
-            ParseAllText(Localizer.EnumerateTokens().ToArray());
+            Fonts.LoadFonts(ResourceManager.RootContent, Language.Russian);
+            var err = GetTextErrors(Localizer.EnumerateTokens().ToArray());
+            if (err.NotEmpty)
+                Assert.Fail(string.Join("\n", err));
         }
 
         [TestMethod]
         public void EnsureSpanishTextIsDrawable()
         {
-            Fonts.LoadFonts(ResourceManager.RootContent);
             ResourceManager.LoadLanguage(Language.Spanish);
-            ParseAllText(Localizer.EnumerateTokens().ToArray());
+            Fonts.LoadFonts(ResourceManager.RootContent, Language.Spanish);
+            var err = GetTextErrors(Localizer.EnumerateTokens().ToArray());
+            if (err.NotEmpty)
+                Assert.Fail(string.Join("\n", err));
         }
 
         [TestMethod]
