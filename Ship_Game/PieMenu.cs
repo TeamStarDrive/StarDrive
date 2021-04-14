@@ -69,7 +69,7 @@ namespace Ship_Game
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch, SpriteFont font)
+        public void Draw(SpriteBatch spriteBatch, Graphics.Font font)
         {
             if (!Visible)
                 return;
@@ -91,7 +91,7 @@ namespace Ship_Game
                 {
                     spriteBatch.DrawString(font, RootNode.Children[i].Text, 
                         imagePos + new Vector2(-font.MeasureString(RootNode.Children[i].Text).X / 2f, imageSize), 
-                        Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+                        Color.White);
                 }
             }
         }

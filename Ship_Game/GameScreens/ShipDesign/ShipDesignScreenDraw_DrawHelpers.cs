@@ -79,7 +79,7 @@ namespace Ship_Game
 
         void DrawStatColor(ref Vector2 cursor, StatValue stat)
         {
-            SpriteFont font = Fonts.Arial12Bold;
+            Graphics.Font font = Fonts.Arial12Bold;
 
             WriteLine(ref cursor);
             cursor.Y += stat.LineSpacing;
@@ -95,7 +95,7 @@ namespace Ship_Game
 
         void DrawStat(ref Vector2 cursor, string words, string stat, LocalizedText tooltip, Color nameColor, Color statColor, float spacing = 165f, float lineSpacing = 2)
         {
-            SpriteFont font = Fonts.Arial12Bold;
+            Graphics.Font font = Fonts.Arial12Bold;
             cursor.Y += lineSpacing > 0 ? font.LineSpacing + lineSpacing : 0;
 
             var statCursor = new Vector2(cursor.X + spacing, cursor.Y);

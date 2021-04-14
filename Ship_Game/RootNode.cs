@@ -7,7 +7,7 @@ namespace Ship_Game
 {
 	public sealed class RootNode : Node
 	{
-		public SpriteFont TitleFont = Fonts.Visitor10;
+		public Graphics.Font TitleFont = Fonts.Visitor10;
 
 		public NodeState nodeState;
 

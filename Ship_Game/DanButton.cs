@@ -34,7 +34,7 @@ namespace Ship_Game
 			Vector2 pos = TextPos;
 			screenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button"), r, Color.White);
 			SpriteBatch spriteBatch = screenManager.SpriteBatch;
-			SpriteFont arial12Bold = Fonts.Arial12Bold;
+			Graphics.Font arial12Bold = Fonts.Arial12Bold;
 			string str = (Toggled ? ToggledText : Text);
 			Vector2 vector2 = pos;
 			if (Hover)
@@ -55,7 +55,7 @@ namespace Ship_Game
 			var tPos = new Vector2(rect.X + 25, rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2);
 			Vector2 pos = tPos;
 			SpriteBatch spriteBatch = screenManager.SpriteBatch;
-			SpriteFont arial12Bold = Fonts.Arial12Bold;
+			Graphics.Font arial12Bold = Fonts.Arial12Bold;
 			string str = (Toggled ? ToggledText : Text);
 			Vector2 vector2 = pos;
 			if (Hover)

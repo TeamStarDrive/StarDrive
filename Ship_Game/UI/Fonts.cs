@@ -25,12 +25,12 @@ namespace Ship_Game
         public static Font Arial20Bold   { get; private set; }
         public static Font Arial8Bold    { get; private set; }
         public static Font Consolas18    { get; private set; }
-        //public static SpriteFont Corbel14      { get; private set; }
+        //public static Graphics.Font Corbel14      { get; private set; }
         public static Font Laserian14    { get; private set; }
         public static Font Pirulen12     { get; private set; }
         public static Font Pirulen16     { get; private set; }
         public static Font Pirulen20     { get; private set; }
-        //public static SpriteFont Stratum72     { get; private set; }
+        //public static Graphics.Font Stratum72     { get; private set; }
         public static Font Tahoma10      { get; private set; }
         public static Font Tahoma11      { get; private set; }
         public static Font TahomaBold9   { get; private set; }
@@ -40,19 +40,6 @@ namespace Ship_Game
         public static Font Verdana14Bold { get; private set; }
         public static Font Visitor10     { get; private set; }
         //public static Font Visitor12     { get; private set; }
-
-        public static string GetGoldString(int gold) => $"{gold:n0}";
-
-        public static void DrawCenteredText(SpriteBatch spriteBatch, Font font, string text, Vector2 position, Color color)
-        {
-            if (string.IsNullOrEmpty(text))
-                return;
-            Vector2 textSize = font.MeasureString(text);
-            Vector2 centerPos = new Vector2(position.X - (int)(textSize.X / 2), 
-                                            position.Y - (int)(textSize.Y / 2));
-            spriteBatch.DrawString(font, text, centerPos, color, 0f, Vector2.Zero, 1f, SpriteEffects.None, 1f - position.Y / 720f);
-        }
-
 
         public static Font LoadFont(GameContentManager content, string name)
         {

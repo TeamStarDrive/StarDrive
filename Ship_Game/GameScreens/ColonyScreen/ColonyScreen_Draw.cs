@@ -54,7 +54,7 @@ namespace Ship_Game
 
         void DrawTroopLevel(Troop troop)
         {
-            SpriteFont font = Font12;
+            Graphics.Font font = Font12;
             Rectangle rect = troop.ClickRect;
             var levelRect = new Rectangle(rect.X + 30, rect.Y + 22, font.LineSpacing, font.LineSpacing + 5);
             var pos = new Vector2((rect.X + 15 + rect.Width / 2) - font.MeasureString(troop.Strength.String(1)).X / 2f,
@@ -583,7 +583,7 @@ namespace Ship_Game
             float grossUpkeep = P.Money.Maintenance + P.SpaceDefMaintenance;
             float netIncome   = P.Money.NetRevenue;
 
-            SpriteFont font = LowRes ? Font8 : Font14;
+            Graphics.Font font = LowRes ? Font8 : Font14;
 
             batch.DrawString(font, $"{gIncome}: ", cursor, Color.LightGray);
             batch.DrawString(font, $"{grossIncome.String(2)} BC/Y", new Vector2(cursor.X + 150, cursor.Y), Color.LightGreen);

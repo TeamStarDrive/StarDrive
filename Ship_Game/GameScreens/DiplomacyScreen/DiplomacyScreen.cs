@@ -272,7 +272,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             DState     = DialogState.Them;
         }
 
-        Vector2 GetCenteredTextPosition(Rectangle r, string text, SpriteFont font)
+        Vector2 GetCenteredTextPosition(Rectangle r, string text, Graphics.Font font)
         {
             return new Vector2(r.CenterTextX(text, font), r.CenterY());
         }

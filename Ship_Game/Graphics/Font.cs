@@ -32,6 +32,11 @@ namespace Ship_Game.Graphics
         {
             return XnaFont.MeasureString(text);
         }
+
+        public Vector2 MeasureString(StringBuilder text)
+        {
+            return XnaFont.MeasureString(text);
+        }
         
         public Vector2 MeasureLines(Array<string> lines)
         {

@@ -10,7 +10,7 @@ namespace Ship_Game
 
 		private string Text;
 
-		private SpriteFont Font;
+		private Graphics.Font Font;
 
 		private Vector2 TextPos;
 
@@ -19,9 +19,9 @@ namespace Ship_Game
 		public Color UnHoveredColor = Color.DarkGray;
 		private Vector2 CapitalPos;
 
-		private SpriteFont Cap;
+		private Graphics.Font Cap;
 
-		private SpriteFont Small;
+		private Graphics.Font Small;
 
 		private string capT;
 
@@ -29,7 +29,7 @@ namespace Ship_Game
 
 		private bool Hover;
 
-		public GenericButton(Rectangle R, string Text, SpriteFont Font)
+		public GenericButton(Rectangle R, string Text, Graphics.Font Font)
 		{
 			this.R = R;
 			this.Text = Text;
@@ -37,7 +37,7 @@ namespace Ship_Game
 			TextPos = new Vector2(R.X + R.Width / 2 - Font.MeasureString(Text).X / 2f, R.Y + R.Height / 2 - Font.LineSpacing / 2);
 		}
 
-		public GenericButton(Vector2 v, string Text, SpriteFont CapitalFont, SpriteFont SmallFont)
+		public GenericButton(Vector2 v, string Text, Graphics.Font CapitalFont, Graphics.Font SmallFont)
 		{
 			Cap = CapitalFont;
 			Small = SmallFont;
@@ -52,7 +52,7 @@ namespace Ship_Game
 		{
 			Color white;
 			SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-			SpriteFont font = Font;
+			Graphics.Font font = Font;
 			string text = Text;
 			Vector2 textPos = TextPos;
 			if (ToggleOn)
@@ -71,7 +71,7 @@ namespace Ship_Game
 			Color white;
 			string text = Text;
 			Vector2 textPos = TextPos;
-			SpriteFont font = Font;
+			Graphics.Font font = Font;
 			if (ToggleOn)
 			{
 				white = Color.White;

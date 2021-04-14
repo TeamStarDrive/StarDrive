@@ -181,11 +181,11 @@ namespace Ship_Game.Data
                     foreach (ModelMesh mesh in mod.Meshes)
                         numBytes += mesh.IndexBuffer.SizeInBytes + mesh.VertexBuffer.SizeInBytes;
                 }
-                else if (asset is SpriteFont font)
+                else if (asset is Graphics.Font font)
                 {
                     var fontTex = GetField<Texture2D>(font, "textureValue");
                     numBytes += TextureSize(fontTex);
-                    numBytes += font.Characters.Count * 64;
+                    numBytes += font.NumCharacters * 64;
                 }
             }
             return numBytes;
