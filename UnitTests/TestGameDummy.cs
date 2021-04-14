@@ -31,7 +31,7 @@ namespace UnitTests
         protected override void BeginRun()
         {
             base.BeginRun();
-            Fonts.LoadFonts(Content);
+            Fonts.LoadFonts(Content, GlobalStats.Language);
             Started.Set();
         }
 

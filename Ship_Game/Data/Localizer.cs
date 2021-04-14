@@ -48,6 +48,8 @@ namespace Ship_Game
         public static string GovernorBudget => Token(GameText.GovernorBudget);
         public static string TreasuryGoal => Token(GameText.TreasuryGoal);
 
+        public static Language Language { get; private set; }
+
         static string[] Strings = Empty<string>.Array;
         static Map<string, string> NameIdToString = new Map<string, string>();
 
@@ -94,8 +96,10 @@ namespace Ship_Game
         }
 
         // add extra localization tokens to the localizer
-        public static void AddTokens(Array<Token> tokens)
+        public static void AddTokens(Array<Token> tokens, Language language)
         {
+            Language = language;
+
             // Index entries aren't guaranteed to be ordered properly (due to messy mods)
             int limit = tokens.Max(t => t.Index);
 
@@ -113,6 +117,7 @@ namespace Ship_Game
 
         public static void AddFromYaml(FileInfo file, Language language)
         {
+            Language = language;
             Array<LangToken> tokens = YamlParser.DeserializeArray<LangToken>(file);
             
             // Index entries aren't guaranteed to be ordered properly (due to messy mods)
