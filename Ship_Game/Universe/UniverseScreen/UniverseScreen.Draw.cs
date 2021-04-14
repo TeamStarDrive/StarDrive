@@ -519,7 +519,7 @@ namespace Ship_Game
 
         void DrawTopCenterStatusText(SpriteBatch batch, in LocalizedText status, Color color, int lineOffset)
         {
-            SpriteFont font = Fonts.Pirulen16;
+            Graphics.Font font = Fonts.Pirulen16;
             string text = status.Text;
             var pos = new Vector2(ScreenCenter.X - font.TextWidth(text) / 2f, 45f + (font.LineSpacing + 2)*lineOffset);
             batch.DrawString(font, text, pos, color);
@@ -855,7 +855,7 @@ namespace Ship_Game
                     }
 
                     Color fleetKey       = Color.Orange;
-                    SpriteFont fleetFont = Fonts.Pirulen12;
+                    Graphics.Font fleetFont = Fonts.Pirulen12;
                     bool needShadow      = false;
                     Vector2 keyPos       = new Vector2(fleetButton.ClickRect.X + 4, fleetButton.ClickRect.Y + 4);
                     if (SelectedFleet == fleetButton.Fleet)
@@ -1372,7 +1372,7 @@ namespace Ship_Game
         }
 
         public void DrawPointerWithText(Vector2 screenPos, SubTexture planetNamePointer, Color pointerColor, string text,
-            Color textColor, SpriteFont font = null, float xOffSet = 20f, float yOffSet = 37f)
+            Color textColor, Graphics.Font font = null, float xOffSet = 20f, float yOffSet = 37f)
         {
             font = font ?? Fonts.Tahoma10;
             DrawTextureRect(planetNamePointer, screenPos, pointerColor);

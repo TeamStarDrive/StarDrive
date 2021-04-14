@@ -148,6 +148,14 @@ namespace Ship_Game
             batch.DrawString(font.XnaFont, text, new Vector2(x, y), color);
         }
 
+        public static void DrawString(this SpriteBatch batch, Font font,
+                                      string text, Vector2 pos, Color color, 
+                                      float rotation, Vector2 origin, float scale = 1f)
+        {
+            batch.DrawString(font.XnaFont, text, pos, color, 
+                             rotation, origin, scale, SpriteEffects.None, 1f);
+        }
+
         // Special Multi-Colored line draw
         // batch.DrawLine(Fonts.Arial12, X, Y, ("A: ", Color.White), ("100", Color.Red));
         public static void DrawLine(this SpriteBatch batch, Font font, float x, float y,

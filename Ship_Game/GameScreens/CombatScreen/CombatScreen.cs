@@ -393,7 +393,7 @@ namespace Ship_Game
 
         void DrawTroopData(SpriteBatch batch, Rectangle rect, Troop troop, string data, Color color)
         {
-            SpriteFont font = Fonts.Arial12;
+            Graphics.Font font = Fonts.Arial12;
             batch.FillRectangle(rect, new Color(0, 0, 0, 200));
             batch.DrawRectangle(rect, troop.Loyalty.EmpireColor);
             var cursor = new Vector2((rect.X + rect.Width / 2) - font.MeasureString(troop.Strength.String(1)).X / 2f,

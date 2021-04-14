@@ -157,15 +157,15 @@ namespace Ship_Game
             batch.Draw(texture, offsetRect, Color.Black);
             batch.Draw(texture, rect, topColor);
         }
-        public static void DrawDropShadowText(this SpriteBatch batch, string text, Vector2 pos, SpriteFont font)
+        public static void DrawDropShadowText(this SpriteBatch batch, string text, Vector2 pos, Graphics.Font font)
         {
             DrawDropShadowText(batch, text, pos, font, Color.White);
         }
-        public static void DrawDropShadowText1(this SpriteBatch batch, string text, Vector2 pos, SpriteFont font, Color c)
+        public static void DrawDropShadowText1(this SpriteBatch batch, string text, Vector2 pos, Graphics.Font font, Color c)
         {
             DrawDropShadowText(batch, text, pos, font, c, 1f);
         }
-        public static void DrawDropShadowText(this SpriteBatch batch, string text, Vector2 pos, SpriteFont font, Color c, float shadowOffset = 2f)
+        public static void DrawDropShadowText(this SpriteBatch batch, string text, Vector2 pos, Graphics.Font font, Color c, float shadowOffset = 2f)
         {
             pos.X = (int)pos.X;
             pos.Y = (int)pos.Y;
