@@ -157,5 +157,15 @@ namespace Ship_Game
             int localIndex = ShipRole.GetRoleName(role, shipType);
             return localIndex > 0 ? Token(localIndex) : "unknown";
         }
+
+        public static IEnumerable<string> EnumerateTokens()
+        {
+            for (int i = 0; i < Strings.Length; ++i)
+            {
+                string token = Strings[i];
+                if (token != null)
+                    yield return token;
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game;
 
 namespace UnitTests.Data
@@ -8,6 +9,11 @@ namespace UnitTests.Data
     [TestClass]
     public class TestLocalizedText : StarDriveTest
     {
+        public TestLocalizedText()
+        {
+            CreateGameInstance();
+        }
+
         [TestMethod]
         public void LocalizedIdIsDynamic()
         {
@@ -61,6 +67,46 @@ namespace UnitTests.Data
             ResourceManager.LoadLanguage(Language.Spanish);
             Assert.AreEqual("Parsed: Nueva partida ", parsed1.Text);
             Assert.AreEqual("Parsed: Nueva partida Cargar partida ", parsed2.Text);
+        }
+
+        void ParseAllText(string[] tokens)
+        {
+            var fonts = new Map<string, SpriteFont>();
+            fonts.Add("Arial12", Fonts.Arial12);
+            fonts.Add("Arial12Bold", Fonts.Arial12Bold);
+
+            foreach (var font in fonts)
+            {
+                foreach (string text in tokens)
+                {
+                    try
+                    {
+                        font.Value.MeasureString(text);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception($"MeasureString failed Font={font.Key} Text={text} Error={e.Message}");
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void EnsureRussianTextIsDrawable()
+        {
+            Fonts.LoadFonts(ResourceManager.RootContent);
+            ResourceManager.LoadLanguage(Language.Russian);
+            string[] tokens = Localizer.EnumerateTokens().ToArray();
+            ParseAllText(tokens);
+        }
+
+        [TestMethod]
+        public void EnsureSpanishTextIsDrawable()
+        {
+            Fonts.LoadFonts(ResourceManager.RootContent);
+            ResourceManager.LoadLanguage(Language.Spanish);
+            string[] tokens = Localizer.EnumerateTokens().ToArray();
+            ParseAllText(tokens);
         }
 
         [TestMethod]
