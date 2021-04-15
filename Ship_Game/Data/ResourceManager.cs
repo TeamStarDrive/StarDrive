@@ -199,7 +199,7 @@ namespace Ship_Game
             Log.Write($"Load {(GlobalStats.HasMod ? ModContentDirectory : "Vanilla")}");
 
             BeginPerfProfile();
-            Profiled("LoadLanguage", () => LoadLanguage(GlobalStats.Language));
+            Profiled("LoadLanguage", () => LoadLanguage(GlobalStats.Language)); // must be before LoadFonts
             Profiled(LoadHullBonuses);
             Profiled(LoadHullData); // we need Hull Data for main menu ship
             Profiled(LoadEmpires); // Hotspot #2 187.4ms  8.48%
@@ -256,7 +256,7 @@ namespace Ship_Game
                 BackgroundItem.QuadEffect = new BasicEffect(manager.GraphicsDevice, null) { TextureEnabled = true };
                 Blank = Texture("blank");
             });
-            Profiled("LoadFonts", () => Fonts.LoadFonts(RootContent));
+            Profiled("LoadFonts", () => Fonts.LoadFonts(RootContent, Localizer.Language));
 
             // Load non-critical resources:
             void LoadNonCritical()
@@ -1127,10 +1127,10 @@ namespace Ship_Game
             else
             {
                 foreach (var loc in LoadVanillaEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
-                    Localizer.AddTokens(loc.TokenList);
+                    Localizer.AddTokens(loc.TokenList, language);
                 if (language != Language.English)
                     foreach (var loc in LoadVanillaEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
-                        Localizer.AddTokens(loc.TokenList);
+                        Localizer.AddTokens(loc.TokenList, language);
             }
 
             // Now replace any vanilla tokens with mod tokens
@@ -1144,10 +1144,10 @@ namespace Ship_Game
                 else
                 {
                     foreach (var loc in LoadModEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
-                        Localizer.AddTokens(loc.TokenList);
+                        Localizer.AddTokens(loc.TokenList, language);
                     if (language != Language.English)
                         foreach (var loc in LoadModEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
-                            Localizer.AddTokens(loc.TokenList);
+                            Localizer.AddTokens(loc.TokenList, language);
                 }
             }
         }

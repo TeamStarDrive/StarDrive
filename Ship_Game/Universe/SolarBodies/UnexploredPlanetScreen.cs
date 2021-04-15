@@ -58,7 +58,7 @@ namespace Ship_Game
             // Class: Swamp
             DrawInfo(batch, x, y + 16, GameText.Class, Planet.LocalizedCategory, "");
 
-            SpriteFont font = Fonts.Arial12Bold;
+            Graphics.Font font = Fonts.Arial12Bold;
             if (!Planet.Habitable)
             {
                 batch.DrawString(font, Localizer.Token(GameText.Uninhabitable), x, y + 32, Color.Orange);
@@ -81,7 +81,7 @@ namespace Ship_Game
         void DrawInfo(SpriteBatch batch, float x, float y, LocalizedText title, string value, LocalizedText tooltip)
         {
             const int width = 80;
-            SpriteFont font = Fonts.Arial12Bold;
+            Graphics.Font font = Fonts.Arial12Bold;
             batch.DrawString(font, title.Text + ":", x, y, Color.Orange);
             batch.DrawString(font, value, new Vector2(x + width, y), Colors.Cream);
 

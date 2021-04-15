@@ -344,8 +344,8 @@ namespace Ship_Game
             if (GlobalStats.Language != newLanguage)
             {
                 GlobalStats.Language = newLanguage;
-                Fonts.ReloadContent(ResourceManager.RootContent);
                 ResourceManager.LoadLanguage(newLanguage);
+                Fonts.LoadFonts(ResourceManager.RootContent, newLanguage);
                 LoadContent(); // reload the options screen to update the text
             }
         }
