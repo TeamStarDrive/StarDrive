@@ -1264,16 +1264,23 @@ namespace Ship_Game
 
         static void LoadProjTexts()
         {
-            ProjTextDict.Clear();
+            ProjTextDict.ClearAndDispose();
             var files = GatherFilesUnified("Model/Projectiles/textures", "xnb", recursive: false);
 
-            Parallel.ForEach(files, file =>
+            var nameTexPairs = Parallel.Select(files, file =>
             {
                 string shortName = file.NameNoExt();
                 GameLoadingScreen.SetStatus("LoadProjectileTex", shortName);
                 Texture2D tex = RootContent.LoadTexture(file, "xnb");
-                ProjTextDict[shortName] = tex;
+                return (shortName, tex);
             });
+
+            foreach ((string shortName, Texture2D tex) in nameTexPairs)
+            {
+                if (ProjTextDict.TryGetValue(shortName, out Texture2D existing))
+                    Log.Warning($"Projectile Overwrite: {shortName} {existing.Name} -> {tex.Name}");
+                ProjTextDict[shortName] = tex;
+            }
         }
 
         static void LoadRandomItems()
