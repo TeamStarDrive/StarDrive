@@ -16,7 +16,9 @@ namespace UnitTests.Ships
         {
             // Excalibur class has all the bells and whistles
             CreateGameInstance();
-            LoadStarterShips(new[]{ "Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle" });
+            // TODO: we need to fix this mess with Supply Shuttles
+            LoadStarterShips(new[]{ "Excalibur-Class Supercarrier", "Corsair",
+                                    "Supply_Shuttle", "Supply Shuttle" });
             
         }
 

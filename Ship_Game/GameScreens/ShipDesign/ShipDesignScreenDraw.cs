@@ -205,7 +205,8 @@ namespace Ship_Game
                     Color yellow = ActiveModule != null ? new Color(Color.Yellow, 150) : Color.Yellow;
                     slot.Draw(batch, concreteGlass, yellow);
                 }
-                batch.DrawString(Fonts.Arial20Bold, " " + slot.Restrictions, slot.PosVec2, Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
+                batch.DrawString(Fonts.Arial20Bold, " " + slot.Restrictions, slot.PosVec2,
+                                 Color.Navy, 0f, Vector2.Zero, 0.4f);
             }
         }
 
@@ -383,9 +384,8 @@ namespace Ship_Game
 
             string rangeText = $"Range: {w.BaseRange.String(0)}";
             float textWidth  = Fonts.Arial8Bold.TextWidth(rangeText);
-            batch.DrawString(Fonts.Arial8Bold, rangeText,
-                textPos + offset, color.Alpha(0.3f),
-                textRot, new Vector2(textWidth / 2, 10f), 1f, SpriteEffects.None, 1f);
+            batch.DrawString(Fonts.Arial8Bold, rangeText, textPos + offset, color.Alpha(0.3f),
+                             textRot, new Vector2(textWidth / 2, 10f));
         }
 
         // @note This is reused in DebugInfoScreen as well
@@ -773,7 +773,7 @@ namespace Ship_Game
         void DrawCompletion(ref Vector2 cursor, string words, int numSlots, int size, LocalizedText tooltip, float lineSpacing = 2)
         {
             float amount    = 165f;
-            SpriteFont font = Fonts.Arial12Bold;
+            Graphics.Font font = Fonts.Arial12Bold;
             cursor.Y += lineSpacing > 0 ? font.LineSpacing + lineSpacing : 0;
             ScreenManager.SpriteBatch.DrawString(font, words, cursor, Color.White);
 
@@ -1063,7 +1063,7 @@ namespace Ship_Game
             batch.FillRectangle(r, new Color(54, 54, 54));
 
 
-            SpriteFont font = Fonts.Arial20Bold.MeasureString(ActiveHull.Name).X <= (SearchBar.Width - 5)
+            Graphics.Font font = Fonts.Arial20Bold.MeasureString(ActiveHull.Name).X <= (SearchBar.Width - 5)
                             ? Fonts.Arial20Bold : Fonts.Arial12Bold;
             var cursor1 = new Vector2(SearchBar.X + 3, r.Y + 14 - font.LineSpacing / 2);
             batch.DrawString(font, ActiveHull.Name, cursor1, Color.White);

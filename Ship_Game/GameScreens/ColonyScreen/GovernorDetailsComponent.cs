@@ -46,12 +46,12 @@ namespace Ship_Game
         UILabel NoGovernorSpcExpense;
 
 
-        private readonly SpriteFont Font14 = Fonts.Arial14Bold;
-        private readonly SpriteFont Font12 = Fonts.Arial12Bold;
-        private readonly SpriteFont Font10 = Fonts.Arial10;
-        private readonly SpriteFont Font8  = Fonts.Arial8Bold;
-        private SpriteFont Font;
-        private SpriteFont FontBig;
+        private readonly Graphics.Font Font14 = Fonts.Arial14Bold;
+        private readonly Graphics.Font Font12 = Fonts.Arial12Bold;
+        private readonly Graphics.Font Font10 = Fonts.Arial10;
+        private readonly Graphics.Font Font8  = Fonts.Arial8Bold;
+        private Graphics.Font Font;
+        private Graphics.Font FontBig;
         private bool OverrideCivBudget, OverrideGrdBudget, OverrideSpcBudget;
 
         Rectangle CivBudgetRect;

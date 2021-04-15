@@ -9,7 +9,7 @@ namespace Ship_Game
 
     public sealed class UICheckBox : UIElementV2
     {
-        readonly SpriteFont Font;
+        readonly Graphics.Font Font;
         readonly LocalizedText Text;
         readonly LocalizedText Tooltip;
         Ref<bool> Binding;
@@ -23,7 +23,7 @@ namespace Ship_Game
         public bool Checked => Binding.Value;
         public override string ToString() => $"{TypeName} {ElementDescr} Text={Text} Checked={Checked}";
 
-        public UICheckBox(float x, float y, Ref<bool> binding, SpriteFont font,
+        public UICheckBox(float x, float y, Ref<bool> binding, Graphics.Font font,
                           in LocalizedText title, in LocalizedText tooltip)
         {
             Pos = new Vector2(x, y);
@@ -34,7 +34,7 @@ namespace Ship_Game
             PerformLayout();
         }
 
-        public UICheckBox(BoolExpression binding, SpriteFont font,
+        public UICheckBox(BoolExpression binding, Graphics.Font font,
                           in LocalizedText title, in LocalizedText tooltip)
         {
             Binding = new Ref<bool>(binding);
@@ -44,13 +44,13 @@ namespace Ship_Game
             PerformLayout();
         }
 
-        public UICheckBox(float x, float y, BoolExpression binding, SpriteFont font,
+        public UICheckBox(float x, float y, BoolExpression binding, Graphics.Font font,
                           in LocalizedText title, in LocalizedText tooltip)
             : this(x, y, new Ref<bool>(binding), font, title, tooltip)
         {
         }
 
-        public UICheckBox(float x, float y, Func<bool> getter, Action<bool> setter, SpriteFont font,
+        public UICheckBox(float x, float y, Func<bool> getter, Action<bool> setter, Graphics.Font font,
                           in LocalizedText title, in LocalizedText tooltip)
             : this(x, y, new Ref<bool>(getter, setter), font, title, tooltip)
         {

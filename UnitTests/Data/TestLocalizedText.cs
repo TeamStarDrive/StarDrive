@@ -69,44 +69,58 @@ namespace UnitTests.Data
             Assert.AreEqual("Parsed: Nueva partida Cargar partida ", parsed2.Text);
         }
 
-        void ParseAllText(string[] tokens)
+        Array<string> GetTextErrors(string[] tokens)
         {
-            var fonts = new Map<string, SpriteFont>();
-            fonts.Add("Arial12", Fonts.Arial12);
-            fonts.Add("Arial12Bold", Fonts.Arial12Bold);
-
+            var errors = new Array<string>();
+            var fonts = new []
+            {
+                Fonts.Arial8Bold,
+                Fonts.Arial10,
+                Fonts.Arial11Bold,
+                Fonts.Arial12,
+                Fonts.Arial12Bold,
+                Fonts.Arial14Bold,
+                Fonts.Arial20Bold,
+                Fonts.Consolas18,
+                Fonts.Arial20Bold,
+                Fonts.Laserian14,
+            };
             foreach (var font in fonts)
             {
                 foreach (string text in tokens)
                 {
                     try
                     {
-                        font.Value.MeasureString(text);
+                        font.MeasureString(text);
                     }
                     catch (Exception e)
                     {
-                        throw new Exception($"MeasureString failed Font={font.Key} Text={text} Error={e.Message}");
+                        errors.Add($"MeasureString failed Font={font.Name} Text={text} Error={e.Message}");
+                        break;
                     }
                 }
             }
+            return errors;
         }
 
         [TestMethod]
         public void EnsureRussianTextIsDrawable()
         {
-            Fonts.LoadFonts(ResourceManager.RootContent);
             ResourceManager.LoadLanguage(Language.Russian);
-            string[] tokens = Localizer.EnumerateTokens().ToArray();
-            ParseAllText(tokens);
+            Fonts.LoadFonts(ResourceManager.RootContent, Language.Russian);
+            var err = GetTextErrors(Localizer.EnumerateTokens().ToArray());
+            if (err.NotEmpty)
+                Assert.Fail(string.Join("\n", err));
         }
 
         [TestMethod]
         public void EnsureSpanishTextIsDrawable()
         {
-            Fonts.LoadFonts(ResourceManager.RootContent);
             ResourceManager.LoadLanguage(Language.Spanish);
-            string[] tokens = Localizer.EnumerateTokens().ToArray();
-            ParseAllText(tokens);
+            Fonts.LoadFonts(ResourceManager.RootContent, Language.Spanish);
+            var err = GetTextErrors(Localizer.EnumerateTokens().ToArray());
+            if (err.NotEmpty)
+                Assert.Fail(string.Join("\n", err));
         }
 
         [TestMethod]

@@ -8,7 +8,7 @@ namespace Ship_Game.Debug
     {
         Vector2 TextCursor = Vector2.Zero;
         Color TextColor = Color.White;
-        SpriteFont TextFont = Fonts.Arial12Bold;
+        Graphics.Font TextFont = Fonts.Arial12Bold;
         Array<UILabel> DebugText;
 
         void HideAllDebugGameInfo()

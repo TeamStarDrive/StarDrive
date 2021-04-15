@@ -37,8 +37,8 @@ namespace Ship_Game
         readonly bool IsCombat;  //fbedard
         public bool Selected = false;  //fbedard: for multi-select
         private readonly string SystemName;
-        private readonly SpriteFont Font12 = Fonts.Arial12Bold;
-        private readonly SpriteFont Font8  = Fonts.Arial8Bold;
+        private readonly Graphics.Font Font12 = Fonts.Arial12Bold;
+        private readonly Graphics.Font Font8  = Fonts.Arial8Bold;
 
         public ShipListScreenItem(Ship s, int x, int y, int width1, int height, ShipListScreen caller)
         {
@@ -121,7 +121,7 @@ namespace Ship_Game
             batch.DrawString(Font12, Localizer.GetRole(Ship.shipData.Role, Ship.loyalty), rolePos, textColor);
 
             string fleetName     = Ship.fleet?.Name ?? "";
-            SpriteFont fleetFont = Font12.MeasureString(fleetName).X > FleetRect.Width - 5 ? Font8 : Font12;
+            Graphics.Font fleetFont = Font12.MeasureString(fleetName).X > FleetRect.Width - 5 ? Font8 : Font12;
             var fleetPos = new Vector2(FleetRect.X + FleetRect.Width / 2 - fleetFont.MeasureString(fleetName).X / 2f, FleetRect.Y + FleetRect.Height / 2 - fleetFont.LineSpacing / 2);
             HelperFunctions.ClampVectorToInt(ref fleetPos);
             batch.DrawString(fleetFont, fleetName, fleetPos, textColor);

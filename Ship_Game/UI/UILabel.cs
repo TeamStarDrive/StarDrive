@@ -36,7 +36,7 @@ namespace Ship_Game
         LocalizedText LabelText; // Localized Simple Text
         Array<string> Lines; // Multi-Line Text
         Func<UILabel, string> GetText; // Dynamic Text Binding
-        SpriteFont LabelFont;
+        Graphics.Font LabelFont;
         string CachedText;
         Vector2 ActualLineSize;
 
@@ -105,7 +105,7 @@ namespace Ship_Game
         }
 
         // Allows to override the default font of the UI Label after creation
-        public SpriteFont Font
+        public Graphics.Font Font
         {
             get => LabelFont;
             set
@@ -129,7 +129,7 @@ namespace Ship_Game
 
         public override string ToString() => $"{TypeName} {ElementDescr} Text={Text}";
         
-        public UILabel(SpriteFont font)
+        public UILabel(Graphics.Font font)
         {
             LabelFont = font;
             Size = new Vector2(font.LineSpacing); // give it a mock size to ease debugging
@@ -144,18 +144,18 @@ namespace Ship_Game
         {
             Color = color;
         }
-        public UILabel(Vector2 pos, in LocalizedText text, SpriteFont font) : base(pos)
+        public UILabel(Vector2 pos, in LocalizedText text, Graphics.Font font) : base(pos)
         {
             LabelFont = font;
             LabelText = text;
             UpdateSizeFromText(text.Text);
         }
-        public UILabel(Vector2 pos, in LocalizedText text, SpriteFont font, Color color)
+        public UILabel(Vector2 pos, in LocalizedText text, Graphics.Font font, Color color)
             : this(pos, text, font)
         {
             Color = color;
         }
-        public UILabel(in Rectangle rect, in LocalizedText text, SpriteFont font, Color color)
+        public UILabel(in Rectangle rect, in LocalizedText text, Graphics.Font font, Color color)
         {
             LabelFont = font;
             LabelText = text;
@@ -172,10 +172,10 @@ namespace Ship_Game
         public UILabel(in LocalizedText text, Color color) : this(text, Fonts.Arial12Bold, color)
         {
         }
-        public UILabel(in LocalizedText text, SpriteFont font) : this(text, font, Color.White)
+        public UILabel(in LocalizedText text, Graphics.Font font) : this(text, font, Color.White)
         {
         }
-        public UILabel(in LocalizedText text, SpriteFont font, Color color)
+        public UILabel(in LocalizedText text, Graphics.Font font, Color color)
         {
             LabelFont = font;
             Text = text; // NOTE: triggers UpdateSizeFromText 
@@ -189,7 +189,7 @@ namespace Ship_Game
         {
             OnClick = onClick;
         }
-        public UILabel(Func<UILabel, string> getText, SpriteFont font)
+        public UILabel(Func<UILabel, string> getText, Graphics.Font font)
         {
             LabelFont = font;
             DynamicText = getText;

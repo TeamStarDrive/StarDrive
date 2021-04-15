@@ -347,16 +347,16 @@ namespace Ship_Game
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
         public UILabel Label(Vector2 pos, in LocalizedText text) => Add(new UILabel(pos, text));
-        public UILabel Label(Vector2 pos, in LocalizedText text, SpriteFont font) => Add(new UILabel(pos, text, font));
-        public UILabel Label(Vector2 pos, in LocalizedText text, SpriteFont font, Color color) => Add(new UILabel(pos, text, font,color));
+        public UILabel Label(Vector2 pos, in LocalizedText text, Graphics.Font font) => Add(new UILabel(pos, text, font));
+        public UILabel Label(Vector2 pos, in LocalizedText text, Graphics.Font font, Color color) => Add(new UILabel(pos, text, font,color));
 
         public UILabel Label(float x, float y, in LocalizedText text) => Label(new Vector2(x, y), text);
-        public UILabel Label(float x, float y, in LocalizedText text, SpriteFont font) => Label(new Vector2(x, y), text, font);
+        public UILabel Label(float x, float y, in LocalizedText text, Graphics.Font font) => Label(new Vector2(x, y), text, font);
 
-        public UILabel LabelRel(in LocalizedText text, SpriteFont font, float x, float y)
+        public UILabel LabelRel(in LocalizedText text, Graphics.Font font, float x, float y)
             => LabelRel(text, font, Color.White, x, y);
 
-        public UILabel LabelRel(in LocalizedText text, SpriteFont font, Color color, float x, float y)
+        public UILabel LabelRel(in LocalizedText text, Graphics.Font font, Color color, float x, float y)
         {
             UILabel label = Add(new UILabel(text, font, color));
             label.SetRelPos(x, y);

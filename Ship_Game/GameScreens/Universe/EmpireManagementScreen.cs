@@ -23,7 +23,7 @@ namespace Ship_Game
 
         private readonly Color Cream           = Colors.Cream;
         private readonly Color White           = Color.White;
-        private readonly SpriteFont NormalFont = Fonts.Arial20Bold;
+        private readonly Graphics.Font NormalFont = Fonts.Arial20Bold;
 
         public Planet SelectedPlanet { get; private set; }
         
