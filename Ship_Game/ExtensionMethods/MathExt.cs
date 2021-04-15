@@ -210,7 +210,7 @@ namespace Ship_Game
         public static float CenterTextX(this Rectangle r, string text)
             => r.X + r.Width/2f - Fonts.Arial12Bold.MeasureString(text).X/2f;
 
-        public static float CenterTextX(this Rectangle r, string text, SpriteFont font)
+        public static float CenterTextX(this Rectangle r, string text, Graphics.Font font)
             => r.X + r.Width / 2f - font.MeasureString(text).X / 2f;
 
 

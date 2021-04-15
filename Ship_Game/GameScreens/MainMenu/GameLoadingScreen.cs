@@ -17,7 +17,7 @@ namespace Ship_Game
         TaskResult LoadResult;
         readonly bool ShowSplash;
         readonly bool ResetResources;
-        SpriteFont StatusFont;
+        Graphics.Font StatusFont;
 
         public GameLoadingScreen(bool showSplash, bool resetResources) : base(null/*no parent*/)
         {

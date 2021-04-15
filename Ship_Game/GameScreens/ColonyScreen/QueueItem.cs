@@ -89,7 +89,7 @@ namespace Ship_Game
 
             if (Rush)
             {
-                SpriteFont font = lowRes ? Fonts.Arial8Bold : Fonts.Arial10;
+                Graphics.Font font = lowRes ? Fonts.Arial8Bold : Fonts.Arial10;
                 batch.DrawString(font, "Continuous Rush", rushCursor, Color.IndianRed);
             }
         }

@@ -36,7 +36,7 @@ namespace Ship_Game
         Rectangle VL;
         Rectangle VR;
         Rectangle TL;
-        readonly SpriteFont Font = Fonts.Pirulen12;
+        readonly Graphics.Font Font = Fonts.Pirulen12;
         readonly SubmenuStyle Style;
 
         // If set, draws a background element before the Submenu itself is drawn

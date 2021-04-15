@@ -49,11 +49,11 @@ namespace Ship_Game
         int EditHoverState;
 
         Rectangle EditNameButton;
-        readonly SpriteFont Font8  = Fonts.Arial8Bold;
-        readonly SpriteFont Font12 = Fonts.Arial12Bold;
-        readonly SpriteFont Font14 = Fonts.Arial14Bold;
-        readonly SpriteFont Font20 = Fonts.Arial20Bold;
-        readonly SpriteFont TextFont;
+        readonly Graphics.Font Font8  = Fonts.Arial8Bold;
+        readonly Graphics.Font Font12 = Fonts.Arial12Bold;
+        readonly Graphics.Font Font14 = Fonts.Arial14Bold;
+        readonly Graphics.Font Font20 = Fonts.Arial20Bold;
+        readonly Graphics.Font TextFont;
         public readonly Empire Player = EmpireManager.Player;
 
         public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI, int governorTabSelected = 0) : base(parent)

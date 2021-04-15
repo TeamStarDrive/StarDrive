@@ -8,7 +8,7 @@ namespace Ship_Game
     {
         private readonly Menu2 Window;
         private readonly Color Cream = Colors.Cream;
-        private readonly SpriteFont LargeFont = Fonts.Arial20Bold;
+        private readonly Graphics.Font LargeFont = Fonts.Arial20Bold;
         readonly ScrollList2<SearchTechItem> TechList;
         readonly UITextEntry SearchTech;
         readonly ResearchScreenNew Screen;

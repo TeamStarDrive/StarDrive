@@ -25,7 +25,7 @@ namespace Ship_Game
     [StarDataType]
     public class LangToken
     {
-        public string NameId;
+        [StarDataKeyName] public string NameId;
         [StarData] public int Id;
         [StarData] public string ENG;
         [StarData] public string RUS;
@@ -47,6 +47,8 @@ namespace Ship_Game
         public static string Trade => Token(GameText.Trade);
         public static string GovernorBudget => Token(GameText.GovernorBudget);
         public static string TreasuryGoal => Token(GameText.TreasuryGoal);
+
+        public static Language Language { get; private set; }
 
         static string[] Strings = Empty<string>.Array;
         static Map<string, string> NameIdToString = new Map<string, string>();
@@ -94,8 +96,10 @@ namespace Ship_Game
         }
 
         // add extra localization tokens to the localizer
-        public static void AddTokens(Array<Token> tokens)
+        public static void AddTokens(Array<Token> tokens, Language language)
         {
+            Language = language;
+
             // Index entries aren't guaranteed to be ordered properly (due to messy mods)
             int limit = tokens.Max(t => t.Index);
 
@@ -113,15 +117,8 @@ namespace Ship_Game
 
         public static void AddFromYaml(FileInfo file, Language language)
         {
-            var tokens = new Array<LangToken>();
-            using (var parser = new YamlParser(file))
-            {
-                foreach (KeyValuePair<object, LangToken> kv in parser.DeserializeMap<LangToken>())
-                {
-                    kv.Value.NameId = (string)kv.Key;
-                    tokens.Add(kv.Value);
-                }
-            }
+            Language = language;
+            Array<LangToken> tokens = YamlParser.DeserializeArray<LangToken>(file);
             
             // Index entries aren't guaranteed to be ordered properly (due to messy mods)
             int limit = tokens.Max(t => t.Id);
@@ -133,13 +130,11 @@ namespace Ship_Game
             for (int i = 0; i < tokens.Count; ++i)
             {
                 LangToken t = tokens[i];
-                string text;
+                string text = t.ENG;
                 switch (language)
                 {
-                    default:
-                    case Language.English: text = t.ENG; break;
-                    case Language.Russian: text = t.RUS; break;
-                    case Language.Spanish: text = t.SPA; break;
+                    case Language.Russian: text = t.RUS.NotEmpty() ? t.RUS : t.ENG; break;
+                    case Language.Spanish: text = t.SPA.NotEmpty() ? t.SPA : t.ENG; break;
                 }
                 
                 // if this ID already exist, overwrite by using new text

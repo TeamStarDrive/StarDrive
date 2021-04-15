@@ -164,7 +164,7 @@ namespace Ship_Game.Ships
             GridButton.Draw(batch, elapsed);
             var namePos           = new Vector2(Housing.X + 30, Housing.Y + 63);
             string name           = (!string.IsNullOrEmpty(Ship.VanityName) ? Ship.VanityName : Ship.Name);
-            SpriteFont titleFont  = Fonts.Arial14Bold;
+            Graphics.Font titleFont  = Fonts.Arial14Bold;
             Vector2 shipSuperName = new Vector2(Housing.X + 30, Housing.Y + 79);
             if (Fonts.Arial14Bold.MeasureString(name).X > 180f)
             {
@@ -364,7 +364,7 @@ namespace Ship_Game.Ships
                 return;
 
             string text     = "Inhibited";
-            SpriteFont font = Fonts.Arial20Bold;
+            Graphics.Font font = Fonts.Arial20Bold;
             var rect        = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y - 24,
                         (int)font.MeasureString(text).X, (int)font.MeasureString(text).Y);
 

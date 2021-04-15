@@ -36,7 +36,7 @@ namespace Ship_Game
         public string HotKey;
         public string ClickSfx = "echo_affirm";
 
-        public SpriteFont Font = Fonts.Arial12Bold;
+        public Graphics.Font Font = Fonts.Arial12Bold;
 
         // If set TRUE, this button will also capture Right Mouse Clicks
         public bool AcceptRightClicks;
@@ -165,7 +165,7 @@ namespace Ship_Game
 
             if (text != null)
             {
-                SpriteFont font = Font;
+                Graphics.Font font = Font;
                 Vector2 textCursor;
                 if (TextAlign == ButtonTextAlign.Center)
                     textCursor.X = r.X + r.Width / 2 - font.MeasureString(text).X / 2f;
