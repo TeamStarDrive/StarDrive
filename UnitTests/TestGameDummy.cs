@@ -96,7 +96,7 @@ namespace UnitTests
             if (component != null)
                 AddComponent(component);
             if (screen != null)
-                ScreenManager.AddScreenImmediate(screen);
+                ScreenManager.AddScreenAndLoadContent(screen);
 
             Visible = true;
             while (Visible)

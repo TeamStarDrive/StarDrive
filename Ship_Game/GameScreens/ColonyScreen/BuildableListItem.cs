@@ -58,8 +58,8 @@ namespace Ship_Game
             if (Ship != null)
             {
                 var sdScreen = new ShipDesignScreen(Empire.Universe, Screen.Eui);
-                Screen.ScreenManager.AddScreenImmediate(sdScreen);
-                sdScreen.ChangeHull(Ship.shipData);
+                sdScreen.OnLoaded = () => { sdScreen.ChangeHull(Ship.shipData); };
+                Screen.ScreenManager.AddScreen(sdScreen);
             }
         }
 

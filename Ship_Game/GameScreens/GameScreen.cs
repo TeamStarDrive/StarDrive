@@ -60,8 +60,12 @@ namespace Ship_Game
         public Vector2 ScreenCenter => GameBase.ScreenCenter;
         bool Pauses = true;
 
+        // event called right after the screen has been loaded
+        public Action OnLoaded;
+
         // multi cast exit delegate, called when a game screen is exiting
         public event Action OnExit;
+
         public bool IsDisposed { get; private set; }
 
         // This should be used for content that gets unloaded once this GameScreen disappears
@@ -161,23 +165,30 @@ namespace Ship_Game
             Enabled = Visible = false;
             ScreenState = ScreenState.Hidden;
         }
+        
+        // NOTE: Optionally implemented by GameScreens to create their screen content
+        //       This is also called when the screen is being reloaded
+        public virtual void LoadContent() { }
 
-        public virtual void ReloadContent()
+        // Wrapper: should only be called by ScreenManager
+        public void InvokeLoadContent()
         {
-            UnloadContent();
             LoadContent();
-        }
-
-        public virtual void LoadContent()
-        {
             DidLoadContent = true;
             PerformLayout();
+            OnLoaded?.Invoke();
         }
 
         public virtual void UnloadContent()
         {
             TransientContent?.Unload();
             Elements.Clear();
+        }
+        
+        public virtual void ReloadContent()
+        {
+            UnloadContent();
+            InvokeLoadContent();
         }
 
         public override bool HandleInput(InputState input)
