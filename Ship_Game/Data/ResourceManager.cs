@@ -77,6 +77,9 @@ namespace Ship_Game
 
         public static SubTexture Blank;
 
+        // This 1x1 White pixel texture is used for drawing Lines and other primitives
+        public static Texture2D WhitePixel;
+
         /// <summary>
         /// This is where core game content is found. NOT Mod content.
         /// Ex: "C:/Projects/BlackBox/stardrive/Content/"
@@ -196,6 +199,7 @@ namespace Ship_Game
                 GlobalStats.ClearActiveMod();
 
             InitContentDir();
+            CreateCoreGfxResources();
             Log.Write($"Load {(GlobalStats.HasMod ? ModContentDirectory : "Vanilla")}");
 
             BeginPerfProfile();
@@ -285,13 +289,14 @@ namespace Ship_Game
             FlagTextures = null;
             JunkModels.Clear();
             AsteroidModels.Clear();
-            ProjTextDict.Clear();
+            ProjTextDict.ClearAndDispose();
             ProjectileModelDict.Clear();
             ProjectileMeshDict.Clear();
             SunType.Unload();
             ShieldManager.UnloadContent();
             Beam.BeamEffect = null;
             BackgroundItem.QuadEffect?.Dispose(ref BackgroundItem.QuadEffect);
+            WhitePixel.Dispose(ref WhitePixel);
 
             // Texture caches MUST be cleared before triggering content reload!
             Textures.Clear();
@@ -646,6 +651,12 @@ namespace Ship_Game
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////
+
+        static void CreateCoreGfxResources()
+        {
+            WhitePixel = new Texture2D(RootContent.Device, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
+            WhitePixel.SetData(new Color[]{ Color.White });
+        }
 
         // Load texture with its abstract path such as
         // "Explosions/smaller/shipExplosion"
