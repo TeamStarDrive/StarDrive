@@ -389,7 +389,6 @@ namespace Ship_Game
             HullsListMenu hullsList = Add(new HullsListMenu(this));
             hullsList.OnHullChange = OnExistingHullClicked;
 
-            PrimitiveQuad.Device = ScreenManager.GraphicsDevice;
             aspect = new Vector2(screenWidth, screenHeight);
             border = new PrimitiveQuad(aspect.X / 2f - 512f, aspect.Y / 2f - 512f, 1024f, 1024f);
             what = border.Rect;

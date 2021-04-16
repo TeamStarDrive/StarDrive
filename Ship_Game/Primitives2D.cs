@@ -9,8 +9,6 @@ namespace Ship_Game
 
     public static class Primitives2D
     {
-        static Texture2D Pixel;
-
         public static void BracketRectangle(this SpriteBatch batch, Rectangle rect, Color color, int bracketSize)
         {
             float x = rect.X;
@@ -39,12 +37,6 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture("UI/bracket_TL"), tl, color);
             batch.Draw(ResourceManager.Texture("UI/bracket_BR"), br, color);
             batch.Draw(ResourceManager.Texture("UI/bracket_BL"), bl, color);
-        }
-
-        static void CreateThePixel(SpriteBatch spriteBatch)
-        {
-            Pixel = new Texture2D(spriteBatch.GraphicsDevice, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
-            Pixel.SetData(new []{ Color.White });
         }
 
         public static bool IsIntersectingScreen(in Vector2 a, in Vector2 b)
@@ -129,12 +121,9 @@ namespace Ship_Game
 
         static void DrawLine(this SpriteBatch batch, Vector2 point, float length, float angle, Color color, float thickness)
         {
-            if (Pixel == null)
-                CreateThePixel(batch);
-
             // some hack here - the 1px texture is rotated and scaled to proper width/height
             var scale = new Vector2(length, thickness);
-            batch.Draw(Pixel, point, null, color, angle, Vector2.Zero, scale, SpriteEffects.None, 0f);
+            batch.Draw(ResourceManager.WhitePixel, point, null, color, angle, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }
 
         public static void DrawRectangle(this SpriteBatch batch, in Rectangle rect, Color color, float thickness = 1f)
@@ -243,18 +232,12 @@ namespace Ship_Game
 
         public static void FillRectangle(this SpriteBatch batch, Rectangle rect, Color color)
         {
-            if (Pixel == null)
-                CreateThePixel(batch);
-
-            batch.Draw(Pixel, rect, color);
+            batch.Draw(ResourceManager.WhitePixel, rect, color);
         }
 
         public static void FillRectangle(this SpriteBatch batch, Vector2 location, Vector2 size, Color color, float angle)
         {
-            if (Pixel == null)
-                CreateThePixel(batch);
-
-            batch.Draw(Pixel, location, null, color, angle, Vector2.Zero, size, SpriteEffects.None, 0f);
+            batch.Draw(ResourceManager.WhitePixel, location, null, color, angle, Vector2.Zero, size, SpriteEffects.None, 0f);
         }
     }
 }
