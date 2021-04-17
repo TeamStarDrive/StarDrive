@@ -115,7 +115,7 @@ namespace Ship_Game
         // Dev Options
         public static bool RestrictAIPlayerInteraction;
         public static bool DisableAIEmpires;
-        public static bool EnableSaveExportButton;
+        public static bool EnableSaveExportButton = true;
 
         ////////////////////////////////
         // From old Config
