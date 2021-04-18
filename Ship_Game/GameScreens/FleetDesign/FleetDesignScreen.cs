@@ -194,6 +194,7 @@ namespace Ship_Game
 
             var ordersBarPos = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 65);
             OrdersButtons = new StanceButtons(this, ordersBarPos);
+            OrdersButtons.LoadContent();
             //void AddOrdersBtn(CombatState state, string icon, LocalizedText toolTip)
             //{
             //    var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon)
