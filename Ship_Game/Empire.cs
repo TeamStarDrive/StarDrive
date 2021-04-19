@@ -3727,8 +3727,6 @@ namespace Ship_Game
             {
                 rel.RestoreWarsFromSave();
             }
-
-            EmpireAI.EmpireDefense?.RestoreFromSave(true);
         }
 
         public void Dispose()

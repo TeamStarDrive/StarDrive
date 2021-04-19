@@ -560,20 +560,6 @@ namespace Ship_Game.AI.Tasks
                             }
                         break;
                     }
-                case TaskType.DefendSystem:
-                    {
-                        if      (Step == 0) RequisitionDefenseForce();
-                        else if (Step == 1)
-                        {
-                            if (Owner.GetFleetsDict().ContainsKey(WhichFleet))
-                            {
-                                if (Owner.GetFleetsDict()[WhichFleet].Ships.Count != 0)
-                                    break;
-                            }
-                            EndTask();
-                        }
-                        break;
-                    }
                 case TaskType.DefendClaim:
                     {
                         switch (Step)
@@ -879,7 +865,6 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.GlassPlanet:
                 case TaskType.CorsairRaid:        taskCat |= TaskCategory.War; break;
                 case TaskType.AssaultPirateBase:
-                case TaskType.DefendSystem:
                 case TaskType.CohesiveClearAreaOfEnemies:
                 case TaskType.Patrol:
                 case TaskType.DefendVsRemnants:
