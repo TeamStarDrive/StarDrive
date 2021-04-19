@@ -305,7 +305,6 @@ namespace Ship_Game
 
             foreach (Empire empire in Empires)
             { 
-                empire.GetEmpireAI().EmpireDefense = empire.GetEmpireAI().EmpireDefense ?? War.CreateInstance(empire, empire, WarType.EmpireDefense);
                 empire.RestoreUnserializableDataFromSave();
                 empire.InitEmpireEconomy();
                 empire.Pool.UpdatePools();

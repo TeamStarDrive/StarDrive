@@ -52,14 +52,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             {
                 Remove = false;
                 SetupRallyPoint();
-                if (CampaignsWanted.Contains(Campaign.CampaignType.SystemDefense))
-                {
-                    Pins = Us.GetEmpireAI().ThreatMatrix.GetEnemyPinsInAO(TheaterAO, Us).ToArray();
-                }
-
                 CreateWantedCampaigns();
                 RemoveUnwantedCampaigns();
-
 
                 for (int i = 0; i < Campaigns.Count; i++)
                 {

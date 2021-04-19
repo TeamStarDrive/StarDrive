@@ -244,8 +244,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Ship_Game\Commands\Goals\AssaultBombers.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\DefendSystem.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\EmpireDefense.cs" />
     <Compile Include="Ship_Game\Commands\Goals\ScoutSystem.cs" />
     <Compile Include="Ship_Game\Debug\Page\StoryAndEventsDebug.cs" />
+    <Compile Include="Ship_Game\Empire_War.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenDraw_DrawHelpers.cs" />
     <Compile Include="Ship_Game\Graphics\Font.cs" />
     <Compile Include="Ship_Game\SearchTechItem.cs" />

@@ -1,6 +1,7 @@
 using Ship_Game.Gameplay;
 using System.Linq;
 using Ship_Game.AI.StrategyAI.WarGoals;
+using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.DiplomacyScreen;
 
 // ReSharper disable once CheckNamespace
@@ -8,12 +9,12 @@ namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
-        public War EmpireDefense;
         public float TotalWarValue { get; private set; }
         public float WarStrength = 0;
         public float MinWarPriority { get; private set; }
         public WarTasks WarTasks { get; private set; }
         private bool SkipFirstRun = true;
+
         public void SetTotalWarValue()
         {
             float value = 0;
@@ -275,12 +276,9 @@ namespace Ship_Game.AI
         {
             if (OwnerEmpire.isPlayer || OwnerEmpire.isFaction) 
                 return;
-            if (EmpireDefense == null)
-            {
-                var newWar = War.CreateInstance(OwnerEmpire, OwnerEmpire, WarType.EmpireDefense);
-                EmpireDefense = newWar;
-            }
-            EmpireDefense.ConductWar();
+
+            if (OwnerEmpire.NoEmpireDefenseGoal())
+                OwnerEmpire.GetEmpireAI().Goals.Add(new EmpireDefense(OwnerEmpire));
         }
 
         private void RunWarPlanner()

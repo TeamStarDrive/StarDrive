@@ -204,6 +204,11 @@ namespace Ship_Game.AI
             return tasks.ToArray();
         }
 
+        public MilitaryTask[] GetDefendSystemTasks()
+        {
+            return TaskList.Filter(t => t.type == MilitaryTask.TaskType.ClearAreaOfEnemies);
+        }
+
         public int GetNumClaimTasks()
         {
             return TaskList.Filter(t => t.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.Expansion)).Length;
