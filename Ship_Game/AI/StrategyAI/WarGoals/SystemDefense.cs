@@ -4,6 +4,7 @@ using Ship_Game.Empires.DataPackets;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
+    /*
     public sealed class SystemDefense : AttackShips
     {
         /// <summary>
@@ -118,5 +119,5 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             return defenseValue.GreaterOrEqual(possibleValue);
         }
-    }
+    }*/
 }

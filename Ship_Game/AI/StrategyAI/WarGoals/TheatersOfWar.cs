@@ -193,7 +193,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     break;
                 case WarType.EmpireDefense:
                     campaignTypes.AddUnique(Campaign.CampaignType.Defense);
-                    campaignTypes.AddUnique(Campaign.CampaignType.SystemDefense);
                     aos                = CreateDefensiveAO();
                     replaceExistingAOs = true;
                     break;

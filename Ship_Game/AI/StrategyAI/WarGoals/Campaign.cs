@@ -22,9 +22,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Destroy,
             Blockade,
             Feint,
-            Attrition,
-            SystemDefense
-
+            Attrition
         }
         
         public CampaignType Type;
@@ -98,7 +96,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 case CampaignType.CaptureBorder: return new CaptureBorderPlanets(campaignType, theater);
                 case CampaignType.CaptureAll:    return new CaptureAllPlanets(campaignType, theater);
                 case CampaignType.Defense:       return new Defense(campaignType, theater);
-                case CampaignType.SystemDefense: return new SystemDefense(campaignType, theater);
             }
             return null;
         }
@@ -129,8 +126,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     break;
                 case CampaignType.Attrition:
                     break;
-                case CampaignType.SystemDefense:
-                    return new SystemDefense(campaign, theater);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

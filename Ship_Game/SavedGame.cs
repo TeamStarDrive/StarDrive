@@ -168,7 +168,6 @@ namespace Ship_Game
                 empireToSave.AverageFreighterFTLSpeed  = e.AverageFreighterFTLSpeed;
                 empireToSave.ExpandSearchTimer         = e.GetEmpireAI().ExpansionAI.ExpandSearchTimer;
                 empireToSave.MaxSystemsToCheckedDiv    = e.GetEmpireAI().ExpansionAI.MaxSystemsToCheckedDiv;
-                empireToSave.EmpireDefense             = e.GetEmpireAI().EmpireDefense;
                 empireToSave.WeightedCenter            = e.WeightedCenter;
                 empireToSave.RushAllConstruction       = e.RushAllConstruction;
                 empireToSave.FleetStrEmpireModifier    = e.FleetStrEmpireMultiplier;
@@ -282,6 +281,7 @@ namespace Ship_Game
                     if (g.FinishedShip != null)       gdata.colonyShipGuid            = g.FinishedShip.guid;
                     if (g.ColonizationTarget != null) gdata.markedPlanetGuid          = g.ColonizationTarget.guid;
                     if (g.PlanetBuildingAt != null)   gdata.planetWhereBuildingAtGuid = g.PlanetBuildingAt.guid;
+                    if (g.TargetSystem != null)       gdata.TargetSystemGuid          = g.TargetSystem.guid;
                     if (g.Fleet != null)              gdata.fleetGuid                 = g.Fleet.Guid;
                     if (g.ShipToBuild != null)        gdata.beingBuiltGUID            = g.ShipToBuild.guid;
                     if (g.OldShip != null)            gdata.OldShipGuid               = g.OldShip.guid;
@@ -602,24 +602,23 @@ namespace Ship_Game
             [Serialize(25)] public Array<float> NormalizedMoney;
             [Serialize(26)] public int ExpandSearchTimer;
             [Serialize(27)] public int MaxSystemsToCheckedDiv;
-            [Serialize(28)] public AI.StrategyAI.WarGoals.War EmpireDefense;
-            [Serialize(29)] public int AverageFreighterFTLSpeed;
-            [Serialize(30)] public Vector2 WeightedCenter;
-            [Serialize(31)] public bool RushAllConstruction;
-            [Serialize(32)] public float RemnantStoryTriggerKillsXp;
-            [Serialize(33)] public bool RemnantStoryActivated;
-            [Serialize(34)] public int RemnantStoryType;
-            [Serialize(35)] public float RemnantProduction;
-            [Serialize(36)] public int RemnantLevel;
-            [Serialize(37)] public int RemnantStoryStep;
-            [Serialize(38)] public float RemnantPlayerStepTriggerXp;
-            [Serialize(39)] public bool OnlyRemnantLeft;
-            [Serialize(40)] public float RemnantNextLevelUpDate;
-            [Serialize(41)] public int RemnantHibernationTurns;
-            [Serialize(42)] public float RemnantActivationXpNeeded;
-            [Serialize(43)] public Map<int, float> FleetStrEmpireModifier;
-            [Serialize(44)] public List<KeyValuePair<int, string>> DiplomacyContactQueue;
-            [Serialize(45)] public Array<string> ObsoletePlayerShipModules;
+            [Serialize(28)] public int AverageFreighterFTLSpeed;
+            [Serialize(29)] public Vector2 WeightedCenter;
+            [Serialize(30)] public bool RushAllConstruction;
+            [Serialize(31)] public float RemnantStoryTriggerKillsXp;
+            [Serialize(32)] public bool RemnantStoryActivated;
+            [Serialize(33)] public int RemnantStoryType;
+            [Serialize(34)] public float RemnantProduction;
+            [Serialize(35)] public int RemnantLevel;
+            [Serialize(36)] public int RemnantStoryStep;
+            [Serialize(37)] public float RemnantPlayerStepTriggerXp;
+            [Serialize(38)] public bool OnlyRemnantLeft;
+            [Serialize(39)] public float RemnantNextLevelUpDate;
+            [Serialize(40)] public int RemnantHibernationTurns;
+            [Serialize(41)] public float RemnantActivationXpNeeded;
+            [Serialize(42)] public Map<int, float> FleetStrEmpireModifier;
+            [Serialize(43)] public List<KeyValuePair<int, string>> DiplomacyContactQueue;
+            [Serialize(44)] public Array<string> ObsoletePlayerShipModules;
         }
 
         public class FleetSave
@@ -667,6 +666,7 @@ namespace Ship_Game
             [Serialize(16)] public Guid TargetShipGuid;
             [Serialize(17)] public int TargetEmpireId;
             [Serialize(18)] public float StarDateAdded;
+            [Serialize(19)] public Guid TargetSystemGuid;
         }
 
         public class GSAISAVE

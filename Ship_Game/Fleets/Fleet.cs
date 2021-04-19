@@ -594,7 +594,6 @@ namespace Ship_Game.Fleets
                 case MilitaryTask.TaskType.ClearAreaOfEnemies:         DoClearAreaOfEnemies(FleetTask);         break;
                 case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: DoCohesiveClearAreaOfEnemies(FleetTask); break;
                 case MilitaryTask.TaskType.Exploration:                DoExplorePlanet(FleetTask);              break;
-                case MilitaryTask.TaskType.DefendSystem:               DoDefendSystem(FleetTask);               break;
                 case MilitaryTask.TaskType.DefendClaim:                DoClaimDefense(FleetTask);               break;
                 case MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(FleetTask);        break;
                 case MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(FleetTask);                break;
@@ -938,46 +937,6 @@ namespace Ship_Game.Fleets
         {
             var planets = enemy.GetPlanets();
             return planets.Count == 0 ? null : planets.FindMin(p => p.Center.Distance(system.Position));
-        }
-
-        void DoDefendSystem(MilitaryTask task)
-        {
-            // this is currently unused. the system needs to be created with a defensive fleet.
-            // no defensive fleets are created during the game. yet...
-            switch (TaskStep)
-            {
-                case -1:
-                    FleetTaskGatherAtRally(task);
-                    SetAllShipsPriorityOrder();
-                    break;
-                case 0:
-                    if (FleetTaskGatherAtRally(task))
-                        TaskStep = 1;
-
-                    break;
-                case 1:
-                    if (!ArrivedAtOffsetRally(task))
-                        break;
-                    GatherAtAO(task, distanceFromAO: 125000f);
-                    TaskStep = 2;
-                    SetAllShipsPriorityOrder();
-                    break;
-                case 2:
-                    if (ArrivedAtOffsetRally(task))
-                        TaskStep = 3;
-                    break;
-                case 3:
-                    if (!AttackEnemyStrengthClumpsInAO(task))
-                        DoOrbitTaskArea(task);
-                    TaskStep = 4;
-                    break;
-                case 4:
-                    if (EndInvalidTask(task.TargetPlanet.Owner != null))
-                        break;
-                    if (ShipsOffMission(task))
-                        TaskStep = 3;
-                    break;
-            }
         }
 
         void DoClaimDefense(MilitaryTask task)
@@ -1471,7 +1430,7 @@ namespace Ship_Game.Fleets
                                 AddFleetProjectorGoal();
 
                             GatherAtAO(task, distanceFromAO: 20000);
-                            TaskStep = 4;
+                            TaskStep = 4; // This sets the step for the reclaim fleet.
                         }
                         else
                         {

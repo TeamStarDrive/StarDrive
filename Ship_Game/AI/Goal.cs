@@ -45,7 +45,9 @@ namespace Ship_Game.AI
         DefendVsRemnants,
         StandbyColonyShip,
         ScoutSystem,
-        AssaultBombers
+        AssaultBombers,
+        EmpireDefense,
+        DefendSystem
     }
 
     public enum GoalStep
@@ -78,6 +80,7 @@ namespace Ship_Game.AI
         public Ship OldShip;      // this is the ship which needs refit
         public Ship TargetShip;      // this is targeted by this goal (raids)
         public Empire TargetEmpire; // Empire target of this goal (for instance, pirate goals)
+        public SolarSystem TargetSystem;
         public float StarDateAdded;  
         public string StepName => Steps[Step].Method.Name;
         protected bool MainGoalCompleted;
@@ -171,6 +174,7 @@ namespace Ship_Game.AI
                 case StandbyColonyShip.ID:      return new StandbyColonyShip();
                 case ScoutSystem.ID:            return new ScoutSystem();
                 case AssaultBombers.ID:         return new AssaultBombers();
+                case EmpireDefense.ID:          return new EmpireDefense();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }
