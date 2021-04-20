@@ -63,10 +63,10 @@ namespace Ship_Game
             batch.FillRectangle(ResponseRect, Color.Black);
 
             Vector2 encounterTextPos = new Vector2(BlackRect.X + 10, BlackRect.Y + 10).Rounded();
-            string encounterText = Instance.ParseCurrentEncounterText(BlackRect.Width - 20, Fonts.Verdana12Bold);
+            string encounterText = Instance.GetEncounterText(BlackRect.Width - 20, Fonts.Verdana12Bold);
             batch.DrawString(Fonts.Verdana12Bold, encounterText, encounterTextPos, Color.White);
 
-            if (Instance.Message.EndTransmission)
+            if (Instance.CurrentDialog.EndTransmission)
             {
                 var responsePos = new Vector2(ResponseRect.X + 10, ResponseRect.Y + 10);
                 batch.DrawString(Fonts.Arial12Bold, "Escape or Click on Close Button to End Transmission:", responsePos, Color.White);
@@ -87,12 +87,12 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            CanEscapeFromScreen = Instance.Message.EndTransmission;
+            CanEscapeFromScreen = Instance.CurrentDialog.EndTransmission;
             Close.Visible = CanEscapeFromScreen;
             if (input.RightMouseClick)
                 return false; // dont let this screen exit on right click
 
-            if (Instance.Message.EndTransmission && input.Escaped)
+            if (Instance.CurrentDialog.EndTransmission && input.Escaped)
             {
                 ExitScreen();
                 return true;
@@ -118,7 +118,7 @@ namespace Ship_Game
         void LoadResponseScrollList()
         {
             ResponseSL.Reset();
-            foreach (Response r in Instance.Message.ResponseOptions)
+            foreach (Response r in Instance.CurrentDialog.ResponseOptions)
             {
                 ResponseSL.AddItem(new ResponseListItem(r));
             }

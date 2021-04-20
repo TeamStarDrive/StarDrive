@@ -14,18 +14,26 @@ namespace Ship_Game.Graphics
         public string Name { get; private set; }
         public readonly SpriteFont XnaFont;
         public readonly int LineSpacing;
-        public float Spacing
-        {
-            get => XnaFont.Spacing;
-            set => XnaFont.Spacing = value;
-        }
+        public readonly float SpaceWidth; // width of a single whitespace " " character in fractions of a pixel
         public int NumCharacters => XnaFont.Characters.Count;
 
         public Font(GameContentManager content, string name)
         {
             Name = name;
             XnaFont = content.Load<SpriteFont>("Fonts/" + name);
+
             LineSpacing = XnaFont.LineSpacing;
+            SpaceWidth = XnaFont.MeasureString(" ").X;
+        }
+
+        public Font(GameContentManager content, string name, float monoSpaceSpacing)
+        {
+            Name = name;
+            XnaFont = content.Load<SpriteFont>("Fonts/" + name);
+            XnaFont.Spacing = monoSpaceSpacing;
+
+            LineSpacing = XnaFont.LineSpacing;
+            SpaceWidth = XnaFont.MeasureString(" ").X;
         }
 
         public Vector2 MeasureString(string text)
@@ -75,21 +83,24 @@ namespace Ship_Game.Graphics
             return ParseText(words, maxLineWidth);
         }
 
-        public string ParseText(string[] words, float maxLineWidth)
+        string ParseText(string[] words, float maxLineWidth)
         {
             var result = new StringBuilder();
-            float spaceLength = XnaFont.MeasureString(" ").X;
             float lineLength = 0.0f;
-            foreach (string word in words)
+            foreach (string w in words)
             {
+                string word = w;
                 if (word == "\\n" || word == "\n")
                 {
                     result.Append('\n');
                     lineLength = 0f;
                     continue;
                 }
+
+                word = word.Replace("\t", "    ");
+
                 float wordLength = XnaFont.MeasureString(word).X;
-                if ((lineLength + wordLength) > maxLineWidth)
+                if ((lineLength + wordLength) > maxLineWidth) // wrap this word to next line
                 {
                     result.Append('\n');
                     lineLength = wordLength;
@@ -99,7 +110,7 @@ namespace Ship_Game.Graphics
                 {
                     if (result.Length != 0)
                     {
-                        lineLength += spaceLength;
+                        lineLength += SpaceWidth;
                         result.Append(' ');
                     }
                     lineLength += wordLength;
@@ -115,6 +126,5 @@ namespace Ship_Game.Graphics
             string[] lines = parsed.Split('\n');
             return lines;
         }
-
     }
 }
