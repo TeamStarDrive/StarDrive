@@ -426,7 +426,18 @@ namespace Ship_Game.AI
                        ? ship.BombBays.Count * 50 
                        : ship.BombBays.Count * 10;
 
+            float angelMod = Owner.AngleDifferenceToPosition(ship.Position).LowerBound(0.25f)
+                             / Owner.RotationRadiansPerSecond.LowerBound(0.25f);
+
+            // todo AngleDifferenceToPosition might return NaN - need to check this
+            if (float.IsNaN(angelMod))
+            {
+                Log.Warning("AngleDifferenceToPosition returned NaN.");
+                angelMod = 1;
+            }
+
             float distance = Owner.Center.Distance(ship.Center).LowerBound(minimumDistance);
+            value /= angelMod;
             return value / distance;
         }
 
