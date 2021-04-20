@@ -970,11 +970,14 @@ namespace Ship_Game
 
         public static void LoadEncounters()
         {
-            Encounters = LoadEntities<Encounter>("Encounter Dialogs", "LoadEncounters");
-
-            foreach (Encounter encounter in Encounters)
+            Encounters.Clear();
+            foreach (var pair in LoadEntitiesWithInfo<Encounter>("Encounter Dialogs", "LoadEncounters"))
             {
-                foreach (Message message in encounter.MessageList)
+                Encounter e = pair.Entity;
+                e.FileName = pair.Info.NameNoExt();
+                Encounters.Add(e);
+
+                foreach (Message message in e.MessageList)
                     foreach (Response response in message.ResponseOptions)
                         if (TechTree.TryGetValue(response.UnlockTech ?? "", out Technology tech))
                             tech.Unlockable = true;

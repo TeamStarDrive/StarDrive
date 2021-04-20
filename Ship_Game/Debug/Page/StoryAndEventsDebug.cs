@@ -19,7 +19,7 @@ namespace Ship_Game.Debug.Page
             }
             public EvtItem(Encounter e)
             {
-                First = new UILabel($"{e.Faction} - {e.Name}");
+                First = new UILabel($"{e.FileName} - {e.Name}");
                 Second = new UILabel(e.DescriptionText.Substring(0, 20));
             }
             public override void PerformLayout()
@@ -74,15 +74,12 @@ namespace Ship_Game.Debug.Page
 
             foreach (Encounter e in ResourceManager.Encounters)
             {
-                foreach (Message m in e.MessageList)
+                Empire faction = EmpireManager.GetEmpireByName(e.Faction) ?? EmpireManager.Corsairs;
+                var item = EncounterDialogs.AddItem(new EvtItem(e));
+                item.OnClick = () =>
                 {
-                    Empire faction = EmpireManager.GetEmpireByName(e.Faction) ?? EmpireManager.Corsairs;
-                    var item = EncounterDialogs.AddItem(new EvtItem(e));
-                    item.OnClick = () =>
-                    {
-                        EncounterPopup.Show(screen, screen.player, faction, e);
-                    };
-                }
+                    EncounterPopup.Show(screen, screen.player, faction, e);
+                };
             }
 
             Menu.SelectedIndex = 0;
