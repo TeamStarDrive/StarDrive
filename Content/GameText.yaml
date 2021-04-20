@@ -11980,3 +11980,15 @@ ThisIsThisShipsSelfrepair:
  ENG: "This is this ship's self-repair rate per tick - it can self repair this many hitpoints of a module per tick when outside of combat. Better command and engineering modules improve this."
  RUS: "Это скорость самовосстановления этого корабля за тик - он может самостноятельно отремонтировать такое количество единиц здоровья модуля за тик вне боя. Улучшенные командные и инженерные модули улучшают ремонт."
  SPA: "Este es el ratio de autoreparacion por tick - se puede reparar esta cantidad de puntos de vida por tick cuando este fuera de combate. Mejores módulos de comando y de ingienería puden mejorar esto.."
+EncCorsairs000_Msg0:
+ ENG: "Dearest SING friends,\n\nWe are delighted to see your empire's progress. Isn't this exciting, to colonize new worlds and struggle with unknown environment? However, all these little freighters, moving from planet to planet like loyal bees are so exposed out there in deep space.\n\nSo we have a proposal for you. You will pay us MONEY credits right now. If you do, then we can promise a certain level of 'protection' to SING ships. If you don't, well, then we just can't make any promises.\n\nRegards,\nCaptain Martok, Independent Trader and Gentleman"
+EncCorsairs000_Msg0_R1_AgreeToPay:
+ ENG: "Agree to pay this upstanding gentleman."
+EncCorsairs000_Msg0_R2_RefuseToPay:
+ ENG: "Refuse to pay this scoundrel!"
+EncCorsairs000_Msg1:
+ ENG: "Wonderful news! We'll let you know when we're done drinking our way through your money. Until then, sleep safe!\n\nRegards,\nCM"
+EncCorsairs000_Msg2:
+ ENG: "Now that is disappointing, isn't it? And here I was thinking that we were going to be fast friends. It will be fun to rip open your freighters.\n\n(Comm Officer's Note - If we ever want to pay them, we can select their ship and press Q to contact them.)"
+EncCorsairs000_Msg3:
+ ENG: "What, is this some sort of SING humor? You don't have the credits! Unfortunately for you, this is not my problem. We're gonna collect our money through your freighters!\n\n(Comm Officer's Note - If we ever want to pay them, we can select their ship and press Q to contact them.)"
