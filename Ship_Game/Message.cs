@@ -2,8 +2,9 @@ namespace Ship_Game
 {
     public sealed class Message
     {
-        public string Text;
-        public int Index;
+        public string Text; // TODO: DEPRECATED, MUST BE REMOVED IN THE FUTURE
+        public string LocalizedText;
+        public int Index; // TODO: This is unused??
         public int SetPlayerContactStep;
         public int SetFactionContactStep;
         public bool SetWar;
