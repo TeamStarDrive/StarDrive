@@ -17,9 +17,11 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
+            string text = Response.LocalizedText.NotEmpty()
+                        ? Localizer.Token(Response.LocalizedText)
+                        : Response.Text;
             batch.DrawString(Fonts.Arial12Bold,
-                $"{ItemIndex+1}. {Response.Text}", Pos,
-                (Hovered ? Color.LightGray : Color.White));
+                $"{ItemIndex+1}. {text}", Pos, (Hovered ? Color.LightGray : Color.White));
         }
     }
 }

@@ -160,7 +160,9 @@ namespace Ship_Game
                 }
                 
                 // if this ID already exist, overwrite by using new text
-                Strings[t.Id - 1] = text;
+                if (t.Id > 0) // new localization entries don't use integer ID anymore
+                    Strings[t.Id - 1] = text;
+
                 if (NameIdToString.ContainsKey(t.NameId))
                     NameIdToString[t.NameId] = text;
                 else
