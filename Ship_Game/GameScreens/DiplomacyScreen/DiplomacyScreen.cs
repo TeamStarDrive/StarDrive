@@ -756,7 +756,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             for (int i = 0; i < words.Length; i++)
                 words[i] = ConvertDiplomacyKeyword(words[i]);
 
-            return Fonts.Consolas18.ParseText(words, maxLineWidth);
+            string readyToParse = string.Join(" ", words);
+            return Fonts.Consolas18.ParseText(readyToParse, maxLineWidth);
         }
 
         string UsSingular          => Us?.data.Traits.Singular ?? "HUMAN";

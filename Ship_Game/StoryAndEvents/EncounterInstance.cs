@@ -16,7 +16,10 @@ namespace Ship_Game.StoryAndEvents
         readonly Encounter Encounter;
         public readonly Empire Player;
         public readonly Empire TargetEmpire;
-        public Message Message { get; private set; }
+
+        // This is the currently displayed dialog in the encounter.
+        // It will change according to the flow and decisions in the encounter
+        public Message CurrentDialog { get; private set; }
         public SolarSystem SystemToDiscuss { get; set; }
 
         public EncounterInstance(Encounter e, Empire player, Empire targetEmpire)
@@ -29,7 +32,7 @@ namespace Ship_Game.StoryAndEvents
             TargetEmpire = targetEmpire;
 
             // The first message is always the initial message shown to players
-            Message = Encounter.MessageList[0];
+            CurrentDialog = Encounter.MessageList[0];
         }
 
         public void OnResponseItemClicked(ResponseListItem item)
@@ -37,7 +40,7 @@ namespace Ship_Game.StoryAndEvents
             Response r = item.Response;
             if (r.DefaultIndex != -1)
             {
-                Message = Encounter.MessageList[r.DefaultIndex];
+                CurrentDialog = Encounter.MessageList[r.DefaultIndex];
             }
             else
             {
@@ -50,11 +53,11 @@ namespace Ship_Game.StoryAndEvents
 
                 if (!ok)
                 {
-                    Message = Encounter.MessageList[r.FailIndex];
+                    CurrentDialog = Encounter.MessageList[r.FailIndex];
                 }
                 else
                 {
-                    Message = Encounter.MessageList[r.SuccessIndex];
+                    CurrentDialog = Encounter.MessageList[r.SuccessIndex];
                     if (money > 0 && Player.Money >= money)
                     {
                         Player.AddMoney(-money);
@@ -62,18 +65,18 @@ namespace Ship_Game.StoryAndEvents
                 }
             }
 
-            if (Message.SetWar)
+            if (CurrentDialog.SetWar)
                 TargetEmpire.GetEmpireAI().DeclareWarFromEvent(Player, WarType.SkirmishWar);
 
-            if (Message.EndWar)
+            if (CurrentDialog.EndWar)
                 TargetEmpire.GetEmpireAI().EndWarFromEvent(Player);
 
             Relationship rel = Player.GetRelations(TargetEmpire);
-            if (Message.SetPlayerContactStep > 0)
-                rel.PlayerContactStep = Message.SetPlayerContactStep;
+            if (CurrentDialog.SetPlayerContactStep > 0)
+                rel.PlayerContactStep = CurrentDialog.SetPlayerContactStep;
 
-            if (Message.SetFactionContactStep > 0)
-                rel.FactionContactStep = Message.SetFactionContactStep;
+            if (CurrentDialog.SetFactionContactStep > 0)
+                rel.FactionContactStep = CurrentDialog.SetFactionContactStep;
         }
 
         int NetMoneyDemand(int demandFromMessage)
@@ -87,13 +90,19 @@ namespace Ship_Game.StoryAndEvents
         int CustomMoneyDemand => NetMoneyDemand(0); // For the parser only
 
         
-        public string ParseCurrentEncounterText(float maxLineWidth, Graphics.Font font)
+        public string GetEncounterText(float maxLineWidth, Graphics.Font font)
         {
-            string[] words = Message.Text.Split(' ');
+            // Note: CurrentDialog changes when player selects a new decision
+            string text = CurrentDialog.LocalizedText.NotEmpty()
+                        ? Localizer.Token(CurrentDialog.LocalizedText)
+                        : CurrentDialog.Text;
+
+            string[] words = text.Split(' ');
             for (int i = 0; i < words.Length; ++i)
                 words[i] = ParseEncounterKeyword(words[i]);
 
-            return font.ParseText(words, maxLineWidth);
+            string textToParse = string.Join(" ", words);
+            return font.ParseText(textToParse, maxLineWidth);
         }
 
         string ParseEncounterKeyword(string keyword)
