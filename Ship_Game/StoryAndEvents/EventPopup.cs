@@ -73,7 +73,7 @@ namespace Ship_Game
             float textBoxBottom = btn.Y - 2;
             Rectangle textArea = new RectF(X + 8, imgRect.Bottom - 16, Width - 24, textBoxBottom - imgRect.Bottom);
             TextBox = Add(new UITextBox(new Submenu(textArea)));
-            TextBox.EnableTextBoxDebug = true;
+            //TextBox.EnableTextBoxDebug = true;
             CreateTextBoxContent(TextBox);
         }
 
