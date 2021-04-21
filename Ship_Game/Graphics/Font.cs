@@ -133,27 +133,27 @@ namespace Ship_Game.Graphics
             return new StringView(chars, start, length);
         }
 
-        public string ParseText(string text, float maxLineWidth)
+        static Array<StringView> TokenizeText(string text, out int approxLen)
         {
             var textView = new StringView(text.ToCharArray());
             var words = new Array<StringView>();
-
-            int approxLen = 0;
+            int len = 0;
             while (textView.Length > 0)
             {
                 StringView word = NextTextToken(ref textView);
                 if (word.Length > 0)
                 {
-                    approxLen += word.Length;
+                    len += word.Length + 1;
                     words.Add(word);
                 }
             }
-
-            return ParseText(words, approxLen+words.Count, maxLineWidth);
+            approxLen = len;
+            return words;
         }
 
-        string ParseText(Array<StringView> words, int approxLen, float maxLineWidth)
+        public string ParseText(string text, float maxLineWidth)
         {
+            Array<StringView> words = TokenizeText(text, out int approxLen);
             var result = new StringBuilder(approxLen);
             var tmp = new StringBuilder(32);
 
@@ -191,7 +191,7 @@ namespace Ship_Game.Graphics
                 {
                     if (prependSpace)
                         result.Append(' ');
-                    lineLength += newLength;
+                    lineLength = newLength;
                     result.Append(word.Chars, word.Start, word.Length);
                 }
             }
