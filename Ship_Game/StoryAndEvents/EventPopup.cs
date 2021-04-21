@@ -50,12 +50,12 @@ namespace Ship_Game
                 Empire.Universe.NotificationManager.AddAnomalyInvestigated(Planet, TitleText);
             }
 
-            const string defaultImage = "Encounters/CrashedShip.png";
-            string image = Outcome.Image.NotEmpty() ? Outcome.Image : defaultImage;
-            Image = TransientContent.LoadSubTexture("Textures/" + image);
+            const string defaultImage = "Textures/Encounters/CrashedShip.png";
+            string image = Outcome.Image.NotEmpty() ? "Textures/" + Outcome.Image : defaultImage;
+            Image = TransientContent.LoadSubTexture(image);
             if (Image == null)
             {
-                Log.Error($"Failed to load image: {Outcome.Image}, using default");
+                Log.Warning(ConsoleColor.Red, $"Failed to load image: {Outcome.Image}, using default={defaultImage}");
                 Image = TransientContent.LoadTextureOrDefault(defaultImage);
             }
 
@@ -73,6 +73,7 @@ namespace Ship_Game
             float textBoxBottom = btn.Y - 2;
             Rectangle textArea = new RectF(X + 8, imgRect.Bottom - 16, Width - 24, textBoxBottom - imgRect.Bottom);
             TextBox = Add(new UITextBox(new Submenu(textArea)));
+            TextBox.EnableTextBoxDebug = true;
             CreateTextBoxContent(TextBox);
         }
 
@@ -85,16 +86,6 @@ namespace Ship_Game
                 textBox.AddLine($"Relevant Planet: {Outcome.GetPlanet().Name}", Fonts.Arial12Bold, Color.LightGreen);
             }
 
-            if (Outcome.GetArtifact() != null)
-            {
-                textBox.AddElement(new ArtifactItem(TransientContent, Outcome.GetArtifact(), ArtifactEffects, textBox.ItemsRect.Width));
-            }
-
-            if (Outcome.UnlockTech != null)
-            {
-                AddUnlockedTechToTextBox(textBox, Outcome.UnlockTech);
-            }
-
             if (Outcome.MoneyGranted > 0)
             {
                 textBox.AddLine($"Money Granted: {Outcome.MoneyGranted}", Fonts.Arial12Bold, Color.Green);
@@ -104,6 +95,16 @@ namespace Ship_Game
             {
                 int scienceBonus = (int)(Outcome.ScienceBonus * 100f);
                 textBox.AddLine($"Research Bonus Granted: {scienceBonus}%", Fonts.Arial12Bold, Color.Blue);
+            }
+            
+            if (Outcome.UnlockTech != null)
+            {
+                AddUnlockedTechToTextBox(textBox, Outcome.UnlockTech);
+            }
+
+            if (Outcome.GetArtifact() != null)
+            {
+                textBox.AddElement(new ArtifactItem(TransientContent, Outcome.GetArtifact(), ArtifactEffects, textBox.ItemsRect.Width));
             }
         }
 
@@ -134,6 +135,7 @@ namespace Ship_Game
                 Content = content;
                 Tech = tech;
                 Width = width;
+                Height = 120;
                 Mod = ResourceManager.GetModuleTemplate(Tech.ModulesUnlocked[0].ModuleUID);
                 IconTex = Content.LoadSubTexture("Textures/" + Mod.IconTexturePath);
             }
