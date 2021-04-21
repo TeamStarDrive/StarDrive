@@ -341,11 +341,22 @@ namespace Ship_Game
 
         // how many radian difference from our current direction
         // versus when looking towards position
+        public static float AngleDifference(in Vector2 wantedForward, in Vector2 currentForward)
+        {
+            float dot = wantedForward.Dot(currentForward);
+            // BUGFIX: on certain CPU's dot product may be outside [-1, +1] range because of FPU imprecision
+            if      (dot < -1.0f) dot = -1.0f;
+            else if (dot > +1.0f) dot = +1.0f;
+            return (float)Acos(dot);
+        }
+
+        // how many radian difference from our current direction
+        // versus when looking towards position
         public static float AngleDifferenceToPosition(this GameplayObject origin, Vector2 targetPos)
         {
             Vector2 wantedForward = origin.Center.DirectionToTarget(targetPos);
             Vector2 currentForward = origin.Rotation.RadiansToDirection();
-            return (float)Acos(wantedForward.Dot(currentForward));
+            return AngleDifference(wantedForward, currentForward);
         }
 
         // used for Projectiles 
@@ -354,7 +365,7 @@ namespace Ship_Game
         {
             Vector2 wantedForward = origin.Center.DirectionToTarget(targetPos);
             Vector2 currentForward = origin.Rotation.RadiansToDirection();
-            angleDiff = (float)Acos(wantedForward.Dot(currentForward));
+            angleDiff = AngleDifference(wantedForward, currentForward);
             if (angleDiff > minDiff)
             {
                 rotationDir = wantedForward.Dot(currentForward.RightVector()) > 0f ? 1f : -1f;

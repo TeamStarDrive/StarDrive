@@ -64,5 +64,37 @@ namespace UnitTests.LinearAlgebra
             // however, if we lower tolerance, then it's ok:
             Assert.IsTrue(Vec(1,0).IsOppositeOf(Vec(-0.5f,0.5f), tolerance:0.25f));
         }
+
+        [TestMethod]
+        public void TestAngleDifference()
+        {
+            float AngleDifference((float x, float y) a, (float x, float y) b)
+                => Vectors.AngleDifference(new Vector2(a.x, a.y), new Vector2(b.x, b.y));
+
+            // facing opposite side, angle difference should 1 PI, regardless of orientation
+            Assert.AreEqual(RadMath.PI, AngleDifference( (0, +1), (0, -1) ));
+            Assert.AreEqual(RadMath.PI, AngleDifference( (0, -1), (0, +1) ));
+            Assert.AreEqual(RadMath.PI, AngleDifference( (+1, 0), (-1, 0) ));
+            Assert.AreEqual(RadMath.PI, AngleDifference( (-1, 0), (+1, 0) ));
+
+            // if facing same direction, make sure we don't get a NaN
+            Assert.AreEqual(0f, AngleDifference( (1,1), (1,1) ));
+            Assert.AreEqual(0f, AngleDifference( (-1,1), (-1,1) ));
+            Assert.AreEqual(0f, AngleDifference( (1,-1), (1,-1) ));
+            Assert.AreEqual(0f, AngleDifference( (-1,-1), (-1,-1) ));
+
+            // 90 degs
+            Assert.AreEqual(RadMath.HalfPI, AngleDifference( (0,1), (1,0) ));
+            Assert.AreEqual(RadMath.HalfPI, AngleDifference( (0,1), (-1,0) ));
+        }
+
+        [TestMethod]
+        public void TestAngleDifferenceNANBug()
+        {
+            var wantedForward  = new Vector2(0.79299283f, -0.609231055f);
+            var currentForward = new Vector2(0.793037832f, -0.6091724f);
+            float difference = Vectors.AngleDifference(wantedForward, currentForward);
+            Assert.IsFalse(float.IsNaN(difference), "Vectors.AngleDifference() should not be NAN");
+        }
     }
 }
