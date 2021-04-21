@@ -79,13 +79,31 @@ namespace Ship_Game
         /// <summary>
         /// Gets a Token by using its assigned UID string
         /// string text = Localizer.Token("AttackRunsOrder"); // "Attack Runs Order"
+        /// 
+        /// For backwards compatibility we also support Integer ID-s:
+        /// string text = Localizer.Token("1"); // "New Game"
         /// </summary>
         public static string Token(string nameId)
         {
-            return NameIdToString.TryGetValue(nameId, out string text) ? text : "<"+nameId+">";
+            if (Token(nameId, out string text))
+                return text;
+            return nameId.NotEmpty() ? nameId : "<missing nameid>";
         }
+
         public static bool Token(string nameId, out string text)
         {
+            if (nameId.IsEmpty())
+            {
+                text = null;
+                return false;
+            }
+
+            if (char.IsDigit(nameId[0]) && int.TryParse(nameId, out int id))
+            {
+                text = Token(id);
+                return true;
+            }
+
             return NameIdToString.TryGetValue(nameId, out text);
         }
 
@@ -138,7 +156,9 @@ namespace Ship_Game
                 }
                 
                 // if this ID already exist, overwrite by using new text
-                Strings[t.Id - 1] = text;
+                if (t.Id > 0) // new localization entries don't use integer ID anymore
+                    Strings[t.Id - 1] = text;
+
                 if (NameIdToString.ContainsKey(t.NameId))
                     NameIdToString[t.NameId] = text;
                 else
