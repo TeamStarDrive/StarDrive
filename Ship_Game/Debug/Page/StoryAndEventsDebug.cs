@@ -14,12 +14,12 @@ namespace Ship_Game.Debug.Page
             readonly UILabel Second;
             public EvtItem(ExplorationEvent e, Outcome o)
             {
-                First = new UILabel($"{e.Story} - {e.Name}");
+                First = new UILabel($"{e.FileName}.xml - {e.Story} - {e.LocalizedName}");
                 Second = new UILabel($"Outcome-{e.PotentialOutcomes.IndexOf(o)} {o.TitleText}");
             }
             public EvtItem(Encounter e)
             {
-                First = new UILabel($"{e.FileName} - {e.Name}");
+                First = new UILabel($"{e.FileName}.xml - {e.Name}");
                 Second = new UILabel(e.DescriptionText.Substring(0, 20));
             }
             public override void PerformLayout()

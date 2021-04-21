@@ -38,9 +38,9 @@ namespace Ship_Game
         public override void LoadContent()
         {
             if (Planet != null)
-                TitleText = $"{Outcome.TitleText} at {Planet.Name}";
+                TitleText = $"{Outcome.LocalizedTitle} at {Planet.Name}";
             else
-                TitleText = $"{Outcome.TitleText} in Deep Space";
+                TitleText = $"{Outcome.LocalizedTitle} in Deep Space";
 
             base.LoadContent();
 
@@ -77,7 +77,7 @@ namespace Ship_Game
 
         void CreateTextBoxContent(UITextBox textBox)
         {
-            textBox.AddLines(Outcome.DescriptionText, Fonts.Verdana10, Color.White);
+            textBox.AddLines(Outcome.LocalizedDescr, Fonts.Verdana10, Color.White);
 
             if (Outcome.SelectRandomPlanet && Outcome.GetPlanet() != null)
             {

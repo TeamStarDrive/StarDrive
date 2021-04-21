@@ -986,9 +986,11 @@ namespace Ship_Game
 
         static void LoadExpEvents() // Refactored by RedFox
         {
+            EventsDict.Clear();
             foreach (var pair in LoadEntitiesWithInfo<ExplorationEvent>("Exploration Events", "LoadExpEvents"))
             {
-                EventsDict[pair.Info.NameNoExt()] = pair.Entity;
+                pair.Entity.FileName = pair.Info.NameNoExt();
+                EventsDict[pair.Entity.FileName] = pair.Entity;
                 foreach (var outcome in pair.Entity.PotentialOutcomes)
                 {
                     if (TechTree.TryGetValue(outcome.UnlockTech ?? "", out Technology tech))
