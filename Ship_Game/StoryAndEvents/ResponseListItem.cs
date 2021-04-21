@@ -15,7 +15,7 @@ namespace Ship_Game
         {
             string text = response.LocalizedText.NotEmpty()
                         ? Localizer.Token(response.LocalizedText)
-                        : response.Text;
+                        : response.Text ?? Localizer.Token(GameText.No);
             
             var customStyle = new UIButton.StyleTextures();
             Btn = Add(new UIButton(customStyle, new Vector2(120, 24), text));
