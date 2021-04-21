@@ -5,12 +5,15 @@ namespace Ship_Game
     public sealed class ExplorationEvent
     {
         public string Name;
+        public string FileName; // for debugging
         public int StoryStep;
         public Remnants.RemnantStory Story;
         public bool AllRemnantStories; // This event step is relevant for all Remnant Stories
         public bool TriggerWhenOnlyRemnantsLeft; // Trigger this when all empires are defeated but the Remnants
 
         public Array<Outcome> PotentialOutcomes;
+
+        public string LocalizedName => Localizer.Token(Name);
 
         public void TriggerOutcome(Empire triggeredBy, Outcome triggeredOutcome)
         {
@@ -32,7 +35,7 @@ namespace Ship_Game
 
             if (outcomeNum > sumChances)
             {
-                Log.Warning($"outcomeNum ({outcomeNum}) was larger than sum of all chance in tile for event {Name} on {p.Name}. Setting to 1\n" +
+                Log.Warning($"outcomeNum ({outcomeNum}) was larger than sum of all chance in tile for event {FileName} on {p.Name}. Setting to 1\n" +
                             "This can occur if an event outcome chances were changed and a save was loaded");
                 outcomeNum = 1;
             }

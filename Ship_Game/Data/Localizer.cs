@@ -85,13 +85,9 @@ namespace Ship_Game
         /// </summary>
         public static string Token(string nameId)
         {
-            if (nameId.IsEmpty())
-                return "<nameId missing>";
-
-            if (char.IsDigit(nameId[0]) && int.TryParse(nameId, out int id))
-                return Token(id);
-
-            return NameIdToString.TryGetValue(nameId, out string text) ? text : "<"+nameId+">";
+            if (Token(nameId, out string text))
+                return text;
+            return nameId.NotEmpty() ? nameId : "<missing nameid>";
         }
 
         public static bool Token(string nameId, out string text)
