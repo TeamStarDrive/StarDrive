@@ -155,25 +155,24 @@ namespace Ship_Game
             {
                 ShipListScreenItem e1 = ShipSL.ItemAtTop;
                 Graphics.Font font = Fonts.Arial20Bold;
-                var cursor = new Vector2(e1.SysNameRect.CenterX() - font.TextWidth(192) / 2f, ERect.Y - font.LineSpacing + 18);
-                SortSystem.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(192), font.LineSpacing);
-                
+                var cursor = new Vector2(e1.SysNameRect.CenterX() - font.TextWidth(SortSystem.Text) / 2f, ERect.Y - font.LineSpacing + 18);
+                SortSystem.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(SortSystem.Text), font.LineSpacing);
                 SortSystem.Draw(ScreenManager, font);
-                cursor = new Vector2(e1.ShipNameRect.CenterX() - font.TextWidth(193) / 2f, ERect.Y - font.LineSpacing + 18);
-                SortName.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(193), font.LineSpacing);
-                
+
+                cursor = new Vector2(e1.ShipNameRect.CenterX() - font.TextWidth(SortName.Text) / 2f, ERect.Y - font.LineSpacing + 18);
+                SortName.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(SortName.Text), font.LineSpacing);
                 SortName.Draw(ScreenManager, font);
                 
-                cursor = new Vector2(e1.RoleRect.CenterX() - font.TextWidth(194) / 2f, ERect.Y - font.LineSpacing + 18);
-                SortRole.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(194), font.LineSpacing);
+                cursor = new Vector2(e1.RoleRect.CenterX() - font.TextWidth(SortRole.Text) / 2f, ERect.Y - font.LineSpacing + 18);
+                SortRole.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(SortRole.Text), font.LineSpacing);
                 SortRole.Draw(ScreenManager, font);
 
-                cursor = new Vector2(e1.FleetRect.CenterX() - font.TextWidth(4195) / 2f, ERect.Y - font.LineSpacing + 18);
-                SortFleet.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(4195), font.LineSpacing);
+                cursor = new Vector2(e1.FleetRect.CenterX() - font.TextWidth(SortFleet.Text) / 2f, ERect.Y - font.LineSpacing + 18);
+                SortFleet.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(SortFleet.Text), font.LineSpacing);
                 SortFleet.Draw(ScreenManager, font);
 
-                cursor = new Vector2(e1.OrdersRect.CenterX() - font.TextWidth(195) / 2f, ERect.Y - font.LineSpacing + 18);
-                SortOrder.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(195), font.LineSpacing);
+                cursor = new Vector2(e1.OrdersRect.CenterX() - font.TextWidth(SortOrder.Text) / 2f, ERect.Y - font.LineSpacing + 18);
+                SortOrder.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(SortOrder.Text), font.LineSpacing);
                 SortOrder.Draw(ScreenManager, font);
 
                 StrIconRect = new Rectangle(e1.StrRect.X + e1.StrRect.Width / 2 - 6, ERect.Y, 18, 18);
