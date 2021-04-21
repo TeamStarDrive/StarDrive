@@ -12,6 +12,8 @@ namespace UnitTests.Data
         public TestLocalizedText()
         {
             CreateGameInstance();
+            ResourceManager.LoadLanguage(Language.English);
+            Fonts.LoadFonts(ResourceManager.RootContent, Language.English);
         }
 
         [TestMethod]
@@ -69,6 +71,48 @@ namespace UnitTests.Data
             Assert.AreEqual("Parsed: Nueva partida Cargar partida ", parsed2.Text);
         }
 
+        [TestMethod]
+        public void ParseTextSplitsCorrectlyOnSpaces()
+        {
+            string text = "Big brown fox   jumps over  the gray dog";
+            Assert.AreEqual("Big brown fox jumps over the gray dog",
+                            Fonts.Arial12.ParseText(text, 300));
+        }
+
+        [TestMethod]
+        public void ParseTextSplitsCorrectlyOnNewLines()
+        {
+            string text = "Big brown fox, \n jumps over\nthe gray\n dog";
+            Assert.That.Equal(new string[]{"Big brown fox,", "jumps over", "the gray", "dog"},
+                              Fonts.Arial12.ParseTextToLines(text, 300));
+        }
+        
+        [TestMethod]
+        public void ParseTextHandlesTabCharacter()
+        {
+            string text = "Big brown fox,\n\tjumps over\nthe gray\t\n\tdog";
+            Assert.That.Equal(new string[]{"Big brown fox,", "    jumps over",
+                                           "the gray    ",   "    dog"},
+                              Fonts.Arial12.ParseTextToLines(text, 300));
+        }
+
+        [TestMethod]
+        public void ParseTextWrapsCorrectly()
+        {
+            string text = "xxxx xxxx xxxx xxxx xxxx xxxx";
+            float wx = Fonts.Arial12.TextWidth("x");
+
+            // 8 chars: "xxxx xxxx" is still too long, so it should split
+            //          every block
+            Assert.AreEqual("xxxx\nxxxx\nxxxx\nxxxx\nxxxx\nxxxx",
+                            Fonts.Arial12.ParseText(text, wx*8));
+
+            // 9 chars: "xxxx xxxx" is 9 chars, it should split perfectly
+            //          into 3 chunks
+            Assert.AreEqual("xxxx xxxx\nxxxx xxxx\nxxxx xxxx",
+                            Fonts.Arial12.ParseText(text, wx*9));
+        }
+
         Array<string> GetTextErrors(string[] tokens)
         {
             var errors = new Array<string>();
@@ -89,18 +133,31 @@ namespace UnitTests.Data
             {
                 foreach (string text in tokens)
                 {
-                    try
-                    {
-                        font.MeasureString(text);
-                    }
+                    try { font.MeasureString(text); }
                     catch (Exception e)
                     {
-                        errors.Add($"MeasureString failed Font={font.Name} Text={text} Error={e.Message}");
+                        errors.Add($"MeasureString failed Font={font.Name} Error={e.Message} Text=\"{text}\"");
+                        break;
+                    }
+                    try { font.ParseText(text, 120); }
+                    catch (Exception e)
+                    {
+                        errors.Add($"ParseText failed Font={font.Name} Error={e.Message} Text=\"{text}\"");
                         break;
                     }
                 }
             }
             return errors;
+        }
+
+        [TestMethod]
+        public void EnsureEnglishTextIsDrawable()
+        {
+            ResourceManager.LoadLanguage(Language.English);
+            Fonts.LoadFonts(ResourceManager.RootContent, Language.English);
+            var err = GetTextErrors(Localizer.EnumerateTokens().ToArray());
+            if (err.NotEmpty)
+                Assert.Fail(string.Join("\n", err));
         }
 
         [TestMethod]
