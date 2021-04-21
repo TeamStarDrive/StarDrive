@@ -45,7 +45,7 @@ namespace Ship_Game.StoryAndEvents
 
             string text = dialog.LocalizedText.NotEmpty()
                         ? Localizer.Token(dialog.LocalizedText)
-                        : dialog.Text;
+                        : dialog.Text ?? "<missing dialog>";
 
             string[] words = text.Split(' ');
             for (int i = 0; i < words.Length; ++i)
