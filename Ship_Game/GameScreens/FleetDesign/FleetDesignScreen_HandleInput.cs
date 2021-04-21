@@ -670,6 +670,8 @@ namespace Ship_Game
                 }
             }
 
+            hitSomething |= OrdersButtons.HandleInput(input, SelectedNodeList);
+
             if (!hitSomething)
             {
                 SelectedSquad = null;
@@ -677,7 +679,7 @@ namespace Ship_Game
             }
 
             //Log.Info("Reset OrdersButtons");
-            OrdersButtons.HandleInput(input, SelectedNodeList);
+            
 
             //// reset the buttons
             //foreach (ToggleButton button in OrdersButtons)
