@@ -6,6 +6,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
+    // Exploration Event popup
     public sealed class EventPopup : PopupWindow
     {
         public ExplorationEvent ExpEvent;
