@@ -6,7 +6,7 @@ namespace Ship_Game.AI.CombatTactics.UI
 {
     public class StanceButtons : UIElementContainer
     {
-        readonly Array<ToggleButton> OrdersButtons = new Array<ToggleButton>();
+        readonly Array<OrdersToggleButton> OrdersButtons = new Array<OrdersToggleButton>();
         Vector2 OrdersBarPos;
         Array<Ship> SelectedShips = new Array<Ship>();
         Array<FleetDataNode> SelectedNodes = new Array<FleetDataNode>();
@@ -37,7 +37,7 @@ namespace Ship_Game.AI.CombatTactics.UI
 
         void AddOrderBtn(string icon, CombatState state, LocalizedText toolTip)
         {
-            var button = new ToggleButton(OrdersBarPos, ToggleButtonStyle.Formation, icon)
+            var button = new OrdersToggleButton(OrdersBarPos, ToggleButtonStyle.Formation, icon)
             {
                 CombatState = state, Tooltip = toolTip,
                 OnClick = (b) => OnOrderButtonClicked(b, state)
@@ -80,13 +80,35 @@ namespace Ship_Game.AI.CombatTactics.UI
             }
         }
 
-        public bool HandleInput(InputState input, Array<Ship> ships, Array<FleetDataNode> nodes)
+        public void UpdateSelectedItems(Array<Ship> ships, Array<FleetDataNode> nodes)
         {
             SelectedNodes = nodes?.NotEmpty == true ? nodes : new Array<FleetDataNode>();
             SelectedShips = ships?.IsEmpty  == true ? ships : new Array<Ship>();
 
-            Reset();
-            
+            for (int i = 0; i < OrdersButtons.Count; i++)
+            {
+                ToggleButton button = OrdersButtons[i];
+                button.Visible = !NothingSelected;
+                button.IsToggled = false;
+            }
+
+        }
+
+        public void HandleInput(float fixedDeltaTime)
+        {
+            Visible = !NothingSelected;
+            for (int i = 0; i < OrdersButtons.Count; i++)
+            {
+                ToggleButton button = OrdersButtons[i];
+                button.Visible = !NothingSelected;
+                button.IsToggled = false;
+            }
+
+            base.Update(fixedDeltaTime);
+        }
+
+        public override bool HandleInput(InputState input)
+        {
             return base.HandleInput(input);
         }
 
@@ -110,12 +132,13 @@ namespace Ship_Game.AI.CombatTactics.UI
 
         public void Reset()
         {
-            for (int i = 0; i < OrdersButtons.Count; i++)
-            {
-                ToggleButton button = OrdersButtons[i];
-                button.Visible = !NothingSelected;
-                button.IsToggled = false;
-            }
+ 
+        }
+
+        private class OrdersToggleButton : ToggleButton
+        {
+            public new CombatState CombatState;
+            public  OrdersToggleButton(Vector2 pos, ToggleButtonStyle style, string icon) : base (pos, style, icon){}
         }
     }
 }

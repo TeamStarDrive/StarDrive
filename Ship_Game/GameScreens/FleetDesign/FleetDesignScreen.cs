@@ -195,6 +195,7 @@ namespace Ship_Game
             var ordersBarPos = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 65);
             OrdersButtons = new StanceButtons(this, ordersBarPos);
             OrdersButtons.LoadContent();
+            Add(OrdersButtons);
             //void AddOrdersBtn(CombatState state, string icon, LocalizedText toolTip)
             //{
             //    var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon)
@@ -398,7 +399,7 @@ namespace Ship_Game
             
             ClickableSquads.Clear();
             UpdateSelectedFleet();
-
+            OrdersButtons.Update(elapsed.RealTime.Seconds);
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
