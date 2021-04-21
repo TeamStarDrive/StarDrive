@@ -13,7 +13,7 @@ namespace Ship_Game
         public bool FactionInitiated;
         public bool PlayerInitiated;
         public bool FirstContact;
-        public string FileName;
+        public string FileName; // for debugging
         public string Name;
         public string Faction;
         public string DescriptionText;
