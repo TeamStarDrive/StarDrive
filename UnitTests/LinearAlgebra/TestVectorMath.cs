@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
+using System;
 
 namespace UnitTests.LinearAlgebra
 {
@@ -95,6 +96,24 @@ namespace UnitTests.LinearAlgebra
             var currentForward = new Vector2(0.793037832f, -0.6091724f);
             float difference = Vectors.AngleDifference(wantedForward, currentForward);
             Assert.IsFalse(float.IsNaN(difference), "Vectors.AngleDifference() should not be NAN");
+        }
+
+        [TestMethod]
+        public void TestAngleDifferenceValidation()
+        {
+            for (float wanted = 0f; wanted < RadMath.PI; wanted += 0.01f)
+            {
+                for (float current = 0f; current < RadMath.PI; current += 0.01f)
+                {
+                    var wantedF = RadMath.RadiansToDirection(wanted);
+                    var currentF = RadMath.RadiansToDirection(current);
+                    float difference = Vectors.AngleDifference(wantedF, currentF);
+                    float expectedDiff = Math.Abs(wanted - current);
+
+                    Assert.That.Equal(0.01f, expectedDiff, difference,
+                                      $"wanted={wanted} current={current}");
+                }
+            }
         }
     }
 }
