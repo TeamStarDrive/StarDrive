@@ -36,6 +36,26 @@ namespace UnitTests.LinearAlgebra
         }
 
         [TestMethod]
+        public void TestUnitDotProduct()
+        {
+            // same direction yields 1
+            Assert.AreEqual(1f,  Vec(1, 0).UnitDot( Vec(1, 0) ));
+            Assert.AreEqual(1f,  Vec(0, 1).UnitDot( Vec(0, 1) ));
+
+            // reverse direction yields -1
+            Assert.AreEqual(-1f,  Vec(-1, 0).UnitDot( Vec(+1, 0) ));
+            Assert.AreEqual(-1f,  Vec(+1, 0).UnitDot( Vec(-1, 0) )); // order doesn't matter
+
+            // values beyond unit vector are clamped within [-1; +1]
+            Assert.AreEqual(1f,  Vec(1, 0).UnitDot( Vec(1, 0) ));
+            Assert.AreEqual(1f,  Vec(0, 1).UnitDot( Vec(0, 1) ));
+
+            // values beyond unit vector are clamped within [-1; +1]
+            Assert.AreEqual(-1f,  Vec(-1.01f, 0).UnitDot( Vec(+1.01f, 0) ));
+            Assert.AreEqual(-1f,  Vec(+1.01f, 0).UnitDot( Vec(-1.01f, 0) ));
+        }
+
+        [TestMethod]
         public void TestIsVectorReverseOf()
         {
             Assert.IsTrue(Vec(+1, -1).IsOppositeOf(Vec(-1, +1)));
@@ -70,7 +90,7 @@ namespace UnitTests.LinearAlgebra
         public void TestAngleDifference()
         {
             float AngleDifference((float x, float y) a, (float x, float y) b)
-                => Vectors.AngleDifference(new Vector2(a.x, a.y), new Vector2(b.x, b.y));
+                => Vectors.AngleDifference(Vec(a.x, a.y), Vec(b.x, b.y));
 
             // facing opposite side, angle difference should 1 PI, regardless of orientation
             Assert.AreEqual(RadMath.PI, AngleDifference( (0, +1), (0, -1) ));
