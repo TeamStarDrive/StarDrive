@@ -259,6 +259,16 @@ namespace Ship_Game
         public static float Dot(this Vector2 a, Vector2 b) => a.X*b.X + a.Y*b.Y;
         public static float Dot(this Vector3 a, Vector3 b) => a.X*b.X + a.Y*b.Y + a.Z*b.Z;
 
+        // Dot product which assumes Vectors a and b are both unit vectors
+        // The return value is always guaranteed to be within [-1; +1]
+        public static float UnitDot(this Vector2 a, Vector2 b)
+        {
+            float dot = a.X*b.X + a.Y*b.Y;
+            if      (dot < -1f) dot = -1f;
+            else if (dot > +1f) dot = +1f;
+            return dot;
+        }
+
         public static Vector3 Cross(this in Vector3 a, in Vector3 b)
         {
             Vector3 v;
@@ -343,10 +353,7 @@ namespace Ship_Game
         // versus when looking towards position
         public static float AngleDifference(in Vector2 wantedForward, in Vector2 currentForward)
         {
-            float dot = wantedForward.Dot(currentForward);
-            // BUGFIX: on certain CPU's dot product may be outside [-1, +1] range because of FPU imprecision
-            if      (dot < -1.0f) dot = -1.0f;
-            else if (dot > +1.0f) dot = +1.0f;
+            float dot = wantedForward.UnitDot(currentForward);
             return (float)Acos(dot);
         }
 
