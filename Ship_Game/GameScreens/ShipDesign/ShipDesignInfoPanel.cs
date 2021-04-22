@@ -24,9 +24,11 @@ namespace Ship_Game.GameScreens.ShipDesign
         public ShipDesignInfoPanel(ShipDesignScreen screen, in Rectangle rect) : base(rect)
         {
             Screen = screen;
-            BtnDesignIssues = AddTextButton("Design Issues");
-            BtnInformation = AddTextButton("Information");
-            DebugDraw = true;
+            //BtnDesignIssues = AddTextButton("Design Issues");
+            //BtnInformation = AddTextButton("Information");
+            // TODO:
+            //DebugDraw = true;
+            //BtnInformation.Visible = BtnDesignIssues.Visible = false;
         }
 
         UIButton AddTextButton(string text)
@@ -56,13 +58,15 @@ namespace Ship_Game.GameScreens.ShipDesign
             if (!Visible)
                 return;
 
-            BtnInformation.Visible = BtnDesignIssues.Visible = false;
-            switch (DesignIssues.CurrentWarningLevel)
-            {
-                case WarningLevel.None:                                        break;
-                case WarningLevel.Informative: BtnInformation.Visible = true;  break;
-                default:                       BtnDesignIssues.Visible = true; break;
-            }
+            
+            // TODO:
+            //BtnInformation.Visible = BtnDesignIssues.Visible = false;
+            //switch (DesignIssues.CurrentWarningLevel)
+            //{
+            //    case WarningLevel.None:                                        break;
+            //    case WarningLevel.Informative: BtnInformation.Visible = true;  break;
+            //    default:                       BtnDesignIssues.Visible = true; break;
+            //}
             base.Update(fixedDeltaTime);
         }
 
