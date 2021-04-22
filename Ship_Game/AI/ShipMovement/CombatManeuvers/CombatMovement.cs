@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Debug;
@@ -59,20 +58,18 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         protected Vector2 ZigZag;
         protected float SpacerDistance;
         protected float DesiredCombatRange;
-        protected bool OutSideDesiredWeaponsRange;
         Vector2 DisengageDirection;
         DisengageTypes DisengageType; 
         protected float ErraticTimer = 0;
-        private float ThinkTimer =0;
         
         protected Ship OwnerTarget => AI.Target;
 
         protected bool WeAreChasingAndCantCatchThem => ChaseStates.HasFlag(ChaseState.ChasingCantCatch) && !WeAreRetrograding;
 
         /// <summary>
-        /// If movement direction is greater than 90 degrees different from facing we must be moving backwards
+        /// If dot product is negative, our velocity is opposite of our ship's facing, we are retrograding
         /// </summary>
-        protected bool WeAreRetrograding => Owner.VelocityDirection.Dot(Owner.Direction) < 0f;
+        bool WeAreRetrograding => Owner.VelocityDirection.Dot(Owner.Direction) < 0f;
 
         protected ChaseState ChaseStates;
 
@@ -103,8 +100,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             if (Owner.IsPlatformOrStation || OwnerTarget == null || (Owner.AI.HasPriorityOrder && !Owner.AI.HasPriorityTarget) 
                 || Owner.engineState == Ship.MoveState.Warp) 
                 return;
-            // ThinkTimer delays the recalculation of angle differences. 
-            ThinkTimer -= timeStep.FixedTime;
+
             Initialize(DesiredCombatRange);
             OverrideCombatValues(timeStep);
 
@@ -121,7 +117,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             {
                 DisengageType = DisengageTypes.None;
                 DisengageDirection = Vector2.Zero;
-                ErraticMovement(DistanceToTarget, timeStep);
+                ErraticMovement(timeStep);
                 MoveState = ExecuteAttack(timeStep);
             }
 
@@ -140,7 +136,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// Returns true if already disengaging or chasing a faster ship. if a player gives the command dont disengage. 
         /// can be overriden. 
         /// </summary>
-        protected bool ShouldDisengage()
+        bool ShouldDisengage()
         {
             return !Owner.AI.HasPriorityTarget
                 && (MoveState == CombatMoveState.Disengage || WeAreChasingAndCantCatchThem || TargetIsMighty);
@@ -166,7 +162,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// <summary>
         /// Executes the anti chase disengage. ship will try to maintain a left or right facing to target.
         /// </summary>
-        protected void ExecuteAntiChaseDisengage(FixedSimTime timeStep)
+        void ExecuteAntiChaseDisengage(FixedSimTime timeStep)
         {
             switch(DisengageType)
             {
@@ -179,17 +175,17 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         }
 
         /// <summary>
-        /// Initializes basic combat movement parameters. Chase status. distance to target.
-        /// ship target orientation.
+        /// Initializes basic combat movement parameters.
         /// </summary>
         void Initialize(float desiredWeaponsRange)
         {
-            DistanceToTarget = Owner.Center.Distance(OwnerTarget.Center);
+            DistanceToTarget  = Owner.Center.Distance(OwnerTarget.Center);
+            DirectionToTarget = Owner.Center.DirectionToTarget(OwnerTarget.Center);
+
             SpacerDistance = Owner.Radius + AI.Target.Radius;
-            OutSideDesiredWeaponsRange = DistanceToTarget > Owner.DesiredCombatRange;
             DebugTextIndex = 0;
 
-            if (OutSideDesiredWeaponsRange)
+            if (DistanceToTarget > desiredWeaponsRange)
             {
                 if (DistanceToTarget < OwnerTarget.WeaponsMaxRange * 2)
                 {
@@ -207,8 +203,8 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 else
                 {
                     DisengageDirection = Vector2.Zero;
-                    DisengageType      = DisengageTypes.None;
-                    MoveState          = CombatMoveState.Approach;
+                    DisengageType = DisengageTypes.None;
+                    MoveState = CombatMoveState.Approach;
                 }
             }
             else
@@ -217,22 +213,16 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 DisengageType = DisengageTypes.None;
             }
 
-            if (ThinkTimer <= 0f)
-            {
-                ThinkTimer = 1f / Owner.Level.LowerBound(1);
-                DirectionToTarget = Owner.Center.DirectionToTarget(OwnerTarget.Center);
-            }
-
             ChaseStates = ChaseStatus(DistanceToTarget);
         }
 
         /// <summary>
-        /// Approach target if it cant fight back. Its not withing 5 degrees of the targets facing.
+        /// Approach target if it cant fight back or if it's not intercepting us already
         /// The ship should not be disengaging
         /// </summary>
         bool ShouldApproach()
         {
-            if (OwnerTarget.CombatDisabled || OwnerTarget.Center.DirectionToTarget(Owner.Center).Dot(OwnerTarget.Direction) > 5f)
+            if (OwnerTarget.CombatDisabled || !IsTargetInterceptingUs)
                 return true;
             return !ShouldDisengage();
         }
@@ -281,9 +271,9 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             ChaseState chase = ChaseState.None;
 
             float dotToInterceptDir = Owner.VelocityDirection.Dot(DirectionToTarget);
-            if (dotToInterceptDir > 0.35f && RadMath.IsTargetInsideArc(Owner.Center, OwnerTarget.Center, Owner.Rotation, 0.35f))
+            if (dotToInterceptDir > 0.35f && RadMath.IsTargetInsideArc(Owner.Center, OwnerTarget.Center, Owner.Rotation, RadMath.Deg20AsRads))
                 chase |= ChaseState.WeAreChasing;
-            else if (dotToInterceptDir < -0.35f && RadMath.IsTargetInsideArc(OwnerTarget.Center, Owner.Center, OwnerTarget.Rotation, 0.35f))
+            else if (dotToInterceptDir < -0.35f && RadMath.IsTargetInsideArc(OwnerTarget.Center, Owner.Center, OwnerTarget.Rotation, RadMath.Deg20AsRads))
                 chase |= ChaseState.TheyAreChasing;
 
             chase |= CanCatchState(chase, distance);
@@ -293,7 +283,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// <summary>
         /// TO BE EXPANDED. be a harder target on approach. 
         /// </summary>
-        public void ErraticMovement(float distanceToTarget, FixedSimTime timeStep)
+        public void ErraticMovement(FixedSimTime timeStep)
         {
             ErraticTimer -= timeStep.FixedTime;
             if (AI.IsFiringAtMainTarget || Owner.AI.HasPriorityOrder)
@@ -307,10 +297,10 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 return;
             }
              
-            int rng       = RandomMath.RollAvgPercentVarianceFrom50();
+            int rng = RandomMath.RollAvgPercentVarianceFrom50();
             int racialMod = Owner.loyalty.data.Traits.PhysicalTraitPonderous ? -1 : 0;
-            racialMod    += Owner.loyalty.data.Traits.PhysicalTraitReflexes ? 1 : 0;
-            float mod     = 5 * (Owner.RotationRadiansPerSecond * (Owner.Level + racialMod)).Clamped(0, 10);
+            racialMod += Owner.loyalty.data.Traits.PhysicalTraitReflexes ? 1 : 0;
+            float mod = 5 * (Owner.RotationRadiansPerSecond * (Owner.Level + racialMod)).Clamped(0, 10);
 
             ErraticTimer = rng * 0.05f;
 
@@ -331,7 +321,6 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 }
             }
         }
-
 
         public void DrawDebugTarget(Vector2 pip, float radius)
         {
