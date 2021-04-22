@@ -319,13 +319,13 @@ namespace Ship_Game.AI
                         activeWars.Add(rel.ActiveWar);
                 }
 
-                // Process wars by their success.
+                // Process wars by their proximity.
                 MinWarPriority = 11;
                 if (activeWars.Count > 0)
                 {
                     MinWarPriority = activeWars.Min(w => w.GetPriority());
                 }
-                var sortedActiveWars = activeWars.Sorted(w => w.GetPriority());
+                var sortedActiveWars = activeWars.Sorted(w => w.Them.WeightedCenter.Distance(OwnerEmpire.WeightedCenter));
                 foreach (War war in sortedActiveWars)
                 {
                     var currentWar = war.ConductWar();
@@ -333,7 +333,6 @@ namespace Ship_Game.AI
                     worstWar = worstWar > currentWar ? currentWar : worstWar;
                 }
 
-                
                 // start a new war by military strength
                 if (worstWar > WarState.WinningSlightly)
                 {

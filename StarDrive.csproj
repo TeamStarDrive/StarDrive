@@ -249,6 +249,7 @@
     <Compile Include="Ship_Game\GameScreens\ShipDesign\DesignShip.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignInfoPanel.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenDraw_DrawHelpers.cs" />
+    <Compile Include="Ship_Game\Graphics\Font.cs" />
     <Compile Include="Ship_Game\SearchTechItem.cs" />
     <Compile Include="Ship_Game\Commands\Goals\DefendVsRemnants.cs" />
     <Compile Include="Ship_Game\Commands\Goals\StandbyColonyShip.cs" />
@@ -2461,6 +2462,12 @@
     <Content Include="Content\Races\Draugar.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Races\Revoran.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Races\Unknown.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\RandomStuff\Dormant Volcano.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -2623,6 +2630,9 @@
     <Content Include="Content\StarterShips\Draylok Mobilizer2.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\StarterShips\Flea-Class Mk Ic Fighter.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\StarterShips\Owlwok Freighter L2.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -2630,6 +2640,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\StarterShips\Small Transport 2.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\StarterShips\Sorceress-Class Supercarrier.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\StarterShips\TEST_ShipShield.xml">

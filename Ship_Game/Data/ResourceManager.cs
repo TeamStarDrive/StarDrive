@@ -77,6 +77,9 @@ namespace Ship_Game
 
         public static SubTexture Blank;
 
+        // This 1x1 White pixel texture is used for drawing Lines and other primitives
+        public static Texture2D WhitePixel;
+
         /// <summary>
         /// This is where core game content is found. NOT Mod content.
         /// Ex: "C:/Projects/BlackBox/stardrive/Content/"
@@ -160,6 +163,34 @@ namespace Ship_Game
             Log.Write($"LoadItAll elapsed: {s.Elapsed.TotalSeconds}s");
         }
 
+        static readonly Array<KeyValuePair<string, double>> PerfProfile = new Array<KeyValuePair<string, double>>();
+        static Stopwatch PerfStopwatch = new Stopwatch();
+        static void BeginPerfProfile()
+        {
+            PerfProfile.Clear();
+            PerfStopwatch.Start();
+        }
+        static void Profiled(string uniqueName, Action body)
+        {
+            var sw = Stopwatch.StartNew();
+            body();
+            double elapsed = sw.Elapsed.TotalSeconds;
+            PerfProfile.Add(new KeyValuePair<string, double>(uniqueName, elapsed));
+        }
+        static void Profiled(Action body) => Profiled(body.Method.Name, body);
+        static void EndPerfProfile()
+        {
+            PerfStopwatch.Stop();
+            double elapsed = PerfStopwatch.Elapsed.TotalSeconds;
+            PerfProfile.Sort(kv => kv.Value);
+            PerfProfile.Reverse();
+            foreach (var kv in PerfProfile)
+            {
+                double percent = (kv.Value / elapsed) * 100.0;
+                Log.Write(ConsoleColor.Cyan, $"{kv.Key,-20} {kv.Value*1000:0.0}ms  {percent:0.00}%");
+            }
+        }
+
         static void LoadAllResources(ScreenManager manager, ModEntry mod)
         {
             if (mod != null)
@@ -168,36 +199,39 @@ namespace Ship_Game
                 GlobalStats.ClearActiveMod();
 
             InitContentDir();
+            CreateCoreGfxResources();
             Log.Write($"Load {(GlobalStats.HasMod ? ModContentDirectory : "Vanilla")}");
-            LoadLanguage(GlobalStats.Language); // @todo Slower than expected [0.36]
-            LoadHullBonuses();
-            LoadHullData(); // we need Hull Data for main menu ship
-            LoadEmpires();  // empire for NewGame @todo Very slow [0.54%]
 
-            LoadTroops();
-            LoadWeapons();     // @todo Also slow [0.87%]
-            LoadShipModules(); // @todo Extremely slow [1.29%]
-            LoadGoods();
-            LoadShipRoles();
-            LoadShipTemplates(); // @note Extremely fast :))) Loads everything in [0.16%]
-            LoadBuildings();
-            LoadRandomItems();
-            LoadDialogs();  // @todo SLOW [0.44%]
-            LoadTechTree(); // @todo This is VERY slow, about 4x slower than loading textures [0.97%]
-            LoadEncounters();
-            LoadExpEvents();
-            TechValidator();
+            BeginPerfProfile();
+            Profiled("LoadLanguage", () => LoadLanguage(GlobalStats.Language)); // must be before LoadFonts
+            Profiled(LoadHullBonuses);
+            Profiled(LoadHullData); // we need Hull Data for main menu ship
+            Profiled(LoadEmpires); // Hotspot #2 187.4ms  8.48%
 
-            LoadArtifacts();
-            LoadPlanetEdicts();
-            LoadPlanetTypes();
-            LoadSunZoneData();
-            LoadBuildRatios();
-            LoadEconomicResearchStrategies();
-            LoadBlackboxSpecific();
+            Profiled(LoadTroops);
+            Profiled(LoadWeapons);
+            Profiled(LoadShipModules); // Hotspot #4 124.9ms  5.65%
+            Profiled(LoadGoods);
+            Profiled(LoadShipRoles);
+            Profiled(LoadShipTemplates); // Hotspot #1  502.9ms  22.75%
+            Profiled(LoadBuildings);
+            Profiled(LoadRandomItems);
+            Profiled(LoadDialogs);
+            Profiled(LoadTechTree);
+            Profiled(LoadEncounters);
+            Profiled(LoadExpEvents);
+            Profiled(TechValidator);
 
-            TestLoad();
-            RunExportTasks();
+            Profiled(LoadArtifacts);
+            Profiled(LoadPlanetEdicts);
+            Profiled(LoadPlanetTypes);
+            Profiled(LoadSunZoneData);
+            Profiled(LoadBuildRatios);
+            Profiled(LoadEcoResearchStrats);
+            Profiled(LoadBlackboxSpecific);
+
+            Profiled(TestLoad);
+            Profiled(RunExportTasks);
 
             LoadGraphicsResources(manager);
             HelperFunctions.CollectMemory();
@@ -209,36 +243,36 @@ namespace Ship_Game
 
             ++ContentId; // LoadContent will see a new content id
 
-            LoadTextureAtlases();
-            LoadNebulae();
-            LoadStars();
-            LoadFlagTextures();
-            LoadJunk();         // @todo SLOW [0.47%]
-            LoadAsteroids();    // @todo SLOW [0.40%]
-            LoadProjTexts();    // @todo SLOW [0.47%]
-            LoadProjectileMeshes();
-            
-            SunType.LoadAll();
+            Profiled(LoadTextureAtlases);
+            Profiled(LoadNebulae);
+            Profiled(LoadStars);
+            Profiled(LoadFlagTextures);
 
-            GameLoadingScreen.SetStatus("LoadShields", "");
-            ShieldManager.LoadContent(RootContent);
-            Beam.BeamEffect = RootContent.Load<Effect>("Effects/BeamFX");
-            BackgroundItem.QuadEffect = new BasicEffect(manager.GraphicsDevice, null) { TextureEnabled = true };
-            Blank = Texture("blank");
-            
-            GameLoadingScreen.SetStatus("LoadFonts", "");
-            Fonts.LoadContent(RootContent);
-            GameLoadingScreen.SetStatus("", "");
+            Profiled(LoadJunk);
+            Profiled(LoadAsteroids);
+            Profiled(LoadProjTexts);
+            Profiled(LoadProjectileMeshes);
+            Profiled(SunType.LoadSunTypes); // Hotspot #3 174.8ms  7.91%
+            Profiled("LoadBeamFX", () =>
+            {
+                ShieldManager.LoadContent(RootContent);
+                Beam.BeamEffect = RootContent.Load<Effect>("Effects/BeamFX");
+                BackgroundItem.QuadEffect = new BasicEffect(manager.GraphicsDevice, null) { TextureEnabled = true };
+                Blank = Texture("blank");
+            });
+            Profiled("LoadFonts", () => Fonts.LoadFonts(RootContent, Localizer.Language));
 
             // Load non-critical resources:
             void LoadNonCritical()
             {
                 Log.Write("Load non-critical resources");
-                ExplosionManager.LoadContent(RootContent);
-                LoadNonEssentialAtlases(BackgroundLoad);
+                Profiled("LoadExplosions", () => ExplosionManager.LoadExplosions(RootContent));
+                Profiled("LoadNonEssential", () => LoadNonEssentialAtlases(BackgroundLoad));
                 Log.Write("Finished loading non-critical resources");
+                EndPerfProfile();
             }
-
+            
+            GameLoadingScreen.SetStatus("LoadNonCritical");
             //LoadNonCritical();
             BackgroundLoad = Parallel.Run(LoadNonCritical);
         }
@@ -255,13 +289,14 @@ namespace Ship_Game
             FlagTextures = null;
             JunkModels.Clear();
             AsteroidModels.Clear();
-            ProjTextDict.Clear();
+            ProjTextDict.ClearAndDispose();
             ProjectileModelDict.Clear();
             ProjectileMeshDict.Clear();
             SunType.Unload();
             ShieldManager.UnloadContent();
             Beam.BeamEffect = null;
             BackgroundItem.QuadEffect?.Dispose(ref BackgroundItem.QuadEffect);
+            WhitePixel.Dispose(ref WhitePixel);
 
             // Texture caches MUST be cleared before triggering content reload!
             Textures.Clear();
@@ -617,6 +652,12 @@ namespace Ship_Game
 
         //////////////////////////////////////////////////////////////////////////////////////////
 
+        static void CreateCoreGfxResources()
+        {
+            WhitePixel = new Texture2D(RootContent.Device, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
+            WhitePixel.SetData(new Color[]{ Color.White });
+        }
+
         // Load texture with its abstract path such as
         // "Explosions/smaller/shipExplosion"
         public static SubTexture TextureOrNull(string textureName)
@@ -702,11 +743,13 @@ namespace Ship_Game
         static void LoadTextureAtlases()
         {
             // these are essential for main menu, so we load them as blocking
-            LoadAtlas("Textures");
-            LoadAtlas("Textures/GameScreens");
-            LoadAtlas("Textures/MainMenu");
-            LoadAtlas("Textures/EmpireTopBar");
-            LoadAtlas("Textures/NewUI");
+            string[] atlases =
+            {
+                "Textures",
+                "Textures/GameScreens", "Textures/MainMenu",
+                "Textures/EmpireTopBar", "Textures/NewUI"
+            };
+            Parallel.ForEach(atlases, atlas => LoadAtlas(atlas));
         }
 
         static void LoadNonEssentialAtlases(TaskResult task)
@@ -748,6 +791,7 @@ namespace Ship_Game
                 if (task?.IsCancelRequested != true)
                     LoadAtlas(atlas);
             });
+            GameLoadingScreen.SetStatus("Click to Continue");
             Log.Write($"LoadAtlases (background) elapsed:{s.Elapsed.TotalMilliseconds}ms  Total Parallel Tasks: {Parallel.PoolSize}");
         }
 
@@ -926,47 +970,33 @@ namespace Ship_Game
 
         public static void LoadEncounters()
         {
-            Encounters = LoadEntities<Encounter>("Encounter Dialogs", "LoadEncounters");
-
-            foreach (Encounter encounter in Encounters)
+            Encounters.Clear();
+            foreach (var pair in LoadEntitiesWithInfo<Encounter>("Encounter Dialogs", "LoadEncounters"))
             {
-                foreach (Message message in encounter.MessageList)
-                {
-                    foreach (Response response in message.ResponseOptions)
-                    {
-                        if (TechTree.TryGetValue(response.UnlockTech ?? "", out Technology tech))
-                        {
-                            if (tech.Unlockable)
-                                continue;
-                            tech.Unlockable = true;
+                Encounter e = pair.Entity;
+                e.FileName = pair.Info.NameNoExt();
+                Encounters.Add(e);
 
-                            if (GlobalStats.VerboseLogging)
-                                Log.WarningVerbose($"Technology can be unlocked by encounter '{encounter.Name}' : '{tech.UID}'");
-                        }
-                    }
-                }
+                foreach (Message message in e.MessageList)
+                    foreach (Response response in message.ResponseOptions)
+                        if (TechTree.TryGetValue(response.UnlockTech ?? "", out Technology tech))
+                            tech.Unlockable = true;
             }
         }
 
         static void LoadExpEvents() // Refactored by RedFox
         {
+            EventsDict.Clear();
             foreach (var pair in LoadEntitiesWithInfo<ExplorationEvent>("Exploration Events", "LoadExpEvents"))
             {
-                EventsDict[pair.Info.NameNoExt()] = pair.Entity;
+                pair.Entity.FileName = pair.Info.NameNoExt();
+                EventsDict[pair.Entity.FileName] = pair.Entity;
                 foreach (var outcome in pair.Entity.PotentialOutcomes)
                 {
                     if (TechTree.TryGetValue(outcome.UnlockTech ?? "", out Technology tech))
-                    {
-                        if (tech.Unlockable) continue;
                         tech.Unlockable = true;
-                        Log.WarningVerbose($"Technology can be unlocked by event '{pair.Entity.Name}' : '{tech.UID}'");
-                    }
                     if (TechTree.TryGetValue(outcome.SecretTechDiscovered ?? "", out tech))
-                    {
-                        if (tech.Unlockable) continue;
                         tech.Unlockable = true;
-                        Log.WarningVerbose($"Secret Technology can be unlocked by event '{pair.Entity.Name}' : '{tech.UID}'");
-                    }
                 }
             }
         }
@@ -1113,10 +1143,10 @@ namespace Ship_Game
             else
             {
                 foreach (var loc in LoadVanillaEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
-                    Localizer.AddTokens(loc.TokenList);
+                    Localizer.AddTokens(loc.TokenList, language);
                 if (language != Language.English)
                     foreach (var loc in LoadVanillaEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
-                        Localizer.AddTokens(loc.TokenList);
+                        Localizer.AddTokens(loc.TokenList, language);
             }
 
             // Now replace any vanilla tokens with mod tokens
@@ -1130,10 +1160,10 @@ namespace Ship_Game
                 else
                 {
                     foreach (var loc in LoadModEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
-                        Localizer.AddTokens(loc.TokenList);
+                        Localizer.AddTokens(loc.TokenList, language);
                     if (language != Language.English)
                         foreach (var loc in LoadModEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
-                            Localizer.AddTokens(loc.TokenList);
+                            Localizer.AddTokens(loc.TokenList, language);
                 }
             }
         }
@@ -1212,7 +1242,7 @@ namespace Ship_Game
 
         public static void LoadProjectileMeshes()
         {
-            GameLoadingScreen.SetStatus("LoadProjectileMeshes", "");
+            GameLoadingScreen.SetStatus("LoadProjectileMeshes");
             ProjectileMeshDict.Clear();
             ProjectileModelDict.Clear();
             const string projectileDir = "Model/Projectiles/";
@@ -1250,11 +1280,22 @@ namespace Ship_Game
 
         static void LoadProjTexts()
         {
-            ProjTextDict.Clear();
-            foreach (FileInfo info in GatherFilesUnified("Model/Projectiles/textures", "xnb", recursive: false))
+            ProjTextDict.ClearAndDispose();
+            var files = GatherFilesUnified("Model/Projectiles/textures", "xnb", recursive: false);
+
+            var nameTexPairs = Parallel.Select(files, file =>
             {
-                Texture2D tex = RootContent.LoadTexture(info, "xnb");
-                ProjTextDict[info.NameNoExt()] = tex;
+                string shortName = file.NameNoExt();
+                GameLoadingScreen.SetStatus("LoadProjectileTex", shortName);
+                Texture2D tex = RootContent.LoadTexture(file, "xnb");
+                return (shortName, tex);
+            });
+
+            foreach ((string shortName, Texture2D tex) in nameTexPairs)
+            {
+                if (ProjTextDict.TryGetValue(shortName, out Texture2D existing))
+                    Log.Warning($"Projectile Overwrite: {shortName} {existing.Name} -> {tex.Name}");
+                ProjTextDict[shortName] = tex;
             }
         }
 
@@ -1265,13 +1306,16 @@ namespace Ship_Game
 
         static void LoadShipModules()
         {
-            foreach (var pair in LoadEntitiesWithInfo<ShipModule_Deserialize>("ShipModules", "LoadShipModules"))
+            // 95% spent loading these XML files:
+            var entities = LoadEntitiesWithInfo<ShipModule_Deserialize>("ShipModules", "LoadShipModules");
+
+            foreach (var pair in entities)
             {
                 // Added by gremlin support tech level disabled folder.
                 if (pair.Info.DirectoryName?.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) > 0)
                     continue;
-                ShipModule_Deserialize data = pair.Entity;
 
+                ShipModule_Deserialize data = pair.Entity;
                 data.UID = string.Intern(pair.Info.NameNoExt());
                 data.IconTexturePath = string.Intern(data.IconTexturePath);
                 if (data.WeaponType != null)
@@ -1283,23 +1327,17 @@ namespace Ship_Game
                         Log.Info($"ShipModule UID already found. Conflicting name:  {data.UID}");
                     if (!Localizer.Contains(data.NameIndex))
                         Log.Warning($"{data.UID} missing NameIndex: {data.NameIndex}");
-
                 }
-                // if the values
                 if (data.IsCommandModule && data.TargetTracking == 0)  data.TargetTracking = (sbyte) (int)(data.XSIZE * data.YSIZE * 1.25f );
                 if (data.IsCommandModule && data.TargetAccuracy == 0)  data.TargetAccuracy = data.TargetTracking;
 
                 data.DisableRotation = data.DisableRotation || data.XSIZE == data.YSIZE;
 
-                ModuleTemplates[data.UID] = ShipModule.CreateTemplate(data);
+                ShipModule template = ShipModule.CreateTemplate(data);
+                template.SetAttributes();
+                ModuleTemplates[template.UID] = template;
             }
-
-            //Log.Info("Num ShipModuleFlyweight: {0}", ShipModuleFlyweight.TotalNumModules);
-
-            foreach (var entry in ModuleTemplates)
-                entry.Value.SetAttributes();
         }
-
 
         struct ShipDesignInfo
         {
@@ -1326,6 +1364,7 @@ namespace Ship_Game
 
         static void LoadShipTemplates(ShipDesignInfo[] shipDescriptors)
         {
+            Log.Info($"Loading {shipDescriptors.Length} Ship Templates");
             void LoadShips(int start, int end)
             {
                 for (int i = start; i < end; ++i)
@@ -1442,7 +1481,7 @@ namespace Ship_Game
             LoadTroops();
             LoadDialogs(); // for CreateEmpire
             LoadEmpires();
-            LoadEconomicResearchStrategies();
+            LoadEcoResearchStrats();
             LoadBuildings();
         }
 
@@ -1452,7 +1491,7 @@ namespace Ship_Game
             LoadPlanetTypes();
             LoadSunZoneData();
             LoadBuildRatios();
-            SunType.LoadAll();
+            SunType.LoadSunTypes();
         }
 
         public static void LoadTechContentForTesting()
@@ -1460,12 +1499,12 @@ namespace Ship_Game
             LoadBasicContentForTesting();
             LoadTechTree();
             TechValidator();
-            SunType.LoadAll();
+            SunType.LoadSunTypes();
         }
 
         static void TechValidator()
         {
-            GameLoadingScreen.SetStatus("TechValidator", "");
+            GameLoadingScreen.SetStatus("TechValidator");
             Array<Technology> techs = TechTree.Values.ToArrayList();
             var rootTechs = new Array<Technology>();
             foreach (Technology rootTech in techs)
@@ -1611,7 +1650,7 @@ namespace Ship_Game
 
         static readonly Map<string, EconomicResearchStrategy> EconStrategies = new Map<string, EconomicResearchStrategy>();
         public static EconomicResearchStrategy GetEconomicStrategy(string name) => EconStrategies[name];
-        static void LoadEconomicResearchStrategies()
+        static void LoadEcoResearchStrats()
         {
             EconStrategies.Clear();
             foreach (var pair in LoadEntitiesWithInfo<EconomicResearchStrategy>("EconomicResearchStrategy", "LoadEconResearchStrats"))
@@ -1645,12 +1684,8 @@ namespace Ship_Game
 
         static void LoadPlanetTypes()
         {
-            GameLoadingScreen.SetStatus("PlanetTypes", "");
-            using (var parser = new YamlParser("PlanetTypes.yaml"))
-            {
-                PlanetTypes = parser.DeserializeArray<PlanetType>();
-            }
-
+            GameLoadingScreen.SetStatus("PlanetTypes");
+            PlanetTypes = YamlParser.DeserializeArray<PlanetType>("PlanetTypes.yaml");
             PlanetTypes.Sort(p => p.Id);
             PlanetTypeMap = new Map<int, PlanetType>(PlanetTypes.Count);
             foreach (PlanetType type in PlanetTypes)
@@ -1664,16 +1699,13 @@ namespace Ship_Game
 
         static void LoadSunZoneData()
         {
-            GameLoadingScreen.SetStatus("SunZoneData", "");
+            GameLoadingScreen.SetStatus("SunZoneData");
+            var zones = YamlParser.DeserializeArray<SunZoneData>("SunZoneData.yaml");
             ZoneDistribution.Clear();
-            using (var parser = new YamlParser("SunZoneData.yaml"))
-            {
-                var zones = parser.DeserializeArray<SunZoneData>();
-                ZoneDistribution[SunZone.Near]    = SunZoneData.CreateDistribution(zones, SunZone.Near);
-                ZoneDistribution[SunZone.Habital] = SunZoneData.CreateDistribution(zones, SunZone.Habital);
-                ZoneDistribution[SunZone.Far]     = SunZoneData.CreateDistribution(zones, SunZone.Far);
-                ZoneDistribution[SunZone.VeryFar] = SunZoneData.CreateDistribution(zones, SunZone.VeryFar);
-            }
+            ZoneDistribution[SunZone.Near]    = SunZoneData.CreateDistribution(zones, SunZone.Near);
+            ZoneDistribution[SunZone.Habital] = SunZoneData.CreateDistribution(zones, SunZone.Habital);
+            ZoneDistribution[SunZone.Far]     = SunZoneData.CreateDistribution(zones, SunZone.Far);
+            ZoneDistribution[SunZone.VeryFar] = SunZoneData.CreateDistribution(zones, SunZone.VeryFar);
         }
 
         public static int[] GetFleetRatios(BuildRatio canBuild)
@@ -1683,15 +1715,12 @@ namespace Ship_Game
 
         static void LoadBuildRatios()
         {
-            GameLoadingScreen.SetStatus("FleetBuildRatios", "");
+            GameLoadingScreen.SetStatus("FleetBuildRatios");
             BuildRatios.Clear();
-            using (var parser = new YamlParser("FleetBuildRatios.yaml"))
+            var ratios = YamlParser.DeserializeArray<FleetBuildRatios>("FleetBuildRatios.yaml");
+            foreach (BuildRatio canBuild in Enum.GetValues(typeof(BuildRatio)))
             {
-                var ratios = parser.DeserializeArray<FleetBuildRatios>();
-                foreach (BuildRatio canBuild in Enum.GetValues(typeof(BuildRatio)))
-                {
-                    BuildRatios[canBuild] = FleetBuildRatios.GetRatiosFor(ratios, canBuild);
-                }
+                BuildRatios[canBuild] = FleetBuildRatios.GetRatiosFor(ratios, canBuild);
             }
         }
 

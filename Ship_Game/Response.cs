@@ -3,6 +3,7 @@ namespace Ship_Game
     public sealed class Response
     {
         public string Text;
+        public string LocalizedText;
         public int MoneyToThem;
         public bool EndsTransmission;
         public bool FailIfNotAlluring;

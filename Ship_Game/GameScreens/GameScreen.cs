@@ -60,8 +60,12 @@ namespace Ship_Game
         public Vector2 ScreenCenter => GameBase.ScreenCenter;
         bool Pauses = true;
 
+        // event called right after the screen has been loaded
+        public Action OnLoaded;
+
         // multi cast exit delegate, called when a game screen is exiting
         public event Action OnExit;
+
         public bool IsDisposed { get; private set; }
 
         // This should be used for content that gets unloaded once this GameScreen disappears
@@ -161,23 +165,30 @@ namespace Ship_Game
             Enabled = Visible = false;
             ScreenState = ScreenState.Hidden;
         }
+        
+        // NOTE: Optionally implemented by GameScreens to create their screen content
+        //       This is also called when the screen is being reloaded
+        public virtual void LoadContent() { }
 
-        public virtual void ReloadContent()
+        // Wrapper: should only be called by ScreenManager
+        public void InvokeLoadContent()
         {
-            UnloadContent();
             LoadContent();
-        }
-
-        public virtual void LoadContent()
-        {
             DidLoadContent = true;
             PerformLayout();
+            OnLoaded?.Invoke();
         }
 
         public virtual void UnloadContent()
         {
             TransientContent?.Unload();
             Elements.Clear();
+        }
+        
+        public virtual void ReloadContent()
+        {
+            UnloadContent();
+            InvokeLoadContent();
         }
 
         public override bool HandleInput(InputState input)
@@ -354,13 +365,13 @@ namespace Ship_Game
             if (rectangle.HitTest(mousePos))
                 ToolTip.CreateTooltip(toolTip);
         }
-        public void CheckToolTip(LocalizedText toolTip, Vector2 cursor, string words, string numbers, SpriteFont font, Vector2 mousePos)
+        public void CheckToolTip(LocalizedText toolTip, Vector2 cursor, string words, string numbers, Graphics.Font font, Vector2 mousePos)
         {
             var rect = new Rectangle((int)cursor.X, (int)cursor.Y, 
                 font.TextWidth(words) + font.TextWidth(numbers), font.LineSpacing);
             CheckToolTip(toolTip, rect, mousePos);
         }
-        public Vector2 FontSpace(Vector2 cursor, float spacing, string drawnString, SpriteFont font)
+        public Vector2 FontSpace(Vector2 cursor, float spacing, string drawnString, Graphics.Font font)
         {
             cursor.X += (spacing - font.MeasureString(drawnString).X);
             return cursor;
@@ -369,12 +380,12 @@ namespace Ship_Game
         public void DrawString(Vector2 centerOnScreen, float rotation, float textScale, Color textColor, string text)
         {
             Vector2 size = Fonts.Arial11Bold.MeasureString(text);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, centerOnScreen, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, centerOnScreen, textColor, rotation, size * 0.5f, textScale);
         }
         // Draw string in screen coordinates. No centering.
-        public void DrawString(Vector2 posOnScreen, Color textColor, string text, SpriteFont font, float rotation = 0f, float textScale = 1f)
+        public void DrawString(Vector2 posOnScreen, Color textColor, string text, Graphics.Font font, float rotation = 0f, float textScale = 1f)
         {
-            ScreenManager.SpriteBatch.DrawString(font, text, posOnScreen, textColor, rotation, Vector2.Zero, textScale, SpriteEffects.None, 1f);
+            ScreenManager.SpriteBatch.DrawString(font, text, posOnScreen, textColor, rotation, Vector2.Zero, textScale);
         }
 
         public void MakeMessageBox(GameScreen screen, Action cancelled, Action accepted, int localId, string okText, string cancelledText)
@@ -396,7 +407,6 @@ namespace Ship_Game
             Vector3 diffuseColor, in Matrix projection, 
             SubTexture projTex, 
             float alpha = 0f, 
-            bool textureEnabled = true, 
             bool lightingEnabled = false)
         {
             foreach (ModelMesh modelMesh in model.Meshes)
@@ -530,21 +540,18 @@ namespace Ship_Game
             => DrawLineProjected(startInWorld, endInWorld, color, 2500);
 
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, float thickness = 1f)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
             DrawCircle(screenPos, screenRadius, color, thickness);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, int sides, Color color, float thickness = 1f)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
             DrawCircle(screenPos, screenRadius, sides, color, thickness);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCapsuleProjected(in Capsule capsuleInWorld, Color color, float thickness = 1f)
         {
             var capsuleOnScreen = new Capsule(
@@ -555,7 +562,6 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawCapsule(capsuleOnScreen, color, thickness);
         }
 
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCircleProjectedZ(Vector2 posInWorld, float radiusInWorld, Color color, float zAxis = 0f)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius, zAxis);
@@ -589,7 +595,6 @@ namespace Ship_Game
             DrawRectangle(rect, edge, fill);            
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawRectangleProjected(Vector2 centerInWorld, Vector2 sizeInWorld, float rotation, Color color, float thickness = 1f)
         {
             ProjectToScreenCoords(centerInWorld, sizeInWorld, out Vector2 posOnScreen, out Vector2 sizeOnScreen);
@@ -604,7 +609,6 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawRectangle(screenRect, color, thickness);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTextureProjected(SubTexture texture, Vector2 posInWorld, float textureScale, Color color)
         {
             ProjectToScreenCoords(posInWorld, textureScale*2, out Vector2 posOnScreen, out float sizeOnScreen);
@@ -640,7 +644,7 @@ namespace Ship_Game
             if (Primitives2D.IsIntersectingScreenPosSize(screenPos, size))
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text,
-                    screenPos, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
+                    screenPos, textColor, rotation, size * 0.5f, textScale);
             }
         }
 
@@ -651,9 +655,9 @@ namespace Ship_Game
             if (Primitives2D.IsIntersectingScreenPosSize(screenPos, size))
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text,
-                    screenPos+new Vector2(2), Color.Black, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
+                    screenPos+new Vector2(2), Color.Black, rotation, size * 0.5f, textScale);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text,
-                    screenPos, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
+                    screenPos, textColor, rotation, size * 0.5f, textScale);
             }
         }
 
@@ -669,7 +673,7 @@ namespace Ship_Game
             if (Primitives2D.IsIntersectingScreenPosSize(screenPos, size))
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text,
-                    screenPos, textColor, 0f, size * 0.5f, scale, SpriteEffects.None, 1f);
+                    screenPos, textColor, 0f, size * 0.5f, scale);
             }
         }
 

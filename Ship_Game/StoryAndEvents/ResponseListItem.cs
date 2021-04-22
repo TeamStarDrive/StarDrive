@@ -3,23 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
     public class ResponseListItem : ScrollListItem<ResponseListItem>
     {
-        public Response Response;
-        public ResponseListItem(Response response)
+        readonly UIButton Btn;
+        public ResponseListItem(Response response, Action<Response> onClicked)
         {
-            Response = response;
+            string text = response.LocalizedText.NotEmpty()
+                        ? Localizer.Token(response.LocalizedText)
+                        : response.Text ?? Localizer.Token(GameText.No);
+            
+            var customStyle = new UIButton.StyleTextures();
+            Btn = Add(new UIButton(customStyle, new Vector2(120, 24), text));
+            Btn.OnClick = b => onClicked(response);
+            Btn.Font = Fonts.Arial14Bold;
         }
 
-        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+        public override void PerformLayout()
         {
-            batch.DrawString(Fonts.Arial12Bold,
-                $"{ItemIndex+1}. {Response.Text}", Pos,
-                (Hovered ? Color.LightGray : Color.White));
+            Btn.Rect = Rect;
+            base.PerformLayout();
         }
     }
 }

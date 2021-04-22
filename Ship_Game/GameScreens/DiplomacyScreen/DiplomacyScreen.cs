@@ -272,7 +272,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             DState     = DialogState.Them;
         }
 
-        Vector2 GetCenteredTextPosition(Rectangle r, string text, SpriteFont font)
+        Vector2 GetCenteredTextPosition(Rectangle r, string text, Graphics.Font font)
         {
             return new Vector2(r.CenterTextX(text, font), r.CenterY());
         }
@@ -756,7 +756,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             for (int i = 0; i < words.Length; i++)
                 words[i] = ConvertDiplomacyKeyword(words[i]);
 
-            return Fonts.Consolas18.ParseText(words, maxLineWidth);
+            string readyToParse = string.Join(" ", words);
+            return Fonts.Consolas18.ParseText(readyToParse, maxLineWidth);
         }
 
         string UsSingular          => Us?.data.Traits.Singular ?? "HUMAN";

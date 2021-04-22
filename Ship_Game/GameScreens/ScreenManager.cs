@@ -87,7 +87,9 @@ namespace Ship_Game
         }
 
         // @warning This is not thread safe!
-        public void AddScreenImmediate(GameScreen screen)
+        // @warning Using this WILL cause screens to be Drawn before they are UPDATED!
+        // @warning THIS SHOULD NOT BE USED IN MOST CASES
+        public void AddScreenAndLoadContent(GameScreen screen)
         {
             if (GameBase.MainThreadId != Thread.CurrentThread.ManagedThreadId)
             {
@@ -104,7 +106,7 @@ namespace Ship_Game
             GameScreens.Add(screen);
 
             // @note LoadContent is allowed to remove current screen as well
-            screen.LoadContent();
+            screen.InvokeLoadContent();
         }
 
         // @note This is thread safe. Screen is added during next update of ScreenManager
@@ -116,14 +118,14 @@ namespace Ship_Game
         void AddPendingScreens()
         {
             while (PendingScreens.TryDequeue(out GameScreen screen))
-                AddScreenImmediate(screen);
+                AddScreenAndLoadContent(screen);
         }
 
         // exits all other screens and goes to specified screen
         public void GoToScreen(GameScreen screen, bool clear3DObjects)
         {
             ExitAll(clear3DObjects);
-            AddScreenImmediate(screen);
+            AddScreenAndLoadContent(screen);
         }
 
         public void AddScreenNoLoad(GameScreen screen)

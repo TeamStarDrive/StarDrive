@@ -173,7 +173,7 @@ namespace Ship_Game
                 text = HoveredShip.VanityName;
                 Vector2 tpos = new Vector2(Housing.X + 30, Housing.Y + 63);
                 string name = (!string.IsNullOrEmpty(HoveredShip.VanityName) ? HoveredShip.VanityName : HoveredShip.Name);
-                SpriteFont TitleFont = Fonts.Arial14Bold;
+                Graphics.Font TitleFont = Fonts.Arial14Bold;
                 Vector2 ShipSuperName = new Vector2(Housing.X + 30, Housing.Y + 79);
                 if (Fonts.Arial14Bold.MeasureString(name).X > 180f)
                 {
@@ -191,7 +191,7 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, Color.White);
                 Vector2 defPos = new Vector2(DefenseRect.X + DefenseRect.Width + 2, DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
                 SpriteBatch spriteBatch = batch;
-                SpriteFont arial12Bold = Fonts.Arial12Bold;
+                Graphics.Font arial12Bold = Fonts.Arial12Bold;
                 float totalBoardingDefense = HoveredShip.MechanicalBoardingDefense + HoveredShip.TroopBoardingDefense;
                 spriteBatch.DrawString(arial12Bold, totalBoardingDefense.String(), defPos, Color.White);
                 text = Fonts.Arial10.ParseText(ShipListScreenItem.GetStatusText(HoveredShip), 155f);

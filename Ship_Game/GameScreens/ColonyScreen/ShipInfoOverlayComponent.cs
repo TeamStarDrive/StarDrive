@@ -10,8 +10,8 @@ namespace Ship_Game
         GameScreen Screen;
         Ship SelectedShip;
         bool LowRes;
-        SpriteFont TitleFont;
-        SpriteFont Font;
+        Graphics.Font TitleFont;
+        Graphics.Font Font;
         int TextWidth;
 
         public ShipInfoOverlayComponent(GameScreen screen)
@@ -96,7 +96,7 @@ namespace Ship_Game
             DrawShipValueLine(batch, Font, ref cursor, "Cargo Space:", ship.CargoSpaceMax, Color.Khaki);
         }
 
-        void DrawShipValueLine(SpriteBatch batch, SpriteFont font, ref Vector2 cursor, string description, string data, Color color)
+        void DrawShipValueLine(SpriteBatch batch, Graphics.Font font, ref Vector2 cursor, string description, string data, Color color)
         {
             WriteLine(ref cursor, font);
             var ident = new Vector2(cursor.X + (TextWidth*0.5f).RoundTo10(), cursor.Y);
@@ -104,7 +104,7 @@ namespace Ship_Game
             batch.DrawString(font, data, ident, color);
         }
 
-        void DrawShipValueLine(SpriteBatch batch, SpriteFont font, ref Vector2 cursor, string description, float data, Color color)
+        void DrawShipValueLine(SpriteBatch batch, Graphics.Font font, ref Vector2 cursor, string description, float data, Color color)
         {
             if (data.LessOrEqual(0))
                 return;
@@ -115,7 +115,7 @@ namespace Ship_Game
             batch.DrawString(font, data.GetNumberString(), ident, color);
         }
 
-        static void WriteLine(ref Vector2 cursor, SpriteFont font)
+        static void WriteLine(ref Vector2 cursor, Graphics.Font font)
         {
             cursor.Y += font.LineSpacing + 2;
         }

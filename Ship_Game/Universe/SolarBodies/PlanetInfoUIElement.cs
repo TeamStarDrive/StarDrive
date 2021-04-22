@@ -42,8 +42,8 @@ namespace Ship_Game
         readonly Rectangle TerraformedPopRect;
         AssignLaborComponent AssignLabor;
 
-        readonly SpriteFont Font8  = Fonts.Arial8Bold;
-        readonly SpriteFont Font12 = Fonts.Arial12Bold;
+        readonly Graphics.Font Font8  = Fonts.Arial8Bold;
+        readonly Graphics.Font Font12 = Fonts.Arial12Bold;
         readonly Color ButtonTextColor   = new Color(174, 202, 255);
         readonly Color ButtonHoverColor  = new Color(88, 108, 146);
                                                                                   
@@ -107,7 +107,7 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
             var namePos = new Vector2(Housing.X + 15, Housing.Y + 65);
 
-            SpriteFont font = Fonts.Arial8Bold;
+            Graphics.Font font = Fonts.Arial8Bold;
             if (P.Name.Length < 12)      { font = Fonts.Arial20Bold; namePos.X += 15; }
             else if (P.Name.Length < 13) { font = Fonts.Arial12Bold; namePos.X += 10; }
             else if (P.Name.Length < 17) { font = Fonts.Arial10;     namePos.X += 5; }
@@ -371,7 +371,7 @@ namespace Ship_Game
 
         void DrawPlanetStats(Rectangle rect, string data, string texturePath, Color color, Color texcolor)
         {
-            SpriteFont font = Fonts.Arial12Bold;
+            Graphics.Font font = Fonts.Arial12Bold;
             Vector2 pos     = new Vector2((rect.X + rect.Width + 2), (rect.Y + 11 - font.LineSpacing / 2));
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(texturePath), rect, texcolor);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data, pos, color);

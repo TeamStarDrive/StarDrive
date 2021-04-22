@@ -122,7 +122,7 @@ namespace Ship_Game
             if (shipSO != null)
             {
                 TitlePos = new Vector2(what.X, 20f);
-                SpriteFont arial12Bold = Fonts.Arial12Bold;
+                Graphics.Font arial12Bold = Fonts.Arial12Bold;
                 float radius = shipSO.WorldBoundingSphere.Radius;
                 batch.DrawString(arial12Bold, "Radius: "+radius, TitlePos, Color.White);
                 TitlePos.Y += 20f;
@@ -145,7 +145,7 @@ namespace Ship_Game
                 {
                     slot.Draw(batch, moduleSlot, Color.White);
                     batch.DrawString(Fonts.Arial20Bold, " "+slot.Restrictions, 
-                        slot.PosVec2, Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
+                        slot.PosVec2, Color.Navy, 0f, Vector2.Zero, 0.4f);
                 }
                 if (applyThruster || slot.ModuleUID == null)
                 {
@@ -389,7 +389,6 @@ namespace Ship_Game
             HullsListMenu hullsList = Add(new HullsListMenu(this));
             hullsList.OnHullChange = OnExistingHullClicked;
 
-            PrimitiveQuad.Device = ScreenManager.GraphicsDevice;
             aspect = new Vector2(screenWidth, screenHeight);
             border = new PrimitiveQuad(aspect.X / 2f - 512f, aspect.Y / 2f - 512f, 1024f, 1024f);
             what = border.Rect;
