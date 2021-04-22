@@ -4,7 +4,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 {
     public class DialogOptionListItem : ScrollListItem<DialogOptionListItem>
     {
-        readonly SpriteFont Font = Fonts.Consolas18;
+        readonly Graphics.Font Font = Fonts.Consolas18;
         public override int ItemHeight => 24;
         public DialogOption Option { get; }
         readonly UILabel Text;

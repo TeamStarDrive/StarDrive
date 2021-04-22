@@ -1,10 +1,7 @@
-﻿using System;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.AI;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace UnitTests.Ships
@@ -16,6 +13,7 @@ namespace UnitTests.Ships
         {
             // Excalibur class has all the bells and whistles
             CreateGameInstance();
+            // TODO: we need to fix this mess with Supply Shuttles
             LoadStarterShips(new[]{ "Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle" });
             
         }

@@ -8,8 +8,8 @@ namespace Ship_Game
 {
     public sealed class TreeNode : Node
     {
-        //public SpriteFont TitleFont = Fonts.Visitor10;
-        public SpriteFont TitleFont = Fonts.Tahoma10;
+        //public Graphics.Font TitleFont = Fonts.Visitor10;
+        public Graphics.Font TitleFont = Fonts.Tahoma10;
 
         public NodeState State;
 
@@ -172,7 +172,7 @@ namespace Ship_Game
             TitleRect = new Rectangle(BaseRect.X, BaseRect.Y - 20, 90, 36);
             CostPos = new Vector2(62f, 70f) + new Vector2(BaseRect.X, BaseRect.Y);
             float x = CostPos.X;
-            SpriteFont titleFont = TitleFont;
+            Graphics.Font titleFont = TitleFont;
             float cost = Entry.TechCost;
             CostPos.X = x - TitleFont.MeasureString(cost.GetNumberString()).X;
             CostPos.X = (int)CostPos.X;

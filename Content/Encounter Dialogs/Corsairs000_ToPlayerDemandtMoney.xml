@@ -7,39 +7,24 @@
   <DescriptionText>While you are busy managing your empire's new found colonies, you receive a message from an organization which is called "The Corsairs":</DescriptionText>
   <MessageList>
     <Message>
-    <Text>Dearest SING friends,
-
-We are delighted to see your empire's progress. Isn't this exciting, to colonize new worlds and struggle with unknown environment? However, all these little freighters, moving from planet to planet like loyal bees are so exposed out there in deep space.
-
-So we have a proposal for you. You will pay us MONEY credits right now. If you do, then we can promise a certain level of 'protection' to SING ships. If you don't, well, then we just can't make any promises.
-
-Regards,
-  Captain Martok, Independent Trader and Gentleman
-    </Text>
+    <LocalizedText>EncCorsairs000_Msg0</LocalizedText>
     <ResponseOptions>
       <Response>
-        <Text>Agree to pay this upstanding gentleman.</Text>
+        <LocalizedText>EncCorsairs000_Msg0_R1_AgreeToPay</LocalizedText>
         <MoneyToThem>250</MoneyToThem>
         <SuccessIndex>1</SuccessIndex>
         <FailIndex>3</FailIndex>
       </Response>
       <Response>
-        <Text>Refuse to pay this scoundrel!</Text>
+        <LocalizedText>EncCorsairs000_Msg0_R2_RefuseToPay</LocalizedText>
         <DefaultIndex>2</DefaultIndex>
       </Response>
-
     </ResponseOptions>
-
   </Message>
     <Message>
       <Index>1</Index>
       <EndWar>true</EndWar>
-      <Text>
-Wonderful news! We'll let you know when we're done drinking our way through your money. Until then, sleep safe!
-
-    Regards,
-    CM
-      </Text>
+      <LocalizedText>EncCorsairs000_Msg1</LocalizedText>
       <SetPlayerContactStep>2</SetPlayerContactStep> <!--Friendly, option to terminate agreement-->
       <SetFactionContactStep>2</SetFactionContactStep> <!-- Money demand after end of contract period -->
       <EndTransmission>true</EndTransmission>
@@ -47,11 +32,7 @@ Wonderful news! We'll let you know when we're done drinking our way through your
     <Message>
       <Index>2</Index>
       <SetWar>true</SetWar>
-      <Text>
-Now that is disappointing, isn't it? And here I was thinking that we were going to be fast friends. It will be fun to rip open your freighters.
-
-(Comm Officer's Note - If we ever want to pay them, we can select their ship and press Q to contact them.)
-      </Text>
+      <LocalizedText>EncCorsairs000_Msg2</LocalizedText>
       <EndTransmission>true</EndTransmission>
       <SetPlayerContactStep>3</SetPlayerContactStep> <!--pay twice to end the war-->
       <SetFactionContactStep>2</SetFactionContactStep> <!-- Money demand after end of contract period -->
@@ -59,16 +40,10 @@ Now that is disappointing, isn't it? And here I was thinking that we were going 
     <Message>
       <Index>3</Index>
       <SetWar>true</SetWar>
-      <Text>
-What, is this some sort of SING humor? You don't have the credits! Unfortunately for you, this is not my problem. We're gonna collect our money through your freighters!
-
-(Comm Officer's Note - If we ever want to pay them, we can select their ship and press Q to contact them.)
-      </Text>
+      <LocalizedText>EncCorsairs000_Msg3</LocalizedText>
       <EndTransmission>true</EndTransmission>
       <SetPlayerContactStep>3</SetPlayerContactStep> <!--pay twice to end the war-->
       <SetFactionContactStep>2</SetFactionContactStep> <!-- Money demand after end of contract period -->
     </Message>
-
   </MessageList>
-  
 </Encounter>

@@ -16,7 +16,13 @@ namespace Ship_Game.StoryAndEvents
         readonly Encounter Encounter;
         public readonly Empire Player;
         public readonly Empire TargetEmpire;
-        public Message Message { get; private set; }
+
+        // This is the currently displayed dialog in the encounter.
+        // It will change according to the flow and decisions in the encounter
+        public Message CurrentDialog { get; private set; }
+
+        // This is the properly parsed dialog text
+        public string CurrentDialogText { get; private set; }
         public SolarSystem SystemToDiscuss { get; set; }
 
         public EncounterInstance(Encounter e, Empire player, Empire targetEmpire)
@@ -29,15 +35,30 @@ namespace Ship_Game.StoryAndEvents
             TargetEmpire = targetEmpire;
 
             // The first message is always the initial message shown to players
-            Message = Encounter.MessageList[0];
+            SetCurrentDialog(0);
         }
 
-        public void OnResponseItemClicked(ResponseListItem item)
+        void SetCurrentDialog(int index)
         {
-            Response r = item.Response;
+            Message dialog = Encounter.MessageList[index];
+            CurrentDialog = dialog;
+
+            string text = dialog.LocalizedText.NotEmpty()
+                        ? Localizer.Token(dialog.LocalizedText)
+                        : dialog.Text ?? "<missing dialog>";
+
+            string[] words = text.Split(' ');
+            for (int i = 0; i < words.Length; ++i)
+                words[i] = ParseEncounterKeyword(words[i]);
+
+            CurrentDialogText = string.Join(" ", words);
+        }
+
+        public void OnResponseItemClicked(Response r)
+        {
             if (r.DefaultIndex != -1)
             {
-                Message = Encounter.MessageList[r.DefaultIndex];
+                SetCurrentDialog(r.DefaultIndex);
             }
             else
             {
@@ -50,11 +71,11 @@ namespace Ship_Game.StoryAndEvents
 
                 if (!ok)
                 {
-                    Message = Encounter.MessageList[r.FailIndex];
+                    SetCurrentDialog(r.FailIndex);
                 }
                 else
                 {
-                    Message = Encounter.MessageList[r.SuccessIndex];
+                    SetCurrentDialog(r.SuccessIndex);
                     if (money > 0 && Player.Money >= money)
                     {
                         Player.AddMoney(-money);
@@ -62,18 +83,18 @@ namespace Ship_Game.StoryAndEvents
                 }
             }
 
-            if (Message.SetWar)
+            if (CurrentDialog.SetWar)
                 TargetEmpire.GetEmpireAI().DeclareWarFromEvent(Player, WarType.SkirmishWar);
 
-            if (Message.EndWar)
+            if (CurrentDialog.EndWar)
                 TargetEmpire.GetEmpireAI().EndWarFromEvent(Player);
 
             Relationship rel = Player.GetRelations(TargetEmpire);
-            if (Message.SetPlayerContactStep > 0)
-                rel.PlayerContactStep = Message.SetPlayerContactStep;
+            if (CurrentDialog.SetPlayerContactStep > 0)
+                rel.PlayerContactStep = CurrentDialog.SetPlayerContactStep;
 
-            if (Message.SetFactionContactStep > 0)
-                rel.FactionContactStep = Message.SetFactionContactStep;
+            if (CurrentDialog.SetFactionContactStep > 0)
+                rel.FactionContactStep = CurrentDialog.SetFactionContactStep;
         }
 
         int NetMoneyDemand(int demandFromMessage)
@@ -85,15 +106,10 @@ namespace Ship_Game.StoryAndEvents
         }
 
         int CustomMoneyDemand => NetMoneyDemand(0); // For the parser only
-
         
-        public string ParseCurrentEncounterText(float maxLineWidth, SpriteFont font)
+        public string GetEncounterText(float maxLineWidth, Graphics.Font font)
         {
-            string[] words = Message.Text.Split(' ');
-            for (int i = 0; i < words.Length; ++i)
-                words[i] = ParseEncounterKeyword(words[i]);
-
-            return font.ParseText(words, maxLineWidth);
+            return font.ParseText(CurrentDialogText, maxLineWidth);
         }
 
         string ParseEncounterKeyword(string keyword)

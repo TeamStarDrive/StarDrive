@@ -121,11 +121,13 @@ namespace Ship_Game.SpriteSystem
                 if (!Loading.TryGetValue(name, out existingOrNew))
                 {
                     existingOrNew = new TextureAtlas { Name = name };
-                    Loading.Add(name, existingOrNew);
                     existingOrNew.LoadSync.WaitOne(); // lock it for upcoming load event
+                    Loading.Add(name, existingOrNew);
                     return false;
                 }
             }
+            
+            //Log.Write(ConsoleColor.Cyan, $"LoadAtlas blocked: {name}");
             existingOrNew.LoadSync.WaitOne(); // wait until loading completes
             return true;
         }

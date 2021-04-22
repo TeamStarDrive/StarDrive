@@ -17,10 +17,10 @@ namespace Ship_Game.Data.Yaml
         readonly Array<Error> LoggedErrors = new Array<Error>();
         public IReadOnlyList<Error> Errors => LoggedErrors;
 
-        public YamlParser(string file)
+        public YamlParser(string modOrVanillaFile)
         {
-            FileInfo f = ResourceManager.GetModOrVanillaFile(file);
-            Reader = OpenStream(f, file);
+            FileInfo f = ResourceManager.GetModOrVanillaFile(modOrVanillaFile);
+            Reader = OpenStream(f, modOrVanillaFile);
             Root = new YamlNode { Key = f?.NameNoExt() ?? "", Value = null };
             Parse();
         }
@@ -156,7 +156,7 @@ namespace Ship_Game.Data.Yaml
 
             if (first.Char0 == '{') // anonymous inline Map { X: Y }
             {
-                ParseObject(node, ref view, mapSelfToKey: true);
+                ParseObject(node, ref view);
                 return node;
             }
 
@@ -185,7 +185,7 @@ namespace Ship_Game.Data.Yaml
             
             if (second.Char0 == '{') // KEY: anonymous inline Map { X: Y }
             {
-                ParseObject(node, ref view, mapSelfToKey: false);
+                ParseObject(node, ref view);
                 return node;
             }
             
@@ -224,7 +224,7 @@ namespace Ship_Game.Data.Yaml
             return token.Text; // probably some text
         }
         
-        void ParseObject(YamlNode node, ref StringView view, bool mapSelfToKey)
+        void ParseObject(YamlNode node, ref StringView view)
         {
             for (;;)
             {
@@ -238,22 +238,9 @@ namespace Ship_Game.Data.Yaml
                 if (view.Char0 == '}')
                     break; // end of map
 
-                // In the case of:
-                // - { X: 0, Y: 1 }
-                // We map self to a key-value object:
-                // X: 0
-                //   Y: 1
-                if (mapSelfToKey)
-                {
-                    mapSelfToKey = false;
-                    ParseTokenAsNode(node, ref view);
-                }
-                else
-                {
-                    var child = new YamlNode();
-                    ParseTokenAsNode(child, ref view);
-                    node.AddSubNode(child);
-                }
+                var child = new YamlNode();
+                ParseTokenAsNode(child, ref view);
+                node.AddSubNode(child);
 
                 StringView separator = NextToken(ref view);
                 if (separator.Length == 0)
@@ -359,7 +346,7 @@ namespace Ship_Game.Data.Yaml
             char[] chars = view.Chars;
             while (current < eos)
             {
-                switch (chars[current])
+                switch (chars[current]) // is delimiter?
                 {
                     case ':': case '#': case '\'': case '"': case ',':
                     case '{': case '}':  case '[': case ']':
@@ -467,6 +454,18 @@ namespace Ship_Game.Data.Yaml
                 items.Add((T)ser.Deserialize(child));
             }
             return items;
+        }
+
+        public static Array<T> DeserializeArray<T>(string modOrVanillaFile) where T : new()
+        {
+            using (var parser = new YamlParser(modOrVanillaFile))
+                return parser.DeserializeArray<T>();
+        }
+
+        public static Array<T> DeserializeArray<T>(FileInfo file) where T : new()
+        {
+            using (var parser = new YamlParser(file))
+                return parser.DeserializeArray<T>();
         }
 
         /// <summary>

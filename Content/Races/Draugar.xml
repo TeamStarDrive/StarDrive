@@ -39,6 +39,7 @@
     <Name>Draugar</Name>
     <Singular>Draug</Singular>
     <Plural>Draugar</Plural>
+    <ShipType>Draug</ShipType>
     <HomeSystemName>Sol</HomeSystemName>
     <HomeworldName>Earth</HomeworldName>
     <FlagIndex>63</FlagIndex>

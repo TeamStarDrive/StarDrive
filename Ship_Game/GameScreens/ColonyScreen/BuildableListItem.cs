@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Graphics;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -14,8 +15,8 @@ namespace Ship_Game
         string BuildingDescr;
         readonly SubTexture ProdIcon = ResourceManager.Texture("NewUI/icon_production");
         readonly SubTexture CostIcon = ResourceManager.Texture("UI/icon_money_22");
-        readonly SpriteFont Font8 = Fonts.Arial8Bold;
-        readonly SpriteFont Font12 = Fonts.Arial12Bold;
+        readonly Font Font8 = Fonts.Arial8Bold;
+        readonly Font Font12 = Fonts.Arial12Bold;
         readonly bool LowRes;
 
         public BuildableListItem(ColonyScreen screen, string headerText) : base(headerText)
@@ -57,8 +58,8 @@ namespace Ship_Game
             if (Ship != null)
             {
                 var sdScreen = new ShipDesignScreen(Empire.Universe, Screen.Eui);
+                sdScreen.OnLoaded = () => { sdScreen.ChangeHull(Ship.shipData); };
                 Screen.ScreenManager.AddScreen(sdScreen);
-                sdScreen.ChangeHull(Ship.shipData);
             }
         }
 
@@ -99,7 +100,7 @@ namespace Ship_Game
 
         void DrawProductionInfo(SpriteBatch batch, float maintenance, float prod, int cost = 0)
         {
-            SpriteFont font = LowRes ? Fonts.Arial10 : Font12;
+            Font font = LowRes ? Fonts.Arial10 : Font12;
             float x = Right - ProdWidth;
             float y = Y+4;
             var iconSize = new Vector2(font.LineSpacing+2);

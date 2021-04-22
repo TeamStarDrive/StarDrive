@@ -564,7 +564,6 @@ namespace Ship_Game
                 if (hull.Value && ResourceManager.Hull(hull.Key, out ShipData hullData))
                     AvailableHulls.Add(hullData);
 
-            PrimitiveQuad.Device = ScreenManager.GraphicsDevice;
             Offset = new Vector2(Viewport.Width / 2 - 256, Viewport.Height / 2 - 256);
             Camera = new Camera2D { Pos = new Vector2(Viewport.Width / 2f, Viewport.Height / 2f) };
             Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
