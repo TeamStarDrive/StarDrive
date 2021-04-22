@@ -18,7 +18,7 @@ namespace Ship_Game.Ships
         {
             if (!data.IsValidForCurrentMod)
             {
-                Log.Info($"Design {data.Name} [Mod:{data.ModName}] ignored for [{GlobalStats.ModOrVanillaName}]");
+                Log.Info($"Design '{data.Name}' [Mod:{data.ModName}] ignored for [{GlobalStats.ModOrVanillaName}]");
                 return;
             }
 
@@ -30,10 +30,7 @@ namespace Ship_Game.Ships
             SetShipData(data);
 
             if (!CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate, shipyardDesign))
-            {
-                Log.Warning(ConsoleColor.DarkRed, $"Unexpected failure while spawning ship '{Name}'. Is the module list corrupted??");
                 return;
-            }
             
             Stats = new ShipStats(this);
             KnownByEmpires = new DataPackets.KnownByEmpire(this);
@@ -68,10 +65,7 @@ namespace Ship_Game.Ships
             SetInitialCrewLevel();
 
             if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
-            {
-                Log.Warning(ConsoleColor.DarkRed, $"Unexpected failure while spawning ship '{Name}'. Is the module list corrupted??");
                 return; // return and crash again...
-            }
             
             Stats = new ShipStats(this);
             KnownByEmpires = new DataPackets.KnownByEmpire(this);

@@ -528,7 +528,7 @@ namespace Ship_Game.Debug
         {
             foreach (PredictionDebugPlatform platform in GetPredictionDebugPlatforms())
             {
-                DrawString($"Platform Accuracy: {(int)(platform.AccuracyPercent*100)}%");
+                //DrawString($"Platform Accuracy: {(int)(platform.AccuracyPercent*100)}%");
                 foreach (PredictedLine line in platform.Predictions)
                 {
                     DrawLineImm(line.Start, line.End, Color.YellowGreen);

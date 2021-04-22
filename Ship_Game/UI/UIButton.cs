@@ -120,7 +120,7 @@ namespace Ship_Game
             set => RichText.SetText(value);
         }
 
-        public SpriteFont Font
+        public Graphics.Font Font
         {
             get => RichText.DefaultFont;
             set => RichText.DefaultFont = value;
@@ -163,7 +163,7 @@ namespace Ship_Game
 
             if (RichText.NotEmpty)
             {
-                SpriteFont font = Font;
+                Graphics.Font font = Font;
                 Vector2 textCursor;
                 if (TextAlign == ButtonTextAlign.Center)
                     textCursor.X = r.X + r.Width / 2 - RichText.Size.X / 2f;

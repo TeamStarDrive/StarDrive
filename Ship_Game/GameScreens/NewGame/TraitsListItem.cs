@@ -12,8 +12,8 @@ namespace Ship_Game
     public class TraitsListItem : ScrollListItem<TraitsListItem>
     {
         readonly RaceDesignScreen Screen;
-        readonly SpriteFont TitleFont;
-        readonly SpriteFont DescrFont;
+        readonly Graphics.Font TitleFont;
+        readonly Graphics.Font DescrFont;
         public TraitEntry Trait;
         public TraitsListItem(RaceDesignScreen screen, TraitEntry trait)
         {
@@ -65,7 +65,7 @@ namespace Ship_Game
         static float DotSpaceWidth;
 
         // Creates padded text: "Vulgar Animals . . . . . . . . . . . ."
-        static string PaddedWithDots(SpriteFont font, int localizedNameId, float totalWidth)
+        static string PaddedWithDots(Graphics.Font font, int localizedNameId, float totalWidth)
         {
             if (DotSpaceWidth <= 0f)
                 DotSpaceWidth = font.MeasureString(" .").X;

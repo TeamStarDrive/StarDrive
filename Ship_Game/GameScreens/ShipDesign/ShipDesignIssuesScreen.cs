@@ -12,7 +12,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         private readonly Color Cream = Colors.Cream;
         private readonly Array<DesignIssueDetails> DesignIssues;
         private readonly ScrollList2<ShipDesignIssuesListItem> IssueList;
-        private readonly SpriteFont LargeFont = Fonts.Arial20Bold;
+        private readonly Graphics.Font LargeFont = Fonts.Arial20Bold;
 
         public ShipDesignIssuesScreen(GameScreen screen, Empire player, Array<DesignIssueDetails> issues) : base(screen)
         {

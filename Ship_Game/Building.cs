@@ -124,6 +124,7 @@ namespace Ship_Game
         // these appear in Hardcore Ruleset
         public static int FissionablesId, MineFissionablesId, FuelRefineryId;
 
+        [XmlIgnore][JsonIgnore]
         public float StrengthMax => ResourceManager.GetBuildingTemplate(BID).Strength;
 
         public Building Clone()
@@ -271,16 +272,26 @@ namespace Ship_Game
             => Empire.RacialEnvModifer(category, empire) * MaxFertilityOnBuild;
 
         public float ActualMaintenance(Planet p) => Maintenance * p.Owner.data.Traits.MaintMultiplier;
-
+        
+        [XmlIgnore][JsonIgnore]
         public bool EventHere          => !string.IsNullOrEmpty(EventTriggerUID) || Name == "Dynamic Crash Site";
+        [XmlIgnore][JsonIgnore]
         public bool IsAttackable       => CombatStrength > 0;
+        [XmlIgnore][JsonIgnore]
         public bool CanAttack          => CombatStrength > 0 && AvailableAttackActions > 0;
+        [XmlIgnore][JsonIgnore]
         public bool IsMoneyBuilding    => CreditsPerColonist > 0 || PlusTaxPercentage > 0;
+        [XmlIgnore][JsonIgnore]
         public bool ProducesProduction => PlusFlatProductionAmount > 0 || PlusProdPerColonist > 0 || PlusProdPerRichness > 0;
+        [XmlIgnore][JsonIgnore]
         public bool ProducesResearch   => PlusResearchPerColonist > 0 || PlusFlatResearchAmount > 0;
+        [XmlIgnore][JsonIgnore]
         public bool ProducesFood       => PlusFlatFoodAmount > 0 || PlusFoodPerColonist > 0;
+        [XmlIgnore][JsonIgnore]
         public bool ProducesPopulation => PlusFlatPopulation > 0;
+        [XmlIgnore][JsonIgnore]
         public bool IsHarmfulToEnv     => MaxFertilityOnBuild < 0;
+        [XmlIgnore][JsonIgnore]
         public bool IsMilitary         => CombatStrength > 0 
                                         && !IsCapitalOrOutpost
                                         && MaxPopIncrease.AlmostZero(); // FB - pop relevant because of CA

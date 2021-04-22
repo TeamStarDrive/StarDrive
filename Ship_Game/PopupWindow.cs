@@ -20,7 +20,7 @@ namespace Ship_Game
         private Rectangle LeftVert;
         private Rectangle RightVert;
         private Rectangle BottomFill;
-        private Rectangle BottomBigFill;
+        protected Rectangle BottomBigFill;
         public Rectangle TitleRect;
         public Rectangle TitleLeft;
         public Rectangle TitleRight;
@@ -151,7 +151,7 @@ namespace Ship_Game
             MidSepBot = new Rectangle(MidContainer.X, MidContainer.Bottom - 2, MidContainer.Width, 2);
             BottomBigFill = new Rectangle(MidContainer.X, MidContainer.Bottom, MidContainer.Width, BottomFill.Y - MidContainer.Bottom);
 
-            BodyTextStart = new Vector2(BottomBigFill.Left +12, BottomBigFill.Top + 12);
+            BodyTextStart = new Vector2(BottomBigFill.Left + 12, BottomBigFill.Top + 12);
 
             base.LoadContent();
         }

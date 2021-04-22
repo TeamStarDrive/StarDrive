@@ -118,7 +118,7 @@ namespace Ship_Game
 
         void DrawInfoData(SpriteBatch batch, Rectangle rect, string data, Color color, int xOffSet, int yOffSet)
         {
-            SpriteFont font = Fonts.Arial12;
+            Graphics.Font font = Fonts.Arial12;
             Vector2 pos = new Vector2((rect.X + rect.Width + xOffSet), (rect.Y + yOffSet - font.LineSpacing / 2));
             batch.DrawString(font, data, pos, color);
         }

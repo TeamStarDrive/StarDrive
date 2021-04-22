@@ -17,7 +17,7 @@ namespace Ship_Game
         TaskResult LoadResult;
         readonly bool ShowSplash;
         readonly bool ResetResources;
-        SpriteFont StatusFont;
+        Graphics.Font StatusFont;
 
         public GameLoadingScreen(bool showSplash, bool resetResources) : base(null/*no parent*/)
         {
@@ -28,20 +28,12 @@ namespace Ship_Game
             SplashPlayer  = new ScreenMediaPlayer(TransientContent);
         }
         
-        static string StatusCategory;
         static string StatusText;
+
+        public static void SetStatus(string category) => SetStatus(category, "");
         public static void SetStatus(string category, string item)
         {
-            SetCategory(category);
-            SetItem(item);
-        }
-        public static void SetCategory(string category)
-        {
-            StatusCategory = category;
-        }
-        public static void SetItem(string item)
-        {
-            StatusText = item.NotEmpty() ? StatusCategory+":"+item : StatusCategory;
+            StatusText = item.NotEmpty() ? (category + ":" + item) : category;
         }
 
         bool ShowSplashVideo => ShowSplash && !Debugger.IsAttached;
@@ -111,8 +103,11 @@ namespace Ship_Game
 
         bool LoadingFinished()
         {
-            bool ready = LoadResult?.WaitNoThrow(1) == true;
-            if (ready && SplashPlayer?.IsPlaying != true)
+            bool loadingDone = LoadResult?.WaitNoThrow(1) == true;
+            // when loading has finished, either wait until
+            // SplashPlayer finishes or player smashes keys
+            bool playerSelect = Input.InGameSelect || Input.IsEnterOrEscape;
+            if (loadingDone && (playerSelect || SplashPlayer?.IsPlaying != true))
             {
                 ScreenManager.GoToScreen(new MainMenuScreen(), clear3DObjects:true);
                 return true;

@@ -24,7 +24,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         bool Remove = false;
         public AO RallyAO { get; private set; }
         public War GetWar() => OwnerWar;
-        public bool Active() => !Remove;
+        public bool IsActive => !Remove;
         [XmlIgnore] [JsonIgnore] public float WarValue => TheaterAO.GetWarAttackValueOfSystemsInAOTo(Us);
 
         Empire Them => OwnerWar.Them;

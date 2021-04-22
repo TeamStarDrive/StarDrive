@@ -23,16 +23,16 @@ namespace Ship_Game
         {
             public Vector2 Offset;
             public LocalizedText Text;
-            public SpriteFont Font;
+            public Graphics.Font Font;
             public Color? Color;
         }
 
         Array<TextBlock> Blocks = new Array<TextBlock>();
         public bool NotEmpty => Blocks.NotEmpty;
         public Vector2 Size { get; private set; }
-        SpriteFont TheFont = Fonts.Arial12Bold;
+        Graphics.Font TheFont = Fonts.Arial12Bold;
 
-        public SpriteFont DefaultFont
+        public Graphics.Font DefaultFont
         {
             get => TheFont;
             set
@@ -51,14 +51,14 @@ namespace Ship_Game
         }
         
         // Sets the text to a single block
-        public void SetText(in LocalizedText text, SpriteFont font = null, Color? color = null)
+        public void SetText(in LocalizedText text, Graphics.Font font = null, Color? color = null)
         {
             Clear();
             AddText(text, font, color);
         }
 
         // Add a rich text element
-        public void AddText(in LocalizedText text, SpriteFont font = null, Color? color = null)
+        public void AddText(in LocalizedText text, Graphics.Font font = null, Color? color = null)
         {
             if (text.IsEmpty)
                 return;
@@ -73,7 +73,7 @@ namespace Ship_Game
             {
                 block.Offset.X = newSize.X;
 
-                SpriteFont font = block.Font ?? TheFont;
+                Graphics.Font font = block.Font ?? TheFont;
                 Vector2 size = font.MeasureString(block.Text);
                 newSize.X += size.X;
                 newSize.Y = Math.Max(Size.Y, size.Y);
@@ -89,7 +89,7 @@ namespace Ship_Game
             {
                 string text = block.Text.Text;
                 Vector2 blockPos = pos + block.Offset;
-                SpriteFont font = block.Font ?? TheFont;
+                Graphics.Font font = block.Font ?? TheFont;
                 Color color = block.Color ?? defaultColor;
                 if (shadows)
                     batch.DrawDropShadowText(text, blockPos, font, color);

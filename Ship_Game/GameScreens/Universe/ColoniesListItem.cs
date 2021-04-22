@@ -307,7 +307,7 @@ namespace Ship_Game
             stats   = $"{stats}. Total: {TotalProdNeeded}";
             var pos = new Vector2(QueueRect.X + 10, QueueRect.Y + QueueRect.Height / 2 + 15);
 
-            SpriteFont font = LowRes ? Fonts.Arial8Bold : Fonts.Arial12;
+            Graphics.Font font = LowRes ? Fonts.Arial8Bold : Fonts.Arial12;
             batch.DrawString(font, stats, pos, Color.Gray);
         }
 

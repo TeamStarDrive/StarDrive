@@ -28,6 +28,7 @@ namespace UnitTests
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
             
             SetGameDirectory();
+            ResourceManager.InitContentDir();
             try
             {
                 var xna2 = Assembly.LoadFile(

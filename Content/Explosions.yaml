@@ -1,28 +1,34 @@
 ﻿# triggered when a ship dies
-Explosion: Ship
-  Path: Textures/Ship_explosion2
-  Scale: 1.0
+- Explosion:
+    Type: Ship
+    Path: Textures/Ship_explosion2
+    Scale: 1.0
 
 #  triggered when a projectile explodes
-Explosion: Projectile
-  Path: Textures/sd_explosion_07a_bb
-  Scale: 1.0
-Explosion: Projectile
-  Path: Textures/sd_explosion_12a_bb
-  Scale: 1.0
-Explosion: Projectile
-  Path: Textures/sd_explosion_14a_bb
-  Scale: 1.0
+- Explosion:
+    Type: Projectile
+    Path: Textures/sd_explosion_07a_bb
+    Scale: 1.0
+- Explosion:
+    Type:  Projectile
+    Path: Textures/sd_explosion_12a_bb
+    Scale: 1.0
+- Explosion:
+    Type:  Projectile
+    Path: Textures/sd_explosion_14a_bb
+    Scale: 1.0
 
 # this is a big blue photon explosion,
 # used by a few specific weapons like:
 # DualPhotonCannon and PhotonCannon
-Explosion: Photon
-  Path: Textures/sd_explosion_03_photon_256
-  Scale: 2.0
+- Explosion:
+    Type:  Photon
+    Path: Textures/sd_explosion_03_photon_256
+    Scale: 2.0
 
 # if a ship's stardrive fails when dying,
 # this extra type of explosion is used
-explosion: Warp
-  Path: Textures/sd_shockwave_01
-  Scale: 1.0
+- Explosion:
+    Type:  Warp
+    Path: Textures/sd_shockwave_01
+    Scale: 1.0

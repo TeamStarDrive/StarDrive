@@ -1611,9 +1611,16 @@ namespace Ship_Game.Fleets
 
         bool HasArrivedAtRallySafely(float fleetRadius = 0)
         {
-            MoveStatus status = MoveStatus.None;
+            MoveStatus status = FleetMoveStatus(fleetRadius);
 
-            status = FleetMoveStatus(fleetRadius);
+            // if the command ship is stuck, unstuck it. Since the fleet average position is the command ship's position
+            if (CommandShip != null 
+                && !CommandShip.Center.InRadius(FinalPosition, fleetRadius) 
+                && (CommandShip.AI.State == AIState.AwaitingOrders || CommandShip.AI.State == AIState.HoldPosition))
+            {
+                CommandShip.AI.OrderMoveTo(FinalPosition, FinalDirection, true, AIState.MoveTo);
+            }
+
 
             if (FinalPosition.InRadius(AveragePos, fleetRadius) )
             {

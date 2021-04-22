@@ -5,7 +5,6 @@
   <Level>0</Level>
   <SelectionGraphic />
   <Name>Meteor C</Name>
-  <ModName>Combined Arms</ModName>
   <HasFixedCost>false</HasFixedCost>
   <FixedCost>0</FixedCost>
   <FixedUpkeep>0</FixedUpkeep>

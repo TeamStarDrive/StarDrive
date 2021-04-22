@@ -39,6 +39,9 @@ namespace Ship_Game
         // relative path to Image asset to be used while displaying the event
         public string Image;
 
+        public string LocalizedTitle => Localizer.Token(TitleText);
+        public string LocalizedDescr => Localizer.Token(DescriptionText);
+
         public Artifact GetArtifact()
         {
             return GrantedArtifact;

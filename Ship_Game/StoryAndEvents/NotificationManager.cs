@@ -404,7 +404,7 @@ namespace Ship_Game
             {
                 RelevantEmpire  = remnants,
                 Pause           = false,
-                Message         = $"{expEvent.Name}\nClick for more info",
+                Message         = $"{expEvent.LocalizedName}\nClick for more info",
                 ReferencedItem1 = expEvent,
                 Action          = "LoadEvent"
             }, "sd_ui_notification_encounter");

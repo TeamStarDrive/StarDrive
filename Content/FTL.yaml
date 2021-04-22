@@ -21,7 +21,7 @@
 #     - [1.0,  0.0]
 
  # big flare
-FTLLayer:
+- FTLLayer:
   Texture: FTL/BSG_warp2.dds
   Duration: 0.8
   Rotation: 5.8
@@ -36,7 +36,7 @@ FTLLayer:
     - [1.0, 0.0]
 
  # smaller flare in sync with big flare, rotating the other way
-FTLLayer:
+- FTLLayer:
   Texture: FTL/BSG_warp1.dds
   Duration: 0.8
   Rotation: -5.8
@@ -54,7 +54,7 @@ FTLLayer:
     - [1.0, 0.0]
 
  # faster small flare, meets up with the main flare
-FTLLayer:
+- FTLLayer:
   Texture: FTL/BSG_warp1.dds
   Duration: 0.6
   Rotation: 2.4
@@ -68,7 +68,7 @@ FTLLayer:
     - [0.0, 1.0]
     - [0.8, 0.0]
 
-FTLLayer:
+- FTLLayer:
   Texture: FTL/BSG_warp_iris.dds # big iris
   Duration: 1.2
   Rotation: -1.2
