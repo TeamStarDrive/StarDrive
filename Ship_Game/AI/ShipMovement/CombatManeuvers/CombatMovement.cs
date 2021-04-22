@@ -58,33 +58,24 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         protected Vector2 TargetQuadrant = Vectors.Right;
         protected Vector2 ZigZag;
         protected float SpacerDistance;
-        protected float DeltaOurFacingTheirMovement;
-        protected float DeltaOurMovementTheirFacing;
-        protected float DeltaDirectionToTargetAndOurFacing;
-        protected float DeltaTargetDirectionToUsAndTheirFacing;
-        protected float DeltaOurFacingAndOurMovement;
-        protected float DeltaOurMovementToTheirMovement;
-        protected float DeltaOurMovementToOurDirectionToTarget;
-        protected float DeltaDirectionToTargetToTheirFacing;
         protected float DesiredCombatRange;
         protected bool OutSideDesiredWeaponsRange;
         Vector2 DisengageDirection;
         DisengageTypes DisengageType; 
-        protected float ErraticTimer =0;
+        protected float ErraticTimer = 0;
         private float ThinkTimer =0;
         
-        protected bool WeAreFacingThem => DeltaDirectionToTargetAndOurFacing < 10f;
-        protected Ship OwnerTarget           => AI.Target;
+        protected Ship OwnerTarget => AI.Target;
 
         protected bool WeAreChasingAndCantCatchThem => ChaseStates.HasFlag(ChaseState.ChasingCantCatch) && !WeAreRetrograding;
 
         /// <summary>
         /// If movement direction is greater than 90 degrees different from facing we must be moving backwards
         /// </summary>
-        protected bool WeAreRetrograding => DeltaOurFacingAndOurMovement > 90;
-        protected bool HeadOnAttack => DeltaOurMovementTheirFacing > 175;
+        protected bool WeAreRetrograding => Owner.VelocityDirection.Dot(Owner.Direction) < 0f;
 
-        protected  ChaseState ChaseStates;
+        protected ChaseState ChaseStates;
+
         protected CombatMovement(ShipAI ai) : base(ai)
         {
             DesiredCombatRange = ai.Owner.DesiredCombatRange;
@@ -137,11 +128,11 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             if (Empire.Universe.Debug && Empire.Universe.SelectedShip != null)
             {
                 DrawDebugText($"Chase: {ChaseStates}");
-                DrawDebugText($"MoveState: { MoveState }");
-                DrawDebugText($"Movement angle To Target: {(int)DeltaOurFacingTheirMovement}");
-                DrawDebugText($"Facing angle To Target  : {(int)DeltaDirectionToTargetAndOurFacing}");
-                DrawDebugText($"Movement angle To Target Movement  : {(int)DeltaOurMovementToTheirMovement}");
-                DrawDebugText($"Movement angle to their facing  : {(int)DeltaOurMovementTheirFacing}");
+                DrawDebugText($"MoveState: {MoveState}");
+                DrawDebugText($"Our.Dir to Intercept.Dir: {DirectionToTarget.Dot(Owner.Direction)}");
+                DrawDebugText($"Our.Dir to Target.VelDir: {OwnerTarget.VelocityDirection.Dot(Owner.Direction)}");
+                DrawDebugText($"Our.VelDir to Target.Dir: {Owner.VelocityDirection.Dot(OwnerTarget.Direction)}");
+                DrawDebugText($"Our.VelDir to Target.VelDir: {Owner.VelocityDirection.Dot(OwnerTarget.VelocityDirection)}");
             }
         }
 
@@ -149,23 +140,33 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// Returns true if already disengaging or chasing a faster ship. if a player gives the command dont disengage. 
         /// can be overriden. 
         /// </summary>
-        protected virtual bool ShouldDisengage()
+        protected bool ShouldDisengage()
         {
-            return !Owner.AI.HasPriorityTarget && (MoveState == CombatMoveState.Disengage || WeAreChasingAndCantCatchThem || TheyAreMighty());
+            return !Owner.AI.HasPriorityTarget
+                && (MoveState == CombatMoveState.Disengage || WeAreChasingAndCantCatchThem || TargetIsMighty);
         }
 
-        protected bool TheyAreMighty()
+        bool IsTargetInterceptingUs => Owner.VelocityDirection.Dot(OwnerTarget.Direction) < -0.8f
+                                    && RadMath.IsTargetInsideArc(OwnerTarget.Center, Owner.Center, OwnerTarget.Rotation, RadMath.HalfPI*0.5f);
+        
+        // they are intercepting us and they're really strong
+        bool TargetIsMighty
         {
-            if (!HeadOnAttack) return false;
-            float theirDps = OwnerTarget.TotalDps;
-            float ourDefense = (Owner.shield_max + Owner.armor_max) * Owner.HealthPercent;
-            return theirDps * 5 > ourDefense;
+            get
+            {
+                if (IsTargetInterceptingUs)
+                {
+                    float ourDefense = (Owner.shield_max + Owner.armor_max) * Owner.HealthPercent;
+                    return OwnerTarget.TotalDps * 5 > ourDefense;
+                }
+                return false;
+            }
         }
 
         /// <summary>
         /// Executes the anti chase disengage. ship will try to maintain a left or right facing to target.
         /// </summary>
-        protected virtual void ExecuteAntiChaseDisengage(FixedSimTime timeStep)
+        protected void ExecuteAntiChaseDisengage(FixedSimTime timeStep)
         {
             switch(DisengageType)
             {
@@ -187,7 +188,6 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             SpacerDistance = Owner.Radius + AI.Target.Radius;
             OutSideDesiredWeaponsRange = DistanceToTarget > Owner.DesiredCombatRange;
             DebugTextIndex = 0;
-
 
             if (OutSideDesiredWeaponsRange)
             {
@@ -217,59 +217,26 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 DisengageType = DisengageTypes.None;
             }
 
-
-            if (ThinkTimer.LessOrEqual(0))
+            if (ThinkTimer <= 0f)
             {
-                
                 ThinkTimer = 1f / Owner.Level.LowerBound(1);
-
                 DirectionToTarget = Owner.Center.DirectionToTarget(OwnerTarget.Center);
-
-                DeltaOurFacingTheirMovement =
-                    DegreeDifferenceBetweenVectorDirection(OwnerTarget.VelocityDirection, Owner.Direction);
-
-                DeltaOurMovementTheirFacing =
-                    DegreeDifferenceBetweenVectorDirection(Owner.VelocityDirection, OwnerTarget.Direction);
-
-                DeltaOurMovementToTheirMovement =
-                    DegreeDifferenceBetweenVectorDirection(Owner.VelocityDirection, OwnerTarget.VelocityDirection);
-
-                DeltaDirectionToTargetAndOurFacing =
-                    DegreeDifferenceBetweenVectorDirection(DirectionToTarget, Owner.Direction);
-
-                DeltaTargetDirectionToUsAndTheirFacing =
-                    DegreeDifferenceBetweenVectorDirection(OwnerTarget.Center.DirectionToTarget(Owner.Center), OwnerTarget.Direction);
-
-                DeltaOurFacingAndOurMovement =
-                    DegreeDifferenceBetweenVectorDirection(Owner.VelocityDirection, Owner.Direction);
-
-                DeltaOurMovementToOurDirectionToTarget =
-                    DegreeDifferenceBetweenVectorDirection(Owner.VelocityDirection, DirectionToTarget);
-                
-                DeltaDirectionToTargetToTheirFacing =
-                    DegreeDifferenceBetweenVectorDirection(OwnerTarget.Direction, DirectionToTarget);
             }
 
             ChaseStates = ChaseStatus(DistanceToTarget);
         }
 
         /// <summary>
-        /// Approach target if it cant fight back. Its not withing 5 degrees of the targets facing.The ship should not be disengaging
+        /// Approach target if it cant fight back. Its not withing 5 degrees of the targets facing.
+        /// The ship should not be disengaging
         /// </summary>
-        /// <returns></returns>
         bool ShouldApproach()
         {
-            if (OwnerTarget.CombatDisabled || DeltaTargetDirectionToUsAndTheirFacing > 5f) return true;
+            if (OwnerTarget.CombatDisabled || OwnerTarget.Center.DirectionToTarget(Owner.Center).Dot(OwnerTarget.Direction) > 5f)
+                return true;
             return !ShouldDisengage();
         }
 
-        protected float DegreeDifferenceBetweenVectorDirection(Vector2 velocityDirection, Vector2 direction)
-        {
-            if (OwnerTarget == null) return 0;
-            float dot = direction.Dot(velocityDirection);
-            return Math.Abs(dot * 90 - 90);
-        }
-        protected Vector2 RandomFlankTo(Vector2 direction) => RandomMath.RollDice(50) ? direction.LeftVector() : direction.RightVector();
         DisengageTypes RandomDisengageType(Vector2 disenageFrom)
         {
             float rng = RandomMath.RollDie(100);
@@ -285,37 +252,41 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             
             if (ChaseStates.HasFlag(ChaseState.TheyAreChasing))
                 return WeCantCatchThem(distance) ? ChaseState.CantCatch : ChaseState.None;
+
             return ChaseState.None;
         }
 
-        protected bool WeCantCatchThem(float distanceToTarget)
+        bool WeCantCatchThem(float distanceToTarget)
         {
-            if (OwnerTarget.CombatDisabled) return false;
+            if (OwnerTarget.CombatDisabled)
+                return false;
             
             float distanceRatio = DistanceToTarget / DesiredCombatRange;
-            //float maxSpeedRatio = Owner.VelocityMaximum / OwnerTarget.VelocityMaximum.LowerBound(0.1f);
             float currentSpeedRatio = Owner.MaxSTLSpeed.LowerBound(75) / OwnerTarget.CurrentVelocity.LowerBound(75);
             return currentSpeedRatio < 1f && distanceRatio > 0.9f; //maxSpeedRatio < 1f && 
         }
-        protected bool TheyCantCatchUs(float distanceToTarget)
-        {
-            return Owner.CurrentVelocity > OwnerTarget.VelocityMaximum && distanceToTarget > Owner.DesiredCombatRange;
-        }
 
-        protected ChaseState ChaseStatus(float distance)
+        ChaseState ChaseStatus(float distance)
         {
-            ChaseState chase = ChaseState.None;
-            if (Owner.AI.HasPriorityOrder || Owner.AI.HasPriorityTarget) return chase;
-            if (OwnerTarget.CombatDisabled || Owner.CurrentVelocity + OwnerTarget.CurrentVelocity < 100) return chase;
+            if (Owner.AI.HasPriorityOrder || Owner.AI.HasPriorityTarget)
+                return ChaseState.None;
+
+            if (OwnerTarget.CombatDisabled || Owner.CurrentVelocity + OwnerTarget.CurrentVelocity < 100)
+                return ChaseState.None;
             
-            if (DeltaOurMovementToTheirMovement > 5f)        return ChaseState.None;
+            // ships are travelling in opposite direction?
+            if (Owner.VelocityDirection.Dot(OwnerTarget.VelocityDirection) < 0.5f)
+                return ChaseState.None;
 
-            if (DeltaOurMovementToOurDirectionToTarget < 20)  chase |= ChaseState.WeAreChasing;
-            else
-            if (DeltaOurMovementToOurDirectionToTarget > 160) chase |= ChaseState.TheyAreChasing;
+            ChaseState chase = ChaseState.None;
+
+            float dotToInterceptDir = Owner.VelocityDirection.Dot(DirectionToTarget);
+            if (dotToInterceptDir > 0.35f && RadMath.IsTargetInsideArc(Owner.Center, OwnerTarget.Center, Owner.Rotation, 0.35f))
+                chase |= ChaseState.WeAreChasing;
+            else if (dotToInterceptDir < -0.35f && RadMath.IsTargetInsideArc(OwnerTarget.Center, Owner.Center, OwnerTarget.Rotation, 0.35f))
+                chase |= ChaseState.TheyAreChasing;
 
             chase |= CanCatchState(chase, distance);
-
             return chase;
         }
 
