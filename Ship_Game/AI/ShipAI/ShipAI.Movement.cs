@@ -72,7 +72,7 @@ namespace Ship_Game.AI
             if (wantedForward.AlmostZero() || !wantedForward.IsUnitVector())
                 Log.Error($"RotateToDirection {wantedForward} not a unit vector! This is a bug!");
 
-            return (float)Math.Acos(wantedForward.Dot(currentForward));
+            return Vectors.AngleDifference(wantedForward, currentForward);
         }
         
         internal bool RotateTowardsPosition(Vector2 lookAt, FixedSimTime timeStep, float minDiff)
