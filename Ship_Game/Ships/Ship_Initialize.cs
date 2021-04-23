@@ -80,6 +80,8 @@ namespace Ship_Game.Ships
                 VanityName = ResourceManager.ShipNames.GetName(owner.data.Traits.ShipType, shipData.Role);
 
             InitializeShip(loadingFromSaveGame: false);
+            if (!BaseCanWarp && DesignRoleType == ShipData.RoleType.Warship)
+                Log.Warning($"Warning: Ship base warp is false: {this}");
 
             owner.AddShip(this);
             Empire.Universe?.Objects.Add(this);
@@ -374,8 +376,8 @@ namespace Ship_Game.Ships
             if (AI == null)
             {
                 InitializeAI();
-                AI.CombatState = shipData.CombatState;
             }
+            AI.CombatState = shipData.CombatState;
             // End: ship subclass initializations.
             
             RecalculatePower();
@@ -390,9 +392,6 @@ namespace Ship_Game.Ships
             ShipStatusChange();
             InitializeThrusters();
             DesignRole = GetDesignRole();
-
-            if (!BaseCanWarp && DesignRoleType == ShipData.RoleType.Warship)
-                Log.Warning($"Warning: Ship base warp is false: {this}");
         }
 
         void InitDefendingTroopStrength()
