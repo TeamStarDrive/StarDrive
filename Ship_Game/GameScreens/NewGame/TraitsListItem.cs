@@ -30,7 +30,7 @@ namespace Ship_Game
             base.Draw(batch, elapsed);
 
             float textAreaWidth = Width - 40;
-            string name = PaddedWithDots(TitleFont, Trait.trait.TraitName, textAreaWidth);
+            string name = PaddedWithDots(TitleFont, Localizer.Token(Trait.trait.TraitName), textAreaWidth);
             int cost = Trait.trait.Cost;
 
             var drawColor = new Color(95, 95, 95, 95);
@@ -65,12 +65,11 @@ namespace Ship_Game
         static float DotSpaceWidth;
 
         // Creates padded text: "Vulgar Animals . . . . . . . . . . . ."
-        static string PaddedWithDots(Graphics.Font font, int localizedNameId, float totalWidth)
+        static string PaddedWithDots(Graphics.Font font, string name, float totalWidth)
         {
             if (DotSpaceWidth <= 0f)
                 DotSpaceWidth = font.MeasureString(" .").X;
 
-            string name = Localizer.Token(localizedNameId);
             float nameWidth = font.TextWidth(name);
             int numDots = (int)Math.Ceiling((totalWidth - nameWidth) / DotSpaceWidth);
 

@@ -388,18 +388,18 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(font, text, posOnScreen, textColor, rotation, Vector2.Zero, textScale);
         }
 
-        public void MakeMessageBox(GameScreen screen, Action cancelled, Action accepted, int localId, string okText, string cancelledText)
+        public void MakeMessageBox(GameScreen screen, Action cancelled, Action accepted, GameText message, string okText, string cancelledText)
         {
-            ScreenManager.AddScreen(new MessageBoxScreen(screen, localId, okText, cancelledText)
+            ScreenManager.AddScreen(new MessageBoxScreen(screen, message, okText, cancelledText)
             {
                 Cancelled = cancelled,
                 Accepted = accepted
             });            
         }
 
-        public void ExitMessageBox(GameScreen screen, Action cancelled, Action accepted, int localId)
+        public void ExitMessageBox(GameScreen screen, Action cancelled, Action accepted, GameText message)
         {
-            MakeMessageBox(screen, cancelled, accepted, localId, "Save", "Exit");
+            MakeMessageBox(screen, cancelled, accepted, message, "Save", "Exit");
         }
 
         public void DrawModelMesh(
