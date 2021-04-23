@@ -281,28 +281,29 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         }
 
         /// <summary>
-        /// TO BE EXPANDED. be a harder target on approach. 
+        /// TO BE EXPANDED. be a harder target on approach.
+        /// this works badly. disabled until it can be made better
         /// </summary>
         public void ErraticMovement(FixedSimTime timeStep)
         {
+            return;
             ErraticTimer -= timeStep.FixedTime;
-            if (AI.IsFiringAtMainTarget || Owner.AI.HasPriorityOrder)
+            if (MoveState != CombatMoveState.Approach || AI.IsFiringAtMainTarget || Owner.AI.HasPriorityOrder
+                || WeAreRetrograding || Owner.CurrentVelocity < 100f)
             {
                 ZigZag = Vector2.Zero;
                 return;
             }
 
             if (ErraticTimer > 0)
-            {
                 return;
-            }
-             
+            
             int rng = RandomMath.RollAvgPercentVarianceFrom50();
             int racialMod = Owner.loyalty.data.Traits.PhysicalTraitPonderous ? -1 : 0;
             racialMod += Owner.loyalty.data.Traits.PhysicalTraitReflexes ? 1 : 0;
-            float mod = 5 * (Owner.RotationRadiansPerSecond * (Owner.Level + racialMod)).Clamped(0, 10);
+            float mod = 5 * (Owner.RotationRadiansPerSecond * (1 + Owner.Level + racialMod)).Clamped(0, 10);
 
-            ErraticTimer = rng * 0.05f;
+            ErraticTimer = 2 / (Owner.RotationRadiansPerSecond + 1);
 
             if (rng < 25 - mod)
             {
@@ -313,11 +314,11 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 Vector2 dir = Owner.Center.DirectionToTarget(AI.Target.Center);
                 if (RandomMath.IntBetween(0, 1) == 1)
                 {
-                    ZigZag = dir.RightVector() * rng * 10 * Owner.RotationRadiansPerSecond;
+                    ZigZag = dir.RightVector() * 100 * Owner.RotationRadiansPerSecond;
                 }
                 else
                 {
-                    ZigZag = dir.LeftVector() * rng * 10 * Owner.RotationRadiansPerSecond;
+                    ZigZag = dir.LeftVector() * 100 * Owner.RotationRadiansPerSecond;
                 }
             }
         }
