@@ -365,15 +365,15 @@ namespace Ship_Game
             if (rectangle.HitTest(mousePos))
                 ToolTip.CreateTooltip(toolTip);
         }
-        public void CheckToolTip(LocalizedText toolTip, Vector2 cursor, string words, string numbers, Graphics.Font font, Vector2 mousePos)
+        public void CheckToolTip(LocalizedText toolTip, Vector2 cursor, LocalizedText words, string numbers, Graphics.Font font, Vector2 mousePos)
         {
             var rect = new Rectangle((int)cursor.X, (int)cursor.Y, 
                 font.TextWidth(words) + font.TextWidth(numbers), font.LineSpacing);
             CheckToolTip(toolTip, rect, mousePos);
         }
-        public Vector2 FontSpace(Vector2 cursor, float spacing, string drawnString, Graphics.Font font)
+        public Vector2 FontSpace(Vector2 cursor, float spacing, LocalizedText drawnString, Graphics.Font font)
         {
-            cursor.X += (spacing - font.MeasureString(drawnString).X);
+            cursor.X += (spacing - font.TextWidth(drawnString));
             return cursor;
         }
         // Draw string in screen coordinates. Text will be centered
