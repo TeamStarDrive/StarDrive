@@ -51,17 +51,12 @@ namespace Ship_Game
         public static Language Language { get; private set; }
 
         static string[] Strings = Empty<string>.Array;
-        static Map<string, string> NameIdToString = new Map<string, string>();
+        static Map<string, Token> NameIdToToken = new Map<string, Token>();
 
         public static bool Contains(int locIndex)
         {
             int idx = locIndex - 1;
             return (uint)idx < (uint)Strings.Length && Strings[idx] != null;
-        }
-
-        public static string Token(GameText gameText)
-        {
-            return Token((int)gameText);
         }
 
         public static string Token(int locIndex)
@@ -74,6 +69,16 @@ namespace Ship_Game
                     return token;
             }
             return "<localization missing>";
+        }
+        
+        /// <summary>
+        /// Gets a token using the pre-processed GameText enum which is run
+        /// via the `--run-localizer` command line argument
+        /// </summary>
+        public static string Token(GameText gameText)
+        {
+            int id = GetTokenId(gameText);
+            return Token(id);
         }
 
         /// <summary>
@@ -104,46 +109,55 @@ namespace Ship_Game
                 return true;
             }
 
-            return NameIdToString.TryGetValue(nameId, out text);
-        }
-
-        public static void Reset()
-        {
-            Strings = Empty<string>.Array;
-            NameIdToString = new Map<string, string>();
-        }
-
-        // add extra localization tokens to the localizer
-        public static void AddTokens(Array<Token> tokens, Language language)
-        {
-            Language = language;
-
-            // Index entries aren't guaranteed to be ordered properly (due to messy mods)
-            int limit = tokens.Max(t => t.Index);
-
-            // Fill sparse map with empty entries
-            if (Strings.Length < limit)
-                Array.Resize(ref Strings, limit);
-
-            for (int i = 0; i < tokens.Count; ++i)
+            if (NameIdToToken.TryGetValue(nameId, out var token))
             {
-                Token t = tokens[i];
-                string text = t.Text.Replace("\\n", "\n"); // only creates new string if \\n is found
-                Strings[t.Index - 1] = text;
+                text = token.Text;
+                return true;
             }
+
+            text = null;
+            return false;
         }
 
-        public static void AddFromYaml(FileInfo file, Language language)
+        /// <summary>
+        /// Gets the stable ID of a GameText token
+        /// Throws on failure
+        /// </summary>
+        /// <param name="gameText"></param>
+        /// <returns></returns>
+        public static int GetTokenId(GameText gameText)
+        {
+            int id = (int)gameText;
+            if (id > 0)
+                return id;
+
+            string nameId = gameText.ToString();
+            if (NameIdToToken.TryGetValue(nameId, out var token))
+                return token.Index;
+                
+            throw new InvalidDataException($"GetTokenId({gameText}) failed!");
+        }
+
+        public static void LoadFromYaml(FileInfo gameText, FileInfo modText, Language language)
         {
             Language = language;
-            Array<LangToken> tokens = YamlParser.DeserializeArray<LangToken>(file);
-            
-            // Index entries aren't guaranteed to be ordered properly (due to messy mods)
-            int limit = tokens.Max(t => t.Id);
+            Array<LangToken> tokens = YamlParser.DeserializeArray<LangToken>(gameText);
+            if (modText.Exists)
+            {
+                tokens.AddRange(YamlParser.DeserializeArray<LangToken>(modText));
+            }
+
+
+            // Index entries aren't guaranteed to be ordered properly
+            int maxId = tokens.Max(t => t.Id);
+            int nextGeneratedId = maxId + 1;
+            int numIdsToGenerate = tokens.Count(t => t.Id <= 0);
+            maxId += numIdsToGenerate;
 
             // Fill sparse map with empty entries
-            if (Strings.Length < limit)
-                Array.Resize(ref Strings, limit);
+            Strings = new string[maxId];
+            NameIdToToken = new Map<string, Token>();
+            LocalizedText.ClearCache();
 
             for (int i = 0; i < tokens.Count; ++i)
             {
@@ -155,14 +169,21 @@ namespace Ship_Game
                     case Language.Spanish: text = t.SPA.NotEmpty() ? t.SPA : t.ENG; break;
                 }
                 
-                // if this ID already exist, overwrite by using new text
-                if (t.Id > 0) // new localization entries don't use integer ID anymore
-                    Strings[t.Id - 1] = text;
-
-                if (NameIdToString.ContainsKey(t.NameId))
-                    NameIdToString[t.NameId] = text;
+                // when replacing an existing token, reuse its Index
+                if (NameIdToToken.TryGetValue(t.NameId, out var token))
+                {
+                    token.Text = text;
+                    Strings[token.Index - 1] = text;
+                    NameIdToToken[t.NameId] = token;
+                }
                 else
-                    NameIdToString.Add(t.NameId, text);
+                {
+                    // In latest localization we no longer use indices
+                    // Generate the ID-s here if needed
+                    int index = t.Id > 0 ? t.Id : nextGeneratedId++;
+                    Strings[index - 1] = text;
+                    NameIdToToken.Add(t.NameId, new Token{ Index = index, Text = text });
+                }
             }
         }
 

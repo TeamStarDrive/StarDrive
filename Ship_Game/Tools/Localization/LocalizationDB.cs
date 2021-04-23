@@ -146,7 +146,7 @@ namespace Ship_Game.Tools.Localization
         }
 
         protected LocText AddNewLocalization(List<LocText> localizations, 
-                                                  TextToken token, string nameIdPrefix)
+                                             TextToken token, string nameIdPrefix)
         {
             string[] words = token.Text.Split(WordSeparators, StringSplitOptions.RemoveEmptyEntries);
             const int maxCommentWords = 10;
@@ -179,9 +179,13 @@ namespace Ship_Game.Tools.Localization
             }
         }
 
-        protected bool GetLocalization(List<LocText> localizedText, int id, out LocText loc)
+        protected bool GetLocalization(List<LocText> localizedText, int id, string nameId, out LocText loc)
         {
-            loc = localizedText.FirstOrDefault(x => x.Id == id);
+            loc = id > 0 ? localizedText.FirstOrDefault(x => x.Id == id) : null;
+
+            if (loc == null && nameId.NotEmpty())
+                loc = localizedText.FirstOrDefault(x => x.NameId == nameId);
+
             return loc != null;
         }
 
@@ -199,10 +203,10 @@ namespace Ship_Game.Tools.Localization
             if (string.IsNullOrEmpty(token.Text))
                 return;
 
-            if (GetLocalization(localizations, token.Id, out LocText loc))
+            if (GetLocalization(localizations, token.Id, token.NameId, out LocText loc))
             {
                 if (logMerge)
-                    Log.Write(ConsoleColor.Green, $"Merged {token.Lang} {token.Id}: {token.Text}");
+                    Log.Write(ConsoleColor.Green, $"Merged {token.Lang} {token.Id} {token.NameId}: {token.Text}");
                 loc.AddTranslation(new Translation(token.Id, token.Lang, token.Text));
             }
             else
@@ -221,14 +225,14 @@ namespace Ship_Game.Tools.Localization
         
         public string GetModNameId(int id)
         {
-            if (GetLocalization(ModText, id, out LocText mod))
+            if (GetLocalization(ModText, id, null, out LocText mod))
                 return mod.NameId;
             return GetNameId(id);
         }
 
         public string GetNameId(int id)
         {
-            if (GetLocalization(LocalizedText, id, out LocText loc))
+            if (GetLocalization(LocalizedText, id, null, out LocText loc))
                 return loc.NameId;
 
             Log.Write(ConsoleColor.Red, $"{Name}: failed to find tooltip data with id={id}");
@@ -250,7 +254,7 @@ namespace Ship_Game.Tools.Localization
             var uniqueToMod = new List<TextToken>();
             foreach (TextToken token in localizations)
             {
-                if (GetLocalization(LocalizedText, token.Id, out LocText vanilla))
+                if (GetLocalization(LocalizedText, token.Id, token.NameId, out LocText vanilla))
                     token.NameId = vanilla.NameId; // keep NameId from vanilla
                 else
                     uniqueToMod.Add(token); // this is unique to the mod
@@ -263,7 +267,7 @@ namespace Ship_Game.Tools.Localization
             // add in missing translations
             foreach (LocText mod in ModText)
             {
-                if (GetLocalization(LocalizedText, mod.Id, out LocText vanilla))
+                if (GetLocalization(LocalizedText, mod.Id, mod.NameId, out LocText vanilla))
                 {
                     foreach (Translation tr in vanilla.Translations)
                         if (!mod.HasLang(tr.Lang))
