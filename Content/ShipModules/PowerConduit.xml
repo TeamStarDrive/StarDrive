@@ -30,7 +30,7 @@
   <Name>Power Conduit</Name>
   <Restrictions>IOE</Restrictions>
   <UID>PowerConduit</UID>
-  <IconTexturePath>Modules/Powerplant</IconTexturePath>
+  <IconTexturePath>Conduits/conduit_intersection_power</IconTexturePath>
   <Mass>1</Mass>
   <Health>100</Health>
   <HealthMax>100</HealthMax>
