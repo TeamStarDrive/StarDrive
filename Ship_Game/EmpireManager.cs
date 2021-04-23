@@ -194,7 +194,7 @@ namespace Ship_Game
                     continue;
 
                 Troop troop = ResourceManager.CreateTroop(troopType, rebelEmpire);
-                troop.Description = Localizer.Token(rebelEmpire.data.TroopDescriptionIndex);
+                troop.Description = rebelEmpire.data.TroopDescription.Text;
                 return troop;
             }
             return null;

@@ -628,15 +628,6 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(tooltip);                
         }
 
-        public void DrawTextureWithToolTip(SubTexture texture, Color color, string text, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
-        {
-            var rectangle = new Rectangle(rectangleX, rectangleY, width, height);
-            ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
-
-            if (rectangle.HitTest(mousePos))
-                ToolTip.CreateTooltip(text);
-        }
-
         public void DrawStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text)
         {
             Vector2 screenPos = Empire.Universe.ProjectToScreenPosition(posInWorld);

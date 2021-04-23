@@ -50,9 +50,8 @@ namespace Ship_Game
 
             Screen   = screen;
             Entry    = theEntry;
-            TechName = Localizer.Token(ResourceManager.TechTree[theEntry.UID].NameIndex)+(ResourceManager.TechTree[theEntry.UID].MaxLevel > 1
-                           ? " " + RomanNumerals.ToRoman(theEntry.Level) + "/"
-                             + RomanNumerals.ToRoman(ResourceManager.TechTree[theEntry.UID].MaxLevel) : "");
+            Technology tech = ResourceManager.TechTree[theEntry.UID];
+            TechName = tech.Name.Text + (tech.MaxLevel > 1 ? " " + RomanNumerals.ToRoman(theEntry.Level) + "/" + RomanNumerals.ToRoman(tech.MaxLevel) : "");
 
             BaseRect.X     = (int)position.X;
             BaseRect.Y     = (int)position.Y;
@@ -69,8 +68,8 @@ namespace Ship_Game
                 {
                     UnlockItem unlock  = new UnlockItem();
                     unlock.module      = ResourceManager.GetModuleTemplate(TechTemplate.ModulesUnlocked[i].ModuleUID);
-                    unlock.privateName = Localizer.Token(unlock.module.NameIndex);
-                    unlock.Description = Localizer.Token(unlock.module.DescriptionIndex);
+                    unlock.privateName = unlock.module.NameText.Text;
+                    unlock.Description = unlock.module.DescriptionText.Text;
                     unlock.Type        = UnlockType.ShipModule;
                     Unlocks.Add(unlock);
                     numUnlocks++;
@@ -374,7 +373,7 @@ namespace Ship_Game
             }
             else
             {
-                ToolTip.CreateTooltip($"Right Click to Expand \n\n{Localizer.Token(ResourceManager.TechTree[Entry.UID].DescriptionIndex)}");
+                ToolTip.CreateTooltip($"Right Click to Expand \n\n{ResourceManager.TechTree[Entry.UID].Description.Text}");
             }
             return false;
         }

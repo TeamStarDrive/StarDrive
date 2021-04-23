@@ -346,7 +346,7 @@ namespace Ship_Game
                         {
                             case "Research":
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(GameText.ResearchScreen)+"\n\n"+Localizer.Token(GameText.CurrentResearch)+": "+Player.Research.TopicLocText, "R");
+                                ToolTip.CreateTooltip(Localizer.Token(GameText.ResearchScreen)+"\n\n"+Localizer.Token(GameText.CurrentResearch)+": "+Player.Research.TopicLocText.Text, "R");
                                 break;
                             }
                             case "Budget":

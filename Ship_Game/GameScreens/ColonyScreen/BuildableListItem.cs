@@ -183,7 +183,7 @@ namespace Ship_Game
 
         string BuildingShortDescription(Building b)
         {
-            string description = Localizer.Token(b.ShortDescriptionIndex);
+            string description = b.ShortDescrText.Text;
 
             Planet p = Screen.P;
             if (b.MaxFertilityOnBuild.NotZero())
