@@ -131,7 +131,7 @@ namespace Ship_Game
                 BuildingDescr = Font8.ParseText(BuildingShortDescription(b), TextWidth);
 
             batch.Draw(b.IconTex, new Vector2(X, Y-2), new Vector2(IconSize), buildColor); // Icon
-            batch.DrawString(Font12, Localizer.Token(b.NameTranslationIndex), TextX+2, Y+2, buildColor); // Title
+            batch.DrawString(Font12, b.TranslatedName, TextX+2, Y+2, buildColor); // Title
             batch.DrawString(Font8, BuildingDescr, TextX+4, Y+16, profitColor); // Description
             int creditCost = b.IsMilitary ? GetCreditCharge((int)b.ActualCost) : 0;
             DrawProductionInfo(batch, GetMaintenance(b), b.ActualCost, creditCost);
