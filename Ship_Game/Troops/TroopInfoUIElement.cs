@@ -220,7 +220,7 @@ namespace Ship_Game
             }
             else if (pgs.BuildingOnTile)
             {
-                DescriptionBox.AddLines(Localizer.Token(pgs.Building.DescriptionIndex), Fonts.Arial12, Color.White);
+                DescriptionBox.AddLines(pgs.Building.DescriptionText.Text, Fonts.Arial12, Color.White);
             }
         }
     }

@@ -190,8 +190,8 @@ namespace Ship_Game
         public static string GetRole(ShipData.RoleName role, Empire owner) => GetRole(role, owner.data.Traits.ShipType);
         public static string GetRole(ShipData.RoleName role, string shipType)
         {
-            int localIndex = ShipRole.GetRoleName(role, shipType);
-            return localIndex > 0 ? Token(localIndex) : "unknown";
+            LocalizedText name = ShipRole.GetRoleName(role, shipType);
+            return name.NotEmpty ? name.Text : "unknown";
         }
 
         public static IEnumerable<string> EnumerateTokens()

@@ -93,9 +93,9 @@ namespace Ship_Game
         public override string ToString()
             => $"BID:{BID} Name:{Name} ActualCost:{ActualCost} +Tax:{PlusTaxPercentage}  Short:{ShortDescrText}";
 
-        [XmlIgnore][JsonIgnore] public LocalizedText TranslatedName => new LocalizedText(NameTranslationIndex);
+        [XmlIgnore][JsonIgnore] public LocalizedText TranslatedName  => new LocalizedText(NameTranslationIndex);
         [XmlIgnore][JsonIgnore] public LocalizedText DescriptionText => new LocalizedText(DescriptionIndex);
-        [XmlIgnore][JsonIgnore] public LocalizedText ShortDescrText => new LocalizedText(ShortDescriptionIndex);
+        [XmlIgnore][JsonIgnore] public LocalizedText ShortDescrText  => new LocalizedText(ShortDescriptionIndex);
 
         // Each Building templates has a unique ID: 
         [XmlIgnore][JsonIgnore] public int BID { get; private set; }

@@ -1,5 +1,7 @@
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 using Ship_Game.Ships;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
@@ -21,6 +23,7 @@ namespace Ship_Game
         [Serialize(13)] public float SensorMod;
         [Serialize(14)] public float ModuleHPMod;
 
+        [XmlIgnore][JsonIgnore] public LocalizedText NameText => new LocalizedText(NameIndex); 
 
         bool TrySetArtifactEffect(ref float outModifier, float inModifier, RacialTrait traits,
                                   string text, EventPopup popup, bool percent = true)

@@ -30,7 +30,7 @@ namespace Ship_Game
             base.Draw(batch, elapsed);
 
             float textAreaWidth = Width - 40;
-            string name = PaddedWithDots(TitleFont, Localizer.Token(Trait.trait.TraitName), textAreaWidth);
+            string name = PaddedWithDots(TitleFont, Trait.trait.LocalizedName.Text, textAreaWidth);
             int cost = Trait.trait.Cost;
 
             var drawColor = new Color(95, 95, 95, 95);
@@ -59,7 +59,7 @@ namespace Ship_Game
             batch.DrawString(TitleFont, costText, curs, drawColor);
 
             pos.Y += TitleFont.LineSpacing;
-            batch.DrawString(DescrFont, DescrFont.ParseText(Localizer.Token(Trait.trait.Description), textAreaWidth), pos, drawColor);
+            batch.DrawString(DescrFont, DescrFont.ParseText(new LocalizedText(Trait.trait.Description), textAreaWidth), pos, drawColor);
         }
 
         static float DotSpaceWidth;

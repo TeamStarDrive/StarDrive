@@ -66,16 +66,16 @@ namespace Ship_Game
             }
             return max;
         }
-        public static int GetRoleName(ShipData.RoleName role, string shipType)
+        public static LocalizedText GetRoleName(ShipData.RoleName role, string shipType)
         {
             if (!ResourceManager.ShipRoles.TryGetValue(role, out ShipRole shipRole))
-                return 0;
+                return LocalizedText.None;
 
             foreach (Race race in shipRole.RaceList)
                 if (race.ShipType == shipType)
-                    return race.Localization;
+                    return new LocalizedText(race.Localization);
 
-            return shipRole.Localization;
+            return new LocalizedText(shipRole.Localization);
         }
     }
 }

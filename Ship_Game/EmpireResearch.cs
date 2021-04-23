@@ -27,15 +27,15 @@ namespace Ship_Game
         public float MaxResearchPotential { get; private set; }
         float LeftoverResearch;
 
-        public bool NoTopic  => Queue.IsEmpty;
+        public bool NoTopic => Queue.IsEmpty;
         public bool HasTopic => Queue.NotEmpty;
 
         // The CURRENT research topic is simply the first item in our ResearchQueue
-        public string    Topic   => Queue.NotEmpty ? Queue.First : "";
+        public string Topic => Queue.NotEmpty ? Queue.First : "";
         public TechEntry Current => Queue.NotEmpty ? Empire.TechnologyDict[Queue.First] : TechEntry.None;
 
-        public string TopicLocText => ResourceManager.TryGetTech(Topic, out Technology tech)
-                                   ? Localizer.Token(tech.NameIndex) : Localizer.Token(GameText.None);
+        public LocalizedText TopicLocText => ResourceManager.TryGetTech(Topic, out Technology tech)
+                                   ? new LocalizedText(tech.NameIndex) : GameText.None;
 
         public EconomicResearchStrategy Strategy { get; private set; }
 
