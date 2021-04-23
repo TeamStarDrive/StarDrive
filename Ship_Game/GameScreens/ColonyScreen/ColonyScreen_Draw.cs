@@ -436,11 +436,6 @@ namespace Ship_Game
             cursor.Y += (TextFont.MeasureString(multiline).Y + TextFont.LineSpacing);
         }
 
-        void DrawCommoditiesArea(Vector2 bCursor)
-        {
-            ScreenManager.SpriteBatch.DrawString(TextFont, MultiLineFormat(GameText.CommoditiesAreSpecialResourcesThat), bCursor, TextColor);
-        }
-
         void DrawDetailInfo(SpriteBatch batch, Vector2 bCursor)
         {
             if (PFacilities.SelectedIndex == 0)
@@ -546,7 +541,7 @@ namespace Ship_Game
                     batch.Draw(ResourceManager.Texture("Ground_UI/GC_Square Selection"), bRect, Color.White);
                     batch.DrawString(Font20, pgs.Building.TranslatedName, bCursor, color);
                     bCursor.Y   += Font20.LineSpacing + 5;
-                    string buildingDescription  = MultiLineFormat(Localizer.Token(pgs.Building.DescriptionIndex));
+                    string buildingDescription  = MultiLineFormat(pgs.Building.DescriptionText);
                     batch.DrawString(TextFont, buildingDescription, bCursor, color);
                     bCursor.Y   += TextFont.MeasureString(buildingDescription).Y + Font20.LineSpacing;
                     DrawSelectedBuildingInfo(ref bCursor, batch, pgs.Building, pgs);
@@ -561,7 +556,7 @@ namespace Ship_Game
                 case Building selectedBuilding:
                     batch.DrawString(Font20, selectedBuilding.TranslatedName, bCursor, color);
                     bCursor.Y += Font20.LineSpacing + 5;
-                    string selectionText = MultiLineFormat(Localizer.Token(selectedBuilding.DescriptionIndex));
+                    string selectionText = MultiLineFormat(selectedBuilding.DescriptionText);
                     batch.DrawString(TextFont, selectionText, bCursor, color);
                     bCursor.Y += TextFont.MeasureString(selectionText).Y + Font20.LineSpacing;
                     if (selectedBuilding.isWeapon)

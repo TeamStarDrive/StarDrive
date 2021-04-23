@@ -632,7 +632,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 Tech            = true,
-                Message         = Localizer.Token(tech.NameIndex) + Localizer.Token(GameText.Unlocked),
+                Message         = tech.Name.Text + Localizer.Token(GameText.Unlocked),
                 ReferencedItem1 = unlocked,
                 IconPath        = hasTechIcon ? techIcon : "TechIcons/" + unlocked,
                 Action          = "ResearchScreen"

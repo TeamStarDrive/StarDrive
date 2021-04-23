@@ -49,8 +49,8 @@ namespace Ship_Game.Ships
         public string WeaponType;
         public ushort NameIndex;
         public ushort DescriptionIndex;
-        public LocalizedText NameText => Localizer.Token(NameIndex);
-        public LocalizedText DescriptionText => Localizer.Token(DescriptionIndex);
+        public LocalizedText NameText => new LocalizedText(NameIndex);
+        public LocalizedText DescriptionText => new LocalizedText(DescriptionIndex);
         public Restrictions Restrictions;
         public Shield Shield { get; private set; }
         public string hangarShipUID;

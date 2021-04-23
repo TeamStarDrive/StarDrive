@@ -157,16 +157,15 @@ namespace Ship_Game
             //Added by McShooterz: Changed how modules names are displayed for allowing longer names
             var modTitlePos = new Vector2(ActiveModSubMenu.X + 10, ActiveModSubMenu.Y + 35);
 
-            if (Fonts.Arial20Bold.TextWidth(Localizer.Token(moduleTemplate.NameIndex))+40 <
-                ActiveModSubMenu.Width)
+            if (Fonts.Arial20Bold.TextWidth(moduleTemplate.NameText.Text) + 40 < ActiveModSubMenu.Width)
             {
-                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(moduleTemplate.NameIndex),
+                batch.DrawString(Fonts.Arial20Bold, moduleTemplate.NameText.Text,
                     modTitlePos, nameColor);
                 modTitlePos.Y += (Fonts.Arial20Bold.LineSpacing + 6);
             }
             else
             {
-                batch.DrawString(Fonts.Arial14Bold, Localizer.Token(moduleTemplate.NameIndex),
+                batch.DrawString(Fonts.Arial14Bold, moduleTemplate.NameText.Text,
                     modTitlePos, nameColor);
                 modTitlePos.Y += (Fonts.Arial14Bold.LineSpacing + 4);
             }
@@ -273,7 +272,7 @@ namespace Ship_Game
                 modTitlePos.X = startx;
             }
 
-            string txt = Fonts.Arial12.ParseText(Localizer.Token(moduleTemplate.DescriptionIndex),
+            string txt = Fonts.Arial12.ParseText(moduleTemplate.DescriptionText.Text,
                                                  ActiveModSubMenu.Width - 20);
 
             batch.DrawString(Fonts.Arial12, txt, modTitlePos, Color.White);

@@ -12,8 +12,8 @@ namespace Ship_Game.GameScreens.Espionage
         readonly AgentMission TheMission;
         int cost;
         int turns;
-        int NameIndex;
-        int DescriptionIndex;
+        GameText NameIndex;
+        GameText DescriptionIndex;
 
         public MissionListItem(AgentMission am, AgentComponent parent)
         {
@@ -91,44 +91,44 @@ namespace Ship_Game.GameScreens.Espionage
                     MissionAvailable = SelectedAgentAvailable;
                     turns = ResourceManager.AgentMissionData.TrainingTurns;
                     cost  = ResourceManager.AgentMissionData.TrainingCost;
-                    NameIndex        = 2196;
-                    DescriptionIndex = 2197;
+                    NameIndex        = GameText.AgentTraining;
+                    DescriptionIndex = GameText.SendThisAgentOnA7;
                     break;
                 case AgentMission.Infiltrate:
                     turns = ResourceManager.AgentMissionData.InfiltrateTurns;
                     cost  = ResourceManager.AgentMissionData.InfiltrateCost;
-                    NameIndex        = 2188;
-                    DescriptionIndex = 2189;
+                    NameIndex        = GameText.Infiltrate;
+                    DescriptionIndex = GameText.SendThisAgentOnA3;
                     break;
                 case AgentMission.Assassinate:
                     turns = ResourceManager.AgentMissionData.AssassinateTurns;
                     cost  = ResourceManager.AgentMissionData.AssassinateCost;
-                    NameIndex        = 2184;
-                    DescriptionIndex = 2185;
+                    NameIndex        = GameText.Assassinate;
+                    DescriptionIndex = GameText.SendThisAgentOnA;
                     break;
                 case AgentMission.Sabotage:
                     turns = ResourceManager.AgentMissionData.SabotageTurns;
                     cost  = ResourceManager.AgentMissionData.SabotageCost;
-                    NameIndex        = 2190;
-                    DescriptionIndex = 2191;
+                    NameIndex        = GameText.Sabotage;
+                    DescriptionIndex = GameText.SendThisAgentOnA4;
                     break;
                 case AgentMission.StealTech:
                     turns = ResourceManager.AgentMissionData.StealTechTurns;
                     cost  = ResourceManager.AgentMissionData.StealTechCost;
-                    NameIndex        = 2194;
-                    DescriptionIndex = 2195;
+                    NameIndex        = GameText.StealTech;
+                    DescriptionIndex = GameText.SendThisAgentOnA6;
                     break;
                 case AgentMission.Robbery:
                     turns = ResourceManager.AgentMissionData.RobberyTurns;
                     cost  = ResourceManager.AgentMissionData.RobberyCost;
-                    NameIndex        = 2192;
-                    DescriptionIndex = 2193;
+                    NameIndex        = GameText.Robbery;
+                    DescriptionIndex = GameText.SendThisAgentOnA5;
                     break;
                 case AgentMission.InciteRebellion:
                     turns = ResourceManager.AgentMissionData.RebellionTurns;
                     cost  = ResourceManager.AgentMissionData.RebellionCost;
-                    NameIndex        = 2186;
-                    DescriptionIndex = 2187;
+                    NameIndex        = GameText.InciteRebels;
+                    DescriptionIndex = GameText.SendThisAgentOnA2;
                     break;
             }
 

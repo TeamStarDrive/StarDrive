@@ -278,20 +278,20 @@ namespace Ship_Game
                 return true;
             }
 
-            HandleSortButton(input, SbPop, 2278, p => p.PopulationBillion);
-            HandleSortButton(input, SbFood, 2174, p => p.Food.NetIncome);
-            HandleSortButton(input, SbProd, 2175, p => p.Prod.NetIncome);
-            HandleSortButton(input, SbRes, 2176, p => p.Res.NetIncome);
-            HandleSortButton(input, SbMoney, 2177, p => p.Money.NetRevenue);
+            HandleSortButton(input, SbPop, GameText.IndicatesThisColonysCurrentPopulation, p => p.PopulationBillion);
+            HandleSortButton(input, SbFood, GameText.TheNetAmountOfFood, p => p.Food.NetIncome);
+            HandleSortButton(input, SbProd, GameText.TheNetAmountOfProduction, p => p.Prod.NetIncome);
+            HandleSortButton(input, SbRes, GameText.TheNetAmountOfResearch, p => p.Res.NetIncome);
+            HandleSortButton(input, SbMoney, GameText.TheNetIncomeOfThis, p => p.Money.NetRevenue);
 
             return base.HandleInput(input);
         }
 
-        void HandleSortButton(InputState input, SortButton button, int tooltip, Func<Planet, float> selector)
+        void HandleSortButton(InputState input, SortButton button, LocalizedText tooltip, Func<Planet, float> selector)
         {
             if (button.rect.HitTest(input.CursorPosition))
             {
-                ToolTip.CreateTooltip(Localizer.Token(tooltip));
+                ToolTip.CreateTooltip(tooltip);
             }
             if (button.HandleInput(input))
             {

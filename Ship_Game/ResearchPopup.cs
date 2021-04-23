@@ -28,8 +28,8 @@ namespace Ship_Game
 
             string level = RomanNumerals.ToRoman(techEntry.Level);
             string maxlvl = RomanNumerals.ToRoman(techEntry.MaxLevel);
-            TitleText  = Localizer.Token(Technology.NameIndex) + (Technology.MaxLevel > 1 ? $" {level}/{maxlvl}" : "");
-            MiddleText = Localizer.Token(techEntry.Tech.DescriptionIndex);
+            TitleText  = Technology.Name.Text + (Technology.MaxLevel > 1 ? $" {level}/{maxlvl}" : "");
+            MiddleText = techEntry.Tech.Description.Text;
         }
 
         class UnlockListItem : ScrollListItem<UnlockListItem>
@@ -106,9 +106,9 @@ namespace Ship_Game
                         var r = new Rectangle((int)X + 16, (int)CenterY - 32, 64, 64);
                         batch.Draw(ResourceManager.Texture($"Buildings/icon_{Unlock.building.Icon}_64x64"), r, Color.White);
 
-                        string title   = Unlock.building.TranslatedName.Text;
-                        string descr   = Localizer.Token(Unlock.building.DescriptionIndex);
-                        string summary = Localizer.Token(Unlock.building.ShortDescriptionIndex);
+                        string title = Unlock.building.TranslatedName.Text;
+                        string descr = Unlock.building.DescriptionText.Text;
+                        string summary = Unlock.building.ShortDescrText.Text;
                         DrawTitleAndDescr(batch, title, descr, summary: summary);
                         break;
                     }
@@ -168,8 +168,8 @@ namespace Ship_Game
                     {
                         Type = UnlockType.ShipModule,
                         module = template,
-                        Description = Localizer.Token(template.DescriptionIndex),
-                        privateName = Localizer.Token(template.NameIndex)
+                        Description = template.DescriptionText.Text,
+                        privateName = template.NameText.Text
                     };
                     UnlockSL.AddItem(new UnlockListItem(unlock));
                 }

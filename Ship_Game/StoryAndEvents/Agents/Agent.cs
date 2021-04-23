@@ -15,7 +15,7 @@ namespace Ship_Game
         [Serialize(6)] public int TurnsRemaining;
         [Serialize(7)] public string TargetEmpire = "";
         [Serialize(8)] public Guid TargetGUID;
-        [Serialize(9)] public int MissionNameIndex = 2183;
+        [Serialize(9)] public int MissionNameIndex = (int)GameText.Defending;
         [Serialize(10)] public bool spyMute;
         [Serialize(11)] public string HomePlanet = "";
         [Serialize(12)] public float Age = 30f;
@@ -415,7 +415,7 @@ namespace Ship_Game
             }
 
             string stolenTech     = potentialTechs.RandItem().UID;
-            string stolenTechName = Localizer.Token(ResourceManager.TechTree[stolenTech].NameIndex);
+            string stolenTechName = ResourceManager.TechTree[stolenTech].Name.Text;
 
             switch (missionStatus)
             {
@@ -554,9 +554,9 @@ namespace Ship_Game
                     if (!victim.WeCanBuildTroop(troopType))
                         continue;
 
-                    Troop t       = ResourceManager.CreateTroop(troopType, rebels);
-                    t.Name        = Localizer.Token(rebels.data.TroopNameIndex);
-                    t.Description = Localizer.Token(rebels.data.TroopDescriptionIndex);
+                    Troop t = ResourceManager.CreateTroop(troopType, rebels);
+                    t.Name        = rebels.data.TroopName.Text;
+                    t.Description = rebels.data.TroopDescription.Text;
                     if (targetPlanet.GetFreeTiles(t.Loyalty) == 0 && !targetPlanet.BumpOutTroop(EmpireManager.Corsairs)
                                                             && !t.TryLandTroop(targetPlanet)) // Let's say the rebels are pirates :)
                     {
