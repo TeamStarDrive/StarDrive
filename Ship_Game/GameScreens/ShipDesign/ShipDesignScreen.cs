@@ -355,7 +355,7 @@ namespace Ship_Game
         void RecalculateDesignRole(bool showRoleChangeTip)
         {
             var oldRole = Role;
-            Role        = new RoleData(ActiveHull, ModuleGrid.CopyModulesList()).DesignRole;
+            Role = new RoleData(ActiveHull, ModuleGrid.CopyModulesList()).DesignRole;
 
             if (Role != oldRole && showRoleChangeTip)
             {
