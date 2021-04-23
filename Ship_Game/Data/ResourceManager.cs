@@ -1132,42 +1132,10 @@ namespace Ship_Game
         // Can be called after game init, to reset `Localizer` with new language tokens
         public static void LoadLanguage(Language language)
         {
-            Localizer.Reset();
-            LocalizedText.ClearCache();
-
             var gameText = new FileInfo(ContentDirectory + "GameText.yaml");
-            if (gameText.Exists)
-            {
-                Localizer.AddFromYaml(gameText, language);
-            }
-            else
-            {
-                foreach (var loc in LoadVanillaEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
-                    Localizer.AddTokens(loc.TokenList, language);
-                if (language != Language.English)
-                    foreach (var loc in LoadVanillaEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
-                        Localizer.AddTokens(loc.TokenList, language);
-            }
-
-            // Now replace any vanilla tokens with mod tokens
-            if (GlobalStats.HasMod)
-            {
-                var modText = new FileInfo(ModContentDirectory + "GameText.yaml");
-                if (modText.Exists)
-                {
-                    Localizer.AddFromYaml(modText, language);
-                }
-                else
-                {
-                    foreach (var loc in LoadModEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
-                        Localizer.AddTokens(loc.TokenList, language);
-                    if (language != Language.English)
-                        foreach (var loc in LoadModEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
-                            Localizer.AddTokens(loc.TokenList, language);
-                }
-            }
+            var modText = new FileInfo(ModContentDirectory + "GameText.yaml");
+            Localizer.LoadFromYaml(gameText, modText, language);
         }
-
 
         public static TextureAtlas SmallStars, MediumStars, LargeStars;
 
