@@ -153,7 +153,7 @@ namespace Ship_Game
 
             if (!ShipSaved && !goodDesign)
             {
-                ExitMessageBox(this, DoExit, SaveWIP, 2121);
+                ExitMessageBox(this, DoExit, SaveWIP, GameText.ThisShipDesignIsNot);
                 return;
             }
             if (ShipSaved || !goodDesign)
@@ -161,7 +161,7 @@ namespace Ship_Game
                 ReallyExit();
                 return;
             }
-            ExitMessageBox(this, DoExit, SaveChanges, 2137);
+            ExitMessageBox(this, DoExit, SaveChanges, GameText.YouHaveUnsavedChangesSave);
         }
 
         public void ExitToMenu(string launches)
@@ -179,16 +179,16 @@ namespace Ship_Game
             }
             if (!ShipSaved && !goodDesign)
             {
-                ExitMessageBox(this, LaunchScreen, SaveWIP, 2121);
+                ExitMessageBox(this, LaunchScreen, SaveWIP, GameText.ThisShipDesignIsNot);
                 return;
             }
 
             if (!ShipSaved && goodDesign)
             {
-                ExitMessageBox(this, LaunchScreen, SaveChanges, 2137);
+                ExitMessageBox(this, LaunchScreen, SaveChanges, GameText.YouHaveUnsavedChangesSave);
                 return;
             }
-            ExitMessageBox(this, LaunchScreen, SaveChanges, 2121);
+            ExitMessageBox(this, LaunchScreen, SaveChanges, GameText.ThisShipDesignIsNot);
         }
 
         public override bool HandleInput(InputState input)
@@ -722,7 +722,8 @@ namespace Ship_Game
             if (!ShipSaved && !CheckDesign() && !ModuleGrid.IsEmptyDesign())
             {
                 ChangeTo = item.Hull;
-                MakeMessageBox(this, JustChangeHull, SaveWIPThenChangeHull, 2121, "Save", "No");
+                MakeMessageBox(this, JustChangeHull, SaveWIPThenChangeHull, 
+                               GameText.ThisShipDesignIsNot, "Save", "No");
             }
             else
             {
