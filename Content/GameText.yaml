@@ -525,6 +525,8 @@ SaveAs:
  ENG: "Save As"
  RUS: "Сохранить как"
  SPA: "Guardar como"
+Saving:
+ ENG: "Saving..."
 ToggleOverlay:
  Id: 106
  ENG: "Toggle Overlay"
