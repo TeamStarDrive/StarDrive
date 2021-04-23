@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -7,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 
-namespace Ship_Game.GameScreens.ShipDesignScreen
+namespace Ship_Game.GameScreens.ShipDesign
 {
     public sealed class LoadDesigns : GameScreen
     {
@@ -15,7 +14,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         bool ShowAllDesigns = true;
 
-        readonly Ship_Game.ShipDesignScreen Screen;
+        readonly ShipDesignScreen Screen;
 
         UITextEntry EnterNameArea;
         ScrollList2<DesignListItem> AvailableDesignsList;
@@ -27,7 +26,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         Array<UIButton> ShipsToLoad = new Array<UIButton>();
 
-        public LoadDesigns(Ship_Game.ShipDesignScreen screen) : base(screen)
+        public LoadDesigns(ShipDesignScreen screen) : base(screen)
         {
             Screen            = screen;
             IsPopup           = true;
