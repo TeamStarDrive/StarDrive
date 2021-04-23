@@ -19,7 +19,7 @@ namespace Ship_Game.GameScreens.Espionage
 
             batch.DrawString(Fonts.Arial12Bold, Agent.Name, namecursor, Color.White);
             namecursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
-            batch.DrawString(Fonts.Arial12, Localizer.Token(Agent.MissionNameIndex), namecursor, Color.Gray);
+            batch.DrawString(Fonts.Arial12, Agent.MissionName, namecursor, Color.Gray);
 
             for (int j = 0; j < Agent.Level; j++)
             {
