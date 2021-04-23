@@ -1,6 +1,8 @@
 using NAudio.Wave;
+using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 using System;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
@@ -15,7 +17,6 @@ namespace Ship_Game
         [Serialize(6)] public int TurnsRemaining;
         [Serialize(7)] public string TargetEmpire = "";
         [Serialize(8)] public Guid TargetGUID;
-        [Serialize(9)] public int MissionNameIndex = (int)GameText.Defending;
         [Serialize(10)] public bool spyMute;
         [Serialize(11)] public string HomePlanet = "";
         [Serialize(12)] public float Age = 30f;
@@ -28,15 +29,19 @@ namespace Ship_Game
         [Serialize(19)] public short Robberies;
         [Serialize(20)] public short Rebellions;
 
+        [XmlIgnore][JsonIgnore]
         public bool IsNovice => Level < 3;
+        
+        [XmlIgnore][JsonIgnore]
+        public LocalizedText MissionName => ResourceManager.AgentMissionData.GetMissionName(Mission);
 
         public void AssignMission(AgentMission mission, Empire owner, string targetEmpire)
         {
-            ResourceManager.AgentMissionData.Initialize(mission, out int index, out int turns, out int cost);
+            (int turns, int cost) = ResourceManager.AgentMissionData.GetTurnsAndCost(mission);
             if (cost > 0 && cost > owner.Money)
                 return; // Do not go into negative money, cost > 0 check is for 0 mission cost which can be done in negative
 
-            if (Mission == AgentMission.Undercover)
+            if (mission == AgentMission.Undercover)
             {
                 foreach (Mole m in owner.data.MoleList)
                 {
@@ -53,10 +58,9 @@ namespace Ship_Game
             owner.AddMoney(-cost);
             owner.GetEmpireAI().DeductSpyBudget(cost);
 
-            Mission          = mission;
-            TargetEmpire     = targetEmpire;
-            MissionNameIndex = index;
-            TurnsRemaining   = turns;
+            Mission = mission;
+            TargetEmpire = targetEmpire;
+            TurnsRemaining = turns;
         }
 
         bool ReassignedDueToVictimDefeated(Empire us, Empire victim)
