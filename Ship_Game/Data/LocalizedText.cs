@@ -32,7 +32,7 @@ namespace Ship_Game
 
         public LocalizedText(GameText gameText)
         {
-            Id = (int)gameText;
+            Id = Localizer.GetTokenId(gameText);
             String = null;
             Method = LocalizationMethod.Id;
         }
