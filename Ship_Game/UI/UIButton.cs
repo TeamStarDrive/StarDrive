@@ -72,6 +72,7 @@ namespace Ship_Game
 
         public UIButton(in LocalizedText text)
         {
+            Style = ButtonStyle.Default;
             Text = text;
             Size = GetInitialSize();
         }
