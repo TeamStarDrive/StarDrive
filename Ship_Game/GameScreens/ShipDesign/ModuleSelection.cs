@@ -293,7 +293,7 @@ namespace Ship_Game
             }
         }
 
-        void DrawStat(ref Vector2 cursor, string text, float stat, LocalizedText toolTipId, bool isPercent = false)
+        void DrawStat(ref Vector2 cursor, LocalizedText text, float stat, LocalizedText toolTipId, bool isPercent = false)
         {
             if (stat.AlmostEqual(0))
                 return;
@@ -519,7 +519,7 @@ namespace Ship_Game
             if (!w.Tag_Guided)
             {
                 float accuracy = w.BaseTargetError((int)Screen.DesignedShip.TargetingAccuracy).LowerBound(1) / 16;
-                DrawStat(ref cursor, LocalizedText.ParseText("{Accuracy}"), -1 * accuracy, GameText.WeaponTargetError);
+                DrawStat(ref cursor, GameText.Accuracy, -1 * accuracy, GameText.WeaponTargetError);
             }
             if (isBeam)
             {

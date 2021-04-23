@@ -651,17 +651,17 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             return base.HandleInput(input);
         }
 
-        GenericButton Button(ref Vector2 cursor, int locId)
+        GenericButton Button(ref Vector2 cursor, GameText title)
         {
-            var button = new GenericButton(cursor, Localizer.Token(locId), Fonts.Pirulen20, Fonts.Pirulen16);
+            var button = new GenericButton(cursor, Localizer.Token(title), Fonts.Pirulen20, Fonts.Pirulen16);
             GenericButtons.Add(button);
             cursor.Y += 25f;
             return button;
         }
 
-        GenericButton TAFButton(ref Vector2 cursor, int locId, bool toggleOn = false)
+        GenericButton TAFButton(ref Vector2 cursor, GameText title, bool toggleOn = false)
         {
-            var button = new GenericButton(cursor, Localizer.Token(locId), Fonts.Pirulen16, Fonts.Pirulen12) { ToggleOn = toggleOn };
+            var button = new GenericButton(cursor, Localizer.Token(title), Fonts.Pirulen16, Fonts.Pirulen12) { ToggleOn = toggleOn };
             TAFButtons.Add(button);
             cursor.Y += 25f;
             return button;
@@ -683,18 +683,18 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             EmpireNamePos = new Vector2(cursor.X - Fonts.Pirulen20.MeasureString(Them.data.Traits.Name).X, Portrait.Y + 40);
             if (!UsAndThem.AtWar)
             {
-                DeclareWar = Button(ref cursor, locId: 1200);
-                Discuss    = Button(ref cursor, locId: 1201);
+                DeclareWar = Button(ref cursor, GameText.DeclareWar);
+                Discuss    = Button(ref cursor, GameText.Discuss);
             }
 
-            Negotiate = Button(ref cursor, locId: 1202);
-            Exit      = Button(ref cursor, locId: 1203);
+            Negotiate = Button(ref cursor, GameText.Negotiate);
+            Exit      = Button(ref cursor, GameText.End);
 
             cursor = new Vector2(Portrait.X + 115, Portrait.Y + 160);
 
-            Trust = TAFButton(ref cursor, locId: 1204, toggleOn: true);
-            Anger = TAFButton(ref cursor, locId: 1205, toggleOn: true);
-            Fear  = TAFButton(ref cursor, locId: 1206, toggleOn: true);
+            Trust = TAFButton(ref cursor, GameText.Trust, toggleOn: true);
+            Anger = TAFButton(ref cursor, GameText.Anger, toggleOn: true);
+            Fear  = TAFButton(ref cursor, GameText.Fear, toggleOn: true);
 
             TrustRect  = new Rectangle(Portrait.X + 125, Trust.R.Y + 2, 100, Trust.R.Height);
             AngerRect  = new Rectangle(Portrait.X + 125, Anger.R.Y + 2, 100, Anger.R.Height);
@@ -771,7 +771,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 string offered = OurOffer?.TechnologiesOffered.Count > 0
                                ? OurOffer.TechnologiesOffered[0] : "TECH";
                 if (ResourceManager.TryGetTech(offered, out Technology tech))
-                    return Localizer.Token(tech.NameIndex);
+                    return tech.Name.Text;
                 return offered;
             }
         }

@@ -106,7 +106,7 @@ namespace Ship_Game
                         var r = new Rectangle((int)X + 16, (int)CenterY - 32, 64, 64);
                         batch.Draw(ResourceManager.Texture($"Buildings/icon_{Unlock.building.Icon}_64x64"), r, Color.White);
 
-                        string title   = Localizer.Token(Unlock.building.NameTranslationIndex);
+                        string title   = Unlock.building.TranslatedName.Text;
                         string descr   = Localizer.Token(Unlock.building.DescriptionIndex);
                         string summary = Localizer.Token(Unlock.building.ShortDescriptionIndex);
                         DrawTitleAndDescr(batch, title, descr, summary: summary);

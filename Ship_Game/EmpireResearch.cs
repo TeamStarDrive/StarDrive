@@ -34,7 +34,8 @@ namespace Ship_Game
         public string    Topic   => Queue.NotEmpty ? Queue.First : "";
         public TechEntry Current => Queue.NotEmpty ? Empire.TechnologyDict[Queue.First] : TechEntry.None;
 
-        public string TopicLocText => Localizer.Token(ResourceManager.TryGetTech(Topic, out Technology tech) ? tech.NameIndex : 341);
+        public string TopicLocText => ResourceManager.TryGetTech(Topic, out Technology tech)
+                                   ? Localizer.Token(tech.NameIndex) : Localizer.Token(GameText.None);
 
         public EconomicResearchStrategy Strategy { get; private set; }
 

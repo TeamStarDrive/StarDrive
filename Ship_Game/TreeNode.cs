@@ -102,8 +102,8 @@ namespace Ship_Game
                 {
                     UnlockItem unlock = new UnlockItem();
                     unlock.building = ResourceManager.BuildingsDict[TechTemplate.BuildingsUnlocked[i].Name];
-                    unlock.privateName = Localizer.Token(unlock.building.NameTranslationIndex);
-                    unlock.Description = Localizer.Token(unlock.building.DescriptionIndex);
+                    unlock.privateName = unlock.building.TranslatedName.Text;
+                    unlock.Description = unlock.building.DescriptionText.Text;
                     unlock.Type = UnlockType.Building;
                     numUnlocks++;
                     Unlocks.Add(unlock);

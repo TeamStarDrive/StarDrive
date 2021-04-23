@@ -408,12 +408,12 @@ namespace Ship_Game
 
         Color TextColor { get; } = Colors.Cream;
 
-        void DrawTitledLine(ref Vector2 cursor, int titleId, string text)
+        void DrawTitledLine(ref Vector2 cursor, GameText title, string text)
         {
             Vector2 textCursor = cursor;
             textCursor.X += 100f;
 
-            ScreenManager.SpriteBatch.DrawString(Font12, Localizer.Token(titleId) +": ", cursor, TextColor);
+            ScreenManager.SpriteBatch.DrawString(Font12, Localizer.Token(title)+": ", cursor, TextColor);
             ScreenManager.SpriteBatch.DrawString(Font12, text, textCursor, TextColor);
             cursor.Y += Font12.LineSpacing;
         }
@@ -461,13 +461,13 @@ namespace Ship_Game
                         : t.ActualStrengthMax.String(1);
 
                     DrawMultiLine(ref bCursor, t.Description);
-                    DrawTitledLine(ref bCursor, 338, t.TargetType.ToString());
-                    DrawTitledLine(ref bCursor, 339, strength);
-                    DrawTitledLine(ref bCursor, 2218, t.ActualHardAttack.ToString());
-                    DrawTitledLine(ref bCursor, 2219, t.ActualSoftAttack.ToString());
-                    DrawTitledLine(ref bCursor, 6008, t.BoardingStrength.ToString());
-                    DrawTitledLine(ref bCursor, 6023, t.Level.ToString());
-                    DrawTitledLine(ref bCursor, 1966, t.ActualRange.ToString());
+                    DrawTitledLine(ref bCursor, GameText.TroopClass, t.TargetType.ToString());
+                    DrawTitledLine(ref bCursor, GameText.Strength, strength);
+                    DrawTitledLine(ref bCursor, GameText.HardAttack, t.ActualHardAttack.ToString());
+                    DrawTitledLine(ref bCursor, GameText.SoftAttack, t.ActualSoftAttack.ToString());
+                    DrawTitledLine(ref bCursor, GameText.Boarding, t.BoardingStrength.ToString());
+                    DrawTitledLine(ref bCursor, GameText.Level, t.Level.ToString());
+                    DrawTitledLine(ref bCursor, GameText.Range2, t.ActualRange.ToString());
                     break;
 
                 case string _:
@@ -544,7 +544,7 @@ namespace Ship_Game
 
                     var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
                     batch.Draw(ResourceManager.Texture("Ground_UI/GC_Square Selection"), bRect, Color.White);
-                    batch.DrawString(Font20, Localizer.Token(pgs.Building.NameTranslationIndex), bCursor, color);
+                    batch.DrawString(Font20, pgs.Building.TranslatedName, bCursor, color);
                     bCursor.Y   += Font20.LineSpacing + 5;
                     string buildingDescription  = MultiLineFormat(Localizer.Token(pgs.Building.DescriptionIndex));
                     batch.DrawString(TextFont, buildingDescription, bCursor, color);
@@ -559,7 +559,7 @@ namespace Ship_Game
                     break;
 
                 case Building selectedBuilding:
-                    batch.DrawString(Font20, Localizer.Token(selectedBuilding.NameTranslationIndex), bCursor, color);
+                    batch.DrawString(Font20, selectedBuilding.TranslatedName, bCursor, color);
                     bCursor.Y += Font20.LineSpacing + 5;
                     string selectionText = MultiLineFormat(Localizer.Token(selectedBuilding.DescriptionIndex));
                     batch.DrawString(TextFont, selectionText, bCursor, color);
