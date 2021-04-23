@@ -337,8 +337,8 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, Localizer.Token(GameText.Turn), mod.TurnThrust, GameText.IndicatesTheAmountOfRotational);
 
 
-            float shieldMax           = mod.ActualShieldPowerMax;
-            float amplifyShields      = mod.AmplifyShields;
+            float shieldMax = mod.ActualShieldPowerMax;
+            float amplifyShields = mod.AmplifyShields;
             DrawStat(ref modTitlePos, Localizer.Token(GameText.ShieldAmp), amplifyShields, GameText.WhenPoweredThisAmplifiesThe);
 
             if (mod.IsAmplified)
@@ -518,7 +518,7 @@ namespace Ship_Game
             DrawStat(ref cursor, Localizer.Token(GameText.Range), range, GameText.IndicatesTheMaximumRangeOf);
             if (!w.Tag_Guided)
             {
-                float accuracy = w.BaseTargetError((int)Screen.FireControlLevel).LowerBound(1) / 16;
+                float accuracy = w.BaseTargetError((int)Screen.DesignedShip.TargetingAccuracy).LowerBound(1) / 16;
                 DrawStat(ref cursor, LocalizedText.ParseText("{Accuracy}"), -1 * accuracy, GameText.WeaponTargetError);
             }
             if (isBeam)

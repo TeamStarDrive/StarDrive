@@ -34,7 +34,8 @@ namespace Ship_Game.Tools.Localization
             foreach (LocText loc in LocalizedText)
             {
                 sw.WriteLine($"        /// <summary>{loc.Comment}</summary>");
-                sw.WriteLine($"        {loc.NameId} = {loc.Id},");
+                if (loc.Id > 0)
+                    sw.WriteLine($"        {loc.NameId} = {loc.Id},");
             }
             sw.WriteLine("    }");
             sw.WriteLine("}");

@@ -276,7 +276,7 @@ namespace Ship_Game
         }
 
         // Gets the current cursor blinking mask color [255,255,255,a]
-        public Color CurrentFlashColor    => ApplyCurrentAlphaToColor(new Color(255, 255, 255));
+        public Color CurrentFlashColor => ApplyCurrentAlphaToColor(new Color(255, 255, 255));
         public Color CurrentFlashColorRed => ApplyCurrentAlphaToColor(new Color(255, 0, 0));
 
         protected Color ApplyCurrentAlphaToColor(Color color)
