@@ -1348,7 +1348,7 @@ namespace Ship_Game
 
         public static Ship AddShipTemplate(ShipData shipData, bool fromSave, bool playerDesign = false, bool readOnly = false)
         {
-            Ship shipTemplate = Ship.CreateShipFromShipData(EmpireManager.Void, shipData, fromSave: fromSave, isTemplate: true);
+            Ship shipTemplate = Ship.CreateNewShipTemplate(shipData, fromSave);
             if (shipTemplate == null) // happens if module creation failed
                 return null;
 

@@ -23,14 +23,14 @@ namespace UnitTests.AITests.Ships
         Ship CreateTestShip()
         {
             Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
-            ship.FTLSpoolTime = 3f;
+            ship.Stats.FTLSpoolTime = 3f;
             return ship;
         }
 
         Ship CreateEnemyTestShip(Vector2 location)
         {
             Ship ship = SpawnShip("Vulcan Scout", Enemy, location);
-            ship.FTLSpoolTime = 3f;
+            ship.Stats.FTLSpoolTime = 3f;
             return ship;
         }
 
