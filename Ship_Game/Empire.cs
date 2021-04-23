@@ -1086,9 +1086,10 @@ namespace Ship_Game
             PersonalityModifiers = new PersonalityModifiers(Personality);
         }
 
-        public void TestInitDifficultyModifiers() // For UnitTests only
+        public void TestInitModifiers() // For UnitTests only
         {
             InitDifficultyModifiers();
+            InitPersonalityModifiers();
         }
 
         public void Initialize()
