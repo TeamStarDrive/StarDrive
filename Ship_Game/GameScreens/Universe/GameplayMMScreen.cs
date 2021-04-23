@@ -37,7 +37,7 @@ namespace Ship_Game
             Vector2 c = ScreenCenter;
             Add(new Menu2(new RectF(c.X - 100, c.Y - 150, 200, 330)));
 
-            SavingText = Add(new UILabel(Localizer.Token("Saving"), Fonts.Pirulen16, Color.White));
+            SavingText = Add(new UILabel(GameText.Saving, Fonts.Pirulen16, Color.White));
             SavingText.Visible = false;
             SavingText.TextAlign = TextAlign.Center;
             SavingText.Pos = new Vector2(c.X - SavingText.Size.X*0.5f, 
