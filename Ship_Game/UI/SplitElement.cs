@@ -19,6 +19,9 @@ namespace Ship_Game.UI
         // Displays a tooltip 
         public LocalizedText Tooltip;
 
+        // If TRUE, draws rectangles around First and Second element
+        public bool DebugDraw;
+
         public override string ToString() => $"{TypeName} {ElementDescr} Split={Split} \nFirst={First} \nSecond={Second}";
         
         public SplitElement()
@@ -76,6 +79,12 @@ namespace Ship_Game.UI
         {
             First.Draw(batch, elapsed);
             Second.Draw(batch, elapsed);
+
+            if (DebugDraw)
+            {
+                batch.DrawRectangle(First.Rect, Color.IndianRed);
+                batch.DrawRectangle(Second.Rect, Color.IndianRed);
+            }
         }
     }
 }

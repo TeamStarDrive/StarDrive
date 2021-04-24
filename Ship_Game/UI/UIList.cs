@@ -167,6 +167,11 @@ namespace Ship_Game
 
         public override void PerformLayout()
         {
+            if (UseRelPos && Parent != null)
+            {
+                Pos = Parent.Pos + RelPos;
+            }
+
             Vector2 pos = Pos + Padding;
             Vector2 maxElemSize = MaxDimensions();
 
@@ -220,7 +225,6 @@ namespace Ship_Game
                 if (maxItemWidth.NotZero())
                     Width = maxItemWidth;
             }
-
 
             RequiresLayout = false;
         }
