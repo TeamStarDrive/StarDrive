@@ -70,6 +70,8 @@ namespace Ship_Game.UI
 
         public override void Update(float fixedDeltaTime)
         {
+            if (!Visible)
+                return;
             First.Update(fixedDeltaTime);
             Second.Update(fixedDeltaTime);
             RequiresLayout |= First.RequiresLayout | Second.RequiresLayout;

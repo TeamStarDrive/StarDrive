@@ -26,7 +26,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         {
             Screen = screen;
 
-            DesignCompletion = Add(new UI.UIKeyValueLabel(GameText.NoEmptySlots, "100%", Color.LightGreen));
+            DesignCompletion = Add(new UI.UIKeyValueLabel(GameText.NoEmptySlots, "100%", valueColor:Color.LightGreen));
             DesignCompletion.Tooltip = GameText.InOrderToCompleteYour;
 
             BtnDesignIssues = AddTextButton("Design Issues");
@@ -38,9 +38,9 @@ namespace Ship_Game.GameScreens.ShipDesign
             BtnInformation.OnClick = b => AddDesignIssuesScreen();
             //DebugDraw = true;
 
-            DesignCompletion.SetRelPos(20, 18);
-            BtnDesignIssues.SetRelPos(16, 36);
-            BtnInformation.SetRelPos(16, 36);
+            DesignCompletion.SetRelPos(20, 0);
+            BtnDesignIssues.SetRelPos(16, 18);
+            BtnInformation.SetRelPos(16, 18);
         }
 
         public int CompletionPercent

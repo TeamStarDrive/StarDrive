@@ -28,9 +28,9 @@ namespace Ship_Game.UI
         bool IsPercent = false;
 
         public UIKeyValueLabel(in LocalizedText keyText, in LocalizedText valueText,
-                               Color? valueColor = null, float split = 0f)
-            : base(new UILabel(keyText.Concat(": ")),
-                   new UILabel(valueText, valueColor ?? Color.White))
+                               Color? titleColor = null, Color? valueColor = null, float split = 0f)
+            : base(new UILabel(keyText.Concat(": "), titleColor ?? Microsoft.Xna.Framework.Graphics.Color.White),
+                   new UILabel(valueText, valueColor ?? Microsoft.Xna.Framework.Graphics.Color.White))
         {
             Key = (UILabel)First;
             Value = (UILabel)Second;
@@ -90,7 +90,7 @@ namespace Ship_Game.UI
             }
         }
 
-        public Func<float, Color> DynamicColor
+        public Func<float, Color> Color
         {
             set
             {
@@ -112,6 +112,7 @@ namespace Ship_Game.UI
                     ValueText = IsPercent ? CurrentValue.ToString("P0") : CurrentValue.GetNumberString();
                 }
             }
+
             base.Update(fixedDeltaTime);
         }
     }

@@ -108,5 +108,12 @@ namespace Ship_Game.GameScreens.ShipDesign
             DrawAtWarp = S.PowerFlowMax - S.NetPower.NetWarpPowerDraw;
             WarpTime = -PowerCapacity / DrawAtWarp;
         }
+
+        public bool IsWarpCapable() => S.MaxFTLSpeed > 0 && !S.IsPlatformOrStation;
+        public bool HasEnergyWepsPositive() => HasEnergyWeapons && PowerConsumed > 0;
+        public bool HasEnergyWepsNegative() => !HasEnergyWepsPositive();
+        public bool HasBeams() => BeamLongestDuration > 0 && PowerConsumedWithBeams > 0;
+        public bool HasBeamDurationPositive() => HasBeams() && BurstEnergyDuration >= BeamLongestDuration;
+        public bool HasBeamDurationNegative() => !HasBeamDurationPositive();
     }
 }

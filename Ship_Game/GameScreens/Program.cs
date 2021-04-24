@@ -79,9 +79,13 @@ namespace Ship_Game
                 {
                     GlobalStats.ExportMeshes = true;
                 }
-                else if (key == "--run-localizer")
+                else if (key.StartsWith("--run-localizer"))
                 {
-                    GlobalStats.RunLocalizer = true;
+                    GlobalStats.RunLocalizer = value.IsEmpty() ? true : value == "1";
+                }
+                else if (key == "--continue")
+                {
+                    GlobalStats.ContinueToGame = true;
                 }
             }
             return true; // all ok
@@ -127,15 +131,24 @@ namespace Ship_Game
                 {
                     PrintHelp();
                 }
-                else if (GlobalStats.RunLocalizer)
-                {
-                    Tools.Localization.LocalizationTool.Run(GlobalStats.ModName);
-                    PressAnyKey();
-                }
                 else
                 {
-                    using (var game = new StarDriveGame())
-                        game.Run();
+                    bool runGame = true;
+                    if (GlobalStats.RunLocalizer)
+                    {
+                        Tools.Localization.LocalizationTool.Run(GlobalStats.ModName);
+                        runGame = GlobalStats.ContinueToGame;
+                    }
+
+                    if (runGame)
+                    {
+                        using (var game = new StarDriveGame())
+                            game.Run();
+                    }
+                    else
+                    {
+                        PressAnyKey();
+                    }
                 }
 
                 Log.Write("The game exited normally.");

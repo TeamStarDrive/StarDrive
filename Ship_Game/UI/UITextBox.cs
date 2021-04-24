@@ -59,7 +59,8 @@ namespace Ship_Game
 
         public void AddElement(UIElementV2 element)
         {
-            ItemsList.AddItem(new TextBoxItem(element));
+            if (element != null)
+                ItemsList.AddItem(new TextBoxItem(element));
         }
 
         class TextBoxItem : ScrollListItem<TextBoxItem>
@@ -77,11 +78,17 @@ namespace Ship_Game
             public override void PerformLayout()
             {
                 Elem.Pos = Pos;
+                Elem.PerformLayout();
                 RequiresLayout = false;
+            }
+            public override void Update(float fixedDeltaTime)
+            {
+                Elem.Update(fixedDeltaTime);
+                base.Update(fixedDeltaTime);
             }
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
-                Elem?.Draw(batch, elapsed);
+                Elem.Draw(batch, elapsed);
             }
         }
     }

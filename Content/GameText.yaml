@@ -757,6 +757,18 @@ Upkeep:
  ENG: "Upkeep"
  RUS: "Содержание"
  SPA: "Mantenimiento"
+UpkeepCost:
+ ENG: "Upkeep Cost"
+TotalModuleSlots:
+ ENG: "Total Module Slots"
+ExcessWpnPwrDrain:
+ ENG: "Excess Wpn Pwr Drain"
+WpnFirePowerTime:
+ ENG: "Wpn Fire Power Time"
+BurstWpnPwrDrain:
+ ENG: "Burst Wpn Pwr Drain"
+BurstWpnPwrTime:
+ ENG: "Burst Wpn Pwr Time"
 Kills:
  Id: 152
  ENG: "Kills"

@@ -312,6 +312,18 @@ namespace Ship_Game
         DeepSpace = 150,
         /// <summary>Upkeep</summary>
         Upkeep = 151,
+        /// <summary>Upkeep Cost</summary>
+        UpkeepCost = -2,
+        /// <summary>Total Module Slots</summary>
+        TotalModuleSlots = -3,
+        /// <summary>Excess Wpn Pwr Drain</summary>
+        ExcessWpnPwrDrain = -4,
+        /// <summary>Wpn Fire Power Time</summary>
+        WpnFirePowerTime = -5,
+        /// <summary>Burst Wpn Pwr Drain</summary>
+        BurstWpnPwrDrain = -6,
+        /// <summary>Burst Wpn Pwr Time</summary>
+        BurstWpnPwrTime = -7,
         /// <summary>Kills</summary>
         Kills = 152,
         /// <summary>Awaiting Orders</summary>
@@ -2611,11 +2623,11 @@ namespace Ship_Game
         /// <summary>Strip Ship</summary>
         NormalDesign = 1986,
         /// <summary>The total time the ship can maintain energy weapon fire</summary>
-        TheTotalTimeTheShip = 1987,
+        TT_BurstWpnPwrTime = 1987,
         /// <summary>This indicates that there is a net power drain from</summary>
-        ThisIndicatesThatThereIs = 1988,
+        TT_BurstWpnPwerDrain = 1988,
         /// <summary>This indicates that there is a net power drain from</summary>
-        ThisIndicatesThatThereIs2 = 1989,
+        TT_ExcessWpnPwrDrain = 1989,
         /// <summary>This weapon fires more than one projectile per shot. It</summary>
         ThisWeaponFiresMoreThan = 1990,
         /// <summary>The more complex the module is, the more it is</summary>
@@ -2737,7 +2749,7 @@ namespace Ship_Game
         /// <summary>This ship design is invalid. Every ship requires a command</summary>
         ThisShipDesignIsInvalid = 2049,
         /// <summary>A ship's total mass determines its maneuverability and maximum velocity</summary>
-        AShipsTotalMassDetermines = 2050,
+        TT_Mass = 2050,
         /// <summary>A module's health represents how much damage it can take</summary>
         AModulesHealthRepresentsHow = 2051,
         /// <summary>Indicates how much power this module adds to or subtracts</summary>
@@ -2779,13 +2791,13 @@ namespace Ship_Game
         /// <summary>Hangars are capable of sustaning a single ship per hangar</summary>
         HangarsAreCapableOfSustaning = 2070,
         /// <summary>Indicates the total production value of this ship design</summary>
-        IndicatesTheTotalProductionValue = 2071,
+        TT_ProductionCost = 2071,
         /// <summary>Indicates the maximum amount of power that can be stored</summary>
-        IndicatesTheMaximumAmountOf2 = 2072,
+        TT_PowerCapacity = 2072,
         /// <summary>Indicates the net power flow of this vessel. In most</summary>
-        IndicatesTheNetPowerFlow = 2073,
+        TT_PowerRecharge = 2073,
         /// <summary>Indicates the net power flow of this vessel when its</summary>
-        IndicatesTheNetPowerFlow2 = 2074,
+        TT_RechargeAtWarp = 2074,
         /// <summary>Indicates the total hitpoints of all of the ship's modules</summary>
         IndicatesTheTotalHitpointsOf = 2075,
         /// <summary>Indicates the total hitpoints of all of the ship's shield</summary>
@@ -3839,7 +3851,7 @@ namespace Ship_Game
         /// <summary>Corners is a 4 race match similar to a sandbox</summary>
         CornersIsARaceMatch = 4103,
         /// <summary>The total number of module slots available on the selected</summary>
-        TheTotalNumberOfModule = 4104,
+        TT_TotalModuleSlots = 4104,
         /// <summary>has been struck by a meteor! The environment was adversely</summary>
         HasBeenStruckByA = 4105,
         /// <summary>Support</summary>
@@ -4829,7 +4841,7 @@ namespace Ship_Game
         /// <summary>Prevents AI empires from merging into Federations at the first</summary>
         PreventsAiEmpiresFromMerging = 7011,
         /// <summary>Indicates the maximum time in seconds this ship may continuously</summary>
-        IndicatesTheMaximumTimeIn = 7012,
+        TT_WpnFirePowerTime = 7012,
         /// <summary>Indicates the maximum time in seconds this ship may continuously</summary>
         IndicatesTheMaximumTimeIn2 = 7013,
         /// <summary>Indicates the amount of ordnance this ship is capable of</summary>
@@ -4855,7 +4867,7 @@ namespace Ship_Game
         /// <summary>Indicates the amount troops are healed per second</summary>
         IndicatesTheAmountTroopsAre = 7024,
         /// <summary>Indicates the credits per tick this design would cost in</summary>
-        IndicatesTheCreditsPerTick = 7025,
+        TT_UpkeepCost = 7025,
         /// <summary>Indicates this ship's maximum sustained FTL jump duration outside of</summary>
         IndicatesThisShipsMaximumSustained = 7026,
         /// <summary>Indicates the time in seconds it takes for this ship's</summary>
@@ -4989,22 +5001,22 @@ namespace Ship_Game
         /// <summary>This is this ship's self-repair rate per tick - it</summary>
         ThisIsThisShipsSelfrepair = 7091,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
-        EncCorsairs000_Msg0 = -2,
+        EncCorsairs000_Msg0 = -8,
         /// <summary>Agree to pay this upstanding gentleman.</summary>
-        EncCorsairs000_Msg0_R1_AgreeToPay = -3,
+        EncCorsairs000_Msg0_R1_AgreeToPay = -9,
         /// <summary>Refuse to pay this scoundrel!</summary>
-        EncCorsairs000_Msg0_R2_RefuseToPay = -4,
+        EncCorsairs000_Msg0_R2_RefuseToPay = -10,
         /// <summary>Wonderful news! We'll let you know when we're done drinking</summary>
-        EncCorsairs000_Msg1 = -5,
+        EncCorsairs000_Msg1 = -11,
         /// <summary>Now that is disappointing, isn't it? And here I was</summary>
-        EncCorsairs000_Msg2 = -6,
+        EncCorsairs000_Msg2 = -12,
         /// <summary>What, is this some sort of SING humor? You don't</summary>
-        EncCorsairs000_Msg3 = -7,
+        EncCorsairs000_Msg3 = -13,
         /// <summary>A Mysterious Signal</summary>
-        ExpEvent_BuiltRDA_Name = -8,
+        ExpEvent_BuiltRDA_Name = -14,
         /// <summary>You have built the Remnant Detection Array</summary>
-        ExpEvent_BuiltRDA_Outcome1_Title = -9,
+        ExpEvent_BuiltRDA_Outcome1_Title = -15,
         /// <summary>Your quest to discover the secrets of The Remnant continues.</summary>
-        ExpEvent_BuiltRDA_Outcome1_Descr = -10,
+        ExpEvent_BuiltRDA_Outcome1_Descr = -16,
     }
 }
