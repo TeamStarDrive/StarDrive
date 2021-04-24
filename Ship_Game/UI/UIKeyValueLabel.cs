@@ -19,6 +19,9 @@ namespace Ship_Game.UI
         public UILabel Key;
         public UILabel Value;
 
+        LocalizedText RawKey;
+        string SeparatorString = ": ";
+
         public UIKeyValueLabel(in LocalizedText keyText, in LocalizedText valueText,
                                Color? valueColor = null, float split = 0f)
             : base(new UILabel(keyText.Concat(": ")),
@@ -31,8 +34,12 @@ namespace Ship_Game.UI
 
         public LocalizedText KeyText
         {
-            get => Key.Text;
-            set => Key.Text = value.Concat(": ");
+            get => RawKey;
+            set
+            {
+                RawKey = value;
+                Key.Text = value.Concat(SeparatorString);
+            }
         }
 
         public LocalizedText ValueText
@@ -45,6 +52,16 @@ namespace Ship_Game.UI
         {
             get => Value.Color;
             set => Value.Color = value;
+        }
+
+        public string Separator
+        {
+            get => SeparatorString;
+            set
+            {
+                SeparatorString = value;
+                KeyText = RawKey;
+            }
         }
     }
 }
