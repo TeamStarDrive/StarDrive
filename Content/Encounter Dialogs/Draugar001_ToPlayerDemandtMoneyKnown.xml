@@ -51,7 +51,7 @@ Very well, then. This will keep us full for a while. There is nothing better tha
 I was hoping you would say that. It is so much more fun to get your food by your own.
 
 (Comm Officer's Note - If we ever want to pay them, we can select their ship and press Q to contact them.)	  
-	  </Text>
+    </Text>
       <EndTransmission>true</EndTransmission>
       <SetPlayerContactStep>3</SetPlayerContactStep> <!--pay twice to end the war-->
       <SetFactionContactStep>2</SetFactionContactStep> <!-- Money demand after end of contract period -->
@@ -63,7 +63,7 @@ I was hoping you would say that. It is so much more fun to get your food by your
 oh dear, it seems like you dont have enough credits. Silly you! Oh well, freighter snacks are yummy, especially if they contain colonists.
 
 (Comm Officer's Note - If we ever want to pay them, we can select their ship and press Q to contact them.)	  
-	  </Text>
+    </Text>
       <EndTransmission>true</EndTransmission>
       <SetPlayerContactStep>3</SetPlayerContactStep> <!--pay twice to end the war-->
       <SetFactionContactStep>2</SetFactionContactStep> <!-- Money demand after end of contract period -->

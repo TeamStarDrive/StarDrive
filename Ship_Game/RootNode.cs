@@ -28,7 +28,8 @@ namespace Ship_Game
 				TitleFont = Fonts.Arial10;
 			}
 			Entry = entry;
-			TechName = Localizer.Token(ResourceManager.TechTree[entry.UID].NameIndex);
+			var tech = ResourceManager.TechTree[entry.UID];
+			TechName = tech.Name.Text;
 			RootRect.X = (int)position.X;
 			RootRect.Y = (int)position.Y;
 			IconRect = new Rectangle(RootRect.X + RootRect.Width / 2 - 39, RootRect.Y + RootRect.Height / 2 - 29, 78, 58);

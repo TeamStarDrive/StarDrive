@@ -501,7 +501,7 @@ namespace Ship_Game
                 {
                     if (IntelligenceLevel(SelectedEmpire)>1)
                     {
-                        batch.DrawString(Fonts.Arial12, "Researching: "+Localizer.Token(SelectedEmpire.Research.Current.Tech.NameIndex), textCursor, Color.Wheat);
+                        batch.DrawString(Fonts.Arial12, "Researching: "+SelectedEmpire.Research.Current.Tech.Name.Text, textCursor, Color.Wheat);
                     }
                     else if (IntelligenceLevel(SelectedEmpire) >0)
                     {

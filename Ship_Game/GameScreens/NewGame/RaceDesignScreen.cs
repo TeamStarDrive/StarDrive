@@ -753,7 +753,7 @@ namespace Ship_Game
                     }
                     if (t.Selected)
                     {
-                        batch.DrawString(Font, $"{Localizer.Token(t.trait.TraitName)} {t.trait.Cost}", cursor,
+                        batch.DrawString(Font, $"{t.trait.LocalizedName.Text} {t.trait.Cost}", cursor,
                                                (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
                         cursor.Y += (Font.LineSpacing + 2);
                         line++;

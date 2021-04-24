@@ -18,7 +18,6 @@ namespace UnitTests
             throw new AssertFailedException($"Expected {expected} does not match Actual {actual}");
         }
 
-
         public static void Equal(this Assert assert, float tolerance, float expected, float actual)
         {
             if (expected.AlmostEqual(actual, tolerance))
@@ -26,6 +25,15 @@ namespace UnitTests
                 return; // OK
             }
             throw new AssertFailedException($"Expected {expected} does not match Actual {actual}");
+        }
+        
+        public static void Equal(this Assert assert, float tolerance, float expected, float actual, string message)
+        {
+            if (expected.AlmostEqual(actual, tolerance))
+            {
+                return; // OK
+            }
+            throw new AssertFailedException($"Expected {expected} does not match Actual {actual}. {message}");
         }
 
         public static void Equal(this Assert assert, float tolerance, in Vector2 expected, in Vector2 actual)

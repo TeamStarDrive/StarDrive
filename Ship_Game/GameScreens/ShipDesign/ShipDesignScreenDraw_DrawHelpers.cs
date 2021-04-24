@@ -93,7 +93,7 @@ namespace Ship_Game
             CheckToolTip(stat.Tooltip, cursor, title, valueText, font, MousePos);
         }
 
-        void DrawStat(ref Vector2 cursor, string words, string stat, LocalizedText tooltip, Color nameColor, Color statColor, float spacing = 165f, float lineSpacing = 2)
+        void DrawStat(ref Vector2 cursor, LocalizedText words, string stat, LocalizedText tooltip, Color nameColor, Color statColor, float spacing = 165f, float lineSpacing = 2)
         {
             Graphics.Font font = Fonts.Arial12Bold;
             cursor.Y += lineSpacing > 0 ? font.LineSpacing + lineSpacing : 0;
@@ -101,19 +101,19 @@ namespace Ship_Game
             var statCursor = new Vector2(cursor.X + spacing, cursor.Y);
             Vector2 statNameCursor = FontSpace(statCursor, -20, words, font);
 
-            DrawString(statNameCursor, nameColor, words, font);
+            DrawString(statNameCursor, nameColor, words.Text, font);
             DrawString(statCursor, statColor, stat, font);
             CheckToolTip(tooltip, cursor, words, stat, font, MousePos);
         }
 
-        public void DrawStat(ref Vector2 cursor, string words, float stat, Color color, LocalizedText tooltipId, bool doGoodBadTint = true, bool isPercent = false, float spacing = 165)
+        public void DrawStat(ref Vector2 cursor, LocalizedText words, float stat, Color color, LocalizedText tooltipId, bool doGoodBadTint = true, bool isPercent = false, float spacing = 165)
         {
             StatValue sv = TintedValue(words, stat, tooltipId, color, spacing, 0);
             sv.IsPercent = isPercent;
             DrawStatColor(ref cursor, sv);
         }
 
-        public void DrawStatBadPercentLower1(ref Vector2 cursor, string words, float stat, Color color, LocalizedText tooltipId, float spacing = 165)
+        public void DrawStatBadPercentLower1(ref Vector2 cursor, LocalizedText words, float stat, Color color, LocalizedText tooltipId, float spacing = 165)
         {
             StatValue sv = MakeStat(words, stat, tooltipId, color, ValueTint.BadPercentLowerThan1, spacing, 0);
             sv.IsPercent = true;
