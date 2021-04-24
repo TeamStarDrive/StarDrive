@@ -6338,15 +6338,15 @@ NormalDesign:
  Id: 1986
  ENG: "Strip Ship"
  RUS: "Демонтаж"
-TheTotalTimeTheShip:
+TT_BurstWpnPwrTime:
  Id: 1987
  ENG: "The total time the ship can maintain energy weapon fire along with beams at peak power during beam duration time"
  RUS: "Общее время, в течение которого корабль может поддерживать огонь энергетического оружия вместе с лучами на максимальной мощности в течение времени действия луча."
-ThisIndicatesThatThereIs:
+TT_BurstWpnPwerDrain:
  Id: 1988
  ENG: "This indicates that there is a net power drain from the ship's reserves (after considering power recharge) when all the ship's energy weapons, along with beams at full power, are persistently firing on targets, based on the weapons' power per second upon firing"
  RUS: "Указывает на чистую утечку энергии из резервов корабля (с учетом перезарядки энергии), когда все энергетическое оружие корабля вместе с лучами на полной мощности постоянно стреляет по целям в зависимости от мощности оружия в секунду при стрельбе."
-ThisIndicatesThatThereIs2:
+TT_ExcessWpnPwrDrain:
  Id: 1989
  ENG: "This indicates that there is a net power drain from the ship's reserves (after considering power recharge) when all the ship's energy weapons are persistently firing on targets, based on the weapons' power per second upon firing"
  RUS: "Указывает на чистую утечку энергии из резервов корабля (с учетом перезарядки энергии), когда все энергетическое оружие корабля постоянно стреляет по целям, в зависимости от мощности оружия в секунду при стрельбе."
@@ -6640,7 +6640,7 @@ ThisShipDesignIsInvalid:
  ENG: "This ship design is invalid. Every ship requires a command module such as a cockpit, bridge, or combat information center. Additionally, all of the ship's available slots must be filled. "
  RUS: "Этот дизайн корабля некорректен. Каждому кораблю требуется командный модуль, такой как кокпит, мостик или КИЦ. Кроме того, все доступные ячейки корабля должны быть заполнены. "
  SPA: "Este diseño de nave no es válido. Las naves requieren un módulo de mando, como un puente, una cabina o un centro de información de combate. Además, deben llenarse todas las ranuras disponibles de la nave. "
-AShipsTotalMassDetermines:
+TT_Mass:
  Id: 2050
  ENG: "A ship's total mass determines its maneuverability and maximum velocity both at warp and at sublight speeds. Mass cannot be reduced below the ship's size value (the number of module slots)."
  RUS: "Общая масса корабля определяется его маневренностью и максимальной скоростью как в варпе, так и на субсветовых скоростях. Масса не может быть уменьшена ниже значения размера корабля (кол-во ячеек модулей)."
@@ -6745,22 +6745,22 @@ HangarsAreCapableOfSustaning:
  ENG: "Hangars are capable of sustaning a single ship per hangar at a time. If that ship is destroyed, then the hangar goes on cooldown for the amount of time indicated here. When the hangar is off of cooldown, a new ship will be generated and can launch from the hangar."
  RUS: "Ангары могут вмещать единовременно по одному кораблю. Если корабль будет уничтожен, для ангара запустится таймер простоя, указанный здесь. Когда таймер простоя истечет, будет создан новый корабль, который можно будет выпустить из ангара."
  SPA: "Los hangares pueden albergar a una sola nave a la vez. Si esa nave es destruida, el hangar pasa a un estado de recuperación que dura el tiempo indicado aquí. Pasado ese tiempo, el hangar genera una nueva nave lista para volar."
-IndicatesTheTotalProductionValue:
+TT_ProductionCost:
  Id: 2071
  ENG: "Indicates the total production value of this ship design"
  RUS: "Указывает общее кол-во очков производства для этого дизайна корабля"
  SPA: "Indica el valor total de producción de este diseño de nave"
-IndicatesTheMaximumAmountOf2:
+TT_PowerCapacity:
  Id: 2072
  ENG: "Indicates the maximum amount of power that can be stored in this ship's reserves. Red value is an indication that the ship's energy consumption when firing is overwhelming the power reserve, and you need to add more reserves or more reactors."
  RUS: "Указывает максимальное количество энергии, которое может запасти этот корабль"
  SPA: "Indica la cantidad máxima de energía que puede almacenarse en las reservas de esta nave"
-IndicatesTheNetPowerFlow:
+TT_PowerRecharge:
  Id: 2073
  ENG: "Indicates the net power flow of this vessel. In most cases, a net positive power flow is an absolute requirement. Otherwise, your ship will immediately begin to lose power and will ultimately be unable to warp or fire energy-based weapons"
  RUS: "Указывает суммарный баланс энергии для этого судна. В большинстве случаев положительный баланс является обязательным требованием - в противном случае корабль сразу начнет терять энергию и в конечном счете не сможет войти в варп или использовать энергетическое оружие."
  SPA: "Indica el flujo neto de energía de esta nave. En la mayoría de casos, es imprescindible que este flujo neto sea positivo. Si no, la nave empezará a perder potencia de inmediato y acabará siendo incapaz de disparar armas de energía o de viajar a velocidad estelar supraluminal"
-IndicatesTheNetPowerFlow2:
+TT_RechargeAtWarp:
  Id: 2074
  ENG: "Indicates the net power flow of this vessel when its warp-drive is engaged. A negative value here indicates that the ship will have a limited warp range before it needs to stop and recharge its fuel cells. A positive value indicates that the ship can keep its warp drive engaged indefinitely."
  RUS: "Указывает суммарный баланс энергии для этого судна при активированном варп-драйве. Отрицательное значение означает, что в варпе корабль может пройти только ограниченное расстояние, после чего он вынужден будет остановиться и зарядить свои топливные элементы. Положительное значение означает, что варп-драйв может быть активен сколь угодно долго."
@@ -9318,7 +9318,7 @@ CornersIsARaceMatch:
  ENG: "Corners is a 4 race match similar to a sandbox game, except the map is divided into quarters, with 1 faction in each quarter, offering clear boundaries between regions of space. Defend your territory at all costs!"
  RUS: "Углы - это матч для 4 рас, похожий на игру в песочнице, за исключением того, что галактика розделена на части, по одной фракции в каждой четверти, это обеспечивает четкие границы между областями пространства. Защитите свою территорию любой ценой!"
  SPA: "El modo de juego de esquinas es un juego de 4 razas similiar al modo sandbox, except excepto que el mapa esta dividio en cuartetos, con una facción en cada esquina, Ofreciendo una vista territorial clara entre imperios. ¡Defiende tu territorio a cualquier coste!"
-TheTotalNumberOfModule:
+TT_TotalModuleSlots:
  Id: 4104
  ENG: "The total number of module slots available on the selected ship."
  RUS: "Общее количество ячеек для модулей, доступных на выбранном корабле."
@@ -11594,7 +11594,7 @@ PreventsAiEmpiresFromMerging:
  ENG: "Prevents AI empires from merging into Federations at the first site of a powerful opponent. This will not prevent them from federating if they have strong, long lasting alliances."
  RUS: "Предотвращает слияние империй ИИ в федерации с сильными противниками. Это не помешает им объединиться, если у них будут прочные, длительные союзы."
  SPA: "Previene a la IA de formar federacones al ver un oponente poderoso."
-IndicatesTheMaximumTimeIn:
+TT_WpnFirePowerTime:
  Id: 7012
  ENG: "Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting energy reserves, based on power usage of all weapons when firing. Red value indicates insufficient power to maintain fire more than 2 seconds."
  RUS: "Указывает максимальное время в секундах, в течение которого этот корабль может непрерывно стрелять из всех орудий, прежде чем исчерпать запасы энергии, на основе использования мощности всего оружия при стрельбе. Красное значение указывает на недостаточную мощность для поддержания огня более 2 секунд."
@@ -11659,7 +11659,7 @@ IndicatesTheAmountTroopsAre:
  ENG: "Indicates the amount troops are healed per second"
  RUS: "Указывает количество лечения войск в секунду."
  SPA: "Indica el numero de tropas que pueden ser sanadas por segundo."
-IndicatesTheCreditsPerTick:
+TT_UpkeepCost:
  Id: 7025
  ENG: "Indicates the credits per tick this design would cost in upkeep"
  RUS: "Указывает количество кредитов за тик, которое будет стоить содержание этого дизайна"
@@ -12007,8 +12007,8 @@ EncCorsairs000_Msg2:
 EncCorsairs000_Msg3:
  ENG: "What, is this some sort of SING humor? You don't have the credits! Unfortunately for you, this is not my problem. We're gonna collect our money through your freighters!\n\n(Comm Officer's Note - If we ever want to pay them, we can select their ship and press Q to contact them.)"
 ExpEvent_BuiltRDA_Name:
-  ENG: "A Mysterious Signal"
+ ENG: "A Mysterious Signal"
 ExpEvent_BuiltRDA_Outcome1_Title:
-  ENG: "You have built the Remnant Detection Array"
+ ENG: "You have built the Remnant Detection Array"
 ExpEvent_BuiltRDA_Outcome1_Descr:
-  ENG: "Your quest to discover the secrets of The Remnant continues. It appears that your scientists' theories are correct: upon activating the Remnant Detection Array, they immediately identified an anomalous subspace data stream that is, so far as they can tell, coming from everywhere at once and no where in particular. With this omnipresent quality, the data stream bears a remarkable similarity to the universal background radation detectable with normal radio telescopes - the signal strength is equal in all directions and extremely faint. Nothing in the known Remnant ships would be capable of detecting this signal.\n\nHowever, the Array has detected a second, more conventional subspace signal. Analysis suggests that it is an amplified version of the fainter signal and that it is originating inside our galaxy! \n \n The location of the Remnant signal is now revealed. If we wish to learn more then we will need to find it and see what secrets it holds!"
+ ENG: "Your quest to discover the secrets of The Remnant continues. It appears that your scientists' theories are correct: upon activating the Remnant Detection Array, they immediately identified an anomalous subspace data stream that is, so far as they can tell, coming from everywhere at once and no where in particular. With this omnipresent quality, the data stream bears a remarkable similarity to the universal background radation detectable with normal radio telescopes - the signal strength is equal in all directions and extremely faint. Nothing in the known Remnant ships would be capable of detecting this signal.\n\nHowever, the Array has detected a second, more conventional subspace signal. Analysis suggests that it is an amplified version of the fainter signal and that it is originating inside our galaxy! \n \n The location of the Remnant signal is now revealed. If we wish to learn more then we will need to find it and see what secrets it holds!"
