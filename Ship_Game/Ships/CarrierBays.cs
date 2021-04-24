@@ -562,7 +562,7 @@ namespace Ship_Game.Ships
                 if (selectedShip == null && hangar.DynamicHangar != DynamicHangarOptions.DynamicLaunch)
                     selectedShip = ShipBuilder.PickFromCandidates(role, empire, maxSize: hangar.MaximumHangarShipSize);
 
-                if (selectedShip != null && selectedShip.BaseStrength.GreaterOrEqual(strongest))
+                if (selectedShip != null && selectedShip.BaseStrength >= strongest)
                 {
                     strongest = selectedShip.BaseStrength;
                     bestShip  = selectedShip.Name;

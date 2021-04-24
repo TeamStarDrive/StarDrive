@@ -15,6 +15,7 @@ namespace Ship_Game.GameScreens.ShipDesign
     {
         readonly ShipDesignScreen Screen;
         DesignShip S;
+        ShipDesignStats Ds;
         public ShipDesignIssues DesignIssues;
 
 
@@ -24,17 +25,23 @@ namespace Ship_Game.GameScreens.ShipDesign
             DebugDraw = true;
         }
 
-
         public void SetActiveDesign(DesignShip ship)
         {
             S = ship;
+            Ds = ship.DesignStats;
+            Elements.Clear();
+            CreateElements();
+        }
+
+        void CreateElements()
+        {
+
         }
 
         public override void Update(float fixedDeltaTime)
         {
             if (!Visible)
                 return;
-
             
             base.Update(fixedDeltaTime);
         }
