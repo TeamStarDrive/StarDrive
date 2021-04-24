@@ -11,7 +11,7 @@ namespace Ship_Game.GameScreens.ShipDesign
     // Specific metrics used in ShipDesignScreen analysis
     struct ShipDesignStats
     {
-        public Map<ShipModule, float> WeaponAccuracyList;
+        public Map<ShipModule, float> WeaponAccuracies;
         public int NumSlots;
         public int NumCmdModules;
         public int NumWeaponSlots;
@@ -55,9 +55,9 @@ namespace Ship_Game.GameScreens.ShipDesign
             ShipModule[] modules = s.Modules.Filter(m => m.PowerDraw <= 0 || m.Powered);
             Weapon[] weapons = modules.FilterSelect(m => m.InstalledWeapon != null, m => m.InstalledWeapon);
 
-            WeaponAccuracyList = new Map<ShipModule, float>();
+            WeaponAccuracies = new Map<ShipModule, float>();
             foreach (var w in weapons)
-                WeaponAccuracyList[w.Module] = w.Tag_Guided ? 0f : w.BaseTargetError(s.TargetingAccuracy).LowerBound(1) / 16;
+                WeaponAccuracies[w.Module] = w.Tag_Guided ? 0f : w.BaseTargetError(s.TargetingAccuracy).LowerBound(1) / 16;
 
             int nSlots = s.Modules.Sum(m => m.Area);
             NumSlots       = nSlots;
