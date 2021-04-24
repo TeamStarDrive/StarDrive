@@ -122,7 +122,6 @@ namespace Ship_Game
             var customStyle = new UIButton.StyleTextures("NewUI/icon_clear_filter", "NewUI/icon_clear_filter_hover");
             ClearFilter = Add(new UIButton(customStyle, new Vector2(17, 17), "")
             {
-                Font    = Font12,
                 Tooltip = GameText.ClearBuildableItemsFilter,
                 OnClick = OnClearFilterClick,
                 Pos     = new Vector2(FilterFrame.Pos.X + FilterFrame.Width + 10, FilterFrame.Pos.Y + 25)

@@ -246,7 +246,6 @@ namespace Ship_Game
 
         // Gets the accurate distance from source point a to destination b
         // This is slower than Vector3.SqDist()
-
         public static float Distance(this in Vector3 a, in Vector3 b)
         {
             float dx = a.X - b.X;
@@ -255,9 +254,32 @@ namespace Ship_Game
             return (float)Sqrt(dx*dx + dy*dy + dz*dz);
         }
 
-
+        /// <summary>
+        /// Geometric explanation of the Dot product
+        /// When using two unit (direction) vectors a and b,
+        /// the dot product will give [-1; +1] relation of these two vectors, where 
+        /// +1: a and b are pointing in the same direction  --> -->
+        /// 0: a and b are perpendicular, not specifying if left or right, |_ or _|
+        /// -1: a and b are point in opposite directions --> <-- 
+        /// </summary>
         public static float Dot(this Vector2 a, Vector2 b) => a.X*b.X + a.Y*b.Y;
+
+        /// <summary>
+        /// 3D Version of the Dot product, +1 same dir, 0 perpendicular in some axis, -1 opposite dirs
+        /// </summary>
         public static float Dot(this Vector3 a, Vector3 b) => a.X*b.X + a.Y*b.Y + a.Z*b.Z;
+
+        /// <summary>
+        /// Dot product which assumes Vectors a and b are both unit vectors
+        /// The return value is always guaranteed to be within [-1; +1]
+        /// </summary>
+        public static float UnitDot(this Vector2 a, Vector2 b)
+        {
+            float dot = a.X*b.X + a.Y*b.Y;
+            if      (dot < -1f) dot = -1f;
+            else if (dot > +1f) dot = +1f;
+            return dot;
+        }
 
         public static Vector3 Cross(this in Vector3 a, in Vector3 b)
         {
@@ -341,11 +363,19 @@ namespace Ship_Game
 
         // how many radian difference from our current direction
         // versus when looking towards position
+        public static float AngleDifference(in Vector2 wantedForward, in Vector2 currentForward)
+        {
+            float dot = wantedForward.UnitDot(currentForward);
+            return (float)Acos(dot);
+        }
+
+        // how many radian difference from our current direction
+        // versus when looking towards position
         public static float AngleDifferenceToPosition(this GameplayObject origin, Vector2 targetPos)
         {
             Vector2 wantedForward = origin.Center.DirectionToTarget(targetPos);
             Vector2 currentForward = origin.Rotation.RadiansToDirection();
-            return (float)Acos(wantedForward.Dot(currentForward));
+            return AngleDifference(wantedForward, currentForward);
         }
 
         // used for Projectiles 
@@ -354,7 +384,7 @@ namespace Ship_Game
         {
             Vector2 wantedForward = origin.Center.DirectionToTarget(targetPos);
             Vector2 currentForward = origin.Rotation.RadiansToDirection();
-            angleDiff = (float)Acos(wantedForward.Dot(currentForward));
+            angleDiff = AngleDifference(wantedForward, currentForward);
             if (angleDiff > minDiff)
             {
                 rotationDir = wantedForward.Dot(currentForward.RightVector()) > 0f ? 1f : -1f;

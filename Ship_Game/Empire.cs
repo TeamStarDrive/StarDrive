@@ -1086,13 +1086,17 @@ namespace Ship_Game
             PersonalityModifiers = new PersonalityModifiers(Personality);
         }
 
-        public void TestInitDifficultyModifiers() // For UnitTests only
+        public void TestInitModifiers() // For UnitTests only
         {
             InitDifficultyModifiers();
+            InitPersonalityModifiers();
         }
 
         public void Initialize()
         {
+            InitDifficultyModifiers();
+            InitPersonalityModifiers();
+
             for (int i = 1; i < 10; ++i)
             {
                 Fleet fleet = new Fleet {Owner = this};
@@ -1141,8 +1145,6 @@ namespace Ship_Game
             if (EmpireManager.NumEmpires ==0)
                 UpdateTimer = 0;
 
-            InitDifficultyModifiers();
-            InitPersonalityModifiers();
             CreateThrusterColors();
             EmpireAI = new EmpireAI(this, fromSave: false);
             Research.Update();
@@ -2121,7 +2123,6 @@ namespace Ship_Game
                 
             UpdateBestOrbitals();
             UpdateDefenseShipBuildingOffense();
-
         }
 
         public bool WeCanBuildThis(string shipName)

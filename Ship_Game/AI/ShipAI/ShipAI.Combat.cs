@@ -426,7 +426,11 @@ namespace Ship_Game.AI
                        ? ship.BombBays.Count * 50 
                        : ship.BombBays.Count * 10;
 
+            float angleMod = Owner.AngleDifferenceToPosition(ship.Position).LowerBound(0.25f)
+                             / Owner.RotationRadiansPerSecond.LowerBound(0.25f);
+
             float distance = Owner.Center.Distance(ship.Center).LowerBound(minimumDistance);
+            value /= angleMod;
             return value / distance;
         }
 

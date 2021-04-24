@@ -18,6 +18,7 @@ namespace Ship_Game
         
         [Serialize(0)] public string Name;
         [Serialize(1)] public int TraitName;
+        [XmlIgnore][JsonIgnore] public LocalizedText LocalizedName => new LocalizedText(TraitName);
         [Serialize(2)] public string VideoPath = "";
         [Serialize(3)] public string ShipType = "";
         [Serialize(4)] public string Singular;
