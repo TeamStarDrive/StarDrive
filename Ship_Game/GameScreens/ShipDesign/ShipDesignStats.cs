@@ -24,12 +24,15 @@ namespace Ship_Game.GameScreens.ShipDesign
         public float WeaponPowerNeeded;
         public float BurstOrdnance;
         public float AvgOrdnanceUsed;
+        public float NetOrdnanceUsePerSec;
         public float AmmoTime;
         public float BeamPeakPowerNeeded;
         public float BeamLongestDuration;
         public float WeaponPowerNeededNoBeams;
         public float Offense;
         public float Defense;
+        public float Strength;
+        public float RelativeStrength;
 
         public int PointDefenseValue;
         public int TotalHangarArea;
@@ -49,6 +52,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             
         public float DrawAtWarp;
         public float WarpTime;
+
 
         public ShipDesignStats(Ship s)
         {
@@ -81,14 +85,18 @@ namespace Ship_Game.GameScreens.ShipDesign
             float bayOrdPerSec = modules.Sum(m => m.BayOrdnanceUsagePerSecond);
             float avgOrdPerSec = weapons.Sum(w => w.AverageOrdnanceUsagePerSecond);
             AvgOrdnanceUsed = bayOrdPerSec + avgOrdPerSec;
+            NetOrdnanceUsePerSec = AvgOrdnanceUsed - S.OrdAddedPerSecond;
+            AmmoTime = S.OrdinanceMax / NetOrdnanceUsePerSec;
 
-            AmmoTime = S.OrdinanceMax / (AvgOrdnanceUsed - S.OrdAddedPerSecond);
             BeamPeakPowerNeeded = weapons.Sum(w => w.isBeam ? w.BeamPowerCostPerSecond : 0);
             BeamLongestDuration = weapons.Max(w => w.isBeam ? w.BeamDuration : 0);
             WeaponPowerNeededNoBeams = weapons.Sum(w => !w.isBeam ? w.PowerFireUsagePerSecond : 0);
 
             Offense = modules.Sum(m => m.CalculateModuleOffense());
             Defense = modules.Sum(m => m.CalculateModuleDefense(nSlots));
+            
+            Strength = S.GetStrength();
+            RelativeStrength = (float)Math.Round(Strength / nSlots, 2);
 
             PointDefenseValue = weapons.Sum(w => (w.TruePD?4:0) + (w.Tag_PD?1:0));
             TotalHangarArea   = modules.Sum(m => m.MaximumHangarShipSize);
@@ -115,5 +123,13 @@ namespace Ship_Game.GameScreens.ShipDesign
         public bool HasBeams() => BeamLongestDuration > 0 && PowerConsumedWithBeams > 0;
         public bool HasBeamDurationPositive() => HasBeams() && BurstEnergyDuration >= BeamLongestDuration;
         public bool HasBeamDurationNegative() => !HasBeamDurationPositive();
+
+        public bool HasAmplifiedMains() => S.Stats.TotalShieldAmplification > 0 && S.Stats.HasMainShields;
+        public bool HasRegularShields() => S.shield_max > 0 && !HasAmplifiedMains();
+        public bool HasAmplifiedShields() => S.shield_max > 0 && HasAmplifiedMains();
+
+        public bool HasOrdnance() => S.OrdinanceMax > 0;
+        public bool HasOrdFinite() => HasOrdnance() && NetOrdnanceUsePerSec > 0;
+        public bool HasOrdInfinite() => HasOrdnance() && NetOrdnanceUsePerSec < 0;
     }
 }

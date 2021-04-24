@@ -605,7 +605,8 @@ namespace Ship_Game
                                    float ordnanceUsed, float ordnanceRecovered, 
                                    float troopCount, float ammoTime)
         {
-            if (ordnanceRecovered > 0) DrawStatColor(ref cursor, TintedValue("Ordnance Created / s", ordnanceRecovered, GameText.IndicatesTheAmountOfOrdnance3, Color.IndianRed));
+            if (ordnanceRecovered > 0)
+                DrawStatColor(ref cursor, TintedValue("Ordnance Created / s", ordnanceRecovered, GameText.IndicatesTheAmountOfOrdnance3, Color.IndianRed));
             if (!(ordnanceCap > 0))
                 return;
 
