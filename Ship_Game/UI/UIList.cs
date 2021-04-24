@@ -249,7 +249,7 @@ namespace Ship_Game
         
         public UIButton AddButton(in LocalizedText text, Action<UIButton> click)
         {
-            UIButton button = Add(new UIButton(text));
+            UIButton button = Add(new UIButton(ButtonStyle.Default, text));
             button.OnClick  = click;
             button.ClickSfx = "sd_ui_tactical_pause";
             return button;

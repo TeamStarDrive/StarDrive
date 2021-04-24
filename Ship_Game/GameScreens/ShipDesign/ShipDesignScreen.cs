@@ -35,15 +35,13 @@ namespace Ship_Game
         Submenu StatsSub;
         Menu1 ShipStats;
         GenericButton ArcsButton;
-        GenericButton DesignIssuesButton;
-        GenericButton InformationButton;
         float OriginalZ;
         Rectangle SearchBar;
         Rectangle BottomSep;
         Rectangle BlackBar;
 
         ShipDesignInfoPanel InfoPanel;
-        ShipDesignIssues DesignIssues;
+        ShipDesignIssuesPanel IssuesPanel;
 
         // this contains module selection list and active module selection info
         ModuleSelection ModuleSelectComponent;
@@ -67,7 +65,7 @@ namespace Ship_Game
         public bool ToggleOverlay = true;
         bool ShipSaved = true;
         public bool Debug;
-        ShipData.RoleName Role;
+        public ShipData.RoleName Role { get; private set; }
         Rectangle DesignRoleRect;
 
         public bool IsSymmetricDesignMode
@@ -539,20 +537,14 @@ namespace Ship_Game
             StatsSub  = new Submenu(shipStatsPanel);
             StatsSub.AddTab(Localizer.Token(GameText.ShipStats));
             ArcsButton = new GenericButton(new Vector2(HullSelectList.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
-            
-            DesignIssuesButton = new GenericButton(new Vector2(HullSelectList.X + 60, HullSelectList.Bottom + 40),
-                                                   "Design Issues", Fonts.Pirulen20, Fonts.Pirulen16);
-            DesignIssuesButton.HoveredColor   = Color.White;
-            DesignIssuesButton.UnHoveredColor = Color.Green;
 
-            InformationButton = new GenericButton(new Vector2(HullSelectList.X + 40, HullSelectList.Bottom + 40),
-                                                  "Information", Fonts.Pirulen20, Fonts.Pirulen16);
-            InformationButton.HoveredColor   = Color.White;
-            InformationButton.UnHoveredColor = Color.Green;
-
-            var infoRect = RectF.FromPoints(HullSelectList.X - 50, ScreenWidth - 20,
+            var infoRect = RectF.FromPoints(HullSelectList.X + 50, ScreenWidth - 20,
                                             HullSelectList.Bottom, BlackBar.Y);
             InfoPanel = Add(new ShipDesignInfoPanel(this, infoRect));
+
+            var issuesRect = RectF.FromPoints(InfoPanel.X - 200, InfoPanel.X,
+                                              HullSelectList.Bottom, BlackBar.Y);
+            IssuesPanel = Add(new ShipDesignIssuesPanel(this, issuesRect));
 
             CloseButton(ScreenWidth - 27, 99);
         }
@@ -620,11 +612,6 @@ namespace Ship_Game
                 }
             }
             OriginalZ = CameraPosition.Z;
-        }
-
-        void UpdateDesignButton()
-        {
-            DesignIssuesButton.UnHoveredColor = DesignIssues.CurrentWarningColor;
         }
 
         void InitializeShipHullsList()

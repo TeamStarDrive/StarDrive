@@ -248,7 +248,9 @@
     <Compile Include="Ship_Game\Debug\Page\StoryAndEventsDebug.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\DesignShip.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignInfoPanel.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignIssuesPanel.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenDraw_DrawHelpers.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignStats.cs" />
     <Compile Include="Ship_Game\Graphics\Font.cs" />
     <Compile Include="Ship_Game\SearchTechItem.cs" />
     <Compile Include="Ship_Game\Commands\Goals\DefendVsRemnants.cs" />
@@ -551,6 +553,7 @@
     <Compile Include="Ship_Game\UI\SplitElement.cs" />
     <Compile Include="Ship_Game\UI\UIButton_Style.cs" />
     <Compile Include="Ship_Game\UI\UIGraphView.cs" />
+    <Compile Include="Ship_Game\UI\UIKeyValueLabel.cs" />
     <Compile Include="Ship_Game\UI\UIList.cs" />
     <Compile Include="Ship_Game\UI\UIPanel.cs" />
     <Compile Include="Ship_Game\UI\UITextBox.cs" />

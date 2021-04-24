@@ -260,9 +260,8 @@ namespace Ship_Game.UI
             }
             else if (info.Type == "Button")
             {
-                element = new UIButton(info.ButtonStyle)
+                element = new UIButton(info.ButtonStyle, info.Title)
                 {
-                    Text = info.Title,
                     Tooltip = info.Tooltip,
                     ClickSfx = info.ClickSfx,
                 };
