@@ -34,8 +34,6 @@ namespace Ship_Game
 
     public static class Localizer
     {
-        public static string TreasuryGoal => Token(GameText.TreasuryGoal);
-
         public static Language Language { get; private set; }
 
         static string[] Strings = Empty<string>.Array;

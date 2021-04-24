@@ -178,8 +178,8 @@ namespace Ship_Game.GameScreens
         private void TreasurySliderOnChange(FloatSlider s)
         {
             Player.data.treasuryGoal = s.RelativeValue;
-            int goal                 = (int) Player.GetEmpireAI().TreasuryGoal();
-            s.Text                   = $"{Localizer.TreasuryGoal} : {goal}";
+            int goal = (int) Player.GetEmpireAI().TreasuryGoal();
+            s.Text = $"{Localizer.Token(GameText.TreasuryGoal)} : {goal}";
             Player.GetEmpireAI().RunEconomicPlanner();
 
             if (Player.data.AutoTaxes)
