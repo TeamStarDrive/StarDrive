@@ -104,7 +104,7 @@ namespace Ship_Game.Ships
             S.SensorRange   *= Hull.Bonuses.SensorModifier;
             S.CargoSpaceMax *= Hull.Bonuses.CargoModifier;
             S.RepairRate    += (float)(S.RepairRate * S.Level * 0.05);
-
+            
             // TODO: are these used? (legacy?)
             //S.TrackingPower += 1 + e.data.Traits.Militaristic + (S.IsPlatform ? 3 : 0);
             //S.TargetingAccuracy += 1 + e.data.Traits.Militaristic + (S.IsPlatform ? 3 : 0);
