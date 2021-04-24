@@ -99,7 +99,8 @@ namespace Ship_Game.Ships
         public float armor_max;
         public float shield_max;
         public float shield_power;
-        public int InternalSlotCount;       // total number of internal slots (@todo this should be in ShipTemplate !!)
+        // total number of internal slots (@todo this should be in ShipTemplate !!)
+        public int InternalSlotCount { get; private set; }
         public int ActiveInternalSlotCount; // active slots have Health > 0
         public float PowerCurrent;
         public float PowerFlowMax;

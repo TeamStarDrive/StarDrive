@@ -428,7 +428,6 @@ namespace Ship_Game.Ships
             ShipEngines = new ShipEngines(this, ModuleSlotList);
 
             InitializeStatusFromModules(fromSave);
-            ActiveInternalSlotCount = InternalSlotCount;
             
             UpdateMassRelated();
             UpdateWeaponRanges();
@@ -495,9 +494,6 @@ namespace Ship_Game.Ships
                     RepairBeams.Add(module);
                     hasRepairBeam = true;
                 }
-
-                if (module.HasInternalRestrictions)
-                    InternalSlotCount += module.XSIZE * module.YSIZE;
 
                 HasRepairModule |= module.IsRepairModule;
                 Health += module.Health;
