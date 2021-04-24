@@ -460,6 +460,7 @@ namespace Ship_Game.Ships
         {
             RepairBeams.Clear();
 
+            Stats.UpdateCoreStats();
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
                 ShipModule module = ModuleSlotList[i];
@@ -507,7 +508,6 @@ namespace Ship_Game.Ships
                     HasRegeneratingModules = true;
             }
 
-            Stats.UpdateCoreStats();
             PowerCurrent = PowerStoreMax;
             HealthMax = Health;
             
