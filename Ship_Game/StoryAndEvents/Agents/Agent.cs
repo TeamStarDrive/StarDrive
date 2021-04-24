@@ -1,6 +1,8 @@
 using NAudio.Wave;
+using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 using System;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
@@ -15,7 +17,6 @@ namespace Ship_Game
         [Serialize(6)] public int TurnsRemaining;
         [Serialize(7)] public string TargetEmpire = "";
         [Serialize(8)] public Guid TargetGUID;
-        [Serialize(9)] public int MissionNameIndex = 2183;
         [Serialize(10)] public bool spyMute;
         [Serialize(11)] public string HomePlanet = "";
         [Serialize(12)] public float Age = 30f;
@@ -28,15 +29,19 @@ namespace Ship_Game
         [Serialize(19)] public short Robberies;
         [Serialize(20)] public short Rebellions;
 
+        [XmlIgnore][JsonIgnore]
         public bool IsNovice => Level < 3;
+        
+        [XmlIgnore][JsonIgnore]
+        public LocalizedText MissionName => ResourceManager.AgentMissionData.GetMissionName(Mission);
 
         public void AssignMission(AgentMission mission, Empire owner, string targetEmpire)
         {
-            ResourceManager.AgentMissionData.Initialize(mission, out int index, out int turns, out int cost);
+            (int turns, int cost) = ResourceManager.AgentMissionData.GetTurnsAndCost(mission);
             if (cost > 0 && cost > owner.Money)
                 return; // Do not go into negative money, cost > 0 check is for 0 mission cost which can be done in negative
 
-            if (Mission == AgentMission.Undercover)
+            if (mission == AgentMission.Undercover)
             {
                 foreach (Mole m in owner.data.MoleList)
                 {
@@ -53,10 +58,9 @@ namespace Ship_Game
             owner.AddMoney(-cost);
             owner.GetEmpireAI().DeductSpyBudget(cost);
 
-            Mission          = mission;
-            TargetEmpire     = targetEmpire;
-            MissionNameIndex = index;
-            TurnsRemaining   = turns;
+            Mission = mission;
+            TargetEmpire = targetEmpire;
+            TurnsRemaining = turns;
         }
 
         bool ReassignedDueToVictimDefeated(Empire us, Empire victim)
@@ -107,13 +111,20 @@ namespace Ship_Game
             MissionResolve aftermath = new MissionResolve(us, null);
             switch (missionStatus)
             {
-                case SpyMissionStatus.GreatSuccess:     aftermath.MessageId = 6025; Training += 1; aftermath.GoodResult = true; break;
-                case SpyMissionStatus.Success:          aftermath.MessageId = 6026; Training += 1; aftermath.GoodResult = true; break;
-                case SpyMissionStatus.Failed:           aftermath.MessageId = 6029;                                             break;
-                case SpyMissionStatus.FailedBadly:      aftermath.MessageId = 6027; aftermath.AgentInjured = true;              break;
-                case SpyMissionStatus.FailedCritically: aftermath.MessageId = 6029; aftermath.AgentKilled  = true;              break;
+                case SpyMissionStatus.GreatSuccess:     aftermath.Message = GameText.HasSuccessfullyCompleteTrainingntheAgents; break;
+                case SpyMissionStatus.Success:          aftermath.Message = GameText.HasSuccessfullyCompletedTrainingnandHas; break;
+                case SpyMissionStatus.Failed:           aftermath.Message = GameText.HasCompletedTrainingButFailed; break;
+                case SpyMissionStatus.FailedBadly:      aftermath.Message = GameText.WasInjuredInATraining; break;
+                case SpyMissionStatus.FailedCritically: aftermath.Message = GameText.HasCompletedTrainingButFailed; break;
             }
-
+            switch (missionStatus)
+            {
+                case SpyMissionStatus.GreatSuccess:     Training += 1; aftermath.GoodResult = true; break;
+                case SpyMissionStatus.Success:          Training += 1; aftermath.GoodResult = true; break;
+                case SpyMissionStatus.Failed:           break;
+                case SpyMissionStatus.FailedBadly:      aftermath.AgentInjured = true; break;
+                case SpyMissionStatus.FailedCritically: aftermath.AgentKilled  = true; break;
+            }
             return aftermath;
         }
 
@@ -122,7 +133,7 @@ namespace Ship_Game
             MissionResolve aftermath = new MissionResolve(us, victim);
             if (victim.data.AgentList.Count == 0) // no agent left to assassinate
             {
-                aftermath.MessageId   = 6038;
+                aftermath.Message = GameText.CouldNotAssassinateAnEnemy;
                 aftermath.ShouldAddXp = false;
                 return aftermath;
             }
@@ -130,14 +141,14 @@ namespace Ship_Game
             switch (missionStatus)
             {
                 case SpyMissionStatus.GreatSuccess: 
-                    aftermath.MessageId  = 6039;
+                    aftermath.Message = GameText.AssassinatedAnEnemyAgent;
                     aftermath.GoodResult = true;
                     Assassinations++; 
                     AssassinateEnemyAgent(us, victim, out string targetNameGreat);
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.OneOfOurAgentsWas)} {targetNameGreat}";
                     break;
                 case SpyMissionStatus.Success:
-                    aftermath.MessageId  = 6039;
+                    aftermath.Message = GameText.AssassinatedAnEnemyAgent;
                     aftermath.GoodResult = true;
                     Assassinations++;
                     AssassinateEnemyAgent(us, victim, out string targetNameGood);
@@ -146,20 +157,20 @@ namespace Ship_Game
                     aftermath.DamageReason    = "Caught Spying";
                     break;
                 case SpyMissionStatus.Failed:
-                    aftermath.MessageId       = 6047; // Foiled but escaped
+                    aftermath.Message = GameText.WasFoiledTryingToAssassinate; // Foiled but escaped
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeManagedToDetectAn)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying";
                     break;
                 case SpyMissionStatus.FailedBadly:
-                    aftermath.MessageId       = 6044; // Injured
+                    aftermath.Message = GameText.WasWoundedTryingToAssassinate; // Injured
                     aftermath.AgentInjured    = true;
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeManagedToDetectAn)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.RelationDamage  = 15;
                     aftermath.DamageReason    = "Caught Spying";
                     break;
                 case SpyMissionStatus.FailedCritically:
-                    aftermath.MessageId       = 6046; // Died
+                    aftermath.Message = GameText.WasKilledTryingToAssassinate; // Died
                     aftermath.AgentKilled     = true;
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentWasKilled2)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.RelationDamage  = 20;
@@ -183,7 +194,7 @@ namespace Ship_Game
             {
                 case SpyMissionStatus.GreatSuccess:
                 case SpyMissionStatus.Success:
-                    aftermath.MessageId  = 6030;
+                    aftermath.Message = GameText.SuccessfullyInfiltratedAColony;
                     aftermath.GoodResult = true;
                     Infiltrations++;
                     InfiltratePlanet(us, victim, out string planetName);
@@ -191,20 +202,20 @@ namespace Ship_Game
                     aftermath.CustomMessage = $"{Name}, {Localizer.Token(GameText.SuccessfullyInfiltratedAColony)} {planetName} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
                     break;
                 case SpyMissionStatus.Failed:
-                    aftermath.MessageId       = 6036;
+                    aftermath.Message= GameText.WasUnableToInfiltrateA2;
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentWasFoiled)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.RelationDamage = 10;
                     aftermath.DamageReason   = "Caught Spying";
                     break;
                 case SpyMissionStatus.FailedBadly:
-                    aftermath.MessageId       = 6032;
+                    aftermath.Message = GameText.WasUnableToInfiltrateA;
                     aftermath.AgentInjured    = true;
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentWasFoiled)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying";
                     break;
                 case SpyMissionStatus.FailedCritically:
-                    aftermath.MessageId       = 6034;
+                    aftermath.Message = GameText.WasKilledTryingToInfiltrate;
                     aftermath.AgentKilled     = true;
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentWasKilled)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.RelationDamage  = 20;
@@ -268,7 +279,7 @@ namespace Ship_Game
                     aftermath.DamageReason    = "Caught Spying";
                     break;
                 case SpyMissionStatus.FailedCritically:
-                    aftermath.MessageId       = 6054;
+                    aftermath.Message = GameText.WasKilledTryingToSabotage;
                     aftermath.AgentKilled     = true;
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeKilledAnEnemyAgent)}  {targetPlanet.Name}, {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.RelationDamage  = 20;
@@ -315,13 +326,13 @@ namespace Ship_Game
 
                     break;
                 case SpyMissionStatus.Failed:
-                    aftermath.MessageId       = 6075;
+                    aftermath.Message = GameText.WasUnableToStealAny2;
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying";
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeFoiledAnEnemyPlot2)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     break;
                 case SpyMissionStatus.FailedBadly:
-                    aftermath.MessageId       = 6071;
+                    aftermath.Message = GameText.WeFoiledAnEnemyPlot2;
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeKilledAnEnemyAgent2)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.AgentInjured    = true;
                     aftermath.RelationDamage  = 15;
@@ -402,13 +413,13 @@ namespace Ship_Game
 
             if (!victim.GetEmpireAI().TradableTechs(us, out Array<TechEntry> potentialTechs))
             {
-                aftermath.MessageId = 6063;
+                aftermath.Message = GameText.AbortedTheStealTechnologyMission;
                 aftermath.ShouldAddXp = false;
                 return aftermath;
             }
 
             string stolenTech     = potentialTechs.RandItem().UID;
-            string stolenTechName = Localizer.Token(ResourceManager.TechTree[stolenTech].NameIndex);
+            string stolenTechName = ResourceManager.TechTree[stolenTech].Name.Text;
 
             switch (missionStatus)
             {
@@ -427,20 +438,20 @@ namespace Ship_Game
                     aftermath.CustomMessage   = $"{Name} {Localizer.Token(GameText.StoleTechnologyDataChipsFor)} {stolenTechName} {Localizer.Token(GameText.NourAgentWasDetectedBut)}";
                     break;
                 case SpyMissionStatus.Failed:
-                    aftermath.MessageId       = 6062;
+                    aftermath.Message = GameText.WasDetectedWhileAttemptingTo2;
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying";
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeFoiledAnEnemyPlot)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     break;
                 case SpyMissionStatus.FailedBadly:
-                    aftermath.MessageId       = 6050;
+                    aftermath.Message = GameText.WasDetectedWhileAttemptingTo;
                     aftermath.AgentInjured    = true;
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying";
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.WeFoiledAnEnemyPlot)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     break;
                 case SpyMissionStatus.FailedCritically:
-                    aftermath.MessageId       = 6061;
+                    aftermath.Message = GameText.WasKilledTryingToSteal;
                     aftermath.AgentKilled     = true;
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying Failed";
@@ -451,20 +462,19 @@ namespace Ship_Game
             return aftermath;
         }
 
-            MissionResolve ResolveRecovery(Empire us)
+        MissionResolve ResolveRecovery(Empire us)
         {
-            MissionResolve aftermath = new MissionResolve(us, null) {MessageId = 6086};
-
-            Mission         = PrevisousMission;
-            TargetEmpire    = PreviousTarget;
+            MissionResolve aftermath = new MissionResolve(us, null) { Message = GameText.HasRecoveredFromTheirInjuries};
+            Mission = PrevisousMission;
+            TargetEmpire = PreviousTarget;
             return aftermath;
         }
 
         public void ExecuteMission(Empire us)
         {
-            AgentMissionData data        = ResourceManager.AgentMissionData;
-            spyMute                      = us.data.SpyMute;
-            Empire victim                = EmpireManager.GetEmpireByName(TargetEmpire);
+            AgentMissionData data = ResourceManager.AgentMissionData;
+            spyMute = us.data.SpyMute;
+            Empire victim = EmpireManager.GetEmpireByName(TargetEmpire);
 
             if (ReassignedDueToVictimDefeated(us, victim))
                 return;
@@ -548,9 +558,9 @@ namespace Ship_Game
                     if (!victim.WeCanBuildTroop(troopType))
                         continue;
 
-                    Troop t       = ResourceManager.CreateTroop(troopType, rebels);
-                    t.Name        = Localizer.Token(rebels.data.TroopNameIndex);
-                    t.Description = Localizer.Token(rebels.data.TroopDescriptionIndex);
+                    Troop t = ResourceManager.CreateTroop(troopType, rebels);
+                    t.Name        = rebels.data.TroopName.Text;
+                    t.Description = rebels.data.TroopDescription.Text;
                     if (targetPlanet.GetFreeTiles(t.Loyalty) == 0 && !targetPlanet.BumpOutTroop(EmpireManager.Corsairs)
                                                             && !t.TryLandTroop(targetPlanet)) // Let's say the rebels are pirates :)
                     {
@@ -609,7 +619,7 @@ namespace Ship_Game
         {
             public bool GoodResult;
             public bool ShouldAddXp;
-            public int MessageId;
+            public LocalizedText Message;
             public string MessageToVictim;
             public string CustomMessage;
             public bool AgentInjured;
@@ -625,7 +635,7 @@ namespace Ship_Game
                 Victim          = victim;
                 GoodResult      = false;
                 ShouldAddXp     = true;
-                MessageId       = 0;
+                Message         = LocalizedText.None;
                 AgentInjured    = false;
                 AgentKilled     = false;
                 MessageToVictim = "";
@@ -670,8 +680,8 @@ namespace Ship_Game
 
             void SendNotifications(Agent agent)
             {
-                if (MessageId > 0) // default message
-                    Empire.Universe.NotificationManager.AddAgentResult(GoodResult, $"{agent.Name} {Localizer.Token(MessageId)}", Us);
+                if (Message.NotEmpty) // default message
+                    Empire.Universe.NotificationManager.AddAgentResult(GoodResult, $"{agent.Name} {Message.Text}", Us);
 
                 if (CustomMessage.NotEmpty())
                     Empire.Universe.NotificationManager.AddAgentResult(GoodResult, CustomMessage, Us);

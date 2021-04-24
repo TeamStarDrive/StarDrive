@@ -93,8 +93,8 @@ namespace Ship_Game
                 {
                     StarDriveGame.Instance?.SetSteamAchievement("Owlwoks_Freed");
                     troop.SetOwner(Owner);
-                    troop.Name = Localizer.Token(EmpireManager.Cordrazine.data.TroopNameIndex);
-                    troop.Description = Localizer.Token(EmpireManager.Cordrazine.data.TroopDescriptionIndex);
+                    troop.Name = EmpireManager.Cordrazine.data.TroopName.Text;
+                    troop.Description = EmpireManager.Cordrazine.data.TroopDescription.Text;
                 }
             }
         }

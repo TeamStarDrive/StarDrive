@@ -8,7 +8,7 @@ using Ship_Game.Audio;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
-using Ship_Game.GameScreens.ShipDesignScreen;
+using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace
@@ -60,6 +60,8 @@ namespace Ship_Game
                 ActiveHull.ModuleSlots[i] = data;
             }
 
+            DesignedShip = new DesignShip(ActiveHull);
+
             BindListsToActiveHull();
             CreateSOFromActiveHull();
             UpdateActiveCombatButton();
@@ -70,7 +72,10 @@ namespace Ship_Game
             ModuleSelectComponent.SelectedIndex = -1;
 
             ZoomCameraToEncloseHull(ActiveHull);
-            DesignIssues = new ShipDesignIssues.ShipDesignIssues(ActiveHull);
+
+            // TODO: remove DesignIssues from this page
+            InfoPanel.SetActiveDesign(DesignedShip);
+            DesignIssues = InfoPanel.DesignIssues;
         }
 
         void UpdateCarrierShip()
@@ -148,7 +153,7 @@ namespace Ship_Game
 
             if (!ShipSaved && !goodDesign)
             {
-                ExitMessageBox(this, DoExit, SaveWIP, 2121);
+                ExitMessageBox(this, DoExit, SaveWIP, GameText.ThisShipDesignIsNot);
                 return;
             }
             if (ShipSaved || !goodDesign)
@@ -156,7 +161,7 @@ namespace Ship_Game
                 ReallyExit();
                 return;
             }
-            ExitMessageBox(this, DoExit, SaveChanges, 2137);
+            ExitMessageBox(this, DoExit, SaveChanges, GameText.YouHaveUnsavedChangesSave);
         }
 
         public void ExitToMenu(string launches)
@@ -174,16 +179,16 @@ namespace Ship_Game
             }
             if (!ShipSaved && !goodDesign)
             {
-                ExitMessageBox(this, LaunchScreen, SaveWIP, 2121);
+                ExitMessageBox(this, LaunchScreen, SaveWIP, GameText.ThisShipDesignIsNot);
                 return;
             }
 
             if (!ShipSaved && goodDesign)
             {
-                ExitMessageBox(this, LaunchScreen, SaveChanges, 2137);
+                ExitMessageBox(this, LaunchScreen, SaveChanges, GameText.YouHaveUnsavedChangesSave);
                 return;
             }
-            ExitMessageBox(this, LaunchScreen, SaveChanges, 2121);
+            ExitMessageBox(this, LaunchScreen, SaveChanges, GameText.ThisShipDesignIsNot);
         }
 
         public override bool HandleInput(InputState input)
@@ -373,21 +378,21 @@ namespace Ship_Game
 
         bool HandleDesignIssuesButton(InputState input)
         {
-            if (DesignIssues.CurrentWarningLevel == ShipDesignIssues.WarningLevel.None)
+            if (DesignIssues.CurrentWarningLevel == WarningLevel.None)
                 return false ;
 
             if (DesignIssuesButton.R.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.StatesAnyDesignIssuesThe);
 
 
-            if (DesignIssues.CurrentWarningLevel > ShipDesignIssues.WarningLevel.Informative 
+            if (DesignIssues.CurrentWarningLevel > WarningLevel.Informative 
                 && DesignIssuesButton.HandleInput(input))
             {
                 AddDesignIssuesScreen();
                 return true;
             }
 
-            if (DesignIssues.CurrentWarningLevel == ShipDesignIssues.WarningLevel.Informative  
+            if (DesignIssues.CurrentWarningLevel == WarningLevel.Informative  
                 && InformationButton.HandleInput(input))
             {
                 AddDesignIssuesScreen();
@@ -717,7 +722,8 @@ namespace Ship_Game
             if (!ShipSaved && !CheckDesign() && !ModuleGrid.IsEmptyDesign())
             {
                 ChangeTo = item.Hull;
-                MakeMessageBox(this, JustChangeHull, SaveWIPThenChangeHull, 2121, "Save", "No");
+                MakeMessageBox(this, JustChangeHull, SaveWIPThenChangeHull, 
+                               GameText.ThisShipDesignIsNot, "Save", "No");
             }
             else
             {

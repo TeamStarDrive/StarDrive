@@ -127,7 +127,7 @@ namespace UnitTests
             Empire.Universe = Universe = new UniverseScreen(data, player);
             Universe.player = player;
             Enemy = EmpireManager.CreateRebelsFromEmpireData(ResourceManager.MajorRaces[0], Player);
-            player.TestInitDifficultyModifiers();
+            player.TestInitModifiers();
         }
 
         public void LoadStarterShips(params string[] shipList)

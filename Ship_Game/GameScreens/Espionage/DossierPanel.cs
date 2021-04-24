@@ -21,15 +21,15 @@ namespace Ship_Game.GameScreens.Espionage
 
             var cursor = new Vector2(X + 20, Y + 10);
 
-            void DrawText(int token, string text, Color color)
+            void DrawText(GameText prefix, string text, Color color)
             {
-                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(token) + text, cursor, color);
+                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(prefix) + text, cursor, color);
                 cursor.Y += (Fonts.Arial12Bold.LineSpacing + 4);
             }
 
-            void DrawValue(int token, short value)
+            void DrawValue(GameText prefix, short value)
             {
-                DrawText(token, value.ToString(), value > 0 ? Color.White : Color.LightGray);
+                DrawText(prefix, value.ToString(), value > 0 ? Color.White : Color.LightGray);
             }
 
             // @todo Why is this here?
@@ -37,19 +37,19 @@ namespace Ship_Game.GameScreens.Espionage
                 agent.HomePlanet = EmpireManager.Player.data.Traits.HomeworldName;
 
             cursor.Y += 24;
-            DrawText(6108, agent.Name, Color.Orange);
+            DrawText(GameText.Alias, agent.Name, Color.Orange);
             cursor.Y += 4;
-            DrawText(6109, agent.HomePlanet, Color.LightGray);
-            DrawText(6110, agent.Age.String(0), Color.LightGray);
-            DrawText(6111, agent.ServiceYears.String(1) + Localizer.Token(GameText.Years), Color.LightGray);
+            DrawText(GameText.Home, agent.HomePlanet, Color.LightGray);
+            DrawText(GameText.Age, agent.Age.String(0), Color.LightGray);
+            DrawText(GameText.Service, agent.ServiceYears.String(1) + Localizer.Token(GameText.Years), Color.LightGray);
             cursor.Y += 16;
-            DrawValue(6112, agent.Training);
-            DrawValue(6113, agent.Assassinations);
-            DrawValue(6114, agent.Infiltrations);
-            DrawValue(6115, agent.Sabotages);
-            DrawValue(6116, agent.TechStolen);
-            DrawValue(6117, agent.Robberies);
-            DrawValue(6118, agent.Rebellions);
+            DrawValue(GameText.TrainingExercises, agent.Training);
+            DrawValue(GameText.AgentsAssassinated, agent.Assassinations);
+            DrawValue(GameText.ColoniesInfiltrated, agent.Infiltrations);
+            DrawValue(GameText.ColoniesSabotaged, agent.Sabotages);
+            DrawValue(GameText.TechnologiesStolen, agent.TechStolen);
+            DrawValue(GameText.TreasuriesRobbed, agent.Robberies);
+            DrawValue(GameText.RebellionsStarted, agent.Rebellions);
         }
     }
 }
