@@ -29,5 +29,16 @@ namespace Ship_Game.Gameplay
                 return (ModuleOrientation)Enum.Parse(typeof(ModuleOrientation), Orientation);
             return ModuleOrientation.Normal;
         }
+
+        public bool Equals(ModuleSlotData s)
+        {
+            return Position == s.Position
+                && InstalledModuleUID == s.InstalledModuleUID
+                && HangarshipGuid == s.HangarshipGuid
+                && Facing == s.Facing
+                && Orientation == s.Orientation
+                && Restrictions == s.Restrictions
+                && SlotOptions == s.SlotOptions;
+        }
     }
 }

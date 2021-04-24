@@ -28,11 +28,11 @@ namespace Ship_Game.GameScreens
 
         class SummaryPanel : UIList
         {
-            public SummaryPanel(int title, in Rectangle rect, Color c) : base(rect, c)
+            public SummaryPanel(LocalizedText title, in Rectangle rect, Color c) : base(rect, c)
             {
-                if (title != 0)
+                if (title.NotEmpty)
                 {
-                    Header = new UILabel(Localizer.Token(title), Fonts.Arial14Bold)
+                    Header = new UILabel(title, Fonts.Arial14Bold)
                     {
                         DropShadow = true
                     };
@@ -54,22 +54,20 @@ namespace Ship_Game.GameScreens
                 LayoutStyle = ListLayoutStyle.Fill;
             }
 
-            public void AddItem(int textId,  Func<float> getValue) => AddItem(Localizer.Token(textId),
-                                                                              getValue, Color.White);
-            public void AddItem(string text, Func<float> getValue) => AddItem(text, getValue, Color.White);
-            public void AddItem(string text, Func<float> getValue, Color keyColor)
+            public void AddItem(LocalizedText text, Func<float> getValue) => AddItem(text, getValue, Color.White);
+            public void AddItem(LocalizedText text, Func<float> getValue, Color keyColor)
             {
-                AddSplit(new UILabel($"{text}:", keyColor),
+                AddSplit(new UILabel(text.Text + ":", keyColor),
                          new UILabel(DynamicText(getValue, f => f.MoneyString())) );
             }
 
             public void SetTotalFooter(Func<float> getValue)
             {
-                Footer = new SplitElement(new UILabel($"{Localizer.Token(GameText.Total2)}:"),
+                Footer = new SplitElement(new UILabel(Localizer.Token(GameText.Total2) + ":"),
                                           new UILabel(DynamicText(getValue, f => f.MoneyString())) );
             }
 
-            public FloatSlider AddSlider(string title, float value)
+            public FloatSlider AddSlider(LocalizedText title, float value)
             {
                 return Add(new FloatSlider(SliderStyle.Percent, new Vector2(100,32), title, 0f, 1f, value));
             }
@@ -93,8 +91,8 @@ namespace Ship_Game.GameScreens
             Label(Window.Menu.CenterTextX(title), Window.Menu.Y + 20, title);
 
             // background panels for TaxRate, incomes, cost, trade: 6138
-            SummaryPanel tax = Add(new SummaryPanel(0, taxRect, new Color(17, 21, 28)));
-            var taxTitle     = Player.data.AutoTaxes ? 6138 : 311;
+            SummaryPanel tax = Add(new SummaryPanel("", taxRect, new Color(17, 21, 28)));
+            var taxTitle = Player.data.AutoTaxes ? GameText.AutoTaxes : GameText.TaxRate;
 
             TaxSlider = tax.AddSlider(Localizer.Token(taxTitle), 0.25f);
             TaxSlider.Tip = GameText.TaxesAreCollectedFromYour;
@@ -127,11 +125,8 @@ namespace Ship_Game.GameScreens
 
         private void AutoTaxCheckBox(Rectangle footerRect)
         {
-            var autoTax = Checkbox(new Vector2(footerRect.X, footerRect.Y)
-                        , () => Player.data.AutoTaxes
-                        , GameText.AutoTaxes
-                        , GameText.YourEmpireWillAutomaticallyManage3);
-
+            var autoTax = Checkbox(new Vector2(footerRect.X, footerRect.Y), () => Player.data.AutoTaxes, 
+                                   GameText.AutoTaxes, GameText.YourEmpireWillAutomaticallyManage3);
             autoTax.OnChange = cb =>
             {
                 if (cb.Checked)
@@ -139,7 +134,6 @@ namespace Ship_Game.GameScreens
                     Player.GetEmpireAI().RunEconomicPlanner();
                     TaxSlider.RelativeValue = Player.data.TaxRate;
                 }
-
                 TaxSlider.Enabled = !cb.Checked;
                 TaxSlider.Text = Player.data.AutoTaxes ? GameText.AutoTaxes : GameText.TaxRate;
             };
@@ -148,20 +142,18 @@ namespace Ship_Game.GameScreens
         private void BudgetTab(Rectangle budgetRect)
         {
             SummaryPanel budget = Add(new SummaryPanel(Localizer.GovernorBudget, budgetRect, new Color(30, 26, 19)));
-            budget.AddItem("Colony", ()    => Player.data.ColonyBudget);
+            budget.AddItem("Colony", () => Player.data.ColonyBudget);
             budget.AddItem("SpaceRoad", () => Player.data.SSPBudget);
-            budget.AddItem("Defense", ()   => Player.data.DefenseBudget);
-            budget.SetTotalFooter(()       => Player.data.ColonyBudget
-                                                    + Player.data.SSPBudget
-                                                    + Player.data.DefenseBudget);
+            budget.AddItem("Defense", () => Player.data.DefenseBudget);
+            budget.SetTotalFooter(() => Player.data.ColonyBudget + Player.data.SSPBudget + Player.data.DefenseBudget);
         }
 
         private void TradeTab(Rectangle tradeRect)
         {
             SummaryPanel trade = Add(new SummaryPanel(Localizer.Trade, tradeRect, new Color(30, 26, 19)));
 
-            trade.AddItem(322, () => Player.AverageTradeIncome); // "Mercantilism (Avg)"
-            trade.AddItem(323, () => Player.TotalTradeTreatiesIncome()); // "Trade Treaties"
+            trade.AddItem(GameText.MercantilismAvg, () => Player.AverageTradeIncome); // "Mercantilism (Avg)"
+            trade.AddItem(GameText.TradeTreaties, () => Player.TotalTradeTreatiesIncome()); // "Trade Treaties"
 
             foreach ((Empire e, Relationship r) in Player.TradeRelations)
                 trade.AddItem($"   {e.data.Traits.Plural}", () => r.TradeIncome(), e.EmpireColor);
@@ -171,23 +163,23 @@ namespace Ship_Game.GameScreens
 
         private void CostsTab(Rectangle costRect)
         {
-            SummaryPanel costs = Add(new SummaryPanel(315, costRect, new Color(27, 22, 25)));
+            SummaryPanel costs = Add(new SummaryPanel(GameText.Expenditure, costRect, new Color(27, 22, 25)));
 
-            costs.AddItem(316, ()   => -Player.TotalBuildingMaintenance); // "Building Maint."
-            costs.AddItem(317, ()   => -Player.TotalShipMaintenance); // "Ship Maint."
-            costs.AddItem(4999, ()  => -Player.GetTroopMaintThisTurn()); // "Troop Maint."
-            costs.AddItem(1819, ()  => -Player.MoneySpendOnProductionThisTurn); // "production costs."
+            costs.AddItem(GameText.BuildingMaint, () => -Player.TotalBuildingMaintenance); // "Building Maint."
+            costs.AddItem(GameText.ShipMaint, () => -Player.TotalShipMaintenance); // "Ship Maint."
+            costs.AddItem(GameText.TroopMaint, () => -Player.GetTroopMaintThisTurn()); // "Troop Maint."
+            costs.AddItem(GameText.ProductionFees, () => -Player.MoneySpendOnProductionThisTurn); // "production costs."
             costs.SetTotalFooter(() => -Player.AllSpending); // "Total"
         }
 
         private void IncomesTab(Rectangle incomeRect)
         {
-            SummaryPanel income = Add(new SummaryPanel(312, incomeRect, new Color(18, 29, 29)));
+            SummaryPanel income = Add(new SummaryPanel(GameText.Income, incomeRect, new Color(18, 29, 29)));
 
-            income.AddItem(313, ()          => Player.GrossPlanetIncome); // "Planetary Taxes"
-            income.AddItem("Other", ()        => Player.data.FlatMoneyBonus);
+            income.AddItem(GameText.PlanetaryTaxes, () => Player.GrossPlanetIncome); // "Planetary Taxes"
+            income.AddItem(GameText.Other, () => Player.data.FlatMoneyBonus);
             income.AddItem("Excess Goods", () => Player.ExcessGoodsMoneyAddedThisTurn);
-            income.SetTotalFooter(()               => Player.GrossIncome); // "Total"
+            income.SetTotalFooter(() => Player.GrossIncome); // "Total"
         }
 
         private void TaxSliderOnChange(FloatSlider s)

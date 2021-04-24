@@ -109,7 +109,7 @@ namespace Ship_Game
             get
             {
                 if (isBuilding)
-                    return Localizer.Token(Building.NameTranslationIndex);
+                    return Building.TranslatedName.Text;
                 if (isShip || isOrbital)
                     return DisplayName ?? sData.Name;
                 if (isTroop)

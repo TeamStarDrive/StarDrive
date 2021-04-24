@@ -1330,8 +1330,8 @@ namespace Ship_Game
 
                     if (planet.RecentCombat)
                     {
-                        DrawTextureWithToolTip(icon_fighting_small, Color.White, GameText.IndicatesThatAnAnomalyWas, mousePos, (int)posOffSet.X,
-                            (int)posOffSet.Y, 14, 14);
+                        DrawTextureWithToolTip(icon_fighting_small, Color.White, GameText.IndicatesThatAnAnomalyWas, mousePos,
+                                               (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
                     if (player.data.MoleList.Count > 0)
@@ -1343,7 +1343,7 @@ namespace Ship_Game
                             {
                                 posOffSet.X += (18 * drawLocationOffset);
                                 DrawTextureWithToolTip(icon_spy_small, Color.White, GameText.IndicatesThatAFriendlyAgent, mousePos,
-                                    (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                                                       (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                                 ++drawLocationOffset;
                                 break;
                             }
@@ -1354,9 +1354,8 @@ namespace Ship_Game
                         Building building = planet.BuildingList[i];
                         if (!building.EventHere) continue;
                         posOffSet.X += (18 * drawLocationOffset);
-                        string text = Localizer.Token(building.DescriptionIndex);
-                        DrawTextureWithToolTip(icon_anomaly_small, Color.White, text, mousePos, (int)posOffSet.X,
-                            (int)posOffSet.Y, 14, 14);
+                        DrawTextureWithToolTip(icon_anomaly_small, Color.White, building.DescriptionText, mousePos,
+                                               (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                         break;
                     }
                     int troopCount = planet.CountEmpireTroops(player);
@@ -1364,7 +1363,7 @@ namespace Ship_Game
                     {
                         posOffSet.X += (18 * drawLocationOffset);
                         DrawTextureWithToolTip(icon_troop, Color.TransparentWhite, $"Troops {troopCount}", mousePos,
-                            (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                                               (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
                 }

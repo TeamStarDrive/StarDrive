@@ -7,7 +7,7 @@ using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
-using Ship_Game.GameScreens.ShipDesignScreen;
+using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -22,6 +22,7 @@ namespace Ship_Game
     {
         public Camera2D Camera;
         public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
+        public DesignShip DesignedShip { get; private set; }
         public ShipData ActiveHull;
         public EmpireUIOverlay EmpireUI;
         SceneObject shipSO;
@@ -41,7 +42,8 @@ namespace Ship_Game
         Rectangle BottomSep;
         Rectangle BlackBar;
 
-        public ShipDesignIssues.ShipDesignIssues DesignIssues;
+        ShipDesignInfoPanel InfoPanel;
+        ShipDesignIssues DesignIssues;
 
         // this contains module selection list and active module selection info
         ModuleSelection ModuleSelectComponent;
@@ -60,8 +62,6 @@ namespace Ship_Game
         CategoryDropDown CategoryList;
         HangarDesignationDropDown HangarOptionsList;
         Map<ShipModule, float> WeaponAccuracyList = new Map<ShipModule, float>();
-        public float FireControlLevel { get; private set; } = 0;
-        
 
         bool ShowAllArcs;
         public bool ToggleOverlay = true;
@@ -355,7 +355,7 @@ namespace Ship_Game
         void RecalculateDesignRole(bool showRoleChangeTip)
         {
             var oldRole = Role;
-            Role        = new RoleData(ActiveHull, ModuleGrid.CopyModulesList()).DesignRole;
+            Role = new RoleData(ActiveHull, ModuleGrid.CopyModulesList()).DesignRole;
 
             if (Role != oldRole && showRoleChangeTip)
             {
@@ -392,6 +392,9 @@ namespace Ship_Game
 
             CameraPosition.Z = (OriginalZ / Camera.Zoom);
             UpdateViewMatrix(CameraPosition);
+
+            DesignedShip?.UpdateDesign(CreateModuleSlots());
+
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
@@ -411,97 +414,41 @@ namespace Ship_Game
         public override void LoadContent()
         {
             Log.Info("ShipDesignScreen.LoadContent");
+            CreateGUI();
+            InitializeHullAndCamera();
+            BindListsToActiveHull();
+
+            AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
+        }
+
+        ButtonStyle SymmetricDesignBtnStyle  => GlobalStats.SymmetricDesign ? ButtonStyle.Military : ButtonStyle.BigDip;
+        ButtonStyle FilterModulesBtnStyle    => GlobalStats.FilterOldModules ? ButtonStyle.Military : ButtonStyle.BigDip;
+
+        void CreateGUI()
+        {
             RemoveAll();
             ModuleSelectComponent = Add(new ModuleSelection(this, new Rectangle(5, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 490))));
 
-            var hulls = EmpireManager.Player.GetHDict();
-            foreach (KeyValuePair<string, bool> hull in hulls)
-                if (hull.Value && ResourceManager.Hull(hull.Key, out ShipData hullData))
-                    AvailableHulls.Add(hullData);
-
-            Offset = new Vector2(Viewport.Width / 2 - 256, Viewport.Height / 2 - 256);
-            Camera = new Camera2D { Pos = new Vector2(Viewport.Width / 2f, Viewport.Height / 2f) };
-            Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-            View = Matrix.CreateRotationY(180f.ToRadians())
-                   * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
-
-            float aspectRatio = (float)Viewport.Width / Viewport.Height;
-            Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 120000f);
-            
-            ChangeHull(AvailableHulls[0]);
-
-            float minX = 0f, maxX = 0f;
-            for (int i = 0; i < ActiveHull.ModuleSlots.Length; ++i)
-            {
-                ModuleSlotData slot = ActiveHull.ModuleSlots[i];
-                Vector2 topLeft = slot.Position;
-                var botRight = new Vector2(topLeft.X + slot.Position.X * 16.0f,
-                                           topLeft.Y + slot.Position.Y * 16.0f);
-
-                if (topLeft.X < minX) minX = topLeft.X;
-                if (botRight.X > maxX) maxX = botRight.X;
-            }
-
-            float hullWidth = maxX - minX;
-
-            // So, this attempts to zoom so the entire design is visible
-            float UpdateCameraMatrix()
-            {
-                camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-
-                View = Matrix.CreateRotationY(180f.ToRadians())
-                       * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
-
-                Vector3 center   = Viewport.Project(Vector3.Zero, Projection, View, Matrix.Identity);
-                Vector3 hullEdge = Viewport.Project(new Vector3(hullWidth, 0, 0), Projection, View, Matrix.Identity);
-                return center.Distance(hullEdge) + 10f;
-            }
-
-            float visibleHullWidth = UpdateCameraMatrix();
-            if (visibleHullWidth >= hullWidth)
-            {
-                while (visibleHullWidth > hullWidth)
-                {
-                    CameraPosition.Z += 10f;
-                    visibleHullWidth = UpdateCameraMatrix();
-                }
-            }
-            else
-            {
-                while (visibleHullWidth < hullWidth)
-                {
-                    CameraPosition.Z -= 10f;
-                    visibleHullWidth = UpdateCameraMatrix();
-                }
-            }
-
             BlackBar = new Rectangle(0, ScreenHeight - 70, 3000, 70);
-      
-            ClassifCursor = new Vector2(ScreenWidth * .5f,
-                ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10);
+            ClassifCursor = new Vector2(ScreenWidth * .5f,ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10);
 
             float ordersBarX = ClassifCursor.X - 15;
             var ordersBarPos = new Vector2(ordersBarX, ClassifCursor.Y + 20);
-            void AddCombatStatusBtn(CombatState state, string iconPath, LocalizedText toolTip)
+            void AddCombatStatusBtn(CombatState cs, string iconPath, LocalizedText tip)
             {
-                var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, iconPath)
-                {
-                    CombatState = state,
-                    Tooltip = toolTip
-                };
-                button.OnClick = (b) => OnCombatButtonPressed(state);
+                var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, iconPath) { CombatState = cs, Tooltip = tip };
+                button.OnClick = (b) => OnCombatButtonPressed(cs);
                 Add(button);
                 CombatStatusButtons.Add(button);
                 ordersBarPos.X += 29f;
             }
-
-            AddCombatStatusBtn(CombatState.AttackRuns,   "SelectionBox/icon_formation_headon", toolTip: GameText.ShipWillMakeHeadonAttack);
-            AddCombatStatusBtn(CombatState.Artillery,    "SelectionBox/icon_formation_aft",    toolTip: GameText.ShipWillRotateSoThat);
-            AddCombatStatusBtn(CombatState.ShortRange,   "SelectionBox/icon_grid",             toolTip: GameText.ShipWillRotateSoThat2);
-            AddCombatStatusBtn(CombatState.HoldPosition, "SelectionBox/icon_formation_x",      toolTip: GameText.ShipWillAttemptToHold);
-            AddCombatStatusBtn(CombatState.OrbitLeft,    "SelectionBox/icon_formation_left",   toolTip: GameText.ShipWillManeuverToKeep);
-            AddCombatStatusBtn(CombatState.OrbitRight,   "SelectionBox/icon_formation_right",  toolTip: GameText.ShipWillManeuverToKeep2);
-            AddCombatStatusBtn(CombatState.Evade,        "SelectionBox/icon_formation_stop",   toolTip: GameText.ShipWillAvoidEngagingIn);
+            AddCombatStatusBtn(CombatState.AttackRuns,   "SelectionBox/icon_formation_headon", tip: GameText.ShipWillMakeHeadonAttack);
+            AddCombatStatusBtn(CombatState.Artillery,    "SelectionBox/icon_formation_aft",    tip: GameText.ShipWillRotateSoThat);
+            AddCombatStatusBtn(CombatState.ShortRange,   "SelectionBox/icon_grid",             tip: GameText.ShipWillRotateSoThat2);
+            AddCombatStatusBtn(CombatState.HoldPosition, "SelectionBox/icon_formation_x",      tip: GameText.ShipWillAttemptToHold);
+            AddCombatStatusBtn(CombatState.OrbitLeft,    "SelectionBox/icon_formation_left",   tip: GameText.ShipWillManeuverToKeep);
+            AddCombatStatusBtn(CombatState.OrbitRight,   "SelectionBox/icon_formation_right",  tip: GameText.ShipWillManeuverToKeep2);
+            AddCombatStatusBtn(CombatState.Evade,        "SelectionBox/icon_formation_stop",   tip: GameText.ShipWillAvoidEngagingIn);
             ordersBarPos = new Vector2(ordersBarX + 4*29f, ordersBarPos.Y + 29f);
             AddCombatStatusBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft", GameText.ShipWillMoveWithinMaximum);
             AddCombatStatusBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", GameText.ShipWillMoveWithinMaximum2);
@@ -558,17 +505,6 @@ namespace Ship_Game
             BtnFilterModules.Style    = FilterModulesBtnStyle;
 
             SearchBar = new Rectangle((int)ScreenCenter.X, (int)bottomListRight.Y, 210, 25);
-            LoadContentFinish();
-            BindListsToActiveHull();
-
-            AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
-        }
-
-        ButtonStyle SymmetricDesignBtnStyle  => GlobalStats.SymmetricDesign ? ButtonStyle.Military : ButtonStyle.BigDip;
-        ButtonStyle FilterModulesBtnStyle    => GlobalStats.FilterOldModules ? ButtonStyle.Military : ButtonStyle.BigDip;
-
-        void LoadContentFinish()
-        {
             BottomSep = new Rectangle(BlackBar.X, BlackBar.Y, BlackBar.Width, 1);
 
             int hullSelY = SelectSize(45, 100, 100);
@@ -603,19 +539,86 @@ namespace Ship_Game
             StatsSub  = new Submenu(shipStatsPanel);
             StatsSub.AddTab(Localizer.Token(GameText.ShipStats));
             ArcsButton = new GenericButton(new Vector2(HullSelectList.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
-            DesignIssuesButton = new GenericButton(new Vector2(HullSelectList.X + 60, HullSelectList.Y  + HullSelectList.Height + 40)
-                , "Design Issues", Fonts.Pirulen20, Fonts.Pirulen16);
-
+            
+            DesignIssuesButton = new GenericButton(new Vector2(HullSelectList.X + 60, HullSelectList.Bottom + 40),
+                                                   "Design Issues", Fonts.Pirulen20, Fonts.Pirulen16);
             DesignIssuesButton.HoveredColor   = Color.White;
             DesignIssuesButton.UnHoveredColor = Color.Green;
 
-            InformationButton = new GenericButton(new Vector2(HullSelectList.X + 40, HullSelectList.Y + HullSelectList.Height + 40)
-                , "Information", Fonts.Pirulen20, Fonts.Pirulen16);
-
+            InformationButton = new GenericButton(new Vector2(HullSelectList.X + 40, HullSelectList.Bottom + 40),
+                                                  "Information", Fonts.Pirulen20, Fonts.Pirulen16);
             InformationButton.HoveredColor   = Color.White;
             InformationButton.UnHoveredColor = Color.Green;
 
+            var infoRect = RectF.FromPoints(HullSelectList.X - 50, ScreenWidth - 20,
+                                            HullSelectList.Bottom, BlackBar.Y);
+            InfoPanel = Add(new ShipDesignInfoPanel(this, infoRect));
+
             CloseButton(ScreenWidth - 27, 99);
+        }
+
+        void InitializeHullAndCamera()
+        {
+            var hulls = EmpireManager.Player.GetHDict();
+            foreach (KeyValuePair<string, bool> hull in hulls)
+                if (hull.Value && ResourceManager.Hull(hull.Key, out ShipData hullData))
+                    AvailableHulls.Add(hullData);
+
+            Offset = new Vector2(Viewport.Width / 2 - 256, Viewport.Height / 2 - 256);
+            Camera = new Camera2D { Pos = new Vector2(Viewport.Width / 2f, Viewport.Height / 2f) };
+            Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
+            View = Matrix.CreateRotationY(180f.ToRadians())
+                   * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
+
+            float aspectRatio = (float)Viewport.Width / Viewport.Height;
+            Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 120000f);
+            
+            ChangeHull(AvailableHulls[0]);
+
+            float minX = 0f, maxX = 0f;
+            for (int i = 0; i < ActiveHull.ModuleSlots.Length; ++i)
+            {
+                ModuleSlotData slot = ActiveHull.ModuleSlots[i];
+                Vector2 topLeft = slot.Position;
+                var botRight = new Vector2(topLeft.X + slot.Position.X * 16.0f,
+                                           topLeft.Y + slot.Position.Y * 16.0f);
+
+                if (topLeft.X < minX) minX = topLeft.X;
+                if (botRight.X > maxX) maxX = botRight.X;
+            }
+
+            float hullWidth = maxX - minX;
+
+            // So, this attempts to zoom so the entire design is visible
+            float UpdateCameraMatrix()
+            {
+                camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
+
+                View = Matrix.CreateRotationY(180f.ToRadians())
+                     * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
+
+                Vector3 center   = Viewport.Project(Vector3.Zero, Projection, View, Matrix.Identity);
+                Vector3 hullEdge = Viewport.Project(new Vector3(hullWidth, 0, 0), Projection, View, Matrix.Identity);
+                return center.Distance(hullEdge) + 10f;
+            }
+
+            float visibleHullWidth = UpdateCameraMatrix();
+            if (visibleHullWidth >= hullWidth)
+            {
+                while (visibleHullWidth > hullWidth)
+                {
+                    CameraPosition.Z += 10f;
+                    visibleHullWidth = UpdateCameraMatrix();
+                }
+            }
+            else
+            {
+                while (visibleHullWidth < hullWidth)
+                {
+                    CameraPosition.Z -= 10f;
+                    visibleHullWidth = UpdateCameraMatrix();
+                }
+            }
             OriginalZ = CameraPosition.Z;
         }
 

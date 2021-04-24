@@ -276,7 +276,7 @@ namespace Ship_Game
         }
 
         // Gets the current cursor blinking mask color [255,255,255,a]
-        public Color CurrentFlashColor    => ApplyCurrentAlphaToColor(new Color(255, 255, 255));
+        public Color CurrentFlashColor => ApplyCurrentAlphaToColor(new Color(255, 255, 255));
         public Color CurrentFlashColorRed => ApplyCurrentAlphaToColor(new Color(255, 0, 0));
 
         protected Color ApplyCurrentAlphaToColor(Color color)
@@ -365,15 +365,15 @@ namespace Ship_Game
             if (rectangle.HitTest(mousePos))
                 ToolTip.CreateTooltip(toolTip);
         }
-        public void CheckToolTip(LocalizedText toolTip, Vector2 cursor, string words, string numbers, Graphics.Font font, Vector2 mousePos)
+        public void CheckToolTip(LocalizedText toolTip, Vector2 cursor, LocalizedText words, string numbers, Graphics.Font font, Vector2 mousePos)
         {
             var rect = new Rectangle((int)cursor.X, (int)cursor.Y, 
                 font.TextWidth(words) + font.TextWidth(numbers), font.LineSpacing);
             CheckToolTip(toolTip, rect, mousePos);
         }
-        public Vector2 FontSpace(Vector2 cursor, float spacing, string drawnString, Graphics.Font font)
+        public Vector2 FontSpace(Vector2 cursor, float spacing, LocalizedText drawnString, Graphics.Font font)
         {
-            cursor.X += (spacing - font.MeasureString(drawnString).X);
+            cursor.X += (spacing - font.TextWidth(drawnString));
             return cursor;
         }
         // Draw string in screen coordinates. Text will be centered
@@ -388,18 +388,18 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(font, text, posOnScreen, textColor, rotation, Vector2.Zero, textScale);
         }
 
-        public void MakeMessageBox(GameScreen screen, Action cancelled, Action accepted, int localId, string okText, string cancelledText)
+        public void MakeMessageBox(GameScreen screen, Action cancelled, Action accepted, GameText message, string okText, string cancelledText)
         {
-            ScreenManager.AddScreen(new MessageBoxScreen(screen, localId, okText, cancelledText)
+            ScreenManager.AddScreen(new MessageBoxScreen(screen, message, okText, cancelledText)
             {
                 Cancelled = cancelled,
                 Accepted = accepted
             });            
         }
 
-        public void ExitMessageBox(GameScreen screen, Action cancelled, Action accepted, int localId)
+        public void ExitMessageBox(GameScreen screen, Action cancelled, Action accepted, GameText message)
         {
-            MakeMessageBox(screen, cancelled, accepted, localId, "Save", "Exit");
+            MakeMessageBox(screen, cancelled, accepted, message, "Save", "Exit");
         }
 
         public void DrawModelMesh(
@@ -626,15 +626,6 @@ namespace Ship_Game
             
             if (rectangle.HitTest(mousePos))
                 ToolTip.CreateTooltip(tooltip);                
-        }
-
-        public void DrawTextureWithToolTip(SubTexture texture, Color color, string text, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
-        {
-            var rectangle = new Rectangle(rectangleX, rectangleY, width, height);
-            ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
-
-            if (rectangle.HitTest(mousePos))
-                ToolTip.CreateTooltip(text);
         }
 
         public void DrawStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text)

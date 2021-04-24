@@ -32,7 +32,7 @@ namespace Ship_Game
 
         public LocalizedText(GameText gameText)
         {
-            Id = (int)gameText;
+            Id = Localizer.GetTokenId(gameText);
             String = null;
             Method = LocalizationMethod.Id;
         }
@@ -157,9 +157,7 @@ namespace Ship_Game
         public static string ParseText(string text)
         {
             if (text.IsEmpty())
-            {
                 return "";
-            }
 
             if (ParseCache.TryGetValue(text, out string parsed))
                 return parsed;
@@ -174,6 +172,7 @@ namespace Ship_Game
                     for (; j < text.Length-1; ++j)
                         if (text[j] == '}')
                             break;
+
                     if (j >= text.Length)
                     {
                         Log.Warning($"Missing localization format END character '}}'! -- LocalizedText not parsed correctly!: {text}");
@@ -181,30 +180,13 @@ namespace Ship_Game
                     }
 
                     string idString = text.Substring(i+1, (j - i)-1);
-                    if (char.IsDigit(idString[0]))
-                    {
-                        if (!int.TryParse(idString, out int id))
-                        {
-                            Log.Error($"Failed to parse localization id: {idString}! -- LocalizedText not parsed correctly: {text}");
-                            continue;
-                        }
-                        sb.Append(Localizer.Token(id));
-                    }
-                    else if (char.IsLetter(idString[0]))
-                    {
-                        if (!Localizer.Token(idString, out string parsedText))
-                        {
-                            Log.Error($"Failed to parse localization id: {idString}! -- LocalizedText not parsed correctly: {text}");
-                            continue;
-                        }
-                        sb.Append(parsedText);
-                    }
-                    else
+                    if (!Localizer.Token(idString, out string parsedText))
                     {
                         Log.Error($"Failed to parse localization id: {idString}! -- LocalizedText not parsed correctly: {text}");
                         continue;
                     }
 
+                    sb.Append(parsedText);
                     i = j;
                 }
                 else if (c == '\\') // escape character
