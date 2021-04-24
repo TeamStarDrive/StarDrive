@@ -556,6 +556,7 @@
     <Compile Include="Ship_Game\UI\UIKeyValueLabel.cs" />
     <Compile Include="Ship_Game\UI\UIList.cs" />
     <Compile Include="Ship_Game\UI\UIPanel.cs" />
+    <Compile Include="Ship_Game\UI\UISpacer.cs" />
     <Compile Include="Ship_Game\UI\UITextBox.cs" />
     <Compile Include="Ship_Game\Universe\EmpireSolarSystemStatus.cs" />
     <Compile Include="Ship_Game\Universe\TippedItem.cs" />

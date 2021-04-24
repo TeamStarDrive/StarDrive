@@ -578,11 +578,11 @@ namespace Ship_Game
             if (!(powerConsumedWithBeams > 0))
                 return;
 
-            DrawStatColor(ref cursor, MakeStat("Burst Wpn Pwr Drain", -powerConsumedWithBeams, GameText.ThisIndicatesThatThereIs, Color.LightSkyBlue));
+            DrawStatColor(ref cursor, MakeStat("Burst Wpn Pwr Drain", -powerConsumedWithBeams, GameText.TT_BurstWpnPwerDrain, Color.LightSkyBlue));
             if (burstEnergyDuration < beamLongestDuration)
-                DrawStatColor(ref cursor, MakeStat("Burst Wpn Pwr Time", burstEnergyDuration, GameText.TheTotalTimeTheShip, Color.LightSkyBlue, ValueTint.Bad));
+                DrawStatColor(ref cursor, MakeStat("Burst Wpn Pwr Time", burstEnergyDuration, GameText.TT_BurstWpnPwrTime, Color.LightSkyBlue, ValueTint.Bad));
             else
-                DrawStat(ref cursor, "Burst Wpn Pwr Time:", "INF", GameText.TheTotalTimeTheShip, Color.LightSkyBlue, Color.LightGreen);
+                DrawStat(ref cursor, "Burst Wpn Pwr Time:", "INF", GameText.TT_BurstWpnPwrTime, Color.LightSkyBlue, Color.LightGreen);
         }
 
         void DrawEnergyStats(ref Vector2 cursor, bool hasEnergyWeapons, 
@@ -594,11 +594,11 @@ namespace Ship_Game
 
             if (powerConsumed > 0) // There is power drain from ship's reserves when firing its energy weapons after taking into account recharge
             {
-                DrawStatColor(ref cursor, MakeStat("Excess Wpn Pwr Drain", -powerConsumed, GameText.ThisIndicatesThatThereIs2, Color.LightSkyBlue));
-                DrawStatColor(ref cursor, MakeStat("Wpn Fire Power Time", weaponFirePowerTime, GameText.IndicatesTheMaximumTimeIn, Color.LightSkyBlue, ValueTint.BadLowerThan2));
+                DrawStatColor(ref cursor, MakeStat("Excess Wpn Pwr Drain", -powerConsumed, GameText.TT_ExcessWpnPwrDrain, Color.LightSkyBlue));
+                DrawStatColor(ref cursor, MakeStat("Wpn Fire Power Time", weaponFirePowerTime, GameText.TT_WpnFirePowerTime, Color.LightSkyBlue, ValueTint.BadLowerThan2));
             }
             else
-                DrawStat(ref cursor, "Wpn Fire Power Time:", "INF", GameText.IndicatesTheMaximumTimeIn, Color.LightSkyBlue, Color.LightGreen);
+                DrawStat(ref cursor, "Wpn Fire Power Time:", "INF", GameText.TT_WpnFirePowerTime, Color.LightSkyBlue, Color.LightGreen);
         }
 
         void DrawOrdnanceAndTroops(ref Vector2 cursor, float ordnanceCap, 
@@ -692,26 +692,26 @@ namespace Ship_Game
                 return;
 
             if (warpSpeed > 0)
-                DrawStatColor(ref cursor, TintedValue(GameText.RechargeAtWarp, drawAtWarp, GameText.IndicatesTheNetPowerFlow2, Color.LightSkyBlue));
+                DrawStatColor(ref cursor, TintedValue(GameText.RechargeAtWarp, drawAtWarp, GameText.TT_RechargeAtWarp, Color.LightSkyBlue));
         }
 
         void DrawPowerConsumedAndRecharge(ref Vector2 cursor, 
                                           float weaponPowerNeeded, float powerRecharge, 
                                           float powerCapacity, float powerConsumed)
         {
-            var capacityStat = MakeStat(GameText.PowerCapacity, powerCapacity, GameText.IndicatesTheMaximumAmountOf2, Color.LightSkyBlue, ValueTint.CompareValue);
+            var capacityStat = MakeStat(GameText.PowerCapacity, powerCapacity, GameText.TT_PowerCapacity, Color.LightSkyBlue, ValueTint.CompareValue);
             capacityStat.CompareValue = powerConsumed;
             DrawStatColor(ref cursor, capacityStat);
-            DrawStatColor(ref cursor, TintedValue(GameText.PowerRecharge, powerRecharge, GameText.IndicatesTheNetPowerFlow, Color.LightSkyBlue));
+            DrawStatColor(ref cursor, TintedValue(GameText.PowerRecharge, powerRecharge, GameText.TT_PowerRecharge, Color.LightSkyBlue));
         }
 
         void DrawUpkeepSizeMass(ref Vector2 cursor, float cost, int size, float mass, 
                                 int totalHangarArea, int troopCount)
         {
             float upkeep = GetMaintenanceCost(ActiveHull, (int)cost, totalHangarArea, troopCount);
-            DrawStatColor(ref cursor, TintedValue("Upkeep Cost", upkeep, GameText.IndicatesTheCreditsPerTick, Color.White));
-            DrawStatColor(ref cursor, TintedValue("Total Module Slots", size, GameText.TheTotalNumberOfModule, Color.White));
-            DrawStatColor(ref cursor, TintedValue(GameText.Mass, (int)mass, GameText.AShipsTotalMassDetermines, Color.White));
+            DrawStatColor(ref cursor, TintedValue("Upkeep Cost", upkeep, GameText.TT_UpkeepCost, Color.White));
+            DrawStatColor(ref cursor, TintedValue("Total Module Slots", size, GameText.TT_TotalModuleSlots, Color.White));
+            DrawStatColor(ref cursor, TintedValue(GameText.Mass, (int)mass, GameText.TT_Mass, Color.White));
         }
 
         void DrawCargoTargetsAndSensors(ref Vector2 cursor, float cargoSpace, float targets, float sensorRange)
@@ -763,7 +763,7 @@ namespace Ship_Game
                 HullBonus(ref cursor, bonus.RepairBonus, GameText.RepairRate);
                 HullBonus(ref cursor, bonus.CostBonus, GameText.CostReduction);
             }
-            DrawStatColor(ref cursor, TintedValue(GameText.ProductionCost, cost, GameText.IndicatesTheTotalProductionValue, Color.White));
+            DrawStatColor(ref cursor, TintedValue(GameText.ProductionCost, cost, GameText.TT_ProductionCost, Color.White));
         }
 
         static void DrawTitle(SpriteBatch batch, float x, string title)
