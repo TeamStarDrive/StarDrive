@@ -496,6 +496,9 @@ namespace Ship_Game.Ships
                     hasRepairBeam = true;
                 }
 
+                if (module.HasInternalRestrictions)
+                    InternalSlotCount += module.XSIZE * module.YSIZE;
+
                 HasRepairModule |= module.IsRepairModule;
                 Health += module.Health;
                 if (module.Is(ShipModuleType.Armor))
