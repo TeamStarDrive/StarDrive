@@ -310,7 +310,7 @@ namespace Ship_Game
         void DrawModuleStats(SpriteBatch batch, ShipModule mod, Vector2 modTitlePos, float starty)
         {
             DrawStat(ref modTitlePos, GameText.Cost, mod.ActualCost, GameText.IndicatesTheProductionCostOf);
-            DrawStat(ref modTitlePos, GameText.Mass2, mod.GetActualMass(EmpireManager.Player, 1), GameText.AShipsTotalMassDetermines);
+            DrawStat(ref modTitlePos, GameText.Mass2, mod.GetActualMass(EmpireManager.Player, 1), GameText.TT_Mass);
             DrawStat(ref modTitlePos, GameText.Health, mod.ActualMaxHealth, GameText.AModulesHealthRepresentsHow);
 
             float powerDraw = mod.Is(ShipModuleType.PowerPlant) ? mod.ActualPowerFlowMax : -mod.PowerDraw;
@@ -499,7 +499,7 @@ namespace Ship_Game
             float power = m.ModuleType != ShipModuleType.PowerPlant ? -m.PowerDraw : m.PowerFlowMax;
 
             DrawStat(ref cursor, GameText.Cost, cost, GameText.IndicatesTheProductionCostOf);
-            DrawStat(ref cursor, GameText.Mass2, m.GetActualMass(EmpireManager.Player, 1), GameText.AShipsTotalMassDetermines);
+            DrawStat(ref cursor, GameText.Mass2, m.GetActualMass(EmpireManager.Player, 1), GameText.TT_Mass);
             DrawStat(ref cursor, GameText.Health, m.ActualMaxHealth, GameText.AModulesHealthRepresentsHow);
             DrawStat(ref cursor, GameText.Power, power, GameText.IndicatesHowMuchPowerThis);
             DrawStat(ref cursor, GameText.Range, range, GameText.IndicatesTheMaximumRangeOf);
