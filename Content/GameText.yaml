@@ -7245,6 +7245,8 @@ FtlSpeed:
  ENG: "FTL Speed"
  RUS: "Скорость Варп-прыжка"
  SPA: "Vel. supraluminal"
+FtlTime:
+ ENG: "FTL Time"
 OrdersThisShipToExplore:
  Id: 2171
  ENG: "Orders this ship to explore the galaxy"

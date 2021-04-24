@@ -2990,6 +2990,8 @@ namespace Ship_Game
         IndicatesTheDistanceThisShip3 = 2169,
         /// <summary>FTL Speed</summary>
         FtlSpeed = 2170,
+        /// <summary>FTL Time</summary>
+        FtlTime = -8,
         /// <summary>Orders this ship to explore the galaxy</summary>
         OrdersThisShipToExplore = 2171,
         /// <summary>Manual Trade: Orders this Freighter to transport colonists from your</summary>
@@ -5001,22 +5003,22 @@ namespace Ship_Game
         /// <summary>This is this ship's self-repair rate per tick - it</summary>
         ThisIsThisShipsSelfrepair = 7091,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
-        EncCorsairs000_Msg0 = -8,
+        EncCorsairs000_Msg0 = -9,
         /// <summary>Agree to pay this upstanding gentleman.</summary>
-        EncCorsairs000_Msg0_R1_AgreeToPay = -9,
+        EncCorsairs000_Msg0_R1_AgreeToPay = -10,
         /// <summary>Refuse to pay this scoundrel!</summary>
-        EncCorsairs000_Msg0_R2_RefuseToPay = -10,
+        EncCorsairs000_Msg0_R2_RefuseToPay = -11,
         /// <summary>Wonderful news! We'll let you know when we're done drinking</summary>
-        EncCorsairs000_Msg1 = -11,
+        EncCorsairs000_Msg1 = -12,
         /// <summary>Now that is disappointing, isn't it? And here I was</summary>
-        EncCorsairs000_Msg2 = -12,
+        EncCorsairs000_Msg2 = -13,
         /// <summary>What, is this some sort of SING humor? You don't</summary>
-        EncCorsairs000_Msg3 = -13,
+        EncCorsairs000_Msg3 = -14,
         /// <summary>A Mysterious Signal</summary>
-        ExpEvent_BuiltRDA_Name = -14,
+        ExpEvent_BuiltRDA_Name = -15,
         /// <summary>You have built the Remnant Detection Array</summary>
-        ExpEvent_BuiltRDA_Outcome1_Title = -15,
+        ExpEvent_BuiltRDA_Outcome1_Title = -16,
         /// <summary>Your quest to discover the secrets of The Remnant continues.</summary>
-        ExpEvent_BuiltRDA_Outcome1_Descr = -16,
+        ExpEvent_BuiltRDA_Outcome1_Descr = -17,
     }
 }

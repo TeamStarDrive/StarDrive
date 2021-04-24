@@ -49,7 +49,9 @@ namespace Ship_Game.Tools.Localization
 
             db.ExportYaml(yamlFile);
             if (Directory.Exists(bbContent)) // if content exists, copy to our dev folder
-                File.Copy(yamlFile, $"{bbContent}\\GameText.yaml");
+            {
+                File.Copy(yamlFile, $"{bbContent}\\GameText.yaml", overwrite: true);
+            }
             db.ExportMissingTranslationsYaml("RUS", $"{gameContent}\\GameText.Missing.RUS.yaml");
             db.ExportMissingTranslationsYaml("SPA", $"{gameContent}\\GameText.Missing.SPA.yaml");
 

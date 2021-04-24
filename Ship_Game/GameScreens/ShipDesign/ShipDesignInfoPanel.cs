@@ -48,34 +48,67 @@ namespace Ship_Game.GameScreens.ShipDesign
             StatsList.SetRelPos(0, 0);
             TitleWidth = Width - ValueWidth;
 
-            Color ok = Color.LightGreen;
-            Color power = Color.LightSkyBlue;
+            Color good = Color.LightGreen;
+            Color energy = Color.LightSkyBlue;
+            Color protect = Color.Goldenrod;
+            Color engines = Color.DarkSeaGreen;
+            Color ordnance = Color.IndianRed;
 
-            Val(() => S.GetCost(), GT.ProductionCost, GT.TT_ProductionCost, Tint.GoodBad);
-            Val(() => S.GetMaintCost(), GT.UpkeepCost, GT.TT_UpkeepCost, Tint.GoodBad);
-            Val(() => S.SurfaceArea, GT.TotalModuleSlots, GT.TT_TotalModuleSlots, Tint.GoodBad);
-            Val(() => S.Mass, GT.Mass, GT.TT_Mass, Tint.GoodBad);
+            Val(() => S.GetCost(), GT.ProductionCost, GT.TT_ProductionCost, Tint.Pos);
+            Val(() => S.GetMaintCost(), GT.UpkeepCost, GT.TT_UpkeepCost, Tint.Pos);
+            Val(() => S.SurfaceArea, GT.TotalModuleSlots, GT.TT_TotalModuleSlots, Tint.Pos);
+            Val(() => S.Mass, GT.Mass, GT.TT_Mass, Tint.Pos);
             Line();
 
-            Val(() => Ds.PowerCapacity, GT.PowerCapacity, GT.TT_PowerCapacity, Tint.No, power, 
-                                        col: Col(Tint.CompareValue, () => Ds.PowerConsumed));
-            Val(() => Ds.PowerRecharge, GT.PowerRecharge, GT.TT_PowerRecharge, Tint.GoodBad, power);
-            Val(() => Ds.DrawAtWarp, GT.RechargeAtWarp, GT.TT_RechargeAtWarp, Tint.GoodBad, power, vis: Ds.IsWarpCapable);
+            Val(() => Ds.PowerCapacity, GT.PowerCapacity, GT.TT_PowerCapacity, Tint.No, energy, col: ColGreater(() => Ds.PowerConsumed));
+            Val(() => Ds.PowerRecharge, GT.PowerRecharge, GT.TT_PowerRecharge, Tint.Pos, energy);
+            Val(() => Ds.DrawAtWarp, GT.RechargeAtWarp, GT.TT_RechargeAtWarp, Tint.Pos, energy, vis: Ds.IsWarpCapable);
 
-            Val(() => -Ds.PowerConsumed, GT.ExcessWpnPwrDrain, GT.TT_ExcessWpnPwrDrain, titleColor:power, vis: Ds.HasEnergyWepsPositive);
-            Val(() => Ds.EnergyDuration, GT.WpnFirePowerTime, GT.TT_WpnFirePowerTime, Tint.BadLowerThan2, power, vis: Ds.HasEnergyWepsPositive);
-            Val("INF", GT.WpnFirePowerTime, GT.TT_WpnFirePowerTime, Tint.No, power, ok, vis: Ds.HasEnergyWepsNegative);
+            Val(() => -Ds.PowerConsumed, GT.ExcessWpnPwrDrain, GT.TT_ExcessWpnPwrDrain, Tint.No, energy, vis: Ds.HasEnergyWepsPositive);
+            Val(() => Ds.EnergyDuration, GT.WpnFirePowerTime, GT.TT_WpnFirePowerTime, Tint.Two, energy, vis: Ds.HasEnergyWepsPositive);
+            Val("INF", GT.WpnFirePowerTime, GT.TT_WpnFirePowerTime, Tint.No, energy, good, vis: Ds.HasEnergyWepsNegative);
 
-            Val(() => -Ds.PowerConsumedWithBeams, GT.BurstWpnPwrDrain, GT.TT_BurstWpnPwerDrain, Tint.No, power, vis: Ds.HasBeams);
-            Val(() => Ds.BurstEnergyDuration, GT.BurstWpnPwrTime, GT.TT_BurstWpnPwrTime, Tint.Bad, power, vis: Ds.HasBeamDurationNegative);
-            Val("INF", GT.BurstWpnPwrTime, GT.TT_BurstWpnPwrTime, Tint.No, power, ok, vis: Ds.HasBeamDurationPositive);
+            Val(() => -Ds.PowerConsumedWithBeams, GT.BurstWpnPwrDrain, GT.TT_BurstWpnPwerDrain, Tint.No, energy, vis: Ds.HasBeams);
+            Val(() => Ds.BurstEnergyDuration, GT.BurstWpnPwrTime, GT.TT_BurstWpnPwrTime, Tint.Bad, energy, vis: Ds.HasBeamDurationNegative);
+            Val("INF", GT.BurstWpnPwrTime, GT.TT_BurstWpnPwrTime, Tint.No, energy, good, vis: Ds.HasBeamDurationPositive);
+            
+            Val(() => Ds.WarpTime, GT.FtlTime, GT.IndicatesThisShipsMaximumSustained, Tint.Pos, energy, vis: () => Ds.WarpTime <= 900);
+            Val("INF", GT.FtlTime, GT.IndicatesThisShipsMaximumSustained, Tint.No, energy, good, vis: () => Ds.WarpTime > 900);
             Line();
+
+            Val(() => S.Health, GT.TotalHitpoints, GT.IndicatesTheTotalHitpointsOf, Tint.Pos, protect);
+            ValNZ(() => S.RepairRate, GT.RepairRate, GT.ThisIsThisShipsSelfrepair, Tint.Pos, protect);
+
+            Val(() => S.shield_max, GT.ShieldPower, GT.IndicatesTheTotalHitpointsOf2, Tint.Pos, protect, vis: Ds.HasRegularShields);
+            Val(() => S.shield_max, GT.ShieldPower, GT.IndicatesTheTotalHitpointsOf2, Tint.Pos, Color.Gold, vis: Ds.HasAmplifiedMains);
+            ValNZ(() => (int)S.Stats.ShieldAmplifyPerShield, GT.ShieldAmplify, GT.EachOfTheShipShields, Tint.Pos, protect);
+            ValNZ(() => S.BonusEMP_Protection, GT.EmpProtection, GT.TheTotalEmpProtectionOf, Tint.Pos, protect);
+            ValNZ(() => S.ECMValue, GT.Ecm3, GT.ThisIsTheTotalElectronic, Tint.Pos, protect);
+            Line();
+
+            Val(() => S.MaxFTLSpeed, GT.FtlSpeed, GT.IndicatesTheDistanceThisShip3, Tint.No, engines, vis: Ds.IsWarpCapable, col: ColGreater(20_000));
+            Val(() => S.MaxSTLSpeed, GT.SublightSpeed, GT.IndicatesTheDistanceThisShip, Tint.No, engines, col: ColGreater(50));
+            Line();
+
+            ValNZ(() => S.OrdAddedPerSecond, "Ordnance Created / s", GT.IndicatesTheDistanceThisShip3, Tint.No, ordnance);
+            Val(() => S.OrdinanceMax, GT.OrdnanceCapacity, GT.IndicatesTheMaximumAmountOf3, Tint.No, ordnance, vis: Ds.HasOrdnance);
+            Val(() => Ds.AmmoTime, "Ammo Time", GT.IndicatesTheMaximumTimeIn2, Tint.No, ordnance, vis: Ds.HasOrdFinite, col: ColGreater(30));
+            Val("INF", "Ammo Time", GT.IndicatesTheMaximumTimeIn2, Tint.No, ordnance, good, vis: Ds.HasOrdInfinite);
+            ValNZ(() => S.TroopCapacity, GT.TroopCapacity, GT.IndicatesTheTotalComplementOf, Tint.No, ordnance);
+            Line();
+
+            ValNZ(() => S.CargoSpaceMax, GT.CargoSpace, GT.IndicatesTheTotalCargoSpace);
+            ValNZ(() => S.TargetingAccuracy, GT.FireControl, GT.FireControlSystemsOrFcs);
+            ValNZ(() => S.TrackingPower, GT.FcsPower, GT.ThisIsTheTotalNumber);
+            ValNZ(() => S.SensorRange, GT.SensorRange3, GT.ThisIsTheMaximumSensor);
+
+            ValNZ(() => Ds.Strength, GT.ShipOffense, GT.EstimatedOffensiveStrengthOfThe);
+            ValNZ(() => Ds.RelativeStrength, GT.RelativeStrength, GT.ThisIsTheStrengthOf);
         }
 
         UI.UIKeyValueLabel Val(Func<float> dynamicValue, LocalizedText title, LocalizedText tooltip, 
                                  Tint tint = Tint.No, Color? titleColor = null,  Color? valueColor = null,
-                                 Func<float, Color> col = null, Func<bool> vis = null,
-                                 LocalizedText? valueText = null)
+                                 Func<float, Color> col = null, Func<bool> vis = null, LocalizedText? valueText = null)
         {
             var lbl = new UI.UIKeyValueLabel(title, valueText ?? "11.11k", titleColor, valueColor)
             {
@@ -84,7 +117,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Split = TitleWidth,
                 DynamicValue = dynamicValue,
                 Tooltip = tooltip,
-                Color = col ?? (tint != Tint.No ? Col(tint) : null),
+                Color = col ?? (tint != Tint.No ? Tinted(tint) : null),
                 Height = ItemHeight,
             };
 
@@ -105,6 +138,15 @@ namespace Ship_Game.GameScreens.ShipDesign
             return Val(null, title, tooltip, tint, titleColor, valueColor, col, vis, valueText);
         }
 
+        // Displays the dynamicValue if it's Greater than 0
+        UI.UIKeyValueLabel ValNZ(Func<float> dynamicValue, LocalizedText title, LocalizedText tooltip, 
+                                      Tint tint = Tint.No, Color? titleColor = null,  Color? valueColor = null,
+                                      Func<float, Color> col = null, LocalizedText? valueText = null)
+        {
+            Func<bool> vis = () => dynamicValue() > 0;
+            return Val(dynamicValue, title, tooltip, tint, titleColor, valueColor, col, vis, valueText);
+        }
+
         void Line()
         {
             StatsList.Add(new UI.UISpacer(Width, ItemHeight));
@@ -112,29 +154,37 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         enum Tint
         {
-            No,
-            Bad,
-            GoodBad,
-            BadLowerThan2,
-            BadPLessThan1,
-            CompareValue
+            No, // no tint
+            Bad, // this value is bad
+            Pos, // value must be positive
+            One, // must be greater than 1
+            Two, // must be greater than 2
         }
 
-        Func<float, Color> Col(Tint tint, Func<float> compareValue = null)
+        Func<float, Color> Tinted(Tint tint)
         {
-            return (float value) =>
+            return (v) =>
             {
                 switch (tint)
                 {
-                    case Tint.GoodBad:       return value > 0f ? Color.LightGreen : Color.LightPink;
-                    case Tint.Bad:           return Color.LightPink;
-                    case Tint.BadLowerThan2: return value > 2f ? Color.LightGreen : Color.LightPink;
-                    case Tint.BadPLessThan1: return value > 1f ? Color.LightGreen : Color.LightPink;
-                    case Tint.CompareValue:  return compareValue() < value ? Color.LightGreen : Color.LightPink;
-                    case Tint.No:
-                    default: return Color.White;
+                    default: case Tint.No:   return Color.White;
+                    case Tint.Bad: return Color.LightPink;
+                    case Tint.Pos: return v > 0f ? Color.LightGreen : Color.LightPink;
+                    case Tint.One: return v > 1f ? Color.LightGreen : Color.LightPink;
+                    case Tint.Two: return v > 2f ? Color.LightGreen : Color.LightPink;
                 }
             };
+        }
+
+        // value must be greater than compareValue()
+        Func<float, Color> ColGreater(Func<float> compareValue)
+        {
+            return (v) => v > compareValue() ? Color.LightGreen : Color.LightPink;
+        }
+
+        Func<float, Color> ColGreater(float compareValue)
+        {
+            return (v) => v > compareValue ? Color.LightGreen : Color.LightPink;
         }
 
         public override void Update(float fixedDeltaTime)
