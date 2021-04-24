@@ -41,8 +41,7 @@ namespace Ship_Game
                 DrawActiveModule(batch);
             }
 
-            DrawTargetReference();
-
+            DrawTargetReference(WeaponAccuracyList);
             
             DrawUi(batch, elapsed);
             ArcsButton.DrawWithShadowCaps(batch);
@@ -55,7 +54,7 @@ namespace Ship_Game
             ScreenManager.EndFrameRendering();
         }
 
-        void DrawTargetReference()
+        void DrawTargetReference(Map<ShipModule, float> weaponAccuracies)
         {
             if (Camera.Zoom > 0.4f) return;
             float x = GlobalStats.XRES / 2f - CameraPosition.X * Camera.Zoom;
@@ -67,17 +66,16 @@ namespace Ship_Game
 
             if (shipSO.WorldBoundingSphere.Radius < Ship.TargetErrorFocalPoint * 0.3f)
             {
-                DrawRangeCircle(x, y, 0.25f);
+                DrawRangeCircle(x, y, 0.25f, weaponAccuracies);
             }
 
             float[] rangeCircles = new float[5] { 0.5f, 1, 2, 4, 6 };
             foreach(float range in rangeCircles)
-            {
-                if (!DrawRangeCircle(x, y, range)) break;
-            }
+                if (!DrawRangeCircle(x, y, range, weaponAccuracies))
+                    break;
         }
 
-        bool DrawRangeCircle(float x, float y, float multiplier)
+        bool DrawRangeCircle(float x, float y, float multiplier, Map<ShipModule, float> weaponAccuracies)
         {
             float focalPoint = Ship.TargetErrorFocalPoint * multiplier;
             float radius     = (focalPoint) * Camera.Zoom;
@@ -88,9 +86,9 @@ namespace Ship_Game
             float thickness  = 0.5f + (multiplier / 7);
 
             Weapon weapon = ActiveModule?.InstalledWeapon ?? HighlightedModule?.InstalledWeapon;
-            if (weapon == null && WeaponAccuracyList.Count > 0)
+            if (weapon == null && weaponAccuracies.Count > 0)
             {
-                weapon = WeaponAccuracyList.FindMax((k, v) => v).Key.InstalledWeapon;
+                weapon = weaponAccuracies.FindMax((k, v) => v).Key.InstalledWeapon;
             }
 
             float weaponRange = weapon?.GetActualRange() ?? float.MaxValue;
@@ -518,7 +516,7 @@ namespace Ship_Game
         {
             Ship s = DesignedShip;
             var ds = new ShipDesignStats(s);
-            WeaponAccuracyList = ds.WeaponAccuracyList;
+            WeaponAccuracyList = ds.WeaponAccuracies;
 
             // TODO: Everything below this is not refactored
             var cursor = new Vector2(StatsSub.X + 10, ShipStats.Y + 18);
