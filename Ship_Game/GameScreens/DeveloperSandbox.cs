@@ -126,9 +126,7 @@ namespace Ship_Game
 
             foreach (IEmpireData data in races)
             {
-                Empire e = sandbox.CreateEmpire(data);
-                if (data == player) e.isPlayer = true;
-
+                Empire e = sandbox.CreateEmpire(data, isPlayer: (data == player));
                 e.data.CurrentAutoScout     = e.data.ScoutShip;
                 e.data.CurrentAutoColony    = e.data.ColonyShip;
                 e.data.CurrentAutoFreighter = e.data.FreighterShip;
@@ -144,7 +142,7 @@ namespace Ship_Game
 
             foreach (IEmpireData data in ResourceManager.MinorRaces) // init minor races
             {
-                sandbox.CreateEmpire(data);
+                sandbox.CreateEmpire(data, isPlayer: false);
             }
 
             Empire.InitializeRelationships(EmpireManager.Empires, UniverseData.GameDifficulty.Normal);

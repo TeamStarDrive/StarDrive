@@ -90,7 +90,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             if (percent >= 75)
             {
-                var ds = new ShipDesignStats(S);
+                var ds = S.DesignStats;
                 Issues.CheckIssueNoCommand(ds.NumCmdModules);
                 Issues.CheckIssueBackupCommand(ds.NumCmdModules, S.SurfaceArea);
                 Issues.CheckIssueUnpoweredModules(ds.UnpoweredModules);

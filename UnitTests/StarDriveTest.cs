@@ -122,8 +122,7 @@ namespace UnitTests
             RequireGameInstance(nameof(CreateUniverseAndPlayerEmpire));
 
             var data = new UniverseData();
-            Player = player = data.CreateEmpire(ResourceManager.MajorRaces[0]);
-            Player.isPlayer = true;
+            Player = player = data.CreateEmpire(ResourceManager.MajorRaces[0], isPlayer:true);
             Empire.Universe = Universe = new UniverseScreen(data, player);
             Universe.player = player;
             Enemy = EmpireManager.CreateRebelsFromEmpireData(ResourceManager.MajorRaces[0], Player);

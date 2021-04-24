@@ -9,8 +9,9 @@ using System.Threading.Tasks;
 namespace Ship_Game.GameScreens.ShipDesign
 {
     // Specific metrics used in ShipDesignScreen analysis
-    struct ShipDesignStats
+    public class ShipDesignStats
     {
+        public Ship S;
         public Map<ShipModule, float> WeaponAccuracies;
         public int NumSlots;
         public int NumCmdModules;
@@ -51,29 +52,37 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         public ShipDesignStats(Ship s)
         {
+            S = s;
+            Update();
+        }
+
+        public void Update()
+        {
             // select only powered modules and powered weapons
-            ShipModule[] modules = s.Modules.Filter(m => m.PowerDraw <= 0 || m.Powered);
+            ShipModule[] modules = S.Modules.Filter(m => m.PowerDraw <= 0 || m.Powered);
             Weapon[] weapons = modules.FilterSelect(m => m.InstalledWeapon != null, m => m.InstalledWeapon);
 
             WeaponAccuracies = new Map<ShipModule, float>();
             foreach (var w in weapons)
-                WeaponAccuracies[w.Module] = w.Tag_Guided ? 0f : w.BaseTargetError(s.TargetingAccuracy).LowerBound(1) / 16;
+                WeaponAccuracies[w.Module] = w.Tag_Guided ? 0f : w.BaseTargetError(S.TargetingAccuracy).LowerBound(1) / 16;
 
-            int nSlots = s.Modules.Sum(m => m.Area);
+            int nSlots = S.Modules.Sum(m => m.Area);
             NumSlots       = nSlots;
-            NumCmdModules  = s.Modules.Count(m => m.IsCommandModule);
-            NumWeaponSlots = s.Weapons.Sum(w => w.Module.Area);
-            NumHangarSlots = s.Modules.Sum(m => (m.IsTroopBay || m.IsSupplyBay || m.MaximumHangarShipSize > 0) ? m.Area : 0);
+            NumCmdModules  = S.Modules.Count(m => m.IsCommandModule);
+            NumWeaponSlots = S.Weapons.Sum(w => w.Module.Area);
+            NumHangarSlots = S.Modules.Sum(m => (m.IsTroopBay || m.IsSupplyBay || m.MaximumHangarShipSize > 0) ? m.Area : 0);
             NumWeapons    = weapons.Count(w => !w.TruePD);
             NumOrdWeapons = weapons.Count(w => !w.TruePD && w.OrdinanceRequiredToFire > 0);
             NumTroopBays  = modules.Count(m => m.IsTroopBay);
 
             WeaponPowerNeeded = weapons.Sum(w => w.PowerFireUsagePerSecond);
             BurstOrdnance = weapons.Sum(w => w.BurstOrdnanceUsagePerSecond);
-            AvgOrdnanceUsed = modules.Sum(m => m.BayOrdnanceUsagePerSecond)
-                            + weapons.Sum(w => w.AverageOrdnanceUsagePerSecond);
 
-            AmmoTime = s.OrdinanceMax / (AvgOrdnanceUsed - s.OrdAddedPerSecond);
+            float bayOrdPerSec = modules.Sum(m => m.BayOrdnanceUsagePerSecond);
+            float avgOrdPerSec = weapons.Sum(w => w.AverageOrdnanceUsagePerSecond);
+            AvgOrdnanceUsed = bayOrdPerSec + avgOrdPerSec;
+
+            AmmoTime = S.OrdinanceMax / (AvgOrdnanceUsed - S.OrdAddedPerSecond);
             BeamPeakPowerNeeded = weapons.Sum(w => w.isBeam ? w.BeamPowerCostPerSecond : 0);
             BeamLongestDuration = weapons.Max(w => w.isBeam ? w.BeamDuration : 0);
             WeaponPowerNeededNoBeams = weapons.Sum(w => !w.isBeam ? w.PowerFireUsagePerSecond : 0);
@@ -88,15 +97,15 @@ namespace Ship_Game.GameScreens.ShipDesign
             CanTargetCorvettes = weapons.Any(w => !w.Excludes_Corvettes);
             CanTargetCapitals  = weapons.Any(w => !w.Excludes_Capitals);
             HasEnergyWeapons   = weapons.Any(w => w.PowerRequiredToFire > 0 || w.BeamPowerCostPerSecond > 0);
-            UnpoweredModules   = s.Modules.Any(m => m.PowerDraw > 0 && !m.Powered && m.ModuleType != ShipModuleType.PowerConduit);
+            UnpoweredModules   = S.Modules.Any(m => m.PowerDraw > 0 && !m.Powered && m.ModuleType != ShipModuleType.PowerConduit);
 
-            PowerCapacity = s.PowerStoreMax;
-            PowerRecharge = s.PowerFlowMax - s.NetPower.NetSubLightPowerDraw;
+            PowerCapacity = S.PowerStoreMax;
+            PowerRecharge = S.PowerFlowMax - S.NetPower.NetSubLightPowerDraw;
             PowerConsumed = WeaponPowerNeeded - PowerRecharge;
             EnergyDuration = HasEnergyWeapons && PowerConsumed > 0 ? PowerCapacity / PowerConsumed : 0f;
             PowerConsumedWithBeams = BeamPeakPowerNeeded + WeaponPowerNeededNoBeams - PowerRecharge;
             BurstEnergyDuration = PowerCapacity / PowerConsumedWithBeams;
-            DrawAtWarp = s.PowerFlowMax - s.NetPower.NetWarpPowerDraw;
+            DrawAtWarp = S.PowerFlowMax - S.NetPower.NetWarpPowerDraw;
             WarpTime = -PowerCapacity / DrawAtWarp;
         }
     }
