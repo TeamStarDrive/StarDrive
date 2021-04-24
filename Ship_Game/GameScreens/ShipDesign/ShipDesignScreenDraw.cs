@@ -746,22 +746,22 @@ namespace Ship_Game
                     cursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
                 }
 
-                void HullBonus(ref Vector2 bCursor, float stat, string text)
+                void HullBonus(ref Vector2 bCursor, float stat, in LocalizedText text)
                 {
                     if (stat > 0 || stat < 0)
                         return;
-                    DrawString(bCursor, Color.Orange, $"{stat * 100f}%  {text}", Fonts.Verdana12);
+                    DrawString(bCursor, Color.Orange, $"{stat * 100f}%  {text.Text}", Fonts.Verdana12);
                     bCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
                 }
-                HullBonus(ref cursor, bonus.ArmoredBonus, Localizer.HullArmorBonus);
-                HullBonus(ref cursor, bonus.ShieldBonus, Localizer.HullShieldBonus);
-                HullBonus(ref cursor, bonus.SensorBonus, Localizer.HullSensorBonus);
-                HullBonus(ref cursor, bonus.SpeedBonus, Localizer.HullSpeedBonus);
-                HullBonus(ref cursor, bonus.CargoBonus, Localizer.HullCargoBonus);
-                HullBonus(ref cursor, bonus.DamageBonus, Localizer.HullDamageBonus);
-                HullBonus(ref cursor, bonus.FireRateBonus, Localizer.HullFireRateBonus);
-                HullBonus(ref cursor, bonus.RepairBonus, Localizer.HullRepairBonus);
-                HullBonus(ref cursor, bonus.CostBonus, Localizer.HullCostBonus);
+                HullBonus(ref cursor, bonus.ArmoredBonus, GameText.ArmorProtection);
+                HullBonus(ref cursor, bonus.ShieldBonus, "Shield Strength");
+                HullBonus(ref cursor, bonus.SensorBonus, GameText.ArmorProtection);
+                HullBonus(ref cursor, bonus.SpeedBonus, GameText.MaxSpeed);
+                HullBonus(ref cursor, bonus.CargoBonus, GameText.CargoSpace2);
+                HullBonus(ref cursor, bonus.DamageBonus, "Weapon Damage");
+                HullBonus(ref cursor, bonus.FireRateBonus, GameText.FireRate);
+                HullBonus(ref cursor, bonus.RepairBonus, GameText.RepairRate);
+                HullBonus(ref cursor, bonus.CostBonus, GameText.CostReduction);
             }
             DrawStatColor(ref cursor, TintedValue(GameText.ProductionCost, cost, GameText.IndicatesTheTotalProductionValue, Color.White));
         }
