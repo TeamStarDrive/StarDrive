@@ -56,6 +56,7 @@ namespace Ship_Game.Ships
                 UpdateGridSlot(SparseModuleGrid, ModuleSlotList[i], becameActive: true);
             }
 
+            InternalSlotCount = 0;
             InitExternalSlots();
 
             var shields    = new Array<ShipModule>();
@@ -69,6 +70,9 @@ namespace Ship_Game.Ships
 
                 if (module.AmplifyShields > 0f)
                     amplifiers.Add(module);
+
+                if (module.HasInternalRestrictions)
+                    InternalSlotCount += module.XSIZE * module.YSIZE;
             }
 
             Shields    = shields.ToArray();
