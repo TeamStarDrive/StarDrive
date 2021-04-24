@@ -277,7 +277,7 @@ namespace Ship_Game
         }
 
         public UIButton Button(ButtonStyle style, Action<UIButton> click, string clickSfx = null)
-            => Button(new UIButton(style), click, clickSfx);
+            => Button(new UIButton(style, LocalizedText.None), click, clickSfx);
 
 
         public UIButton Button(ButtonStyle style, Vector2 pos, in LocalizedText text, Action<UIButton> click, string clickSfx = null)
@@ -286,11 +286,6 @@ namespace Ship_Game
 
         public UIButton Button(ButtonStyle style, float x, float y, in LocalizedText text, Action<UIButton> click, string clickSfx = null)
             => Button(style, new Vector2(x, y), text, click, clickSfx);
-
-
-        public UIButton Button(ButtonStyle style, in Rectangle rect, Action<UIButton> click, string clickSfx = null)
-            => Button(new UIButton(style, rect), click, clickSfx);
-
 
         public UIButton Button(float x, float y, in LocalizedText text, Action<UIButton> click)
             => Button(ButtonStyle.Default, new Vector2(x, y), text, click);

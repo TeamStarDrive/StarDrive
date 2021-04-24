@@ -117,7 +117,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             {
                 DisengageType = DisengageTypes.None;
                 DisengageDirection = Vector2.Zero;
-                ErraticMovement(timeStep);
+                //ErraticMovement(timeStep); // TODO
                 MoveState = ExecuteAttack(timeStep);
             }
 
@@ -286,7 +286,6 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// </summary>
         public void ErraticMovement(FixedSimTime timeStep)
         {
-            return;
             ErraticTimer -= timeStep.FixedTime;
             if (MoveState != CombatMoveState.Approach || AI.IsFiringAtMainTarget || Owner.AI.HasPriorityOrder
                 || WeAreRetrograding || Owner.CurrentVelocity < 100f)
