@@ -22,6 +22,11 @@ namespace Ship_Game.UI
         LocalizedText RawKey;
         string SeparatorString = ": ";
 
+        Func<float> GetValue;
+        Func<float, Color> GetColor;
+        float CurrentValue;
+        bool IsPercent = false;
+
         public UIKeyValueLabel(in LocalizedText keyText, in LocalizedText valueText,
                                Color? valueColor = null, float split = 0f)
             : base(new UILabel(keyText.Concat(": ")),
@@ -30,6 +35,7 @@ namespace Ship_Game.UI
             Key = (UILabel)First;
             Value = (UILabel)Second;
             Split = split;
+            RawKey = keyText;
         }
 
         public LocalizedText KeyText
@@ -62,6 +68,51 @@ namespace Ship_Game.UI
                 SeparatorString = value;
                 KeyText = RawKey;
             }
+        }
+
+        public Func<float> DynamicPercent
+        {
+            set
+            {
+                GetValue = value;
+                CurrentValue = float.NaN;
+                IsPercent = true;
+            }
+        }
+
+        public Func<float> DynamicValue
+        {
+            set
+            {
+                GetValue = value;
+                CurrentValue = float.NaN;
+                IsPercent = false;
+            }
+        }
+
+        public Func<float, Color> DynamicColor
+        {
+            set
+            {
+                GetColor = value;
+                CurrentValue = float.NaN;
+            }
+        }
+
+        public override void Update(float fixedDeltaTime)
+        {
+            if (GetValue != null)
+            {
+                float value = GetValue();
+                if (CurrentValue != value)
+                {
+                    CurrentValue = value;
+                    if (GetColor != null)
+                        Value.Color = GetColor(value);
+                    ValueText = IsPercent ? CurrentValue.ToString("P0") : CurrentValue.GetNumberString();
+                }
+            }
+            base.Update(fixedDeltaTime);
         }
     }
 }

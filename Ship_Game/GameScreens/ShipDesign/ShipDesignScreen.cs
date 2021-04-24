@@ -538,7 +538,7 @@ namespace Ship_Game
             StatsSub.AddTab(Localizer.Token(GameText.ShipStats));
             ArcsButton = new GenericButton(new Vector2(HullSelectList.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
 
-            var infoRect = RectF.FromPoints(HullSelectList.X + 50, ScreenWidth - 20,
+            var infoRect = RectF.FromPoints((HullSelectList.X + 20) - 200, (ScreenWidth - 20) - 200,
                                             HullSelectList.Bottom, BlackBar.Y);
             InfoPanel = Add(new ShipDesignInfoPanel(this, infoRect));
 
