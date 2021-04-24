@@ -86,7 +86,7 @@ namespace Ship_Game
                 else
                     DrawInfoData(batch, DefenseRect, Tile.Building.StrengthMax.String(1), color, 2, 11);
 
-                slant.text = Localizer.Token(Tile.Building.NameTranslationIndex);
+                slant.text = Tile.Building.TranslatedName.Text;
                 DrawInfoData(batch, SoftAttackRect, Tile.Building.SoftAttack.ToString(), color, 5, 8);
                 DrawInfoData(batch, HardAttackRect, Tile.Building.HardAttack.ToString(), color, 5, 8);
                 ItemDisplayRect = new Rectangle(LeftRect.X + 85 + 16, LeftRect.Y + 5 + 16, 64, 64);
@@ -220,7 +220,7 @@ namespace Ship_Game
             }
             else if (pgs.BuildingOnTile)
             {
-                DescriptionBox.AddLines(Localizer.Token(pgs.Building.DescriptionIndex), Fonts.Arial12, Color.White);
+                DescriptionBox.AddLines(pgs.Building.DescriptionText.Text, Fonts.Arial12, Color.White);
             }
         }
     }

@@ -29,23 +29,26 @@ namespace Ship_Game
 
 		private bool Hover;
 
-		public GenericButton(Rectangle R, string Text, Graphics.Font Font)
+		public GenericButton(Rectangle r, string text, Graphics.Font font)
 		{
-			this.R = R;
-			this.Text = Text;
-			this.Font = Font;
-			TextPos = new Vector2(R.X + R.Width / 2 - Font.MeasureString(Text).X / 2f, R.Y + R.Height / 2 - Font.LineSpacing / 2);
+			this.R = r;
+			this.Text = text;
+			this.Font = font;
+			TextPos = new Vector2(r.X + r.Width / 2 - font.MeasureString(text).X / 2f, r.Y + r.Height / 2 - font.LineSpacing / 2);
 		}
 
-		public GenericButton(Vector2 v, string Text, Graphics.Font CapitalFont, Graphics.Font SmallFont)
+		public GenericButton(Vector2 v, string text, Graphics.Font capitalFont, Graphics.Font smallFont)
 		{
-			Cap = CapitalFont;
-			Small = SmallFont;
-			capT = Text[0].ToString();
-			smallT = Text.Remove(0, 1);
-			R = new Rectangle((int)v.X - (int)CapitalFont.MeasureString(capT).X - (int)SmallFont.MeasureString(Text).X, (int)v.Y, (int)CapitalFont.MeasureString(capT).X + (int)SmallFont.MeasureString(Text).X, CapitalFont.LineSpacing);
+			Cap = capitalFont;
+			Small = smallFont;
+			capT = text[0].ToString();
+			smallT = text.Remove(0, 1);
+
+			Vector2 capTsize = capitalFont.MeasureString(capT);
+			Vector2 textSize = smallFont.MeasureString(text);
+			R = new Rectangle((int)v.X - (int)capTsize.X - (int)textSize.X, (int)v.Y, (int)capTsize.X + (int)textSize.X, capitalFont.LineSpacing);
 			CapitalPos = new Vector2(R.X, R.Y);
-			TextPos = new Vector2(CapitalPos.X + CapitalFont.MeasureString(capT).X + 1f, CapitalPos.Y + CapitalFont.LineSpacing - SmallFont.LineSpacing - 3f);
+			TextPos = new Vector2(CapitalPos.X + capTsize.X + 1f, CapitalPos.Y + capitalFont.LineSpacing - smallFont.LineSpacing - 3f);
 		}
 
 		public void Draw(ScreenManager ScreenManager)

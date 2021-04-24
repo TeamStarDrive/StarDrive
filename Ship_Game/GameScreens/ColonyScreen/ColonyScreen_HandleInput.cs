@@ -130,9 +130,8 @@ namespace Ship_Game
                             if (pgs.Building.Scrappable)
                             {
                                 ToScrap = pgs.Building;
-                                string message = string.Concat("Do you wish to scrap ",
-                                    Localizer.Token(pgs.Building.NameTranslationIndex),
-                                    "? Half of the building's construction cost will be recovered to your storage.");
+                                string message = $"Do you wish to scrap {pgs.Building.TranslatedName.Text}? "
+                                               + "Half of the building's construction cost will be recovered to your storage.";
                                 var messageBox = new MessageBoxScreen(Empire.Universe, message);
                                 messageBox.Accepted = ScrapAccepted;
                                 ScreenManager.AddScreen(messageBox);

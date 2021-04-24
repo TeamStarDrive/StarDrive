@@ -23,7 +23,7 @@ namespace Ship_Game
                 if (button.r.HitTest(input.CursorPosition))
                 {
                     var art = (Artifact) button.ReferenceObject;
-                    string text = $"{Localizer.Token(art.NameIndex)}\n\n{Localizer.Token(art.DescriptionIndex)}";
+                    string text = $"{art.NameText.Text}\n\n{Localizer.Token(art.DescriptionIndex)}";
                     ToolTip.CreateTooltip(text);
                 }
             }

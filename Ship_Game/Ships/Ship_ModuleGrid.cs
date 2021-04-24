@@ -20,23 +20,19 @@ namespace Ship_Game.Ships
         /// <summary>Ship slot (1x1 modules) height </summary>
         public int GridHeight { get; private set; }
         Vector2 GridOrigin; // local origin, eg -32, -48
-
+        
         static bool EnableDebugGridExport = false;
 
+        public ShipModule[] Modules => ModuleSlotList;
         public bool HasModules => ModuleSlotList != null && ModuleSlotList.Length != 0;
-        public bool ModuleSlotsDestroyed => ModuleSlotList.Length == 0;
 
-        void CreateModuleGrid()
+        void CreateModuleGrid(ModuleSlotData[] templateSlots)
         {
-            float minX  = 0f, maxX = 0f, minY = 0f, maxY = 0f;
-            SurfaceArea = 0;
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
+            float minX = 0f, maxX = 0f, minY = 0f, maxY = 0f;
+            for (int i = 0; i < templateSlots.Length; ++i)
             {
-                ShipModule module = ModuleSlotList[i];
-                Vector2 topLeft = module.Position;
-                SurfaceArea += module.Area;
-                var botRight = new Vector2(topLeft.X + module.XSIZE * 16.0f,
-                                           topLeft.Y + module.YSIZE * 16.0f);
+                var topLeft = templateSlots[i].Position - new Vector2(ShipModule.ModuleSlotOffset);
+                var botRight = new Vector2(topLeft.X + 16.0f, topLeft.Y + 16.0f);
                 if (topLeft.X  < minX) minX = topLeft.X;
                 if (topLeft.Y  < minY) minY = topLeft.Y;
                 if (botRight.X > maxX) maxX = botRight.X;
@@ -45,6 +41,7 @@ namespace Ship_Game.Ships
 
             float spanX = maxX - minX;
             float spanY = maxY - minY;
+            SurfaceArea = templateSlots.Length;
             GridOrigin = new Vector2(minX, minY);
             GridWidth  = (int)spanX / 16;
             GridHeight = (int)spanY / 16;
@@ -59,9 +56,27 @@ namespace Ship_Game.Ships
                 UpdateGridSlot(SparseModuleGrid, ModuleSlotList[i], becameActive: true);
             }
 
-            var cachedModules = new ModuleCache(ModuleSlotList);
-            Shields    = cachedModules.Shields;
-            Amplifiers = cachedModules.Amplifiers;
+            InternalSlotCount = 0;
+            InitExternalSlots();
+
+            var shields    = new Array<ShipModule>();
+            var amplifiers = new Array<ShipModule>();
+
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+            {
+                ShipModule module = ModuleSlotList[i];
+                if (module.shield_power_max > 0f)
+                    shields.Add(module);
+
+                if (module.AmplifyShields > 0f)
+                    amplifiers.Add(module);
+
+                if (module.HasInternalRestrictions)
+                    InternalSlotCount += module.XSIZE * module.YSIZE;
+            }
+
+            Shields    = shields.ToArray();
+            Amplifiers = amplifiers.ToArray();
 
             if (EnableDebugGridExport)
             {
@@ -79,7 +94,7 @@ namespace Ship_Game.Ships
         {
             // gather a sparse 2D grid of internal slots
             var internalSlots = new bool[GridWidth * GridHeight];
-            var offset = new Vector2(264f, 264f); // @note Defined in ShipModule.Initialize
+            var offset = new Vector2(ShipModule.ModuleSlotOffset);
             for (int i = 0; i < templateSlots.Length; ++i)
             {
                 ModuleSlotData slot = templateSlots[i];

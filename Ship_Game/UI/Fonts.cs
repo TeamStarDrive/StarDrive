@@ -46,6 +46,11 @@ namespace Ship_Game
             return new Font(content, name);
         }
 
+        public static Font LoadFont(GameContentManager content, string name, float monoSpaceSpacing)
+        {
+            return new Font(content, name, monoSpaceSpacing);
+        }
+
         public static void LoadFonts(GameContentManager c, Language language)
         {
             bool russian = language == Language.Russian;
@@ -67,10 +72,9 @@ namespace Ship_Game
             Pirulen20     = LoadFont(c, "Pirulen20");
             Consolas18    = LoadFont(c, "consolas18");
             Tahoma10      = LoadFont(c, "Tahoma10");
-            Tahoma11      = russian ? Tahoma10 : LoadFont(c, "Tahoma11");
-            TahomaBold9   = russian ? Tahoma10 : LoadFont(c, "TahomaBold9");
-            Visitor10     = russian ? Arial10  : LoadFont(c, "Visitor10");
-            Visitor10.Spacing = 1f;
+            Tahoma11    = russian ? Tahoma10 : LoadFont(c, "Tahoma11");
+            TahomaBold9 = russian ? Tahoma10 : LoadFont(c, "TahomaBold9");
+            Visitor10   = russian ? LoadFont(c, "Arial10", 1f) : LoadFont(c, "Visitor10", 1f);
 
             //Visitor12     = LoadFont(c, "Visitor12");
             Verdana14Bold = LoadFont(c, "Verdana14Bold");
