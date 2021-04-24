@@ -163,9 +163,6 @@ namespace Ship_Game.Tools.Localization
                     comment += " ";
             }
 
-            if (token.Id == 1987)
-                Log.Write("ugh");
-
             if (token.Id > 0 && Usages.Contains(token.Id))
                 token.NameId = nameIdPrefix + "_" + Usages.Get(token.Id).NameId;
             else if (PreferCsharpNameIds && token.Id > 0 && GetExistingId(token.Id, null, out TextToken existing) && existing.NameId.NotEmpty())
