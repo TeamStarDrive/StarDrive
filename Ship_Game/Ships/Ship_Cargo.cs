@@ -22,7 +22,7 @@ namespace Ship_Game.Ships
         CargoContainer Cargo;
 
         public bool OrdnanceChanged { get; private set; }
-        public float CargoSpaceMax { get; private set; }
+        public float CargoSpaceMax;
         public float CargoSpaceUsed    => Cargo?.TotalCargo ?? 0;
         public float CargoSpaceFree    => CargoSpaceMax - CargoSpaceUsed;
         public float PassengerModifier => loyalty.data.Traits.PassengerModifier;
@@ -30,12 +30,12 @@ namespace Ship_Game.Ships
 
         public float ChangeOrdnance(float amount)
         {
-            if (amount.AlmostZero() || amount.Greater(0) && OrdnancePercent.AlmostEqual(1))
-                return amount; // easy shortcut with no movement calcs by OrdnanceChanged set to True
+            if (amount.AlmostZero() || (amount > 0f && OrdnancePercent.AlmostEqual(1)))
+                return amount; // no ordnance was used to refill
 
             float ordnanceLeft = (amount - (OrdinanceMax - Ordinance)).Clamped(0, amount);
-            Ordinance          = (Ordinance + amount).Clamped(0, OrdinanceMax);
-            OrdnanceChanged    = true;
+            Ordinance = (Ordinance + amount).Clamped(0, OrdinanceMax);
+            OrdnanceChanged = true;
             return ordnanceLeft;
         }
 

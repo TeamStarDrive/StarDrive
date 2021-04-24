@@ -970,11 +970,14 @@ namespace Ship_Game
 
         public static void LoadEncounters()
         {
-            Encounters = LoadEntities<Encounter>("Encounter Dialogs", "LoadEncounters");
-
-            foreach (Encounter encounter in Encounters)
+            Encounters.Clear();
+            foreach (var pair in LoadEntitiesWithInfo<Encounter>("Encounter Dialogs", "LoadEncounters"))
             {
-                foreach (Message message in encounter.MessageList)
+                Encounter e = pair.Entity;
+                e.FileName = pair.Info.NameNoExt();
+                Encounters.Add(e);
+
+                foreach (Message message in e.MessageList)
                     foreach (Response response in message.ResponseOptions)
                         if (TechTree.TryGetValue(response.UnlockTech ?? "", out Technology tech))
                             tech.Unlockable = true;
@@ -983,9 +986,11 @@ namespace Ship_Game
 
         static void LoadExpEvents() // Refactored by RedFox
         {
+            EventsDict.Clear();
             foreach (var pair in LoadEntitiesWithInfo<ExplorationEvent>("Exploration Events", "LoadExpEvents"))
             {
-                EventsDict[pair.Info.NameNoExt()] = pair.Entity;
+                pair.Entity.FileName = pair.Info.NameNoExt();
+                EventsDict[pair.Entity.FileName] = pair.Entity;
                 foreach (var outcome in pair.Entity.PotentialOutcomes)
                 {
                     if (TechTree.TryGetValue(outcome.UnlockTech ?? "", out Technology tech))
@@ -1127,42 +1132,10 @@ namespace Ship_Game
         // Can be called after game init, to reset `Localizer` with new language tokens
         public static void LoadLanguage(Language language)
         {
-            Localizer.Reset();
-            LocalizedText.ClearCache();
-
             var gameText = new FileInfo(ContentDirectory + "GameText.yaml");
-            if (gameText.Exists)
-            {
-                Localizer.AddFromYaml(gameText, language);
-            }
-            else
-            {
-                foreach (var loc in LoadVanillaEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
-                    Localizer.AddTokens(loc.TokenList, language);
-                if (language != Language.English)
-                    foreach (var loc in LoadVanillaEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
-                        Localizer.AddTokens(loc.TokenList, language);
-            }
-
-            // Now replace any vanilla tokens with mod tokens
-            if (GlobalStats.HasMod)
-            {
-                var modText = new FileInfo(ModContentDirectory + "GameText.yaml");
-                if (modText.Exists)
-                {
-                    Localizer.AddFromYaml(modText, language);
-                }
-                else
-                {
-                    foreach (var loc in LoadModEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
-                        Localizer.AddTokens(loc.TokenList, language);
-                    if (language != Language.English)
-                        foreach (var loc in LoadModEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
-                            Localizer.AddTokens(loc.TokenList, language);
-                }
-            }
+            var modText = new FileInfo(ModContentDirectory + "GameText.yaml");
+            Localizer.LoadFromYaml(gameText, modText, language);
         }
-
 
         public static TextureAtlas SmallStars, MediumStars, LargeStars;
 
@@ -1343,7 +1316,7 @@ namespace Ship_Game
 
         public static Ship AddShipTemplate(ShipData shipData, bool fromSave, bool playerDesign = false, bool readOnly = false)
         {
-            Ship shipTemplate = Ship.CreateShipFromShipData(EmpireManager.Void, shipData, fromSave: fromSave, isTemplate: true);
+            Ship shipTemplate = Ship.CreateNewShipTemplate(shipData, fromSave);
             if (shipTemplate == null) // happens if module creation failed
                 return null;
 

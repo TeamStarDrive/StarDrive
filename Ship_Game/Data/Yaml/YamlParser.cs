@@ -346,7 +346,7 @@ namespace Ship_Game.Data.Yaml
             char[] chars = view.Chars;
             while (current < eos)
             {
-                switch (chars[current])
+                switch (chars[current]) // is delimiter?
                 {
                     case ':': case '#': case '\'': case '"': case ',':
                     case '{': case '}':  case '[': case ']':

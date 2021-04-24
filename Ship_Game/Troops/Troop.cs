@@ -86,7 +86,7 @@ namespace Ship_Game
         {
             empire = Owner ?? empire;
             if (empire == null || !empire.data.IsRebelFaction) return Name;
-            return Localizer.Token(empire.data.TroopNameIndex);
+            return empire.data.TroopName.Text;
         }
 
         public Troop Clone()

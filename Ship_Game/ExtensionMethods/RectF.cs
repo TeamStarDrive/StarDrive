@@ -44,6 +44,22 @@ namespace Ship_Game
             H = r.Height;
         }
 
+        /// <summary>
+        /// This creates a rectangle from points X1Y1 X2Y2, instead of TopLeftXY+WidthHeight
+        /// o------o- y1
+        /// |      |
+        /// |      |
+        /// o------o- y2
+        /// '      '
+        /// x1     x2
+        /// </summary>
+        public static RectF FromPoints(float x1, float x2, float y1, float y2)
+        {
+            float w = x2 - x1;
+            float h = y2 - y1;
+            return new RectF(x1, y1, w, h);
+        }
+
         public static implicit operator Rectangle(in RectF r)
         {
             return new Rectangle((int)r.X, (int)r.Y, (int)r.W, (int)r.H);

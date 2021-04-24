@@ -20,6 +20,8 @@ namespace Ship_Game.Tools.Localization
         /// <param name="outPath"></param>
         public void ExportCsharp(string outPath)
         {
+            // New Yamls don't need ID-s
+            int nextMissingId = -1;
             var sw = new StringWriter();
             sw.WriteLine( "// ReSharper disable UnusedMember.Global");
             sw.WriteLine( "// ReSharper disable IdentifierTypo");
@@ -34,7 +36,10 @@ namespace Ship_Game.Tools.Localization
             foreach (LocText loc in LocalizedText)
             {
                 sw.WriteLine($"        /// <summary>{loc.Comment}</summary>");
-                sw.WriteLine($"        {loc.NameId} = {loc.Id},");
+                if (loc.Id > 0)
+                    sw.WriteLine($"        {loc.NameId} = {loc.Id},");
+                else
+                    sw.WriteLine($"        {loc.NameId} = {nextMissingId--},");
             }
             sw.WriteLine("    }");
             sw.WriteLine("}");
@@ -75,7 +80,8 @@ namespace Ship_Game.Tools.Localization
             foreach (LocText loc in localizations)
             {
                 sw.WriteLine($"{loc.NameId}:");
-                sw.WriteLine($" Id: {loc.Id}");
+                if (loc.Id > 0)
+                    sw.WriteLine($" Id: {loc.Id}");
                 foreach (Translation lt in loc.Translations)
                 {
                     sw.WriteLine($" {lt.Lang}: {lt.YamlString}");
@@ -98,7 +104,8 @@ namespace Ship_Game.Tools.Localization
             {
                 Translation eng = m.GetText("ENG");
                 sw.WriteLine($"{m.NameId}:");
-                sw.WriteLine($" Id: {m.Id}");
+                if (m.Id > 0)
+                    sw.WriteLine($" Id: {m.Id}");
                 sw.WriteLine($" {lang}: \"\" # ENG: {eng.YamlString}");
             }
         }

@@ -1,6 +1,6 @@
 ﻿namespace Ship_Game
 {
-    public struct DifficultyModifiers
+    public class DifficultyModifiers
     {
         public readonly int SysComModifier;
         public readonly int DiploWeightVsPlayer;

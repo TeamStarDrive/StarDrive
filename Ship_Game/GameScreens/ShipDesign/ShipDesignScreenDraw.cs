@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Ship_Game.GameScreens.ShipDesign;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -47,9 +48,9 @@ namespace Ship_Game
             ArcsButton.DrawWithShadowCaps(batch);
             switch (DesignIssues.CurrentWarningLevel)
             {
-                case ShipDesignIssues.WarningLevel.None:                                                      break;
-                case ShipDesignIssues.WarningLevel.Informative: InformationButton.DrawWithShadowCaps(batch);  break;
-                default:                                        DesignIssuesButton.DrawWithShadowCaps(batch); break;
+                case WarningLevel.None:                                                      break;
+                case WarningLevel.Informative: InformationButton.DrawWithShadowCaps(batch);  break;
+                default:                       DesignIssuesButton.DrawWithShadowCaps(batch); break;
             }
 
             if (Debug)
@@ -111,7 +112,7 @@ namespace Ship_Game
 
             Vector2 source = new Vector2(x, y);
             Vector2 target = new Vector2(x, y - focalPoint);
-            float error = weapon?.BaseTargetError((int)FireControlLevel, focalPoint, EmpireManager.Player) ?? 0;
+            float error = weapon?.BaseTargetError(DesignedShip.TargetingAccuracy, focalPoint, EmpireManager.Player) ?? 0;
             error = (weapon?.AdjustedImpactPoint(source, target, new Vector2(error, error)) - source ?? Vector2.Zero).X;
 
             if (weapon != null)
@@ -290,7 +291,7 @@ namespace Ship_Game
                 if (s.Module.ModuleType == ShipModuleType.Hangar)
                     DrawHangarShipText(s);
 
-                DrawWeaponArcs(batch, s, FireControlLevel);
+                DrawWeaponArcs(batch, s, DesignedShip.TargetingAccuracy);
 
                 if (IsSymmetricDesignMode && GetMirrorSlotStruct(s, out SlotStruct mirrored))
                 {
@@ -342,15 +343,20 @@ namespace Ship_Game
             Color fill = Color.Black.Alpha(0.33f);
             Color edge = (slot.Module == HighlightedModule) ? Color.DarkOrange : fill;
             DrawRectangle(slot.ModuleRect, edge, fill);
-            DrawString(slot.Center, 0, 1, Color.Orange, slot.Module.FacingDegrees.ToString(CultureInfo.CurrentCulture));
+            DrawString(slot.Center, 0, 1, Color.Orange, slot.Module.FacingDegrees.String(0));
         }
 
         void DrawHangarShipText(SlotStruct s)
         {
+            string hangarShipUID = s.Module.hangarShipUID;
             Color color = Color.Black.Alpha(0.33f);
-            Color textC = ShipBuilder.GetHangarTextColor(s.Module.hangarShipUID);
+            Color textC = ShipBuilder.GetHangarTextColor(hangarShipUID);
             DrawRectangle(s.ModuleRect, textC, color);
-            DrawString(s.Center, 0, 0.4f, textC, s.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
+
+            if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship hangarShip))
+            {
+                DrawString(s.Center, 0, 0.4f, textC, hangarShip.Name);
+            }
         }
 
         static void DrawArc(SpriteBatch batch, float shipFacing, Weapon w, ShipModule m,
@@ -417,7 +423,7 @@ namespace Ship_Game
 
             int cx = (int)(8f * module.XSIZE * Camera.Zoom);
             int cy = (int)(8f * module.YSIZE * Camera.Zoom);
-            DrawWeaponArcs(batch, facing, module.InstalledWeapon, ActiveModule, screenPos + new Vector2(cx, cy), 500f, FireControlLevel);
+            DrawWeaponArcs(batch, facing, module.InstalledWeapon, ActiveModule, screenPos + new Vector2(cx, cy), 500f, DesignedShip.TargetingAccuracy);
         }
 
         void DrawActiveModule(SpriteBatch spriteBatch)
@@ -513,252 +519,115 @@ namespace Ship_Game
             batch.DrawDropShadowText(Operation.ToString(), pos, Fonts.Arial20Bold);
         }
 
-        // @todo - need to make all these calcs in one place. Right now they are also done in Ship.cs
+        // Refactored again by RedFox in 2021
         void DrawShipInfoPanel()
         {
-            float hitPoints                = 0f;
-            float powerCapacity            = 0f;
-            float ordnanceCap              = 0f;
-            float powerFlow                = 0f;
-            float shieldPower              = 0f;
-            float cargoSpace               = 0f;
-            int size                       = 0;
-            float warpableMass             = 0f;
-            float warpDraw                 = 0f;
-            float repairRate               = 0f;
-            float sensorRange              = 0f;
-            float sensorBonus              = 0f;
-            float avgOrdnanceUsed          = 0f;
-            float burstOrdnance            = 0f;
-            float ordnanceRecovered        = 0f;
-            float weaponPowerNeeded        = 0f;
-            float empResist                = 0f;
-            float offense                  = 0f;
-            float defense                  = 0f;
-            float targets                  = 0;
-            float totalEcm                 = 0f;
-            float beamPeakPowerNeeded      = 0f;
-            float beamLongestDuration      = 0f;
-            float weaponPowerNeededNoBeams = 0f;
-            int numCommandModules          = 0;
-            bool bEnergyWeapons            = false;
-            int troopCount                 = 0;
-            int accuracy                   = 0;
-            int numTroopBays               = 0;
-            int numSlots                   = 0;
-            int numWeaponSlots             = 0;
-            int numWeapons                 = 0;
-            int numOrdnanceWeapons         = 0;
-            int numHangarSlots             = 0;
-            float totalShieldAmplify       = 0;
-            bool unpoweredModules          = false;
-            bool canTargetFighters         = false;
-            bool canTargetCorvettes        = false;
-            bool canTargetCapitals         = false;
-            bool hasPowerCells             = false;
-            int pointDefenseValue          = 0;
-            int totalHangarArea            = 0;
-            int maxWeaponRange             = 0;
-
-            Map<ShipModule, float> weaponAccuracyList = new Map<ShipModule, float>();
-            Array<float> weaponsPowerFirePerShot      = new Array<float>();
             DesignIssues.Reset();
-            var modules = new ModuleCache(ModuleGrid.CopyModulesList());
 
-            foreach (SlotStruct slot in ModuleGrid.SlotsList)
-            {
-                bool wasOffenseDefenseAdded = false;
-                size += 1;
+            Ship s = DesignedShip;
+            // select only powered modules and powered weapons
+            ShipModule[] modules = s.Modules.Filter(m => m.PowerDraw <= 0 || m.Powered);
+            Weapon[] weapons = modules.FilterSelect(m => m.InstalledWeapon != null, m => m.InstalledWeapon);
 
-                if (slot.Module == null)
-                    continue;
+            WeaponAccuracyList = new Map<ShipModule, float>();
+            foreach (var w in weapons)
+                WeaponAccuracyList[w.Module] = w.Tag_Guided ? 0f
+                    : w.BaseTargetError(s.TargetingAccuracy).LowerBound(1) / 16;
 
-                ShipModule module = slot.Module;
+            int numSlots       = s.Modules.Sum(m => m.Area);
+            int numCmdModules  = s.Modules.Count(m => m.IsCommandModule);
+            int numWeaponSlots = s.Weapons.Sum(w => w.Module.Area);
+            int numHangarSlots = s.Modules.Sum(m => (m.IsTroopBay || m.IsSupplyBay || m.MaximumHangarShipSize > 0) ? m.Area : 0);
+            int numWeapons    = weapons.Count(w => !w.TruePD);
+            int numOrdWeapons = weapons.Count(w => !w.TruePD && w.OrdinanceRequiredToFire > 0);
+            int numTroopBays  = modules.Count(m => m.IsTroopBay);
 
-                numSlots      += module.Area;
-                hitPoints     += module.ActualMaxHealth;
-                troopCount    += module.TroopCapacity;
-                powerCapacity += module.ActualPowerStoreMax;
-                ordnanceCap   += module.OrdinanceCapacity;
-                powerFlow     += module.ActualPowerFlowMax;
-                cargoSpace    += module.Cargo_Capacity;
-                hasPowerCells |= module.ModuleType == ShipModuleType.FuelCell && module.PowerStoreMax > 0;
+            float weaponPowerNeeded = weapons.Sum(w => w.PowerFireUsagePerSecond);
+            float burstOrdnance = weapons.Sum(w => w.BurstOrdnanceUsagePerSecond);
+            float avgOrdnanceUsed = modules.Sum(m => m.BayOrdnanceUsagePerSecond)
+                                  + weapons.Sum(w => w.AverageOrdnanceUsagePerSecond);
 
-                if (module.PowerDraw <= 0) // some modules might not need power to operate, we still need their offense
-                {
-                    offense  += module.CalculateModuleOffense();
-                    defense  += module.CalculateModuleDefense(ModuleGrid.SlotsCount);
-                    wasOffenseDefenseAdded = true;
-                }
-                else if (!module.Powered)
-                {
-                    unpoweredModules = true;
-                    continue;
-                }
+            float beamPeakPowerNeeded = weapons.Sum(w => w.isBeam ? w.BeamPowerCostPerSecond : 0);
+            float beamLongestDuration = weapons.Max(w => w.isBeam ? w.BeamDuration : 0);
+            float weaponPowerNeededNoBeams = weapons.Sum(w => !w.isBeam ? w.PowerFireUsagePerSecond : 0);
 
-                empResist          += module.EMP_Protection;
-                warpableMass       += module.WarpMassCapacity;
-                warpDraw           += module.PowerDrawAtWarp;
-                shieldPower        += module.shield_power_max;
-                totalShieldAmplify += module.AmplifyShields;
-                repairRate         += module.ActualBonusRepairRate;
-                ordnanceRecovered  += module.OrdnanceAddedPerSecond;
-                accuracy            = module.TargetingAccuracy.LowerBound((int)accuracy);
-                targets            += module.TargetTracking;
-                avgOrdnanceUsed    += module.BayOrdnanceUsagePerSecond;
-                totalEcm            = module.ECM.LowerBound(totalEcm);
-                sensorRange         = module.SensorRange.LowerBound(sensorRange);
-                sensorBonus         = module.SensorBonus.LowerBound(sensorBonus);
-                totalHangarArea    += module.MaximumHangarShipSize;
+            float offense = modules.Sum(m => m.CalculateModuleOffense());
+            float defense = modules.Sum(m => m.CalculateModuleDefense(ModuleGrid.SlotsCount));
 
+            int pointDefenseValue = weapons.Sum(w => (w.TruePD?4:0) + (w.Tag_PD?1:0));
+            int totalHangarArea   = modules.Sum(m => m.MaximumHangarShipSize);
+            bool hasPowerCells    = modules.Any(m => m.ModuleType == ShipModuleType.FuelCell && m.PowerStoreMax > 0);
+            bool canTargetFighters  = weapons.Any(w => !w.Excludes_Fighters);
+            bool canTargetCorvettes = weapons.Any(w => !w.Excludes_Corvettes);
+            bool canTargetCapitals  = weapons.Any(w => !w.Excludes_Capitals);
+            bool hasEnergyWeapons   = weapons.Any(w => w.PowerRequiredToFire > 0 || w.BeamPowerCostPerSecond > 0);
+            bool unpoweredModules   = s.Modules.Any(m => m.PowerDraw > 0 && !m.Powered);
 
-                if (module.IsTroopBay)
-                    numTroopBays += 1;
-
-                if (module.IsCommandModule)
-                    numCommandModules += 1;
-
-                if (module.IsTroopBay || module.IsSupplyBay || module.MaximumHangarShipSize > 0)
-                    numHangarSlots += module.Area;
-
-                if (!wasOffenseDefenseAdded)
-                {
-                    offense += module.CalculateModuleOffense();
-                    defense += module.CalculateModuleDefense(ModuleGrid.SlotsCount);
-                }
-
-                Weapon weapon = module.InstalledWeapon;
-                if (weapon == null)
-                    continue;
-
-                if (weapon.PowerRequiredToFire > 0 || weapon.BeamPowerCostPerSecond > 0)
-                    bEnergyWeapons = true;
-
-                numWeaponSlots    += module.Area;
-                avgOrdnanceUsed   += weapon.AverageOrdnanceUsagePerSecond;
-                burstOrdnance     += weapon.BurstOrdnanceUsagePerSecond;
-                weaponPowerNeeded += weapon.PowerFireUsagePerSecond;
-                if (!weapon.TruePD)
-                {
-                    numWeapons += 1;
-                    if (weapon.OrdinanceRequiredToFire > 0)
-                        numOrdnanceWeapons += 1;
-                }
-
-                if (!weapon.Excludes_Fighters)
-                    canTargetFighters = true;
-
-                if (!weapon.Excludes_Corvettes)
-                    canTargetCorvettes = true;
-
-                if (!weapon.Excludes_Capitals)
-                    canTargetCapitals = true;
-
-                if (weapon.TruePD)
-                    pointDefenseValue += 4;
-
-                if (weapon.Tag_PD)
-                    pointDefenseValue += 1;
-
-                int range = (int)weapon.GetActualRange(EmpireManager.Player);
-                if (range > maxWeaponRange)
-                    maxWeaponRange = range;
-
-                // added by Fat Bastard for Energy power calcs
-                if (weapon.isBeam)
-                {
-                    beamPeakPowerNeeded += weapon.BeamPowerCostPerSecond;
-                    beamLongestDuration  = Math.Max(beamLongestDuration, weapon.BeamDuration);
-                }
-                else
-                {
-                    weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
-                    if (weapon.PowerRequiredToFire > 0)
-                        weaponsPowerFirePerShot.Add(weapon.PowerRequiredToFire);
-                }
-
-                weaponAccuracyList[module] = weapon.Tag_Guided ? 0 :  weapon.BaseTargetError((int)FireControlLevel).LowerBound(1) / 16;
-            }
-            FireControlLevel   = accuracy;
-            WeaponAccuracyList = weaponAccuracyList;
-            FireControlLevel  += 1 + EmpireManager.Player.data.Traits.Militaristic + (ActiveHull.Role == ShipData.RoleName.platform ? 3 : 0);
-            targets           += 1 + EmpireManager.Player.data.Traits.Militaristic + (ActiveHull.Role == ShipData.RoleName.platform ? 3 : 0);
-
-            var stats = new ShipStats();
-            stats.Update(modules.Modules, ActiveHull, EmpireManager.Player, 0,  size, 1);
-            float shieldAmplifyPerShield = ShipUtils.GetShieldAmplification(modules.Amplifiers, modules.Shields);
-            shieldPower                  = ShipUtils.UpdateShieldAmplification(modules.Amplifiers, modules.Shields);
-            bool mainShieldsPresent      = modules.Shields.Any(s => s.ModuleType == ShipModuleType.Shield);
-            Power netPower               = Power.Calculate(modules.Modules, EmpireManager.Player);
-
-            // Other modification to the ship and draw values
-            empResist += size; // FB: so the player will know the true EMP Tolerance
-            
-            float powerRecharge = powerFlow - netPower.NetSubLightPowerDraw;
-            
+            // TODO: Everything below this is not refactored
             var cursor = new Vector2(StatsSub.X + 10, ShipStats.Y + 18);
-            DrawHullBonuses(ref cursor, stats.Cost, ActiveHull.Bonuses);
-            DrawUpkeepSizeMass(ref cursor, stats.Cost, size, stats.Mass, totalHangarArea, troopCount);
+            DrawHullBonuses(ref cursor, s.GetCost());
+            DrawUpkeepSizeMass(ref cursor, s.GetCost(), s.SurfaceArea, s.Mass, totalHangarArea, s.TroopCapacity);
             WriteLine(ref cursor);
 
-            DrawPowerConsumedAndRecharge(ref cursor, weaponPowerNeeded, powerRecharge, powerCapacity, out float powerConsumed);
-            DrawPowerDrawAtWarp(ref cursor, stats.MaxFTLSpeed, powerFlow, netPower.NetWarpPowerDraw, out float fDrawAtWarp);
-            DrawEnergyStats(ref cursor, bEnergyWeapons, powerConsumed, powerCapacity, out float energyDuration);
+            float powerRecharge = s.PowerFlowMax - s.NetPower.NetSubLightPowerDraw;
+            DrawPowerConsumedAndRecharge(ref cursor, weaponPowerNeeded, powerRecharge, s.PowerStoreMax, out float powerConsumed);
+            DrawPowerDrawAtWarp(ref cursor, s.MaxFTLSpeed, s.PowerFlowMax, s.NetPower.NetWarpPowerDraw, out float fDrawAtWarp);
+            DrawEnergyStats(ref cursor, hasEnergyWeapons, powerConsumed, s.PowerStoreMax, out float energyDuration);
             DrawPeakPowerStats(ref cursor, beamLongestDuration, beamPeakPowerNeeded, weaponPowerNeededNoBeams, powerRecharge, 
-                powerCapacity, out float burstEnergyDuration);
+                                s.PowerStoreMax, out float burstEnergyDuration);
 
-            DrawFtlTime(ref cursor, powerCapacity, fDrawAtWarp, stats.MaxFTLSpeed, out float fWarpTime);
+            DrawFtlTime(ref cursor, s.PowerStoreMax, fDrawAtWarp, s.MaxFTLSpeed, out float fWarpTime);
             WriteLine(ref cursor);
 
-            DrawHitPointsAndRepair(ref cursor, hitPoints, repairRate);
-            DrawShieldsStats(ref cursor, totalShieldAmplify, shieldPower, shieldAmplifyPerShield, mainShieldsPresent);
-            DrawEmpAndEcm(ref cursor, empResist, totalEcm);
+            DrawHitPointsAndRepair(ref cursor, s.HealthMax, s.RepairRate);
+            DrawShieldsStats(ref cursor, s.Stats.TotalShieldAmplification, s.shield_max, s.Stats.ShieldAmplifyPerShield, s.Stats.HasMainShields);
+            DrawEmpAndEcm(ref cursor, s.BonusEMP_Protection, s.ECMValue);
             WriteLine(ref cursor);
 
-            DrawWarpPropulsion(ref cursor, stats.MaxFTLSpeed, stats.FTLSpoolTime);
-            DrawPropulsion(ref cursor, stats.MaxSTLSpeed, stats.TurnRadsPerSec.ToDegrees(), afterburnerSpd:0f);
+            DrawWarpPropulsion(ref cursor, s.MaxFTLSpeed, s.Stats.FTLSpoolTime);
+            DrawPropulsion(ref cursor, s.MaxSTLSpeed, s.RotationRadiansPerSecond.ToDegrees(), afterburnerSpd:0f);
             WriteLine(ref cursor);
 
-            DrawOrdnanceAndTroops(ref cursor, ordnanceCap, avgOrdnanceUsed, ordnanceRecovered, troopCount, out float ammoTime);
+            DrawOrdnanceAndTroops(ref cursor, s.OrdinanceMax, avgOrdnanceUsed, s.OrdAddedPerSecond, s.TroopCapacity, out float ammoTime);
             WriteLine(ref cursor);
 
-            DrawCargoTargetsAndSensors(ref cursor, cargoSpace, targets, sensorRange, sensorBonus, ActiveHull.Bonuses);
-            DrawOffense(ref cursor, offense, defense, size, numWeaponSlots + numHangarSlots);
+            DrawCargoTargetsAndSensors(ref cursor, s.CargoSpaceMax, s.TrackingPower, s.SensorRange);
+            DrawOffense(ref cursor, offense, defense, s.SurfaceArea, numWeaponSlots + numHangarSlots);
 
             var cursorReq = new Vector2(StatsSub.X - 180, ShipStats.Y + Fonts.Arial12Bold.LineSpacing + 5);
 
-            DrawCompletion(ref cursorReq, Localizer.Token(GameText.NoEmptySlots), numSlots, size, GameText.InOrderToCompleteYour);
+            DrawCompletion(ref cursorReq, Localizer.Token(GameText.NoEmptySlots), numSlots, s.SurfaceArea, GameText.InOrderToCompleteYour);
             CheckDesignIssues();
 
             void CheckDesignIssues()
             {
-                if (PercentComplete(numSlots, size) < 0.75f)
+                if (PercentComplete(numSlots, s.SurfaceArea) < 0.75f)
                     return;
 
-                DesignIssues.CheckIssueNoCommand(numCommandModules);
-                DesignIssues.CheckIssueBackupCommand(numCommandModules, size);
+                DesignIssues.CheckIssueNoCommand(numCmdModules);
+                DesignIssues.CheckIssueBackupCommand(numCmdModules, s.SurfaceArea);
                 DesignIssues.CheckIssueUnpoweredModules(unpoweredModules);
-                DesignIssues.CheckIssueOrdnance(avgOrdnanceUsed, ordnanceRecovered, ammoTime);
-                DesignIssues.CheckIssuePowerRecharge(bEnergyWeapons, powerRecharge, powerCapacity, powerConsumed);
-                DesignIssues.CheckPowerRequiredToFireOnce(weaponsPowerFirePerShot, powerCapacity);
-                DesignIssues.CheckIssueOrdnanceBurst(burstOrdnance, ordnanceCap);
-                DesignIssues.CheckIssueLowWarpTime(fDrawAtWarp, fWarpTime, stats.MaxFTLSpeed);
-                DesignIssues.CheckIssueNoWarp(stats.MaxSTLSpeed, stats.MaxFTLSpeed);
-                DesignIssues.CheckIssueSlowWarp(stats.MaxFTLSpeed);
-                DesignIssues.CheckIssueNoSpeed(stats.MaxSTLSpeed);
+                DesignIssues.CheckIssueOrdnance(avgOrdnanceUsed, s.OrdAddedPerSecond, ammoTime);
+                DesignIssues.CheckIssuePowerRecharge(hasEnergyWeapons, powerRecharge, s.PowerStoreMax, powerConsumed);
+                DesignIssues.CheckPowerRequiredToFireOnce(s);
+                DesignIssues.CheckIssueOrdnanceBurst(burstOrdnance, s.OrdinanceMax);
+                DesignIssues.CheckIssueLowWarpTime(fDrawAtWarp, fWarpTime, s.MaxFTLSpeed);
+                DesignIssues.CheckIssueNoWarp(s.MaxSTLSpeed, s.MaxFTLSpeed);
+                DesignIssues.CheckIssueSlowWarp(s.MaxFTLSpeed);
+                DesignIssues.CheckIssueNoSpeed(s.MaxSTLSpeed);
                 DesignIssues.CheckTargetExclusions(numWeaponSlots > 0, canTargetFighters, canTargetCorvettes, canTargetCapitals);
-                DesignIssues.CheckTruePD(size, pointDefenseValue);
-                DesignIssues.CheckWeaponPowerTime(bEnergyWeapons, powerConsumed > 0, energyDuration);
-                DesignIssues.CheckCombatEfficiency(powerConsumed, energyDuration, powerRecharge, numWeapons, numOrdnanceWeapons);
+                DesignIssues.CheckTruePD(s.SurfaceArea, pointDefenseValue);
+                DesignIssues.CheckWeaponPowerTime(hasEnergyWeapons, powerConsumed > 0, energyDuration);
+                DesignIssues.CheckCombatEfficiency(powerConsumed, energyDuration, powerRecharge, numWeapons, numOrdWeapons);
                 DesignIssues.CheckExcessPowerCells(beamPeakPowerNeeded > 0, burstEnergyDuration, powerConsumed, hasPowerCells);
                 DesignIssues.CheckBurstPowerTime(beamPeakPowerNeeded > 0, burstEnergyDuration);
-                DesignIssues.CheckOrdnanceVsEnergyWeapons(numWeapons, numOrdnanceWeapons, avgOrdnanceUsed, ordnanceRecovered);
-                DesignIssues.CheckTroopsVsBays(troopCount, numTroopBays);
-                DesignIssues.CheckTroops(troopCount, size);
+                DesignIssues.CheckOrdnanceVsEnergyWeapons(numWeapons, numOrdWeapons, avgOrdnanceUsed, s.OrdAddedPerSecond);
+                DesignIssues.CheckTroopsVsBays(s.TroopCapacity, numTroopBays);
+                DesignIssues.CheckTroops(s.TroopCapacity, s.SurfaceArea);
                 DesignIssues.CheckAccuracy(WeaponAccuracyList);
-                DesignIssues.CheckTargets(WeaponAccuracyList, targets);
-                DesignIssues.CheckSecondaryCarrier(totalHangarArea > 0, Role, maxWeaponRange);
-                DesignIssues.CheckDedicatedCarrier(totalHangarArea > 0, Role, maxWeaponRange, (int)sensorRange,
+                DesignIssues.CheckTargets(WeaponAccuracyList, s.TrackingPower);
+                DesignIssues.CheckSecondaryCarrier(totalHangarArea > 0, Role, (int)s.WeaponsMaxRange);
+                DesignIssues.CheckDedicatedCarrier(totalHangarArea > 0, Role, (int)s.WeaponsMaxRange, s.SensorRange,
                     ActiveHull.CombatState == CombatState.ShortRange || ActiveHull.CombatState == CombatState.AttackRuns);
 
                 UpdateDesignButton();
@@ -971,28 +840,26 @@ namespace Ship_Game
             DrawStatColor(ref cursor, TintedValue(GameText.Mass, (int)mass, GameText.AShipsTotalMassDetermines, Color.White));
         }
 
-        void DrawCargoTargetsAndSensors(ref Vector2 cursor, float cargoSpace, 
-                                        float targets, float sensorRange, 
-                                        float sensorBonus, HullBonus bonus)
+        void DrawCargoTargetsAndSensors(ref Vector2 cursor, float cargoSpace, float targets, float sensorRange)
         {
             if (cargoSpace > 0) 
-                DrawStatColor(ref cursor, TintedValue(GameText.CargoSpace, cargoSpace* bonus.CargoModifier, GameText.IndicatesTheTotalCargoSpace, Color.White));
+                DrawStatColor(ref cursor, TintedValue(GameText.CargoSpace, cargoSpace*ActiveHull.Bonuses.CargoModifier, GameText.IndicatesTheTotalCargoSpace, Color.White));
 
-            if (FireControlLevel > 0)
-                DrawStatColor(ref cursor, TintedValue(GameText.FireControl, FireControlLevel, GameText.FireControlSystemsOrFcs, Color.White));
+            if (DesignedShip.TargetingAccuracy > 0)
+                DrawStatColor(ref cursor, TintedValue(GameText.FireControl, DesignedShip.TargetingAccuracy, GameText.FireControlSystemsOrFcs, Color.White));
 
             if (targets > 0)
                 DrawStatColor(ref cursor, TintedValue(GameText.FcsPower, targets, GameText.ThisIsTheTotalNumber, Color.White));
 
             if (sensorRange > 0)
             {
-                float modifiedSensorRange = (sensorRange + sensorBonus) * bonus.SensorModifier;
-                DrawStatColor(ref cursor, TintedValue(GameText.SensorRange3, modifiedSensorRange, GameText.ThisIsTheMaximumSensor, Color.White));
+                DrawStatColor(ref cursor, TintedValue(GameText.SensorRange3, sensorRange, GameText.ThisIsTheMaximumSensor, Color.White));
             }
         }
 
-        void DrawHullBonuses(ref Vector2 cursor, float cost, HullBonus bonus)
+        void DrawHullBonuses(ref Vector2 cursor, float cost)
         {
+            HullBonus bonus = ActiveHull.Bonuses;
             if (bonus.Hull.NotEmpty()) //Added by McShooterz: Draw Hull Bonuses
             {
                 if (bonus.ArmoredBonus != 0 || bonus.ShieldBonus != 0
