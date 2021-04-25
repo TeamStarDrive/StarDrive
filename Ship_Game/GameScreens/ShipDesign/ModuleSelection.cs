@@ -280,7 +280,7 @@ namespace Ship_Game
             float starty = modTitlePos.Y;
             modTitlePos.X = 10;
             float strength = mod.CalculateModuleOffenseDefense(Screen.ActiveHull.ModuleSlots.Length);
-            DrawStat(ref modTitlePos, "Offense", strength, GameText.EstimatedOffensiveStrengthOfThe);
+            DrawStat(ref modTitlePos, "Offense", strength, GameText.TT_ShipOffense);
 
             if (mod.BombType == null && !mod.isWeapon || mod.InstalledWeapon == null)
             {
@@ -365,7 +365,7 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, GameText.Assault, mod.TransporterTroopAssault, GameText.IndicatesTheNumberOfTroops4);
             DrawStat(ref modTitlePos, GameText.Land, mod.TransporterTroopLanding, GameText.IndicatesTheNumberOfTroops2);
             DrawStat(ref modTitlePos, GameText.Ordnance, mod.OrdinanceCapacity, GameText.IndicatesTheAmountOfOrdnance2);
-            DrawStat(ref modTitlePos, GameText.CargoSpace,  mod.Cargo_Capacity, GameText.IndicatesTheTotalCargoSpace);
+            DrawStat(ref modTitlePos, GameText.CargoSpace,  mod.Cargo_Capacity, GameText.TT_CargoSpace);
             DrawStat(ref modTitlePos, GameText.Ordnances, mod.OrdnanceAddedPerSecond, GameText.IndicatesTheAmountOfOrdnance3);
             DrawStat(ref modTitlePos, GameText.Inhibition, mod.InhibitionRadius, GameText.IndicatesTheWarpInhibitionRange);
             DrawStat(ref modTitlePos, GameText.Troops,  mod.TroopCapacity, GameText.IndicatesTheNumberOfTroops3);

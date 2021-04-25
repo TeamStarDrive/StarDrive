@@ -2491,7 +2491,7 @@ namespace Ship_Game
         /// <summary>Shield Amp</summary>
         ShieldAmp = 1910,
         /// <summary>Each of the ship shield's maximum power will be amplified</summary>
-        EachOfTheShipShields = 1911,
+        TT_ShieldAmplify = 1911,
         /// <summary>When powered, this amplifies the Maximum Power of the main</summary>
         WhenPoweredThisAmplifiesThe = 1912,
         /// <summary>Shield Amplify</summary>
@@ -2499,7 +2499,7 @@ namespace Ship_Game
         /// <summary>Relative Strength</summary>
         RelativeStrength = 1914,
         /// <summary>This is the strength of the ship divided by it's</summary>
-        ThisIsTheStrengthOf = 1915,
+        TT_RelativeStrength = 1915,
         /// <summary>Governor Budget</summary>
         GovernorBudget = 1916,
         /// <summary>Treasury Goal</summary>
@@ -2799,19 +2799,19 @@ namespace Ship_Game
         /// <summary>Indicates the net power flow of this vessel when its</summary>
         TT_RechargeAtWarp = 2074,
         /// <summary>Indicates the total hitpoints of all of the ship's modules</summary>
-        IndicatesTheTotalHitpointsOf = 2075,
+        TT_HitPoints = 2075,
         /// <summary>Indicates the total hitpoints of all of the ship's shield</summary>
-        IndicatesTheTotalHitpointsOf2 = 2076,
+        TT_ShieldPower = 2076,
         /// <summary>Indicates the distance this ship can travel in one second</summary>
-        IndicatesTheDistanceThisShip = 2077,
+        TT_SublightSpeed = 2077,
         /// <summary>Indicates the distance this ship can travel in one second</summary>
         IndicatesTheDistanceThisShip2 = 2078,
         /// <summary>Indicates the number of degrees this ship may rotate in</summary>
-        IndicatesTheNumberOfDegrees = 2079,
+        TT_TurnRate = 2079,
         /// <summary>Indicates the maximum amount of multi-purpose ordnance this ship can</summary>
-        IndicatesTheMaximumAmountOf3 = 2080,
+        TT_OrdnanceCap = 2080,
         /// <summary>Indicates the total cargo space available on this ship. Each</summary>
-        IndicatesTheTotalCargoSpace = 2081,
+        TT_CargoSpace = 2081,
         /// <summary>Vegetarian Rebels</summary>
         VegetarianRebels = 2082,
         /// <summary>Confederate Rebels</summary>
@@ -2987,7 +2987,7 @@ namespace Ship_Game
         /// <summary>Toggles the weapon fire arc and shield protection radius display</summary>
         TogglesTheWeaponFireArc = 2168,
         /// <summary>Indicates the distance this ship can travel in one second</summary>
-        IndicatesTheDistanceThisShip3 = 2169,
+        TT_FtlSpeed = 2169,
         /// <summary>FTL Speed</summary>
         FtlSpeed = 2170,
         /// <summary>FTL Time</summary>
@@ -4437,7 +4437,7 @@ namespace Ship_Game
         /// <summary>Trade Hub</summary>
         TradeHub = 5087,
         /// <summary>Fire Control Systems or FCS. This indicates how powerful weapon</summary>
-        FireControlSystemsOrFcs = 5088,
+        TT_FireControl = 5088,
         /// <summary>sensor range</summary>
         SensorRange = 6000,
         /// <summary>subspace projection area</summary>
@@ -4845,7 +4845,7 @@ namespace Ship_Game
         /// <summary>Indicates the maximum time in seconds this ship may continuously</summary>
         TT_WpnFirePowerTime = 7012,
         /// <summary>Indicates the maximum time in seconds this ship may continuously</summary>
-        IndicatesTheMaximumTimeIn2 = 7013,
+        TT_AmmoTime = 7013,
         /// <summary>Indicates the amount of ordnance this ship is capable of</summary>
         IndicatesTheAmountOfOrdnance3 = 7014,
         /// <summary>In the Capital Elimination game mode, empires are defeated when</summary>
@@ -4871,7 +4871,7 @@ namespace Ship_Game
         /// <summary>Indicates the credits per tick this design would cost in</summary>
         TT_UpkeepCost = 7025,
         /// <summary>Indicates this ship's maximum sustained FTL jump duration outside of</summary>
-        IndicatesThisShipsMaximumSustained = 7026,
+        TT_FtlTime = 7026,
         /// <summary>Indicates the time in seconds it takes for this ship's</summary>
         IndicatesTheTimeInSeconds = 7027,
         /// <summary>The effective power drain of this module when the ship</summary>
@@ -4879,7 +4879,7 @@ namespace Ship_Game
         /// <summary>The number of troops this module can house</summary>
         TheNumberOfTroopsThis = 7029,
         /// <summary>Indicates the total complement of troops this ship can carry</summary>
-        IndicatesTheTotalComplementOf = 7030,
+        TT_TroopCapacity = 7030,
         /// <summary>Indicates the counter-espionage strength of this empire. The strength goes</summary>
         IndicatesTheCounterespionageStrengthOf = 7031,
         /// <summary>Random chance this weapon will fire through enemy shields. Golden</summary>
@@ -4973,7 +4973,7 @@ namespace Ship_Game
         /// <summary>Indicates the amount of EMP protection that this module adds</summary>
         IndicatesTheAmountOfEmp2 = 7076,
         /// <summary>The total EMP protection of this design.</summary>
-        TheTotalEmpProtectionOf = 7077,
+        TT_EmpProtection = 7077,
         /// <summary>Weapons which do less damage than this value will simply</summary>
         WeaponsWhichDoLessDamage = 7078,
         /// <summary>Weapons which do less damage than this value will simply</summary>
@@ -4987,21 +4987,21 @@ namespace Ship_Game
         /// <summary>This is a bonus to the number targets that can</summary>
         ThisIsABonusTo = 7083,
         /// <summary>Estimated offensive strength of the ship or module. This is</summary>
-        EstimatedOffensiveStrengthOfThe = 7084,
+        TT_ShipOffense = 7084,
         /// <summary>Short Range: Ship will rotate so that forward-firing weapons are</summary>
         ShipWillRotateSoThat2 = 7085,
         /// <summary>This value represents the complexity of this command module's fire</summary>
         ThisValueRepresentsTheComplexity = 7086,
         /// <summary>Total number of ships the scanners can track and total</summary>
-        ThisIsTheTotalNumber = 7087,
+        TT_FcsPower = 7087,
         /// <summary>This is the total number of targets this ship's fire</summary>
         ThisIsTheTotalNumber2 = 7088,
         /// <summary>This is the total electronic countermeasure (ECM) value for this</summary>
-        ThisIsTheTotalElectronic = 7089,
+        TT_Ecm3 = 7089,
         /// <summary>This is the maximum sensor range of this vessel: essentially</summary>
-        ThisIsTheMaximumSensor = 7090,
+        TT_SensorRange3 = 7090,
         /// <summary>This is this ship's self-repair rate per tick - it</summary>
-        ThisIsThisShipsSelfrepair = 7091,
+        TT_RepairRate = 7091,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -9,
         /// <summary>Agree to pay this upstanding gentleman.</summary>
