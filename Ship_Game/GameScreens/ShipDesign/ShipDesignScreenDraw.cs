@@ -525,12 +525,12 @@ namespace Ship_Game
             WriteLine(ref cursor);
 
             DrawPowerConsumedAndRecharge(ref cursor, ds.WeaponPowerNeeded, ds.PowerRecharge, s.PowerStoreMax, ds.PowerConsumed);
-            DrawPowerDrawAtWarp(ref cursor, s.MaxFTLSpeed, s.PowerFlowMax, s.NetPower.NetWarpPowerDraw, ds.DrawAtWarp);
+            DrawPowerDrawAtWarp(ref cursor, s.MaxFTLSpeed, s.PowerFlowMax, s.NetPower.NetWarpPowerDraw, ds.ChargeAtWarp);
             DrawEnergyStats(ref cursor, ds.HasEnergyWeapons, ds.PowerConsumed, s.PowerStoreMax, ds.EnergyDuration);
             DrawPeakPowerStats(ref cursor, ds.BeamLongestDuration, ds.BeamPeakPowerNeeded, ds.WeaponPowerNeededNoBeams, ds.PowerRecharge, 
                                ds.PowerCapacity, ds.PowerConsumedWithBeams, ds.BurstEnergyDuration);
 
-            DrawFtlTime(ref cursor, s.PowerStoreMax, ds.DrawAtWarp, s.MaxFTLSpeed, ds.WarpTime);
+            DrawFtlTime(ref cursor, s.PowerStoreMax, ds.ChargeAtWarp, s.MaxFTLSpeed, ds.WarpTime);
             WriteLine(ref cursor);
 
             DrawHitPointsAndRepair(ref cursor, s.HealthMax, s.RepairRate);

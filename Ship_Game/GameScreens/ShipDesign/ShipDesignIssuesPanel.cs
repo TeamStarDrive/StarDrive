@@ -98,7 +98,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Issues.CheckIssuePowerRecharge(ds.HasEnergyWeapons, ds.PowerRecharge, S.PowerStoreMax, ds.PowerConsumed);
                 Issues.CheckPowerRequiredToFireOnce(S);
                 Issues.CheckIssueOrdnanceBurst(ds.BurstOrdnance, S.OrdinanceMax);
-                Issues.CheckIssueLowWarpTime(ds.DrawAtWarp, ds.WarpTime, S.MaxFTLSpeed);
+                Issues.CheckIssueLowWarpTime(ds.ChargeAtWarp, ds.WarpTime, S.MaxFTLSpeed);
                 Issues.CheckIssueNoWarp(S.MaxSTLSpeed, S.MaxFTLSpeed);
                 Issues.CheckIssueSlowWarp(S.MaxFTLSpeed);
                 Issues.CheckIssueNoSpeed(S.MaxSTLSpeed);
