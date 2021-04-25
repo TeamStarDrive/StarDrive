@@ -539,7 +539,7 @@ namespace Ship_Game
 
             var infoRect = RectF.FromPoints((HullSelectList.X + 20), (ScreenWidth - 20),
                                             HullSelectList.Bottom + 10, BlackBar.Y);
-            InfoPanel = Add(new ShipDesignInfoPanel(this, infoRect));
+            InfoPanel = Add(new ShipDesignInfoPanel(infoRect));
 
             var issuesRect = RectF.FromPoints(InfoPanel.X - 200, InfoPanel.X,
                                               HullSelectList.Bottom + 10, BlackBar.Y);
