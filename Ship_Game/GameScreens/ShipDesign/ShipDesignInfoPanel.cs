@@ -1,10 +1,7 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Ship_Game.Ships;
 
 namespace Ship_Game.GameScreens.ShipDesign
 {
@@ -15,9 +12,9 @@ namespace Ship_Game.GameScreens.ShipDesign
     /// </summary>
     public class ShipDesignInfoPanel : UIElementContainer
     {
-        readonly ShipDesignScreen Screen;
-        DesignShip S;
+        Ship S;
         ShipDesignStats Ds;
+        bool UpdateDesignStats = false;
 
         UIList StatsList;
         float ItemHeight = 11;
@@ -27,15 +24,16 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         Array<(UIElementV2, Func<bool>)> DynamicVisibility = new Array<(UIElementV2, Func<bool>)>();
 
-        public ShipDesignInfoPanel(ShipDesignScreen screen, in Rectangle rect) : base(rect)
+        public ShipDesignInfoPanel(in Rectangle rect) : base(rect)
         {
-            Screen = screen;
         }
 
-        public void SetActiveDesign(DesignShip ship)
+        public void SetActiveDesign(Ship ship, ShipDesignStats ds = null)
         {
             S = ship;
-            Ds = ship.DesignStats;
+            Ds = ds ?? new ShipDesignStats(ship);
+            UpdateDesignStats = ds == null;
+
             CreateElements();
         }
 
@@ -191,6 +189,9 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         public override void Update(float fixedDeltaTime)
         {
+            if (UpdateDesignStats)
+                Ds.Update();
+
             // Toggle which items are visible
             foreach ((UIElementV2 item, Func<bool> visibility) in DynamicVisibility)
             {
