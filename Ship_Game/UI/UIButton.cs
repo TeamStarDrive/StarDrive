@@ -71,25 +71,22 @@ namespace Ship_Game
         public UIButton(ButtonStyle style, in LocalizedText text)
         {
             Style = style;
-            RichText = new PrettyText(this);
-            Text = text;
             Size = GetInitialSize();
+            RichText = new PrettyText(elemToUpdateSize: this, text: text);
         }
         
         public UIButton(ButtonStyle style, Vector2 pos, in LocalizedText text) : base(pos)
         {
             Style = style;
-            RichText = new PrettyText(this);
-            Text = text;
             Size = GetInitialSize();
+            RichText = new PrettyText(elemToUpdateSize: this, text: text);
         }
 
         public UIButton(StyleTextures customStyle, Vector2 size, in LocalizedText text)
         {
             SetStyle(customStyle);
-            RichText = new PrettyText(this);
-            Text = text;
             Size = size;
+            RichText = new PrettyText(elemToUpdateSize: this, text: text);
         }
 
         public ButtonStyle Style
@@ -147,16 +144,15 @@ namespace Ship_Game
 
             if (RichText.NotEmpty)
             {
-                Graphics.Font font = Font;
                 Vector2 textCursor;
                 if (TextAlign == ButtonTextAlign.Center)
-                    textCursor.X = r.X + r.Width / 2 - RichText.Size.X / 2f;
+                    textCursor.X = (r.X + r.Width / 2) - RichText.Size.X * 0.5f;
                 else if (TextAlign == ButtonTextAlign.Left)
                     textCursor.X = r.X + 25f;
                 else
                     textCursor.X = r.Right - RichText.Size.X;
 
-                textCursor.Y = r.Y + r.Height / 2 - font.LineSpacing / 2;
+                textCursor.Y = r.Y + r.Height / 2 - RichText.Size.Y * 0.5f;
                 if (State == PressState.Pressed)
                     textCursor.Y += 1f; // pressed down effect
 
