@@ -16,7 +16,6 @@ namespace Ship_Game.GameScreens.ShipDesign
         public int NumSlots;
         public int NumCmdModules;
         public int NumWeaponSlots;
-        public int NumHangarSlots;
         public int NumWeapons;
         public int NumOrdWeapons;
         public int NumTroopBays;
@@ -29,8 +28,6 @@ namespace Ship_Game.GameScreens.ShipDesign
         public float BeamPeakPowerNeeded;
         public float BeamLongestDuration;
         public float WeaponPowerNeededNoBeams;
-        public float Offense;
-        public float Defense;
         public float Strength;
         public float RelativeStrength;
 
@@ -74,7 +71,6 @@ namespace Ship_Game.GameScreens.ShipDesign
             NumSlots       = nSlots;
             NumCmdModules  = S.Modules.Count(m => m.IsCommandModule);
             NumWeaponSlots = S.Weapons.Sum(w => w.Module.Area);
-            NumHangarSlots = S.Modules.Sum(m => (m.IsTroopBay || m.IsSupplyBay || m.MaximumHangarShipSize > 0) ? m.Area : 0);
             NumWeapons    = weapons.Count(w => !w.TruePD);
             NumOrdWeapons = weapons.Count(w => !w.TruePD && w.OrdinanceRequiredToFire > 0);
             NumTroopBays  = modules.Count(m => m.IsTroopBay);
@@ -92,9 +88,6 @@ namespace Ship_Game.GameScreens.ShipDesign
             BeamLongestDuration = weapons.Max(w => w.isBeam ? w.BeamDuration : 0);
             WeaponPowerNeededNoBeams = weapons.Sum(w => !w.isBeam ? w.PowerFireUsagePerSecond : 0);
 
-            Offense = modules.Sum(m => m.CalculateModuleOffense());
-            Defense = modules.Sum(m => m.CalculateModuleDefense(nSlots));
-            
             Strength = S.GetStrength();
             RelativeStrength = (float)Math.Round(Strength / nSlots, 2);
 
