@@ -20,10 +20,10 @@ namespace Ship_Game.GameScreens.ShipDesign
         ShipDesignStats Ds;
 
         UIList StatsList;
-        float ItemHeight = 14;
+        float ItemHeight = 11;
         float ValueWidth = 80;
         float TitleWidth;
-        Graphics.Font StatsFont = Fonts.Arial12Bold;
+        Graphics.Font StatsFont = Fonts.Arial11Bold;
 
         Array<(UIElementV2, Func<bool>)> DynamicVisibility = new Array<(UIElementV2, Func<bool>)>();
 
@@ -45,6 +45,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             DynamicVisibility.Clear();
 
             StatsList = Add(new UIList(Pos, Size));
+            StatsList.Padding = Vector2.Zero;
             StatsList.SetRelPos(0, 0);
             TitleWidth = Width - ValueWidth;
 
@@ -62,7 +63,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             Val(() => Ds.PowerCapacity, GT.PowerCapacity, GT.TT_PowerCapacity, Tint.No, energy, col: ColGreater(() => Ds.PowerConsumed));
             Val(() => Ds.PowerRecharge, GT.PowerRecharge, GT.TT_PowerRecharge, Tint.Pos, energy);
-            Val(() => Ds.DrawAtWarp, GT.RechargeAtWarp, GT.TT_RechargeAtWarp, Tint.Pos, energy, vis: Ds.IsWarpCapable);
+            Val(() => Ds.ChargeAtWarp, GT.RechargeAtWarp, GT.TT_RechargeAtWarp, Tint.Pos, energy, vis: Ds.IsWarpCapable);
 
             Val(() => -Ds.PowerConsumed, GT.ExcessWpnPwrDrain, GT.TT_ExcessWpnPwrDrain, Tint.No, energy, vis: Ds.HasEnergyWepsPositive);
             Val(() => Ds.EnergyDuration, GT.WpnFirePowerTime, GT.TT_WpnFirePowerTime, Tint.Two, energy, vis: Ds.HasEnergyWepsPositive);
@@ -72,8 +73,8 @@ namespace Ship_Game.GameScreens.ShipDesign
             Val(() => Ds.BurstEnergyDuration, GT.BurstWpnPwrTime, GT.TT_BurstWpnPwrTime, Tint.Bad, energy, vis: Ds.HasBeamDurationNegative);
             Val("INF", GT.BurstWpnPwrTime, GT.TT_BurstWpnPwrTime, Tint.No, energy, good, vis: Ds.HasBeamDurationPositive);
             
-            Val(() => Ds.WarpTime, GT.FtlTime, GT.IndicatesThisShipsMaximumSustained, Tint.Pos, energy, vis: () => Ds.WarpTime <= 900);
-            Val("INF", GT.FtlTime, GT.IndicatesThisShipsMaximumSustained, Tint.No, energy, good, vis: () => Ds.WarpTime > 900);
+            Val(() => Ds.WarpTime, GT.FtlTime, GT.IndicatesThisShipsMaximumSustained, Tint.Pos, energy, vis: Ds.HasFiniteWarp);
+            Val("INF", GT.FtlTime, GT.IndicatesThisShipsMaximumSustained, Tint.No, energy, good, vis: Ds.HasInfiniteWarp);
             Line();
 
             Val(() => S.Health, GT.TotalHitpoints, GT.IndicatesTheTotalHitpointsOf, Tint.Pos, protect);
@@ -88,6 +89,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             Val(() => S.MaxFTLSpeed, GT.FtlSpeed, GT.IndicatesTheDistanceThisShip3, Tint.No, engines, vis: Ds.IsWarpCapable, col: ColGreater(20_000));
             Val(() => S.MaxSTLSpeed, GT.SublightSpeed, GT.IndicatesTheDistanceThisShip, Tint.No, engines, col: ColGreater(50));
+            Val(() => S.RotationRadiansPerSecond.ToDegrees(), GT.TurnRate, GT.IndicatesTheNumberOfDegrees, Tint.No, engines, col: ColGreater(15));
             Line();
 
             ValNZ(() => S.OrdAddedPerSecond, "Ordnance Created / s", GT.IndicatesTheDistanceThisShip3, Tint.No, ordnance);
@@ -149,7 +151,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         void Line()
         {
-            StatsList.Add(new UI.UISpacer(Width, ItemHeight));
+            StatsList.Add(new UI.UISpacer(Width, ItemHeight - 3));
         }
 
         enum Tint
