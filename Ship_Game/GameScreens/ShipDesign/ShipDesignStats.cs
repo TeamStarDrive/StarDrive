@@ -50,7 +50,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         public float PowerConsumedWithBeams;
         public float BurstEnergyDuration;
             
-        public float DrawAtWarp;
+        public float ChargeAtWarp;
         public float WarpTime;
 
 
@@ -113,16 +113,19 @@ namespace Ship_Game.GameScreens.ShipDesign
             EnergyDuration = HasEnergyWeapons && PowerConsumed > 0 ? PowerCapacity / PowerConsumed : 0f;
             PowerConsumedWithBeams = BeamPeakPowerNeeded + WeaponPowerNeededNoBeams - PowerRecharge;
             BurstEnergyDuration = PowerCapacity / PowerConsumedWithBeams;
-            DrawAtWarp = S.PowerFlowMax - S.NetPower.NetWarpPowerDraw;
-            WarpTime = -PowerCapacity / DrawAtWarp;
+            ChargeAtWarp = S.PowerFlowMax - S.NetPower.NetWarpPowerDraw;
+            WarpTime = -PowerCapacity / ChargeAtWarp;
         }
 
         public bool IsWarpCapable() => S.MaxFTLSpeed > 0 && !S.IsPlatformOrStation;
         public bool HasEnergyWepsPositive() => HasEnergyWeapons && PowerConsumed > 0;
-        public bool HasEnergyWepsNegative() => !HasEnergyWepsPositive();
+        public bool HasEnergyWepsNegative() => HasEnergyWeapons && PowerConsumed <= 0;
         public bool HasBeams() => BeamLongestDuration > 0 && PowerConsumedWithBeams > 0;
         public bool HasBeamDurationPositive() => HasBeams() && BurstEnergyDuration >= BeamLongestDuration;
-        public bool HasBeamDurationNegative() => !HasBeamDurationPositive();
+        public bool HasBeamDurationNegative() => HasBeams() && BurstEnergyDuration < BeamLongestDuration;
+
+        public bool HasFiniteWarp() => ChargeAtWarp < 0 && WarpTime <= 60*10;
+        public bool HasInfiniteWarp() => ChargeAtWarp > 0 || WarpTime > 60*10;
 
         public bool HasAmplifiedMains() => S.Stats.TotalShieldAmplification > 0 && S.Stats.HasMainShields;
         public bool HasRegularShields() => S.shield_max > 0 && !HasAmplifiedMains();
