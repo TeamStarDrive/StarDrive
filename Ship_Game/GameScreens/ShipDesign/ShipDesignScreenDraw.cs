@@ -560,9 +560,9 @@ namespace Ship_Game
             float strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense);
             if (strength > 0)
             {
-                DrawStatColor(ref cursor, TintedValue(GameText.ShipOffense, strength, GameText.EstimatedOffensiveStrengthOfThe, Color.White));
+                DrawStatColor(ref cursor, TintedValue(GameText.ShipOffense, strength, GameText.TT_ShipOffense, Color.White));
                 float relativeStrength = (float)Math.Round(strength / ActiveHull.ModuleSlots.Length, 2);
-                DrawStatColor(ref cursor, TintedValue(GameText.RelativeStrength, relativeStrength, GameText.ThisIsTheStrengthOf, Color.White));
+                DrawStatColor(ref cursor, TintedValue(GameText.RelativeStrength, relativeStrength, GameText.TT_RelativeStrength, Color.White));
             }
         }
 
@@ -610,14 +610,14 @@ namespace Ship_Game
             if (!(ordnanceCap > 0))
                 return;
 
-            DrawStatColor(ref cursor, TintedValue(GameText.OrdnanceCapacity, ordnanceCap, GameText.IndicatesTheMaximumAmountOf3, Color.IndianRed));
+            DrawStatColor(ref cursor, TintedValue(GameText.OrdnanceCapacity, ordnanceCap, GameText.TT_OrdnanceCap, Color.IndianRed));
             if (ordnanceUsed - ordnanceRecovered > 0)
-                DrawStatColor(ref cursor, TintedValue("Ammo Time", ammoTime, GameText.IndicatesTheMaximumTimeIn2, Color.IndianRed));
+                DrawStatColor(ref cursor, TintedValue("Ammo Time", ammoTime, GameText.TT_AmmoTime, Color.IndianRed));
             else
-                DrawStat(ref cursor, "Ammo Time", "INF", GameText.IndicatesTheMaximumTimeIn2, Color.IndianRed, Color.LightGreen);
+                DrawStat(ref cursor, "Ammo Time", "INF", GameText.TT_AmmoTime, Color.IndianRed, Color.LightGreen);
 
             if (troopCount > 0) 
-                DrawStatColor(ref cursor, TintedValue(GameText.TroopCapacity, troopCount, GameText.IndicatesTheTotalComplementOf, Color.IndianRed));
+                DrawStatColor(ref cursor, TintedValue(GameText.TroopCapacity, troopCount, GameText.TT_TroopCapacity, Color.IndianRed));
         }
 
         void DrawPropulsion(ref Vector2 cursor, float modifiedSpeed, float turn, float afterburnerSpd)
@@ -625,10 +625,10 @@ namespace Ship_Game
             if (Stationary)
                 return;
 
-            DrawStatColor(ref cursor, TintedValue(GameText.SublightSpeed, modifiedSpeed, GameText.IndicatesTheDistanceThisShip, Color.DarkSeaGreen));
-            DrawStatColor(ref cursor, TintedValue(GameText.TurnRate, turn, GameText.IndicatesTheNumberOfDegrees, Color.DarkSeaGreen));
+            DrawStatColor(ref cursor, TintedValue(GameText.SublightSpeed, modifiedSpeed, GameText.TT_SublightSpeed, Color.DarkSeaGreen));
+            DrawStatColor(ref cursor, TintedValue(GameText.TurnRate, turn, GameText.TT_TurnRate, Color.DarkSeaGreen));
             if (afterburnerSpd > 0) 
-                DrawStatColor(ref cursor, TintedValue("Afterburner Speed", afterburnerSpd, GameText.IndicatesTheDistanceThisShip, Color.DarkSeaGreen));
+                DrawStatColor(ref cursor, TintedValue("Afterburner Speed", afterburnerSpd, GameText.TT_SublightSpeed, Color.DarkSeaGreen));
         }
 
         void DrawWarpPropulsion(ref Vector2 cursor, float warpSpeed, float warpSpoolTimer)
@@ -637,16 +637,16 @@ namespace Ship_Game
                 return;
 
             string warpString = warpSpeed.GetNumberString();
-            DrawStat(ref cursor, Localizer.Token(GameText.FtlSpeed) + ":", warpString, GameText.IndicatesTheDistanceThisShip3, Color.DarkSeaGreen, Color.LightGreen);
+            DrawStat(ref cursor, Localizer.Token(GameText.FtlSpeed) + ":", warpString, GameText.TT_FtlSpeed, Color.DarkSeaGreen, Color.LightGreen);
         }
 
         void DrawEmpAndEcm(ref Vector2 cursor, float empResist, float totalEcm)
         {
             if (empResist > 0) 
-                DrawStatColor(ref cursor, TintedValue(GameText.EmpProtection, empResist, GameText.TheTotalEmpProtectionOf, Color.Goldenrod));
+                DrawStatColor(ref cursor, TintedValue(GameText.EmpProtection, empResist, GameText.TT_EmpProtection, Color.Goldenrod));
 
             if (totalEcm > 0) 
-                DrawStatColor(ref cursor, TintedValue(GameText.Ecm3, totalEcm, GameText.ThisIsTheTotalElectronic, Color.Goldenrod));
+                DrawStatColor(ref cursor, TintedValue(GameText.Ecm3, totalEcm, GameText.TT_Ecm3, Color.Goldenrod));
         }
 
         void DrawShieldsStats(ref Vector2 cursor, 
@@ -655,18 +655,18 @@ namespace Ship_Game
         {
             Color shieldMaxColor = totalShieldAmplify > 0 && mainShieldsPresent ? Color.Gold : Color.Goldenrod;
             if (shieldPower > 0) 
-                DrawStatColor(ref cursor, TintedValue(GameText.ShieldPower, shieldPower, GameText.IndicatesTheTotalHitpointsOf2, shieldMaxColor));
+                DrawStatColor(ref cursor, TintedValue(GameText.ShieldPower, shieldPower, GameText.TT_ShieldPower, shieldMaxColor));
 
             if (shieldAmplifyPerShield > 0) 
-                DrawStatColor(ref cursor, TintedValue(GameText.ShieldAmplify, (int)shieldAmplifyPerShield, GameText.EachOfTheShipShields, Color.Goldenrod));
+                DrawStatColor(ref cursor, TintedValue(GameText.ShieldAmplify, (int)shieldAmplifyPerShield, GameText.TT_ShieldAmplify, Color.Goldenrod));
         }
 
         void DrawHitPointsAndRepair(ref Vector2 cursor, float hitPoints, float repairRate)
         {
-            DrawStatColor(ref cursor, TintedValue(GameText.TotalHitpoints, hitPoints, GameText.IndicatesTheTotalHitpointsOf, Color.Goldenrod));
+            DrawStatColor(ref cursor, TintedValue(GameText.TotalHitpoints, hitPoints, GameText.TT_HitPoints, Color.Goldenrod));
             // Added by McShooterz: draw total repair
             if (repairRate > 0) 
-                DrawStatColor(ref cursor, TintedValue(GameText.RepairRate, repairRate, GameText.ThisIsThisShipsSelfrepair, Color.Goldenrod)); 
+                DrawStatColor(ref cursor, TintedValue(GameText.RepairRate, repairRate, GameText.TT_RepairRate, Color.Goldenrod)); 
         }
 
         void DrawFtlTime(ref Vector2 cursor, 
@@ -677,11 +677,11 @@ namespace Ship_Game
                 return;
 
             if (drawAtWarp < 0)
-                DrawStatColor(ref cursor, TintedValue("FTL Time", warpTime, GameText.IndicatesThisShipsMaximumSustained, Color.LightSkyBlue));
+                DrawStatColor(ref cursor, TintedValue("FTL Time", warpTime, GameText.TT_FtlTime, Color.LightSkyBlue));
             else if (warpTime > 900)
-                DrawStat(ref cursor, "FTL Time:", "INF", GameText.IndicatesThisShipsMaximumSustained, Color.LightSkyBlue, Color.LightGreen);
+                DrawStat(ref cursor, "FTL Time:", "INF", GameText.TT_FtlTime, Color.LightSkyBlue, Color.LightGreen);
             else
-                DrawStat(ref cursor, "FTL Time:", "INF", GameText.IndicatesThisShipsMaximumSustained, Color.LightSkyBlue, Color.LightGreen);
+                DrawStat(ref cursor, "FTL Time:", "INF", GameText.TT_FtlTime, Color.LightSkyBlue, Color.LightGreen);
         }
 
         //added by McShooterz: Allow Warp draw and after burner values be displayed in ship info
@@ -718,17 +718,17 @@ namespace Ship_Game
         void DrawCargoTargetsAndSensors(ref Vector2 cursor, float cargoSpace, float targets, float sensorRange)
         {
             if (cargoSpace > 0) 
-                DrawStatColor(ref cursor, TintedValue(GameText.CargoSpace, cargoSpace*ActiveHull.Bonuses.CargoModifier, GameText.IndicatesTheTotalCargoSpace, Color.White));
+                DrawStatColor(ref cursor, TintedValue(GameText.CargoSpace, cargoSpace*ActiveHull.Bonuses.CargoModifier, GameText.TT_CargoSpace, Color.White));
 
             if (DesignedShip.TargetingAccuracy > 0)
-                DrawStatColor(ref cursor, TintedValue(GameText.FireControl, DesignedShip.TargetingAccuracy, GameText.FireControlSystemsOrFcs, Color.White));
+                DrawStatColor(ref cursor, TintedValue(GameText.FireControl, DesignedShip.TargetingAccuracy, GameText.TT_FireControl, Color.White));
 
             if (targets > 0)
-                DrawStatColor(ref cursor, TintedValue(GameText.FcsPower, targets, GameText.ThisIsTheTotalNumber, Color.White));
+                DrawStatColor(ref cursor, TintedValue(GameText.FcsPower, targets, GameText.TT_FcsPower, Color.White));
 
             if (sensorRange > 0)
             {
-                DrawStatColor(ref cursor, TintedValue(GameText.SensorRange3, sensorRange, GameText.ThisIsTheMaximumSensor, Color.White));
+                DrawStatColor(ref cursor, TintedValue(GameText.SensorRange3, sensorRange, GameText.TT_SensorRange3, Color.White));
             }
         }
 

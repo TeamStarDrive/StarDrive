@@ -73,39 +73,39 @@ namespace Ship_Game.GameScreens.ShipDesign
             Val(() => Ds.BurstEnergyDuration, GT.BurstWpnPwrTime, GT.TT_BurstWpnPwrTime, Tint.Bad, energy, vis: Ds.HasBeamDurationNegative);
             Val("INF", GT.BurstWpnPwrTime, GT.TT_BurstWpnPwrTime, Tint.No, energy, good, vis: Ds.HasBeamDurationPositive);
             
-            Val(() => Ds.WarpTime, GT.FtlTime, GT.IndicatesThisShipsMaximumSustained, Tint.Pos, energy, vis: Ds.HasFiniteWarp);
-            Val("INF", GT.FtlTime, GT.IndicatesThisShipsMaximumSustained, Tint.No, energy, good, vis: Ds.HasInfiniteWarp);
+            Val(() => Ds.WarpTime, GT.FtlTime, GT.TT_FtlTime, Tint.Pos, energy, vis: Ds.HasFiniteWarp);
+            Val("INF", GT.FtlTime, GT.TT_FtlTime, Tint.No, energy, good, vis: Ds.HasInfiniteWarp);
             Line();
 
-            Val(() => S.Health, GT.TotalHitpoints, GT.IndicatesTheTotalHitpointsOf, Tint.Pos, protect);
-            ValNZ(() => S.RepairRate, GT.RepairRate, GT.ThisIsThisShipsSelfrepair, Tint.Pos, protect);
+            Val(() => S.Health, GT.TotalHitpoints, GT.TT_HitPoints, Tint.Pos, protect);
+            ValNZ(() => S.RepairRate, GT.RepairRate, GT.TT_RepairRate, Tint.Pos, protect);
 
-            Val(() => S.shield_max, GT.ShieldPower, GT.IndicatesTheTotalHitpointsOf2, Tint.Pos, protect, vis: Ds.HasRegularShields);
-            Val(() => S.shield_max, GT.ShieldPower, GT.IndicatesTheTotalHitpointsOf2, Tint.Pos, Color.Gold, vis: Ds.HasAmplifiedMains);
-            ValNZ(() => (int)S.Stats.ShieldAmplifyPerShield, GT.ShieldAmplify, GT.EachOfTheShipShields, Tint.Pos, protect);
-            ValNZ(() => S.BonusEMP_Protection, GT.EmpProtection, GT.TheTotalEmpProtectionOf, Tint.Pos, protect);
-            ValNZ(() => S.ECMValue, GT.Ecm3, GT.ThisIsTheTotalElectronic, Tint.Pos, protect);
+            Val(() => S.shield_max, GT.ShieldPower, GT.TT_ShieldPower, Tint.Pos, protect, vis: Ds.HasRegularShields);
+            Val(() => S.shield_max, GT.ShieldPower, GT.TT_ShieldPower, Tint.Pos, Color.Gold, vis: Ds.HasAmplifiedMains);
+            ValNZ(() => (int)S.Stats.ShieldAmplifyPerShield, GT.ShieldAmplify, GT.TT_ShieldAmplify, Tint.Pos, protect);
+            ValNZ(() => S.BonusEMP_Protection, GT.EmpProtection, GT.TT_EmpProtection, Tint.Pos, protect);
+            ValNZ(() => S.ECMValue, GT.Ecm3, GT.TT_Ecm3, Tint.Pos, protect);
             Line();
 
-            Val(() => S.MaxFTLSpeed, GT.FtlSpeed, GT.IndicatesTheDistanceThisShip3, Tint.No, engines, vis: Ds.IsWarpCapable, col: ColGreater(20_000));
-            Val(() => S.MaxSTLSpeed, GT.SublightSpeed, GT.IndicatesTheDistanceThisShip, Tint.No, engines, col: ColGreater(50));
-            Val(() => S.RotationRadiansPerSecond.ToDegrees(), GT.TurnRate, GT.IndicatesTheNumberOfDegrees, Tint.No, engines, col: ColGreater(15));
+            Val(() => S.MaxFTLSpeed, GT.FtlSpeed, GT.TT_FtlSpeed, Tint.No, engines, vis: Ds.IsWarpCapable, col: ColGreater(20_000));
+            Val(() => S.MaxSTLSpeed, GT.SublightSpeed, GT.TT_SublightSpeed, Tint.No, engines, col: ColGreater(50));
+            Val(() => S.RotationRadiansPerSecond.ToDegrees(), GT.TurnRate, GT.TT_TurnRate, Tint.No, engines, col: ColGreater(15));
             Line();
 
-            ValNZ(() => S.OrdAddedPerSecond, "Ordnance Created / s", GT.IndicatesTheDistanceThisShip3, Tint.No, ordnance);
-            Val(() => S.OrdinanceMax, GT.OrdnanceCapacity, GT.IndicatesTheMaximumAmountOf3, Tint.No, ordnance, vis: Ds.HasOrdnance);
-            Val(() => Ds.AmmoTime, "Ammo Time", GT.IndicatesTheMaximumTimeIn2, Tint.No, ordnance, vis: Ds.HasOrdFinite, col: ColGreater(30));
-            Val("INF", "Ammo Time", GT.IndicatesTheMaximumTimeIn2, Tint.No, ordnance, good, vis: Ds.HasOrdInfinite);
-            ValNZ(() => S.TroopCapacity, GT.TroopCapacity, GT.IndicatesTheTotalComplementOf, Tint.No, ordnance);
+            ValNZ(() => S.OrdAddedPerSecond, "Ordnance Created / s", GT.TT_FtlSpeed, Tint.No, ordnance);
+            Val(() => S.OrdinanceMax, GT.OrdnanceCapacity, GT.TT_OrdnanceCap, Tint.No, ordnance, vis: Ds.HasOrdnance);
+            Val(() => Ds.AmmoTime, "Ammo Time", GT.TT_AmmoTime, Tint.No, ordnance, vis: Ds.HasOrdFinite, col: ColGreater(30));
+            Val("INF", "Ammo Time", GT.TT_AmmoTime, Tint.No, ordnance, good, vis: Ds.HasOrdInfinite);
+            ValNZ(() => S.TroopCapacity, GT.TroopCapacity, GT.TT_TroopCapacity, Tint.No, ordnance);
             Line();
 
-            ValNZ(() => S.CargoSpaceMax, GT.CargoSpace, GT.IndicatesTheTotalCargoSpace);
-            ValNZ(() => S.TargetingAccuracy, GT.FireControl, GT.FireControlSystemsOrFcs);
-            ValNZ(() => S.TrackingPower, GT.FcsPower, GT.ThisIsTheTotalNumber);
-            ValNZ(() => S.SensorRange, GT.SensorRange3, GT.ThisIsTheMaximumSensor);
+            ValNZ(() => S.CargoSpaceMax, GT.CargoSpace, GT.TT_CargoSpace);
+            ValNZ(() => S.TargetingAccuracy, GT.FireControl, GT.TT_FireControl);
+            ValNZ(() => S.TrackingPower, GT.FcsPower, GT.TT_FcsPower);
+            ValNZ(() => S.SensorRange, GT.SensorRange3, GT.TT_SensorRange3);
 
-            ValNZ(() => Ds.Strength, GT.ShipOffense, GT.EstimatedOffensiveStrengthOfThe);
-            ValNZ(() => Ds.RelativeStrength, GT.RelativeStrength, GT.ThisIsTheStrengthOf);
+            ValNZ(() => Ds.Strength, GT.ShipOffense, GT.TT_ShipOffense);
+            ValNZ(() => Ds.RelativeStrength, GT.RelativeStrength, GT.TT_RelativeStrength);
         }
 
         UI.UIKeyValueLabel Val(Func<float> dynamicValue, LocalizedText title, LocalizedText tooltip, 
