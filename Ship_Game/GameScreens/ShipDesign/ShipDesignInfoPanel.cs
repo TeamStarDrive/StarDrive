@@ -90,10 +90,10 @@ namespace Ship_Game.GameScreens.ShipDesign
             Val(() => S.RotationRadiansPerSecond.ToDegrees(), GT.TurnRate, GT.TT_TurnRate, Tint.No, engines, col: ColGreater(15));
             Line();
 
-            ValNZ(() => S.OrdAddedPerSecond, "Ordnance Created / s", GT.TT_FtlSpeed, Tint.No, ordnance);
+            ValNZ(() => S.OrdAddedPerSecond, GT.OrdnanceCreated, GT.TT_OrdnanceCreated, Tint.No, ordnance);
             Val(() => S.OrdinanceMax, GT.OrdnanceCapacity, GT.TT_OrdnanceCap, Tint.No, ordnance, vis: Ds.HasOrdnance);
-            Val(() => Ds.AmmoTime, "Ammo Time", GT.TT_AmmoTime, Tint.No, ordnance, vis: Ds.HasOrdFinite, col: ColGreater(30));
-            Val("INF", "Ammo Time", GT.TT_AmmoTime, Tint.No, ordnance, good, vis: Ds.HasOrdInfinite);
+            Val(() => Ds.AmmoTime, GT.AmmoTime, GT.TT_AmmoTime, Tint.No, ordnance, vis: Ds.HasOrdFinite, col: ColGreater(30));
+            Val("INF", GT.AmmoTime, GT.TT_AmmoTime, Tint.No, ordnance, good, vis: Ds.HasOrdInfinite);
             ValNZ(() => S.TroopCapacity, GT.TroopCapacity, GT.TT_TroopCapacity, Tint.No, ordnance);
             Line();
 
