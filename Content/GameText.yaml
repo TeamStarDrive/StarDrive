@@ -12001,7 +12001,7 @@ TT_RepairRate:
  RUS: "Это скорость самовосстановления этого корабля за тик - он может самостноятельно отремонтировать такое количество единиц здоровья модуля за тик вне боя. Улучшенные командные и инженерные модули улучшают ремонт."
  SPA: "Este es el ratio de autoreparacion por tick - se puede reparar esta cantidad de puntos de vida por tick cuando este fuera de combate. Mejores módulos de comando y de ingienería puden mejorar esto.."
 EncCorsairs000_Msg0:
- ENG: "Dearest SING friends,\n\nWe are delighted to see your empire's progress. Isn't this exciting, to colonize new worlds and struggle with unknown environment? However, all these little freighters, moving from planet to planet like loyal bees are so exposed out there in deep space.\n\nSo we have a proposal for you. You will pay us MONEY credits right now. If you do, then we can promise a certain level of 'protection' to SING ships. If you don't, well, then we just can't make any promises.\n\nRegards,\n\tCaptain Martok, Independent Trader and Gentleman"
+ ENG: "Dearest SING friends,\n\nWe are delighted to see your empire's progress. Isn't this exciting, to colonize new worlds and struggle with unknown environment? However, all these little freighters, moving from planet to planet like loyal bees are so exposed out there in deep space.\n\nSo we have a proposal for you. You will pay us MONEY credits right now. If you do, then we can promise a certain level of 'protection' to SING ships. If you don't, well, then we just can't make any promises.\n\nRegards,\n    Captain Martok, Independent Trader and Gentleman"
 EncCorsairs000_Msg0_R1_AgreeToPay:
  ENG: "Agree to pay this upstanding gentleman."
 EncCorsairs000_Msg0_R2_RefuseToPay:
