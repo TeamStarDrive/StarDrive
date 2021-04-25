@@ -464,6 +464,13 @@ namespace Ship_Game.Ships
             }
         }
 
+        public string GetHangarShipName()
+        {
+            if (ShipBuilder.IsDynamicHangar(hangarShipUID))
+                return CarrierBays.GetDynamicShipNameShipDesign(this);
+            return hangarShipUID;
+        }
+
         public float BayOrdnanceUsagePerSecond
         {
             get
@@ -471,10 +478,7 @@ namespace Ship_Game.Ships
                 float ordnancePerSecond = 0;
                 if (ModuleType == ShipModuleType.Hangar && hangarTimerConstant > 0)
                 {
-                    string hangarShipName = ShipBuilder.IsDynamicHangar(hangarShipUID)
-                        ? CarrierBays.GetDynamicShipNameShipDesign(this)
-                        : hangarShipUID;
-
+                    string hangarShipName = GetHangarShipName();
                     if (ResourceManager.GetShipTemplate(hangarShipName, out Ship template))
                         ordnancePerSecond = (template.ShipOrdLaunchCost) / hangarTimerConstant;
                 }
@@ -987,7 +991,7 @@ namespace Ship_Game.Ships
 
         public void ResetHangarTimer()
         {
-            if (hangarTimerConstant.Greater(0))
+            if (hangarTimerConstant > 0f)
                 hangarTimer = hangarTimerConstant;
         }
 

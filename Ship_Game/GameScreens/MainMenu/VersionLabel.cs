@@ -12,7 +12,7 @@ namespace Ship_Game.GameScreens.MainMenu
                             : base(new Vector2(x, y), text, Fonts.Pirulen12)
         {
             VersionBar = parent.ContentManager.LoadSubTexture("Textures/MainMenu/version_bar");
-            TextAlign = TextAlign.Right;
+            TextAlign = TextAlign.FlipRight;
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
