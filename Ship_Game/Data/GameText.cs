@@ -4844,10 +4844,14 @@ namespace Ship_Game
         PreventsAiEmpiresFromMerging = 7011,
         /// <summary>Indicates the maximum time in seconds this ship may continuously</summary>
         TT_WpnFirePowerTime = 7012,
+        /// <summary>Ammo Time</summary>
+        AmmoTime = -9,
         /// <summary>Indicates the maximum time in seconds this ship may continuously</summary>
         TT_AmmoTime = 7013,
+        /// <summary>Ordnance Created / s</summary>
+        OrdnanceCreated = -10,
         /// <summary>Indicates the amount of ordnance this ship is capable of</summary>
-        IndicatesTheAmountOfOrdnance3 = 7014,
+        TT_OrdnanceCreated = 7014,
         /// <summary>In the Capital Elimination game mode, empires are defeated when</summary>
         InTheCapitalEliminationGame = 7015,
         /// <summary>Indicates the maximum amount of damage repaired by beams from</summary>
@@ -5003,22 +5007,22 @@ namespace Ship_Game
         /// <summary>This is this ship's self-repair rate per tick - it</summary>
         TT_RepairRate = 7091,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
-        EncCorsairs000_Msg0 = -9,
+        EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>
-        EncCorsairs000_Msg0_R1_AgreeToPay = -10,
+        EncCorsairs000_Msg0_R1_AgreeToPay = -12,
         /// <summary>Refuse to pay this scoundrel!</summary>
-        EncCorsairs000_Msg0_R2_RefuseToPay = -11,
+        EncCorsairs000_Msg0_R2_RefuseToPay = -13,
         /// <summary>Wonderful news! We'll let you know when we're done drinking</summary>
-        EncCorsairs000_Msg1 = -12,
+        EncCorsairs000_Msg1 = -14,
         /// <summary>Now that is disappointing, isn't it? And here I was</summary>
-        EncCorsairs000_Msg2 = -13,
+        EncCorsairs000_Msg2 = -15,
         /// <summary>What, is this some sort of SING humor? You don't</summary>
-        EncCorsairs000_Msg3 = -14,
+        EncCorsairs000_Msg3 = -16,
         /// <summary>A Mysterious Signal</summary>
-        ExpEvent_BuiltRDA_Name = -15,
+        ExpEvent_BuiltRDA_Name = -17,
         /// <summary>You have built the Remnant Detection Array</summary>
-        ExpEvent_BuiltRDA_Outcome1_Title = -16,
+        ExpEvent_BuiltRDA_Outcome1_Title = -18,
         /// <summary>Your quest to discover the secrets of The Remnant continues.</summary>
-        ExpEvent_BuiltRDA_Outcome1_Descr = -17,
+        ExpEvent_BuiltRDA_Outcome1_Descr = -19,
     }
 }

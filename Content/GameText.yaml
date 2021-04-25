@@ -11601,12 +11601,16 @@ TT_WpnFirePowerTime:
  ENG: "Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting energy reserves, based on power usage of all weapons when firing. Red value indicates insufficient power to maintain fire more than 2 seconds."
  RUS: "Указывает максимальное время в секундах, в течение которого этот корабль может непрерывно стрелять из всех орудий, прежде чем исчерпать запасы энергии, на основе использования мощности всего оружия при стрельбе. Красное значение указывает на недостаточную мощность для поддержания огня более 2 секунд."
  SPA: "Indica el tiempo máximo en segundos en la cual una nave disparara todas sus armas antes de gastar sus reservas de energia, basada en el consumo energetico de todas sus armas al disparar"
+AmmoTime:
+ ENG: "Ammo Time"
 TT_AmmoTime:
  Id: 7013
  ENG: "Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting ordnance supplies"
  RUS: "Указывает максимальное время в секундах, в течение которого этот корабль может вести непрерывный огонь из всех орудий до того, как исчерпает запас боеприпасов."
  SPA: "Indica el tiempo máximo en segundos en la cual una nave disparar todas sus armas antes de gastar sus municiones"
-IndicatesTheAmountOfOrdnance3:
+OrdnanceCreated:
+ ENG: "Ordnance Created / s"
+TT_OrdnanceCreated:
  Id: 7014
  ENG: "Indicates the amount of ordnance this ship is capable of fabricating per second"
  RUS: "Указывает количество боеприпасов, которое этот корабль способен произвести за секунду."
