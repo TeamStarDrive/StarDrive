@@ -285,7 +285,7 @@ namespace Ship_Game
 
             foreach (IEmpireData readOnlyData in opponents)
             {
-                Empire e = Data.CreateEmpire(readOnlyData);
+                Empire e = Data.CreateEmpire(readOnlyData, isPlayer: false);
                 RacialTrait t = e.data.Traits;
 
                 e.data.FlatMoneyBonus  += e.DifficultyModifiers.FlatMoneyBonus;
@@ -301,7 +301,7 @@ namespace Ship_Game
             
             foreach (IEmpireData readOnlyData in ResourceManager.MinorRaces)
             {
-                Data.CreateEmpire(readOnlyData);
+                Data.CreateEmpire(readOnlyData, isPlayer: false);
                 step.Advance();
             }
         }
