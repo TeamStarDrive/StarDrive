@@ -59,7 +59,6 @@ namespace Ship_Game
         ModuleOrientation ActiveModState;
         CategoryDropDown CategoryList;
         HangarDesignationDropDown HangarOptionsList;
-        Map<ShipModule, float> WeaponAccuracyList = new Map<ShipModule, float>();
 
         bool ShowAllArcs;
         public bool ToggleOverlay = true;
@@ -538,12 +537,12 @@ namespace Ship_Game
             StatsSub.AddTab(Localizer.Token(GameText.ShipStats));
             ArcsButton = new GenericButton(new Vector2(HullSelectList.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
 
-            var infoRect = RectF.FromPoints((HullSelectList.X + 20) - 200, (ScreenWidth - 20) - 200,
-                                            HullSelectList.Bottom, BlackBar.Y);
+            var infoRect = RectF.FromPoints((HullSelectList.X + 20), (ScreenWidth - 20),
+                                            HullSelectList.Bottom + 10, BlackBar.Y);
             InfoPanel = Add(new ShipDesignInfoPanel(this, infoRect));
 
             var issuesRect = RectF.FromPoints(InfoPanel.X - 200, InfoPanel.X,
-                                              HullSelectList.Bottom, BlackBar.Y);
+                                              HullSelectList.Bottom + 10, BlackBar.Y);
             IssuesPanel = Add(new ShipDesignIssuesPanel(this, issuesRect));
 
             CloseButton(ScreenWidth - 27, 99);
