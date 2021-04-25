@@ -61,7 +61,7 @@ namespace Ship_Game
         readonly Array<FleetDataNode> SelectedNodeList = new Array<FleetDataNode>();
         readonly Array<FleetDataNode> HoveredNodeList = new Array<FleetDataNode>();
         readonly ShipInfoOverlayComponent ShipInfoOverlay;
-        StanceButtons OrdersButtons;
+        FleetStanceButtons OrdersButtons;
 
         public FleetDesignScreen(GameScreen parent, EmpireUIOverlay empireUI, string audioCue ="") : base(parent)
         {
@@ -193,7 +193,7 @@ namespace Ship_Game
             SelectedStuffRect = new Rectangle(ScreenWidth / 2 - 220, -13 + ScreenHeight - 200, 440, 210);
 
             var ordersBarPos = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 65);
-            OrdersButtons = new StanceButtons(this, ordersBarPos);
+            OrdersButtons = new FleetStanceButtons(this, ordersBarPos);
             OrdersButtons.LoadContent();
             Add(OrdersButtons);
             //void AddOrdersBtn(CombatState state, string icon, LocalizedText toolTip)
@@ -399,7 +399,6 @@ namespace Ship_Game
             
             ClickableSquads.Clear();
             UpdateSelectedFleet();
-            OrdersButtons.Update(elapsed.RealTime.Seconds);
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
