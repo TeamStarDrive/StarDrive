@@ -30,6 +30,12 @@ namespace Ship_Game
         [Serialize(13)] public Vector2 OrdersOffset;
         [Serialize(14)] public float OrdersRadius = 500000;//0.5f;
 
+        public void SetCombatStance(CombatState stance)
+        {
+            CombatState = stance;
+            Ship?.SetCombatStance(stance);
+        }
+
         public static float ApplyTargetWeight(float targetValue, float avgTargetsValue, float weightTypeValue)
         {
             // if fleet setting is above 0.5 then a ship with higher than average value will have more weightTypeValue. 

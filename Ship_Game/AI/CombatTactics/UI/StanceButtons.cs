@@ -4,18 +4,17 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.AI.CombatTactics.UI
 {
-    public class StanceButtons : UIElementContainer
+    public abstract class StanceButtons : UIElementContainer
     {
         readonly Array<OrdersToggleButton> OrdersButtons = new Array<OrdersToggleButton>();
         Vector2 OrdersBarPos;
-        Array<Ship> SelectedShips = new Array<Ship>();
-        Array<FleetDataNode> SelectedNodes = new Array<FleetDataNode>();
+        public CombatState CurrentState = CombatState.AttackRuns;
 
-        public bool NothingSelected => SelectedNodes.IsEmpty && SelectedShips.IsEmpty;
 
         public StanceButtons(GameScreen parent, Vector2 topLeft) : base(parent.Rect)
         {
             OrdersBarPos = topLeft;
+            Visible = false;
         }
 
         public void LoadContent()
@@ -52,87 +51,27 @@ namespace Ship_Game.AI.CombatTactics.UI
             for (int i = 0; i < OrdersButtons.Count; i++)
             {
                 ToggleButton other = OrdersButtons[i];
-                if (other != b) other.IsToggled = false;
+                other.IsToggled = false;
             }
+            b.IsToggled = true;
+            ApplyStance(state);
 
-            for (int i = 0; i < SelectedShips.Count; i++)
-            {
-                var ship = SelectedShips[i];
-                ship.AI.CombatState = state;
-                if (state == CombatState.HoldPosition)
-                    ship.AI.OrderAllStop();
-                ship.shipStatusChanged = true;
-
-                // @todo Is this some sort of bug fix?
-                if (state != CombatState.HoldPosition && ship.AI.State == AIState.HoldPosition)
-                    ship.AI.State = AIState.AwaitingOrders;
-            }
-
-            for (int i = 0; i < SelectedNodes.Count; i++)
-            {
-                var node = SelectedNodes[i];
-                node.CombatState = state;
-            }
-
-            if (!NothingSelected)
-            {
-                GameAudio.EchoAffirmative();
-            }
+            GameAudio.EchoAffirmative();
         }
 
-        public void UpdateSelectedItems(Array<Ship> ships, Array<FleetDataNode> nodes)
+        protected abstract void ApplyStance(CombatState stance);
+
+        protected void Reset(CombatState[] states)
         {
-            SelectedNodes = nodes?.NotEmpty == true ? nodes : new Array<FleetDataNode>();
-            SelectedShips = ships?.IsEmpty  == true ? ships : new Array<Ship>();
-
-            for (int i = 0; i < OrdersButtons.Count; i++)
-            {
-                ToggleButton button = OrdersButtons[i];
-                button.Visible = !NothingSelected;
-                button.IsToggled = false;
-            }
-
+            foreach (var button in OrdersButtons) 
+                button.IsToggled = states.Contains(button.CombatState);
+            Visible = states.Length > 0;
         }
 
-        public void HandleInput(float fixedDeltaTime)
+        protected void Reset( CombatState state)
         {
-            Visible = !NothingSelected;
-            for (int i = 0; i < OrdersButtons.Count; i++)
-            {
-                ToggleButton button = OrdersButtons[i];
-                button.Visible = !NothingSelected;
-                button.IsToggled = false;
-            }
-
-            base.Update(fixedDeltaTime);
-        }
-
-        public override bool HandleInput(InputState input)
-        {
-            return base.HandleInput(input);
-        }
-
-        public bool HandleInput(InputState input, Array<FleetDataNode> nodes)
-        {
-            var ships = new Array<Ship>();
-            foreach(var node in nodes)
-            {
-                if (node.Ship != null)
-                    ships.Add(node.Ship);
-            }
-            return HandleInput(input, ships, nodes);
-        }
-
-        public bool HandleInput(InputState input, Ship ship) => HandleInput(input, new Array<Ship>() { ship }, null);
-
-        public bool HandleInput(InputState input, FleetDataNode node)
-        {
-            return HandleInput(input, new Array<Ship>() { node.Ship }, new Array<FleetDataNode>() { node});
-        }
-
-        public void Reset()
-        {
- 
+            foreach (var button in OrdersButtons)
+                button.IsToggled = state == button.CombatState;
         }
 
         private class OrdersToggleButton : ToggleButton
