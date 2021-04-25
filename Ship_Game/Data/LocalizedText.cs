@@ -130,6 +130,24 @@ namespace Ship_Game
             }
         }
 
+        /// <summary>
+        /// If current text has an existing Id, this will create a parseable text: "{Id}" + suffix
+        /// For example:
+        /// new LocalizedText(GameText.DesignCompletion).Concat(": ");
+        /// Gives us parsed text "{DesignCompletion}: "
+        /// </summary>
+        public LocalizedText Concat(string suffix)
+        {
+            switch (Method)
+            {
+                default:                         
+                case LocalizationMethod.Id:      return Parse($"{{{Id}}}{suffix}");
+                case LocalizationMethod.NameId:  return Parse($"{{{String}}}{suffix}");
+                case LocalizationMethod.RawText: return String + suffix;
+                case LocalizationMethod.Parse:   return Parse(String + suffix);
+            }
+        }
+
         // Creates a new lazy-initialized parseable text
         // Example usage: new UILabel(LocalizedText.Parse("{RaceNameSingular}: "));
         public static LocalizedText Parse(string parseableText)

@@ -2,16 +2,19 @@
 using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace
-namespace Ship_Game
+namespace Ship_Game.GameScreens.ShipDesign
 {
     public class DesignShip : Ship
     {
         ModuleSlotData[] PrevSlots;
 
+        public ShipDesignStats DesignStats;
+
         public DesignShip(ShipData designHull)
             : base(EmpireManager.Player, designHull, fromSave:false, 
                     isTemplate:true, shipyardDesign:true)
         {
+            DesignStats = new ShipDesignStats(this);
         }
 
         public void UpdateDesign(ModuleSlotData[] placedSlots)
@@ -23,6 +26,7 @@ namespace Ship_Game
             CreateModuleSlotsFromData(placedSlots, fromSave:false, 
                                       isTemplate:true, shipyardDesign:true);
             InitializeShip();
+            DesignStats.Update();
         }
 
         static bool AreEqual(ModuleSlotData[] slotsA, ModuleSlotData[] slotsB)

@@ -31,6 +31,7 @@ namespace Ship_Game
         public bool NotEmpty => Blocks.NotEmpty;
         public Vector2 Size { get; private set; }
         Graphics.Font TheFont = Fonts.Arial12Bold;
+        UIElementV2 Owner;
 
         public Graphics.Font DefaultFont
         {
@@ -43,6 +44,11 @@ namespace Ship_Game
                     UpdateSize();
                 }
             }
+        }
+
+        public PrettyText(UIElementV2 owner)
+        {
+            Owner = owner;
         }
 
         public void Clear()
@@ -80,7 +86,9 @@ namespace Ship_Game
 
                 block.Offset.Y = (newSize.Y / 2) - (size.Y / 2);
             }
+
             Size = newSize;
+            Owner.Size = Size;
         }
 
         public void Draw(SpriteBatch batch, Vector2 pos, Color defaultColor, bool shadows)
