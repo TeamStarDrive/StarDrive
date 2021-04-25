@@ -677,25 +677,6 @@ namespace Ship_Game
             }
 
             OrdersButtons.ResetButtons(SelectedNodeList);
-
-            //Log.Info("Reset OrdersButtons");
-
-
-            //// reset the buttons
-            //foreach (ToggleButton button in OrdersButtons)
-            //{
-            //    button.Visible = SelectedNodeList.Count > 0;
-            //    button.IsToggled = false;
-            //}
-
-            //// mark combined combat state statuses
-            //foreach (FleetDataNode fleetNode in SelectedNodeList)
-            //{
-            //    foreach (ToggleButton button in OrdersButtons)
-            //    {
-            //        button.IsToggled |= (fleetNode.CombatState == button.CombatState);
-            //    }
-            //}
         }
     }
 }

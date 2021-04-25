@@ -24,7 +24,6 @@ namespace Ship_Game
             batch.Begin();
             DrawGrid();
             
-            //OrdersButtons.Draw(batch, elapsed);
             if (SelectedNodeList.Count == 1)
             {
                 viewport = Viewport;
