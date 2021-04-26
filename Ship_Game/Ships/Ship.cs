@@ -184,9 +184,6 @@ namespace Ship_Game.Ships
             }
 
             shipStatusChanged = true;
-            // @todo Is this some sort of bug fix?
-            if (stance != CombatState.HoldPosition && AI.State == AIState.HoldPosition)
-                AI.State = AIState.AwaitingOrders;
         }
 
         Status FleetCapableStatus;
