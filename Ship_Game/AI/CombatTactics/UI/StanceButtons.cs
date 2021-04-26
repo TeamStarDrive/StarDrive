@@ -4,6 +4,18 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.AI.CombatTactics.UI
 {
+    /// <summary>
+    /// Use this class to add buttons or change button function for combat stances buttons.
+    /// Structure is that standard UI update and handle input is used.
+    /// to add this to something.
+    /// use a parent class.
+    /// design stance buttons to change shipdata combatstate
+    /// fleetStance buttons to change fleet stance
+    /// shipstance to change ai combatstate.
+    /// create as new.
+    /// load content.
+    /// use reset to switch targets
+    /// </summary>
     public abstract class StanceButtons : UIElementContainer
     {
         readonly Array<OrdersToggleButton> OrdersButtons = new Array<OrdersToggleButton>();
@@ -11,7 +23,7 @@ namespace Ship_Game.AI.CombatTactics.UI
         public CombatState CurrentState = CombatState.AttackRuns;
 
 
-        public StanceButtons(GameScreen parent, Vector2 topLeft) : base(parent.Rect)
+        protected StanceButtons(GameScreen parent, Vector2 topLeft) : base(parent.Rect)
         {
             OrdersBarPos = topLeft;
             Visible = false;
