@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
+using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 
@@ -13,7 +14,7 @@ namespace Ship_Game
     {
         public readonly UniverseScreen Screen;
 
-        public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
+        public ShipStanceButtons OrdersButtons;
         readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
         public Array<OrdersButton> Orders = new Array<OrdersButton>();
 
@@ -69,36 +70,11 @@ namespace Ship_Game
             float ordersStartX = Power.X - 3f;
             var ordersBarPos = new Vector2(ordersStartX, Screen.Height - 45f);
 
-            void AddOrdersBarButton(CombatState state, string icon, LocalizedText toolTip)
-            {
-                var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon);
-                CombatStatusButtons.Add(button);
-                button.CombatState = state;
-                button.Tooltip = toolTip;
-                button.OnClick = (b) => OnCombatStatusButtonClicked(state);
-                ordersBarPos.X += orderSize;
-            }
-
-            AddOrdersBarButton(CombatState.AttackRuns, "SelectionBox/icon_formation_headon", toolTip: GameText.ShipWillMakeHeadonAttack);
-            AddOrdersBarButton(CombatState.ShortRange, "SelectionBox/icon_grid", toolTip: GameText.ShipWillRotateSoThat2);
-            AddOrdersBarButton(CombatState.Artillery, "SelectionBox/icon_formation_aft", toolTip: GameText.ShipWillRotateSoThat);
-            AddOrdersBarButton(CombatState.HoldPosition, "SelectionBox/icon_formation_x", toolTip: GameText.ShipWillAttemptToHold);
-            AddOrdersBarButton(CombatState.OrbitLeft, "SelectionBox/icon_formation_left", toolTip: GameText.ShipWillManeuverToKeep);
-            AddOrdersBarButton(CombatState.OrbitRight, "SelectionBox/icon_formation_right", toolTip: GameText.ShipWillManeuverToKeep2);
-            AddOrdersBarButton(CombatState.Evade, "SelectionBox/icon_formation_stop", toolTip: GameText.ShipWillAvoidEngagingIn);
-
-            ordersBarPos = new Vector2(ordersStartX + orderSize * 4, ordersBarPos.Y - orderSize);
-            AddOrdersBarButton(CombatState.BroadsideLeft, "SelectionBox/icon_formation_bleft", toolTip: GameText.ShipWillMoveWithinMaximum);
-            AddOrdersBarButton(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", toolTip: GameText.ShipWillMoveWithinMaximum2);
+            OrdersButtons = new ShipStanceButtons(screen, ordersBarPos);
+            OrdersButtons.LoadContent();
 
             var slsubRect = new Rectangle(RightRect.X, Housing.Y + 110 - 35, RightRect.Width - 5, 140);
             SelectedShipsSL = new ScrollList2<SelectedShipListItem>(slsubRect, 24);
-        }
-
-        void OnCombatStatusButtonClicked(CombatState state)
-        {
-            foreach(Ship ship in ShipList)
-                ship.AI.CombatState = state;
         }
 
         public void ClearShipList()
@@ -111,6 +87,7 @@ namespace Ship_Game
         {
             base.Update(elapsed);
             SelectedShipsSL.Update(elapsed.RealTime.Seconds);
+            OrdersButtons.ResetButtons(ShipList);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -212,10 +189,7 @@ namespace Ship_Game
             if (ShipList.Count > 0)
                 batch.Draw(ResourceManager.Flag(ShipList.First().loyalty), FlagRect, ShipList.First().loyalty.EmpireColor);
 
-            foreach (ToggleButton button in CombatStatusButtons)
-            {
-                button.Draw(batch, elapsed);
-            }
+            OrdersButtons.Draw(batch, elapsed);
 
             GridButton.Draw(batch, elapsed);
         }
@@ -301,15 +275,8 @@ namespace Ship_Game
 
             if (AllShipsMine)
             {
-                foreach (ToggleButton button in CombatStatusButtons)
-                {
-                    button.IsToggled = ShipList.All(ship => ship.AI.CombatState == button.CombatState);
-                }
+                if (OrdersButtons.HandleInput(input)) return true;
 
-                foreach (ToggleButton button in CombatStatusButtons)
-                    if (button.HandleInput(input))
-                        return true;
-                
                 if (SlidingElement.HandleInput(input))
                 {
                     State = !SlidingElement.Open ? ElementState.TransitionOff : ElementState.TransitionOn;
@@ -446,7 +413,7 @@ namespace Ship_Game
                 {
                     allCombat = false;
                 }
-
+                OrdersButtons.ResetButtons(ShipList);
             }
 
             OrdersButton resupply = new OrdersButton(shipList, OrderType.OrderResupply, GameText.OrdersSelectedShipOrShips)
