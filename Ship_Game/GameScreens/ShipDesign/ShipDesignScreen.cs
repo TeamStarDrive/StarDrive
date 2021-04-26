@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
+using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
@@ -21,7 +22,8 @@ namespace Ship_Game
     public sealed partial class ShipDesignScreen : GameScreen
     {
         public Camera2D Camera;
-        public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
+        //public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
+        public DesignStanceButtons OrdersButton;
         public DesignShip DesignedShip { get; private set; }
         public ShipData ActiveHull;
         public EmpireUIOverlay EmpireUI;
@@ -431,25 +433,10 @@ namespace Ship_Game
 
             float ordersBarX = ClassifCursor.X - 15;
             var ordersBarPos = new Vector2(ordersBarX, ClassifCursor.Y + 20);
-            void AddCombatStatusBtn(CombatState cs, string iconPath, LocalizedText tip)
-            {
-                var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, iconPath) { CombatState = cs, Tooltip = tip };
-                button.OnClick = (b) => OnCombatButtonPressed(cs);
-                Add(button);
-                CombatStatusButtons.Add(button);
-                ordersBarPos.X += 29f;
-            }
-            AddCombatStatusBtn(CombatState.AttackRuns,   "SelectionBox/icon_formation_headon", tip: GameText.ShipWillMakeHeadonAttack);
-            AddCombatStatusBtn(CombatState.Artillery,    "SelectionBox/icon_formation_aft",    tip: GameText.ShipWillRotateSoThat);
-            AddCombatStatusBtn(CombatState.ShortRange,   "SelectionBox/icon_grid",             tip: GameText.ShipWillRotateSoThat2);
-            AddCombatStatusBtn(CombatState.HoldPosition, "SelectionBox/icon_formation_x",      tip: GameText.ShipWillAttemptToHold);
-            AddCombatStatusBtn(CombatState.OrbitLeft,    "SelectionBox/icon_formation_left",   tip: GameText.ShipWillManeuverToKeep);
-            AddCombatStatusBtn(CombatState.OrbitRight,   "SelectionBox/icon_formation_right",  tip: GameText.ShipWillManeuverToKeep2);
-            AddCombatStatusBtn(CombatState.Evade,        "SelectionBox/icon_formation_stop",   tip: GameText.ShipWillAvoidEngagingIn);
-            ordersBarPos = new Vector2(ordersBarX + 4*29f, ordersBarPos.Y + 29f);
-            AddCombatStatusBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft", GameText.ShipWillMoveWithinMaximum);
-            AddCombatStatusBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", GameText.ShipWillMoveWithinMaximum2);
-            
+            OrdersButton = new DesignStanceButtons(this, ordersBarPos);
+            OrdersButton.LoadContent();
+            Add(OrdersButton);
+
             UIList bottomListRight = AddList(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));
             bottomListRight.LayoutStyle = ListLayoutStyle.ResizeList;
             bottomListRight.Direction = new Vector2(-1, 0);
