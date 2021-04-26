@@ -46,7 +46,7 @@ namespace Ship_Game
         PlanetGridSquare BioToScrap;
 
         public bool ClickedTroop;
-        bool EditHoverState;
+        bool EditNameButtonHovered;
 
         Rectangle EditNameButton;
         readonly Graphics.Font Font8  = Fonts.Arial8Bold;
@@ -167,8 +167,7 @@ namespace Ship_Game
             foreach (PlanetGridSquare planetGridSquare in p.TilesList)
                 planetGridSquare.ClickRect = new Rectangle(GridPos.X + planetGridSquare.X * width, GridPos.Y + planetGridSquare.Y * height, width, height);
             
-            PlanetName  = new UITextEntry();
-            PlanetName.Text = p.Name;
+            PlanetName = new UITextEntry(p.Name);
             PlanetName.Color = Colors.Cream;
             PlanetName.MaxCharacters = 20;
             PlanetName.OnTextChanged = OnPlanetNameChanged;

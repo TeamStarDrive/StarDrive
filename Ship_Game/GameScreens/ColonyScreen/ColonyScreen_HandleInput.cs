@@ -195,14 +195,12 @@ namespace Ship_Game
 
         bool HandlePlanetNameChangeTextBox(InputState input)
         {
-            EditHoverState = EditNameButton.HitTest(input.CursorPosition);
-            if (EditHoverState && input.LeftMouseClick)
+            EditNameButtonHovered = EditNameButton.HitTest(input.CursorPosition);
+            if (EditNameButtonHovered && input.LeftMouseClick)
+            {
                 PlanetName.HandlingInput = true;
-
-            if (PlanetName.HandleInput(input))
-                return true;
-
-            return false;
+            }
+            return PlanetName.HandleInput(input);
         }
 
         void HandleExportImportButtons(InputState input)

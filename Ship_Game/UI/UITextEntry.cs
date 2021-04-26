@@ -22,9 +22,10 @@ namespace Ship_Game
         public bool ResetTextOnInput;
         public int MaxCharacters = 30;
         int CursorPos;
-        int CursorCounter;
+        const float RepeatInterval = 0.1f;
+        float RepeatCooldown;
 
-        public Graphics.Font Font = Fonts.Arial20Bold;
+        public Graphics.Font Font = Fonts.Arial14Bold;
         public Color Color = Color.Orange;
         public Color HoverColor = Color.White;
         public Color InputColor = Color.BurlyWood;
@@ -78,6 +79,7 @@ namespace Ship_Game
         public void Reset(string text)
         {
             HandlingInput = false;
+            CursorPos = text.Length;
             Text = text;
         }
 
@@ -119,6 +121,26 @@ namespace Ship_Game
             }
         }
         
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+        {
+            Vector2 pos = Pos;
+            Color color = Color;
+            if (HandlingInput) color = InputColor;
+            else if (Hover)    color = HoverColor;
+
+            batch.DrawString(Font, Text, pos, color);
+            if (HandlingInput)
+            {
+                float f = Math.Abs(RadMath.Sin(GameBase.Base.TotalElapsed * 3.14f));
+                var flashColor = Color.White.Alpha((f + 0.1f).Clamped(0f, 1f));
+                
+                int length = Math.Min(Text.Length, CursorPos);
+                string substring = Text.Substring(0, length);
+                pos.X += Font.TextWidth(substring);
+                batch.DrawString(Font, "|", pos, flashColor);
+            }
+        }
+
         public override bool HandleInput(InputState input)
         {
             if (!Enabled)
@@ -148,6 +170,15 @@ namespace Ship_Game
                 }
             }
 
+            // click in the middle of the text?
+            if (Hover && HandlingInput && input.LeftMouseClick)
+            {
+                float textWidth = Font.TextWidth(TextValue);
+                float localX = input.CursorPosition.X - Pos.X;
+                float relX = (localX / textWidth).Clamped(0f, 1f);
+                CursorPos = (int)(relX * TextValue.Length);
+            }
+
             if (HandlingInput)
                 return HandleTextInput(input);
             return false;
@@ -155,12 +186,6 @@ namespace Ship_Game
 
         bool HandleTextInput(InputState input)
         {
-            if (!HandlingInput)
-            {
-                HandlingInput = false;
-                return false;
-            }
-
             if (input.IsEnterOrEscape)
             {
                 HandlingInput = false;
@@ -195,10 +220,6 @@ namespace Ship_Game
 
         bool HandleCursor(InputState input)
         {
-            CursorCounter++;
-            if (CursorCounter == 5)
-                CursorCounter = 0;
-            
             bool back   = input.IsKeyDown(Keys.Back);
             bool delete = input.IsKeyDown(Keys.Delete);
             bool left   = input.IsKeyDown(Keys.Left);
@@ -206,9 +227,11 @@ namespace Ship_Game
             if (!back && !delete && !left && !right)
                 return false;
 
-            // back, left or right were pressed, wait until counter reaches 0
-            if (CursorCounter == 0)
+            // back, left or right were pressed, wait until cooldown reaches 0
+            RepeatCooldown -= GameBase.Base.Elapsed.RealTime.Seconds;
+            if (RepeatCooldown <= 0f)
             {
+                RepeatCooldown = RepeatInterval;
                 if (HandleCursorMove(back, delete, left, right))
                     GameAudio.BlipClick();
                 else
@@ -223,12 +246,13 @@ namespace Ship_Game
 
             if (back && TextValue.Length != 0 && CursorPos > 0)
             {
-                Text = TextValue.Remove(CursorPos - 1);
+                Text = TextValue.Remove(CursorPos - 1, 1);
+                --CursorPos;
                 return true;
             }
             else if (delete && TextValue.Length != 0 && CursorPos < TextValue.Length)
             {
-                Text = TextValue.Remove(CursorPos);
+                Text = TextValue.Remove(CursorPos, 1);
                 return true;
             }
             else if (left && CursorPos > 0)
@@ -244,39 +268,6 @@ namespace Ship_Game
             return false;
         }
 
-        // TODO: This is only here for legacy compat
-        public void Draw(SpriteBatch batch, DrawTimes elapsed, Graphics.Font font, Vector2 pos, Color c)
-        {
-            Font = font;
-            Pos = pos;
-            if (Hover)
-                HoverColor = c;
-            else 
-                Color = c;
-            Draw(batch, elapsed);
-        }
-
-        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
-        {
-            Vector2 pos = Pos;
-            Color color = Color;
-            if (HandlingInput) color = InputColor;
-            else if (Hover)    color = HoverColor;
-
-            batch.DrawString(Font, Text, pos, color);
-            if (HandlingInput)
-            {
-                float f = Math.Abs(RadMath.Sin(GameBase.Base.TotalElapsed));
-                var flashColor = Color.White.Alpha((f + 0.25f).Clamped(0f, 1f));
-                
-                int length = Math.Min(Text.Length, CursorPos);
-                string substring = Text.Substring(0, length);
-                pos.X += Font.TextWidth(substring);
-                batch.DrawString(Font, "|", pos, flashColor);
-            }
-        }
-        
-
         bool AddKeyToText(InputState input, Keys key)
         {
             char ch = GetCharFromKey(key);
@@ -287,6 +278,7 @@ namespace Ship_Game
                 
                 CursorPos = CursorPos.Clamped(0, TextValue.Length);
                 Text = TextValue.Insert(CursorPos, ch.ToString());
+                CursorPos += 1;
                 return true;
             }
             return false;
