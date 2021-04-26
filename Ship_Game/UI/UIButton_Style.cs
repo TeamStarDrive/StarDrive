@@ -146,7 +146,7 @@ namespace Ship_Game
         {
             if (Normal != null)
                 return Normal.SizeF;
-            return RichText.Size;
+            return new Vector2(2, 2);
         }
         
         SubTexture ButtonTexture()
