@@ -187,6 +187,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\Evade.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\UI\FleetStanceButtons.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\UI\DesignStanceButtons.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\UI\ShipStanceButtons.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\UI\StanceButtons.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.ShipWeight.cs" />

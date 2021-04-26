@@ -196,31 +196,6 @@ namespace Ship_Game
             OrdersButtons = new FleetStanceButtons(this, ordersBarPos);
             OrdersButtons.LoadContent();
             Add(OrdersButtons);
-            //void AddOrdersBtn(CombatState state, string icon, LocalizedText toolTip)
-            //{
-            //    var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon)
-            //    {
-            //        CombatState = state,
-            //        Tooltip = toolTip,
-            //        OnClick = (b) => OnOrderButtonClicked(b, state),
-            //        Visible = false,
-            //    };
-            //    Add(button);
-            //    OrdersButtons.Add(button);
-            //    ordersBarPos.X += 29f;
-            //}
-
-            //AddOrdersBtn(CombatState.AttackRuns,   "SelectionBox/icon_formation_headon", toolTip: GameText.ShipWillMakeHeadonAttack);
-            //AddOrdersBtn(CombatState.Artillery,    "SelectionBox/icon_formation_aft",    toolTip: GameText.ShipWillRotateSoThat);
-            //AddOrdersBtn(CombatState.HoldPosition, "SelectionBox/icon_formation_x",      toolTip: GameText.ShipWillAttemptToHold);
-            //AddOrdersBtn(CombatState.OrbitLeft,    "SelectionBox/icon_formation_left",   toolTip: GameText.ShipWillManeuverToKeep);
-            //AddOrdersBtn(CombatState.OrbitRight,   "SelectionBox/icon_formation_right",  toolTip: GameText.ShipWillManeuverToKeep2);
-            //AddOrdersBtn(CombatState.Evade,        "SelectionBox/icon_formation_stop",   toolTip: GameText.ShipWillAvoidEngagingIn);
-
-            //ordersBarPos = new Vector2(SelectedStuffRect.X + 20 + 3*29f, ordersBarPos.Y + 29f);
-            //AddOrdersBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft",  toolTip: GameText.ShipWillMoveWithinMaximum);
-            //AddOrdersBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", toolTip: GameText.ShipWillMoveWithinMaximum2);
-
 
             RequisitionForces = new BlueButton(new Vector2(SelectedStuffRect.X + 240, SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20), "Requisition...");
             SaveDesign = new BlueButton(new Vector2(SelectedStuffRect.X + 240, SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20 + 50), "Save Design...");

@@ -28,7 +28,7 @@ namespace Ship_Game.AI.CombatTactics.UI
             AddOrderBtn("SelectionBox/icon_formation_right", CombatState.OrbitRight, toolTip: GameText.ShipWillManeuverToKeep2);
             AddOrderBtn("SelectionBox/icon_formation_stop", CombatState.Evade, toolTip: GameText.ShipWillAvoidEngagingIn);
 
-            OrdersBarPos = new Vector2(OrdersBarPos.X + 4 * 25f, OrdersBarPos.Y + 25f);
+            OrdersBarPos = new Vector2(OrdersBarPos.X - 3 * 25f, OrdersBarPos.Y + 25f);
             AddOrderBtn("SelectionBox/icon_formation_bleft", CombatState.BroadsideLeft, toolTip: GameText.ShipWillMoveWithinMaximum);
             AddOrderBtn("SelectionBox/icon_formation_bright", CombatState.BroadsideLeft, toolTip: GameText.ShipWillMoveWithinMaximum2);
 
