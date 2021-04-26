@@ -195,55 +195,13 @@ namespace Ship_Game
 
         bool HandlePlanetNameChangeTextBox(InputState input)
         {
-            if (!EditNameButton.HitTest(input.CursorPosition))
-            {
-                EditHoverState = 0;
-            }
-            else
-            {
-                EditHoverState = 1;
-                if (input.LeftMouseClick)
-                {
-                    PlanetName.HandlingInput = true;
-                }
-            }
+            EditHoverState = EditNameButton.HitTest(input.CursorPosition);
+            if (EditHoverState && input.LeftMouseClick)
+                PlanetName.HandlingInput = true;
 
-            if (PlanetName.HandlingInput)
-            {
-                PlanetName.HandleTextInput(ref PlanetName.Text, input);
+            if (PlanetName.HandleInput(input))
                 return true;
-            }
 
-            bool empty = true;
-            string text = PlanetName.Text;
-            int num = 0;
-            while (num < text.Length)
-            {
-                if (text[num] == ' ')
-                {
-                    num++;
-                }
-                else
-                {
-                    empty = false;
-                    break;
-                }
-            }
-
-            if (empty)
-            {
-                int ringnum = 1;
-                foreach (SolarSystem.Ring ring in P.ParentSystem.RingList)
-                {
-                    if (ring.planet == P)
-                    {
-                        PlanetName.Text = string.Concat(P.ParentSystem.Name, " ",
-                            RomanNumerals.ToRoman(ringnum));
-                    }
-
-                    ringnum++;
-                }
-            }
             return false;
         }
 

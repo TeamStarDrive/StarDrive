@@ -555,13 +555,13 @@ namespace Ship_Game
 
             StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
             StuffSelector.Draw(batch, elapsed);
+
             Fleet f = EmpireManager.Player.GetFleetsDict()[FleetToEdit];
             Vector2 cursor1 = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
             FleetNameEntry.Text = f.Name;
-            FleetNameEntry.ClickableArea = new Rectangle((int) cursor1.X, (int) cursor1.Y,
-                (int) Fonts.Arial20Bold.MeasureString(f.Name).X, Fonts.Arial20Bold.LineSpacing);
-            FleetNameEntry.Draw(batch, elapsed, Fonts.Arial20Bold, cursor1,
-                (FleetNameEntry.Hover ? Color.Orange : Colors.Cream));
+            FleetNameEntry.SetPos(cursor1);
+            FleetNameEntry.Draw(batch, elapsed);
+
             cursor1.Y = cursor1.Y + (Fonts.Arial20Bold.LineSpacing + 10);
             cursor1 = cursor1 + new Vector2(50f, 30f);
             batch.DrawString(Fonts.Pirulen12, "Fleet Icon", cursor1, Colors.Cream);

@@ -179,7 +179,7 @@ namespace Ship_Game
 
             var InfoPos = new Vector2(SaveHullButton.r.X - 50, SaveHullButton.r.Y - 20);
             batch.DrawString(Fonts.Arial12Bold, "Hulls are saved to StarDrive/Ship Tools", InfoPos, Color.White);
-            ShipNameBox.Draw(batch, elapsed, Fonts.Arial20Bold, new Vector2(ShipNameBox.ClickableArea.X, ShipNameBox.ClickableArea.Y), Color.Orange);
+            ShipNameBox.Draw(batch, elapsed);
             SaveHullButton.Draw(ScreenManager);
             LoadModelButton.Draw(ScreenManager);
 
@@ -290,28 +290,6 @@ namespace Ship_Game
                 ScreenManager.AddScreen(new LoadModelScreen(this));
             }
 
-            if (ShipNameBox.HandlingInput)
-            {
-                ShipNameBox.HandleTextInput(ref HullName, input);
-                ShipNameBox.Text = HullName;
-            }
-            if (!ShipNameBox.ClickableArea.HitTest(input.CursorPosition))
-            {
-                ShipNameBox.Hover = false;
-                if (input.InGameSelect)
-                {
-                    ShipNameBox.HandlingInput = false;
-                }
-            }
-            else
-            {
-                ShipNameBox.Hover = true;
-                if (input.InGameSelect)
-                {
-                    ShipNameBox.HandlingInput = true;
-                }
-            }
-
             if (input.LeftMouseClick)
             {
                 SelectionBox = new Rectangle(Input.MouseX, Input.MouseY, 0, 0);
@@ -414,6 +392,9 @@ namespace Ship_Game
                 ClickableArea = new Rectangle(screenWidth - 200, screenHeight - 115, 180, 20),
                 Text = HullName
             };
+            ShipNameBox.SetColors(Color.Orange, Colors.Cream);
+            ShipNameBox.OnTextChanged = (text) => HullName = text;
+
             AssignLightRig(LightRigIdentity.ShipToolScreen, "example/ShipyardLightrig");
             ScreenManager.Environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
             float aspectRatio = Viewport.Width / (float)Viewport.Height;

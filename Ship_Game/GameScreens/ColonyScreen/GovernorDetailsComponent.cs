@@ -171,12 +171,12 @@ namespace Ship_Game
             CivBudgetBar.Faction10Values = true;
             GrdBudgetBar.Faction10Values = true;
             SpcBudgetBar.Faction10Values = true;
-            CivBudgetBar.color           = "green";
-            SpcBudgetBar.color           = "blue";
+            CivBudgetBar.color = "green";
+            SpcBudgetBar.color = "blue";
 
-            ManualCivBudget       = Add(new UITextEntry(Planet.ManualCivilianBudget.String(2)));
-            ManualGrdBudget       = Add(new UITextEntry(Planet.ManualGrdDefBudget.String(2)));
-            ManualSpcBudget       = Add(new UITextEntry(Planet.ManualSpcDefBudget.String(2)));
+            ManualCivBudget = Add(new UITextEntry(Planet.ManualCivilianBudget.String(2)));
+            ManualGrdBudget = Add(new UITextEntry(Planet.ManualGrdDefBudget.String(2)));
+            ManualSpcBudget = Add(new UITextEntry(Planet.ManualSpcDefBudget.String(2)));
             ManualCivBudget.Color = Color.MediumSeaGreen;
             ManualSpcBudget.Color = Color.SteelBlue;
 
