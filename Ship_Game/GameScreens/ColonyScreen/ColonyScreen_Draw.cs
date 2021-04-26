@@ -181,33 +181,34 @@ namespace Ship_Game
             batch.Draw(P.PlanetTexture, PlanetIcon, Color.White);
 
             float num5 = 80f;
-            var vector2_2 = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
-            P.Name = PlanetName.Text;
-            PlanetName.Draw(batch, elapsed, Font20, vector2_2, Colors.Cream);
-            EditNameButton = new Rectangle((int)(vector2_2.X + (double)Font20.MeasureString(P.Name).X + 12.0), (int)(vector2_2.Y + (double)(Font20.LineSpacing / 2) - ResourceManager.Texture("NewUI/icon_build_edit").Height / 2) - 2, ResourceManager.Texture("NewUI/icon_build_edit").Width, ResourceManager.Texture("NewUI/icon_build_edit").Height);
-            if (EditHoverState == 0 && !PlanetName.HandlingInput)
+            var cursor = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
+            PlanetName.SetPos(cursor);
+            PlanetName.Draw(batch, elapsed);
+
+            EditNameButton = new Rectangle((int)(cursor.X + (double)Font20.MeasureString(P.Name).X + 12.0), (int)(cursor.Y + (double)(Font20.LineSpacing / 2) - ResourceManager.Texture("NewUI/icon_build_edit").Height / 2) - 2, ResourceManager.Texture("NewUI/icon_build_edit").Width, ResourceManager.Texture("NewUI/icon_build_edit").Height);
+            if (EditHoverState && !PlanetName.HandlingInput)
                 batch.Draw(ResourceManager.Texture("NewUI/icon_build_edit"), EditNameButton, Color.White);
             else
                 batch.Draw(ResourceManager.Texture("NewUI/icon_build_edit_hover2"), EditNameButton, Color.White);
 
             if (ScreenHeight > 768)
-                vector2_2.Y += Font20.LineSpacing * 2;
+                cursor.Y += Font20.LineSpacing * 2;
             else
-                vector2_2.Y += Font20.LineSpacing;
-            batch.DrawString(TextFont, Localizer.Token(GameText.Class) + ":", vector2_2, Color.Orange);
-            Vector2 position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
+                cursor.Y += Font20.LineSpacing;
+            batch.DrawString(TextFont, Localizer.Token(GameText.Class) + ":", cursor, Color.Orange);
+            Vector2 position3 = new Vector2(cursor.X + num5, cursor.Y);
             batch.DrawString(TextFont, P.CategoryName, position3, Colors.Cream);
-            vector2_2.Y += TextFont.LineSpacing + 2;
-            position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(TextFont, Localizer.Token(GameText.Population) + ":", vector2_2, Color.Orange);
+            cursor.Y += TextFont.LineSpacing + 2;
+            position3 = new Vector2(cursor.X + num5, cursor.Y);
+            batch.DrawString(TextFont, Localizer.Token(GameText.Population) + ":", cursor, Color.Orange);
             var color = Colors.Cream;
             batch.DrawString(TextFont, P.PopulationStringForPlayer, position3, color);
-            var rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Population) + ":").X, TextFont.LineSpacing);
+            var rect = new Rectangle((int)cursor.X, (int)cursor.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Population) + ":").X, TextFont.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(GameText.AColonysPopulationIsA);
-            vector2_2.Y += TextFont.LineSpacing + 2;
-            position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(TextFont, Localizer.Token(GameText.Fertility) + ":", vector2_2, Color.Orange);
+            cursor.Y += TextFont.LineSpacing + 2;
+            position3 = new Vector2(cursor.X + num5, cursor.Y);
+            batch.DrawString(TextFont, Localizer.Token(GameText.Fertility) + ":", cursor, Color.Orange);
             string fertility;
             if (P.FertilityFor(Player).AlmostEqual(P.MaxFertilityFor(Player))
                 || P.FertilityFor(Player).AlmostZero() && P.MaxFertilityFor(Player).LessOrEqual(0))
@@ -255,8 +256,8 @@ namespace Ship_Game
             UpdateData();
             if (IncomingFreighters > 0 && (P.Owner?.isPlayer == true || Empire.Universe.Debug))
             {
-                Vector2 incomingTitle = new Vector2(vector2_2.X + + 200, vector2_2.Y - (TextFont.LineSpacing + 2) * 3);
-                Vector2 incomingData =  new Vector2(vector2_2.X + 200 + num5, vector2_2.Y - (TextFont.LineSpacing + 2) * 3);
+                Vector2 incomingTitle = new Vector2(cursor.X + + 200, cursor.Y - (TextFont.LineSpacing + 2) * 3);
+                Vector2 incomingData =  new Vector2(cursor.X + 200 + num5, cursor.Y - (TextFont.LineSpacing + 2) * 3);
                 batch.DrawString(TextFont, "Incoming Freighters:", incomingTitle, Color.White);
 
                 DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingFoodFreighters,
@@ -272,22 +273,22 @@ namespace Ship_Game
 
             if (OutgoingFreighters > 0 && (P.Owner?.isPlayer == true || Empire.Universe.Debug))
             {
-                Vector2 outgoingTitle = new Vector2(vector2_2.X + +200, vector2_2.Y + (TextFont.LineSpacing + 2) * 2);
-                Vector2 outgoingData  = new Vector2(vector2_2.X + 200 + num5, vector2_2.Y + (TextFont.LineSpacing + 2) * 2);
+                Vector2 outgoingTitle = new Vector2(cursor.X + +200, cursor.Y + (TextFont.LineSpacing + 2) * 2);
+                Vector2 outgoingData  = new Vector2(cursor.X + 200 + num5, cursor.Y + (TextFont.LineSpacing + 2) * 2);
                 batch.DrawString(TextFont, "Outgoing Freighters:", outgoingTitle, Color.White);
                 DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingFoodFreighters, GameText.Food);
                 DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingProdFreighters, GameText.Production);
                 DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingColoFreighters, GameText.Colonists);
             }
 
-            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Fertility) + ":").X, TextFont.LineSpacing);
+            rect = new Rectangle((int)cursor.X, (int)cursor.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Fertility) + ":").X, TextFont.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(GameText.IndicatesHowMuchFoodThis);
-            vector2_2.Y += TextFont.LineSpacing + 2;
-            position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(TextFont, Localizer.Token(GameText.Richness) + ":", vector2_2, Color.Orange);
+            cursor.Y += TextFont.LineSpacing + 2;
+            position3 = new Vector2(cursor.X + num5, cursor.Y);
+            batch.DrawString(TextFont, Localizer.Token(GameText.Richness) + ":", cursor, Color.Orange);
             batch.DrawString(TextFont, P.MineralRichness.String(), position3, Colors.Cream);
-            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Richness) + ":").X, TextFont.LineSpacing);
+            rect = new Rectangle((int)cursor.X, (int)cursor.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Richness) + ":").X, TextFont.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(GameText.APlanetsMineralRichnessDirectly);
 

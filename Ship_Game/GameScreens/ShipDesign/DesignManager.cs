@@ -59,6 +59,7 @@ namespace Ship_Game
             EnterNameArea = Add(new UITextEntry(background.Pos + new Vector2(20, 40), "Design Name: "));
             EnterNameArea.Text = ShipName;
             EnterNameArea.Color = Colors.Cream;
+            EnterNameArea.OnTextChanged = (text) => PopulateDesigns(text);
 
             ShipDesigns = Add(new ScrollList2<ShipDesignListItem>(subAllDesigns));
             ShipDesigns.EnableItemHighlight = true;
@@ -182,13 +183,6 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            string name = "";
-            if (EnterNameArea.HandlingInput && (input.IsBackSpace || input.IsEnterOrEscape)
-                || EnterNameArea.HandleTextInput(ref name, input) && name.NotEmpty())
-            {
-                PopulateDesigns($"{EnterNameArea.Text}{name}");
-            }
-
             return base.HandleInput(input);
         }
     }

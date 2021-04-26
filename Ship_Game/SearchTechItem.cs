@@ -28,10 +28,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (Node.HandleInput(input, Screen.ScreenManager, Screen.camera))
-                return true;
-
-            return false;
+            return Node.HandleInput(input, Screen.ScreenManager, Screen.camera);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
