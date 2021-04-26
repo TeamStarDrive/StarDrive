@@ -1006,7 +1006,7 @@ AvailableDesigns:
  SPA: "Diseños disponibles"
 ChooseAShipToLoad:
  Id: 199
- ENG: "Choose a Ship to Load"
+ ENG: "Enter Ship Name"
  RUS: "Выберите корабль для загрузки"
  SPA: "Elegir una nave para cargar"
 ShipWillMakeHeadonAttack:

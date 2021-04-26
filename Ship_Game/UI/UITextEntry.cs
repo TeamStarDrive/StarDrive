@@ -9,12 +9,6 @@ namespace Ship_Game
 {
     public class UITextEntry : UIElementV2
     {
-        public Rectangle ClickableArea
-        {
-            get => Rect;
-            set => Rect = value;
-        }
-
         string TextValue;
         public bool HandlingInput;
         
@@ -30,11 +24,15 @@ namespace Ship_Game
         public int MaxCharacters = 30;
         int CursorPos;
 
+        /// <summary>
+        /// Time it takes for AutoCapture to lose focus on this text entry
+        /// </summary>
+        public float AutoCaptureLoseFocusTime = 1.0f;
+        float AutoDecaptureTimer;
+        
         const float FirstRepeatTime = 0.2f;
         const float RepeatInterval = 0.1f;
-        const float AutoCaptureInterval = 1.0f;
         float RepeatCooldown;
-        float KeyPressCooldown;
         float LastRepeatStart;
 
         public Graphics.Font Font = Fonts.Arial14Bold;
@@ -70,7 +68,8 @@ namespace Ship_Game
             Font = font;
             Text = text;
             CursorPos = text.Length;
-            ClickableArea = new Rectangle((int)pos.X, (int)pos.Y, font.TextWidth(Text) + 20, font.LineSpacing);
+            Pos = pos;
+            Size = new Vector2(font.TextWidth(Text) + 20, font.LineSpacing);
         }
 
         public UITextEntry(float x, float y, float width, Graphics.Font font = null)
@@ -158,7 +157,7 @@ namespace Ship_Game
             if (!Enabled)
                 return false;
 
-            Hover = ClickableArea.HitTest(input.CursorPosition);
+            Hover = HitTest(input.CursorPosition);
 
             bool autoKeysDown = AutoCaptureInput && AnyValidInputKeysDown(input);
             bool capture = Hover || autoKeysDown;
@@ -174,7 +173,7 @@ namespace Ship_Game
             }
             else if (!Hover && HandlingInput)
             {
-                bool autoExit = AutoCaptureInput && !autoKeysDown && KeyPressCooldown <= 0f;
+                bool autoExit = AutoCaptureInput && !autoKeysDown && AutoDecaptureTimer <= 0f;
                 if (autoExit || input.RightMouseClick || input.LeftMouseClick)
                 {
                     HandlingInput = false;
@@ -198,7 +197,7 @@ namespace Ship_Game
 
         bool HandleTextInput(InputState input)
         {
-            KeyPressCooldown -= GameBase.Base.Elapsed.RealTime.Seconds;
+            AutoDecaptureTimer -= GameBase.Base.Elapsed.RealTime.Seconds;
 
             if (input.IsEnterOrEscape)
             {
@@ -213,7 +212,7 @@ namespace Ship_Game
             Keys[] keysDown = input.GetKeysDown();
             for (int i = 0; i < keysDown.Length; i++)
             {
-                KeyPressCooldown = AutoCaptureInterval;
+                AutoDecaptureTimer = AutoCaptureLoseFocusTime;
                 Keys key = keysDown[i];
                 if (key != Keys.Back && input.KeyPressed(key) && TextValue.Length < MaxCharacters)
                 {
@@ -240,7 +239,7 @@ namespace Ship_Game
             if (!back && !delete && !left && !right)
                 return false;
             
-            KeyPressCooldown = AutoCaptureInterval;
+            AutoDecaptureTimer = AutoCaptureLoseFocusTime;
 
             // back, left or right were pressed, wait until cooldown reaches 0
             if (RepeatCooldown <= 0f)
@@ -363,7 +362,8 @@ namespace Ship_Game
             }
         }
 
-        bool IsValidKey(Keys key) => GetCharFromKey(key) != '\0';
+        bool IsValidKey(Keys key) => GetCharFromKey(key) != '\0' || IsCursorKey(key);
+        bool IsCursorKey(Keys key) => key == Keys.Back || key == Keys.Delete || key == Keys.Left || key == Keys.Right;
         bool AnyValidInputKeysDown(InputState input) => input.GetKeysDown().Any(IsValidKey);
     }
 }

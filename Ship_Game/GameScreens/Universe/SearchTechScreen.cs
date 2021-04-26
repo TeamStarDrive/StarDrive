@@ -25,9 +25,7 @@ namespace Ship_Game
             var panelRect   = new Rectangle((int)Window.X + 20, (int)Window.Y + 80, (int)Window.Width - 40, (int)Window.Height - 110);
             var panel       = new Submenu(panelRect, SubmenuStyle.Blue);
             TechList        = Add(new ScrollList2<SearchTechItem>(panel, 125, ListStyle.Blue));
-            SearchTech      = Add(new UITextEntry(new Vector2(Window.X + 30, Window.Y + 65), ""));
-            SearchTech.Font = Fonts.Arial14Bold;
-            SearchTech.ClickableArea = new Rectangle((int)Window.X + 35, (int)Window.Y + 70, (int)Window.Width - 70, 36);
+            SearchTech = Add(new UITextEntry(Window.X + 35, Window.Y + 68, Window.Width - 70, Fonts.Arial14Bold));
             SearchTech.MaxCharacters = 14;
             SearchTech.OnTextChanged = OnSearchTextChanged;
             SearchTech.AutoCaptureInput = true;

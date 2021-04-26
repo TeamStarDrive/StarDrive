@@ -92,7 +92,7 @@ namespace Ship_Game
 
             ShipIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, 50, 50);
             PlanetNameEntry.Text = Planet.Name;
-            PlanetNameEntry.ClickableArea = new Rectangle(ShipIconRect.Right + 10, y, Fonts.Arial20Bold.TextWidth(Planet.Name), Fonts.Arial20Bold.LineSpacing);
+            PlanetNameEntry.SetPos(ShipIconRect.Right + 10, y);
             
             var btn = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px");
             Colonize.Rect      = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - btn.Height / 2, btn.Width, btn.Height);
@@ -134,7 +134,7 @@ namespace Ship_Game
 
         void AddPlanetName()
         {
-            var namePos = new Vector2(PlanetNameEntry.ClickableArea.X, PlanetNameEntry.ClickableArea.Y + 3);
+            var namePos = new Vector2(PlanetNameEntry.X, PlanetNameEntry.Y + 3);
             Label(namePos, Planet.Name, NormalFont, EmpireColor);
             // Now add Richness
             namePos.Y += NormalFont.LineSpacing;
