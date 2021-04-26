@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace Ship_Game
 {
@@ -16,7 +17,7 @@ namespace Ship_Game
         readonly Submenu PStorage;
         readonly Submenu PFacilities;
         readonly Submenu BuildableTabs;
-        readonly UITextEntry PlanetName = new UITextEntry();
+        readonly UITextEntry PlanetName;
         readonly Rectangle PlanetIcon;
         public EmpireUIOverlay Eui;
         readonly ToggleButton LeftColony;
@@ -46,7 +47,6 @@ namespace Ship_Game
         PlanetGridSquare BioToScrap;
 
         public bool ClickedTroop;
-        int EditHoverState;
 
         Rectangle EditNameButton;
         readonly Graphics.Font Font8  = Fonts.Arial8Bold;
@@ -114,9 +114,9 @@ namespace Ship_Game
             //PFacilities.AddTab(GameText.Trade2.Text); // Trade
             PFacilities.AddTab(GameText.Description); // Description
 
-            FilterBuildableItems = Add(new UITextEntry(new Vector2(RightMenu.X + 80, RightMenu.Y + 17), ""));
-            FilterBuildableItems.Font = Font12;
-            FilterBuildableItems.ClickableArea = new Rectangle((int)RightMenu.X + 75, (int)RightMenu.Y+ 15, (int)RightMenu.Width - 400, 42);
+            FilterBuildableItems = Add(new UITextEntry(new Vector2(RightMenu.X + 75, RightMenu.Y + 15), Font12, ""));
+            FilterBuildableItems.AutoCaptureOnHover = true;
+
             FilterFrame = Add(new Submenu(RightMenu.X + 70, RightMenu.Y-10, RightMenu.Width - 400, 42));
             Label(FilterFrame.Pos + new Vector2(-45,25), "Filter:", Font12, Color.White);
             var customStyle = new UIButton.StyleTextures("NewUI/icon_clear_filter", "NewUI/icon_clear_filter_hover");
@@ -167,8 +167,11 @@ namespace Ship_Game
             foreach (PlanetGridSquare planetGridSquare in p.TilesList)
                 planetGridSquare.ClickRect = new Rectangle(GridPos.X + planetGridSquare.X * width, GridPos.Y + planetGridSquare.Y * height, width, height);
             
-            PlanetName.Text = p.Name;
+            PlanetName = Add(new UITextEntry(p.Name));
+            PlanetName.Color = Colors.Cream;
             PlanetName.MaxCharacters = 20;
+            PlanetName.OnTextChanged = OnPlanetNameChanged;
+            PlanetName.OnTextSubmit = OnPlanetNameSubmit;
 
             if (p.Owner != null)
             {
@@ -182,6 +185,25 @@ namespace Ship_Game
 
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
             P.RefreshBuildingsWeCanBuildHere();
+        }
+
+        void OnPlanetNameSubmit(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                int ringnum = 1 + P.ParentSystem.RingList.IndexOf(r => r.planet == P);
+                P.Name = string.Concat(P.ParentSystem.Name, " ", RomanNumerals.ToRoman(ringnum));
+                PlanetName.Reset(P.Name);
+            }
+            else
+            {
+                P.Name = name;
+            }
+        }
+
+        void OnPlanetNameChanged(string name)
+        {
+            P.Name = name;
         }
 
         public float TerraformTargetFertility()

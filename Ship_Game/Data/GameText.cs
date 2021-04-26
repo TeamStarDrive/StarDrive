@@ -418,7 +418,7 @@ namespace Ship_Game
         Statistics = 197,
         /// <summary>Available Designs</summary>
         AvailableDesigns = 198,
-        /// <summary>Choose a Ship to Load</summary>
+        /// <summary>Enter Ship Name</summary>
         ChooseAShipToLoad = 199,
         /// <summary>Attack Runs: Ship will make head-on attack runs on its</summary>
         ShipWillMakeHeadonAttack = 200,
@@ -5024,5 +5024,13 @@ namespace Ship_Game
         ExpEvent_BuiltRDA_Outcome1_Title = -18,
         /// <summary>Your quest to discover the secrets of The Remnant continues.</summary>
         ExpEvent_BuiltRDA_Outcome1_Descr = -19,
+        /// <summary>Start Typing to Find Techs</summary>
+        StartTypingToFindTechs = -20,
+        /// <summary>Design Name:</summary>
+        DesignName = -21,
+        /// <summary>Similar Design Names</summary>
+        SimilarDesignNames = -22,
+        /// <summary>Save Ship Design</summary>
+        SaveShipDesign = -23,
     }
 }
