@@ -10,7 +10,6 @@ namespace Ship_Game.Ships
 {
     public sealed class ShipInfoUIElement : UIElement
     {
-        //public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
         public ShipStanceButtons OrdersButtons;
         private readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
         public Array<OrdersButton> Orders = new Array<OrdersButton>();
