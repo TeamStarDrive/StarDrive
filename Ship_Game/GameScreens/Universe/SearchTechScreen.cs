@@ -30,6 +30,8 @@ namespace Ship_Game
             SearchTech.ClickableArea = new Rectangle((int)Window.X + 35, (int)Window.Y + 70, (int)Window.Width - 70, 36);
             SearchTech.MaxCharacters = 14;
             SearchTech.OnTextChanged = OnSearchTextChanged;
+            SearchTech.AutoCaptureInput = true;
+
             Add(new Submenu(Window.X + 30, Window.Y + 40, Window.Y + 60, 50, SubmenuStyle.Blue));
             PerformLayout();
         }
@@ -56,7 +58,7 @@ namespace Ship_Game
 
             TechList.SetItems(items);
             TechList.RequiresLayout = true;
-    }
+        }
 
         SearchTechItem CreateQueueItem(TreeNode node)
         {
@@ -87,12 +89,6 @@ namespace Ship_Game
         {
             if (base.HandleInput(input))
                 return true;
-
-            //if (SearchTech.HandlingInput && input.Escaped)
-            //    return true;
-
-            if (SearchTech.Hover && !SearchTech.HandlingInput)
-                SearchTech.HandlingInput = true;
 
             if (input.RightMouseClick || input.LeftMouseClick)
             {
