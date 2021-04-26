@@ -20,7 +20,7 @@ namespace UnitTests.Ships
         void CreateTestEnv(out Empire empire, out Ship ship, out Weapon weapon)
         {
             empire = EmpireManager.CreateNewEmpire("ModifierEmpire");
-            empire.TestInitDifficultyModifiers();
+            empire.TestInitModifiers();
             ship = Ship.CreateShipAtPoint("Vulcan Scout", empire, Vector2.Zero);
             weapon = ship.Weapons.Find(w => w.UID == "VulcanCannon");
         }

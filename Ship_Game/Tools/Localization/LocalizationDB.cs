@@ -11,39 +11,30 @@ namespace Ship_Game.Tools.Localization
         readonly string Namespace;
         readonly string Name;
         readonly LocUsageDB Usages;
-        readonly Dictionary<int, TextToken> ExistingIds = new Dictionary<int, TextToken>();
-        readonly List<LocText> LocalizedText = new List<LocText>();
-        readonly List<LocText> ModText = new List<LocText>();
+        readonly Array<TextToken> ExistingIds = new Array<TextToken>();
+        readonly Array<LocText> LocalizedText = new Array<LocText>();
+        readonly Array<LocText> ModText = new Array<LocText>();
         readonly HashSet<string> EnumNames = new HashSet<string>();
         readonly string[] WordSeparators = { " ", "\t", "\r", "\n", "\"",
                                                  "\\t","\\r","\\n", "\\\"" };
 
         public string Prefix;
         public string ModPrefix;
+        public readonly bool PreferCsharpNameIds;
 
         public int NumModLocalizations => ModText.Count;
         public int NumLocalizations => LocalizedText.Count;
 
-        public LocalizationDB(string enumNamespace, string enumName, string gameContent, string modContent)
+        public LocalizationDB(string enumNamespace, string enumName, int mode, string gameContent, string modContent)
         {
             Namespace = enumNamespace;
             Name = enumName;
             Prefix = "BB";
             ModPrefix = MakeModPrefix(modContent);
             Usages = new LocUsageDB(gameContent, modContent, Prefix, ModPrefix);
+            PreferCsharpNameIds = mode == 2;
         }
 
-        public LocalizationDB(LocalizationDB gen, string newName) // copy
-        {
-            Namespace = gen.Namespace;
-            Name = newName;
-            Usages = gen.Usages;
-            ExistingIds = new Dictionary<int, TextToken>(gen.ExistingIds);
-            EnumNames = new HashSet<string>(gen.EnumNames);
-            foreach (LocText loc in gen.LocalizedText)
-                LocalizedText.Add(new LocText(loc));
-        }
-        
         static string MakeModPrefix(string modDir)
         {
             if (modDir.IsEmpty())
@@ -69,27 +60,41 @@ namespace Ship_Game.Tools.Localization
                 ReadIdentifiersFromYaml(yamlFile);
         }
 
+        bool GetExistingId(int id, string nameId, out TextToken e)
+        {
+            for (int i = 0; i < ExistingIds.Count; ++i)
+            {
+                TextToken existing = ExistingIds[i];
+                if (nameId != null && existing.NameId == nameId) { e = existing; return true; }
+                if (id > 0 && existing.Id == id) { e = existing; return true; }
+            }
+            e = null;
+            return false;
+        }
+
         void ReadIdentifiersFromCsharp(string enumFile)
         {
             string fileName = Path.GetFileName(enumFile);
-            List<TextToken> tokens = TextToken.FromCSharp(enumFile);
+            Array<TextToken> tokens = TextToken.FromCSharp(enumFile);
             foreach (TextToken t in tokens)
             {
-                if (ExistingIds.TryGetValue(t.Id, out TextToken e))
+                if (GetExistingId(t.Id, t.NameId, out TextToken e))
                     Log.Write(ConsoleColor.Red, $"{Name} ID CONFLICT:"
                                                +$"\n  existing at {fileName}: {e.NameId} = {t.Id}"
                                                +$"\n  addition at {fileName}: {t.NameId} = {t.Id}");
                 else
-                    ExistingIds.Add(t.Id, t);
+                    ExistingIds.Add(t);
             }
         }
 
         void ReadIdentifiersFromYaml(string yamlFile)
         {
-            List<TextToken> tokens = TextToken.FromYaml(yamlFile);
-            foreach (TextToken token in tokens)
-                if (!ExistingIds.ContainsKey(token.Id))
-                    ExistingIds.Add(token.Id, token);
+            Array<TextToken> tokens = TextToken.FromYaml(yamlFile);
+            foreach (TextToken t in tokens)
+            {
+                if (!GetExistingId(t.Id, t.NameId, out _))
+                    ExistingIds.Add(t);
+            }
         }
 
         string GetCapitalizedIdentifier(string word)
@@ -107,9 +112,8 @@ namespace Ship_Game.Tools.Localization
 
         string CreateNameId(string nameIdPrefix, int id, string[] words)
         {
-            string name = nameIdPrefix + "_" ?? "";
-            if (ExistingIds.TryGetValue(id, out TextToken existing) &&
-                !string.IsNullOrWhiteSpace(existing.NameId))
+            string name = nameIdPrefix + "_";
+            if (GetExistingId(id, null, out TextToken existing) && existing.NameId.NotEmpty())
             {
                 name = existing.NameId;
             }
@@ -128,7 +132,7 @@ namespace Ship_Game.Tools.Localization
                 }
             }
 
-            if (string.IsNullOrWhiteSpace(name))
+            if (name.IsEmpty())
                 return "";
 
             if (EnumNames.Contains(name))
@@ -145,7 +149,7 @@ namespace Ship_Game.Tools.Localization
             return name;
         }
 
-        protected LocText AddNewLocalization(List<LocText> localizations, 
+        protected LocText AddNewLocalization(Array<LocText> localizations, 
                                              TextToken token, string nameIdPrefix)
         {
             string[] words = token.Text.Split(WordSeparators, StringSplitOptions.RemoveEmptyEntries);
@@ -159,12 +163,14 @@ namespace Ship_Game.Tools.Localization
                     comment += " ";
             }
 
-            if (Usages.Contains(token.Id))
+            if (token.Id > 0 && Usages.Contains(token.Id))
                 token.NameId = nameIdPrefix + "_" + Usages.Get(token.Id).NameId;
-            else if (string.IsNullOrEmpty(token.NameId))
+            else if (PreferCsharpNameIds && token.Id > 0 && GetExistingId(token.Id, null, out TextToken existing) && existing.NameId.NotEmpty())
+                token.NameId = existing.NameId;
+            else if (token.NameId.IsEmpty())
                 token.NameId = CreateNameId(nameIdPrefix, token.Id, words);
 
-            if (!string.IsNullOrEmpty(token.NameId))
+            if (token.NameId.NotEmpty())
             {
                 EnumNames.Add(token.NameId);
                 var loc = new LocText(token, comment);
@@ -179,7 +185,7 @@ namespace Ship_Game.Tools.Localization
             }
         }
 
-        protected bool GetLocalization(List<LocText> localizedText, int id, string nameId, out LocText loc)
+        protected bool GetLocalization(Array<LocText> localizedText, int id, string nameId, out LocText loc)
         {
             loc = id > 0 ? localizedText.FirstOrDefault(x => x.Id == id) : null;
 
@@ -191,14 +197,14 @@ namespace Ship_Game.Tools.Localization
 
         public bool AddFromYaml(string yamlFile, bool logMerge = false)
         {
-            List<TextToken> tokens = TextToken.FromYaml(yamlFile);
+            Array<TextToken> tokens = TextToken.FromYaml(yamlFile);
             if (tokens.Count == 0)
                 return false;
             AddLocalizations(tokens, logMerge:logMerge);
             return true;
         }
 
-        protected void AddLocalization(List<LocText> localizations, TextToken token, string nameIdPrefix, bool logMerge)
+        protected void AddLocalization(Array<LocText> localizations, TextToken token, string nameIdPrefix, bool logMerge)
         {
             if (string.IsNullOrEmpty(token.Text))
                 return;
@@ -241,7 +247,7 @@ namespace Ship_Game.Tools.Localization
 
         public bool AddFromModYaml(string yamlFile, bool logMerge = false)
         {
-            List<TextToken> tokens = TextToken.FromYaml(yamlFile);
+            Array<TextToken> tokens = TextToken.FromYaml(yamlFile);
             if (tokens.Count == 0)
                 return false;
             AddModLocalizations(tokens, logMerge);
@@ -280,11 +286,13 @@ namespace Ship_Game.Tools.Localization
             if (shouldRemoveDuplicates)
             {
                 // then remove ModTexts which are complete duplicates from vanilla
-                int numRemoved = ModText.RemoveAll(mod =>
+                int numRemoved = 0;
+                ModText.RemoveAll(mod =>
                 {
                     LocText dup = LocalizedText.FirstOrDefault(vanilla => vanilla.Equals(mod));
                     if (dup == null)
                         return false;
+                    ++numRemoved;
                     Log.Write(ConsoleColor.Gray, $"{Name}: remove duplicate {mod.Id} {mod.NameId}"
                                                 +$"\n  mod: {mod.Translations[0].Text}"
                                                 +$"\n  dup: {dup.Translations[0].Text}");

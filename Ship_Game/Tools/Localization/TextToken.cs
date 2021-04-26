@@ -27,9 +27,9 @@ namespace Ship_Game.Tools.Localization
             text = Text;
         }
 
-        public static List<TextToken> FromYaml(string yamlFile)
+        public static Array<TextToken> FromYaml(string yamlFile)
         {
-            var tokens = new List<TextToken>();
+            var tokens = new Array<TextToken>();
             var file = new FileInfo(yamlFile);
             if (!file.Exists)
                 return tokens;
@@ -49,10 +49,10 @@ namespace Ship_Game.Tools.Localization
             return tokens;
         }
 
-        public static List<TextToken> FromCSharp(string enumFile)
+        public static Array<TextToken> FromCSharp(string enumFile)
         {
             Log.Write(ConsoleColor.Cyan, $"FromCSharp: {enumFile}");
-            var tokens = new List<TextToken>();
+            var tokens = new Array<TextToken>();
             string[] lines = File.ReadAllLines(enumFile);
             var splitter = new [] { '=', ',', ' ', '\t' };
             int lineNo = 0;
