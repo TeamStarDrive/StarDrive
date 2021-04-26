@@ -151,6 +151,13 @@ namespace Ship_Game
 
         void TrySave()
         {
+            if (EnterNameArea.Text.IsEmpty())
+            {
+                ScreenManager.AddScreen(new MessageBoxScreen(this, "Please enter a name for your design", MessageBoxButtons.Ok));
+                GameAudio.NegativeClick();
+                return;
+            }
+
             bool saveOk = true;
             bool reserved = false;
             foreach (Ship ship in ResourceManager.GetShipTemplates())
@@ -168,14 +175,17 @@ namespace Ship_Game
                 ScreenManager.AddScreen(new MessageBoxScreen(this, $"{EnterNameArea.Text} is a reserved ship name and you cannot overwrite this design"));
                 return;
             }
+
             if (!saveOk)
             {
+                GameAudio.NegativeClick();
                 ScreenManager.AddScreen(new MessageBoxScreen(this, "Design name already exists.  Overwrite?")
                 {
                     Accepted = OverWriteAccepted
                 });
                 return;
             }
+
             GameAudio.AffirmativeClick();
             Screen?.SaveShipDesign(EnterNameArea.Text);
             ExitScreen();
