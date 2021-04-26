@@ -51,17 +51,15 @@ namespace Ship_Game
             if (BuildableTabs.IsSelected(BuildingsTabText))  
             {
                 var buildingsCanBuild = P.GetBuildingsCanBuild();
-                if (FilterBuildableItems.Text.NotEmpty())
-                    buildingsCanBuild= buildingsCanBuild.Filter(b => b.Name.ToLower().Contains(FilterBuildableItems.Text.ToLower()));
-
                 ResetBuildableList |= BuildableList.NumEntries != buildingsCanBuild.Count;
 
-                if (ResetBuildableList || FilterItemsText != FilterBuildableItems.Text) 
+                string filter = FilterBuildableItems.Text.ToLower();
+                if (ResetBuildableList || FilterItemsText != filter) 
                 {
-                    FilterItemsText = FilterBuildableItems.Text;
+                    FilterItemsText = filter;
                     Building[] buildings = P.GetBuildingsCanBuild().Sorted(b => b.Name);
-                    if (FilterBuildableItems.Text.NotEmpty())
-                        buildings = buildings.Filter(b => b.Name.ToLower().Contains(FilterBuildableItems.Text.ToLower()));
+                    if (filter.NotEmpty())
+                        buildings = buildings.Filter(b => b.Name.ToLower().Contains(filter));
 
                     BuildableList.SetItems(buildings.Select(b => new BuildableListItem(this, b)));
                 }
@@ -118,17 +116,21 @@ namespace Ship_Game
             Ship[] buildableShips = P.Owner.ShipsWeCanBuild
                 .Select(shipName => ResourceManager.GetShipTemplate(shipName))
                 .Where(ship => ship.IsBuildableByPlayer).ToArray();
-
-            if (FilterBuildableItems.Text.NotEmpty())
+            
+            string filter = FilterBuildableItems.Text.ToLower();
+            if (filter.IsEmpty() && FilterItemsText.NotEmpty())
             {
-                if (ResetBuildableList || FilterItemsText != FilterBuildableItems.Text)
-                {
-                    FilterItemsText = FilterBuildableItems.Text;
-                    var shipList    = buildableShips.Filter(s => s.Name.ToLower().Contains(FilterBuildableItems.Text.ToLower()));
-                    shipList        = shipList.SortedDescending(s => s.BaseStrength);
-                    BuildableList.SetItems(shipList.Select(s => new BuildableListItem(this, s)));
-                    return;
-                }
+                FilterItemsText = "";
+                ResetBuildableList = true; // filter is empty so revert back to Ship Categories
+            }
+
+            if (filter.NotEmpty() && (ResetBuildableList || FilterItemsText != filter))
+            {
+                FilterItemsText = filter;
+                var shipList = buildableShips.Filter(s => s.Name.ToLower().Contains(filter));
+                shipList = shipList.SortedDescending(s => s.BaseStrength);
+                BuildableList.SetItems(shipList.Select(s => new BuildableListItem(this, s)));
+                return;
             }
 
             var categoryMap = new Map<string, ShipCategory>();
@@ -154,12 +156,6 @@ namespace Ship_Game
                     if (diff.NotEqual(0)) return (int)diff;
                     return string.CompareOrdinal(b.Name, a.Name);
                 });
-            }
-
-            if (FilterItemsText.NotEmpty() && FilterBuildableItems.Text.IsEmpty())
-            {
-                FilterItemsText     = "";
-                 ResetBuildableList = true; // filter is empty so we need a refresh
             }
 
             if (ResetBuildableList || BuildableShipsChanged(categories))
