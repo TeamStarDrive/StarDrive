@@ -78,9 +78,14 @@ namespace Ship_Game
             : this(pos.X, pos.Y, font.TextWidth(text) + 20, font, text)
         {
         }
-
+        
         public UITextEntry(float x, float y, float width, Graphics.Font font, in LocalizedText text)
             : this(x, y, width, font.LineSpacing + 2, font, text)
+        {
+        }
+
+        public UITextEntry(in Rectangle rect, Graphics.Font font, in LocalizedText text)
+            : this(rect.X, rect.Y, rect.Width, rect.Height, font, text)
         {
         }
 
@@ -163,16 +168,6 @@ namespace Ship_Game
                 {
                     IsInvokingOnTextChanged = false;
                 }
-            }
-        }
-
-        public override void PerformLayout()
-        {
-            base.PerformLayout();
-            if (Background != null)
-            {
-                Background.Rect = Rect;
-                Background.PerformLayout();
             }
         }
 
