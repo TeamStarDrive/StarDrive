@@ -6,12 +6,10 @@ namespace Ship_Game
 {
     public sealed class SearchTechScreen : GameScreen
     {
-        private readonly Menu2 Window;
-        private readonly Color Cream = Colors.Cream;
-        private readonly Graphics.Font LargeFont = Fonts.Arial20Bold;
-        readonly ScrollList2<SearchTechItem> TechList;
-        readonly UITextEntry SearchTech;
         readonly ResearchScreenNew Screen;
+        Menu2 Window;
+        ScrollList2<SearchTechItem> TechList;
+        UITextEntry SearchTech;
 
         public SearchTechScreen(ResearchScreenNew screen) : base(screen)
         {
@@ -19,22 +17,42 @@ namespace Ship_Game
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
             Screen = screen;
+
+        }
+        
+        public override void LoadContent()
+        {
             float height = ScreenHeight * 0.8f;
             Window = Add(new Menu2(new RectF(ScreenWidth / 2 - 125, ScreenHeight / 2 - (height/2), 400, height)));
 
-            var panel = new Submenu(Window.X + 20, Window.Y + 100, Window.Width - 40, Window.Height - 130, SubmenuStyle.Blue);
+            CloseButton(Window.Menu.Right - 40, Window.Menu.Y + 20);
+            LocalizedText title = GameText.SearchTechnology;
+            Vector2 titlePos = new Vector2(Window.Menu.CenterTextX(title, Fonts.Arial20Bold), Window.Menu.Y + 35);
+            Label(titlePos, title, Fonts.Arial20Bold, Colors.Cream);
+
+            var panel = new Submenu(Window.X + 20, Window.Y + 95, Window.Width - 40, Window.Height - 125, SubmenuStyle.Blue);
             TechList = Add(new ScrollList2<SearchTechItem>(panel, 125, ListStyle.Blue));
             TechList.OnClick = (item) => ResearchToTech(item.Tech);
 
-            SearchTech = Add(new UITextEntry(Window.X + 20, Window.Y + 66, Window.Width - 40, 16, Fonts.Arial12Bold,
+            Rectangle rect = new RectF(Window.X + 20, Window.Y + 66, Window.Width - 40, 20);
+            SearchTech = Add(new UITextEntry(rect.Bevel(-4, -2), Fonts.Arial12Bold,
                                              GameText.StartTypingToFindTechs));
-            SearchTech.Background = new Submenu(SearchTech.Rect, SubmenuStyle.Blue);
+            SearchTech.Background = new Submenu(rect, SubmenuStyle.Blue);
             SearchTech.Color = Color.AliceBlue;
             SearchTech.MaxCharacters = 14;
             SearchTech.OnTextChanged = (text) => PopulateTechs(text.ToLower());
             SearchTech.AutoCaptureOnKeys = true;
             SearchTech.ResetTextOnInput = true;
-            PerformLayout();
+
+            PopulateTechs("");
+        }
+
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+        {
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            batch.Begin();
+            base.Draw(batch, elapsed);
+            batch.End();
         }
 
         void PopulateTechs(string keyword)
@@ -60,31 +78,6 @@ namespace Ship_Game
         {
             var defaultPos = new Vector2(Window.X + 5, Window.Y);
             return new SearchTechItem(Screen, node, defaultPos) { List = TechList };
-        }
-
-        public override void LoadContent()
-        {
-            CloseButton(Window.Menu.Right - 40, Window.Menu.Y + 20);
-            LocalizedText title = GameText.SearchTechnology;
-            Vector2 titlePos = new Vector2(Window.Menu.CenterTextX(title, LargeFont), Window.Menu.Y + 35);
-            Label(titlePos, title, LargeFont, Cream);
-            PopulateTechs("");
-            base.LoadContent();
-        }
-
-        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
-        {
-            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            batch.Begin();
-            base.Draw(batch, elapsed);
-            batch.End();
-        }
-        
-        public override bool HandleInput(InputState input)
-        {
-            if (base.HandleInput(input))
-                return true;
-            return false;
         }
 
         void ResearchToTech(TechEntry entry)
