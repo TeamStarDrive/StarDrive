@@ -25,18 +25,13 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            HandleDetailInfo(input);
-
-            if (HandlePlanetNameChangeTextBox(input))
+            if (base.HandleInput(input))
                 return true;
+
+            HandleDetailInfo(input);
 
             if (PFacilities.HandleInput(input) && PFacilitiesPlayerTabSelected != PFacilities.SelectedIndex)
                 PFacilitiesPlayerTabSelected = PFacilities.SelectedIndex;
-
-            FilterBuildableItems.HandlingInput = FilterBuildableItems.HitTest(input.CursorPosition);
-
-            if (FilterBuildableItems.HandlingInput)
-                return base.HandleInput(input);
 
             if (BlockadeLabel.Visible && BlockadeLabel.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.IndicatesThatThisPlanetIs);
@@ -62,7 +57,7 @@ namespace Ship_Game
 
             PFacilities.SelectedIndex = DetailInfo is string ? PFacilitiesPlayerTabSelected : 1; // Set the Tab for view
 
-            return base.HandleInput(input);
+            return false;
         }
 
         bool HandleTroopSelect(InputState input)
@@ -191,16 +186,6 @@ namespace Ship_Game
             }
 
             return false;
-        }
-
-        bool HandlePlanetNameChangeTextBox(InputState input)
-        {
-            EditNameButtonHovered = EditNameButton.HitTest(input.CursorPosition);
-            if (EditNameButtonHovered && input.LeftMouseClick)
-            {
-                PlanetName.HandlingInput = true;
-            }
-            return PlanetName.HandleInput(input);
         }
 
         void HandleExportImportButtons(InputState input)
