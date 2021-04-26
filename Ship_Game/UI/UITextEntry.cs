@@ -160,7 +160,7 @@ namespace Ship_Game
 
             Hover = ClickableArea.HitTest(input.CursorPosition);
 
-            bool autoKeysDown = AutoCaptureInput && input.GetKeysDown().Length > 0;
+            bool autoKeysDown = AutoCaptureInput && AnyValidInputKeysDown(input);
             bool capture = Hover || autoKeysDown;
             if (capture && !HandlingInput)
             {
@@ -170,23 +170,20 @@ namespace Ship_Game
                     GlobalStats.TakingInput = true;
                     if (ResetTextOnInput)
                         Text = "";
-                    return true;
                 }
             }
-
-            if (!Hover && HandlingInput)
+            else if (!Hover && HandlingInput)
             {
                 bool autoExit = AutoCaptureInput && !autoKeysDown && KeyPressCooldown <= 0f;
                 if (autoExit || input.RightMouseClick || input.LeftMouseClick)
                 {
                     HandlingInput = false;
                     GlobalStats.TakingInput = false;
-                    return true;
+                    OnTextSubmit?.Invoke(TextValue);
                 }
             }
-
             // click in the middle of the text?
-            if (Hover && HandlingInput && input.LeftMouseClick)
+            else if (Hover && HandlingInput && input.LeftMouseClick)
             {
                 float textWidth = Font.TextWidth(TextValue);
                 float localX = input.CursorPosition.X - Pos.X;
@@ -242,6 +239,8 @@ namespace Ship_Game
             bool right  = input.IsKeyDown(Keys.Right);
             if (!back && !delete && !left && !right)
                 return false;
+            
+            KeyPressCooldown = AutoCaptureInterval;
 
             // back, left or right were pressed, wait until cooldown reaches 0
             if (RepeatCooldown <= 0f)
@@ -363,5 +362,8 @@ namespace Ship_Game
                 case Keys.OemPeriod when AllowPeriod: return '.';
             }
         }
+
+        bool IsValidKey(Keys key) => GetCharFromKey(key) != '\0';
+        bool AnyValidInputKeysDown(InputState input) => input.GetKeysDown().Any(IsValidKey);
     }
 }
