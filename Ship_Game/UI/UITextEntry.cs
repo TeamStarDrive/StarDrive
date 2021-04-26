@@ -17,6 +17,13 @@ namespace Ship_Game
 
         string TextValue;
         public bool HandlingInput;
+        
+        /// <summary>
+        /// If TRUE, this UITextEntry will automatically capture the screen's
+        /// Keyboard input if anything is typed or if mouse is hovered over the entry
+        /// </summary>
+        public bool AutoCaptureInput = false;
+
         public bool Hover;
         public bool AllowPeriod = false;
         public bool ResetTextOnInput;
@@ -25,7 +32,9 @@ namespace Ship_Game
 
         const float FirstRepeatTime = 0.2f;
         const float RepeatInterval = 0.1f;
+        const float AutoCaptureInterval = 1.0f;
         float RepeatCooldown;
+        float KeyPressCooldown;
         float LastRepeatStart;
 
         public Graphics.Font Font = Fonts.Arial14Bold;
@@ -134,7 +143,7 @@ namespace Ship_Game
             batch.DrawString(Font, Text, pos, color);
             if (HandlingInput)
             {
-                float f = Math.Abs(RadMath.Sin(GameBase.Base.TotalElapsed * 4f));
+                float f = Math.Abs(RadMath.Sin(GameBase.Base.TotalElapsed * 5f));
                 var flashColor = Color.White.Alpha((f + 0.1f).Clamped(0f, 1f));
                 
                 int length = Math.Min(Text.Length, CursorPos);
@@ -151,9 +160,11 @@ namespace Ship_Game
 
             Hover = ClickableArea.HitTest(input.CursorPosition);
 
-            if (Hover && !HandlingInput)
+            bool autoKeysDown = AutoCaptureInput && input.GetKeysDown().Length > 0;
+            bool capture = Hover || autoKeysDown;
+            if (capture && !HandlingInput)
             {
-                if (input.LeftMouseClick)
+                if (AutoCaptureInput || input.LeftMouseClick)
                 {
                     HandlingInput = true;
                     GlobalStats.TakingInput = true;
@@ -165,7 +176,8 @@ namespace Ship_Game
 
             if (!Hover && HandlingInput)
             {
-                if (input.RightMouseClick || input.LeftMouseClick)
+                bool autoExit = AutoCaptureInput && !autoKeysDown && KeyPressCooldown <= 0f;
+                if (autoExit || input.RightMouseClick || input.LeftMouseClick)
                 {
                     HandlingInput = false;
                     GlobalStats.TakingInput = false;
@@ -189,6 +201,8 @@ namespace Ship_Game
 
         bool HandleTextInput(InputState input)
         {
+            KeyPressCooldown -= GameBase.Base.Elapsed.RealTime.Seconds;
+
             if (input.IsEnterOrEscape)
             {
                 HandlingInput = false;
@@ -202,6 +216,7 @@ namespace Ship_Game
             Keys[] keysDown = input.GetKeysDown();
             for (int i = 0; i < keysDown.Length; i++)
             {
+                KeyPressCooldown = AutoCaptureInterval;
                 Keys key = keysDown[i];
                 if (key != Keys.Back && input.KeyPressed(key) && TextValue.Length < MaxCharacters)
                 {
