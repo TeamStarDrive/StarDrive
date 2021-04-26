@@ -22,8 +22,11 @@ namespace Ship_Game
         public bool ResetTextOnInput;
         public int MaxCharacters = 30;
         int CursorPos;
+
+        const float FirstRepeatTime = 0.2f;
         const float RepeatInterval = 0.1f;
         float RepeatCooldown;
+        float LastRepeatStart;
 
         public Graphics.Font Font = Fonts.Arial14Bold;
         public Color Color = Color.Orange;
@@ -131,7 +134,7 @@ namespace Ship_Game
             batch.DrawString(Font, Text, pos, color);
             if (HandlingInput)
             {
-                float f = Math.Abs(RadMath.Sin(GameBase.Base.TotalElapsed * 3.14f));
+                float f = Math.Abs(RadMath.Sin(GameBase.Base.TotalElapsed * 4f));
                 var flashColor = Color.White.Alpha((f + 0.1f).Clamped(0f, 1f));
                 
                 int length = Math.Min(Text.Length, CursorPos);
@@ -203,13 +206,9 @@ namespace Ship_Game
                 if (key != Keys.Back && input.KeyPressed(key) && TextValue.Length < MaxCharacters)
                 {
                     if (AddKeyToText(input, key))
-                    {
                         GameAudio.BlipClick();
-                    }
                     else
-                    {
                         GameAudio.NegativeClick();
-                    }
                     return true; // TODO: align return with new UI system
                 }
             }
@@ -220,6 +219,8 @@ namespace Ship_Game
 
         bool HandleCursor(InputState input)
         {
+            RepeatCooldown -= GameBase.Base.Elapsed.RealTime.Seconds;
+
             bool back   = input.IsKeyDown(Keys.Back);
             bool delete = input.IsKeyDown(Keys.Delete);
             bool left   = input.IsKeyDown(Keys.Left);
@@ -228,10 +229,16 @@ namespace Ship_Game
                 return false;
 
             // back, left or right were pressed, wait until cooldown reaches 0
-            RepeatCooldown -= GameBase.Base.Elapsed.RealTime.Seconds;
             if (RepeatCooldown <= 0f)
             {
-                RepeatCooldown = RepeatInterval;
+                float timeSinceLastStart = (GameBase.Base.TotalElapsed - LastRepeatStart);
+                LastRepeatStart = GameBase.Base.TotalElapsed;
+
+                if (timeSinceLastStart > FirstRepeatTime*1.5f) // slow it down a little during first press
+                    RepeatCooldown = FirstRepeatTime;
+                else // user is holding down the keys
+                    RepeatCooldown = RepeatInterval;
+
                 if (HandleCursorMove(back, delete, left, right))
                     GameAudio.BlipClick();
                 else
@@ -246,8 +253,8 @@ namespace Ship_Game
 
             if (back && TextValue.Length != 0 && CursorPos > 0)
             {
-                Text = TextValue.Remove(CursorPos - 1, 1);
                 --CursorPos;
+                Text = TextValue.Remove(CursorPos, 1);
                 return true;
             }
             else if (delete && TextValue.Length != 0 && CursorPos < TextValue.Length)
