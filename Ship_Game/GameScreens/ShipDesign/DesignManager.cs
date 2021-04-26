@@ -50,13 +50,13 @@ namespace Ship_Game
         {
             Submenu background = Add(new Submenu(Rect.X + 20, Rect.Y + 20, Rect.Width - 40, 80));
             background.Background = new Menu1(Rect);
-            background.AddTab("Save Ship Design");
+            background.AddTab(GameText.SaveShipDesign);
 
             subAllDesigns = new Submenu(background.X, background.Y + 90, background.Width,
                                         Rect.Height - background.Height - 50);
-            subAllDesigns.AddTab("Similar Design Names");
+            subAllDesigns.AddTab(GameText.SimilarDesignNames);
 
-            EnterNameArea = Add(new UITextEntry(background.Pos + new Vector2(20, 40), "Design Name: "));
+            EnterNameArea = Add(new UITextEntry(background.Pos + new Vector2(20, 40), GameText.DesignName));
             EnterNameArea.Text = ShipName;
             EnterNameArea.Color = Colors.Cream;
             EnterNameArea.OnTextChanged = (text) => PopulateDesigns(text);
@@ -66,7 +66,7 @@ namespace Ship_Game
             ShipDesigns.OnClick = OnShipDesignItemClicked;
 
             PopulateDesigns(ShipName);
-            ButtonSmall(background.Right - 88, EnterNameArea.Y - 2, "Save", OnSaveClicked);
+            ButtonSmall(background.Right - 88, EnterNameArea.Y - 2, GameText.Save, OnSaveClicked);
 
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
             ShipDesigns.OnHovered = (item) =>
@@ -109,8 +109,7 @@ namespace Ship_Game
 
         void OnSaveClicked(UIButton b)
         {
-            GlobalStats.TakingInput = false;
-            EnterNameArea.HandlingInput = false;
+            EnterNameArea.StopInput();
             TrySave();
         }
 

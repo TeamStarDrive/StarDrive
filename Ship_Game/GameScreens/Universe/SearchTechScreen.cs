@@ -13,30 +13,28 @@ namespace Ship_Game
         readonly UITextEntry SearchTech;
         readonly ResearchScreenNew Screen;
 
-        public SearchTechScreen(ResearchScreenNew screen, Array<TreeNode> allTreeNodes) : base(screen)
+        public SearchTechScreen(ResearchScreenNew screen) : base(screen)
         {
-            IsPopup           = true;
+            IsPopup = true;
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
-            Screen            = screen;
-            int height        = (int)(ScreenHeight * 0.8f);
-            Window = Add(new Menu2(new Rectangle(ScreenWidth / 2 - 125, ScreenHeight / 2 - (height/2), 250, height)));
+            Screen = screen;
+            float height = ScreenHeight * 0.8f;
+            Window = Add(new Menu2(new RectF(ScreenWidth / 2 - 125, ScreenHeight / 2 - (height/2), 400, height)));
 
-            var panelRect   = new Rectangle((int)Window.X + 20, (int)Window.Y + 80, (int)Window.Width - 40, (int)Window.Height - 110);
-            var panel       = new Submenu(panelRect, SubmenuStyle.Blue);
-            TechList        = Add(new ScrollList2<SearchTechItem>(panel, 125, ListStyle.Blue));
-            SearchTech = Add(new UITextEntry(Window.X + 35, Window.Y + 68, Window.Width - 70, Fonts.Arial14Bold));
+            var panel = new Submenu(Window.X + 20, Window.Y + 100, Window.Width - 40, Window.Height - 130, SubmenuStyle.Blue);
+            TechList = Add(new ScrollList2<SearchTechItem>(panel, 125, ListStyle.Blue));
+            TechList.OnClick = (item) => ResearchToTech(item.Tech);
+
+            SearchTech = Add(new UITextEntry(Window.X + 20, Window.Y + 66, Window.Width - 40, 16, Fonts.Arial12Bold,
+                                             GameText.StartTypingToFindTechs));
+            SearchTech.Background = new Submenu(SearchTech.Rect, SubmenuStyle.Blue);
+            SearchTech.Color = Color.AliceBlue;
             SearchTech.MaxCharacters = 14;
-            SearchTech.OnTextChanged = OnSearchTextChanged;
-            SearchTech.AutoCaptureInput = true;
-
-            Add(new Submenu(Window.X + 30, Window.Y + 40, Window.Y + 60, 50, SubmenuStyle.Blue));
+            SearchTech.OnTextChanged = (text) => PopulateTechs(text.ToLower());
+            SearchTech.AutoCaptureOnKeys = true;
+            SearchTech.ResetTextOnInput = true;
             PerformLayout();
-        }
-        
-        void OnSearchTextChanged(string text)
-        {
-            PopulateTechs(text.ToLower());
         }
 
         void PopulateTechs(string keyword)
@@ -67,11 +65,10 @@ namespace Ship_Game
         public override void LoadContent()
         {
             CloseButton(Window.Menu.Right - 40, Window.Menu.Y + 20);
-            string title    = Localizer.Token(GameText.SearchTechnology);
-            Vector2 menuPos = new Vector2(Window.Menu.CenterTextX(title, LargeFont), Window.Menu.Y + 35);
-            Label(menuPos, title, LargeFont, Cream);
+            LocalizedText title = GameText.SearchTechnology;
+            Vector2 titlePos = new Vector2(Window.Menu.CenterTextX(title, LargeFont), Window.Menu.Y + 35);
+            Label(titlePos, title, LargeFont, Cream);
             PopulateTechs("");
-            SearchTech.HandlingInput = true; // automatically capture input
             base.LoadContent();
         }
 
@@ -87,26 +84,6 @@ namespace Ship_Game
         {
             if (base.HandleInput(input))
                 return true;
-
-            if (input.RightMouseClick || input.LeftMouseClick)
-            {
-                foreach (SearchTechItem item in TechList.AllEntries)
-                {
-                    if (item.HandleInput(input))
-                    {
-                        if (input.LeftMouseClick)
-                            ResearchToTech(item.Tech);
-                        return true;
-                    }
-                }
-            }
-
-            if (!SearchTech.HandlingInput && (input.Escaped || input.RightMouseClick))
-            {
-                ExitScreen();
-                return true;
-            }
-
             return false;
         }
 

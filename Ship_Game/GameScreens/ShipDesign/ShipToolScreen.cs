@@ -387,10 +387,8 @@ namespace Ship_Game
 
             LoadModelButton = new DanButton(new Vector2(20f, (screenHeight - 50)), "Load Model");
             SaveHullButton = new DanButton(new Vector2((screenWidth - 200), (screenHeight - 50)), "Save Hull");
-            ShipNameBox = new UITextEntry(screenWidth - 200, screenHeight - 115, 180)
-            {
-                Text = HullName
-            };
+            
+            ShipNameBox = new UITextEntry(screenWidth - 200, screenHeight - 115, 180, Fonts.Arial14Bold, HullName);
             ShipNameBox.SetColors(Color.Orange, Colors.Cream);
             ShipNameBox.OnTextChanged = (text) => HullName = text;
 

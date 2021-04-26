@@ -50,7 +50,7 @@ namespace Ship_Game.Ships
             LeftRect = new Rectangle(r.X, r.Y + 44, 180, r.Height - 44);
             RightRect = new Rectangle(LeftRect.X + LeftRect.Width, LeftRect.Y, 220, LeftRect.Height);
             int spacing = 2;
-            ShipNameArea = new UITextEntry(Housing.X + 41, Housing.Y + 65, 200, Fonts.Arial14Bold);
+            ShipNameArea = new UITextEntry(Housing.X + 41, Housing.Y + 65, 200, Fonts.Arial14Bold, "");
             ShipNameArea.OnTextChanged = (text) => Ship.VanityName = text;
             ShipNameArea.Color = tColor;
             
@@ -497,7 +497,7 @@ namespace Ship_Game.Ships
         {
             if (Screen.SelectedShip == null || Screen.LookingAtPlanet)
             {
-                ShipNameArea.HandlingInput = false;
+                ShipNameArea.StopInput();
                 return false;
             }
 
