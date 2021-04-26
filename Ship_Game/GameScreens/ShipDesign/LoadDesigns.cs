@@ -127,7 +127,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             EnterNameArea = Add(new UITextEntry(new Vector2(X + 20, Y + 20), Localizer.Token(GameText.ChooseAShipToLoad)));
             EnterNameArea.OnTextChanged = OnDesignFilterChanged;
             EnterNameArea.ResetTextOnInput = true;
-            EnterNameArea.AutoCaptureInput = true;
+            EnterNameArea.AutoCaptureOnKeys = true;
 
             ButtonSmall(background.Right - 88, EnterNameArea.Y - 2, text:GameText.Load, click: b =>
             {

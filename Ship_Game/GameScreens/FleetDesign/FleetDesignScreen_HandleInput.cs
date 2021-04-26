@@ -111,8 +111,6 @@ namespace Ship_Game
             if (SelectedNodeList.Count != 1 && FleetToEdit != -1 && FleetNameEntry.HandleInput(input))
                 return true;
 
-            GlobalStats.TakingInput = FleetNameEntry.HandlingInput;
-
             InputSelectFleet(1, Input.Fleet1);
             InputSelectFleet(2, Input.Fleet2);
             InputSelectFleet(3, Input.Fleet3);

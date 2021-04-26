@@ -10,13 +10,19 @@ namespace Ship_Game
     public class UITextEntry : UIElementV2
     {
         string TextValue;
-        public bool HandlingInput;
+        public bool HandlingInput { get; private set; }
         
         /// <summary>
-        /// If TRUE, this UITextEntry will automatically capture the screen's
-        /// Keyboard input if anything is typed or if mouse is hovered over the entry
+        /// If TRUE, this UITextEntry will automatically start capturing input
+        /// if any keys are pressed
         /// </summary>
-        public bool AutoCaptureInput = false;
+        public bool AutoCaptureOnKeys = false;
+
+        /// <summary>
+        /// If TRUE, this UITextEntry will automatically start capturing input
+        /// when hovering
+        /// </summary>
+        public bool AutoCaptureOnHover = false;
 
         public bool Hover;
         public bool AllowPeriod = false;
@@ -51,34 +57,40 @@ namespace Ship_Game
         /// </summary>
         public Action<string> OnTextSubmit;
 
+        /// <summary>
+        /// Takes ownership of a background element to draw and update 
+        /// </summary>
+        public UIElementV2 Background;
+
         public UITextEntry()
         {
         }
 
-        public UITextEntry(string text) : this(Vector2.Zero, Fonts.Arial20Bold, text)
+        public UITextEntry(in LocalizedText text) : this(Vector2.Zero, Fonts.Arial20Bold, text)
         {
         }
 
-        public UITextEntry(Vector2 pos, string text) : this(pos, Fonts.Arial20Bold, text)
+        public UITextEntry(Vector2 pos, in LocalizedText text) : this(pos, Fonts.Arial20Bold, text)
         {
         }
 
-        public UITextEntry(Vector2 pos, Graphics.Font font, string text)
+        public UITextEntry(Vector2 pos, Graphics.Font font, in LocalizedText text)
+            : this(pos.X, pos.Y, font.TextWidth(text) + 20, font, text)
+        {
+        }
+
+        public UITextEntry(float x, float y, float width, Graphics.Font font, in LocalizedText text)
+            : this(x, y, width, font.LineSpacing + 2, font, text)
+        {
+        }
+
+        public UITextEntry(float x, float y, float width, float height, Graphics.Font font, in LocalizedText text)
         {
             Font = font;
-            Text = text;
-            CursorPos = text.Length;
-            Pos = pos;
-            Size = new Vector2(font.TextWidth(Text) + 20, font.LineSpacing);
-        }
-
-        public UITextEntry(float x, float y, float width, Graphics.Font font = null)
-        {
-            Font = font ?? Fonts.Arial20Bold;
-            Text = "";
-            CursorPos = 0;
+            Text = text.Text;
+            CursorPos = Text.Length;
             Pos = new Vector2(x, y);
-            Size = new Vector2(width, Font.LineSpacing);
+            Size = new Vector2(width, height);
         }
         
         public void Clear()
@@ -92,6 +104,28 @@ namespace Ship_Game
             HandlingInput = false;
             CursorPos = text.Length;
             Text = text;
+        }
+
+        void StartInput()
+        {
+            if (HandlingInput)
+                return;
+            HandlingInput = true;
+            GlobalStats.TakingInput = true;
+            if (ResetTextOnInput)
+                Text = "";
+            else
+                CursorPos = TextValue.Length;
+        }
+
+        // If Input is being captured, stops capture an submits the current text
+        public void StopInput()
+        {
+            if (!HandlingInput)
+                return;
+            HandlingInput = false;
+            GlobalStats.TakingInput = false;
+            OnTextSubmit?.Invoke(TextValue);
         }
 
         public void SetPos(float x, float y) => SetPos(new Vector2(x, y));
@@ -131,14 +165,27 @@ namespace Ship_Game
                 }
             }
         }
-        
+
+        public override void PerformLayout()
+        {
+            base.PerformLayout();
+            if (Background != null)
+            {
+                Background.Rect = Rect;
+                Background.PerformLayout();
+            }
+        }
+
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
+            Background?.Draw(batch, elapsed);
+
             Vector2 pos = Pos;
             Color color = Color;
             if (HandlingInput) color = InputColor;
             else if (Hover)    color = HoverColor;
 
+            pos.X += 2f;
             batch.DrawString(Font, Text, pos, color);
             if (HandlingInput)
             {
@@ -157,29 +204,17 @@ namespace Ship_Game
             if (!Enabled)
                 return false;
 
-            Hover = HitTest(input.CursorPosition);
+            //Background?.HandleInput(input); // not really needed for background elements
 
-            bool autoKeysDown = AutoCaptureInput && AnyValidInputKeysDown(input);
-            bool capture = Hover || autoKeysDown;
-            if (capture && !HandlingInput)
+            bool wasHovering = Hover; // was hovering last frame
+            Hover = HitTest(input.CursorPosition);
+            bool autoKeysDown = AutoCaptureOnKeys && AnyValidInputKeysDown(input);
+            bool autoHover    = AutoCaptureOnHover && Hover;
+            bool hoverAndClick = Hover && input.LeftMouseClick;
+
+            if ((autoKeysDown || autoHover || hoverAndClick) && !HandlingInput)
             {
-                if (AutoCaptureInput || input.LeftMouseClick)
-                {
-                    HandlingInput = true;
-                    GlobalStats.TakingInput = true;
-                    if (ResetTextOnInput)
-                        Text = "";
-                }
-            }
-            else if (!Hover && HandlingInput)
-            {
-                bool autoExit = AutoCaptureInput && !autoKeysDown && AutoDecaptureTimer <= 0f;
-                if (autoExit || input.RightMouseClick || input.LeftMouseClick)
-                {
-                    HandlingInput = false;
-                    GlobalStats.TakingInput = false;
-                    OnTextSubmit?.Invoke(TextValue);
-                }
+                StartInput();
             }
             // click in the middle of the text?
             else if (Hover && HandlingInput && input.LeftMouseClick)
@@ -188,6 +223,24 @@ namespace Ship_Game
                 float localX = input.CursorPosition.X - Pos.X;
                 float relX = (localX / textWidth).Clamped(0f, 1f);
                 CursorPos = (int)(relX * TextValue.Length);
+            }
+            else if (HandlingInput)
+            {
+                if (!Hover)
+                {
+                    // in case we have both CaptureOnKeys and CaptureOnHover, disallow autoKeysExit
+                    bool autoKeysExit = AutoCaptureOnKeys && !AutoCaptureOnHover 
+                                         && !autoKeysDown && AutoDecaptureTimer <= 0f;
+                    bool autoHoverExit = AutoCaptureOnHover && !Hover && wasHovering;
+                    if (autoKeysExit || autoHoverExit || input.RightMouseClick || input.LeftMouseClick)
+                    {
+                        StopInput();
+                    }
+                }
+                else if (input.IsEnterOrEscape)
+                {
+                    StopInput();
+                }
             }
 
             if (HandlingInput)
@@ -198,14 +251,6 @@ namespace Ship_Game
         bool HandleTextInput(InputState input)
         {
             AutoDecaptureTimer -= GameBase.Base.Elapsed.RealTime.Seconds;
-
-            if (input.IsEnterOrEscape)
-            {
-                HandlingInput = false;
-                OnTextSubmit?.Invoke(TextValue);
-                return true;
-            }
-
             if (HandleCursor(input))
                 return true;
 

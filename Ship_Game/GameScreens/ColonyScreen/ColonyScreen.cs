@@ -115,7 +115,7 @@ namespace Ship_Game
             PFacilities.AddTab(GameText.Description); // Description
 
             FilterBuildableItems = Add(new UITextEntry(new Vector2(RightMenu.X + 75, RightMenu.Y + 15), Font12, ""));
-            FilterBuildableItems.AutoCaptureInput = true;
+            FilterBuildableItems.AutoCaptureOnHover = true;
 
             FilterFrame = Add(new Submenu(RightMenu.X + 70, RightMenu.Y-10, RightMenu.Width - 400, 42));
             Label(FilterFrame.Pos + new Vector2(-45,25), "Filter:", Font12, Color.White);
