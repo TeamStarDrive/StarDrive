@@ -82,7 +82,7 @@ namespace Ship_Game
             WriteLine(ref cursor, Font);
             DrawShipValueLine(batch, Font, ref cursor, "Weapons:", ship.Weapons.Count, Color.LightBlue);
             DrawShipValueLine(batch, Font, ref cursor, "Max W.Range:", ship.WeaponsMaxRange, Color.LightBlue);
-            DrawShipValueLine(batch, Font, ref cursor, "Avr W.Range:", ship.WeaponsAvgRange, Color.LightBlue);
+            DrawShipValueLine(batch, Font, ref cursor, "Avg W.Range:", ship.WeaponsAvgRange, Color.LightBlue);
             DrawShipValueLine(batch, Font, ref cursor, "Warp:", warpSpeed, Color.LightGreen);
             DrawShipValueLine(batch, Font, ref cursor, "Speed:", subLightSpeed, Color.LightGreen);
             DrawShipValueLine(batch, Font, ref cursor, "Turn Rate:", turnRateDeg, Color.LightGreen);
@@ -96,23 +96,23 @@ namespace Ship_Game
             DrawShipValueLine(batch, Font, ref cursor, "Cargo Space:", ship.CargoSpaceMax, Color.Khaki);
         }
 
-        void DrawShipValueLine(SpriteBatch batch, Graphics.Font font, ref Vector2 cursor, string description, string data, Color color)
+        void DrawShipValueLine(SpriteBatch batch, Graphics.Font font, ref Vector2 cursor, string title, string text, Color color)
         {
             WriteLine(ref cursor, font);
             var ident = new Vector2(cursor.X + (TextWidth*0.5f).RoundTo10(), cursor.Y);
-            batch.DrawString(font, description, cursor, color);
-            batch.DrawString(font, data, ident, color);
+            batch.DrawString(font, title, cursor, color);
+            batch.DrawString(font, text, ident, color);
         }
 
-        void DrawShipValueLine(SpriteBatch batch, Graphics.Font font, ref Vector2 cursor, string description, float data, Color color)
+        void DrawShipValueLine(SpriteBatch batch, Graphics.Font font, ref Vector2 cursor, string title, float value, Color color)
         {
-            if (data.LessOrEqual(0))
+            if (value <= 0f)
                 return;
 
             WriteLine(ref cursor, font);
             var ident = new Vector2(cursor.X + (TextWidth*0.6f).RoundTo10(), cursor.Y);
-            batch.DrawString(font, description, cursor, color);
-            batch.DrawString(font, data.GetNumberString(), ident, color);
+            batch.DrawString(font, title, cursor, color);
+            batch.DrawString(font, value.GetNumberString(), ident, color);
         }
 
         static void WriteLine(ref Vector2 cursor, Graphics.Font font)

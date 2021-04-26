@@ -8,22 +8,32 @@ namespace Ship_Game
     public enum TextAlign
     {
         // normal text alignment: TopLeft
-        //    x
-        //      TEXT
+        //    x---------+
+        //    |TEXT     |
         Default,
 
-        // Text will be flipped on the X axis:
-        //       x
-        // TEXT
+        // Text will be flipped on the X axis so that origin is on TopRight
+        //       x--------+
+        // TEXT  |        |
+        FlipRight,
+
+        // Text will be aligned to the right side of the text rect
+        // However, this requires fixed-size Rectangle
+        // x--------+
+        // |    TEXT|
         Right,
 
         // Text will be drawn to horizontal center of label rect
-        //  TE + XT
-        //     x
+        // x----------+
+        // |TEXT------|
+        // +----------+
         HorizontalCenter,
 
         // Text will be drawn to vertical center of label rect
-        //   TE x XT
+        // x----+----+
+        // | TE x XT |
+        // |    |    |
+        // +----+----+
         VerticalCenter,
 
         // Text will be drawn in the center of its label rect
@@ -122,8 +132,9 @@ namespace Ship_Game
         {
             // @todo: Size is not updated when language changes
             ActualLineSize = LabelFont.MeasureString(text);
-            // @todo Should we always overwrite the size?
-            Size = ActualLineSize;
+            // Only update size if new text is much bigger
+            if (Size.X < ActualLineSize.X) Size.X = ActualLineSize.X;
+            if (Size.Y < ActualLineSize.Y) Size.Y = ActualLineSize.Y;
             RequiresLayout = true;
         }
 
@@ -207,8 +218,12 @@ namespace Ship_Game
                     pos.X = (int)Math.Round(pos.X);
                     pos.Y = (int)Math.Round(pos.Y);
                     break;
-                case TextAlign.Right:
+                case TextAlign.FlipRight:
                     pos.X = (int)Math.Round(pos.X - Size.X);
+                    pos.Y = (int)Math.Round(pos.Y);
+                    break;
+                case TextAlign.Right:
+                    pos.X = (int)Math.Round(pos.X + Size.X - ActualLineSize.X);
                     pos.Y = (int)Math.Round(pos.Y);
                     break;
                 case TextAlign.HorizontalCenter:

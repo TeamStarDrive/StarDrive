@@ -43,7 +43,7 @@ namespace Ship_Game
         
         // Rich text element.
         // Can be accessed directly to create multi-font text labels
-        public readonly PrettyText RichText = new PrettyText();
+        public readonly PrettyText RichText;
 
         /// <summary>
         /// Optional override Function for text. Called Dynamically every frame.
@@ -61,52 +61,32 @@ namespace Ship_Game
         // If set TRUE, text will be drawn with dark shadow
         public bool TextShadows;
 
+        // If set TRUE, will draw UI element bounds
+        public bool DebugDraw;
+
         public Action<UIButton> OnClick;
 
         public override string ToString() => $"{TypeName} '{Text}' visible:{Visible} enabled:{Enabled} state:{State}";
         
-        public UIButton(ButtonStyle style)
-        {
-            Style = style;
-        }
-
-        public UIButton(in LocalizedText text)
-        {
-            Style = ButtonStyle.Default;
-            Text = text;
-            Size = GetInitialSize();
-        }
-        
         public UIButton(ButtonStyle style, in LocalizedText text)
         {
             Style = style;
-            Text = text;
             Size = GetInitialSize();
+            RichText = new PrettyText(elemToUpdateSize: this, text: text);
         }
-
-        public UIButton(Vector2 pos, in LocalizedText text) : base(pos)
-        {
-            Text = text;
-            Size = GetInitialSize();
-        }
-
+        
         public UIButton(ButtonStyle style, Vector2 pos, in LocalizedText text) : base(pos)
         {
             Style = style;
-            Text  = text;
-            Size  = GetInitialSize();
-        }
-
-        public UIButton(ButtonStyle style, in Rectangle rect) : base(rect)
-        {
-            Style = style;
+            Size = GetInitialSize();
+            RichText = new PrettyText(elemToUpdateSize: this, text: text);
         }
 
         public UIButton(StyleTextures customStyle, Vector2 size, in LocalizedText text)
         {
             SetStyle(customStyle);
-            Text = text;
             Size = size;
+            RichText = new PrettyText(elemToUpdateSize: this, text: text);
         }
 
         public ButtonStyle Style
@@ -164,21 +144,26 @@ namespace Ship_Game
 
             if (RichText.NotEmpty)
             {
-                Graphics.Font font = Font;
                 Vector2 textCursor;
                 if (TextAlign == ButtonTextAlign.Center)
-                    textCursor.X = r.X + r.Width / 2 - RichText.Size.X / 2f;
+                    textCursor.X = (r.X + r.Width / 2) - RichText.Size.X * 0.5f;
                 else if (TextAlign == ButtonTextAlign.Left)
                     textCursor.X = r.X + 25f;
                 else
                     textCursor.X = r.Right - RichText.Size.X;
 
-                textCursor.Y = r.Y + r.Height / 2 - font.LineSpacing / 2;
+                textCursor.Y = r.Y + r.Height / 2 - RichText.Size.Y * 0.5f;
                 if (State == PressState.Pressed)
                     textCursor.Y += 1f; // pressed down effect
 
                 Color textColor = Enabled ? TextColor() : Color.Gray;
                 RichText.Draw(batch, textCursor, textColor, TextShadows);
+            }
+
+            if (DebugDraw)
+            {
+                batch.DrawRectangle(Rect, Color.Red);
+                batch.DrawString(Fonts.Arial11Bold, this.ToString(), Pos, Color.Red);
             }
         }
 

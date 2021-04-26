@@ -21,55 +21,59 @@ namespace Ship_Game.Tools.Localization
             return loc.TokenList.Select(t => new TextToken(lang, t.Index, null, t.Text));
         }
 
-        static LocalizationDB CreateGameTextEnum(string gameContent, string modContent, string outputDir)
+        static LocalizationDB CreateGameTextEnum(int mode, string bbContent, string gameContent, string modContent, string outputDir)
         {
-            string enumFile = $"{outputDir}/GameText.cs";
-            string yamlFile = $"{gameContent}/GameText.yaml";
+            string enumFile = $"{outputDir}\\GameText.cs";
+            string yamlFile = $"{gameContent}\\GameText.yaml";
 
-            var db = new LocalizationDB("Ship_Game", "GameText", gameContent, modContent);
+            var db = new LocalizationDB("Ship_Game", "GameText", mode, gameContent, modContent);
             db.LoadIdentifiers(enumFile, yamlFile);
 
             if (UseYAMLFileAsSource)
             {
                 if (db.AddFromYaml(yamlFile))
                 {
-                    db.AddFromYaml($"{gameContent}/GameText.Missing.RUS.yaml", logMerge:true);
-                    db.AddFromYaml($"{gameContent}/GameText.Missing.SPA.yaml", logMerge:true);
+                    db.AddFromYaml($"{gameContent}\\GameText.Missing.RUS.yaml", logMerge:true);
+                    db.AddFromYaml($"{gameContent}\\GameText.Missing.SPA.yaml", logMerge:true);
                 }
             }
             if (db.NumLocalizations == 0)
             {
-                db.AddLocalizations(GetGameText("ENG", $"{gameContent}/Localization/English/GameText_EN.xml"));
-                db.AddLocalizations(GetGameText("RUS", $"{gameContent}/Localization/Russian/GameText_RU.xml"));
-                db.AddLocalizations(GetGameText("SPA", $"{gameContent}/Localization/Spanish/GameText.xml"));
+                db.AddLocalizations(GetGameText("ENG", $"{gameContent}\\Localization\\English\\GameText_EN.xml"));
+                db.AddLocalizations(GetGameText("RUS", $"{gameContent}\\Localization\\Russian\\GameText_RU.xml"));
+                db.AddLocalizations(GetGameText("SPA", $"{gameContent}\\Localization\\Spanish\\GameText.xml"));
             }
 
             if (Directory.Exists(outputDir))
                 db.ExportCsharp(enumFile);
 
             db.ExportYaml(yamlFile);
-            db.ExportMissingTranslationsYaml("RUS", $"{gameContent}/GameText.Missing.RUS.yaml");
-            db.ExportMissingTranslationsYaml("SPA", $"{gameContent}/GameText.Missing.SPA.yaml");
+            if (Directory.Exists(bbContent)) // if content exists, copy to our dev folder
+            {
+                File.Copy(yamlFile, $"{bbContent}\\GameText.yaml", overwrite: true);
+            }
+            db.ExportMissingTranslationsYaml("RUS", $"{gameContent}\\GameText.Missing.RUS.yaml");
+            db.ExportMissingTranslationsYaml("SPA", $"{gameContent}\\GameText.Missing.SPA.yaml");
 
             if (Directory.Exists(modContent))
             {
                 if (UseYAMLFileAsSource)
                 {
-                    if (db.AddFromModYaml($"{modContent}/GameText.yaml"))
+                    if (db.AddFromModYaml($"{modContent}\\GameText.yaml"))
                     {
-                        db.AddFromModYaml($"{modContent}/GameText.Missing.RUS.yaml", logMerge:true);
-                        db.AddFromModYaml($"{modContent}/GameText.Missing.SPA.yaml", logMerge:true);
+                        db.AddFromModYaml($"{modContent}\\GameText.Missing.RUS.yaml", logMerge:true);
+                        db.AddFromModYaml($"{modContent}\\GameText.Missing.SPA.yaml", logMerge:true);
                     }
                 }
                 if (db.NumModLocalizations == 0)
                 {
-                    db.AddModLocalizations(GetGameText("ENG", $"{modContent}/Localization/English/GameText_EN.xml"));
-                    db.AddModLocalizations(GetGameText("RUS", $"{modContent}/Localization/Russian/GameText_RU.xml"));
+                    db.AddModLocalizations(GetGameText("ENG", $"{modContent}\\Localization\\English\\GameText_EN.xml"));
+                    db.AddModLocalizations(GetGameText("RUS", $"{modContent}\\Localization\\Russian\\GameText_RU.xml"));
                 }
                 db.FinalizeModLocalization();
-                db.ExportModYaml($"{modContent}/GameText.yaml");
-                db.ExportMissingModYaml("RUS", $"{modContent}/GameText.Missing.RUS.yaml");
-                db.ExportMissingModYaml("SPA", $"{modContent}/GameText.Missing.SPA.yaml");
+                db.ExportModYaml($"{modContent}\\GameText.yaml");
+                db.ExportMissingModYaml("RUS", $"{modContent}\\GameText.Missing.RUS.yaml");
+                db.ExportMissingModYaml("SPA", $"{modContent}\\GameText.Missing.SPA.yaml");
             }
             return db;
         }
@@ -180,7 +184,7 @@ namespace Ship_Game.Tools.Localization
             }
         }
 
-        public static void Run(string mod = "")
+        public static void Run(string mod, int mode)
         {
             string starDrive = Directory.GetCurrentDirectory();
             string gameContent = $"{starDrive}/Content";
@@ -197,7 +201,7 @@ namespace Ship_Game.Tools.Localization
             string codeDir = $"{solutionDir}/Ship_Game"; // OPTIONAL
             string outputDir = $"{codeDir}/Data"; // OPTIONAL
 
-            LocalizationDB db = CreateGameTextEnum(gameContent, modContent, outputDir);
+            LocalizationDB db = CreateGameTextEnum(mode, bbContent, gameContent, modContent, outputDir);
 
             if (Directory.Exists(bbContent))
                 UpgradeGameXmls(bbContent, db, mod:false);
