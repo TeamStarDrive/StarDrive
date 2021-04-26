@@ -58,10 +58,11 @@ namespace Ship_Game
             STLRect = new Rectangle(FTLRect.X + FTLRect.Width, y, 60, height);
             StatusText = GetStatusText(Ship);
             ShipIconRect = new Rectangle(ShipNameRect.X + 5, ShipNameRect.Y + 2, 28, 28);
-            string shipName = !string.IsNullOrEmpty(Ship.VanityName) ? Ship.VanityName : Ship.Name;
             SystemName = Ship.System?.Name ?? Localizer.Token(GameText.DeepSpace);
-            ShipNameEntry.ClickableArea = new Rectangle(ShipIconRect.X + ShipIconRect.Width + 10, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
-            ShipNameEntry.Text = shipName;
+            ShipNameEntry.SetPos(ShipIconRect.Right + 10, 2 + SysNameRect.CenterY() - Fonts.Arial20Bold.LineSpacing / 2);
+            ShipNameEntry.Text = Ship.ShipName;
+            ShipNameEntry.OnTextChanged = (text) => Ship.VanityName = text;
+
             float width = (int)(OrdersRect.Width * 0.8f);
             while (width % 10f != 0f)
             {
@@ -407,31 +408,6 @@ namespace Ship_Game
                 return true;
             }
 
-            if (ShipNameEntry.ClickableArea.HitTest(input.CursorPosition))
-            {
-                ShipNameEntry.Hover = true;
-                if (input.InGameSelect)
-                    ShipNameEntry.HandlingInput = true;
-            }
-            else
-            {
-                ShipNameEntry.Hover = false;
-                if (!HitTest(input.CursorPosition) || input.LeftMouseClick)
-                {
-                    ShipNameEntry.HandlingInput = false;
-                    GlobalStats.TakingInput = false;
-                }
-            }
-
-            if (ShipNameEntry.HandlingInput)
-            {
-                GlobalStats.TakingInput = true;
-                ShipNameEntry.HandleTextInput(ref Ship.VanityName, input);
-                ShipNameEntry.Text = Ship.VanityName;
-                return true;
-            }
-
-            GlobalStats.TakingInput = false;
             return base.HandleInput(input);
         }
 

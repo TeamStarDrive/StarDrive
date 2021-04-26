@@ -29,11 +29,17 @@ namespace Ship_Game
             SearchTech.Font = Fonts.Arial14Bold;
             SearchTech.ClickableArea = new Rectangle((int)Window.X + 35, (int)Window.Y + 70, (int)Window.Width - 70, 36);
             SearchTech.MaxCharacters = 14;
+            SearchTech.OnTextChanged = OnSearchTextChanged;
             Add(new Submenu(Window.X + 30, Window.Y + 40, Window.Y + 60, 50, SubmenuStyle.Blue));
             PerformLayout();
         }
+        
+        void OnSearchTextChanged(string text)
+        {
+            PopulateTechs(text.ToLower());
+        }
 
-        void PopulateTechs()
+        void PopulateTechs(string keyword)
         {
             TechList.Reset();
             var items = new Array<SearchTechItem>();
@@ -41,9 +47,8 @@ namespace Ship_Game
             foreach (var entry in EmpireManager.Player.TechnologyDict)
             {
                 TreeNode node = new TreeNode(Vector2.Zero, entry.Value, Screen);
-                string lower = node.TechName.ToLower();
                 if (entry.Value.Discovered && !entry.Value.IsRoot &&
-                    (SearchTech.Text.IsEmpty() || lower.Contains(SearchTech.Text.ToLower())))
+                    (keyword.IsEmpty() || node.TechName.ToLower().Contains(keyword)))
                 {
                     items.Add(CreateQueueItem(node));
                 }
@@ -65,7 +70,8 @@ namespace Ship_Game
             string title    = Localizer.Token(GameText.SearchTechnology);
             Vector2 menuPos = new Vector2(Window.Menu.CenterTextX(title, LargeFont), Window.Menu.Y + 35);
             Label(menuPos, title, LargeFont, Cream);
-            PopulateTechs();
+            PopulateTechs("");
+            SearchTech.HandlingInput = true; // automatically capture input
             base.LoadContent();
         }
 
@@ -73,27 +79,20 @@ namespace Ship_Game
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            SearchTech.Draw(batch, elapsed);
             base.Draw(batch, elapsed);
             batch.End();
         }
-
+        
         public override bool HandleInput(InputState input)
         {
-            if (SearchTech.HandlingInput && input.Escaped)
+            if (base.HandleInput(input))
                 return true;
-            
-            if (SearchTech.HitTest(input.CursorPosition) && !SearchTech.HandlingInput)
+
+            //if (SearchTech.HandlingInput && input.Escaped)
+            //    return true;
+
+            if (SearchTech.Hover && !SearchTech.HandlingInput)
                 SearchTech.HandlingInput = true;
-            
-            if (!SearchTech.HitTest(input.CursorPosition) && (input.RightMouseClick || input.LeftMouseClick))
-                SearchTech.HandlingInput = false;
-            
-            if (SearchTech.HandleInput(input) && SearchTech.HandlingInput)
-            {
-                PopulateTechs();
-                return true;
-            }
 
             if (input.RightMouseClick || input.LeftMouseClick)
             {
@@ -103,7 +102,6 @@ namespace Ship_Game
                     {
                         if (input.LeftMouseClick)
                             ResearchToTech(item.Tech);
-
                         return true;
                     }
                 }
@@ -115,7 +113,7 @@ namespace Ship_Game
                 return true;
             }
 
-            return base.HandleInput(input);
+            return false;
         }
 
         void ResearchToTech(TechEntry entry)

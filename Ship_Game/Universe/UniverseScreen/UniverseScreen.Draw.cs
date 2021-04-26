@@ -462,10 +462,6 @@ namespace Ship_Game
                               LookingAtPlanet && workersPanel is UnownedPlanetScreen);
 
             DrawSelectedItems(batch, elapsed);
-
-            if (SelectedShip == null || LookingAtPlanet)
-                ShipInfoUIElement.ShipNameArea.HandlingInput = false;
-
             DrawToolTip();
 
             if (Debug)

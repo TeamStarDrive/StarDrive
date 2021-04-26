@@ -267,7 +267,7 @@ namespace Ship_Game
 
             FilterItemsText    = "";
             ResetBuildableList = true;
-            FilterBuildableItems.ClearTextInput();
+            FilterBuildableItems.Clear();
         }
 
         void OnClearFilterClick(UIButton b)
