@@ -15,11 +15,13 @@ namespace Ship_Game.AI.CombatTactics.UI
 
         public void ResetButtons(Array<Ship> ships)
         {
-            SelectedShips = ships;
-            if (ships.IsEmpty)
+            var filteredShips = ships?.Filter(s => s != null && s.loyalty.isPlayer && !s.IsConstructor && s.DesignRole != ShipData.RoleName.ssp) ;
+
+            SelectedShips = new Array<Ship>(filteredShips);
+            if (SelectedShips.IsEmpty)
                 Reset(new CombatState[0]);
             else
-                Reset(ships.Select(s => s.AI.CombatState));
+                Reset(SelectedShips.Select(s => s.AI.CombatState));
         }
 
         protected override void ApplyStance(CombatState stance)
