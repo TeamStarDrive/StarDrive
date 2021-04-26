@@ -25,18 +25,13 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            HandleDetailInfo(input);
-
-            if (HandlePlanetNameChangeTextBox(input))
+            if (base.HandleInput(input))
                 return true;
+
+            HandleDetailInfo(input);
 
             if (PFacilities.HandleInput(input) && PFacilitiesPlayerTabSelected != PFacilities.SelectedIndex)
                 PFacilitiesPlayerTabSelected = PFacilities.SelectedIndex;
-
-            FilterBuildableItems.HandlingInput = FilterBuildableItems.HitTest(input.CursorPosition);
-
-            if (FilterBuildableItems.HandlingInput)
-                return base.HandleInput(input);
 
             if (BlockadeLabel.Visible && BlockadeLabel.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.IndicatesThatThisPlanetIs);
@@ -62,7 +57,7 @@ namespace Ship_Game
 
             PFacilities.SelectedIndex = DetailInfo is string ? PFacilitiesPlayerTabSelected : 1; // Set the Tab for view
 
-            return base.HandleInput(input);
+            return false;
         }
 
         bool HandleTroopSelect(InputState input)
@@ -190,60 +185,6 @@ namespace Ship_Game
                 return true; // planet changed, ColonyScreen will be replaced
             }
 
-            return false;
-        }
-
-        bool HandlePlanetNameChangeTextBox(InputState input)
-        {
-            if (!EditNameButton.HitTest(input.CursorPosition))
-            {
-                EditHoverState = 0;
-            }
-            else
-            {
-                EditHoverState = 1;
-                if (input.LeftMouseClick)
-                {
-                    PlanetName.HandlingInput = true;
-                }
-            }
-
-            if (PlanetName.HandlingInput)
-            {
-                PlanetName.HandleTextInput(ref PlanetName.Text, input);
-                return true;
-            }
-
-            bool empty = true;
-            string text = PlanetName.Text;
-            int num = 0;
-            while (num < text.Length)
-            {
-                if (text[num] == ' ')
-                {
-                    num++;
-                }
-                else
-                {
-                    empty = false;
-                    break;
-                }
-            }
-
-            if (empty)
-            {
-                int ringnum = 1;
-                foreach (SolarSystem.Ring ring in P.ParentSystem.RingList)
-                {
-                    if (ring.planet == P)
-                    {
-                        PlanetName.Text = string.Concat(P.ParentSystem.Name, " ",
-                            RomanNumerals.ToRoman(ringnum));
-                    }
-
-                    ringnum++;
-                }
-            }
             return false;
         }
 

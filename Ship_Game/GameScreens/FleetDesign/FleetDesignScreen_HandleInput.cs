@@ -31,9 +31,7 @@ namespace Ship_Game
         {
             EmpireUI.HandleInput(input, this);
             if (FleetNameEntry.HandlingInput)
-            {
                 return;
-            }
 
             Vector2 mousePos = input.CursorPosition;
             PresentationParameters pp = ScreenManager.GraphicsDevice.PresentationParameters;
@@ -110,30 +108,8 @@ namespace Ship_Game
                 return true;
             }
 
-            if (SelectedNodeList.Count != 1 && FleetToEdit != -1)
-            {
-                if (!FleetNameEntry.ClickableArea.HitTest(input.CursorPosition))
-                {
-                    FleetNameEntry.Hover = false;
-                }
-                else
-                {
-                    FleetNameEntry.Hover = true;
-                    if (Input.LeftMouseClick)
-                    {
-                        FleetNameEntry.HandlingInput = true;
-                        return true;
-                    }
-                }
-            }
-
-            if (!FleetNameEntry.HandlingInput)
-                GlobalStats.TakingInput = false;
-            else
-            {
-                GlobalStats.TakingInput = true;
-                FleetNameEntry.HandleTextInput(ref EmpireManager.Player.GetFleetsDict()[FleetToEdit].Name, input);
-            }
+            if (SelectedNodeList.Count != 1 && FleetToEdit != -1 && FleetNameEntry.HandleInput(input))
+                return true;
 
             InputSelectFleet(1, Input.Fleet1);
             InputSelectFleet(2, Input.Fleet2);

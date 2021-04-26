@@ -27,7 +27,7 @@ namespace Ship_Game.Ships
         private readonly ProgressBar PBar;
         private readonly ProgressBar SBar;
         private readonly ProgressBar OBar;
-        public UITextEntry ShipNameArea;
+        UITextEntry ShipNameArea;
         private readonly SlidingElement SlidingElement;
         private readonly Rectangle DefenseRect;
         private readonly Rectangle TroopRect;
@@ -50,10 +50,9 @@ namespace Ship_Game.Ships
             LeftRect = new Rectangle(r.X, r.Y + 44, 180, r.Height - 44);
             RightRect = new Rectangle(LeftRect.X + LeftRect.Width, LeftRect.Y, 220, LeftRect.Height);
             int spacing = 2;
-            ShipNameArea = new UITextEntry
-            {
-                ClickableArea = new Rectangle(Housing.X + 41, Housing.Y + 65, 200, Fonts.Arial20Bold.LineSpacing)
-            };
+            ShipNameArea = new UITextEntry(Housing.X + 41, Housing.Y + 65, 200, Fonts.Arial14Bold, "");
+            ShipNameArea.OnTextChanged = (text) => Ship.VanityName = text;
+            ShipNameArea.Color = tColor;
             
             Power = new Rectangle(Housing.X + 187, Housing.Y + 110, 20, 20);
             PBar = new ProgressBar(Power.X + Power.Width + 15, Power.Y, 150, 18) { color = "green" };
@@ -162,17 +161,11 @@ namespace Ship_Game.Ships
 
             batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
             GridButton.Draw(batch, elapsed);
-            var namePos           = new Vector2(Housing.X + 30, Housing.Y + 63);
-            string name           = (!string.IsNullOrEmpty(Ship.VanityName) ? Ship.VanityName : Ship.Name);
-            Graphics.Font titleFont  = Fonts.Arial14Bold;
-            Vector2 shipSuperName = new Vector2(Housing.X + 30, Housing.Y + 79);
-            if (Fonts.Arial14Bold.MeasureString(name).X > 180f)
-            {
-                titleFont = Fonts.Arial12Bold;
-                namePos.X = namePos.X - 8;
-                namePos.Y = namePos.Y + 1;
-            }
-            ShipNameArea.Draw(batch, elapsed, titleFont, namePos, tColor);
+            var namePos       = new Vector2(Housing.X + 30, Housing.Y + 63);
+            var shipSuperName = new Vector2(Housing.X + 30, Housing.Y + 79);
+            ShipNameArea.SetPos(namePos);
+            ShipNameArea.Draw(batch, elapsed);
+
             //Added by McShooterz:
             //longName = string.Concat(ship.Name, " - ", Localizer.GetRole(ship.shipData.Role, ship.loyalty));
             string longName = string.Concat(Ship.Name, " - ", Localizer.GetRole(Ship.DesignRole, Ship.loyalty));
@@ -502,8 +495,11 @@ namespace Ship_Game.Ships
    
         public override bool HandleInput(InputState input)
         {
-            if (Screen.SelectedShip == null)
+            if (Screen.SelectedShip == null || Screen.LookingAtPlanet)
+            {
+                ShipNameArea.StopInput();
                 return false;
+            }
 
             if (FlagRect.HitTest(input.CursorPosition))
             {
@@ -516,27 +512,8 @@ namespace Ship_Game.Ships
                 return true;
             }
 
-            if (ShipNameArea.ClickableArea.HitTest(input.CursorPosition))
-            {
-                ShipNameArea.Hover = true;
-                if (input.InGameSelect && CanRename)
-                    ShipNameArea.HandlingInput = true;
-            }
-            else
-            {
-                ShipNameArea.Hover = false;
-            }
-
-            if (ShipNameArea.HandlingInput)
-            {
-                GlobalStats.TakingInput = true;
-                ShipNameArea.HandleTextInput(ref Ship.VanityName, input);
-                ShipNameArea.Text = Ship.VanityName;
-            }
-            else
-            {
-                GlobalStats.TakingInput = false;
-            }
+            if (ShipNameArea.HandleInput(input))
+                return true;
 
             if (GridButton.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(Localizer.Token(GameText.ToggleTheModuleGridOverlay));
@@ -592,29 +569,21 @@ namespace Ship_Game.Ships
 
         public void SetShip(Ship s)
         {
-            CanRename = s.loyalty == EmpireManager.Player;
-            ShipNameArea.HandlingInput = false;
-            ShipNameArea.Text = s.VanityName;
-            Orders.Clear();
-            Ship = s;
-            if (Ship.loyalty != EmpireManager.Player)
-            {
+            if (Ship == s)
                 return;
-            }
-            if (Ship.AI.OrderQueue.NotEmpty)
-            {
-                try
-                {
-                    if (Ship.AI.OrderQueue.PeekLast.Plan == ShipAI.Plan.DeployStructure)
-                    {
-                        return;
-                    }
-                }
-                catch
-                {
-                    return;
-                }
-            }
+
+            Ship = s;
+            CanRename = s.loyalty == EmpireManager.Player;
+            ShipNameArea.Enabled = CanRename;
+            ShipNameArea.Reset(s.ShipName);
+
+            Orders.Clear();
+            if (Ship.loyalty != EmpireManager.Player)
+                return;
+
+            if (Ship.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
+                return;
+
             if (Ship.shipData.Role > ShipData.RoleName.station)
             {
                 OrdersButton resupply = new OrdersButton(Ship, OrderType.OrderResupply, GameText.OrdersSelectedShipOrShips)
