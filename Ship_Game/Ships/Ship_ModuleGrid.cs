@@ -43,8 +43,8 @@ namespace Ship_Game.Ships
             float spanY = maxY - minY;
             SurfaceArea = templateSlots.Length;
             GridOrigin = new Vector2(minX, minY);
-            GridWidth  = (int)spanX / 16;
-            GridHeight = (int)spanY / 16;
+            GridWidth  = (int)spanX / 16 + 1;
+            GridHeight = (int)spanY / 16 + 1;
             SparseModuleGrid   = new ShipModule[GridWidth * GridHeight];
             ExternalModuleGrid = new ShipModule[GridWidth * GridHeight];
 
