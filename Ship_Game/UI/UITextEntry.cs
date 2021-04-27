@@ -7,290 +7,403 @@ using Keys = Microsoft.Xna.Framework.Input.Keys;
 
 namespace Ship_Game
 {
-    using InputKeys = Keys;
-
     public class UITextEntry : UIElementV2
     {
-        public Rectangle ClickableArea
-        {
-            get => Rect;
-            set => Rect = value;
-        }
+        string TextValue;
+        public bool HandlingInput { get; private set; }
+        
+        /// <summary>
+        /// If TRUE, this UITextEntry will automatically start capturing input
+        /// if any keys are pressed
+        /// </summary>
+        public bool AutoCaptureOnKeys = false;
 
-        public string Text;
-        public bool HandlingInput;
+        /// <summary>
+        /// If TRUE, this UITextEntry will automatically start capturing input
+        /// when hovering
+        /// </summary>
+        public bool AutoCaptureOnHover = false;
+
         public bool Hover;
         public bool AllowPeriod = false;
-
         public bool ResetTextOnInput;
+        public int MaxCharacters = 30;
+        int CursorPos;
 
-        // If TRUE, this text element will capture input
-        public bool InputEnabled = true;
+        /// <summary>
+        /// Time it takes for AutoCapture to lose focus on this text entry
+        /// </summary>
+        public float AutoCaptureLoseFocusTime = 1.0f;
+        float AutoDecaptureTimer;
+        
+        const float FirstRepeatTime = 0.2f;
+        const float RepeatInterval = 0.1f;
+        float RepeatCooldown;
+        float LastRepeatStart;
 
-        public Graphics.Font Font = Fonts.Arial20Bold;
+        public Graphics.Font Font = Fonts.Arial14Bold;
         public Color Color = Color.Orange;
         public Color HoverColor = Color.White;
         public Color InputColor = Color.BurlyWood;
+
+        /// <summary>
+        /// EVT: Text was changed during input
+        /// </summary>
+        public Action<string> OnTextChanged;
+        bool IsInvokingOnTextChanged;
+
+        /// <summary>
+        /// EVT: Text was submitted using ENTER or ESCAPE
+        /// </summary>
+        public Action<string> OnTextSubmit;
+
+        /// <summary>
+        /// Takes ownership of a background element to draw and update 
+        /// </summary>
+        public UIElementV2 Background;
 
         public UITextEntry()
         {
         }
 
-        public UITextEntry(string text) : this(Vector2.Zero, Fonts.Arial20Bold, text)
+        public UITextEntry(in LocalizedText text) : this(Vector2.Zero, Fonts.Arial20Bold, text)
         {
         }
 
-        public UITextEntry(Vector2 pos, string text) : this(pos, Fonts.Arial20Bold, text)
+        public UITextEntry(Vector2 pos, in LocalizedText text) : this(pos, Fonts.Arial20Bold, text)
         {
         }
 
-        public UITextEntry(Vector2 pos, Graphics.Font font, string text)
+        public UITextEntry(Vector2 pos, Graphics.Font font, in LocalizedText text)
+            : this(pos.X, pos.Y, font.TextWidth(text) + 20, font, text)
         {
-            TextInputCaptured = false; // reset this global flag
+        }
+        
+        public UITextEntry(float x, float y, float width, Graphics.Font font, in LocalizedText text)
+            : this(x, y, width, font.LineSpacing + 2, font, text)
+        {
+        }
+
+        public UITextEntry(in Rectangle rect, Graphics.Font font, in LocalizedText text)
+            : this(rect.X, rect.Y, rect.Width, rect.Height, font, text)
+        {
+        }
+
+        public UITextEntry(float x, float y, float width, float height, Graphics.Font font, in LocalizedText text)
+        {
             Font = font;
-            Text = text;
-            ClickableArea = new Rectangle((int)pos.X, (int)pos.Y - 2, font.TextWidth(Text) + 20, font.LineSpacing);
+            Text = text.Text;
+            CursorPos = Text.Length;
+            Pos = new Vector2(x, y);
+            Size = new Vector2(width, height);
+        }
+        
+        public void Clear()
+        {
+            HandlingInput = false;
+            Text = "";
         }
 
-        public bool HandleTextInput(ref string text, InputState input)
+        public void Reset(string text)
+        {
+            HandlingInput = false;
+            CursorPos = text.Length;
+            Text = text;
+        }
+
+        void StartInput()
+        {
+            if (HandlingInput)
+                return;
+            HandlingInput = true;
+            GlobalStats.TakingInput = true;
+            if (ResetTextOnInput)
+                Text = "";
+            else
+                CursorPos = TextValue.Length;
+        }
+
+        // If Input is being captured, stops capture an submits the current text
+        public void StopInput()
         {
             if (!HandlingInput)
-            {
-                HandlingInput = false;
-                TextInputCaptured = false;
-                return false;
-            }
-
-            if (input.IsEnterOrEscape)
-            {
-                HandlingInput = false;
-                TextInputCaptured = false;
-                return true;
-            }
-
-            boop++;
-            if (boop == 7)
-                boop = 0;
-            
-            if (input.IsKeyDown(InputKeys.Back))
-            {
-                if (boop == 0 && text.Length != 0)
-                    text = text.Remove(text.Length - 1);
-                return true;
-            }
-
-            InputKeys[] keysArray = KeysToCheck;
-            for (int i = 0; i < keysArray.Length; i++)
-            {
-                InputKeys key = keysArray[i];
-                if (CheckKey(key, input))
-                {
-                    if (text.Length >= MaxCharacters)
-                    {
-                        GameAudio.NegativeClick();
-                    }
-                    else
-                    {
-                        AddKeyToText(ref text, key, input);
-                        GameAudio.BlipClick();
-                    }
-                    return true;
-                }
-            }
-            // NOTE: always force input capture
-            return true;
+                return;
+            HandlingInput = false;
+            GlobalStats.TakingInput = false;
+            OnTextSubmit?.Invoke(TextValue);
         }
 
-        public void ClearTextInput()
+        public void SetPos(float x, float y) => SetPos(new Vector2(x, y));
+        public void SetPos(Vector2 pos)
         {
-            HandlingInput     = false;
-            TextInputCaptured = false;
-            Text              = "";
-        }
-
-        static bool TextInputCaptured;
-
-        public override bool HandleInput(InputState input)
-        {
-            if (!InputEnabled || (TextInputCaptured && !HandlingInput))
-                return false;
-
-            Hover = ClickableArea.HitTest(input.CursorPosition);
-            if (Hover && !HandlingInput)
-            {
-                if (input.LeftMouseClick)
-                {
-                    HandlingInput = true;
-                    TextInputCaptured = true;
-                    if (ResetTextOnInput)
-                        Text = "";
-                    return true;
-                }
-            }
-
-            return HandleTextInput(ref Text, input);
-        }
-
-        // TODO: This is only here for legacy compat
-        public void Draw(SpriteBatch batch, DrawTimes elapsed, Graphics.Font font, Vector2 pos, Color c)
-        {
-            Font = font;
             Pos = pos;
-            if (Hover)
-                HoverColor = c;
-            else 
-                Color = c;
-            Draw(batch, elapsed);
+            int newWidth = Font.TextWidth(Text) + 20;
+            Width = (newWidth > Width) ? newWidth : Width;
+        }
+
+        public void SetColors(Color color, Color hoverColor)
+        {
+            Color = color;
+            HoverColor = hoverColor;
+        }
+
+        public string Text
+        {
+            get => TextValue;
+            set
+            {
+                if (TextValue == value)
+                    return;
+
+                TextValue = value;
+                CursorPos = CursorPos.Clamped(0, value.Length);
+                if (IsInvokingOnTextChanged)
+                    return;
+                try
+                {
+                    IsInvokingOnTextChanged = true;
+                    OnTextChanged?.Invoke(value);
+                }
+                finally
+                {
+                    IsInvokingOnTextChanged = false;
+                }
+            }
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
+            Background?.Draw(batch, elapsed);
+
             Vector2 pos = Pos;
             Color color = Color;
             if (HandlingInput) color = InputColor;
             else if (Hover)    color = HoverColor;
 
+            pos.X += 2f;
             batch.DrawString(Font, Text, pos, color);
-            pos.X += Font.MeasureString(Text).X;
             if (HandlingInput)
             {
-                float f = 255f * Math.Abs(RadMath.Sin(GameBase.Base.TotalElapsed));
-                var flashColor = new Color(255, 255, 255, (byte)f);
+                float f = Math.Abs(RadMath.Sin(GameBase.Base.TotalElapsed * 5f));
+                var flashColor = Color.White.Alpha((f + 0.1f).Clamped(0f, 1f));
+                
+                int length = Math.Min(Text.Length, CursorPos);
+                string substring = Text.Substring(0, length);
+                pos.X += Font.TextWidth(substring);
                 batch.DrawString(Font, "|", pos, flashColor);
             }
         }
-        
-        readonly InputKeys[] KeysToCheck =
-        {
-            InputKeys.A, InputKeys.B, InputKeys.C, InputKeys.D,
-            InputKeys.E, InputKeys.F,
-            InputKeys.G, InputKeys.H,
-            InputKeys.I, InputKeys.J,
-            InputKeys.K, InputKeys.L,
-            InputKeys.M, InputKeys.N,
-            InputKeys.O, InputKeys.P,
-            InputKeys.Q, InputKeys.R,
-            InputKeys.S, InputKeys.T,
-            InputKeys.U, InputKeys.V,
-            InputKeys.W, InputKeys.X,
-            InputKeys.Y, InputKeys.Z,
-            InputKeys.Back, InputKeys.Space,
-            InputKeys.NumPad0, InputKeys.NumPad1,
-            InputKeys.NumPad2, InputKeys.NumPad3,
-            InputKeys.NumPad4, InputKeys.NumPad5,
-            InputKeys.NumPad6, InputKeys.NumPad7,
-            InputKeys.NumPad8, InputKeys.NumPad9,
-            InputKeys.OemMinus, InputKeys.OemQuotes,
-            InputKeys.D0, InputKeys.D1,
-            InputKeys.D2, InputKeys.D3,
-            InputKeys.D4, InputKeys.D5,
-            InputKeys.D6, InputKeys.D7,
-            InputKeys.D8, InputKeys.D9,
-            InputKeys.OemPeriod
-        };
-        public int MaxCharacters = 30;
-        int boop;
 
-        void AddKeyToText(ref string text, InputKeys key, InputState input)
+        public override bool HandleInput(InputState input)
         {
-            if (text.Length >= 60 && key != InputKeys.Back)
-                return;
+            if (!Enabled)
+                return false;
 
-            void AppendKeyChar(ref string textRef, char ch)
+            //Background?.HandleInput(input); // not really needed for background elements
+
+            bool wasHovering = Hover; // was hovering last frame
+            Hover = HitTest(input.CursorPosition);
+            bool autoKeysDown = AutoCaptureOnKeys && AnyValidInputKeysDown(input);
+            bool autoHover    = AutoCaptureOnHover && Hover;
+            bool hoverAndClick = Hover && input.LeftMouseClick;
+
+            if ((autoKeysDown || autoHover || hoverAndClick) && !HandlingInput)
             {
-                if (input.IsKeyDown(InputKeys.RightShift) || input.IsKeyDown(InputKeys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-                    ch = char.ToUpper(ch);
-                textRef += ch;
+                StartInput();
+            }
+            // click in the middle of the text?
+            else if (Hover && HandlingInput && input.LeftMouseClick)
+            {
+                float textWidth = Font.TextWidth(TextValue);
+                float localX = input.CursorPosition.X - Pos.X;
+                float relX = (localX / textWidth).Clamped(0f, 1f);
+                CursorPos = (int)(relX * TextValue.Length);
+            }
+            else if (HandlingInput)
+            {
+                if (!Hover)
+                {
+                    // in case we have both CaptureOnKeys and CaptureOnHover, disallow autoKeysExit
+                    bool autoKeysExit = AutoCaptureOnKeys && !AutoCaptureOnHover 
+                                         && !autoKeysDown && AutoDecaptureTimer <= 0f;
+                    bool autoHoverExit = AutoCaptureOnHover && !Hover && wasHovering;
+                    if (autoKeysExit || autoHoverExit || input.RightMouseClick || input.LeftMouseClick)
+                    {
+                        StopInput();
+                    }
+                }
+                else if (input.IsEnterOrEscape)
+                {
+                    StopInput();
+                }
             }
 
+            if (HandlingInput)
+                return HandleTextInput(input);
+            return false;
+        }
+
+        bool HandleTextInput(InputState input)
+        {
+            AutoDecaptureTimer -= GameBase.Base.Elapsed.RealTime.Seconds;
+            if (HandleCursor(input))
+                return true;
+
+            Keys[] keysDown = input.GetKeysDown();
+            for (int i = 0; i < keysDown.Length; i++)
+            {
+                AutoDecaptureTimer = AutoCaptureLoseFocusTime;
+                Keys key = keysDown[i];
+                if (key != Keys.Back && input.KeyPressed(key) && TextValue.Length < MaxCharacters)
+                {
+                    if (AddKeyToText(input, key))
+                        GameAudio.BlipClick();
+                    else
+                        GameAudio.NegativeClick();
+                    return true; // TODO: align return with new UI system
+                }
+            }
+
+            // NOTE: always force input capture
+            return true; // TODO: align return with new UI system
+        }
+
+        bool HandleCursor(InputState input)
+        {
+            RepeatCooldown -= GameBase.Base.Elapsed.RealTime.Seconds;
+
+            bool back   = input.IsKeyDown(Keys.Back);
+            bool delete = input.IsKeyDown(Keys.Delete);
+            bool left   = input.IsKeyDown(Keys.Left);
+            bool right  = input.IsKeyDown(Keys.Right);
+            if (!back && !delete && !left && !right)
+                return false;
+            
+            AutoDecaptureTimer = AutoCaptureLoseFocusTime;
+
+            // back, left or right were pressed, wait until cooldown reaches 0
+            if (RepeatCooldown <= 0f)
+            {
+                float timeSinceLastStart = (GameBase.Base.TotalElapsed - LastRepeatStart);
+                LastRepeatStart = GameBase.Base.TotalElapsed;
+
+                if (timeSinceLastStart > FirstRepeatTime*1.5f) // slow it down a little during first press
+                    RepeatCooldown = FirstRepeatTime;
+                else // user is holding down the keys
+                    RepeatCooldown = RepeatInterval;
+
+                if (HandleCursorMove(back, delete, left, right))
+                    GameAudio.BlipClick();
+                else
+                    GameAudio.NegativeClick();
+            }
+            return true;
+        }
+
+        bool HandleCursorMove(bool back, bool delete, bool left, bool right)
+        {
+            CursorPos = CursorPos.Clamped(0, TextValue.Length);
+
+            if (back && TextValue.Length != 0 && CursorPos > 0)
+            {
+                --CursorPos;
+                Text = TextValue.Remove(CursorPos, 1);
+                return true;
+            }
+            else if (delete && TextValue.Length != 0 && CursorPos < TextValue.Length)
+            {
+                Text = TextValue.Remove(CursorPos, 1);
+                return true;
+            }
+            else if (left && CursorPos > 0)
+            {
+                --CursorPos;
+                return true;
+            }
+            else if (right && CursorPos < TextValue.Length)
+            {
+                ++CursorPos;
+                return true;
+            }
+            return false;
+        }
+
+        bool AddKeyToText(InputState input, Keys key)
+        {
+            char ch = GetCharFromKey(key);
+            if (ch != '\0')
+            {
+                if (input.IsShiftKeyDown || input.IsCapsLockDown)
+                    ch = char.ToUpper(ch);
+                
+                CursorPos = CursorPos.Clamped(0, TextValue.Length);
+                Text = TextValue.Insert(CursorPos, ch.ToString());
+                CursorPos += 1;
+                return true;
+            }
+            return false;
+        }
+
+        char GetCharFromKey(Keys key)
+        {
             switch (key)
             {
-                case InputKeys.Space: AppendKeyChar(ref text, ' '); return;
-                case InputKeys.PageUp:
-                case InputKeys.PageDown:
-                case InputKeys.End:
-                case InputKeys.Home:
-                case InputKeys.Left:
-                case InputKeys.Up:
-                case InputKeys.Right:
-                case InputKeys.Down:
-                case InputKeys.Select:
-                case InputKeys.Print:
-                case InputKeys.Execute:
-                case InputKeys.PrintScreen:
-                case InputKeys.Insert:
-                case InputKeys.Delete:
-                case InputKeys.Help:
-                case InputKeys.Back | InputKeys.D0 | InputKeys.D2 | InputKeys.D8 | InputKeys.Down | InputKeys.PageDown | InputKeys.Print | InputKeys.Space:
-                case InputKeys.Back | InputKeys.D0 | InputKeys.D1 | InputKeys.D2 | InputKeys.D3 | InputKeys.D8 | InputKeys.D9 | InputKeys.Down | InputKeys.End | InputKeys.Escape | InputKeys.Execute | InputKeys.Kanji | InputKeys.PageDown | InputKeys.PageUp | InputKeys.Pause | InputKeys.Print | InputKeys.Select | InputKeys.Space | InputKeys.Tab:
-                case InputKeys.Back | InputKeys.CapsLock | InputKeys.D0 | InputKeys.D4 | InputKeys.D8 | InputKeys.Down | InputKeys.Home | InputKeys.ImeConvert | InputKeys.PrintScreen | InputKeys.Space:
-                case InputKeys.Back | InputKeys.CapsLock | InputKeys.D0 | InputKeys.D1 | InputKeys.D4 | InputKeys.D5 | InputKeys.D8 | InputKeys.D9 | InputKeys.Down | InputKeys.Enter | InputKeys.Home | InputKeys.ImeConvert | InputKeys.ImeNoConvert | InputKeys.Insert | InputKeys.Kana | InputKeys.Kanji | InputKeys.Left | InputKeys.PageUp | InputKeys.PrintScreen | InputKeys.Select | InputKeys.Space | InputKeys.Tab:
-                case InputKeys.Back | InputKeys.CapsLock | InputKeys.D0 | InputKeys.D2 | InputKeys.D4 | InputKeys.D6 | InputKeys.D8 | InputKeys.Delete | InputKeys.Down | InputKeys.Home | InputKeys.ImeConvert | InputKeys.PageDown | InputKeys.Print | InputKeys.PrintScreen | InputKeys.Space | InputKeys.Up:
-                case InputKeys.Back | InputKeys.CapsLock | InputKeys.D0 | InputKeys.D1 | InputKeys.D2 | InputKeys.D3 | InputKeys.D4 | InputKeys.D5 | InputKeys.D6 | InputKeys.D7 | InputKeys.D8 | InputKeys.D9 | InputKeys.Delete | InputKeys.Down | InputKeys.End | InputKeys.Enter | InputKeys.Escape | InputKeys.Execute | InputKeys.Help | InputKeys.Home | InputKeys.ImeConvert | InputKeys.ImeNoConvert | InputKeys.Insert | InputKeys.Kana | InputKeys.Kanji | InputKeys.Left | InputKeys.PageDown | InputKeys.PageUp | InputKeys.Pause | InputKeys.Print | InputKeys.PrintScreen | InputKeys.Right | InputKeys.Select | InputKeys.Space | InputKeys.Tab | InputKeys.Up:
-                //case 64:  wtf?
-                case InputKeys.LeftWindows:
-                case InputKeys.RightWindows:
-                case InputKeys.Apps:
-                case InputKeys.B | InputKeys.Back | InputKeys.CapsLock | InputKeys.D | InputKeys.F | InputKeys.H | InputKeys.ImeConvert | InputKeys.J | InputKeys.L | InputKeys.N | InputKeys.P | InputKeys.R | InputKeys.RightWindows | InputKeys.T | InputKeys.V | InputKeys.X | InputKeys.Z:
-                case InputKeys.Sleep: return;
-                case InputKeys.D0: AppendKeyChar(ref text, '0'); return;
-                case InputKeys.D1: AppendKeyChar(ref text, '1'); return;
-                case InputKeys.D2: AppendKeyChar(ref text, '2'); return;
-                case InputKeys.D3: AppendKeyChar(ref text, '3'); return;
-                case InputKeys.D4: AppendKeyChar(ref text, '4'); return;
-                case InputKeys.D5: AppendKeyChar(ref text, '5'); return;
-                case InputKeys.D6: AppendKeyChar(ref text, '6'); return;
-                case InputKeys.D7: AppendKeyChar(ref text, '7'); return;
-                case InputKeys.D8: AppendKeyChar(ref text, '8'); return;
-                case InputKeys.D9: AppendKeyChar(ref text, '9'); return;
-                case InputKeys.A: AppendKeyChar(ref text, 'a'); return;
-                case InputKeys.B: AppendKeyChar(ref text, 'b'); return;
-                case InputKeys.C: AppendKeyChar(ref text, 'c'); return;
-                case InputKeys.D: AppendKeyChar(ref text, 'd'); return;
-                case InputKeys.E: AppendKeyChar(ref text, 'e'); return;
-                case InputKeys.F: AppendKeyChar(ref text, 'f'); return;
-                case InputKeys.G: AppendKeyChar(ref text, 'g'); return;
-                case InputKeys.H: AppendKeyChar(ref text, 'h'); return;
-                case InputKeys.I: AppendKeyChar(ref text, 'i'); return;
-                case InputKeys.J: AppendKeyChar(ref text, 'j'); return;
-                case InputKeys.K: AppendKeyChar(ref text, 'k'); return;
-                case InputKeys.L: AppendKeyChar(ref text, 'l'); return;
-                case InputKeys.M: AppendKeyChar(ref text, 'm'); return;
-                case InputKeys.N: AppendKeyChar(ref text, 'n'); return;
-                case InputKeys.O: AppendKeyChar(ref text, 'o'); return;
-                case InputKeys.P: AppendKeyChar(ref text, 'p'); return;
-                case InputKeys.Q: AppendKeyChar(ref text, 'q'); return;
-                case InputKeys.R: AppendKeyChar(ref text, 'r'); return;
-                case InputKeys.S: AppendKeyChar(ref text, 's'); return;
-                case InputKeys.T: AppendKeyChar(ref text, 't'); return;
-                case InputKeys.U: AppendKeyChar(ref text, 'u'); return;
-                case InputKeys.V: AppendKeyChar(ref text, 'v'); return;
-                case InputKeys.W: AppendKeyChar(ref text, 'w'); return;
-                case InputKeys.X: AppendKeyChar(ref text, 'x'); return;
-                case InputKeys.Y: AppendKeyChar(ref text, 'y'); return;
-                case InputKeys.Z: AppendKeyChar(ref text, 'z'); return;
-                case InputKeys.NumPad0: AppendKeyChar(ref text, '0'); return;
-                case InputKeys.NumPad1: AppendKeyChar(ref text, '1'); return;
-                case InputKeys.NumPad2: AppendKeyChar(ref text, '2'); return;
-                case InputKeys.NumPad3: AppendKeyChar(ref text, '3'); return;
-                case InputKeys.NumPad4: AppendKeyChar(ref text, '4'); return;
-                case InputKeys.NumPad5: AppendKeyChar(ref text, '5'); return;
-                case InputKeys.NumPad6: AppendKeyChar(ref text, '6'); return;
-                case InputKeys.NumPad7: AppendKeyChar(ref text, '7'); return;
-                case InputKeys.NumPad8: AppendKeyChar(ref text, '8'); return;
-                case InputKeys.NumPad9: AppendKeyChar(ref text, '9'); return;
-                case InputKeys.OemMinus: AppendKeyChar(ref text, '-'); return;
-                case InputKeys.OemQuotes: AppendKeyChar(ref text, '\''); return;
-                case InputKeys.OemPeriod when AllowPeriod: AppendKeyChar(ref text, '.'); return;
+                default: return '\0';
+                case Keys.Space: return ' ';
+                case Keys.D0: return '0';
+                case Keys.D1: return '1';
+                case Keys.D2: return '2';
+                case Keys.D3: return '3';
+                case Keys.D4: return '4';
+                case Keys.D5: return '5';
+                case Keys.D6: return '6';
+                case Keys.D7: return '7';
+                case Keys.D8: return '8';
+                case Keys.D9: return '9';
+                case Keys.A: return 'a';
+                case Keys.B: return 'b';
+                case Keys.C: return 'c';
+                case Keys.D: return 'd';
+                case Keys.E: return 'e';
+                case Keys.F: return 'f';
+                case Keys.G: return 'g';
+                case Keys.H: return 'h';
+                case Keys.I: return 'i';
+                case Keys.J: return 'j';
+                case Keys.K: return 'k';
+                case Keys.L: return 'l';
+                case Keys.M: return 'm';
+                case Keys.N: return 'n';
+                case Keys.O: return 'o';
+                case Keys.P: return 'p';
+                case Keys.Q: return 'q';
+                case Keys.R: return 'r';
+                case Keys.S: return 's';
+                case Keys.T: return 't';
+                case Keys.U: return 'u';
+                case Keys.V: return 'v';
+                case Keys.W: return 'w';
+                case Keys.X: return 'x';
+                case Keys.Y: return 'y';
+                case Keys.Z: return 'z';
+                case Keys.NumPad0: return '0';
+                case Keys.NumPad1: return '1';
+                case Keys.NumPad2: return '2';
+                case Keys.NumPad3: return '3';
+                case Keys.NumPad4: return '4';
+                case Keys.NumPad5: return '5';
+                case Keys.NumPad6: return '6';
+                case Keys.NumPad7: return '7';
+                case Keys.NumPad8: return '8';
+                case Keys.NumPad9: return '9';
+                case Keys.OemMinus: return '-';
+                case Keys.OemQuotes: return '\'';
+                case Keys.OemPeriod when AllowPeriod: return '.';
             }
         }
 
-        bool CheckKey(InputKeys key, InputState input)
-        {
-            if (key == InputKeys.Back && boop == 0)
-                return input.IsKeyDown(key);
-            return input.KeyPressed(key);
-        }
-
+        bool IsValidKey(Keys key) => GetCharFromKey(key) != '\0' || IsCursorKey(key);
+        bool IsCursorKey(Keys key) => key == Keys.Back || key == Keys.Delete || key == Keys.Left || key == Keys.Right;
+        bool AnyValidInputKeysDown(InputState input) => input.GetKeysDown().Any(IsValidKey);
     }
 }

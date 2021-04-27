@@ -57,9 +57,9 @@ namespace Ship_Game
         Rectangle CivBudgetRect;
         Rectangle GrdBudgetRect;
         Rectangle SpcBudgetRect;
-        Rectangle CivBudgetTexRect;
-        Rectangle GrdBudgetTexRect;
-        Rectangle SpcBudgetTexRect;
+        Rectangle CivBudgetIconRect;
+        Rectangle GrdBudgetIconRect;
+        Rectangle SpcBudgetIconRect;
         ProgressBar CivBudgetBar;
         ProgressBar GrdBudgetBar;
         ProgressBar SpcBudgetBar;
@@ -160,9 +160,9 @@ namespace Ship_Game
             CivBudgetRect    = new Rectangle((int)X + 57, (int)Y + 40, (int)(Width*0.33f), 20);
             GrdBudgetRect    = new Rectangle((int)X + 57, (int)Y + 70, (int)(Width*0.33f), 20);
             SpcBudgetRect    = new Rectangle((int)X + 57, (int)Y + 100, (int)(Width*0.33f), 20);
-            CivBudgetTexRect = new Rectangle((int)X + 5, (int)Y + 38, 47, 23);
-            GrdBudgetTexRect = new Rectangle((int)X + 5, (int)Y + 68, 47, 23);
-            SpcBudgetTexRect = new Rectangle((int)X + 5, (int)Y + 96, 47, 23);
+            CivBudgetIconRect = new Rectangle((int)X + 5, (int)Y + 38, 47, 23);
+            GrdBudgetIconRect = new Rectangle((int)X + 5, (int)Y + 68, 47, 23);
+            SpcBudgetIconRect = new Rectangle((int)X + 5, (int)Y + 96, 47, 23);
 
             CivBudgetBar = new ProgressBar(CivBudgetRect);
             GrdBudgetBar = new ProgressBar(GrdBudgetRect);
@@ -171,15 +171,18 @@ namespace Ship_Game
             CivBudgetBar.Faction10Values = true;
             GrdBudgetBar.Faction10Values = true;
             SpcBudgetBar.Faction10Values = true;
-            CivBudgetBar.color           = "green";
-            SpcBudgetBar.color           = "blue";
+            CivBudgetBar.color = "green";
+            SpcBudgetBar.color = "blue";
 
-            ManualCivBudget       = Add(new UITextEntry(Planet.ManualCivilianBudget.String(2)));
-            ManualGrdBudget       = Add(new UITextEntry(Planet.ManualGrdDefBudget.String(2)));
-            ManualSpcBudget       = Add(new UITextEntry(Planet.ManualSpcDefBudget.String(2)));
+            ManualCivBudget = Add(new UITextEntry(Planet.ManualCivilianBudget.String(2)));
+            ManualGrdBudget = Add(new UITextEntry(Planet.ManualGrdDefBudget.String(2)));
+            ManualSpcBudget = Add(new UITextEntry(Planet.ManualSpcDefBudget.String(2)));
             ManualCivBudget.Color = Color.MediumSeaGreen;
             ManualSpcBudget.Color = Color.SteelBlue;
 
+            ManualCivBudget.AutoCaptureOnHover = true;
+            ManualGrdBudget.AutoCaptureOnHover = true;
+            ManualSpcBudget.AutoCaptureOnHover = true;
             ManualCivBudget.Font          = ManualGrdBudget.Font          = ManualSpcBudget.Font          = Font;
             ManualCivBudget.MaxCharacters = ManualGrdBudget.MaxCharacters = ManualSpcBudget.MaxCharacters = 6;
             ManualCivBudget.AllowPeriod   = ManualGrdBudget.AllowPeriod   = ManualSpcBudget.AllowPeriod   = true;
@@ -452,9 +455,9 @@ namespace Ship_Game
                 SpcBudgetBar.Draw(batch);
             }
 
-            batch.Draw(ResourceManager.Texture("NewUI/BudgetCiv"), CivBudgetTexRect);
-            batch.Draw(ResourceManager.Texture("NewUI/BudgetGround"), GrdBudgetTexRect);
-            batch.Draw(ResourceManager.Texture("NewUI/BudgetSpace"), SpcBudgetTexRect);
+            batch.Draw(ResourceManager.Texture("NewUI/BudgetCiv"), CivBudgetIconRect);
+            batch.Draw(ResourceManager.Texture("NewUI/BudgetGround"), GrdBudgetIconRect);
+            batch.Draw(ResourceManager.Texture("NewUI/BudgetSpace"), SpcBudgetIconRect);
         }
 
         void OnSendTroopsClicked(UIButton b)
@@ -721,14 +724,10 @@ namespace Ship_Game
 
             if (BudgetTabView)
             {
-                if      (CivBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GovernorOn ? GameText.CivilianBuildingsExpenditurebudgetInByc : GameText.CivilianBuildingsExpenditureInByc);
-                else if (GrdBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GovernorOn ? GameText.GroundDefenseBuildingsExpenditurebudgetIn : GameText.GroundDefenseBuildingsExpenditureIn);
-                else if (SpcBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GovernorOn ? GameText.OrbitalsExpenditurebudgetInByc : GameText.OrbitalsExpenditureInByc);
+                if      (CivBudgetIconRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GovernorOn ? GameText.CivilianBuildingsExpenditurebudgetInByc : GameText.CivilianBuildingsExpenditureInByc);
+                else if (GrdBudgetIconRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GovernorOn ? GameText.GroundDefenseBuildingsExpenditurebudgetIn : GameText.GroundDefenseBuildingsExpenditureIn);
+                else if (SpcBudgetIconRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GovernorOn ? GameText.OrbitalsExpenditurebudgetInByc : GameText.OrbitalsExpenditureInByc);
             }
-
-            ManualCivBudget.HandlingInput = ManualCivBudget.HitTest(input.CursorPosition);
-            ManualGrdBudget.HandlingInput = ManualGrdBudget.HitTest(input.CursorPosition);
-            ManualSpcBudget.HandlingInput = ManualSpcBudget.HitTest(input.CursorPosition);
 
             return base.HandleInput(input);
         }
