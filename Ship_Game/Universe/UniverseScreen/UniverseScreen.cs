@@ -741,8 +741,7 @@ namespace Ship_Game
             }
             else if (ShowShipInfo)
             {
-                ShipInfoUIElement.Ship = SelectedShip;
-                ShipInfoUIElement.ShipNameArea.Text = SelectedShip.VanityName;
+                ShipInfoUIElement.SetShip(SelectedShip);
                 ShipInfoUIElement.Update(elapsed);
             }
             else if (ShowShipList)

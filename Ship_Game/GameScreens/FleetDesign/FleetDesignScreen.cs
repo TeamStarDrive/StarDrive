@@ -50,7 +50,7 @@ namespace Ship_Game
         float DesiredCamHeight = 14000f;
         Ship ActiveShipDesign;
         public int FleetToEdit = -1;
-        readonly UITextEntry FleetNameEntry = new UITextEntry();
+        readonly UITextEntry FleetNameEntry;
         Selector StuffSelector;
         Selector OperationsSelector;
         Selector Priorityselector;
@@ -71,6 +71,10 @@ namespace Ship_Game
             TransitionOnTime = 0.75f;
             EmpireUI.Player.UpdateShipsWeCanBuild();
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
+
+            FleetNameEntry = new UITextEntry();
+            FleetNameEntry.OnTextChanged = (text) => EmpireManager.Player.GetFleetsDict()[FleetToEdit].Name = text;
+            FleetNameEntry.SetColors(Colors.Cream, Color.Orange);
         }
 
         public void ChangeFleet(int which)
