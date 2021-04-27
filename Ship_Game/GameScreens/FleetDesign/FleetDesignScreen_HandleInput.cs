@@ -70,26 +70,7 @@ namespace Ship_Game
                 ChangeFleet(whichFleet);
             }
         }
-
-        void OnOrderButtonClicked(ToggleButton b, CombatState state)
-        {
-            foreach (ToggleButton other in OrdersButtons) // disable others
-                if (other != b) other.IsToggled = false;
-
-            foreach (FleetDataNode node in SelectedNodeList)
-            {
-                node.CombatState = state;
-                if (node.Ship != null)
-                    node.Ship.AI.CombatState = node.CombatState;
-            }
-
-            if (SelectedNodeList[0].Ship != null)
-            {
-                SelectedNodeList[0].Ship.AI.CombatState = SelectedNodeList[0].CombatState;
-                GameAudio.EchoAffirmative();
-            }
-        }
-
+        
         void OnDesignShipItemClicked(FleetDesignShipListItem item)
         {
             if (FleetToEdit != -1 && item.Ship != null)
@@ -652,23 +633,7 @@ namespace Ship_Game
                 SelectedNodeList.Clear();
             }
 
-            Log.Info("Reset OrdersButtons");
-
-            // reset the buttons
-            foreach (ToggleButton button in OrdersButtons)
-            {
-                button.Visible = SelectedNodeList.Count > 0;
-                button.IsToggled = false;
-            }
-
-            // mark combined combat state statuses
-            foreach (FleetDataNode fleetNode in SelectedNodeList)
-            {
-                foreach (ToggleButton button in OrdersButtons)
-                {
-                    button.IsToggled |= (fleetNode.CombatState == button.CombatState);
-                }
-            }
+            OrdersButtons.ResetButtons(SelectedNodeList);
         }
     }
 }

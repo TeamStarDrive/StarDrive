@@ -23,7 +23,7 @@ namespace Ship_Game
             us.bg.Draw(us, us.StarField);
             batch.Begin();
             DrawGrid();
-
+            
             if (SelectedNodeList.Count == 1)
             {
                 viewport = Viewport;
@@ -552,7 +552,6 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12Bold, txt, cursor, Colors.Cream);
                 return;
             }
-
             StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
             StuffSelector.Draw(batch, elapsed);
 
