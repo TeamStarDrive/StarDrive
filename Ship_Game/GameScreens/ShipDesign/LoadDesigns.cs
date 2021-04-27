@@ -16,7 +16,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         readonly ShipDesignScreen Screen;
 
-        UITextEntry EnterNameArea;
+        UILabel EnterNameArea;
         ScrollList2<DesignListItem> AvailableDesignsList;
         ShipInfoOverlayComponent ShipInfoOverlay;
 
@@ -111,7 +111,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             AvailableDesignsList = Add(new ScrollList2<DesignListItem>(background));
             AvailableDesignsList.EnableItemHighlight = true;
-            AvailableDesignsList.OnClick = OnDesignListItemClicked;
+            AvailableDesignsList.OnClick       = OnDesignListItemClicked;
             AvailableDesignsList.OnDoubleClick = OnDesignListItemDoubleClicked;
 
             PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(background.Right - 44, background.Y)));
@@ -120,15 +120,13 @@ namespace Ship_Game.GameScreens.ShipDesign
                 GameAudio.AcceptClick();
                 ShowAllDesigns = !ShowAllDesigns;
                 PlayerDesignsToggle.IsToggled = !ShowAllDesigns;
+                AvailableDesignsList.Reset();
+                PopulateEntries();
                 ResetSL();
             };
             
-            PopulateEntries("");
-            EnterNameArea = Add(new UITextEntry(new Vector2(X + 20, Y + 20), Localizer.Token(GameText.ChooseAShipToLoad)));
-            EnterNameArea.OnTextChanged = OnDesignFilterChanged;
-            EnterNameArea.ResetTextOnInput = true;
-            EnterNameArea.AutoCaptureOnKeys = true;
-
+            PopulateEntries();
+            EnterNameArea = Add(new UILabel(new Vector2(X + 20, Y + 20), Localizer.Token(GameText.ChooseAShipToLoad), Fonts.Arial20Bold, Color.Orange));
             ButtonSmall(background.Right - 88, EnterNameArea.Y - 2, text:GameText.Load, click: b =>
             {
                 LoadShipToScreen();
@@ -149,12 +147,6 @@ namespace Ship_Game.GameScreens.ShipDesign
             }
 
             base.LoadContent();
-        }
-
-        void OnDesignFilterChanged(string filter)
-        {
-            AvailableDesignsList.Reset();
-            PopulateEntries(filter);
         }
 
         void OnDesignListItemClicked(DesignListItem item)
@@ -204,7 +196,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             batch.End();
         }
 
-        void PopulateEntries(string filter)
+        void PopulateEntries()
         {
             var shipRoles = new Array<string>();
 
@@ -243,32 +235,18 @@ namespace Ship_Game.GameScreens.ShipDesign
                 .ThenBy(s => s.Name)
                 .ToArray();
 
-            if (filter.IsEmpty())
+            foreach (string role in shipRoles)
+                AvailableDesignsList.AddItem(new DesignListItem(this, role));
+            
+            foreach (DesignListItem headerItem in AvailableDesignsList.AllEntries.ToArray())
             {
-                foreach (string role in shipRoles)
-                    AvailableDesignsList.AddItem(new DesignListItem(this, role));
-                
-                foreach (DesignListItem headerItem in AvailableDesignsList.AllEntries.ToArray())
-                {
-                    foreach (Ship ship in ships)
-                        if (CanShowDesign(ship, headerItem.HeaderText))
-                            headerItem.AddSubItem(new DesignListItem(this, ship));
-
-                    if (headerItem.HeaderText == "WIP")
-                        foreach (ShipData wipHull in WIPs)
-                            headerItem.AddSubItem(new DesignListItem(this, wipHull));
-                }
-            }
-            else
-            {
-                filter = filter.ToLower();
                 foreach (Ship ship in ships)
-                    if (ship.Name.ToLower().Contains(filter) && CanShowDesign(ship, ""))
-                        AvailableDesignsList.AddItem(new DesignListItem(this, ship));
+                    if (CanShowDesign(ship, headerItem.HeaderText))
+                        headerItem.AddSubItem(new DesignListItem(this, ship));
 
-                foreach (ShipData wipHull in WIPs)
-                    if (wipHull.Name.ToLower().Contains(filter))
-                        AvailableDesignsList.AddItem(new DesignListItem(this, wipHull));
+                if (headerItem.HeaderText == "WIP")
+                    foreach (ShipData wipHull in WIPs)
+                        headerItem.AddSubItem(new DesignListItem(this, wipHull));
             }
         }
 
@@ -284,7 +262,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         void LoadShipToScreen()
         {
-            Ship loadedShip = ResourceManager.GetShipTemplate(EnterNameArea.Text, false);
+            Ship loadedShip = ResourceManager.GetShipTemplate(EnterNameArea.Text.Text, false);
             loadedShip?.shipData.UpdateBaseHull();
             Screen.ChangeHull(loadedShip?.shipData ?? selectedWIP);                
             ExitScreen();
@@ -292,7 +270,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         void ResetSL()
         {
-            EnterNameArea.Text = ""; // triggers OnDesignFilterChanged
+            EnterNameArea.Text = Localizer.Token(GameText.ChooseAShipToLoad);
         }
 
         public class PlayerDesignToggleButton : ToggleButton
