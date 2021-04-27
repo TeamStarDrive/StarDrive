@@ -1859,24 +1859,18 @@ namespace Ship_Game.Ships
         {
             if (!Active) return false;
             empire = empire ?? loyalty;
-            if (!shipData.BaseCanWarp) return false;
-
             float goodPowerSupply = PowerFlowMax - NetPower.NetWarpPowerDraw;
             float powerTime = GlobalStats.MinimumWarpRange;
-            if (goodPowerSupply <0)
-            {
+            if (goodPowerSupply < 0)
                 powerTime = PowerStoreMax / -goodPowerSupply * MaxFTLSpeed;
-            }
 
             bool warpTimeGood = goodPowerSupply >= 0 || powerTime >= GlobalStats.MinimumWarpRange;
-
-            bool goodPower = shipData.BaseCanWarp && warpTimeGood ;
-            if (!goodPower || empire == null)
-            {
+            if (warpTimeGood || empire == null)
                 Empire.Universe?.DebugWin?.DebugLogText($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {NetPower.NetWarpPowerDraw}/{PowerFlowMax}", DebugModes.Normal);
-            }
+
             if (DesignRole < ShipData.RoleName.fighter || GetStrength() >  baseStrengthNeeded )
-                return goodPower;
+                return warpTimeGood;
+
             return false;
         }
 
