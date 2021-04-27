@@ -169,6 +169,23 @@ namespace Ship_Game.Ships
             set => DesignRole = value ? ShipData.RoleName.construction : GetDesignRole();
         }
 
+        public void SetCombatStance(CombatState stance)
+        {
+            AI.CombatState = stance;
+            if (stance == CombatState.HoldPosition)
+            {
+                AI.OrderAllStop();
+            }
+            else
+            {
+                // @todo Is this some sort of bug fix?
+                if (AI.State == AIState.HoldPosition)
+                    AI.State = AIState.AwaitingOrders;
+            }
+
+            shipStatusChanged = true;
+        }
+
         Status FleetCapableStatus;
         public bool CanTakeFleetMoveOrders() => 
             Active && FleetCapableStatus == Status.Good && ShipEngines.EngineStatus >= Status.Poor;

@@ -64,7 +64,7 @@ namespace Ship_Game
 
             BindListsToActiveHull();
             CreateSOFromActiveHull();
-            UpdateActiveCombatButton();
+            OrdersButton.ResetButtons(DesignedShip);
             UpdateCarrierShip();
 
             // force modules list to reset itself, so if we change from Battleship to Fighter
@@ -619,22 +619,7 @@ namespace Ship_Game
         {
             StripModules();
         }
-
-        void UpdateActiveCombatButton()
-        {
-            foreach (ToggleButton button in CombatStatusButtons)
-                button.IsToggled = (ActiveHull.CombatState == button.CombatState);
-        }
-
-        void OnCombatButtonPressed(CombatState state)
-        {
-            if (ActiveHull == null)
-                return;
-            GameAudio.AcceptClick();
-            ActiveHull.CombatState = state;
-            UpdateActiveCombatButton();
-        }
-
+        
         void JustChangeHull()
         {
             ShipSaved = true;
