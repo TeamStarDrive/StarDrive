@@ -119,12 +119,13 @@ namespace Ship_Game.GameScreens.ShipDesign
             {
                 GameAudio.AcceptClick();
                 ShowAllDesigns = !ShowAllDesigns;
-                PlayerDesignsToggle.IsToggled = ShowAllDesigns;
+                PlayerDesignsToggle.IsToggled = !ShowAllDesigns;
                 ResetSL();
             };
             
             PopulateEntries("");
             EnterNameArea = Add(new UITextEntry(new Vector2(X + 20, Y + 20), Localizer.Token(GameText.ChooseAShipToLoad)));
+            EnterNameArea.OnTextChanged = OnDesignFilterChanged;
             EnterNameArea.ResetTextOnInput = true;
             EnterNameArea.AutoCaptureOnKeys = true;
 
