@@ -17,7 +17,6 @@ namespace Ship_Game
         Submenu NameSave;
         Submenu AllSaves;
         Vector2 TitlePosition;
-        Vector2 EnternamePos;
         UITextEntry EnterNameArea;
         UIButton Visit;
         UIButton UnloadMod;
@@ -60,11 +59,10 @@ namespace Ship_Game
             AllSaves.AddTab(Localizer.Token(GameText.LoadModification));
 
             LoadMods();
-            EnternamePos  = TitlePosition;
-            EnterNameArea = new UITextEntry {Text = ""};
-            EnterNameArea.ClickableArea = new Rectangle((int)EnternamePos.X, (int)EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
+            EnterNameArea = new UITextEntry(TitlePosition, Fonts.Arial12Bold, "");
+            EnterNameArea.SetColors(Color.Orange, Color.White);
 
-            ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, text:GameText.Load, click: OnLoadClicked);
+            ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.Y - 2, text:GameText.Load, click: OnLoadClicked);
             Visit = Button(Window.X + 3, Window.Y + Window.Height + 20, text:GameText.LoadModsWeb, click: OnVisitClicked);
             Button(Window.X + 200, Window.Y + Window.Height + 20, text:GameText.ModderTools, click: OnShipToolClicked);
             UnloadMod = Button(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, "Unload Mod", click:OnUnloadModClicked);
@@ -127,8 +125,7 @@ namespace Ship_Game
             SaveMenu.Draw(batch, elapsed);
             NameSave.Draw(batch, elapsed);
             AllSaves.Draw(batch, elapsed);
-            EnterNameArea.Draw(batch, elapsed, Fonts.Arial12Bold, EnternamePos,
-                               (EnterNameArea.Hover ? Color.White : Color.Orange));
+            EnterNameArea.Draw(batch, elapsed);
             base.Draw(batch, elapsed);
             batch.End();
         }

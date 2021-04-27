@@ -97,7 +97,7 @@ namespace Ship_Game
 
         public void OnSearchButtonClicked(UIButton button)
         {
-            ScreenManager.AddScreen(new SearchTechScreen(this, AllTreeNodes));
+            ScreenManager.AddScreen(new SearchTechScreen(this));
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
