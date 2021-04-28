@@ -146,7 +146,7 @@ namespace Ship_Game.Ships
                 ModuleSlotList[count++] = module;
             }
 
-            CreateModuleGrid(templateSlots);
+            CreateModuleGrid(templateSlots, ModuleSlotList, useModules: fromSave || isTemplate);
             if (hasLegacyDummySlots)
                 FixLegacyInternalRestrictions(templateSlots);
             return true;
