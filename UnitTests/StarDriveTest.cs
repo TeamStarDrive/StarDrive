@@ -135,6 +135,12 @@ namespace UnitTests
             ResourceManager.LoadStarterShipsForTesting(shipList.Length == 0 ? null : shipList);
         }
 
+        public void LoadStarterShips(string[] starterShips, string[] savedDesigns)
+        {
+            RequireGameInstance(nameof(LoadStarterShips));
+            ResourceManager.LoadStarterShipsForTesting(starterShips, savedDesigns);
+        }
+
         public void LoadStarterShipVulcan()
         {
             LoadStarterShips(new[]
