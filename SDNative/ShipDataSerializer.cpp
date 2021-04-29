@@ -117,7 +117,6 @@ namespace SDNative
                 elem.parse("HangarDesignation" , HangarDesignation);
                 elem.parse("CarrierShip"       , CarrierShip);
                 elem.parse("BaseStrength"      , BaseStrength);
-                elem.parse("BaseCanWarp"       , BaseCanWarp);
                 elem.parseList("ModuleSlotList", [this](NodeParser slotData)
                 {
                     ModuleSlotList.emplace_back();
