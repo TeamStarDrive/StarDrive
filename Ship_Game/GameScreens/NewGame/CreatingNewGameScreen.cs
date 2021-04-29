@@ -237,11 +237,6 @@ namespace Ship_Game
                 {
                     asteroid.Position += wipSystem.Position;
                 }
-                foreach (Ship ship in wipSystem.ShipList)
-                {
-                    ship.Position = ship.loyalty.GetPlanets()[0].Center + new Vector2(6000f, 2000f);
-                    ship.InitializeShip();
-                }
             }
             step.Finish();
         }
