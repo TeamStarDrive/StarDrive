@@ -60,7 +60,6 @@ namespace SDNative
         bool     HasFixedUpkeep        = false;
         bool     IsShipyard            = false;
         bool     CarrierShip           = false;
-        bool     BaseCanWarp           = false;
         bool     IsOrbitalDefense      = false;
         bool     HullUnlockable        = false;
         bool     UnLockable            = false;

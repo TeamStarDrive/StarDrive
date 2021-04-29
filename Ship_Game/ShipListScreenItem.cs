@@ -86,7 +86,7 @@ namespace Ship_Game
             RefitButton = new TexturedButton(refit, "NewUI/icon_queue_rushconstruction", "NewUI/icon_queue_rushconstruction_hover1", "NewUI/icon_queue_rushconstruction_hover2");			
             ScrapButton = new TexturedButton(refit, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
 
-            if (Ship.IsPlatformOrStation || Ship.Thrust <= 0f)
+            if (Ship.IsPlatformOrStation || Ship.Stats.Thrust <= 0f)
             {
                 IsScuttle = true;
             }

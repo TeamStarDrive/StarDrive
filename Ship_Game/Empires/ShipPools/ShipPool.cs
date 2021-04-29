@@ -215,7 +215,7 @@ namespace Ship_Game.Empires.ShipPools
             if (toAdd.DesignRole < ShipData.RoleName.fighter 
                 || !toAdd.Active
                 || toAdd.BaseStrength <= 0f 
-                || toAdd.WarpThrust <= 0f && !toAdd.BaseCanWarp 
+                || !toAdd.BaseCanWarp 
                 || toAdd.IsHangarShip 
                 || toAdd.IsHomeDefense)
             {
