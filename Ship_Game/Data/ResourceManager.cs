@@ -1363,8 +1363,8 @@ namespace Ship_Game
                 }
             }
 
-            //Parallel.For(shipDescriptors.Length, LoadShips);
-            LoadShips(0, shipDescriptors.Length); // test without parallel for
+            Parallel.For(shipDescriptors.Length, LoadShips);
+            //LoadShips(0, shipDescriptors.Length); // test without parallel for
         }
 
         public static Ship GetShipTemplate(string shipName, bool throwIfError = true)
