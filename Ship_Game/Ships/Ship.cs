@@ -828,7 +828,6 @@ namespace Ship_Game.Ships
         public ShipData ToShipData()
         {
             var data = new ShipData();
-            data.BaseCanWarp               = shipData.BaseCanWarp;
             data.BaseStrength              = -1;
             data.TechsNeeded               = shipData.TechsNeeded;
             data.TechScore                 = shipData.TechScore;
@@ -1352,26 +1351,6 @@ namespace Ship_Game.Ships
 
         public void AddShipHealth(float addHealth) => Health = (Health + addHealth).Clamped(0, HealthMax);
 
-        public void ShipStatusChange()
-        {
-            shipStatusChanged = false;
-            Stats.UpdateCoreStats();
-            UpdateMassRelated();
-
-            if (IsTethered)
-            {
-                var planet = TetheredTo;
-                if (planet?.Owner != null && (planet.Owner == loyalty || loyalty.IsAlliedWith(planet.Owner)))
-                {
-                    TrackingPower     = TrackingPower.LowerBound(planet.Level);
-                    TargetingAccuracy = TargetingAccuracy.LowerBound(planet.Level);
-                }
-            }
-
-            CurrentStrength = CalculateShipStrength();
-            UpdateWeaponRanges();
-        }
-
         public bool IsTethered => TetheredTo != null;
 
         private float CurrentStrength = -1.0f;
@@ -1570,7 +1549,7 @@ namespace Ship_Game.Ships
                 if (PlanetCrash.GetPlanetToCrashOn(this, out Planet planet))
                 {
                     dying       = true;
-                    PlanetCrash = new PlanetCrash(planet, this, Thrust);
+                    PlanetCrash = new PlanetCrash(planet, this, Stats.Thrust);
                 }
 
                 if (InFrustum)
@@ -1759,7 +1738,7 @@ namespace Ship_Game.Ships
             int weaponArea  = 0;
             int hangarArea  = 0;
             bool hasWeapons = false;
-            TotalDps        = 0;
+            TotalDps = 0;
 
             for (int i = 0; i < ModuleSlotList.Length; i++ )
             {
@@ -1778,7 +1757,6 @@ namespace Ship_Game.Ships
 
                     offense += m.CalculateModuleOffense();
                     defense += m.CalculateModuleDefense(SurfaceArea);
-                    BaseCanWarp |= m.WarpThrust > 0;
                 }
             }
 
