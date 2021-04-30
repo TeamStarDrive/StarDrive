@@ -169,6 +169,23 @@ namespace Ship_Game.Ships
             set => DesignRole = value ? ShipData.RoleName.construction : GetDesignRole();
         }
 
+        public void SetCombatStance(CombatState stance)
+        {
+            AI.CombatState = stance;
+            if (stance == CombatState.HoldPosition)
+            {
+                AI.OrderAllStop();
+            }
+            else
+            {
+                // @todo Is this some sort of bug fix?
+                if (AI.State == AIState.HoldPosition)
+                    AI.State = AIState.AwaitingOrders;
+            }
+
+            shipStatusChanged = true;
+        }
+
         Status FleetCapableStatus;
         public bool CanTakeFleetMoveOrders() => 
             Active && FleetCapableStatus == Status.Good && ShipEngines.EngineStatus >= Status.Poor;
@@ -811,7 +828,6 @@ namespace Ship_Game.Ships
         public ShipData ToShipData()
         {
             var data = new ShipData();
-            data.BaseCanWarp               = shipData.BaseCanWarp;
             data.BaseStrength              = -1;
             data.TechsNeeded               = shipData.TechsNeeded;
             data.TechScore                 = shipData.TechScore;
@@ -1064,7 +1080,6 @@ namespace Ship_Game.Ships
             return speeds.Avg();
         }
 
-
         public void UpdateShipStatus(FixedSimTime timeStep)
         {
             if (!Empire.Universe.Paused && VelocityMaximum <= 0f
@@ -1298,6 +1313,12 @@ namespace Ship_Game.Ships
             return true;
         }
 
+        public bool IsTroopShipAndRebasingOrAssaulting(Planet p)
+        {
+            return (DesignRole == ShipData.RoleName.troop || DesignRole == ShipData.RoleName.troopShip)
+                   && AI.OrderQueue.Any(g => (g.Plan == ShipAI.Plan.Rebase || g.Plan == ShipAI.Plan.LandTroop) && g.TargetPlanet == p);
+        }
+
         bool IsSupplyShuttle => Name == loyalty.GetSupplyShuttleName();
 
         public int RefitCost(Ship newShip)
@@ -1334,26 +1355,6 @@ namespace Ship_Game.Ships
         }
 
         public void AddShipHealth(float addHealth) => Health = (Health + addHealth).Clamped(0, HealthMax);
-
-        public void ShipStatusChange()
-        {
-            shipStatusChanged = false;
-            Stats.UpdateCoreStats();
-            UpdateMassRelated();
-
-            if (IsTethered)
-            {
-                var planet = TetheredTo;
-                if (planet?.Owner != null && (planet.Owner == loyalty || loyalty.IsAlliedWith(planet.Owner)))
-                {
-                    TrackingPower     = TrackingPower.LowerBound(planet.Level);
-                    TargetingAccuracy = TargetingAccuracy.LowerBound(planet.Level);
-                }
-            }
-
-            CurrentStrength = CalculateShipStrength();
-            UpdateWeaponRanges();
-        }
 
         public bool IsTethered => TetheredTo != null;
 
@@ -1553,7 +1554,7 @@ namespace Ship_Game.Ships
                 if (PlanetCrash.GetPlanetToCrashOn(this, out Planet planet))
                 {
                     dying       = true;
-                    PlanetCrash = new PlanetCrash(planet, this, Thrust);
+                    PlanetCrash = new PlanetCrash(planet, this, Stats.Thrust);
                 }
 
                 if (InFrustum)
@@ -1742,7 +1743,7 @@ namespace Ship_Game.Ships
             int weaponArea  = 0;
             int hangarArea  = 0;
             bool hasWeapons = false;
-            TotalDps        = 0;
+            TotalDps = 0;
 
             for (int i = 0; i < ModuleSlotList.Length; i++ )
             {
@@ -1761,7 +1762,6 @@ namespace Ship_Game.Ships
 
                     offense += m.CalculateModuleOffense();
                     defense += m.CalculateModuleDefense(SurfaceArea);
-                    BaseCanWarp |= m.WarpThrust > 0;
                 }
             }
 
@@ -1842,24 +1842,18 @@ namespace Ship_Game.Ships
         {
             if (!Active) return false;
             empire = empire ?? loyalty;
-            if (!shipData.BaseCanWarp) return false;
-
             float goodPowerSupply = PowerFlowMax - NetPower.NetWarpPowerDraw;
             float powerTime = GlobalStats.MinimumWarpRange;
-            if (goodPowerSupply <0)
-            {
+            if (goodPowerSupply < 0)
                 powerTime = PowerStoreMax / -goodPowerSupply * MaxFTLSpeed;
-            }
 
             bool warpTimeGood = goodPowerSupply >= 0 || powerTime >= GlobalStats.MinimumWarpRange;
-
-            bool goodPower = shipData.BaseCanWarp && warpTimeGood ;
-            if (!goodPower || empire == null)
-            {
+            if (warpTimeGood || empire == null)
                 Empire.Universe?.DebugWin?.DebugLogText($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {NetPower.NetWarpPowerDraw}/{PowerFlowMax}", DebugModes.Normal);
-            }
+
             if (DesignRole < ShipData.RoleName.fighter || GetStrength() >  baseStrengthNeeded )
-                return goodPower;
+                return warpTimeGood;
+
             return false;
         }
 

@@ -33,7 +33,6 @@ namespace Ship_Game.Ships
         public float SpeedLimit { get; private set; }
         public float VelocityMaximum; // maximum velocity magnitude
         public float Thrust;
-        public float TurnThrust;
         public float RotationRadiansPerSecond;
         public ShipEngines ShipEngines;
 
@@ -83,7 +82,7 @@ namespace Ship_Game.Ships
         {
             VelocityMaximum = Stats.UpdateVelocityMax();
             SetSpeedLimit(VelocityMaximum); // This is overwritten at the end of Update
-            RotationRadiansPerSecond = Stats.GetTurnRadsPerSec(TurnThrust, Mass, Level);
+            RotationRadiansPerSecond = Stats.GetTurnRadsPerSec(Level);
         }
 
         public void SetSpeedLimit(float value)
@@ -281,7 +280,7 @@ namespace Ship_Game.Ships
         //       hoping for better CLR optimization
         Vector2 GetNewAccelerationForThisFrame()
         {
-            if (TetheredTo == null && (Thrust <= 0f || Mass <= 0f))
+            if (TetheredTo == null && Stats.Thrust <= 0f || Mass <= 0f)
             {
                 EnginesKnockedOut = true;
                 if (engineState == MoveState.Warp)
@@ -405,7 +404,7 @@ namespace Ship_Game.Ships
                 const float accelerationTime = 2f;
                 return (MaxFTLSpeed / accelerationTime);
             }
-            return (Thrust / Mass);
+            return (Stats.Thrust / Mass);
         }
 
         // these variables are only valid once per frame

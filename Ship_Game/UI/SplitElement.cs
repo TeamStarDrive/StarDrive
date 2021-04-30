@@ -16,6 +16,12 @@ namespace Ship_Game.UI
         // else: Pos.X + Split
         public float Split = 0f;
 
+        // Displays a tooltip 
+        public LocalizedText Tooltip;
+
+        // If TRUE, draws rectangles around First and Second element
+        public bool DebugDraw;
+
         public override string ToString() => $"{TypeName} {ElementDescr} Split={Split} \nFirst={First} \nSecond={Second}";
         
         public SplitElement()
@@ -31,6 +37,8 @@ namespace Ship_Game.UI
 
         public override void PerformLayout()
         {
+            base.PerformLayout();
+
             First.Pos = Pos;
             First.PerformLayout();
             
@@ -53,11 +61,17 @@ namespace Ship_Game.UI
 
         public override bool HandleInput(InputState input)
         {
-            return First.HandleInput(input) || Second.HandleInput(input);
+            if (First.HandleInput(input) || Second.HandleInput(input))
+                return true;
+            if (Tooltip.NotEmpty && Rect.HitTest(input.CursorPosition))
+                ToolTip.CreateTooltip(Tooltip);
+            return false;
         }
 
         public override void Update(float fixedDeltaTime)
         {
+            if (!Visible)
+                return;
             First.Update(fixedDeltaTime);
             Second.Update(fixedDeltaTime);
             RequiresLayout |= First.RequiresLayout | Second.RequiresLayout;
@@ -67,6 +81,12 @@ namespace Ship_Game.UI
         {
             First.Draw(batch, elapsed);
             Second.Draw(batch, elapsed);
+
+            if (DebugDraw)
+            {
+                batch.DrawRectangle(First.Rect, Color.IndianRed);
+                batch.DrawRectangle(Second.Rect, Color.IndianRed);
+            }
         }
     }
 }

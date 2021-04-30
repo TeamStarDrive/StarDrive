@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
+using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -578,6 +579,34 @@ namespace Ship_Game
                 ReferencedItem1 = s,
                 IconPath        = iconPath ?? "ResearchMenu/icon_event_science_bad"
             }, "sd_ui_notification_encounter");; 
+        }
+
+        public void AddAbortLandNotification(Planet planet, Ship s)
+        {
+            string message = $"{planet.Name}: {Localizer.Token(GameText.AbortLandPlayerTroopsNoFleet)} {planet.Owner.Name}";
+
+            AddNotification(new Notification
+            {
+                Message         = message,
+                Action          = "SnapToShip",
+                ReferencedItem1 = s,
+                IconPath        = s.BaseHull.ActualIconPath
+            }, "sd_ui_notification_encounter"); ;
+        }
+
+        public void AddAbortLandNotification(Planet planet, Fleet fleet)
+        {
+            string message =  $"{planet.Name}: {Localizer.Token(GameText.AbortLandPlayerTroopsNoFleet)} {planet.Owner.Name}" +
+                              $"\n{fleet.Name} {Localizer.Token(GameText.AbortLandPlayerTroopsInFleet)}";
+
+            AddNotification(new Notification
+            {
+                RelevantEmpire  = planet.Owner,
+                Message         = message,
+                Action          = "SnapToShip",
+                ReferencedItem1 = planet,
+                IconPath        = planet.IconPath
+            }, "sd_ui_notification_encounter"); ;
         }
 
         public void AddDestroyedPirateBase(Ship s, float reward)

@@ -31,6 +31,7 @@ namespace Ship_Game
         public bool NotEmpty => Blocks.NotEmpty;
         public Vector2 Size { get; private set; }
         Graphics.Font TheFont = Fonts.Arial12Bold;
+        UIElementV2 ElemToUpdate;
 
         public Graphics.Font DefaultFont
         {
@@ -43,6 +44,20 @@ namespace Ship_Game
                     UpdateSize();
                 }
             }
+        }
+
+        /// <summary>
+        /// Will update the provided element's size IF it has smaller size than the text
+        /// </summary>
+        public PrettyText(UIElementV2 elemToUpdateSize)
+        {
+            ElemToUpdate = elemToUpdateSize;
+        }
+
+        public PrettyText(UIElementV2 elemToUpdateSize, in LocalizedText text)
+        {
+            ElemToUpdate = elemToUpdateSize;
+            AddText(text);
         }
 
         public void Clear()
@@ -80,7 +95,15 @@ namespace Ship_Game
 
                 block.Offset.Y = (newSize.Y / 2) - (size.Y / 2);
             }
+
             Size = newSize;
+
+            if (ElemToUpdate != null)
+            {
+                // only update size if it's smaller:
+                if (ElemToUpdate.Size.X < Size.X) ElemToUpdate.Size.X = Size.X;
+                if (ElemToUpdate.Size.Y < Size.Y) ElemToUpdate.Size.Y = Size.Y;
+            }
         }
 
         public void Draw(SpriteBatch batch, Vector2 pos, Color defaultColor, bool shadows)

@@ -1136,6 +1136,15 @@ namespace Ship_Game
             }
         }
 
+        public void SearchAndRemoveTroopFromTile(Troop t)
+        {
+            for (int i = 0; i < TilesList.Count; i++)
+            {
+                PlanetGridSquare tile = TilesList[i];
+                tile.TroopsHere.Remove(t);
+            }
+        }
+
         public void TryCrashOn(Ship ship)
         {
             if (!Habitable || NumActiveCrashSites >= (ship.IsMeteor ? 10 : 5))

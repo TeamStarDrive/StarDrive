@@ -200,11 +200,12 @@ namespace Ship_Game
             return null;
         }
 
-        public static Empire CreateEmpireFromEmpireData(IEmpireData readOnlyData)
+        public static Empire CreateEmpireFromEmpireData(IEmpireData readOnlyData, bool isPlayer)
         {
             EmpireData data = readOnlyData.CreateInstance();
             DiplomaticTraits dt = ResourceManager.DiplomaticTraits;
             var empire = new Empire { data = data };
+            empire.isPlayer = isPlayer;
 
             if      (data.IsFaction) Log.Info($"Creating Faction {data.Traits.Name}");
             else if (data.MinorRace) Log.Info($"Creating MinorRace {data.Traits.Name}");

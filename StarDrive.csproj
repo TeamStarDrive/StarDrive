@@ -186,6 +186,10 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\Evade.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\UI\FleetStanceButtons.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\UI\DesignStanceButtons.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\UI\ShipStanceButtons.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\UI\StanceButtons.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.ShipWeight.cs" />
     <Compile Include="Ship_Game\AI\ShipMovement\CombatManeuvers\CombatMovement.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\HoldPosition.cs" />
@@ -251,7 +255,9 @@
     <Compile Include="Ship_Game\Empire_War.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\DesignShip.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignInfoPanel.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignIssuesPanel.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenDraw_DrawHelpers.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignStats.cs" />
     <Compile Include="Ship_Game\Graphics\Font.cs" />
     <Compile Include="Ship_Game\SearchTechItem.cs" />
     <Compile Include="Ship_Game\Commands\Goals\DefendVsRemnants.cs" />
@@ -554,8 +560,10 @@
     <Compile Include="Ship_Game\UI\SplitElement.cs" />
     <Compile Include="Ship_Game\UI\UIButton_Style.cs" />
     <Compile Include="Ship_Game\UI\UIGraphView.cs" />
+    <Compile Include="Ship_Game\UI\UIKeyValueLabel.cs" />
     <Compile Include="Ship_Game\UI\UIList.cs" />
     <Compile Include="Ship_Game\UI\UIPanel.cs" />
+    <Compile Include="Ship_Game\UI\UISpacer.cs" />
     <Compile Include="Ship_Game\UI\UITextBox.cs" />
     <Compile Include="Ship_Game\Universe\EmpireSolarSystemStatus.cs" />
     <Compile Include="Ship_Game\Universe\TippedItem.cs" />

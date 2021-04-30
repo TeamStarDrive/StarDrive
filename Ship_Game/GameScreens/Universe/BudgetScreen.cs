@@ -41,19 +41,6 @@ namespace Ship_Game.GameScreens
                 LayoutStyle = ListLayoutStyle.Fill;
             }
 
-            public SummaryPanel(string title, in Rectangle rect, Color c) : base(rect, c)
-            {
-                if (title.NotEmpty())
-                {
-                    Header = new UILabel(title, Fonts.Arial14Bold)
-                    {
-                        DropShadow = true
-                    };
-                }
-                Padding = new Vector2(4f, 2f);
-                LayoutStyle = ListLayoutStyle.Fill;
-            }
-
             public void AddItem(LocalizedText text, Func<float> getValue) => AddItem(text, getValue, Color.White);
             public void AddItem(LocalizedText text, Func<float> getValue, Color keyColor)
             {
@@ -98,7 +85,7 @@ namespace Ship_Game.GameScreens
             TaxSlider.Tip = GameText.TaxesAreCollectedFromYour;
             TaxSlider.OnChange = TaxSliderOnChange;
 
-            TreasuryGoal = tax.AddSlider(Localizer.TreasuryGoal, 0.20f);
+            TreasuryGoal = tax.AddSlider(GameText.TreasuryGoal, 0.20f);
             TreasuryGoal.Tip = GameText.TreasuryGoalIsTheTarget;
             TreasuryGoal.OnChange = TreasurySliderOnChange;
             
@@ -141,7 +128,7 @@ namespace Ship_Game.GameScreens
 
         private void BudgetTab(Rectangle budgetRect)
         {
-            SummaryPanel budget = Add(new SummaryPanel(Localizer.GovernorBudget, budgetRect, new Color(30, 26, 19)));
+            SummaryPanel budget = Add(new SummaryPanel(GameText.GovernorBudget, budgetRect, new Color(30, 26, 19)));
             budget.AddItem("Colony", () => Player.data.ColonyBudget);
             budget.AddItem("SpaceRoad", () => Player.data.SSPBudget);
             budget.AddItem("Defense", () => Player.data.DefenseBudget);
@@ -150,7 +137,7 @@ namespace Ship_Game.GameScreens
 
         private void TradeTab(Rectangle tradeRect)
         {
-            SummaryPanel trade = Add(new SummaryPanel(Localizer.Trade, tradeRect, new Color(30, 26, 19)));
+            SummaryPanel trade = Add(new SummaryPanel(GameText.Trade, tradeRect, new Color(30, 26, 19)));
 
             trade.AddItem(GameText.MercantilismAvg, () => Player.AverageTradeIncome); // "Mercantilism (Avg)"
             trade.AddItem(GameText.TradeTreaties, () => Player.TotalTradeTreatiesIncome()); // "Trade Treaties"
@@ -191,8 +178,8 @@ namespace Ship_Game.GameScreens
         private void TreasurySliderOnChange(FloatSlider s)
         {
             Player.data.treasuryGoal = s.RelativeValue;
-            int goal                 = (int) Player.GetEmpireAI().TreasuryGoal();
-            s.Text                   = $"{Localizer.TreasuryGoal} : {goal}";
+            int goal = (int) Player.GetEmpireAI().TreasuryGoal();
+            s.Text = $"{Localizer.Token(GameText.TreasuryGoal)} : {goal}";
             Player.GetEmpireAI().RunEconomicPlanner();
 
             if (Player.data.AutoTaxes)
