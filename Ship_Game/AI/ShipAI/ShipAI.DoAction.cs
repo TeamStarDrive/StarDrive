@@ -355,6 +355,14 @@ namespace Ship_Game.AI
         void DoLandTroop(FixedSimTime timeStep, ShipGoal goal)
         {
             Planet planet = goal.TargetPlanet;
+            if (planet.Owner != null 
+                && planet.Owner != Owner.loyalty 
+                && !Owner.loyalty.IsAtWarWith(planet.Owner))
+            {
+                AbortLandNoFleet(planet);
+                return;
+            }
+
             if (LandingOffset.AlmostZero())
                 LandingOffset = RandomMath.Vector2D(planet.ObjectRadius);
 
