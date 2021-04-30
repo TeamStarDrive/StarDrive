@@ -1080,7 +1080,6 @@ namespace Ship_Game.Ships
             return speeds.Avg();
         }
 
-
         public void UpdateShipStatus(FixedSimTime timeStep)
         {
             if (!Empire.Universe.Paused && VelocityMaximum <= 0f
@@ -1312,6 +1311,12 @@ namespace Ship_Game.Ships
             }
 
             return true;
+        }
+
+        public bool IsTroopShipAndRebasingOrAssaulting(Planet p)
+        {
+            return (DesignRole == ShipData.RoleName.troop || DesignRole == ShipData.RoleName.troopShip)
+                   && AI.OrderQueue.Any(g => (g.Plan == ShipAI.Plan.Rebase || g.Plan == ShipAI.Plan.LandTroop) && g.TargetPlanet == p);
         }
 
         bool IsSupplyShuttle => Name == loyalty.GetSupplyShuttleName();

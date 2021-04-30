@@ -499,6 +499,16 @@ namespace Ship_Game.AI
             }
         }
 
+        void AbortLandNoFleet(Planet planet)
+        {
+            if (Owner.fleet == null) // AI fleets cancel this in their eval process
+            {
+                OrderRebaseToNearest();
+                if (Owner.loyalty.isPlayer)
+                    Empire.Universe.NotificationManager.AddAbortLandNotification(planet, Owner);
+            }
+        }
+
         bool DoNearFleetOffset(FixedSimTime timeStep)
         {
             if (NearFleetPosition())
