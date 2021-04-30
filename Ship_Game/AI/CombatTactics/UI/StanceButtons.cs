@@ -20,13 +20,14 @@ namespace Ship_Game.AI.CombatTactics.UI
     {
         readonly Array<OrdersToggleButton> OrdersButtons = new Array<OrdersToggleButton>();
         Vector2 OrdersBarPos;
-        public CombatState CurrentState = CombatState.AttackRuns;
-
+        public readonly GameScreen Screen;
+        public bool IsHovered { get; private set; }
 
         protected StanceButtons(GameScreen parent, Vector2 topLeft) : base(parent.Rect)
         {
             OrdersBarPos = topLeft;
             Visible = false;
+            Screen = parent;
         }
 
         public void LoadContent()
@@ -48,17 +49,18 @@ namespace Ship_Game.AI.CombatTactics.UI
 
         void AddOrderBtn(string icon, CombatState state, LocalizedText toolTip)
         {
-            var button = new OrdersToggleButton(OrdersBarPos, ToggleButtonStyle.Formation, icon)
+            var button = new OrdersToggleButton(OrdersBarPos, ToggleButtonStyle.Formation, icon, state)
             {
-                CombatState = state, Tooltip = toolTip,
-                OnClick = (b) => OnOrderButtonClicked(b, state)
+                Tooltip = toolTip,
+                OnClick = (b) => OnOrderButtonClicked((OrdersToggleButton)b),
+                OnHover = (b) => OnOrderButtonHovered((OrdersToggleButton)b)
             };
             Add(button);
             OrdersButtons.Add(button);
             OrdersBarPos.X += 25f;
         }
 
-        void OnOrderButtonClicked(ToggleButton b, CombatState state)
+        void OnOrderButtonClicked(OrdersToggleButton b)
         {
             for (int i = 0; i < OrdersButtons.Count; i++)
             {
@@ -66,12 +68,13 @@ namespace Ship_Game.AI.CombatTactics.UI
                 other.IsToggled = false;
             }
             b.IsToggled = true;
-            ApplyStance(state);
+            ApplyStance(b.CombatState);
 
             GameAudio.EchoAffirmative();
         }
 
         protected abstract void ApplyStance(CombatState stance);
+        protected abstract void OnOrderButtonHovered(OrdersToggleButton b);
 
         protected void Reset(CombatState[] states)
         {
@@ -85,11 +88,15 @@ namespace Ship_Game.AI.CombatTactics.UI
             foreach (var button in OrdersButtons)
                 button.IsToggled = state == button.CombatState;
         }
-
-        private class OrdersToggleButton : ToggleButton
+        
+        public class OrdersToggleButton : ToggleButton
         {
-            public new CombatState CombatState;
-            public  OrdersToggleButton(Vector2 pos, ToggleButtonStyle style, string icon) : base (pos, style, icon){}
+            public CombatState CombatState { get; private set; }
+            public  OrdersToggleButton(Vector2 pos, ToggleButtonStyle style, string icon, CombatState state) : base (pos, style, icon)
+            {
+                CombatState = state;
+            }
+            public override string ToString() => $"{TypeName} [{(IsToggled ? "x" : " ")}] {ElementDescr} Icon:{IconPath} Status:{CombatState}";
         }
     }
 }
