@@ -1,4 +1,5 @@
 ﻿using System;
+using Ship_Game.Fleets;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -24,6 +25,7 @@ namespace Ship_Game
             NewColonyAffectRelations();
             SetupCyberneticsWorkerAllocations();
             SetInGroundCombat(Owner);
+            AbortLandingPlayerFleets();
             StatTracker.StatAddColony(Empire.Universe.StarDate, this);
         }
 
@@ -50,6 +52,23 @@ namespace Ship_Game
 
                 if (!p.Owner.IsOpenBordersTreaty(Owner))
                     p.Owner.DamageRelationship(Owner, "Colonized Owned System", 20f, p);
+            }
+        }
+
+        public void AbortLandingPlayerFleets()
+        {
+            Empire player = EmpireManager.Player;
+            if (player == Owner || player.IsAtWarWith(Owner)) 
+                return;
+
+            var fleets = player.GetFleetsDict();
+            foreach (Fleet fleet in fleets.Values)
+            {
+                if (fleet.Ships.Any(s => s.IsTroopShipAndRebasingOrAssaulting(this)))
+                {
+                    fleet.OrderAbortMove();
+                    Empire.Universe.NotificationManager.AddAbortLandNotification(this, fleet);
+                }
             }
         }
 

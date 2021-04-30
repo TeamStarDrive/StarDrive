@@ -418,7 +418,7 @@ namespace Ship_Game
         Statistics = 197,
         /// <summary>Available Designs</summary>
         AvailableDesigns = 198,
-        /// <summary>Enter Ship Name</summary>
+        /// <summary>Ship Name</summary>
         ChooseAShipToLoad = 199,
         /// <summary>Attack Runs: Ship will make head-on attack runs on its</summary>
         ShipWillMakeHeadonAttack = 200,
@@ -4248,6 +4248,10 @@ namespace Ship_Game
         FoodRemainingHereThisBuilding = 4301,
         /// <summary>Production Remaining here. This building will be removed when the</summary>
         ProductionRemainingHereThisBuilding = 4302,
+        /// <summary>Troop land aborted since the planet was colonized by</summary>
+        AbortLandPlayerTroopsNoFleet = 4303,
+        /// <summary>fleet movement halted.</summary>
+        AbortLandPlayerTroopsInFleet = 4304,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>
