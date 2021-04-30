@@ -122,8 +122,7 @@ namespace UnitTests
             RequireGameInstance(nameof(CreateUniverseAndPlayerEmpire));
 
             var data = new UniverseData();
-            Player = player = data.CreateEmpire(ResourceManager.MajorRaces[0]);
-            Player.isPlayer = true;
+            Player = player = data.CreateEmpire(ResourceManager.MajorRaces[0], isPlayer:true);
             Empire.Universe = Universe = new UniverseScreen(data, player);
             Universe.player = player;
             Enemy = EmpireManager.CreateRebelsFromEmpireData(ResourceManager.MajorRaces[0], Player);
@@ -134,6 +133,12 @@ namespace UnitTests
         {
             RequireGameInstance(nameof(LoadStarterShips));
             ResourceManager.LoadStarterShipsForTesting(shipList.Length == 0 ? null : shipList);
+        }
+
+        public void LoadStarterShips(string[] starterShips, string[] savedDesigns)
+        {
+            RequireGameInstance(nameof(LoadStarterShips));
+            ResourceManager.LoadStarterShipsForTesting(starterShips, savedDesigns);
         }
 
         public void LoadStarterShipVulcan()

@@ -3,13 +3,14 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
+using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
 
 namespace Ship_Game.Ships
 {
     public sealed class ShipInfoUIElement : UIElement
     {
-        public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
+        public ShipStanceButtons OrdersButtons;
         private readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
         public Array<OrdersButton> Orders = new Array<OrdersButton>();
 
@@ -27,7 +28,7 @@ namespace Ship_Game.Ships
         private readonly ProgressBar PBar;
         private readonly ProgressBar SBar;
         private readonly ProgressBar OBar;
-        public UITextEntry ShipNameArea;
+        UITextEntry ShipNameArea;
         private readonly SlidingElement SlidingElement;
         private readonly Rectangle DefenseRect;
         private readonly Rectangle TroopRect;
@@ -50,10 +51,9 @@ namespace Ship_Game.Ships
             LeftRect = new Rectangle(r.X, r.Y + 44, 180, r.Height - 44);
             RightRect = new Rectangle(LeftRect.X + LeftRect.Width, LeftRect.Y, 220, LeftRect.Height);
             int spacing = 2;
-            ShipNameArea = new UITextEntry
-            {
-                ClickableArea = new Rectangle(Housing.X + 41, Housing.Y + 65, 200, Fonts.Arial20Bold.LineSpacing)
-            };
+            ShipNameArea = new UITextEntry(Housing.X + 41, Housing.Y + 65, 200, Fonts.Arial14Bold, "");
+            ShipNameArea.OnTextChanged = (text) => Ship.VanityName = text;
+            ShipNameArea.Color = tColor;
             
             Power = new Rectangle(Housing.X + 187, Housing.Y + 110, 20, 20);
             PBar = new ProgressBar(Power.X + Power.Width + 15, Power.Y, 150, 18) { color = "green" };
@@ -79,49 +79,12 @@ namespace Ship_Game.Ships
             {
                 IsToggled = true
             };
-            OrderButtons(spacing, OBar.pBar);
-        }
 
-        public void OrderButtons(int spacing, Rectangle pOrderRect)
-        {
-            float startX = pOrderRect.X - 15;
+            float startX = OBar.pBar.X - 15;
             var ordersBarPos = new Vector2(startX, (Ordnance.Y + Ordnance.Height + spacing + 3));
-            void AddOrderBtn(string icon, CombatState state, LocalizedText toolTip)
-            {
-                var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon)
-                {
-                    CombatState   = state,
-                    Tooltip = toolTip,
-                };
-                button.OnClick = (b) => OnOrderButtonClicked(state);
-                CombatStatusButtons.Add(button);
-                ordersBarPos.X += 25f;
-            }
 
-            AddOrderBtn("SelectionBox/icon_formation_headon", CombatState.AttackRuns, toolTip: GameText.ShipWillMakeHeadonAttack);
-            AddOrderBtn("SelectionBox/icon_grid", CombatState.ShortRange,          toolTip: GameText.ShipWillRotateSoThat2);
-            AddOrderBtn("SelectionBox/icon_formation_aft", CombatState.Artillery, toolTip: GameText.ShipWillRotateSoThat);
-            AddOrderBtn("SelectionBox/icon_formation_x", CombatState.HoldPosition, toolTip: GameText.ShipWillAttemptToHold);
-            AddOrderBtn("SelectionBox/icon_formation_left", CombatState.OrbitLeft,  toolTip: GameText.ShipWillManeuverToKeep);
-            AddOrderBtn("SelectionBox/icon_formation_right", CombatState.OrbitRight, toolTip: GameText.ShipWillManeuverToKeep2);
-            AddOrderBtn("SelectionBox/icon_formation_stop", CombatState.Evade,  toolTip: GameText.ShipWillAvoidEngagingIn);
-
-            ordersBarPos = new Vector2(startX + 4*25f, ordersBarPos.Y + 25f);
-            AddOrderBtn("SelectionBox/icon_formation_bleft", CombatState.BroadsideLeft,  toolTip: GameText.ShipWillMoveWithinMaximum);
-            AddOrderBtn("SelectionBox/icon_formation_bright", CombatState.BroadsideLeft, toolTip: GameText.ShipWillMoveWithinMaximum2);
-        }
-
-        void OnOrderButtonClicked(CombatState state)
-        {
-            Ship.AI.CombatState = state;
-            if (state == CombatState.HoldPosition)
-                Ship.AI.OrderAllStop();
-
-            // @todo Is this some sort of bug fix?
-            if (state != CombatState.HoldPosition && Ship.AI.State == AIState.HoldPosition)
-                Ship.AI.State = AIState.AwaitingOrders;
-
-            Ship.shipStatusChanged = true;
+            OrdersButtons = new ShipStanceButtons(screen, ordersBarPos);
+            OrdersButtons.LoadContent();
         }
 
         void DrawOrderButtons(SpriteBatch batch, float transitionOffset)
@@ -133,23 +96,6 @@ namespace Ship_Game.Ships
                 ob.Draw(batch, ScreenManager.input.CursorPosition, r);
             }
         }
-
-        void UpdateOrderButtonToggles()
-        {
-            foreach (ToggleButton toggleButton in CombatStatusButtons)
-                toggleButton.IsToggled = (Ship.AI.CombatState == toggleButton.CombatState);
-        }
-
-        bool OrderButtonInput(InputState input)
-        {
-            if (Ship.loyalty != EmpireManager.Player || Ship.IsConstructor)
-                return false;
-
-            bool inputCaptured = CombatStatusButtons.Any(b => b.HandleInput(input));
-            UpdateOrderButtonToggles();
-            return inputCaptured;
-        }
-
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Screen.SelectedShip == null)
@@ -159,20 +105,13 @@ namespace Ship_Game.Ships
             int columns = Orders.Count / 2 + Orders.Count % 2;
             SlidingElement.Draw(ScreenManager, (int)(columns * 55 * (1f - TransitionPosition)) + (SlidingElement.Open ? 20 - columns : 0));
             DrawOrderButtons(batch, transitionOffset);
-
             batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
             GridButton.Draw(batch, elapsed);
-            var namePos           = new Vector2(Housing.X + 30, Housing.Y + 63);
-            string name           = (!string.IsNullOrEmpty(Ship.VanityName) ? Ship.VanityName : Ship.Name);
-            Graphics.Font titleFont  = Fonts.Arial14Bold;
-            Vector2 shipSuperName = new Vector2(Housing.X + 30, Housing.Y + 79);
-            if (Fonts.Arial14Bold.MeasureString(name).X > 180f)
-            {
-                titleFont = Fonts.Arial12Bold;
-                namePos.X = namePos.X - 8;
-                namePos.Y = namePos.Y + 1;
-            }
-            ShipNameArea.Draw(batch, elapsed, titleFont, namePos, tColor);
+            var namePos       = new Vector2(Housing.X + 30, Housing.Y + 63);
+            var shipSuperName = new Vector2(Housing.X + 30, Housing.Y + 79);
+            ShipNameArea.SetPos(namePos);
+            ShipNameArea.Draw(batch, elapsed);
+
             //Added by McShooterz:
             //longName = string.Concat(ship.Name, " - ", Localizer.GetRole(ship.shipData.Role, ship.loyalty));
             string longName = string.Concat(Ship.Name, " - ", Localizer.GetRole(Ship.DesignRole, Ship.loyalty));
@@ -208,16 +147,7 @@ namespace Ship_Game.Ships
             batch.DrawString(Fonts.Arial12Bold, totalBoardingDefense.String(0), defPos, Color.White);
             batch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);
             DrawTroopStatus();
-
-            if (Ship.loyalty == EmpireManager.Player)
-            {
-                foreach (ToggleButton button in CombatStatusButtons)
-                {
-                    button.Draw(batch, elapsed);
-                    if (button.Hover) Ship.DrawWeaponRangeCircles(Screen, button.CombatState);
-                }
-            }
-
+            OrdersButtons.Draw(batch, elapsed);
             //fbedard: Display race icon
             batch.Draw(ResourceManager.Flag(Ship.loyalty), FlagRect, Ship.loyalty.EmpireColor);
 
@@ -502,8 +432,11 @@ namespace Ship_Game.Ships
    
         public override bool HandleInput(InputState input)
         {
-            if (Screen.SelectedShip == null)
+            if (Screen.SelectedShip == null || Screen.LookingAtPlanet)
+            {
+                ShipNameArea.StopInput();
                 return false;
+            }
 
             if (FlagRect.HitTest(input.CursorPosition))
             {
@@ -516,27 +449,8 @@ namespace Ship_Game.Ships
                 return true;
             }
 
-            if (ShipNameArea.ClickableArea.HitTest(input.CursorPosition))
-            {
-                ShipNameArea.Hover = true;
-                if (input.InGameSelect && CanRename)
-                    ShipNameArea.HandlingInput = true;
-            }
-            else
-            {
-                ShipNameArea.Hover = false;
-            }
-
-            if (ShipNameArea.HandlingInput)
-            {
-                GlobalStats.TakingInput = true;
-                ShipNameArea.HandleTextInput(ref Ship.VanityName, input);
-                ShipNameArea.Text = Ship.VanityName;
-            }
-            else
-            {
-                GlobalStats.TakingInput = false;
-            }
+            if (ShipNameArea.HandleInput(input))
+                return true;
 
             if (GridButton.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(Localizer.Token(GameText.ToggleTheModuleGridOverlay));
@@ -564,10 +478,8 @@ namespace Ship_Game.Ships
                 if (Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView)
                     Empire.Universe.CamDestination.Z = Empire.Universe.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
             }
-
-            if (OrderButtonInput(input))
+            if (OrdersButtons.HandleInput(input))
                 return true;
-
             foreach (TippedItem tippedItem in ToolTipItems)
             {
                 if (tippedItem.Rect.HitTest(input.CursorPosition))
@@ -592,29 +504,23 @@ namespace Ship_Game.Ships
 
         public void SetShip(Ship s)
         {
+            if (Ship == s)
+                return;
+
+            Ship = s;
             CanRename = s.loyalty == EmpireManager.Player;
-            ShipNameArea.HandlingInput = false;
-            ShipNameArea.Text = s.VanityName;
+            ShipNameArea.Enabled = CanRename;
+            ShipNameArea.Reset(s.ShipName);
+
             Orders.Clear();
             Ship = s;
+            OrdersButtons.ResetButtons(Ship);
             if (Ship.loyalty != EmpireManager.Player)
-            {
                 return;
-            }
-            if (Ship.AI.OrderQueue.NotEmpty)
-            {
-                try
-                {
-                    if (Ship.AI.OrderQueue.PeekLast.Plan == ShipAI.Plan.DeployStructure)
-                    {
-                        return;
-                    }
-                }
-                catch
-                {
-                    return;
-                }
-            }
+
+            if (Ship.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
+                return;
+
             if (Ship.shipData.Role > ShipData.RoleName.station)
             {
                 OrdersButton resupply = new OrdersButton(Ship, OrderType.OrderResupply, GameText.OrdersSelectedShipOrShips)

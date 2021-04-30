@@ -1425,17 +1425,21 @@ namespace Ship_Game
         // @note This is used for Unit Tests and is not part of the core game
         // @param shipsList Only load these ships to make loading faster.
         //                  Example:  shipsList: new [] { "Vulcan Scout" }
-        public static void LoadStarterShipsForTesting(string[] shipsList = null)
+        public static void LoadStarterShipsForTesting(string[] shipsList = null,
+                                                      string[] savedDesigns = null)
         {
             LoadBasicContentForTesting();
 
-            FileInfo[] ships = shipsList != null
+            var ships = new Array<FileInfo>();
+            ships.AddRange(shipsList != null
                 ? shipsList.Select(ship => GetModOrVanillaFile($"StarterShips/{ship}.xml"))
-                : GatherFilesModOrVanilla("StarterShips", "xml");
+                : GatherFilesModOrVanilla("StarterShips", "xml"));
+            if (savedDesigns != null)
+                ships.AddRange(savedDesigns.Select(ship => GetModOrVanillaFile($"SavedDesigns/{ship}.xml")));
 
             ShipsDict.Clear();
             var designs = new Map<string, ShipDesignInfo>();
-            CombineOverwrite(designs, ships, readOnly: true, playerDesign: false);
+            CombineOverwrite(designs, ships.ToArray(), readOnly: true, playerDesign: false);
             LoadShipTemplates(designs.Values.ToArray());
         }
 

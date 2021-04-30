@@ -22,7 +22,6 @@ namespace Ship_Game
 
             BtnShowQueue = Button(ButtonStyle.BigDip, 
                 new Vector2(container.Right - 170, screen.ScreenHeight - 55), "", OnBtnShowQueuePressed);
-            BtnShowQueue.TextAlign = ButtonTextAlign.Left;
 
             var current = new Rectangle(container.X, container.Y, container.Width, 150);
             var timeLeftRect = new Rectangle(current.X + current.Width - 119, current.Y + current.Height - 24, 111, 20);

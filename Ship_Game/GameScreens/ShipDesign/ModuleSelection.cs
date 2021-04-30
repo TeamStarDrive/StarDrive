@@ -280,7 +280,7 @@ namespace Ship_Game
             float starty = modTitlePos.Y;
             modTitlePos.X = 10;
             float strength = mod.CalculateModuleOffenseDefense(Screen.ActiveHull.ModuleSlots.Length);
-            DrawStat(ref modTitlePos, "Offense", strength, GameText.EstimatedOffensiveStrengthOfThe);
+            DrawStat(ref modTitlePos, "Offense", strength, GameText.TT_ShipOffense);
 
             if (mod.BombType == null && !mod.isWeapon || mod.InstalledWeapon == null)
             {
@@ -310,7 +310,7 @@ namespace Ship_Game
         void DrawModuleStats(SpriteBatch batch, ShipModule mod, Vector2 modTitlePos, float starty)
         {
             DrawStat(ref modTitlePos, GameText.Cost, mod.ActualCost, GameText.IndicatesTheProductionCostOf);
-            DrawStat(ref modTitlePos, GameText.Mass2, mod.GetActualMass(EmpireManager.Player, 1), GameText.AShipsTotalMassDetermines);
+            DrawStat(ref modTitlePos, GameText.Mass2, mod.GetActualMass(EmpireManager.Player, 1), GameText.TT_Mass);
             DrawStat(ref modTitlePos, GameText.Health, mod.ActualMaxHealth, GameText.AModulesHealthRepresentsHow);
 
             float powerDraw = mod.Is(ShipModuleType.PowerPlant) ? mod.ActualPowerFlowMax : -mod.PowerDraw;
@@ -365,8 +365,8 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, GameText.Assault, mod.TransporterTroopAssault, GameText.IndicatesTheNumberOfTroops4);
             DrawStat(ref modTitlePos, GameText.Land, mod.TransporterTroopLanding, GameText.IndicatesTheNumberOfTroops2);
             DrawStat(ref modTitlePos, GameText.Ordnance, mod.OrdinanceCapacity, GameText.IndicatesTheAmountOfOrdnance2);
-            DrawStat(ref modTitlePos, GameText.CargoSpace,  mod.Cargo_Capacity, GameText.IndicatesTheTotalCargoSpace);
-            DrawStat(ref modTitlePos, GameText.Ordnances, mod.OrdnanceAddedPerSecond, GameText.IndicatesTheAmountOfOrdnance3);
+            DrawStat(ref modTitlePos, GameText.CargoSpace,  mod.Cargo_Capacity, GameText.TT_CargoSpace);
+            DrawStat(ref modTitlePos, GameText.Ordnances, mod.OrdnanceAddedPerSecond, GameText.TT_OrdnanceCreated);
             DrawStat(ref modTitlePos, GameText.Inhibition, mod.InhibitionRadius, GameText.IndicatesTheWarpInhibitionRange);
             DrawStat(ref modTitlePos, GameText.Troops,  mod.TroopCapacity, GameText.IndicatesTheNumberOfTroops3);
             DrawStat(ref modTitlePos, GameText.PowerStore, mod.ActualPowerStoreMax, GameText.IndicatesTheAmountOfPower2);
@@ -428,32 +428,29 @@ namespace Ship_Game
                 return;
 
             var hangarOption  = ShipBuilder.GetDynamicHangarOptions(mod.hangarShipUID);
-            string hangerShip = hangarOption != DynamicHangarOptions.Static
-                    ? CarrierBays.GetDynamicShipNameShipDesign(mod)
-                    : mod.hangarShipUID;
-
-            Ship ship = ResourceManager.GetShipTemplate(hangerShip, false);
-            if (ship == null)
-                return;
-
-            Color color   = ShipBuilder.GetHangarTextColor(mod.hangarShipUID);
-            modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial12Bold.LineSpacing;
-            Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y + 5);
-            string name = ship.VanityName.IsEmpty() ? ship.Name : ship.VanityName;
-            DrawString(batch, ref shipSelectionPos, string.Concat(Localizer.Token(GameText.Fighter), " : ", name), color, Fonts.Arial12Bold);
-            shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y-20);
-            shipSelectionPos.Y += Fonts.Arial12Bold.LineSpacing * 2;
-            DrawStat(ref shipSelectionPos, "Ord. Cost", ship.ShipOrdLaunchCost, "");
-            DrawStat(ref shipSelectionPos, "Weapons", ship.Weapons.Count, "");
-            DrawStat(ref shipSelectionPos, "Health", ship.HealthMax, "");
-            DrawStat(ref shipSelectionPos, "FTL", ship.MaxFTLSpeed, "");
-
-            if (hangarOption != DynamicHangarOptions.Static)
+            string hangerShip = mod.GetHangarShipName();
+            Ship hs = ResourceManager.GetShipTemplate(hangerShip, false);
+            if (hs != null)
             {
-                modTitlePos.Y = Math.Max(shipSelectionPos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 5;
-                Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 145f, modTitlePos.Y);
-                string bestShip = Fonts.Arial10.ParseText(GetDynamicHangarText(hangarOption), ActiveModSubMenu.Width - 20);
-                DrawString(batch, ref bestShipSelectionPos, bestShip, color, Fonts.Arial10);
+                Color color   = ShipBuilder.GetHangarTextColor(mod.hangarShipUID);
+                modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial12Bold.LineSpacing;
+                Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y + 5);
+                string name = hs.VanityName.IsEmpty() ? hs.Name : hs.VanityName;
+                DrawString(batch, ref shipSelectionPos, string.Concat(Localizer.Token(GameText.Fighter), " : ", name), color, Fonts.Arial12Bold);
+                shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y-20);
+                shipSelectionPos.Y += Fonts.Arial12Bold.LineSpacing * 2;
+                DrawStat(ref shipSelectionPos, "Ord. Cost", hs.ShipOrdLaunchCost, "");
+                DrawStat(ref shipSelectionPos, "Weapons", hs.Weapons.Count, "");
+                DrawStat(ref shipSelectionPos, "Health", hs.HealthMax, "");
+                DrawStat(ref shipSelectionPos, "FTL", hs.MaxFTLSpeed, "");
+
+                if (hangarOption != DynamicHangarOptions.Static)
+                {
+                    modTitlePos.Y = Math.Max(shipSelectionPos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 5;
+                    Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 145f, modTitlePos.Y);
+                    string bestShip = Fonts.Arial10.ParseText(GetDynamicHangarText(hangarOption), ActiveModSubMenu.Width - 20);
+                    DrawString(batch, ref bestShipSelectionPos, bestShip, color, Fonts.Arial10);
+                }
             }
         }
 
@@ -502,7 +499,7 @@ namespace Ship_Game
             float power = m.ModuleType != ShipModuleType.PowerPlant ? -m.PowerDraw : m.PowerFlowMax;
 
             DrawStat(ref cursor, GameText.Cost, cost, GameText.IndicatesTheProductionCostOf);
-            DrawStat(ref cursor, GameText.Mass2, m.GetActualMass(EmpireManager.Player, 1), GameText.AShipsTotalMassDetermines);
+            DrawStat(ref cursor, GameText.Mass2, m.GetActualMass(EmpireManager.Player, 1), GameText.TT_Mass);
             DrawStat(ref cursor, GameText.Health, m.ActualMaxHealth, GameText.AModulesHealthRepresentsHow);
             DrawStat(ref cursor, GameText.Power, power, GameText.IndicatesHowMuchPowerThis);
             DrawStat(ref cursor, GameText.Range, range, GameText.IndicatesTheMaximumRangeOf);

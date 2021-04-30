@@ -64,7 +64,7 @@ namespace Ship_Game
 
             BindListsToActiveHull();
             CreateSOFromActiveHull();
-            UpdateActiveCombatButton();
+            OrdersButton.ResetButtons(DesignedShip);
             UpdateCarrierShip();
 
             // force modules list to reset itself, so if we change from Battleship to Fighter
@@ -75,7 +75,7 @@ namespace Ship_Game
 
             // TODO: remove DesignIssues from this page
             InfoPanel.SetActiveDesign(DesignedShip);
-            DesignIssues = InfoPanel.DesignIssues;
+            IssuesPanel.SetActiveDesign(DesignedShip);
         }
 
         void UpdateCarrierShip()
@@ -234,9 +234,6 @@ namespace Ship_Game
             HandleInputZoom(input);
             HandleInputDebug(input);
 
-            if (HandleDesignIssuesButton(input))
-                return true;
-
             if (ArcsButton.R.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.TogglesTheWeaponFireArc, "Tab");
 
@@ -374,37 +371,6 @@ namespace Ship_Game
             slot.Module.FacingDegrees = arc;
             if (IsSymmetricDesignMode && GetMirrorModule(slot, out ShipModule mirrored))
                 mirrored.FacingDegrees = 360 - arc;
-        }
-
-        bool HandleDesignIssuesButton(InputState input)
-        {
-            if (DesignIssues.CurrentWarningLevel == WarningLevel.None)
-                return false ;
-
-            if (DesignIssuesButton.R.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(GameText.StatesAnyDesignIssuesThe);
-
-
-            if (DesignIssues.CurrentWarningLevel > WarningLevel.Informative 
-                && DesignIssuesButton.HandleInput(input))
-            {
-                AddDesignIssuesScreen();
-                return true;
-            }
-
-            if (DesignIssues.CurrentWarningLevel == WarningLevel.Informative  
-                && InformationButton.HandleInput(input))
-            {
-                AddDesignIssuesScreen();
-                return true;
-            }
-
-            return false;
-        }
-
-        void AddDesignIssuesScreen()
-        {
-            ScreenManager.AddScreen(new ShipDesignIssuesScreen(this, EmpireManager.Player, DesignIssues.CurrentDesignIssues));
         }
 
         void HandleCameraMovement(InputState input)
@@ -653,22 +619,7 @@ namespace Ship_Game
         {
             StripModules();
         }
-
-        void UpdateActiveCombatButton()
-        {
-            foreach (ToggleButton button in CombatStatusButtons)
-                button.IsToggled = (ActiveHull.CombatState == button.CombatState);
-        }
-
-        void OnCombatButtonPressed(CombatState state)
-        {
-            if (ActiveHull == null)
-                return;
-            GameAudio.AcceptClick();
-            ActiveHull.CombatState = state;
-            UpdateActiveCombatButton();
-        }
-
+        
         void JustChangeHull()
         {
             ShipSaved = true;

@@ -34,20 +34,6 @@ namespace Ship_Game
 
     public static class Localizer
     {
-        //Hull Bonus Text
-        public static string HullArmorBonus => Token(GameText.ArmorProtection); 
-        public static string HullShieldBonus => "Shield Strength";
-        public static string HullSensorBonus => Token(GameText.ArmorProtection);
-        public static string HullSpeedBonus => Token(GameText.MaxSpeed);
-        public static string HullCargoBonus => Token(GameText.CargoSpace2);
-        public static string HullDamageBonus => "Weapon Damage";
-        public static string HullFireRateBonus => Token(GameText.FireRate);
-        public static string HullRepairBonus => Token(GameText.RepairRate);
-        public static string HullCostBonus => Token(GameText.CostReduction);
-        public static string Trade => Token(GameText.Trade);
-        public static string GovernorBudget => Token(GameText.GovernorBudget);
-        public static string TreasuryGoal => Token(GameText.TreasuryGoal);
-
         public static Language Language { get; private set; }
 
         static string[] Strings = Empty<string>.Array;

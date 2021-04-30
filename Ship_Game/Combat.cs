@@ -85,17 +85,17 @@ namespace Ship_Game
 
             if (DefendingTroop != null)
             {
-                DefendingTroop.DamageTroop(damage, Planet, DefenseTile, out bool dead);
-                if (!dead) // Troops are still alive
-                    return;
-
-                Planet.ActiveCombats.QueuePendingRemoval(this);
-                if (isViewing)
+                if (isViewing && DefenseTile.TroopsHere.Contains(DefendingTroop))
                 {
                     GameAudio.PlaySfxAsync("Explo1");
                     ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(DefenseTile.ClickRect, 4);
                 }
 
+                DefendingTroop.DamageTroop(damage, Planet, DefenseTile, out bool dead);
+                if (!dead) // Troops are still alive
+                    return;
+
+                Planet.ActiveCombats.QueuePendingRemoval(this);
                 AttackingTroop?.LevelUp();
             }
             else if (DefendingBuilding != null)
