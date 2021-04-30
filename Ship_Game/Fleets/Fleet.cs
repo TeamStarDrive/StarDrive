@@ -366,6 +366,20 @@ namespace Ship_Game.Fleets
             }
         }
 
+        public void OrderAbortMove()
+        {
+            FinalPosition = AveragePos;
+            for (int i = 0; i < Ships.Count; i++)
+            {
+                Ship s = Ships[i];
+                if (s.InCombat)
+                    continue;
+
+                s.AI.OrderAllStop();
+                s.AI.OrderThrustTowardsPosition(FinalPosition + s.FleetOffset, FinalDirection, false);
+            }
+        }
+
         void SetAIDefaultTactics()
         {
             if (Owner.isPlayer == true) return;
