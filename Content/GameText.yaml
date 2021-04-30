@@ -10110,8 +10110,8 @@ WasDestroyedInAnExploration:
  RUS: "был уничтожен во время разведки"
 WasRemovedSinceItsResource:
  Id: 4300
- ENG: "was removed since it's resource cache\n was depleted."
- RUS: "был удален, так как это склад ресурсов\n был истощен"
+ ENG: "was removed since it's resource cache\nwas depleted."
+ RUS: "был удален, так как это склад ресурсов\nбыл истощен"
 FoodRemainingHereThisBuilding:
  Id: 4301
  ENG: "Food Remaining here. This building will be removed when the cache is depleted."
@@ -10120,6 +10120,12 @@ ProductionRemainingHereThisBuilding:
  Id: 4302
  ENG: "Production Remaining here. This building will be removed when the cache is depleted."
  RUS: "Здесь харнится производство. Это здание будет удалено, когда запас будет исчерпан."
+AbortLandPlayerTroopsNoFleet:
+ Id: 4303
+ ENG: "Troop land aborted since the\nplanet is now owned by"
+AbortLandPlayerTroopsInFleet:
+ Id: 4304
+ ENG: "fleet movement halted."
 OnSurface:
  Id: 4993
  ENG: "on surface"
