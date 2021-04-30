@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
+using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
@@ -21,7 +22,8 @@ namespace Ship_Game
     public sealed partial class ShipDesignScreen : GameScreen
     {
         public Camera2D Camera;
-        public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
+        //public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
+        public DesignStanceButtons OrdersButton;
         public DesignShip DesignedShip { get; private set; }
         public ShipData ActiveHull;
         public EmpireUIOverlay EmpireUI;
@@ -35,15 +37,13 @@ namespace Ship_Game
         Submenu StatsSub;
         Menu1 ShipStats;
         GenericButton ArcsButton;
-        GenericButton DesignIssuesButton;
-        GenericButton InformationButton;
         float OriginalZ;
         Rectangle SearchBar;
         Rectangle BottomSep;
         Rectangle BlackBar;
 
         ShipDesignInfoPanel InfoPanel;
-        ShipDesignIssues DesignIssues;
+        ShipDesignIssuesPanel IssuesPanel;
 
         // this contains module selection list and active module selection info
         ModuleSelection ModuleSelectComponent;
@@ -61,13 +61,12 @@ namespace Ship_Game
         ModuleOrientation ActiveModState;
         CategoryDropDown CategoryList;
         HangarDesignationDropDown HangarOptionsList;
-        Map<ShipModule, float> WeaponAccuracyList = new Map<ShipModule, float>();
 
         bool ShowAllArcs;
         public bool ToggleOverlay = true;
         bool ShipSaved = true;
         public bool Debug;
-        ShipData.RoleName Role;
+        public ShipData.RoleName Role { get; private set; }
         Rectangle DesignRoleRect;
 
         public bool IsSymmetricDesignMode
@@ -434,25 +433,10 @@ namespace Ship_Game
 
             float ordersBarX = ClassifCursor.X - 15;
             var ordersBarPos = new Vector2(ordersBarX, ClassifCursor.Y + 20);
-            void AddCombatStatusBtn(CombatState cs, string iconPath, LocalizedText tip)
-            {
-                var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, iconPath) { CombatState = cs, Tooltip = tip };
-                button.OnClick = (b) => OnCombatButtonPressed(cs);
-                Add(button);
-                CombatStatusButtons.Add(button);
-                ordersBarPos.X += 29f;
-            }
-            AddCombatStatusBtn(CombatState.AttackRuns,   "SelectionBox/icon_formation_headon", tip: GameText.ShipWillMakeHeadonAttack);
-            AddCombatStatusBtn(CombatState.Artillery,    "SelectionBox/icon_formation_aft",    tip: GameText.ShipWillRotateSoThat);
-            AddCombatStatusBtn(CombatState.ShortRange,   "SelectionBox/icon_grid",             tip: GameText.ShipWillRotateSoThat2);
-            AddCombatStatusBtn(CombatState.HoldPosition, "SelectionBox/icon_formation_x",      tip: GameText.ShipWillAttemptToHold);
-            AddCombatStatusBtn(CombatState.OrbitLeft,    "SelectionBox/icon_formation_left",   tip: GameText.ShipWillManeuverToKeep);
-            AddCombatStatusBtn(CombatState.OrbitRight,   "SelectionBox/icon_formation_right",  tip: GameText.ShipWillManeuverToKeep2);
-            AddCombatStatusBtn(CombatState.Evade,        "SelectionBox/icon_formation_stop",   tip: GameText.ShipWillAvoidEngagingIn);
-            ordersBarPos = new Vector2(ordersBarX + 4*29f, ordersBarPos.Y + 29f);
-            AddCombatStatusBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft", GameText.ShipWillMoveWithinMaximum);
-            AddCombatStatusBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", GameText.ShipWillMoveWithinMaximum2);
-            
+            OrdersButton = new DesignStanceButtons(this, ordersBarPos);
+            OrdersButton.LoadContent();
+            Add(OrdersButton);
+
             UIList bottomListRight = AddList(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));
             bottomListRight.LayoutStyle = ListLayoutStyle.ResizeList;
             bottomListRight.Direction = new Vector2(-1, 0);
@@ -539,20 +523,14 @@ namespace Ship_Game
             StatsSub  = new Submenu(shipStatsPanel);
             StatsSub.AddTab(Localizer.Token(GameText.ShipStats));
             ArcsButton = new GenericButton(new Vector2(HullSelectList.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
-            
-            DesignIssuesButton = new GenericButton(new Vector2(HullSelectList.X + 60, HullSelectList.Bottom + 40),
-                                                   "Design Issues", Fonts.Pirulen20, Fonts.Pirulen16);
-            DesignIssuesButton.HoveredColor   = Color.White;
-            DesignIssuesButton.UnHoveredColor = Color.Green;
 
-            InformationButton = new GenericButton(new Vector2(HullSelectList.X + 40, HullSelectList.Bottom + 40),
-                                                  "Information", Fonts.Pirulen20, Fonts.Pirulen16);
-            InformationButton.HoveredColor   = Color.White;
-            InformationButton.UnHoveredColor = Color.Green;
+            var infoRect = RectF.FromPoints((HullSelectList.X + 20), (ScreenWidth - 20),
+                                            HullSelectList.Bottom + 10, BlackBar.Y);
+            InfoPanel = Add(new ShipDesignInfoPanel(infoRect));
 
-            var infoRect = RectF.FromPoints(HullSelectList.X - 50, ScreenWidth - 20,
-                                            HullSelectList.Bottom, BlackBar.Y);
-            InfoPanel = Add(new ShipDesignInfoPanel(this, infoRect));
+            var issuesRect = RectF.FromPoints(InfoPanel.X - 200, InfoPanel.X,
+                                              HullSelectList.Bottom + 10, BlackBar.Y);
+            IssuesPanel = Add(new ShipDesignIssuesPanel(this, issuesRect));
 
             CloseButton(ScreenWidth - 27, 99);
         }
@@ -620,11 +598,6 @@ namespace Ship_Game
                 }
             }
             OriginalZ = CameraPosition.Z;
-        }
-
-        void UpdateDesignButton()
-        {
-            DesignIssuesButton.UnHoveredColor = DesignIssues.CurrentWarningColor;
         }
 
         void InitializeShipHullsList()

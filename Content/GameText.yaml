@@ -757,6 +757,18 @@ Upkeep:
  ENG: "Upkeep"
  RUS: "Содержание"
  SPA: "Mantenimiento"
+UpkeepCost:
+ ENG: "Upkeep Cost"
+TotalModuleSlots:
+ ENG: "Total Module Slots"
+ExcessWpnPwrDrain:
+ ENG: "Excess Wpn Pwr Drain"
+WpnFirePowerTime:
+ ENG: "Wpn Fire Power Time"
+BurstWpnPwrDrain:
+ ENG: "Burst Wpn Pwr Drain"
+BurstWpnPwrTime:
+ ENG: "Burst Wpn Pwr Time"
 Kills:
  Id: 152
  ENG: "Kills"
@@ -994,7 +1006,7 @@ AvailableDesigns:
  SPA: "Diseños disponibles"
 ChooseAShipToLoad:
  Id: 199
- ENG: "Choose a Ship to Load"
+ ENG: "Ship Name"
  RUS: "Выберите корабль для загрузки"
  SPA: "Elegir una nave para cargar"
 ShipWillMakeHeadonAttack:
@@ -6062,7 +6074,7 @@ ShieldAmp:
  Id: 1910
  ENG: "Shield Amp"
  RUS: "Усил.щита"
-EachOfTheShipShields:
+TT_ShieldAmplify:
  Id: 1911
  ENG: "Each of the ship shield's maximum power will be amplified by this number."
  RUS: "Каждая максимальная мощность щита корабля будет увеличена на это число."
@@ -6078,7 +6090,7 @@ RelativeStrength:
  Id: 1914
  ENG: "Relative Strength"
  RUS: "Относительная сила"
-ThisIsTheStrengthOf:
+TT_RelativeStrength:
  Id: 1915
  ENG: "This is the strength of the ship divided by it's slot number. This could give you an estimation of efficiency of the ship."
  RUS: "Это сила корабля, деленная на его количество слотов. Это значение показывает примерную оценку эффективности корабля."
@@ -6326,15 +6338,15 @@ NormalDesign:
  Id: 1986
  ENG: "Strip Ship"
  RUS: "Демонтаж"
-TheTotalTimeTheShip:
+TT_BurstWpnPwrTime:
  Id: 1987
  ENG: "The total time the ship can maintain energy weapon fire along with beams at peak power during beam duration time"
  RUS: "Общее время, в течение которого корабль может поддерживать огонь энергетического оружия вместе с лучами на максимальной мощности в течение времени действия луча."
-ThisIndicatesThatThereIs:
+TT_BurstWpnPwerDrain:
  Id: 1988
  ENG: "This indicates that there is a net power drain from the ship's reserves (after considering power recharge) when all the ship's energy weapons, along with beams at full power, are persistently firing on targets, based on the weapons' power per second upon firing"
  RUS: "Указывает на чистую утечку энергии из резервов корабля (с учетом перезарядки энергии), когда все энергетическое оружие корабля вместе с лучами на полной мощности постоянно стреляет по целям в зависимости от мощности оружия в секунду при стрельбе."
-ThisIndicatesThatThereIs2:
+TT_ExcessWpnPwrDrain:
  Id: 1989
  ENG: "This indicates that there is a net power drain from the ship's reserves (after considering power recharge) when all the ship's energy weapons are persistently firing on targets, based on the weapons' power per second upon firing"
  RUS: "Указывает на чистую утечку энергии из резервов корабля (с учетом перезарядки энергии), когда все энергетическое оружие корабля постоянно стреляет по целям, в зависимости от мощности оружия в секунду при стрельбе."
@@ -6628,7 +6640,7 @@ ThisShipDesignIsInvalid:
  ENG: "This ship design is invalid. Every ship requires a command module such as a cockpit, bridge, or combat information center. Additionally, all of the ship's available slots must be filled. "
  RUS: "Этот дизайн корабля некорректен. Каждому кораблю требуется командный модуль, такой как кокпит, мостик или КИЦ. Кроме того, все доступные ячейки корабля должны быть заполнены. "
  SPA: "Este diseño de nave no es válido. Las naves requieren un módulo de mando, como un puente, una cabina o un centro de información de combate. Además, deben llenarse todas las ranuras disponibles de la nave. "
-AShipsTotalMassDetermines:
+TT_Mass:
  Id: 2050
  ENG: "A ship's total mass determines its maneuverability and maximum velocity both at warp and at sublight speeds. Mass cannot be reduced below the ship's size value (the number of module slots)."
  RUS: "Общая масса корабля определяется его маневренностью и максимальной скоростью как в варпе, так и на субсветовых скоростях. Масса не может быть уменьшена ниже значения размера корабля (кол-во ячеек модулей)."
@@ -6733,37 +6745,37 @@ HangarsAreCapableOfSustaning:
  ENG: "Hangars are capable of sustaning a single ship per hangar at a time. If that ship is destroyed, then the hangar goes on cooldown for the amount of time indicated here. When the hangar is off of cooldown, a new ship will be generated and can launch from the hangar."
  RUS: "Ангары могут вмещать единовременно по одному кораблю. Если корабль будет уничтожен, для ангара запустится таймер простоя, указанный здесь. Когда таймер простоя истечет, будет создан новый корабль, который можно будет выпустить из ангара."
  SPA: "Los hangares pueden albergar a una sola nave a la vez. Si esa nave es destruida, el hangar pasa a un estado de recuperación que dura el tiempo indicado aquí. Pasado ese tiempo, el hangar genera una nueva nave lista para volar."
-IndicatesTheTotalProductionValue:
+TT_ProductionCost:
  Id: 2071
  ENG: "Indicates the total production value of this ship design"
  RUS: "Указывает общее кол-во очков производства для этого дизайна корабля"
  SPA: "Indica el valor total de producción de este diseño de nave"
-IndicatesTheMaximumAmountOf2:
+TT_PowerCapacity:
  Id: 2072
  ENG: "Indicates the maximum amount of power that can be stored in this ship's reserves. Red value is an indication that the ship's energy consumption when firing is overwhelming the power reserve, and you need to add more reserves or more reactors."
  RUS: "Указывает максимальное количество энергии, которое может запасти этот корабль"
  SPA: "Indica la cantidad máxima de energía que puede almacenarse en las reservas de esta nave"
-IndicatesTheNetPowerFlow:
+TT_PowerRecharge:
  Id: 2073
  ENG: "Indicates the net power flow of this vessel. In most cases, a net positive power flow is an absolute requirement. Otherwise, your ship will immediately begin to lose power and will ultimately be unable to warp or fire energy-based weapons"
  RUS: "Указывает суммарный баланс энергии для этого судна. В большинстве случаев положительный баланс является обязательным требованием - в противном случае корабль сразу начнет терять энергию и в конечном счете не сможет войти в варп или использовать энергетическое оружие."
  SPA: "Indica el flujo neto de energía de esta nave. En la mayoría de casos, es imprescindible que este flujo neto sea positivo. Si no, la nave empezará a perder potencia de inmediato y acabará siendo incapaz de disparar armas de energía o de viajar a velocidad estelar supraluminal"
-IndicatesTheNetPowerFlow2:
+TT_RechargeAtWarp:
  Id: 2074
  ENG: "Indicates the net power flow of this vessel when its warp-drive is engaged. A negative value here indicates that the ship will have a limited warp range before it needs to stop and recharge its fuel cells. A positive value indicates that the ship can keep its warp drive engaged indefinitely."
  RUS: "Указывает суммарный баланс энергии для этого судна при активированном варп-драйве. Отрицательное значение означает, что в варпе корабль может пройти только ограниченное расстояние, после чего он вынужден будет остановиться и зарядить свои топливные элементы. Положительное значение означает, что варп-драйв может быть активен сколь угодно долго."
  SPA: "Indica el flujo neto de energía de esta nave al activarse su propulsión estelar supraluminal. Un valor negativo indica que la nave tendrá un alcance estelar supraluminal limitado y deberá detenerse antes a recargar sus células de combustible. Un valor positivo indica que la nave puede mantener indefinidamente su velocidad estelar supraluminal."
-IndicatesTheTotalHitpointsOf:
+TT_HitPoints:
  Id: 2075
  ENG: "Indicates the total hitpoints of all of the ship's modules combined"
  RUS: "Указывает общее количество ОП всех модулей корабля в сумме"
  SPA: "Indica los puntos de vida totales de todos los módulos de la nave combinados"
-IndicatesTheTotalHitpointsOf2:
+TT_ShieldPower:
  Id: 2076
  ENG: "Indicates the total hitpoints of all of the ship's shield modules combined, including all Shield Amplifiers. The Color of the title will be Gold if any Shield Amplifiers are installed and effective."
  RUS: "Указывает общее количество ОП всех щитов корабля в сумме"
  SPA: "Indica los puntos de vida totales de todos los módulos de escudos de la nave combinados"
-IndicatesTheDistanceThisShip:
+TT_SublightSpeed:
  Id: 2077
  ENG: "Indicates the distance this ship can travel in one second while using its sublight engines"
  RUS: "Указывает расстояние, которое этот корабль может пройти в секунду на субсветовых двигателях."
@@ -6773,17 +6785,17 @@ IndicatesTheDistanceThisShip2:
  ENG: "Indicates the distance this ship can travel in one second while using its faster than light engines"
  RUS: "Указывает расстояние, которое этот корабль может пройти в секунду на сверхсветовых двигателях."
  SPA: "Indica la distancia que puede recorrer esta nave por segundo usando sus motores de velocidad supraluminal"
-IndicatesTheNumberOfDegrees:
+TT_TurnRate:
  Id: 2079
  ENG: "Indicates the number of degrees this ship may rotate in one second"
  RUS: "Указывает количество градусов, на которое этот корабль может повернуться за секунду."
  SPA: "Indica el número de grados que puede girar esta nave por segundo"
-IndicatesTheMaximumAmountOf3:
+TT_OrdnanceCap:
  Id: 2080
  ENG: "Indicates the maximum amount of multi-purpose ordnance this ship can carry. "
  RUS: "Указывает максимальное количество многоцелевых боеприпасов, которые может вместить этот корабль. "
  SPA: "Indica la cantidad máxima de munición polivalente que puede llevar esta nave. "
-IndicatesTheTotalCargoSpace:
+TT_CargoSpace:
  Id: 2081
  ENG: "Indicates the total cargo space available on this ship. Each point of cargo space allows this ship to carry a single unit of food or production, or a small amount of colonists."
  RUS: "Указывает общую вместимость трюма этого корабля. Каждая единица вместимости трюма позволяет перевозить одну единицу еды, производства или небольшое количество колонистов."
@@ -7223,7 +7235,7 @@ TogglesTheWeaponFireArc:
  ENG: "Toggles the weapon fire arc and shield protection radius display on or off for this ship. Hotkey: TAB"
  RUS: "Переключает режим отображения сектора огня оружия и радиуса защиты щита для данного корабля. Горячая клавиша: TAB"
  SPA: "Activa o desactiva la visión del arco de disparo y la del radio de protección de los escudos de la nave. Tecla de acceso directo: Tabulador"
-IndicatesTheDistanceThisShip3:
+TT_FtlSpeed:
  Id: 2169
  ENG: "Indicates the distance this ship can travel in one second at warp speed (FTL), measured in thousands of units"
  RUS: "Указывает расстояние, которое этот корабль может преодолеть за секунду при варпировании. Измеряется в тыс. ед."
@@ -7233,6 +7245,8 @@ FtlSpeed:
  ENG: "FTL Speed"
  RUS: "Скорость Варп-прыжка"
  SPA: "Vel. supraluminal"
+FtlTime:
+ ENG: "FTL Time"
 OrdersThisShipToExplore:
  Id: 2171
  ENG: "Orders this ship to explore the galaxy"
@@ -9306,7 +9320,7 @@ CornersIsARaceMatch:
  ENG: "Corners is a 4 race match similar to a sandbox game, except the map is divided into quarters, with 1 faction in each quarter, offering clear boundaries between regions of space. Defend your territory at all costs!"
  RUS: "Углы - это матч для 4 рас, похожий на игру в песочнице, за исключением того, что галактика розделена на части, по одной фракции в каждой четверти, это обеспечивает четкие границы между областями пространства. Защитите свою территорию любой ценой!"
  SPA: "El modo de juego de esquinas es un juego de 4 razas similiar al modo sandbox, except excepto que el mapa esta dividio en cuartetos, con una facción en cada esquina, Ofreciendo una vista territorial clara entre imperios. ¡Defiende tu territorio a cualquier coste!"
-TheTotalNumberOfModule:
+TT_TotalModuleSlots:
  Id: 4104
  ENG: "The total number of module slots available on the selected ship."
  RUS: "Общее количество ячеек для модулей, доступных на выбранном корабле."
@@ -10096,8 +10110,8 @@ WasDestroyedInAnExploration:
  RUS: "был уничтожен во время разведки"
 WasRemovedSinceItsResource:
  Id: 4300
- ENG: "was removed since it's resource cache\n was depleted."
- RUS: "был удален, так как это склад ресурсов\n был истощен"
+ ENG: "was removed since it's resource cache\nwas depleted."
+ RUS: "был удален, так как это склад ресурсов\nбыл истощен"
 FoodRemainingHereThisBuilding:
  Id: 4301
  ENG: "Food Remaining here. This building will be removed when the cache is depleted."
@@ -10106,6 +10120,12 @@ ProductionRemainingHereThisBuilding:
  Id: 4302
  ENG: "Production Remaining here. This building will be removed when the cache is depleted."
  RUS: "Здесь харнится производство. Это здание будет удалено, когда запас будет исчерпан."
+AbortLandPlayerTroopsNoFleet:
+ Id: 4303
+ ENG: "Troop land aborted since the\nplanet is now owned by"
+AbortLandPlayerTroopsInFleet:
+ Id: 4304
+ ENG: "fleet movement halted."
 OnSurface:
  Id: 4993
  ENG: "on surface"
@@ -10569,7 +10589,7 @@ TradeHub:
  ENG: "Trade Hub"
  RUS: "Торг.центр"
  SPA: "Centro de comercio"
-FireControlSystemsOrFcs:
+TT_FireControl:
  Id: 5088
  ENG: "Fire Control Systems or FCS. This indicates how powerful weapon fire control is on the ship. Higher FCS increases weapon accuracy and target tracking. Weapon accuracy is the highest FCS of any module except where noted. Tacking systems is accumulated FCS."
  RUS: "Системы управления огнем или СУО.Показывает, насколько мощным является управление огнем оружия на корабле. Более лучшая СУО увеличивает точность оружия и сопровождение цели. Точность оружия - самая высокая у СУО среди всех модулей, если не указано иное. Система перехвата - это накопленные СУО."
@@ -11582,17 +11602,21 @@ PreventsAiEmpiresFromMerging:
  ENG: "Prevents AI empires from merging into Federations at the first site of a powerful opponent. This will not prevent them from federating if they have strong, long lasting alliances."
  RUS: "Предотвращает слияние империй ИИ в федерации с сильными противниками. Это не помешает им объединиться, если у них будут прочные, длительные союзы."
  SPA: "Previene a la IA de formar federacones al ver un oponente poderoso."
-IndicatesTheMaximumTimeIn:
+TT_WpnFirePowerTime:
  Id: 7012
  ENG: "Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting energy reserves, based on power usage of all weapons when firing. Red value indicates insufficient power to maintain fire more than 2 seconds."
  RUS: "Указывает максимальное время в секундах, в течение которого этот корабль может непрерывно стрелять из всех орудий, прежде чем исчерпать запасы энергии, на основе использования мощности всего оружия при стрельбе. Красное значение указывает на недостаточную мощность для поддержания огня более 2 секунд."
  SPA: "Indica el tiempo máximo en segundos en la cual una nave disparara todas sus armas antes de gastar sus reservas de energia, basada en el consumo energetico de todas sus armas al disparar"
-IndicatesTheMaximumTimeIn2:
+AmmoTime:
+ ENG: "Ammo Time"
+TT_AmmoTime:
  Id: 7013
  ENG: "Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting ordnance supplies"
  RUS: "Указывает максимальное время в секундах, в течение которого этот корабль может вести непрерывный огонь из всех орудий до того, как исчерпает запас боеприпасов."
  SPA: "Indica el tiempo máximo en segundos en la cual una nave disparar todas sus armas antes de gastar sus municiones"
-IndicatesTheAmountOfOrdnance3:
+OrdnanceCreated:
+ ENG: "Ordnance Created / s"
+TT_OrdnanceCreated:
  Id: 7014
  ENG: "Indicates the amount of ordnance this ship is capable of fabricating per second"
  RUS: "Указывает количество боеприпасов, которое этот корабль способен произвести за секунду."
@@ -11647,12 +11671,12 @@ IndicatesTheAmountTroopsAre:
  ENG: "Indicates the amount troops are healed per second"
  RUS: "Указывает количество лечения войск в секунду."
  SPA: "Indica el numero de tropas que pueden ser sanadas por segundo."
-IndicatesTheCreditsPerTick:
+TT_UpkeepCost:
  Id: 7025
  ENG: "Indicates the credits per tick this design would cost in upkeep"
  RUS: "Указывает количество кредитов за тик, которое будет стоить содержание этого дизайна"
  SPA: "Indicate los creditos por tick este diseño costaria mantener."
-IndicatesThisShipsMaximumSustained:
+TT_FtlTime:
  Id: 7026
  ENG: "Indicates this ship's maximum sustained FTL jump duration outside of friendly subspace projection"
  RUS: "Указывает максимальную длительность продолжительного прыжка на сверхсветовой скорости за пределами проекции дружественного подпространства."
@@ -11672,7 +11696,7 @@ TheNumberOfTroopsThis:
  ENG: "The number of troops this module can house"
  RUS: "Количество войск, которое может вместить этот модуль"
  SPA: "El numero máximo de tropas que pueden habitar este módulo"
-IndicatesTheTotalComplementOf:
+TT_TroopCapacity:
  Id: 7030
  ENG: "Indicates the total complement of troops this ship can carry"
  RUS: "Обозначает общее количество войск, которое может нести этот корабль"
@@ -11907,7 +11931,7 @@ IndicatesTheAmountOfEmp2:
  ENG: "Indicates the amount of EMP protection that this module adds to the vessel."
  RUS: "Указывает степень защиты от ЭМИ, которую этот модуль добавляет к судну."
  SPA: "Indica la cantidad de proteción EMP este módulo agrega a la nave."
-TheTotalEmpProtectionOf:
+TT_EmpProtection:
  Id: 7077
  ENG: "The total EMP protection of this design."
  RUS: "Полная защита от ЭМИ этой конструкции."
@@ -11942,7 +11966,7 @@ ThisIsABonusTo:
  ENG: "This is a bonus to the number targets that can be tracked by this ship's fire control. As a bonus, it is cumulative and stacks on top of the command module's maximum targets."
  RUS: "Это бонус к количеству целей, которые могут быть отслежены системой управления огнем этого корабля. В качестве бонуса он накапливается и складывается поверх максимальных целей командного модуля."
  SPA: "Este es el bonus a los numeros de objetivos que pueden ser rastreador por el control de tiro de la nava. Como bonues, es acumulativo y se acumula en los objetivos máximos del módulo de comando."
-EstimatedOffensiveStrengthOfThe:
+TT_ShipOffense:
  Id: 7084
  ENG: "Estimated offensive strength of the ship or module. This is based on the size of the ship and strength of defense and strength of weapons. The defensive score of the ship is not shown but it is calculated and restricted to be never more than the offensive value. Metal slugs with a few small weapons wont rate that high. "
  RUS: "Расчетная наступательная сила корабля или модуля. Это зависит от размера корабля, силы защиты и вооружения. Показатель защиты корабля не отображается, но рассчитывается и ограничивается, чтобы он никогда не превышал показатель атаки."
@@ -11957,7 +11981,7 @@ ThisValueRepresentsTheComplexity:
  ENG: "This value represents the complexity of this command module's fire control systems. It represents the number of targets on sensors that can be tracked and potentially engaged simultaneously. It does not stack with more command modules."
  RUS: "Это значение представляет сложность систем управления огнем этого командного модуля. Он представляет собой количество целей на датчиках, которые можно отслеживать и потенциально поражать одновременно. Он не сочетается с большим количеством командных модулей."
  SPA: "Este valor representa la complejidad de los sistemas de control de tiro de esta unidad de comando. Representa la cantidad de objetivos que puede mantener en sus sensores y potencialmente envolverse con ellos simultaneamente. No se acumula con mas módulos de comando."
-ThisIsTheTotalNumber:
+TT_FcsPower:
  Id: 7087
  ENG: "Total number of ships the scanners can track and total number incoming seeking weapons the scanners can track. Weapons can fire at any item in tracked ships or tracked seekers as is possible. Scanners attempt to track the best targets for the ship. if you plan on being surrounded this number should be high."
  RUS: "Общее количество кораблей и общее количество самонаводящихся снарядов,которое сканеры могут отследить. Оружие может стрелять по любому объекту на отслеживаемых кораблях или по отслеживаемых самонаводящихся снарядах, насколько это возможно. Сканеры пытаются отследить лучшие цели корабля. если вы планируете попасть в окружение, это число должно быть высоким"
@@ -11967,23 +11991,23 @@ ThisIsTheTotalNumber2:
  ENG: "This is the total number of targets this ship's fire control systems can track at a time. This ship can only track a single target, so is incapable of firing at other targets, including incoming projectiles, simultaneously."
  RUS: "Это общее количество целей, которые система управления огнем этого корабля может отслеживать одновременно. Этот корабль может отслеживать только одну цель, поэтому он не может стрелять по другим целям, в том числе по входящим снарядам, одновременно."
  SPA: "Este es el numero de objetivos los cuales los sistemas de tiro de esta nave pueden rastrear al mismo tiempo. Esta nave solo puede rastrear a un solo objetivo, asi que es incapaz de disparar sus armas a otros objetivos, incluido misiles, de forma simultanea."
-ThisIsTheTotalElectronic:
+TT_Ecm3:
  Id: 7089
  ENG: "This is the total electronic countermeasure (ECM) value for this ship. It represents the baseline % chance to jam an incoming missile with no ECM resistance."
  RUS: "Это общее значение электронного противодействия (ECM) для этого корабля. Он представляет собой базовый процент вероятности подавить приближающуюся ракету без сопротивления ECM."
  SPA: "Estas son el total de contramedidas electronicas (ECM) de esta nave. Representa la linea base (%) para interferir un misil entrante sin resistencia ECM."
-ThisIsTheMaximumSensor:
+TT_SensorRange3:
  Id: 7090
  ENG: "This is the maximum sensor range of this vessel: essentially how far this vessel can detect spaceborne objects. A basic local scan is available through command modules; to scan further dedicated sensor modules are required."
  RUS: "Это максимальная дальность действия датчика этого судна: по сути, насколько далеко это судно может обнаруживать космические объекты. Базовое локальное сканирование доступно через командные модули; для сканирования требуются дополнительные специализированные сенсорные модули."
  SPA: "Este es el rango máximo del sensor de esta nave: esencialmente es que tan lejos la nave puede detectar objetos. Un escaner local basico esta disponible en los módulos de comando;para ver mas lejos se requerirán módulos especializados."
-ThisIsThisShipsSelfrepair:
+TT_RepairRate:
  Id: 7091
  ENG: "This is this ship's self-repair rate per tick - it can self repair this many hitpoints of a module per tick when outside of combat. Better command and engineering modules improve this."
  RUS: "Это скорость самовосстановления этого корабля за тик - он может самостноятельно отремонтировать такое количество единиц здоровья модуля за тик вне боя. Улучшенные командные и инженерные модули улучшают ремонт."
  SPA: "Este es el ratio de autoreparacion por tick - se puede reparar esta cantidad de puntos de vida por tick cuando este fuera de combate. Mejores módulos de comando y de ingienería puden mejorar esto.."
 EncCorsairs000_Msg0:
- ENG: "Dearest SING friends,\n\nWe are delighted to see your empire's progress. Isn't this exciting, to colonize new worlds and struggle with unknown environment? However, all these little freighters, moving from planet to planet like loyal bees are so exposed out there in deep space.\n\nSo we have a proposal for you. You will pay us MONEY credits right now. If you do, then we can promise a certain level of 'protection' to SING ships. If you don't, well, then we just can't make any promises.\n\nRegards,\n\tCaptain Martok, Independent Trader and Gentleman"
+ ENG: "Dearest SING friends,\n\nWe are delighted to see your empire's progress. Isn't this exciting, to colonize new worlds and struggle with unknown environment? However, all these little freighters, moving from planet to planet like loyal bees are so exposed out there in deep space.\n\nSo we have a proposal for you. You will pay us MONEY credits right now. If you do, then we can promise a certain level of 'protection' to SING ships. If you don't, well, then we just can't make any promises.\n\nRegards,\n    Captain Martok, Independent Trader and Gentleman"
 EncCorsairs000_Msg0_R1_AgreeToPay:
  ENG: "Agree to pay this upstanding gentleman."
 EncCorsairs000_Msg0_R2_RefuseToPay:
@@ -11995,8 +12019,16 @@ EncCorsairs000_Msg2:
 EncCorsairs000_Msg3:
  ENG: "What, is this some sort of SING humor? You don't have the credits! Unfortunately for you, this is not my problem. We're gonna collect our money through your freighters!\n\n(Comm Officer's Note - If we ever want to pay them, we can select their ship and press Q to contact them.)"
 ExpEvent_BuiltRDA_Name:
-  ENG: "A Mysterious Signal"
+ ENG: "A Mysterious Signal"
 ExpEvent_BuiltRDA_Outcome1_Title:
-  ENG: "You have built the Remnant Detection Array"
+ ENG: "You have built the Remnant Detection Array"
 ExpEvent_BuiltRDA_Outcome1_Descr:
-  ENG: "Your quest to discover the secrets of The Remnant continues. It appears that your scientists' theories are correct: upon activating the Remnant Detection Array, they immediately identified an anomalous subspace data stream that is, so far as they can tell, coming from everywhere at once and no where in particular. With this omnipresent quality, the data stream bears a remarkable similarity to the universal background radation detectable with normal radio telescopes - the signal strength is equal in all directions and extremely faint. Nothing in the known Remnant ships would be capable of detecting this signal.\n\nHowever, the Array has detected a second, more conventional subspace signal. Analysis suggests that it is an amplified version of the fainter signal and that it is originating inside our galaxy! \n \n The location of the Remnant signal is now revealed. If we wish to learn more then we will need to find it and see what secrets it holds!"
+ ENG: "Your quest to discover the secrets of The Remnant continues. It appears that your scientists' theories are correct: upon activating the Remnant Detection Array, they immediately identified an anomalous subspace data stream that is, so far as they can tell, coming from everywhere at once and no where in particular. With this omnipresent quality, the data stream bears a remarkable similarity to the universal background radation detectable with normal radio telescopes - the signal strength is equal in all directions and extremely faint. Nothing in the known Remnant ships would be capable of detecting this signal.\n\nHowever, the Array has detected a second, more conventional subspace signal. Analysis suggests that it is an amplified version of the fainter signal and that it is originating inside our galaxy! \n \n The location of the Remnant signal is now revealed. If we wish to learn more then we will need to find it and see what secrets it holds!"
+StartTypingToFindTechs:
+ ENG: "Start Typing to Find Techs"
+DesignName:
+ ENG: "Design Name: "
+SimilarDesignNames:
+ ENG: "Similar Design Names"
+SaveShipDesign:
+ ENG: "Save Ship Design"

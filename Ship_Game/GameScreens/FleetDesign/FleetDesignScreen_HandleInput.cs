@@ -31,9 +31,7 @@ namespace Ship_Game
         {
             EmpireUI.HandleInput(input, this);
             if (FleetNameEntry.HandlingInput)
-            {
                 return;
-            }
 
             Vector2 mousePos = input.CursorPosition;
             PresentationParameters pp = ScreenManager.GraphicsDevice.PresentationParameters;
@@ -72,26 +70,7 @@ namespace Ship_Game
                 ChangeFleet(whichFleet);
             }
         }
-
-        void OnOrderButtonClicked(ToggleButton b, CombatState state)
-        {
-            foreach (ToggleButton other in OrdersButtons) // disable others
-                if (other != b) other.IsToggled = false;
-
-            foreach (FleetDataNode node in SelectedNodeList)
-            {
-                node.CombatState = state;
-                if (node.Ship != null)
-                    node.Ship.AI.CombatState = node.CombatState;
-            }
-
-            if (SelectedNodeList[0].Ship != null)
-            {
-                SelectedNodeList[0].Ship.AI.CombatState = SelectedNodeList[0].CombatState;
-                GameAudio.EchoAffirmative();
-            }
-        }
-
+        
         void OnDesignShipItemClicked(FleetDesignShipListItem item)
         {
             if (FleetToEdit != -1 && item.Ship != null)
@@ -110,30 +89,8 @@ namespace Ship_Game
                 return true;
             }
 
-            if (SelectedNodeList.Count != 1 && FleetToEdit != -1)
-            {
-                if (!FleetNameEntry.ClickableArea.HitTest(input.CursorPosition))
-                {
-                    FleetNameEntry.Hover = false;
-                }
-                else
-                {
-                    FleetNameEntry.Hover = true;
-                    if (Input.LeftMouseClick)
-                    {
-                        FleetNameEntry.HandlingInput = true;
-                        return true;
-                    }
-                }
-            }
-
-            if (!FleetNameEntry.HandlingInput)
-                GlobalStats.TakingInput = false;
-            else
-            {
-                GlobalStats.TakingInput = true;
-                FleetNameEntry.HandleTextInput(ref EmpireManager.Player.GetFleetsDict()[FleetToEdit].Name, input);
-            }
+            if (SelectedNodeList.Count != 1 && FleetToEdit != -1 && FleetNameEntry.HandleInput(input))
+                return true;
 
             InputSelectFleet(1, Input.Fleet1);
             InputSelectFleet(2, Input.Fleet2);
@@ -676,23 +633,7 @@ namespace Ship_Game
                 SelectedNodeList.Clear();
             }
 
-            Log.Info("Reset OrdersButtons");
-
-            // reset the buttons
-            foreach (ToggleButton button in OrdersButtons)
-            {
-                button.Visible = SelectedNodeList.Count > 0;
-                button.IsToggled = false;
-            }
-
-            // mark combined combat state statuses
-            foreach (FleetDataNode fleetNode in SelectedNodeList)
-            {
-                foreach (ToggleButton button in OrdersButtons)
-                {
-                    button.IsToggled |= (fleetNode.CombatState == button.CombatState);
-                }
-            }
+            OrdersButtons.ResetButtons(SelectedNodeList);
         }
     }
 }

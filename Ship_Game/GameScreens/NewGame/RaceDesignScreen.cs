@@ -138,7 +138,7 @@ namespace Ship_Game
             raceTitle.Padding = new Vector2(4,4);
             UITextEntry AddSplitter(string title, string inputText)
             {
-                var input = new UITextEntry(inputText) {Color = Colors.Cream};
+                var input = new UITextEntry(Vector2.Zero, Fonts.Arial14Bold, inputText) {Color = Colors.Cream};
                 var label = new UILabel(LocalizedText.Parse(title), Fonts.Arial14Bold, Color.BurlyWood);
                 raceTitle.AddSplit(label, input).Split = 205f;
                 return input;

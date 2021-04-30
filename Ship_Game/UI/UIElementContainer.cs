@@ -115,15 +115,21 @@ namespace Ship_Game
                 if (LastInputFrameId != GameBase.Base.FrameId)
                     LastInputFrameId = GameBase.Base.FrameId;
                 else
-                    Empire.Universe.DebugWin?.DebugLogText("UIElement.HandleInput called twice per frame. This is a potential bug: " + this
-                    , Debug.DebugModes.input);
+                    Empire.Universe.DebugWin?.DebugLogText(
+                        "UIElement.HandleInput called twice per frame. This is a potential bug: " + this, Debug.DebugModes.input);
 
                 // iterate input in reverse, so we handle topmost objects before
                 for (int i = Elements.Count - 1; i >= 0; --i)
                 {
                     UIElementV2 child = Elements[i];
                     if (child.Visible && child.Enabled && child.HandleInput(input))
+                    {
+                        if (DebugInputCapture)
+                        {
+                            Log.Write(ConsoleColor.Blue, $"Frame #{GameBase.Base.FrameId} Input::Capture {child}");
+                        }
                         return true;
+                    }
                 }
             }
             return false;
@@ -277,7 +283,7 @@ namespace Ship_Game
         }
 
         public UIButton Button(ButtonStyle style, Action<UIButton> click, string clickSfx = null)
-            => Button(new UIButton(style), click, clickSfx);
+            => Button(new UIButton(style, LocalizedText.None), click, clickSfx);
 
 
         public UIButton Button(ButtonStyle style, Vector2 pos, in LocalizedText text, Action<UIButton> click, string clickSfx = null)
@@ -286,11 +292,6 @@ namespace Ship_Game
 
         public UIButton Button(ButtonStyle style, float x, float y, in LocalizedText text, Action<UIButton> click, string clickSfx = null)
             => Button(style, new Vector2(x, y), text, click, clickSfx);
-
-
-        public UIButton Button(ButtonStyle style, in Rectangle rect, Action<UIButton> click, string clickSfx = null)
-            => Button(new UIButton(style, rect), click, clickSfx);
-
 
         public UIButton Button(float x, float y, in LocalizedText text, Action<UIButton> click)
             => Button(ButtonStyle.Default, new Vector2(x, y), text, click);
