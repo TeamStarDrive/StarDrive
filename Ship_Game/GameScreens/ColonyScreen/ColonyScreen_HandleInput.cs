@@ -25,9 +25,6 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (base.HandleInput(input))
-                return true;
-
             HandleDetailInfo(input);
 
             if (PFacilities.HandleInput(input) && PFacilitiesPlayerTabSelected != PFacilities.SelectedIndex)
@@ -49,6 +46,9 @@ namespace Ship_Game
             }
 
             if (HandleTroopSelect(input))
+                return true;
+
+            if (base.HandleInput(input))
                 return true;
 
             HandleExportImportButtons(input);
