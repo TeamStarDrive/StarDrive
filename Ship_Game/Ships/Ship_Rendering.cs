@@ -394,9 +394,14 @@ namespace Ship_Game.Ships
             screen.ScreenManager.SpriteBatch.End();
         }
 
-        public void DrawWeaponRangeCircles(GameScreen screen, CombatState state)
+        public Action GetDrawForWeaponRanges(GameScreen screen, CombatState state)
         {
-            screen.DrawCircleProjected(Center, GetDesiredCombatRangeForState(state), Color.Red);
+            return () =>
+            {
+                Vector2 center = Center;
+                float radius   = GetDesiredCombatRangeForState(state);
+                screen.DrawCircleProjected(center, radius, Colors.CombatOrders());
+            };
         }
     }
 }
