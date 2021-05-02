@@ -112,11 +112,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
             else // compare planet distances
             {
-                defenseValue  /= Owner.WeightedCenter.Distance(target.Center).LowerBound(1);
-                possibleValue /= Owner.WeightedCenter.Distance(target.Center).LowerBound(1);
+                defenseValue  /= (Owner.WeightedCenter.Distance(system.Position) / 10000).LowerBound(1);
+                possibleValue /= (Owner.WeightedCenter.Distance(target.Center) / 10000).LowerBound(1);
             }
 
-            return defenseValue.GreaterOrEqual(possibleValue);
+            return defenseValue > possibleValue;
         }
     }
 }

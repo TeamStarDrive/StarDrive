@@ -1848,13 +1848,10 @@ namespace Ship_Game.Ships
                 powerTime = PowerStoreMax / -goodPowerSupply * MaxFTLSpeed;
 
             bool warpTimeGood = goodPowerSupply >= 0 || powerTime >= GlobalStats.MinimumWarpRange;
-            if (warpTimeGood || empire == null)
+            if (!warpTimeGood || empire == null)
                 Empire.Universe?.DebugWin?.DebugLogText($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {NetPower.NetWarpPowerDraw}/{PowerFlowMax}", DebugModes.Normal);
 
-            if (DesignRole < ShipData.RoleName.fighter || GetStrength() >  baseStrengthNeeded )
-                return warpTimeGood;
-
-            return false;
+            return warpTimeGood;
         }
 
         public bool IsBuildableByPlayer
