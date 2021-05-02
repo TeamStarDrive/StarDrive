@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
@@ -687,8 +688,18 @@ namespace Ship_Game
             }
             else
             {
-                Log.WarningWithCallStack("Null Action passed to RunOnUIThread method");
+                const string msg = "Null Action passed to RunOnUIThread method";
+                if (System.Diagnostics.Debugger.IsAttached)
+                    Log.Error(msg);
+                else
+                    Log.WarningWithCallStack(msg);
             }
+#if DEBUG
+            if (Thread.CurrentThread.ManagedThreadId == GameBase.MainThreadId)
+            {
+                Log.Error("RunOnUIThread called from UI Thread. You are already on the UI thread you don't need to use this function");
+            }
+#endif
         }
 
         /// <summary>
