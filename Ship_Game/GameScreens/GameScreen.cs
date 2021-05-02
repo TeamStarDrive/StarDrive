@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
@@ -72,6 +73,9 @@ namespace Ship_Game
         public GameContentManager TransientContent;
 
         public Matrix View, Projection;
+
+        // Thread safe queue for running UI commands
+        readonly SafeQueue<Action> PendingUIThreadActions = new SafeQueue<Action>();
 
 
         protected GameScreen(GameScreen parent, bool pause = true) 
@@ -220,6 +224,9 @@ namespace Ship_Game
             }
 
             //Log.Info($"Update {Name} {DeltaTime:0.000}  DidLoadContent:{DidLoadContent}");
+
+            // Process Pending UI Actions
+            InvokePendingUIThreadActions();
 
             Visible = ScreenState != ScreenState.Hidden;
 
@@ -668,5 +675,40 @@ namespace Ship_Game
             }
         }
 
+        /// <summary>
+        /// This runs actions on the gamescreen update.
+        /// Action will only work while the screen is visible.
+        /// Actions will be run before draws happen.
+        /// </summary>
+        public void RunOnUIThread(Action action)
+        {
+            if (action != null)
+            {
+                PendingUIThreadActions.Enqueue(action);
+            }
+            else
+            {
+                const string msg = "Null Action passed to RunOnUIThread method";
+                if (System.Diagnostics.Debugger.IsAttached)
+                    Log.Error(msg);
+                else
+                    Log.WarningWithCallStack(msg);
+            }
+#if DEBUG
+            if (Thread.CurrentThread.ManagedThreadId == GameBase.MainThreadId)
+            {
+                Log.Error("RunOnUIThread called from UI Thread. You are already on the UI thread you don't need to use this function");
+            }
+#endif
+        }
+
+        /// <summary>
+        /// Invokes all Pending actions. 
+        /// </summary>
+        void InvokePendingUIThreadActions()
+        {
+            while (PendingUIThreadActions.TryDequeue(out Action action))
+                action();
+        }
     }
 }
