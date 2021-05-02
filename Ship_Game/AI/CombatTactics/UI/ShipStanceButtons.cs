@@ -15,7 +15,7 @@ namespace Ship_Game.AI.CombatTactics.UI
 
         public void ResetButtons(Array<Ship> ships)
         {
-            var filteredShips = ships?.Filter(s => s?.Active == true && s.loyalty.isPlayer && !s.IsConstructor && s.DesignRole != ShipData.RoleName.ssp) ;
+            var filteredShips = ships?.Filter(s => s.Active && s.loyalty.isPlayer && !s.IsConstructor && s.DesignRole != ShipData.RoleName.ssp) ;
 
             SelectedShips = new Array<Ship>(filteredShips);
             if (SelectedShips.IsEmpty)
@@ -54,28 +54,26 @@ namespace Ship_Game.AI.CombatTactics.UI
         protected override void OnOrderButtonHovered(OrdersToggleButton b)
         {
             // try to prevent null ship crashes
-            var ships = SelectedShips.Filter(s => s?.Active == true);
+            var ships = SelectedShips.Filter(s => s.Active == true && s.IsVisibleToPlayer);
 
-            // too many ships to draw circles for so reduce based on proximity to each other. 
-            if (ships.Length > 10)
+            // too many ships to draw circles for so reduce based on design role
+            if (ships.Length > 20)
             {
-                Map<int, Ship> uniqueShips = ships.GroupBy(s =>
-                   {
-                       Vector2 uniqueCenter = s.Center;
-                       return (int)(uniqueCenter.X / 20000 * uniqueCenter.Y / 20000);
-                   });
-                ships = uniqueShips.Values.ToArray();
-            }
+                float largest = ships.FindMax(s => s.Radius).Radius;
+                
+                Map<ShipData.RoleName, Ship> uniqueShips = ships.GroupBy(s => s.DesignRole);
 
-            for (int i = 0; i < ships.Length; i++)
-            {
-                var ship = ships[i];
-                float radius = ship.GetDesiredCombatRangeForState(b.CombatState);
-                Draws.Add(() =>
+                foreach (var ship in uniqueShips.Values)
                 {
-                    if (ship?.Active == true)
-                        Screen.DrawCircleProjected(ship.Center, radius, Colors.CombatOrders());
-                });
+                    Draws.Add(ship.GetDrawForWeaponRanges(Screen, b.CombatState));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < ships.Length; i++)
+                {
+                    Draws.Add(ships[i].GetDrawForWeaponRanges(Screen, b.CombatState));
+                }
             }
         }
     }
