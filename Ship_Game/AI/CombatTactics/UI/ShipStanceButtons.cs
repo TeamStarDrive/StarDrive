@@ -15,7 +15,8 @@ namespace Ship_Game.AI.CombatTactics.UI
 
         public void ResetButtons(Array<Ship> ships)
         {
-            var filteredShips = ships?.Filter(s => s.Active && s.loyalty.isPlayer && !s.IsConstructor && s.DesignRole != ShipData.RoleName.ssp) ;
+            // filter out ships where the order buttons should not be shown.
+            var filteredShips = ships.Filter(s => s.Active && s.loyalty.isPlayer && !s.IsConstructor && s.DesignRole != ShipData.RoleName.ssp);
 
             SelectedShips = new Array<Ship>(filteredShips);
             if (SelectedShips.IsEmpty)
@@ -53,24 +54,19 @@ namespace Ship_Game.AI.CombatTactics.UI
 
         protected override void OnOrderButtonHovered(OrdersToggleButton b)
         {
-            // try to prevent null ship crashes
+            // Filter ships that should not be shown.
             var ships = SelectedShips.Filter(s => s.Active == true && s.IsVisibleToPlayer);
+            
+            // sort the ships so that when draw limited the circles wont jump around as much when the list order changes. 
+            ships = ships.SortedDescending(s => $"{s.fleet != null} - {(int)s.Radius : 000000} - {s.Id : 00000000}");
+            
+            // too many circles will cause perf issues, oom crashes, and UI horror.
+            // always draw the first 20 in the list. there after skip some so we limit to about 40
+            int drawLimit = 20;
+            int numberToDraw = 1 + (ships.Length - drawLimit).LowerBound(1) / drawLimit;
 
-            // too many ships to draw circles for so reduce based on design role
-            if (ships.Length > 20)
             {
-                float largest = ships.FindMax(s => s.Radius).Radius;
-                
-                Map<ShipData.RoleName, Ship> uniqueShips = ships.GroupBy(s => s.DesignRole);
-
-                foreach (var ship in uniqueShips.Values)
-                {
-                    Draws.Add(ship.GetDrawForWeaponRanges(Screen, b.CombatState));
-                }
-            }
-            else
-            {
-                for (int i = 0; i < ships.Length; i++)
+                for (int i = 0; i < ships.Length; i += i > 20 ? numberToDraw : 1)
                 {
                     Draws.Add(ships[i].GetDrawForWeaponRanges(Screen, b.CombatState));
                 }

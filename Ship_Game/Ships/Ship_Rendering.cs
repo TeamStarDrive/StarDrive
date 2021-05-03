@@ -396,10 +396,11 @@ namespace Ship_Game.Ships
 
         public Action GetDrawForWeaponRanges(GameScreen screen, CombatState state)
         {
+            // create the variables to add to the draw so that they are not created during draw. 
+            Vector2 center = Center;
+            float radius = GetDesiredCombatRangeForState(state);
             return () =>
             {
-                Vector2 center = Center;
-                float radius   = GetDesiredCombatRangeForState(state);
                 screen.DrawCircleProjected(center, radius, Colors.CombatOrders());
             };
         }
