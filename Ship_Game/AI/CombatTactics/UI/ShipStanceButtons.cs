@@ -7,6 +7,7 @@ namespace Ship_Game.AI.CombatTactics.UI
 {
     public class ShipStanceButtons : StanceButtons
     {
+        // replace with deferred renderer concept
         Array<Action> Draws = new Array<Action>();
         Array<Ship> SelectedShips = new Array<Ship>();
         public ShipStanceButtons(GameScreen screen, Vector2 position) : base(screen, position){}
