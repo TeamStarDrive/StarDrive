@@ -41,12 +41,13 @@ namespace Ship_Game.AI.CombatTactics.UI
 
         protected override void ApplyStance(CombatState stance)
         {
+            var ships = SelectedShips.ToArray();
             RunOnEmpireThread(() =>
                 {
-                    for (int i = 0; i < SelectedShips.Count; i++)
+                    for (int i = 0; i < ships.Length; i++)
                     {
-                        var ship = SelectedShips[i];
-                        if (ship?.Active == true)
+                        var ship = ships[i];
+                        if (ship.Active)
                             ship.SetCombatStance(stance);
                     }
                 }
