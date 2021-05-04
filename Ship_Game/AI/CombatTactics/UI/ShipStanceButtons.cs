@@ -7,8 +7,6 @@ namespace Ship_Game.AI.CombatTactics.UI
 {
     public class ShipStanceButtons : StanceButtons
     {
-        // replace with deferred renderer concept
-        Array<Action> Draws = new Array<Action>();
         Array<Ship> SelectedShips = new Array<Ship>();
         public ShipStanceButtons(GameScreen screen, Vector2 position) : base(screen, position){}
         
@@ -24,19 +22,6 @@ namespace Ship_Game.AI.CombatTactics.UI
                 Reset(new CombatState[0]);
             else
                 Reset(SelectedShips.Select(s => s.AI.CombatState));
-        }
-
-        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
-        {
-            while (Draws.NotEmpty)
-            {
-                if (Draws.TryPopLast(out var draw))
-                {
-                    draw.Invoke();
-                }
-            }
-
-            base.Draw(batch, elapsed);
         }
 
         protected override void ApplyStance(CombatState stance)
@@ -70,7 +55,7 @@ namespace Ship_Game.AI.CombatTactics.UI
             {
                 for (int i = 0; i < ships.Length; i += i > 20 ? numberToDraw : 1)
                 {
-                    Draws.Add(ships[i].GetDrawForWeaponRanges(Screen, b.CombatState));
+                    ships[i].DrawWeaponRanges(b.CombatState);
                 }
             }
         }
