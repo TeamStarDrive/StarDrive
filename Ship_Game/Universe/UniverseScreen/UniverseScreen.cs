@@ -17,6 +17,7 @@ using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Universe;
 using Ship_Game.Fleets;
+using Ship_Game.Graphics;
 
 namespace Ship_Game
 {
@@ -181,6 +182,7 @@ namespace Ship_Game
         CursorState cState;
         int SelectorFrame;
         public Ship previousSelection;
+        public DeferredRenderer RenderQueue;
 
         public UIButton ShipsInCombat;
         public UIButton PlanetsInCombat;
@@ -418,6 +420,9 @@ namespace Ship_Game
 
             if (StarDate.AlmostEqual(1000)) // Run once to get all empire goals going
                 UpdateEmpires(FixedSimTime.Zero);
+            RenderQueue = new DeferredRenderer(this);
+            Add(RenderQueue);
+
         }
 
         void CreateProcessTurnsThread()
