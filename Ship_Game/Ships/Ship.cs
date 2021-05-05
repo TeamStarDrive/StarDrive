@@ -1040,14 +1040,14 @@ namespace Ship_Game.Ships
 
         // This is used for previewing range during CombatState change
         // Not performance critical.
-        float GetDesiredCombatRangeForState(CombatState state)
+        public float GetDesiredCombatRangeForState(CombatState state)
         {
             float[] ranges = GetWeaponsRanges(GetActiveWeapons());
             return CalcDesiredDesiredCombatRange(ranges, state);
         }
 
         // NOTE: Make sure to validate TestShipRanges.ShipRanges and TestShipRanges.ShipRangesWithModifiers
-        float CalcDesiredDesiredCombatRange(float[] ranges, CombatState state)
+        public float CalcDesiredDesiredCombatRange(float[] ranges, CombatState state)
         {
             if (ranges.Length == 0)
                 return UnarmedRange;

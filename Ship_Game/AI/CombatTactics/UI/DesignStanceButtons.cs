@@ -28,5 +28,7 @@ namespace Ship_Game.AI.CombatTactics.UI
             foreach (var ship in SelectedShips)
                 ship.shipData.CombatState = stance;
         }
+
+        protected override void OnOrderButtonHovered(OrdersToggleButton b) { }
     }
 }
