@@ -84,6 +84,7 @@ namespace Ship_Game
 
         public override void Update(UpdateTimes elapsed)
         {
+            OrdersButtons.Update(elapsed.RealTime.Seconds);
             base.Update(elapsed);
             SelectedShipsSL.Update(elapsed.RealTime.Seconds);
             OrdersButtons.ResetButtons(ShipList);
@@ -189,6 +190,7 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Flag(ShipList.First().loyalty), FlagRect, ShipList.First().loyalty.EmpireColor);
 
             OrdersButtons.Draw(batch, elapsed);
+            
 
             GridButton.Draw(batch, elapsed);
         }
