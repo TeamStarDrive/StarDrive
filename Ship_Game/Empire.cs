@@ -1764,8 +1764,10 @@ namespace Ship_Game
             for (int i = SystemsWithThreat.Count - 1 ; i >= 0; i--)
             {
                 var threat = SystemsWithThreat[i];
+                threat.UpdateTimer(timeStep);
+                /* FB - commenting this for now since the UI is using this.
                 if (!threat.UpdateTimer(timeStep))
-                    SystemsWithThreat.Remove(threat);
+                    SystemsWithThreat.Remove(threat);*/
             }
 
             var knownFleets = new Array<Fleet>();
