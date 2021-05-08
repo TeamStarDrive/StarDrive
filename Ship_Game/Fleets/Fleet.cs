@@ -729,7 +729,9 @@ namespace Ship_Game.Fleets
                     if (!DoOrbitTaskArea(task))
                         AttackEnemyStrengthClumpsInAO(task);
                     else
-                        EndInvalidTask(--DefenseTurns <= 0 && !Owner.SystemsWithThreat.Any(t => t.TargetSystem == task.TargetPlanet.ParentSystem));
+                        EndInvalidTask(--DefenseTurns <= 0 
+                                       && !Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut 
+                                                                             && t.TargetSystem == task.TargetPlanet.ParentSystem));
 
                     break;
             }
