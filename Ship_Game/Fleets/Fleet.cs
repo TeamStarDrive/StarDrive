@@ -729,7 +729,7 @@ namespace Ship_Game.Fleets
                     if (!DoOrbitTaskArea(task))
                         AttackEnemyStrengthClumpsInAO(task);
                     else
-                        EndInvalidTask(--DefenseTurns <= 0 && !Owner.SystemWithThreat.Any(t => t.TargetSystem == task.TargetPlanet.ParentSystem));
+                        EndInvalidTask(--DefenseTurns <= 0 && !Owner.SystemsWithThreat.Any(t => t.TargetSystem == task.TargetPlanet.ParentSystem));
 
                     break;
             }
@@ -1457,7 +1457,7 @@ namespace Ship_Game.Fleets
                     else
                         DoCombatMoveToTaskArea(task, true);
 
-                    bool threatIncoming = Owner.SystemWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
+                    bool threatIncoming = Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
                     bool stillThreats = threatIncoming || enemyStrength > 1;
                     if (!stillThreats)
                         TaskStep = 4;

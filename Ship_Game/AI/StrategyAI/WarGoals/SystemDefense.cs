@@ -34,7 +34,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             if (OwnerWar.WarType == WarType.EmpireDefense)
             {
-                foreach (IncomingThreat threatenedSystem in Owner.SystemWithThreat)
+                foreach (IncomingThreat threatenedSystem in Owner.SystemsWithThreat)
                 {
                     if (threatenedSystem.ThreatTimedOut || !threatenedSystem.HighPriority)
                         continue;
