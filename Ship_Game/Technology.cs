@@ -307,25 +307,26 @@ namespace Ship_Game
                     case "Tax Bonus":
                     case "Maintenance Bonus":
                         types.Add(TechnologyType.Economic); break;
+                    /* FB - Do not force more types, it derails research and slows down the AI.
                     case "Top Guns":
                     case "Bonus Fighter Levels":
                     case "Mass Reduction":
                     case "Percent Mass Adjustment":
                     case "STL Speed Bonus":
                     case "ArmourMass":
-                        types.Add(TechnologyType.ShipGeneral); break;
+                        types.Add(TechnologyType.ShipGeneral); break;*/
                     case "Resistance is Futile":
                     case "Super Soldiers":
                     case "Troop Strength Modifier Bonus":
                     case "Allow Assimilation":
                         types.Add(TechnologyType.GroundCombat); break;
-                    case "Cryogenic Suspension":
-                        types.Add(TechnologyType.ShipGeneral); break;
+                    /*case "Cryogenic Suspension":
+                        types.Add(TechnologyType.ShipGeneral); break;*/
                     case "Increased Lifespans":
                     case "Population Growth Bonus":
                     case "Set Population Growth Min":
                     case "Set Population Growth Max":
-                        /*
+                    /*
                     case "Spy Offense":
                     case "Spy Offense Roll Bonus":
                     case "Spy Defense":
@@ -334,6 +335,7 @@ namespace Ship_Game
                     case "Diplomacy Bonus":
                     case "Passenger Modifier":
                         types.Add(TechnologyType.Colonization); break;
+                    /* FB - Do not force more types, it derails research and slows down the AI.
                     case "Ordnance Effectiveness":
                     case "Ordnance Effectiveness Bonus":
                     case "Tachyons":
@@ -355,7 +357,7 @@ namespace Ship_Game
                     case "Repair Bonus":
                     case "Kulrathi Might":
                     case "Armor Explosion Reduction":
-                        types.Add(TechnologyType.ShipGeneral); break;
+                        types.Add(TechnologyType.ShipGeneral); break; 
                     case "Armor Piercing":
                     case "Armor Phasing":
                     case "Weapon_Speed":
@@ -369,7 +371,7 @@ namespace Ship_Game
                     case "Weapon_HP":
                     case "Weapon_ShieldPenetration":
                     case "Weapon_ArmourPenetration":
-                        types.Add(TechnologyType.ShipGeneral); break;
+                        types.Add(TechnologyType.ShipGeneral); break; */
                     default:
                         types.Add(TechnologyType.General); break;
                 }

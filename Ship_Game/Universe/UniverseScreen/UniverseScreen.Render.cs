@@ -279,7 +279,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                foreach (IncomingThreat threat in player.SystemWithThreat)
+                foreach (IncomingThreat threat in player.SystemsWithThreat)
                 {
                     if (threat.ThreatTimedOut) continue;
 
