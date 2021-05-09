@@ -17,7 +17,6 @@ using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Universe;
 using Ship_Game.Fleets;
-using Ship_Game.Graphics;
 
 namespace Ship_Game
 {
