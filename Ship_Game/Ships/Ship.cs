@@ -1040,14 +1040,14 @@ namespace Ship_Game.Ships
 
         // This is used for previewing range during CombatState change
         // Not performance critical.
-        float GetDesiredCombatRangeForState(CombatState state)
+        public float GetDesiredCombatRangeForState(CombatState state)
         {
             float[] ranges = GetWeaponsRanges(GetActiveWeapons());
             return CalcDesiredDesiredCombatRange(ranges, state);
         }
 
         // NOTE: Make sure to validate TestShipRanges.ShipRanges and TestShipRanges.ShipRangesWithModifiers
-        float CalcDesiredDesiredCombatRange(float[] ranges, CombatState state)
+        public float CalcDesiredDesiredCombatRange(float[] ranges, CombatState state)
         {
             if (ranges.Length == 0)
                 return UnarmedRange;
@@ -1848,13 +1848,10 @@ namespace Ship_Game.Ships
                 powerTime = PowerStoreMax / -goodPowerSupply * MaxFTLSpeed;
 
             bool warpTimeGood = goodPowerSupply >= 0 || powerTime >= GlobalStats.MinimumWarpRange;
-            if (warpTimeGood || empire == null)
+            if (!warpTimeGood || empire == null)
                 Empire.Universe?.DebugWin?.DebugLogText($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {NetPower.NetWarpPowerDraw}/{PowerFlowMax}", DebugModes.Normal);
 
-            if (DesignRole < ShipData.RoleName.fighter || GetStrength() >  baseStrengthNeeded )
-                return warpTimeGood;
-
-            return false;
+            return warpTimeGood;
         }
 
         public bool IsBuildableByPlayer

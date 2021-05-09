@@ -221,9 +221,8 @@ namespace Ship_Game
                     };                    
                     foreach (FleetDataNode node in fleet.Value.DataNodes)
                     {
-                        if (node.Ship?.Active != true)
-                            Log.Warning("tick");
-                        if (node.Ship != null)
+                        // only save ships that are currently alive (race condition when saving during intense battles)
+                        if (node.Ship != null && node.Ship.Active)
                             node.ShipGuid = node.Ship.guid;
                     }
                     fs.DataNodes = fleet.Value.DataNodes;

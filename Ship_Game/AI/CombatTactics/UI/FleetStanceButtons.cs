@@ -30,5 +30,7 @@ namespace Ship_Game.AI.CombatTactics.UI
                 node.SetCombatStance(stance);
             }
         }
+
+        protected override void OnOrderButtonHovered(OrdersToggleButton b) {}
     }
 }

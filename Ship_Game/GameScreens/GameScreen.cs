@@ -1,10 +1,12 @@
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Data;
 using Ship_Game.GameScreens;
+using Ship_Game.Graphics;
 using Ship_Game.UI;
 using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Lights;
@@ -73,6 +75,13 @@ namespace Ship_Game
 
         public Matrix View, Projection;
 
+        // deferred renderer allows some basic commands to be queued up to be drawn. 
+        // this is useful when wanted to draw from handle input routines and other areas. 
+        public DeferredRenderer Renderer { get; }
+        
+        // Thread safe queue for running UI commands
+        readonly SafeQueue<Action> PendingUIThreadActions = new SafeQueue<Action>();
+
 
         protected GameScreen(GameScreen parent, bool pause = true) 
             : this(parent, new Rectangle(0, 0, GameBase.ScreenWidth, GameBase.ScreenHeight), pause)
@@ -100,6 +109,8 @@ namespace Ship_Game
 
             LowRes = ScreenWidth <= 1366 || ScreenHeight <= 720;
             HiRes  = ScreenWidth > 1920 || ScreenHeight > 1400;
+
+            Renderer = new DeferredRenderer(this);
         }
 
         ~GameScreen() { Destroy(); }
@@ -211,6 +222,12 @@ namespace Ship_Game
             return false;
         }
 
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+        {
+            Renderer.Draw(batch);
+            base.Draw(batch, elapsed);
+        }
+
         public virtual void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             if (IsDisposed)
@@ -220,6 +237,9 @@ namespace Ship_Game
             }
 
             //Log.Info($"Update {Name} {DeltaTime:0.000}  DidLoadContent:{DidLoadContent}");
+
+            // Process Pending UI Actions
+            InvokePendingUIThreadActions();
 
             Visible = ScreenState != ScreenState.Hidden;
 
@@ -668,5 +688,40 @@ namespace Ship_Game
             }
         }
 
+        /// <summary>
+        /// This runs actions on the gamescreen update.
+        /// Action will only work while the screen is visible.
+        /// Actions will be run before draws happen.
+        /// </summary>
+        public void RunOnUIThread(Action action)
+        {
+            if (action != null)
+            {
+                PendingUIThreadActions.Enqueue(action);
+            }
+            else
+            {
+                const string msg = "Null Action passed to RunOnUIThread method";
+                if (System.Diagnostics.Debugger.IsAttached)
+                    Log.Error(msg);
+                else
+                    Log.WarningWithCallStack(msg);
+            }
+#if DEBUG
+            if (Thread.CurrentThread.ManagedThreadId == GameBase.MainThreadId)
+            {
+                Log.Error("RunOnUIThread called from UI Thread. You are already on the UI thread you don't need to use this function");
+            }
+#endif
+        }
+
+        /// <summary>
+        /// Invokes all Pending actions. 
+        /// </summary>
+        void InvokePendingUIThreadActions()
+        {
+            while (PendingUIThreadActions.TryDequeue(out Action action))
+                action();
+        }
     }
 }

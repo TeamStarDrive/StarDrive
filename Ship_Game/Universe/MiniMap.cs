@@ -151,7 +151,7 @@ namespace Ship_Game
         {
             float radius = 0.02f;
             float ringRad = 0.023f * pulseTime;
-            foreach (IncomingThreat threat in Player.SystemWithThreat)
+            foreach (IncomingThreat threat in Player.SystemsWithThreat)
             {
                 if (threat.ThreatTimedOut) continue;
 
