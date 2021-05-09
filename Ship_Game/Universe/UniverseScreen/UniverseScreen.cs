@@ -182,7 +182,6 @@ namespace Ship_Game
         CursorState cState;
         int SelectorFrame;
         public Ship previousSelection;
-        public DeferredRenderer RenderQueue;
 
         public UIButton ShipsInCombat;
         public UIButton PlanetsInCombat;
@@ -420,7 +419,6 @@ namespace Ship_Game
 
             if (StarDate.AlmostEqual(1000)) // Run once to get all empire goals going
                 UpdateEmpires(FixedSimTime.Zero);
-            RenderQueue = new DeferredRenderer(this);
         }
 
         void CreateProcessTurnsThread()

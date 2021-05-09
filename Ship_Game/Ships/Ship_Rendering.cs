@@ -394,7 +394,7 @@ namespace Ship_Game.Ships
             screen.ScreenManager.SpriteBatch.End();
         }
 
-        public void DrawWeaponRanges(CombatState state)
+        public void DrawWeaponRanges(GameScreen screen, CombatState state)
         {
             // create the variables to add to the draw so that they are not created during draw. 
             Vector2 center = Center;

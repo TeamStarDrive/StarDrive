@@ -407,7 +407,6 @@ namespace Ship_Game
              // these are all background elements, such as ship overlays, fleet icons, etc..
             batch.Begin();
             {
-                RenderQueue.Draw(batch);
                 DrawShipsAndProjectiles(batch);
                 DrawShipAndPlanetIcons(batch);
                 DrawGeneralUI(batch, elapsed);
