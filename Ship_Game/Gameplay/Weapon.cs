@@ -544,7 +544,6 @@ namespace Ship_Game.Gameplay
             {
                 powerMod   = 1 - overridePercent;
                 moduleSize = 8 * 8 * 16 + 160;
-                    
             }
             else
             {
