@@ -47,7 +47,7 @@ namespace Ship_Game.Graphics
                 PrimitivesQueue = PrimitivesDrawing;
                 PrimitivesDrawing = tmp;
                 PrimitivesQueue.Clear();
-                LastSimTurnId = Empire.Universe.SimTurnId;
+                LastSimTurnId = Empire.Universe?.SimTurnId ?? LastSimTurnId + 1;
             }
 
             int count = PrimitivesDrawing.Count;
