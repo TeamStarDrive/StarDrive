@@ -362,7 +362,6 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             DrawPerf.Start();
-
             PulseTimer -= elapsed.RealTime.Seconds;
             if (PulseTimer < 0) PulseTimer = 1;
 

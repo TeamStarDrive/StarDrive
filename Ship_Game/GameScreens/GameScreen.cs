@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Data;
 using Ship_Game.GameScreens;
+using Ship_Game.Graphics;
 using Ship_Game.UI;
 using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Lights;
@@ -74,6 +75,10 @@ namespace Ship_Game
 
         public Matrix View, Projection;
 
+        // deferred renderer allows some basic commands to be queued up to be drawn. 
+        // this is useful when wanted to draw from handle input routines and other areas. 
+        public DeferredRenderer Renderer { get; }
+        
         // Thread safe queue for running UI commands
         readonly SafeQueue<Action> PendingUIThreadActions = new SafeQueue<Action>();
 
@@ -104,6 +109,8 @@ namespace Ship_Game
 
             LowRes = ScreenWidth <= 1366 || ScreenHeight <= 720;
             HiRes  = ScreenWidth > 1920 || ScreenHeight > 1400;
+
+            Renderer = new DeferredRenderer(this);
         }
 
         ~GameScreen() { Destroy(); }
@@ -213,6 +220,12 @@ namespace Ship_Game
                 return true;
             }
             return false;
+        }
+
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+        {
+            Renderer.Draw(batch);
+            base.Draw(batch, elapsed);
         }
 
         public virtual void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
