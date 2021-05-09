@@ -537,10 +537,10 @@ namespace Ship_Game.Gameplay
 
         public static float WeaponInaccuracyBase(float moduleArea, float overridePercent)
         {
-            overridePercent  = overridePercent >= 0 ? overridePercent : 1;
-            float moduleSize = (moduleArea * 16f + 160) * overridePercent;
+            float powerMod   = overridePercent >= 0 ? 1 - overridePercent : 1.2f;
+            float moduleSize = moduleArea * 16f + 160;
 
-            return (float)Math.Pow(moduleSize, 1.2f);
+            return (float)Math.Pow(moduleSize, powerMod);
         }
 
         // @note This is used for debugging
