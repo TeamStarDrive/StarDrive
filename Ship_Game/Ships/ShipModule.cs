@@ -184,6 +184,23 @@ namespace Ship_Game.Ships
         public float Regenerate                  => Flyweight.Regenerate; // Self regenerating modules
         public bool DisableRotation              => Flyweight.DisableRotation;
         public float AmplifyShields              => Flyweight.AmplifyShields;
+
+        /// <summary>
+        /// This is an override of default weapon accuracy. <see cref="Weapon.BaseTargetError(int)"/>
+        /// it is uniform to all weapons. 50% accuracy creates the same base error for all weapons. 
+        /// an accuracy percent of 1 removes all target error.
+        /// the default of -1 means ignore this value
+        /// the percentage is based on the parent module being an 8x8 module
+        /// (8x8 * 16 to the power of 1-accuracy percent. 
+        /// 100% = 0 slots
+        /// 75% = ~half slot
+        /// 50% = 2 slots
+        /// 25% = 11 slots
+        /// 0%  = 64 slots
+        /// </summary>
+        public float AccuracyPercent        => Flyweight.AccuracyPercent;
+        public float WeaponInaccuracyBase   => Flyweight.WeaponInaccuracyBase;
+
         public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
                                 || ModuleType == ShipModuleType.MainGun
@@ -199,14 +216,6 @@ namespace Ship_Game.Ships
         // the actual hit radius is a bit bigger for some legacy reason
         public float ShieldHitRadius => Flyweight.shield_radius + 10f;
         public bool ShieldsAreActive => Active && ShieldPower > 1f;
-
-        /// <summary>
-        /// This is an override of default weapon accuracy. <see cref="Weapon.BaseTargetError(int)"/>
-        /// it is uniform to all weapons. 50% accuracy creates the same base error for all weapons. 
-        /// an accuracy percent of 1 removes all target error.
-        /// the default of -1 means ignore this value
-        /// </summary>
-        public float AccuracyPercent = -1;
 
         float WeaponRotation;
         public float WeaponRotationSpeed
