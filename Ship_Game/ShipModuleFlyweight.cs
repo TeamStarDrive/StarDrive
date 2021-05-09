@@ -244,7 +244,7 @@ namespace Ship_Game.Gameplay
             DisableRotation             = s.DisableRotation;
             UID                         = s.UID;
             AccuracyPercent             = s.AccuracyPercent;
-            WeaponInaccuracyBase        = Weapon.WeaponInaccuracyBase(s.XSIZE * s.YSIZE, s.AccuracyPercent);
+            WeaponInaccuracyBase        = Weapon.GetWeaponInaccuracyBase(s.XSIZE * s.YSIZE, s.AccuracyPercent);
         }
     }
 

@@ -535,7 +535,7 @@ namespace Ship_Game.Gameplay
             return adjust;
         }
 
-        public static float WeaponInaccuracyBase(float moduleArea, float overridePercent)
+        public static float GetWeaponInaccuracyBase(float moduleArea, float overridePercent)
         {
             float powerMod;  
             float moduleSize;
