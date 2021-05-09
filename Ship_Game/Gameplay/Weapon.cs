@@ -500,20 +500,13 @@ namespace Ship_Game.Gameplay
         {
             if (Module == null)
                 return 0;
-            
+
             // base error is based on module size or accuracyPercent.
             float baseError;
-            if (Module?.AccuracyPercent.AlmostEqual(-1) == false)
-            {
-                // should be calculated once. 
-                baseError = (float)Math.Pow(1000 , (1 - Module.AccuracyPercent));
-            }
+            if (Module.AccuracyPercent >= 0 || !TruePD)
+                baseError = Module.WeaponInaccuracyBase;
             else
-            {
-                if (TruePD) baseError = 0;
-                //else baseError = (Module.Area + 16) * (Module.Area + 16);
-                else baseError = (float)Math.Pow(Module.Area * 16f + 160, 1.2f);
-            }
+                baseError = 0;
 
             // Skip all accuracy if weapon is 100% accurate
             if (baseError.AlmostZero())
@@ -540,6 +533,14 @@ namespace Ship_Game.Gameplay
             if (Tag_PD) adjust      *= 0.5f;
             if (TruePD) adjust      *= 0.5f;
             return adjust;
+        }
+
+        public static float WeaponInaccuracyBase(float moduleArea, float overridePercent)
+        {
+            overridePercent  = overridePercent >= 0 ? overridePercent : 1;
+            float moduleSize = (moduleArea * 16f + 160) * overridePercent;
+
+            return (float)Math.Pow(moduleSize, 1.2f);
         }
 
         // @note This is used for debugging
