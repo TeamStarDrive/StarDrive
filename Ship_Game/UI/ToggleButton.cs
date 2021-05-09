@@ -141,8 +141,6 @@ namespace Ship_Game
         // If TRUE, this ToggleButton is Toggled Active [x], if false, it is inactive [ ]
         public bool IsToggled;
 
-        // user defined metadata
-        public CombatState CombatState; // TODO Move this somewhere else
         public bool Hover;
         bool WasClicked; // purely visual
 
