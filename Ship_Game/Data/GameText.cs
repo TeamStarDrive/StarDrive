@@ -4248,7 +4248,7 @@ namespace Ship_Game
         FoodRemainingHereThisBuilding = 4301,
         /// <summary>Production Remaining here. This building will be removed when the</summary>
         ProductionRemainingHereThisBuilding = 4302,
-        /// <summary>Troop land aborted since the planet was colonized by</summary>
+        /// <summary>Troop land aborted since the planet is now owned by</summary>
         AbortLandPlayerTroopsNoFleet = 4303,
         /// <summary>fleet movement halted.</summary>
         AbortLandPlayerTroopsInFleet = 4304,

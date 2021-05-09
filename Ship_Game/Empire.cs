@@ -110,7 +110,7 @@ namespace Ship_Game
         public BatchRemovalCollection<InfluenceNode> BorderNodes = new BatchRemovalCollection<InfluenceNode>();
         public BatchRemovalCollection<InfluenceNode> SensorNodes = new BatchRemovalCollection<InfluenceNode>();
         private readonly Map<SolarSystem, bool> HostilesLogged = new Map<SolarSystem, bool>(); // Only for Player warnings
-        public Array<IncomingThreat> SystemWithThreat = new Array<IncomingThreat>();
+        public Array<IncomingThreat> SystemsWithThreat = new Array<IncomingThreat>();
         public HashSet<string> ShipsWeCanBuild = new HashSet<string>();
         public HashSet<string> structuresWeCanBuild = new HashSet<string>();
         private float FleetUpdateTimer = 5f;
@@ -1761,10 +1761,13 @@ namespace Ship_Game
 
         public void AssessSystemsInDanger(FixedSimTime timeStep)
         {
-            for (int i = 0; i < SystemWithThreat.Count; i++)
+            for (int i = SystemsWithThreat.Count - 1 ; i >= 0; i--)
             {
-                var threat = SystemWithThreat[i];
+                var threat = SystemsWithThreat[i];
                 threat.UpdateTimer(timeStep);
+                /* FB - commenting this for now since the UI is using this.
+                if (!threat.UpdateTimer(timeStep))
+                    SystemsWithThreat.Remove(threat);*/
             }
 
             var knownFleets = new Array<Fleet>();
@@ -1788,9 +1791,8 @@ namespace Ship_Game
                 var fleets = knownFleets.Filter(f => f.FinalPosition.InRadius(system.Position, system.Radius * (f.Owner.isPlayer ? 3 : 2)));
                 if (fleets.Length > 0)
                 {
-
-                    if (!SystemWithThreat.Any(s => s.UpdateThreat(system, fleets)))
-                        SystemWithThreat.Add(new IncomingThreat(this, system, fleets));
+                    if (!SystemsWithThreat.Any(s => s.UpdateThreat(system, fleets)))
+                        SystemsWithThreat.Add(new IncomingThreat(this, system, fleets));
                 }
             }
         }

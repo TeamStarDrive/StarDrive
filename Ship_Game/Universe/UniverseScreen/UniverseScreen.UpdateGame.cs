@@ -124,7 +124,7 @@ namespace Ship_Game
                 // Execute all the actions submitted from UI thread
                 // into this Simulation / Empire thread
                 ScreenManager.InvokePendingEmpireThreadActions();
-                ++TurnId;
+                ++SimTurnId;
                 Objects.Update(FixedSimTime.Zero/*paused*/);
                 RecomputeFleetButtons(true);
             }
@@ -165,7 +165,7 @@ namespace Ship_Game
                             CurrentSimTime = newSimTime;
                         }
 
-                        ++TurnId;
+                        ++SimTurnId;
                         
                         TurnTimePerf.Start();
                         ProcessTurnDelta(fixedSimStep);
