@@ -55,7 +55,7 @@ namespace Ship_Game.AI.CombatTactics.UI
             {
                 for (int i = 0; i < ships.Length; i += i > 20 ? numberToDraw : 1)
                 {
-                    ships[i].DrawWeaponRanges(b.CombatState);
+                    ships[i].DrawWeaponRanges(Screen, b.CombatState);
                 }
             }
         }
