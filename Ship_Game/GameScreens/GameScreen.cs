@@ -77,7 +77,7 @@ namespace Ship_Game
 
         // deferred renderer allows some basic commands to be queued up to be drawn. 
         // this is useful when wanted to draw from handle input routines and other areas. 
-        public DeferredRenderer RenderQueue { get; }
+        public DeferredRenderer Renderer { get; }
         
         // Thread safe queue for running UI commands
         readonly SafeQueue<Action> PendingUIThreadActions = new SafeQueue<Action>();
@@ -110,7 +110,7 @@ namespace Ship_Game
             LowRes = ScreenWidth <= 1366 || ScreenHeight <= 720;
             HiRes  = ScreenWidth > 1920 || ScreenHeight > 1400;
 
-            RenderQueue = new DeferredRenderer(this);
+            Renderer = new DeferredRenderer(this);
         }
 
         ~GameScreen() { Destroy(); }
@@ -224,7 +224,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            RenderQueue.Draw(batch);
+            Renderer.Draw(batch);
             base.Draw(batch, elapsed);
         }
 

@@ -32,7 +32,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DefineConstants>TRACE;DEBUG;STEAM</DefineConstants>
     <Optimize>false</Optimize>
-    <WarningLevel>0</WarningLevel>
+    <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>
     <ErrorReport>prompt</ErrorReport>
     <PlatformTarget>x86</PlatformTarget>
