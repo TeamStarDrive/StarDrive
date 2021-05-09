@@ -122,6 +122,7 @@ namespace Ship_Game.Gameplay
         public readonly string ShieldBubbleColor;
         public readonly float Regenerate;
         public float AccuracyPercent;
+        public float WeaponInaccuracyBase;
 
         public static readonly ShipModuleFlyweight Empty = new ShipModuleFlyweight();    //A static instance to be assigned to leftover modules
         public readonly string UID = string.Empty;
@@ -243,6 +244,7 @@ namespace Ship_Game.Gameplay
             DisableRotation             = s.DisableRotation;
             UID                         = s.UID;
             AccuracyPercent             = s.AccuracyPercent;
+            WeaponInaccuracyBase        = Weapon.WeaponInaccuracyBase(s.XSIZE * s.YSIZE, s.AccuracyPercent);
         }
     }
 
