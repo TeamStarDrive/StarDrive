@@ -54,7 +54,6 @@ namespace Ship_Game.Ships
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip;
         [XmlIgnore] [JsonIgnore] public float BaseStrength;
-        [XmlIgnore] [JsonIgnore] public bool BaseCanWarp;
         [XmlArray(ElementName = "ModuleSlotList")] public ModuleSlotData[] ModuleSlots;
         [XmlIgnore] [JsonIgnore] public bool HullUnlockable;
         [XmlIgnore] [JsonIgnore] public bool AllModulesUnlocakable = true;
@@ -198,7 +197,6 @@ namespace Ship_Game.Ships
                     ModelPath      = s->ModelPath.AsString,
                     CarrierShip    = s->CarrierShip != 0,
                     BaseStrength   = s->BaseStrength,
-                    BaseCanWarp    = s->BaseCanWarp != 0,
                     HullUnlockable = s->HullUnlockable != 0,
                     UnLockable     = s->UnLockable != 0,
                     TechScore      = s->TechScore,

@@ -86,7 +86,7 @@ namespace Ship_Game
         {
             empire = Owner ?? empire;
             if (empire == null || !empire.data.IsRebelFaction) return Name;
-            return Localizer.Token(empire.data.TroopNameIndex);
+            return empire.data.TroopName.Text;
         }
 
         public Troop Clone()
@@ -350,10 +350,14 @@ namespace Ship_Game
         {
             dead     = false;
             Strength = (Strength - amount).Clamped(0, ActualStrengthMax);
-            if (Strength.LessOrEqual(0))
+            if (Strength < 1)
             {
                 planet.TroopsHere.Remove(this); // not using RemoveSwapLast since the order of troop is important for allied invasion
-                tile.TroopsHere.Remove(this);
+                if (tile.TroopsHere.Any(t => t == this))
+                    tile.TroopsHere.Remove(this);
+                else
+                    planet.SearchAndRemoveTroopFromTile(this);
+
                 dead = true;
             }
         }

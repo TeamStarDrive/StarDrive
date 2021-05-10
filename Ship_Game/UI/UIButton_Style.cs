@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
@@ -21,6 +22,7 @@ namespace Ship_Game
         DanButtonBlue, // UI/dan_button_blue -- blue version of dan_button
         DanButtonRed, // UI/dan_button_red -- red version of dan_button
         EventConfirm, // UI/btn_event_confirm -- a big wide confirm button for Event Popups
+        Text,       // only use TEXT as the button 
     }
 
     public partial class UIButton
@@ -40,6 +42,8 @@ namespace Ship_Game
             public Color DefaultColor = new Color(96, 81, 49);
             public Color HoverColor   = new Color(106, 91, 59);
             public Color PressColor   = new Color(86, 71, 39);
+
+            public bool DrawBackground = true;
 
             public StyleTextures()
             {
@@ -86,7 +90,7 @@ namespace Ship_Game
         static int ContentId;
         static StyleTextures[] Styling;
 
-        static StyleTextures GetStyle(ButtonStyle style)
+        static StyleTextures GetDefaultStyle(ButtonStyle style)
         {
             if (Styling != null && ContentId == ResourceManager.ContentId)
                 return Styling[(int)style];
@@ -110,8 +114,70 @@ namespace Ship_Game
                 new StyleTextures("UI/dan_button_blue", ButtonStyle.DanButtonBlue),
                 new StyleTextures("UI/dan_button_red", ButtonStyle.DanButtonRed),
                 new StyleTextures("UI/btn_event_confirm_big"),
+                new StyleTextures() { DrawBackground = false },
             };
             return Styling[(int) style];
         }
+
+        void SetStyle(ButtonStyle style)
+        {
+            StyleTextures defaultStyle = GetDefaultStyle(style);
+            SetStyle(defaultStyle);
+        }
+
+        void SetStyle(StyleTextures style)
+        {
+            Normal = style.Normal;
+            Hover = style.Hover;
+            Pressed = style.Pressed;
+
+            DefaultTextColor = style.DefaultTextColor;
+            HoverTextColor = style.HoverTextColor;
+            PressTextColor = style.PressTextColor;
+
+            DefaultColor = style.DefaultColor;
+            HoverColor = style.HoverColor;
+            PressColor = style.PressColor;
+
+            DrawBackground = style.DrawBackground;
+        }
+
+        Vector2 GetInitialSize()
+        {
+            if (Normal != null)
+                return Normal.SizeF;
+            return new Vector2(2, 2);
+        }
+        
+        SubTexture ButtonTexture()
+        {
+            switch (State)
+            {
+                default:                 return Normal;
+                case PressState.Hover:   return Hover;
+                case PressState.Pressed: return Pressed;
+            }
+        }
+
+        Color BackgroundColor()
+        {
+            switch (State)
+            {
+                default:                 return DefaultColor;
+                case PressState.Hover:   return HoverColor;
+                case PressState.Pressed: return PressColor;
+            }
+        }
+
+        Color TextColor()
+        {
+            switch (State)
+            {
+                default:                 return DefaultTextColor;
+                case PressState.Hover:   return HoverTextColor;
+                case PressState.Pressed: return PressTextColor;
+            }
+        }
+
     }
 }

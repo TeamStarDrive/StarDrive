@@ -110,7 +110,7 @@ namespace Ship_Game
         public BatchRemovalCollection<InfluenceNode> BorderNodes = new BatchRemovalCollection<InfluenceNode>();
         public BatchRemovalCollection<InfluenceNode> SensorNodes = new BatchRemovalCollection<InfluenceNode>();
         private readonly Map<SolarSystem, bool> HostilesLogged = new Map<SolarSystem, bool>(); // Only for Player warnings
-        public Array<IncomingThreat> SystemWithThreat = new Array<IncomingThreat>();
+        public Array<IncomingThreat> SystemsWithThreat = new Array<IncomingThreat>();
         public HashSet<string> ShipsWeCanBuild = new HashSet<string>();
         public HashSet<string> structuresWeCanBuild = new HashSet<string>();
         private float FleetUpdateTimer = 5f;
@@ -208,12 +208,12 @@ namespace Ship_Game
         public Array<string> CarrierTech     = new Array<string>();
         public Array<string> SupportShipTech = new Array<string>();
         public Planet[] RallyPoints          = Empty<Planet>.Array;
-        public Ship BoardingShuttle          => ResourceManager.GetShipTemplate("Assault Shuttle");
-        public Ship SupplyShuttle            => ResourceManager.GetShipTemplate("Supply_Shuttle");
-        public bool IsCybernetic             => data.Traits.Cybernetic != 0;
-        public bool NonCybernetic            => data.Traits.Cybernetic == 0;
-        public bool WeArePirates             => Pirates != null; // Use this to figure out if this empire is pirate faction
-        public bool WeAreRemnants            => Remnants != null; // Use this to figure out if this empire is pirate faction
+        public Ship BoardingShuttle => ResourceManager.GetShipTemplate("Assault Shuttle");
+        public Ship SupplyShuttle   => ResourceManager.GetShipTemplate("Supply Shuttle");
+        public bool IsCybernetic  => data.Traits.Cybernetic != 0;
+        public bool NonCybernetic => data.Traits.Cybernetic == 0;
+        public bool WeArePirates  => Pirates != null; // Use this to figure out if this empire is pirate faction
+        public bool WeAreRemnants => Remnants != null; // Use this to figure out if this empire is pirate faction
 
         public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
 
@@ -1087,13 +1087,17 @@ namespace Ship_Game
             PersonalityModifiers = new PersonalityModifiers(Personality);
         }
 
-        public void TestInitDifficultyModifiers() // For UnitTests only
+        public void TestInitModifiers() // For UnitTests only
         {
             InitDifficultyModifiers();
+            //InitPersonalityModifiers(); // TODO: crashes in tests
         }
 
         public void Initialize()
         {
+            InitDifficultyModifiers();
+            InitPersonalityModifiers();
+
             for (int i = 1; i < 10; ++i)
             {
                 Fleet fleet = new Fleet {Owner = this};
@@ -1142,8 +1146,6 @@ namespace Ship_Game
             if (EmpireManager.NumEmpires ==0)
                 UpdateTimer = 0;
 
-            InitDifficultyModifiers();
-            InitPersonalityModifiers();
             CreateThrusterColors();
             EmpireAI = new EmpireAI(this, fromSave: false);
             Research.Update();
@@ -1760,10 +1762,13 @@ namespace Ship_Game
 
         public void AssessSystemsInDanger(FixedSimTime timeStep)
         {
-            for (int i = 0; i < SystemWithThreat.Count; i++)
+            for (int i = SystemsWithThreat.Count - 1 ; i >= 0; i--)
             {
-                var threat = SystemWithThreat[i];
+                var threat = SystemsWithThreat[i];
                 threat.UpdateTimer(timeStep);
+                /* FB - commenting this for now since the UI is using this.
+                if (!threat.UpdateTimer(timeStep))
+                    SystemsWithThreat.Remove(threat);*/
             }
 
             var knownFleets = new Array<Fleet>();
@@ -1787,9 +1792,8 @@ namespace Ship_Game
                 var fleets = knownFleets.Filter(f => f.FinalPosition.InRadius(system.Position, system.Radius * (f.Owner.isPlayer ? 3 : 2)));
                 if (fleets.Length > 0)
                 {
-
-                    if (!SystemWithThreat.Any(s => s.UpdateThreat(system, fleets)))
-                        SystemWithThreat.Add(new IncomingThreat(this, system, fleets));
+                    if (!SystemsWithThreat.Any(s => s.UpdateThreat(system, fleets)))
+                        SystemsWithThreat.Add(new IncomingThreat(this, system, fleets));
                 }
             }
         }
@@ -2122,7 +2126,6 @@ namespace Ship_Game
                 
             UpdateBestOrbitals();
             UpdateDefenseShipBuildingOffense();
-
         }
 
         public bool WeCanBuildThis(string shipName)

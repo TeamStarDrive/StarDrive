@@ -41,13 +41,13 @@ namespace UnitTests.Serialization
         [StarDataType]
         public class TypeWeight
         {
-            [StarDataKey] public readonly PlanetCategory Type; // Barren
+            [StarData] public readonly PlanetCategory Type; // Barren
             [StarData] public readonly int Weight; // 20
         }
         [StarDataType]
         public class SunZoneData
         {
-            [StarDataKey] public readonly SunZone Zone; // Near
+            [StarData] public readonly SunZone Zone; // Near
             [StarData] public readonly TypeWeight[] Weights;
         }
 
@@ -55,10 +55,10 @@ namespace UnitTests.Serialization
         public void ParseSunZones()
         {
             const string yaml = @"
-                SunZone: Any
+                SunZone:
+                  Zone: Any
                   Weights:
-                    - Type: Barren
-                      Weight: 20
+                    - {Type: Barren, Weight: 20}
                     - {Type: Desert, Weight: 10}
                     - {Type: Steppe, Weight: 1}
                     - {Type: Tundra, Weight: 0}
@@ -93,7 +93,8 @@ namespace UnitTests.Serialization
         struct LayoutElement
         {
             #pragma warning disable 649
-            [StarDataKey] public string Name;
+            [StarDataKeyName] public string Type;
+            [StarData] public string Name;
             [StarData] public Vector4 Rect;
             [StarData] public Align AxisAlign;
             [StarData] public LayoutElement[] Children1;
@@ -105,23 +106,28 @@ namespace UnitTests.Serialization
         public void ParseLayout()
         {
             const string yaml = @"
-                List: buttons
+                List:
+                  Name: buttons
                   Rect: [-20, 0.22, 200, 600]
                   AxisAlign: CenterRight
                   Children1:
-                    Button: new_game
-                      Rect: [0, 0, 1.0, 0]
-                      AxisAlign: CenterRight
-                    Button: load_game
-                      Rect: [0, 50, 1.0, 0]
-                      AxisAlign: CenterRight
+                    - Button:
+                        Name: new_game
+                        Rect: [0, 0, 1.0, 0]
+                        AxisAlign: CenterRight
+                    - Button:
+                        Name: load_game
+                        Rect: [0, 50, 1.0, 0]
+                        AxisAlign: CenterRight
                   Children2:
-                    Button: new_game
-                      Rect: [0, 0, 1.0, 0]
-                      AxisAlign: CenterRight
-                    Button: load_game
-                      Rect: [0, 50, 1.0, 0]
-                      AxisAlign: CenterRight
+                    - Button:
+                        Name: new_game
+                        Rect: [0, 0, 1.0, 0]
+                        AxisAlign: CenterRight
+                    - Button:
+                        Name: load_game
+                        Rect: [0, 50, 1.0, 0]
+                        AxisAlign: CenterRight
                 ";
             using (var parser = new YamlParser(">LayoutElement<", new StringReader(yaml)))
             {
@@ -129,24 +135,29 @@ namespace UnitTests.Serialization
 
                 var list = parser.DeserializeOne<LayoutElement>();
 
+                Assert.AreEqual("List", list.Type);
                 Assert.AreEqual("buttons", list.Name);
                 Assert.That.Equal(0.01f, new Vector4(-20f,0.22f,200f,600f), list.Rect);
                 Assert.AreEqual(Align.CenterRight, list.AxisAlign);
                 Assert.AreEqual(2, list.Children1.Length);
                 Assert.AreEqual(2, list.Children2.Count);
-
+                
+                Assert.AreEqual("Button", list.Children1[0].Type);
                 Assert.AreEqual("new_game", list.Children1[0].Name);
                 Assert.That.Equal(0.01f, new Vector4(0, 0, 1, 0), list.Children1[0].Rect);
                 Assert.AreEqual(Align.CenterRight, list.Children1[0].AxisAlign);
-
+                
+                Assert.AreEqual("Button", list.Children1[1].Type);
                 Assert.AreEqual("load_game", list.Children1[1].Name);
                 Assert.That.Equal(0.01f, new Vector4(0, 50, 1, 0), list.Children1[1].Rect);
                 Assert.AreEqual(Align.CenterRight, list.Children1[1].AxisAlign);
-
+                
+                Assert.AreEqual("Button", list.Children2[0].Type);
                 Assert.AreEqual("new_game", list.Children2[0].Name);
                 Assert.That.Equal(0.01f, new Vector4(0, 0, 1, 0), list.Children2[0].Rect);
                 Assert.AreEqual(Align.CenterRight, list.Children2[0].AxisAlign);
-
+                
+                Assert.AreEqual("Button", list.Children2[1].Type);
                 Assert.AreEqual("load_game", list.Children2[1].Name);
                 Assert.That.Equal(0.01f, new Vector4(0, 50, 1, 0), list.Children2[1].Rect);
                 Assert.AreEqual(Align.CenterRight, list.Children2[1].AxisAlign);

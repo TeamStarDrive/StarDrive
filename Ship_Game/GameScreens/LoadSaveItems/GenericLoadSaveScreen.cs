@@ -127,7 +127,7 @@ namespace Ship_Game
             InitSaveList();
 
             EnterNameArea = Add(new UITextEntry(TitlePosition, Fonts.Arial20Bold, InitText));
-            EnterNameArea.InputEnabled = (Mode == SLMode.Save); // Only enable name field change when saving
+            EnterNameArea.Enabled = (Mode == SLMode.Save); // Only enable name field change when saving
 
             string title = Mode == SLMode.Save ? "Save" : "Load";
             DoBtn = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.Y - 2, title, b =>

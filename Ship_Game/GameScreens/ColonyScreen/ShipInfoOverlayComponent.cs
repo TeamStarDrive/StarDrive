@@ -10,8 +10,8 @@ namespace Ship_Game
         GameScreen Screen;
         Ship SelectedShip;
         bool LowRes;
-        SpriteFont TitleFont;
-        SpriteFont Font;
+        Graphics.Font TitleFont;
+        Graphics.Font Font;
         int TextWidth;
 
         public ShipInfoOverlayComponent(GameScreen screen)
@@ -72,17 +72,17 @@ namespace Ship_Game
             new Menu2(Rect).Draw(batch, elapsed);
 
             ship.RenderOverlay(batch, shipOverlay, true, moduleHealthColor: false);
-            float mass          = ShipStats.GetMass(ship.Mass, EmpireManager.Player);
-            float warpSpeed     = ShipStats.GetFTLSpeed(ship.WarpThrust, mass, EmpireManager.Player);
-            float subLightSpeed = ShipStats.GetSTLSpeed(ship.Thrust, mass, EmpireManager.Player);
-            float turnRateDeg   = ShipStats.GetTurnRadsPerSec(ship.TurnThrust, mass, ship.Level).ToDegrees();
+            float mass          = ship.Stats.GetMass(EmpireManager.Player);
+            float warpSpeed     = ship.Stats.GetFTLSpeed(mass, EmpireManager.Player);
+            float subLightSpeed = ship.Stats.GetSTLSpeed(mass, EmpireManager.Player);
+            float turnRateDeg   = ship.Stats.GetTurnRadsPerSec(ship.Level).ToDegrees();
             var cursor = new Vector2(X + (Width*0.06f).RoundTo10(), Y + (int)(Height * 0.025f));
             DrawShipValueLine(batch, TitleFont, ref cursor, ship.Name, "", Color.White);
             DrawShipValueLine(batch, Font, ref cursor, ship.shipData.ShipCategory + ", " + ship.shipData.CombatState, "", Color.Gray);
             WriteLine(ref cursor, Font);
             DrawShipValueLine(batch, Font, ref cursor, "Weapons:", ship.Weapons.Count, Color.LightBlue);
             DrawShipValueLine(batch, Font, ref cursor, "Max W.Range:", ship.WeaponsMaxRange, Color.LightBlue);
-            DrawShipValueLine(batch, Font, ref cursor, "Avr W.Range:", ship.WeaponsAvgRange, Color.LightBlue);
+            DrawShipValueLine(batch, Font, ref cursor, "Avg W.Range:", ship.WeaponsAvgRange, Color.LightBlue);
             DrawShipValueLine(batch, Font, ref cursor, "Warp:", warpSpeed, Color.LightGreen);
             DrawShipValueLine(batch, Font, ref cursor, "Speed:", subLightSpeed, Color.LightGreen);
             DrawShipValueLine(batch, Font, ref cursor, "Turn Rate:", turnRateDeg, Color.LightGreen);
@@ -96,26 +96,26 @@ namespace Ship_Game
             DrawShipValueLine(batch, Font, ref cursor, "Cargo Space:", ship.CargoSpaceMax, Color.Khaki);
         }
 
-        void DrawShipValueLine(SpriteBatch batch, SpriteFont font, ref Vector2 cursor, string description, string data, Color color)
+        void DrawShipValueLine(SpriteBatch batch, Graphics.Font font, ref Vector2 cursor, string title, string text, Color color)
         {
             WriteLine(ref cursor, font);
             var ident = new Vector2(cursor.X + (TextWidth*0.5f).RoundTo10(), cursor.Y);
-            batch.DrawString(font, description, cursor, color);
-            batch.DrawString(font, data, ident, color);
+            batch.DrawString(font, title, cursor, color);
+            batch.DrawString(font, text, ident, color);
         }
 
-        void DrawShipValueLine(SpriteBatch batch, SpriteFont font, ref Vector2 cursor, string description, float data, Color color)
+        void DrawShipValueLine(SpriteBatch batch, Graphics.Font font, ref Vector2 cursor, string title, float value, Color color)
         {
-            if (data.LessOrEqual(0))
+            if (value <= 0f)
                 return;
 
             WriteLine(ref cursor, font);
             var ident = new Vector2(cursor.X + (TextWidth*0.6f).RoundTo10(), cursor.Y);
-            batch.DrawString(font, description, cursor, color);
-            batch.DrawString(font, data.GetNumberString(), ident, color);
+            batch.DrawString(font, title, cursor, color);
+            batch.DrawString(font, value.GetNumberString(), ident, color);
         }
 
-        static void WriteLine(ref Vector2 cursor, SpriteFont font)
+        static void WriteLine(ref Vector2 cursor, Graphics.Font font)
         {
             cursor.Y += font.LineSpacing + 2;
         }

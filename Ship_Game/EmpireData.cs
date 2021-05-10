@@ -179,6 +179,8 @@ namespace Ship_Game
         [Serialize(34)] public string RebelPlur;
         [Serialize(35)] public int TroopNameIndex;
         [Serialize(36)] public int TroopDescriptionIndex;
+        [XmlIgnore][JsonIgnore] public LocalizedText TroopName => new LocalizedText(TroopNameIndex);
+        [XmlIgnore][JsonIgnore] public LocalizedText TroopDescription => new LocalizedText(TroopDescriptionIndex);
         [Serialize(37)] public string RebelName;
         [Serialize(38)] public bool IsRebelFaction;
         [Serialize(39)] public RacialTrait Traits { get; set; }

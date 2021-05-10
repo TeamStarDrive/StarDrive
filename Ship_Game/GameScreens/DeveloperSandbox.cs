@@ -126,9 +126,7 @@ namespace Ship_Game
 
             foreach (IEmpireData data in races)
             {
-                Empire e = sandbox.CreateEmpire(data);
-                if (data == player) e.isPlayer = true;
-
+                Empire e = sandbox.CreateEmpire(data, isPlayer: (data == player));
                 e.data.CurrentAutoScout     = e.data.ScoutShip;
                 e.data.CurrentAutoColony    = e.data.ColonyShip;
                 e.data.CurrentAutoFreighter = e.data.FreighterShip;
@@ -144,7 +142,7 @@ namespace Ship_Game
 
             foreach (IEmpireData data in ResourceManager.MinorRaces) // init minor races
             {
-                sandbox.CreateEmpire(data);
+                sandbox.CreateEmpire(data, isPlayer: false);
             }
 
             Empire.InitializeRelationships(EmpireManager.Empires, UniverseData.GameDifficulty.Normal);
@@ -186,11 +184,6 @@ namespace Ship_Game
             foreach (Asteroid asteroid in wipSystem.AsteroidsList)
             {
                 asteroid.Position += wipSystem.Position;
-            }
-            foreach (Ship ship in wipSystem.ShipList)
-            {
-                ship.Position = ship.loyalty.GetPlanets()[0].Center + new Vector2(6000f, 2000f);
-                ship.InitializeShip();
             }
         }
     }

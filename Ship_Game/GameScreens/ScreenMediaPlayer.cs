@@ -75,7 +75,7 @@ namespace Ship_Game.GameScreens
 
         public void PlayVideo(string videoPath, bool looping = true, bool startPaused = false)
         {
-            if (BeginPlayTask != null)
+            if (IsPlaying)
                 return; // video has already started
 
             try
@@ -105,6 +105,9 @@ namespace Ship_Game.GameScreens
                     {
                         Log.Warning($"Player.Play failed: 'Video/{videoPath}' reason: {ex.Message}");
                         PlaybackFailed = true;
+                    }
+                    finally
+                    {
                         BeginPlayTask = null;
                     }
                 });
@@ -117,7 +120,7 @@ namespace Ship_Game.GameScreens
 
         public void PlayVideoAndMusic(Empire empire, bool warMusic)
         {
-            if (BeginPlayTask != null)
+            if (IsPlaying)
                 return; // video has already started
 
             PlayVideo(empire.data.Traits.VideoPath);

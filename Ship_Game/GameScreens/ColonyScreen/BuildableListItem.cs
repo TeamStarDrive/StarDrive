@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Graphics;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -14,8 +15,8 @@ namespace Ship_Game
         string BuildingDescr;
         readonly SubTexture ProdIcon = ResourceManager.Texture("NewUI/icon_production");
         readonly SubTexture CostIcon = ResourceManager.Texture("UI/icon_money_22");
-        readonly SpriteFont Font8 = Fonts.Arial8Bold;
-        readonly SpriteFont Font12 = Fonts.Arial12Bold;
+        readonly Font Font8 = Fonts.Arial8Bold;
+        readonly Font Font12 = Fonts.Arial12Bold;
         readonly bool LowRes;
 
         public BuildableListItem(ColonyScreen screen, string headerText) : base(headerText)
@@ -57,8 +58,8 @@ namespace Ship_Game
             if (Ship != null)
             {
                 var sdScreen = new ShipDesignScreen(Empire.Universe, Screen.Eui);
+                sdScreen.OnLoaded = () => { sdScreen.ChangeHull(Ship.shipData); };
                 Screen.ScreenManager.AddScreen(sdScreen);
-                sdScreen.ChangeHull(Ship.shipData);
             }
         }
 
@@ -99,7 +100,7 @@ namespace Ship_Game
 
         void DrawProductionInfo(SpriteBatch batch, float maintenance, float prod, int cost = 0)
         {
-            SpriteFont font = LowRes ? Fonts.Arial10 : Font12;
+            Font font = LowRes ? Fonts.Arial10 : Font12;
             float x = Right - ProdWidth;
             float y = Y+4;
             var iconSize = new Vector2(font.LineSpacing+2);
@@ -130,7 +131,7 @@ namespace Ship_Game
                 BuildingDescr = Font8.ParseText(BuildingShortDescription(b), TextWidth);
 
             batch.Draw(b.IconTex, new Vector2(X, Y-2), new Vector2(IconSize), buildColor); // Icon
-            batch.DrawString(Font12, Localizer.Token(b.NameTranslationIndex), TextX+2, Y+2, buildColor); // Title
+            batch.DrawString(Font12, b.TranslatedName.Text, TextX+2, Y+2, buildColor); // Title
             batch.DrawString(Font8, BuildingDescr, TextX+4, Y+16, profitColor); // Description
             int creditCost = b.IsMilitary ? GetCreditCharge((int)b.ActualCost) : 0;
             DrawProductionInfo(batch, GetMaintenance(b), b.ActualCost, creditCost);
@@ -182,7 +183,7 @@ namespace Ship_Game
 
         string BuildingShortDescription(Building b)
         {
-            string description = Localizer.Token(b.ShortDescriptionIndex);
+            string description = b.ShortDescrText.Text;
 
             Planet p = Screen.P;
             if (b.MaxFertilityOnBuild.NotZero())

@@ -72,7 +72,7 @@ namespace Ship_Game.AI
             if (wantedForward.AlmostZero() || !wantedForward.IsUnitVector())
                 Log.Error($"RotateToDirection {wantedForward} not a unit vector! This is a bug!");
 
-            return (float)Math.Acos(wantedForward.Dot(currentForward));
+            return Vectors.AngleDifference(wantedForward, currentForward);
         }
         
         internal bool RotateTowardsPosition(Vector2 lookAt, FixedSimTime timeStep, float minDiff)
@@ -385,7 +385,7 @@ namespace Ship_Game.AI
             {
                 //SubLightMoveTowardsPosition(pos, deltaTime, 0);
                 return; // WayPoint short-cut
-}
+            }
 
             if (Owner.engineState == Ship.MoveState.Warp)
             {
@@ -436,6 +436,13 @@ namespace Ship_Game.AI
             }
             else // In a fleet
             {
+                if (Owner.fleet.AveragePosition().Distance(Owner.Center) > 15000)
+                {
+                    // This ship is far away from the fleet
+                    Owner.EngageStarDrive();
+                    return;
+                }
+
                 if (distance > 7500f) // Not near destination
                 {
                     EngageFormationWarp();

@@ -23,9 +23,9 @@ namespace Ship_Game
 
         private readonly Empire Player         = EmpireManager.Player;
         private readonly Color Cream           = Colors.Cream;
-        private readonly SpriteFont NormalFont = Fonts.Arial20Bold;
-        private readonly SpriteFont SmallFont  = Fonts.Arial12Bold;
-        private readonly SpriteFont TinyFont   = Fonts.Arial8Bold;
+        private readonly Graphics.Font NormalFont = Fonts.Arial20Bold;
+        private readonly Graphics.Font SmallFont  = Fonts.Arial12Bold;
+        private readonly Graphics.Font TinyFont   = Fonts.Arial8Bold;
         private readonly Color PlanetStatColor;
         private readonly Color EmpireColor;
 
@@ -92,7 +92,7 @@ namespace Ship_Game
 
             ShipIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, 50, 50);
             PlanetNameEntry.Text = Planet.Name;
-            PlanetNameEntry.ClickableArea = new Rectangle(ShipIconRect.Right + 10, y, Fonts.Arial20Bold.TextWidth(Planet.Name), Fonts.Arial20Bold.LineSpacing);
+            PlanetNameEntry.SetPos(ShipIconRect.Right + 10, y);
             
             var btn = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px");
             Colonize.Rect      = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - btn.Height / 2, btn.Width, btn.Height);
@@ -125,7 +125,7 @@ namespace Ship_Game
         void AddSystemName()
         {
             string systemName     = Planet.ParentSystem.Name;
-            SpriteFont systemFont = NormalFont.MeasureString(systemName).X <= SysNameRect.Width ? NormalFont : SmallFont;
+            Graphics.Font systemFont = NormalFont.MeasureString(systemName).X <= SysNameRect.Width ? NormalFont : SmallFont;
             var sysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - systemFont.MeasureString(systemName).X / 2f,
                                         2 + SysNameRect.Y + SysNameRect.Height / 2 - systemFont.LineSpacing / 2);
             
@@ -134,7 +134,7 @@ namespace Ship_Game
 
         void AddPlanetName()
         {
-            var namePos = new Vector2(PlanetNameEntry.ClickableArea.X, PlanetNameEntry.ClickableArea.Y + 3);
+            var namePos = new Vector2(PlanetNameEntry.X, PlanetNameEntry.Y + 3);
             Label(namePos, Planet.Name, NormalFont, EmpireColor);
             // Now add Richness
             namePos.Y += NormalFont.LineSpacing;
@@ -335,7 +335,7 @@ namespace Ship_Game
             CanSendTroops = value;
         }
 
-        void DrawPlanetDistance(float distance, Vector2 namePos, SpriteFont spriteFont)
+        void DrawPlanetDistance(float distance, Vector2 namePos, Graphics.Font spriteFont)
         {
             DistanceDisplay distanceDisplay = new DistanceDisplay(distance);
             if (distance.Greater(0))

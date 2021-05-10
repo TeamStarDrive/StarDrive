@@ -133,9 +133,9 @@ namespace Ship_Game.AI.CombatTactics
 
         bool ShouldDisengage(float distanceToAttack, float spacerDistance)
         {
-            if (OwnerTarget == null) return false;
+            if (OwnerTarget == null || AI.IsFiringAtMainTarget)
+                return false;
 
-            if (AI.IsFiringAtMainTarget) return false;
             if (distanceToAttack <= spacerDistance)
                 return true;
 
@@ -143,35 +143,23 @@ namespace Ship_Game.AI.CombatTactics
                 return false;
 
             float distanceToDesiredCombatRangeRatio = distanceToAttack / Owner.DesiredCombatRange;
-
             if (distanceToDesiredCombatRangeRatio < 0.25f) 
                 return true;
 
-
             float cooldownTime = Owner.Weapons.IsEmpty ? 0 : Owner.Weapons.Average(w => w.CooldownTimer);
-            if (cooldownTime <= 0f) return false;
+            if (cooldownTime <= 0f)
+                return false;
 
-
-            float averageWeaponSpeed = Owner.Weapons.Average(w => w.ProjectileSpeed);
-            float distanceBeforeFire = (averageWeaponSpeed) * cooldownTime;
-
-            if (distanceBeforeFire > distanceToAttack) return true;
-
-
-
-            return false;
-
-
-            //return (distanceToAttack - Owner.DesiredCombatRange) <= (averageWeaponSpeed * cooldownTime);
+            float distanceBeforeFire = Owner.InterceptSpeed * cooldownTime;
+            return distanceBeforeFire > distanceToAttack;
         }
 
         void PrepareToDisengage(float disengageDistance)
         {
             State = RunState.Disengage1;
 
-            float dot = DeltaOurFacingTheirMovement;
-            //float rotation = dot > -0.25f // we are chasing them, so only disengage left or right
-            float rotation = dot > -0.25f
+            float dot = OwnerTarget.VelocityDirection.Dot(Owner.Direction);
+            float rotation = dot > 0f // we are chasing them, so only disengage left or right
                 ? (RandomMath.RollDice(50) ? RadMath.RadiansLeft : RadMath.RadiansRight)
                 : RandomMath.RandomBetween(-1.57f, 1.57f); // from -90 to +90 degrees
 
@@ -216,7 +204,8 @@ namespace Ship_Game.AI.CombatTactics
             }
             else if (State == RunState.Disengage2)
             {
-                if (DistanceToTarget > Owner.DesiredCombatRange || DeltaDirectionToTargetAndOurFacing > 0.7f) // Disengage2 success
+                if (DistanceToTarget > Owner.DesiredCombatRange || 
+                    DirectionToTarget.Dot(Owner.Direction) > 0.7f) // Disengage2 success
                 {
                     State = RunState.Strafing;
                 }

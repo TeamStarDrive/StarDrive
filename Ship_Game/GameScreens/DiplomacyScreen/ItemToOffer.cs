@@ -9,7 +9,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         public string SpecialInquiry = "";
         public string Response;
         public bool Selected;
-        readonly SpriteFont Font = Fonts.Arial12Bold;
+        readonly Graphics.Font Font = Fonts.Arial12Bold;
         UILabel Text;
 
         public override int ItemHeight => Font.LineSpacing + 2;

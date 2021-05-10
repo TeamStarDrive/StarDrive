@@ -351,7 +351,7 @@ namespace Ship_Game
                 else if (relation.Treaty_Peace)
                 {
                     SpriteBatch spriteBatch2 = batch;
-                    SpriteFont arial12Bold = Fonts.Arial12Bold;
+                    Graphics.Font arial12Bold = Fonts.Arial12Bold;
                     object[] objArray = { Localizer.Token(GameText.PeaceTreaty), " (", relation.PeaceTurnsRemaining, " ", Localizer.Token(GameText.Turns), ")" };
                     spriteBatch2.DrawString(arial12Bold, string.Concat(objArray), textCursor, Color.LightGreen);
                     textCursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
@@ -501,7 +501,7 @@ namespace Ship_Game
                 {
                     if (IntelligenceLevel(SelectedEmpire)>1)
                     {
-                        batch.DrawString(Fonts.Arial12, "Researching: "+Localizer.Token(SelectedEmpire.Research.Current.Tech.NameIndex), textCursor, Color.Wheat);
+                        batch.DrawString(Fonts.Arial12, "Researching: "+SelectedEmpire.Research.Current.Tech.Name.Text, textCursor, Color.Wheat);
                     }
                     else if (IntelligenceLevel(SelectedEmpire) >0)
                     {

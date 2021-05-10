@@ -198,8 +198,8 @@ namespace Ship_Game
             if (bestWeCanBuild == null)
                 return;
 
-            if (bestWeCanBuild.BaseStrength.Less(weakestWeHave.BaseStrength * 1.2f))
-                return; // replace only if str is 20% more than the current weakest orbital
+            if (bestWeCanBuild.BaseStrength.Less(weakestWeHave.BaseStrength * 1.05f))
+                return; // replace only if str is 5% more than the current weakest orbital
 
             string debugReplaceOrRefit;
             if (weakestWeHave.DesignRole == bestWeCanBuild.DesignRole)
@@ -299,7 +299,9 @@ namespace Ship_Game
         private void BuildOrScrapShipyard(int numWantedShipyards, float budget)
         {
             if (numWantedShipyards == 0 || OrbitalsInTheWorks
-                                        || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
+                                        || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard)
+                                        || !HasSpacePort)
+
             {
                 return;
             }
@@ -449,18 +451,18 @@ namespace Ship_Game
             {
                 case 1:  WantedPlatforms = 0; WantedStations = 0; WantedShipyards = 0; break;
                 case 2:  WantedPlatforms = 0; WantedStations = 0; WantedShipyards = 0; break;
-                case 3:  WantedPlatforms = 3; WantedStations = 0; WantedShipyards = 0; break;
+                case 3:  WantedPlatforms = 3; WantedStations = 1; WantedShipyards = 0; break;
                 case 4:  WantedPlatforms = 3; WantedStations = 1; WantedShipyards = 0; break;
-                case 5:  WantedPlatforms = 4; WantedStations = 1; WantedShipyards = 0; break;
+                case 5:  WantedPlatforms = 4; WantedStations = 2; WantedShipyards = 0; break;
                 case 6:  WantedPlatforms = 4; WantedStations = 2; WantedShipyards = 1; break;
-                case 7:  WantedPlatforms = 5; WantedStations = 2; WantedShipyards = 1; break;
-                case 8:  WantedPlatforms = 5; WantedStations = 2; WantedShipyards = 1; break;
-                case 9:  WantedPlatforms = 6; WantedStations = 3; WantedShipyards = 1; break;
-                case 10: WantedPlatforms = 7; WantedStations = 3; WantedShipyards = 2; break;
-                case 11: WantedPlatforms = 8; WantedStations = 3; WantedShipyards = 2; break;
-                case 12: WantedPlatforms = 9; WantedStations = 4; WantedShipyards = 2; break;
-                case 13: WantedPlatforms = 9; WantedStations = 4; WantedShipyards = 2; break;
-                case 14: WantedPlatforms = 9; WantedStations = 5; WantedShipyards = 2; break;
+                case 7:  WantedPlatforms = 5; WantedStations = 3; WantedShipyards = 1; break;
+                case 8:  WantedPlatforms = 5; WantedStations = 3; WantedShipyards = 2; break;
+                case 9:  WantedPlatforms = 6; WantedStations = 3; WantedShipyards = 2; break;
+                case 10: WantedPlatforms = 7; WantedStations = 4; WantedShipyards = 2; break;
+                case 11: WantedPlatforms = 8; WantedStations = 4; WantedShipyards = 2; break;
+                case 12: WantedPlatforms = 9; WantedStations = 5; WantedShipyards = 2; break;
+                case 13: WantedPlatforms = 9; WantedStations = 5; WantedShipyards = 2; break;
+                case 14: WantedPlatforms = 9; WantedStations = 6; WantedShipyards = 2; break;
                 case 15: WantedPlatforms = 9; WantedStations = 6; WantedShipyards = 2; break;
                 default: WantedPlatforms = 0; WantedStations = 0; WantedShipyards = 0; break;
             }

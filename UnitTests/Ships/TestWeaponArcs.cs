@@ -28,7 +28,7 @@ namespace UnitTests.Ships
             weapon.SalvoCount = 1;
             weapon.ProjectileCount = 1;
             weapon.Module.FieldOfFire = fieldOfFireDegrees.ToRadians();
-            weapon.Module.AccuracyPercent = 1f; // No targeting errors or jitters
+            weapon.Module.Flyweight.AccuracyPercent = 1f; // No targeting errors or jitters
         }
 
         [TestMethod]

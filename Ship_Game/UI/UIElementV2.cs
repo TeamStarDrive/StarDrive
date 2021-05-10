@@ -42,6 +42,11 @@ namespace Ship_Game
 
     public abstract class UIElementV2 : IInputHandler
     {
+        /// <summary>
+        /// If TRUE, every HandleInput() call which returns True will be logged into console
+        /// </summary>
+        public static bool DebugInputCapture;
+
         public UIElementV2 Parent;
         public string Name = string.Empty;
 

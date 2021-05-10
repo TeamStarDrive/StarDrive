@@ -12,8 +12,8 @@ namespace Ship_Game
     public class TraitsListItem : ScrollListItem<TraitsListItem>
     {
         readonly RaceDesignScreen Screen;
-        readonly SpriteFont TitleFont;
-        readonly SpriteFont DescrFont;
+        readonly Graphics.Font TitleFont;
+        readonly Graphics.Font DescrFont;
         public TraitEntry Trait;
         public TraitsListItem(RaceDesignScreen screen, TraitEntry trait)
         {
@@ -30,7 +30,7 @@ namespace Ship_Game
             base.Draw(batch, elapsed);
 
             float textAreaWidth = Width - 40;
-            string name = PaddedWithDots(TitleFont, Trait.trait.TraitName, textAreaWidth);
+            string name = PaddedWithDots(TitleFont, Trait.trait.LocalizedName.Text, textAreaWidth);
             int cost = Trait.trait.Cost;
 
             var drawColor = new Color(95, 95, 95, 95);
@@ -59,18 +59,17 @@ namespace Ship_Game
             batch.DrawString(TitleFont, costText, curs, drawColor);
 
             pos.Y += TitleFont.LineSpacing;
-            batch.DrawString(DescrFont, DescrFont.ParseText(Localizer.Token(Trait.trait.Description), textAreaWidth), pos, drawColor);
+            batch.DrawString(DescrFont, DescrFont.ParseText(new LocalizedText(Trait.trait.Description), textAreaWidth), pos, drawColor);
         }
 
         static float DotSpaceWidth;
 
         // Creates padded text: "Vulgar Animals . . . . . . . . . . . ."
-        static string PaddedWithDots(SpriteFont font, int localizedNameId, float totalWidth)
+        static string PaddedWithDots(Graphics.Font font, string name, float totalWidth)
         {
             if (DotSpaceWidth <= 0f)
                 DotSpaceWidth = font.MeasureString(" .").X;
 
-            string name = Localizer.Token(localizedNameId);
             float nameWidth = font.TextWidth(name);
             int numDots = (int)Math.Ceiling((totalWidth - nameWidth) / DotSpaceWidth);
 

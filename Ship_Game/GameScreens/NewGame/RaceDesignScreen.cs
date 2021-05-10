@@ -117,7 +117,7 @@ namespace Ship_Game
             Mode         = mode;
         }
         
-        SpriteFont DescriptionTextFont => LowRes ? Fonts.Arial10 : Fonts.Arial12;
+        Graphics.Font DescriptionTextFont => LowRes ? Fonts.Arial10 : Fonts.Arial12;
 
         public override void LoadContent()
         {
@@ -138,7 +138,7 @@ namespace Ship_Game
             raceTitle.Padding = new Vector2(4,4);
             UITextEntry AddSplitter(string title, string inputText)
             {
-                var input = new UITextEntry(inputText) {Color = Colors.Cream};
+                var input = new UITextEntry(Vector2.Zero, Fonts.Arial14Bold, inputText) {Color = Colors.Cream};
                 var label = new UILabel(LocalizedText.Parse(title), Fonts.Arial14Bold, Color.BurlyWood);
                 raceTitle.AddSplit(label, input).Split = 205f;
                 return input;
@@ -179,7 +179,7 @@ namespace Ship_Game
             foreach (IEmpireData e in ResourceManager.MajorRaces)
                 ChooseRaceList.AddItem(new RaceArchetypeListItem(this, e));
 
-            SpriteFont font       = LowRes ? Fonts.Arial8Bold : Fonts.Arial12Bold;
+            Graphics.Font font       = LowRes ? Fonts.Arial8Bold : Fonts.Arial12Bold;
             float labelX          = LowRes ? NameMenu.Right + 20 : NameMenu.Right + 300;
             float labelY          = LowRes ? NameMenu.Y - 50 : NameMenu.Y + 3;
             NumSystemsLabel       = Add(new UILabel(labelX, labelY, $"Solar Systems: {GetSystemsNum()}"));
@@ -717,7 +717,7 @@ namespace Ship_Game
         class SelectedTraitsSummary : UIElementV2
         {
             readonly RaceDesignScreen Screen;
-            readonly SpriteFont Font;
+            readonly Graphics.Font Font;
             public SelectedTraitsSummary(RaceDesignScreen screen)
             {
                 Screen = screen;
@@ -753,7 +753,7 @@ namespace Ship_Game
                     }
                     if (t.Selected)
                     {
-                        batch.DrawString(Font, $"{Localizer.Token(t.trait.TraitName)} {t.trait.Cost}", cursor,
+                        batch.DrawString(Font, $"{t.trait.LocalizedName.Text} {t.trait.Cost}", cursor,
                                                (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
                         cursor.Y += (Font.LineSpacing + 2);
                         line++;

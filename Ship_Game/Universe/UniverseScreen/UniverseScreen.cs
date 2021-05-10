@@ -191,7 +191,7 @@ namespace Ship_Game
         ShipMoveCommands ShipCommands;
 
         // for really specific debugging
-        public static int TurnId;
+        public int SimTurnId;
 
         // To avoid double-loading universe thread when
         // graphics setting changes cause 
@@ -247,9 +247,12 @@ namespace Ship_Game
 
         void Objects_OnShipRemoved(Ship ship)
         {
-            if (SelectedShip == ship)
-                SelectedShip = null;
-            SelectedShipList.RemoveRef(ship);
+            RunOnUIThread(() =>
+            {
+                if (SelectedShip == ship)
+                    SelectedShip = null;
+                SelectedShipList.RemoveRef(ship);
+            });
         }
 
         public Planet GetPlanet(Guid guid)
@@ -741,8 +744,7 @@ namespace Ship_Game
             }
             else if (ShowShipInfo)
             {
-                ShipInfoUIElement.Ship = SelectedShip;
-                ShipInfoUIElement.ShipNameArea.Text = SelectedShip.VanityName;
+                ShipInfoUIElement.SetShip(SelectedShip);
                 ShipInfoUIElement.Update(elapsed);
             }
             else if (ShowShipList)

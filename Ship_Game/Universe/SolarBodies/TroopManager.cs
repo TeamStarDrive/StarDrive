@@ -405,13 +405,14 @@ namespace Ship_Game
                 ResolveTacticalCombats(timeStep);
             }
 
+            bool combatBeingResolved = false;
             if (ActiveCombats.Count > 0)
-                startCombatTimer = true;
+            {
+                startCombatTimer    = true;
+                combatBeingResolved = true;
+            }
 
             ActiveCombats.ApplyPendingRemovals();
-            if (NoTroopsOnPlanet)
-                return;
-
             var forces = new Forces(Owner, Ground);
             ResolveDiplomacy(forces.InvadingForces, forces.InvadingEmpires);
             NumInvadersLast = forces.InvadingForces;
@@ -419,9 +420,10 @@ namespace Ship_Game
             if (forces.InvadingForces > 0 && forces.DefendingForces == 0 && Ground.Owner != null) // Invaders have won
                 DetermineNewOwnerAndChangeOwnership(forces.InvadingEmpires);
 
-            if (forces.DefendingForces > 0 && forces.InvadingForces == 0) // Defenders have won
+            if (combatBeingResolved && forces.DefendingForces > 0 && forces.InvadingForces == 0) // Defenders have won
             {
                 Ground.LaunchNonOwnerTroops();
+                Ground.AbortLandingPlayerFleets();
                 IncreaseTrustAlliesWon(Owner, forces.DefendingEmpires);
             }
         }

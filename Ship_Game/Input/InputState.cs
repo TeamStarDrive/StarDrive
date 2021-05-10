@@ -32,6 +32,8 @@ namespace Ship_Game
         public int ScrollWheelPrev;
         public float ExitScreenTimer;
 
+        public Keys[] GetKeysDown() => KeysCurr.GetPressedKeys();
+
         // Mouse position
         public Vector2 CursorPosition { get; private set; }
         public Vector2 PrevCursorPos { get; private set; }
@@ -64,7 +66,6 @@ namespace Ship_Game
         static bool MouseButtonReleased(ButtonState current, ButtonState prev)
             => current == ButtonState.Released && prev == ButtonState.Pressed;
 
-        
         public bool IsKeyDown(Keys key) => KeysCurr.IsKeyDown(key);
 
         // key was pressed down (previous state was up)
@@ -143,6 +144,7 @@ namespace Ship_Game
         public bool IsAltKeyDown    => IsKeyDown(Keys.LeftAlt)     || IsKeyDown(Keys.RightAlt);
         public bool IsCtrlKeyDown   => IsKeyDown(Keys.LeftControl) || IsKeyDown(Keys.RightControl);
         public bool IsShiftKeyDown  => IsKeyDown(Keys.LeftShift)   || IsKeyDown(Keys.RightShift);
+        public bool IsCapsLockDown  => System.Windows.Forms.Control.IsKeyLocked(System.Windows.Forms.Keys.Capital);
         public bool IsEnterOrEscape => IsKeyDown(Keys.Enter)       || IsKeyDown(Keys.Escape);
         public bool IsBackSpace     => IsKeyDown(Keys.Back);
 
@@ -193,6 +195,7 @@ namespace Ship_Game
         public bool Left  => KeyPressed(Keys.Left)  || KeyPressed(Keys.A) || GamepadClicked(Buttons.DPadLeft);
         public bool Right => KeyPressed(Keys.Right) || KeyPressed(Keys.D) || GamepadClicked(Buttons.DPadRight);
 
+        // WSAD and Arrow Keys
         public bool KeysUpHeld(bool arrowKeys = true)    => (arrowKeys && IsKeyDown(Keys.Up))    || IsKeyDown(Keys.W) || GamepadHeld(Buttons.DPadUp);
         public bool KeysDownHeld(bool arrowKeys = true)  => (arrowKeys && IsKeyDown(Keys.Down))  || IsKeyDown(Keys.S) || GamepadHeld(Buttons.DPadDown);
         public bool KeysLeftHeld(bool arrowKeys = true)  => (arrowKeys && IsKeyDown(Keys.Left))  || IsKeyDown(Keys.A) || GamepadHeld(Buttons.DPadLeft);

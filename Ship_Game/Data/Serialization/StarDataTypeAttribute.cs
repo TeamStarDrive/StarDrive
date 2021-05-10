@@ -32,38 +32,62 @@ namespace Ship_Game.Data.Serialization
     {
         public int Id;
         public string NameId;
-        public bool IsPrimaryKey;
+        public bool IsPrimaryKeyName;
+        public bool IsPrimaryKeyValue;
         public StarDataAttribute()
         {
         }
-        public StarDataAttribute(int id, bool key = false)
+        public StarDataAttribute(int id, bool keyName = false, bool keyValue = false)
         {
             Id = id;
-            IsPrimaryKey = key;
+            IsPrimaryKeyName = keyName;
+            IsPrimaryKeyValue = keyValue;
         }
-        public StarDataAttribute(string nameId, bool key = false)
+        public StarDataAttribute(string nameId, bool keyName = false, bool keyValue = false)
         {
             NameId = nameId;
-            IsPrimaryKey = key;
+            IsPrimaryKeyName = keyName;
+            IsPrimaryKeyValue = keyValue;
+        }
+    }
+
+    // Note: This can be used to capture object Key Name attributes.
+    //
+    // [StarDataKeyName] public string KeyName;
+    //
+    // Ship: my_ship_name  # KeyName="Ship"
+    //   Style: xxx        # KeyName="Style"
+    // 
+    public sealed class StarDataKeyNameAttribute : StarDataAttribute
+    {
+        public StarDataKeyNameAttribute() : base(null, keyName:true)
+        {
+        }
+        public StarDataKeyNameAttribute(int id) : base(id, keyName:true)
+        {
+        }
+        public StarDataKeyNameAttribute(string nameId) : base(nameId, keyName:true)
+        {
         }
     }
 
     // Note: This can be used for Key attributes. The name of the field
     //       is IRRELEVANT. The mapping is resolved by this attribute.
+    // Warning: THIS IS NOT COMPATIBLE WITH YAML STANDARD
     //
-    // [StarDataKey] public string Name;
+    // [StarDataKeyValue] public string Name;
     //
-    // Ship: my_ship_name
+    // Ship: my_ship_name  # KeyValue="my_ship_name"
     //   Style: xxx
-    public sealed class StarDataKeyAttribute : StarDataAttribute
+    public sealed class StarDataKeyValueAttribute : StarDataAttribute
     {
-        public StarDataKeyAttribute() : base(null, true)
+        public StarDataKeyValueAttribute() : base(null, keyValue:true)
         {
         }
-        public StarDataKeyAttribute(int id) : base(id, true)
+        public StarDataKeyValueAttribute(int id) : base(id, keyValue:true)
         {
         }
-        public StarDataKeyAttribute(string nameId) : base(nameId, true)
+        public StarDataKeyValueAttribute(string nameId) : base(nameId, keyValue:true)
         {
         }
     }

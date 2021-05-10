@@ -273,7 +273,8 @@ namespace Ship_Game
             var hullList = GetUnLockableHulls(them);
             if (hullList.IsEmpty) return null;
 
-            foreach(var hull in hullList) us.UnlockEmpireHull(hull, UID);
+            foreach(var hull in hullList)
+                us.UnlockEmpireHull(hull, UID);
 
             us.UpdateShipsWeCanBuild(hullList);
             return hullList;

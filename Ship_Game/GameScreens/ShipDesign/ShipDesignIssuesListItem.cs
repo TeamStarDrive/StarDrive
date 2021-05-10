@@ -1,13 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.ShipDesignIssues;
+using Ship_Game.GameScreens;
 
-namespace Ship_Game
+namespace Ship_Game.GameScreens.ShipDesign
 {
     public sealed class ShipDesignIssuesListItem : ScrollListItem<ShipDesignIssuesListItem>
     {
         public readonly DesignIssueDetails IssueDetails;
-        private readonly SpriteFont NormalFont = Fonts.Arial12Bold;
+        private readonly Graphics.Font NormalFont = Fonts.Arial12Bold;
         private readonly Color White = Color.LightGray;
 
         readonly UILabel TitleLabel;
@@ -27,7 +27,7 @@ namespace Ship_Game
                 TextAlign.VerticalCenter, White, IssueDetails.AdditionalText);
         }
 
-        UILabel AddIssueLabel(LocalizedText text, float sizeX, float relativeX, SpriteFont font,
+        UILabel AddIssueLabel(LocalizedText text, float sizeX, float relativeX, Graphics.Font font,
             TextAlign align, Color color, string additionalText = "")
         {
             string parsedText = font.ParseText($"{text.Text}{additionalText}", sizeX-30);

@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
+using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -404,7 +405,7 @@ namespace Ship_Game
             {
                 RelevantEmpire  = remnants,
                 Pause           = false,
-                Message         = $"{expEvent.Name}\nClick for more info",
+                Message         = $"{expEvent.LocalizedName}\nClick for more info",
                 ReferencedItem1 = expEvent,
                 Action          = "LoadEvent"
             }, "sd_ui_notification_encounter");
@@ -580,6 +581,34 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");; 
         }
 
+        public void AddAbortLandNotification(Planet planet, Ship s)
+        {
+            string message = $"{planet.Name}: {Localizer.Token(GameText.AbortLandPlayerTroopsNoFleet)} {planet.Owner.Name}";
+
+            AddNotification(new Notification
+            {
+                Message         = message,
+                Action          = "SnapToShip",
+                ReferencedItem1 = s,
+                IconPath        = s.BaseHull.ActualIconPath
+            }, "sd_ui_notification_encounter"); ;
+        }
+
+        public void AddAbortLandNotification(Planet planet, Fleet fleet)
+        {
+            string message =  $"{planet.Name}: {Localizer.Token(GameText.AbortLandPlayerTroopsNoFleet)} {planet.Owner.Name}" +
+                              $"\n{fleet.Name} {Localizer.Token(GameText.AbortLandPlayerTroopsInFleet)}";
+
+            AddNotification(new Notification
+            {
+                RelevantEmpire  = planet.Owner,
+                Message         = message,
+                Action          = "SnapToShip",
+                ReferencedItem1 = planet,
+                IconPath        = planet.IconPath
+            }, "sd_ui_notification_encounter"); ;
+        }
+
         public void AddDestroyedPirateBase(Ship s, float reward)
         {
             string message = $"{Localizer.Token(GameText.DestroyedPirateBase)} {reward.String(0)} credits.";
@@ -632,7 +661,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 Tech            = true,
-                Message         = Localizer.Token(tech.NameIndex) + Localizer.Token(GameText.Unlocked),
+                Message         = tech.Name.Text + Localizer.Token(GameText.Unlocked),
                 ReferencedItem1 = unlocked,
                 IconPath        = hasTechIcon ? techIcon : "TechIcons/" + unlocked,
                 Action          = "ResearchScreen"
