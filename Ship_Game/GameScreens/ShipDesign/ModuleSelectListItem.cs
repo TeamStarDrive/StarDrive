@@ -8,12 +8,11 @@ namespace Ship_Game
     public class ModuleSelectListItem : ScrollListItem<ModuleSelectListItem>
     {
         public ShipModule Module;
-        public bool IsObsolete { get; private set; }
         public ModuleSelectListItem(string headerText) : base(headerText) {}
 
         public ModuleSelectListItem(ShipModule module)
         {
-            Module     = module;
+            Module = module;
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -22,30 +21,32 @@ namespace Ship_Game
 
             if (Module != null)
             {
-                IsObsolete = Module.IsObsolete();
-                DrawModule(batch, Module);
+                DrawModule(batch);
             }
         }
 
-        void DrawModule(SpriteBatch batch, ShipModule mod)
+        void DrawModule(SpriteBatch batch)
         {
+            ShipModule m = Module;
+            bool isObsolete = m.IsObsolete();
+
             var bCursor = new Vector2(List.X + 15, Y);
-            SubTexture modTexture = mod.ModuleTexture;
-            var modRect = new Rectangle((int)bCursor.X, (int)bCursor.Y, modTexture.Width, modTexture.Height);
-            float aspectRatio = (float)modTexture.Width / modTexture.Height;
-            float w = modRect.Width;
-            float h;
-            for (h = modRect.Height; w > 30f || h > 30f; h = h - 1.6f)
+            SubTexture tex = m.ModuleTexture;
+            var rect = new Rectangle((int)bCursor.X, (int)bCursor.Y, tex.Width, tex.Height);
+            float aspectRatio = (float)tex.Width / tex.Height;
+            float w = rect.Width;
+            float h = rect.Height;
+            for (; w > 30f || h > 30f; h = h - 1.6f)
             {
                 w -= aspectRatio * 1.6f;
             }
-            modRect.Width  = (int)w;
-            modRect.Height = (int)h;
-            batch.Draw(modTexture, modRect, Color.White);
+            rect.Width  = (int)w;
+            rect.Height = (int)h;
+            batch.Draw(tex, rect, Color.White);
 
             var tCursor       = new Vector2(bCursor.X + 35f, bCursor.Y + 3f);
-            Color nameColor   = IsObsolete ? Color.Red : Color.White; 
-            string moduleName = Localizer.Token(mod.NameIndex);
+            Color nameColor   = isObsolete ? Color.Red : Color.White; 
+            string moduleName = Localizer.Token(m.NameIndex);
             if (Fonts.Arial12Bold.MeasureString(moduleName).X + 90 < List.Width)
             {
                 batch.DrawString(Fonts.Arial12Bold, moduleName, tCursor, nameColor);
@@ -57,14 +58,14 @@ namespace Ship_Game
                 tCursor.Y += Fonts.Arial11Bold.LineSpacing + 3;
             }
 
-            string restriction = mod.Restrictions.ToString();
+            string restriction = m.Restrictions.ToString();
             batch.DrawString(Fonts.Arial8Bold, restriction, tCursor, Color.Orange);
             tCursor.X += Fonts.Arial8Bold.MeasureString(restriction).X;
-            string size = $" ({mod.XSIZE}x{mod.YSIZE})";
+            string size = $" ({m.XSIZE}x{m.YSIZE})";
             batch.DrawString(Fonts.Arial8Bold, size, tCursor, Color.Gray);
             tCursor.X += Fonts.Arial8Bold.MeasureString(size).X;
 
-            if (mod.InstalledWeapon?.isTurret == true && !mod.DisableRotation)
+            if (m.InstalledWeapon?.isTurret == true && !m.DisableRotation)
             {
                 var rotateRect = new Rectangle((int)bCursor.X + 240, (int)bCursor.Y + 3, 15, 16);
                 var turretRect = new Rectangle((int)bCursor.X + 238, (int)bCursor.Y + 20, 18, 20);
@@ -73,14 +74,14 @@ namespace Ship_Game
                 if (rotateRect.HitTest(GameBase.ScreenManager.input.CursorPosition) || turretRect.HitTest(GameBase.ScreenManager.input.CursorPosition))
                     ToolTip.CreateTooltip(GameText.ThisModuleCanBeRotated);
             }
-            else if (!mod.DisableRotation)
+            else if (!m.DisableRotation)
             {
                 var rotateRect = new Rectangle((int)bCursor.X + 240, (int)bCursor.Y + 3, 20, 22);
                 batch.Draw(ResourceManager.Texture("UI/icon_can_rotate"), rotateRect, Color.White);
                 if (rotateRect.HitTest(GameBase.ScreenManager.input.CursorPosition))
                     ToolTip.CreateTooltip(GameText.IndicatesThatThisModuleCan);
             }
-            else if (mod.InstalledWeapon?.isTurret == true)
+            else if (m.InstalledWeapon?.isTurret == true)
             {
                 var turretRect = new Rectangle((int)bCursor.X + 235, (int)bCursor.Y + 3, 25, 23);
                 batch.Draw(ResourceManager.Texture("NewUI/icon_turret"), turretRect, Color.White);
@@ -88,7 +89,7 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(GameText.IndicatesThisModuleHasA);
             }
 
-            if (IsObsolete)
+            if (isObsolete)
             {
                 var obsoleteRect = new Rectangle((int)bCursor.X + 220, (int)bCursor.Y + 22, 17, 17);
                 batch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete"), obsoleteRect, Color.Red);

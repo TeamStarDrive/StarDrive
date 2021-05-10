@@ -16,22 +16,22 @@ namespace Ship_Game
             Screen = screen;
             Tech    = node.Entry;
             Pos     = pos;
+            Node = new TreeNode(Pos + new Vector2(20f, 50f), Tech, Screen);
             PerformLayout();
         }
 
         public override void PerformLayout()
         {
             Size = new Vector2(160, 110);
-            Node = new TreeNode(Pos + new Vector2(20f, 50f), Tech, Screen);
+            Node.SetPos(Pos + new Vector2(20f, 50f));
             base.PerformLayout();
         }
 
         public override bool HandleInput(InputState input)
         {
-            if (Node.HandleInput(input, Screen.ScreenManager, Screen.camera))
-                return true;
-
-            return false;
+            bool captured = Node.HandleInput(input, Screen.ScreenManager, Screen.camera);
+            captured |= base.HandleInput(input);
+            return captured;
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)

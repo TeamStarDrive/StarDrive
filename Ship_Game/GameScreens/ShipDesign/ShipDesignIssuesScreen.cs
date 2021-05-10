@@ -2,9 +2,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
-using Ship_Game.ShipDesignIssues;
+using Ship_Game.GameScreens;
 
-namespace Ship_Game.GameScreens.ShipDesignScreen
+namespace Ship_Game.GameScreens.ShipDesign
 {
     public sealed class ShipDesignIssuesScreen : GameScreen
     {
@@ -12,7 +12,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         private readonly Color Cream = Colors.Cream;
         private readonly Array<DesignIssueDetails> DesignIssues;
         private readonly ScrollList2<ShipDesignIssuesListItem> IssueList;
-        private readonly SpriteFont LargeFont = Fonts.Arial20Bold;
+        private readonly Graphics.Font LargeFont = Fonts.Arial20Bold;
 
         public ShipDesignIssuesScreen(GameScreen screen, Empire player, Array<DesignIssueDetails> issues) : base(screen)
         {

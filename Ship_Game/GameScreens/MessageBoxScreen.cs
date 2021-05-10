@@ -33,8 +33,8 @@ namespace Ship_Game
         {
         }
 
-        public MessageBoxScreen(GameScreen parent, int localID, string okText, string cancelText)
-            : this(parent, Localizer.Token(localID), okText, cancelText)
+        public MessageBoxScreen(GameScreen parent, GameText message, string okText, string cancelText)
+            : this(parent, Localizer.Token(message), okText, cancelText)
         {
         }
 

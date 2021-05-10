@@ -542,11 +542,8 @@ namespace Ship_Game
                             moveStatus |= MoveStatus.Dispersed;
 
                         bool cantAttackValidTarget = ship.AI.Target?.BaseStrength > 0 && ship.AI.HasPriorityOrder;
-
                         if (cantAttackValidTarget && ship.AI.Target.Center.InRadius(ship.Center, ship.AI.FleetNode.OrdersRadius))
-                        {
                             moveStatus |= MoveStatus.DispersedInCombat;
-                        }
                     }
                     else //Ship is in AO
                     {

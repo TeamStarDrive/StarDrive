@@ -152,12 +152,13 @@ namespace Ship_Game
         SubTexture IconTexture, IconActive;
 
         Vector2 WordPos;
-        string IconPath;
+        protected string IconPath;
         Rectangle IconRect;
 
         public Action<ToggleButton> OnClick;
+        public Action<ToggleButton> OnHover;
 
-        public override string ToString() => $"{TypeName} [{(IsToggled?"x":" ")}] {ElementDescr} Icon:{IconPath} Status:{CombatState}";
+        public override string ToString() => $"{TypeName} [{(IsToggled?"x":" ")}] {ElementDescr} Icon:{IconPath}";
 
         public ToggleButton(Vector2 pos, ToggleButtonStyle style, string iconPath = "")
         {
@@ -257,6 +258,8 @@ namespace Ship_Game
 
                 if (Tooltip.IsValid)
                         ToolTip.CreateTooltip(Tooltip);
+
+                OnHover?.Invoke(this);
 
                 if (input.LeftMouseClick)
                 {

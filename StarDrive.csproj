@@ -186,6 +186,10 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\Evade.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\UI\FleetStanceButtons.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\UI\DesignStanceButtons.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\UI\ShipStanceButtons.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\UI\StanceButtons.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.ShipWeight.cs" />
     <Compile Include="Ship_Game\AI\ShipMovement\CombatManeuvers\CombatMovement.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\HoldPosition.cs" />
@@ -246,7 +250,13 @@
     <Compile Include="Ship_Game\Commands\Goals\AssaultBombers.cs" />
     <Compile Include="Ship_Game\Commands\Goals\ScoutSystem.cs" />
     <Compile Include="Ship_Game\Debug\Page\StoryAndEventsDebug.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\DesignShip.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignInfoPanel.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignIssuesPanel.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenDraw_DrawHelpers.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignStats.cs" />
+    <Compile Include="Ship_Game\Graphics\DeferredRenderer.cs" />
+    <Compile Include="Ship_Game\Graphics\Font.cs" />
     <Compile Include="Ship_Game\SearchTechItem.cs" />
     <Compile Include="Ship_Game\Commands\Goals\DefendVsRemnants.cs" />
     <Compile Include="Ship_Game\Commands\Goals\StandbyColonyShip.cs" />
@@ -442,10 +452,8 @@
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
     <Compile Include="Ship_Game\Ships\DataPackets\KnownByEmpire.cs" />
     <Compile Include="Ship_Game\Ships\DataPackets\ShipWeight.cs" />
-    <Compile Include="Ship_Game\Ships\ModuleCache.cs" />
     <Compile Include="Ship_Game\Ships\PlanetCrash.cs" />
     <Compile Include="Ship_Game\Ships\ShipStats.cs" />
-    <Compile Include="Ship_Game\Ships\ShipUtils.cs" />
     <Compile Include="Ship_Game\Ships\ShipEngines.cs" />
     <Compile Include="Ship_Game\Ships\Ship_ProjectorInfluence.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Troop.cs" />
@@ -541,6 +549,7 @@
     <Compile Include="Ship_Game\UI\LayoutParser.cs" />
     <Compile Include="Ship_Game\UI\LayoutParserTypes.cs" />
     <Compile Include="Ship_Game\UI\MultiLayerDrawContainer.cs" />
+    <Compile Include="Ship_Game\UI\PrettyText.cs" />
     <Compile Include="Ship_Game\UI\ScrollList2.cs" />
     <Compile Include="Ship_Game\UI\ScrollListBase.cs" />
     <Compile Include="Ship_Game\UI\ScrollListItem.cs" />
@@ -549,8 +558,10 @@
     <Compile Include="Ship_Game\UI\SplitElement.cs" />
     <Compile Include="Ship_Game\UI\UIButton_Style.cs" />
     <Compile Include="Ship_Game\UI\UIGraphView.cs" />
+    <Compile Include="Ship_Game\UI\UIKeyValueLabel.cs" />
     <Compile Include="Ship_Game\UI\UIList.cs" />
     <Compile Include="Ship_Game\UI\UIPanel.cs" />
+    <Compile Include="Ship_Game\UI\UISpacer.cs" />
     <Compile Include="Ship_Game\UI\UITextBox.cs" />
     <Compile Include="Ship_Game\Universe\EmpireSolarSystemStatus.cs" />
     <Compile Include="Ship_Game\Universe\TippedItem.cs" />
@@ -2460,6 +2471,12 @@
     <Content Include="Content\Races\Draugar.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Races\Revoran.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Races\Unknown.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\RandomStuff\Dormant Volcano.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -2622,6 +2639,9 @@
     <Content Include="Content\StarterShips\Draylok Mobilizer2.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\StarterShips\Flea-Class Mk Ic Fighter.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\StarterShips\Owlwok Freighter L2.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -2629,6 +2649,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\StarterShips\Small Transport 2.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\StarterShips\Sorceress-Class Supercarrier.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\StarterShips\TEST_ShipShield.xml">

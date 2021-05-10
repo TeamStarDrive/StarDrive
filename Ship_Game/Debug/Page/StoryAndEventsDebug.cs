@@ -14,12 +14,12 @@ namespace Ship_Game.Debug.Page
             readonly UILabel Second;
             public EvtItem(ExplorationEvent e, Outcome o)
             {
-                First = new UILabel($"{e.Story} - {e.Name}");
+                First = new UILabel($"{e.FileName}.xml - {e.Story} - {e.LocalizedName}");
                 Second = new UILabel($"Outcome-{e.PotentialOutcomes.IndexOf(o)} {o.TitleText}");
             }
             public EvtItem(Encounter e)
             {
-                First = new UILabel($"{e.Faction} - {e.Name}");
+                First = new UILabel($"{e.FileName}.xml - {e.Name}");
                 Second = new UILabel(e.DescriptionText.Substring(0, 20));
             }
             public override void PerformLayout()
@@ -74,15 +74,12 @@ namespace Ship_Game.Debug.Page
 
             foreach (Encounter e in ResourceManager.Encounters)
             {
-                foreach (Message m in e.MessageList)
+                Empire faction = EmpireManager.GetEmpireByName(e.Faction) ?? EmpireManager.Corsairs;
+                var item = EncounterDialogs.AddItem(new EvtItem(e));
+                item.OnClick = () =>
                 {
-                    Empire faction = EmpireManager.GetEmpireByName(e.Faction) ?? EmpireManager.Corsairs;
-                    var item = EncounterDialogs.AddItem(new EvtItem(e));
-                    item.OnClick = () =>
-                    {
-                        EncounterPopup.Show(screen, screen.player, faction, e);
-                    };
-                }
+                    EncounterPopup.Show(screen, screen.player, faction, e);
+                };
             }
 
             Menu.SelectedIndex = 0;

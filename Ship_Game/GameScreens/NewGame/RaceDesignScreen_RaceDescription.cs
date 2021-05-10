@@ -20,11 +20,11 @@ namespace Ship_Game
                 PluralText = plural;
                 SingularText = singular;
             }
-            public RaceTextBuilder Add(int token)      { Sb.Append(Localizer.Token(token));  return this; }
-            public RaceTextBuilder Add(string text)    { Sb.Append(text);                    return this; }
-            public RaceTextBuilder Plural(int token)   { Sb.Append(PluralText).Append(Localizer.Token(token));   return this; }
-            public RaceTextBuilder Plural(string text) { Sb.Append(PluralText).Append(text);                     return this; }
-            public RaceTextBuilder Singular(int token) { Sb.Append(SingularText).Append(Localizer.Token(token)); return this; }
+            public RaceTextBuilder Add(GameText text)      { Sb.Append(Localizer.Token(text)); return this; }
+            public RaceTextBuilder Add(string text)        { Sb.Append(text); return this; }
+            public RaceTextBuilder Plural(GameText text)   { Sb.Append(PluralText).Append(Localizer.Token(text)); return this; }
+            public RaceTextBuilder Plural(string text)     { Sb.Append(PluralText).Append(text); return this; }
+            public RaceTextBuilder Singular(GameText text) { Sb.Append(SingularText).Append(Localizer.Token(text)); return this; }
         }
 
         protected void DoRaceDescription()
@@ -34,43 +34,45 @@ namespace Ship_Game
 
             var b = new RaceTextBuilder(Plural, Singular);
 
-            b.Add(RaceName).Add(1300).Plural(". ");
-            b.Plural(race.IsOrganic ? 1302 : 1301);
-            b.Add(race.Aquatic <= 0 ? 1304 : 1303);
+            b.Add(RaceName).Add(GameText.IsAnEmpireComprisedOf).Plural(". ");
+            b.Plural(race.IsOrganic ? GameText.AreARaceOf : GameText.AreACyberneticRaceOf);
+            b.Add(race.Aquatic <= 0 ? GameText.TerrestrialBeingsWith : GameText.AquaticBeingsWith);
           
-            var growth = race.IsOrganic ? (Hi:1305, Avg:1307, Lo:1306) : (Hi:1308, Avg:1310, Lo:1309);
+            var growth = race.IsOrganic ? (Hi:GameText.AHighReproductiveRateAnd, Avg:GameText.AnAverageReproductiveRateAnd, Lo:GameText.ALowReproductiveRateAnd)
+                                        : (Hi:GameText.SwiftManufacturingSpeedsAnd, Avg:GameText.AverageManufacturingTimesAnd, Lo:GameText.LengthyManufacturingTimesAnd);
             if      (race.PopGrowthMin > 0f) b.Add(growth.Hi);
             else if (race.PopGrowthMin < 0f || race.PopGrowthMax < 0f) b.Add(growth.Lo);
             else b.Add(growth.Avg);
 
-            var consumption = race.IsOrganic ? (Hi:1311, Avg:1313, Lo:1312) : (Hi:1314, Avg:1316, Lo:1315);
+            var consumption = race.IsOrganic ? (Hi:GameText.AGluttonousApproachToLife, Avg:GameText.UnremarkableDietaryNeeds, Lo:GameText.ARatherEfficientMetabolism) 
+                                             : (Hi:GameText.ARavenousAppetiteForParts, Avg:GameText.ModerateMaterialRequirements, Lo:GameText.MinimalMaterialAndComponentRequirements);
             if      (race.ConsumptionModifier > 0f) b.Add(consumption.Hi);
             else if (race.ConsumptionModifier < 0f) b.Add(consumption.Lo);
             else                                    b.Add(consumption.Avg);
 
 
-            var combat = race.IsOrganic ? (Majestic:(1317,1324),  // Physically, HUMANS possess a non-threatening countenance..... However, they are exceedingly charismatic and naturally draw others towards them
-                                           Grotesque:(1317,1325), // Physically, HUMANS possess a non-threatening countenance..... However, they are offensively mannered with many odiferous
-                                           Tolerable:(1317,1326)) // Physically, HUMANS have no particular strengths or weaknesses
-                                        : (Majestic:(1317,1334),  // Physically, HUMANS seem to have made great efforts to mechanically improve upon the grace and beauty of their bodies
-                                           Grotesque:(1327,1335), // In rejecting their organic forms,HUMANS have developed a cold disdain for organic life forms and are particularly uncharismatic
-                                           Tolerable:(1336,1337));// Although they have replaced their organic bodies with cybernetics, HUMANS have not extensively improved on their original organic structure
+            var combat = race.IsOrganic ? (Majestic:(GameText.Physically, GameText.PossessANonthreateningCountenanceThat),  // Physically, HUMANS possess a non-threatening countenance..... However, they are exceedingly charismatic and naturally draw others towards them
+                                           Grotesque:(GameText.Physically, GameText.PossessANonthreateningCountenanceThat2), // Physically, HUMANS possess a non-threatening countenance..... However, they are offensively mannered with many odiferous
+                                           Tolerable:(GameText.Physically, GameText.HaveNoParticularStrengthsOr)) // Physically, HUMANS have no particular strengths or weaknesses
+                                        : (Majestic:(GameText.Physically, GameText.SeemToHaveMadeGreat),  // Physically, HUMANS seem to have made great efforts to mechanically improve upon the grace and beauty of their bodies
+                                           Grotesque:(GameText.InRejectingTheirOrganicForms, GameText.HaveDevelopedAColdDisdain), // In rejecting their organic forms,HUMANS have developed a cold disdain for organic life forms and are particularly uncharismatic
+                                           Tolerable:(GameText.AlthoughTheyHaveReplacedTheir, GameText.HaveNotExtensivelyImprovedOn));// Although they have replaced their organic bodies with cybernetics, HUMANS have not extensively improved on their original organic structure
             
             if (race.GroundCombatModifier > 0f)
-                combat = race.IsOrganic ? (Majestic:(1317,1318),  // Physically, HUMANS are both beautiful and terrifying, with an enigmatic sort of lethal majesty
-                                           Grotesque:(1317,1319), // Physically, HUMANS appear both lethal and grotesque, as they tend to project a sense of instinctive
-                                           Tolerable:(1317,1320)) // Physically, HUMANS appear somewhat bestial, with obvious signs of their great strength
-                                        : (Majestic:(1327,1328),  // In rejecting their organic forms, HUMANS have become incredible machines of grace and lethality, with a sleek, deadly, and beautiful appearance
-                                           Grotesque:(1327,1329), // In rejecting their organic forms, HUMANS have become confusing technological monstrosities with deadly-looking appendages and a decidedly hostile appearance
-                                           Tolerable:(1327,1330));// In rejecting their organic forms, HUMANS look like machines designed for war without any particular focus put on appearance
+                combat = race.IsOrganic ? (Majestic:(GameText.Physically, GameText.AreBothBeautifulAndTerrifying),  // Physically, HUMANS are both beautiful and terrifying, with an enigmatic sort of lethal majesty
+                                           Grotesque:(GameText.Physically, GameText.AppearBothLethalAndGrotesque), // Physically, HUMANS appear both lethal and grotesque, as they tend to project a sense of instinctive
+                                           Tolerable:(GameText.Physically, GameText.AppearSomewhatBestialWithObvious)) // Physically, HUMANS appear somewhat bestial, with obvious signs of their great strength
+                                        : (Majestic:(GameText.InRejectingTheirOrganicForms, GameText.HaveBecomeIncredibleMachinesOf),  // In rejecting their organic forms, HUMANS have become incredible machines of grace and lethality, with a sleek, deadly, and beautiful appearance
+                                           Grotesque:(GameText.InRejectingTheirOrganicForms, GameText.HaveBecomeConfusingTechnologicalMonstrosities), // In rejecting their organic forms, HUMANS have become confusing technological monstrosities with deadly-looking appendages and a decidedly hostile appearance
+                                           Tolerable:(GameText.InRejectingTheirOrganicForms, GameText.LookLikeMachinesDesignedFor));// In rejecting their organic forms, HUMANS look like machines designed for war without any particular focus put on appearance
             
             if (race.GroundCombatModifier < 0f)
-                combat = race.IsOrganic ? (Majestic:(1317,1321),  // Physically, HUMANS are creatures of fragile beauty, with a delicate and ephemeral stature
-                                           Grotesque:(1317,1322), // Physically, HUMANS appear gnarled and weak, with a countenance both hideous and scrawny
-                                           Tolerable:(1317,1323)) // Physically, HUMANS seem to have evolved without much need for speed or strength and as a result are somewhat frail
-                                        : (Majestic:(1317,1331),  // Physically, HUMANS come off as friendly little robots that could only be described as cute, but fragile
-                                           Grotesque:(1317,1332), // Physically, HUMANS are spindly, insect-like machines that click and hiss in menacing ways. They look like they could be crunched under a boot
-                                           Tolerable:(1317,1333));// Physically, HUMANS look like computers with wheels and treads attached, and do not seem armed or armored in any way
+                combat = race.IsOrganic ? (Majestic:(GameText.Physically,GameText.AreCreaturesOfFragileBeauty),  // Physically, HUMANS are creatures of fragile beauty, with a delicate and ephemeral stature
+                                           Grotesque:(GameText.Physically,GameText.AppearGnarledAndWeakWith), // Physically, HUMANS appear gnarled and weak, with a countenance both hideous and scrawny
+                                           Tolerable:(GameText.Physically,GameText.SeemToHaveEvolvedWithout)) // Physically, HUMANS seem to have evolved without much need for speed or strength and as a result are somewhat frail
+                                        : (Majestic:(GameText.Physically,GameText.ComeOffAsFriendlyLittle),  // Physically, HUMANS come off as friendly little robots that could only be described as cute, but fragile
+                                           Grotesque:(GameText.Physically,GameText.AreSpindlyInsectlikeMachinesThat), // Physically, HUMANS are spindly, insect-like machines that click and hiss in menacing ways. They look like they could be crunched under a boot
+                                           Tolerable:(GameText.Physically,GameText.LookLikeComputersWithWheels));// Physically, HUMANS look like computers with wheels and treads attached, and do not seem armed or armored in any way
 
             if      (race.DiplomacyMod > 0f)  b.Add(combat.Majestic.Item1).Plural(combat.Majestic.Item2);
             else if (race.DiplomacyMod < 0f)  b.Add(combat.Grotesque.Item1).Plural(combat.Grotesque.Item2);
@@ -79,83 +81,83 @@ namespace Ship_Game
 
             if (race.GroundCombatModifier < 0f || race.DiplomacyMod <= 0f) // if bad stats before, consider these prefixes:
             {
-                if (race.ResearchMod > 0f) b.Add(1338); // "However, "
-                if (race.ResearchMod < 0f) b.Add(1340); // "To make matters worse, "
+                if (race.ResearchMod > 0f) b.Add(GameText.However); // "However, "
+                if (race.ResearchMod < 0f) b.Add(GameText.ToMakeMattersWorse); // "To make matters worse, "
             }
             else if (race.GroundCombatModifier > 0f || race.DiplomacyMod > 0f) // if good stats before, consider these prefixes:
             {
-                if (race.ResearchMod > 0f) b.Add(1343); // "Furthermore, "
-                if (race.ResearchMod < 0f) b.Add(1338); // "However, "
+                if (race.ResearchMod > 0f) b.Add(GameText.Furthermore); // "Furthermore, "
+                if (race.ResearchMod < 0f) b.Add(GameText.However); // "However, "
             }
-            if      (race.ResearchMod > 0f) b.Plural(1344); // | HUMANS | are extremely intelligent for a starfaring race and have a natural curiosity about the universe
-            else if (race.ResearchMod < 0f) b.Plural(1341); // | HUMANS | are somewhat dumb for a starfaring race and have difficulty being creative
-            else                            b.Plural(1342); // | HUMANS | possess an average intelligence for a starfaring race
+            if      (race.ResearchMod > 0f) b.Plural(GameText.AreExtremelyIntelligentForA2); // | HUMANS | are extremely intelligent for a starfaring race and have a natural curiosity about the universe
+            else if (race.ResearchMod < 0f) b.Plural(GameText.AreSomewhatDumbForA); // | HUMANS | are somewhat dumb for a starfaring race and have difficulty being creative
+            else                            b.Plural(GameText.PossessAnAverageIntelligenceFor); // | HUMANS | possess an average intelligence for a starfaring race
 
             b.Add("\n \n");
             if (race.TaxMod > 0f)
             {
-                b.Singular(1345); // | HUMAN | government is efficient and effective
-                if      (race.MaintMod < 0f) b.Add(1346).Plural(". "); // , which reflects the methodical and practical nature of | HUMANS |.
-                else if (race.MaintMod > 0f) b.Add(1347); // but this is counterbalanced by a wasteful, consumer-oriented society
-                else                         b.Add(1348); // and its citizens are relatively intelligent about resource allocation
+                b.Singular(GameText.GovernmentIsEfficientAndEffective); // | HUMAN | government is efficient and effective (HAH! AS IF!)
+                if      (race.MaintMod < 0f) b.Add(GameText.WhichReflectsTheMethodicalAnd).Plural(". "); // , which reflects the methodical and practical nature of | HUMANS |.
+                else if (race.MaintMod > 0f) b.Add(GameText.ButThisIsCounterbalancedBy); // but this is counterbalanced by a wasteful, consumer-oriented society
+                else                         b.Add(GameText.AndItsCitizensAreRelatively); // and its citizens are relatively intelligent about resource allocation
             }
             else if (race.TaxMod < 0f)
             {
-                b.Add(1349).Singular(1350); // While | HUMAN | government can be somewhat corrupt
-                if      (race.MaintMod < 0f) b.Add(1351); // , its private sector makes up for the government's wastefulness with its efficiency. 
-                else if (race.MaintMod > 0f) b.Add(1352); // , this corruption pales in comparison to recklessness of such a wasteful, consumer-oriented society.
-                else                         b.Add(", ").Plural(1353); // , | HUMANS | are nevertheless a practical race when it comes to resource allocation.
+                b.Add(GameText.While).Singular(GameText.GovernmentCanBeSomewhatCorrupt); // While | HUMAN | government can be somewhat corrupt
+                if      (race.MaintMod < 0f) b.Add(GameText.ItsPrivateSectorMakesUp); // , its private sector makes up for the government's wastefulness with its efficiency. 
+                else if (race.MaintMod > 0f) b.Add(GameText.ThisCorruptionPalesInComparison); // , this corruption pales in comparison to recklessness of such a wasteful, consumer-oriented society.
+                else                         b.Add(", ").Plural(GameText.AreNeverthelessAPracticalRace); // , | HUMANS | are nevertheless a practical race when it comes to resource allocation.
             }
             else
             {
-                b.Singular(1354); // | HUMAN | government is functional and stable
-                if      (race.MaintMod < 0f) b.Add(1355).Singular(1356); // Even so, | HUMAN | society at large is very environmentally concious and practical about resource allocation.
-                else if (race.MaintMod > 0f) b.Plural(1357); // | HUMANS | also tend to be a wasteful people who are neglectful of their investments
+                b.Singular(GameText.GovernmentIsFunctionalAndStable); // | HUMAN | government is functional and stable
+                if      (race.MaintMod < 0f) b.Add(GameText.EvenSo).Singular(GameText.SocietyAtLargeIsVery); // Even so, | HUMAN | society at large is very environmentally concious and practical about resource allocation.
+                else if (race.MaintMod > 0f) b.Plural(GameText.AlsoTendToBeA); // | HUMANS | also tend to be a wasteful people who are neglectful of their investments
             }
 
             if (race.ProductionMod > 0f)
             {
-                b.Singular(1358); // | HUMAN | work ethic is strong
-                if      (race.ModHpModifier > 0f) b.Add(1359); // and their engineers and shipwrights produce components of superior quality
-                else if (race.ModHpModifier < 0f) b.Add(1360); // yet their engineering skills are poor, producing goods and ships of somewhat inferior quality
-                else                              b.Add(1361); // and their engineers and shipwrights are generally competent
+                b.Singular(GameText.WorkEthicIsStrong); // | HUMAN | work ethic is strong
+                if      (race.ModHpModifier > 0f) b.Add(GameText.AndTheirEngineersAndShipwrights); // and their engineers and shipwrights produce components of superior quality
+                else if (race.ModHpModifier < 0f) b.Add(GameText.YetTheirEngineeringSkillsAre); // yet their engineering skills are poor, producing goods and ships of somewhat inferior quality
+                else                              b.Add(GameText.AndTheirEngineersAndShipwrights2); // and their engineers and shipwrights are generally competent
             }
             else if (race.ProductionMod >= 0f)
             {
-                b.Plural(1366); // | HUMANS | are neither particularly industrious nor particularly lazy
-                if      (race.ModHpModifier > 0f) b.Add(1367); // but their engineers and shipwrights are highly skilled and produce components of superior quality
-                else if (race.ModHpModifier < 0f) b.Add(1368); // . Overall, their engineering skills are somwhat poor compared to peer races and tend to produce ships of inferior quality. 
-                else                              b.Add(1369); // and their engineers and shipwrights are generally competent
+                b.Plural(GameText.AreNeitherParticularlyIndustriousNor); // | HUMANS | are neither particularly industrious nor particularly lazy
+                if      (race.ModHpModifier > 0f) b.Add(GameText.ButTheirEngineersAndShipwrights2); // but their engineers and shipwrights are highly skilled and produce components of superior quality
+                else if (race.ModHpModifier < 0f) b.Add(GameText.OverallTheirEngineeringSkillsAre); // . Overall, their engineering skills are somwhat poor compared to peer races and tend to produce ships of inferior quality. 
+                else                              b.Add(GameText.AndTheirEngineersAndShipwrights3); // and their engineers and shipwrights are generally competent
             }
             else
             {
-                b.Singular(1362); // | HUMAN | workers are generally quite lazy
-                if      (race.ModHpModifier > 0f) b.Add(1363); // yet their engineers and shipwrights are highly skilled, producing components of superior quality
-                else if (race.ModHpModifier < 0f) b.Add(1364); // and their engineering skills are poor, producing goods and ships of somewhat inferior quality
-                else                              b.Add(1365); // but their engineers and shipwrights are generally competent
+                b.Singular(GameText.WorkersAreGenerallyQuiteLazy); // | HUMAN | workers are generally quite lazy
+                if      (race.ModHpModifier > 0f) b.Add(GameText.YetTheirEngineersAndShipwrights); // yet their engineers and shipwrights are highly skilled, producing components of superior quality
+                else if (race.ModHpModifier < 0f) b.Add(GameText.AndTheirEngineeringSkillsAre); // and their engineering skills are poor, producing goods and ships of somewhat inferior quality
+                else                              b.Add(GameText.ButTheirEngineersAndShipwrights); // but their engineers and shipwrights are generally competent
             }
 
-            if      (race.SpyMultiplier > 0f) b.Plural(1381); // | HUMANS | possess a somewhat duplicitous nature and as a result make excellent spies
-            else if (race.SpyMultiplier < 0f) b.Plural(1382); // | HUMANS | live very open and honest lives, and as a result have a poor understanding of the concept of espionage
+            if      (race.SpyMultiplier > 0f) b.Plural(GameText.PossessASomewhatDuplicitousNature); // | HUMANS | possess a somewhat duplicitous nature and as a result make excellent spies
+            else if (race.SpyMultiplier < 0f) b.Plural(GameText.LiveVeryOpenAndHonest); // | HUMANS | live very open and honest lives, and as a result have a poor understanding of the concept of espionage
 
-            if (race.Spiritual > 0f) b.Add(1383);
+            if (race.Spiritual > 0f) b.Add(GameText.FinallyTheyAreADeeply);
 
-            b.Add("\n \n").Add(1370).Singular(1371).Add(HomeWorldName); // The | HUMAN | homeworld of | EARTH |
-            if      (race.HomeworldSizeMod > 0f) b.Add(1372); // is very large for a terran planet
-            else if (race.HomeworldSizeMod < 0f) b.Add(1374); // is very small for a terran planet
-            else                                 b.Add(1375); // is of an average size for a terran planet
+            b.Add("\n \n").Add(GameText.The).Singular(GameText.HomeworldOf).Add(HomeWorldName); // The | HUMAN | homeworld of | EARTH |
+            if      (race.HomeworldSizeMod > 0f) b.Add(GameText.IsVeryLargeForA); // is very large for a terran planet
+            else if (race.HomeworldSizeMod < 0f) b.Add(GameText.IsVerySmallForA); // is very small for a terran planet
+            else                                 b.Add(GameText.IsOfAnAverageSize); // is of an average size for a terran planet
 
-            if (race.HomeworldFertMod < 0f) b.Add(1373); // The planet is extremely polluted from centuries of environmental abuses
-            if (race.BonusExplored > 0) b.Add(1376); // Historically, this race has looked to the stars for many centuries
+            if (race.HomeworldFertMod < 0f) b.Add(GameText.ThePlanetIsExtremelyPolluted); // The planet is extremely polluted from centuries of environmental abuses
+            if (race.BonusExplored > 0) b.Add(GameText.HistoricallyThisRaceHasLooked); // Historically, this race has looked to the stars for many centuries
 
             if (race.Militaristic > 0)
             {
-                b.Add(1377); // A strong history of military conflict has made the military a central part of this race's culture.
-                if (race.ShipCostMod < 0f) b.Add(1378).Singular(1379); // Furthermore, | HUMAN | naval tradition is very strong,
+                b.Add(GameText.AStrongHistoryOfMilitary); // A strong history of military conflict has made the military a central part of this race's culture.
+                if (race.ShipCostMod < 0f) b.Add(GameText.Furthermore2).Singular(GameText.NavalTraditionIsVeryStrong); // Furthermore, | HUMAN | naval tradition is very strong,
             }
             else if (race.ShipCostMod < 0f)
             {
-                b.Plural(1380); // | HUMANS | are natural sailors and shipwrights
+                b.Plural(GameText.AreNaturalSailorsAndShipwrights); // | HUMANS | are natural sailors and shipwrights
             }
 
             DescriptionTextList.ResetWithParseText(DescriptionTextFont, b.ToString(), DescriptionTextList.Width - 50);

@@ -8,83 +8,63 @@
 #  - [IdlingInDeepSpace, min_delay, max_delay]
 #  - [GoToState,         delay,      state_id]
 
-Fleet: WarpingPatrolFleet
-  Empire: Random
-  Rotation: [-120, 150, -20]
-  AI:
-    - [IdlingInDeepSpace, 3, 4]
-    - [WarpingIn, 1, 1]
-    - [CoastWithRotate, 30, 35]
-    - [WarpingOut, 1, 1]
-    - [IdlingInDeepSpace, 15, 18]
-  Ships:
-    - Ship: capital
-      Position: [-250, -200, 1250]
-      Speed: 10
-    - Ship: frigate
-      Position: [-500, -50, 250]
-      Speed: 20
-    - Ship: cruiser
-      Position: [-1200, 100, 1450]
-      Speed: 10
+- Fleet:
+      Name: WarpingPatrolFleet
+      Empire: Random
+      Rotation: [-120, 150, -20]
+      AI:
+        - [IdlingInDeepSpace, 3, 4]
+        - [WarpingIn, 1, 1]
+        - [CoastWithRotate, 30, 35]
+        - [WarpingOut, 1, 1]
+        - [IdlingInDeepSpace, 15, 18]
+      Ships:
+        - Ship: { Role: capital, Speed: 10, Position: [-250, -200, 1250] }
+        - Ship: { Role: frigate, Speed: 20, Position: [-500, -50, 250] }
+        - Ship: { Role: cruiser, Speed: 10, Position: [-1200, 100, 1450] }
 
-    # corvette wing
-    - Ship: corvette
-      Position: [-900, -300, 1550]
-      Speed: 30
-    - Ship: corvette
-      Position: [-1000, -450, 1500]
-      Speed: 30
-    - Ship: corvette
-      Position: [-1100, -350, 1400]
-      Speed: 30
+        # corvette wing
+        - Ship: { Role: corvette, Speed: 30, Position: [-900, -300, 1550] }
+        - Ship: { Role: corvette, Speed: 30, Position: [-1000, -450, 1500] }
+        - Ship: { Role: corvette, Speed: 30, Position: [-1100, -350, 1400] }
 
-    # fighter wing
-    - Ship: fighter
-      Position: [-1000, -500, 1250]
-      Speed: 65
-    - Ship: fighter
-      Position: [-1100, -450, 1300]
-      Speed: 60
-    - Ship: fighter
-      Position: [-900, -500, 1150]
-      Speed: 55
+        # fighter wing
+        - Ship: { Role: fighter, Speed:65, Position: [-1000, -500, 1250] }
+        - Ship: { Role: fighter, Speed:60, Position: [-1100, -450, 1300] }
+        - Ship: { Role: fighter, Speed:55, Position: [-900, -500, 1150] }
 
-Fleet: BackgroundFreighters_LeftToRight
-  DiverseShipEmpires: True
-  DisableJumpSfx: True
-  Rotation: [0, 45, 90]
-  MinPos: [-15000,-500,15000]
-  MaxPos: [15000,300,17000]
-  SpeedRange: [70, 110]
-  AI:
-    - [FreighterCoast, 1, 130]
-    - [WarpingOut, 1, 1]
-    - [IdlingInDeepSpace, 10, 15]
-    - [WarpingIn, 1, 1]
-    - [GoToState, 0, 0]
-  ShipGroups:
-    - ShipGroup: freighter
-      Count: 42
-    - ShipGroup: fighter
-      Count: 16
+- Fleet:
+      Name: BackgroundFreighters_LeftToRight
+      DiverseShipEmpires: True
+      DisableJumpSfx: True
+      Rotation: [0, 45, 90]
+      MinPos: [-15000,-500,15000]
+      MaxPos: [15000,300,17000]
+      SpeedRange: [70, 110]
+      AI:
+        - [FreighterCoast, 1, 130]
+        - [WarpingOut, 1, 1]
+        - [IdlingInDeepSpace, 10, 15]
+        - [WarpingIn, 1, 1]
+        - [GoToState, 0, 0]
+      ShipGroups:
+        - ShipGroup: { Role: freighter, Count: 42 }
+        - ShipGroup: { Role: fighter, Count: 16 }
 
-
-Fleet: BackgroundFreighters_RightToLeft
-  DiverseShipEmpires: True
-  DisableJumpSfx: True
-  Rotation: [0, 45, -90]
-  MinPos: [-15000,700,15000]
-  MaxPos: [15000,1500,17000]
-  SpeedRange: [70, 110]
-  AI:
-    - [FreighterCoast, 1, 130]
-    - [WarpingOut, 1, 1]
-    - [IdlingInDeepSpace, 10, 15]
-    - [WarpingIn, 1, 1]
-    - [GoToState, 0, 0]
-  ShipGroups:
-    - ShipGroup: freighter
-      Count: 42
-    - ShipGroup: fighter
-      Count: 16
+- Fleet:
+      Name: BackgroundFreighters_RightToLeft
+      DiverseShipEmpires: True
+      DisableJumpSfx: True
+      Rotation: [0, 45, -90]
+      MinPos: [-15000,700,15000]
+      MaxPos: [15000,1500,17000]
+      SpeedRange: [70, 110]
+      AI:
+        - [FreighterCoast, 1, 130]
+        - [WarpingOut, 1, 1]
+        - [IdlingInDeepSpace, 10, 15]
+        - [WarpingIn, 1, 1]
+        - [GoToState, 0, 0]
+      ShipGroups:
+        - ShipGroup: { Role: freighter, Count: 42 }
+        - ShipGroup: { Role: fighter, Count: 16 }

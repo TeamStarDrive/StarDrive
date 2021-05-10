@@ -145,24 +145,37 @@ namespace Ship_Game
             return SpyMissionStatus.FailedCritically;
         }
 
-        public void Initialize(AgentMission mission, out int index, out int turns, out int cost)
+        public (int Turns, int Cost) GetTurnsAndCost(AgentMission mission)
         {
-            cost  = 0;
-            index = 0;
-            turns = 0;
-
             switch (mission)
             {
-                case AgentMission.Training:        index = 2196; turns = TrainingTurns;    cost  = TrainingCost;    break;
-                case AgentMission.Infiltrate:      index = 2188; turns = InfiltrateTurns;  cost  = InfiltrateCost;  break;
-                case AgentMission.Assassinate:     index = 2184; turns = AssassinateTurns; cost  = AssassinateCost; break;
-                case AgentMission.Sabotage:        index = 2190; turns = SabotageTurns;    cost  = SabotageCost;    break;
-                case AgentMission.StealTech:       index = 2194; turns = StealTechTurns;   cost  = StealTechCost;   break;
-                case AgentMission.Robbery:         index = 2192; turns = RobberyTurns;     cost  = RobberyCost;     break;
-                case AgentMission.InciteRebellion: index = 2186; turns = RebellionTurns;   cost  = RebellionCost;   break;
-                case AgentMission.Recovering:      index = 6024; turns = RecoveringTurns;                           break;
-                case AgentMission.Undercover:      index = 2201;                                                    break;
-                case AgentMission.Defending:       index = 2183;                                                    break;
+                case AgentMission.Training:        return (TrainingTurns, TrainingCost);
+                case AgentMission.Infiltrate:      return (InfiltrateTurns, InfiltrateCost);
+                case AgentMission.Assassinate:     return (AssassinateTurns, AssassinateCost);
+                case AgentMission.Sabotage:        return (SabotageTurns, SabotageCost);
+                case AgentMission.StealTech:       return (StealTechTurns, StealTechCost);
+                case AgentMission.Robbery:         return (RobberyTurns, RobberyCost);
+                case AgentMission.InciteRebellion: return (RebellionTurns, RebellionCost);
+                case AgentMission.Recovering:      return (RecoveringTurns, 0);
+                case AgentMission.Undercover:      return (0, 0);
+                default:case AgentMission.Defending:return (0, 0);
+            }
+        }
+
+        public LocalizedText GetMissionName(AgentMission mission)
+        {
+            switch (mission)
+            {
+                case AgentMission.Training:        return GameText.AgentTraining;
+                case AgentMission.Infiltrate:      return GameText.Infiltrate;
+                case AgentMission.Assassinate:     return GameText.Assassinate;
+                case AgentMission.Sabotage:        return GameText.Sabotage;
+                case AgentMission.StealTech:       return GameText.StealTech;
+                case AgentMission.Robbery:         return GameText.Robbery;
+                case AgentMission.InciteRebellion: return GameText.InciteRebels;
+                case AgentMission.Recovering:      return GameText.Recovering;
+                case AgentMission.Undercover:      return GameText.Undercover;
+                default:case AgentMission.Defending:return GameText.Defending;
             }
         }
     }

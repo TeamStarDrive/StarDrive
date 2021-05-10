@@ -9,7 +9,7 @@ namespace Ship_Game.Empires.DataPackets
         public float ThreatTimer { get; private set; }
         const float ThreatResetTime = 1;
         public bool ThreatTimedOut => ThreatTimer <= 0;
-        public float Strength { get; private set; } = 0;
+        public float Strength { get; private set; }
         Array<Fleet> Fleets;
         public Fleet NearestFleet { get; private set; }
         public float ThreatDistance { get; private set; }
@@ -43,17 +43,24 @@ namespace Ship_Game.Empires.DataPackets
             return true;
         }
 
-        public void UpdateTimer(FixedSimTime simTime)
+        public bool UpdateTimer(FixedSimTime simTime)
         {
-            ThreatTimer      -= simTime.FixedTime;
-            if (ThreatTimedOut) {Fleets = new Array<Fleet>(); return; }
+            ThreatTimer -= simTime.FixedTime;
+            if (ThreatTimedOut)
+            {
+                Fleets = new Array<Fleet>(); 
+                return false;
+            }
 
             NearestFleet      = Fleets.FindMin(f => f.AveragePosition().SqDist(TargetSystem.Position));
             ThreatDistance    = NearestFleet?.AveragePosition().Distance(TargetSystem.Position) ?? float.MaxValue;
             PulseTime        -= simTime.FixedTime;
             ProcessFleetThreat();
 
-            if (PulseTime <= 0) PulseTime = 1;
+            if (PulseTime <= 0) 
+                PulseTime = 1;
+
+            return true;
         }
 
         void ProcessFleetThreat()

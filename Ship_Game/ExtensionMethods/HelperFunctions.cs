@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Fleets;
+using Ship_Game.Graphics;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -156,15 +157,15 @@ namespace Ship_Game
             batch.Draw(texture, offsetRect, Color.Black);
             batch.Draw(texture, rect, topColor);
         }
-        public static void DrawDropShadowText(this SpriteBatch batch, string text, Vector2 pos, SpriteFont font)
+        public static void DrawDropShadowText(this SpriteBatch batch, string text, Vector2 pos, Graphics.Font font)
         {
             DrawDropShadowText(batch, text, pos, font, Color.White);
         }
-        public static void DrawDropShadowText1(this SpriteBatch batch, string text, Vector2 pos, SpriteFont font, Color c)
+        public static void DrawDropShadowText1(this SpriteBatch batch, string text, Vector2 pos, Graphics.Font font, Color c)
         {
             DrawDropShadowText(batch, text, pos, font, c, 1f);
         }
-        public static void DrawDropShadowText(this SpriteBatch batch, string text, Vector2 pos, SpriteFont font, Color c, float shadowOffset = 2f)
+        public static void DrawDropShadowText(this SpriteBatch batch, string text, Vector2 pos, Graphics.Font font, Color c, float shadowOffset = 2f)
         {
             pos.X = (int)pos.X;
             pos.Y = (int)pos.Y;
@@ -195,88 +196,10 @@ namespace Ship_Game
             }
         }
 
-        public static Vector2 MeasureLines(this SpriteFont font, Array<string> lines)
-        {
-            var size = new Vector2();
-            foreach (string line in lines)
-            {
-                size.X = Math.Max(size.X, font.MeasureString(line).X);
-                size.Y += font.LineSpacing + 2;
-            }
-            return size;
-        }
-
-        public static int TextWidth(this SpriteFont font, string text)
-        {
-            return (int)font.MeasureString(text).X;
-        }
-
-        public static int TextWidth(this SpriteFont font, int localizationId)
-        {
-            return (int)font.MeasureString(Localizer.Token(localizationId)).X;
-        }
-
-        public static Vector2 MeasureString(this SpriteFont font, in LocalizedText text)
-        {
-            return font.MeasureString(text.Text);
-        }
-
-        public static string ParseText(this SpriteFont font, in LocalizedText text, float maxLineWidth)
-        {
-            return ParseText(font, text.Text, maxLineWidth);
-        }
-
-        public static string ParseText(this SpriteFont font, string text, float maxLineWidth)
-        {
-            string[] words = text.Split(' ');
-            return ParseText(font, words, maxLineWidth);
-        }
-
-        public static string ParseText(this SpriteFont font, string[] words, float maxLineWidth)
-        {
-            var result = new StringBuilder();
-            float spaceLength = font.MeasureString(" ").X;
-            float lineLength = 0.0f;
-            foreach (string word in words)
-            {
-                if (word == "\\n" || word == "\n")
-                {
-                    result.Append('\n');
-                    lineLength = 0f;
-                    continue;
-                }
-                float wordLength = font.MeasureString(word).X;
-                if ((lineLength + wordLength) > maxLineWidth)
-                {
-                    result.Append('\n');
-                    lineLength = wordLength;
-                    result.Append(word);
-                }
-                else
-                {
-                    if (result.Length != 0)
-                    {
-                        lineLength += spaceLength;
-                        result.Append(' ');
-                    }
-                    lineLength += wordLength;
-                    result.Append(word);
-                }
-            }
-            return result.ToString();
-        }
-
-        public static string[] ParseTextToLines(this SpriteFont font, string text, float maxLineWidth)
-        {
-            string parsed = ParseText(font, text, maxLineWidth);
-            string[] lines = parsed.Split('\n');
-            return lines;
-        }
-
         public static void ResetWithParseText(this ScrollList2<TextListItem> list, 
-            SpriteFont font, string text, float maxLineWidth)
+            Font font, string text, float maxLineWidth)
         {
-            string[] lines = ParseTextToLines(font, text, maxLineWidth);
+            string[] lines = font.ParseTextToLines(text, maxLineWidth);
             TextListItem[] textItems = lines.Select(line => new TextListItem(line, font));
             list.SetItems(textItems);
         }

@@ -39,7 +39,6 @@ namespace Ship_Game
         readonly Rectangle StarFieldR;
         readonly Star[] Stars;
         readonly SubTexture[] StarTex;
-        Texture2D StarTexture;
 
         SubTexture CloudTex;
         Effect CloudEffect;
@@ -52,11 +51,7 @@ namespace Ship_Game
             CloudTex = ResourceManager.Texture("clouds");
             CloudEffect = screen.TransientContent.Load<Effect>("Effects/Clouds");
             CloudEffectPos = CloudEffect.Parameters["Position"];
-
             StarTex = SunType.GetLoResTextures();
-            StarTexture = new Texture2D(screen.Device, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
-            StarTexture.SetData(new[] { Color.White });
-
             Stars = new Star[100];
             Reset(Vector2.Zero);
         }
@@ -68,7 +63,6 @@ namespace Ship_Game
             CloudTex = null;
             CloudEffect = null;
             CloudEffectPos = null;
-            StarTexture?.Dispose(ref StarTexture);
         }
 
         public void Draw(Vector2 cameraPos, SpriteBatch batch)

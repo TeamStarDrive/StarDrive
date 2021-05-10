@@ -841,7 +841,7 @@ namespace Ship_Game.Gameplay
             p.ShieldDamageBonus     += weaponTag.ShieldDamage;
             
             float shieldPenChance  = weaponTag.ShieldPenetration * 100 + ShieldPenChance;
-            actualShieldPenChance += shieldPenChance.LowerBound(actualShieldPenChance);
+            actualShieldPenChance  = shieldPenChance.LowerBound(actualShieldPenChance);
         }
 
         public float GetActualRange(Empire owner = null)

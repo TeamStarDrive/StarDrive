@@ -588,5 +588,13 @@ namespace Ship_Game
             return unique.ToArrayList();
         }
 
+        // Disposes all objects AND clears the Map
+        public static void ClearAndDispose<TKey,TValue>(this Map<TKey, TValue> map)
+            where TValue : IDisposable
+        {
+            foreach (var kv in map)
+                kv.Value.Dispose();
+            map.Clear();
+        }
     }
 }

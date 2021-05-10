@@ -13,7 +13,7 @@ namespace Ship_Game.Debug.Page
 
         Vector2 TextCursor  = Vector2.Zero;
         Color TextColor     = Color.White;
-        SpriteFont TextFont = Fonts.Arial12Bold;
+        Graphics.Font TextFont = Fonts.Arial12Bold;
 
         public DebugPage(GameScreen parent, DebugModes mode) : base(parent.Rect)
         {

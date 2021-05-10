@@ -1669,7 +1669,7 @@ namespace Ship_Game.Gameplay
         public void LostAShip(Ship ourShip)
         {
             ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(ourShip);
-            float angerToAdd = ourShip.isColonyShip ? 10 : (killedExpSettings.KillExp / 10).LowerBound(1);
+            float angerToAdd = ourShip.isColonyShip ? 10 : (killedExpSettings.KillExp / 5).LowerBound(1);
             AddAngerMilitaryConflict(angerToAdd);
             ActiveWar?.ShipWeLost(ourShip);
 

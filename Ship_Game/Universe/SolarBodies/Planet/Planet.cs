@@ -1136,6 +1136,15 @@ namespace Ship_Game
             }
         }
 
+        public void SearchAndRemoveTroopFromTile(Troop t)
+        {
+            for (int i = 0; i < TilesList.Count; i++)
+            {
+                PlanetGridSquare tile = TilesList[i];
+                tile.TroopsHere.Remove(t);
+            }
+        }
+
         public void TryCrashOn(Ship ship)
         {
             if (!Habitable || NumActiveCrashSites >= (ship.IsMeteor ? 10 : 5))
@@ -1424,8 +1433,9 @@ namespace Ship_Game
             // so we dont have to do this scan more than once. 
             // todo: Build common sensor container class. 
             // this scan should only need to be done once.
-            var ships = us.GetShips().ToArrayList();
-            ships.AddRange(us.GetProjectors());
+            var ships = new Array<Ship>();
+            ships.AddRange(us.GetShips().AtomicCopy());
+            ships.AddRange(us.GetProjectors().AtomicCopy());
 
             for (int i = 0; i < ships.Count; i++)
             {

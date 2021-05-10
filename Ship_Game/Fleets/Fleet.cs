@@ -366,6 +366,20 @@ namespace Ship_Game.Fleets
             }
         }
 
+        public void OrderAbortMove()
+        {
+            FinalPosition = AveragePos;
+            for (int i = 0; i < Ships.Count; i++)
+            {
+                Ship s = Ships[i];
+                if (s.InCombat)
+                    continue;
+
+                s.AI.OrderAllStop();
+                s.AI.OrderThrustTowardsPosition(FinalPosition + s.FleetOffset, FinalDirection, false);
+            }
+        }
+
         void SetAIDefaultTactics()
         {
             if (Owner.isPlayer == true) return;
@@ -715,7 +729,9 @@ namespace Ship_Game.Fleets
                     if (!DoOrbitTaskArea(task))
                         AttackEnemyStrengthClumpsInAO(task);
                     else
-                        EndInvalidTask(--DefenseTurns <= 0 && !Owner.SystemWithThreat.Any(t => t.TargetSystem == task.TargetPlanet.ParentSystem));
+                        EndInvalidTask(--DefenseTurns <= 0 
+                                       && !Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut 
+                                                                             && t.TargetSystem == task.TargetPlanet.ParentSystem));
 
                     break;
             }
@@ -1443,7 +1459,7 @@ namespace Ship_Game.Fleets
                     else
                         DoCombatMoveToTaskArea(task, true);
 
-                    bool threatIncoming = Owner.SystemWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
+                    bool threatIncoming = Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
                     bool stillThreats = threatIncoming || enemyStrength > 1;
                     if (!stillThreats)
                         TaskStep = 4;
@@ -1611,9 +1627,16 @@ namespace Ship_Game.Fleets
 
         bool HasArrivedAtRallySafely(float fleetRadius = 0)
         {
-            MoveStatus status = MoveStatus.None;
+            MoveStatus status = FleetMoveStatus(fleetRadius);
 
-            status = FleetMoveStatus(fleetRadius);
+            // if the command ship is stuck, unstuck it. Since the fleet average position is the command ship's position
+            if (CommandShip != null 
+                && !CommandShip.Center.InRadius(FinalPosition, fleetRadius) 
+                && (CommandShip.AI.State == AIState.AwaitingOrders || CommandShip.AI.State == AIState.HoldPosition))
+            {
+                CommandShip.AI.OrderMoveTo(FinalPosition, FinalDirection, true, AIState.MoveTo);
+            }
+
 
             if (FinalPosition.InRadius(AveragePos, fleetRadius) )
             {

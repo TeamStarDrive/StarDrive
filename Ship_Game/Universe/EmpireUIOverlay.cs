@@ -261,11 +261,11 @@ namespace Ship_Game
                 int resCost = (int)Player.Research.Current.TechCost;
                 float plusRes = Player.Research.NetResearch;
                 float x = res2.X + res2.Width - 30;
-                SpriteFont arial12Bold = Fonts.Arial12Bold;
+                Graphics.Font arial12Bold = Fonts.Arial12Bold;
                 object[] str = { research, "/", resCost, " (+", plusRes.String(1), ")" };
                 textCursor.X = x - arial12Bold.MeasureString(string.Concat(str)).X;
                 textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
-                SpriteFont spriteFont = Fonts.Arial12Bold;
+                Graphics.Font spriteFont = Fonts.Arial12Bold;
                 object[] objArray = { research, "/", resCost, " (+", plusRes.String(1), ")" };
                 batch.DrawString(spriteFont, string.Concat(objArray), textCursor, new Color(255, 240, 189));
             }
@@ -346,7 +346,7 @@ namespace Ship_Game
                         {
                             case "Research":
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(GameText.ResearchScreen)+"\n\n"+Localizer.Token(GameText.CurrentResearch)+": "+Player.Research.TopicLocText, "R");
+                                ToolTip.CreateTooltip(Localizer.Token(GameText.ResearchScreen)+"\n\n"+Localizer.Token(GameText.CurrentResearch)+": "+Player.Research.TopicLocText.Text, "R");
                                 break;
                             }
                             case "Budget":

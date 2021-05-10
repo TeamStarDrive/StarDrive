@@ -93,6 +93,8 @@
     <Compile Include="LinearAlgebra\TestRadMath.cs" />
     <Compile Include="Planets\LandOnTiles.cs" />
     <Compile Include="Planets\TestOrbitalBomb.cs" />
+    <Compile Include="Ships\ShipModuleGridTests.cs" />
+    <Compile Include="Ships\TestHealth.cs" />
     <Compile Include="Ships\TestShields.cs" />
     <Compile Include="Ships\TestSupplyShuttles.cs" />
     <Compile Include="Ships\TestWeaponArcs.cs" />

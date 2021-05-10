@@ -79,9 +79,13 @@ namespace Ship_Game
                 {
                     GlobalStats.ExportMeshes = true;
                 }
-                else if (key == "--run-localizer")
+                else if (key.StartsWith("--run-localizer"))
                 {
-                    GlobalStats.RunLocalizer = true;
+                    GlobalStats.RunLocalizer = value.IsEmpty() ? 1 : int.Parse(value);
+                }
+                else if (key == "--continue")
+                {
+                    GlobalStats.ContinueToGame = true;
                 }
             }
             return true; // all ok
@@ -94,7 +98,8 @@ namespace Ship_Game
             Log.Write("  --mod=\"<mod>\"    Load the game with the specified <mod>, eg: --mod=\"Combined Arms\" ");
             Log.Write("  --export-textures  Exports all texture files as PNG and DDS");
             Log.Write("  --export-meshes    Exports all mesh files as FBX");
-            Log.Write("  --run-localizer    Run localization tool to merge missing translations and generate id-s");
+            Log.Write("  --run-localizer=[0-2] Run localization tool to merge missing translations and generate id-s");
+            Log.Write("                        0: disabled  1: generate with YAML NameIds  2: generate with C# NameIds");
             PressAnyKey();
         }
 
@@ -127,15 +132,24 @@ namespace Ship_Game
                 {
                     PrintHelp();
                 }
-                else if (GlobalStats.RunLocalizer)
-                {
-                    Tools.Localization.LocalizationTool.Run(GlobalStats.ModName);
-                    PressAnyKey();
-                }
                 else
                 {
-                    using (var game = new StarDriveGame())
-                        game.Run();
+                    bool runGame = true;
+                    if (GlobalStats.RunLocalizer > 0)
+                    {
+                        Tools.Localization.LocalizationTool.Run(GlobalStats.ModName, GlobalStats.RunLocalizer);
+                        runGame = GlobalStats.ContinueToGame;
+                    }
+
+                    if (runGame)
+                    {
+                        using (var game = new StarDriveGame())
+                            game.Run();
+                    }
+                    else
+                    {
+                        PressAnyKey();
+                    }
                 }
 
                 Log.Write("The game exited normally.");

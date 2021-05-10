@@ -8,7 +8,7 @@ namespace Ship_Game
         public UILabel TextLabel;
         public string Text => TextLabel.Text.Text;
 
-        public TextListItem(string text, SpriteFont font)
+        public TextListItem(string text, Graphics.Font font)
         {
             TextLabel = new UILabel(text, font);
         }

@@ -17,9 +17,9 @@ namespace UnitTests
         [TestMethod]
         public void TextureAtlasFromFolder()
         {
-            TextureAtlas.FromFolder(Content, "Textures", false);
-            TextureAtlas.FromFolder(Content, "Textures/Modules", false);
-            TextureAtlas.FromFolder(Content, "Textures/Conduits", false);
+            TextureAtlas.FromFolder("Textures", false);
+            TextureAtlas.FromFolder("Textures/Modules", false);
+            TextureAtlas.FromFolder("Textures/Conduits", false);
         }
 
         [TestMethod]

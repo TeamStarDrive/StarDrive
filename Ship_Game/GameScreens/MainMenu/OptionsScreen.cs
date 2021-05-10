@@ -268,8 +268,8 @@ namespace Ship_Game
             CurrentLanguage = new DropOptions<Language>(105, 18);
             Add(right, GameText.Language, CurrentLanguage);
 
-            Add(new UIButton(new Vector2(RightArea.Right - 172, RightArea.Bottom + 60), Localizer.Token(GameText.ApplySettings)))
-                .OnClick = button => ApplyOptions();
+            var apply = Add(new UIButton(ButtonStyle.Default, new Vector2(RightArea.Right - 172, RightArea.Bottom + 60), GameText.ApplySettings));
+            apply.OnClick = button => ApplyOptions();
 
             RefreshZOrder();
             PerformLayout();
@@ -344,8 +344,8 @@ namespace Ship_Game
             if (GlobalStats.Language != newLanguage)
             {
                 GlobalStats.Language = newLanguage;
-                Fonts.ReloadContent(ResourceManager.RootContent);
                 ResourceManager.LoadLanguage(newLanguage);
+                Fonts.LoadFonts(ResourceManager.RootContent, newLanguage);
                 LoadContent(); // reload the options screen to update the text
             }
         }

@@ -4,6 +4,7 @@ using Ship_Game.AI;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using System.Collections.Generic;
+using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
 using Ship_Game.Fleets;
@@ -37,7 +38,7 @@ namespace Ship_Game
         WeightSlider SliderDps;
         WeightSlider SliderArmor;
         WeightSlider SliderShield;
-        readonly Array<ToggleButton> OrdersButtons = new Array<ToggleButton>();
+        //readonly Array<ToggleButton> OrdersButtons = new Array<ToggleButton>();
         FloatSlider OperationalRadius;
         SizeSlider SliderSize;
         public Submenu SubShips;
@@ -49,7 +50,7 @@ namespace Ship_Game
         float DesiredCamHeight = 14000f;
         Ship ActiveShipDesign;
         public int FleetToEdit = -1;
-        readonly UITextEntry FleetNameEntry = new UITextEntry();
+        readonly UITextEntry FleetNameEntry;
         Selector StuffSelector;
         Selector OperationsSelector;
         Selector Priorityselector;
@@ -60,6 +61,7 @@ namespace Ship_Game
         readonly Array<FleetDataNode> SelectedNodeList = new Array<FleetDataNode>();
         readonly Array<FleetDataNode> HoveredNodeList = new Array<FleetDataNode>();
         readonly ShipInfoOverlayComponent ShipInfoOverlay;
+        FleetStanceButtons OrdersButtons;
 
         public FleetDesignScreen(GameScreen parent, EmpireUIOverlay empireUI, string audioCue ="") : base(parent)
         {
@@ -69,6 +71,10 @@ namespace Ship_Game
             TransitionOnTime = 0.75f;
             EmpireUI.Player.UpdateShipsWeCanBuild();
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
+
+            FleetNameEntry = new UITextEntry();
+            FleetNameEntry.OnTextChanged = (text) => EmpireManager.Player.GetFleetsDict()[FleetToEdit].Name = text;
+            FleetNameEntry.SetColors(Colors.Cream, Color.Orange);
         }
 
         public void ChangeFleet(int which)
@@ -191,31 +197,9 @@ namespace Ship_Game
             SelectedStuffRect = new Rectangle(ScreenWidth / 2 - 220, -13 + ScreenHeight - 200, 440, 210);
 
             var ordersBarPos = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 65);
-            void AddOrdersBtn(CombatState state, string icon, LocalizedText toolTip)
-            {
-                var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon)
-                {
-                    CombatState = state,
-                    Tooltip = toolTip,
-                    OnClick = (b) => OnOrderButtonClicked(b, state),
-                    Visible = false,
-                };
-                Add(button);
-                OrdersButtons.Add(button);
-                ordersBarPos.X += 29f;
-            }
-
-            AddOrdersBtn(CombatState.AttackRuns,   "SelectionBox/icon_formation_headon", toolTip: GameText.ShipWillMakeHeadonAttack);
-            AddOrdersBtn(CombatState.Artillery,    "SelectionBox/icon_formation_aft",    toolTip: GameText.ShipWillRotateSoThat);
-            AddOrdersBtn(CombatState.HoldPosition, "SelectionBox/icon_formation_x",      toolTip: GameText.ShipWillAttemptToHold);
-            AddOrdersBtn(CombatState.OrbitLeft,    "SelectionBox/icon_formation_left",   toolTip: GameText.ShipWillManeuverToKeep);
-            AddOrdersBtn(CombatState.OrbitRight,   "SelectionBox/icon_formation_right",  toolTip: GameText.ShipWillManeuverToKeep2);
-            AddOrdersBtn(CombatState.Evade,        "SelectionBox/icon_formation_stop",   toolTip: GameText.ShipWillAvoidEngagingIn);
-
-            ordersBarPos = new Vector2(SelectedStuffRect.X + 20 + 3*29f, ordersBarPos.Y + 29f);
-            AddOrdersBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft",  toolTip: GameText.ShipWillMoveWithinMaximum);
-            AddOrdersBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", toolTip: GameText.ShipWillMoveWithinMaximum2);
-
+            OrdersButtons = new FleetStanceButtons(this, ordersBarPos);
+            OrdersButtons.LoadContent();
+            Add(OrdersButtons);
 
             RequisitionForces = new BlueButton(new Vector2(SelectedStuffRect.X + 240, SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20), "Requisition...");
             SaveDesign = new BlueButton(new Vector2(SelectedStuffRect.X + 240, SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20 + 50), "Save Design...");
@@ -394,7 +378,6 @@ namespace Ship_Game
             
             ClickableSquads.Clear();
             UpdateSelectedFleet();
-
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
