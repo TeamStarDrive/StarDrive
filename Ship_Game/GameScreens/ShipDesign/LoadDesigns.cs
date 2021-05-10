@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -7,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 
-namespace Ship_Game.GameScreens.ShipDesignScreen
+namespace Ship_Game.GameScreens.ShipDesign
 {
     public sealed class LoadDesigns : GameScreen
     {
@@ -15,22 +14,22 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         bool ShowAllDesigns = true;
 
-        readonly Ship_Game.ShipDesignScreen Screen;
+        readonly ShipDesignScreen Screen;
 
-        UITextEntry EnterNameArea;
+        UILabel EnterNameArea;
         ScrollList2<DesignListItem> AvailableDesignsList;
         ShipInfoOverlayComponent ShipInfoOverlay;
 
         public string ShipToDelete = "";
 
         ShipData selectedWIP;
-
+        Array<ShipData> WIPs = new Array<ShipData>();
         Array<UIButton> ShipsToLoad = new Array<UIButton>();
 
-        public LoadDesigns(Ship_Game.ShipDesignScreen screen) : base(screen)
+        public LoadDesigns(ShipDesignScreen screen) : base(screen)
         {
-            Screen            = screen;
-            IsPopup           = true;
+            Screen = screen;
+            IsPopup = true;
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
         }
@@ -112,7 +111,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
             AvailableDesignsList = Add(new ScrollList2<DesignListItem>(background));
             AvailableDesignsList.EnableItemHighlight = true;
-            AvailableDesignsList.OnClick = OnDesignListItemClicked;
+            AvailableDesignsList.OnClick       = OnDesignListItemClicked;
             AvailableDesignsList.OnDoubleClick = OnDesignListItemDoubleClicked;
 
             PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(background.Right - 44, background.Y)));
@@ -120,12 +119,14 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             {
                 GameAudio.AcceptClick();
                 ShowAllDesigns = !ShowAllDesigns;
-                PlayerDesignsToggle.IsToggled = ShowAllDesigns;
+                PlayerDesignsToggle.IsToggled = !ShowAllDesigns;
+                AvailableDesignsList.Reset();
+                PopulateEntries();
                 ResetSL();
             };
             
             PopulateEntries();
-            EnterNameArea = Add(new UITextEntry(new Vector2(X + 20, Y + 20), Localizer.Token(GameText.ChooseAShipToLoad)));
+            EnterNameArea = Add(new UILabel(new Vector2(X + 20, Y + 20), Localizer.Token(GameText.ChooseAShipToLoad), Fonts.Arial20Bold, Color.Orange));
             ButtonSmall(background.Right - 88, EnterNameArea.Y - 2, text:GameText.Load, click: b =>
             {
                 LoadShipToScreen();
@@ -136,6 +137,14 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             {
                 ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship);
             };
+
+            foreach (FileInfo info in Dir.GetFiles(Dir.StarDriveAppData + "/WIP"))
+            {
+                ShipData newShipData = ShipData.Parse(info);
+                var empire = EmpireManager.Player;
+                if (empire.IsHullUnlocked(newShipData.Hull))
+                    WIPs.Add(newShipData);
+            }
 
             base.LoadContent();
         }
@@ -158,7 +167,6 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             OnDesignListItemClicked(item);
             LoadShipToScreen();
         }
-
 
         void DeleteAccepted()
         {            
@@ -190,19 +198,6 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         void PopulateEntries()
         {
-            var WIPs = new Array<ShipData>();
-            foreach (FileInfo info in Dir.GetFiles(Dir.StarDriveAppData + "/WIP"))
-            {
-                ShipData newShipData = ShipData.Parse(info);
-                var empire = EmpireManager.Player;
-                if (empire.IsHullUnlocked(newShipData.Hull))
-                {
-                    WIPs.Add(newShipData);
-                }
-            }
-
-            if (Screen == null) return;
-
             var shipRoles = new Array<string>();
 
             foreach (Ship ship in ResourceManager.GetShipTemplates())
@@ -221,10 +216,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                         Log.Info($"Ship Design excluded by filter {ship.Name}");
                         continue;
                     }
-
-                    string headerText = Localizer.GetRole(ship.DesignRole, EmpireManager.Player);
-                    shipRoles.Add(headerText);
-                    AvailableDesignsList.AddItem(new DesignListItem(this, headerText));
+                    shipRoles.Add(Localizer.GetRole(ship.DesignRole, EmpireManager.Player));
                 }
                 catch
                 {
@@ -233,10 +225,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             }
 
             if (WIPs.Count > 0)
-            {
                 shipRoles.Add("WIP");
-                AvailableDesignsList.AddItem(new DesignListItem(this, "WIP"));
-            }
 
             Ship[] ships = ResourceManager.GetShipTemplates()
                 .OrderBy(s => !s.IsPlayerDesign)
@@ -246,34 +235,34 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 .ThenBy(s => s.Name)
                 .ToArray();
 
+            foreach (string role in shipRoles)
+                AvailableDesignsList.AddItem(new DesignListItem(this, role));
+            
             foreach (DesignListItem headerItem in AvailableDesignsList.AllEntries.ToArray())
             {
                 foreach (Ship ship in ships)
-                {
-                    if (!ship.Deleted
-                        && !ship.shipData.IsShipyard
-                        && EmpireManager.Player.WeCanBuildThis(ship.Name)
-                        && Localizer.GetRole(ship.DesignRole, EmpireManager.Player) == headerItem.HeaderText
-                        && (Empire.Universe?.Debug == true || !ship.IsSubspaceProjector)
-                        && !ResourceManager.ShipRoles[ship.shipData.Role].Protected)
-                    {
+                    if (CanShowDesign(ship, headerItem.HeaderText))
                         headerItem.AddSubItem(new DesignListItem(this, ship));
-                    }
-                }
 
                 if (headerItem.HeaderText == "WIP")
-                {
                     foreach (ShipData wipHull in WIPs)
-                    {
                         headerItem.AddSubItem(new DesignListItem(this, wipHull));
-                    }
-                }
             }
+        }
+
+        bool CanShowDesign(Ship ship, string role)
+        {
+            return !ship.Deleted
+                && !ship.shipData.IsShipyard
+                && EmpireManager.Player.WeCanBuildThis(ship.Name)
+                && (role.IsEmpty() || role == Localizer.GetRole(ship.DesignRole, EmpireManager.Player))
+                && (Empire.Universe?.Debug == true || !ship.IsSubspaceProjector)
+                && !ResourceManager.ShipRoles[ship.shipData.Role].Protected;
         }
 
         void LoadShipToScreen()
         {
-            Ship loadedShip = ResourceManager.GetShipTemplate(EnterNameArea.Text, false);
+            Ship loadedShip = ResourceManager.GetShipTemplate(EnterNameArea.Text.Text, false);
             loadedShip?.shipData.UpdateBaseHull();
             Screen.ChangeHull(loadedShip?.shipData ?? selectedWIP);                
             ExitScreen();
@@ -281,8 +270,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         void ResetSL()
         {
-            AvailableDesignsList.Reset();
-            PopulateEntries();            
+            EnterNameArea.Text = Localizer.Token(GameText.ChooseAShipToLoad);
         }
 
         public class PlayerDesignToggleButton : ToggleButton

@@ -279,7 +279,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                foreach (IncomingThreat threat in player.SystemWithThreat)
+                foreach (IncomingThreat threat in player.SystemsWithThreat)
                 {
                     if (threat.ThreatTimedOut) continue;
 
@@ -533,7 +533,7 @@ namespace Ship_Game
                 }
         }
 
-        public void DrawZones(SpriteFont font, string text, ref int cursorY, Color color)
+        public void DrawZones(Graphics.Font font, string text, ref int cursorY, Color color)
         {
             Vector2 rect = new Vector2(SelectedStuffRect.X, cursorY);
             ScreenManager.SpriteBatch.DrawString(font, text, rect, color);

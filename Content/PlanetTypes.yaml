@@ -1,5 +1,6 @@
 # Barren planets
-PlanetType: 3 # this is the legacy planet ID
+- PlanetType:
+  Id: 3 # this is the legacy planet ID
   Category: Barren
   Composition: 1702
   IconPath: Planets/3
@@ -9,7 +10,8 @@ PlanetType: 3 # this is the legacy planet ID
   PopPerTile: [50, 100]
   BaseFertility: 0
 
-PlanetType: 4
+- PlanetType:
+  Id: 4
   Category: Barren
   Composition: 1702
   IconPath: Planets/4
@@ -19,7 +21,8 @@ PlanetType: 4
   PopPerTile: [50, 150]
   BaseFertility: 0
 
-PlanetType: 5 # Venus
+- PlanetType:
+  Id: 5 # Venus
   Category: Barren
   Composition: 1703
   IconPath: Planets/5
@@ -31,7 +34,8 @@ PlanetType: 5 # Venus
   PopPerTile: [50, 200]
   BaseFertility: 0
 
-PlanetType: 7 # Mercury
+- PlanetType:
+  Id: 7 # Mercury
   Category: Barren
   Composition: 1704
   IconPath: Planets/7
@@ -42,7 +46,8 @@ PlanetType: 7 # Mercury
   PopPerTile: [50, 100]
   BaseFertility: 0
 
-PlanetType: 8 # Mars
+- PlanetType:
+  Id: 8 # Mars
   Category: Barren
   Composition: 1703
   IconPath: Planets/8
@@ -54,7 +59,8 @@ PlanetType: 8 # Mars
   BaseFertility: 0
 
 # Barren Planet with some chance for habitable tiles
-PlanetType: 16
+- PlanetType:
+  Id: 16
   Category: Barren
   Composition: 1712
   IconPath: Planets/16
@@ -65,7 +71,8 @@ PlanetType: 16
   PopPerTile: [50, 100]
   BaseFertility: 0
 
-PlanetType: 24
+- PlanetType:
+  Id: 24
   Category: Barren
   Composition: 1719
   IconPath: Planets/24
@@ -75,7 +82,8 @@ PlanetType: 24
   PopPerTile: [75, 125]
   BaseFertility: 0
 
-PlanetType: 20 # Moon, rocky barren
+- PlanetType:
+  Id: 20 # Moon, rocky barren
   Category: Barren
   Composition: 1711
   IconPath: Planets/20
@@ -86,14 +94,16 @@ PlanetType: 20 # Moon, rocky barren
   BaseFertility: 0
 
 # Volcanic
-PlanetType: 9
+- PlanetType:
+  Id: 9
   Category: Volcanic
   Composition: 1705
   IconPath: Planets/9
   MeshPath: Model/SpaceObjects/planet_9
   Glow: Red
 
-PlanetType: 23 # Kahless
+- PlanetType:
+  Id: 23 # Kahless
   Category: Volcanic
   Composition: 1718
   IconPath: Planets/23
@@ -101,7 +111,8 @@ PlanetType: 23 # Kahless
   Glow: Red
 
 # Ice
-PlanetType: 17 # Kholin:Jasnah
+- PlanetType:
+  Id: 17 # Kholin:Jasnah
   Category: Ice
   Composition: 1713
   IconPath: Planets/17
@@ -114,7 +125,8 @@ PlanetType: 17 # Kholin:Jasnah
   MinBaseFertility: 0.7
 
 # Ice, better pop but less tiles
-PlanetType: 32 
+- PlanetType:
+  Id: 32 
   Category: Ice
   Composition: 1713
   IconPath: Planets/17
@@ -126,7 +138,8 @@ PlanetType: 32
   BaseFertility: [-0.25, 0.5]
 
 # Ice, almost barren
-PlanetType: 33 
+- PlanetType:
+  Id: 33 
   Category: Ice
   Composition: 1713
   IconPath: Planets/17
@@ -138,7 +151,8 @@ PlanetType: 33
   BaseFertility: [-0.5, 0.25]
 
 # Swamp
-PlanetType: 19 # Polmar:Sporl
+- PlanetType:
+  Id: 19 # Polmar:Sporl
   Category: Swamp
   Composition: 1715
   IconPath: Planets/19
@@ -152,7 +166,8 @@ PlanetType: 19 # Polmar:Sporl
   MinBaseFertility: 1.0
 
 # Swamp, slightly harsher
-PlanetType: 34
+- PlanetType:
+  Id: 34
   Category: Swamp
   Composition: 1715
   IconPath: Planets/19
@@ -166,7 +181,8 @@ PlanetType: 34
   MinBaseFertility: 0.25
 
 # Swamp, wider magrins on this planet
-PlanetType: 35 
+- PlanetType:
+  Id: 35 
   Category: Swamp
   Composition: 1715
   IconPath: Planets/19
@@ -180,7 +196,8 @@ PlanetType: 35
   MinBaseFertility: 0.25
 
 # Oceanic 
-PlanetType: 21
+- PlanetType:
+  Id: 21
   Category: Oceanic
   Composition: 1716
   IconPath: Planets/21
@@ -194,7 +211,8 @@ PlanetType: 21
   MinBaseFertility: 0.5
     
 # Oceanic, more oceans so less tiles 
-PlanetType: 36
+- PlanetType:
+  Id: 36
   Category: Oceanic
   Composition: 1716
   IconPath: Planets/21
@@ -208,7 +226,8 @@ PlanetType: 36
   MinBaseFertility: 0.3
 
 # Oceanic, many isle, so more tiles but less pop 
-PlanetType: 37
+- PlanetType:
+  Id: 37
   Category: Oceanic
   Composition: 1716
   IconPath: Planets/21
@@ -221,7 +240,8 @@ PlanetType: 37
   BaseFertility: [0.25, 1]
 
 # Desert
-PlanetType: 14 # Mradeep:Arrachus
+- PlanetType:
+  Id: 14 # Mradeep:Arrachus
   Category: Desert
   Composition: 1710
   IconPath: Planets/14
@@ -234,7 +254,8 @@ PlanetType: 14 # Mradeep:Arrachus
   MinBaseFertility: 0.4
   
 # Desert
-PlanetType: 30
+- PlanetType:
+  Id: 30
   Category: Desert
   Composition: 1710
   IconPath: Planets/14
@@ -247,7 +268,8 @@ PlanetType: 30
   MinBaseFertility: 0.25
 
 # Desert, big (tatooine style)
-PlanetType: 38
+- PlanetType:
+  Id: 38
   Category: Desert
   Composition: 1710
   IconPath: Planets/14
@@ -261,7 +283,8 @@ PlanetType: 38
   Scale: 1.5
   
 # Tundra
-PlanetType: 11 # Pandora, Rathi:Bul
+- PlanetType:
+  Id: 11 # Pandora, Rathi:Bul
   Category: Tundra
   Composition: 1707
   IconPath: Planets/11
@@ -274,7 +297,8 @@ PlanetType: 11 # Pandora, Rathi:Bul
   BaseFertility: [0.5, 1.0]
   
 # Tundra, harsg
-PlanetType: 39 
+- PlanetType:
+  Id: 39 
   Category: Tundra
   Composition: 1707
   IconPath: Planets/11
@@ -287,7 +311,8 @@ PlanetType: 39
   BaseFertility: [0.25, 0.5]
 
 # Tundra, dense
-PlanetType: 40 
+- PlanetType:
+  Id: 40 
   Category: Tundra
   Composition: 1707
   IconPath: Planets/11
@@ -300,7 +325,8 @@ PlanetType: 40
   BaseFertility: [0.25, 1.5]
   
 # Steppe
-PlanetType: 18
+- PlanetType:
+  Id: 18
   Category: Steppe
   Composition: 1714
   IconPath: Planets/18
@@ -314,7 +340,8 @@ PlanetType: 18
   MinBaseFertility: 0.8
   
 # Steppe
-PlanetType: 41
+- PlanetType:
+  Id: 41
   Category: Steppe
   Composition: 1714
   IconPath: Planets/18
@@ -327,7 +354,8 @@ PlanetType: 41
   BaseFertility: [0.25, 1.0]
 
 # Steppe
-PlanetType: 42
+- PlanetType:
+  Id: 42
   Category: Steppe
   Composition: 1714
   IconPath: Planets/18
@@ -340,7 +368,8 @@ PlanetType: 42
   BaseFertility: [-0.5, 1.5]
 
 # Terran
-PlanetType: 1
+- PlanetType:
+  Id: 1
   Category: Terran
   Composition: 1700
   IconPath: Planets/1
@@ -352,7 +381,8 @@ PlanetType: 1
   PopPerTile: [200, 500]
   BaseFertility: [0.4, 0.75]
 
-PlanetType: 13
+- PlanetType:
+  Id: 13
   Category: Terran
   Composition: 1709
   IconPath: Planets/13
@@ -365,7 +395,8 @@ PlanetType: 13
   PopPerTile: [500, 750]
   BaseFertility: [0.5, 1.5]
 
-PlanetType: 22 # Kholin:Adolin
+- PlanetType:
+  Id: 22 # Kholin:Adolin
   Category: Terran
   Composition: 1717
   IconPath: Planets/22
@@ -379,7 +410,8 @@ PlanetType: 22 # Kholin:Adolin
   BaseFertility: [0.2, 1.5]
   MinBaseFertility: 0.5
 
-PlanetType: 25
+- PlanetType:
+  Id: 25
   Category: Terran
   Composition: 1720
   IconPath: Planets/25
@@ -392,7 +424,8 @@ PlanetType: 25
   BaseFertility: [-0.2, 1.5]
   MinBaseFertility: 0.5
 
-PlanetType: 27 # Rathi:Tor
+- PlanetType:
+  Id: 27 # Rathi:Tor
   Category: Terran
   Composition: 1721
   IconPath: Planets/27
@@ -405,7 +438,8 @@ PlanetType: 27 # Rathi:Tor
   BaseFertility: [-5.0, 3.0]
   MinBaseFertility: 1.0
 
-PlanetType: 29
+- PlanetType:
+  Id: 29
   Category: Terran
   Composition: 1722
   IconPath: Planets/29
@@ -419,48 +453,55 @@ PlanetType: 29
   MinBaseFertility: 0.5
 
 # GasGiants
-PlanetType: 2 # Less Stripey Light Beige Giant
+- PlanetType:
+  Id: 2 # Less Stripey Light Beige Giant
   Category: GasGiant
   Composition: 1701
   IconPath: Planets/2
   MeshPath: Model/SpaceObjects/planet_2
   Scale: 2.5
 
-PlanetType: 6 # Blood Red Giant
+- PlanetType:
+  Id: 6 # Blood Red Giant
   Category: GasGiant
   Composition: 1701
   IconPath: Planets/6
   MeshPath: Model/SpaceObjects/planet_6
   Scale: 2.5
 
-PlanetType: 10 # Yellow Giant
+- PlanetType:
+  Id: 10 # Yellow Giant
   Category: GasGiant
   Composition: 1706
   IconPath: Planets/10
   MeshPath: Model/SpaceObjects/planet_10
   Scale: 2.5
 
-PlanetType: 12 # Pink Giant
+- PlanetType:
+  Id: 12 # Pink Giant
   Category: GasGiant
   Composition: 1708
   IconPath: Planets/12
   MeshPath: Model/SpaceObjects/planet_12
   Scale: 2.5
-PlanetType: 15 # Polyphemus, Uranus, Cyan/LightBlue giant
+- PlanetType:
+  Id: 15 # Polyphemus, Uranus, Cyan/LightBlue giant
   Category: GasGiant
   Composition: 1711
   IconPath: Planets/15
   MeshPath: Model/SpaceObjects/planet_15
   Scale: 2.5
 
-PlanetType: 26 # Neptune, Blue giant
+- PlanetType:
+  Id: 26 # Neptune, Blue giant
   Category: GasGiant
   Composition: 1711
   IconPath: Planets/26
   MeshPath: Model/SpaceObjects/planet_26
   Scale: 2.5
 
-PlanetType: 28 # Jupiter, striped beige giant
+- PlanetType:
+  Id: 28 # Jupiter, striped beige giant
   Category: GasGiant
   Composition: 1710
   IconPath: Planets/28

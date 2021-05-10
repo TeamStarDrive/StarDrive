@@ -2,25 +2,25 @@
 
 namespace Ship_Game
 {
-    public struct PersonalityModifiers
+    public class PersonalityModifiers
     {
-        public float ColonizationClaimRatioWarningThreshold; // warn the player if we have mutual a colonization target based on value
-        public float TrustCostNaPact;
-        public float TrustCostTradePact;
-        public float AddAngerAlliedWithEnemy;
-        public float AddAngerAlliedWithEnemies3RdParty;
-        public float AllianceValueAlliedWithEnemy;
-        public float WantedAgentMissionMultiplier;
-        public int TurnsAbove95FederationNeeded;
-        public float FederationPopRatioWar;
-        public float PlanetStoleTrustMultiplier;
-        public float WarGradeThresholdForPeace; // How bad should our total wars grade be to request peace
-        public float FleetStrMultiplier; // Add or decrease str addition to fleets after win / lose vs. another empire.
-        public float DefenseTaskWeight; // How much the AI values defense task over other (it will cancel other tasks for defense), bigger is more value
-        public float TechValueModifier; // Some personalities value techs more vs player
-        public float AssaultBomberRatio; // Percent of existing troops to launch in order to board attacking fleets when planet is bombed
-        public float AllyCallToWarRatio; // The tolerance the AI has to join war with an ally vs 3rd party
-        public int PostInvasionTurns; // How many turns a post invasion defense fleet will stay
+        public readonly float ColonizationClaimRatioWarningThreshold; // warn the player if we have mutual a colonization target based on value
+        public readonly float TrustCostNaPact;
+        public readonly float TrustCostTradePact;
+        public readonly float AddAngerAlliedWithEnemy;
+        public readonly float AddAngerAlliedWithEnemies3RdParty;
+        public readonly float AllianceValueAlliedWithEnemy;
+        public readonly float WantedAgentMissionMultiplier;
+        public readonly int TurnsAbove95FederationNeeded;
+        public readonly float FederationPopRatioWar;
+        public readonly float PlanetStoleTrustMultiplier;
+        public readonly float WarGradeThresholdForPeace; // How bad should our total wars grade be to request peace
+        public readonly float FleetStrMultiplier; // Add or decrease str addition to fleets after win / lose vs. another empire.
+        public readonly float DefenseTaskWeight; // How much the AI values defense task over other (it will cancel other tasks for defense), bigger is more value
+        public readonly float TechValueModifier; // Some personalities value techs more vs player
+        public readonly float AssaultBomberRatio; // Percent of existing troops to launch in order to board attacking fleets when planet is bombed
+        public readonly float AllyCallToWarRatio; // The tolerance the AI has to join war with an ally vs 3rd party
+        public readonly int PostInvasionTurns; // How many turns a post invasion defense fleet will stay
 
         public PersonalityModifiers(PersonalityType type)
         {

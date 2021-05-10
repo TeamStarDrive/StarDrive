@@ -23,13 +23,14 @@ namespace Ship_Game
             BtnUp     = Button(ButtonStyle.ResearchQueueUp, OnBtnUpPressed);
             BtnDown   = Button(ButtonStyle.ResearchQueueDown, OnBtnDownPressed);
             BtnCancel = Button(ButtonStyle.ResearchQueueCancel, OnBtnCancelPressed);
+            Node = new TreeNode(Pos + new Vector2(100f, 20f), Tech, Screen);
             PerformLayout();
         }
 
         public override void PerformLayout()
         {
             Size = new Vector2(320, 110);
-            Node = new TreeNode(Pos + new Vector2(100f, 20f), Tech, Screen);
+            Node.SetPos(Pos + new Vector2(100f, 20f));
             BtnUp.Rect     = new RectF(X+15, CenterY - 33, 30, 30);
             BtnDown.Rect   = new RectF(X+15, CenterY +  3, 30, 30);
             BtnCancel.Rect = new RectF(X+57, CenterY - 15, 30, 30);
@@ -47,7 +48,6 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             base.Draw(batch, elapsed);
-            //Node.DrawGlow(batch);
             Node.Draw(batch);
         }
 

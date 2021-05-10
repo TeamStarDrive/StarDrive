@@ -6,13 +6,13 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Linq;
 
-namespace Ship_Game.ShipDesignIssues
+namespace Ship_Game.GameScreens.ShipDesign
 {
     public class ShipDesignIssues
     {
         public readonly ShipData Hull;
         public readonly ShipData.RoleName Role;
-        public Array<DesignIssueDetails> CurrentDesignIssues { get; }
+        public Array<DesignIssueDetails> CurrentDesignIssues { get; } = new Array<DesignIssueDetails>();
         public WarningLevel CurrentWarningLevel { get; private set; }
         private readonly Empire Player;
         private EmpireShipDesignStats EmpireStats;
@@ -22,7 +22,6 @@ namespace Ship_Game.ShipDesignIssues
             Hull   = hull;
             Role   = hull.Role;
             Player = EmpireManager.Player;
-            CurrentDesignIssues = new Array<DesignIssueDetails>();
             EmpireStats         = new EmpireShipDesignStats(Player);
         }
 
@@ -61,7 +60,7 @@ namespace Ship_Game.ShipDesignIssues
                 foreach (string name in empire.ShipsWeCanBuild)
                 {
                     Ship ship = ResourceManager.GetShipTemplate(name);
-                    float warpSpeed = ShipStats.GetFTLSpeed(ship.WarpThrust, ship.Mass, empire);
+                    float warpSpeed = ship.Stats.GetFTLSpeed(ship.Mass, empire);
                     if (warpSpeed < 2000 || Scout(ship.shipData.Role))
                         continue;
 
@@ -176,14 +175,18 @@ namespace Ship_Game.ShipDesignIssues
                 AddDesignIssue(DesignIssueType.LongRechargeTime, severity);
         }
 
-        public void CheckPowerRequiredToFireOnce(Array<float> weaponsPowerPerShot, float powerCapacity)
+        public void CheckPowerRequiredToFireOnce(Ship s)
         {
-            if (weaponsPowerPerShot.Count == 0)
+            float powerCapacity = s.PowerStoreMax;
+
+            float[] weaponsPowerPerShot = s.Weapons.FilterSelect(w => !w.isBeam && w.PowerRequiredToFire > 0, 
+                                                                 w => w.PowerRequiredToFire);
+            if (weaponsPowerPerShot.Length == 0)
                 return;
 
-            weaponsPowerPerShot.Sort();
+            Array.Sort(weaponsPowerPerShot);
             int numCanFire = 0;
-            for (int i = 0; i < weaponsPowerPerShot.Count; i++)
+            for (int i = 0; i < weaponsPowerPerShot.Length; i++)
             {
                 float weaponPower = weaponsPowerPerShot[i];
                 if (weaponPower.LessOrEqual(powerCapacity))
@@ -192,7 +195,7 @@ namespace Ship_Game.ShipDesignIssues
                     break;
             }
 
-            float percentCanFire  = 100f * numCanFire / weaponsPowerPerShot.Count;
+            float percentCanFire  = 100f * numCanFire / weaponsPowerPerShot.Length;
             float efficiency      = 100 * powerCapacity / weaponsPowerPerShot.Sum().LowerBound(1);
             WarningLevel severity = WarningLevel.None;
 
@@ -386,7 +389,8 @@ namespace Ship_Game.ShipDesignIssues
             AddDesignIssue(DesignIssueType.LowTroopsForBays, WarningLevel.Major, troopsMissing);
         }
 
-        public void CheckDedicatedCarrier(bool hasFighterHangars, ShipData.RoleName role, int maxWeaponRange, int sensorRange, bool shortRange)
+        public void CheckDedicatedCarrier(bool hasFighterHangars, ShipData.RoleName role, 
+                                          int maxWeaponRange, float sensorRange, bool shortRange)
         {
             if (role != ShipData.RoleName.carrier  && !Stationary || !hasFighterHangars)
                 return;

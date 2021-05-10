@@ -9,10 +9,10 @@ namespace Ship_Game
 {
     public sealed class GameplayMMScreen : GameScreen
     {
-        UniverseScreen screen;
-        GameScreen caller;
-        Menu2 window;
-        UIButton Save;
+        UniverseScreen Universe;
+        GameScreen Caller;
+        UILabel SavingText;
+        UIButton SaveButton;
 
         GameplayMMScreen(GameScreen parent) : base(parent, pause: true)
         {
@@ -22,35 +22,37 @@ namespace Ship_Game
         }
         public GameplayMMScreen(UniverseScreen screen) : this((GameScreen)screen)
         {
-            this.screen = screen;
+            Universe = screen;
         }
         public GameplayMMScreen(UniverseScreen screen, GameScreen caller) : this(screen)
         {
-            this.caller = caller;
-            this.screen = screen;
+            Caller = caller;
+            Universe = screen;
         }
-
-        public override void ExitScreen()
+        
+        public override void LoadContent()
         {
-            if (caller == null)
-                screen.Paused = false;
-            base.ExitScreen();
-        }
+            RemoveAll();
 
-        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
-        {
-            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            batch.Begin();
-            if (SavedGame.IsSaving)
-            {
-                var pausePos = new Vector2(ScreenCenter.X - Fonts.Pirulen16.MeasureString("Paused").X / 2f, 45 + Fonts.Pirulen16.LineSpacing * 2 + 4);
-                batch.DrawString(Fonts.Pirulen16, "Saving...", pausePos, CurrentFlashColor);
-            }
-            window.Draw(batch, elapsed);
+            Vector2 c = ScreenCenter;
+            Add(new Menu2(new RectF(c.X - 100, c.Y - 150, 200, 330)));
 
-            Save.Enabled = SavedGame.NotSaving;
-            base.Draw(batch, elapsed);
-            batch.End();
+            SavingText = Add(new UILabel(GameText.Saving, Fonts.Pirulen16, Color.White));
+            SavingText.Visible = false;
+            SavingText.TextAlign = TextAlign.Center;
+            SavingText.Pos = new Vector2(c.X - SavingText.Size.X*0.5f, 
+                                         50 + Fonts.Pirulen16.LineSpacing * 2);
+
+            UIList list = AddList(new Vector2(c.X - 84, c.Y - 100));
+            list.Padding = new Vector2(2f, 12f);
+            list.LayoutStyle = ListLayoutStyle.ResizeList;
+
+            SaveButton = list.Add(ButtonStyle.Default, GameText.Save, Save_OnClick);
+            list.Add(ButtonStyle.Default, GameText.LoadGame,   Load_OnClick);
+            list.Add(ButtonStyle.Default, GameText.Options,   Options_OnClick);
+            list.Add(ButtonStyle.Default, GameText.ReturnToGame, Return_OnClick);
+            list.Add(ButtonStyle.Default, GameText.ExitToMainMenu, ExitToMain_OnClick);
+            list.Add(ButtonStyle.Default, GameText.ExitToWindows, Exit_OnClick);
         }
 
         public override bool HandleInput(InputState input)
@@ -64,6 +66,31 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
+        public override void Update(float fixedDeltaTime)
+        {
+            SaveButton.Enabled = SavedGame.NotSaving;
+            SavingText.Enabled = SavedGame.IsSaving;
+            if (SavedGame.IsSaving)
+            {
+                SavingText.Color = CurrentFlashColor;
+            }
+            base.Update(fixedDeltaTime);
+        }
+
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+        {
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            batch.Begin();
+            base.Draw(batch, elapsed);
+            batch.End();
+        }
+
+        public override void ExitScreen()
+        {
+            if (Caller == null)
+                Universe.Paused = false;
+            base.ExitScreen();
+        }
 
         void Save_OnClick(UIButton button)
         {
@@ -84,7 +111,7 @@ namespace Ship_Game
 
         void Options_OnClick(UIButton button)
         {
-            ScreenManager.AddScreen(new OptionsScreen(universe: screen)
+            ScreenManager.AddScreen(new OptionsScreen(Universe)
             {
                 TitleText  = Localizer.Token(GameText.Options),
                 MiddleText = Localizer.Token(GameText.ChangeAudioVideoAndGameplay)
@@ -99,9 +126,9 @@ namespace Ship_Game
         void ExitToMain_OnClick(UIButton button)
         {
             ExitScreen();
-            if (caller != null)
-                ScreenManager.RemoveScreen(caller);
-            screen.ExitScreen();
+            if (Caller != null)
+                ScreenManager.RemoveScreen(Caller);
+            Universe.ExitScreen();
             ScreenManager.AddScreen(new MainMenuScreen());
         }
 
@@ -110,25 +137,5 @@ namespace Ship_Game
             if (SavedGame.NotSaving) StarDriveGame.Instance.Exit();
             else GameAudio.NegativeClick();
         }
-
-        public override void LoadContent()
-        {
-            base.LoadContent();
-            RemoveAll();
-
-            Vector2 c = ScreenCenter;
-            window = new Menu2(new Rectangle((int)c.X - 100, (int)c.Y - 150, 200, 330));
-
-            UIList list = AddList(new Vector2(c.X - 84, c.Y - 100));
-            list.Padding = new Vector2(2f, 12f);
-            list.LayoutStyle = ListLayoutStyle.ResizeList;
-
-            Save = list.AddButton(GameText.Save, Save_OnClick);
-            list.AddButton(text: GameText.LoadGame,   Load_OnClick);
-            list.AddButton(text: GameText.Options,   Options_OnClick);
-            list.AddButton(text: GameText.ReturnToGame, Return_OnClick);
-            list.AddButton(text: GameText.ExitToMainMenu, ExitToMain_OnClick);
-            list.AddButton(text: GameText.ExitToWindows, Exit_OnClick);
-        }  
     }
 }

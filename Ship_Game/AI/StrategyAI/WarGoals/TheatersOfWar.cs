@@ -28,7 +28,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Us       = EmpireManager.GetEmpireByName(OwnerWar.UsName);
         }
 
-        public int MinPriority() => Theaters.FindMinFiltered(t=>t.Active(), t=> t.Priority)?.Priority ?? 100;
+        public int MinPriority() => Theaters.FindMinFiltered(t=>t.IsActive, t=> t.Priority)?.Priority ?? 100;
 
         public void RestoreFromSave(War war)
         {
@@ -54,27 +54,25 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     return;
             }
 
-            if (OwnerWar.GetPriority() <= Us.GetEmpireAI().MinWarPriority)
+            //if (OwnerWar.GetPriority() <= Us.GetEmpireAI().MinWarPriority)
             {
                 Vector2 ourCenter = Us.WeightedCenter;
                 Vector2 theirCenter = Them.WeightedCenter;
 
                 Map<int, Array<Theater>> possibleTheaters;
-                if (OwnerWar.WarType == WarType.GenocidalWar || OwnerWar.WarType == WarType.ImperialistWar)
-                {
-                    theirCenter = Them.GetOwnedSystems().FindMax(s => s.WarValueTo(Us)).Position;
-                    ourCenter = Us.GetOwnedSystems().FindMin(s => s.Position.SqDist(theirCenter)).Position;
+                var theirSystems = Them.GetOwnedSystems();
+                var ourSystems = Us.GetOwnedSystems();
 
-                    possibleTheaters = Theaters.GroupByFiltered(t => (int)(t.TheaterAO.Center.Distance(ourCenter) * 0.000005f + t.TheaterAO.Center.Distance(theirCenter) * 0.000005f)
-                    , t => t.Active() && t.Priority <= OwnerWar.LowestTheaterPriority);
-                }
-                else
+                if (theirSystems.Count > 0 && ourSystems.Count > 0 &&
+                    (OwnerWar.WarType == WarType.GenocidalWar || OwnerWar.WarType == WarType.ImperialistWar))
                 {
-                    possibleTheaters = Theaters.GroupByFiltered(t => (int)(t.TheaterAO.Center.Distance(ourCenter) * 0.000005f + t.TheaterAO.Center.Distance(theirCenter) * 0.000005f)
-                    , t => t.Active() && t.Priority <= OwnerWar.LowestTheaterPriority);
+                    theirCenter = theirSystems.FindMax(s => s.WarValueTo(Us)).Position;
+                    ourCenter = ourSystems.FindMin(s => s.Position.SqDist(theirCenter)).Position;
                 }
-                
-                //Theater[] theaters = Theaters.Filter(t => t.Active() && t.Priority <= OwnerWar.LowestTheaterPriority);
+
+                possibleTheaters = Theaters.GroupByFiltered(t => (int)(t.TheaterAO.Center.Distance(ourCenter) * 0.000005f 
+                                                                     + t.TheaterAO.Center.Distance(theirCenter) * 0.000005f),
+                                                            t => t.IsActive && t.Priority <= OwnerWar.LowestTheaterPriority);
                 var theaters = possibleTheaters.FirstOrDefault().Value?.ToArray();
 
                 if (theaters?.Length > 0)
@@ -82,8 +80,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 else
                     ActiveTheaters = new Theater[0];
             }
-            else
-                ActiveTheaters = new Theater[0];
+            //else
+            //    ActiveTheaters = new Theater[0];
         }
 
         public void Evaluate()

@@ -132,9 +132,9 @@ namespace Ship_Game
             return PlanetDistanceToClosestColony.TryGetValue(p, out float distance) ?  distance : 0;
         }
 
-        Vector2 TextCursorVector(Rectangle rect, int token)
+        Vector2 GetCenteredTextOffset(Rectangle rect, GameText text)
         {
-            return new Vector2(rect.X + rect.Width / 2 - Fonts.Arial20Bold.MeasureString(Localizer.Token(token)).X / 2f, 
+            return new Vector2(rect.X + rect.Width / 2 - Fonts.Arial20Bold.MeasureString(Localizer.Token(text)).X / 2f, 
                                eRect.Y - Fonts.Arial20Bold.LineSpacing + 16);
         }
 
@@ -152,33 +152,33 @@ namespace Ship_Game
             if (PlanetSL.NumEntries > 0)
             {
                 PlanetListScreenItem e1 = PlanetSL.ItemAtTop;
-                SpriteFont fontStyle    = Fonts.Arial20Bold;
+                Graphics.Font fontStyle    = Fonts.Arial20Bold;
 
-                var textCursor = TextCursorVector(e1.SysNameRect, 192);
+                var textCursor = GetCenteredTextOffset(e1.SysNameRect, GameText.System);
                 sb_Sys.Update(textCursor);
                 sb_Sys.Draw(ScreenManager);
 
-                textCursor = TextCursorVector(e1.PlanetNameRect, 389);
+                textCursor = GetCenteredTextOffset(e1.PlanetNameRect, GameText.Planet);
                 sb_Name.Update(textCursor);
                 sb_Name.Draw(ScreenManager);
 
-                textCursor = TextCursorVector(e1.DistanceRect, 1939);
+                textCursor = GetCenteredTextOffset(e1.DistanceRect, GameText.Proximity);
                 sb_Distance.Update(textCursor);
                 sb_Distance.Draw(ScreenManager);
 
-                textCursor = TextCursorVector(e1.FertRect, 386);
+                textCursor = GetCenteredTextOffset(e1.FertRect, GameText.Fertility);
                 sb_Fert.Update(textCursor);
                 sb_Fert.Draw(ScreenManager, fontStyle);
 
-                textCursor = TextCursorVector(e1.RichRect, 387);
+                textCursor = GetCenteredTextOffset(e1.RichRect, GameText.Richness);
                 sb_Rich.Update(textCursor);
                 sb_Rich.Draw(ScreenManager, fontStyle);
 
-                textCursor = TextCursorVector(e1.PopRect, 1403);
+                textCursor = GetCenteredTextOffset(e1.PopRect, GameText.MaxPopulation);
                 sb_Pop.Update(textCursor);
                 sb_Pop.Draw(ScreenManager, fontStyle);
 
-                textCursor = TextCursorVector(e1.OwnerRect, 1940);
+                textCursor = GetCenteredTextOffset(e1.OwnerRect, GameText.Owner);
                 sb_Owned.Update(textCursor);
                 sb_Owned.Draw(ScreenManager, fontStyle);
          

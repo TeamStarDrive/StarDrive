@@ -30,7 +30,7 @@ namespace Ship_Game.GameScreens.Sandbox
         int NumShotsFired;
         float ShotTimer;
 
-        public float AccuracyPercent => NumHitsScored / (float)NumShotsFired;
+        public float AccuracyPercent => NumShotsFired == 0 ? 0 : NumHitsScored / (float)NumShotsFired;
         public bool CanFire { get; set; } = false;
 
         public override void Update(FixedSimTime timeStep)

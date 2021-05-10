@@ -222,9 +222,8 @@ namespace Ship_Game
                     };                    
                     foreach (FleetDataNode node in fleet.Value.DataNodes)
                     {
-                        if (node.Ship?.Active != true)
-                            Log.Warning("tick");
-                        if (node.Ship != null)
+                        // only save ships that are currently alive (race condition when saving during intense battles)
+                        if (node.Ship != null && node.Ship.Active)
                             node.ShipGuid = node.Ship.guid;
                     }
                     fs.DataNodes = fleet.Value.DataNodes;
@@ -295,152 +294,10 @@ namespace Ship_Game
                 empireToSave.TechTree.AddRange(e.TechEntries.ToArray());
 
                 foreach (Ship ship in e.GetShips())
-                {
-                    var sdata = new ShipSaveData
-                    {
-                        guid       = ship.guid,
-                        data       = ship.ToShipData(),
-                        Position   = ship.Position,
-                        experience = ship.experience,
-                        kills      = ship.kills,
-                        Velocity   = ship.Velocity
-                        
-                    };
-                    if (ship.GetTether() != null)
-                    {
-                        sdata.TetheredTo   = ship.GetTether().guid;
-                        sdata.TetherOffset = ship.TetherOffset;
-                    }
-                    sdata.Name             = ship.Name;
-                    sdata.VanityName       = ship.VanityName;
-                    sdata.Hull             = ship.shipData.Hull;
-                    sdata.Power            = ship.PowerCurrent;
-                    sdata.Ordnance         = ship.Ordinance;
-                    sdata.yRotation        = ship.yRotation;
-                    sdata.Rotation         = ship.Rotation;
-                    sdata.InCombatTimer    = ship.InCombatTimer;
-                    sdata.FoodCount        = ship.GetFood();
-                    sdata.ProdCount        = ship.GetProduction();
-                    sdata.PopCount         = ship.GetColonists();
-                    sdata.TroopList        = ship.GetFriendlyAndHostileTroops();
-                    sdata.FightersLaunched = ship.Carrier.FightersLaunched;
-                    sdata.TroopsLaunched   = ship.Carrier.TroopsLaunched;
-                    sdata.SendTroopsToShip = ship.Carrier.SendTroopsToShip;
-                    sdata.AreaOfOperation  = ship.AreaOfOperation.Select(r => new RectangleData(r));
-
-                    sdata.RecallFightersBeforeFTL   = ship.Carrier.RecallFightersBeforeFTL;
-                    sdata.MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
-
-                    if (ship.IsHomeDefense)
-                        sdata.HomePlanetGuid = ship.HomePlanet.guid;
-
-                    if (ship.TradeRoutes?.NotEmpty == true)
-                    {
-                        sdata.TradeRoutes = new Array<Guid>();
-                        foreach (Guid planetGuid in ship.TradeRoutes)
-                        {
-                            sdata.TradeRoutes.Add(planetGuid);
-                        }
-                    }
-
-                    sdata.TransportingFood       = ship.TransportingFood;
-                    sdata.TransportingProduction = ship.TransportingProduction;
-                    sdata.TransportingColonists  = ship.TransportingColonists;
-                    sdata.AllowInterEmpireTrade  = ship.AllowInterEmpireTrade;
-                    sdata.AISave = new ShipAISave
-                    {
-                        State      = ship.AI.State
-                    };
-                    if (ship.AI.Target is Ship targetShip)
-                    {
-                        sdata.AISave.AttackTarget = targetShip.guid;
-                    }
-                    sdata.AISave.DefaultState   = ship.AI.DefaultAIState;
-                    sdata.AISave.MovePosition   = ship.AI.MovePosition;
-                    sdata.AISave.WayPoints      = new Array<WayPoint>(ship.AI.CopyWayPoints());
-                    sdata.AISave.ShipGoalsList  = new Array<ShipGoalSave>();
-                    sdata.AISave.PriorityOrder  = ship.AI.HasPriorityOrder;
-                    sdata.AISave.PriorityTarget = ship.AI.HasPriorityTarget;
-
-                    foreach (ShipAI.ShipGoal sg in ship.AI.OrderQueue)
-                    {
-                        var s = new ShipGoalSave
-                        {
-                            Plan             = sg.Plan,
-                            Direction        = sg.Direction,
-                            VariableString   = sg.VariableString,
-                            SpeedLimit       = sg.SpeedLimit,
-                            MovePosition     = sg.MovePosition,
-                            fleetGuid        = sg.Fleet?.Guid ?? Guid.Empty,
-                            goalGuid         = sg.Goal?.guid ?? Guid.Empty,
-                            TargetPlanetGuid = sg.TargetPlanet?.guid ?? Guid.Empty,
-                            TargetShipGuid   = sg.TargetShip?.guid ?? Guid.Empty,
-                            MoveType         = sg.MoveType,
-                            VariableNumber = sg.VariableNumber
-                        };
-
-                        if (sg.Trade != null)
-                        {
-                            s.Trade = new TradePlanSave
-                            {
-                                Goods         = sg.Trade.Goods,
-                                ExportFrom    = sg.Trade.ExportFrom?.guid ?? Guid.Empty,
-                                ImportTo      = sg.Trade.ImportTo?.guid ?? Guid.Empty,
-                                BlockadeTimer = sg.Trade.BlockadeTimer,
-                            };
-                        }
-                        sdata.AISave.ShipGoalsList.Add(s);
-                    }
-
-                    if (ship.AI.OrbitTarget != null)
-                        sdata.AISave.OrbitTarget = ship.AI.OrbitTarget.guid;
-
-                    if (ship.AI.ColonizeTarget != null)
-                        sdata.AISave.ColonizeTarget = ship.AI.ColonizeTarget.guid;
-
-                    if (ship.AI.SystemToDefend != null)
-                        sdata.AISave.SystemToDefend = ship.AI.SystemToDefend.guid;
-
-                    if (ship.AI.EscortTarget != null)
-                        sdata.AISave.EscortTarget = ship.AI.EscortTarget.guid;
-
-                    empireToSave.OwnedShips.Add(sdata);
-                }
+                    empireToSave.OwnedShips.Add(ShipSaveFromShip(ship));
 
                 foreach (Ship ship in e.GetProjectors())  //fbedard
-                {
-                    var sd = new ShipSaveData
-                    {
-                        guid       = ship.guid,
-                        data       = ship.ToShipData(),
-                        Position   = ship.Position,
-                        experience = ship.experience,
-                        kills      = ship.kills,
-                        Velocity   = ship.Velocity
-                    };
-                    if (ship.GetTether() != null)
-                    {
-                        sd.TetheredTo = ship.GetTether().guid;
-                        sd.TetherOffset = ship.TetherOffset;
-                    }
-                    sd.Name = ship.Name;
-                    sd.VanityName = ship.VanityName;
-                    sd.Hull          = ship.shipData.Hull;
-                    sd.Power         = ship.PowerCurrent;
-                    sd.Ordnance      = ship.Ordinance;
-                    sd.yRotation     = ship.yRotation;
-                    sd.Rotation      = ship.Rotation;
-                    sd.InCombatTimer = ship.InCombatTimer;
-                    sd.AISave        = new ShipAISave
-                    {
-                        State           = ship.AI.State,
-                        DefaultState    = ship.AI.DefaultAIState,
-                        MovePosition    = ship.AI.MovePosition,
-                        WayPoints       = new Array<WayPoint>(),
-                        ShipGoalsList   = new Array<ShipGoalSave>()
-                    };
-                    empireToSave.OwnedShips.Add(sd);
-                }
+                    empireToSave.OwnedShips.Add(ProjectorSaveFromShip(ship));
 
                 SaveData.EmpireDataList.Add(empireToSave);
             }
@@ -462,6 +319,153 @@ namespace Ship_Game
             screenToSave.FogMap.Save($"{path}/Saved Games/Fog Maps/{saveAs}fog.png", ImageFileFormat.Png);
             SaveThread = new Thread(SaveUniverseDataAsync) {Name = "Save Thread: " + saveAs};
             SaveThread.Start(SaveData);
+        }
+
+        public static ShipSaveData ShipSaveFromShip(Ship ship)
+        {
+            var sdata = new ShipSaveData
+            {
+                guid = ship.guid,
+                data = ship.ToShipData(),
+                Position = ship.Position,
+                experience = ship.experience,
+                kills = ship.kills,
+                Velocity = ship.Velocity
+
+            };
+            if (ship.GetTether() != null)
+            {
+                sdata.TetheredTo = ship.GetTether().guid;
+                sdata.TetherOffset = ship.TetherOffset;
+            }
+            sdata.Name = ship.Name;
+            sdata.VanityName = ship.VanityName;
+            sdata.Hull = ship.shipData.Hull;
+            sdata.Power = ship.PowerCurrent;
+            sdata.Ordnance = ship.Ordinance;
+            sdata.yRotation = ship.yRotation;
+            sdata.Rotation = ship.Rotation;
+            sdata.InCombatTimer = ship.InCombatTimer;
+            sdata.FoodCount = ship.GetFood();
+            sdata.ProdCount = ship.GetProduction();
+            sdata.PopCount = ship.GetColonists();
+            sdata.TroopList = ship.GetFriendlyAndHostileTroops();
+            sdata.FightersLaunched = ship.Carrier.FightersLaunched;
+            sdata.TroopsLaunched = ship.Carrier.TroopsLaunched;
+            sdata.SendTroopsToShip = ship.Carrier.SendTroopsToShip;
+            sdata.AreaOfOperation = ship.AreaOfOperation.Select(r => new RectangleData(r));
+
+            sdata.RecallFightersBeforeFTL = ship.Carrier.RecallFightersBeforeFTL;
+            sdata.MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
+
+            if (ship.IsHomeDefense)
+                sdata.HomePlanetGuid = ship.HomePlanet.guid;
+
+            if (ship.TradeRoutes?.NotEmpty == true)
+            {
+                sdata.TradeRoutes = new Array<Guid>();
+                foreach (Guid planetGuid in ship.TradeRoutes)
+                {
+                    sdata.TradeRoutes.Add(planetGuid);
+                }
+            }
+
+            sdata.TransportingFood = ship.TransportingFood;
+            sdata.TransportingProduction = ship.TransportingProduction;
+            sdata.TransportingColonists = ship.TransportingColonists;
+            sdata.AllowInterEmpireTrade = ship.AllowInterEmpireTrade;
+            sdata.AISave = new ShipAISave
+            {
+                State = ship.AI.State
+            };
+            if (ship.AI.Target is Ship targetShip)
+            {
+                sdata.AISave.AttackTarget = targetShip.guid;
+            }
+            sdata.AISave.DefaultState = ship.AI.DefaultAIState;
+            sdata.AISave.MovePosition = ship.AI.MovePosition;
+            sdata.AISave.WayPoints = new Array<WayPoint>(ship.AI.CopyWayPoints());
+            sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
+            sdata.AISave.PriorityOrder = ship.AI.HasPriorityOrder;
+            sdata.AISave.PriorityTarget = ship.AI.HasPriorityTarget;
+
+            foreach (ShipAI.ShipGoal sg in ship.AI.OrderQueue)
+            {
+                var s = new ShipGoalSave
+                {
+                    Plan = sg.Plan,
+                    Direction = sg.Direction,
+                    VariableString = sg.VariableString,
+                    SpeedLimit = sg.SpeedLimit,
+                    MovePosition = sg.MovePosition,
+                    fleetGuid = sg.Fleet?.Guid ?? Guid.Empty,
+                    goalGuid = sg.Goal?.guid ?? Guid.Empty,
+                    TargetPlanetGuid = sg.TargetPlanet?.guid ?? Guid.Empty,
+                    TargetShipGuid = sg.TargetShip?.guid ?? Guid.Empty,
+                    MoveType = sg.MoveType,
+                    VariableNumber = sg.VariableNumber
+                };
+
+                if (sg.Trade != null)
+                {
+                    s.Trade = new TradePlanSave
+                    {
+                        Goods = sg.Trade.Goods,
+                        ExportFrom = sg.Trade.ExportFrom?.guid ?? Guid.Empty,
+                        ImportTo = sg.Trade.ImportTo?.guid ?? Guid.Empty,
+                        BlockadeTimer = sg.Trade.BlockadeTimer,
+                    };
+                }
+                sdata.AISave.ShipGoalsList.Add(s);
+            }
+
+            if (ship.AI.OrbitTarget != null)
+                sdata.AISave.OrbitTarget = ship.AI.OrbitTarget.guid;
+
+            if (ship.AI.ColonizeTarget != null)
+                sdata.AISave.ColonizeTarget = ship.AI.ColonizeTarget.guid;
+
+            if (ship.AI.SystemToDefend != null)
+                sdata.AISave.SystemToDefend = ship.AI.SystemToDefend.guid;
+
+            if (ship.AI.EscortTarget != null)
+                sdata.AISave.EscortTarget = ship.AI.EscortTarget.guid;
+            return sdata;
+        }
+
+        public static ShipSaveData ProjectorSaveFromShip(Ship ship)
+        {
+            var sd = new ShipSaveData
+            {
+                guid       = ship.guid,
+                data       = ship.ToShipData(),
+                Position   = ship.Position,
+                experience = ship.experience,
+                kills      = ship.kills,
+                Velocity   = ship.Velocity
+            };
+            if (ship.GetTether() != null)
+            {
+                sd.TetheredTo = ship.GetTether().guid;
+                sd.TetherOffset = ship.TetherOffset;
+            }
+            sd.Name = ship.Name;
+            sd.VanityName = ship.VanityName;
+            sd.Hull          = ship.shipData.Hull;
+            sd.Power         = ship.PowerCurrent;
+            sd.Ordnance      = ship.Ordinance;
+            sd.yRotation     = ship.yRotation;
+            sd.Rotation      = ship.Rotation;
+            sd.InCombatTimer = ship.InCombatTimer;
+            sd.AISave = new ShipAISave
+            {
+                State           = ship.AI.State,
+                DefaultState    = ship.AI.DefaultAIState,
+                MovePosition    = ship.AI.MovePosition,
+                WayPoints       = new Array<WayPoint>(),
+                ShipGoalsList   = new Array<ShipGoalSave>()
+            };
+            return sd;
         }
 
         private static void SaveUniverseDataAsync(object universeSaveData)

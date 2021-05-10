@@ -8,7 +8,7 @@ using Ship_Game.Audio;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
-using Ship_Game.GameScreens.ShipDesignScreen;
+using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace
@@ -60,9 +60,11 @@ namespace Ship_Game
                 ActiveHull.ModuleSlots[i] = data;
             }
 
+            DesignedShip = new DesignShip(ActiveHull);
+
             BindListsToActiveHull();
             CreateSOFromActiveHull();
-            UpdateActiveCombatButton();
+            OrdersButton.ResetButtons(DesignedShip);
             UpdateCarrierShip();
 
             // force modules list to reset itself, so if we change from Battleship to Fighter
@@ -70,7 +72,10 @@ namespace Ship_Game
             ModuleSelectComponent.SelectedIndex = -1;
 
             ZoomCameraToEncloseHull(ActiveHull);
-            DesignIssues = new ShipDesignIssues.ShipDesignIssues(ActiveHull);
+
+            // TODO: remove DesignIssues from this page
+            InfoPanel.SetActiveDesign(DesignedShip);
+            IssuesPanel.SetActiveDesign(DesignedShip);
         }
 
         void UpdateCarrierShip()
@@ -148,7 +153,7 @@ namespace Ship_Game
 
             if (!ShipSaved && !goodDesign)
             {
-                ExitMessageBox(this, DoExit, SaveWIP, 2121);
+                ExitMessageBox(this, DoExit, SaveWIP, GameText.ThisShipDesignIsNot);
                 return;
             }
             if (ShipSaved || !goodDesign)
@@ -156,7 +161,7 @@ namespace Ship_Game
                 ReallyExit();
                 return;
             }
-            ExitMessageBox(this, DoExit, SaveChanges, 2137);
+            ExitMessageBox(this, DoExit, SaveChanges, GameText.YouHaveUnsavedChangesSave);
         }
 
         public void ExitToMenu(string launches)
@@ -174,16 +179,16 @@ namespace Ship_Game
             }
             if (!ShipSaved && !goodDesign)
             {
-                ExitMessageBox(this, LaunchScreen, SaveWIP, 2121);
+                ExitMessageBox(this, LaunchScreen, SaveWIP, GameText.ThisShipDesignIsNot);
                 return;
             }
 
             if (!ShipSaved && goodDesign)
             {
-                ExitMessageBox(this, LaunchScreen, SaveChanges, 2137);
+                ExitMessageBox(this, LaunchScreen, SaveChanges, GameText.YouHaveUnsavedChangesSave);
                 return;
             }
-            ExitMessageBox(this, LaunchScreen, SaveChanges, 2121);
+            ExitMessageBox(this, LaunchScreen, SaveChanges, GameText.ThisShipDesignIsNot);
         }
 
         public override bool HandleInput(InputState input)
@@ -228,9 +233,6 @@ namespace Ship_Game
 
             HandleInputZoom(input);
             HandleInputDebug(input);
-
-            if (HandleDesignIssuesButton(input))
-                return true;
 
             if (ArcsButton.R.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.TogglesTheWeaponFireArc, "Tab");
@@ -369,37 +371,6 @@ namespace Ship_Game
             slot.Module.FacingDegrees = arc;
             if (IsSymmetricDesignMode && GetMirrorModule(slot, out ShipModule mirrored))
                 mirrored.FacingDegrees = 360 - arc;
-        }
-
-        bool HandleDesignIssuesButton(InputState input)
-        {
-            if (DesignIssues.CurrentWarningLevel == ShipDesignIssues.WarningLevel.None)
-                return false ;
-
-            if (DesignIssuesButton.R.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(GameText.StatesAnyDesignIssuesThe);
-
-
-            if (DesignIssues.CurrentWarningLevel > ShipDesignIssues.WarningLevel.Informative 
-                && DesignIssuesButton.HandleInput(input))
-            {
-                AddDesignIssuesScreen();
-                return true;
-            }
-
-            if (DesignIssues.CurrentWarningLevel == ShipDesignIssues.WarningLevel.Informative  
-                && InformationButton.HandleInput(input))
-            {
-                AddDesignIssuesScreen();
-                return true;
-            }
-
-            return false;
-        }
-
-        void AddDesignIssuesScreen()
-        {
-            ScreenManager.AddScreen(new ShipDesignIssuesScreen(this, EmpireManager.Player, DesignIssues.CurrentDesignIssues));
         }
 
         void HandleCameraMovement(InputState input)
@@ -648,22 +619,7 @@ namespace Ship_Game
         {
             StripModules();
         }
-
-        void UpdateActiveCombatButton()
-        {
-            foreach (ToggleButton button in CombatStatusButtons)
-                button.IsToggled = (ActiveHull.CombatState == button.CombatState);
-        }
-
-        void OnCombatButtonPressed(CombatState state)
-        {
-            if (ActiveHull == null)
-                return;
-            GameAudio.AcceptClick();
-            ActiveHull.CombatState = state;
-            UpdateActiveCombatButton();
-        }
-
+        
         void JustChangeHull()
         {
             ShipSaved = true;
@@ -717,7 +673,8 @@ namespace Ship_Game
             if (!ShipSaved && !CheckDesign() && !ModuleGrid.IsEmptyDesign())
             {
                 ChangeTo = item.Hull;
-                MakeMessageBox(this, JustChangeHull, SaveWIPThenChangeHull, 2121, "Save", "No");
+                MakeMessageBox(this, JustChangeHull, SaveWIPThenChangeHull, 
+                               GameText.ThisShipDesignIsNot, "Save", "No");
             }
             else
             {

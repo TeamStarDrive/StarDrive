@@ -19,7 +19,7 @@ namespace UnitTests.Ships
         Ship CreateWarpTestShip()
         {
             Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
-            ship.FTLSpoolTime = 3f;
+            ship.Stats.FTLSpoolTime = 3f;
             Assert.IsFalse(ship.IsSpoolingOrInWarp);
             Assert.IsFalse(ship.IsInWarp);
             return ship;

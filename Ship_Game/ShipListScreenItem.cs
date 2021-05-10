@@ -26,7 +26,7 @@ namespace Ship_Game
         public Rectangle RemainderRect;
 
         Rectangle ShipIconRect;
-        readonly UITextEntry ShipNameEntry = new UITextEntry();
+        readonly UITextEntry ShipNameEntry ;
         readonly TexturedButton RefitButton;
         readonly TexturedButton ScrapButton;
         readonly TexturedButton ExploreButton; //Auto-explore button for ShipListScreen
@@ -37,8 +37,8 @@ namespace Ship_Game
         readonly bool IsCombat;  //fbedard
         public bool Selected = false;  //fbedard: for multi-select
         private readonly string SystemName;
-        private readonly SpriteFont Font12 = Fonts.Arial12Bold;
-        private readonly SpriteFont Font8  = Fonts.Arial8Bold;
+        private readonly Graphics.Font Font12 = Fonts.Arial12Bold;
+        private readonly Graphics.Font Font8  = Fonts.Arial8Bold;
 
         public ShipListScreenItem(Ship s, int x, int y, int width1, int height, ShipListScreen caller)
         {
@@ -58,15 +58,16 @@ namespace Ship_Game
             STLRect = new Rectangle(FTLRect.X + FTLRect.Width, y, 60, height);
             StatusText = GetStatusText(Ship);
             ShipIconRect = new Rectangle(ShipNameRect.X + 5, ShipNameRect.Y + 2, 28, 28);
-            string shipName = !string.IsNullOrEmpty(Ship.VanityName) ? Ship.VanityName : Ship.Name;
             SystemName = Ship.System?.Name ?? Localizer.Token(GameText.DeepSpace);
-            ShipNameEntry.ClickableArea = new Rectangle(ShipIconRect.X + ShipIconRect.Width + 10, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
-            ShipNameEntry.Text = shipName;
+
+            ShipNameEntry = new UITextEntry(new Vector2(ShipIconRect.Right + 10, 2 + SysNameRect.CenterY() - Fonts.Arial12Bold.LineSpacing / 2),
+                                            Fonts.Arial12Bold, Ship.ShipName);
+            ShipNameEntry.Color = Colors.Cream;
+            ShipNameEntry.OnTextChanged = (text) => Ship.VanityName = text;
+
             float width = (int)(OrdersRect.Width * 0.8f);
             while (width % 10f != 0f)
-            {
                 width += 1f;
-            }
 
             if (!Ship.IsPlatformOrStation && !Ship.IsHangarShip 
                                           && Ship.shipData.Role != ShipData.RoleName.troop 
@@ -85,7 +86,7 @@ namespace Ship_Game
             RefitButton = new TexturedButton(refit, "NewUI/icon_queue_rushconstruction", "NewUI/icon_queue_rushconstruction_hover1", "NewUI/icon_queue_rushconstruction_hover2");			
             ScrapButton = new TexturedButton(refit, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
 
-            if (Ship.IsPlatformOrStation || Ship.Thrust <= 0f)
+            if (Ship.IsPlatformOrStation || Ship.Stats.Thrust <= 0f)
             {
                 IsScuttle = true;
             }
@@ -114,14 +115,14 @@ namespace Ship_Game
             }
 
             batch.Draw(Ship.shipData.Icon, ShipIconRect, Color.White);
-            ShipNameEntry.Draw(batch, elapsed, Font12, ShipNameEntry.ClickableArea.PosVec(), textColor);
+            ShipNameEntry.Draw(batch, elapsed);
 
             var rolePos = new Vector2(RoleRect.X + RoleRect.Width / 2 - Font12.MeasureString(Localizer.GetRole(Ship.shipData.Role, Ship.loyalty)).X / 2f, RoleRect.Y + RoleRect.Height / 2 - Font12.LineSpacing / 2);
             HelperFunctions.ClampVectorToInt(ref rolePos);
             batch.DrawString(Font12, Localizer.GetRole(Ship.shipData.Role, Ship.loyalty), rolePos, textColor);
 
             string fleetName     = Ship.fleet?.Name ?? "";
-            SpriteFont fleetFont = Font12.MeasureString(fleetName).X > FleetRect.Width - 5 ? Font8 : Font12;
+            Graphics.Font fleetFont = Font12.MeasureString(fleetName).X > FleetRect.Width - 5 ? Font8 : Font12;
             var fleetPos = new Vector2(FleetRect.X + FleetRect.Width / 2 - fleetFont.MeasureString(fleetName).X / 2f, FleetRect.Y + FleetRect.Height / 2 - fleetFont.LineSpacing / 2);
             HelperFunctions.ClampVectorToInt(ref fleetPos);
             batch.DrawString(fleetFont, fleetName, fleetPos, textColor);
@@ -407,31 +408,6 @@ namespace Ship_Game
                 return true;
             }
 
-            if (ShipNameEntry.ClickableArea.HitTest(input.CursorPosition))
-            {
-                ShipNameEntry.Hover = true;
-                if (input.InGameSelect)
-                    ShipNameEntry.HandlingInput = true;
-            }
-            else
-            {
-                ShipNameEntry.Hover = false;
-                if (!HitTest(input.CursorPosition) || input.LeftMouseClick)
-                {
-                    ShipNameEntry.HandlingInput = false;
-                    GlobalStats.TakingInput = false;
-                }
-            }
-
-            if (ShipNameEntry.HandlingInput)
-            {
-                GlobalStats.TakingInput = true;
-                ShipNameEntry.HandleTextInput(ref Ship.VanityName, input);
-                ShipNameEntry.Text = Ship.VanityName;
-                return true;
-            }
-
-            GlobalStats.TakingInput = false;
             return base.HandleInput(input);
         }
 
@@ -450,8 +426,7 @@ namespace Ship_Game
             FTLRect = new Rectangle(TroopRect.X + TroopRect.Width, y, 60, TotalEntrySize.Height);
             STLRect = new Rectangle(FTLRect.X + FTLRect.Width, y, 60, TotalEntrySize.Height);
             ShipIconRect = new Rectangle(ShipNameRect.X + 5, ShipNameRect.Y + 2, 28, 28);
-            string shipName = (!string.IsNullOrEmpty(Ship.VanityName) ? Ship.VanityName : Ship.Name);
-            ShipNameEntry.ClickableArea = new Rectangle(ShipIconRect.X + ShipIconRect.Width + 10, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
+            ShipNameEntry.SetPos(ShipIconRect.Right + 10, 2 + SysNameRect.CenterY() - ShipNameEntry.Font.LineSpacing / 2);
 
             if (IsCombat)
             {

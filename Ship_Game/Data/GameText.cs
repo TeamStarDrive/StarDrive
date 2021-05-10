@@ -218,6 +218,8 @@ namespace Ship_Game
         ShipsArray = 104,
         /// <summary>Save As</summary>
         SaveAs = 105,
+        /// <summary>Saving...</summary>
+        Saving = -1,
         /// <summary>Toggle Overlay</summary>
         ToggleOverlay = 106,
         /// <summary>Select Hull</summary>
@@ -310,6 +312,18 @@ namespace Ship_Game
         DeepSpace = 150,
         /// <summary>Upkeep</summary>
         Upkeep = 151,
+        /// <summary>Upkeep Cost</summary>
+        UpkeepCost = -2,
+        /// <summary>Total Module Slots</summary>
+        TotalModuleSlots = -3,
+        /// <summary>Excess Wpn Pwr Drain</summary>
+        ExcessWpnPwrDrain = -4,
+        /// <summary>Wpn Fire Power Time</summary>
+        WpnFirePowerTime = -5,
+        /// <summary>Burst Wpn Pwr Drain</summary>
+        BurstWpnPwrDrain = -6,
+        /// <summary>Burst Wpn Pwr Time</summary>
+        BurstWpnPwrTime = -7,
         /// <summary>Kills</summary>
         Kills = 152,
         /// <summary>Awaiting Orders</summary>
@@ -404,7 +418,7 @@ namespace Ship_Game
         Statistics = 197,
         /// <summary>Available Designs</summary>
         AvailableDesigns = 198,
-        /// <summary>Choose a Ship to Load</summary>
+        /// <summary>Ship Name</summary>
         ChooseAShipToLoad = 199,
         /// <summary>Attack Runs: Ship will make head-on attack runs on its</summary>
         ShipWillMakeHeadonAttack = 200,
@@ -2477,7 +2491,7 @@ namespace Ship_Game
         /// <summary>Shield Amp</summary>
         ShieldAmp = 1910,
         /// <summary>Each of the ship shield's maximum power will be amplified</summary>
-        EachOfTheShipShields = 1911,
+        TT_ShieldAmplify = 1911,
         /// <summary>When powered, this amplifies the Maximum Power of the main</summary>
         WhenPoweredThisAmplifiesThe = 1912,
         /// <summary>Shield Amplify</summary>
@@ -2485,7 +2499,7 @@ namespace Ship_Game
         /// <summary>Relative Strength</summary>
         RelativeStrength = 1914,
         /// <summary>This is the strength of the ship divided by it's</summary>
-        ThisIsTheStrengthOf = 1915,
+        TT_RelativeStrength = 1915,
         /// <summary>Governor Budget</summary>
         GovernorBudget = 1916,
         /// <summary>Treasury Goal</summary>
@@ -2609,11 +2623,11 @@ namespace Ship_Game
         /// <summary>Strip Ship</summary>
         NormalDesign = 1986,
         /// <summary>The total time the ship can maintain energy weapon fire</summary>
-        TheTotalTimeTheShip = 1987,
+        TT_BurstWpnPwrTime = 1987,
         /// <summary>This indicates that there is a net power drain from</summary>
-        ThisIndicatesThatThereIs = 1988,
+        TT_BurstWpnPwerDrain = 1988,
         /// <summary>This indicates that there is a net power drain from</summary>
-        ThisIndicatesThatThereIs2 = 1989,
+        TT_ExcessWpnPwrDrain = 1989,
         /// <summary>This weapon fires more than one projectile per shot. It</summary>
         ThisWeaponFiresMoreThan = 1990,
         /// <summary>The more complex the module is, the more it is</summary>
@@ -2735,7 +2749,7 @@ namespace Ship_Game
         /// <summary>This ship design is invalid. Every ship requires a command</summary>
         ThisShipDesignIsInvalid = 2049,
         /// <summary>A ship's total mass determines its maneuverability and maximum velocity</summary>
-        AShipsTotalMassDetermines = 2050,
+        TT_Mass = 2050,
         /// <summary>A module's health represents how much damage it can take</summary>
         AModulesHealthRepresentsHow = 2051,
         /// <summary>Indicates how much power this module adds to or subtracts</summary>
@@ -2777,27 +2791,27 @@ namespace Ship_Game
         /// <summary>Hangars are capable of sustaning a single ship per hangar</summary>
         HangarsAreCapableOfSustaning = 2070,
         /// <summary>Indicates the total production value of this ship design</summary>
-        IndicatesTheTotalProductionValue = 2071,
+        TT_ProductionCost = 2071,
         /// <summary>Indicates the maximum amount of power that can be stored</summary>
-        IndicatesTheMaximumAmountOf2 = 2072,
+        TT_PowerCapacity = 2072,
         /// <summary>Indicates the net power flow of this vessel. In most</summary>
-        IndicatesTheNetPowerFlow = 2073,
+        TT_PowerRecharge = 2073,
         /// <summary>Indicates the net power flow of this vessel when its</summary>
-        IndicatesTheNetPowerFlow2 = 2074,
+        TT_RechargeAtWarp = 2074,
         /// <summary>Indicates the total hitpoints of all of the ship's modules</summary>
-        IndicatesTheTotalHitpointsOf = 2075,
+        TT_HitPoints = 2075,
         /// <summary>Indicates the total hitpoints of all of the ship's shield</summary>
-        IndicatesTheTotalHitpointsOf2 = 2076,
+        TT_ShieldPower = 2076,
         /// <summary>Indicates the distance this ship can travel in one second</summary>
-        IndicatesTheDistanceThisShip = 2077,
+        TT_SublightSpeed = 2077,
         /// <summary>Indicates the distance this ship can travel in one second</summary>
         IndicatesTheDistanceThisShip2 = 2078,
         /// <summary>Indicates the number of degrees this ship may rotate in</summary>
-        IndicatesTheNumberOfDegrees = 2079,
+        TT_TurnRate = 2079,
         /// <summary>Indicates the maximum amount of multi-purpose ordnance this ship can</summary>
-        IndicatesTheMaximumAmountOf3 = 2080,
+        TT_OrdnanceCap = 2080,
         /// <summary>Indicates the total cargo space available on this ship. Each</summary>
-        IndicatesTheTotalCargoSpace = 2081,
+        TT_CargoSpace = 2081,
         /// <summary>Vegetarian Rebels</summary>
         VegetarianRebels = 2082,
         /// <summary>Confederate Rebels</summary>
@@ -2973,9 +2987,11 @@ namespace Ship_Game
         /// <summary>Toggles the weapon fire arc and shield protection radius display</summary>
         TogglesTheWeaponFireArc = 2168,
         /// <summary>Indicates the distance this ship can travel in one second</summary>
-        IndicatesTheDistanceThisShip3 = 2169,
+        TT_FtlSpeed = 2169,
         /// <summary>FTL Speed</summary>
         FtlSpeed = 2170,
+        /// <summary>FTL Time</summary>
+        FtlTime = -8,
         /// <summary>Orders this ship to explore the galaxy</summary>
         OrdersThisShipToExplore = 2171,
         /// <summary>Manual Trade: Orders this Freighter to transport colonists from your</summary>
@@ -3837,7 +3853,7 @@ namespace Ship_Game
         /// <summary>Corners is a 4 race match similar to a sandbox</summary>
         CornersIsARaceMatch = 4103,
         /// <summary>The total number of module slots available on the selected</summary>
-        TheTotalNumberOfModule = 4104,
+        TT_TotalModuleSlots = 4104,
         /// <summary>has been struck by a meteor! The environment was adversely</summary>
         HasBeenStruckByA = 4105,
         /// <summary>Support</summary>
@@ -4232,6 +4248,10 @@ namespace Ship_Game
         FoodRemainingHereThisBuilding = 4301,
         /// <summary>Production Remaining here. This building will be removed when the</summary>
         ProductionRemainingHereThisBuilding = 4302,
+        /// <summary>Troop land aborted since the planet is now owned by</summary>
+        AbortLandPlayerTroopsNoFleet = 4303,
+        /// <summary>fleet movement halted.</summary>
+        AbortLandPlayerTroopsInFleet = 4304,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>
@@ -4421,7 +4441,7 @@ namespace Ship_Game
         /// <summary>Trade Hub</summary>
         TradeHub = 5087,
         /// <summary>Fire Control Systems or FCS. This indicates how powerful weapon</summary>
-        FireControlSystemsOrFcs = 5088,
+        TT_FireControl = 5088,
         /// <summary>sensor range</summary>
         SensorRange = 6000,
         /// <summary>subspace projection area</summary>
@@ -4827,11 +4847,15 @@ namespace Ship_Game
         /// <summary>Prevents AI empires from merging into Federations at the first</summary>
         PreventsAiEmpiresFromMerging = 7011,
         /// <summary>Indicates the maximum time in seconds this ship may continuously</summary>
-        IndicatesTheMaximumTimeIn = 7012,
+        TT_WpnFirePowerTime = 7012,
+        /// <summary>Ammo Time</summary>
+        AmmoTime = -9,
         /// <summary>Indicates the maximum time in seconds this ship may continuously</summary>
-        IndicatesTheMaximumTimeIn2 = 7013,
+        TT_AmmoTime = 7013,
+        /// <summary>Ordnance Created / s</summary>
+        OrdnanceCreated = -10,
         /// <summary>Indicates the amount of ordnance this ship is capable of</summary>
-        IndicatesTheAmountOfOrdnance3 = 7014,
+        TT_OrdnanceCreated = 7014,
         /// <summary>In the Capital Elimination game mode, empires are defeated when</summary>
         InTheCapitalEliminationGame = 7015,
         /// <summary>Indicates the maximum amount of damage repaired by beams from</summary>
@@ -4853,9 +4877,9 @@ namespace Ship_Game
         /// <summary>Indicates the amount troops are healed per second</summary>
         IndicatesTheAmountTroopsAre = 7024,
         /// <summary>Indicates the credits per tick this design would cost in</summary>
-        IndicatesTheCreditsPerTick = 7025,
+        TT_UpkeepCost = 7025,
         /// <summary>Indicates this ship's maximum sustained FTL jump duration outside of</summary>
-        IndicatesThisShipsMaximumSustained = 7026,
+        TT_FtlTime = 7026,
         /// <summary>Indicates the time in seconds it takes for this ship's</summary>
         IndicatesTheTimeInSeconds = 7027,
         /// <summary>The effective power drain of this module when the ship</summary>
@@ -4863,7 +4887,7 @@ namespace Ship_Game
         /// <summary>The number of troops this module can house</summary>
         TheNumberOfTroopsThis = 7029,
         /// <summary>Indicates the total complement of troops this ship can carry</summary>
-        IndicatesTheTotalComplementOf = 7030,
+        TT_TroopCapacity = 7030,
         /// <summary>Indicates the counter-espionage strength of this empire. The strength goes</summary>
         IndicatesTheCounterespionageStrengthOf = 7031,
         /// <summary>Random chance this weapon will fire through enemy shields. Golden</summary>
@@ -4957,7 +4981,7 @@ namespace Ship_Game
         /// <summary>Indicates the amount of EMP protection that this module adds</summary>
         IndicatesTheAmountOfEmp2 = 7076,
         /// <summary>The total EMP protection of this design.</summary>
-        TheTotalEmpProtectionOf = 7077,
+        TT_EmpProtection = 7077,
         /// <summary>Weapons which do less damage than this value will simply</summary>
         WeaponsWhichDoLessDamage = 7078,
         /// <summary>Weapons which do less damage than this value will simply</summary>
@@ -4971,20 +4995,46 @@ namespace Ship_Game
         /// <summary>This is a bonus to the number targets that can</summary>
         ThisIsABonusTo = 7083,
         /// <summary>Estimated offensive strength of the ship or module. This is</summary>
-        EstimatedOffensiveStrengthOfThe = 7084,
+        TT_ShipOffense = 7084,
         /// <summary>Short Range: Ship will rotate so that forward-firing weapons are</summary>
         ShipWillRotateSoThat2 = 7085,
         /// <summary>This value represents the complexity of this command module's fire</summary>
         ThisValueRepresentsTheComplexity = 7086,
         /// <summary>Total number of ships the scanners can track and total</summary>
-        ThisIsTheTotalNumber = 7087,
+        TT_FcsPower = 7087,
         /// <summary>This is the total number of targets this ship's fire</summary>
         ThisIsTheTotalNumber2 = 7088,
         /// <summary>This is the total electronic countermeasure (ECM) value for this</summary>
-        ThisIsTheTotalElectronic = 7089,
+        TT_Ecm3 = 7089,
         /// <summary>This is the maximum sensor range of this vessel: essentially</summary>
-        ThisIsTheMaximumSensor = 7090,
+        TT_SensorRange3 = 7090,
         /// <summary>This is this ship's self-repair rate per tick - it</summary>
-        ThisIsThisShipsSelfrepair = 7091,
+        TT_RepairRate = 7091,
+        /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
+        EncCorsairs000_Msg0 = -11,
+        /// <summary>Agree to pay this upstanding gentleman.</summary>
+        EncCorsairs000_Msg0_R1_AgreeToPay = -12,
+        /// <summary>Refuse to pay this scoundrel!</summary>
+        EncCorsairs000_Msg0_R2_RefuseToPay = -13,
+        /// <summary>Wonderful news! We'll let you know when we're done drinking</summary>
+        EncCorsairs000_Msg1 = -14,
+        /// <summary>Now that is disappointing, isn't it? And here I was</summary>
+        EncCorsairs000_Msg2 = -15,
+        /// <summary>What, is this some sort of SING humor? You don't</summary>
+        EncCorsairs000_Msg3 = -16,
+        /// <summary>A Mysterious Signal</summary>
+        ExpEvent_BuiltRDA_Name = -17,
+        /// <summary>You have built the Remnant Detection Array</summary>
+        ExpEvent_BuiltRDA_Outcome1_Title = -18,
+        /// <summary>Your quest to discover the secrets of The Remnant continues.</summary>
+        ExpEvent_BuiltRDA_Outcome1_Descr = -19,
+        /// <summary>Start Typing to Find Techs</summary>
+        StartTypingToFindTechs = -20,
+        /// <summary>Design Name:</summary>
+        DesignName = -21,
+        /// <summary>Similar Design Names</summary>
+        SimilarDesignNames = -22,
+        /// <summary>Save Ship Design</summary>
+        SaveShipDesign = -23,
     }
 }

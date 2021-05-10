@@ -79,11 +79,11 @@ namespace Ship_Game.Ships
 
         public override void Update(FixedSimTime timeStep)
         {
-            if (Active && (ModuleSlotsDestroyed || Health <= 0))
+            if (Active && Health <= 0)
             {
                 if (Health <= 0)
                 {
-                    Log.Warning($"Ship Terminated due to 0 health bug. Active: {Active}, has live modules: {ModuleSlotsDestroyed}");
+                    Log.Warning($"Ship Terminated due to 0 health bug. Active: {Active}");
                 }
                 Die(null, true);
             }
@@ -384,18 +384,17 @@ namespace Ship_Game.Ships
                     continue;
                 }
                 //Filter by powerplants.
-                if (!module.Is(ShipModuleType.PowerPlant) || !module.Active) continue;
-                //This is a change. powerplants are now marked powered
+                if (!module.Is(ShipModuleType.PowerPlant) || !module.Active)
+                    continue;
+
                 module.Powered = true;
-                Vector2 moduleCenter = module.LocalCenter;
-                //conduit check.
                 foreach (ShipModule slot2 in ModuleSlotList)
                 {
                     if (slot2.ModuleType != ShipModuleType.PowerConduit || slot2.Powered)
                         continue;
 
-                    if (!IsAnyPartOfModuleInRadius(module, slot2.LocalCenter, 16)) continue;
-                    CheckAndPowerConduit(slot2);
+                    if (IsAnyPartOfModuleInRadius(module, slot2.LocalCenter, 16))
+                        CheckAndPowerConduit(slot2);
                 }
             }
             for (int i = 0; i < ModuleSlotList.Length; ++i)
@@ -432,14 +431,15 @@ namespace Ship_Game.Ships
         {
             float cx = pos.X;
             float cy = pos.Y;
-
             for (int y = 0; y < moduleAreaToCheck.YSIZE; ++y)
             {
-                float sy = moduleAreaToCheck.Position.Y + (y * 16) +8;
+                float sy = moduleAreaToCheck.Position.Y + (y * 16) + 8;
                 for (int x = 0; x < moduleAreaToCheck.XSIZE; ++x)
                 {
-                    if (y == moduleAreaToCheck.YSIZE * 16 && x == moduleAreaToCheck.XSIZE *16) continue;
-                        float sx = moduleAreaToCheck.Position.X + (x * 16) +8;
+                    if (y == moduleAreaToCheck.YSIZE * 16 && x == moduleAreaToCheck.XSIZE *16)
+                        continue;
+
+                    float sx = moduleAreaToCheck.Position.X + (x * 16) + 8;
                     if ((int) Math.Abs(cx - sx) + (int) Math.Abs(cy - sy) <= radius + 8)
                         return true;
                 }

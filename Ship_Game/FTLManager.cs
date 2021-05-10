@@ -184,13 +184,10 @@ namespace Ship_Game
                     LoadContent(screen);
                 });
 
-                using (var parser = new YamlParser(file))
+                FTLLayers = YamlParser.DeserializeArray<FTLLayerData>(file).ToArray();
+                foreach (FTLLayerData layerData in FTLLayers)
                 {
-                    FTLLayers = parser.DeserializeArray<FTLLayerData>().ToArray();
-                    foreach (FTLLayerData layerData in FTLLayers)
-                    {
-                        layerData.LoadContent(screen.TransientContent);
-                    }
+                    layerData.LoadContent(screen.TransientContent);
                 }
             }
         }

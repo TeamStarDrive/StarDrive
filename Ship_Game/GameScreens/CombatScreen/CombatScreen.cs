@@ -5,6 +5,7 @@ using Ship_Game.Ships;
 using System;
 using System.Linq;
 using Ship_Game.SpriteSystem;
+using Ship_Game.Data;
 
 namespace Ship_Game
 {
@@ -392,7 +393,7 @@ namespace Ship_Game
 
         void DrawTroopData(SpriteBatch batch, Rectangle rect, Troop troop, string data, Color color)
         {
-            SpriteFont font = Fonts.Arial12;
+            Graphics.Font font = Fonts.Arial12;
             batch.FillRectangle(rect, new Color(0, 0, 0, 200));
             batch.DrawRectangle(rect, troop.Loyalty.EmpireColor);
             var cursor = new Vector2((rect.X + rect.Width / 2) - font.MeasureString(troop.Strength.String(1)).X / 2f,
@@ -893,7 +894,7 @@ namespace Ship_Game
 
         public void AddExplosion(Rectangle grid, int size)
         {
-            var exp = new SmallExplosion(grid, size);
+            var exp = new SmallExplosion(TransientContent, grid, size);
             using (Explosions.AcquireWriteLock())
                 Explosions.Add(exp);
         }
@@ -914,11 +915,11 @@ namespace Ship_Game
             readonly TextureAtlas Animation;
             readonly Rectangle Grid;
 
-            public SmallExplosion(Rectangle grid, int size)
+            public SmallExplosion(GameContentManager content, Rectangle grid, int size)
             {
                 Grid = grid;
                 string anim = size <= 3 ? "Textures/sd_explosion_12a_bb" : "Textures/sd_explosion_14a_bb";
-                Animation = ResourceManager.RootContent.LoadTextureAtlas(anim);
+                Animation = content.LoadTextureAtlas(anim);
             }
 
             public bool Update(float elapsedTime)

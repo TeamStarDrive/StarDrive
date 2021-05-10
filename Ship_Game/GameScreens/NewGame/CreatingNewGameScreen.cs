@@ -237,11 +237,6 @@ namespace Ship_Game
                 {
                     asteroid.Position += wipSystem.Position;
                 }
-                foreach (Ship ship in wipSystem.ShipList)
-                {
-                    ship.Position = ship.loyalty.GetPlanets()[0].Center + new Vector2(6000f, 2000f);
-                    ship.InitializeShip();
-                }
             }
             step.Finish();
         }
@@ -285,7 +280,7 @@ namespace Ship_Game
 
             foreach (IEmpireData readOnlyData in opponents)
             {
-                Empire e = Data.CreateEmpire(readOnlyData);
+                Empire e = Data.CreateEmpire(readOnlyData, isPlayer: false);
                 RacialTrait t = e.data.Traits;
 
                 e.data.FlatMoneyBonus  += e.DifficultyModifiers.FlatMoneyBonus;
@@ -301,7 +296,7 @@ namespace Ship_Game
             
             foreach (IEmpireData readOnlyData in ResourceManager.MinorRaces)
             {
-                Data.CreateEmpire(readOnlyData);
+                Data.CreateEmpire(readOnlyData, isPlayer: false);
                 step.Advance();
             }
         }
@@ -810,7 +805,7 @@ namespace Ship_Game
 
             EmpireShipBonuses.RefreshBonuses();
 
-            ScreenManager.AddScreenImmediate(us);
+            ScreenManager.AddScreenAndLoadContent(us);
 
             Log.Info("CreatingNewGameScreen.Objects.Update(0.01)");
             us.Objects.Update(new FixedSimTime(0.01f));

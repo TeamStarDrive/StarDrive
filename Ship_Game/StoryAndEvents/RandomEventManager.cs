@@ -70,7 +70,7 @@ namespace Ship_Game
             }
         }
 
-        static void NotifyPlayerIfAffected(Planet planet, int token, string postText = "")
+        static void NotifyPlayerIfAffected(Planet planet, GameText message, string postText = "")
         {
             if (planet.Owner == null)
             {
@@ -90,7 +90,7 @@ namespace Ship_Game
                 }
             }
 
-            string fullText = $"{planet.Name} {Localizer.Token(token)} {postText}";
+            string fullText = $"{planet.Name} {Localizer.Token(message)} {postText}";
             Empire.Universe.NotificationManager.AddRandomEventNotification(
                 fullText, planet.Type.IconPath, "SnapToPlanet", planet);
         }
@@ -126,7 +126,7 @@ namespace Ship_Game
                 return;
 
             planet.AddMaxBaseFertility(RandomMath.RollDie(5) / 10f); // 0.1 to 0.5 max base fertility
-            NotifyPlayerIfAffected(planet, 4011);
+            NotifyPlayerIfAffected(planet, GameText.HasSuddenlyShiftedInIts);
             Log.Info($"Event Notification: Orbit Shift at {planet}");
         }
 
@@ -195,13 +195,11 @@ namespace Ship_Game
             if (!GetAffectedPlanet(Potentials.Improved, out Planet planet)) 
                 return;
 
-            PlanetCategory category = RandomMath.RollDice(75) ? PlanetCategory.Barren 
-                                                                     : PlanetCategory.Desert;
-
+            PlanetCategory category = RandomMath.RollDice(75) ? PlanetCategory.Barren : PlanetCategory.Desert;
             PlanetType newType = ResourceManager.RandomPlanet(category);
             planet.GenerateNewFromPlanetType(newType, planet.Scale);
             planet.RecreateSceneObject();
-            NotifyPlayerIfAffected(planet, 4112);
+            NotifyPlayerIfAffected(planet, GameText.HasExperiencedAMassiveVolcanic);
             int numVolcanoes = category == PlanetCategory.Barren ? RandomMath.RollDie(15) : RandomMath.RollDie(7);
             for (int i = 0; i < numVolcanoes; i++)
             {
@@ -221,10 +219,10 @@ namespace Ship_Game
             if (!GetAffectedPlanet(Potentials.HasOwner, out Planet planet)) 
                 return;
 
-            float size              = RandomMath.RandomBetween(-0.25f, 0.75f).LowerBound(0.2f);
+            float size = RandomMath.RandomBetween(-0.25f, 0.75f).LowerBound(0.2f);
             planet.MineralRichness += (float)Math.Round(size, 2);
-            string postText         = $" {size.String(2)}";
-            NotifyPlayerIfAffected(planet, 1867, postText);
+            string postText = $" {size.String(2)}";
+            NotifyPlayerIfAffected(planet, GameText.RawMineralsWereDiscoverednmineralRichness, postText);
             Log.Info($"Event Notification: Minerals Found at {planet}");
         }
     }

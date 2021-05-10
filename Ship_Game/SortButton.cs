@@ -32,7 +32,7 @@ namespace Ship_Game
 		{
 			Color orange;
 			SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-			SpriteFont arial20Bold = Fonts.Arial20Bold;
+			Graphics.Font arial20Bold = Fonts.Arial20Bold;
 			string text = Text;
 			var vector2 = new Vector2(rect.X, rect.Y);
 			if (Selected)
@@ -46,11 +46,11 @@ namespace Ship_Game
 			spriteBatch.DrawString(arial20Bold, text, vector2, orange);
 		}
 
-		public void Draw(ScreenManager ScreenManager, SpriteFont font)
+		public void Draw(ScreenManager ScreenManager, Graphics.Font font)
 		{
 			Color orange;
 			SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-			SpriteFont spriteFont = font;
+			Graphics.Font spriteFont = font;
 			string text = Text;
 			Vector2 vector2 = new Vector2(rect.X, rect.Y);
 			if (Selected)

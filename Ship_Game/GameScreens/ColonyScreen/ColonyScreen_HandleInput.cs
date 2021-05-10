@@ -27,16 +27,8 @@ namespace Ship_Game
         {
             HandleDetailInfo(input);
 
-            if (HandlePlanetNameChangeTextBox(input))
-                return true;
-
             if (PFacilities.HandleInput(input) && PFacilitiesPlayerTabSelected != PFacilities.SelectedIndex)
                 PFacilitiesPlayerTabSelected = PFacilities.SelectedIndex;
-
-            FilterBuildableItems.HandlingInput = FilterBuildableItems.HitTest(input.CursorPosition);
-
-            if (FilterBuildableItems.HandlingInput)
-                return base.HandleInput(input);
 
             if (BlockadeLabel.Visible && BlockadeLabel.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.IndicatesThatThisPlanetIs);
@@ -56,13 +48,16 @@ namespace Ship_Game
             if (HandleTroopSelect(input))
                 return true;
 
+            if (base.HandleInput(input))
+                return true;
+
             HandleExportImportButtons(input);
             if (PFacilitiesPlayerTabSelected != PFacilities.SelectedIndex && PFacilities.SelectedIndex == 0)
                 PFacilitiesPlayerTabSelected = PFacilities.SelectedIndex;
 
             PFacilities.SelectedIndex = DetailInfo is string ? PFacilitiesPlayerTabSelected : 1; // Set the Tab for view
 
-            return base.HandleInput(input);
+            return false;
         }
 
         bool HandleTroopSelect(InputState input)
@@ -130,9 +125,8 @@ namespace Ship_Game
                             if (pgs.Building.Scrappable)
                             {
                                 ToScrap = pgs.Building;
-                                string message = string.Concat("Do you wish to scrap ",
-                                    Localizer.Token(pgs.Building.NameTranslationIndex),
-                                    "? Half of the building's construction cost will be recovered to your storage.");
+                                string message = $"Do you wish to scrap {pgs.Building.TranslatedName.Text}? "
+                                               + "Half of the building's construction cost will be recovered to your storage.";
                                 var messageBox = new MessageBoxScreen(Empire.Universe, message);
                                 messageBox.Accepted = ScrapAccepted;
                                 ScreenManager.AddScreen(messageBox);
@@ -191,60 +185,6 @@ namespace Ship_Game
                 return true; // planet changed, ColonyScreen will be replaced
             }
 
-            return false;
-        }
-
-        bool HandlePlanetNameChangeTextBox(InputState input)
-        {
-            if (!EditNameButton.HitTest(input.CursorPosition))
-            {
-                EditHoverState = 0;
-            }
-            else
-            {
-                EditHoverState = 1;
-                if (input.LeftMouseClick)
-                {
-                    PlanetName.HandlingInput = true;
-                }
-            }
-
-            if (PlanetName.HandlingInput)
-            {
-                PlanetName.HandleTextInput(ref PlanetName.Text, input);
-                return true;
-            }
-
-            bool empty = true;
-            string text = PlanetName.Text;
-            int num = 0;
-            while (num < text.Length)
-            {
-                if (text[num] == ' ')
-                {
-                    num++;
-                }
-                else
-                {
-                    empty = false;
-                    break;
-                }
-            }
-
-            if (empty)
-            {
-                int ringnum = 1;
-                foreach (SolarSystem.Ring ring in P.ParentSystem.RingList)
-                {
-                    if (ring.planet == P)
-                    {
-                        PlanetName.Text = string.Concat(P.ParentSystem.Name, " ",
-                            RomanNumerals.ToRoman(ringnum));
-                    }
-
-                    ringnum++;
-                }
-            }
             return false;
         }
 

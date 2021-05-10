@@ -462,10 +462,6 @@ namespace Ship_Game
                               LookingAtPlanet && workersPanel is UnownedPlanetScreen);
 
             DrawSelectedItems(batch, elapsed);
-
-            if (SelectedShip == null || LookingAtPlanet)
-                ShipInfoUIElement.ShipNameArea.HandlingInput = false;
-
             DrawToolTip();
 
             if (Debug)
@@ -519,7 +515,7 @@ namespace Ship_Game
 
         void DrawTopCenterStatusText(SpriteBatch batch, in LocalizedText status, Color color, int lineOffset)
         {
-            SpriteFont font = Fonts.Pirulen16;
+            Graphics.Font font = Fonts.Pirulen16;
             string text = status.Text;
             var pos = new Vector2(ScreenCenter.X - font.TextWidth(text) / 2f, 45f + (font.LineSpacing + 2)*lineOffset);
             batch.DrawString(font, text, pos, color);
@@ -855,7 +851,7 @@ namespace Ship_Game
                     }
 
                     Color fleetKey       = Color.Orange;
-                    SpriteFont fleetFont = Fonts.Pirulen12;
+                    Graphics.Font fleetFont = Fonts.Pirulen12;
                     bool needShadow      = false;
                     Vector2 keyPos       = new Vector2(fleetButton.ClickRect.X + 4, fleetButton.ClickRect.Y + 4);
                     if (SelectedFleet == fleetButton.Fleet)
@@ -1330,8 +1326,8 @@ namespace Ship_Game
 
                     if (planet.RecentCombat)
                     {
-                        DrawTextureWithToolTip(icon_fighting_small, Color.White, GameText.IndicatesThatAnAnomalyWas, mousePos, (int)posOffSet.X,
-                            (int)posOffSet.Y, 14, 14);
+                        DrawTextureWithToolTip(icon_fighting_small, Color.White, GameText.IndicatesThatAnAnomalyWas, mousePos,
+                                               (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
                     if (player.data.MoleList.Count > 0)
@@ -1343,7 +1339,7 @@ namespace Ship_Game
                             {
                                 posOffSet.X += (18 * drawLocationOffset);
                                 DrawTextureWithToolTip(icon_spy_small, Color.White, GameText.IndicatesThatAFriendlyAgent, mousePos,
-                                    (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                                                       (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                                 ++drawLocationOffset;
                                 break;
                             }
@@ -1354,9 +1350,8 @@ namespace Ship_Game
                         Building building = planet.BuildingList[i];
                         if (!building.EventHere) continue;
                         posOffSet.X += (18 * drawLocationOffset);
-                        string text = Localizer.Token(building.DescriptionIndex);
-                        DrawTextureWithToolTip(icon_anomaly_small, Color.White, text, mousePos, (int)posOffSet.X,
-                            (int)posOffSet.Y, 14, 14);
+                        DrawTextureWithToolTip(icon_anomaly_small, Color.White, building.DescriptionText, mousePos,
+                                               (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                         break;
                     }
                     int troopCount = planet.CountEmpireTroops(player);
@@ -1364,7 +1359,7 @@ namespace Ship_Game
                     {
                         posOffSet.X += (18 * drawLocationOffset);
                         DrawTextureWithToolTip(icon_troop, Color.TransparentWhite, $"Troops {troopCount}", mousePos,
-                            (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                                               (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
                 }
@@ -1372,7 +1367,7 @@ namespace Ship_Game
         }
 
         public void DrawPointerWithText(Vector2 screenPos, SubTexture planetNamePointer, Color pointerColor, string text,
-            Color textColor, SpriteFont font = null, float xOffSet = 20f, float yOffSet = 37f)
+            Color textColor, Graphics.Font font = null, float xOffSet = 20f, float yOffSet = 37f)
         {
             font = font ?? Fonts.Tahoma10;
             DrawTextureRect(planetNamePointer, screenPos, pointerColor);

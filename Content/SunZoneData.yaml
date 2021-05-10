@@ -1,4 +1,5 @@
-SunZoneData: Near 
+- SunZoneData:
+  Zone: Near 
   Distribution:
     - {Type: Barren, Count: 20 }
     - {Type: Desert, Count: 10 }
@@ -10,7 +11,8 @@ SunZoneData: Near
     - {Type: Swamp, Count: 5 }
     - {Type: Oceanic, Count: 1 }
     - {Type: GasGiant, Count: 1 }
-SunZoneData: Habital
+- SunZoneData:
+  Zone: Habital
   Distribution:
     - {Type: Barren, Count: 20 }
     - {Type: Desert, Count: 5 }
@@ -22,7 +24,8 @@ SunZoneData: Habital
     - {Type: Swamp, Count: 3 }
     - {Type: Oceanic, Count: 3 }
     - {Type: GasGiant, Count: 3 }
-SunZoneData: Far
+- SunZoneData:
+  Zone: Far
   Distribution:
     - {Type: Barren, Count: 15 }
     - {Type: Desert, Count: 2 }
@@ -34,7 +37,8 @@ SunZoneData: Far
     - {Type: Swamp, Count: 2 }
     - {Type: Oceanic, Count: 2 }
     - {Type: GasGiant, Count: 30 }
-SunZoneData: VeryFar
+- SunZoneData:
+  Zone: VeryFar
   Distribution:
     - {Type: Barren, Count: 15 }
     - {Type: Desert, Count: 1 }

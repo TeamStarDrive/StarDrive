@@ -38,6 +38,7 @@
     <Name>The Remnant</Name>
     <Singular>Remnant</Singular>
     <Plural>Remnant</Plural>
+    <ShipType>Remnant</ShipType>
     <HomeSystemName>Sol</HomeSystemName>
     <HomeworldName>Earth</HomeworldName>
     <FlagIndex>34</FlagIndex>

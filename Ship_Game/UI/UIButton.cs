@@ -20,15 +20,34 @@ namespace Ship_Game
         {
             Default, Hover, Pressed
         }
-        public PressState  State = PressState.Default;
-        public ButtonStyle Style = ButtonStyle.Default;
-        public StyleTextures CustomStyle;
-        public ButtonTextAlign TextAlign = ButtonTextAlign.Center;
 
-        public LocalizedText Text;
+        public PressState State = PressState.Default;
+
+        public SubTexture Normal;
+        public SubTexture Hover;
+        public SubTexture Pressed;
+
+        // Text Colors
+        public Color DefaultTextColor = new Color(255, 240, 189);
+        public Color HoverTextColor   = new Color(255, 240, 189);
+        public Color PressTextColor   = new Color(255, 240, 189);
+
+        // Fallback background colors if Normal texture is null
+        public bool DrawBackground = true;
+        public Color DefaultColor = new Color(96, 81, 49);
+        public Color HoverColor   = new Color(106, 91, 59);
+        public Color PressColor   = new Color(86, 71, 39);
+
+        ButtonStyle CurrentStyle = ButtonStyle.Default;
+        public ButtonTextAlign TextAlign = ButtonTextAlign.Center;
+        
+        // Rich text element.
+        // Can be accessed directly to create multi-font text labels
+        public readonly PrettyText RichText;
 
         /// <summary>
         /// Optional override Function for text. Called Dynamically every frame.
+        /// Completely overrides RichText
         /// </summary>
         public Func<string> DynamicText;
 
@@ -36,59 +55,56 @@ namespace Ship_Game
         public string HotKey;
         public string ClickSfx = "echo_affirm";
 
-        public SpriteFont Font = Fonts.Arial12Bold;
-
         // If set TRUE, this button will also capture Right Mouse Clicks
         public bool AcceptRightClicks;
 
         // If set TRUE, text will be drawn with dark shadow
         public bool TextShadows;
 
+        // If set TRUE, will draw UI element bounds
+        public bool DebugDraw;
+
         public Action<UIButton> OnClick;
 
         public override string ToString() => $"{TypeName} '{Text}' visible:{Visible} enabled:{Enabled} state:{State}";
         
-        public UIButton(ButtonStyle style)
-        {
-            Style = style;
-        }
-
-        public UIButton(in LocalizedText text)
-        {
-            Text = text;
-            Size = ButtonTexture().SizeF;
-        }
-        
         public UIButton(ButtonStyle style, in LocalizedText text)
         {
             Style = style;
-            Text = text;
-            Size = ButtonTexture().SizeF;
+            Size = GetInitialSize();
+            RichText = new PrettyText(elemToUpdateSize: this, text: text);
         }
-
-        public UIButton(Vector2 pos, in LocalizedText text) : base(pos)
-        {
-            Text = text;
-            Size = ButtonTexture().SizeF;
-        }
-
+        
         public UIButton(ButtonStyle style, Vector2 pos, in LocalizedText text) : base(pos)
         {
             Style = style;
-            Text  = text;
-            Size  = ButtonTexture().SizeF;
-        }
-
-        public UIButton(ButtonStyle style, in Rectangle rect) : base(rect)
-        {
-            Style = style;
+            Size = GetInitialSize();
+            RichText = new PrettyText(elemToUpdateSize: this, text: text);
         }
 
         public UIButton(StyleTextures customStyle, Vector2 size, in LocalizedText text)
         {
-            CustomStyle = customStyle;
-            Text = text;
+            SetStyle(customStyle);
             Size = size;
+            RichText = new PrettyText(elemToUpdateSize: this, text: text);
+        }
+
+        public ButtonStyle Style
+        {
+            get => CurrentStyle;
+            set => SetStyle(value);
+        }
+
+        public LocalizedText Text
+        {
+            get => RichText.Text;
+            set => RichText.SetText(value);
+        }
+
+        public Graphics.Font Font
+        {
+            get => RichText.DefaultFont;
+            set => RichText.DefaultFont = value;
         }
 
         protected virtual void OnButtonClicked()
@@ -98,40 +114,7 @@ namespace Ship_Game
 
         public static SubTexture StyleTexture(ButtonStyle style = ButtonStyle.Default)
         {
-            return GetStyle(style).Normal;
-        }
-
-        SubTexture ButtonTexture()
-        {
-            StyleTextures styling = CustomStyle ?? GetStyle(Style);
-            switch (State)
-            {
-                default:                 return styling.Normal;
-                case PressState.Hover:   return styling.Hover;
-                case PressState.Pressed: return styling.Pressed;
-            }
-        }
-
-        Color BackgroundColor()
-        {
-            StyleTextures styling = CustomStyle ?? GetStyle(Style);
-            switch (State)
-            {
-                default:                 return styling.DefaultColor;
-                case PressState.Hover:   return styling.HoverColor;
-                case PressState.Pressed: return styling.PressColor;
-            }
-        }
-
-        Color TextColor()
-        {
-            StyleTextures styling = CustomStyle ?? GetStyle(Style);
-            switch (State)
-            {
-                default:                 return styling.DefaultTextColor;
-                case PressState.Hover:   return styling.HoverTextColor;
-                case PressState.Pressed: return styling.PressTextColor;
-            }
+            return GetDefaultStyle(style).Normal;
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -139,15 +122,10 @@ namespace Ship_Game
             if (!Visible)
                 return;
 
-            string text = null;
             if (DynamicText != null)
             {
-                text = DynamicText();
-                Text = new LocalizedText(text, LocalizationMethod.RawText);
-            }
-            else if (Text.NotEmpty)
-            {
-                text = Text.Text;
+                string text = DynamicText();
+                RichText.SetText(new LocalizedText(text, LocalizationMethod.RawText));
             }
 
             Rectangle r = Rect;
@@ -156,33 +134,36 @@ namespace Ship_Game
             {
                 batch.Draw(texture, r, Color.White);
             }
-            else
+            else if (DrawBackground)
             {
                 Color c = BackgroundColor();
                 batch.FillRectangle(r, c.Alpha(0.75f));
                 batch.DrawRectangle(r, c.AddRgb(-0.1f), 2);
             }
+            // else: we only draw Text, nothing else
 
-            if (text != null)
+            if (RichText.NotEmpty)
             {
-                SpriteFont font = Font;
                 Vector2 textCursor;
                 if (TextAlign == ButtonTextAlign.Center)
-                    textCursor.X = r.X + r.Width / 2 - font.MeasureString(text).X / 2f;
+                    textCursor.X = (r.X + r.Width / 2) - RichText.Size.X * 0.5f;
                 else if (TextAlign == ButtonTextAlign.Left)
                     textCursor.X = r.X + 25f;
                 else
-                    textCursor.X = r.Right - font.MeasureString(text).X;
+                    textCursor.X = r.Right - RichText.Size.X;
 
-                textCursor.Y = r.Y + r.Height / 2 - font.LineSpacing / 2;
+                textCursor.Y = r.Y + r.Height / 2 - RichText.Size.Y * 0.5f;
                 if (State == PressState.Pressed)
                     textCursor.Y += 1f; // pressed down effect
 
                 Color textColor = Enabled ? TextColor() : Color.Gray;
-                if (TextShadows)
-                    batch.DrawDropShadowText(text, textCursor, font, textColor);
-                else
-                    batch.DrawString(font, text, textCursor, textColor);
+                RichText.Draw(batch, textCursor, textColor, TextShadows);
+            }
+
+            if (DebugDraw)
+            {
+                batch.DrawRectangle(Rect, Color.Red);
+                batch.DrawString(Fonts.Arial11Bold, this.ToString(), Pos, Color.Red);
             }
         }
 

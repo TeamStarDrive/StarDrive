@@ -22,8 +22,6 @@ namespace Ship_Game.Ships
         public bool InhibitedByEnemy { get; private set; }
         public MoveState engineState;
 
-        public float WarpThrust { get; private set; }
-
          // [0.0 to 1.0], current Warp thrust percentage
         public float WarpPercent { get; private set; } = 1f;
 
@@ -46,7 +44,7 @@ namespace Ship_Game.Ships
 
         public void ResetJumpTimer()
         {
-            JumpTimer = FTLSpoolTime;
+            JumpTimer = Stats.FTLSpoolTime;
         }
 
         public static string GetStartWarpCue(IEmpireData data, int surfaceArea)

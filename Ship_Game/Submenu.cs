@@ -36,7 +36,7 @@ namespace Ship_Game
         Rectangle VL;
         Rectangle VR;
         Rectangle TL;
-        readonly SpriteFont Font = Fonts.Pirulen12;
+        readonly Graphics.Font Font = Fonts.Pirulen12;
         readonly SubmenuStyle Style;
 
         // If set, draws a background element before the Submenu itself is drawn
@@ -70,15 +70,16 @@ namespace Ship_Game
 
             StyleTextures s = GetStyle();
             Rectangle r = Rect;
-            TL = new Rectangle(r.X, r.Y + 25 - 2, s.CornerTL.Width, s.CornerTL.Height);
-            TR = new Rectangle(r.X + r.Width - s.CornerTR.Width, r.Y + 25 - 2, s.CornerTR.Width, s.CornerTR.Height);
-            BL = new Rectangle(r.X, r.Y + r.Height - s.CornerBL.Height + 2, s.CornerBL.Width, s.CornerBL.Height);
-            BR = new Rectangle(r.X + r.Width - s.CornerBR.Width, r.Y + r.Height + 2 - s.CornerBR.Height, s.CornerBR.Width, s.CornerBR.Height);
-            VL = new Rectangle(r.X, r.Y + 25 + TR.Height - 2, 2, r.Height - 25 - BL.Height - 2);
-            VR = new Rectangle(r.X + r.Width - 2, r.Y + 25 + TR.Height - 2, 2, r.Height - 25 - BR.Height - 2);
+            int o = Tabs.NotEmpty ? 25 : 0;
+            TL = new Rectangle(r.X, r.Y + o - 2, s.CornerTL.Width, s.CornerTL.Height);
+            TR = new Rectangle(r.Right - s.CornerTR.Width, r.Y + o - 2, s.CornerTR.Width, s.CornerTR.Height);
+            BL = new Rectangle(r.X, r.Bottom - s.CornerBL.Height + 2, s.CornerBL.Width, s.CornerBL.Height);
+            BR = new Rectangle(r.Right - s.CornerBR.Width, r.Bottom - s.CornerBR.Height + 2, s.CornerBR.Width, s.CornerBR.Height);
+            VL = new Rectangle(r.X, r.Y + o + TR.Height - 2, 2, r.Height - o - BL.Height - 2);
+            VR = new Rectangle(r.Right - 2, r.Y + o + TR.Height - 2, 2, r.Height - o - BR.Height - 2);
             UpperLeft = new Rectangle(r.X, r.Y, s.Left.Width, s.Left.Height);
-            topHoriz = new Rectangle(r.X + TL.Width, r.Y + 25 - 2, r.Width - TR.Width - TL.Width, 2);
-            botHoriz = new Rectangle(r.X + BL.Width, r.Y + r.Height, r.Width - BL.Width - BR.Width, 2);
+            topHoriz = new Rectangle(r.X + TL.Width, r.Y + o - 2, r.Width - TR.Width - TL.Width, 2);
+            botHoriz = new Rectangle(r.X + BL.Width, r.Bottom, r.Width - BL.Width - BR.Width, 2);
         }
 
         public void Clear()

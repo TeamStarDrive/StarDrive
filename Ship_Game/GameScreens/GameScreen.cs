@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
@@ -60,14 +61,21 @@ namespace Ship_Game
         public Vector2 ScreenCenter => GameBase.ScreenCenter;
         bool Pauses = true;
 
+        // event called right after the screen has been loaded
+        public Action OnLoaded;
+
         // multi cast exit delegate, called when a game screen is exiting
         public event Action OnExit;
+
         public bool IsDisposed { get; private set; }
 
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
 
         public Matrix View, Projection;
+
+        // Thread safe queue for running UI commands
+        readonly SafeQueue<Action> PendingUIThreadActions = new SafeQueue<Action>();
 
 
         protected GameScreen(GameScreen parent, bool pause = true) 
@@ -161,23 +169,30 @@ namespace Ship_Game
             Enabled = Visible = false;
             ScreenState = ScreenState.Hidden;
         }
+        
+        // NOTE: Optionally implemented by GameScreens to create their screen content
+        //       This is also called when the screen is being reloaded
+        public virtual void LoadContent() { }
 
-        public virtual void ReloadContent()
+        // Wrapper: should only be called by ScreenManager
+        public void InvokeLoadContent()
         {
-            UnloadContent();
             LoadContent();
-        }
-
-        public virtual void LoadContent()
-        {
             DidLoadContent = true;
             PerformLayout();
+            OnLoaded?.Invoke();
         }
 
         public virtual void UnloadContent()
         {
             TransientContent?.Unload();
             Elements.Clear();
+        }
+        
+        public virtual void ReloadContent()
+        {
+            UnloadContent();
+            InvokeLoadContent();
         }
 
         public override bool HandleInput(InputState input)
@@ -209,6 +224,9 @@ namespace Ship_Game
             }
 
             //Log.Info($"Update {Name} {DeltaTime:0.000}  DidLoadContent:{DidLoadContent}");
+
+            // Process Pending UI Actions
+            InvokePendingUIThreadActions();
 
             Visible = ScreenState != ScreenState.Hidden;
 
@@ -265,7 +283,7 @@ namespace Ship_Game
         }
 
         // Gets the current cursor blinking mask color [255,255,255,a]
-        public Color CurrentFlashColor    => ApplyCurrentAlphaToColor(new Color(255, 255, 255));
+        public Color CurrentFlashColor => ApplyCurrentAlphaToColor(new Color(255, 255, 255));
         public Color CurrentFlashColorRed => ApplyCurrentAlphaToColor(new Color(255, 0, 0));
 
         protected Color ApplyCurrentAlphaToColor(Color color)
@@ -354,41 +372,41 @@ namespace Ship_Game
             if (rectangle.HitTest(mousePos))
                 ToolTip.CreateTooltip(toolTip);
         }
-        public void CheckToolTip(LocalizedText toolTip, Vector2 cursor, string words, string numbers, SpriteFont font, Vector2 mousePos)
+        public void CheckToolTip(LocalizedText toolTip, Vector2 cursor, LocalizedText words, string numbers, Graphics.Font font, Vector2 mousePos)
         {
             var rect = new Rectangle((int)cursor.X, (int)cursor.Y, 
                 font.TextWidth(words) + font.TextWidth(numbers), font.LineSpacing);
             CheckToolTip(toolTip, rect, mousePos);
         }
-        public Vector2 FontSpace(Vector2 cursor, float spacing, string drawnString, SpriteFont font)
+        public Vector2 FontSpace(Vector2 cursor, float spacing, LocalizedText drawnString, Graphics.Font font)
         {
-            cursor.X += (spacing - font.MeasureString(drawnString).X);
+            cursor.X += (spacing - font.TextWidth(drawnString));
             return cursor;
         }
         // Draw string in screen coordinates. Text will be centered
         public void DrawString(Vector2 centerOnScreen, float rotation, float textScale, Color textColor, string text)
         {
             Vector2 size = Fonts.Arial11Bold.MeasureString(text);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, centerOnScreen, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, centerOnScreen, textColor, rotation, size * 0.5f, textScale);
         }
         // Draw string in screen coordinates. No centering.
-        public void DrawString(Vector2 posOnScreen, Color textColor, string text, SpriteFont font, float rotation = 0f, float textScale = 1f)
+        public void DrawString(Vector2 posOnScreen, Color textColor, string text, Graphics.Font font, float rotation = 0f, float textScale = 1f)
         {
-            ScreenManager.SpriteBatch.DrawString(font, text, posOnScreen, textColor, rotation, Vector2.Zero, textScale, SpriteEffects.None, 1f);
+            ScreenManager.SpriteBatch.DrawString(font, text, posOnScreen, textColor, rotation, Vector2.Zero, textScale);
         }
 
-        public void MakeMessageBox(GameScreen screen, Action cancelled, Action accepted, int localId, string okText, string cancelledText)
+        public void MakeMessageBox(GameScreen screen, Action cancelled, Action accepted, GameText message, string okText, string cancelledText)
         {
-            ScreenManager.AddScreen(new MessageBoxScreen(screen, localId, okText, cancelledText)
+            ScreenManager.AddScreen(new MessageBoxScreen(screen, message, okText, cancelledText)
             {
                 Cancelled = cancelled,
                 Accepted = accepted
             });            
         }
 
-        public void ExitMessageBox(GameScreen screen, Action cancelled, Action accepted, int localId)
+        public void ExitMessageBox(GameScreen screen, Action cancelled, Action accepted, GameText message)
         {
-            MakeMessageBox(screen, cancelled, accepted, localId, "Save", "Exit");
+            MakeMessageBox(screen, cancelled, accepted, message, "Save", "Exit");
         }
 
         public void DrawModelMesh(
@@ -396,7 +414,6 @@ namespace Ship_Game
             Vector3 diffuseColor, in Matrix projection, 
             SubTexture projTex, 
             float alpha = 0f, 
-            bool textureEnabled = true, 
             bool lightingEnabled = false)
         {
             foreach (ModelMesh modelMesh in model.Meshes)
@@ -530,21 +547,18 @@ namespace Ship_Game
             => DrawLineProjected(startInWorld, endInWorld, color, 2500);
 
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, float thickness = 1f)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
             DrawCircle(screenPos, screenRadius, color, thickness);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, int sides, Color color, float thickness = 1f)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
             DrawCircle(screenPos, screenRadius, sides, color, thickness);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCapsuleProjected(in Capsule capsuleInWorld, Color color, float thickness = 1f)
         {
             var capsuleOnScreen = new Capsule(
@@ -555,7 +569,6 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawCapsule(capsuleOnScreen, color, thickness);
         }
 
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCircleProjectedZ(Vector2 posInWorld, float radiusInWorld, Color color, float zAxis = 0f)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius, zAxis);
@@ -589,7 +602,6 @@ namespace Ship_Game
             DrawRectangle(rect, edge, fill);            
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawRectangleProjected(Vector2 centerInWorld, Vector2 sizeInWorld, float rotation, Color color, float thickness = 1f)
         {
             ProjectToScreenCoords(centerInWorld, sizeInWorld, out Vector2 posOnScreen, out Vector2 sizeOnScreen);
@@ -604,7 +616,6 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawRectangle(screenRect, color, thickness);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTextureProjected(SubTexture texture, Vector2 posInWorld, float textureScale, Color color)
         {
             ProjectToScreenCoords(posInWorld, textureScale*2, out Vector2 posOnScreen, out float sizeOnScreen);
@@ -624,15 +635,6 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(tooltip);                
         }
 
-        public void DrawTextureWithToolTip(SubTexture texture, Color color, string text, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
-        {
-            var rectangle = new Rectangle(rectangleX, rectangleY, width, height);
-            ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
-
-            if (rectangle.HitTest(mousePos))
-                ToolTip.CreateTooltip(text);
-        }
-
         public void DrawStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text)
         {
             Vector2 screenPos = Empire.Universe.ProjectToScreenPosition(posInWorld);
@@ -640,7 +642,7 @@ namespace Ship_Game
             if (Primitives2D.IsIntersectingScreenPosSize(screenPos, size))
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text,
-                    screenPos, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
+                    screenPos, textColor, rotation, size * 0.5f, textScale);
             }
         }
 
@@ -651,9 +653,9 @@ namespace Ship_Game
             if (Primitives2D.IsIntersectingScreenPosSize(screenPos, size))
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text,
-                    screenPos+new Vector2(2), Color.Black, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
+                    screenPos+new Vector2(2), Color.Black, rotation, size * 0.5f, textScale);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text,
-                    screenPos, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
+                    screenPos, textColor, rotation, size * 0.5f, textScale);
             }
         }
 
@@ -669,9 +671,44 @@ namespace Ship_Game
             if (Primitives2D.IsIntersectingScreenPosSize(screenPos, size))
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text,
-                    screenPos, textColor, 0f, size * 0.5f, scale, SpriteEffects.None, 1f);
+                    screenPos, textColor, 0f, size * 0.5f, scale);
             }
         }
 
+        /// <summary>
+        /// This runs actions on the gamescreen update.
+        /// Action will only work while the screen is visible.
+        /// Actions will be run before draws happen.
+        /// </summary>
+        public void RunOnUIThread(Action action)
+        {
+            if (action != null)
+            {
+                PendingUIThreadActions.Enqueue(action);
+            }
+            else
+            {
+                const string msg = "Null Action passed to RunOnUIThread method";
+                if (System.Diagnostics.Debugger.IsAttached)
+                    Log.Error(msg);
+                else
+                    Log.WarningWithCallStack(msg);
+            }
+#if DEBUG
+            if (Thread.CurrentThread.ManagedThreadId == GameBase.MainThreadId)
+            {
+                Log.Error("RunOnUIThread called from UI Thread. You are already on the UI thread you don't need to use this function");
+            }
+#endif
+        }
+
+        /// <summary>
+        /// Invokes all Pending actions. 
+        /// </summary>
+        void InvokePendingUIThreadActions()
+        {
+            while (PendingUIThreadActions.TryDequeue(out Action action))
+                action();
+        }
     }
 }

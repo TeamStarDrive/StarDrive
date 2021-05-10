@@ -31,7 +31,7 @@ namespace UnitTests
         protected override void BeginRun()
         {
             base.BeginRun();
-            Fonts.LoadContent(Content);
+            Fonts.LoadFonts(Content, GlobalStats.Language);
             Started.Set();
         }
 
@@ -96,7 +96,7 @@ namespace UnitTests
             if (component != null)
                 AddComponent(component);
             if (screen != null)
-                ScreenManager.AddScreenImmediate(screen);
+                ScreenManager.AddScreenAndLoadContent(screen);
 
             Visible = true;
             while (Visible)

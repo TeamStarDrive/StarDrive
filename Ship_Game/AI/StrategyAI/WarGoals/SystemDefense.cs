@@ -34,7 +34,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             if (OwnerWar.WarType == WarType.EmpireDefense)
             {
-                foreach (IncomingThreat threatenedSystem in Owner.SystemWithThreat)
+                foreach (IncomingThreat threatenedSystem in Owner.SystemsWithThreat)
                 {
                     if (threatenedSystem.ThreatTimedOut || !threatenedSystem.HighPriority)
                         continue;
@@ -112,11 +112,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
             else // compare planet distances
             {
-                defenseValue  /= Owner.WeightedCenter.Distance(target.Center).LowerBound(1);
-                possibleValue /= Owner.WeightedCenter.Distance(target.Center).LowerBound(1);
+                defenseValue  /= (Owner.WeightedCenter.Distance(system.Position) / 10000).LowerBound(1);
+                possibleValue /= (Owner.WeightedCenter.Distance(target.Center) / 10000).LowerBound(1);
             }
 
-            return defenseValue.GreaterOrEqual(possibleValue);
+            return defenseValue > possibleValue;
         }
     }
 }

@@ -115,7 +115,7 @@ namespace Ship_Game
         // Dev Options
         public static bool RestrictAIPlayerInteraction;
         public static bool DisableAIEmpires;
-        public static bool EnableSaveExportButton;
+        public static bool EnableSaveExportButton = true;
 
         ////////////////////////////////
         // From old Config
@@ -164,7 +164,8 @@ namespace Ship_Game
 
         public static bool ExportTextures; // export all XNB and PNG textures into StarDrive/ExportedTextures
         public static bool ExportMeshes; // export all XNB meshes into StarDrive/ExportedMeshes
-        public static bool RunLocalizer; // process all localization files
+        public static int RunLocalizer; // process all localization files
+        public static bool ContinueToGame; // Continue into the game after running Localizer or other Tools
 
         public static void SetShadowDetail(int shadowDetail)
         {

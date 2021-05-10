@@ -16,7 +16,7 @@ namespace UnitTests.Ships
         {
             CreateGameInstance();
             // Excalibur class has all the bells and whistles
-            LoadStarterShips(new[]{ "Excalibur-Class Supercarrier" });
+            LoadStarterShips(new[]{ "Excalibur-Class Supercarrier", "Supply Shuttle" });
         }
 
         void CreateTestEnv(out Empire empire, out Ship ship)

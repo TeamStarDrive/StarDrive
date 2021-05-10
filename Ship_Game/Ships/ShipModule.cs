@@ -49,8 +49,8 @@ namespace Ship_Game.Ships
         public string WeaponType;
         public ushort NameIndex;
         public ushort DescriptionIndex;
-        public LocalizedText NameText => Localizer.Token(NameIndex);
-        public LocalizedText DescriptionText => Localizer.Token(DescriptionIndex);
+        public LocalizedText NameText => new LocalizedText(NameIndex);
+        public LocalizedText DescriptionText => new LocalizedText(DescriptionIndex);
         public Restrictions Restrictions;
         public Shield Shield { get; private set; }
         public string hangarShipUID;
@@ -184,6 +184,15 @@ namespace Ship_Game.Ships
         public float Regenerate                  => Flyweight.Regenerate; // Self regenerating modules
         public bool DisableRotation              => Flyweight.DisableRotation;
         public float AmplifyShields              => Flyweight.AmplifyShields;
+
+        /// <summary>
+        /// This is an override of default weapon accuracy. <see cref="Weapon.BaseTargetError(int)"/>
+        /// it is uniform to all weapons. 50% accuracy creates the same base error for all weapons. 
+        /// an accuracy percent of 1 removes all target error.
+        /// the default of -1 means ignore this value
+        /// </summary>
+        public float AccuracyPercent => Flyweight.AccuracyPercent;
+
         public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
                                 || ModuleType == ShipModuleType.MainGun
@@ -199,14 +208,6 @@ namespace Ship_Game.Ships
         // the actual hit radius is a bit bigger for some legacy reason
         public float ShieldHitRadius => Flyweight.shield_radius + 10f;
         public bool ShieldsAreActive => Active && ShieldPower > 1f;
-
-        /// <summary>
-        /// This is an override of default weapon accuracy. <see cref="Weapon.BaseTargetError(int)"/>
-        /// it is uniform to all weapons. 50% accuracy creates the same base error for all weapons. 
-        /// an accuracy percent of 1 removes all target error.
-        /// the default of -1 means ignore this value
-        /// </summary>
-        public float AccuracyPercent = -1;
 
         float WeaponRotation;
         public float WeaponRotationSpeed
@@ -409,6 +410,8 @@ namespace Ship_Game.Ships
             return module;
         }
 
+        public const float ModuleSlotOffset = 264f;
+
         void Initialize(Vector2 pos, bool isTemplate)
         {
             if (Parent == null)
@@ -422,7 +425,7 @@ namespace Ship_Game.Ships
             //Vector2 topLeftCenter = pos - new Vector2(256f, 256f);
 
             // top left position of this module
-            Position = new Vector2(pos.X - 264f, pos.Y - 264f);
+            Position = new Vector2(pos.X - ModuleSlotOffset, pos.Y - ModuleSlotOffset);
             LocalCenter = new Vector2(Position.X + XSIZE * 8f, Position.Y + YSIZE * 8f);
             // center of this module
             Center.X = Position.X + XSIZE * 8f;
@@ -462,6 +465,13 @@ namespace Ship_Game.Ships
             }
         }
 
+        public string GetHangarShipName()
+        {
+            if (ShipBuilder.IsDynamicHangar(hangarShipUID))
+                return CarrierBays.GetDynamicShipNameShipDesign(this);
+            return hangarShipUID;
+        }
+
         public float BayOrdnanceUsagePerSecond
         {
             get
@@ -469,10 +479,7 @@ namespace Ship_Game.Ships
                 float ordnancePerSecond = 0;
                 if (ModuleType == ShipModuleType.Hangar && hangarTimerConstant > 0)
                 {
-                    string hangarShipName = ShipBuilder.IsDynamicHangar(hangarShipUID)
-                        ? CarrierBays.GetDynamicShipNameShipDesign(this)
-                        : hangarShipUID;
-
+                    string hangarShipName = GetHangarShipName();
                     if (ResourceManager.GetShipTemplate(hangarShipName, out Ship template))
                         ordnancePerSecond = (template.ShipOrdLaunchCost) / hangarTimerConstant;
                 }
@@ -985,7 +992,7 @@ namespace Ship_Game.Ships
 
         public void ResetHangarTimer()
         {
-            if (hangarTimerConstant.Greater(0))
+            if (hangarTimerConstant > 0f)
                 hangarTimer = hangarTimerConstant;
         }
 

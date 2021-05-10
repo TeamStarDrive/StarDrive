@@ -32,7 +32,7 @@ namespace Ship_Game
 
         public LocalizedText(GameText gameText)
         {
-            Id = (int)gameText;
+            Id = Localizer.GetTokenId(gameText);
             String = null;
             Method = LocalizationMethod.Id;
         }
@@ -130,6 +130,24 @@ namespace Ship_Game
             }
         }
 
+        /// <summary>
+        /// If current text has an existing Id, this will create a parseable text: "{Id}" + suffix
+        /// For example:
+        /// new LocalizedText(GameText.DesignCompletion).Concat(": ");
+        /// Gives us parsed text "{DesignCompletion}: "
+        /// </summary>
+        public LocalizedText Concat(string suffix)
+        {
+            switch (Method)
+            {
+                default:                         
+                case LocalizationMethod.Id:      return Parse($"{{{Id}}}{suffix}");
+                case LocalizationMethod.NameId:  return Parse($"{{{String}}}{suffix}");
+                case LocalizationMethod.RawText: return String + suffix;
+                case LocalizationMethod.Parse:   return Parse(String + suffix);
+            }
+        }
+
         // Creates a new lazy-initialized parseable text
         // Example usage: new UILabel(LocalizedText.Parse("{RaceNameSingular}: "));
         public static LocalizedText Parse(string parseableText)
@@ -157,9 +175,7 @@ namespace Ship_Game
         public static string ParseText(string text)
         {
             if (text.IsEmpty())
-            {
                 return "";
-            }
 
             if (ParseCache.TryGetValue(text, out string parsed))
                 return parsed;
@@ -174,6 +190,7 @@ namespace Ship_Game
                     for (; j < text.Length-1; ++j)
                         if (text[j] == '}')
                             break;
+
                     if (j >= text.Length)
                     {
                         Log.Warning($"Missing localization format END character '}}'! -- LocalizedText not parsed correctly!: {text}");
@@ -181,30 +198,13 @@ namespace Ship_Game
                     }
 
                     string idString = text.Substring(i+1, (j - i)-1);
-                    if (char.IsDigit(idString[0]))
-                    {
-                        if (!int.TryParse(idString, out int id))
-                        {
-                            Log.Error($"Failed to parse localization id: {idString}! -- LocalizedText not parsed correctly: {text}");
-                            continue;
-                        }
-                        sb.Append(Localizer.Token(id));
-                    }
-                    else if (char.IsLetter(idString[0]))
-                    {
-                        if (!Localizer.Token(idString, out string parsedText))
-                        {
-                            Log.Error($"Failed to parse localization id: {idString}! -- LocalizedText not parsed correctly: {text}");
-                            continue;
-                        }
-                        sb.Append(parsedText);
-                    }
-                    else
+                    if (!Localizer.Token(idString, out string parsedText))
                     {
                         Log.Error($"Failed to parse localization id: {idString}! -- LocalizedText not parsed correctly: {text}");
                         continue;
                     }
 
+                    sb.Append(parsedText);
                     i = j;
                 }
                 else if (c == '\\') // escape character

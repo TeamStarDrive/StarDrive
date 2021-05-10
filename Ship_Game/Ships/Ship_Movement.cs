@@ -33,7 +33,6 @@ namespace Ship_Game.Ships
         public float SpeedLimit { get; private set; }
         public float VelocityMaximum; // maximum velocity magnitude
         public float Thrust;
-        public float TurnThrust;
         public float RotationRadiansPerSecond;
         public ShipEngines ShipEngines;
 
@@ -79,11 +78,11 @@ namespace Ship_Game.Ships
             ThrustVector = thrustDirectionRadians.Clamped(-quarterPi, quarterPi);
         }
 
-        void UpdateMaxVelocity()
+        void UpdateMaxVelocity() // assume Thrust or Mass just changed
         {
-            VelocityMaximum = ShipStats.GetVelocityMax(Thrust, Mass);
+            VelocityMaximum = Stats.UpdateVelocityMax();
             SetSpeedLimit(VelocityMaximum); // This is overwritten at the end of Update
-            RotationRadiansPerSecond = ShipStats.GetTurnRadsPerSec(TurnThrust, Mass, Level);
+            RotationRadiansPerSecond = Stats.GetTurnRadsPerSec(Level);
         }
 
         public void SetSpeedLimit(float value)
@@ -109,26 +108,12 @@ namespace Ship_Game.Ships
                 FTLModifier += loyalty.data.Traits.InBordersSpeedBonus;
             FTLModifier *= projectorBonus;
 
-            MaxFTLSpeed = ShipStats.GetFTLSpeed(WarpThrust, Mass, loyalty) * FTLModifier * WarpPercent;
+            MaxFTLSpeed = Stats.MaxFTLSpeed * FTLModifier * WarpPercent;
         }
 
         void SetMaxSTLSpeed()
         {
-            MaxSTLSpeed = ShipStats.GetSTLSpeed(Thrust, Mass, loyalty);
-        }
-
-        void UpdateMovementFromOrdnanceChange()
-        {
-            if (!OrdnanceChanged)
-                return;
-
-            OrdnanceChanged = false;
-            var shipStats   = new ShipStats();
-            shipStats.Update(ModuleSlotList, shipData, loyalty, Level,  SurfaceArea, OrdnancePercent);
-            Mass                     = shipStats.Mass;
-            MaxFTLSpeed              = shipStats.MaxFTLSpeed;
-            MaxSTLSpeed              = shipStats.MaxSTLSpeed;
-            RotationRadiansPerSecond = shipStats.TurnRadsPerSec;
+            MaxSTLSpeed = Stats.MaxSTLSpeed;
         }
 
         public void RotateToFacing(FixedSimTime timeStep, float angleDiff, float rotationDir)
@@ -295,7 +280,7 @@ namespace Ship_Game.Ships
         //       hoping for better CLR optimization
         Vector2 GetNewAccelerationForThisFrame()
         {
-            if (TetheredTo == null && (Thrust <= 0f || Mass <= 0f))
+            if (TetheredTo == null && Stats.Thrust <= 0f || Mass <= 0f)
             {
                 EnginesKnockedOut = true;
                 if (engineState == MoveState.Warp)
@@ -419,7 +404,7 @@ namespace Ship_Game.Ships
                 const float accelerationTime = 2f;
                 return (MaxFTLSpeed / accelerationTime);
             }
-            return (Thrust / Mass);
+            return (Stats.Thrust / Mass);
         }
 
         // these variables are only valid once per frame

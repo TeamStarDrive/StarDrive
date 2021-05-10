@@ -420,7 +420,7 @@ namespace Ship_Game.Ships
                         || rangeToCarrier > Owner.SensorRange)
                     {
                         recallFighters = false;
-                        if (hangarShip.ScuttleTimer <= 0f && hangarShip.WarpThrust < 1f)
+                        if (hangarShip.ScuttleTimer <= 0f && hangarShip.Stats.WarpThrust < 1f)
                             hangarShip.ScuttleTimer = 10f; // FB: this will scuttle hanger ships if they cant reach the mothership
                         continue;
                     }
@@ -562,7 +562,7 @@ namespace Ship_Game.Ships
                 if (selectedShip == null && hangar.DynamicHangar != DynamicHangarOptions.DynamicLaunch)
                     selectedShip = ShipBuilder.PickFromCandidates(role, empire, maxSize: hangar.MaximumHangarShipSize);
 
-                if (selectedShip != null && selectedShip.BaseStrength.GreaterOrEqual(strongest))
+                if (selectedShip != null && selectedShip.BaseStrength >= strongest)
                 {
                     strongest = selectedShip.BaseStrength;
                     bestShip  = selectedShip.Name;
