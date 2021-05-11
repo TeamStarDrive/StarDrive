@@ -71,11 +71,10 @@ namespace Ship_Game.Ships
             for (int i = 0; i < templateSlots.Length; ++i)
             {
                 ModuleSlotData slot = templateSlots[i];
-                if (slot.InstalledModuleUID == null || slot.InstalledModuleUID == "Dummy")
-                    continue; // ignore legacy dummy modules
 
                 var size = new Point(1, 1);
-                if (ResourceManager.GetModuleTemplate(slot.InstalledModuleUID, out ShipModule m))
+                if ((slot.InstalledModuleUID != null && slot.InstalledModuleUID != "Dummy") &&
+                    ResourceManager.GetModuleTemplate(slot.InstalledModuleUID, out ShipModule m))
                 {
                     size.X = m.XSIZE;
                     size.Y = m.YSIZE;
@@ -97,7 +96,7 @@ namespace Ship_Game.Ships
         void CreateModuleGrid(ModuleSlotData[] templateSlots, ShipModule[] modules, bool useModules)
         {
             ShipGridInfo sizeInfo = useModules ? GetSize(modules) : GetSize(templateSlots);
-            SurfaceArea = sizeInfo.SurfaceArea;
+            SurfaceArea = sizeInfo.SurfaceArea == 0 ? shipData.ModuleSlots.Length : sizeInfo.SurfaceArea;
             GridOrigin = sizeInfo.Origin;
             GridWidth  = sizeInfo.Size.X;
             GridHeight = sizeInfo.Size.Y;
