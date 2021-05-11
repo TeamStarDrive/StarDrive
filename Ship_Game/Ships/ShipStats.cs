@@ -108,8 +108,6 @@ namespace Ship_Game.Ships
             // TODO: are these used? (legacy?)
             //S.TrackingPower += 1 + e.data.Traits.Militaristic + (S.IsPlatform ? 3 : 0);
             //S.TargetingAccuracy += 1 + e.data.Traits.Militaristic + (S.IsPlatform ? 3 : 0);
-
-            UpdateMassRelated();
         }
 
         public void UpdateMassRelated()
@@ -237,7 +235,6 @@ namespace Ship_Game.Ships
         // This will also update shield max power of modules if there are amplifiers
         float UpdateShieldPowerMax(float shieldAmplify)
         {
-            ShipModule[] amplifiers = S.Amplifiers;
             ShipModule[] shields = S.Shields;
             var mainShields = shields.Filter(s => s.ModuleType == ShipModuleType.Shield);
             if (mainShields.Length == 0)
