@@ -32,7 +32,8 @@ namespace Ship_Game.Commands.Goals
 
         Ship GetAvailableColonyShips()
         {
-            return empire.GetShipsAtomic().FindMinFiltered(assimilate =>
+            var ships = (Array<Ship>)empire.OwnedShips;
+            return ships.FindMinFiltered(assimilate =>
                 (assimilate.isColonyShip && assimilate.AI.State != AIState.Colonize) ||
                 (assimilate.AI.State != AIState.Refit &&
                 assimilate.shipData.ShipStyle != "Remnant" &&
@@ -42,7 +43,8 @@ namespace Ship_Game.Commands.Goals
 
         Ship[] GetShipsForRefit()
         {
-            return empire.GetShips().Filter(assimilate =>
+            var ships = empire.OwnedShips;
+            return ships.Filter(assimilate =>
                 !assimilate.isColonyShip &&
                 (assimilate.AI.State != AIState.Refit &&
                 assimilate.shipData.ShipStyle != "Remnant" &&
@@ -121,7 +123,8 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep Exterminate()
         {
-            foreach(var ship in empire.GetShips().Filter(s=> s.Active
+            var ships = empire.OwnedShips;
+            foreach (var ship in ships.Filter(s=> s.Active
                                                              && s.DesignRole != ShipData.RoleName.colony
                                                              && s.AI.State == AIState.AwaitingOrders
                                                              && s.System != null ))
