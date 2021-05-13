@@ -299,11 +299,13 @@ namespace Ship_Game.Empires.ShipPools
             bool alreadyAdded;
             if (s.IsSubspaceProjector)
             {
-                alreadyAdded = !ProjectorsBackBuffer.AddUniqueRef(s);
+                lock (ProjectorsBackBuffer)
+                    alreadyAdded = !ProjectorsBackBuffer.AddUniqueRef(s);
             }
             else
             {
-                alreadyAdded = !ShipsBackBuffer.AddUniqueRef(s);
+                lock (ShipsBackBuffer)
+                    alreadyAdded = !ShipsBackBuffer.AddUniqueRef(s);
             }
 
             if (alreadyAdded)
@@ -321,11 +323,13 @@ namespace Ship_Game.Empires.ShipPools
 
             if (ship.IsSubspaceProjector)
             {
-                ProjectorsBackBuffer.RemoveRef(ship);
+                lock (ProjectorsBackBuffer)
+                    ProjectorsBackBuffer.RemoveRef(ship);
             }
             else
             {
-                ShipsBackBuffer.RemoveRef(ship);
+                lock (ShipsBackBuffer)
+                    ShipsBackBuffer.RemoveRef(ship);
             }
 
             ship.AI.ClearOrders();
