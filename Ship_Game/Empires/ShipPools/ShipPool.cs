@@ -37,10 +37,10 @@ namespace Ship_Game.Empires.ShipPools
 
         public void UpdatePools()
         {
-            OwnedShips      = ShipsBackBuffer;
-            OwnedProjectors = ProjectorsBackBuffer;
-            ShipsBackBuffer = new Array<Ship>(OwnedShips);
-            ShipsBackBuffer = new Array<Ship>(ProjectorsBackBuffer);
+            OwnedShips           = ShipsBackBuffer;
+            OwnedProjectors      = ProjectorsBackBuffer;
+            ShipsBackBuffer      = new Array<Ship>(OwnedShips);
+            ProjectorsBackBuffer = new Array<Ship>(ProjectorsBackBuffer);
             if (!Owner.isPlayer)
             {
                 AddShipsToForcePoolFromShipsToAdd();
