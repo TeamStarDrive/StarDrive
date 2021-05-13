@@ -269,7 +269,6 @@ namespace Ship_Game.Empires.ShipPools
             for (int i = 0; i < ShipsToAddToForcePool.Count; i++)
             {
                 Ship s = ShipsToAddToForcePool[i];
-                AddShipToEmpire(s);
                 if (!Owner.isPlayer && !Owner.isFaction && s.Active && !s.IsHomeDefense && !s.IsHomeDefense) 
                     ForcePoolAdd(s);
             }
