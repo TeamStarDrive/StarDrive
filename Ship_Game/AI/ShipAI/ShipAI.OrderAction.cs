@@ -585,8 +585,8 @@ namespace Ship_Game.AI
 
             if (AwaitClosest == null)
             {
-                var solarSystem = Owner.loyalty.GetShipsAtomic()
-                    .FindMinFiltered(ship => ship.System != null,
+                var ships = (Array<Ship>)Owner.loyalty.OwnedShips;
+                var solarSystem = ships.FindMinFiltered(ship => ship.System != null,
                                      ship => Owner.Center.SqDist(ship.Center))?.System;
 
                 AwaitClosest = solarSystem?.PlanetList.FindMax(p => p.FindNearbyFriendlyShips().Length);

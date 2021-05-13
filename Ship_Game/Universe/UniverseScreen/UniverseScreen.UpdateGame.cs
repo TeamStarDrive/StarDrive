@@ -342,7 +342,7 @@ namespace Ship_Game
         // FB todo: this a work around from duplicate SSP create somewhere in the game but are not seen before loading the game
         void RemoveDuplicateProjectorWorkAround(Empire empire)
         {
-            var ourSSPs = empire.GetProjectors();
+            var ourSSPs = empire.OwnedProjectors;
             for (int i = ourSSPs.Count - 1; i >= 0; i--)
             {
                 Ship projector = ourSSPs[i];
@@ -372,16 +372,16 @@ namespace Ship_Game
             if (ourEmpire.IsEmpireDead())
                 return;
 
-            var ourShips = ourEmpire.GetShipsAtomic();
+            var ourShips = ourEmpire.OwnedShips;
             ExecuteShipSensorScans(ourShips, timeStep);
-            var ourSSPs = ourEmpire.GetProjectors().ToArray();
+            var ourSSPs = ourEmpire.OwnedProjectors;
             ExecuteShipSensorScans(ourSSPs, timeStep);
             ourEmpire.UpdateContactsAndBorders(timeStep);
         }
 
-        void ExecuteShipSensorScans(Ship[] ourShips, FixedSimTime timeStep)
+        void ExecuteShipSensorScans(IReadOnlyList<Ship> ourShips, FixedSimTime timeStep)
         {
-            Parallel.For(ourShips.Length, (start, end) =>
+            Parallel.For(ourShips.Count, (start, end) =>
             {
                 for (int i = start; i < end; i++)
                 {
@@ -475,7 +475,7 @@ namespace Ship_Game
                 for (int i = start; i < end; i++)
                 {
                     var empire = EmpireManager.Empires[i];
-                    empire.Pool.UpdatePools();
+                    empire.EmpireShips.UpdatePools();
                     empire.UpdateMilitaryStrengths();
                     empire.AssessSystemsInDanger(timeStep);
                 }

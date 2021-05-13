@@ -153,7 +153,7 @@ namespace Ship_Game
                 ship.IsGuardian = changeTo.WeAreRemnants;
 
                 if (!changeTo.isPlayer && !changeTo.isFaction)
-                    changeTo.Pool.ForcePoolAdd(ship);
+                    changeTo.EmpireShips.ForcePoolAdd(ship);
 
                 if (notification)
                 {
