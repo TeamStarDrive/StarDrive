@@ -35,7 +35,7 @@ namespace Ship_Game.Empires.ShipPools
             Owner = empire;
         }
 
-        public void UpdatePools()
+        public void Update()
         {
             OwnedShips           = ShipsBackBuffer;
             OwnedProjectors      = ProjectorsBackBuffer;

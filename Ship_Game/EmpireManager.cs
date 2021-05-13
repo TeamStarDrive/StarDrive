@@ -309,7 +309,7 @@ namespace Ship_Game
                 empire.GetEmpireAI().EmpireDefense = empire.GetEmpireAI().EmpireDefense ?? War.CreateInstance(empire, empire, WarType.EmpireDefense);
                 empire.RestoreUnserializableDataFromSave();
                 empire.InitEmpireEconomy();
-                empire.EmpireShips.UpdatePools();
+                empire.EmpireShips.Update();
                 empire.GetEmpireAI().WarTasks.RestoreFromSave(empire);
             }
         }
