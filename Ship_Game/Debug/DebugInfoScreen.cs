@@ -82,7 +82,7 @@ namespace Ship_Game.Debug
                     continue;
 
                 bool flag = false;
-                foreach (Ship ship in empire.GetShips())
+                foreach (Ship ship in empire.OwnedShips)
                 {
                     if (ship?.Active != true) continue;
                     if (ship.DesignRole < ShipData.RoleName.troopShip) continue;
@@ -916,7 +916,7 @@ namespace Ship_Game.Debug
                 DrawString($"Ship War Maint:  War:{(int)e.TotalWarShipMaintenance} - Orb:{(int)e.TotalOrbitalMaintenance} - Trp:{(int)e.TotalTroopShipMaintenance}");
                 DrawString($"Ship Civ Maint:  Civ:{(int)e.TotalCivShipMaintenance} - Sup:{(int)e.TotalEmpireSupportMaintenance}");
 
-                var ships = e.GetShips();
+                var ships = e.OwnedShips;
                 DrawString($"Ship Count:  ({ships.Count}) " +
                            $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.platform || warship?.DesignRole == ShipData.RoleName.station)}" +
                            $" {ships.Count(warship => warship?.DesignRole ==  ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +

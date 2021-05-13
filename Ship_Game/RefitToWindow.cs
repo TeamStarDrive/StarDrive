@@ -146,7 +146,7 @@ namespace Ship_Game
 
         void OnRefitAllClicked(UIButton b)
         {
-            foreach (Ship ship in EmpireManager.Player.GetShips())
+            foreach (Ship ship in EmpireManager.Player.OwnedShips)
             {
                 if (ship.Name == ShipToRefit.Name)
                     EmpireManager.Player.GetEmpireAI().Goals.Add(GetRefitGoal(ship));

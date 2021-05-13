@@ -2176,7 +2176,11 @@ namespace Ship_Game.Fleets
             }
         }
 
-        public bool RemoveShip(Ship ship, bool andSquad = false)
+        /// <summary>
+        /// removes the ship from fleet and error checks.
+        /// option to not give back to AI for new assignments
+        /// </summary>
+        public bool RemoveShip(Ship ship, bool returnToEmpireAI = true)
         {
             if (ship == null)
             {
@@ -2200,7 +2204,8 @@ namespace Ship_Game.Fleets
             {
                 ship.fleet = null;
                 ship.AI.ClearOrders();
-                ship.loyalty.AddShipNextFrame(ship);
+                if (returnToEmpireAI)
+                    ship.loyalty.AddShipToManagedPools(ship);
                 ship.HyperspaceReturn();
             }
             else 

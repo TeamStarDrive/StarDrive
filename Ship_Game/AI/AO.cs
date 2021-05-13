@@ -398,7 +398,7 @@ namespace Ship_Game.AI
         {
             foreach(var ship in ships)
             {
-                ship.loyalty.EmpireShips.AddShipNextFame(ship);
+                ship.loyalty.EmpireShips.AddToForcePoolNextFame(ship);
             }
         }
 

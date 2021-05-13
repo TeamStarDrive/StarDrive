@@ -630,7 +630,7 @@ namespace Ship_Game
             int nbrship = 0;
             if (lastshipcombat >= player.empireShipCombat)
                 lastshipcombat = 0;
-            foreach (Ship ship in EmpireManager.Player.GetShips())
+            foreach (Ship ship in EmpireManager.Player.OwnedShips)
             {
                 if (ship.fleet != null || !ship.InCombat || ship.IsHangarShip || ship.IsHomeDefense || !ship.Active)
                     continue;

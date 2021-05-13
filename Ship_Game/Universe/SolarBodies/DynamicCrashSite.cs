@@ -88,7 +88,7 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 if (p.Owner == e 
                     || p.Owner == null && p.IsExploredBy(e)
-                                       && e.GetShips().Any(s => s?.Center.InRadius(p.Center, s.SensorRange) == true))
+                                       && e.OwnedShips.Any(s => s?.Center.InRadius(p.Center, s.SensorRange) == true))
                 {
                     if (e.isPlayer)
                         Empire.Universe.NotificationManager.AddShipCrashed(p, message);

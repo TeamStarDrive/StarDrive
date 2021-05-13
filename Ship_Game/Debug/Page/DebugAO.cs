@@ -60,7 +60,7 @@ namespace Ship_Game.Debug.Page
             if (EmpireAtWar.data.Defeated) return;
 
             var allShips = Empire.Universe.GetMasterShipList().ToArray().Filter(s=> s.loyalty == EmpireAtWar);
-            var ourShips = new Array<Ship>(EmpireAtWar.GetShips());
+            var ourShips = new Array<Ship>(EmpireAtWar.OwnedShips);
             var aoShips = EmpireAtWar.EmpireShips;
             var fleets = EmpireAtWar.GetFleetsDict().Values;
 
