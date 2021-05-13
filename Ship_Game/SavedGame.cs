@@ -293,7 +293,7 @@ namespace Ship_Game
 
                 empireToSave.TechTree.AddRange(e.TechEntries.ToArray());
 
-                foreach (Ship ship in e.GetShips())
+                foreach (Ship ship in e.OwnedShips)
                     empireToSave.OwnedShips.Add(ShipSaveFromShip(ship));
 
                 foreach (Ship ship in e.GetProjectors())  //fbedard

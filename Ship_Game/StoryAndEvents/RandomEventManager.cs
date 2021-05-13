@@ -75,7 +75,7 @@ namespace Ship_Game
             if (planet.Owner == null)
             {
                 if (!planet.ParentSystem.HasPlanetsOwnedBy(EmpireManager.Player)
-                    && !EmpireManager.Player.GetShips().Any(s => planet.Center.InRadius(s.Center, s.SensorRange)))
+                    && !EmpireManager.Player.OwnedShips.Any(s => planet.Center.InRadius(s.Center, s.SensorRange)))
                 {
                     return;
                 }
