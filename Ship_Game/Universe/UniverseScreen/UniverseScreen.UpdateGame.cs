@@ -475,7 +475,7 @@ namespace Ship_Game
                 for (int i = start; i < end; i++)
                 {
                     var empire = EmpireManager.Empires[i];
-                    empire.EmpireShips.UpdatePools();
+                    empire.EmpireShips.Update();
                     empire.UpdateMilitaryStrengths();
                     empire.AssessSystemsInDanger(timeStep);
                 }
