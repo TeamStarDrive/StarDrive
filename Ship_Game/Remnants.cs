@@ -685,7 +685,7 @@ namespace Ship_Game
 
         public int NumPortals()
         {
-            return Owner.GetShips().Count(s => s.Name == Owner.data.RemnantPortal && s.Active);
+            return Owner.OwnedShips.Count(s => s.Name == Owner.data.RemnantPortal && s.Active);
         }
 
         public bool RerouteGoalPortals(out Ship newPortal)
@@ -700,7 +700,7 @@ namespace Ship_Game
 
         public bool GetPortals(out Ship[] portals)
         {
-            portals = Owner.GetShips().Filter(s => s.Name == Owner.data.RemnantPortal && s.Active);
+            portals = Owner.OwnedShips.Filter(s => s.Name == Owner.data.RemnantPortal && s.Active);
             return portals.Length > 0;
         }
 

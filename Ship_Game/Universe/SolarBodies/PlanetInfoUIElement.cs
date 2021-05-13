@@ -297,7 +297,7 @@ namespace Ship_Game
         }
 
         int IncomingTroops => Screen.player
-                              .GetShips()
+                              .OwnedShips
                               .Where(s => s != null && s.HasOurTroops && s.AI.OrderQueue.Any(g => g.Plan == ShipAI.Plan.LandTroop && g.TargetPlanet == P))
                               .Sum(s => s.TroopCount);
 
@@ -427,7 +427,7 @@ namespace Ship_Game
                                 && CancelInvasionRect.HitTest(input.CursorPosition) 
                                 && input.InGameSelect)
             {
-                var shipList = EmpireManager.Player.GetShips();
+                var shipList = EmpireManager.Player.OwnedShips;
                 foreach (Ship ship in shipList)
                 {
                     if (ship.AI.State == AIState.AssaultPlanet && ship.AI.OrderQueue.Any(g => g.TargetPlanet == P))

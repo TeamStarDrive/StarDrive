@@ -71,8 +71,6 @@ namespace Ship_Game.Ships
 
             owner.AddShip(this);
             Empire.Universe?.Objects.Add(this);
-            if (owner.GetEmpireAI() != null && !owner.isPlayer)
-                owner.EmpireShips.ForcePoolAdd(this);
         }
 
         protected Ship(string shipName, Empire owner, Vector2 position)

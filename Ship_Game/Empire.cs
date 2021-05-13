@@ -247,23 +247,12 @@ namespace Ship_Game
         public int Id;
 
         public string Name => data.Traits.Name;
-        public void AddShipNextFrame(Ship s)
+        public void AddShipToManagedPools(Ship s)
         {
             s.AI.ClearOrdersAndWayPoints(AIState.AwaitingOrders, false);
-            EmpireShips.AddShipNextFame(s);
+            EmpireShips.AddToForcePoolNextFame(s);
         }
-
-        public void AddShipNextFrame(Ship[] s)
-        {
-            foreach (var ship in s)
-                EmpireShips.AddShipNextFame(ship);
-        }
-        public void AddShipNextFrame(Array<Ship> s)
-        {
-            foreach (var ship in s)
-                EmpireShips.AddShipNextFame(ship);
-        }
-
+        
         public Empire()
         {
             UI       = new EmpireUI(this);
@@ -1065,7 +1054,7 @@ namespace Ship_Game
 
         public IReadOnlyList<Ship> GetProjectors() => OwnedProjectors;
 
-        public void AddShip(Ship s) => EmpireShips.AddShipToEmpirePool(s);
+        public void AddShip(Ship s) => EmpireShips.AddShipToEmpire(s);
         
         void InitDifficultyModifiers()
         {
@@ -1554,9 +1543,9 @@ namespace Ship_Game
         {
             #if PLAYERONLY
                 if(!this.isPlayer && !this.isFaction)
-                foreach (Ship ship in this.GetShips())
+                foreach (Ship ship in this.OwnedShips)
                     ship.GetAI().OrderScrapShip();
-                if (this.GetShips().Count == 0)
+                if (this.OwnedShips.Count == 0)
                     return;
             #endif
 
@@ -3453,7 +3442,7 @@ namespace Ship_Game
             EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
         }
 
-        public void RemoveShip(Ship ship) => EmpireShips.RemoveShipFromEmpirePool(ship);
+        public void RemoveShip(Ship ship) => EmpireShips.RemoveShipFromEmpire(ship);
         public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
         {
             if (targetEmpire == this || targetEmpire == null)

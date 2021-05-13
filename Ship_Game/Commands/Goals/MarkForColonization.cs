@@ -264,7 +264,7 @@ namespace Ship_Game.Commands.Goals
             if (FinishedShip != null)
                 return FinishedShip;
 
-            foreach (Ship ship in empire.GetShips())
+            foreach (Ship ship in empire.OwnedShips)
             {
                 if (ship.isColonyShip && ship.AI != null && !ship.AI.FindGoal(ShipAI.Plan.Colonize, out _))
                     return ship;

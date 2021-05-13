@@ -301,7 +301,7 @@ namespace Ship_Game
             else if (SubShips.SelectedIndex == 1)
             {
                 AvailableShips.Clear();
-                AvailableShips.AddRange(EmpireManager.Player.GetShips()
+                AvailableShips.AddRange(EmpireManager.Player.OwnedShips
                                         .Filter(s => s.fleet == null && s.Active));
 
                 SortShipSL(AvailableShips);

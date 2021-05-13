@@ -39,7 +39,7 @@ namespace Ship_Game.Debug.Page
 
             foreach (Empire e in EmpireManager.Empires)
             {
-                foreach (Ship ship in e.GetShips())
+                foreach (Ship ship in e.OwnedShips)
                 {
                     if (ship?.Active != true) continue;
                     ShipAI ai = ship.AI;
