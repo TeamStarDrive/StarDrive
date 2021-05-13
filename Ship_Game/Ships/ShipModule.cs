@@ -190,8 +190,16 @@ namespace Ship_Game.Ships
         /// it is uniform to all weapons. 50% accuracy creates the same base error for all weapons. 
         /// an accuracy percent of 1 removes all target error.
         /// the default of -1 means ignore this value
+        /// the percentage is based on the parent module being an 8x8 module
+        /// (8x8 * 16 to the power of 1-accuracy percent. 
+        /// 100% = 0 slots
+        /// 75% = ~half slot
+        /// 50% = 2 slots
+        /// 25% = 11 slots
+        /// 0%  = 64 slots
         /// </summary>
-        public float AccuracyPercent => Flyweight.AccuracyPercent;
+        public float AccuracyPercent        => Flyweight.AccuracyPercent;
+        public float WeaponInaccuracyBase   => Flyweight.WeaponInaccuracyBase;
 
         public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret

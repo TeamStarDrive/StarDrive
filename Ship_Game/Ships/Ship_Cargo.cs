@@ -28,6 +28,7 @@ namespace Ship_Game.Ships
         public float PassengerModifier => loyalty.data.Traits.PassengerModifier;
         public float OrdnancePercent   => OrdinanceMax > 1 ? Ordinance / OrdinanceMax : 1f;
 
+        // WARNING: do not use during constants initialization!
         public float ChangeOrdnance(float amount)
         {
             if (amount.AlmostZero() || (amount > 0f && OrdnancePercent.AlmostEqual(1)))
