@@ -418,10 +418,19 @@ namespace Ship_Game.Ships
 
         void UpdateStatus(bool initConstants, bool fromSave)
         {
+            if (initConstants)
+            {
+                InitConstantsBeforeUpdate(fromSave);
+            }
+
             Stats.UpdateCoreStats();
             UpdateMassRelated();
+
             if (initConstants)
-                InitializeStatusFromModules(fromSave);
+            {
+                InitConstantsAfterUpdate(fromSave);
+            }
+
             UpdateWeaponRanges();
             CurrentStrength = CalculateShipStrength();
 
@@ -448,7 +457,7 @@ namespace Ship_Game.Ships
             SetMaxSTLSpeed();
         }
 
-        void InitializeStatusFromModules(bool fromSave)
+        void InitConstantsBeforeUpdate(bool fromSave)
         {
             armor_max = 0f;
             Health = 0f;
@@ -457,6 +466,9 @@ namespace Ship_Game.Ships
             BaseCost = ShipStats.GetBaseCost(ModuleSlotList);
             MaxBank = GetMaxBank();
             InitDefendingTroopStrength();
+
+            if (!fromSave)
+                Ordinance = 0;
 
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
@@ -498,18 +510,24 @@ namespace Ship_Game.Ships
                 if (module.Is(ShipModuleType.Armor))
                     armor_max += module.ActualMaxHealth;
 
+                
                 if (!fromSave)
-                    ChangeOrdnance(module.OrdinanceCapacity);
+                    Ordinance += module.OrdinanceCapacity; // WARNING: do not use ChangeOrdnance() here!
 
                 if (module.Regenerate > 0)
                     HasRegeneratingModules = true;
             }
-
-            PowerCurrent = PowerStoreMax;
             HealthMax = Health;
-            
+        }
+
+        void InitConstantsAfterUpdate(bool fromSave)
+        {
             if (!fromSave)
+            {
+                PowerCurrent = PowerStoreMax;
                 InitShieldsPower(Stats.ShieldAmplifyPerShield);
+            }
+            
             UpdateShields();
 
             Carrier.PrepShipHangars(loyalty);
