@@ -104,8 +104,9 @@ namespace Ship_Game
 
         private BatchRemovalCollection<Planet> OwnedPlanets = new BatchRemovalCollection<Planet>();
         private BatchRemovalCollection<SolarSystem> OwnedSolarSystems = new BatchRemovalCollection<SolarSystem>();
+        Ship[] OwnedShips => Pool.EmpireShips;
         private BatchRemovalCollection<Ship> OwnedProjectors = new BatchRemovalCollection<Ship>();
-        private BatchRemovalCollection<Ship> OwnedShips = new BatchRemovalCollection<Ship>();
+        //private BatchRemovalCollection<Ship> OwnedShips = new BatchRemovalCollection<Ship>();
         public BatchRemovalCollection<Ship> KnownShips = new BatchRemovalCollection<Ship>();
         public BatchRemovalCollection<InfluenceNode> BorderNodes = new BatchRemovalCollection<InfluenceNode>();
         public BatchRemovalCollection<InfluenceNode> SensorNodes = new BatchRemovalCollection<InfluenceNode>();
@@ -730,7 +731,6 @@ namespace Ship_Game
             data.Defeated = false;
             OwnedPlanets.Clear();
             OwnedSolarSystems.Clear();
-            OwnedShips.Clear();
             ActiveRelations.Clear();
             RelationsMap.Clear();
             EmpireAI = null;
@@ -796,7 +796,7 @@ namespace Ship_Game
                 s.loyalty = rebels;
                 rebels.AddShip(s);
             }
-            OwnedShips.Clear();
+            Pool.CleanOut();
             data.AgentList.Clear();
         }
 
@@ -826,7 +826,7 @@ namespace Ship_Game
             EmpireAI.Goals.Clear();
             EmpireAI.EndAllTasks();
             foreach (var kv in FleetsDict) kv.Value.Reset();
-            OwnedShips.Clear();
+            Pool.CleanOut();
             data.AgentList.Clear();
         }
 
@@ -1028,12 +1028,12 @@ namespace Ship_Game
         /// Use GetShipsAtomic() in all other cases such as UI use.
         /// </summary>
         public IReadOnlyList<Ship> GetShips() => OwnedShips;
-        public Ship[] GetShipsAtomic() => OwnedShips.ToArray();
+        //public Ship[] GetShipsAtomic() => OwnedShips.ToArray();
 
         public Ship[] AllFleetReadyShips()
         {
             //Get all available ships from AO's
-            var ships = isPlayer ? OwnedShips : Pool.GetShipsFromOffensePools();
+            var ships = isPlayer ? new Array<Ship>(OwnedShips) : Pool.GetShipsFromOffensePools();
 
             var readyShips = new Array<Ship>();
             for (int i = 0; i < ships.Count; i++)
@@ -1066,17 +1066,8 @@ namespace Ship_Game
 
         public BatchRemovalCollection<Ship> GetProjectors() => OwnedProjectors;
 
-        public void AddShip(Ship s)
-        {
-            bool alreadyAdded;
-            if (s.IsSubspaceProjector)
-                alreadyAdded = !OwnedProjectors.AddUniqueRef(s);
-            else
-                alreadyAdded = !OwnedShips.AddUniqueRef(s);
-            if (alreadyAdded && (s.IsSubspaceProjector || s.DesignRole == ShipData.RoleName.ssp))
-                Log.DebugInfo(ConsoleColor.Yellow, "Empire.AddShip BUG: https://bitbucket.org/codegremlins/stardrive-blackbox/issues/147/doubled-projectors");
-        }
-
+        public void AddShip(Ship s) => Pool.AddShip(s);
+        
         void InitDifficultyModifiers()
         {
             DifficultyModifiers = new DifficultyModifiers(this, CurrentGame.Difficulty);
@@ -1642,7 +1633,7 @@ namespace Ship_Game
                 empireShipTotal = 0;
                 empireShipCombat = 0;
                 Inhibitors.Clear();
-                for (int i = 0; i < OwnedShips.Count; i++)
+                for (int i = 0; i < OwnedShips.Length; i++)
                 {
                     Ship ship = OwnedShips[i];
                     if (ship.InhibitionRadius > 0.0f)
@@ -1672,15 +1663,13 @@ namespace Ship_Game
             }
             SetRallyPoints();
             UpdateFleets(timeStep);
-            OwnedShips.ApplyPendingRemovals();
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
         }
 
         public void UpdateTroopsInSpaceConsumption()
         {
             int numTroops;
-            using (OwnedShips.AcquireReadLock())
-                numTroops = OwnedShips.Sum(s => s.TroopCount);
+            numTroops = OwnedShips.Sum(s => s.TroopCount);
 
             TroopInSpaceFoodNeeds = numTroops * Troop.Consumption * (1 + data.Traits.ConsumptionModifier);
         }
@@ -1740,7 +1729,7 @@ namespace Ship_Game
             CurrentTroopStrength    = 0;
             OffensiveStrength       = 0;
 
-            for (int i = 0; i < OwnedShips.Count; ++i)
+            for (int i = 0; i < OwnedShips.Length; ++i)
             {
                 Ship ship = OwnedShips[i];
                 if (ship != null)
@@ -1994,44 +1983,44 @@ namespace Ship_Game
             TotalEmpireSupportMaintenance = 0;
             TotalMaintenanceInScrap       = 0f;
             TotalTroopShipMaintenance     = 0;
-            using (OwnedShips.AcquireReadLock())
-                foreach (Ship ship in OwnedShips)
+            foreach (Ship ship in OwnedShips)
+            {
+                float maintenance = ship.GetMaintCost();
+                if (!ship.Active || ship.AI.State >= AIState.Scrap)
                 {
-                    float maintenance = ship.GetMaintCost();
-                    if (!ship.Active || ship.AI.State >= AIState.Scrap)
-                    {
-                        TotalMaintenanceInScrap += maintenance;
-                        continue;
-                    }
-                    if (data.DefenseBudget > 0 && ((ship.shipData.HullRole == ShipData.RoleName.platform && ship.IsTethered)
-                                                   || (ship.shipData.HullRole == ShipData.RoleName.station &&
-                                                       (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
-                    {
-                        data.DefenseBudget -= maintenance;
-                    }
-                    switch (ship.DesignRoleType) {
-                        case ShipData.RoleType.WarSupport:
-                        case ShipData.RoleType.Warship:
-                            TotalWarShipMaintenance += maintenance;
-                            break;
-                        case ShipData.RoleType.Civilian:
-                            TotalCivShipMaintenance += maintenance;
-                            break;
-                        case ShipData.RoleType.EmpireSupport:
-                            TotalEmpireSupportMaintenance += maintenance;
-                            break;
-                        case ShipData.RoleType.Orbital:
-                            TotalOrbitalMaintenance += maintenance;
-                            break;
-                        case ShipData.RoleType.Troop:
-                            TotalTroopShipMaintenance += maintenance;
-                            break;
-                        default:
-                            Log.Warning("what is it");
-                            break;
-                    }
-                    TotalShipMaintenance   += maintenance; 
+                    TotalMaintenanceInScrap += maintenance;
+                    continue;
                 }
+                if (data.DefenseBudget > 0 && ((ship.shipData.HullRole == ShipData.RoleName.platform && ship.IsTethered)
+                                               || (ship.shipData.HullRole == ShipData.RoleName.station &&
+                                                   (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
+                {
+                    data.DefenseBudget -= maintenance;
+                }
+                switch (ship.DesignRoleType)
+                {
+                    case ShipData.RoleType.WarSupport:
+                    case ShipData.RoleType.Warship:
+                        TotalWarShipMaintenance += maintenance;
+                        break;
+                    case ShipData.RoleType.Civilian:
+                        TotalCivShipMaintenance += maintenance;
+                        break;
+                    case ShipData.RoleType.EmpireSupport:
+                        TotalEmpireSupportMaintenance += maintenance;
+                        break;
+                    case ShipData.RoleType.Orbital:
+                        TotalOrbitalMaintenance += maintenance;
+                        break;
+                    case ShipData.RoleType.Troop:
+                        TotalTroopShipMaintenance += maintenance;
+                        break;
+                    default:
+                        Log.Warning("what is it");
+                        break;
+                }
+                TotalShipMaintenance += maintenance;
+            }
 
             using (OwnedProjectors.AcquireReadLock())
                 foreach (Ship ship in OwnedProjectors)
@@ -2225,10 +2214,9 @@ namespace Ship_Game
         {
             troopShip = null;
             Array<Ship> troopShips;
-            using (OwnedShips.AcquireReadLock())
-                troopShips = new Array<Ship>(OwnedShips
-                    .Filter(troopship => troopship.IsIdleSingleTroopship)
-                    .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
+            troopShips = new Array<Ship>(OwnedShips
+                .Filter(troopship => troopship.IsIdleSingleTroopship)
+                .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
 
             if (troopShips.Count > 0)
                 troopShip = troopShips.First();
@@ -2239,10 +2227,8 @@ namespace Ship_Game
         public int NumFreeTroops()
         {
             int numTroops;
-            using (OwnedShips.AcquireReadLock())
-            {
-                numTroops = OwnedShips.Filter(s => s.IsIdleSingleTroopship).Length + OwnedPlanets.Sum(p => p.NumTroopsCanLaunch);
-            }
+            numTroops = OwnedShips.Filter(s => s.IsIdleSingleTroopship).Length +
+                        OwnedPlanets.Sum(p => p.NumTroopsCanLaunch);
 
             return numTroops;
         }
@@ -2296,12 +2282,11 @@ namespace Ship_Game
                     maxPop += OwnedPlanets[i].MaxPopulationBillion;
                 }
 
-            using (OwnedShips.AcquireReadLock())
-                for (int i = 0; i < OwnedShips.Count; i++)
-                {
-                    Ship ship = OwnedShips[i];
-                    num += ship.GetCargo(Goods.Colonists) / 1000;
-                }
+            for (int i = 0; i < OwnedShips.Length; i++)
+            {
+                Ship ship = OwnedShips[i];
+                num += ship.GetCargo(Goods.Colonists) / 1000;
+            }
 
             return num;
         }
@@ -2477,7 +2462,7 @@ namespace Ship_Game
                     KnownToPlayer    = true
                 });
 
-            var ships = OwnedShips.AtomicCopy();
+            var ships = OwnedShips;
 
             for (int i = 0; i < ships.Length; i++)
             {
@@ -2617,7 +2602,7 @@ namespace Ship_Game
                     sensorNodes.Add(influenceNode2);
                 }
 
-                var ships = empire.GetShipsAtomic();
+                var ships = empire.Pool.EmpireShips;
                 for (int z = 0; z < ships.Length; z++)
                 {
                     Ship ship = ships[z];
@@ -2669,24 +2654,21 @@ namespace Ship_Game
             if (!ShipsWeCanBuild.Contains(ship.Name) || !fleet.FindShipNode(ship, out FleetDataNode node))
                 return;
 
-            using (OwnedShips.AcquireReadLock())
+            for (int i = 0; i < OwnedShips.Length; i++)
             {
-                for (int i = 0; i < OwnedShips.Count; i++)
+                Ship s = OwnedShips[i];
+                if (s.fleet == null
+                    && s.Name == ship.Name
+                    && !s.InCombat
+                    && !s.IsHangarShip
+                    && !s.IsHomeDefense
+                    && s.AI.State != AIState.Refit
+                    && !s.AI.HasPriorityOrder
+                    && !s.AI.HasPriorityTarget)
                 {
-                    Ship s = OwnedShips[i];
-                    if (s.fleet == null 
-                        && s.Name == ship.Name
-                        && !s.InCombat
-                        && !s.IsHangarShip
-                        && !s.IsHomeDefense
-                        && s.AI.State != AIState.Refit
-                        && !s.AI.HasPriorityOrder
-                        && !s.AI.HasPriorityTarget)
-                    {
-                        s.AI.ClearOrders();
-                        fleet.AddExistingShip(s, node);
-                        return;
-                    }
+                    s.AI.ClearOrders();
+                    fleet.AddExistingShip(s, node);
+                    return;
                 }
             }
 
@@ -2730,7 +2712,7 @@ namespace Ship_Game
             {
                 if (StatTracker.GetSnapshot(Universe.StarDate, this, out Snapshot snapshot))
                 {
-                    snapshot.ShipCount = OwnedShips.Count;
+                    snapshot.ShipCount = OwnedShips.Length;
                     snapshot.MilitaryStrength = CurrentMilitaryStrength;
                     snapshot.TaxRate = data.TaxRate;
                 }
@@ -2970,7 +2952,7 @@ namespace Ship_Game
 
         public void MassScrap(Ship ship)
         {
-            var shipList = ship.IsSubspaceProjector ? OwnedProjectors : OwnedShips;
+            var shipList = ship.IsSubspaceProjector ? OwnedProjectors : new Array<Ship>(OwnedShips);
             for (int i = 0; i < shipList.Count; i++)
             {
                 Ship s = shipList[i];
@@ -3175,7 +3157,7 @@ namespace Ship_Game
                 ship.ChangeLoyalty(this);
             }
 
-            target.OwnedShips.Clear();
+            target.Pool.CleanOut();
             target.OwnedProjectors.Clear();
             AssimilateTech(target);
             foreach (TechEntry techEntry in target.TechEntries)
@@ -3273,7 +3255,7 @@ namespace Ship_Game
             {
                 int items = 0;
                 var avgEmpireCenter = new Vector2();
-                for (int i = 0; i < OwnedShips.Count; i++)
+                for (int i = 0; i < OwnedShips.Length; i++)
                 {
                     var planet = OwnedShips[i];
                     ++items;
@@ -3375,7 +3357,7 @@ namespace Ship_Game
             int unexplored = UniverseScreen.SolarSystemList.Count(s => !s.IsFullyExploredBy(this)).UpperBound(21);
             if (unexplored == 0 && isPlayer)
             {
-                for (int i = 0; i < OwnedShips.Count; i++)
+                for (int i = 0; i < OwnedShips.Length; i++)
                 {
                     Ship ship = OwnedShips[i];
                     if (IsIdleScout(ship))
@@ -3389,7 +3371,7 @@ namespace Ship_Game
                 desiredScouts *= ((int)CurrentGame.Difficulty).LowerBound(1);
 
             int numScouts = 0;
-            for (int i = 0; i < OwnedShips.Count; i++)
+            for (int i = 0; i < OwnedShips.Length; i++)
             {
                 Ship ship = OwnedShips[i];
                 if (IsIdleScout(ship)) 
@@ -3467,29 +3449,7 @@ namespace Ship_Game
             EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
         }
 
-        public void RemoveShip(Ship ship)
-        {
-            if (ship == null)
-            {
-                Log.Error($"Empire '{Name}' RemoveShip failed: ship was null");
-                return;
-            }
-
-            if (ship.IsSubspaceProjector)
-            {
-                using (OwnedProjectors.AcquireWriteLock())
-                    OwnedProjectors.RemoveRef(ship);
-            }
-            else
-            {
-                using (OwnedShips.AcquireWriteLock())
-                    OwnedShips.RemoveRef(ship);
-            }
-
-            ship.AI.ClearOrders();
-            Pool.RemoveShipFromFleetAndPools(ship);
-        }
-
+        public void RemoveShip(Ship ship) => Pool.RemoveShip(ship);
         public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
         {
             if (targetEmpire == this || targetEmpire == null)
@@ -3748,7 +3708,6 @@ namespace Ship_Game
             BorderNodes?.Dispose(ref BorderNodes);
             SensorNodes?.Dispose(ref SensorNodes);
             KnownShips?.Dispose(ref KnownShips);
-            OwnedShips?.Dispose(ref OwnedShips);
             if (data != null)
             {
                 data.AgentList = new BatchRemovalCollection<Agent>();

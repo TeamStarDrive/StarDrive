@@ -7,6 +7,10 @@ namespace Ship_Game.Empires.ShipPools
     public class ShipPool : IDisposable
     {
         readonly Empire Owner;
+        Array<Ship> OwnedShips;
+        Array<Ship> OwnedProjectors;
+        Array<Ship> KnownShips;
+
         public readonly Array<Ship> ForcePool        = new Array<Ship>();
         EmpireAI OwnerAI                      => Owner.GetEmpireAI();
         readonly Array<Ship> ShipsToAdd       = new Array<Ship>();
@@ -19,6 +23,8 @@ namespace Ship_Game.Empires.ShipPools
         public float CurrentUseableStrength = 0;
         public int CurrentUseableFleets = 0;
         float PoolCheckTimer = 0;
+
+        public Ship[] EmpireShips => OwnedShips.ToArray();
 
         public FleetShips EmpireReadyFleets { get; private set; }
         public ShipPool(Empire empire)
@@ -39,9 +45,9 @@ namespace Ship_Game.Empires.ShipPools
                     ErrorCheckPools();
                 }
             }
-            var fleets = new FleetShips(Owner, Owner.AllFleetReadyShips());
-            EmpireReadyFleets = fleets;
-            CurrentUseableFleets = InitialReadyFleets = EmpireReadyFleets.CountFleets(out float initialStrength);
+            var fleets             = new FleetShips(Owner, Owner.AllFleetReadyShips());
+            EmpireReadyFleets      = fleets;
+            CurrentUseableFleets   = InitialReadyFleets = EmpireReadyFleets.CountFleets(out float initialStrength);
             CurrentUseableStrength = InitialStrength = initialStrength;
         }
 
@@ -267,6 +273,44 @@ namespace Ship_Game.Empires.ShipPools
                     Owner.Pool.RemoveShipFromFleetAndPools(ship);
                 }
             }
+        }
+
+        public void AddShip(Ship s)
+        {
+            bool alreadyAdded;
+            if (s.IsSubspaceProjector)
+                alreadyAdded = !OwnedProjectors.AddUniqueRef(s);
+            else
+                alreadyAdded = !OwnedShips.AddUniqueRef(s);
+            if (alreadyAdded && (s.IsSubspaceProjector || s.DesignRole == ShipData.RoleName.ssp))
+                Log.DebugInfo(ConsoleColor.Yellow, "Empire.AddShip BUG: https://bitbucket.org/codegremlins/stardrive-blackbox/issues/147/doubled-projectors");
+        }
+
+        public void RemoveShip(Ship ship)
+        {
+            if (ship == null)
+            {
+                Log.Error($"Empire '{Owner.Name}' RemoveShip failed: ship was null");
+                return;
+            }
+
+            if (ship.IsSubspaceProjector)
+            {
+                //using (OwnedProjectors.AcquireWriteLock())
+                    OwnedProjectors.RemoveRef(ship);
+            }
+            else
+            {
+                OwnedShips.RemoveRef(ship);
+            }
+
+            ship.AI.ClearOrders();
+            RemoveShipFromFleetAndPools(ship);
+        }
+        
+        public void CleanOut()
+        {
+
         }
 
         void IDisposable.Dispose()
