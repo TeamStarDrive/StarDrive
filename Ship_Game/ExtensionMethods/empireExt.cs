@@ -13,7 +13,7 @@ namespace Ship_Game
         {
             var ships      = new Array<Ship>();
             troopsInFleets = 0;
-            var collection = empire.GetShips();
+            var collection = empire.OwnedShips;
             for (int x = 0; x < collection.Count; x++)
             {
                 Ship ship = collection[x];
@@ -42,7 +42,7 @@ namespace Ship_Game
         public static Array<Ship> GetShips(this Empire empire, Predicate<Ship> filter)
         {
             Array<Ship> ships = new Array<Ship>();
-            foreach (Ship ship in empire.GetShips())
+            foreach (Ship ship in empire.OwnedShips)
             {
                 if (!filter(ship)) continue;
                 
