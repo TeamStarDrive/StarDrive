@@ -162,7 +162,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 ship.ChangeOrdnance(supply);
             }
 
-            ship.HealTroops(healOne: true);
+            ship.HealTroops(Level.LowerBound(1));
         }
 
         private float CalcRepairPool()
