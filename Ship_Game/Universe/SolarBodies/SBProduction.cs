@@ -228,7 +228,7 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
             if (!Owner.isPlayer)
-                Owner.EmpireShips.ForcePoolAdd(shipAt);
+                Owner.AddShip(shipAt);
             return true;
         }
 

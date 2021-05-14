@@ -135,7 +135,7 @@ namespace Ship_Game
         {
             foreach (string shipName in FriendlyShipsToSpawn)
             {
-                triggeredBy.EmpireShips.ForcePoolAdd(Ship.CreateShipAt(shipName, triggeredBy, p, true));
+                triggeredBy.AddShip(Ship.CreateShipAt(shipName, triggeredBy, p, true));
             }
 
             foreach (string shipName in RemnantShipsToSpawn)
