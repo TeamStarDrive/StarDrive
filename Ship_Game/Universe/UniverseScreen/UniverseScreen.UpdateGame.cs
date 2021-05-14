@@ -265,6 +265,7 @@ namespace Ship_Game
                 UpdateShipSensorsAndInfluence(simTime, empire);
             }
 
+            PreEmpireUpdates(simTime);
             PostEmpireUpdates(simTime);
 
             foreach (Ship ship in GetMasterShipList())
@@ -439,9 +440,6 @@ namespace Ship_Game
             {
                 ArmageddonCountdown(timeStep);
             }
-
-             //this block contains master ship list and empire pool updates. 
-             //threads iterating the master ship list or empire owned ships should not run through this lock if it can be helped. 
                 ArmageddonTimer -= timeStep.FixedTime;
                 if (ArmageddonTimer < 0f)
                 {
@@ -461,15 +459,20 @@ namespace Ship_Game
             ArmageddonCountdown(timeStep);
             */
 
-            // Execute all the actions submitted from UI thread
-            // into this Simulation / Empire thread
-            //ScreenManager.InvokePendingEmpireThreadActions();
-            //foreach (var empire in EmpireManager.Empires)
-            //{
-            //    empire.Pool.UpdatePools();
-            //    empire.UpdateMilitaryStrengths();
-            //    empire.AssessSystemsInDanger(timeStep);
-            //}
+            PreEmpireUpdates(timeStep);
+            PreEmpirePerf.Stop();
+            
+            if (!Paused && IsActive)
+            {
+                EmpireUpdatePerf.Start();
+                UpdateEmpires(timeStep);
+            }
+            
+            return !Paused;
+        }
+
+        void PreEmpireUpdates(FixedSimTime timeStep)
+        {
             Parallel.For(EmpireManager.Empires.Count, (start, end) =>
             {
                 for (int i = start; i < end; i++)
@@ -480,16 +483,6 @@ namespace Ship_Game
                     empire.AssessSystemsInDanger(timeStep);
                 }
             }, MaxTaskCores);
-
-            PreEmpirePerf.Stop();
-            
-            if (!Paused && IsActive)
-            {
-                EmpireUpdatePerf.Start();
-                UpdateEmpires(timeStep);
-            }
-            
-            return !Paused;
         }
 
         void UpdateEmpires(FixedSimTime timeStep)
