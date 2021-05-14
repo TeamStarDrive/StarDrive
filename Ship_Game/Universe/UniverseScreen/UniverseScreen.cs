@@ -417,7 +417,10 @@ namespace Ship_Game
             CreateProcessTurnsThread();
 
             if (StarDate.AlmostEqual(1000)) // Run once to get all empire goals going
+            {
                 UpdateEmpires(FixedSimTime.Zero);
+                PreEmpireUpdates(FixedSimTime.Zero);
+            }
         }
 
         void CreateProcessTurnsThread()
