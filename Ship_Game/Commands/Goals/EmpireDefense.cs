@@ -31,7 +31,7 @@ namespace Ship_Game.Commands.Goals
         GoalStep AddDefendSystemTasks()
         {
             var systems = new Array<IncomingThreat>();
-            foreach (IncomingThreat threatenedSystem in empire.SystemWithThreat)
+            foreach (IncomingThreat threatenedSystem in empire.SystemsWithThreat)
             {
                 if (!threatenedSystem.ThreatTimedOut && threatenedSystem.HighPriority)
                     systems.Add(threatenedSystem);
