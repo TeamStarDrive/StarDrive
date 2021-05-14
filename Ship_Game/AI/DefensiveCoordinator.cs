@@ -110,7 +110,7 @@ namespace Ship_Game.AI
                 ship.AI.SystemToDefendGuid = Guid.Empty;
                 ship.AI.ClearOrders();
                 if (addToEmpirePool && !ship.loyalty.isPlayer && ship.Active && ship.AI.State != AIState.Scrap && ship.loyalty == Us)
-                    Us.EmpireShips.ForcePoolAdd(ship);
+                    Us.AddShipToManagedPools(ship);
             }
 
             DebugInfoScreen.DefenseCoLogsNull(found, ship, sysToDefend);

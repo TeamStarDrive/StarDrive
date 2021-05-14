@@ -321,7 +321,9 @@ namespace Ship_Game.AI.Tasks
 
             if (WhichFleet == -1 || Fleet == null)
             {
-                Owner.EmpireShips.ForcePoolAdd(TaskForce);
+                foreach (var ship in TaskForce)
+                    Owner.AddShipToManagedPools(ship);
+                
                 TaskForce.Clear();
                 return;
             }
@@ -441,7 +443,9 @@ namespace Ship_Game.AI.Tasks
                 }
                 else
                 {
-                    Owner.EmpireShips.ForcePoolAdd(Fleet.Ships);
+                    foreach (var ship in Fleet.Ships)
+                        Owner.AddShipToManagedPools(ship);
+
                     TaskForce.Clear();
                     Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
                     Fleet?.Reset();
