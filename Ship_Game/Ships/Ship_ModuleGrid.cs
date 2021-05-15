@@ -67,9 +67,8 @@ namespace Ship_Game.Ships
                 ModuleSlotData slot = templateSlots[i];
 
                 var size = new Vector2(16f, 16f);
-
-                ShipModule m = slot.ModuleOrNull;
-                if (m != null)
+                if ((slot.InstalledModuleUID != null && slot.InstalledModuleUID != "Dummy") &&
+                    ResourceManager.GetModuleTemplate(slot.InstalledModuleUID, out ShipModule m))
                 {
                     size.X = m.XSIZE * 16f;
                     size.Y = m.YSIZE * 16f;

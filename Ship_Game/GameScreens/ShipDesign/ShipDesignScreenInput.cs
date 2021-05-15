@@ -543,7 +543,7 @@ namespace Ship_Game
             if (input.KeyPressed(Keys.Enter))
             {
                 foreach (ModuleSlotData moduleSlotData in ActiveHull.ModuleSlots)
-                    moduleSlotData.ModuleUID = null;
+                    moduleSlotData.InstalledModuleUID = null;
 
                 var serializer = new XmlSerializer(typeof(ShipData));
                 using (var outStream = new StreamWriter($"Content/Hulls/{ActiveHull.ShipStyle}/{ActiveHull.Name}.xml"))
@@ -721,10 +721,10 @@ namespace Ship_Game
                 SlotStruct slot = ModuleGrid.SlotsList[i];
                 var savedSlot = new ModuleSlotData
                 {
-                    ModuleUID = slot.ModuleUID,
-                    Position = slot.SlotReference.Position,
-                    Restrictions = slot.Restrictions,
-                    Orientation = slot.Orientation.ToString()
+                    InstalledModuleUID = slot.ModuleUID,
+                    Position           = slot.SlotReference.Position,
+                    Restrictions       = slot.Restrictions,
+                    Orientation        = slot.Orientation.ToString()
                 };
                 if (slot.Module != null)
                 {

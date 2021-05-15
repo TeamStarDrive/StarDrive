@@ -119,14 +119,14 @@ namespace Ship_Game.GameScreens.NewGame
                     shipData.AllModulesUnlocakable = true;
                     foreach (ModuleSlotData module in ship.shipData.ModuleSlots)
                     {
-                        if (module.IsDummy)
+                        if (module.InstalledModuleUID == "Dummy" || module.InstalledModuleUID == null)
                             continue;
                         bool modUnlockable = false;
                         foreach (Technology technology in shipTechs.Keys)
                         {
                             foreach (Technology.UnlockedMod mods in technology.ModulesUnlocked)
                             {
-                                if (mods.ModuleUID != module.ModuleUID) continue;
+                                if (mods.ModuleUID != module.InstalledModuleUID) continue;
                                 modUnlockable = true;
                                 shipData.TechsNeeded.Add(technology.UID);
                                 foreach (string tree in shipTechs[technology])
