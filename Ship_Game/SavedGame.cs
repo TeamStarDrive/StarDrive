@@ -326,7 +326,7 @@ namespace Ship_Game
             var sdata = new ShipSaveData
             {
                 guid = ship.guid,
-                data = ship.ToShipData(),
+                data = new ShipData(ship),
                 Position = ship.Position,
                 experience = ship.experience,
                 kills = ship.kills,
@@ -438,7 +438,7 @@ namespace Ship_Game
             var sd = new ShipSaveData
             {
                 guid       = ship.guid,
-                data       = ship.ToShipData(),
+                data       = new ShipData(ship),
                 Position   = ship.Position,
                 experience = ship.experience,
                 kills      = ship.kills,

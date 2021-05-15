@@ -26,40 +26,7 @@ namespace Ship_Game
                 return;
 
             RemoveObject(shipSO);
-            ActiveHull = new ShipData
-            {
-                Animated          = hull.Animated,
-                CombatState       = hull.CombatState,
-                Hull              = hull.Hull,
-                IconPath          = hull.ActualIconPath,
-                ModelPath         = hull.HullModel,
-                Name              = hull.Name,
-                Role              = hull.Role,
-                ShipStyle         = hull.ShipStyle,
-                ThrusterList      = hull.ThrusterList,
-                ShipCategory      = hull.ShipCategory,
-                HangarDesignation = hull.HangarDesignation,
-                CarrierShip       = hull.CarrierShip,
-                BaseHull          = hull.BaseHull
-            };
-            ActiveHull.UpdateBaseHull();
-
-            ActiveHull.ModuleSlots = new ModuleSlotData[hull.ModuleSlots.Length];
-            for (int i = 0; i < hull.ModuleSlots.Length; ++i)
-            {
-                ModuleSlotData hullSlot = hull.ModuleSlots[i];
-                var data = new ModuleSlotData
-                {
-                    Position           = hullSlot.Position,
-                    Restrictions       = hullSlot.Restrictions,
-                    Facing             = hullSlot.Facing,
-                    InstalledModuleUID = hullSlot.InstalledModuleUID,
-                    Orientation        = hullSlot.Orientation,
-                    SlotOptions        = hullSlot.SlotOptions
-                };
-                ActiveHull.ModuleSlots[i] = data;
-            }
-
+            ActiveHull = new ShipData(hull);
             DesignedShip = new DesignShip(ActiveHull);
 
             BindListsToActiveHull();
@@ -795,9 +762,7 @@ namespace Ship_Game
 
             Ship newTemplate = ResourceManager.AddShipTemplate(toSave, fromSave: false, playerDesign: true);
             EmpireManager.Player.UpdateShipsWeCanBuild();
-            ActiveHull = newTemplate.shipData;
-            ActiveHull.UpdateBaseHull();
-            ChangeHull(ActiveHull);
+            ChangeHull(newTemplate.shipData);
         }
 
         void SaveWIP()
