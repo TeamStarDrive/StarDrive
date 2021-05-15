@@ -249,7 +249,6 @@ namespace Ship_Game.AI
             UpdateTrackedProjectiles();
 
             SolarSystem thisSystem = Owner.System;
-
             if (thisSystem?.OwnerList.Count > 0)
             {
                 for (int i = 0; i < thisSystem.PlanetList.Count; i++)
@@ -418,7 +417,7 @@ namespace Ship_Game.AI
             if (ship.IsInWarp)
                 return 0;
 
-            float minimumDistance = Owner.Radius * 2;
+            float minimumDistance = Owner.Radius;
             float value           = ship.TotalDps;
             value += ship.Carrier.EstimateFightersDps;
             value += ship.TroopCapacity * 100;
@@ -426,8 +425,8 @@ namespace Ship_Game.AI
                        ? ship.BombBays.Count * 50 
                        : ship.BombBays.Count * 10;
 
-            float angleMod = Owner.AngleDifferenceToPosition(ship.Position).LowerBound(0.25f)
-                             / Owner.RotationRadiansPerSecond.LowerBound(0.25f);
+            float angleMod = Owner.AngleDifferenceToPosition(ship.Position).LowerBound(0.5f)
+                             / Owner.RotationRadiansPerSecond.LowerBound(0.5f);
 
             float distance = Owner.Center.Distance(ship.Center).LowerBound(minimumDistance);
             value /= angleMod;
@@ -593,10 +592,11 @@ namespace Ship_Game.AI
             }
         }
 
-        public void DropBombsAtGoal(ShipGoal goal, float radius)
+        public void DropBombsAtGoal(ShipGoal goal, bool inOrbit)
         {
-            if (!Owner.Center.InRadius(goal.TargetPlanet.Center, radius)) 
+            if (!inOrbit) 
                 return;
+
             foreach (ShipModule bombBay in Owner.BombBays)
             {
                 if (bombBay.InstalledWeapon.CooldownTimer > 0f)

@@ -10,13 +10,12 @@ namespace Ship_Game.AI
         public const int ShipYardsLimit = 2; // FB - Maximum of 2 shipyards
 
         public static Ship PickFromCandidates(ShipData.RoleName role, Empire empire, int maxSize = 0,
-                      ShipModuleType targetModule = ShipModuleType.Dummy,
                       ShipData.HangarOptions designation = ShipData.HangarOptions.General)
         {
             // The AI will pick ships to build based on their Strength and game difficulty level.
             // This allows it to choose the toughest ships to build. This is normalized by ship total slots
             // so ships with more slots of the same role wont get priority (bigger ships also cost more to build and maintain.
-            return PickFromCandidatesByStrength(role, empire, maxSize, targetModule, designation);
+            return PickFromCandidatesByStrength(role, empire, maxSize, designation);
         }
 
         private struct MinMaxStrength
@@ -69,18 +68,14 @@ namespace Ship_Game.AI
             return potentialShips.FindMax(s => s.BaseStrength);
         }
         
-        static Ship PickFromCandidatesByStrength(ShipData.RoleName role, Empire empire, int maxSize, 
-                                                           ShipModuleType targetModule,
-                                                           ShipData.HangarOptions designation)
+        static Ship PickFromCandidatesByStrength(ShipData.RoleName role, Empire empire,
+            int maxSize, ShipData.HangarOptions designation)
         {
             Ship[] potentialShips = ShipsWeCanBuild(empire).Filter(
                 ship => ship.DesignRole == role
-                && (maxSize <= 0 || ship.SurfaceArea <= maxSize)
+                && (maxSize == 0 || ship.SurfaceArea <= maxSize)
                 && (designation == ShipData.HangarOptions.General || designation == ship.shipData.HangarDesignation)
             );
-
-            if (targetModule != ShipModuleType.Dummy)
-                potentialShips = potentialShips.Filter(ship => ship.AnyModulesOf(targetModule));
 
             if (potentialShips.Length == 0)
                 return null;
@@ -171,15 +166,16 @@ namespace Ship_Game.AI
                     if (Empire.Universe?.Debug == true)
                     {
                         Log.Info(ConsoleColor.Cyan, $"pick freighter: {ship.Name}: " +
-                                                    $"Value: {ship.BestFreighterValue(empire, fastVsBig)}");
+                                                    $"Value: {ship.FreighterValue(empire, fastVsBig)}");
                     }
                 }
                 else
+                {
                     Log.Warning($"Could not find shipID '{shipId}' in ship dictionary");
+                }
             }
 
-            freighter = freighters
-                .FindMax(ship => ship.BestFreighterValue(empire, fastVsBig));
+            freighter = freighters.FindMax(ship => ship.FreighterValue(empire, fastVsBig));
 
             if (Empire.Universe?.Debug == true)
                 Log.Info(ConsoleColor.Cyan, $"----- Picked {freighter.Name}");
@@ -187,12 +183,50 @@ namespace Ship_Game.AI
             return freighter;
         }
 
+        public static Ship PickConstructor(Empire empire)
+        {
+            Ship constructor = null;
+            if (empire.isPlayer)
+            {
+                string constructorId = empire.data.ConstructorShip;
+                if (!ResourceManager.GetShipTemplate(constructorId, out constructor))
+                {
+                    Log.Warning($"PickConstructor: no construction ship with uid={constructorId}, falling back to default");
+                    constructorId = empire.data.DefaultConstructor;
+                    if (!ResourceManager.GetShipTemplate(constructorId, out constructor))
+                    {
+                        Log.Warning($"PickConstructor: no construction ship with uid={constructorId}");
+                        return null;
+                    }
+                }
+            }
+            else
+            {
+                var constructors = new Array<Ship>();
+                foreach (string shipId in empire.ShipsWeCanBuild)
+                {
+                    if (ResourceManager.GetShipTemplate(shipId, out Ship ship) && ship.IsConstructor)
+                        constructors.Add(ship);
+                }
+
+                if (constructors.Count == 0)
+                {
+                    Log.Warning($"PickConstructor: no construction ship were found for {empire.Name}");
+                    return null;
+                }
+
+                constructor = constructors.FindMax(s => s.ConstructorValue(empire));
+            }
+
+            return constructor;
+        }
+
         public static float GetModifiedStrength(int shipSize, int numOffensiveSlots, float offense, float defense)
         {
             float offenseRatio = (float)numOffensiveSlots / shipSize;
             float modifiedStrength;
 
-            if (defense > offense && offenseRatio < 0.2f)
+            if (defense > offense && offenseRatio < 0.1f)
                 modifiedStrength = offense * 2;
             else
                 modifiedStrength = offense + defense;
