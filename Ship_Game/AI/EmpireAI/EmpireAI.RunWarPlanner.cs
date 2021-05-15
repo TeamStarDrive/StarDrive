@@ -390,20 +390,14 @@ namespace Ship_Game.AI
         {
             if (rel.Them.data.Defeated || !rel.PreparingForWar || rel.AtWar) 
                 return false;
-            //if (rel.IntelligenceLevel <= Empires.DataPackets.EmpireInformation.InformationLevel.Minimal) 
-            //    return false;
             
-            float warRatio = OwnerEmpire.GetWarOffensiveRatio();
-            float anger    = (rel.TotalAnger - rel.Trust) /100f;
-            //if (anger < warRatio) 
-            //    return false;
             var currentWarInformation = OwnerEmpire.AllActiveWars.FilterSelect(w => !w.Them.isFaction,
                                           w => OwnerEmpire.GetRelations(w.Them).KnownInformation);
 
             float currentEnemyStr    = currentWarInformation.Sum(i => i.OffensiveStrength);
             float currentEnemyBuild  = currentWarInformation.Sum(i => i.EconomicStrength);
-            float ourCurrentStrength = OwnerEmpire.CurrentMilitaryStrength;
-            float theirKnownStrength = rel.KnownInformation.AllianceOffensiveStrength.LowerBound(1500) + currentEnemyStr;
+            float ourCurrentStrength = OwnerEmpire.OffensiveStrength;
+            float theirKnownStrength = rel.KnownInformation.AllianceTotalStrength.LowerBound(15000) + currentEnemyStr;
             float theirBuildCapacity = rel.KnownInformation.AllianceEconomicStrength.LowerBound(10) + currentEnemyBuild;
             float ourBuildCapacity   = OwnerEmpire.GetEmpireAI().BuildCapacity;
 
@@ -415,8 +409,9 @@ namespace Ship_Game.AI
                 ourCurrentStrength += ally.OffensiveStrength;
             }
 
+            bool weAreStronger = ourCurrentStrength > theirKnownStrength * OwnerEmpire.PersonalityModifiers.GoToWarTolerance 
+                                 && ourBuildCapacity > theirBuildCapacity * OwnerEmpire.PersonalityModifiers.GoToWarTolerance;
 
-            bool weAreStronger = ourCurrentStrength > theirKnownStrength && ourBuildCapacity > theirBuildCapacity;
             return weAreStronger;
         }
     }

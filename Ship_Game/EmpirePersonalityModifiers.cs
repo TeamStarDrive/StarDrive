@@ -21,6 +21,7 @@ namespace Ship_Game
         public readonly float AssaultBomberRatio; // Percent of existing troops to launch in order to board attacking fleets when planet is bombed
         public readonly float AllyCallToWarRatio; // The tolerance the AI has to join war with an ally vs 3rd party
         public readonly int PostInvasionTurns; // How many turns a post invasion defense fleet will stay
+        public readonly float GoToWarTolerance; // How stronger then them should we be in order to go to war when preparing
 
         public PersonalityModifiers(PersonalityType type)
         {
@@ -43,6 +44,7 @@ namespace Ship_Game
                     TrustCostTradePact    = 0;
                     TechValueModifier     = 1;
                     PostInvasionTurns     = 50;
+                    GoToWarTolerance      = 1.5f;
                     TrustCostNaPact       = 0;
                     break;
                 case PersonalityType.Aggressive:
@@ -63,6 +65,7 @@ namespace Ship_Game
                     TrustCostNaPact       = 35;
                     PostInvasionTurns     = 25;
                     TechValueModifier     = 1.05f;
+                    GoToWarTolerance      = 1.1f;
                     break;
                 case PersonalityType.Ruthless:
                     ColonizationClaimRatioWarningThreshold = 0.6f;
@@ -82,6 +85,7 @@ namespace Ship_Game
                     TrustCostNaPact       = 45f;
                     PostInvasionTurns     = 25;
                     TechValueModifier     = 1.1f;
+                    GoToWarTolerance      = 1.15f;
                     break;
                 case PersonalityType.Xenophobic:
                     ColonizationClaimRatioWarningThreshold = 0;
@@ -101,6 +105,7 @@ namespace Ship_Game
                     TrustCostNaPact       = 15;
                     PostInvasionTurns     = 50;
                     TechValueModifier     = 1.2f;
+                    GoToWarTolerance      = 1.5f;
                     break;
                 case PersonalityType.Cunning:
                     ColonizationClaimRatioWarningThreshold = 1;
@@ -120,6 +125,7 @@ namespace Ship_Game
                     TrustCostNaPact       = 5;
                     PostInvasionTurns     = 60;
                     TechValueModifier     = 1.1f;
+                    GoToWarTolerance      = 1.5f;
                     break;
                 case PersonalityType.Honorable:
                     ColonizationClaimRatioWarningThreshold = 1;
@@ -139,6 +145,7 @@ namespace Ship_Game
                     TrustCostNaPact       = 10;
                     PostInvasionTurns     = 70;
                     TechValueModifier     = 1;
+                    GoToWarTolerance      = 1.1f;
                     break;
                 case PersonalityType.Pacifist:
                     ColonizationClaimRatioWarningThreshold = 1.25f;
@@ -158,6 +165,7 @@ namespace Ship_Game
                     TrustCostNaPact       = 3;
                     PostInvasionTurns     = 75;
                     TechValueModifier     = 1;
+                    GoToWarTolerance      = 2f;
                     break;
             }
         }

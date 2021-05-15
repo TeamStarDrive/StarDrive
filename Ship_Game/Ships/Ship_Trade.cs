@@ -149,7 +149,7 @@ namespace Ship_Game.Ships
             return IsValidTradeRoute(planet) && InsideAreaOfOperation(planet);
         }
 
-        public float BestFreighterValue(Empire empire, float fastVsBig)
+        public float FreighterValue(Empire empire, float fastVsBig)
         {
             float warpK           = MaxFTLSpeed / 1000;
             float movementWeight  = warpK + MaxSTLSpeed / 10 + RotationRadiansPerSecond.ToDegrees() - GetCost(empire) / 5;
