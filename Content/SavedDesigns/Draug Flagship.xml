@@ -15,7 +15,7 @@
   <IconPath>ShipIcons/Godcaller</IconPath>
   <CombatState>Artillery</CombatState>
   <MechanicalBoardingDefense>0</MechanicalBoardingDefense>
-  <Hull>Ralyeh/Godcaller</Hull>
+  <Hull>Draugar/Draug Flagship Hull</Hull>
   <Role>capital</Role>
   <ThrusterList />
   <ModelPath>Model/Ships/Ralyeh/Ship17f</ModelPath>
