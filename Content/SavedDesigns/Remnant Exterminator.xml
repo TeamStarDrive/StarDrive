@@ -15,7 +15,7 @@
   <IconPath>ShipIcons/xeno gunship</IconPath>
   <CombatState>Artillery</CombatState>
   <MechanicalBoardingDefense>0</MechanicalBoardingDefense>
-  <Hull>Remnant/Mothership</Hull>
+  <Hull>Remnant/Remnant Mothership</Hull>
   <Role>carrier</Role>
   <ThrusterList>
     <ThrusterZone>
