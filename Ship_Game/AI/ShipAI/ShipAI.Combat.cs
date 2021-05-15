@@ -417,7 +417,7 @@ namespace Ship_Game.AI
             if (ship.IsInWarp)
                 return 0;
 
-            float minimumDistance = Owner.Radius * 2;
+            float minimumDistance = Owner.Radius;
             float value           = ship.TotalDps;
             value += ship.Carrier.EstimateFightersDps;
             value += ship.TroopCapacity * 100;
@@ -425,8 +425,8 @@ namespace Ship_Game.AI
                        ? ship.BombBays.Count * 50 
                        : ship.BombBays.Count * 10;
 
-            float angleMod = Owner.AngleDifferenceToPosition(ship.Position).LowerBound(0.25f)
-                             / Owner.RotationRadiansPerSecond.LowerBound(0.25f);
+            float angleMod = Owner.AngleDifferenceToPosition(ship.Position).LowerBound(0.5f)
+                             / Owner.RotationRadiansPerSecond.LowerBound(0.5f);
 
             float distance = Owner.Center.Distance(ship.Center).LowerBound(minimumDistance);
             value /= angleMod;

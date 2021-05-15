@@ -226,7 +226,7 @@ namespace Ship_Game.AI
             float offenseRatio = (float)numOffensiveSlots / shipSize;
             float modifiedStrength;
 
-            if (defense > offense && offenseRatio < 0.2f)
+            if (defense > offense && offenseRatio < 0.1f)
                 modifiedStrength = offense * 2;
             else
                 modifiedStrength = offense + defense;
