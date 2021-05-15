@@ -201,7 +201,7 @@ namespace Ship_Game.GameScreens.MainMenu
         void Mods_Clicked(UIButton button)      => ScreenManager.AddScreen(new ModManager(this));
         void Info_Clicked(UIButton button)      => ScreenManager.AddScreen(new InGameWiki(this));
         void VerCheck_Clicked(UIButton button)  => ScreenManager.AddScreen(new VersionChecking(this));
-        void ShipTool_Clicked(UIButton button)  => ScreenManager.AddScreen(new ShipToolScreen(this));
+        void ShipTool_Clicked(UIButton button)  => ScreenManager.AddScreen(new ShipToolScreen());
         void DevSandbox_Clicked(UIButton button)=> ScreenManager.GoToScreen(new DeveloperSandbox(), clear3DObjects: true);
         void Exit_Clicked(UIButton button)      => ExitScreen();
 

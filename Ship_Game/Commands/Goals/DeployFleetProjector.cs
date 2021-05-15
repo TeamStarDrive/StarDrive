@@ -80,7 +80,7 @@ namespace Ship_Game.Commands.Goals
                 {
                     Ship ship = projectors[i];
                     if (ship.Center.InRadius(BuildPosition, 1000))
-                        ship.ScuttleTimer = 30;
+                        ship.ScuttleTimer = 120;
                 }
 
                 return GoalStep.GoalComplete;
