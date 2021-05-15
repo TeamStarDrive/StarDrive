@@ -68,7 +68,41 @@ namespace Ship_Game.GameScreens.ShipDesign
             if (hull == null)
                 return;
 
-            ActiveHull = new ShipData(hull);
+            ActiveHull = new ShipData
+            {
+                Animated          = hull.Animated,
+                CombatState       = hull.CombatState,
+                Hull              = hull.Hull,
+                IconPath          = hull.ActualIconPath,
+                ModelPath         = hull.HullModel,
+                Name              = hull.Name,
+                Role              = hull.Role,
+                ShipStyle         = hull.ShipStyle,
+                ThrusterList      = hull.ThrusterList,
+                ShipCategory      = hull.ShipCategory,
+                HangarDesignation = hull.HangarDesignation,
+                CarrierShip       = hull.CarrierShip,
+                BaseHull          = hull.BaseHull
+            };
+
+            ActiveHull.UpdateBaseHull();
+
+            ActiveHull.ModuleSlots = new ModuleSlotData[hull.ModuleSlots.Length];
+            for (int i = 0; i < hull.ModuleSlots.Length; ++i)
+            {
+                ModuleSlotData hullSlot = hull.ModuleSlots[i];
+                var data = new ModuleSlotData
+                {
+                    Position = hullSlot.Position,
+                    Restrictions = hullSlot.Restrictions,
+                    Facing = hullSlot.Facing,
+                    InstalledModuleUID = hullSlot.InstalledModuleUID,
+                    Orientation = hullSlot.Orientation,
+                    SlotOptions = hullSlot.SlotOptions
+                };
+                ActiveHull.ModuleSlots[i] = data;
+            }
+
             OnHullChange?.Invoke(ActiveHull);
         }
     }
