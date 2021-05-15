@@ -498,7 +498,7 @@ namespace Ship_Game.AI
                 if (!HasPriorityTarget)
                     ScannedTarget = ScanForCombatTargets(sensorShip, radius);
                 else
-                    ScanForCombatTargets(sensorShip, radius);
+                    ScannedTarget = ScanForCombatTargets(sensorShip, radius);
             }
             else if (!HasPriorityTarget)
             {
