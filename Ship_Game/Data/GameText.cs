@@ -4252,6 +4252,10 @@ namespace Ship_Game
         AbortLandPlayerTroopsNoFleet = 4303,
         /// <summary>fleet movement halted.</summary>
         AbortLandPlayerTroopsInFleet = 4304,
+        /// <summary>AI Uses Player Designs</summary>
+        UsePlayerDesignsTitle = 4305,
+        /// <summary>The AI will use player designed ships in the database.</summary>
+        UsePlayerDesignsTip = 4306,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>
