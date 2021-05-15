@@ -90,11 +90,7 @@ namespace Ship_Game.Ships
         public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
         public float PackDamageModifier { get; private set; }
         public Empire loyalty;
-
-        // This is the total number of Slots on the ships
-        // It does not depend on the number of modules, and is always a constant
-        public int SurfaceArea { get; private set; }
-
+        public int SurfaceArea;
         public float Ordinance { get; private set; } // FB: use ChanceOrdnance function to control Ordnance
         public float OrdinanceMax;
         public ShipAI AI { get; private set; }
@@ -677,7 +673,7 @@ namespace Ship_Game.Ships
         public void SetShipData(ShipData data)
         {
             shipData = data;
-            shipData.UpdateBaseHull(); // TODO: This is here because of savegames, maybe can be removed in the future
+            shipData.UpdateBaseHull();
         }
 
         public void Explore()
@@ -829,8 +825,40 @@ namespace Ship_Game.Ships
             AI.OrderColonization(p, g);
         }
 
-        // This is used for serialization
-        public ModuleSlotData[] GetModuleSlotDataArray()
+        public ShipData ToShipData()
+        {
+            var data = new ShipData();
+            data.BaseStrength              = -1;
+            data.TechsNeeded               = shipData.TechsNeeded;
+            data.TechScore                 = shipData.TechScore;
+            data.ShipCategory              = shipData.ShipCategory;
+            data.Name                      = Name;
+            data.Level                     = (byte)Level;
+            data.experience                = (byte)experience;
+            data.Role                      = shipData.Role;
+            data.IsShipyard                = shipData.IsShipyard;
+            data.IsOrbitalDefense          = shipData.IsOrbitalDefense;
+            data.Animated                  = shipData.Animated;
+            data.CombatState               = AI.CombatState;
+            data.ModelPath                 = shipData.ModelPath;
+            data.ModuleSlots               = GetModuleSlotDataArray();
+            data.ThrusterList              = new Array<ShipToolScreen.ThrusterZone>();
+            data.MechanicalBoardingDefense = MechanicalBoardingDefense;
+            data.BaseHull                  = shipData.BaseHull;
+            foreach (Thruster thruster in ThrusterList)
+            {
+                data.ThrusterList.Add(new ShipToolScreen.ThrusterZone
+                {
+                    Scale    = thruster.tscale,
+                    Position = thruster.XMLPos
+                });
+            }
+            return data;
+        }
+
+        // @todo This exists solely because ModuleSlot updating is buggy
+        // if you get a chance, just fix ModuleSlot updates so this isn't needed
+        ModuleSlotData[] GetModuleSlotDataArray()
         {
             var slots = new ModuleSlotData[ModuleSlotList.Length];
             for (int i = 0; i < ModuleSlotList.Length; ++i)
