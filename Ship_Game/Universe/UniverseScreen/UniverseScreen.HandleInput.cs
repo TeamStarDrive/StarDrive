@@ -1308,6 +1308,7 @@ namespace Ship_Game
             return fleet;
         }
 
+        // move to thread safe update
         public void RecomputeFleetButtons(bool now)
         {
             ++FBTimer;

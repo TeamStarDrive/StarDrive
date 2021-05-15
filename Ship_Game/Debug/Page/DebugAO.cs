@@ -61,7 +61,7 @@ namespace Ship_Game.Debug.Page
 
             var allShips = Empire.Universe.GetMasterShipList().ToArray().Filter(s=> s.loyalty == EmpireAtWar);
             var ourShips = new Array<Ship>(EmpireAtWar.OwnedShips);
-            var aoShips = EmpireAtWar.EmpireShips;
+            var aoShips = EmpireAtWar.EmpireShipLists;
             var fleets = EmpireAtWar.GetFleetsDict().Values;
 
             var text = new Array<DebugTextBlock>();
