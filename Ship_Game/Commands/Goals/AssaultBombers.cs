@@ -64,9 +64,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                                     Empire.Universe.NotificationManager.AddEnemyLaunchedTroopsVsFleet(PlanetBuildingAt, empire);
                             }
 
-                            if (ship.Center.InRadius(PlanetBuildingAt.Center, PlanetBuildingAt.ObjectRadius + 1000))
-                                troopShip.Position = ship.Center.GenerateRandomPointOnCircle(300);
-
+                            float distance = ship.Center.InRadius(PlanetBuildingAt.Center, PlanetBuildingAt.ObjectRadius + 1500) ? 300 : 600;
+                            troopShip.Position = ship.Center.GenerateRandomPointOnCircle(distance);
+                            troopShip.Rotation = troopShip.Position.DirectionToTarget(ship.Center).ToRadians();
                             troopShip.AI.OrderTroopToBoardShip(ship);
                             if (numTroopsWanted == 0)
                                 return GoalStep.GoToNextStep;

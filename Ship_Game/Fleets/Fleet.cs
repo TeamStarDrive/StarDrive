@@ -1593,9 +1593,8 @@ namespace Ship_Game.Fleets
                 && !CommandShip.Center.InRadius(FinalPosition, fleetRadius) 
                 && (CommandShip.AI.State == AIState.AwaitingOrders || CommandShip.AI.State == AIState.HoldPosition))
             {
-                CommandShip.AI.OrderMoveTo(FinalPosition, FinalDirection, true, AIState.MoveTo);
+                CommandShip.AI.OrderMoveTo(FinalPosition, FinalDirection, true, AIState.MoveTo, null, CommandShip.IsInhibitedByUnfriendlyGravityWell);
             }
-
 
             if (FinalPosition.InRadius(AveragePos, fleetRadius) )
             {

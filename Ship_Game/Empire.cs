@@ -215,8 +215,6 @@ namespace Ship_Game
         public bool WeArePirates  => Pirates != null; // Use this to figure out if this empire is pirate faction
         public bool WeAreRemnants => Remnants != null; // Use this to figure out if this empire is pirate faction
 
-        public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
-
         // Income this turn before deducting ship maintenance
         public float GrossIncome              => GrossPlanetIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus;
         public float NetIncome                => GrossIncome - AllSpending;
@@ -2088,7 +2086,7 @@ namespace Ship_Game
                 if (ship.Deleted || ResourceManager.ShipRoles[ship.shipData.Role].Protected 
                                  || ShipsWeCanBuild.Contains(ship.Name))
                     continue;
-                if (!isPlayer && !ship.ShipGoodToBuild(this))
+                if (!isPlayer && (!ship.ShipGoodToBuild(this) || ship.IsPlayerDesign && !GlobalStats.UsePlayerDesigns))
                     continue;
                 if (!WeCanBuildThis(ship.Name))
                     continue;
@@ -2115,14 +2113,6 @@ namespace Ship_Game
             if (Universe != null && isPlayer)
                 Universe.aw.UpdateDropDowns();
 
-            Ship preferredBomber = PickFromCandidates(ShipData.RoleName.bomber, this, targetModule: ShipModuleType.Bomb);
-            if (preferredBomber != null)
-                PreferredAuxillaryShips[ShipData.RoleName.bomber] = preferredBomber.Name;
-
-            Ship preferredCarrier = PickFromCandidates(ShipData.RoleName.carrier, this, targetModule: ShipModuleType.Hangar);
-            if (preferredCarrier != null)
-                PreferredAuxillaryShips[ShipData.RoleName.carrier] = preferredCarrier.Name;
-                
             UpdateBestOrbitals();
             UpdateDefenseShipBuildingOffense();
         }
