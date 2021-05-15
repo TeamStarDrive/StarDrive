@@ -310,17 +310,17 @@ namespace Ship_Game
             if (commandShip != null) return commandShip.Center - commandShip.FleetOffset; 
 
             float fleetCapableShipCount = 1;
-            Ship[] items                = ships.GetInternalArrayItems();
-            commandShip                 = commandShip ?? items[0];
+            Ship[] items = ships.GetInternalArrayItems();
+            commandShip = commandShip ?? items[0];
             Vector2 avg = commandShip.Center - commandShip.FleetOffset;
-            float commandShipSize       = commandShip.SurfaceArea;
+            float commandShipSize = commandShip.SurfaceArea;
  
             for (int i = 0; i < count; ++i)
             {
                 Ship ship = items[i];
                 if (ship != commandShip && ship.CanTakeFleetMoveOrders())
                 {
-                    float ratio            = ship.SurfaceArea / commandShipSize;
+                    float ratio = ship.SurfaceArea / commandShipSize;
                     fleetCapableShipCount += (1f * ratio);
                     Vector2 p = (ship.Center -  ship.FleetOffset) * ratio;
                     avg.X += p.X;
