@@ -249,7 +249,6 @@ namespace Ship_Game.AI
             UpdateTrackedProjectiles();
 
             SolarSystem thisSystem = Owner.System;
-
             if (thisSystem?.OwnerList.Count > 0)
             {
                 for (int i = 0; i < thisSystem.PlanetList.Count; i++)
@@ -593,10 +592,11 @@ namespace Ship_Game.AI
             }
         }
 
-        public void DropBombsAtGoal(ShipGoal goal, float radius)
+        public void DropBombsAtGoal(ShipGoal goal, bool inOrbit)
         {
-            if (!Owner.Center.InRadius(goal.TargetPlanet.Center, radius)) 
+            if (!inOrbit) 
                 return;
+
             foreach (ShipModule bombBay in Owner.BombBays)
             {
                 if (bombBay.InstalledWeapon.CooldownTimer > 0f)
