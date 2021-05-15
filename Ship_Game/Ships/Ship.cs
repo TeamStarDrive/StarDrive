@@ -613,7 +613,7 @@ namespace Ship_Game.Ships
                 return 0;
 
             float warpK = MaxFTLSpeed / 1000;
-            float score = warpK + MaxSTLSpeed / 10 + RotationRadiansPerSecond.ToDegrees() - GetCost(empire) / 5;
+            float score = warpK + MaxSTLSpeed / 10 + RotationRadiansPerSecond.ToDegrees();
             return score;
         }
 
