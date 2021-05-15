@@ -12,6 +12,7 @@ namespace Ship_Game.AI.ShipMovement
 
         Vector2 OrbitOffset = Vectors.Up * 1000f;
         public Vector2 OrbitPos { get; private set; }
+        public bool InOrbit { get; private set; }
 
         const float OrbitUpdateInterval = 3f;
         float OrbitUpdateTimer;
@@ -65,8 +66,10 @@ namespace Ship_Game.AI.ShipMovement
         // orbit around a planet
         public void Orbit(Planet orbitTarget, FixedSimTime timeStep)
         {
+            InOrbit = false;
             if (Owner.VelocityMaximum < 1 || Owner.EnginesKnockedOut)
                 return;
+
             if (orbitTarget == null)
             {
                 AI.HoldPositionOffensive();
@@ -79,7 +82,7 @@ namespace Ship_Game.AI.ShipMovement
             if (distance > 15000f) // we are still far away, thrust towards the planet
             {
                 AI.ThrustOrWarpToPos(orbitTarget.Center, timeStep);
-                OrbitPos = orbitTarget.Center + OrbitOffset;
+                OrbitPos         = orbitTarget.Center + OrbitOffset;
                 OrbitUpdateTimer = 0f;
                 return;
             }
@@ -100,7 +103,8 @@ namespace Ship_Game.AI.ShipMovement
                 {
                     // MAGIC STOP ships when orbiting off screen
                     Owner.Velocity = Vector2.Zero;
-                    Owner.Center = Owner.Position;
+                    Owner.Center   = Owner.Position;
+                    InOrbit        = true;
                     return;
                 }
             }
@@ -114,6 +118,7 @@ namespace Ship_Game.AI.ShipMovement
             // We are within orbit radius, so do actual orbiting:
             if (Owner.Center.InRadius(OrbitPos, radius * 1.2f))
             {
+                InOrbit = true;
                 AI.RotateTowardsPosition(OrbitPos, timeStep, 0.01f);
                 Owner.SubLightAccelerate(speedLimit: precisionSpeed);
                 Owner.RestoreYBankRotation(timeStep);
