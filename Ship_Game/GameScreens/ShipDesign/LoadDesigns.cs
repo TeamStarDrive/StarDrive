@@ -141,8 +141,6 @@ namespace Ship_Game.GameScreens.ShipDesign
             foreach (FileInfo info in Dir.GetFiles(Dir.StarDriveAppData + "/WIP"))
             {
                 ShipData newShipData = ShipData.Parse(info, isEmptyHull:false);
-                if (newShipData == null)
-                    continue;
                 var empire = EmpireManager.Player;
                 if (empire.IsHullUnlocked(newShipData.Hull))
                     WIPs.Add(newShipData);
