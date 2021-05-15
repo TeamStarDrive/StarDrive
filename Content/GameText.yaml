@@ -10126,6 +10126,12 @@ AbortLandPlayerTroopsNoFleet:
 AbortLandPlayerTroopsInFleet:
  Id: 4304
  ENG: "fleet movement halted."
+UsePlayerDesignsTitle:
+ Id: 4305
+ ENG: "AI Uses Player Designs"
+UsePlayerDesignsTip:
+ Id: 4306
+ ENG: "The AI will use player designed ships in the database. This could slow down AI tech progression"
 OnSurface:
  Id: 4993
  ENG: "on surface"
