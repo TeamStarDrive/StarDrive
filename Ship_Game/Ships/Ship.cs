@@ -607,6 +607,16 @@ namespace Ship_Game.Ships
             }
         }
 
+        public float ConstructorValue(Empire empire)
+        {
+            if (!IsConstructor)
+                return 0;
+
+            float warpK = MaxFTLSpeed / 1000;
+            float score = warpK + MaxSTLSpeed / 10 + RotationRadiansPerSecond.ToDegrees() - GetCost(empire) / 5;
+            return score;
+        }
+
         // Calculates estimated trip time by turns
         public float GetAstrogateTimeTo(Planet destination)
         {
