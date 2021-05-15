@@ -74,7 +74,7 @@ namespace Ship_Game.Debug.Page
 
             column.AddLine($"MasterShip List: {allShips.Length}");
             column.AddLine($"Empire Ship List: {ourShips.Count}");
-            column.AddLine($"EmpirePool Ship List: {aoShips.ForcePool.GetInternalArrayItems().Length}");
+            column.AddLine($"EmpirePool Ship List: {aoShips.EmpireForcePool.GetInternalArrayItems().Length}");
             column.AddLine($"EmpirePool fleets: {aoShips.CurrentUseableFleets}");
             column.AddLine($"Fleets in use: {fleets.Count}");
             text.Add(column);
