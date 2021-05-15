@@ -157,28 +157,12 @@ namespace Ship_Game.Ships
         public void UpdateBaseHull()
         {
             if (BaseHull == null)
-            {
-                if (ResourceManager.Hull(Hull, out ShipData hull))
-                {
-                    BaseHull = hull;
-                }
-                else
-                {
-                    Log.Warning(ConsoleColor.Red, $"ShipData '{Name}': Cannot find Hull {Hull}");
-                    BaseHull = this;
-                }
-            }
+                BaseHull = ResourceManager.Hull(Hull, out ShipData hull) ? hull : this;
 
             if (Bonuses == null)
                 Bonuses  = ResourceManager.HullBonuses.TryGetValue(Hull, out HullBonus bonus) ? bonus : HullBonus.Default;
 
             SurfaceArea = BaseHull.SurfaceArea;
-
-            // edge case if Hull lookup fails
-            if (SurfaceArea == 0)
-            {
-                SurfaceArea = GetSurfaceArea(ModuleSlots);
-            }
         }
 
         public override string ToString() { return Name; }
@@ -352,9 +336,6 @@ namespace Ship_Game.Ships
                     // Note: carrier role as written in the hull file was changed to battleship, since now carriers are a design role
                     // originally, carriers are battleships. The naming was poorly thought on 15b, or not fixed later.
                     ship.Role = ship.Role == RoleName.carrier ? RoleName.battleship : ship.Role;
-
-                    // Set the BaseHull here to avoid invalid hull lookup
-                    ship.BaseHull = ship; // Hull definition references itself as the base
                 }
 
                 ship.UpdateBaseHull();
@@ -369,22 +350,6 @@ namespace Ship_Game.Ships
             {
                 DisposeShipDataParser(s);
             }
-        }
-        
-        static int GetSurfaceArea(ModuleSlotData[] slots)
-        {
-            int surface = 0;
-            for (int i = 0; i < slots.Length; ++i)
-            {
-                ModuleSlotData slot = slots[i];
-                if (slot.InstalledModuleUID == null)
-                    surface += 1;
-                else if (slot.InstalledModuleUID == "Dummy")
-                    continue; // ignore Dummy modules, since they can be overlapping with 2x2 modules
-                else if (ResourceManager.GetModuleTemplate(slot.InstalledModuleUID, out ShipModule m))
-                    surface += m.XSIZE * m.YSIZE;
-            }
-            return surface;
         }
 
         public ShipData GetClone()
