@@ -357,6 +357,7 @@ namespace Ship_Game.Ships
                 // This is a Hull definition from Content/Hulls/
                 if (isEmptyHull)
                 {
+                    // for empty Hulls the SurfaceArea is equal to slots Length because all are 1x1 empty slots
                     ship.SurfaceArea = ship.ModuleSlots.Length;
 
                     string dirName = info.Directory?.Name ?? "";
@@ -384,19 +385,34 @@ namespace Ship_Game.Ships
                 DisposeShipDataParser(s);
             }
         }
-        
-        static int GetSurfaceArea(ModuleSlotData[] slots)
+
+        static bool HasLegacyDummySlots(ModuleSlotData[] slots)
         {
+            for (int i = 0; i < slots.Length; ++i)
+            {
+                ModuleSlotData slot = slots[i];
+                if (slot.InstalledModuleUID == null || slot.InstalledModuleUID == "Dummy")
+                    return true;
+            }
+            return false;
+        }
+        
+        int GetSurfaceArea(ModuleSlotData[] slots)
+        {
+            // Legacy Hulls and Templates can have "Dummy" modules, in which case SurfaceArea == slots.Length
+            bool hasLegacyDummySlots = HasLegacyDummySlots(slots);
+            if (hasLegacyDummySlots)
+                return slots.Length;
+
+            // New Designs, calculate SurfaceArea by using module size
             int surface = 0;
             for (int i = 0; i < slots.Length; ++i)
             {
                 ModuleSlotData slot = slots[i];
-                if (slot.InstalledModuleUID == null)
-                    surface += 1;
-                else if (slot.InstalledModuleUID == "Dummy")
-                    continue; // ignore Dummy modules, since they can be overlapping with 2x2 modules
-                else if (ResourceManager.GetModuleTemplate(slot.InstalledModuleUID, out ShipModule m))
+                if (ResourceManager.GetModuleTemplate(slot.InstalledModuleUID, out ShipModule m))
                     surface += m.XSIZE * m.YSIZE;
+                else
+                    Log.Warning($"GetSurfaceArea({Name}) failed to find module: {slot.InstalledModuleUID}");
             }
             return surface;
         }
