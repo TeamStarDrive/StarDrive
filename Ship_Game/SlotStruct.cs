@@ -34,7 +34,7 @@ namespace Ship_Game
             PQ            = new PrimitiveQuad(pos.X + offset.X - 8f, pos.Y + offset.Y - 8f, 16f, 16f);
             Restrictions  = slot.Restrictions;
             Facing        = slot.Facing;
-            ModuleUID     = slot.ModuleUID;
+            ModuleUID     = slot.InstalledModuleUID;
             SlotReference = slot;
             Orientation   = slotState;
             SlotOptions   = slot.SlotOptions;

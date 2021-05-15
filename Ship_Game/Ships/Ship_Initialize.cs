@@ -27,9 +27,7 @@ namespace Ship_Game.Ships
             Level      = data.Level;
             experience = data.experience;
             loyalty    = empire;
-            shipData   = data;
-            if (fromSave)
-                data.UpdateBaseHull(); // when loading from save, the basehull data might not be set
+            SetShipData(data);
 
             if (!CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate, shipyardDesign))
                 return;
@@ -56,7 +54,7 @@ namespace Ship_Game.Ships
             BaseStrength = template.BaseStrength;
             BaseCanWarp  = template.BaseCanWarp;
             loyalty      = owner;
-            shipData     = template.shipData;
+            SetShipData(template.shipData);
             SetInitialCrewLevel();
 
             if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
@@ -101,9 +99,8 @@ namespace Ship_Game.Ships
             for (int i = 0; i < templateSlots.Length; ++i)
             {
                 ModuleSlotData slot = templateSlots[i];
-                string uid = slot.ModuleUID;
-                // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
-                if (slot.IsDummy)
+                string uid = slot.InstalledModuleUID;
+                if (uid == null || uid == "Dummy") // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
                 {
                     // incomplete shipyard designs are a new feature, so no legacy dummies here
                     if (shipyardDesign)
@@ -125,7 +122,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < templateSlots.Length; ++i)
             {
                 ModuleSlotData slotData = templateSlots[i];
-                string uid = slotData.ModuleUID;
+                string uid = slotData.InstalledModuleUID;
                 if (uid == "Dummy" || uid == null)
                     continue;
 
@@ -149,6 +146,7 @@ namespace Ship_Game.Ships
 
         public static Ship CreateShipFromSave(Empire empire, SavedGame.ShipSaveData save)
         {
+            save.data.Hull = save.Hull; // @todo Why is this modified here?
             var ship = new Ship(empire, save.data, fromSave: true, isTemplate: false);
             if (!ship.HasModules)
                 return null; // module creation failed

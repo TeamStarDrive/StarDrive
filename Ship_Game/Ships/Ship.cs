@@ -674,6 +674,12 @@ namespace Ship_Game.Ships
 
         public ShipData BaseHull => shipData.BaseHull;
 
+        public void SetShipData(ShipData data)
+        {
+            shipData = data;
+            shipData.UpdateBaseHull(); // TODO: This is here because of savegames, maybe can be removed in the future
+        }
+
         public void Explore()
         {
             AI.State = AIState.Explore;
@@ -833,7 +839,7 @@ namespace Ship_Game.Ships
                 var data = new ModuleSlotData
                 {
                     Position           = module.XMLPosition,
-                    ModuleUID = module.UID,
+                    InstalledModuleUID = module.UID,
                     Health             = module.Health,
                     ShieldPower        = module.ShieldPower,
                     Facing             = module.FacingDegrees,
