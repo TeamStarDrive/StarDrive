@@ -48,11 +48,14 @@ namespace Ship_Game.Ships
         public AIState DefaultAIState;
         // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
         public Category ShipCategory = Category.Unclassified;
-
         public HangarOptions HangarDesignation = HangarOptions.General;
 
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip;
+
+        // Constant: total number of slots in this ShipData Template
+        public int SurfaceArea { get; private set; }
+
         [XmlIgnore] [JsonIgnore] public float BaseStrength;
         [XmlArray(ElementName = "ModuleSlotList")] public ModuleSlotData[] ModuleSlots;
         [XmlIgnore] [JsonIgnore] public bool HullUnlockable;
@@ -85,6 +88,72 @@ namespace Ship_Game.Ships
         [XmlIgnore] [JsonIgnore] public float Radius { get; private set; }
         [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }
 
+        public ShipData()
+        {
+        }
+
+        // Make a COPY from a `hull` template
+        // This is used in ShipDesignScreen and ShipToolScreen
+        public ShipData(ShipData hull)
+        {
+            Name        = hull.Name;
+            CombatState = hull.CombatState;
+            MechanicalBoardingDefense = hull.MechanicalBoardingDefense;
+
+            InitCommonState(hull);
+            UpdateBaseHull();
+
+            ModuleSlots = new ModuleSlotData[hull.ModuleSlots.Length];
+            for (int i = 0; i < hull.ModuleSlots.Length; ++i)
+            {
+                ModuleSlotData slot = hull.ModuleSlots[i];
+                ModuleSlots[i] = new ModuleSlotData
+                {
+                    Position           = slot.Position,
+                    Restrictions       = slot.Restrictions,
+                    Facing             = slot.Facing,
+                    InstalledModuleUID = slot.InstalledModuleUID,
+                    Orientation        = slot.Orientation,
+                    SlotOptions        = slot.SlotOptions
+                };
+            }
+        }
+
+        // Make ShipData from an actual ship
+        // This is used during Serialization (Save)
+        public ShipData(Ship ship)
+        {
+            Name        = ship.Name;
+            CombatState = ship.AI.CombatState;
+            MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
+
+            BaseStrength = ship.BaseStrength;
+            Level        = (byte)ship.Level;
+            experience   = (byte)ship.experience;
+
+            InitCommonState(ship.shipData);
+            ModuleSlots = ship.GetModuleSlotDataArray();
+        }
+
+        void InitCommonState(ShipData hull)
+        {
+            Hull              = hull.Hull;
+            Role              = hull.Role;
+            Animated          = hull.Animated;
+            IconPath          = hull.ActualIconPath;
+            IsShipyard        = hull.IsShipyard;
+            IsOrbitalDefense  = hull.IsOrbitalDefense;
+            ModelPath         = hull.HullModel;
+            ShipStyle         = hull.ShipStyle;
+            ThrusterList      = hull.ThrusterList;
+            ShipCategory      = hull.ShipCategory;
+            HangarDesignation = hull.HangarDesignation;
+            CarrierShip       = hull.CarrierShip;
+            TechsNeeded       = hull.TechsNeeded;
+            TechScore         = hull.TechScore;
+            BaseHull          = hull.BaseHull;
+        }
+
         public void UpdateBaseHull()
         {
             if (BaseHull == null)
@@ -92,6 +161,8 @@ namespace Ship_Game.Ships
 
             if (Bonuses == null)
                 Bonuses  = ResourceManager.HullBonuses.TryGetValue(Hull, out HullBonus bonus) ? bonus : HullBonus.Default;
+
+            SurfaceArea = BaseHull.SurfaceArea;
         }
 
         public override string ToString() { return Name; }
@@ -166,7 +237,7 @@ namespace Ship_Game.Ships
 
         // Added by RedFox - manual parsing of ShipData, because this is the slowest part
         // in loading, the brunt work is offloaded to C++ and then copied back into C#
-        public static unsafe ShipData Parse(FileInfo info)
+        public static unsafe ShipData Parse(FileInfo info, bool isEmptyHull)
         {
             CShipDataParser* s = null;
             try
@@ -221,14 +292,14 @@ namespace Ship_Game.Ships
                 {
                     CModuleSlot* msd = &s->ModuleSlots[i];
                     var slot = new ModuleSlotData();
-                    slot.Position              = new Vector2(msd->PosX, msd->PosY);
+                    slot.Position = new Vector2(msd->PosX, msd->PosY);
                     // @note Interning the strings saves us roughly 70MB of RAM across all UID-s
-                    slot.InstalledModuleUID    = msd->InstalledModuleUID.AsInternedOrNull; // must be interned
-                    slot.Health                = msd->Health;
-                    slot.ShieldPower           = msd->ShieldPower;
-                    slot.Facing                = msd->Facing;
+                    slot.InstalledModuleUID = msd->InstalledModuleUID.AsInternedOrNull; // must be interned
+                    slot.Health      = msd->Health;
+                    slot.ShieldPower = msd->ShieldPower;
+                    slot.Facing      = msd->Facing;
                     Enum.TryParse(msd->Restrictions.AsString, out slot.Restrictions);
-                    slot.Orientation           = msd->State.AsInterned;
+                    slot.Orientation = msd->State.AsInterned;
                     // slot options can be:
                     // "NotApplicable", "Ftr-Plasma Tentacle", "Vulcan Scout", ... etc.
                     // It's a general purpose "whatever" sink, however it's used very frequently
@@ -236,10 +307,6 @@ namespace Ship_Game.Ships
                     ship.ModuleSlots[i] = slot;
                 }
 
-                int slotCount = ship.ModuleSlots.Length;
-
-                if (ship.ModuleSlots.Length != slotCount)
-                    Log.Warning($"Ship {ship.Name} loaded with errors ");
                 // @todo Remove conversion to List
                 ship.ThrusterList = new Array<ShipToolScreen.ThrusterZone>(s->ThrustersLen);
                 for (int i = 0; i < s->ThrustersLen; ++i)
@@ -256,6 +323,20 @@ namespace Ship_Game.Ships
                 ship.TechsNeeded = new HashSet<string>();
                 for (int i = 0; i < s->TechsLen; ++i)
                     ship.TechsNeeded.Add(s->Techs[i].AsInterned);
+
+                // This is a Hull definition from Content/Hulls/
+                if (isEmptyHull)
+                {
+                    ship.SurfaceArea = ship.ModuleSlots.Length;
+
+                    string dirName = info.Directory?.Name ?? "";
+                    ship.Hull      = dirName + "/" + ship.Hull;
+                    ship.ShipStyle = dirName;
+
+                    // Note: carrier role as written in the hull file was changed to battleship, since now carriers are a design role
+                    // originally, carriers are battleships. The naming was poorly thought on 15b, or not fixed later.
+                    ship.Role = ship.Role == RoleName.carrier ? RoleName.battleship : ship.Role;
+                }
 
                 ship.UpdateBaseHull();
                 return ship;
