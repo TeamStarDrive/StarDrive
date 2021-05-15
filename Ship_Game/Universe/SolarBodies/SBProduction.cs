@@ -227,8 +227,6 @@ namespace Ship_Game.Universe.SolarBodies
                 P.Population -= shipAt.LoadColonists(amount);
             }
 
-            if (!Owner.isPlayer)
-                Owner.AddShip(shipAt);
             return true;
         }
 

@@ -86,7 +86,7 @@ namespace Ship_Game.Debug
                 {
                     if (ship?.Active != true) continue;
                     if (ship.DesignRole < ShipData.RoleName.troopShip) continue;
-                    if (empire.EmpireShips.ForcePoolContains(ship)) continue;
+                    if (empire.EmpireShipLists.ForcePoolContains(ship)) continue;
 
                     foreach (AO ao in empire.GetEmpireAI().AreasOfOperations)
                     {
@@ -948,7 +948,7 @@ namespace Ship_Game.Debug
 
                 DrawString("Gross Food: "+ e.GetGrossFoodPerTurn().String());
                 DrawString("Military Str: "+ (int)e.CurrentMilitaryStrength);
-                DrawString($"Fleets: Str: {(int)e.EmpireShips.InitialStrength} Avail: {e.EmpireShips.InitialReadyFleets}");
+                DrawString($"Fleets: Str: {(int)e.EmpireShipLists.InitialStrength} Avail: {e.EmpireShipLists.InitialReadyFleets}");
                 for (int x = 0; x < e.GetEmpireAI().Goals.Count; x++)
                 {
                     Goal g = e.GetEmpireAI().Goals[x];
