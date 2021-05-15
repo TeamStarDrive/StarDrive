@@ -598,6 +598,9 @@ namespace Ship_Game
 
         void TryScrapBiospheres()
         {
+            if (Owner.isPlayer && GovernorShouldNotScrapBuilding || !BuildingList.Any(b => b.IsBiospheres && !b.IsPlayerAdded))
+                return;
+
             var potentialBio = TilesList.Filter(t => t.Biosphere 
                                                      && (t.NoBuildingOnTile 
                                                          || t.Building.IsMilitary && !t.Building.IsPlayerAdded));
