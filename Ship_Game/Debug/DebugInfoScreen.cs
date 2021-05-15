@@ -86,7 +86,7 @@ namespace Ship_Game.Debug
                 {
                     if (ship?.Active != true) continue;
                     if (ship.DesignRole < ShipData.RoleName.troopShip) continue;
-                    if (empire.EmpireShipLists.ForcePoolContains(ship)) continue;
+                    if (empire.EmpireShipLists.EmpireForcePoolContains(ship)) continue;
 
                     foreach (AO ao in empire.GetEmpireAI().AreasOfOperations)
                     {

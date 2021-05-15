@@ -250,7 +250,7 @@ namespace Ship_Game
         public void AddShipToManagedPools(Ship s)
         {
             s.AI.ClearOrdersAndWayPoints(AIState.AwaitingOrders, false);
-            EmpireShipLists.AddToForcePoolNextFame(s);
+            EmpireShipLists.AddToEmpireForcePoolNextFame(s);
         }
         
         public Empire()
@@ -781,8 +781,7 @@ namespace Ship_Game
 
             foreach (Ship s in OwnedShips)
             {
-                s.loyalty = rebels;
-                rebels.AddShip(s);
+                s.ChangeLoyalty(rebels, false);
             }
             EmpireShipLists.CleanOut();
             data.AgentList.Clear();

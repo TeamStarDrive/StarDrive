@@ -125,6 +125,12 @@ namespace Ship_Game
                 // into this Simulation / Empire thread
                 ScreenManager.InvokePendingEmpireThreadActions();
                 ++SimTurnId;
+
+                // this should make spawning ships while paused added to the empire correctly. 
+                // and correctly update lists when removing and creating fleets while paused. 
+                foreach (var empire in EmpireManager.Empires)
+                    empire.EmpireShipLists.Update();
+
                 Objects.Update(FixedSimTime.Zero/*paused*/);
                 RecomputeFleetButtons(true);
             }
@@ -445,13 +451,19 @@ namespace Ship_Game
             PostEmpirePerf.Start();
             if (IsActive)
             {
+                // Items here cant be run in same parallel loop with the others. 
+                foreach(var empire in EmpireManager.Empires)
+                {
+                    // ship lists should be set before any further work with the ship lists is done. 
+                    empire.EmpireShipLists.Update();
+                }
+                
                 Parallel.For(EmpireManager.Empires.Count, (start, end) =>
                 {
                     for (int i = start; i < end; i++)
                     {
                         var empire = EmpireManager.Empires[i];
 
-                        empire.EmpireShipLists.Update();
                         empire.UpdateMilitaryStrengths();
                         empire.AssessSystemsInDanger(timeStep);
                         empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
@@ -465,6 +477,7 @@ namespace Ship_Game
                         }
                     }
                 }, MaxTaskCores);
+
             }
 
             PostEmpirePerf.Stop();
