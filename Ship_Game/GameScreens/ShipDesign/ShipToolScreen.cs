@@ -467,9 +467,9 @@ namespace Ship_Game
 
                 filledModules.Add(new ModuleSlotData
                 {
-                    Position           = slot.ModuleCenter - border.Position,
-                    InstalledModuleUID = slot.ModuleUID,
-                    Restrictions       = slot.Restrictions
+                    Position = slot.ModuleCenter - border.Position,
+                    ModuleUID = slot.ModuleUID,
+                    Restrictions = slot.Restrictions
                 });
             }
             data.ModuleSlots    = filledModules.ToArray();
