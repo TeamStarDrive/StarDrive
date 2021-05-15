@@ -436,6 +436,10 @@ namespace Ship_Game
             for (int i = 0; i < Ships.Count; ++i)
             {
                 Ship ship = Ships[i];
+                // Allow AI ships in gravity wells to react to incoming attacks
+                if (!ship.loyalty.isPlayer && ship.IsInhibitedByUnfriendlyGravityWell)
+                    offensiveMove = true;
+
                 if (queueOrder)
                     ship.AI.OrderFormationWarpQ(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove: offensiveMove);
                 else
@@ -452,7 +456,7 @@ namespace Ship_Game
             
             foreach (Ship ship in Ships)
             {
-                //Prevent fleets with no tasks from and are near their distination from being dumb.
+                // Prevent fleets with no tasks from and are near their destination from being dumb.
                 if (Owner.isPlayer || ship.AI.State == AIState.AwaitingOrders || ship.AI.State == AIState.AwaitingOffenseOrders)
                 {
                     ship.AI.ResetPriorityOrder(true);
@@ -468,9 +472,11 @@ namespace Ship_Game
 
             foreach (Ship ship in Ships)
             {
-                ship.AI.SetPriorityOrder(true);
-                
                 ship.AI.ResetPriorityOrder(false);
+                // Allow AI ships in gravity wells to react to incoming attacks
+                if (!ship.loyalty.isPlayer && ship.IsInhibitedByUnfriendlyGravityWell)
+                    offensiveMove = true;
+
                 ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset, finalDirection, true, AIState.MoveTo, null, offensiveMove);
                 ship.AI.OrderHoldPositionOffensive(FinalPosition + ship.FleetOffset, finalDirection);
             }
