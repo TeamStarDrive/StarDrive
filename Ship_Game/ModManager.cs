@@ -170,7 +170,7 @@ namespace Ship_Game
 
         void OnShipToolClicked(UIButton b)
         {
-            ScreenManager.GoToScreen(new ShipToolScreen(this), clear3DObjects: true);
+            ScreenManager.GoToScreen(new ShipToolScreen(), clear3DObjects: true);
         }
 
         void OnUnloadModClicked(UIButton b)

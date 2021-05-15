@@ -68,7 +68,7 @@ namespace Ship_Game
 
         ShipModule ActiveModule;
 
-        public ShipToolScreen(GameScreen parent) : base(parent)
+        public ShipToolScreen() : base(null)
         {
             TransitionOnTime  = 0f;
             TransitionOffTime = 0f;
