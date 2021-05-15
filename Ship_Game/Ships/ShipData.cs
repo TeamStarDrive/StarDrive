@@ -29,7 +29,7 @@ namespace Ship_Game.Ships
         public byte Level;
         public string SelectionGraphic = "";
         public string Name; // ex: "Dodaving", just an arbitrary name
-        public string ModName; // null if vanilla, else mod name eg "Combined Arms"
+        public string ModName;
         public bool HasFixedCost;
         public short FixedCost;
         public float FixedUpkeep;
@@ -274,10 +274,9 @@ namespace Ship_Game.Ships
                     throw new InvalidDataException(s->ErrorMessage.AsString);
                 }
 
-                // if this design belongs to a specific Mod, then make sure current ModName matches
                 string modName = s->ModName.AsString;
-                if (modName.NotEmpty() && modName == GlobalStats.ModName)
-                    return null; // ignore this design
+                //if (modName.NotEmpty() && GlobalStats.ModOrVanillaName)
+                //    return null; // ignore this design
 
                 var ship = new ShipData
                 {
