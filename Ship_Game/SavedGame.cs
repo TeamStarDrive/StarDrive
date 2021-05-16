@@ -112,6 +112,7 @@ namespace Ship_Game
             SaveData.SolarSystemDataList   = new Array<SolarSystemSaveData>();
             SaveData.CustomMineralDecay    = GlobalStats.CustomMineralDecay;
             SaveData.VolcanicActivity      = GlobalStats.VolcanicActivity;
+            SaveData.UsePlayerDesigns     = GlobalStats.UsePlayerDesigns;
 
             SaveData.SuppressOnBuildNotifications  = GlobalStats.SuppressOnBuildNotifications;
             SaveData.PlanetScreenHideOwned         = GlobalStats.PlanetScreenHideOwned;;
@@ -326,7 +327,7 @@ namespace Ship_Game
             var sdata = new ShipSaveData
             {
                 guid = ship.guid,
-                data = ship.ToShipData(),
+                data = new ShipData(ship),
                 Position = ship.Position,
                 experience = ship.experience,
                 kills = ship.kills,
@@ -438,7 +439,7 @@ namespace Ship_Game
             var sd = new ShipSaveData
             {
                 guid       = ship.guid,
-                data       = ship.ToShipData(),
+                data       = new ShipData(ship),
                 Position   = ship.Position,
                 experience = ship.experience,
                 kills      = ship.kills,
@@ -973,6 +974,7 @@ namespace Ship_Game
             [Serialize(49)] public bool CordrazinePlanetCaptured;
             [Serialize(50)] public bool DisableVolcanoWarning;
             [Serialize(51)] public float VolcanicActivity;
+            [Serialize(52)] public bool UsePlayerDesigns;
         }
     }
 }

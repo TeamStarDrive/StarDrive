@@ -140,7 +140,9 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             foreach (FileInfo info in Dir.GetFiles(Dir.StarDriveAppData + "/WIP"))
             {
-                ShipData newShipData = ShipData.Parse(info);
+                ShipData newShipData = ShipData.Parse(info, isEmptyHull:false);
+                if (newShipData == null)
+                    continue;
                 var empire = EmpireManager.Player;
                 if (empire.IsHullUnlocked(newShipData.Hull))
                     WIPs.Add(newShipData);
@@ -263,7 +265,6 @@ namespace Ship_Game.GameScreens.ShipDesign
         void LoadShipToScreen()
         {
             Ship loadedShip = ResourceManager.GetShipTemplate(EnterNameArea.Text.Text, false);
-            loadedShip?.shipData.UpdateBaseHull();
             Screen.ChangeHull(loadedShip?.shipData ?? selectedWIP);                
             ExitScreen();
         }

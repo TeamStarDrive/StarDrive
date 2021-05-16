@@ -67,6 +67,8 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public int ActualSoftAttack => (int)(SoftAttack + 0.05f * Level * SoftAttack);
         [XmlIgnore][JsonIgnore] public Empire Loyalty       => Owner ?? (Owner = EmpireManager.GetEmpireByName(OwnerString));
         [XmlIgnore][JsonIgnore] public int ActualRange      => Level < 5 ? Range : Range + 1;  // veterans have bigger range
+        [XmlIgnore][JsonIgnore] public bool IsHealthFull    => Strength.AlmostEqual(ActualStrengthMax);
+        [XmlIgnore][JsonIgnore] public bool IsWounded       => !IsHealthFull;
 
         [XmlIgnore][JsonIgnore] public SubTexture TextureDefault => ResourceManager.Texture("Troops/" + TexturePath);
 

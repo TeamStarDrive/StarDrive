@@ -201,7 +201,7 @@ namespace Ship_Game.GameScreens.MainMenu
         void Mods_Clicked(UIButton button)      => ScreenManager.AddScreen(new ModManager(this));
         void Info_Clicked(UIButton button)      => ScreenManager.AddScreen(new InGameWiki(this));
         void VerCheck_Clicked(UIButton button)  => ScreenManager.AddScreen(new VersionChecking(this));
-        void ShipTool_Clicked(UIButton button)  => ScreenManager.AddScreen(new ShipToolScreen(this));
+        void ShipTool_Clicked(UIButton button)  => ScreenManager.AddScreen(new ShipToolScreen());
         void DevSandbox_Clicked(UIButton button)=> ScreenManager.GoToScreen(new DeveloperSandbox(), clear3DObjects: true);
         void Exit_Clicked(UIButton button)      => ExitScreen();
 
@@ -243,9 +243,14 @@ namespace Ship_Game.GameScreens.MainMenu
         // We need a simulation time accumulator in order to run sim at arbitrary X fps while UI runs at smooth 60 fps
         float SimTimeSink;
 
+        // 24x distance is currently the maximum, seems like 25,000 distance is the cutoff for sound
+        const float SoundDistanceMultiplier = 24;
+
         public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            GameAudio.Update3DSound(CamPos);
+            // We set the listener pos further away, this is the only way to reduce SFX volume currently
+            var listenerPos = new Vector3(CamPos.X, CamPos.Y, CamPos.Z * SoundDistanceMultiplier);
+            GameAudio.Update3DSound(listenerPos);
 
             var simTime = new FixedSimTime(GlobalStats.SimulationFramesPerSecond);
 

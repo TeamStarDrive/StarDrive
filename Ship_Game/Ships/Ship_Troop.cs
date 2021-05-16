@@ -310,19 +310,25 @@ namespace Ship_Game.Ships
                 }
             }
 
-            HealTroops();
+            HealTroops(HealPerTurn);
         }
 
-        public void HealTroops(bool healOne = false) // HealOne is from geodetic manager AffectNearbyShips
+        public void HealTroops(float totalHealPoints)
         {
-            if (InCombat)
+            if (InCombat || HealPerTurn < 1)
                 return;
 
-            float heal = healOne ? 1 : HealPerTurn;
+            float currentHealPoints = totalHealPoints;
             for (int i = 0; i < OurTroops.Count; i++)
             {
                 Troop troop = OurTroops[i];
-                troop.HealTroop(heal);
+                if (troop.IsWounded)
+                {
+                    troop.HealTroop(1);
+                    currentHealPoints -= 1;
+                    if (currentHealPoints <= 0)
+                        return;
+                }
             }
         }
 

@@ -15,7 +15,7 @@
   <IconPath>ShipIcons/caravan</IconPath>
   <CombatState>ShortRange</CombatState>
   <MechanicalBoardingDefense>0</MechanicalBoardingDefense>
-  <Hull>Corsairs/HeavyFrigate</Hull>
+  <Hull>Corsair/HeavyFrigate</Hull>
   <Role>frigate</Role>
   <ThrusterList>
     <ThrusterZone>
