@@ -1056,15 +1056,7 @@ namespace Ship_Game
                     try
                     {
                         GameLoadingScreen.SetStatus("LoadShipHull", info.RelPath());
-                        string dirName     = info.Directory?.Name ?? "";
-                        ShipData shipData  = ShipData.Parse(info);
-                        shipData.Hull      = dirName + "/" + shipData.Hull;
-                        shipData.ShipStyle = dirName;
-                        // Note: carrier role as written in the hull file was changed to battleship, since now carriers are a design role
-                        // originally, carriers are battleships. The naming was poorly thought on 15b, or not fixed later.
-                        shipData.Role      = shipData.Role == ShipData.RoleName.carrier ? ShipData.RoleName.battleship : shipData.Role;
-                        shipData.UpdateBaseHull();
-                        hulls[i] = shipData;
+                        hulls[i] = ShipData.Parse(info, isEmptyHull:true);
                     }
                     catch (Exception e)
                     {
@@ -1343,7 +1335,7 @@ namespace Ship_Game
                     try
                     {
                         GameLoadingScreen.SetStatus("LoadShipTemplate", info.RelPath());
-                        ShipData shipData = ShipData.Parse(info);
+                        ShipData shipData = ShipData.Parse(info, isEmptyHull:false);
                         if (shipData.Role == ShipData.RoleName.disabled)
                             continue;
 
