@@ -293,11 +293,12 @@ namespace Ship_Game
                 empireToSave.GSAIData = gsaidata;
 
                 empireToSave.TechTree.AddRange(e.TechEntries.ToArray());
-
-                foreach (Ship ship in e.OwnedShips)
+                var ships = e.OwnedShips;
+                foreach (Ship ship in ships)
                     empireToSave.OwnedShips.Add(ShipSaveFromShip(ship));
 
-                foreach (Ship ship in e.GetProjectors())  //fbedard
+                var projectors = e.GetProjectors();
+                foreach (Ship ship in projectors)  //fbedard
                     empireToSave.OwnedShips.Add(ProjectorSaveFromShip(ship));
 
                 SaveData.EmpireDataList.Add(empireToSave);

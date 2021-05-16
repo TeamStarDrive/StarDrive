@@ -324,7 +324,8 @@ namespace Ship_Game
             batch.Draw(FogMap, new Rectangle(0, 0, 512, 512), Color.White);
             float num = 512f / UniverseSize;
             var uiNode = ResourceManager.Texture("UI/node");
-            foreach (Ship ship in player.OwnedShips)
+            var ships = player.OwnedShips;
+            foreach (Ship ship in ships)
             {
                 if (ship != null && ScreenRectangle.HitTest(ship.ScreenPosition))
                 {

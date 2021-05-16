@@ -82,7 +82,8 @@ namespace Ship_Game.Debug
                     continue;
 
                 bool flag = false;
-                foreach (Ship ship in empire.OwnedShips)
+                var ships = empire.OwnedShips;
+                foreach (Ship ship in ships)
                 {
                     if (ship?.Active != true) continue;
                     if (ship.DesignRole < ShipData.RoleName.troopShip) continue;

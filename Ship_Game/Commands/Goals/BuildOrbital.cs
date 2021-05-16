@@ -125,7 +125,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         // Checks if a Construction Ship is due to deploy a structure at a point
         bool IsOrbitalPlannedAt(Vector2 position)
         {
-            foreach (Ship ship in empire.OwnedShips.Filter(s => s.IsConstructor))
+            var ships = empire.OwnedShips;
+            foreach (Ship ship in ships.Filter(s => s.IsConstructor))
             {
                 if (ship.AI.FindGoal(ShipAI.Plan.DeployOrbital, out ShipAI.ShipGoal g) && g.Goal.TetherTarget == TetherTarget)
                 {
