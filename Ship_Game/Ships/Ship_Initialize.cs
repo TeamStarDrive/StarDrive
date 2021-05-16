@@ -135,7 +135,15 @@ namespace Ship_Game.Ships
                 ModuleSlotList[count++] = module;
             }
 
-            CreateModuleGrid(templateSlots, ModuleSlotList, useModules: fromSave || isTemplate);
+            bool useModules = fromSave || isTemplate;
+            CreateModuleGrid(templateSlots, ModuleSlotList, useModules);
+
+            if (useModules && !shipyardDesign && ModuleSlotList.Length == 0)
+            {
+                Log.Warning($"Failed to load ship '{Name}' due to all empty Modules");
+                return false;
+            }
+
             if (hasLegacyDummySlots)
                 FixLegacyInternalRestrictions(templateSlots);
             return true;
