@@ -331,11 +331,12 @@ namespace Ship_Game
 
         public void LoadContent()
         {
+            Log.Info("ScreenManager.LoadContent");
             UpdateGraphicsDevice();
 
             foreach (GameScreen screen in GameScreens)
             {
-                screen.LoadContent();
+                screen.InvokeLoadContent();
             }
 
             Viewport viewport = GameBase.Viewport;
@@ -348,8 +349,10 @@ namespace Ship_Game
 
         // @warning This unloads ALL game content
         // and is designed to be called only from ResourceManager!
-        public void UnloadAllGameContent()
+        public void UnsafeUnloadAllGameContent()
         {
+            Log.Info("ScreenManager.UnloadAllGameContent");
+
             // @warning We only unload the content. And then reload later.
             foreach (GameScreen screen in GameScreens)
             {
