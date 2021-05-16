@@ -159,7 +159,7 @@ namespace Ship_Game.Ships
         {
             if (BaseHull == null)
             {
-                if (ResourceManager.Hull(Hull, out ShipData hull))
+                if (Hull.NotEmpty() && ResourceManager.Hull(Hull, out ShipData hull))
                 {
                     BaseHull = hull;
                 }
@@ -167,12 +167,14 @@ namespace Ship_Game.Ships
                 {
                     Log.Warning(ConsoleColor.Red, $"ShipData {Hull} '{Name}' cannot find hull: {Hull}");
                     BaseHull = this;
+                    if (Hull.IsEmpty())
+                        Hull = ShipStyle + "/" + Name;
                 }
             }
 
             if (Bonuses == null)
             {
-                Bonuses = ResourceManager.HullBonuses.TryGetValue(Hull, out HullBonus bonus) ? bonus : HullBonus.Default;
+                Bonuses = ResourceManager.HullBonuses.TryGetValue(BaseHull.Hull, out HullBonus bonus) ? bonus : HullBonus.Default;
             }
 
             SurfaceArea = BaseHull.SurfaceArea;
