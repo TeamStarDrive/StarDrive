@@ -119,7 +119,8 @@ namespace Ship_Game
             DrawStat("Total Production Cost:", (int)cost, ref Cursor);
             Cursor.Y += 20f;
             int numShips = 0;
-            foreach (Ship s in F.Owner.OwnedShips)
+            var ships = F.Owner.OwnedShips;
+            foreach (Ship s in ships)
             {
                 if (s.fleet != null)
                 {
@@ -251,12 +252,11 @@ namespace Ship_Game
         {
             NumThatFit = 0;
             AvailableShips.Clear();
-            foreach (Ship ship in F.Owner.OwnedShips)
+            var ships = F.Owner.OwnedShips;
+            foreach (Ship ship in ships)
             {
-                if (ship.fleet != null)
-                    continue;
-
-                AvailableShips.Add(ship);
+                if (ship.fleet == null)
+                    AvailableShips.Add(ship);
             }
             foreach (Ship ship in AvailableShips)
             {
