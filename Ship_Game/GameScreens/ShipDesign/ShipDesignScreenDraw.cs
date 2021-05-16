@@ -42,7 +42,7 @@ namespace Ship_Game
             DrawUi(batch, elapsed);
             ArcsButton.DrawWithShadowCaps(batch);
 
-            if (Debug)
+            if (HullEditMode)
                 DrawDebug(batch);
 
             base.Draw(batch, elapsed);
@@ -151,6 +151,12 @@ namespace Ship_Game
                 DrawRectangle(highlighted.ModuleRect, Color.DarkOrange, 1.25f);
                 if (IsSymmetricDesignMode && GetMirrorSlotStruct(highlighted, out SlotStruct mirrored))
                     DrawRectangle(mirrored.ModuleRect, Color.DarkOrange.Alpha(0.66f), 1.25f);
+            }
+            else if (HullEditMode)
+            {
+                Vector2 cursor = Camera.GetWorldSpaceFromScreenSpace(Input.CursorPosition);
+                cursor = WorldToDesignCoords(cursor);
+                DrawRectangle(new RectF(cursor, new Vector2(16f,16f)), Color.DarkOrange, 1.25f);
             }
         }
 
@@ -501,9 +507,10 @@ namespace Ship_Game
 
         void DrawDebug(SpriteBatch batch)
         {
-            var pos = new Vector2(CenterX - Fonts.Arial20Bold.TextWidth("Debug") / 2, 120f);
-            batch.DrawDropShadowText("Debug", pos, Fonts.Arial20Bold);
-            pos = new Vector2(CenterX - Fonts.Arial20Bold.MeasureString(Operation.ToString()).X / 2, 140f);
+            string title = "HULL EDIT MODE";
+            var pos = new Vector2(CenterX - Fonts.Arial20Bold.TextWidth(title) * 0.5f, 120f);
+            batch.DrawDropShadowText(title, pos, Fonts.Arial20Bold);
+            pos = new Vector2(CenterX - Fonts.Arial20Bold.TextWidth(Operation.ToString()) * 0.5f, 140f);
             batch.DrawDropShadowText(Operation.ToString(), pos, Fonts.Arial20Bold);
         }
 

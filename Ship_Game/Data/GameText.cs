@@ -5040,5 +5040,7 @@ namespace Ship_Game
         SimilarDesignNames = -22,
         /// <summary>Save Ship Design</summary>
         SaveShipDesign = -23,
+        /// <summary>Save Hull Design</summary>
+        SaveHullDesign = -24,
     }
 }
