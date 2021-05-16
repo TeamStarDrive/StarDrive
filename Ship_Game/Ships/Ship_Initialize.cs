@@ -157,6 +157,11 @@ namespace Ship_Game.Ships
 
         public static Ship CreateShipFromSave(Empire empire, SavedGame.ShipSaveData save)
         {
+            // HACK: This is here to enable loading older saves
+            //       It can be removed if we break saves in a major release
+            if (save.data.Hull.IsEmpty())
+                save.data.Hull = save.Hull;
+
             var ship = new Ship(empire, save.data, fromSave: true, isTemplate: false);
             if (!ship.HasModules)
                 return null; // module creation failed
