@@ -321,7 +321,7 @@ namespace Ship_Game.Ships
         {
             ShipData hullData = shipData.BaseHull;
             bool drawIcon = !showModules || ModuleSlotList.Length == 0;
-            if (drawIcon && hullData.SelectionGraphic.NotEmpty())// draw ship icon plus shields
+            if (drawIcon && hullData.SelectionGraphic.NotEmpty()) // draw ship icon plus shields
             {
                 Rectangle destRect = drawRect;
                 destRect.X += 2;
@@ -346,12 +346,14 @@ namespace Ship_Game.Ships
 
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
-                ShipModule m              = ModuleSlotList[i];
-                Vector2 modulePos         = (m.Position - GridOrigin) / 16f * moduleSize;
-                Color healthColor         = moduleHealthColor ? m.GetHealthStatusColor() : new Color(40, 40, 40);
+                ShipModule m = ModuleSlotList[i];
+                Vector2 modulePos = (m.Position - GridOrigin) / 16f * moduleSize;
+                Color healthColor = moduleHealthColor ? m.GetHealthStatusColor() : new Color(40, 40, 40);
                 Color moduleColorMultiply = healthColor.AddRgb(moduleHealthColor ? 0.66f : 1);
-                var rect = new Rectangle(shipDrawRect.X + (int)modulePos.X, shipDrawRect.Y + (int)modulePos.Y,
-                                   (int)moduleSize * m.XSIZE,(int)moduleSize * m.YSIZE);
+                var rect = new Rectangle(shipDrawRect.X + (int)modulePos.X,
+                                         shipDrawRect.Y + (int)modulePos.Y,
+                                         (int)moduleSize * m.XSIZE,
+                                         (int)moduleSize * m.YSIZE);
 
                 SubTexture tex = m.ModuleTexture;
                 HelperFunctions.GetOrientedModuleTexture(m, ref tex, m.Orientation);

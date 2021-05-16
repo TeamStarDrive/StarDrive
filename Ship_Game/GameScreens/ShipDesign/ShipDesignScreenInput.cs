@@ -86,7 +86,7 @@ namespace Ship_Game
             HangarOptionsList.SetActiveValue(ActiveHull.HangarDesignation);
         }
 
-        bool CheckDesign()
+        bool IsGoodDesign()
         {
             bool hasBridge = false;
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
@@ -116,7 +116,7 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
-            bool goodDesign = CheckDesign();
+            bool goodDesign = IsGoodDesign();
 
             if (!ShipSaved && !goodDesign)
             {
@@ -136,7 +136,7 @@ namespace Ship_Game
             ScreenToLaunch = launches;
             bool isEmptyDesign = ModuleGrid.IsEmptyDesign();
 
-            bool goodDesign = CheckDesign();
+            bool goodDesign = IsGoodDesign();
 
             if (isEmptyDesign || (ShipSaved && goodDesign))
             {
@@ -162,6 +162,7 @@ namespace Ship_Game
         {
             if (input.DebugMode)
             {
+                HullEditMode = !HullEditMode;
                 LoadContent();
                 return true;
             }
@@ -380,7 +381,29 @@ namespace Ship_Game
             if (!ToggleOverlay)
                 return false;
 
-            if (!GetSlotUnderCursor(input, out SlotStruct slotStruct))
+            SlotStruct slotStruct;
+            if (HullEditMode)
+            {
+                if (input.LeftMouseClick)
+                {
+                    GameAudio.DesignSoftBeep();
+
+                    if (Operation == SlotModOperation.Add)
+                    {
+                        AddHullSlot(input);
+                        return true;
+                    }
+
+                    if (GetSlotUnderCursor(input, out slotStruct))
+                    {
+                        EditHullSlot(slotStruct.SlotReference.Position, Operation);
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            if (!GetSlotUnderCursor(input, out slotStruct))
             {
                 // we clicked on empty space
                 if (input.LeftMouseReleased)
@@ -390,16 +413,11 @@ namespace Ship_Game
                 }
                 return false;
             }
-            
+
             // mouse was released and we weren't performing ARC drag with left mouse down
             if (input.LeftMouseReleased && !input.LeftMouseHeldDown)
             {
-                GameAudio.PlaySfxAsync("simple_beep");
-                if (Debug)
-                {
-                    DebugAlterSlot(slotStruct.SlotReference.Position, Operation);
-                    return true;
-                }
+                GameAudio.DesignSoftBeep();
 
                 SlotStruct slot = slotStruct.Parent ?? slotStruct;
                 if (ActiveModule == null && slot.Module != null)
@@ -539,20 +557,24 @@ namespace Ship_Game
 
         void HandleInputDebug(InputState input)
         {
-            if (!Debug) return;
+            if (!HullEditMode)
+                return;
+
             if (input.KeyPressed(Keys.Enter))
             {
-                foreach (ModuleSlotData moduleSlotData in ActiveHull.ModuleSlots)
-                    moduleSlotData.ModuleUID = null;
-
-                var serializer = new XmlSerializer(typeof(ShipData));
-                using (var outStream = new StreamWriter($"Content/Hulls/{ActiveHull.ShipStyle}/{ActiveHull.Name}.xml"))
-                    serializer.Serialize(outStream, ActiveHull);
+                ScreenManager.AddScreen(new ShipDesignSaveLoadScreen(this, ActiveHull.Name, hullDesigner:true));
             }
+
             if (input.Right)
-                ++Operation;
-            if (Operation > SlotModOperation.Normal)
-                Operation = SlotModOperation.Delete;
+            {
+                if (++Operation > SlotModOperation.Normal)
+                    Operation = SlotModOperation.Delete;
+            }
+            else if (input.Left)
+            {
+                if (--Operation < SlotModOperation.Delete)
+                    Operation = SlotModOperation.Normal;
+            }
         }
 
         void HandleInputZoom(InputState input)
@@ -637,7 +659,7 @@ namespace Ship_Game
                 return;
 
             GameAudio.AcceptClick();
-            if (!ShipSaved && !CheckDesign() && !ModuleGrid.IsEmptyDesign())
+            if (!ShipSaved && !IsGoodDesign() && !ModuleGrid.IsEmptyDesign())
             {
                 ChangeTo = item.Hull;
                 MakeMessageBox(this, JustChangeHull, SaveWIPThenChangeHull, 
@@ -708,7 +730,7 @@ namespace Ship_Game
 
         void SaveChanges()
         {
-            ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
+            ScreenManager.AddScreen(new ShipDesignSaveLoadScreen(this, ActiveHull.Name));
             ShipSaved = true;
         }
 
@@ -745,13 +767,25 @@ namespace Ship_Game
             ShipSaved = true;
         }
 
-        ShipData CloneActiveHull(string newName)
+        ShipData CloneActiveHull(string newName, bool isShipDesign = true)
         {
             ShipData hull = ActiveHull.GetClone();
             hull.Name = newName;
             // save name of the mod, so we can ignore it in vanilla
-            hull.ModName = GlobalStats.ActiveModInfo?.ModName;
+            if (isShipDesign)
+            {
+                hull.ModName = GlobalStats.ActiveModInfo?.ModName;
+            }
+
             hull.ModuleSlots = CreateModuleSlots();
+
+            if (!isShipDesign) // it's a new blank Hull
+            {
+                hull.Hull = newName;
+                foreach (ModuleSlotData moduleSlotData in hull.ModuleSlots)
+                    moduleSlotData.ModuleUID = null;
+            }
+
             return hull;
         }
 
@@ -763,6 +797,15 @@ namespace Ship_Game
             Ship newTemplate = ResourceManager.AddShipTemplate(toSave, fromSave: false, playerDesign: true);
             EmpireManager.Player.UpdateShipsWeCanBuild();
             ChangeHull(newTemplate.shipData);
+        }
+
+        public void SaveHullDesign(string hullName)
+        {
+            ShipData toSave = CloneActiveHull(hullName, isShipDesign: false);
+            SerializeShipDesign(toSave, $"Content/Hulls/{ActiveHull.ShipStyle}/{hullName}.xml");
+
+            ShipData newHull = ResourceManager.AddHull(toSave);
+            ChangeHull(newHull);
         }
 
         void SaveWIP()
