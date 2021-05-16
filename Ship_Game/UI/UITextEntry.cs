@@ -199,6 +199,10 @@ namespace Ship_Game
             if (!Enabled)
                 return false;
 
+            // some gamescreen has decided to globally disable input
+            if (HandlingInput && !GlobalStats.TakingInput)
+                HandlingInput = false;
+
             //Background?.HandleInput(input); // not really needed for background elements
 
             bool wasHovering = Hover; // was hovering last frame
