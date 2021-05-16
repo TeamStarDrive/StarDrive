@@ -303,7 +303,7 @@ namespace Ship_Game
 
             // This is a destructive operation that invalidates ALL game resources!
             // @note It HAS to be done after clearing all ResourceManager texture caches!
-            manager.UnloadAllGameContent();
+            manager.UnsafeUnloadAllGameContent();
         }
 
         public static void UnloadAllData(ScreenManager manager)
