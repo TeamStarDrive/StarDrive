@@ -8,6 +8,7 @@ using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
 using Ship_Game.Fleets;
+using Ship_Game.GameScreens.ShipDesign;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game

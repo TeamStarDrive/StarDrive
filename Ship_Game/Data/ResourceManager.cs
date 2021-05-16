@@ -1041,6 +1041,21 @@ namespace Ship_Game
             }
         }
 
+        public static ShipData AddHull(ShipData hull)
+        {
+            if (hull != null) // will be null if ShipData.Parse failed
+            {
+                if (HullsDict.TryGetValue(hull.Hull, out ShipData existing))
+                {
+                    HullsList.Remove(existing);
+                }
+
+                HullsDict[hull.Hull] = hull;
+                HullsList.Add(hull);
+            }
+            return hull;
+        }
+
         static void LoadHullData() // Refactored by RedFox
         {
             HullsDict.Clear();
@@ -1066,12 +1081,9 @@ namespace Ship_Game
             }
             Parallel.For(hullFiles.Length, LoadHulls);
             //LoadHulls(0, hullFiles.Length);
+
             foreach (ShipData sd in hulls) // Finalize HullsDict:
-            {
-                if (sd == null) continue; // will be null if ShipData.Parse failed
-                HullsDict[sd.Hull] = sd;
-                HullsList.Add(sd);
-            }
+                AddHull(sd);
         }
 
 
