@@ -111,7 +111,7 @@ namespace Ship_Game.Ships
                     Position           = slot.Position,
                     Restrictions       = slot.Restrictions,
                     Facing             = slot.Facing,
-                    InstalledModuleUID = slot.InstalledModuleUID,
+                    ModuleUID = slot.ModuleUID,
                     Orientation        = slot.Orientation,
                     SlotOptions        = slot.SlotOptions
                 };
@@ -165,7 +165,7 @@ namespace Ship_Game.Ships
                 }
                 else
                 {
-                    Log.Warning(ConsoleColor.Red, $"ShipData '{Name}': Cannot find Hull {Hull}");
+                    Log.Warning(ConsoleColor.Red, $"ShipData {Hull} '{Name}' cannot find hull: {Hull}");
                     BaseHull = this;
                 }
             }
@@ -180,12 +180,12 @@ namespace Ship_Game.Ships
             // edge case if Hull lookup fails
             if (SurfaceArea == 0)
             {
-                SurfaceArea = GetSurfaceArea(ModuleSlots);
+                SurfaceArea = GetSurfaceArea();
             }
             #if DEBUG
-            else if (SurfaceArea != GetSurfaceArea(ModuleSlots))
+            else if (SurfaceArea != GetSurfaceArea())
             {
-                Log.Warning(ConsoleColor.Red, $"ShipData '{Name}': SurfaceArea {SurfaceArea} does not match calculated {GetSurfaceArea(ModuleSlots)}");
+                Log.Warning(ConsoleColor.Red, $"ShipData {Hull} '{Name}' SurfaceArea mismatch: hull {SurfaceArea} != calculated {GetSurfaceArea()}");
             }
             #endif
         }
@@ -324,7 +324,7 @@ namespace Ship_Game.Ships
                     var slot = new ModuleSlotData();
                     slot.Position = new Vector2(msd->PosX, msd->PosY);
                     // @note Interning the strings saves us roughly 70MB of RAM across all UID-s
-                    slot.InstalledModuleUID = msd->InstalledModuleUID.AsInternedOrNull; // must be interned
+                    slot.ModuleUID = msd->InstalledModuleUID.AsInternedOrNull; // must be interned
                     slot.Health      = msd->Health;
                     slot.ShieldPower = msd->ShieldPower;
                     slot.Facing      = msd->Facing;
@@ -357,8 +357,8 @@ namespace Ship_Game.Ships
                 // This is a Hull definition from Content/Hulls/
                 if (isEmptyHull)
                 {
-                    // for empty Hulls the SurfaceArea is equal to slots Length because all are 1x1 empty slots
-                    ship.SurfaceArea = ship.ModuleSlots.Length;
+                    // make sure to calculate the surface area correctly
+                    ship.SurfaceArea = ship.GetSurfaceArea();
 
                     string dirName = info.Directory?.Name ?? "";
                     ship.Hull      = dirName + "/" + ship.Hull;
@@ -389,30 +389,65 @@ namespace Ship_Game.Ships
         static bool HasLegacyDummySlots(ModuleSlotData[] slots)
         {
             for (int i = 0; i < slots.Length; ++i)
-            {
-                ModuleSlotData slot = slots[i];
-                if (slot.InstalledModuleUID == null || slot.InstalledModuleUID == "Dummy")
+                if (slots[i].IsDummy)
                     return true;
-            }
             return false;
         }
+
+        static bool IsAllDummySlots(ModuleSlotData[] slots)
+        {
+            for (int i = 0; i < slots.Length; ++i)
+                if (!slots[i].IsDummy)
+                    return false;
+            return true;
+        }
+
+        void DetectOverlappingModules()
+        {
+            for (int i = 0; i < ModuleSlots.Length; ++i)
+            {
+                ModuleSlotData a = ModuleSlots[i];
+                if (a.IsDummy)
+                    continue;
+                ShipModule ma = a.ModuleOrNull;
+                var ra = new RectF(a.Position.X, a.Position.Y, ma.XSIZE * 16f, ma.YSIZE * 16f);
+                for (int j = i + 1; j < ModuleSlots.Length; ++j)
+                {
+                    ModuleSlotData b = ModuleSlots[j];
+                    if (b.IsDummy)
+                        continue;
+                    ShipModule mb = a.ModuleOrNull;
+                    var rb = new RectF(b.Position.X, b.Position.Y, mb.XSIZE * 16f, mb.YSIZE * 16f);
+                    if (ra.Overlaps(rb))
+                        Log.Warning($"ShipData {Hull} '{Name}' overlapping modules: {a.ModuleUID} {ra} -- {b.ModuleUID} {rb}");
+                }
+            }
+        }
         
-        int GetSurfaceArea(ModuleSlotData[] slots)
+        int GetSurfaceArea()
         {
             // Legacy Hulls and Templates can have "Dummy" modules, in which case SurfaceArea == slots.Length
-            bool hasLegacyDummySlots = HasLegacyDummySlots(slots);
+            bool hasLegacyDummySlots = HasLegacyDummySlots(ModuleSlots);
             if (hasLegacyDummySlots)
-                return slots.Length;
+            {
+                if (IsAllDummySlots(ModuleSlots))
+                    return ModuleSlots.Length;
+            }
+
+            #if DEBUG
+            DetectOverlappingModules();
+            #endif
 
             // New Designs, calculate SurfaceArea by using module size
             int surface = 0;
-            for (int i = 0; i < slots.Length; ++i)
+            for (int i = 0; i < ModuleSlots.Length; ++i)
             {
-                ModuleSlotData slot = slots[i];
-                if (ResourceManager.GetModuleTemplate(slot.InstalledModuleUID, out ShipModule m))
-                    surface += m.XSIZE * m.YSIZE;
-                else
-                    Log.Warning($"GetSurfaceArea({Name}) failed to find module: {slot.InstalledModuleUID}");
+                ModuleSlotData slot = ModuleSlots[i];
+                ShipModule module = slot.ModuleOrNull;
+                if (module != null)
+                    surface += module.XSIZE * module.YSIZE;
+                else if (!slot.IsDummy)
+                    Log.Warning($"GetSurfaceArea({Name}) failed to find module: {slot.ModuleUID}");
             }
             return surface;
         }
