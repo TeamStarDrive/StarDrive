@@ -96,7 +96,7 @@ namespace Ship_Game.Ships
         // This is used in ShipDesignScreen and ShipToolScreen
         public ShipData(ShipData hull)
         {
-            Name        = hull.Name;
+            Name = hull.Name;
             CombatState = hull.CombatState;
             MechanicalBoardingDefense = hull.MechanicalBoardingDefense;
 
@@ -108,12 +108,12 @@ namespace Ship_Game.Ships
                 ModuleSlotData slot = hull.ModuleSlots[i];
                 ModuleSlots[i] = new ModuleSlotData
                 {
-                    Position           = slot.Position,
-                    Restrictions       = slot.Restrictions,
-                    Facing             = slot.Facing,
-                    ModuleUID = slot.ModuleUID,
-                    Orientation        = slot.Orientation,
-                    SlotOptions        = slot.SlotOptions
+                    Position     = slot.Position,
+                    Restrictions = slot.Restrictions,
+                    Facing       = slot.Facing,
+                    ModuleUID    = slot.ModuleUID,
+                    Orientation  = slot.Orientation,
+                    SlotOptions  = slot.SlotOptions
                 };
             }
 
@@ -276,7 +276,7 @@ namespace Ship_Game.Ships
 
                 // if this design belongs to a specific Mod, then make sure current ModName matches
                 string modName = s->ModName.AsString;
-                if (modName.NotEmpty() && modName == GlobalStats.ModName)
+                if (modName.NotEmpty() && modName != GlobalStats.ModName)
                     return null; // ignore this design
 
                 var ship = new ShipData
@@ -407,19 +407,21 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ModuleSlots.Length; ++i)
             {
                 ModuleSlotData a = ModuleSlots[i];
-                if (a.IsDummy)
-                    continue;
                 ShipModule ma = a.ModuleOrNull;
+                if (ma == null)
+                    continue;
                 var ra = new RectF(a.Position.X, a.Position.Y, ma.XSIZE * 16f, ma.YSIZE * 16f);
                 for (int j = i + 1; j < ModuleSlots.Length; ++j)
                 {
                     ModuleSlotData b = ModuleSlots[j];
-                    if (b.IsDummy)
-                        continue;
                     ShipModule mb = a.ModuleOrNull;
+                    if (mb == null)
+                        continue;
                     var rb = new RectF(b.Position.X, b.Position.Y, mb.XSIZE * 16f, mb.YSIZE * 16f);
                     if (ra.Overlaps(rb))
+                    {
                         Log.Warning($"ShipData {Hull} '{Name}' overlapping modules: {a.ModuleUID} {ra} -- {b.ModuleUID} {rb}");
+                    }
                 }
             }
         }
