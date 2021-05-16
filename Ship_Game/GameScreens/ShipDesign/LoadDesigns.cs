@@ -215,7 +215,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                         Empire.Universe?.Debug != true &&
                         ResourceManager.ShipRoles[ship.shipData.Role].Protected)
                     {
-                        Log.Info($"Ship Design excluded by filter {ship.Name}");
+                        //Log.Info($"Ship Design excluded by filter {ship.Name}");
                         continue;
                     }
                     shipRoles.Add(Localizer.GetRole(ship.DesignRole, EmpireManager.Player));
