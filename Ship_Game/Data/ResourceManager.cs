@@ -1303,7 +1303,9 @@ namespace Ship_Game
                 if (data.IsCommandModule && data.TargetTracking == 0)  data.TargetTracking = (sbyte) (int)(data.XSIZE * data.YSIZE * 1.25f );
                 if (data.IsCommandModule && data.TargetAccuracy == 0)  data.TargetAccuracy = data.TargetTracking;
 
-                data.DisableRotation = data.DisableRotation || data.XSIZE == data.YSIZE;
+                // disable Rotation change for 2x2, 3x3, 4x4, ... modules
+                if (data.XSIZE != 1 && data.XSIZE == data.YSIZE)
+                    data.DisableRotation = true;
 
                 ShipModule template = ShipModule.CreateTemplate(data);
                 template.SetAttributes();
