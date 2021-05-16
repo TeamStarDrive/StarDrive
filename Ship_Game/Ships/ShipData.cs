@@ -54,7 +54,7 @@ namespace Ship_Game.Ships
         public bool CarrierShip;
 
         // Constant: total number of slots in this ShipData Template
-        public int SurfaceArea { get; private set; }
+        [XmlIgnore] [JsonIgnore] public int SurfaceArea;
 
         [XmlIgnore] [JsonIgnore] public float BaseStrength;
         [XmlArray(ElementName = "ModuleSlotList")] public ModuleSlotData[] ModuleSlots;
@@ -101,7 +101,6 @@ namespace Ship_Game.Ships
             MechanicalBoardingDefense = hull.MechanicalBoardingDefense;
 
             InitCommonState(hull);
-            UpdateBaseHull();
 
             ModuleSlots = new ModuleSlotData[hull.ModuleSlots.Length];
             for (int i = 0; i < hull.ModuleSlots.Length; ++i)
@@ -117,6 +116,8 @@ namespace Ship_Game.Ships
                     SlotOptions        = slot.SlotOptions
                 };
             }
+
+            UpdateBaseHull();
         }
 
         // Make ShipData from an actual ship
@@ -170,7 +171,9 @@ namespace Ship_Game.Ships
             }
 
             if (Bonuses == null)
-                Bonuses  = ResourceManager.HullBonuses.TryGetValue(Hull, out HullBonus bonus) ? bonus : HullBonus.Default;
+            {
+                Bonuses = ResourceManager.HullBonuses.TryGetValue(Hull, out HullBonus bonus) ? bonus : HullBonus.Default;
+            }
 
             SurfaceArea = BaseHull.SurfaceArea;
 
@@ -179,6 +182,12 @@ namespace Ship_Game.Ships
             {
                 SurfaceArea = GetSurfaceArea(ModuleSlots);
             }
+            #if DEBUG
+            else if (SurfaceArea != GetSurfaceArea(ModuleSlots))
+            {
+                Log.Warning(ConsoleColor.Red, $"ShipData '{Name}': SurfaceArea {SurfaceArea} does not match calculated {GetSurfaceArea(ModuleSlots)}");
+            }
+            #endif
         }
 
         public override string ToString() { return Name; }
@@ -265,6 +274,10 @@ namespace Ship_Game.Ships
                     throw new InvalidDataException(s->ErrorMessage.AsString);
                 }
 
+                string modName = s->ModName.AsString;
+                //if (modName.NotEmpty() && GlobalStats.ModOrVanillaName)
+                //    return null; // ignore this design
+
                 var ship = new ShipData
                 {
                     Animated       = s->Animated != 0,
@@ -273,7 +286,7 @@ namespace Ship_Game.Ships
                     experience     = s->Experience,
                     Level          = s->Level,
                     Name           = s->Name.AsString,
-                    ModName        = s->ModName.AsString,
+                    ModName        = modName,
                     HasFixedCost   = s->HasFixedCost != 0,
                     FixedCost      = s->FixedCost,
                     HasFixedUpkeep = s->HasFixedUpkeep != 0,
