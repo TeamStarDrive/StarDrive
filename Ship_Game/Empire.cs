@@ -2157,9 +2157,7 @@ namespace Ship_Game
                 // check if all modules in the ship are unlocked
                 foreach (ModuleSlotData moduleSlotData in shipData.ModuleSlots)
                 {
-                    if (moduleSlotData.InstalledModuleUID.IsEmpty() ||
-                        moduleSlotData.InstalledModuleUID == "Dummy" ||
-                        UnlockedModulesDict[moduleSlotData.InstalledModuleUID])
+                    if (moduleSlotData.IsDummy || UnlockedModulesDict[moduleSlotData.ModuleUID])
                         continue;
                     //Log.Info($"Locked module : '{moduleSlotData.InstalledModuleUID}' in design : '{ship}'");
                     return false; // can't build this ship because it contains a locked Module
@@ -2190,7 +2188,7 @@ namespace Ship_Game
                 {
                     foreach (ModuleSlotData moduleSlotData in ship.shipData.ModuleSlots)
                     {
-                        if (entry.ModuleUID == moduleSlotData.InstalledModuleUID)
+                        if (entry.ModuleUID == moduleSlotData.ModuleUID)
                             return true;
                     }
                 }
