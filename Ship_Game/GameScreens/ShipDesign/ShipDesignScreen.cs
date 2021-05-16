@@ -50,7 +50,7 @@ namespace Ship_Game
         ScrollList2<ShipHullListItem> HullSelectList;
 
         public ShipModule HighlightedModule;
-        private SlotStruct ProjectedSlot;
+        SlotStruct ProjectedSlot;
         Vector2 CameraVelocity;
         Vector2 StartDragPos;
         ShipData ChangeTo;
@@ -92,7 +92,7 @@ namespace Ship_Game
             Name = "ShipDesignScreen";
             EmpireUI = empireUi;
             TransitionOnTime = 2f;
-            HullEditMode = Empire.Universe?.Debug ?? false;
+            HullEditMode = false;
         }
 
         void ReorientActiveModule(ModuleOrientation orientation)
