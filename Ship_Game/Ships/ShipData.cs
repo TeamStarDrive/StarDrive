@@ -167,7 +167,8 @@ namespace Ship_Game.Ships
                 {
                     Log.Warning(ConsoleColor.Red, $"ShipData {Hull} '{Name}' cannot find hull: {Hull}");
                     BaseHull = this;
-                    BaseHull.Hull = Name;
+                    if (Hull.IsEmpty())
+                        Hull = ShipStyle + "/" + Name;
                 }
             }
 
