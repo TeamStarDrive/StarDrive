@@ -193,6 +193,7 @@ namespace Ship_Game.Audio
         public static void FleetClicked()     => PlaySfxAsync("techy_affirm1");
         public static void PlanetClicked()    => PlaySfxAsync("techy_affirm1");
         public static void BuildItemClicked() => PlaySfxAsync("techy_affirm1");
+        public static void DesignSoftBeep()   => PlaySfxAsync("simple_beep"); // "blup"
 
         public static void AcceptClick()      => PlaySfxAsync("sd_ui_accept_alt3"); // "clihk"
         public static void ButtonMouseOver()  => PlaySfxAsync("sd_ui_mouseover"); // super soft "katik"

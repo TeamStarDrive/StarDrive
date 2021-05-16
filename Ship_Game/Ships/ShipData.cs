@@ -437,7 +437,7 @@ namespace Ship_Game.Ships
             }
 
             #if DEBUG
-            DetectOverlappingModules();
+            //DetectOverlappingModules();
             #endif
 
             // New Designs, calculate SurfaceArea by using module size
