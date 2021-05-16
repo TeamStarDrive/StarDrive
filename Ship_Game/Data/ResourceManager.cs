@@ -1304,7 +1304,9 @@ namespace Ship_Game
                 if (data.IsCommandModule && data.TargetAccuracy == 0)  data.TargetAccuracy = data.TargetTracking;
 
                 // disable Rotation change for 2x2, 3x3, 4x4, ... modules
-                if (data.XSIZE != 1 && data.XSIZE == data.YSIZE)
+                // but not for 1x1 weapons
+                bool mustRotate = data.isWeapon && data.XSIZE == 1 && data.YSIZE == 1;
+                if (data.XSIZE == data.YSIZE && !mustRotate)
                     data.DisableRotation = true;
 
                 ShipModule template = ShipModule.CreateTemplate(data);
