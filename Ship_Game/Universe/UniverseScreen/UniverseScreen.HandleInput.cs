@@ -1210,7 +1210,8 @@ namespace Ship_Game
         {
             player.GetEmpireAI().Goals.QueuePendingRemoval(SelectedItem.AssociatedGoal);
             bool flag = false;
-            foreach (Ship ship in player.OwnedShips)
+            var ships = player.OwnedShips;
+            foreach (Ship ship in ships)
             {
                 if (ship.IsConstructor && ship.AI.OrderQueue.NotEmpty)
                 {

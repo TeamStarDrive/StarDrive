@@ -82,7 +82,8 @@ namespace Ship_Game.Ships
             get
             {
                 {
-                    return loyalty.OwnedShips.Filter(s => s.AI.State == AIState.RebaseToShip
+                    var ships = loyalty.OwnedShips;
+                    return ships.Filter(s => s.AI.State == AIState.RebaseToShip
                                                     && s.AI.EscortTarget == this).Length;
                 }
             }

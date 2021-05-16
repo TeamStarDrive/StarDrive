@@ -306,9 +306,10 @@ namespace Ship_Game
             float cargoCap    = 0;
             float warpSpeed   = 0;
 
-            for (int i = 0; i < OwnedShips.Count; i++)
+            var ships = OwnedShips;
+            for (int i = 0; i < ships.Count; i++)
             {
-                Ship ship = OwnedShips[i];
+                Ship ship = ships[i];
                 if (ship.IsFreighter)
                 {
                     numFreighters += 1;
