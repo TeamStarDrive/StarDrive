@@ -76,6 +76,7 @@ namespace Ship_Game
         public static int ExtraPlanets;
         public static bool DisablePirates;
         public static bool DisableRemnantStory;
+        public static bool UsePlayerDesigns;
         public static float ShipMaintenanceMulti = 1;
         public static float MinimumWarpRange;
 

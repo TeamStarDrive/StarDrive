@@ -701,13 +701,13 @@ namespace Ship_Game.AI
             }
 
             Orbit.Orbit(planet, timeStep);
-            float radius = (planet.ObjectRadius + Owner.Radius + 1800).LowerBound(5000);
             if (planet.Owner == Owner.loyalty)
             {
                 ClearOrders();
                 return true; // skip combat rest of the update
             }
-            DropBombsAtGoal(goal, radius);
+
+            DropBombsAtGoal(goal, Orbit.InOrbit);
             return false;
         }
 
@@ -721,8 +721,8 @@ namespace Ship_Game.AI
                 OrderFindExterminationTarget();
                 return true;
             }
-            float radius = planet.ObjectRadius + Owner.Radius + 1500;
-            DropBombsAtGoal(goal, radius);
+
+            DropBombsAtGoal(goal, Orbit.InOrbit);
             return false;
         }
     }

@@ -20,11 +20,10 @@ namespace Ship_Game.Empires.DataPackets
 
         public float EconomicStrength { get; private set; }
         public float OffensiveStrength{ get; private set; }
-        public float DefensiveStrength{ get; private set; }
 
 
         public float AllianceEconomicStrength { get; private set; }
-        public float AllianceOffensiveStrength { get; private set; }
+        public float AllianceTotalStrength { get; private set; }
 
 
         Empire Them => Relation.Them;
@@ -51,15 +50,14 @@ namespace Ship_Game.Empires.DataPackets
 
                     EconomicStrength  = Them.GetEmpireAI().BuildCapacity;
                     OffensiveStrength = Them.OffensiveStrength;
-                    DefensiveStrength = Them.CurrentMilitaryStrength - Them.OffensiveStrength;
 
                     AllianceEconomicStrength = EconomicStrength;
-                    AllianceOffensiveStrength = OffensiveStrength;
+                    AllianceTotalStrength = OffensiveStrength;
                     var array = EmpireManager.GetAllies(Them);
                     for (int i = 0; i < array.Count; i++)
                     {
                         var empire = array[i];
-                        AllianceOffensiveStrength += empire.OffensiveStrength;
+                        AllianceTotalStrength += empire.CurrentMilitaryStrength;
                         AllianceEconomicStrength += empire.GetEmpireAI().BuildCapacity;
                     }
 

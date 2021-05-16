@@ -29,7 +29,7 @@ namespace Ship_Game.Ships
         public byte Level;
         public string SelectionGraphic = "";
         public string Name; // ex: "Dodaving", just an arbitrary name
-        public string ModName;
+        public string ModName; // null if vanilla, else mod name eg "Combined Arms"
         public bool HasFixedCost;
         public short FixedCost;
         public float FixedUpkeep;
@@ -48,11 +48,14 @@ namespace Ship_Game.Ships
         public AIState DefaultAIState;
         // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
         public Category ShipCategory = Category.Unclassified;
-
         public HangarOptions HangarDesignation = HangarOptions.General;
 
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip;
+
+        // Constant: total number of slots in this ShipData Template
+        [XmlIgnore] [JsonIgnore] public int SurfaceArea;
+
         [XmlIgnore] [JsonIgnore] public float BaseStrength;
         [XmlArray(ElementName = "ModuleSlotList")] public ModuleSlotData[] ModuleSlots;
         [XmlIgnore] [JsonIgnore] public bool HullUnlockable;
@@ -85,13 +88,106 @@ namespace Ship_Game.Ships
         [XmlIgnore] [JsonIgnore] public float Radius { get; private set; }
         [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }
 
+        public ShipData()
+        {
+        }
+
+        // Make a COPY from a `hull` template
+        // This is used in ShipDesignScreen and ShipToolScreen
+        public ShipData(ShipData hull)
+        {
+            Name = hull.Name;
+            CombatState = hull.CombatState;
+            MechanicalBoardingDefense = hull.MechanicalBoardingDefense;
+
+            InitCommonState(hull);
+
+            ModuleSlots = new ModuleSlotData[hull.ModuleSlots.Length];
+            for (int i = 0; i < hull.ModuleSlots.Length; ++i)
+            {
+                ModuleSlotData slot = hull.ModuleSlots[i];
+                ModuleSlots[i] = new ModuleSlotData
+                {
+                    Position     = slot.Position,
+                    Restrictions = slot.Restrictions,
+                    Facing       = slot.Facing,
+                    ModuleUID    = slot.ModuleUID,
+                    Orientation  = slot.Orientation,
+                    SlotOptions  = slot.SlotOptions
+                };
+            }
+
+            UpdateBaseHull();
+        }
+
+        // Make ShipData from an actual ship
+        // This is used during Serialization (Save)
+        public ShipData(Ship ship)
+        {
+            Name        = ship.Name;
+            CombatState = ship.AI.CombatState;
+            MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
+
+            BaseStrength = ship.BaseStrength;
+            Level        = (byte)ship.Level;
+            experience   = (byte)ship.experience;
+
+            InitCommonState(ship.shipData);
+            ModuleSlots = ship.GetModuleSlotDataArray();
+        }
+
+        void InitCommonState(ShipData hull)
+        {
+            Hull              = hull.Hull;
+            Role              = hull.Role;
+            Animated          = hull.Animated;
+            IconPath          = hull.ActualIconPath;
+            IsShipyard        = hull.IsShipyard;
+            IsOrbitalDefense  = hull.IsOrbitalDefense;
+            ModelPath         = hull.HullModel;
+            ShipStyle         = hull.ShipStyle;
+            ThrusterList      = hull.ThrusterList;
+            ShipCategory      = hull.ShipCategory;
+            HangarDesignation = hull.HangarDesignation;
+            CarrierShip       = hull.CarrierShip;
+            TechsNeeded       = hull.TechsNeeded;
+            TechScore         = hull.TechScore;
+            BaseHull          = hull.BaseHull;
+        }
+
         public void UpdateBaseHull()
         {
             if (BaseHull == null)
-                BaseHull = ResourceManager.Hull(Hull, out ShipData hull) ? hull : this;
+            {
+                if (ResourceManager.Hull(Hull, out ShipData hull))
+                {
+                    BaseHull = hull;
+                }
+                else
+                {
+                    Log.Warning(ConsoleColor.Red, $"ShipData {Hull} '{Name}' cannot find hull: {Hull}");
+                    BaseHull = this;
+                }
+            }
 
             if (Bonuses == null)
-                Bonuses  = ResourceManager.HullBonuses.TryGetValue(Hull, out HullBonus bonus) ? bonus : HullBonus.Default;
+            {
+                Bonuses = ResourceManager.HullBonuses.TryGetValue(Hull, out HullBonus bonus) ? bonus : HullBonus.Default;
+            }
+
+            SurfaceArea = BaseHull.SurfaceArea;
+
+            // edge case if Hull lookup fails
+            if (SurfaceArea == 0)
+            {
+                SurfaceArea = GetSurfaceArea();
+            }
+            #if DEBUG
+            else if (SurfaceArea != GetSurfaceArea())
+            {
+                Log.Warning(ConsoleColor.Red, $"ShipData {Hull} '{Name}' SurfaceArea mismatch: hull {SurfaceArea} != calculated {GetSurfaceArea()}");
+            }
+            #endif
         }
 
         public override string ToString() { return Name; }
@@ -166,7 +262,7 @@ namespace Ship_Game.Ships
 
         // Added by RedFox - manual parsing of ShipData, because this is the slowest part
         // in loading, the brunt work is offloaded to C++ and then copied back into C#
-        public static unsafe ShipData Parse(FileInfo info)
+        public static unsafe ShipData Parse(FileInfo info, bool isEmptyHull)
         {
             CShipDataParser* s = null;
             try
@@ -178,6 +274,11 @@ namespace Ship_Game.Ships
                     throw new InvalidDataException(s->ErrorMessage.AsString);
                 }
 
+                // if this design belongs to a specific Mod, then make sure current ModName matches
+                string modName = s->ModName.AsString;
+                if (modName.NotEmpty() && modName != GlobalStats.ModName)
+                    return null; // ignore this design
+
                 var ship = new ShipData
                 {
                     Animated       = s->Animated != 0,
@@ -186,7 +287,7 @@ namespace Ship_Game.Ships
                     experience     = s->Experience,
                     Level          = s->Level,
                     Name           = s->Name.AsString,
-                    ModName        = s->ModName.AsString,
+                    ModName        = modName,
                     HasFixedCost   = s->HasFixedCost != 0,
                     FixedCost      = s->FixedCost,
                     HasFixedUpkeep = s->HasFixedUpkeep != 0,
@@ -221,14 +322,14 @@ namespace Ship_Game.Ships
                 {
                     CModuleSlot* msd = &s->ModuleSlots[i];
                     var slot = new ModuleSlotData();
-                    slot.Position              = new Vector2(msd->PosX, msd->PosY);
+                    slot.Position = new Vector2(msd->PosX, msd->PosY);
                     // @note Interning the strings saves us roughly 70MB of RAM across all UID-s
-                    slot.InstalledModuleUID    = msd->InstalledModuleUID.AsInternedOrNull; // must be interned
-                    slot.Health                = msd->Health;
-                    slot.ShieldPower           = msd->ShieldPower;
-                    slot.Facing                = msd->Facing;
+                    slot.ModuleUID = msd->InstalledModuleUID.AsInternedOrNull; // must be interned
+                    slot.Health      = msd->Health;
+                    slot.ShieldPower = msd->ShieldPower;
+                    slot.Facing      = msd->Facing;
                     Enum.TryParse(msd->Restrictions.AsString, out slot.Restrictions);
-                    slot.Orientation           = msd->State.AsInterned;
+                    slot.Orientation = msd->State.AsInterned;
                     // slot options can be:
                     // "NotApplicable", "Ftr-Plasma Tentacle", "Vulcan Scout", ... etc.
                     // It's a general purpose "whatever" sink, however it's used very frequently
@@ -236,10 +337,6 @@ namespace Ship_Game.Ships
                     ship.ModuleSlots[i] = slot;
                 }
 
-                int slotCount = ship.ModuleSlots.Length;
-
-                if (ship.ModuleSlots.Length != slotCount)
-                    Log.Warning($"Ship {ship.Name} loaded with errors ");
                 // @todo Remove conversion to List
                 ship.ThrusterList = new Array<ShipToolScreen.ThrusterZone>(s->ThrustersLen);
                 for (int i = 0; i < s->ThrustersLen; ++i)
@@ -257,6 +354,24 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < s->TechsLen; ++i)
                     ship.TechsNeeded.Add(s->Techs[i].AsInterned);
 
+                // This is a Hull definition from Content/Hulls/
+                if (isEmptyHull)
+                {
+                    // make sure to calculate the surface area correctly
+                    ship.SurfaceArea = ship.GetSurfaceArea();
+
+                    string dirName = info.Directory?.Name ?? "";
+                    ship.Hull      = dirName + "/" + ship.Hull;
+                    ship.ShipStyle = dirName;
+
+                    // Note: carrier role as written in the hull file was changed to battleship, since now carriers are a design role
+                    // originally, carriers are battleships. The naming was poorly thought on 15b, or not fixed later.
+                    ship.Role = ship.Role == RoleName.carrier ? RoleName.battleship : ship.Role;
+
+                    // Set the BaseHull here to avoid invalid hull lookup
+                    ship.BaseHull = ship; // Hull definition references itself as the base
+                }
+
                 ship.UpdateBaseHull();
                 return ship;
             }
@@ -269,6 +384,74 @@ namespace Ship_Game.Ships
             {
                 DisposeShipDataParser(s);
             }
+        }
+
+        static bool HasLegacyDummySlots(ModuleSlotData[] slots)
+        {
+            for (int i = 0; i < slots.Length; ++i)
+                if (slots[i].IsDummy)
+                    return true;
+            return false;
+        }
+
+        static bool IsAllDummySlots(ModuleSlotData[] slots)
+        {
+            for (int i = 0; i < slots.Length; ++i)
+                if (!slots[i].IsDummy)
+                    return false;
+            return true;
+        }
+
+        void DetectOverlappingModules()
+        {
+            for (int i = 0; i < ModuleSlots.Length; ++i)
+            {
+                ModuleSlotData a = ModuleSlots[i];
+                ShipModule ma = a.ModuleOrNull;
+                if (ma == null)
+                    continue;
+                var ra = new RectF(a.Position.X, a.Position.Y, ma.XSIZE * 16f, ma.YSIZE * 16f);
+                for (int j = i + 1; j < ModuleSlots.Length; ++j)
+                {
+                    ModuleSlotData b = ModuleSlots[j];
+                    ShipModule mb = a.ModuleOrNull;
+                    if (mb == null)
+                        continue;
+                    var rb = new RectF(b.Position.X, b.Position.Y, mb.XSIZE * 16f, mb.YSIZE * 16f);
+                    if (ra.Overlaps(rb))
+                    {
+                        Log.Warning($"ShipData {Hull} '{Name}' overlapping modules: {a.ModuleUID} {ra} -- {b.ModuleUID} {rb}");
+                    }
+                }
+            }
+        }
+        
+        int GetSurfaceArea()
+        {
+            // Legacy Hulls and Templates can have "Dummy" modules, in which case SurfaceArea == slots.Length
+            bool hasLegacyDummySlots = HasLegacyDummySlots(ModuleSlots);
+            if (hasLegacyDummySlots)
+            {
+                if (IsAllDummySlots(ModuleSlots))
+                    return ModuleSlots.Length;
+            }
+
+            #if DEBUG
+            //DetectOverlappingModules();
+            #endif
+
+            // New Designs, calculate SurfaceArea by using module size
+            int surface = 0;
+            for (int i = 0; i < ModuleSlots.Length; ++i)
+            {
+                ModuleSlotData slot = ModuleSlots[i];
+                ShipModule module = slot.ModuleOrNull;
+                if (module != null)
+                    surface += module.XSIZE * module.YSIZE;
+                else if (!slot.IsDummy)
+                    Log.Warning($"GetSurfaceArea({Name}) failed to find module: {slot.ModuleUID}");
+            }
+            return surface;
         }
 
         public ShipData GetClone()
