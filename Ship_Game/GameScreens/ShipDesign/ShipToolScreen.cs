@@ -68,7 +68,7 @@ namespace Ship_Game
 
         ShipModule ActiveModule;
 
-        public ShipToolScreen(GameScreen parent) : base(parent)
+        public ShipToolScreen() : base(null)
         {
             TransitionOnTime  = 0f;
             TransitionOffTime = 0f;
@@ -467,9 +467,9 @@ namespace Ship_Game
 
                 filledModules.Add(new ModuleSlotData
                 {
-                    Position           = slot.ModuleCenter - border.Position,
-                    InstalledModuleUID = slot.ModuleUID,
-                    Restrictions       = slot.Restrictions
+                    Position = slot.ModuleCenter - border.Position,
+                    ModuleUID = slot.ModuleUID,
+                    Restrictions = slot.Restrictions
                 });
             }
             data.ModuleSlots    = filledModules.ToArray();

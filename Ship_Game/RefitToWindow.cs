@@ -6,6 +6,7 @@ using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Audio;
 using Ship_Game.Fleets;
+using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 
 namespace Ship_Game
