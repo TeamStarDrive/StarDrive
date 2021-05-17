@@ -8,7 +8,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public sealed class ShipDesignSaveLoadScreen : GameScreen
+    public sealed class ShipDesignSaveScreen : GameScreen
     {
         readonly ShipDesignScreen Screen;
         readonly string ShipName;
@@ -20,7 +20,7 @@ namespace Ship_Game
 
         readonly bool Hulls;
 
-        public ShipDesignSaveLoadScreen(ShipDesignScreen screen, string shipName, bool hullDesigner = false) : base(screen)
+        public ShipDesignSaveScreen(ShipDesignScreen screen, string shipName, bool hullDesigner = false) : base(screen)
         {
             Rect = new Rectangle(ScreenWidth / 2 - 250, ScreenHeight / 2 - 300, 500, 600);
             ShipName = shipName;

@@ -562,7 +562,7 @@ namespace Ship_Game
 
             if (input.KeyPressed(Keys.Enter))
             {
-                ScreenManager.AddScreen(new ShipDesignSaveLoadScreen(this, ActiveHull.Name, hullDesigner:true));
+                ScreenManager.AddScreen(new ShipDesignSaveScreen(this, ActiveHull.Name, hullDesigner:true));
             }
 
             if (input.Right)
@@ -730,7 +730,7 @@ namespace Ship_Game
 
         void SaveChanges()
         {
-            ScreenManager.AddScreen(new ShipDesignSaveLoadScreen(this, ActiveHull.Name));
+            ScreenManager.AddScreen(new ShipDesignSaveScreen(this, ActiveHull.Name, hullDesigner:false));
             ShipSaved = true;
         }
 

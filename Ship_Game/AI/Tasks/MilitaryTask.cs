@@ -321,7 +321,9 @@ namespace Ship_Game.AI.Tasks
 
             if (WhichFleet == -1 || Fleet == null)
             {
-                Owner.Pool.ForcePoolAdd(TaskForce);
+                foreach (var ship in TaskForce)
+                    Owner.AddShipToManagedPools(ship);
+                
                 TaskForce.Clear();
                 return;
             }
@@ -418,8 +420,8 @@ namespace Ship_Game.AI.Tasks
                 divisor = 5;
             else if (Owner.IsAtWarWithMajorEmpire)
                 divisor = 10;
-            float availableFleets = Owner.Pool.CurrentUseableFleets.LowerBound(1);
-            float fleets = Owner.Pool.InitialReadyFleets.LowerBound(1);
+            float availableFleets = Owner.EmpireShipLists.CurrentUseableFleets.LowerBound(1);
+            float fleets = Owner.EmpireShipLists.InitialReadyFleets.LowerBound(1);
             float usedFleets = fleets - availableFleets;
             return  fleets / divisor > usedFleets;
         }
@@ -441,7 +443,9 @@ namespace Ship_Game.AI.Tasks
                 }
                 else
                 {
-                    Owner.Pool.ForcePoolAdd(Fleet.Ships);
+                    foreach (var ship in Fleet.Ships)
+                        Owner.AddShipToManagedPools(ship);
+
                     TaskForce.Clear();
                     Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
                     Fleet?.Reset();

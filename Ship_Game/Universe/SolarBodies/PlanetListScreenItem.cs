@@ -310,7 +310,7 @@ namespace Ship_Game
         {
             incomingTroopShips = new Array<Ship>();
             incomingTroops      = 0;
-            BatchRemovalCollection<Ship> ships = Player.GetShips();
+            var ships = Player.OwnedShips;
             for (int i = 0; i < ships.Count; i++)
             {
                 Ship ship = ships[i];

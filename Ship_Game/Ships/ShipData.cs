@@ -404,7 +404,7 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        void DetectOverlappingModules()
+        bool DetectOverlappingModules()
         {
             for (int i = 0; i < ModuleSlots.Length; ++i)
             {
@@ -412,20 +412,21 @@ namespace Ship_Game.Ships
                 ShipModule ma = a.ModuleOrNull;
                 if (ma == null)
                     continue;
-                var ra = new RectF(a.Position.X, a.Position.Y, ma.XSIZE * 16f, ma.YSIZE * 16f);
+                var ra = new Rectangle((int)a.Position.X, (int)a.Position.Y, ma.XSIZE * 16, ma.YSIZE * 16);
                 for (int j = i + 1; j < ModuleSlots.Length; ++j)
                 {
                     ModuleSlotData b = ModuleSlots[j];
-                    ShipModule mb = a.ModuleOrNull;
+                    ShipModule mb = b.ModuleOrNull;
                     if (mb == null)
                         continue;
-                    var rb = new RectF(b.Position.X, b.Position.Y, mb.XSIZE * 16f, mb.YSIZE * 16f);
-                    if (ra.Overlaps(rb))
+                    var rb = new Rectangle((int)b.Position.X, (int)b.Position.Y, mb.XSIZE * 16, mb.YSIZE * 16);
+                    if (ra.GetIntersectingRect(rb, out Rectangle intersection))
                     {
-                        Log.Warning($"ShipData {Hull} '{Name}' overlapping modules: {a.ModuleUID} {ra} -- {b.ModuleUID} {rb}");
+                        return true;
                     }
                 }
             }
+            return false;
         }
         
         int GetSurfaceArea()
@@ -439,7 +440,8 @@ namespace Ship_Game.Ships
             }
 
             #if DEBUG
-            //DetectOverlappingModules();
+            if (DetectOverlappingModules())
+                Log.Warning($"ShipData '{Name}' overlapping modules!");
             #endif
 
             // New Designs, calculate SurfaceArea by using module size
