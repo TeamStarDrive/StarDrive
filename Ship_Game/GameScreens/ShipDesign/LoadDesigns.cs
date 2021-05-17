@@ -140,7 +140,9 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             foreach (FileInfo info in Dir.GetFiles(Dir.StarDriveAppData + "/WIP"))
             {
-                ShipData newShipData = ShipData.Parse(info);
+                ShipData newShipData = ShipData.Parse(info, isEmptyHull:false);
+                if (newShipData == null)
+                    continue;
                 var empire = EmpireManager.Player;
                 if (empire.IsHullUnlocked(newShipData.Hull))
                     WIPs.Add(newShipData);
@@ -213,7 +215,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                         Empire.Universe?.Debug != true &&
                         ResourceManager.ShipRoles[ship.shipData.Role].Protected)
                     {
-                        Log.Info($"Ship Design excluded by filter {ship.Name}");
+                        //Log.Info($"Ship Design excluded by filter {ship.Name}");
                         continue;
                     }
                     shipRoles.Add(Localizer.GetRole(ship.DesignRole, EmpireManager.Player));
@@ -263,7 +265,6 @@ namespace Ship_Game.GameScreens.ShipDesign
         void LoadShipToScreen()
         {
             Ship loadedShip = ResourceManager.GetShipTemplate(EnterNameArea.Text.Text, false);
-            loadedShip?.shipData.UpdateBaseHull();
             Screen.ChangeHull(loadedShip?.shipData ?? selectedWIP);                
             ExitScreen();
         }

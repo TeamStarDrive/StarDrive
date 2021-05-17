@@ -303,7 +303,7 @@ namespace Ship_Game
 
             // This is a destructive operation that invalidates ALL game resources!
             // @note It HAS to be done after clearing all ResourceManager texture caches!
-            manager.UnloadAllGameContent();
+            manager.UnsafeUnloadAllGameContent();
         }
 
         public static void UnloadAllData(ScreenManager manager)
@@ -1041,6 +1041,21 @@ namespace Ship_Game
             }
         }
 
+        public static ShipData AddHull(ShipData hull)
+        {
+            if (hull != null) // will be null if ShipData.Parse failed
+            {
+                if (HullsDict.TryGetValue(hull.Hull, out ShipData existing))
+                {
+                    HullsList.Remove(existing);
+                }
+
+                HullsDict[hull.Hull] = hull;
+                HullsList.Add(hull);
+            }
+            return hull;
+        }
+
         static void LoadHullData() // Refactored by RedFox
         {
             HullsDict.Clear();
@@ -1056,15 +1071,7 @@ namespace Ship_Game
                     try
                     {
                         GameLoadingScreen.SetStatus("LoadShipHull", info.RelPath());
-                        string dirName     = info.Directory?.Name ?? "";
-                        ShipData shipData  = ShipData.Parse(info);
-                        shipData.Hull      = dirName + "/" + shipData.Hull;
-                        shipData.ShipStyle = dirName;
-                        // Note: carrier role as written in the hull file was changed to battleship, since now carriers are a design role
-                        // originally, carriers are battleships. The naming was poorly thought on 15b, or not fixed later.
-                        shipData.Role      = shipData.Role == ShipData.RoleName.carrier ? ShipData.RoleName.battleship : shipData.Role;
-                        shipData.UpdateBaseHull();
-                        hulls[i] = shipData;
+                        hulls[i] = ShipData.Parse(info, isEmptyHull:true);
                     }
                     catch (Exception e)
                     {
@@ -1074,12 +1081,9 @@ namespace Ship_Game
             }
             Parallel.For(hullFiles.Length, LoadHulls);
             //LoadHulls(0, hullFiles.Length);
+
             foreach (ShipData sd in hulls) // Finalize HullsDict:
-            {
-                if (sd == null) continue; // will be null if ShipData.Parse failed
-                HullsDict[sd.Hull] = sd;
-                HullsList.Add(sd);
-            }
+                AddHull(sd);
         }
 
 
@@ -1299,7 +1303,11 @@ namespace Ship_Game
                 if (data.IsCommandModule && data.TargetTracking == 0)  data.TargetTracking = (sbyte) (int)(data.XSIZE * data.YSIZE * 1.25f );
                 if (data.IsCommandModule && data.TargetAccuracy == 0)  data.TargetAccuracy = data.TargetTracking;
 
-                data.DisableRotation = data.DisableRotation || data.XSIZE == data.YSIZE;
+                // disable Rotation change for 2x2, 3x3, 4x4, ... modules
+                // but not for 1x1 weapons
+                bool mustRotate = data.WeaponType != null && data.XSIZE == 1 && data.YSIZE == 1;
+                if (data.XSIZE == data.YSIZE && !mustRotate)
+                    data.DisableRotation = true;
 
                 ShipModule template = ShipModule.CreateTemplate(data);
                 template.SetAttributes();
@@ -1343,8 +1351,8 @@ namespace Ship_Game
                     try
                     {
                         GameLoadingScreen.SetStatus("LoadShipTemplate", info.RelPath());
-                        ShipData shipData = ShipData.Parse(info);
-                        if (shipData.Role == ShipData.RoleName.disabled)
+                        ShipData shipData = ShipData.Parse(info, isEmptyHull:false);
+                        if (shipData == null || shipData.Role == ShipData.RoleName.disabled)
                             continue;
 
                         if (info.NameNoExt() != shipData.Name)

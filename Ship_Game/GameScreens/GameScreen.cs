@@ -105,7 +105,12 @@ namespace Ship_Game
             }
 
             if (Input == null)
+            {
                 Input = ScreenManager?.input;
+            }
+
+            // Every time we open a screen, we should release any input handlers
+            GlobalStats.TakingInput = false;
 
             LowRes = ScreenWidth <= 1366 || ScreenHeight <= 720;
             HiRes  = ScreenWidth > 1920 || ScreenHeight > 1400;
@@ -162,6 +167,9 @@ namespace Ship_Game
                 OnExit();
                 OnExit = null;
             }
+
+            // Every time we close a screen, make sure to Release input capture
+            GlobalStats.TakingInput = false;
 
             if (TransitionOffTime.NotZero())
             {

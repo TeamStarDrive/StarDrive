@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Ships;
 
-namespace Ship_Game
+namespace Ship_Game.GameScreens.ShipDesign
 {
     public class ShipInfoOverlayComponent : UIElementV2
     {
@@ -30,9 +30,9 @@ namespace Ship_Game
             }
 
             float minimumSize = LowRes ? 256 : 320;
-            float size        = Math.Max(minimumSize, (Screen.Width * 0.16f).RoundTo10());
-            Vector2 pos       = new Vector2(leftOf.X - size*1.6f, leftOf.Y - size/4).RoundTo10();
-            pos.Y             = Math.Max(100f, pos.Y);
+            float size = Math.Max(minimumSize, (Screen.Width * 0.16f).RoundTo10());
+            Vector2 pos = new Vector2(leftOf.X - size*1.6f, leftOf.Y - size/4).RoundTo10();
+            pos.Y = Math.Max(100f, pos.Y);
             ShowShip(ship, pos, size);
         }
 
