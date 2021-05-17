@@ -513,8 +513,10 @@ namespace Ship_Game
         {
             if (Planet.Owner != Empire.Universe.player)
                 return;
+            var ships = Planet.Owner.OwnedShips;
 
-            int troopsLanding = Planet.Owner.GetShips()
+            // todo: double loop count. 
+            int troopsLanding = ships
                 .Filter(s => s != null && s.TroopCount > 0 && s.AI.State != AIState.Resupply && s.AI.State != AIState.Orbit)
                 .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == Planet));
 

@@ -366,7 +366,7 @@ namespace Ship_Game.AI
 
             public void PopulateRoleCountWithActiveShips(Empire empire, Map<RoleCounts.CombatRole, RoleCounts> currentShips)
             {
-                foreach (var ship in empire.GetShips())
+                foreach (var ship in empire.OwnedShips)
                 {
                     if (ship != null && ship.Active && ship.CanBeScrapped && ship.AI.State != AIState.Scrap)
                     {
