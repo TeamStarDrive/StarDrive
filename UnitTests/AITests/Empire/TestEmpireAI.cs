@@ -61,7 +61,8 @@ namespace UnitTests.AITests.Empire
 
         void ClearEmpireShips()
         {
-            while (Player.GetShips().TryPopLast(out Ship toRemove))
+            var ships = (Array<Ship>)Player.OwnedShips;
+            while (ships.TryPopLast(out Ship toRemove))
                 toRemove.RemoveFromUniverseUnsafe();
         }
 
@@ -163,7 +164,7 @@ namespace UnitTests.AITests.Empire
             // Have -25% maintenance reduction
             float roleUnitMaint = build.RoleUnitMaintenance(combatRole);
             Assert.AreEqual(0.12f, roleUnitMaint, "Unexpected maintenance value");
-            var ships = Player.GetShips();
+            var ships = (Array<Ship>)Player.OwnedShips;
             for (int x = 0; x < 20; ++x)
             {
                 buildCapacity = build.RoleBudget(combatRole) - roleUnitMaint;

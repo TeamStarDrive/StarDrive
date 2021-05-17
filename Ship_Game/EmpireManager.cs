@@ -308,7 +308,7 @@ namespace Ship_Game
             { 
                 empire.RestoreUnserializableDataFromSave();
                 empire.InitEmpireEconomy();
-                empire.Pool.UpdatePools();
+                empire.EmpireShipLists.Update();
                 empire.GetEmpireAI().WarTasks.RestoreFromSave(empire);
             }
         }

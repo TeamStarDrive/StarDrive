@@ -242,7 +242,7 @@ namespace Ship_Game
 
                 if (ship.loyalty != EmpireManager.Player && ship.fleet == null)
                 {
-                    if (!ship.AddedOnLoad) ship.loyalty.Pool.ForcePoolAdd(ship);
+                    if (!ship.AddedOnLoad) ship.loyalty.AddShipToManagedPools(ship);
                 }
                 else if (ship.AI.State == AIState.SystemDefender)
                 {

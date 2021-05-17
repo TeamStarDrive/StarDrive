@@ -139,7 +139,7 @@ namespace Ship_Game
         bool GetOrbitals(out Array<Ship> orbitals, Array<string> orbitalNames)
         {
             orbitals = new Array<Ship>();
-            var shipList = Owner.GetShips();
+            var shipList = Owner.OwnedShips;
             for (int i = 0; i < shipList.Count; i++)
             {
                 Ship ship = shipList[i];
@@ -305,8 +305,7 @@ namespace Ship_Game
             if (level != MaxLevel / 2)
                 return;
 
-            var shipList = Owner.GetShips();
-            using (shipList.AcquireReadLock())
+            var shipList = Owner.OwnedShips;
             {
                 if (shipList.Any(s => s.Name == Owner.data.PirateFlagShip))
                     return;
@@ -566,7 +565,7 @@ namespace Ship_Game
             {
                 Guid shipGuid = SpawnedShips[i];
                 {
-                    if (!Owner.GetShips().Any(s => s.guid == shipGuid))
+                    if (!Owner.OwnedShips.Any(s => s.guid == shipGuid))
                         SpawnedShips.RemoveAtSwapLast(i);
                 }
             }
@@ -676,7 +675,7 @@ namespace Ship_Game
         {
             target          = null;
             var targets     = new Array<Ship>(); 
-            var victimShips = type == TargetType.Projector ? victim.GetProjectors() : victim.GetShips();
+            var victimShips = type == TargetType.Projector ? victim.GetProjectors() : victim.OwnedShips;
             
             for (int i = 0; i < victimShips.Count; i++)
             {

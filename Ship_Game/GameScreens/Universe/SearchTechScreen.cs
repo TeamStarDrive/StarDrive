@@ -42,7 +42,7 @@ namespace Ship_Game
             SearchTech.MaxCharacters = 14;
             SearchTech.OnTextChanged = (text) => PopulateTechs(text.ToLower());
             SearchTech.AutoCaptureOnKeys = true;
-            SearchTech.ResetTextOnInput = true;
+            SearchTech.AutoClearTextOnInputCapture = true;
 
             PopulateTechs("");
         }
