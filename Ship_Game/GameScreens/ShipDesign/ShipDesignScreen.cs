@@ -452,21 +452,23 @@ namespace Ship_Game
             for (int i = 0; i < slots.Count; ++i)
             {
                 SlotStruct a = slots[i];
-                if (a.Module == null)
+                ShipModule ma = a.Module;
+                if (ma == null)
                     continue;
 
-                Rectangle ra = a.ModuleRect;
+                var ra = new Rectangle(a.Position.X, a.Position.Y, ma.XSIZE * 16, ma.YSIZE * 16);
                 for (int j = i + 1; j < slots.Count; ++j)
                 {
                     SlotStruct b = slots[j];
-                    if (b.Module == null)
+                    ShipModule mb = a.Module;
+                    if (mb == null || mb == ma)
                         continue;
-
-                    Rectangle rb = b.ModuleRect;
+                    
+                    var rb = new Rectangle(b.Position.X, b.Position.Y, mb.XSIZE * 16, mb.YSIZE * 16);
                     if (ra.GetIntersectingRect(rb, out Rectangle overlap))
                     {
-                        string ShortInfo(ShipModule m) => $"{m.Position} {m.UID} {m.XSIZE}x{m.YSIZE}";
-                        string desc = $"{ShortInfo(a.Module)} overlaps {ShortInfo(b.Module)}";
+                        string ShortInfo(ShipModule m) => $"{m.UID} {m.XSIZE}x{m.YSIZE}";
+                        string desc = $"{ShortInfo(ma)} overlaps {ShortInfo(mb)}";
                         Log.Warning(ConsoleColor.Red, desc);
                         OverlappingModuleErrors.Add(new OverlapError{ Overlap = overlap, Description = desc });
                     }
