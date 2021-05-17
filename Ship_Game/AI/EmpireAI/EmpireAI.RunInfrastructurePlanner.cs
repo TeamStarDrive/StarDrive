@@ -81,7 +81,7 @@ namespace Ship_Game.AI
             }
 
             // bugfix: make sure another construction ship isn't already deploying to pos
-            var ships = OwnerEmpire.GetShips();
+            var ships = OwnerEmpire.OwnedShips;
             for (int si = 0; si < ships.Count; si++)
             {
                 Ship ship = ships[si];
@@ -198,8 +198,8 @@ namespace Ship_Game.AI
                                 break;
                         }
 
-                        Ship[] ships = OwnerEmpire.GetShips().AtomicCopy();
-                        for (int si = 0; si < ships.Length; si++)
+                        var ships = OwnerEmpire.OwnedShips;
+                        for (int si = 0; si < ships.Count; si++)
                         {
                             Ship ship = ships[si];
                             ShipAI.ShipGoal goal = ship.AI.OrderQueue.PeekLast;

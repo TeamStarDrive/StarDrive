@@ -81,10 +81,10 @@ namespace Ship_Game.Ships
         {
             get
             {
-                using (loyalty.GetShips().AcquireReadLock())
                 {
-                    return loyalty.GetShips().Count(s => s.AI.State == AIState.RebaseToShip
-                                                    && s.AI.EscortTarget == this);
+                    var ships = loyalty.OwnedShips;
+                    return ships.Filter(s => s.AI.State == AIState.RebaseToShip
+                                                    && s.AI.EscortTarget == this).Length;
                 }
             }
         }

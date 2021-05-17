@@ -1210,7 +1210,8 @@ namespace Ship_Game
         {
             player.GetEmpireAI().Goals.QueuePendingRemoval(SelectedItem.AssociatedGoal);
             bool flag = false;
-            foreach (Ship ship in player.GetShips())
+            var ships = player.OwnedShips;
+            foreach (Ship ship in ships)
             {
                 if (ship.IsConstructor && ship.AI.OrderQueue.NotEmpty)
                 {
@@ -1308,6 +1309,7 @@ namespace Ship_Game
             return fleet;
         }
 
+        // move to thread safe update
         public void RecomputeFleetButtons(bool now)
         {
             ++FBTimer;

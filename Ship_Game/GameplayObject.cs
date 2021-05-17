@@ -136,25 +136,22 @@ namespace Ship_Game
                 Empire oldLoyalty = ship.loyalty;
                 oldLoyalty.TheyKilledOurShip(changeTo, ship);
                 changeTo.WeKilledTheirShip(oldLoyalty, ship);
-                ship.ClearFleet();
+                // remove ship from fleet but do not add it back to empire pools.
+                ship.fleet?.RemoveShip(ship, false);
                 ship.AI.ClearOrders();
                 oldLoyalty.RemoveShip(ship);
 
                 oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);
-                changeTo.AddShipNextFrame(ship);
-                ship.shipStatusChanged = true;
                 ship.loyalty = changeTo;
+                changeTo.AddShip(ship);
+                ship.shipStatusChanged = true;
 
                 ship.SwitchTroopLoyalty(oldLoyalty, ship.loyalty);
                 ship.ReCalculateTroopsAfterBoard();
                 ship.ScuttleTimer = -1f; // Cancel any active self destruct 
-                changeTo.AddShip(ship);
                 ship.PiratePostChangeLoyalty();
                 ship.IsGuardian = changeTo.WeAreRemnants;
-
-                if (!changeTo.isPlayer && !changeTo.isFaction)
-                    changeTo.Pool.ForcePoolAdd(ship);
-
+                
                 if (notification)
                 {
                     changeTo.AddBoardSuccessNotification(ship);

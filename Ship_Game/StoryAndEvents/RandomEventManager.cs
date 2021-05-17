@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Ships;
 
@@ -73,8 +74,9 @@ namespace Ship_Game
         {
             if (planet.Owner == null)
             {
+                var ships = EmpireManager.Player.OwnedShips;
                 if (!planet.ParentSystem.HasPlanetsOwnedBy(EmpireManager.Player)
-                    && !EmpireManager.Player.GetShips().Any(s => planet.Center.InRadius(s.Center, s.SensorRange)))
+                    && !ships.Any(s => planet.Center.InRadius(s.Center, s.SensorRange)))
                 {
                     return;
                 }

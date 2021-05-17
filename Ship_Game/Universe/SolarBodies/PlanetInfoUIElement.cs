@@ -296,10 +296,18 @@ namespace Ship_Game
             batch.DrawString(Fonts.Arial10, P.WorldType, textPos, tColor);
         }
 
-        int IncomingTroops => Screen.player
-                              .GetShips()
-                              .Where(s => s != null && s.HasOurTroops && s.AI.OrderQueue.Any(g => g.Plan == ShipAI.Plan.LandTroop && g.TargetPlanet == P))
-                              .Sum(s => s.TroopCount);
+        int IncomingTroops
+        {
+            get
+            {
+                // todo: double loop sum. 
+                var ships = Screen.player.OwnedShips;
+                return ships
+                    .Where(s => s != null && s.HasOurTroops &&
+                                s.AI.OrderQueue.Any(g => g.Plan == ShipAI.Plan.LandTroop && g.TargetPlanet == P))
+                    .Sum(s => s.TroopCount);
+            }
+        }
 
         void DrawColonization(SpriteBatch batch, Vector2 mousePos)
         {
@@ -427,7 +435,7 @@ namespace Ship_Game
                                 && CancelInvasionRect.HitTest(input.CursorPosition) 
                                 && input.InGameSelect)
             {
-                var shipList = EmpireManager.Player.GetShips();
+                var shipList = EmpireManager.Player.OwnedShips;
                 foreach (Ship ship in shipList)
                 {
                     if (ship.AI.State == AIState.AssaultPlanet && ship.AI.OrderQueue.Any(g => g.TargetPlanet == P))

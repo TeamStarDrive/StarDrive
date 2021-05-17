@@ -537,7 +537,7 @@ namespace Ship_Game.AI
                 threatCopy = new ThreatMatrix(pins, owner);
             }
 
-            var ships      = owner.GetShips().Clone();
+            var ships      = new Array<Ship>(owner.OwnedShips);
             ships.AddRange(owner.GetProjectors());
 
            
@@ -545,7 +545,7 @@ namespace Ship_Game.AI
             for (int i = 0; i < array.Count; i++)
             {
                 var empire = array[i];
-                ships.AddRange(empire.GetShips());
+                ships.AddRange(empire.OwnedShips);
                 ships.AddRange(empire.GetProjectors());
             }
 

@@ -125,6 +125,12 @@ namespace Ship_Game
                 // into this Simulation / Empire thread
                 ScreenManager.InvokePendingEmpireThreadActions();
                 ++SimTurnId;
+
+                // this should make spawning ships while paused added to the empire correctly. 
+                // and correctly update lists when removing and creating fleets while paused. 
+                foreach (var empire in EmpireManager.Empires)
+                    empire.EmpireShipLists.Update();
+
                 Objects.Update(FixedSimTime.Zero/*paused*/);
                 RecomputeFleetButtons(true);
             }
@@ -218,13 +224,12 @@ namespace Ship_Game
             ScreenManager.InvokePendingEmpireThreadActions();
             if (ProcessTurnEmpires(timeStep))
             {
-                FleetSpeed(timeStep);
                 UpdateSensorsForASingleEmpire(timeStep);
-                PostEmpireUpdates(timeStep);
 
                 Objects.Update(timeStep);
 
                 ProcessTurnUpdateMisc(timeStep);
+                EndOfTurnUpdate(timeStep);
             }
         }
 
@@ -265,7 +270,7 @@ namespace Ship_Game
                 UpdateShipSensorsAndInfluence(simTime, empire);
             }
 
-            PostEmpireUpdates(simTime);
+            EndOfTurnUpdate(simTime);
 
             foreach (Ship ship in GetMasterShipList())
             {
@@ -292,9 +297,13 @@ namespace Ship_Game
             UpdateClickableItems();
 
             JunkList.ApplyPendingRemovals();
-            
-            foreach (Anomaly anomaly in anomalyManager.AnomaliesList)
+
+            for (int i = 0; i < anomalyManager.AnomaliesList.Count; i++)
+            {
+                Anomaly anomaly = anomalyManager.AnomaliesList[i];
                 anomaly.Update(timeStep);
+            }
+
             anomalyManager.AnomaliesList.ApplyPendingRemovals();
 
             if (timeStep.FixedTime > 0)
@@ -320,29 +329,13 @@ namespace Ship_Game
             SelectedShipList.ApplyPendingRemovals();
         }
 
-        void PostEmpireUpdates(FixedSimTime timeStep)
-        {
-            PostEmpirePerf.Start();
-
-            if (!Paused && IsActive)
-            {
-                for (int i = 0; i < EmpireManager.Empires.Count; i++)
-                {
-                    var empire = EmpireManager.Empires[i];
-                    empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
-                }
-            }
-
-            PostEmpirePerf.Stop();
-        }
-
         int NextEmpireToScan = 0;
         public readonly int MaxTaskCores = Parallel.NumPhysicalCores - 1;
 
         // FB todo: this a work around from duplicate SSP create somewhere in the game but are not seen before loading the game
         void RemoveDuplicateProjectorWorkAround(Empire empire)
         {
-            var ourSSPs = empire.GetProjectors();
+            var ourSSPs = empire.OwnedProjectors;
             for (int i = ourSSPs.Count - 1; i >= 0; i--)
             {
                 Ship projector = ourSSPs[i];
@@ -372,16 +365,16 @@ namespace Ship_Game
             if (ourEmpire.IsEmpireDead())
                 return;
 
-            var ourShips = ourEmpire.GetShipsAtomic();
+            var ourShips = ourEmpire.OwnedShips;
             ExecuteShipSensorScans(ourShips, timeStep);
-            var ourSSPs = ourEmpire.GetProjectors().ToArray();
+            var ourSSPs = ourEmpire.OwnedProjectors;
             ExecuteShipSensorScans(ourSSPs, timeStep);
             ourEmpire.UpdateContactsAndBorders(timeStep);
         }
 
-        void ExecuteShipSensorScans(Ship[] ourShips, FixedSimTime timeStep)
+        void ExecuteShipSensorScans(IReadOnlyList<Ship> ourShips, FixedSimTime timeStep)
         {
-            Parallel.For(ourShips.Length, (start, end) =>
+            Parallel.For(ourShips.Count, (start, end) =>
             {
                 for (int i = start; i < end; i++)
                 {
@@ -391,27 +384,7 @@ namespace Ship_Game
                 }
             }, MaxTaskCores);
         }
-
-        void FleetSpeed(FixedSimTime timeStep)
-        {
-            Parallel.For(EmpireManager.Empires.Count, (start, end) =>
-            {
-                for (int i = start; i < end; i++)
-                {
-                    var empire = EmpireManager.Empires[i];
-                    foreach (KeyValuePair<int, Fleet> kv in empire.GetFleetsDict())
-                    {
-                        if (kv.Value.Ships.NotEmpty)
-                        {
-                            kv.Value.AveragePosition();
-
-                            kv.Value.SetSpeed();
-                        }
-                    }
-                }
-            }, MaxTaskCores);
-        }
-
+        
         bool ProcessTurnEmpires(FixedSimTime timeStep)
         {
             PreEmpirePerf.Start();
@@ -439,9 +412,6 @@ namespace Ship_Game
             {
                 ArmageddonCountdown(timeStep);
             }
-
-             //this block contains master ship list and empire pool updates. 
-             //threads iterating the master ship list or empire owned ships should not run through this lock if it can be helped. 
                 ArmageddonTimer -= timeStep.FixedTime;
                 if (ArmageddonTimer < 0f)
                 {
@@ -461,26 +431,6 @@ namespace Ship_Game
             ArmageddonCountdown(timeStep);
             */
 
-            // Execute all the actions submitted from UI thread
-            // into this Simulation / Empire thread
-            //ScreenManager.InvokePendingEmpireThreadActions();
-            //foreach (var empire in EmpireManager.Empires)
-            //{
-            //    empire.Pool.UpdatePools();
-            //    empire.UpdateMilitaryStrengths();
-            //    empire.AssessSystemsInDanger(timeStep);
-            //}
-            Parallel.For(EmpireManager.Empires.Count, (start, end) =>
-            {
-                for (int i = start; i < end; i++)
-                {
-                    var empire = EmpireManager.Empires[i];
-                    empire.Pool.UpdatePools();
-                    empire.UpdateMilitaryStrengths();
-                    empire.AssessSystemsInDanger(timeStep);
-                }
-            }, MaxTaskCores);
-
             PreEmpirePerf.Stop();
             
             if (!Paused && IsActive)
@@ -490,6 +440,47 @@ namespace Ship_Game
             }
             
             return !Paused;
+        }
+
+        /// <summary>
+        /// Should be run once at the end of a game turn, once before game start, and once after load.
+        /// Anything that the game needs at the start should be placed here.
+        /// </summary>
+        void EndOfTurnUpdate(FixedSimTime timeStep)
+        {
+            PostEmpirePerf.Start();
+            if (IsActive)
+            {
+                // Items here cant be run in same parallel loop with the others. 
+                foreach(var empire in EmpireManager.Empires)
+                {
+                    // ship lists should be set before any further work with the ship lists is done. 
+                    empire.EmpireShipLists.Update();
+                }
+                
+                Parallel.For(EmpireManager.Empires.Count, (start, end) =>
+                {
+                    for (int i = start; i < end; i++)
+                    {
+                        var empire = EmpireManager.Empires[i];
+
+                        empire.UpdateMilitaryStrengths();
+                        empire.AssessSystemsInDanger(timeStep);
+                        empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
+                        foreach (KeyValuePair<int, Fleet> kv in empire.GetFleetsDict())
+                        {
+                            if (kv.Value.Ships.NotEmpty)
+                            {
+                                kv.Value.AveragePosition();
+                                kv.Value.SetSpeed();
+                            }
+                        }
+                    }
+                }, MaxTaskCores);
+
+            }
+
+            PostEmpirePerf.Stop();
         }
 
         void UpdateEmpires(FixedSimTime timeStep)
