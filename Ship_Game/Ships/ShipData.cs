@@ -412,15 +412,15 @@ namespace Ship_Game.Ships
                 ShipModule ma = a.ModuleOrNull;
                 if (ma == null)
                     continue;
-                var ra = new RectF(a.Position.X, a.Position.Y, ma.XSIZE * 15.9f, ma.YSIZE * 15.9f);
+                var ra = new Rectangle((int)a.Position.X, (int)a.Position.Y, ma.XSIZE * 16, ma.YSIZE * 16);
                 for (int j = i + 1; j < ModuleSlots.Length; ++j)
                 {
                     ModuleSlotData b = ModuleSlots[j];
                     ShipModule mb = b.ModuleOrNull;
                     if (mb == null)
                         continue;
-                    var rb = new RectF(b.Position.X, b.Position.Y, mb.XSIZE * 15.9f, mb.YSIZE * 15.9f);
-                    if (ra.Overlaps(rb))
+                    var rb = new Rectangle((int)b.Position.X, (int)b.Position.Y, mb.XSIZE * 16, mb.YSIZE * 16);
+                    if (ra.GetIntersectingRect(rb, out Rectangle intersection))
                     {
                         return true;
                     }
