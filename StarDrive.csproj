@@ -429,7 +429,7 @@
     <Compile Include="Ship_Game\GameScreens\ShipDesign\HangarDesignationDropDown.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\DesignModuleGrid.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\FighterScrollList.cs" />
-    <Compile Include="Ship_Game\GameScreens\ShipDesign\LoadDesigns.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignLoadScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ModuleSelection.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreen.CategoryDropDown.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenDraw.cs" />
@@ -767,7 +767,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignSaveLoadScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignSaveScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
