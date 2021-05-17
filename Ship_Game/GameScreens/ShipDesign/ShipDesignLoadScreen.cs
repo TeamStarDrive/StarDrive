@@ -202,11 +202,14 @@ namespace Ship_Game.GameScreens.ShipDesign
             if (filter == DefaultFilterText)
                 filter = null;
 
+            if (filter.NotEmpty())
+                filter = filter.ToLower();
+
             SelectedShip = null;
             SelectedWIP = null;
 
             Ship[] ships = ResourceManager.GetShipTemplates()
-                .Filter(s => filter.IsEmpty() || s.Name.Contains(filter))
+                .Filter(s => filter.IsEmpty() || s.Name.ToLower().Contains(filter))
                 .OrderBy(s => !s.IsPlayerDesign)
                 .ThenBy(s => s.BaseHull.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
                 .ThenBy(s => s.BaseHull.ShipStyle)
