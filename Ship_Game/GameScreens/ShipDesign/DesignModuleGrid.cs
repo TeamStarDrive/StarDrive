@@ -19,6 +19,8 @@ namespace Ship_Game
         private readonly Point Offset;
         private int NumPowerChecks;
 
+        public Action OnGridChanged;
+
 
         // this constructs a [GridWidth][GridHeight] array of current hull
         // and allows for quick lookup for neighbours
@@ -176,6 +178,13 @@ namespace Ship_Game
         private readonly Array<Array<ChangedModule>> Undoable = new Array<Array<ChangedModule>>();
         private readonly Array<Array<ChangedModule>> Redoable = new Array<Array<ChangedModule>>();
 
+        // Should be called to trigger OnGridChanged event
+        public void OnModuleGridChanged()
+        {
+            RecalculatePower();
+            OnGridChanged?.Invoke();
+        }
+
         public void StartUndoableAction()
         {
             if (Undoable.IsEmpty || !Undoable.Last.IsEmpty) // only start new if we actually need to
@@ -202,7 +211,7 @@ namespace Ship_Game
             
             GameAudio.SmallServo();
             Redoable.Add(changes);
-            RecalculatePower();
+            OnModuleGridChanged();
         }
 
         public void Redo()
@@ -221,7 +230,7 @@ namespace Ship_Game
             
             GameAudio.SmallServo();
             Undoable.Add(changes);
-            RecalculatePower();
+            OnModuleGridChanged();
         }
 
         private void SaveAction(SlotStruct slot, ShipModule module, ModuleOrientation orientation, ChangeType type)
