@@ -7,14 +7,14 @@ namespace Ship_Game
     public sealed class ToolTip
     {
         // minimum hover time until tip is shown
-        const float TipShowTimePoint = 0.5f;
+        const float TipShowTimePoint = 0.35f;
 
         // this provides a sort of grace period before the tip can be shown again
-        const float TipReappearTimeDelay = 1.5f;
+        const float TipReappearTimeDelay = 1.0f;
 
         // how much time after disappearing should we reset the tooltip completely?
         // (we forget about the reappear delay)
-        const float TipResetTimeDelay = 5.0f;
+        const float TipResetTimeDelay = 3.0f;
 
         // minimum time a tip is shown, this includes fadeIn/stay/fadeOut
         const float TipTime = 1f;
@@ -130,7 +130,7 @@ namespace Ship_Game
                     LifeTime = TipReappearTimePoint;
                     return true;
                 }
-
+                
                 // when tooltip starts reappearing, make sure tip reappears with TipReappearTimeDelay
                 if (hovered)
                 {

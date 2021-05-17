@@ -119,17 +119,17 @@ namespace Ship_Game.Audio
         {
             SfxThread = null;
             if (SfxQueue != null) lock (SfxQueue)
-                {
-                    SfxQueue.Clear();
-                    SfxQueue = null;
-                }
+            {
+                SfxQueue.Clear();
+                SfxQueue = null;
+            }
 
             if (TrackedInstances != null) lock (TrackedInstances)
-                {
-                    for (int i = 0; i < TrackedInstances.Count; ++i)
-                        TrackedInstances[i].DestroyInstance();
-                    TrackedInstances.Clear();
-                }
+            {
+                for (int i = 0; i < TrackedInstances.Count; ++i)
+                    TrackedInstances[i].DestroyInstance();
+                TrackedInstances.Clear();
+            }
             SoundBank?.Dispose(ref SoundBank);
             WaveBank?.Dispose(ref WaveBank);
             AudioEngine?.Dispose(ref AudioEngine);
@@ -193,6 +193,7 @@ namespace Ship_Game.Audio
         public static void FleetClicked()     => PlaySfxAsync("techy_affirm1");
         public static void PlanetClicked()    => PlaySfxAsync("techy_affirm1");
         public static void BuildItemClicked() => PlaySfxAsync("techy_affirm1");
+        public static void DesignSoftBeep()   => PlaySfxAsync("simple_beep"); // "blup"
 
         public static void AcceptClick()      => PlaySfxAsync("sd_ui_accept_alt3"); // "clihk"
         public static void ButtonMouseOver()  => PlaySfxAsync("sd_ui_mouseover"); // super soft "katik"
