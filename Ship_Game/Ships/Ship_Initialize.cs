@@ -27,7 +27,9 @@ namespace Ship_Game.Ships
             Level      = data.Level;
             experience = data.experience;
             loyalty    = empire;
-            SetShipData(data);
+            shipData   = data;
+            if (fromSave)
+                data.UpdateBaseHull(); // when loading from save, the basehull data might not be set
 
             if (!CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate, shipyardDesign))
                 return;
@@ -54,7 +56,7 @@ namespace Ship_Game.Ships
             BaseStrength = template.BaseStrength;
             BaseCanWarp  = template.BaseCanWarp;
             loyalty      = owner;
-            SetShipData(template.shipData);
+            shipData     = template.shipData;
             SetInitialCrewLevel();
 
             if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
@@ -99,8 +101,9 @@ namespace Ship_Game.Ships
             for (int i = 0; i < templateSlots.Length; ++i)
             {
                 ModuleSlotData slot = templateSlots[i];
-                string uid = slot.InstalledModuleUID;
-                if (uid == null || uid == "Dummy") // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
+                string uid = slot.ModuleUID;
+                // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
+                if (slot.IsDummy)
                 {
                     // incomplete shipyard designs are a new feature, so no legacy dummies here
                     if (shipyardDesign)
@@ -122,7 +125,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < templateSlots.Length; ++i)
             {
                 ModuleSlotData slotData = templateSlots[i];
-                string uid = slotData.InstalledModuleUID;
+                string uid = slotData.ModuleUID;
                 if (uid == "Dummy" || uid == null)
                     continue;
 
@@ -132,7 +135,15 @@ namespace Ship_Game.Ships
                 ModuleSlotList[count++] = module;
             }
 
-            CreateModuleGrid(templateSlots, ModuleSlotList, useModules: fromSave || isTemplate);
+            bool useModules = fromSave || isTemplate;
+            CreateModuleGrid(templateSlots, ModuleSlotList, useModules);
+
+            if (useModules && !shipyardDesign && ModuleSlotList.Length == 0)
+            {
+                Log.Warning($"Failed to load ship '{Name}' due to all empty Modules");
+                return false;
+            }
+
             if (hasLegacyDummySlots)
                 FixLegacyInternalRestrictions(templateSlots);
             return true;
@@ -146,7 +157,11 @@ namespace Ship_Game.Ships
 
         public static Ship CreateShipFromSave(Empire empire, SavedGame.ShipSaveData save)
         {
-            save.data.Hull = save.Hull; // @todo Why is this modified here?
+            // HACK: This is here to enable loading older saves
+            //       It can be removed if we break saves in a major release
+            if (save.data.Hull.IsEmpty())
+                save.data.Hull = save.Hull;
+
             var ship = new Ship(empire, save.data, fromSave: true, isTemplate: false);
             if (!ship.HasModules)
                 return null; // module creation failed

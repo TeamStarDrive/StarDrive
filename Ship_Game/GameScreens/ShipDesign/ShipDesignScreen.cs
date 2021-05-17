@@ -50,7 +50,7 @@ namespace Ship_Game
         ScrollList2<ShipHullListItem> HullSelectList;
 
         public ShipModule HighlightedModule;
-        private SlotStruct ProjectedSlot;
+        SlotStruct ProjectedSlot;
         Vector2 CameraVelocity;
         Vector2 StartDragPos;
         ShipData ChangeTo;
@@ -65,7 +65,7 @@ namespace Ship_Game
         bool ShowAllArcs;
         public bool ToggleOverlay = true;
         bool ShipSaved = true;
-        public bool Debug;
+        public bool HullEditMode;
         public ShipData.RoleName Role { get; private set; }
         Rectangle DesignRoleRect;
 
@@ -92,11 +92,7 @@ namespace Ship_Game
             Name = "ShipDesignScreen";
             EmpireUI = empireUi;
             TransitionOnTime = 2f;
-
-
-        #if SHIPYARD
-            Debug = true;
-        #endif
+            HullEditMode = false;
         }
 
         void ReorientActiveModule(ModuleOrientation orientation)
@@ -118,24 +114,62 @@ namespace Ship_Game
             return null;
         }
 
-        void DebugAlterSlot(Vector2 slotPos, SlotModOperation op)
+        Vector2 WorldToDesignCoords(Vector2 worldCoord)
         {
-            ModuleSlotData toRemove = FindModuleSlotAtPos(slotPos);
-            if (toRemove == null)
+            return new Vector2((int)((worldCoord.X - Offset.X) / 16f) * 16f + Offset.X,
+                               (int)((worldCoord.Y - Offset.Y) / 16f) * 16f + Offset.Y);
+        }
+
+        void AddHullSlot(InputState input)
+        {
+            Vector2 cursor = Camera.GetWorldSpaceFromScreenSpace(input.CursorPosition);
+
+            // make sure there's no accidental overlap!
+            if (ModuleGrid.Get(new Point((int)cursor.X, (int)cursor.Y), out SlotStruct _))
+            {
+                GameAudio.NegativeClick();
+                return;
+            }
+            
+            Vector2 position = WorldToDesignCoords(cursor) - Offset + new Vector2(8f, 8f);
+            var newSlot = new ModuleSlotData
+            {
+                Position = position,
+                Restrictions = Restrictions.IO
+            };
+
+            var slots = new Array<ModuleSlotData>(ActiveHull.ModuleSlots);
+            slots.Add(newSlot);
+            slots.Sort((a, b) =>
+            {
+                Vector2 delta = a.Position - b.Position;
+                if (delta.X < 0f) return -1;
+                if (delta.X > 0f) return +1;
+                if (delta.Y < 0f) return -1;
+                if (delta.Y > 0f) return +1;
+                return 0;
+            });
+            ActiveHull.ModuleSlots = slots.ToArray();
+            ChangeHull(ActiveHull); // rebuild the hull
+        }
+
+        void EditHullSlot(Vector2 slotPos, SlotModOperation op)
+        {
+            ModuleSlotData target = FindModuleSlotAtPos(slotPos);
+            if (target == null)
                 return;
 
             switch (op)
             {
-                default:
-                case SlotModOperation.Normal: return;
-                case SlotModOperation.Delete: ActiveHull.ModuleSlots.Remove(toRemove, out ActiveHull.ModuleSlots); break;
-                case SlotModOperation.I:      toRemove.Restrictions = Restrictions.I;  break;
-                case SlotModOperation.O:      toRemove.Restrictions = Restrictions.O;  break;
-                case SlotModOperation.E:      toRemove.Restrictions = Restrictions.E;  break;
-                case SlotModOperation.IO:     toRemove.Restrictions = Restrictions.IO; break;
-                case SlotModOperation.IE:     toRemove.Restrictions = Restrictions.IE; break;
-                case SlotModOperation.OE:     toRemove.Restrictions = Restrictions.OE; break;
-                case SlotModOperation.IOE:    toRemove.Restrictions = Restrictions.IOE; break;
+                default: return;
+                case SlotModOperation.Delete: ActiveHull.ModuleSlots.Remove(target, out ActiveHull.ModuleSlots); break;
+                case SlotModOperation.I:      target.Restrictions = Restrictions.I;  break;
+                case SlotModOperation.O:      target.Restrictions = Restrictions.O;  break;
+                case SlotModOperation.E:      target.Restrictions = Restrictions.E;  break;
+                case SlotModOperation.IO:     target.Restrictions = Restrictions.IO; break;
+                case SlotModOperation.IE:     target.Restrictions = Restrictions.IE; break;
+                case SlotModOperation.OE:     target.Restrictions = Restrictions.OE; break;
+                case SlotModOperation.IOE:    target.Restrictions = Restrictions.IOE; break;
             }
             ChangeHull(ActiveHull);
         }
@@ -400,6 +434,7 @@ namespace Ship_Game
         enum SlotModOperation
         {
             Delete,
+            Add,
             I,
             O,
             E,
@@ -443,12 +478,13 @@ namespace Ship_Game
             bottomListRight.Padding = new Vector2(16f, 2f);
             bottomListRight.Add(ButtonStyle.Medium, GameText.SaveAs, click: b =>
             {
-                if (!CheckDesign()) {
+                if (!HullEditMode && !IsGoodDesign())
+                {
                     GameAudio.NegativeClick();
                     ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(GameText.ThisShipDesignIsInvalid)));
                     return;
                 }
-                ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
+                ScreenManager.AddScreen(new ShipDesignSaveLoadScreen(this, ActiveHull.Name, hullDesigner:HullEditMode));
             });
             bottomListRight.Add(ButtonStyle.Medium, GameText.Load, click: b =>
             {
@@ -537,6 +573,7 @@ namespace Ship_Game
 
         void InitializeHullAndCamera()
         {
+            AvailableHulls.Clear();
             var hulls = EmpireManager.Player.GetHDict();
             foreach (KeyValuePair<string, bool> hull in hulls)
                 if (hull.Value && ResourceManager.Hull(hull.Key, out ShipData hullData))

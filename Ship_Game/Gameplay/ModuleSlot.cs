@@ -1,13 +1,16 @@
 using System;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
+using Ship_Game.Ships;
 
 namespace Ship_Game.Gameplay
 {
     public sealed class ModuleSlotData
     {
         public Vector2 Position;
-        public string InstalledModuleUID;
+        [XmlElement(ElementName = "InstalledModuleUID")]
+        public string ModuleUID;
         public Guid HangarshipGuid;
         public float Health;
         [XmlElement(ElementName = "Shield_Power")]
@@ -19,9 +22,15 @@ namespace Ship_Game.Gameplay
         public string Orientation;
         public Restrictions Restrictions;
         public string SlotOptions;
-        
 
-        public override string ToString() => $"{InstalledModuleUID} {Position} {Facing} {Restrictions}";
+        public override string ToString() => $"{ModuleUID} {Position} {Facing} {Restrictions} T={ModuleOrNull}";
+
+        [XmlIgnore] [JsonIgnore]
+        public bool IsDummy => ModuleUID == null || ModuleUID == "Dummy";
+
+        [XmlIgnore] [JsonIgnore]
+        public ShipModule ModuleOrNull => ModuleUID != null && ModuleUID != "Dummy" && 
+                                          ResourceManager.GetModuleTemplate(ModuleUID, out ShipModule m) ? m : null;
 
         public ModuleOrientation GetOrientation()
         {
@@ -33,7 +42,7 @@ namespace Ship_Game.Gameplay
         public bool Equals(ModuleSlotData s)
         {
             return Position == s.Position
-                && InstalledModuleUID == s.InstalledModuleUID
+                && ModuleUID == s.ModuleUID
                 && HangarshipGuid == s.HangarshipGuid
                 && Facing == s.Facing
                 && Orientation == s.Orientation

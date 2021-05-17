@@ -135,12 +135,16 @@ namespace Ship_Game
             IsLoaded = true;
 
             if (ScreenManager.NumScreens == 0)
+            {
                 ScreenManager.AddScreenAndLoadContent(new GameLoadingScreen(showSplash: true, resetResources: false));
+            }
         }
 
+        // This is called when the graphics device has been Disposed
         protected override void UnloadContent()
         {
             Log.Warning("StarDriveGame UnloadContent");
+            // This also unloads all screens
             ResourceManager.UnloadGraphicsResources(ScreenManager);
             IsLoaded = false;
             GraphicsDeviceWasReset = true;
@@ -152,8 +156,11 @@ namespace Ship_Game
 
             UpdateGame(deltaTime);
 
-            if (ScreenManager.NumScreens == 0)
+            if (IsLoaded && ScreenManager.NumScreens == 0)
+            {
+                Log.Info("ScreenManager GameScreens+PendingScreens == 0, Exiting Game");
                 Instance.Exit();
+            }
         }
 
         protected override void Draw(float deltaTime)

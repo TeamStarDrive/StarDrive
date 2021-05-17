@@ -20,6 +20,8 @@ namespace Ship_Game
         public Vector2 TopLeft => new Vector2(X, Y);
         public Vector2 BotRight => new Vector2(X + W, Y + H);
 
+        public override string ToString() => $"{{X:{X} Y:{Y} W:{W} H:{H}}}";
+
         public RectF(float x, float y, float w, float h)
         {
             X = x;
