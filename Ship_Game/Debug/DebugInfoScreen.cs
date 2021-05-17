@@ -82,11 +82,12 @@ namespace Ship_Game.Debug
                     continue;
 
                 bool flag = false;
-                foreach (Ship ship in empire.GetShips())
+                var ships = empire.OwnedShips;
+                foreach (Ship ship in ships)
                 {
                     if (ship?.Active != true) continue;
                     if (ship.DesignRole < ShipData.RoleName.troopShip) continue;
-                    if (empire.Pool.ForcePoolContains(ship)) continue;
+                    if (empire.EmpireShipLists.EmpireForcePoolContains(ship)) continue;
 
                     foreach (AO ao in empire.GetEmpireAI().AreasOfOperations)
                     {
@@ -916,7 +917,7 @@ namespace Ship_Game.Debug
                 DrawString($"Ship War Maint:  War:{(int)e.TotalWarShipMaintenance} - Orb:{(int)e.TotalOrbitalMaintenance} - Trp:{(int)e.TotalTroopShipMaintenance}");
                 DrawString($"Ship Civ Maint:  Civ:{(int)e.TotalCivShipMaintenance} - Sup:{(int)e.TotalEmpireSupportMaintenance}");
 
-                Array<Ship> ships = e.GetShips();
+                var ships = e.OwnedShips;
                 DrawString($"Ship Count:  ({ships.Count}) " +
                            $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.platform || warship?.DesignRole == ShipData.RoleName.station)}" +
                            $" {ships.Count(warship => warship?.DesignRole ==  ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
@@ -948,7 +949,7 @@ namespace Ship_Game.Debug
 
                 DrawString("Gross Food: "+ e.GetGrossFoodPerTurn().String());
                 DrawString("Military Str: "+ (int)e.CurrentMilitaryStrength);
-                DrawString($"Fleets: Str: {(int)e.Pool.InitialStrength} Avail: {e.Pool.InitialReadyFleets}");
+                DrawString($"Fleets: Str: {(int)e.EmpireShipLists.InitialStrength} Avail: {e.EmpireShipLists.InitialReadyFleets}");
                 for (int x = 0; x < e.GetEmpireAI().Goals.Count; x++)
                 {
                     Goal g = e.GetEmpireAI().Goals[x];
