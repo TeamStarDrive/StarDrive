@@ -1,3 +1,4 @@
+using System.Linq;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -85,9 +86,10 @@ namespace Ship_Game.Universe.SolarBodies
         {
             foreach (Empire e in EmpireManager.ActiveMajorEmpires)
             {
+                var ships = e.OwnedShips;
                 if (p.Owner == e 
                     || p.Owner == null && p.IsExploredBy(e)
-                                       && e.GetShips().Any(s => s?.Center.InRadius(p.Center, s.SensorRange) == true))
+                                       && ships.Any(s => s?.Center.InRadius(p.Center, s.SensorRange) == true))
                 {
                     if (e.isPlayer)
                         Empire.Universe.NotificationManager.AddShipCrashed(p, message);

@@ -34,8 +34,6 @@ namespace Ship_Game
         UIButton BtnSymmetricDesign; // Symmetric Module Placement Feature by Fat Bastard
         UIButton BtnFilterModules;   // Filter Absolute Modules
         UIButton BtnStripShip;       // Removes all modules but armor, shields and command modules
-        Submenu StatsSub;
-        Menu1 ShipStats;
         GenericButton ArcsButton;
         float OriginalZ;
         Rectangle SearchBar;
@@ -62,10 +60,21 @@ namespace Ship_Game
         CategoryDropDown CategoryList;
         HangarDesignationDropDown HangarOptionsList;
 
+        struct OverlapError
+        {
+            public Rectangle Overlap;
+            public string Description;
+        }
+        readonly List<OverlapError> OverlappingModuleErrors = new List<OverlapError>();
+
         bool ShowAllArcs;
         public bool ToggleOverlay = true;
         bool ShipSaved = true;
-        public bool HullEditMode;
+        bool HullEditMode;
+
+        // Used in Developer Sandbox to load any design
+        bool UnlockAllFactionDesigns;
+
         public ShipData.RoleName Role { get; private set; }
         Rectangle DesignRoleRect;
 
@@ -93,6 +102,7 @@ namespace Ship_Game
             EmpireUI = empireUi;
             TransitionOnTime = 2f;
             HullEditMode = false;
+            UnlockAllFactionDesigns = parent is DeveloperSandbox.DeveloperUniverse;
         }
 
         void ReorientActiveModule(ModuleOrientation orientation)
@@ -277,9 +287,9 @@ namespace Ship_Game
                     active.TryInstallTo(ModuleGrid);
                     mirror.TryInstallTo(ModuleGrid);
                 }
-
-                RecalculatePower();
+                
                 ShipSaved = false;
+                OnDesignChanged();
                 SpawnActiveModule(active.Mod, active.Ori, active.Slot.Facing);
             }
         }
@@ -303,9 +313,9 @@ namespace Ship_Game
                     ModuleGrid.InstallModule(replaceAt, m, replaceAt.Orientation);
                 }
             }
-
-            RecalculatePower();
+            
             ShipSaved = false;
+            OnDesignChanged();
         }
 
         void DeleteModuleAtSlot(SlotStruct slot)
@@ -324,7 +334,7 @@ namespace Ship_Game
                 }
             }
             ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
-            RecalculatePower();
+            OnDesignChanged();
             GameAudio.SubBassWhoosh();
         }
 
@@ -350,7 +360,7 @@ namespace Ship_Game
                 ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
             }
 
-            RecalculatePower();
+            OnDesignChanged();
         }
 
         DesignModuleGrid ModuleGrid;
@@ -358,6 +368,9 @@ namespace Ship_Game
         void SetupSlots()
         {
             ModuleGrid = new DesignModuleGrid(ActiveHull.ModuleSlots, Offset);
+            #if DEBUG
+            ModuleGrid.OnGridChanged = CheckForOverlappingModules;
+            #endif
 
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
@@ -375,13 +388,13 @@ namespace Ship_Game
                     slot.Module.hangarShipUID = slot.SlotOptions;
             }
 
-            RecalculatePower(false);
+            OnDesignChanged(false);
             ResetActiveModule();
         }
 
-        void RecalculatePower(bool showRoleChangeTip = true)
+        void OnDesignChanged(bool showRoleChangeTip = true)
         {
-            ModuleGrid.RecalculatePower();
+            ModuleGrid.OnModuleGridChanged();
             RecalculateDesignRole(showRoleChangeTip);
         }
 
@@ -431,6 +444,38 @@ namespace Ship_Game
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
+        void CheckForOverlappingModules()
+        {
+            OverlappingModuleErrors.Clear();
+
+            var slots = ModuleGrid.SlotsList;
+            for (int i = 0; i < slots.Count; ++i)
+            {
+                SlotStruct a = slots[i];
+                ShipModule ma = a.Module;
+                if (ma == null)
+                    continue;
+
+                var ra = new Rectangle(a.Position.X, a.Position.Y, ma.XSIZE * 16, ma.YSIZE * 16);
+                for (int j = i + 1; j < slots.Count; ++j)
+                {
+                    SlotStruct b = slots[j];
+                    ShipModule mb = a.Module;
+                    if (mb == null || mb == ma)
+                        continue;
+                    
+                    var rb = new Rectangle(b.Position.X, b.Position.Y, mb.XSIZE * 16, mb.YSIZE * 16);
+                    if (ra.GetIntersectingRect(rb, out Rectangle overlap))
+                    {
+                        string ShortInfo(ShipModule m) => $"{m.UID} {m.XSIZE}x{m.YSIZE}";
+                        string desc = $"{ShortInfo(ma)} overlaps {ShortInfo(mb)}";
+                        Log.Warning(ConsoleColor.Red, desc);
+                        OverlappingModuleErrors.Add(new OverlapError{ Overlap = overlap, Description = desc });
+                    }
+                }
+            }
+        }
+
         enum SlotModOperation
         {
             Delete,
@@ -448,6 +493,7 @@ namespace Ship_Game
         public override void LoadContent()
         {
             Log.Info("ShipDesignScreen.LoadContent");
+            UpdateAvailableHulls();
             CreateGUI();
             InitializeHullAndCamera();
             BindListsToActiveHull();
@@ -484,11 +530,11 @@ namespace Ship_Game
                     ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(GameText.ThisShipDesignIsInvalid)));
                     return;
                 }
-                ScreenManager.AddScreen(new ShipDesignSaveLoadScreen(this, ActiveHull.Name, hullDesigner:HullEditMode));
+                ScreenManager.AddScreen(new ShipDesignSaveScreen(this, ActiveHull.Name, hullDesigner:HullEditMode));
             });
             bottomListRight.Add(ButtonStyle.Medium, GameText.Load, click: b =>
             {
-                ScreenManager.AddScreen(new LoadDesigns(this));
+                ScreenManager.AddScreen(new ShipDesignLoadScreen(this, UnlockAllFactionDesigns));
             });
             bottomListRight.Add(ButtonStyle.Medium, GameText.ToggleOverlay, click: b =>
             {
@@ -553,11 +599,7 @@ namespace Ship_Game
 
             var carrierOnlyPos  = new Vector2(dropdownRect.X - 200, dropdownRect.Y);
             CarrierOnlyCheckBox = Checkbox(carrierOnlyPos, () => ActiveHull.CarrierShip, "Carrier Only", GameText.WhenMarkedThisShipCan);
-            
-            var shipStatsPanel = new Rectangle((int)HullSelectList.X + 50, (int)HullSelectList.Bottom - 20, 280, 320);
-            ShipStats = new Menu1(shipStatsPanel);
-            StatsSub  = new Submenu(shipStatsPanel);
-            StatsSub.AddTab(Localizer.Token(GameText.ShipStats));
+
             ArcsButton = new GenericButton(new Vector2(HullSelectList.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
 
             var infoRect = RectF.FromPoints((HullSelectList.X + 20), (ScreenWidth - 20),
@@ -571,19 +613,38 @@ namespace Ship_Game
             CloseButton(ScreenWidth - 27, 99);
         }
 
-        void InitializeHullAndCamera()
+        void UpdateAvailableHulls()
         {
             AvailableHulls.Clear();
-            var hulls = EmpireManager.Player.GetHDict();
-            foreach (KeyValuePair<string, bool> hull in hulls)
-                if (hull.Value && ResourceManager.Hull(hull.Key, out ShipData hullData))
-                    AvailableHulls.Add(hullData);
 
+            if (UnlockAllFactionDesigns)
+            {
+                AvailableHulls.AddRange(ResourceManager.Hulls);
+            }
+            else
+            {
+                var hulls = EmpireManager.Player.GetHDict();
+                foreach (KeyValuePair<string, bool> hull in hulls)
+                {
+                    if (hull.Value && ResourceManager.Hull(hull.Key, out ShipData hullData))
+                    {
+                        if (EmpireManager.Player.IsHullUnlocked(hull.Key) &&
+                            (!hullData.IsShipyard || Empire.Universe.Debug))
+                        {
+                            AvailableHulls.Add(hullData);
+                        }
+                    }
+                }
+            }
+        }
+
+        void InitializeHullAndCamera()
+        {
             Offset = new Vector2(Viewport.Width / 2 - 256, Viewport.Height / 2 - 256);
             Camera = new Camera2D { Pos = new Vector2(Viewport.Width / 2f, Viewport.Height / 2f) };
             Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
             View = Matrix.CreateRotationY(180f.ToRadians())
-                   * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
+                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
 
             float aspectRatio = (float)Viewport.Width / Viewport.Height;
             Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 120000f);
@@ -640,10 +701,8 @@ namespace Ship_Game
         void InitializeShipHullsList()
         {
             var categories = new Array<string>();
-            foreach (ShipData hull in ResourceManager.Hulls)
+            foreach (ShipData hull in AvailableHulls)
             {
-                if ((hull.IsShipyard && !Empire.Universe.Debug) || !EmpireManager.Player.IsHullUnlocked(hull.Hull))
-                    continue;
                 string cat = Localizer.GetRole(hull.Role, EmpireManager.Player);
                 if (!categories.Contains(cat))
                     categories.Add(cat);
@@ -655,11 +714,9 @@ namespace Ship_Game
                 var categoryItem = new ShipHullListItem(cat);
                 HullSelectList.AddItem(categoryItem);
 
-                foreach (ShipData hull in ResourceManager.Hulls)
+                foreach (ShipData hull in AvailableHulls)
                 {
-                    if ((!hull.IsShipyard || Empire.Universe.Debug) &&
-                        EmpireManager.Player.IsHullUnlocked(hull.Hull) &&
-                        cat == Localizer.GetRole(hull.Role, EmpireManager.Player))
+                    if (cat == Localizer.GetRole(hull.Role, EmpireManager.Player))
                     {
                         categoryItem.AddSubItem(new ShipHullListItem(hull));
                     }

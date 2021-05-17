@@ -218,7 +218,8 @@ namespace Ship_Game
 
         public int FreeTilesWithRebaseOnTheWay(Empire empire)
         {
-                 int rebasingTroops = Owner.GetShips().Filter(s => s?.IsDefaultTroopTransport == true)
+            var ships = Owner.OwnedShips;
+                 int rebasingTroops = ships.Filter(s => s?.IsDefaultTroopTransport == true)
                                           .Count(s => s?.AI.OrderQueue.Any(goal => goal.TargetPlanet == this) == true);
                 return (GetFreeTiles(empire) - rebasingTroops).Clamped(0, TileArea);
         }
@@ -1433,18 +1434,15 @@ namespace Ship_Game
             // so we dont have to do this scan more than once. 
             // todo: Build common sensor container class. 
             // this scan should only need to be done once.
-            var ships = new Array<Ship>();
-            ships.AddRange(us.GetShips().AtomicCopy());
-            ships.AddRange(us.GetProjectors().AtomicCopy());
+            
+            var ships      = us.OwnedShips;
+            var projectors = us.OwnedProjectors;
 
-            for (int i = 0; i < ships.Count; i++)
-            {
-                Ship ship = ships[i];
-                if (ship.loyalty == us && ship.Center.InRadius(Center, ship.SensorRange))
-                    return true;
-            }
+            bool scanned = ships.Any(s => s.Active && s.Center.InRadius(Center, s.SensorRange));
+            if (!scanned)
+                scanned = projectors.Any(s => s.Active && s.Center.InRadius(Center, s.SensorRange));
 
-            return false;
+            return scanned;
         }
 
         private void GrowPopulation()

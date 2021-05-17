@@ -490,7 +490,7 @@ namespace Ship_Game
                 }
                 batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(GameText.TotalPlanets), SelectedEmpire.GetPlanets().Count), textCursor, Color.Wheat);
                 textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-                batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(GameText.TotalStarships), SelectedEmpire.GetShips().Count), textCursor, Color.Wheat);
+                batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(GameText.TotalStarships), SelectedEmpire.OwnedShips.Count), textCursor, Color.Wheat);
                 textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
                 batch.DrawString(Fonts.Arial12, Localizer.Token(GameText.Treasury)+SelectedEmpire.Money.String(2), textCursor, Color.Wheat);
                 textCursor.Y += (Fonts.Arial12.LineSpacing + 2);

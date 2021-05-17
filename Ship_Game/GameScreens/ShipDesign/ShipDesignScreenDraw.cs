@@ -28,6 +28,7 @@ namespace Ship_Game
                 DrawTacticalOverlays(batch);
                 DrawModuleSelections();
                 DrawProjectedModuleRect();
+                DrawOverlapErrors(batch);
                 batch.End();
             }
 
@@ -174,6 +175,15 @@ namespace Ship_Game
                 bool mirrorFits = ModuleGrid.ModuleFitsAtSlot(mirrored, ActiveModule);
                 DrawRectangle(mirrored.GetProjectedRect(ActiveModule), mirrorFits 
                     ? Color.LightGreen.Alpha(0.66f) : Color.Red.Alpha(0.66f), 1.5f);
+            }
+        }
+
+        void DrawOverlapErrors(SpriteBatch batch)
+        {
+            foreach (OverlapError oe in OverlappingModuleErrors)
+            {
+                batch.DrawRectangle(oe.Overlap, Color.Red, 1);
+                batch.DrawString(Fonts.Arial10, oe.Description, oe.Overlap.PosVec(), Color.Red);
             }
         }
 
