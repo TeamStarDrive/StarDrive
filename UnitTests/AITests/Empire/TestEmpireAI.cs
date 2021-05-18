@@ -44,6 +44,8 @@ namespace UnitTests.AITests.Empire
         void CreateTestEnv()
         {
             CreateUniverseAndPlayerEmpire(out TestEmpire);
+            //Player.Initialize();
+            Enemy.Initialize();
             AddPlanetToUniverse(2, 2, 40000, true,Vector2.One);
             AddPlanetToUniverse(1.9f, 1.9f, 40000, true, new Vector2(5000));
             AddPlanetToUniverse(1.7f, 1.7f, 40000, true, new Vector2(-5000));
@@ -228,7 +230,78 @@ namespace UnitTests.AITests.Empire
             }
         }
 
+        [TestMethod]
+        public void TestShipListTracking()
+        {
+            ClearEmpireShips();
+            Assert.IsTrue(Player.OwnedShips.Count == 0);
+            var build = new RoleBuildInfo(3, Player.GetEmpireAI(), true);
+            string shipName = Player.GetEmpireAI().GetAShip(build);
 
+            // test that ship is added to empire on creation
+            var ship = SpawnShip(shipName, Player, Vector2.Zero);
+            Player.EmpireShipLists.Update();
+            Assert.IsTrue(Player.OwnedShips.Count == 1);
+
+            // test that removed ship removes the ship from ship list
+            Player.RemoveShip(ship);
+            Player.EmpireShipLists.Update();
+            Assert.IsTrue(Player.OwnedShips.Count == 0);
+
+            // test that a ship added to empire directly is added. 
+            Player.EmpireShipLists.AddShipToEmpire(ship);
+            Player.EmpireShipLists.Update();
+            Assert.IsTrue(Player.OwnedShips.Count == 1);
+
+            // test that a ship cant be added twice
+            Player.AddShip(ship);
+            Player.EmpireShipLists.Update();
+            Assert.IsTrue(Player.OwnedShips.Count == 1);
+
+            // test that removing the same ship twice doesn't fail. 
+            Player.RemoveShip(ship);
+            Assert.IsTrue(Player.OwnedShips.Count == 1);
+            Player.EmpireShipLists.Update();
+            Player.RemoveShip(ship);
+            Player.EmpireShipLists.Update();
+            Assert.IsTrue(Player.OwnedShips.Count == 0);
+        }
+
+        [TestMethod]
+        public void TestDefeatedEmpireShipRemoval()
+        {
+            ClearEmpireShips();
+            Assert.IsTrue(Player.OwnedShips.Count == 0);
+            var build = new RoleBuildInfo(3, Player.GetEmpireAI(), true);
+            string shipName = Player.GetEmpireAI().GetAShip(build);
+
+            // test that ships are removed from empire on defeat
+            var ship = SpawnShip(shipName, Player, Vector2.Zero);
+            Player.EmpireShipLists.Update();
+            Assert.IsTrue(Player.OwnedShips.Count == 1);
+            Player.SetAsDefeated();
+            Player.EmpireShipLists.Update();
+            Assert.IsTrue(Player.OwnedShips.Count == 0);
+        }
+
+        [TestMethod]
+        public void TestMergedEmpireShipRemoval()
+        {
+            ClearEmpireShips();
+            Assert.IsTrue(Player.OwnedShips.Count == 0);
+            var build = new RoleBuildInfo(3, Player.GetEmpireAI(), true);
+            string shipName = Player.GetEmpireAI().GetAShip(build);
+
+            var ship = SpawnShip(shipName, Enemy, Vector2.Zero);
+            Enemy.EmpireShipLists.Update();
+            Assert.IsTrue(Enemy.OwnedShips.Count == 1);
+            Player.AbsorbEmpire(Enemy, false);
+            Player.EmpireShipLists.Update();
+            // test that ship is added to empire on merge
+            Assert.IsTrue(Player.OwnedShips.Count == 1);
+            // test that ship is removed from target empire
+            Assert.IsTrue(Enemy.OwnedShips.Count == 0);
+        }
     }
 }
 
