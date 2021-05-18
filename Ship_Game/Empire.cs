@@ -2086,8 +2086,8 @@ namespace Ship_Game
                 ship.MarkShipRolesUsableForEmpire(this);
             }
 
-            if (Universe != null && isPlayer)
-                Universe.aw.UpdateDropDowns();
+            if (isPlayer)
+                Universe?.aw?.UpdateDropDowns();
 
             UpdateBestOrbitals();
             UpdateDefenseShipBuildingOffense();
@@ -3096,7 +3096,7 @@ namespace Ship_Game
             data.EnvBarren  = Math.Max(data.EnvBarren, target.data.EnvBarren);
         }
 
-        public void AbsorbEmpire(Empire target)
+        public void AbsorbEmpire(Empire target, bool addNotification = true)
         {
             AbsorbAllEnvPreferences(target);
             foreach (Planet planet in target.GetPlanets())
@@ -3125,14 +3125,14 @@ namespace Ship_Game
             for (int i = ships.Count - 1; i >= 0; i--)
             {
                 Ship ship = ships[i];
-                ship.ChangeLoyalty(this);
+                ship.ChangeLoyalty(this, addNotification);
             }
 
             var projectors = target.OwnedProjectors;
             for (int i = projectors.Count - 1; i >= 0; i--)
             {
                 Ship ship = projectors[i];
-                ship.ChangeLoyalty(this);
+                ship.ChangeLoyalty(this, addNotification);
             }
 
             target.EmpireShipLists.CleanOut();
@@ -3173,7 +3173,7 @@ namespace Ship_Game
             target.SetAsMerged();
             ResetBorders();
             UpdateShipsWeCanBuild();
-            EmpireShipLists.CleanOut();
+            
             if (this != EmpireManager.Player)
             {
                 EmpireAI.EndAllTasks();
