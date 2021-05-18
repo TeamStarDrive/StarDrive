@@ -611,31 +611,32 @@ namespace Ship_Game
             return new MarkovNameGenerator(nameFile.OpenText().ReadToEnd(), order, minLength);
         }
 
-        // Added by RedFox
         static void DeleteShipFromDir(string dir, string shipName)
         {
-            foreach (FileInfo info in Dir.GetFiles(dir, shipName + ".xml", SearchOption.TopDirectoryOnly))
+            var info = new FileInfo(Path.Combine(dir, shipName + ".xml"));
+            if (info.Exists)
             {
-                // @note ship.Name is always the same as fileNameNoExt
-                //       part of "shipName.xml", so we can skip parsing the XML-s
-                if (info.NameNoExt() == shipName)
-                {
-                    info.Delete();
-                    return;
-                }
+                info.Delete();
+                Log.Info($"Deleted {info.FullName}");
             }
         }
 
         // Refactored by RedFox
         public static void DeleteShip(string shipName)
         {
-            DeleteShipFromDir("Content/StarterShips", shipName);
-            DeleteShipFromDir("Content/SavedDesigns", shipName);
+            //DeleteShipFromDir("Content/StarterShips", shipName);
+            //DeleteShipFromDir("Content/SavedDesigns", shipName);
 
             string appData = Dir.StarDriveAppData;
             DeleteShipFromDir(appData + "/Saved Designs", shipName);
             DeleteShipFromDir(appData + "/WIP", shipName);
-            GetShipTemplate(shipName).Deleted = true;
+
+            if (GetShipTemplate(shipName, out Ship template))
+            {
+                template.Deleted = true;
+                ShipsDict.Remove(shipName);
+            }
+
             foreach (Empire e in EmpireManager.Empires)
             {
                 if (e.ShipsWeCanBuild.Remove(shipName))
