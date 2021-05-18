@@ -623,13 +623,12 @@ namespace Ship_Game
             }
             else
             {
-                var hulls = EmpireManager.Player.GetHDict();
-                foreach (KeyValuePair<string, bool> hull in hulls)
+                string[] hulls = EmpireManager.Player.GetUnlockedHulls();
+                foreach (string hull in hulls)
                 {
-                    if (hull.Value && ResourceManager.Hull(hull.Key, out ShipData hullData))
+                    if (ResourceManager.Hull(hull, out ShipData hullData))
                     {
-                        if (EmpireManager.Player.IsHullUnlocked(hull.Key) &&
-                            (!hullData.IsShipyard || Empire.Universe.Debug))
+                        if ((!hullData.IsShipyard || Empire.Universe.Debug))
                         {
                             AvailableHulls.Add(hullData);
                         }
