@@ -227,8 +227,9 @@ namespace Ship_Game.Ships
             Color thrust0 = loyalty.ThrustColor0;
             Color thrust1 = loyalty.ThrustColor1;
             float velocityPercent = Velocity.Length() / VelocityMaximum;
-            foreach (Thruster thruster in ThrusterList)
+            for (int i = 0; i < ThrusterList.Length; ++i)
             {
+                Thruster thruster = ThrusterList[i];
                 thruster.UpdatePosition();
                 if (ThrustThisFrame != Ships.Thrust.Coast)
                 {
@@ -259,7 +260,8 @@ namespace Ship_Game.Ships
 
         void UpdateDying(FixedSimTime timeStep)
         {
-            ThrusterList.Clear();
+            DestroyThrusters();
+
             dietimer -= timeStep.FixedTime;
             if (dietimer <= 1.9f && InFrustum && (DeathSfx == null || DeathSfx.IsStopped))
             {
