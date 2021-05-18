@@ -2918,9 +2918,9 @@ namespace Ship_Game
             }
 
             StarDriveGame.Instance?.EndingGame(true);
-            Empire.Universe.GameOver = true;
-            Universe.Objects.Clear();
+            Universe.GameOver = true;
             Universe.Paused = true;
+            Universe.Objects.Clear();
             HelperFunctions.CollectMemory();
             StarDriveGame.Instance?.EndingGame(false);
             Universe.ScreenManager.AddScreen(new YouLoseScreen(Universe));
@@ -3573,7 +3573,7 @@ namespace Ship_Game
         {
             var currentlyKnown = new Array<Ship>();
 
-            Array<Ship> ships = Universe.GetMasterShipList();
+            IReadOnlyList<Ship> ships = Universe.GetMasterShipList();
 
             for (int i = 0; i < ships.Count; i++)
             {
