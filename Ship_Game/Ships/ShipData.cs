@@ -43,7 +43,7 @@ namespace Ship_Game.Ships
 
         public string Hull; // ID of the hull, ex: "Cordrazine/Dodaving"
         public RoleName Role = RoleName.fighter;
-        public Array<ShipToolScreen.ThrusterZone> ThrusterList;
+        public ShipToolScreen.ThrusterZone[] ThrusterList;
         public string ModelPath;
         public AIState DefaultAIState;
         // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
@@ -58,9 +58,9 @@ namespace Ship_Game.Ships
 
         [XmlIgnore] [JsonIgnore] public float BaseStrength;
         [XmlArray(ElementName = "ModuleSlotList")] public ModuleSlotData[] ModuleSlots;
-        [XmlIgnore] [JsonIgnore] public bool HullUnlockable;
-        [XmlIgnore] [JsonIgnore] public bool AllModulesUnlocakable = true;
         [XmlIgnore] [JsonIgnore] public bool UnLockable;
+        [XmlIgnore] [JsonIgnore] public bool HullUnlockable;
+        [XmlIgnore] [JsonIgnore] public bool AllModulesUnlockable = true;
         [XmlArray(ElementName = "techsNeeded")] public HashSet<string> TechsNeeded = new HashSet<string>();
         [XmlIgnore] [JsonIgnore] public int TechScore;
 
@@ -153,6 +153,14 @@ namespace Ship_Game.Ships
             TechsNeeded       = hull.TechsNeeded;
             TechScore         = hull.TechScore;
             BaseHull          = hull.BaseHull;
+
+            UnLockable = hull.UnLockable;
+            HullUnlockable = hull.HullUnlockable;
+            AllModulesUnlockable = hull.AllModulesUnlockable;
+
+            Volume = hull.Volume;
+            Radius = hull.Radius;
+            ModelZ = hull.ModelZ;
         }
 
         public void UpdateBaseHull()
@@ -305,7 +313,7 @@ namespace Ship_Game.Ships
                     TechScore      = s->TechScore,
                     IsOrbitalDefense          = s->IsOrbitalDefense != 0,
                     SelectionGraphic          = s->SelectionGraphic.AsString,
-                    AllModulesUnlocakable     = s->AllModulesUnlockable != 0,
+                    AllModulesUnlockable     = s->AllModulesUnlockable != 0,
                     MechanicalBoardingDefense = s->MechanicalBoardingDefense
                 };
                 Enum.TryParse(s->Role.AsString,              out ship.Role);
@@ -339,16 +347,15 @@ namespace Ship_Game.Ships
                     ship.ModuleSlots[i] = slot;
                 }
 
-                // @todo Remove conversion to List
-                ship.ThrusterList = new Array<ShipToolScreen.ThrusterZone>(s->ThrustersLen);
+                ship.ThrusterList = new ShipToolScreen.ThrusterZone[s->ThrustersLen];
                 for (int i = 0; i < s->ThrustersLen; ++i)
                 {
                     CThrusterZone* zone = &s->Thrusters[i];
-                    ship.ThrusterList.Add(new ShipToolScreen.ThrusterZone
+                    ship.ThrusterList[i] = new ShipToolScreen.ThrusterZone
                     {
                         Position = new Vector3(zone->X, zone->Y, zone->Z),
                         Scale = zone->Scale
-                    });
+                    };
                 }
 
                 // @todo Remove conversion to HashSet

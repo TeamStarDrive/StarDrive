@@ -248,9 +248,7 @@ namespace Ship_Game.Ships
 
         void InitializeThrusters(ShipData data)
         {
-            ThrusterList.Capacity = data.ThrusterList.Count;
-            foreach (ShipToolScreen.ThrusterZone t in data.ThrusterList)
-                ThrusterList.Add(new Thruster(this, t.Scale, t.Position));
+            ThrusterList = data.ThrusterList.Select(t => new Thruster(this, t.Scale, t.Position));
 
             if (StarDriveGame.Instance == null) // allows creating ship templates in Unit Tests
                 return;
@@ -261,6 +259,15 @@ namespace Ship_Game.Ships
                 t.LoadAndAssignDefaultEffects(content);
                 t.InitializeForViewing();
             }
+        }
+
+        void DestroyThrusters()
+        {
+            foreach (Thruster t in ThrusterList)
+            {
+                 /*todo Dispose*/
+            }
+            ThrusterList = Empty<Thruster>.Array;
         }
 
         // Added by RedFox - Debug, Hangar Ship, and Platform creation

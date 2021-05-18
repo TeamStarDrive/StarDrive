@@ -365,7 +365,7 @@ namespace Ship_Game.Ships
 
         public void RenderThrusters(ref Matrix view, ref Matrix projection)
         {
-            for (int i = 0; i < ThrusterList.Count; ++i)
+            for (int i = 0; i < ThrusterList.Length; ++i)
             {
                 Thruster thruster = ThrusterList[i];
                 Log.Assert(thruster.technique != null, "Thruster technique not initialized");
