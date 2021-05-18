@@ -10,6 +10,7 @@ namespace Ship_Game.Gameplay
     {
         public Vector2 Position;
         [XmlElement(ElementName = "InstalledModuleUID")]
+        [JsonProperty("InstalledModuleUID")]
         public string ModuleUID;
         public Guid HangarshipGuid;
         public float Health;
