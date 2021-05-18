@@ -418,7 +418,7 @@ namespace Ship_Game
         Statistics = 197,
         /// <summary>Available Designs</summary>
         AvailableDesigns = 198,
-        /// <summary>Ship Name</summary>
+        /// <summary>Choose a Ship to Load</summary>
         ChooseAShipToLoad = 199,
         /// <summary>Attack Runs: Ship will make head-on attack runs on its</summary>
         ShipWillMakeHeadonAttack = 200,
