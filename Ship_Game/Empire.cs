@@ -829,11 +829,9 @@ namespace Ship_Game
             return false;
         }
 
-        public Map<string, bool> GetHDict() => UnlockedHullsDict;
-
+        public string[] GetUnlockedHulls() => UnlockedHullsDict.FilterSelect((hull,unlocked) => unlocked,
+                                                                             (hull,unlocked) => hull);
         public bool IsHullUnlocked(string hullName) => UnlockedHullsDict.Get(hullName, out bool unlocked) && unlocked;
-
-        public Map<string, bool> GetTrDict() => UnlockedTroopDict;
 
         public IReadOnlyList<Troop> GetUnlockedTroops() => UnlockedTroops;
 
@@ -1239,10 +1237,10 @@ namespace Ship_Game
             if (string.IsNullOrEmpty(data.DefaultTroopShip))
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
 
-            foreach (var hull in ResourceManager.Hulls)       UnlockedHullsDict[hull.Hull]  = false;
-            foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]         = false;
+            foreach (var hull in ResourceManager.Hulls) UnlockedHullsDict[hull.Hull] = false;
+            foreach (var tt in ResourceManager.TroopTypes) UnlockedTroopDict[tt] = false;
             foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key] = false;
-            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]   = false;
+            foreach (var kv in ResourceManager.ShipModules) UnlockedModulesDict[kv.Key] = false;
             UnlockedTroops.Clear();
 
             // unlock from empire data file
@@ -2059,31 +2057,27 @@ namespace Ship_Game
                 if (hulls != null && !hulls.Contains(ship.shipData.Hull))
                     continue;
 
-                if (ship.Deleted || ResourceManager.ShipRoles[ship.shipData.Role].Protected 
-                                 || ShipsWeCanBuild.Contains(ship.Name))
+                // we can already build this
+                if (ShipsWeCanBuild.Contains(ship.Name))
+                    continue;
+                if (ship.Deleted || ResourceManager.ShipRoles[ship.shipData.Role].Protected)
                     continue;
                 if (!isPlayer && (!ship.ShipGoodToBuild(this) || ship.IsPlayerDesign && !GlobalStats.UsePlayerDesigns))
                     continue;
-                if (!WeCanBuildThis(ship.Name))
-                    continue;
-                try
+
+                if (WeCanBuildThis(ship.Name))
                 {
                     if (ship.shipData.Role <= ShipData.RoleName.station)
                     {
-                        structuresWeCanBuild.Add(ship.Name);
+                        if (!structuresWeCanBuild.Contains(ship.Name))
+                            structuresWeCanBuild.Add(ship.Name);
                     }
-
-                    {
+                    
+                    if (!ShipsWeCanBuild.Contains(ship.Name))
                         ShipsWeCanBuild.Add(ship.Name);
-                    }
+
+                    ship.MarkShipRolesUsableForEmpire(this);
                 }
-                catch (Exception e)
-                {
-                    Log.Error(e);
-                    ship.Deleted = true;  //This should prevent this Key from being evaluated again
-                    continue;   //This keeps the game going without crashing
-                }
-                ship.MarkShipRolesUsableForEmpire(this);
             }
 
             if (isPlayer)
@@ -2108,17 +2102,19 @@ namespace Ship_Game
                 return false;
             }
 
-            // If the ship role is not defined don't try to use it
-            if (!UnlockedHullsDict.TryGetValue(shipData.Hull, out bool goodHull) || !goodHull)
+            // If this hull is not unlocked, then we can't build it
+            if (!IsHullUnlocked(shipData.Hull))
                 return false;
 
             if (shipData.TechsNeeded.Count > 0)
             {
-                if (!shipData.UnLockable) return false;
+                if (!shipData.UnLockable)
+                    return false;
 
                 foreach (string shipTech in shipData.TechsNeeded)
                 {
-                    if (ShipTechs.Contains(shipTech)) continue;
+                    if (ShipTechs.Contains(shipTech))
+                        continue;
                     TechEntry onlyShipTech = TechnologyDict[shipTech];
                     if (!onlyShipTech.Unlocked)
                     {
@@ -3142,12 +3138,12 @@ namespace Ship_Game
                 if (techEntry.Unlocked)
                     AcquireTech(techEntry.UID, target, TechUnlockType.Normal);
             }
-            foreach (KeyValuePair<string, bool> kv in target.GetHDict())
+            foreach (KeyValuePair<string, bool> kv in target.UnlockedHullsDict)
             {
                 if (kv.Value)
                     UnlockedHullsDict[kv.Key] = true;
             }
-            foreach (KeyValuePair<string, bool> kv in target.GetTrDict())
+            foreach (KeyValuePair<string, bool> kv in target.UnlockedTroopDict)
             {
                 if (kv.Value)
                 {
