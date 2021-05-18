@@ -109,14 +109,14 @@ namespace Ship_Game.GameScreens.NewGame
                 }
                 else
                 {
-                    shipData.AllModulesUnlocakable = false;
+                    shipData.AllModulesUnlockable = false;
                     shipData.HullUnlockable = false;
                     //Log.WarningVerbose($"Unlockable hull : '{shipData.Hull}' in ship : '{kv.Key}'");
                 }
 
                 if (shipData.HullUnlockable)
                 {
-                    shipData.AllModulesUnlocakable = true;
+                    shipData.AllModulesUnlockable = true;
                     foreach (ModuleSlotData module in ship.shipData.ModuleSlots)
                     {
                         if (module.IsDummy)
@@ -140,13 +140,13 @@ namespace Ship_Game.GameScreens.NewGame
 
                         if (modUnlockable) continue;
 
-                        shipData.AllModulesUnlocakable = false;
+                        shipData.AllModulesUnlockable = false;
                         //Log.WarningVerbose($"Unlockable module : '{module.InstalledModuleUID}' in ship : '{kv.Key}'");
                         break;
                     }
                 }
 
-                if (shipData.AllModulesUnlocakable)
+                if (shipData.AllModulesUnlockable)
                 {
                     shipData.UnLockable = true;
                     if (shipData.BaseStrength <= 0f)

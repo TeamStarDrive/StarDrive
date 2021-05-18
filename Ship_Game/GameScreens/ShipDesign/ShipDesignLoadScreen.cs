@@ -202,20 +202,19 @@ namespace Ship_Game.GameScreens.ShipDesign
             if (filter == DefaultFilterText)
                 filter = null;
 
-            if (filter.NotEmpty())
-                filter = filter.ToLower();
+            filter = filter?.ToLower();
 
             SelectedShip = null;
             SelectedWIP = null;
 
             Ship[] ships = ResourceManager.GetShipTemplates()
-                .Filter(s => filter.IsEmpty() || s.Name.ToLower().Contains(filter))
+                .Filter(s => CanShowDesign(s, filter))
                 .OrderBy(s => !s.IsPlayerDesign)
                 .ThenBy(s => s.BaseHull.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
                 .ThenBy(s => s.BaseHull.ShipStyle)
                 .ThenByDescending(s => s.BaseStrength)
                 .ThenBy(s => s.Name)
-                .ToArray().Filter(CanShowDesign);
+                .ToArray();
 
             AvailableDesignsList.Reset();
 
@@ -260,13 +259,16 @@ namespace Ship_Game.GameScreens.ShipDesign
             }
         }
 
-        bool CanShowDesign(Ship ship)
+        bool CanShowDesign(Ship ship, string filter)
         {
+            if (filter.NotEmpty() && !ship.Name.ToLower().Contains(filter))
+                return false;
+
             if (ShowOnlyPlayerDesigns && !ship.IsPlayerDesign)
                 return false;
 
             if (UnlockAllDesigns)
-                return true;
+                return !ship.Deleted;
 
             string role = Localizer.GetRole(ship.DesignRole, EmpireManager.Player);
             return !ship.Deleted

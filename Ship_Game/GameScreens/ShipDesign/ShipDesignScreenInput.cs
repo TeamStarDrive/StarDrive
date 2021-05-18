@@ -796,6 +796,8 @@ namespace Ship_Game
 
             Ship newTemplate = ResourceManager.AddShipTemplate(toSave, fromSave: false, playerDesign: true);
             EmpireManager.Player.UpdateShipsWeCanBuild();
+            if (!EmpireManager.Player.WeCanBuildThis(newTemplate.Name))
+                Log.Error("WeCanBuildThis check failed after SaveShipDesign");
             ChangeHull(newTemplate.shipData);
         }
 
