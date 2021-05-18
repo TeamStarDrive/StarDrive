@@ -10,6 +10,7 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Ship_Game.Audio;
@@ -200,7 +201,7 @@ namespace Ship_Game
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.P == p;
         public bool IsViewingColonyScreen(Planet p) => LookingAtPlanet && workersPanel is ColonyScreen cs && cs.P == p;
 
-        public Array<Ship> GetMasterShipList() => Objects.Ships;
+        public IReadOnlyList<Ship> GetMasterShipList() => Objects.Ships;
 
         public bool IsSectorViewOrCloser => viewState <= UnivScreenState.SectorView;
         public bool IsSystemViewOrCloser => viewState <= UnivScreenState.SystemView;

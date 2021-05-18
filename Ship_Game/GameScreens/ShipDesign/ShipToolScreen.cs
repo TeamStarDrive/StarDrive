@@ -474,7 +474,7 @@ namespace Ship_Game
             }
             data.ModuleSlots    = filledModules.ToArray();
             data.DefaultAIState = AIState.AwaitingOrders;
-            data.ThrusterList   = TList;
+            data.ThrusterList   = TList.ToArray();
             var ser = new XmlSerializer(typeof(ShipData));
             using (var wfs = new StreamWriter($"Ship Tool/{HullName}.xml"))
                 ser.Serialize(wfs, data);
