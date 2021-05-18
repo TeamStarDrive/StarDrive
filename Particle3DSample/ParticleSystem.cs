@@ -83,22 +83,25 @@ namespace Particle3DSample
 
         private void AddNewParticlesToVertexBuffer()
         {
-            const int stride = 32;            
+            const int stride = 32;
+            var particles = Particles;
+            if (particles == null)
+                return;
        
             if (FirstNewParticle >= FirstFreeParticle)
             {
                 
-                VertexBuffer.SetData(FirstNewParticle * stride, Particles, FirstNewParticle, 
-                    Particles.Length - FirstNewParticle, stride, SetDataOptions.NoOverwrite);
+                VertexBuffer.SetData(FirstNewParticle * stride, particles, FirstNewParticle, 
+                    particles.Length - FirstNewParticle, stride, SetDataOptions.NoOverwrite);
                 if (FirstFreeParticle > 0)
                 {                    
-                    VertexBuffer.SetData(0, Particles, 0, FirstFreeParticle, stride, SetDataOptions.NoOverwrite);
+                    VertexBuffer.SetData(0, particles, 0, FirstFreeParticle, stride, SetDataOptions.NoOverwrite);
                 }                
             }
             else
             {
        
-                VertexBuffer.SetData(FirstNewParticle * stride, Particles, FirstNewParticle, 
+                VertexBuffer.SetData(FirstNewParticle * stride, particles, FirstNewParticle, 
                     FirstFreeParticle - FirstNewParticle, stride, SetDataOptions.NoOverwrite);
             }
             FirstNewParticle = FirstFreeParticle;
@@ -106,10 +109,14 @@ namespace Particle3DSample
 
         private void AddParticleThread(Random random, Vector3 position, Vector3 velocity)
         {
+            // when Graphics device is reset, this particle system will be disposed
+            // and Particles will be set to null
+            var particles = Particles;
+            if (particles == null)
+                return;
+
             int nextFreeParticle = FirstFreeParticle + 1;
-            // when leaving options page sometimes this will crash on a null 
-            // Particles list. 
-            if (nextFreeParticle >= (Particles?.Length ?? 0))
+            if (nextFreeParticle >= particles.Length)
                 nextFreeParticle = 0;
 
             if (nextFreeParticle == FirstRetiredParticle)
@@ -121,10 +128,10 @@ namespace Particle3DSample
             velocity.X += horizontalVelocity * RadMath.Cos(horizontalAngle);
             velocity.Z += horizontalVelocity * RadMath.Sin(horizontalAngle);
             velocity.Y += Settings.MinVerticalVelocity.LerpTo(Settings.MaxVerticalVelocity, (float)random.NextDouble());
-            Particles[FirstFreeParticle].Position = position;
-            Particles[FirstFreeParticle].Velocity = velocity;
-            Particles[FirstFreeParticle].Random   = new Color((byte)random.Next(255), (byte)random.Next(255), (byte)random.Next(255), (byte)random.Next(255));
-            Particles[FirstFreeParticle].Time     = CurrentTime;            
+            particles[FirstFreeParticle].Position = position;
+            particles[FirstFreeParticle].Velocity = velocity;
+            particles[FirstFreeParticle].Random   = new Color((byte)random.Next(255), (byte)random.Next(255), (byte)random.Next(255), (byte)random.Next(255));
+            particles[FirstFreeParticle].Time     = CurrentTime;            
             FirstFreeParticle = nextFreeParticle;
         }
 
@@ -134,10 +141,14 @@ namespace Particle3DSample
 
         public void Draw()
         {
+            var particles = Particles;
+            if (particles == null)
+                return;
+
             GraphicsDevice device = GraphicsDevice;
             if (VertexBuffer.IsContentLost)
             {
-                VertexBuffer.SetData(Particles);
+                VertexBuffer.SetData(particles);
             }
             if (FirstNewParticle != FirstFreeParticle)
             {
@@ -156,7 +167,7 @@ namespace Particle3DSample
                     pass.Begin();
                     if (FirstActiveParticle >= FirstFreeParticle)
                     {
-                        device.DrawPrimitives(PrimitiveType.PointList, FirstActiveParticle, Particles.Length - FirstActiveParticle);
+                        device.DrawPrimitives(PrimitiveType.PointList, FirstActiveParticle, particles.Length - FirstActiveParticle);
                         if (FirstFreeParticle > 0)
                         {
                             device.DrawPrimitives(PrimitiveType.PointList, 0, FirstFreeParticle);                         
@@ -180,13 +191,17 @@ namespace Particle3DSample
 
         private void FreeRetiredParticles()
         {
+            var particles = Particles;
+            if (particles == null)
+                return;
+
             while (FirstRetiredParticle != FirstActiveParticle)
             {
-                if (DrawCounter - (int)Particles[FirstRetiredParticle].Time < 3)
+                if (DrawCounter - (int)particles[FirstRetiredParticle].Time < 3)
                     return;
 
                 ++FirstRetiredParticle;
-                if (FirstRetiredParticle >= Particles.Length)
+                if (FirstRetiredParticle >= particles.Length)
                     FirstRetiredParticle = 0;
             }
         }
@@ -240,16 +255,21 @@ namespace Particle3DSample
 
         private void RetireActiveParticles()
         {
+            var particles = Particles;
+            if (particles == null)
+                return;
+
             float particleDuration = (float)Settings.Duration.TotalSeconds;
             if (particleDuration == 6.66f) // wtf?? "StaticParticles" ?
                 return;
+
             while (FirstActiveParticle != FirstNewParticle)
             {
-                float particleAge = CurrentTime - Particles[FirstActiveParticle].Time;
+                float particleAge = CurrentTime - particles[FirstActiveParticle].Time;
                 if (particleAge < particleDuration && particleAge > 0f)
                     return;
-                Particles[FirstActiveParticle++].Time = DrawCounter;
-                if (FirstActiveParticle >= Particles.Length)
+                particles[FirstActiveParticle++].Time = DrawCounter;
+                if (FirstActiveParticle >= particles.Length)
                     FirstActiveParticle = 0;
             }
         }
