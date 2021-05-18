@@ -297,7 +297,7 @@ namespace Ship_Game.Debug
 
         void Targeting()
         {
-            Array<Ship> masterShipList = Screen.GetMasterShipList();
+            IReadOnlyList<Ship> masterShipList = Screen.GetMasterShipList();
             for (int i = 0; i < masterShipList.Count; ++i)
             {
                 Ship ship = masterShipList[i];
@@ -519,7 +519,7 @@ namespace Ship_Game.Debug
 
         IEnumerable<PredictionDebugPlatform> GetPredictionDebugPlatforms()
         {
-            Array<Ship> ships = Screen.GetMasterShipList();
+            IReadOnlyList<Ship> ships = Screen.GetMasterShipList();
             for (int i = 0; i < ships.Count; ++i)
                 if (ships[i] is PredictionDebugPlatform platform)
                     yield return platform;

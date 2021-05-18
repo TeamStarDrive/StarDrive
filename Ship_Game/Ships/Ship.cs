@@ -1592,7 +1592,7 @@ namespace Ship_Game.Ships
             foreach (Empire empire in EmpireManager.Empires)
             {
                 if (KnownByEmpires.KnownBy(empire))
-                        empire.GetEmpireAI().ThreatMatrix.RemovePin(this);
+                    empire.GetEmpireAI().ThreatMatrix.RemovePin(this);
             }
 
             ModuleSlotList     = Empty<ShipModule>.Array;
