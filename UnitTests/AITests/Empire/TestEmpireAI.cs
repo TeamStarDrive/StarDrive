@@ -44,8 +44,6 @@ namespace UnitTests.AITests.Empire
         void CreateTestEnv()
         {
             CreateUniverseAndPlayerEmpire(out TestEmpire);
-            //Player.Initialize();
-            Enemy.Initialize();
             AddPlanetToUniverse(2, 2, 40000, true,Vector2.One);
             AddPlanetToUniverse(1.9f, 1.9f, 40000, true, new Vector2(5000));
             AddPlanetToUniverse(1.7f, 1.7f, 40000, true, new Vector2(-5000));
