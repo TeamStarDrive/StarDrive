@@ -43,7 +43,7 @@ namespace Ship_Game.Ships
         public float MaxBank     = 0.5236f;
 
         public Vector2 projectedPosition;
-        readonly Array<Thruster> ThrusterList = new Array<Thruster>();
+        Thruster[] ThrusterList = Empty<Thruster>.Array;
 
         public Array<Weapon> Weapons = new Array<Weapon>();
         float JumpTimer = 3f;
@@ -1598,9 +1598,10 @@ namespace Ship_Game.Ships
             ModuleSlotList     = Empty<ShipModule>.Array;
             SparseModuleGrid   = Empty<ShipModule>.Array;
             ExternalModuleGrid = Empty<ShipModule>.Array;
-            NumExternalSlots   = 0;
             Shields            = Empty<ShipModule>.Array;
-            ThrusterList.Clear();
+            NumExternalSlots = 0;
+            DestroyThrusters();
+
             BombBays.Clear();
             OurTroops.Clear();
             HostileTroops.Clear();
