@@ -31,24 +31,13 @@ namespace Ship_Game
         {
             Enum.TryParse(slot.Orientation, out ModuleOrientation slotState);
             Vector2 pos = slot.Position;
-            PQ            = new PrimitiveQuad(pos.X + offset.X - 8f, pos.Y + offset.Y - 8f, 16f, 16f);
+            PQ = new PrimitiveQuad(pos.X + offset.X - 8f, pos.Y + offset.Y - 8f, 16f, 16f);
             Restrictions  = slot.Restrictions;
             Facing        = slot.Facing;
             ModuleUID     = slot.ModuleUID;
             SlotReference = slot;
             Orientation   = slotState;
             SlotOptions   = slot.SlotOptions;
-        }
-
-        public SlotStruct(SlotStruct parent)
-        {
-            PQ            = parent.PQ;
-            Restrictions  = parent.Restrictions;
-            Facing        = parent.Facing;
-            ModuleUID     = parent.ModuleUID;
-            Module        = parent.Module;
-            Orientation         = parent.Orientation;
-            SlotReference = parent.SlotReference;
         }
 
         public override string ToString()

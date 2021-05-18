@@ -26,7 +26,7 @@ namespace Ship_Game
 
         public bool Hover;
         public bool AllowPeriod = false;
-        public bool ResetTextOnInput;
+        public bool AutoClearTextOnInputCapture;
         public int MaxCharacters = 30;
         int CursorPos;
 
@@ -45,6 +45,11 @@ namespace Ship_Game
         public Color Color = Color.Orange;
         public Color HoverColor = Color.White;
         public Color InputColor = Color.BurlyWood;
+
+        /// <summary>
+        /// EVT: Text input has been captured, user is starting to type text
+        /// </summary>
+        public Action OnTextInputCapture;
 
         /// <summary>
         /// EVT: Text was changed during input
@@ -115,12 +120,16 @@ namespace Ship_Game
         {
             if (HandlingInput)
                 return;
+
             HandlingInput = true;
             GlobalStats.TakingInput = true;
-            if (ResetTextOnInput)
+
+            if (AutoClearTextOnInputCapture)
                 Text = "";
             else
                 CursorPos = TextValue.Length;
+
+            OnTextInputCapture?.Invoke();
         }
 
         // If Input is being captured, stops capture an submits the current text
@@ -128,6 +137,7 @@ namespace Ship_Game
         {
             if (!HandlingInput)
                 return;
+
             HandlingInput = false;
             GlobalStats.TakingInput = false;
             OnTextSubmit?.Invoke(TextValue);
