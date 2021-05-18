@@ -327,12 +327,12 @@ namespace Ship_Game
         {
             var sdata = new ShipSaveData
             {
-                guid = ship.guid,
-                data = new ShipData(ship),
-                Position = ship.Position,
+                guid       = ship.guid,
+                data       = new ShipData(ship),
+                Position   = ship.Position,
                 experience = ship.experience,
-                kills = ship.kills,
-                Velocity = ship.Velocity
+                kills      = ship.kills,
+                Velocity   = ship.Velocity
 
             };
             if (ship.GetTether() != null)
