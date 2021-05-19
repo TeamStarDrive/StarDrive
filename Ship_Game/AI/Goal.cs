@@ -205,7 +205,8 @@ namespace Ship_Game.AI
         {
         }
 
-        public virtual bool IsRaid => false;
+        public virtual bool IsRaid    => false;
+        public virtual bool IsWarGoal => false;
 
         protected Goal(GoalType type)
         {
