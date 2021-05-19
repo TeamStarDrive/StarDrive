@@ -26,6 +26,7 @@ namespace Ship_Game
                 return;
 
             RemoveObject(shipSO);
+
             ActiveHull = new ShipData(hull);
             DesignedShip = new DesignShip(ActiveHull);
 

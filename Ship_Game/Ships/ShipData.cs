@@ -23,39 +23,40 @@ namespace Ship_Game.Ships
     //       However, we will have to support XML for a long time to have backwards compat.
     public sealed class ShipData
     {
-        public string ShipStyle;
-        public string EventOnDeath;
-        public byte experience;
-        public byte Level;
-        public string SelectionGraphic = "";
         public string Name; // ex: "Dodaving", just an arbitrary name
         public string ModName; // null if vanilla, else mod name eg "Combined Arms"
-        public bool HasFixedCost;
-        public short FixedCost;
+        public string ShipStyle; // "Terran"
+        public string Hull; // ID of the hull, ex: "Cordrazine/Dodaving"
+        public string IconPath; // "ShipIcons/shuttle"
+        public string ModelPath; // "Model/Ships/Terran/Shuttle/ship08"
+        
+        public byte Level;
+        public byte experience;
+
+        public string EventOnDeath;
+        public string SelectionGraphic = "";
+
+        public float MechanicalBoardingDefense;
         public float FixedUpkeep;
+        public short FixedCost;
+        public bool HasFixedCost;
         public bool HasFixedUpkeep;
         public bool Animated;
         public bool IsShipyard;
         public bool IsOrbitalDefense;
-        public string IconPath;
-        public CombatState CombatState;
-        public float MechanicalBoardingDefense;
-
-        public string Hull; // ID of the hull, ex: "Cordrazine/Dodaving"
-        public RoleName Role = RoleName.fighter;
-        public ShipToolScreen.ThrusterZone[] ThrusterList;
-        public string ModelPath;
-        public AIState DefaultAIState;
-        // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
-        public Category ShipCategory = Category.Unclassified;
-        public HangarOptions HangarDesignation = HangarOptions.General;
-
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip;
 
+        public CombatState CombatState;
+        public RoleName Role = RoleName.fighter;
+        public Category ShipCategory = Category.Unclassified;
+        public HangarOptions HangarDesignation = HangarOptions.General;
+        public AIState DefaultAIState;
+
+        public ThrusterZone[] ThrusterList;
+
         // Constant: total number of slots in this ShipData Template
         [XmlIgnore] [JsonIgnore] public int SurfaceArea;
-
         [XmlIgnore] [JsonIgnore] public float BaseStrength;
         [XmlArray(ElementName = "ModuleSlotList")] public ModuleSlotData[] ModuleSlots;
         [XmlIgnore] [JsonIgnore] public bool UnLockable;
@@ -67,11 +68,11 @@ namespace Ship_Game.Ships
         static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
         static readonly string[] CategoryArray = typeof(Category).GetEnumNames();
         [XmlIgnore] [JsonIgnore] public RoleName HullRole => BaseHull.Role;
-
         [XmlIgnore] [JsonIgnore] public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
 
         // BaseHull is the template layout of the ship hull design
         [XmlIgnore] [JsonIgnore] public ShipData BaseHull { get; internal set; }
+        [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }
 
         // Model path of the template hull layout
         [XmlIgnore] [JsonIgnore] public string HullModel => BaseHull.ModelPath;
@@ -81,12 +82,10 @@ namespace Ship_Game.Ships
 
         // You should always use this `Icon` property, because of bugs with `IconPath` initialization
         // when a ShipData is copied. @todo Fix ShipData copying
-        [XmlIgnore] [JsonIgnore] public SubTexture Icon => ResourceManager.Texture(ActualIconPath);
-        [XmlIgnore] [JsonIgnore] public string ActualIconPath => IconPath.NotEmpty() ? IconPath : BaseHull.IconPath;
-        [XmlIgnore] [JsonIgnore] public float ModelZ { get; private set; }
+        [XmlIgnore] [JsonIgnore] public SubTexture Icon => ResourceManager.Texture(IconPath);
         [XmlIgnore] [JsonIgnore] public Vector3 Volume { get; private set; }
         [XmlIgnore] [JsonIgnore] public float Radius { get; private set; }
-        [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }
+        [XmlIgnore] [JsonIgnore] public float ModelZ { get; private set; }
 
         public ShipData()
         {
@@ -133,6 +132,7 @@ namespace Ship_Game.Ships
             experience   = (byte)ship.experience;
 
             InitCommonState(ship.shipData);
+            FixMissingFields();
             ModuleSlots = ship.GetModuleSlotDataArray();
         }
 
@@ -141,7 +141,7 @@ namespace Ship_Game.Ships
             Hull              = hull.Hull;
             Role              = hull.Role;
             Animated          = hull.Animated;
-            IconPath          = hull.ActualIconPath;
+            IconPath          = hull.IconPath;
             IsShipyard        = hull.IsShipyard;
             IsOrbitalDefense  = hull.IsOrbitalDefense;
             ModelPath         = hull.HullModel;
@@ -161,6 +161,15 @@ namespace Ship_Game.Ships
             Volume = hull.Volume;
             Radius = hull.Radius;
             ModelZ = hull.ModelZ;
+        }
+
+        void FixMissingFields()
+        {
+            if (ShipStyle.IsEmpty())
+                ShipStyle = BaseHull.ShipStyle;
+
+            if (IconPath.IsEmpty())
+                IconPath = BaseHull.IconPath;
         }
 
         public void UpdateBaseHull()
@@ -198,6 +207,8 @@ namespace Ship_Game.Ships
                 Log.Warning(ConsoleColor.Red, $"ShipData {Hull} '{Name}' SurfaceArea mismatch: hull {SurfaceArea} != calculated {GetSurfaceArea()}");
             }
             #endif
+
+            FixMissingFields();
         }
 
         public override string ToString() { return Name; }
@@ -347,11 +358,11 @@ namespace Ship_Game.Ships
                     ship.ModuleSlots[i] = slot;
                 }
 
-                ship.ThrusterList = new ShipToolScreen.ThrusterZone[s->ThrustersLen];
+                ship.ThrusterList = new ThrusterZone[s->ThrustersLen];
                 for (int i = 0; i < s->ThrustersLen; ++i)
                 {
                     CThrusterZone* zone = &s->Thrusters[i];
-                    ship.ThrusterList[i] = new ShipToolScreen.ThrusterZone
+                    ship.ThrusterList[i] = new ThrusterZone
                     {
                         Position = new Vector3(zone->X, zone->Y, zone->Z),
                         Scale = zone->Scale
@@ -369,9 +380,8 @@ namespace Ship_Game.Ships
                     // make sure to calculate the surface area correctly
                     ship.SurfaceArea = ship.GetSurfaceArea();
 
-                    string dirName = info.Directory?.Name ?? "";
-                    ship.Hull      = dirName + "/" + ship.Hull;
-                    ship.ShipStyle = dirName;
+                    ship.ShipStyle = info.Directory?.Name ?? "";
+                    ship.Hull      = ship.ShipStyle + "/" + ship.Hull;
 
                     // Note: carrier role as written in the hull file was changed to battleship, since now carriers are a design role
                     // originally, carriers are battleships. The naming was poorly thought on 15b, or not fixed later.
@@ -556,6 +566,13 @@ namespace Ship_Game.Ships
             WarSupport,
             Troop,
             NotApplicable
+        }
+
+        public struct ThrusterZone
+        {
+            public Vector3 Position;
+            [XmlElement(ElementName = "scale")]
+            public float Scale;
         }
 
         public static RoleType ShipRoleToRoleType(RoleName role)
