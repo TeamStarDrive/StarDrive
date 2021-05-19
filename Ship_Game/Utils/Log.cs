@@ -691,27 +691,5 @@ namespace Ship_Game
             ShowWindow(GetConsoleWindow(), 0/*SW_HIDE*/);
             HasActiveConsole = false;
         }
-
-        static ConsoleColor ImportanceColor(Importance importance)
-        {
-            switch (importance)
-            {
-                case Importance.None:      return ConsoleColor.Cyan;
-                case Importance.Trivial:   return ConsoleColor.Green;
-                case Importance.Regular:   return ConsoleColor.White;
-                case Importance.Important: return ConsoleColor.Yellow;
-                case Importance.Critical:  return ConsoleColor.Red;
-                default: throw new ArgumentOutOfRangeException(nameof(importance), importance, null);
-            }
-        }
-
-        public enum Importance
-        {
-            None,
-            Trivial,
-            Regular,
-            Important,
-            Critical
-        }
     }
 }

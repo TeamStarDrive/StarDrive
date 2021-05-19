@@ -28,7 +28,6 @@ namespace Ship_Game
                 DrawTacticalOverlays(batch);
                 DrawModuleSelections();
                 DrawProjectedModuleRect();
-                DrawOverlapErrors(batch);
                 batch.End();
             }
 
@@ -178,15 +177,6 @@ namespace Ship_Game
             }
         }
 
-        void DrawOverlapErrors(SpriteBatch batch)
-        {
-            foreach (OverlapError oe in OverlappingModuleErrors)
-            {
-                batch.DrawRectangle(oe.Overlap, Color.Red, 1);
-                batch.DrawString(Fonts.Arial10, oe.Description, oe.Overlap.PosVec(), Color.Red);
-            }
-        }
-
         void DrawEmptySlots(SpriteBatch batch)
         {
             SubTexture concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
@@ -202,7 +192,7 @@ namespace Ship_Game
                 if (slot.Root.Module != null)
                     continue;
 
-                bool valid        = ActiveModule == null || slot.CanSlotSupportModule(ActiveModule);
+                bool valid = ActiveModule == null || slot.CanSlotSupportModule(ActiveModule);
                 Color activeColor = valid ? Color.LightGreen : Color.Red;
                 slot.Draw(batch, concreteGlass, activeColor);
                 if (slot.InPowerRadius)
@@ -228,41 +218,37 @@ namespace Ship_Game
                                   SlotStruct slot, Rectangle r, ShipModule template = null, float alpha = 1)
         {
             SpriteEffects effects = SpriteEffects.None;
-            float rotation        = 0f;
-            SubTexture texture    = template == null ? slot.Tex : ResourceManager.Texture(template.IconTexturePath);
-            int xSize             = template == null ? slot.Module.XSIZE * 16 : r.Width;
-            int ySize             = template == null ? slot.Module.YSIZE * 16 : r.Height;
+            float rotation = 0f;
+            SubTexture texture = template == null ? slot.Tex : ResourceManager.Texture(template.IconTexturePath);
+            int xSize = template == null ? slot.Module.XSIZE * 16 : r.Width;
+            int ySize = template == null ? slot.Module.YSIZE * 16 : r.Height;
+
+            bool rotatedTexture = (template ?? slot.Module).GetOrientedModuleTexture(ref texture, orientation);
 
             switch (orientation)
             {
-                case ModuleOrientation.Left when !HelperFunctions.GetOrientedModuleTexture(template ?? slot.Module, ref texture, orientation):
+                case ModuleOrientation.Left when !rotatedTexture:
                 {
-                    int w    = xSize;
-                    int h    = ySize;
-                    r.Width  = h; // swap width & height
-                    r.Height = w;
+                    r.Width  = ySize; // swap width & height
+                    r.Height = xSize;
                     rotation = -1.57079637f;
-                    r.Y     += h;
+                    r.Y += ySize;
                     break;
                 }
-                case ModuleOrientation.Right when !HelperFunctions.GetOrientedModuleTexture(template ?? slot.Module, ref texture, orientation):
+                case ModuleOrientation.Right when !rotatedTexture:
                 {
-                    int w    = ySize;
-                    int h    = xSize;
-                    r.Width  = w;
-                    r.Height = h;
+                    r.Width  = ySize;
+                    r.Height = xSize;
                     rotation = 1.57079637f;
-                    r.X     += h;
+                    r.X += xSize;
                     break;
                 }
-                case ModuleOrientation.Rear:
-                    HelperFunctions.GetOrientedModuleTexture(template ?? slot.Module, ref texture, orientation);
+                case ModuleOrientation.Rear when !rotatedTexture:
                     effects = SpriteEffects.FlipVertically;
                     break;
                 case ModuleOrientation.Normal:
-                    if (slot?.SlotReference.Position.X > 256f && slot.Module.ModuleType != ShipModuleType.PowerConduit)
+                    if (slot?.XMLPos.X > 256f && slot.Module.ModuleType != ShipModuleType.PowerConduit)
                         effects = SpriteEffects.FlipHorizontally;
-
                     break;
             }
 

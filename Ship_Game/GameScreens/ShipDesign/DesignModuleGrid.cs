@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -12,50 +11,67 @@ namespace Ship_Game
     // @todo Make this generic enough so that `SlotStruct` is no longer needed
     public class DesignModuleGrid
     {
-        private readonly SlotStruct[] Grid;
-        private readonly SlotStruct[] Slots;
-        private readonly int Width;
-        private readonly int Height;
-        private readonly Point Offset;
-        private int NumPowerChecks;
+        public readonly ShipData Hull;
+        readonly SlotStruct[] Grid;
+        readonly SlotStruct[] Slots;
+        readonly int Width;
+        readonly int Height;
+        readonly Point Offset;
+        int NumPowerChecks;
 
         public Action OnGridChanged;
 
-
         // this constructs a [GridWidth][GridHeight] array of current hull
         // and allows for quick lookup for neighbours
-        public DesignModuleGrid(ModuleSlotData[] slotData, Vector2 slotOffset)
+        public DesignModuleGrid(ShipData baseHull, Vector2 slotOffset)
         {
-            Slots = new SlotStruct[slotData.Length];
-            for (int i = 0; i < slotData.Length; ++i)
-                Slots[i] = new SlotStruct(slotData[i], slotOffset);
+            Hull = new ShipData(baseHull);
 
-            Point min = Slots[0].Position;
-            Point max = min;
-            foreach (SlotStruct slot in Slots)
+            // This must contain ALL empty slots
+            ModuleSlotData[] hullSlots = Hull.ModuleSlots;
+
+            var min = new Vector2(+4096, +4096);
+            var max = new Vector2(-4096, -4096);
+
+            for (int i = 0; i < hullSlots.Length; ++i)
             {
-                Point pos  = slot.Position;
-                Point size = slot.ModuleSize;
+                ModuleSlotData slot = hullSlots[i];
+                Vector2 pos = slot.Position + slotOffset - new Vector2(8,8);
+                Vector2 end = pos + new Vector2(16f, 16f);
                 if (pos.X < min.X) min.X = pos.X;
                 if (pos.Y < min.Y) min.Y = pos.Y;
-                if (pos.X+size.X > max.X) max.X = pos.X+size.X;
-                if (pos.Y+size.Y > max.Y) max.Y = pos.Y+size.Y;
+                if (end.X > max.X) max.X = end.X;
+                if (end.Y > max.Y) max.Y = end.Y;
             }
-
-            int width  = max.X - min.X;
-            int height = max.Y - min.Y;
-            Width  = width  / 16;
-            Height = height / 16;
-            Offset = min;
-
+            
+            Width  = (int)(max.X - min.X) / 16;
+            Height = (int)(max.Y - min.Y) / 16;
+            Offset = new Point((int)min.X, (int)min.Y);
             Grid = new SlotStruct[Width * Height];
-            foreach (SlotStruct slot in Slots)
+
+            Slots = new SlotStruct[hullSlots.Length];
+            for (int i = 0; i < hullSlots.Length; ++i)
             {
+                var slot = new SlotStruct(hullSlots[i], slotOffset);
+                Slots[i] = slot;
                 Point pt = ToGridPos(slot.Position);
                 Grid[pt.X + pt.Y * Width] = slot;
             }
+
+        #if DEBUG
+            ModuleGridUtils.DebugDumpGrid($"Debug/DesignModuleGrid/{Hull.Name}.HULL.txt",
+                        Grid, Width, Height, ModuleGridUtils.DumpFormat.SlotStructEmptyHull);
+        #endif
         }
-        
+
+        public void SaveDebugGrid()
+        {
+        #if DEBUG
+            ModuleGridUtils.DebugDumpGrid($"Debug/DesignModuleGrid/{Hull.Name}.txt",
+                        Grid, Width, Height, ModuleGridUtils.DumpFormat.SlotStruct);
+        #endif
+        }
+
         public int SlotsCount => Slots.Length;
         public IReadOnlyList<SlotStruct> SlotsList => Slots;
 
@@ -328,7 +344,8 @@ namespace Ship_Game
                     SlotStruct target = Grid[x + y * Width];
                     if (target == null)
                     {
-                        if (logFailure) Log.Warning($"Design slot {{{x},{y}}} does not exist in ship design layout");
+                        if (logFailure)
+                            Log.Warning($"Design slot {{{x},{y}}} does not exist in ship design layout");
                         return false;
                     }
                     if (!target.CanSlotSupportModule(module))
