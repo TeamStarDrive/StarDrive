@@ -1,20 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ship_Game.Ships
 {
     public class ModuleGridUtils
     {
-
-        public ModuleGridUtils(int gridWidth, int gridHeight)
-        {
-
-        }
-
         static string SafeSub(string s, int start, int count)
         {
             if (start >= s.Length) return PadCentered("", count);
@@ -23,67 +13,82 @@ namespace Ship_Game.Ships
             return s.Substring(start, count);
         }
 
-        static string PadCentered(string source, int length)
+        static string PadCentered(string source, int length, char paddingChar = ' ')
         {
             int spaces = length - source.Length;
             int padLeft = spaces/2 + source.Length;
-            return source.PadLeft(padLeft).PadRight(length);
+            return source.PadLeft(padLeft, paddingChar).PadRight(length, paddingChar);
         }
 
         public enum DumpFormat
         {
             ShipModule,
             SlotStruct,
+            SlotStructEmptyHull,
             InternalSlotsBool
+        }
+
+        static string[] EmptySlot(int width, int height)
+        {
+            var lines = new string[height];
+            for (int i = 0; i < height-1; ++i)
+                lines[i] = "|" + new string(' ', width);
+            lines[lines.Length-1] = "|" + new string('_', width);
+            return lines;
+        }
+        
+        static string[] GetModuleFormat7x4(ShipModule m)
+        {
+            if (m == null) return EmptySlot(7, 4);
+            return new []
+            {
+                "|"+PadCentered($"{m.Restrictions} {m.XSIZE}x{m.YSIZE}", 7),
+                "|"+SafeSub(m.UID, 0,  7),
+                "|"+SafeSub(m.UID, 7,  7),
+                "|"+SafeSub(m.UID, 14, 7)
+            };
+        }
+
+        static string[] GetSlotStructFormat(SlotStruct ss)
+        {
+            ss = ss?.Parent ?? ss;
+            if (ss == null)
+                return EmptySlot(7, 4);
+            if (ss.ModuleUID == null)
+                return GetSlotStructEmptyHullFormat(ss, 7, 4);
+            return GetModuleFormat7x4(ResourceManager.GetModuleTemplate(ss.ModuleUID));
+        }
+
+        static string[] GetSlotStructEmptyHullFormat(SlotStruct ss, int width, int height)
+        {
+            string[] lines = EmptySlot(width,height);
+            if (ss != null)
+            {
+                int middle = (height / 2) + (height % 2 == 0 ? -1 : 0);
+                lines[middle] = "|"+PadCentered(ss.Restrictions.ToString(), width);
+            }
+            return lines;
+        }
+
+        static string[] GetInternalSlotFormat(bool b)
+        {
+            return new []{ b ? " I " : " - " };
         }
 
         static Func<object, string[]> GetFormat(DumpFormat format)
         {
-            string[] EmptySlot()
-            {
-                return new []
-                {
-                    "|_____",
-                    "|_____",
-                    "|_____"
-                };
-            }
-
             switch (format)
             {
                 case DumpFormat.ShipModule:
-                    string[] GetModuleFormat(ShipModule m)
-                    {
-                        if (m == null)
-                            return EmptySlot();
-                        return new []
-                        {
-                            $"|_{m.XSIZE}x{m.YSIZE}_",
-                            $"|{SafeSub(m.UID,0,5)}",
-                            $"|{SafeSub(m.UID,5,5)}"
-                        };
-                    }
-                    return m => GetModuleFormat(m as ShipModule);
-
+                    return m => GetModuleFormat7x4(m as ShipModule);
                 case DumpFormat.SlotStruct:
-                    string[] GetSlotStructFormat(SlotStruct ss)
-                    {
-                        ss = ss?.Parent ?? ss;
-                        if (ss?.ModuleUID == null)
-                            return EmptySlot();
-                        ShipModule m = ResourceManager.GetModuleTemplate(ss.ModuleUID);
-                        return GetModuleFormat(m);
-                    }
                     return m => GetSlotStructFormat((SlotStruct)m);
-
+                case DumpFormat.SlotStructEmptyHull:
+                    return m => GetSlotStructEmptyHullFormat((SlotStruct)m, 5, 3);
                 case DumpFormat.InternalSlotsBool:
-                    string[] GetInternalSlotFormat(bool b)
-                    {
-                        return new []{ b ? " I " : " - " };
-                    }
                     return b => GetInternalSlotFormat((bool)b);
             }
-            return null;
+            throw new Exception("Invalid DumpFormat");
         }
 
         public static void DebugDumpGrid<T>(string fileName, T[] grid, 
@@ -132,6 +137,8 @@ namespace Ship_Game.Ships
                     }
                 }
             }
+
+            Log.Info($"Saved {fullPath}");
         }
     }
 }
