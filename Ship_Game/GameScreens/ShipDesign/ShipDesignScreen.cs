@@ -60,13 +60,6 @@ namespace Ship_Game
         CategoryDropDown CategoryList;
         HangarDesignationDropDown HangarOptionsList;
 
-        struct OverlapError
-        {
-            public Rectangle Overlap;
-            public string Description;
-        }
-        readonly List<OverlapError> OverlappingModuleErrors = new List<OverlapError>();
-
         bool ShowAllArcs;
         public bool ToggleOverlay = true;
         bool ShipSaved = true;
@@ -142,24 +135,11 @@ namespace Ship_Game
             }
             
             Vector2 position = WorldToDesignCoords(cursor) - Offset + new Vector2(8f, 8f);
-            var newSlot = new ModuleSlotData
-            {
-                Position = position,
-                Restrictions = Restrictions.IO
-            };
-
             var slots = new Array<ModuleSlotData>(ActiveHull.ModuleSlots);
-            slots.Add(newSlot);
-            slots.Sort((a, b) =>
-            {
-                Vector2 delta = a.Position - b.Position;
-                if (delta.X < 0f) return -1;
-                if (delta.X > 0f) return +1;
-                if (delta.Y < 0f) return -1;
-                if (delta.Y > 0f) return +1;
-                return 0;
-            });
+            slots.Add(new ModuleSlotData(position, Restrictions.IO));
             ActiveHull.ModuleSlots = slots.ToArray();
+            Array.Sort(ActiveHull.ModuleSlots, ModuleSlotData.Sorter);
+
             ChangeHull(ActiveHull); // rebuild the hull
         }
 
@@ -193,11 +173,7 @@ namespace Ship_Game
 
         public ShipModule CreateDesignModule(ShipModule template, ModuleOrientation orientation, float facing)
         {
-            ShipModule m = ShipModule.CreateNoParent(ResourceManager.GetModuleTemplate(template.UID),
-                                                     EmpireManager.Player, ActiveHull);
-            m.SetModuleFacing(m.XSIZE, m.YSIZE, orientation, facing);
-            m.hangarShipUID = m.IsTroopBay ? EmpireManager.Player.GetAssaultShuttleName() : template.hangarShipUID;
-            return m;
+            return ShipModule.CreateDesignModule(template, orientation, facing, ActiveHull);
         }
 
         public ShipModule CreateDesignModule(string uid, ModuleOrientation orientation, float facing)
@@ -364,29 +340,66 @@ namespace Ship_Game
         }
 
         DesignModuleGrid ModuleGrid;
-
-        void SetupSlots()
+        
+        public void ChangeHull(ShipData hull)
         {
-            ModuleGrid = new DesignModuleGrid(ActiveHull.ModuleSlots, Offset);
-            #if DEBUG
-            ModuleGrid.OnGridChanged = CheckForOverlappingModules;
-            #endif
+            if (hull == null)
+                return;
 
-            foreach (SlotStruct slot in ModuleGrid.SlotsList)
+            ModuleGrid = new DesignModuleGrid(hull, Offset);
+            ModuleGrid.OnGridChanged = UpdateDesignedShip;
+
+            ActiveHull = ModuleGrid.Hull;
+            DesignedShip = new DesignShip(ActiveHull);
+            
+            InstallModulesFromDesign();
+
+            CreateSOFromActiveHull();
+            BindListsToActiveHull();
+            OrdersButton.ResetButtons(DesignedShip);
+            UpdateCarrierShip();
+
+            // force modules list to reset itself, so if we change from Battleship to Fighter
+            // the available modules list is adjusted correctly
+            ModuleSelectComponent.SelectedIndex = -1;
+
+            ZoomCameraToEncloseHull(ActiveHull);
+
+            // TODO: remove DesignIssues from this page
+            InfoPanel.SetActiveDesign(DesignedShip);
+            IssuesPanel.SetActiveDesign(DesignedShip);
+        }
+
+        void UpdateDesignedShip()
+        {
+            DesignedShip?.UpdateDesign(CreateModuleSlots());
+        }
+
+        void InstallModulesFromDesign()
+        {
+            foreach (SlotStruct designSlot in ModuleGrid.SlotsList)
             {
-                string uid = slot.ModuleUID;
+                string uid = designSlot.ModuleUID;
                 if (uid == null || uid == "Dummy") // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
                     continue;
 
-                ShipModule newModule = CreateDesignModule(slot.ModuleUID, slot.Orientation, slot.Facing);
-                if (!ModuleGrid.ModuleFitsAtSlot(slot, newModule, logFailure: true))
+                if (!ModuleGrid.Get(designSlot.Position, out SlotStruct targetSlot))
+                {
+                    Log.Warning($"DesignModuleGrid failed to find Slot at {designSlot.Position}");
+                    continue;
+                }
+
+                ShipModule newModule = CreateDesignModule(designSlot.ModuleUID, designSlot.Orientation, designSlot.Facing);
+                if (!ModuleGrid.ModuleFitsAtSlot(targetSlot, newModule, logFailure: true))
                     continue;
 
-                ModuleGrid.InstallModule(slot, newModule, slot.Orientation);
+                ModuleGrid.InstallModule(targetSlot, newModule, designSlot.Orientation);
 
-                if (slot.Module?.ModuleType == ShipModuleType.Hangar)
-                    slot.Module.hangarShipUID = slot.SlotOptions;
+                if (designSlot.Module?.ModuleType == ShipModuleType.Hangar)
+                    designSlot.Module.hangarShipUID = designSlot.SlotOptions;
             }
+
+            ModuleGrid.SaveDebugGrid();
 
             OnDesignChanged(false);
             ResetActiveModule();
@@ -439,41 +452,7 @@ namespace Ship_Game
             CameraPosition.Z = (OriginalZ / Camera.Zoom);
             UpdateViewMatrix(CameraPosition);
 
-            DesignedShip?.UpdateDesign(CreateModuleSlots());
-
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
-        }
-
-        void CheckForOverlappingModules()
-        {
-            OverlappingModuleErrors.Clear();
-
-            var slots = ModuleGrid.SlotsList;
-            for (int i = 0; i < slots.Count; ++i)
-            {
-                SlotStruct a = slots[i];
-                ShipModule ma = a.Module;
-                if (ma == null)
-                    continue;
-
-                var ra = new Rectangle(a.Position.X, a.Position.Y, ma.XSIZE * 16, ma.YSIZE * 16);
-                for (int j = i + 1; j < slots.Count; ++j)
-                {
-                    SlotStruct b = slots[j];
-                    ShipModule mb = a.Module;
-                    if (mb == null || mb == ma)
-                        continue;
-                    
-                    var rb = new Rectangle(b.Position.X, b.Position.Y, mb.XSIZE * 16, mb.YSIZE * 16);
-                    if (ra.GetIntersectingRect(rb, out Rectangle overlap))
-                    {
-                        string ShortInfo(ShipModule m) => $"{m.UID} {m.XSIZE}x{m.YSIZE}";
-                        string desc = $"{ShortInfo(ma)} overlaps {ShortInfo(mb)}";
-                        Log.Warning(ConsoleColor.Red, desc);
-                        OverlappingModuleErrors.Add(new OverlapError{ Overlap = overlap, Description = desc });
-                    }
-                }
-            }
         }
 
         enum SlotModOperation
