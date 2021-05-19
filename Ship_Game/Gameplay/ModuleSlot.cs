@@ -160,6 +160,10 @@ namespace Ship_Game.Gameplay
         /// </summary>
         public static int Sorter(ModuleSlotData a, ModuleSlotData b)
         {
+            // Array.Sort bug in .NET 4.5.2:
+            if (object.ReferenceEquals(a, b))
+                return 0;
+
             // first by scanline (Y axis)
             if (a.Position.Y < b.Position.Y) return -1;
             if (a.Position.Y > b.Position.Y) return +1;
@@ -169,7 +173,8 @@ namespace Ship_Game.Gameplay
             if (a.Position.X > b.Position.X) return +1;
 
             // they are equal?? this must not happen for valid designs
-            Log.Error($"Slots a={a.Position} {a.ModuleUID} and b={b.Position} {b.ModuleUID} have overlapping positions");
+            Log.Error($"Slots a={a.Position} {a.ModuleUID} {a.Restrictions} and "+
+                      $"b={b.Position} {b.ModuleUID} {b.Restrictions} have overlapping positions");
             return 0;
         }
     }
