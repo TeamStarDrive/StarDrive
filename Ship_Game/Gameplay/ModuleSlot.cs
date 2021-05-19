@@ -32,47 +32,58 @@ namespace Ship_Game.Gameplay
 
         public Guid HangarshipGuid;
 
-        public override string ToString() => $"{ModuleUID} {Position} {Facing} {Restrictions} T={ModuleOrNull}";
+        /// -------------------------------
 
-        [XmlIgnore] [JsonIgnore]
-        public bool IsDummy => ModuleUID == null || ModuleUID == "Dummy";
-
-        [XmlIgnore] [JsonIgnore]
-        public ShipModule ModuleOrNull => ModuleUID != null && ModuleUID != "Dummy" && 
-                                          ResourceManager.GetModuleTemplate(ModuleUID, out ShipModule m) ? m : null;
-
-        [XmlIgnore] [JsonIgnore]
-        public Point PosAsPoint => new Point((int)Position.X, (int)Position.Y);
-
+        // Avoid calling the default constructor
+        // This is only for the serializer
         public ModuleSlotData()
         {
         }
 
         // New Empty Slot
-        public ModuleSlotData(Vector2 position, Restrictions restrictions)
+        public ModuleSlotData(Vector2 xmlPos, Restrictions restrictions)
         {
-            Position = position;
+            Position = xmlPos;
             Restrictions = restrictions;
+        }
+        
+        // This is the most correct way to create a new ModuleSlotData instance
+        // With initial position, restrictions, etc.
+        // Excluding 
+        public ModuleSlotData(Vector2 xmlPos,
+                              Restrictions restrictions,
+                              string moduleUid, float facing,
+                              string orientation,
+                              string slotOptions = null)
+        {
+            Position     = xmlPos;
+            Restrictions = restrictions;
+            ModuleUID    = moduleUid;
+            Facing       = facing;
+            Orientation  = orientation;
+            SlotOptions  = slotOptions;
         }
 
         // Save ShipModule as ModuleSlotData for Savegame
         public ModuleSlotData(ShipModule module)
+            : this(xmlPos:       module.XMLPosition,
+                   restrictions: module.Restrictions,
+                   moduleUid:    module.UID,
+                   facing:       module.FacingDegrees,
+                   orientation:  module.Orientation.ToString())
         {
-            Position     = module.XMLPosition;
-            Restrictions = module.Restrictions;
-            ModuleUID    = module.UID;
             Health       = module.Health;
             ShieldPower  = module.ShieldPower;
-            Facing       = module.FacingDegrees;
-            Orientation  = module.Orientation.ToString();
 
             if (module.TryGetHangarShip(out Ship hangarShip))
                 HangarshipGuid = hangarShip.guid;
 
             if (module.ModuleType == ShipModuleType.Hangar)
+            {
                 SlotOptions = module.DynamicHangar == DynamicHangarOptions.Static
                             ? module.hangarShipUID
                             : module.DynamicHangar.ToString();
+            }
         }
 
         // Save SlotStruct as ModuleSlotData in ShipDesignScreen
@@ -84,11 +95,25 @@ namespace Ship_Game.Gameplay
             Orientation  = slot.Orientation.ToString();
             if (slot.Module != null)
             {
-                slot.Facing = slot.Module.FacingDegrees;
+                if (slot.Module.UID.Contains("VulcanCannon"))
+                    Log.Warning("VC");
+                Facing = slot.Module.FacingDegrees;
                 if (slot.Module.ModuleType == ShipModuleType.Hangar)
-                    slot.SlotOptions = slot.Module.hangarShipUID;
+                    SlotOptions = slot.Module.hangarShipUID;
             }
         }
+
+        public override string ToString() => $"{ModuleUID} {Position} {Facing} {Restrictions} T={ModuleOrNull}";
+
+        [XmlIgnore] [JsonIgnore]
+        public bool IsDummy => ModuleUID == null || ModuleUID == "Dummy";
+
+        [XmlIgnore] [JsonIgnore]
+        public ShipModule ModuleOrNull => ModuleUID != null && ModuleUID != "Dummy" && 
+                                          ResourceManager.GetModuleTemplate(ModuleUID, out ShipModule m) ? m : null;
+
+        [XmlIgnore] [JsonIgnore]
+        public Point PosAsPoint => new Point((int)Position.X, (int)Position.Y);
 
         public ModuleOrientation GetOrientation()
         {
@@ -108,30 +133,6 @@ namespace Ship_Game.Gameplay
                 && HangarshipGuid == s.HangarshipGuid;
         }
 
-        public Point GetModuleSize()
-        {
-            ShipModule m = ModuleOrNull;
-            if (m != null)
-            {
-                switch (GetOrientation())
-                {
-                    case ModuleOrientation.Normal:
-                    case ModuleOrientation.Rear:
-                        return new Point(m.XSIZE, m.YSIZE);
-                    case ModuleOrientation.Left:
-                    case ModuleOrientation.Right:
-                        return new Point(m.YSIZE, m.XSIZE);
-                }
-            }
-            return new Point(1, 1);
-        }
-
-        public Vector2 GetModuleSizeF()
-        {
-            Point size = GetModuleSize();
-            return new Vector2(size.X * 16f, size.Y * 16f);
-        }
-
         public ModuleSlotData GetClone()
         {
             return (ModuleSlotData)MemberwiseClone();
@@ -142,15 +143,34 @@ namespace Ship_Game.Gameplay
         /// </summary>
         public ModuleSlotData GetStatelessClone()
         {
-            return new ModuleSlotData
-            {
-                Position     = Position,
-                Restrictions = Restrictions,
-                ModuleUID    = ModuleUID,
-                Facing       = Facing,
-                Orientation  = Orientation,
-                SlotOptions  = SlotOptions
-            };
+            return new ModuleSlotData(
+                xmlPos: Position,
+                restrictions: Restrictions,
+                moduleUid: ModuleUID,
+                facing: Facing,
+                orientation: Orientation,
+                slotOptions: SlotOptions
+            );
+        }
+
+        /// <summary>
+        /// Sorter for ModuleSlotData[], orders ModuleSlots grid in scanline order:
+        /// 0 1 2 3
+        /// 4 5 6 7
+        /// </summary>
+        public static int Sorter(ModuleSlotData a, ModuleSlotData b)
+        {
+            // first by scanline (Y axis)
+            if (a.Position.Y < b.Position.Y) return -1;
+            if (a.Position.Y > b.Position.Y) return +1;
+
+            // and then sort by column (X axis)
+            if (a.Position.X < b.Position.X) return -1;
+            if (a.Position.X > b.Position.X) return +1;
+
+            // they are equal?? this must not happen for valid designs
+            Log.Error($"Slots a={a.Position} {a.ModuleUID} and b={b.Position} {b.ModuleUID} have overlapping positions");
+            return 0;
         }
     }
 }

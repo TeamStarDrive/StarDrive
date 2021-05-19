@@ -137,16 +137,9 @@ namespace Ship_Game
             Vector2 position = WorldToDesignCoords(cursor) - Offset + new Vector2(8f, 8f);
             var slots = new Array<ModuleSlotData>(ActiveHull.ModuleSlots);
             slots.Add(new ModuleSlotData(position, Restrictions.IO));
-            slots.Sort((a, b) =>
-            {
-                Vector2 delta = a.Position - b.Position;
-                if (delta.X < 0f) return -1;
-                if (delta.X > 0f) return +1;
-                if (delta.Y < 0f) return -1;
-                if (delta.Y > 0f) return +1;
-                return 0;
-            });
             ActiveHull.ModuleSlots = slots.ToArray();
+            Array.Sort(ActiveHull.ModuleSlots, ModuleSlotData.Sorter);
+
             ChangeHull(ActiveHull); // rebuild the hull
         }
 
@@ -180,11 +173,7 @@ namespace Ship_Game
 
         public ShipModule CreateDesignModule(ShipModule template, ModuleOrientation orientation, float facing)
         {
-            ShipModule m = ShipModule.CreateNoParent(ResourceManager.GetModuleTemplate(template.UID),
-                                                     EmpireManager.Player, ActiveHull);
-            m.SetModuleFacing(m.XSIZE, m.YSIZE, orientation, facing);
-            m.hangarShipUID = m.IsTroopBay ? EmpireManager.Player.GetAssaultShuttleName() : template.hangarShipUID;
-            return m;
+            return ShipModule.CreateDesignModule(template, orientation, facing, ActiveHull);
         }
 
         public ShipModule CreateDesignModule(string uid, ModuleOrientation orientation, float facing)
@@ -358,6 +347,8 @@ namespace Ship_Game
                 return;
 
             ModuleGrid = new DesignModuleGrid(hull, Offset);
+            ModuleGrid.OnGridChanged = UpdateDesignedShip;
+
             ActiveHull = ModuleGrid.Hull;
             DesignedShip = new DesignShip(ActiveHull);
             
@@ -377,6 +368,11 @@ namespace Ship_Game
             // TODO: remove DesignIssues from this page
             InfoPanel.SetActiveDesign(DesignedShip);
             IssuesPanel.SetActiveDesign(DesignedShip);
+        }
+
+        void UpdateDesignedShip()
+        {
+            DesignedShip?.UpdateDesign(CreateModuleSlots());
         }
 
         void InstallModulesFromDesign()
@@ -455,8 +451,6 @@ namespace Ship_Game
 
             CameraPosition.Z = (OriginalZ / Camera.Zoom);
             UpdateViewMatrix(CameraPosition);
-
-            DesignedShip?.UpdateDesign(CreateModuleSlots());
 
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }

@@ -103,7 +103,7 @@ namespace Ship_Game.Ships
                 case DumpFormat.SlotStruct:
                     return m => GetSlotStructFormat((SlotStruct)m);
                 case DumpFormat.SlotStructEmptyHull:
-                    return m => GetSlotStructEmptyHullFormat((SlotStruct)m, 5, 3);
+                    return m => GetSlotStructEmptyHullFormat((SlotStruct)m, 3, 1);
                 case DumpFormat.InternalSlotsBool:
                     return b => GetInternalSlotFormat((bool)b);
             }
