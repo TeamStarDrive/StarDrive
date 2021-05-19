@@ -402,9 +402,9 @@ namespace Ship_Game.Ships
         }
 
         // this is used during Ship creation, Ship template creation or Ship loading from save
-        public static ShipModule Create(string uid, Ship parent, ModuleSlotData slot, bool isTemplate, bool fromSave)
+        public static ShipModule Create(ModuleSlotData slot, Ship parent, bool isTemplate, bool fromSave)
         {
-            ShipModule template = ResourceManager.GetModuleTemplate(uid);
+            ShipModule template = ResourceManager.GetModuleTemplate(slot.ModuleUID);
             ShipModule module = CreateNoParent(template, parent.loyalty, parent.shipData);
             module.Parent = parent;
             module.SetModuleFacing(module.XSIZE, module.YSIZE, slot.GetOrientation(), slot.Facing);
@@ -415,7 +415,18 @@ namespace Ship_Game.Ships
                 module.ShieldPower = slot.ShieldPower;
                 module.SetHealth(slot.Health, fromSave: true);
             }
+            module.HangarShipGuid = slot.HangarshipGuid;
+            module.hangarShipUID  = slot.SlotOptions;
             return module;
+        }
+
+        public static ShipModule CreateDesignModule(ShipModule template, ModuleOrientation orientation, 
+                                                    float facing, ShipData hull)
+        {
+            ShipModule m = CreateNoParent(template, EmpireManager.Player, hull);
+            m.SetModuleFacing(m.XSIZE, m.YSIZE, orientation, facing);
+            m.hangarShipUID = m.IsTroopBay ? EmpireManager.Player.GetAssaultShuttleName() : template.hangarShipUID;
+            return m;
         }
 
         public const float ModuleSlotOffset = 264f;
@@ -1395,15 +1406,21 @@ namespace Ship_Game.Ships
                 return false;
 
             string defaultTex = IconTexturePath;
+            SubTexture t;
             switch (orientation)
             {
                 default: return false;
-                case ModuleOrientation.Left:  tex = ResourceManager.TextureOrNull($"{defaultTex}_270"); break;
-                case ModuleOrientation.Right: tex = ResourceManager.TextureOrNull($"{defaultTex}_90");  break;
-                case ModuleOrientation.Rear:  tex = ResourceManager.TextureOrNull($"{defaultTex}_180"); break;
+                case ModuleOrientation.Left:  t = ResourceManager.TextureOrNull($"{defaultTex}_270"); break;
+                case ModuleOrientation.Right: t = ResourceManager.TextureOrNull($"{defaultTex}_90");  break;
+                case ModuleOrientation.Rear:  t = ResourceManager.TextureOrNull($"{defaultTex}_180"); break;
             }
 
-            return tex != null;
+            if (t != null)
+            {
+                tex = t;
+                return true;
+            }
+            return false;
         }
 
         public override Vector2 JammingError()
