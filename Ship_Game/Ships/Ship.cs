@@ -842,12 +842,12 @@ namespace Ship_Game.Ships
                 ShipModule module = ModuleSlotList[i];
                 var data = new ModuleSlotData
                 {
-                    Position           = module.XMLPosition,
-                    ModuleUID = module.UID,
-                    Health             = module.Health,
-                    ShieldPower        = module.ShieldPower,
-                    Facing             = module.FacingDegrees,
-                    Restrictions       = module.Restrictions
+                    Position     = module.XMLPosition,
+                    ModuleUID    = module.UID,
+                    Health       = module.Health,
+                    ShieldPower  = module.ShieldPower,
+                    Facing       = module.FacingDegrees,
+                    Restrictions = module.Restrictions
                 };
 
                 if (module.TryGetHangarShip(out Ship hangarShip))

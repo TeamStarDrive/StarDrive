@@ -411,8 +411,8 @@ namespace Ship_Game.Ships
             module.Initialize(slot.Position, isTemplate);
             if (fromSave)
             {
-                module.Active                = slot.Health > 0.01f;
-                module.ShieldPower           = slot.ShieldPower;
+                module.Active = slot.Health > 0.01f;
+                module.ShieldPower = slot.ShieldPower;
                 module.SetHealth(slot.Health, fromSave: true);
             }
             return module;

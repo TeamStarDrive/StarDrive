@@ -357,26 +357,56 @@ namespace Ship_Game
         }
 
         DesignModuleGrid ModuleGrid;
-
-        void SetupSlots()
+        
+        public void ChangeHull(ShipData hull)
         {
-            ModuleGrid = new DesignModuleGrid(ActiveHull, Offset);
-            SlotStruct[] slots = ActiveHull.ModuleSlots.Select(data => new SlotStruct(data, Offset));
+            if (hull == null)
+                return;
 
-            foreach (SlotStruct slot in slots)
+            ModuleGrid = new DesignModuleGrid(hull, Offset);
+            ActiveHull = ModuleGrid.Hull;
+            DesignedShip = new DesignShip(ActiveHull);
+            
+            InstallModulesFromDesign();
+
+            CreateSOFromActiveHull();
+            BindListsToActiveHull();
+            OrdersButton.ResetButtons(DesignedShip);
+            UpdateCarrierShip();
+
+            // force modules list to reset itself, so if we change from Battleship to Fighter
+            // the available modules list is adjusted correctly
+            ModuleSelectComponent.SelectedIndex = -1;
+
+            ZoomCameraToEncloseHull(ActiveHull);
+
+            // TODO: remove DesignIssues from this page
+            InfoPanel.SetActiveDesign(DesignedShip);
+            IssuesPanel.SetActiveDesign(DesignedShip);
+        }
+
+        void InstallModulesFromDesign()
+        {
+            foreach (SlotStruct designSlot in ModuleGrid.SlotsList)
             {
-                string uid = slot.ModuleUID;
+                string uid = designSlot.ModuleUID;
                 if (uid == null || uid == "Dummy") // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
                     continue;
 
-                ShipModule newModule = CreateDesignModule(slot.ModuleUID, slot.Orientation, slot.Facing);
-                if (!ModuleGrid.ModuleFitsAtSlot(slot, newModule, logFailure: true))
+                if (!ModuleGrid.Get(designSlot.Position, out SlotStruct targetSlot))
+                {
+                    Log.Warning($"DesignModuleGrid failed to find Slot at {designSlot.Position}");
+                    continue;
+                }
+
+                ShipModule newModule = CreateDesignModule(designSlot.ModuleUID, designSlot.Orientation, designSlot.Facing);
+                if (!ModuleGrid.ModuleFitsAtSlot(targetSlot, newModule, logFailure: true))
                     continue;
 
-                ModuleGrid.InstallModule(slot, newModule, slot.Orientation);
+                ModuleGrid.InstallModule(targetSlot, newModule, designSlot.Orientation);
 
-                if (slot.Module?.ModuleType == ShipModuleType.Hangar)
-                    slot.Module.hangarShipUID = slot.SlotOptions;
+                if (designSlot.Module?.ModuleType == ShipModuleType.Hangar)
+                    designSlot.Module.hangarShipUID = designSlot.SlotOptions;
             }
 
             ModuleGrid.SaveDebugGrid();
