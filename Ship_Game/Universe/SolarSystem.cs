@@ -247,8 +247,14 @@ namespace Ship_Game
                 for (int i = 0; i < PlanetList.Count; i++)
                 {
                     Planet planet = PlanetList[i];
-                    if (ship.Position.InRadius(planet.Center, planet.GravityWellRadius))
-                        return planet;
+
+                    bool unblockedPlanet = planet.Owner != null && (planet.Owner == ship.loyalty || planet.Owner.IsOpenBordersTreaty(ship.loyalty));
+                    unblockedPlanet |= planet.Owner == null && ship.IsInFriendlyProjectorRange;
+
+                    bool checkGravityWell = !unblockedPlanet;
+                    
+                    if (checkGravityWell && ship.Position.InRadius(planet.Center, planet.GravityWellRadius))
+                            return planet;
                 }
             }
             return null;
