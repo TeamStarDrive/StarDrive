@@ -43,11 +43,11 @@ namespace Ship_Game
         public override string ToString()
         {
             if (Parent == null)
-                return $"{Module?.UID} {Position} F:{Facing} R:{Restrictions}";
+                return $"{Module?.UID} {Position} R:{Restrictions} F:{Facing} O:{Orientation}";
 
             // @note Don't call Parent.ToString(), or we might get a stack overflow
-            string parent = $"{Parent.Position} F:{Parent.Facing} R:{Parent.Restrictions}";
-            return $"{Position} F:{Facing} R:{Restrictions}   Parent={{{parent}}}";
+            string parent = $"{Parent.Position} R:{Parent.Restrictions} F:{Parent.Facing} O:{Orientation}";
+            return $"{Position} R:{Restrictions} F:{Facing} O:{Orientation}   Parent={{{parent}}}";
         }
 
 

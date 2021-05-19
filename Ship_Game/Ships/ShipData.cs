@@ -143,7 +143,7 @@ namespace Ship_Game.Ships
         }
 
         // Make ShipData from an actual ship
-        // This is used during Serialization (Save)
+        // This is used during Saving for ShipSaveData
         public ShipData(Ship ship)
         {
             Name        = ship.Name;

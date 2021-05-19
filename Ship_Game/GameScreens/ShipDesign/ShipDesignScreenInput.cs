@@ -708,27 +708,14 @@ namespace Ship_Game
             ShipSaved = true;
         }
 
+        // Create full modules list
         ModuleSlotData[] CreateModuleSlots()
         {
             int count = ModuleGrid.SlotsCount;
             var savedSlots = new ModuleSlotData[count];
             for (int i = 0; i < count; ++i)
             {
-                SlotStruct slot = ModuleGrid.SlotsList[i];
-                var savedSlot = new ModuleSlotData
-                {
-                    ModuleUID = slot.ModuleUID,
-                    Position = slot.XMLPos,
-                    Restrictions = slot.Restrictions,
-                    Orientation = slot.Orientation.ToString()
-                };
-                if (slot.Module != null)
-                {
-                    savedSlot.Facing = slot.Module.FacingDegrees;
-                    if (slot.Module.ModuleType == ShipModuleType.Hangar)
-                        savedSlot.SlotOptions = slot.Module.hangarShipUID;
-                }
-                savedSlots[i] = savedSlot;
+                savedSlots[i] = new ModuleSlotData(ModuleGrid.SlotsList[i]);
             }
             return savedSlots;
         }

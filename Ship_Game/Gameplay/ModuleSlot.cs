@@ -2,6 +2,7 @@ using System;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using Ship_Game.AI;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Gameplay
@@ -43,6 +44,52 @@ namespace Ship_Game.Gameplay
         [XmlIgnore] [JsonIgnore]
         public Point PosAsPoint => new Point((int)Position.X, (int)Position.Y);
 
+        public ModuleSlotData()
+        {
+        }
+
+        // New Empty Slot
+        public ModuleSlotData(Vector2 position, Restrictions restrictions)
+        {
+            Position = position;
+            Restrictions = restrictions;
+        }
+
+        // Save ShipModule as ModuleSlotData for Savegame
+        public ModuleSlotData(ShipModule module)
+        {
+            Position     = module.XMLPosition;
+            Restrictions = module.Restrictions;
+            ModuleUID    = module.UID;
+            Health       = module.Health;
+            ShieldPower  = module.ShieldPower;
+            Facing       = module.FacingDegrees;
+            Orientation  = module.Orientation.ToString();
+
+            if (module.TryGetHangarShip(out Ship hangarShip))
+                HangarshipGuid = hangarShip.guid;
+
+            if (module.ModuleType == ShipModuleType.Hangar)
+                SlotOptions = module.DynamicHangar == DynamicHangarOptions.Static
+                            ? module.hangarShipUID
+                            : module.DynamicHangar.ToString();
+        }
+
+        // Save SlotStruct as ModuleSlotData in ShipDesignScreen
+        public ModuleSlotData(SlotStruct slot)
+        {
+            Position     = slot.XMLPos;
+            Restrictions = slot.Restrictions;
+            ModuleUID    = slot.ModuleUID;
+            Orientation  = slot.Orientation.ToString();
+            if (slot.Module != null)
+            {
+                slot.Facing = slot.Module.FacingDegrees;
+                if (slot.Module.ModuleType == ShipModuleType.Hangar)
+                    slot.SlotOptions = slot.Module.hangarShipUID;
+            }
+        }
+
         public ModuleOrientation GetOrientation()
         {
             if (Orientation.NotEmpty() && Orientation != "Normal")
@@ -53,12 +100,12 @@ namespace Ship_Game.Gameplay
         public bool Equals(ModuleSlotData s)
         {
             return Position == s.Position
+                && Restrictions == s.Restrictions
                 && ModuleUID == s.ModuleUID
-                && HangarshipGuid == s.HangarshipGuid
                 && Facing == s.Facing
                 && Orientation == s.Orientation
-                && Restrictions == s.Restrictions
-                && SlotOptions == s.SlotOptions;
+                && SlotOptions == s.SlotOptions
+                && HangarshipGuid == s.HangarshipGuid;
         }
 
         public Point GetModuleSize()

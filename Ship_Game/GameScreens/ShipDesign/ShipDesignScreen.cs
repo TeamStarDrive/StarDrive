@@ -135,14 +135,8 @@ namespace Ship_Game
             }
             
             Vector2 position = WorldToDesignCoords(cursor) - Offset + new Vector2(8f, 8f);
-            var newSlot = new ModuleSlotData
-            {
-                Position = position,
-                Restrictions = Restrictions.IO
-            };
-
             var slots = new Array<ModuleSlotData>(ActiveHull.ModuleSlots);
-            slots.Add(newSlot);
+            slots.Add(new ModuleSlotData(position, Restrictions.IO));
             slots.Sort((a, b) =>
             {
                 Vector2 delta = a.Position - b.Position;
