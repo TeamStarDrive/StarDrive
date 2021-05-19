@@ -127,9 +127,7 @@ namespace Ship_Game.Ships
                 if (uid == "Dummy" || uid == null)
                     continue;
 
-                ShipModule module = ShipModule.Create(uid, this, slotData, isTemplate, fromSave);
-                module.HangarShipGuid   = slotData.HangarshipGuid;
-                module.hangarShipUID    = slotData.SlotOptions;
+                var module = ShipModule.Create(slotData, this, isTemplate, fromSave);
                 ModuleSlotList[count++] = module;
             }
 

@@ -75,11 +75,8 @@ namespace Ship_Game
 
         void CreateSOFromActiveHull()
         {
-            if (shipSO != null)
-                RemoveObject(shipSO);
-
+            RemoveObject(shipSO);
             shipSO = StaticMesh.GetSceneMesh(TransientContent, ActiveHull.ModelPath, ActiveHull.Animated);
-
             AddObject(shipSO);
         }
 
@@ -757,7 +754,7 @@ namespace Ship_Game
 
             Ship newTemplate = ResourceManager.AddShipTemplate(toSave, fromSave: false, playerDesign: true);
             EmpireManager.Player.UpdateShipsWeCanBuild();
-            if (!EmpireManager.Player.WeCanBuildThis(newTemplate.Name))
+            if (!UnlockAllFactionDesigns && !EmpireManager.Player.WeCanBuildThis(newTemplate.Name))
                 Log.Error("WeCanBuildThis check failed after SaveShipDesign");
             ChangeHull(newTemplate.shipData);
         }

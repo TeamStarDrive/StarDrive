@@ -125,21 +125,9 @@ namespace Ship_Game.Ships
                     slotsMap[position] = base1x1slot.GetStatelessClone();
             }
 
-            // take all unique slots and sort them by X and then by Y
+            // take all unique slots and sort them according to ModuleSlotData.Sorter rules
             ModuleSlots = slotsMap.Values.ToArray();
-            Array.Sort(ModuleSlots, (a, b) =>
-            {
-                // first by X axis
-                if (a.Position.X < b.Position.X) return -1;
-                if (a.Position.X > b.Position.X) return +1;
-                // and then by Y axis
-                if (a.Position.Y < b.Position.Y) return -1;
-                if (a.Position.Y > b.Position.Y) return +1;
-
-                // they are equal?? this must not happen
-                Log.Error($"Slots a={a.Position} {a.ModuleUID} and b={b.Position} {b.ModuleUID} have overlapping positions");
-                return 0;
-            });
+            Array.Sort(ModuleSlots, ModuleSlotData.Sorter);
         }
 
         // Make ShipData from an actual ship
@@ -359,19 +347,27 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < s->ModuleSlotsLen; ++i)
                 {
                     CModuleSlot* msd = &s->ModuleSlots[i];
-                    var slot = new ModuleSlotData();
-                    slot.Position = new Vector2(msd->PosX, msd->PosY);
-                    // @note Interning the strings saves us roughly 70MB of RAM across all UID-s
-                    slot.ModuleUID = msd->InstalledModuleUID.AsInternedOrNull; // must be interned
+                    Enum.TryParse(msd->Restrictions.AsString, out Restrictions restrictions);
+                    var slot = new ModuleSlotData(
+                        xmlPos: new Vector2(msd->PosX, msd->PosY),
+                        restrictions: restrictions,
+                        // @note Interning the strings saves us roughly 70MB of RAM across all UID-s
+                        moduleUid: msd->InstalledModuleUID.AsInternedOrNull, // must be interned
+                        facing: msd->Facing,
+                        orientation: msd->State.AsInterned,
+                        // slot options can be:
+                        // "NotApplicable", "Ftr-Plasma Tentacle", "Vulcan Scout", ... etc.
+                        // It's a general purpose "whatever" sink, however it's used very frequently
+                        slotOptions: msd->SlotOptions.AsInterned
+                    );
                     slot.Health      = msd->Health;
                     slot.ShieldPower = msd->ShieldPower;
-                    slot.Facing      = msd->Facing;
-                    Enum.TryParse(msd->Restrictions.AsString, out slot.Restrictions);
-                    slot.Orientation = msd->State.AsInterned;
-                    // slot options can be:
-                    // "NotApplicable", "Ftr-Plasma Tentacle", "Vulcan Scout", ... etc.
-                    // It's a general purpose "whatever" sink, however it's used very frequently
-                    slot.SlotOptions = msd->SlotOptions.AsInterned;
+                    if (msd->HangarshipGuid.NotEmpty)
+                    {
+                        string guid = msd->HangarshipGuid.AsString;
+                        if (guid != "00000000-0000-0000-0000-000000000000")
+                            slot.HangarshipGuid = Guid.Parse(guid);
+                    }
                     ship.ModuleSlots[i] = slot;
                 }
 
