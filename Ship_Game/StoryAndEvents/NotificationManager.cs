@@ -457,7 +457,7 @@ namespace Ship_Game
             if (s != null)
             {
                 recover.ReferencedItem1 = s;
-                recover.IconPath        = s.shipData.BaseHull.ActualIconPath;
+                recover.IconPath        = s.shipData.BaseHull.IconPath;
                 recover.Action          = "SnapToShip";
             }
             else
@@ -590,7 +590,7 @@ namespace Ship_Game
                 Message         = message,
                 Action          = "SnapToShip",
                 ReferencedItem1 = s,
-                IconPath        = s.BaseHull.ActualIconPath
+                IconPath        = s.BaseHull.IconPath
             }, "sd_ui_notification_encounter"); ;
         }
 

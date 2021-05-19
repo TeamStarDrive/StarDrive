@@ -20,31 +20,6 @@ namespace Ship_Game
         UICheckBox CarrierOnlyCheckBox;
         bool DisplayedBulkReplacementHint;
 
-        public void ChangeHull(ShipData hull)
-        {
-            if (hull == null)
-                return;
-
-            RemoveObject(shipSO);
-            ActiveHull = new ShipData(hull);
-            DesignedShip = new DesignShip(ActiveHull);
-
-            BindListsToActiveHull();
-            CreateSOFromActiveHull();
-            OrdersButton.ResetButtons(DesignedShip);
-            UpdateCarrierShip();
-
-            // force modules list to reset itself, so if we change from Battleship to Fighter
-            // the available modules list is adjusted correctly
-            ModuleSelectComponent.SelectedIndex = -1;
-
-            ZoomCameraToEncloseHull(ActiveHull);
-
-            // TODO: remove DesignIssues from this page
-            InfoPanel.SetActiveDesign(DesignedShip);
-            IssuesPanel.SetActiveDesign(DesignedShip);
-        }
-
         void UpdateCarrierShip()
         {
             if (ActiveHull.HullRole == ShipData.RoleName.drone)
@@ -100,13 +75,9 @@ namespace Ship_Game
 
         void CreateSOFromActiveHull()
         {
-            if (shipSO != null)
-                RemoveObject(shipSO);
-
+            RemoveObject(shipSO);
             shipSO = StaticMesh.GetSceneMesh(TransientContent, ActiveHull.ModelPath, ActiveHull.Animated);
-
             AddObject(shipSO);
-            SetupSlots();
         }
 
         void DoExit()
@@ -280,7 +251,7 @@ namespace Ship_Game
 
         bool GetMirrorSlot(SlotStruct slot, int xSize, ModuleOrientation orientation, out MirrorSlot mirrored)
         {
-            int resolutionOffset = (int)slot.SlotReference.Position.X - 256;
+            int resolutionOffset = (int)slot.XMLPos.X - 256;
             int center = slot.PQ.X - resolutionOffset;
             int mirrorOffset = (xSize - 1) * 16;
             int mirrorX;
@@ -396,7 +367,7 @@ namespace Ship_Game
 
                     if (GetSlotUnderCursor(input, out slotStruct))
                     {
-                        EditHullSlot(slotStruct.SlotReference.Position, Operation);
+                        EditHullSlot(slotStruct.XMLPos, Operation);
                         return true;
                     }
                 }
@@ -734,27 +705,14 @@ namespace Ship_Game
             ShipSaved = true;
         }
 
+        // Create full modules list
         ModuleSlotData[] CreateModuleSlots()
         {
             int count = ModuleGrid.SlotsCount;
             var savedSlots = new ModuleSlotData[count];
             for (int i = 0; i < count; ++i)
             {
-                SlotStruct slot = ModuleGrid.SlotsList[i];
-                var savedSlot = new ModuleSlotData
-                {
-                    ModuleUID = slot.ModuleUID,
-                    Position = slot.SlotReference.Position,
-                    Restrictions = slot.Restrictions,
-                    Orientation = slot.Orientation.ToString()
-                };
-                if (slot.Module != null)
-                {
-                    savedSlot.Facing = slot.Module.FacingDegrees;
-                    if (slot.Module.ModuleType == ShipModuleType.Hangar)
-                        savedSlot.SlotOptions = slot.Module.hangarShipUID;
-                }
-                savedSlots[i] = savedSlot;
+                savedSlots[i] = new ModuleSlotData(ModuleGrid.SlotsList[i]);
             }
             return savedSlots;
         }
@@ -796,7 +754,7 @@ namespace Ship_Game
 
             Ship newTemplate = ResourceManager.AddShipTemplate(toSave, fromSave: false, playerDesign: true);
             EmpireManager.Player.UpdateShipsWeCanBuild();
-            if (!EmpireManager.Player.WeCanBuildThis(newTemplate.Name))
+            if (!UnlockAllFactionDesigns && !EmpireManager.Player.WeCanBuildThis(newTemplate.Name))
                 Log.Error("WeCanBuildThis check failed after SaveShipDesign");
             ChangeHull(newTemplate.shipData);
         }

@@ -2949,7 +2949,7 @@ namespace Ship_Game
 
             if (isPlayer)
             {
-                string modelIcon  = ship.BaseHull.ActualIconPath;
+                string modelIcon  = ship.BaseHull.IconPath;
                 string hullString = ship.BaseHull.ToString();
                 if (hullTech.Unlocked)
                 {
@@ -3023,7 +3023,7 @@ namespace Ship_Game
             if (!isPlayer)
                 return;
             Universe.NotificationManager.AddBoardNotification(Localizer.Token(GameText.ShipCapturedByYou),
-                                                              ship.BaseHull.ActualIconPath, "SnapToShip", ship, null);
+                                                              ship.BaseHull.IconPath, "SnapToShip", ship, null);
         }
 
         public void AddBoardedNotification(Ship ship)
@@ -3032,7 +3032,7 @@ namespace Ship_Game
                 return;
 
             string message = $"{Localizer.Token(GameText.YourShipWasCaptured)} {ship.loyalty.Name}!";
-            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship, ship.loyalty);
+            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.IconPath, "SnapToShip", ship, ship.loyalty);
         }
 
         public void AddMutinyNotification(Ship ship, GameText text, Empire initiator)
@@ -3041,7 +3041,7 @@ namespace Ship_Game
                 return;
 
             string message = $"{Localizer.Token(text)} {initiator.Name}!";
-            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship, initiator);
+            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.IconPath, "SnapToShip", ship, initiator);
         }
 
         private void CalculateScore()

@@ -833,32 +833,13 @@ namespace Ship_Game.Ships
             AI.OrderColonization(p, g);
         }
 
-        // This is used for serialization
+        // This is used during Saving for ShipSaveData
         public ModuleSlotData[] GetModuleSlotDataArray()
         {
             var slots = new ModuleSlotData[ModuleSlotList.Length];
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
-                ShipModule module = ModuleSlotList[i];
-                var data = new ModuleSlotData
-                {
-                    Position           = module.XMLPosition,
-                    ModuleUID = module.UID,
-                    Health             = module.Health,
-                    ShieldPower        = module.ShieldPower,
-                    Facing             = module.FacingDegrees,
-                    Restrictions       = module.Restrictions
-                };
-
-                if (module.TryGetHangarShip(out Ship hangarShip))
-                    data.HangarshipGuid = hangarShip.guid;
-
-                if (module.ModuleType == ShipModuleType.Hangar)
-                    data.SlotOptions = module.DynamicHangar == DynamicHangarOptions.Static
-                                                               ? module.hangarShipUID
-                                                               : module.DynamicHangar.ToString();
-
-                slots[i] = data;
+                slots[i] = new ModuleSlotData(ModuleSlotList[i]);
             }
             return slots;
         }
