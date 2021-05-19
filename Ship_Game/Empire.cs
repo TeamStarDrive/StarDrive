@@ -3448,6 +3448,8 @@ namespace Ship_Game
             return rel.IsHostile;
         }
 
+        public bool WillInhibit(Empire e) => e != this && !e.WeAreRemnants && !IsOpenBordersTreaty(e);
+
         public Planet FindPlanet(Guid planetGuid)
         {
             foreach (Planet p in this.OwnedPlanets)
