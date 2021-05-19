@@ -1387,6 +1387,25 @@ namespace Ship_Game.Ships
             Orientation = orientation;
         }
 
+        // For specific cases were non squared icons requires a different texture when oriented,
+        // for example 1x2 light thrusters
+        public bool GetOrientedModuleTexture(ref SubTexture tex, ModuleOrientation orientation)
+        {
+            if (DisableRotation)
+                return false;
+
+            string defaultTex = IconTexturePath;
+            switch (orientation)
+            {
+                default: return false;
+                case ModuleOrientation.Left:  tex = ResourceManager.TextureOrNull($"{defaultTex}_270"); break;
+                case ModuleOrientation.Right: tex = ResourceManager.TextureOrNull($"{defaultTex}_90");  break;
+                case ModuleOrientation.Rear:  tex = ResourceManager.TextureOrNull($"{defaultTex}_180"); break;
+            }
+
+            return tex != null;
+        }
+
         public override Vector2 JammingError()
         {
             return Parent?.JammingError() ?? Vector2.Zero;

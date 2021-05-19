@@ -356,7 +356,7 @@ namespace Ship_Game.Ships
                                          (int)moduleSize * m.YSIZE);
 
                 SubTexture tex = m.ModuleTexture;
-                HelperFunctions.GetOrientedModuleTexture(m, ref tex, m.Orientation);
+                m.GetOrientedModuleTexture(ref tex, m.Orientation);
 
                 batch.FillRectangle(rect, healthColor);
                 batch.Draw(tex, rect, moduleColorMultiply);
