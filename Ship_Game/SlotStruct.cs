@@ -12,12 +12,12 @@ namespace Ship_Game
     {
         public Restrictions Restrictions;
         public PrimitiveQuad PQ;
+        public Vector2 XMLPos;
         public float Facing; // Facing is the turret aiming dir
         public ModuleOrientation Orientation; // Orientation controls the visual 4-dir rotation of module
         public bool PowerChecked; // this conduit or power plant already checked?
         public bool InPowerRadius; // is this slot covered by a power radius?
         public SlotStruct Parent;
-        public ModuleSlotData SlotReference;
         public string ModuleUID;
         public ShipModule Module;
         public string SlotOptions;
@@ -31,29 +31,13 @@ namespace Ship_Game
         {
             Enum.TryParse(slot.Orientation, out ModuleOrientation slotState);
             Vector2 pos = slot.Position;
+            XMLPos = pos;
             PQ = new PrimitiveQuad(pos.X + offset.X - 8f, pos.Y + offset.Y - 8f, 16f, 16f);
             Restrictions  = slot.Restrictions;
             Facing        = slot.Facing;
             ModuleUID     = slot.ModuleUID;
-            SlotReference = slot;
             Orientation   = slotState;
             SlotOptions   = slot.SlotOptions;
-        }
-
-        public SlotStruct(SlotStruct parent, int offsetX, int offsetY)
-        {
-            float ox = offsetX*16f;
-            float oy = offsetY*16f;
-            PQ = new PrimitiveQuad(parent.PQ.X + ox, parent.PQ.Y + oy, 16f, 16f);
-            Parent = parent;
-            Restrictions = parent.Restrictions;
-            Facing       = parent.Facing;
-            Orientation  = parent.Orientation;
-            SlotOptions  = parent.SlotOptions;
-            ModuleUID    = "Dummy";
-            SlotReference = parent.SlotReference.GetClone();
-            SlotReference.Position = parent.SlotReference.Position + new Vector2(ox, oy);
-            SlotReference.ModuleUID = "Dummy";
         }
 
         public override string ToString()

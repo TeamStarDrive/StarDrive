@@ -281,7 +281,7 @@ namespace Ship_Game
 
         bool GetMirrorSlot(SlotStruct slot, int xSize, ModuleOrientation orientation, out MirrorSlot mirrored)
         {
-            int resolutionOffset = (int)slot.SlotReference.Position.X - 256;
+            int resolutionOffset = (int)slot.XMLPos.X - 256;
             int center = slot.PQ.X - resolutionOffset;
             int mirrorOffset = (xSize - 1) * 16;
             int mirrorX;
@@ -397,7 +397,7 @@ namespace Ship_Game
 
                     if (GetSlotUnderCursor(input, out slotStruct))
                     {
-                        EditHullSlot(slotStruct.SlotReference.Position, Operation);
+                        EditHullSlot(slotStruct.XMLPos, Operation);
                         return true;
                     }
                 }
@@ -745,7 +745,7 @@ namespace Ship_Game
                 var savedSlot = new ModuleSlotData
                 {
                     ModuleUID = slot.ModuleUID,
-                    Position = slot.SlotReference.Position,
+                    Position = slot.XMLPos,
                     Restrictions = slot.Restrictions,
                     Orientation = slot.Orientation.ToString()
                 };
