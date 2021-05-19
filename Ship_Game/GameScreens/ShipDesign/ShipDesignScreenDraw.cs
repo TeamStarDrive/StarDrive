@@ -28,7 +28,6 @@ namespace Ship_Game
                 DrawTacticalOverlays(batch);
                 DrawModuleSelections();
                 DrawProjectedModuleRect();
-                DrawOverlapErrors(batch);
                 batch.End();
             }
 
@@ -178,15 +177,6 @@ namespace Ship_Game
             }
         }
 
-        void DrawOverlapErrors(SpriteBatch batch)
-        {
-            foreach (OverlapError oe in OverlappingModuleErrors)
-            {
-                batch.DrawRectangle(oe.Overlap, Color.Red, 1);
-                batch.DrawString(Fonts.Arial10, oe.Description, oe.Overlap.PosVec(), Color.Red);
-            }
-        }
-
         void DrawEmptySlots(SpriteBatch batch)
         {
             SubTexture concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
@@ -260,7 +250,7 @@ namespace Ship_Game
                     effects = SpriteEffects.FlipVertically;
                     break;
                 case ModuleOrientation.Normal:
-                    if (slot?.SlotReference.Position.X > 256f && slot.Module.ModuleType != ShipModuleType.PowerConduit)
+                    if (slot?.XMLPos.X > 256f && slot.Module.ModuleType != ShipModuleType.PowerConduit)
                         effects = SpriteEffects.FlipHorizontally;
 
                     break;

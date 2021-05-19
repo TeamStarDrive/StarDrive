@@ -12,6 +12,7 @@ namespace Ship_Game
     // @todo Make this generic enough so that `SlotStruct` is no longer needed
     public class DesignModuleGrid
     {
+        readonly ShipData Hull;
         readonly SlotStruct[] Grid;
         readonly SlotStruct[] Slots;
         readonly int Width;
@@ -25,16 +26,19 @@ namespace Ship_Game
         // and allows for quick lookup for neighbours
         public DesignModuleGrid(ShipData hull, Vector2 slotOffset)
         {
-            ModuleSlotData[] slotData = hull.ModuleSlots;
+            Hull = hull;
+            // We must use the BaseHull to construct the ModuleGrid
+            // Otherwise we'll run into an endless series of complications
+            ModuleSlotData[] baseSlots = hull.BaseHull.ModuleSlots;
 
             var min = new Vector2(+4096, +4096);
             var max = new Vector2(-4096, -4096);
 
-            for (int i = 0; i < slotData.Length; ++i)
+            for (int i = 0; i < baseSlots.Length; ++i)
             {
-                ModuleSlotData slot = slotData[i];
+                ModuleSlotData slot = baseSlots[i];
                 Vector2 pos = slot.Position + slotOffset - new Vector2(8,8);
-                Vector2 end = pos + slot.GetModuleSizeF();
+                Vector2 end = pos + new Vector2(16f, 16f);
                 if (pos.X < min.X) min.X = pos.X;
                 if (pos.Y < min.Y) min.Y = pos.Y;
                 if (end.X > max.X) max.X = end.X;
@@ -46,39 +50,27 @@ namespace Ship_Game
             Offset = new Point((int)min.X, (int)min.Y);
             Grid = new SlotStruct[Width * Height];
 
-            var slots = new Array<SlotStruct>();
-            for (int i = 0; i < slotData.Length; ++i)
+            Slots = new SlotStruct[baseSlots.Length];
+            for (int i = 0; i < baseSlots.Length; ++i)
             {
-                ModuleSlotData msd = slotData[i];
-                var slot = new SlotStruct(msd, slotOffset);
-                slots.Add(slot);
+                var slot = new SlotStruct(baseSlots[i], slotOffset);
+                Slots[i] = slot;
                 Point pt = ToGridPos(slot.Position);
                 Grid[pt.X + pt.Y * Width] = slot;
-
-                Point size = msd.GetModuleSize();
-                if (size.X != 1 || size.Y != 1)
-                {
-                    for (int y = 0; y < size.Y; ++y)
-                    for (int x = 0; x < size.X; ++x)
-                    {
-                        if (x == 0 && y == 0)
-                            continue;
-
-                        var target = new SlotStruct(slot, x, y);
-                        slots.Add(target);
-                        Grid[(pt.X + x) + (pt.Y + y)*Width] = target;
-                    }
-                }
             }
 
-            Slots = slots.ToArray();
+        #if DEBUG
+            ModuleGridUtils.DebugDumpGrid($"Debug/DesignModuleGrid/{Hull.Name}.HULL.txt",
+                        Grid, Width, Height, ModuleGridUtils.DumpFormat.SlotStruct);
+        #endif
+        }
 
-            #if DEBUG
-            {
-                ModuleGridUtils.DebugDumpGrid($"Debug/DesignModuleGrid/{hull.Name}.txt",
-                    Grid, Width, Height, ModuleGridUtils.DumpFormat.SlotStruct);
-            }
-            #endif
+        public void SaveDebugGrid()
+        {
+        #if DEBUG
+            ModuleGridUtils.DebugDumpGrid($"Debug/DesignModuleGrid/{Hull.Name}.txt",
+                        Grid, Width, Height, ModuleGridUtils.DumpFormat.SlotStruct);
+        #endif
         }
 
         public int SlotsCount => Slots.Length;

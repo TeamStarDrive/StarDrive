@@ -68,9 +68,9 @@ namespace Ship_Game.Ships
                 case DumpFormat.SlotStruct:
                     string[] GetSlotStructFormat(SlotStruct ss)
                     {
-                        if (ss == null)
+                        ss = ss?.Parent ?? ss;
+                        if (ss?.ModuleUID == null)
                             return EmptySlot();
-                        ss = ss.Parent ?? ss;
                         ShipModule m = ResourceManager.GetModuleTemplate(ss.ModuleUID);
                         return GetModuleFormat(m);
                     }
