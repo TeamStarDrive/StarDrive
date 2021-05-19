@@ -37,16 +37,35 @@ namespace Ship_Game.Ships
             return lines;
         }
         
-        static string[] GetModuleFormat7x4(ShipModule m)
+        static string[] GetModuleFormat7x4(ShipModule m, SlotStruct ss)
         {
-            if (m == null) return EmptySlot(7, 4);
-            return new []
-            {
+            if (m == null)
+                return EmptySlot(7, 4);
+
+            string[] lines = {
                 "|"+PadCentered($"{m.Restrictions} {m.XSIZE}x{m.YSIZE}", 7),
                 "|"+SafeSub(m.UID, 0,  7),
                 "|"+SafeSub(m.UID, 7,  7),
-                "|"+SafeSub(m.UID, 14, 7)
+                null
             };
+
+            int f = (int)m.FacingDegrees;
+            int o = (int)m.Orientation;
+            if (ss != null)
+            {
+                if (f != (int)ss.Facing || o != (int)ss.Orientation)
+                {
+                    Log.Warning($"Module Facing or Orientation does not match SlotStruct: m={m} ss={ss}");
+                }
+                f = (int)ss.Facing;
+                o = (int)ss.Orientation;
+            }
+
+            if (f != 0 || o != 0)
+                lines[3] = "|" + PadCentered($"F{f} O{o}", 7);
+            else
+                lines[3] = "|"+SafeSub(m.UID, 14, 7);
+            return lines;
         }
 
         static string[] GetSlotStructFormat(SlotStruct ss)
@@ -56,7 +75,7 @@ namespace Ship_Game.Ships
                 return EmptySlot(7, 4);
             if (ss.ModuleUID == null)
                 return GetSlotStructEmptyHullFormat(ss, 7, 4);
-            return GetModuleFormat7x4(ResourceManager.GetModuleTemplate(ss.ModuleUID));
+            return GetModuleFormat7x4(ResourceManager.GetModuleTemplate(ss.ModuleUID), ss);
         }
 
         static string[] GetSlotStructEmptyHullFormat(SlotStruct ss, int width, int height)
@@ -80,7 +99,7 @@ namespace Ship_Game.Ships
             switch (format)
             {
                 case DumpFormat.ShipModule:
-                    return m => GetModuleFormat7x4(m as ShipModule);
+                    return m => GetModuleFormat7x4(m as ShipModule, null);
                 case DumpFormat.SlotStruct:
                     return m => GetSlotStructFormat((SlotStruct)m);
                 case DumpFormat.SlotStructEmptyHull:
