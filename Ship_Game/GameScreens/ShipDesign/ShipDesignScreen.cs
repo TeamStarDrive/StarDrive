@@ -367,7 +367,7 @@ namespace Ship_Game
 
         void SetupSlots()
         {
-            ModuleGrid = new DesignModuleGrid(ActiveHull.ModuleSlots, Offset);
+            ModuleGrid = new DesignModuleGrid(ActiveHull, Offset);
             #if DEBUG
             ModuleGrid.OnGridChanged = CheckForOverlappingModules;
             #endif

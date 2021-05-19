@@ -347,7 +347,7 @@ namespace Ship_Game
             float cost = orbital.GetCost(orbital.loyalty) * orbital.loyalty.DifficultyModifiers.CreditsMultiplier;
             orbital.loyalty.AddMoney(cost);
             if (orbital.loyalty == EmpireManager.Player)
-                Empire.Universe.NotificationManager.AddOrbitalOverLimit(this, (int)cost, orbital.BaseHull.ActualIconPath);
+                Empire.Universe.NotificationManager.AddOrbitalOverLimit(this, (int)cost, orbital.BaseHull.IconPath);
 
             orbital.QueueTotalRemoval();
         }

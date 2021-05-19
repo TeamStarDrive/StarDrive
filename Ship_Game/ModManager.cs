@@ -64,7 +64,6 @@ namespace Ship_Game
 
             ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.Y - 2, text:GameText.Load, click: OnLoadClicked);
             Visit = Button(Window.X + 3, Window.Y + Window.Height + 20, text:GameText.LoadModsWeb, click: OnVisitClicked);
-            Button(Window.X + 200, Window.Y + Window.Height + 20, text:GameText.ModderTools, click: OnShipToolClicked);
             UnloadMod = Button(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, "Unload Mod", click:OnUnloadModClicked);
             UnloadMod.Enabled = GlobalStats.HasMod;
 
@@ -166,11 +165,6 @@ namespace Ship_Game
                     Process.Start(SelectedMod.mi.URL);
                 }
             }
-        }
-
-        void OnShipToolClicked(UIButton b)
-        {
-            ScreenManager.GoToScreen(new ShipToolScreen(), clear3DObjects: true);
         }
 
         void OnUnloadModClicked(UIButton b)

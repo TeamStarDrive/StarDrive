@@ -50,5 +50,34 @@ namespace Ship_Game.Gameplay
                 && Restrictions == s.Restrictions
                 && SlotOptions == s.SlotOptions;
         }
+
+        public Point GetModuleSize()
+        {
+            ShipModule m = ModuleOrNull;
+            if (m != null)
+            {
+                switch (GetOrientation())
+                {
+                    case ModuleOrientation.Normal:
+                    case ModuleOrientation.Rear:
+                        return new Point(m.XSIZE, m.YSIZE);
+                    case ModuleOrientation.Left:
+                    case ModuleOrientation.Right:
+                        return new Point(m.YSIZE, m.XSIZE);
+                }
+            }
+            return new Point(1, 1);
+        }
+
+        public Vector2 GetModuleSizeF()
+        {
+            Point size = GetModuleSize();
+            return new Vector2(size.X * 16f, size.Y * 16f);
+        }
+
+        public ModuleSlotData GetClone()
+        {
+            return (ModuleSlotData)MemberwiseClone();
+        }
     }
 }
