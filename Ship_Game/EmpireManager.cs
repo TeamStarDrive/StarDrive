@@ -300,7 +300,10 @@ namespace Ship_Game
                 Log.Error("must be called after empireList is populated.");
 
             foreach (Empire empire in Empires)
+            {
+                empire.EmpireShipLists.Update();
                 empire.Research.UpdateNetResearch();
+            }
 
             Empire.Universe.WarmUpShipsForLoad();
 
