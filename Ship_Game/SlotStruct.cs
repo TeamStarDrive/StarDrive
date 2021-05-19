@@ -40,6 +40,22 @@ namespace Ship_Game
             SlotOptions   = slot.SlotOptions;
         }
 
+        public SlotStruct(SlotStruct parent, int offsetX, int offsetY)
+        {
+            float ox = offsetX*16f;
+            float oy = offsetY*16f;
+            PQ = new PrimitiveQuad(parent.PQ.X + ox, parent.PQ.Y + oy, 16f, 16f);
+            Parent = parent;
+            Restrictions = parent.Restrictions;
+            Facing       = parent.Facing;
+            Orientation  = parent.Orientation;
+            SlotOptions  = parent.SlotOptions;
+            ModuleUID    = "Dummy";
+            SlotReference = parent.SlotReference.GetClone();
+            SlotReference.Position = parent.SlotReference.Position + new Vector2(ox, oy);
+            SlotReference.ModuleUID = "Dummy";
+        }
+
         public override string ToString()
         {
             if (Parent == null)
