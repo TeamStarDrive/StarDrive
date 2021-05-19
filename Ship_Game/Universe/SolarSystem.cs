@@ -243,12 +243,18 @@ namespace Ship_Game
         {
             if (Empire.Universe.GravityWells)
             {
-                // @todo QuadTree
+                // @todo QuadTree. need to have planets in the quad tree.
                 for (int i = 0; i < PlanetList.Count; i++)
                 {
                     Planet planet = PlanetList[i];
-                    if (ship.Position.InRadius(planet.Center, planet.GravityWellRadius))
-                        return planet;
+
+                    bool unblockedPlanet = planet.Owner?.WillInhibit(ship.loyalty) == true;
+                    unblockedPlanet     |= planet.Owner == null && ship.IsInFriendlyProjectorRange;
+
+                    bool checkGravityWell = !unblockedPlanet;
+                    
+                    if (checkGravityWell && ship.Position.InRadius(planet.Center, planet.GravityWellRadius))
+                            return planet;
                 }
             }
             return null;
