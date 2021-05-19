@@ -603,7 +603,7 @@ namespace Ship_Game.Ships
             get
             {
                 // friendly projectors disable gravity wells
-                if (loyalty.WeAreRemnants || IsInFriendlyProjectorRange)
+                if (loyalty.WeAreRemnants)
                     return false;
 
                 Planet planet = System?.IdentifyGravityWell(this);
