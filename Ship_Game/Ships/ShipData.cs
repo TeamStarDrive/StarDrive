@@ -91,8 +91,9 @@ namespace Ship_Game.Ships
         {
         }
 
-        // Make a COPY from a `hull` template
-        // This is used in ShipDesignScreen and ShipToolScreen
+        // Make a DEEP COPY from a `hull` template
+        // This is used in ShipDesignScreen
+        // It inserts any missing BaseHull slots to make ShipDesigner code work
         public ShipData(ShipData hull)
         {
             Name = hull.Name;
@@ -100,23 +101,45 @@ namespace Ship_Game.Ships
             MechanicalBoardingDefense = hull.MechanicalBoardingDefense;
 
             InitCommonState(hull);
+            UpdateBaseHull();
 
-            ModuleSlots = new ModuleSlotData[hull.ModuleSlots.Length];
+            // create a map of unique slots
+            var slotsMap = new Map<Point, ModuleSlotData>();
+
+            // first fill in the slots from the design
+            // which may potentially have 2x2 or 3x3 modules
+            // and might skip over some basehull slots
             for (int i = 0; i < hull.ModuleSlots.Length; ++i)
             {
-                ModuleSlotData slot = hull.ModuleSlots[i];
-                ModuleSlots[i] = new ModuleSlotData
-                {
-                    Position     = slot.Position,
-                    Restrictions = slot.Restrictions,
-                    Facing       = slot.Facing,
-                    ModuleUID    = slot.ModuleUID,
-                    Orientation  = slot.Orientation,
-                    SlotOptions  = slot.SlotOptions
-                };
+                ModuleSlotData designSlot = hull.ModuleSlots[i].GetStatelessClone();
+                slotsMap[designSlot.PosAsPoint] = designSlot;
             }
 
-            UpdateBaseHull();
+            // now go through basehull and see if there's any
+            // 1x1 slots that weren't inserted
+            for (int i = 0; i < hull.BaseHull.ModuleSlots.Length; ++i)
+            {
+                ModuleSlotData base1x1slot = hull.BaseHull.ModuleSlots[i];
+                Point position = base1x1slot.PosAsPoint;
+                if (!slotsMap.ContainsKey(position))
+                    slotsMap[position] = base1x1slot.GetStatelessClone();
+            }
+
+            // take all unique slots and sort them by X and then by Y
+            ModuleSlots = slotsMap.Values.ToArray();
+            Array.Sort(ModuleSlots, (a, b) =>
+            {
+                // first by X axis
+                if (a.Position.X < b.Position.X) return -1;
+                if (a.Position.X > b.Position.X) return +1;
+                // and then by Y axis
+                if (a.Position.Y < b.Position.Y) return -1;
+                if (a.Position.Y > b.Position.Y) return +1;
+
+                // they are equal?? this must not happen
+                Log.Error($"Slots a={a.Position} {a.ModuleUID} and b={b.Position} {b.ModuleUID} have overlapping positions");
+                return 0;
+            });
         }
 
         // Make ShipData from an actual ship
@@ -201,12 +224,6 @@ namespace Ship_Game.Ships
             {
                 SurfaceArea = GetSurfaceArea();
             }
-            #if DEBUG
-            else if (SurfaceArea != GetSurfaceArea())
-            {
-                Log.Warning(ConsoleColor.Red, $"ShipData {Hull} '{Name}' SurfaceArea mismatch: hull {SurfaceArea} != calculated {GetSurfaceArea()}");
-            }
-            #endif
 
             FixMissingFields();
         }
@@ -455,11 +472,6 @@ namespace Ship_Game.Ships
                 if (IsAllDummySlots(ModuleSlots))
                     return ModuleSlots.Length;
             }
-
-            #if DEBUG
-            if (DetectOverlappingModules())
-                Log.Warning($"ShipData '{Name}' overlapping modules!");
-            #endif
 
             // New Designs, calculate SurfaceArea by using module size
             int surface = 0;

@@ -20,32 +20,6 @@ namespace Ship_Game
         UICheckBox CarrierOnlyCheckBox;
         bool DisplayedBulkReplacementHint;
 
-        public void ChangeHull(ShipData hull)
-        {
-            if (hull == null)
-                return;
-
-            RemoveObject(shipSO);
-
-            ActiveHull = new ShipData(hull);
-            DesignedShip = new DesignShip(ActiveHull);
-
-            BindListsToActiveHull();
-            CreateSOFromActiveHull();
-            OrdersButton.ResetButtons(DesignedShip);
-            UpdateCarrierShip();
-
-            // force modules list to reset itself, so if we change from Battleship to Fighter
-            // the available modules list is adjusted correctly
-            ModuleSelectComponent.SelectedIndex = -1;
-
-            ZoomCameraToEncloseHull(ActiveHull);
-
-            // TODO: remove DesignIssues from this page
-            InfoPanel.SetActiveDesign(DesignedShip);
-            IssuesPanel.SetActiveDesign(DesignedShip);
-        }
-
         void UpdateCarrierShip()
         {
             if (ActiveHull.HullRole == ShipData.RoleName.drone)
@@ -107,7 +81,6 @@ namespace Ship_Game
             shipSO = StaticMesh.GetSceneMesh(TransientContent, ActiveHull.ModelPath, ActiveHull.Animated);
 
             AddObject(shipSO);
-            SetupSlots();
         }
 
         void DoExit()

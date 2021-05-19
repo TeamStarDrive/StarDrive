@@ -95,8 +95,8 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Vector2 PosVec2      => new Vector2(PQ.X, PQ.Y);
         [XmlIgnore][JsonIgnore] public Vector2 ModuleCenter => new Vector2(PQ.X + PQ.W/2, PQ.Y + PQ.H/2);
 
-        [XmlIgnore][JsonIgnore] public Point Position     => new Point(PQ.X, PQ.Y);
-        [XmlIgnore][JsonIgnore] public Point ModuleSize   => new Point(PQ.W, PQ.H);
+        [XmlIgnore][JsonIgnore] public Point Position   => new Point(PQ.X, PQ.Y);
+        [XmlIgnore][JsonIgnore] public Point ModuleSize => new Point(PQ.W, PQ.H);
 
         // Width and Height in 1x1, 2x2, etc
         [XmlIgnore][JsonIgnore] public int Width  => PQ.W/16;
