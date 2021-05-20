@@ -372,6 +372,7 @@ namespace Ship_Game
 
         void UpdateDesignedShip()
         {
+            ActiveHull.UpdateGridInfo();
             DesignedShip?.UpdateDesign(CreateModuleSlots());
         }
 

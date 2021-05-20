@@ -95,8 +95,6 @@ namespace Ship_Game.Gameplay
             Orientation  = slot.Orientation.ToString();
             if (slot.Module != null)
             {
-                if (slot.Module.UID.Contains("VulcanCannon"))
-                    Log.Warning("VC");
                 Facing = slot.Module.FacingDegrees;
                 if (slot.Module.ModuleType == ShipModuleType.Hangar)
                     SlotOptions = slot.Module.hangarShipUID;
