@@ -248,11 +248,8 @@ namespace Ship_Game
                 {
                     Planet planet = PlanetList[i];
 
-                    bool unblockedPlanet = planet.Owner?.WillInhibit(ship.loyalty) == true;
-                    unblockedPlanet     |= planet.Owner == null && ship.IsInFriendlyProjectorRange;
+                    bool checkGravityWell = !ship.IsInFriendlyProjectorRange || planet.Owner?.WillInhibit(ship.loyalty) == true;
 
-                    bool checkGravityWell = !unblockedPlanet;
-                    
                     if (checkGravityWell && ship.Position.InRadius(planet.Center, planet.GravityWellRadius))
                             return planet;
                 }
