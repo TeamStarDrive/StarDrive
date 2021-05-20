@@ -1072,7 +1072,7 @@ namespace Ship_Game
                     try
                     {
                         GameLoadingScreen.SetStatus("LoadShipHull", info.RelPath());
-                        hulls[i] = ShipData.Parse(info, isEmptyHull:true);
+                        hulls[i] = ShipData.Parse(info, isHullDefinition:true);
                     }
                     catch (Exception e)
                     {
@@ -1352,7 +1352,7 @@ namespace Ship_Game
                     try
                     {
                         GameLoadingScreen.SetStatus("LoadShipTemplate", info.RelPath());
-                        ShipData shipData = ShipData.Parse(info, isEmptyHull:false);
+                        ShipData shipData = ShipData.Parse(info, isHullDefinition:false);
                         if (shipData == null || shipData.Role == ShipData.RoleName.disabled)
                             continue;
 
