@@ -113,6 +113,13 @@ namespace Ship_Game.Gameplay
         [XmlIgnore] [JsonIgnore]
         public Point PosAsPoint => new Point((int)Position.X, (int)Position.Y);
 
+        // Gets the size of this slot, correctly oriented
+        public Point GetSize()
+        {
+            ShipModule m = ModuleOrNull;
+            return m?.GetOrientedSize(this) ?? new Point(1, 1);
+        }
+
         public ModuleOrientation GetOrientation()
         {
             if (Orientation.NotEmpty() && Orientation != "Normal")
