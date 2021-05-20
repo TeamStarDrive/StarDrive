@@ -4,25 +4,26 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game.Ships
 {
     // NOTE: public variables are SERIALIZED
     public partial class ShipData
     {
-        void Save(FileInfo file, ShipData data, int version, bool isHull)
+        void Save(FileInfo file, int version, bool isHull)
         {
             var sb = new StringBuilder();
 
-            WriteValue(sb, "version", CurrentHullVersion);
+            WriteValue(sb, "version", version);
             WriteValue(sb, "name", Name);
             WriteValue(sb, "hull", Hull);
             WriteValue(sb, "role", Role);
             WriteValue(sb, "mod", ModName);
             WriteValue(sb, "style", ShipStyle);
 
-            WriteValue(sb, "size", $"{data.GridInfo.Size.X},{data.GridInfo.Size.Y}");
-            WriteValue(sb, "area", data.GridInfo.SurfaceArea);
+            WriteValue(sb, "size", $"{GridInfo.Size.X},{GridInfo.Size.Y}");
+            WriteValue(sb, "area", GridInfo.SurfaceArea);
 
             WriteValue(sb, "icon", IconPath);
             WriteValue(sb, "model", ModelPath);
@@ -38,7 +39,15 @@ namespace Ship_Game.Ships
 
             if (isHull)
             {
+                foreach (ModuleSlotData slot in ModuleSlots)
+                {
+                    // For Hulls, all slots are 1x1, there are no coordinates, the layout is described
+                    // by lines and columns, each column is 3 characters wide and separated by a |
+                    // ___|O__|___
+                    // IO_|E__|IO_
 
+
+                }
             }
             else
             {

@@ -1410,6 +1410,12 @@ namespace Ship_Game.Ships
             }
             return new Point(XSIZE, YSIZE);
         }
+        
+        // Gets the size of this Module, correctly oriented
+        public Point GetSize()
+        {
+            return new Point(XSIZE, YSIZE);
+        }
 
         // For specific cases were non squared icons requires a different texture when oriented,
         // for example 1x2 light thrusters

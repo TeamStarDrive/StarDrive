@@ -20,6 +20,7 @@ namespace Ship_Game.Ships
         static void ConvertXMLToHull(FileInfo xml, FileInfo outFile)
         {
             ShipData hull = ParseXML(xml, isHullDefinition: true);
+            hull?.Save(outFile, CurrentHullVersion, isHull:true);
         }
     }
 }
