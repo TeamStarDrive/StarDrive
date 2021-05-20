@@ -451,6 +451,7 @@
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
     <Compile Include="Ship_Game\Ships\DataPackets\KnownByEmpire.cs" />
     <Compile Include="Ship_Game\Ships\DataPackets\ShipWeight.cs" />
+    <Compile Include="Ship_Game\Ships\ModuleGrid.cs" />
     <Compile Include="Ship_Game\Ships\ModuleGridUtils.cs" />
     <Compile Include="Ship_Game\Ships\PlanetCrash.cs" />
     <Compile Include="Ship_Game\Ships\ShipData_HullParser.cs" />
