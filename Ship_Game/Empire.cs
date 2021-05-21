@@ -253,17 +253,14 @@ namespace Ship_Game
         
         public Empire()
         {
-            UI       = new EmpireUI(this);
+            UI = new EmpireUI(this);
             Research = new EmpireResearch(this);
-            EmpireShipLists     = new ShipPool(this);
+            EmpireShipLists = new ShipPool(this);
         }
 
-        public Empire(Empire parentEmpire)
+        public Empire(Empire parentEmpire) : this()
         {
-            UI             = new EmpireUI(this);
-            Research       = new EmpireResearch(this);
             TechnologyDict = parentEmpire.TechnologyDict;
-            EmpireShipLists           = new ShipPool(this);
         }
 
         public void SetAsPirates(bool fromSave, BatchRemovalCollection<Goal> goals)

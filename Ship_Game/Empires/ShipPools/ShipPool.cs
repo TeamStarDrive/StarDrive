@@ -15,8 +15,7 @@ namespace Ship_Game.Empires.ShipPools
         Array<Ship> ShipsToAddBackBuffer = new Array<Ship>();
         readonly object PoolLocker       = new object();
 
-        EmpireAI OwnerAI                  => Owner.GetEmpireAI();
-        
+        EmpireAI OwnerAI => Owner.GetEmpireAI();
         
         /// <summary>
         /// This is for adding to the Empire AI pool management.
@@ -70,9 +69,9 @@ namespace Ship_Game.Empires.ShipPools
                     ErrorCheckPools();
                 }
             }
-            var fleets             = new FleetShips(Owner, Owner.AllFleetReadyShips());
-            EmpireReadyFleets      = fleets;
-            CurrentUseableFleets   = InitialReadyFleets = EmpireReadyFleets.CountFleets(out float initialStrength);
+            var fleets = new FleetShips(Owner, Owner.AllFleetReadyShips());
+            EmpireReadyFleets = fleets;
+            CurrentUseableFleets = InitialReadyFleets = EmpireReadyFleets.CountFleets(out float initialStrength);
             CurrentUseableStrength = InitialStrength = initialStrength;
         }
 
