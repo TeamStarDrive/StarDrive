@@ -9,7 +9,7 @@ namespace Ship_Game.Ships
     /// </summary>
     public class ShipStats
     {
-        readonly Ship S;
+        Ship S;
         ShipData Hull;
         public float Mass;
         
@@ -36,6 +36,12 @@ namespace Ship_Game.Ships
         {
             S = theShip;
             Hull = theShip.shipData;
+        }
+
+        public void Dispose()
+        {
+            S = null;
+            Hull = null;
         }
 
         public void UpdateCoreStats()

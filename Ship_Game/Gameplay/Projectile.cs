@@ -560,7 +560,7 @@ namespace Ship_Game.Gameplay
                 Light.Position = new Vector3(Center.X, Center.Y, -25f);
                 Light.World = Matrix.CreateTranslation(Light.Position);
             }
-            if (Module != null && !MuzzleFlashAdded && Module.InstalledWeapon.MuzzleFlash != null && InFrustum)
+            if (Module != null && !MuzzleFlashAdded && Module.InstalledWeapon?.MuzzleFlash != null && InFrustum)
             {
                 MuzzleFlashAdded = true;
                 MuzzleFlashManager.AddFlash(this);
