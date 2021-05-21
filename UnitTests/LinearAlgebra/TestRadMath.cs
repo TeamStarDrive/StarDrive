@@ -115,30 +115,6 @@ namespace UnitTests.LinearAlgebra
         {
             return new Vector2((float)Math.Sin(radians), -(float)Math.Cos(radians));
         }
-
-        [TestMethod]
-        public void TestFastRadsToDirectionPerf()
-        {
-            Vector2 x = default;
-            float step = (2*RadMath.PI) / 10000;
-
-            Stopwatch s1 = Stopwatch.StartNew();
-            for (int i = -5000000; i < 5000000; ++i)
-                x = (i * step).RadiansToDirection();
-            s1.Stop();
-            Console.WriteLine($"RadMath RadsToDir: {s1.ElapsedMilliseconds}ms {x}");
-
-            Stopwatch s2 = Stopwatch.StartNew();
-            for (int i = -5000000; i < 5000000; ++i)
-                x = RadiansToDirectionOrig(i * step);
-            s2.Stop();
-            Console.WriteLine($"Original RadsToDir: {s2.ElapsedMilliseconds}ms {x}");
-
-            Assert.IsTrue(s1.Elapsed.TotalSeconds < s2.Elapsed.TotalSeconds,
-                "RadMath RadsToDir implementation MUST be faster than Original");
-
-            Console.WriteLine($"RadMath RadsToDir is {s2.Elapsed.TotalSeconds / s1.Elapsed.TotalSeconds:0.0}x faster");
-        }
         
         [TestMethod]
         public void RadiansFromDegrees()

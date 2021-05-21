@@ -30,9 +30,9 @@ namespace Ship_Game.AI
         private float TriggerDelay;
         
         //readonly Array<ShipWeight> ScannedNearby      = new Array<ShipWeight>(); Checking Alternative Logic
-        readonly Array<Ship> ScannedTargets           = new Array<Ship>();
-        readonly Array<Ship> ScannedFriendlies        = new Array<Ship>();
-        readonly Array<Projectile> ScannedProjectiles = new Array<Projectile>();
+        Array<Ship> ScannedTargets           = new Array<Ship>();
+        Array<Ship> ScannedFriendlies        = new Array<Ship>();
+        Array<Projectile> ScannedProjectiles = new Array<Projectile>();
         // public Vector2 FriendliesSwarmCenter { get; private set; } Checking Alternative Logic
         // public Vector2 ProjectileSwarmCenter { get; private set; } Checking Alternative Logic
         Ship ScannedTarget = null;

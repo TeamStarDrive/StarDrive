@@ -603,7 +603,7 @@ namespace Ship_Game.Ships
             get
             {
                 // friendly projectors disable gravity wells
-                if (loyalty.WeAreRemnants || IsInFriendlyProjectorRange)
+                if (loyalty.WeAreRemnants)
                     return false;
 
                 Planet planet = System?.IdentifyGravityWell(this);
@@ -833,32 +833,13 @@ namespace Ship_Game.Ships
             AI.OrderColonization(p, g);
         }
 
-        // This is used for serialization
+        // This is used during Saving for ShipSaveData
         public ModuleSlotData[] GetModuleSlotDataArray()
         {
             var slots = new ModuleSlotData[ModuleSlotList.Length];
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
-                ShipModule module = ModuleSlotList[i];
-                var data = new ModuleSlotData
-                {
-                    Position           = module.XMLPosition,
-                    ModuleUID = module.UID,
-                    Health             = module.Health,
-                    ShieldPower        = module.ShieldPower,
-                    Facing             = module.FacingDegrees,
-                    Restrictions       = module.Restrictions
-                };
-
-                if (module.TryGetHangarShip(out Ship hangarShip))
-                    data.HangarshipGuid = hangarShip.guid;
-
-                if (module.ModuleType == ShipModuleType.Hangar)
-                    data.SlotOptions = module.DynamicHangar == DynamicHangarOptions.Static
-                                                               ? module.hangarShipUID
-                                                               : module.DynamicHangar.ToString();
-
-                slots[i] = data;
+                slots[i] = new ModuleSlotData(ModuleSlotList[i]);
             }
             return slots;
         }
@@ -1432,6 +1413,12 @@ namespace Ship_Game.Ships
             UniverseScreen.Spatial.ShipExplode(this, size * 50, Center, Radius);
         }
 
+        public void InstantKill()
+        {
+            Die(this, false);
+            Die(this, true);
+        }
+
         // cleanupOnly: for tumbling ships that are already dead
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
@@ -1574,26 +1561,27 @@ namespace Ship_Game.Ships
 
         public override void RemoveFromUniverseUnsafe()
         {
-            AI.Reset();
+            AI?.Reset();
 
-            if (IsHangarShip)
+            if (IsHangarShip && Mothership.Carrier != null)
             {
                 foreach (ShipModule shipModule in Mothership.Carrier.AllActiveHangars)
                     if (shipModule.TryGetHangarShip(out Ship ship) && ship == this)
                         shipModule.SetHangarShip(null);
             }
 
-            foreach (ShipModule hangar in Carrier.AllHangars) // FB: use here all hangars and not just active hangars
-            {
-                if (hangar.TryGetHangarShip(out Ship hangarShip))
-                    hangarShip.Mothership = null; // Todo - Setting this to null might be risky
-            }
+            Carrier?.Dispose();
 
             foreach (Empire empire in EmpireManager.Empires)
             {
                 if (KnownByEmpires.KnownBy(empire))
-                    empire.GetEmpireAI().ThreatMatrix.RemovePin(this);
+                {
+                    empire.GetEmpireAI()?.ThreatMatrix.RemovePin(this);
+                }
             }
+
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+                ModuleSlotList[i].Dispose();
 
             ModuleSlotList     = Empty<ShipModule>.Array;
             SparseModuleGrid   = Empty<ShipModule>.Array;
@@ -1627,9 +1615,48 @@ namespace Ship_Game.Ships
 
         void Dispose(bool disposing)
         {
+            if (ModuleSlotList != null && ModuleSlotList.Length != 0)
+            {
+                RemoveFromUniverseUnsafe();
+            }
+            
+            // It's extremely important we manually clear these
+            // The .NET GC is not able to handler all the cyclic references
             supplyLock?.Dispose(ref supplyLock);
             AI?.Dispose();
             AI = null;
+
+            Weapons = null;
+            SoundEmitter = null;
+            Shields = null;
+            Amplifiers = null;
+            BombBays = null;
+            Carrier?.Dispose();
+            Carrier = null;
+            TetheredTo = null;
+            fleet = null;
+            shipData = null;
+            Mothership = null;
+            loyalty = null;
+            JumpSfx.Destroy();
+            KnownByEmpires = null;
+            HasSeenEmpires = null;
+            PlanetCrash = null;
+            RepairBeams = null;
+            HomePlanet = null;
+            RemoveSceneObject();
+                        
+            Stats?.Dispose();
+            Cargo = null;
+            ModuleSlotList = null;
+            SparseModuleGrid = null;
+            ExternalModuleGrid = null;
+            ShipEngines?.Dispose();
+            ShipEngines = null;
+            Influences = null;
+            TradeRoutes = null;
+            OurTroops = null;
+            HostileTroops = null;
         }
 
         public void UpdateShields()

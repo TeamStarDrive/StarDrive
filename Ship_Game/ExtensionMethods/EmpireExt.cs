@@ -42,8 +42,7 @@ namespace Ship_Game
             if (module.ModuleType != moduleType || !isTrue)
                 return false;
             addToList?.Add(module);
-            return true;           
+            return true;
         }
-
     }
 }
