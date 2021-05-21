@@ -1575,7 +1575,9 @@ namespace Ship_Game.Ships
             foreach (Empire empire in EmpireManager.Empires)
             {
                 if (KnownByEmpires.KnownBy(empire))
-                    empire.GetEmpireAI().ThreatMatrix.RemovePin(this);
+                {
+                    empire.GetEmpireAI()?.ThreatMatrix.RemovePin(this);
+                }
             }
 
             for (int i = 0; i < ModuleSlotList.Length; ++i)
