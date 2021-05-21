@@ -9,7 +9,12 @@ namespace Ship_Game.Ships
 
         public SupplyShuttles(Ship ship)
         {
-                Owner = ship;
+            Owner = ship;
+        }
+
+        public void Dispose()
+        {
+            Owner = null;
         }
 
         /// <summary>

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -92,6 +93,11 @@ namespace UnitTests
         public void CreateGameInstance(int width=800, int height=600,
                                        bool show=false, bool mockInput=true)
         {
+            // Try to collect all memory before we continue, otherwise we can run out of memory
+            // in the unit tests because it doesn't collect memory by default
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+
             var sw = Stopwatch.StartNew();
             Game = new TestGameDummy(new AutoResetEvent(false), width, height, show);
             Game.Create();
@@ -104,8 +110,10 @@ namespace UnitTests
         public void Dispose()
         {
             Empire.Universe?.ExitScreen();
-            Game?.Dispose();
+            Empire.Universe?.Dispose();
             Empire.Universe = Universe = null;
+
+            Game?.Dispose();
             Game = null;
             Cleanup();
         }
@@ -132,6 +140,8 @@ namespace UnitTests
         public void LoadStarterShips(params string[] shipList)
         {
             RequireGameInstance(nameof(LoadStarterShips));
+            if (shipList == null)
+                throw new NullReferenceException(nameof(shipList));
             ResourceManager.LoadStarterShipsForTesting(shipList.Length == 0 ? null : shipList);
         }
 

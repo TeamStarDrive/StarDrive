@@ -345,30 +345,26 @@ namespace Ship_Game
             Error(string.Format(format, args));
         }
 
-        class StackTraceEx : Exception
-        {
-            public override string StackTrace { get; }
-            public StackTraceEx(string stackTrace) { StackTrace = stackTrace; }
-        }
-
         public static void Error(string error)
         {
             string text = "(!) Error: " + error;
             LogWriteAsync(text, ConsoleColor.Red);
             FlushAllLogs();
-
+            
+        #if DEBUG && !NOBREAK
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 if (!ShouldIgnoreErrorText(error))
                 {
-                    var ex = new StackTraceEx(new StackTrace(1).ToString());
+                    var ex = new Exception(new StackTrace(1).ToString());
                     CaptureEvent(text, ErrorLevel.Error, ex);
                 }
                 return;
             }
 
             // Error triggered while in Debug mode. Check the error message for what went wrong
-             Debugger.Break();
+            Debugger.Break();
+        #endif
         }
 
         // write an Exception to logfile, sentry.io and debug console with an error message
@@ -378,7 +374,8 @@ namespace Ship_Game
             string text = ExceptionString(ex, "(!) Exception: ", error);
             LogWriteAsync(text, ConsoleColor.DarkRed);
             FlushAllLogs();
-
+            
+        #if DEBUG && !NOBREAK
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 if (!ShouldIgnoreErrorText(text))
@@ -387,9 +384,9 @@ namespace Ship_Game
                 }
                 return;
             }
-
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
+        #endif
         }
 
         // if exitCode != 0, then program is terminated
@@ -690,28 +687,6 @@ namespace Ship_Game
         {
             ShowWindow(GetConsoleWindow(), 0/*SW_HIDE*/);
             HasActiveConsole = false;
-        }
-
-        static ConsoleColor ImportanceColor(Importance importance)
-        {
-            switch (importance)
-            {
-                case Importance.None:      return ConsoleColor.Cyan;
-                case Importance.Trivial:   return ConsoleColor.Green;
-                case Importance.Regular:   return ConsoleColor.White;
-                case Importance.Important: return ConsoleColor.Yellow;
-                case Importance.Critical:  return ConsoleColor.Red;
-                default: throw new ArgumentOutOfRangeException(nameof(importance), importance, null);
-            }
-        }
-
-        public enum Importance
-        {
-            None,
-            Trivial,
-            Regular,
-            Important,
-            Critical
         }
     }
 }
