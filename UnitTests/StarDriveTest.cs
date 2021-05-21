@@ -140,6 +140,8 @@ namespace UnitTests
         public void LoadStarterShips(params string[] shipList)
         {
             RequireGameInstance(nameof(LoadStarterShips));
+            if (shipList == null)
+                throw new NullReferenceException(nameof(shipList));
             ResourceManager.LoadStarterShipsForTesting(shipList.Length == 0 ? null : shipList);
         }
 
