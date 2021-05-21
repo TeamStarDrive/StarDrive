@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Xml.Serialization;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
 
@@ -117,12 +118,13 @@ namespace Ship_Game
 
         protected override void InitSaveList()        // Set list of files to show
         {
+            var ser = new XmlSerializer(typeof(HeaderData));
             var saves = new Array<FileData>();
             foreach (FileInfo saveHeaderFile in Dir.GetFiles(Path + "Headers", "xml"))
             {
                 try
                 {
-                    var data = ResourceManager.HeaderSerializer.Deserialize<HeaderData>(saveHeaderFile);
+                    var data = ser.Deserialize<HeaderData>(saveHeaderFile);
                     if (data.SaveGameVersion != SavedGame.SaveGameVersion)
                         continue;
                     if (string.IsNullOrEmpty(data.SaveName))
