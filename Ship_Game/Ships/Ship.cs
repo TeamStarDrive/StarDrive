@@ -1561,7 +1561,7 @@ namespace Ship_Game.Ships
 
         public override void RemoveFromUniverseUnsafe()
         {
-            AI.Reset();
+            AI?.Reset();
 
             if (IsHangarShip)
             {
@@ -1614,9 +1614,47 @@ namespace Ship_Game.Ships
 
         void Dispose(bool disposing)
         {
+            if (ModuleSlotList != null && ModuleSlotList.Length != 0)
+            {
+                RemoveFromUniverseUnsafe();
+            }
+            
+            // It's extremely important we manually clear these
+            // The .NET GC is not able to handler all the cyclic references
             supplyLock?.Dispose(ref supplyLock);
             AI?.Dispose();
             AI = null;
+
+            Weapons = null;
+            SoundEmitter = null;
+            Shields = null;
+            Amplifiers = null;
+            BombBays = null;
+            Carrier = null;
+            TetheredTo = null;
+            fleet = null;
+            shipData = null;
+            Mothership = null;
+            loyalty = null;
+            JumpSfx.Destroy();
+            KnownByEmpires = null;
+            HasSeenEmpires = null;
+            PlanetCrash = null;
+            RepairBeams = null;
+            HomePlanet = null;
+            RemoveSceneObject();
+                        
+            Stats?.Dispose();
+            Cargo = null;
+            ModuleSlotList = null;
+            SparseModuleGrid = null;
+            ExternalModuleGrid = null;
+            ShipEngines?.Dispose();
+            ShipEngines = null;
+            Influences = null;
+            TradeRoutes = null;
+            OurTroops = null;
+            HostileTroops = null;
         }
 
         public void UpdateShields()

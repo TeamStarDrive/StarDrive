@@ -11,8 +11,8 @@ namespace Ship_Game.Ships
         /// our troops and also enemy troops.
         /// It can get mighty confusing, but that's what we got.
         /// </summary>
-        readonly Array<Troop> OurTroops = new Array<Troop>();
-        readonly Array<Troop> HostileTroops = new Array<Troop>();
+        Array<Troop> OurTroops = new Array<Troop>();
+        Array<Troop> HostileTroops = new Array<Troop>();
 
         // OUR troops count
         public int TroopCount => OurTroops.Count;
