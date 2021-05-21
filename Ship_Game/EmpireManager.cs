@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Gameplay;
+using System;
 
 namespace Ship_Game
 {
@@ -68,18 +69,40 @@ namespace Ship_Game
 
             Empires.Add(e);
             e.Id = ++NumEmpires;
+
+            const int MaxEmpires = 100;
+            if (Empires.Count > MaxEmpires)
+                throw new Exception($"Maximum number of empires ({MaxEmpires}) exceeded! This is a bug!");
         }
 
-        public static void Clear()
+        /// <summary>
+        /// This Disposes and clears all empires
+        /// It is necessary in order to prevent annoying memory leaks
+        /// </summary>
+        /// <param name="disposeVoidEmpire">
+        /// If true, also disposes the Void (null) Empire,
+        /// this should be done when reloading game resources
+        /// </param>
+        public static void Clear(bool disposeVoidEmpire = false)
         {
-            NumEmpires = 0;
-            Empires.Clear();
-            EmpireDict.Clear();
+            foreach (Empire empire in Empires)
+                empire.Dispose();
+            
             PlayerEmpire     = null;
             CordrazineEmpire = null;
             RemnantsFaction  = null;
             UnknownFaction   = null;
             CorsairsFaction  = null;
+
+            if (disposeVoidEmpire)
+            {
+                DummyEmpire?.Dispose();
+                DummyEmpire = null;
+            }
+
+            NumEmpires = 0;
+            Empires.Clear();
+            EmpireDict.Clear();
         }
 
 
