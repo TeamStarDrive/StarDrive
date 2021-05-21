@@ -30,7 +30,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>StarDrive\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>TRACE;DEBUG;STEAM</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;STEAM;NOBREAK</DefineConstants>
     <Optimize>false</Optimize>
     <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>

@@ -1440,5 +1440,19 @@ namespace Ship_Game.Ships
         }
 
         public override string ToString() => $"{UID}  {Id}  x {Position.X} y {Position.Y}  size {XSIZE}x{YSIZE}  world={Center}  Ship={Parent?.Name}";
+
+        public void Dispose()
+        {
+            Flyweight = null;
+            DamageVisualizer = null;
+            Bonuses = null;
+            Parent = null;
+            Shield = null;
+            hangarShip = null;
+            InstalledWeapon?.Dispose(ref InstalledWeapon);
+            LastDamagedBy = null;
+            SetSystem(null);
+            SetSystemBackBuffer(null);
+        }
     }
 }
