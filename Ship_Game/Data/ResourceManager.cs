@@ -329,6 +329,7 @@ namespace Ship_Game
             DiplomacyTraits = null;
             AgentMissionData = new AgentMissionData();
             EmpireShipBonuses.Clear();
+            EmpireManager.Clear(disposeVoidEmpire: true);
 
             UnloadGraphicsResources(manager);
         }
