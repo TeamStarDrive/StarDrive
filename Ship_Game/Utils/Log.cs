@@ -345,19 +345,13 @@ namespace Ship_Game
             Error(string.Format(format, args));
         }
 
-        class StackTraceEx : Exception
-        {
-            public override string StackTrace { get; }
-            public StackTraceEx(string stackTrace) { StackTrace = stackTrace; }
-        }
-
         public static void Error(string error)
         {
             string text = "(!) Error: " + error;
             LogWriteAsync(text, ConsoleColor.Red);
             FlushAllLogs();
             
-        #if DEBUG
+        #if DEBUG && !NOBREAK
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 if (!ShouldIgnoreErrorText(error))
@@ -381,7 +375,7 @@ namespace Ship_Game
             LogWriteAsync(text, ConsoleColor.DarkRed);
             FlushAllLogs();
             
-        #if DEBUG
+        #if DEBUG && !NOBREAK
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 if (!ShouldIgnoreErrorText(text))

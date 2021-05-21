@@ -1563,24 +1563,23 @@ namespace Ship_Game.Ships
         {
             AI?.Reset();
 
-            if (IsHangarShip)
+            if (IsHangarShip && Mothership.Carrier != null)
             {
                 foreach (ShipModule shipModule in Mothership.Carrier.AllActiveHangars)
                     if (shipModule.TryGetHangarShip(out Ship ship) && ship == this)
                         shipModule.SetHangarShip(null);
             }
 
-            foreach (ShipModule hangar in Carrier.AllHangars) // FB: use here all hangars and not just active hangars
-            {
-                if (hangar.TryGetHangarShip(out Ship hangarShip))
-                    hangarShip.Mothership = null; // Todo - Setting this to null might be risky
-            }
+            Carrier?.Dispose();
 
             foreach (Empire empire in EmpireManager.Empires)
             {
                 if (KnownByEmpires.KnownBy(empire))
                     empire.GetEmpireAI().ThreatMatrix.RemovePin(this);
             }
+
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+                ModuleSlotList[i].Dispose();
 
             ModuleSlotList     = Empty<ShipModule>.Array;
             SparseModuleGrid   = Empty<ShipModule>.Array;
@@ -1630,6 +1629,7 @@ namespace Ship_Game.Ships
             Shields = null;
             Amplifiers = null;
             BombBays = null;
+            Carrier?.Dispose();
             Carrier = null;
             TetheredTo = null;
             fleet = null;

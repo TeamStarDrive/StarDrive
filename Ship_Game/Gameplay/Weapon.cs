@@ -107,7 +107,7 @@ namespace Ship_Game.Gameplay
         public ExplosionType ExplosionType = ExplosionType.Projectile;
         public string dieCue;
         public string ToggleSoundName = "";
-        [XmlIgnore][JsonIgnore] readonly AudioHandle ToggleCue = new AudioHandle();
+        [XmlIgnore][JsonIgnore] AudioHandle ToggleCue = new AudioHandle();
         public string Light;
         public bool isTurret;
         public bool isMainGun;
@@ -1042,7 +1042,8 @@ namespace Ship_Game.Gameplay
 
         void Destroy()
         {
-            ToggleCue.Destroy();
+            ToggleCue?.Destroy();
+            ToggleCue = null;
             Owner         = null;
             Module        = null;
             FireTarget    = null;
