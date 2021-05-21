@@ -1443,10 +1443,12 @@ namespace Ship_Game.Ships
 
         public void Dispose()
         {
+            // TODO: nulling the parent will cause a big can of worms -_-, we get a lot of null ref exceptions
+            //Parent = null;
             Flyweight = null;
+
             DamageVisualizer = null;
             Bonuses = null;
-            Parent = null;
             Shield = null;
             hangarShip = null;
             InstalledWeapon?.Dispose(ref InstalledWeapon);

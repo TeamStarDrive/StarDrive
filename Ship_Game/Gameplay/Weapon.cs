@@ -586,8 +586,12 @@ namespace Ship_Game.Gameplay
             // total error magnitude should get smaller as the target gets slower. 
             if (FireTarget?.Type == GameObjectType.ShipModule)
             {
-                float speed = ((ShipModule)FireTarget).GetParent().CurrentVelocity;
-                errorMagnitude *= speed < 150 ? speed / 150 : 1;
+                Ship parent = ((ShipModule)FireTarget).GetParent();
+                if (parent != null) // the parent can be null
+                {
+                    float speed = parent.CurrentVelocity;
+                    errorMagnitude *= speed < 150 ? speed / 150 : 1;
+                }
             }
             
             Vector2 adjusted = target + error*errorMagnitude;
