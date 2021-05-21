@@ -62,7 +62,6 @@ namespace Ship_Game
 
         public static Map<string, Artifact> ArtifactsDict      = new Map<string, Artifact>();
         public static Map<string, ExplorationEvent> EventsDict = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
-        public static XmlSerializer HeaderSerializer           = new XmlSerializer(typeof(HeaderData));
 
         public static HostileFleets HostileFleets                = new HostileFleets();
         public static ShipNames ShipNames                        = new ShipNames();
@@ -324,7 +323,12 @@ namespace Ship_Game
             HostileFleets.Fleets.Clear();
             ShipNames.Clear();
             MainMenuShipList.ModelPaths.Clear();
+            HullBonuses.Clear();
+            PlanetaryEdicts.Clear();
+            RacialTraits = null;
+            DiplomacyTraits = null;
             AgentMissionData = new AgentMissionData();
+            EmpireShipBonuses.Clear();
 
             UnloadGraphicsResources(manager);
         }
@@ -1034,6 +1038,7 @@ namespace Ship_Game
 
         static void LoadHullBonuses()
         {
+            HullBonuses.Clear();
             if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses)
             {
                 foreach (HullBonus hullBonus in LoadEntities<HullBonus>("HullBonuses", "LoadHullBonuses"))
@@ -1624,6 +1629,7 @@ namespace Ship_Game
 
         static void LoadPlanetEdicts()
         {
+            PlanetaryEdicts.Clear();
             foreach (var planetEdict in LoadEntities<PlanetEdict>("PlanetEdicts", "LoadPlanetEdicts"))
                 PlanetaryEdicts[planetEdict.Name] = planetEdict;
         }
