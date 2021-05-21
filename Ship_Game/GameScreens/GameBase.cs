@@ -218,7 +218,8 @@ namespace Ship_Game
         protected override void Dispose(bool disposing)
         {
             GameAudio.Destroy();
-            ResourceManager.UnloadAllData(ScreenManager);
+            if (ScreenManager != null)
+                ResourceManager.UnloadAllData(ScreenManager);
             ScreenManager?.Dispose(ref ScreenManager);
 
             base.Dispose(disposing);

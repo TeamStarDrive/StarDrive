@@ -145,7 +145,8 @@ namespace Ship_Game
         {
             Log.Warning("StarDriveGame UnloadContent");
             // This also unloads all screens
-            ResourceManager.UnloadGraphicsResources(ScreenManager);
+            if (ScreenManager != null)
+                ResourceManager.UnloadGraphicsResources(ScreenManager);
             IsLoaded = false;
             GraphicsDeviceWasReset = true;
         }
