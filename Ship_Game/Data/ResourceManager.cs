@@ -188,6 +188,7 @@ namespace Ship_Game
                 double percent = (kv.Value / elapsed) * 100.0;
                 Log.Write(ConsoleColor.Cyan, $"{kv.Key,-20} {kv.Value*1000:0.0}ms  {percent:0.00}%");
             }
+            PerfProfile.Clear();
         }
 
         static void LoadAllResources(ScreenManager manager, ModEntry mod)
@@ -281,16 +282,26 @@ namespace Ship_Game
             WaitForExit();
             manager.ResetHotLoadTargets();
 
+            Nebulae?.Dispose(ref Nebulae);
+            // TextureBindings were disposed by Nebulae.Dispose()
             SmallNebulae.Clear();
             MedNebulae.Clear();
             BigNebulae.Clear();
-            SmallStars = MediumStars = LargeStars = null;
-            FlagTextures = null;
+
+            SmallStars?.Dispose(ref SmallStars);
+            MediumStars?.Dispose(ref MediumStars);
+            LargeStars?.Dispose(ref LargeStars);
+            FlagTextures?.Dispose(ref FlagTextures);
+
+            ProjTextDict.ClearAndDispose();
+            
+            // meshes are loaded through GameContent, so they should be auto-disposed
+            // TODO: validate this
             JunkModels.Clear();
             AsteroidModels.Clear();
-            ProjTextDict.ClearAndDispose();
             ProjectileModelDict.Clear();
             ProjectileMeshDict.Clear();
+
             SunType.Unload();
             ShieldManager.UnloadContent();
             Beam.BeamEffect = null;
@@ -308,23 +319,51 @@ namespace Ship_Game
         public static void UnloadAllData(ScreenManager manager)
         {
             WaitForExit();
+            
+            TroopsDict.Clear();
+            TroopsList.Clear();
             TroopsDictKeys.Clear();
+
             BuildingsDict.Clear();
             BuildingsById.Clear();
+
+            foreach (var s in ShipsDict)
+                s.Value.Dispose();
+            ShipsDict.Clear();
+
+            foreach (var m in ModuleTemplates)
+                m.Value.Dispose();
             ModuleTemplates.Clear();
+
+            HullBonuses.Clear();
+            HullsDict.Clear();
+            HullsList.Clear();
+
             TechTree.Clear();
             ArtifactsDict.Clear();
-            ShipsDict.Clear();
             GoodsDict.Clear();
             Encounters.Clear();
             EventsDict.Clear();
             RandomItemsList.Clear();
+            WeaponsDict.ClearAndDispose();
 
             HostileFleets.Fleets.Clear();
             ShipNames.Clear();
             MainMenuShipList.ModelPaths.Clear();
-            HullBonuses.Clear();
+
             PlanetaryEdicts.Clear();
+            EconStrategies.Clear();
+            ZoneDistribution.Clear();
+            BuildRatios.Clear();
+
+            PlanetTypes?.Clear();
+            PlanetTypeMap?.Clear();
+
+            DiplomacyDialogs.Clear();
+            Empires.Clear();
+            MajorEmpires.Clear();
+            MinorEmpires.Clear();
+
             RacialTraits = null;
             DiplomacyTraits = null;
             AgentMissionData = new AgentMissionData();
@@ -1446,9 +1485,8 @@ namespace Ship_Game
             LoadBasicContentForTesting();
 
             var ships = new Array<FileInfo>();
-            ships.AddRange(shipsList != null
-                ? shipsList.Select(ship => GetModOrVanillaFile($"StarterShips/{ship}.xml"))
-                : GatherFilesModOrVanilla("StarterShips", "xml"));
+            if (shipsList != null)
+                ships.AddRange(shipsList.Select(ship => GetModOrVanillaFile($"StarterShips/{ship}.xml")));
             if (savedDesigns != null)
                 ships.AddRange(savedDesigns.Select(ship => GetModOrVanillaFile($"SavedDesigns/{ship}.xml")));
 
