@@ -9,10 +9,10 @@ namespace Ship_Game.Ships
     /// </summary>
     public class ShipEngines
     {
-        readonly Ship Owner;
+        Ship Owner;
         ShipAI AI => Owner.AI;
 
-        public ShipModule[] Engines { get; }
+        public ShipModule[] Engines { get; private set; }
         public ShipModule[] ActiveEngines => Engines.Filter(e=> e.Active);
 
         public Status EngineStatus { get; private set; }
@@ -23,6 +23,12 @@ namespace Ship_Game.Ships
         {
             Owner   = owner;
             Engines = slots.Filter(module => module.Is(ShipModuleType.Engine));
+        }
+
+        public void Dispose()
+        {
+            Owner = null;
+            Engines = null;
         }
 
         public void Update()

@@ -253,17 +253,14 @@ namespace Ship_Game
         
         public Empire()
         {
-            UI       = new EmpireUI(this);
+            UI = new EmpireUI(this);
             Research = new EmpireResearch(this);
-            EmpireShipLists     = new ShipPool(this);
+            EmpireShipLists = new ShipPool(this);
         }
 
-        public Empire(Empire parentEmpire)
+        public Empire(Empire parentEmpire) : this()
         {
-            UI             = new EmpireUI(this);
-            Research       = new EmpireResearch(this);
             TechnologyDict = parentEmpire.TechnologyDict;
-            EmpireShipLists           = new ShipPool(this);
         }
 
         public void SetAsPirates(bool fromSave, BatchRemovalCollection<Goal> goals)
@@ -712,37 +709,6 @@ namespace Ship_Game
                 ++key;
             EmpireAI.UsedFleets.Add(key);
             return key;
-        }
-
-        public void CleanOut()
-        {
-            data.Defeated = false;
-            OwnedPlanets.Clear();
-            OwnedSolarSystems.Clear();
-            ActiveRelations.Clear();
-            RelationsMap.Clear();
-            EmpireAI = null;
-            HostilesLogged.Clear();
-            KnownShips.Clear();
-            SensorNodes.Clear();
-            BorderNodes.Clear();
-            TechnologyDict.Clear();
-            SpaceRoadsList.Clear();
-            foreach (var kv in FleetsDict)
-                kv.Value.Reset();
-            FleetsDict.Clear();
-            UnlockedBuildingsDict.Clear();
-            UnlockedHullsDict.Clear();
-            UnlockedModulesDict.Clear();
-            UnlockedTroopDict.Clear();
-            UnlockedTroops.Clear();
-            Inhibitors.Clear();
-            ShipsWeCanBuild.Clear();
-            structuresWeCanBuild.Clear();
-            data.MoleList.Clear();
-            data.OwnedArtifacts.Clear();
-            data.AgentList.Clear();
-            Research.Reset();
         }
 
         public void SetAsDefeated()
@@ -3425,7 +3391,11 @@ namespace Ship_Game
             EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
         }
 
-        public void RemoveShip(Ship ship) => EmpireShipLists.RemoveShipFromEmpire(ship);
+        public void RemoveShip(Ship ship)
+        {
+            // Null check is for Ship dispose, where Empire may be already Disposed
+            EmpireShipLists?.RemoveShipFromEmpire(ship);
+        }
         public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
         {
             if (targetEmpire == this || targetEmpire == null)
@@ -3448,7 +3418,7 @@ namespace Ship_Game
             return rel.IsHostile;
         }
 
-        public bool WillInhibit(Empire e) => e != this && !e.WeAreRemnants && !IsOpenBordersTreaty(e);
+        public bool WillInhibit(Empire e) => e != this && !e.WeAreRemnants && IsAtWarWith(e);
 
         public Planet FindPlanet(Guid planetGuid)
         {
@@ -3682,6 +3652,39 @@ namespace Ship_Game
 
         void Destroy()
         {
+            if (EmpireAI == null)
+                return; // Already disposed
+
+            EmpireAI = null;
+            OwnedPlanets.Clear();
+            OwnedSolarSystems.Clear();
+            ActiveRelations.Clear();
+            RelationsMap.Clear();
+            HostilesLogged.Clear();
+            KnownShips.Clear();
+            SensorNodes.Clear();
+            BorderNodes.Clear();
+            TechnologyDict.Clear();
+            SpaceRoadsList.Clear();
+            foreach (var kv in FleetsDict)
+                kv.Value.Reset();
+            FleetsDict.Clear();
+            UnlockedBuildingsDict.Clear();
+            UnlockedHullsDict.Clear();
+            UnlockedModulesDict.Clear();
+            UnlockedTroopDict.Clear();
+            UnlockedTroops.Clear();
+            Inhibitors.Clear();
+            ShipsWeCanBuild.Clear();
+            structuresWeCanBuild.Clear();
+            Research.Reset();
+
+            // TODO: These should not be in EmpireData !!!
+            data.Defeated = false;
+            data.OwnedArtifacts.Clear();
+            data.AgentList.Clear();
+            data.MoleList.Clear();
+
             EmpireShipLists?.Dispose(ref EmpireShipLists);
             BorderNodes?.Dispose(ref BorderNodes);
             SensorNodes?.Dispose(ref SensorNodes);

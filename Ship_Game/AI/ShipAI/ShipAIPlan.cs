@@ -7,10 +7,10 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.AI
 {
-    internal abstract class ShipAIPlan
+    internal abstract class ShipAIPlan : IDisposable
     {
         public ShipAI AI;
-        public readonly Ship Owner;
+        public Ship Owner;
 
         protected ShipAIPlan(ShipAI ai)
         {
@@ -19,5 +19,11 @@ namespace Ship_Game.AI
         }
 
         public abstract void Execute(FixedSimTime timeStep, ShipAI.ShipGoal g);
+
+        public void Dispose()
+        {
+            AI = null;
+            Owner = null;
+        }
     }
 }

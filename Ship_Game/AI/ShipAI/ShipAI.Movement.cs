@@ -18,7 +18,7 @@ namespace Ship_Game.AI
         public Vector2 MovePosition;
         public Planet OrbitTarget;
 
-        readonly WayPoints WayPoints = new WayPoints();
+        WayPoints WayPoints = new WayPoints();
 
         public bool HasWayPoints => WayPoints.Count > 0;
         public WayPoint[] CopyWayPoints() => WayPoints.ToArray();
