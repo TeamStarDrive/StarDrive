@@ -295,7 +295,7 @@ namespace Ship_Game
             ShieldManager.UnloadContent();
             Beam.BeamEffect = null;
             BackgroundItem.QuadEffect?.Dispose(ref BackgroundItem.QuadEffect);
-            WhitePixel.Dispose(ref WhitePixel);
+            WhitePixel?.Dispose(ref WhitePixel);
 
             // Texture caches MUST be cleared before triggering content reload!
             Textures.Clear();
