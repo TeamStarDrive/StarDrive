@@ -602,7 +602,7 @@ namespace Ship_Game.AI
                         p.Center.SqDist(Owner.Center));
                 }
             }
-            return true;
+            return AwaitClosest != null;
 
         }
 
@@ -611,7 +611,7 @@ namespace Ship_Game.AI
             if (!Owner.loyalty.isPlayer) return false;
 
             AwaitClosest = Owner.loyalty.GetPlanets().FindMin(p => Owner.Center.SqDist(p.Center));
-            return true;
+            return AwaitClosest != null;
         }
 
         bool SetAwaitClosestForAIEmpire()
@@ -635,7 +635,7 @@ namespace Ship_Game.AI
                 AwaitClosest = home.PlanetList.FindMinFiltered(p => p.Owner == Owner.loyalty
                                                             , p => p.Center.SqDist(Owner.Center));
             }
-            return true;
+            return AwaitClosest != null;
         }
 
         void AwaitOrders(FixedSimTime timeStep)
@@ -660,10 +660,11 @@ namespace Ship_Game.AI
                     AwaitClosest = null;
             }
 
-            if (SetAwaitClosestForSystemToDefend() 
+            if (AwaitClosest != null
+                || SetAwaitClosestForSystemToDefend() 
                 || SetAwaitClosestForFaction()
                 || SetAwaitClosestForPlayer()
-                || SetAwaitClosestForAIEmpire() && AwaitClosest != null)
+                || SetAwaitClosestForAIEmpire()) 
             {
                 Orbit.Orbit(AwaitClosest, timeStep);
             }
