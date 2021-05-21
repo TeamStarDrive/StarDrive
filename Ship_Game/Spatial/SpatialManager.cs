@@ -49,8 +49,16 @@ namespace Ship_Game.Gameplay
             ResetToNewSpatial = Create( Type.IncrementWithWrap(1) );
         }
 
+        // only clears objects
+        public void Clear()
+        {
+            Spatial?.Clear();
+        }
+
+        // Destroys everything
         public void Destroy()
         {
+            Spatial?.Clear();
             Spatial = null;
         }
 

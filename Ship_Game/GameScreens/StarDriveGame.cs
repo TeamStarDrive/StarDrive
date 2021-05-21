@@ -176,9 +176,7 @@ namespace Ship_Game
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            GameAudio.Destroy();
             Instance = null;
-            Log.Write("Exiting: Game Instance Disposed");
         }
     }
 }
