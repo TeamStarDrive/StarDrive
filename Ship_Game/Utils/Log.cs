@@ -345,6 +345,12 @@ namespace Ship_Game
             Error(string.Format(format, args));
         }
 
+        class StackTraceEx : Exception
+        {
+            public override string StackTrace { get; }
+            public StackTraceEx(string stackTrace) { StackTrace = stackTrace; }
+        }
+        
         public static void Error(string error)
         {
             string text = "(!) Error: " + error;
