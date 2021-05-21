@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Gameplay;
+using System;
 
 namespace Ship_Game
 {
@@ -68,6 +69,10 @@ namespace Ship_Game
 
             Empires.Add(e);
             e.Id = ++NumEmpires;
+
+            const int MaxEmpires = 100;
+            if (Empires.Count > MaxEmpires)
+                throw new Exception($"Maximum number of empires ({MaxEmpires}) exceeded! This is a bug!");
         }
 
         public static void Clear()
