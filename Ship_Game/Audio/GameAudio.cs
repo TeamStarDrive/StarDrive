@@ -57,6 +57,15 @@ namespace Ship_Game.Audio
 
         static string SettingsFile, WaveBankFile, SoundBankFile;
 
+        public static void DisableAudio(bool disabled)
+        {
+            AudioDisabled = disabled;
+            if (disabled)
+                Destroy();
+            else
+                ReloadAfterDeviceChange(null);
+        }
+
         public static void ReloadAfterDeviceChange(MMDevice newDevice)
         {
             Initialize(newDevice, SettingsFile, WaveBankFile, SoundBankFile);
@@ -141,9 +150,11 @@ namespace Ship_Game.Audio
         {
             ThisFrameSfxCount = 0;
 
-            AudioDevices.HandleEvents();
-
-            AudioEngine?.Update();
+            if (AudioEngine != null)
+            {
+                AudioDevices.HandleEvents();
+                AudioEngine.Update();
+            }
 
             DisposeStoppedInstances();
         }

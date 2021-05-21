@@ -85,6 +85,9 @@ namespace Ship_Game.Empires.ShipPools
 
         void RemoveFromOtherPools(Ship ship, AO ao = null)
         {
+            if (OwnerAI == null)
+                return;
+
             if (ao == null)
                 foreach (AO aos in OwnerAI.AreasOfOperations)
                     aos.RemoveShip(ship);
@@ -326,7 +329,7 @@ namespace Ship_Game.Empires.ShipPools
                     ShipsBackBuffer.RemoveRef(ship);
             }
 
-            ship.AI.ClearOrders();
+            ship.AI?.ClearOrders();
             RemoveShipFromFleetAndPools(ship);
         }
         

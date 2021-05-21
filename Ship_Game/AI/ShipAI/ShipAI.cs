@@ -17,7 +17,7 @@ namespace Ship_Game.AI
         int StopNumber;
         public FleetDataNode FleetNode;
 
-        public readonly Ship Owner;
+        public Ship Owner;
         public AIState State = AIState.AwaitingOrders;
         public Guid OrbitTargetGuid;
         public Planet ColonizeTarget;
@@ -30,10 +30,12 @@ namespace Ship_Game.AI
         public Array<ShipWeight>   NearByShips = new Array<ShipWeight>();
         public BatchRemovalCollection<Ship> FriendliesNearby = new BatchRemovalCollection<Ship>();
 
-        readonly DropOffGoods DropOffGoods;
-        readonly PickupGoods PickupGoods;
+        // TODO: We should not keep these around, it increases memory usage by a lot
+        DropOffGoods DropOffGoods;
+        PickupGoods PickupGoods;
+        OrbitPlan Orbit;
 
-        readonly OrbitPlan Orbit;
+        public bool IsDisposed => Owner == null;
         
         public ShipAI(Ship owner)
         {
@@ -43,9 +45,72 @@ namespace Ship_Game.AI
             Orbit = new OrbitPlan(this);
         }
 
+        void DisposeOrders()
+        {
+            var orders = OrderQueue.TakeAll();
+            for (int i = 0; i < orders.Length; i++)
+            {
+                ShipGoal g = orders[i];
+                g?.Dispose();
+            }
+        }
+        
+        public void Dispose()
+        {
+            if (IsDisposed)
+                return;
+            
+            // Absolutely necessary to dispose all of these manually
+            // because C# is not always able to break bugged cyclic references
+            Owner = null;
+            DisposeOrders(); // dispose any active goals
+
+            AwaitClosest = null;
+            PatrolTarget = null;
+            FleetNode = null;
+            ColonizeTarget = null;
+            ResupplyTarget = null;
+            SystemToDefend = null;
+            ExplorationTarget = null;
+            
+            OrderQueue?.Dispose(ref OrderQueue);
+            NearByShips?.Clear();
+            NearByShips = null;
+            FriendliesNearby?.Dispose(ref FriendliesNearby);
+            PotentialTargets?.Dispose(ref PotentialTargets);
+
+            DropOffGoods?.Dispose(ref DropOffGoods);
+            PickupGoods?.Dispose(ref PickupGoods);
+            Orbit?.Dispose(ref Orbit);
+
+            CombatAI = null;
+            EscortTarget = null;
+            ExterminationTarget = null;
+            TrackProjectiles?.Clear();
+            TrackProjectiles = null;
+            Target = null;
+            TargetQueue?.Clear();
+            TargetQueue = null;
+
+            ScannedTargets.Clear();
+            ScannedTargets = null;
+            ScannedFriendlies.Clear();
+            ScannedFriendlies = null;
+            ScannedProjectiles.Clear();
+            ScannedProjectiles = null;
+            ScannedTarget = null;
+
+            OrbitTarget = null;
+            WayPoints?.Clear();
+            WayPoints = null;
+        }
+
         // Resets all important state of the AI
         public void Reset()
         {
+            if (IsDisposed)
+                return;
+
             Target = null;
             ColonizeTarget = null;
             ResupplyTarget = null;
@@ -53,11 +118,11 @@ namespace Ship_Game.AI
             SystemToDefend = null;
             ExplorationTarget = null;
 
-            ClearOrders();
             PotentialTargets.Clear();
             TrackProjectiles.Clear();
             NearByShips.Clear();
             FriendliesNearby.Clear();
+            ClearOrders();
         }
 
         public Vector2 GoalTarget
@@ -828,14 +893,6 @@ namespace Ship_Game.AI
                 AwaitOrders(timeStep);
             else
                 AwaitOrdersPlayer(timeStep);
-        }
-
-        public void Dispose()
-        {
-            ClearOrders(); // dispose any active goals
-            NearByShips = null;
-            FriendliesNearby?.Dispose(ref FriendliesNearby);
-            PotentialTargets?.Dispose(ref PotentialTargets);
         }
     }
 }
