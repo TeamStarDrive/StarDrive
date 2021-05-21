@@ -129,13 +129,8 @@ namespace Ship_Game.Ships
 
             if (EnableDebugGridExport)
             {
-                DebugDumpGrid($"Debug/SparseGrid/{Name}.txt", SparseModuleGrid,
-                    m => new []
-                    {
-                        m != null ? $"|_{m.XSIZE}x{m.YSIZE}_": "|_____",
-                        m != null ? $"|{SafeSub(m.UID,0,5)}" : "|_____",
-                        m != null ? $"|{SafeSub(m.UID,5,5)}" : "|_____"
-                    });
+                ModuleGridUtils.DebugDumpGrid($"Debug/SparseGrid/{Name}.txt",
+                    SparseModuleGrid, GridWidth, GridHeight, ModuleGridUtils.DumpFormat.ShipModule);
             }
         }
 
@@ -175,8 +170,9 @@ namespace Ship_Game.Ships
 
             if (EnableDebugGridExport)
             {
-                DebugDumpGrid($"Debug/InternalGrid/{Name}.txt", internalGrid,
-                    b => new []{ b ? " I " : " - " });
+                ModuleGridUtils.DebugDumpGrid($"Debug/InternalGrid/{Name}.txt",
+                                              internalGrid, GridWidth, GridHeight,
+                                              ModuleGridUtils.DumpFormat.InternalSlotsBool);
             }
 
             // if our module is overlapping an [I] slot, then mark the whole module as internal
@@ -185,62 +181,6 @@ namespace Ship_Game.Ships
                 ShipModule module = ModuleSlotList[i];
                 if (!module.HasInternalRestrictions && IsModuleOverlappingInternalSlot(module, internalGrid))
                     module.Restrictions = Restrictions.I;
-            }
-        }
-
-        static string SafeSub(string s, int start, int count)
-        {
-            if (start >= s.Length) return PadCentered("", count);
-            if (start+count >= s.Length)
-                return PadCentered(s.Substring(start), count);
-            return s.Substring(start, count);
-        }
-
-        static string PadCentered(string source, int length)
-        {
-            int spaces = length - source.Length;
-            int padLeft = spaces/2 + source.Length;
-            return source.PadLeft(padLeft).PadRight(length);
-        }
-
-        void DebugDumpGrid<T>(string fileName, T[] grid, Func<T, string[]> format)
-        {
-            string exportDir = Path.GetDirectoryName(fileName) ?? "";
-            Directory.CreateDirectory(exportDir);
-            int columnWidth = 0;
-            var formatted = new string[GridWidth * GridHeight][];
-            for (int y = 0; y < GridHeight; ++y)
-            {
-                for (int x = 0; x < GridWidth; ++x)
-                {
-                    int index = x + y * GridWidth;
-                    string[] text = format(grid[index]);
-                    formatted[index] = text;
-                    foreach (string s in text) columnWidth = Math.Max(columnWidth, s.Length);
-                }
-            }
-            using (var fs = new StreamWriter(fileName))
-            {
-                fs.Write($"W: {GridWidth} H:{GridHeight}\n");
-                fs.Write("   ");
-                for (int x = 0; x < GridWidth; ++x)
-                    fs.Write(PadCentered(x.ToString(), columnWidth));
-                fs.Write('\n');
-                for (int y = 0; y < GridHeight; ++y)
-                {
-                    fs.Write(PadCentered(y.ToString(), 3));
-                    int numLines = formatted[0].Length;
-                    for (int line = 0; line < numLines; ++line)
-                    {
-                        if (line != 0) fs.Write("   ");
-                        for (int x = 0; x < GridWidth; ++x)
-                        {
-                            string[] element = formatted[x + y * GridWidth];
-                            fs.Write(PadCentered(element[line], columnWidth));
-                        }
-                        fs.Write('\n');
-                    }
-                }
             }
         }
 

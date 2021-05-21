@@ -48,7 +48,7 @@ namespace Ship_Game.AI.Research
                 case ShipData.RoleName.construction: return false;
                 case ShipData.RoleName.freighter:
                 case ShipData.RoleName.colony:
-
+                case ShipData.RoleName.ssp:
                 case ShipData.RoleName.platform:
                 case ShipData.RoleName.station:
                 case ShipData.RoleName.troopShip:

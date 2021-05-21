@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
@@ -40,12 +41,13 @@ namespace Ship_Game
 
         protected override void InitSaveList()        // Set list of files to show
         {
+            var ser = new XmlSerializer(typeof(HeaderData));
             var saves = new Array<FileData>();
             foreach (FileInfo fileInfo in Dir.GetFiles(Path + "Headers", "xml"))
             {
                 try
                 {
-                    var data = ResourceManager.HeaderSerializer.Deserialize<HeaderData>(fileInfo);
+                    var data = ser.Deserialize<HeaderData>(fileInfo);
 
                     if (data.SaveName.IsEmpty())
                     {

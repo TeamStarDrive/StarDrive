@@ -145,7 +145,8 @@ namespace Ship_Game
         {
             Log.Warning("StarDriveGame UnloadContent");
             // This also unloads all screens
-            ResourceManager.UnloadGraphicsResources(ScreenManager);
+            if (ScreenManager != null)
+                ResourceManager.UnloadGraphicsResources(ScreenManager);
             IsLoaded = false;
             GraphicsDeviceWasReset = true;
         }
@@ -176,9 +177,7 @@ namespace Ship_Game
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            GameAudio.Destroy();
             Instance = null;
-            Log.Write("Exiting: Game Instance Disposed");
         }
     }
 }

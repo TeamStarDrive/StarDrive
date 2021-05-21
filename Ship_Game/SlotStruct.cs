@@ -12,12 +12,12 @@ namespace Ship_Game
     {
         public Restrictions Restrictions;
         public PrimitiveQuad PQ;
+        public Vector2 XMLPos;
         public float Facing; // Facing is the turret aiming dir
         public ModuleOrientation Orientation; // Orientation controls the visual 4-dir rotation of module
         public bool PowerChecked; // this conduit or power plant already checked?
         public bool InPowerRadius; // is this slot covered by a power radius?
         public SlotStruct Parent;
-        public ModuleSlotData SlotReference;
         public string ModuleUID;
         public ShipModule Module;
         public string SlotOptions;
@@ -31,11 +31,11 @@ namespace Ship_Game
         {
             Enum.TryParse(slot.Orientation, out ModuleOrientation slotState);
             Vector2 pos = slot.Position;
+            XMLPos = pos;
             PQ = new PrimitiveQuad(pos.X + offset.X - 8f, pos.Y + offset.Y - 8f, 16f, 16f);
             Restrictions  = slot.Restrictions;
             Facing        = slot.Facing;
             ModuleUID     = slot.ModuleUID;
-            SlotReference = slot;
             Orientation   = slotState;
             SlotOptions   = slot.SlotOptions;
         }
@@ -43,11 +43,11 @@ namespace Ship_Game
         public override string ToString()
         {
             if (Parent == null)
-                return $"{Module?.UID} {Position} F:{Facing} R:{Restrictions}";
+                return $"{Module?.UID} {Position} R:{Restrictions} F:{Facing} O:{Orientation}";
 
             // @note Don't call Parent.ToString(), or we might get a stack overflow
-            string parent = $"{Parent.Position} F:{Parent.Facing} R:{Parent.Restrictions}";
-            return $"{Position} F:{Facing} R:{Restrictions}   Parent={{{parent}}}";
+            string parent = $"{Parent.Position} R:{Parent.Restrictions} F:{Parent.Facing} O:{Orientation}";
+            return $"{Position} R:{Restrictions} F:{Facing} O:{Orientation}   Parent={{{parent}}}";
         }
 
 
@@ -95,8 +95,8 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Vector2 PosVec2      => new Vector2(PQ.X, PQ.Y);
         [XmlIgnore][JsonIgnore] public Vector2 ModuleCenter => new Vector2(PQ.X + PQ.W/2, PQ.Y + PQ.H/2);
 
-        [XmlIgnore][JsonIgnore] public Point Position     => new Point(PQ.X, PQ.Y);
-        [XmlIgnore][JsonIgnore] public Point ModuleSize   => new Point(PQ.W, PQ.H);
+        [XmlIgnore][JsonIgnore] public Point Position   => new Point(PQ.X, PQ.Y);
+        [XmlIgnore][JsonIgnore] public Point ModuleSize => new Point(PQ.W, PQ.H);
 
         // Width and Height in 1x1, 2x2, etc
         [XmlIgnore][JsonIgnore] public int Width  => PQ.W/16;

@@ -107,7 +107,7 @@ namespace Ship_Game.Gameplay
         public ExplosionType ExplosionType = ExplosionType.Projectile;
         public string dieCue;
         public string ToggleSoundName = "";
-        [XmlIgnore][JsonIgnore] readonly AudioHandle ToggleCue = new AudioHandle();
+        [XmlIgnore][JsonIgnore] AudioHandle ToggleCue = new AudioHandle();
         public string Light;
         public bool isTurret;
         public bool isMainGun;
@@ -586,8 +586,12 @@ namespace Ship_Game.Gameplay
             // total error magnitude should get smaller as the target gets slower. 
             if (FireTarget?.Type == GameObjectType.ShipModule)
             {
-                float speed = ((ShipModule)FireTarget).GetParent().CurrentVelocity;
-                errorMagnitude *= speed < 150 ? speed / 150 : 1;
+                Ship parent = ((ShipModule)FireTarget).GetParent();
+                if (parent != null) // the parent can be null
+                {
+                    float speed = parent.CurrentVelocity;
+                    errorMagnitude *= speed < 150 ? speed / 150 : 1;
+                }
             }
             
             Vector2 adjusted = target + error*errorMagnitude;
@@ -1042,7 +1046,8 @@ namespace Ship_Game.Gameplay
 
         void Destroy()
         {
-            ToggleCue.Destroy();
+            ToggleCue?.Destroy();
+            ToggleCue = null;
             Owner         = null;
             Module        = null;
             FireTarget    = null;

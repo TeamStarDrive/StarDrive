@@ -70,9 +70,10 @@ namespace Ship_Game
 
         public new void Clear()
         {
-            ThisLock.EnterWriteLock();
+            // Due to some strange concurrency issues ThisLock can be null
+            ThisLock?.EnterWriteLock();
             base.Clear();
-            ThisLock.ExitWriteLock();
+            ThisLock?.ExitWriteLock();
             PendingRemovals?.Clear();
         }
 

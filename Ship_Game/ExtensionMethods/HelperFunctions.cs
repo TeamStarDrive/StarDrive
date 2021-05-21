@@ -302,25 +302,5 @@ namespace Ship_Game
 
             return systems.Length > 0;
         }
-
-        // For specific cases were non squared icons requires a different texture when oriented, light thrusters
-        public static bool GetOrientedModuleTexture(ShipModule template, ref SubTexture tex, ModuleOrientation orientation)
-        {
-            if (template.DisableRotation)
-                return false;
-
-            string defaultTex = template.IconTexturePath;
-            switch (orientation)
-            {
-                case ModuleOrientation.Left:  tex = ResourceManager.TextureOrDefault($"{defaultTex}_270", defaultTex); break;
-                case ModuleOrientation.Right: tex = ResourceManager.TextureOrDefault($"{defaultTex}_90", defaultTex); break;
-                case ModuleOrientation.Rear:  tex = ResourceManager.TextureOrDefault($"{defaultTex}_180", defaultTex); break;
-                default: return false;
-            }
-
-            return tex.Name.EndsWith("_90")
-                   || tex.Name.EndsWith("_180")
-                   || tex.Name.EndsWith("_270");
-        }
     }
 }
