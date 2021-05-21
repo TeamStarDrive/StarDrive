@@ -61,6 +61,7 @@ namespace Ship_Game.SpriteSystem
             }
             Sorted = Empty<TextureBinding>.Array;
             Lookup.Clear();
+            Path = null;
         }
 
         // Try to get a texture out of this Atlas

@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Audio;
 
 namespace Ship_Game
 {
@@ -13,12 +14,12 @@ namespace Ship_Game
 
         public GameDummy(int width = 800, int height = 600, bool show = false)
         {
+            GameAudio.DisableAudio(true);
             GraphicsSettings settings = GraphicsSettings.FromGlobalStats();
             settings.Width  = width;
             settings.Height = height;
             settings.Mode = WindowMode.Borderless;
             ApplyGraphics(settings);
-            InitializeAudio();
             if (show) Form.Visible = true;
             IsMouseVisible = true;
         }
