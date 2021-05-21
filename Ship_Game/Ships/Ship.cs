@@ -1413,6 +1413,12 @@ namespace Ship_Game.Ships
             UniverseScreen.Spatial.ShipExplode(this, size * 50, Center, Radius);
         }
 
+        public void InstantKill()
+        {
+            Die(this, false);
+            Die(this, true);
+        }
+
         // cleanupOnly: for tumbling ships that are already dead
         public override void Die(GameplayObject source, bool cleanupOnly)
         {

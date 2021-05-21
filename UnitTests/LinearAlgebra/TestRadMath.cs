@@ -121,6 +121,7 @@ namespace UnitTests.LinearAlgebra
         {
             Vector2 x = default;
             float step = (2*RadMath.PI) / 10000;
+            step.RadiansToDirection();
 
             Stopwatch s1 = Stopwatch.StartNew();
             for (int i = -5000000; i < 5000000; ++i)

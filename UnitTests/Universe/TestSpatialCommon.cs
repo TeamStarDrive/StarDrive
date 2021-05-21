@@ -24,6 +24,11 @@ namespace UnitTests.Universe
 
         protected void CreateQuadTree(int numShips, ISpatial tree)
         {
+            if (!AllObjects.IsEmpty)
+            {
+                Universe.Objects.Clear();
+                AllObjects.Clear();
+            }
             AllObjects = QtreePerfTests.CreateTestSpace(numShips, tree, Player, Enemy, SpawnShip);
         }
 
