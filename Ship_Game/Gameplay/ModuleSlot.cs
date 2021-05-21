@@ -3,6 +3,7 @@ using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.AI;
+using Ship_Game.Data;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Gameplay
@@ -13,7 +14,7 @@ namespace Ship_Game.Gameplay
         public Restrictions Restrictions;
 
         [XmlElement(ElementName = "InstalledModuleUID")]
-        [JsonProperty("InstalledModuleUID")]
+        [JsonProperty("InstalledModuleUID", ItemConverterType = typeof(InterningStringConverter))]
         public string ModuleUID;
 
         [XmlElement(ElementName = "facing")]
@@ -49,7 +50,8 @@ namespace Ship_Game.Gameplay
         
         // This is the most correct way to create a new ModuleSlotData instance
         // With initial position, restrictions, etc.
-        // Excluding 
+        // 
+        // NOTE: In ShipData when these are parsed, the strings will be Interned
         public ModuleSlotData(Vector2 xmlPos,
                               Restrictions restrictions,
                               string moduleUid, float facing,
@@ -70,7 +72,7 @@ namespace Ship_Game.Gameplay
                    restrictions: module.Restrictions,
                    moduleUid:    module.UID,
                    facing:       module.FacingDegrees,
-                   orientation:  module.Orientation.ToString())
+                   orientation:  GetOrientationString(module.Orientation))
         {
             Health       = module.Health;
             ShieldPower  = module.ShieldPower;
@@ -83,6 +85,7 @@ namespace Ship_Game.Gameplay
                 SlotOptions = module.DynamicHangar == DynamicHangarOptions.Static
                             ? module.hangarShipUID
                             : module.DynamicHangar.ToString();
+                SlotOptions = string.Intern(SlotOptions);
             }
         }
 
@@ -91,15 +94,13 @@ namespace Ship_Game.Gameplay
         {
             Position     = slot.XMLPos;
             Restrictions = slot.Restrictions;
-            ModuleUID    = slot.ModuleUID;
-            Orientation  = slot.Orientation.ToString();
+            ModuleUID    = string.Intern(slot.ModuleUID);
+            Orientation  = GetOrientationString(slot.Orientation);
             if (slot.Module != null)
             {
-                if (slot.Module.UID.Contains("VulcanCannon"))
-                    Log.Warning("VC");
                 Facing = slot.Module.FacingDegrees;
                 if (slot.Module.ModuleType == ShipModuleType.Hangar)
-                    SlotOptions = slot.Module.hangarShipUID;
+                    SlotOptions = string.Intern(slot.Module.hangarShipUID);
             }
         }
 
@@ -114,6 +115,15 @@ namespace Ship_Game.Gameplay
 
         [XmlIgnore] [JsonIgnore]
         public Point PosAsPoint => new Point((int)Position.X, (int)Position.Y);
+
+        static string[] Orientations;
+
+        public static string GetOrientationString(ModuleOrientation orientation)
+        {
+            if (Orientations == null)
+                Orientations = new []{ "Normal", "Left", "Right", "Rear" };
+            return Orientations[(int)orientation];
+        }
 
         public ModuleOrientation GetOrientation()
         {
@@ -143,7 +153,7 @@ namespace Ship_Game.Gameplay
         /// </summary>
         public ModuleSlotData GetStatelessClone()
         {
-            return new ModuleSlotData(
+            var slot = new ModuleSlotData(
                 xmlPos: Position,
                 restrictions: Restrictions,
                 moduleUid: ModuleUID,
@@ -151,6 +161,7 @@ namespace Ship_Game.Gameplay
                 orientation: Orientation,
                 slotOptions: SlotOptions
             );
+            return slot;
         }
 
         /// <summary>

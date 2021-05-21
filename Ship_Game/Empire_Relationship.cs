@@ -272,10 +272,10 @@ namespace Ship_Game
                 return true;
 
             return GetRelationsOrNull(otherEmpire)?.AtWar == true
-                   || otherEmpire?.isFaction == true && !IsNAPactWith(otherEmpire)
                    || data.IsRebelFaction
                    || this == EmpireManager.Unknown
-                   || WeAreRemnants;
+                   || WeAreRemnants
+                   || (otherEmpire?.isFaction == true && !IsNAPactWith(otherEmpire));
         }
 
         public bool IsAtWar => AllActiveWars.Length > 0;

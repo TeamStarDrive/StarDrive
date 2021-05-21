@@ -8,12 +8,12 @@ namespace Ship_Game.Ships
 {
     public class CarrierBays  // Created by Fat Bastard in to better deal with hangars
     {
-        public ShipModule[] AllHangars { get; }
-        public ShipModule[] AllTroopBays { get; }
-        public ShipModule[] AllSupplyBays { get; }
-        public ShipModule[] AllFighterHangars { get; }
-        public ShipModule[] AllTransporters { get; }
-        private readonly Ship Owner;
+        public ShipModule[] AllHangars { get; private set; }
+        public ShipModule[] AllTroopBays { get; private set; }
+        public ShipModule[] AllSupplyBays { get; private set; }
+        public ShipModule[] AllFighterHangars { get; private set; }
+        public ShipModule[] AllTransporters { get; private set; }
+        Ship Owner;
         public readonly bool HasHangars;
         public readonly bool HasSupplyBays;
         public readonly bool HasFighterBays;
@@ -36,7 +36,7 @@ namespace Ship_Game.Ships
                                             || Owner.DesignRole == ShipData.RoleName.support
                                             || Owner.DesignRoleType == ShipData.RoleType.Orbital);
 
-        private CarrierBays(Ship owner, ShipModule[] slots)
+        CarrierBays(Ship owner, ShipModule[] slots)
         {
             AllHangars        = slots.Filter(module => module.Is(ShipModuleType.Hangar));
             AllTroopBays      = AllHangars.Filter(module => module.IsTroopBay);
@@ -58,7 +58,7 @@ namespace Ship_Game.Ships
             SupplyShuttle           = new SupplyShuttles(Owner);
         }
 
-        private static readonly CarrierBays None = new CarrierBays(null, Empty<ShipModule>.Array); // NIL object pattern
+        static readonly CarrierBays None = new CarrierBays(null, Empty<ShipModule>.Array); // NIL object pattern
 
         public static CarrierBays Create(Ship owner, ShipModule[] slots)
         {
@@ -71,6 +71,27 @@ namespace Ship_Game.Ships
             }
 
             return None;
+        }
+
+        public void Dispose()
+        {
+            if (Owner == null)
+                return;
+            Owner = null;
+
+            foreach (ShipModule hangar in AllHangars) // FB: use here all hangars and not just active hangars
+            {
+                if (hangar.TryGetHangarShip(out Ship hangarShip))
+                    hangarShip.Mothership = null; // Todo - Setting this to null might be risky
+            }
+
+            AllHangars = null;
+            AllTroopBays = null;
+            AllSupplyBays = null;
+            AllFighterHangars = null;
+            AllTransporters = null;
+            SupplyShuttle?.Dispose();
+            SupplyShuttle = null;
         }
 
         public ShipModule[] AllActiveHangars   => AllHangars.Filter(module => module.Active);
