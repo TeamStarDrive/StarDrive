@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Ship_Game.AI;
-using Ship_Game.Data;
 using Ship_Game.Ships;
+using Ship_Game.Utils;
 
 namespace Ship_Game.Empires.ShipPools
 {
