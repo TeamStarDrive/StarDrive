@@ -94,13 +94,15 @@ namespace Ship_Game.Gameplay
         {
             Position     = slot.XMLPos;
             Restrictions = slot.Restrictions;
-            ModuleUID    = string.Intern(slot.ModuleUID);
+            ModuleUID    = slot.ModuleUID != null ? string.Intern(slot.ModuleUID) : null;
             Orientation  = GetOrientationString(slot.Orientation);
             if (slot.Module != null)
             {
                 Facing = slot.Module.FacingDegrees;
                 if (slot.Module.ModuleType == ShipModuleType.Hangar)
+                {
                     SlotOptions = string.Intern(slot.Module.hangarShipUID);
+                }
             }
         }
 
