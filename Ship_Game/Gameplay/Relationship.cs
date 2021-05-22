@@ -1117,7 +1117,7 @@ namespace Ship_Game.Gameplay
             turnsSinceLastContact = 0;
         }
 
-        void OfferPeace(Empire us, Empire them, string whichPeace)
+        public void OfferPeace(Empire us, Empire them, string whichPeace)
         {
             var offerPeace = new Offer
             {

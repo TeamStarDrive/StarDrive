@@ -282,6 +282,7 @@ namespace Ship_Game
                     if (g.ColonizationTarget != null) gdata.markedPlanetGuid          = g.ColonizationTarget.guid;
                     if (g.PlanetBuildingAt != null)   gdata.planetWhereBuildingAtGuid = g.PlanetBuildingAt.guid;
                     if (g.TargetSystem != null)       gdata.TargetSystemGuid          = g.TargetSystem.guid;
+                    if (g.TargetPlanet != null)       gdata.TargetPlanetGuid          = g.TargetPlanet.guid;
                     if (g.Fleet != null)              gdata.fleetGuid                 = g.Fleet.Guid;
                     if (g.ShipToBuild != null)        gdata.beingBuiltGUID            = g.ShipToBuild.guid;
                     if (g.OldShip != null)            gdata.OldShipGuid               = g.OldShip.guid;
@@ -673,6 +674,7 @@ namespace Ship_Game
             [Serialize(17)] public int TargetEmpireId;
             [Serialize(18)] public float StarDateAdded;
             [Serialize(19)] public Guid TargetSystemGuid;
+            [Serialize(20)] public Guid TargetPlanetGuid;
         }
 
         public class GSAISAVE
