@@ -68,22 +68,21 @@
 
         public WarState GetWarScoreState()
         {
-            //if (Them.isFaction) return WarState.NotApplicable;
             float lostColonyPercent = LostColonyPercent;
             float spaceWarKd = SpaceWarKd;
 
             //They Are weaker than us
             if (TotalThreatAgainst <= 1f)
             {
-                if (lostColonyPercent > 0.5f) return WarState.LosingBadly;
+                if (lostColonyPercent > 0.5f)  return WarState.LosingBadly;
                 if (lostColonyPercent > 0.25f) return WarState.LosingSlightly;
-                if (lostColonyPercent > 0.1f) return WarState.EvenlyMatched;
+                if (lostColonyPercent > 0.1f)  return WarState.EvenlyMatched;
 
                 if (spaceWarKd.AlmostZero()) return WarState.ColdWar;
-                if (spaceWarKd > 1.5f) return WarState.Dominating;
-                if (spaceWarKd > 0.75f) return WarState.WinningSlightly;
-                if (spaceWarKd > 0.35f) return WarState.EvenlyMatched;
-                if (spaceWarKd > 0.15) return WarState.LosingSlightly;
+                if (spaceWarKd > 1.5f)       return WarState.Dominating;
+                if (spaceWarKd > 0.75f)      return WarState.WinningSlightly;
+                if (spaceWarKd > 0.35f)      return WarState.EvenlyMatched;
+                if (spaceWarKd > 0.15)       return WarState.LosingSlightly;
                 return WarState.LosingBadly;
             }
 
@@ -93,10 +92,10 @@
                 return WarState.ColdWar;
 
             if (spaceWarKd.AlmostZero()) return WarState.ColdWar;
-            if (spaceWarKd > 1.25f) return WarState.Dominating;
-            if (spaceWarKd > 1.0f) return WarState.WinningSlightly;
-            if (spaceWarKd > 0.85f) return WarState.EvenlyMatched;
-            if (spaceWarKd > 0.5) return WarState.LosingSlightly;
+            if (spaceWarKd > 1.25f)      return WarState.Dominating;
+            if (spaceWarKd > 1.0f)       return WarState.WinningSlightly;
+            if (spaceWarKd > 0.85f)      return WarState.EvenlyMatched;
+            if (spaceWarKd > 0.5)        return WarState.LosingSlightly;
 
             return WarState.LosingBadly;
         }
