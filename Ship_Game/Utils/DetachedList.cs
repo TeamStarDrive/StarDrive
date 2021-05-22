@@ -12,9 +12,9 @@ namespace Ship_Game.Utils
         bool VolatileListChanged;
 
         /// <summary>
-        /// Gets a snapshot reference of the items in the buffered list.
-        /// The list will never change unless changed outside of the buffered list.
-        /// When iterating this list make sure to use the reference list by using:
+        /// Gives a reference to the PublicList. On update this will no longer be the PublicList.
+        /// To add or remove items from the public list use DetachedList add/remove methods. 
+        /// When iterating this list make sure to use a reference to the PublicList by using:
         /// var refList = instance.GetRef()
         /// foreach(var item in refList)
         /// It is thread safe with above conditions. 
@@ -42,7 +42,7 @@ namespace Ship_Game.Utils
         }
 
         /// <summary>
-        /// Not thread safe. all adds must be done on same thread.
+        /// Not thread safe. All adds must be done on same thread.
         /// </summary>
         public bool Add(T item)
         {
@@ -52,13 +52,19 @@ namespace Ship_Game.Utils
         }
 
         /// <summary>
-        /// Not thread safe. all removes must be done on same thread.
+        /// Not thread safe. All removes must be done on same thread.
         /// </summary>
         public bool Remove(T item)
         {
             bool removed = VolatileList.RemoveRef(item);
             VolatileListChanged |= removed;
             return removed;
+        }
+
+        public void CleanOut()
+        {
+            PublicList   = new Array<T>();
+            VolatileList = new Array<T>();
         }
 
         public void ClearAndDispose()
