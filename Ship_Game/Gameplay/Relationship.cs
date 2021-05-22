@@ -1147,7 +1147,7 @@ namespace Ship_Game.Gameplay
             }
 
             Empire them = Them;
-            if (!them.GetEmpireAI().TradableTechs(us, out Array<TechEntry> potentialDemands))
+            if (!them.GetEmpireAI().TradableTechs(us, out Array<TechEntry> potentialDemands, true))
                 return;
 
             TechEntry techToDemand = potentialDemands.RandItem();
@@ -1207,7 +1207,7 @@ namespace Ship_Game.Gameplay
         bool TechsToOffer(Empire us, Empire them, out Array<TechEntry> techs)
         {
             techs = new Array<TechEntry>();
-            if (!us.GetEmpireAI().TradableTechs(them, out Array<TechEntry> ourTechs))
+            if (!us.GetEmpireAI().TradableTechs(them, out Array<TechEntry> ourTechs, !us.isPlayer && !them.isPlayer))
                 return false;
 
             var theirDesigns = them.GetOurFactionShips();
