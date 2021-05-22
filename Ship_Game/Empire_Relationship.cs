@@ -635,5 +635,17 @@ namespace Ship_Game
             dialog = "JoinWar_Reject_TooDangerous";
             return false;
         }
+
+        public bool IsLosingInWarWith(Empire enemy)
+        {
+            Relationship relations = GetRelations(enemy);
+            if (relations.AtWar)
+            {
+                WarState state = relations.ActiveWar.GetWarScoreState();
+                return state == WarState.LosingBadly || state == WarState.LosingSlightly;
+            }
+
+            return false;
+        }
     }
 }

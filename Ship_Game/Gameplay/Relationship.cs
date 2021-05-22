@@ -1063,20 +1063,22 @@ namespace Ship_Game.Gameplay
             if ((ActiveWar.TurnsAtWar % 100).NotZero() && !requestNow)
                 return;
 
-            WarState warState;
+            WarState warState    = ActiveWar.GetWarScoreState();
             Empire them          = Them;
             float warsGrade      = us.GetAverageWarGrade();
             float gradeThreshold = us.PersonalityModifiers.WarGradeThresholdForPeace;
-            if (warsGrade > gradeThreshold)
-                return;
+
+            if (them.isPlayer || !us.IsLosingInWarWith(EmpireManager.Player))
+            {
+                if (warsGrade > gradeThreshold)
+                    return;
+            }
 
             switch (ActiveWar.WarType)
             {
                 case WarType.BorderConflict:
                     if (Anger_FromShipsInOurBorders + Anger_TerritorialConflict > us.data.DiplomaticPersonality.Territorialism)
                         return;
-
-                    warState = ActiveWar.GetBorderConflictState();
 
                     switch (warState)
                     {
@@ -1088,8 +1090,6 @@ namespace Ship_Game.Gameplay
 
                     break;
                 case WarType.ImperialistWar:
-                    warState = ActiveWar.GetWarScoreState();
-
                     switch (warState)
                     {
                         case WarState.LosingSlightly:
@@ -1101,7 +1101,6 @@ namespace Ship_Game.Gameplay
 
                     break;
                 case WarType.DefensiveWar:
-                    warState = ActiveWar.GetBorderConflictState();
                     switch (warState)
                     {
                         case WarState.LosingSlightly:
