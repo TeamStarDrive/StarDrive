@@ -251,19 +251,21 @@ namespace Ship_Game.Empires.ShipPools
 
             if (baseDefensePct > 0.35f)
                 baseDefensePct = 0.35f;
-
-            bool needDef = (Owner.CurrentMilitaryStrength * baseDefensePct - OwnerAI.DefStr) > 0
-                        && OwnerAI.DefensiveCoordinator.DefenseDeficit > 0;
-            if (needDef && !Owner.isFaction)
+            if (OwnerAI != null)
             {
-                OwnerAI.DefensiveCoordinator.AddShip(toAdd);
-                return true;
-            }
+                bool needDef = (Owner.CurrentMilitaryStrength * baseDefensePct - OwnerAI.DefStr) > 0
+                               && OwnerAI.DefensiveCoordinator.DefenseDeficit > 0;
+                if (needDef && !Owner.isFaction)
+                {
+                    OwnerAI.DefensiveCoordinator.AddShip(toAdd);
+                    return true;
+                }
 
-            // need to rework this better divide the ships.
-            AO area = OwnerAI.AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Center));
-            if (area?.AddShip(toAdd) != false)
-                return true;
+                // need to rework this better divide the ships.
+                AO area = OwnerAI.AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Center));
+                if (area?.AddShip(toAdd) != false)
+                    return true;
+            }
 
             return false; // nothing to do with you
         }
