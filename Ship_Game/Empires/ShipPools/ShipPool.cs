@@ -9,14 +9,9 @@ namespace Ship_Game.Empires.ShipPools
     public class ShipPool : IDisposable
     {
         readonly Empire Owner;
-        BufferedList<Ship> OwnedShips             = new BufferedList<Ship>();
-        BufferedList<Ship> OwnedProjectors        = new BufferedList<Ship>();
-        
+        DetachedList<Ship> OwnedShips      = new DetachedList<Ship>();
+        DetachedList<Ship> OwnedProjectors = new DetachedList<Ship>();
         Array<Ship> PendingForcePoolAdds   = new Array<Ship>();
-        bool ShipListModified              = false;
-        bool ProjectorsModified            = false;
-
-
 
         EmpireAI OwnerAI => Owner.GetEmpireAI();
         
@@ -343,8 +338,8 @@ namespace Ship_Game.Empires.ShipPools
         
         public void CleanOut()
         {
-            OwnedShips           = new BufferedList<Ship>();
-            OwnedProjectors      = new BufferedList<Ship>();
+            OwnedShips           = new DetachedList<Ship>();
+            OwnedProjectors      = new DetachedList<Ship>();
             PendingForcePoolAdds = new Array<Ship>();
             EmpireForcePool      = new Array<Ship>();
             EmpireReadyFleets    = new FleetShips(Owner);
