@@ -763,7 +763,7 @@ namespace Ship_Game.Fleets
             Vector2 enemySystemPos = task.TargetPlanet.ParentSystem.Position;
             Vector2 rallySystemPos = task.RallyPlanet.ParentSystem.Position;
 
-            return rallySystemPos.Distance(enemySystemPos) > AveragePos.Distance(rallySystemPos);
+            return rallySystemPos.Distance(enemySystemPos)*2 > AveragePos.Distance(rallySystemPos);
         }
 
         void DoAssaultPlanet(MilitaryTask task)

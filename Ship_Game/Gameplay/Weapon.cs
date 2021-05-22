@@ -874,7 +874,7 @@ namespace Ship_Game.Gameplay
 
         public void ResetToggleSound()
         {
-            if (ToggleCue.IsPlaying)
+            if (ToggleCue?.IsPlaying == true)
                 ToggleCue.Stop();
         }
 

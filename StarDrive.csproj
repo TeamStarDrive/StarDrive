@@ -253,6 +253,8 @@
     <Compile Include="Ship_Game\Commands\Goals\WarManager.cs" />
     <Compile Include="Ship_Game\Commands\Goals\WarMission.cs" />
     <Compile Include="Ship_Game\Commands\Goals\ScoutSystem.cs" />
+    <Compile Include="Ship_Game\Utils\ChangePendingList.cs" />
+    <Compile Include="Ship_Game\Utils\DetachedList.cs" />
     <Compile Include="Ship_Game\Data\InterningStringConverter.cs" />
     <Compile Include="Ship_Game\Debug\Page\StoryAndEventsDebug.cs" />
     <Compile Include="Ship_Game\Empire_War.cs" />
@@ -617,8 +619,8 @@
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.StressTestShipLoading.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.UpdateGame.cs" />
     <Compile Include="Ship_Game\Utils\Deque.cs" />
+    <Compile Include="Ship_Game\Utils\DoubleBufferedArray.cs" />
     <Compile Include="Ship_Game\Utils\EnumFlatMap.cs" />
-    <Compile Include="Ship_Game\Utils\ObjectRecycler.cs" />
     <Compile Include="Ship_Game\Utils\ReadRestAPIFromSite.cs" />
     <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetEdict.cs">
