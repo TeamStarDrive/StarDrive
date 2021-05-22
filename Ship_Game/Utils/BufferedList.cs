@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Ship_Game.Data
+namespace Ship_Game.Utils
 {
     public class BufferedList<T> where T : class
     {
