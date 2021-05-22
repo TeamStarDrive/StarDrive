@@ -100,7 +100,7 @@ namespace Ship_Game.AI
                     }
                     if (!us.isPlayer)
                     {
-                        float cost = p.ColonyWorthTo(us);
+                        float cost = p.ColonyDiplomaticValueTo(us);
                         usToThem.AddTrustEntry(attitude, TrustEntryType.Colony, cost, turnTimer:40);
                     }
                 }
@@ -346,7 +346,7 @@ namespace Ship_Game.AI
                     if (p.Name != planetName)
                         continue;
 
-                    float worth = p.ColonyWorthTo(us);
+                    float worth = p.ColonyDiplomaticValueTo(us);
                     foreach (Building b in p.BuildingList)
                         if (b.IsCapital)
                             worth += 200f;
@@ -363,7 +363,7 @@ namespace Ship_Game.AI
                     {
                         continue;
                     }
-                    float worth = p.ColonyWorthTo(us);
+                    float worth = p.ColonyDiplomaticValueTo(us);
                     int multiplier = 1 + p.ParentSystem.PlanetList.Count(other => other.Owner == p.Owner);
                     worth *= multiplier;
                     valueToUs += worth;
@@ -546,7 +546,7 @@ namespace Ship_Game.AI
                 foreach (Planet p in us.GetPlanets())
                 {
                     if (p.Name == planetName)
-                        valueToThem += p.ColonyWorthTo(us);
+                        valueToThem += p.ColonyDiplomaticValueTo(us);
                 }
             }
             Array<Planet> planetsToUs = new Array<Planet>();
@@ -557,7 +557,7 @@ namespace Ship_Game.AI
                     if (p.Name != planetName)
                         continue;
                     planetsToUs.Add(p);
-                    float worth = p.ColonyWorthTo(us);
+                    float worth = p.ColonyDiplomaticValueTo(us);
                     foreach (Building b in p.BuildingList)
                         if (b.IsCapital)
                             worth += 100000f; // basically, don't let AI give away their capital too easily

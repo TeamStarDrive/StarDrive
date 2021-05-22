@@ -1,10 +1,6 @@
 ﻿using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
-using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using Ship_Game.AI.Tasks;
 
 namespace Ship_Game
@@ -75,40 +71,31 @@ namespace Ship_Game
             }
         }
 
-        public void CreateWarTask(Planet targetPlanet)
+        public void CreateWarTask(Planet targetPlanet, Empire enemy)
         {
+            MilitaryTask.TaskType taskType = MilitaryTask.TaskType.StrikeForce;
             if (IsAlreadyStriking())
             {
-                MilitaryTask task =(new MilitaryTask(targetPlanet, this)
+                if (canBuildBombers
+                     && !IsAlreadyGlassingPlanet(targetPlanet)
+                     && (targetPlanet.Population < 1
+                         || targetPlanet.ColonyPotentialValue(enemy) / targetPlanet.ColonyPotentialValue(this) > PersonalityModifiers.DoomFleetThreshold))
                 {
-                    Priority = 5,
-                    type = MilitaryTask.TaskType.AssaultPirateBase
-                });
-
-                EmpireAI.AddPendingTask(task);
+                    taskType = MilitaryTask.TaskType.GlassPlanet;
+                }
+                else
+                {
+                    taskType = MilitaryTask.TaskType.AssaultPlanet;
+                }
             }
-            else
+
+            MilitaryTask task = (new MilitaryTask(targetPlanet, this)
             {
-                MilitaryTask task = (new MilitaryTask(targetPlanet, this)
-                {
-                    Priority = 5,
-                    type      = MilitaryTask.TaskType.StrikeForce,
-                });
+                Priority = 5,
+                type = taskType
+            });
 
-                EmpireAI.AddPendingTask(task);
-            }
-
-            // todo make doom fleets based on planet value
-            if (canBuildBombers && !IsAlreadyGlassingPlanet(targetPlanet))
-            {
-                MilitaryTask task = (new MilitaryTask(targetPlanet, this)
-                {
-                    Priority = 5,
-                    type     = MilitaryTask.TaskType.GlassPlanet,
-                });
-
-                EmpireAI.AddPendingTask(task);
-            }
+            EmpireAI.AddPendingTask(task);
         }
 
         bool IsAlreadyStriking()
@@ -125,7 +112,6 @@ namespace Ship_Game
         {
             return EmpireAI.Goals
                 .Filter(g => g.IsWarMission && g.TargetEmpire == enemy).Length <= DifficultyModifiers.NumWarTasksPerWar;
-
         }
 
         public bool TryGetMissionsVsEmpire(Empire enemy, out Goal[] goals)
@@ -133,12 +119,6 @@ namespace Ship_Game
             goals = EmpireAI.Goals.Filter(g => g.IsWarMission && g.TargetEmpire == enemy);
             return goals.Length > 0;
         }
-
-
-
-
-
-
 
         public Goal[] GetDefendSystemsGoal()
         {
