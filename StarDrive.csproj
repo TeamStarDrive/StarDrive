@@ -249,6 +249,8 @@
     </Compile>
     <Compile Include="Ship_Game\Commands\Goals\AssaultBombers.cs" />
     <Compile Include="Ship_Game\Commands\Goals\ScoutSystem.cs" />
+    <Compile Include="Ship_Game\Utils\ChangePendingList.cs" />
+    <Compile Include="Ship_Game\Utils\DetachedList.cs" />
     <Compile Include="Ship_Game\Data\InterningStringConverter.cs" />
     <Compile Include="Ship_Game\Debug\Page\StoryAndEventsDebug.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\DesignShip.cs" />
