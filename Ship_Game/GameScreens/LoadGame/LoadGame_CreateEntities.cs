@@ -493,8 +493,9 @@ namespace Ship_Game
 
                     foreach (Planet p in s.PlanetList)
                     {
-                        if (p.guid == gsave.planetWhereBuildingAtGuid) g.PlanetBuildingAt = p;
-                        if (p.guid == gsave.markedPlanetGuid) g.ColonizationTarget = p;
+                        if (p.guid == gsave.planetWhereBuildingAtGuid) g.PlanetBuildingAt   = p;
+                        if (p.guid == gsave.markedPlanetGuid)          g.ColonizationTarget = p;
+                        if (p.guid == gsave.TargetPlanetGuid)          g.TargetPlanet       = p;
                     }
                 }
 

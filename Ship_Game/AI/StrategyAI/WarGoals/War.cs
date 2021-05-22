@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -117,8 +118,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             StartingNumContestedSystems = ContestedSystemsGUIDs.Count;
             OurRelationToThem           = us.GetRelationsOrNull(them);
             Score                       = new WarScore(this, Us);
+
             PopulateHistoricLostSystems();
-            WarTheaters = new TheatersOfWar(this);
+            Us.GetEmpireAI().AddGoal(new WarManager(Us, Them, WarType));
+            //WarTheaters = new TheatersOfWar(this);
         }
 
         public static War CreateInstance(Empire owner, Empire target, WarType warType)
@@ -135,6 +138,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 if (lostSystem.OwnerList.Contains(Them))
                     HistoricLostSystems.AddUniqueRef(lostSystem);
             }
+        }
+
+        public void ChangeWarType(WarType type)
+        {
+            WarType = type;
         }
 
         public SolarSystem[] GetTheirBorderSystems() => Them.GetOurBorderSystemsTo(Us, true)

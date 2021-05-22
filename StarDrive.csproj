@@ -250,6 +250,8 @@
     <Compile Include="Ship_Game\Commands\Goals\AssaultBombers.cs" />
     <Compile Include="Ship_Game\Commands\Goals\DefendSystem.cs" />
     <Compile Include="Ship_Game\Commands\Goals\EmpireDefense.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\WarManager.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\WarMission.cs" />
     <Compile Include="Ship_Game\Commands\Goals\ScoutSystem.cs" />
     <Compile Include="Ship_Game\Data\InterningStringConverter.cs" />
     <Compile Include="Ship_Game\Debug\Page\StoryAndEventsDebug.cs" />
@@ -294,7 +296,6 @@
     <Compile Include="Ship_Game\Commands\Goals\RefitOrbital.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RearmShipFromPlannet.cs" />
     <Compile Include="Ship_Game\Commands\Goals\ScrapShip.cs" />
-    <Compile Include="Ship_Game\Commands\Goals\RemnantAI.cs" />
     <Compile Include="Ship_Game\Data\GameText.cs" />
     <Compile Include="Ship_Game\Data\LocalizedText.cs" />
     <Compile Include="Ship_Game\Debug\Page\DebugWar.cs" />

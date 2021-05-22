@@ -22,7 +22,6 @@ namespace Ship_Game.AI
         FleetRequisition,
         Refit,
         BuildOrbital,
-        RemnantAI,
         PirateAI,
         PirateDirectorPayment,
         PirateDirectorRaid,
@@ -47,7 +46,9 @@ namespace Ship_Game.AI
         ScoutSystem,
         AssaultBombers,
         EmpireDefense,
-        DefendSystem
+        DefendSystem,
+        WarManager,
+        WarMission,
     }
 
     public enum GoalStep
@@ -80,6 +81,7 @@ namespace Ship_Game.AI
         public Ship OldShip;      // this is the ship which needs refit
         public Ship TargetShip;      // this is targeted by this goal (raids)
         public Empire TargetEmpire; // Empire target of this goal (for instance, pirate goals)
+        public Planet TargetPlanet;
         public SolarSystem TargetSystem;
         public float StarDateAdded;  
         public string StepName => Steps[Step].Method.Name;
@@ -151,7 +153,6 @@ namespace Ship_Game.AI
                 case RefitShip.ID:              return new RefitShip();
                 case RefitOrbital.ID:           return new RefitOrbital();
                 case BuildOrbital.ID:           return new BuildOrbital();
-                case RemnantAI.ID:              return new RemnantAI();
                 case RemnantInit.ID:            return new RemnantInit();
                 case PirateAI.ID:               return new PirateAI();
                 case PirateDirectorPayment.ID:  return new PirateDirectorPayment();
@@ -175,6 +176,8 @@ namespace Ship_Game.AI
                 case ScoutSystem.ID:            return new ScoutSystem();
                 case AssaultBombers.ID:         return new AssaultBombers();
                 case EmpireDefense.ID:          return new EmpireDefense();
+                case WarMission.ID:             return new WarMission();
+                case WarManager.ID:             return new WarManager();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }
@@ -205,8 +208,9 @@ namespace Ship_Game.AI
         {
         }
 
-        public virtual bool IsRaid    => false;
-        public virtual bool IsWarGoal => false;
+        public virtual bool IsRaid       => false;
+        public virtual bool IsWarGoal    => false;
+        public virtual bool IsWarMission => false;
 
         protected Goal(GoalType type)
         {
