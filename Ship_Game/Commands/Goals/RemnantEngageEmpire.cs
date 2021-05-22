@@ -44,12 +44,6 @@ namespace Ship_Game.Commands.Goals
             set => TargetShip = value;
         }
 
-        public Planet TargetPlanet
-        {
-            get => ColonizationTarget;
-            set => ColonizationTarget = value;
-        }
-
         public override bool IsRaid => true;
        
         bool SelectTargetPlanet()

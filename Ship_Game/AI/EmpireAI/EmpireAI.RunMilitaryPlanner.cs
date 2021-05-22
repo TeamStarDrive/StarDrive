@@ -33,8 +33,6 @@ namespace Ship_Game.AI
             BuildWarShips(offensiveGoals.Count);
 
             Goals.ApplyPendingRemovals();
-
-            // Empire Military needs. War has its own task list in the WarTasks class
             Toughnuts = 0;
 
             var tasks = TaskList.SortedDescending(t=>

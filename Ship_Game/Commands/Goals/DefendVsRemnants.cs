@@ -10,7 +10,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     {
         public const string ID = "DefendVsRemnants";
         public override string UID => ID;
-        private Planet TargetPlanet;
 
         public DefendVsRemnants() : base(GoalType.DefendVsRemnants)
         {
@@ -23,15 +22,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         public DefendVsRemnants(Planet targetPlanet, Empire owner, Fleet fleet) : this()
         {
             empire             = owner;
-            ColonizationTarget = targetPlanet;
+            TargetPlanet       = targetPlanet;
             Fleet              = fleet;
             TargetEmpire       = EmpireManager.Remnants;
-            PostInit();
-        }
-
-        public sealed override void PostInit()
-        {
-            TargetPlanet = ColonizationTarget;
         }
 
         bool RemnantGoalExists()
