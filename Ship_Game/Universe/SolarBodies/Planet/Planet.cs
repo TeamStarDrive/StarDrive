@@ -372,31 +372,15 @@ namespace Ship_Game
             return GravityWellRadius;
         }
 
-        public float ColonyWorthTo(Empire empire)
+        public float ColonyDiplomaticValueTo(Empire empire)
         {
-            float worth = PopulationBillion + MaxPopulationBillionFor(empire);
+            float worth = ColonyBaseValue(empire) + ColonyRawValue(empire);
             if (empire.NonCybernetic)
-            {
                 worth += (FoodHere / 50f) + (ProdHere / 50f);
-                worth += FertilityFor(empire)*1.5f;
-                worth += MineralRichness;
-            }
-            else // filthy Opteris
-            {
+            else 
                 worth += (ProdHere / 25f);
-                worth += MineralRichness*2.0f;
-            }
 
-            foreach (Building b in BuildingList)
-                worth += b.ActualCost / 50f;
-
-            if (worth < 15f)
-                worth = 15f;
-
-            if (empire.data.EconomicPersonality.Name == "Expansionists")
-                worth *= 1.35f;
-
-            return worth;
+            return worth.LowerBound(15);
         }
 
         public void SetInGroundCombat(Empire empire, bool notify = false)
@@ -426,7 +410,7 @@ namespace Ship_Game
             float value = 0;
             value += SpecialCommodities * 10;
             value += EmpireFertility(empire) * 10;
-            value += MineralRichness * 10;
+            value += MineralRichness * (empire.IsCybernetic ? 20 : 10);
             value += MaxPopulationBillionFor(empire) * 5;
             return value;
         }
@@ -466,7 +450,8 @@ namespace Ship_Game
         public float ColonyWarValueTo(Empire empire)
         {
             if (Owner == null)             return ColonyPotentialValue(empire);
-            if (Owner.IsAtWarWith(empire)) return ColonyWorthTo(empire);
+            if (Owner.IsAtWarWith(empire)) return ColonyBaseValue(empire) + ColonyPotentialValue(empire);
+
             return 0;
         }
 

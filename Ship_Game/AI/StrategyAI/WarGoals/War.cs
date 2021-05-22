@@ -20,8 +20,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public float TheirStartingGroundStrength;
         public float StrengthKilled;
         public float StrengthLost;
-        public float TroopsKilled;
-        public float TroopsLost;
         public int ColoniesWon;
         public int ColoniesLost;
         public Array<string> AlliesCalled = new Array<string>();
@@ -36,15 +34,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         readonly WarScore Score;
         public Map<Guid, int> SystemAssaultFailures = new Map<Guid, int>();
         public TheatersOfWar WarTheaters;
-
-        public WarState GetBorderConflictState() => Score.GetBorderConflictState();
-        public WarState GetBorderConflictState(Array<Planet> coloniesOffered) => 
-            Score.GetBorderConflictState(coloniesOffered);
-        public WarState GetWarScoreState() => Score.GetWarScoreState();
-
-        [JsonIgnore][XmlIgnore]
-        public Empire Them { get; private set; }
         public int StartingNumContestedSystems;
+
+        public WarState GetBorderConflictState(Array<Planet> coloniesOffered) => Score.GetBorderConflictState(coloniesOffered);
+        public WarState GetWarScoreState() => WarType == WarType.BorderConflict ? Score.GetBorderConflictState() : Score.GetWarScoreState();
+
+        [JsonIgnore][XmlIgnore] public Empire Them { get; private set; }
         [JsonIgnore][XmlIgnore] public SolarSystem[] ContestedSystems { get; private set; }
         [JsonIgnore][XmlIgnore] public float LostColonyPercent  => ColoniesLost / (OurStartingColonies + 0.01f + ColoniesWon);
         [JsonIgnore][XmlIgnore] public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.LowerBound(0.01f);
@@ -215,14 +210,18 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void PlanetWeLost(Empire attacker, Planet colony)
         {
-            if (attacker != Them) return;
-            ColoniesLost++;
+            if (attacker != Them)
+                return;
+
+            ColoniesLost += (int)colony.ColonyWarValueTo(Us);
         }
 
         public void PlanetWeWon(Empire loser, Planet colony)
         {
-            if (loser != Them) return;
-            ColoniesWon++;
+            if (loser != Them) 
+                return;
+
+            ColoniesWon += (int)colony.ColonyWarValueTo(Us);
         }
 
         public void SystemAssaultFailed(SolarSystem system)
@@ -233,7 +232,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public float GetGrade()
         {
-            switch (WarType == WarType.BorderConflict ? GetBorderConflictState() : GetWarScoreState())
+            switch (GetWarScoreState())
             {
                 default:
                 case WarState.ColdWar:
