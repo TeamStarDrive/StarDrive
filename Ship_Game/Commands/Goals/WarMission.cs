@@ -33,7 +33,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CreateTasks()
         {
-            empire.CreateWarTask(TargetPlanet);
+            empire.CreateWarTask(TargetPlanet, TargetEmpire);
             return GoalStep.GoToNextStep;
         }
 
