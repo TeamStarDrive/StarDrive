@@ -1,16 +1,20 @@
-﻿namespace Ship_Game.Utils
+﻿using System;
+
+namespace Ship_Game.Utils
 {
     public class ChangePendingList<T>  where T : class
     {
         Array<T> PendingAdds;
         Array<T> PendingRemoves;
         Array<T> List;
+        readonly Predicate<T> AddItemFilter;
 
-        public ChangePendingList()
+        public ChangePendingList(Predicate<T> addFilter)
         {
             PendingAdds    = new Array<T>();
             PendingRemoves = new Array<T>();
-            List = new Array<T>();
+            List           = new Array<T>();
+            AddItemFilter  = addFilter;
         }
 
         public Array<T> Items => List;
@@ -27,17 +31,27 @@
             while(PendingAdds.NotEmpty)
             {
                 var item = PendingAdds.PopFirst();
-                List.AddUnique(item);
+                if (AddItemFilter(item))
+                {
+                    bool addFail = !List.AddUnique(item);
+                    if (addFail)
+                        Log.Error("Ship already in force pool");
+                }
             }
         }
 
-        public bool AddItemPending(T item) => PendingAdds.AddUniqueRef(item);
+        public bool AddItemPending(T item)
+        {
+            if (List.Contains(item)) return false;
+            return PendingAdds.AddUniqueRef(item);
+        }
 
         public bool RemoveItemPending(T item) => PendingRemoves.AddUniqueRef(item);
         public bool RemoveItemImmediate(T item)
         {
             bool removed = List.RemoveRef(item);
             removed |= PendingRemoves.RemoveRef(item);
+            removed |= PendingAdds.RemoveRef(item);
             return removed;
         }
 
