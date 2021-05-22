@@ -104,7 +104,7 @@ namespace Ship_Game.AI
             var available = OwnerEmpire.TechsAvailableForTrade(them);
             foreach (TechEntry tech in available)
             {
-                if (tech.IsMilitary() && !OwnerEmpire.IsAlliedWith(them))
+                if (!forceAllTechs && tech.IsMilitary() && !OwnerEmpire.IsAlliedWith(them))
                     continue; // Need Alliance in order to trade military tech
 
                 if (tech.TheyCanUseThis(OwnerEmpire, them))
