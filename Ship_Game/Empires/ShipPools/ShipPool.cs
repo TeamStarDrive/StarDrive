@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Ship_Game.AI;
+using Ship_Game.Data;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Empires.ShipPools
@@ -8,13 +9,14 @@ namespace Ship_Game.Empires.ShipPools
     public class ShipPool : IDisposable
     {
         readonly Empire Owner;
-        Array<Ship> OwnedShips             = new Array<Ship>();
-        Array<Ship> OwnedProjectors        = new Array<Ship>();
-        Array<Ship> VolatileShipList       = new Array<Ship>();
-        Array<Ship> VolatileProjectorsList = new Array<Ship>();
+        BufferedList<Ship> OwnedShips             = new BufferedList<Ship>();
+        BufferedList<Ship> OwnedProjectors        = new BufferedList<Ship>();
+        
         Array<Ship> PendingForcePoolAdds   = new Array<Ship>();
         bool ShipListModified              = false;
         bool ProjectorsModified            = false;
+
+
 
         EmpireAI OwnerAI => Owner.GetEmpireAI();
         
@@ -43,12 +45,12 @@ namespace Ship_Game.Empires.ShipPools
         /// For reads this is thread safe as long as a reference is taken before iteration.
         /// changes to this list will not change the actual shiplist but will break thread safety. 
         /// </summary>
-        public IReadOnlyList<Ship> EmpireShips => OwnedShips;
+        public IReadOnlyList<Ship> EmpireShips => OwnedShips.GetRef();
         /// <summary>
         /// For reads this is thread safe as long as a reference is taken before iteration.
         /// changes to this list will not change the actual shiplist but will break thread safety. 
         /// </summary>
-        public IReadOnlyList<Ship> EmpireProjectors => OwnedProjectors;
+        public IReadOnlyList<Ship> EmpireProjectors => OwnedProjectors.GetRef();
         public Array<Ship> EmpireForcePool { get; private set; } = new Array<Ship>();
         public FleetShips EmpireReadyFleets { get; private set; }
 
@@ -59,23 +61,8 @@ namespace Ship_Game.Empires.ShipPools
 
         public void Update()
         {
-            // checking a game with 1k plus ships the lists are modified rarely. 1 in 10 updates.
-            if (ShipListModified)
-            {
-                // move volatile shiplist to public shiplist atomically
-                OwnedShips       = VolatileShipList;
-                // create a new volatile shiplist to ensure public shiplists in use are not volatile. 
-                VolatileShipList = new Array<Ship>(OwnedShips);
-                // reset list change status. 
-                ShipListModified = false;
-            }
-            
-            if (ProjectorsModified)
-            {
-                OwnedProjectors        = VolatileProjectorsList;
-                VolatileProjectorsList = new Array<Ship>(VolatileProjectorsList);
-                ProjectorsModified     = false;
-            }
+            OwnedShips.Update();
+            OwnedProjectors.Update();
 
             AddShipsToEmpireForcePoolFromShipsToAdd();
 
@@ -133,7 +120,7 @@ namespace Ship_Game.Empires.ShipPools
         void ErrorCheckPools() 
         {
             if (Owner.isPlayer || Owner.isFaction) return;
-            var allShips = OwnedShips;
+            var allShips = OwnedShips.GetRef();
             
             for (int i = 0; i < allShips.Count; i++)
             {
@@ -318,13 +305,11 @@ namespace Ship_Game.Empires.ShipPools
             bool alreadyAdded;
             if (s.IsSubspaceProjector)
             {
-                alreadyAdded        = !VolatileProjectorsList.AddUniqueRef(s);
-                ProjectorsModified |= !alreadyAdded;
+                alreadyAdded = !OwnedProjectors.Add(s);
             }
             else
             {
-                alreadyAdded      = !VolatileShipList.AddUniqueRef(s);
-                ShipListModified |= !alreadyAdded;
+                alreadyAdded = !OwnedShips.Add(s);
             }
 
             if (alreadyAdded)
@@ -345,13 +330,11 @@ namespace Ship_Game.Empires.ShipPools
 
             if (ship.IsSubspaceProjector)
             {
-                VolatileProjectorsList.RemoveRef(ship);
-                ProjectorsModified = true;
+                OwnedProjectors.Remove(ship);
             }
             else
             {
-                VolatileShipList.RemoveRef(ship);
-                ShipListModified = true;
+                OwnedShips.Remove(ship);
             }
 
             ship.AI?.ClearOrders();
@@ -360,10 +343,8 @@ namespace Ship_Game.Empires.ShipPools
         
         public void CleanOut()
         {
-            OwnedShips           = new Array<Ship>();
-            OwnedProjectors      = new Array<Ship>();
-            VolatileShipList      = new Array<Ship>();
-            VolatileProjectorsList = new Array<Ship>();
+            OwnedShips           = new BufferedList<Ship>();
+            OwnedProjectors      = new BufferedList<Ship>();
             PendingForcePoolAdds = new Array<Ship>();
             EmpireForcePool      = new Array<Ship>();
             EmpireReadyFleets    = new FleetShips(Owner);
