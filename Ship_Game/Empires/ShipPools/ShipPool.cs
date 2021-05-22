@@ -8,12 +8,13 @@ namespace Ship_Game.Empires.ShipPools
     public class ShipPool : IDisposable
     {
         readonly Empire Owner;
-        Array<Ship> OwnedShips           = new Array<Ship>();
-        Array<Ship> OwnedProjectors      = new Array<Ship>();
-        Array<Ship> ShipsBackBuffer      = new Array<Ship>();
-        Array<Ship> ProjectorsBackBuffer = new Array<Ship>();
-        Array<Ship> ShipsToAddBackBuffer = new Array<Ship>();
-        readonly object PoolLocker       = new object();
+        Array<Ship> OwnedShips             = new Array<Ship>();
+        Array<Ship> OwnedProjectors        = new Array<Ship>();
+        Array<Ship> VolatileShipList       = new Array<Ship>();
+        Array<Ship> VolatileProjectorsList = new Array<Ship>();
+        Array<Ship> PendingForcePoolAdds   = new Array<Ship>();
+        bool ShipListModified              = false;
+        bool ProjectorsModified            = false;
 
         EmpireAI OwnerAI => Owner.GetEmpireAI();
         
@@ -27,7 +28,7 @@ namespace Ship_Game.Empires.ShipPools
                 Log.Error($"Incorrect loyalty. Ship {s.loyalty} != Empire {Owner}");
 
             if (!Owner.isPlayer && !Owner.isFaction && s.Active && !s.IsHomeDefense)
-                ShipsToAddBackBuffer.Add(s);
+                PendingForcePoolAdds.Add(s);
         }
 
         public bool EmpireForcePoolContains(Ship s) => EmpireForcePool.ContainsRef(s);
@@ -38,7 +39,15 @@ namespace Ship_Game.Empires.ShipPools
         public int CurrentUseableFleets       = 0;
         float PoolCheckTimer                  = 0;
 
+        /// <summary>
+        /// For reads this is thread safe as long as a reference is taken before iteration.
+        /// changes to this list will not change the actual shiplist but will break thread safety. 
+        /// </summary>
         public IReadOnlyList<Ship> EmpireShips => OwnedShips;
+        /// <summary>
+        /// For reads this is thread safe as long as a reference is taken before iteration.
+        /// changes to this list will not change the actual shiplist but will break thread safety. 
+        /// </summary>
         public IReadOnlyList<Ship> EmpireProjectors => OwnedProjectors;
         public Array<Ship> EmpireForcePool { get; private set; } = new Array<Ship>();
         public FleetShips EmpireReadyFleets { get; private set; }
@@ -50,12 +59,22 @@ namespace Ship_Game.Empires.ShipPools
 
         public void Update()
         {
-            lock (PoolLocker)
+            // checking a game with 1k plus ships the lists are modified rarely. 1 in 10 updates.
+            if (ShipListModified)
             {
-                OwnedShips           = ShipsBackBuffer;
-                OwnedProjectors      = ProjectorsBackBuffer;
-                ShipsBackBuffer      = new Array<Ship>(OwnedShips);
-                ProjectorsBackBuffer = new Array<Ship>(ProjectorsBackBuffer);
+                // move volatile shiplist to public shiplist atomically
+                OwnedShips       = VolatileShipList;
+                // create a new volatile shiplist to ensure public shiplists in use are not volatile. 
+                VolatileShipList = new Array<Ship>(OwnedShips);
+                // reset list change status. 
+                ShipListModified = false;
+            }
+            
+            if (ProjectorsModified)
+            {
+                OwnedProjectors        = VolatileProjectorsList;
+                VolatileProjectorsList = new Array<Ship>(VolatileProjectorsList);
+                ProjectorsModified     = false;
             }
 
             AddShipsToEmpireForcePoolFromShipsToAdd();
@@ -137,7 +156,7 @@ namespace Ship_Game.Empires.ShipPools
                         continue;
                 }
 
-                if (ShipsToAddBackBuffer.ContainsRef(ship))
+                if (PendingForcePoolAdds.ContainsRef(ship))
                     continue;
 
                 if (EmpireForcePoolContains(ship))
@@ -264,14 +283,14 @@ namespace Ship_Game.Empires.ShipPools
 
         void AddShipsToEmpireForcePoolFromShipsToAdd()
         {
-            for (int i = 0; i < ShipsToAddBackBuffer.Count; i++)
+            for (int i = 0; i < PendingForcePoolAdds.Count; i++)
             {
-                Ship s = ShipsToAddBackBuffer[i];
+                Ship s = PendingForcePoolAdds[i];
                 if (!Owner.isPlayer && !Owner.isFaction && s.Active && !s.IsHomeDefense && !s.IsHomeDefense) 
                     EmpireForcePoolAdd(s);
             }
 
-            ShipsToAddBackBuffer.Clear();
+            PendingForcePoolAdds.Clear();
         }
 
         void RemoveInvalidShipsFromEmpireForcePool()
@@ -289,6 +308,9 @@ namespace Ship_Game.Empires.ShipPools
             }
         }
 
+        /// <summary>
+        /// This is not thread safe. run this on empire thread for safe adds. 
+        /// </summary>
         public void AddShipToEmpire(Ship s)
         {
             AddToEmpireForcePoolNextFame(s);
@@ -296,13 +318,13 @@ namespace Ship_Game.Empires.ShipPools
             bool alreadyAdded;
             if (s.IsSubspaceProjector)
             {
-                lock (PoolLocker)
-                    alreadyAdded = !ProjectorsBackBuffer.AddUniqueRef(s);
+                alreadyAdded        = !VolatileProjectorsList.AddUniqueRef(s);
+                ProjectorsModified |= !alreadyAdded;
             }
             else
             {
-                lock (PoolLocker)
-                    alreadyAdded = !ShipsBackBuffer.AddUniqueRef(s);
+                alreadyAdded      = !VolatileShipList.AddUniqueRef(s);
+                ShipListModified |= !alreadyAdded;
             }
 
             if (alreadyAdded)
@@ -310,6 +332,9 @@ namespace Ship_Game.Empires.ShipPools
                     "Empire.AddShip BUG: https://bitbucket.org/codegremlins/stardrive-blackbox/issues/147/doubled-projectors");
         }
 
+        /// <summary>
+        /// This is not thread safe. run this on empire thread for safe removals. 
+        /// </summary>
         public void RemoveShipFromEmpire(Ship ship)
         {
             if (ship == null)
@@ -320,13 +345,13 @@ namespace Ship_Game.Empires.ShipPools
 
             if (ship.IsSubspaceProjector)
             {
-                lock (PoolLocker)
-                    ProjectorsBackBuffer.RemoveRef(ship);
+                VolatileProjectorsList.RemoveRef(ship);
+                ProjectorsModified = true;
             }
             else
             {
-                lock (PoolLocker)
-                    ShipsBackBuffer.RemoveRef(ship);
+                VolatileShipList.RemoveRef(ship);
+                ShipListModified = true;
             }
 
             ship.AI?.ClearOrders();
@@ -337,9 +362,9 @@ namespace Ship_Game.Empires.ShipPools
         {
             OwnedShips           = new Array<Ship>();
             OwnedProjectors      = new Array<Ship>();
-            ShipsBackBuffer      = new Array<Ship>();
-            ProjectorsBackBuffer = new Array<Ship>();
-            ShipsToAddBackBuffer = new Array<Ship>();
+            VolatileShipList      = new Array<Ship>();
+            VolatileProjectorsList = new Array<Ship>();
+            PendingForcePoolAdds = new Array<Ship>();
             EmpireForcePool      = new Array<Ship>();
             EmpireReadyFleets    = new FleetShips(Owner);
         }
@@ -353,7 +378,7 @@ namespace Ship_Game.Empires.ShipPools
         protected virtual void Dispose(bool disposing)
         {
             EmpireForcePool.ClearAndDispose();
-            ShipsToAddBackBuffer.ClearAndDispose();
+            PendingForcePoolAdds.ClearAndDispose();
             OwnedProjectors.ClearAndDispose();
             OwnedShips.ClearAndDispose();
         }
