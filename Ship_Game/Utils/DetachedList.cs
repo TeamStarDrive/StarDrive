@@ -5,7 +5,7 @@ namespace Ship_Game.Utils
     /// <summary>
     /// Used to provide a list of items that will not change by adding or removing items from the buffered list.
     /// </summary>
-    public class BufferedList<T> where T : class
+    public class DetachedList<T> where T : class
     {
         Array<T> PublicList;
         Array<T> VolatileList;
@@ -21,7 +21,7 @@ namespace Ship_Game.Utils
         /// </summary>
         public IReadOnlyList<T> GetRef() =>  PublicList;
 
-        public BufferedList()
+        public DetachedList()
         {
             PublicList   = new Array<T>();
             VolatileList = new Array<T>();
