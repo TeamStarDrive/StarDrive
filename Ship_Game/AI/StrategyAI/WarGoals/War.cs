@@ -16,12 +16,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public float OurStartingStrength;
         public float TheirStartingStrength;
         public float OurStartingGroundStrength;
-        public int OurStartingColonies;
+        public int InitialColoniesValue;
         public float TheirStartingGroundStrength;
         public float StrengthKilled;
         public float StrengthLost;
-        public int ColoniesWon;
-        public int ColoniesLost;
+        public int ColoniesValueWon;
+        public int ColoniesValueLost;
         public Array<string> AlliesCalled = new Array<string>();
         public Array<Guid> ContestedSystemsGUIDs = new Array<Guid>();
         public float TurnsAtWar;
@@ -41,7 +41,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         [JsonIgnore][XmlIgnore] public Empire Them { get; private set; }
         [JsonIgnore][XmlIgnore] public SolarSystem[] ContestedSystems { get; private set; }
-        [JsonIgnore][XmlIgnore] public float LostColonyPercent  => ColoniesLost / (OurStartingColonies + 0.01f + ColoniesWon);
+        [JsonIgnore][XmlIgnore] public float LostColonyPercent  => (float)ColoniesValueLost / (1 + InitialColoniesValue + ColoniesValueWon);
         [JsonIgnore][XmlIgnore] public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.LowerBound(0.01f);
         [JsonIgnore][XmlIgnore] public const float MaxWarGrade = 10;
         [JsonIgnore][XmlIgnore] public float SpaceWarKd
@@ -78,7 +78,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 var strength      = Them.KnownEmpireStrength(Us);
                 float strengthMod = (Us.OffensiveStrength / strength.LowerBound(1)).Clamped(0.3f,3);
 
-                if (Them.isPlayer && ColoniesLost - ColoniesWon < 0 && strengthMod > 1)
+                if (Them.isPlayer && ColoniesValueLost - ColoniesValueWon < 0 && strengthMod > 1)
                     return 0;
 
                 int warHistory    = OurRelationToThem.WarHistory.Count + 1;
@@ -105,7 +105,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             OurStartingStrength         = us.CurrentMilitaryStrength;
             OurStartingGroundStrength   = us.CurrentTroopStrength;
-            OurStartingColonies         = us.GetPlanets().Count;
+            InitialColoniesValue         = us.GetTotalPlanetsWarValue();
             TheirStartingStrength       = them.CurrentMilitaryStrength;
             TheirStartingGroundStrength = them.CurrentTroopStrength;
             ContestedSystems            = Us.GetOwnedSystems().Filter(s => s.OwnerList.Contains(Them));
@@ -213,7 +213,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             if (attacker != Them)
                 return;
 
-            ColoniesLost += (int)colony.ColonyWarValueTo(Us);
+            ColoniesValueLost += (int)colony.ColonyWarValueTo(Us);
         }
 
         public void PlanetWeWon(Empire loser, Planet colony)
@@ -221,7 +221,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             if (loser != Them) 
                 return;
 
-            ColoniesWon += (int)colony.ColonyWarValueTo(Us);
+            ColoniesValueWon += (int)colony.ColonyWarValueTo(Us);
         }
 
         public void SystemAssaultFailed(SolarSystem system)
@@ -254,7 +254,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             debug.AddLine($"ThreatRatio = {(int)(TotalThreatAgainst * 100):p0}");
             debug.AddLine($"StartDate {StartDate}");
             debug.AddLine($"killed: {StrengthKilled:n0} Lost: {StrengthLost:n0} Ratio: {(int)(SpaceWarKd * 100):p0}");
-            debug.AddLine($"Colonies Won : {ColoniesWon} Lost : {ColoniesLost} Ratio: % {(int)(LostColonyPercent * 100):n0}");
+            debug.AddLine($"Colonies Won : {ColoniesValueWon} Lost : {ColoniesValueLost} Ratio: % {(int)(LostColonyPercent * 100):n0}");
             
             
 
