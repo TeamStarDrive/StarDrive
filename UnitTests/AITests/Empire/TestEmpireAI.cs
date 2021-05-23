@@ -46,6 +46,7 @@ namespace UnitTests.AITests.Empire
             if (EmpireManager.NumEmpires == 0)
             {
                 CreateUniverseAndPlayerEmpire(out TestEmpire);
+                Enemy.isFaction = false;
             }
             AddPlanetToUniverse(2, 2, 40000, true,Vector2.One);
             AddPlanetToUniverse(1.9f, 1.9f, 40000, true, new Vector2(5000));
@@ -266,6 +267,129 @@ namespace UnitTests.AITests.Empire
             Player.RemoveShip(ship);
             Player.EmpireShipLists.Update();
             Assert.IsTrue(Player.OwnedShips.Count == 0);
+        }
+
+        [TestMethod]
+        public void ShipListConcurrencyStressTest()
+        {
+            ClearEmpireShips();
+            Assert.AreEqual(0, Enemy.OwnedShips.Count);
+
+            // we need to rework basic empires. Proper empire updates cannot be done the way they currently are. 
+            Enemy.data.IsRebelFaction = false;
+
+            // create areas of operation among empires
+            foreach(var empire in EmpireManager.Empires)
+            {
+                empire.data.Defeated = false;
+                foreach(var planet in Universe.PlanetsDict.Values)
+                {
+                    if (RandomMath.RollDice(50))
+                    {
+                        planet.Owner = empire;
+                        empire.GetEmpireAI().AreasOfOperations.Add(new AO(P, 10));
+                    }
+                }
+            }
+
+            // get a ship using Ai process
+            var build = new RoleBuildInfo(3, Player.GetEmpireAI(), true);
+            string shipName = Player.GetEmpireAI().GetAShip(build);
+            object randdomLock = new object();
+
+            // create a base number of ships. 
+            for(int x=0;x< 1000; ++x)
+            {
+                SpawnShip(shipName, Enemy, Vector2.Zero);
+            }
+            Universe.ScreenManager.InvokePendingEmpireThreadActions();
+            Enemy.EmpireShipLists.Update();
+
+            int numberOfShips = Enemy.EmpireShipLists.EmpireShips.Count;
+
+            // create a background thread to put them in use and flex ship pool functions.
+            bool stopStresser = false;
+            var stressTask = Parallel.Run(() =>
+            {
+                while(!stopStresser)
+                {
+                    int removedShips = 0;
+                    foreach (var s in Enemy.OwnedShips)
+                    {
+                        if (s.Active)
+                        {
+                            float random = 0f;
+                            lock (randdomLock)
+                                random = RandomMath.RandomBetween(1, 100);
+                            {
+                                
+                                if (random > 90)
+                                {
+
+                                    s.ChangeLoyalty(Player);
+                                }
+
+                                if (random > 80)
+                                {
+                                    s.Die(null, true);
+                                    s.loyalty.RemoveShip(s);
+                                    removedShips++;
+                                }
+                            }
+                        }
+
+                        s.Update(FixedSimTime.Zero);
+                    }
+                    lock (Enemy)
+                        numberOfShips -= removedShips;
+                }
+            });
+
+            // add random number of ships to random empires. 
+            int first = 0, last = 100;
+            {
+                for (int i = first; i < last; ++i)
+                {
+                    int howManyShips = 0;
+                    int empireIndex = 0;
+                    howManyShips = RandomMath.IntBetween(1, 100);
+                    empireIndex = RandomMath.IntBetween(0, EmpireManager.NumEmpires - 1);
+
+                    for (int y = 0; y < howManyShips; ++y)
+                    {
+                        var empire = EmpireManager.Empires[empireIndex];
+                        SpawnShip(shipName, empire, Vector2.Zero);
+                    }
+
+                    Enemy.Update(TestSimStep);
+
+                    Parallel.For(0, EmpireManager.NumEmpires, (firstEmpire, lastEmpire) =>
+                        {
+                            for (int e = firstEmpire; e < lastEmpire; e++)
+                            {
+                                var empire = EmpireManager.Empires[e];
+                                lock (empire)
+                                    empire.EmpireShipLists.Update();
+                            }
+                        }
+                    );
+                    lock (Enemy)
+                        numberOfShips += howManyShips;
+                }
+            }
+            stopStresser = true;
+            stressTask.CancelAndWait();
+
+            int actualShipCount = 0;
+            foreach(var empire in EmpireManager.Empires)
+            {
+                empire.EmpireShipLists.Update();
+                actualShipCount += empire.OwnedShips.Count;
+            }
+
+            Assert.AreEqual(numberOfShips, actualShipCount);
+           
+            Enemy.data.IsRebelFaction = true;
         }
 
         [TestMethod]

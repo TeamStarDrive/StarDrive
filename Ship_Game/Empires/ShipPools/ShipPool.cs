@@ -13,6 +13,7 @@ namespace Ship_Game.Empires.ShipPools
         DetachedList<Ship> OwnedProjectors = new DetachedList<Ship>();
         ChangePendingList<Ship> ForcePool;
 
+        object ChangeLocker = new object();
 
         EmpireAI OwnerAI => Owner.GetEmpireAI();
         
@@ -109,7 +110,8 @@ namespace Ship_Game.Empires.ShipPools
             for (int i = 0; i < OwnerAI.AreasOfOperations.Count; i++)
             {
                 AO ao = OwnerAI.AreasOfOperations[i];
-                ships.AddRange(ao.GetOffensiveForcePool());
+                var newShips = ao.GetOffensiveForcePool();
+                ships.AddRange(newShips);
             }
 
             if (!onlyAO)
@@ -275,8 +277,10 @@ namespace Ship_Game.Empires.ShipPools
         /// </summary>
         public void AddShipToEmpire(Ship s)
         {
-            AddToEmpireForcePoolNextFame(s);
-            EmpireForcePoolAdd(s);
+            lock (ChangeLocker)
+            {
+                EmpireForcePoolAdd(s);
+            }
 
             bool alreadyAdded;
             if (s.IsSubspaceProjector)
@@ -314,7 +318,8 @@ namespace Ship_Game.Empires.ShipPools
             }
 
             ship.AI?.ClearOrders();
-            RemoveShipFromFleetAndPools(ship);
+            lock (ChangeLocker)
+                RemoveShipFromFleetAndPools(ship);
         }
         
         public void CleanOut()
