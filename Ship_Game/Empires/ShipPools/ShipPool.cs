@@ -65,6 +65,7 @@ namespace Ship_Game.Empires.ShipPools
         {
             OwnedShips.Update();
             OwnedProjectors.Update();
+            lock(ChangeLocker)
             ForcePool.Update();
 
             if (!Owner.isPlayer)

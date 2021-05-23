@@ -297,7 +297,7 @@ namespace UnitTests.AITests.Empire
             string shipName = Player.GetEmpireAI().GetAShip(build);
 
             // create a base number of ships. 
-            for(int x=0;x< 1000; ++x)
+            for(int x=0;x< 100; ++x)
             {
                 SpawnShip(shipName, Enemy, Vector2.Zero);
             }
@@ -305,44 +305,62 @@ namespace UnitTests.AITests.Empire
             Enemy.EmpireShipLists.Update();
 
             int numberOfShips = Enemy.EmpireShipLists.EmpireShips.Count;
-
+            int shipsRemoved = 0;
             // create a background thread to stress ship pool functions.
             bool stopStress = false;
             var stressTask = Parallel.Run(() =>
             {
-                numberOfShips = BackGroundPoolStress(ref stopStress, ref numberOfShips);
+                shipsRemoved = BackGroundPoolStress(ref stopStress);
             });
 
             // add random number of ships to random empires. 
-            int first = 0, last = 100;
+            int first = 0, last = 10;
             {
                 for (int i = first; i < last; ++i)
                 {
-                    int howManyShips = 0;
-                    int empireIndex = 0;
-                    howManyShips = RandomMath.IntBetween(1, 100);
-                    empireIndex = RandomMath.IntBetween(0, EmpireManager.NumEmpires - 1);
+                    int addedShips = 0;
 
-                    for (int y = 0; y < howManyShips; ++y)
+                    foreach(var empire in EmpireManager.Empires)
                     {
-                        var empire = EmpireManager.Empires[empireIndex];
-                        SpawnShip(shipName, empire, Vector2.Zero);
+                        foreach (var s in empire.OwnedShips)
+                        {
+                            if (s.Active)
+                            {
+                                float random = RandomMath.RandomBetween(1, 100);
+
+                                if (random > 99.5f)
+                                {
+                                    s.Die(null, true);
+                                    s.Active = false;
+                                    s.loyalty.RemoveShip(s);
+                                    numberOfShips--;
+                                }
+                                else if (random > 80)
+                                {
+                                    s.ChangeLoyalty(Player);
+                                }
+                            }
+
+                        }
                     }
 
-                    Enemy.Update(TestSimStep);
+                    addedShips = RandomMath.IntBetween(1, 100);
 
                     Parallel.For(0, EmpireManager.NumEmpires, (firstEmpire, lastEmpire) =>
                         {
                             for (int e = firstEmpire; e < lastEmpire; e++)
                             {
                                 var empire = EmpireManager.Empires[e];
-                                lock (empire)
-                                    empire.EmpireShipLists.Update();
+
+                                for (int y = 0; y < addedShips; ++y)
+                                {
+                                    SpawnShip(shipName, empire, Vector2.Zero);
+                                }
+                                empire.EmpireShipLists.Update();
                             }
                         }
                     );
-                    lock (Enemy)
-                        numberOfShips += howManyShips;
+                    numberOfShips += addedShips * 2;
                 }
             }
             stopStress = true;
@@ -355,43 +373,28 @@ namespace UnitTests.AITests.Empire
                 actualShipCount += empire.OwnedShips.Count;
             }
 
+            numberOfShips -= shipsRemoved;
             Assert.AreEqual(numberOfShips, actualShipCount);
            
             Enemy.data.IsRebelFaction = true;
         }
 
-        private int BackGroundPoolStress(ref bool stopStress, ref int numberOfShips)
+        private int BackGroundPoolStress(ref bool stopStress)
         {
+            int removedShips = 0;
             while (!stopStress)
             {
-                int removedShips = 0;
-                foreach (var s in Enemy.OwnedShips)
+                foreach (var empire in EmpireManager.Empires)
                 {
-                    if (s.Active)
+                    var ships = empire.OwnedShips;
+                    foreach (var s in ships)
                     {
-                        float random = RandomMath.RandomBetween(1, 100);
-
-                        if (random > 90)
-                        {
-                            s.ChangeLoyalty(Player);
-                        }
-
-                        if (random > 80)
-                        {
-                            s.Die(null, true);
-                            s.loyalty.RemoveShip(s);
-                            removedShips++;
-                        }
+                        s.AI.ClearOrders();
                     }
-
-                    s.Update(FixedSimTime.Zero);
                 }
-
-                lock (Enemy)
-                    numberOfShips -= removedShips;
             }
 
-            return numberOfShips;
+            return removedShips;
         }
 
         [TestMethod]
