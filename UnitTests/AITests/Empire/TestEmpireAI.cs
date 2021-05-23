@@ -237,8 +237,8 @@ namespace UnitTests.AITests.Empire
         {
             ClearEmpireShips();
             Assert.IsTrue(Player.OwnedShips.Count == 0);
-            var build = new RoleBuildInfo(3, Player.GetEmpireAI(), true);
-            string shipName = Player.GetEmpireAI().GetAShip(build);
+            
+            string shipName = "Rocket Inquisitor";
 
             // test that ship is added to empire on creation
             var ship = SpawnShip(shipName, Player, Vector2.Zero);
@@ -292,12 +292,10 @@ namespace UnitTests.AITests.Empire
                 }
             }
 
-            // get a ship using Ai process
-            var build = new RoleBuildInfo(3, Player.GetEmpireAI(), true);
-            string shipName = Player.GetEmpireAI().GetAShip(build);
+            string shipName = "Rocket Inquisitor";
 
             // create a base number of ships. 
-            for(int x=0;x< 100; ++x)
+            for (int x=0;x< 100; ++x)
             {
                 SpawnShip(shipName, Enemy, Vector2.Zero);
             }
@@ -402,8 +400,7 @@ namespace UnitTests.AITests.Empire
         {
             ClearEmpireShips();
             Assert.IsTrue(Player.OwnedShips.Count == 0);
-            var build = new RoleBuildInfo(3, Player.GetEmpireAI(), true);
-            string shipName = Player.GetEmpireAI().GetAShip(build);
+            string shipName = "Rocket Inquisitor";
 
             // test that ships are removed from empire on defeat
             var ship = SpawnShip(shipName, Player, Vector2.Zero);
@@ -419,8 +416,7 @@ namespace UnitTests.AITests.Empire
         {
             ClearEmpireShips();
             Assert.IsTrue(Player.OwnedShips.Count == 0);
-            var build = new RoleBuildInfo(3, Player.GetEmpireAI(), true);
-            string shipName = Player.GetEmpireAI().GetAShip(build);
+            string shipName = "Rocket Inquisitor";
 
             var ship = SpawnShip(shipName, Enemy, Vector2.Zero);
             Enemy.EmpireShipLists.Update();
