@@ -10,6 +10,7 @@ namespace Ship_Game.Utils
         Array<T> PublicList;
         Array<T> VolatileList;
         bool VolatileListChanged;
+        object ChangeLocker = new object();
 
         /// <summary>
         /// Gives a reference to the PublicList. On update this will no longer be the PublicList.
@@ -35,9 +36,12 @@ namespace Ship_Game.Utils
         {
             if (VolatileListChanged)
             {
-                PublicList   = VolatileList;
-                VolatileList = new Array<T>(PublicList);
-                VolatileListChanged  = false;
+                PublicList = VolatileList;
+                lock (ChangeLocker)
+                {
+                    VolatileList = new Array<T>(PublicList);
+                    VolatileListChanged = false;
+                }
             }
         }
 
@@ -46,9 +50,12 @@ namespace Ship_Game.Utils
         /// </summary>
         public bool Add(T item)
         {
-            bool added   = VolatileList.AddUniqueRef(item);
-            VolatileListChanged |= added;
-            return added;
+            lock (ChangeLocker)
+            {
+                bool added = VolatileList.AddUniqueRef(item);
+                VolatileListChanged |= added;
+                return added;
+            }
         }
 
         /// <summary>
@@ -56,9 +63,12 @@ namespace Ship_Game.Utils
         /// </summary>
         public bool Remove(T item)
         {
-            bool removed = VolatileList.RemoveRef(item);
-            VolatileListChanged |= removed;
-            return removed;
+            lock (ChangeLocker)
+            {
+                bool removed = VolatileList.RemoveRef(item);
+                VolatileListChanged |= removed;
+                return removed;
+            }
         }
 
         public void CleanOut()
