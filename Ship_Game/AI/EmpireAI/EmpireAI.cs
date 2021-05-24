@@ -30,12 +30,8 @@ namespace Ship_Game.AI
         public ThreatMatrix ThreatMatrix;                     
         public Array<AO> AreasOfOperations                   = new Array<AO>();
         public Array<int> UsedFleets                         = new Array<int>();
-        public float Toughnuts = 0;
-        public int Recyclepool = 0;
         public float DefStr;
         public ExpansionAI.ExpansionPlanner ExpansionAI;
-
-        public int PauseWarTimer { get; set; } = -10;
 
         public EmpireAI(Empire e, bool fromSave)
         {
@@ -80,7 +76,7 @@ namespace Ship_Game.AI
                 RunResearchPlanner();
                 RunAgentManager();
             }
-            WarTasks.Update();
+            //WarTasks.Update();
             RunMilitaryPlanner();
             RunWarPlanner();
         }
