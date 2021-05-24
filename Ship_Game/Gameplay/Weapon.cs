@@ -486,8 +486,8 @@ namespace Ship_Game.Gameplay
         // > 66% accurate or >= Level 5 crews can use advanced
         // targeting which even predicts acceleration
         public bool CanUseAdvancedTargeting =>
-            (Module != null && Module.AccuracyPercent > 0.66f) ||
-            (Owner  != null && Owner.CanUseAdvancedTargeting);
+            (Module?.AccuracyPercent > 0.66f) ||
+            (Owner?.CanUseAdvancedTargeting ?? false);
 
         Vector2 GetLevelBasedError(int level = -1)
         {
