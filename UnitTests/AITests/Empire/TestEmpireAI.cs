@@ -46,6 +46,7 @@ namespace UnitTests.AITests.Empire
             if (EmpireManager.NumEmpires == 0)
             {
                 CreateUniverseAndPlayerEmpire(out TestEmpire);
+                Enemy.isFaction = false;
             }
             AddPlanetToUniverse(2, 2, 40000, true,Vector2.One);
             AddPlanetToUniverse(1.9f, 1.9f, 40000, true, new Vector2(5000));
@@ -236,8 +237,8 @@ namespace UnitTests.AITests.Empire
         {
             ClearEmpireShips();
             Assert.IsTrue(Player.OwnedShips.Count == 0);
-            var build = new RoleBuildInfo(3, Player.GetEmpireAI(), true);
-            string shipName = Player.GetEmpireAI().GetAShip(build);
+            
+            string shipName = "Rocket Inquisitor";
 
             // test that ship is added to empire on creation
             var ship = SpawnShip(shipName, Player, Vector2.Zero);
@@ -269,12 +270,137 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
+        public void ShipListConcurrencyStressTest()
+        {
+            ClearEmpireShips();
+            Assert.AreEqual(0, Enemy.OwnedShips.Count);
+
+            // we need to rework basic empires. Proper empire updates cannot be done the way they currently are. 
+            Enemy.data.IsRebelFaction = false;
+
+            // create areas of operation among empires
+            foreach(var empire in EmpireManager.Empires)
+            {
+                empire.data.Defeated = false;
+                foreach(var planet in Universe.PlanetsDict.Values)
+                {
+                    if (RandomMath.RollDice(50))
+                    {
+                        planet.Owner = empire;
+                        empire.GetEmpireAI().AreasOfOperations.Add(new AO(P, 10));
+                    }
+                }
+            }
+
+            string shipName = "Rocket Inquisitor";
+
+            // create a base number of ships. 
+            for (int x=0;x< 100; ++x)
+            {
+                SpawnShip(shipName, Enemy, Vector2.Zero);
+            }
+            Universe.ScreenManager.InvokePendingEmpireThreadActions();
+            Enemy.EmpireShipLists.Update();
+
+            int numberOfShips = Enemy.EmpireShipLists.EmpireShips.Count;
+            int shipsRemoved = 0;
+            // create a background thread to stress ship pool functions.
+            bool stopStress = false;
+            var stressTask = Parallel.Run(() =>
+            {
+                shipsRemoved = BackGroundPoolStress(ref stopStress);
+            });
+
+            // add random number of ships to random empires. 
+            int first = 0, last = 10;
+            {
+                for (int i = first; i < last; ++i)
+                {
+                    int addedShips = 0;
+
+                    foreach(var empire in EmpireManager.Empires)
+                    {
+                        foreach (var s in empire.OwnedShips)
+                        {
+                            if (s.Active)
+                            {
+                                float random = RandomMath.RandomBetween(1, 100);
+
+                                if (random > 99.5f)
+                                {
+                                    s.Die(null, true);
+                                    s.Active = false;
+                                    s.loyalty.RemoveShip(s);
+                                    numberOfShips--;
+                                }
+                                else if (random > 80)
+                                {
+                                    s.ChangeLoyalty(Player);
+                                }
+                            }
+
+                        }
+                    }
+
+                    addedShips = RandomMath.IntBetween(1, 100);
+
+                    Parallel.For(0, EmpireManager.NumEmpires, (firstEmpire, lastEmpire) =>
+                        {
+                            for (int e = firstEmpire; e < lastEmpire; e++)
+                            {
+                                var empire = EmpireManager.Empires[e];
+
+                                for (int y = 0; y < addedShips; ++y)
+                                {
+                                    SpawnShip(shipName, empire, Vector2.Zero);
+                                }
+                                empire.EmpireShipLists.Update();
+                            }
+                        }
+                    );
+                    numberOfShips += addedShips * 2;
+                }
+            }
+            stopStress = true;
+            stressTask.CancelAndWait();
+
+            int actualShipCount = 0;
+            foreach(var empire in EmpireManager.Empires)
+            {
+                empire.EmpireShipLists.Update();
+                actualShipCount += empire.OwnedShips.Count;
+            }
+
+            numberOfShips -= shipsRemoved;
+            Assert.AreEqual(numberOfShips, actualShipCount);
+           
+            Enemy.data.IsRebelFaction = true;
+        }
+
+        private int BackGroundPoolStress(ref bool stopStress)
+        {
+            int removedShips = 0;
+            while (!stopStress)
+            {
+                foreach (var empire in EmpireManager.Empires)
+                {
+                    var ships = empire.OwnedShips;
+                    foreach (var s in ships)
+                    {
+                        s.AI.ClearOrders();
+                    }
+                }
+            }
+
+            return removedShips;
+        }
+
+        [TestMethod]
         public void TestDefeatedEmpireShipRemoval()
         {
             ClearEmpireShips();
             Assert.IsTrue(Player.OwnedShips.Count == 0);
-            var build = new RoleBuildInfo(3, Player.GetEmpireAI(), true);
-            string shipName = Player.GetEmpireAI().GetAShip(build);
+            string shipName = "Rocket Inquisitor";
 
             // test that ships are removed from empire on defeat
             var ship = SpawnShip(shipName, Player, Vector2.Zero);
@@ -290,8 +416,7 @@ namespace UnitTests.AITests.Empire
         {
             ClearEmpireShips();
             Assert.IsTrue(Player.OwnedShips.Count == 0);
-            var build = new RoleBuildInfo(3, Player.GetEmpireAI(), true);
-            string shipName = Player.GetEmpireAI().GetAShip(build);
+            string shipName = "Rocket Inquisitor";
 
             var ship = SpawnShip(shipName, Enemy, Vector2.Zero);
             Enemy.EmpireShipLists.Update();
