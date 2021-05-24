@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI.Tasks;
 
@@ -48,19 +47,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 }
             }
 
-            var ai         = Owner.GetEmpireAI();
-            float warTurns = 100 * Owner.GetWarOffensiveRatio();
-
-            float expansion = 25 * Owner.GetExpansionRatio();
-            if (ai.PauseWarTimer > expansion || Owner.GetAverageWarGrade().Less(5)) 
-                ai.PauseWarTimer = -(int)warTurns;
-
-            bool nonFactionWars = Owner.AllActiveWars.Any(t => !t.Them.isFaction && t.Them != Owner);
             for (int i = 0; i < NewTasks.Count; i++)
             {
                 var task = NewTasks[i];
-
-
                 if (task.Fleet == null)
                     task.EndTask();
 
@@ -70,7 +59,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     NewTasks.RemoveSwapLast(task);
                 }
             }
-            ai.PauseWarTimer++;
         }
 
         void CreateTaskAfterActionReport(MilitaryTask task)

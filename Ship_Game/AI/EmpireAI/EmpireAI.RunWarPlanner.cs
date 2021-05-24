@@ -272,6 +272,9 @@ namespace Ship_Game.AI
             Empire.UpdateBilateralRelations(OwnerEmpire, declaredBy);
         }
 
+        /// <summary>
+        /// Ensures The AI will always have an EmpireDefense Goal
+        /// </summary>
         void UpdateEmpireDefense()
         {
             if (OwnerEmpire.isPlayer || OwnerEmpire.isFaction) 
@@ -293,13 +296,9 @@ namespace Ship_Game.AI
             }
 
             SetTotalWarValue();
-            
             UpdateEmpireDefense();
-
             if (!OwnerEmpire.isPlayer)
             {
-                WarState worstWar = WarState.NotApplicable;
-
                 var activeWars = new Array<War>();
                 foreach ((Empire other, Relationship rel) in OwnerEmpire.AllRelations)
                 {
@@ -317,25 +316,13 @@ namespace Ship_Game.AI
                         activeWars.Add(rel.ActiveWar);
                 }
 
-                // Process wars by their proximity.
-                MinWarPriority = 11;
-                if (activeWars.Count > 0)
-                {
-                    MinWarPriority = activeWars.Min(w => w.GetPriority());
-                }
-                var sortedActiveWars = activeWars.Sorted(w => w.Them.WeightedCenter.Distance(OwnerEmpire.WeightedCenter));
-                foreach (War war in sortedActiveWars)
-                {
-                    var currentWar = war.ConductWar();
-                    if (war.Them.isFaction) continue;
-                    worstWar = worstWar > currentWar ? currentWar : worstWar;
-                }
+                MinWarPriority = 11; // todo remove
 
+                // todo move to method and also go real prepare for war.
                 // start a new war by military strength
-                if (worstWar > WarState.WinningSlightly)
+                if (!OwnerEmpire.IsAtWar || OwnerEmpire.GetAverageWarGrade() > 7)
                 {
                     WarStrength = OwnerEmpire.EmpireShipLists.EmpireReadyFleets.AccumulatedStrength;
-
                     foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations.SortedDescending(r=> r.Rel.TotalAnger))
                     {
                         if (them.isPlayer && GlobalStats.RestrictAIPlayerInteraction)
@@ -378,7 +365,6 @@ namespace Ship_Game.AI
                         {
                             DeclareWarOn(them, rel.PreparingForWarType);
                             break;
-
                         }
                     }
                 }

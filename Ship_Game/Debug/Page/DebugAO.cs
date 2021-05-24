@@ -178,18 +178,6 @@ namespace Ship_Game.Debug.Page
 
             column.AddLine($"---------");
             column.AddLine($"War Tasks");
-
-            /// WarTasks
-            if (EmpireAtWar.GetEmpireAI().PauseWarTimer < 0)
-            {
-                var warTasks = EmpireAtWar.GetEmpireAI().WarTasks;
-
-                foreach (var task in warTasks.NewTasks)
-                {
-                    column.AddLine($"{task.type} - {task.MinimumTaskForceStrength}  -  Ending: {task.QueuedForRemoval}");
-                }
-            }
-
             return column;
         }
 

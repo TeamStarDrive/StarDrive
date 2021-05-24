@@ -13,27 +13,22 @@ namespace Ship_Game.AI.Tasks
     public partial class MilitaryTask
     {
         [Serialize(0)] public bool IsCoreFleetTask;
-        [Serialize(1)] public bool WaitForCommand;
-        [Serialize(2)] public Array<Guid> HeldGoals = new Array<Guid>();
-        [Serialize(3)] public int Step;
-        [Serialize(4)] public Guid TargetPlanetGuid = Guid.Empty;
-        [Serialize(5)] public TaskType type;
-        [Serialize(6)] public Vector2 AO;
-        [Serialize(7)] public float AORadius;
-        [Serialize(8)] public float InitialEnemyStrength;
-        [Serialize(9)] public float EnemyStrength;
-        [Serialize(10)] public float StartingStrength;
-        [Serialize(11)] public float MinimumTaskForceStrength;
-        [Serialize(12)] public float TaskTimer;
-        [Serialize(13)] public int WhichFleet = -1;
-        [Serialize(14)] public bool IsToughNut;
-        [Serialize(15)] public int NeededTroopStrength;
-        [Serialize(16)] public int Priority;
-        [Serialize(17)] public int TaskBombTimeNeeded;
-        [Serialize(18)] public Guid TargetShipGuid = Guid.Empty;
-        [Serialize(19)] public Guid TaskGuid = Guid.NewGuid();
-        [Serialize(20)] public Array<Vector2> PatrolPoints;
-        [Serialize(21)] public int TargetEmpireId = -1;
+        [Serialize(1)] public Array<Guid> HeldGoals = new Array<Guid>();
+        [Serialize(2)] public int Step;
+        [Serialize(3)] public Guid TargetPlanetGuid = Guid.Empty;
+        [Serialize(4)] public TaskType type;
+        [Serialize(5)] public Vector2 AO;
+        [Serialize(6)] public float AORadius;
+        [Serialize(7)] public float EnemyStrength;
+        [Serialize(8)] public float MinimumTaskForceStrength;
+        [Serialize(9)] public int WhichFleet = -1;
+        [Serialize(10)] public int NeededTroopStrength;
+        [Serialize(11)] public int Priority;
+        [Serialize(12)] public int TaskBombTimeNeeded;
+        [Serialize(13)] public Guid TargetShipGuid = Guid.Empty;
+        [Serialize(14)] public Guid TaskGuid = Guid.NewGuid();
+        [Serialize(15)] public Array<Vector2> PatrolPoints;
+        [Serialize(16)] public int TargetEmpireId = -1;
 
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
         [XmlIgnore] [JsonIgnore] public Campaign WarCampaign = null;
@@ -103,7 +98,7 @@ namespace Ship_Game.AI.Tasks
                 // need to adjust this by personality.
                 // this task will increase in priority as time goes by. 
                 // this will generally only have an effect during war. 
-                Priority                 = 20,
+                Priority                 = 5,
                 TargetEmpire             = dominant
             };
 
@@ -118,7 +113,7 @@ namespace Ship_Game.AI.Tasks
                 AO               = targetPlanet.Center,
                 AORadius         = 50000f,
                 type             = TaskType.Exploration,
-                Priority         = 20,
+                Priority         = 5,
                 Owner            = owner,
                 TargetPlanet     = targetPlanet,
                 TargetPlanetGuid = targetPlanet.guid,
@@ -154,7 +149,7 @@ namespace Ship_Game.AI.Tasks
                 AORadius     = targetPlanet.ParentSystem.Radius,
                 Owner        = owner,
                 WhichFleet   = fleetId,
-                Priority     = 0,
+                Priority     = 5,
                 Step         = 1 // We have ships
             };
 
@@ -226,14 +221,6 @@ namespace Ship_Game.AI.Tasks
             };
 
             return militaryTask;
-        }
-
-        public MilitaryTask(AO ao, Array<Vector2> patrolPoints)
-        {
-            AO              = ao.Center;
-            AORadius        = ao.Radius;
-            type            = TaskType.CohesiveClearAreaOfEnemies;
-            PatrolPoints    = patrolPoints;
         }
 
         public MilitaryTask(Empire owner, Vector2 center, float radius, SolarSystem system, float strengthWanted, TaskType taskType)
@@ -830,7 +817,6 @@ namespace Ship_Game.AI.Tasks
             CorsairRaid,
             CohesiveClearAreaOfEnemies,
             Exploration,
-            DefendSystem,
             DefendClaim,
             DefendPostInvasion,
             GlassPlanet,
