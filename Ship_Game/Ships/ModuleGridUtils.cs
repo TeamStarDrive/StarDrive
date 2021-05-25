@@ -54,9 +54,9 @@ namespace Ship_Game.Ships
             if (ss != null)
             {
                 if (f != (int)ss.Facing)
-                    Log.Warning($"Module Facing does not match SlotStruct: m={m.FacingDegrees} ss={ss}");
+                    Log.Warning($"Module Facing does not match SlotStruct: m.FacingDegrees={m.FacingDegrees} ss={ss}");
                 if (o != (int)ss.Orientation)
-                    Log.Warning($"Module Orientation does not match SlotStruct: m={m.Orientation} ss={ss}");
+                    Log.Warning($"Module Orientation does not match SlotStruct: m.Orientation={m.Orientation} ss={ss}");
 
                 f = (int)ss.Facing;
                 o = (int)ss.Orientation;

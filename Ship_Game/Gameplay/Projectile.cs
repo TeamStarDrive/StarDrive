@@ -555,12 +555,12 @@ namespace Ship_Game.Gameplay
                 }
                 Empire.Universe.AddLight(Light);
             }
-            else if (Weapon.Light != null && LightWasAddedToSceneGraph)
+            else if (Light != null && Weapon.Light != null && LightWasAddedToSceneGraph)
             {
                 Light.Position = new Vector3(Center.X, Center.Y, -25f);
                 Light.World = Matrix.CreateTranslation(Light.Position);
             }
-            if (Module != null && !MuzzleFlashAdded && Module.InstalledWeapon.MuzzleFlash != null && InFrustum)
+            if (Module != null && !MuzzleFlashAdded && Module.InstalledWeapon?.MuzzleFlash != null && InFrustum)
             {
                 MuzzleFlashAdded = true;
                 MuzzleFlashManager.AddFlash(this);

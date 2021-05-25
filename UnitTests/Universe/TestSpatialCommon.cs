@@ -18,12 +18,17 @@ namespace UnitTests.Universe
         protected TestSpatialCommon()
         {
             CreateGameInstance(800, 800, mockInput:false);
-            LoadStarterShips();
+            LoadStarterShipVulcan();
             CreateUniverseAndPlayerEmpire(out Empire _);
         }
 
         protected void CreateQuadTree(int numShips, ISpatial tree)
         {
+            if (!AllObjects.IsEmpty)
+            {
+                Universe.Objects.Clear();
+                AllObjects.Clear();
+            }
             AllObjects = QtreePerfTests.CreateTestSpace(numShips, tree, Player, Enemy, SpawnShip);
         }
 

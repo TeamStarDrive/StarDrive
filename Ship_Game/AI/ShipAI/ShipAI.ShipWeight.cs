@@ -1,7 +1,9 @@
 using Ship_Game.Ships;
 
-namespace Ship_Game.AI {
-    public sealed partial class ShipAI {
+namespace Ship_Game.AI
+{
+    public sealed partial class ShipAI
+    {
         public struct ShipWeight
         {
             public Ship Ship;
@@ -22,9 +24,6 @@ namespace Ship_Game.AI {
 
             //i dont know how overload the "=" operator and keep the ship. 
             public void SetWeight(float weight) => Weight = weight;
-            
-
-
         }
     }
 }

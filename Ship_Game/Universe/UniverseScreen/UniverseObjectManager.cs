@@ -221,6 +221,8 @@ namespace Ship_Game
                 Projectiles.Clear();
             lock (AllObjectsLocker)
                 Objects.Clear();
+
+            Spatial.Clear();
         }
         
         /// <summary>

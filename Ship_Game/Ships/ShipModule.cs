@@ -198,8 +198,8 @@ namespace Ship_Game.Ships
         /// 25% = 11 slots
         /// 0%  = 64 slots
         /// </summary>
-        public float AccuracyPercent        => Flyweight.AccuracyPercent;
-        public float WeaponInaccuracyBase   => Flyweight.WeaponInaccuracyBase;
+        public float AccuracyPercent        => Flyweight?.AccuracyPercent ?? -1;
+        public float WeaponInaccuracyBase   => Flyweight?.WeaponInaccuracyBase ?? 1;
 
         public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
@@ -1459,5 +1459,21 @@ namespace Ship_Game.Ships
         }
 
         public override string ToString() => $"{UID}  {Id}  x {Position.X} y {Position.Y}  size {XSIZE}x{YSIZE}  world={Center}  Ship={Parent?.Name}";
+
+        public void Dispose()
+        {
+            // TODO: nulling the parent will cause a big can of worms -_-, we get a lot of null ref exceptions
+            //Parent = null;
+            Flyweight = null;
+
+            DamageVisualizer = null;
+            Bonuses = null;
+            Shield = null;
+            hangarShip = null;
+            InstalledWeapon?.Dispose(ref InstalledWeapon);
+            LastDamagedBy = null;
+            SetSystem(null);
+            SetSystemBackBuffer(null);
+        }
     }
 }
