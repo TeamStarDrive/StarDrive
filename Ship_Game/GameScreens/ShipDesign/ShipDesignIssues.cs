@@ -345,7 +345,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         }
 
         public void CheckExcessPowerCells(bool hasBeamWeapons, float burstEnergyPowerTime, 
-            float excessPowerConsumed, bool hasPowerCells)
+            float excessPowerConsumed, bool hasPowerCells, float recharge, float powerCapacity)
         {
             if (!hasPowerCells
                 || hasBeamWeapons && burstEnergyPowerTime.Less(2.2f) // 10% percent more of required beam time
@@ -354,7 +354,10 @@ namespace Ship_Game.GameScreens.ShipDesign
                 return;
             }
 
-            AddDesignIssue(DesignIssueType.ExcessPowerCells, WarningLevel.Informative);
+            if (powerCapacity > recharge * 1.5f)
+                AddDesignIssue(DesignIssueType.ExcessPowerCells, WarningLevel.Informative);
+            else if (powerCapacity > recharge)
+                AddDesignIssue(DesignIssueType.ExcessPowerCells, WarningLevel.Minor);
         }
 
         public void CheckBurstPowerTime(bool hasBeamWeapons, float burstEnergyPowerTime)
