@@ -3,18 +3,35 @@ using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.AI;
-using Ship_Game.Data;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Gameplay
 {
+    // Used only in Hull definitions
+    public sealed class HullSlot
+    {
+        public Point P; // integer position in the design, such as [0, 1]
+        public Restrictions R; // this slots
+
+        public HullSlot() {}
+        public HullSlot(int x, int y, Restrictions r)
+        {
+            P = new Point(x, y);
+            R = r;
+        }
+        public Point GetGridPos() => P;
+        public Point GetSize() => new Point(1, 1);
+        public override string ToString() => $"{R} {P}";
+
+    }
+
     public sealed class ModuleSlotData
     {
         public Vector2 Position;
         public Restrictions Restrictions;
 
         [XmlElement(ElementName = "InstalledModuleUID")]
-        [JsonProperty("InstalledModuleUID", ItemConverterType = typeof(InterningStringConverter))]
+        [JsonProperty("InstalledModuleUID"/*, ItemConverterType = typeof(InterningStringConverter)*/)]
         public string ModuleUID;
 
         [XmlElement(ElementName = "facing")]
@@ -117,6 +134,13 @@ namespace Ship_Game.Gameplay
 
         [XmlIgnore] [JsonIgnore]
         public Point PosAsPoint => new Point((int)Position.X, (int)Position.Y);
+
+        // Gets the size of this slot, correctly oriented
+        public Point GetSize()
+        {
+            ShipModule m = ModuleOrNull;
+            return m?.GetOrientedSize(this) ?? new Point(1, 1);
+        }
 
         static string[] Orientations;
 

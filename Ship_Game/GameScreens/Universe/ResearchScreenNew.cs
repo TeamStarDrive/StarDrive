@@ -330,40 +330,44 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
+        public static void UnlockAllResearch(Empire empire, bool unlockBonusTechs)
+        {
+            // Unlock an empire at each press of ctrl-F1
+            int totalTechs = empire.TechEntries.Count;
+            int techUnlocked = empire.TechEntries.Count(t => t.Unlocked);
+            float ratioUnlocked = techUnlocked / (float)totalTechs;
+            empire.Research.SetNoResearchLeft(true);
+
+            foreach (TechEntry techEntry in empire.TechEntries)
+            {
+                if (!techEntry.Unlocked)
+                {
+                    techEntry.DebugUnlockFromTechScreen(empire, empire, unlockBonusTechs);
+                    GameAudio.EchoAffirmative();
+                }
+                else if (ratioUnlocked > 0.9f)
+                {
+                    foreach (var them in EmpireManager.Empires)
+                    {
+                        if (them != empire && !techEntry.SpiedFrom(them))
+                        {
+                            techEntry.DebugUnlockFromTechScreen(empire, them, unlockBonusTechs);
+                            GameAudio.AffirmativeClick();
+                            break;
+                        }
+                    }
+                }
+            }
+            empire.UpdateShipsWeCanBuild();
+        }
+
+
         bool HandleDebugInput(InputState input)
         {
             if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F1))
             {
-                // Unlock an empire at each press of ctrl-F1
-                int totalTechs = EmpireManager.Player.TechEntries.Count;
-                int techUnlocked = EmpireManager.Player.TechEntries.Count(t => t.Unlocked);
-                float ratioUnlocked = techUnlocked / (float)totalTechs;
-                EmpireManager.Player.Research.SetNoResearchLeft(true);
-
-                foreach (TechEntry techEntry in EmpireManager.Player.TechEntries)
-                {
-                    bool shift = input.IsShiftKeyDown;
-                    Empire us = EmpireManager.Player;
-                    if (!techEntry.Unlocked)
-                    {
-                        techEntry.DebugUnlockFromTechScreen(us, us, !shift);
-                        GameAudio.EchoAffirmative();
-                    }
-                    else if(ratioUnlocked > 0.9f)
-                    {
-                        foreach (var them in EmpireManager.Empires)
-                        {
-                            if (them != EmpireManager.Player && !techEntry.SpiedFrom(them))
-                            {
-                                techEntry.DebugUnlockFromTechScreen(us, them, !shift);
-                                GameAudio.AffirmativeClick();
-                                break;
-                            }
-                        }
-                    }
-                }
+                UnlockAllResearch(EmpireManager.Player, unlockBonusTechs: !input.IsShiftKeyDown);
                 ReloadContent();
-                EmpireManager.Player.UpdateShipsWeCanBuild();
                 return true;
             }
 
@@ -383,7 +387,7 @@ namespace Ship_Game
                 return true;
             }
 
-            //Added by McShooterz: Cheat ot unlock non bonus tech
+            //Added by McShooterz: Cheat to unlock non bonus tech
             if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F3))
             {
                 // unlock techs without their bonus

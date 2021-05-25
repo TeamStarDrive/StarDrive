@@ -103,7 +103,7 @@ namespace Ship_Game.Ships
                 // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
                 if (slot.IsDummy)
                 {
-                    // incomplete shipyard designs are a new feature, so no legacy dummies here
+                    // incomplete shipyard designs are a new feature, so no legacy dummies to fix
                     if (shipyardDesign)
                         continue;
                     hasLegacyDummySlots = true;
@@ -131,10 +131,9 @@ namespace Ship_Game.Ships
                 ModuleSlotList[count++] = module;
             }
 
-            bool useModules = fromSave || isTemplate;
-            CreateModuleGrid(templateSlots, ModuleSlotList, useModules);
+            CreateModuleGrid(shipData.GridInfo, shipyardDesign);
 
-            if (useModules && !shipyardDesign && ModuleSlotList.Length == 0)
+            if ((fromSave || isTemplate) && !shipyardDesign && ModuleSlotList.Length == 0)
             {
                 Log.Warning($"Failed to load ship '{Name}' due to all empty Modules");
                 return false;

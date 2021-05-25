@@ -1381,6 +1381,7 @@ namespace Ship_Game.Ships
         public void SetModuleFacing(int w, int h, ModuleOrientation orientation, float facing)
         {
             FacingDegrees = facing;
+            Orientation = orientation;
             switch (orientation)
             {
                 case ModuleOrientation.Normal:
@@ -1394,8 +1395,26 @@ namespace Ship_Game.Ships
                     YSIZE = w;
                     break;
             }
+        }
 
-            Orientation = orientation;
+        public Point GetOrientedSize(ModuleSlotData slotData)
+        {
+            if (Enum.TryParse(slotData.Orientation, out ModuleOrientation orientation))
+            {
+                switch (orientation)
+                {
+                    case ModuleOrientation.Left:
+                    case ModuleOrientation.Right:
+                        return new Point(YSIZE, XSIZE);
+                }
+            }
+            return new Point(XSIZE, YSIZE);
+        }
+        
+        // Gets the size of this Module, correctly oriented
+        public Point GetSize()
+        {
+            return new Point(XSIZE, YSIZE);
         }
 
         // For specific cases were non squared icons requires a different texture when oriented,
