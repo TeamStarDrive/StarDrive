@@ -164,27 +164,23 @@ namespace Ship_Game
             ChangeHull(ActiveHull);
         }
 
-        public ShipModule CreateDesignModule(ShipModule template)
+        public ShipModule CreateModuleListItem(ShipModule template)
         {
             ShipModule m = ShipModule.CreateNoParent(template, EmpireManager.Player, ActiveHull);
-            m.SetAttributes();                    
+            m.SetAttributes();
             return m;
-        }
-
-        public ShipModule CreateDesignModule(ShipModule template, ModuleOrientation orientation, float facing)
-        {
-            return ShipModule.CreateDesignModule(template, orientation, facing, ActiveHull);
         }
 
         public ShipModule CreateDesignModule(string uid, ModuleOrientation orientation, float facing)
         {
-            return CreateDesignModule(ResourceManager.GetModuleTemplate(uid), orientation, facing);
+            return ShipModule.CreateDesignModule(ResourceManager.GetModuleTemplate(uid), orientation, facing, ActiveHull);
         }
 
         // spawn a new active module under cursor
-        void SpawnActiveModule(ShipModule template, ModuleOrientation orientation, float facing)
+        // WARNING: must use Module UID string here, otherwise we can get incorrect XSIZE/YSIZE due to Orientations
+        void SpawnActiveModule(string moduleUID, ModuleOrientation orientation, float facing)
         {
-            ActiveModule = CreateDesignModule(template, orientation, facing);
+            ActiveModule = CreateDesignModule(moduleUID, orientation, facing);
             ActiveModState = orientation;
             ActiveModule.SetAttributes();
             if (ActiveModule.ModuleType == ShipModuleType.Hangar
@@ -198,11 +194,11 @@ namespace Ship_Game
             ActiveModState = ModuleOrientation.Normal;
         }
         
-        public void SetActiveModule(ShipModule template, ModuleOrientation orientation, float facing)
+        public void SetActiveModule(string moduleUID, ModuleOrientation orientation, float facing)
         {
             GameAudio.SmallServo();
 
-            SpawnActiveModule(template, orientation, facing);
+            SpawnActiveModule(moduleUID, orientation, facing);
             HighlightedModule = null;
         }
 
@@ -245,7 +241,8 @@ namespace Ship_Game
             {
                 ModuleOrientation mOri = mirrored.Orientation;
                 float mFacing = ConvertOrientationToFacing(mOri);
-                ShipModule mModule = CreateDesignModule(install.Mod, mOri, mFacing);
+                // @warning in order to get correct XSIZE/YSIZE, we MUST use Module Template UID here
+                ShipModule mModule = CreateDesignModule(install.Mod.UID, mOri, mFacing);
                 return new SlotInstall(mirrored.Slot, mModule, mOri);
             }
             return new SlotInstall();
@@ -266,7 +263,7 @@ namespace Ship_Game
                 
                 ShipSaved = false;
                 OnDesignChanged();
-                SpawnActiveModule(active.Mod, active.Ori, active.Slot.Facing);
+                SpawnActiveModule(active.Mod.UID, active.Ori, active.Slot.Facing);
             }
         }
 
@@ -285,7 +282,7 @@ namespace Ship_Game
             {
                 if (replaceAt.ModuleUID == replacementId)
                 {
-                    ShipModule m = CreateDesignModule(template, replaceAt.Orientation, replaceAt.Module.FacingDegrees);
+                    ShipModule m = CreateDesignModule(template.UID, replaceAt.Orientation, replaceAt.Module.FacingDegrees);
                     ModuleGrid.InstallModule(replaceAt, m, replaceAt.Orientation);
                 }
             }
