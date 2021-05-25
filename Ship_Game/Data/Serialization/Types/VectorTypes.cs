@@ -114,5 +114,58 @@ namespace Ship_Game.Data.Serialization.Types
             v.W = reader.ReadSingle();
             return v;
         }
+
+        public static Vector4 FromString(string s)
+        {
+            string[] parts = s.Split(',');
+            Vector4 v = default;
+            if (parts.Length >= 1) v.X = Float(parts[0]);
+            if (parts.Length >= 2) v.Y = Float(parts[1]);
+            if (parts.Length >= 3) v.Z = Float(parts[2]);
+            if (parts.Length >= 4) v.W = Float(parts[3]);
+            return v;
+        }
+    }
+
+    internal class PointSerializer : TypeSerializer
+    {
+        public override string ToString() => "PointSerializer";
+
+        public override object Convert(object value)
+        {
+            if (value is object[] objects)
+            {
+                Point p = default;
+                if (objects.Length >= 1) p.X = Int(objects[0]);
+                if (objects.Length >= 2) p.Y = Int(objects[1]);
+                return p;
+            }
+            Error(value, "Point -- expected [int,int]");
+            return Point.Zero;
+        }
+        
+        public override void Serialize(BinaryWriter writer, object obj)
+        {
+            var p = (Point)obj;
+            writer.Write(p.X);
+            writer.Write(p.Y);
+        }
+
+        public override object Deserialize(BinaryReader reader)
+        {
+            Point p;
+            p.X = reader.ReadInt32();
+            p.Y = reader.ReadInt32();
+            return p;
+        }
+
+        public static Point FromString(string s)
+        {
+            string[] parts = s.Split(',');
+            Point p = default;
+            if (parts.Length >= 1) p.X = int.Parse(parts[0]);
+            if (parts.Length >= 2) p.Y = int.Parse(parts[1]);
+            return p;
+        }
     }
 }
