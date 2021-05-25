@@ -12,6 +12,5 @@ namespace Ship_Game.Gameplay
         xI,
         xIO,
         xO
-
     }
 }
