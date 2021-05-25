@@ -139,11 +139,10 @@ namespace Ship_Game
                 // remove ship from fleet but do not add it back to empire pools.
                 ship.fleet?.RemoveShip(ship, false);
                 ship.AI.ClearOrders();
-                oldLoyalty.RemoveShip(ship);
+                oldLoyalty.EmpireShipLists.ImmediateRemoveShipFromEmpire(ship);
 
                 oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);
-                ship.loyalty = changeTo;
-                changeTo.AddShip(ship);
+                changeTo.EmpireShipLists.ImmediateSetLoyaltyAndAddShipToEmpire(ship);
                 ship.shipStatusChanged = true;
 
                 ship.SwitchTroopLoyalty(oldLoyalty, ship.loyalty);
