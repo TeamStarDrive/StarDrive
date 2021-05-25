@@ -14,7 +14,7 @@ namespace Ship_Game.Gameplay
         public Restrictions Restrictions;
 
         [XmlElement(ElementName = "InstalledModuleUID")]
-        [JsonProperty("InstalledModuleUID", ItemConverterType = typeof(InterningStringConverter))]
+        [JsonProperty("InstalledModuleUID"/*, ItemConverterType = typeof(InterningStringConverter)*/)]
         public string ModuleUID;
 
         [XmlElement(ElementName = "facing")]
