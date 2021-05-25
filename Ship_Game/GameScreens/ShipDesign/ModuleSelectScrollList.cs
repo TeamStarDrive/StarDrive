@@ -20,7 +20,7 @@ namespace Ship_Game
             var weaponItem = (ModuleSelectListItem)item;
             if (weaponItem.Module != null)
             {
-                Screen.SetActiveModule(weaponItem.Module, ModuleOrientation.Normal, 0f);
+                Screen.SetActiveModule(weaponItem.Module.UID, ModuleOrientation.Normal, 0f);
             }
             base.OnItemClicked(item);
         }
@@ -99,7 +99,7 @@ namespace Ship_Game
             if (RestrictedModCheck(Screen.ActiveHull.Role, template))
                 return false;
 
-            tmp = Screen.CreateDesignModule(template);
+            tmp = Screen.CreateModuleListItem(template);
             return true;
         }
 
