@@ -107,7 +107,7 @@ namespace Ship_Game.Gameplay
         public ExplosionType ExplosionType = ExplosionType.Projectile;
         public string dieCue;
         public string ToggleSoundName = "";
-        [XmlIgnore][JsonIgnore] readonly AudioHandle ToggleCue = new AudioHandle();
+        [XmlIgnore][JsonIgnore] AudioHandle ToggleCue = new AudioHandle();
         public string Light;
         public bool isTurret;
         public bool isMainGun;
@@ -485,9 +485,16 @@ namespace Ship_Game.Gameplay
 
         // > 66% accurate or >= Level 5 crews can use advanced
         // targeting which even predicts acceleration
-        public bool CanUseAdvancedTargeting =>
-            (Module != null && Module.AccuracyPercent > 0.66f) ||
-            (Owner  != null && Owner.CanUseAdvancedTargeting);
+        public bool CanUseAdvancedTargeting
+        {
+            get
+            {
+                ShipModule m = Module;
+                Ship o = Owner;
+                return (m != null && m.AccuracyPercent > 0.66f) ||
+                       (o != null && o.CanUseAdvancedTargeting);
+            }
+        }
 
         Vector2 GetLevelBasedError(int level = -1)
         {
@@ -586,8 +593,12 @@ namespace Ship_Game.Gameplay
             // total error magnitude should get smaller as the target gets slower. 
             if (FireTarget?.Type == GameObjectType.ShipModule)
             {
-                float speed = ((ShipModule)FireTarget).GetParent().CurrentVelocity;
-                errorMagnitude *= speed < 150 ? speed / 150 : 1;
+                Ship parent = ((ShipModule)FireTarget).GetParent();
+                if (parent != null) // the parent can be null
+                {
+                    float speed = parent.CurrentVelocity;
+                    errorMagnitude *= speed < 150 ? speed / 150 : 1;
+                }
             }
             
             Vector2 adjusted = target + error*errorMagnitude;
@@ -870,7 +881,7 @@ namespace Ship_Game.Gameplay
 
         public void ResetToggleSound()
         {
-            if (ToggleCue.IsPlaying)
+            if (ToggleCue?.IsPlaying == true)
                 ToggleCue.Stop();
         }
 
@@ -1042,7 +1053,8 @@ namespace Ship_Game.Gameplay
 
         void Destroy()
         {
-            ToggleCue.Destroy();
+            ToggleCue?.Destroy();
+            ToggleCue = null;
             Owner         = null;
             Module        = null;
             FireTarget    = null;

@@ -411,7 +411,7 @@ namespace Ship_Game
                 return aftermath;
             }
 
-            if (!victim.GetEmpireAI().TradableTechs(us, out Array<TechEntry> potentialTechs))
+            if (!victim.GetEmpireAI().TradableTechs(us, out Array<TechEntry> potentialTechs, true))
             {
                 aftermath.Message = GameText.AbortedTheStealTechnologyMission;
                 aftermath.ShouldAddXp = false;

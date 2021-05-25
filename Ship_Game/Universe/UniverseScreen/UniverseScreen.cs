@@ -835,8 +835,6 @@ namespace Ship_Game
             ClearSolarSystems();
             ClearSpaceJunk();
 
-            foreach (Empire empire in EmpireManager.Empires)
-                empire.CleanOut();
             EmpireManager.Clear();
 
             ShipToView = null;

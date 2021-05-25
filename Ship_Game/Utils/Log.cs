@@ -350,25 +350,27 @@ namespace Ship_Game
             public override string StackTrace { get; }
             public StackTraceEx(string stackTrace) { StackTrace = stackTrace; }
         }
-
+        
         public static void Error(string error)
         {
             string text = "(!) Error: " + error;
             LogWriteAsync(text, ConsoleColor.Red);
             FlushAllLogs();
-
+            
+        #if DEBUG && !NOBREAK
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 if (!ShouldIgnoreErrorText(error))
                 {
-                    var ex = new StackTraceEx(new StackTrace(1).ToString());
+                    var ex = new Exception(new StackTrace(1).ToString());
                     CaptureEvent(text, ErrorLevel.Error, ex);
                 }
                 return;
             }
 
             // Error triggered while in Debug mode. Check the error message for what went wrong
-             Debugger.Break();
+            Debugger.Break();
+        #endif
         }
 
         // write an Exception to logfile, sentry.io and debug console with an error message
@@ -378,7 +380,8 @@ namespace Ship_Game
             string text = ExceptionString(ex, "(!) Exception: ", error);
             LogWriteAsync(text, ConsoleColor.DarkRed);
             FlushAllLogs();
-
+            
+        #if DEBUG && !NOBREAK
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 if (!ShouldIgnoreErrorText(text))
@@ -387,9 +390,9 @@ namespace Ship_Game
                 }
                 return;
             }
-
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
+        #endif
         }
 
         // if exitCode != 0, then program is terminated
