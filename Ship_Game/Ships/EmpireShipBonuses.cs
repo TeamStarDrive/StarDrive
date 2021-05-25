@@ -16,7 +16,7 @@ namespace Ship_Game.Ships
         public float ShieldMod     { get; private set; } = 1.0f;
         public float HealthMod     { get; private set; } = 1.0f;
 
-        public void Update(Empire empire, ShipData shipData)
+        public void Update(Empire empire, HullBonus hullBonus)
         {
             float EmpireDataMod(float mod)
             {
@@ -25,21 +25,21 @@ namespace Ship_Game.Ships
 
             FuelCellMod   = EmpireDataMod(empire.data.FuelCellModifier);
             PowerFlowMod  = EmpireDataMod(empire.data.PowerFlowMod);
-            RepairRateMod = EmpireDataMod(empire.data.Traits.RepairMod) * shipData.Bonuses.RepairModifier;
-            ShieldMod     = EmpireDataMod(empire.data.ShieldPowerMod)   * shipData.Bonuses.ShieldModifier;
+            RepairRateMod = EmpireDataMod(empire.data.Traits.RepairMod) * hullBonus.RepairModifier;
+            ShieldMod     = EmpireDataMod(empire.data.ShieldPowerMod)   * hullBonus.ShieldModifier;
             HealthMod     = EmpireDataMod(empire.data.Traits.ModHpModifier);
         }
 
         public static readonly EmpireShipBonuses Default = new EmpireShipBonuses();
 
-        private static readonly Map<Empire, EmpireBonusData> EmpireBonuses = new Map<Empire, EmpireBonusData>();
+        static readonly Map<Empire, EmpireBonusData> EmpireBonuses = new Map<Empire, EmpireBonusData>();
 
-        private class EmpireBonusData
+        class EmpireBonusData
         {
-            private readonly Empire Empire;
-            private static int NextRevisionId; // to make each revision globally unique
+            readonly Empire Empire;
+            static int NextRevisionId; // to make each revision globally unique
             public int RevisionId { get; private set; } = ++NextRevisionId;
-            private readonly Map<ShipData, EmpireShipBonuses> HullBonuses = new Map<ShipData, EmpireShipBonuses>();
+            readonly Map<HullBonus, EmpireShipBonuses> HullBonuses = new Map<HullBonus, EmpireShipBonuses>();
 
             public EmpireBonusData(Empire empire)
             {
@@ -47,7 +47,7 @@ namespace Ship_Game.Ships
             }
             public void Update()
             {
-                foreach (KeyValuePair<ShipData, EmpireShipBonuses> kv in HullBonuses)
+                foreach (KeyValuePair<HullBonus, EmpireShipBonuses> kv in HullBonuses)
                     kv.Value.Update(Empire, kv.Key);
                 RevisionId = ++NextRevisionId;
             }
@@ -55,18 +55,19 @@ namespace Ship_Game.Ships
             {
                 lock (this)
                 {
-                    if (!HullBonuses.TryGetValue(shipData, out EmpireShipBonuses shipBonuses))
+                    HullBonus hullBonus = shipData.Bonuses;
+                    if (!HullBonuses.TryGetValue(hullBonus, out EmpireShipBonuses shipBonuses))
                     {
                         shipBonuses = new EmpireShipBonuses();
-                        HullBonuses[shipData] = shipBonuses;
-                        shipBonuses.Update(Empire, shipData);
+                        HullBonuses[hullBonus] = shipBonuses;
+                        shipBonuses.Update(Empire, hullBonus);
                     }
                     return shipBonuses;
                 }
             }
         }
 
-        private static EmpireBonusData GetOrCreateBonusData(Empire empire)
+        static EmpireBonusData GetOrCreateBonusData(Empire empire)
         {
             // @note Loading is multi-threaded, so cache init must be thread safe
             lock (EmpireBonuses)
@@ -89,6 +90,17 @@ namespace Ship_Game.Ships
             if (shipData == null) throw new InvalidOperationException("ShipData must not be null");
 
             return GetOrCreateBonusData(empire).GetOrCreateShipBonus(shipData);
+        }
+
+        /// <summary>
+        /// Clears all cached Ship hull bonuses
+        /// </summary>
+        public static void Clear()
+        {
+            lock (EmpireBonuses)
+            {
+                EmpireBonuses.Clear();
+            }
         }
 
         /// <summary>

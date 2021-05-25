@@ -81,6 +81,7 @@
     <Compile Include="AITests\Empire\TestEmpireAI.cs" />
     <Compile Include="AITests\Ships\TestShipMove.cs" />
     <Compile Include="AssertExtensions.cs" />
+    <Compile Include="Collections\SafeArrayTests.cs" />
     <Compile Include="Collections\TestDequeT.cs" />
     <Compile Include="Collections\TestEnumFlatMap.cs" />
     <Compile Include="Data\TestMeshImportExport.cs" />
@@ -133,6 +134,7 @@
     <Compile Include="TestGameDummy.cs" />
     <Compile Include="Universe\TestNativeSpatial.cs" />
     <Compile Include="Universe\TestSpatialCommon.cs" />
+    <Compile Include="Collections\DoubleBufferedArrayTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

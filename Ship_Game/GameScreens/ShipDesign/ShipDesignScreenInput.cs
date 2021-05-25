@@ -705,7 +705,7 @@ namespace Ship_Game
             ShipSaved = true;
         }
 
-        // Create full modules list
+        // Create full modules list for SAVING the design
         ModuleSlotData[] CreateModuleSlots()
         {
             int count = ModuleGrid.SlotsCount;

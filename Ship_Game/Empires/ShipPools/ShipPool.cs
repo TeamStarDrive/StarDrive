@@ -2,21 +2,20 @@
 using System.Collections.Generic;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Utils;
 
 namespace Ship_Game.Empires.ShipPools
 {
     public class ShipPool : IDisposable
     {
         readonly Empire Owner;
-        Array<Ship> OwnedShips           = new Array<Ship>();
-        Array<Ship> OwnedProjectors      = new Array<Ship>();
-        Array<Ship> ShipsBackBuffer      = new Array<Ship>();
-        Array<Ship> ProjectorsBackBuffer = new Array<Ship>();
-        Array<Ship> ShipsToAddBackBuffer = new Array<Ship>();
-        readonly object PoolLocker       = new object();
+        DetachedList<Ship> OwnedShips      = new DetachedList<Ship>();
+        DetachedList<Ship> OwnedProjectors = new DetachedList<Ship>();
+        ChangePendingList<Ship> ForcePool;
 
-        EmpireAI OwnerAI                  => Owner.GetEmpireAI();
-        
+        object ChangeLocker = new object();
+
+        EmpireAI OwnerAI => Owner.GetEmpireAI();
         
         /// <summary>
         /// This is for adding to the Empire AI pool management.
@@ -28,7 +27,7 @@ namespace Ship_Game.Empires.ShipPools
                 Log.Error($"Incorrect loyalty. Ship {s.loyalty} != Empire {Owner}");
 
             if (!Owner.isPlayer && !Owner.isFaction && s.Active && !s.IsHomeDefense)
-                ShipsToAddBackBuffer.Add(s);
+                EmpireForcePoolAdd(s);
         }
 
         public bool EmpireForcePoolContains(Ship s) => EmpireForcePool.ContainsRef(s);
@@ -39,53 +38,64 @@ namespace Ship_Game.Empires.ShipPools
         public int CurrentUseableFleets       = 0;
         float PoolCheckTimer                  = 0;
 
-        public IReadOnlyList<Ship> EmpireShips => OwnedShips;
-        public IReadOnlyList<Ship> EmpireProjectors => OwnedProjectors;
+        /// <summary>
+        /// For reads this is thread safe as long as a reference is taken before iteration.
+        /// changes to this list will not change the actual shiplist but will break thread safety. 
+        /// </summary>
+        public IReadOnlyList<Ship> EmpireShips => OwnedShips.GetRef();
+        /// <summary>
+        /// For reads this is thread safe as long as a reference is taken before iteration.
+        /// changes to this list will not change the actual shiplist but will break thread safety. 
+        /// </summary>
+        public IReadOnlyList<Ship> EmpireProjectors => OwnedProjectors.GetRef();
         public Array<Ship> EmpireForcePool { get; private set; } = new Array<Ship>();
         public FleetShips EmpireReadyFleets { get; private set; }
 
         public ShipPool(Empire empire)
         {
             Owner = empire;
+            ForcePool = new ChangePendingList<Ship>(s => s.loyalty == Owner &&
+                                                                    !s.loyalty.isPlayer &&
+                                                                    !s.loyalty.isFaction &&
+                                                                     s.Active &&
+                                                                    !s.IsHomeDefense);
         }
 
         public void Update()
         {
-            lock (PoolLocker)
-            {
-                OwnedShips           = ShipsBackBuffer;
-                OwnedProjectors      = ProjectorsBackBuffer;
-                ShipsBackBuffer      = new Array<Ship>(OwnedShips);
-                ProjectorsBackBuffer = new Array<Ship>(ProjectorsBackBuffer);
-            }
-
-            AddShipsToEmpireForcePoolFromShipsToAdd();
+            OwnedShips.Update();
+            OwnedProjectors.Update();
+            lock(ChangeLocker)
+            ForcePool.Update();
 
             if (!Owner.isPlayer)
             {
                 if (PoolCheckTimer-- < 0)
                 {
                     PoolCheckTimer = 60;
-                    RemoveInvalidShipsFromEmpireForcePool();
                     ErrorCheckPools();
                 }
             }
-            var fleets             = new FleetShips(Owner, Owner.AllFleetReadyShips());
-            EmpireReadyFleets      = fleets;
-            CurrentUseableFleets   = InitialReadyFleets = EmpireReadyFleets.CountFleets(out float initialStrength);
+            var fleets = new FleetShips(Owner, Owner.AllFleetReadyShips());
+            EmpireReadyFleets = fleets;
+            CurrentUseableFleets = InitialReadyFleets = EmpireReadyFleets.CountFleets(out float initialStrength);
             CurrentUseableStrength = InitialStrength = initialStrength;
         }
 
         public void RemoveShipFromFleetAndPools(Ship ship)
         {
             ship.ClearFleet();
-            EmpireForcePool.RemoveRef(ship);
+
+            ForcePool.RemoveItemImmediate(ship);
 
             RemoveFromOtherPools(ship);
         }
 
         void RemoveFromOtherPools(Ship ship, AO ao = null)
         {
+            if (OwnerAI == null)
+                return;
+
             if (ao == null)
                 foreach (AO aos in OwnerAI.AreasOfOperations)
                     aos.RemoveShip(ship);
@@ -101,7 +111,8 @@ namespace Ship_Game.Empires.ShipPools
             for (int i = 0; i < OwnerAI.AreasOfOperations.Count; i++)
             {
                 AO ao = OwnerAI.AreasOfOperations[i];
-                ships.AddRange(ao.GetOffensiveForcePool());
+                var newShips = ao.GetOffensiveForcePool();
+                ships.AddRange(newShips);
             }
 
             if (!onlyAO)
@@ -112,7 +123,7 @@ namespace Ship_Game.Empires.ShipPools
         void ErrorCheckPools() 
         {
             if (Owner.isPlayer || Owner.isFaction) return;
-            var allShips = OwnedShips;
+            var allShips = OwnedShips.GetRef();
             
             for (int i = 0; i < allShips.Count; i++)
             {
@@ -135,13 +146,13 @@ namespace Ship_Game.Empires.ShipPools
                         continue;
                 }
 
-                if (ShipsToAddBackBuffer.ContainsRef(ship))
+                if (ForcePool.Contains(ship))
                     continue;
 
-                if (EmpireForcePoolContains(ship))
+                if (ForcePool.Contains(ship))
                 {
                     if (ship.DesignRoleType == ShipData.RoleType.Warship && ship.DesignRole != ShipData.RoleName.carrier)
-                        Log.Warning("WarShip in wrong pool");
+                        Log.Error("WarShip in wrong pool");
                     continue;
                 }
 
@@ -160,17 +171,17 @@ namespace Ship_Game.Empires.ShipPools
                         {
                             if (ship.DesignRole < ShipData.RoleName.fighter)
                                 EmpireForcePoolAdd(ship);
-                            Log.Info($"ShipPool: Could not assign ship to pools {ship}");
+                            Log.Error($"ShipPool: Could not assign ship to pools {ship}");
                         }
                     }
                 }
                 else if (ship.DesignRoleType == ShipData.RoleType.Warship)
                 {
-                    bool notInEmpireForcePool = !EmpireForcePool.ContainsRef(ship);
+                    bool notInEmpireForcePool = !ForcePool.Contains(ship);
                     bool notInAOs = !OwnerAI.AreasOfOperations.Any(ao => ao.OffensiveForcePoolContains(ship));
                     if (ship.loyalty != Owner)
                     {
-                        Log.Warning($"WTF: {Owner} != {ship.loyalty}");
+                        Log.Error($"WTF: {Owner} != {ship.loyalty}");
                         RemoveFromOtherPools(ship);
                         Owner.RemoveShip(ship);
                         ship.loyalty.AddShip(ship);
@@ -207,7 +218,7 @@ namespace Ship_Game.Empires.ShipPools
                     || ship.DesignRoleType == ShipData.RoleType.WarSupport
                     || ship.DesignRole     == ShipData.RoleName.carrier)
                 {
-                    if (!EmpireForcePool.AddUniqueRef(ship))
+                    if (!ForcePool.AddItemPending(ship))
                         Log.Warning($"Attempted to add an existing ship to Empire EmpireForcePool. ShipRole: {ship}");
                 }
                 else if(ship.DesignRoleType == ShipData.RoleType.Warship && ship.BaseCanWarp) 
@@ -243,64 +254,43 @@ namespace Ship_Game.Empires.ShipPools
 
             if (baseDefensePct > 0.35f)
                 baseDefensePct = 0.35f;
-
-            bool needDef = (Owner.CurrentMilitaryStrength * baseDefensePct - OwnerAI.DefStr) > 0
-                        && OwnerAI.DefensiveCoordinator.DefenseDeficit > 0;
-            if (needDef && !Owner.isFaction)
+            if (OwnerAI != null)
             {
-                OwnerAI.DefensiveCoordinator.AddShip(toAdd);
-                return true;
-            }
+                bool needDef = (Owner.CurrentMilitaryStrength * baseDefensePct - OwnerAI.DefStr) > 0
+                               && OwnerAI.DefensiveCoordinator.DefenseDeficit > 0;
+                if (needDef && !Owner.isFaction)
+                {
+                    OwnerAI.DefensiveCoordinator.AddShip(toAdd);
+                    return true;
+                }
 
-            // need to rework this better divide the ships.
-            AO area = OwnerAI.AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Center));
-            if (area?.AddShip(toAdd) != false)
-                return true;
+                // need to rework this better divide the ships.
+                AO area = OwnerAI.AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Center));
+                if (area?.AddShip(toAdd) != false)
+                    return true;
+            }
 
             return false; // nothing to do with you
         }
 
-        void AddShipsToEmpireForcePoolFromShipsToAdd()
-        {
-            for (int i = 0; i < ShipsToAddBackBuffer.Count; i++)
-            {
-                Ship s = ShipsToAddBackBuffer[i];
-                if (!Owner.isPlayer && !Owner.isFaction && s.Active && !s.IsHomeDefense && !s.IsHomeDefense) 
-                    EmpireForcePoolAdd(s);
-            }
-
-            ShipsToAddBackBuffer.Clear();
-        }
-
-        void RemoveInvalidShipsFromEmpireForcePool()
-        {
-            if (Owner.isPlayer && EmpireForcePool.Count > 0)
-                Log.Warning($"Player EmpireForcePool should be empty!: {EmpireForcePool.Count}");
-
-            for (int i = EmpireForcePool.Count - 1; i >= 0; --i)
-            {
-                Ship ship = EmpireForcePool[i];
-                if (!ship.Active || ship.loyalty != Owner)
-                {
-                    RemoveShipFromFleetAndPools(ship);
-                }
-            }
-        }
-
+        /// <summary>
+        /// This is not thread safe. run this on empire thread for safe adds. 
+        /// </summary>
         public void AddShipToEmpire(Ship s)
         {
-            AddToEmpireForcePoolNextFame(s);
+            lock (ChangeLocker)
+            {
+                EmpireForcePoolAdd(s);
+            }
 
             bool alreadyAdded;
             if (s.IsSubspaceProjector)
             {
-                lock (PoolLocker)
-                    alreadyAdded = !ProjectorsBackBuffer.AddUniqueRef(s);
+                alreadyAdded = !OwnedProjectors.Add(s);
             }
             else
             {
-                lock (PoolLocker)
-                    alreadyAdded = !ShipsBackBuffer.AddUniqueRef(s);
+                alreadyAdded = !OwnedShips.Add(s);
             }
 
             if (alreadyAdded)
@@ -308,6 +298,9 @@ namespace Ship_Game.Empires.ShipPools
                     "Empire.AddShip BUG: https://bitbucket.org/codegremlins/stardrive-blackbox/issues/147/doubled-projectors");
         }
 
+        /// <summary>
+        /// This is not thread safe. run this on empire thread for safe removals. 
+        /// </summary>
         public void RemoveShipFromEmpire(Ship ship)
         {
             if (ship == null)
@@ -318,26 +311,23 @@ namespace Ship_Game.Empires.ShipPools
 
             if (ship.IsSubspaceProjector)
             {
-                lock (PoolLocker)
-                    ProjectorsBackBuffer.RemoveRef(ship);
+                OwnedProjectors.Remove(ship);
             }
             else
             {
-                lock (PoolLocker)
-                    ShipsBackBuffer.RemoveRef(ship);
+                OwnedShips.Remove(ship);
             }
 
-            ship.AI.ClearOrders();
-            RemoveShipFromFleetAndPools(ship);
+            ship.AI?.ClearOrders();
+            lock (ChangeLocker)
+                RemoveShipFromFleetAndPools(ship);
         }
         
         public void CleanOut()
         {
-            OwnedShips           = new Array<Ship>();
-            OwnedProjectors      = new Array<Ship>();
-            ShipsBackBuffer      = new Array<Ship>();
-            ProjectorsBackBuffer = new Array<Ship>();
-            ShipsToAddBackBuffer = new Array<Ship>();
+            OwnedShips           = new DetachedList<Ship>();
+            OwnedProjectors      = new DetachedList<Ship>();
+            ForcePool.ClearOut();
             EmpireForcePool      = new Array<Ship>();
             EmpireReadyFleets    = new FleetShips(Owner);
         }
@@ -351,7 +341,7 @@ namespace Ship_Game.Empires.ShipPools
         protected virtual void Dispose(bool disposing)
         {
             EmpireForcePool.ClearAndDispose();
-            ShipsToAddBackBuffer.ClearAndDispose();
+            ForcePool.ClearAndDispose();
             OwnedProjectors.ClearAndDispose();
             OwnedShips.ClearAndDispose();
         }
