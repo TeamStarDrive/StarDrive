@@ -21,6 +21,7 @@ namespace Ship_Game.Ships
     public sealed partial class ShipData
     {
         static bool UseNewShipDataLoaders = false;
+        public static bool GenerateNewHullFiles = false; // only need to do this once
 
         public string Name; // ex: "Dodaving", just an arbitrary name
         public string Hull; // ID of the hull, ex: "Cordrazine/Dodaving"

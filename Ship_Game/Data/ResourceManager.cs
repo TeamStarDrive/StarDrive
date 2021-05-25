@@ -1180,11 +1180,13 @@ namespace Ship_Game
             foreach ((FileInfo f, ShipData sd) in oldHulls) // Finalize HullsDict:
             {
                 AddHull(sd);
-
-                var hullFile = new FileInfo(Path.ChangeExtension(f.FullName, "hull"));
-                if (!hullFile.Exists)
+                if (ShipData.GenerateNewHullFiles)
                 {
-                    new ShipHull(sd).Save(hullFile);
+                    var hullFile = new FileInfo(Path.ChangeExtension(f.FullName, "hull"));
+                    if (!hullFile.Exists)
+                    {
+                        new ShipHull(sd).Save(hullFile);
+                    }
                 }
             }
         }
