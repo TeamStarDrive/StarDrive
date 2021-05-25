@@ -2673,7 +2673,8 @@ namespace Ship_Game
                     bool allEmpiresDead = true;
                     foreach (Empire empire in EmpireManager.Empires)
                     {
-                        if (empire.GetPlanets().Count > 0 && !empire.isFaction && empire != this)
+                        var planets = empire.GetPlanets();
+                        if (planets.Count > 0 && !empire.isFaction && empire != this)
                         {
                             allEmpiresDead = false;
                             break;
@@ -2990,7 +2991,7 @@ namespace Ship_Game
         {
             if (!isPlayer)
                 return;
-            Universe.NotificationManager.AddBoardNotification(Localizer.Token(GameText.ShipCapturedByYou),
+            Universe.NotificationManager?.AddBoardNotification(Localizer.Token(GameText.ShipCapturedByYou),
                                                               ship.BaseHull.IconPath, "SnapToShip", ship, null);
         }
 
@@ -3000,7 +3001,7 @@ namespace Ship_Game
                 return;
 
             string message = $"{Localizer.Token(GameText.YourShipWasCaptured)} {ship.loyalty.Name}!";
-            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.IconPath, "SnapToShip", ship, ship.loyalty);
+            Universe.NotificationManager?.AddBoardNotification(message, ship.BaseHull.IconPath, "SnapToShip", ship, ship.loyalty);
         }
 
         public void AddMutinyNotification(Ship ship, GameText text, Empire initiator)

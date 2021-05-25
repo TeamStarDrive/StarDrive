@@ -198,8 +198,8 @@ namespace Ship_Game.Ships
         /// 25% = 11 slots
         /// 0%  = 64 slots
         /// </summary>
-        public float AccuracyPercent        => Flyweight.AccuracyPercent;
-        public float WeaponInaccuracyBase   => Flyweight.WeaponInaccuracyBase;
+        public float AccuracyPercent        => Flyweight?.AccuracyPercent ?? -1;
+        public float WeaponInaccuracyBase   => Flyweight?.WeaponInaccuracyBase ?? 1;
 
         public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
