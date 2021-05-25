@@ -15,7 +15,8 @@ namespace UnitTests.AITests.Empire
     {
         public TestEmpireAI()
         {
-            CreateGameInstance();
+            if (Game is null)
+                CreateGameInstance();
             LoadPlanetContent();
             CreateTestEnv();
         }
@@ -47,20 +48,21 @@ namespace UnitTests.AITests.Empire
             {
                 CreateUniverseAndPlayerEmpire(out TestEmpire);
                 Enemy.isFaction = false;
+
+                AddPlanetToUniverse(2, 2, 40000, true, Vector2.One);
+                AddPlanetToUniverse(1.9f, 1.9f, 40000, true, new Vector2(5000));
+                AddPlanetToUniverse(1.7f, 1.7f, 40000, true, new Vector2(-5000));
+                for (int x = 0; x < 50; x++)
+                    AddPlanetToUniverse(0.1f, 0.1f, 1000, true, Vector2.One);
+                AddHomeWorldToEmpire(TestEmpire, out P);
+                AddPlanetToUniverse(P, true, Vector2.Zero);
+                AddHomeWorldToEmpire(Enemy, out P);
+                AddPlanetToUniverse(P, true, new Vector2(2000));
+                LoadStarterShips("Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle",
+                                 "Flak Fang", "Akagi-Class Mk Ia Escort Carrier", "Rocket Inquisitor");
+                foreach (string uid in ResourceManager.GetShipTemplateIds())
+                    Player.ShipsWeCanBuild.Add(uid);
             }
-            AddPlanetToUniverse(2, 2, 40000, true,Vector2.One);
-            AddPlanetToUniverse(1.9f, 1.9f, 40000, true, new Vector2(5000));
-            AddPlanetToUniverse(1.7f, 1.7f, 40000, true, new Vector2(-5000));
-            for (int x = 0; x < 50; x++)
-                AddPlanetToUniverse(0.1f, 0.1f, 1000, true, Vector2.One);
-            AddHomeWorldToEmpire(TestEmpire, out P);
-            AddPlanetToUniverse(P,true, Vector2.Zero);
-            AddHomeWorldToEmpire(Enemy, out P);
-            AddPlanetToUniverse(P, true, new Vector2(2000));
-            LoadStarterShips("Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle",
-                             "Flak Fang", "Akagi-Class Mk Ia Escort Carrier", "Rocket Inquisitor");
-            foreach (string uid in ResourceManager.GetShipTemplateIds())
-                Player.ShipsWeCanBuild.Add(uid);
         }
 
         void ClearEmpireShips()
@@ -308,11 +310,13 @@ namespace UnitTests.AITests.Empire
             bool stopStress = false;
             var stressTask = Parallel.Run(() =>
             {
-                shipsRemoved = BackGroundPoolStress(ref stopStress);
+                BackGroundPoolStress(ref stopStress);
             });
 
+            int loyaltyChanges = 0;
+
             // add random number of ships to random empires. 
-            int first = 0, last = 10;
+            int first = 0, last = 50;
             {
                 for (int i = first; i < last; ++i)
                 {
@@ -324,25 +328,28 @@ namespace UnitTests.AITests.Empire
                         {
                             if (s.Active)
                             {
-                                float random = RandomMath.RandomBetween(1, 100);
-
-                                if (random > 99.5f)
+                                float random = RandomMath.AvgRandomBetween(1, 100);
+                                if (random > 95)
                                 {
-                                    s.Die(null, true);
-                                    s.Active = false;
-                                    s.loyalty.RemoveShip(s);
-                                    numberOfShips--;
+                                    if (s.loyalty.EmpireShipLists.ImmediateRemoveShipFromEmpire(s))
+                                    {
+                                        shipsRemoved++;
+                                    }
+
                                 }
                                 else if (random > 80)
                                 {
-                                    s.ChangeLoyalty(Player);
+                                    var changeTo = EmpireManager.Empires.Find(e => e != empire);
+                                    s.ChangeLoyalty(changeTo);
+                                    Assert.AreEqual(s.loyalty, changeTo);
+                                    loyaltyChanges++;
                                 }
                             }
-
+                            
                         }
                     }
 
-                    addedShips = RandomMath.IntBetween(1, 100);
+                    addedShips = RandomMath.IntBetween(1, 10);
 
                     Parallel.For(0, EmpireManager.NumEmpires, (firstEmpire, lastEmpire) =>
                         {
@@ -373,6 +380,7 @@ namespace UnitTests.AITests.Empire
 
             numberOfShips -= shipsRemoved;
             Assert.AreEqual(numberOfShips, actualShipCount);
+            Log.Info($"loyalty Changes: {loyaltyChanges} Removed Ships: {shipsRemoved} Active Ships: {actualShipCount}");
            
             Enemy.data.IsRebelFaction = true;
         }
@@ -387,7 +395,10 @@ namespace UnitTests.AITests.Empire
                     var ships = empire.OwnedShips;
                     foreach (var s in ships)
                     {
-                        s.AI.ClearOrders();
+                        if (s.Active)
+                        {
+                            s.AI.ClearOrders();
+                        }
                     }
                 }
             }
@@ -403,7 +414,7 @@ namespace UnitTests.AITests.Empire
             string shipName = "Rocket Inquisitor";
 
             // test that ships are removed from empire on defeat
-            var ship = SpawnShip(shipName, Player, Vector2.Zero);
+            SpawnShip(shipName, Player, Vector2.Zero);
             Player.EmpireShipLists.Update();
             Assert.IsTrue(Player.OwnedShips.Count == 1);
             Player.SetAsDefeated();
@@ -418,7 +429,7 @@ namespace UnitTests.AITests.Empire
             Assert.IsTrue(Player.OwnedShips.Count == 0);
             string shipName = "Rocket Inquisitor";
 
-            var ship = SpawnShip(shipName, Enemy, Vector2.Zero);
+            SpawnShip(shipName, Enemy, Vector2.Zero);
             Enemy.EmpireShipLists.Update();
             Assert.IsTrue(Enemy.OwnedShips.Count == 1);
             Player.AbsorbEmpire(Enemy, false);

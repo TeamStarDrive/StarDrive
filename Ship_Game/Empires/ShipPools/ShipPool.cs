@@ -65,8 +65,8 @@ namespace Ship_Game.Empires.ShipPools
         {
             OwnedShips.Update();
             OwnedProjectors.Update();
-            lock(ChangeLocker)
-            ForcePool.Update();
+            lock (ChangeLocker)
+                ForcePool.Update();
 
             if (!Owner.isPlayer)
             {
@@ -188,7 +188,7 @@ namespace Ship_Game.Empires.ShipPools
                     }
                     else if (notInAOs && notInEmpireForcePool && ship.BaseCanWarp)
                     {
-                        Log.Info("ShipPool: WarShip was not in any pools");
+                        Log.Warning($"ShipPool: WarShip was not in any pools {ship}");
                         if (!AssignShipsToOtherPools(ship))
                         {
                             if (ship.DesignRole < ShipData.RoleName.fighter)
@@ -202,7 +202,7 @@ namespace Ship_Game.Empires.ShipPools
 
         void EmpireForcePoolAdd(Ship ship)
         {
-            if (Owner.isFaction || ship.IsHangarShip || ship.IsHomeDefense) 
+            if (Owner.isFaction || ship.IsHangarShip || ship.IsHomeDefense || !ship.Active) 
                 return;
 
             RemoveShipFromFleetAndPools(ship);
@@ -223,7 +223,7 @@ namespace Ship_Game.Empires.ShipPools
                 }
                 else if(ship.DesignRoleType == ShipData.RoleType.Warship && ship.BaseCanWarp) 
                 {
-                    Log.Warning($"Could Not add ship to force pools. {ship} ");
+                    Log.Error($"Could Not add ship to force pools. {ship} ");
                 }
             }
         }
@@ -235,8 +235,8 @@ namespace Ship_Game.Empires.ShipPools
             {
                 Log.Warning("wrong loyalty added to force pool");
                 RemoveFromOtherPools(toAdd);
-                Remove(toAdd);
-                toAdd.loyalty.AddShip(toAdd);
+                ImmediateRemoveShipFromEmpire(toAdd);
+                toAdd.loyalty.EmpireShipLists.ImmediateSetLoyaltyAndAddShipToEmpire(toAdd);
                 return true;
             }
             float baseDefensePct = 0.1f;
@@ -256,8 +256,8 @@ namespace Ship_Game.Empires.ShipPools
                 baseDefensePct = 0.35f;
             if (OwnerAI != null)
             {
-                bool needDef = (Owner.CurrentMilitaryStrength * baseDefensePct - OwnerAI.DefStr) > 0
-                               && OwnerAI.DefensiveCoordinator.DefenseDeficit > 0;
+                bool needDef = (Owner.CurrentMilitaryStrength * baseDefensePct - OwnerAI.DefStr) >= 0
+                               && OwnerAI.DefensiveCoordinator.DefenseDeficit >= 0;
                 if (needDef && !Owner.isFaction)
                 {
                     OwnerAI.DefensiveCoordinator.AddShip(toAdd);
@@ -266,11 +266,43 @@ namespace Ship_Game.Empires.ShipPools
 
                 // need to rework this better divide the ships.
                 AO area = OwnerAI.AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Center));
-                if (area?.AddShip(toAdd) != false)
+                if (area?.AddShip(toAdd) == true)
+                {
                     return true;
+                }
             }
 
             return false; // nothing to do with you
+        }
+
+        public void ImmediateSetLoyaltyAndAddShipToEmpire(Ship s)
+        {
+            bool alreadyAdded;
+            if (s.IsSubspaceProjector)
+            {
+                alreadyAdded = !OwnedProjectors.Add(s);
+            }
+            else
+            {
+                alreadyAdded = !OwnedShips.Add(s);
+            }
+
+            if (alreadyAdded)
+            {
+                Log.WarningWithCallStack(
+                    "Empire.AddShip BUG: https://bitbucket.org/codegremlins/stardrive-blackbox/issues/147/doubled-projectors");
+
+            }
+            else
+            {
+                OwnedShips.Update(new Action(() => s.loyalty = Owner));
+                OwnedProjectors.Update(new Action(() => s.loyalty = Owner));
+                lock (ChangeLocker)
+                {
+                    EmpireForcePoolAdd(s);
+                }
+                Update();
+            }
         }
 
         /// <summary>
@@ -278,11 +310,6 @@ namespace Ship_Game.Empires.ShipPools
         /// </summary>
         public void AddShipToEmpire(Ship s)
         {
-            lock (ChangeLocker)
-            {
-                EmpireForcePoolAdd(s);
-            }
-
             bool alreadyAdded;
             if (s.IsSubspaceProjector)
             {
@@ -296,31 +323,48 @@ namespace Ship_Game.Empires.ShipPools
             if (alreadyAdded)
                 Log.WarningWithCallStack(
                     "Empire.AddShip BUG: https://bitbucket.org/codegremlins/stardrive-blackbox/issues/147/doubled-projectors");
+            lock (ChangeLocker)
+            {
+                EmpireForcePoolAdd(s);
+            }
+        }
+
+        public bool ImmediateRemoveShipFromEmpire(Ship ship)
+        {
+            if(RemoveShipFromEmpire(ship))
+            {
+                Update();
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
         /// This is not thread safe. run this on empire thread for safe removals. 
         /// </summary>
-        public void RemoveShipFromEmpire(Ship ship)
+        public bool RemoveShipFromEmpire(Ship ship)
         {
+            lock (ChangeLocker)
+                RemoveShipFromFleetAndPools(ship);
+            bool removed = false;
             if (ship == null)
             {
                 Log.Error($"Empire '{Owner.Name}' RemoveShip failed: ship was null");
-                return;
+                return false;
             }
 
             if (ship.IsSubspaceProjector)
             {
-                OwnedProjectors.Remove(ship);
+                removed = OwnedProjectors.Remove(ship);
             }
             else
             {
-                OwnedShips.Remove(ship);
+                removed = OwnedShips.Remove(ship);
             }
 
             ship.AI?.ClearOrders();
-            lock (ChangeLocker)
-                RemoveShipFromFleetAndPools(ship);
+
+            return removed;
         }
         
         public void CleanOut()
