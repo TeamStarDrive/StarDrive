@@ -10,8 +10,6 @@ namespace Ship_Game.Ships
     // NOTE: public variables are SERIALIZED
     public partial class ShipData
     {
-        const int CurrentHullVersion = 1;
-
         static ShipData ParseHull(FileInfo info)
         {
             return null;
@@ -20,7 +18,8 @@ namespace Ship_Game.Ships
         static void ConvertXMLToHull(FileInfo xml, FileInfo outFile)
         {
             ShipData hull = ParseXML(xml, isHullDefinition: true);
-            hull?.Save(outFile, CurrentHullVersion, isHull:true);
+            var newHull = new ShipHull(hull);
+            newHull.Save(outFile);
         }
     }
 }
