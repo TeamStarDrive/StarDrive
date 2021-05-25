@@ -829,6 +829,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Ship_Game\Utils\SafeArray.cs" />
     <Compile Include="Ship_Game\Utils\TimeTypes.cs" />
     <Compile Include="Ship_Game\WeightSlider.cs">
       <AutoGen>false</AutoGen>
