@@ -188,7 +188,7 @@ namespace Ship_Game.Empires.ShipPools
                     }
                     else if (notInAOs && notInEmpireForcePool && ship.BaseCanWarp)
                     {
-                        Log.Info("ShipPool: WarShip was not in any pools");
+                        Log.Warning($"ShipPool: WarShip was not in any pools {ship}");
                         if (!AssignShipsToOtherPools(ship))
                         {
                             if (ship.DesignRole < ShipData.RoleName.fighter)
@@ -344,6 +344,8 @@ namespace Ship_Game.Empires.ShipPools
         /// </summary>
         public bool RemoveShipFromEmpire(Ship ship)
         {
+            lock (ChangeLocker)
+                RemoveShipFromFleetAndPools(ship);
             bool removed = false;
             if (ship == null)
             {
@@ -361,8 +363,7 @@ namespace Ship_Game.Empires.ShipPools
             }
 
             ship.AI?.ClearOrders();
-            lock (ChangeLocker)
-                RemoveShipFromFleetAndPools(ship);
+
             return removed;
         }
         
