@@ -16,6 +16,18 @@ namespace Ship_Game
         public static readonly T[] Array = new T[0];
     }
 
+    public interface IArray<T> : IList<T>
+    {
+        int Capacity { get; }
+        bool IsEmpty { get; }
+        bool NotEmpty { get; }
+        bool RemoveSwapLast(T item);
+        void RemoveAtSwapLast(int index);
+        T PopFirst();
+        T PopLast();
+        bool TryPopLast(out T item);
+    }
+
     /// <summary>
     /// This is a custom version of List, to make debugging easier
     /// and optimize for game relate performance requirements
@@ -24,14 +36,15 @@ namespace Ship_Game
     [DebuggerDisplay("Count = {Count}  Capacity = {Capacity}")]
     [Serializable]
     [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
-    public class Array<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerable<T>, IList, ICollection, IEnumerable
+    public class Array<T> : IArray<T>, IList<T>, IReadOnlyList<T>, 
+        ICollection<T>, IEnumerable<T>, IList, ICollection, IEnumerable
     {
         protected T[] Items;
         public int Count { get; protected set; }
-        public bool IsReadOnly => false;
+        public bool IsReadOnly  => false;
         public bool IsFixedSize => false;
-        public bool IsEmpty    => Count == 0;
-        public bool NotEmpty   => Count != 0;
+        public bool IsEmpty     => Count == 0;
+        public bool NotEmpty    => Count != 0;
         public object SyncRoot       => this;  // ICollection
         public bool   IsSynchronized => false; // ICollection
 
@@ -296,11 +309,13 @@ namespace Ship_Game
             {
                 for (int i = 0; i < count; ++i)
                     if (items[i] == null) return true;
-                return false;
             }
-            EqualityComparer<T> c = EqualityComparer<T>.Default;
-            for (int i = 0; i < count; ++i)
-                if (c.Equals(items[i], item)) return true;
+            else
+            {
+                EqualityComparer<T> c = EqualityComparer<T>.Default;
+                for (int i = 0; i < count; ++i)
+                    if (c.Equals(items[i], item)) return true;
+            }
             return false;
         }
 
@@ -741,8 +756,8 @@ namespace Ship_Game
                 {
                     if (i == j || !c.Equals(items[j], item)) continue;
                     int last = --count; // RemoveAtSwapLast():
-                    Count    = last;
-                    Items[j]    = Items[last];
+                    Count = last;
+                    Items[j] = Items[last];
                     Items[last] = default;
                     ++removed;
                 }
