@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -51,8 +52,15 @@ namespace Ship_Game
         }
 
         // Copy paste from above. Purely because I don't want to ruin T[] access optimizations
+        // Provides a thread-safety aware wrapper for SafeArray<T>
         public static unsafe T[] Filter<T>(this IReadOnlyList<T> items, Predicate<T> predicate)
         {
+            if (items is IArray<T> arr && arr.IsSynchronized)
+            {
+                lock (arr.SyncRoot)
+                    return Filter(arr.GetInternalArrayItems(), predicate);
+            }
+
             int count = items.Count;
             byte* map = stackalloc byte[count];
 
@@ -73,6 +81,16 @@ namespace Ship_Game
                 if (map[i] > 0) results[resultCount++] = items[i];
 
             return results;
+        }
+
+        public static T[] Filter<T>(this IArray<T> items, Predicate<T> predicate)
+        {
+            if (items.IsSynchronized)
+            {
+                lock (items.SyncRoot)
+                    return Filter(items.GetInternalArrayItems(), predicate);
+            }
+            return Filter(items.GetInternalArrayItems(), predicate);
         }
 
         public static TValue[] Filter<TKey,TValue>(this Map<TKey, TValue>.ValueCollection items,
