@@ -356,12 +356,12 @@ namespace UnitTests.AITests.Empire
                             for (int e = firstEmpire; e < lastEmpire; e++)
                             {
                                 var empire = EmpireManager.Empires[e];
-
                                 for (int y = 0; y < addedShips; ++y)
                                 {
                                     SpawnShip(shipName, empire, Vector2.Zero);
                                 }
                                 empire.EmpireShipLists.Update();
+
                             }
                         }
                     );
