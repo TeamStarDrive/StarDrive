@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Ship_Game.Utils
 {
@@ -11,6 +12,7 @@ namespace Ship_Game.Utils
         Array<T> VolatileList;
         bool VolatileListChanged;
         object ChangeLocker = new object();
+        Array<T> PreAddActionList;
 
         /// <summary>
         /// Gives a reference to the PublicList. On update this will no longer be the PublicList.
@@ -32,10 +34,11 @@ namespace Ship_Game.Utils
         /// Apply pending modifications and create a new list reference.
         /// the update is atomic 
         /// </summary>
-        public void Update()
+        public void Update(Action preAddRule = null)
         {
             if (VolatileListChanged)
             {
+                preAddRule?.Invoke();
                 PublicList = VolatileList;
                 lock (ChangeLocker)
                 {
@@ -70,7 +73,7 @@ namespace Ship_Game.Utils
                 return removed;
             }
         }
-
+        
         public void CleanOut()
         {
             PublicList   = new Array<T>();

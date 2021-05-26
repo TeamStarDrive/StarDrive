@@ -81,6 +81,7 @@
     <Compile Include="AITests\Empire\TestEmpireAI.cs" />
     <Compile Include="AITests\Ships\TestShipMove.cs" />
     <Compile Include="AssertExtensions.cs" />
+    <Compile Include="Collections\SafeArrayTests.cs" />
     <Compile Include="Collections\TestDequeT.cs" />
     <Compile Include="Collections\TestEnumFlatMap.cs" />
     <Compile Include="Data\TestMeshImportExport.cs" />
@@ -93,6 +94,7 @@
     <Compile Include="LinearAlgebra\TestRadMath.cs" />
     <Compile Include="Planets\LandOnTiles.cs" />
     <Compile Include="Planets\TestOrbitalBomb.cs" />
+    <Compile Include="Ships\ModuleGridTests.cs" />
     <Compile Include="Ships\ShipDataTests.cs" />
     <Compile Include="Ships\ShipModuleGridTests.cs" />
     <Compile Include="Ships\ShipModuleTests.cs" />
@@ -132,7 +134,7 @@
     <Compile Include="TestGameDummy.cs" />
     <Compile Include="Universe\TestNativeSpatial.cs" />
     <Compile Include="Universe\TestSpatialCommon.cs" />
-    <Compile Include="Utils\DoubleBufferedArrayTests.cs" />
+    <Compile Include="Collections\DoubleBufferedArrayTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -177,6 +179,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Ship_Game\AI\ShipAI\" />
+    <Folder Include="Utils\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

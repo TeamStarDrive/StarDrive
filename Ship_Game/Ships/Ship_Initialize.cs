@@ -103,7 +103,7 @@ namespace Ship_Game.Ships
                 // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
                 if (slot.IsDummy)
                 {
-                    // incomplete shipyard designs are a new feature, so no legacy dummies here
+                    // incomplete shipyard designs are a new feature, so no legacy dummies to fix
                     if (shipyardDesign)
                         continue;
                     hasLegacyDummySlots = true;
@@ -131,10 +131,9 @@ namespace Ship_Game.Ships
                 ModuleSlotList[count++] = module;
             }
 
-            bool useModules = fromSave || isTemplate;
-            CreateModuleGrid(templateSlots, ModuleSlotList, useModules);
+            CreateModuleGrid(shipData.GridInfo, shipyardDesign);
 
-            if (useModules && !shipyardDesign && ModuleSlotList.Length == 0)
+            if ((fromSave || isTemplate) && !shipyardDesign && ModuleSlotList.Length == 0)
             {
                 Log.Warning($"Failed to load ship '{Name}' due to all empty Modules");
                 return false;
@@ -268,6 +267,12 @@ namespace Ship_Game.Ships
             ThrusterList = Empty<Thruster>.Array;
         }
 
+        public static Ship ImmediateCreateShipAtPoint(string shipName, Empire owner, Vector2 position)
+        {
+            var ship = CreateShipAtPoint(shipName, owner, position);
+            ship?.loyalty.EmpireShipLists.Update();
+            return ship;
+        }
         // Added by RedFox - Debug, Hangar Ship, and Platform creation
         public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 position)
         {
@@ -411,8 +416,8 @@ namespace Ship_Game.Ships
 
         void InitializeStatus(bool fromSave)
         {
-            Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
-            Supply = new ShipResupply(this);
+            Carrier     = CarrierBays.Create(this, ModuleSlotList);
+            Supply      = new ShipResupply(this);
             ShipEngines = new ShipEngines(this, ModuleSlotList);
 
             // power calc needs to be the first thing
@@ -483,6 +488,9 @@ namespace Ship_Game.Ships
             RepairBeams.Clear();
             BaseCost = ShipStats.GetBaseCost(ModuleSlotList);
             MaxBank = GetMaxBank();
+            if (!fromSave)
+                KillAllTroops();
+
             InitDefendingTroopStrength();
 
             if (!fromSave)
