@@ -26,6 +26,7 @@ namespace UnitTests.Collections
                     foreach (var item in arr)
                     {
                     }
+                    var filtered = arr.Filter(x => x != null);
                     System.Threading.Thread.Sleep(1);
                 }
             });
