@@ -82,6 +82,7 @@
     <Compile Include="AITests\Ships\TestShipMove.cs" />
     <Compile Include="AssertExtensions.cs" />
     <Compile Include="Collections\ArrayTypesTestBase.cs" />
+    <Compile Include="Collections\SafeArrayLockTests.cs" />
     <Compile Include="Collections\SafeArrayTests.cs" />
     <Compile Include="Collections\SafeArrayTypesTestBase.cs" />
     <Compile Include="Collections\TestDequeT.cs" />
