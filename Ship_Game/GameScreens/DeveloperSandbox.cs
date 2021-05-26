@@ -159,6 +159,7 @@ namespace Ship_Game
 
             var progress = new ProgressCounter();
             ShipDesignUtils.MarkDesignsUnlockable(progress);
+            ResearchScreenNew.UnlockAllResearch(EmpireManager.Player, unlockBonusTechs: true);
             Log.Info($"CreateSandboxUniverse elapsed:{s.Elapsed.TotalMilliseconds}");
             return sandbox;
         }
