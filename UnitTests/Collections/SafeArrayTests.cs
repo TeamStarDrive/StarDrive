@@ -1,30 +1,46 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Ship_Game;
 using Ship_Game.Utils;
 
 namespace UnitTests.Collections
 {
     [TestClass]
-    class SafeArrayTests : StarDriveTest
+    public class SafeArrayTests : ArrayTypesTestBase
     {
+        public override IArray<T> New<T>() => new SafeArray<T>();
+        public override IArray<T> New<T>(params T[] args) => new SafeArray<T>(args);
 
         [TestMethod]
-        public void Add()
+        public void Performance()
         {
-            var arr = new SafeArray<int>();
-            arr.Add(1);
-            Assert.AreEqual(arr.Count, 1, "Count should be 1");
-            Assert.AreEqual(arr.Capacity, 4, "Capacity should be 4");
-            arr.Add(2);
-            arr.Add(3);
-            arr.Add(4);
-            arr.Add(5);
-            Assert.AreEqual(5, arr.Count, "Count should be 5");
-            Assert.AreEqual(8, arr.Capacity, "Capacity should grow aligned to 4, expected 8");
+            const int iterations = 100_000;
+
+            var arr1 = new Array<int>();
+            var t1 = Stopwatch.StartNew();
+            for (int i = 0; i < iterations; ++i)
+            {
+                arr1.Add(i);
+                arr1.PopLast();
+            }
+            double e1 = t1.Elapsed.TotalMilliseconds;
+            Console.WriteLine($"Array Elapsed: {e1:0.0}ms");
+
+            var arr2 = new SafeArray<int>();
+            var t2 = Stopwatch.StartNew();
+
+            Parallel.For(0, iterations, (start, end) =>
+            {
+                for (int i = start; i < end; ++i)
+                {
+                    arr2.Add(i);
+                    arr2.PopLast();
+                }
+            });
+
+            double e2 = t2.Elapsed.TotalMilliseconds;
+            Console.WriteLine($"SafeArray Elapsed: {e2:0.0}ms");
         }
     }
 }
