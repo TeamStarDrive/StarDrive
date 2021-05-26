@@ -416,8 +416,8 @@ namespace Ship_Game.Ships
 
         void InitializeStatus(bool fromSave)
         {
-            Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
-            Supply = new ShipResupply(this);
+            Carrier     = CarrierBays.Create(this, ModuleSlotList);
+            Supply      = new ShipResupply(this);
             ShipEngines = new ShipEngines(this, ModuleSlotList);
 
             // power calc needs to be the first thing
@@ -488,6 +488,9 @@ namespace Ship_Game.Ships
             RepairBeams.Clear();
             BaseCost = ShipStats.GetBaseCost(ModuleSlotList);
             MaxBank = GetMaxBank();
+            if (!fromSave)
+                KillAllTroops();
+
             InitDefendingTroopStrength();
 
             if (!fromSave)
