@@ -12,7 +12,7 @@ namespace Ship_Game.Utils
         Array<T> VolatileList;
         bool VolatileListChanged;
         object ChangeLocker = new object();
-        Array<T> PreAddActionList;
+        Array<Action> PostUpDateActions = new Array<Action>();
 
         /// <summary>
         /// Gives a reference to the PublicList. On update this will no longer be the PublicList.
@@ -30,21 +30,24 @@ namespace Ship_Game.Utils
             VolatileList = new Array<T>();
         }
 
+        public void QueuePreUpdateAction(Action action) => PostUpDateActions.Add(action);
+
         /// <summary>
         /// Apply pending modifications and create a new list reference.
         /// the update is atomic 
         /// </summary>
-        public void Update(Action preAddRule = null)
+        public void Update()
         {
             if (VolatileListChanged)
             {
-                preAddRule?.Invoke();
                 PublicList = VolatileList;
                 lock (ChangeLocker)
                 {
                     VolatileList = new Array<T>(PublicList);
                     VolatileListChanged = false;
                 }
+                while (PostUpDateActions.NotEmpty)
+                    PostUpDateActions.PopFirst().Invoke();
             }
         }
 
