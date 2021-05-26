@@ -459,9 +459,8 @@
     <Compile Include="Ship_Game\Ships\ModuleGrid.cs" />
     <Compile Include="Ship_Game\Ships\ModuleGridUtils.cs" />
     <Compile Include="Ship_Game\Ships\PlanetCrash.cs" />
-    <Compile Include="Ship_Game\Ships\ShipData_HullParser.cs" />
     <Compile Include="Ship_Game\Ships\ShipData_LegacyParser.cs" />
-    <Compile Include="Ship_Game\Ships\ShipData_Writer.cs" />
+    <Compile Include="Ship_Game\Ships\ShipData_WriterParser.cs" />
     <Compile Include="Ship_Game\Ships\ShipGridInfo.cs" />
     <Compile Include="Ship_Game\Ships\ShipStats.cs" />
     <Compile Include="Ship_Game\Ships\ShipEngines.cs" />
