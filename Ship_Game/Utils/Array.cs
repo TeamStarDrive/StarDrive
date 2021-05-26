@@ -21,11 +21,14 @@ namespace Ship_Game
         int Capacity { get; }
         bool IsEmpty { get; }
         bool NotEmpty { get; }
+        object SyncRoot { get; }
+        bool IsSynchronized { get; }
         bool RemoveSwapLast(T item);
         void RemoveAtSwapLast(int index);
         T PopFirst();
         T PopLast();
         bool TryPopLast(out T item);
+        T[] GetInternalArrayItems();
     }
 
     /// <summary>

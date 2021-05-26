@@ -23,6 +23,8 @@ namespace Ship_Game.Utils
             else collection.CopyTo(Items = new T[Count], 0);
         }
 
+        public T[] GetInternalArrayItems() => Items;
+
         public T Get(int index)
         {
             if ((uint)index >= (uint)Count)
