@@ -3394,10 +3394,10 @@ namespace Ship_Game
             EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
         }
 
-        public void RemoveShip(Ship ship)
+        public bool RemoveShip(Ship ship)
         {
             // Null check is for Ship dispose, where Empire may be already Disposed
-            EmpireShipLists?.RemoveShipFromEmpire(ship);
+            return EmpireShipLists?.RemoveShipFromEmpire(ship) ?? false;
         }
         public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
         {

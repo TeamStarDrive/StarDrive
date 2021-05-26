@@ -26,79 +26,32 @@ namespace Ship_Game.Ships
         public ShipModule[] Modules => ModuleSlotList;
         public bool HasModules => ModuleSlotList != null && ModuleSlotList.Length != 0;
 
-        struct ShipGridInfo
+        void CreateModuleGrid(in ShipGridInfo gridInfo, bool shipyardDesign)
         {
-            public Point Size; // slot dimensions of the grid, for example 4x4 for Vulcan Scout
-            public Vector2 Origin; // where is the TopLeft of the grid? in the virtual coordinate space
-            public Vector2 Span; // actual size of the grid in world coordinate space (64.0 x 64.0 for vulcan scout)
+            ShipGridInfo info = gridInfo;
 
-            public ShipGridInfo(Vector2 min, Vector2 max)
+            #if DEBUG
+            if (!shipyardDesign)
             {
-                Origin = new Vector2(min.X, min.Y);
-                Span = new Vector2(max.X - min.X, max.Y - min.Y);
-                Size = new Point((int)Span.X / 16, (int)Span.Y / 16);
-            }
-        }
-
-        static ShipGridInfo GetSize(ShipModule[] modules)
-        {
-            Vector2 min = Vector2.Zero;
-            Vector2 max = Vector2.Zero;
-            for (int i = 0; i < modules.Length; ++i)
-            {
-                ShipModule module = modules[i];
-                Vector2 topLeft = module.Position;
-                var botRight = new Vector2(topLeft.X + module.XSIZE * 16.0f,
-                                           topLeft.Y + module.YSIZE * 16.0f);
-                if (topLeft.X  < min.X) min.X = topLeft.X;
-                if (topLeft.Y  < min.Y) min.Y = topLeft.Y;
-                if (botRight.X > max.X) max.X = botRight.X;
-                if (botRight.Y > max.Y) max.Y = botRight.Y;
-            }
-            return new ShipGridInfo(min, max);
-        }
-
-        static ShipGridInfo GetSize(ModuleSlotData[] templateSlots)
-        {
-            Vector2 min = Vector2.Zero;
-            Vector2 max = Vector2.Zero;
-            for (int i = 0; i < templateSlots.Length; ++i)
-            {
-                ModuleSlotData slot = templateSlots[i];
-
-                var size = new Vector2(16f, 16f);
-
-                ShipModule m = slot.ModuleOrNull;
-                if (m != null)
+                var modulesInfo = new ShipGridInfo(ModuleSlotList);
+                if (modulesInfo.SurfaceArea != gridInfo.SurfaceArea ||
+                    modulesInfo.Origin != gridInfo.Origin ||
+                    modulesInfo.Size != gridInfo.Size)
                 {
-                    size.X = m.XSIZE * 16f;
-                    size.Y = m.YSIZE * 16f;
+                    Log.Warning($"Ship {Name} ModulesGrid does not match ShipDataGrid: {modulesInfo} != {gridInfo}. This is a potentially broken Ship Design");
                 }
-
-                // this is a significant difference compared to ShipModule[] variant:
-                var topLeft = slot.Position - new Vector2(ShipModule.ModuleSlotOffset);
-                var botRight = new Vector2(topLeft.X + size.X,
-                                           topLeft.Y + size.Y);
-                if (topLeft.X  < min.X) min.X = topLeft.X;
-                if (topLeft.Y  < min.Y) min.Y = topLeft.Y;
-                if (botRight.X > max.X) max.X = botRight.X;
-                if (botRight.Y > max.Y) max.Y = botRight.Y;
             }
-            return new ShipGridInfo(min, max);
-        }
-        
-        void CreateModuleGrid(ModuleSlotData[] templateSlots, ShipModule[] modules, bool useModules)
-        {
-            ShipGridInfo sizeInfo = useModules ? GetSize(modules) : GetSize(templateSlots);
-            SurfaceArea = shipData.SurfaceArea;
-            GridOrigin = sizeInfo.Origin;
-            GridWidth  = sizeInfo.Size.X;
-            GridHeight = sizeInfo.Size.Y;
+            #endif
+
+            SurfaceArea = info.SurfaceArea;
+            GridOrigin = info.Origin;
+            GridWidth  = info.Size.X;
+            GridHeight = info.Size.Y;
             SparseModuleGrid   = new ShipModule[GridWidth * GridHeight];
             ExternalModuleGrid = new ShipModule[GridWidth * GridHeight];
 
             // Ship's true radius is half of Module Grid's Diagonal Length
-            Radius = 0.5f * sizeInfo.Span.Length();
+            Radius = 0.5f * gridInfo.Span.Length();
 
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
