@@ -295,8 +295,8 @@ namespace Ship_Game.Empires.ShipPools
             }
             else
             {
-                OwnedShips.Update(new Action(() => s.loyalty = Owner));
-                OwnedProjectors.Update(new Action(() => s.loyalty = Owner));
+                OwnedShips.Update();
+                OwnedProjectors.Update();
                 lock (ChangeLocker)
                 {
                     EmpireForcePoolAdd(s);
@@ -314,18 +314,34 @@ namespace Ship_Game.Empires.ShipPools
             if (s.IsSubspaceProjector)
             {
                 alreadyAdded = !OwnedProjectors.Add(s);
+                if (!alreadyAdded)
+                {
+                    var action = new Action(() =>
+                    {
+                        s.loyalty = Owner;
+                    });
+                    OwnedProjectors.QueuePreUpdateAction(action);
+                }
             }
             else
             {
                 alreadyAdded = !OwnedShips.Add(s);
+                if (!alreadyAdded)
+                {
+                    var action = new Action(() =>
+                    {
+                        s.loyalty = Owner;
+                        EmpireForcePoolAdd(s);
+                    });
+                    OwnedShips.QueuePreUpdateAction(action);
+                }
             }
 
             if (alreadyAdded)
+            {
                 Log.WarningWithCallStack(
                     "Empire.AddShip BUG: https://bitbucket.org/codegremlins/stardrive-blackbox/issues/147/doubled-projectors");
-            lock (ChangeLocker)
-            {
-                EmpireForcePoolAdd(s);
+
             }
         }
 

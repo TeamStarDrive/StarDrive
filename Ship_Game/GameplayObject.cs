@@ -142,7 +142,7 @@ namespace Ship_Game
                 oldLoyalty.EmpireShipLists.ImmediateRemoveShipFromEmpire(ship);
 
                 oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);
-                changeTo.EmpireShipLists.ImmediateSetLoyaltyAndAddShipToEmpire(ship);
+                changeTo.EmpireShipLists.AddShipToEmpire(ship);
                 ship.shipStatusChanged = true;
 
                 ship.SwitchTroopLoyalty(oldLoyalty, ship.loyalty);
