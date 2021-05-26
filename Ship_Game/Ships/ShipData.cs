@@ -243,17 +243,15 @@ namespace Ship_Game.Ships
         {
             try
             {
-                if (!UseNewShipDataLoaders)
-                    return ParseXML(info, isHullDefinition);
-
-
-                return null;
+                if (UseNewShipDataLoaders && !isHullDefinition)
+                    return ParseDesign(info);
+                return ParseXML(info, isHullDefinition);
             }
             catch (Exception e)
             {
-                Log.ErrorDialog(e, $"Failed to parse ShipData '{info.FullName}'", 0);
-                throw;
+                Log.Error(e, $"Failed to parse ShipData '{info.FullName}'", 0);
             }
+            return null;
         }
 
         public static bool IsAllDummySlots(ModuleSlotData[] slots)
