@@ -83,6 +83,7 @@
     <Compile Include="AssertExtensions.cs" />
     <Compile Include="Collections\ArrayTypesTestBase.cs" />
     <Compile Include="Collections\SafeArrayTests.cs" />
+    <Compile Include="Collections\SafeArrayTypesTestBase.cs" />
     <Compile Include="Collections\TestDequeT.cs" />
     <Compile Include="Collections\TestEnumFlatMap.cs" />
     <Compile Include="Data\TestMeshImportExport.cs" />
