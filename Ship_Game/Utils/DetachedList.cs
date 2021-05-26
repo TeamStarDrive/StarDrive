@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Ship_Game.Utils
 {
@@ -11,16 +12,12 @@ namespace Ship_Game.Utils
         Array<T> PublicList;
         Array<T> VolatileList;
         bool VolatileListChanged;
-        object ChangeLocker = new object();
-        Array<T> PreAddActionList;
+        Array<Action> PostUpDateActions = new Array<Action>();
 
         /// <summary>
-        /// Gives a reference to the PublicList. On update this will no longer be the PublicList.
+        /// Gives a reference to the PublicList that is readonly and wont be updated normally.
         /// To add or remove items from the public list use DetachedList add/remove methods. 
-        /// When iterating this list make sure to use a reference to the PublicList by using:
-        /// var refList = instance.GetRef()
-        /// foreach(var item in refList)
-        /// It is thread safe with above conditions. 
+        /// This list is static and can be safely accessed from any thread.  
         /// </summary>
         public IReadOnlyList<T> GetRef() =>  PublicList;
 
@@ -30,21 +27,22 @@ namespace Ship_Game.Utils
             VolatileList = new Array<T>();
         }
 
+        public void QueuePreUpdateAction(Action action) => PostUpDateActions.Add(action);
+
         /// <summary>
         /// Apply pending modifications and create a new list reference.
-        /// the update is atomic 
+        /// the update is atomic but is not thread safe to run the update on different threads. 
         /// </summary>
-        public void Update(Action preAddRule = null)
+        public void Update()
         {
             if (VolatileListChanged)
             {
-                preAddRule?.Invoke();
                 PublicList = VolatileList;
-                lock (ChangeLocker)
-                {
-                    VolatileList = new Array<T>(PublicList);
-                    VolatileListChanged = false;
-                }
+
+                VolatileList = new Array<T>(PublicList);
+                VolatileListChanged = false;
+                while (PostUpDateActions.NotEmpty)
+                    PostUpDateActions.PopFirst().Invoke();
             }
         }
 
@@ -53,12 +51,9 @@ namespace Ship_Game.Utils
         /// </summary>
         public bool Add(T item)
         {
-            lock (ChangeLocker)
-            {
-                bool added = VolatileList.AddUniqueRef(item);
-                VolatileListChanged |= added;
-                return added;
-            }
+            bool added = VolatileList.AddUniqueRef(item);
+            VolatileListChanged |= added;
+            return added;
         }
 
         /// <summary>
@@ -66,12 +61,9 @@ namespace Ship_Game.Utils
         /// </summary>
         public bool Remove(T item)
         {
-            lock (ChangeLocker)
-            {
-                bool removed = VolatileList.RemoveRef(item);
-                VolatileListChanged |= removed;
-                return removed;
-            }
+            bool removed = VolatileList.RemoveRef(item);
+            VolatileListChanged |= removed;
+            return removed;
         }
         
         public void CleanOut()
