@@ -316,7 +316,7 @@ namespace UnitTests.AITests.Empire
             int loyaltyChanges = 0;
 
             // add random number of ships to random empires. 
-            int first = 0, last = 50;
+            int first = 0, last = 10;
             {
                 for (int i = first; i < last; ++i)
                 {
@@ -328,8 +328,9 @@ namespace UnitTests.AITests.Empire
                         {
                             if (s.Active)
                             {
+                                Assert.AreEqual(s.loyalty, empire);
                                 float random = RandomMath.AvgRandomBetween(1, 100);
-                                if (random > 95)
+                                if (random > 80)
                                 {
                                     if (s.loyalty.EmpireShipLists.ImmediateRemoveShipFromEmpire(s))
                                     {
@@ -337,11 +338,10 @@ namespace UnitTests.AITests.Empire
                                     }
 
                                 }
-                                else if (random > 80)
+                                else if (random > 60)
                                 {
                                     var changeTo = EmpireManager.Empires.Find(e => e != empire);
                                     s.ChangeLoyalty(changeTo);
-                                    Assert.AreEqual(s.loyalty, changeTo);
                                     loyaltyChanges++;
                                 }
                             }
@@ -349,19 +349,19 @@ namespace UnitTests.AITests.Empire
                         }
                     }
 
-                    addedShips = RandomMath.IntBetween(1, 10);
+                    addedShips = RandomMath.IntBetween(1, 30);
 
                     Parallel.For(0, EmpireManager.NumEmpires, (firstEmpire, lastEmpire) =>
                         {
                             for (int e = firstEmpire; e < lastEmpire; e++)
                             {
                                 var empire = EmpireManager.Empires[e];
-
                                 for (int y = 0; y < addedShips; ++y)
                                 {
                                     SpawnShip(shipName, empire, Vector2.Zero);
                                 }
                                 empire.EmpireShipLists.Update();
+
                             }
                         }
                     );
