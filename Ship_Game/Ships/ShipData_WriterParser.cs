@@ -34,5 +34,10 @@ namespace Ship_Game.Ships
 
             sw.FlushToFile(file);
         }
+
+        static ShipData ParseDesign(FileInfo file)
+        {
+            return null;
+        }
     }
 }
