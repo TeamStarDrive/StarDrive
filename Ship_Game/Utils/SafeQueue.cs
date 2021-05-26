@@ -24,8 +24,6 @@ namespace Ship_Game.Utils
         ReaderWriterLockSlim ThisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         AutoResetEvent ItemAdded = new AutoResetEvent(false);
 
-        static readonly T[] Empty = Empty<T>.Array;
-
         // This is relatively atomic, no reason to lock on this
         // as it wouldn't provide any benefits or thread safety
         public bool IsEmpty  => Count == 0;
@@ -33,7 +31,7 @@ namespace Ship_Game.Utils
 
         public SafeQueue()
         {
-            Items = Empty;
+            Items = Empty<T>.Array;
         }
 
         public SafeQueue(int capacity)
