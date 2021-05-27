@@ -16,25 +16,14 @@ namespace Ship_Game.Ships
                    || !ship.CanBeRefitted; 
         }
 
-        // Note, this is for ship design screen only. So it is always for the Player empire
-        public static float GetMaintenanceCost(ShipData ship, float cost, int totalHangarArea, int troopCount)
-        {
-            float maint = GetBaseMainCost(ship.HullRole, ship.FixedCost > 0 ? ship.FixedCost : cost, 
-                ship.ModuleSlots.Length + totalHangarArea, EmpireManager.Player, troopCount);
-
-            return (float)Math.Round(maint, 2);
-        }
-
         public static float GetMaintenanceCost(Ship ship, Empire empire, int troopCount)
         {
             if (IsFreeUpkeepShip(empire, ship))
                 return 0;
 
-            float hangarArea = ship.Carrier.AllFighterHangars.Sum(m => m.MaximumHangarShipSize);
-            float maint      = GetBaseMainCost(ship.shipData.HullRole, ship.GetCost(empire), ship.SurfaceArea + hangarArea, empire, troopCount);
+            float maint = GetBaseMainCost(ship, empire, troopCount);
 
             // Projectors do not get any more modifiers
-
             if (ship.IsSubspaceProjector)
                  return maint;
 
@@ -45,13 +34,24 @@ namespace Ship_Game.Ships
             return maint;
         }
 
-        private static float GetBaseMainCost(ShipData.RoleName role, float shipCost, float surfaceArea, Empire empire, int numTroops)
+        static float GetBaseMainCost(Ship ship, Empire empire, int numTroops)
         {
-            bool realism = GlobalStats.ActiveModInfo != null
-                           && GlobalStats.ActiveModInfo.UseProportionalUpkeep;
+            bool realism = GlobalStats.ActiveModInfo?.UseProportionalUpkeep == true;
 
-            float maint = realism ? shipCost * MaintModifierRealism : surfaceArea * MaintModifierBySize;
+            float maint;
+            if (ship.shipData.FixedUpkeep > 0)
+            {
+                maint = ship.shipData.FixedUpkeep;
+            }
+            else
+            {
+                float shipCost = ship.GetCost(empire);
+                float hangarsArea = ship.Carrier.AllFighterHangars.Sum(m => m.MaximumHangarShipSize);
+                float surfaceArea = ship.SurfaceArea + hangarsArea;
+                maint = realism ? shipCost * MaintModifierRealism : surfaceArea * MaintModifierBySize;
+            }
 
+            ShipData.RoleName role = ship.shipData.HullRole;
             switch (role)
             {
 
@@ -65,7 +65,9 @@ namespace Ship_Game.Ships
                 case ShipData.RoleName.capital    when realism: maint *= 0.5f; break;
             }
 
-            if (role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform || role == ShipData.RoleName.station)
+            if (role == ShipData.RoleName.freighter ||
+                role == ShipData.RoleName.platform ||
+                role == ShipData.RoleName.station)
             {
                 maint *= empire.data.CivMaintMod;
                 if (empire.data.Privatization)
@@ -73,7 +75,6 @@ namespace Ship_Game.Ships
             }
 
             maint += maint * empire.data.Traits.MaintMod + numTroops * TroopMaint;
-
             return maint * GlobalStats.ShipMaintenanceMulti;
         }
     }
