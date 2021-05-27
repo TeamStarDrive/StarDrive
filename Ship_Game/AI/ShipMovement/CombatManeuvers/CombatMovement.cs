@@ -140,7 +140,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         bool ShouldDisengage()
         {
             return !Owner.AI.HasPriorityTarget
-                && (MoveState == CombatMoveState.Disengage || WeAreChasingAndCantCatchThem || TargetIsMighty);
+                && (MoveState == CombatMoveState.Disengage || WeAreChasingAndCantCatchThem || (Owner.Level > 1 && TargetIsMighty));
         }
 
         bool IsTargetInterceptingUs => Owner.Direction.Dot(OwnerTarget.Direction) < -0.8f
