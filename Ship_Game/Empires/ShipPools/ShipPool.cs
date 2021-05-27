@@ -202,7 +202,7 @@ namespace Ship_Game.Empires.ShipPools
 
         void EmpireForcePoolAdd(Ship ship)
         {
-            if (Owner.isFaction || ship.IsHangarShip || ship.IsHomeDefense || !ship.Active) 
+            if (Owner.isPlayer || Owner.isFaction || ship.IsHangarShip || ship.IsHomeDefense || !ship.Active || ship.fleet != null) 
                 return;
 
             RemoveShipFromFleetAndPools(ship);
