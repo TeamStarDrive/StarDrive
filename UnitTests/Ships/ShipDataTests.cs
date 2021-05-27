@@ -42,8 +42,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.MechanicalBoardingDefense, b.MechanicalBoardingDefense);
             Assert.AreEqual(a.FixedUpkeep, b.FixedUpkeep);
             Assert.AreEqual(a.FixedCost, b.FixedCost);
-            Assert.AreEqual(a.HasFixedCost, b.HasFixedCost);
-            Assert.AreEqual(a.HasFixedUpkeep, b.HasFixedUpkeep);
             Assert.AreEqual(a.Animated, b.Animated);
             Assert.AreEqual(a.IsShipyard, b.IsShipyard);
             Assert.AreEqual(a.IsOrbitalDefense, b.IsOrbitalDefense);

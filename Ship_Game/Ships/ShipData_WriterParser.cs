@@ -27,10 +27,15 @@ namespace Ship_Game.Ships
 
             if (this != BaseHull && SelectionGraphic != BaseHull.SelectionGraphic)
                 sw.Write("SelectIcon", SelectionGraphic);
+            if (FixedCost > 0)
+                sw.Write("FixedCost", FixedCost);
+            if (FixedUpkeep > 0f)
+                sw.Write("FixedUpkeep", FixedUpkeep);
 
             sw.Write("DefaultAIState", DefaultAIState);
             sw.Write("CombatState", CombatState);
             sw.Write("OrbitalDefense", IsOrbitalDefense);
+
 
             sw.FlushToFile(file);
         }
