@@ -1465,6 +1465,12 @@ namespace Ship_Game
                                          "\n This can prevent loading of ships that have this filename in the XML :" +
                                         $"\n path '{info.PathNoExt()}'");
 
+                        if (ShipData.GenerateNewDesignFiles)
+                        {
+                            var designFile = new FileInfo(Path.ChangeExtension(info.FullName, "design"));
+                            shipData.Save(designFile);
+                        }
+
                         AddShipTemplate(shipData, fromSave: false,
                                               playerDesign: shipDescriptors[i].IsPlayerDesign,
                                                   readOnly: shipDescriptors[i].IsReadonlyDesign);

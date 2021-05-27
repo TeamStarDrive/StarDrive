@@ -22,6 +22,8 @@ namespace Ship_Game.Ships
     {
         static bool UseNewShipDataLoaders = false;
         public static bool GenerateNewHullFiles = false; // only need to do this once
+        public static bool GenerateNewDesignFiles = false; // only need to do this once
+        const int CurrentVersion = 1;
 
         public string Name; // ex: "Dodaving", just an arbitrary name
         public string Hull; // ID of the hull, ex: "Cordrazine/Dodaving"
