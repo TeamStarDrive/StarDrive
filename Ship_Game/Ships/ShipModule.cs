@@ -545,7 +545,6 @@ namespace Ship_Game.Ships
         // HitTest uses the World scene POSITION. Not module XML location
         public bool HitTestNoShields(Vector2 worldPos, float radius)
         {
-            ++GlobalStats.DistanceCheckTotal;
             float r2 = radius + Radius;
             float dx = Center.X - worldPos.X;
             float dy = Center.Y - worldPos.Y;
@@ -584,7 +583,6 @@ namespace Ship_Game.Ships
 
         public bool HitTestShield(Vector2 worldPos, float radius)
         {
-            ++GlobalStats.DistanceCheckTotal;
             float r2 = radius + ShieldHitRadius;
             float dx = Center.X - worldPos.X;
             float dy = Center.Y - worldPos.Y;
@@ -593,7 +591,6 @@ namespace Ship_Game.Ships
 
         public bool RayHitTestShield(Vector2 startPos, Vector2 endPos, float rayRadius, out float distanceFromStart)
         {
-            ++GlobalStats.DistanceCheckTotal;
             return Center.RayCircleIntersect(rayRadius + ShieldHitRadius, startPos, endPos, out distanceFromStart);
         }
 
