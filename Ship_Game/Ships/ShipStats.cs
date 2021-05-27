@@ -142,7 +142,7 @@ namespace Ship_Game.Ships
 
         public float GetCost(float baseCost, Empire e, bool isOrbital)
         {
-            if (Hull.HasFixedCost)
+            if (Hull.FixedCost > 0)
                 return Hull.FixedCost * CurrentGame.ProductionPace;
 
             float cost = baseCost * CurrentGame.ProductionPace;

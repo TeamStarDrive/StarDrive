@@ -38,9 +38,7 @@ namespace Ship_Game.Ships
 
         public float MechanicalBoardingDefense;
         public float FixedUpkeep;
-        public short FixedCost;
-        public bool HasFixedCost;
-        public bool HasFixedUpkeep;
+        public int FixedCost;
         public bool Animated;
         public bool IsShipyard;
         public bool IsOrbitalDefense;
