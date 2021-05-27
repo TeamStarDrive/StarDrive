@@ -736,8 +736,6 @@ namespace Ship_Game.Ships
         // Added by McShooterz
         public bool IsTargetInFireArcRange(Weapon w, GameplayObject target)
         {
-            ++GlobalStats.WeaponArcChecks;
-
             if (!CheckRangeToTarget(w, target))
                 return false;
 
@@ -760,8 +758,6 @@ namespace Ship_Game.Ships
         // This is used by Beam weapons and by Testing
         public bool IsInsideFiringArc(Weapon w, Vector2 pickedPos)
         {
-            ++GlobalStats.WeaponArcChecks;
-
             ShipModule m = w.Module;
             return RadMath.IsTargetInsideArc(m.Center, pickedPos,
                                              Rotation + m.FacingRadians, m.FieldOfFire);
@@ -1122,7 +1118,6 @@ namespace Ship_Game.Ships
                 {
                     ModuleSlotList[i].UpdateEveryFrame(timeStep, parentX, parentY, rotation, cos, sin, tan);
                 }
-                GlobalStats.ModuleUpdates += ModuleSlotList.Length;
             }
         }
 

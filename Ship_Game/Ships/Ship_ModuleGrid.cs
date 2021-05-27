@@ -404,8 +404,6 @@ namespace Ship_Game.Ships
             if (NumExternalSlots == 0)
                 return null;
 
-            ++GlobalStats.DistanceCheckTotal;
-
             Point pt = WorldToGridLocalPoint(worldPoint);
             if (!LocalPointInBounds(pt))
                 return null;
@@ -450,8 +448,6 @@ namespace Ship_Game.Ships
                 ShipModule shield = HitTestShields(worldHitPos, hitRadius);
                 if (shield != null) return shield;
             }
-
-            ++GlobalStats.DistanceCheckTotal;
 
             Point a  = WorldToGridLocalPoint(worldHitPos - new Vector2(hitRadius));
             Point b  = WorldToGridLocalPoint(worldHitPos + new Vector2(hitRadius));
@@ -685,8 +681,6 @@ namespace Ship_Game.Ships
             ShipModule shield = null;
             if (!ignoreShields)
                 shield = RayHitTestShields(startPos, endPos, rayRadius, out shieldHitDist);
-
-            ++GlobalStats.DistanceCheckTotal;
 
             // move [a] completely out of bounds to prevent attacking central modules
             Vector2 dir = (endPos - startPos).Normalized();
