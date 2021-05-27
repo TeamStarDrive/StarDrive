@@ -318,7 +318,21 @@ namespace Ship_Game
             SaveData.SaveAs     = saveAs;
             SaveData.Size       = new Vector2(screenToSave.UniverseSize);
             SaveData.FogMapName = saveAs + "fog";
-            screenToSave.FogMap.Save($"{path}/Saved Games/Fog Maps/{saveAs}fog.png", ImageFileFormat.Png);
+
+            // this happens sometimes, not exactly sure why though
+            // to prevent players from crashing to desktop, I'd rather have the fogmap not saved
+            if (!screenToSave.FogMap.IsDisposed)
+            {
+                try
+                {
+                    screenToSave.FogMap.Save($"{path}/Saved Games/Fog Maps/{saveAs}fog.png", ImageFileFormat.Png);
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, "SavedGame FogMap.Save failed");
+                }
+            }
+            
             SaveThread = new Thread(SaveUniverseDataAsync) {Name = "Save Thread: " + saveAs};
             SaveThread.Start(SaveData);
         }
