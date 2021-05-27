@@ -66,7 +66,7 @@ namespace Ship_Game.AI.CombatTactics
             {
                 // stop, we are close enough.
                 AI.ReverseThrustUntilStopped(timeStep);
-                 return CombatMoveState.Hold;
+                return CombatMoveState.Hold;
             }
 
             if (DistanceToTarget < (maxDistance))
