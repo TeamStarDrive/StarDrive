@@ -238,12 +238,13 @@ namespace Ship_Game
         public void Update(FixedSimTime timeStep)
         {
             // crash in findnearby when on game over screen
-            if (Empire.Universe.GameOver)
+            if (Universe.GameOver || Universe.IsExiting)
                 return;
 
             TotalTime.Start();
-
-            UpdateLists(timeStep);
+            
+            // only remove and kill objects if game is not paused
+            UpdateLists(removeInactiveObjects: timeStep.FixedTime > 0f);
             UpdateAllSystems(timeStep);
             UpdateAllShips(timeStep);
             UpdateAllProjectiles(timeStep);
@@ -268,8 +269,12 @@ namespace Ship_Game
             TotalTime.Stop();
         }
 
-        /// <summary>Updates master objects lists, removing inactive objects</summary>
-        void UpdateLists(FixedSimTime timeStep)
+        /// <summary>
+        /// Updates master objects lists, removing inactive objects.
+        /// This can be called multiple times without serious side effects.
+        /// It makes sure cached lists are synced to current universe state
+        /// </summary>
+        public void UpdateLists(bool removeInactiveObjects)
         {
             ListTime.Start();
 
@@ -290,8 +295,7 @@ namespace Ship_Game
                 PendingProjectiles.Clear();
             }
 
-            // only remove and kill objects if game is not paused
-            if (timeStep.FixedTime > 0)
+            if (removeInactiveObjects)
             {
                 lock (ShipsLocker)
                 {
