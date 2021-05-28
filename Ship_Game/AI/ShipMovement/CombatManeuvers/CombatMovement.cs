@@ -46,7 +46,8 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             Left,
             Right,
             Away,
-            Total
+            Total,
+            Erratic
         }
 
         protected CombatMoveState MoveState = CombatMoveState.None;
@@ -104,7 +105,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             Initialize(DesiredCombatRange);
             OverrideCombatValues(timeStep);
 
-            if (MoveState == CombatMoveState.Approach && ShouldDisengage())
+            if (MoveState != CombatMoveState.Disengage && ShouldDisengage())
             {
                 DisengageType = RandomDisengageType(DirectionToTarget);
                 ExecuteAntiChaseDisengage(timeStep);
@@ -139,10 +140,10 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         bool ShouldDisengage()
         {
             return !Owner.AI.HasPriorityTarget
-                && (MoveState == CombatMoveState.Disengage || WeAreChasingAndCantCatchThem || TargetIsMighty);
+                && (MoveState == CombatMoveState.Disengage || WeAreChasingAndCantCatchThem || (Owner.Level > 1 && TargetIsMighty));
         }
 
-        bool IsTargetInterceptingUs => Owner.VelocityDirection.Dot(OwnerTarget.Direction) < -0.8f
+        bool IsTargetInterceptingUs => Owner.Direction.Dot(OwnerTarget.Direction) < -0.8f
                                     && RadMath.IsTargetInsideArc(OwnerTarget.Center, Owner.Center, OwnerTarget.Rotation, RadMath.HalfPI*0.5f);
         
         // they are intercepting us and they're really strong
@@ -164,10 +165,11 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// </summary>
         void ExecuteAntiChaseDisengage(FixedSimTime timeStep)
         {
+            float angle = RandomMath.AvgRandomBetween(1f, 3f);
             switch(DisengageType)
             {
-                case DisengageTypes.Left:  DisengageDirection = DirectionToTarget.LeftVector(); break;
-                case DisengageTypes.Right: DisengageDirection = DirectionToTarget.RightVector(); break;
+                case DisengageTypes.Left:  DisengageDirection = (DirectionToTarget.LeftVector() / angle).Normalized(); break;
+                case DisengageTypes.Right: DisengageDirection = (DirectionToTarget.RightVector() / angle).Normalized(); break;
                 default: DisengageDirection = Vector2.Zero; break;
             }
             
@@ -185,7 +187,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             SpacerDistance = Owner.Radius + AI.Target.Radius;
             DebugTextIndex = 0;
 
-            if (DistanceToTarget > desiredWeaponsRange)
+            if (DistanceToTarget > Owner.DesiredCombatRange && !TargetIsMighty)
             {
                 if (DistanceToTarget < OwnerTarget.WeaponsMaxRange * 2)
                 {
@@ -229,10 +231,23 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
 
         DisengageTypes RandomDisengageType(Vector2 disenageFrom)
         {
-            float rng = RandomMath.RollDie(100);
-            rng = OwnerTarget.AI.Target == Owner ? rng -30 : rng + 30;
+            DisengageTypes disengage = DisengageTypes.None;
+            if (Owner.AI.CombatState == CombatState.BroadsideLeft || Owner.AI.CombatState == CombatState.OrbitLeft)
+            {
+                disengage = DisengageTypes.Left;
+            }
+            else if (Owner.AI.CombatState == CombatState.BroadsideRight || Owner.AI.CombatState == CombatState.OrbitRight)
+            {
+                disengage = DisengageTypes.Right;
+            }
+            else
+            {
+                float rng = RandomMath.RollDie(100);
+                rng = OwnerTarget.AI.Target == Owner ? rng - 30 : rng;
 
-            return rng > 50 ? DisengageTypes.Left : DisengageTypes.Right;
+                disengage = rng > 50 ? DisengageTypes.Left : DisengageTypes.Right;
+            }
+            return disengage;
         }
 
         protected ChaseState CanCatchState(ChaseState chaseState, float distance)
@@ -287,19 +302,28 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         public void ErraticMovement(FixedSimTime timeStep)
         {
             ErraticTimer -= timeStep.FixedTime;
-            if (MoveState != CombatMoveState.Approach || AI.IsFiringAtMainTarget || Owner.AI.HasPriorityOrder
+
+            bool cantMoveErratic =  Owner.Level == 0 || Owner.loyalty.data.Traits.PhysicalTraitPonderous;
+
+            if (cantMoveErratic || MoveState != CombatMoveState.Approach || AI.IsFiringAtMainTarget || Owner.AI.HasPriorityOrder
                 || WeAreRetrograding || Owner.CurrentVelocity < 100f)
             {
-                ZigZag = Vector2.Zero;
                 return;
             }
 
-            if (ErraticTimer > 0)
+            bool inErraticArc = RadMath.IsTargetInsideArc(OwnerTarget.Center, Owner.Center, OwnerTarget.Rotation, RadMath.Deg3AsRads);
+
+            if (inErraticArc || ErraticTimer > 0)
                 return;
-            
+
+            int racialMod = Owner.loyalty.data.Traits.PhysicalTraitReflexes ? 1 : 0;
+
+            ErraticTimer = (10f - racialMod) / (Owner.Level + racialMod);
+
+            DisengageType = DisengageTypes.Erratic;
+
             int rng = RandomMath.RollAvgPercentVarianceFrom50();
-            int racialMod = Owner.loyalty.data.Traits.PhysicalTraitPonderous ? -1 : 0;
-            racialMod += Owner.loyalty.data.Traits.PhysicalTraitReflexes ? 1 : 0;
+            
             float mod = 5 * (Owner.RotationRadiansPerSecond * (1 + Owner.Level + racialMod)).Clamped(0, 10);
 
             ErraticTimer = 2 / (Owner.RotationRadiansPerSecond + 1);
