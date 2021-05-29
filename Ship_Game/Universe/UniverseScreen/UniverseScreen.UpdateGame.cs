@@ -217,10 +217,6 @@ namespace Ship_Game
 
         void ProcessTurnDelta(FixedSimTime timeStep)
         {
-            GlobalStats.BeamTests = 0;
-            GlobalStats.Comparisons = 0;
-            GlobalStats.ComparisonCounter += 1;
-            GlobalStats.ModuleUpdates = 0;
             ScreenManager.InvokePendingEmpireThreadActions();
             if (ProcessTurnEmpires(timeStep))
             {

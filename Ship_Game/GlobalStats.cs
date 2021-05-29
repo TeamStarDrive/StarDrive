@@ -29,8 +29,6 @@ namespace Ship_Game
         public static string ExtendedVersion = "";
         public static string ExtendedVersionNoHash = "";
 
-        public static int ComparisonCounter = 1;
-        public static int Comparisons = 0;
         public static bool TakingInput = false;
         public static bool WarpInSystem = true;
         public static float FTLInSystemModifier = 1f;
@@ -48,10 +46,6 @@ namespace Ship_Game
         public static bool ShowAllDesigns        = true;
         public static bool SymmetricDesign       = true;
         public static bool FilterOldModules      = true;
-        public static int BeamTests              = 0;
-        public static int ModuleUpdates          = 0;
-        public static int WeaponArcChecks        = 0;
-        public static int DistanceCheckTotal     = 0;
         public static bool LimitSpeed            = true;
         public static float GravityWellRange;
         public static bool PlanetaryGravityWells = true;
