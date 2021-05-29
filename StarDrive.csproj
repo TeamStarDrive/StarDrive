@@ -463,9 +463,8 @@
     <Compile Include="Ship_Game\Ships\ModuleGrid.cs" />
     <Compile Include="Ship_Game\Ships\ModuleGridUtils.cs" />
     <Compile Include="Ship_Game\Ships\PlanetCrash.cs" />
-    <Compile Include="Ship_Game\Ships\ShipData_HullParser.cs" />
     <Compile Include="Ship_Game\Ships\ShipData_LegacyParser.cs" />
-    <Compile Include="Ship_Game\Ships\ShipData_Writer.cs" />
+    <Compile Include="Ship_Game\Ships\ShipData_WriterParser.cs" />
     <Compile Include="Ship_Game\Ships\ShipGridInfo.cs" />
     <Compile Include="Ship_Game\Ships\ShipStats.cs" />
     <Compile Include="Ship_Game\Ships\ShipEngines.cs" />
@@ -661,6 +660,8 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Ship_Game\Utils\SafeArrayBase.cs" />
+    <Compile Include="Ship_Game\Utils\SafeArrayLock.cs" />
     <Compile Include="Ship_Game\Utils\SafeQueue.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadSaveItems\SaveNewGameSetupScreen.cs" />
     <Compile Include="Ship_Game\SetupSave.cs" />
@@ -2641,6 +2642,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\ShipRoles\Carrier.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\StarterShips\Dauntless.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\StarterShips\Draylok Medium Trans2.xml">
