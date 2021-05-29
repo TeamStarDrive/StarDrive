@@ -6,6 +6,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI.StrategyAI.WarGoals;
 
 namespace Ship_Game.AI.Tasks
@@ -870,6 +871,8 @@ namespace Ship_Game.AI.Tasks
             return taskCat;
         }
 
+        public bool IsWarTask => GetTaskCategory().HasFlag(TaskCategory.War);
+
         public void RestoreFromSaveNoUniverse(Empire e, UniverseData data)
         {
             data.FindPlanet(TargetPlanetGuid, out Planet p);
@@ -926,6 +929,14 @@ namespace Ship_Game.AI.Tasks
                     fleet.FleetTask = this;
                 else WhichFleet = 0;
             }
+        }
+
+        public void DebugDraw(ref DebugTextBlock debug)
+        {
+            Color color  = TargetEmpire?.EmpireColor ?? Owner.EmpireColor;
+            string fleet = Fleet != null ? $"Fleet Step: {Fleet.TaskStep}" : "No Fleet yet";
+            debug.AddLine($"({Priority}) -- {type}", color);
+            debug.AddLine(fleet);
         }
     }
 }

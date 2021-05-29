@@ -148,7 +148,7 @@ namespace Ship_Game.AI
 
         public MilitaryTask[] GetWarTasks()
         {
-            return TaskList.Filter(task => task.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.War));
+            return TaskList.Filter(task => task.IsWarTask);
         }
 
         public MilitaryTask[] GetWarTasks(Empire targetEmpire)

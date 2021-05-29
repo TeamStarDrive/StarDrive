@@ -73,25 +73,16 @@ namespace Ship_Game.Debug.Page
         {
             foreach((Empire them, Relationship rel) in EmpireAtWar.AllRelations)
             {
-                if (them.data.Defeated) continue;
+                if (them.data.Defeated || them.isFaction) 
+                    continue;
+
                 var war = rel.ActiveWar;
-                if (war == null ||  war.Them.isFaction) continue;
-                float minPri = EmpireAtWar.GetEmpireAI().MinWarPriority;
-                float warPri = war.GetPriority();
-                if (warPri > minPri) 
+                if (war == null) 
                     continue;
 
                 for (int i = 0; i < EmpireAtWar.AllActiveWarTheaters.Length; i++)
                 {
-                    var theater = EmpireAtWar.AllActiveWarTheaters[i];
-                    float thickness = 10;
-                    var ao      = theater.TheaterAO;
-                    var rallyAo = theater.RallyAO;
-                    Screen.DrawCircleProjected(ao.Center, ao.Radius, war.Them.EmpireColor, thickness);
-                    if (rallyAo == null) continue;
-                    Screen.DrawLineWideProjected(ao.Center, rallyAo.Center, Colors.Attack(), 2);
-                    Screen.DrawCircleProjected(rallyAo.Center, rallyAo.Radius, war.Them.EmpireColor, 2);
-                    Screen.DrawCircleProjected(rallyAo.Center, rallyAo.Radius, war.Them.EmpireColor, 2);
+
                 }
             }
         }

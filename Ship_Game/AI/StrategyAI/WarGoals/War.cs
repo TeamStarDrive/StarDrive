@@ -247,27 +247,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void WarDebugData(ref DebugTextBlock debug)
         {
-            string pad = "     ";
-            string pad2 = pad + "  *";
             debug.AddLine($"Duration Years: {Empire.Universe.StarDate - StartDate:n1}");
-            debug.AddLine($"War Value: {WarTheaters.WarValue:n1}");
             debug.AddLine($"ThreatRatio = {(int)(TotalThreatAgainst * 100):p0}");
             debug.AddLine($"StartDate {StartDate}");
             debug.AddLine($"killed: {StrengthKilled:n0} Lost: {StrengthLost:n0} Ratio: {(int)(SpaceWarKd * 100):p0}");
-            debug.AddLine($"Colonies Won : {ColoniesValueWon} Lost : {ColoniesValueLost} Ratio: % {(int)(LostColonyPercent * 100):n0}");
-            
-            
-
-            debug = WarTheaters.DebugText(debug, pad, pad2);
-
-            debug.AddLine($"Contested Systems: {ContestedSystemCount}");
-            foreach (var system in ContestedSystems)
-            {
-                bool ourForcesPresent   = system.OwnerList.Contains(Us);
-                bool theirForcesPresent = system.OwnerList.Contains(Them);
-                int value               = (int)system.PlanetList.Sum(p => p.ColonyBaseValue(Us));
-                bool hasFleetTask = Us.GetEmpireAI().WarTasks.IsAlreadyAssaultingSystem(system);
-            }
+            debug.AddLine($"Colonies Value Won : {ColoniesValueWon} Lost : {ColoniesValueLost} Ratio: % {(int)(LostColonyPercent * 100):n0}");
         }
     }
 }
