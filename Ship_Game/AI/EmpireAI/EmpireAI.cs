@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Debug;
 using Ship_Game.GameScreens.DiplomacyScreen;
 
 // ReSharper disable once CheckNamespace
@@ -343,7 +344,6 @@ namespace Ship_Game.AI
             Goals.Add(goal);
         }
 
-        
         public void FindAndRemoveGoal(GoalType type, Predicate<Goal> removeIf)
         {
             for (int i = 0; i < Goals.Count; ++i)
@@ -354,6 +354,19 @@ namespace Ship_Game.AI
                     Goals.QueuePendingRemoval(g);
                     return;
                 }
+            }
+        }
+
+        public void DebugDrawTasks(ref DebugTextBlock debug, Empire enemy, bool warTasks)
+        {
+            var prioritizedTasks = TaskList.Sorted(t => t.Priority);
+            for (int i = 0; i < prioritizedTasks.Length; i++)
+            {
+                MilitaryTask task = prioritizedTasks[i];
+                if (warTasks && (!task.IsWarTask || task.TargetEmpire == enemy))
+                    continue;
+
+                task.DebugDraw(ref debug);
             }
         }
     }
