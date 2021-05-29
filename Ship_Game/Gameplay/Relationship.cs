@@ -3,6 +3,7 @@ using Ship_Game.AI;
 using Ship_Game.Ships;
 using System;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Debug;
 using Ship_Game.Empires.DataPackets;
@@ -1722,7 +1723,7 @@ namespace Ship_Game.Gameplay
                 war.RestoreFromSave(false);
         }
 
-        public DebugTextBlock DebugWar(Empire Us)
+        public DebugTextBlock DebugWar(Empire us)
         {
             var debug = new DebugTextBlock
             {
@@ -1730,18 +1731,20 @@ namespace Ship_Game.Gameplay
                 HeaderColor = EmpireManager.GetEmpireByName(Name).EmpireColor
             };
 
-            if (ActiveWar == null)
-                debug.AddLine($" ReadyForWar: {Us.GetEmpireAI().ShouldGoToWar(this).ToString()}");
-            else
-                debug.AddLine($" At War");
-            debug.AddLine($" WarType: {PreparingForWarType.ToString()}");
-            debug.AddLine($" WarStatus: {ActiveWar?.GetWarScoreState()}");
-            debug.AddLine($" {Us.data.PortraitName} Strength: {Us.CurrentMilitaryStrength}");
-            debug.AddLine($" {Them.data.PortraitName} Strength: {Them.CurrentMilitaryStrength}");
-            debug.AddLine($" WarAnger: {WarAnger}");
-            debug.AddLine($" Previous Wars: {WarHistory.Count}");
+            Color color = Them.EmpireColor;
+            debug.AddLine(ActiveWar == null
+                ? $" ReadyForWar: {us.GetEmpireAI().ShouldGoToWar(this)}"
+                : " At War", color);
+
+            debug.AddLine($" WarType: {PreparingForWarType}", color);
+            debug.AddLine($" WarStatus: {ActiveWar?.GetWarScoreState()}", color);
+            debug.AddLine($" {us.data.PortraitName} Strength: {us.CurrentMilitaryStrength}", color);
+            debug.AddLine($" {Them.data.PortraitName} Strength: {Them.CurrentMilitaryStrength}", color);
+            debug.AddLine($" WarAnger: {WarAnger}", color);
+            debug.AddLine($" Previous Wars: {WarHistory.Count}", color);
 
             ActiveWar?.WarDebugData(ref debug);
+            us.GetEmpireAI().DebugDrawTasks(ref debug, Them, warTasks: true);
             return debug;
         }
 
