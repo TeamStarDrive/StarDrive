@@ -22,6 +22,8 @@ namespace Ship_Game.Ships
     {
         static bool UseNewShipDataLoaders = false;
         public static bool GenerateNewHullFiles = false; // only need to do this once
+        public static bool GenerateNewDesignFiles = false; // only need to do this once
+        const int CurrentVersion = 1;
 
         public string Name; // ex: "Dodaving", just an arbitrary name
         public string Hull; // ID of the hull, ex: "Cordrazine/Dodaving"
@@ -38,9 +40,7 @@ namespace Ship_Game.Ships
 
         public float MechanicalBoardingDefense;
         public float FixedUpkeep;
-        public short FixedCost;
-        public bool HasFixedCost;
-        public bool HasFixedUpkeep;
+        public int FixedCost;
         public bool Animated;
         public bool IsShipyard;
         public bool IsOrbitalDefense;
@@ -243,17 +243,15 @@ namespace Ship_Game.Ships
         {
             try
             {
-                if (!UseNewShipDataLoaders)
-                    return ParseXML(info, isHullDefinition);
-
-
-                return null;
+                if (UseNewShipDataLoaders && !isHullDefinition)
+                    return ParseDesign(info);
+                return ParseXML(info, isHullDefinition);
             }
             catch (Exception e)
             {
-                Log.ErrorDialog(e, $"Failed to parse ShipData '{info.FullName}'", 0);
-                throw;
+                Log.Error(e, $"Failed to parse ShipData '{info.FullName}'", 0);
             }
+            return null;
         }
 
         public static bool IsAllDummySlots(ModuleSlotData[] slots)

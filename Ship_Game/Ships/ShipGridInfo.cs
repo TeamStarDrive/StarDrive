@@ -100,11 +100,13 @@ namespace Ship_Game.Ships
                     if (!designSlot.IsDummy)
                     {
                         Point position = designSlot.PosAsPoint;
-                        ShipModule m = designSlot.ModuleOrNull;
-                        Point size = m.GetOrientedSize(designSlot);
-
                         slotsMap[position] = designSlot;
 
+                        ShipModule m = designSlot.ModuleOrNull;
+                        if (m == null)
+                            throw new Exception($"Module {designSlot.ModuleUID} does not exist! This design is invalid.");
+
+                        Point size = m.GetOrientedSize(designSlot);
                         for (int x = 0; x < size.X; ++x)
                         for (int y = 0; y < size.Y; ++y)
                         {

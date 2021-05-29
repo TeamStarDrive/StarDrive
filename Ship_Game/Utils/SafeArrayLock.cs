@@ -2,29 +2,58 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 namespace Ship_Game.Utils
 {
+    // TODO: This is 50% slower than a regular lock() statement
     [DebuggerTypeProxy(typeof(CollectionDebugView<>))]
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
-    public sealed class SafeArray<T> : SafeArrayBase<T>, IArray<T>, IList<T>, 
+    public sealed class SafeArrayLock<T> : SafeArrayBase<T>, IArray<T>, IList<T>, 
         IReadOnlyList<T>, ICollection<T>, IEnumerable<T>, IList, ICollection, IEnumerable
     {
-        object Sync = new object();
-        public int Capacity { get { lock (Sync) { return Items.Length; } } }
+        ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+
+        struct ScopedReadLock : IDisposable
+        {
+            readonly ReaderWriterLockSlim Lock;
+            public ScopedReadLock(ReaderWriterLockSlim theLock)
+            {
+                (Lock = theLock).EnterReadLock();
+            }
+            public void Dispose()
+            {
+                Lock.ExitReadLock();
+            }
+        }
+
+        struct ScopedWriteLock : IDisposable
+        {
+            readonly ReaderWriterLockSlim Lock;
+            public ScopedWriteLock(ReaderWriterLockSlim theLock)
+            {
+                (Lock = theLock).EnterWriteLock();
+            }
+            public void Dispose()
+            {
+                Lock.ExitWriteLock();
+            }
+        }
+
+        public int Capacity { get { using(new ScopedReadLock(Lock)) { return Items.Length; } } }
         public bool IsReadOnly  => false;
         public bool IsFixedSize => false;
         public bool IsEmpty     => Count == 0;
         public bool NotEmpty    => Count != 0;
-        public object SyncRoot => Sync;
+        public object SyncRoot => Lock;
         public bool IsSynchronized => true;
 
-        public SafeArray()
+        public SafeArrayLock()
         {
         }
 
-        public SafeArray(ICollection<T> collection) : base(collection)
+        public SafeArrayLock(ICollection<T> collection) : base(collection)
         {
         }
 
@@ -32,12 +61,12 @@ namespace Ship_Game.Utils
         {
             get
             {
-                lock (Sync)
+                using(new ScopedReadLock(Lock))
                     return Get(index);
             }
             set
             {
-                lock (Sync)
+                using(new ScopedWriteLock(Lock))
                     Set(index, value);
             }
         }
@@ -50,13 +79,13 @@ namespace Ship_Game.Utils
 
         public void Add(T item)
         {
-            lock (Sync)
+            using(new ScopedWriteLock(Lock))
                 AddUnlocked(item);
         }
 
         public int Add(object value)
         {
-            lock (Sync)
+            using(new ScopedWriteLock(Lock))
             {
                 int count = Count;
                 AddUnlocked((T)value);
@@ -68,7 +97,7 @@ namespace Ship_Game.Utils
         {
             if (Count == 0)
                 return;
-            lock (Sync)
+            using(new ScopedWriteLock(Lock))
                 ClearUnlocked();
         }
 
@@ -76,7 +105,7 @@ namespace Ship_Game.Utils
         {
             if (Count == 0)
                 return false;
-            lock (Sync)
+            using(new ScopedReadLock(Lock))
                 return ContainsUnlocked(item);
         }
 
@@ -89,7 +118,7 @@ namespace Ship_Game.Utils
         {
             if (Count == 0)
                 return;
-            lock (Sync)
+            using(new ScopedReadLock(Lock))
                 CopyToUnlocked(array, arrayIndex);
         }
 
@@ -100,7 +129,7 @@ namespace Ship_Game.Utils
 
         public void Insert(int index, T item)
         {
-            lock (Sync)
+            using(new ScopedWriteLock(Lock))
                 InsertUnlocked(index, item);
         }
 
@@ -111,7 +140,7 @@ namespace Ship_Game.Utils
 
         public int IndexOf(T item)
         {
-            lock (Sync)
+            using(new ScopedReadLock(Lock))
                 return IndexOfUnlocked(item);
         }
 
@@ -122,13 +151,13 @@ namespace Ship_Game.Utils
         
         public void RemoveAt(int index)
         {
-            lock (Sync)
+            using(new ScopedWriteLock(Lock))
                 RemoveAtUnlocked(index);
         }
 
         public bool Remove(T item)
         {
-            lock (Sync)
+            using(new ScopedWriteLock(Lock))
                 return RemoveUnlocked(item);
         }
 
@@ -139,31 +168,31 @@ namespace Ship_Game.Utils
 
         public bool RemoveSwapLast(T item)
         {
-            lock (Sync)
+            using(new ScopedWriteLock(Lock))
                 return RemoveSwapLastUnlocked(item);
         }
 
         public void RemoveAtSwapLast(int index)
         {
-            lock (Sync)
+            using(new ScopedWriteLock(Lock))
                 RemoveAtSwapLastUnlocked(index);
         }
 
         public T PopFirst()
         {
-            lock (Sync)
+            using(new ScopedWriteLock(Lock))
                 return PopFirstUnlocked();
         }
 
         public T PopLast()
         {
-            lock (Sync)
+            using(new ScopedWriteLock(Lock))
                 return PopLastUnlocked();
         }
 
         public bool TryPopLast(out T item)
         {
-            lock (Sync)
+            using(new ScopedWriteLock(Lock))
                 return TryPopLastUnlocked(out item);
         }
         
@@ -175,11 +204,11 @@ namespace Ship_Game.Utils
         public struct Enumerator : IEnumerator<T>
         {
             int Index;
-            readonly SafeArray<T> Arr;
+            readonly SafeArrayLock<T> Arr;
             public T Current { get; private set; }
             object IEnumerator.Current => Current;
 
-            public Enumerator(SafeArray<T> arr)
+            public Enumerator(SafeArrayLock<T> arr)
             {
                 Index = 0;
                 Arr = arr;
@@ -190,7 +219,7 @@ namespace Ship_Game.Utils
             }
             public bool MoveNext()
             {
-                lock (Arr.Sync)
+                using(new ScopedReadLock(Arr.Lock))
                 {
                     if (Index >= Arr.Count)
                         return false;

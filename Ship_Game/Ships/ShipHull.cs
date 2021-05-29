@@ -26,6 +26,8 @@ namespace Ship_Game.Ships
         public ShipData.RoleName Role = ShipData.RoleName.fighter;
         public string SelectIcon = "";
         public bool Animated;
+        public bool IsShipyard;
+        public bool IsOrbitalDefense;
         public ShipData.ThrusterZone[] Thrusters = Empty<ShipData.ThrusterZone>.Array;
         public HullSlot[] HullSlots;
 
@@ -100,7 +102,9 @@ namespace Ship_Game.Ships
                         case "IconPath":   IconPath = val; break;
                         case "ModelPath":  ModelPath = val; break;
                         case "SelectIcon": SelectIcon = val; break;
-                        case "Animated":   Animated = (val == "1" || val == "true"); break;
+                        case "Animated":   Animated = (val == "true"); break;
+                        case "IsShipyard": IsShipyard = (val == "true"); break;
+                        case "IsOrbitalDefense": IsOrbitalDefense = (val == "true"); break;
                         case "Thruster":
                             Array.Resize(ref Thrusters, Thrusters.Length + 1);
                             ref ShipData.ThrusterZone tz = ref Thrusters[Thrusters.Length - 1];
@@ -148,7 +152,10 @@ namespace Ship_Game.Ships
             sw.Write("IconPath", IconPath);
             sw.Write("ModelPath", ModelPath);
             sw.Write("SelectIcon", SelectIcon);
-            sw.Write("Animated", Animated);
+
+            if (Animated)         sw.Write("Animated", Animated);
+            if (IsShipyard)       sw.Write("IsShipyard", IsShipyard);
+            if (IsOrbitalDefense) sw.Write("IsOrbitalDefense", IsOrbitalDefense);
 
             sw.WriteLine("#Thruster PosX,PosY,PosZ,Scale");
             foreach (ShipData.ThrusterZone t in Thrusters)
