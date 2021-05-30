@@ -133,29 +133,7 @@ namespace Ship_Game
             else if (Type == GameObjectType.Ship)
             {
                 var ship = (Ship) this;
-                Empire oldLoyalty = ship.loyalty;
-                oldLoyalty.TheyKilledOurShip(changeTo, ship);
-                changeTo.WeKilledTheirShip(oldLoyalty, ship);
-                // remove ship from fleet but do not add it back to empire pools.
-                ship.fleet?.RemoveShip(ship, false);
-                ship.AI.ClearOrders();
-                oldLoyalty.EmpireShipLists.ImmediateRemoveShipFromEmpire(ship);
-
-                oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);
-                changeTo.EmpireShipLists.AddShipToEmpire(ship);
-                ship.shipStatusChanged = true;
-
-                ship.SwitchTroopLoyalty(oldLoyalty, ship.loyalty);
-                ship.ReCalculateTroopsAfterBoard();
-                ship.ScuttleTimer = -1f; // Cancel any active self destruct 
-                ship.PiratePostChangeLoyalty();
-                ship.IsGuardian = changeTo.WeAreRemnants;
-                
-                if (notification)
-                {
-                    changeTo.AddBoardSuccessNotification(ship);
-                    oldLoyalty.AddBoardedNotification(ship);
-                }
+                ship.LoyaltyTracker.SetBoardingLoyalty(changeTo);
             }
             ReinsertSpatial = true;
         }

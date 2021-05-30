@@ -70,8 +70,8 @@ namespace Ship_Game.Ships
             
             InitializeThrusters(template.shipData);
             InitializeShip();
+            LoyaltyTracker.SetLoyaltyForNewShip(owner);
 
-            owner.AddShip(this);
             Empire.Universe?.Objects.Add(this);
         }
 
@@ -267,12 +267,6 @@ namespace Ship_Game.Ships
             ThrusterList = Empty<Thruster>.Array;
         }
 
-        public static Ship ImmediateCreateShipAtPoint(string shipName, Empire owner, Vector2 position)
-        {
-            var ship = CreateShipAtPoint(shipName, owner, position);
-            ship?.loyalty.EmpireShipLists.Update();
-            return ship;
-        }
         // Added by RedFox - Debug, Hangar Ship, and Platform creation
         public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 position)
         {
@@ -399,6 +393,8 @@ namespace Ship_Game.Ships
             {
                 InitializeStatus(fromSave: false);
             }
+
+            LoyaltyTracker = new DataPackets.LoyaltyChanges(this);
         }
 
         void InitDefendingTroopStrength()

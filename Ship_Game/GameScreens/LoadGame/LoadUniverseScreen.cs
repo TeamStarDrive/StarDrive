@@ -221,8 +221,12 @@ namespace Ship_Game
             us.LoadContent();
             CreateAOs(data);
             FinalizeShips(us);
+            Universe.Objects.UpdateLists(false);
             foreach(Empire empire in EmpireManager.Empires)
+            {
+
                 empire.GetEmpireAI().ThreatMatrix.RestorePinGuidsFromSave();
+            }
 
             GameAudio.StopGenericMusic(immediate: false);
 

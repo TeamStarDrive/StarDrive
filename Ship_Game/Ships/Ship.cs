@@ -90,6 +90,7 @@ namespace Ship_Game.Ships
         public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
         public float PackDamageModifier { get; private set; }
         public Empire loyalty;
+        public LoyaltyChanges LoyaltyTracker { get; private set; }
 
         // This is the total number of Slots on the ships
         // It does not depend on the number of modules, and is always a constant
@@ -1652,6 +1653,7 @@ namespace Ship_Game.Ships
             TradeRoutes = null;
             OurTroops = null;
             HostileTroops = null;
+            LoyaltyTracker = null;
         }
 
         public void UpdateShields()

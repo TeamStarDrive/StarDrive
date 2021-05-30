@@ -128,8 +128,7 @@ namespace Ship_Game
 
                 // this should make spawning ships while paused added to the empire correctly. 
                 // and correctly update lists when removing and creating fleets while paused. 
-                foreach (var empire in EmpireManager.Empires)
-                    empire.EmpireShipLists.Update();
+
 
                 Objects.Update(FixedSimTime.Zero/*paused*/);
                 RecomputeFleetButtons(true);
@@ -451,7 +450,7 @@ namespace Ship_Game
                 foreach(var empire in EmpireManager.Empires)
                 {
                     // ship lists should be set before any further work with the ship lists is done. 
-                    empire.EmpireShipLists.Update();
+                    empire.EmpireShips.UpdatePublicLists();
                 }
                 
                 Parallel.For(EmpireManager.Empires.Count, (start, end) =>
