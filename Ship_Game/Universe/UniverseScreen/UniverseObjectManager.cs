@@ -308,9 +308,14 @@ namespace Ship_Game
                             OnShipRemoved?.Invoke(ship);
                             ship.RemoveFromUniverseUnsafe();
                         }
+                        else
+                        {
+                            ship.LoyaltyTracker.ApplyAnyLoyaltyChanges();
+                        }
                     }
                     Ships.RemoveInActiveObjects();
                 }
+
                 lock (ProjectilesLocker)
                 {
                     for (int i = 0; i < Projectiles.Count; ++i)
@@ -330,6 +335,12 @@ namespace Ship_Game
                     }
                     Projectiles.RemoveInActiveObjects();
                 }
+            }
+
+            for (int x = 0; x < EmpireManager.Empires.Count; x++)
+            {
+                var empire = EmpireManager.Empires[x];
+                empire.EmpireShips.UpdatePublicLists();
             }
 
             ListTime.Stop();

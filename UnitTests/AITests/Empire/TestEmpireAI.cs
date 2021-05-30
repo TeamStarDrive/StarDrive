@@ -244,30 +244,30 @@ namespace UnitTests.AITests.Empire
 
             // test that ship is added to empire on creation
             var ship = SpawnShip(shipName, Player, Vector2.Zero);
-            Player.EmpireShipLists.Update();
+            Player.AIManagedShips.Update();
             Assert.IsTrue(Player.OwnedShips.Count == 1);
 
             // test that removed ship removes the ship from ship list
             Player.RemoveShip(ship);
-            Player.EmpireShipLists.Update();
+            Player.AIManagedShips.Update();
             Assert.IsTrue(Player.OwnedShips.Count == 0);
 
             // test that a ship added to empire directly is added. 
-            Player.EmpireShipLists.AddShipToEmpire(ship);
-            Player.EmpireShipLists.Update();
+            Player.AIManagedShips.AddShipToEmpire(ship);
+            Player.AIManagedShips.Update();
             Assert.IsTrue(Player.OwnedShips.Count == 1);
 
             // test that a ship cant be added twice
             Player.AddShip(ship);
-            Player.EmpireShipLists.Update();
+            Player.AIManagedShips.Update();
             Assert.IsTrue(Player.OwnedShips.Count == 1);
 
             // test that removing the same ship twice doesn't fail. 
             Player.RemoveShip(ship);
             Assert.IsTrue(Player.OwnedShips.Count == 1);
-            Player.EmpireShipLists.Update();
+            Player.AIManagedShips.Update();
             Player.RemoveShip(ship);
-            Player.EmpireShipLists.Update();
+            Player.AIManagedShips.Update();
             Assert.IsTrue(Player.OwnedShips.Count == 0);
         }
 
@@ -302,9 +302,9 @@ namespace UnitTests.AITests.Empire
                 SpawnShip(shipName, Enemy, Vector2.Zero);
             }
             Universe.ScreenManager.InvokePendingEmpireThreadActions();
-            Enemy.EmpireShipLists.Update();
+            Enemy.AIManagedShips.Update();
 
-            int numberOfShips = Enemy.EmpireShipLists.EmpireShips.Count;
+            int numberOfShips = Enemy.AIManagedShips.EmpireShips.Count;
             int shipsRemoved = 0;
             // create a background thread to stress ship pool functions.
             bool stopStress = false;
@@ -332,7 +332,7 @@ namespace UnitTests.AITests.Empire
                                 float random = RandomMath.AvgRandomBetween(1, 100);
                                 if (random > 80)
                                 {
-                                    if (s.loyalty.EmpireShipLists.ImmediateRemoveShipFromEmpire(s))
+                                    if (s.loyalty.AIManagedShips.ImmediateRemoveShipFromEmpire(s))
                                     {
                                         shipsRemoved++;
                                     }
@@ -360,7 +360,7 @@ namespace UnitTests.AITests.Empire
                                 {
                                     SpawnShip(shipName, empire, Vector2.Zero);
                                 }
-                                empire.EmpireShipLists.Update();
+                                empire.AIManagedShips.Update();
 
                             }
                         }
@@ -374,7 +374,7 @@ namespace UnitTests.AITests.Empire
             int actualShipCount = 0;
             foreach(var empire in EmpireManager.Empires)
             {
-                empire.EmpireShipLists.Update();
+                empire.AIManagedShips.Update();
                 actualShipCount += empire.OwnedShips.Count;
             }
 
@@ -415,10 +415,10 @@ namespace UnitTests.AITests.Empire
 
             // test that ships are removed from empire on defeat
             SpawnShip(shipName, Player, Vector2.Zero);
-            Player.EmpireShipLists.Update();
+            Player.AIManagedShips.Update();
             Assert.IsTrue(Player.OwnedShips.Count == 1);
             Player.SetAsDefeated();
-            Player.EmpireShipLists.Update();
+            Player.AIManagedShips.Update();
             Assert.IsTrue(Player.OwnedShips.Count == 0);
         }
 
@@ -430,10 +430,10 @@ namespace UnitTests.AITests.Empire
             string shipName = "Rocket Inquisitor";
 
             SpawnShip(shipName, Enemy, Vector2.Zero);
-            Enemy.EmpireShipLists.Update();
+            Enemy.AIManagedShips.Update();
             Assert.IsTrue(Enemy.OwnedShips.Count == 1);
             Player.AbsorbEmpire(Enemy, false);
-            Player.EmpireShipLists.Update();
+            Player.AIManagedShips.Update();
             // test that ship is added to empire on merge
             Assert.IsTrue(Player.OwnedShips.Count == 1);
             // test that ship is removed from target empire
