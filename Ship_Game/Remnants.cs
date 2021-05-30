@@ -157,6 +157,7 @@ namespace Ship_Game
             if (Level % 8 == 0)
                 Owner.data.ExplosiveRadiusReduction += 0.15f;
 
+            Owner.data.BaseShipLevel = Level / 3;
             EmpireShipBonuses.RefreshBonuses(Owner);
         }
 
