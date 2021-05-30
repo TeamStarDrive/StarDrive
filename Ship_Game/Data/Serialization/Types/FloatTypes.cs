@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {

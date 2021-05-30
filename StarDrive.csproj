@@ -349,7 +349,7 @@
     <Compile Include="Ship_Game\Data\YamlSerializer\YamlSerializer.cs" />
     <Compile Include="Ship_Game\Data\Mesh\StaticMesh.cs" />
     <Compile Include="Ship_Game\Data\Yaml\YamlParser.cs" />
-    <Compile Include="Ship_Game\Data\Yaml\StringView.cs" />
+    <Compile Include="Ship_Game\Data\StringView.cs" />
     <Compile Include="Ship_Game\Debug\DebugInfoScreen_DebugText.cs" />
     <Compile Include="Ship_Game\Debug\DebugInfoScreen_DrawPrimitives.cs" />
     <Compile Include="Ship_Game\Debug\DebugTextBlock.cs" />
