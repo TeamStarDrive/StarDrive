@@ -94,7 +94,8 @@ namespace Ship_Game.Ships
             SupplyShuttle = null;
         }
 
-        public ShipModule[] AllActiveHangars   => AllHangars.Filter(module => module.Active);
+        // aggressive dispose looks to cause a crash here. 
+        public ShipModule[] AllActiveHangars   => AllHangars?.Filter(module => module.Active);
         public bool HasActiveHangars           => AllHangars.Any(module => module.Active); // FB: this changes dynamically
         public bool HasTransporters            => AllTransporters.Length > 0;
         public ShipModule[] AllActiveTroopBays => AllTroopBays.Filter(module => module.Active);
