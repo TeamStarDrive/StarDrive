@@ -21,6 +21,7 @@ namespace Ship_Game.Ships
             sw.Write("Role", Role);
             sw.Write("ModName", ModName);
             sw.Write("Style", ShipStyle);
+            sw.Write("Description", Description);
             sw.Write("Size", $"{GridInfo.Size.X},{GridInfo.Size.Y}");
             
             if (this != BaseHull && IconPath != BaseHull.IconPath)
@@ -52,29 +53,33 @@ namespace Ship_Game.Ships
 
                 var p = (slot.Position - new Vector2(ShipModule.ModuleSlotOffset)) - GridInfo.Origin;
                 var gp = new Point((int)(p.X / 16f), (int)(p.Y / 16f));
+                int moduleIndex = moduleUIDsToIdx.IndexOf(slot.ModuleUID);
                 var sz = slot.GetSize();
                 var f = (int)slot.Facing;
                 var o = (int)slot.GetOrientation();
 
-                // if we have SlotOptions, we will need to write out Facing and Orient to make it parseable
-                bool facing = false, orient = false, opt = false;
-                if (slot.SlotOptions.NotEmpty()) facing = orient = opt = true;
-                if (o != 0) facing = orient = true;
-                if (f != 0) facing = true;
+                string[] fields = new string[6];
+                fields[0] = gp.X + "," + gp.Y;
+                fields[1] = moduleIndex.ToString();
+                // everything after this is optional
+                fields[2] = (sz.X == 1 && sz.Y == 1) ? "" : sz.X + "," + sz.Y;
+                fields[3] = f == 0 ? "" : f.ToString();
+                fields[4] = o == 0 ? "" : o.ToString();
+                fields[5] = slot.SlotOptions.IsEmpty() ? "" : slot.SlotOptions;
 
-                string optional = "";
-                if (facing)  optional += ";" + f;
-                if (orient)  optional += ";" + o;
-                if (opt)     optional += ";" + slot.SlotOptions;
+                // get the max span of valid elements, so we can discard empty ones and save space
+                int count = fields.Length;
+                for (; count > 0; --count)
+                    if (fields[count - 1] != "")
+                        break;
 
-                int idx = moduleUIDsToIdx.IndexOf(slot.ModuleUID);
-                moduleLines.Add($"{gp.X},{gp.Y};{idx};{sz.X},{sz.Y}{optional}");
+                moduleLines.Add(string.Join(";", fields, 0, count));
             }
 
             sw.WriteLine("# Maps module UIDs to Index, first UID has index 0");
             sw.Write("ModuleUIDs", string.Join(";", moduleUIDsToIdx));
             sw.Write("Modules", moduleLines.Count);
-            sw.WriteLine("# gridX,gridY;moduleUIDIndex;sizeX,sizeY(oriented);[facing(0-359)];[orientation(0-3)];[options]");
+            sw.WriteLine("# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRotation;slotOptions");
             foreach (string m in moduleLines)
                 sw.WriteLine(m);
 
@@ -83,6 +88,7 @@ namespace Ship_Game.Ships
 
         static ShipData ParseDesign(FileInfo file)
         {
+
             return null;
         }
     }
