@@ -57,7 +57,6 @@ namespace Ship_Game.Ships
             BaseCanWarp  = template.BaseCanWarp;
             loyalty      = owner;
             shipData     = template.shipData;
-            SetInitialCrewLevel();
 
             if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
                 return; // return and crash again...
@@ -70,6 +69,7 @@ namespace Ship_Game.Ships
             
             InitializeThrusters(template.shipData);
             InitializeShip();
+            SetInitialCrewLevel();
 
             owner.AddShip(this);
             Empire.Universe?.Objects.Add(this);
@@ -234,7 +234,8 @@ namespace Ship_Game.Ships
         {
             Level = shipData.Level;
 
-            if (shipData.Role == ShipData.RoleName.fighter)
+            if (shipData.Role == ShipData.RoleName.fighter || IsHangarShip 
+                && (DesignRole == ShipData.RoleName.corvette || DesignRole == ShipData.RoleName.drone))
                 Level += loyalty.data.BonusFighterLevels;
 
             Level += loyalty.data.BaseShipLevel;
@@ -301,6 +302,9 @@ namespace Ship_Game.Ships
             Ship ship = CreateShipAtPoint(hangar.hangarShipUID, owner, p);
             if (ship == null)
                 return null;
+
+            if (ship.DesignRole == ShipData.RoleName.drone || ship.DesignRole == ShipData.RoleName.corvette)
+                ship.Level += owner.data.BonusFighterLevels;
 
             ship.Mothership = parent;
             ship.Velocity   = parent.Velocity;
