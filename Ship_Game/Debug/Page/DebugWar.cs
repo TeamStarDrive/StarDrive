@@ -23,14 +23,15 @@ namespace Ship_Game.Debug.Page
             if (!Visible)
                 return;
 
-            DrawWarAOs();
+            //DrawWarAOs();
             base.Draw(batch, elapsed);
         }
 
         public override bool HandleInput(InputState input)
         {
-            if (input.ArrowUp) ChangeEmpireId(true);
+            if      (input.ArrowUp) ChangeEmpireId(true);
             else if (input.ArrowDown) ChangeEmpireId(false);
+
             return base.HandleInput(input);
         }
 
@@ -51,7 +52,8 @@ namespace Ship_Game.Debug.Page
         public override void Update(float fixedDeltaTime)
         {
             var text = new Array<DebugTextBlock>();
-            if (EmpireAtWar.data.Defeated) return;
+            if (EmpireAtWar.data.Defeated)
+                return;
             
             var column = new DebugTextBlock();
             column.AddLine($"{EmpireID} {EmpireAtWar.Name}", EmpireAtWar.EmpireColor);
@@ -60,9 +62,7 @@ namespace Ship_Game.Debug.Page
             foreach ((Empire them, Relationship rel) in EmpireAtWar.AllRelations.Sorted(r=> r.Rel.AtWar))
             {
                 if (rel.Known && !them.isFaction && them != EmpireAtWar && !them.data.Defeated)
-                {
                     text.Add(rel.DebugWar(EmpireAtWar));
-                }
             }
 
             SetTextColumns(text);
