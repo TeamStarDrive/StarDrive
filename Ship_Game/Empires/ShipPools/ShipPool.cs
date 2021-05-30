@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using Ship_Game.AI;
+﻿using Ship_Game.AI;
 using Ship_Game.Ships;
 using Ship_Game.Utils;
+using System;
 
 namespace Ship_Game.Empires.ShipPools
 {
     public class ShipPool : IDisposable
     {
         readonly Empire Owner;
-        DetachedList<Ship> OwnedShips      = new DetachedList<Ship>();
-        DetachedList<Ship> OwnedProjectors = new DetachedList<Ship>();
         ChangePendingList<Ship> ForcePool;
 
         object ChangeLocker = new object();
@@ -38,16 +35,6 @@ namespace Ship_Game.Empires.ShipPools
         public int CurrentUseableFleets       = 0;
         float PoolCheckTimer                  = 0;
 
-        /// <summary>
-        /// For reads this is thread safe as long as a reference is taken before iteration.
-        /// changes to this list will not change the actual shiplist but will break thread safety. 
-        /// </summary>
-        public IReadOnlyList<Ship> EmpireShips => OwnedShips.GetRef();
-        /// <summary>
-        /// For reads this is thread safe as long as a reference is taken before iteration.
-        /// changes to this list will not change the actual shiplist but will break thread safety. 
-        /// </summary>
-        public IReadOnlyList<Ship> EmpireProjectors => OwnedProjectors.GetRef();
         public Array<Ship> EmpireForcePool { get; private set; } = new Array<Ship>();
         public FleetShips EmpireReadyFleets { get; private set; }
 
@@ -63,8 +50,6 @@ namespace Ship_Game.Empires.ShipPools
 
         public void Update()
         {
-            OwnedShips.Update();
-            OwnedProjectors.Update();
             lock (ChangeLocker)
                 ForcePool.Update();
 
@@ -123,7 +108,7 @@ namespace Ship_Game.Empires.ShipPools
         void ErrorCheckPools() 
         {
             if (Owner.isPlayer || Owner.isFaction) return;
-            var allShips = OwnedShips.GetRef();
+            var allShips = Owner.OwnedShips;
             
             for (int i = 0; i < allShips.Count; i++)
             {
@@ -184,7 +169,6 @@ namespace Ship_Game.Empires.ShipPools
                         Log.Error($"WTF: {Owner} != {ship.loyalty}");
                         RemoveFromOtherPools(ship);
                         Owner.RemoveShip(ship);
-                        ship.loyalty.AddShip(ship);
                     }
                     else if (notInAOs && notInEmpireForcePool && ship.BaseCanWarp)
                     {
@@ -236,7 +220,6 @@ namespace Ship_Game.Empires.ShipPools
                 Log.Warning("wrong loyalty added to force pool");
                 RemoveFromOtherPools(toAdd);
                 ImmediateRemoveShipFromEmpire(toAdd);
-                toAdd.loyalty.EmpireShipLists.ImmediateSetLoyaltyAndAddShipToEmpire(toAdd);
                 return true;
             }
             float baseDefensePct = 0.1f;
@@ -274,75 +257,13 @@ namespace Ship_Game.Empires.ShipPools
 
             return false; // nothing to do with you
         }
-
-        public void ImmediateSetLoyaltyAndAddShipToEmpire(Ship s)
-        {
-            bool alreadyAdded;
-            if (s.IsSubspaceProjector)
-            {
-                alreadyAdded = !OwnedProjectors.Add(s);
-            }
-            else
-            {
-                alreadyAdded = !OwnedShips.Add(s);
-            }
-
-            if (alreadyAdded)
-            {
-                Log.WarningWithCallStack(
-                    "Empire.AddShip BUG: https://bitbucket.org/codegremlins/stardrive-blackbox/issues/147/doubled-projectors");
-
-            }
-            else
-            {
-                OwnedShips.Update();
-                OwnedProjectors.Update();
-                lock (ChangeLocker)
-                {
-                    EmpireForcePoolAdd(s);
-                }
-                Update();
-            }
-        }
-
+        
         /// <summary>
         /// This is not thread safe. run this on empire thread for safe adds. 
         /// </summary>
         public void AddShipToEmpire(Ship s)
         {
-            bool alreadyAdded;
-            if (s.IsSubspaceProjector)
-            {
-                alreadyAdded = !OwnedProjectors.Add(s);
-                if (!alreadyAdded)
-                {
-                    var action = new Action(() =>
-                    {
-                        s.loyalty = Owner;
-                    });
-                    OwnedProjectors.QueuePreUpdateAction(action);
-                }
-            }
-            else
-            {
-                alreadyAdded = !OwnedShips.Add(s);
-                if (!alreadyAdded)
-                {
-                    var action = new Action(() =>
-                    {
-                        s.loyalty = Owner;
-                        EmpireForcePoolAdd(s);
-                    });
-                    OwnedShips.QueuePreUpdateAction(action);
-                }
-            }
-
-            if (alreadyAdded)
-            {
-                Log.WarningWithCallStack(
-                    "Empire.AddShip BUG: https://bitbucket.org/codegremlins/stardrive-blackbox/issues/147/doubled-projectors");
-
-            }
+            EmpireForcePoolAdd(s);
         }
 
         public bool ImmediateRemoveShipFromEmpire(Ship ship)
@@ -369,15 +290,6 @@ namespace Ship_Game.Empires.ShipPools
                 return false;
             }
 
-            if (ship.IsSubspaceProjector)
-            {
-                removed = OwnedProjectors.Remove(ship);
-            }
-            else
-            {
-                removed = OwnedShips.Remove(ship);
-            }
-
             ship.AI?.ClearOrders();
 
             return removed;
@@ -385,8 +297,6 @@ namespace Ship_Game.Empires.ShipPools
         
         public void CleanOut()
         {
-            OwnedShips           = new DetachedList<Ship>();
-            OwnedProjectors      = new DetachedList<Ship>();
             ForcePool.ClearOut();
             EmpireForcePool      = new Array<Ship>();
             EmpireReadyFleets    = new FleetShips(Owner);
@@ -402,9 +312,6 @@ namespace Ship_Game.Empires.ShipPools
         {
             EmpireForcePool.ClearAndDispose();
             ForcePool.ClearAndDispose();
-            OwnedProjectors.ClearAndDispose();
-            OwnedShips.ClearAndDispose();
         }
-
     }
 }

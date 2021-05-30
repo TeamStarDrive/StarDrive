@@ -800,7 +800,7 @@ namespace Ship_Game
 
             if (shipName.NotEmpty())
             {
-                pirateShip = Ship.ImmediateCreateShipAtPoint(shipName, Owner, where);
+                pirateShip = Ship.CreateShipAtPoint(shipName, Owner, where);
                 if (pirateShip != null)
                     SpawnedShips.Add(pirateShip.guid);
                 else

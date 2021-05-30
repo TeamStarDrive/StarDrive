@@ -104,10 +104,8 @@ namespace Ship_Game
 
         private BatchRemovalCollection<Planet> OwnedPlanets = new BatchRemovalCollection<Planet>();
         private BatchRemovalCollection<SolarSystem> OwnedSolarSystems = new BatchRemovalCollection<SolarSystem>();
-        public IReadOnlyList<Ship> OwnedShips => EmpireShipLists.EmpireShips;
-        public IReadOnlyList<Ship> OwnedProjectors => EmpireShipLists.EmpireProjectors;
-        //private BatchRemovalCollection<Ship> OwnedProjectors = new BatchRemovalCollection<Ship>();
-        //private BatchRemovalCollection<Ship> OwnedShips = new BatchRemovalCollection<Ship>();
+        public IReadOnlyList<Ship> OwnedShips => EmpireShips.OwnedShips;
+        public IReadOnlyList<Ship> OwnedProjectors => EmpireShips.OwnedProjectors;
         public BatchRemovalCollection<Ship> KnownShips = new BatchRemovalCollection<Ship>();
         public BatchRemovalCollection<InfluenceNode> BorderNodes = new BatchRemovalCollection<InfluenceNode>();
         public BatchRemovalCollection<InfluenceNode> SensorNodes = new BatchRemovalCollection<InfluenceNode>();
@@ -185,7 +183,8 @@ namespace Ship_Game
         public bool CanBuildShipyards;
         public float CurrentMilitaryStrength;
         public float OffensiveStrength; // No Orbitals
-        public ShipPool EmpireShipLists;
+        public ShipPool AIManagedShips;
+        public LoyaltyLists EmpireShips;
         public float CurrentTroopStrength { get; private set; }
         public Color ThrustColor0;
         public Color ThrustColor1;
@@ -248,14 +247,15 @@ namespace Ship_Game
         public void AddShipToManagedPools(Ship s)
         {
             s.AI.ClearOrdersAndWayPoints(AIState.AwaitingOrders, false);
-            EmpireShipLists.AddToEmpireForcePoolNextFame(s);
+            AIManagedShips.AddToEmpireForcePoolNextFame(s);
         }
         
         public Empire()
         {
             UI = new EmpireUI(this);
             Research = new EmpireResearch(this);
-            EmpireShipLists = new ShipPool(this);
+            AIManagedShips = new ShipPool(this);
+            EmpireShips = new LoyaltyLists(this);
         }
 
         public Empire(Empire parentEmpire) : this()
@@ -747,7 +747,7 @@ namespace Ship_Game
             {
                 s.ChangeLoyalty(rebels, false);
             }
-            EmpireShipLists.CleanOut();
+            AIManagedShips.CleanOut();
             data.AgentList.Clear();
         }
 
@@ -777,7 +777,7 @@ namespace Ship_Game
             EmpireAI.Goals.Clear();
             EmpireAI.EndAllTasks();
             foreach (var kv in FleetsDict) kv.Value.Reset();
-            EmpireShipLists.CleanOut();
+            AIManagedShips.CleanOut();
             data.AgentList.Clear();
         }
 
@@ -982,7 +982,7 @@ namespace Ship_Game
         public Ship[] AllFleetReadyShips()
         {
             //Get all available ships from AO's
-            var ships = isPlayer ? new Array<Ship>(OwnedShips) : EmpireShipLists.GetShipsFromOffensePools();
+            var ships = isPlayer ? new Array<Ship>(OwnedShips) : AIManagedShips.GetShipsFromOffensePools();
 
             var readyShips = new Array<Ship>();
             for (int i = 0; i < ships.Count; i++)
@@ -1015,7 +1015,7 @@ namespace Ship_Game
 
         public IReadOnlyList<Ship> GetProjectors() => OwnedProjectors;
 
-        public void AddShip(Ship s) => EmpireShipLists.AddShipToEmpire(s);
+        public void AddShip(Ship s) => AIManagedShips.AddShipToEmpire(s);
         
         void InitDifficultyModifiers()
         {
@@ -3098,7 +3098,7 @@ namespace Ship_Game
                 ship.ChangeLoyalty(this, addNotification);
             }
 
-            target.EmpireShipLists.CleanOut();
+            target.AIManagedShips.CleanOut();
             AssimilateTech(target);
             foreach (TechEntry techEntry in target.TechEntries)
             {
@@ -3394,8 +3394,8 @@ namespace Ship_Game
 
         public bool RemoveShip(Ship ship)
         {
-            // Null check is for Ship dispose, where Empire may be already Disposed
-            return EmpireShipLists?.RemoveShipFromEmpire(ship) ?? false;
+            EmpireShips?.Remove(ship);
+            return AIManagedShips?.RemoveShipFromEmpire(ship) ?? false;
         }
         public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
         {
@@ -3686,7 +3686,8 @@ namespace Ship_Game
             data.AgentList.Clear();
             data.MoleList.Clear();
 
-            EmpireShipLists?.Dispose(ref EmpireShipLists);
+            AIManagedShips?.Dispose(ref AIManagedShips);
+            EmpireShips?.Dispose(ref EmpireShips);
             BorderNodes?.Dispose(ref BorderNodes);
             SensorNodes?.Dispose(ref SensorNodes);
             KnownShips?.Dispose(ref KnownShips);
