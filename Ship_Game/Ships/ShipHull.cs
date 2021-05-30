@@ -18,6 +18,7 @@ namespace Ship_Game.Ships
         public string HullName; // ID of the hull, ex: "Cordrazine/Dodaving"
         public string ModName; // null if vanilla, else mod name eg "Combined Arms"
         public string Style; // "Terran"
+        public string Description; // "With the advent of more powerful StarDrives, this giant cruiser hull was ..."
         public Point Size;
         public int Area;
         public string IconPath; // "ShipIcons/shuttle"
@@ -97,6 +98,7 @@ namespace Ship_Game.Ships
                         case "HullName":   HullName = val; break;
                         case "Role":       Enum.TryParse(val, out Role); break;
                         case "ModName":    ModName = val; break;
+                        case "Description":Description = val; break;
                         case "Style":      Style = val; break;
                         case "Size":       Size = PointSerializer.FromString(val); break;
                         case "IconPath":   IconPath = val; break;
@@ -148,6 +150,7 @@ namespace Ship_Game.Ships
             sw.Write("Role", Role);
             sw.Write("ModName", ModName);
             sw.Write("Style", Style);
+            sw.Write("Description", Description);
             sw.Write("Size", Size.X+","+Size.Y);
             sw.Write("IconPath", IconPath);
             sw.Write("ModelPath", ModelPath);
