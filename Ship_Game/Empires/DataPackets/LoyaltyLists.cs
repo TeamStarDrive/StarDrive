@@ -8,11 +8,11 @@ namespace Ship_Game.Empires.DataPackets
     public class LoyaltyLists : IDisposable
     {
         // These are the actual ships arrays, it's safe to add/remove at any time
-        SafeArray<Ship> ActualOwnedShips = new SafeArray<Ship>();
+        SafeArray<Ship> ActualOwnedShips      = new SafeArray<Ship>();
         SafeArray<Ship> ActualOwnedProjectors = new SafeArray<Ship>();
         readonly Empire Owner;
         bool ShipListChanged;
-        bool ProjectListChanged;
+        bool ProjecterListChanged;
 
         public Ship[] OwnedShips      = new Ship[] { };
         public Ship[] OwnedProjectors = new Ship[] { };
@@ -26,7 +26,7 @@ namespace Ship_Game.Empires.DataPackets
         {
             if (ship.IsSubspaceProjector)
             {
-                ProjectListChanged = true;
+                ProjecterListChanged = true;
                 ActualOwnedProjectors.Add(ship);
             }
             else
@@ -40,7 +40,7 @@ namespace Ship_Game.Empires.DataPackets
         {
             if (ship.IsSubspaceProjector)
             {
-                ProjectListChanged = true;
+                ProjecterListChanged = true;
                 ActualOwnedProjectors.Remove(ship);
             }
             else
@@ -52,13 +52,13 @@ namespace Ship_Game.Empires.DataPackets
 
         public void UpdatePublicLists()
         {
-            if (ProjectListChanged)
+            if (ProjecterListChanged)
                 OwnedProjectors = ActualOwnedProjectors.ToArray();
             if (ShipListChanged)
                 OwnedShips = ActualOwnedShips.ToArray();
             
-            ProjectListChanged = false;
-            ShipListChanged    = false;
+            ProjecterListChanged = false;
+            ShipListChanged      = false;
         }
 
         void IDisposable.Dispose()
