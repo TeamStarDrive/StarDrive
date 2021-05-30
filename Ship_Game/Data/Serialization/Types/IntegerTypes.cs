@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
