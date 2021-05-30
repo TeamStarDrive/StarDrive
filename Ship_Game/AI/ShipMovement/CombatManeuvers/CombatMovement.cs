@@ -166,6 +166,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         void ExecuteAntiChaseDisengage(FixedSimTime timeStep)
         {
             float angle = RandomMath.AvgRandomBetween(1f, 3f);
+
             switch(DisengageType)
             {
                 case DisengageTypes.Left:  DisengageDirection = (DirectionToTarget.LeftVector() / angle).Normalized(); break;
@@ -242,10 +243,12 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             }
             else
             {
-                float rng = RandomMath.RollDie(100);
-                rng = OwnerTarget.AI.Target == Owner ? rng - 30 : rng;
+                Vector2 positionOffset = Owner.Center - OwnerTarget.Center;
+                Vector2 rightward = OwnerTarget.Direction.RightVector();
 
-                disengage = rng > 50 ? DisengageTypes.Left : DisengageTypes.Right;
+                float targetFacingToOwner = positionOffset.Dot(rightward);
+
+                disengage = targetFacingToOwner > 0 ? DisengageTypes.Left : DisengageTypes.Right;
             }
             return disengage;
         }
