@@ -1725,14 +1725,14 @@ namespace Ship_Game.Gameplay
 
         public DebugTextBlock DebugWar(Empire us)
         {
+            Color color = EmpireManager.GetEmpireByName(Name).EmpireColor;
             var debug = new DebugTextBlock
             {
                 Header      = $"Relation To: {Them.data.PortraitName}",
-                HeaderColor = EmpireManager.GetEmpireByName(Name).EmpireColor
+                HeaderColor = color,
             };
 
-            Color color = Them.EmpireColor;
-            debug.AddLine(ActiveWar == null
+           debug.AddLine(ActiveWar == null
                 ? $" ReadyForWar: {us.GetEmpireAI().ShouldGoToWar(this)}"
                 : " At War", color);
 

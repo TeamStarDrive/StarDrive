@@ -917,7 +917,7 @@ namespace Ship_Game
         {
             GetRelations(attacker).LostAColony(planet, attacker);
             RemovePlanet(planet);
-            UpdateWarRallyPlanetsLostPlanet(planet, attacker);
+            //UpdateWarRallyPlanetsLostPlanet(planet, attacker);
         }
 
         public void RemovePlanet(Planet planet)
@@ -939,7 +939,7 @@ namespace Ship_Game
         {
             GetRelations(loser).WonAColony(planet, loser);
             AddPlanet(planet);
-            UpdateWarRallyPlanetsWonPlanet(planet, loser);
+            // UpdateWarRallyPlanetsWonPlanet(planet, loser);
         }
 
         public void AddPlanet(Planet planet)

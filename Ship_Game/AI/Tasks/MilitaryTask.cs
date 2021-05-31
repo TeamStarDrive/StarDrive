@@ -14,7 +14,7 @@ namespace Ship_Game.AI.Tasks
     public partial class MilitaryTask
     {
         [Serialize(0)] public bool IsCoreFleetTask;
-        [Serialize(1)] public Array<Guid> HeldGoals = new Array<Guid>();
+        [Serialize(1)] public Guid GoalGuid;
         [Serialize(2)] public int Step;
         [Serialize(3)] public Guid TargetPlanetGuid = Guid.Empty;
         [Serialize(4)] public TaskType type;
@@ -45,6 +45,7 @@ namespace Ship_Game.AI.Tasks
         [XmlIgnore] [JsonIgnore] public Fleet Fleet => Owner?.GetFleetOrNull(WhichFleet);
         [XmlIgnore] [JsonIgnore] public Planet RallyPlanet => GetRallyPlanet();
         [XmlIgnore] [JsonIgnore] public AO RallyAO;
+        [XmlIgnore] [JsonIgnore] public Goal Goal;
 
         [XmlIgnore] [JsonIgnore] public Empire TargetEmpire
         {
@@ -305,8 +306,6 @@ namespace Ship_Game.AI.Tasks
                 return;
             }
 
-            ClearHoldOnGoal();
-
             if (WhichFleet == -1 || Fleet == null)
             {
                 foreach (var ship in TaskForce)
@@ -385,20 +384,6 @@ namespace Ship_Game.AI.Tasks
             TaskForce.Clear();
         }
 
-        private void ClearHoldOnGoal()
-        {
-            for (int i = 0; i < HeldGoals.Count; i++)
-            {
-                Guid goalGuid = HeldGoals[i];
-                var gs = Owner.GetEmpireAI().Goals;
-                for (int x = 0; x < gs.Count; x++)
-                {
-                    Goal g = gs[x];
-                    if (g.guid == goalGuid) g.Held = false;
-                }
-            }
-        }
-
         bool RoomForMoreFleets()
         {
             float divisor = 0;
@@ -412,33 +397,6 @@ namespace Ship_Game.AI.Tasks
             float fleets = Owner.EmpireShipLists.InitialReadyFleets.LowerBound(1);
             float usedFleets = fleets - availableFleets;
             return  fleets / divisor > usedFleets;
-        }
-
-        public void EndTaskWithMove()
-        {
-            Owner.GetEmpireAI().QueueForRemoval(this);
-
-            ClearHoldOnGoal();
-
-
-            if (WhichFleet != -1)
-            {
-                if (IsCoreFleetTask)
-                {
-                    AO closestAo = Owner.GetEmpireAI().AreasOfOperations.FindMin(ao => AO.SqDist(ao.Center));
-                    Fleet?.ClearFleetTask();
-                    Fleet?.MoveToDirectly(closestAo.Center, Vectors.Up);
-                }
-                else
-                {
-                    foreach (var ship in Fleet.Ships)
-                        Owner.AddShipToManagedPools(ship);
-
-                    TaskForce.Clear();
-                    Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
-                    Fleet?.Reset();
-                }
-            }
         }
 
         public void Evaluate(Empire e)
@@ -911,15 +869,12 @@ namespace Ship_Game.AI.Tasks
             if (ship != null)
                 SetTargetShip(ship);
 
-            foreach (Guid guid in HeldGoals)
+            foreach (Goal g in e.GetEmpireAI().Goals)
             {
-                foreach (Goal g in e.GetEmpireAI().Goals)
+                if (g.guid == GoalGuid)
                 {
-                    if (g.guid == guid)
-                    {
-                        g.Held = true;
-                        break;
-                    }
+                    Goal = g;
+                    break;
                 }
             }
 
@@ -933,10 +888,10 @@ namespace Ship_Game.AI.Tasks
 
         public void DebugDraw(ref DebugTextBlock debug)
         {
-            Color color  = TargetEmpire?.EmpireColor ?? Owner.EmpireColor;
-            string fleet = Fleet != null ? $"Fleet Step: {Fleet.TaskStep}" : "No Fleet yet";
-            debug.AddLine($"({Priority}) -- {type}", color);
-            debug.AddLine(fleet);
+            Color color   = TargetEmpire?.EmpireColor ?? Owner.EmpireColor;
+            string fleet  = Fleet != null ? $"Fleet Step: {Fleet.TaskStep}" : "No Fleet yet";
+            string target = TargetPlanet?.Name ?? "";
+            debug.AddLine($"({Priority}) -- {type}, {target}, {fleet}", color);
         }
     }
 }

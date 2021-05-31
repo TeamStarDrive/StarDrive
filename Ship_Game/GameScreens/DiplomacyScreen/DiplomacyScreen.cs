@@ -538,13 +538,11 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                         {
                             TheirText = GetDialogueByName("WarDeclared_FeelsBetrayed");
                             Us.GetEmpireAI().DeclareWarOn(Them, WarType.ImperialistWar);
-                            Them.GetEmpireAI().GetWarDeclaredOnUs(Us, WarType.ImperialistWar);
                         }
                         else
                         {
                             TheirText = GetDialogueByName("WarDeclared_Generic");
                             Us.GetEmpireAI().DeclareWarOn(Them, WarType.ImperialistWar);
-                            Them.GetEmpireAI().GetWarDeclaredOnUs(Us, WarType.ImperialistWar);
                         }
                     }
                 }

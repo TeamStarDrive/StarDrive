@@ -363,7 +363,7 @@ namespace Ship_Game.AI
             for (int i = 0; i < prioritizedTasks.Length; i++)
             {
                 MilitaryTask task = prioritizedTasks[i];
-                if (warTasks && (!task.IsWarTask || task.TargetEmpire == enemy))
+                if (warTasks && (!task.IsWarTask || task.TargetEmpire != enemy))
                     continue;
 
                 task.DebugDraw(ref debug);

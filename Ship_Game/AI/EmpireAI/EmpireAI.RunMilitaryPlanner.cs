@@ -29,9 +29,7 @@ namespace Ship_Game.AI
 
             BuildWarShips(offensiveGoals.Count);
             Goals.ApplyPendingRemovals();
-
-            // todo prioritize tasks
-
+            PrioritizeTasks();
             var tasks = TaskList.SortedDescending(t=> t.Priority);
             foreach (MilitaryTask task in tasks)
             {
