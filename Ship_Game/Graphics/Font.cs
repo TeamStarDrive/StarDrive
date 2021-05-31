@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
-using Ship_Game.Data.Yaml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
