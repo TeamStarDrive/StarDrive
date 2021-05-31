@@ -27,7 +27,7 @@ namespace Ship_Game
         Event,
         Scrap
     }
-    public sealed partial class Empire : IDisposable
+    public sealed partial class Empire : IDisposable, IEmpireShipLists
     {
         public bool ThisClassMustNotBeAutoSerializedByDotNet =>
             throw new InvalidOperationException(
@@ -1013,7 +1013,7 @@ namespace Ship_Game
         public IReadOnlyList<Ship> GetProjectors() => OwnedProjectors;
 
         public void AddShipToAIPools(Ship s) => AIManagedShips.Add(s);
-        public void AddNewShipAtEndOfTurn(Ship s) => EmpireShips.Add(s);
+        void IEmpireShipLists.AddNewShipAtEndOfTurn(Ship s) => EmpireShips.Add(s);
         
         void InitDifficultyModifiers()
         {
@@ -3386,7 +3386,7 @@ namespace Ship_Game
 
         public bool RemoveShipFromAIPools(Ship ship) => AIManagedShips?.RemoveShipFromEmpire(ship) ?? false;
 
-        public void RemoveShipAtEndOfTurn(Ship s) => EmpireShips.Remove(s);
+        void IEmpireShipLists.RemoveShipAtEndOfTurn(Ship s) => EmpireShips.Remove(s);
 
         public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
         {

@@ -1,12 +1,14 @@
-﻿namespace Ship_Game.Ships.DataPackets
-{
+﻿using Ship_Game.Empires;
+
+namespace Ship_Game.Ships.DataPackets
+{    
     public class LoyaltyChanges
     {
         Empire BoardedShipNewLoyalty;
         Empire LoyaltyForSpawnedShip;
         Empire AbsorbedShipNewLoyalty;
         bool AddNotification = false;
-        public Empire CurrentEmpire { get; private set; }
+        public IEmpireShipLists CurrentEmpire { get; private set; }
 
         readonly Ship Owner;
 
@@ -77,7 +79,7 @@
             }
 
             CurrentEmpire.AddNewShipAtEndOfTurn(ship);
-            oldLoyalty.RemoveShipAtEndOfTurn(ship);
+            ((IEmpireShipLists) oldLoyalty).RemoveShipAtEndOfTurn(ship);
 
             BoardedShipNewLoyalty = null;
             return true;
