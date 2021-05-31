@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Ship_Game.Data;
+using Ship_Game.Data.Serialization.Types;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.Ships
@@ -86,10 +88,108 @@ namespace Ship_Game.Ships
             sw.FlushToFile(file);
         }
 
+        class DesignParser : IDisposable
+        {
+            public FileInfo File;
+            StreamReader Reader;
+            char[] Buffer;
+
+            public DesignParser(FileInfo file)
+            {
+                File = file;
+                Reader = new StreamReader(file.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Encoding.UTF8);
+                Buffer = new char[4096];
+            }
+            public void Dispose()
+            {
+                Reader.Dispose();
+                Buffer = null;
+                GC.SuppressFinalize(this);
+            }
+            public bool ReadLine(out StringView ln)
+            {
+                while (StringView.ReadLine(Reader, Buffer, out ln))
+                {
+                    if (ln.Length == 0 || ln.Char0 == '#')
+                        continue; // skips empty lines or comments
+                    return true;
+                }
+                return false; // EOF
+            }
+        }
+
         static ShipData ParseDesign(FileInfo file)
         {
+            using (var p = new DesignParser(file))
+            {
+                if (!p.ReadLine(out StringView firstLine) && !firstLine.StartsWith("Version"))
+                    throw new InvalidDataException($"Ship design must start with a Version=? tag! File={file}");
 
-            return null;
+                firstLine.Next('=');
+                int version = firstLine.ToInt();
+                if (version != CurrentVersion)
+                {
+                    if (version == 0)
+                        throw new InvalidDataException($"Ship design version is invalid: {firstLine.Text} File={file}");
+
+                    // TODO: convert from this version to newer version
+                }
+                return new ShipData(p);
+            }
+        }
+
+        ShipData(DesignParser p)
+        {
+            string[] moduleUIDs = null;
+            DesignSlot[] modules = null;
+            int numModules = 0;
+
+            while (p.ReadLine(out StringView line))
+            {
+                if (modules == null || moduleUIDs == null)
+                {
+                    StringView key = line.Next('=');
+                    StringView value = line;
+
+                    if      (key == "Name") Name = value.Text;
+                    else if (key == "Hull") Hull = value.Text;
+                    else if (key == "Role") Enum.TryParse(value.Text, out Role);
+                    else if (key == "Style") ShipStyle = value.Text;
+                    else if (key == "Description") Description = value.Text;
+                    else if (key == "Size") GridInfo.Size = PointSerializer.FromString(value);
+                    else if (key == "DefaultAIState") Enum.TryParse(value.Text, out DefaultAIState);
+                    else if (key == "CombatState") Enum.TryParse(value.Text, out CombatState);
+                    else if (key == "ModuleUIDs")
+                        moduleUIDs = value.Split(';').Select(s => string.Intern(s.Text));
+                    else if (key == "Modules")
+                        modules = new DesignSlot[value.ToInt()];
+                }
+                else
+                {
+                    if (numModules == modules.Length)
+                        throw new InvalidDataException($"Ship design module count is incorrect. File={p.File}");
+
+                    StringView pt = line.Next(';');
+                    StringView index = line.Next(';');
+                    StringView size = line.Next(';');
+                    StringView turretAngle = line.Next(';');
+                    StringView moduleRotation = line.Next(';');
+                    StringView slotOptions = line.Next(';');
+
+                    var slot = new DesignSlot(
+                        PointSerializer.FromString(pt),
+                        moduleUIDs[index.ToInt()],
+                        size.IsEmpty ? new Point(1,1) : PointSerializer.FromString(size),
+                        turretAngle.IsEmpty ? 0 : turretAngle.ToInt(),
+                        moduleRotation.IsEmpty ? ModuleOrientation.Normal
+                                               : (ModuleOrientation)moduleRotation.ToInt(),
+                        slotOptions.IsEmpty ? null : slotOptions.Text
+                    );
+
+                    modules[numModules++] = slot;
+                }
+            }
+
         }
     }
 }

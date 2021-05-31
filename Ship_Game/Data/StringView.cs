@@ -9,6 +9,7 @@ namespace Ship_Game.Data
         public int Length;
         public char[] Chars;
 
+        public bool IsEmpty => Length == 0;
         public char Char0 => Chars[Start];
         public string Text => new string(Chars, Start, Length);
         public char this[int index] => Chars[Start + index];
@@ -126,6 +127,26 @@ namespace Ship_Game.Data
             Start = end;
             Length = 0;
             return next;
+        }
+
+        /**
+         * Somewhat inefficient because of the dynamic Array
+         */
+        public Array<StringView> Split(char delimiter)
+        {
+            var strings = new Array<StringView>();
+            StringView view = this;
+            while (view.Length > 0)
+            {
+                strings.Add(view.Next(delimiter));
+            }
+            return strings;
+        }
+
+        public void Trim()
+        {
+            TrimStart();
+            TrimEnd();
         }
 
         public void TrimStart()
