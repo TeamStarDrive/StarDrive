@@ -747,8 +747,8 @@ namespace Ship_Game
             {
                 s.LoyaltyChangeFromBoarding(rebels, false);
             }
-            AIManagedShips.CleanOut();
-            EmpireShips.CleanOut();
+            AIManagedShips.Clear();
+            EmpireShips.Clear();
             data.AgentList.Clear();
         }
 
@@ -773,8 +773,8 @@ namespace Ship_Game
             EmpireAI.Goals.Clear();
             EmpireAI.EndAllTasks();
             foreach (var kv in FleetsDict) kv.Value.Reset();
-            AIManagedShips.CleanOut();
-            EmpireShips.CleanOut();
+            AIManagedShips.Clear();
+            EmpireShips.Clear();
             data.AgentList.Clear();
         }
 
@@ -3096,7 +3096,7 @@ namespace Ship_Game
                 ship.LoyaltyChangeByGift(this);
             }
 
-            target.AIManagedShips.CleanOut();
+            target.AIManagedShips.Clear();
             AssimilateTech(target);
             foreach (TechEntry techEntry in target.TechEntries)
             {
