@@ -25,7 +25,8 @@ namespace Ship_Game.Ships
                                        && AI.State != AIState.Flee
                                        && AI.State != AIState.Refit
                                        && AI.State != AIState.Scrap
-                                       && AI.State != AIState.Scuttle;
+                                       && AI.State != AIState.Scuttle
+                                       && AI.State != AIState.Resupply;
 
         public bool AddTradeRoute(Planet planet)
         {
