@@ -151,13 +151,14 @@ namespace Ship_Game
             }
             AllActiveWars = wars.ToArray();
             AtWarCount = atWarCount;
+            /*
             var theaters = new Array<Theater>();
             foreach (var war in AllActiveWars)
             {
                 if (war.WarTheaters.ActiveTheaters?.Length > 0)
                     theaters.AddRange(war.WarTheaters.ActiveTheaters);
             }
-            AllActiveWarTheaters = theaters.ToArray();
+            AllActiveWarTheaters = theaters.ToArray(); */
         }
 
         void UpdateWarRallyPlanetsWonPlanet(Planet p, Empire enemy)

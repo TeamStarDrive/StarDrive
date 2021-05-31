@@ -954,8 +954,7 @@ namespace Ship_Game.Debug
                         continue;
 
                     NewLine();
-                    string held = g.Held ? "(Held" : "";
-                    DrawString($"{held}{g.UID} {g.ColonizationTarget.Name}" +
+                    DrawString($"{g.UID} {g.ColonizationTarget.Name}" +
                                $" (x{e.GetFleetStrEmpireMultiplier(g.TargetEmpire).String(1)})");
 
                     DrawString(15f, $"Step: {g.StepName}");

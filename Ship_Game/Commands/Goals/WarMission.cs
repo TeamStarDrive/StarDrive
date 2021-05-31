@@ -13,16 +13,17 @@ namespace Ship_Game.Commands.Goals
         {
             Steps = new Func<GoalStep>[]
             {
-                CreateTasks,
+                CreateTask,
                 Process
             };
         }
 
         public WarMission(Empire owner, Empire enemy, Planet targetPlanet) : this()
         {
-            empire       = owner;
-            TargetEmpire = enemy;
-            TargetPlanet = targetPlanet;
+            empire        = owner;
+            TargetEmpire  = enemy;
+            TargetPlanet  = targetPlanet;
+            StarDateAdded = Empire.Universe.StarDate;
             Evaluate();
             Log.Info(ConsoleColor.Green, $"---- WarMission: New {empire.Name} Vs.: {TargetEmpire.Name} ----");
         }
@@ -31,36 +32,43 @@ namespace Ship_Game.Commands.Goals
 
         public override bool IsWarMission => true;
 
-        GoalStep CreateTasks()
+        bool TryGetTask(out MilitaryTask task)
         {
-            empire.CreateWarTask(TargetPlanet, TargetEmpire);
+            task      = null;
+            var tasks = empire.GetEmpireAI().GetTasks().Filter(t => t.Goal == this);
+            if (tasks.Length > 0)
+            {
+                if (tasks.Length > 1)
+                    Log.Warning($"Found multiple tasks for WarMission Goal. Owner: {empire.Name}, Target Empire: {TargetEmpire.Name}");
+
+                task = tasks[0];
+            }
+
+            return tasks.Length > 0;
+        }
+
+        GoalStep CreateTask()
+        {
+            empire.CreateWarTask(TargetPlanet, TargetEmpire, this);
             return GoalStep.GoToNextStep;
         }
 
         GoalStep Process()
         {
+            if (!TryGetTask(out MilitaryTask task))
+                return GoalStep.GoalFailed;
+
             if (!TargetPlanet.Owner?.IsAtWarWith(empire) == true)
                 return GoalStep.GoalComplete;
 
-            if (LifeTime > 1) // check for timeout
+            // Update task targets since some of them can be dynamic
+            TargetPlanet = task.TargetPlanet;
+            TargetEmpire = task.TargetEmpire;
+
+            if (LifeTime > 1 && task.Fleet == null) // check for timeout
             {
-                var tasks = empire.GetEmpireAI().GetTasks().Filter(t => t.TargetEmpire == TargetEmpire && t.TargetPlanet == TargetPlanet);
-
-                bool shouldRemoveTasks = !tasks.Any(t => t.Fleet != null);
-                foreach (MilitaryTask task in tasks.Filter(t => !t.QueuedForRemoval))
-                {
-                    if (shouldRemoveTasks)
-                    {
-                        task.EndTask();
-                        Log.Info(ConsoleColor.Green, $"---- WarMission: Timed out {task.type} vs. {TargetEmpire.Name} ----");
-                    }
-                    else // update task targets since some of them can be dynamic
-                    {
-                        TargetPlanet = task.TargetPlanet;
-                        TargetEmpire = task.TargetEmpire;
-                    }
-                }
-
+                task.EndTask();
+                Log.Info(ConsoleColor.Green, $"---- WarMission: Timed out {task.type} vs. {TargetEmpire.Name} ----");
                 return GoalStep.GoalFailed;
             }
 
