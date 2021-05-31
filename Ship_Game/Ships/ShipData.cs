@@ -29,6 +29,7 @@ namespace Ship_Game.Ships
         public string Hull; // ID of the hull, ex: "Cordrazine/Dodaving"
         public string ModName; // null if vanilla, else mod name eg "Combined Arms"
         public string ShipStyle; // "Terran"
+        public string Description; // "Early Rocket fighter, great against unshielded foes, but die easily"
         public string IconPath; // "ShipIcons/shuttle"
         public string ModelPath; // "Model/Ships/Terran/Shuttle/ship08"
         
@@ -243,7 +244,7 @@ namespace Ship_Game.Ships
         {
             try
             {
-                if (UseNewShipDataLoaders && !isHullDefinition)
+                if (UseNewShipDataLoaders && !isHullDefinition && info.Extension == "design")
                     return ParseDesign(info);
                 return ParseXML(info, isHullDefinition);
             }
