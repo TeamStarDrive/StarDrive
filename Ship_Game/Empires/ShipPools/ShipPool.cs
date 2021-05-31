@@ -297,7 +297,7 @@ namespace Ship_Game.Empires.ShipPools
             return removed;
         }
         
-        public void CleanOut()
+        public void Clear()
         {
             ForcePool.ClearOut();
             EmpireForcePool      = new Array<Ship>();
