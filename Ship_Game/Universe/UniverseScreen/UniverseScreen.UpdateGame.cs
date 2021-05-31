@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
+using Ship_Game.Empires;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using System;
@@ -338,7 +339,7 @@ namespace Ship_Game
                 var sspInSameSpot = ourSSPs.Filter(s => s.Center.AlmostEqual(center, 1));
                 if (sspInSameSpot.Length > 1)
                 {
-                    empire.RemoveShipAtEndOfTurn(projector);
+                    ((IEmpireShipLists)empire).RemoveShipAtEndOfTurn(projector);
                     projector.QueueTotalRemoval();
                     Log.Warning($"Removed Duplicate SSP for {empire.Name} - Center {center}");
                 }

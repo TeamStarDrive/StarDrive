@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Empires;
 
 namespace Ship_Game.Ships
 {
@@ -89,7 +90,7 @@ namespace Ship_Game.Ships
         public Ship Mothership;
         public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
         public float PackDamageModifier { get; private set; }
-        public Empire loyalty => LoyaltyTracker.CurrentEmpire;
+        public Empire loyalty => (Empire)LoyaltyTracker.CurrentEmpire;
         public LoyaltyChanges LoyaltyTracker { get; private set; }
         public void LoyaltyChangeFromBoarding(Empire empire, bool addNotification = true) => LoyaltyTracker.SetBoardingLoyalty(empire, addNotification);
         public void LoyaltyChangeByGift(Empire empire) => LoyaltyTracker.SetLoyaltyForAbsorbedShip(empire);
@@ -1595,7 +1596,7 @@ namespace Ship_Game.Ships
             RepairBeams.Clear();
             PlanetCrash = null;
 
-            loyalty.RemoveShipAtEndOfTurn(this);
+            ((IEmpireShipLists)loyalty).RemoveShipAtEndOfTurn(this);
             RemoveTether();
             RemoveSceneObject();
             base.RemoveFromUniverseUnsafe();
