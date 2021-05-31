@@ -11,7 +11,7 @@ using System.Linq;
 using Ship_Game.AI.ExpansionAI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Empires;
-using Ship_Game.Empires.DataPackets;
+using Ship_Game.Empires.Components;
 using Ship_Game.Empires.ShipPools;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Fleets;
@@ -2991,13 +2991,13 @@ namespace Ship_Game
                                                               ship.BaseHull.IconPath, "SnapToShip", ship, null);
         }
 
-        public void AddBoardedNotification(Ship ship)
+        public void AddBoardedNotification(Ship ship, Empire boarder)
         {
             if (!isPlayer) 
                 return;
 
-            string message = $"{Localizer.Token(GameText.YourShipWasCaptured)} {ship.loyalty.Name}!";
-            Universe.NotificationManager?.AddBoardNotification(message, ship.BaseHull.IconPath, "SnapToShip", ship, ship.loyalty);
+            string message = $"{Localizer.Token(GameText.YourShipWasCaptured)} {this.Name}!";
+            Universe.NotificationManager?.AddBoardNotification(message, ship.BaseHull.IconPath, "SnapToShip", ship, boarder);
         }
 
         public void AddMutinyNotification(Ship ship, GameText text, Empire initiator)
@@ -3096,7 +3096,7 @@ namespace Ship_Game
                 ship.LoyaltyChangeByGift(this);
             }
 
-            target.AIManagedShips.CleanOut();            
+            target.AIManagedShips.CleanOut();
             AssimilateTech(target);
             foreach (TechEntry techEntry in target.TechEntries)
             {
@@ -3139,7 +3139,7 @@ namespace Ship_Game
             {
                 EmpireAI.EndAllTasks();
                 EmpireAI.DefensiveCoordinator.DefensiveForcePool.Clear();
-                EmpireAI.DefensiveCoordinator.DefenseDict.Clear();               
+                EmpireAI.DefensiveCoordinator.DefenseDict.Clear();
             }
 
             foreach (Agent agent in target.data.AgentList)

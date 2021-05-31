@@ -8,7 +8,8 @@ namespace Ship_Game.Ships.DataPackets
         Empire LoyaltyForSpawnedShip;
         Empire AbsorbedShipNewLoyalty;
         bool AddNotification = false;
-        public IEmpireShipLists CurrentEmpire { get; private set; }
+        IEmpireShipLists CurrentEmpire;
+        public Empire ShipOwner { get; private set; }
 
         readonly Ship Owner;
 
@@ -17,6 +18,7 @@ namespace Ship_Game.Ships.DataPackets
             Owner = ship;
             LoyaltyForSpawnedShip = empire;
             CurrentEmpire = empire;
+            ShipOwner = empire;
         }        
 
         public void SetBoardingLoyalty(Empire empire, bool addNotification = true)
@@ -26,8 +28,13 @@ namespace Ship_Game.Ships.DataPackets
         }
 
         public void SetLoyaltyForNewShip(Empire empire) => LoyaltyForSpawnedShip = empire;
-        public void SetLoyaltyForAbsorbedShip(Empire empire) => AbsorbedShipNewLoyalty = empire;
+        public void SetLoyaltyForAbsorbedShip(Empire empire) => AbsorbedShipNewLoyalty = empire;        
 
+        void SetCurrentLoyalty(Empire empire)
+        {
+            CurrentEmpire = empire;
+            ShipOwner     = empire;
+        }
         public bool ApplyAnyLoyaltyChanges(bool addNotification = true)
         {
             bool loyaltyChanged = false;
@@ -39,7 +46,7 @@ namespace Ship_Game.Ships.DataPackets
             }
             if (LoyaltyForSpawnedShip != null)
             {
-                CurrentEmpire = LoyaltyForSpawnedShip;
+                SetCurrentLoyalty(LoyaltyForSpawnedShip);
                 CurrentEmpire.AddNewShipAtEndOfTurn(Owner);
                 LoyaltyForSpawnedShip = null;
                 loyaltyChanged = true;
@@ -63,7 +70,7 @@ namespace Ship_Game.Ships.DataPackets
             ship.fleet?.RemoveShip(ship, false);
             ship.AI.ClearOrders();
 
-            CurrentEmpire = BoardedShipNewLoyalty;
+            SetCurrentLoyalty(BoardedShipNewLoyalty);
             oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);
             ship.shipStatusChanged = true;
             ship.SwitchTroopLoyalty(oldLoyalty, ship.loyalty);
@@ -75,7 +82,7 @@ namespace Ship_Game.Ships.DataPackets
             if (notification)
             {
                 BoardedShipNewLoyalty.AddBoardSuccessNotification(ship);
-                oldLoyalty.AddBoardedNotification(ship);
+                oldLoyalty.AddBoardedNotification(ship,BoardedShipNewLoyalty);
             }
 
             CurrentEmpire.AddNewShipAtEndOfTurn(ship);
@@ -93,18 +100,18 @@ namespace Ship_Game.Ships.DataPackets
             ship.fleet?.RemoveShip(ship, false);
             ship.AI.ClearOrders();
 
-            CurrentEmpire = AbsorbedShipNewLoyalty;
+            SetCurrentLoyalty(AbsorbedShipNewLoyalty);
             ship.shipStatusChanged = true;
             ship.SwitchTroopLoyalty(oldLoyalty, ship.loyalty);
             ship.ScuttleTimer = -1f; // Cancel any active self destruct 
             ship.PiratePostChangeLoyalty();
             ship.IsGuardian = AbsorbedShipNewLoyalty.WeAreRemnants;
 
-            // task change to absorbed ship notification
+            // TODO: change to absorbed ship notification
             if (notification)
             {
                 BoardedShipNewLoyalty.AddBoardSuccessNotification(ship);
-                oldLoyalty.AddBoardedNotification(ship);
+                oldLoyalty.AddBoardedNotification(ship, BoardedShipNewLoyalty);
             }
 
             CurrentEmpire.AddNewShipAtEndOfTurn(ship);

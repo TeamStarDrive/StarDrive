@@ -129,7 +129,7 @@ namespace Ship_Game
 
                 // this should make spawning ships while paused added to the empire correctly. 
                 // and correctly update lists when removing and creating fleets while paused. 
-
+                EndOfTurnUpdate(FixedSimTime.Zero/*paused*/);
 
                 Objects.Update(FixedSimTime.Zero/*paused*/);
                 RecomputeFleetButtons(true);
@@ -341,7 +341,7 @@ namespace Ship_Game
                 {
                     ((IEmpireShipLists)empire).RemoveShipAtEndOfTurn(projector);
                     projector.QueueTotalRemoval();
-                    Log.Warning($"Removed Duplicate SSP for {empire.Name} - Center {center}");
+                    Log.Error($"Removed Duplicate SSP for {empire.Name} - Center {center}");
                 }
             }
         }
@@ -446,14 +446,7 @@ namespace Ship_Game
         {
             PostEmpirePerf.Start();
             if (IsActive)
-            {
-                // Items here cant be run in same parallel loop with the others. 
-                foreach(var empire in EmpireManager.Empires)
-                {
-                    // ship lists should be set before any further work with the ship lists is done. 
-                    empire.EmpireShips.UpdatePublicLists();
-                }
-                
+            {                
                 Parallel.For(EmpireManager.Empires.Count, (start, end) =>
                 {
                     for (int i = start; i < end; i++)
