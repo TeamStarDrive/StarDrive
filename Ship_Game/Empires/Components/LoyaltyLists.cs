@@ -28,13 +28,13 @@ namespace Ship_Game.Empires.Components
             {
                 Log.Error($"Attempted to add ship without setting loyalty {ship}");
                 return;
-            } 
+            }
 
             if (ship.IsSubspaceProjector)
             {
                 if (Empire.Universe.DebugWin != null && ActualOwnedProjectors.ContainsRef(ship))
                 {
-                    Log.Error($"Attempted to add an existing projector  {ship}");
+                    Log.Error($"Attempted to add an existing projector {ship}");
                 }
                 else
                 {
@@ -46,7 +46,7 @@ namespace Ship_Game.Empires.Components
             {
                 if (Empire.Universe.DebugWin != null && ActualOwnedShips.ContainsRef(ship))
                 {
-                    Log.Error($"Attempted to add an existing ship");
+                    Log.Error($"Attempted to add an existing ship {ship}");
                 }
                 else
                 {
@@ -83,18 +83,10 @@ namespace Ship_Game.Empires.Components
 
         public void Clear()
         {
-            ActualOwnedProjectors = new SafeArray<Ship>();
-            ActualOwnedShips      = new SafeArray<Ship>();
-            OwnedProjectors       = null;
-            OwnedShips            = null;
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            ActualOwnedProjectors = null;
-            ActualOwnedShips      = null;
-            OwnedProjectors       = null;
-            OwnedShips            = null;
+            ActualOwnedProjectors.Clear();
+            ActualOwnedShips.Clear();
+            OwnedProjectors = Empty<Ship>.Array;
+            OwnedShips      = Empty<Ship>.Array;
         }
     }
 }

@@ -11,7 +11,7 @@ using Ship_Game.Ships;
 namespace UnitTests.AITests.Empire
 {
     using static EmpireAI;
-    
+
     [TestClass]
     public class TestEmpireAI : StarDriveTest
     {
@@ -164,7 +164,7 @@ namespace UnitTests.AITests.Empire
             {
                 // This will peak the "Rocket Inquisitor" ships since it is stronger
                 shipName = Player.GetEmpireAI().GetAShip(build);
-                if (shipName.IsEmpty()) 
+                if (shipName.IsEmpty())
                     break;
 
                 SpawnShip(shipName, Player, Vector2.Zero);
@@ -199,7 +199,7 @@ namespace UnitTests.AITests.Empire
                 int expectedBuildCount = (int)(build.RoleBudget(combatRole) / roleUnitMaint);
 
                 Assert.AreEqual(expectedBuildCount, roleCountWanted);
-                
+
                 float currentMain = build.RoleCurrentMaintenance(combatRole);
 
                 if (currentMain + roleUnitMaint > buildCapacity || build.RoleIsScrapping(combatRole))
@@ -245,7 +245,8 @@ namespace UnitTests.AITests.Empire
         {
             ClearEmpireShips();
             Assert.IsTrue(Player.OwnedShips.Count == 0);
-            
+            IEmpireShipLists playerShips = Player;
+
             string shipName = "Rocket Inquisitor";
 
             // test that ship is added to empire on creation
@@ -254,25 +255,28 @@ namespace UnitTests.AITests.Empire
             Assert.IsTrue(Player.OwnedShips.Count == 1);
 
             // test that removed ship removes the ship from ship list
-            ((IEmpireShipLists)Player).RemoveShipAtEndOfTurn(ship);
+            playerShips.RemoveShipAtEndOfTurn(ship);
             Universe.Objects.UpdateLists(true);
             Assert.IsTrue(Player.OwnedShips.Count == 0);
 
-            // test that a ship added to empire directly is added. 
-            ((IEmpireShipLists)Player).AddNewShipAtEndOfTurn(ship);
+            // test that a ship added to empire directly is added.
+            playerShips.AddNewShipAtEndOfTurn(ship);
             Universe.Objects.UpdateLists(true);
             Assert.IsTrue(Player.OwnedShips.Count == 1);
 
-            // test that a ship cant be added twice            
-            ((IEmpireShipLists)Player).AddNewShipAtEndOfTurn(ship);
+            // test that a ship cant be added twice
+            // debugwin will enable error checking
+            Universe.DebugWin = new Ship_Game.Debug.DebugInfoScreen(null);
+            playerShips.AddNewShipAtEndOfTurn(ship);
             Universe.Objects.UpdateLists(true);
             Assert.IsTrue(Player.OwnedShips.Count == 1);
+            Universe.DebugWin = null;
 
-            // test that removing the same ship twice doesn't fail. 
-            ((IEmpireShipLists)Player).RemoveShipAtEndOfTurn(ship);
+            // test that removing the same ship twice doesn't fail.
+            playerShips.RemoveShipAtEndOfTurn(ship);
             Assert.IsTrue(Player.OwnedShips.Count == 1);
             Universe.Objects.UpdateLists(true);
-            ((IEmpireShipLists)Player).RemoveShipAtEndOfTurn(ship);
+            playerShips.RemoveShipAtEndOfTurn(ship);
             Universe.Objects.UpdateLists(true);
             Assert.IsTrue(Player.OwnedShips.Count == 0);
         }
@@ -283,7 +287,7 @@ namespace UnitTests.AITests.Empire
             ClearEmpireShips();
             Assert.AreEqual(0, Enemy.OwnedShips.Count);
 
-            // we need to rework basic empires. Proper empire updates cannot be done the way they currently are. 
+            // we need to rework basic empires. Proper empire updates cannot be done the way they currently are.
             Enemy.data.IsRebelFaction = false;
 
             // create areas of operation among empires
@@ -302,7 +306,7 @@ namespace UnitTests.AITests.Empire
 
             string shipName = "Rocket Inquisitor";
 
-            // create a base number of ships. 
+            // create a base number of ships.
             for (int x=0;x< 100; ++x)
             {
                 SpawnShip(shipName, Enemy, Vector2.Zero);
@@ -321,7 +325,7 @@ namespace UnitTests.AITests.Empire
 
             int loyaltyChanges = 0;
 
-            // add random number of ships to random empires. 
+            // add random number of ships to random empires.
             int first = 0, last = 10;
             {
                 for (int i = first; i < last; ++i)
@@ -338,11 +342,8 @@ namespace UnitTests.AITests.Empire
                                 float random = RandomMath.AvgRandomBetween(1, 100);
                                 if (random > 80)
                                 {
-                                    if (s.loyalty.AIManagedShips.ImmediateRemoveShipFromEmpire(s))
-                                    {
-                                        shipsRemoved++;
-                                    }
-
+                                    s.Active = false;
+                                    shipsRemoved++;
                                 }
                                 else if (random > 60)
                                 {
@@ -351,7 +352,7 @@ namespace UnitTests.AITests.Empire
                                     loyaltyChanges++;
                                 }
                             }
-                            
+
                         }
                     }
 
@@ -387,7 +388,7 @@ namespace UnitTests.AITests.Empire
             numberOfShips -= shipsRemoved;
             Assert.AreEqual(numberOfShips, actualShipCount);
             Log.Info($"loyalty Changes: {loyaltyChanges} Removed Ships: {shipsRemoved} Active Ships: {actualShipCount}");
-           
+
             Enemy.data.IsRebelFaction = true;
         }
 
@@ -422,10 +423,10 @@ namespace UnitTests.AITests.Empire
 
             // test that ships are removed from empire on defeat
             SpawnShip(shipName, Player, Vector2.Zero);
-            Universe.Objects.UpdateLists(true);
+            Universe.Objects.UpdateLists();
             Assert.IsTrue(Player.OwnedShips.Count == 1);
             Player.SetAsDefeated();
-            Universe.Objects.UpdateLists(true);
+            Universe.Objects.UpdateLists();
             Assert.IsTrue(Player.OwnedShips.Count == 0);
         }
 
@@ -437,14 +438,14 @@ namespace UnitTests.AITests.Empire
             string shipName = "Rocket Inquisitor";
 
             SpawnShip(shipName, Enemy, Vector2.Zero);
-            Universe.Objects.UpdateLists(true, false);
+            Universe.Objects.UpdateLists();
             Assert.IsTrue(Enemy.OwnedShips.Count == 1);
             Player.AbsorbEmpire(Enemy, false);
-            Universe.Objects.UpdateLists(true, false);
+            Universe.Objects.UpdateLists();
             // test that ship is added to empire on merge
             Assert.IsTrue(Player.OwnedShips.Count == 1);
             // test that ship is removed from target empire
-            Assert.IsNull(Enemy.OwnedShips);
+            Assert.AreEqual(0, Enemy.OwnedShips.Count);
         }
     }
 }
