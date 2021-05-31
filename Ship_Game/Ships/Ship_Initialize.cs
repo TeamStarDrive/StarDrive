@@ -28,7 +28,7 @@ namespace Ship_Game.Ships
             experience = data.experience;
             shipData   = data;
 
-            LoyaltyTracker = new DataPackets.LoyaltyChanges(this, empire);
+            LoyaltyTracker = new Components.LoyaltyChanges(this, empire);
 
             if (fromSave)
                 data.UpdateBaseHull(); // when loading from save, the basehull data might not be set
@@ -37,8 +37,8 @@ namespace Ship_Game.Ships
                 return;
             
             Stats = new ShipStats(this);
-            KnownByEmpires = new DataPackets.KnownByEmpire(this);
-            HasSeenEmpires = new DataPackets.KnownByEmpire(this);
+            KnownByEmpires = new Components.KnownByEmpire(this);
+            HasSeenEmpires = new Components.KnownByEmpire(this);
 
             InitializeThrusters(data);
             InitializeStatus(fromSave);
@@ -59,14 +59,14 @@ namespace Ship_Game.Ships
             BaseCanWarp  = template.BaseCanWarp;
             shipData     = template.shipData;
 
-            LoyaltyTracker = new DataPackets.LoyaltyChanges(this, owner);
+            LoyaltyTracker = new Components.LoyaltyChanges(this, owner);
             
             if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
                 return; // return and crash again...
             
             Stats = new ShipStats(this);
-            KnownByEmpires = new DataPackets.KnownByEmpire(this);
-            HasSeenEmpires = new DataPackets.KnownByEmpire(this);
+            KnownByEmpires = new Components.KnownByEmpire(this);
+            HasSeenEmpires = new Components.KnownByEmpire(this);
 
             VanityName = ResourceManager.ShipNames.GetName(owner.data.Traits.ShipType, shipData.Role);
             

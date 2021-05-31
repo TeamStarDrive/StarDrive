@@ -1,4 +1,4 @@
-﻿namespace Ship_Game.Ships.DataPackets
+﻿namespace Ship_Game.Ships.Components
 {
     public struct ShipWeight
     {

@@ -1,6 +1,6 @@
 ﻿using Ship_Game.Empires;
 
-namespace Ship_Game.Ships.DataPackets
+namespace Ship_Game.Ships.Components
 {    
     public class LoyaltyChanges
     {
