@@ -250,6 +250,7 @@
     <Compile Include="Ship_Game\Commands\Goals\AssaultBombers.cs" />
     <Compile Include="Ship_Game\Commands\Goals\ScoutSystem.cs" />
     <Compile Include="Ship_Game\Empires\DataPackets\LoyaltyLists.cs" />
+    <Compile Include="Ship_Game\Empires\IEmpireShipLists.cs" />
     <Compile Include="Ship_Game\Ships\DataPackets\LoyaltyChanges.cs" />
     <Compile Include="Ship_Game\Ships\ShipDataWriter.cs" />
     <Compile Include="Ship_Game\Ships\ShipHull.cs" />

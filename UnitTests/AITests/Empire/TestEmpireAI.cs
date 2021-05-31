@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.AI;
+using Ship_Game.Empires;
 using Ship_Game.Ships;
 
 namespace UnitTests.AITests.Empire
@@ -252,25 +253,25 @@ namespace UnitTests.AITests.Empire
             Assert.IsTrue(Player.OwnedShips.Count == 1);
 
             // test that removed ship removes the ship from ship list
-            Player.RemoveShipAtEndOfTurn(ship);
+            ((IEmpireShipLists)Player).RemoveShipAtEndOfTurn(ship);
             Universe.Objects.UpdateLists(true);
             Assert.IsTrue(Player.OwnedShips.Count == 0);
 
             // test that a ship added to empire directly is added. 
-            Player.AddNewShipAtEndOfTurn(ship);
+            ((IEmpireShipLists)Player).AddNewShipAtEndOfTurn(ship);
             Universe.Objects.UpdateLists(true);
             Assert.IsTrue(Player.OwnedShips.Count == 1);
 
             // test that a ship cant be added twice            
-            Player.AddNewShipAtEndOfTurn(ship);
+            ((IEmpireShipLists)Player).AddNewShipAtEndOfTurn(ship);
             Universe.Objects.UpdateLists(true);
             Assert.IsTrue(Player.OwnedShips.Count == 1);
 
             // test that removing the same ship twice doesn't fail. 
-            Player.RemoveShipAtEndOfTurn(ship);
+            ((IEmpireShipLists)Player).RemoveShipAtEndOfTurn(ship);
             Assert.IsTrue(Player.OwnedShips.Count == 1);
             Universe.Objects.UpdateLists(true);
-            Player.RemoveShipAtEndOfTurn(ship);
+            ((IEmpireShipLists)Player).RemoveShipAtEndOfTurn(ship);
             Universe.Objects.UpdateLists(true);
             Assert.IsTrue(Player.OwnedShips.Count == 0);
         }
@@ -413,6 +414,7 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void TestDefeatedEmpireShipRemoval()
         {
+
             ClearEmpireShips();
             Assert.IsTrue(Player.OwnedShips.Count == 0);
             string shipName = "Rocket Inquisitor";
