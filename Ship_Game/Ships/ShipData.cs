@@ -20,7 +20,7 @@ namespace Ship_Game.Ships
     //       However, we will have to support XML for a long time to have backwards compat.
     public sealed partial class ShipData
     {
-        static bool UseNewShipDataLoaders = false;
+        public static bool UseNewShipDataLoaders = false;
         public static bool GenerateNewHullFiles = false; // only need to do this once
         public static bool GenerateNewDesignFiles = false; // only need to do this once
         const int CurrentVersion = 1;
@@ -244,7 +244,7 @@ namespace Ship_Game.Ships
         {
             try
             {
-                if (UseNewShipDataLoaders && !isHullDefinition && info.Extension == "design")
+                if (info.Extension == "design")
                     return ParseDesign(info);
                 return ParseXML(info, isHullDefinition);
             }
