@@ -29,7 +29,7 @@ namespace Ship_Game.Debug.Page
 
         public override bool HandleInput(InputState input)
         {
-            if      (input.ArrowUp) ChangeEmpireId(true);
+            if      (input.ArrowUp)   ChangeEmpireId(true);
             else if (input.ArrowDown) ChangeEmpireId(false);
 
             return base.HandleInput(input);

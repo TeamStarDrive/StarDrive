@@ -69,7 +69,6 @@ namespace Ship_Game.AI
         public Fleet Fleet;
         public Vector2 TetherOffset;
         public Guid TetherTarget;
-        public bool Held;
         Vector2 StaticBuildPosition;
         public string ToBuildUID;
         public string VanityName;

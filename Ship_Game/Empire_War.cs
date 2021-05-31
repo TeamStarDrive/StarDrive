@@ -7,38 +7,34 @@ namespace Ship_Game
 {
     public partial class Empire
     {
-        public bool GetPotentialTargetPlanets(Empire enemy, WarType warType, out Array<Planet> targetPlanets)
+        bool HasWarMissionTargeting(Planet planet)
         {
-            targetPlanets = new Array<Planet>();
+            return EmpireAI.Goals.Any(g => g.IsWarMission && g.TargetPlanet == planet);
+        }
+
+        public bool GetPotentialTargetPlanets(Empire enemy, WarType warType, out Planet[] targetPlanets)
+        {
+            targetPlanets = null;
             switch (warType)
             {
                 case WarType.GenocidalWar:
-                case WarType.ImperialistWar: targetPlanets = enemy.GetPlanets().ToArrayList();          break;
-                case WarType.BorderConflict: targetPlanets = PotentialPlanetTargetsBorderWar(enemy);    break;
-                case WarType.DefensiveWar:   targetPlanets = PotentialPlanetTargetsDefensiveWar(enemy); break;
+                case WarType.ImperialistWar: targetPlanets = enemy.GetPlanets().Filter(p => !HasWarMissionTargeting(p)); break;
+                case WarType.BorderConflict: targetPlanets = PotentialPlanetTargetsBorderWar(enemy);                     break;
+                case WarType.DefensiveWar:   targetPlanets = PotentialPlanetTargetsDefensiveWar(enemy);                  break;
             }
 
-            return targetPlanets.Count > 0;
+            return targetPlanets?.Length > 0;
         }
 
-        Array<Planet> PotentialPlanetTargetsBorderWar(Empire enemy)
+        Planet[] PotentialPlanetTargetsBorderWar(Empire enemy)
         {
-            Array<Planet> targetPlanets = new Array<Planet>();
-            var potentialPlanets = enemy.GetPlanets().Filter(p => p.ParentSystem.HasPlanetsOwnedBy(this));
-            if (potentialPlanets.Length > 0)
-            {
-                var tasks = EmpireAI.GetTasks();
-                foreach (Planet planet in potentialPlanets)
-                {
-                    if (!tasks.Any(t => t.TargetEmpire == enemy && t.TargetPlanet == planet))
-                        targetPlanets.Add(planet);
-                }
-            }
+            var potentialPlanets = enemy.GetPlanets().Filter(p => p.ParentSystem.HasPlanetsOwnedBy(this)
+                                                                  && !HasWarMissionTargeting(p));
 
-            return targetPlanets;
+            return potentialPlanets;
         }
 
-        Array<Planet> PotentialPlanetTargetsDefensiveWar(Empire enemy)
+        Planet[] PotentialPlanetTargetsDefensiveWar(Empire enemy)
         {
             Array<SolarSystem> potentialSystems = new Array<SolarSystem>();
             var theirSystems = enemy.GetOwnedSystems();
@@ -51,15 +47,14 @@ namespace Ship_Game
             Array<Planet> targetPlanets = new Array<Planet>();
             foreach (SolarSystem system in potentialSystems)
             {
-                var potentialPlanets = system.PlanetList.Filter(p => p.Owner == enemy);
+                var potentialPlanets = system.PlanetList.Filter(p => p.Owner == enemy && !HasWarMissionTargeting(p));
                 targetPlanets.AddRange(potentialPlanets);
-
             }
 
-            return targetPlanets;
+            return targetPlanets.ToArray();
         }
 
-        public Planet[] SortPlanetTargets(Array<Planet> targets, WarType warType, Empire enemy)
+        public Planet[] SortPlanetTargets(Planet[] targets, WarType warType, Empire enemy)
         {
             switch (warType)
             {
@@ -71,8 +66,9 @@ namespace Ship_Game
             }
         }
 
-        public void CreateWarTask(Planet targetPlanet, Empire enemy)
+        public void CreateWarTask(Planet targetPlanet, Empire enemy, Goal goal)
         {
+            // todo advanced mission types per personality or prepare for war strategy
             MilitaryTask.TaskType taskType = MilitaryTask.TaskType.StrikeForce;
             if (IsAlreadyStriking())
             {
@@ -89,11 +85,13 @@ namespace Ship_Game
                 }
             }
 
-            MilitaryTask task = (new MilitaryTask(targetPlanet, this)
+            MilitaryTask task = new MilitaryTask(targetPlanet, this)
             {
                 Priority = 5,
-                type = taskType
-            });
+                type     = taskType,
+                GoalGuid = goal.guid,
+                Goal     = goal
+            };
 
             EmpireAI.AddPendingTask(task);
         }
@@ -139,5 +137,10 @@ namespace Ship_Game
         {
             return EmpireAI.Goals.Any(g => g.type == GoalType.DefendSystem);
         }
+    }
+
+    public enum WarMissionType
+    {
+        Standard // todo advanced types
     }
 }
