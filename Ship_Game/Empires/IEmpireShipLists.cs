@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Ship_Game.Empires.DataPackets;
+using Ship_Game.Empires.Components;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Empires

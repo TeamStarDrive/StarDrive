@@ -1,6 +1,6 @@
 ﻿using System;
 using Ship_Game.AI.Tasks;
-using Ship_Game.Empires.DataPackets;
+using Ship_Game.Empires.Components;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
