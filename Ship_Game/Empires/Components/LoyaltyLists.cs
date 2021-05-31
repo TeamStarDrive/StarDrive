@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Ship_Game.Ships;
 using Ship_Game.Utils;
 
-namespace Ship_Game.Empires.DataPackets
+namespace Ship_Game.Empires.Components
 {
-    public class LoyaltyLists : IDisposable
+    public class LoyaltyLists
     {
         // These are the actual ships arrays, it's safe to add/remove at any time
         SafeArray<Ship> ActualOwnedShips      = new SafeArray<Ship>();
@@ -14,8 +14,8 @@ namespace Ship_Game.Empires.DataPackets
         bool ShipListChanged;
         bool ProjecterListChanged;
 
-        public Ship[] OwnedShips      = new Ship[] { };
-        public Ship[] OwnedProjectors = new Ship[] { };
+        public Ship[] OwnedShips { get; private set; } = Empty<Ship>.Array;
+        public Ship[] OwnedProjectors { get; private set; } = Empty<Ship>.Array;
 
         public LoyaltyLists(Empire empire)
         {
@@ -26,7 +26,7 @@ namespace Ship_Game.Empires.DataPackets
         {
             if (ship.loyalty != Owner)
             {
-                Log.Error($"Attempted to add ship without setting loyalty");
+                Log.Error($"Attempted to add ship without setting loyalty {ship}");
                 return;
             } 
 
@@ -34,7 +34,7 @@ namespace Ship_Game.Empires.DataPackets
             {
                 if (Empire.Universe.DebugWin != null && ActualOwnedProjectors.ContainsRef(ship))
                 {
-                    Log.Error($"Attempted to add an existing projector");                 
+                    Log.Error($"Attempted to add an existing projector  {ship}");
                 }
                 else
                 {
@@ -46,7 +46,7 @@ namespace Ship_Game.Empires.DataPackets
             {
                 if (Empire.Universe.DebugWin != null && ActualOwnedShips.ContainsRef(ship))
                 {
-                    Log.Error($"Attempted to add an existing ship");                    
+                    Log.Error($"Attempted to add an existing ship");
                 }
                 else
                 {
@@ -89,15 +89,12 @@ namespace Ship_Game.Empires.DataPackets
             OwnedShips            = null;
         }
 
-        void IDisposable.Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize((object)this);
-        }
-
         protected virtual void Dispose(bool disposing)
         {
-            CleanOut();
+            ActualOwnedProjectors = null;
+            ActualOwnedShips      = null;
+            OwnedProjectors       = null;
+            OwnedShips            = null;
         }
     }
 }

@@ -369,8 +369,7 @@ namespace Ship_Game.Ships
         public void InitializeShip(bool loadingFromSaveGame = false)
         {
             Center = Position;
-            if (LoyaltyTracker == null)
-                LoyaltyTracker = new DataPackets.LoyaltyChanges(this, EmpireManager.Void);
+                
             if (VanityName.IsEmpty())
                 VanityName = Name;
 

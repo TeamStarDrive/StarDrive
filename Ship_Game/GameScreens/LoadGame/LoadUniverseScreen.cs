@@ -221,10 +221,9 @@ namespace Ship_Game
             us.LoadContent();
             CreateAOs(data);
             FinalizeShips(us);
-            us.Objects.UpdateLists(false);
+            us.Objects.UpdateLists(removeInactiveObjects: false);
             foreach(Empire empire in EmpireManager.Empires)
             {
-
                 empire.GetEmpireAI().ThreatMatrix.RestorePinGuidsFromSave();
             }
 

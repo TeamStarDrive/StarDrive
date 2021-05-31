@@ -90,7 +90,7 @@ namespace Ship_Game.Ships
         public Ship Mothership;
         public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
         public float PackDamageModifier { get; private set; }
-        public Empire loyalty => (Empire)LoyaltyTracker.CurrentEmpire;
+        public Empire loyalty => LoyaltyTracker.ShipOwner;
         public LoyaltyChanges LoyaltyTracker { get; private set; }
         public void LoyaltyChangeFromBoarding(Empire empire, bool addNotification = true) => LoyaltyTracker.SetBoardingLoyalty(empire, addNotification);
         public void LoyaltyChangeByGift(Empire empire) => LoyaltyTracker.SetLoyaltyForAbsorbedShip(empire);
