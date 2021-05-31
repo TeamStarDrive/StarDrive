@@ -6,6 +6,7 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Ship_Game.Empires.Components;
 
 namespace Ship_Game
 {

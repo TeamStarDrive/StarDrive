@@ -13,7 +13,7 @@ namespace Ship_Game.Ships
         // Create a ship from a savegame or a template or in shipyard
         // You can also call Ship.CreateShip... functions to spawn ships
         // @param shipyardDesign This is a potentially incomplete design from Shipyard
-        protected Ship(Empire empire, ShipData data, bool fromSave, 
+        protected Ship(Empire empire, ShipData data, bool fromSave,
                        bool isTemplate, bool shipyardDesign = false) : base(GameObjectType.Ship)
         {
             if (!data.IsValidForCurrentMod)
@@ -35,7 +35,7 @@ namespace Ship_Game.Ships
 
             if (!CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate, shipyardDesign))
                 return;
-            
+
             Stats = new ShipStats(this);
             KnownByEmpires = new Components.KnownByEmpire(this);
             HasSeenEmpires = new Components.KnownByEmpire(this);
@@ -60,18 +60,18 @@ namespace Ship_Game.Ships
             shipData     = template.shipData;
 
             LoyaltyTracker = new Components.LoyaltyChanges(this, owner);
-            
+
             if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
                 return; // return and crash again...
-            
+
             Stats = new ShipStats(this);
             KnownByEmpires = new Components.KnownByEmpire(this);
             HasSeenEmpires = new Components.KnownByEmpire(this);
 
             VanityName = ResourceManager.ShipNames.GetName(owner.data.Traits.ShipType, shipData.Role);
-            
+
             InitializeThrusters(template.shipData);
-            InitializeShip();            
+            InitializeShip();
             SetInitialCrewLevel();
 
             Empire.Universe?.Objects.Add(this);
@@ -311,7 +311,7 @@ namespace Ship_Game.Ships
                 ship.SetSpecialRole(ShipData.RoleName.troop, "");
             return ship;
         }
-        
+
         void SetSpecialRole(ShipData.RoleName role, string vanityName)
         {
             DesignRole = role;
@@ -369,7 +369,7 @@ namespace Ship_Game.Ships
         public void InitializeShip(bool loadingFromSaveGame = false)
         {
             Center = Position;
-                
+
             if (VanityName.IsEmpty())
                 VanityName = Name;
 
@@ -386,7 +386,7 @@ namespace Ship_Game.Ships
                 InitializeAI();
             AI.CombatState = shipData.CombatState;
             // End: ship subclass initializations.
-            
+
             RecalculatePower(); // NOTE: Must be before InitializeStatus
 
             // when loading savegames, just do a regular ship status update
@@ -432,7 +432,7 @@ namespace Ship_Game.Ships
             if (!BaseCanWarp && DesignRoleType == ShipData.RoleType.Warship)
                 Log.Warning($"Ship.BaseCanWarp is false: {this}");
         }
-        
+
         public void ShipStatusChange()
         {
             shipStatusChanged = false;
@@ -536,7 +536,6 @@ namespace Ship_Game.Ships
                 if (module.Is(ShipModuleType.Armor))
                     armor_max += module.ActualMaxHealth;
 
-                
                 if (!fromSave)
                     Ordinance += module.OrdinanceCapacity; // WARNING: do not use ChangeOrdnance() here!
 
@@ -553,7 +552,7 @@ namespace Ship_Game.Ships
                 PowerCurrent = PowerStoreMax;
                 InitShieldsPower(Stats.ShieldAmplifyPerShield);
             }
-            
+
             UpdateShields();
 
             Carrier.PrepShipHangars(loyalty);

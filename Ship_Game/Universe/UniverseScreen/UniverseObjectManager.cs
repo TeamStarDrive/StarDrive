@@ -16,7 +16,7 @@ namespace Ship_Game
         /// All objects: ships, projectiles, beams
         /// </summary>
         public readonly Array<GameplayObject> Objects = new Array<GameplayObject>();
-        
+
         /// <summary>
         /// All ships
         /// </summary>
@@ -116,7 +116,7 @@ namespace Ship_Game
                 });
             }
         }
-        
+
         public SavedGame.BeamSaveData[] GetBeamSaveData()
         {
             lock (ProjectilesLocker)
@@ -350,7 +350,7 @@ namespace Ship_Game
         {
             if (Universe.IsExiting)
                 return;
-            
+
             SysPerf.Start();
 
             void UpdateSystems(int start, int end)
@@ -480,7 +480,7 @@ namespace Ship_Game
             SetInFrustum(projs, true);
             SetInFrustum(beams, true);
             SetInFrustum(ships, true);
-            
+
             VisibleProjectiles = projs;
             VisibleBeams = beams;
             VisibleShips = ships;
