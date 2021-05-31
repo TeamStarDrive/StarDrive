@@ -14,7 +14,7 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 FindPlanetToBuildAt,
-                WaitMainGoalCompletion
+                WaitForTroopCompletion
             };
         }
 
@@ -49,7 +49,19 @@ namespace Ship_Game.Commands.Goals
                 PlanetBuildingAt = planet;
                 return GoalStep.GoToNextStep;
             }
+
             return GoalStep.GoalFailed;
+        }
+
+        GoalStep WaitForTroopCompletion()
+        {
+            if (IsMainGoalCompleted)
+                return GoalStep.GoalComplete;
+
+            if (PlanetBuildingAt.Owner != empire || !PlanetBuildingAt.Construction.ContainsTroopWithGoal(this))
+                return GoalStep.GoalFailed;
+
+            return GoalStep.TryAgain;
         }
     }
 }
