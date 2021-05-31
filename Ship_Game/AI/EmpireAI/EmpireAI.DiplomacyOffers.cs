@@ -81,7 +81,7 @@ namespace Ship_Game.AI
                     }
 
                     foreach (Ship orbital in p.OrbitalStations)
-                        orbital.ChangeLoyalty(them, notification: false);
+                        orbital.LoyaltyChangeByGift(them);
 
                     toRemove.Add(p);
                     p.Owner = them;

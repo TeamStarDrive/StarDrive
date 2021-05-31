@@ -280,7 +280,7 @@ namespace Ship_Game
             Ship ship = Ship.CreateShipFromSave(e, shipSave);
             if (ship == null) // happens if module creation failed
                 return;
-            e.EmpireShips.Add(ship);
+            ship.LoyaltyChangeAtSpawn(e);
             data.MasterShipList.Add(ship);
         }
 

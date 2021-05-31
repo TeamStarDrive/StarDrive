@@ -68,12 +68,12 @@ namespace Ship_Game.Debug.Page
             {
                 if (Empire.Universe.SelectedShip != null)
                 {
-                    Empire.Universe.SelectedShip.ChangeLoyalty(Loyalty);
+                    Empire.Universe.SelectedShip.LoyaltyChangeByGift(Loyalty);
                 }
                 else if (Empire.Universe.SelectedShipList.NotEmpty)
                 {
                     foreach (Ship ship in Empire.Universe.SelectedShipList)
-                        ship.ChangeLoyalty(Loyalty);
+                        ship.LoyaltyChangeByGift(Loyalty);
                 }
             };
         }

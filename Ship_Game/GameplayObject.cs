@@ -119,25 +119,6 @@ namespace Ship_Game
             SystemBackBuffer = null;
         }
 
-        public void ChangeLoyalty(Empire changeTo, bool notification = true)
-        {
-            // TODO: Should we allow projectiles to change loyalty? They are short lived anyway
-            if (Type == GameObjectType.Proj)
-            {
-                ((Projectile) this).Loyalty = changeTo;
-            }
-            else if (Type == GameObjectType.Beam)
-            {
-                ((Beam)this).Loyalty = changeTo;
-            }
-            else if (Type == GameObjectType.Ship)
-            {
-                var ship = (Ship) this;
-                ship.LoyaltyTracker.SetBoardingLoyalty(changeTo);
-            }
-            ReinsertSpatial = true;
-        }
-
         public int GetLoyaltyId()
         {
             if (Type == GameObjectType.Proj) return ((Projectile)this).Loyalty?.Id ?? 0;

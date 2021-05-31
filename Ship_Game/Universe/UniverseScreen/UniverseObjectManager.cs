@@ -274,7 +274,7 @@ namespace Ship_Game
         /// This can be called multiple times without serious side effects.
         /// It makes sure cached lists are synced to current universe state
         /// </summary>
-        public void UpdateLists(bool removeInactiveObjects)
+        public void UpdateLists(bool removeInactiveObjects, bool addNotification = true)
         {
             ListTime.Start();
 
@@ -310,7 +310,7 @@ namespace Ship_Game
                         }
                         else
                         {
-                            ship.LoyaltyTracker.ApplyAnyLoyaltyChanges();
+                            ship.LoyaltyTracker.ApplyAnyLoyaltyChanges(addNotification);
                         }
                     }
                     Ships.RemoveInActiveObjects();
