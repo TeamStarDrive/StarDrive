@@ -1,7 +1,8 @@
 ﻿using Ship_Game.Empires;
+using Ship_Game.Empires.Components;
 
 namespace Ship_Game.Ships.Components
-{    
+{
     public class LoyaltyChanges
     {
         Empire BoardedShipNewLoyalty;
@@ -19,16 +20,16 @@ namespace Ship_Game.Ships.Components
             LoyaltyForSpawnedShip = empire;
             CurrentEmpire = empire;
             ShipOwner = empire;
-        }        
+        }
 
         public void SetBoardingLoyalty(Empire empire, bool addNotification = true)
-        { 
+        {
             BoardedShipNewLoyalty = empire;
             AddNotification       = addNotification;
         }
 
         public void SetLoyaltyForNewShip(Empire empire) => LoyaltyForSpawnedShip = empire;
-        public void SetLoyaltyForAbsorbedShip(Empire empire) => AbsorbedShipNewLoyalty = empire;        
+        public void SetLoyaltyForAbsorbedShip(Empire empire) => AbsorbedShipNewLoyalty = empire;
 
         void SetCurrentLoyalty(Empire empire)
         {
@@ -75,7 +76,7 @@ namespace Ship_Game.Ships.Components
             ship.shipStatusChanged = true;
             ship.SwitchTroopLoyalty(oldLoyalty, ship.loyalty);
             ship.ReCalculateTroopsAfterBoard();
-            ship.ScuttleTimer = -1f; // Cancel any active self destruct 
+            ship.ScuttleTimer = -1f; // Cancel any active self destruct
             ship.PiratePostChangeLoyalty();
             ship.IsGuardian = BoardedShipNewLoyalty.WeAreRemnants;
 
@@ -103,7 +104,7 @@ namespace Ship_Game.Ships.Components
             SetCurrentLoyalty(AbsorbedShipNewLoyalty);
             ship.shipStatusChanged = true;
             ship.SwitchTroopLoyalty(oldLoyalty, ship.loyalty);
-            ship.ScuttleTimer = -1f; // Cancel any active self destruct 
+            ship.ScuttleTimer = -1f; // Cancel any active self destruct
             ship.PiratePostChangeLoyalty();
             ship.IsGuardian = AbsorbedShipNewLoyalty.WeAreRemnants;
 

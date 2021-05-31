@@ -107,7 +107,7 @@ namespace Ship_Game
         {
             System = system;
         }
-        
+
         public void SetSystemBackBuffer(SolarSystem system)
         {
             SystemBackBuffer = system;

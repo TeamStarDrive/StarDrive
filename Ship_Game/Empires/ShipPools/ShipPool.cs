@@ -13,10 +13,10 @@ namespace Ship_Game.Empires.ShipPools
         object ChangeLocker = new object();
 
         EmpireAI OwnerAI => Owner.GetEmpireAI();
-        
+
         /// <summary>
         /// This is for adding to the Empire AI pool management.
-        /// Player and other ships that can't be added to empireAI pool management will be safely ignored. 
+        /// Player and other ships that can't be added to empireAI pool management will be safely ignored.
         /// </summary>
         public void AddToEmpireForcePoolNextFame(Ship s)
         {
@@ -105,17 +105,17 @@ namespace Ship_Game.Empires.ShipPools
             return ships;
         }
 
-        void ErrorCheckPools() 
+        void ErrorCheckPools()
         {
             if (Owner.isPlayer || Owner.isFaction) return;
             var allShips = Owner.OwnedShips;
-            
+
             for (int i = 0; i < allShips.Count; i++)
             {
                 var ship = allShips[i];
-                if (!ship.Active 
-                    || ship.fleet != null 
-                    || ship.IsHangarShip 
+                if (!ship.Active
+                    || ship.fleet != null
+                    || ship.IsHangarShip
                     || ship.IsHomeDefense
                     || ship.AI.HasPriorityOrder)
                 {
@@ -188,7 +188,7 @@ namespace Ship_Game.Empires.ShipPools
 
         void EmpireForcePoolAdd(Ship ship)
         {
-            if (Owner.isPlayer || Owner.isFaction || ship.IsHangarShip || ship.IsHomeDefense || !ship.Active || ship.fleet != null) 
+            if (Owner.isPlayer || Owner.isFaction || ship.IsHangarShip || ship.IsHomeDefense || !ship.Active || ship.fleet != null)
                 return;
 
             RemoveShipFromFleetAndPools(ship);
@@ -200,14 +200,14 @@ namespace Ship_Game.Empires.ShipPools
             }
             if (!AssignShipsToOtherPools(ship))
             {
-                if (ship.DesignRoleType    == ShipData.RoleType.Troop 
+                if (ship.DesignRoleType    == ShipData.RoleType.Troop
                     || ship.DesignRoleType == ShipData.RoleType.WarSupport
                     || ship.DesignRole     == ShipData.RoleName.carrier)
                 {
                     if (!ForcePool.AddItemPending(ship))
                         Log.Warning($"Attempted to add an existing ship to Empire EmpireForcePool. ShipRole: {ship}");
                 }
-                else if(ship.DesignRoleType == ShipData.RoleType.Warship && ship.BaseCanWarp) 
+                else if(ship.DesignRoleType == ShipData.RoleType.Warship && ship.BaseCanWarp)
                 {
                     Log.Error($"Could Not add ship to force pools. {ship} ");
                 }
@@ -227,11 +227,11 @@ namespace Ship_Game.Empires.ShipPools
             float baseDefensePct = 0.1f;
             baseDefensePct      += 0.15f * numWars;
 
-            if (toAdd.DesignRole < ShipData.RoleName.fighter 
+            if (toAdd.DesignRole < ShipData.RoleName.fighter
                 || !toAdd.Active
-                || toAdd.BaseStrength <= 0f 
-                || !toAdd.BaseCanWarp 
-                || toAdd.IsHangarShip 
+                || toAdd.BaseStrength <= 0f
+                || !toAdd.BaseCanWarp
+                || toAdd.IsHangarShip
                 || toAdd.IsHomeDefense)
             {
                 return false; // we don't need this ship
@@ -259,9 +259,9 @@ namespace Ship_Game.Empires.ShipPools
 
             return false; // nothing to do with you
         }
-        
+
         /// <summary>
-        /// This is not thread safe. run this on empire thread for safe adds. 
+        /// This is not thread safe. run this on empire thread for safe adds.
         /// </summary>
         public void Add(Ship s)
         {
@@ -279,7 +279,7 @@ namespace Ship_Game.Empires.ShipPools
         }
 
         /// <summary>
-        /// This is not thread safe. run this on empire thread for safe removals. 
+        /// This is not thread safe. run this on empire thread for safe removals.
         /// </summary>
         public bool RemoveShipFromEmpire(Ship ship)
         {
@@ -294,16 +294,16 @@ namespace Ship_Game.Empires.ShipPools
 
             ship.AI?.ClearOrders();
 
-            return removed;
+            return removed
         }
-        
+
         public void Clear()
         {
             ForcePool.ClearOut();
             EmpireForcePool      = new Array<Ship>();
             EmpireReadyFleets    = new FleetShips(Owner);
         }
-        
+
         void IDisposable.Dispose()
         {
             this.Dispose(true);
