@@ -5,7 +5,7 @@ using Ship_Game.Audio;
 using Ship_Game.Debug;
 using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
-using Ship_Game.Ships.DataPackets;
+using Ship_Game.Ships.Components;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
