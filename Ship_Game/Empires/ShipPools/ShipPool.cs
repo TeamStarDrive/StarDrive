@@ -5,7 +5,7 @@ using System;
 
 namespace Ship_Game.Empires.ShipPools
 {
-    public class ShipPool : IDisposable
+    public class ShipPool
     {
         readonly Empire Owner;
         ChangePendingList<Ship> ForcePool;
@@ -294,26 +294,14 @@ namespace Ship_Game.Empires.ShipPools
 
             ship.AI?.ClearOrders();
 
-            return removed
+            return removed;
         }
 
         public void Clear()
         {
-            ForcePool.ClearOut();
-            EmpireForcePool      = new Array<Ship>();
-            EmpireReadyFleets    = new FleetShips(Owner);
-        }
-
-        void IDisposable.Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize((object)this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            EmpireForcePool.ClearAndDispose();
-            ForcePool.ClearAndDispose();
+            ForcePool.Clear();
+            EmpireForcePool.Clear();
+            EmpireReadyFleets = null;
         }
     }
 }

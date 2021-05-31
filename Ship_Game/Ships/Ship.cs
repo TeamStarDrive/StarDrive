@@ -94,8 +94,8 @@ namespace Ship_Game.Ships
         public Empire loyalty => LoyaltyTracker.ShipOwner;
         public LoyaltyChanges LoyaltyTracker { get; private set; }
         public void LoyaltyChangeFromBoarding(Empire empire, bool addNotification = true) => LoyaltyTracker.SetBoardingLoyalty(empire, addNotification);
-        public void LoyaltyChangeByGift(Empire empire) => LoyaltyTracker.SetLoyaltyForAbsorbedShip(empire);
-        public void LoyaltyChangeAtSpawn(Empire empire) => LoyaltyTracker.SetLoyaltyForNewShip(empire);
+        public void LoyaltyChangeByGift(Empire empire, bool addNotification = true) => LoyaltyTracker.SetLoyaltyForAbsorbedShip(empire, addNotification);
+        public void LoyaltyChangeAtSpawn(Empire empire, bool addNotification = true) => LoyaltyTracker.SetLoyaltyForNewShip(empire, addNotification);
 
         // This is the total number of Slots on the ships
         // It does not depend on the number of modules, and is always a constant

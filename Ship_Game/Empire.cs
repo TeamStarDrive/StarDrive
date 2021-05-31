@@ -1014,7 +1014,7 @@ namespace Ship_Game
 
         public void AddShipToAIPools(Ship s) => AIManagedShips.Add(s);
         void IEmpireShipLists.AddNewShipAtEndOfTurn(Ship s) => EmpireShips.Add(s);
-        
+
         void InitDifficultyModifiers()
         {
             DifficultyModifiers = new DifficultyModifiers(this, CurrentGame.Difficulty);
@@ -3086,14 +3086,14 @@ namespace Ship_Game
             for (int i = ships.Count - 1; i >= 0; i--)
             {
                 Ship ship = ships[i];
-                ship.LoyaltyChangeByGift(this);
+                ship.LoyaltyChangeByGift(this, addNotification);
             }
 
             var projectors = target.OwnedProjectors;
             for (int i = projectors.Count - 1; i >= 0; i--)
             {
                 Ship ship = projectors[i];
-                ship.LoyaltyChangeByGift(this);
+                ship.LoyaltyChangeByGift(this, addNotification);
             }
 
             target.AIManagedShips.Clear();
@@ -3659,7 +3659,7 @@ namespace Ship_Game
             TechnologyDict.Clear();
             SpaceRoadsList.Clear();
             foreach (var kv in FleetsDict)
-                kv.Value.Reset();
+                kv.Value.Reset(returnShipsToEmpireAI: false);
             FleetsDict.Clear();
             UnlockedBuildingsDict.Clear();
             UnlockedHullsDict.Clear();
@@ -3677,8 +3677,6 @@ namespace Ship_Game
             data.AgentList.Clear();
             data.MoleList.Clear();
 
-            AIManagedShips?.Dispose(ref AIManagedShips);
-            EmpireShips?.Dispose(ref EmpireShips);
             BorderNodes?.Dispose(ref BorderNodes);
             SensorNodes?.Dispose(ref SensorNodes);
             KnownShips?.Dispose(ref KnownShips);
@@ -3689,6 +3687,9 @@ namespace Ship_Game
             }
             OwnedPlanets?.Dispose(ref OwnedPlanets);
             OwnedSolarSystems?.Dispose(ref OwnedSolarSystems);
+
+            AIManagedShips = null;
+            EmpireShips = null;
         }
 
         public override string ToString() => $"{(isPlayer?"Player":"AI")}({Id}) '{Name}'";
