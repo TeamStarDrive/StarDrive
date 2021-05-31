@@ -297,33 +297,7 @@ namespace Ship_Game.AI
             return goals;
         }
 
-
-        /// <summary>
-        /// Will remove Troop goals with null planet owner or no troops being built.
-        /// This is a Hack since the goal should fucking deal with it
-        /// </summary>
-        /// <param name="numTroopGoals"></param>
-        public void VerifyTroopGoals(out int numTroopGoals)
-        {
-            numTroopGoals = 0;
-            for (int i = Goals.Count -1; i >= 0; i--)
-            {
-                Goal g = Goals[i];
-                if (g.type != GoalType.BuildTroop)
-                    continue;
-
-                if (g.PlanetBuildingAt != null 
-                    && !g.IsMainGoalCompleted
-                    &&  (g.PlanetBuildingAt.Owner != OwnerEmpire || !g.PlanetBuildingAt.Construction.ContainsTroopWithGoal(g)))
-                {
-                    Goals.Remove(g);
-                }
-                else
-                {
-                    numTroopGoals += 1; 
-                }
-            }
-        }
+        public int NumTroopGoals() => Goals.Filter(g => g.type == GoalType.BuildTroop).Length;
 
         public bool HasGoal(GoalType type)
         {
