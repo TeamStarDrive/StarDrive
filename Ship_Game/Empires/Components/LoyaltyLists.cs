@@ -81,7 +81,7 @@ namespace Ship_Game.Empires.Components
             ShipListChanged      = false;
         }
 
-        public void CleanOut()
+        public void Clear()
         {
             ActualOwnedProjectors = new SafeArray<Ship>();
             ActualOwnedShips      = new SafeArray<Ship>();
