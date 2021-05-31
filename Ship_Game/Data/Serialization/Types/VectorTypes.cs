@@ -167,5 +167,12 @@ namespace Ship_Game.Data.Serialization.Types
             if (parts.Length >= 2) p.Y = int.Parse(parts[1]);
             return p;
         }
+
+        public static Point FromString(StringView s)
+        {
+            StringView first = s.Next(',');
+            StringView second = s;
+            return new Point(first.ToInt(), second.ToInt());
+        }
     }
 }

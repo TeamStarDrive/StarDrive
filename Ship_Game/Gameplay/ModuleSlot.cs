@@ -22,7 +22,34 @@ namespace Ship_Game.Gameplay
         public Point GetGridPos() => P;
         public Point GetSize() => new Point(1, 1);
         public override string ToString() => $"{R} {P}";
+    }
 
+    // Used only in new Ship designs
+    // # gridX,gridY; moduleUIDIndex; sizeX,sizeY; turretAngle; moduleRotation; slotOptions
+    public sealed class DesignSlot
+    {
+        public Point Pos; // integer position in the design, such as [0, 1]
+        public string ModuleUID; // module UID, must be interned during parsing
+        public Point Size; // integer size, default is 1,1
+        public int TurretAngle; // angle 0..360 of a mounted turret
+        public ModuleOrientation ModuleRotation; // module's orientation/rotation: Normal,Left,Right,Rear
+        public string SlotOptions; // null by default, only set if there are any options
+        
+        public DesignSlot() {}
+        public DesignSlot(Point pos, string uid, Point size, int turretAngle,
+                          ModuleOrientation moduleRot, string slotOptions)
+        {
+            Pos = pos;
+            ModuleUID = uid;
+            Size = size;
+            TurretAngle = turretAngle;
+            ModuleRotation = moduleRot;
+            SlotOptions = slotOptions;
+        }
+
+        public Point GetGridPos() => Pos;
+        public Point GetSize() => new Point(1, 1);
+        public override string ToString() => $"{Pos} {ModuleUID} {Size} TA:{TurretAngle} MR:{ModuleRotation} SO:{SlotOptions}";
     }
 
     public sealed class ModuleSlotData
@@ -121,6 +148,12 @@ namespace Ship_Game.Gameplay
                     SlotOptions = string.Intern(slot.Module.hangarShipUID);
                 }
             }
+        }
+
+        // Convert from new coordinates to Legacy
+        public ModuleSlotData(DesignSlot slot)
+        {
+
         }
 
         public override string ToString() => $"{ModuleUID} {Position} {Facing} {Restrictions} T={ModuleOrNull}";
