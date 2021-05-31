@@ -89,8 +89,11 @@ namespace Ship_Game.Ships
         public Ship Mothership;
         public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
         public float PackDamageModifier { get; private set; }
-        public Empire loyalty;
+        public Empire loyalty => LoyaltyTracker.CurrentEmpire;
         public LoyaltyChanges LoyaltyTracker { get; private set; }
+        public void LoyaltyChangeFromBoarding(Empire empire, bool addNotification = true) => LoyaltyTracker.SetBoardingLoyalty(empire, addNotification);
+        public void LoyaltyChangeByGift(Empire empire) => LoyaltyTracker.SetLoyaltyForAbsorbedShip(empire);
+        public void LoyaltyChangeAtSpawn(Empire empire) => LoyaltyTracker.SetLoyaltyForNewShip(empire);
 
         // This is the total number of Slots on the ships
         // It does not depend on the number of modules, and is always a constant
@@ -1592,7 +1595,7 @@ namespace Ship_Game.Ships
             RepairBeams.Clear();
             PlanetCrash = null;
 
-            loyalty.RemoveShip(this);
+            loyalty.RemoveShipAtEndOfTurn(this);
             RemoveTether();
             RemoveSceneObject();
             base.RemoveFromUniverseUnsafe();
@@ -1633,7 +1636,6 @@ namespace Ship_Game.Ships
             fleet = null;
             shipData = null;
             Mothership = null;
-            loyalty = null;
             JumpSfx.Destroy();
             KnownByEmpires = null;
             HasSeenEmpires = null;

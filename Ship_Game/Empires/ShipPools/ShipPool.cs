@@ -168,7 +168,9 @@ namespace Ship_Game.Empires.ShipPools
                     {
                         Log.Error($"WTF: {Owner} != {ship.loyalty}");
                         RemoveFromOtherPools(ship);
-                        Owner.RemoveShip(ship);
+                        Owner.RemoveShipFromAIPools(ship);
+                        if (!ship.loyalty.OwnedShips.ContainsRef(ship))
+                            ship.LoyaltyTracker.SetLoyaltyForNewShip(ship.loyalty);
                     }
                     else if (notInAOs && notInEmpireForcePool && ship.BaseCanWarp)
                     {
@@ -261,7 +263,7 @@ namespace Ship_Game.Empires.ShipPools
         /// <summary>
         /// This is not thread safe. run this on empire thread for safe adds. 
         /// </summary>
-        public void AddShipToEmpire(Ship s)
+        public void Add(Ship s)
         {
             EmpireForcePoolAdd(s);
         }

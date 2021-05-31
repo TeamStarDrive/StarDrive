@@ -26,8 +26,10 @@ namespace Ship_Game.Ships
             Name       = data.Name;
             Level      = data.Level;
             experience = data.experience;
-            loyalty    = empire;
             shipData   = data;
+
+            LoyaltyTracker = new DataPackets.LoyaltyChanges(this, empire);
+
             if (fromSave)
                 data.UpdateBaseHull(); // when loading from save, the basehull data might not be set
 
@@ -55,9 +57,10 @@ namespace Ship_Game.Ships
             Name         = template.Name;
             BaseStrength = template.BaseStrength;
             BaseCanWarp  = template.BaseCanWarp;
-            loyalty      = owner;
             shipData     = template.shipData;
 
+            LoyaltyTracker = new DataPackets.LoyaltyChanges(this, owner);
+            
             if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
                 return; // return and crash again...
             
@@ -68,8 +71,7 @@ namespace Ship_Game.Ships
             VanityName = ResourceManager.ShipNames.GetName(owner.data.Traits.ShipType, shipData.Role);
             
             InitializeThrusters(template.shipData);
-            InitializeShip();
-            LoyaltyTracker.SetLoyaltyForNewShip(owner);
+            InitializeShip();            
             SetInitialCrewLevel();
 
             Empire.Universe?.Objects.Add(this);
@@ -367,7 +369,8 @@ namespace Ship_Game.Ships
         public void InitializeShip(bool loadingFromSaveGame = false)
         {
             Center = Position;
-
+            if (LoyaltyTracker == null)
+                LoyaltyTracker = new DataPackets.LoyaltyChanges(this, EmpireManager.Void);
             if (VanityName.IsEmpty())
                 VanityName = Name;
 
@@ -397,8 +400,6 @@ namespace Ship_Game.Ships
             {
                 InitializeStatus(fromSave: false);
             }
-
-            LoyaltyTracker = new DataPackets.LoyaltyChanges(this);
         }
 
         void InitDefendingTroopStrength()
