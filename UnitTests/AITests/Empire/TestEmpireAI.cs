@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.Empires;
+using Ship_Game.Empires.Components;
 using Ship_Game.Ships;
 
 namespace UnitTests.AITests.Empire

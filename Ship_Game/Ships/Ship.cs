@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Empires;
+using Ship_Game.Empires.Components;
 
 namespace Ship_Game.Ships
 {

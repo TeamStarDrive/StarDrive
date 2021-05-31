@@ -59,12 +59,12 @@ namespace Ship_Game.Empires.Components
         public void Remove(Ship ship)
         {
             if (ship.IsSubspaceProjector)
-            {                
+            {
                 ActualOwnedProjectors.Remove(ship);
                 ProjecterListChanged = true;
             }
             else
-            {                
+            {
                 ActualOwnedShips.Remove(ship);
                 ShipListChanged = true;
             }
@@ -76,7 +76,7 @@ namespace Ship_Game.Empires.Components
                 OwnedProjectors = ActualOwnedProjectors.ToArray();
             if (ShipListChanged)
                 OwnedShips = ActualOwnedShips.ToArray();
-            
+
             ProjecterListChanged = false;
             ShipListChanged      = false;
         }
