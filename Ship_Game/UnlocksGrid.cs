@@ -36,7 +36,7 @@ namespace Ship_Game
             Type = UnlockType.ShipModule;
             module = template;
             Title = template?.NameText.Text ?? unlockedMod.ModuleUID;
-            Description = template?.DescriptionText.Text ?? unlockedMod.ModuleUID;
+            Description = template?.DescriptionText.Text ?? "Module: " + unlockedMod.ModuleUID;
             Icon = template?.ModuleTexture ?? ResourceManager.InvalidTexture;
         }
 
@@ -63,7 +63,8 @@ namespace Ship_Game
             hull = hullData;
             Title = hullData?.Name ?? unlockedHull.Name;
             Description = Localizer.Token(GameText.UnlocksANewHullType) + " " +
-                          (hullData != null ? Localizer.GetRole(hullData.Role, EmpireManager.Player) : unlockedHull.Name);
+                          (hullData != null ? Localizer.GetRole(hullData.Role, EmpireManager.Player)
+                                            : "Hull: " + unlockedHull.Name);
             Icon = hullData?.Icon ?? ResourceManager.InvalidTexture;
         }
 
@@ -76,7 +77,7 @@ namespace Ship_Game
             Type = UnlockType.Building;
             building = b;
             Title = b?.TranslatedName.Text ?? unlockedBuilding.Name;
-            Description = b?.DescriptionText.Text ?? unlockedBuilding.Name;
+            Description = b?.DescriptionText.Text ?? "Building: " + unlockedBuilding.Name;
             Icon = b?.IconTex64 ?? ResourceManager.InvalidTexture;
         }
 
