@@ -185,7 +185,7 @@ namespace UnitTests.AITests.Empire
                         var ship = ships[i];
                         if (ship.AI.State == AIState.Scrap)
                         {
-                            ship.Active = false;
+                            ship.RemoveFromUniverseUnsafe();
                         }
                     }
 
@@ -342,7 +342,7 @@ namespace UnitTests.AITests.Empire
                                 float random = RandomMath.AvgRandomBetween(1, 100);
                                 if (random > 80)
                                 {
-                                    s.Active = false;
+                                    s.RemoveFromUniverseUnsafe();
                                     shipsRemoved++;
                                 }
                                 else if (random > 60)
