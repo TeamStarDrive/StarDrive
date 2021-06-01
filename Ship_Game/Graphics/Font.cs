@@ -66,6 +66,16 @@ namespace Ship_Game.Graphics
         {
             return (int)XnaFont.MeasureString(text.Text).X;
         }
+        
+        public int TextHeight(string text)
+        {
+            return (int)XnaFont.MeasureString(text).Y;
+        }
+        
+        public int TextHeight(in LocalizedText text)
+        {
+            return (int)XnaFont.MeasureString(text.Text).Y;
+        }
 
         public Vector2 MeasureString(in LocalizedText text)
         {
