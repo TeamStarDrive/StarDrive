@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Web.UI;
 
-namespace Ship_Game.Ships.DataPackets
+namespace Ship_Game.Ships.Components
 {
     /// <summary>
     /// Should be run before any ship updates are done.

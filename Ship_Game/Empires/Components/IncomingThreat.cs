@@ -1,7 +1,7 @@
 ﻿using Ship_Game.AI.Tasks;
 using Ship_Game.Fleets;
 
-namespace Ship_Game.Empires.DataPackets
+namespace Ship_Game.Empires.Components
 {
     public class IncomingThreat
     {

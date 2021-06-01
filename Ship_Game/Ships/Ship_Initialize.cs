@@ -13,7 +13,7 @@ namespace Ship_Game.Ships
         // Create a ship from a savegame or a template or in shipyard
         // You can also call Ship.CreateShip... functions to spawn ships
         // @param shipyardDesign This is a potentially incomplete design from Shipyard
-        protected Ship(Empire empire, ShipData data, bool fromSave, 
+        protected Ship(Empire empire, ShipData data, bool fromSave,
                        bool isTemplate, bool shipyardDesign = false) : base(GameObjectType.Ship)
         {
             if (!data.IsValidForCurrentMod)
@@ -26,17 +26,19 @@ namespace Ship_Game.Ships
             Name       = data.Name;
             Level      = data.Level;
             experience = data.experience;
-            loyalty    = empire;
             shipData   = data;
+
+            LoyaltyTracker = new Components.LoyaltyChanges(this, empire);
+
             if (fromSave)
                 data.UpdateBaseHull(); // when loading from save, the basehull data might not be set
 
             if (!CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate, shipyardDesign))
                 return;
-            
+
             Stats = new ShipStats(this);
-            KnownByEmpires = new DataPackets.KnownByEmpire(this);
-            HasSeenEmpires = new DataPackets.KnownByEmpire(this);
+            KnownByEmpires = new Components.KnownByEmpire(this);
+            HasSeenEmpires = new Components.KnownByEmpire(this);
 
             InitializeThrusters(data);
             InitializeStatus(fromSave);
@@ -55,23 +57,23 @@ namespace Ship_Game.Ships
             Name         = template.Name;
             BaseStrength = template.BaseStrength;
             BaseCanWarp  = template.BaseCanWarp;
-            loyalty      = owner;
             shipData     = template.shipData;
+
+            LoyaltyTracker = new Components.LoyaltyChanges(this, owner);
 
             if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
                 return; // return and crash again...
-            
+
             Stats = new ShipStats(this);
-            KnownByEmpires = new DataPackets.KnownByEmpire(this);
-            HasSeenEmpires = new DataPackets.KnownByEmpire(this);
+            KnownByEmpires = new Components.KnownByEmpire(this);
+            HasSeenEmpires = new Components.KnownByEmpire(this);
 
             VanityName = ResourceManager.ShipNames.GetName(owner.data.Traits.ShipType, shipData.Role);
-            
+
             InitializeThrusters(template.shipData);
             InitializeShip();
             SetInitialCrewLevel();
 
-            owner.AddShip(this);
             Empire.Universe?.Objects.Add(this);
         }
 
@@ -268,12 +270,6 @@ namespace Ship_Game.Ships
             ThrusterList = Empty<Thruster>.Array;
         }
 
-        public static Ship ImmediateCreateShipAtPoint(string shipName, Empire owner, Vector2 position)
-        {
-            var ship = CreateShipAtPoint(shipName, owner, position);
-            ship?.loyalty.EmpireShipLists.Update();
-            return ship;
-        }
         // Added by RedFox - Debug, Hangar Ship, and Platform creation
         public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 position)
         {
@@ -315,7 +311,7 @@ namespace Ship_Game.Ships
                 ship.SetSpecialRole(ShipData.RoleName.troop, "");
             return ship;
         }
-        
+
         void SetSpecialRole(ShipData.RoleName role, string vanityName)
         {
             DesignRole = role;
@@ -390,7 +386,7 @@ namespace Ship_Game.Ships
                 InitializeAI();
             AI.CombatState = shipData.CombatState;
             // End: ship subclass initializations.
-            
+
             RecalculatePower(); // NOTE: Must be before InitializeStatus
 
             // when loading savegames, just do a regular ship status update
@@ -436,7 +432,7 @@ namespace Ship_Game.Ships
             if (!BaseCanWarp && DesignRoleType == ShipData.RoleType.Warship)
                 Log.Warning($"Ship.BaseCanWarp is false: {this}");
         }
-        
+
         public void ShipStatusChange()
         {
             shipStatusChanged = false;
@@ -540,7 +536,6 @@ namespace Ship_Game.Ships
                 if (module.Is(ShipModuleType.Armor))
                     armor_max += module.ActualMaxHealth;
 
-                
                 if (!fromSave)
                     Ordinance += module.OrdinanceCapacity; // WARNING: do not use ChangeOrdnance() here!
 
@@ -557,7 +552,7 @@ namespace Ship_Game.Ships
                 PowerCurrent = PowerStoreMax;
                 InitShieldsPower(Stats.ShieldAmplifyPerShield);
             }
-            
+
             UpdateShields();
 
             Carrier.PrepShipHangars(loyalty);

@@ -1,9 +1,7 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
-using Ship_Game.Empires.DataPackets;
-using Ship_Game.Ships;
+using Ship_Game.Empires.Components;
 
 namespace Ship_Game.Commands.Goals
 {
