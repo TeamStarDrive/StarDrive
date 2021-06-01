@@ -115,6 +115,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool IsCrater           => BID == Crater1Id || BID == Crater2Id || BID == Crater3Id || BID == Crater4Id;
         [XmlIgnore][JsonIgnore] public bool IsDynamicUpdate    => IsLava | IsVolcano || IsCrater;
         [XmlIgnore][JsonIgnore] public SubTexture IconTex      => ResourceManager.Texture($"Buildings/icon_{Icon}_48x48");
+        [XmlIgnore][JsonIgnore] public SubTexture IconTex64    => ResourceManager.Texture($"Buildings/icon_{Icon}_64x64");
         [XmlIgnore][JsonIgnore] public string IconPath64       => $"Buildings/icon_{Icon}_64x64";
         [XmlIgnore][JsonIgnore] public float CostEffectiveness => MilitaryStrength / Cost.LowerBound(0.1f);
         [XmlIgnore][JsonIgnore] public bool HasLaunchedAllDefenseShips => CurrentNumDefenseShips <= 0;
