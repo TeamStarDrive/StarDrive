@@ -324,7 +324,7 @@ namespace Ship_Game
 
             foreach (Empire empire in Empires)
             {
-                empire.EmpireShipLists.Update();
+                empire.EmpireShips.UpdatePublicLists();
                 empire.Research.UpdateNetResearch();
             }
 
@@ -335,7 +335,7 @@ namespace Ship_Game
                 empire.GetEmpireAI().EmpireDefense = empire.GetEmpireAI().EmpireDefense ?? War.CreateInstance(empire, empire, WarType.EmpireDefense);
                 empire.RestoreUnserializableDataFromSave();
                 empire.InitEmpireEconomy();
-                empire.EmpireShipLists.Update();
+                empire.AIManagedShips.Update();
                 empire.GetEmpireAI().WarTasks.RestoreFromSave(empire);
             }
         }

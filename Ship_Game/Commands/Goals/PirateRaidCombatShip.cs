@@ -49,7 +49,7 @@ namespace Ship_Game.Commands.Goals
                 if (Pirates.Level > TargetShip.TroopCount * 5 / ((int)CurrentGame.Difficulty).LowerBound(1) + TargetShip.Level)
                 {
                     TargetShip.loyalty.AddMutinyNotification(TargetShip, GameText.MutinySucceeded, Pirates.Owner);
-                    TargetShip.ChangeLoyalty(Pirates.Owner, notification: false);
+                    TargetShip.LoyaltyChangeFromBoarding(Pirates.Owner, false);
                     Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
                 }
                 else
