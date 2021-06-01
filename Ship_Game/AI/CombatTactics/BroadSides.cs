@@ -14,7 +14,7 @@ namespace Ship_Game.AI.CombatTactics
        
         protected override void OverrideCombatValues(FixedSimTime timeStep)
         {
-            DesiredCombatRange = AI.Owner.DesiredCombatRange;//  - AI.Owner.Radius - AI.Target.Radius;
+            DesiredCombatRange = AI.Owner.DesiredCombatRange;
         }
 
         protected override CombatMoveState ExecuteAttack(FixedSimTime timeStep)
@@ -28,7 +28,7 @@ namespace Ship_Game.AI.CombatTactics
                 AI.SubLightMoveTowardsPosition(InitialMovePoint(DesiredCombatRange), timeStep);
                 moveState = CombatMoveState.Approach;
             }
-            else if (TargetIsMighty(0.5f))
+            else if (TargetIsMighty(ratioToOurDefense: 0.5f))
             {
                 Vector2 initialMovePoint = InitialMovePoint(DesiredCombatRange * 0.75f);
                 AI.SubLightMoveTowardsPosition(initialMovePoint, timeStep);
@@ -63,7 +63,6 @@ namespace Ship_Game.AI.CombatTactics
                 Vector2 initialDirection = OwnerTarget.Center.DirectionToTarget(Owner.Center);
                 initialOffset = initialDirection * DesiredCombatRange;
 
-                // desiredCombatRange * 0.25... need a turn friendly value here. 
                 if (Direction == OrbitDirection.Left)
                     initialOffset += initialDirection.LeftVector() * (wantedRangeToTarget * 0.25f);
                 else
