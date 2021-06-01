@@ -180,7 +180,8 @@ namespace Ship_Game.Graphics
                     newLength += SpaceWidth;
                 }
 
-                if (newLength > maxLineWidth) // wrap this word to next line
+                // wrap this word to next line, but only if this wasn't the first word
+                if (lineLength > 0f && newLength > maxLineWidth)
                 {
                     result.Append('\n');
                     lineLength = wordLength;
