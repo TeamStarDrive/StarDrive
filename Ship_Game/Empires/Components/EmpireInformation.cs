@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Ship_Game.Gameplay;
 
-namespace Ship_Game.Empires.DataPackets
+namespace Ship_Game.Empires.Components
 {
     public class EmpireInformation
     {

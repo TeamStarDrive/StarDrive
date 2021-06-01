@@ -524,7 +524,7 @@ namespace Ship_Game
             {
                 if (station.loyalty != newOwner)
                 {
-                    station.ChangeLoyalty(newOwner);
+                    station.LoyaltyChangeByGift(newOwner);
                     Log.Info($"Owner of platform tethered to {Name} changed from {Owner.PortraitName} to {newOwner.PortraitName}");
                 }
             }
