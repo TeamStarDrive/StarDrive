@@ -1,10 +1,12 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
+using Ship_Game.Empires;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Ship_Game.Empires.Components;
 
 namespace Ship_Game
 {
@@ -128,8 +130,7 @@ namespace Ship_Game
 
                 // this should make spawning ships while paused added to the empire correctly. 
                 // and correctly update lists when removing and creating fleets while paused. 
-                foreach (var empire in EmpireManager.Empires)
-                    empire.EmpireShipLists.Update();
+                EndOfTurnUpdate(FixedSimTime.Zero/*paused*/);
 
                 Objects.Update(FixedSimTime.Zero/*paused*/);
                 RecomputeFleetButtons(true);
@@ -339,9 +340,9 @@ namespace Ship_Game
                 var sspInSameSpot = ourSSPs.Filter(s => s.Center.AlmostEqual(center, 1));
                 if (sspInSameSpot.Length > 1)
                 {
-                    empire.RemoveShip(projector);
+                    ((IEmpireShipLists)empire).RemoveShipAtEndOfTurn(projector);
                     projector.QueueTotalRemoval();
-                    Log.Warning($"Removed Duplicate SSP for {empire.Name} - Center {center}");
+                    Log.Error($"Removed Duplicate SSP for {empire.Name} - Center {center}");
                 }
             }
         }
@@ -446,14 +447,7 @@ namespace Ship_Game
         {
             PostEmpirePerf.Start();
             if (IsActive)
-            {
-                // Items here cant be run in same parallel loop with the others. 
-                foreach(var empire in EmpireManager.Empires)
-                {
-                    // ship lists should be set before any further work with the ship lists is done. 
-                    empire.EmpireShipLists.Update();
-                }
-                
+            {                
                 Parallel.For(EmpireManager.Empires.Count, (start, end) =>
                 {
                     for (int i = start; i < end; i++)

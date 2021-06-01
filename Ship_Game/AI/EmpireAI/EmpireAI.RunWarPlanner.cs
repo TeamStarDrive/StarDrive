@@ -322,7 +322,7 @@ namespace Ship_Game.AI
                 // start a new war by military strength
                 if (!OwnerEmpire.IsAtWar || OwnerEmpire.GetAverageWarGrade() > 7)
                 {
-                    WarStrength = OwnerEmpire.EmpireShipLists.EmpireReadyFleets.AccumulatedStrength;
+                    WarStrength = OwnerEmpire.AIManagedShips.EmpireReadyFleets.AccumulatedStrength;
                     foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations.SortedDescending(r=> r.Rel.TotalAnger))
                     {
                         if (them.isPlayer && GlobalStats.RestrictAIPlayerInteraction)

@@ -232,7 +232,7 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer)
                 return;
 
-            var offPool = OwnerEmpire.EmpireShipLists.GetShipsFromOffensePools(onlyAO: true);
+            var offPool = OwnerEmpire.AIManagedShips.GetShipsFromOffensePools(onlyAO: true);
             for (int i = offPool.Count - 1; i >= 0; i--)
             {
                 Ship ship = offPool[i];

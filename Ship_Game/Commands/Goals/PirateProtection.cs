@@ -79,7 +79,7 @@ namespace Ship_Game.Commands.Goals
 
             TargetShip.AI.OrderPirateFleeHome(signalRetreat: true); // Retreat our forces before returning the ship to the rightful owner
             TargetShip.DisengageExcessTroops(TargetShip.TroopCount);
-            TargetShip.ChangeLoyalty(EmpireToProtect);
+            TargetShip.LoyaltyChangeByGift(EmpireToProtect);
             TargetShip.AI.ClearOrders();
             if (EmpireToProtect == EmpireManager.Player)
                 Empire.Universe.NotificationManager.AddWeProtectedYou(Pirates.Owner);
