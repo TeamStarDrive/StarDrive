@@ -249,7 +249,7 @@ namespace Ship_Game
                 if (!(this is Planet thisPlanet))
                     return;
 
-                if (building.AssignBuildingToTilePlanetCreation(thisPlanet, out PlanetGridSquare tile));
+                if (building.AssignBuildingToTilePlanetCreation(thisPlanet, out PlanetGridSquare tile))
                 {
                     if (!tile.SetEventOutComeNum(thisPlanet, building))
                         thisPlanet.DestroyBuildingOn(tile);
