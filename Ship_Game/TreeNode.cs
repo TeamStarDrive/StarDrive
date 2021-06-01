@@ -27,6 +27,8 @@ namespace Ship_Game
         readonly Technology TechTemplate;
         Rectangle PlusRect;
 
+        const int MaxUnlockItems = 6;
+
         public TreeNode(Vector2 pos, TechEntry theEntry, ResearchScreenNew screen)
         {
             if (GlobalStats.IsRussian)
@@ -38,7 +40,7 @@ namespace Ship_Game
             TechName = tech.Name.Text + (tech.MaxLevel > 1 ? " " + RomanNumerals.ToRoman(theEntry.Level) + "/" + RomanNumerals.ToRoman(tech.MaxLevel) : "");
             TechTemplate = ResourceManager.TechTree[Entry.UID];
             complete = EmpireManager.Player.HasUnlocked(Entry);
-            UnlocksGridItems = UnlockItem.CreateUnlocksList(TechTemplate, maxUnlocks: 4);
+            UnlocksGridItems = UnlockItem.CreateUnlocksList(TechTemplate, maxUnlocks: MaxUnlockItems);
             SetPos(pos);
         }
 
@@ -88,101 +90,78 @@ namespace Ship_Game
             {
                 DrawGlow(batch, Entry.Tech.Secret ? Color.Green : Color.White );
             }
-            switch (State)
-            {
-                case NodeState.Normal:
-                    string texSuffix = "";
-                    Color color = Color.Black;
-                    if (complete)
-                    {
-                        texSuffix = "_complete";
-                        color = new Color(34, 136, 200);
-                    }
-                    else if (EmpireManager.Player.Research.IsQueued(Entry.UID))
-                    {
-                        texSuffix = "_queue";
-                        color = Color.Teal;
-                    }
 
-                    bool active = complete || EmpireManager.Player.Research.IsQueued(Entry.UID);
-                    batch.FillRectangle(UnlocksRect, new Color(26, 26, 28));
-                    batch.DrawRectangle(UnlocksRect, color);
-                    UnlocksGrid.Draw(batch);
-                    batch.Draw(ResourceManager.Texture($"NewUI/new_tech_base{texSuffix}"), BaseRect, Color.White);
-                    //Added by McShooterz: Allows non root techs to use IconPath
-                    batch.Draw(TechIcon, IconRect, Color.White);
-                    batch.Draw(ResourceManager.Texture($"NewUI/new_tech_base_title{texSuffix}"), TitleRect, Color.White);
-                    string str1 = TitleFont.ParseText(TechName, TitleWidth);
-                    string[] strArray1 = Regex.Split(str1, "\n");
-                    Vector2 vector2_1 = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(str1).X / 2f, TitleRect.Y + 18 - TitleFont.MeasureString(str1).Y / 2f);
-                    int num1 = 0;
-                    foreach (string text in strArray1)
-                    {
-                        Vector2 position = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(text).X / 2f, vector2_1.Y + num1 * TitleFont.LineSpacing);
-                        position = new Vector2((int)position.X, (int)position.Y);
-                        batch.DrawString(TitleFont, text, position, complete ? new Color(132, 172, 208) : Color.White);
-                        ++num1;
-                    }
-                    int num2 = (int)(progressRect.Height - EmpireManager.Player.TechProgress(Entry) / EmpireManager.Player.TechCost(Entry) * (double)progressRect.Height);
-                    Rectangle destinationRectangle1 = progressRect;
-                    destinationRectangle1.Height = num2;
-                    batch.Draw(active ? ResourceManager.Texture("ResearchMenu/tech_progress")
-                                      : ResourceManager.Texture("ResearchMenu/tech_progress_inactive"), progressRect, Color.White);
-                    batch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), destinationRectangle1, Color.White);
-                    break;
-                case NodeState.Hover:
-                    batch.FillRectangle(UnlocksRect, new Color(26, 26, 28));
-                    batch.DrawRectangle(UnlocksRect, new Color(190, 113, 25));
-                    UnlocksGrid.Draw(batch);
-                    batch.Draw(ResourceManager.Texture("NewUI/new_tech_base_hover"), BaseRect, Color.White);
-                    batch.Draw(TechIcon, IconRect, Color.White);
-                    batch.Draw(ResourceManager.Texture("NewUI/new_tech_base_title_hover"), TitleRect, Color.White);
-                    string str2 = TitleFont.ParseText(TechName, TitleWidth);
-                    string[] strArray2 = Regex.Split(str2, "\n");
-                    Vector2 vector2_2 = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(str2).X / 2f, TitleRect.Y + 18 - TitleFont.MeasureString(str2).Y / 2f);
-                    int num3 = 0;
-                    foreach (string text in strArray2)
-                    {
-                        Vector2 position = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(text).X / 2f, vector2_2.Y + num3 * TitleFont.LineSpacing);
-                        position = new Vector2((int)position.X, (int)position.Y);
-                        batch.DrawString(TitleFont, text, position, complete ? new Color(132, 172, 208) : Color.White);
-                        ++num3;
-                    }
-                    int num4 = (int)(progressRect.Height - EmpireManager.Player.TechProgress(Entry) / ResourceManager.Tech(Entry.UID).ActualCost * (double)progressRect.Height);
-                    Rectangle destinationRectangle2 = progressRect;
-                    destinationRectangle2.Height = num4;
-                    batch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress"), progressRect, Color.White);
-                    batch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), destinationRectangle2, Color.White);
-                    break;
-                case NodeState.Press:
-                    batch.FillRectangle(UnlocksRect, new Color(26, 26, 28));
-                    batch.DrawRectangle(UnlocksRect, new Color(190, 113, 25));
-                    UnlocksGrid.Draw(batch);
-                    batch.Draw(ResourceManager.Texture("NewUI/new_tech_base_hover"), BaseRect, Color.White);
-                    batch.Draw(TechIcon, IconRect, Color.White);
-                    batch.Draw(ResourceManager.Texture("NewUI/new_tech_base_title_hover"), TitleRect, Color.White);
-                    string str3 = TitleFont.ParseText(TechName, TitleWidth);
-                    string[] strArray3 = Regex.Split(str3, "\n");
-                    Vector2 vector2_3 = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(str3).X / 2f, TitleRect.Y + 18 - TitleFont.MeasureString(str3).Y / 2f);
-                    int num5 = 0;
-                    foreach (string text in strArray3)
-                    {
-                        Vector2 position = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(text).X / 2f, vector2_3.Y + num5 * TitleFont.LineSpacing);
-                        position = new Vector2((int)position.X, (int)position.Y);
-                        batch.DrawString(TitleFont, text, position, complete ? new Color(163, 198, 236) : Color.White);
-                        ++num5;
-                    }
-                    int num6 = (int)(progressRect.Height - EmpireManager.Player.TechProgress(Entry) / EmpireManager.Player.TechCost(Entry) * (double)progressRect.Height);
-                    Rectangle destinationRectangle3 = progressRect;
-                    destinationRectangle3.Height = num6;
-                    batch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress"), progressRect, Color.White);
-                    batch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), destinationRectangle3, Color.White);
-                    break;
+            bool queued = EmpireManager.Player.Research.IsQueued(Entry.UID);
+            bool active = complete || queued;
+
+            string techBaseRectSuffix = "";
+            string progressIcon = "ResearchMenu/tech_progress";
+            var unlocksRectBorderColor = new Color(190, 113, 25);
+            var completeTitleColor = new Color(132, 172, 208);
+
+            if (State == NodeState.Normal)
+            {
+                unlocksRectBorderColor = Color.Black;
+                if (complete)
+                {
+                    techBaseRectSuffix = "_complete";
+                    unlocksRectBorderColor = new Color(34, 136, 200);
+                }
+                else if (queued)
+                {
+                    techBaseRectSuffix = "_queue";
+                    unlocksRectBorderColor = Color.Teal;
+                }
+                if (!active)
+                {
+                    progressIcon = "ResearchMenu/tech_progress_inactive";
+                }
             }
+            else
+            {
+                techBaseRectSuffix = "_hover";
+            }
+            if (State == NodeState.Press)
+            {
+                completeTitleColor = new Color(163, 198, 236);
+            }
+
+            batch.FillRectangle(UnlocksRect, new Color(26, 26, 28));
+            batch.DrawRectangle(UnlocksRect, unlocksRectBorderColor);
+            UnlocksGrid.Draw(batch);
+
+            batch.Draw(ResourceManager.Texture($"NewUI/new_tech_base{techBaseRectSuffix}"), BaseRect, Color.White);
+            batch.Draw(TechIcon, IconRect, Color.White);
+            batch.Draw(ResourceManager.Texture($"NewUI/new_tech_base_title{techBaseRectSuffix}"), TitleRect, Color.White);
+
+            // Draw the Title as multi-line centered text
+            // TODO: Maybe Use UILabel MultiLine text with automatic centering??
+            string title = TitleFont.ParseText(TechName, TitleWidth);
+            string[] titleLines = title.Split('\n');
+            float textHeight = titleLines.Length * TitleFont.LineSpacing;
+            float textStartY = TitleRect.Y + 18 - textHeight/2f;
+
+            for (int i = 0; i < titleLines.Length; ++i)
+            {
+                var pos = new Vector2(TitleRect.CenterX() - TitleFont.TextWidth(titleLines[i]) * 0.5f,
+                                      textStartY + i * TitleFont.LineSpacing);
+                batch.DrawString(TitleFont, titleLines[i], pos.Rounded(), complete ? completeTitleColor : Color.White);
+            }
+
+            batch.Draw(ResourceManager.Texture(progressIcon), progressRect, Color.White);
+
+            int progress = (int)(progressRect.Height - EmpireManager.Player.TechProgress(Entry) / EmpireManager.Player.TechCost(Entry) * (double)progressRect.Height);
+            Rectangle progressRect2 = progressRect;
+            progressRect2.Height = progress;
+            batch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), progressRect2, Color.White);
+
+            // draw tech cost
             var techCost = Entry.TechCost;
             if (!Entry.Unlocked) techCost -= Entry.Progress;
             batch.DrawString(TitleFont, techCost.GetNumberString(), CostPos, Color.SkyBlue);
-            if (TechTemplate.NumStuffUnlocked > 4)
+
+            // draw an orange + if there are more techs unlocked
+            if (TechTemplate.NumStuffUnlocked > MaxUnlockItems)
             { 
                 PlusRect = new Rectangle(UnlocksRect.X + 60, UnlocksRect.Y + UnlocksRect.Height, 20, 20);
                 batch.DrawString(Fonts.Arial20Bold, "+", new Vector2(PlusRect.X, PlusRect.Y), Color.Orange);
