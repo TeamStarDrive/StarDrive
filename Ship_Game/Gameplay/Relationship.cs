@@ -5,7 +5,7 @@ using System;
 using System.Xml.Serialization;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Debug;
-using Ship_Game.Empires.DataPackets;
+using Ship_Game.Empires.Components;
 using Ship_Game.GameScreens.DiplomacyScreen;
 
 namespace Ship_Game.Gameplay

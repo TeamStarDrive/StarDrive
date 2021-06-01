@@ -32,10 +32,11 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed; // This is mainly for save compatibility
 
             Pirates = empire.Pirates;
+            bool firstRun = Pirates.PaymentTimers.Count == 0;
             Pirates.Init();
             Pirates.TryLevelUp(alwaysLevelUp: true); // build initial base
 
-            if (!Pirates.GetBases(out Array<Ship> bases))
+            if (!Pirates.GetBases(out Array<Ship> bases) && !firstRun)
             {
                 Log.Warning($"Could not find a Pirate base for {empire.Name}. Pirate AI is disabled for them!");
                 return GoalStep.GoalFailed;

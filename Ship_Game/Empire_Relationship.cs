@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.GamerServices;
 using Ship_Game.AI;
 using Ship_Game.AI.StrategyAI.WarGoals;
-using Ship_Game.Empires.DataPackets;
+using Ship_Game.Empires.Components;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game

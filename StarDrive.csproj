@@ -249,6 +249,9 @@
     </Compile>
     <Compile Include="Ship_Game\Commands\Goals\AssaultBombers.cs" />
     <Compile Include="Ship_Game\Commands\Goals\ScoutSystem.cs" />
+    <Compile Include="Ship_Game\Empires\Components\LoyaltyLists.cs" />
+    <Compile Include="Ship_Game\Empires\Components\IEmpireShipLists.cs" />
+    <Compile Include="Ship_Game\Ships\Components\LoyaltyChanges.cs" />
     <Compile Include="Ship_Game\Ships\ShipDataWriter.cs" />
     <Compile Include="Ship_Game\Ships\ShipHull.cs" />
     <Compile Include="Ship_Game\Utils\ChangePendingList.cs" />
@@ -272,8 +275,8 @@
     <Compile Include="Ship_Game\Commands\Goals\RemnantEngagements.cs" />
     <Compile Include="Ship_Game\Debug\Page\DebugAO.cs" />
     <Compile Include="Ship_Game\EmpirePersonalityModifiers.cs" />
-    <Compile Include="Ship_Game\Empires\DataPackets\EmpireInformation.cs" />
-    <Compile Include="Ship_Game\Empires\DataPackets\IncomingThreat.cs" />
+    <Compile Include="Ship_Game\Empires\Components\EmpireInformation.cs" />
+    <Compile Include="Ship_Game\Empires\Components\IncomingThreat.cs" />
     <Compile Include="Ship_Game\Empire_FleetModifiers.cs" />
     <Compile Include="Ship_Game\GameScreens\Universe\SearchTechScreen.cs" />
     <Compile Include="Ship_Game\Remnants.cs" />
@@ -454,8 +457,8 @@
     <Compile Include="Ship_Game\Sensors\TimedScanner.cs" />
     <Compile Include="Ship_Game\Ships\AI\WayPoints.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
-    <Compile Include="Ship_Game\Ships\DataPackets\KnownByEmpire.cs" />
-    <Compile Include="Ship_Game\Ships\DataPackets\ShipWeight.cs" />
+    <Compile Include="Ship_Game\Ships\Components\KnownByEmpire.cs" />
+    <Compile Include="Ship_Game\Ships\Components\ShipWeight.cs" />
     <Compile Include="Ship_Game\Ships\ModuleGrid.cs" />
     <Compile Include="Ship_Game\Ships\ModuleGridUtils.cs" />
     <Compile Include="Ship_Game\Ships\PlanetCrash.cs" />
