@@ -140,24 +140,19 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         bool ShouldDisengage()
         {
             return !Owner.AI.HasPriorityTarget
-                && (MoveState == CombatMoveState.Disengage || WeAreChasingAndCantCatchThem || (Owner.Level > 1 && TargetIsMighty));
+                && (MoveState == CombatMoveState.Disengage || WeAreChasingAndCantCatchThem || (Owner.Level > 1 && TargetIsMightyAndChasing(1f)));
         }
 
-        bool IsTargetInterceptingUs => Owner.Direction.Dot(OwnerTarget.Direction) < -0.8f
+        protected bool IsTargetInterceptingUs => Owner.Direction.Dot(OwnerTarget.Direction) < -0.8f
                                     && RadMath.IsTargetInsideArc(OwnerTarget.Center, Owner.Center, OwnerTarget.Rotation, RadMath.HalfPI*0.5f);
         
         // they are intercepting us and they're really strong
-        bool TargetIsMighty
+        protected bool TargetIsMightyAndChasing(float ratioToOurDefense) => IsTargetInterceptingUs && TargetIsMighty(ratioToOurDefense);
+
+        protected bool TargetIsMighty(float ratioToOurDefense)
         {
-            get
-            {
-                if (IsTargetInterceptingUs)
-                {
-                    float ourDefense = (Owner.shield_max + Owner.armor_max) * Owner.HealthPercent;
-                    return OwnerTarget.TotalDps * 5 > ourDefense;
-                }
-                return false;
-            }
+            float ourDefense = (Owner.shield_max + Owner.armor_max) * Owner.HealthPercent;
+            return (OwnerTarget.TotalDps * 5) / ourDefense >= ratioToOurDefense;
         }
 
         /// <summary>
@@ -188,7 +183,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             SpacerDistance = Owner.Radius + AI.Target.Radius;
             DebugTextIndex = 0;
 
-            if (DistanceToTarget > Owner.DesiredCombatRange && !TargetIsMighty)
+            if (DistanceToTarget > Owner.DesiredCombatRange && !TargetIsMightyAndChasing(1))
             {
                 if (DistanceToTarget < OwnerTarget.WeaponsMaxRange * 2)
                 {
