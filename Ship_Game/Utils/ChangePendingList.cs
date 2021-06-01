@@ -62,7 +62,7 @@ namespace Ship_Game.Utils
             return List.ContainsRef(item);
         }
 
-        public void ClearOut()
+        public void Clear()
         {
             PendingAdds    = new Array<T>();
             PendingRemoves = new Array<T>();

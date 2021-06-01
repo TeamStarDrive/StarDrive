@@ -73,6 +73,24 @@ namespace Ship_Game
             return false;
         }
 
+        public static bool FindFirstValid<T>(this IReadOnlyList<T> items, int count, Predicate<T> predicate, out int nextIndex, out T firstValid)
+        {
+            int i = 0;
+            for (; i < count; ++i)
+            {
+                T item = items[i];
+                if (predicate(item))
+                {
+                    nextIndex = i + 1;
+                    firstValid = item;
+                    return true;
+                }
+            }
+            nextIndex = i;
+            firstValid = default;
+            return false;
+        }
+
         /// <summary>
         /// NOTE: This is an intentional replacement to System.Linq.Count()
         ///       Mostly so that we won't have to import it, which will
@@ -177,18 +195,6 @@ namespace Ship_Game
             if (count == 0) return Empty<T>.Array;
             var items = new T[count];
             source.CopyTo(items, 0);
-            return items;
-        }
-
-        public static T[] ToArray<T>(this IReadOnlyList<T> source)
-        {
-            int count = source.Count;
-            if (count == 0) return Empty<T>.Array;
-            var items = new T[count];
-            if (source is ICollection<T> c)
-                c.CopyTo(items, 0);
-            else for (int i = 0; i < count; ++i)
-                items[i] = source[i];
             return items;
         }
 
