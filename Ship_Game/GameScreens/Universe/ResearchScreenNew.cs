@@ -36,7 +36,8 @@ namespace Ship_Game
         public ResearchScreenNew(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
         {
             empireUI = empireUi;
-            IsPopup = true;
+            IsPopup = false;
+            CanEscapeFromScreen = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
         }
