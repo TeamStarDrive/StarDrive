@@ -225,10 +225,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 }
 
                 float defense  = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(system.Position, system.Radius, Owner);
-                if (defense  < Owner.EmpireShipLists.CurrentUseableStrength)
+                if (defense  < Owner.AIManagedShips.CurrentUseableStrength)
                 {
                     winnableTargets.Add(system);
-                    Owner.EmpireShipLists.CurrentUseableStrength -= defense;
+                    Owner.AIManagedShips.CurrentUseableStrength -= defense;
                 }
             }
 

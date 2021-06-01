@@ -99,7 +99,7 @@ namespace Ship_Game.AI.Tasks
             foreach (Ship ship in ships)
             {
                 ship.AI.ClearOrders();
-                Owner.EmpireShipLists.RemoveShipFromFleetAndPools(ship);
+                Owner.AIManagedShips.RemoveShipFromFleetAndPools(ship);
                 newFleet.AddShip(ship);
             }
 
@@ -236,7 +236,7 @@ namespace Ship_Game.AI.Tasks
         {
             if (AO.AlmostZero())
                 throw new Exception();
-            if (Owner.EmpireShipLists.CurrentUseableFleets < 0) return;
+            if (Owner.AIManagedShips.CurrentUseableFleets < 0) return;
 
             int requiredTroopStrength = 0;
             if (TargetPlanet != null)
@@ -455,7 +455,7 @@ namespace Ship_Game.AI.Tasks
             }
 
 
-            FleetShips fleetShips                    = Owner.EmpireShipLists.EmpireReadyFleets;
+            FleetShips fleetShips                    = Owner.AIManagedShips.EmpireReadyFleets;
             fleetShips.WantedFleetCompletePercentage = battleFleetSize;
             var troopsOnPlanets                      = new Array<Troop>();
 
@@ -501,7 +501,7 @@ namespace Ship_Game.AI.Tasks
             }
 
             CreateFleet(TaskForce, fleetName);
-            Owner.EmpireShipLists.CurrentUseableFleets -= fleetShips.ShipSetsExtracted.LowerBound(1);
+            Owner.AIManagedShips.CurrentUseableFleets -= fleetShips.ShipSetsExtracted.LowerBound(1);
             {
                 ReqStatus = RequisitionStatus.Complete;
                 return ReqStatus;
@@ -515,7 +515,7 @@ namespace Ship_Game.AI.Tasks
                 return false;
 
             SetTargetPlanet(p);
-            FleetShips fleetShips = Owner.EmpireShipLists.EmpireReadyFleets;
+            FleetShips fleetShips = Owner.AIManagedShips.EmpireReadyFleets;
             NeededTroopStrength   = (int)(GetTargetPlanetGroundStrength(40) * Owner.DifficultyModifiers.EnemyTroopStrength);
             if (!AreThereEnoughTroopsToInvade(fleetShips.InvasionTroopStrength, out _, TargetPlanet.Center, true))
                 return false;

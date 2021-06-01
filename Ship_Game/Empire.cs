@@ -11,7 +11,7 @@ using System.Linq;
 using Ship_Game.AI.ExpansionAI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Empires;
-using Ship_Game.Empires.DataPackets;
+using Ship_Game.Empires.Components;
 using Ship_Game.Empires.ShipPools;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Fleets;
@@ -27,7 +27,7 @@ namespace Ship_Game
         Event,
         Scrap
     }
-    public sealed partial class Empire : IDisposable
+    public sealed partial class Empire : IDisposable, IEmpireShipLists
     {
         public bool ThisClassMustNotBeAutoSerializedByDotNet =>
             throw new InvalidOperationException(
@@ -104,10 +104,8 @@ namespace Ship_Game
 
         private BatchRemovalCollection<Planet> OwnedPlanets = new BatchRemovalCollection<Planet>();
         private BatchRemovalCollection<SolarSystem> OwnedSolarSystems = new BatchRemovalCollection<SolarSystem>();
-        public IReadOnlyList<Ship> OwnedShips => EmpireShipLists.EmpireShips;
-        public IReadOnlyList<Ship> OwnedProjectors => EmpireShipLists.EmpireProjectors;
-        //private BatchRemovalCollection<Ship> OwnedProjectors = new BatchRemovalCollection<Ship>();
-        //private BatchRemovalCollection<Ship> OwnedShips = new BatchRemovalCollection<Ship>();
+        public IReadOnlyList<Ship> OwnedShips => EmpireShips.OwnedShips;
+        public IReadOnlyList<Ship> OwnedProjectors => EmpireShips.OwnedProjectors;
         public BatchRemovalCollection<Ship> KnownShips = new BatchRemovalCollection<Ship>();
         public BatchRemovalCollection<InfluenceNode> BorderNodes = new BatchRemovalCollection<InfluenceNode>();
         public BatchRemovalCollection<InfluenceNode> SensorNodes = new BatchRemovalCollection<InfluenceNode>();
@@ -185,7 +183,8 @@ namespace Ship_Game
         public bool CanBuildShipyards;
         public float CurrentMilitaryStrength;
         public float OffensiveStrength; // No Orbitals
-        public ShipPool EmpireShipLists;
+        public ShipPool AIManagedShips;
+        public LoyaltyLists EmpireShips;
         public float CurrentTroopStrength { get; private set; }
         public Color ThrustColor0;
         public Color ThrustColor1;
@@ -248,14 +247,15 @@ namespace Ship_Game
         public void AddShipToManagedPools(Ship s)
         {
             s.AI.ClearOrdersAndWayPoints(AIState.AwaitingOrders, false);
-            EmpireShipLists.AddToEmpireForcePoolNextFame(s);
+            AIManagedShips.AddToEmpireForcePoolNextFame(s);
         }
         
         public Empire()
         {
             UI = new EmpireUI(this);
             Research = new EmpireResearch(this);
-            EmpireShipLists = new ShipPool(this);
+            AIManagedShips = new ShipPool(this);
+            EmpireShips = new LoyaltyLists(this);
         }
 
         public Empire(Empire parentEmpire) : this()
@@ -745,9 +745,10 @@ namespace Ship_Game
 
             foreach (Ship s in OwnedShips)
             {
-                s.ChangeLoyalty(rebels, false);
+                s.LoyaltyChangeFromBoarding(rebels, false);
             }
-            EmpireShipLists.CleanOut();
+            AIManagedShips.Clear();
+            EmpireShips.Clear();
             data.AgentList.Clear();
         }
 
@@ -769,15 +770,11 @@ namespace Ship_Game
                 BreakAllTreatiesWith(them, includingPeace: true);
             }
 
-            foreach (Ship ship in OwnedShips)
-            {
-                ship.AI.ClearOrders();
-            }
-
             EmpireAI.Goals.Clear();
             EmpireAI.EndAllTasks();
             foreach (var kv in FleetsDict) kv.Value.Reset();
-            EmpireShipLists.CleanOut();
+            AIManagedShips.Clear();
+            EmpireShips.Clear();
             data.AgentList.Clear();
         }
 
@@ -984,7 +981,7 @@ namespace Ship_Game
         public Ship[] AllFleetReadyShips()
         {
             //Get all available ships from AO's
-            var ships = isPlayer ? new Array<Ship>(OwnedShips) : EmpireShipLists.GetShipsFromOffensePools();
+            var ships = isPlayer ? new Array<Ship>(OwnedShips) : AIManagedShips.GetShipsFromOffensePools();
 
             var readyShips = new Array<Ship>();
             for (int i = 0; i < ships.Count; i++)
@@ -1017,8 +1014,9 @@ namespace Ship_Game
 
         public IReadOnlyList<Ship> GetProjectors() => OwnedProjectors;
 
-        public void AddShip(Ship s) => EmpireShipLists.AddShipToEmpire(s);
-        
+        public void AddShipToAIPools(Ship s) => AIManagedShips.Add(s);
+        void IEmpireShipLists.AddNewShipAtEndOfTurn(Ship s) => EmpireShips.Add(s);
+
         void InitDifficultyModifiers()
         {
             DifficultyModifiers = new DifficultyModifiers(this, CurrentGame.Difficulty);
@@ -2857,7 +2855,7 @@ namespace Ship_Game
                             break;
                         }
 
-                    pirate?.ChangeLoyalty(rebels);
+                    pirate?.LoyaltyChangeByGift(rebels);
                 }
                 else Log.Error($"Rebellion failed: {data.RebelName}");
 
@@ -2995,13 +2993,13 @@ namespace Ship_Game
                                                               ship.BaseHull.IconPath, "SnapToShip", ship, null);
         }
 
-        public void AddBoardedNotification(Ship ship)
+        public void AddBoardedNotification(Ship ship, Empire boarder)
         {
             if (!isPlayer) 
                 return;
 
-            string message = $"{Localizer.Token(GameText.YourShipWasCaptured)} {ship.loyalty.Name}!";
-            Universe.NotificationManager?.AddBoardNotification(message, ship.BaseHull.IconPath, "SnapToShip", ship, ship.loyalty);
+            string message = $"{Localizer.Token(GameText.YourShipWasCaptured)} {this.Name}!";
+            Universe.NotificationManager?.AddBoardNotification(message, ship.BaseHull.IconPath, "SnapToShip", ship, boarder);
         }
 
         public void AddMutinyNotification(Ship ship, GameText text, Empire initiator)
@@ -3090,17 +3088,17 @@ namespace Ship_Game
             for (int i = ships.Count - 1; i >= 0; i--)
             {
                 Ship ship = ships[i];
-                ship.ChangeLoyalty(this, addNotification);
+                ship.LoyaltyChangeByGift(this, addNotification);
             }
 
             var projectors = target.OwnedProjectors;
             for (int i = projectors.Count - 1; i >= 0; i--)
             {
                 Ship ship = projectors[i];
-                ship.ChangeLoyalty(this, addNotification);
+                ship.LoyaltyChangeByGift(this, addNotification);
             }
 
-            target.EmpireShipLists.CleanOut();
+            target.AIManagedShips.Clear();
             AssimilateTech(target);
             foreach (TechEntry techEntry in target.TechEntries)
             {
@@ -3144,12 +3142,6 @@ namespace Ship_Game
                 EmpireAI.EndAllTasks();
                 EmpireAI.DefensiveCoordinator.DefensiveForcePool.Clear();
                 EmpireAI.DefensiveCoordinator.DefenseDict.Clear();
-                
-                foreach (Ship s in OwnedShips)
-                {
-                    // added by gremlin Do not include 0 strength ships in defensive force pool
-                    s.AI.ClearOrders();
-                }
             }
 
             foreach (Agent agent in target.data.AgentList)
@@ -3394,11 +3386,10 @@ namespace Ship_Game
             EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
         }
 
-        public bool RemoveShip(Ship ship)
-        {
-            // Null check is for Ship dispose, where Empire may be already Disposed
-            return EmpireShipLists?.RemoveShipFromEmpire(ship) ?? false;
-        }
+        public bool RemoveShipFromAIPools(Ship ship) => AIManagedShips.RemoveShipFromEmpire(ship);
+
+        void IEmpireShipLists.RemoveShipAtEndOfTurn(Ship s) => EmpireShips?.Remove(s);
+
         public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
         {
             if (targetEmpire == this || targetEmpire == null)
@@ -3668,7 +3659,7 @@ namespace Ship_Game
             TechnologyDict.Clear();
             SpaceRoadsList.Clear();
             foreach (var kv in FleetsDict)
-                kv.Value.Reset();
+                kv.Value.Reset(returnShipsToEmpireAI: false);
             FleetsDict.Clear();
             UnlockedBuildingsDict.Clear();
             UnlockedHullsDict.Clear();
@@ -3686,7 +3677,6 @@ namespace Ship_Game
             data.AgentList.Clear();
             data.MoleList.Clear();
 
-            EmpireShipLists?.Dispose(ref EmpireShipLists);
             BorderNodes?.Dispose(ref BorderNodes);
             SensorNodes?.Dispose(ref SensorNodes);
             KnownShips?.Dispose(ref KnownShips);
@@ -3697,6 +3687,9 @@ namespace Ship_Game
             }
             OwnedPlanets?.Dispose(ref OwnedPlanets);
             OwnedSolarSystems?.Dispose(ref OwnedSolarSystems);
+
+            AIManagedShips = null;
+            EmpireShips = null;
         }
 
         public override string ToString() => $"{(isPlayer?"Player":"AI")}({Id}) '{Name}'";
