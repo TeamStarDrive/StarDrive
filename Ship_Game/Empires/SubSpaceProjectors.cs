@@ -5,7 +5,7 @@ namespace Ship_Game.Empires
     public class SubSpaceProjectors
     {
         public float Radius { get; }
-  
+
         public SubSpaceProjectors(float universeWidth)
         {
             float sspRadius = GlobalStats.Unsupported_ProjectorRadius;

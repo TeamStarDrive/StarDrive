@@ -38,7 +38,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (!OldShip.CanBeScrapped)
                 return GoalStep.GoalFailed;
 
-            empire.EmpireShipLists.RemoveShipFromFleetAndPools(OldShip);
+            empire.AIManagedShips.RemoveShipFromFleetAndPools(OldShip);
             if (OldShip.shipData.Role <= ShipData.RoleName.station && OldShip.ScuttleTimer < 0
                 || !empire.FindPlanetToScrapIn(OldShip, out PlanetBuildingAt))
             {
