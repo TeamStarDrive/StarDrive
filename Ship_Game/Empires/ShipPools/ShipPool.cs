@@ -301,7 +301,8 @@ namespace Ship_Game.Empires.ShipPools
         {
             ForcePool.Clear();
             EmpireForcePool.Clear();
-            EmpireReadyFleets = null;
+            EmpireReadyFleets?.Clear();
+            ForcePool.Clear();
         }
     }
 }
