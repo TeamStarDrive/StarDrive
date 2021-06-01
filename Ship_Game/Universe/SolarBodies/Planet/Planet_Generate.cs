@@ -213,8 +213,8 @@ namespace Ship_Game
 
         private void CreateHomeWorldBuildings()
         {
-            ResourceManager.CreateBuilding(Building.CapitalId).AssignBuildingToTile(this);
-            ResourceManager.CreateBuilding(Building.SpacePortId).AssignBuildingToTile(this);
+            ResourceManager.CreateBuilding(Building.CapitalId).AssignBuildingToTilePlanetCreation(this, out _);
+            ResourceManager.CreateBuilding(Building.SpacePortId).AssignBuildingToTilePlanetCreation(this, out _);
             Storage.Max = BuildingList.Sum(b => b.StorageAdded);
             FoodHere    = Storage.Max;
             ProdHere    = Storage.Max / 2;
