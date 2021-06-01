@@ -1,12 +1,9 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using Ship_Game.AI.Tasks;
+using Ship_Game.Ships;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using Microsoft.Xna.Framework;
-using Newtonsoft.Json;
-using Ship_Game.AI.Tasks;
-using Ship_Game.Empires.ShipPools;
-using Ship_Game.Ships;
 using static Ship_Game.Ships.ShipData;
 
 namespace Ship_Game.AI
@@ -21,9 +18,9 @@ namespace Ship_Game.AI
     {
         // need to add a way to prefer ships near to a point
         public float AccumulatedStrength { get; private set; }
-        private readonly Empire OwnerEmpire;
-        private readonly FleetRatios Ratios;
-        private readonly Array<Ship> Ships = new Array<Ship>();
+        private Empire OwnerEmpire;
+        private FleetRatios Ratios;
+        private Array<Ship> Ships = new Array<Ship>();
         public float WantedFleetCompletePercentage = 0.25f;
         public int InvasionTroops { get; private set; }
         public float InvasionTroopStrength { get; private set; }
@@ -395,6 +392,12 @@ namespace Ship_Game.AI
                 if (launched != null)
                     AddShip(launched);
             }
+        }
+
+        public void Clear()
+        {
+            Ships.Clear();
+            OwnerEmpire = null;
         }
     }
 }
