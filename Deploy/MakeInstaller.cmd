@@ -1,8 +1,15 @@
+@echo off
 echo Deploy should only be done via AppVeyor
 echo APPVEYOR_BUILD_VERSION=%APPVEYOR_BUILD_VERSION%
 
+:: cd to given parameter if it exists
+if not [%1]==[] (
+    echo "Changing dir to: %1"
+    cd %1
+)
+
 :: Assume MakeInstaller.cmd is called from C:\Projects\BlackBox folder
-IF NOT EXIST "Deploy/NSIS/Bin/makensis.exe" (
+if not exist "Deploy/NSIS/Bin/makensis.exe" (
     echo "MakeInstaller.cmd must be executed with WorkingDir=Projects\BlackBox\"
     exit /b %errorlevel%
 )
