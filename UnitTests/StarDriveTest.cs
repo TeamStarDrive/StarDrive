@@ -79,8 +79,7 @@ namespace UnitTests
         static void Cleanup()
         {
             Ship_Game.Parallel.ClearPool(); // Dispose all thread pool Threads
-            Log.StopLogThread();
-            Log.FlushAllLogs();
+            Log.Close();
         }
 
         // @note: This is slow! It can take 500-1000ms
