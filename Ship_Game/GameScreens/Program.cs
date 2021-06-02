@@ -38,8 +38,8 @@ namespace Ship_Game
             {
                 HasRunCleanupTasks = true;
                 Log.Write($"RunCleanupAndExit({exitCode})");
-                Log.StopLogThread();
                 Parallel.ClearPool(); // Dispose all thread pool Threads
+                Log.Close();
             }
             catch (Exception ex)
             {

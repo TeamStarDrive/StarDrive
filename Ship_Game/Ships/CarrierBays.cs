@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
+using Ship_Game.AI.CombatTactics;
 using Ship_Game.Audio;
 
 namespace Ship_Game.Ships
@@ -36,6 +37,8 @@ namespace Ship_Game.Ships
                                             || Owner.DesignRole == ShipData.RoleName.support
                                             || Owner.DesignRoleType == ShipData.RoleType.Orbital);
 
+        public AssaultShipCombat TroopTactics;
+
         CarrierBays(Ship owner, ShipModule[] slots)
         {
             AllHangars        = slots.Filter(module => module.Is(ShipModuleType.Hangar));
@@ -56,6 +59,7 @@ namespace Ship_Game.Ships
             RecallFightersBeforeFTL = true;
             Owner                   = owner;
             SupplyShuttle           = new SupplyShuttles(Owner);
+            TroopTactics            = new AssaultShipCombat(owner);
         }
 
         static readonly CarrierBays None = new CarrierBays(null, Empty<ShipModule>.Array); // NIL object pattern
@@ -241,7 +245,7 @@ namespace Ship_Game.Ships
 
         public void ScrambleAllAssaultShips() => ScrambleAssaultShips(0);
 
-        bool ScrambleAssaultShips(float strengthNeeded)
+        public bool ScrambleAssaultShips(float strengthNeeded)
         {
             if (Owner == null || !Owner.HasOurTroops)
                 return false;
@@ -594,43 +598,7 @@ namespace Ship_Game.Ships
 
             return bestShip;
         }
-
-        public bool AssaultTargetShip(Ship targetShip)
-        {
-            if (Owner.SecondsAlive < 2)
-                return true; // Initial Delay in launching shuttles if spawned
-
-            if (Owner == null || targetShip == null || targetShip.loyalty == Owner.loyalty)
-                return false;
-
-            if (!Owner.Carrier.AnyAssaultOpsAvailable || !targetShip.Center.InRadius(Owner.Center, Owner.DesiredCombatRange*2))
-                return false;
-
-            bool sendingTroops               = false;
-            float totalTroopStrengthToCommit = MaxTroopStrengthInShipToCommit + MaxTroopStrengthInSpaceToCommit;
-            float enemyStrength              = targetShip.BoardingDefenseTotal/2;
-
-            if (totalTroopStrengthToCommit > enemyStrength && (Owner.loyalty.isFaction || targetShip.GetStrength() > 0f))
-            {
-                if (MaxTroopStrengthInSpaceToCommit.AlmostZero() || MaxTroopStrengthInSpaceToCommit < enemyStrength)
-                    // This will launch salvos of assault shuttles if possible
-                    sendingTroops = ScrambleAssaultShips(enemyStrength); 
-
-                for (int i = 0; i < AllTroopBays.Length; i++)
-                {
-                    ShipModule hangar = AllTroopBays[i];
-                    if (hangar.TryGetHangarShipActive(out Ship hangarShip))
-                    {
-                        sendingTroops = true;
-                        if (hangarShip.AI.State != AIState.Boarding && hangarShip.AI.State != AIState.Resupply)
-                            hangarShip.AI.OrderTroopToBoardShip(targetShip);
-                    }
-                }
-            }
-
-            return sendingTroops;
-        }
-
+        
         public bool IsInHangarLaunchRange(GameplayObject target) 
                                         => IsInHangarLaunchRange(target.Center.Distance(Owner.Center));
 
