@@ -86,68 +86,68 @@ namespace Ship_Game.AI
             if (!HasPriorityOrder && !HasPriorityTarget && Owner.Weapons.Count == 0 && !Owner.Carrier.HasActiveHangars)
                 CombatState = CombatState.Evade;
 
-            if (Owner.Carrier.HasActiveTroopBays)
-                CombatState = CombatState.AssaultShip;
-
             // in range:
             float distanceToTarget = target.Center.Distance(Owner.Center);
-            if (distanceToTarget < 7500f)
+            if (HasPriorityOrder || distanceToTarget > Owner.DesiredCombatRange && distanceToTarget > 7500f)
             {
-                if (Owner.engineState == Ship.MoveState.Warp)
-                    Owner.HyperspaceReturn();
-            }
-            else if (FleetNode != null && Owner.fleet != null && HasPriorityOrder)
-            {
-                // TODO: need to move this into fleet.
-                if (Owner.fleet.FleetTask == null)
-                {
-                    Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
-                    if (target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
-                    {
-
-                        if (Owner.Center.OutsideRadius(nodePos, 1000f))
-                        {
-                            ThrustOrWarpToPos(nodePos, timeStep);
-                        }
-                        else
-                        {
-                            DoHoldPositionCombat(timeStep);
-                        }
-
-                        return;
-                    }
-                }
-                else
-                {
-                    var task = Owner.fleet.FleetTask;
-                    if (target.Center.OutsideRadius(task.AO, task.AORadius + FleetNode.OrdersRadius))
-                    {
-                        DequeueCurrentOrder();
-                    }
-                }
+                if (Owner.fleet == null || Owner.ShipEngines.ReadyForFormationWarp == Status.Good)
+                MoveToEngageTarget(target, timeStep);
             }
             else
             {
-                MoveToEngageTarget(target, timeStep);
-            }
 
+                if (Owner.engineState == Ship.MoveState.Warp)
+                    Owner.HyperspaceReturn();
 
-            if (Owner.Carrier.IsInHangarLaunchRange(distanceToTarget)) 
-                Owner.Carrier.ScrambleFighters();
+                if (FleetNode != null && Owner.fleet != null && HasPriorityOrder)
+                {
+                    // TODO: need to move this into fleet.
+                    if (Owner.fleet.FleetTask == null)
+                    {
+                        Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
+                        if (target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
+                        {
 
-            if (Intercepting && CombatRangeType == StanceType.RangedCombatMovement)
-            {
-                // clamp the radius here so that it wont flounder if the ship has very long range weapons.
-                float radius = Owner.DesiredCombatRange * 3f;
-                if (Owner.Center.OutsideRadius(target.Center, radius)) { 
-                    ThrustOrWarpToPos(target.Center, timeStep);
-                    return;
+                            if (Owner.Center.OutsideRadius(nodePos, 1000f))
+                            {
+                                ThrustOrWarpToPos(nodePos, timeStep);
+                            }
+                            else
+                            {
+                                DoHoldPositionCombat(timeStep);
+                            }
+
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        var task = Owner.fleet.FleetTask;
+                        if (target.Center.OutsideRadius(task.AO, Math.Max(task.AORadius, FleetNode.OrdersRadius)))
+                        {
+                            DequeueCurrentOrder();
+                        }
+                    }
                 }
-                else if (distanceToTarget < Owner.DesiredCombatRange)
-                    Intercepting = false;
-            }
 
-            CombatAI.ExecuteCombatTactic(timeStep);
+                if (Owner.Carrier.IsInHangarLaunchRange(distanceToTarget))
+                    Owner.Carrier.ScrambleFighters();
+
+                if (Intercepting && CombatRangeType == StanceType.RangedCombatMovement)
+                {
+                    // clamp the radius here so that it wont flounder if the ship has very long range weapons.
+                    float radius = Owner.DesiredCombatRange * 3f;
+                    if (Owner.Center.OutsideRadius(target.Center, radius))
+                    {
+                        ThrustOrWarpToPos(target.Center, timeStep);
+                        return;
+                    }
+                    else if (distanceToTarget < Owner.DesiredCombatRange)
+                        Intercepting = false;
+                }
+
+                CombatAI.ExecuteCombatTactic(timeStep);
+            }
             
             // Target was modified by one of the CombatStates (?)
             Owner.InCombat = Target != null;
@@ -165,6 +165,10 @@ namespace Ship_Game.AI
                 }
 
                 ThrustOrWarpToPos(prediction, timeStep);
+            }
+            else
+            {
+                ThrustOrWarpToPos(Target.Center, timeStep);
             }
         }
 
