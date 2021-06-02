@@ -74,12 +74,11 @@ namespace Ship_Game.Data
         }
 
         /// <summary>
-        /// Instead of returning a BOOL, returns either a valid StringView or an EMPTY StringView
+        /// Instead of returning a BOOL, returns either a valid StringView or a StringView.Empty
         /// </summary>
         public StringView ReadLine()
         {
-            bool got = ReadLine(out StringView line);
-            return got ? line : default;
+            return ReadLine(out StringView line) ? line : StringView.Empty;
         }
 
         /**

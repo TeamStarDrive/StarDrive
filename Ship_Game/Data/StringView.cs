@@ -16,6 +16,8 @@ namespace Ship_Game.Data
 
         public override string ToString() => $"Length:{Length} Text:\"{Text}\"";
 
+        public static StringView Empty = new StringView(new char[0]);
+
         public StringView(char[] chars)
         {
             Start = 0;
