@@ -27,7 +27,7 @@ namespace Ship_Game
         readonly Technology TechTemplate;
         Rectangle PlusRect;
 
-        const int MaxUnlockItems = 6;
+        const int MaxUnlockItems = 4;
 
         public TreeNode(Vector2 pos, TechEntry theEntry, ResearchScreenNew screen)
         {
