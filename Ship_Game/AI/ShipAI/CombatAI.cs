@@ -227,11 +227,9 @@ namespace Ship_Game.AI
                     case CombatState.Evade:
                         CombatTactic = new CombatTactics.Evade(Owner.AI);
                         break;
-                    case CombatState.AssaultShip:
-                        CombatTactic = new CombatTactics.AssaultShipCombat(Owner.AI);
-                        break;
                     case CombatState.OrbitalDefense:
                         break;
+                    case CombatState.AssaultShip:
                     case CombatState.ShortRange:
                         CombatTactic = new CombatTactics.Artillery(Owner.AI);
                         break;
