@@ -6,8 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using SharpRaven;
-using SharpRaven.Data;
+using Sentry;
 using Ship_Game.Utils;
 
 namespace Ship_Game
@@ -50,7 +49,7 @@ namespace Ship_Game
         public static bool VerboseLogging = false;
 
         // sentry.io automatic crash reporting
-        static readonly RavenClient Raven = new RavenClient("https://1c5a169d2a304e5284f326591a2faae3:3e8eaeb6d9334287955fdb8101ae8eab@sentry.io/123180");
+        static IDisposable Sentry;
 
         // prevent flooding Raven with 2000 error messages if we fall into an exception loop
         // instead, we count identical exceptions and resend them only over a certain threshold
@@ -77,11 +76,12 @@ namespace Ship_Game
             LogThread = new Thread(LogAsyncWriter) { Name = "AsyncLogWriter" };
             LogThread.Start();
 
-            Raven.Release = GlobalStats.ExtendedVersion;
+            string environment = "Release";
+
             if (HasDebugger)
             {
                 VerboseLogging = true;
-                Raven.Environment = "Staging";
+                environment = "Staging";
 
                 // if Console output is redirected, all console text is sent to VS Output instead
                 // in that case, showing the console is pointless, however if output isn't redirected
@@ -94,12 +94,26 @@ namespace Ship_Game
             else
             {
             #if DEBUG
-                Raven.Environment = "Staging";
+                environment = "Staging";
             #else
-                Raven.Environment = GlobalStats.Version.Contains("_TEST_") ? "Test" : "Release";
+                environment = GlobalStats.Version.ToLower().Contains("test") ? "Test" : "Release";
             #endif
                 HideConsoleWindow();
             }
+            
+            Sentry = SentrySdk.Init(o =>
+            {
+                o.Dsn = "https://1c5a169d2a304e5284f326591a2faae3:3e8eaeb6d9334287955fdb8101ae8eab@sentry.io/123180";
+                o.Environment = environment;
+                o.Release = GlobalStats.Version;
+                o.CacheDirectoryPath = Dir.StarDriveAppData;
+                // prevent an annoying error during startup, the new Sentry Sdk is not that well written
+                Directory.CreateDirectory(Dir.StarDriveAppData + "/Sentry/20B2286BFAE850FA0CDC761198EC2B61B0722A9B");
+            });
+            SentrySdk.ConfigureScope(scope =>
+            {
+                scope.AddAttachment("blackbox.log");
+            });
 
             string init = "\r\n";
             init +=  " ======================================================\r\n";
@@ -107,6 +121,20 @@ namespace Ship_Game
             init += $" ==== UTC: {DateTime.UtcNow,-39} ====\r\n";
             init +=  " ======================================================\r\n";
             LogWriteAsync(init, ConsoleColor.Green);
+        }
+
+        public static void Close()
+        {
+            try
+            {
+                SentrySdk.FlushAsync(TimeSpan.FromSeconds(5));
+                Sentry?.Dispose(ref Sentry);
+            }
+            catch
+            {
+            }
+            StopLogThread();
+            FlushAllLogs();
         }
 
         public static void AddThreadMonitor()
@@ -237,7 +265,7 @@ namespace Ship_Game
             }
         }
 
-        public static void StopLogThread()
+        static void StopLogThread()
         {
             LogThread = null;
             lock (Sync)
@@ -363,7 +391,7 @@ namespace Ship_Game
                 if (!ShouldIgnoreErrorText(error))
                 {
                     var ex = new Exception(new StackTrace(1).ToString());
-                    CaptureEvent(text, ErrorLevel.Error, ex);
+                    CaptureEvent(text, SentryLevel.Error, ex);
                 }
                 return;
             }
@@ -375,7 +403,7 @@ namespace Ship_Game
 
         // write an Exception to logfile, sentry.io and debug console with an error message
         // plus trigger a Debugger.Break
-        public static void Error(Exception ex, string error = null, ErrorLevel errorLevel = ErrorLevel.Error)
+        public static void Error(Exception ex, string error = null, SentryLevel errorLevel = SentryLevel.Error)
         {
             string text = ExceptionString(ex, "(!) Exception: ", error);
             LogWriteAsync(text, ConsoleColor.DarkRed);
@@ -409,7 +437,7 @@ namespace Ship_Game
 
             if (!HasDebugger && IsTerminating) // only log errors to sentry if debugger not attached
             {
-                CaptureEvent(text, ErrorLevel.Fatal, ex);
+                CaptureEvent(text, SentryLevel.Fatal, ex);
             }
 
             ExceptionViewer.ShowExceptionDialog(text, GlobalStats.AutoErrorReport);
@@ -421,7 +449,7 @@ namespace Ship_Game
             if (trueCondition != true) Error(message);
         }
 
-        static void CaptureEvent(string text, ErrorLevel level, Exception ex = null)
+        static void CaptureEvent(string text, SentryLevel level, Exception ex = null)
         {
             var evt = new SentryEvent(ex)
             {
@@ -429,16 +457,12 @@ namespace Ship_Game
                 Level   = level
             };
 
-            if (GlobalStats.HasMod)
-            {
-                evt.Tags["Mod"]        = GlobalStats.ActiveMod.ModName;
-                evt.Tags["ModVersion"] = GlobalStats.ActiveModInfo.Version;
-            }
+            SentrySdk.CaptureEvent(evt);
 
-            if (level == ErrorLevel.Fatal) // for fatal errors, we can't do ASYNC reports
-                Raven.Capture(evt);
-            else
-                Raven.CaptureAsync(evt);
+            if (level == SentryLevel.Fatal) // for fatal errors, we can't do ASYNC reports
+            {
+                SentrySdk.FlushAsync(TimeSpan.FromSeconds(3));
+            }
         }
 
         struct TraceContext
