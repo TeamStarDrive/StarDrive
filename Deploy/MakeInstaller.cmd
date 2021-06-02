@@ -9,7 +9,7 @@ if not [%1]==[] (
 )
 
 :: Assume MakeInstaller.cmd is called from C:\Projects\BlackBox folder
-if not exist "Deploy/NSIS/Bin/makensis.exe" (
+if not exist "Deploy/NSIS/makensis.exe" (
     echo "MakeInstaller.cmd must be executed with WorkingDir=Projects\BlackBox\"
     exit /b %errorlevel%
 )
