@@ -1698,12 +1698,6 @@
 powershell -ExecutionPolicy Bypass -File $(SolutionDir)CopyGameContent.ps1  $(SolutionDir)  $(SolutionDir)StarDrive\  COPYMODS
 
 if "$(ConfigurationName)" == "Deploy"  (
-REM call "$(DevEnvDir)..\tools\vsdevcmd.bat" -no_logo -arch=x86
-REM dumpbin /headers $(TargetPath) | find "Application"
-REM echo "Setting /LARGEADDRESSAWARE"
-REM editbin /nologo /largeaddressaware $(TargetPath)
-REM dumpbin /headers $(TargetPath) | find "Application"
-
   $(SolutionDir)Deploy\MakeInstaller.cmd $(SolutionDir)
 )
 </PostBuildEvent>
