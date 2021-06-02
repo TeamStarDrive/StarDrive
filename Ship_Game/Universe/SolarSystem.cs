@@ -508,7 +508,7 @@ namespace Ship_Game
 
                 // Add buildings to planet
                 foreach (string building in ringData.BuildingList)
-                    ResourceManager.CreateBuilding(building).AssignBuildingToTile(newOrbital);
+                    ResourceManager.CreateBuilding(building).AssignBuildingToTilePlanetCreation(newOrbital, out _);
 
                 // Add moons to planets
                 for (int j = 0; j < ringData.Moons.Count; j++)

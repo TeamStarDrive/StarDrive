@@ -86,6 +86,14 @@ namespace UnitTests.Data
             Assert.That.Equal(new string[]{"Big brown fox,", "jumps over", "the gray", "dog"},
                               Fonts.Arial12.ParseTextToLines(text, 300));
         }
+
+        [TestMethod]
+        public void ParseTextSplitsCorrectlyOnNewLinesThatNeverFit()
+        {
+            string text = "Terraforming Planet";
+            Assert.AreEqual("Terraforming\nPlanet",
+                            Fonts.Tahoma10.ParseText(text, 73));
+        }
         
         [TestMethod]
         public void ParseTextHandlesTabCharacter()
