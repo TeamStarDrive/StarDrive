@@ -1661,6 +1661,7 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="CopyGameContent.ps1" />
     <None Include="packages.config" />
     <None Include="README.md" />
     <None Include="StarDrive.sln.DotSettings" />
@@ -1700,7 +1701,7 @@
   <PropertyGroup>
     <PostBuildEvent>
 :: Copy Game content from BB/Content and BB/Mods into StarDrive/Content and StarDrive/Mods
-powershell -ExecutionPolicy Bypass -File $(ProjectDir)CopyGameContent.ps1 $(TargetDir) $(SolutionDir)
+powershell -ExecutionPolicy Bypass -File $(SolutionDir)CopyGameContent.ps1  $(SolutionDir)  $(SolutionDir)StarDrive\  COPYMODS
 
 if "$(ConfigurationName)" == "Deploy"  (
 REM call "$(DevEnvDir)..\tools\vsdevcmd.bat" -no_logo -arch=x86
@@ -1711,7 +1712,7 @@ REM dumpbin /headers $(TargetPath) | find "Application"
 
   $(ProjectDir)Deploy\Config\Deploy.cmd $(ProjectDir)
 )
-    </PostBuildEvent>
+</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
