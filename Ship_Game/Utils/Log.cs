@@ -391,7 +391,7 @@ namespace Ship_Game
                 if (!ShouldIgnoreErrorText(error))
                 {
                     var ex = new Exception(new StackTrace(1).ToString());
-                    CaptureEvent(text, ErrorLevel.Error, ex);
+                    CaptureEvent(text, SentryLevel.Error, ex);
                 }
                 return;
             }
