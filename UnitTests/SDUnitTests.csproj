@@ -199,7 +199,7 @@
   <PropertyGroup>
     <PostBuildEvent>
 :: Copy Game content from BB/Content into UnitTests/bin/Release/Content 
-::powershell -ExecutionPolicy Bypass -File $(SolutionDir)CopyGameContent.ps1 $(SolutionDir) $(TargetDir) NOMOD
+:: powershell -ExecutionPolicy Bypass -File $(SolutionDir)CopyGameContent.ps1 $(SolutionDir) $(TargetDir) NOMOD
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

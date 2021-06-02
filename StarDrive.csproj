@@ -275,9 +275,7 @@
     <Compile Include="Ship_Game\Audio\AudioDevices.cs" />
     <Compile Include="Ship_Game\Audio\AudioHandle.cs" />
     <Compile Include="Ship_Game\Audio\AudioInstance.cs" />
-    <Compile Include="Ship_Game\BuildingCategory.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
+    <Compile Include="Ship_Game\BuildingCategory.cs" />
     <Compile Include="Ship_Game\Commands\Goals\AssaultBombers.cs" />
     <Compile Include="Ship_Game\Commands\Goals\ScoutSystem.cs" />
     <Compile Include="Ship_Game\Data\GenericStringViewParser.cs" />
@@ -617,9 +615,7 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_BuildDefenses.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Colonize.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Trade.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\SunZoneData.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\SunZoneData.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetType.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_ConstructionQueue.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_EvaluateBuildings.cs" />
@@ -660,9 +656,7 @@
     <Compile Include="Ship_Game\Utils\EnumFlatMap.cs" />
     <Compile Include="Ship_Game\Utils\ReadRestAPIFromSite.cs" />
     <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetEdict.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetEdict.cs" />
     <Compile Include="Ship_Game\Utils\Array.cs" />
     <Compile Include="Ship_Game\Utils\Map.cs" />
     <Compile Include="Ship_Game\Utils\Memory.cs" />
