@@ -1,4 +1,4 @@
-"content"
+"Content"
 "Stardrive.exe"
 "Stardrive.exe.config"
 "StarDrive.pdb"
@@ -15,4 +15,3 @@
 "..\..\StarDrive\libfbxsdk.dll"
 "..\..\StarDrive\XnaNative.dll"
 "..\..\StarDrive\Microsoft.Xna.Framework.dll"
-"..\..\StarDrive\System.ValueTuple.dll"
