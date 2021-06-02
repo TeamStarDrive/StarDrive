@@ -57,8 +57,6 @@ namespace Ship_Game
         public static Map<string, Texture2D> ProjTextDict       = new Map<string, Texture2D>();
 
         public static Array<RandomItem> RandomItemsList = new Array<RandomItem>();
-        static Array<string> TroopsDictKeys           = new Array<string>();
-        public static IReadOnlyList<string> TroopTypes => TroopsDictKeys;
 
         public static Map<string, Artifact> ArtifactsDict      = new Map<string, Artifact>();
         public static Map<string, ExplorationEvent> EventsDict = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
@@ -322,7 +320,7 @@ namespace Ship_Game
             
             TroopsDict.Clear();
             TroopsList.Clear();
-            TroopsDictKeys.Clear();
+            TroopsDictKeys = new string[0];
 
             BuildingsDict.Clear();
             BuildingsById.Clear();
@@ -593,20 +591,35 @@ namespace Ship_Game
 
         static readonly Map<string, Troop> TroopsDict = new Map<string, Troop>();
         static readonly Array<Troop> TroopsList = new Array<Troop>();
+        static string[] TroopsDictKeys = new string[0];
+
+        public static IReadOnlyList<string> TroopTypes => TroopsDictKeys;
 
         public static Troop[] GetTroopTemplatesFor(Empire e)
             => TroopsList.Filter(t => e.WeCanBuildTroop(t.Name)).Sorted(t => t.ActualCost);
+        
+        public static bool GetTroopTemplate(string troopType, out Troop troop)
+        {
+            return TroopsDict.TryGetValue(troopType, out troop);
+        }
 
-        public static float GetTroopCost(string troopType) => TroopsDict[troopType].ActualCost;
         public static Troop GetTroopTemplate(string troopType)
         {
-            if (TroopsDict.TryGetValue(troopType, out Troop troop))
+            if (GetTroopTemplate(troopType, out Troop troop))
                 return troop;
 
             Log.WarningWithCallStack($"Troop {troopType} Template Not found");
             return TroopsList.First;
         }
 
+        public static float GetTroopCost(string troopType)
+        {
+            if (GetTroopTemplate(troopType, out Troop troop))
+                return troop.ActualCost;
+
+            Log.WarningWithCallStack($"Troop {troopType} Template Not found");
+            return 1;
+        }
 
         public static Troop CreateTroop(string troopType, Empire forOwner)
         {
@@ -640,7 +653,7 @@ namespace Ship_Game
                 if (troop.StrengthMax <= 0)
                     troop.StrengthMax = troop.Strength;
             }
-            TroopsDictKeys = new Array<string>(TroopsDict.Keys);
+            TroopsDictKeys = TroopsDict.Keys.ToArray();
         }
 
         public static MarkovNameGenerator GetRandomNames(Empire empire)
@@ -704,6 +717,9 @@ namespace Ship_Game
             WhitePixel.SetData(new Color[]{ Color.White });
         }
 
+        public static SubTexture ErrorTexture   => TextureOrNull("NewUI/x_red");
+        public static SubTexture InvalidTexture => TextureOrNull("NewUI/invalid");
+
         // Load texture with its abstract path such as
         // "Explosions/smaller/shipExplosion"
         public static SubTexture TextureOrNull(string textureName)
@@ -714,6 +730,7 @@ namespace Ship_Game
             Textures[textureName] = loaded; // save even if null
             return loaded;
         }
+
         public static SubTexture TextureOrDefault(string textureName, string defaultTex)
         {
             SubTexture loaded = TextureOrNull(textureName);
@@ -728,7 +745,7 @@ namespace Ship_Game
 
             Log.WarningWithCallStack($"Texture path not found: '{textureName}' replacing with 'NewUI/x_red'");
 
-            SubTexture errorTexture = TextureOrNull("NewUI/x_red");
+            SubTexture errorTexture = ErrorTexture;
             Textures[textureName] = errorTexture; // so we don't get this error again
             return errorTexture;
         }

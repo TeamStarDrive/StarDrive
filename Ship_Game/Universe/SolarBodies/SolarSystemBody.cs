@@ -245,13 +245,17 @@ namespace Ship_Game
 
             if (RandomMath.RollDice(selectedBuilding.EventSpawnChance))
             {
-                Building building    = ResourceManager.CreateBuilding(selectedBuilding.BID);
-                Planet thisPlanet    = this as Planet;
-                PlanetGridSquare pgs = building.AssignBuildingToRandomTile(thisPlanet);
-                if (!pgs.SetEventOutComeNum(thisPlanet, building))
-                    thisPlanet?.DestroyBuildingOn(pgs);
+                Building building = ResourceManager.CreateBuilding(selectedBuilding.BID);
+                if (!(this is Planet thisPlanet))
+                    return;
 
-                Log.Info($"Event building : {pgs.Building.Name} : created on {Name}");
+                if (building.AssignBuildingToTilePlanetCreation(thisPlanet, out PlanetGridSquare tile))
+                {
+                    if (!tile.SetEventOutComeNum(thisPlanet, building))
+                        thisPlanet.DestroyBuildingOn(tile);
+
+                    Log.Info($"Event building : {tile.Building.Name} : created on {Name}");
+                }
             }
         }
 
@@ -277,7 +281,7 @@ namespace Ship_Game
                     else
                     {
                         Building b = ResourceManager.CreateBuilding(template);
-                        b.AssignBuildingToRandomTile(this as Planet, !b.CanBuildAnywhere);
+                        b.AssignBuildingToRandomTile(this as Planet);
                         Log.Info($"Resource Created : '{b.Name}' : on '{Name}' ");
                     }
                 }
