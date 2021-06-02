@@ -6,16 +6,11 @@ set year=%date:~-2%
 set month=%date:~4,2%
 set day=%date:~7,2%
 
-:: Get the branch name and replace release/ with empty and / with _
-for /f "delims=" %%b in ('git name-rev --name-only HEAD') do set name=%%b
-set name=%name:release/=%
-set name=%name:/=_%
+echo Deploy should only be done via AppVeyor
+echo APPVEYOR_BUILD_VERSION=%APPVEYOR_BUILD_VERSION%
 
-:: Get current revision `7912`
-for /f %%r in ('git rev-list --count HEAD') do set revision=%%r
-echo Name=%name%
-echo Revision=%revision%
-set installer_filename=BlackBox_Mars_%name%_%revision%
+set name=%APPVEYOR_BUILD_VERSION%
+set installer_filename=BlackBox_Mars_%name%
 echo %installer_filename% > version.txt
 
 copy "%1deploy\config\config.txt" "%1deploy\config\config_%name%" 
