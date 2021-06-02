@@ -1704,7 +1704,7 @@ REM echo "Setting /LARGEADDRESSAWARE"
 REM editbin /nologo /largeaddressaware $(TargetPath)
 REM dumpbin /headers $(TargetPath) | find "Application"
 
-  $(ProjectDir)Deploy\Config\Deploy.cmd $(ProjectDir)
+  $(SolutionDir)Deploy\MakeInstaller.cmd
 )
 </PostBuildEvent>
   </PropertyGroup>

@@ -198,8 +198,6 @@
   <Import Project="..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.targets" Condition="Exists('..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.targets')" />
   <PropertyGroup>
     <PostBuildEvent>
-:: Copy Game content from BB/Content into UnitTests/bin/Release/Content 
-:: powershell -ExecutionPolicy Bypass -File $(SolutionDir)CopyGameContent.ps1 $(SolutionDir) $(TargetDir) NOMOD
-</PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>
