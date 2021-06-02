@@ -128,7 +128,7 @@ SectionGroup /e "BlackBox"
         !insertmacro AddStarDriveFile System.Text.Json.dll
         !insertmacro AddStarDriveFile System.Threading.Tasks.Extensions.dll
         !insertmacro AddStarDriveFile System.ValueTuple.dll
-        
+        !insertmacro AddStarDriveFile Microsoft.Bcl.AsyncInterfaces.dll
 
         ; Everything inside Content folder
         ; exclude specific files by using: /x *.tiff
