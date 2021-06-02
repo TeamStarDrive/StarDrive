@@ -51,6 +51,14 @@ OutFile "upload/${INSTALLER_NAME}_${PRODUCT_VERSION}.exe"
 ;Languages
 !insertmacro MUI_LANGUAGE "English"
 
+; Installer file INFO
+VIProductVersion "${PRODUCT_VERSION}.0"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "StarDrive BlackBox"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" "Codegremlins"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "Copyright ZeroSum Games and Codegremlins"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "StarDrive BlackBox Installer"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${PRODUCT_VERSION}"
+
 Var STEAMDIR ; found steam dir
 Var PREVDIR ; previous mod install dir
 Function .onInit
