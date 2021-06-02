@@ -2809,6 +2809,9 @@
     <Content Include="Content\Textures\NewUI\icon_turret.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Textures\NewUI\invalid.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Textures\NewUI\IssueBackupCommand.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -2955,6 +2958,9 @@
     </Content>
     <Content Include="Content\Textures\NewUI\UI_SendTroops.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\x_red.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\TacticalIcons\symbol_design_bomber.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
