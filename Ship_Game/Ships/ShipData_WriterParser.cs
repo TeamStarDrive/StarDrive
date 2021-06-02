@@ -88,39 +88,9 @@ namespace Ship_Game.Ships
             sw.FlushToFile(file);
         }
 
-        class DesignParser : IDisposable
-        {
-            public FileInfo File;
-            StreamReader Reader;
-            char[] Buffer;
-
-            public DesignParser(FileInfo file)
-            {
-                File = file;
-                Reader = new StreamReader(file.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Encoding.UTF8);
-                Buffer = new char[4096];
-            }
-            public void Dispose()
-            {
-                Reader.Dispose();
-                Buffer = null;
-                GC.SuppressFinalize(this);
-            }
-            public bool ReadLine(out StringView ln)
-            {
-                while (StringView.ReadLine(Reader, Buffer, out ln))
-                {
-                    if (ln.Length == 0 || ln.Char0 == '#')
-                        continue; // skips empty lines or comments
-                    return true;
-                }
-                return false; // EOF
-            }
-        }
-
         static ShipData ParseDesign(FileInfo file)
         {
-            using (var p = new DesignParser(file))
+            using (var p = new GenericStringViewParser(file))
             {
                 if (!p.ReadLine(out StringView firstLine) && !firstLine.StartsWith("Version"))
                     throw new InvalidDataException($"Ship design must start with a Version=? tag! File={file}");
@@ -138,7 +108,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        ShipData(DesignParser p)
+        ShipData(GenericStringViewParser p)
         {
             string[] moduleUIDs = null;
             DesignSlot[] modules = null;
@@ -167,7 +137,7 @@ namespace Ship_Game.Ships
                 else
                 {
                     if (numModules == modules.Length)
-                        throw new InvalidDataException($"Ship design module count is incorrect. File={p.File}");
+                        throw new InvalidDataException($"Ship design module count is incorrect: {p.Name}");
 
                     StringView pt = line.Next(';');
                     StringView index = line.Next(';');

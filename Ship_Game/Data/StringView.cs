@@ -36,52 +36,6 @@ namespace Ship_Game.Data
             Chars = Empty<char>.Array;
         }
 
-        /**
-         * The most efficient way to read .NET StreamReader for lines of data
-         * @return FALSE if End of Stream
-         */ 
-        public static bool ReadLine(TextReader reader, char[] buffer, out StringView line)
-        {
-            int length = 0;
-            for (;;)
-            {
-                int ch = reader.Read();
-                switch (ch)
-                {
-                    case -1: goto end_of_stream;
-                    case 10: goto newline;
-                    case 13: goto carriage;
-                    default:
-                        // this will crash on abnormally long lines
-                        buffer[length++] = (char)ch;
-                        continue;
-                }
-            }
-
-            carriage:
-            if (reader.Peek() == 10) // skip newline
-                reader.Read();
-
-            newline:
-            line = new StringView(buffer, 0, length); // allow 0 length
-            return true;
-
-            end_of_stream:
-            if (length > 0)
-            {
-                line = new StringView(buffer, 0, length);
-                return true;
-            }
-            line = default;
-            return false;
-        }
-
-        public static StringView? ReadLine(TextReader reader, char[] buffer)
-        {
-            bool got = ReadLine(reader, buffer, out StringView line);
-            return got ? line : default;
-        }
-
         public void SkipWhiteSpace(out int depth)
         {
             depth = 0;
