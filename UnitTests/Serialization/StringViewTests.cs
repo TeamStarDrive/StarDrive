@@ -22,16 +22,14 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void ReadLine()
         {
-            var sr = new StringReader("Test\nSomeLines\r\nAnd carriage\rAndEmpties\n\n\n");
-            
-            var buffer = new char[1024];
-            Assert.AreEqual("Test", StringView.ReadLine(sr, buffer).Value.Text);
-            Assert.AreEqual("SomeLines", StringView.ReadLine(sr, buffer).Value.Text);
-            Assert.AreEqual("And carriage", StringView.ReadLine(sr, buffer).Value.Text);
-            Assert.AreEqual("AndEmpties", StringView.ReadLine(sr, buffer).Value.Text);
-            Assert.AreEqual("", StringView.ReadLine(sr, buffer).Value.Text);
-            Assert.AreEqual("", StringView.ReadLine(sr, buffer).Value.Text);
-            Assert.IsFalse(StringView.ReadLine(sr, buffer, out _));
+            var r = new GenericStringViewParser("Reader", "Test\nSomeLines\r\nAnd carriage\rAndEmpties\n\n\n");
+            Assert.AreEqual("Test", r.ReadLine().Text);
+            Assert.AreEqual("SomeLines", r.ReadLine().Text);
+            Assert.AreEqual("And carriage", r.ReadLine().Text);
+            Assert.AreEqual("AndEmpties", r.ReadLine().Text);
+            Assert.AreEqual("", r.ReadLine().Text);
+            Assert.AreEqual("", r.ReadLine().Text);
+            Assert.IsFalse(r.ReadLine(out _));
         }
 
         [TestMethod]
