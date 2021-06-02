@@ -68,7 +68,7 @@
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Deploy|x86'">
-    <OutputPath>Deploy\Temp\</OutputPath>
+    <OutputPath>StarDrive\</OutputPath>
     <DefineConstants>STEAM</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
@@ -1704,6 +1704,8 @@ REM echo "Setting /LARGEADDRESSAWARE"
 REM editbin /nologo /largeaddressaware $(TargetPath)
 REM dumpbin /headers $(TargetPath) | find "Application"
 
+  cd $(SolutionDir)
+  echo %25cd%25
   $(SolutionDir)Deploy\MakeInstaller.cmd
 )
 </PostBuildEvent>
