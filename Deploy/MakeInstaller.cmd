@@ -1,5 +1,7 @@
 @echo off
 echo Deploy should only be done via AppVeyor
+if /i not defined APPVEYOR_BUILD_VERSION set APPVEYOR_BUILD_VERSION=0.0.0.0
+
 echo APPVEYOR_BUILD_VERSION=%APPVEYOR_BUILD_VERSION%
 
 :: cd to given parameter if it exists
