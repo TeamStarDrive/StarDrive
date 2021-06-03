@@ -161,8 +161,6 @@ namespace Ship_Game.Spatial
 
         static bool HitTestBeam(Beam beam, GameplayObject victim, out ShipModule hitModule, out float distanceToHit)
         {
-            ++GlobalStats.BeamTests;
-
             Vector2 beamStart = beam.Source;
             Vector2 beamEnd   = beam.Destination;
 

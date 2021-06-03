@@ -393,7 +393,7 @@ namespace Ship_Game
                 SlotStruct slot = slotStruct.Parent ?? slotStruct;
                 if (ActiveModule == null && slot.Module != null)
                 {
-                    SetActiveModule(slot.Module, slot.Orientation, slot.Facing);
+                    SetActiveModule(slot.Module.UID, slot.Orientation, slot.Facing);
                     return true;
                 }
 

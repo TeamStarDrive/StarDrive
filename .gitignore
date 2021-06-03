@@ -1,6 +1,4 @@
 obj/
-bin/
-Deploy/
 packages/
 StarDrive/
 Deploy/Upload/
@@ -43,3 +41,7 @@ SDNative/SDNativeTests/Release-2017/
 Content/GameText.Missing.RUS.yaml
 Content/GameText.Missing.SPA.yaml
 Content/Audio/sd_audio_aac.zip
+bin/x86/Release-2017/
+Microsoft.Xna.Framework.Game/bin/
+SynapseGaming-SunBurn-Pro/bin/
+UnitTests/bin/

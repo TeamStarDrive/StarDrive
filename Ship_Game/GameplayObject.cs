@@ -107,7 +107,7 @@ namespace Ship_Game
         {
             System = system;
         }
-        
+
         public void SetSystemBackBuffer(SolarSystem system)
         {
             SystemBackBuffer = system;
@@ -117,48 +117,6 @@ namespace Ship_Game
         {
             System           = SystemBackBuffer;
             SystemBackBuffer = null;
-        }
-
-        public void ChangeLoyalty(Empire changeTo, bool notification = true)
-        {
-            // TODO: Should we allow projectiles to change loyalty? They are short lived anyway
-            if (Type == GameObjectType.Proj)
-            {
-                ((Projectile) this).Loyalty = changeTo;
-            }
-            else if (Type == GameObjectType.Beam)
-            {
-                ((Beam)this).Loyalty = changeTo;
-            }
-            else if (Type == GameObjectType.Ship)
-            {
-                var ship = (Ship) this;
-                Empire oldLoyalty = ship.loyalty;
-                oldLoyalty.TheyKilledOurShip(changeTo, ship);
-                changeTo.WeKilledTheirShip(oldLoyalty, ship);
-                // remove ship from fleet but do not add it back to empire pools.
-                ship.fleet?.RemoveShip(ship, false);
-                ship.AI.ClearOrders();
-                oldLoyalty.RemoveShip(ship);
-
-                oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);
-                ship.loyalty = changeTo;
-                changeTo.AddShip(ship);
-                ship.shipStatusChanged = true;
-
-                ship.SwitchTroopLoyalty(oldLoyalty, ship.loyalty);
-                ship.ReCalculateTroopsAfterBoard();
-                ship.ScuttleTimer = -1f; // Cancel any active self destruct 
-                ship.PiratePostChangeLoyalty();
-                ship.IsGuardian = changeTo.WeAreRemnants;
-                
-                if (notification)
-                {
-                    changeTo.AddBoardSuccessNotification(ship);
-                    oldLoyalty.AddBoardedNotification(ship);
-                }
-            }
-            ReinsertSpatial = true;
         }
 
         public int GetLoyaltyId()
@@ -183,7 +141,7 @@ namespace Ship_Game
         {
             return false;
         }
-        public virtual bool ParentIsThis(Ship ship) 
+        public virtual bool ParentIsThis(Ship ship)
         {
             return false;
         }

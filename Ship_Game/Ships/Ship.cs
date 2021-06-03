@@ -5,13 +5,15 @@ using Ship_Game.Audio;
 using Ship_Game.Debug;
 using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
-using Ship_Game.Ships.DataPackets;
+using Ship_Game.Ships.Components;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Empires;
+using Ship_Game.Empires.Components;
 
 namespace Ship_Game.Ships
 {
@@ -89,7 +91,11 @@ namespace Ship_Game.Ships
         public Ship Mothership;
         public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
         public float PackDamageModifier { get; private set; }
-        public Empire loyalty;
+        public Empire loyalty => LoyaltyTracker.ShipOwner;
+        public LoyaltyChanges LoyaltyTracker { get; private set; }
+        public void LoyaltyChangeFromBoarding(Empire empire, bool addNotification = true) => LoyaltyTracker.SetBoardingLoyalty(empire, addNotification);
+        public void LoyaltyChangeByGift(Empire empire, bool addNotification = true) => LoyaltyTracker.SetLoyaltyForAbsorbedShip(empire, addNotification);
+        public void LoyaltyChangeAtSpawn(Empire empire, bool addNotification = true) => LoyaltyTracker.SetLoyaltyForNewShip(empire, addNotification);
 
         // This is the total number of Slots on the ships
         // It does not depend on the number of modules, and is always a constant
@@ -736,8 +742,6 @@ namespace Ship_Game.Ships
         // Added by McShooterz
         public bool IsTargetInFireArcRange(Weapon w, GameplayObject target)
         {
-            ++GlobalStats.WeaponArcChecks;
-
             if (!CheckRangeToTarget(w, target))
                 return false;
 
@@ -760,8 +764,6 @@ namespace Ship_Game.Ships
         // This is used by Beam weapons and by Testing
         public bool IsInsideFiringArc(Weapon w, Vector2 pickedPos)
         {
-            ++GlobalStats.WeaponArcChecks;
-
             ShipModule m = w.Module;
             return RadMath.IsTargetInsideArc(m.Center, pickedPos,
                                              Rotation + m.FacingRadians, m.FieldOfFire);
@@ -1122,7 +1124,6 @@ namespace Ship_Game.Ships
                 {
                     ModuleSlotList[i].UpdateEveryFrame(timeStep, parentX, parentY, rotation, cos, sin, tan);
                 }
-                GlobalStats.ModuleUpdates += ModuleSlotList.Length;
             }
         }
 
@@ -1596,7 +1597,7 @@ namespace Ship_Game.Ships
             RepairBeams.Clear();
             PlanetCrash = null;
 
-            loyalty.RemoveShip(this);
+            ((IEmpireShipLists)loyalty).RemoveShipAtEndOfTurn(this);
             RemoveTether();
             RemoveSceneObject();
             base.RemoveFromUniverseUnsafe();
@@ -1637,7 +1638,6 @@ namespace Ship_Game.Ships
             fleet = null;
             shipData = null;
             Mothership = null;
-            loyalty = null;
             JumpSfx.Destroy();
             KnownByEmpires = null;
             HasSeenEmpires = null;
@@ -1657,6 +1657,7 @@ namespace Ship_Game.Ships
             TradeRoutes = null;
             OurTroops = null;
             HostileTroops = null;
+            LoyaltyTracker = null;
         }
 
         public void UpdateShields()

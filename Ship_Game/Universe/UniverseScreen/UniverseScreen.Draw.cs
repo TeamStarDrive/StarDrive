@@ -1224,7 +1224,7 @@ namespace Ship_Game
                 DrawWayPointLines(ship, new Color(Color.Lime, alpha));
                 return;
             }
-            if (ship.AI.State == AIState.SystemTrader  && ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal g))
+            if (ship.AI.State == AIState.SystemTrader  && ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal g) && g.Trade != null)
             {
                 Planet importPlanet = g.Trade.ImportTo;
                 Planet exportPlanet = g.Trade.ExportFrom;

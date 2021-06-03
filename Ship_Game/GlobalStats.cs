@@ -25,12 +25,11 @@ namespace Ship_Game
 
     public static class GlobalStats
     {
-        public static string Version = "";
-        public static string ExtendedVersion = "";
-        public static string ExtendedVersionNoHash = "";
+        // 1.Major.Patch commit
+        public static string Version = ""; // "1.20.12000 develop/f83ab4a"
+        public static string ExtendedVersion = ""; // "BlackBox : 1.20.12000 develop/f83ab4a"
+        public static string ExtendedVersionNoHash = ""; // "BlackBox : 1.20.12000"
 
-        public static int ComparisonCounter = 1;
-        public static int Comparisons = 0;
         public static bool TakingInput = false;
         public static bool WarpInSystem = true;
         public static float FTLInSystemModifier = 1f;
@@ -48,10 +47,6 @@ namespace Ship_Game
         public static bool ShowAllDesigns        = true;
         public static bool SymmetricDesign       = true;
         public static bool FilterOldModules      = true;
-        public static int BeamTests              = 0;
-        public static int ModuleUpdates          = 0;
-        public static int WeaponArcChecks        = 0;
-        public static int DistanceCheckTotal     = 0;
         public static bool LimitSpeed            = true;
         public static float GravityWellRange;
         public static bool PlanetaryGravityWells = true;
@@ -206,6 +201,7 @@ namespace Ship_Game
             Version = (Assembly.GetEntryAssembly()?
                 .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
                 as AssemblyInformationalVersionAttribute[])?[0].InformationalVersion ?? "";
+
             ExtendedVersion       = $"BlackBox : {Version}";
             ExtendedVersionNoHash = $"BlackBox : {Version.Split(' ')[0]}";
 

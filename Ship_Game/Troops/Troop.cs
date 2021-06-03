@@ -71,6 +71,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool IsWounded       => !IsHealthFull;
 
         [XmlIgnore][JsonIgnore] public SubTexture TextureDefault => ResourceManager.Texture("Troops/" + TexturePath);
+        [XmlIgnore][JsonIgnore] public SubTexture IconTexture =>  ResourceManager.Texture("TroopIcons/" + Icon + "_icon");
 
         string WhichFrameString => WhichFrame.ToString("00");
 
@@ -276,8 +277,7 @@ namespace Ship_Game
 
         public void DrawIcon(SpriteBatch spriteBatch, Rectangle drawRect)
         {
-            var iconTexture = ResourceManager.Texture("TroopIcons/" + Icon + "_icon");
-            spriteBatch.Draw(iconTexture, drawRect, Color.White);
+            spriteBatch.Draw(IconTexture, drawRect, Color.White);
         }
 
         public void SetFromRect(Rectangle from)

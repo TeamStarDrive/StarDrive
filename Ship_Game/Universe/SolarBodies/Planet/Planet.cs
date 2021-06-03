@@ -1394,7 +1394,7 @@ namespace Ship_Game
 
         public void ResetGarrisonSize()
         {
-            GarrisonSize = !Owner.isPlayer ? 0 : 5; // Default is 5 for players. AI manages it's own troops
+            GarrisonSize = 0; // Default is 0 for players. AI manages it's own troops
         }
 
         public int NumTroopsCanLaunch

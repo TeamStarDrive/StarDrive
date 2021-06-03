@@ -170,7 +170,7 @@ namespace Ship_Game
                         batch.Draw(ResourceManager.Texture("Portraits/"+race.e.data.PortraitName), race.container, Color.White);
                         batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
                         batch.DrawDropShadowText1(race.e.data.Traits.Name, NameCursor, Fonts.Arial12Bold, race.e.EmpireColor);
-                        batch.Draw(ResourceManager.Texture("NewUI/x_red"), race.container, Color.White);
+                        batch.Draw(ResourceManager.ErrorTexture, race.container, Color.White);
                     }
                     else
                     {
