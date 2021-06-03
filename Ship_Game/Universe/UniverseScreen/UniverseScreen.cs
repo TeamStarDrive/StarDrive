@@ -415,13 +415,13 @@ namespace Ship_Game
             CreateStationTethers();
             EmpireManager.RestoreUnserializableDataFromSave();
             RecomputeFleetButtons(true);
-            CreateProcessTurnsThread();
 
             if (StarDate.AlmostEqual(1000)) // Run once to get all empire goals going
             {
                 UpdateEmpires(FixedSimTime.Zero);
                 EndOfTurnUpdate(FixedSimTime.Zero);
             }
+            CreateProcessTurnsThread();
         }
 
         void CreateProcessTurnsThread()

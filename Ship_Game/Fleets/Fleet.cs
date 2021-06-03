@@ -570,12 +570,12 @@ namespace Ship_Game.Fleets
         public void AssembleFleet2(Vector2 finalPosition, Vector2 finalDirection)
             => AssembleFleet(finalPosition, finalDirection, IsCoreFleet);
 
-        public void Reset()
+        public void Reset(bool returnShipsToEmpireAI = true)
         {
             while (Ships.Count > 0)
             {
                 var ship = Ships.PopLast();
-                RemoveShip(ship);
+                RemoveShip(ship, returnShipsToEmpireAI);
             }
             TaskStep = 0;
             FleetTask = null;
@@ -764,7 +764,7 @@ namespace Ship_Game.Fleets
             Vector2 enemySystemPos = task.TargetPlanet.ParentSystem.Position;
             Vector2 rallySystemPos = task.RallyPlanet.ParentSystem.Position;
 
-            return rallySystemPos.Distance(enemySystemPos) > AveragePos.Distance(rallySystemPos);
+            return rallySystemPos.Distance(enemySystemPos)*2 > AveragePos.Distance(rallySystemPos);
         }
 
         void DoAssaultPlanet(MilitaryTask task)

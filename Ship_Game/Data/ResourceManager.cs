@@ -57,8 +57,6 @@ namespace Ship_Game
         public static Map<string, Texture2D> ProjTextDict       = new Map<string, Texture2D>();
 
         public static Array<RandomItem> RandomItemsList = new Array<RandomItem>();
-        static Array<string> TroopsDictKeys           = new Array<string>();
-        public static IReadOnlyList<string> TroopTypes => TroopsDictKeys;
 
         public static Map<string, Artifact> ArtifactsDict      = new Map<string, Artifact>();
         public static Map<string, ExplorationEvent> EventsDict = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
@@ -322,7 +320,7 @@ namespace Ship_Game
             
             TroopsDict.Clear();
             TroopsList.Clear();
-            TroopsDictKeys.Clear();
+            TroopsDictKeys = new string[0];
 
             BuildingsDict.Clear();
             BuildingsById.Clear();
@@ -337,6 +335,7 @@ namespace Ship_Game
 
             HullBonuses.Clear();
             HullsDict.Clear();
+            NewHulls.Clear();
             HullsList.Clear();
 
             TechTree.Clear();
@@ -459,7 +458,7 @@ namespace Ship_Game
             // Which means the unification has to be done via `file.Name`
             // For other files such as XNB textures, we use the full path normalized to relative content path
             // such as: "Mods/MyMod/Textures/TechIcons/Aeroponics.xnb" --> "Textures/TechIcons/Aeroponics.xnb"
-            bool fileNames = ext == "xml";
+            bool fileNames = ext == "xml" || ext == "hull";
 
             FileInfo[] vanilla = Dir.GetFiles("Content/" + dir, pattern, search);
             string vanillaPath = Path.GetFullPath("Content/");
@@ -592,20 +591,35 @@ namespace Ship_Game
 
         static readonly Map<string, Troop> TroopsDict = new Map<string, Troop>();
         static readonly Array<Troop> TroopsList = new Array<Troop>();
+        static string[] TroopsDictKeys = new string[0];
+
+        public static IReadOnlyList<string> TroopTypes => TroopsDictKeys;
 
         public static Troop[] GetTroopTemplatesFor(Empire e)
             => TroopsList.Filter(t => e.WeCanBuildTroop(t.Name)).Sorted(t => t.ActualCost);
+        
+        public static bool GetTroopTemplate(string troopType, out Troop troop)
+        {
+            return TroopsDict.TryGetValue(troopType, out troop);
+        }
 
-        public static float GetTroopCost(string troopType) => TroopsDict[troopType].ActualCost;
         public static Troop GetTroopTemplate(string troopType)
         {
-            if (TroopsDict.TryGetValue(troopType, out Troop troop))
+            if (GetTroopTemplate(troopType, out Troop troop))
                 return troop;
 
             Log.WarningWithCallStack($"Troop {troopType} Template Not found");
             return TroopsList.First;
         }
 
+        public static float GetTroopCost(string troopType)
+        {
+            if (GetTroopTemplate(troopType, out Troop troop))
+                return troop.ActualCost;
+
+            Log.WarningWithCallStack($"Troop {troopType} Template Not found");
+            return 1;
+        }
 
         public static Troop CreateTroop(string troopType, Empire forOwner)
         {
@@ -639,7 +653,7 @@ namespace Ship_Game
                 if (troop.StrengthMax <= 0)
                     troop.StrengthMax = troop.Strength;
             }
-            TroopsDictKeys = new Array<string>(TroopsDict.Keys);
+            TroopsDictKeys = TroopsDict.Keys.ToArray();
         }
 
         public static MarkovNameGenerator GetRandomNames(Empire empire)
@@ -703,6 +717,9 @@ namespace Ship_Game
             WhitePixel.SetData(new Color[]{ Color.White });
         }
 
+        public static SubTexture ErrorTexture   => TextureOrNull("NewUI/x_red");
+        public static SubTexture InvalidTexture => TextureOrNull("NewUI/invalid");
+
         // Load texture with its abstract path such as
         // "Explosions/smaller/shipExplosion"
         public static SubTexture TextureOrNull(string textureName)
@@ -713,6 +730,7 @@ namespace Ship_Game
             Textures[textureName] = loaded; // save even if null
             return loaded;
         }
+
         public static SubTexture TextureOrDefault(string textureName, string defaultTex)
         {
             SubTexture loaded = TextureOrNull(textureName);
@@ -727,7 +745,7 @@ namespace Ship_Game
 
             Log.WarningWithCallStack($"Texture path not found: '{textureName}' replacing with 'NewUI/x_red'");
 
-            SubTexture errorTexture = TextureOrNull("NewUI/x_red");
+            SubTexture errorTexture = ErrorTexture;
             Textures[textureName] = errorTexture; // so we don't get this error again
             return errorTexture;
         }
@@ -1070,69 +1088,6 @@ namespace Ship_Game
             }
         }
 
-        static readonly Map<string, ShipData> HullsDict = new Map<string, ShipData>();
-        static readonly Array<ShipData> HullsList       = new Array<ShipData>();
-
-        public static bool Hull(string shipHull, out ShipData hullData) => HullsDict.Get(shipHull, out hullData);
-        public static IReadOnlyList<ShipData> Hulls                     => HullsList;
-
-        static void LoadHullBonuses()
-        {
-            HullBonuses.Clear();
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses)
-            {
-                foreach (HullBonus hullBonus in LoadEntities<HullBonus>("HullBonuses", "LoadHullBonuses"))
-                    HullBonuses[hullBonus.Hull] = hullBonus;
-                GlobalStats.ActiveModInfo.UseHullBonuses = HullBonuses.Count != 0;
-            }
-        }
-
-        public static ShipData AddHull(ShipData hull)
-        {
-            if (hull != null) // will be null if ShipData.Parse failed
-            {
-                if (HullsDict.TryGetValue(hull.Hull, out ShipData existing))
-                {
-                    HullsList.Remove(existing);
-                }
-
-                HullsDict[hull.Hull] = hull;
-                HullsList.Add(hull);
-            }
-            return hull;
-        }
-
-        static void LoadHullData() // Refactored by RedFox
-        {
-            HullsDict.Clear();
-            HullsList.Clear();
-            FileInfo[] hullFiles = GatherFilesUnified("Hulls", "xml");
-            var hulls = new ShipData[hullFiles.Length];
-
-            void LoadHulls(int start, int end)
-            {
-                for (int i = start; i < end; ++i)
-                {
-                    FileInfo info = hullFiles[i];
-                    try
-                    {
-                        GameLoadingScreen.SetStatus("LoadShipHull", info.RelPath());
-                        hulls[i] = ShipData.Parse(info, isEmptyHull:true);
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error(e, $"LoadHullData {info.Name} failed");
-                    }
-                }
-            }
-            Parallel.For(hullFiles.Length, LoadHulls);
-            //LoadHulls(0, hullFiles.Length);
-
-            foreach (ShipData sd in hulls) // Finalize HullsDict:
-                AddHull(sd);
-        }
-
-
         // loads models from a model folder that match "modelPrefixNNN.xnb" format, where N is an integer
         static void LoadNumberedModels(Array<Model> models, string modelFolder, string modelPrefix)
         {
@@ -1361,6 +1316,127 @@ namespace Ship_Game
             }
         }
 
+        static readonly Map<string, ShipData> HullsDict = new Map<string, ShipData>();
+        static readonly Array<ShipData> HullsList       = new Array<ShipData>();
+        static readonly Map<string, ShipHull> NewHulls = new Map<string, ShipHull>();
+
+        public static bool Hull(string shipHull, out ShipData hullData) => HullsDict.Get(shipHull, out hullData);
+        public static IReadOnlyList<ShipData> Hulls                     => HullsList;
+
+        static void LoadHullBonuses()
+        {
+            HullBonuses.Clear();
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses)
+            {
+                foreach (HullBonus hullBonus in LoadEntities<HullBonus>("HullBonuses", "LoadHullBonuses"))
+                    HullBonuses[hullBonus.Hull] = hullBonus;
+                GlobalStats.ActiveModInfo.UseHullBonuses = HullBonuses.Count != 0;
+            }
+        }
+
+        public static ShipData AddHull(ShipData hull)
+        {
+            if (hull != null) // will be null if ShipData.Parse failed
+            {
+                if (HullsDict.TryGetValue(hull.Hull, out ShipData existing))
+                {
+                    HullsList.Remove(existing);
+                }
+
+                HullsDict[hull.Hull] = hull;
+                HullsList.Add(hull);
+            }
+            return hull;
+        }
+
+        static void LoadNewHullData()
+        {
+            HullsDict.Clear();
+            HullsList.Clear();
+            NewHulls.Clear();
+            
+            FileInfo[] hullFiles = GatherFilesUnified("Hulls", "hull");
+            var newHulls = new ShipHull[hullFiles.Length];
+
+            void LoadHulls(int start, int end)
+            {
+                for (int i = start; i < end; ++i)
+                {
+                    FileInfo info = hullFiles[i];
+                    try
+                    {
+                        GameLoadingScreen.SetStatus("LoadShipHull", info.RelPath());
+                        newHulls[i] = new ShipHull(info);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e, $"LoadHullData {info.Name} failed");
+                    }
+                }
+            }
+            //Parallel.For(hullFiles.Length, LoadHulls);
+            LoadHulls(0, hullFiles.Length);
+
+            foreach (ShipHull hull in newHulls)
+            {
+                if (hull == null) continue;
+                if (NewHulls.TryGetValue(hull.HullName, out ShipHull old))
+                {
+                    Log.Warning($"Cannot overwrite duplicate hull={hull.HullName}\n"+
+                                $"old={old.Source.FullName}\n"+
+                                $"new={hull.Source.FullName}");
+                    continue;
+                }
+                NewHulls[hull.HullName] = hull;
+            }
+        }
+
+        static void LoadHullData() // Refactored by RedFox
+        {
+            HullsDict.Clear();
+            HullsList.Clear();
+            NewHulls.Clear();
+
+            LoadNewHullData();
+
+            FileInfo[] hullFiles = GatherFilesUnified("Hulls", "xml");
+            var oldHulls = new (FileInfo,ShipData)[hullFiles.Length];
+
+            void LoadHulls(int start, int end)
+            {
+                for (int i = start; i < end; ++i)
+                {
+                    FileInfo info = hullFiles[i];
+                    try
+                    {
+                        GameLoadingScreen.SetStatus("LoadShipHull", info.RelPath());
+                        ShipData sd = ShipData.Parse(info, isHullDefinition:true);
+                        oldHulls[i] = (info, sd);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e, $"LoadHullData {info.Name} failed");
+                    }
+                }
+            }
+            Parallel.For(hullFiles.Length, LoadHulls);
+            //LoadHulls(0, hullFiles.Length);
+
+            foreach ((FileInfo f, ShipData sd) in oldHulls) // Finalize HullsDict:
+            {
+                AddHull(sd);
+                if (ShipData.GenerateNewHullFiles)
+                {
+                    var hullFile = new FileInfo(Path.ChangeExtension(f.FullName, "hull"));
+                    if (!hullFile.Exists)
+                    {
+                        new ShipHull(sd).Save(hullFile);
+                    }
+                }
+            }
+        }
+
+
         struct ShipDesignInfo
         {
             public FileInfo File;
@@ -1397,7 +1473,7 @@ namespace Ship_Game
                     try
                     {
                         GameLoadingScreen.SetStatus("LoadShipTemplate", info.RelPath());
-                        ShipData shipData = ShipData.Parse(info, isEmptyHull:false);
+                        ShipData shipData = ShipData.Parse(info, isHullDefinition:false);
                         if (shipData == null || shipData.Role == ShipData.RoleName.disabled)
                             continue;
 
@@ -1405,6 +1481,12 @@ namespace Ship_Game
                             Log.Warning($"File name '{info.NameNoExt()}' does not match ship name '{shipData.Name}'." +
                                          "\n This can prevent loading of ships that have this filename in the XML :" +
                                         $"\n path '{info.PathNoExt()}'");
+
+                        if (ShipData.GenerateNewDesignFiles)
+                        {
+                            var designFile = new FileInfo(Path.ChangeExtension(info.FullName, "design"));
+                            shipData.Save(designFile);
+                        }
 
                         AddShipTemplate(shipData, fromSave: false,
                                               playerDesign: shipDescriptors[i].IsPlayerDesign,
@@ -1469,10 +1551,11 @@ namespace Ship_Game
             ShipsDict.Clear();
 
             var designs = new Map<string, ShipDesignInfo>();
-            CombineOverwrite(designs, GatherFilesModOrVanilla("StarterShips", "xml"), readOnly: true, playerDesign: false);
-            CombineOverwrite(designs, GatherFilesUnified("SavedDesigns", "xml"), readOnly: true, playerDesign: false);
-            CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "xml"), readOnly: true, playerDesign: false);
-            CombineOverwrite(designs, Dir.GetFiles(Dir.StarDriveAppData + "/Saved Designs", "xml"), readOnly: false, playerDesign: true);
+            string ext = ShipData.UseNewShipDataLoaders ? "design" : "xml";
+            CombineOverwrite(designs, GatherFilesModOrVanilla("StarterShips", ext), readOnly: true, playerDesign: false);
+            CombineOverwrite(designs, GatherFilesUnified("SavedDesigns", ext), readOnly: true, playerDesign: false);
+            CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", ext), readOnly: true, playerDesign: false);
+            CombineOverwrite(designs, Dir.GetFiles(Dir.StarDriveAppData + "/Saved Designs", ext), readOnly: false, playerDesign: true);
             LoadShipTemplates(designs.Values.ToArray());
         }
 

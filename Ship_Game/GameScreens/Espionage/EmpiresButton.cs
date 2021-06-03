@@ -54,7 +54,7 @@ namespace Ship_Game.GameScreens.Espionage
 
                 if (Empire.data.AbsorbedBy == null)
                 {
-                    batch.Draw(ResourceManager.Texture("NewUI/x_red"), Rect, Color.White);
+                    batch.Draw(ResourceManager.ErrorTexture, Rect, Color.White);
                 }
                 else
                 {

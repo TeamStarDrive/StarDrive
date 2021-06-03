@@ -79,8 +79,7 @@ namespace UnitTests
         static void Cleanup()
         {
             Ship_Game.Parallel.ClearPool(); // Dispose all thread pool Threads
-            Log.StopLogThread();
-            Log.FlushAllLogs();
+            Log.Close();
         }
 
         // @note: This is slow! It can take 500-1000ms
@@ -122,12 +121,18 @@ namespace UnitTests
         {
             if (Game == null)
                 throw new Exception($"CreateGameInstance() must be called BEFORE {functionName}() !");
+        }
 
+        static void RequireStarterContentLoaded(string functionName)
+        {
+            if (ResourceManager.AllRaces.Count == 0)
+                throw new Exception($"LoadStarterContent() or LoadStarterShips() must be called BEFORE {functionName}() !");
         }
 
         public void CreateUniverseAndPlayerEmpire(out Empire player)
         {
             RequireGameInstance(nameof(CreateUniverseAndPlayerEmpire));
+            RequireStarterContentLoaded(nameof(CreateUniverseAndPlayerEmpire));
 
             var data = new UniverseData();
             Player = player = data.CreateEmpire(ResourceManager.MajorRaces[0], isPlayer:true);
@@ -135,6 +140,12 @@ namespace UnitTests
             Universe.player = player;
             Enemy = EmpireManager.CreateRebelsFromEmpireData(ResourceManager.MajorRaces[0], Player);
             player.TestInitModifiers();
+        }
+
+        public void LoadStarterContent()
+        {
+            RequireGameInstance(nameof(LoadStarterContent));
+            ResourceManager.LoadBasicContentForTesting();
         }
 
         public void LoadStarterShips(params string[] shipList)

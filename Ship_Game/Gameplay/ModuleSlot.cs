@@ -3,18 +3,62 @@ using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.AI;
-using Ship_Game.Data;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Gameplay
 {
+    // Used only in Hull definitions
+    public sealed class HullSlot
+    {
+        public Point P; // integer position in the design, such as [0, 1]
+        public Restrictions R; // this slots
+
+        public HullSlot() {}
+        public HullSlot(int x, int y, Restrictions r)
+        {
+            P = new Point(x, y);
+            R = r;
+        }
+        public Point GetGridPos() => P;
+        public Point GetSize() => new Point(1, 1);
+        public override string ToString() => $"{R} {P}";
+    }
+
+    // Used only in new Ship designs
+    // # gridX,gridY; moduleUIDIndex; sizeX,sizeY; turretAngle; moduleRotation; slotOptions
+    public sealed class DesignSlot
+    {
+        public Point Pos; // integer position in the design, such as [0, 1]
+        public string ModuleUID; // module UID, must be interned during parsing
+        public Point Size; // integer size, default is 1,1
+        public int TurretAngle; // angle 0..360 of a mounted turret
+        public ModuleOrientation ModuleRotation; // module's orientation/rotation: Normal,Left,Right,Rear
+        public string SlotOptions; // null by default, only set if there are any options
+        
+        public DesignSlot() {}
+        public DesignSlot(Point pos, string uid, Point size, int turretAngle,
+                          ModuleOrientation moduleRot, string slotOptions)
+        {
+            Pos = pos;
+            ModuleUID = uid;
+            Size = size;
+            TurretAngle = turretAngle;
+            ModuleRotation = moduleRot;
+            SlotOptions = slotOptions;
+        }
+
+        public Point GetGridPos() => Pos;
+        public Point GetSize() => new Point(1, 1);
+        public override string ToString() => $"{Pos} {ModuleUID} {Size} TA:{TurretAngle} MR:{ModuleRotation} SO:{SlotOptions}";
+    }
+
     public sealed class ModuleSlotData
     {
         public Vector2 Position;
         public Restrictions Restrictions;
 
         [XmlElement(ElementName = "InstalledModuleUID")]
-        [JsonProperty("InstalledModuleUID", ItemConverterType = typeof(InterningStringConverter))]
+        [JsonProperty("InstalledModuleUID"/*, ItemConverterType = typeof(InterningStringConverter)*/)]
         public string ModuleUID;
 
         [XmlElement(ElementName = "facing")]
@@ -94,14 +138,22 @@ namespace Ship_Game.Gameplay
         {
             Position     = slot.XMLPos;
             Restrictions = slot.Restrictions;
-            ModuleUID    = string.Intern(slot.ModuleUID);
+            ModuleUID    = slot.ModuleUID != null ? string.Intern(slot.ModuleUID) : null;
             Orientation  = GetOrientationString(slot.Orientation);
             if (slot.Module != null)
             {
                 Facing = slot.Module.FacingDegrees;
                 if (slot.Module.ModuleType == ShipModuleType.Hangar)
+                {
                     SlotOptions = string.Intern(slot.Module.hangarShipUID);
+                }
             }
+        }
+
+        // Convert from new coordinates to Legacy
+        public ModuleSlotData(DesignSlot slot)
+        {
+
         }
 
         public override string ToString() => $"{ModuleUID} {Position} {Facing} {Restrictions} T={ModuleOrNull}";
@@ -115,6 +167,13 @@ namespace Ship_Game.Gameplay
 
         [XmlIgnore] [JsonIgnore]
         public Point PosAsPoint => new Point((int)Position.X, (int)Position.Y);
+
+        // Gets the size of this slot, correctly oriented
+        public Point GetSize()
+        {
+            ShipModule m = ModuleOrNull;
+            return m?.GetOrientedSize(this) ?? new Point(1, 1);
+        }
 
         static string[] Orientations;
 

@@ -115,6 +115,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool IsCrater           => BID == Crater1Id || BID == Crater2Id || BID == Crater3Id || BID == Crater4Id;
         [XmlIgnore][JsonIgnore] public bool IsDynamicUpdate    => IsLava | IsVolcano || IsCrater;
         [XmlIgnore][JsonIgnore] public SubTexture IconTex      => ResourceManager.Texture($"Buildings/icon_{Icon}_48x48");
+        [XmlIgnore][JsonIgnore] public SubTexture IconTex64    => ResourceManager.Texture($"Buildings/icon_{Icon}_64x64");
         [XmlIgnore][JsonIgnore] public string IconPath64       => $"Buildings/icon_{Icon}_64x64";
         [XmlIgnore][JsonIgnore] public float CostEffectiveness => MilitaryStrength / Cost.LowerBound(0.1f);
         [XmlIgnore][JsonIgnore] public bool HasLaunchedAllDefenseShips => CurrentNumDefenseShips <= 0;
@@ -319,40 +320,33 @@ namespace Ship_Game
             return Production(planet, PlusFlatProductionAmount, PlusProdPerColonist, planet.MineralRichness);
         }
 
-        public float ResearchProduced(Planet planet)
+        public bool AssignBuildingToTilePlanetCreation(Planet p, out PlanetGridSquare tile)
         {
-            return Production(planet, PlusFlatResearchAmount, PlusResearchPerColonist);
-        }
-
-        public bool AssignBuildingToTile(Planet solarSystemBody = null)
-        {
-            if (AssignBuildingToRandomTile(solarSystemBody, true) != null)
+            tile = AssignBuildingToRandomTile(p);
+            if (tile != null)
                 return true;
-            PlanetGridSquare targetPGS;
-            if (EventHere)
-            {
-                targetPGS = AssignBuildingToRandomTile(solarSystemBody);
-                if (targetPGS != null)                
-                    return targetPGS.Habitable = true;                    
-                
-            }
-            if (IsOutpost || EventHere)
-            {
-                targetPGS = AssignBuildingToRandomTile(solarSystemBody);
-                if (targetPGS != null)
-                    return targetPGS.Habitable = true;
-            }
-            if (IsBiospheres)
-                return AssignBuildingToRandomTile(solarSystemBody) != null;                    
 
-            return false;            
+
+            if (EventHere && !CanBuildAnywhere) // set a random tile habitable for the event
+            {
+                PlanetGridSquare targetTile = p.TilesList.RandItem();
+                targetTile.Habitable        = true;
+                tile = AssignBuildingToRandomTile(p);
+
+                return tile != null;
+            }
+
+            return false;
         }
 
-        public PlanetGridSquare AssignBuildingToRandomTile(Planet planet, bool mustBeHabitableTile = false)
+        public PlanetGridSquare AssignBuildingToRandomTile(Planet planet)
         {
-            PlanetGridSquare[] list = mustBeHabitableTile 
-                ? planet.TilesList.Filter(pgs => pgs.Building == null && pgs.Habitable) 
-                : planet.TilesList.Filter(pgs => pgs.Building == null);
+            var list = planet.TilesList.Filter(pgs => pgs.NoBuildingOnTile && (CanBuildAnywhere 
+                                                                                ? !pgs.Habitable 
+                                                                                : pgs.Habitable));
+
+            if (list.Length == 0 && CanBuildAnywhere && !IsBiospheres) // try any tile available
+                list = planet.TilesList.Filter(pgs => pgs.Building == null);
 
             if (list.Length == 0)
                 return null;
@@ -364,7 +358,6 @@ namespace Ship_Game
 
         public bool AssignBuildingToTileOnColonize(Planet planet)
         {
-            if (AssignBuildingToRandomTile(planet, mustBeHabitableTile: true) != null) return true;
             return AssignBuildingToRandomTile(planet) != null;
         }
 

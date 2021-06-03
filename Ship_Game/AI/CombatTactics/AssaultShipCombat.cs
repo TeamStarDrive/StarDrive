@@ -2,24 +2,24 @@
 
 namespace Ship_Game.AI.CombatTactics
 {
-    internal sealed class AssaultShipCombat : ShipAIPlan
+    public sealed class AssaultShipCombat
     {
-        readonly ShipAIPlan Artillery;
-        Ship Target;
+        Ship Target => Owner.AI.Target;
+        Ship Owner;
+        ShipAI AI => Owner.AI;
+        CarrierBays Carrier => Owner.Carrier;
 
-        public AssaultShipCombat(ShipAI ai) : base(ai)
+
+        public AssaultShipCombat(Ship ship)
         {
-            Artillery = new Artillery(ai);
+            Owner = ship;
         }
 
-        public override void Execute(FixedSimTime timeStep, ShipAI.ShipGoal g)
+        public void Execute(FixedSimTime timeStep)
         {
             if (Owner.IsSpoolingOrInWarp)
                 return;
 
-            Target = AI.Target;
-
-            Artillery.Execute(timeStep, null);
             if (!Owner.Carrier.HasActiveTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
                 return;
             if (!Owner.loyalty.isFaction && Target?.shipData.Role <= ShipData.RoleName.drone)
@@ -29,7 +29,7 @@ namespace Ship_Game.AI.CombatTactics
             if (totalTroopStrengthToCommit <= 0)
                 return;
 
-            if (Owner.Carrier.AssaultTargetShip(Target))
+            if (AssaultTargetShip(Target))
                 return;
 
             //This is the auto invade feature. FB: this should be expanded to check for building strength and compare troops in ship vs planet
@@ -50,6 +50,43 @@ namespace Ship_Game.AI.CombatTactics
             if (invadeThis != null)
                 Owner.Carrier.AssaultPlanet(invadeThis);
         }
+
+        public bool AssaultTargetShip(Ship targetShip)
+        {
+            if (Owner.SecondsAlive < 2)
+                return true; // Initial Delay in launching shuttles if spawned
+
+            if (Owner == null || targetShip == null || targetShip.loyalty == Owner.loyalty)
+                return false;
+
+            if (!Owner.Carrier.AnyAssaultOpsAvailable || !targetShip.Center.InRadius(Owner.Center, Owner.DesiredCombatRange * 2))
+                return false;
+
+            bool sendingTroops = false;
+            float totalTroopStrengthToCommit = Carrier.MaxTroopStrengthInShipToCommit + Carrier.MaxTroopStrengthInSpaceToCommit;
+            float enemyStrength = targetShip.BoardingDefenseTotal / 2;
+
+            if (totalTroopStrengthToCommit > enemyStrength && (Owner.loyalty.isFaction || targetShip.GetStrength() > 0f))
+            {
+                if (Carrier.MaxTroopStrengthInSpaceToCommit.AlmostZero() || Carrier.MaxTroopStrengthInSpaceToCommit < enemyStrength)
+                    // This will launch salvos of assault shuttles if possible
+                    sendingTroops = Carrier.ScrambleAssaultShips(enemyStrength);
+
+                for (int i = 0; i < Carrier.AllTroopBays.Length; i++)
+                {
+                    ShipModule hangar = Carrier.AllTroopBays[i];
+                    if (hangar.TryGetHangarShipActive(out Ship hangarShip))
+                    {
+                        sendingTroops = true;
+                        if (hangarShip.AI.State != AIState.Boarding && hangarShip.AI.State != AIState.Resupply)
+                            hangarShip.AI.OrderTroopToBoardShip(targetShip);
+                    }
+                }
+            }
+
+            return sendingTroops;
+        }
+
     }
 
 

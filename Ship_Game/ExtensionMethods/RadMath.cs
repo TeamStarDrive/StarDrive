@@ -27,6 +27,7 @@ namespace Ship_Game
 
         public const float Deg10AsRads = PI / 18; // 10 degrees, expressed as radians
         public const float Deg20AsRads = Deg10AsRads*2; // 20 degrees, expressed as radians
+        public const float Deg3AsRads  = Deg10AsRads * 0.3f; // 20 degrees, expressed as radians
 
         const int TableSize = 2000;
         const double TableSizeD = TableSize;

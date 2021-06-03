@@ -367,9 +367,9 @@ namespace Ship_Game
         public float GetStrength()
         {
             // Update Strength once per frame, OR if LastStrengthUpdate was invalidated
-            if (LastStrengthUpdate != StarDriveGame.Instance.FrameId)
+            if (LastStrengthUpdate != StarDriveGame.Instance?.FrameId)
             {
-                LastStrengthUpdate = StarDriveGame.Instance.FrameId;
+                LastStrengthUpdate = StarDriveGame.Instance?.FrameId ?? LastAveragePosUpdate + 1;
                 Strength = 0f;
                 for (int i = 0; i < Ships.Count; i++)
                 {

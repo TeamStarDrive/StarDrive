@@ -16,7 +16,7 @@ namespace Ship_Game
         /// All objects: ships, projectiles, beams
         /// </summary>
         public readonly Array<GameplayObject> Objects = new Array<GameplayObject>();
-        
+
         /// <summary>
         /// All ships
         /// </summary>
@@ -116,7 +116,7 @@ namespace Ship_Game
                 });
             }
         }
-        
+
         public SavedGame.BeamSaveData[] GetBeamSaveData()
         {
             lock (ProjectilesLocker)
@@ -238,12 +238,13 @@ namespace Ship_Game
         public void Update(FixedSimTime timeStep)
         {
             // crash in findnearby when on game over screen
-            if (Empire.Universe.GameOver)
+            if (Universe.GameOver || Universe.IsExiting)
                 return;
 
             TotalTime.Start();
-
-            UpdateLists(timeStep);
+            
+            // only remove and kill objects if game is not paused
+            UpdateLists(removeInactiveObjects: timeStep.FixedTime > 0f);
             UpdateAllSystems(timeStep);
             UpdateAllShips(timeStep);
             UpdateAllProjectiles(timeStep);
@@ -268,8 +269,12 @@ namespace Ship_Game
             TotalTime.Stop();
         }
 
-        /// <summary>Updates master objects lists, removing inactive objects</summary>
-        void UpdateLists(FixedSimTime timeStep)
+        /// <summary>
+        /// Updates master objects lists, removing inactive objects.
+        /// This can be called multiple times without serious side effects.
+        /// It makes sure cached lists are synced to current universe state
+        /// </summary>
+        public void UpdateLists(bool removeInactiveObjects = true)
         {
             ListTime.Start();
 
@@ -290,8 +295,7 @@ namespace Ship_Game
                 PendingProjectiles.Clear();
             }
 
-            // only remove and kill objects if game is not paused
-            if (timeStep.FixedTime > 0)
+            if (removeInactiveObjects)
             {
                 lock (ShipsLocker)
                 {
@@ -304,9 +308,14 @@ namespace Ship_Game
                             OnShipRemoved?.Invoke(ship);
                             ship.RemoveFromUniverseUnsafe();
                         }
+                        else
+                        {
+                            ship.LoyaltyTracker.ApplyAnyLoyaltyChanges();
+                        }
                     }
                     Ships.RemoveInActiveObjects();
                 }
+
                 lock (ProjectilesLocker)
                 {
                     for (int i = 0; i < Projectiles.Count; ++i)
@@ -328,6 +337,12 @@ namespace Ship_Game
                 }
             }
 
+            for (int x = 0; x < EmpireManager.Empires.Count; x++)
+            {
+                var empire = EmpireManager.Empires[x];
+                empire.EmpireShips.UpdatePublicLists();
+            }
+
             ListTime.Stop();
         }
 
@@ -335,7 +350,7 @@ namespace Ship_Game
         {
             if (Universe.IsExiting)
                 return;
-            
+
             SysPerf.Start();
 
             void UpdateSystems(int start, int end)
@@ -465,7 +480,7 @@ namespace Ship_Game
             SetInFrustum(projs, true);
             SetInFrustum(beams, true);
             SetInFrustum(ships, true);
-            
+
             VisibleProjectiles = projs;
             VisibleBeams = beams;
             VisibleShips = ships;

@@ -11,8 +11,7 @@ namespace Ship_Game.AI
             if (DefensiveCoordinator.TroopsToTroopsWantedRatio > 0.95f)
                 return;
 
-            VerifyTroopGoals(out int troopGoals);
-            if (troopGoals > (OwnerEmpire.GetPlanets().Count / 5).LowerBound(2))
+            if (NumTroopGoals() > (OwnerEmpire.GetPlanets().Count / 5).LowerBound(2))
                 return;
 
             Troop[] troops = ResourceManager.GetTroopTemplatesFor(OwnerEmpire);
