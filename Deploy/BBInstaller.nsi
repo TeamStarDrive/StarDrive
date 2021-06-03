@@ -64,11 +64,11 @@ Var PREVDIR ; previous mod install dir
 Function .onInit
         ; Get Game path from registry
         ReadRegStr $PREVDIR HKLM ${REGPATH} InstallPath
-        StrCmp $PREVDIR "" CheckSteam 0
+        IfFileExists "$PREVDIR\${LAUNCHER}" 0 CheckSteam
         StrCpy $INSTDIR $PREVDIR ;; use the previous path
         Goto Done
     CheckSteam:
-        ReadRegStr $STEAMDIR HKCU "Software\WOW6432Node\Valve\Steam" InstallPath
+        ReadRegStr $STEAMDIR HKLM "SOFTWARE\WOW6432Node\Valve\Steam" InstallPath
         StrCmp $STEAMDIR "" SetDefaultPath 0
         StrCpy $INSTDIR "$STEAMDIR\SteamApps\common\StarDrive"
         Goto Done
@@ -84,7 +84,6 @@ SectionGroup /e "BlackBox"
         WriteRegStr HKLM ${REGPATH} "Author"       "${PRODUCT_PUBLISHER}"
         WriteRegStr HKLM ${REGPATH} "Version"      "${PRODUCT_VERSION}"
         WriteRegStr HKLM ${REGPATH} "InstallPath"  $INSTDIR
-        
         DetailPrint "*** Compiled by RedFox ***"
         DetailPrint "${PRODUCT_NAME} ${PRODUCT_VERSION}"
         DetailPrint "Initializing Installation"
@@ -108,7 +107,7 @@ SectionGroup /e "BlackBox"
         SectionIn RO
         DetailPrint "Unpacking ${PRODUCT_NAME} files"
         SetOutPath "$INSTDIR"
-        
+
         !insertmacro AddStarDriveFile StarDrive.exe
         !insertmacro AddStarDriveFile Stardrive.exe.config
         !insertmacro AddStarDriveFile StarDrive.pdb
