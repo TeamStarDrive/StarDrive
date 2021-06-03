@@ -144,6 +144,7 @@ SectionGroup /e "BlackBox"
 
         ;; Remove junk files from previous versions
         ;;Delete "$INSTDIR\????0"
+		SetOutPath "$INSTDIR"
     SectionEnd
 
     Section "-Finish Install" SECFinish
