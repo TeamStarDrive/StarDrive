@@ -51,16 +51,24 @@ OutFile "upload/${INSTALLER_NAME}_${PRODUCT_VERSION}.exe"
 ;Languages
 !insertmacro MUI_LANGUAGE "English"
 
+; Installer file INFO
+VIProductVersion "${PRODUCT_VERSION}.0"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "StarDrive BlackBox"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" "Codegremlins"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "Copyright ZeroSum Games and Codegremlins"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "StarDrive BlackBox Installer"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${PRODUCT_VERSION}"
+
 Var STEAMDIR ; found steam dir
 Var PREVDIR ; previous mod install dir
 Function .onInit
         ; Get Game path from registry
         ReadRegStr $PREVDIR HKLM ${REGPATH} InstallPath
-        StrCmp $PREVDIR "" CheckSteam 0
+        IfFileExists "$PREVDIR\${LAUNCHER}" 0 CheckSteam
         StrCpy $INSTDIR $PREVDIR ;; use the previous path
         Goto Done
     CheckSteam:
-        ReadRegStr $STEAMDIR HKCU "Software\Valve\Steam" InstallPath
+        ReadRegStr $STEAMDIR HKLM "SOFTWARE\WOW6432Node\Valve\Steam" InstallPath
         StrCmp $STEAMDIR "" SetDefaultPath 0
         StrCpy $INSTDIR "$STEAMDIR\SteamApps\common\StarDrive"
         Goto Done
@@ -76,7 +84,6 @@ SectionGroup /e "BlackBox"
         WriteRegStr HKLM ${REGPATH} "Author"       "${PRODUCT_PUBLISHER}"
         WriteRegStr HKLM ${REGPATH} "Version"      "${PRODUCT_VERSION}"
         WriteRegStr HKLM ${REGPATH} "InstallPath"  $INSTDIR
-        
         DetailPrint "*** Compiled by RedFox ***"
         DetailPrint "${PRODUCT_NAME} ${PRODUCT_VERSION}"
         DetailPrint "Initializing Installation"
@@ -100,7 +107,7 @@ SectionGroup /e "BlackBox"
         SectionIn RO
         DetailPrint "Unpacking ${PRODUCT_NAME} files"
         SetOutPath "$INSTDIR"
-        
+
         !insertmacro AddStarDriveFile StarDrive.exe
         !insertmacro AddStarDriveFile Stardrive.exe.config
         !insertmacro AddStarDriveFile StarDrive.pdb
@@ -137,6 +144,7 @@ SectionGroup /e "BlackBox"
 
         ;; Remove junk files from previous versions
         ;;Delete "$INSTDIR\????0"
+		SetOutPath "$INSTDIR"
     SectionEnd
 
     Section "-Finish Install" SECFinish
