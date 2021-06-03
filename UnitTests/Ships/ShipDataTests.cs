@@ -42,8 +42,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.MechanicalBoardingDefense, b.MechanicalBoardingDefense);
             Assert.AreEqual(a.FixedUpkeep, b.FixedUpkeep);
             Assert.AreEqual(a.FixedCost, b.FixedCost);
-            Assert.AreEqual(a.HasFixedCost, b.HasFixedCost);
-            Assert.AreEqual(a.HasFixedUpkeep, b.HasFixedUpkeep);
             Assert.AreEqual(a.Animated, b.Animated);
             Assert.AreEqual(a.IsShipyard, b.IsShipyard);
             Assert.AreEqual(a.IsOrbitalDefense, b.IsOrbitalDefense);
@@ -62,7 +60,10 @@ namespace UnitTests.Ships
                 Assert.AreEqual(a.ThrusterList[i].Scale, b.ThrusterList[i].Scale);
             }
             
-            Assert.AreEqual(a.SurfaceArea, b.SurfaceArea);
+            Assert.AreEqual(a.GridInfo.SurfaceArea, b.GridInfo.SurfaceArea);
+            Assert.AreEqual(a.GridInfo.Size.X, b.GridInfo.Size.X);
+            Assert.AreEqual(a.GridInfo.Size.Y, b.GridInfo.Size.Y);
+
             Assert.AreEqual(a.BaseStrength, b.BaseStrength);
             Assert.AreEqual(a.UnLockable, b.UnLockable);
             Assert.AreEqual(a.HullUnlockable, b.HullUnlockable);
@@ -71,7 +72,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.TechScore, b.TechScore);
 
             Assert.AreEqual(a.Volume, b.Volume);
-            Assert.AreEqual(a.Radius, b.Radius);
             Assert.AreEqual(a.ModelZ, b.ModelZ);
 
             if (checkModules)
@@ -109,14 +109,16 @@ namespace UnitTests.Ships
             Assert.AreEqual(false, hull.HullUnlockable);
             Assert.AreEqual(false, hull.AllModulesUnlockable);
             Assert.AreEqual(10, hull.ModuleSlots.Length);
-            Assert.AreEqual(10, hull.SurfaceArea);
+            Assert.AreEqual(10, hull.GridInfo.SurfaceArea);
+            Assert.AreEqual(4, hull.GridInfo.Size.X);
+            Assert.AreEqual(4, hull.GridInfo.Size.Y);
             AssertAllModulesEmpty(hull);
         }
 
         [TestMethod]
         public void Load_VanillaShip_VulcanScout()
         {
-            ShipData hull = ShipData.Parse(new FileInfo("Content/StarterShips/Vulcan Scout.xml"), isEmptyHull: false);
+            ShipData hull = ShipData.Parse(new FileInfo("Content/StarterShips/Vulcan Scout.xml"), isHullDefinition: false);
             Assert.AreEqual("Vulcan Scout", hull.Name);
             Assert.AreEqual("", hull.ModName);
             Assert.AreEqual("Terran", hull.ShipStyle);
@@ -129,7 +131,9 @@ namespace UnitTests.Ships
             Assert.AreEqual(false, hull.HullUnlockable);
             Assert.AreEqual(false, hull.AllModulesUnlockable);
             Assert.AreEqual(10, hull.ModuleSlots.Length);
-            Assert.AreEqual(10, hull.SurfaceArea);
+            Assert.AreEqual(10, hull.GridInfo.SurfaceArea);
+            Assert.AreEqual(4, hull.GridInfo.Size.X);
+            Assert.AreEqual(4, hull.GridInfo.Size.Y);
         }
 
         [TestMethod]
@@ -148,14 +152,14 @@ namespace UnitTests.Ships
             Assert.AreEqual(false, hull.HullUnlockable);
             Assert.AreEqual(false, hull.AllModulesUnlockable);
             Assert.AreEqual(70, hull.ModuleSlots.Length);
-            Assert.AreEqual(70, hull.SurfaceArea);
+            Assert.AreEqual(70, hull.GridInfo.SurfaceArea);
             AssertAllModulesEmpty(hull);
         }
 
         [TestMethod]
         public void Load_VanillaHull_PrototypeFrigate()
         {
-            ShipData hull = ShipData.Parse(new FileInfo("Content/SavedDesigns/Prototype Frigate.xml"), isEmptyHull: false);
+            ShipData hull = ShipData.Parse(new FileInfo("Content/SavedDesigns/Prototype Frigate.xml"), isHullDefinition: false);
             Assert.AreEqual("Prototype Frigate", hull.Name);
             Assert.AreEqual("", hull.ModName);
             Assert.AreEqual("Terran", hull.ShipStyle);
@@ -168,7 +172,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(false, hull.HullUnlockable);
             Assert.AreEqual(false, hull.AllModulesUnlockable);
             Assert.AreEqual(70, hull.ModuleSlots.Length);
-            Assert.AreEqual(70, hull.SurfaceArea);
+            Assert.AreEqual(70, hull.GridInfo.SurfaceArea);
         }
     }
 }

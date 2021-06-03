@@ -198,8 +198,8 @@ namespace Ship_Game.Ships
         /// 25% = 11 slots
         /// 0%  = 64 slots
         /// </summary>
-        public float AccuracyPercent        => Flyweight.AccuracyPercent;
-        public float WeaponInaccuracyBase   => Flyweight.WeaponInaccuracyBase;
+        public float AccuracyPercent        => Flyweight?.AccuracyPercent ?? -1;
+        public float WeaponInaccuracyBase   => Flyweight?.WeaponInaccuracyBase ?? 1;
 
         public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
@@ -545,7 +545,6 @@ namespace Ship_Game.Ships
         // HitTest uses the World scene POSITION. Not module XML location
         public bool HitTestNoShields(Vector2 worldPos, float radius)
         {
-            ++GlobalStats.DistanceCheckTotal;
             float r2 = radius + Radius;
             float dx = Center.X - worldPos.X;
             float dy = Center.Y - worldPos.Y;
@@ -584,7 +583,6 @@ namespace Ship_Game.Ships
 
         public bool HitTestShield(Vector2 worldPos, float radius)
         {
-            ++GlobalStats.DistanceCheckTotal;
             float r2 = radius + ShieldHitRadius;
             float dx = Center.X - worldPos.X;
             float dy = Center.Y - worldPos.Y;
@@ -593,7 +591,6 @@ namespace Ship_Game.Ships
 
         public bool RayHitTestShield(Vector2 startPos, Vector2 endPos, float rayRadius, out float distanceFromStart)
         {
-            ++GlobalStats.DistanceCheckTotal;
             return Center.RayCircleIntersect(rayRadius + ShieldHitRadius, startPos, endPos, out distanceFromStart);
         }
 
@@ -1381,6 +1378,7 @@ namespace Ship_Game.Ships
         public void SetModuleFacing(int w, int h, ModuleOrientation orientation, float facing)
         {
             FacingDegrees = facing;
+            Orientation = orientation;
             switch (orientation)
             {
                 case ModuleOrientation.Normal:
@@ -1394,8 +1392,26 @@ namespace Ship_Game.Ships
                     YSIZE = w;
                     break;
             }
+        }
 
-            Orientation = orientation;
+        public Point GetOrientedSize(ModuleSlotData slotData)
+        {
+            if (Enum.TryParse(slotData.Orientation, out ModuleOrientation orientation))
+            {
+                switch (orientation)
+                {
+                    case ModuleOrientation.Left:
+                    case ModuleOrientation.Right:
+                        return new Point(YSIZE, XSIZE);
+                }
+            }
+            return new Point(XSIZE, YSIZE);
+        }
+        
+        // Gets the size of this Module, correctly oriented
+        public Point GetSize()
+        {
+            return new Point(XSIZE, YSIZE);
         }
 
         // For specific cases were non squared icons requires a different texture when oriented,

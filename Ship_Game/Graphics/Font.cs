@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
-using Ship_Game.Data.Yaml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,6 +65,16 @@ namespace Ship_Game.Graphics
         public int TextWidth(in LocalizedText text)
         {
             return (int)XnaFont.MeasureString(text.Text).X;
+        }
+        
+        public int TextHeight(string text)
+        {
+            return (int)XnaFont.MeasureString(text).Y;
+        }
+        
+        public int TextHeight(in LocalizedText text)
+        {
+            return (int)XnaFont.MeasureString(text.Text).Y;
         }
 
         public Vector2 MeasureString(in LocalizedText text)
@@ -181,7 +190,8 @@ namespace Ship_Game.Graphics
                     newLength += SpaceWidth;
                 }
 
-                if (newLength > maxLineWidth) // wrap this word to next line
+                // wrap this word to next line, but only if this wasn't the first word
+                if (lineLength > 0f && newLength > maxLineWidth)
                 {
                     result.Append('\n');
                     lineLength = wordLength;

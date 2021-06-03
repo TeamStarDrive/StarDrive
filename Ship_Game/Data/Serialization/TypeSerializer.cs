@@ -68,6 +68,15 @@ namespace Ship_Game.Data.Serialization
             Error(value, "Byte -- expected int or float");
             return 0;
         }
+
+        public static int Int(object value)
+        {
+            if (value is int i) return i;
+            if (value is float f) return (int)f;
+            if (value is string s) return StringView.ToInt(s);
+            Error(value, "Int -- expected int or float or string");
+            return 0;
+        }
     }
 
 }

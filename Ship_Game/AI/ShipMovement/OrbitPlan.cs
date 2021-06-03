@@ -36,14 +36,16 @@ namespace Ship_Game.AI.ShipMovement
         {
         }
 
-        public override void Execute(FixedSimTime timeStep, ShipAI.ShipGoal g)
+        public void ForceOrbitOffSet(Vector2 position)
         {
+            OrbitOffset = position;
         }
 
         protected void UpdateOrbitPos(Vector2 orbitAround, float orbitRadius, FixedSimTime timeStep)
         {
             // we use a timer here, because proximity update was surprisingly much worse
             // this approach is very fast and simple
+
             OrbitUpdateTimer -= timeStep.FixedTime;
             if (OrbitUpdateTimer <= 0f || Owner.Center.InRadius(OrbitPos, WayPointProximity))
             {

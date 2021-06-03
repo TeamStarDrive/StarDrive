@@ -162,6 +162,30 @@ namespace Ship_Game
             return found;
         }
 
+        public static T FindMinFiltered<T>(this IReadOnlyList<T> items, int count, Predicate<T> filter,
+                                           Func<T, float> selector)
+        {
+            if (count <= 0 || !items.FindFirstValid(count, filter, out int i, out T found))
+                return default; // no elements passed the filter!           ;
+
+            float min = selector(found);
+            CheckForNaNInfinity(min);
+            for (; i < count; ++i)
+            {
+                T item = items[i];
+                if (filter(item))
+                {
+                    float value = selector(item);
+                    if (value < min)
+                    {
+                        min = value;
+                        found = item;
+                    }
+                }
+            }
+            return found;
+        }
+
 
         // finds a limited number of items, filtered and sorted by selector
         public static Array<T> FindMinItemsFiltered<T>(this Array<T> list, int maxCount, 
@@ -193,7 +217,6 @@ namespace Ship_Game
             return list.GetInternalArrayItems().FindMinFiltered(list.Count, filter, selector);
         }
 
-        
         // @return NULL if list is empty! Or the item with smallest selected value
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T FindMin<T>(this T[] items, Func<T, float> selector)

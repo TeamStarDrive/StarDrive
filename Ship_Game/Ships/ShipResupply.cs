@@ -17,7 +17,7 @@ namespace Ship_Game.Ships
 
         public const float ShipDestroyThreshold = 0.5f;
         public const float RepairDroneThreshold = 0.9f;
-        public const float RepairDoneThreshold  = 0.9f;
+        public const float RepairDoneThreshold  = 0.99f;
         public const float RepairDroneRange     = 20000f;
         public Map<SupplyType, float> IncomingSupply;
         private bool InCombat;

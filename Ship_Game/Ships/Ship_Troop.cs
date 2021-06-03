@@ -307,7 +307,7 @@ namespace Ship_Game.Ships
                     MechanicalBoardingDefense <= 0f &&
                     HostileTroops.Count > 0) // enemy troops won:
                 {
-                    ChangeLoyalty(changeTo: HostileTroops[0].Loyalty);
+                    LoyaltyChangeFromBoarding(HostileTroops[0].Loyalty);
                 }
             }
 
