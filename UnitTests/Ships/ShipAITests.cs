@@ -13,18 +13,16 @@ namespace UnitTests.Ships
         public ShipAITests()
         {
             CreateGameInstance();
-            LoadStarterShips(new[] {"Excalibur-Class Supercarrier", "Owlwok Freighter S"});
+            LoadStarterShips("Excalibur-Class Supercarrier", "Owlwok Freighter S");
+            CreateUniverseAndPlayerEmpire();
         }
 
-        void CreateTestEnv(out Empire empire, out Ship ship)
-        {
-            CreateUniverseAndPlayerEmpire(out empire);
-            ship = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", empire, Vector2.Zero);
-        }
-        [TestMethod()]
+
+        [TestMethod]
         public void IsTargetValidTest()
         {
-            CreateTestEnv(out Empire us, out Ship ourShip);
+            Empire us = Player;
+            Ship ourShip = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", us, Vector2.Zero);
             
             Ship theirShip    = Ship.CreateShipAtPoint("Owlwok Freighter S", Enemy, Vector2.Zero);
             ourShip.AI.Target = theirShip;

@@ -12,18 +12,13 @@ namespace UnitTests.Ships
         {
             CreateGameInstance();
             LoadStarterShips("TEST_ShipShield");
-        }
-
-        void CreateTestEnv(out Ship ship)
-        {
-            CreateUniverseAndPlayerEmpire(out Empire empire);
-            ship = Ship.CreateShipAtPoint("TEST_ShipShield", empire, Vector2.Zero);
+            CreateUniverseAndPlayerEmpire();
         }
 
         [TestMethod]
         public void AmplifierDestroyed()
         {
-            CreateTestEnv(out Ship ship);
+            Ship ship = Ship.CreateShipAtPoint("TEST_ShipShield", Player, Vector2.Zero);;
             Assert.IsNotNull(ship);
             Assert.That.Equal(ship.shield_max, 1400);
 

@@ -14,7 +14,7 @@ namespace UnitTests.Ships
         {
             CreateGameInstance();
             LoadStarterShipVulcan();
-            CreateUniverseAndPlayerEmpire(out _);
+            CreateUniverseAndPlayerEmpire();
         }
 
         static bool FireAtVisiblePoint(Weapon weapon)
