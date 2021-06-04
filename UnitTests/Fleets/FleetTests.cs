@@ -16,24 +16,14 @@ namespace UnitTests.Fleets
         Array<Ship> PlayerShips = new Array<Ship>();
         Array<Ship> EnemyShips  = new Array<Ship>();
         Array<Fleet> PlayerFleets = new Array<Fleet>();
+
         public FleetTests()
         {
             CreateGameInstance();
 
             // Excalibur class has all the bells and whistles
-            LoadStarterShips(new[] { "Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle" });
-            CreateUniverseAndPlayerEmpire(out Empire empire);
-            CreateTestEnv();
-        }
-
-        void CreateTestEnv()
-        {
-            PlayerShips.ClearAndDispose();
-            EnemyShips.ClearAndDispose();
-            PlayerFleets.ClearAndDispose();
-            PlayerShips  = new Array<Ship>();
-            EnemyShips   = new Array<Ship>();
-            PlayerFleets = new Array<Fleet>();
+            LoadStarterShips("Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle");
+            CreateUniverseAndPlayerEmpire();
         }
 
         Ship CreatePlayerShip(string shipName, Vector2 pos)
@@ -67,7 +57,6 @@ namespace UnitTests.Fleets
         [TestMethod]
         public void TestFleetAssembly()
         {
-            CreateTestEnv();
             CreateWantedShipsAndAddThemToList(10, "Excalibur-Class Supercarrier", PlayerShips);
             CreateTestFleet(PlayerShips, PlayerFleets);
             var fleet = PlayerFleets[0];
@@ -92,7 +81,6 @@ namespace UnitTests.Fleets
         [TestMethod]
         public void TestFleetCreationNodes()
         {
-            CreateTestEnv();
             CreateWantedShipsAndAddThemToList(10, "Excalibur-Class Supercarrier", PlayerShips);
             foreach (var ship in PlayerShips)
             {

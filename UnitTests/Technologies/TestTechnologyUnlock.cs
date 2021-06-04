@@ -14,12 +14,7 @@ namespace UnitTests.Technologies
         {
             CreateGameInstance();
             LoadTechContent();
-            CreateTestEnv(out _);
-        }
-
-        void CreateTestEnv(out Empire empire)
-        {
-            CreateUniverseAndPlayerEmpire(out empire);
+            CreateUniverseAndPlayerEmpire();
             MajorEnemy = EmpireManager.CreateEmpireFromEmpireData(ResourceManager.MajorRaces[1], isPlayer:false);
             Universe.aw = new AutomationWindow(Universe);
         }

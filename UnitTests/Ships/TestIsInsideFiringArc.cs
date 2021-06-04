@@ -17,7 +17,7 @@ namespace UnitTests.Ships
         {
             CreateGameInstance();
             LoadStarterShips("Flak Fang");
-            CreateUniverseAndPlayerEmpire(out _);
+            CreateUniverseAndPlayerEmpire();
         }
 
         class ArcVisualization : TestGameComponent

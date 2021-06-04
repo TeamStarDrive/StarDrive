@@ -310,7 +310,7 @@ namespace Ship_Game
                         }
                         else
                         {
-                            ship.LoyaltyTracker.ApplyAnyLoyaltyChanges();
+                            bool loyaltyChanged = ship.LoyaltyTracker.ApplyAnyLoyaltyChanges();
                         }
                     }
                     Ships.RemoveInActiveObjects();

@@ -16,13 +16,8 @@ namespace UnitTests.Ships
         {
             CreateGameInstance();
             // Excalibur class has all the bells and whistles
-            LoadStarterShips(new[]{ "Excalibur-Class Supercarrier", "Supply Shuttle" });
-        }
-
-        void CreateTestEnv(out Empire empire, out Ship ship)
-        {
-            CreateUniverseAndPlayerEmpire(out empire);
-            ship = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", empire, Vector2.Zero);
+            LoadStarterShips("Excalibur-Class Supercarrier", "Supply Shuttle");
+            CreateUniverseAndPlayerEmpire();
         }
 
         void UpdateStatus(Ship ship, CombatState state)
@@ -35,7 +30,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipRanges()
         {
-            CreateTestEnv(out Empire empire, out Ship ship);
+            Ship ship = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", Player, Vector2.Zero);
 
             UpdateStatus(ship, CombatState.Artillery);
             Assert.That.Equal(7500, ship.WeaponsMaxRange);
@@ -75,10 +70,10 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipRangesWithModifiers()
         {
-            CreateTestEnv(out Empire empire, out Ship ship);
+            Ship ship = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", Player, Vector2.Zero);
             
-            WeaponTagModifier kinetic = empire.WeaponBonuses(WeaponTag.Kinetic);
-            WeaponTagModifier guided = empire.WeaponBonuses(WeaponTag.Guided);
+            WeaponTagModifier kinetic = Player.WeaponBonuses(WeaponTag.Kinetic);
+            WeaponTagModifier guided = Player.WeaponBonuses(WeaponTag.Guided);
             kinetic.Range = 1;
             guided.Range = 1;
 

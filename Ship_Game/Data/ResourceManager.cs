@@ -250,7 +250,7 @@ namespace Ship_Game
             Profiled(LoadAsteroids);
             Profiled(LoadProjTexts);
             Profiled(LoadProjectileMeshes);
-            Profiled(SunType.LoadSunTypes); // Hotspot #3 174.8ms  7.91%
+            Profiled(() => SunType.LoadSunTypes()); // Hotspot #3 174.8ms  7.91%
             Profiled("LoadBeamFX", () =>
             {
                 ShieldManager.LoadContent(RootContent);
@@ -1560,13 +1560,22 @@ namespace Ship_Game
             LoadShipTemplates(designs.Values.ToArray());
         }
 
+        [Flags]
+        public enum TestOptions
+        {
+            None = 0,
+            LoadPlanets = (1 << 1),
+            TechContent = (1 << 2),
+        }
+
         // @note This is used for Unit Tests and is not part of the core game
         // @param shipsList Only load these ships to make loading faster.
         //                  Example:  shipsList: new [] { "Vulcan Scout" }
         public static void LoadStarterShipsForTesting(string[] shipsList = null,
-                                                      string[] savedDesigns = null)
+                                                      string[] savedDesigns = null,
+                                                      TestOptions options = TestOptions.None)
         {
-            LoadBasicContentForTesting();
+            LoadBasicContentForTesting(options);
 
             var ships = new Array<FileInfo>();
             if (shipsList != null)
@@ -1580,7 +1589,7 @@ namespace Ship_Game
             LoadShipTemplates(designs.Values.ToArray());
         }
 
-        public static void LoadBasicContentForTesting()
+        public static void LoadBasicContentForTesting(TestOptions options = TestOptions.None)
         {
             InitContentDir();
             LoadWeapons();
@@ -1592,23 +1601,35 @@ namespace Ship_Game
             LoadEmpires();
             LoadEcoResearchStrats();
             LoadBuildings();
+
+            bool loadPlanets = options.HasFlag(TestOptions.LoadPlanets);
+            bool loadTechs = options.HasFlag(TestOptions.TechContent);
+
+            if (loadPlanets)
+            {
+                LoadPlanetTypes();
+                LoadSunZoneData();
+                LoadBuildRatios();
+            }
+            if (loadTechs)
+            {
+                LoadTechTree();
+                TechValidator();
+            }
+            if (loadPlanets || loadTechs)
+            {
+                SunType.LoadSunTypes(enableHotLoading: false);
+            }
         }
 
         public static void LoadPlanetContentForTesting()
         {
-            LoadBasicContentForTesting();
-            LoadPlanetTypes();
-            LoadSunZoneData();
-            LoadBuildRatios();
-            SunType.LoadSunTypes();
+            LoadBasicContentForTesting(TestOptions.LoadPlanets);
         }
 
         public static void LoadTechContentForTesting()
         {
-            LoadBasicContentForTesting();
-            LoadTechTree();
-            TechValidator();
-            SunType.LoadSunTypes();
+            LoadBasicContentForTesting(TestOptions.TechContent);
         }
 
         static void TechValidator()
