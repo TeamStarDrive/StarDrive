@@ -244,7 +244,7 @@ namespace Ship_Game.Ships
         {
             try
             {
-                if (info.Extension == "design")
+                if (info.Extension == ".design")
                     return ParseDesign(info);
                 return ParseXML(info, isHullDefinition);
             }
