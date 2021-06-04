@@ -1,12 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xna.Framework;
-using Ship_Game;
-using Ship_Game.Ships;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Ship_Game;
+using Ship_Game.Ships;
+using Microsoft.Xna.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTests.Ships
 {
@@ -26,12 +24,17 @@ namespace UnitTests.Ships
                                                      1000, 10, onlyLoyalty: loyalty);
         }
 
-        void EnsureSpatialCoherence(Ship playerShip)
+        void EnsureSpawnedLoyaltyAndSpatialCoherence(Ship playerShip)
         {
             // NOTE: This covers the LoyaltyChangeAtSpawn case
             Assert.AreEqual(0, Universe.Objects.Ships.Count);
+            Assert.IsFalse(Player.OwnedShips.Contains(playerShip), "Player.OwnedShips must NOT contain the ship");
+            Assert.IsFalse(Enemy.OwnedShips.Contains(playerShip), "Enemy.OwnedShips must NOT contain the ship");
             Universe.Objects.Update(TestSimStep);
+            
             Assert.AreEqual(1, Universe.Objects.Ships.Count);
+            Assert.IsTrue(Player.OwnedShips.Contains(playerShip), "Player.OwnedShips MUST contain the ship, the ship was not added to Empire?");
+            Assert.IsFalse(Enemy.OwnedShips.Contains(playerShip), "Enemy.OwnedShips must NOT contain the ship");
 
             Assert.AreEqual(Player, playerShip.loyalty, "LoyaltyChangeAtSpawn is broken");
 
@@ -45,8 +48,16 @@ namespace UnitTests.Ships
 
         void EnsureLoyaltyTransferAndSpatialCoherence(Ship transferredShip)
         {
+            Assert.AreEqual(1, Universe.Objects.Ships.Count);
+            Assert.IsTrue(Player.OwnedShips.Contains(transferredShip), "Player.OwnedShips MUST contain the ship before update");
+            Assert.IsFalse(Enemy.OwnedShips.Contains(transferredShip), "Enemy.OwnedShips must NOT contain the ship before update");
             Universe.Objects.Update(TestSimStep);
-            Assert.AreEqual(Enemy, transferredShip.loyalty);
+            Universe.Objects.Update(TestSimStep);
+            Assert.AreEqual(1, Universe.Objects.Ships.Count);
+            Assert.IsFalse(Player.OwnedShips.Contains(transferredShip), "Player.OwnedShips must NOT contain the ship AFTER transfer and update");
+            Assert.IsTrue(Enemy.OwnedShips.Contains(transferredShip), "Enemy.OwnedShips MUST contain the ship  AFTER transfer and update");
+
+            Assert.AreEqual(Enemy, transferredShip.loyalty, "LoyaltyChange failed! Incorrect loyalty!");
 
             var nearbyPlayerShips = FindNearbyShips(Player);
             Assert.AreEqual(0, nearbyPlayerShips.Length, "There should be no Player ships nearby");
@@ -60,7 +71,7 @@ namespace UnitTests.Ships
         public void LoyaltyChangeFromBoarding()
         {
             var ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
-            EnsureSpatialCoherence(ship);
+            EnsureSpawnedLoyaltyAndSpatialCoherence(ship);
             ship.LoyaltyChangeFromBoarding(Enemy, addNotification:false);
             EnsureLoyaltyTransferAndSpatialCoherence(ship);
         }
@@ -69,7 +80,7 @@ namespace UnitTests.Ships
         public void LoyaltyChangeByGift()
         {
             var ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
-            EnsureSpatialCoherence(ship);
+            EnsureSpawnedLoyaltyAndSpatialCoherence(ship);
             ship.LoyaltyChangeByGift(Enemy, addNotification:false);
             EnsureLoyaltyTransferAndSpatialCoherence(ship);
         }

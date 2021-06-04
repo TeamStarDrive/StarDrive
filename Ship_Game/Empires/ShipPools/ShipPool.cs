@@ -170,7 +170,7 @@ namespace Ship_Game.Empires.ShipPools
                         RemoveFromOtherPools(ship);
                         Owner.RemoveShipFromAIPools(ship);
                         if (!ship.loyalty.OwnedShips.ContainsRef(ship))
-                            ship.LoyaltyTracker.SetLoyaltyForNewShip(ship.loyalty);
+                            ship.LoyaltyChangeAtSpawn(ship.loyalty);
                     }
                     else if (notInAOs && notInEmpireForcePool && ship.BaseCanWarp)
                     {
