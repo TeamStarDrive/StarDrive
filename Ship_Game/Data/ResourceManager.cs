@@ -1320,6 +1320,7 @@ namespace Ship_Game
         static readonly Array<ShipData> HullsList       = new Array<ShipData>();
         static readonly Map<string, ShipHull> NewHulls = new Map<string, ShipHull>();
 
+        public static bool NewHull(string shipHull, out ShipHull hull) => NewHulls.Get(shipHull, out hull);
         public static bool Hull(string shipHull, out ShipData hullData) => HullsDict.Get(shipHull, out hullData);
         public static IReadOnlyList<ShipData> Hulls                     => HullsList;
 

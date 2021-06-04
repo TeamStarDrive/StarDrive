@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace Ship_Game.Ships
@@ -42,6 +43,9 @@ namespace Ship_Game.Ships
                 }
             }
             #endif
+
+            //if (Name.Contains("Acolyte of Flak II"))
+            //    Debugger.Break();
 
             SurfaceArea = info.SurfaceArea;
             GridOrigin = info.Origin;
