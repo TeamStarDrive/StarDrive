@@ -28,33 +28,50 @@ namespace UnitTests.Ships
 
         void EnsureSpatialCoherence(Ship playerShip)
         {
+            // NOTE: This covers the LoyaltyChangeAtSpawn case
             Assert.AreEqual(0, Universe.Objects.Ships.Count);
             Universe.Objects.Update(TestSimStep);
             Assert.AreEqual(1, Universe.Objects.Ships.Count);
 
-            Assert.AreEqual(Player, playerShip.loyalty);
+            Assert.AreEqual(Player, playerShip.loyalty, "LoyaltyChangeAtSpawn is broken");
 
             var nearbyPlayerShips = FindNearbyShips(Player);
-            Assert.AreEqual(1, nearbyPlayerShips.Length);
+            Assert.AreEqual(1, nearbyPlayerShips.Length, "There should be 1 Player ship nearby");
             Assert.AreEqual(playerShip.Id, nearbyPlayerShips[0].Id);
+
+            var nearbyEnemyShips = FindNearbyShips(Enemy);
+            Assert.AreEqual(0, nearbyEnemyShips.Length, "There should be 0 Enemy ships nearby");
         }
 
-        [TestMethod]
-        public void LoyaltyChangeDoesNotBreakSpatialLookup()
+        void EnsureLoyaltyTransferAndSpatialCoherence(Ship transferredShip)
         {
-            var ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
-
-            EnsureSpatialCoherence(ship);
-            ship.LoyaltyChangeFromBoarding(Enemy, addNotification:false);
-
             Universe.Objects.Update(TestSimStep);
-            Assert.AreEqual(Enemy, ship.loyalty);
+            Assert.AreEqual(Enemy, transferredShip.loyalty);
 
             var nearbyPlayerShips = FindNearbyShips(Player);
             Assert.AreEqual(0, nearbyPlayerShips.Length, "There should be no Player ships nearby");
 
             var nearbyEnemyShips = FindNearbyShips(Enemy);
             Assert.AreEqual(1, nearbyEnemyShips.Length, "There should be 1 Enemy ship nearby");
+            Assert.AreEqual(transferredShip.Id, nearbyEnemyShips[0].Id);
+        }
+
+        [TestMethod]
+        public void LoyaltyChangeFromBoarding()
+        {
+            var ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
+            EnsureSpatialCoherence(ship);
+            ship.LoyaltyChangeFromBoarding(Enemy, addNotification:false);
+            EnsureLoyaltyTransferAndSpatialCoherence(ship);
+        }
+
+        [TestMethod]
+        public void LoyaltyChangeByGift()
+        {
+            var ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
+            EnsureSpatialCoherence(ship);
+            ship.LoyaltyChangeByGift(Enemy, addNotification:false);
+            EnsureLoyaltyTransferAndSpatialCoherence(ship);
         }
     }
 }
