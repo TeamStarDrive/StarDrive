@@ -8,7 +8,7 @@ namespace Ship_Game.Ships.Components
         Empire BoardedShipNewLoyalty;
         Empire LoyaltyForSpawnedShip;
         Empire AbsorbedShipNewLoyalty;
-        bool AddNotification = false;
+        bool AddNotification;
         IEmpireShipLists CurrentEmpire;
         public Empire ShipOwner { get; private set; }
 
@@ -25,7 +25,7 @@ namespace Ship_Game.Ships.Components
         public void SetBoardingLoyalty(Empire empire, bool addNotification = true)
         {
             BoardedShipNewLoyalty = empire;
-            AddNotification       = addNotification;
+            AddNotification = addNotification;
         }
 
         public void SetLoyaltyForNewShip(Empire empire, bool addNotification = true)
@@ -45,27 +45,28 @@ namespace Ship_Game.Ships.Components
             CurrentEmpire = empire;
             ShipOwner     = empire;
         }
+
+        /// <returns>TRUE if loyalty changed</returns>
         public bool ApplyAnyLoyaltyChanges()
         {
-            bool loyaltyChanged = false;
             if (BoardedShipNewLoyalty != null)
             {
-                loyaltyChanged |= LoyaltyChangeDueToBoarding(AddNotification); ;
+                return LoyaltyChangeDueToBoarding(AddNotification);
             }
             if (LoyaltyForSpawnedShip != null)
             {
                 SetCurrentLoyalty(LoyaltyForSpawnedShip);
                 CurrentEmpire.AddNewShipAtEndOfTurn(Owner);
                 LoyaltyForSpawnedShip = null;
-                loyaltyChanged = true;
+                return true;
             }
             if (AbsorbedShipNewLoyalty != null)
             {
                 LoyaltyChangeDueToFederation(AddNotification);
                 AbsorbedShipNewLoyalty = null;
-                loyaltyChanged = true;
+                return true;
             }
-            return loyaltyChanged;
+            return false;
         }
 
         bool LoyaltyChangeDueToBoarding(bool notification)
