@@ -97,6 +97,7 @@
     <Compile Include="Serialization\StringViewTests.cs" />
     <Compile Include="Ships\ModuleGridTests.cs" />
     <Compile Include="Ships\ShipDataTests.cs" />
+    <Compile Include="Ships\ShipLoyaltyTests.cs" />
     <Compile Include="Ships\ShipModuleGridTests.cs" />
     <Compile Include="Ships\ShipModuleTests.cs" />
     <Compile Include="Ships\TestHealth.cs" />

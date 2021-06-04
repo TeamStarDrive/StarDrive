@@ -17,7 +17,7 @@ namespace UnitTests.Ships
             CreateGameInstance();
             LoadStarterShips(starterShips:new[]{ "Vulcan Scout" }, 
                              savedDesigns:new[]{ "Prototype Frigate" });
-            CreateUniverseAndPlayerEmpire(out Empire empire);
+            CreateUniverseAndPlayerEmpire();
         }
 
         /// <summary>
