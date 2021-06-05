@@ -51,9 +51,8 @@ namespace Ship_Game.AI.Tasks
                 for (int i = 0; i < system.PlanetList.Count; i++)
                 {
                     Planet planet = system.PlanetList[i];
-
-                    if (planet.Owner != Owner) continue;
-                    if (planet.RecentCombat)   continue;
+                    if (planet.Owner != Owner || planet.RecentCombat) 
+                        continue;
 
                     float planetMinStr                 = sysCom.PlanetTroopMin(planet);
                     float planetDefendingTroopStrength = planet.GetDefendingTroopCount();

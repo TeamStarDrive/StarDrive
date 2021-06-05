@@ -35,7 +35,6 @@ namespace Ship_Game.Commands.Goals
             if (!empire.IsAtWarWith(TargetEmpire))
                 return GoalStep.GoalComplete;
 
-            StarDateAdded = Empire.Universe.StarDate;
             if (!empire.GetPotentialTargetPlanets(TargetEmpire, GetWarType(), out Planet[] planetTargets))
             {
                 if (!empire.TryGetMissionsVsEmpire(TargetEmpire, out _))
@@ -48,9 +47,10 @@ namespace Ship_Game.Commands.Goals
             foreach (Planet planet in targetPlanetsSorted)
             {
                 if (empire.CanAddAnotherWarGoal(TargetEmpire))
+                {
                     empire.GetEmpireAI().Goals.Add(new WarMission(empire, TargetEmpire, planet));
-                else
-                    break;
+                    return GoalStep.TryAgain;
+                }
             }
             
             return GoalStep.GoToNextStep;
@@ -76,7 +76,7 @@ namespace Ship_Game.Commands.Goals
             {
                 // Note: If TargetEmpire is the player, it will still be at war since the diplo is on a different thread.
                 // But we are checking per goal if the relevant empire is indeed at war to overcome this.
-                WarType changeTo = WarType.SkirmishWar;
+                WarType changeTo;
                 switch (warType)
                 {
                     case WarType.BorderConflict: changeTo = WarType.DefensiveWar;   break;

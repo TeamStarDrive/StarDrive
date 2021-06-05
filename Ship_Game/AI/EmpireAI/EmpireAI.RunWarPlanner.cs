@@ -320,7 +320,7 @@ namespace Ship_Game.AI
 
                 // todo move to method and also go real prepare for war.
                 // start a new war by military strength
-                if (!OwnerEmpire.IsAtWar || OwnerEmpire.GetAverageWarGrade() > 7)
+                if (!OwnerEmpire.IsAtWarWithMajorEmpire || OwnerEmpire.GetAverageWarGrade() > 7)
                 {
                     WarStrength = OwnerEmpire.AIManagedShips.EmpireReadyFleets.AccumulatedStrength;
                     foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations.SortedDescending(r=> r.Rel.TotalAnger))
@@ -369,7 +369,6 @@ namespace Ship_Game.AI
                     }
                 }
             }
-            
         }
 
         public bool ShouldGoToWar(Relationship rel)
