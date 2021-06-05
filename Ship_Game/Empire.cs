@@ -1994,13 +1994,21 @@ namespace Ship_Game
             if (!isFaction) return;
             foreach (Ship ship in ResourceManager.GetShipTemplates())
             {
-                if (data.Traits.ShipType == ship.shipData.ShipStyle
+                if ((data.Traits.ShipType == ship.shipData.ShipStyle
                     || ship.shipData.ShipStyle == "Misc"
                     || ship.shipData.ShipStyle.IsEmpty())
+                    && ship.CanBeAddedToBuildableShips(this))
                 {
                     ShipsWeCanBuild.Add(ship.Name);
                     foreach (ShipModule hangar in ship.Carrier.AllHangars)
-                        ShipsWeCanBuild.Add(hangar.hangarShipUID);
+                    {
+                        if (hangar.hangarShipUID.NotEmpty())
+                        {
+                            var hangarShip = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
+                            if (hangarShip?.CanBeAddedToBuildableShips(this) == true)
+                                ShipsWeCanBuild.Add(hangar.hangarShipUID);
+                        }
+                    }
                 }
             }
             foreach (var hull in UnlockedHullsDict.Keys.ToArray())
@@ -2023,31 +2031,29 @@ namespace Ship_Game
                 // we can already build this
                 if (ShipsWeCanBuild.Contains(ship.Name))
                     continue;
-                if (ship.Deleted || ResourceManager.ShipRoles[ship.shipData.Role].Protected)
-                    continue;
-                if (!isPlayer && (!ship.ShipGoodToBuild(this) || ship.IsPlayerDesign && !GlobalStats.UsePlayerDesigns))
+                if (!ship.CanBeAddedToBuildableShips(this))
                     continue;
 
                 if (WeCanBuildThis(ship.Name))
                 {
-                    if (ship.shipData.Role <= ShipData.RoleName.station)
-                    {
-                        if (!structuresWeCanBuild.Contains(ship.Name))
-                            structuresWeCanBuild.Add(ship.Name);
-                    }
-                    
-                    if (!ShipsWeCanBuild.Contains(ship.Name))
-                        ShipsWeCanBuild.Add(ship.Name);
+                    bool shipAdded;
 
-                    ship.MarkShipRolesUsableForEmpire(this);
+                    if (ship.shipData.Role > ShipData.RoleName.station)
+                        shipAdded = ShipsWeCanBuild.Add(ship.Name);
+                    else
+                        shipAdded = structuresWeCanBuild.Add(ship.Name);
+
+                    if (isPlayer)
+                        Universe?.aw?.UpdateDropDowns();
+
+                    if (shipAdded)
+                    {
+                        UpdateBestOrbitals();
+                        UpdateDefenseShipBuildingOffense();
+                        ship.MarkShipRolesUsableForEmpire(this);
+                    }
                 }
             }
-
-            if (isPlayer)
-                Universe?.aw?.UpdateDropDowns();
-
-            UpdateBestOrbitals();
-            UpdateDefenseShipBuildingOffense();
         }
 
         public bool WeCanBuildThis(string shipName)
