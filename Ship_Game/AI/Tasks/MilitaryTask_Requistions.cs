@@ -145,7 +145,7 @@ namespace Ship_Game.AI.Tasks
         private int BombTimeNeeded()
         {
             //ground landing spots. if we dont have a significant space to land troops. create them. 
-            int bombTime =  TargetPlanet.TotalDefensiveStrength / 10  ;
+            int bombTime =  TargetPlanet.TotalDefensiveStrength / 20  ;
 
             //shields are a real pain. this may need a lot more code to deal with. 
             bombTime    += (int)TargetPlanet.ShieldStrengthMax / 50;
@@ -357,13 +357,10 @@ namespace Ship_Game.AI.Tasks
 
             AO = TargetPlanet.Center;
             float geodeticOffense = TargetPlanet.BuildingGeodeticOffense;
+            float lowerBound      = GetMinimumStrLowerBound(geodeticOffense, enemy);
+            EnemyStrength         = GetEnemyShipStrengthInAO() + geodeticOffense;
 
-            float lowerBound = (geodeticOffense + Owner.KnownEmpireOffensiveStrength(enemy) / 10)
-                   .LowerBound(geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.ParentSystem, Owner, enemy))
-                   .LowerBound(Owner.OffensiveStrength / (Owner.GetPlanets().Count / 10).LowerBound(3));
-
-            EnemyStrength = GetEnemyShipStrengthInAO() + geodeticOffense;
-            UpdateMinimumTaskForceStrength(geodeticOffense, strike ? lowerBound * 2 : lowerBound);
+            UpdateMinimumTaskForceStrength(geodeticOffense, lowerBound);
             InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 40 ,minBombMinutes: 3);
 
             if (CreateTaskFleet(strike ? "Strike Fleet" : "Invasion Fleet", Completeness, true) == RequisitionStatus.Complete)
@@ -385,20 +382,24 @@ namespace Ship_Game.AI.Tasks
 
             AO = TargetPlanet.Center;
             float geodeticOffense = TargetPlanet.BuildingGeodeticOffense;
+            float lowerBound      = GetMinimumStrLowerBound(geodeticOffense, enemy);
+            EnemyStrength         = GetEnemyShipStrengthInAO() + geodeticOffense;
 
-            float lowerBound = (geodeticOffense + Owner.KnownEmpireOffensiveStrength(enemy) / 10)
-                   .LowerBound(geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.ParentSystem, Owner, enemy))
-                   .LowerBound(Owner.OffensiveStrength / (Owner.GetPlanets().Count / 10).LowerBound(3));
-
-            EnemyStrength = GetEnemyShipStrengthInAO() + geodeticOffense;
             UpdateMinimumTaskForceStrength(TargetPlanet.BuildingGeodeticOffense, lowerBound);
             int bombTimeNeeded = (TargetPlanet.TotalDefensiveStrength / 5).LowerBound(5) + (int)Math.Ceiling(TargetPlanet.PopulationBillion) * 2;
             InitFleetRequirements(minFleetStrength: MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: bombTimeNeeded);
 
             if (CreateTaskFleet("Doom Fleet", Completeness) == RequisitionStatus.Complete)
-            {
                 Step = 1;
-            }
+        }
+
+        float GetMinimumStrLowerBound(float geodeticOffense, Empire enemy)
+        {
+            float initialStr     = geodeticOffense + Owner.KnownEmpireOffensiveStrength(enemy) / 10;
+            float enemyStrNearby = geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.ParentSystem, Owner, enemy);
+            float ownStr         = Owner.OffensiveStrength / (Owner.GetPlanets().Count / 5).LowerBound(3);
+            float multiplier     = type == TaskType.StrikeForce ? 2 : 1; // Todo advanced tasks also get multiplier;
+            return initialStr.LowerBound(enemyStrNearby).LowerBound(ownStr) * multiplier;
         }
 
         void UpdateMinimumTaskForceStrength(float buildingsSpaceOffense = 0, float lowerBound = 0)
