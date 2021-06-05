@@ -90,8 +90,7 @@ namespace Ship_Game.AI
             float distanceToTarget = target.Center.Distance(Owner.Center);
             if (HasPriorityOrder || distanceToTarget > Owner.DesiredCombatRange && distanceToTarget > 7500f)
             {
-                if (Owner.fleet == null || Owner.ShipEngines.ReadyForFormationWarp == Status.Good)
-                MoveToEngageTarget(target, timeStep);
+                    MoveToEngageTarget(target, timeStep);
             }
             else
             {
