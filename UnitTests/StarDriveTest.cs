@@ -72,7 +72,7 @@ namespace UnitTests
 
         public StarDriveTest()
         {
-            Log.Initialize();
+            Log.Initialize(enableSentry: false);
             Log.VerboseLogging = true;
         }
 
