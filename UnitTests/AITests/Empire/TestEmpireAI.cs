@@ -6,6 +6,7 @@ using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.Empires;
 using Ship_Game.Empires.Components;
+using Ship_Game.GameScreens.NewGame;
 using Ship_Game.Ships;
 
 namespace UnitTests.AITests.Empire
@@ -19,7 +20,9 @@ namespace UnitTests.AITests.Empire
         public TestEmpireAI()
         {
             CreateGameInstance();
-            LoadStarterShips(ResourceManager.TestOptions.LoadPlanets,
+            ResourceManager.TestOptions testOptions = ResourceManager.TestOptions.LoadPlanets;
+            testOptions |= ResourceManager.TestOptions.TechContent;
+            LoadStarterShips(testOptions,
                              "Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle",
                              "Flak Fang", "Akagi-Class Mk Ia Escort Carrier", "Rocket Inquisitor");
 
@@ -87,9 +90,36 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void FirstTestShipBuilt()
         {
-            var build = new RoleBuildInfo(3, Player.GetEmpireAI(), true);
+            var build = new RoleBuildInfo(10, Player.GetEmpireAI(), true);
             string shipName = Player.GetEmpireAI().GetAShip(build);
             Assert.IsTrue(shipName == "Rocket Inquisitor", "Build did not create expected ship");
+
+            // prepare shipswecanbuildTest
+            var ship = SpawnShip("Excalibur-Class Supercarrier", Player, Vector2.Zero);
+            shipName = ship.Name;
+            Player.ShipsWeCanBuild.Remove(ship.Name);
+
+            // verify that we can not currently add wanted ship
+            Player.UpdateShipsWeCanBuild(new Array<String>{ ship.BaseHull.Name });
+            Assert.IsFalse(Player.ShipsWeCanBuild.Contains(shipName), $"{shipName} Without tech this should not have been added. ");
+
+            // after techs are added we should be able to add wanted ship
+            ShipDesignUtils.MarkDesignsUnlockable(new ProgressCounter());
+            foreach (var tech in ship.shipData.TechsNeeded)
+            {
+                Player.UnlockTech(tech, TechUnlockType.Normal);
+            }
+            Player.UnlockedHullsDict[ship.shipData.Hull] = true;
+            Player.UpdateShipsWeCanBuild(new Array<String> { ship.shipData.Hull });
+            Assert.IsTrue(Player.ShipsWeCanBuild.Contains(shipName), $"{shipName} Not found in ShipWeCanBuild");
+            Assert.IsTrue(Player.canBuildCarriers, $"{shipName} did not mark {ship.DesignRole} as buildable");
+
+            // Check that adding again does not does not trigger updates.
+            Player.canBuildCapitals = false;
+            Player.UpdateShipsWeCanBuild(new Array<String> { ship.BaseHull.Name });
+            Assert.IsFalse(Player.canBuildCapitals, $"UpdateShipsWeCanBuild triggered unneeded updates");
+
+
         }
 
         [TestMethod]
