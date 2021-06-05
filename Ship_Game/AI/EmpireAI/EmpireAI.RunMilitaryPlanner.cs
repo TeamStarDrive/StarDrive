@@ -30,11 +30,15 @@ namespace Ship_Game.AI
             BuildWarShips(offensiveGoals.Count);
             Goals.ApplyPendingRemovals();
             PrioritizeTasks();
-            var tasks = TaskList.SortedDescending(t=> t.Priority);
+            var tasks = TaskList.Sorted(t=> t.Priority);
             foreach (MilitaryTask task in tasks)
             {
                 if (!task.QueuedForRemoval)
+                {
                     task.Evaluate(OwnerEmpire);
+                    if (OwnerEmpire.IsAtWarWithMajorEmpire && task.Priority >= 7) // At war, concentrate on high priority tasks
+                        break;
+                }
             }
 
             ApplyPendingChanges();
@@ -71,7 +75,7 @@ namespace Ship_Game.AI
                     case MilitaryTask.TaskType.StrikeForce:         priority = 2;                                  break;
                     case MilitaryTask.TaskType.AssaultPlanet:       priority = 5;                                  break;
                     case MilitaryTask.TaskType.GlassPlanet:         priority = 5;                                  break;
-                    case MilitaryTask.TaskType.Exploration:         priority = 5 * (numWars+1);                    break;
+                    case MilitaryTask.TaskType.Exploration:         priority = GetExplorationPriority(task);       break;
                     case MilitaryTask.TaskType.DefendClaim:         priority = 5 + numWars*2;                      break;
                     case MilitaryTask.TaskType.AssaultPirateBase:   priority = GetAssaultPirateBasePriority(task); break;
                 }
@@ -90,6 +94,12 @@ namespace Ship_Game.AI
                     return (Pirates.MaxLevel - enemy.Pirates.Level).LowerBound(3);
 
                 return 10;
+            }
+
+            int GetExplorationPriority(MilitaryTask task)
+            {
+                int initial = task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(OwnerEmpire) ? 4 : 5;
+                return initial + numWars + (task.MinimumTaskForceStrength > 100 ? 1 : 0); 
             }
         }
 

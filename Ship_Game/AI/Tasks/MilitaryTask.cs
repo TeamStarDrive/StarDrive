@@ -502,13 +502,7 @@ namespace Ship_Game.AI.Tasks
                     {
                         if (Owner.GetEmpireAI().TroopShuttleCapacity > 0)
                             if (Step == 0)
-                            {
                                 RequisitionExplorationForce();
-                                if (Step < 1)
-                                {
-                                    Priority += Priority > 1 ? -1 : 20;
-                                }
-                            }
                         break;
                     }
                 case TaskType.DefendClaim:
@@ -530,8 +524,6 @@ namespace Ship_Game.AI.Tasks
                                         }
                                     }
                                     RequisitionClaimForce();
-                                    Priority += Priority < 1 ? 20 : -1;
-
                                 }
                                 break;
                             case 1:
