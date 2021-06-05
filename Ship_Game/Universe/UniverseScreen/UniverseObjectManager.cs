@@ -310,7 +310,10 @@ namespace Ship_Game
                         }
                         else
                         {
-                            bool loyaltyChanged = ship.LoyaltyTracker.ApplyAnyLoyaltyChanges();
+                            // apply loyalty change and make sure it's reinserted to Spatial with new loyalty
+                            bool loyaltyChanged = ship.LoyaltyTracker.Update(ship);
+                            if (loyaltyChanged)
+                                ship.ReinsertSpatial = true;
                         }
                     }
                     Ships.RemoveInActiveObjects();
