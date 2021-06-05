@@ -1994,9 +1994,9 @@ namespace Ship_Game
             if (!isFaction) return;
             foreach (Ship ship in ResourceManager.GetShipTemplates())
             {
-                if (data.Traits.ShipType == ship.shipData.ShipStyle
+                if ((data.Traits.ShipType == ship.shipData.ShipStyle
                     || ship.shipData.ShipStyle == "Misc"
-                    || ship.shipData.ShipStyle.IsEmpty()
+                    || ship.shipData.ShipStyle.IsEmpty())
                     && ship.CanBeAddedToBuildableShips)
                 {
                     ShipsWeCanBuild.Add(ship.Name);
