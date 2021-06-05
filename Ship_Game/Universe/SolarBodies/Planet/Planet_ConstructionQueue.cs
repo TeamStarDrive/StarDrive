@@ -112,7 +112,7 @@ namespace Ship_Game
         //         inserted to the end of the queue.
         public int TurnsUntilQueueComplete(float cost, bool forTroop)
         {
-            if (!forTroop && !HasSpacePort || forTroop && !CanBuildInfantry)
+            if (!forTroop && !HasSpacePort || forTroop && (!CanBuildInfantry || ConstructionQueue.Count(q => q.isTroop) >= 2))
                 return 9999; // impossible
 
             float effectiveCost = forTroop ? cost : (cost * ShipBuildingModifier).LowerBound(0);
