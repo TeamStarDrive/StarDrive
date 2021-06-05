@@ -416,82 +416,38 @@ namespace Ship_Game.AI.Tasks
             }
             switch (type)
             {
-                case TaskType.GuardBeforeColonize:
-                    switch (Step)
+                case TaskType.GuardBeforeColonize when Step == 0:
+                    if (TargetPlanet.Owner != null ||
+                        Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem) 
+                        > MinimumTaskForceStrength / Owner.GetFleetStrEmpireMultiplier(TargetEmpire))
                     {
-                        case 0:
-                            if (TargetPlanet.Owner != null ||
-                                Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem) 
-                                > MinimumTaskForceStrength / Owner.GetFleetStrEmpireMultiplier(TargetEmpire))
-                            {
-                                EndTask();
-                                break;
-                            }
-
-                            RequisitionGuardBeforeColonize();
-                            break;
-                    }
-
-                    break;
-                case TaskType.AssaultPirateBase:
-                    switch (Step)
-                    {
-                        case 0:
-                            RequisitionAssaultPirateBase();
-                            break;
-                    }
-
-                    break;
-                case TaskType.DefendVsRemnants:
-                    switch (Step)
-                    {
-                        case 0:
-                            RequisitionDefendVsRemnants();
-                            break;
-                    }
-
-                    break;
-                case TaskType.ClearAreaOfEnemies:
-                    {
-                        if (Step == 0)
-                        {
-                            if (EnemyStrength < 1)
-                            {
-                                EndTask();
-                                break;
-                            }
-                            RequisitionDefenseForce();
-                        }
+                        EndTask();
                         break;
                     }
-                case TaskType.StrikeForce:
-                case TaskType.AssaultPlanet:
+
+                    RequisitionGuardBeforeColonize();
+                    break;
+                case TaskType.AssaultPirateBase when Step == 0:
+                    break;
+                case TaskType.DefendVsRemnants when Step == 0:
+                    RequisitionDefendVsRemnants();
+                    break;
+                case TaskType.ClearAreaOfEnemies when Step == 0:
+                    if (EnemyStrength < 1)
                     {
-                        if (Step < 0)
-                        {
-                            Step++;
-                            break;
-                        }
-                        if (Step == 0)
-                        {
-                            if (TargetPlanet.Owner == null || !Owner.IsEmpireHostile(TargetPlanet.Owner))
-                                EndTask();
-
-                            RequisitionAssaultForces(type == TaskType.StrikeForce);
-                            if (Step == 0) Step = -1;
-                        }
-                        else
-                        {
-                            if (Owner.GetFleetsDict().TryGetValue(WhichFleet, out Fleet fleet))
-                            {
-                                if (fleet.Ships.Count > 0)
-                                    break;
-                            }
-
-                            EndTask();
-                        }
+                        EndTask();
                         break;
                     }
+
+                    RequisitionDefenseForce();
+                    break;
+                case TaskType.StrikeForce when Step == 0:
+                case TaskType.AssaultPlanet when Step == 0:
+                    if (TargetPlanet.Owner == null || !Owner.IsEmpireHostile(TargetPlanet.Owner))
+                        EndTask();
+
+                    RequisitionAssaultForces(type == TaskType.StrikeForce);
+                    break;
                 case TaskType.CohesiveClearAreaOfEnemies:
                     {
                         if      (Step == 0) RequisitionCoreFleet();
@@ -597,18 +553,12 @@ namespace Ship_Game.AI.Tasks
                         }
                         break;
                     }
-                case TaskType.GlassPlanet:
-                    {
-                        if (Step == 0)
-                        {
-                            if (TargetPlanet.Owner == null || !Owner.IsEmpireHostile(TargetPlanet.Owner))
-                                EndTask();
+                case TaskType.GlassPlanet when Step == 0:
+                    if (TargetPlanet.Owner == null || !Owner.IsEmpireHostile(TargetPlanet.Owner))
+                        EndTask();
 
-                            RequisitionGlassForce();
-                        }
-
-                        break;
-                    }
+                    RequisitionGlassForce();
+                    break;
             }
         }
 
@@ -885,6 +835,7 @@ namespace Ship_Game.AI.Tasks
             string fleet  = Fleet != null ? $"Fleet Step: {Fleet.TaskStep}" : "No Fleet yet";
             string target = TargetPlanet?.Name ?? "";
             debug.AddLine($"({Priority}) -- {type}, {target}, {fleet}", color);
+            debug.AddLine($" Str Needed: ({MinimumTaskForceStrength})", color);
         }
     }
 }
