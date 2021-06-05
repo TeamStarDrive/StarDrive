@@ -17,10 +17,6 @@ namespace UnitTests.AITests.Ships
             LoadStarterShipVulcan();
         }
 
-        void CreateTestEnv()
-        {
-            CreateUniverseAndPlayerEmpire(out _);
-        }
         Ship CreateTestShip()
         {
             Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
@@ -49,7 +45,7 @@ namespace UnitTests.AITests.Ships
         [TestMethod]
         public void MoveShip()
         {
-            CreateTestEnv();
+            CreateUniverseAndPlayerEmpire();
             
             var enemySpawnLocation = new Vector2(30000, 0);
             var movePosition       = new Vector2(60000, 0);

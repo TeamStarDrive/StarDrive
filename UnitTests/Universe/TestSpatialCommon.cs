@@ -19,7 +19,7 @@ namespace UnitTests.Universe
         {
             CreateGameInstance(800, 800, mockInput:false);
             LoadStarterShipVulcan();
-            CreateUniverseAndPlayerEmpire(out Empire _);
+            CreateUniverseAndPlayerEmpire();
         }
 
         protected void CreateQuadTree(int numShips, ISpatial tree)

@@ -68,12 +68,13 @@ namespace Ship_Game.Universe.SolarBodies
             return Map.FilterValues(s => s.Icon != null).Select(s => s.Icon);
         }
 
-        public static void LoadSunTypes()
+        public static void LoadSunTypes(bool enableHotLoading = true)
         {
             GameLoadingScreen.SetStatus("LoadSunTypes");
             FileInfo file = ResourceManager.GetModOrVanillaFile("Suns.yaml");
-            LoadSuns(file);
-            GameBase.ScreenManager.AddHotLoadTarget(null, "Suns", file.FullName, OnSunsFileModified);
+            LoadSuns(file, loadIcons: enableHotLoading);
+            if (enableHotLoading)
+                GameBase.ScreenManager.AddHotLoadTarget(null, "Suns", file.FullName, OnSunsFileModified);
         }
 
         public static void Unload()
@@ -83,15 +84,18 @@ namespace Ship_Game.Universe.SolarBodies
             BarrenSuns    = Empty<SunType>.Array;
         }
 
-        static void LoadSuns(FileInfo file)
+        static void LoadSuns(FileInfo file, bool loadIcons = true)
         {
             var sw = Stopwatch.StartNew();
             Array<SunType> all = YamlParser.DeserializeArray<SunType>(file);
-            // load all sun icons
-            Parallel.ForEach(all, sun =>
+
+            if (loadIcons) // load all sun icons if needed (not necessary for unit tests)
             {
-                sun.Icon = ResourceManager.RootContent.LoadTextureOrDefault("Textures/"+sun.IconPath);
-            });
+                Parallel.ForEach(all, sun =>
+                {
+                    sun.Icon = ResourceManager.RootContent.LoadTextureOrDefault("Textures/"+sun.IconPath);
+                });
+            }
 
             Map.Clear();
             foreach (SunType sun in all)
@@ -103,7 +107,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         static void OnSunsFileModified(FileInfo file)
         {
-            LoadSuns(file);
+            LoadSuns(file, loadIcons: true);
             if (Empire.Universe != null)
             {
                 // re-initialize all solar systems suns

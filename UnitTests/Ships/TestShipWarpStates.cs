@@ -13,7 +13,7 @@ namespace UnitTests.Ships
         {
             CreateGameInstance();
             LoadStarterShipVulcan();
-            CreateUniverseAndPlayerEmpire(out _);
+            CreateUniverseAndPlayerEmpire();
         }
 
         Ship CreateWarpTestShip()

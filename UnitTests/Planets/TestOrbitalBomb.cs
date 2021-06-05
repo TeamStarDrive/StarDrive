@@ -12,20 +12,15 @@ namespace UnitTests.Planets
             CreateGameInstance();
             LoadPlanetContent();
             ResourceManager.LoadProjectileMeshes();
-            CreateTestEnv();
+            CreateUniverseAndPlayerEmpire();
+            AddDummyPlanetToEmpire(Player);
+            AddHomeWorldToEmpire(Player, out P);
+            B = new Bomb(Vector3.Zero, Player, "NuclearBomb");
         }
 
-        private Planet P;
-        private Empire TestEmpire;
+        private Planet P; // Player.Capital
         private Bomb B;
 
-        void CreateTestEnv()
-        {
-            CreateUniverseAndPlayerEmpire(out TestEmpire);
-            AddDummyPlanetToEmpire(TestEmpire);
-            AddHomeWorldToEmpire(TestEmpire, out P);
-            B = new Bomb(Vector3.Zero, TestEmpire, "NuclearBomb");
-        }
 
         PlanetGridSquare FindHabitableTargetTile(SolarSystemBody p)
             => p.TilesList.Find(tile => tile.Habitable && !tile.Biosphere);
@@ -46,7 +41,7 @@ namespace UnitTests.Planets
         [TestMethod]
         public void TestPopulationCreated() // FB: Should be moved to other planet test class once i create them.
         {
-            float expectedPop = 14 * TestEmpire.data.Traits.HomeworldSizeMultiplier;
+            float expectedPop = 14 * Player.data.Traits.HomeworldSizeMultiplier;
             float actualPop   = P.MaxPopulationBillion;
             Assert.That.Equal(0.1f, expectedPop, actualPop);
         }
@@ -81,7 +76,7 @@ namespace UnitTests.Planets
         [TestMethod]
         public void TestTileDestruction()
         {
-            float expectedMaxPop = P.MaxPopulation - P.BasePopPerTile * Empire.RacialEnvModifer(P.Category, TestEmpire);
+            float expectedMaxPop = P.MaxPopulation - P.BasePopPerTile * Empire.RacialEnvModifer(P.Category, Player);
             P.DestroyTile(FindHabitableTargetTile(P));
             Assert.That.Equal(expectedMaxPop, P.MaxPopulation);
         }
@@ -93,7 +88,7 @@ namespace UnitTests.Planets
             ResourceManager.GetBuilding(Building.BiospheresId, out Building bioSpheres);
             bioTile.PlaceBuilding(bioSpheres, P);
             P.UpdateMaxPopulation();
-            float expectedMaxPop = P.MaxPopulation - P.PopPerBiosphere(TestEmpire);
+            float expectedMaxPop = P.MaxPopulation - P.PopPerBiosphere(Player);
             P.DestroyTile(bioTile);
             Assert.That.Equal(expectedMaxPop, P.MaxPopulation);
             Assert.IsFalse(bioTile.Biosphere);

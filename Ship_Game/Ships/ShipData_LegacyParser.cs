@@ -51,7 +51,7 @@ namespace Ship_Game.Ships
                     TechScore      = s->TechScore,
                     IsOrbitalDefense          = s->IsOrbitalDefense != 0,
                     SelectionGraphic          = s->SelectionGraphic.AsString,
-                    AllModulesUnlockable     = s->AllModulesUnlockable != 0,
+                    AllModulesUnlockable      = s->AllModulesUnlockable != 0,
                     MechanicalBoardingDefense = s->MechanicalBoardingDefense
                 };
                 Enum.TryParse(s->Role.AsString,              out ship.Role);

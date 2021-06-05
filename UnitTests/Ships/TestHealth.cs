@@ -12,19 +12,14 @@ namespace UnitTests.Ships
         {
             CreateGameInstance();
             LoadStarterShips("TEST_ShipShield");
-        }
-
-        void CreateTestEnv(out Ship ship, out Ship enemyShip)
-        {
-            CreateUniverseAndPlayerEmpire(out Empire empire);
-            ship = Ship.CreateShipAtPoint("TEST_ShipShield", empire, Vector2.Zero);
-            enemyShip = Ship.CreateShipAtPoint("TEST_ShipShield", Enemy, Vector2.Zero);
+            CreateUniverseAndPlayerEmpire();
         }
 
         [TestMethod]
         public void ShipHealth()
         {
-            CreateTestEnv(out Ship ship, out Ship enemyShip);
+            Ship ship = Ship.CreateShipAtPoint("TEST_ShipShield", Player, Vector2.Zero);
+            Ship enemyShip = Ship.CreateShipAtPoint("TEST_ShipShield", Enemy, Vector2.Zero);
             Assert.IsNotNull(ship);
 
             Assert.That.Equal(ship.InternalSlotCount, 8);
