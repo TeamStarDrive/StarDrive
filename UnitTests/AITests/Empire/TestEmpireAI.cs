@@ -120,6 +120,8 @@ namespace UnitTests.AITests.Empire
             Assert.IsFalse(Player.canBuildCapitals, $"UpdateShipsWeCanBuild triggered unneeded updates");
 
 
+
+
         }
 
         [TestMethod]
