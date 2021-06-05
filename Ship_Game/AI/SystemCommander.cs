@@ -224,9 +224,11 @@ namespace Ship_Game.AI
 
         public float PlanetTroopMin(Planet planet)
         {
-            float troopMin = MinPlanetTroopLevel * PlanetToSystemDevelopmentRatio(planet);
+            if (!Us.IsAtWarWithMajorEmpire)
+                return 1;
 
-            return Math.Max(1, troopMin);
+            float troopMin = MinPlanetTroopLevel * PlanetToSystemDevelopmentRatio(planet);
+            return troopMin.LowerBound(1);
         }
 
         public float TroopStrengthMin(Planet planet)
