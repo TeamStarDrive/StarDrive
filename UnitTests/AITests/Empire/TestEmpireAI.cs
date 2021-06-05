@@ -24,7 +24,8 @@ namespace UnitTests.AITests.Empire
             testOptions |= ResourceManager.TestOptions.TechContent;
             LoadStarterShips(testOptions,
                              "Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle",
-                             "Flak Fang", "Akagi-Class Mk Ia Escort Carrier", "Rocket Inquisitor");
+                             "Flak Fang", "Akagi-Class Mk Ia Escort Carrier", "Rocket Inquisitor",
+                             "Cordrazine Prototype");
 
             CreateUniverseAndPlayerEmpire();
             Enemy.isFaction = false;
@@ -96,8 +97,10 @@ namespace UnitTests.AITests.Empire
 
             // prepare shipswecanbuildTest
             var ship = SpawnShip("Excalibur-Class Supercarrier", Player, Vector2.Zero);
+            var prototype = SpawnShip("Cordrazine Prototype", Player, Vector2.Zero);
             shipName = ship.Name;
             Player.ShipsWeCanBuild.Remove(ship.Name);
+            Player.ShipsWeCanBuild.Remove(prototype.Name);
 
             // verify that we can not currently add wanted ship
             Player.UpdateShipsWeCanBuild(new Array<String>{ ship.BaseHull.Name });
@@ -109,10 +112,18 @@ namespace UnitTests.AITests.Empire
             {
                 Player.UnlockTech(tech, TechUnlockType.Normal);
             }
+            foreach (var tech in prototype.shipData.TechsNeeded)
+            {
+                Player.UnlockTech(tech, TechUnlockType.Normal);
+            }
             Player.UnlockedHullsDict[ship.shipData.Hull] = true;
+            Player.UnlockedHullsDict[prototype.shipData.Hull] = true;
             Player.UpdateShipsWeCanBuild(new Array<String> { ship.shipData.Hull });
             Assert.IsTrue(Player.ShipsWeCanBuild.Contains(shipName), $"{shipName} Not found in ShipWeCanBuild");
             Assert.IsTrue(Player.canBuildCarriers, $"{shipName} did not mark {ship.DesignRole} as buildable");
+
+            Player.UpdateShipsWeCanBuild(new Array<String> { prototype.shipData.Hull });
+            Assert.IsFalse(Player.ShipsWeCanBuild.Contains(prototype.Name), "Prototype ship added to ships we can build");
 
             // Check that adding again does not does not trigger updates.
             Player.canBuildCapitals = false;
