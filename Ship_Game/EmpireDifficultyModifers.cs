@@ -32,6 +32,7 @@
         public readonly int PlayerWarPriorityLimit; // Priority of wars vs player (war priority is 0 to 10 where 0 means more priority)
         public readonly int NumWarTasksPerWar;
         public readonly int ColonyRankFortify; // If a war with player, increase colony rank for static defenses
+        public readonly int WarTaskPriorityMod; // higher priority vs player if at war with them
 
         // AI Buffs/Nerfs
         public readonly float FlatMoneyBonus;
@@ -88,6 +89,7 @@
                     NumSystemsToSniff    = 1;
                     NumWarTasksPerWar    = 1;
                     ColonyRankFortify    = 0;
+                    WarTaskPriorityMod   = 0;
                     if (!empire.isPlayer)
                     {
                         ProductionMod = -0.1f;
@@ -124,6 +126,7 @@
                     NumSystemsToSniff    = 2;
                     NumWarTasksPerWar    = 2;
                     ColonyRankFortify    = 1;
+                    WarTaskPriorityMod   = 0;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 5;
@@ -157,6 +160,7 @@
                     NumSystemsToSniff    = 3;
                     NumWarTasksPerWar    = 3;
                     ColonyRankFortify    = 2;
+                    WarTaskPriorityMod   = 1;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 10;
@@ -196,6 +200,7 @@
                     NumSystemsToSniff    = 4;
                     NumWarTasksPerWar    = 4;
                     ColonyRankFortify    = 3;
+                    WarTaskPriorityMod   = 2;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 20;

@@ -420,7 +420,8 @@ namespace Ship_Game.AI.Tasks
                     switch (Step)
                     {
                         case 0:
-                            if (Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem) 
+                            if (TargetPlanet.Owner != null ||
+                                Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem) 
                                 > MinimumTaskForceStrength / Owner.GetFleetStrEmpireMultiplier(TargetEmpire))
                             {
                                 EndTask();

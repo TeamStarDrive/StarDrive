@@ -63,8 +63,8 @@ namespace Ship_Game.AI
                 int priority;
                 switch (task.type)
                 {
-                    default:
-                    case MilitaryTask.TaskType.GuardBeforeColonize: priority = 5;                                  break;
+                    default:                                        priority = 5;                                  break;
+                    case MilitaryTask.TaskType.GuardBeforeColonize: priority = 3 + numWars;                        break;
                     case MilitaryTask.TaskType.DefendVsRemnants:    priority = 0;                                  break;
                     case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: 
                     case MilitaryTask.TaskType.ClearAreaOfEnemies:  priority = 1;                                  break;
@@ -77,7 +77,7 @@ namespace Ship_Game.AI
                 }
 
                 if (task.TargetEmpire == EmpireManager.Player)
-                    priority -= numWars;
+                    priority -= OwnerEmpire.DifficultyModifiers.WarTaskPriorityMod;
 
                 task.Priority = priority;
             }
