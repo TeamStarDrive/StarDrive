@@ -131,7 +131,10 @@ namespace Ship_Game.Ships.Components
             IEmpireShipLists oldShips = oldLoyalty;
             IEmpireShipLists newShips = newLoyalty;
             oldShips.RemoveShipAtEndOfTurn(ship);
+            oldLoyalty.RemoveShipFromAIPools(ship);
+
             newShips.AddNewShipAtEndOfTurn(ship);
+            newLoyalty.AddShipToAIPools(ship);
         }
     }
 }
