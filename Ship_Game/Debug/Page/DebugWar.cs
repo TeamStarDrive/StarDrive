@@ -10,7 +10,7 @@ namespace Ship_Game.Debug.Page
         int EmpireID = 1;
         Empire EmpireAtWar;
 
-        public DebugWar(UniverseScreen screen, DebugInfoScreen parent) : base(parent, DebugModes.RelationsWar)
+        public DebugWar(UniverseScreen screen, DebugInfoScreen parent) : base(parent, DebugModes.War)
         {
             Screen = screen;
             if (TextColumns.Count <= 1)

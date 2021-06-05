@@ -31,13 +31,14 @@ namespace Ship_Game.Debug
         input,
         Tech,
         Solar, // Sun timers, black hole data, pulsar radiation radius...
-        RelationsWar,
+        War,
         Pirates,
         Remnants,
         Agents,
         Relationship,
         FleetMulti,
         StoryAndEvents,
+        Tasks,
         Last // dummy value
     }
 
@@ -168,7 +169,7 @@ namespace Ship_Game.Debug
                     case DebugModes.Trade:      Page = Add(new TradeDebug(Screen, this)); break;
                     case DebugModes.Planets:    Page = Add(new PlanetDebug(Screen,this)); break;
                     case DebugModes.Solar:      Page = Add(new SolarDebug(Screen, this)); break;
-                    case DebugModes.RelationsWar:   Page = Add(new DebugWar(Screen, this)); break;
+                    case DebugModes.War:            Page = Add(new DebugWar(Screen, this)); break;
                     case DebugModes.AO:             Page = Add(new DebugAO(Screen, this)); break;
                     case DebugModes.SpatialManager: Page = Add(new SpatialDebug(Screen, this)); break;
                     case DebugModes.StoryAndEvents: Page = Add(new StoryAndEventsDebug(Screen, this)); break;
@@ -231,6 +232,7 @@ namespace Ship_Game.Debug
                     case DebugModes.Agents:       AgentsInfo();       break;
                     case DebugModes.Relationship: Relationships();    break;
                     case DebugModes.FleetMulti:   FleetMultipliers(); break;
+                    case DebugModes.Tasks:        Tasks();            break;
                 }
 
                 base.Draw(batch, elapsed);
@@ -723,6 +725,36 @@ namespace Ship_Game.Debug
                     Empire target = EmpireManager.GetEmpireByName(agent.TargetEmpire);
                     Color color   = target?.EmpireColor ?? e.EmpireColor;
                     DrawString(color, $"Level: {agent.Level}, Mission: {agent.Mission}, Turns: {agent.TurnsRemaining}");
+                }
+
+                column += 1;
+            }
+        }
+
+        void Tasks()
+        {
+            int column = 0;
+            foreach (Empire e in EmpireManager.NonPlayerMajorEmpires)
+            {
+                if (e.data.Defeated)
+                    continue;
+
+                SetTextCursor(Win.X + 10 + 300 * column, Win.Y + 95, e.EmpireColor);
+                DrawString("--------------------------");
+                DrawString(e.Name);
+                DrawString($"{e.Personality}");
+                DrawString($"Average War Grade: {e.GetAverageWarGrade()}");
+                DrawString("----------------------------");
+
+                var tasks = e.GetEmpireAI().GetTasks().SortedDescending(t => t.Priority);
+                for (int i = tasks.Length - 1; i >= 0; i--)
+                {
+                    MilitaryTask task = tasks[i];
+                    Color color       = task.TargetEmpire?.EmpireColor ?? e.EmpireColor;
+                    string fleet      = task.Fleet != null ? $"Fleet Step: {task.Fleet.TaskStep}" : "No Fleet";
+                    string target     = task.TargetPlanet?.Name ?? "";
+
+                    DrawString(color, $"({task.Priority}) {task.type}, {target}, {fleet}");
                 }
 
                 column += 1;
