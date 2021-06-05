@@ -91,11 +91,11 @@ namespace Ship_Game.Ships
         public Ship Mothership;
         public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
         public float PackDamageModifier { get; private set; }
-        public Empire loyalty => LoyaltyTracker.ShipOwner;
+        public Empire loyalty => LoyaltyTracker.CurrentLoyalty;
         public LoyaltyChanges LoyaltyTracker { get; private set; }
         public void LoyaltyChangeFromBoarding(Empire empire, bool addNotification = true) => LoyaltyTracker.SetBoardingLoyalty(empire, addNotification);
         public void LoyaltyChangeByGift(Empire empire, bool addNotification = true) => LoyaltyTracker.SetLoyaltyForAbsorbedShip(empire, addNotification);
-        public void LoyaltyChangeAtSpawn(Empire empire, bool addNotification = true) => LoyaltyTracker.SetLoyaltyForNewShip(empire, addNotification);
+        public void LoyaltyChangeAtSpawn(Empire empire) => LoyaltyTracker.SetLoyaltyForNewShip(empire);
 
         // This is the total number of Slots on the ships
         // It does not depend on the number of modules, and is always a constant
@@ -1563,10 +1563,10 @@ namespace Ship_Game.Ships
         public override void RemoveFromUniverseUnsafe()
         {
             AI?.Reset();
-
-            if (IsHangarShip && Mothership.Carrier != null)
+            var carrier = Mothership?.Carrier;
+            if (IsHangarShip && carrier != null)
             {
-                foreach (ShipModule shipModule in Mothership.Carrier.AllActiveHangars)
+                foreach (ShipModule shipModule in carrier.AllActiveHangars)
                     if (shipModule.TryGetHangarShip(out Ship ship) && ship == this)
                         shipModule.SetHangarShip(null);
             }
@@ -1657,7 +1657,7 @@ namespace Ship_Game.Ships
             TradeRoutes = null;
             OurTroops = null;
             HostileTroops = null;
-            LoyaltyTracker = null;
+            LoyaltyTracker = default;
         }
 
         public void UpdateShields()

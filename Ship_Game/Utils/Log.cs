@@ -59,7 +59,7 @@ namespace Ship_Game
 
         static readonly Array<Thread> MonitoredThreads = new Array<Thread>();
 
-        public static void Initialize()
+        public static void Initialize(bool enableSentry)
         {
             if (LogThread != null)
                 return; // already initialized!
@@ -101,19 +101,22 @@ namespace Ship_Game
                 HideConsoleWindow();
             }
             
-            Sentry = SentrySdk.Init(o =>
+            if (enableSentry)
             {
-                o.Dsn = "https://1c5a169d2a304e5284f326591a2faae3:3e8eaeb6d9334287955fdb8101ae8eab@sentry.io/123180";
-                o.Environment = environment;
-                o.Release = GlobalStats.Version;
-                o.CacheDirectoryPath = Dir.StarDriveAppData;
-                // prevent an annoying error during startup, the new Sentry Sdk is not that well written
-                Directory.CreateDirectory(Dir.StarDriveAppData + "/Sentry/20B2286BFAE850FA0CDC761198EC2B61B0722A9B");
-            });
-            SentrySdk.ConfigureScope(scope =>
-            {
-                scope.AddAttachment("blackbox.log");
-            });
+                Sentry = SentrySdk.Init(o =>
+                {
+                    o.Dsn = "https://1c5a169d2a304e5284f326591a2faae3:3e8eaeb6d9334287955fdb8101ae8eab@sentry.io/123180";
+                    o.Environment = environment;
+                    o.Release = GlobalStats.Version;
+                    o.CacheDirectoryPath = Dir.StarDriveAppData;
+                    // prevent an annoying error during startup, the new Sentry Sdk is not that well written
+                    Directory.CreateDirectory(Dir.StarDriveAppData + "/Sentry/20B2286BFAE850FA0CDC761198EC2B61B0722A9B");
+                });
+                SentrySdk.ConfigureScope(scope =>
+                {
+                    scope.AddAttachment("blackbox.log");
+                });
+            }
 
             string init = "\r\n";
             init +=  " ======================================================\r\n";
@@ -451,6 +454,9 @@ namespace Ship_Game
 
         static void CaptureEvent(string text, SentryLevel level, Exception ex = null)
         {
+            if (Sentry == null)
+                return; // sentry is disabled
+
             var evt = new SentryEvent(ex)
             {
                 Message = text,

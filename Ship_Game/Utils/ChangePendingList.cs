@@ -68,12 +68,5 @@ namespace Ship_Game.Utils
             PendingRemoves = new Array<T>();
             List           = new Array<T>();
         }
-
-        public void ClearAndDispose()
-        {
-            PendingRemoves.ClearAndDispose();
-            PendingAdds.ClearAndDispose();
-            List.ClearAndDispose();
-        }
     }
 }

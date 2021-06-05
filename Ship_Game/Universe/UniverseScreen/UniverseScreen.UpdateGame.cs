@@ -128,8 +128,7 @@ namespace Ship_Game
                 ScreenManager.InvokePendingEmpireThreadActions();
                 ++SimTurnId;
 
-                // this should make spawning ships while paused added to the empire correctly. 
-                // and correctly update lists when removing and creating fleets while paused. 
+                // recalculates empire stats and updates lists using current shiplists
                 EndOfTurnUpdate(FixedSimTime.Zero/*paused*/);
 
                 Objects.Update(FixedSimTime.Zero/*paused*/);
@@ -453,7 +452,7 @@ namespace Ship_Game
                     for (int i = start; i < end; i++)
                     {
                         var empire = EmpireManager.Empires[i];
-
+                        empire.AIManagedShips.Update();
                         empire.UpdateMilitaryStrengths();
                         empire.AssessSystemsInDanger(timeStep);
                         empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();

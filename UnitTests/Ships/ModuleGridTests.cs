@@ -14,7 +14,7 @@ namespace UnitTests.Ships
         {
             CreateGameInstance();
             LoadStarterShips("Vulcan Scout");
-            CreateUniverseAndPlayerEmpire(out _);
+            CreateUniverseAndPlayerEmpire();
         }
 
         [TestMethod]

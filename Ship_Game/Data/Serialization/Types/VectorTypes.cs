@@ -39,6 +39,13 @@ namespace Ship_Game.Data.Serialization.Types
             v.Y = reader.ReadSingle();
             return v;
         }
+
+        public static Vector2 FromString(StringView s)
+        {
+            StringView first = s.Next(',');
+            StringView second = s;
+            return new Vector2(first.ToFloat(), second.ToFloat());
+        }
     }
 
     internal class Vector3Serializer : TypeSerializer

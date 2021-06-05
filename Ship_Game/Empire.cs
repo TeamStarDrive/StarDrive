@@ -247,7 +247,7 @@ namespace Ship_Game
         public void AddShipToManagedPools(Ship s)
         {
             s.AI.ClearOrdersAndWayPoints(AIState.AwaitingOrders, false);
-            AIManagedShips.AddToEmpireForcePoolNextFame(s);
+            AIManagedShips.AddToEmpireForcePool(s);
         }
         
         public Empire()
@@ -1014,7 +1014,6 @@ namespace Ship_Game
 
         public IReadOnlyList<Ship> GetProjectors() => OwnedProjectors;
 
-        public void AddShipToAIPools(Ship s) => AIManagedShips.Add(s);
         void IEmpireShipLists.AddNewShipAtEndOfTurn(Ship s) => EmpireShips.Add(s);
 
         void InitDifficultyModifiers()
