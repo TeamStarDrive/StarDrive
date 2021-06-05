@@ -2035,24 +2035,24 @@ namespace Ship_Game
 
                 if (WeCanBuildThis(ship.Name))
                 {
-                    if (ship.shipData.Role <= ShipData.RoleName.station)
-                    {
-                        if (!structuresWeCanBuild.Contains(ship.Name))
-                            structuresWeCanBuild.Add(ship.Name);
-                    }
-                    
-                    if (!ShipsWeCanBuild.Contains(ship.Name))
-                        ShipsWeCanBuild.Add(ship.Name);
+                    bool shipAdded;
 
-                    ship.MarkShipRolesUsableForEmpire(this);
+                    if (ship.shipData.Role > ShipData.RoleName.station)
+                        shipAdded = ShipsWeCanBuild.Add(ship.Name);
+                    else
+                        shipAdded = structuresWeCanBuild.Add(ship.Name);
+
+                    if (isPlayer)
+                        Universe?.aw?.UpdateDropDowns();
+
+                    if (shipAdded)
+                    {
+                        UpdateBestOrbitals();
+                        UpdateDefenseShipBuildingOffense();
+                        ship.MarkShipRolesUsableForEmpire(this);
+                    }
                 }
             }
-
-            if (isPlayer)
-                Universe?.aw?.UpdateDropDowns();
-
-            UpdateBestOrbitals();
-            UpdateDefenseShipBuildingOffense();
         }
 
         public bool WeCanBuildThis(string shipName)
