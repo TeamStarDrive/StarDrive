@@ -134,7 +134,7 @@ namespace Ship_Game.Ships.Components
             oldLoyalty.RemoveShipFromAIPools(ship);
 
             newShips.AddNewShipAtEndOfTurn(ship);
-            newLoyalty.AddShipToAIPools(ship);
+            newLoyalty.AddShipToManagedPools(ship);
         }
     }
 }
