@@ -50,8 +50,7 @@ namespace Ship_Game.Empires.ShipPools
 
         public void Update()
         {
-            lock (ChangeLocker)
-                ForcePool.Update();
+            ForcePool.Update();
 
             if (!Owner.isPlayer)
             {
@@ -209,7 +208,7 @@ namespace Ship_Game.Empires.ShipPools
                 }
                 else if(ship.DesignRoleType == ShipData.RoleType.Warship && ship.BaseCanWarp)
                 {
-                    Log.Error($"Could Not add ship to force pools. {ship} ");
+                    Log.Warning($"Could Not add ship to force pools. {ship} ");
                 }
             }
         }
@@ -219,7 +218,7 @@ namespace Ship_Game.Empires.ShipPools
             int numWars = Owner.AtWarCount;
             if (toAdd.loyalty != Owner)
             {
-                Log.Warning("wrong loyalty added to force pool");
+                Log.Error("wrong loyalty added to force pool");
                 RemoveFromOtherPools(toAdd);
                 ImmediateRemoveShipFromEmpire(toAdd);
                 return true;
@@ -283,8 +282,7 @@ namespace Ship_Game.Empires.ShipPools
         /// </summary>
         public bool RemoveShipFromEmpire(Ship ship)
         {
-            lock (ChangeLocker)
-                RemoveShipFromFleetAndPools(ship);
+            RemoveShipFromFleetAndPools(ship);
             bool removed = false;
             if (ship == null)
             {
