@@ -15,7 +15,7 @@ namespace UnitTests.Ships
         {
             CreateGameInstance();
             LoadStarterShipVulcan();
-            CreateUniverseAndPlayerEmpire(out _);
+            CreateUniverseAndPlayerEmpire();
         }
 
         static readonly Array<Projectile> NoProjectiles = new Array<Projectile>();

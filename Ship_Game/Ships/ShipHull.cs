@@ -34,6 +34,17 @@ namespace Ship_Game.Ships
 
         public FileInfo Source;
 
+        public HullSlot FindSlot(Point p)
+        {
+            for (int i = 0; i < HullSlots.Length; ++i)
+            {
+                var slot = HullSlots[i];
+                if (slot.P == p)
+                    return slot;
+            }
+            return null;
+        }
+
         public ShipHull()
         {
         }

@@ -7,34 +7,24 @@ namespace UnitTests.Planets
     [TestClass]
     public class TestLandOnTile : StarDriveTest
     {
+        private Planet P;
+        private Troop Enemy1;
+        private Troop Enemy2;
+        private Troop Friendly;
+
         public TestLandOnTile()
         {
             CreateGameInstance();
             LoadPlanetContent();
             ResourceManager.LoadProjectileMeshes();
-            CreateTestEnv();
-        }
-
-        private Planet P;
-        private Empire TestEmpire;
-        private Troop Enemy1;
-        private Troop Enemy2;
-        private Troop Friendly;
-
-
-        void CreateTestEnv()
-        {
-            CreateUniverseAndPlayerEmpire(out TestEmpire);
+            CreateUniverseAndPlayerEmpire();
             Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
-            AddDummyPlanetToEmpire(TestEmpire);
-            AddHomeWorldToEmpire(TestEmpire, out P);
-            Enemy1   = CreateEnemyTroop;
-            Enemy2   = CreateEnemyTroop;
-            Friendly = CreateFriendlyTroop;
+            AddDummyPlanetToEmpire(Player);
+            AddHomeWorldToEmpire(Player, out P);
+            Enemy1   = ResourceManager.CreateTroop("Wyvern", Enemy);
+            Enemy2   = ResourceManager.CreateTroop("Wyvern", Enemy);
+            Friendly = ResourceManager.CreateTroop("Wyvern", Player);
         }
-
-        Troop CreateEnemyTroop    => ResourceManager.CreateTroop("Wyvern", Enemy);
-        Troop CreateFriendlyTroop => ResourceManager.CreateTroop("Wyvern", TestEmpire);
 
         bool GetTroopTile(Troop troop, out PlanetGridSquare troopTile)
         {

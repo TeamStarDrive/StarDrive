@@ -28,14 +28,16 @@ namespace Ship_Game.Ships
             experience = data.experience;
             shipData   = data;
 
-            LoyaltyTracker = new Components.LoyaltyChanges(this, empire);
-
             if (fromSave)
                 data.UpdateBaseHull(); // when loading from save, the basehull data might not be set
+            
+            // loyalty must be set before modules are initialized
+            LoyaltyTracker = new Components.LoyaltyChanges(empire);
+            LoyaltyTracker.OnSpawn(this);
 
             if (!CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate, shipyardDesign))
                 return;
-
+            
             Stats = new ShipStats(this);
             KnownByEmpires = new Components.KnownByEmpire(this);
             HasSeenEmpires = new Components.KnownByEmpire(this);
@@ -59,11 +61,13 @@ namespace Ship_Game.Ships
             BaseCanWarp  = template.BaseCanWarp;
             shipData     = template.shipData;
 
-            LoyaltyTracker = new Components.LoyaltyChanges(this, owner);
+            // loyalty must be set before modules are initialized
+            LoyaltyTracker = new Components.LoyaltyChanges(owner);
+            LoyaltyTracker.OnSpawn(this);
 
             if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
                 return; // return and crash again...
-
+            
             Stats = new ShipStats(this);
             KnownByEmpires = new Components.KnownByEmpire(this);
             HasSeenEmpires = new Components.KnownByEmpire(this);

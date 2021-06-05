@@ -72,7 +72,7 @@ namespace UnitTests
 
         public StarDriveTest()
         {
-            Log.Initialize();
+            Log.Initialize(enableSentry: false);
             Log.VerboseLogging = true;
         }
 
@@ -92,6 +92,9 @@ namespace UnitTests
         public void CreateGameInstance(int width=800, int height=600,
                                        bool show=false, bool mockInput=true)
         {
+            if (Game != null)
+                throw new InvalidOperationException("Game instance already created");
+
             // Try to collect all memory before we continue, otherwise we can run out of memory
             // in the unit tests because it doesn't collect memory by default
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
@@ -129,17 +132,16 @@ namespace UnitTests
                 throw new Exception($"LoadStarterContent() or LoadStarterShips() must be called BEFORE {functionName}() !");
         }
 
-        public void CreateUniverseAndPlayerEmpire(out Empire player)
+        public void CreateUniverseAndPlayerEmpire()
         {
             RequireGameInstance(nameof(CreateUniverseAndPlayerEmpire));
             RequireStarterContentLoaded(nameof(CreateUniverseAndPlayerEmpire));
 
             var data = new UniverseData();
-            Player = player = data.CreateEmpire(ResourceManager.MajorRaces[0], isPlayer:true);
-            Empire.Universe = Universe = new UniverseScreen(data, player);
-            Universe.player = player;
+            Player = data.CreateEmpire(ResourceManager.MajorRaces[0], isPlayer:true);
+            Empire.Universe = Universe = new UniverseScreen(data, Player);
             Enemy = EmpireManager.CreateRebelsFromEmpireData(ResourceManager.MajorRaces[0], Player);
-            player.TestInitModifiers();
+            Player.TestInitModifiers();
         }
 
         public void LoadStarterContent()
@@ -150,26 +152,28 @@ namespace UnitTests
 
         public void LoadStarterShips(params string[] shipList)
         {
+            LoadStarterShips(ResourceManager.TestOptions.None, shipList);
+        }
+
+        public void LoadStarterShips(ResourceManager.TestOptions options, params string[] shipList)
+        {
             RequireGameInstance(nameof(LoadStarterShips));
             if (shipList == null)
                 throw new NullReferenceException(nameof(shipList));
-            ResourceManager.LoadStarterShipsForTesting(shipList.Length == 0 ? null : shipList);
+            ResourceManager.LoadStarterShipsForTesting(shipsList:shipList.Length == 0 ? null : shipList,
+                                                       savedDesigns:null, options);
         }
 
-        public void LoadStarterShips(string[] starterShips, string[] savedDesigns)
+        public void LoadStarterShips(string[] starterShips, string[] savedDesigns,
+                                     ResourceManager.TestOptions options = ResourceManager.TestOptions.None)
         {
             RequireGameInstance(nameof(LoadStarterShips));
             ResourceManager.LoadStarterShipsForTesting(starterShips, savedDesigns);
         }
 
-        public void LoadStarterShipVulcan()
+        public void LoadStarterShipVulcan(ResourceManager.TestOptions options = ResourceManager.TestOptions.None)
         {
-            LoadStarterShips(new[]
-            {
-                "Vulcan Scout",
-                "Rocket Scout",
-                "Laserclaw"
-            });
+            LoadStarterShips(options, "Vulcan Scout", "Rocket Scout", "Laserclaw");
         }
         
         public Ship SpawnShip(string shipName, Empire empire, Vector2 position, Vector2 shipDirection = default)
