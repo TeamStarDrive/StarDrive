@@ -1997,14 +1997,17 @@ namespace Ship_Game
                 if ((data.Traits.ShipType == ship.shipData.ShipStyle
                     || ship.shipData.ShipStyle == "Misc"
                     || ship.shipData.ShipStyle.IsEmpty())
-                    && ship.CanBeAddedToBuildableShips)
+                    && ship.CanBeAddedToBuildableShips(this))
                 {
                     ShipsWeCanBuild.Add(ship.Name);
                     foreach (ShipModule hangar in ship.Carrier.AllHangars)
                     {
-                        var hangarShip = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
-                        if (hangarShip?.CanBeAddedToBuildableShips == true)
-                            ShipsWeCanBuild.Add(hangar.hangarShipUID);
+                        if (hangar.hangarShipUID.NotEmpty())
+                        {
+                            var hangarShip = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
+                            if (hangarShip?.CanBeAddedToBuildableShips(this) == true)
+                                ShipsWeCanBuild.Add(hangar.hangarShipUID);
+                        }
                     }
                 }
             }
@@ -2028,9 +2031,7 @@ namespace Ship_Game
                 // we can already build this
                 if (ShipsWeCanBuild.Contains(ship.Name))
                     continue;
-                if (ship.Deleted || ResourceManager.ShipRoles[ship.shipData.Role].Protected)
-                    continue;
-                if (!isPlayer && (!ship.ShipGoodToBuild(this) || ship.IsPlayerDesign && !GlobalStats.UsePlayerDesigns))
+                if (!ship.CanBeAddedToBuildableShips(this))
                     continue;
 
                 if (WeCanBuildThis(ship.Name))
