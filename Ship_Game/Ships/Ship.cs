@@ -180,7 +180,7 @@ namespace Ship_Game.Ships
         }
 
         public bool CanBeAddedToBuildableShips => DesignRole != ShipData.RoleName.prototype && DesignRole != ShipData.RoleName.disabled
-                                               && !ResourceManager.ShipRoles[shipData.Role].Protected;
+                                               && !ResourceManager.ShipRoles[shipData.Role].Protected && !Deleted;
 
         public void SetCombatStance(CombatState stance)
         {
