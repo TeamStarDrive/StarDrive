@@ -1996,11 +1996,16 @@ namespace Ship_Game
             {
                 if (data.Traits.ShipType == ship.shipData.ShipStyle
                     || ship.shipData.ShipStyle == "Misc"
-                    || ship.shipData.ShipStyle.IsEmpty())
+                    || ship.shipData.ShipStyle.IsEmpty()
+                    && ship.CanBeAddedToBuildableShips)
                 {
                     ShipsWeCanBuild.Add(ship.Name);
                     foreach (ShipModule hangar in ship.Carrier.AllHangars)
-                        ShipsWeCanBuild.Add(hangar.hangarShipUID);
+                    {
+                        var hangarShip = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
+                        if (hangarShip?.CanBeAddedToBuildableShips == true)
+                            ShipsWeCanBuild.Add(hangar.hangarShipUID);
+                    }
                 }
             }
             foreach (var hull in UnlockedHullsDict.Keys.ToArray())
