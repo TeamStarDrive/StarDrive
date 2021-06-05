@@ -179,8 +179,10 @@ namespace Ship_Game.Ships
             set => DesignRole = value ? ShipData.RoleName.construction : GetDesignRole();
         }
 
-        public bool CanBeAddedToBuildableShips => DesignRole != ShipData.RoleName.prototype && DesignRole != ShipData.RoleName.disabled
-                                               && !ResourceManager.ShipRoles[shipData.Role].Protected && !Deleted;
+        public bool CanBeAddedToBuildableShips(Empire empire) => DesignRole != ShipData.RoleName.prototype && DesignRole != ShipData.RoleName.disabled
+                                               && !ResourceManager.ShipRoles[shipData.Role].Protected && !Deleted 
+                                               && (empire.isPlayer || ShipGoodToBuild(empire))
+                                               && (!IsPlayerDesign || GlobalStats.UsePlayerDesigns);
 
         public void SetCombatStance(CombatState stance)
         {
