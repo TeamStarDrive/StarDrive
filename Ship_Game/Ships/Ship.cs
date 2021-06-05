@@ -179,6 +179,8 @@ namespace Ship_Game.Ships
             set => DesignRole = value ? ShipData.RoleName.construction : GetDesignRole();
         }
 
+        public bool CanBeAddedToBuildableShips => DesignRole != ShipData.RoleName.prototype && DesignRole != ShipData.RoleName.disabled;
+
         public void SetCombatStance(CombatState stance)
         {
             AI.CombatState = stance;
