@@ -105,7 +105,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             OurStartingStrength         = us.CurrentMilitaryStrength;
             OurStartingGroundStrength   = us.CurrentTroopStrength;
-            InitialColoniesValue         = us.GetTotalPlanetsWarValue();
+            InitialColoniesValue        = us.GetTotalPlanetsWarValue();
             TheirStartingStrength       = them.CurrentMilitaryStrength;
             TheirStartingGroundStrength = them.CurrentTroopStrength;
             ContestedSystems            = Us.GetOwnedSystems().Filter(s => s.OwnerList.Contains(Them));
