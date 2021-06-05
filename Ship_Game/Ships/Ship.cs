@@ -1563,10 +1563,10 @@ namespace Ship_Game.Ships
         public override void RemoveFromUniverseUnsafe()
         {
             AI?.Reset();
-
-            if (IsHangarShip && Mothership.Carrier != null)
+            var carrier = Mothership?.Carrier;
+            if (IsHangarShip && carrier != null)
             {
-                foreach (ShipModule shipModule in Mothership.Carrier.AllActiveHangars)
+                foreach (ShipModule shipModule in carrier.AllActiveHangars)
                     if (shipModule.TryGetHangarShip(out Ship ship) && ship == this)
                         shipModule.SetHangarShip(null);
             }
