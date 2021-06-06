@@ -44,6 +44,8 @@ namespace Ship_Game.Ships
             {
                 if (Ship.shipData.Role == ShipData.RoleName.prototype)
                     return ShipData.RoleName.prototype;
+                if (Ship.shipData.Role == ShipData.RoleName.supply)
+                    return ShipData.RoleName.supply;
 
                 if (Ship.IsConstructor)
                     return ShipData.RoleName.construction;
