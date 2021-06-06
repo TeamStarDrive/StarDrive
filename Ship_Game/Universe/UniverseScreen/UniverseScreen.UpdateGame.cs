@@ -442,7 +442,7 @@ namespace Ship_Game
         /// Should be run once at the end of a game turn, once before game start, and once after load.
         /// Anything that the game needs at the start should be placed here.
         /// </summary>
-        void EndOfTurnUpdate(FixedSimTime timeStep)
+        public void EndOfTurnUpdate(FixedSimTime timeStep)
         {
             PostEmpirePerf.Start();
             if (IsActive)
