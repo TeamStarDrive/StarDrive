@@ -36,6 +36,13 @@ namespace UnitTests.Ships
             Universe.Objects.UpdateLists();
             int ableToLaunchCount = ship.Carrier.AllFighterHangars.Length;
             Assert.AreEqual(ableToLaunchCount, fightersOut.Length, "Not all fighter hangars launched");
+            ship.EngageStarDrive();
+            var fighters = Player.OwnedShips.Filter(f => f.IsHangarShip);
+
+            foreach (var fighter in fighters)
+            {
+                Assert.IsTrue(fighter.AI.State == AIState.ReturnToHangar);
+            }
         }
     }
 }
