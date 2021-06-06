@@ -181,6 +181,7 @@ namespace Ship_Game.Ships
 
         public bool CanBeAddedToBuildableShips(Empire empire) => DesignRole != ShipData.RoleName.prototype && DesignRole != ShipData.RoleName.disabled
                                                && !ResourceManager.ShipRoles[shipData.Role].Protected && !Deleted 
+                                               && DesignRole != ShipData.RoleName.supply
                                                && (empire.isPlayer || ShipGoodToBuild(empire))
                                                && (!IsPlayerDesign || GlobalStats.UsePlayerDesigns);
 
@@ -1282,7 +1283,7 @@ namespace Ship_Game.Ships
                    && AI.OrderQueue.Any(g => (g.Plan == ShipAI.Plan.Rebase || g.Plan == ShipAI.Plan.LandTroop) && g.TargetPlanet == p);
         }
 
-        bool IsSupplyShuttle => Name == loyalty.GetSupplyShuttleName();
+        public bool IsSupplyShuttle => Name == loyalty.GetSupplyShuttleName();
 
         public int RefitCost(Ship newShip)
         {
