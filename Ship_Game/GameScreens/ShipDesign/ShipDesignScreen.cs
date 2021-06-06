@@ -243,6 +243,7 @@ namespace Ship_Game
                 float mFacing = ConvertOrientationToFacing(mOri);
                 // @warning in order to get correct XSIZE/YSIZE, we MUST use Module Template UID here
                 ShipModule mModule = CreateDesignModule(install.Mod.UID, mOri, mFacing);
+                mModule.hangarShipUID = install.Mod.hangarShipUID;
                 return new SlotInstall(mirrored.Slot, mModule, mOri);
             }
             return new SlotInstall();
@@ -264,6 +265,7 @@ namespace Ship_Game
                 ShipSaved = false;
                 OnDesignChanged();
                 SpawnActiveModule(active.Mod.UID, active.Ori, active.Slot.Facing);
+                ActiveModule.hangarShipUID = active.Mod.hangarShipUID;
             }
         }
 
@@ -282,7 +284,8 @@ namespace Ship_Game
             {
                 if (replaceAt.ModuleUID == replacementId)
                 {
-                    ShipModule m = CreateDesignModule(template.UID, replaceAt.Orientation, replaceAt.Module.FacingDegrees);
+                    ShipModule m    = CreateDesignModule(template.UID, replaceAt.Orientation, replaceAt.Module.FacingDegrees);
+                    m.hangarShipUID = ActiveModule.hangarShipUID;
                     ModuleGrid.InstallModule(replaceAt, m, replaceAt.Orientation);
                 }
             }
