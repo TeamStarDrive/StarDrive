@@ -67,12 +67,21 @@ namespace Ship_Game.Ships.Components
             Type type = ChangeType;
             ChangeTo = null;
             ChangeType = Type.None;
+            bool loyaltyChanged = DoLoyaltyChange(ship, type, changeTo);
+            if (loyaltyChanged)
+                ship.loyalty.AddShipToManagedPools(ship);
+            return loyaltyChanged;
+        }
+
+        private bool DoLoyaltyChange(Ship ship, Type type, Empire changeTo)
+        {
             switch (type)
             {
-                default:case Type.None:   return false;
-                case Type.Spawn:          LoyaltyChangeDueToSpawn(ship, changeTo);           return true;
-                case Type.Boarded:        LoyaltyChangeDueToBoarding(ship, changeTo, false); return true;
-                case Type.BoardedNotify:  LoyaltyChangeDueToBoarding(ship, changeTo, true);  return true;
+                default:
+                case Type.None: return false;
+                case Type.Spawn:          LoyaltyChangeDueToSpawn(ship, changeTo);             return true;
+                case Type.Boarded:        LoyaltyChangeDueToBoarding(ship, changeTo, false);   return true;
+                case Type.BoardedNotify:  LoyaltyChangeDueToBoarding(ship, changeTo, true);    return true;
                 case Type.Absorbed:       LoyaltyChangeDueToFederation(ship, changeTo, false); return true;
                 case Type.AbsorbedNotify: LoyaltyChangeDueToFederation(ship, changeTo, true);  return true;
             }
@@ -130,11 +139,10 @@ namespace Ship_Game.Ships.Components
 
             IEmpireShipLists oldShips = oldLoyalty;
             IEmpireShipLists newShips = newLoyalty;
+            
             oldShips.RemoveShipAtEndOfTurn(ship);
             oldLoyalty.RemoveShipFromAIPools(ship);
-
-            newShips.AddNewShipAtEndOfTurn(ship);
-            newLoyalty.AddShipToManagedPools(ship);
+            newShips.AddNewShipAtEndOfTurn(ship);;
         }
     }
 }
