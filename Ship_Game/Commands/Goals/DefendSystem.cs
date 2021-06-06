@@ -56,7 +56,7 @@ namespace Ship_Game.Commands.Goals
 
             if (task.Fleet == null)
             {
-                if (LifeTime > 50 && !empire.SystemsWithThreat.Any(ts => ts.TargetSystem == TargetSystem))
+                if (LifeTime > 15 && !empire.SystemsWithThreat.Any(ts => !ts.ThreatTimedOut && ts.TargetSystem == TargetSystem))
                 {
                     task.EndTask(); // Timeout
                     return GoalStep.GoalFailed;
