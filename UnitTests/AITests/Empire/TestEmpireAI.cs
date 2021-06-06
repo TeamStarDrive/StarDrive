@@ -463,35 +463,36 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void AIManagedPools()
         {
-            // "Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle",
-            //"Flak Fang", "Akagi-Class Mk Ia Escort Carrier", "Rocket Inquisitor",
-            //"Cordrazine Prototype", "Cordrazine Troop"
             Player.GetEmpireAI().AreasOfOperations.Add(new AO(Player.Capital, 10));
             Enemy.ShipsWeCanBuild = Player.ShipsWeCanBuild;
             Player.isPlayer = false;
-            var ships = new Array<Ship>();
+
+            // add ships one by one for easier debugging. 
             foreach (var shipName in Enemy.ShipsWeCanBuild)
             {
                 var ship = SpawnShip(shipName, Enemy, Vector2.Zero);
-                ships.Add(ship);
                 ship.LoyaltyChangeByGift(Player);
                 Universe.Objects.UpdateLists();
                 Universe.EndOfTurnUpdate(TestSimStep);
-
             }
 
             var forcePools = Player.AIManagedShips.GetShipsFromOffensePools();
-            var shipsOndefense = new Array<Ship>();
+            var shipsOnDefense = new Array<Ship>();
             var shipsThatCantBeAdded = new Array<Ship>();
+
+            // filter out ships that should not be in force pool
             foreach (var ship in Player.OwnedShips)
             {
-                if (ship.AI.State == AIState.SystemDefender) shipsOndefense.Add(ship);
+                if (ship.AI.State == AIState.SystemDefender) shipsOnDefense.Add(ship);
                 if (ship.DesignRole == ShipData.RoleName.supply) shipsThatCantBeAdded.Add(ship);
             }
-            int unAdded = shipsOndefense.Count + shipsOndefense.Count;
-            Assert.AreEqual(forcePools.Count + unAdded, Player.OwnedShips.Count);
-        }
 
+            // verify counts
+            int unAdded = shipsOnDefense.Count + shipsThatCantBeAdded.Count;
+            Assert.AreEqual(forcePools.Count , Player.OwnedShips.Count - unAdded);
+            Assert.AreEqual(shipsOnDefense.Count, 1, "Did Something change in ship system defender states?");
+            Assert.AreEqual(shipsThatCantBeAdded.Count, 1,"Did something change in supply shuttles");
+        }
     }
 }
 
