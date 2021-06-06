@@ -33,7 +33,7 @@ namespace Ship_Game.Empires.ShipPools
         public int InitialReadyFleets         = 0;
         public float CurrentUseableStrength   = 0;
         public int CurrentUseableFleets       = 0;
-        float PoolCheckTimer                  = 0;
+        float PoolCheckTimer                  = 60;
 
         public Array<Ship> EmpireForcePool => ForcePool.Items;
         public FleetShips EmpireReadyFleets { get; private set; }

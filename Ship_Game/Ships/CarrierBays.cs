@@ -45,9 +45,8 @@ namespace Ship_Game.Ships
             AllTroopBays      = AllHangars.Filter(module => module.IsTroopBay);
             AllSupplyBays     = AllHangars.Filter(module => module.IsSupplyBay);
             AllTransporters   = AllHangars.Filter(module => module.TransporterOrdnance > 0 || module.TransporterTroopAssault > 0);
-            AllFighterHangars = AllHangars.Filter(module => !module.IsTroopBay
-                                                              && !module.IsSupplyBay
-                                                              && module.ModuleType != ShipModuleType.Transporter);
+            AllFighterHangars = AllHangars.Filter(module => module.IsFighterHangar);
+
             HasHangars              = AllHangars.Length > 0;
             HasSupplyBays           = AllSupplyBays.Length > 0;
             HasFighterBays          = AllFighterHangars.Length > 0;
@@ -557,9 +556,9 @@ namespace Ship_Game.Ships
                 }
                 // If the ship we want cant be built, will try to launch the best we have by proceeding this method as if the hangar is dynamic
                 string selectedShip = GetDynamicShipName(hangar, empire);
-                hangar.hangarShipUID = selectedShip ?? defaultShip;
-                //if (Empire.Universe?.Debug == true)
-                //    Log.Info($"Chosen ship for Hangar launch: {hangar.hangarShipUID}");
+                hangar.hangarShipUID = selectedShip;
+                if (hangar.hangarShipUID == null || hangar.hangarShipUID.IsEmpty())
+                    hangar.hangarShipUID = defaultShip;
             }
         }
 
