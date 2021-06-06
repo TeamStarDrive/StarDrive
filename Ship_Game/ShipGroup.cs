@@ -340,9 +340,15 @@ namespace Ship_Game
             Vector2 avg = items[0].AI.FleetNode?.FleetOffset ?? items[0].FleetOffset;
             for (int i = 1; i < count; ++i)
             {
-                Vector2 p = items[i].AI.FleetNode?.FleetOffset ?? items[i].FleetOffset;
-                avg.X += p.X;
-                avg.Y += p.Y;
+                // The dispose process should be tracked here to figure out why this ship goes null here
+                // AGGRESSIVE DISPOSE
+                var ship = items[i];
+                if (ship?.Active == true)
+                {
+                    Vector2 p = ship.AI.FleetNode?.FleetOffset ?? ship.FleetOffset;
+                    avg.X += p.X;
+                    avg.Y += p.Y;
+                }
             }
             return avg / count;
         }
