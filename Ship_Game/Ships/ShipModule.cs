@@ -249,6 +249,8 @@ namespace Ship_Game.Ships
             }
         }
 
+        public bool IsFighterHangar => !IsTroopBay && !IsSupplyBay && ModuleType != ShipModuleType.Transporter;
+
         // this is the design spec of the module
         float TemplateMaxHealth;
 
