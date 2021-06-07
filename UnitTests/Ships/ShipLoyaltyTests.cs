@@ -89,13 +89,13 @@ namespace UnitTests.Ships
         [TestMethod]
         public void VerifyProperShipAdd()
         {
-            var voidEmpire     = EmpireManager.Void;
-            var beforeSave = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
+            var voidEmpire  = EmpireManager.Void;
+            var spawnedShip = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
             Universe.Objects.UpdateLists(true);
             Assert.AreEqual(Player.OwnedShips.Count, 1);
 
             // simulate template
-            var ship = new DesignShip(beforeSave.shipData);
+            var ship = new DesignShip(spawnedShip.shipData);
             Universe.Objects.UpdateLists(true);
             Assert.AreEqual(Player.OwnedShips.Count, 1);
         }
