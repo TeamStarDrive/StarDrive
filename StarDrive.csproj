@@ -281,6 +281,7 @@
     <Compile Include="Ship_Game\Data\GenericStringViewParser.cs" />
     <Compile Include="Ship_Game\Empires\Components\LoyaltyLists.cs" />
     <Compile Include="Ship_Game\Empires\Components\IEmpireShipLists.cs" />
+    <Compile Include="Ship_Game\GameScreens\DeveloperUniverse.cs" />
     <Compile Include="Ship_Game\Ships\Components\LoyaltyChanges.cs" />
     <Compile Include="Ship_Game\Ships\ShipDataWriter.cs" />
     <Compile Include="Ship_Game\Ships\ShipHull.cs" />
