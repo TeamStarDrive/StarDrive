@@ -19,7 +19,7 @@ namespace Ship_Game
         public override void LoadContent()
         {
             Label(20, 20, "Developer Debug Sandbox (WIP, press ESC to quit)", Fonts.Arial20Bold);
-            CreateTask = Parallel.Run(() => DeveloperUniverse.CreateUniverseData(
+            CreateTask = Parallel.Run(() => DeveloperUniverse.Create(
                                       playerPreference:"United",
                                       numOpponents:1));
         }
@@ -44,7 +44,7 @@ namespace Ship_Game
                 {
                     UniverseData sandbox = CreateTask.Result;
                     CreateTask = null;
-                    Universe = new DeveloperUniverse(sandbox) { PlayerEmpire = sandbox.EmpireList.First };
+                    Universe = new DeveloperUniverse(sandbox, sandbox.EmpireList.First);
                     ScreenManager.GoToScreen(Universe, clear3DObjects:false);
                 }
             }

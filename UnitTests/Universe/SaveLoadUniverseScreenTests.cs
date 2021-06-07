@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Ship_Game;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,16 @@ namespace UnitTests.Universe
     {
         public SaveLoadUniverseScreenTests()
         {
+            CreateGameInstance();
+            LoadStarterShips(ResourceManager.TestOptions.AllStarterShips);
+        }
+        
+        [TestMethod]
+        public void EnsureSaveGameIntegrity()
+        {
+            CreateDeveloperSandboxUniverse("United", numOpponents:1);
+
+            
         }
     }
 }

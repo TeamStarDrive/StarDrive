@@ -21,7 +21,7 @@ namespace Ship_Game
             // Save must run on the empire thread to ensure thread safety
             RunOnEmpireThread(() =>
             {
-                var savedGame = new SavedGame(Screen, EnterNameArea.Text);
+                Screen.Save(EnterNameArea.Text);
             });
             ExitScreen();
         }
