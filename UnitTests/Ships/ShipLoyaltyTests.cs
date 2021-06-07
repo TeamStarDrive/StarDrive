@@ -92,12 +92,12 @@ namespace UnitTests.Ships
             var voidEmpire  = EmpireManager.Void;
             var spawnedShip = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
             Universe.Objects.UpdateLists(true);
-            Assert.AreEqual(Player.OwnedShips.Count, 1);
+            Assert.AreEqual(Player.OwnedShips.Count, 1, " Critical error in ship add. BUG");
 
             // simulate template
             var ship = new DesignShip(spawnedShip.shipData);
             Universe.Objects.UpdateLists(true);
-            Assert.AreEqual(Player.OwnedShips.Count, 1);
+            Assert.AreEqual(Player.OwnedShips.Count, 1, "Critical Error. Designs cant be added to empires");
         }
     }
 }
