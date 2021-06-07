@@ -130,7 +130,7 @@ namespace Ship_Game
                     if (string.IsNullOrEmpty(data.SaveName))
                         continue;
 
-                    data.FI = new FileInfo(Path + data.SaveName + SavedGame.NewZipExt);
+                    data.FI = new FileInfo(Path + data.SaveName + SavedGame.ZipExt);
 
                     if (!data.FI.Exists)
                     {
