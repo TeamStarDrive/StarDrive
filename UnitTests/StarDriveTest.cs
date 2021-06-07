@@ -72,8 +72,13 @@ namespace UnitTests
 
         public StarDriveTest()
         {
+            GlobalStats.LoadConfig();
             Log.Initialize(enableSentry: false);
             Log.VerboseLogging = true;
+
+            // This allows us to completely load UniverseScreen inside UnitTests
+            GlobalStats.DrawStarfield = false;
+            GlobalStats.DrawNebulas = false;
         }
 
         static void Cleanup()
@@ -144,7 +149,12 @@ namespace UnitTests
         public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents)
         {
             var data = DeveloperUniverse.Create(playerPreference, numOpponents);
-            Universe = new DeveloperUniverse(data, data.EmpireList.First);
+            SetUniverse(new DeveloperUniverse(data, data.EmpireList.First));
+        }
+
+        public void SetUniverse(UniverseScreen us)
+        {
+            Empire.Universe = Universe = us;
             Player = EmpireManager.Player;
             Enemy  = EmpireManager.NonPlayerEmpires[0];
         }
@@ -156,10 +166,10 @@ namespace UnitTests
             Empire.Universe = Universe = null;
         }
 
-        public void LoadStarterContent()
+        public void LoadGameContent(ResourceManager.TestOptions options = ResourceManager.TestOptions.None)
         {
-            RequireGameInstance(nameof(LoadStarterContent));
-            ResourceManager.LoadBasicContentForTesting();
+            RequireGameInstance(nameof(LoadGameContent));
+            ResourceManager.LoadContentForTesting(options);
         }
 
         public void LoadStarterShips(params string[] shipList)
@@ -180,7 +190,7 @@ namespace UnitTests
                                      ResourceManager.TestOptions options = ResourceManager.TestOptions.None)
         {
             RequireGameInstance(nameof(LoadStarterShips));
-            ResourceManager.LoadStarterShipsForTesting(starterShips, savedDesigns);
+            ResourceManager.LoadStarterShipsForTesting(starterShips, savedDesigns, options);
         }
 
         public void LoadStarterShipVulcan(ResourceManager.TestOptions options = ResourceManager.TestOptions.None)

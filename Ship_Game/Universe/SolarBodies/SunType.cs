@@ -86,7 +86,6 @@ namespace Ship_Game.Universe.SolarBodies
 
         static void LoadSuns(FileInfo file, bool loadIcons = true)
         {
-            var sw = Stopwatch.StartNew();
             Array<SunType> all = YamlParser.DeserializeArray<SunType>(file);
 
             if (loadIcons) // load all sun icons if needed (not necessary for unit tests)
