@@ -5,6 +5,7 @@ using Ship_Game;
 using Ship_Game.Ships;
 using Microsoft.Xna.Framework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Ship_Game.GameScreens.ShipDesign;
 
 namespace UnitTests.Ships
 {
@@ -83,6 +84,20 @@ namespace UnitTests.Ships
             EnsureSpawnedLoyaltyAndSpatialCoherence(ship);
             ship.LoyaltyChangeByGift(Enemy, addNotification:false);
             EnsureLoyaltyTransferAndSpatialCoherence(ship);
+        }
+
+        [TestMethod]
+        public void VerifyProperShipAdd()
+        {
+            var voidEmpire  = EmpireManager.Void;
+            var spawnedShip = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
+            Universe.Objects.UpdateLists(true);
+            Assert.AreEqual(Player.OwnedShips.Count, 1, " Critical error in ship add. BUG");
+
+            // simulate template
+            var ship = new DesignShip(spawnedShip.shipData);
+            Universe.Objects.UpdateLists(true);
+            Assert.AreEqual(Player.OwnedShips.Count, 1, "Critical Error. Designs cant be added to empires");
         }
     }
 }
