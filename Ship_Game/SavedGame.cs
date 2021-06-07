@@ -64,20 +64,22 @@ namespace Ship_Game
         // this version needs to be bumped to avoid loading crashes
         public const int SaveGameVersion = 5;
 
-        public static bool NewFormat = true; // use new save format ?
         public const string NewExt = ".sav";
         public const string OldExt = ".xml";
         public const string NewZipExt = ".sav.gz";
         public const string OldZipExt = ".xml.gz";
 
         readonly UniverseSaveData SaveData = new UniverseSaveData();
-        static Thread SaveThread;
+        static TaskResult SaveTask;
+        UniverseScreen Screen;
 
-        public static bool IsSaving  => SaveThread != null && SaveThread.IsAlive;
-        public static bool NotSaving => SaveThread == null || !SaveThread.IsAlive;
+        public static bool IsSaving  => SaveTask != null && !SaveTask.IsComplete;
+        public static bool NotSaving => SaveTask == null || SaveTask.IsComplete;
 
-        public SavedGame(UniverseScreen screenToSave, string saveAs)
+        public SavedGame(UniverseScreen screenToSave)
         {
+            Screen = screenToSave;
+
             // clean up and submit objects before saving
             screenToSave.Objects.UpdateLists(removeInactiveObjects: true);
 
@@ -312,20 +314,25 @@ namespace Ship_Game
             {
                 SaveData.Snapshots.Add(e.Key, e.Value);
             }
+        }
 
+        public void Save(string saveAs)
+        {
             string path = Dir.StarDriveAppData;
             SaveData.path       = path;
             SaveData.SaveAs     = saveAs;
-            SaveData.Size       = new Vector2(screenToSave.UniverseSize);
+            SaveData.Size       = new Vector2(Screen.UniverseSize);
             SaveData.FogMapName = saveAs + "fog";
+
+            string destFolder = $"{path}/Saved Games";
 
             // this happens sometimes, not exactly sure why though
             // to prevent players from crashing to desktop, I'd rather have the fogmap not saved
-            if (!screenToSave.FogMap.IsDisposed)
+            if (!Screen.FogMap.IsDisposed)
             {
                 try
                 {
-                    screenToSave.FogMap.Save($"{path}/Saved Games/Fog Maps/{saveAs}fog.png", ImageFileFormat.Png);
+                    Screen.FogMap.Save($"{destFolder}/Fog Maps/{saveAs}fog.png", ImageFileFormat.Png);
                 }
                 catch (Exception e)
                 {
@@ -333,8 +340,12 @@ namespace Ship_Game
                 }
             }
             
-            SaveThread = new Thread(SaveUniverseDataAsync) {Name = "Save Thread: " + saveAs};
-            SaveThread.Start(SaveData);
+            // All of this data can be serialized in parallel,
+            // because we already built `SaveData` object, which no longer depends on UniverseScreen
+            SaveTask = Parallel.Run(() =>
+            {
+                SaveUniverseDataAsync(SaveData, destFolder);
+            });
         }
 
         public static ShipSaveData ShipSaveFromShip(Ship ship)
@@ -484,45 +495,27 @@ namespace Ship_Game
             return sd;
         }
 
-        private static void SaveUniverseDataAsync(object universeSaveData)
+        static void SaveUniverseDataAsync(UniverseSaveData data, string destFolder)
         {
-            var data = (UniverseSaveData)universeSaveData;
-            try
+            var info = new FileInfo($"{destFolder}/{data.SaveAs}{NewExt}");
+            using (FileStream writeStream = info.OpenWrite())
             {
-                string ext = NewFormat ? NewExt : OldExt;
-                var info = new FileInfo($"{data.path}/Saved Games/{data.SaveAs}{ext}");
-                using (FileStream writeStream = info.OpenWrite())
+                var t = new PerfTimer();
+                using (var textWriter = new StreamWriter(writeStream))
                 {
-                    PerfTimer t = new PerfTimer();
-                    if (NewFormat)
+                    var ser = new JsonSerializer
                     {
-                        using (var textWriter = new StreamWriter(writeStream))
-                        {
-                            var ser = new JsonSerializer
-                            {
-                                NullValueHandling = NullValueHandling.Ignore,
-                                DefaultValueHandling = DefaultValueHandling.Ignore
-                            };
-                            ser.Serialize(textWriter, data);
-                        }
-                        Log.Warning($"JSON Total Save elapsed: {t.Elapsed}s");
-                    }
-                    else
-                    {
-                        var ser = new XmlSerializer(typeof(UniverseSaveData));
-                        ser.Serialize(writeStream, data);
-                        Log.Warning($"XML Total Save elapsed: {t.Elapsed}s");
-                    }
+                        NullValueHandling = NullValueHandling.Ignore,
+                        DefaultValueHandling = DefaultValueHandling.Ignore
+                    };
+                    ser.Serialize(textWriter, data);
                 }
-                HelperFunctions.Compress(info);
-                info.Delete();
+                Log.Warning($"JSON Total Save elapsed: {t.Elapsed}s");
             }
-            catch (Exception e)
-            {
-                Log.Error(e, "SaveUniverseData failed");
-                return;
-            }
+            HelperFunctions.Compress(info);
+            info.Delete();
 
+            // Save the header as well
             DateTime now = DateTime.Now;
             var header = new HeaderData
             {
@@ -536,7 +529,7 @@ namespace Ship_Game
                 ModName    = GlobalStats.ActiveMod?.mi.ModName ?? "",
                 Version    = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"])
             };
-            using (var wf = new StreamWriter(data.path + "/Saved Games/Headers/" + data.SaveAs + ".xml"))
+            using (var wf = new StreamWriter($"{destFolder}/Headers/{data.SaveAs}.xml"))
                 new XmlSerializer(typeof(HeaderData)).Serialize(wf, header);
 
             HelperFunctions.CollectMemory();

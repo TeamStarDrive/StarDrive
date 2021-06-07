@@ -762,9 +762,22 @@ namespace Ship_Game
             }
         }
 
+        public void Save(string saveName)
+        {
+            try
+            {
+                var savedGame = new SavedGame(this);
+                savedGame.Save(saveName);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"Universe.Save('{saveName}') failed");
+            }
+        }
+
         void AutoSaveCurrentGame()
         {
-            var savedGame = new SavedGame(this, "Autosave" + Auto);
+            Save("Autosave" + Auto);
             if (++Auto > 3) Auto = 1;
         }
 

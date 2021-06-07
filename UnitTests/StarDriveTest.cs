@@ -111,10 +111,7 @@ namespace UnitTests
 
         public void Dispose()
         {
-            Empire.Universe?.ExitScreen();
-            Empire.Universe?.Dispose();
-            Empire.Universe = Universe = null;
-
+            DestroyUniverse();
             Game?.Dispose();
             Game = null;
             Cleanup();
@@ -142,6 +139,21 @@ namespace UnitTests
             Empire.Universe = Universe = new UniverseScreen(data, Player);
             Enemy = EmpireManager.CreateRebelsFromEmpireData(ResourceManager.MajorRaces[0], Player);
             Player.TestInitModifiers();
+        }
+
+        public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents)
+        {
+            var data = DeveloperUniverse.Create(playerPreference, numOpponents);
+            Universe = new DeveloperUniverse(data, data.EmpireList.First);
+            Player = EmpireManager.Player;
+            Enemy  = EmpireManager.NonPlayerEmpires[0];
+        }
+
+        public void DestroyUniverse()
+        {
+            Empire.Universe?.ExitScreen();
+            Empire.Universe?.Dispose();
+            Empire.Universe = Universe = null;
         }
 
         public void LoadStarterContent()
