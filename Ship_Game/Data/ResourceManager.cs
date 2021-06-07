@@ -1500,8 +1500,8 @@ namespace Ship_Game
                 }
             }
 
-            Parallel.For(shipDescriptors.Length, LoadShips);
-            //LoadShips(0, shipDescriptors.Length); // test without parallel for
+            //Parallel.For(shipDescriptors.Length, LoadShips);
+            LoadShips(0, shipDescriptors.Length); // test without parallel for
         }
 
         public static Ship GetShipTemplate(string shipName, bool throwIfError = true)
@@ -1566,6 +1566,7 @@ namespace Ship_Game
             None = 0,
             LoadPlanets = (1 << 1),
             TechContent = (1 << 2),
+            AllStarterShips = (1 << 3),
         }
 
         // @note This is used for Unit Tests and is not part of the core game
@@ -1578,7 +1579,9 @@ namespace Ship_Game
             LoadBasicContentForTesting(options);
 
             var ships = new Array<FileInfo>();
-            if (shipsList != null)
+            if (options.HasFlag(TestOptions.AllStarterShips))
+                ships.AddRange(GatherFilesUnified("StarterShips", "xml"));
+            else if (shipsList != null)
                 ships.AddRange(shipsList.Select(ship => GetModOrVanillaFile($"StarterShips/{ship}.xml")));
             if (savedDesigns != null)
                 ships.AddRange(savedDesigns.Select(ship => GetModOrVanillaFile($"SavedDesigns/{ship}.xml")));

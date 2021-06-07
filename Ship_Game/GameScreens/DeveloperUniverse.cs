@@ -10,7 +10,7 @@ namespace Ship_Game
     {
         readonly UniverseData SandBox;
 
-        public DeveloperUniverse(UniverseData sandbox) : base(sandbox, EmpireManager.Empires[0])
+        public DeveloperUniverse(UniverseData sandbox, Empire player) : base(sandbox, player)
         {
             SandBox = sandbox;
             NoEliminationVictory = true; // SandBox mode doesn't have elimination victory
@@ -40,8 +40,8 @@ namespace Ship_Game
             Log.Write(ConsoleColor.DarkMagenta, "DeveloperUniverse.LoadContent");
         }
         
-        public static UniverseData CreateUniverseData(string playerPreference = "United",
-                                                      int numOpponents = 1)
+        public static UniverseData Create(string playerPreference = "United",
+                                          int numOpponents = 1)
         {
             var s = Stopwatch.StartNew();
             EmpireManager.Clear();
