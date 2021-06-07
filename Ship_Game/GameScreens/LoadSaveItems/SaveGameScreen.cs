@@ -55,9 +55,7 @@ namespace Ship_Game
                         data.Version = 0;
                     }
 
-                    data.FI = new FileInfo(Path + data.SaveName + SavedGame.OldZipExt);
-                    if (!data.FI.Exists)
-                        data.FI = new FileInfo(Path + data.SaveName + SavedGame.NewZipExt);
+                    data.FI = new FileInfo(Path + data.SaveName + SavedGame.ZipExt);
                     if (!data.FI.Exists)
                     {
                         Log.Warning($"Missing save payload {data.FI.FullName}");
