@@ -552,9 +552,9 @@ namespace Ship_Game
                 Version    = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"])
             };
 
-            using (var headerFs = headerFile.OpenWrite())
+            using (var headerSw = new StreamWriter(headerFile.FullName))
             {
-                new XmlSerializer(typeof(HeaderData)).Serialize(headerFs, header);
+                new XmlSerializer(typeof(HeaderData)).Serialize(headerSw, header);
             }
 
             SaveTask = null;
