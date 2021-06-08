@@ -21,6 +21,7 @@ namespace UnitTests.Universe
         {
             CreateGameInstance();
             LoadGameContent(ResourceManager.TestOptions.LoadEverything);
+            Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder);
         }
         
         [TestMethod]
