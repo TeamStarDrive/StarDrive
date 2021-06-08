@@ -412,7 +412,7 @@ namespace Ship_Game
                 return; // A planet with the same category was Terraformed (probably to increase fertility)
 
             Type = ResourceManager.RandomPlanet(newCategory);
-            CreatePlanetSceneObject(Empire.Universe);
+            CreatePlanetSceneObject();
             UpdateDescription();
             UpdateMaxPopulation();
         }
@@ -475,7 +475,7 @@ namespace Ship_Game
 
         public void RecreateSceneObject()
         {
-            CreatePlanetSceneObject(Empire.Universe);
+            CreatePlanetSceneObject();
         }
     }
 }

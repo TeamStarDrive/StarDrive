@@ -498,7 +498,7 @@ namespace Ship_Game
                 else // home planet
                     newOrbital.GenerateNewHomeWorld(owner, ringData.MaxPopDefined);
 
-                newOrbital.InitializePlanetMesh(null);
+                newOrbital.InitializePlanetMesh();
 
                 if (ringData.HasRings != null)
                 {
