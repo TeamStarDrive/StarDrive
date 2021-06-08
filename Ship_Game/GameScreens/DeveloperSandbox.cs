@@ -44,7 +44,7 @@ namespace Ship_Game
                 {
                     UniverseData sandbox = CreateTask.Result;
                     CreateTask = null;
-                    Universe = new DeveloperUniverse(sandbox, sandbox.EmpireList.First);
+                    Universe = new DeveloperUniverse(sandbox, sandbox.EmpireList.First, paused:false);
                     ScreenManager.GoToScreen(Universe, clear3DObjects:false);
                 }
             }
