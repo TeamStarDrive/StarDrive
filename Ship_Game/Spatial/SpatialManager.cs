@@ -97,13 +97,13 @@ namespace Ship_Game.Gameplay
             return Spatial.FindNearby(opt);
         }
 
-        public T[] FindNearby<T>(in SearchOptions opt) where T : GameplayObject
-        {
-            GameplayObject[] objects = Spatial.FindNearby(opt);
-            return objects.FastCast<GameplayObject, T>();
-        }
-
-        public GameplayObject[] FindNearby(GameObjectType type, GameplayObject obj, float radius,
+        /// <param name="type"></param>
+        /// <param name="obj"></param>
+        /// <param name="radius"></param>
+        /// <param name="maxResults">Maximum results to get.
+        /// PROTIP: if numResults > maxResults, then results are sorted by distance and far objects are discarded</param>
+        public GameplayObject[] FindNearby(GameObjectType type,
+                                           GameplayObject obj, float radius,
                                            int maxResults,
                                            Empire excludeLoyalty = null,
                                            Empire onlyLoyalty = null,
@@ -121,7 +121,8 @@ namespace Ship_Game.Gameplay
             return Spatial.FindNearby(opt);
         }
 
-        public GameplayObject[] FindNearby(GameObjectType type, Vector2 worldPos, float radius,
+        public GameplayObject[] FindNearby(GameObjectType type,
+                                           Vector2 worldPos, float radius,
                                            int maxResults,
                                            Empire excludeLoyalty = null,
                                            Empire onlyLoyalty = null,

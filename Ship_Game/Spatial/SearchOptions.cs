@@ -21,6 +21,7 @@ namespace Ship_Game.Spatial
         /// <summary>
         /// Maximum number of filtered final results until search is terminated
         /// Must be at least 1
+        /// If nearby candidates are more than MaxResults, then SortByDistance is implied true
         /// </summary>
         public int MaxResults;
 

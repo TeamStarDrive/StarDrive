@@ -267,12 +267,6 @@ namespace Ship_Game
             }
 
             EndOfTurnUpdate(simTime);
-
-            foreach (Ship ship in GetMasterShipList())
-            {
-                ship.AI.ApplySensorScanResults();
-            }
-
             EmpireManager.Player.PopulateKnownShips();
         }
 
@@ -361,24 +355,23 @@ namespace Ship_Game
             if (ourEmpire.IsEmpireDead())
                 return;
 
-            var ourShips = ourEmpire.OwnedShips;
-            ExecuteShipSensorScans(ourShips, timeStep);
-            var ourSSPs = ourEmpire.OwnedProjectors;
-            ExecuteShipSensorScans(ourSSPs, timeStep);
+            ExecuteShipSensorScans(ourEmpire.OwnedShips, timeStep);
+            ExecuteShipSensorScans(ourEmpire.OwnedProjectors, timeStep);
             ourEmpire.UpdateContactsAndBorders(timeStep);
         }
 
         void ExecuteShipSensorScans(IReadOnlyList<Ship> ourShips, FixedSimTime timeStep)
         {
-            Parallel.For(ourShips.Count, (start, end) =>
+            void UpdateShipSensors(int start, int end)
             {
                 for (int i = start; i < end; i++)
                 {
                     Ship ourShip = ourShips[i];
-                    if (!ourShip.Active) continue;
-                    ourShip.UpdateSensorsAndInfluence(timeStep);
+                    if (ourShip.Active)
+                        ourShip.UpdateSensorsAndInfluence(timeStep);
                 }
-            }, MaxTaskCores);
+            }
+            Parallel.For(ourShips.Count, UpdateShipSensors, MaxTaskCores);
         }
         
         bool ProcessTurnEmpires(FixedSimTime timeStep)
@@ -433,6 +426,7 @@ namespace Ship_Game
             {
                 EmpireUpdatePerf.Start();
                 UpdateEmpires(timeStep);
+                EmpireUpdatePerf.Stop();
             }
             
             return !Paused;

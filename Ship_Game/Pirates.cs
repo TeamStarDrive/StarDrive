@@ -750,10 +750,7 @@ namespace Ship_Game
             if (targetShip == null)
                 return 0;
 
-            float enemyStr;
-            var shipList = targetShip.AI.FriendliesNearby;
-            using (shipList.AcquireReadLock())
-                enemyStr = shipList.Sum(s => s.BaseStrength);
+            float enemyStr = targetShip.AI.FriendliesNearby.Sum(s => s.BaseStrength);
 
             float maxStrModifier       = ((int)CurrentGame.Difficulty + 1) * 0.15f; // easy will be 15%
             float availableStrModifier = (float)Level / MaxLevel;
