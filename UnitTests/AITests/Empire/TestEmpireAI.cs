@@ -132,27 +132,29 @@ namespace UnitTests.AITests.Empire
             Assert.IsFalse(Player.canBuildCapitals, $"UpdateShipsWeCanBuild triggered unneeded updates");
 
             // add new player ship design
-            ship = new DesignShip(ship.shipData);
-            ship.shipData.Name = "player-test-123456-test-123456";
-            ResourceManager.AddShipTemplate(ship.shipData, false, true);
-            EmpireManager.Player.UpdateShipsWeCanBuild();
-            Assert.IsTrue(Player.ShipsWeCanBuild.Contains("player-test-123456-test-123456"), "Ships We can build failed to add player ship");
+            Assert.IsTrue(TestShipAddedToShipsWeCanBuild("Rocket Inquisitor", Player, true), "Could not add player ship");
 
             // add new enemy design
-            ship = new DesignShip(ship.shipData);
-            ship.shipData.Name = "enemy-test-123456-test-123456";
-            ResourceManager.AddShipTemplate(ship.shipData, false, true);
-            EmpireManager.Player.UpdateShipsWeCanBuild();
-            Assert.IsTrue(Player.ShipsWeCanBuild.Contains("enemy-test-123456-test-123456"), "Ships we can build failed to add ai ship");
+            GlobalStats.UsePlayerDesigns = true;
+            Assert.IsTrue(TestShipAddedToShipsWeCanBuild("Excalibur-Class Supercarrier", Enemy, true), "Could not add enemy ship");
+            GlobalStats.UsePlayerDesigns = false;
+            Assert.IsFalse(TestShipAddedToShipsWeCanBuild("Flak Fang", Enemy, true), "Use Player design restriction failed");
 
             // fail to add incompatible design
-            ship = SpawnShip("Supply Shuttle", Player, Vector2.Zero);
-            ship.shipData.Name = "Supply Shuttle-test-123456-test-123456";
-            ResourceManager.AddShipTemplate(ship.shipData, false, true);
-            EmpireManager.Player.UpdateShipsWeCanBuild();
-            Assert.IsFalse(Player.ShipsWeCanBuild.Contains("Supply Shuttle-test-123456-test-123456"));
-
+            Assert.IsFalse(TestShipAddedToShipsWeCanBuild("Supply Shuttle", Player, true), "Added incorrectSpeed");
         }
+
+        bool TestShipAddedToShipsWeCanBuild(string baseDesign, Ship_Game.Empire empire, bool playerDesign)
+        {
+            string newName = baseDesign + "-test-123456-test-123456";
+            var ship = SpawnShip(baseDesign, empire, Vector2.Zero);
+            empire.UnlockedHullsDict[ship.shipData.Hull] = true;
+            ship.shipData.Name = newName;
+            ResourceManager.AddShipTemplate(ship.shipData, false, playerDesign);
+            empire.UpdateShipsWeCanBuild();
+            return empire.ShipsWeCanBuild.Contains(newName);
+        }
+
 
         [TestMethod]
         public void TestBuildCounts()
