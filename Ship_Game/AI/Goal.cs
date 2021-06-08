@@ -178,6 +178,7 @@ namespace Ship_Game.AI
                 case DefendSystem.ID:           return new DefendSystem();
                 case WarMission.ID:             return new WarMission();
                 case WarManager.ID:             return new WarManager();
+                case PrepareForWar.ID:          return new PrepareForWar();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }
