@@ -448,6 +448,17 @@ namespace Ship_Game
             return item;
         }
 
+        public bool TryPopFirst(out T item)
+        {
+            if (Count == 0)
+            {
+                item = default;
+                return false;
+            }
+            item = PopFirst();
+            return true;
+        }
+
         public bool TryPopLast(out T item)
         {
             if (Count == 0)
