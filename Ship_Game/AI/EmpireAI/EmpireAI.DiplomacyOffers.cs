@@ -132,7 +132,7 @@ namespace Ship_Game.AI
         {
             Relationship rel = us.GetRelations(them);
             rel.AtWar = false;
-            rel.PreparingForWar = false;
+            rel.CancelPrepareForWar();
             rel.ActiveWar.EndStarDate = Empire.Universe.StarDate;
             rel.WarHistory.Add(rel.ActiveWar);
 
