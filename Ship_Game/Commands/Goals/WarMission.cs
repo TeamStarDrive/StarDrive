@@ -1,6 +1,7 @@
 ﻿using System;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Fleets;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -26,6 +27,17 @@ namespace Ship_Game.Commands.Goals
             StarDateAdded = Empire.Universe.StarDate;
             Evaluate();
             Log.Info(ConsoleColor.Green, $"---- WarMission: New {empire.Name} Vs.: {TargetEmpire.Name} ----");
+        }
+
+        public WarMission(Empire owner, Empire enemy, Planet targetPlanet, MilitaryTask task) : this()
+        {
+            empire        = owner;
+            TargetEmpire  = enemy;
+            TargetPlanet  = targetPlanet;
+            StarDateAdded = Empire.Universe.StarDate;
+            ChangeToStep(Process);
+            Fleet.CreateStrikeFromCurrentTask(task.Fleet, task, empire, this);
+            Log.Info(ConsoleColor.Green, $"---- WarMission: New Strike Force from stage fleet, {empire.Name} Vs.: {TargetEmpire.Name} ----");
         }
 
         float LifeTime => Empire.Universe.StarDate - StarDateAdded;
