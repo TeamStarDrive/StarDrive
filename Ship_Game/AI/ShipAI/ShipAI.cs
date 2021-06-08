@@ -28,7 +28,6 @@ namespace Ship_Game.AI
         public AIState DefaultAIState = AIState.AwaitingOrders;
         public SafeQueue<ShipGoal> OrderQueue  = new SafeQueue<ShipGoal>();
         public Array<ShipWeight>   NearByShips = new Array<ShipWeight>();
-        public BatchRemovalCollection<Ship> FriendliesNearby = new BatchRemovalCollection<Ship>();
 
         // TODO: We should not keep these around, it increases memory usage by a lot
         DropOffGoods DropOffGoods;
@@ -76,8 +75,9 @@ namespace Ship_Game.AI
             OrderQueue?.Dispose(ref OrderQueue);
             NearByShips?.Clear();
             NearByShips = null;
-            FriendliesNearby?.Dispose(ref FriendliesNearby);
-            PotentialTargets?.Dispose(ref PotentialTargets);
+            FriendliesNearby = Empty<Ship>.Array;
+            PotentialTargets = Empty<Ship>.Array;
+            TrackProjectiles = Empty<Projectile>.Array;
 
             DropOffGoods?.Dispose(ref DropOffGoods);
             PickupGoods?.Dispose(ref PickupGoods);
@@ -86,8 +86,6 @@ namespace Ship_Game.AI
             CombatAI = null;
             EscortTarget = null;
             ExterminationTarget = null;
-            TrackProjectiles?.Clear();
-            TrackProjectiles = null;
             Target = null;
             TargetQueue?.Clear();
             TargetQueue = null;
@@ -118,10 +116,10 @@ namespace Ship_Game.AI
             SystemToDefend = null;
             ExplorationTarget = null;
 
-            PotentialTargets.Clear();
-            TrackProjectiles.Clear();
+            PotentialTargets = Empty<Ship>.Array;
+            FriendliesNearby = Empty<Ship>.Array;
+            TrackProjectiles = Empty<Projectile>.Array;
             NearByShips.Clear();
-            FriendliesNearby.Clear();
             ClearOrders();
         }
 
@@ -211,7 +209,6 @@ namespace Ship_Game.AI
 
             ResetStateFlee();
 
-            ApplySensorScanResults();
             Owner.loyalty.data.Traits.ApplyTraitToShip(Owner);
             UpdateUtilityModuleAI(timeStep);
             ThrustTarget = Vector2.Zero;
@@ -222,33 +219,6 @@ namespace Ship_Game.AI
                 return;
 
             AIStateRebase();
-        }
-
-        public void ApplySensorScanResults()
-        {
-            // scanning is done from the asyncdatacollector. 
-            // scancomplete means the scan is done.
-            if (ScanComplete && !ScanDataProcessed)
-            {
-                TrackProjectiles  = new Array<Projectile>(ScannedProjectiles);
-                PotentialTargets  = new BatchRemovalCollection<Ship>(ScannedTargets);
-                FriendliesNearby  = new BatchRemovalCollection<Ship>(ScannedFriendlies);
-                // NearByShips       = new Array<ShipWeight>(ScannedNearby); Checking Alternative Target Logic
-                ScanTargetUpdated = true;
-                
-                ScannedProjectiles.Clear();
-                ScannedTargets.Clear();
-                ScannedFriendlies.Clear();
-                //ScannedNearby.Clear(); Checking Alternative Target Logic
-                ScanDataProcessed = true;
-            }
-
-            if (ScanTargetUpdated)
-            {
-                if (!HasPriorityOrder && (!HasPriorityTarget || Target?.Active == false))
-                    Target = ScannedTarget;
-                ScanTargetUpdated = false;
-            }
         }
 
         public Ship NearBySupplyShip => 
@@ -414,9 +384,9 @@ namespace Ship_Game.AI
             }
             else if (!BadGuysNear)
             {
-                int count            = Owner.Weapons.Count;
                 FireOnMainTargetTime = 0;
-                Weapon[] items       = Owner.Weapons.GetInternalArrayItems();
+                int count = Owner.Weapons.Count;
+                Weapon[] items = Owner.Weapons.GetInternalArrayItems();
                 for (int x = 0; x < count; x++)
                     items[x].ClearFireTarget();
 
@@ -720,14 +690,14 @@ namespace Ship_Game.AI
                         ShipModule module = Owner.Carrier.AllTransporters[x];
                         if (module.TransporterTimer > 0f || !module.Active || !module.Powered ||
                             module.TransporterPower >= Owner.PowerCurrent) continue;
-                        if (FriendliesNearby.Count > 0 && module.TransporterOrdnance > 0 && Owner.Ordinance > 0)
+                        if (FriendliesNearby.Length > 0 && module.TransporterOrdnance > 0 && Owner.Ordinance > 0)
                             DoOrdinanceTransporterLogic(module);
                         if (module.TransporterTroopAssault > 0 && Owner.HasOurTroops)
                             DoAssaultTransporterLogic(module);
                     }
 
                 //Do repair check if friendly ships around
-                if (FriendliesNearby.Count <= 0)
+                if (FriendliesNearby.Length == 0)
                     return;
                 //Added by McShooterz: logic for repair beams
                 if (Owner.hasRepairBeam)
@@ -787,19 +757,31 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.TroopToShip, State);
         }
         
+        // How often each ship scans for nearby threats
+        // This is quite expensive if we have thousands of ships
+        const float SensorScanIntervalSeconds = 0.25f;
+
         public void StartSensorScan(FixedSimTime timeStep)
         {
-            ScanDataProcessed = false;
-            ScanComplete = false;
-            float maxContactTimer = timeStep.FixedTime;
-            ScanForThreatTimer = maxContactTimer;
-            ScanForTargets();
-        }
+            ScanForThreatTimer -= timeStep.FixedTime;
+            if (ScanForThreatTimer <= 0f)
+            {
+                ScanForThreatTimer = SensorScanIntervalSeconds;
+                ScanForTargets();
 
-        public void DoManualSensorScan(FixedSimTime timeStep)
-        {
-            StartSensorScan(timeStep);
-            ApplySensorScanResults();
+                TrackProjectiles  = ScannedProjectiles.ToArray();
+                PotentialTargets  = ScannedTargets.ToArray();
+                FriendliesNearby  = ScannedFriendlies.ToArray();
+                
+                ScannedProjectiles.Clear();
+                ScannedTargets.Clear();
+                ScannedFriendlies.Clear();
+
+                // automatically choose `Target` if ship does not have Priority
+                // or if current target already died
+                if (!HasPriorityOrder && (!HasPriorityTarget || Target?.Active == false))
+                    Target = ScannedTarget;
+            }
         }
 
         void ResetStateFlee()

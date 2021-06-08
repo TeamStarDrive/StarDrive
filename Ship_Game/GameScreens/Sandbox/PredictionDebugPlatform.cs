@@ -56,8 +56,8 @@ namespace Ship_Game.GameScreens.Sandbox
                                                                                  this, 4000f, maxResults:64);
                 nearby.SortByDistance(Center);
 
-                var nearbyShips = new Array<Ship>(nearby.Cast<Ship>());
-                var noProjectiles = new Array<Projectile>();
+                var nearbyShips = nearby.FastCast<GameplayObject, Ship>();
+                var noProjectiles = Empty<Projectile>.Array;
 
                 foreach (Weapon weapon in Weapons)
                 {
