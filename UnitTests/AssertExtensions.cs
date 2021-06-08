@@ -146,5 +146,15 @@ namespace UnitTests
                 throw new AssertFailedException($"{ex.Message}\nExpected: {ToString(expected)}\nActual: {ToString(actual)}");
             }
         }
+
+        public static void MemberwiseEqual<T>(this Assert assert, T expected, T actual, string message = "")
+        {
+            Array<string> mismatches = expected.MemberwiseCompare(actual);
+            if (mismatches.Count > 0)
+            {
+                string mismatchText = string.Join("\n", mismatches);
+                throw new AssertFailedException($"MemberwiseEqual found {mismatches.Count} mismatches: {message}\n{mismatchText}");
+            }
+        }
     }
 }
