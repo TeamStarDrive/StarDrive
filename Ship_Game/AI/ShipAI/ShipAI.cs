@@ -42,6 +42,7 @@ namespace Ship_Game.AI
             DropOffGoods = new DropOffGoods(this);
             PickupGoods = new PickupGoods(this);
             Orbit = new OrbitPlan(this);
+            InitializeTargeting();
         }
 
         void DisposeOrders()
@@ -96,7 +97,6 @@ namespace Ship_Game.AI
             ScannedFriendlies = null;
             ScannedProjectiles.Clear();
             ScannedProjectiles = null;
-            ScannedTarget = null;
 
             OrbitTarget = null;
             WayPoints?.Clear();
@@ -761,27 +761,21 @@ namespace Ship_Game.AI
         // This is quite expensive if we have thousands of ships
         const float SensorScanIntervalSeconds = 0.25f;
 
-        public void StartSensorScan(FixedSimTime timeStep)
+        // Checks whether it's time to run a SensorScan
+        public void CheckSensors(FixedSimTime timeStep)
         {
             ScanForThreatTimer -= timeStep.FixedTime;
             if (ScanForThreatTimer <= 0f)
             {
-                ScanForThreatTimer = SensorScanIntervalSeconds;
-                ScanForTargets();
-
-                TrackProjectiles  = ScannedProjectiles.ToArray();
-                PotentialTargets  = ScannedTargets.ToArray();
-                FriendliesNearby  = ScannedFriendlies.ToArray();
-                
-                ScannedProjectiles.Clear();
-                ScannedTargets.Clear();
-                ScannedFriendlies.Clear();
-
-                // automatically choose `Target` if ship does not have Priority
-                // or if current target already died
-                if (!HasPriorityOrder && (!HasPriorityTarget || Target?.Active == false))
-                    Target = ScannedTarget;
+                SensorScan();
             }
+        }
+
+        // Runs an immediate sensor scan
+        public void SensorScan()
+        {
+            ScanForThreatTimer = SensorScanIntervalSeconds;
+            ScanForTargets();
         }
 
         void ResetStateFlee()
@@ -812,12 +806,12 @@ namespace Ship_Game.AI
         {
             if (!HasPriorityTarget)
                 TargetQueue.Clear();
+
             for (int x = TargetQueue.Count - 1; x >= 0; x--)
             {
                 Ship target = TargetQueue[x];
-                if (target.Active)
-                    continue;
-                TargetQueue.RemoveAtSwapLast(x);
+                if (!target.Active)
+                    TargetQueue.RemoveAtSwapLast(x);
             }
         }
 

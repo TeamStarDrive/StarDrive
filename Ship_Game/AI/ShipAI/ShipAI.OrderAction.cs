@@ -366,8 +366,8 @@ namespace Ship_Game.AI
         {
             if (TargetQueue.Count == 0 && Target != null && Target.Active && Target != toAttack)
             {
-                OrderAttackSpecificTarget(Target as Ship);
-                TargetQueue.Add(Target as Ship);
+                OrderAttackSpecificTarget(Target);
+                TargetQueue.Add(Target);
             }
             if (TargetQueue.Count == 0)
             {
