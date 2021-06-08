@@ -86,8 +86,8 @@ namespace Ship_Game.Gameplay
         [JsonIgnore] private SolarSystem contestedSystem;
 
         [Serialize(43)] public bool AtWar;
-        [Serialize(44)] public bool PreparingForWar;
-        [Serialize(45)] public WarType PreparingForWarType = WarType.ImperialistWar;
+        [Serialize(44)] public bool PreparingForWar; // Use prepareForWar or CancelPrepareForWar
+        [Serialize(45)] public WarType PreparingForWarType = WarType.ImperialistWar;  // Use prepareForWar or CancelPrepareForWar
         [Serialize(46)] public int DefenseFleet = -1;
         [Serialize(47)] public bool HasDefenseFleet;
         [Serialize(48)] public float InvasiveColonyPenalty;
@@ -188,6 +188,17 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        public void PrepareForWar(WarType type)
+        {
+            PreparingForWar     = true;
+            PreparingForWarType = type;
+        }
+
+        public void CancelPrepareForWar()
+        {
+            PreparingForWar = false;
+        }
+
         public float GetTurnsForFederationWithPlayer(Empire us) => TurnsAbove95Federation(us);
 
         int TurnsAbove95Federation(Empire us) => us.PersonalityModifiers.TurnsAbove95FederationNeeded 
@@ -197,7 +208,7 @@ namespace Ship_Game.Gameplay
         {
             switch (treatyType)
             {
-                case TreatyType.Alliance:      Treaty_Alliance    = value; PreparingForWar = false;       break;
+                case TreatyType.Alliance:      Treaty_Alliance    = value; CancelPrepareForWar();         break;
                 case TreatyType.NonAggression: Treaty_NAPact      = value; WarnedSystemsList.Clear();     break;
                 case TreatyType.OpenBorders:   Treaty_OpenBorders = value;                                break;
                 case TreatyType.Peace:         Treaty_Peace       = value; SetPeace();                    break;
@@ -532,8 +543,8 @@ namespace Ship_Game.Gameplay
 
             if (them.data.Defeated && AtWar)
             {
+                CancelPrepareForWar(); ;
                 AtWar                 = false;
-                PreparingForWar       = false;
                 ActiveWar.EndStarDate = Empire.Universe.StarDate;
                 WarHistory.Add(ActiveWar);
                 ActiveWar             = null;
@@ -1347,22 +1358,17 @@ namespace Ship_Game.Gameplay
             if (Anger_MilitaryConflict > 80 && !AtWar && !Treaty_Peace)
             {
                 if (Anger_MilitaryConflict > 99)
-                {
                     us.GetEmpireAI().DeclareWarOn(them, WarType.ImperialistWar);
-                }
                 else
-                {
-                    PreparingForWar     = true;
-                    PreparingForWarType = WarType.DefensiveWar;
-                }
+                    PrepareForWar(WarType.DefensiveWar);
+
                 return;
             }
 
             if (Anger_TerritorialConflict + Anger_FromShipsInOurBorders >= us.data.DiplomaticPersonality.Territorialism
                 && !AtWar && !Treaty_OpenBorders && !Treaty_Peace && them.CurrentMilitaryStrength < us.OffensiveStrength)
             {
-                PreparingForWar     = true;
-                PreparingForWarType = WarType.BorderConflict;
+                PrepareForWar(WarType.BorderConflict);
                 return;
             }
 

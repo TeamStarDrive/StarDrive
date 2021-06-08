@@ -453,7 +453,7 @@ namespace Ship_Game
                         rel.Trust -= 150 * multiplier;
                         rel.AddAngerDiplomaticConflict(75 * multiplier);
                         BreakAllianceWith(them);
-                        rel.PreparingForWar = true;
+                        rel.PrepareForWar(WarType.ImperialistWar);
                         if (IsAtWarWith(empireTheySignedWith))
                             GetRelations(empireTheySignedWith).RequestPeaceNow(this);
 
@@ -467,7 +467,7 @@ namespace Ship_Game
                     case PersonalityType.Cunning:
                         rel.AddAngerDiplomaticConflict(20 * multiplier);
                         rel.Trust -= 50 * multiplier;
-                        rel.PreparingForWar = true;
+                        rel.PrepareForWar(WarType.ImperialistWar);
                         if (treatySigned && IsAtWarWith(empireTheySignedWith))
                             SignPeaceWithEmpireTheySignedWith();
 
@@ -558,7 +558,7 @@ namespace Ship_Game
         public void ResetPreparingForWar()
         {
             foreach (OurRelationsToThem rel in ActiveRelations)
-                rel.Rel.PreparingForWar = false;
+                rel.Rel.CancelPrepareForWar();
         }
 
         public float ColonizationDetectionChance(Relationship usToThem, Empire them)
