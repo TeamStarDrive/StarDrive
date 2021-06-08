@@ -263,7 +263,7 @@ namespace Ship_Game
                 foreach (Planet p in system.PlanetList)
                 {
                     p.ParentSystem = system;
-                    p.InitializePlanetMesh(this);
+                    p.InitializePlanetMesh();
                 }
             }
         }
