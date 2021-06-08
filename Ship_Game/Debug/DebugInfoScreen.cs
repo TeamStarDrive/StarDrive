@@ -62,19 +62,19 @@ namespace Ship_Game.Debug
         public static DebugModes Mode { get; private set; }
         readonly Array<DebugPrimitive> Primitives = new Array<DebugPrimitive>();
         DebugPage Page;
-        readonly FloatSlider SpeedLimitSlider;
-        readonly FloatSlider DebugPlatformSpeed;
-        bool CanDebugPlatformFire;
+        //readonly FloatSlider SpeedLimitSlider;
+        //readonly FloatSlider DebugPlatformSpeed;
+        //bool CanDebugPlatformFire;
 
         public DebugInfoScreen(UniverseScreen screen) : base(screen, pause:false)
         {
             Screen = screen;
-            if (screen is DeveloperSandbox.DeveloperUniverse)
-            {
-                SpeedLimitSlider = Slider(RelativeToAbsolute(-200f, 400f), 200, 40, "Debug SpeedLimit", 0f, 1f, 1f);
-                DebugPlatformSpeed = Slider(RelativeToAbsolute(-200f, 440f), 200, 40, "Platform Speed", -500f, 500f, 0f);
-                Checkbox(RelativeToAbsolute(-200f, 480f), () => CanDebugPlatformFire, "Start Firing", "");
-            }
+            //if (screen is DeveloperUniverse)
+            //{
+            //    SpeedLimitSlider = Slider(RelativeToAbsolute(-200f, 400f), 200, 40, "Debug SpeedLimit", 0f, 1f, 1f);
+            //    DebugPlatformSpeed = Slider(RelativeToAbsolute(-200f, 440f), 200, 40, "Platform Speed", -500f, 500f, 0f);
+            //    Checkbox(RelativeToAbsolute(-200f, 480f), () => CanDebugPlatformFire, "Start Firing", "");
+            //}
 
             foreach (Empire empire in EmpireManager.Empires)
             {
@@ -181,25 +181,25 @@ namespace Ship_Game.Debug
 
         void UpdateDebugShips()
         {
-            if (DebugPlatformSpeed == null) // platform is only enabled in sandbox universe
-                return;
-            float platformSpeed = DebugPlatformSpeed.AbsoluteValue;
-            float speedLimiter = SpeedLimitSlider.RelativeValue;
+            //if (DebugPlatformSpeed == null) // platform is only enabled in sandbox universe
+            //    return;
+            //float platformSpeed = DebugPlatformSpeed.AbsoluteValue;
+            //float speedLimiter = SpeedLimitSlider.RelativeValue;
 
-            if (Screen.SelectedShip != null)
-            {
-                Ship ship = Screen.SelectedShip;
-                ship.SetSpeedLimit(speedLimiter * ship.VelocityMaximum);
-            }
+            //if (Screen.SelectedShip != null)
+            //{
+            //    Ship ship = Screen.SelectedShip;
+            //    ship.SetSpeedLimit(speedLimiter * ship.VelocityMaximum);
+            //}
 
-            foreach (PredictionDebugPlatform platform in GetPredictionDebugPlatforms())
-            {
-                platform.CanFire = CanDebugPlatformFire;
-                if (platformSpeed.NotZero())
-                {
-                    platform.Velocity.X = platformSpeed;
-                }
-            }
+            //foreach (PredictionDebugPlatform platform in GetPredictionDebugPlatforms())
+            //{
+            //    platform.CanFire = CanDebugPlatformFire;
+            //    if (platformSpeed.NotZero())
+            //    {
+            //        platform.Velocity.X = platformSpeed;
+            //    }
+            //}
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
