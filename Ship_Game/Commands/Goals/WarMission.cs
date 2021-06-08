@@ -70,12 +70,15 @@ namespace Ship_Game.Commands.Goals
             if (!TryGetTask(out MilitaryTask task))
                 return GoalStep.GoalFailed;
 
-            if (!TargetPlanet.Owner?.IsAtWarWith(empire) == true)
-                return GoalStep.GoalComplete;
-
             // Update task targets since some of them can be dynamic
             TargetPlanet = task.TargetPlanet;
             TargetEmpire = task.TargetEmpire;
+
+            if (!TargetEmpire.IsAtWarWith(empire))
+            {
+                task.EndTask();
+                return GoalStep.GoalComplete;
+            }
 
             if (LifeTime > 1 && task.Fleet == null) // check for timeout
             {

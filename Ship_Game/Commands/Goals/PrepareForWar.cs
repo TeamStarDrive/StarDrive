@@ -14,7 +14,7 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 CreateTask,
-                CheckIfReadyForWar
+                DeclareWarIfReady
             };
         }
 
@@ -42,6 +42,11 @@ namespace Ship_Game.Commands.Goals
             return tasks.Length > 0;
         }
 
+        GoalStep CheckIfShouldCreateStagingFleets()
+        {
+
+        }
+
         GoalStep CreateTask()
         {
             if (!empire.TryGetPrepareForWarType(empire, out WarType warType))
@@ -55,14 +60,14 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.GoToNextStep;
         }
 
-        GoalStep CheckIfReadyForWar()
+        GoalStep DeclareWarIfReady()
         {
             if (!TryGetTask(out MilitaryTask task))
                 return GoalStep.GoalFailed;
 
             if (task.Fleet?.TaskStep == 2)
             {
-                // todo create warmission from this fleet and declare war
+                empire.GetEmpireAI().Goals.Add(new WarMission(empire, TargetEmpire, TargetPlanet, task));
                 return GoalStep.GoalComplete;
             }
 

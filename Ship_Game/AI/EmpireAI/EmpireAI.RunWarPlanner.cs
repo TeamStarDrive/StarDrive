@@ -9,22 +9,9 @@ namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
-        public float TotalWarValue { get; private set; }
-        public float WarStrength = 0;
         public float MinWarPriority { get; private set; }
         public WarTasks WarTasks { get; private set; }
         private bool SkipFirstRun = true;
-
-        public void SetTotalWarValue()
-        {
-            float value = 0;
-            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
-            {
-                if (rel.AtWar)
-                    value += them.GetOwnedSystems().Sum(s => s.WarValueTo(OwnerEmpire)).LowerBound(1);
-            }
-            TotalWarValue = value;
-        }
 
         public static void ShowWarDeclaredNotification(Empire us, Empire them)
         {
@@ -72,10 +59,7 @@ namespace Ship_Game.AI
                         offer.RejectDL = "HelpUS_War_No_BreakAlliance";
                         OwnerEmpire.BreakAllianceWith(ally);
                         if (!OwnerEmpire.IsPacifist && !OwnerEmpire.IsCunning)
-                        {
-                            ourRelationToAlly.PreparingForWar     = true;
-                            ourRelationToAlly.PreparingForWarType = WarType.ImperialistWar;
-                        }
+                            ourRelationToAlly.PrepareForWar(WarType.ImperialistWar);
                     }
                 })
             };
@@ -106,7 +90,7 @@ namespace Ship_Game.AI
             Empire us = OwnerEmpire;
             Relationship usToThem = us.GetRelations(them);
             Relationship themToUs = them.GetRelations(OwnerEmpire);
-            usToThem.PreparingForWar = false;
+            usToThem.CancelPrepareForWar();
             if (us.isFaction || us.data.Defeated || them.isFaction || them.data.Defeated)
                 return;
 
@@ -212,7 +196,7 @@ namespace Ship_Game.AI
         {
             Empire us = OwnerEmpire;
             Relationship usToThem = us.GetRelations(them);
-            usToThem.PreparingForWar = false;
+            usToThem.CancelPrepareForWar();
             if (us.isFaction || us.data.Defeated || them.data.Defeated || them.isFaction)
                 return;
 
@@ -277,7 +261,7 @@ namespace Ship_Game.AI
         /// </summary>
         void UpdateEmpireDefense()
         {
-            if (OwnerEmpire.isPlayer || OwnerEmpire.isFaction) 
+            if (OwnerEmpire.isFaction) 
                 return;
 
             if (OwnerEmpire.NoEmpireDefenseGoal())
@@ -286,8 +270,12 @@ namespace Ship_Game.AI
 
         private void RunWarPlanner()
         {
-            if (OwnerEmpire.data.Defeated || OwnerEmpire.GetPlanets().Count == 0) 
+            if (OwnerEmpire.isPlayer
+                || OwnerEmpire.data.Defeated
+                || OwnerEmpire.GetPlanets().Count == 0)
+            {
                 return;
+            }
 
             if (SkipFirstRun) // Hack - skipping first run to prevent insta war dec when loading a save. 
             {
@@ -295,25 +283,19 @@ namespace Ship_Game.AI
                 return;
             }
 
-            SetTotalWarValue();
             UpdateEmpireDefense();
-            if (!OwnerEmpire.isPlayer)
+
             {
-                var activeWars = new Array<War>();
                 foreach ((Empire other, Relationship rel) in OwnerEmpire.AllRelations)
                 {
                     if (other.data.Defeated && rel.ActiveWar != null)
                     {
                         rel.AtWar = false;
-                        rel.PreparingForWar = false;
+                        rel.CancelPrepareForWar();
                         rel.ActiveWar.EndStarDate = Empire.Universe.StarDate;
                         rel.WarHistory.Add(rel.ActiveWar);
                         rel.Posture = Posture.Neutral;
-                        continue;
                     }
-
-                    if (rel.ActiveWar != null)
-                        activeWars.Add(rel.ActiveWar);
                 }
 
                 MinWarPriority = 11; // todo remove
@@ -322,7 +304,6 @@ namespace Ship_Game.AI
                 // start a new war by military strength
                 if (!OwnerEmpire.IsAtWarWithMajorEmpire || OwnerEmpire.GetAverageWarGrade() > 7)
                 {
-                    WarStrength = OwnerEmpire.AIManagedShips.EmpireReadyFleets.AccumulatedStrength;
                     foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations.SortedDescending(r=> r.Rel.TotalAnger))
                     {
                         if (them.isPlayer && GlobalStats.RestrictAIPlayerInteraction)
@@ -381,7 +362,7 @@ namespace Ship_Game.AI
 
             float currentEnemyStr    = currentWarInformation.Sum(i => i.OffensiveStrength);
             float currentEnemyBuild  = currentWarInformation.Sum(i => i.EconomicStrength);
-            float ourCurrentStrength = OwnerEmpire.OffensiveStrength;
+            float ourCurrentStrength = OwnerEmpire.AIManagedShips.EmpireReadyFleets.AccumulatedStrength;
             float theirKnownStrength = rel.KnownInformation.AllianceTotalStrength.LowerBound(15000) + currentEnemyStr;
             float theirBuildCapacity = rel.KnownInformation.AllianceEconomicStrength.LowerBound(10) + currentEnemyBuild;
             float ourBuildCapacity   = OwnerEmpire.GetEmpireAI().BuildCapacity;
