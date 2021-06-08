@@ -27,6 +27,7 @@ namespace Ship_Game.AI
         public Guid TargetGuid;
         public bool IgnoreCombat;
         public bool BadGuysNear;
+        public bool HasPointDefense { get; private set; }
         public Guid EscortTargetGuid;
         public Ship Target;
         public Array<Ship> TargetQueue = new Array<Ship>();
@@ -36,8 +37,23 @@ namespace Ship_Game.AI
         Array<Ship> ScannedTargets = new Array<Ship>();
         Array<Ship> ScannedFriendlies = new Array<Ship>();
         Array<Projectile> ScannedProjectiles = new Array<Projectile>();
-        Ship ScannedTarget;
+
+        void InitializeTargeting()
+        {
+            HasPointDefense = DoesShipHavePointDefense(Owner);
+        }
         
+        static bool DoesShipHavePointDefense(Ship ship)
+        {
+            for (int i = 0; i < ship.Weapons.Count; ++i)
+            {
+                Weapon purge = ship.Weapons[i];
+                if (purge.Tag_PD || purge.TruePD)
+                    return true;
+            }
+            return false;
+        }
+
         public void CancelIntercept()
         {
             HasPriorityTarget = false;
@@ -54,10 +70,12 @@ namespace Ship_Game.AI
             if (Target?.TroopsAreBoardingShip == true)
                 return;
 
-            if (Target?.Active == false || Target?.Health <= 0.0f || Target is Ship ship && ship.dying)
+            // main Target has died, reset it
+            if (!IsTargetActive(Target))
             {
-                ScannedTarget = null;
+                Target = null;
             }
+
             
             int count = Owner.Weapons.Count;
             Weapon[] weapons = Owner.Weapons.GetInternalArrayItems();
@@ -65,71 +83,96 @@ namespace Ship_Game.AI
             for (int i = 0; i < count; ++i)
             {
                 var weapon = weapons[i];
-                if (weapon.UpdateAndFireAtTarget(ScannedTarget, TrackProjectiles, PotentialTargets) &&
-                    weapon.FireTarget.ParentIsThis(ScannedTarget))
+                if (weapon.UpdateAndFireAtTarget(Target, TrackProjectiles, PotentialTargets) &&
+                    weapon.FireTarget.ParentIsThis(Target))
                 {
                     float weaponFireTime;
-                    if (weapon.isBeam)
-                        weaponFireTime = weapon.BeamDuration;
-                    else if (weapon.SalvoDuration > 0)
-                        weaponFireTime = weapon.SalvoDuration;
-                    else
-                        weaponFireTime = (1f - weapon.CooldownTimer);
-
+                    if      (weapon.isBeam)            weaponFireTime = weapon.BeamDuration;
+                    else if (weapon.SalvoDuration > 0) weaponFireTime = weapon.SalvoDuration;
+                    else                               weaponFireTime = (1f - weapon.CooldownTimer);
                     FireOnMainTargetTime = weaponFireTime.LowerBound(FireOnMainTargetTime);
                 }
             }
         }
 
-        void UpdateTrackedProjectiles()
+        void UpdateTrackedShips(Ship sensorShip, float radius)
         {
-            if (Owner.TrackingPower <= 0 || !OwnerHasPointDefense())
+            // get enemies and friends in close proximity
+            // radius hack needs investigation.
+            // i believe this is an orbital no control systems compensator. But it should not be handled here. 
+            float scanRadius = radius + (radius < 0.01f ? 10000 : 0);
+            int maxResults = sensorShip.System?.ShipList.Count.LowerBound(128) ?? 128;
+            GameplayObject[] scannedShips = UniverseScreen.Spatial.FindNearby(
+                        GameObjectType.Ship, sensorShip, scanRadius, maxResults);
+
+            for (int i = 0; i < scannedShips.Length; ++i)
             {
-                if (Owner.IsHangarShip)
+                // Do not process dead and dying ships
+                var nearbyShip = (Ship)scannedShips[i];
+                if (!nearbyShip.Active || nearbyShip.dying)
+                    continue;
+
+                sensorShip.HasSeenEmpires.SetSeen(nearbyShip.loyalty);
+                
+                // this should be expanded to include allied ships. 
+                Empire empire = nearbyShip.loyalty;
+                if (empire == Owner.loyalty && !nearbyShip.IsHangarShip)
                 {
-                    ScannedProjectiles.Clear();
-                    ScannedProjectiles.AddRange(Owner.Mothership.AI.TrackProjectiles);
+                    ScannedFriendlies.Add(nearbyShip);
                 }
-                return;
+                else  if (Owner.loyalty.IsEmpireAttackable(nearbyShip.loyalty, nearbyShip))
+                {
+                    BadGuysNear = true;
+                    ScannedTargets.Add(nearbyShip);
+                }
             }
 
-            var opt = new SearchOptions(Owner.Center, Owner.WeaponsMaxRange, GameObjectType.Proj)
-            {
-                MaxResults = 32,
-                ExcludeLoyalty = Owner.loyalty,
-                FilterFunction = (go) =>
-                {
-                    var missile = (Projectile)go;
-                    bool canIntercept = missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty);
-                    if (canIntercept)
-                    {
-                        // ignore duplicate projectiles from Mothership, since they are added below
-                        return !Owner.IsHangarShip || !Owner.Mothership.AI.TrackProjectiles.ContainsRef(missile);
-                    }
-                    return false;
-                }
-            };
-            
-            ScannedProjectiles.Clear();
-            if (Owner.IsHangarShip)
-                ScannedProjectiles.AddRange(Owner.Mothership.AI.TrackProjectiles);
-            
-            GameplayObject[] missiles = UniverseScreen.Spatial.FindNearby(opt);
-            for (int i = 0; i < missiles.Length; ++i)
-                ScannedProjectiles.Add((Projectile)missiles[i]);
-
-            ScannedProjectiles.Sort(missile => Owner.Center.SqDist(missile.Center));
+            PotentialTargets = ScannedTargets.ToArray();
+            FriendliesNearby = ScannedFriendlies.ToArray();
+            ScannedTargets.Clear();
+            ScannedFriendlies.Clear();
         }
 
-        bool OwnerHasPointDefense()
+        void UpdateTrackedProjectiles(Ship sensorShip)
         {
-            for (int i = 0; i < Owner.Weapons.Count; ++i)
+            if (Owner.IsHangarShip)
+                ScannedProjectiles.AddRange(Owner.Mothership.AI.TrackProjectiles);
+
+            if (HasPointDefense && Owner.TrackingPower > 0)
             {
-                Weapon purge = Owner.Weapons[i];
-                if (purge.Tag_PD || purge.TruePD)
-                    return true;
+                var opt = new SearchOptions(sensorShip.Center, sensorShip.WeaponsMaxRange, GameObjectType.Proj)
+                {
+                    MaxResults = 32,
+                    ExcludeLoyalty = Owner.loyalty,
+                    FilterFunction = (go) =>
+                    {
+                        var missile = (Projectile)go;
+                        bool canIntercept = missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty);
+                        if (canIntercept)
+                        {
+                            // ignore duplicate projectiles from Mothership, since they were already added
+                            return !Owner.IsHangarShip || !Owner.Mothership.AI.TrackProjectiles.ContainsRef(missile);
+                        }
+                        return false;
+                    }
+                };
+
+                GameplayObject[] missiles = UniverseScreen.Spatial.FindNearby(opt);
+                for (int i = 0; i < missiles.Length; ++i)
+                    ScannedProjectiles.Add((Projectile)missiles[i]);
             }
-            return false;
+
+            // Always make a full copy, this is for thread safety
+            // Once the new array is assigned, its elements must not be modified
+            var newProjectiles = ScannedProjectiles.ToArray();
+            ScannedProjectiles.Clear();
+
+            // we always need to sort by distance, because targets inherited from Mothership
+            // are different distance from hangar fighter
+            newProjectiles.SortByDistance(Owner.Center);
+
+            // atomic assign, the Tracked projectiles array is now FINAL until next update
+            TrackProjectiles = newProjectiles;
         }
 
         public struct TargetParameterTotals
@@ -200,23 +243,20 @@ namespace Ship_Game.AI
         {
             Owner.KnownByEmpires.SetSeen(Owner.loyalty);
             BadGuysNear = false;
-            ScannedFriendlies.Clear();
-            ScannedTargets.Clear();
+            UpdateTrackedProjectiles(sensorShip);
+            UpdateTrackedShips(sensorShip, radius);
 
-            if (HasPriorityTarget)
+            if (HasPriorityTarget && Target == null)
             {
-                if (Target == null)
+                HasPriorityTarget = false;
+
+                // if we still have items in the priority target queue, just pop them
+                if (TargetQueue.TryPopFirst(out Ship firstPriority))
                 {
-                    HasPriorityTarget = false;
-                    if (TargetQueue.Count > 0)
-                    {
-                        HasPriorityTarget = true;
-                        ScannedTarget = TargetQueue.First;
-                    }
+                    HasPriorityTarget = true;
+                    return firstPriority;
                 }
             }
-
-            UpdateTrackedProjectiles();
 
             SolarSystem thisSystem = Owner.System;
             if (thisSystem?.OwnerList.Count > 0)
@@ -224,54 +264,21 @@ namespace Ship_Game.AI
                 for (int i = 0; i < thisSystem.PlanetList.Count; i++)
                 {
                     Planet p = thisSystem.PlanetList[i];
-                    BadGuysNear = BadGuysNear || Owner.loyalty.IsEmpireAttackable(p.Owner) && Owner.Center.InRadius(p.Center, radius);
+                    if (!BadGuysNear)
+                        BadGuysNear = Owner.loyalty.IsEmpireAttackable(p.Owner)
+                                   && Owner.Center.InRadius(p.Center, radius);
                 }
             }
 
-            // get enemies and friends in close proximity
-            // radius hack needs investigation.
-            // i believe this is an orbital no control systems compensator. But it should not be handled here. 
-            float scanRadius = radius + (radius < 0.01f ? 10000 : 0);
-            int maxResults   = Owner.System?.ShipList.Count.LowerBound(128) ?? 128;
-            GameplayObject[] scannedShips = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
-                                                                    Owner, scanRadius, maxResults);
-
-            for (int x = 0; x < scannedShips.Length; x++)
+            if (Target != null)
             {
-                // do not process dead and dying any further. Let them be visible but not show up in any target lists. 
-                var nearbyShip = (Ship)scannedShips[x];
-                if (!nearbyShip.Active || nearbyShip.dying)                 
-                    continue;
-                
-                nearbyShip.KnownByEmpires.SetSeen(Owner.loyalty);
-
-                // this should be expanded to include allied ships. 
-                Empire empire = nearbyShip.loyalty;
-                if (empire == Owner.loyalty && !nearbyShip.IsHangarShip)
+                if (Target.loyalty == Owner.loyalty)
                 {
-                    ScannedFriendlies.Add(nearbyShip);
-                    continue;
-                }
-
-                bool canAttack = Owner.loyalty.IsEmpireAttackable(nearbyShip.loyalty, nearbyShip);
-                if (canAttack)
-                {
-                    BadGuysNear = true;
-                    ScannedTargets.Add(nearbyShip);
-                }
-            }
-
-            if (Target is Ship target)
-            {
-                if (target.loyalty == Owner.loyalty)
-                {
-                    ScannedTarget = null;
                     HasPriorityTarget = false;
                 }
-                else if (!Intercepting && target.IsInWarp)
+                else if (!Intercepting && Target.IsInWarp)
                 {
                     Target = null;
-                    ScannedTarget = null;
                     if (!HasPriorityOrder && Owner.loyalty != Empire.Universe.player)
                         State = AIState.AwaitingOrders;
                     return null;
@@ -283,20 +290,25 @@ namespace Ship_Game.AI
                 return Target;
 
             // check target validity
-            if (Target != null && !Target.Active)
+            bool isTargetActive = IsTargetActive(Target);
+            if (!isTargetActive)
             {
                 Target = null;
-                ScannedTarget = null;
                 HasPriorityTarget = false;
             }
-            else if (Target?.Active == true && HasPriorityTarget && Target is Ship ship)
+            else if (HasPriorityTarget)
             {
-                if (Owner.loyalty.IsEmpireAttackable(ship.loyalty, ship))
+                if (Owner.loyalty.IsEmpireAttackable(Target.loyalty, Target))
                     BadGuysNear = true;
                 return Target;
             }
 
             return PickHighestPriorityTarget(); // This is the alternative logic
+        }
+
+        bool IsTargetActive(Ship target)
+        {
+            return target != null && target.Active && !target.dying;
         }
 
         Ship PickHighestPriorityTarget()
@@ -337,32 +349,27 @@ namespace Ship_Game.AI
             float radius = GetSensorRadius(out Ship sensorShip);
             if (Owner.IsSubspaceProjector)
             {
+                // TODO: Why does SSP scan for nearby ships?
                 ScanForCombatTargets(sensorShip, radius);
                 return;
             }
 
-            if (Owner.fleet != null)
+            Ship scannedTarget = ScanForCombatTargets(sensorShip, radius);
+
+            if (Owner.fleet == null && scannedTarget == null && Owner.IsHangarShip)
             {
-                ScannedTarget = ScanForCombatTargets(sensorShip, radius);
+                scannedTarget = Owner.Mothership.AI.Target;
             }
-            else if (!HasPriorityTarget)
-            {
-                if (Owner.IsHangarShip)
-                    ScannedTarget = ScanForCombatTargets(sensorShip, radius) ?? Owner.Mothership.AI.Target;
-                else
-                    ScannedTarget = ScanForCombatTargets(sensorShip, radius);
-            }
-            else
-            {
-                if (Owner.IsHangarShip)
-                    ScannedTarget = ScanForCombatTargets(sensorShip, radius) ?? Owner.Mothership.AI.Target;
-                else
-                    ScanForCombatTargets(sensorShip, radius);
-            }
+
+            // automatically choose `Target` if ship does not have Priority
+            // or if current target already died
+            if (!HasPriorityOrder && (!HasPriorityTarget || Target == null || Target?.Active == false || Target?.dying == true))
+                Target = scannedTarget;
 
             if (State != AIState.Resupply && !DoNotEnterCombat)
             {
-                if (Owner.fleet != null && State == AIState.FormationWarp && HasPriorityOrder && !HasPriorityTarget)
+                if (Owner.fleet != null && State == AIState.FormationWarp &&
+                    HasPriorityOrder && !HasPriorityTarget)
                 {
                     bool finalApproach = Owner.Center.InRadius(Owner.fleet.FinalPosition + Owner.FleetOffset, 15000f);
                     if (!finalApproach)
