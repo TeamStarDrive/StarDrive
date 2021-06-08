@@ -38,8 +38,14 @@ namespace UnitTests.AITests.Ships
             {
                 update();
                 if (sw.Elapsed.TotalSeconds > 5.0)
-                    throw new TimeoutException($"Timed out while waiting for engine state change");
+                    throw new TimeoutException("Timed out while waiting for engine state change");
             }
+        }
+
+        void DoManualSensorScan(Ship s, FixedSimTime time)
+        {
+            s.AI.StartSensorScan(time);
+            s.AI.Update(time);
         }
 
         [TestMethod]
@@ -60,7 +66,7 @@ namespace UnitTests.AITests.Ships
             // wait for ship to enter warp
             WaitForEngineChangeTo(Ship.MoveState.Warp, ship, () =>
             {
-                ship.AI.DoManualSensorScan(new FixedSimTime(10f));
+                DoManualSensorScan(ship, new FixedSimTime(10f));
                 ship.Update(TestSimStep);
             });
 
@@ -70,8 +76,8 @@ namespace UnitTests.AITests.Ships
             WaitForEngineChangeTo(Ship.MoveState.Sublight, ship, () =>
             {
                 Universe.Objects.Update(TestSimStep); // update ships
-                ship.AI.DoManualSensorScan(new FixedSimTime(10f));
-                enemy.AI.DoManualSensorScan(new FixedSimTime(10f));
+                DoManualSensorScan(ship, new FixedSimTime(10f));
+                DoManualSensorScan(enemy, new FixedSimTime(10f));
                 sawEnemyShip |= ship.AI.BadGuysNear;
             });
             Assert.IsTrue(sawEnemyShip, "Did not see an enemy while at warp");

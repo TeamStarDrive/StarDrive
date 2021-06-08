@@ -1838,7 +1838,7 @@ namespace Ship_Game.Ships
 
         public void UpdatePackDamageModifier()
         {
-            float modifier = -0.15f + 0.01f * AI.FriendliesNearby.Count;
+            float modifier = -0.15f + 0.01f * AI.FriendliesNearby.Length;
             PackDamageModifier = modifier.Clamped(-0.15f, 0.3f);
         }
 
