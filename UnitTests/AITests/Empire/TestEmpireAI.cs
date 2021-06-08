@@ -159,7 +159,6 @@ namespace UnitTests.AITests.Empire
             return empire.ShipsWeCanBuild.Contains(newName);
         }
 
-
         [TestMethod]
         public void TestBuildCounts()
         {
