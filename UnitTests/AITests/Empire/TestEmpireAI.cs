@@ -148,7 +148,9 @@ namespace UnitTests.AITests.Empire
 
         bool TestShipAddedToShipsWeCanBuild(string baseDesign, Ship_Game.Empire empire, bool playerDesign, bool unlockHull = true)
         {
-            string newName = baseDesign + "-test-123456-test-123456";
+            string key1 = RandomMath.IntBetween(1, 999999).ToString();
+            string key2 = RandomMath.IntBetween(1, 999999).ToString();
+            string newName = baseDesign + $"-test-{key1}-test-{key2}";
             var ship = SpawnShip(baseDesign, empire, Vector2.Zero);
             empire.UnlockedHullsDict[ship.shipData.Hull] = unlockHull;
             ship.shipData.Name = newName;
