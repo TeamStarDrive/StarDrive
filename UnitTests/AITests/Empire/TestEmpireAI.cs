@@ -7,6 +7,7 @@ using Ship_Game.AI;
 using Ship_Game.Empires;
 using Ship_Game.Empires.Components;
 using Ship_Game.GameScreens.NewGame;
+using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 
 namespace UnitTests.AITests.Empire
@@ -89,7 +90,7 @@ namespace UnitTests.AITests.Empire
         }*/
 
         [TestMethod]
-        public void FirstTestShipBuilt()
+        public void ShipBuiltAndUpdateBuildLists()
         {
             var build = new RoleBuildInfo(10, Player.GetEmpireAI(), true);
             string shipName = Player.GetEmpireAI().GetAShip(build);
@@ -129,6 +130,28 @@ namespace UnitTests.AITests.Empire
             Player.canBuildCapitals = false;
             Player.UpdateShipsWeCanBuild(new Array<String> { ship.BaseHull.Name });
             Assert.IsFalse(Player.canBuildCapitals, $"UpdateShipsWeCanBuild triggered unneeded updates");
+
+            // add new player ship design
+            ship = new DesignShip(ship.shipData);
+            ship.shipData.Name = "player-test-123456-test-123456";
+            ResourceManager.AddShipTemplate(ship.shipData, false, true);
+            EmpireManager.Player.UpdateShipsWeCanBuild();
+            Assert.IsTrue(Player.ShipsWeCanBuild.Contains("player-test-123456-test-123456"), "Ships We can build failed to add player ship");
+
+            // add new enemy design
+            ship = new DesignShip(ship.shipData);
+            ship.shipData.Name = "enemy-test-123456-test-123456";
+            ResourceManager.AddShipTemplate(ship.shipData, false, true);
+            EmpireManager.Player.UpdateShipsWeCanBuild();
+            Assert.IsTrue(Player.ShipsWeCanBuild.Contains("enemy-test-123456-test-123456"), "Ships we can build failed to add ai ship");
+
+            // fail to add incompatible design
+            ship = SpawnShip("Supply Shuttle", Player, Vector2.Zero);
+            ship.shipData.Name = "Supply Shuttle-test-123456-test-123456";
+            ResourceManager.AddShipTemplate(ship.shipData, false, true);
+            EmpireManager.Player.UpdateShipsWeCanBuild();
+            Assert.IsFalse(Player.ShipsWeCanBuild.Contains("Supply Shuttle-test-123456-test-123456"));
+
         }
 
         [TestMethod]
