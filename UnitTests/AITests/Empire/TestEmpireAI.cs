@@ -133,6 +133,8 @@ namespace UnitTests.AITests.Empire
 
             // add new player ship design
             Assert.IsTrue(TestShipAddedToShipsWeCanBuild("Rocket Inquisitor", Player, true), "Could not add player ship");
+            Player.ShipsWeCanBuild.Remove("Rocket Inquisitor");
+            Assert.IsFalse(TestShipAddedToShipsWeCanBuild("Excalibur-Class Supercarrier", Player, true, unlockHull: false), "Added ship with locked hull");
 
             // add new enemy design
             GlobalStats.UsePlayerDesigns = true;
@@ -144,11 +146,11 @@ namespace UnitTests.AITests.Empire
             Assert.IsFalse(TestShipAddedToShipsWeCanBuild("Supply Shuttle", Player, true), "Added incorrectSpeed");
         }
 
-        bool TestShipAddedToShipsWeCanBuild(string baseDesign, Ship_Game.Empire empire, bool playerDesign)
+        bool TestShipAddedToShipsWeCanBuild(string baseDesign, Ship_Game.Empire empire, bool playerDesign, bool unlockHull = true)
         {
             string newName = baseDesign + "-test-123456-test-123456";
             var ship = SpawnShip(baseDesign, empire, Vector2.Zero);
-            empire.UnlockedHullsDict[ship.shipData.Hull] = true;
+            empire.UnlockedHullsDict[ship.shipData.Hull] = unlockHull;
             ship.shipData.Name = newName;
             ResourceManager.AddShipTemplate(ship.shipData, false, playerDesign);
             empire.UpdateShipsWeCanBuild();
