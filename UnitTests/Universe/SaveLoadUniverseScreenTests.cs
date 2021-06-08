@@ -22,12 +22,14 @@ namespace UnitTests.Universe
             CreateGameInstance();
             LoadGameContent(ResourceManager.TestOptions.LoadEverything);
             Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder);
+            Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder+"Headers/");
+            Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder+"Fog Maps/");
         }
         
         [TestMethod]
         public void EnsureSaveGameIntegrity()
         {
-            CreateDeveloperSandboxUniverse("United", numOpponents:1);
+            CreateDeveloperSandboxUniverse("United", numOpponents:1, paused:true);
             SavedGame save1 = Universe.Save("UnitTest.IntegrityTest", async:false);
             if (save1 == null) throw new AssertFailedException("Save1 failed");
             DestroyUniverse();
