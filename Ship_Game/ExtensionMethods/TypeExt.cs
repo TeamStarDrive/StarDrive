@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -98,6 +100,88 @@ namespace Ship_Game
             else if (newValue > iLast)  newValue = iFirst;
             
             return (TEnum)Enum.ToObject(typeof(TEnum), newValue);
+        }
+
+        /// <summary>
+        /// Does a member-wise deep compare of 2 objects and returns
+        /// error string of mismatched fields.
+        ///
+        /// Used for Unit Testing
+        /// </summary>
+        public static Array<string> MemberwiseCompare<T>(this T first, T second)
+        {
+            var errors = new Array<string>();
+
+            bool CheckEqual(MemberInfo member, object val1, object val2)
+            {
+                void Error(string err)
+                {
+                    errors.Add($"{member.DeclaringType.GetTypeName()}::{member.Name} {member.ReflectedType.GetTypeName()} {err}");
+                }
+
+                if (val1 == null && val2 == null)
+                    return true;
+
+                if (val1 == null || val2 == null)
+                {
+                    Error($"One of the values was null: first={val1} second={val2}");
+                    return false;
+                }
+
+                if (val1.Equals(val2))
+                    return true;
+
+                Type subType = val1.GetType();
+
+                if (val1 is ICollection col1)
+                {
+                    var col2 = (ICollection)val2;
+                    if (col1.Count != col2.Count)
+                    {
+                        Error($"Collection Count {col1.Count} != {col2.Count}");
+                        return false;
+                    }
+
+                    int i = 0;
+                    IEnumerator en2 = col2.GetEnumerator();
+                    foreach (object o1 in col1)
+                    {
+                        en2.MoveNext();
+                        object o2 = en2.Current;
+                        if (!CheckEqual(member, o1, o2))
+                        {
+                            Error($"Collection elements at [{i}] were not equal: {o1} != {o2}");
+                            return false;
+                        }
+                        ++i;
+                    }
+                    return true; // all elements were equal
+                }
+
+                return CompareFields(subType, val1, val2);
+            }
+
+            bool CompareFields(Type type, object firstObj, object secondObj)
+            {
+                int numErrors = 0;
+                foreach (FieldInfo field in type.GetFields())
+                {
+                    object val1 = field.GetValue(firstObj);
+                    object val2 = field.GetValue(secondObj);
+                    if (!CheckEqual(field, val1, val2))
+                        ++numErrors;
+                }
+                foreach (PropertyInfo prop in type.GetProperties())
+                {
+                    object val1 = prop.GetValue(firstObj);
+                    object val2 = prop.GetValue(secondObj);
+                    if (!CheckEqual(prop, val1, val2))
+                        ++numErrors;
+                }
+                return numErrors == 0;
+            }
+            CompareFields(first.GetType(), first, second);
+            return errors;
         }
     }
 }

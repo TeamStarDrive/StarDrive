@@ -21,7 +21,7 @@ namespace Ship_Game
             // Save must run on the empire thread to ensure thread safety
             RunOnEmpireThread(() =>
             {
-                var savedGame = new SavedGame(Screen, EnterNameArea.Text);
+                Screen.Save(EnterNameArea.Text);
             });
             ExitScreen();
         }
@@ -55,9 +55,7 @@ namespace Ship_Game
                         data.Version = 0;
                     }
 
-                    data.FI = new FileInfo(Path + data.SaveName + SavedGame.OldZipExt);
-                    if (!data.FI.Exists)
-                        data.FI = new FileInfo(Path + data.SaveName + SavedGame.NewZipExt);
+                    data.FI = new FileInfo(Path + data.SaveName + SavedGame.ZipExt);
                     if (!data.FI.Exists)
                     {
                         Log.Warning($"Missing save payload {data.FI.FullName}");
