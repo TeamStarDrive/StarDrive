@@ -7,6 +7,7 @@ using Ship_Game.AI;
 using Ship_Game.Empires;
 using Ship_Game.Empires.Components;
 using Ship_Game.GameScreens.NewGame;
+using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 
 namespace UnitTests.AITests.Empire
@@ -89,7 +90,7 @@ namespace UnitTests.AITests.Empire
         }*/
 
         [TestMethod]
-        public void FirstTestShipBuilt()
+        public void ShipBuiltAndUpdateBuildLists()
         {
             var build = new RoleBuildInfo(10, Player.GetEmpireAI(), true);
             string shipName = Player.GetEmpireAI().GetAShip(build);
@@ -129,6 +130,33 @@ namespace UnitTests.AITests.Empire
             Player.canBuildCapitals = false;
             Player.UpdateShipsWeCanBuild(new Array<String> { ship.BaseHull.Name });
             Assert.IsFalse(Player.canBuildCapitals, $"UpdateShipsWeCanBuild triggered unneeded updates");
+
+            // add new player ship design
+            Assert.IsTrue(TestShipAddedToShipsWeCanBuild("Rocket Inquisitor", Player, true), "Could not add player ship");
+            Player.ShipsWeCanBuild.Remove("Rocket Inquisitor");
+            Assert.IsFalse(TestShipAddedToShipsWeCanBuild("Excalibur-Class Supercarrier", Player, true, unlockHull: false), "Added ship with locked hull");
+
+            // add new enemy design
+            GlobalStats.UsePlayerDesigns = true;
+            Assert.IsTrue(TestShipAddedToShipsWeCanBuild("Excalibur-Class Supercarrier", Enemy, true), "Could not add enemy ship");
+            GlobalStats.UsePlayerDesigns = false;
+            Assert.IsFalse(TestShipAddedToShipsWeCanBuild("Flak Fang", Enemy, true), "Use Player design restriction failed");
+
+            // fail to add incompatible design
+            Assert.IsFalse(TestShipAddedToShipsWeCanBuild("Supply Shuttle", Player, true), "Added incorrectSpeed");
+        }
+
+        bool TestShipAddedToShipsWeCanBuild(string baseDesign, Ship_Game.Empire empire, bool playerDesign, bool unlockHull = true)
+        {
+            string key1 = RandomMath.IntBetween(1, 999999).ToString();
+            string key2 = RandomMath.IntBetween(1, 999999).ToString();
+            string newName = baseDesign + $"-test-{key1}-test-{key2}";
+            var ship = SpawnShip(baseDesign, empire, Vector2.Zero);
+            empire.UnlockedHullsDict[ship.shipData.Hull] = unlockHull;
+            ship.shipData.Name = newName;
+            ResourceManager.AddShipTemplate(ship.shipData, false, playerDesign);
+            empire.UpdateShipsWeCanBuild();
+            return empire.ShipsWeCanBuild.Contains(newName);
         }
 
         [TestMethod]
