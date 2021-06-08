@@ -146,10 +146,10 @@ namespace UnitTests
             Player.TestInitModifiers();
         }
 
-        public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents)
+        public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)
         {
             var data = DeveloperUniverse.Create(playerPreference, numOpponents);
-            SetUniverse(new DeveloperUniverse(data, data.EmpireList.First));
+            SetUniverse(new DeveloperUniverse(data, data.EmpireList.First, paused));
         }
 
         public void SetUniverse(UniverseScreen us)

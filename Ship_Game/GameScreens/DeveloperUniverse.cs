@@ -10,11 +10,11 @@ namespace Ship_Game
     {
         readonly UniverseData SandBox;
 
-        public DeveloperUniverse(UniverseData sandbox, Empire player) : base(sandbox, player)
+        public DeveloperUniverse(UniverseData sandbox, Empire player, bool paused) : base(sandbox, player)
         {
             SandBox = sandbox;
             NoEliminationVictory = true; // SandBox mode doesn't have elimination victory
-            Paused = false;
+            Paused = paused;
         }
 
         public override void LoadContent()
