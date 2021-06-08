@@ -76,6 +76,18 @@ namespace Ship_Game.SpriteSystem
             texture = null;
             return false;
         }
+        
+        // @warning This MAY incur a sudden texture load
+        public bool TryGetTexture(int index, out SubTexture texture)
+        {
+            if ((uint)index < Count)
+            {
+                texture = Sorted[index].GetOrLoadTexture();
+                return true;
+            }
+            texture = null;
+            return false;
+        }
 
         // we lazy load the main Atlas texture on first reference
         // to avoid loading big textures which are not even used
