@@ -442,6 +442,9 @@ namespace Ship_Game.AI.Tasks
                     RequisitionDefenseForce();
                     break;
                 case TaskType.StrikeForce when Step == 0:
+                case TaskType.StageFleet when Step == 0:
+                    RequisitionAssaultForces(strike: true);
+                    break;
                 case TaskType.AssaultPlanet when Step == 0:
                     if (TargetPlanet.Owner == null || !Owner.IsEmpireHostile(TargetPlanet.Owner))
                         EndTask();
@@ -727,7 +730,8 @@ namespace Ship_Game.AI.Tasks
             RemnantEngagement,
             DefendVsRemnants,
             GuardBeforeColonize,
-            StrikeForce
+            StrikeForce,
+            StageFleet
         }
 
         [Flags]

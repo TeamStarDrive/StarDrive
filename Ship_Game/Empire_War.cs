@@ -2,6 +2,7 @@
 using Ship_Game.Commands.Goals;
 using System.Linq;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -66,6 +67,17 @@ namespace Ship_Game
             }
         }
 
+        public void CreateStageFleetTask(Planet targetPlanet, Empire enemy)
+        {
+            MilitaryTask task = new MilitaryTask(targetPlanet, this)
+            {
+                Priority = 5,
+                type     = MilitaryTask.TaskType.StageFleet,
+            };
+
+            EmpireAI.AddPendingTask(task);
+        }
+
         public void CreateWarTask(Planet targetPlanet, Empire enemy, Goal goal)
         {
             // todo advanced mission types per personality or prepare for war strategy
@@ -94,6 +106,18 @@ namespace Ship_Game
             };
 
             EmpireAI.AddPendingTask(task);
+        }
+
+        public bool TryGetPrepareForWarType(Empire enemy, out WarType warType)
+        {
+            warType = WarType.SkirmishWar;
+            Relationship rel = GetRelations(enemy);
+            if (!rel.AtWar && rel.PreparingForWar)
+                warType = rel.PreparingForWarType;
+            else
+                return false;
+
+            return true;
         }
 
         bool IsAlreadyStriking()

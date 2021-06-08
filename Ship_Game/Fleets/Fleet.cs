@@ -615,6 +615,7 @@ namespace Ship_Game.Fleets
                 case MilitaryTask.TaskType.RemnantEngagement:          DoRemnantEngagement(FleetTask);          break;
                 case MilitaryTask.TaskType.DefendVsRemnants:           DoDefendVsRemnant(FleetTask);            break;
                 case MilitaryTask.TaskType.GuardBeforeColonize:        DoPreColonizationGuard(FleetTask);       break;
+                case MilitaryTask.TaskType.StageFleet:                 DoStagingFleet(FleetTask);               break;
             }
         }
 
@@ -758,12 +759,50 @@ namespace Ship_Game.Fleets
             owner.GetEmpireAI().AddPendingTask(reclaim);
         }
 
+        public static void CreateStrikeFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner, Goal goal)
+        {
+            task.FlagFleetNeededForAnotherTask();
+            fleet.TaskStep  = 2;
+            var strikeFleet = new MilitaryTask(task.TargetPlanet, owner)
+            {
+                Priority = 5,
+                type     = MilitaryTask.TaskType.StrikeForce,
+                GoalGuid = goal.guid,
+                Goal     = goal
+            };
+
+            fleet.Name      = "Strike Fleet";
+            fleet.FleetTask = strikeFleet;
+            owner.GetEmpireAI().QueueForRemoval(task);
+            owner.GetEmpireAI().AddPendingTask(strikeFleet);
+        }
+
         bool GatherAtRallyFirst(MilitaryTask task)
         {
             Vector2 enemySystemPos = task.TargetPlanet.ParentSystem.Position;
             Vector2 rallySystemPos = task.RallyPlanet.ParentSystem.Position;
 
             return rallySystemPos.Distance(enemySystemPos)*2 > AveragePos.Distance(rallySystemPos);
+        }
+
+        void DoStagingFleet(MilitaryTask task)
+        {
+            switch (TaskStep)
+            {
+                case 0:
+                    if (FleetTaskGatherAtRally(task))
+                        TaskStep = 1;
+                    break;
+                case 1:
+                    if (!HasArrivedAtRallySafely(GetRelativeSize().Length()))
+                        break;
+
+                    if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
+                        AddFleetProjectorGoal();
+
+                    TaskStep = 2; // Wait for staging goal to handle this fleet
+                    break;
+            }
         }
 
         void DoAssaultPlanet(MilitaryTask task)
