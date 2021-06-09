@@ -35,11 +35,12 @@ namespace Ship_Game.Ships
             LoyaltyTracker = new Components.LoyaltyChanges(empire);
             // loyalty tracker can not add to the empire ships here yet as this is done during resource loading.
             // currently this is done during create entities for save load and
-            if (!isTemplate && !shipyardDesign)
-                LoyaltyTracker.OnSpawn(this);
 
             if (!CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate, shipyardDesign))
                 return;
+
+            if (!isTemplate && !shipyardDesign)
+                LoyaltyTracker.OnSpawn(this);
 
             Stats = new ShipStats(this);
             KnownByEmpires = new Components.KnownByEmpire(this);
