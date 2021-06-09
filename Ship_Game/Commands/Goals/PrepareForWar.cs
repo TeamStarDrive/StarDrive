@@ -89,6 +89,15 @@ namespace Ship_Game.Commands.Goals
 
             if (task.Fleet?.TaskStep == 2)
             {
+                if (!empire.TryGetPrepareForWarType(empire, out WarType warType)
+                    || !empire.GetPotentialTargetPlanets(TargetEmpire, warType, out _))
+                {
+                    // no target planets were found for this war type
+                    task.EndTask();
+                    return GoalStep.GoalFailed;
+                }
+
+                empire.GetEmpireAI().DeclareWarOn(TargetEmpire, warType);
                 empire.GetEmpireAI().Goals.Add(new WarMission(empire, TargetEmpire, TargetPlanet, task));
                 return GoalStep.GoalComplete;
             }

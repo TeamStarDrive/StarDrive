@@ -757,7 +757,7 @@ namespace Ship_Game.Debug
                     string fleet      = task.Fleet != null ? $"Fleet Step: {task.Fleet.TaskStep}" : "No Fleet";
                     string target     = task.TargetPlanet?.Name ?? task.TargetSystem?.Name ?? "";
 
-                    DrawString(color, $"({task.Priority}) {task.type}, {target}, {fleet}");
+                    DrawString(color, $"({task.Priority}) {task.type}, {target}, str: {(int)task.MinimumTaskForceStrength}, {fleet}");
                     if (--queueThreshold == 0)
                         DrawString("--------Queued Tasks--------");
                 }
