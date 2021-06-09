@@ -111,6 +111,11 @@ namespace Ship_Game.AI
                 if (!nearbyShip.Active || nearbyShip.dying)
                     continue;
 
+                // update two-way visibility,
+                // nearbyShip is known by our Empire - this information is used by our Empire later
+                // the nearbyShip itself does not care about it
+                nearbyShip.KnownByEmpires.SetSeen(sensorShip.loyalty);
+                // and our ship has seen nearbyShip
                 sensorShip.HasSeenEmpires.SetSeen(nearbyShip.loyalty);
                 
                 // this should be expanded to include allied ships. 

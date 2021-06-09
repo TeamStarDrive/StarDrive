@@ -143,8 +143,7 @@ namespace Ship_Game
         public float TotalMaintenanceInScrap { get; private set; }
         public float TotalTroopShipMaintenance { get; private set; }
 
-        public float updateContactsTimer = 0f;
-        public float MaxContactTimer = 0f;
+        public float MaxContactTimer = 0.02f /* this is merely the default, it's reset every frame*/;
         private bool HostilesDictForPlayerInitialized;
         public float NetPlanetIncomes { get; private set; }
         public float TroopCostOnPlanets { get; private set; } // Maintenance in all Owned planets
@@ -3510,7 +3509,6 @@ namespace Ship_Game
         
         public void UpdateContactsAndBorders(FixedSimTime timeStep)
         {
-            updateContactsTimer -= timeStep.FixedTime;
             if (!IsEmpireDead())
             {
                 MaxContactTimer = timeStep.FixedTime;
