@@ -51,7 +51,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
             }
 
-            if (!empire.TryGetPrepareForWarType(empire, out _))
+            if (!empire.TryGetPrepareForWarType(TargetEmpire, out _))
                 return GoalStep.GoalFailed;
 
             if (empire.IsAtWarWithMajorEmpire && empire.GetAverageWarGrade() < 7)
@@ -65,7 +65,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CreateTask()
         {
-            if (!empire.TryGetPrepareForWarType(empire, out WarType warType))
+            if (!empire.TryGetPrepareForWarType(TargetEmpire, out WarType warType))
                 return GoalStep.GoalFailed;
 
             if (!empire.GetPotentialTargetPlanets(TargetEmpire, warType, out Planet[] targetPlanets))
@@ -89,7 +89,7 @@ namespace Ship_Game.Commands.Goals
 
             if (task.Fleet?.TaskStep == 2)
             {
-                if (!empire.TryGetPrepareForWarType(empire, out WarType warType)
+                if (!empire.TryGetPrepareForWarType(TargetEmpire, out WarType warType)
                     || !empire.GetPotentialTargetPlanets(TargetEmpire, warType, out _))
                 {
                     // no target planets were found for this war type
