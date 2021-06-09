@@ -27,6 +27,10 @@ namespace spatial
         /// Must be at least 1
         int MaxResults = 10;
 
+        /// Sort search results by distance from search center
+        /// 0: disabled, 1: enabled
+        int SortByDistance = 0;
+
         /// Filter search results by object type
         /// 0: disabled
         int Type = 0;
@@ -91,6 +95,7 @@ namespace spatial
         return loyaltyMask;
     }
 
-    int findNearby(int* outResults, int maxObjectId, const SearchOptions& opt, FoundNodes& found);
+    int findNearby(int* outResults, const SpatialObject* objects, int maxObjectId,
+                   const SearchOptions& opt, FoundNodes& found);
 
 }
