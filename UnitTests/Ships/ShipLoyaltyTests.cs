@@ -5,6 +5,7 @@ using Ship_Game;
 using Ship_Game.Ships;
 using Microsoft.Xna.Framework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.ShipDesign;
 
 namespace UnitTests.Ships
@@ -98,6 +99,11 @@ namespace UnitTests.Ships
             var ship = new DesignShip(spawnedShip.shipData);
             Universe.Objects.UpdateLists(true);
             Assert.AreEqual(Player.OwnedShips.Count, 1, "Critical Error. Designs cant be added to empires");
+            
+            spawnedShip.shipData.ModuleSlots =  new ModuleSlotData[0];
+            ship = new DesignShip(spawnedShip.shipData);
+            Universe.Objects.UpdateLists(true);
+            Assert.AreEqual(Player.OwnedShips.Count, 1, "Critical Error. Ships with no modules can not be added to the empire");
         }
     }
 }
