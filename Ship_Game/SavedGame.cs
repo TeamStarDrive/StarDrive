@@ -63,21 +63,25 @@ namespace Ship_Game
         // Every time the savegame layout changes significantly,
         // this version needs to be bumped to avoid loading crashes
         public const int SaveGameVersion = 5;
+        public const string ZipExt = ".sav.gz";
 
-        public static bool NewFormat = true; // use new save format ?
-        public const string NewExt = ".sav";
-        public const string OldExt = ".xml";
-        public const string NewZipExt = ".sav.gz";
-        public const string OldZipExt = ".xml.gz";
+        public readonly UniverseSaveData SaveData = new UniverseSaveData();
+        public FileInfo SaveFile;
+        public FileInfo PackedFile;
+        public FileInfo HeaderFile;
+        public FileInfo FogMapFile;
+        
+        public static bool IsSaving  => GetIsSaving();
+        public static bool NotSaving => !IsSaving;
+        public static string DefaultSaveGameFolder => Dir.StarDriveAppData + "/Saved Games/";
 
-        readonly UniverseSaveData SaveData = new UniverseSaveData();
-        static Thread SaveThread;
+        static TaskResult SaveTask;
+        readonly UniverseScreen Screen;
 
-        public static bool IsSaving  => SaveThread != null && SaveThread.IsAlive;
-        public static bool NotSaving => SaveThread == null || !SaveThread.IsAlive;
-
-        public SavedGame(UniverseScreen screenToSave, string saveAs)
+        public SavedGame(UniverseScreen screenToSave)
         {
+            Screen = screenToSave;
+
             // clean up and submit objects before saving
             screenToSave.Objects.UpdateLists(removeInactiveObjects: true);
 
@@ -312,29 +316,57 @@ namespace Ship_Game
             {
                 SaveData.Snapshots.Add(e.Key, e.Value);
             }
+        }
 
-            string path = Dir.StarDriveAppData;
-            SaveData.path       = path;
-            SaveData.SaveAs     = saveAs;
-            SaveData.Size       = new Vector2(screenToSave.UniverseSize);
+        static bool GetIsSaving()
+        {
+            if (SaveTask == null)
+                return false;
+            if (!SaveTask.IsComplete)
+                return true;
+
+            SaveTask = null; // avoids some nasty memory leak issues
+            return false;
+        }
+
+        public void Save(string saveAs, bool async)
+        {
+            SaveData.Size = new Vector2(Screen.UniverseSize);
+            SaveData.path = Dir.StarDriveAppData;
+            SaveData.SaveAs = saveAs;
             SaveData.FogMapName = saveAs + "fog";
+
+            string destFolder = DefaultSaveGameFolder;
+            SaveFile = new FileInfo($"{destFolder}{saveAs}.sav");
+            PackedFile = new FileInfo(SaveFile.FullName + ".gz");
+            HeaderFile = new FileInfo($"{destFolder}Headers/{saveAs}.xml");
+            FogMapFile = new FileInfo($"{destFolder}Fog Maps/{saveAs}fog.png");
 
             // this happens sometimes, not exactly sure why though
             // to prevent players from crashing to desktop, I'd rather have the fogmap not saved
-            if (!screenToSave.FogMap.IsDisposed)
+            Texture2D fogMap = Screen.FogMap;
+            if (fogMap != null && !fogMap.IsDisposed)
             {
                 try
                 {
-                    screenToSave.FogMap.Save($"{path}/Saved Games/Fog Maps/{saveAs}fog.png", ImageFileFormat.Png);
+                    fogMap.Save(FogMapFile.FullName, ImageFileFormat.Png);
                 }
                 catch (Exception e)
                 {
                     Log.Error(e, "SavedGame FogMap.Save failed");
                 }
             }
+
+            // All of this data can be serialized in parallel,
+            // because we already built `SaveData` object, which no longer depends on UniverseScreen
+            SaveTask = Parallel.Run(() =>
+            {
+                SaveUniverseData(SaveData, SaveFile, PackedFile, HeaderFile);
+            });
             
-            SaveThread = new Thread(SaveUniverseDataAsync) {Name = "Save Thread: " + saveAs};
-            SaveThread.Start(SaveData);
+            // for blocking calls, just wait on the task
+            if (!async)
+                SaveTask.Wait();
         }
 
         public static ShipSaveData ShipSaveFromShip(Ship ship)
@@ -484,45 +516,28 @@ namespace Ship_Game
             return sd;
         }
 
-        private static void SaveUniverseDataAsync(object universeSaveData)
+        static void SaveUniverseData(UniverseSaveData data, FileInfo saveFile, 
+                                     FileInfo compressedSave, FileInfo headerFile)
         {
-            var data = (UniverseSaveData)universeSaveData;
-            try
+            using (FileStream writeStream = saveFile.OpenWrite())
             {
-                string ext = NewFormat ? NewExt : OldExt;
-                var info = new FileInfo($"{data.path}/Saved Games/{data.SaveAs}{ext}");
-                using (FileStream writeStream = info.OpenWrite())
+                var t = new PerfTimer();
+                using (var textWriter = new StreamWriter(writeStream))
                 {
-                    PerfTimer t = new PerfTimer();
-                    if (NewFormat)
+                    var ser = new JsonSerializer
                     {
-                        using (var textWriter = new StreamWriter(writeStream))
-                        {
-                            var ser = new JsonSerializer
-                            {
-                                NullValueHandling = NullValueHandling.Ignore,
-                                DefaultValueHandling = DefaultValueHandling.Ignore
-                            };
-                            ser.Serialize(textWriter, data);
-                        }
-                        Log.Warning($"JSON Total Save elapsed: {t.Elapsed}s");
-                    }
-                    else
-                    {
-                        var ser = new XmlSerializer(typeof(UniverseSaveData));
-                        ser.Serialize(writeStream, data);
-                        Log.Warning($"XML Total Save elapsed: {t.Elapsed}s");
-                    }
+                        NullValueHandling = NullValueHandling.Ignore,
+                        DefaultValueHandling = DefaultValueHandling.Ignore
+                    };
+                    ser.Serialize(textWriter, data);
                 }
-                HelperFunctions.Compress(info);
-                info.Delete();
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "SaveUniverseData failed");
-                return;
+                Log.Warning($"JSON Total Save elapsed: {t.Elapsed}s");
             }
 
+            HelperFunctions.Compress(saveFile, compressedSave); // compress into .sav.gz
+            saveFile.Delete(); // delete the bigger .sav file
+
+            // Save the header as well
             DateTime now = DateTime.Now;
             var header = new HeaderData
             {
@@ -536,8 +551,13 @@ namespace Ship_Game
                 ModName    = GlobalStats.ActiveMod?.mi.ModName ?? "",
                 Version    = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"])
             };
-            using (var wf = new StreamWriter(data.path + "/Saved Games/Headers/" + data.SaveAs + ".xml"))
-                new XmlSerializer(typeof(HeaderData)).Serialize(wf, header);
+
+            using (var headerSw = new StreamWriter(headerFile.FullName))
+            {
+                new XmlSerializer(typeof(HeaderData)).Serialize(headerSw, header);
+            }
+
+            SaveTask = null;
 
             HelperFunctions.CollectMemory();
         }
@@ -547,46 +567,19 @@ namespace Ship_Game
             UniverseSaveData usData;
             var decompressed = new FileInfo(HelperFunctions.Decompress(compressedSave));
 
-            PerfTimer t = new PerfTimer();
-            if (decompressed.Extension == NewExt) // new save format
+            var t = new PerfTimer();
+            using (FileStream stream = decompressed.OpenRead())
+            using (var reader = new JsonTextReader(new StreamReader(stream)))
             {
-                using (FileStream stream = decompressed.OpenRead())
-                using (var reader = new JsonTextReader(new StreamReader(stream)))
+                var ser = new JsonSerializer
                 {
-                    var ser = new JsonSerializer
-                    {
-                        NullValueHandling = NullValueHandling.Ignore,
-                        DefaultValueHandling = DefaultValueHandling.Ignore
-                    };
-                    usData = ser.Deserialize<UniverseSaveData>(reader);
-                }
-
-                Log.Warning($"JSON Total Load elapsed: {t.Elapsed}s  ");
+                    NullValueHandling = NullValueHandling.Ignore,
+                    DefaultValueHandling = DefaultValueHandling.Ignore
+                };
+                usData = ser.Deserialize<UniverseSaveData>(reader);
             }
-            else // old 100MB XML savegame format (haha)
-            {
-                long mem = GC.GetTotalMemory(false);
 
-                XmlSerializer serializer1;
-                try
-                {
-                    serializer1 = new XmlSerializer(typeof(UniverseSaveData));
-                }
-                catch
-                {
-                    var attrOpts = new XmlAttributeOverrides();
-                    attrOpts.Add(typeof(SolarSystemSaveData), "MoonList", new XmlAttributes { XmlIgnore = true });
-                    attrOpts.Add(typeof(EmpireSaveData), "MoonList", new XmlAttributes { XmlIgnore = true });
-                    serializer1 = new XmlSerializer(typeof(UniverseSaveData), attrOpts);
-                }
-
-                long serSize = GC.GetTotalMemory(false) - mem;
-
-                using (FileStream stream = decompressed.OpenRead())
-                    usData = (UniverseSaveData)serializer1.Deserialize(stream);
-
-                Log.Warning($"XML Total Load elapsed: {t.Elapsed}s  mem: {serSize / (1024f * 1024f)}MB");
-            }
+            Log.Warning($"JSON Total Load elapsed: {t.Elapsed}s  ");
             decompressed.Delete();
 
             //HelperFunctions.CollectMemory();

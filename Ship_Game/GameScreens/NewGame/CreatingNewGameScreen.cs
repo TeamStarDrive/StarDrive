@@ -231,7 +231,7 @@ namespace Ship_Game
                 {
                     planet.ParentSystem = wipSystem;
                     planet.Center += wipSystem.Position;
-                    planet.InitializePlanetMesh(this);
+                    planet.InitializePlanetMesh();
                 }
                 foreach (Asteroid asteroid in wipSystem.AsteroidsList)
                 {

@@ -18,12 +18,30 @@ namespace UnitTests
         {
             var counter = new ProgressCounter();
             counter.Start(0.3f, 0.3f, 0.4f);
+            Assert.AreEqual(3, counter.TotalSteps);
 
             LinearSubStep(counter.NextStep(), 11);
             Assert.AreEqual(counter.Percent, 0.3f);
 
             LinearSubStep(counter.NextStep(), 17);
             Assert.AreEqual(counter.Percent, 0.6f);
+
+            LinearSubStep(counter.NextStep(), 33);
+            Assert.AreEqual(counter.Percent, 1.0f);
+        }
+
+        [TestMethod]
+        public void TestAbsolute()
+        {
+            var counter = new ProgressCounter();
+            counter.StartAbsolute(2.0f, 3.0f, 5.0f);
+            Assert.AreEqual(3, counter.TotalSteps);
+
+            LinearSubStep(counter.NextStep(), 11);
+            Assert.AreEqual(counter.Percent, 0.2f);
+
+            LinearSubStep(counter.NextStep(), 17);
+            Assert.AreEqual(counter.Percent, 0.5f);
 
             LinearSubStep(counter.NextStep(), 33);
             Assert.AreEqual(counter.Percent, 1.0f);
