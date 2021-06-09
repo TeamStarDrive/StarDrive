@@ -8,11 +8,13 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "PrepareForWar";
         public override string UID => ID;
+        private bool SkipFirstRun = true;
 
         public PrepareForWar() : base(GoalType.WarMission)
         {
             Steps = new Func<GoalStep>[]
             {
+                CheckIfShouldCreateStagingFleets,
                 CreateTask,
                 DeclareWarIfReady
             };
@@ -23,7 +25,6 @@ namespace Ship_Game.Commands.Goals
             empire        = owner;
             TargetEmpire  = enemy;
             StarDateAdded = Empire.Universe.StarDate;
-            Evaluate();
             Log.Info(ConsoleColor.Green, $"---- Prepare For War: New {empire.Name} Vs.: {TargetEmpire.Name} ----");
         }
 
@@ -44,7 +45,22 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CheckIfShouldCreateStagingFleets()
         {
+            if (SkipFirstRun) // Hack - skipping first run to prevent insta war dec when loading a save. 
+            {
+                SkipFirstRun = false;
+                return GoalStep.TryAgain;
+            }
 
+            if (!empire.TryGetPrepareForWarType(empire, out _))
+                return GoalStep.GoalFailed;
+
+            if (empire.IsAtWarWithMajorEmpire && empire.GetAverageWarGrade() < 7)
+                return GoalStep.TryAgain;
+
+            var rel = empire.GetRelations(TargetEmpire);
+            return empire.ShouldGoToWar(rel, TargetEmpire) 
+                ? GoalStep.GoToNextStep 
+                : GoalStep.TryAgain;
         }
 
         GoalStep CreateTask()
@@ -64,6 +80,12 @@ namespace Ship_Game.Commands.Goals
         {
             if (!TryGetTask(out MilitaryTask task))
                 return GoalStep.GoalFailed;
+
+            if (!empire.IsPreparingForWarWith(TargetEmpire))
+            {
+                task.EndTask();
+                return GoalStep.GoalFailed;
+            }
 
             if (task.Fleet?.TaskStep == 2)
             {

@@ -30,15 +30,16 @@ namespace Ship_Game.AI
             BuildWarShips(offensiveGoals.Count);
             Goals.ApplyPendingRemovals();
             PrioritizeTasks();
-            var tasks = TaskList.Sorted(t=> t.Priority);
-            foreach (MilitaryTask task in tasks)
+            int queueThreshold = OwnerEmpire.IsAtWarWithMajorEmpire ? (int)OwnerEmpire.GetAverageWarGrade().LowerBound(3) : 10;
+            var tasks = OwnerEmpire.GetEmpireAI().GetTasks().Filter(t => !t.QueuedForRemoval).OrderByDescending(t => t.Priority)
+                                                            .ThenByDescending(t => t.MinimumTaskForceStrength).ToArray();
+
+            for (int i = tasks.Length - 1; i >= 0; i--)
             {
-                if (!task.QueuedForRemoval)
-                {
-                    task.Evaluate(OwnerEmpire);
-                    if (OwnerEmpire.IsAtWarWithMajorEmpire && task.Priority >= 7) // At war, concentrate on high priority tasks
-                        break;
-                }
+                MilitaryTask task = tasks[i];
+                task.Evaluate(OwnerEmpire);
+                if (--queueThreshold == 0)
+                    return;
             }
 
             ApplyPendingChanges();

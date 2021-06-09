@@ -151,10 +151,7 @@ namespace Ship_Game.AI
                 }
 
                 if (closest.CurrentMilitaryStrength * 1.5f < OwnerEmpire.OffensiveStrength)
-                {
-                    OwnerEmpire.ResetPreparingForWar();
-                    usToThem.PrepareForWar(WarType.ImperialistWar);
-                }
+                    usToThem.PrepareForWar(WarType.ImperialistWar, OwnerEmpire);
             }
         }
 
@@ -190,8 +187,7 @@ namespace Ship_Game.AI
                     return;
                 }
 
-                OwnerEmpire.ResetPreparingForWar();
-                usToThem.PrepareForWar(WarType.ImperialistWar);
+                usToThem.PrepareForWar(WarType.ImperialistWar, OwnerEmpire);
             }
         }
 

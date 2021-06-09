@@ -746,15 +746,20 @@ namespace Ship_Game.Debug
                 DrawString($"Average War Grade: {e.GetAverageWarGrade()}");
                 DrawString("----------------------------");
 
-                var tasks = e.GetEmpireAI().GetTasks().SortedDescending(t => t.Priority);
+                int queueThreshold = e.IsAtWarWithMajorEmpire ? (int)e.GetAverageWarGrade().LowerBound(3) : 10;
+                var tasks = e.GetEmpireAI().GetTasks().Filter(t => !t.QueuedForRemoval).OrderByDescending(t => t.Priority)
+                                                                .ThenByDescending(t => t.MinimumTaskForceStrength).ToArray();
+
                 for (int i = tasks.Length - 1; i >= 0; i--)
                 {
                     MilitaryTask task = tasks[i];
                     Color color       = task.TargetEmpire?.EmpireColor ?? e.EmpireColor;
                     string fleet      = task.Fleet != null ? $"Fleet Step: {task.Fleet.TaskStep}" : "No Fleet";
-                    string target     = task.TargetPlanet?.Name ?? "";
+                    string target     = task.TargetPlanet?.Name ?? task.TargetSystem?.Name ?? "";
 
                     DrawString(color, $"({task.Priority}) {task.type}, {target}, {fleet}");
+                    if (--queueThreshold == 0)
+                        DrawString("--------Queued Tasks--------");
                 }
 
                 column += 1;

@@ -5,6 +5,7 @@ using System;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI.StrategyAI.WarGoals;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.Empires.Components;
 using Ship_Game.GameScreens.DiplomacyScreen;
@@ -188,14 +189,21 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void PrepareForWar(WarType type)
+        public void PrepareForWar(WarType type, Empire us)
         {
-            PreparingForWar     = true;
+            if (Them.isPlayer && GlobalStats.RestrictAIPlayerInteraction)
+                return;
+
+            if (!PreparingForWar)
+                us.GetEmpireAI().AddGoal(new PrepareForWar(us, Them));
+
+            PreparingForWar = true;
             PreparingForWarType = type;
         }
 
         public void CancelPrepareForWar()
         {
+            // Note - prepare for war goal will exit by itself since it has check logic for this
             PreparingForWar = false;
         }
 
@@ -1360,7 +1368,7 @@ namespace Ship_Game.Gameplay
                 if (Anger_MilitaryConflict > 99)
                     us.GetEmpireAI().DeclareWarOn(them, WarType.ImperialistWar);
                 else
-                    PrepareForWar(WarType.DefensiveWar);
+                    PrepareForWar(WarType.DefensiveWar, us);
 
                 return;
             }
@@ -1368,7 +1376,7 @@ namespace Ship_Game.Gameplay
             if (Anger_TerritorialConflict + Anger_FromShipsInOurBorders >= us.data.DiplomaticPersonality.Territorialism
                 && !AtWar && !Treaty_OpenBorders && !Treaty_Peace && them.CurrentMilitaryStrength < us.OffensiveStrength)
             {
-                PrepareForWar(WarType.BorderConflict);
+                PrepareForWar(WarType.BorderConflict, us);
                 return;
             }
 
@@ -1739,7 +1747,7 @@ namespace Ship_Game.Gameplay
             };
 
            debug.AddLine(ActiveWar == null
-                ? $" ReadyForWar: {us.GetEmpireAI().ShouldGoToWar(this)}"
+                ? $" ReadyForWar: {us.ShouldGoToWar(this, Them)}"
                 : " At War", color);
 
             debug.AddLine($" WarType: {PreparingForWarType}", color);
