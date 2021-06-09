@@ -36,12 +36,55 @@ namespace UnitTests.Ships
             Universe.Objects.UpdateLists();
             int ableToLaunchCount = ship.Carrier.AllFighterHangars.Length;
             Assert.AreEqual(ableToLaunchCount, fightersOut.Length, "Not all fighter hangars launched");
-            ship.EngageStarDrive();
-            var fighters = Player.OwnedShips.Filter(f => f.IsHangarShip);
 
-            foreach (var fighter in fighters)
+            // recall fighters
+            ship.AI.OrderMoveTo(new Vector2(10000, 10000), Vectors.Up, true, AIState.AwaitingOrders);
+            while (ship.engineState == Ship.MoveState.Sublight) UpdateShipAndHangars(ship);
+            Assert.IsFalse(fightersOut.Any(f => f.Active));
+            ship.HyperspaceReturn();
+            ship.Update(TestSimStep);
+
+            ship.Carrier.ScrambleFighters();
+            Universe.Objects.UpdateLists();
+            fightersOut = Player.OwnedShips.Filter(s => s.IsHangarShip);
+
+            // recall in combat
+            Player.GetRelations(Enemy).AtWar = true;
+            var enemyShip = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", Enemy, Vector2.Zero);
+            ship.AI.OrderMoveTo(new Vector2(10000, 10000), Vectors.Up, true, AIState.AwaitingOrders);
+            var fighters = Player.OwnedShips.Filter(f => f.IsHangarShip);
+            while (ship.engineState == Ship.MoveState.Sublight) UpdateShipAndHangars(ship);
+            Assert.IsFalse(fighters.Any(f => f.Active));
+            ship.HyperspaceReturn();
+        }
+
+        void ResetShipAndFighters(Ship ship)
+        {
+            ship.AI.ClearOrders();
+            ship.Update(TestSimStep);
+
+            foreach (var hangar in ship.Carrier.AllFighterHangars)
             {
-                Assert.IsTrue(fighter.AI.State == AIState.ReturnToHangar);
+                if (hangar.TryGetHangarShipActive(out Ship fighter))
+                    fighter.AI.State = AIState.AwaitingOrders;
+            }
+        }
+
+        void CheckFighterAIState(Ship[] fighters, AIState state)
+        {
+            foreach (var fighter in Player.OwnedShips.Filter(f=> f.Mothership != null))
+            {
+                Assert.IsTrue(fighter.AI.State == state);
+            }
+        }
+
+        void UpdateShipAndHangars(Ship ship)
+        {
+            ship.Update(TestSimStep);
+            foreach (var hanger in ship.Carrier.AllFighterHangars)
+            {
+                hanger.TryGetHangarShip(out Ship fighter);
+                fighter?.Update(TestSimStep);
             }
         }
     }
