@@ -291,13 +291,10 @@ namespace Ship_Game
 
             ShowTacticalCloseup = input.TacticalIcons;
 
-            if (input.QuickSave)
+            if (input.QuickSave && !SavedGame.IsSaving)
             {
                 string saveName = $"Quicksave, {EmpireManager.Player.data.Traits.Name}, {StarDate.String()}";
-                RunOnEmpireThread(() =>
-                {
-                    var savedGame = new SavedGame(this, saveName);
-                });
+                RunOnEmpireThread(() => Save(saveName));
             }
 
             if (input.UseRealLights)

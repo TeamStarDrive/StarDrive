@@ -97,7 +97,6 @@ namespace Ship_Game
         public ParticleSystem flash;
         public ParticleSystem star_particles;
         public ParticleSystem neb_particles;
-        public StarField StarField;
         public Background3D bg3d;
         public bool GravityWells;
         public Empire PlayerEmpire;
@@ -545,9 +544,12 @@ namespace Ship_Game
 
             LoadParticles(content, device);
 
-            bg = new Background();
-            bg3d = new Background3D(this);
-            StarField = new StarField(this);
+            if (GlobalStats.DrawStarfield)
+            {
+                bg = new Background(this);
+            }
+            if (GlobalStats.DrawNebulas)
+                bg3d = new Background3D(this);
             
             CreateStarParticles();
 
@@ -607,7 +609,6 @@ namespace Ship_Game
             FTLManager.LoadContent(this);
             MuzzleFlashManager.LoadContent(content);
             ScreenRectangle = new Rectangle(0, 0, width, height);
-            StarField = new StarField(this);
 
             ShipsInCombat = ButtonMediumMenu(width - 275, height - 280, "Ships: 0");
             ShipsInCombat.DynamicText = () =>
@@ -762,12 +763,6 @@ namespace Ship_Game
             }
         }
 
-        void AutoSaveCurrentGame()
-        {
-            var savedGame = new SavedGame(this, "Autosave" + Auto);
-            if (++Auto > 3) Auto = 1;
-        }
-
         void ProjectPieMenu(Vector2 position, float z)
         {
             Vector3 proj = Viewport.Project(position.ToVec3(z), Projection, View, Matrix.Identity);
@@ -780,8 +775,8 @@ namespace Ship_Game
         {
             Log.Write(ConsoleColor.Cyan, "Universe.UnloadGraphics");
             bloomComponent?.Dispose(ref bloomComponent);
-            bg3d          ?.Dispose(ref bg3d);
-            StarField     ?.Dispose(ref StarField);
+            bg?.Dispose(ref bg);
+            bg3d?.Dispose(ref bg3d);
             FogMap      ?.Dispose(ref FogMap);
             FogMapTarget?.Dispose(ref FogMapTarget);
             BorderRT    ?.Dispose(ref BorderRT);
