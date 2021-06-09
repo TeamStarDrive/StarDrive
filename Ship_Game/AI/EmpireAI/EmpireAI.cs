@@ -16,13 +16,11 @@ namespace Ship_Game.AI
     public sealed partial class EmpireAI
     {
         private int NumberOfShipGoals  = 6;
-        private int NumberTroopGoals   = 2;
         public float BuildCapacity { get; private set; }
         public float AllianceBuildCapacity { get; private set; }
         public float TroopShuttleCapacity { get; private set; }
 
         private readonly Empire OwnerEmpire;
-        private readonly BatchRemovalCollection<SolarSystem> MarkedForExploration = new BatchRemovalCollection<SolarSystem>();
         public readonly OffensiveForcePoolManager OffensiveForcePoolManager;
 
         public string EmpireName;

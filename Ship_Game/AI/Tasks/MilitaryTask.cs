@@ -459,6 +459,11 @@ namespace Ship_Game.AI.Tasks
                     }
                 case TaskType.Exploration:
                     {
+                        if (!TargetPlanet.EventsOnTiles())
+                        {
+                            EndTask();
+                            break;
+                        }
                         if (Owner.GetEmpireAI().TroopShuttleCapacity > 0)
                             if (Step == 0)
                                 RequisitionExplorationForce();
