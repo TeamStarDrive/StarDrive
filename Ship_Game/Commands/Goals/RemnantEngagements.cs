@@ -38,7 +38,7 @@ namespace Ship_Game.Commands.Goals
             if (!Remnants.CanDoAnotherEngagement())
                 return;
 
-            if (!Remnants.FindValidTarget(portals.RandItem(), out Empire target))
+            if (!Remnants.FindValidTarget(out Empire target))
                 return;
 
             Remnants.Goals.Add(new RemnantEngageEmpire(empire, portals.RandItem(), target));
