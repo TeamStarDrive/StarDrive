@@ -29,14 +29,15 @@ namespace Ship_Game.Ships.Components
         // Classic chicken-egg paradox
         public void OnSpawn(Ship ship)
         {
-            LoyaltyChangeDueToSpawn(ship, CurrentLoyalty);
+            if (CurrentLoyalty != EmpireManager.Void)
+                LoyaltyChangeDueToSpawn(ship, CurrentLoyalty);
         }
-        
+
         // Loyalty change is ignored if loyalty == CurrentLoyalty
         public void SetLoyaltyForNewShip(Empire loyalty)
         {
-            if (loyalty == CurrentLoyalty)
-                return;
+            //if (loyalty == CurrentLoyalty)
+            //    return;
             ChangeTo = loyalty;
             ChangeType = Type.Spawn;
         }

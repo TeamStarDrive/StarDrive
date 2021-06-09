@@ -119,6 +119,7 @@
     <Compile Include="LinearAlgebra\TestMathExt.cs" />
     <Compile Include="Collections\TestSafeQueueT.cs" />
     <Compile Include="Serialization\TestSerialization.cs" />
+    <Compile Include="Universe\SaveLoadUniverseScreenTests.cs" />
     <Compile Include="Universe\SpatialVisualization.cs" />
     <Compile Include="Universe\TestManagedQuadTree.cs" />
     <Compile Include="TestThreadExt.cs" />
@@ -181,7 +182,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Ship_Game\AI\ShipAI\" />
     <Folder Include="Utils\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
