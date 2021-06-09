@@ -76,7 +76,6 @@ namespace Ship_Game.AI
                 Target = null;
             }
 
-            
             int count = Owner.Weapons.Count;
             Weapon[] weapons = Owner.Weapons.GetInternalArrayItems();
 
@@ -143,6 +142,7 @@ namespace Ship_Game.AI
                 var opt = new SearchOptions(sensorShip.Center, sensorShip.WeaponsMaxRange, GameObjectType.Proj)
                 {
                     MaxResults = 32,
+                    SortByDistance = true, // only care about closest results
                     ExcludeLoyalty = Owner.loyalty,
                     FilterFunction = (go) =>
                     {
