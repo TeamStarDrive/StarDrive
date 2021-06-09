@@ -120,6 +120,35 @@ namespace Ship_Game
             return true;
         }
 
+        public bool ShouldGoToWar(Relationship rel, Empire them)
+        {
+            if (them.data.Defeated || !rel.PreparingForWar || rel.AtWar)
+                return false;
+
+            var currentWarInformation = AllActiveWars.FilterSelect(w => !w.Them.isFaction,
+                                          w => GetRelations(w.Them).KnownInformation);
+
+            float currentEnemyStr    = currentWarInformation.Sum(i => i.OffensiveStrength);
+            float currentEnemyBuild  = currentWarInformation.Sum(i => i.EconomicStrength);
+            float ourCurrentStrength = AIManagedShips.EmpireReadyFleets.AccumulatedStrength;
+            float theirKnownStrength = rel.KnownInformation.AllianceTotalStrength.LowerBound(15000) + currentEnemyStr;
+            float theirBuildCapacity = rel.KnownInformation.AllianceEconomicStrength.LowerBound(10) + currentEnemyBuild;
+            float ourBuildCapacity   = GetEmpireAI().BuildCapacity;
+
+            var array = EmpireManager.GetAllies(this);
+            for (int i = 0; i < array.Count; i++)
+            {
+                var ally = array[i];
+                ourBuildCapacity   += ally.GetEmpireAI().BuildCapacity;
+                ourCurrentStrength += ally.OffensiveStrength;
+            }
+
+            bool weAreStronger = ourCurrentStrength > theirKnownStrength * PersonalityModifiers.GoToWarTolerance
+                                 && ourBuildCapacity > theirBuildCapacity * PersonalityModifiers.GoToWarTolerance;
+
+            return weAreStronger;
+        }
+
         bool IsAlreadyStriking()
         {
             return EmpireAI.GetTasks().Any(t => t.type == MilitaryTask.TaskType.StrikeForce);
