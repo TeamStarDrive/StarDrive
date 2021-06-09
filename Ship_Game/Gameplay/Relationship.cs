@@ -191,13 +191,14 @@ namespace Ship_Game.Gameplay
 
         public void PrepareForWar(WarType type, Empire us)
         {
+            if (PreparingForWar)
+                return;
+
             if (Them.isPlayer && GlobalStats.RestrictAIPlayerInteraction)
                 return;
 
-            if (!PreparingForWar)
-                us.GetEmpireAI().AddGoal(new PrepareForWar(us, Them));
-
-            PreparingForWar = true;
+            us.GetEmpireAI().AddGoal(new PrepareForWar(us, Them));
+            PreparingForWar     = true;
             PreparingForWarType = type;
         }
 

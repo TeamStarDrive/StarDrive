@@ -168,10 +168,7 @@ namespace Ship_Game.AI
                 }
 
                 if (closest.CurrentMilitaryStrength * 2f < OwnerEmpire.OffensiveStrength)
-                {
-                    usToThem.PreparingForWar     = true;
-                    usToThem.PreparingForWarType = WarType.GenocidalWar;
-                }
+                    usToThem.PrepareForWar(WarType.GenocidalWar, OwnerEmpire);
             }
         }
 
