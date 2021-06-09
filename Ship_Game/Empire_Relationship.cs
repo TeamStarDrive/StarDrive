@@ -279,6 +279,15 @@ namespace Ship_Game
                    || (otherEmpire?.isFaction == true && !IsNAPactWith(otherEmpire));
         }
 
+        public bool IsPreparingForWarWith(Empire otherEmpire)
+        {
+            if (this == otherEmpire)
+                return false;
+
+            Relationship rel = GetRelations(otherEmpire);
+            return !rel.AtWar && rel.PreparingForWar;
+        }
+
         public bool IsAtWar => AllActiveWars.Length > 0;
 
         public bool IsAtWarWithMajorEmpire => AllActiveWars.Any(w => !w.Them.isFaction);
@@ -453,7 +462,7 @@ namespace Ship_Game
                         rel.Trust -= 150 * multiplier;
                         rel.AddAngerDiplomaticConflict(75 * multiplier);
                         BreakAllianceWith(them);
-                        rel.PrepareForWar(WarType.ImperialistWar);
+                        rel.PrepareForWar(WarType.ImperialistWar, this);
                         if (IsAtWarWith(empireTheySignedWith))
                             GetRelations(empireTheySignedWith).RequestPeaceNow(this);
 
@@ -467,7 +476,7 @@ namespace Ship_Game
                     case PersonalityType.Cunning:
                         rel.AddAngerDiplomaticConflict(20 * multiplier);
                         rel.Trust -= 50 * multiplier;
-                        rel.PrepareForWar(WarType.ImperialistWar);
+                        rel.PrepareForWar(WarType.ImperialistWar, this);
                         if (treatySigned && IsAtWarWith(empireTheySignedWith))
                             SignPeaceWithEmpireTheySignedWith();
 
@@ -549,16 +558,6 @@ namespace Ship_Game
         void AddToDiplomacyContactView(Empire empire, string dialog)
         {
             DiplomacyContactQueue.Add(new KeyValuePair<int, string>(empire.Id, dialog));
-        }
-
-        /// <summary>
-        /// Removes preparing for war from all relations.
-        /// Used to focus Ai on a single war preparations
-        /// </summary>
-        public void ResetPreparingForWar()
-        {
-            foreach (OurRelationsToThem rel in ActiveRelations)
-                rel.Rel.CancelPrepareForWar();
         }
 
         public float ColonizationDetectionChance(Relationship usToThem, Empire them)

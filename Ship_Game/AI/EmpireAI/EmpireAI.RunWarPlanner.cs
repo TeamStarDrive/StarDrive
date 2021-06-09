@@ -11,7 +11,6 @@ namespace Ship_Game.AI
     {
         public float MinWarPriority { get; private set; }
         public WarTasks WarTasks { get; private set; }
-        private bool SkipFirstRun = true;
 
         public static void ShowWarDeclaredNotification(Empire us, Empire them)
         {
@@ -59,7 +58,7 @@ namespace Ship_Game.AI
                         offer.RejectDL = "HelpUS_War_No_BreakAlliance";
                         OwnerEmpire.BreakAllianceWith(ally);
                         if (!OwnerEmpire.IsPacifist && !OwnerEmpire.IsCunning)
-                            ourRelationToAlly.PrepareForWar(WarType.ImperialistWar);
+                            ourRelationToAlly.PrepareForWar(WarType.ImperialistWar, OwnerEmpire);
                     }
                 })
             };
@@ -277,108 +276,18 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (SkipFirstRun) // Hack - skipping first run to prevent insta war dec when loading a save. 
-            {
-                SkipFirstRun = false;
-                return;
-            }
-
             UpdateEmpireDefense();
-
+            foreach ((Empire other, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                foreach ((Empire other, Relationship rel) in OwnerEmpire.AllRelations)
+                if (other.data.Defeated && rel.ActiveWar != null)
                 {
-                    if (other.data.Defeated && rel.ActiveWar != null)
-                    {
-                        rel.AtWar = false;
-                        rel.CancelPrepareForWar();
-                        rel.ActiveWar.EndStarDate = Empire.Universe.StarDate;
-                        rel.WarHistory.Add(rel.ActiveWar);
-                        rel.Posture = Posture.Neutral;
-                    }
-                }
-
-                MinWarPriority = 11; // todo remove
-
-                // todo move to method and also go real prepare for war.
-                // start a new war by military strength
-                if (!OwnerEmpire.IsAtWarWithMajorEmpire || OwnerEmpire.GetAverageWarGrade() > 7)
-                {
-                    foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations.SortedDescending(r=> r.Rel.TotalAnger))
-                    {
-                        if (them.isPlayer && GlobalStats.RestrictAIPlayerInteraction)
-                            continue;
-                        
-                        if (!ShouldGoToWar(rel)) 
-                            continue;
-
-                        // all out war
-                        if (rel.PreparingForWarType == WarType.ImperialistWar || rel.PreparingForWarType == WarType.GenocidalWar)
-                        {
-                            DeclareWarOn(them, rel.PreparingForWarType);
-                            break;
-                        }
-                        // We have border planets
-
-                        if (rel.PreparingForWarType == WarType.BorderConflict)
-                        {
-                            bool ourBorderSystems = OwnerEmpire.GetOurBorderSystemsTo(OwnerEmpire, true).NotEmpty;
-                            ourBorderSystems |= OwnerEmpire.GetOwnedSystems().Any(s => s.OwnerList.Contains(them));
-                            if (ourBorderSystems)
-                            {
-                                DeclareWarOn(them, rel.PreparingForWarType);
-                            }
-                            break;
-                        }
-                        // we have planets in their AO. Skirmish War.
-                        if (rel.PreparingForWarType != WarType.DefensiveWar)
-                        {
-                            bool stronger = OwnerEmpire.CurrentMilitaryStrength > rel.KnownInformation.OffensiveStrength.LowerBound(500);
-                            if (stronger)
-                            {
-                                DeclareWarOn(them, rel.PreparingForWarType);
-                            }
-                            break;
-                        }
-                        
-                        // We share a solar system
-                        if (OwnerEmpire.GetOwnedSystems().Any(s => s.OwnerList.Contains(them)))
-                        {
-                            DeclareWarOn(them, rel.PreparingForWarType);
-                            break;
-                        }
-                    }
+                    rel.AtWar = false;
+                    rel.CancelPrepareForWar();
+                    rel.ActiveWar.EndStarDate = Empire.Universe.StarDate;
+                    rel.WarHistory.Add(rel.ActiveWar);
+                    rel.Posture = Posture.Neutral;
                 }
             }
-        }
-
-        public bool ShouldGoToWar(Relationship rel)
-        {
-            if (rel.Them.data.Defeated || !rel.PreparingForWar || rel.AtWar) 
-                return false;
-            
-            var currentWarInformation = OwnerEmpire.AllActiveWars.FilterSelect(w => !w.Them.isFaction,
-                                          w => OwnerEmpire.GetRelations(w.Them).KnownInformation);
-
-            float currentEnemyStr    = currentWarInformation.Sum(i => i.OffensiveStrength);
-            float currentEnemyBuild  = currentWarInformation.Sum(i => i.EconomicStrength);
-            float ourCurrentStrength = OwnerEmpire.AIManagedShips.EmpireReadyFleets.AccumulatedStrength;
-            float theirKnownStrength = rel.KnownInformation.AllianceTotalStrength.LowerBound(15000) + currentEnemyStr;
-            float theirBuildCapacity = rel.KnownInformation.AllianceEconomicStrength.LowerBound(10) + currentEnemyBuild;
-            float ourBuildCapacity   = OwnerEmpire.GetEmpireAI().BuildCapacity;
-
-            var array = EmpireManager.GetAllies(OwnerEmpire);
-            for (int i = 0; i < array.Count; i++)
-            {
-                var ally = array[i];
-                ourBuildCapacity += ally.GetEmpireAI().BuildCapacity;
-                ourCurrentStrength += ally.OffensiveStrength;
-            }
-
-            bool weAreStronger = ourCurrentStrength > theirKnownStrength * OwnerEmpire.PersonalityModifiers.GoToWarTolerance 
-                                 && ourBuildCapacity > theirBuildCapacity * OwnerEmpire.PersonalityModifiers.GoToWarTolerance;
-
-            return weAreStronger;
         }
     }
 }
