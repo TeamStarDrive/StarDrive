@@ -1059,8 +1059,6 @@ namespace Ship_Game.Ships
 
             Rotation = Rotation.AsNormalizedRadians();
 
-            //UpdateModulePositions(deltaTime);
-
             if (!EMPdisabled && hasCommand)
             {
                 for (int i = 0; i < Weapons.Count; i++)
@@ -1569,7 +1567,7 @@ namespace Ship_Game.Ships
         {
             AI?.Reset();
             var carrier = Mothership?.Carrier;
-            if (IsHangarShip && carrier != null)
+            if (IsHangarShip && carrier?.AllActiveHangars != null)
             {
                 foreach (ShipModule shipModule in carrier.AllActiveHangars)
                     if (shipModule.TryGetHangarShip(out Ship ship) && ship == this)

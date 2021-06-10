@@ -38,6 +38,17 @@ namespace Ship_Game.Ships
                                             || Owner.DesignRoleType == ShipData.RoleType.Orbital);
 
         public AssaultShipCombat TroopTactics;
+        public const int RecallMoveDistance = 25000;
+        public Array<Ship> GetActiveFighters()
+        {
+            Array<Ship> fighters = new Array<Ship>();
+            foreach (var hangar in AllFighterHangars)
+            {
+                if (hangar.TryGetHangarShipActive(out Ship fighter))
+                    fighters.Add(fighter);
+            }
+            return fighters;
+        }
 
         CarrierBays(Ship owner, ShipModule[] slots)
         {
@@ -416,7 +427,7 @@ namespace Ship_Game.Ships
             if (Owner == null || !RecallFightersBeforeFTL || !HasActiveHangars)
                 return false;
 
-            Vector2 moveTo = Owner.AI.OrderQueue.PeekFirst?.MovePosition ?? Vector2.Zero; ;
+            Vector2 moveTo = Owner.AI.OrderQueue.PeekFirst?.MovePosition ?? Vector2.Zero;
             if (moveTo == Vector2.Zero)
                 return false;
 
@@ -425,7 +436,7 @@ namespace Ship_Game.Ships
             float slowestFighterSpeed = 3000;
 
             RecallingShipsBeforeWarp = true;
-            if (jumpDistance > 25000f) // allows the carrier to jump small distances and then recall fighters
+            if (jumpDistance > RecallMoveDistance) // allows the carrier to jump small distances and then recall fighters
             {
                 recallFighters = true;
                 foreach (ShipModule hangar in AllActiveHangars)
