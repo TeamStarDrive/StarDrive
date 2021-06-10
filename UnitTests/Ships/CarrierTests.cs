@@ -38,7 +38,12 @@ namespace UnitTests.Ships
             ship.AI.OrderMoveTo(movePos, Vectors.Up, true, AIState.AwaitingOrders);
             LaunchFighters(ship);
             TestMoveRecall(ship, movePos);
-            
+
+            // dont recall
+            ship.AI.OrderMoveTo(new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
+            LaunchFighters(ship);
+            TestMoveRecall(ship, new Vector2(10000));
+
             // recall in combat
             ResetTest(ship);
             Player.GetRelations(Enemy).AtWar = true;
@@ -129,7 +134,8 @@ namespace UnitTests.Ships
         {
             ship.Carrier.PrepShipHangars(Player);
             ship.Carrier.ScrambleFighters();
-            Universe.Objects.UpdateLists();
+            var clear = Parallel.Run(() => Universe.Objects.UpdateLists());
+            clear.Wait();
             var fighters = Player.OwnedShips.Filter(s => s.IsHangarShip);
             int ableToLaunchCount = ship.Carrier.AllFighterHangars.Length;
             Assert.AreEqual(ableToLaunchCount, fighters.Length, "BUG: Not all fighter hangars launched");
@@ -185,11 +191,13 @@ namespace UnitTests.Ships
                 Player.FirstFleet?.AveragePosition(true);
                 Player.FirstFleet?.SetSpeed();
             }
+
             if (startDistance > CarrierBays.RecallMoveDistance)
                 Assert.AreEqual(0, fighters.Count(f => f.Active), "BUG: All fighters should be inactive");
-            else
+            else 
                 Assert.AreEqual(18, fighters.Count(f => f.Active), "BUG: All fighters should be active");
-            if (movingShip.fleet != null)
+
+            if (movingShip.fleet == null)
                 Assert.IsTrue(wentToWarp, "Unknown Error: moving ship did not enter warp");
         }
     }
