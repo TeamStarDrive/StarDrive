@@ -173,7 +173,7 @@ namespace Ship_Game.Debug.Page
 
             foreach (var task in tasks)
             {
-                column.AddLine($"{task.type} - {task.MinimumTaskForceStrength}  -  Ending: {task.QueuedForRemoval}");
+                column.AddLine($"{task.Type} - {task.MinimumTaskForceStrength}  -  Ending: {task.QueuedForRemoval}");
             }
 
             column.AddLine($"---------");

@@ -16,14 +16,14 @@ namespace Ship_Game.AI.Tasks
         [Serialize(1)] public Guid GoalGuid;
         [Serialize(2)] public bool NeedEvaluation = true;
         [Serialize(3)] public Guid TargetPlanetGuid = Guid.Empty;
-        [Serialize(4)] public TaskType type;
+        [Serialize(4)] public TaskType Type;
         [Serialize(5)] public Vector2 AO;
         [Serialize(6)] public float AORadius;
         [Serialize(7)] public float EnemyStrength;
         [Serialize(8)] public float MinimumTaskForceStrength;
         [Serialize(9)] public int WhichFleet = -1;
         [Serialize(10)] public int NeededTroopStrength;
-        [Serialize(11)] public int Priority;
+        [Serialize(11)] public int Priority = 5;
         [Serialize(12)] public int TaskBombTimeNeeded;
         [Serialize(13)] public Guid TargetShipGuid = Guid.Empty;
         [Serialize(14)] public Guid TaskGuid = Guid.NewGuid();
@@ -66,7 +66,7 @@ namespace Ship_Game.AI.Tasks
 
         public bool IsDefendingSystem(SolarSystem system)
         {
-            if (type != TaskType.ClearAreaOfEnemies) return false;
+            if (Type != TaskType.ClearAreaOfEnemies) return false;
             return IsTaskAOInSystem(system);
         }
 
@@ -92,14 +92,10 @@ namespace Ship_Game.AI.Tasks
             {
                 TargetPlanet             = targetPlanet,
                 AO                       = targetPlanet.Center,
-                type                     = TaskType.DefendClaim,
+                Type                     = TaskType.DefendClaim,
                 AORadius                 = targetPlanet.ParentSystem.Radius,
                 MinimumTaskForceStrength = minStrength,
                 Owner                    = owner,
-                // need to adjust this by personality.
-                // this task will increase in priority as time goes by. 
-                // this will generally only have an effect during war. 
-                Priority                 = 5,
                 TargetEmpire             = dominant
             };
 
@@ -113,8 +109,7 @@ namespace Ship_Game.AI.Tasks
             {
                 AO               = targetPlanet.Center,
                 AORadius         = 50000f,
-                type             = TaskType.Exploration,
-                Priority         = 5,
+                Type             = TaskType.Exploration,
                 Owner            = owner,
                 TargetPlanet     = targetPlanet,
                 TargetPlanetGuid = targetPlanet.guid,
@@ -130,7 +125,7 @@ namespace Ship_Game.AI.Tasks
             {
                 TargetPlanet             = targetPlanet,
                 AO                       = targetPlanet.Center,
-                type                     = TaskType.GuardBeforeColonize,
+                Type                     = TaskType.GuardBeforeColonize,
                 AORadius                 = targetPlanet.ParentSystem.Radius,
                 MinimumTaskForceStrength = (owner.CurrentMilitaryStrength / 1000).LowerBound(50),
                 Owner                    = owner,
@@ -144,13 +139,12 @@ namespace Ship_Game.AI.Tasks
         {
             var militaryTask = new MilitaryTask
             {
-                TargetPlanet = targetPlanet,
-                AO           = targetPlanet.Center,
-                type         = TaskType.AssaultPlanet,
-                AORadius     = targetPlanet.ParentSystem.Radius,
-                Owner        = owner,
-                WhichFleet   = fleetId,
-                Priority     = 5,
+                TargetPlanet   = targetPlanet,
+                AO             = targetPlanet.Center,
+                Type           = TaskType.AssaultPlanet,
+                AORadius       = targetPlanet.ParentSystem.Radius,
+                Owner          = owner,
+                WhichFleet     = fleetId,
                 NeedEvaluation = false // We have ships
             };
 
@@ -165,7 +159,7 @@ namespace Ship_Game.AI.Tasks
             {
                 TargetShip               = targetShip,
                 AO                       = targetShip.Center,
-                type                     = TaskType.AssaultPirateBase,
+                Type                     = TaskType.AssaultPirateBase,
                 AORadius                 = 20000,
                 Owner                    = empire,
                 EnemyStrength            = targetShip.BaseStrength,
@@ -180,12 +174,13 @@ namespace Ship_Game.AI.Tasks
         {
             var militaryTask = new MilitaryTask
             {
-                AO           = planet.Center,
-                AORadius     = 10000f,
-                WhichFleet   = fleetId,
-                TargetPlanet = planet,
-                Owner        = owner,
-                type         = TaskType.DefendPostInvasion
+                AO             = planet.Center,
+                AORadius       = 10000f,
+                WhichFleet     = fleetId,
+                TargetPlanet   = planet,
+                Owner          = owner,
+                Type           = TaskType.DefendPostInvasion,
+                NeedEvaluation = false
             };
 
             return militaryTask;
@@ -201,7 +196,7 @@ namespace Ship_Game.AI.Tasks
             };
 
             militaryTask.SetEmpire(owner);
-            militaryTask.type = TaskType.RemnantEngagement;
+            militaryTask.Type = TaskType.RemnantEngagement;
             return militaryTask;
         }
 
@@ -217,7 +212,7 @@ namespace Ship_Game.AI.Tasks
                 EnemyStrength            = str,
                 Priority                 = 0,
                 Owner                    = owner,
-                type                     = TaskType.DefendVsRemnants,
+                Type                     = TaskType.DefendVsRemnants,
                 TargetEmpire             = EmpireManager.Remnants,
             };
 
@@ -230,7 +225,7 @@ namespace Ship_Game.AI.Tasks
 
             AO                       = center;
             AORadius                 = radius;
-            type                     = taskType;
+            Type                     = taskType;
             MinimumTaskForceStrength = strengthWanted.LowerBound(500) * owner.GetFleetStrEmpireMultiplier(dominant);
             EnemyStrength            = MinimumTaskForceStrength;
             TargetSystem             = system;
@@ -246,7 +241,7 @@ namespace Ship_Game.AI.Tasks
             float strWanted  = GetKnownEnemyStrInClosestSystems(target.ParentSystem, owner, target.Owner)
                                + target.BuildingGeodeticOffense;
 
-            type                     = TaskType.AssaultPlanet;
+            Type                     = TaskType.AssaultPlanet;
             TargetPlanet             = target;
             TargetPlanetGuid         = target.guid;
             AO                       = target.Center;
@@ -289,7 +284,7 @@ namespace Ship_Game.AI.Tasks
             AO = position;
         }
 
-        public override string ToString() => $"{type} {TargetPlanet} Priority {Priority}";
+        public override string ToString() => $"{Type} {TargetPlanet} Priority {Priority}";
 
         public void EndTask()
         {
@@ -338,7 +333,7 @@ namespace Ship_Game.AI.Tasks
             if (!FleetNeededForNextTask)
                 DisbandFleet(Fleet);
 
-            if (type == TaskType.Exploration && TargetPlanet != null)
+            if (Type == TaskType.Exploration && TargetPlanet != null)
                 RemoveTaskTroopsFromPlanet();
         }
 
@@ -386,7 +381,7 @@ namespace Ship_Game.AI.Tasks
         bool RoomForMoreFleets()
         {
             float divisor = 0;
-            if (type == TaskType.ClearAreaOfEnemies)
+            if (Type == TaskType.ClearAreaOfEnemies)
                 divisor = 1;
             else if (GetTaskCategory() == TaskCategory.War)
                 divisor = 5;
@@ -407,7 +402,7 @@ namespace Ship_Game.AI.Tasks
                 {
                     if (fleet?.IsCoreFleet != true)
                     {
-                        Log.Warning($"MilitaryTask Evaluate found task with missing fleet {type}");
+                        Log.Warning($"MilitaryTask Evaluate found task with missing fleet {Type}");
                         EndTask();
                         return false;
                     }
@@ -417,11 +412,11 @@ namespace Ship_Game.AI.Tasks
             if (!NeedEvaluation)
                 return false;
 
-            switch (type)
+            switch (Type)
             {
                 case TaskType.StrikeForce:
                 case TaskType.StageFleet:          RequisitionAssaultForces(strike: true);                 break;
-                case TaskType.AssaultPlanet:       RequisitionAssaultForces(type == TaskType.StrikeForce); break;
+                case TaskType.AssaultPlanet:       RequisitionAssaultForces(Type == TaskType.StrikeForce); break;
                 case TaskType.GuardBeforeColonize: RequisitionGuardBeforeColonize();                       break;
                 case TaskType.AssaultPirateBase:   RequisitionAssaultPirateBase();                         break;
                 case TaskType.DefendVsRemnants:    RequisitionDefendVsRemnants();                          break;
@@ -463,7 +458,7 @@ namespace Ship_Game.AI.Tasks
                     Owner.GetFleetsDict()[WhichFleet].Reset();
                 }
 
-                if (type == TaskType.Exploration)
+                if (Type == TaskType.Exploration)
                 {
                     Array<Troop> toLaunch = new Array<Troop>();
                     foreach (Troop t in TargetPlanet.TroopsHere)
@@ -552,7 +547,7 @@ namespace Ship_Game.AI.Tasks
             else if (WarCampaign != null)
                 taskCat |= TaskCategory.War;
 
-            switch (type)
+            switch (Type)
             {
                 case TaskType.StrikeForce:
                 case TaskType.AssaultPlanet:
@@ -637,7 +632,7 @@ namespace Ship_Game.AI.Tasks
             Color color   = TargetEmpire?.EmpireColor ?? Owner.EmpireColor;
             string fleet  = Fleet != null ? $"Fleet Step: {Fleet.TaskStep}" : "No Fleet yet";
             string target = TargetPlanet?.Name ?? "";
-            debug.AddLine($"({Priority}) -- {type}, {target}, {fleet}", color);
+            debug.AddLine($"({Priority}) -- {Type}, {target}, {fleet}", color);
             debug.AddLine($" Str Needed: ({MinimumTaskForceStrength})", color);
         }
     }

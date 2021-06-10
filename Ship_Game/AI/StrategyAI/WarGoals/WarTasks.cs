@@ -90,7 +90,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     CreateTask(new MilitaryTask(planet, Owner)
                     {
                         Priority    = priority,
-                        type        = MilitaryTask.TaskType.StrikeForce,
+                        Type        = MilitaryTask.TaskType.StrikeForce,
                         WarCampaign = campaign
                     });
                 }
@@ -100,7 +100,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     var task = new MilitaryTask(planet, Owner)
                     {
                         Priority    = priority + 1,
-                        type        = MilitaryTask.TaskType.GlassPlanet,
+                        Type        = MilitaryTask.TaskType.GlassPlanet,
                         WarCampaign = campaign
                     };
                     CreateTask(task);
@@ -110,24 +110,24 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public bool IsAlreadyAssaultingSystem(SolarSystem system)
         {
-            bool assaults     = NewTasks.Any(t => t.type == MilitaryTask.TaskType.AssaultPlanet && t.TargetPlanet.ParentSystem == system);
+            bool assaults     = NewTasks.Any(t => t.Type == MilitaryTask.TaskType.AssaultPlanet && t.TargetPlanet.ParentSystem == system);
             return  assaults;// || Owner.GetEmpireAI().IsAssaultingSystem(system, OwnerCampaign);
         }
 
         bool IsAlreadyAssaultingPlanet(Planet planetToAssault)
         {
-            bool assaults    = NewTasks.Any(t => t.type == MilitaryTask.TaskType.AssaultPlanet && t.TargetPlanet == planetToAssault);
+            bool assaults    = NewTasks.Any(t => t.Type == MilitaryTask.TaskType.AssaultPlanet && t.TargetPlanet == planetToAssault);
             return assaults;// || Owner.GetEmpireAI().IsAssaultingPlanet(planetToAssault, OwnerCampaign);
         }
 
         bool IsAlreadyStriking()
         {
-            return  NewTasks.Any(t => t.type == MilitaryTask.TaskType.StrikeForce);
+            return  NewTasks.Any(t => t.Type == MilitaryTask.TaskType.StrikeForce);
         }
 
         bool IsAlreadyGlassingPlanet(Planet planetToAssault)
         {
-            bool assaults    = NewTasks.Any(t => t.type == MilitaryTask.TaskType.GlassPlanet && t.TargetPlanet == planetToAssault);
+            bool assaults    = NewTasks.Any(t => t.Type == MilitaryTask.TaskType.GlassPlanet && t.TargetPlanet == planetToAssault);
             return assaults;// || Owner.GetEmpireAI().IsGlassingPlanet(planetToAssault, OwnerCampaign);
         }
 
@@ -139,7 +139,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         bool IsAlreadyClearingArea(Vector2 center, float radius)
         {
-            bool clearing    = NewTasks.Any(t => t.type == MilitaryTask.TaskType.ClearAreaOfEnemies && t.AO.InRadius(center, radius));
+            bool clearing    = NewTasks.Any(t => t.Type == MilitaryTask.TaskType.ClearAreaOfEnemies && t.AO.InRadius(center, radius));
             return clearing;
         }
 

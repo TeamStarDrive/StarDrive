@@ -601,7 +601,7 @@ namespace Ship_Game.Fleets
 
             TaskCombatStatus = FleetInAreaInCombat(FleetTask.AO, FleetTask.AORadius);
 
-            switch (FleetTask.type)
+            switch (FleetTask.Type)
             {
                 case MilitaryTask.TaskType.StrikeForce:
                 case MilitaryTask.TaskType.AssaultPlanet:              DoAssaultPlanet(FleetTask);              break;
@@ -765,8 +765,7 @@ namespace Ship_Game.Fleets
             fleet.TaskStep  = 2;
             var strikeFleet = new MilitaryTask(task.TargetPlanet, owner)
             {
-                Priority = 5,
-                type     = MilitaryTask.TaskType.StrikeForce,
+                Type     = MilitaryTask.TaskType.StrikeForce,
                 GoalGuid = goal.guid,
                 Goal     = goal
             };
@@ -971,7 +970,7 @@ namespace Ship_Game.Fleets
             if (newTarget != null)
                 return true;
 
-            newTarget =  task.type == MilitaryTask.TaskType.StrikeForce 
+            newTarget =  task.Type == MilitaryTask.TaskType.StrikeForce 
                 ? TryGetNewTargetPlanetStrike(currentSystem, task.TargetEmpire) 
                 : TryGetNewTargetPlanetInvasion(currentSystem);
 
@@ -1845,7 +1844,7 @@ namespace Ship_Game.Fleets
         }
 
         void DebugInfo(MilitaryTask task, string text)
-            => Empire.Universe?.DebugWin?.DebugLogText($"{task.type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
+            => Empire.Universe?.DebugWin?.DebugLogText($"{task.Type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
 
         // @return TRUE if we can take this fight, potentially, maybe...
         public bool CanTakeThisFight(float enemyFleetStrength, MilitaryTask task, bool debug = false)

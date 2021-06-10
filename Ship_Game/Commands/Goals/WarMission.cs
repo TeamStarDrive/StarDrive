@@ -83,7 +83,7 @@ namespace Ship_Game.Commands.Goals
             if (LifeTime > 1 && task.Fleet == null) // check for timeout
             {
                 task.EndTask();
-                Log.Info(ConsoleColor.Green, $"---- WarMission: Timed out {task.type} vs. {TargetEmpire.Name} ----");
+                Log.Info(ConsoleColor.Green, $"---- WarMission: Timed out {task.Type} vs. {TargetEmpire.Name} ----");
                 return GoalStep.GoalFailed;
             }
 
