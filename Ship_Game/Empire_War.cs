@@ -71,8 +71,7 @@ namespace Ship_Game
         {
             MilitaryTask task = new MilitaryTask(targetPlanet, this)
             {
-                Priority = 5,
-                type     = MilitaryTask.TaskType.StageFleet,
+                Type     = MilitaryTask.TaskType.StageFleet,
             };
 
             EmpireAI.AddPendingTask(task);
@@ -99,8 +98,7 @@ namespace Ship_Game
 
             MilitaryTask task = new MilitaryTask(targetPlanet, this)
             {
-                Priority = 5,
-                type     = taskType,
+                Type     = taskType,
                 GoalGuid = goal.guid,
                 Goal     = goal
             };
@@ -151,12 +149,12 @@ namespace Ship_Game
 
         bool IsAlreadyStriking()
         {
-            return EmpireAI.GetTasks().Any(t => t.type == MilitaryTask.TaskType.StrikeForce);
+            return EmpireAI.GetTasks().Any(t => t.Type == MilitaryTask.TaskType.StrikeForce);
         }
 
         bool IsAlreadyGlassingPlanet(Planet planet)
         {
-            return EmpireAI.GetTasks().Any(t => t.type == MilitaryTask.TaskType.GlassPlanet && t.TargetPlanet == planet);
+            return EmpireAI.GetTasks().Any(t => t.Type == MilitaryTask.TaskType.GlassPlanet && t.TargetPlanet == planet);
         }
 
         public bool CanAddAnotherWarGoal(Empire enemy)

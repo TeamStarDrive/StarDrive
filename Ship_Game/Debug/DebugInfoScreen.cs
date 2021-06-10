@@ -397,7 +397,7 @@ namespace Ship_Game.Debug
 
                 if (fleet.FleetTask != null)
                 {
-                    DrawString(fleet.FleetTask.type.ToString());
+                    DrawString(fleet.FleetTask.Type.ToString());
 
                     if (fleet.FleetTask.TargetPlanet != null)
                         DrawString(fleet.FleetTask.TargetPlanet.Name);
@@ -758,7 +758,7 @@ namespace Ship_Game.Debug
                     string fleet      = task.Fleet != null ? $"Fleet Step: {task.Fleet.TaskStep}" : "No Fleet";
                     string target     = task.TargetPlanet?.Name ?? task.TargetSystem?.Name ?? "";
 
-                    DrawString(color, $"({task.Priority}) {task.type}, {target}, str: {(int)task.MinimumTaskForceStrength}, {fleet}");
+                    DrawString(color, $"({task.Priority}) {task.Type}, {target}, str: {(int)task.MinimumTaskForceStrength}, {fleet}");
                     if (task.NeedEvaluation)
                         taskEvalCounter =+ 1;
 
@@ -1017,7 +1017,7 @@ namespace Ship_Game.Debug
 
                     NewLine();
                     var planet =task.TargetPlanet?.Name ?? "";
-                    DrawString($"FleetTask: {task.type} {sysName} {planet}");
+                    DrawString($"FleetTask: {task.Type} {sysName} {planet}");
                     DrawString(15f, $"Priority:{task.Priority}");
                     float ourStrength = task.Fleet?.GetStrength() ?? task.MinimumTaskForceStrength;
                     string strMultiplier = $" (x{e.GetFleetStrEmpireMultiplier(task.TargetEmpire).String(1)})";
