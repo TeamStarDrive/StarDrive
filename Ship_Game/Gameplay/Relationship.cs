@@ -1374,7 +1374,8 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            if (Anger_TerritorialConflict + Anger_FromShipsInOurBorders >= us.data.DiplomaticPersonality.Territorialism
+            if (!PreparingForWar
+                && Anger_TerritorialConflict + Anger_FromShipsInOurBorders >= us.data.DiplomaticPersonality.Territorialism
                 && !AtWar && !Treaty_OpenBorders && !Treaty_Peace && them.CurrentMilitaryStrength < us.OffensiveStrength)
             {
                 PrepareForWar(WarType.BorderConflict, us);
