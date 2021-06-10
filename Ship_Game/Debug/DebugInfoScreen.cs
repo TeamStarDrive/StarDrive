@@ -746,7 +746,8 @@ namespace Ship_Game.Debug
                 DrawString($"Average War Grade: {e.GetAverageWarGrade()}");
                 DrawString("----------------------------");
 
-                int queueThreshold = e.IsAtWarWithMajorEmpire ? (int)e.GetAverageWarGrade().LowerBound(3) : 10;
+                int taskEvalLimit   = e.IsAtWarWithMajorEmpire ? (int)e.GetAverageWarGrade().LowerBound(3) : 10;
+                int taskEvalCounter = 0;
                 var tasks = e.GetEmpireAI().GetTasks().Filter(t => !t.QueuedForRemoval).OrderByDescending(t => t.Priority)
                                                                 .ThenByDescending(t => t.MinimumTaskForceStrength).ToArray();
 
@@ -758,7 +759,10 @@ namespace Ship_Game.Debug
                     string target     = task.TargetPlanet?.Name ?? task.TargetSystem?.Name ?? "";
 
                     DrawString(color, $"({task.Priority}) {task.type}, {target}, str: {(int)task.MinimumTaskForceStrength}, {fleet}");
-                    if (--queueThreshold == 0)
+                    if (task.NeedEvaluation)
+                        taskEvalCounter =+ 1;
+
+                    if (taskEvalCounter == taskEvalLimit)
                         DrawString("--------Queued Tasks--------");
                 }
 
@@ -1014,7 +1018,7 @@ namespace Ship_Game.Debug
                     NewLine();
                     var planet =task.TargetPlanet?.Name ?? "";
                     DrawString($"FleetTask: {task.type} {sysName} {planet}");
-                    DrawString(15f, $"Step:  {task.Step} - Priority:{task.Priority}");
+                    DrawString(15f, $"Priority:{task.Priority}");
                     float ourStrength = task.Fleet?.GetStrength() ?? task.MinimumTaskForceStrength;
                     string strMultiplier = $" (x{e.GetFleetStrEmpireMultiplier(task.TargetEmpire).String(1)})";
                     

@@ -30,15 +30,18 @@ namespace Ship_Game.AI
             BuildWarShips(offensiveGoals.Count);
             Goals.ApplyPendingRemovals();
             PrioritizeTasks();
-            int queueThreshold = OwnerEmpire.IsAtWarWithMajorEmpire ? (int)OwnerEmpire.GetAverageWarGrade().LowerBound(3) : 10;
+            int taskEvalLimit   = OwnerEmpire.IsAtWarWithMajorEmpire ? (int)OwnerEmpire.GetAverageWarGrade().LowerBound(3) : 10;
+            int taskEvalCounter = 0;
             var tasks = OwnerEmpire.GetEmpireAI().GetTasks().Filter(t => !t.QueuedForRemoval).OrderByDescending(t => t.Priority)
                                                             .ThenByDescending(t => t.MinimumTaskForceStrength).ToArray();
 
             for (int i = tasks.Length - 1; i >= 0; i--)
             {
                 MilitaryTask task = tasks[i];
-                task.Evaluate(OwnerEmpire);
-                if (--queueThreshold == 0)
+                if (task.Evaluate(OwnerEmpire))
+                    taskEvalCounter += 1;
+
+                if (taskEvalCounter == taskEvalLimit)
                     return;
             }
 
