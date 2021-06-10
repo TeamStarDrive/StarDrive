@@ -69,7 +69,7 @@ namespace Ship_Game.AI
             {
                 MilitaryTask task = TaskList[i];
                 int priority;
-                switch (task.type)
+                switch (task.Type)
                 {
                     default:                                        priority = 5;                                  break;
                     case MilitaryTask.TaskType.GuardBeforeColonize: priority = 3 + numWars;                        break;
@@ -198,19 +198,19 @@ namespace Ship_Game.AI
 
         public MilitaryTask[] GetClaimTasks()
         {
-            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendClaim
+            return TaskList.Filter(task => task.Type == MilitaryTask.TaskType.DefendClaim
                                         && task.TargetPlanet != null);
         }
 
         public MilitaryTask[] GetClaimTasks(SolarSystem targetSystem)
         {
-            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendClaim
+            return TaskList.Filter(task => task.Type == MilitaryTask.TaskType.DefendClaim
                                         && task.TargetPlanet?.ParentSystem == targetSystem);
         }
 
         public MilitaryTask[] GetDefendVsRemnantTasks()
         {
-            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendVsRemnants);
+            return TaskList.Filter(task => task.Type == MilitaryTask.TaskType.DefendVsRemnants);
         }
 
         public Goal[] GetRemnantEngagementGoalsFor(Planet p)
@@ -221,20 +221,20 @@ namespace Ship_Game.AI
 
         public MilitaryTask[] GetAssaultPirateTasks()
         {
-            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.AssaultPirateBase);
+            return TaskList.Filter(task => task.Type == MilitaryTask.TaskType.AssaultPirateBase);
         }
 
         public MilitaryTask[] GetExpansionTasks()
         {
             return TaskList.Filter(task => task.TargetPlanet != null &&
-                (task.type == MilitaryTask.TaskType.DefendClaim || task.type == MilitaryTask.TaskType.Exploration));
+                (task.Type == MilitaryTask.TaskType.DefendClaim || task.Type == MilitaryTask.TaskType.Exploration));
         }
 
         public MilitaryTask[] GetPotentialTasksToCompare() 
         {
             var expansionTasks        = GetExpansionTasks();
             var warTasks              = GetWarTasks();
-            var defenseTasks          = TaskList.Filter(task => task.type == MilitaryTask.TaskType.ClearAreaOfEnemies);
+            var defenseTasks          = TaskList.Filter(task => task.Type == MilitaryTask.TaskType.ClearAreaOfEnemies);
             Array<MilitaryTask> tasks = new Array<MilitaryTask>();
 
             tasks.AddRange(expansionTasks);
@@ -245,7 +245,7 @@ namespace Ship_Game.AI
 
         public MilitaryTask[] GetDefendSystemTasks()
         {
-            return TaskList.Filter(t => t.type == MilitaryTask.TaskType.ClearAreaOfEnemies);
+            return TaskList.Filter(t => t.Type == MilitaryTask.TaskType.ClearAreaOfEnemies);
         }
 
         public int GetNumClaimTasks()
@@ -256,7 +256,7 @@ namespace Ship_Game.AI
         public bool HasAssaultPirateBaseTask(Ship targetBase, out MilitaryTask militaryTask)
         {
             militaryTask = null;
-            var filteredTasks = TaskList.Filter(task => task.type == MilitaryTask.TaskType.AssaultPirateBase
+            var filteredTasks = TaskList.Filter(task => task.Type == MilitaryTask.TaskType.AssaultPirateBase
                                                      && task.TargetShip == targetBase);
 
             if (filteredTasks.Length > 0f)
@@ -276,7 +276,7 @@ namespace Ship_Game.AI
         public bool GetDefendClaimTaskFor(Planet planet, out MilitaryTask militaryTask)
         {
             militaryTask = null;
-            var filteredTasks = TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendClaim
+            var filteredTasks = TaskList.Filter(task => task.Type == MilitaryTask.TaskType.DefendClaim
                                                      && task.TargetPlanet == planet);
 
             if (filteredTasks.Length > 0f)
@@ -292,7 +292,7 @@ namespace Ship_Game.AI
         public bool HasTaskOfType(MilitaryTask.TaskType type)
         {
             for (int i = TaskList.Count - 1; i >= 0; --i)
-                if (TaskList[i].type == type)
+                if (TaskList[i].Type == type)
                     return true;
             return false;
         }
@@ -333,7 +333,7 @@ namespace Ship_Game.AI
 
         public void TrySendExplorationFleetToCrashSite(Planet p)
         {
-            if (TaskList.Filter(t => t.type == MilitaryTask.TaskType.Exploration)
+            if (TaskList.Filter(t => t.Type == MilitaryTask.TaskType.Exploration)
                     .Length < 5 + (int)CurrentGame.Difficulty)
             {
                 SendExplorationFleet(p);

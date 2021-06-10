@@ -223,7 +223,7 @@ namespace Ship_Game.AI.Tasks
                 EndTask();
 
             if (AO.AlmostZero())
-                Log.Error($"no area of operation set for task: {type}");
+                Log.Error($"no area of operation set for task: {Type}");
 
             AO = TargetPlanet?.Center ?? AO;
             InitFleetRequirements(minFleetStrength: MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: 0);
@@ -282,7 +282,7 @@ namespace Ship_Game.AI.Tasks
             }
 
             if (AO.AlmostZero())
-                Log.Error($"no area of operation set for task: {type}");
+                Log.Error($"no area of operation set for task: {Type}");
 
             AO closestAO = FindClosestAO(EnemyStrength);
             if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
@@ -296,7 +296,7 @@ namespace Ship_Game.AI.Tasks
         void RequisitionAssaultPirateBase()
         {
             if (AO.AlmostZero())
-                Log.Error($"no area of operation set for task: {type}");
+                Log.Error($"no area of operation set for task: {Type}");
 
             if (TargetShip == null || !TargetShip.Active)
             {
@@ -320,7 +320,7 @@ namespace Ship_Game.AI.Tasks
         void RequisitionDefendVsRemnants()
         {
             if (AO.AlmostZero())
-                Log.Error($"no area of operation set for task: {type}");
+                Log.Error($"no area of operation set for task: {Type}");
 
             if (TargetPlanet.Owner != Owner)
             {
@@ -355,7 +355,7 @@ namespace Ship_Game.AI.Tasks
             }
 
             if (AO.AlmostZero())
-                Log.Error($"no area of operation set for task: {type}");
+                Log.Error($"no area of operation set for task: {Type}");
 
             AO = TargetPlanet.Center;
             float buildingGeodeticOffense = TargetPlanet.Owner != Owner ? TargetPlanet.BuildingGeodeticOffense : 0;
@@ -376,7 +376,7 @@ namespace Ship_Game.AI.Tasks
         void RequisitionAssaultForces(bool strike = false)
         {
             if (AO.AlmostZero())
-                Log.Error($"no area of operation set for task: {type}");
+                Log.Error($"no area of operation set for task: {Type}");
 
             Empire enemy = TargetPlanet.Owner;
             if (enemy == null || enemy == Owner || Owner.IsPeaceTreaty(enemy) || !Owner.IsEmpireHostile(enemy))
@@ -411,7 +411,7 @@ namespace Ship_Game.AI.Tasks
             }
 
             if (AO.AlmostZero())
-                Log.Error($"no area of operation set for task: {type}");
+                Log.Error($"no area of operation set for task: {Type}");
 
             AO = TargetPlanet.Center;
             float geodeticOffense = TargetPlanet.BuildingGeodeticOffense;
@@ -431,7 +431,7 @@ namespace Ship_Game.AI.Tasks
             float initialStr     = geodeticOffense + Owner.KnownEmpireOffensiveStrength(enemy) / 10;
             float enemyStrNearby = geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.ParentSystem, Owner, enemy);
             float ownStr         = Owner.OffensiveStrength / (Owner.GetPlanets().Count / 5).LowerBound(3);
-            float multiplier     = type == TaskType.StrikeForce ? 2 : 1; // Todo advanced tasks also get multiplier;
+            float multiplier     = Type == TaskType.StrikeForce ? 2 : 1; // Todo advanced tasks also get multiplier;
             return initialStr.LowerBound(enemyStrNearby).LowerBound(ownStr) * multiplier;
         }
 
