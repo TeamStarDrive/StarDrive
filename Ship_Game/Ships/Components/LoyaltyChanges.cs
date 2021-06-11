@@ -29,8 +29,8 @@ namespace Ship_Game.Ships.Components
         // Classic chicken-egg paradox
         public void OnSpawn(Ship ship)
         {
-        //BUGFIX: NEED TO FIGURE OUT WHY THIS CRASHES THE SAVE LOAD
-            LoyaltyChangeDueToSpawn(ship, CurrentLoyalty);
+            if (CurrentLoyalty != EmpireManager.Void)
+                LoyaltyChangeDueToSpawn(ship, CurrentLoyalty);
         }
 
         // Loyalty change is ignored if loyalty == CurrentLoyalty

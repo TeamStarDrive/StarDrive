@@ -2040,10 +2040,10 @@ namespace Ship_Game
                 {
                     bool shipAdded;
 
-                    if (ship.shipData.Role > ShipData.RoleName.station)
-                        shipAdded = ShipsWeCanBuild.Add(ship.Name);
-                    else
-                        shipAdded = structuresWeCanBuild.Add(ship.Name);
+                    if (ship.shipData.Role <= ShipData.RoleName.station)
+                        structuresWeCanBuild.Add(ship.Name);
+
+                    shipAdded = ShipsWeCanBuild.Add(ship.Name);
 
                     if (isPlayer)
                         Universe?.aw?.UpdateDropDowns();
