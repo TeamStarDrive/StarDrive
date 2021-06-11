@@ -17,7 +17,7 @@ namespace UnitTests.Ships
         {
             CreateGameInstance();
             // Excalibur class has all the bells and whistles
-            LoadStarterShips("Excalibur-Class Supercarrier", "Ving Defender", "Supply Shuttle");
+            LoadStarterShips("Excalibur-Class Supercarrier", "Ving Defender", "Supply Shuttle", "Alliance-Class Mk Ia Hvy Assault", "Assault Shuttle");
             CreateUniverseAndPlayerEmpire();
 
             foreach (string uid in ResourceManager.GetShipTemplateIds())
@@ -91,7 +91,7 @@ namespace UnitTests.Ships
 
             // fleet stuff
             ResetTest(ship);
-            var friendlyShip = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", Player, Vector2.Zero);
+            var friendlyShip = Ship.CreateShipAtPoint("Alliance-Class Mk Ia Hvy Assault", Player, Vector2.Zero);
             var fleet = new Fleet(new Array<Ship> { ship, friendlyShip }, Player);
             fleet.SetCommandShip(ship);
             fleet.AutoArrange();
@@ -103,6 +103,20 @@ namespace UnitTests.Ships
                 LaunchFighters(ship);
                 TestMoveRecall(ship, movePos);
             }
+
+            // Launch Assault Shuttle
+            {
+                ResetTest(friendlyShip);
+                // wait till ready to recall
+                while (friendlyShip.IsSpoolingOrInWarp || friendlyShip.Carrier.RecallingShipsBeforeWarp)
+                    friendlyShip.Update(TestSimStep);
+                friendlyShip.Carrier.ScrambleAssaultShips(1);
+                Universe.Objects.Update(TestSimStep);
+                var assaultShips = Player.OwnedShips.Filter(s => s.DesignRole == ShipData.RoleName.troop);
+                Assert.IsTrue(assaultShips.Length > 0);
+            }
+
+
         }
 
         void ResetTest(Ship ship)
