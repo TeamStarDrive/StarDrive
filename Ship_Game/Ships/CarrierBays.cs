@@ -37,8 +37,9 @@ namespace Ship_Game.Ships
                                             || Owner.DesignRole == ShipData.RoleName.support
                                             || Owner.DesignRoleType == ShipData.RoleType.Orbital);
 
-        public AssaultShipCombat TroopTactics;
+        AssaultShipCombat TroopTactics;
         public const int RecallMoveDistance = 25000;
+        
         public Array<Ship> GetActiveFighters()
         {
             Array<Ship> fighters = new Array<Ship>();
@@ -106,6 +107,7 @@ namespace Ship_Game.Ships
             AllTransporters = null;
             SupplyShuttle?.Dispose();
             SupplyShuttle = null;
+            TroopTactics = null;
         }
 
         // aggressive dispose looks to cause a crash here. 
@@ -249,9 +251,11 @@ namespace Ship_Game.Ships
             foreach (ShipModule hangar in AllFighterHangars)
             {
                 if (hangar.TryGetHangarShipActive(out Ship hangarShip))
-                    hangarShip.ScuttleTimer = 60f; // 60 seconds so surviving fighters will be able to continue combat for a while                
+                    hangarShip.ScuttleTimer = 60f; // 60 seconds so surviving fighters will be able to continue combat for a while
             }
         }
+
+        public void TryAssaultShipCombat() => TroopTactics.TryBoardShip();
 
         public void ScrambleAllAssaultShips() => ScrambleAssaultShips(0);
 
@@ -570,6 +574,18 @@ namespace Ship_Game.Ships
                 hangar.hangarShipUID = selectedShip;
                 if (hangar.hangarShipUID == null || hangar.hangarShipUID.IsEmpty())
                     hangar.hangarShipUID = defaultShip;
+                if (hangar.hangarShipUID == null || hangar.hangarShipUID.IsEmpty())
+                {
+                    hangar.hangarShipUID = EmpireManager.Player.data.StartingShip;
+                    string roles = "";
+                    foreach (var role in hangar.HangarRoles)
+                    {
+                        if (roles.NotEmpty())
+                            roles += ", ";
+                        roles += role;
+                    }
+                    Log.Warning($"No startingShip defined and no {roles} designs available for {Owner}");
+                }
             }
         }
 
