@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.Gameplay;
@@ -94,7 +91,7 @@ namespace UnitTests.Ships
 
         
         [TestMethod]
-        public void Load_VanillaHull_TerranShuttle()
+        public void ShipHull_LoadVanilla_TerranShuttle()
         {
             ResourceManager.Hull("Terran/Shuttle", out ShipData hull);
             Assert.AreEqual("Shuttle", hull.Name);
@@ -116,7 +113,7 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
-        public void Load_VanillaShip_VulcanScout()
+        public void ShipHull_LoadVanilla_VulcanScout()
         {
             ShipData hull = ShipData.Parse(new FileInfo("Content/StarterShips/Vulcan Scout.xml"), isHullDefinition: false);
             Assert.AreEqual("Vulcan Scout", hull.Name);
@@ -137,7 +134,7 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
-        public void Load_VanillaHull_TerranGunboat()
+        public void ShipHull_LoadVanilla_TerranGunboat()
         {
             ResourceManager.Hull("Terran/Gunboat", out ShipData hull);
             Assert.AreEqual("Gunboat", hull.Name);
@@ -157,7 +154,7 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
-        public void Load_VanillaHull_PrototypeFrigate()
+        public void ShipHull_LoadVanilla_PrototypeFrigate()
         {
             ShipData hull = ShipData.Parse(new FileInfo("Content/SavedDesigns/Prototype Frigate.xml"), isHullDefinition: false);
             Assert.AreEqual("Prototype Frigate", hull.Name);
