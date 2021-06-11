@@ -95,7 +95,7 @@ namespace Ship_Game
             EmpireUI = empireUi;
             TransitionOnTime = 2f;
             HullEditMode = false;
-            UnlockAllFactionDesigns = parent is DeveloperSandbox.DeveloperUniverse;
+            UnlockAllFactionDesigns = parent is DeveloperUniverse;
         }
 
         void ReorientActiveModule(ModuleOrientation orientation)

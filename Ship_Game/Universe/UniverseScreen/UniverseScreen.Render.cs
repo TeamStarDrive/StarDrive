@@ -32,15 +32,20 @@ namespace Ship_Game
 
         Map<PlanetGlow, SubTexture> Glows;
 
+        public void DrawStarField()
+        {
+            if (GlobalStats.DrawStarfield)
+                bg.Draw(this);
+        }
+
         void RenderBackdrop(SpriteBatch batch)
         {
             DrawBackdropPerf.Start();
 
-            if (GlobalStats.DrawStarfield)
-                bg.Draw(this, StarField);
+            DrawStarField();
 
             if (GlobalStats.DrawNebulas)
-               bg3d.Draw();
+                bg3d?.Draw();
 
             batch.Begin();
 
@@ -202,9 +207,10 @@ namespace Ship_Game
         }
 
         // @todo This is unused??? Maybe some legacy code?
+        // I think this draws a big galaxy texture
         void RenderGalaxyBackdrop()
         {
-            bg.DrawGalaxyBackdrop(this, StarField);
+            bg.DrawGalaxyBackdrop(this);
             ScreenManager.SpriteBatch.Begin();
             for (int index = 0; index < 41; ++index)
             {
