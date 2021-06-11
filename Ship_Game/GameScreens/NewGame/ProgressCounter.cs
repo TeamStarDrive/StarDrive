@@ -21,6 +21,8 @@ namespace Ship_Game.GameScreens.NewGame
         ProgressCounter[] Steps;
         float[] Proportions;
 
+        public int TotalSteps => Steps.Length;
+
         public void Start(int max)
         {
             Max = Math.Max(1, max);
@@ -71,6 +73,15 @@ namespace Ship_Game.GameScreens.NewGame
             Start(proportions.Length);
             Steps = steps; // @note Setting this at the end... to get loose thread safety... 
         }
+
+        /// <summary>
+        /// Alternative to Start(proportions), automatically calculates all from step times
+        /// </summary>
+        public void StartAbsolute(params float[] stepTimes)
+        {
+            float totalTime = stepTimes.Sum();
+            Start(stepTimes.Select(t => t / totalTime));
+        }
         
         // Advances progress Value by 1
         public void Advance() => Index += 1;
@@ -109,6 +120,5 @@ namespace Ship_Game.GameScreens.NewGame
                 return total;
             }
         }
-
     }
 }

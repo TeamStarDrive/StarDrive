@@ -307,11 +307,11 @@ namespace Ship_Game
             return Habitable ? " None" : " Uninhabitable";
         }
 
-        public void InitializePlanetMesh(GameScreen screen)
+        public void InitializePlanetMesh()
         {
             Shield = ShieldManager.AddPlanetaryShield(Center);
             UpdateDescription();
-            CreatePlanetSceneObject(screen);
+            CreatePlanetSceneObject();
 
             GravityWellRadius = (float)(GlobalStats.GravityWellRange * (1 + ((Math.Log(Scale)) / 1.5)));
         }
@@ -350,10 +350,13 @@ namespace Ship_Game
                 SO.Visibility = ObjectVisibility.None;
         }
 
-        protected void CreatePlanetSceneObject(GameScreen screen)
+        protected void CreatePlanetSceneObject()
         {
             if (SO != null)
-                screen?.RemoveObject(SO);
+            {
+                Log.Info($"RemoveSolarSystemBody: {Name}");
+                ScreenManager.Instance?.RemoveObject(SO);
+            }
             SO = StaticMesh.GetPlanetarySceneMesh(ResourceManager.RootContent, Type.MeshPath);
             SO.World = Matrix.CreateScale(Scale * 3)
                      * Matrix.CreateTranslation(new Vector3(Center, 2500f));
@@ -362,7 +365,7 @@ namespace Ship_Game
                       * Matrix.CreateScale(5f)
                       * Matrix.CreateTranslation(new Vector3(Center, 2500f));
 
-            screen?.AddObject(SO);
+            ScreenManager.Instance?.AddObject(SO);
         }
 
         protected void UpdateDescription()
