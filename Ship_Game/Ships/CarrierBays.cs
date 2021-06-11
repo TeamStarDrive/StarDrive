@@ -425,11 +425,11 @@ namespace Ship_Game.Ships
         public bool RecallingFighters()
         {
             if (Owner == null || !RecallFightersBeforeFTL || !HasActiveHangars)
-                return false;
+                return RecallingShipsBeforeWarp = false;
 
             Vector2 moveTo = Owner.AI.OrderQueue.PeekFirst?.MovePosition ?? Vector2.Zero;
             if (moveTo == Vector2.Zero)
-                return false;
+                return RecallingShipsBeforeWarp = false;
 
             bool recallFighters       = false;
             float jumpDistance        = Owner.Center.Distance(moveTo);
