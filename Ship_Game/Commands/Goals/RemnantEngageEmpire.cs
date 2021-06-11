@@ -235,7 +235,7 @@ namespace Ship_Game.Commands.Goals
             if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal))
             {
                 // New target is too strong, need to get a new fleet
-                if (!Remnants.FindValidTarget(Portal, out TargetEmpire) || RequiredFleetStr() > Fleet.GetStrength())
+                if (!Remnants.FindValidTarget(out TargetEmpire) || RequiredFleetStr() > Fleet.GetStrength())
                     return ReturnToPortal();
             }
 

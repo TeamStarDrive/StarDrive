@@ -19,7 +19,7 @@ namespace Ship_Game.AI
             HasPriorityTarget = true;
             State             = AIState.Boarding;
             var escortTarget  = EscortTarget;
-            if (escortTarget == null || !escortTarget.Active || escortTarget.loyalty == Owner.loyalty)
+            if (Owner.TroopCount < 1 || escortTarget == null || !escortTarget.Active || escortTarget.loyalty == Owner.loyalty)
             {
                 ClearOrders(State);
                 if (Owner.IsHangarShip)
@@ -146,6 +146,7 @@ namespace Ship_Game.AI
                 }
 
                 CombatAI.ExecuteCombatTactic(timeStep);
+                Owner.Carrier.TryAssaultShipCombat();
             }
             
             // Target was modified by one of the CombatStates (?)
