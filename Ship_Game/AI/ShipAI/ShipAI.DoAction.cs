@@ -146,6 +146,7 @@ namespace Ship_Game.AI
                 }
 
                 CombatAI.ExecuteCombatTactic(timeStep);
+                Owner.Carrier.TryAssaultShipCombat();
             }
             
             // Target was modified by one of the CombatStates (?)
