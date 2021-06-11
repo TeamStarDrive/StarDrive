@@ -182,7 +182,8 @@ namespace Ship_Game.Ships
         public bool CanBeAddedToBuildableShips(Empire empire) => DesignRole != ShipData.RoleName.prototype && DesignRole != ShipData.RoleName.disabled
                                                && !ResourceManager.ShipRoles[shipData.Role].Protected && !Deleted
                                                && DesignRole != ShipData.RoleName.supply
-                                               && (empire.isPlayer || GlobalStats.UsePlayerDesigns && ShipGoodToBuild(empire));
+                                               && (empire.isPlayer || ShipGoodToBuild(empire))
+                                               && (!IsPlayerDesign || GlobalStats.UsePlayerDesigns || empire.isPlayer);
 
         public void SetCombatStance(CombatState stance)
         {
