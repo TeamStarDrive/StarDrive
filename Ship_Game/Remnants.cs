@@ -177,9 +177,9 @@ namespace Ship_Game
         {
             switch (Story)
             {
-                case RemnantStory.AncientExterminators: return 1.15f;
-                case RemnantStory.AncientBalancers:     return 1f;
-                case RemnantStory.AncientRaidersRandom: return 0.9f;
+                case RemnantStory.AncientExterminators: return 1.2f;
+                case RemnantStory.AncientBalancers:     return 1.1f;
+                case RemnantStory.AncientRaidersRandom: return 1;
                 default:                                return 1;
             }
         }
@@ -259,7 +259,7 @@ namespace Ship_Game
             return ongoingRaids < NumPortals();
         }
 
-        public bool FindValidTarget(Ship portal, out Empire target)
+        public bool FindValidTarget(out Empire target)
         {
             var empiresList = GlobalStats.RestrictAIPlayerInteraction 
                                  ? EmpireManager.ActiveNonPlayerMajorEmpires
@@ -287,7 +287,7 @@ namespace Ship_Game
             if (checkOnlyDefeated && !currentTarget.data.Defeated)
                 return true;
 
-            FindValidTarget(portal, out Empire expectedTarget);
+            FindValidTarget(out Empire expectedTarget);
             return expectedTarget == currentTarget;
         }
 
@@ -440,9 +440,7 @@ namespace Ship_Game
                 ? Level.UpperBound(5)  // Increase distance spread of checks by level
                 : (MaxLevel - Level).Clamped(2, 10); // Decrease spread to focus on quality targets
 
-            if (Level == 10) // Level 10 Remnants will go for home worlds
-                nextPlanet = GetTargetPlanetHomeWorlds(potentialPlanets, numPlanetsToTake);
-            else if (Level <= 5) // Level 5 or below will go for closest planets to the portal
+            if (Level <= 5) // Level 5 or below will go for closest planets to the portal
                 nextPlanet = GetTargetPlanetByDistance(potentialPlanets, currentPlanet.Center, numPlanetsToTake);
             else // Remnants higher than level 5 will go after high level planets
                 nextPlanet = GetTargetPlanetByPop(potentialPlanets, numPlanetsToTake);
@@ -457,6 +455,7 @@ namespace Ship_Game
             return filteredList.Length > 0 ? filteredList.RandItem() : null;
         }
 
+        // Will be used in Future Remnant Stories
         Planet GetTargetPlanetHomeWorlds(Planet[] potentialPlanets, int numPlanetsToTake)
         {
             var filteredList = potentialPlanets.Filter(p => p.HasCapital);
@@ -597,7 +596,7 @@ namespace Ship_Game
 
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
         {
-            int fleetModifier  = shipsInFleet / 10;
+            int fleetModifier  = shipsInFleet / 12;
             int effectiveLevel = Level + (int)CurrentGame.Difficulty + fleetModifier;
             effectiveLevel     = effectiveLevel.UpperBound(Level * 2);
             int roll           = RollDie(effectiveLevel, (fleetModifier + Level / 2).LowerBound(1));
