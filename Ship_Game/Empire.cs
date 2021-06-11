@@ -208,8 +208,11 @@ namespace Ship_Game
         public Array<string> CarrierTech     = new Array<string>();
         public Array<string> SupportShipTech = new Array<string>();
         public Planet[] RallyPoints          = Empty<Planet>.Array;
-        public Ship BoardingShuttle => ResourceManager.GetShipTemplate("Assault Shuttle");
-        public Ship SupplyShuttle   => ResourceManager.GetShipTemplate("Supply Shuttle");
+
+        public const string DefaultBoardingShuttleName = "Assault Shuttle";
+        public const string DefaultSupplyShuttleName   = "Supply Shuttle";
+        public Ship BoardingShuttle => ResourceManager.GetShipTemplate(DefaultBoardingShuttleName, false);
+        public Ship SupplyShuttle   => ResourceManager.GetShipTemplate(DefaultSupplyShuttleName);
         public bool IsCybernetic  => data.Traits.Cybernetic != 0;
         public bool NonCybernetic => data.Traits.Cybernetic == 0;
         public bool WeArePirates  => Pirates != null; // Use this to figure out if this empire is pirate faction
@@ -2037,10 +2040,10 @@ namespace Ship_Game
                 {
                     bool shipAdded;
 
-                    if (ship.shipData.Role > ShipData.RoleName.station)
-                        shipAdded = ShipsWeCanBuild.Add(ship.Name);
-                    else
-                        shipAdded = structuresWeCanBuild.Add(ship.Name);
+                    if (ship.shipData.Role <= ShipData.RoleName.station)
+                        structuresWeCanBuild.Add(ship.Name);
+
+                    shipAdded = ShipsWeCanBuild.Add(ship.Name);
 
                     if (isPlayer)
                         Universe?.aw?.UpdateDropDowns();
