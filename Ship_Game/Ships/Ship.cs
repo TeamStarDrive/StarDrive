@@ -167,7 +167,7 @@ namespace Ship_Game.Ships
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
         public float MaxWeaponError = 0;
 
-        public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || loyalty.BoardingShuttle.Name == Name;
+        public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || Empire.DefaultBoardingShuttleName == Name;
         public bool IsDefaultTroopShip      => !IsDefaultAssaultShuttle && (loyalty.data.DefaultTroopShip == Name || DesignRole == ShipData.RoleName.troop);
         public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
         public bool IsSubspaceProjector     => Name == "Subspace Projector";
@@ -1060,8 +1060,6 @@ namespace Ship_Game.Ships
 
             Rotation = Rotation.AsNormalizedRadians();
 
-            //UpdateModulePositions(deltaTime);
-
             if (!EMPdisabled && hasCommand)
             {
                 for (int i = 0; i < Weapons.Count; i++)
@@ -1570,7 +1568,7 @@ namespace Ship_Game.Ships
         {
             AI?.Reset();
             var carrier = Mothership?.Carrier;
-            if (IsHangarShip && carrier != null)
+            if (IsHangarShip && carrier?.AllActiveHangars != null)
             {
                 foreach (ShipModule shipModule in carrier.AllActiveHangars)
                     if (shipModule.TryGetHangarShip(out Ship ship) && ship == this)
@@ -1644,7 +1642,7 @@ namespace Ship_Game.Ships
             fleet = null;
             shipData = null;
             Mothership = null;
-            JumpSfx.Destroy();
+            JumpSfx?.Destroy();
             KnownByEmpires = null;
             HasSeenEmpires = null;
             PlanetCrash = null;
