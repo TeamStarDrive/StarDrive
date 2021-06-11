@@ -62,7 +62,7 @@ namespace Ship_Game.AI.CombatTactics
                     if (hangar.TryGetHangarShipActive(out Ship hangarShip))
                     {
                         sendingTroops = true;
-                        if (hangarShip.AI.State != AIState.Boarding && hangarShip.AI.State != AIState.Resupply)
+                        if (!hangarShip.AI.HasPriorityOrder && hangarShip.AI.State != AIState.Boarding && hangarShip.AI.State != AIState.Resupply)
                             hangarShip.AI.OrderTroopToBoardShip(targetShip);
                     }
                 }
