@@ -534,15 +534,8 @@ namespace Ship_Game.AI.Tasks
             }
 
             int wantedNumberOfFleets = WantedNumberOfFleets();
-
-            float strengthNeeded = MinimumTaskForceStrength.LowerBound(EnemyStrength);
-
-
-
             // All's Good... Make a fleet
-
-            TaskForce = fleetShips.ExtractShipSet(strengthNeeded, troopsOnPlanets, wantedNumberOfFleets, rallyPoint.Center, this);
-
+            TaskForce = fleetShips.ExtractShipSet(MinimumTaskForceStrength, troopsOnPlanets, wantedNumberOfFleets, rallyPoint.Center, this);
             if (TaskForce.IsEmpty)
             {
                 ReqStatus = RequisitionStatus.FailedToCreateAFleet;
