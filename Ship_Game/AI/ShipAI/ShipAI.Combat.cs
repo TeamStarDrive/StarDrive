@@ -171,7 +171,7 @@ namespace Ship_Game.AI
                     }
                 };
 
-                GameplayObject[] missiles = UniverseScreen.Spatial.FindNearby(opt);
+                GameplayObject[] missiles = UniverseScreen.Spatial.FindNearby(ref opt);
                 for (int i = 0; i < missiles.Length; ++i)
                     ScannedProjectiles.Add((Projectile)missiles[i]);
             }

@@ -352,6 +352,7 @@ namespace Ship_Game
         {
             EmpireSensorsPerf.Start();
 
+        #if false
             Empire empireToUpdate = EmpireManager.Empires[NextEmpireToScan];
             if (++NextEmpireToScan >= EmpireManager.Empires.Count)
                 NextEmpireToScan = 0;
@@ -359,6 +360,14 @@ namespace Ship_Game
             // because we update one empire at a time, the time step is going to be variable
             var varTime = new VariableFrameTime(timeStep.FixedTime * EmpireManager.Empires.Count);
             UpdateShipSensorsAndInfluence(varTime, empireToUpdate);
+        #else
+            var varTime = new VariableFrameTime(timeStep.FixedTime);
+            for (int i = 0; i < EmpireManager.Empires.Count; ++i)
+            {
+                Empire empireToUpdate = EmpireManager.Empires[i];
+                UpdateShipSensorsAndInfluence(varTime, empireToUpdate);
+            }
+        #endif
 
             EmpireSensorsPerf.Stop();
         }
