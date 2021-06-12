@@ -1364,12 +1364,12 @@ namespace Ship_Game.Gameplay
                 AddAngerMilitaryConflict(us.data.DiplomaticPersonality.AngerDissipation + 0.1f * angerMod);
             }
 
-            if (Anger_MilitaryConflict > 80 && !AtWar && !Treaty_Peace)
+            if (Anger_MilitaryConflict > 80 && !PreparingForWar && !AtWar && !Treaty_Peace)
             {
                 if (Anger_MilitaryConflict > 99)
                     us.GetEmpireAI().DeclareWarOn(them, WarType.ImperialistWar);
-                else
-                    PrepareForWar(WarType.DefensiveWar, us);
+                else if (us.TryConfirmPrepareForWarType(them, WarType.DefensiveWar, out WarType warType))
+                    PrepareForWar(warType, us);
 
                 return;
             }
@@ -1378,7 +1378,9 @@ namespace Ship_Game.Gameplay
                 && Anger_TerritorialConflict + Anger_FromShipsInOurBorders >= us.data.DiplomaticPersonality.Territorialism
                 && !AtWar && !Treaty_OpenBorders && !Treaty_Peace && them.CurrentMilitaryStrength < us.OffensiveStrength)
             {
-                PrepareForWar(WarType.BorderConflict, us);
+                if (us.TryConfirmPrepareForWarType(them, WarType.BorderConflict, out WarType warType))
+                    PrepareForWar(warType, us);
+
                 return;
             }
 

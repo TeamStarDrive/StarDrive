@@ -76,13 +76,9 @@ namespace Ship_Game.Commands.Goals
             {
                 // Note: If TargetEmpire is the player, it will still be at war since the diplo is on a different thread.
                 // But we are checking per goal if the relevant empire is indeed at war to overcome this.
-                WarType changeTo;
-                switch (warType)
-                {
-                    case WarType.BorderConflict: changeTo = WarType.DefensiveWar;   break;
-                    case WarType.DefensiveWar:   changeTo = WarType.ImperialistWar; break;
-                    default: return GoalStep.RestartGoal;
-                }
+                WarType changeTo = empire.GetWarEscalation(warType);
+                if (warType == changeTo)
+                    return GoalStep.TryAgain;
 
                 empire.GetRelations(TargetEmpire).ActiveWar.ChangeWarType(changeTo);
             }
