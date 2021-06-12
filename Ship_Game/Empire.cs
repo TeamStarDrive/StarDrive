@@ -143,7 +143,7 @@ namespace Ship_Game
         public float TotalMaintenanceInScrap { get; private set; }
         public float TotalTroopShipMaintenance { get; private set; }
 
-        public float MaxContactTimer = 0.02f /* this is merely the default, it's reset every frame*/;
+        public float MaxContactTimer = 1.0f;
         private bool HostilesDictForPlayerInitialized;
         public float NetPlanetIncomes { get; private set; }
         public float TroopCostOnPlanets { get; private set; } // Maintenance in all Owned planets
@@ -1401,12 +1401,12 @@ namespace Ship_Game
             }
         }
 
-        void ScanFromAllInfluenceNodes(FixedSimTime timeStep)
+        void ScanFromAllInfluenceNodes(VariableFrameTime varTime)
         {
             for (int i = 0; i < BorderNodes.Count; i++)
             {
                 var node = BorderNodes[i];
-                ScanForInfluence(node, timeStep);
+                ScanForInfluence(node, varTime);
             }
 
             for (int i = 0; i < SensorNodes.Count; i++)
@@ -1431,7 +1431,7 @@ namespace Ship_Game
             }
         }	
 
-        void ScanForInfluence(InfluenceNode node, FixedSimTime timeStep)
+        void ScanForInfluence(InfluenceNode node, VariableFrameTime varTime)
         {
             // find anyone within this influence node
             GameplayObject[] targets = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
@@ -1444,7 +1444,7 @@ namespace Ship_Game
                 // Civilian infrastructure spotting enemy fleets
                 if (node.SourceObject is Ship ssp)
                 {
-                    ssp.HasSeenEmpires.Update(timeStep);
+                    ssp.HasSeenEmpires.Update(varTime);
                     if (ship.fleet != null)
                     {
                         if (isPlayer || Universe.Debug && Universe.SelectedShip?.loyalty == this)
@@ -3510,13 +3510,12 @@ namespace Ship_Game
         int ThreatMatrixUpdateTicks = ResetThreatMatrixTicks;
         const int ResetThreatMatrixTicks =5;
         
-        public void UpdateContactsAndBorders(FixedSimTime timeStep)
+        public void UpdateContactsAndBorders(VariableFrameTime varTime)
         {
             if (!IsEmpireDead())
             {
-                MaxContactTimer = timeStep.FixedTime;
                 ResetBorders();
-                ScanFromAllInfluenceNodes(timeStep);
+                ScanFromAllInfluenceNodes(varTime);
                 PopulateKnownShips();
             }
 

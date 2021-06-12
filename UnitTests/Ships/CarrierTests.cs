@@ -182,7 +182,7 @@ namespace UnitTests.Ships
                 foreach (var ship in ships)
                 {
                     ship.Update(TestSimStep);
-                    ship.UpdateSensorsAndInfluence(TestSimStep);
+                    ship.UpdateSensorsAndInfluence(TestVarTime);
                     if (ship.AI.State == AIState.HoldPosition)
                         ship.AI.ClearOrders();
                 }
