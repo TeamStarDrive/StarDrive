@@ -49,12 +49,12 @@ namespace Ship_Game.Ships.Components
         /// <summary>
         /// Updates visibility timers of all known empires
         /// </summary>
-        public void Update(FixedSimTime timeStep)
+        public void Update(VariableFrameTime varTime)
         {
             float[] seenById = GetSeenByID();
             for (int i = 0; i < seenById.Length; i++)
             {
-                seenById[i] -= timeStep.FixedTime;
+                seenById[i] -= varTime.Seconds;
             }
         }
 

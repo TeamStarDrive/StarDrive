@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AITests\Empire\TestEmpireAI.cs" />
+    <Compile Include="AITests\Ships\ShipAICombatTests.cs" />
     <Compile Include="AITests\Ships\TestShipMove.cs" />
     <Compile Include="AssertExtensions.cs" />
     <Compile Include="Collections\ArrayTypesTestBase.cs" />

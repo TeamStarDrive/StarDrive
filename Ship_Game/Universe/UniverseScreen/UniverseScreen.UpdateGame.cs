@@ -13,11 +13,15 @@ namespace Ship_Game
     public partial class UniverseScreen
     {
         readonly object SimTimeLock = new object();
+        
+        // empire perf indicators
+        readonly AggregatePerfTimer PreEmpirePerf     = new AggregatePerfTimer();
+        readonly AggregatePerfTimer EmpireSensorsPerf = new AggregatePerfTimer();
+        readonly AggregatePerfTimer EmpireUpdatePerf  = new AggregatePerfTimer();
+        readonly AggregatePerfTimer EmpireMiscPerf    = new AggregatePerfTimer();
+        readonly AggregatePerfTimer PostEmpirePerf    = new AggregatePerfTimer();
 
-        readonly AggregatePerfTimer EmpireUpdatePerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer PreEmpirePerf    = new AggregatePerfTimer();
-        readonly AggregatePerfTimer PostEmpirePerf   = new AggregatePerfTimer();
-        readonly AggregatePerfTimer TurnTimePerf     = new AggregatePerfTimer();
+        readonly AggregatePerfTimer TurnTimePerf = new AggregatePerfTimer();
         readonly AggregatePerfTimer ProcessSimTurnsPerf = new AggregatePerfTimer();
         
         readonly AggregatePerfTimer DrawPerf = new AggregatePerfTimer();
@@ -249,6 +253,7 @@ namespace Ship_Game
         public void WarmUpShipsForLoad()
         {
             var simTime = new FixedSimTime(CurrentSimFPS);
+            var varTime = new VariableFrameTime(simTime.FixedTime);
 
             // makes sure all empire vision is updated.
             Objects.Update(simTime);
@@ -256,23 +261,17 @@ namespace Ship_Game
             foreach (Empire empire in EmpireManager.Empires)
             {
                 RemoveDuplicateProjectorWorkAround(empire);
-                UpdateShipSensorsAndInfluence(simTime, empire);
+                UpdateShipSensorsAndInfluence(varTime, empire);
             }
 
             // TODO: some checks rely on previous frame information, this is a defect
             //       so we run this a second time
             foreach (Empire empire in EmpireManager.Empires)
             {
-                UpdateShipSensorsAndInfluence(simTime, empire);
+                UpdateShipSensorsAndInfluence(varTime, empire);
             }
 
             EndOfTurnUpdate(simTime);
-
-            foreach (Ship ship in GetMasterShipList())
-            {
-                ship.AI.ApplySensorScanResults();
-            }
-
             EmpireManager.Player.PopulateKnownShips();
         }
 
@@ -290,6 +289,7 @@ namespace Ship_Game
 
         void ProcessTurnUpdateMisc(FixedSimTime timeStep)
         {
+            EmpireMiscPerf.Start();
             UpdateClickableItems();
 
             JunkList.ApplyPendingRemovals();
@@ -323,6 +323,7 @@ namespace Ship_Game
                     JunkList[index].Update(timeStep);
             }
             SelectedShipList.ApplyPendingRemovals();
+            EmpireMiscPerf.Stop();
         }
 
         int NextEmpireToScan = 0;
@@ -349,36 +350,41 @@ namespace Ship_Game
         // sensor scan is heavy
         void UpdateSensorsForASingleEmpire(FixedSimTime timeStep)
         {
+            EmpireSensorsPerf.Start();
+
             Empire empireToUpdate = EmpireManager.Empires[NextEmpireToScan];
             if (++NextEmpireToScan >= EmpireManager.Empires.Count)
                 NextEmpireToScan = 0;
 
-            UpdateShipSensorsAndInfluence(timeStep, empireToUpdate);
+            // because we update one empire at a time, the time step is going to be variable
+            var varTime = new VariableFrameTime(timeStep.FixedTime * EmpireManager.Empires.Count);
+            UpdateShipSensorsAndInfluence(varTime, empireToUpdate);
+
+            EmpireSensorsPerf.Stop();
         }
 
-        void UpdateShipSensorsAndInfluence(FixedSimTime timeStep, Empire ourEmpire)
+        void UpdateShipSensorsAndInfluence(VariableFrameTime varTime, Empire ourEmpire)
         {
             if (ourEmpire.IsEmpireDead())
                 return;
 
-            var ourShips = ourEmpire.OwnedShips;
-            ExecuteShipSensorScans(ourShips, timeStep);
-            var ourSSPs = ourEmpire.OwnedProjectors;
-            ExecuteShipSensorScans(ourSSPs, timeStep);
-            ourEmpire.UpdateContactsAndBorders(timeStep);
+            ExecuteShipSensorScans(ourEmpire.OwnedShips, varTime);
+            ExecuteShipSensorScans(ourEmpire.OwnedProjectors, varTime);
+            ourEmpire.UpdateContactsAndBorders(varTime);
         }
 
-        void ExecuteShipSensorScans(IReadOnlyList<Ship> ourShips, FixedSimTime timeStep)
+        void ExecuteShipSensorScans(IReadOnlyList<Ship> ourShips, VariableFrameTime varTime)
         {
-            Parallel.For(ourShips.Count, (start, end) =>
+            void UpdateShipSensors(int start, int end)
             {
                 for (int i = start; i < end; i++)
                 {
                     Ship ourShip = ourShips[i];
-                    if (!ourShip.Active) continue;
-                    ourShip.UpdateSensorsAndInfluence(timeStep);
+                    if (ourShip.Active)
+                        ourShip.UpdateSensorsAndInfluence(varTime);
                 }
-            }, MaxTaskCores);
+            }
+            Parallel.For(ourShips.Count, UpdateShipSensors, MaxTaskCores);
         }
         
         bool ProcessTurnEmpires(FixedSimTime timeStep)
@@ -433,6 +439,7 @@ namespace Ship_Game
             {
                 EmpireUpdatePerf.Start();
                 UpdateEmpires(timeStep);
+                EmpireUpdatePerf.Stop();
             }
             
             return !Paused;
