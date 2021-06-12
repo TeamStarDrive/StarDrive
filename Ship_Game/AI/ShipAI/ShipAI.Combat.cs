@@ -27,7 +27,7 @@ namespace Ship_Game.AI
         public Guid TargetGuid;
         public bool IgnoreCombat;
         public bool BadGuysNear;
-        public bool HasPointDefense { get; private set; }
+        public bool CanTrackProjectiles { get; set; }
         public Guid EscortTargetGuid;
         public Ship Target;
         public Array<Ship> TargetQueue = new Array<Ship>();
@@ -40,7 +40,14 @@ namespace Ship_Game.AI
 
         void InitializeTargeting()
         {
-            HasPointDefense = DoesShipHavePointDefense(Owner);
+            CanTrackProjectiles = DoesShipHavePointDefense(Owner);
+        }
+
+        // Allow controlling the Trigger delay for ships
+        // This can be used to stop ships from Firing for X seconds
+        public void SetCombatTriggerDelay(float triggerDelay)
+        {
+            TriggerDelay = triggerDelay;
         }
         
         static bool DoesShipHavePointDefense(Ship ship)
@@ -60,18 +67,18 @@ namespace Ship_Game.AI
             Intercepting = false;
         }
 
-        void FireOnTarget()
+        bool FireOnTarget()
         {
             // base reasons not to fire. @TODO actions decided by loyalty like should be the same in all areas. 
             if (!Owner.hasCommand || Owner.engineState == Ship.MoveState.Warp
                 || Owner.EMPdisabled || Owner.Weapons.Count == 0 || !BadGuysNear)
-                return;
+                return false;
 
             if (Target?.TroopsAreBoardingShip == true)
-                return;
+                return false;
 
             // main Target has died, reset it
-            if (!IsTargetActive(Target))
+            if (Target != null && !IsTargetActive(Target))
             {
                 Target = null;
             }
@@ -79,11 +86,13 @@ namespace Ship_Game.AI
             int count = Owner.Weapons.Count;
             Weapon[] weapons = Owner.Weapons.GetInternalArrayItems();
 
+            bool didFireAtAny = false;
             for (int i = 0; i < count; ++i)
             {
                 var weapon = weapons[i];
-                if (weapon.UpdateAndFireAtTarget(Target, TrackProjectiles, PotentialTargets) &&
-                    weapon.FireTarget.ParentIsThis(Target))
+                bool didFire = weapon.UpdateAndFireAtTarget(Target, TrackProjectiles, PotentialTargets);
+                didFireAtAny |= didFire;
+                if (didFire && weapon.FireTarget.ParentIsThis(Target))
                 {
                     float weaponFireTime;
                     if      (weapon.isBeam)            weaponFireTime = weapon.BeamDuration;
@@ -92,6 +101,7 @@ namespace Ship_Game.AI
                     FireOnMainTargetTime = weaponFireTime.LowerBound(FireOnMainTargetTime);
                 }
             }
+            return didFireAtAny;
         }
 
         void UpdateTrackedShips(Ship sensorShip, float radius)
@@ -142,7 +152,7 @@ namespace Ship_Game.AI
             if (Owner.IsHangarShip)
                 ScannedProjectiles.AddRange(Owner.Mothership.AI.TrackProjectiles);
 
-            if (HasPointDefense && Owner.TrackingPower > 0)
+            if (CanTrackProjectiles && Owner.TrackingPower > 0)
             {
                 var opt = new SearchOptions(sensorShip.Center, sensorShip.WeaponsMaxRange, GameObjectType.Proj)
                 {
@@ -311,7 +321,7 @@ namespace Ship_Game.AI
             return PickHighestPriorityTarget(); // This is the alternative logic
         }
 
-        bool IsTargetActive(Ship target)
+        static bool IsTargetActive(Ship target)
         {
             return target != null && target.Active && !target.dying;
         }
@@ -321,9 +331,9 @@ namespace Ship_Game.AI
             if (Owner.Weapons.Count == 0 && !Owner.Carrier.HasActiveHangars)
                 return null;
 
-            if (ScannedTargets.Count > 0)
+            if (PotentialTargets.Length > 0)
             {
-                return ScannedTargets.FindMax(GetTargetPriority);
+                return PotentialTargets.FindMax(GetTargetPriority);
             }
             return null;
         }
@@ -349,8 +359,12 @@ namespace Ship_Game.AI
             return value / distance;
         }
 
-        void ScanForTargets()
+        
+        // Runs an immediate sensor scan
+        public void SensorScan()
         {
+            ScanForThreatTimer = SensorScanIntervalSeconds;
+
             float radius = GetSensorRadius(out Ship sensorShip);
             if (Owner.IsSubspaceProjector)
             {
@@ -368,7 +382,7 @@ namespace Ship_Game.AI
 
             // automatically choose `Target` if ship does not have Priority
             // or if current target already died
-            if (!HasPriorityOrder && (!HasPriorityTarget || Target == null || Target?.Active == false || Target?.dying == true))
+            if (!HasPriorityOrder && (!HasPriorityTarget || !IsTargetActive(Target)))
                 Target = scannedTarget;
 
             if (State != AIState.Resupply && !DoNotEnterCombat)
