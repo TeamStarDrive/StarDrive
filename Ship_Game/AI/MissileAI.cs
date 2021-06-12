@@ -10,7 +10,7 @@ namespace Ship_Game.AI
         readonly Projectile Missile;
         public GameplayObject Target { get; set; }
 
-        readonly Array<Ship> TargetList;
+        readonly Ship[] TargetList;
         float TargetUpdateTimer = 0.15f;
 
         public bool Jammed { get; private set; }
@@ -57,8 +57,7 @@ namespace Ship_Game.AI
             }
             else if (Missile.Planet != null)
             {
-                Level = missile.Planet.Level;
-                TargetList = new Array<Ship>();
+                var targets = new Array<Ship>();
 
                 // find nearby enemy ships
                 GameplayObject[] nearbyShips = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
@@ -70,9 +69,12 @@ namespace Ship_Game.AI
                     {
                         var nearbyShip = (Ship) go;
                         if (missile.Loyalty.IsEmpireAttackable(nearbyShip.loyalty))
-                            TargetList.Add(nearbyShip);
+                            targets.Add(nearbyShip);
                     }
                 }
+
+                TargetList = targets.ToArray();
+                Level = missile.Planet.Level;
             }
 
             InitialPhaseDirection = RandomMath.RollDice(50) ? -1f : +1f;

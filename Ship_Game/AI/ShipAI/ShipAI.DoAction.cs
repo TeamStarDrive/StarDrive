@@ -429,17 +429,14 @@ namespace Ship_Game.AI
 
         void DoRepairDroneLogic(Weapon w)
         {
-            using (FriendliesNearby.AcquireReadLock())
-            {
-                Ship repairMe = FriendliesNearby.FindMinFiltered(
-                    filter: ship => ShipNeedsRepair(ship, ShipResupply.RepairDroneRange),
-                    selector: ship => ship.InternalSlotsHealthPercent);
+            Ship repairMe = FriendliesNearby.FindMinFiltered(
+                filter: ship => ShipNeedsRepair(ship, ShipResupply.RepairDroneRange),
+                selector: ship => ship.InternalSlotsHealthPercent);
 
-                if (repairMe == null) return;
-                Vector2 target = w.Origin.DirectionToTarget(repairMe.Center);
-                target.Y = target.Y * -1f;
-                w.FireDrone(target);
-            }
+            if (repairMe == null) return;
+            Vector2 target = w.Origin.DirectionToTarget(repairMe.Center);
+            target.Y = target.Y * -1f;
+            w.FireDrone(target);
         }
 
         void DoRepairBeamLogic(Weapon w)
@@ -482,6 +479,9 @@ namespace Ship_Game.AI
 
         void DoAssaultTransporterLogic(ShipModule module)
         {
+            if (NearByShips.IsEmpty)
+                return;
+
             ShipWeight ship = NearByShips.Where(
                     s => s.Ship.loyalty != null && s.Ship.loyalty != Owner.loyalty && s.Ship.shield_power <= 0
                          && s.Ship.Center.InRadius(Owner.Center, module.TransporterRange + 500f))

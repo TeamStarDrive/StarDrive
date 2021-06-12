@@ -1103,15 +1103,15 @@ namespace Ship_Game.Ships
             shield_percent = shield_max >0 ? 100.0 * shield_power / shield_max : 0;
         }
 
-        public void UpdateSensorsAndInfluence(FixedSimTime timeStep)
+        public void UpdateSensorsAndInfluence(VariableFrameTime varTime)
         {
             // update our knowledge of the surrounding universe
-            UpdateInfluence(timeStep);
-            KnownByEmpires.Update(timeStep);
+            UpdateInfluence(varTime);
+            KnownByEmpires.Update(varTime);
             SetFleetCapableStatus();
             
             // scan universe and make decisions for combat
-            AI.StartSensorScan(timeStep);
+            AI.CheckSensors(varTime);
         }
 
         public void UpdateModulePositions(FixedSimTime timeStep, bool isSystemView, bool forceUpdate = false)
@@ -1837,7 +1837,7 @@ namespace Ship_Game.Ships
 
         public void UpdatePackDamageModifier()
         {
-            float modifier = -0.15f + 0.01f * AI.FriendliesNearby.Count;
+            float modifier = -0.15f + 0.01f * AI.FriendliesNearby.Length;
             PackDamageModifier = modifier.Clamped(-0.15f, 0.3f);
         }
 
