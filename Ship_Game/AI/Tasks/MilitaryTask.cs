@@ -555,13 +555,13 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.AssaultPlanet:
                 case TaskType.DefendPostInvasion:
                 case TaskType.GlassPlanet:
-                case TaskType.CorsairRaid:        taskCat |= TaskCategory.War; break;
+                case TaskType.CorsairRaid:
+                case TaskType.ClearAreaOfEnemies:
+                case TaskType.CohesiveClearAreaOfEnemies: taskCat |= TaskCategory.War; break;
                 case TaskType.AssaultPirateBase:
-                case TaskType.CohesiveClearAreaOfEnemies:
                 case TaskType.Patrol:
                 case TaskType.DefendVsRemnants:
                 case TaskType.RemnantEngagement:
-                case TaskType.ClearAreaOfEnemies:
                 case TaskType.Resupply:           taskCat |= TaskCategory.Domestic; break;
                 case TaskType.DefendClaim:
                 case TaskType.GuardBeforeColonize:
