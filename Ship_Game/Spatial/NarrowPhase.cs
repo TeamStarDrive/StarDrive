@@ -39,7 +39,7 @@ namespace Ship_Game.Spatial
 
         public static int Collide(FixedSimTime timeStep,
                                   CollisionPair* collisionPairs, int numPairs,
-                                  Array<GameplayObject> objects)
+                                  GameplayObject[] objects)
         {
             int numCollisions = 0;
 
