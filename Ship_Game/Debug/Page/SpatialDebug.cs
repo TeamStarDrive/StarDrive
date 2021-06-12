@@ -109,7 +109,7 @@ namespace Ship_Game.Debug.Page
                 if (FilterByLoyalty)
                     opt.OnlyLoyalty = Loyalty;
 
-                Found = Spatial.FindNearby(opt);
+                Found = Spatial.FindNearby(ref opt);
                 return true;
             }
             return false;

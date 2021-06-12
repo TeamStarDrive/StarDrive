@@ -92,9 +92,9 @@ namespace Ship_Game.Gameplay
             CollisionTime.Stop();
         }
 
-        public GameplayObject[] FindNearby(in SearchOptions opt)
+        public GameplayObject[] FindNearby(ref SearchOptions opt)
         {
-            return Spatial.FindNearby(opt);
+            return Spatial.FindNearby(ref opt);
         }
 
         /// <param name="type"></param>
@@ -118,7 +118,7 @@ namespace Ship_Game.Gameplay
                 DebugId = debugId
             };
 
-            return Spatial.FindNearby(opt);
+            return Spatial.FindNearby(ref opt);
         }
 
         public GameplayObject[] FindNearby(GameObjectType type,
@@ -136,7 +136,7 @@ namespace Ship_Game.Gameplay
                 DebugId = debugId
             };
 
-            return Spatial.FindNearby(opt);
+            return Spatial.FindNearby(ref opt);
         }
 
         public GameplayObject[] FindNearby(GameObjectType type, 
@@ -154,7 +154,7 @@ namespace Ship_Game.Gameplay
                 DebugId = debugId
             };
 
-            return Spatial.FindNearby(opt);
+            return Spatial.FindNearby(ref opt);
         }
 
 

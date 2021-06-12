@@ -12,7 +12,7 @@ namespace Ship_Game.Spatial
     /// </summary>
     public unsafe class LinearSearch
     {
-        public static GameplayObject[] FindNearby(in SearchOptions opt, GameplayObject[] objects, int count)
+        public static GameplayObject[] FindNearby(ref SearchOptions opt, GameplayObject[] objects, int count)
         {
             int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
             int* objectIds = stackalloc int[maxResults];
@@ -59,6 +59,7 @@ namespace Ship_Game.Spatial
             }
             return Copy(objectIds, resultCount, objects);
         }
+
         public static GameplayObject[] Copy(int* objectIds, int count, GameplayObject[] objects)
         {
             if (count == 0)
