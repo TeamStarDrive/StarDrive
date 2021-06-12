@@ -115,7 +115,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Score                       = new WarScore(this, Us);
 
             PopulateHistoricLostSystems();
-            if (!Us.isPlayer && !Us.isFaction)
+            if (!Us.isPlayer && !Us.isFaction && !them.isFaction)
                 Us.GetEmpireAI().AddGoal(new WarManager(Us, Them, WarType));
 
             //WarTheaters = new TheatersOfWar(this);

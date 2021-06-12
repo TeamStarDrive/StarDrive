@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Empires.Components;
@@ -80,8 +81,8 @@ namespace Ship_Game.Commands.Goals
         // todo - by the task priority
         bool DefenseTaskHasHigherPriority(MilitaryTask defenseTask, MilitaryTask possibleTask)
         {
-            if (possibleTask == defenseTask)
-                return false; // Since we also check other defense tasks, we dont want to compare same task
+            if (possibleTask.Type == MilitaryTask.TaskType.ClearAreaOfEnemies)
+                return false;
 
             SolarSystem system = defenseTask.TargetSystem ?? defenseTask.TargetPlanet.ParentSystem;
             if (system.PlanetList.Any(p => p.Owner == empire && p.HasCapital)
@@ -92,7 +93,9 @@ namespace Ship_Game.Commands.Goals
 
             Planet target = possibleTask.TargetPlanet;
             float defenseValue = system.PotentialValueFor(empire) * empire.PersonalityModifiers.DefenseTaskWeight;
-            float possibleValue = target.ParentSystem.PotentialValueFor(empire);
+            float possibleValue = target?.ParentSystem.PotentialValueFor(empire)
+                ?? possibleTask.TargetSystem?.PotentialValueFor(empire) 
+                ?? 0;
 
             if (possibleTask.Fleet != null) // compare fleet distances
             {
@@ -103,8 +106,9 @@ namespace Ship_Game.Commands.Goals
             }
             else // compare planet distances
             {
-                defenseValue /= empire.WeightedCenter.Distance(target.Center).LowerBound(1);
-                possibleValue /= empire.WeightedCenter.Distance(target.Center).LowerBound(1);
+                Vector2 pos = target?.Center ?? possibleTask.TargetSystem?.Position ?? possibleTask.TargetShip.Center;
+                defenseValue /= empire.WeightedCenter.Distance(pos).LowerBound(1);
+                possibleValue /= empire.WeightedCenter.Distance(pos).LowerBound(1);
             }
 
             return defenseValue.GreaterOrEqual(possibleValue);

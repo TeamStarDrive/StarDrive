@@ -210,7 +210,7 @@ namespace Ship_Game
 
         public bool IsAlreadyDefendingSystem(SolarSystem system)
         {
-            return EmpireAI.Goals.Any(g => g.type == GoalType.DefendSystem);
+            return EmpireAI.Goals.Any(g => g.type == GoalType.DefendSystem && g.TargetSystem == system);
         }
     }
 
