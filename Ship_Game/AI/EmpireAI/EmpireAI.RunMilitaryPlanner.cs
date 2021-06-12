@@ -145,8 +145,6 @@ namespace Ship_Game.AI
                 if (task.TargetPlanet?.Owner == empire)
                     task.EndTask();
             }
-
-            WarTasks.PurgeAllTasksTargeting(empire);
         }
 
         public MilitaryTask[] GetAtomicTasksCopy()
@@ -216,10 +214,10 @@ namespace Ship_Game.AI
 
         public Goal[] GetRemnantEngagementGoalsFor(Planet p)
         {
-            return Goals.Filter(g => g.type == GoalType.RemnantBalancersEngage
-                                        && g.ColonizationTarget == p);
+            return Goals.Filter(g => g.type == GoalType.RemnantEngageEmpire
+                                        && g.TargetPlanet == p);
         }
-
+        
         public MilitaryTask[] GetAssaultPirateTasks()
         {
             return TaskList.Filter(task => task.Type == MilitaryTask.TaskType.AssaultPirateBase);
@@ -320,16 +318,12 @@ namespace Ship_Game.AI
                 if (task.TargetPlanet != null)
                     task.TargetPlanetGuid = task.TargetPlanet.guid;
             }
-            aiSave.WarTaskClass = WarTasks;
-
-
         }
 
         public void ReadFromSave(SavedGame.GSAISAVE aiSave)
         {
             TaskList.Clear();
             TaskList.AddRange(aiSave.MilitaryTaskList);
-            WarTasks = aiSave.WarTaskClass?? new WarTasks(OwnerEmpire);
         }
 
         public void TrySendExplorationFleetToCrashSite(Planet p)

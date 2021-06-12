@@ -1,5 +1,6 @@
 ﻿namespace Ship_Game.AI.StrategyAI.WarGoals
 {
+    /*
     public class CaptureAllPlanets : AttackSystems
     {
         /// <summary>
@@ -16,5 +17,5 @@
         {
             return SetTargets(SystemsWithThem());
         }
-    }
+    }*/
 }

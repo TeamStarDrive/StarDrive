@@ -62,7 +62,7 @@ namespace Ship_Game
     {
         // Every time the savegame layout changes significantly,
         // this version needs to be bumped to avoid loading crashes
-        public const int SaveGameVersion = 5;
+        public const int SaveGameVersion = 6;
         public const string ZipExt = ".sav.gz";
 
         public readonly UniverseSaveData SaveData = new UniverseSaveData();
@@ -691,7 +691,6 @@ namespace Ship_Game
             [Serialize(2)] public Array<MilitaryTask> MilitaryTaskList;
             [Serialize(3)] public Array<Guid> PinGuids;
             [Serialize(4)] public Array<ThreatMatrix.Pin> PinList;
-            [Serialize(5)] public WarTasks WarTaskClass;
         }
 
         public class PGSData

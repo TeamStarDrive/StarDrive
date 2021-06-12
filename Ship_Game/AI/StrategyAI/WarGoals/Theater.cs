@@ -8,6 +8,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
+    /*
     public class Theater 
     {
         public Guid TheaterGuid = Guid.NewGuid();
@@ -246,4 +247,5 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void ResetRallyPoint() => SetupRallyPoint();
     }
+    */
 }

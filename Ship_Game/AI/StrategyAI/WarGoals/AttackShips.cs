@@ -2,6 +2,7 @@
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
+    /*
     public abstract class AttackShips : Campaign
     {
         /// <summary>
@@ -36,5 +37,5 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             return GoalStep.GoToNextStep;
         }
-    }
+    }*/
 }

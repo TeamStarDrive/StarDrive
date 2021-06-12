@@ -32,7 +32,6 @@ namespace Ship_Game
         public bool IsPacifist   => Personality == PersonalityType.Pacifist;
 
         public War[] AllActiveWars { get; private set; } = new War[0];
-        public Theater[] AllActiveWarTheaters { get; private set; } = new Theater[0];
         public int ActiveWarPreparations { get; private set; } 
 
 
@@ -153,43 +152,6 @@ namespace Ship_Game
             AllActiveWars = wars.ToArray();
             ActiveWarPreparations = EmpireAI.Goals.Count(g => g.type == GoalType.PrepareForWar);
             AtWarCount = atWarCount;
-            /*
-            var theaters = new Array<Theater>();
-            foreach (var war in AllActiveWars)
-            {
-                if (war.WarTheaters.ActiveTheaters?.Length > 0)
-                    theaters.AddRange(war.WarTheaters.ActiveTheaters);
-            }
-            AllActiveWarTheaters = theaters.ToArray(); */
-        }
-
-        void UpdateWarRallyPlanetsWonPlanet(Planet p, Empire enemy)
-        {
-            // todo - might need to transfer AO details, like core fleet so prevent issues later.
-            foreach (Theater theater in AllActiveWarTheaters.Filter(t => t.GetWar().Them == enemy))
-            {
-                War war = theater.GetWar();
-                if (war.WarType == WarType.SkirmishWar)
-                    continue;
-
-                Vector2 currentRallyCenter = theater.RallyAO.Center;
-                if (p.Center.SqDist(enemy.WeightedCenter) < currentRallyCenter.SqDist(enemy.WeightedCenter))
-                    theater.UpdateRallyAo(p);
-            }
-        }
-
-        void UpdateWarRallyPlanetsLostPlanet(Planet p, Empire enemy)
-        {
-            // todo - might need to transfer AO details, like core fleet so prevent issues later.
-            foreach (Theater theater in AllActiveWarTheaters.Filter(t => t.GetWar().Them == enemy))
-            {
-                War war = theater.GetWar();
-                if (war.WarType == WarType.SkirmishWar)
-                    continue;
-
-                if (theater.RallyAO.CoreWorld == p)
-                    theater.ResetRallyPoint();
-            }
         }
 
         public static void UpdateBilateralRelations(Empire us, Empire them)

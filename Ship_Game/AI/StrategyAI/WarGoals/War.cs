@@ -33,7 +33,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public bool Initialized;
         readonly WarScore Score;
         public Map<Guid, int> SystemAssaultFailures = new Map<Guid, int>();
-        public TheatersOfWar WarTheaters;
         public int StartingNumContestedSystems;
 
         public WarState GetBorderConflictState(Array<Planet> coloniesOffered) => Score.GetBorderConflictState(coloniesOffered);
@@ -175,23 +174,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             OurRelationToThem = Us.GetRelationsOrNull(Them);
             
             if (activeWar)
-            {
                 PopulateHistoricLostSystems();
-                if (WarTheaters == null) WarTheaters = new TheatersOfWar(this);
-                WarTheaters.RestoreFromSave(this);
-            }
-            else
-            {
-                WarTheaters = null;
-            }
-        }
-
-        public WarState ConductWar()
-        {
-            LowestTheaterPriority = WarTheaters.MinPriority();
-            WarTheaters.Evaluate();
-
-            return Score.GetWarScoreState();
         }
 
         public void ShipWeLost(Ship target)
