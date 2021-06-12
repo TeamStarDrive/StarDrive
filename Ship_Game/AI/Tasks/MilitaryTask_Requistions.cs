@@ -226,6 +226,7 @@ namespace Ship_Game.AI.Tasks
                 Log.Error($"no area of operation set for task: {Type}");
 
             AO = TargetPlanet?.Center ?? AO;
+            UpdateMinimumTaskForceStrength();
             InitFleetRequirements(minFleetStrength: MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: 0);
             if (CreateTaskFleet(Completeness) == RequisitionStatus.Complete)
                 NeedEvaluation = false;
@@ -443,7 +444,7 @@ namespace Ship_Game.AI.Tasks
 
             MinimumTaskForceStrength = (EnemyStrength + buildingsSpaceOffense).LowerBound(lowerBound);
             float multiplier         = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
-            MinimumTaskForceStrength = (MinimumTaskForceStrength * multiplier).UpperBound(Owner.CurrentMilitaryStrength / 2);
+            MinimumTaskForceStrength = (MinimumTaskForceStrength * multiplier).UpperBound(Owner.OffensiveStrength / 2);
         }
 
         string GetFleetName()
