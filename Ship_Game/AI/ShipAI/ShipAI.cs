@@ -350,15 +350,16 @@ namespace Ship_Game.AI
             ai.AddPlanetaryRearmGoal(Owner, planet);
         }
 
-        public void FireWeapons(FixedSimTime timeStep)
+        public bool FireWeapons(FixedSimTime timeStep)
         {
             TriggerDelay -= timeStep.FixedTime;
             FireOnMainTargetTime -= timeStep.FixedTime;
-            if (TriggerDelay < 0)
+            if (TriggerDelay <= 0f)
             {
                 TriggerDelay = timeStep.FixedTime * 2;
-                FireOnTarget();
+                return FireOnTarget();
             }
+            return false;
         }
 
 
@@ -762,20 +763,13 @@ namespace Ship_Game.AI
         const float SensorScanIntervalSeconds = 0.25f;
 
         // Checks whether it's time to run a SensorScan
-        public void CheckSensors(FixedSimTime timeStep)
+        public void CheckSensors(VariableFrameTime varTime)
         {
-            ScanForThreatTimer -= timeStep.FixedTime;
+            ScanForThreatTimer -= varTime.Seconds;
             if (ScanForThreatTimer <= 0f)
             {
                 SensorScan();
             }
-        }
-
-        // Runs an immediate sensor scan
-        public void SensorScan()
-        {
-            ScanForThreatTimer = SensorScanIntervalSeconds;
-            ScanForTargets();
         }
 
         void ResetStateFlee()

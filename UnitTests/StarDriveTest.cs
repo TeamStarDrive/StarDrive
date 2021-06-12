@@ -69,6 +69,7 @@ namespace UnitTests
         public Empire Faction { get; private set; }
 
         public FixedSimTime TestSimStep { get; private set; } = new FixedSimTime(1f / 60f);
+        public VariableFrameTime TestVarTime { get; private set; } = new VariableFrameTime(1f / 60f);
 
         public StarDriveTest()
         {
