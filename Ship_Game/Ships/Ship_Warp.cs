@@ -163,7 +163,8 @@ namespace Ship_Game.Ships
             {
                 if (engineState == MoveState.Sublight)
                 {
-                    FTLManager.EnterFTL(Center.ToVec3(), Direction3D, Radius);
+                    if (IsVisibleToPlayer)
+                        FTLManager.EnterFTL(Center.ToVec3(), Direction3D, Radius);
                     engineState = MoveState.Warp;
                 }
                 IsSpooling = false;

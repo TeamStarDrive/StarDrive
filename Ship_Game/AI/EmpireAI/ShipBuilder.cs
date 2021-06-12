@@ -178,7 +178,7 @@ namespace Ship_Game.AI
             freighter = freighters.FindMax(ship => ship.FreighterValue(empire, fastVsBig));
 
             if (Empire.Universe?.Debug == true)
-                Log.Info(ConsoleColor.Cyan, $"----- Picked {freighter.Name}");
+                Log.Info(ConsoleColor.Cyan, $"----- Picked {freighter?.Name ?? "null"}");
 
             return freighter;
         }

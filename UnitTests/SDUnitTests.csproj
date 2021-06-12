@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AITests\Empire\TestEmpireAI.cs" />
+    <Compile Include="AITests\Ships\ShipAICombatTests.cs" />
     <Compile Include="AITests\Ships\TestShipMove.cs" />
     <Compile Include="AssertExtensions.cs" />
     <Compile Include="Collections\ArrayTypesTestBase.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Ships\CarrierTests.cs" />
     <Compile Include="Ships\ModuleGridTests.cs" />
     <Compile Include="Ships\ShipDataTests.cs" />
+    <Compile Include="Ships\ShipHullTests.cs" />
     <Compile Include="Ships\ShipLoyaltyTests.cs" />
     <Compile Include="Ships\ShipModuleGridTests.cs" />
     <Compile Include="Ships\ShipModuleTests.cs" />
