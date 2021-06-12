@@ -12,7 +12,6 @@ namespace Ship_Game.AI
 
     public sealed partial class ShipAI
     {
-        public bool UseSensorsForTargets = true;
         public CombatState CombatState = CombatState.AttackRuns;
         public CombatAI CombatAI = new CombatAI();
 
@@ -419,12 +418,6 @@ namespace Ship_Game.AI
 
         public float GetSensorRadius(out Ship sensorShip)
         {
-            if (!UseSensorsForTargets) // this is obsolete and not needed anymore. 
-            {
-                sensorShip = Owner.Mothership ?? Owner;
-                return 30000f;
-            }
-
             if (Owner.IsHangarShip)
             {
                 // get the motherships sensor status. 
