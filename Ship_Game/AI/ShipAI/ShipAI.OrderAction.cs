@@ -346,11 +346,11 @@ namespace Ship_Game.AI
             }
 
             if (signalRetreat)
-                using (FriendliesNearby.AcquireReadLock())
-                {
-                    for (int i = 0; i < FriendliesNearby.Count; i++)
-                        FriendliesNearby[i].AI.OrderPirateFleeHome();
-                }
+            {
+                var friends = FriendliesNearby;
+                for (int i = 0; i < friends.Length; i++)
+                    FriendliesNearby[i].AI.OrderPirateFleeHome();
+            }
         }
 
         void OrderMoveToPirateBase(Ship pirateBase)
@@ -366,8 +366,8 @@ namespace Ship_Game.AI
         {
             if (TargetQueue.Count == 0 && Target != null && Target.Active && Target != toAttack)
             {
-                OrderAttackSpecificTarget(Target as Ship);
-                TargetQueue.Add(Target as Ship);
+                OrderAttackSpecificTarget(Target);
+                TargetQueue.Add(Target);
             }
             if (TargetQueue.Count == 0)
             {
@@ -677,13 +677,16 @@ namespace Ship_Game.AI
         void AwaitOrdersPlayer(FixedSimTime timeStep)
         {
             SetPriorityOrder(false);
-            if (Owner.InCombatTimer > timeStep.FixedTime * -5 && ScanForThreatTimer < 2 - timeStep.FixedTime * 5)
+
+            if (Owner.InCombatTimer > (timeStep.FixedTime * -5) && ScanForThreatTimer < 2 - timeStep.FixedTime * 5)
                 ScanForThreatTimer = 0;
+
             if (EscortTarget != null)
             {
                 State = AIState.Escort;
                 return;
             }
+
             if (!HadPO)
             {
                 if (SystemToDefend != null)

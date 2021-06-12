@@ -28,8 +28,7 @@ namespace UnitTests.Ships
         {
             ship.AI.CombatState = state;
             ship.shipStatusChanged = true;
-            ship.AI.StartSensorScan(TestSimStep);
-            
+            ship.AI.SensorScan();
             ship.Update(new FixedSimTime(1f));
         }
 
