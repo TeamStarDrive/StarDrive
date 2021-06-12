@@ -31,7 +31,6 @@ namespace Ship_Game.AI.Tasks
         [Serialize(16)] public int TargetEmpireId = -1;
 
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
-        [XmlIgnore] [JsonIgnore] public Campaign WarCampaign = null;
 
         // FB - Do not disband the fleet, it is held for a new task - this is done at once and does not need save
         [XmlIgnore] [JsonIgnore] public bool FleetNeededForNextTask { get; private set; }
@@ -542,12 +541,6 @@ namespace Ship_Game.AI.Tasks
         public TaskCategory GetTaskCategory()
         {
             TaskCategory taskCat = MinimumTaskForceStrength > 0 ? TaskCategory.FleetNeeded : TaskCategory.None;
-            
-            if (WarCampaign?.GetWarType() == WarType.EmpireDefense)
-                taskCat |= TaskCategory.Domestic;
-            else if (WarCampaign != null)
-                taskCat |= TaskCategory.War;
-
             switch (Type)
             {
                 case TaskType.StageFleet:

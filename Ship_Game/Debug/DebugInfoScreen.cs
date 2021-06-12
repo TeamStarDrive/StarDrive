@@ -928,7 +928,7 @@ namespace Ship_Game.Debug
             DrawString("Goals:");
             foreach (Goal goal in e.GetEmpireAI().Goals)
             {
-                if (goal.type != GoalType.RemnantBalancersEngage)
+                if (goal.type != GoalType.RemnantEngageEmpire)
                 {
                     DrawString($"{goal.type}");
                 }

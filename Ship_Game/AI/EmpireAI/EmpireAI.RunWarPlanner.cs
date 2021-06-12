@@ -10,8 +10,6 @@ namespace Ship_Game.AI
     public sealed partial class EmpireAI
     {
         public float MinWarPriority { get; private set; }
-        public WarTasks WarTasks { get; private set; }
-
         public static void ShowWarDeclaredNotification(Empire us, Empire them)
         {
             if (us.isPlayer || them.isPlayer ||

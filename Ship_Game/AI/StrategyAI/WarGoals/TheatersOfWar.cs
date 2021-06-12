@@ -7,6 +7,7 @@ using Ship_Game.Debug;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
+/*
     public class TheatersOfWar 
     {
         Guid TheatersOfWarGuid = Guid.NewGuid();
@@ -315,4 +316,5 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
         }
     }
+*/
 }
