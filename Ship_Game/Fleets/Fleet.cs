@@ -765,9 +765,11 @@ namespace Ship_Game.Fleets
             fleet.TaskStep  = 2;
             var strikeFleet = new MilitaryTask(task.TargetPlanet, owner)
             {
-                Type     = MilitaryTask.TaskType.StrikeForce,
-                GoalGuid = goal.guid,
-                Goal     = goal
+                Type           = MilitaryTask.TaskType.StrikeForce,
+                GoalGuid       = goal.guid,
+                Goal           = goal,
+                NeedEvaluation = false,
+                WhichFleet     = task.WhichFleet
             };
 
             fleet.Name      = "Strike Fleet";

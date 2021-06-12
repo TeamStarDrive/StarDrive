@@ -37,7 +37,7 @@ namespace Ship_Game.Commands.Goals
             StarDateAdded = Empire.Universe.StarDate;
             ChangeToStep(Process);
             Fleet.CreateStrikeFromCurrentTask(task.Fleet, task, empire, this);
-            Log.Info(ConsoleColor.Green, $"---- WarMission: New Strike Force from stage fleet, {empire.Name} Vs.: {TargetEmpire.Name} ----");
+            Log.Info(ConsoleColor.Green, $"---- WarMission: New Strike Force from stage fleet, {empire.Name} Vs. {TargetEmpire.Name} ----");
         }
 
         float LifeTime => Empire.Universe.StarDate - StarDateAdded;

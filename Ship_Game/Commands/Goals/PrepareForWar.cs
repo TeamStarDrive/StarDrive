@@ -10,7 +10,7 @@ namespace Ship_Game.Commands.Goals
         public override string UID => ID;
         private bool SkipFirstRun = true;
 
-        public PrepareForWar() : base(GoalType.WarMission)
+        public PrepareForWar() : base(GoalType.PrepareForWar)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -72,7 +72,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
 
             TargetPlanet = empire.SortPlanetTargets(targetPlanets, warType, TargetEmpire)[0];
-            empire.CreateStageFleetTask(TargetPlanet, TargetEmpire);
+            empire.CreateStageFleetTask(TargetPlanet, TargetEmpire, this);
             return GoalStep.GoToNextStep;
         }
 

@@ -42,7 +42,7 @@ namespace Ship_Game.AI
                     taskEvalCounter += 1;
 
                 if (taskEvalCounter == taskEvalLimit)
-                    return;
+                    break;
             }
 
             ApplyPendingChanges();
@@ -72,6 +72,7 @@ namespace Ship_Game.AI
                 switch (task.Type)
                 {
                     default:                                        priority = 5;                                  break;
+                    case MilitaryTask.TaskType.StageFleet:          priority = 2 * (numWars * 2).LowerBound(1);    break;
                     case MilitaryTask.TaskType.GuardBeforeColonize: priority = 3 + numWars;                        break;
                     case MilitaryTask.TaskType.DefendVsRemnants:    priority = 0;                                  break;
                     case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: 

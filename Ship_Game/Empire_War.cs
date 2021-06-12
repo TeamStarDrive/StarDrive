@@ -43,6 +43,9 @@ namespace Ship_Game
             {
                 if (system.FiveClosestSystems.Any(s => theirSystems.Contains(s)))
                     potentialSystems.AddUnique(system);
+
+                if (system.HasPlanetsOwnedBy(this))
+                    potentialSystems.AddUnique(system);
             }
 
             Array<Planet> targetPlanets = new Array<Planet>();
@@ -62,16 +65,37 @@ namespace Ship_Game
                 default:
                 case WarType.BorderConflict: return targets.SortedDescending(p => p.ColonyPotentialValue(this));
                 case WarType.DefensiveWar:   return targets.Sorted(p => p.Center.SqDist(WeightedCenter));
-                case WarType.ImperialistWar: return targets.SortedDescending(p => p.Center.SqDist(WeightedCenter) * p.ColonyPotentialValue(this));
-                case WarType.GenocidalWar:   return targets.SortedDescending(p => p.Center.SqDist(WeightedCenter) * p.ColonyPotentialValue(enemy));
+                case WarType.ImperialistWar: return targets.SortedDescending(p => p.ColonyPotentialValue(this) / p.Center.Distance(WeightedCenter));
+                case WarType.GenocidalWar:   return targets.SortedDescending(p => p.ColonyPotentialValue(enemy) / p.Center.Distance(WeightedCenter));
             }
         }
 
-        public void CreateStageFleetTask(Planet targetPlanet, Empire enemy)
+        public bool TryConfirmPrepareForWarType(Empire enemy, WarType warType, out WarType finalWarType)
+        {
+            finalWarType = warType;
+            if (GetPotentialTargetPlanets(enemy, warType, out _))
+                return true;
+
+            finalWarType = GetWarEscalation(warType);
+            return GetPotentialTargetPlanets(enemy, finalWarType, out _);
+        }
+
+        public WarType GetWarEscalation(WarType warType)
+        {
+            switch (warType)
+            {
+                case WarType.BorderConflict: return WarType.DefensiveWar;
+                case WarType.DefensiveWar:   return WarType.ImperialistWar;
+                default:                     return warType;
+            }
+        }
+
+        public void CreateStageFleetTask(Planet targetPlanet, Empire enemy, Goal goal)
         {
             MilitaryTask task = new MilitaryTask(targetPlanet, this)
             {
                 Type     = MilitaryTask.TaskType.StageFleet,
+                Goal     = goal
             };
 
             EmpireAI.AddPendingTask(task);

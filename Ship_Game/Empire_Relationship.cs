@@ -33,6 +33,7 @@ namespace Ship_Game
 
         public War[] AllActiveWars { get; private set; } = new War[0];
         public Theater[] AllActiveWarTheaters { get; private set; } = new Theater[0];
+        public int ActiveWarPreparations { get; private set; } 
 
 
         void SignBilateralTreaty(Empire them, TreatyType type, bool value)
@@ -150,6 +151,7 @@ namespace Ship_Game
                 }
             }
             AllActiveWars = wars.ToArray();
+            ActiveWarPreparations = EmpireAI.Goals.Count(g => g.type == GoalType.PrepareForWar);
             AtWarCount = atWarCount;
             /*
             var theaters = new Array<Theater>();

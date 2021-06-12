@@ -745,28 +745,49 @@ namespace Ship_Game.Debug
                 DrawString($"{e.Personality}");
                 DrawString($"Average War Grade: {e.GetAverageWarGrade()}");
                 DrawString("----------------------------");
-
                 int taskEvalLimit   = e.IsAtWarWithMajorEmpire ? (int)e.GetAverageWarGrade().LowerBound(3) : 10;
                 int taskEvalCounter = 0;
                 var tasks = e.GetEmpireAI().GetTasks().Filter(t => !t.QueuedForRemoval).OrderByDescending(t => t.Priority)
                                                                 .ThenByDescending(t => t.MinimumTaskForceStrength).ToArray();
 
-                for (int i = tasks.Length - 1; i >= 0; i--)
+                var tasksWithFleets = tasks.Filter(t => t.Fleet != null);
+                if (tasksWithFleets.Length > 0)
                 {
-                    MilitaryTask task = tasks[i];
-                    Color color       = task.TargetEmpire?.EmpireColor ?? e.EmpireColor;
-                    string fleet      = task.Fleet != null ? $"Fleet Step: {task.Fleet.TaskStep}" : "No Fleet";
-                    string target     = task.TargetPlanet?.Name ?? task.TargetSystem?.Name ?? "";
+                    DrawString(Color.Gray, "-----Tasks with Fleets------");
+                    for (int i = tasksWithFleets.Length - 1; i >= 0; i--)
+                    {
+                        MilitaryTask task = tasksWithFleets[i];
+                        DrawTask(task, e);
+                    }
+                }
 
-                    DrawString(color, $"({task.Priority}) {task.Type}, {target}, str: {(int)task.MinimumTaskForceStrength}, {fleet}");
-                    if (task.NeedEvaluation)
-                        taskEvalCounter =+ 1;
-
+                var tasksForEval = tasks.Filter(t => t.NeedEvaluation);
+                NewLine();
+                DrawString(Color.Gray, "--Tasks Needing Evaluation--");
+                for (int i = tasksForEval.Length - 1; i >= 0; i--)
+                {
                     if (taskEvalCounter == taskEvalLimit)
-                        DrawString("--------Queued Tasks--------");
+                    {
+                        NewLine();
+                        DrawString(Color.Gray, "--------Queued Tasks--------");
+                    }
+
+                    MilitaryTask task = tasksForEval[i];
+                    DrawTask(task, e);
+                    if (task.NeedEvaluation)
+                        taskEvalCounter += 1;
                 }
 
                 column += 1;
+            }
+
+            // Local Method
+            void DrawTask(MilitaryTask t, Empire e)
+            {
+                Color color   = t.TargetEmpire?.EmpireColor ?? e.EmpireColor;
+                string target = t.TargetPlanet?.Name ?? t.TargetSystem?.Name ?? "";
+                string fleet  = t.Fleet != null ? $"Fleet Step: {t.Fleet.TaskStep}" : "";
+                DrawString(color, $"({t.Priority}) {t.Type}, {target}, str: {(int)t.MinimumTaskForceStrength}, {fleet}");
             }
         }
 
