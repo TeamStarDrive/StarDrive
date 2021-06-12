@@ -83,8 +83,9 @@ namespace Ship_Game
 
                 DebugStats.AddItem(new DebugStatItem("Time",
                     () => $"real {GameBase.Base.TotalElapsed:0.00}s   sim.time {CurrentSimTime:0.00}s/{TargetSimTime:0.00}s  lag:{(TargetSimTime - CurrentSimTime) * 1000:0.0}ms"));
-                DebugStats.AddItem(new DebugStatItem("Ships",
-                    () => GetMasterShipList().Count.ToString()));
+                DebugStats.AddItem(new DebugStatItem("Ships", () => Objects.Ships.Count.ToString()));
+                DebugStats.AddItem(new DebugStatItem("Proj", () => Objects.Projectiles.Count.ToString()));
+                DebugStats.AddItem(new DebugStatItem("Perf", () => "avg-sample  max-sample  total/sec"));
 
                 var sim = DebugStats.AddItem(new DebugStatItem("Sim", ProcessSimTurnsPerf, true));
                 sim.AddSubItem(new DebugStatItem("FPS", 
@@ -94,7 +95,9 @@ namespace Ship_Game
 
                 var turn = DebugStats.AddItem(new DebugStatItem("Turn", TurnTimePerf, true));
                 turn.AddSubItem(new DebugStatItem("PreEmp", PreEmpirePerf, TurnTimePerf));
+                turn.AddSubItem(new DebugStatItem("Sensor", EmpireSensorsPerf, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("Empire", EmpireUpdatePerf, TurnTimePerf));
+                turn.AddSubItem(new DebugStatItem("Misc", EmpireMiscPerf, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("PostEmp", PostEmpirePerf, TurnTimePerf));
 
                 var objects = DebugStats.AddItem(new DebugStatItem("Objects", Objects.TotalTime, true));
