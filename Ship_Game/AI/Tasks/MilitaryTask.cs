@@ -510,6 +510,7 @@ namespace Ship_Game.AI.Tasks
         public enum TaskType
         {
             // The order of these can not change without breaking save games. 
+            // If you add new task, make sure to have them added to the PrioritizesTask method in RunMilitaryPlanner.
             ClearAreaOfEnemies,
             Resupply,
             AssaultPlanet,
@@ -549,6 +550,7 @@ namespace Ship_Game.AI.Tasks
 
             switch (Type)
             {
+                case TaskType.StageFleet:
                 case TaskType.StrikeForce:
                 case TaskType.AssaultPlanet:
                 case TaskType.DefendPostInvasion:
