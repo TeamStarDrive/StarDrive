@@ -18,8 +18,8 @@ namespace UnitTests.Ships
             CreateUniverseAndPlayerEmpire();
         }
 
-        static readonly Array<Projectile> NoProjectiles = new Array<Projectile>();
-        static readonly Array<Ship> NoShips = new Array<Ship>();
+        static readonly Projectile[] NoProjectiles = Empty<Projectile>.Array;
+        static readonly Ship[] NoShips = Empty<Ship>.Array;
 
         void CreateShipWithFieldOfFire(float fieldOfFireDegrees, out Ship ship, out Weapon weapon)
         {
@@ -58,7 +58,7 @@ namespace UnitTests.Ships
             Ship main = SpawnShip("Vulcan Scout", Enemy, new Vector2(0, 1000f)); // behind us
             Ship opportune = SpawnShip("Vulcan Scout", Enemy, new Vector2(0, -1000f)); // in front of us
 
-            var otherShips = new Array<Ship>(new[]{ opportune });
+            var otherShips = new[]{ opportune };
             Assert.IsTrue(weapon.UpdateAndFireAtTarget(main, NoProjectiles, otherShips), "Fire at target must succeed");
             Assert.AreEqual(1, GetProjectileCount(ship), "Invalid projectile count");
             Assert.AreEqual(((ShipModule)weapon.FireTarget).GetParent(), opportune, "Weapon must have fired at target of opportunity");
@@ -80,7 +80,7 @@ namespace UnitTests.Ships
             enemy.AI.OrderHoldPosition(enemy.Center, enemy.Direction);
             enemy.Update(new FixedSimTime(0.01f)); // update weapons & projectiles
 
-            Array<Projectile> projectiles = GetProjectiles(enemy);
+            var projectiles = GetProjectiles(enemy).ToArray();
             Assert.IsTrue(weapon.UpdateAndFireAtTarget(enemy, projectiles, NoShips), "Fire PD at a projectile must succeed");
             Assert.AreEqual(1, GetProjectileCount(us), "Invalid projectile count");
             Assert.AreEqual(weapon.FireTarget.Type, GameObjectType.Proj, "TruePD must only fire at projectiles");

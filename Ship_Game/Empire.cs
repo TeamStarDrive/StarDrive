@@ -143,8 +143,7 @@ namespace Ship_Game
         public float TotalMaintenanceInScrap { get; private set; }
         public float TotalTroopShipMaintenance { get; private set; }
 
-        public float updateContactsTimer = 0f;
-        public float MaxContactTimer = 0f;
+        public float MaxContactTimer = 1.0f;
         private bool HostilesDictForPlayerInitialized;
         public float NetPlanetIncomes { get; private set; }
         public float TroopCostOnPlanets { get; private set; } // Maintenance in all Owned planets
@@ -209,8 +208,11 @@ namespace Ship_Game
         public Array<string> CarrierTech     = new Array<string>();
         public Array<string> SupportShipTech = new Array<string>();
         public Planet[] RallyPoints          = Empty<Planet>.Array;
-        public Ship BoardingShuttle => ResourceManager.GetShipTemplate("Assault Shuttle");
-        public Ship SupplyShuttle   => ResourceManager.GetShipTemplate("Supply Shuttle");
+
+        public const string DefaultBoardingShuttleName = "Assault Shuttle";
+        public const string DefaultSupplyShuttleName   = "Supply Shuttle";
+        public Ship BoardingShuttle => ResourceManager.GetShipTemplate(DefaultBoardingShuttleName, false);
+        public Ship SupplyShuttle   => ResourceManager.GetShipTemplate(DefaultSupplyShuttleName);
         public bool IsCybernetic  => data.Traits.Cybernetic != 0;
         public bool NonCybernetic => data.Traits.Cybernetic == 0;
         public bool WeArePirates  => Pirates != null; // Use this to figure out if this empire is pirate faction
@@ -1401,12 +1403,12 @@ namespace Ship_Game
             }
         }
 
-        void ScanFromAllInfluenceNodes(FixedSimTime timeStep)
+        void ScanFromAllInfluenceNodes(VariableFrameTime varTime)
         {
             for (int i = 0; i < BorderNodes.Count; i++)
             {
                 var node = BorderNodes[i];
-                ScanForInfluence(node, timeStep);
+                ScanForInfluence(node, varTime);
             }
 
             for (int i = 0; i < SensorNodes.Count; i++)
@@ -1431,7 +1433,7 @@ namespace Ship_Game
             }
         }	
 
-        void ScanForInfluence(InfluenceNode node, FixedSimTime timeStep)
+        void ScanForInfluence(InfluenceNode node, VariableFrameTime varTime)
         {
             // find anyone within this influence node
             GameplayObject[] targets = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
@@ -1444,7 +1446,7 @@ namespace Ship_Game
                 // Civilian infrastructure spotting enemy fleets
                 if (node.SourceObject is Ship ssp)
                 {
-                    ssp.HasSeenEmpires.Update(timeStep);
+                    ssp.HasSeenEmpires.Update(varTime);
                     if (ship.fleet != null)
                     {
                         if (isPlayer || Universe.Debug && Universe.SelectedShip?.loyalty == this)
@@ -3508,14 +3510,12 @@ namespace Ship_Game
         int ThreatMatrixUpdateTicks = ResetThreatMatrixTicks;
         const int ResetThreatMatrixTicks =5;
         
-        public void UpdateContactsAndBorders(FixedSimTime timeStep)
+        public void UpdateContactsAndBorders(VariableFrameTime varTime)
         {
-            updateContactsTimer -= timeStep.FixedTime;
             if (!IsEmpireDead())
             {
-                MaxContactTimer = timeStep.FixedTime;
                 ResetBorders();
-                ScanFromAllInfluenceNodes(timeStep);
+                ScanFromAllInfluenceNodes(varTime);
                 PopulateKnownShips();
             }
 

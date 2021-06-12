@@ -201,6 +201,7 @@ namespace Ship_Game.Spatial
             public AABoundingBox2Di SearchRect;
             public Circle RadialFilter;
             public int MaxResults;
+            public int SortByDistance;
             public int FilterByType;
             public int FilterExcludeObjectId;
             public int FilterExcludeByLoyalty;
@@ -225,6 +226,7 @@ namespace Ship_Game.Spatial
                     Radius=(int)(opt.FilterRadius + 0.5f) // ceil
                 },
                 MaxResults = opt.MaxResults,
+                SortByDistance = opt.SortByDistance ? 1 : 0,
                 FilterByType = (int)opt.Type,
                 FilterExcludeObjectId = ignoreId,
                 FilterExcludeByLoyalty = opt.ExcludeLoyalty?.Id ?? 0,

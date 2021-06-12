@@ -5,7 +5,6 @@ namespace Ship_Game.Ships
     public class SupplyShuttles
     {
         Ship Owner;
-        Array<Ship> FriendliesNearby => Owner.AI.FriendliesNearby;
 
         public SupplyShuttles(Ship ship)
         {
@@ -166,9 +165,7 @@ namespace Ship_Game.Ships
 
         Ship[] ShipsInNeedOfSupplyByPriority(float sensorRange)
         {
-            Array<Ship> friendlyShips = Owner.AI.FriendliesNearby;
-
-            Ship[] shipsInNeed = friendlyShips.Filter(ship =>
+            Ship[] shipsInNeed = Owner.AI.FriendliesNearby.Filter(ship =>
             {
                 return ship.Active &&
                        ship.shipData.Role != ShipData.RoleName.supply

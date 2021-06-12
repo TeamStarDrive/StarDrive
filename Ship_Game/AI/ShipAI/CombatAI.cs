@@ -35,7 +35,7 @@ namespace Ship_Game.AI
         public void ClearTargets()
         {
             Owner.AI.Target = null;
-            Owner.AI.PotentialTargets.Clear();
+            Owner.AI.PotentialTargets = Empty<Ship>.Array;
         }
 
         /* Checking Alternative Logic
