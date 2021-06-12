@@ -4,6 +4,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
+    /*
     /// <summary>
     /// This is a intermediate class that sits between the very generic GoalBase class and more detailed usage.
     /// all items requiring saving should be put here.
@@ -318,5 +319,5 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             return planetList.Length > 0 ? planetList.Sum(p => p.ColonyValue) : 0;
         }
     }
+    */
 }
- 

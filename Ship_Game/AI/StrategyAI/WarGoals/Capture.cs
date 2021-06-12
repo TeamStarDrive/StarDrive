@@ -2,6 +2,7 @@
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
+    /*
     public class Capture : AttackSystems
     {
         /// <summary>
@@ -15,5 +16,5 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         }
 
         protected override GoalStep SetupTargets() => SetTargets(SystemsWithThem());
-    }
+    }*/
 }

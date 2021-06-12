@@ -39,7 +39,7 @@ namespace Ship_Game.AI
         RearmShipFromPlanet,
         PirateRaidProjector,
         RemnantEngagements,
-        RemnantBalancersEngage,
+        RemnantEngageEmpire,
         RemnantInit,
         DefendVsRemnants,
         StandbyColonyShip,

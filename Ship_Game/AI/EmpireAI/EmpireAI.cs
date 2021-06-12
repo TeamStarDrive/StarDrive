@@ -50,8 +50,6 @@ namespace Ship_Game.AI
 
             if (OwnerEmpire.isFaction && OwnerEmpire.data.IsRemnantFaction)
                 OwnerEmpire.SetAsRemnants(fromSave, Goals);
-
-            WarTasks = new StrategyAI.WarGoals.WarTasks(e);
         }
 
         void RunManagers()
@@ -75,7 +73,7 @@ namespace Ship_Game.AI
                 RunResearchPlanner();
                 RunAgentManager();
             }
-            //WarTasks.Update();
+
             RunMilitaryPlanner();
             RunWarPlanner();
         }

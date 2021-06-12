@@ -68,23 +68,5 @@ namespace Ship_Game.Debug.Page
             SetTextColumns(text);
             base.Update(fixedDeltaTime);
         }
-
-        void DrawWarAOs()
-        {
-            foreach((Empire them, Relationship rel) in EmpireAtWar.AllRelations)
-            {
-                if (them.data.Defeated || them.isFaction) 
-                    continue;
-
-                var war = rel.ActiveWar;
-                if (war == null) 
-                    continue;
-
-                for (int i = 0; i < EmpireAtWar.AllActiveWarTheaters.Length; i++)
-                {
-
-                }
-            }
-        }
     }
 }

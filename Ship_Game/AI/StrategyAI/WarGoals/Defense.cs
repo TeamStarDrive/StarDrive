@@ -1,5 +1,6 @@
 ﻿namespace Ship_Game.AI.StrategyAI.WarGoals
 {
+    /*
     public sealed class Defense : AttackSystems
     {
         /// <summary>
@@ -30,5 +31,5 @@
             //}
             return SetTargets(systems);
         }
-    }
+    }*/
 }

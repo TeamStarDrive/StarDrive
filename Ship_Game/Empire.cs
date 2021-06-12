@@ -2800,8 +2800,6 @@ namespace Ship_Game
                 biggestAI.AbsorbEmpire(strongest);
                 if (biggestAI.GetRelations(this).ActiveWar == null)
                     biggestAI.GetEmpireAI().DeclareWarOn(this, WarType.ImperialistWar);
-                else
-                    biggestAI.GetRelations(this).ActiveWar.WarTheaters.AddCaptureAll();
             }
         }
 

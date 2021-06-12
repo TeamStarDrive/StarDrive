@@ -2,6 +2,7 @@
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
+    /*
     public abstract class AttackSystems : Campaign
     {
         protected Array<SolarSystem> SystemsWithThem()
@@ -62,5 +63,5 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             return GoalStep.GoToNextStep;
         }
-    }
+    }*/
 }

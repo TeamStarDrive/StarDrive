@@ -4,6 +4,7 @@ using Ship_Game.AI.Tasks;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
+    /*
     public class WarTasks
     {
         public Array<MilitaryTask> NewTasks;
@@ -196,4 +197,5 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             NewTasks.Add(task);
         }
     }
+    */
 }

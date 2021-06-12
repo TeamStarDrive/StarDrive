@@ -12,7 +12,7 @@ namespace Ship_Game.Commands.Goals
         private Remnants Remnants;
         private int BombersLevel;
 
-        public RemnantEngageEmpire() : base(GoalType.RemnantBalancersEngage)
+        public RemnantEngageEmpire() : base(GoalType.RemnantEngageEmpire)
         {
             Steps = new Func<GoalStep>[]
             {

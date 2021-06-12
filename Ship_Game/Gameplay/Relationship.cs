@@ -1389,7 +1389,7 @@ namespace Ship_Game.Gameplay
 
         bool TheyArePotentialTargetRuthless(Empire us, Empire them)
         {
-            if (Treaty_Peace || ActiveWar != null && ActiveWar.WarType != WarType.DefensiveWar)
+            if (!Treaty_Peace || AtWar || PreparingForWar )
                 return false;
 
             if (Threat > 0f || TurnsKnown < SecondDemand)
@@ -1407,7 +1407,7 @@ namespace Ship_Game.Gameplay
 
         bool TheyArePotentialTargetAggressive(Empire us, Empire them)
         {
-            if (Treaty_Peace || ActiveWar != null && ActiveWar.WarType != WarType.DefensiveWar)
+            if (Treaty_Peace || AtWar || PreparingForWar)
                 return false;
 
             if (Threat < -40f && TurnsKnown > SecondDemand && !Treaty_Alliance)
@@ -1425,7 +1425,7 @@ namespace Ship_Game.Gameplay
 
         bool TheyArePotentialTargetXenophobic(Empire us, Empire them)
         {
-            if (Treaty_Peace || ActiveWar != null && ActiveWar.WarType != WarType.DefensiveWar || Posture == Posture.Friendly)
+            if (Treaty_Peace || AtWar || PreparingForWar || Posture == Posture.Friendly)
                 return false;
 
             return them.GetPlanets().Count > us.GetPlanets().Count * 1.25f && TotalAnger > 20f;
