@@ -167,7 +167,7 @@ namespace Ship_Game.Ships
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
         public float MaxWeaponError = 0;
 
-        public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || loyalty.BoardingShuttle.Name == Name;
+        public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || Empire.DefaultBoardingShuttleName == Name;
         public bool IsDefaultTroopShip      => !IsDefaultAssaultShuttle && (loyalty.data.DefaultTroopShip == Name || DesignRole == ShipData.RoleName.troop);
         public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
         public bool IsSubspaceProjector     => Name == "Subspace Projector";
@@ -1060,8 +1060,6 @@ namespace Ship_Game.Ships
 
             Rotation = Rotation.AsNormalizedRadians();
 
-            //UpdateModulePositions(deltaTime);
-
             if (!EMPdisabled && hasCommand)
             {
                 for (int i = 0; i < Weapons.Count; i++)
@@ -1105,15 +1103,15 @@ namespace Ship_Game.Ships
             shield_percent = shield_max >0 ? 100.0 * shield_power / shield_max : 0;
         }
 
-        public void UpdateSensorsAndInfluence(FixedSimTime timeStep)
+        public void UpdateSensorsAndInfluence(VariableFrameTime varTime)
         {
             // update our knowledge of the surrounding universe
-            UpdateInfluence(timeStep);
-            KnownByEmpires.Update(timeStep);
+            UpdateInfluence(varTime);
+            KnownByEmpires.Update(varTime);
             SetFleetCapableStatus();
             
             // scan universe and make decisions for combat
-            AI.StartSensorScan(timeStep);
+            AI.CheckSensors(varTime);
         }
 
         public void UpdateModulePositions(FixedSimTime timeStep, bool isSystemView, bool forceUpdate = false)
@@ -1570,7 +1568,7 @@ namespace Ship_Game.Ships
         {
             AI?.Reset();
             var carrier = Mothership?.Carrier;
-            if (IsHangarShip && carrier != null)
+            if (IsHangarShip && carrier?.AllActiveHangars != null)
             {
                 foreach (ShipModule shipModule in carrier.AllActiveHangars)
                     if (shipModule.TryGetHangarShip(out Ship ship) && ship == this)
@@ -1644,7 +1642,7 @@ namespace Ship_Game.Ships
             fleet = null;
             shipData = null;
             Mothership = null;
-            JumpSfx.Destroy();
+            JumpSfx?.Destroy();
             KnownByEmpires = null;
             HasSeenEmpires = null;
             PlanetCrash = null;
@@ -1839,7 +1837,7 @@ namespace Ship_Game.Ships
 
         public void UpdatePackDamageModifier()
         {
-            float modifier = -0.15f + 0.01f * AI.FriendliesNearby.Count;
+            float modifier = -0.15f + 0.01f * AI.FriendliesNearby.Length;
             PackDamageModifier = modifier.Clamped(-0.15f, 0.3f);
         }
 

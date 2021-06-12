@@ -22,6 +22,27 @@ namespace Ship_Game.Gameplay
         public Point GetGridPos() => P;
         public Point GetSize() => new Point(1, 1);
         public override string ToString() => $"{R} {P}";
+
+        /// <summary>
+        /// Sorter for HullSlot[], orders HullSlot grid in scanline order:
+        /// 0 1 2 3
+        /// 4 5 6 7
+        /// </summary>
+        public static int Sorter(HullSlot a, HullSlot b)
+        {
+            // Array.Sort bug in .NET 4.5.2:
+            if (object.ReferenceEquals(a, b))
+                return 0;
+
+            // first by scanline (Y axis)
+            if (a.P.Y < b.P.Y) return -1;
+            if (a.P.Y > b.P.Y) return +1;
+
+            // and then sort by column (X axis)
+            if (a.P.X < b.P.X) return -1;
+            if (a.P.X > b.P.X) return +1;
+            return 0;
+        }
     }
 
     // Used only in new Ship designs

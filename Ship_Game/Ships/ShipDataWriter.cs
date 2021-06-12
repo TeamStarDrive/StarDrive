@@ -21,6 +21,11 @@ namespace Ship_Game.Ships
             Sb.Append(key).Append('=').Append(value).Append('\n');
         }
 
+        public void Write(string key, bool value)
+        {
+            Sb.Append(key).Append('=').Append(value?"true":"false").Append('\n');
+        }
+
         public void Write(string key, string value)
         {
             if (value.NotEmpty())

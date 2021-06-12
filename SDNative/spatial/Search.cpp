@@ -3,7 +3,8 @@
 
 namespace spatial
 {
-    int findNearby(int* outResults, int maxObjectId, const SearchOptions& opt, FoundNodes& found)
+    int findNearby(int* outResults, const SpatialObject* objects, int maxObjectId,
+                   const SearchOptions& opt, FoundNodes& found)
     {
         // we use a bit array to ignore duplicate objects
         // duplication is present by design to handle grid border overlap
@@ -27,7 +28,8 @@ namespace spatial
         FoundNode* nodes = found.nodes;
 
         // if total candidates is more than we can fit, we need to sort LEAF nodes by distance to Origin
-        if (found.totalObjects > maxResults)
+        bool sortByDistance = opt.SortByDistance != 0 || found.totalObjects > maxResults;
+        if (sortByDistance)
         {
             int x = searchRect.centerX();
             int y = searchRect.centerY();
@@ -48,10 +50,10 @@ namespace spatial
         {
             const FoundNode& node = nodes[leafIndex];
             const int size = node.count;
-            SpatialObject** const objects = node.objects;
+            SpatialObject** const nodeObjects = node.objects;
             for (int i = 0; i < size; ++i)
             {
-                const SpatialObject& o = *objects[i];
+                const SpatialObject& o = *nodeObjects[i];
                 if ((o.loyaltyMask & loyaltyMask) &&
                     (o.type & typeMask) && 
                     ((o.objectId+1) & objectMask))
@@ -76,10 +78,30 @@ namespace spatial
                         outResults[numResults++] = id;
                         idBitArray[wordIndex] |= idMask; // set unique result
                         if (numResults == maxResults)
-                            return numResults; // we are done !
+                            goto finalize; // we are done !
                     }
                 }
             }
+        }
+    finalize:
+
+        // and now sort all results by distance
+        if (sortByDistance)
+        {
+            int x = searchRect.centerX();
+            int y = searchRect.centerY();
+            std::sort(outResults, outResults+numResults, [x,y,objects](int idA, int idB) -> bool
+            {
+                const SpatialObject& a = objects[idA];
+                const SpatialObject& b = objects[idB];
+                float adx = x - a.rect.centerX();
+                float ady = y - a.rect.centerY();
+                float sqDist1 = adx*adx + ady*ady;
+                float bdx = x - b.rect.centerX();
+                float bdy = y - b.rect.centerY();
+                float sqDist2 = bdx*bdx + bdy*bdy;
+                return sqDist1 < sqDist2;
+            });
         }
         return numResults;
     }
