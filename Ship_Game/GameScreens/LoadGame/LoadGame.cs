@@ -335,7 +335,6 @@ namespace Ship_Game.GameScreens.LoadGame
             }
             e.InitializeFromSave();
             e.Money = sdata.Money;
-            e.GetEmpireAI().EmpireDefense = sdata.EmpireDefense;
             e.GetEmpireAI().AreasOfOperations = sdata.AOs;
             e.GetEmpireAI().ExpansionAI.SetExpandSearchTimer(sdata.ExpandSearchTimer);
             e.GetEmpireAI().ExpansionAI.SetMaxSystemsToCheckedDiv(sdata.MaxSystemsToCheckedDiv.LowerBound(1));
@@ -748,10 +747,14 @@ namespace Ship_Game.GameScreens.LoadGame
 
                 foreach (SolarSystem s in data.SolarSystemsList)
                 {
+                    if (s.guid == gsave.TargetSystemGuid)
+                       g.TargetSystem = s;
+
                     foreach (Planet p in s.PlanetList)
                     {
-                        if (p.guid == gsave.planetWhereBuildingAtGuid) g.PlanetBuildingAt = p;
-                        if (p.guid == gsave.markedPlanetGuid) g.ColonizationTarget = p;
+                        if (p.guid == gsave.planetWhereBuildingAtGuid) g.PlanetBuildingAt   = p;
+                        if (p.guid == gsave.markedPlanetGuid)          g.ColonizationTarget = p;
+                        if (p.guid == gsave.TargetPlanetGuid)          g.TargetPlanet       = p;
                     }
                 }
 

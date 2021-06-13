@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -15,14 +16,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public float OurStartingStrength;
         public float TheirStartingStrength;
         public float OurStartingGroundStrength;
-        public int OurStartingColonies;
+        public int InitialColoniesValue;
         public float TheirStartingGroundStrength;
         public float StrengthKilled;
         public float StrengthLost;
-        public float TroopsKilled;
-        public float TroopsLost;
-        public int ColoniesWon;
-        public int ColoniesLost;
+        public int ColoniesValueWon;
+        public int ColoniesValueLost;
         public Array<string> AlliesCalled = new Array<string>();
         public Array<Guid> ContestedSystemsGUIDs = new Array<Guid>();
         public float TurnsAtWar;
@@ -34,18 +33,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public bool Initialized;
         readonly WarScore Score;
         public Map<Guid, int> SystemAssaultFailures = new Map<Guid, int>();
-        public TheatersOfWar WarTheaters;
-
-        public WarState GetBorderConflictState() => Score.GetBorderConflictState();
-        public WarState GetBorderConflictState(Array<Planet> coloniesOffered) => 
-            Score.GetBorderConflictState(coloniesOffered);
-        public WarState GetWarScoreState() => Score.GetWarScoreState();
-
-        [JsonIgnore][XmlIgnore]
-        public Empire Them { get; private set; }
         public int StartingNumContestedSystems;
+
+        public WarState GetBorderConflictState(Array<Planet> coloniesOffered) => Score.GetBorderConflictState(coloniesOffered);
+        public WarState GetWarScoreState() => WarType == WarType.BorderConflict ? Score.GetBorderConflictState() : Score.GetWarScoreState();
+
+        [JsonIgnore][XmlIgnore] public Empire Them { get; private set; }
         [JsonIgnore][XmlIgnore] public SolarSystem[] ContestedSystems { get; private set; }
-        [JsonIgnore][XmlIgnore] public float LostColonyPercent  => ColoniesLost / (OurStartingColonies + 0.01f + ColoniesWon);
+        [JsonIgnore][XmlIgnore] public float LostColonyPercent  => (float)ColoniesValueLost / (1 + InitialColoniesValue + ColoniesValueWon);
         [JsonIgnore][XmlIgnore] public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.LowerBound(0.01f);
         [JsonIgnore][XmlIgnore] public const float MaxWarGrade = 10;
         [JsonIgnore][XmlIgnore] public float SpaceWarKd
@@ -82,7 +77,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 var strength      = Them.KnownEmpireStrength(Us);
                 float strengthMod = (Us.OffensiveStrength / strength.LowerBound(1)).Clamped(0.3f,3);
 
-                if (Them.isPlayer && ColoniesLost - ColoniesWon < 0 && strengthMod > 1)
+                if (Them.isPlayer && ColoniesValueLost - ColoniesValueWon < 0 && strengthMod > 1)
                     return 0;
 
                 int warHistory    = OurRelationToThem.WarHistory.Count + 1;
@@ -109,7 +104,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             OurStartingStrength         = us.CurrentMilitaryStrength;
             OurStartingGroundStrength   = us.CurrentTroopStrength;
-            OurStartingColonies         = us.GetPlanets().Count;
+            InitialColoniesValue        = us.GetTotalPlanetsWarValue();
             TheirStartingStrength       = them.CurrentMilitaryStrength;
             TheirStartingGroundStrength = them.CurrentTroopStrength;
             ContestedSystems            = Us.GetOwnedSystems().Filter(s => s.OwnerList.Contains(Them));
@@ -117,8 +112,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             StartingNumContestedSystems = ContestedSystemsGUIDs.Count;
             OurRelationToThem           = us.GetRelationsOrNull(them);
             Score                       = new WarScore(this, Us);
+
             PopulateHistoricLostSystems();
-            WarTheaters = new TheatersOfWar(this);
+            if (!Us.isPlayer && !Us.isFaction && !them.isFaction)
+                Us.GetEmpireAI().AddGoal(new WarManager(Us, Them, WarType));
+
+            //WarTheaters = new TheatersOfWar(this);
         }
 
         public static War CreateInstance(Empire owner, Empire target, WarType warType)
@@ -135,6 +134,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 if (lostSystem.OwnerList.Contains(Them))
                     HistoricLostSystems.AddUniqueRef(lostSystem);
             }
+        }
+
+        public void ChangeWarType(WarType type)
+        {
+            WarType = type;
         }
 
         public SolarSystem[] GetTheirBorderSystems() => Them.GetOurBorderSystemsTo(Us, true)
@@ -170,23 +174,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             OurRelationToThem = Us.GetRelationsOrNull(Them);
             
             if (activeWar)
-            {
                 PopulateHistoricLostSystems();
-                if (WarTheaters == null) WarTheaters = new TheatersOfWar(this);
-                WarTheaters.RestoreFromSave(this);
-            }
-            else
-            {
-                WarTheaters = null;
-            }
-        }
-
-        public WarState ConductWar()
-        {
-            LowestTheaterPriority = WarTheaters.MinPriority();
-            WarTheaters.Evaluate();
-
-            return Score.GetWarScoreState();
         }
 
         public void ShipWeLost(Ship target)
@@ -207,14 +195,18 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void PlanetWeLost(Empire attacker, Planet colony)
         {
-            if (attacker != Them) return;
-            ColoniesLost++;
+            if (attacker != Them)
+                return;
+
+            ColoniesValueLost += (int)colony.ColonyWarValueTo(Us);
         }
 
         public void PlanetWeWon(Empire loser, Planet colony)
         {
-            if (loser != Them) return;
-            ColoniesWon++;
+            if (loser != Them) 
+                return;
+
+            ColoniesValueWon += (int)colony.ColonyWarValueTo(Us);
         }
 
         public void SystemAssaultFailed(SolarSystem system)
@@ -225,7 +217,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public float GetGrade()
         {
-            switch (WarType == WarType.BorderConflict ? GetBorderConflictState() : GetWarScoreState())
+            switch (GetWarScoreState())
             {
                 default:
                 case WarState.ColdWar:
@@ -240,27 +232,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void WarDebugData(ref DebugTextBlock debug)
         {
-            string pad = "     ";
-            string pad2 = pad + "  *";
             debug.AddLine($"Duration Years: {Empire.Universe.StarDate - StartDate:n1}");
-            debug.AddLine($"War Value: {WarTheaters.WarValue:n1}");
             debug.AddLine($"ThreatRatio = {(int)(TotalThreatAgainst * 100):p0}");
             debug.AddLine($"StartDate {StartDate}");
             debug.AddLine($"killed: {StrengthKilled:n0} Lost: {StrengthLost:n0} Ratio: {(int)(SpaceWarKd * 100):p0}");
-            debug.AddLine($"Colonies Won : {ColoniesWon} Lost : {ColoniesLost} Ratio: % {(int)(LostColonyPercent * 100):n0}");
-            
-            
-
-            debug = WarTheaters.DebugText(debug, pad, pad2);
-
-            debug.AddLine($"Contested Systems: {ContestedSystemCount}");
-            foreach (var system in ContestedSystems)
-            {
-                bool ourForcesPresent   = system.OwnerList.Contains(Us);
-                bool theirForcesPresent = system.OwnerList.Contains(Them);
-                int value               = (int)system.PlanetList.Sum(p => p.ColonyBaseValue(Us));
-                bool hasFleetTask = Us.GetEmpireAI().WarTasks.IsAlreadyAssaultingSystem(system);
-            }
+            debug.AddLine($"Colonies Value Won : {ColoniesValueWon} Lost : {ColoniesValueLost} Ratio: % {(int)(LostColonyPercent * 100):n0}");
         }
     }
 }

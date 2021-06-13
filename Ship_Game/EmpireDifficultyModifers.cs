@@ -30,6 +30,9 @@
         public readonly int NumSystemsToSniff; // Number of system the AI will try to re-scout until it is fully explored
         public readonly float TechValueModifier; // AI tech value vs players
         public readonly int PlayerWarPriorityLimit; // Priority of wars vs player (war priority is 0 to 10 where 0 means more priority)
+        public readonly int NumWarTasksPerWar;
+        public readonly int ColonyRankFortify; // If a war with player, increase colony rank for static defenses
+        public readonly int WarTaskPriorityMod; // higher priority vs player if at war with them
 
         // AI Buffs/Nerfs
         public readonly float FlatMoneyBonus;
@@ -84,6 +87,9 @@
                     TrustLostStoleColony = 0;
                     FleetStrModifier     = 0.2f;
                     NumSystemsToSniff    = 1;
+                    NumWarTasksPerWar    = 1;
+                    ColonyRankFortify    = 0;
+                    WarTaskPriorityMod   = 0;
                     if (!empire.isPlayer)
                     {
                         ProductionMod = -0.1f;
@@ -118,7 +124,9 @@
                     TrustLostStoleColony = 5;
                     FleetStrModifier     = 0.3f;
                     NumSystemsToSniff    = 2;
-
+                    NumWarTasksPerWar    = 2;
+                    ColonyRankFortify    = 1;
+                    WarTaskPriorityMod   = 0;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 5;
@@ -150,7 +158,9 @@
                     TrustLostStoleColony = 10;
                     FleetStrModifier     = 0.5f;
                     NumSystemsToSniff    = 3;
-
+                    NumWarTasksPerWar    = 3;
+                    ColonyRankFortify    = 2;
+                    WarTaskPriorityMod   = 1;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 10;
@@ -188,7 +198,9 @@
                     TrustLostStoleColony = 15;
                     FleetStrModifier     = 0.65f;
                     NumSystemsToSniff    = 4;
-
+                    NumWarTasksPerWar    = 4;
+                    ColonyRankFortify    = 3;
+                    WarTaskPriorityMod   = 2;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 20;
