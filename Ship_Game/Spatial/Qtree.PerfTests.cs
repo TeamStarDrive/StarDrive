@@ -84,7 +84,7 @@ namespace Ship_Game.Spatial
                     {
                         MaxResults = 256
                     };
-                    tree.FindLinear(opt);
+                    tree.FindLinear(ref opt);
                 }
             }
             float e1 = t1.Elapsed;
@@ -100,7 +100,7 @@ namespace Ship_Game.Spatial
                     {
                         MaxResults = 256
                     };
-                    tree.FindNearby(opt);
+                    tree.FindNearby(ref opt);
                 }
             }
             float e2 = t2.Elapsed;

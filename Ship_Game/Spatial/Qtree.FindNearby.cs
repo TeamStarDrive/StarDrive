@@ -57,7 +57,7 @@ namespace Ship_Game.Spatial
             return buffer;
         }
 
-        public unsafe GameplayObject[] FindNearby(in SearchOptions opt)
+        public unsafe GameplayObject[] FindNearby(ref SearchOptions opt)
         {
             AABoundingBox2D searchRect = opt.SearchRect;
             int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
@@ -81,7 +81,8 @@ namespace Ship_Game.Spatial
             FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
             if (buffer.Items.Length < maxResults)
                 buffer.Items = new GameplayObject[maxResults];
-
+            
+            GameplayObject[] objects = Objects;
             do
             {
                 QtreeNode current = buffer.Pop();
@@ -124,7 +125,7 @@ namespace Ship_Game.Spatial
                             if ((idBitArray[wordIndex] & idMask) != 0)
                                 continue; // already present in results array
 
-                            GameplayObject go = Objects[id];
+                            GameplayObject go = objects[id];
                             if (opt.FilterFunction == null || opt.FilterFunction(go))
                             {
                                 buffer.Items[buffer.Count++] = go;
@@ -142,10 +143,10 @@ namespace Ship_Game.Spatial
             return buffer.GetArrayAndClearBuffer();
         }
 
-        public GameplayObject[] FindLinear(in SearchOptions opt)
+        public GameplayObject[] FindLinear(ref SearchOptions opt)
         {
-            return LinearSearch.FindNearby(opt,
-                Objects.GetInternalArrayItems(), Objects.Count);
+            GameplayObject[] objects = Objects;
+            return LinearSearch.FindNearby(ref opt, objects, objects.Length);
         }
     }
 }
