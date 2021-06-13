@@ -358,11 +358,12 @@ namespace Ship_Game.AI
             return value / distance;
         }
 
-        
         // Runs an immediate sensor scan
         public void SensorScan()
         {
-            ScanForThreatTimer = SensorScanIntervalSeconds;
+            // How often each ship scans for nearby threats
+            // This is quite expensive if we have thousands of ships
+            ScanForThreatTimer = 1f;
 
             float radius = GetSensorRadius(out Ship sensorShip);
             if (Owner.IsSubspaceProjector)
