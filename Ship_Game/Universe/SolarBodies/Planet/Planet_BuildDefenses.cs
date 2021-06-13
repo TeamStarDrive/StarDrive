@@ -293,6 +293,9 @@ namespace Ship_Game
                 case ColonyType.Military: rank += 3; break;
             }
             rank += Owner.DifficultyModifiers.ColonyRankModifier;
+            if (Owner.IsAtWarWith(EmpireManager.Player))
+                rank += Owner.DifficultyModifiers.ColonyRankFortify;
+
             return rank.Clamped(0, 15);
         }
 
