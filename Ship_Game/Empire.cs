@@ -1401,12 +1401,12 @@ namespace Ship_Game
             }
         }
 
-        void ScanFromAllInfluenceNodes(VariableFrameTime varTime)
+        void ScanFromAllInfluenceNodes(FixedSimTime timeStep)
         {
             for (int i = 0; i < BorderNodes.Count; i++)
             {
                 var node = BorderNodes[i];
-                ScanForInfluence(node, varTime);
+                ScanForInfluence(node, timeStep);
             }
 
             for (int i = 0; i < SensorNodes.Count; i++)
@@ -1431,7 +1431,7 @@ namespace Ship_Game
             }
         }	
 
-        void ScanForInfluence(InfluenceNode node, VariableFrameTime varTime)
+        void ScanForInfluence(InfluenceNode node, FixedSimTime timeStep)
         {
             // find anyone within this influence node
             GameplayObject[] targets = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
@@ -1444,7 +1444,7 @@ namespace Ship_Game
                 // Civilian infrastructure spotting enemy fleets
                 if (node.SourceObject is Ship ssp)
                 {
-                    ssp.HasSeenEmpires.Update(varTime);
+                    ssp.HasSeenEmpires.Update(timeStep);
                     if (ship.fleet != null)
                     {
                         if (isPlayer || Universe.Debug && Universe.SelectedShip?.loyalty == this)
@@ -3507,22 +3507,23 @@ namespace Ship_Game
             return distance;
         }
 
-        int ThreatMatrixUpdateTicks = ResetThreatMatrixTicks;
-        const int ResetThreatMatrixTicks =5;
+        float ThreatMatrixUpdateTimer;
+        const float ResetThreatMatrixSeconds = 2;
         
-        public void UpdateContactsAndBorders(VariableFrameTime varTime)
+        public void UpdateContactsAndBorders(FixedSimTime timeStep)
         {
             if (!IsEmpireDead())
             {
                 ResetBorders();
-                ScanFromAllInfluenceNodes(varTime);
+                ScanFromAllInfluenceNodes(timeStep);
                 PopulateKnownShips();
             }
 
-            if (--ThreatMatrixUpdateTicks < 0)
+            ThreatMatrixUpdateTimer -= timeStep.FixedTime;
+            if (ThreatMatrixUpdateTimer <= 0f)
             {
-                Parallel.Run(()=> EmpireAI.ThreatMatrix.UpdateAllPins(this));
-                ThreatMatrixUpdateTicks = ResetThreatMatrixTicks;
+                ThreatMatrixUpdateTimer = ResetThreatMatrixSeconds;
+                Parallel.Run(() => EmpireAI.ThreatMatrix.UpdateAllPins(this));
             }
         }
 

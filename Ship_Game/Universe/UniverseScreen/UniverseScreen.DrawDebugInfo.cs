@@ -95,8 +95,9 @@ namespace Ship_Game
 
                 var turn = DebugStats.AddItem(new DebugStatItem("Turn", TurnTimePerf, true));
                 turn.AddSubItem(new DebugStatItem("PreEmp", PreEmpirePerf, TurnTimePerf));
-                turn.AddSubItem(new DebugStatItem("Sensor", EmpireSensorsPerf, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("Empire", EmpireUpdatePerf, TurnTimePerf));
+                turn.AddSubItem(new DebugStatItem("Influence", EmpireInfluPerf, TurnTimePerf));
+                turn.AddSubItem(new DebugStatItem("Objects", Objects.TotalTime, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("Misc", EmpireMiscPerf, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("PostEmp", PostEmpirePerf, TurnTimePerf));
 

@@ -758,14 +758,10 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.TroopToShip, State);
         }
         
-        // How often each ship scans for nearby threats
-        // This is quite expensive if we have thousands of ships
-        const float SensorScanIntervalSeconds = 0.25f;
-
         // Checks whether it's time to run a SensorScan
-        public void CheckSensors(VariableFrameTime varTime)
+        public void CheckSensors(FixedSimTime timeStep)
         {
-            ScanForThreatTimer -= varTime.Seconds;
+            ScanForThreatTimer -= timeStep.FixedTime;
             if (ScanForThreatTimer <= 0f)
             {
                 SensorScan();
