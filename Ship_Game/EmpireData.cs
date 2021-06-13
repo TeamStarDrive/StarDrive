@@ -290,7 +290,7 @@ namespace Ship_Game
         [Serialize(126)] public bool IsPirateFaction;
         [Serialize(127)] public int PiratePaymentPeriodTurns = 100; 
         [Serialize(128)] public int MinimumColoniesForStartPayment = 3;
-        [Serialize(129)] public Array<float> NormalizedMilitaryScore;
+        [Serialize(129)] public float NormalizedMilitaryScore;
 
         // FB - For Remnants
         [Serialize(130)] public bool IsRemnantFaction;
@@ -427,12 +427,10 @@ namespace Ship_Game
 
         public float NormalizeMilitaryScore(float currentStr)
         {
-            int maxItems = 10;
-            if (NormalizedMilitaryScore.Count == maxItems)
-                NormalizedMilitaryScore.RemoveAt(0);
-
-            NormalizedMilitaryScore.Add(currentStr / 1000);
-            return NormalizedMilitaryScore.Sum() / NormalizedMilitaryScore.Count;
+            float score = currentStr / 1000;
+            // simple moving average
+            NormalizedMilitaryScore = NormalizedMilitaryScore*0.9f + score*0.1f;
+            return NormalizedMilitaryScore;
         }
     }
 } 
