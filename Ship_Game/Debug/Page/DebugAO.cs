@@ -1,9 +1,6 @@
-﻿using System;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using static Ship_Game.AI.Tasks.MilitaryTask;
 
 namespace Ship_Game.Debug.Page
 {
