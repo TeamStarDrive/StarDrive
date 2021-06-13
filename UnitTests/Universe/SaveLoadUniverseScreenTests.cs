@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Ship_Game.GameScreens.LoadGame;
 using System.IO;
+using System.Threading;
 
 namespace UnitTests.Universe
 {
@@ -30,6 +31,13 @@ namespace UnitTests.Universe
         public void EnsureSaveGameIntegrity()
         {
             CreateDeveloperSandboxUniverse("United", numOpponents:1, paused:true);
+            Universe.LoadContent();
+            // unpause and run a few turns
+            Universe.AdvanceSimulationTargetTime(0.5f);
+            Universe.Paused = false;
+            Thread.Sleep(1000);
+            Universe.Paused = true;
+
             SavedGame save1 = Universe.Save("UnitTest.IntegrityTest", async:false);
             if (save1 == null) throw new AssertFailedException("Save1 failed");
             DestroyUniverse();

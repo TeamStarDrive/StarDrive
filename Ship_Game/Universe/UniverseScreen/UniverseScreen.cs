@@ -133,7 +133,7 @@ namespace Ship_Game
         public Empire player;
         MiniMap minimap;
         bool loading;
-        public Thread ProcessTurnsThread;
+        public Thread SimThread;
         public float transitionElapsedTime;
 
         // @note Initialize with a default frustum for UnitTests
@@ -372,7 +372,7 @@ namespace Ship_Game
 
         void InitializeCamera()
         {
-             float univSizeOnScreen = 10f;
+            float univSizeOnScreen = 10f;
             MaxCamHeight = 15000000;
             CreateProjectionMatrix();
 
@@ -420,15 +420,15 @@ namespace Ship_Game
                 UpdateEmpires(FixedSimTime.Zero);
                 EndOfTurnUpdate(FixedSimTime.Zero);
             }
-            CreateProcessTurnsThread();
+            CreateUniverseSimThread();
         }
 
-        void CreateProcessTurnsThread()
+        void CreateUniverseSimThread()
         {
-            ProcessTurnsThread = new Thread(ProcessTurnsMonitored);
-            ProcessTurnsThread.Name = "Universe.ProcessTurns";
-            ProcessTurnsThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority
-            ProcessTurnsThread.Start();
+            SimThread = new Thread(UniverseSimMonitored);
+            SimThread.Name = "Universe.SimThread";
+            SimThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority
+            SimThread.Start();
         }
 
         void CreatePlanetsLookupTable()
@@ -818,8 +818,8 @@ namespace Ship_Game
         {
             IsExiting = true;
 
-            Thread processTurnsThread = ProcessTurnsThread;
-            ProcessTurnsThread = null;
+            Thread processTurnsThread = SimThread;
+            SimThread = null;
             DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
             processTurnsThread?.Join(250);
 
