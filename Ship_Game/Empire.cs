@@ -888,6 +888,8 @@ namespace Ship_Game
         public int NumPlanets                               => OwnedPlanets.Count;
         public int NumSystems                               => OwnedSolarSystems.Count;
 
+        public int GetTotalPlanetsWarValue() => (int)OwnedPlanets.Sum(p => p.ColonyWarValueTo(this));
+
         public Array<SolarSystem> GetOurBorderSystemsTo(Empire them, bool hideUnexplored, float percentageOfMapSize = 0.5f)
         {
             Vector2 theirCenter = them.WeightedCenter;
@@ -914,7 +916,7 @@ namespace Ship_Game
         {
             GetRelations(attacker).LostAColony(planet, attacker);
             RemovePlanet(planet);
-            UpdateWarRallyPlanetsLostPlanet(planet, attacker);
+            //UpdateWarRallyPlanetsLostPlanet(planet, attacker);
         }
 
         public void RemovePlanet(Planet planet)
@@ -936,7 +938,7 @@ namespace Ship_Game
         {
             GetRelations(loser).WonAColony(planet, loser);
             AddPlanet(planet);
-            UpdateWarRallyPlanetsWonPlanet(planet, loser);
+            // UpdateWarRallyPlanetsWonPlanet(planet, loser);
         }
 
         public void AddPlanet(Planet planet)
@@ -2800,8 +2802,6 @@ namespace Ship_Game
                 biggestAI.AbsorbEmpire(strongest);
                 if (biggestAI.GetRelations(this).ActiveWar == null)
                     biggestAI.GetEmpireAI().DeclareWarOn(this, WarType.ImperialistWar);
-                else
-                    biggestAI.GetRelations(this).ActiveWar.WarTheaters.AddCaptureAll();
             }
         }
 
@@ -3635,8 +3635,6 @@ namespace Ship_Game
             {
                 rel.RestoreWarsFromSave();
             }
-
-            EmpireAI.EmpireDefense?.RestoreFromSave(true);
         }
 
         public void Dispose()

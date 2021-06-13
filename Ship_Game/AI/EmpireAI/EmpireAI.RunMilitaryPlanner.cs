@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.AI.Tasks;
-using Microsoft.Xna.Framework;
-using System.Threading.Tasks;
 using Ship_Game.AI.StrategyAI.WarGoals;
 
 // ReSharper disable once CheckNamespace
@@ -23,37 +21,30 @@ namespace Ship_Game.AI
         {
             if (OwnerEmpire.isPlayer)
                 return;
+
             RunGroundPlanner();
 
-            NumberOfShipGoals = 2 + OwnerEmpire.GetBestPortsForShipBuilding()?.Count ?? 0;
+            NumberOfShipGoals   = 2 + OwnerEmpire.GetBestPortsForShipBuilding()?.Count ?? 0;
             var offensiveGoals  = SearchForGoals(GoalType.BuildOffensiveShips);
-            var planetsBuilding = new Array<Planet>();
-            foreach (var goal in offensiveGoals) planetsBuilding.AddUnique(goal.PlanetBuildingAt);
-            //var effectiveGoals  = offensiveGoals.Count / planetsBuilding.Count.LowerBound(1);
+
             BuildWarShips(offensiveGoals.Count);
-
             Goals.ApplyPendingRemovals();
+            PrioritizeTasks();
+            int taskEvalLimit   = OwnerEmpire.IsAtWarWithMajorEmpire ? (int)OwnerEmpire.GetAverageWarGrade().LowerBound(3) : 10;
+            int taskEvalCounter = 0;
+            var tasks = OwnerEmpire.GetEmpireAI().GetTasks().Filter(t => !t.QueuedForRemoval).OrderByDescending(t => t.Priority)
+                                                            .ThenByDescending(t => t.MinimumTaskForceStrength).ToArray();
 
-            // Empire Military needs. War has its own task list in the WarTasks class
-            Toughnuts = 0;
+            for (int i = tasks.Length - 1; i >= 0; i--)
+            {
+                MilitaryTask task = tasks[i];
+                if (task.Evaluate(OwnerEmpire))
+                    taskEvalCounter += 1;
 
-            var tasks = TaskList.SortedDescending(t=>
-            {
-                float hard = 0;
-                if (t.GetTaskCategory() == MilitaryTask.TaskCategory.Expansion)
-                    hard = OwnerEmpire.GetFleetStrEmpireMultiplier(t.TargetEmpire);
-                return t.Priority + hard;
-            });
-            
-            foreach (MilitaryTask task in tasks)
-            {
-                if (!task.QueuedForRemoval)
-                {
-                    if (task.IsToughNut)
-                        Toughnuts++;
-                    task.Evaluate(OwnerEmpire);
-                }
+                if (taskEvalCounter == taskEvalLimit)
+                    break;
             }
+
             ApplyPendingChanges();
         }
 
@@ -65,6 +56,56 @@ namespace Ship_Game.AI
 
             TaskList.AddRange(TasksToAdd);
             TasksToAdd.Clear();
+        }
+
+        void PrioritizeTasks()
+        {
+            bool isAtWarWithPlayer = OwnerEmpire.GetRelations(EmpireManager.Player).AtWar;
+            var activeWars         = OwnerEmpire.TryGetActiveWars(out Array<War> wars) ? wars : new Array<War>();
+            int numWars            = activeWars.Count;
+
+
+            for (int i = 0; i < TaskList.Count; i++)
+            {
+                MilitaryTask task = TaskList[i];
+                int priority;
+                switch (task.Type)
+                {
+                    default:                                        priority = 5;                                  break;
+                    case MilitaryTask.TaskType.StageFleet:          priority = 2 * (numWars * 2).LowerBound(1);    break;
+                    case MilitaryTask.TaskType.GuardBeforeColonize: priority = 3 + numWars;                        break;
+                    case MilitaryTask.TaskType.DefendVsRemnants:    priority = 0;                                  break;
+                    case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: 
+                    case MilitaryTask.TaskType.ClearAreaOfEnemies:  priority = 1;                                  break;
+                    case MilitaryTask.TaskType.StrikeForce:         priority = 2;                                  break;
+                    case MilitaryTask.TaskType.AssaultPlanet:       priority = 5;                                  break;
+                    case MilitaryTask.TaskType.GlassPlanet:         priority = 5;                                  break;
+                    case MilitaryTask.TaskType.Exploration:         priority = GetExplorationPriority(task);       break;
+                    case MilitaryTask.TaskType.DefendClaim:         priority = 5 + numWars*2;                      break;
+                    case MilitaryTask.TaskType.AssaultPirateBase:   priority = GetAssaultPirateBasePriority(task); break;
+                }
+
+                if (task.TargetEmpire == EmpireManager.Player)
+                    priority -= OwnerEmpire.DifficultyModifiers.WarTaskPriorityMod;
+
+                task.Priority = priority;
+            }
+
+            // Local Function
+            int GetAssaultPirateBasePriority(MilitaryTask task)
+            {
+                Empire enemy = task.TargetEmpire;
+                if (enemy?.WeArePirates == true && !enemy.Pirates.PaidBy(OwnerEmpire))
+                    return (Pirates.MaxLevel - enemy.Pirates.Level).LowerBound(3);
+
+                return 10;
+            }
+
+            int GetExplorationPriority(MilitaryTask task)
+            {
+                int initial = task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(OwnerEmpire) ? 4 : 5;
+                return initial + numWars + (task.MinimumTaskForceStrength > 100 ? 1 : 0); 
+            }
         }
 
         public void AddPendingTask(MilitaryTask task)
@@ -81,6 +122,7 @@ namespace Ship_Game.AI
         {
             foreach (MilitaryTask task in TaskList.ToArray())
                 task.EndTask();
+
             TasksToAdd.Clear();
             TasksToRemove.Clear();
             TaskList.Clear();
@@ -103,8 +145,6 @@ namespace Ship_Game.AI
                 if (task.TargetPlanet?.Owner == empire)
                     task.EndTask();
             }
-
-            WarTasks.PurgeAllTasksTargeting(empire);
         }
 
         public MilitaryTask[] GetAtomicTasksCopy()
@@ -119,7 +159,7 @@ namespace Ship_Game.AI
 
         public MilitaryTask[] GetWarTasks()
         {
-            return TaskList.Filter(task => task.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.War));
+            return TaskList.Filter(task => task.IsWarTask);
         }
 
         public MilitaryTask[] GetWarTasks(Empire targetEmpire)
@@ -134,8 +174,6 @@ namespace Ship_Game.AI
                 return false;
             });
         }
-
-
 
         public MilitaryTask[] GetTasksNeedingAFleet()
         {
@@ -159,49 +197,54 @@ namespace Ship_Game.AI
 
         public MilitaryTask[] GetClaimTasks()
         {
-            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendClaim
+            return TaskList.Filter(task => task.Type == MilitaryTask.TaskType.DefendClaim
                                         && task.TargetPlanet != null);
         }
 
         public MilitaryTask[] GetClaimTasks(SolarSystem targetSystem)
         {
-            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendClaim
+            return TaskList.Filter(task => task.Type == MilitaryTask.TaskType.DefendClaim
                                         && task.TargetPlanet?.ParentSystem == targetSystem);
         }
 
         public MilitaryTask[] GetDefendVsRemnantTasks()
         {
-            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendVsRemnants);
+            return TaskList.Filter(task => task.Type == MilitaryTask.TaskType.DefendVsRemnants);
         }
 
         public Goal[] GetRemnantEngagementGoalsFor(Planet p)
         {
-            return Goals.Filter(g => g.type == GoalType.RemnantBalancersEngage
-                                        && g.ColonizationTarget == p);
+            return Goals.Filter(g => g.type == GoalType.RemnantEngageEmpire
+                                        && g.TargetPlanet == p);
         }
-
+        
         public MilitaryTask[] GetAssaultPirateTasks()
         {
-            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.AssaultPirateBase);
+            return TaskList.Filter(task => task.Type == MilitaryTask.TaskType.AssaultPirateBase);
         }
 
         public MilitaryTask[] GetExpansionTasks()
         {
             return TaskList.Filter(task => task.TargetPlanet != null &&
-                (task.type == MilitaryTask.TaskType.DefendClaim || task.type == MilitaryTask.TaskType.Exploration));
+                (task.Type == MilitaryTask.TaskType.DefendClaim || task.Type == MilitaryTask.TaskType.Exploration));
         }
 
         public MilitaryTask[] GetPotentialTasksToCompare() 
         {
             var expansionTasks        = GetExpansionTasks();
             var warTasks              = GetWarTasks();
-            var defenseTasks          = TaskList.Filter(task => task.type == MilitaryTask.TaskType.ClearAreaOfEnemies);
+            var defenseTasks          = TaskList.Filter(task => task.Type == MilitaryTask.TaskType.ClearAreaOfEnemies);
             Array<MilitaryTask> tasks = new Array<MilitaryTask>();
 
             tasks.AddRange(expansionTasks);
             tasks.AddRange(warTasks);
             tasks.AddRange(defenseTasks);
             return tasks.ToArray();
+        }
+
+        public MilitaryTask[] GetDefendSystemTasks()
+        {
+            return TaskList.Filter(t => t.Type == MilitaryTask.TaskType.ClearAreaOfEnemies);
         }
 
         public int GetNumClaimTasks()
@@ -212,7 +255,7 @@ namespace Ship_Game.AI
         public bool HasAssaultPirateBaseTask(Ship targetBase, out MilitaryTask militaryTask)
         {
             militaryTask = null;
-            var filteredTasks = TaskList.Filter(task => task.type == MilitaryTask.TaskType.AssaultPirateBase
+            var filteredTasks = TaskList.Filter(task => task.Type == MilitaryTask.TaskType.AssaultPirateBase
                                                      && task.TargetShip == targetBase);
 
             if (filteredTasks.Length > 0f)
@@ -232,7 +275,7 @@ namespace Ship_Game.AI
         public bool GetDefendClaimTaskFor(Planet planet, out MilitaryTask militaryTask)
         {
             militaryTask = null;
-            var filteredTasks = TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendClaim
+            var filteredTasks = TaskList.Filter(task => task.Type == MilitaryTask.TaskType.DefendClaim
                                                      && task.TargetPlanet == planet);
 
             if (filteredTasks.Length > 0f)
@@ -248,7 +291,7 @@ namespace Ship_Game.AI
         public bool HasTaskOfType(MilitaryTask.TaskType type)
         {
             for (int i = TaskList.Count - 1; i >= 0; --i)
-                if (TaskList[i].type == type)
+                if (TaskList[i].Type == type)
                     return true;
             return false;
         }
@@ -275,21 +318,17 @@ namespace Ship_Game.AI
                 if (task.TargetPlanet != null)
                     task.TargetPlanetGuid = task.TargetPlanet.guid;
             }
-            aiSave.WarTaskClass = WarTasks;
-
-
         }
 
         public void ReadFromSave(SavedGame.GSAISAVE aiSave)
         {
             TaskList.Clear();
             TaskList.AddRange(aiSave.MilitaryTaskList);
-            WarTasks = aiSave.WarTaskClass?? new WarTasks(OwnerEmpire);
         }
 
         public void TrySendExplorationFleetToCrashSite(Planet p)
         {
-            if (TaskList.Filter(t => t.type == MilitaryTask.TaskType.Exploration)
+            if (TaskList.Filter(t => t.Type == MilitaryTask.TaskType.Exploration)
                     .Length < 5 + (int)CurrentGame.Difficulty)
             {
                 SendExplorationFleet(p);
