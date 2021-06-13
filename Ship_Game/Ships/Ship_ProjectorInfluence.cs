@@ -37,9 +37,9 @@ namespace Ship_Game.Ships
             OwnerInfluenceTimer = -100;
         }
 
-        void UpdateInfluence(VariableFrameTime varTime)
+        void UpdateInfluence(FixedSimTime timeStep)
         {
-            OwnerInfluenceTimer -= varTime.Seconds;
+            OwnerInfluenceTimer -= timeStep.FixedTime;
             InOwnerInfluence     = OwnerInfluenceTimer + InfluenceTimerBuffer > 0;
             
             if (InfluenceCount < 1) return;
@@ -47,7 +47,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < InfluenceCount; i++)
             {
                 ref ForeignInfluence influence = ref Influences[i];
-                influence.Timer -= varTime.Seconds;
+                influence.Timer -= timeStep.FixedTime;
                 if (influence.Foreign != null && influence.Timer + InfluenceTimerBuffer < 0)
                 {
                     int last = --InfluenceCount;

@@ -1103,15 +1103,15 @@ namespace Ship_Game.Ships
             shield_percent = shield_max >0 ? 100.0 * shield_power / shield_max : 0;
         }
 
-        public void UpdateSensorsAndInfluence(VariableFrameTime varTime)
+        public void UpdateSensorsAndInfluence(FixedSimTime timeStep)
         {
             // update our knowledge of the surrounding universe
-            UpdateInfluence(varTime);
-            KnownByEmpires.Update(varTime);
+            UpdateInfluence(timeStep);
+            KnownByEmpires.Update(timeStep);
             SetFleetCapableStatus();
             
             // scan universe and make decisions for combat
-            AI.CheckSensors(varTime);
+            AI.CheckSensors(timeStep);
         }
 
         public void UpdateModulePositions(FixedSimTime timeStep, bool isSystemView, bool forceUpdate = false)

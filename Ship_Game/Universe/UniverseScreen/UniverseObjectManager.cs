@@ -43,6 +43,7 @@ namespace Ship_Game
         public readonly AggregatePerfTimer SysPerf   = new AggregatePerfTimer();
         public readonly AggregatePerfTimer ShipsPerf = new AggregatePerfTimer();
         public readonly AggregatePerfTimer ProjPerf  = new AggregatePerfTimer();
+        public readonly AggregatePerfTimer SensorPerf = new AggregatePerfTimer();
         public readonly AggregatePerfTimer VisPerf   = new AggregatePerfTimer();
 
         /// <summary>
@@ -259,6 +260,9 @@ namespace Ship_Game
                 // remove inactive objects only after Spatial has seen them as inactive
                 Objects.RemoveInActiveObjects();
             }
+            
+            // update sensors AFTER spatial update
+            UpdateAllSensors(timeStep);
 
             // trigger all Hit events, but only if we are not paused!
             if (timeStep.FixedTime > 0f)
@@ -451,6 +455,28 @@ namespace Ship_Game
             }
 
             ProjPerf.Stop();
+        }
+
+        void UpdateAllSensors(FixedSimTime timeStep)
+        {
+            SensorPerf.Start();
+
+            lock (ShipsLocker)
+            {
+                Ship[] allShips = Ships.GetInternalArrayItems();
+                void UpdateSensors(int start, int end)
+                {
+                    for (int i = start; i < end; ++i)
+                    {
+                        Ship ship = allShips[i];
+                        if (ship.Active && !ship.dying)
+                            ship.UpdateSensorsAndInfluence(timeStep);
+                    }
+                }
+                Parallel.For(Ships.Count, UpdateSensors, Universe.MaxTaskCores);
+            }
+
+            SensorPerf.Stop();
         }
 
         void UpdateVisibleObjects()
