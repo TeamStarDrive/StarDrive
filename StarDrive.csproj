@@ -253,18 +253,7 @@
     <Compile Include="Ship_Game\AI\ShipAI\ShipAIPlan.cs" />
     <Compile Include="Ship_Game\AI\ShipMovement\ShipAIMovement.cs" />
     <Compile Include="Ship_Game\AI\ShipMovement\OrbitPlan.cs" />
-    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\AttackShips.cs" />
-    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\AttackSystems.cs" />
-    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\Campaign.cs" />
-    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\SystemDefense.cs" />
-    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\Defense.cs" />
-    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\CaptureAllPlanets.cs" />
-    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\Capture.cs" />
-    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\CaptureBorderPlanets.cs" />
-    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\Theater.cs" />
-    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\TheatersOfWar.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\WarScore.cs" />
-    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\WarTasks.cs" />
     <Compile Include="Ship_Game\AI\Tasks\MilitaryTask_Requistions.cs" />
     <Compile Include="Ship_Game\AI\OffensiveForcePoolManager.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Combat.cs" />
@@ -333,7 +322,6 @@
     <Compile Include="Ship_Game\Commands\Goals\PirateProtection.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateRaidProjector.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateRaidTransport.cs" />
-    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\GoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RefitOrbital.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RearmShipFromPlannet.cs" />
     <Compile Include="Ship_Game\Commands\Goals\ScrapShip.cs" />
