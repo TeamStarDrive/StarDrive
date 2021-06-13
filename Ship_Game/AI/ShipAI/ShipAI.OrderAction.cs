@@ -678,9 +678,6 @@ namespace Ship_Game.AI
         {
             SetPriorityOrder(false);
 
-            if (Owner.InCombatTimer > (timeStep.FixedTime * -5) && ScanForThreatTimer < 2 - timeStep.FixedTime * 5)
-                ScanForThreatTimer = 0;
-
             if (EscortTarget != null)
             {
                 State = AIState.Escort;
