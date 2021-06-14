@@ -155,13 +155,16 @@ namespace Ship_Game.AI
 
         void MoveToEngageTarget(Ship target, FixedSimTime timeStep)
         {
-            if (CombatRangeType == StanceType.RangedCombatMovement)
+
+            if (CombatRangeType == StanceType.RangedCombatMovement )
             {
                 Vector2 prediction = target.Center;
                 Weapon fastestWeapon = Owner.FastestWeapon;
                 if (fastestWeapon != null && target.CurrentVelocity > 0) // if we have a weapon
                 {
-                    prediction = fastestWeapon.ProjectedImpactPointNoError(target);
+                    float distance = Owner.Center.Distance(target.Center);
+                    if (distance < 7500)
+                        prediction = fastestWeapon.ProjectedImpactPointNoError(target);
                 }
 
                 ThrustOrWarpToPos(prediction, timeStep);
