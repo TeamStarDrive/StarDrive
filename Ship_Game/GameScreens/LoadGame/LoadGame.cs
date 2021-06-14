@@ -261,10 +261,9 @@ namespace Ship_Game.GameScreens.LoadGame
                 }
             }
 
-            if (data.FindPlanet(ship.AI.OrbitTargetGuid, out Planet toOrbit))
+            if (ship.AI.State == AIState.Orbit && data.FindPlanet(ship.AI.OrbitTargetGuid, out Planet toOrbit))
             {
-                if (ship.AI.State == AIState.Orbit)
-                    ship.AI.OrderToOrbit(toOrbit);
+                ship.AI.RestoreOrbitFromSave(toOrbit);
             }
 
             ship.AI.SystemToDefend = data.FindSystemOrNull(ship.AI.SystemToDefendGuid);
@@ -272,7 +271,7 @@ namespace Ship_Game.GameScreens.LoadGame
             ship.AI.Target         = data.FindShipOrNull(ship.AI.TargetGuid);
         }
 
-               static void RestoreCommodities(Planet p, SavedGame.PlanetSaveData psdata)
+        static void RestoreCommodities(Planet p, SavedGame.PlanetSaveData psdata)
         {
             p.FoodHere = psdata.foodHere;
             p.ProdHere = psdata.prodHere;
@@ -305,14 +304,11 @@ namespace Ship_Game.GameScreens.LoadGame
                 e.data.CurrentAutoFreighter   = sdata.CurrentAutoFreighter ?? e.data.FreighterShip;
                 e.data.CurrentConstructor     = sdata.CurrentConstructor   ?? e.data.ConstructorShip;
                 e.IncreaseFastVsBigFreighterRatio(sdata.FastVsBigFreighterRatio - e.FastVsBigFreighterRatio);
-                if (sdata.empireData.DefaultTroopShip.IsEmpty())
+                if (e.data.DefaultTroopShip.IsEmpty())
                     e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
 
                 e.SetAverageFreighterCargoCap(sdata.AverageFreighterCargoCap);
                 e.SetAverageFreighterFTLSpeed(sdata.AverageFreighterFTLSpeed);
-
-                if (sdata.empireData.NormalizedMilitaryScore == null)
-                    sdata.empireData.NormalizedMilitaryScore = new Array<float>(); // Save compatibility
 
                 e.RestoreFleetStrEmpireMultiplier(sdata.FleetStrEmpireModifier);
                 e.RestoreDiplomacyConcatQueue(sdata.DiplomacyContactQueue);

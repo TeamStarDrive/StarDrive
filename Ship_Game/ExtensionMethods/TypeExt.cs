@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
@@ -102,6 +106,54 @@ namespace Ship_Game
             return (TEnum)Enum.ToObject(typeof(TEnum), newValue);
         }
 
+        readonly struct ObjectPair
+        {
+            public readonly object A;
+            public readonly object B;
+            public ObjectPair(object a, object b)
+            {
+                A = a;
+                B = b;
+            }
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    int hash = 17;
+                    hash = hash * 31 + A.GetHashCode();
+                    hash = hash * 31 + B.GetHashCode();
+                    return hash;
+                }
+            }
+            public override bool Equals(object obj)
+            {
+                var other = (ObjectPair)obj;
+                bool containsA = ReferenceEquals(A, other.A) || ReferenceEquals(A, other.B);
+                if (!containsA)
+                    return false;
+                bool containsB = ReferenceEquals(B, other.A) || ReferenceEquals(B, other.B);
+                return containsB;
+            }
+        }
+
+        static Type[] BuiltinTypes;
+
+        public static bool IsBuiltIn(this Type type)
+        {
+            if (type.IsPrimitive)
+                return true;
+            if (BuiltinTypes == null)
+            {
+                BuiltinTypes = new []
+                {
+                    typeof(string), typeof(decimal), typeof(Guid), 
+                    typeof(Vector2), typeof(Vector3), typeof(Vector4), typeof(Rectangle), typeof(Viewport), 
+                    typeof(LocalizedText), 
+                };
+            }
+            return BuiltinTypes.Contains(type);
+        }
+
         /// <summary>
         /// Does a member-wise deep compare of 2 objects and returns
         /// error string of mismatched fields.
@@ -111,20 +163,100 @@ namespace Ship_Game
         public static Array<string> MemberwiseCompare<T>(this T first, T second)
         {
             var errors = new Array<string>();
+            var checkedObjects = new HashSet<ObjectPair>();
+
+            void Error(MemberInfo member, string err)
+            {
+                string text = $"{member.DeclaringType.GetTypeName()}::{member.Name} {member.ReflectedType.GetTypeName()} {err}";
+                errors.Add(text);
+                Log.Warning(text);
+            }
+            
+            bool CompareCollection(MemberInfo member, ICollection col1, ICollection col2)
+            {
+                if (col1.Count != col2.Count)
+                {
+                    Error(member, $"Collection Count {col1.Count} != {col2.Count}");
+                    return false;
+                }
+
+                int i = 0;
+                IEnumerator en2 = col2.GetEnumerator();
+                foreach (object o1 in col1)
+                {
+                    en2.MoveNext();
+                    object o2 = en2.Current;
+                    if (!CheckEqual(member, o1, o2))
+                    {
+                        Error(member, $"Collection elements at [{i}] were not equal: {o1} != {o2}");
+                        return false;
+                    }
+                    ++i;
+                }
+                return true; // all elements were equal
+            }
+
+            bool CompareDictionary(MemberInfo member, IDictionary dict1, IDictionary dict2)
+            {
+                if (dict1.Count != dict2.Count)
+                {
+                    Error(member, $"Dictionary Count {dict1.Count} != {dict2.Count}");
+                    return false;
+                }
+
+                IDictionaryEnumerator de = dict1.GetEnumerator();
+                while (de.MoveNext())
+                {
+                    if (!dict2.Contains(de.Key))
+                    {
+                        Error(member, $"Dictionary key=[{de.Key}] not found in second dictionary");
+                        return false;
+                    }
+                    object o1 = de.Value;
+                    object o2 = dict2[de.Key];
+                    if (!CheckEqual(member, o1, o2))
+                    {
+                        Error(member, $"Dictionary values with key=[{de.Key}] were not equal: {o1} != {o2}");
+                        return false;
+                    }
+                }
+                return true; // all elements were equal
+            }
+            
+            bool CompareEnumerable(MemberInfo member, IEnumerable en1, IEnumerable en2)
+            {
+                var items1 = new Array<object>();
+                var items2 = new Array<object>();
+                foreach (object o in en1) items1.Add(o);
+                foreach (object o in en2) items2.Add(o);
+
+                if (items1.Count != items2.Count)
+                {
+                    Error(member, $"{en1.GetType().GetTypeName()} Count {items1.Count} != {items2.Count}");
+                    return false;
+                }
+
+                for (int i = 0; i < items1.Count; ++i)
+                {
+                    object o1 = items1[i];
+                    object o2 = items2[i];
+                    if (!CheckEqual(member, o1, o2))
+                    {
+                        Error(member, $"{en1.GetType().GetTypeName()} elements at [{i}] were not equal: {o1} != {o2}");
+                        return false;
+                    }
+                }
+                return true; // all elements were equal
+            }
 
             bool CheckEqual(MemberInfo member, object val1, object val2)
             {
-                void Error(string err)
-                {
-                    errors.Add($"{member.DeclaringType.GetTypeName()}::{member.Name} {member.ReflectedType.GetTypeName()} {err}");
-                }
-
                 if (val1 == null && val2 == null)
                     return true;
 
                 if (val1 == null || val2 == null)
                 {
-                    Error($"One of the values was null: first={val1} second={val2}");
+                    Error(member, $"One of the values was null: first={val1} second={val2}");
                     return false;
                 }
 
@@ -132,47 +264,47 @@ namespace Ship_Game
                     return true;
 
                 Type subType = val1.GetType();
+                if (subType.IsEnum || subType.IsBuiltIn())
+                    return false;
+
+                if (val1 is IDictionary dict1)
+                    return CompareDictionary(member, dict1, (IDictionary)val2);
 
                 if (val1 is ICollection col1)
-                {
-                    var col2 = (ICollection)val2;
-                    if (col1.Count != col2.Count)
-                    {
-                        Error($"Collection Count {col1.Count} != {col2.Count}");
-                        return false;
-                    }
+                    return CompareCollection(member, col1, (ICollection)val2);
 
-                    int i = 0;
-                    IEnumerator en2 = col2.GetEnumerator();
-                    foreach (object o1 in col1)
-                    {
-                        en2.MoveNext();
-                        object o2 = en2.Current;
-                        if (!CheckEqual(member, o1, o2))
-                        {
-                            Error($"Collection elements at [{i}] were not equal: {o1} != {o2}");
-                            return false;
-                        }
-                        ++i;
-                    }
-                    return true; // all elements were equal
-                }
+                if (val1 is IEnumerable en1)
+                    return CompareEnumerable(member, en1, (IEnumerable)val2);
 
                 return CompareFields(subType, val1, val2);
             }
 
             bool CompareFields(Type type, object firstObj, object secondObj)
             {
+                // if this pair was already compared, ignore it,
+                // otherwise we'll run into cyclic reference issues
+                var pair = new ObjectPair(firstObj, secondObj);
+                if (checkedObjects.Contains(pair))
+                    return true;
+
+                checkedObjects.Add(pair);
+
+                Log.Info($"Compare type {type.GetTypeName()}");
+
+                var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
+                var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
                 int numErrors = 0;
-                foreach (FieldInfo field in type.GetFields())
+                foreach (FieldInfo field in fields)
                 {
                     object val1 = field.GetValue(firstObj);
                     object val2 = field.GetValue(secondObj);
                     if (!CheckEqual(field, val1, val2))
                         ++numErrors;
                 }
-                foreach (PropertyInfo prop in type.GetProperties())
+                foreach (PropertyInfo prop in properties)
                 {
+                    if (type.GetCustomAttribute<JsonIgnoreAttribute>() != null)
+                        continue;
                     object val1 = prop.GetValue(firstObj);
                     object val2 = prop.GetValue(secondObj);
                     if (!CheckEqual(prop, val1, val2))

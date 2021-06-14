@@ -1205,20 +1205,21 @@ namespace Ship_Game
                 DrawLineProjected(start, ship.AI.EscortTarget.Center, Colors.CombatOrders(alpha));
                 return;
             }
-            if (ship.AI.State == AIState.AssaultPlanet && ship.AI.OrbitTarget != null)
+
+            var planet = ship.AI.OrbitTarget;
+            if (ship.AI.State == AIState.AssaultPlanet && planet != null)
             {
-                var planet = ship.AI.OrbitTarget;
                 int spots = planet.GetFreeTiles(EmpireManager.Player);
                 if (spots > 4)
-                    DrawLineToPlanet(start, ship.AI.OrbitTarget.Center, Colors.CombatOrders(alpha));
+                    DrawLineToPlanet(start, planet.Center, Colors.CombatOrders(alpha));
                 else if (spots > 0)
                 {
-                    DrawLineToPlanet(start, ship.AI.OrbitTarget.Center, Colors.Warning(alpha));
+                    DrawLineToPlanet(start, planet.Center, Colors.Warning(alpha));
                     ToolTip.PlanetLandingSpotsTip($"{planet.Name}: Warning!", spots);
                 }
                 else
                 {
-                    DrawLineToPlanet(start, ship.AI.OrbitTarget.Center, Colors.Error(alpha));
+                    DrawLineToPlanet(start, planet.Center, Colors.Error(alpha));
                     ToolTip.PlanetLandingSpotsTip($"{planet.Name}: Critical!", spots);
                 }
                 DrawWayPointLines(ship, new Color(Color.Lime, alpha));

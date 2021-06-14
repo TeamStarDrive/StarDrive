@@ -40,6 +40,10 @@ namespace Ship_Game
         readonly AggregatePerfTimer DrawIcons = new AggregatePerfTimer();
         readonly AggregatePerfTimer DrawUI = new AggregatePerfTimer();
 
+        // Can be used in unit testing to prevent LoadContent() from launching sim thread
+        public bool CreateSimThread = true;
+        Thread SimThread;
+
         // This is our current time in simulation time axis [0 .. current .. target]
         float CurrentSimTime;
 
@@ -59,7 +63,7 @@ namespace Ship_Game
         /// GameSpeed modifies the target simulation time advancement
         /// Simulation time can be advanced by any arbitrary amount
         /// </summary>
-        void AdvanceSimulationTargetTime(float deltaTimeFromUI)
+        public void AdvanceSimulationTargetTime(float deltaTimeFromUI)
         {
             lock (SimTimeLock)
             {
@@ -72,28 +76,29 @@ namespace Ship_Game
             }
         }
 
-        void ProcessTurnsMonitored()
+        void UniverseSimMonitored()
         {
             int threadId = Thread.CurrentThread.ManagedThreadId;
             Log.Write(ConsoleColor.Cyan, $"Start Universe.ProcessTurns Thread #{threadId}");
             Log.AddThreadMonitor();
-            ProcessTurns();
+            UniverseSimulationLoop();
             Log.RemoveThreadMonitor();
             Log.Write(ConsoleColor.Cyan, $"Stop Universe.ProcessTurns Thread #{threadId}");
         }
 
-        void ProcessTurns()
+        // This is the main loop which runs the entire game simulation
+        void UniverseSimulationLoop()
         {
             int failedLoops = 0; // for detecting cyclic crash loops
 
-            while (ProcessTurnsThread != null)
+            while (SimThread != null)
             {
                 try
                 {
                     // Wait for Draw() to finish.
                     // While SwapBuffers is blocking, we process the turns in between
                     DrawCompletedEvt.WaitOne();
-                    if (ProcessTurnsThread == null)
+                    if (SimThread == null)
                         break; // this thread is aborting
 
                     ProcessSimTurnsPerf.Start();
@@ -178,7 +183,7 @@ namespace Ship_Game
                         ++SimTurnId;
                         
                         TurnTimePerf.Start();
-                        ProcessTurnDelta(fixedSimStep);
+                        SingleSimulationStep(fixedSimStep);
                         TurnTimePerf.Stop();
                     }
 
@@ -201,7 +206,7 @@ namespace Ship_Game
 
         void AutoAdjustSimulationFrameRate()
         {
-            if (TimeSinceLastAutoFPS.Elapsed > 1f)
+            if (TimeSinceLastAutoFPS.Elapsed > 1.5f)
             {
                 TimeSinceLastAutoFPS.Start();
 
@@ -209,17 +214,16 @@ namespace Ship_Game
                 if (CurrentSimFPS > 10 && TurnTimePerf.MeasuredTotal > 0.7f)
                 {
                     SimFPSModifier -= 5;
-                    Log.Warning($"GAME RUNNING SLOW, REDUCING SIM FPS to: {CurrentSimFPS}");
                 }
                 else if (SimFPSModifier < 0 && TurnTimePerf.MeasuredTotal < 0.4f)
                 {
                     SimFPSModifier += 5;
-                    Log.Warning($"GAME RUNNING FAST AGAIN, INCREASING FPS to: {CurrentSimFPS}");
                 }
             }
         }
 
-        void ProcessTurnDelta(FixedSimTime timeStep)
+        // This does a single simulation step with fixed time step
+        public void SingleSimulationStep(FixedSimTime timeStep)
         {
             ScreenManager.InvokePendingEmpireThreadActions();
             if (ProcessTurnEmpires(timeStep))
