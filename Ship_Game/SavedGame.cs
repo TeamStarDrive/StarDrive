@@ -907,6 +907,8 @@ namespace Ship_Game
             [Serialize(31)] public bool SendTroopsToShip;
             [Serialize(32)] public bool RecallFightersBeforeFTL;
             [Serialize(33)] public float MechanicalBoardingDefense;
+
+            public override string ToString() => $"ShipSave {guid} {Name}";
         }
 
         public class SolarSystemSaveData

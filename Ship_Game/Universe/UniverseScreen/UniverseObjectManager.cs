@@ -261,8 +261,9 @@ namespace Ship_Game
                 Objects.RemoveInActiveObjects();
             }
             
-            // update sensors AFTER spatial update
-            UpdateAllSensors(timeStep);
+            // update sensors AFTER spatial update, but only if we are not paused!
+            if (timeStep.FixedTime > 0f)
+                UpdateAllSensors(timeStep);
 
             // trigger all Hit events, but only if we are not paused!
             if (timeStep.FixedTime > 0f)
