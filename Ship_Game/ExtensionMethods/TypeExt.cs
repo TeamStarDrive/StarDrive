@@ -167,7 +167,9 @@ namespace Ship_Game
 
             void Error(MemberInfo member, string err)
             {
-                errors.Add($"{member.DeclaringType.GetTypeName()}::{member.Name} {member.ReflectedType.GetTypeName()} {err}");
+                string text = $"{member.DeclaringType.GetTypeName()}::{member.Name} {member.ReflectedType.GetTypeName()} {err}";
+                errors.Add(text);
+                Log.Warning(text);
             }
             
             bool CompareCollection(MemberInfo member, ICollection col1, ICollection col2)
