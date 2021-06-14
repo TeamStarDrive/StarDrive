@@ -177,7 +177,7 @@ namespace Ship_Game.Gameplay
 
         }
 
-        public override string ToString() => $"{ModuleUID} {Position} {Facing} {Restrictions} T={ModuleOrNull}";
+        public override string ToString() => $"{ModuleUID} {Position} {Facing} {Orientation} {SlotOptions} {Restrictions} T={ModuleOrNull}";
 
         [XmlIgnore] [JsonIgnore]
         public bool IsDummy => ModuleUID == null || ModuleUID == "Dummy";
@@ -214,6 +214,7 @@ namespace Ship_Game.Gameplay
 
         public bool Equals(ModuleSlotData s)
         {
+            if (s == null) return false;
             return Position == s.Position
                 && Restrictions == s.Restrictions
                 && ModuleUID == s.ModuleUID
@@ -225,7 +226,7 @@ namespace Ship_Game.Gameplay
 
         public override bool Equals(object obj)
         {
-            return Equals((ModuleSlotData)obj);
+            return this.Equals((ModuleSlotData)obj);
         }
 
         public override int GetHashCode()
