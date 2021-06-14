@@ -12,7 +12,6 @@ namespace spatial
      */
     struct GridCellView
     {
-        GridCell* Cells = nullptr;
         int Width = 0;
         int Height = 0;
         int GridSize = 0; // size of this particular grid array
@@ -20,15 +19,15 @@ namespace spatial
         int NumCells = 0;
         Rect Coords = Rect::Zero();
 
-        GridCellView(GridCell* cells, const GridCellView& v)
-            : Cells{cells}, Width{v.Width}, Height{v.Height}
+        GridCellView(const GridCellView& v)
+            : Width{v.Width}, Height{v.Height}
             , GridSize{v.GridSize}, CellSize{v.CellSize}
             , NumCells{v.NumCells}, Coords{v.Coords}
         {
         }
 
-        GridCellView(GridCell* cells, int width, int height, int gridSize, int cellSize)
-            : Cells{cells}, Width{width}, Height{height}
+        GridCellView(int width, int height, int gridSize, int cellSize)
+            : Width{width}, Height{height}
             , GridSize{gridSize}, CellSize{cellSize}
             , NumCells{width*height}
         {
@@ -46,9 +45,8 @@ namespace spatial
         }
 
         // offsets for a second level grid
-        void setViewOffset2(GridCell* cells, int gridX, int gridY, const GridCellView& topLevel)
+        void setViewOffset2(int gridX, int gridY, const GridCellView& topLevel)
         {
-            Cells = cells;
             Coords.x1 = topLevel.Coords.x1 + (gridX * topLevel.CellSize);
             Coords.y1 = topLevel.Coords.y1 + (gridY * topLevel.CellSize);
             Coords.x2 = Coords.x1 + GridSize;
@@ -58,15 +56,16 @@ namespace spatial
         // Converts world coordinates into cell coordinates
         bool toCellRect(const Rect& worldCoords, Rect& outCellCoords) const;
 
-        void insert(SlabAllocator& allocator, SpatialObject& o, int cellCapacity);
-        int findNodes(const SearchOptions& opt, FoundNodes& found) const;
-        void debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const;
+        void insert(GridCell* cells, SlabAllocator& allocator, SpatialObject& o, int cellCapacity);
+        int findNodes(const GridCell* cells, const SearchOptions& opt, FoundCells& found) const;
+        void debugVisualize(const GridCell* cells, const VisualizerOptions& opt, Visualizer& visualizer) const;
         
-        SPATIAL_FINLINE Point toWorldPoint(int x, int y) const
+        SPATIAL_FINLINE Point getCellCenter(int x, int y) const
         {
             int cellSize = CellSize;
-            int worldX = Coords.x1 + (x * cellSize);
-            int worldY = Coords.y1 + (y * cellSize);
+            int halfSize = (cellSize >> 1);
+            int worldX = Coords.x1 + (x * cellSize) + halfSize;
+            int worldY = Coords.y1 + (y * cellSize) + halfSize;
             return { worldX, worldY };
         }
 

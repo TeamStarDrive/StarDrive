@@ -154,7 +154,7 @@ struct Simulation final : spatial::Visualizer
         cp.showCollisions = true;
         cp.ignoreSameLoyalty = true;
 
-        spatial::Array<spatial::CollisionPair> collisions = spat->collideAll(cp);
+        spatial::Array<spatial::CollisionPair> collisions = spat->collideAll(spat->root(), cp);
         for (spatial::CollisionPair collision : collisions)
         {
             collide(collision.a, collision.b);
@@ -232,7 +232,7 @@ struct Simulation final : spatial::Visualizer
         vo.objectToLeaf = false;
 
         rpp::Timer t1;
-        spat.debugVisualize(vo, *this);
+        spat.debugVisualize(spat.root(), vo, *this);
         double elapsedDrawMs = t1.elapsed_ms();
 
         if (isPaused)
@@ -326,7 +326,7 @@ struct Simulation final : spatial::Visualizer
             }
 
             rpp::Timer t;
-            numSearchResults = spat.findNearby(searchResults.data(), opt);
+            numSearchResults = spat.findNearby(spat.root(), searchResults.data(), opt);
             findNearbyMs = t.elapsed_ms();
         }
 

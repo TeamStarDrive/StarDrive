@@ -9,6 +9,7 @@ namespace spatial
 {
     class SPATIAL_API Grid final : public Spatial
     {
+        GridCell* Root = nullptr;
         GridCellView View;
         int CellCapacity = GridDefaultCellCapacity; // pending until next `rebuild()`
 
@@ -26,6 +27,7 @@ namespace spatial
         explicit Grid(int worldSize, int cellSize);
         ~Grid();
 
+        SpatialRoot* root() const override { return reinterpret_cast<SpatialRoot*>(Root); }
         SpatialType type() const override { return SpatialType::Grid; }
         const char* name() const override { return "Grid"; }
         uint32_t totalMemory() const override;
@@ -36,10 +38,10 @@ namespace spatial
         void smallestCellSize(int cellSize) override;
 
         void clear() override;
-        void rebuild() override;
+        SpatialRoot* rebuild() override;
 
-        CollisionPairs collideAll(const CollisionParams& params) override;
-        int findNearby(int* outResults, const SearchOptions& opt) const override;
-        void debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const override;
+        CollisionPairs collideAll(SpatialRoot* root, const CollisionParams& params) override;
+        int findNearby(SpatialRoot* root, int* outResults, const SearchOptions& opt) const override;
+        void debugVisualize(SpatialRoot* root, const VisualizerOptions& opt, Visualizer& visualizer) const override;
     };
 }

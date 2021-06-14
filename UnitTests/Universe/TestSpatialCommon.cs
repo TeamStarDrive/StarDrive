@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Spatial;
 using Parallel = Ship_Game.Parallel;
@@ -206,38 +207,80 @@ namespace UnitTests.Universe
         public void TestConcurrentUpdateAndSearch(ISpatial tree)
         {
             CreateQuadTree(5_000, tree);
+            
+            GameplayObject[] objects = Empty<GameplayObject>.Array;
             var timer = new PerfTimer();
 
             // update
-            Parallel.Run(() =>
+            TaskResult updateResult = Parallel.Run(() =>
             {
+                var rand = new Random();
                 while (timer.Elapsed < 1.0)
                 {
-                    foreach (Ship ship in AllObjects)
+                    for (int i = 0; i < AllObjects.Count; ++i)
                     {
-                        ship.Center.X += 10f;
-                        ship.Position = ship.Center;
-                        ship.UpdateModulePositions(TestSimStep, true, forceUpdate: true);
+                        if (AllObjects[i] is Ship ship)
+                        {
+                            ship.Center.X += 10f;
+                            ship.Position = ship.Center;
+                            ship.UpdateModulePositions(TestSimStep, true, forceUpdate: true);
+
+                            if (rand.Next(100) <= 10) // 10% chance
+                            {
+                                Weapon weapon = ship.Weapons.First;
+                                var p = Projectile.Create(weapon, ship.Position, Vectors.Up, null, false);
+                                AllObjects.Add(p);
+                            }
+                        }
+                        else if (AllObjects[i] is Projectile proj)
+                        {
+                            proj.Update(TestSimStep);
+                        }
                     }
+
                     tree.UpdateAll(AllObjects);
+
+                    AllObjects.RemoveInActiveObjects();
+                    objects = AllObjects.ToArray();
+
                     tree.CollideAll(TestSimStep);
                 }
             });
 
             // search
-            Parallel.Run(() =>
+            TaskResult searchResult = Parallel.Run(() =>
             {
                 const float defaultSensorRange = 30000f;
                 while (timer.Elapsed < 1.0)
                 {
-                    for (int i = 0; i < AllObjects.Count; ++i)
+                    for (int i = 0; i < objects.Length; ++i)
                     {
-                        var s = (Ship)AllObjects[i];
-                        var opt = new SearchOptions(s.Position, defaultSensorRange);
-                        tree.FindNearby(ref opt);
+                        if (objects[i] is Ship s)
+                        {
+                            var shipOpt = new SearchOptions(s.Position, defaultSensorRange, GameObjectType.Ship);
+                            var projOpt = new SearchOptions(s.Position, defaultSensorRange, GameObjectType.Proj);
+                            GameplayObject[] ships = tree.FindNearby(ref shipOpt);
+                            GameplayObject[] projectiles = tree.FindNearby(ref projOpt);
+
+                            foreach (GameplayObject go in ships)
+                            {
+                                Assert.IsTrue(go is Ship, $"FindNearby(Type=Ship) contains a non-ship: {go}");
+                            }
+                            foreach (GameplayObject go in projectiles)
+                            {
+                                Assert.IsTrue(go is Projectile, $"FindNearby(Type=Proj) contains a non-projectile: {go}");
+                            }
+                        }
                     }
                 }
             });
+
+            updateResult.WaitNoThrow();
+            searchResult.WaitNoThrow();
+            if (updateResult.Error != null)
+                Assert.Fail($"Update thread failed: {updateResult.Error.Message}\n{updateResult.Error.StackTrace}");
+            if (searchResult.Error != null)
+                Assert.Fail($"Search thread failed: {searchResult.Error.Message}\n{searchResult.Error.StackTrace}");
         }
 
         public void TestTreeCollisionPerformance(ISpatial tree)
