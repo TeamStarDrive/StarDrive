@@ -371,11 +371,11 @@ namespace Ship_Game.AI
             {
                 if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters)
                 {
-                    if (Target != null && !HasPriorityOrder && State != AIState.Resupply )
+                    if (Target != null && !HasPriorityOrder && State != AIState.Resupply)
                     {
                         switch (OrderQueue.PeekFirst?.Plan)
                         {
-                            default: OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat, State)); break;
+                            default: PushGoalToFront(new ShipGoal(Plan.DoCombat, State)); break;
                             case Plan.DoCombat:
                             case Plan.Bombard:
                             case Plan.BoardShip: break;
