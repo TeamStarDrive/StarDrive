@@ -31,12 +31,11 @@ namespace UnitTests.Universe
         public void EnsureSaveGameIntegrity()
         {
             CreateDeveloperSandboxUniverse("United", numOpponents:1, paused:true);
+            Universe.CreateSimThread = false;
             Universe.LoadContent();
-            // unpause and run a few turns
-            Universe.AdvanceSimulationTargetTime(0.5f);
-            Universe.Paused = false;
-            Thread.Sleep(1000);
-            Universe.Paused = true;
+            // manually run a few turns
+            for (int i = 0; i < 60; ++i)
+                Universe.SingleSimulationStep(TestSimStep);
 
             SavedGame save1 = Universe.Save("UnitTest.IntegrityTest", async:false);
             if (save1 == null) throw new AssertFailedException("Save1 failed");

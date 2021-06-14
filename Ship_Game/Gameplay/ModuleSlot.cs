@@ -73,7 +73,7 @@ namespace Ship_Game.Gameplay
         public override string ToString() => $"{Pos} {ModuleUID} {Size} TA:{TurretAngle} MR:{ModuleRotation} SO:{SlotOptions}";
     }
 
-    public sealed class ModuleSlotData
+    public sealed class ModuleSlotData : IEquatable<ModuleSlotData>
     {
         public Vector2 Position;
         public Restrictions Restrictions;
@@ -221,6 +221,28 @@ namespace Ship_Game.Gameplay
                 && Orientation == s.Orientation
                 && SlotOptions == s.SlotOptions
                 && HangarshipGuid == s.HangarshipGuid;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals((ModuleSlotData)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = Position.GetHashCode();
+                hashCode = (hashCode * 397) ^ (int) Restrictions;
+                hashCode = (hashCode * 397) ^ (ModuleUID != null ? ModuleUID.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ Facing.GetHashCode();
+                hashCode = (hashCode * 397) ^ (Orientation != null ? Orientation.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (SlotOptions != null ? SlotOptions.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ Health.GetHashCode();
+                hashCode = (hashCode * 397) ^ ShieldPower.GetHashCode();
+                hashCode = (hashCode * 397) ^ HangarshipGuid.GetHashCode();
+                return hashCode;
+            }
         }
 
         public ModuleSlotData GetClone()

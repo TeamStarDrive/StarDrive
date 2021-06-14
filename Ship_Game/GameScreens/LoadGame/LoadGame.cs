@@ -261,10 +261,9 @@ namespace Ship_Game.GameScreens.LoadGame
                 }
             }
 
-            if (data.FindPlanet(ship.AI.OrbitTargetGuid, out Planet toOrbit))
+            if (ship.AI.State == AIState.Orbit && data.FindPlanet(ship.AI.OrbitTargetGuid, out Planet toOrbit))
             {
-                if (ship.AI.State == AIState.Orbit)
-                    ship.AI.OrderToOrbit(toOrbit);
+                ship.AI.RestoreOrbitFromSave(toOrbit);
             }
 
             ship.AI.SystemToDefend = data.FindSystemOrNull(ship.AI.SystemToDefendGuid);

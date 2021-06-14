@@ -196,8 +196,8 @@ namespace Ship_Game.AI
 
         public void OrderResupplyEscape(Vector2 position, Vector2 finalDir)
         {
-            ShipGoal goal = new ShipGoal(Plan.MoveToWithin1000, position, finalDir, AIState.Resupply, MoveTypes.WayPoint, 0, null);
-            OrderQueue.PushToFront(goal);
+            var goal = new ShipGoal(Plan.MoveToWithin1000, position, finalDir, AIState.Resupply, MoveTypes.WayPoint, 0, null);
+            PushGoalToFront(goal);
         }
 
         // Adds a WayPoint, optionally clears previous WayPoints
@@ -545,6 +545,11 @@ namespace Ship_Game.AI
                 ClearOrders();
             }
             OrderMoveTo(position, direction, true, AIState.MoveTo);
+        }
+
+        public void RestoreOrbitFromSave(Planet toOrbit)
+        {
+            OrbitTarget = toOrbit;
         }
 
         public void OrderToOrbit(Planet toOrbit, bool offensiveMove = false)
