@@ -7,7 +7,7 @@ namespace UnitTests.Universe
     [TestClass]
     public class TestNativeSpatial : TestSpatialCommon
     {
-        const SpatialType Type = SpatialType.Grid;
+        const SpatialType Type = SpatialType.Qtree;
         const int CellSize = 20_000;
 
         [TestMethod]

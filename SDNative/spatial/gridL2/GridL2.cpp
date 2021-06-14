@@ -39,7 +39,7 @@ namespace spatial
         Dbg.clear();
     }
 
-    void GridL2::rebuild()
+    SpatialRoot* GridL2::rebuild()
     {
         // swap the front and back-buffer
         // the front buffer will be reset and reused
@@ -68,25 +68,26 @@ namespace spatial
             {
                 for (int x = topLevel.x1; x <= topLevel.x2; ++x)
                 {
-                    view2.Cells = arrayOfCells[x + y*topLevelWidth];
-                    if (!view2.Cells)
+                    GridCell* cells = arrayOfCells[x + y*topLevelWidth];
+                    if (!cells)
                     {
-                        view2.Cells = front.allocArrayZeroed<GridCell>(view2.NumCells);
-                        arrayOfCells[x + y*topLevelWidth] = view2.Cells;
+                        cells = front.allocArrayZeroed<GridCell>(view2.NumCells);
+                        arrayOfCells[x + y*topLevelWidth] = cells;
                     }
-                    view2.setViewOffset2(view2.Cells, x, y, TopLevel);
-                    view2.insert(front, o, cellCapacity);
+                    view2.setViewOffset2(x, y, TopLevel);
+                    view2.insert(cells, front, o, cellCapacity);
                 }
             }
         }
 
         ArrayOfCells = arrayOfCells;
+        return reinterpret_cast<SpatialRoot*>(arrayOfCells);
     }
 
-    CollisionPairs GridL2::collideAll(const CollisionParams& params)
+    CollisionPairs GridL2::collideAll(SpatialRoot* root, const CollisionParams& params)
     {
         Collider collider { *FrontAlloc, Objects.maxObjects() };
-        GridCell** arrayOfCells = ArrayOfCells;
+        GridCell** arrayOfCells = reinterpret_cast<GridCell**>(root);
         int numTopLevelCells = TopLevel.NumCells;
         int numSecondLevelCells = SecondLevel.NumCells;
 
@@ -114,17 +115,17 @@ namespace spatial
     }
     
     #pragma warning( disable : 6262 )
-    int GridL2::findNearby(int* outResults, const SearchOptions& opt) const
+    int GridL2::findNearby(SpatialRoot* root, int* outResults, const SearchOptions& opt) const
     {
         Rect topLevel;
         if (!TopLevel.toCellRect(opt.SearchRect, topLevel))
             return 0;
 
-        FoundNodes found;
+        FoundCells found;
 
         int topLevelWidth = TopLevel.Width;
         GridCellView view2 = SecondLevel;
-        GridCell** arrayOfCells = ArrayOfCells;
+        GridCell** arrayOfCells = reinterpret_cast<GridCell**>(root);
 
         for (int y = topLevel.y1; y <= topLevel.y2; ++y)
         {
@@ -132,8 +133,8 @@ namespace spatial
             {
                 if (GridCell* cells = arrayOfCells[x + y*topLevelWidth])
                 {
-                    view2.setViewOffset2(cells, x, y, TopLevel);
-                    view2.findNodes(opt, found);
+                    view2.setViewOffset2(x, y, TopLevel);
+                    view2.findNodes(cells, opt, found);
                 }
             }
         }
@@ -156,26 +157,25 @@ namespace spatial
         return numResults;
     }
 
-    void GridL2::debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const
+    void GridL2::debugVisualize(SpatialRoot* root, const VisualizerOptions& opt, Visualizer& visualizer) const
     {
-        GridCellView topLevel = TopLevel; // make a copy for thread safety
-        topLevel.debugVisualize(opt, visualizer);
-
-        int topLevelWidth = TopLevel.Width;
-        GridCellView view2 = SecondLevel;
-        GridCell** arrayOfCells = ArrayOfCells;
+        GridCell** arrayOfCells = reinterpret_cast<GridCell**>(root);
+        TopLevel.debugVisualize(nullptr, opt, visualizer);
 
         Rect visibleTop;
-        if (topLevel.toCellRect(opt.visibleWorldRect, visibleTop))
+        if (TopLevel.toCellRect(opt.visibleWorldRect, visibleTop))
         {
+            int topLevelWidth = TopLevel.Width;
+            GridCellView view2 = SecondLevel;
+
             for (int y = visibleTop.y1; y <= visibleTop.y2; ++y)
             {
                 for (int x = visibleTop.x1; x <= visibleTop.x2; ++x)
                 {
                     if (GridCell* secondLevel = arrayOfCells[x + y*topLevelWidth])
                     {
-                        view2.setViewOffset2(secondLevel, x, y, TopLevel);
-                        view2.debugVisualize(opt, visualizer);
+                        view2.setViewOffset2(x, y, TopLevel);
+                        view2.debugVisualize(secondLevel, opt, visualizer);
                     }
                 }
             }
