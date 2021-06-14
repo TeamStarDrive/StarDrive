@@ -146,7 +146,7 @@ namespace Ship_Game.AI
             // warp, we must give a speed limit. The limit is reset when all relevant
             // ships are recalled, so no issue with Warp
             float speedLimit = Owner.Carrier.RecallingShipsBeforeWarp ? Owner.SpeedLimit : 0;
-            Vector2 movePos  = goal.MovePosition; // dynamic move position
+            Vector2 movePos = goal.MovePosition; // dynamic move position
             ThrustOrWarpToPos(movePos, timeStep, speedLimit);
 
             float distance = Owner.Center.Distance(movePos);
@@ -161,31 +161,46 @@ namespace Ship_Game.AI
             {
                 DequeueOrder(goal.HasCombatMove(distance));
             }
-            else if (goal.HasCombatMove(distance))
-            {
-                    if (Owner.fleet != null && FleetNode != null && Target != null)
-                    {
-                        float targetDistance = (Owner.fleet.AveragePosition() + FleetNode.FleetOffset).Distance(Target.Center);
 
-                        switch(Owner.fleet.Fcs)
+            if (Owner.AI.BadGuysNear && goal.HasCombatMove(distance))
+            {
+                if (Owner.fleet != null && FleetNode != null)
+                {
+                    Ship closestShip = Owner.AI.Target;
+                    if (closestShip == null)
+                    {
+                        float targetStrength = Owner.AI.PotentialTargets.Sum(s => s.GetStrength());
+                        if (targetStrength > 0)
+                            closestShip = Owner.AI.PotentialTargets.FindMin(s => s.Center.Distance(Owner.Center));
+                    }
+
+                    if (closestShip != null)
+                    {
+                        float fleetDistance = 0;
+                        float actualDistance = Owner.Center.Distance(closestShip.Center);
+                        switch (Owner.fleet.Fcs)
                         {
                             case Fleet.FleetCombatStatus.Maintain:
-                                if (targetDistance <= FleetNode.OrdersRadius)
+                                fleetDistance = (Owner.fleet.AveragePosition() + Owner.AI.FleetNode.FleetOffset).Distance(closestShip.Center);
+                                if (actualDistance < Owner.AI.FleetNode.OrdersRadius && fleetDistance <= Owner.AI.FleetNode.OrdersRadius)
                                     SetPriorityOrder(false);
                                 break;
                             case Fleet.FleetCombatStatus.Loose:
-                                if (targetDistance <= Owner.SensorRange)
+                                fleetDistance = Owner.fleet.AveragePosition().Distance(closestShip.Center);
+                                if (actualDistance < Owner.AI.FleetNode.OrdersRadius && fleetDistance <= Owner.AI.FleetNode.OrdersRadius)
                                     SetPriorityOrder(false);
                                 break;
                             case Fleet.FleetCombatStatus.Free:
-                                SetPriorityOrder(false);
-                            break;
+                                if (actualDistance <= Owner.SensorRange)
+                                    SetPriorityOrder(false);
+                                break;
                         }
                     }
-                    else 
-                    {
-                        SetPriorityOrder(false);
-                    }
+                }
+                else
+                {
+                    SetPriorityOrder(false);
+                }
             }
         }
 
@@ -383,7 +398,6 @@ namespace Ship_Game.AI
             float distance = pos.Distance(Owner.Center);
             if (UpdateWarpThrust(timeStep, actualDiff, distance))
             {
-                //SubLightMoveTowardsPosition(pos, deltaTime, 0);
                 return; // WayPoint short-cut
             }
 
@@ -408,7 +422,9 @@ namespace Ship_Game.AI
             }
 
             // prediction to enhance movement precision
-            Vector2 predictedPoint = PredictThrustPosition(pos);
+            // not at warp though. 
+            // because we are warping to the actual point but changing direction to the predicted point. 
+            Vector2 predictedPoint = Owner.engineState == Ship.MoveState.Warp ? pos : PredictThrustPosition(pos);
             Owner.RotationNeededForTarget(predictedPoint, 0f, out float predictionDiff, out float rotationDir);
 
             if (predictionDiff > 0.02f) // do we need to rotate ourselves before thrusting?
@@ -440,20 +456,21 @@ namespace Ship_Game.AI
                 {
                     // This ship is far away from the fleet
                     Owner.EngageStarDrive();
-                    return;
-                }
-
-                if (distance > 7500f) // Not near destination
-                {
-                    EngageFormationWarp();
                 }
                 else
                 {
-                    DisEngageFormationWarp();
-                }
+                    if (distance > 7500f) // Not near destination
+                    {
+                        EngageFormationWarp();
+                    }
+                    else
+                    {
+                        DisEngageFormationWarp();
+                    }
 
-                speedLimit = FormationWarpSpeed(speedLimit);
-                Owner.SubLightAccelerate(speedLimit);
+                    speedLimit = FormationWarpSpeed(speedLimit);
+                    Owner.SubLightAccelerate(speedLimit);
+                }
             }
         }
 
