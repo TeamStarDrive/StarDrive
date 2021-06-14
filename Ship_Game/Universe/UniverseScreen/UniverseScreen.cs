@@ -133,7 +133,6 @@ namespace Ship_Game
         public Empire player;
         MiniMap minimap;
         bool loading;
-        public Thread SimThread;
         public float transitionElapsedTime;
 
         // @note Initialize with a default frustum for UnitTests
@@ -425,6 +424,8 @@ namespace Ship_Game
 
         void CreateUniverseSimThread()
         {
+            if (!CreateSimThread)
+                return;
             SimThread = new Thread(UniverseSimMonitored);
             SimThread.Name = "Universe.SimThread";
             SimThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority

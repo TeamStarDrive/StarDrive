@@ -394,8 +394,9 @@ namespace Ship_Game.Ships
 
             // Begin: ShipSubClass Initialization. Put all ship sub class initializations here
             if (AI == null)
+            {
                 InitializeAI();
-            AI.CombatState = shipData.CombatState;
+            }
             // End: ship subclass initializations.
 
             RecalculatePower(); // NOTE: Must be before InitializeStatus

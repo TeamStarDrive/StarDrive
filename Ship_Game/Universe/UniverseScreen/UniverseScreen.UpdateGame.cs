@@ -40,6 +40,10 @@ namespace Ship_Game
         readonly AggregatePerfTimer DrawIcons = new AggregatePerfTimer();
         readonly AggregatePerfTimer DrawUI = new AggregatePerfTimer();
 
+        // Can be used in unit testing to prevent LoadContent() from launching sim thread
+        public bool CreateSimThread = true;
+        Thread SimThread;
+
         // This is our current time in simulation time axis [0 .. current .. target]
         float CurrentSimTime;
 
@@ -219,7 +223,7 @@ namespace Ship_Game
         }
 
         // This does a single simulation step with fixed time step
-        void SingleSimulationStep(FixedSimTime timeStep)
+        public void SingleSimulationStep(FixedSimTime timeStep)
         {
             ScreenManager.InvokePendingEmpireThreadActions();
             if (ProcessTurnEmpires(timeStep))
