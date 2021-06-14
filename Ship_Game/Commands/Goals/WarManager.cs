@@ -58,6 +58,9 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep ProcessWar()
         {
+            if (!empire.IsAtWarWith(TargetEmpire))
+                return GoalStep.GoalComplete;
+
             return empire.GetPotentialTargetPlanets(TargetEmpire, GetWarType(), out _) && empire.CanAddAnotherWarGoal(TargetEmpire) 
                 ? GoalStep.RestartGoal 
                 : GoalStep.TryAgain;
@@ -65,7 +68,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep RequestPeaceOrEscalate()
         {
-            if (TargetEmpire.IsEmpireDead())
+            if (!empire.IsAtWarWith(TargetEmpire) || TargetEmpire.IsEmpireDead())
                 return GoalStep.GoalComplete;
 
             var warType = GetWarType();
