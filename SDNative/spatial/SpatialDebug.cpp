@@ -4,12 +4,12 @@
 
 namespace spatial
 {
-    void DebugFindNearby::addCells(const FoundNodes& found)
+    void DebugFindNearby::addCells(const FoundCells& found)
     {
         FindCells.reserve(found.count);
         for (int i = 0; i < found.count; ++i)
         {
-            const FoundNode& node = found.nodes[i];
+            const FoundCell& node = found.cells[i];
             FindCells.push_back(Rect::fromPointRadius(node.world.x, node.world.y, node.radius));
         }
     }
