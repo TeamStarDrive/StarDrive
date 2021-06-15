@@ -13,11 +13,15 @@ namespace Ship_Game
     public partial class UniverseScreen
     {
         readonly object SimTimeLock = new object();
+        
+        // empire perf indicators
+        readonly AggregatePerfTimer PreEmpirePerf     = new AggregatePerfTimer();
+        readonly AggregatePerfTimer EmpireInfluPerf   = new AggregatePerfTimer();
+        readonly AggregatePerfTimer EmpireUpdatePerf  = new AggregatePerfTimer();
+        readonly AggregatePerfTimer EmpireMiscPerf    = new AggregatePerfTimer();
+        readonly AggregatePerfTimer PostEmpirePerf    = new AggregatePerfTimer();
 
-        readonly AggregatePerfTimer EmpireUpdatePerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer PreEmpirePerf    = new AggregatePerfTimer();
-        readonly AggregatePerfTimer PostEmpirePerf   = new AggregatePerfTimer();
-        readonly AggregatePerfTimer TurnTimePerf     = new AggregatePerfTimer();
+        readonly AggregatePerfTimer TurnTimePerf = new AggregatePerfTimer();
         readonly AggregatePerfTimer ProcessSimTurnsPerf = new AggregatePerfTimer();
         
         readonly AggregatePerfTimer DrawPerf = new AggregatePerfTimer();
@@ -35,6 +39,10 @@ namespace Ship_Game
         readonly AggregatePerfTimer DrawShips = new AggregatePerfTimer();
         readonly AggregatePerfTimer DrawIcons = new AggregatePerfTimer();
         readonly AggregatePerfTimer DrawUI = new AggregatePerfTimer();
+
+        // Can be used in unit testing to prevent LoadContent() from launching sim thread
+        public bool CreateSimThread = true;
+        Thread SimThread;
 
         // This is our current time in simulation time axis [0 .. current .. target]
         float CurrentSimTime;
@@ -55,7 +63,7 @@ namespace Ship_Game
         /// GameSpeed modifies the target simulation time advancement
         /// Simulation time can be advanced by any arbitrary amount
         /// </summary>
-        void AdvanceSimulationTargetTime(float deltaTimeFromUI)
+        public void AdvanceSimulationTargetTime(float deltaTimeFromUI)
         {
             lock (SimTimeLock)
             {
@@ -68,28 +76,29 @@ namespace Ship_Game
             }
         }
 
-        void ProcessTurnsMonitored()
+        void UniverseSimMonitored()
         {
             int threadId = Thread.CurrentThread.ManagedThreadId;
             Log.Write(ConsoleColor.Cyan, $"Start Universe.ProcessTurns Thread #{threadId}");
             Log.AddThreadMonitor();
-            ProcessTurns();
+            UniverseSimulationLoop();
             Log.RemoveThreadMonitor();
             Log.Write(ConsoleColor.Cyan, $"Stop Universe.ProcessTurns Thread #{threadId}");
         }
 
-        void ProcessTurns()
+        // This is the main loop which runs the entire game simulation
+        void UniverseSimulationLoop()
         {
             int failedLoops = 0; // for detecting cyclic crash loops
 
-            while (ProcessTurnsThread != null)
+            while (SimThread != null)
             {
                 try
                 {
                     // Wait for Draw() to finish.
                     // While SwapBuffers is blocking, we process the turns in between
                     DrawCompletedEvt.WaitOne();
-                    if (ProcessTurnsThread == null)
+                    if (SimThread == null)
                         break; // this thread is aborting
 
                     ProcessSimTurnsPerf.Start();
@@ -174,7 +183,7 @@ namespace Ship_Game
                         ++SimTurnId;
                         
                         TurnTimePerf.Start();
-                        ProcessTurnDelta(fixedSimStep);
+                        SingleSimulationStep(fixedSimStep);
                         TurnTimePerf.Stop();
                     }
 
@@ -197,7 +206,7 @@ namespace Ship_Game
 
         void AutoAdjustSimulationFrameRate()
         {
-            if (TimeSinceLastAutoFPS.Elapsed > 1f)
+            if (TimeSinceLastAutoFPS.Elapsed > 1.5f)
             {
                 TimeSinceLastAutoFPS.Start();
 
@@ -205,22 +214,21 @@ namespace Ship_Game
                 if (CurrentSimFPS > 10 && TurnTimePerf.MeasuredTotal > 0.7f)
                 {
                     SimFPSModifier -= 5;
-                    Log.Warning($"GAME RUNNING SLOW, REDUCING SIM FPS to: {CurrentSimFPS}");
                 }
                 else if (SimFPSModifier < 0 && TurnTimePerf.MeasuredTotal < 0.4f)
                 {
                     SimFPSModifier += 5;
-                    Log.Warning($"GAME RUNNING FAST AGAIN, INCREASING FPS to: {CurrentSimFPS}");
                 }
             }
         }
 
-        void ProcessTurnDelta(FixedSimTime timeStep)
+        // This does a single simulation step with fixed time step
+        public void SingleSimulationStep(FixedSimTime timeStep)
         {
             ScreenManager.InvokePendingEmpireThreadActions();
             if (ProcessTurnEmpires(timeStep))
             {
-                UpdateSensorsForASingleEmpire(timeStep);
+                UpdateInfluenceForAllEmpires(timeStep);
 
                 Objects.Update(timeStep);
 
@@ -249,30 +257,15 @@ namespace Ship_Game
         public void WarmUpShipsForLoad()
         {
             var simTime = new FixedSimTime(CurrentSimFPS);
+            
+            foreach (Empire empire in EmpireManager.Empires)
+                RemoveDuplicateProjectorWorkAround(empire); 
 
             // makes sure all empire vision is updated.
             Objects.Update(simTime);
-
-            foreach (Empire empire in EmpireManager.Empires)
-            {
-                RemoveDuplicateProjectorWorkAround(empire);
-                UpdateShipSensorsAndInfluence(simTime, empire);
-            }
-
-            // TODO: some checks rely on previous frame information, this is a defect
-            //       so we run this a second time
-            foreach (Empire empire in EmpireManager.Empires)
-            {
-                UpdateShipSensorsAndInfluence(simTime, empire);
-            }
+            UpdateInfluenceForAllEmpires(simTime);
 
             EndOfTurnUpdate(simTime);
-
-            foreach (Ship ship in GetMasterShipList())
-            {
-                ship.AI.ApplySensorScanResults();
-            }
-
             EmpireManager.Player.PopulateKnownShips();
         }
 
@@ -290,6 +283,7 @@ namespace Ship_Game
 
         void ProcessTurnUpdateMisc(FixedSimTime timeStep)
         {
+            EmpireMiscPerf.Start();
             UpdateClickableItems();
 
             JunkList.ApplyPendingRemovals();
@@ -323,9 +317,9 @@ namespace Ship_Game
                     JunkList[index].Update(timeStep);
             }
             SelectedShipList.ApplyPendingRemovals();
+            EmpireMiscPerf.Stop();
         }
 
-        int NextEmpireToScan = 0;
         public readonly int MaxTaskCores = Parallel.NumPhysicalCores - 1;
 
         // FB todo: this a work around from duplicate SSP create somewhere in the game but are not seen before loading the game
@@ -347,40 +341,20 @@ namespace Ship_Game
         }
 
         // sensor scan is heavy
-        void UpdateSensorsForASingleEmpire(FixedSimTime timeStep)
+        void UpdateInfluenceForAllEmpires(FixedSimTime timeStep)
         {
-            Empire empireToUpdate = EmpireManager.Empires[NextEmpireToScan];
-            if (++NextEmpireToScan >= EmpireManager.Empires.Count)
-                NextEmpireToScan = 0;
+            EmpireInfluPerf.Start();
 
-            UpdateShipSensorsAndInfluence(timeStep, empireToUpdate);
-        }
-
-        void UpdateShipSensorsAndInfluence(FixedSimTime timeStep, Empire ourEmpire)
-        {
-            if (ourEmpire.IsEmpireDead())
-                return;
-
-            var ourShips = ourEmpire.OwnedShips;
-            ExecuteShipSensorScans(ourShips, timeStep);
-            var ourSSPs = ourEmpire.OwnedProjectors;
-            ExecuteShipSensorScans(ourSSPs, timeStep);
-            ourEmpire.UpdateContactsAndBorders(timeStep);
-        }
-
-        void ExecuteShipSensorScans(IReadOnlyList<Ship> ourShips, FixedSimTime timeStep)
-        {
-            Parallel.For(ourShips.Count, (start, end) =>
+            for (int i = 0; i < EmpireManager.Empires.Count; ++i)
             {
-                for (int i = start; i < end; i++)
-                {
-                    Ship ourShip = ourShips[i];
-                    if (!ourShip.Active) continue;
-                    ourShip.UpdateSensorsAndInfluence(timeStep);
-                }
-            }, MaxTaskCores);
+                Empire empireToUpdate = EmpireManager.Empires[i];
+                if (!empireToUpdate.IsEmpireDead())
+                    empireToUpdate.UpdateContactsAndBorders(timeStep);
+            }
+
+            EmpireInfluPerf.Stop();
         }
-        
+
         bool ProcessTurnEmpires(FixedSimTime timeStep)
         {
             PreEmpirePerf.Start();
@@ -433,6 +407,7 @@ namespace Ship_Game
             {
                 EmpireUpdatePerf.Start();
                 UpdateEmpires(timeStep);
+                EmpireUpdatePerf.Stop();
             }
             
             return !Paused;
@@ -442,7 +417,7 @@ namespace Ship_Game
         /// Should be run once at the end of a game turn, once before game start, and once after load.
         /// Anything that the game needs at the start should be placed here.
         /// </summary>
-        void EndOfTurnUpdate(FixedSimTime timeStep)
+        public void EndOfTurnUpdate(FixedSimTime timeStep)
         {
             PostEmpirePerf.Start();
             if (IsActive)

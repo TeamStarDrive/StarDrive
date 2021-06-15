@@ -2,6 +2,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Utils;
 
 #pragma warning disable 0649 // uninitialized struct
 
@@ -63,7 +64,7 @@ namespace Ship_Game.Spatial
         [DllImport(Lib)] static extern int SpatialFindNearby(IntPtr spatial, int* outResults, ref NativeSearchOptions opt);
 
         IntPtr Spat;
-        readonly Array<GameplayObject> Objects = new Array<GameplayObject>(capacity:512);
+        readonly DoubleBufferedArray<GameplayObject> Objects = new DoubleBufferedArray<GameplayObject>(capacity:512);
 
         public SpatialType Type { get; }
         public float WorldSize { get; }
@@ -104,11 +105,8 @@ namespace Ship_Game.Spatial
 
         public void Clear()
         {
-            lock (Objects)
-            {
-                SpatialClear(Spat);
-                Objects.Clear();
-            }
+            SpatialClear(Spat);
+            Objects.ClearAndApply();
         }
 
         public void UpdateAll(Array<GameplayObject> allObjects)
@@ -116,65 +114,51 @@ namespace Ship_Game.Spatial
             int count = allObjects.Count;
             int maxObjects = Math.Max(MaxObjects, count);
 
-            lock (Objects)
+            Objects.Resize(maxObjects);
+            GameplayObject[] gameObjects = allObjects.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
             {
-                Objects.Resize(maxObjects);
-                GameplayObject[] gameObjects = allObjects.GetInternalArrayItems();
-                for (int i = 0; i < count; ++i)
+                GameplayObject go = gameObjects[i];
+                int objectId = go.SpatialIndex;
+                if (go.Active)
                 {
-                    GameplayObject go = gameObjects[i];
-                    int objectId = go.SpatialIndex;
-                    if (go.Active)
+                    if (go.ReinsertSpatial) // if marked for reinsert, remove from Spat
                     {
-                        if (go.ReinsertSpatial) // if marked for reinsert, remove from Spat
+                        go.ReinsertSpatial = false;
+                        if (objectId != -1)
                         {
-                            go.ReinsertSpatial = false;
-                            if (objectId != -1)
-                            {
-                                SpatialRemove(Spat, objectId);
-                                go.SpatialIndex = -1;
-                                objectId = -1;
-                            }
-                        }
-
-                        if (objectId == -1) // insert new
-                        {
-                            var so = new NativeSpatialObject(go);
-                            objectId = SpatialInsert(Spat, ref so);
-                            go.SpatialIndex = objectId;
-                            Objects[objectId] = go;
-                        }
-                        else // update existing
-                        {
-                            var rect = new AABoundingBox2Di(go);
-                            SpatialUpdate(Spat, objectId, ref rect);
-                            Objects[objectId] = go;
+                            SpatialRemove(Spat, objectId);
+                            go.SpatialIndex = -1;
+                            objectId = -1;
                         }
                     }
-                    else if (objectId != -1)
+
+                    if (objectId == -1) // insert new
                     {
-                        Objects[objectId] = null;
-                        SpatialRemove(Spat, objectId);
-                        go.SpatialIndex = -1;
+                        var so = new NativeSpatialObject(go);
+                        objectId = SpatialInsert(Spat, ref so);
+                        go.SpatialIndex = objectId;
+                        Objects.Set(objectId, go);
+                    }
+                    else // update existing
+                    {
+                        var rect = new AABoundingBox2Di(go);
+                        SpatialUpdate(Spat, objectId, ref rect);
+                        //Objects.Set(objectId, go);
                     }
                 }
-                SpatialRebuild(Spat);
+                else if (objectId != -1)
+                {
+                    Objects.Set(objectId, null);
+                    SpatialRemove(Spat, objectId);
+                    go.SpatialIndex = -1;
+                }
             }
+
+            SpatialRebuild(Spat);
+            Objects.ApplyChanges();
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        struct CollisionParams
-        {
-            public byte IgnoreSameLoyalty; // if 1, same loyalty objects don't collide
-            public byte SortCollisionsById; // if 1, collision results are sorted by object Id-s, ascending
-            public byte ShowCollisions; // if 1, collisions are shown as debug
-        }
-        public struct CollisionPairs
-        {
-            public CollisionPair* Data;
-            public int Size;
-            public int Capacity;
-        }
         public int CollideAll(FixedSimTime timeStep)
         {
             var p = new CollisionParams
@@ -186,30 +170,14 @@ namespace Ship_Game.Spatial
 
             // get the collisions
             CollisionPairs results = default;
+            GameplayObject[] objects = Objects.GetItems();
             SpatialCollideAll(Spat, ref p, ref results);
             
-            int numCollisions = NarrowPhase.Collide(timeStep, results.Data, results.Size, Objects);
+            int numCollisions = NarrowPhase.Collide(timeStep, results.Data, results.Size, objects);
             return numCollisions;
         }
 
-        [UnmanagedFunctionPointer(CC)]
-        delegate int SearchFilter(int objectId);
-
-        [StructLayout(LayoutKind.Sequential)]
-        struct NativeSearchOptions
-        {
-            public AABoundingBox2Di SearchRect;
-            public Circle RadialFilter;
-            public int MaxResults;
-            public int FilterByType;
-            public int FilterExcludeObjectId;
-            public int FilterExcludeByLoyalty;
-            public int FilterIncludeOnlyByLoyalty;
-            public SearchFilter FilterFunction;
-            public int EnableSearchDebugId;
-        };
-
-        public GameplayObject[] FindNearby(in SearchOptions opt)
+        public GameplayObject[] FindNearby(ref SearchOptions opt)
         {
             int ignoreId = -1;
             if (opt.Exclude != null && opt.Exclude.SpatialIndex >= 0)
@@ -225,6 +193,7 @@ namespace Ship_Game.Spatial
                     Radius=(int)(opt.FilterRadius + 0.5f) // ceil
                 },
                 MaxResults = opt.MaxResults,
+                SortByDistance = opt.SortByDistance ? 1 : 0,
                 FilterByType = (int)opt.Type,
                 FilterExcludeObjectId = ignoreId,
                 FilterExcludeByLoyalty = opt.ExcludeLoyalty?.Id ?? 0,
@@ -233,35 +202,60 @@ namespace Ship_Game.Spatial
                 EnableSearchDebugId = opt.DebugId,
             };
             
-            lock (Objects)
+            GameplayObject[] objects = Objects.GetItems();
+            if (opt.FilterFunction != null)
             {
-                if (opt.FilterFunction != null)
+                SearchFilterFunc filterFunc = opt.FilterFunction;
+                nso.FilterFunction = (int objectId) =>
                 {
-                    SearchFilterFunc filterFunc = opt.FilterFunction;
-                    nso.FilterFunction = (int objectId) =>
-                    {
-                        GameplayObject go = Objects[objectId];
-                        bool success = filterFunc(go);
-                        return success ? 1 : 0;
-                    };
-                }
-
-                int* objectIds = stackalloc int[opt.MaxResults];
-                GameplayObject[] objects = Objects.GetInternalArrayItems();
-                int resultCount = SpatialFindNearby(Spat, objectIds, ref nso);
-                return LinearSearch.Copy(objectIds, resultCount, objects);
+                    GameplayObject go = objects[objectId];
+                    bool success = filterFunc(go);
+                    return success ? 1 : 0;
+                };
             }
+
+            int* objectIds = stackalloc int[opt.MaxResults];
+            int resultCount = SpatialFindNearby(Spat, objectIds, ref nso);
+            return LinearSearch.Copy(objectIds, resultCount, objects);
         }
 
-        public GameplayObject[] FindLinear(in SearchOptions opt)
+        public GameplayObject[] FindLinear(ref SearchOptions opt)
         {
-            lock (Objects)
-            {
-                GameplayObject[] objects = Objects.GetInternalArrayItems();
-                int count = Objects.Count;
-                return LinearSearch.FindNearby(opt, objects, count);
-            }
+            GameplayObject[] objects = Objects.GetItems();
+            return LinearSearch.FindNearby(ref opt, objects, objects.Length);
         }
+        
+        [StructLayout(LayoutKind.Sequential)]
+        struct CollisionParams
+        {
+            public byte IgnoreSameLoyalty; // if 1, same loyalty objects don't collide
+            public byte SortCollisionsById; // if 1, collision results are sorted by object Id-s, ascending
+            public byte ShowCollisions; // if 1, collisions are shown as debug
+        }
+        public struct CollisionPairs
+        {
+            public CollisionPair* Data;
+            public int Size;
+            public int Capacity;
+        }
+        
+        [UnmanagedFunctionPointer(CC)]
+        delegate int SearchFilter(int objectId);
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct NativeSearchOptions
+        {
+            public AABoundingBox2Di SearchRect;
+            public Circle RadialFilter;
+            public int MaxResults;
+            public int SortByDistance;
+            public int FilterByType;
+            public int FilterExcludeObjectId;
+            public int FilterExcludeByLoyalty;
+            public int FilterIncludeOnlyByLoyalty;
+            public SearchFilter FilterFunction;
+            public int EnableSearchDebugId;
+        };
 
         struct Point
         {

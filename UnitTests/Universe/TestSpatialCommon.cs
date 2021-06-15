@@ -43,7 +43,7 @@ namespace UnitTests.Universe
         {
             var opt = new SearchOptions(pos, r, type);
             opt.MaxResults = 128;
-            return tree.FindNearby(opt);
+            return tree.FindNearby(ref opt);
         }
 
         public void TestBasicInsert(ISpatial tree)
@@ -128,7 +128,7 @@ namespace UnitTests.Universe
                 {
                     ExcludeLoyalty = s.loyalty
                 };
-                GameplayObject[] found = tree.FindNearby(opt);
+                GameplayObject[] found = tree.FindNearby(ref opt);
                 CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
             }
         }
@@ -143,7 +143,7 @@ namespace UnitTests.Universe
                 {
                     OnlyLoyalty = s.loyalty
                 };
-                GameplayObject[] found = tree.FindNearby(opt);
+                GameplayObject[] found = tree.FindNearby(ref opt);
                 CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
             }
         }
@@ -180,7 +180,7 @@ namespace UnitTests.Universe
             {
                 var s = (Ship)AllObjects[i];
                 var opt = new SearchOptions(s.Position, defaultSensorRange);
-                tree.FindLinear(opt);
+                tree.FindLinear(ref opt);
             }
             float e1 = t1.Elapsed;
             Console.WriteLine($"-- LinearSearch 10k ships, 30k sensor elapsed: {(e1*1000).String(2)}ms");
@@ -190,7 +190,7 @@ namespace UnitTests.Universe
             {
                 var s = (Ship)AllObjects[i];
                 var opt = new SearchOptions(s.Position, defaultSensorRange);
-                tree.FindNearby(opt);
+                tree.FindNearby(ref opt);
             }
             float e2 = t2.Elapsed;
             Console.WriteLine($"-- TreeSearch 10k ships, 30k sensor elapsed: {(e2*1000).String(2)}ms");
@@ -234,7 +234,7 @@ namespace UnitTests.Universe
                     {
                         var s = (Ship)AllObjects[i];
                         var opt = new SearchOptions(s.Position, defaultSensorRange);
-                        tree.FindNearby(opt);
+                        tree.FindNearby(ref opt);
                     }
                 }
             });

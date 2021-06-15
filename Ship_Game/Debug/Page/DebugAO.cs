@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
-using Ship_Game.AI.StrategyAI.WarGoals;
-using Ship_Game.Fleets;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using static Ship_Game.AI.Tasks.MilitaryTask;
 
 namespace Ship_Game.Debug.Page
 {
@@ -29,7 +23,6 @@ namespace Ship_Game.Debug.Page
             if (!Visible)
                 return;
 
-            DrawAOs();
             base.Draw(batch, elapsed);
         }
 
@@ -92,7 +85,6 @@ namespace Ship_Game.Debug.Page
             text.Add(ShipStates(allShips));
             text.AddRange(RoleCounts(allShips));
             text.AddRange(GetAllShipsUnderConstruction());
-            text.AddRange(TaskStats());
             text.Add(Tasks());
             SetTextColumns(text);
 
@@ -173,49 +165,12 @@ namespace Ship_Game.Debug.Page
 
             foreach (var task in tasks)
             {
-                column.AddLine($"{task.type} - {task.MinimumTaskForceStrength}  -  Ending: {task.QueuedForRemoval}");
+                column.AddLine($"{task.Type} - {task.MinimumTaskForceStrength}  -  Ending: {task.QueuedForRemoval}");
             }
 
             column.AddLine($"---------");
             column.AddLine($"War Tasks");
-
-            /// WarTasks
-            if (EmpireAtWar.GetEmpireAI().PauseWarTimer < 0)
-            {
-                var warTasks = EmpireAtWar.GetEmpireAI().WarTasks;
-
-                foreach (var task in warTasks.NewTasks)
-                {
-                    column.AddLine($"{task.type} - {task.MinimumTaskForceStrength}  -  Ending: {task.QueuedForRemoval}");
-                }
-            }
-
             return column;
-        }
-
-        Array<DebugTextBlock> TaskStats()
-        {
-            var itemName = Enum.GetValues(typeof(RequisitionStatus));
-            var taskMap = new Map<RequisitionStatus, int>();
-            foreach (RequisitionStatus item in itemName) taskMap.Add(item, 0);
-
-            var tasks = EmpireAtWar.GetEmpireAI().GetAtomicTasksCopy();
-
-            foreach (var task in tasks) 
-                taskMap[task.GetRequisitionStatus()]++;
-            tasks = EmpireAtWar.GetEmpireAI().WarTasks.NewTasks.ToArray();
-            foreach (var task in tasks)
-                taskMap[task.GetRequisitionStatus()]++;
-            var names = new DebugTextBlock();
-            var count = new DebugTextBlock();
-            names.AddLine("Task Results");
-            count.AddLine("Counts");
-            foreach (var kv in taskMap)
-            {
-                names.AddLine($"{kv.Key}");
-                count.AddLine($"{kv.Value}");
-            }
-            return new Array<DebugTextBlock> { names, count };
         }
 
         Array<DebugTextBlock> GetAllShipsUnderConstruction()
@@ -299,41 +254,6 @@ namespace Ship_Game.Debug.Page
             }
 
             return columns;
-        }
-
-        void DrawAOs()
-        {
-            var aos = EmpireAtWar.GetEmpireAI().AreasOfOperations;
-            for (int i = 0; i < aos.Count; i++)
-            {
-                var ao = aos[i];
-                Screen.DrawCircleProjected(ao.Center, ao.Radius, EmpireAtWar.EmpireColor, 2);
-            }
-
-
-            foreach ((Empire them, Relationship rel) in EmpireAtWar.AllRelations)
-            {
-                if (them.data.Defeated) continue;
-                var war = rel.ActiveWar;
-                if (war == null || war.Them.isFaction) continue;
-                float minPri = EmpireAtWar.GetEmpireAI().MinWarPriority;
-                float warPri = war.GetPriority();
-                if (warPri > minPri)
-                    continue;
-
-                for (int i = 0; i < EmpireAtWar.AllActiveWarTheaters.Length; i++)
-                {
-                    var theater = EmpireAtWar.AllActiveWarTheaters[i];
-                    float thickness = 10;
-                    var ao = theater.TheaterAO;
-                    var rallyAo = theater.RallyAO;
-                    Screen.DrawCircleProjected(ao.Center, ao.Radius, war.Them.EmpireColor, thickness);
-                    if (rallyAo == null) continue;
-                    Screen.DrawLineWideProjected(ao.Center, rallyAo.Center, Colors.Attack(), 2);
-                    Screen.DrawCircleProjected(rallyAo.Center, rallyAo.Radius, war.Them.EmpireColor, 2);
-                    Screen.DrawCircleProjected(rallyAo.Center, rallyAo.Radius, war.Them.EmpireColor, 2);
-                }
-            }
         }
     }
 }

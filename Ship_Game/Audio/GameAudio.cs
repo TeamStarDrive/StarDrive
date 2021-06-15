@@ -25,6 +25,7 @@ namespace Ship_Game.Audio
         static AudioCategory Music;
         static AudioCategory RacialMusic;
         static AudioCategory CombatMusic;
+        static object SfxQueueLock = new object();
 
         struct TrackedHandle
         {
@@ -127,10 +128,13 @@ namespace Ship_Game.Audio
         public static void Destroy()
         {
             SfxThread = null;
-            if (SfxQueue != null) lock (SfxQueue)
+            if (SfxQueue != null)
             {
-                SfxQueue.Clear();
-                SfxQueue = null;
+                lock (SfxQueueLock)
+                {
+                    SfxQueue?.Clear();
+                    SfxQueue = null;
+                }
             }
 
             if (TrackedInstances != null) lock (TrackedInstances)
@@ -249,7 +253,7 @@ namespace Ship_Game.Audio
                     continue;
 
                 QueuedSfx[] items;
-                lock (SfxQueue)
+                lock (SfxQueueLock)
                 {
                     items = SfxQueue.ToArray();
                     SfxQueue.Clear();
@@ -295,8 +299,10 @@ namespace Ship_Game.Audio
         {
             if (CantPlaySfx(cueName))
                 return;
+
             ++ThisFrameSfxCount;
-            lock (SfxQueue)
+            // AGGRESSIVE DISPOSE: ? SfxQueue goes null
+            lock (SfxQueueLock)
             {
                 SfxQueue.Add(new QueuedSfx
                 {
@@ -309,7 +315,7 @@ namespace Ship_Game.Audio
         internal static void PlaySfxAsync(string cueName, AudioEmitter emitter, IAudioHandle handle)
         {
             ++ThisFrameSfxCount;
-            lock (SfxQueue)
+            lock (SfxQueueLock)
             {
                 SfxQueue.Add(new QueuedSfx
                 {

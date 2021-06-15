@@ -196,6 +196,16 @@ namespace Ship_Game
             else
                 GlobalStats.ClearActiveMod();
 
+            LoadContent();
+            Profiled(TestLoad);
+            Profiled(RunExportTasks);
+
+            LoadGraphicsResources(manager);
+            HelperFunctions.CollectMemory();
+        }
+
+        static void LoadContent()
+        {
             InitContentDir();
             CreateCoreGfxResources();
             Log.Write($"Load {(GlobalStats.HasMod ? ModContentDirectory : "Vanilla")}");
@@ -227,12 +237,6 @@ namespace Ship_Game
             Profiled(LoadBuildRatios);
             Profiled(LoadEcoResearchStrats);
             Profiled(LoadBlackboxSpecific);
-
-            Profiled(TestLoad);
-            Profiled(RunExportTasks);
-
-            LoadGraphicsResources(manager);
-            HelperFunctions.CollectMemory();
         }
 
         public static void LoadGraphicsResources(ScreenManager manager)
@@ -552,11 +556,6 @@ namespace Ship_Game
         static Array<T> LoadEntities<T>(string dir, string id) where T : class
         {
             return LoadEntities<T>(GatherFilesUnified(dir, "xml"), id);
-        }
-
-        static Array<T> LoadVanillaEntities<T>(string dir, string id) where T : class
-        {
-            return LoadEntities<T>(Dir.GetFiles("Content/" + dir, "xml"), id);
         }
 
         static Array<T> LoadModEntities<T>(string dir, string id) where T : class
@@ -1065,9 +1064,14 @@ namespace Ship_Game
         }
 
         static TextureAtlas FlagTextures;
-        public static SubTexture Flag(int index) => FlagTextures[index];
-        public static SubTexture Flag(Empire e) => FlagTextures[e.data.Traits.FlagIndex];
-        public static int NumFlags => FlagTextures.Count;
+        
+        public static SubTexture Flag(int index) =>
+            FlagTextures != null && FlagTextures.TryGetTexture(index, out SubTexture t) ? t : null;
+        
+        public static SubTexture Flag(Empire e) => Flag(e.data.Traits.FlagIndex);
+        
+        public static int NumFlags => FlagTextures?.Count ?? 0;
+        
         static void LoadFlagTextures() // Refactored by RedFox
         {
             FlagTextures = LoadAtlas("Flags");
@@ -1155,6 +1159,8 @@ namespace Ship_Game
         static Array<TextureBinding> BigNebulae = new Array<TextureBinding>();
         static Array<TextureBinding> MedNebulae = new Array<TextureBinding>();
         static Array<TextureBinding> SmallNebulae = new Array<TextureBinding>();
+
+        public static bool HasLoadedNebulae => Nebulae != null && Nebulae.Count > 0;
 
         // Refactored by RedFox
         static void LoadNebulae()
@@ -1564,8 +1570,10 @@ namespace Ship_Game
         public enum TestOptions
         {
             None = 0,
-            LoadPlanets = (1 << 1),
-            TechContent = (1 << 2),
+            LoadEverything = (1 << 1), // rare: load pretty much all game content
+            LoadPlanets = (1 << 2),
+            TechContent = (1 << 3),
+            AllStarterShips = (1 << 4),
         }
 
         // @note This is used for Unit Tests and is not part of the core game
@@ -1575,10 +1583,14 @@ namespace Ship_Game
                                                       string[] savedDesigns = null,
                                                       TestOptions options = TestOptions.None)
         {
-            LoadBasicContentForTesting(options);
+            LoadContentForTesting(options);
+            if (options.HasFlag(TestOptions.LoadEverything))
+                return; // all ships already loaded
 
             var ships = new Array<FileInfo>();
-            if (shipsList != null)
+            if (options.HasFlag(TestOptions.AllStarterShips))
+                ships.AddRange(GatherFilesUnified("StarterShips", "xml"));
+            else if (shipsList != null)
                 ships.AddRange(shipsList.Select(ship => GetModOrVanillaFile($"StarterShips/{ship}.xml")));
             if (savedDesigns != null)
                 ships.AddRange(savedDesigns.Select(ship => GetModOrVanillaFile($"SavedDesigns/{ship}.xml")));
@@ -1589,8 +1601,16 @@ namespace Ship_Game
             LoadShipTemplates(designs.Values.ToArray());
         }
 
-        public static void LoadBasicContentForTesting(TestOptions options = TestOptions.None)
+        public static void LoadContentForTesting(TestOptions options = TestOptions.None)
         {
+            if (options.HasFlag(TestOptions.LoadEverything))
+            {
+                LoadContent();
+                SunType.LoadSunTypes(enableHotLoading: false);
+                Profiled("LoadFonts", () => Fonts.LoadFonts(RootContent, Localizer.Language));
+                return;
+            }
+
             InitContentDir();
             LoadWeapons();
             LoadHullData();
@@ -1624,12 +1644,12 @@ namespace Ship_Game
 
         public static void LoadPlanetContentForTesting()
         {
-            LoadBasicContentForTesting(TestOptions.LoadPlanets);
+            LoadContentForTesting(TestOptions.LoadPlanets);
         }
 
         public static void LoadTechContentForTesting()
         {
-            LoadBasicContentForTesting(TestOptions.TechContent);
+            LoadContentForTesting(TestOptions.TechContent);
         }
 
         static void TechValidator()

@@ -260,7 +260,9 @@ namespace spatial
 
         int numResults = 0;
         if (found.count)
-            numResults = spatial::findNearby(outResults, Objects.maxObjects(), opt, found);
+        {
+            numResults = spatial::findNearby(outResults, Objects.data(), Objects.maxObjects(), opt, found);
+        }
 
         if (opt.DebugId)
         {
