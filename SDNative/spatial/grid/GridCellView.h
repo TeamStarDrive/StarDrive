@@ -56,7 +56,7 @@ namespace spatial
         // Converts world coordinates into cell coordinates
         bool toCellRect(const Rect& worldCoords, Rect& outCellCoords) const;
 
-        void insert(GridCell* cells, SlabAllocator& allocator, SpatialObject& o, int cellCapacity);
+        void insert(GridCell* cells, SlabAllocator& allocator, SpatialObject& o, int cellCapacity) const;
         int findNodes(const GridCell* cells, const SearchOptions& opt, FoundCells& found) const;
         void debugVisualize(const GridCell* cells, const VisualizerOptions& opt, Visualizer& visualizer) const;
         
