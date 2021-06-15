@@ -114,8 +114,7 @@ namespace Ship_Game.Spatial
 
             fixed (CollisionPair* candidatesPtr = candidates)
             {
-                return NarrowPhase.Collide(timeStep, 
-                    candidatesPtr, numCandidates, Objects);
+                return NarrowPhase.Collide(timeStep, candidatesPtr, numCandidates, Objects);
             }
         }
     }

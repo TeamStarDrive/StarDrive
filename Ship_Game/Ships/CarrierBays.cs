@@ -37,7 +37,19 @@ namespace Ship_Game.Ships
                                             || Owner.DesignRole == ShipData.RoleName.support
                                             || Owner.DesignRoleType == ShipData.RoleType.Orbital);
 
-        public AssaultShipCombat TroopTactics;
+        AssaultShipCombat TroopTactics;
+        public const int RecallMoveDistance = 25000;
+        
+        public Array<Ship> GetActiveFighters()
+        {
+            Array<Ship> fighters = new Array<Ship>();
+            foreach (var hangar in AllFighterHangars)
+            {
+                if (hangar.TryGetHangarShipActive(out Ship fighter))
+                    fighters.Add(fighter);
+            }
+            return fighters;
+        }
 
         CarrierBays(Ship owner, ShipModule[] slots)
         {
@@ -45,9 +57,8 @@ namespace Ship_Game.Ships
             AllTroopBays      = AllHangars.Filter(module => module.IsTroopBay);
             AllSupplyBays     = AllHangars.Filter(module => module.IsSupplyBay);
             AllTransporters   = AllHangars.Filter(module => module.TransporterOrdnance > 0 || module.TransporterTroopAssault > 0);
-            AllFighterHangars = AllHangars.Filter(module => !module.IsTroopBay
-                                                              && !module.IsSupplyBay
-                                                              && module.ModuleType != ShipModuleType.Transporter);
+            AllFighterHangars = AllHangars.Filter(module => module.IsFighterHangar);
+
             HasHangars              = AllHangars.Length > 0;
             HasSupplyBays           = AllSupplyBays.Length > 0;
             HasFighterBays          = AllFighterHangars.Length > 0;
@@ -96,6 +107,7 @@ namespace Ship_Game.Ships
             AllTransporters = null;
             SupplyShuttle?.Dispose();
             SupplyShuttle = null;
+            TroopTactics = null;
         }
 
         // aggressive dispose looks to cause a crash here. 
@@ -239,9 +251,11 @@ namespace Ship_Game.Ships
             foreach (ShipModule hangar in AllFighterHangars)
             {
                 if (hangar.TryGetHangarShipActive(out Ship hangarShip))
-                    hangarShip.ScuttleTimer = 60f; // 60 seconds so surviving fighters will be able to continue combat for a while                
+                    hangarShip.ScuttleTimer = 60f; // 60 seconds so surviving fighters will be able to continue combat for a while
             }
         }
+
+        public void TryAssaultShipCombat() => TroopTactics.TryBoardShip();
 
         public void ScrambleAllAssaultShips() => ScrambleAssaultShips(0);
 
@@ -415,18 +429,18 @@ namespace Ship_Game.Ships
         public bool RecallingFighters()
         {
             if (Owner == null || !RecallFightersBeforeFTL || !HasActiveHangars)
-                return false;
+                return RecallingShipsBeforeWarp = false;
 
-            Vector2 moveTo = Owner.AI.OrderQueue.PeekFirst?.MovePosition ?? Vector2.Zero; ;
+            Vector2 moveTo = Owner.AI.OrderQueue.PeekFirst?.MovePosition ?? Vector2.Zero;
             if (moveTo == Vector2.Zero)
-                return false;
+                return RecallingShipsBeforeWarp = false;
 
             bool recallFighters       = false;
             float jumpDistance        = Owner.Center.Distance(moveTo);
             float slowestFighterSpeed = 3000;
 
             RecallingShipsBeforeWarp = true;
-            if (jumpDistance > 25000f) // allows the carrier to jump small distances and then recall fighters
+            if (jumpDistance > RecallMoveDistance) // allows the carrier to jump small distances and then recall fighters
             {
                 recallFighters = true;
                 foreach (ShipModule hangar in AllActiveHangars)
@@ -557,9 +571,21 @@ namespace Ship_Game.Ships
                 }
                 // If the ship we want cant be built, will try to launch the best we have by proceeding this method as if the hangar is dynamic
                 string selectedShip = GetDynamicShipName(hangar, empire);
-                hangar.hangarShipUID = selectedShip ?? defaultShip;
-                //if (Empire.Universe?.Debug == true)
-                //    Log.Info($"Chosen ship for Hangar launch: {hangar.hangarShipUID}");
+                hangar.hangarShipUID = selectedShip;
+                if (hangar.hangarShipUID == null || hangar.hangarShipUID.IsEmpty())
+                    hangar.hangarShipUID = defaultShip;
+                if (hangar.hangarShipUID == null || hangar.hangarShipUID.IsEmpty())
+                {
+                    hangar.hangarShipUID = EmpireManager.Player.data.StartingShip;
+                    string roles = "";
+                    foreach (var role in hangar.HangarRoles)
+                    {
+                        if (roles.NotEmpty())
+                            roles += ", ";
+                        roles += role;
+                    }
+                    Log.Warning($"No startingShip defined and no {roles} designs available for {Owner}");
+                }
             }
         }
 

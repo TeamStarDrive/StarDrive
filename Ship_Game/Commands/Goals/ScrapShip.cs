@@ -71,7 +71,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             PlanetBuildingAt.ProdHere += OldShip.GetScrapCost();
             empire.TryUnlockByScrap(OldShip);
             OldShip.QueueTotalRemoval();
-            empire.GetEmpireAI().Recyclepool++;
             return GoalStep.GoalComplete;
         }
 

@@ -138,7 +138,7 @@ namespace spatial
             }
         }
 
-        int numResults = spatial::findNearby(outResults, Objects.maxObjects(), opt, found);
+        int numResults = spatial::findNearby(outResults, Objects.data(), Objects.maxObjects(), opt, found);
 
         if (opt.DebugId)
         {

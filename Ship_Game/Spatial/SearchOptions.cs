@@ -21,8 +21,14 @@ namespace Ship_Game.Spatial
         /// <summary>
         /// Maximum number of filtered final results until search is terminated
         /// Must be at least 1
+        /// If nearby candidates are more than MaxResults, then SortByDistance is implied true
         /// </summary>
         public int MaxResults;
+
+        /// <summary>
+        /// If true, all results will be sorted by distance from search center
+        /// </summary>
+        public bool SortByDistance;
 
         /// <summary>
         /// Filter search results by object type
@@ -72,6 +78,7 @@ namespace Ship_Game.Spatial
             FilterOrigin = center;
             FilterRadius = radius;
             MaxResults = 128;
+            SortByDistance = false;
             Type = type;
             Exclude = null;
             ExcludeLoyalty = null;
@@ -92,6 +99,7 @@ namespace Ship_Game.Spatial
             FilterOrigin = default;
             FilterRadius = 0;
             MaxResults = 128;
+            SortByDistance = false;
             Type = type;
             Exclude = null;
             ExcludeLoyalty = null;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using Ship_Game.Utils;
 
 namespace Ship_Game.Spatial
 {
@@ -27,7 +28,7 @@ namespace Ship_Game.Spatial
 
         QtreeNode Root;
 
-        readonly Array<GameplayObject> Objects = new Array<GameplayObject>();
+        GameplayObject[] Objects = Empty<GameplayObject>.Array;
         SpatialObj[] SpatialObjects = new SpatialObj[0];
         GCHandle PinnedObjects;
         QtreeRecycleBuffer FrontBuffer = new QtreeRecycleBuffer(10000);
@@ -57,10 +58,7 @@ namespace Ship_Game.Spatial
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
             Root = FrontBuffer.Create(-half, -half, +half, +half);
-            lock (Objects)
-            {
-                Objects.Clear();
-            }
+            Objects = Empty<GameplayObject>.Array;
         }
 
         struct OverlapsRect
@@ -209,18 +207,14 @@ namespace Ship_Game.Spatial
             // We move last frame's nodes to front and start overwriting them
             QtreeRecycleBuffer newBackBuffer = FrontBuffer;
 
-            lock (Objects)
-            {
-                Objects.Assign(allObjects);
-
-                Root = newRoot;
-                SpatialObjects = spatialObjects;
-                if (PinnedObjects.IsAllocated)
-                    PinnedObjects.Free();
-                PinnedObjects = pinned;
-                FrontBuffer = BackBuffer; // move backbuffer to front
-                BackBuffer = newBackBuffer;
-            }
+            Objects = allObjects.ToArray();
+            Root = newRoot;
+            SpatialObjects = spatialObjects;
+            if (PinnedObjects.IsAllocated)
+                PinnedObjects.Free();
+            PinnedObjects = pinned;
+            FrontBuffer = BackBuffer; // move backbuffer to front
+            BackBuffer = newBackBuffer;
         }
     }
 }

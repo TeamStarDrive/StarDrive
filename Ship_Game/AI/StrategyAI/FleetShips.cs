@@ -27,7 +27,7 @@ namespace Ship_Game.AI
         public int BombSecsAvailable { get; private set; }
         readonly int[] RoleCount;
         readonly float[] RoleStrength;
-        public int ShipSetsExtracted = 0;
+        public int ShipSetsExtracted;
 
         public FleetShips(Empire ownerEmpire)
         {
@@ -163,8 +163,7 @@ namespace Ship_Game.AI
         {
             var ships = new Array<Ship>();
             goodSet   = true;
-            bool roleGood;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.fighter,  out  roleGood));  bool badSet = !roleGood;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.fighter,  out bool roleGood));   bool badSet = !roleGood;
             ships.AddRange(ExtractCoreFleetRole(RoleName.corvette, out roleGood));        badSet = badSet || !roleGood;
             ships.AddRange(ExtractCoreFleetRole(RoleName.frigate, out roleGood));         badSet = badSet || !roleGood;
             ships.AddRange(ExtractCoreFleetRole(RoleName.cruiser, out roleGood));         badSet = badSet || !roleGood;
@@ -203,13 +202,9 @@ namespace Ship_Game.AI
             fleetCount = ExtractFleetShipsUpToStrength(strength, wantedFleetCount, out Array<Ship> fleetShips);
             
             if (fleetCount > 0 && fleetShips.Sum(s=> s.GetStrength()) >= strength)
-            {
                 ships.AddRange(fleetShips);
-            }
             else
-            {
                 AddShips(fleetShips);
-            }
 
             return ships;
         }
@@ -342,22 +337,12 @@ namespace Ship_Game.AI
 
         void SortShipsByDistanceToPoint(Vector2 point)
         {
-            bool inWarTheater = OwnerEmpire.AllActiveWarTheaters.Any(t => t.TheaterAO.Center.InRadius(point, t.TheaterAO.Radius * 2));
-
             Ships.Sort(s =>
             {
-                bool shipInTheater =OwnerEmpire.AllActiveWarTheaters.Any(t =>
-                {
-                    bool inTheater = t.TheaterAO.Center.InRadius(s.Center, t.TheaterAO.Radius * 2);
-                    AO rallyAO = t.RallyAO;
-                    bool  inTheaterRally = rallyAO?.Center.InRadius(s.Center, rallyAO.Radius * 2) ?? false;
-
-                    return inTheater || inTheaterRally;
-                });
-                if (!inWarTheater && shipInTheater || (s.System?.HostileForcesPresent(OwnerEmpire) ?? false))
+                if (s.System?.HostileForcesPresent(OwnerEmpire) ?? false)
                     return s.Center.SqDist(point) + Empire.Universe.UniverseSize;
-                return s.Center.SqDist(point);
 
+                return s.Center.SqDist(point);
             });
         }
 

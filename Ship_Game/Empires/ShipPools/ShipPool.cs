@@ -33,9 +33,9 @@ namespace Ship_Game.Empires.ShipPools
         public int InitialReadyFleets         = 0;
         public float CurrentUseableStrength   = 0;
         public int CurrentUseableFleets       = 0;
-        float PoolCheckTimer                  = 0;
+        float PoolCheckTimer                  = 60;
 
-        public Array<Ship> EmpireForcePool { get; private set; } = new Array<Ship>();
+        public Array<Ship> EmpireForcePool => ForcePool.Items;
         public FleetShips EmpireReadyFleets { get; private set; }
 
         public ShipPool(Empire empire)
@@ -187,7 +187,7 @@ namespace Ship_Game.Empires.ShipPools
 
         void EmpireForcePoolAdd(Ship ship)
         {
-            if (Owner.isPlayer || Owner.isFaction || ship.IsHangarShip || ship.IsHomeDefense || !ship.Active || ship.fleet != null)
+            if (Owner.isPlayer || Owner.isFaction || ship.IsHangarShip || ship.IsHomeDefense || !ship.Active || ship.fleet != null || ship.IsSupplyShuttle)
                 return;
 
             RemoveShipFromFleetAndPools(ship);

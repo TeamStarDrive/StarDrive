@@ -33,11 +33,16 @@ namespace Ship_Game.Ships
             
             // loyalty must be set before modules are initialized
             LoyaltyTracker = new Components.LoyaltyChanges(empire);
-            LoyaltyTracker.OnSpawn(this);
+            // loyalty tracker can not add to the empire ships here yet as this is done during resource loading.
+            // currently this is done during create entities for save load and
 
             if (!CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate, shipyardDesign))
                 return;
-            
+
+            // Ships unable to create the moduleslots cant be safely added to empire shiplists. 
+            if (!isTemplate && !shipyardDesign)
+                LoyaltyTracker.OnSpawn(this);
+
             Stats = new ShipStats(this);
             KnownByEmpires = new Components.KnownByEmpire(this);
             HasSeenEmpires = new Components.KnownByEmpire(this);
@@ -63,11 +68,13 @@ namespace Ship_Game.Ships
 
             // loyalty must be set before modules are initialized
             LoyaltyTracker = new Components.LoyaltyChanges(owner);
-            LoyaltyTracker.OnSpawn(this);
 
             if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
                 return; // return and crash again...
             
+            // ship must not be added to empire ship list until after modules are validated.
+            LoyaltyTracker.OnSpawn(this);
+
             Stats = new ShipStats(this);
             KnownByEmpires = new Components.KnownByEmpire(this);
             HasSeenEmpires = new Components.KnownByEmpire(this);
@@ -387,8 +394,9 @@ namespace Ship_Game.Ships
 
             // Begin: ShipSubClass Initialization. Put all ship sub class initializations here
             if (AI == null)
+            {
                 InitializeAI();
-            AI.CombatState = shipData.CombatState;
+            }
             // End: ship subclass initializations.
 
             RecalculatePower(); // NOTE: Must be before InitializeStatus
