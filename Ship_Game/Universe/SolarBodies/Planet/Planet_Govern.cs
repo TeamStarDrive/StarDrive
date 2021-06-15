@@ -9,7 +9,7 @@ namespace Ship_Game
 
         public float CurrentProductionToQueue   => Prod.NetIncome + InfraStructure;
         public float MaxProductionToQueue       => Prod.NetMaxPotential + InfraStructure;
-        public float EstimatedAverageProduction => (Prod.NetMaxPotential / (Owner.IsCybernetic ? 2 : 3)).LowerBound(0.1f);
+        public float EstimatedAverageProduction => (Prod.NetMaxPotential / (IsCybernetic ? 2 : 3)).LowerBound(0.1f);
         float EstimatedAverageFood              => (Food.NetMaxPotential / 3).LowerBound(0.1f);
 
         public void DoGoverning()
@@ -90,7 +90,7 @@ namespace Ship_Game
         {
             get
             {
-                if (Owner.Money < 1000)
+                if (Owner == null || Owner.Money < 1000)
                     return 0;
 
                 float debtTolerance = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money
