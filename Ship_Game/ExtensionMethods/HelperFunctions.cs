@@ -215,6 +215,12 @@ namespace Ship_Game
         // Added by RedFox: blocking full blown GC to reduce memory fragmentation
         public static void CollectMemory()
         {
+            // collect memory silently in Unit tests
+            if (StarDriveGame.Instance == null)
+            {
+                CollectMemorySilent();
+                return;
+            }
             // the GetTotalMemory full collection loop is pretty good, so we use it instead of GC.Collect()
             Log.Warning(" ========= CollectMemory ========= ");
             float before = GC.GetTotalMemory(forceFullCollection: false) / (1024f * 1024f);

@@ -31,6 +31,7 @@ namespace spatial
         explicit GridL2(int worldSize, int cellSize, int cellSize2);
         ~GridL2();
 
+        SpatialRoot* root() const override { return reinterpret_cast<SpatialRoot*>(ArrayOfCells); }
         SpatialType type() const override { return SpatialType::GridL2; }
         const char* name() const override { return "GridL2"; }
         uint32_t totalMemory() const override;
@@ -41,10 +42,10 @@ namespace spatial
         void smallestCellSize(int cellSize) override;
 
         void clear() override;
-        void rebuild() override;
+        SpatialRoot* rebuild() override;
 
-        CollisionPairs collideAll(const CollisionParams& params) override;
-        int findNearby(int* outResults, const SearchOptions& opt) const override;
-        void debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const override;
+        CollisionPairs collideAll(SpatialRoot* root, const CollisionParams& params) override;
+        int findNearby(SpatialRoot* root, int* outResults, const SearchOptions& opt) const override;
+        void debugVisualize(SpatialRoot* root, const VisualizerOptions& opt, Visualizer& visualizer) const override;
     };
 }
