@@ -91,6 +91,18 @@ namespace Ship_Game
             StatRefreshInterval = (long)(statRefreshInterval * Frequency);
         }
 
+        public void Clear()
+        {
+            CurrentTotal = 0f;
+            CurrentMax = 0f;
+            CurrentSamples = 0;
+
+            MeasuredTotal = 0f;
+            MeasuredMax = 0f;
+            MeasuredSamples = 0;
+            AvgTime = 0f;
+        }
+
         // start new sampling
         public void Start()
         {
