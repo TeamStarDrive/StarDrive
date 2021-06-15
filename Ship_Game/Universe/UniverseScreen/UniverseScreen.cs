@@ -774,6 +774,9 @@ namespace Ship_Game
 
         void UnloadGraphics()
         {
+            if (bloomComponent == null) // TODO: IsDisposed
+                return;
+
             Log.Write(ConsoleColor.Cyan, "Universe.UnloadGraphics");
             bloomComponent?.Dispose(ref bloomComponent);
             bg?.Dispose(ref bg);

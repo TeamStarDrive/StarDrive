@@ -185,7 +185,9 @@ namespace Ship_Game.Spatial
                 ShowCollisions = (byte)(Empire.Universe?.Debug == true ? 1 : 0),
             };
             
-            (GameplayObject[] objects, IntPtr root) = GetObjectsAndRootSafe();
+            GameplayObject[] objects = Objects;
+            IntPtr root = Root;
+            //(GameplayObject[] objects, IntPtr root) = GetObjectsAndRootSafe();
 
             // get the collisions
             CollisionPairs results = default;
