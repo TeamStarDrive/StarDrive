@@ -424,10 +424,13 @@ namespace Ship_Game.AI
             // prediction to enhance movement precision
             // not at warp though. 
             // because we are warping to the actual point but changing direction to the predicted point. 
-            Vector2 predictedPoint = Owner.engineState == Ship.MoveState.Warp ? pos : PredictThrustPosition(pos);
+            //Vector2 predictedPoint = distance > 30000 ?  PredictThrustPosition(pos) : pos;
+            Vector2 predictedPoint = PredictThrustPosition(pos);
             Owner.RotationNeededForTarget(predictedPoint, 0f, out float predictionDiff, out float rotationDir);
 
-            if (predictionDiff > 0.02f) // do we need to rotate ourselves before thrusting?
+            float angleCheck = Owner.engineState != Ship.MoveState.Warp ? 0.02f : 0.0001f;
+
+            if (predictionDiff > angleCheck) // do we need to rotate ourselves before thrusting?
             {
                 Owner.RotateToFacing(timeStep, predictionDiff, rotationDir);
                 return; // don't accelerate until we're faced correctly
@@ -437,7 +440,7 @@ namespace Ship_Game.AI
             if (State != AIState.FormationWarp || Owner.fleet == null) // not in a fleet
             {
                 // only warp towards actual warp pos
-                if (actualDiff < 0.05f && Owner.MaxFTLSpeed > 0)
+                if (predictionDiff < 0.05f && Owner.MaxFTLSpeed > 0)
                 {
                     // NOTE: PriorityOrder must ignore the combat flag
                     if (distance > 7500f)

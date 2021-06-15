@@ -44,8 +44,10 @@
             float subLightPowerDraw      = shieldPowerDraw + nonShieldPowerDraw;
             float warpPowerDrainModifier = empire.data.FTLPowerDrainModifier;
             float warpPowerDraw          = (shieldPowerDraw + nonShieldPowerDraw) * warpPowerDrainModifier + (warpPowerDrawBonus * warpPowerDrainModifier / 2);
-            float subLightPowerDuration  = PowerDuration(powerFlowMax, subLightPowerDraw);
-            float warpPowerDuration      = PowerDuration(powerFlowMax, warpPowerDraw);
+            float subLightPowerDuration  = PowerDuration(powerFlowMax, subLightPowerDraw, powerStoreMax);
+            float warpPowerDuration      = PowerDuration(powerFlowMax, warpPowerDraw, powerStoreMax);
+            // calculate after maxes
+
             return new Power
             {
                 NetSubLightPowerDraw  = subLightPowerDraw,
@@ -56,21 +58,22 @@
                 PowerStoreMax         = powerStoreMax
             };
         }
-        public static float PowerDuration(float powerFlowMax, float powerDraw)
+        public static float PowerDuration(float powerFlowMax, float powerDraw, float powerStore)
         {
             powerDraw = powerDraw.LowerBound(1);
             float powerRatio = (powerFlowMax / powerDraw).Clamped(.01f, 1f);
             if (powerRatio < 1)
-                return powerFlowMax * powerRatio;
+                return powerStore / (powerFlowMax * powerRatio);
 
             return float.MaxValue;
         }
-        public float PowerDuration(Ship.MoveState moveState)
+        public float PowerDuration(Ship.MoveState moveState, float currentPower)
         {
+            float powerSupplyRatio = currentPower / PowerStoreMax;
             switch (moveState)
             {
-                case Ship.MoveState.Warp: return WarpPowerDuration;
-                default:                  return SubLightPowerDuration;
+                case Ship.MoveState.Warp: return WarpPowerDuration * powerSupplyRatio;
+                default:                  return SubLightPowerDuration * powerSupplyRatio;
             }
         }
     }
