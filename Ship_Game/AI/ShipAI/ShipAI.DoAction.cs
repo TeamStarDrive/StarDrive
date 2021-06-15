@@ -155,7 +155,7 @@ namespace Ship_Game.AI
 
         void MoveToEngageTarget(Ship target, FixedSimTime timeStep)
         {
-
+            // TODO: ADD fleet formation warp logic here. 
             if (CombatRangeType == StanceType.RangedCombatMovement )
             {
                 Vector2 prediction = target.Center;
