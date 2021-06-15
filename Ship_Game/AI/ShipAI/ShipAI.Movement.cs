@@ -255,7 +255,7 @@ namespace Ship_Game.AI
 
             if (distance > 1000)
             {
-                OrderQueue.PushToFront(new ShipGoal(Plan.MoveToWithin1000, targetPos, goal.Direction, AIState.AwaitingOrders, MoveTypes.LastWayPoint, 0, null));
+                PushGoalToFront(new ShipGoal(Plan.MoveToWithin1000, targetPos, goal.Direction, AIState.AwaitingOrders, MoveTypes.LastWayPoint, 0, null));
             }
 
             if (distance > 75)

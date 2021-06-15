@@ -1,8 +1,10 @@
 using System;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
@@ -290,7 +292,7 @@ namespace Ship_Game
         [Serialize(126)] public bool IsPirateFaction;
         [Serialize(127)] public int PiratePaymentPeriodTurns = 100; 
         [Serialize(128)] public int MinimumColoniesForStartPayment = 3;
-        [Serialize(129)] public Array<float> NormalizedMilitaryScore;
+        [Serialize(129)] public float MilitaryScoreAverage;
 
         // FB - For Remnants
         [Serialize(130)] public bool IsRemnantFaction;
@@ -360,14 +362,14 @@ namespace Ship_Game
         [XmlIgnore] [JsonIgnore] public float EnvPerfBarren  => EnvBarren;
         [XmlIgnore] [JsonIgnore] public PlanetCategory PreferredEnvPlanet => PreferredEnv;
 
-        public string ShipType  => Traits.ShipType;
-        public string VideoPath => Traits.VideoPath;
-        public string Singular => Traits.Singular;
-        public string Plural   => Traits.Plural;
-        public string HomeSystemName => Traits.HomeSystemName;
-        public string HomeWorldName  => Traits.HomeworldName;
-        public string Adj1 => Traits.Adj1;
-        public string Adj2 => Traits.Adj2;
+        [XmlIgnore] [JsonIgnore] public string ShipType  => Traits.ShipType;
+        [XmlIgnore] [JsonIgnore] public string VideoPath => Traits.VideoPath;
+        [XmlIgnore] [JsonIgnore] public string Singular => Traits.Singular;
+        [XmlIgnore] [JsonIgnore] public string Plural   => Traits.Plural;
+        [XmlIgnore] [JsonIgnore] public string HomeSystemName => Traits.HomeSystemName;
+        [XmlIgnore] [JsonIgnore] public string HomeWorldName  => Traits.HomeworldName;
+        [XmlIgnore] [JsonIgnore] public string Adj1 => Traits.Adj1;
+        [XmlIgnore] [JsonIgnore] public string Adj2 => Traits.Adj2;
 
         public EmpireData()
         {
@@ -427,12 +429,11 @@ namespace Ship_Game
 
         public float NormalizeMilitaryScore(float currentStr)
         {
-            int maxItems = 10;
-            if (NormalizedMilitaryScore.Count == maxItems)
-                NormalizedMilitaryScore.RemoveAt(0);
-
-            NormalizedMilitaryScore.Add(currentStr / 1000);
-            return NormalizedMilitaryScore.Sum() / NormalizedMilitaryScore.Count;
+            // exponential moving average
+            float newRatio = 0.1f;
+            float score = currentStr / 1000;
+            MilitaryScoreAverage = MilitaryScoreAverage*(1f-newRatio) + score*newRatio;
+            return MilitaryScoreAverage;
         }
     }
 } 
