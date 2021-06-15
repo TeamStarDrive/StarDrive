@@ -710,10 +710,10 @@ namespace Ship_Game
 
         //////////////////////////////////////////////////////////////////////////////////////////
 
-        static void CreateCoreGfxResources()
+        public static void CreateCoreGfxResources()
         {
             WhitePixel = new Texture2D(RootContent.Device, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
-            WhitePixel.SetData(new Color[]{ Color.White });
+            WhitePixel.SetData(new []{ Color.White });
         }
 
         public static SubTexture ErrorTexture   => TextureOrNull("NewUI/x_red");
