@@ -22,6 +22,27 @@ namespace Ship_Game.Gameplay
         public Point GetGridPos() => P;
         public Point GetSize() => new Point(1, 1);
         public override string ToString() => $"{R} {P}";
+
+        /// <summary>
+        /// Sorter for HullSlot[], orders HullSlot grid in scanline order:
+        /// 0 1 2 3
+        /// 4 5 6 7
+        /// </summary>
+        public static int Sorter(HullSlot a, HullSlot b)
+        {
+            // Array.Sort bug in .NET 4.5.2:
+            if (object.ReferenceEquals(a, b))
+                return 0;
+
+            // first by scanline (Y axis)
+            if (a.P.Y < b.P.Y) return -1;
+            if (a.P.Y > b.P.Y) return +1;
+
+            // and then sort by column (X axis)
+            if (a.P.X < b.P.X) return -1;
+            if (a.P.X > b.P.X) return +1;
+            return 0;
+        }
     }
 
     // Used only in new Ship designs
@@ -52,7 +73,7 @@ namespace Ship_Game.Gameplay
         public override string ToString() => $"{Pos} {ModuleUID} {Size} TA:{TurretAngle} MR:{ModuleRotation} SO:{SlotOptions}";
     }
 
-    public sealed class ModuleSlotData
+    public sealed class ModuleSlotData : IEquatable<ModuleSlotData>
     {
         public Vector2 Position;
         public Restrictions Restrictions;
@@ -156,7 +177,7 @@ namespace Ship_Game.Gameplay
 
         }
 
-        public override string ToString() => $"{ModuleUID} {Position} {Facing} {Restrictions} T={ModuleOrNull}";
+        public override string ToString() => $"{ModuleUID} {Position} {Facing} {Orientation} {SlotOptions} {Restrictions} T={ModuleOrNull}";
 
         [XmlIgnore] [JsonIgnore]
         public bool IsDummy => ModuleUID == null || ModuleUID == "Dummy";
@@ -193,6 +214,7 @@ namespace Ship_Game.Gameplay
 
         public bool Equals(ModuleSlotData s)
         {
+            if (s == null) return false;
             return Position == s.Position
                 && Restrictions == s.Restrictions
                 && ModuleUID == s.ModuleUID
@@ -200,6 +222,28 @@ namespace Ship_Game.Gameplay
                 && Orientation == s.Orientation
                 && SlotOptions == s.SlotOptions
                 && HangarshipGuid == s.HangarshipGuid;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return this.Equals((ModuleSlotData)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = Position.GetHashCode();
+                hashCode = (hashCode * 397) ^ (int) Restrictions;
+                hashCode = (hashCode * 397) ^ (ModuleUID != null ? ModuleUID.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ Facing.GetHashCode();
+                hashCode = (hashCode * 397) ^ (Orientation != null ? Orientation.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (SlotOptions != null ? SlotOptions.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ Health.GetHashCode();
+                hashCode = (hashCode * 397) ^ ShieldPower.GetHashCode();
+                hashCode = (hashCode * 397) ^ HangarshipGuid.GetHashCode();
+                return hashCode;
+            }
         }
 
         public ModuleSlotData GetClone()

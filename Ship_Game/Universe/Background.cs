@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-    public sealed class Background
+    public sealed class Background : IDisposable
     {
         struct Nebula
         {
@@ -17,8 +17,16 @@ namespace Ship_Game
         readonly Array<Nebula> Nebulas = new Array<Nebula>();
         const int ItAmount = 512;
 
-        public Background()
+        StarField StarField;
+
+        public Background(UniverseScreen universe)
         {
+            // support unit tests
+            if (!ResourceManager.HasLoadedNebulae)
+                return;
+
+            StarField = new StarField(universe);
+
             void AddNebula(int x, int y, SubTexture nebulaTex)
             {
                 var nebula = new Nebula
@@ -47,7 +55,20 @@ namespace Ship_Game
             }
         }
 
-        public void Draw(UniverseScreen universe, StarField starField)
+        ~Background() { Destroy(); }
+
+        public void Dispose()
+        {
+            Destroy();
+            GC.SuppressFinalize(this);
+        }
+
+        void Destroy()
+        {
+            StarField?.Dispose(ref StarField);
+        }
+
+        public void Draw(UniverseScreen universe)
         {
             Vector2 camPos = universe.CamPos.ToVec2();	    
             var blackRect = new Rectangle(0, 0, universe.ScreenWidth, universe.ScreenHeight);
@@ -70,7 +91,7 @@ namespace Ship_Game
             float xDiff = blackRect.Width / 10f;
             float yDiff = blackRect.Height / 10f;
             Camera.Pos = new Vector2(percentX * xDiff, percentY * yDiff);
-            starField.Draw(Camera.Pos, batch);
+            StarField.Draw(Camera.Pos, batch);
             
             BkgRect = new Rectangle((int)(Camera.Pos.X - width  / 2f - Camera.Pos.X / 30f - 200f),
                                     (int)(Camera.Pos.Y - height / 2f - Camera.Pos.Y / 30f) - 200, 2048, 2048);
@@ -83,7 +104,7 @@ namespace Ship_Game
             batch.End();
         }
 
-        public void DrawGalaxyBackdrop(UniverseScreen u, StarField field)
+        public void DrawGalaxyBackdrop(UniverseScreen u)
         {
             SpriteBatch batch = u.ScreenManager.SpriteBatch;
             Viewport vp = u.Viewport;

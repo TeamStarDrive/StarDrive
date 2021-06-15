@@ -650,7 +650,7 @@ namespace Ship_Game.Gameplay
         // But if mainTarget is not viable, will pick a new Target using ships/projectiles lists
         // @return TRUE if target was fired at
         public bool UpdateAndFireAtTarget(Ship mainTarget,
-            Array<Projectile> enemyProjectiles, Array<Ship> enemyShips)
+            Projectile[] enemyProjectiles, Ship[] enemyShips)
         {
             TargetChangeTimer -= 0.0167f;
             if (!CanFireWeaponCooldown())
@@ -708,12 +708,12 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
-        bool PickProjectileTarget(Array<Projectile> enemyProjectiles)
+        bool PickProjectileTarget(Projectile[] enemyProjectiles)
         {
-            if (Tag_PD && enemyProjectiles.NotEmpty)
+            if (Tag_PD && enemyProjectiles.Length != 0)
             {
                 int maxTracking = 1 + Owner.TrackingPower + Owner.Level;
-                for (int i = 0; i < maxTracking && i < enemyProjectiles.Count; i++)
+                for (int i = 0; i < maxTracking && i < enemyProjectiles.Length; i++)
                 {
                     Projectile proj = enemyProjectiles[i];
                     if (proj.Active && proj.Health > 0f
@@ -728,7 +728,7 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        void PickShipTarget(Ship mainTarget, Array<Ship> potentialTargets)
+        void PickShipTarget(Ship mainTarget, Ship[] potentialTargets)
         {
             if (TruePD) // true PD weapons can't target ships
                 return;
@@ -744,7 +744,7 @@ namespace Ship_Game.Gameplay
             {
                 // limit to one target per level.
                 int maxTracking = 1 + Owner.TrackingPower + Owner.Level;
-                for (int i = 0; i < potentialTargets.Count && i < maxTracking; ++i)
+                for (int i = 0; i < potentialTargets.Length && i < maxTracking; ++i)
                 {
                     Ship potentialTarget = potentialTargets[i];
                     if (TargetValid(potentialTarget) && IsTargetAliveAndInRange(potentialTarget))

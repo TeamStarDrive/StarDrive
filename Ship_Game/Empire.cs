@@ -143,8 +143,7 @@ namespace Ship_Game
         public float TotalMaintenanceInScrap { get; private set; }
         public float TotalTroopShipMaintenance { get; private set; }
 
-        public float updateContactsTimer = 0f;
-        public float MaxContactTimer = 0f;
+        public float MaxContactTimer = 0.25f;
         private bool HostilesDictForPlayerInitialized;
         public float NetPlanetIncomes { get; private set; }
         public float TroopCostOnPlanets { get; private set; } // Maintenance in all Owned planets
@@ -209,8 +208,11 @@ namespace Ship_Game
         public Array<string> CarrierTech     = new Array<string>();
         public Array<string> SupportShipTech = new Array<string>();
         public Planet[] RallyPoints          = Empty<Planet>.Array;
-        public Ship BoardingShuttle => ResourceManager.GetShipTemplate("Assault Shuttle");
-        public Ship SupplyShuttle   => ResourceManager.GetShipTemplate("Supply Shuttle");
+
+        public const string DefaultBoardingShuttleName = "Assault Shuttle";
+        public const string DefaultSupplyShuttleName   = "Supply Shuttle";
+        public Ship BoardingShuttle => ResourceManager.GetShipTemplate(DefaultBoardingShuttleName, false);
+        public Ship SupplyShuttle   => ResourceManager.GetShipTemplate(DefaultSupplyShuttleName);
         public bool IsCybernetic  => data.Traits.Cybernetic != 0;
         public bool NonCybernetic => data.Traits.Cybernetic == 0;
         public bool WeArePirates  => Pirates != null; // Use this to figure out if this empire is pirate faction
@@ -886,6 +888,8 @@ namespace Ship_Game
         public int NumPlanets                               => OwnedPlanets.Count;
         public int NumSystems                               => OwnedSolarSystems.Count;
 
+        public int GetTotalPlanetsWarValue() => (int)OwnedPlanets.Sum(p => p.ColonyWarValueTo(this));
+
         public Array<SolarSystem> GetOurBorderSystemsTo(Empire them, bool hideUnexplored, float percentageOfMapSize = 0.5f)
         {
             Vector2 theirCenter = them.WeightedCenter;
@@ -912,7 +916,7 @@ namespace Ship_Game
         {
             GetRelations(attacker).LostAColony(planet, attacker);
             RemovePlanet(planet);
-            UpdateWarRallyPlanetsLostPlanet(planet, attacker);
+            //UpdateWarRallyPlanetsLostPlanet(planet, attacker);
         }
 
         public void RemovePlanet(Planet planet)
@@ -934,7 +938,7 @@ namespace Ship_Game
         {
             GetRelations(loser).WonAColony(planet, loser);
             AddPlanet(planet);
-            UpdateWarRallyPlanetsWonPlanet(planet, loser);
+            // UpdateWarRallyPlanetsWonPlanet(planet, loser);
         }
 
         public void AddPlanet(Planet planet)
@@ -1994,13 +1998,21 @@ namespace Ship_Game
             if (!isFaction) return;
             foreach (Ship ship in ResourceManager.GetShipTemplates())
             {
-                if (data.Traits.ShipType == ship.shipData.ShipStyle
+                if ((data.Traits.ShipType == ship.shipData.ShipStyle
                     || ship.shipData.ShipStyle == "Misc"
                     || ship.shipData.ShipStyle.IsEmpty())
+                    && ship.CanBeAddedToBuildableShips(this))
                 {
                     ShipsWeCanBuild.Add(ship.Name);
                     foreach (ShipModule hangar in ship.Carrier.AllHangars)
-                        ShipsWeCanBuild.Add(hangar.hangarShipUID);
+                    {
+                        if (hangar.hangarShipUID.NotEmpty())
+                        {
+                            var hangarShip = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
+                            if (hangarShip?.CanBeAddedToBuildableShips(this) == true)
+                                ShipsWeCanBuild.Add(hangar.hangarShipUID);
+                        }
+                    }
                 }
             }
             foreach (var hull in UnlockedHullsDict.Keys.ToArray())
@@ -2023,31 +2035,29 @@ namespace Ship_Game
                 // we can already build this
                 if (ShipsWeCanBuild.Contains(ship.Name))
                     continue;
-                if (ship.Deleted || ResourceManager.ShipRoles[ship.shipData.Role].Protected)
-                    continue;
-                if (!isPlayer && (!ship.ShipGoodToBuild(this) || ship.IsPlayerDesign && !GlobalStats.UsePlayerDesigns))
+                if (!ship.CanBeAddedToBuildableShips(this))
                     continue;
 
                 if (WeCanBuildThis(ship.Name))
                 {
-                    if (ship.shipData.Role <= ShipData.RoleName.station)
-                    {
-                        if (!structuresWeCanBuild.Contains(ship.Name))
-                            structuresWeCanBuild.Add(ship.Name);
-                    }
-                    
-                    if (!ShipsWeCanBuild.Contains(ship.Name))
-                        ShipsWeCanBuild.Add(ship.Name);
+                    bool shipAdded;
 
-                    ship.MarkShipRolesUsableForEmpire(this);
+                    if (ship.shipData.Role <= ShipData.RoleName.station)
+                        structuresWeCanBuild.Add(ship.Name);
+
+                    shipAdded = ShipsWeCanBuild.Add(ship.Name);
+
+                    if (isPlayer)
+                        Universe?.aw?.UpdateDropDowns();
+
+                    if (shipAdded)
+                    {
+                        UpdateBestOrbitals();
+                        UpdateDefenseShipBuildingOffense();
+                        ship.MarkShipRolesUsableForEmpire(this);
+                    }
                 }
             }
-
-            if (isPlayer)
-                Universe?.aw?.UpdateDropDowns();
-
-            UpdateBestOrbitals();
-            UpdateDefenseShipBuildingOffense();
         }
 
         public bool WeCanBuildThis(string shipName)
@@ -2792,8 +2802,6 @@ namespace Ship_Game
                 biggestAI.AbsorbEmpire(strongest);
                 if (biggestAI.GetRelations(this).ActiveWar == null)
                     biggestAI.GetEmpireAI().DeclareWarOn(this, WarType.ImperialistWar);
-                else
-                    biggestAI.GetRelations(this).ActiveWar.WarTheaters.AddCaptureAll();
             }
         }
 
@@ -3499,24 +3507,23 @@ namespace Ship_Game
             return distance;
         }
 
-        int ThreatMatrixUpdateTicks = ResetThreatMatrixTicks;
-        const int ResetThreatMatrixTicks =5;
+        float ThreatMatrixUpdateTimer;
+        const float ResetThreatMatrixSeconds = 2;
         
         public void UpdateContactsAndBorders(FixedSimTime timeStep)
         {
-            updateContactsTimer -= timeStep.FixedTime;
             if (!IsEmpireDead())
             {
-                MaxContactTimer = timeStep.FixedTime;
                 ResetBorders();
                 ScanFromAllInfluenceNodes(timeStep);
                 PopulateKnownShips();
             }
 
-            if (--ThreatMatrixUpdateTicks < 0)
+            ThreatMatrixUpdateTimer -= timeStep.FixedTime;
+            if (ThreatMatrixUpdateTimer <= 0f)
             {
-                Parallel.Run(()=> EmpireAI.ThreatMatrix.UpdateAllPins(this));
-                ThreatMatrixUpdateTicks = ResetThreatMatrixTicks;
+                ThreatMatrixUpdateTimer = ResetThreatMatrixSeconds;
+                Parallel.Run(() => EmpireAI.ThreatMatrix.UpdateAllPins(this));
             }
         }
 
@@ -3629,8 +3636,6 @@ namespace Ship_Game
             {
                 rel.RestoreWarsFromSave();
             }
-
-            EmpireAI.EmpireDefense?.RestoreFromSave(true);
         }
 
         public void Dispose()

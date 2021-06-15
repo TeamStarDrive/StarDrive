@@ -97,7 +97,6 @@ namespace Ship_Game
         public ParticleSystem flash;
         public ParticleSystem star_particles;
         public ParticleSystem neb_particles;
-        public StarField StarField;
         public Background3D bg3d;
         public bool GravityWells;
         public Empire PlayerEmpire;
@@ -134,7 +133,6 @@ namespace Ship_Game
         public Empire player;
         MiniMap minimap;
         bool loading;
-        public Thread ProcessTurnsThread;
         public float transitionElapsedTime;
 
         // @note Initialize with a default frustum for UnitTests
@@ -373,7 +371,7 @@ namespace Ship_Game
 
         void InitializeCamera()
         {
-             float univSizeOnScreen = 10f;
+            float univSizeOnScreen = 10f;
             MaxCamHeight = 15000000;
             CreateProjectionMatrix();
 
@@ -421,15 +419,17 @@ namespace Ship_Game
                 UpdateEmpires(FixedSimTime.Zero);
                 EndOfTurnUpdate(FixedSimTime.Zero);
             }
-            CreateProcessTurnsThread();
+            CreateUniverseSimThread();
         }
 
-        void CreateProcessTurnsThread()
+        void CreateUniverseSimThread()
         {
-            ProcessTurnsThread = new Thread(ProcessTurnsMonitored);
-            ProcessTurnsThread.Name = "Universe.ProcessTurns";
-            ProcessTurnsThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority
-            ProcessTurnsThread.Start();
+            if (!CreateSimThread)
+                return;
+            SimThread = new Thread(UniverseSimMonitored);
+            SimThread.Name = "Universe.SimThread";
+            SimThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority
+            SimThread.Start();
         }
 
         void CreatePlanetsLookupTable()
@@ -545,9 +545,12 @@ namespace Ship_Game
 
             LoadParticles(content, device);
 
-            bg = new Background();
-            bg3d = new Background3D(this);
-            StarField = new StarField(this);
+            if (GlobalStats.DrawStarfield)
+            {
+                bg = new Background(this);
+            }
+            if (GlobalStats.DrawNebulas)
+                bg3d = new Background3D(this);
             
             CreateStarParticles();
 
@@ -607,7 +610,6 @@ namespace Ship_Game
             FTLManager.LoadContent(this);
             MuzzleFlashManager.LoadContent(content);
             ScreenRectangle = new Rectangle(0, 0, width, height);
-            StarField = new StarField(this);
 
             ShipsInCombat = ButtonMediumMenu(width - 275, height - 280, "Ships: 0");
             ShipsInCombat.DynamicText = () =>
@@ -762,12 +764,6 @@ namespace Ship_Game
             }
         }
 
-        void AutoSaveCurrentGame()
-        {
-            var savedGame = new SavedGame(this, "Autosave" + Auto);
-            if (++Auto > 3) Auto = 1;
-        }
-
         void ProjectPieMenu(Vector2 position, float z)
         {
             Vector3 proj = Viewport.Project(position.ToVec3(z), Projection, View, Matrix.Identity);
@@ -780,8 +776,8 @@ namespace Ship_Game
         {
             Log.Write(ConsoleColor.Cyan, "Universe.UnloadGraphics");
             bloomComponent?.Dispose(ref bloomComponent);
-            bg3d          ?.Dispose(ref bg3d);
-            StarField     ?.Dispose(ref StarField);
+            bg?.Dispose(ref bg);
+            bg3d?.Dispose(ref bg3d);
             FogMap      ?.Dispose(ref FogMap);
             FogMapTarget?.Dispose(ref FogMapTarget);
             BorderRT    ?.Dispose(ref BorderRT);
@@ -823,8 +819,8 @@ namespace Ship_Game
         {
             IsExiting = true;
 
-            Thread processTurnsThread = ProcessTurnsThread;
-            ProcessTurnsThread = null;
+            Thread processTurnsThread = SimThread;
+            SimThread = null;
             DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
             processTurnsThread?.Join(250);
 

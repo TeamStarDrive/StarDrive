@@ -9,15 +9,14 @@ namespace Ship_Game.AI.CombatTactics
         ShipAI AI => Owner.AI;
         CarrierBays Carrier => Owner.Carrier;
 
-
         public AssaultShipCombat(Ship ship)
         {
             Owner = ship;
         }
 
-        public void Execute(FixedSimTime timeStep)
+        public void TryBoardShip()
         {
-            if (Owner.IsSpoolingOrInWarp)
+            if (Owner == null || Owner.IsSpoolingOrInWarp)
                 return;
 
             if (!Owner.Carrier.HasActiveTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
@@ -29,32 +28,17 @@ namespace Ship_Game.AI.CombatTactics
             if (totalTroopStrengthToCommit <= 0)
                 return;
 
-            if (AssaultTargetShip(Target))
-                return;
-
-            //This is the auto invade feature. FB: this should be expanded to check for building strength and compare troops in ship vs planet
-            if (Owner.TroopsAreBoardingShip)
-                return;
-
-            if (Owner.loyalty.WeArePirates)
+            if (!AssaultTargetShip(Target) && !Owner.TroopsAreBoardingShip)
             {
-                if (totalTroopStrengthToCommit <= 0)
+                if (Owner.loyalty.WeArePirates && totalTroopStrengthToCommit <= 0)
                     Owner.AI.OrderPirateFleeHome();
-
-                return;
             }
-
-            Planet invadeThis = Owner.System?.PlanetList.FindMinFiltered(
-                                owner => owner.Owner != null && owner.Owner != Owner.loyalty && Owner.loyalty.IsAtWarWith(owner.Owner),
-                                troops => troops.TroopsHere.Count);
-            if (invadeThis != null)
-                Owner.Carrier.AssaultPlanet(invadeThis);
         }
 
-        public bool AssaultTargetShip(Ship targetShip)
+        bool AssaultTargetShip(Ship targetShip)
         {
             if (Owner.SecondsAlive < 2)
-                return true; // Initial Delay in launching shuttles if spawned
+                return false; // Initial Delay in launching shuttles if spawned
 
             if (Owner == null || targetShip == null || targetShip.loyalty == Owner.loyalty)
                 return false;
@@ -78,7 +62,7 @@ namespace Ship_Game.AI.CombatTactics
                     if (hangar.TryGetHangarShipActive(out Ship hangarShip))
                     {
                         sendingTroops = true;
-                        if (hangarShip.AI.State != AIState.Boarding && hangarShip.AI.State != AIState.Resupply)
+                        if (!hangarShip.AI.HasPriorityOrder && hangarShip.AI.State != AIState.Boarding && hangarShip.AI.State != AIState.Resupply)
                             hangarShip.AI.OrderTroopToBoardShip(targetShip);
                     }
                 }
@@ -87,8 +71,27 @@ namespace Ship_Game.AI.CombatTactics
             return sendingTroops;
         }
 
+        /// <summary>
+        /// Expand later
+        /// </summary>
+        /// <returns></returns>
+        public bool TryInvadePlanet()
+        {
+            //This is the auto invade feature. FB: this should be expanded to check for building strength and compare troops in ship vs planet
+            if (Owner.SecondsAlive < 2)
+                return false; // Initial Delay in launching shuttles if spawned
+
+            if (Owner == null || !Owner.Carrier.AnyAssaultOpsAvailable || Owner.loyalty.WeArePirates || Owner.TroopsAreBoardingShip)
+                return false;
+
+            Planet invadeThis = Owner.System?.PlanetList.FindMinFiltered(
+                                owner => owner.Owner != null && owner.Owner != Owner.loyalty && Owner.loyalty.IsAtWarWith(owner.Owner),
+                                troops => troops.TroopsHere.Count);
+            if (invadeThis != null)
+                Owner.Carrier.AssaultPlanet(invadeThis);
+            
+            return true;
+        }
     }
-
-
 }
 

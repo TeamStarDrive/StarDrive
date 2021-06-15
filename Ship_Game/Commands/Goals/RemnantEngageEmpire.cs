@@ -12,7 +12,7 @@ namespace Ship_Game.Commands.Goals
         private Remnants Remnants;
         private int BombersLevel;
 
-        public RemnantEngageEmpire() : base(GoalType.RemnantBalancersEngage)
+        public RemnantEngageEmpire() : base(GoalType.RemnantEngageEmpire)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -42,12 +42,6 @@ namespace Ship_Game.Commands.Goals
         {
             get => TargetShip;
             set => TargetShip = value;
-        }
-
-        public Planet TargetPlanet
-        {
-            get => ColonizationTarget;
-            set => ColonizationTarget = value;
         }
 
         public override bool IsRaid => true;
@@ -235,7 +229,7 @@ namespace Ship_Game.Commands.Goals
             if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal))
             {
                 // New target is too strong, need to get a new fleet
-                if (!Remnants.FindValidTarget(Portal, out TargetEmpire) || RequiredFleetStr() > Fleet.GetStrength())
+                if (!Remnants.FindValidTarget(out TargetEmpire) || RequiredFleetStr() > Fleet.GetStrength())
                     return ReturnToPortal();
             }
 

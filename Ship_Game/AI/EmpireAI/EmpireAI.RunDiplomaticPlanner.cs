@@ -144,18 +144,8 @@ namespace Ship_Game.AI
             {
                 Empire closest = potentialTargets.Sorted(e => e.WeightedCenter.Distance(OwnerEmpire.WeightedCenter)).First();
                 Relationship usToThem = OwnerEmpire.GetRelations(closest);
-                if (usToThem.ActiveWar != null && usToThem.ActiveWar.WarType == WarType.DefensiveWar)
-                {
-                    usToThem.ActiveWar.WarTheaters.AddCaptureAll();
-                    return;
-                }
-
                 if (closest.CurrentMilitaryStrength * 1.5f < OwnerEmpire.OffensiveStrength)
-                {
-                    OwnerEmpire.ResetPreparingForWar();
-                    usToThem.PreparingForWar     = true;
-                    usToThem.PreparingForWarType = WarType.ImperialistWar;
-                }
+                    usToThem.PrepareForWar(WarType.ImperialistWar, OwnerEmpire);
             }
         }
 
@@ -165,17 +155,8 @@ namespace Ship_Game.AI
             {
                 Empire closest = potentialTargets.Sorted(e => e.WeightedCenter.Distance(OwnerEmpire.WeightedCenter)).First();
                 Relationship usToThem = OwnerEmpire.GetRelations(closest);
-                if (usToThem.ActiveWar != null && usToThem.ActiveWar.WarType == WarType.DefensiveWar)
-                {
-                    usToThem.ActiveWar.WarTheaters.AddCaptureAll();
-                    return;
-                }
-
                 if (closest.CurrentMilitaryStrength * 2f < OwnerEmpire.OffensiveStrength)
-                {
-                    usToThem.PreparingForWar     = true;
-                    usToThem.PreparingForWarType = WarType.GenocidalWar;
-                }
+                    usToThem.PrepareForWar(WarType.GenocidalWar, OwnerEmpire);
             }
         }
 
@@ -185,15 +166,7 @@ namespace Ship_Game.AI
             {
                 Empire weakest        = potentialTargets.Sorted(e => e.CurrentMilitaryStrength).First();
                 Relationship usToThem = OwnerEmpire.GetRelations(weakest);
-                if (usToThem.ActiveWar != null && usToThem.ActiveWar.WarType == WarType.DefensiveWar)
-                {
-                    usToThem.ActiveWar.WarTheaters.AddCaptureAll();
-                    return;
-                }
-
-                OwnerEmpire.ResetPreparingForWar();
-                usToThem.PreparingForWar     = true;
-                usToThem.PreparingForWarType = WarType.ImperialistWar;
+                usToThem.PrepareForWar(WarType.ImperialistWar, OwnerEmpire);
             }
         }
 

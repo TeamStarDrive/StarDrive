@@ -601,14 +601,13 @@ namespace Ship_Game.Fleets
 
             TaskCombatStatus = FleetInAreaInCombat(FleetTask.AO, FleetTask.AORadius);
 
-            switch (FleetTask.type)
+            switch (FleetTask.Type)
             {
                 case MilitaryTask.TaskType.StrikeForce:
                 case MilitaryTask.TaskType.AssaultPlanet:              DoAssaultPlanet(FleetTask);              break;
                 case MilitaryTask.TaskType.ClearAreaOfEnemies:         DoClearAreaOfEnemies(FleetTask);         break;
                 case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: DoCohesiveClearAreaOfEnemies(FleetTask); break;
                 case MilitaryTask.TaskType.Exploration:                DoExplorePlanet(FleetTask);              break;
-                case MilitaryTask.TaskType.DefendSystem:               DoDefendSystem(FleetTask);               break;
                 case MilitaryTask.TaskType.DefendClaim:                DoClaimDefense(FleetTask);               break;
                 case MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(FleetTask);        break;
                 case MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(FleetTask);                break;
@@ -616,6 +615,7 @@ namespace Ship_Game.Fleets
                 case MilitaryTask.TaskType.RemnantEngagement:          DoRemnantEngagement(FleetTask);          break;
                 case MilitaryTask.TaskType.DefendVsRemnants:           DoDefendVsRemnant(FleetTask);            break;
                 case MilitaryTask.TaskType.GuardBeforeColonize:        DoPreColonizationGuard(FleetTask);       break;
+                case MilitaryTask.TaskType.StageFleet:                 DoStagingFleet(FleetTask);               break;
             }
         }
 
@@ -759,12 +759,51 @@ namespace Ship_Game.Fleets
             owner.GetEmpireAI().AddPendingTask(reclaim);
         }
 
+        public static void CreateStrikeFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner, Goal goal)
+        {
+            task.FlagFleetNeededForAnotherTask();
+            fleet.TaskStep  = 2;
+            var strikeFleet = new MilitaryTask(task.TargetPlanet, owner)
+            {
+                Type           = MilitaryTask.TaskType.StrikeForce,
+                GoalGuid       = goal.guid,
+                Goal           = goal,
+                NeedEvaluation = false,
+                WhichFleet     = task.WhichFleet
+            };
+
+            fleet.Name      = "Strike Fleet";
+            fleet.FleetTask = strikeFleet;
+            owner.GetEmpireAI().QueueForRemoval(task);
+            owner.GetEmpireAI().AddPendingTask(strikeFleet);
+        }
+
         bool GatherAtRallyFirst(MilitaryTask task)
         {
             Vector2 enemySystemPos = task.TargetPlanet.ParentSystem.Position;
             Vector2 rallySystemPos = task.RallyPlanet.ParentSystem.Position;
 
             return rallySystemPos.Distance(enemySystemPos)*2 > AveragePos.Distance(rallySystemPos);
+        }
+
+        void DoStagingFleet(MilitaryTask task)
+        {
+            switch (TaskStep)
+            {
+                case 0:
+                    if (FleetTaskGatherAtRally(task))
+                        TaskStep = 1;
+                    break;
+                case 1:
+                    if (!HasArrivedAtRallySafely(GetRelativeSize().Length()))
+                        break;
+
+                    if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
+                        AddFleetProjectorGoal();
+
+                    TaskStep = 2; // Wait for staging goal to handle this fleet
+                    break;
+            }
         }
 
         void DoAssaultPlanet(MilitaryTask task)
@@ -933,7 +972,7 @@ namespace Ship_Game.Fleets
             if (newTarget != null)
                 return true;
 
-            newTarget =  task.type == MilitaryTask.TaskType.StrikeForce 
+            newTarget =  task.Type == MilitaryTask.TaskType.StrikeForce 
                 ? TryGetNewTargetPlanetStrike(currentSystem, task.TargetEmpire) 
                 : TryGetNewTargetPlanetInvasion(currentSystem);
 
@@ -954,46 +993,6 @@ namespace Ship_Game.Fleets
         {
             var planets = enemy.GetPlanets();
             return planets.Count == 0 ? null : planets.FindMin(p => p.Center.Distance(system.Position));
-        }
-
-        void DoDefendSystem(MilitaryTask task)
-        {
-            // this is currently unused. the system needs to be created with a defensive fleet.
-            // no defensive fleets are created during the game. yet...
-            switch (TaskStep)
-            {
-                case -1:
-                    FleetTaskGatherAtRally(task);
-                    SetAllShipsPriorityOrder();
-                    break;
-                case 0:
-                    if (FleetTaskGatherAtRally(task))
-                        TaskStep = 1;
-
-                    break;
-                case 1:
-                    if (!ArrivedAtOffsetRally(task))
-                        break;
-                    GatherAtAO(task, distanceFromAO: 125000f);
-                    TaskStep = 2;
-                    SetAllShipsPriorityOrder();
-                    break;
-                case 2:
-                    if (ArrivedAtOffsetRally(task))
-                        TaskStep = 3;
-                    break;
-                case 3:
-                    if (!AttackEnemyStrengthClumpsInAO(task))
-                        DoOrbitTaskArea(task);
-                    TaskStep = 4;
-                    break;
-                case 4:
-                    if (EndInvalidTask(task.TargetPlanet.Owner != null))
-                        break;
-                    if (ShipsOffMission(task))
-                        TaskStep = 3;
-                    break;
-            }
         }
 
         void DoClaimDefense(MilitaryTask task)
@@ -1487,7 +1486,7 @@ namespace Ship_Game.Fleets
                                 AddFleetProjectorGoal();
 
                             GatherAtAO(task, distanceFromAO: 20000);
-                            TaskStep = 4;
+                            TaskStep = 4; // This sets the step for the reclaim fleet.
                         }
                         else
                         {
@@ -1847,7 +1846,7 @@ namespace Ship_Game.Fleets
         }
 
         void DebugInfo(MilitaryTask task, string text)
-            => Empire.Universe?.DebugWin?.DebugLogText($"{task.type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
+            => Empire.Universe?.DebugWin?.DebugLogText($"{task.Type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
 
         // @return TRUE if we can take this fight, potentially, maybe...
         public bool CanTakeThisFight(float enemyFleetStrength, MilitaryTask task, bool debug = false)

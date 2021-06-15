@@ -69,11 +69,17 @@ namespace UnitTests
         public Empire Faction { get; private set; }
 
         public FixedSimTime TestSimStep { get; private set; } = new FixedSimTime(1f / 60f);
+        public VariableFrameTime TestVarTime { get; private set; } = new VariableFrameTime(1f / 60f);
 
         public StarDriveTest()
         {
+            GlobalStats.LoadConfig();
             Log.Initialize(enableSentry: false);
             Log.VerboseLogging = true;
+
+            // This allows us to completely load UniverseScreen inside UnitTests
+            GlobalStats.DrawStarfield = false;
+            GlobalStats.DrawNebulas = false;
         }
 
         static void Cleanup()
@@ -111,10 +117,7 @@ namespace UnitTests
 
         public void Dispose()
         {
-            Empire.Universe?.ExitScreen();
-            Empire.Universe?.Dispose();
-            Empire.Universe = Universe = null;
-
+            DestroyUniverse();
             Game?.Dispose();
             Game = null;
             Cleanup();
@@ -144,10 +147,30 @@ namespace UnitTests
             Player.TestInitModifiers();
         }
 
-        public void LoadStarterContent()
+        public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)
         {
-            RequireGameInstance(nameof(LoadStarterContent));
-            ResourceManager.LoadBasicContentForTesting();
+            var data = DeveloperUniverse.Create(playerPreference, numOpponents);
+            SetUniverse(new DeveloperUniverse(data, data.EmpireList.First, paused));
+        }
+
+        public void SetUniverse(UniverseScreen us)
+        {
+            Empire.Universe = Universe = us;
+            Player = EmpireManager.Player;
+            Enemy  = EmpireManager.NonPlayerEmpires[0];
+        }
+
+        public void DestroyUniverse()
+        {
+            Empire.Universe?.ExitScreen();
+            Empire.Universe?.Dispose();
+            Empire.Universe = Universe = null;
+        }
+
+        public void LoadGameContent(ResourceManager.TestOptions options = ResourceManager.TestOptions.None)
+        {
+            RequireGameInstance(nameof(LoadGameContent));
+            ResourceManager.LoadContentForTesting(options);
         }
 
         public void LoadStarterShips(params string[] shipList)
@@ -168,7 +191,7 @@ namespace UnitTests
                                      ResourceManager.TestOptions options = ResourceManager.TestOptions.None)
         {
             RequireGameInstance(nameof(LoadStarterShips));
-            ResourceManager.LoadStarterShipsForTesting(starterShips, savedDesigns);
+            ResourceManager.LoadStarterShipsForTesting(starterShips, savedDesigns, options);
         }
 
         public void LoadStarterShipVulcan(ResourceManager.TestOptions options = ResourceManager.TestOptions.None)

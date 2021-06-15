@@ -32,16 +32,7 @@ namespace Ship_Game.Ships
         // safe Warp out distance so the ship still has time to slow down
         public float WarpOutDistance => 3200f + MaxSTLSpeed * 3f;
         public string WarpState => engineState == MoveState.Warp ? "FTL" : "Sublight";
-
-        public bool IsReadyForWarp
-        {
-            get
-            {
-                Status warpReady = ShipEngines.ReadyForWarp;
-                return warpReady > Status.Poor && warpReady < Status.NotApplicable;
-            }
-        }
-
+        
         public void ResetJumpTimer()
         {
             JumpTimer = Stats.FTLSpoolTime;
@@ -163,7 +154,8 @@ namespace Ship_Game.Ships
             {
                 if (engineState == MoveState.Sublight)
                 {
-                    FTLManager.EnterFTL(Center.ToVec3(), Direction3D, Radius);
+                    if (IsVisibleToPlayer)
+                        FTLManager.EnterFTL(Center.ToVec3(), Direction3D, Radius);
                     engineState = MoveState.Warp;
                 }
                 IsSpooling = false;
@@ -193,16 +185,13 @@ namespace Ship_Game.Ships
                 }
             }
         }
-        
-        public Status WarpDuration(float neededRange = 300000)
+
+        public Status WarpDuration(float neededRange = 7500)
         {
-            float powerDuration = NetPower.PowerDuration(MoveState.Warp);
-            if (powerDuration >= float.MaxValue)
-                return Status.Excellent;
-            if (powerDuration * MaxFTLSpeed < neededRange)
-                return Status.Critical;
-            return Status.Good;
+            float powerDuration = NetPower.PowerDuration(MoveState.Warp, PowerCurrent);
+            return ToShipStatus(powerDuration * MaxFTLSpeed, neededRange);
         }
+
 
         public void SetWarpPercent(FixedSimTime timeStep, float warpPercent)
         {

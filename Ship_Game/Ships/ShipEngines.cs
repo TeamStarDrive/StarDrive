@@ -106,10 +106,7 @@ namespace Ship_Game.Ships
             if (Owner.Carrier.RecallingFighters())
                 return Status.Poor;
 
-            if (!Owner.IsSpooling && Owner.WarpDuration() < Status.Good)
-                return Status.Poor;
-
-            return engineStatus;
+            return Owner.WarpDuration();
         }
     }
 }
