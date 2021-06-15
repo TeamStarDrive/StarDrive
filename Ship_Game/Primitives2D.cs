@@ -123,6 +123,8 @@ namespace Ship_Game
         {
             // some hack here - the 1px texture is rotated and scaled to proper width/height
             var scale = new Vector2(length, thickness);
+            if (ResourceManager.WhitePixel == null)
+                throw new InvalidOperationException("DrawLine: WhitePixel graphics resource not loaded");
             batch.Draw(ResourceManager.WhitePixel, point, null, color, angle, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }
 

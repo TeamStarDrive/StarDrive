@@ -1,5 +1,4 @@
 #include "GridCellView.h"
-#include <algorithm>
 
 namespace spatial
 {
@@ -18,6 +17,11 @@ namespace spatial
         setViewOffset1();
     }
 
+    static int clamp(const int value, const int min, const int max) 
+    {
+        return value < min ? min : (value < max ? value : max);
+    }
+
     bool GridCellView::toCellRect(const Rect& worldCoords, Rect& outCellCoords) const
     {
         int cellSize = CellSize;
@@ -30,15 +34,16 @@ namespace spatial
         if (x2 < 0 || y2 < 0 || x1 >= width || y1 >= height)
             return false; // out of grid bounds
 
-        x1 = std::clamp<int>(x1, 0, width - 1);
-        x2 = std::clamp<int>(x2, 0, width - 1);
-        y1 = std::clamp<int>(y1, 0, height - 1);
-        y2 = std::clamp<int>(y2, 0, height - 1);
+        x1 = clamp(x1, 0, width - 1);
+        x2 = clamp(x2, 0, width - 1);
+        y1 = clamp(y1, 0, height - 1);
+        y2 = clamp(y2, 0, height - 1);
         outCellCoords = { x1, y1, x2, y2 };
         return true;
     }
 
-    void GridCellView::insert(GridCell* cells, SlabAllocator& allocator, SpatialObject& o, int cellCapacity)
+    void GridCellView::insert(GridCell* cells, SlabAllocator& allocator,
+                              SpatialObject& o, int cellCapacity) const
     {
         Rect cell;
         if (toCellRect(o.rect, cell))
@@ -55,7 +60,8 @@ namespace spatial
         }
     }
 
-    int GridCellView::findNodes(const GridCell* cells, const SearchOptions& opt, FoundCells& found) const
+    int GridCellView::findNodes(const GridCell* cells, const SearchOptions& opt,
+                                FoundCells& found) const
     {
         Rect cell;
         if (!toCellRect(opt.SearchRect, cell))
@@ -137,7 +143,8 @@ namespace spatial
         return found.count;
     }
 
-    void GridCellView::debugVisualize(const GridCell* cells, const VisualizerOptions& opt, Visualizer& visualizer) const
+    void GridCellView::debugVisualize(const GridCell* cells, const VisualizerOptions& opt,
+                                      Visualizer& visualizer) const
     {
         int width = Width;
         int height = Height;

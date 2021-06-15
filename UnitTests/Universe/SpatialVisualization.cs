@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Spatial;
 
@@ -11,7 +12,7 @@ namespace UnitTests.Universe
     {
         Array<GameplayObject> AllObjects;
         ISpatial Spat;
-        bool MoveShips;
+        public bool MoveShips;
         Vector3 Camera;
         float CamHeight;
 
@@ -21,9 +22,12 @@ namespace UnitTests.Universe
         float CollideTime;
         float SearchTime;
         float LinearTime;
+        int Collisions;
         GameplayObject[] Found = Empty<GameplayObject>.Array;
 
-        VisualizerOptions VisOpt = new VisualizerOptions();
+        readonly VisualizerOptions VisOpt = new VisualizerOptions()
+        {
+        };
 
         public SpatialVisualization(Array<GameplayObject> allObjects, ISpatial spat, bool moveShips) : base(null)
         {
@@ -58,24 +62,29 @@ namespace UnitTests.Universe
                 var simTime = new FixedSimTime(fixedDeltaTime);
                 foreach (GameplayObject go in AllObjects)
                 {
-                    if (!(go is Ship ship))
-                        continue;
+                    if (go.Position.X < universeLo || go.Position.X > universeHi)
+                        go.Velocity.X = -go.Velocity.X;
 
-                    if (ship.Position.X < universeLo || ship.Position.X > universeHi)
-                        ship.Position.X = -ship.Position.X;
+                    if (go.Position.Y < universeLo || go.Position.Y > universeHi)
+                        go.Velocity.Y = -go.Velocity.Y;
 
-                    if (ship.Position.Y < universeLo || ship.Position.Y > universeHi)
-                        ship.Position.Y = -ship.Position.Y;
+                    if (go is Ship ship)
+                    {
+                        ship.IntegratePosVelocityVerlet(fixedDeltaTime, Vector2.Zero);
+                        ship.UpdateModulePositions(simTime, true);
+                    }
+                    else if (go is Projectile p && p.Active)
+                    {
+                        p.TestUpdatePhysics(simTime);
+                    }
 
-                    ship.IntegratePosVelocityVerlet(fixedDeltaTime, Vector2.Zero);
-                    ship.UpdateModulePositions(simTime, true);
                 }
                 var timer1 = new PerfTimer();
                 Spat.UpdateAll(AllObjects);
                 UpdateTime = timer1.Elapsed;
 
                 var timer2 = new PerfTimer();
-                Spat.CollideAll(simTime);
+                Collisions += Spat.CollideAll(simTime);
                 CollideTime = timer2.Elapsed;
             }
 
@@ -87,41 +96,36 @@ namespace UnitTests.Universe
             Spat.DebugVisualize(this, VisOpt);
             DrawRectangleProjected(Vector2.Zero, new Vector2(Spat.WorldSize), 0f, Color.Red);
 
+            int numShips = 0;
+            int numProjectiles = 0;
+            AABoundingBox2D visibleWorldRect = GetVisibleWorldRect();
+
             foreach (GameplayObject go in AllObjects)
             {
-                if (!(go is Ship ship))
-                    continue;
+                if (go is Ship) ++numShips;
+                else if (go is Projectile p && p.Active) ++numProjectiles;
 
-                ProjectToScreenCoords(ship.Position, ship.Radius,
-                                      out Vector2 screenPos, out float screenRadius);
-                if (!HitTest(screenPos))
-                    continue;
-
-                bool found = Found.Contains(ship);
-                if (found)
+                if (CamHeight <= 10_000f && visibleWorldRect.Overlaps(go.Position.X, go.Position.Y, go.Radius))
                 {
-                    float size = screenRadius*1.5f*2f;
-                    if (size < 1)
-                        size = 1;
-                    DrawRectangle(screenPos, new Vector2(size), 0, Color.Yellow);
+                    if (go is Ship s)
+                    {
+                        bool found = Found.Contains(go);
+                        s.DrawModulesOverlay(this, CamHeight, showDebugSelect: found, showDebugStats: false);
+                    }
+                    else if (go is Projectile)
+                    {
+                        Vector2 screenPos = ProjectToScreenPosition(go.Position);
+                        DrawLine(screenPos, screenPos+go.Direction*10, Color.Red);
+                    }
                 }
-
-                if (CamHeight <= 7000f)
-                {
-                    ship.DrawModulesOverlay(this, CamHeight, showDebugSelect: found, showDebugStats: false);
-                }
-            }
-
-            if (SearchArea.Width > 0f)
-            {
-                DrawRectProjected(SearchArea, Color.GreenYellow, 2);
             }
 
             var cursor = new Vector2(20, 20);
             DrawText(ref cursor, "Press ESC to quit");
             DrawText(ref cursor, $"Camera: {Camera}");
+            DrawText(ref cursor, $"Ships: {numShips} Projectiles: {numProjectiles}");
             DrawText(ref cursor, $"UpdateTime:  {(UpdateTime*1000).String(4)}ms");
-            DrawText(ref cursor, $"CollideTime: {(CollideTime*1000).String(4)}ms");
+            DrawText(ref cursor, $"CollideTime: {(CollideTime*1000).String(4)}ms {Collisions}");
             DrawText(ref cursor, $"FindNearby: {Found.Length}");
             DrawText(ref cursor, $"SearchArea: {SearchArea.Width}x{SearchArea.Height}");
             DrawText(ref cursor, $"SearchTime:   {(SearchTime*1000).String(4)}ms");
@@ -152,11 +156,14 @@ namespace UnitTests.Universe
 
             if (input.RightMouseHeldDown)
             {
-                SearchArea = AABoundingBox2D.FromIrregularPoints(input.StartRightHold, input.EndRightHold);
+                Vector2 a = UnprojectToWorldPosition(input.StartRightHold);
+                Vector2 b = UnprojectToWorldPosition(input.EndRightHold);
+                SearchArea = AABoundingBox2D.FromIrregularPoints(a, b);
 
                 var opt = new SearchOptions(SearchArea)
                 {
-                    MaxResults = 1000
+                    MaxResults = 1000,
+                    DebugId = 1,
                 };
 
                 var timer2 = new PerfTimer();
