@@ -33,7 +33,7 @@ TestImpl(TestGrid)
             opt.MaxResults = 1024;
             opt.Exclude = o.spatialId;
             opt.ExcludeLoyalty = o.loyalty;
-            int n = swo.spatial->findNearby(results.data(), opt);
+            int n = swo.spatial->findNearby(swo.root, results.data(), opt);
         });
     }
 
@@ -47,7 +47,7 @@ TestImpl(TestGrid)
 
         measureIterations("Grid::collideAll", 10, swo.objects.size(), [&]()
         {
-            swo.spatial->collideAll({});
+            swo.spatial->collideAll(swo.root, {});
         });
     }
 };

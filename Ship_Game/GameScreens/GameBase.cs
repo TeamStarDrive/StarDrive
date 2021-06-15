@@ -93,14 +93,17 @@ namespace Ship_Game
             if (Preferences != null && Preferences.Equals(p))
                 return; // nothing changed.
 
-            Log.Write(ConsoleColor.Magenta, "Apply 3D Graphics Preferences:");
-            Log.Write(ConsoleColor.Magenta, $"  Resolution:      {settings.Width}x{settings.Height} Fullscreen:{Graphics.IsFullScreen}");
-            Log.Write(ConsoleColor.Magenta, $"  ShadowQuality:   {p.ShadowQuality}");
-            Log.Write(ConsoleColor.Magenta, $"  ShadowDetail:    {p.ShadowDetail}");
-            Log.Write(ConsoleColor.Magenta, $"  EffectDetail:    {p.EffectDetail}");
-            Log.Write(ConsoleColor.Magenta, $"  TextureQuality:  {p.TextureQuality}");
-            Log.Write(ConsoleColor.Magenta, $"  TextureSampling: {p.TextureSampling}");
-            Log.Write(ConsoleColor.Magenta, $"  MaxAnisotropy:   {p.MaxAnisotropy}");
+            if (StarDriveGame.Instance != null)
+            {
+                Log.Write(ConsoleColor.Magenta, "Apply 3D Graphics Preferences:");
+                Log.Write(ConsoleColor.Magenta, $"  Resolution:      {settings.Width}x{settings.Height} Fullscreen:{Graphics.IsFullScreen}");
+                Log.Write(ConsoleColor.Magenta, $"  ShadowQuality:   {p.ShadowQuality}");
+                Log.Write(ConsoleColor.Magenta, $"  ShadowDetail:    {p.ShadowDetail}");
+                Log.Write(ConsoleColor.Magenta, $"  EffectDetail:    {p.EffectDetail}");
+                Log.Write(ConsoleColor.Magenta, $"  TextureQuality:  {p.TextureQuality}");
+                Log.Write(ConsoleColor.Magenta, $"  TextureSampling: {p.TextureSampling}");
+                Log.Write(ConsoleColor.Magenta, $"  MaxAnisotropy:   {p.MaxAnisotropy}");
+            }
 
             Preferences = p;
             ScreenManager?.UpdatePreferences(p);
