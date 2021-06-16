@@ -292,10 +292,8 @@ namespace Ship_Game
                 case ColonyType.Core: rank += 1; break;
                 case ColonyType.Military: rank += 3; break;
             }
-            rank += Owner.DifficultyModifiers.ColonyRankModifier;
-            if (Owner.IsAtWarWith(EmpireManager.Player))
-                rank += Owner.DifficultyModifiers.ColonyRankFortify;
 
+            rank += Owner.DifficultyModifiers.ColonyRankModifier;
             return rank.Clamped(0, 15);
         }
 
@@ -304,7 +302,6 @@ namespace Ship_Game
             if (numWantedShipyards == 0 || OrbitalsInTheWorks
                                         || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard)
                                         || !HasSpacePort)
-
             {
                 return;
             }
