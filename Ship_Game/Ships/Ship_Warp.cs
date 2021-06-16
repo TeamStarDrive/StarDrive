@@ -61,21 +61,13 @@ namespace Ship_Game.Ships
 
         public void EngageStarDrive() // added by gremlin: Fighter recall and stuff
         {
-            if (IsSpoolingOrInWarp)
-                return;
+            var warpStatus = ShipEngines.ReadyForFormationWarp;
 
-            var warpStatus = ShipEngines.ReadyForWarp;
-
-            if (warpStatus == Status.Poor)
-                return;
-
-            if (warpStatus == Status.Critical)
+            if (warpStatus <= Status.Poor)
             {
-                HyperspaceReturn();
-                return;
+                if (warpStatus == Status.Critical) HyperspaceReturn();
             }
-
-            if (!IsSpoolingOrInWarp && (PowerCurrent / (PowerStoreMax + 0.01f)) > 0.10f)
+            else if (!IsSpoolingOrInWarp)
             {
                 IsSpooling = true;
                 ResetJumpTimer();
@@ -138,9 +130,21 @@ namespace Ship_Game.Ships
                 HyperspaceReturn();
         }
 
-        void UpdateWarpSpooling(FixedSimTime timeStep)
+        // TODO: move this to ship engines. 
+        public void UpdateWarpSpooling(FixedSimTime timeStep)
         {
+            if (!IsSpooling || Inhibited || MaxFTLSpeed < LightSpeedConstant) return;
+
             JumpTimer -= timeStep.FixedTime;
+
+            if (ShipEngines.ReadyForFormationWarp < Status.Poor)
+            {
+                Log.Info($"ship not ready for warp but spool timer was activated.\n " +
+                            $"               warp Status: {ShipEngines.ReadyForFormationWarp} \n " +
+                            $"               Fleet:       {fleet}\n " +
+                            $"               Ship:        {this} ");
+                return;
+            }
 
             if (JumpTimer <= 4.0f)
             {
@@ -150,6 +154,7 @@ namespace Ship_Game.Ships
                     JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter, replayTimeout:4.0f);
                 }
             }
+
             if (JumpTimer <= 0.1f)
             {
                 if (engineState == MoveState.Sublight)
@@ -186,12 +191,11 @@ namespace Ship_Game.Ships
             }
         }
 
-        public Status WarpDuration(float neededRange = 7500)
+        public Status WarpDuration(float neededRange = 300000)
         {
             float powerDuration = NetPower.PowerDuration(MoveState.Warp, PowerCurrent);
             return ToShipStatus(powerDuration * MaxFTLSpeed, neededRange);
         }
-
 
         public void SetWarpPercent(FixedSimTime timeStep, float warpPercent)
         {
