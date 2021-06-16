@@ -1053,8 +1053,6 @@ namespace Ship_Game.Ships
                 Rotation += 0.003f + RandomMath.AvgRandomBetween(0.0001f, 0.0005f);
             }
 
-            ShipEngines.Update();
-
             if (timeStep.FixedTime > 0 && (EMPDamage > 0 || EMPdisabled))
                 CauseEmpDamage(-EmpRecovery);
 
@@ -1082,8 +1080,6 @@ namespace Ship_Game.Ships
                 SecondsAlive += 1;
             }
 
-            Carrier.HandleHangarShipsScramble();
-
             InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
 
             if (InternalSlotsHealthPercent < ShipResupply.ShipDestroyThreshold)
@@ -1101,6 +1097,8 @@ namespace Ship_Game.Ships
             PowerCurrent = Math.Min(PowerCurrent, PowerStoreMax);
 
             shield_percent = shield_max >0 ? 100.0 * shield_power / shield_max : 0;
+
+            ShipEngines.Update();
         }
 
         public void UpdateSensorsAndInfluence(FixedSimTime timeStep)

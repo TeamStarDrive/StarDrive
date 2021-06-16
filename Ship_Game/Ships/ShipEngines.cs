@@ -50,9 +50,11 @@ namespace Ship_Game.Ships
             return Status.Excellent;
         }
 
+        // need to think about how to organzie this. 
+        // i think we only need public value
         Status GetFormationWarpReadyStatus()
         {
-            if (Owner.fleet == null) return Status.NotApplicable;
+            if (Owner.fleet == null) return ReadyForWarp;
 
             if (!Owner.CanTakeFleetMoveOrders())
                 return Status.NotApplicable;

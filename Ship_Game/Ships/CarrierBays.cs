@@ -241,8 +241,10 @@ namespace Ship_Game.Ships
         {
             foreach (ShipModule hangar in AllFighterHangars)
             {
-                if (hangar.TryGetHangarShipActive(out Ship hangarShip))
+                if (hangar.TryGetHangarShipActive(out Ship hangarShip) && hangarShip.AI.State != AIState.ReturnToHangar)
+                {
                     hangarShip.AI.OrderReturnToHangar();
+                }
             }
         }
 
@@ -316,7 +318,7 @@ namespace Ship_Game.Ships
         {
             foreach (ShipModule hangar in AllTroopBays)
             {
-                if (hangar.TryGetHangarShipActive(out Ship hangarShip) && hangarShip.HasOurTroops)
+                if (hangar.TryGetHangarShipActive(out Ship hangarShip) && hangarShip.AI.State != AIState.ReturnToHangar)
                     hangarShip.AI.OrderReturnToHangar();
             }
         }
@@ -325,7 +327,7 @@ namespace Ship_Game.Ships
         {
             foreach (ShipModule hangar in AllSupplyBays)
             {
-                if (hangar.TryGetHangarShipActive(out Ship hangarShip))
+                if (hangar.TryGetHangarShipActive(out Ship hangarShip) && hangarShip.AI.State != AIState.ReturnToHangar)
                     hangarShip.AI.OrderReturnToHangar();
             }
         }
@@ -428,7 +430,7 @@ namespace Ship_Game.Ships
 
         public bool RecallingFighters()
         {
-            if (Owner == null || !RecallFightersBeforeFTL || !HasActiveHangars)
+            if (Owner == null || !RecallFightersBeforeFTL || !HasActiveHangars || Owner.IsSpoolingOrInWarp)
                 return RecallingShipsBeforeWarp = false;
 
             Vector2 moveTo = Owner.AI.OrderQueue.PeekFirst?.MovePosition ?? Vector2.Zero;
@@ -465,6 +467,7 @@ namespace Ship_Game.Ships
                             hangarShip.ScuttleTimer = 10f; // FB: this will scuttle hanger ships if they cant reach the mothership
                         continue;
                     }
+
                     recallFighters = true;
                     break;
                 }
