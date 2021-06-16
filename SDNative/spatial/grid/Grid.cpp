@@ -27,7 +27,7 @@ namespace spatial
 
     void Grid::smallestCellSize(int cellSize)
     {
-        View = { WorldSize, cellSize };
+        View = GridCellView{ WorldSize, cellSize };
         FullSize = View.Width * cellSize;
         rebuild();
     }
@@ -35,11 +35,11 @@ namespace spatial
     void Grid::clear()
     {
         Objects.clear();
-        memset(View.Cells, 0, sizeof(GridCell) * View.Width * View.Height);
+        memset(Root, 0, sizeof(GridCell) * View.Width * View.Height);
         Dbg.clear();
     }
 
-    void Grid::rebuild()
+    SpatialRoot* Grid::rebuild()
     {
         // swap the front and back-buffer
         // the front buffer will be reset and reused
@@ -49,26 +49,27 @@ namespace spatial
         front.reset();
         
         Objects.submitPending();
-
+        
         GridCell* cells = front.allocArrayZeroed<GridCell>(View.NumCells);
-        GridCellView view { cells, View };
         int cellCapacity = CellCapacity;
 
         for (SpatialObject& o : Objects)
         {
             if (o.active)
             {
-                view.insert(front, o, cellCapacity);
+                View.insert(cells, front, o, cellCapacity);
             }
         }
-        View = view;
+        
+        Root = cells;
+        return reinterpret_cast<SpatialRoot*>(cells);
     }
 
-    CollisionPairs Grid::collideAll(const CollisionParams& params)
+    CollisionPairs Grid::collideAll(SpatialRoot* root, const CollisionParams& params)
     {
+        GridCell* cells = reinterpret_cast<GridCell*>(root);
         Collider collider { *FrontAlloc, Objects.maxObjects() };
 
-        GridCell* cells = View.Cells;
         int numCells = View.NumCells;
         for (int i = 0; i < numCells; ++i)
         {
@@ -88,12 +89,12 @@ namespace spatial
     }
 
     #pragma warning( disable : 6262 )
-    int Grid::findNearby(int* outResults, const SearchOptions& opt) const
+    int Grid::findNearby(SpatialRoot* root, int* outResults, const SearchOptions& opt) const
     {
-        FoundNodes found;
-        GridCellView view = View; // make a copy for thread safety
+        GridCell* cells = reinterpret_cast<GridCell*>(root);
+        FoundCells found;
         int numResults = 0;
-        if (view.findNodes(opt, found))
+        if (View.findNodes(cells, opt, found))
         {
             numResults = spatial::findNearby(outResults, Objects.data(), Objects.maxObjects(), opt, found);
         }
@@ -104,11 +105,11 @@ namespace spatial
             dfn.SearchArea   = opt.SearchRect;
             dfn.RadialFilter = opt.RadialFilter;
             Rect cell;
-            if (view.toCellRect(opt.SearchRect, cell))
+            if (View.toCellRect(opt.SearchRect, cell))
             {
-                dfn.SelectedRect = view.toWorldRect(cell);
-                dfn.TopLeft      = view.toWorldRect(cell.x1, cell.y1);
-                dfn.BotRight     = view.toWorldRect(cell.x2, cell.y2);
+                dfn.SelectedRect = View.toWorldRect(cell);
+                dfn.TopLeft      = View.toWorldRect(cell.x1, cell.y1);
+                dfn.BotRight     = View.toWorldRect(cell.x2, cell.y2);
             }
             dfn.addCells(found);
             dfn.addResults(outResults, numResults);
@@ -118,10 +119,11 @@ namespace spatial
         return numResults;
     }
 
-    void Grid::debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const
+    void Grid::debugVisualize(SpatialRoot* root, const VisualizerOptions& opt, Visualizer& visualizer) const
     {
-        GridCellView view = View; // make a copy for thread safety
-        view.debugVisualize(opt, visualizer);
+        GridCell* cells = reinterpret_cast<GridCell*>(root);
+        GridCellView view { View };
+        view.debugVisualize(cells, opt, visualizer);
 
         if (opt.searchDebug)
         {

@@ -32,6 +32,7 @@ namespace UnitTests
         {
             base.BeginRun();
             Fonts.LoadFonts(Content, GlobalStats.Language);
+            ResourceManager.CreateCoreGfxResources();
             Started.Set();
         }
 

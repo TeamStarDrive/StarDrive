@@ -1,73 +1,32 @@
 ﻿using System;
 using Ship_Game.Spatial;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Ship_Game;
 
 namespace UnitTests.Universe
 {
     [TestClass]
     public class TestNativeSpatial : TestSpatialCommon
     {
-        const SpatialType Type = SpatialType.Grid;
-        const int CellSize = 20_000;
-
-        [TestMethod]
-        public void BasicInsert()
-        {
-            TestBasicInsert(new NativeSpatial(Type, 100_000, CellSize));
-        }
-
-        [TestMethod]
-        public void FindNearbySingle()
-        {
-            TestFindNearbySingle(new NativeSpatial(Type, 100_000, CellSize));
-        }
-
-        [TestMethod]
-        public void FindNearbyMulti()
-        {
-            TestFindNearbyMulti(new NativeSpatial(Type, 100_000, CellSize));
-        }
+        static SpatialType Type = SpatialType.Qtree;
         
-        [TestMethod]
-        public void FindNearbyTypeFilter()
+        protected override ISpatial Create(int worldSize)
         {
-            TestFindNearbyTypeFilter(new NativeSpatial(Type, 100_000, CellSize));
-        }
-
-        [TestMethod]
-        public void TestFindNearbyExcludeLoyaltyFilter()
-        {
-            TestFindNearbyExcludeLoyaltyFilter(new NativeSpatial(Type, 100_000, CellSize));
-        }
-
-        [TestMethod]
-        public void TestFindNearbyOnlyLoyaltyFilter()
-        {
-            TestFindNearbyOnlyLoyaltyFilter(new NativeSpatial(Type, 100_000, CellSize));
-        }
-
-        [TestMethod]
-        public void TreeUpdatePerformance()
-        {
-            TestTreeUpdatePerformance(new NativeSpatial(Type, 1_000_000, CellSize));
-        }
-
-        [TestMethod]
-        public void TreeSearchPerformance()
-        {
-            TestTreeSearchPerformance(new NativeSpatial(Type, 500_000, CellSize));
-        }
-
-        [TestMethod]
-        public void ConcurrentUpdateAndSearch()
-        {
-            TestConcurrentUpdateAndSearch(new NativeSpatial(Type, 500_000, CellSize));
-        }
-
-        [TestMethod]
-        public void TreeCollisionPerformance()
-        {
-            TestTreeCollisionPerformance(new NativeSpatial(Type, 100_000, CellSize));
+            // NOTE: each spatial type requires their own parameters,
+            // otherwise they will be constructed incorrectly
+            if (Type == SpatialType.Grid)
+            {
+                return new NativeSpatial(SpatialType.Grid, worldSize, 10_000);
+            }
+            if (Type == SpatialType.GridL2)
+            {
+                return new NativeSpatial(SpatialType.GridL2, worldSize, 20_000, 1000);
+            }
+            if (Type == SpatialType.Qtree)
+            {
+                return new NativeSpatial(SpatialType.Qtree, worldSize, 1024);
+            }
+            throw new ArgumentException("Invalid SpatialType");
         }
     }
 }

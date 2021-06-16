@@ -4,7 +4,7 @@
 namespace spatial
 {
     int findNearby(int* outResults, const SpatialObject* objects, int maxObjectId,
-                   const SearchOptions& opt, FoundNodes& found)
+                   const SearchOptions& opt, FoundCells& found)
     {
         // we use a bit array to ignore duplicate objects
         // duplication is present by design to handle grid border overlap
@@ -25,7 +25,7 @@ namespace spatial
         SearchFilterFunc filterFunc = opt.FilterFunction;
         int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
 
-        FoundNode* nodes = found.nodes;
+        FoundCell* nodes = found.cells;
 
         // if total candidates is more than we can fit, we need to sort LEAF nodes by distance to Origin
         bool sortByDistance = opt.SortByDistance != 0 || found.totalObjects > maxResults;
@@ -33,7 +33,7 @@ namespace spatial
         {
             int x = searchRect.centerX();
             int y = searchRect.centerY();
-            std::sort(nodes, nodes+found.count, [x,y](const FoundNode& a, const FoundNode& b) -> bool
+            std::sort(nodes, nodes+found.count, [x,y](const FoundCell& a, const FoundCell& b) -> bool
             {
                 float adx = x - a.world.x;
                 float ady = y - a.world.y;
@@ -48,7 +48,7 @@ namespace spatial
         int numResults = 0;
         for (int leafIndex = 0; leafIndex < found.count; ++leafIndex)
         {
-            const FoundNode& node = nodes[leafIndex];
+            const FoundCell& node = nodes[leafIndex];
             const int size = node.count;
             SpatialObject** const nodeObjects = node.objects;
             for (int i = 0; i < size; ++i)
