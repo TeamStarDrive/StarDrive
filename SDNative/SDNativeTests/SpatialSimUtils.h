@@ -55,14 +55,15 @@ struct SpatialWithObjects
 {
     std::vector<MyGameObject> objects;
     std::shared_ptr<spatial::Spatial> spatial;
+    spatial::SpatialRoot* root = nullptr;
 
-	SpatialWithObjects() = default;
-	explicit SpatialWithObjects(std::vector<MyGameObject>&& objects)
-		: objects{std::move(objects)}
-	{}
+    SpatialWithObjects() = default;
+    explicit SpatialWithObjects(std::vector<MyGameObject>&& objects)
+        : objects{std::move(objects)}
+    {}
 
-	void createSpatial(spatial::SpatialType type, SimParams p)
-	{
+    void createSpatial(spatial::SpatialType type, SimParams p)
+    {
         int cellSize = 0;
         int cellSize2 = 0;
         switch (type)
@@ -80,28 +81,28 @@ struct SpatialWithObjects
                 break;
         }
 
-		spatial = spatial::Spatial::create(type, p.universeSize, cellSize, cellSize2);
+        spatial = spatial::Spatial::create(type, p.universeSize, cellSize, cellSize2);
 
-	    for (MyGameObject& o : objects)
-	    {
-	    	if (p.useRandomVelocity)
-	    	{
-		        o.vel.x = randFloat() * 5000.0f;
-		        o.vel.y = randFloat() * 5000.0f;
-	    	}
+        for (MyGameObject& o : objects)
+        {
+            if (p.useRandomVelocity)
+            {
+                o.vel.x = randFloat() * 5000.0f;
+                o.vel.y = randFloat() * 5000.0f;
+            }
 
             auto rect = spatial::Rect::fromPointRadius((int)o.pos.x, (int)o.pos.y, (int)o.radius);
-	        spatial::SpatialObject qto { o.loyalty, o.type, /*collisionMask:*/ObjectType_All, /*objectId:*/-1, rect };
-	        o.spatialId = spatial->insert(qto);
-	    }
-	    spatial->rebuild();
-	}
+            spatial::SpatialObject qto { o.loyalty, o.type, /*collisionMask:*/ObjectType_All, /*objectId:*/-1, rect };
+            o.spatialId = spatial->insert(qto);
+        }
+        root = spatial->rebuild();
+    }
 };
 
 static SpatialWithObjects createSpatialWithObjects(spatial::SpatialType type, SimParams p)
 {
     SpatialWithObjects swo { createObjects(p) };
-	swo.createSpatial(type, p);
+    swo.createSpatial(type, p);
     return swo;
 }
 

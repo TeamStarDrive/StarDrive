@@ -181,8 +181,8 @@ namespace UnitTests.Ships
                 Player.FirstFleet?.Update(TestSimStep);
                 foreach (var ship in ships)
                 {
-                    ship.Update(TestSimStep);
                     ship.UpdateSensorsAndInfluence(TestSimStep);
+                    ship.Update(TestSimStep);
                     if (ship.AI.State == AIState.HoldPosition)
                         ship.AI.ClearOrders();
                 }
