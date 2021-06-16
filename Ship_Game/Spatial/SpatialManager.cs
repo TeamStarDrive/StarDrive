@@ -78,6 +78,9 @@ namespace Ship_Game.Gameplay
                 Spatial.Clear();
                 Spatial = ResetToNewSpatial;
                 ResetToNewSpatial = null;
+
+                UpdateTime.Clear();
+                CollisionTime.Clear();
             }
 
             UpdateTime.Start();

@@ -118,12 +118,16 @@ namespace Ship_Game
                 });
             }
 
-            string init = "\r\n";
-            init +=  " ======================================================\r\n";
-            init += $" ==== {GlobalStats.ExtendedVersion,-44} ====\r\n";
-            init += $" ==== UTC: {DateTime.UtcNow,-39} ====\r\n";
-            init +=  " ======================================================\r\n";
-            LogWriteAsync(init, ConsoleColor.Green);
+            // only write log header in main game
+            if (StarDriveGame.Instance != null)
+            {
+                string init = "\r\n";
+                init +=  " ======================================================\r\n";
+                init += $" ==== {GlobalStats.ExtendedVersion,-44} ====\r\n";
+                init += $" ==== UTC: {DateTime.UtcNow,-39} ====\r\n";
+                init +=  " ======================================================\r\n";
+                LogWriteAsync(init, ConsoleColor.Green);
+            }
         }
 
         public static void Close()
