@@ -451,8 +451,7 @@ namespace Ship_Game.Ships
 
             UpdateVelocityAndPosition(timeStep);
 
-            if (IsSpooling && !Inhibited && MaxFTLSpeed >= LightSpeedConstant)
-                UpdateWarpSpooling(timeStep);
+            UpdateWarpSpooling(timeStep);
         }
 
         public bool TryGetScoutFleeVector(out Vector2 escapePos) => GetEscapeVector(out escapePos, 100000, true);
