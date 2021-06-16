@@ -143,28 +143,29 @@ namespace Ship_Game.Ships
                             $"               warp Status: {ShipEngines.ReadyForFormationWarp} \n " +
                             $"               Fleet:       {fleet}\n " +
                             $"               Ship:        {this} ");
-                return;
             }
-
-            if (JumpTimer <= 4.0f)
+            else
             {
-                if (IsVisibleToPlayer
-                    && !Empire.Universe.Paused && JumpSfx.IsStopped && JumpSfx.IsReadyToReplay)
+                if (JumpTimer <= 4.0f)
                 {
-                    JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter, replayTimeout:4.0f);
+                    if (IsVisibleToPlayer
+                        && !Empire.Universe.Paused && JumpSfx.IsStopped && JumpSfx.IsReadyToReplay)
+                    {
+                        JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter, replayTimeout: 4.0f);
+                    }
                 }
-            }
 
-            if (JumpTimer <= 0.1f)
-            {
-                if (engineState == MoveState.Sublight)
+                if (JumpTimer <= 0.1f)
                 {
-                    if (IsVisibleToPlayer)
-                        FTLManager.EnterFTL(Center.ToVec3(), Direction3D, Radius);
-                    engineState = MoveState.Warp;
+                    if (engineState == MoveState.Sublight)
+                    {
+                        if (IsVisibleToPlayer)
+                            FTLManager.EnterFTL(Center.ToVec3(), Direction3D, Radius);
+                        engineState = MoveState.Warp;
+                    }
+                    IsSpooling = false;
+                    ResetJumpTimer();
                 }
-                IsSpooling = false;
-                ResetJumpTimer();
             }
         }
 
@@ -191,7 +192,11 @@ namespace Ship_Game.Ships
             }
         }
 
-        public Status WarpDuration(float neededRange = 300000)
+        /// <summary>
+        /// Returns a ship status based on how well it can reach the wanted range in warp before running out of power.
+        /// by default it will try and warp 300k units which is the current diameter of a solar system.
+        /// </summary>
+        public Status WarpRangeStatus(float neededRange = 300000)
         {
             float powerDuration = NetPower.PowerDuration(MoveState.Warp, PowerCurrent);
             return ToShipStatus(powerDuration * MaxFTLSpeed, neededRange);

@@ -428,9 +428,15 @@ namespace Ship_Game.Ships
             }
         }
 
+        /// <summary>
+        /// Returns fighter recall state.
+        /// recalls fighters if needed.
+        /// Currently there is a bug that will prevent a spooling check from working correctly
+        /// <see href="https://sd-blackbox.atlassian.net/browse/SB-117?atlOrigin=eyJpIjoiNTNiMjMyMzQ3MzgyNGMzYWJjZGI4YWU5ZTk1YmEwMmMiLCJwIjoiaiJ9"/>
+        /// </summary>
         public bool RecallingFighters()
         {
-            if (Owner == null || !RecallFightersBeforeFTL || !HasActiveHangars || Owner.IsSpoolingOrInWarp)
+            if (Owner == null || !RecallFightersBeforeFTL || !HasActiveHangars || Owner.IsInWarp)
                 return RecallingShipsBeforeWarp = false;
 
             Vector2 moveTo = Owner.AI.OrderQueue.PeekFirst?.MovePosition ?? Vector2.Zero;
