@@ -67,7 +67,7 @@ namespace Ship_Game.AI.Research
                     score += empire.TotalScore;
             }
 
-            return score;
+            return score * (1 + OwnerEmpire.ActiveWarPreparations + OwnerEmpire.AllActiveWars.Length);
         }
 
         void AddDebugLog(Map<string, int> priority)
@@ -103,7 +103,7 @@ namespace Ship_Game.AI.Research
                                    + enemyThreats / OwnerEmpire.TotalScore.LowerBound(1);
 
             wars += OwnerEmpire.GetEmpireAI().TechChooser.LineFocus.BestShipNeedsHull(availableTechs) ? 0.5f : 0;
-            return wars.Clamped(0, 4);
+            return wars.Clamped(0, 8);
         }
 
         void CalcFoodAndIndustry(Empire empire, out float foodNeeds, out float industry)
