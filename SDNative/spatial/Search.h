@@ -60,27 +60,27 @@ namespace spatial
         int DebugId = 0;
     };
 
-    struct FoundNode
+    struct FoundCell
     {
         SpatialObject** objects;
         int count;
-        Point world;
+        Point world; // cell center
         int radius;
     };
     
     #pragma warning(disable:26495)
-    struct FoundNodes
+    struct FoundCells
     {
         static constexpr int MAX = 4096;
         int count = 0;
         int totalObjects = 0;
-        FoundNode nodes[MAX];
+        FoundCell cells[MAX];
 
         void add(SpatialObject** objects, int size, Point world, int radius)
         {
             if (count != MAX)
             {
-                nodes[count++] = FoundNode{ objects, size, world, radius };
+                cells[count++] = FoundCell{ objects, size, world, radius };
                 totalObjects += size;
             }
         }
@@ -96,6 +96,6 @@ namespace spatial
     }
 
     int findNearby(int* outResults, const SpatialObject* objects, int maxObjectId,
-                   const SearchOptions& opt, FoundNodes& found);
+                   const SearchOptions& opt, FoundCells& found);
 
 }

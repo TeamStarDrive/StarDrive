@@ -11,7 +11,7 @@ namespace spatial
     struct SpatialObject;
     struct Visualizer;
     struct VisualizerOptions;
-    struct FoundNodes;
+    struct FoundCells;
 
     static const Color Brown  = { 139, 69,  19, 150 };
     static const Color BrownDim  = { 89, 39,  5, 150 };
@@ -35,7 +35,7 @@ namespace spatial
         std::vector<Rect> FindCells;
         std::vector<int> SearchResults;
 
-        void addCells(const FoundNodes& found);
+        void addCells(const FoundCells& found);
         void addResults(const int* results, int numResults);
         void draw(Visualizer& visualizer, const VisualizerOptions& opt,
                   const SpatialObject* objects) const;
