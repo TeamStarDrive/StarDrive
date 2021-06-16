@@ -1,5 +1,4 @@
 #include "GridCellView.h"
-#include <algorithm>
 
 namespace spatial
 {
@@ -18,6 +17,11 @@ namespace spatial
         setViewOffset1();
     }
 
+    static int clamp(const int value, const int min, const int max) 
+    {
+        return value < min ? min : (value < max ? value : max);
+    }
+
     bool GridCellView::toCellRect(const Rect& worldCoords, Rect& outCellCoords) const
     {
         int cellSize = CellSize;
@@ -30,20 +34,20 @@ namespace spatial
         if (x2 < 0 || y2 < 0 || x1 >= width || y1 >= height)
             return false; // out of grid bounds
 
-        x1 = std::clamp<int>(x1, 0, width - 1);
-        x2 = std::clamp<int>(x2, 0, width - 1);
-        y1 = std::clamp<int>(y1, 0, height - 1);
-        y2 = std::clamp<int>(y2, 0, height - 1);
+        x1 = clamp(x1, 0, width - 1);
+        x2 = clamp(x2, 0, width - 1);
+        y1 = clamp(y1, 0, height - 1);
+        y2 = clamp(y2, 0, height - 1);
         outCellCoords = { x1, y1, x2, y2 };
         return true;
     }
 
-    void GridCellView::insert(SlabAllocator& allocator, SpatialObject& o, int cellCapacity)
+    void GridCellView::insert(GridCell* cells, SlabAllocator& allocator,
+                              SpatialObject& o, int cellCapacity) const
     {
         Rect cell;
         if (toCellRect(o.rect, cell))
         {
-            GridCell* cells = Cells;
             int width  = Width;
             for (int y = cell.y1; y <= cell.y2; ++y)
             {
@@ -56,7 +60,8 @@ namespace spatial
         }
     }
 
-    int GridCellView::findNodes(const SearchOptions& opt, FoundNodes& found) const
+    int GridCellView::findNodes(const GridCell* cells, const SearchOptions& opt,
+                                FoundCells& found) const
     {
         Rect cell;
         if (!toCellRect(opt.SearchRect, cell))
@@ -64,10 +69,7 @@ namespace spatial
         
         uint32_t loyaltyMask = getLoyaltyMask(opt);
         int maxResults = opt.MaxResults;
-        const GridCell* cells = Cells;
-        int cellSize = CellSize;
-        int cellRadius = cellSize/2;
-        int half = GridSize / 2;
+        int cellRadius = CellSize/2;
 
         constexpr int SearchPattern = 1;
 
@@ -82,7 +84,7 @@ namespace spatial
                     const GridCell& current = cells[x + y*width];
                     if (current.loyalty.mask & loyaltyMask) // empty cell mask is 0
                     {
-                        Point pt = toWorldCellCenter(x,y,half,cellSize);
+                        Point pt = getCellCenter(x,y);
                         found.add(current.objects, current.size, pt, cellRadius);
                         if (found.count == found.MAX || found.totalObjects >= maxResults)
                             break;
@@ -99,12 +101,12 @@ namespace spatial
             int minY = cell.centerY();
             int maxX = minX, maxY = minY;
 
-            auto addCell = [&found,cells,half,cellSize,width,cellRadius,loyaltyMask](int x, int y)
+            auto addCell = [this,&found,cells,width,cellRadius,loyaltyMask](int x, int y)
             {
                 const GridCell& current = cells[x + y*width];
                 if (current.loyalty.mask & loyaltyMask) // empty cell mask is 0
                 {
-                    Point pt = toWorldCellCenter(x,y,half,cellSize);
+                    Point pt = getCellCenter(x,y);
                     found.add(current.objects, current.size, pt, cellRadius);
                 }
             };
@@ -141,7 +143,8 @@ namespace spatial
         return found.count;
     }
 
-    void GridCellView::debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const
+    void GridCellView::debugVisualize(const GridCell* cells, const VisualizerOptions& opt,
+                                      Visualizer& visualizer) const
     {
         int width = Width;
         int height = Height;
@@ -169,8 +172,7 @@ namespace spatial
             }
         }
 
-        GridCell* nodes = Cells;
-        if (nodes && (opt.nodeText || opt.objectBounds || opt.objectToLeaf || opt.objectText))
+        if (cells && (opt.nodeText || opt.objectBounds || opt.objectToLeaf || opt.objectText))
         {
             for (int gridY = 0; gridY < height; ++gridY)
             {
@@ -180,7 +182,7 @@ namespace spatial
                     if (!nodeR.overlaps(visible))
                         continue;
 
-                    GridCell& cell = nodes[gridX + gridY*width];
+                    const GridCell& cell = cells[gridX + gridY*width];
                     Point c = nodeR.center();
 
                     if (opt.nodeBounds)

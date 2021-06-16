@@ -447,6 +447,20 @@ namespace Ship_Game.Gameplay
             Owner = null;
         }
 
+        public void TestUpdatePhysics(FixedSimTime timeStep)
+        {
+            if (!Active)
+                return;
+            Center += Velocity * timeStep.FixedTime;
+            Position = Center;
+            Duration -= timeStep.FixedTime;
+            if (Duration < 0f)
+            {
+                Health = 0f;
+                Die(null, false);
+            }
+        }
+
         public override void Update(FixedSimTime timeStep)
         {
             if (!Active)

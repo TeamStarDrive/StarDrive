@@ -31,13 +31,14 @@ namespace spatial
         delete spatial;
     }
     
+    SPATIAL_C_API SpatialRoot* SPATIAL_CC SpatialGetRoot(Spatial* spatial) { return spatial->root(); }
     SPATIAL_C_API SpatialType SPATIAL_CC SpatialGetType(Spatial* spatial) { return spatial->type(); }
     SPATIAL_C_API int SPATIAL_CC SpatialWorldSize(Spatial* spatial) { return spatial->worldSize(); }
     SPATIAL_C_API int SPATIAL_CC SpatialFullSize(Spatial* spatial)  { return spatial->fullSize(); }
     SPATIAL_C_API int SPATIAL_CC SpatialNumActive(Spatial* spatial) { return spatial->numActive(); }
     SPATIAL_C_API int SPATIAL_CC SpatialMaxObjects(Spatial* spatial){ return spatial->maxObjects(); }
     SPATIAL_C_API void SPATIAL_CC SpatialClear(Spatial* spatial)    { spatial->clear(); }
-    SPATIAL_C_API void SPATIAL_CC SpatialRebuild(Spatial* spatial)  { spatial->rebuild(); }
+    SPATIAL_C_API SpatialRoot* SPATIAL_CC SpatialRebuild(Spatial* spatial) { return spatial->rebuild(); }
 
     SPATIAL_C_API int SPATIAL_CC SpatialInsert(Spatial* spatial, const SpatialObject* o)
     {
@@ -52,15 +53,15 @@ namespace spatial
         spatial->remove(objectId);
     }
 
-    SPATIAL_C_API void SPATIAL_CC SpatialCollideAll(Spatial* spatial, const CollisionParams* params, CollisionPairs* outResults)
+    SPATIAL_C_API void SPATIAL_CC SpatialCollideAll(Spatial* spatial, SpatialRoot* root, const CollisionParams* params, CollisionPairs* outResults)
     {
-        *outResults = spatial->collideAll(*params);
+        *outResults = spatial->collideAll(root, *params);
     }
-    SPATIAL_C_API int SPATIAL_CC SpatialFindNearby(Spatial* spatial, int* outResults, const SearchOptions* opt)
+    SPATIAL_C_API int SPATIAL_CC SpatialFindNearby(Spatial* spatial, SpatialRoot* root, int* outResults, const SearchOptions* opt)
     {
-        return spatial->findNearby(outResults, *opt);
+        return spatial->findNearby(root, outResults, *opt);
     }
-    SPATIAL_C_API void SPATIAL_CC SpatialDebugVisualize(Spatial* spatial, const VisualizerOptions* opt, const VisualizerBridge* vis)
+    SPATIAL_C_API void SPATIAL_CC SpatialDebugVisualize(Spatial* spatial, SpatialRoot* root, const VisualizerOptions* opt, const VisualizerBridge* vis)
     {
         struct CppToCBridge : Visualizer
         {
@@ -72,6 +73,6 @@ namespace spatial
             void drawText(Point p, int size, const char* text, Color c) override { vis.drawText(p, size, text, c); }
         };
         CppToCBridge bridge { *vis };
-        spatial->debugVisualize(*opt, bridge);
+        spatial->debugVisualize(root, *opt, bridge);
     }
 }

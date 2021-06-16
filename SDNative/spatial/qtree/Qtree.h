@@ -14,6 +14,7 @@ namespace spatial
      */
     class SPATIAL_API Qtree final : public Spatial
     {
+        QtreeNode* Root = nullptr;
         int Levels;
         int SmallestCell;
 
@@ -21,7 +22,6 @@ namespace spatial
         // Defer the split threshold setting to `rebuild` method
         int PendingSplitThreshold = QuadDefaultLeafSplitThreshold; // pending until next `rebuild()`
         int CurrentSplitThreshold = QuadDefaultLeafSplitThreshold; // actual value used
-        QtreeNode* Root = nullptr;
 
         // NOTE: Cannot use std::unique_ptr here due to dll-interface
         SlabAllocator* FrontAlloc = new SlabAllocator{AllocatorSlabSize};
@@ -36,7 +36,8 @@ namespace spatial
          */
         explicit Qtree(int worldSize, int smallestCell);
         ~Qtree();
-        
+
+        SpatialRoot* root() const override { return reinterpret_cast<SpatialRoot*>(Root); }
         SpatialType type() const override { return SpatialType::QuadTree; }
         const char* name() const override { return "Qtree"; }
         uint32_t totalMemory() const override;
@@ -47,10 +48,10 @@ namespace spatial
         void smallestCellSize(int cellSize) override;
 
         void clear() override;
-        void rebuild() override;
-        CollisionPairs collideAll(const CollisionParams& params) override;
-        int findNearby(int* outResults, const SearchOptions& opt) const override;
-        void debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const override;
+        SpatialRoot* rebuild() override;
+        CollisionPairs collideAll(SpatialRoot* root, const CollisionParams& params) override;
+        int findNearby(SpatialRoot* root, int* outResults, const SearchOptions& opt) const override;
+        void debugVisualize(SpatialRoot* root, const VisualizerOptions& opt, Visualizer& visualizer) const override;
 
     private:
 
