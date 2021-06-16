@@ -273,6 +273,7 @@
     <Compile Include="Ship_Game\Commands\Goals\WarMission.cs" />
     <Compile Include="Ship_Game\Commands\Goals\ScoutSystem.cs" />
     <Compile Include="Ship_Game\Data\GenericStringViewParser.cs" />
+    <Compile Include="Ship_Game\Empires\Components\HangarShips.cs" />
     <Compile Include="Ship_Game\Empires\Components\LoyaltyLists.cs" />
     <Compile Include="Ship_Game\Empires\Components\IEmpireShipLists.cs" />
     <Compile Include="Ship_Game\GameScreens\DeveloperUniverse.cs" />
