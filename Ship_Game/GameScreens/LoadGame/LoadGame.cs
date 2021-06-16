@@ -498,7 +498,8 @@ namespace Ship_Game.GameScreens.LoadGame
                     system.RingList.Add(new SolarSystem.Ring
                     {
                         planet    = p,
-                        Asteroids = false
+                        Asteroids = false,
+                        OrbitalDistance = ring.OrbitalDistance
                     });
                     p.UpdateIncomes(true);  // must be before restoring commodities since max storage is set here           
                     RestoreCommodities(p, ring.Planet);
