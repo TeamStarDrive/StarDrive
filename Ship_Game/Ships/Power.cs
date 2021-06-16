@@ -1,4 +1,6 @@
-﻿namespace Ship_Game.Ships
+﻿using System;
+
+namespace Ship_Game.Ships
 {
     public struct Power
     {
@@ -58,15 +60,23 @@
                 PowerStoreMax         = powerStoreMax
             };
         }
+
+        /// <summary>
+        /// Returns the number of updates of power available.
+        /// </summary>
         public static float PowerDuration(float powerFlowMax, float powerDraw, float powerStore)
         {
-            powerDraw = powerDraw.LowerBound(1);
-            float powerRatio = (powerFlowMax / powerDraw).Clamped(.01f, 1f);
-            if (powerRatio < 1)
-                return powerStore / (powerFlowMax * powerRatio);
-
-            return float.MaxValue;
+            float duration = float.MaxValue;
+            float netPower = powerFlowMax - powerDraw;
+            netPower *= -1;
+            if (netPower > 0) 
+                duration = powerStore / netPower;
+            return duration;
         }
+
+        /// <summary>
+        /// Returns the numbers of updates of power depending on the move state.
+        /// </summary>
         public float PowerDuration(Ship.MoveState moveState, float currentPower)
         {
             float powerSupplyRatio = currentPower / PowerStoreMax;

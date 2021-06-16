@@ -108,7 +108,7 @@ namespace Ship_Game.Ships
             if (Owner.Carrier.RecallingFighters())
                 return Status.Poor;
 
-            return Owner.WarpDuration();
+            return Owner.WarpRangeStatus(7500f);
         }
     }
 }
