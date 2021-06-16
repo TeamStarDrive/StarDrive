@@ -19,6 +19,11 @@ namespace spatial
     };
 
     /**
+     * Opaque handle for the currently active Root
+     */
+    class SpatialRoot { };
+
+    /**
      * Describes a generic spatial collection which enables
      * fast query of objects
      */
@@ -42,6 +47,11 @@ namespace spatial
 
         explicit Spatial(int worldSize) : WorldSize{worldSize} {}
         virtual ~Spatial() = default;
+
+        /**
+         * Current ROOT of the Spatial tree
+         */
+        virtual SpatialRoot* root() const = 0;
 
         /**
          * Type id of the Spatial collection
@@ -122,9 +132,11 @@ namespace spatial
          * Performs necessary actions to refresh the Spatial collection
          * in a THREAD SAFE manner.
          * This means inserting pending objects, removing objects that are pending removal
-         * Handling moved objects and rebuilding the collection as necessary
+         * Handling moved objects and rebuilding the collection as necessary.
+         *
+         * @return The NEW ACTIVE ROOT which can be used to call collideAll or findNearby
          */
-        virtual void rebuild() = 0;
+        virtual SpatialRoot* rebuild() = 0;
 
         /**
          * Inserts a new object into the Spatial collection THREAD SAFELY
@@ -154,26 +166,29 @@ namespace spatial
         /**
          * Collide all objects and call CollisionFunc for each collided pair
          * @note Once two objects have collided, they cannot collide anything else during collideAll
+         * @param root Current active root to iterate through
          * @param params Collision parameters
          * @return Collision results
          */
-        virtual Array<CollisionPair> collideAll(const CollisionParams& params) = 0;
+        virtual Array<CollisionPair> collideAll(SpatialRoot* root, const CollisionParams& params) = 0;
 
         /**
          * Finds multiple nearby objects. This is THREAD SAFE
+         * @param root Current active root to iterate through
          * @param outResults Buffer which will store the object id-s
          * @param opt SearchOptions defining the search constraints and MaxResults
          * @return Number of objects found
          */
-        virtual int findNearby(int* outResults, const SearchOptions& opt) const = 0;
+        virtual int findNearby(SpatialRoot* root, int* outResults, const SearchOptions& opt) const = 0;
 
         /**
          * Iterates the spatial collection and submits draw calls
          * to objects that overlap the visible rect.
+         * @param root Current active root to iterate through
          * @param opt Visualization options
          * @param visualizer Visualization interface for drawing primitives
          */
-        virtual void debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const = 0;
+        virtual void debugVisualize(SpatialRoot* root, const VisualizerOptions& opt, Visualizer& visualizer) const = 0;
 
 
         // NO COPY, NO MOVE
@@ -188,6 +203,7 @@ namespace spatial
     SPATIAL_C_API Spatial* SPATIAL_CC SpatialCreate(SpatialType type, int universeSize, int cellSize, int cellSize2);
     SPATIAL_C_API void SPATIAL_CC SpatialDestroy(Spatial* spatial);
 
+    SPATIAL_C_API SpatialRoot* SPATIAL_CC SpatialGetRoot(Spatial* spatial);
     SPATIAL_C_API SpatialType SPATIAL_CC SpatialGetType(Spatial* spatial);
     SPATIAL_C_API int SPATIAL_CC SpatialWorldSize(Spatial* spatial);
     SPATIAL_C_API int SPATIAL_CC SpatialFullSize(Spatial* spatial);
@@ -195,15 +211,15 @@ namespace spatial
     SPATIAL_C_API int SPATIAL_CC SpatialMaxObjects(Spatial* spatial);
 
     SPATIAL_C_API void SPATIAL_CC SpatialClear(Spatial* spatial);
-    SPATIAL_C_API void SPATIAL_CC SpatialRebuild(Spatial* spatial);
+    SPATIAL_C_API SpatialRoot* SPATIAL_CC SpatialRebuild(Spatial* spatial);
 
     SPATIAL_C_API int SPATIAL_CC  SpatialInsert(Spatial* spatial, const SpatialObject* o);
     SPATIAL_C_API void SPATIAL_CC SpatialUpdate(Spatial* spatial, int objectId, const Rect* rect);
     SPATIAL_C_API void SPATIAL_CC SpatialRemove(Spatial* spatial, int objectId);
 
-    SPATIAL_C_API void SPATIAL_CC SpatialCollideAll(Spatial* spatial, const CollisionParams* params, CollisionPairs* outResults);
-    SPATIAL_C_API int SPATIAL_CC SpatialFindNearby(Spatial* spatial, int* outResults, const SearchOptions* opt);
-    SPATIAL_C_API void SPATIAL_CC SpatialDebugVisualize(Spatial* spatial, const VisualizerOptions* opt, const VisualizerBridge* vis);
+    SPATIAL_C_API void SPATIAL_CC SpatialCollideAll(Spatial* spatial, SpatialRoot* root, const CollisionParams* params, CollisionPairs* outResults);
+    SPATIAL_C_API int SPATIAL_CC SpatialFindNearby(Spatial* spatial, SpatialRoot* root, int* outResults, const SearchOptions* opt);
+    SPATIAL_C_API void SPATIAL_CC SpatialDebugVisualize(Spatial* spatial, SpatialRoot* root, const VisualizerOptions* opt, const VisualizerBridge* vis);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 }
