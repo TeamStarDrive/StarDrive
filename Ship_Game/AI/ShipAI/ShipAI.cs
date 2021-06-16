@@ -219,6 +219,8 @@ namespace Ship_Game.AI
                 return;
 
             AIStateRebase();
+
+            Owner.Carrier.HandleHangarShipsScramble();
         }
 
         public Ship NearBySupplyShip => 
