@@ -379,7 +379,7 @@
       <Index>97</Index>
       <Text>Эти расы свято верят в то, что их предназначение - путешествовать по Вселенной. Как следствие, пассажирские транспорты перевозят к новым планетам втрое больше колонистов, чем обычно.</Text>
     </Token>
-    
+
     <!-- Empire UI -->
     <Token>
       <Index>98</Index>
@@ -401,7 +401,7 @@
       <Index>102</Index>
       <Text>Выбрать</Text>
     </Token>
-    
+
     <!-- Shipyard Screen -->
     <Token>
       <Index>103</Index>
@@ -549,8 +549,8 @@
       <Text>Истребитель</Text>
       <!-- like a fighter plane -->
     </Token>
-    
-    
+
+
     <!-- Ship Roles-->
     <Token>
       <Index>138</Index>
@@ -602,7 +602,7 @@
       <Text>Платформа</Text>
       <!-- like a fighter plane -->
     </Token>
-    
+
     <!-- Ship List Screen -->
     <Token>
       <Index>148</Index>
@@ -807,8 +807,8 @@
       <Index>197</Index>
       <Text>Статистика</Text>
     </Token>
-    
-    
+
+
     <!-- Load Designs Window -->
     <Token>
       <Index>198</Index>
@@ -818,8 +818,8 @@
       <Index>199</Index>
       <Text>Выберите корабль для загрузки</Text>
     </Token>
-    
-    
+
+
     <!-- Tool Tips : Reserve Index 200 - 299 -->
     <Token>
       <Index>200</Index>
@@ -1095,7 +1095,7 @@
       <Index>303</Index>
       <Text>Выйти в Windows</Text>
     </Token>
-    
+
     <!-- Misc menus-->
     <Token>
       <Index>304</Index>
@@ -1188,7 +1188,7 @@
       <Index>325</Index>
       <Text>Общ.убыток</Text>
     </Token>
-    
+
     <!-- Colony Screen -->
     <Token>
       <Index>326</Index>
@@ -1415,7 +1415,7 @@
       <Index>382</Index>
       <Text>Вы управляете этой колонией вручную.</Text>
     </Token>
-    
+
     <!-- Empire Screen -->
     <Token>
       <Index>383</Index>
@@ -1463,9 +1463,9 @@
       <Index>394</Index>
       <Text>Губернатор будет контролировать уровни производства,но не будет строить никаких зданий.Он начнет импорт при запасах 20%,и продолжит импорт, пока не достигнет 40% склад.запасов.Начнет экспорт,если на складе будет 80% ,и продолжит экспорт, пока склад не опустеет до 40%.</Text>
     </Token>
-    
-    
-    
+
+
+
     <!-- 400 - 499 reserved for buildings -->
     <Token>
       <Index>400</Index>
@@ -1747,7 +1747,7 @@
       <Text>+1 к производству за каждого занятого колониста,+2 к Инфраструктуре</Text>
     </Token>
 
-    
+
     <!-- Technologies 500 - 799 Reserved-->
     <Token>
       <Index>500</Index>
@@ -2568,10 +2568,10 @@
       <Index>706</Index>
       <Text>При условии достаточных капиталовложений разработка минеральных месторождений в других мирах может быть начата уже сейчас.</Text>
     </Token>
-    
-  
-    
-    
+
+
+
+
     <!-- Ship Modules 900+-->
     <Token>
       <Index>900</Index>
@@ -3188,7 +3188,7 @@
       <Index>1062</Index>
       <Text>Субпространственный сенсор</Text>
     </Token>
- 
+
     <Token>
       <Index>1064</Index>
       <Text>Таларонский бластер</Text>
@@ -3284,7 +3284,7 @@
       <Index>1089</Index>
       <Text>Это бомбометательное устройство использует вместо традиционных бомб энергетические снаряды, тем самым ликвидируя необходимость в боеприпасах.</Text>
     </Token>
-  
+
   <!-- 1200 + Diplomacy-->
     <Token>
       <Index>1200</Index>
@@ -3378,16 +3378,16 @@
       <Index>1222</Index>
       <Text>У них есть</Text>
     </Token>
-    
-    
-    
-    
-    
-    <!-- 1300 + Race Description (Lots of Text Replacement Going on Here).  These phrases are parts of sentences that are switched in and 
-    out to make a dynamic description of your custom race design. The english phrasing may not always be translatable but we'll try our best 
+
+
+
+
+
+    <!-- 1300 + Race Description (Lots of Text Replacement Going on Here).  These phrases are parts of sentences that are switched in and
+    out to make a dynamic description of your custom race design. The english phrasing may not always be translatable but we'll try our best
     Leave any spacing and punctuation as found.  Notes are included for usage -->
-    
-    <!-- Sentence One describes the race. Example: Humans are a race of terrestrial beings with an average reproductive rate and unremarkable dietary needs. 
+
+    <!-- Sentence One describes the race. Example: Humans are a race of terrestrial beings with an average reproductive rate and unremarkable dietary needs.
     This could just as easily say: The Opteris are a cybernetic race of aquatic beings with swift manufacturing speeds and a ravenous appetite for
     components, parts, and raw materials.  So we will switch these phrases in and out to construct the proper sentence. -->
     <Token>
@@ -3547,7 +3547,7 @@
       <Index>1337</Index>
       <Text> не слишком улучшились по сравнению со своим первоначальным обликом. </Text>
     </Token>
-    
+
     <!-- Sentence 3, we discuss the race's intelligence -->
     <Token>
       <Index>1338</Index>
@@ -3577,7 +3577,7 @@
       <Index>1344</Index>
       <Text> являются исключительно интеллектуальными для расы космических путешественников и обладают огромной любознательностью. </Text>
     </Token>
-    
+
     <!-- Sentence 4 we discuss their government. It would read something like this.
     X government is efficient and effective, but this is counterbalanced by a wasteful consumer-oriented society. -->
     <Token>
@@ -3635,7 +3635,7 @@
       <Index>1357</Index>
       <Text> в целом не отличаются бережливостью и расчетливостью в инвестициях. </Text>
     </Token>
-    
+
     <!-- Sentence 5, we dicuss their work ethic and engineering skills-->
     <Token>
       <Index>1358</Index>
@@ -3688,10 +3688,10 @@
       <Index>1369</Index>
       <Text>и их инженеры и кораблестроители в целом достаточно компетентны. </Text>
     </Token>
-    
-    <!-- Discussing their homeworld, the code looks like this 
+
+    <!-- Discussing their homeworld, the code looks like this
     "The " + SingularRaceName + " homeworld of " + HomeWorldName + " is very large for a terran planet. ";
-    i.e. The Human Homeworld of Earth is very large for a terran planet.  This may not work correctly in other languages. 
+    i.e. The Human Homeworld of Earth is very large for a terran planet.  This may not work correctly in other languages.
     Do your best to come up with something that fits this general scheme. -->
     <Token>
       <Index>1370</Index>
@@ -4089,7 +4089,7 @@
 
 
 
-    <!-- 1500 + Notification Manager. These are notifications that scroll down the right hand side 
+    <!-- 1500 + Notification Manager. These are notifications that scroll down the right hand side
     of the screen when something happens. Usually these are split into 2 lines.  Keep formatting / spacing on these.-->
 
     <!-- 1500 - 1502 will say:  EnemyName + "forces spotted in" + (newline) + "the" + SystemName + " system!" -->
@@ -4160,10 +4160,10 @@
       <Index>1514</Index>
       <Text> разблокировано</Text>
     </Token>
-    
-    
-    
-    
+
+
+
+
     <!-- Diplomacy Overview 1600+ -->
     <Token>
       <Index>1600</Index>
@@ -4340,10 +4340,10 @@
       <Index>1644</Index>
       <Text>Контакт</Text>
     </Token>
-    
-    
-   
-    
+
+
+
+
     <!-- 1700 Planetary Descriptions. These describe a planet with PLANETNAME + the line.  -->
     <Token>
       <Index>1700</Index>
@@ -4665,7 +4665,7 @@
     <Token>
       <Index>1779</Index>
       <Text>Эта планета прекрасно защищена и имеет давние военные традиции. </Text>
-    </Token>   
+    </Token>
     <Token>
       <Index>1780</Index>
       <Text>Исследовать Технологию</Text>
@@ -5375,7 +5375,7 @@
     <Token>
       <Index>1986</Index>
       <Text>Демонтаж</Text>
-    </Token>    
+    </Token>
     <Token>
       <Index>1987</Index>
       <Text>Общее время, в течение которого корабль может поддерживать огонь энергетического оружия вместе с лучами на максимальной мощности в течение времени действия луча.</Text>
@@ -5383,7 +5383,7 @@
     <Token>
       <Index>1988</Index>
       <Text>Указывает на чистую утечку энергии из резервов корабля (с учетом перезарядки энергии), когда все энергетическое оружие корабля вместе с лучами на полной мощности постоянно стреляет по целям в зависимости от мощности оружия в секунду при стрельбе.</Text>
-    </Token>    
+    </Token>
     <Token>
       <Index>1989</Index>
       <Text>Указывает на чистую утечку энергии из резервов корабля (с учетом перезарядки энергии), когда все энергетическое оружие корабля постоянно стреляет по целям, в зависимости от мощности оружия в секунду при стрельбе.</Text>
@@ -5431,7 +5431,7 @@
     </Token>
 
 
-    
+
     <!-- Second Run.  These are items that did not make the first localization run, or items that have changed since the first localization run-->
     <Token>
       <Index>2000</Index>
@@ -5488,7 +5488,7 @@
     </Token>
     <Token>
       <Index>2013</Index>
-      <Text>Все корабли класса истребителей получают 2 "бесплатных" уровня опыта.</Text>
+      <Text>Все корпуса истребителей и любые корабли, предназначенные для дронов или корветов, получают 2 бесплатных уровня опыта.</Text>
     </Token>
     <Token>
       <Index>2014</Index>
@@ -6593,7 +6593,7 @@
     <Token>
       <Index>2295</Index>
       <Text>Событие требует вашего внимания</Text>
-    </Token>  
+    </Token>
     <Token>
       <Index>2296</Index>
       <Text>Сообщение казначейства! Если у вас кончатся деньги,\nпоследствия будут очень печальны!</Text>
@@ -7471,7 +7471,7 @@
     </Text>
     </Token>
 
-    
+
     <!-- Third wave! to do manually -->
     <Token>
       <Index>4000</Index>
@@ -7497,7 +7497,7 @@
       <Index>4005</Index>
       <Text>ПАУЗА</Text>
     </Token>
-    
+
     <Token>
       <Index>4006</Index>
       <Text>Параметры правил</Text>
@@ -7857,9 +7857,9 @@
       <Index>4093</Index>
       <Text>Фазирование брони</Text>
     </Token>
-    
-    
-    
+
+
+
     <!-- even newer stuff-->
     <Token>
       <Index>4094</Index>
@@ -7885,7 +7885,7 @@
       <Index>4099</Index>
       <Text>Эта бортовая пушка способна производить более мощный кинетический выстрел, чем ее собратья, установленные на башне. Подвижность оружия и отслеживание цели заменяется на возможность выпускать адские залпы кинетического огня.</Text>
     </Token>
-  
+
   <!-- Somehow the 4100 range has become where I put all my new stuff - Gretman           -->
     <Token>
       <Index>4100</Index>
@@ -8191,7 +8191,7 @@
     </Token>
     <Token>
       <Index>4176</Index>
-      <Text>сейчас в мире</Text> 
+      <Text>сейчас в мире</Text>
     </Token>
     <Token>
       <Index>4177</Index>
@@ -8454,7 +8454,7 @@
       <Text>шанс извержения</Text>
     </Token>
     <Token>
-      <Index>4243</Index> 
+      <Index>4243</Index>
       <Text>Очень низкий</Text> <!-- Activation/Eruption Chance-->
     </Token>
     <Token>
@@ -8693,7 +8693,7 @@
       <Index>4999</Index>
       <Text>Содерж. войск</Text>
     </Token>
-	
+
     <Token>
       <Index>5000</Index>
       <Text>Чтобы корабль мог совершить варп-прыжок, на нем должно быть установлено Варп-ядро. Ядра деформации обеспечивают деформируемую массу. Если масса корабля меньше или равна деформируемой массе корабля, то он может двигаться быстрее света.</Text>
@@ -9048,8 +9048,8 @@
   </Token>
 
 
-<!-- SD Code Mod, UI ELEMENT TEXT -->	
-  
+<!-- SD Code Mod, UI ELEMENT TEXT -->
+
   <Token>
       <Index>6000</Index>
       <Text>дальность сенсоров</Text>
@@ -9482,7 +9482,7 @@
   <Token>
       <Index>6107</Index>
       <Text>Да</Text>
-    </Token>	
+    </Token>
   <Token>
       <Index>6108</Index>
       <Text>Псевдоним: </Text>
@@ -9735,7 +9735,7 @@
   <Token>
       <Index>6170</Index>
       <Text>Варп.Соп.Щ.</Text>
-    </Token>	
+    </Token>
   <Token>
       <Index>6171</Index>
       <Text>Луч.Соп.Щ.</Text>
@@ -9764,9 +9764,9 @@
       <Index>6177</Index>
       <Text>Защита от ЭМИ</Text>
     </Token>
-  
+
   <!-- The Doctor: I'm adding various bits of UI text into proper localisation, starting with the rule options and FTL inhibition UI -->
-  
+
   <Token>
       <Index>6178</Index>
       <Text>Отношение к нейтральным системам.</Text>
@@ -9782,11 +9782,11 @@
   <Token>
       <Index>6181</Index>
       <Text>Конструктор Дизайна:</Text>
-    </Token>	
+    </Token>
   <Token>
   <Index>6182</Index>
   <Text>FTL Overlay: визуализирует проекцию подпространства и FTL, препятствуя гравитационным колодцам и полям.</Text>
-  </Token>		
+  </Token>
   <Token>
     <Index>6183</Index>
     <Text>Дистанция оружия Overlay: визуализирует максимальную дальность стрельбы кораблей. Когда корабль выбран, вы увидите зеленые кружки с желтой, оранжевой и красной границами (соответственно наименьшая, средняя и максимальная дальность вооружения). Синий круг - это дальность действия датчика корабля. Круги врага будут красными.</Text>
@@ -9823,9 +9823,9 @@
       <Index>6191</Index>
       <Text>Энерго-ячейка</Text>
   </Token>
-    
-  <!-- SD Code Mod, TOOLTIP TEXT -->	
-  
+
+  <!-- SD Code Mod, TOOLTIP TEXT -->
+
   <Token>
       <Index>7001</Index>
       <Text>Указывает на % вероятности нарушения работы Электронных контрмер против поступающего управляемого вооружения до того, как будет вычтено сопротивление Электронных контрмер. Успешное разрушение Электронных контрмер блокирует цель и предотвращает попадание боеприпаса.</Text>
@@ -10009,7 +10009,7 @@
   <Token>
       <Index>7046</Index>
       <Text>Указывает на устойчивость к урону кинетического типа, где 100% - это общий иммунитет. Отрицательный процент означает, что этот модуль получает дополнительный урон от этого источника.</Text>
-    </Token> 
+    </Token>
   <Token>
       <Index>7047</Index>
       <Text>Указывает на устойчивость к урону энергетического оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что этот модуль получает дополнительный урон от этого источника.</Text>
@@ -10082,15 +10082,15 @@
       <Index>7064</Index>
       <Text>Указывает на устойчивость к урону зенитного оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что этот модуль получает дополнительный урон от этого источника.</Text>
     </Token>
-  
+
   <Token>
       <Index>7065</Index>
       <Text>Указывает на устойчивость к эффектам пробивания брони - каждая единица сопротивления AP(Пробоя) отменяет 1 единицу пробивания брони на снарядах противника.</Text>
     </Token>
 
-  
+
   <!-- Shield Resistance Tooltips -->
-  
+
   <Token>
       <Index>7066</Index>
       <Text>Указывает на устойчивость пузыря щита к кинетическому урону оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника.</Text>
@@ -10126,7 +10126,7 @@
   <Token>
       <Index>7074</Index>
       <Text>Указывает на устойчивость пузыря щита к урону от варп-оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника.</Text>
-    </Token>	
+    </Token>
   <Token>
       <Index>7075</Index>
       <Text>Указывает на сопротивление пузыря щита урону лучевого оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника.</Text>
@@ -10147,7 +10147,7 @@
       <Index>7079</Index>
       <Text>Оружие, наносящее меньше урона, чем это значение, просто будет отражено этим щитом из-за его силы. Это не влияет на лучи из-за их туннельной способности.</Text>
     </Token>
-  
+
   <Token>
       <Index>7080</Index>
       <Text>Назначает судно обязанностями по защите системы</Text>

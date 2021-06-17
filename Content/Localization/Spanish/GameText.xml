@@ -379,7 +379,7 @@
       <Index>97</Index>
       <Text>Las razas que poseen un espíritu pionero creen que su destino está entre las estrellas.  En consecuencia, sus transportes de pasajeros llevan el triple de colonos a nuevos planetas</Text>
     </Token>
-    
+
     <!-- Empire UI -->
     <Token>
       <Index>98</Index>
@@ -401,7 +401,7 @@
       <Index>102</Index>
       <Text>Elegir</Text>
     </Token>
-    
+
     <!-- Shipyard Screen -->
     <Token>
       <Index>103</Index>
@@ -549,8 +549,8 @@
       <Text>Caza</Text>
       <!-- like a fighter plane -->
     </Token>
-    
-    
+
+
     <!-- Ship Roles-->
     <Token>
       <Index>138</Index>
@@ -602,7 +602,7 @@
       <Text>Plataforma</Text>
       <!-- like a fighter plane -->
     </Token>
-    
+
     <!-- Ship List Screen -->
     <Token>
       <Index>148</Index>
@@ -807,8 +807,8 @@
       <Index>197</Index>
       <Text>Estadísticas</Text>
     </Token>
-    
-    
+
+
     <!-- Load Designs Window -->
     <Token>
       <Index>198</Index>
@@ -818,8 +818,8 @@
       <Index>199</Index>
       <Text>Elegir una nave para cargar</Text>
     </Token>
-    
-    
+
+
     <!-- Tool Tips : Reserve Index 200 - 299 -->
     <Token>
       <Index>200</Index>
@@ -1097,7 +1097,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>303</Index>
       <Text>Salir a Windows</Text>
     </Token>
-    
+
     <!-- Misc menus-->
     <Token>
       <Index>304</Index>
@@ -1190,7 +1190,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>325</Index>
       <Text>Pérdida neta</Text>
     </Token>
-    
+
     <!-- Colony Screen -->
     <Token>
       <Index>326</Index>
@@ -1417,7 +1417,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>382</Index>
       <Text>Esta colonia la gestionas tú directamente.</Text>
     </Token>
-    
+
     <!-- Empire Screen -->
     <Token>
       <Index>383</Index>
@@ -1457,9 +1457,9 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>392</Index>
       <Text>Construcción</Text>
     </Token>
-    
-    
-    
+
+
+
     <!-- 400 - 499 reserved for buildings -->
     <Token>
       <Index>400</Index>
@@ -1745,7 +1745,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Text>+0,5 de producción por colono asignado</Text>
     </Token>
 
-    
+
     <!-- Technologies 500 - 799 Reserved-->
     <Token>
       <Index>500</Index>
@@ -2566,10 +2566,10 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>706</Index>
       <Text>Cuando las infraestructuras industriales adecuadas estén desarrolladas, se puede empezar en serio con la explotación de los recursos minerales de otros mundos.  </Text>
     </Token>
-    
-  
-    
-    
+
+
+
+
     <!-- Ship Modules 900+-->
     <Token>
       <Index>900</Index>
@@ -3183,7 +3183,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>1062</Index>
       <Text>Sensores subespaciales</Text>
     </Token>
- 
+
     <Token>
       <Index>1064</Index>
       <Text>Descargas Thalaron</Text>
@@ -3279,7 +3279,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>1089</Index>
       <Text>Este lanzabombas puede barrer con explosivos de energía la superficie de un planeta y no necesita munición. </Text>
     </Token>
-  
+
   <!-- 1200 + Diplomacy-->
     <Token>
       <Index>1200</Index>
@@ -3373,16 +3373,16 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>1222</Index>
       <Text>Tienen</Text>
     </Token>
-    
-    
-    
-    
-    
-    <!-- 1300 + Race Description (Lots of Text Replacement Going on Here).  These phrases are parts of sentences that are switched in and 
-    out to make a dynamic description of your custom race design. The english phrasing may not always be translatable but we'll try our best 
+
+
+
+
+
+    <!-- 1300 + Race Description (Lots of Text Replacement Going on Here).  These phrases are parts of sentences that are switched in and
+    out to make a dynamic description of your custom race design. The english phrasing may not always be translatable but we'll try our best
     Leave any spacing and punctuation as found.  Notes are included for usage -->
-    
-    <!-- Sentence One describes the race. Example: Humans are a race of terrestrial beings with an average reproductive rate and unremarkable dietary needs. 
+
+    <!-- Sentence One describes the race. Example: Humans are a race of terrestrial beings with an average reproductive rate and unremarkable dietary needs.
     This could just as easily say: The Opteris are a cybernetic race of aquatic beings with swift manufacturing speeds and a ravenous appetite for
     components, parts, and raw materials.  So we will switch these phrases in and out to construct the proper sentence. -->
     <Token>
@@ -3542,7 +3542,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>1337</Index>
       <Text> no han mejorado en mucho su estructura orgánica original. </Text>
     </Token>
-    
+
     <!-- Sentence 3, we discuss the race's intelligence -->
     <Token>
       <Index>1338</Index>
@@ -3572,7 +3572,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>1344</Index>
       <Text> son una raza sumamente inteligente que domina los viajes estelares y siente una curiosidad natural por el universo. </Text>
     </Token>
-    
+
     <!-- Sentence 4 we discuss their government. It would read something like this.
     X government is efficient and effective, but this is counterbalanced by a wasteful consumer-oriented society. -->
     <Token>
@@ -3630,7 +3630,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>1357</Index>
       <Text> tienden a ser un pueblo derrochador y descuidado con sus inversiones. </Text>
     </Token>
-    
+
     <!-- Sentence 5, we dicuss their work ethic and engineering skills-->
     <Token>
       <Index>1358</Index>
@@ -3683,10 +3683,10 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>1369</Index>
       <Text> y sus ingenieros y constructores navales son bastante competentes en general. </Text>
     </Token>
-    
-    <!-- Discussing their homeworld, the code looks like this 
+
+    <!-- Discussing their homeworld, the code looks like this
     "The " + SingularRaceName + " homeworld of " + HomeWorldName + " is very large for a terran planet. ";
-    i.e. The Human Homeworld of Earth is very large for a terran planet.  This may not work correctly in other languages. 
+    i.e. The Human Homeworld of Earth is very large for a terran planet.  This may not work correctly in other languages.
     Do your best to come up with something that fits this general scheme. -->
     <Token>
       <Index>1370</Index>
@@ -3983,7 +3983,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
     </Token>
 
 
-    <!-- 1500 + Notification Manager. These are notifications that scroll down the right hand side 
+    <!-- 1500 + Notification Manager. These are notifications that scroll down the right hand side
     of the screen when something happens. Usually these are split into 2 lines.  Keep formatting / spacing on these.-->
 
     <!-- 1500 - 1502 will say:  EnemyName + "forces spotted in" + (newline) + "the" + SystemName + " system!" -->
@@ -4054,10 +4054,10 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>1514</Index>
       <Text> desbloqueada</Text>
     </Token>
-    
-    
-    
-    
+
+
+
+
     <!-- Diplomacy Overview 1600+ -->
     <Token>
       <Index>1600</Index>
@@ -4234,10 +4234,10 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>1644</Index>
       <Text>Contacto</Text>
     </Token>
-    
-    
-   
-    
+
+
+
+
     <!-- 1700 Planetary Descriptions. These describe a planet with PLANETNAME + the line.  -->
     <Token>
       <Index>1700</Index>
@@ -4561,7 +4561,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Text>Este planeta está muy bien fortificado y hace gala de una fuerte cultura militar. </Text>
     </Token>
 
-    
+
     <!-- Events -->
     <Token>
       <Index>1800</Index>
@@ -4684,7 +4684,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
     </Token>
 
 
-    
+
     <!-- Second Run.  These are items that did not make the first localization run, or items that have changed since the first localization run-->
     <Token>
       <Index>2000</Index>
@@ -4741,7 +4741,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
     </Token>
     <Token>
       <Index>2013</Index>
-      <Text>Todas las naves de clase caza reciben 2 niveles de experiencia gratis.</Text>
+      <Text>Todos los cascos de caza y cualquier nave designada como dron o corbeta reciben 2 niveles de experiencia gratuitos.</Text>
     </Token>
     <Token>
       <Index>2014</Index>
@@ -5842,7 +5842,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
     <Token>
       <Index>2295</Index>
       <Text>Un acontecimiento requiere tu atención</Text>
-    </Token>  
+    </Token>
     <Token>
       <Index>2296</Index>
       <Text>¡Advertencia del Tesoro! ¡Quedarse sin dinero \npuede tener consecuencias funestas!</Text>
@@ -6414,7 +6414,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       </Text>
     </Token>
 
-    
+
     <!-- Third wave! to do manually -->
     <Token>
       <Index>4000</Index>
@@ -6796,8 +6796,8 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>4093</Index>
       <Text>Antiblindaje fásico</Text>
     </Token>
-	
-	 <!-- even newer stuff-->                             <!-- Here i had to translate all over again, the old translation havent been updated since now. ~Nikodga -->     
+
+	 <!-- even newer stuff-->                             <!-- Here i had to translate all over again, the old translation havent been updated since now. ~Nikodga -->
     <Token>
       <Index>4094</Index>
       <Text>Cristal del pensamiento</Text>
@@ -6822,7 +6822,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>4099</Index>
       <Text>Este cañon antiaereo montado de costado es capaz de dar impactos kineticos mas fuertes que sus variantes montadas en torreta. la mobilidad y la capacidad de apuntar son intercambiadas por la oportunidad de disparar salvas de tiros infernales.</Text>
     </Token>
-  
+
   <!-- Somehow the 4100 range has become where I put all my new stuff - Gretman           -->
     <Token>
       <Index>4100</Index>
@@ -6873,7 +6873,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>4111</Index>
       <Text>Bombardero</Text>
     </Token>
-  
+
     <Token>
       <Index>5000</Index>
       <Text>Para que una nave sea capaz del viaje supraluminal debe tener un nucleo de desformación instalado. Los nucleos de desformación proveen de masa desformable. Si la masa de una nave es igual o menor que la de su capacidad de desformación de masa podra viajar a velocidad supraluminal.</Text>
@@ -7222,11 +7222,11 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>5087</Index>
       <Text>Centro de comercio</Text>
     </Token>
-  
 
 
-  <!-- SD Code Mod, UI ELEMENT TEXT -->	
-  
+
+  <!-- SD Code Mod, UI ELEMENT TEXT -->
+
   <Token>
       <Index>6000</Index>
       <Text>Rango del sensor</Text>
@@ -7658,7 +7658,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
   <Token>
       <Index>6107</Index>
       <Text>Sí</Text>
-    </Token>	
+    </Token>
   <Token>
       <Index>6108</Index>
       <Text>Alias: </Text>
@@ -7883,9 +7883,9 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>6173</Index>
       <Text>Mamparo</Text>
     </Token>
-  
+
   <!-- Shield Resists UI -->
-  
+
   <Token>
       <Index>6162</Index>
       <Text>Kinética SR</Text>
@@ -7921,7 +7921,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
   <Token>
       <Index>6170</Index>
       <Text>Curv SR</Text>
-    </Token>	
+    </Token>
   <Token>
       <Index>6171</Index>
       <Text>Rayo SR</Text>
@@ -7942,9 +7942,9 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>6177</Index>
       <Text>Proteccion EMP</Text>
     </Token>
-  
+
   <!-- The Doctor: I'm adding various bits of UI text into proper localisation, starting with the rule options and FTL inhibition UI -->
-  
+
   <Token>
       <Index>6178</Index>
       <Text>Considerar sistemas neutrales como hostiles</Text>
@@ -7960,11 +7960,11 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
   <Token>
       <Index>6181</Index>
       <Text>Diseño del construidor:</Text>
-    </Token>	
+    </Token>
   <Token>
   <Index>6182</Index>
   <Text>:Visualizacion FTL: Muestra las proyecciones subespaciales y las areas restringidas por pozos gravitatorios.</Text>
-  </Token>		
+  </Token>
   <Token>
     <Index>6183</Index>
     <Text>Vizualización de rango de las armas: Enseña el alcanze máximo de las armas de las naves.</Text>
@@ -7997,9 +7997,9 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>6190</Index>
       <Text>Ofensiva de la nave</Text>
     </Token>
-    
-  <!-- SD Code Mod, TOOLTIP TEXT -->	
-  
+
+  <!-- SD Code Mod, TOOLTIP TEXT -->
+
   <Token>
       <Index>7001</Index>
       <Text>Indica el % de una disrupción ECM satisfactoria en contra de armas guiadas, antes de que la resistencia ECM del arma es reducida. Una disrupción ECM satisfactoria interfiere con los sitemas de guia del arma y prevee que la municion de en su objetivo.</Text>
@@ -8179,7 +8179,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
   <Token>
       <Index>7046</Index>
       <Text>Indica la resistencia al daño kinetico, donde un 100% es inmunidad total. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño.</Text>
-    </Token> 
+    </Token>
   <Token>
       <Index>7047</Index>
       <Text>Indica la resistencia al daño energetico, donde un 100% significa inmunidad total. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño.</Text>
@@ -8252,15 +8252,15 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>7064</Index>
       <Text>IIndica la resistencia al daño FlaK, donde un 100% es inmunidad total. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño.</Text>
     </Token>
-  
+
   <Token>
       <Index>7065</Index>
       <Text>Indica la resistencia a los efectos de pentracion de blindaje, donde cada punto de resistencia significa -1 de pentetración a los proyeciles enemigos.</Text>
     </Token>
 
-  
+
   <!-- Shield Resistance Tooltips -->
-  
+
   <Token>
       <Index>7066</Index>
       <Text>Indica la resistencia de la burbuja del escudo al daño kinetico. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño.</Text>
@@ -8296,7 +8296,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
   <Token>
       <Index>7074</Index>
       <Text>Indica la resistencia de la burbuja del escudo al daño de armas de desformación. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño.</Text>
-    </Token>	
+    </Token>
   <Token>
       <Index>7075</Index>
       <Text>Indica la resistencia de la burbuja del escudo al daño de haz. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño.</Text>
@@ -8317,7 +8317,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>7079</Index>
       <Text>Las armas que hacen menos daño que este valor seran deflectadas por este escudo debido a su intensidad. Los haces no son afectados `por esto debido a su habilidad tuneladora</Text>
     </Token>
-  
+
   <Token>
       <Index>7080</Index>
       <Text>Asigna a una nave a deberes de defensa planetarea</Text>
@@ -8366,6 +8366,6 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
       <Index>7091</Index>
       <Text>Este es el ratio de autoreparacion por tick - se puede reparar esta cantidad de puntos de vida por tick cuando este fuera de combate. Mejores módulos de comando y de ingienería puden mejorar esto..</Text>
     </Token>
-    
+
   </TokenList>
 </LocalizationFile>
