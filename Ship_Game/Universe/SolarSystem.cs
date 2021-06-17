@@ -743,8 +743,6 @@ namespace Ship_Game
                     HasLimitedResourcesBuildings = planet.HasLimitedResourceBuilding
                 };
 
-
-
                 if (planet.Owner != null)
                 {
                     pdata.QISaveList = planet.ConstructionQueue.Select(item => item.Serialize());
