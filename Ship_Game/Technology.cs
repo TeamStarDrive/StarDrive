@@ -26,8 +26,8 @@ namespace Ship_Game
         public bool Unlockable;
 
         [XmlIgnore] public SortedSet<TechnologyType> TechnologyTypes = new SortedSet<TechnologyType>();
-        [XmlIgnore] public int NumStuffUnlocked => ModulesUnlocked.Count + BuildingsUnlocked.Count 
-                                                   + BonusUnlocked.Count + TroopsUnlocked.Count 
+        [XmlIgnore] public int NumStuffUnlocked => ModulesUnlocked.Count + BuildingsUnlocked.Count
+                                                   + BonusUnlocked.Count + TroopsUnlocked.Count
                                                    + HullsUnlocked.Filter(h => h.ShipType == EmpireManager.Player.data.Traits.ShipType).Length;
 
         public int NameIndex;
@@ -174,7 +174,7 @@ namespace Ship_Game
         {
             float value = Cost * valuePerTechCost;
             if (us.isPlayer && !us.IsAlliedWith(offeringEmpire)) // Some modifiers vs. Player based on Difficulty and AI personality
-                value *= offeringEmpire.PersonalityModifiers.TechValueModifier 
+                value *= offeringEmpire.PersonalityModifiers.TechValueModifier
                          * offeringEmpire.DifficultyModifiers.TechValueModifier;
 
             return value;
@@ -357,7 +357,7 @@ namespace Ship_Game
                     case "Repair Bonus":
                     case "Kulrathi Might":
                     case "Armor Explosion Reduction":
-                        types.Add(TechnologyType.ShipGeneral); break; 
+                        types.Add(TechnologyType.ShipGeneral); break;
                     case "Armor Piercing":
                     case "Armor Phasing":
                     case "Weapon_Speed":
