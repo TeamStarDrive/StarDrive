@@ -768,6 +768,8 @@ namespace Ship_Game
             [Serialize(48)] public float ManualGrdDefBudget;
             [Serialize(49)] public float ManualSpcDefBudget;
             [Serialize(50)] public bool HasLimitedResourcesBuildings;
+
+            public override string ToString() => $"PlanetSD {Name}";
         }
 
         public struct ProjectileSaveData
@@ -820,6 +822,8 @@ namespace Ship_Game
             [Serialize(0)] public PlanetSaveData Planet;
             [Serialize(1)] public bool Asteroids;
             [Serialize(2)] public float OrbitalDistance;
+
+            public override string ToString() => $"RingSave {OrbitalDistance} Ast:{Asteroids} {Planet}";
         }
 
         public struct RoadNodeSave
@@ -922,6 +926,13 @@ namespace Ship_Game
             [Serialize(6)] public Array<Moon> Moons;
             [Serialize(7)] public string[] ExploredBy;
             [Serialize(8)] public bool PiratePresence;
+
+            public override string ToString()
+            {
+                return $"{SunPath} {Name} {Position} "+
+                       $"Rings:{RingList.Length} Ast:{AsteroidsList.Count} "+
+                       $"Moons:{Moons.Count} Pirates:{PiratePresence} ExploredBy:{string.Join(",",ExploredBy)}";
+            }
         }
 
         public struct SpaceRoadSave
