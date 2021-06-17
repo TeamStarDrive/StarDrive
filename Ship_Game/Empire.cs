@@ -1305,9 +1305,15 @@ namespace Ship_Game
 
         public void IncreaseEmpireShipRoleLevel(ShipData.RoleName role, int bonus)
         {
-            foreach (Ship ship in OwnedShips)
+            IncreaseEmpireShipRoleLevel(new[] { role }, bonus);
+        }
+
+        public void IncreaseEmpireShipRoleLevel(ShipData.RoleName[] role, int bonus)
+        {
+            for (int i = 0; i < OwnedShips.Count; i++)
             {
-                if (ship.shipData.Role == role)
+                Ship ship = OwnedShips[i];
+                if (role.Contains(ship.shipData.Role))
                     ship.AddToShipLevel(bonus);
             }
         }
