@@ -19,9 +19,10 @@ namespace Ship_Game
 
         public float CenterX => (X1 + X2) * 0.5f;
         public float CenterY => (Y1 + Y2) * 0.5f;
-
+        
         public Vector2 Center => new Vector2(CenterX, CenterY);
         public Vector2 Size => new Vector2(Width, Height);
+        public bool IsEmpty => (X1 == X2) || (Y1 == Y2);
 
         public override string ToString()
         {
@@ -120,6 +121,9 @@ namespace Ship_Game
 
         public int Width => X2 - X1;
         public int Height => Y2 - Y1;
+
+        public bool IsEmpty => (X1 == X2) || (Y1 == Y2);
+        public Vector2 Center => new Vector2((X1+X2)*0.5f, (Y1+Y2)*0.5f);
         
         public AABoundingBox2Di(in AABoundingBox2D r)
         {
