@@ -766,7 +766,7 @@ namespace Ship_Game.Ships
                         BeamMassDamage(beam, hittingShields: true);
                     }
 
-                    if (Parent.InFrustum && Empire.Universe?.IsShipViewOrCloser == true)
+                    if (Parent.IsVisibleToPlayer)
                         Shield.HitShield(this, proj);
                 }
 
@@ -784,7 +784,7 @@ namespace Ship_Game.Ships
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {modifiedDamage}  hp  {Health} by {proj?.WeaponType}");
             }
 
-            if (Parent.InFrustum && Empire.Universe?.IsShipViewOrCloser == true)
+            if (Parent.IsVisibleToPlayer)
             {
                 if      (beam != null)            beam.CreateHitParticles(Center3D.Z);
                 else if (proj?.Explodes == false) proj.CreateHitParticles(modifiedDamage, Center3D);
@@ -887,7 +887,7 @@ namespace Ship_Game.Ships
             ++DebugInfoScreen.ModulesDied;
             ShieldPower = 0f;
 
-            if (Active && Parent.InFrustum)
+            if (Active && Parent.IsVisibleToPlayer)
             {
                 var center = new Vector3(Center.X, Center.Y, -100f);
                 bool parentAlive = !Parent.dying;
@@ -907,10 +907,8 @@ namespace Ship_Game.Ships
 
             if (!cleanupOnly && source != null)
             {
-                if (Parent.Active && Parent.InFrustum && Empire.Universe.IsShipViewOrCloser)
-                {
+                if (Parent.Active && Parent.IsVisibleToPlayer)
                     GameAudio.PlaySfxAsync("sd_explosion_module_small", Parent.SoundEmitter);
-                }
 
                 if (explodes)
                 {
@@ -1144,7 +1142,7 @@ namespace Ship_Game.Ships
         // @note This is called every frame for every module for every ship in the universe
         void UpdateDamageVisualization(FixedSimTime timeStep)
         {
-            if (OnFire && Parent.InFrustum && Empire.Universe.IsSystemViewOrCloser)
+            if (OnFire && Parent.IsVisibleToPlayer)
             {
                 if (DamageVisualizer == null)
                     DamageVisualizer = new ShipModuleDamageVisualization(this);
