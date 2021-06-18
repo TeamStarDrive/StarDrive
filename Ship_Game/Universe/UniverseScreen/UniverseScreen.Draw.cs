@@ -779,21 +779,20 @@ namespace Ship_Game
 
                 foreach (Planet planet in system.PlanetList)
                 {
-                    float fIconScale = 0.1875f * (0.7f + ((float) (Math.Log(planet.Scale)) / 2.75f));
-                    Vector3 vector3  = Viewport.Project(new Vector3(planet.Center, 2500f), Projection, View, Matrix.Identity);
-                    var position     = new Vector2(vector3.X, vector3.Y);
-                    var flagPos      = new Vector2(vector3.X, vector3.Y-15);
+                    float fIconScale      = 0.1875f * (0.7f + ((float) (Math.Log(planet.Scale)) / 2.75f));
+                    Vector2 planetIconPos = ProjectToScreenPosition(planet.Center, 2500);
+                    Vector2 flagIconPos   = planetIconPos - new Vector2(0, 15);
 
                     SubTexture planetTex = planet.PlanetTexture;
                     if (planet.Owner != null && player.IsKnown(planet.Owner))
                     {
-                        batch.Draw(planetTex, position, Color.White, 0.0f, planetTex.CenterF, fIconScale, SpriteEffects.None, 1f);
+                        batch.Draw(planetTex, planetIconPos, Color.White, 0.0f, planetTex.CenterF, fIconScale, SpriteEffects.None, 1f);
                         SubTexture flag = ResourceManager.Flag(planet.Owner);
-                        batch.Draw(flag, flagPos, planet.Owner.EmpireColor, 0.0f, flag.CenterF, 0.2f, SpriteEffects.None, 1f);
+                        batch.Draw(flag, flagIconPos, planet.Owner.EmpireColor, 0.0f, flag.CenterF, 0.2f, SpriteEffects.None, 1f);
                     }
                     else
                     {
-                        batch.Draw(planetTex, position, Color.White, 0.0f, planetTex.CenterF, fIconScale, SpriteEffects.None, 1f);
+                        batch.Draw(planetTex, planetIconPos, Color.White, 0.0f, planetTex.CenterF, fIconScale, SpriteEffects.None, 1f);
                     }
                 }
             }
