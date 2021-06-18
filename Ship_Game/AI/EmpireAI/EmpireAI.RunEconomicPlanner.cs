@@ -43,7 +43,7 @@ namespace Ship_Game.AI
             float savings                  = 350;
             float troopShuttles = 6;
 
-            float total = (defense + SSP + build + spy + colony + savings + troopShuttles) ;
+            float total = (defense + SSP + build + spy + colony + savings + troopShuttles) * 2;
 
             defense       /= total;
             SSP           /= total;
@@ -107,9 +107,9 @@ namespace Ship_Game.AI
             float buildBudget          = SetBudgetForeArea(percentOfMoney, buildRatio, money);
             float extraBudget          = OverSpendRatio(money, 1, 1.25f).LowerBound(1);
             float warRatio = OwnerEmpire.GetWarOffensiveRatio();
-            float min = (money * (warRatio * 0.02f)).LowerBound(1);
+            //float min = (money * (warRatio * 0.02f)).LowerBound(1);
             
-            buildBudget = (buildBudget * risk * extraBudget).LowerBound(min);
+            //buildBudget = (buildBudget * risk * extraBudget).LowerBound(min);
 
             return buildBudget;
         }
