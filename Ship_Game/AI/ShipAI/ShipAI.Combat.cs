@@ -103,47 +103,63 @@ namespace Ship_Game.AI
             return didFireAtAny;
         }
 
-        void UpdateTrackedShips(Ship sensorShip, float radius)
+        // TODO: This can be optimized for friendly nearby ships to share scan data
+        public void ScanForFriendlies(Ship sensorShip, float radius)
         {
-            // get enemies and friends in close proximity
-            // radius hack needs investigation.
-            // i believe this is an orbital no control systems compensator. But it should not be handled here. 
-            float scanRadius = radius + (radius < 0.01f ? 10000 : 0);
-            int maxResults = sensorShip.System?.ShipList.Count.LowerBound(128) ?? 128;
-            GameplayObject[] scannedShips = UniverseScreen.Spatial.FindNearby(
-                        GameObjectType.Ship, sensorShip, scanRadius, maxResults);
-
-            for (int i = 0; i < scannedShips.Length; ++i)
+            var findFriends = new SearchOptions(sensorShip.Center, radius, GameObjectType.Ship)
             {
-                // Do not process dead and dying ships
-                var nearbyShip = (Ship)scannedShips[i];
-                if (!nearbyShip.Active || nearbyShip.dying)
+                MaxResults = 32,
+                Exclude = sensorShip,
+                OnlyLoyalty = sensorShip.loyalty,
+            };
+
+            GameplayObject[] friends = UniverseScreen.Spatial.FindNearby(ref findFriends);
+            
+            for (int i = 0; i < friends.Length; ++i)
+            {
+                var friend = (Ship)friends[i];
+                if (friend.Active && !friend.dying && !friend.IsHangarShip)
+                    ScannedFriendlies.Add(friend);
+            }
+
+            FriendliesNearby = ScannedFriendlies.ToArray();
+            ScannedFriendlies.Clear();
+        }
+
+        public void ScanForEnemies(Ship sensorShip, float radius)
+        {
+            Empire us = sensorShip.loyalty;
+            var findEnemies = new SearchOptions(sensorShip.Center, radius, GameObjectType.Ship)
+            {
+                MaxResults = 64,
+                Exclude = sensorShip,
+                ExcludeLoyalty = us,
+            };
+
+            GameplayObject[] enemies = UniverseScreen.Spatial.FindNearby(ref findEnemies);
+
+            for (int i = 0; i < enemies.Length; ++i)
+            {
+                var enemy = (Ship)enemies[i];
+                if (!enemy.Active || enemy.dying)
                     continue;
 
                 // update two-way visibility,
-                // nearbyShip is known by our Empire - this information is used by our Empire later
-                // the nearbyShip itself does not care about it
-                nearbyShip.KnownByEmpires.SetSeen(sensorShip.loyalty);
+                // enemy is known by our Empire - this information is used by our Empire later
+                // the enemy itself does not care about it
+                enemy.KnownByEmpires.SetSeen(us);
                 // and our ship has seen nearbyShip
-                sensorShip.HasSeenEmpires.SetSeen(nearbyShip.loyalty);
-                
-                // this should be expanded to include allied ships. 
-                Empire empire = nearbyShip.loyalty;
-                if (empire == Owner.loyalty && !nearbyShip.IsHangarShip)
-                {
-                    ScannedFriendlies.Add(nearbyShip);
-                }
-                else  if (Owner.loyalty.IsEmpireAttackable(nearbyShip.loyalty, nearbyShip))
+                sensorShip.HasSeenEmpires.SetSeen(enemy.loyalty);
+
+                if (Owner.loyalty.IsEmpireAttackable(us, enemy))
                 {
                     BadGuysNear = true;
-                    ScannedTargets.Add(nearbyShip);
+                    ScannedTargets.Add(enemy);
                 }
             }
 
             PotentialTargets = ScannedTargets.ToArray();
-            FriendliesNearby = ScannedFriendlies.ToArray();
             ScannedTargets.Clear();
-            ScannedFriendlies.Clear();
         }
 
         void UpdateTrackedProjectiles(Ship sensorShip)
@@ -253,13 +269,8 @@ namespace Ship_Game.AI
             }
         }
 
-        public Ship ScanForCombatTargets(Ship sensorShip, float radius)
+        Ship SelectCombatTarget(float radius)
         {
-            Owner.KnownByEmpires.SetSeen(Owner.loyalty);
-            BadGuysNear = false;
-            UpdateTrackedProjectiles(sensorShip);
-            UpdateTrackedShips(sensorShip, radius);
-
             if (HasPriorityTarget && Target == null)
             {
                 HasPriorityTarget = false;
@@ -358,8 +369,8 @@ namespace Ship_Game.AI
             return value / distance;
         }
 
-        /// <summary>Runs an immediate sensor scan</summary>
-        public Ship SensorScan()
+        /// <summary>Runs an immediate sensor scan, returns Scan radius for later usage</summary>
+        public float SensorScan()
         {
             ++Empire.Universe.Objects.Scans;
             
@@ -369,12 +380,23 @@ namespace Ship_Game.AI
             ScanForThreatTimer = 1.0f;
 
             float radius = GetSensorRadius(out Ship sensorShip);
-            return ScanForCombatTargets(sensorShip, radius);
+
+            Owner.KnownByEmpires.SetSeen(Owner.loyalty);
+            BadGuysNear = false;
+            UpdateTrackedProjectiles(sensorShip);
+            
+            ScanForFriendlies(sensorShip, radius);
+
+            ScanForEnemies(sensorShip, radius);
+
+            return radius;
         }
 
         public void SensorScanAndAutoCombat()
         {
-            Ship scannedTarget = SensorScan();
+            float radius = SensorScan();
+
+            Ship scannedTarget = SelectCombatTarget(radius);
 
             // SSP only scans for Contacts, no more work needed
             if (!Owner.IsSubspaceProjector)
@@ -429,7 +451,7 @@ namespace Ship_Game.AI
         {
             if (Owner.IsHangarShip)
             {
-                // get the motherships sensor status. 
+                // get the motherships sensor status.
                 float motherRange = Owner.Mothership.AI.GetSensorRadius(out sensorShip);
 
                 // in radius of the motherships sensors then use that.

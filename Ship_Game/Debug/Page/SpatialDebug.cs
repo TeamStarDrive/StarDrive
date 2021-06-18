@@ -68,13 +68,13 @@ namespace Ship_Game.Debug.Page
             var changeLoyaltyBtn = list.Add(new UIButton(ButtonStyle.DanButtonBlue, $"Change Loyalty"));
             changeLoyaltyBtn.OnClick = (UIButton b) =>
             {
-                if (Empire.Universe.SelectedShip != null)
+                if (Screen.SelectedShip != null)
                 {
-                    Empire.Universe.SelectedShip.LoyaltyChangeByGift(Loyalty);
+                    Screen.SelectedShip.LoyaltyChangeByGift(Loyalty);
                 }
-                else if (Empire.Universe.SelectedShipList.NotEmpty)
+                else if (Screen.SelectedShipList.NotEmpty)
                 {
-                    foreach (Ship ship in Empire.Universe.SelectedShipList)
+                    foreach (Ship ship in Screen.SelectedShipList)
                         ship.LoyaltyChangeByGift(Loyalty);
                 }
             };
@@ -85,13 +85,28 @@ namespace Ship_Game.Debug.Page
             if (!Visible)
                 return;
 
+            Spatial.DebugVisualize(Screen);
+
             SetTextCursor(50f, 100f, Color.White);
             DrawString($"Type: {Spatial.Name}");
             DrawString($"Collisions: {Spatial.Collisions}");
             DrawString($"ActiveObjects: {Spatial.Count}");
             DrawString($"FindNearby W={(int)SearchArea.Width} H={(int)SearchArea.Height}");
             DrawString($"FindNearby {Found.Length}  {FindElapsed*1000,4:0.000}ms");
-            Spatial.DebugVisualize(Screen);
+
+            Ship ship = Screen.SelectedShip;
+            if (ship != null)
+            {
+                SetTextCursor(Width - 150f, 250f, Color.White);
+
+                float radius = ship.AI.GetSensorRadius();
+                ship.AI.ScanForFriendlies(ship, radius);
+                ship.AI.ScanForEnemies(ship, radius);
+
+                DrawString($"ScanRadius: {radius}");
+                DrawString($"Friends: {ship.AI.FriendliesNearby.Length}");
+                DrawString($"Enemies: {ship.AI.PotentialTargets.Length}");
+            }
 
             base.Draw(batch, elapsed);
         }
