@@ -192,7 +192,7 @@ namespace Ship_Game
                     for (int j = 0; j < SelectedFleet.Ships.Count; j++)
                     {
                         Ship ship = SelectedFleet.Ships[j];
-                        if (ship.inSensorRange)
+                        if (ship.InSensorRange)
                             SelectedShipList.AddUnique(ship);
                     }
                     if (SelectedShipList.Count == 1)
@@ -637,7 +637,7 @@ namespace Ship_Game
             {
                 if (!clickableShip.HitTest(input.CursorPosition))
                     continue;
-                if (clickableShip.shipToClick?.inSensorRange != true || pickedSomethingThisFrame)
+                if (clickableShip.shipToClick?.InSensorRange != true || pickedSomethingThisFrame)
                     continue;
 
                 pickedSomethingThisFrame = true;
