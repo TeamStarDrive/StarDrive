@@ -32,49 +32,88 @@ namespace Ship_Game.AI
             MaxRisk     = MathExt.Max3(Expansion, Border, KnownThreat);
         }
 
+        /// <summary>
+        /// figure the expansion risk created by target empire.
+        /// for factions we are just going to look at raw blocked colony goals.
+        /// for others we are going to compare expansion scores. 
+        /// </summary>
         private float ExpansionRiskAssessment(Empire us)
         {
-            float expansion = us.GetExpansionRatio(); 
             if (!Relation.Known  || Them == null || Them.data.Defeated)
-                return expansion;
+                return 0;
+            if (Relation.Treaty_OpenBorders) return 0;
 
-            var numberofTheirPlanets = Them.NumPlanets;
+            float expansion = us.GetExpansionRatio() / 4;
+
+            float risk = 0;
             if (Them.isFaction)
-                numberofTheirPlanets = us.GetEmpireAI().ThreatMatrix.GetAllSystemsWithFactions().Sum(s => s.PlanetList.Count);
-
-            if (us.NumPlanets > 0 && Them.NumPlanets > 0)
             {
-                var planetRatio = Them.NumPlanets / (float)us.NumPlanets;
-
-                expansion *= planetRatio;
-                if (planetRatio > us.DifficultyModifiers.ExpansionMultiplier)
-                    expansion /= us.DifficultyModifiers.ExpansionMultiplier;
+                if (Relation.AtWar)
+                {
+                    int colonizationGoals = us.GetEmpireAI().ExpansionAI.GetColonizationGoals().Count;
+                    int blockedGoals = us.GetEmpireAI().ExpansionAI.GetNumOfBlockedColonyGoals();
+                    if (colonizationGoals > 0)
+                    {
+                        float blockRatio = blockedGoals / (float)colonizationGoals;
+                        risk = (blockRatio - 0.5f).LowerBound(0);
+                    }
+                }
+            }
+            else
+            {
+                float expansionRatio = Them.ExpansionScore / us.ExpansionScore;
+                risk = (expansion - 0.5f).LowerBound(0);
             }
 
-            return expansion;
+            return Math.Max(risk, expansion);
         }
 
+        /// <summary>
+        /// For faction we will return 0 threat from borders.
+        /// For empires we will find the closest system to any of ours.
+        /// use that to determine the border pressure that they are putting on us. 
+        /// </summary>
         private float BorderRiskAssessment(Empire us, float riskLimit = 2)
         {
-            float ourOffensiveRatio = us.GetWarOffensiveRatio().LowerBound(0.1f);
-            float ourTotalSystems = us.NumSystems;
-            if (!Relation.Known || Them.data.Defeated || ourTotalSystems < 1 || Them.GetOwnedSystems().Count == 0 || Them == EmpireManager.Unknown)
-                return ourOffensiveRatio;
+            if (!Relation.Known || Them.data.Defeated || us.NumSystems < 1 || Them.GetOwnedSystems().Count == 0 || Them == EmpireManager.Unknown)
+                return 0;
 
-            int ourBorderSystems = us.GetOurBorderSystemsTo(Them, true).Count;
-            float space = Empire.Universe.UniverseSize ;
-            float distance = (space - us.WeightedCenter.Distance(Them.WeightedCenter)).LowerBound(1);
-            distance /= space;
+            // if we have an open borders treaty or they are a faction return 0
+            if (Relation.Treaty_OpenBorders) return 0;
+            if (Them.isFaction)
+                return 0;
 
-            float borders = (ourBorderSystems / ourTotalSystems);
+            float ourOffensiveRatio = us.GetWarOffensiveRatio();
+            float distanceToNearest = float.MaxValue;
+            foreach (var system in us.GetOwnedSystems())
+            {
+                foreach(var theirSystem in Them.GetOwnedSystems())
+                {
+                    float distance = system.Position.Distance(theirSystem.Position);
+                    distanceToNearest = Math.Min(distanceToNearest, distance);
+                    if (distanceToNearest == 0) break;
+                }
+                if (distanceToNearest == 0) break;
+            }
 
-            return (borders ) * ourOffensiveRatio;
-; 
+            // size is only the positive half of the universe. so double it.
+            float space = Empire.Universe.UniverseSize * 2;
+            float distanceThreat = (space - distanceToNearest) / space;
+            float risk = (distanceThreat - 0.5f).LowerBound(0);
+
+            risk = Math.Max(risk, ourOffensiveRatio);
+            bool reduceThreat = Relation.Treaty_NAPact;
+
+            risk /= reduceThreat ? 2 : 1;
+
+            return risk;
         }
 
         private float RiskAssessment(Empire us, float riskLimit = 2)
         {
             if (!Relation.Known || Them.data.Defeated || Them == EmpireManager.Unknown)
+                return 0;
+            if (Them.isFaction || Relation.Treaty_Alliance)
                 return 0;
 
             var riskBase = us.GetWarOffensiveRatio();
@@ -82,9 +121,10 @@ namespace Ship_Game.AI
             float ourBuildCap = us.GetEmpireAI().BuildCapacity.LowerBound(1);
             float theirBuildCap = Relation.KnownInformation.AllianceEconomicStrength;
             risk = theirBuildCap / ourBuildCap;
-            risk = risk * riskBase;
+            risk = (risk - 0.5f).LowerBound(0);
+            risk = Math.Max(risk, riskBase);
+            risk /= Relation.Treaty_NAPact ? 2 : 1;
             return risk; 
         }
-
     }
 }
