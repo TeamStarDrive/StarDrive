@@ -1,4 +1,5 @@
 #include "GridL2.h"
+#include "../Search.h"
 
 namespace spatial
 {

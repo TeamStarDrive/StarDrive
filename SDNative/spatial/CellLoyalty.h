@@ -1,5 +1,5 @@
 #pragma once
-#include "Search.h"
+#include <cstdint>
 
 namespace spatial
 {

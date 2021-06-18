@@ -1,9 +1,9 @@
 #include <spatial/ObjectCollection.h>
 #include <rpp/tests.h>
 
-TestImpl(TestObjectCollection)
+TestImpl(ObjectCollection)
 {
-    TestInit(TestObjectCollection) {}
+    TestInit(ObjectCollection) {}
 
     TestCase(insert_and_submit)
     {

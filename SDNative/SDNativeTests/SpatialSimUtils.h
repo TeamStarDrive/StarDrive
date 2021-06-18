@@ -47,6 +47,16 @@ static std::vector<MyGameObject> createObjects(SimParams p)
         o.loyalty = (i % 2) != 0 ? p.loyaltyA : p.loyaltyB;
         o.type = ObjectType_Ship;
         objects.push_back(o);
+
+        if (p.spawnProjectiles)
+        {
+            MyGameObject pro;
+            pro.pos = o.pos + rpp::Vector2{0.0f, p.projectileOffset};
+            pro.radius = p.objectRadius / 3;
+            pro.loyalty = o.loyalty;
+            pro.type = ObjectType_Proj;
+            objects.push_back(pro);
+        }
     }
     return objects;
 }

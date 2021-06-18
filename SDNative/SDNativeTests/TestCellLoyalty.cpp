@@ -1,12 +1,12 @@
 #include <spatial/Search.h>
+#include <spatial/CellLoyalty.h>
 #include <rpp/tests.h>
-#include "spatial/CellLoyalty.h"
 
 using spatial::getLoyaltyMask;
 
-TestImpl(TestCellLoyalty)
+TestImpl(CellLoyalty)
 {
-    TestInit(TestCellLoyalty)
+    TestInit(CellLoyalty)
     {
     }
 
