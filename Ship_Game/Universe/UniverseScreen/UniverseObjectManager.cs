@@ -458,9 +458,14 @@ namespace Ship_Game
             ProjPerf.Stop();
         }
 
+        public int Scans;
+        public int ScansPerSec;
+        int ScansAcc;
+
         void UpdateAllSensors(FixedSimTime timeStep)
         {
             SensorPerf.Start();
+            Scans = 0;
 
             lock (ShipsLocker)
             {
@@ -474,10 +479,17 @@ namespace Ship_Game
                             ship.UpdateSensorsAndInfluence(timeStep);
                     }
                 }
+                //UpdateSensors(0, Ships.Count);
                 Parallel.For(Ships.Count, UpdateSensors, Universe.MaxTaskCores);
             }
 
-            SensorPerf.Stop();
+            ScansAcc += Scans;
+
+            if (SensorPerf.Stop())
+            {
+                ScansPerSec = ScansAcc;
+                ScansAcc = 0;
+            }
         }
 
         void UpdateVisibleObjects()
