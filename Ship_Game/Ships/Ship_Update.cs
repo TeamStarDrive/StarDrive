@@ -29,7 +29,7 @@ namespace Ship_Game.Ships
             ShipSO.Visibility = GlobalStats.ShipVisibility;
         }
 
-        public bool IsVisibleToPlayer => InFrustum && inSensorRange
+        public bool IsVisibleToPlayer => InFrustum && InSensorRange
                                       && (Empire.Universe?.IsSystemViewOrCloser == true);
 
         // NOTE: This is called on the main UI Thread by UniverseScreen
@@ -310,7 +310,7 @@ namespace Ship_Game.Ships
             Rotation  += DieRotation.Z * timeStep.FixedTime;
             Rotation = Rotation.AsNormalizedRadians(); // [0; +2PI]
 
-            if (inSensorRange && Empire.Universe.IsShipViewOrCloser)
+            if (InSensorRange && Empire.Universe.IsShipViewOrCloser)
             {
                 float scale  = PlanetCrash?.Scale ?? 1;
                 ShipSO.World = Matrix.CreateScale(scale) 

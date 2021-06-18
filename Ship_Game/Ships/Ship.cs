@@ -133,7 +133,7 @@ namespace Ship_Game.Ships
         public bool ShouldRecalculatePower;
         public bool Deleted;
         public float BonusEMP_Protection;
-        public bool inSensorRange => KnownByEmpires.KnownByPlayer;
+        public bool InSensorRange => KnownByEmpires.KnownByPlayer;
         public KnownByEmpire KnownByEmpires;
         public KnownByEmpire HasSeenEmpires;
         public bool EMPdisabled;
