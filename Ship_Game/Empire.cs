@@ -3413,8 +3413,8 @@ namespace Ship_Game
             if (targetEmpire == this || targetEmpire == null)
                 return false;
 
-            Relationship rel = GetRelations(targetEmpire);
-            return rel.IsHostile;
+            Relationship rel =GetRelationsOrNull(targetEmpire);
+            return rel?.IsHostile ?? false;
         }
 
         public bool WillInhibit(Empire e) => e != this && !e.WeAreRemnants && IsAtWarWith(e);

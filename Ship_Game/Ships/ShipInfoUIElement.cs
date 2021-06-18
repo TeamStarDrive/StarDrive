@@ -403,7 +403,7 @@ namespace Ship_Game.Ships
 
         void DrawCarrierStatus(Vector2 mousePos)  // Added by Fat Bastard - display hangar status
         {
-            if (Ship.Carrier.AllFighterHangars.Length > 0)
+            if (Ship.Carrier.AllFighterHangars?.Length > 0)
             {
                 CarrierBays.HangarInfo currentHangarStatus = Ship.Carrier.GrossHangarStatus;
                 var hangarRect = new Rectangle(Housing.X + 180, Housing.Y + 210, 26, 20);
