@@ -256,7 +256,7 @@ namespace Ship_Game.Ships
 
         Ship FindClosestAllyToRebase(Ship ship)
         {
-            ship.AI.ScanForCombatTargets(ship, ship.SensorRange); // to find friendlies nearby
+            ship.AI.SensorScan(); // find friendlies nearby
             return ship.AI.FriendliesNearby.FindMinFiltered(
                 troopShip => troopShip.Carrier.NumTroopsInShipAndInSpace < troopShip.TroopCapacity &&
                              troopShip.Carrier.HasActiveTroopBays,
