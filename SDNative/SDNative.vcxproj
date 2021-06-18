@@ -190,6 +190,7 @@
     <ClInclude Include="spatial\ObjectCollection.h" />
     <ClInclude Include="spatial\Primitives.h" />
     <ClInclude Include="spatial\Search.h" />
+    <ClInclude Include="spatial\SearchOptions.h" />
     <ClInclude Include="spatial\SlabAllocator.h" />
     <ClInclude Include="spatial\Spatial.h" />
     <ClInclude Include="spatial\qtree\Qtree.h" />

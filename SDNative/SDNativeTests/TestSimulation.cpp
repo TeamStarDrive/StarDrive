@@ -1,6 +1,6 @@
 #include <rpp/timer.h>
 #include <rpp/tests.h>
-#include "SpatialSim.h"
+#include "Simulation.h"
 
 TestImpl(TestSimulation)
 {

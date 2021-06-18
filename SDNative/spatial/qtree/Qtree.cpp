@@ -1,4 +1,5 @@
 #include "Qtree.h"
+#include "../Search.h"
 #include <algorithm>
 #include <unordered_set>
 
@@ -42,7 +43,7 @@ namespace spatial
 
         Levels = 0;
         int currentSize = FullSize;
-        while (currentSize > SmallestCell*2)
+        while (currentSize >= SmallestCell)
         {
             currentSize /= 2;
             ++Levels;

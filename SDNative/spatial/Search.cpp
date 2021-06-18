@@ -54,6 +54,7 @@ namespace spatial
             for (int i = 0; i < size; ++i)
             {
                 const SpatialObject& o = *nodeObjects[i];
+                uint8_t loyaltyMatch = (o.loyaltyMask & loyaltyMask);
                 if ((o.loyaltyMask & loyaltyMask) &&
                     (o.type & typeMask) && 
                     ((o.objectId+1) & objectMask))
@@ -63,7 +64,8 @@ namespace spatial
 
                     if (useSearchRadius)
                     {
-                        if (!o.rect.overlaps(radialFilter))
+                        //if (!o.rect.overlaps(radialFilter)) // RECT and Circle overlap check
+                        if (!overlapsRadius(o.rect, radialFilter)) // Convert rect to circle and do Circle/Circle overlap
                             continue;
                     }
 
@@ -83,26 +85,27 @@ namespace spatial
                 }
             }
         }
+
     finalize:
 
         // and now sort all results by distance
-        if (sortByDistance)
-        {
-            int x = searchRect.centerX();
-            int y = searchRect.centerY();
-            std::sort(outResults, outResults+numResults, [x,y,objects](int idA, int idB) -> bool
-            {
-                const SpatialObject& a = objects[idA];
-                const SpatialObject& b = objects[idB];
-                float adx = x - a.rect.centerX();
-                float ady = y - a.rect.centerY();
-                float sqDist1 = adx*adx + ady*ady;
-                float bdx = x - b.rect.centerX();
-                float bdy = y - b.rect.centerY();
-                float sqDist2 = bdx*bdx + bdy*bdy;
-                return sqDist1 < sqDist2;
-            });
-        }
+        //if (sortByDistance)
+        //{
+        //    int x = searchRect.centerX();
+        //    int y = searchRect.centerY();
+        //    std::sort(outResults, outResults+numResults, [x,y,objects](int idA, int idB) -> bool
+        //    {
+        //        const SpatialObject& a = objects[idA];
+        //        const SpatialObject& b = objects[idB];
+        //        float adx = x - a.rect.centerX();
+        //        float ady = y - a.rect.centerY();
+        //        float sqDist1 = adx*adx + ady*ady;
+        //        float bdx = x - b.rect.centerX();
+        //        float bdy = y - b.rect.centerY();
+        //        float sqDist2 = bdx*bdx + bdy*bdy;
+        //        return sqDist1 < sqDist2;
+        //    });
+        //}
         return numResults;
     }
 }
