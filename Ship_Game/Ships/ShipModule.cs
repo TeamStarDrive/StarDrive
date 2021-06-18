@@ -766,7 +766,7 @@ namespace Ship_Game.Ships
                         BeamMassDamage(beam, hittingShields: true);
                     }
 
-                    if (Parent.InFrustum && Empire.Universe?.IsShipViewOrCloser == true)
+                    if (Parent.InSensorRange && Parent.InFrustum && Empire.Universe?.IsShipViewOrCloser == true)
                         Shield.HitShield(this, proj);
                 }
 
@@ -784,7 +784,9 @@ namespace Ship_Game.Ships
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {modifiedDamage}  hp  {Health} by {proj?.WeaponType}");
             }
 
-            if (Parent.InFrustum && Empire.Universe?.IsShipViewOrCloser == true)
+            if (Parent.InFrustum 
+                && Parent.InSensorRange
+                && Empire.Universe?.IsShipViewOrCloser == true)
             {
                 if      (beam != null)            beam.CreateHitParticles(Center3D.Z);
                 else if (proj?.Explodes == false) proj.CreateHitParticles(modifiedDamage, Center3D);

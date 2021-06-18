@@ -768,50 +768,32 @@ namespace Ship_Game
 
         void DrawTacticalPlanetIcons(SpriteBatch batch)
         {
-            if (LookingAtPlanet || viewState <= UnivScreenState.SystemView
-                ||viewState >= UnivScreenState.GalaxyView)
+            if (LookingAtPlanet || viewState <= UnivScreenState.SystemView || viewState >= UnivScreenState.GalaxyView)
                 return;
 
-            foreach (SolarSystem solarSystem in SolarSystemList)
+            for (int i = 0; i < SolarSystemList.Count; i++)
             {
-                bool wellKnown = false;
-
-                foreach (Empire e in solarSystem.OwnerList)
-                {
-                    EmpireManager.Player.GetRelations(e, out Relationship ssRel);
-                    wellKnown = Debug || e.isPlayer || ssRel.Treaty_Alliance;
-                    if (wellKnown) break;
-
-                }
-                if (!solarSystem.IsExploredBy(player))
+                SolarSystem system = SolarSystemList[i];
+                if (!system.IsExploredBy(player) || !system.IsVisible)
                     continue;
 
-                foreach (Planet planet in solarSystem.PlanetList)
+                foreach (Planet planet in system.PlanetList)
                 {
-                    if (!wellKnown && planet.Owner != null)
-                    {
-                        Empire e = planet.Owner;
-                        if (EmpireManager.Player.IsKnown(e))
-                            wellKnown = true;
-                    }
-
                     float fIconScale = 0.1875f * (0.7f + ((float) (Math.Log(planet.Scale)) / 2.75f));
+                    Vector3 vector3  = Viewport.Project(new Vector3(planet.Center, 2500f), Projection, View, Matrix.Identity);
+                    var position     = new Vector2(vector3.X, vector3.Y);
+                    var flagPos      = new Vector2(vector3.X, vector3.Y-15);
 
-                    Vector3 vector3 = Viewport.Project(new Vector3(planet.Center, 2500f), Projection, View, Matrix.Identity);
-                    var position = new Vector2(vector3.X, vector3.Y);
                     SubTexture planetTex = planet.PlanetTexture;
-
-                    if (planet.Owner != null && wellKnown)
+                    if (planet.Owner != null && player.IsKnown(planet.Owner))
                     {
-                        batch.Draw(planetTex, position, Color.White,
-                                   0.0f, planetTex.CenterF, fIconScale, SpriteEffects.None, 1f);
+                        batch.Draw(planetTex, position, Color.White, 0.0f, planetTex.CenterF, fIconScale, SpriteEffects.None, 1f);
                         SubTexture flag = ResourceManager.Flag(planet.Owner);
-                        batch.Draw(flag, position, planet.Owner.EmpireColor, 0.0f, flag.CenterF, 0.045f, SpriteEffects.None, 1f);
+                        batch.Draw(flag, flagPos, planet.Owner.EmpireColor, 0.0f, flag.CenterF, 0.2f, SpriteEffects.None, 1f);
                     }
                     else
                     {
-                        batch.Draw(planetTex, position, Color.White,
-                                   0.0f, planetTex.CenterF, fIconScale, SpriteEffects.None, 1f);
+                        batch.Draw(planetTex, position, Color.White, 0.0f, planetTex.CenterF, fIconScale, SpriteEffects.None, 1f);
                     }
                 }
             }
@@ -1043,7 +1025,7 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; ++i)
             {
                 Ship ship = ships[i];
-                if (ship.inSensorRange)
+                if (ship.InSensorRange)
                 {
                     if (!IsCinematicModeEnabled)
                         DrawTacticalIcon(ship);
@@ -1297,29 +1279,18 @@ namespace Ship_Game
             for (int k = 0; k < SolarSystemList.Count; k++)
             {
                 SolarSystem solarSystem = SolarSystemList[k];
-                if (!solarSystem.isVisible)
+                if (!solarSystem.IsExploredBy(player) || !solarSystem.IsVisible)
                     continue;
-
-                bool wellKnown = false;
-
-                foreach (Empire e in solarSystem.OwnerList)
-                {
-                    wellKnown = Debug || EmpireManager.Player == e || EmpireManager.Player.IsAlliedWith(e);
-                    if (wellKnown) break;
-                }
 
                 for (int j = 0; j < solarSystem.PlanetList.Count; j++)
                 {
                     Planet planet = solarSystem.PlanetList[j];
-                    if (!planet.IsExploredBy(player) && !wellKnown)
-                        continue;
-
                     Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Center, 2500f);
                     Vector2 posOffSet = screenPosPlanet;
                     posOffSet.X += 20f;
                     posOffSet.Y += 37f;
                     int drawLocationOffset = 0;
-                    Color textColor = wellKnown ? planet.Owner?.EmpireColor ?? Color.White : Color.White;
+                    Color textColor = planet.Owner?.EmpireColor ?? Color.Gray;
 
                     DrawPointerWithText(screenPosPlanet, planetNamePointer, Color.Green, planet.Name, textColor);
 

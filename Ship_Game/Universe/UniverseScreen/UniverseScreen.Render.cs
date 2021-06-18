@@ -532,7 +532,7 @@ namespace Ship_Game
                 for (int i = 0; i < player.KnownShips.Count; ++i)
                 {
                     Ship ship = player.KnownShips[i];
-                    if (ship != null && ship.InFrustum && ship.inSensorRange)
+                    if (ship != null && ship.InFrustum && ship.InSensorRange)
                     {
                         ship.RenderThrusters(ref View, ref Projection);
                     }

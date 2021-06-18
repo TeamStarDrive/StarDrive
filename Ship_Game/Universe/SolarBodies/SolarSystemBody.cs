@@ -319,7 +319,7 @@ namespace Ship_Game
         protected void UpdatePosition(FixedSimTime timeStep)
         {
             PosUpdateTimer -= timeStep.FixedTime;
-            if (!Empire.Universe.Paused && (PosUpdateTimer <= 0.0f || ParentSystem.isVisible))
+            if (!Empire.Universe.Paused && (PosUpdateTimer <= 0.0f || ParentSystem.IsVisible))
             {
                 PosUpdateTimer = 5f;
                 OrbitalAngle += (float) Math.Asin(15.0 / OrbitalRadius);
@@ -328,7 +328,7 @@ namespace Ship_Game
                 Center = ParentSystem.Position.PointFromAngle(OrbitalAngle, OrbitalRadius);
             }
 
-            if (ParentSystem.isVisible)
+            if (ParentSystem.IsVisible)
             {
                 Zrotate += ZrotateAmount * timeStep.FixedTime;
                 SO.World = Matrix.CreateScale(3f)
