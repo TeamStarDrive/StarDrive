@@ -358,23 +358,31 @@ namespace Ship_Game.AI
             return value / distance;
         }
 
-        // Runs an immediate sensor scan
-        public void SensorScan()
+        /// <summary>Runs an immediate sensor scan</summary>
+        public Ship SensorScan()
         {
+            ++Empire.Universe.Objects.Scans;
+            
             // How often each ship scans for nearby threats
             // This is quite expensive if we have thousands of ships
-            ScanForThreatTimer = 0.5f;
+            // so the higher it is, the smoother late game is
+            ScanForThreatTimer = 1.0f;
 
             float radius = GetSensorRadius(out Ship sensorShip);
-            if (Owner.IsSubspaceProjector)
-            {
-                // TODO: Why does SSP scan for nearby ships?
-                ScanForCombatTargets(sensorShip, radius);
-                return;
-            }
+            return ScanForCombatTargets(sensorShip, radius);
+        }
 
-            Ship scannedTarget = ScanForCombatTargets(sensorShip, radius);
+        public void SensorScanAndAutoCombat()
+        {
+            Ship scannedTarget = SensorScan();
 
+            // SSP only scans for Contacts, no more work needed
+            if (!Owner.IsSubspaceProjector)
+                AutoEnterCombat(scannedTarget);
+        }
+
+        void AutoEnterCombat(Ship scannedTarget)
+        {
             if (Owner.fleet == null && scannedTarget == null && Owner.IsHangarShip)
             {
                 scannedTarget = Owner.Mothership.AI.Target;

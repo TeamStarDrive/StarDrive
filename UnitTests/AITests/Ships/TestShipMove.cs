@@ -44,7 +44,7 @@ namespace UnitTests.AITests.Ships
 
         void DoManualSensorScan(Ship s, FixedSimTime time)
         {
-            s.AI.SensorScan();
+            s.AI.SensorScanAndAutoCombat();
             s.AI.Update(time);
         }
 
@@ -101,8 +101,8 @@ namespace UnitTests.AITests.Ships
             WaitForEngineChangeTo(Ship.MoveState.Sublight, ship, () =>
             {
                 Universe.Objects.Update(TestSimStep); // update ships           
-                ship.AI.SensorScan();
-                enemy.AI.SensorScan();
+                ship.AI.SensorScanAndAutoCombat();
+                enemy.AI.SensorScanAndAutoCombat();
                 sawEnemyShip |= ship.AI.BadGuysNear;
             });
 
