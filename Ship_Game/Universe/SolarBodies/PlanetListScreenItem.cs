@@ -397,9 +397,9 @@ namespace Ship_Game
 
         void OnColonizeClicked(UIButton b)
         {
+            GameAudio.EchoAffirmative();
             if (!MarkedForColonization)
             {
-                GameAudio.EchoAffirmative();
                 Player.GetEmpireAI().Goals.Add(
                     new MarkForColonization(Planet, Empire.Universe.player));
 
@@ -409,22 +409,10 @@ namespace Ship_Game
                 return;
             }
 
-            // @todo this is so hacky
-            foreach (Goal g in Empire.Universe.player.GetEmpireAI().Goals)
-            {
-                if (g.ColonizationTarget == null || g.ColonizationTarget != Planet)
-                {
-                    continue;
-                }
-                GameAudio.EchoAffirmative();
-                g.FinishedShip?.AI.OrderOrbitNearest(true);
-                Empire.Universe.player.GetEmpireAI().Goals.QueuePendingRemoval(g);
-                MarkedForColonization = false;
-                Colonize.Text = "Colonize";
-                Colonize.Style = ButtonStyle.BigDip;
-                break;
-            }
-            Empire.Universe.player.GetEmpireAI().Goals.ApplyPendingRemovals();
+            Empire.Universe.player.GetEmpireAI().CancelColonization(Planet);
+            MarkedForColonization = false;
+            Colonize.Text  = "Colonize";
+            Colonize.Style = ButtonStyle.BigDip;
         }
 
         struct DistanceDisplay

@@ -182,7 +182,7 @@ namespace Ship_Game
             // Events will not be targeted if there is a space battle near the planet, since its
             // useless to potentially recover damaged ships right into battle.
             if (CombatBuildingOnTile && planetOwner != null && planetOwner != us
-                || EventOnTile && !spaceCombat)
+                || EventOnTile && !spaceCombat && !us.isFaction) // factions wont explore events
             {
                 return true;
             }

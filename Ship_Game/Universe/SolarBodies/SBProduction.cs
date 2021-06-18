@@ -326,7 +326,7 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue.Add(qi);
         }
 
-        public void Enqueue(Ship ship, Goal goal = null, bool notifyOnEmpty = true)
+        public void Enqueue(Ship ship, Goal goal = null, bool notifyOnEmpty = true, string displayName = "")
         {
             var qi = new QueueItem(P)
             {
@@ -339,7 +339,13 @@ namespace Ship_Game.Universe.SolarBodies
                 QueueNumber   = ConstructionQueue.Count,
                 Rush          = P.Owner.RushAllConstruction
             };
-            if (goal != null) goal.PlanetBuildingAt = P;
+
+            if (displayName.NotEmpty())
+                qi.DisplayName = displayName;
+
+            if (goal != null) 
+                goal.PlanetBuildingAt = P;
+
             ConstructionQueue.Add(qi);
         }
 
