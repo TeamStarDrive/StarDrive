@@ -1395,7 +1395,7 @@ namespace Ship_Game.Ships
 
         void ExplodeShip(float size, bool addWarpExplode)
         {
-            if (!InFrustum) 
+            if (!InFrustum || !IsVisibleToPlayer) 
                 return;
 
             var position = new Vector3(Center.X, Center.Y, -100f);
@@ -1444,7 +1444,9 @@ namespace Ship_Game.Ships
                     amount = ResourceManager.ShipRoles[shipData.Role].DamageRelations;
                 loyalty.DamageRelationship(pSource.Owner.loyalty, "Destroyed Ship", amount, null);
             }
-            if (!cleanupOnly && InFrustum)
+
+            bool visible = IsVisibleToPlayer;
+            if (!cleanupOnly && visible)
             {
                 string dieSoundEffect;
                 if (SurfaceArea < 80)       dieSoundEffect = "sd_explosion_ship_det_small";
@@ -1477,7 +1479,7 @@ namespace Ship_Game.Ships
                 if (!HasExploded)
                 {
                     HasExploded = true;
-                    if (PlanetCrash != null)
+                    if (PlanetCrash != null || !visible)
                         return;
 
                     // Added by RedFox - spawn flaming spacejunk when a ship dies

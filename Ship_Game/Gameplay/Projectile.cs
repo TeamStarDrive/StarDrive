@@ -264,7 +264,7 @@ namespace Ship_Game.Gameplay
                 SetSystem(Planet.ParentSystem);
             }
 
-            if (playSound && Owner != null && Owner.InSensorRange && Owner.InFrustum)
+            if (playSound && Owner != null && Owner.IsVisibleToPlayer)
             {
                 Weapon.PlayToggleAndFireSfx(Emitter);
                 string cueName = ResourceManager.GetWeaponTemplate(Weapon.UID).dieCue;
@@ -392,7 +392,7 @@ namespace Ship_Game.Gameplay
             {
                 if (Animation != null)
                 {
-                    screen.ProjectToScreenCoords(Center, -ZStart, 20f*Weapon.ProjectileRadius*Weapon.Scale,
+                    screen.ProjectToScreenCoords(Center, -ZStart, 20f * Weapon.ProjectileRadius * Weapon.Scale,
                                                  out Vector2 pos, out float size);
 
                     Animation.Draw(batch, pos, new Vector2(size), Rotation, 1f);
