@@ -81,7 +81,17 @@ namespace Ship_Game.Spatial
             FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
             if (buffer.Items.Length < maxResults)
                 buffer.Items = new GameplayObject[maxResults];
-            
+
+            DebugFindNearby dfn = null;
+            if (opt.DebugId != 0)
+            {
+                dfn = new DebugFindNearby();
+                dfn.SearchArea = opt.SearchRect;
+                dfn.FilterOrigin = opt.FilterOrigin;
+                dfn.RadialFilter = opt.FilterRadius;
+                FindNearbyDbg[opt.DebugId] = dfn;
+            }
+
             GameplayObject[] objects = Objects;
             do
             {
@@ -99,6 +109,8 @@ namespace Ship_Game.Spatial
                     int count = current.Count;
                     if (count == 0 || (current.LoyaltyMask & loyaltyMask) == 0)
                         continue;
+
+                    dfn?.FindCells.Add(current.AABB);
 
                     SpatialObj*[] items = current.Items;
                     for (int i = 0; i < count; ++i)
@@ -128,6 +140,7 @@ namespace Ship_Game.Spatial
                             GameplayObject go = objects[id];
                             if (opt.FilterFunction == null || opt.FilterFunction(go))
                             {
+                                dfn?.SearchResults.Add(go);
                                 buffer.Items[buffer.Count++] = go;
                                 idBitArray[wordIndex] |= idMask; // set unique result
                                 if (buffer.Count == opt.MaxResults)

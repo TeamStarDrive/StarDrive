@@ -16,6 +16,8 @@ namespace Ship_Game.Debug.Page
         GameObjectType[] Types = (GameObjectType[])typeof(GameObjectType).GetEnumValues();
         GameObjectType FilterByType = GameObjectType.Ship;
         bool FilterByLoyalty = false;
+        double FindElapsed;
+        AABoundingBox2D SearchArea;
 
         GameplayObject[] Found = Empty<GameplayObject>.Array;
 
@@ -83,11 +85,12 @@ namespace Ship_Game.Debug.Page
             if (!Visible)
                 return;
 
-            SetTextCursor(50f, 150f, Color.White);
-            DrawString($"Spatial.Type: {Spatial.Name}");
-            DrawString($"Spatial.Collisions: {Spatial.Collisions}");
-            DrawString($"Spatial.ActiveObjects: {Spatial.Count}");
-            DrawString($"Spatial.SearchResults: {Found.Length}");
+            SetTextCursor(50f, 100f, Color.White);
+            DrawString($"Type: {Spatial.Name}");
+            DrawString($"Collisions: {Spatial.Collisions}");
+            DrawString($"ActiveObjects: {Spatial.Count}");
+            DrawString($"FindNearby W={(int)SearchArea.Width} H={(int)SearchArea.Height}");
+            DrawString($"FindNearby {Found.Length}  {FindElapsed*1000,4:0.000}ms");
             Spatial.DebugVisualize(Screen);
 
             base.Draw(batch, elapsed);
@@ -101,15 +104,20 @@ namespace Ship_Game.Debug.Page
             if (input.LeftMouseHeld(0.05f))
             {
                 AABoundingBox2D screenArea = AABoundingBox2D.FromIrregularPoints(input.StartLeftHold, input.EndLeftHold);
-                var opt = new Spatial.SearchOptions(Screen.UnprojectToWorldRect(screenArea), FilterByType)
+                SearchArea = Screen.UnprojectToWorldRect(screenArea);
+
+                var opt = new Spatial.SearchOptions(SearchArea, FilterByType)
                 {
-                    MaxResults = 1024,
+                    MaxResults = 32,
                     DebugId = 1
                 };
+
                 if (FilterByLoyalty)
                     opt.OnlyLoyalty = Loyalty;
 
+                var timer = new PerfTimer();
                 Found = Spatial.FindNearby(ref opt);
+                FindElapsed = timer.Elapsed;
                 return true;
             }
             return false;

@@ -26,7 +26,7 @@ namespace UnitTests.Universe
 
         protected abstract ISpatial Create(int worldSize);
 
-        protected ISpatial CreateQuadTree(int worldSize, int numShips)
+        protected ISpatial CreateQuadTree(int worldSize, int numShips, float spawnProjectilesWithOffset = 0f)
         {
             ISpatial tree = Create(worldSize);
             if (!AllObjects.IsEmpty)
@@ -34,7 +34,8 @@ namespace UnitTests.Universe
                 Universe.Objects.Clear();
                 AllObjects.Clear();
             }
-            AllObjects = QtreePerfTests.CreateTestSpace(numShips, tree, Player, Enemy, SpawnShip);
+            AllObjects = QtreePerfTests.CreateTestSpace(tree, numShips, spawnProjectilesWithOffset, 
+                                                        Player, Enemy, SpawnShip);
             return tree;
         }
 
@@ -109,55 +110,81 @@ namespace UnitTests.Universe
             foreach (GameplayObject go in found)
             {
                 Assert.AreEqual(expected, go.Type);
-                Assert.IsTrue(go.Position.Distance(pos) <= radius);
+                float distance = go.Position.Distance(pos);
+                Assert.IsTrue(distance <= radius, $"distance:{distance} <= radius:{radius} is false");
             }
+        }
+
+        void CheckShipsLoyalty(GameplayObject[] found, Empire expected = null, Empire notExpected = null)
+        {
+            foreach (GameplayObject foundObj in found)
+                if (foundObj is Ship foundShip)
+                {
+                    if (expected != null)
+                        Assert.AreEqual(expected, foundShip.loyalty);
+                    else if (notExpected != null)
+                        Assert.AreNotEqual(notExpected, foundShip.loyalty);
+                }
+                else
+                    Assert.Fail($"FindNearby result is not a Ship! {foundObj}");
         }
         
         [TestMethod]
         public void FindNearbyTypeFilter()
         {
-            ISpatial tree = CreateQuadTree(100_000, 100);
-            QtreePerfTests.SpawnProjectilesFromEachShip(tree, AllObjects, new Vector2(100));
+            ISpatial tree = CreateQuadTree(100_000, 100, spawnProjectilesWithOffset:100f);
 
             foreach (GameplayObject obj in AllObjects)
             {
-                if (obj is Ship s)
+                if (!(obj is Ship s))
+                    continue;
+                GameplayObject[] projectiles = FindNearby(tree, GameObjectType.Proj, s.Position, 10000);
+                CheckFindNearby(projectiles, GameObjectType.Proj, s.Position, 10000);
+
+                GameplayObject[] ships = FindNearby(tree, GameObjectType.Ship, s.Position, 10000);
+                CheckFindNearby(ships, GameObjectType.Ship, s.Position, 10000);
+            }
+        }
+
+        [TestMethod]
+        public void FindNearbyOnlyLoyaltyFilter()
+        {
+            ISpatial tree = CreateQuadTree(10_000, 100, spawnProjectilesWithOffset:100f);
+
+            foreach (GameplayObject obj in AllObjects)
+            {
+                if (!(obj is Ship s))
+                    continue;
+                var opt = new SearchOptions(s.Position, 10000, GameObjectType.Ship)
                 {
-                    GameplayObject[] found = FindNearby(tree, GameObjectType.Proj, s.Position, 10000);
-                    CheckFindNearby(found, GameObjectType.Proj, s.Position, 10000);
-                }
+                    MaxResults = 32,
+                    OnlyLoyalty = s.loyalty,
+                    Exclude = s,
+                };
+                GameplayObject[] found = tree.FindNearby(ref opt);
+                CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
+                CheckShipsLoyalty(found, expected:s.loyalty);
             }
         }
         
         [TestMethod]
         public void FindNearbyExcludeLoyaltyFilter()
         {
-            ISpatial tree = CreateQuadTree(100_000, 100);
+            ISpatial tree = CreateQuadTree(10_000, 100, spawnProjectilesWithOffset:100f);
 
-            foreach (Ship s in AllObjects)
+            foreach (GameplayObject obj in AllObjects)
             {
+                if (!(obj is Ship s))
+                    continue;
                 var opt = new SearchOptions(s.Position, 10000, GameObjectType.Ship)
                 {
-                    ExcludeLoyalty = s.loyalty
+                    MaxResults = 32,
+                    ExcludeLoyalty = s.loyalty,
+                    Exclude = s,
                 };
                 GameplayObject[] found = tree.FindNearby(ref opt);
                 CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
-            }
-        }
-        
-        [TestMethod]
-        public void FindNearbyOnlyLoyaltyFilter()
-        {
-            ISpatial tree = CreateQuadTree(100_000, 100);
-
-            foreach (Ship s in AllObjects)
-            {
-                var opt = new SearchOptions(s.Position, 10000, GameObjectType.Ship)
-                {
-                    OnlyLoyalty = s.loyalty
-                };
-                GameplayObject[] found = tree.FindNearby(ref opt);
-                CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
+                CheckShipsLoyalty(found, notExpected:s.loyalty);
             }
         }
         
