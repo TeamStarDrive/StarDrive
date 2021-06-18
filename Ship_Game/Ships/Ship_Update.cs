@@ -263,7 +263,7 @@ namespace Ship_Game.Ships
             DestroyThrusters();
 
             dietimer -= timeStep.FixedTime;
-            if (dietimer <= 1.9f && InFrustum && (DeathSfx == null || DeathSfx.IsStopped))
+            if (dietimer <= 1.9f && IsVisibleToPlayer && (DeathSfx == null || DeathSfx.IsStopped))
             {
                 string cueName;
                 if (SurfaceArea < 80) cueName = "sd_explosion_ship_warpdet_small";
@@ -289,7 +289,7 @@ namespace Ship_Game.Ships
             UpdateVelocityAndPosition(timeStep);
             PlanetCrash?.Update(timeStep);
 
-            if (!IsMeteor)
+            if (!IsMeteor && IsVisibleToPlayer)
             {
                 int num1 = UniverseRandom.IntBetween(0, 60);
                 if (num1 >= 57 && InFrustum)
