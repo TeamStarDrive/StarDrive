@@ -398,21 +398,10 @@ namespace Ship_Game
             }
             if (P.Owner == null && MarkedRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
-                bool marked = false;
-                Goal markedGoal = null;
-                foreach (Goal g in EmpireManager.Player.GetEmpireAI().Goals)
+                if (EmpireManager.Player.GetEmpireAI().Goals.Any(g => g.type == GoalType.Colonize && g.ColonizationTarget == P))
                 {
-                    if (g.ColonizationTarget == null || g.ColonizationTarget != P)
-                        continue;
-                    marked = true;
-                    markedGoal = g;
-                }
-                if (marked)
-                {
+                    EmpireManager.Player.GetEmpireAI().CancelColonization(P);
                     GameAudio.EchoAffirmative();
-                    markedGoal.FinishedShip?.AI.ClearOrders();
-                    EmpireManager.Player.GetEmpireAI().Goals.QueuePendingRemoval(markedGoal);
-                    EmpireManager.Player.GetEmpireAI().Goals.ApplyPendingRemovals();
                 }
                 else
                 {
