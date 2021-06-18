@@ -608,7 +608,6 @@ namespace Ship_Game
         public void DrawRectangleProjected(Rectangle rectangle, Color edge)
         {
             Vector2 rectTopLeft  = ProjectToScreenPosition(new Vector2(rectangle.X, rectangle.Y));
-
             Vector2 rectBotRight = ProjectToScreenPosition(new Vector2(rectangle.X - rectangle.Width, rectangle.Y - rectangle.Height));
             var rect = new Rectangle((int)rectTopLeft.X, (int)rectTopLeft.Y, (int)(rectTopLeft.X - rectBotRight.X), (int)(rectTopLeft.Y - rectBotRight.Y));
             DrawRectangle(rect, edge);
@@ -630,6 +629,14 @@ namespace Ship_Game
         }
 
         public void DrawRectProjected(in AABoundingBox2D worldRect, Color color, float thickness = 1f)
+        {
+            Vector2 tl = ProjectToScreenPosition(new Vector2(worldRect.X1, worldRect.Y1));
+            Vector2 br = ProjectToScreenPosition(new Vector2(worldRect.X2, worldRect.Y2));
+            var screenRect = new AABoundingBox2D(tl, br);
+            ScreenManager.SpriteBatch.DrawRectangle(screenRect, color, thickness);
+        }
+
+        public void DrawRectProjected(in AABoundingBox2Di worldRect, Color color, float thickness = 1f)
         {
             Vector2 tl = ProjectToScreenPosition(new Vector2(worldRect.X1, worldRect.Y1));
             Vector2 br = ProjectToScreenPosition(new Vector2(worldRect.X2, worldRect.Y2));
