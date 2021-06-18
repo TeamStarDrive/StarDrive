@@ -119,7 +119,7 @@ namespace Ship_Game
             float territorialism = 1 - (data.DiplomaticPersonality?.Territorialism ?? 100) / 100f;
             float militaryRatio  = Research.Strategy.MilitaryRatio;
             float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
-            return (1 + territorialism + militaryRatio + opportunism) / 4;
+            return (territorialism + militaryRatio + opportunism) / 3;
         }
 
         public float GetExpansionRatio()

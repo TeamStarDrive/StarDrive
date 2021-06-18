@@ -983,8 +983,18 @@ namespace Ship_Game.Debug
                     DrawString(e.data.EconomicPersonality.Name);
                 }
                 DrawString($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.GrossIncome.String()})");
-                DrawString($"Treasury Goal: {e.GetEmpireAI().TreasuryGoal().String()}");
+                float normalizedBudget = e.NormalizedMoney;
+                float treasuryGoal = e.GetEmpireAI().TreasuryGoal(normalizedBudget);
+                if (!e.isPlayer)
+                {
+                    float totalMain = (e.TotalBuildingMaintenance + e.TotalShipMaintenance) * 40;
+                    float maxTreasury = Math.Max(totalMain, treasuryGoal * 0.5f);
+                    treasuryGoal = treasuryGoal.Clamped(totalMain, maxTreasury);
+                }
+                DrawString($"Treasury Goal: {treasuryGoal.String()}");
                 float taxRate = e.data.TaxRate * 100f;
+                float gameState = e.GetEmpireAI().GetRisk(1);
+                DrawString("Risk       :     " + gameState.ToString("#0.00"));
                 DrawString("Tax Rate:     "+taxRate.ToString("#.0")+"%");
                 DrawString($"Ship Maint:  ({(int)e.GetEmpireAI().BuildCapacity}) InUse:{(int)e.TotalShipMaintenance} - Scrap:{(int)e.TotalMaintenanceInScrap}");
                 DrawString($"Ship War Maint:  War:{(int)e.TotalWarShipMaintenance} - Orb:{(int)e.TotalOrbitalMaintenance} - Trp:{(int)e.TotalTroopShipMaintenance}");
