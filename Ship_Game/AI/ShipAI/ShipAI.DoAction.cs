@@ -55,7 +55,7 @@ namespace Ship_Game.AI
 
             return Owner.loyalty.isPlayer 
                    && HasPriorityTarget 
-                   && ship.InSensorRange // FB - this is only for the player, might be a bug
+                   && ship.InSensorRange
                    && !Owner.loyalty.IsAlliedWith(ship.loyalty);
         }
 
