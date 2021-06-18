@@ -1375,7 +1375,7 @@ namespace Ship_Game
 
                     if (ignoreList.Contains(checkedEmpire) 
                         || ship.NotThreatToPlayer()
-                        || !ship.inSensorRange)
+                        || !ship.InSensorRange)
                     {
                         ignoreList.Add(checkedEmpire);
                         continue;
