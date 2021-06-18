@@ -254,7 +254,7 @@ namespace Ship_Game
             Profiled(LoadAsteroids);
             Profiled(LoadProjTexts);
             Profiled(LoadProjectileMeshes);
-            Profiled(() => SunType.LoadSunTypes()); // Hotspot #3 174.8ms  7.91%
+            Profiled("LoadSunTypes", () => SunType.LoadSunTypes()); // Hotspot #3 174.8ms  7.91%
             Profiled("LoadBeamFX", () =>
             {
                 ShieldManager.LoadContent(RootContent);
@@ -1607,7 +1607,7 @@ namespace Ship_Game
             {
                 LoadContent();
                 SunType.LoadSunTypes(enableHotLoading: false);
-                Profiled("LoadFonts", () => Fonts.LoadFonts(RootContent, Localizer.Language));
+                Fonts.LoadFonts(RootContent, Localizer.Language);
                 return;
             }
 

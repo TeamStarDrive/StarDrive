@@ -106,12 +106,12 @@ namespace Ship_Game
 
         protected override void Initialize()
         {
+            Instance = this;
             Window.Title = "StarDrive BlackBox";
             ScreenManager = new ScreenManager(this, Graphics);
             InitializeAudio();
             ApplyGraphics(GraphicsSettings.FromGlobalStats());
 
-            Instance = this;
             base.Initialize();
         }
 
