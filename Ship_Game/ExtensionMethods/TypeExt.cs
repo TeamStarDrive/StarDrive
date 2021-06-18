@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -167,7 +168,8 @@ namespace Ship_Game
 
             void Error(MemberInfo member, string err)
             {
-                string text = $"{member.DeclaringType.GetTypeName()}::{member.Name} {member.ReflectedType.GetTypeName()} {err}";
+                Type type = (member is PropertyInfo p) ? p.PropertyType : ((FieldInfo)member).FieldType;
+                string text = $"{member.DeclaringType.GetTypeName()}::{member.Name} {type.GetTypeName()} {err}";
                 errors.Add(text);
                 Log.Warning(text);
             }
@@ -176,7 +178,7 @@ namespace Ship_Game
             {
                 if (col1.Count != col2.Count)
                 {
-                    Error(member, $"Collection Count {col1.Count} != {col2.Count}");
+                    Error(member, $"Count {col1.Count} != {col2.Count}");
                     return false;
                 }
 
@@ -186,9 +188,14 @@ namespace Ship_Game
                 {
                     en2.MoveNext();
                     object o2 = en2.Current;
-                    if (!CheckEqual(member, o1, o2))
+                    bool equal = CheckEqual(member, o1, o2);
+                    //if (!equal)
+                    //{
+                    //    Debugger.Break();
+                    //}
+                    if (!equal)
                     {
-                        Error(member, $"Collection elements at [{i}] were not equal: {o1} != {o2}");
+                        Error(member, $"elements at [{i}] were not equal: {o1} != {o2}");
                         return false;
                     }
                     ++i;
@@ -200,7 +207,7 @@ namespace Ship_Game
             {
                 if (dict1.Count != dict2.Count)
                 {
-                    Error(member, $"Dictionary Count {dict1.Count} != {dict2.Count}");
+                    Error(member, $"Count {dict1.Count} != {dict2.Count}");
                     return false;
                 }
 
@@ -209,14 +216,14 @@ namespace Ship_Game
                 {
                     if (!dict2.Contains(de.Key))
                     {
-                        Error(member, $"Dictionary key=[{de.Key}] not found in second dictionary");
+                        Error(member, $"key=[{de.Key}] not found in second dictionary");
                         return false;
                     }
                     object o1 = de.Value;
                     object o2 = dict2[de.Key];
                     if (!CheckEqual(member, o1, o2))
                     {
-                        Error(member, $"Dictionary values with key=[{de.Key}] were not equal: {o1} != {o2}");
+                        Error(member, $"values with key=[{de.Key}] were not equal: {o1} != {o2}");
                         return false;
                     }
                 }
@@ -232,7 +239,7 @@ namespace Ship_Game
 
                 if (items1.Count != items2.Count)
                 {
-                    Error(member, $"{en1.GetType().GetTypeName()} Count {items1.Count} != {items2.Count}");
+                    Error(member, $"Count {items1.Count} != {items2.Count}");
                     return false;
                 }
 
@@ -242,7 +249,7 @@ namespace Ship_Game
                     object o2 = items2[i];
                     if (!CheckEqual(member, o1, o2))
                     {
-                        Error(member, $"{en1.GetType().GetTypeName()} elements at [{i}] were not equal: {o1} != {o2}");
+                        Error(member, $"elements at [{i}] were not equal: {o1} != {o2}");
                         return false;
                     }
                 }
@@ -263,9 +270,13 @@ namespace Ship_Game
                 if (val1.Equals(val2))
                     return true;
 
+                // in this case, the Equals() check was sufficient
                 Type subType = val1.GetType();
                 if (subType.IsEnum || subType.IsBuiltIn())
+                {
+                    Error(member, $"first={val1} != second={val2}");
                     return false;
+                }
 
                 if (val1 is IDictionary dict1)
                     return CompareDictionary(member, dict1, (IDictionary)val2);
@@ -289,13 +300,15 @@ namespace Ship_Game
 
                 checkedObjects.Add(pair);
 
-                Log.Info($"Compare type {type.GetTypeName()}");
+                //Log.Info($"Compare type {type.GetTypeName()}");
 
                 var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
                 var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
                 int numErrors = 0;
                 foreach (FieldInfo field in fields)
                 {
+                    if (type.GetCustomAttribute<JsonIgnoreAttribute>() != null)
+                        continue;
                     object val1 = field.GetValue(firstObj);
                     object val2 = field.GetValue(secondObj);
                     if (!CheckEqual(field, val1, val2))
