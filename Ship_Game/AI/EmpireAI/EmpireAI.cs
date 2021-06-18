@@ -263,6 +263,18 @@ namespace Ship_Game.AI
                 Goals.Add(new RearmShipFromPlanet(ship, existingSupplyShip, p, OwnerEmpire));
         }
 
+        public void CancelColonization(Planet p)
+        {
+            Goal goal = Goals.Find(g => g.type == GoalType.Colonize && g.ColonizationTarget == p);
+            if (goal != null)
+            {
+                goal.FinishedShip?.AI.OrderOrbitNearest(true);
+                goal.PlanetBuildingAt?.Construction.Cancel(goal);
+                Goals.QueuePendingRemoval(goal);
+                Goals.ApplyPendingRemovals();
+            }
+        }
+
         public void Update()
         {
             DefStr = DefensiveCoordinator.GetForcePoolStrength();
