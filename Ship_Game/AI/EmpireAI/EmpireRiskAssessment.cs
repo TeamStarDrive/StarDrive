@@ -62,10 +62,10 @@ namespace Ship_Game.AI
             else
             {
                 float expansionRatio = Them.ExpansionScore / us.ExpansionScore;
-                risk = (expansion - 0.5f).LowerBound(0);
+                risk = (expansionRatio - 0.5f).LowerBound(0);
             }
 
-            return Math.Max(risk, expansion);
+            return (risk + expansion) / 2;
         }
 
         /// <summary>
@@ -119,11 +119,13 @@ namespace Ship_Game.AI
             var riskBase = us.GetWarOffensiveRatio();
             float risk = 0;
             float ourBuildCap = us.GetEmpireAI().BuildCapacity.LowerBound(1);
-            float theirBuildCap = Relation.KnownInformation.AllianceEconomicStrength;
+            float theirBuildCap = Them.GetEmpireAI().BuildCapacity.LowerBound(1);
             risk = theirBuildCap / ourBuildCap;
+            risk = (riskBase + risk) / 2;
             risk = (risk - 0.5f).LowerBound(0);
-            risk = Math.Max(risk, riskBase);
-            risk /= Relation.Treaty_NAPact ? 2 : 1;
+            risk = (risk - Relation.Trust * 0.01f).LowerBound(0);
+            risk /= (!Relation.PreparingForWar && Relation.Treaty_NAPact) ? 2 : 1;
+
             return risk; 
         }
     }
