@@ -744,54 +744,44 @@ namespace Ship_Game.Gameplay
 
         void CreateWeaponTypeFx(GameplayObject target)
         {
+            var center       = new Vector3(Center.X, Center.Y, -100f);
+            Vector3 forward  = Rotation.RadiansToDirection3D();
+            Vector3 right    = forward.RightVector2D(z: 1f);
+            Vector3 backward = -forward;
             switch (WeaponEffectType)
             {
                 case "Plasma":
+                    for (int i = 0; i < 20; i++)
                     {
-                        var center = new Vector3(Center.X, Center.Y, -100f);
-                        Vector3 forward = Rotation.RadiansToDirection3D();
-                        Vector3 right = forward.RightVector2D(z: 1f);
-                        Vector3 backward = -forward;
-                        for (int i = 0; i < 20; i++)
-                        {
-                            Vector3 random = UniverseRandom.Vector3D(250f) * right;
-                            Empire.Universe.flameParticles.AddParticleThreadA(center, random);
+                        Vector3 random = UniverseRandom.Vector3D(250f) * right;
+                        Empire.Universe.flameParticles.AddParticleThreadA(center, random);
 
-                            random = UniverseRandom.Vector3D(150f) + backward;
-                            Empire.Universe.flameParticles.AddParticleThreadA(center, random);
-                        }
-
-                        break;
+                        random = UniverseRandom.Vector3D(150f) + backward;
+                        Empire.Universe.flameParticles.AddParticleThreadA(center, random);
                     }
+
+                    break;
                 // currently unused
                 case "MuzzleBlast":
+                    for (int i = 0; i < 20; i++)
                     {
-                        var center = new Vector3(Center.X, Center.Y, -100f);
-                        Vector3 forward = Rotation.RadiansToDirection3D();
-                        Vector3 right = forward.RightVector2D(z: 1f);
-                        Vector3 backward = -forward;
-                        for (int i = 0; i < 20; i++)
-                        {
-                            Vector3 random = UniverseRandom.Vector3D(500f) * right;
-                            Empire.Universe.fireTrailParticles.AddParticleThreadA(center, random);
+                        Vector3 random = UniverseRandom.Vector3D(500f) * right;
+                        Empire.Universe.fireTrailParticles.AddParticleThreadA(center, random);
 
-                            random = backward + new Vector3(UniverseRandom.RandomBetween(-500f, 500f),
-                                         UniverseRandom.RandomBetween(-500f, 500f),
-                                         UniverseRandom.RandomBetween(-150f, 150f));
-                            Empire.Universe.fireTrailParticles.AddParticleThreadA(center, random);
-                        }
-
-                        break;
+                        random = backward + new Vector3(UniverseRandom.RandomBetween(-500f, 500f),
+                                     UniverseRandom.RandomBetween(-500f, 500f),
+                                     UniverseRandom.RandomBetween(-150f, 150f));
+                        Empire.Universe.fireTrailParticles.AddParticleThreadA(center, random);
                     }
+
+                    break;
                 default:
+                    if (WeaponType == "Ballistic Cannon")
                     {
-                        if (WeaponType == "Ballistic Cannon")
-                        {
-                            if (target is ShipModule shipModule && !shipModule.Is(ShipModuleType.Shield))
-                                GameAudio.PlaySfxAsync("sd_impact_bullet_small_01", Emitter);
-                        }
-                        break;
+                        if (target is ShipModule shipModule && !shipModule.Is(ShipModuleType.Shield))
+                            GameAudio.PlaySfxAsync("sd_impact_bullet_small_01", Emitter);
                     }
+                    break;
             }
         }
 
