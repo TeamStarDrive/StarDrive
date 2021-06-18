@@ -3,9 +3,9 @@
 using spatial::Rect;
 using spatial::CircleF;
 
-TestImpl(TestPrimitiveMath)
+TestImpl(PrimitiveMath)
 {
-    TestInit(TestPrimitiveMath)
+    TestInit(PrimitiveMath)
     {
     }
 
