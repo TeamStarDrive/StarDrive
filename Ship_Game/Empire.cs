@@ -1936,7 +1936,7 @@ namespace Ship_Game
             foreach (Ship ship in OwnedShips)
             {
                 float maintenance = ship.GetMaintCost();
-                if (!ship.Active || ship.AI.State >= AIState.Scrap)
+                if (!ship.Active || ship.AI.State == AIState.Scrap)
                 {
                     TotalMaintenanceInScrap += maintenance;
                     continue;
@@ -1981,8 +1981,6 @@ namespace Ship_Game
                 }
                 TotalShipMaintenance += ship.GetMaintCost();
             }
-
-            TotalShipMaintenance *= data.Traits.MaintMultiplier;
         }
 
         public float EstimateNetIncomeAtTaxRate(float rate)
@@ -2008,7 +2006,7 @@ namespace Ship_Game
                     {
                         if (hangar.hangarShipUID.NotEmpty())
                         {
-                            var hangarShip = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
+                            var hangarShip = ResourceManager.GetShipTemplate(hangar.hangarShipUID, throwIfError: false);
                             if (hangarShip?.CanBeAddedToBuildableShips(this) == true)
                                 ShipsWeCanBuild.Add(hangar.hangarShipUID);
                         }

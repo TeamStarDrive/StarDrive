@@ -280,13 +280,14 @@ namespace Ship_Game
             empire.PortraitName        = data.PortraitName;
             empire.EmpireColor         = new Color(128, 128, 128, 255);
 
-            empire.InitializeFromSave();
-            empire.UpdatePopulation();
             data.IsRebelFaction  = true;
             data.Traits.Name     = data.RebelName;
             data.Traits.Singular = data.RebelSing;
             data.Traits.Plural   = data.RebelPlur;
             empire.isFaction     = true;
+
+            empire.InitializeFromSave();
+            empire.UpdatePopulation();
 
             Add(empire);
 

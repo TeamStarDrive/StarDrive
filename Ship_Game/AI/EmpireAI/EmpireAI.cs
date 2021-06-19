@@ -17,8 +17,10 @@ namespace Ship_Game.AI
     {
         private int NumberOfShipGoals  = 6;
         public float BuildCapacity { get; private set; }
+        public float AvailableBuildCapacity => BuildCapacity - OwnerEmpire.TotalWarShipMaintenance - OwnerEmpire.TotalTroopShipMaintenance;
+        public float CivShipBudget => OwnerEmpire.data.FreightBudget;
+        public float AvailableCivShipBudget => OwnerEmpire.data.FreightBudget - OwnerEmpire.TotalCivShipMaintenance;
         public float AllianceBuildCapacity { get; private set; }
-        public float TroopShuttleCapacity { get; private set; }
 
         private readonly Empire OwnerEmpire;
         public readonly OffensiveForcePoolManager OffensiveForcePoolManager;

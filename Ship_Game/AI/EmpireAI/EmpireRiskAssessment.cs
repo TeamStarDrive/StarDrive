@@ -118,9 +118,9 @@ namespace Ship_Game.AI
 
             var riskBase = us.GetWarOffensiveRatio();
             float risk = 0;
-            float ourBuildCap = us.GetEmpireAI().BuildCapacity.LowerBound(1);
-            float theirBuildCap = Them.GetEmpireAI().BuildCapacity.LowerBound(1);
-            risk = theirBuildCap / ourBuildCap;
+            float ourScore = us.MilitaryScore.LowerBound(1);
+            float theirScore = Them.MilitaryScore.LowerBound(1);
+            risk = theirScore / ourScore;
             risk = (riskBase + risk) / 2;
             risk = (risk - 0.5f).LowerBound(0);
             risk = (risk - Relation.Trust * 0.01f).LowerBound(0);
