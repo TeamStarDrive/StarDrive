@@ -55,7 +55,7 @@ namespace Ship_Game.Commands.Goals
             return false;
         }
 
-        protected GoalStep FindPlanetToBuildAt(SpacePortType portType)
+        protected GoalStep TryBuildShip(SpacePortType portType)
         {
             if (!GetShipTemplate(ToBuildUID, out Ship template))
                 return GoalStep.GoalFailed;
@@ -64,6 +64,12 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             planet.Construction.Enqueue(template, this);
+
+            float threatLevel = empire.GetEmpireAI().ThreatLevel.UpperBound(1);
+            int atPeace = (int)(20 - 20 * threatLevel);
+            int atWar   = (int)(5 - 5 * threatLevel);
+
+            planet.Construction.PrioritizeShip(template, atPeace, atWar);
             return GoalStep.GoToNextStep;
         }
     }
