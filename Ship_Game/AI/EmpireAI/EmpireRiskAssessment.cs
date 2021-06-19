@@ -46,7 +46,7 @@ namespace Ship_Game.AI
             float expansion = us.GetExpansionRatio() / 4;
 
             float risk = 0;
-            if (Them.isFaction)
+            if (Them.isFaction || us.isFaction)
             {
                 if (Relation.AtWar)
                 {
@@ -55,14 +55,14 @@ namespace Ship_Game.AI
                     if (colonizationGoals > 0)
                     {
                         float blockRatio = blockedGoals / (float)colonizationGoals;
-                        risk = (blockRatio - 0.5f).LowerBound(0);
+                        risk = (blockRatio).LowerBound(0);
                     }
                 }
             }
             else
             {
                 float expansionRatio = Them.ExpansionScore / us.ExpansionScore;
-                risk = (expansionRatio - 0.5f).LowerBound(0);
+                risk = (expansionRatio).LowerBound(0);
             }
 
             return (risk + expansion) / 2;
@@ -118,8 +118,8 @@ namespace Ship_Game.AI
 
             var riskBase = us.GetWarOffensiveRatio();
             float risk = 0;
-            float ourScore = us.MilitaryScore.LowerBound(1);
-            float theirScore = Them.MilitaryScore.LowerBound(1);
+            float ourScore = us.GetEmpireAI().BuildCapacity;
+            float theirScore = Them.GetEmpireAI().BuildCapacity;
             risk = theirScore / ourScore;
             risk = (riskBase + risk) / 2;
             risk = (risk - 0.5f).LowerBound(0);

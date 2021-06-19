@@ -991,11 +991,11 @@ namespace Ship_Game.Debug
                     float maxTreasury = Math.Max(totalMain, treasuryGoal * 0.5f);
                     treasuryGoal = treasuryGoal.Clamped(totalMain, maxTreasury);
                 }
-                DrawString($"Treasury Goal: {treasuryGoal.String()}");
+                DrawString($"Treasury Goal: {(int)treasuryGoal} {(int)( e.GetEmpireAI().FinancialStability * 100)}%");
                 float taxRate = e.data.TaxRate * 100f;
-                float gameState = e.GetEmpireAI().GetRisk(1);
+                float gameState = e.GetEmpireAI().ThreatLevel;
                 var ships = e.OwnedShips;
-                DrawString("Risk       :     " + gameState.ToString("#0.00"));
+                DrawString("Threat :        " + gameState.ToString("#0.00"));
                 DrawString("Tax Rate:     "+taxRate.ToString("#.0")+"%");
                 DrawString($"Ship War Maint:  ({(int)e.GetEmpireAI().BuildCapacity}) Shp:{(int)e.TotalWarShipMaintenance} " +
                            $"Trp:{(int)e.TotalTroopShipMaintenance}");

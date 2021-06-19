@@ -9,6 +9,19 @@ namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
+        public float ThreatLevel { get; private set; } = 0;
+        public float ProjectedProduction { get; private set; } = 0;
+        public float FinancialStability
+        {
+            get
+            {
+                float normalMoney = OwnerEmpire.NormalizedMoney;
+                float treasury    = ProjectedProduction / 2;
+                return normalMoney / treasury;
+            }
+        }
+        public bool SafeToRush => FinancialStability > 0.75f; 
+
         private float FindTaxRateToReturnAmount(float amount)
         {
             if (amount <= 0) return 0f;
@@ -31,8 +44,13 @@ namespace Ship_Game.AI
         {
             float money                    = OwnerEmpire.Money;
             float normalizedBudget         = OwnerEmpire.NormalizedMoney = money;
-            float treasuryGoal             = TreasuryGoal(normalizedBudget);
-            
+            float treasuryGoal             = ProjectedProduction = TreasuryGoal(normalizedBudget);
+
+            // gamestate attempts to increase the budget if there are wars or lack of some resources.  
+            // its primarily geared at ship building. 
+            float riskLimit = (normalizedBudget * 3 / treasuryGoal).Clamped(0.01f, 2);
+            float gameState = ThreatLevel = GetRisk(riskLimit);
+
             AutoSetTaxes(treasuryGoal, normalizedBudget);
             // the commented numbers are for debugging to compare the current values to the previous ones. 
             // the values below are now weights to adjust the budget areas. 
@@ -65,10 +83,6 @@ namespace Ship_Game.AI
                 SSP                += budgetBalance;
             }
 
-            // gamestate attempts to increase the budget if there are wars or lack of some resources.  
-            // its primarily geared at ship building. 
-            float riskLimit = (normalizedBudget * 6 / treasuryGoal).Clamped(0.01f,2);
-            float gameState                = GetRisk(riskLimit);
             OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(treasuryGoal, defense, gameState);
             OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(treasuryGoal, SSP);
             BuildCapacity                  = DetermineBuildCapacity(treasuryGoal, gameState, build);
