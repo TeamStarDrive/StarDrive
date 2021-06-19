@@ -784,7 +784,7 @@ namespace Ship_Game
                     Vector2 flagIconPos   = planetIconPos - new Vector2(0, 15);
 
                     SubTexture planetTex = planet.PlanetTexture;
-                    if (planet.Owner != null && player.IsKnown(planet.Owner))
+                    if (planet.Owner != null && (player.IsKnown(planet.Owner) || planet.Owner == player))
                     {
                         batch.Draw(planetTex, planetIconPos, Color.White, 0.0f, planetTex.CenterF, fIconScale, SpriteEffects.None, 1f);
                         SubTexture flag = ResourceManager.Flag(planet.Owner);
