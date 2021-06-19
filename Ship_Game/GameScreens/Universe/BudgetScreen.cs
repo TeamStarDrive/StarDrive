@@ -143,7 +143,7 @@ namespace Ship_Game.GameScreens
             trade.AddItem(GameText.TradeTreaties, () => Player.TotalTradeTreatiesIncome()); // "Trade Treaties"
 
             foreach ((Empire e, Relationship r) in Player.TradeRelations)
-                trade.AddItem($"   {e.data.Traits.Plural}", () => r.TradeIncome(), e.EmpireColor);
+                trade.AddItem($"   {e.data.Traits.Plural}", () => r.TradeIncome(Player), e.EmpireColor);
 
             trade.SetTotalFooter(() => Player.TotalAvgTradeIncome); // "Total"
         }
