@@ -619,7 +619,7 @@ namespace Ship_Game
             shouldScrapBioSpheres = false;
 
             if (!Owner.IsBuildingUnlocked(Building.BiospheresId)
-                || PopulationRatio < 0.9f && HabitableBuiltCoverage.Less(1)
+                || PopulationRatio < 0.99f && HabitableBuiltCoverage.Less(1)
                 || BiosphereInTheWorks
                 || IsStarving
                 || HabitablePercentage.AlmostEqual(1)) // all tiles are habitable
@@ -637,7 +637,7 @@ namespace Ship_Game
                 if (numBio > 5)
                     shouldScrapBioSpheres = true;
 
-                if (numBio >= 5)
+                if (numBio >= 1)
                     return false;
             }
 

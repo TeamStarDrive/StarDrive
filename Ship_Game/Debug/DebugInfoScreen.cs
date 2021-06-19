@@ -994,23 +994,28 @@ namespace Ship_Game.Debug
                 DrawString($"Treasury Goal: {treasuryGoal.String()}");
                 float taxRate = e.data.TaxRate * 100f;
                 float gameState = e.GetEmpireAI().GetRisk(1);
+                var ships = e.OwnedShips;
                 DrawString("Risk       :     " + gameState.ToString("#0.00"));
                 DrawString("Tax Rate:     "+taxRate.ToString("#.0")+"%");
-                DrawString($"Ship Maint:  ({(int)e.GetEmpireAI().BuildCapacity}) InUse:{(int)e.TotalShipMaintenance} - Scrap:{(int)e.TotalMaintenanceInScrap}");
-                DrawString($"Ship War Maint:  War:{(int)e.TotalWarShipMaintenance} - Orb:{(int)e.TotalOrbitalMaintenance} - Trp:{(int)e.TotalTroopShipMaintenance}");
-                DrawString($"Ship Civ Maint:  Civ:{(int)e.TotalCivShipMaintenance} - Sup:{(int)e.TotalEmpireSupportMaintenance}");
-
-                var ships = e.OwnedShips;
-                DrawString($"Ship Count:  ({ships.Count}) " +
-                           $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.platform || warship?.DesignRole == ShipData.RoleName.station)}" +
-                           $" {ships.Count(warship => warship?.DesignRole ==  ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
-                           $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.frigate)}" +
-                           $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.cruiser )}" +
-                           $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.battleship)}" +
-                           $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.capital)}" +
-                           $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.carrier)}" +
-                           $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.bomber)}"
+                DrawString($"Ship War Maint:  ({(int)e.GetEmpireAI().BuildCapacity}) Shp:{(int)e.TotalWarShipMaintenance} " +
+                           $"Trp:{(int)e.TotalTroopShipMaintenance}");
+                var warShips = ships.Filter(s => s.DesignRoleType == ShipData.RoleType.Warship);
+                DrawString($"   #:({warShips.Length})" +
+                           $" f{warShips.Count(warship => warship?.DesignRole == ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
+                           $" g{warShips.Count(warship => warship?.DesignRole == ShipData.RoleName.frigate || warship.DesignRole == ShipData.RoleName.prototype)}" +
+                           $" c{warShips.Count(warship => warship?.DesignRole == ShipData.RoleName.cruiser)}" +
+                           $" b{warShips.Count(warship => warship?.DesignRole == ShipData.RoleName.battleship)}" +
+                           $" c{warShips.Count(warship => warship?.DesignRole == ShipData.RoleName.capital)}" +
+                           $" v{warShips.Count(warship => warship?.DesignRole == ShipData.RoleName.carrier)}" +
+                           $" m{warShips.Count(warship => warship?.DesignRole == ShipData.RoleName.bomber)}"
                            );
+                DrawString($"Ship Civ Maint:  " +
+                           $"({(int)e.GetEmpireAI().CivShipBudget}) {(int)e.TotalCivShipMaintenance} " +
+                           $"#:{ships.Count(freighter => freighter?.DesignRoleType == ShipData.RoleType.Civilian)}");
+                DrawString($"Other Ship Maint:  Orb:{(int)e.TotalOrbitalMaintenance} - Sup:{(int)e.TotalEmpireSupportMaintenance}" +
+                           $" #{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.platform || warship?.DesignRole == ShipData.RoleName.station)}");
+                DrawString($"Scrap:  {(int)e.TotalMaintenanceInScrap}");
+
                 DrawString($"Build Maint:   ({(int)e.data.ColonyBudget}) {(int)e.TotalBuildingMaintenance}");
                 DrawString($"Spy Count:     ({(int)e.data.SpyBudget}) {e.data.AgentList.Count}");
                 DrawString("Spy Defenders: "+e.data.AgentList.Count(defenders => defenders.Mission == AgentMission.Defending));

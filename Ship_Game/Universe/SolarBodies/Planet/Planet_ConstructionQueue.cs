@@ -12,7 +12,7 @@ namespace Ship_Game
             if (Owner == null) 
                 return;
 
-            BuildingsCanBuild.Clear();
+            var canBuild = new Array<Building>();
 
             // See if it already has a command building or not.
             bool needCommandBuilding = BuildingList.All(b => !b.IsCapitalOrOutpost);
@@ -46,8 +46,9 @@ namespace Ship_Game
                 if (b.IsTerraformer && TerraformersHere + ConstructionQueue.Count(i => i.isBuilding && i.Building.IsTerraformer) >= TerraformerLimit)
                     continue;
                 // If the building is still a candidate after all that, then add it to the list!
-                BuildingsCanBuild.Add(b);
+                canBuild.Add(b);
             }
+            BuildingsCanBuild = canBuild;
         }
 
         public bool IsBuiltOrQueuedWithinEmpire(Building b)

@@ -223,7 +223,7 @@ namespace Ship_Game
         // economy
         [Serialize(71)] public float SSPBudget     = 0;
         [Serialize(72)] public float SpyBudget     = 0;
-        [Serialize(73)] public float ShipBudget    = 0;
+        [Serialize(73)] public float FreightBudget    = 0;
         [Serialize(74)] public float ColonyBudget  = 0;
         [Serialize(75)] public float DefenseBudget = 0;
 
