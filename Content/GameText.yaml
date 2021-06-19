@@ -332,9 +332,7 @@ Mercantile:
  SPA: "Mercantil"
 MercantileRacesAreNaturalTraders:
  Id: 67
- ENG: "Mercantile races are natural traders, and gain 0.5 Credits for each unit of food or production moved via freighter within the empire"
- RUS: "Меркантильные расы - прирожденные торговцы. Они получают 0,5 кредита за каждую единицу еды или промышленности, перемещаемую в пределах империи на грузовых кораблях."
- SPA: "Las razas mercantiles son comerciantes natos y obtienen 0,5 créditos por cada unidad de comida o producción transportada en carguero dentro de su imperio"
+ ENG: "Mercantile races are natural traders, and gain 0.5 Credits for each unit of food or production moved via freighter within the empire, they also have improved supply chains for trade agreements which can help supply the demand of larger empires having trade agreements with them."
 Wasteful:
  Id: 68
  ENG: "Wasteful"

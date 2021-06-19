@@ -260,7 +260,7 @@ namespace Ship_Game
         {
             float total = 0f;
             foreach ((Empire them, Relationship rel) in ActiveRelations)
-                if (rel.Treaty_Trade) total += rel.TradeIncome();
+                if (rel.Treaty_Trade) total += rel.TradeIncome(this);
             return total;
         }
 
@@ -331,5 +331,7 @@ namespace Ship_Game
         {
             AverageFreighterFTLSpeed = value.LowerBound(20000);
         }
+
+        public float TotalPlanetsTradeValue => OwnedPlanets.Sum(p => p.Level).LowerBound(1);
     }
 }
