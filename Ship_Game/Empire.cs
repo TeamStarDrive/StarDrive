@@ -67,6 +67,9 @@ namespace Ship_Game
             }
         }
 
+        /// <summary>
+        /// Returns an average of empire money over several turns.
+        /// </summary>
         public float NormalizedMoney
         {
             get
@@ -95,7 +98,8 @@ namespace Ship_Game
         //public Array<Ship> ShipsToAdd = new Array<Ship>();
         public Array<SpaceRoad> SpaceRoadsList = new Array<SpaceRoad>();
 
-        float MoneyValue = 1000f;
+        public const float StartingMoney = 1000f;
+        float MoneyValue = StartingMoney;
         public float Money
         {
             get => MoneyValue;
@@ -3402,7 +3406,7 @@ namespace Ship_Game
 
             if (rel.CanAttack && target is null)
                 return true;
-            
+
             return target?.IsAttackable(this, rel) ?? false;
         }
 
@@ -3411,8 +3415,8 @@ namespace Ship_Game
             if (targetEmpire == this || targetEmpire == null)
                 return false;
 
-            Relationship rel =GetRelationsOrNull(targetEmpire);
-            return rel?.IsHostile ?? false;
+            Relationship rel = GetRelationsOrNull(targetEmpire);
+            return rel?.IsHostile == true;
         }
 
         public bool WillInhibit(Empire e) => e != this && !e.WeAreRemnants && IsAtWarWith(e);
