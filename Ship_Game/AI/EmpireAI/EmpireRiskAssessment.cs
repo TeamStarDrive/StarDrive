@@ -62,7 +62,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                float expansionRatio = Them.ExpansionScore / us.ExpansionScore;
+                float expansionRatio = Them.ExpansionScore / us.ExpansionScore.LowerBound(1);
                 risk = (expansionRatio).LowerBound(0);
             }
 
@@ -118,8 +118,10 @@ namespace Ship_Game.AI
 
             var riskBase = us.GetWarOffensiveRatio();
             float risk = 0;
-            float ourScore = us.GetEmpireAI().BuildCapacity;
-            float theirScore = Them.GetEmpireAI().BuildCapacity;
+
+            float ourScore = us.TotalScore;
+            float theirScore = Them.TotalScore;
+            
             risk = theirScore / ourScore;
             risk = (riskBase + risk) / 2;
             risk = (risk - 0.5f).LowerBound(0);

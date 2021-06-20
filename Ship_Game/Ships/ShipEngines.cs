@@ -67,7 +67,7 @@ namespace Ship_Game.Ships
                 if (warpStatus == Status.Critical) return Status.Good;
             }
 
-            if (Owner.fleet.GetSpeedLimitFor(Owner) < 1) return Status.NotApplicable;
+            if (Owner.InCombat || Owner.fleet.GetSpeedLimitFor(Owner) < 1) return Status.NotApplicable;
 
             Vector2 movePosition;
             if (AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal))
