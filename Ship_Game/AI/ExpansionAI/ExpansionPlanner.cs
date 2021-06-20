@@ -100,10 +100,12 @@ namespace Ship_Game.AI.ExpansionAI
                 return;
 
             int ourPlanetsNum = Owner.GetPlanets().Count;
-            if (!Owner.isPlayer && PopulationRatio < ExpansionThreshold
-                && ourPlanetsNum >= Owner.DifficultyModifiers.MinStartingColonies)
+            if (!Owner.isPlayer)
             {
-                return; // We have not reached our pop capacity threshold (for AI only) 
+                if (PopulationRatio < ExpansionThreshold && ourPlanetsNum >= Owner.DifficultyModifiers.MinStartingColonies)
+                {
+                    return; // We have not reached our pop capacity threshold (for AI only) 
+                }
             }
             
             Planet[] currentColonizationGoals = GetColonizationGoalPlanets();
@@ -135,7 +137,23 @@ namespace Ship_Game.AI.ExpansionAI
             Vector2 empireCenter  = Owner.WeightedCenter;
 
             Array<Planet> potentialPlanets = GetPotentialPlanetsLocal(ownedSystems);
-            if (potentialSystems.Length > 0)
+
+            if (!Owner.isPlayer)
+            {
+                var ai = Owner.GetEmpireAI();
+                if (ai.AvailableCivShipBudget / ai.CivShipBudget.LowerBound(1) > 0.1f &&
+                    Owner.TotalBuildingMaintenance / Owner.data.ColonyBudget.LowerBound(1) < 0.9f)
+                {
+
+                    if (potentialSystems.Length > 0)
+                    {
+                        potentialSystems.Sort(s => empireCenter.Distance(s.Position));
+                        potentialSystems = potentialSystems.Take(maxCheckedSystems).ToArray();
+                        potentialPlanets.AddRange(GetPotentialPlanetsNonLocal(potentialSystems));
+                    }
+                }
+            }
+            else if (potentialSystems.Length > 0)
             {
                 potentialSystems.Sort(s => empireCenter.Distance(s.Position));
                 potentialSystems = potentialSystems.Take(maxCheckedSystems).ToArray();

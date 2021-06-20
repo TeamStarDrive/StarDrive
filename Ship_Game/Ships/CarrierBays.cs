@@ -100,14 +100,14 @@ namespace Ship_Game.Ships
                     hangarShip.Mothership = null; // Todo - Setting this to null might be risky
             }
 
-            AllHangars = null;
-            AllTroopBays = null;
-            AllSupplyBays = null;
-            AllFighterHangars = null;
-            AllTransporters = null;
+            AllHangars        = Array.Empty<ShipModule>();
+            AllTroopBays      = Array.Empty<ShipModule>();
+            AllSupplyBays     = Array.Empty<ShipModule>();
+            AllFighterHangars = Array.Empty<ShipModule>();
+            AllTransporters   = Array.Empty<ShipModule>();
             SupplyShuttle?.Dispose();
             SupplyShuttle = null;
-            TroopTactics = null;
+            TroopTactics  = null;
         }
 
         // aggressive dispose looks to cause a crash here. 
@@ -469,7 +469,7 @@ namespace Ship_Game.Ships
                         || rangeToCarrier > Owner.SensorRange)
                     {
                         recallFighters = false;
-                        if (hangarShip.ScuttleTimer <= 0f && hangarShip.Stats.WarpThrust < 1f)
+                        if (hangarShip.DesignRole == ShipData.RoleName.drone || hangarShip.ScuttleTimer <= 0f && hangarShip.Stats.WarpThrust < 1f)
                             hangarShip.ScuttleTimer = 10f; // FB: this will scuttle hanger ships if they cant reach the mothership
                         continue;
                     }
