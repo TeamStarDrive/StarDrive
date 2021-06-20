@@ -54,10 +54,11 @@ namespace Ship_Game.Ships
         // i think we only need public value
         Status GetFormationWarpReadyStatus()
         {
-            if (Owner.fleet == null) return ReadyForWarp;
+            if (Owner.fleet == null || Owner.AI.State != AIState.FormationWarp) 
+                return ReadyForWarp;
 
             if (!Owner.CanTakeFleetMoveOrders())
-                return Status.NotApplicable;
+                return ReadyForWarp;
 
             Status warpStatus = ReadyForWarp;
             if (Owner.engineState == Ship.MoveState.Warp)
@@ -67,12 +68,17 @@ namespace Ship_Game.Ships
                 if (warpStatus == Status.Critical) return Status.Good;
             }
 
-            if (Owner.InCombat || Owner.fleet.GetSpeedLimitFor(Owner) < 1) return Status.NotApplicable;
+            float speedLimit = Owner.fleet.GetSpeedLimitFor(Owner);
+            if (speedLimit < 1 || speedLimit == float.MaxValue)
+                return Status.NotApplicable;
 
             Vector2 movePosition;
             if (AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal))
             {
-                movePosition = goal.MovePosition;
+                if (goal.MovePosition != Vector2.Zero)
+                    movePosition = goal.MovePosition;
+                else
+                    movePosition = Owner.AI.MovePosition;
             }
             else
             {

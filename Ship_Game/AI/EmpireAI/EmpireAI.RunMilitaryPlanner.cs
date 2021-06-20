@@ -343,7 +343,7 @@ namespace Ship_Game.AI
 
         void BuildWarShips(int goalsInConstruction)
         {
-            var buildRatios = new RoleBuildInfo(BuildCapacity, this, OwnerEmpire.data.TaxRate < 0.15f);
+            var buildRatios = new RoleBuildInfo(BuildCapacity, this, ignoreDebt: FinancialStability > 0.6f);
             //
             while (!buildRatios.OverBudget && goalsInConstruction < NumberOfShipGoals)
             {

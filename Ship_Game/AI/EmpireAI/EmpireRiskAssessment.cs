@@ -121,12 +121,17 @@ namespace Ship_Game.AI
 
             float ourScore = us.TotalScore;
             float theirScore = Them.TotalScore;
-            
+            //theirScore *= !Them.isFaction && Relation.PreparingForWar || Relation.AtWar ? 2 : 1;
             risk = theirScore / ourScore;
             risk = (riskBase + risk) / 2;
-            risk = (risk - 0.5f).LowerBound(0);
-            risk = (risk - Relation.Trust * 0.01f).LowerBound(0);
-            risk /= (!Relation.PreparingForWar && Relation.Treaty_NAPact) ? 2 : 1;
+            if (!Them.isFaction && !Relation.PreparingForWar && !Relation.AtWar)
+            {
+                risk = (risk - 0.5f).LowerBound(0);
+                risk = (risk - Relation.Trust * 0.01f).LowerBound(0);
+                risk /= (!Relation.PreparingForWar && Relation.Treaty_NAPact) ? 2 : 1;
+            }
+            else
+                risk += 0.5f;
 
             return risk; 
         }

@@ -134,8 +134,6 @@ namespace Ship_Game.AI
 
         float DetermineBuildCapacity(float money, float risk, float percentOfMoney)
         {
-            float safeTreasury   = ((money - BuildCapacity) / money.LowerBound(1) +0.5f).UpperBound(1);
-            percentOfMoney      *= safeTreasury;
             float buildBudget    = SetBudgetForeArea(percentOfMoney, risk, money);
             float troopMaintenance = OwnerEmpire.TotalTroopShipMaintenance;
             return buildBudget - troopMaintenance;

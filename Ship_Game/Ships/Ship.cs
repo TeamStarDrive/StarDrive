@@ -1851,14 +1851,26 @@ namespace Ship_Game.Ships
         {
             if (!Active) return false;
             empire = empire ?? loyalty;
-            float goodPowerSupply = PowerFlowMax - NetPower.NetWarpPowerDraw;
-            float powerTime = GlobalStats.MinimumWarpRange;
-            if (goodPowerSupply < 0)
-                powerTime = PowerStoreMax / -goodPowerSupply * MaxFTLSpeed;
 
-            bool warpTimeGood = goodPowerSupply >= 0 || powerTime >= GlobalStats.MinimumWarpRange;
-            if (!warpTimeGood || empire == null)
-                Empire.Universe?.DebugWin?.DebugLogText($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {NetPower.NetWarpPowerDraw}/{PowerFlowMax}", DebugModes.Normal);
+            //bool goodWarp = rangeStatus >= Status.Excellent;
+            //float goodPowerSupply = PowerFlowMax - NetPower.NetWarpPowerDraw;
+            //float powerTime = GlobalStats.MinimumWarpRange;
+            //if (goodPowerSupply < 0)
+            //    powerTime = PowerStoreMax / -goodPowerSupply * MaxFTLSpeed;
+
+            //bool warpTimeGood = goodPowerSupply >= 0 || powerTime >= GlobalStats.MinimumWarpRange;
+            //if (!warpTimeGood || empire == null)
+            
+            Status rangeStatus = Status.Critical;
+            if (empire != null)
+            {
+                 rangeStatus= WarpRangeStatus(GlobalStats.MinimumWarpRange);
+            }
+            bool warpTimeGood = rangeStatus >= Status.Excellent;
+            if (!warpTimeGood)
+                Empire.Universe?.DebugWin?.DebugLogText(
+                    $"WARNING ship design {Name} with hull {shipData.Hull} :{rangeStatus} WarpTime. {NetPower.NetWarpPowerDraw}/{PowerFlowMax}",
+                    DebugModes.Normal);
 
             return warpTimeGood;
         }
