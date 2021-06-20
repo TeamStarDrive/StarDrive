@@ -469,7 +469,7 @@ namespace Ship_Game.Ships
                         || rangeToCarrier > Owner.SensorRange)
                     {
                         recallFighters = false;
-                        if (hangarShip.DesignRole == ShipData.RoleName.drone || hangarShip.ScuttleTimer <= 0f && hangarShip.Stats.WarpThrust < 1f)
+                        if (hangarShip.DesignRole == ShipData.RoleName.drone && hangarShip.ScuttleTimer <= 0f && hangarShip.Stats.WarpThrust < 1f)
                             hangarShip.ScuttleTimer = 10f; // FB: this will scuttle hanger ships if they cant reach the mothership
                         continue;
                     }
