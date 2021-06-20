@@ -7,19 +7,41 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI
 {
+    /// <summary>
+    /// Economic process in brief.
+    /// set up treasury goal and tax rate.
+    /// calculate threat to empire.
+    /// set budgets for areas.
+    /// some areas like civilian freighter budget is not restrictive. It is used to allow the empire to track the money spent in that area.
+    /// most budget areas are not hard restricted. There will be some wiggle room or outright relying on stored money. 
+    /// </summary>
     public sealed partial class EmpireAI
     {
+        /// <summary>
+        /// value from 0 10 1+
+        /// This represents the overall threat to the empire. It is calculated from the EmpireRiskAssessment class.
+        /// it currently looks at expansion threat, border threat, and general threat from each each empire. 
+        /// </summary>
         public float ThreatLevel { get; private set; } = 0;
-        public float ProjectedProduction { get; private set; } = 0;
+        /// <summary>
+        /// This is the budgeted amount of money that will be available to empire looking over 20 years.  
+        /// </summary>
+        public float ProjectedMoney { get; private set; } = 0;
+        /// <summary>
+        /// This a ratio of projectedMoney and the normalized money. It should be fairly stable. 
+        /// </summary>
         public float FinancialStability
         {
             get
             {
                 float normalMoney = OwnerEmpire.NormalizedMoney;
-                float treasury    = ProjectedProduction / 2;
+                float treasury    = ProjectedMoney / 2;
                 return normalMoney / treasury;
             }
         }
+        /// <summary>
+        /// This is a quick set check to see if we are financially able to rush production
+        /// </summary>
         public bool SafeToRush => FinancialStability > 0.75f; 
 
         private float FindTaxRateToReturnAmount(float amount)
@@ -44,7 +66,7 @@ namespace Ship_Game.AI
         {
             float money                    = OwnerEmpire.Money;
             float normalizedBudget         = OwnerEmpire.NormalizedMoney = money;
-            float treasuryGoal             = ProjectedProduction = TreasuryGoal(normalizedBudget);
+            float treasuryGoal             = ProjectedMoney = TreasuryGoal(normalizedBudget);
 
             // gamestate attempts to increase the budget if there are wars or lack of some resources.  
             // its primarily geared at ship building. 
@@ -176,7 +198,7 @@ namespace Ship_Game.AI
             float timeSpan = (200 - normalizedMoney / 500).Clamped(100,200) * OwnerEmpire.data.treasuryGoal;
             treasuryGoal *= timeSpan;
 
-            return treasuryGoal.LowerBound(1000);
+            return treasuryGoal.LowerBound(Empire.StartingMoney);
         }
 
         /// <summary>
