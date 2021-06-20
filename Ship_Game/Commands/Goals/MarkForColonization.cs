@@ -163,7 +163,7 @@ namespace Ship_Game.Commands.Goals
                 if (TryGetClaimTask(out MilitaryTask task))
                     task.EndTask();
 
-                PlanetBuildingAt.Construction.Cancel(this);
+                PlanetBuildingAt?.Construction.Cancel(this);
                 return GoalStep.GoalFailed;
             }
 
