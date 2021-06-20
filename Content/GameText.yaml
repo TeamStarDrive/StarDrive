@@ -6455,9 +6455,9 @@ BB_Tech_AceTraining_Desc:
  SPA: "Nuestros pilotos de cazas deben ser lo mejor de lo mejor. Al invertir en una selección rigurosa de los candidatos e intensificar los protocolos de adiestramiento, podemos conseguir que los pilotos sean nuestras mejores armas en la galaxia. "
 BB_Tech_AceTraining_BonusFighterLevels_Bonus:
  Id: 2013
- ENG: "All fighter class vessels receive 2 free experience levels."
- RUS: "Все корабли класса истребителей получают 2 \"бесплатных\" уровня опыта."
- SPA: "Todas las naves de clase caza reciben 2 niveles de experiencia gratis."
+ ENG: "All fighter hulls, and any drone or corvette designated ship, receive 2 free experience levels."
+ RUS: "Все корпуса истребителей и любой корабль, предназначенный для дронов или корветов, получают 2 уровня бесплатного опыта."
+ SPA: "Todos los cascos de caza y cualquier nave designada como dron o corbeta reciben 2 niveles de experiencia gratuitos."
 BB_Tech_XenoIntelligence_Name:
  Id: 2014
  ENG: "Xeno Intelligence"
