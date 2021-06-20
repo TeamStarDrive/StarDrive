@@ -102,7 +102,8 @@ namespace Ship_Game.Ships
             if (ScuttleTimer > -1f || ScuttleTimer < -1f)
             {
                 ScuttleTimer -= timeStep.FixedTime;
-                if (ScuttleTimer <= 0f) Die(null, true);
+                if (ScuttleTimer <= 0f) 
+                    Die(null, true);
             }
 
             ShieldRechargeTimer += timeStep.FixedTime;
