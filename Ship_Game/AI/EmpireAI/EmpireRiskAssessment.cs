@@ -41,12 +41,13 @@ namespace Ship_Game.AI
         {
             if (!Relation.Known  || Them == null || Them.data.Defeated)
                 return 0;
-            if (Relation.Treaty_OpenBorders) return 0;
+            if (Relation.Treaty_OpenBorders)
+                return 0;
 
             float expansion = us.GetExpansionRatio() / 4;
 
             float risk = 0;
-            if (Them.isFaction || us.isFaction)
+            if ((Them.isFaction || us.isFaction) && Relation.AtWar)
             {
                 if (Relation.AtWar)
                 {
@@ -79,8 +80,7 @@ namespace Ship_Game.AI
                 return 0;
 
             // if we have an open borders treaty or they are a faction return 0
-            if (Relation.Treaty_OpenBorders) return 0;
-            if (Them.isFaction)
+            if (Relation.Treaty_OpenBorders || Them.isFaction)
                 return 0;
 
             float ourOffensiveRatio = us.GetWarOffensiveRatio();
