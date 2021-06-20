@@ -247,11 +247,12 @@ namespace Ship_Game.Ships
         {
             Level = shipData.Level;
 
-            if (shipData.Role == ShipData.RoleName.fighter || IsHangarShip 
-                && (DesignRole == ShipData.RoleName.corvette || DesignRole == ShipData.RoleName.drone))
+            if (shipData.Role == ShipData.RoleName.fighter)
                 Level += loyalty.data.BonusFighterLevels;
 
             Level += loyalty.data.BaseShipLevel;
+
+            Level += loyalty.data.RoleLevels[(int)DesignRole - 1];
 
             if (!loyalty.isPlayer)
                 Level += loyalty.DifficultyModifiers.ShipLevel;
@@ -310,8 +311,8 @@ namespace Ship_Game.Ships
             if (ship == null)
                 return null;
 
-            if (ship.DesignRole == ShipData.RoleName.drone || ship.DesignRole == ShipData.RoleName.corvette)
-                ship.Level += owner.data.BonusFighterLevels;
+            //if (ship.DesignRole == ShipData.RoleName.drone || ship.DesignRole == ShipData.RoleName.corvette)
+            //    ship.Level += owner.data.BonusFighterLevels;
 
             ship.Mothership = parent;
             ship.Velocity   = parent.Velocity;
