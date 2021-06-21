@@ -64,12 +64,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             planet.Construction.Enqueue(template, this);
-
-            float threatLevel = empire.GetEmpireAI().ThreatLevel.UpperBound(1);
-            int atPeace = (int)(21 - 20 * threatLevel);
-            int atWar   = (int)(6 - 5 * threatLevel);
-
-            planet.Construction.PrioritizeShip(template, atPeace, atWar);
+            
             return GoalStep.GoToNextStep;
         }
     }

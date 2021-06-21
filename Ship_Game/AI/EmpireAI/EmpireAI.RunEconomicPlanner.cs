@@ -77,10 +77,10 @@ namespace Ship_Game.AI
             // the commented numbers are for debugging to compare the current values to the previous ones. 
             // the values below are now weights to adjust the budget areas. 
             float defense                  = 2;
-            float SSP                      = 2;
+            float SSP                      = 1;
             float build                    = 7;
             float spy                      = 25;
-            float colony                   = 5f;
+            float colony                   = 15f;
             float freight                  = 2f;
             float savings                  = 500;
 
