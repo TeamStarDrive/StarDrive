@@ -963,9 +963,9 @@ namespace Ship_Game
             if (isPlayer)
                 return;
 
-            if (p.TilesList.Any(t => t.EventOnTile))
+            if (p.EventsOnTiles())
                 EmpireAI.SendExplorationFleet(p);
-
+            
             if (CurrentGame.Difficulty <= UniverseData.GameDifficulty.Normal || p.ParentSystem.IsExclusivelyOwnedBy(this))
                 return;
 
