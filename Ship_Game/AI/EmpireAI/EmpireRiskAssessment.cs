@@ -101,11 +101,12 @@ namespace Ship_Game.AI
             // size is only the positive half of the universe. so double it.
             float space = Empire.Universe.UniverseSize * 2;
             float distanceThreat = (space - distanceToNearest) / space;
-            float risk = (distanceThreat - 0.5f).LowerBound(0);
+            float threat = (float)Them.TotalScore / us.TotalScore;
+            float risk = (threat * distanceThreat - 0.5f).LowerBound(0);
 
             risk = Math.Max(risk, ourOffensiveRatio);
             bool reduceThreat = Relation.Treaty_NAPact;
-
+            
             risk /= reduceThreat ? 2 : 1;
 
             return risk;
@@ -123,17 +124,17 @@ namespace Ship_Game.AI
 
             float ourScore = us.TotalScore;
             float theirScore = Them.TotalScore;
-            //theirScore *= !Them.isFaction && Relation.PreparingForWar || Relation.AtWar ? 2 : 1;
+            
             risk = theirScore / ourScore;
             risk = (riskBase + risk) / 2;
-            if (!Them.isFaction && !Relation.PreparingForWar && !Relation.AtWar)
+            if (!Relation.PreparingForWar && !Relation.AtWar)
             {
                 risk = (risk - 0.5f).LowerBound(0);
                 risk = (risk - Relation.Trust * 0.01f).LowerBound(0);
                 risk /= (!Relation.PreparingForWar && Relation.Treaty_NAPact) ? 2 : 1;
             }
             else
-                risk += 0.5f;
+                risk = 10;
 
             return risk; 
         }
