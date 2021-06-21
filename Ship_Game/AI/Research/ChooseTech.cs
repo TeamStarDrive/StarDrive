@@ -351,7 +351,7 @@ namespace Ship_Game.AI.Research
             });
 
             if (techsTypeFiltered.Length == 0 && !wantsShipTech
-                && (GlobalStats.HasMod && GlobalStats.ActiveModInfo.ReadyForLineFocusing))
+                && (GlobalStats.HasMod && GlobalStats.ActiveModInfo.EnableLineFocusing))
             {
                 //this get lookahead is tricky.
                 //Its trying here to see if the current tech with the wrong techType has a future tech with the right one.
