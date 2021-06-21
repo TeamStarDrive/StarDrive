@@ -248,7 +248,7 @@ namespace Ship_Game.AI.Research
                             var techType             = ConvertTechStringTechType(script[i]);
                             TechEntry researchTech   = GetScriptedTech(command1, techType, availableTechs);
                             bool isCheaper           = command1 == "CHEAPEST";
-                            string testResearchTopic = DoesCostCompare(ref previousCost, researchTech, techType, isCheaper);
+                            string testResearchTopic = DoesCostCompare(ref previousCost, researchTech, techType, isCheaper, priority: i);
 
                             if (testResearchTopic.NotEmpty())
                                 researchTopic = testResearchTopic;
@@ -276,21 +276,13 @@ namespace Ship_Game.AI.Research
             return OwnerEmpire.Research.HasTopic;
         }
 
-        string DoesCostCompare(ref int previousCost, TechEntry researchTech, TechnologyType techType, bool isCheaper)
+        string DoesCostCompare(ref int previousCost, TechEntry researchTech, TechnologyType techType, bool isCheaper, int priority)
         {
             string testResearchTopic = researchTech?.UID ?? string.Empty;
             if (testResearchTopic.IsEmpty())
                 return testResearchTopic;
 
-            int currentCost = CostToResearchTechType(researchTech, techType);
-
-            if (researchTech.IsTechnologyType(TechnologyType.Industry)
-                && researchTech.IsTechnologyType(TechnologyType.ShipHull))
-            {
-                // FB - i guess this is for delaying Freighter Hull research, why not just double the
-                // freighters cost in the xml instead of coding this?
-                currentCost *= 2;
-            }
+            int currentCost = (int)(CostToResearchTechType(researchTech, techType) * (0.9f + priority * 0.1f));
 
             if (currentCost > 0)
             {
