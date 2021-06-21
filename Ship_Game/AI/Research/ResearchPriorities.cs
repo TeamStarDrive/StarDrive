@@ -20,7 +20,7 @@ namespace Ship_Game.AI.Research
             OwnerEmpire   = empire;
             
             ResearchDebt  = CalcResearchDebt(empire, out Array<TechEntry> availableTechs);
-            Wars = OwnerEmpire.GetEmpireAI().ThreatLevel;// GetRisk(10);
+            Wars          = OwnerEmpire.GetEmpireAI().ThreatLevel;
             Economics     = CalcEconomics(empire);
 
             CalcFoodAndIndustry(empire, out FoodNeeds, out Industry);
@@ -71,7 +71,7 @@ namespace Ship_Game.AI.Research
             EconomicResearchStrategy strat = empire.Research.Strategy;
             var priority = new Map<string, int>
             {
-                { "SHIPTECH",     Randomizer(Wars, 0.75f)},
+                { "SHIPTECH",     Randomizer(Wars / 2f , 1f)},
                 { "Research",     Randomizer(strat.ResearchRatio,  ResearchDebt)},
                 { "Colonization", Randomizer(strat.ExpansionRatio, FoodNeeds)   },
                 { "Economic",     Randomizer(strat.ExpansionRatio, Economics)   },
