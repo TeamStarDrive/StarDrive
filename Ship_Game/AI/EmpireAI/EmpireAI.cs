@@ -74,6 +74,15 @@ namespace Ship_Game.AI
                 RunDiplomaticPlanner();
                 RunResearchPlanner();
                 RunAgentManager();
+                if (Empire.Universe?.StarDate % 50 == 0)
+                {
+                    Log.Write($"------- ship list -----{Empire.Universe?.StarDate} Ship list for {OwnerEmpire.Name}");
+                    foreach (var logit in OwnerEmpire.ShipsWeCanBuild)
+                    {
+                        var template = ResourceManager.GetShipTemplate(logit, false);
+                        Log.Info($"{template.BaseHull.Role}, {template.DesignRole}, '{logit}'");
+                    }
+                }
             }
 
             RunMilitaryPlanner();
