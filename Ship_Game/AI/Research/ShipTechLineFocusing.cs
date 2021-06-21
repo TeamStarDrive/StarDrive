@@ -333,7 +333,7 @@ namespace Ship_Game.AI.Research
             // If not using a script dont get a best ship.
             // Or if the modder decided they want to use short term researchable tech only
             if (command != "RANDOM"
-                && !(GlobalStats.HasMod && GlobalStats.ActiveModInfo.DisableShipResearchLineFocusing))
+                || (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.ReadyForLineFocusing))
             {
                 return UseResearchableShipTechs(researchableShips, shipTechs, nonShipTechs);
             }
