@@ -65,6 +65,8 @@ namespace Ship_Game.Commands.Goals
 
             planet.Construction.Enqueue(template, this);
 
+            /* FB: never prioritize ships. It keeps piling up on top of everything else needed
+            // like troops, buildings
             float threatLevel = empire.GetEmpireAI().ThreatLevel.UpperBound(1);
             int atPeace = (int)(21 - 20 * threatLevel);
             int atWar   = (int)(6 - 5 * threatLevel);
