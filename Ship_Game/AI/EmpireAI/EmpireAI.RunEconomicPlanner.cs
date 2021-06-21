@@ -78,7 +78,7 @@ namespace Ship_Game.AI
             // the values below are now weights to adjust the budget areas. 
             float defense                  = 2;
             float SSP                      = 2;
-            float build                    = 5;
+            float build                    = 7;
             float spy                      = 25;
             float colony                   = 5f;
             float freight                  = 2f;
