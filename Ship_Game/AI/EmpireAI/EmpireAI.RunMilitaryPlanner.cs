@@ -185,9 +185,9 @@ namespace Ship_Game.AI
             return TaskList.Sum(task => filter(task) ? task.MinimumTaskForceStrength : 0);
         }
 
-        public float GetAvgStrengthNeededByExpansionTasks()
+        public float GetAvgStrengthNeededByExpansionTasks(Empire targetEmpire)
         {
-            var tasks = GetExpansionTasks();
+            var tasks = GetExpansionTasks(targetEmpire);
             if (tasks.Length == 0) return 0;
 
             return tasks.Average(task =>  task.WhichFleet >0 ? task.MinimumTaskForceStrength : 0);
@@ -223,10 +223,17 @@ namespace Ship_Game.AI
             return TaskList.Filter(task => task.Type == MilitaryTask.TaskType.AssaultPirateBase);
         }
 
-        public MilitaryTask[] GetExpansionTasks()
+        public MilitaryTask[] GetExpansionTasks(Empire targetEmpire = null)
         {
-            return TaskList.Filter(task => task.TargetPlanet != null &&
-                (task.Type == MilitaryTask.TaskType.DefendClaim || task.Type == MilitaryTask.TaskType.Exploration));
+            return TaskList.Filter(task =>
+            {
+                if (task.TargetPlanet != null &&
+                    (task.Type == MilitaryTask.TaskType.DefendClaim ||
+                     task.Type == MilitaryTask.TaskType.Exploration) && 
+                     (task.TargetEmpire == targetEmpire || targetEmpire == null)) 
+                    return true;
+                return false;
+            });
         }
 
         public MilitaryTask[] GetPotentialTasksToCompare() 
