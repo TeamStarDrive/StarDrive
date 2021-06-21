@@ -1037,6 +1037,7 @@ namespace Ship_Game.Debug
 
                 DrawString("Gross Food: "+ e.GetGrossFoodPerTurn().String());
                 DrawString("Military Str: "+ (int)e.CurrentMilitaryStrength);
+                DrawString("Offensive Str: " + (int)e.OffensiveStrength);
                 DrawString($"Fleets: Str: {(int)e.AIManagedShips.InitialStrength} Avail: {e.AIManagedShips.InitialReadyFleets}");
                 for (int x = 0; x < e.GetEmpireAI().Goals.Count; x++)
                 {
