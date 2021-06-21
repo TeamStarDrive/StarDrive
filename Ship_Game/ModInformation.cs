@@ -48,7 +48,7 @@ namespace Ship_Game
         public float SpaceportScale = 0.8f;
 
         // added by Fat Bastard
-        public bool UseResearchableShipTechs; // Use short term researchable techs with no best ship
+        public bool ReadyForLineFocusing; // Use short term researchable techs with no best ship
 
 
 
