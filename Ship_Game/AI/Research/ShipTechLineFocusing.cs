@@ -282,9 +282,10 @@ namespace Ship_Game.AI.Research
         {
             return BucketShips(shipsToSort, shortTermBest =>
             {
-                int costNormalizer = shortTermBest.shipData.BaseHull.Role <= ShipData.RoleName.freighter ? 20 : 50;
+                int costNormalizer = (int)OwnerEmpire.Research.MaxResearchPotential /
+                    (int)(shortTermBest.DesignRoleType == ShipData.RoleType.Warship ? 10 : 30);
                 int techCost = OwnerEmpire.TechCost(shortTermBest);
-                techCost /= (int)(OwnerEmpire.Research.MaxResearchPotential + 1) * costNormalizer;
+                techCost /=  costNormalizer + 1; 
                 return techCost;
             });
         }
@@ -293,7 +294,7 @@ namespace Ship_Game.AI.Research
         {
             return BucketShips(shipsToSort, shortTermBest =>
             {
-                int costNormalizer = shortTermBest.shipData.BaseHull.Role <= ShipData.RoleName.freighter ? 2 : 3;
+                int costNormalizer = (int)(shortTermBest.DesignRoleType == ShipData.RoleType.Warship ? 3 : 1);
                 int techCount = shortTermBest.shipData.TechsNeeded.Except(OwnerEmpire.ShipTechs).Count() / costNormalizer;
                 return techCount;
             });
@@ -332,7 +333,7 @@ namespace Ship_Game.AI.Research
             // If not using a script dont get a best ship.
             // Or if the modder decided they want to use short term researchable tech only
             if (command != "RANDOM"
-                || GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseResearchableShipTechs)
+                || (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.ReadyForLineFocusing))
             {
                 return UseResearchableShipTechs(researchableShips, shipTechs, nonShipTechs);
             }

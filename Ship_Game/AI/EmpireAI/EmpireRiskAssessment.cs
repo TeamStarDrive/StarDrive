@@ -47,24 +47,26 @@ namespace Ship_Game.AI
             float expansion = us.GetExpansionRatio() / 4;
 
             float risk = 0;
-            if ((Them.isFaction || us.isFaction) && Relation.AtWar)
+            if (Them.isFaction || us.isFaction)
             {
-                if (Relation.AtWar)
+                if (us.GetEmpireAI().FinancialStability > 0.75f && (Relation.AtWar || Relation.IsHostile))
                 {
-                    int colonizationGoals = us.GetEmpireAI().ExpansionAI.GetColonizationGoals().Count;
-                    int blockedGoals = us.GetEmpireAI().ExpansionAI.GetNumOfBlockedColonyGoals();
-                    if (colonizationGoals > 0)
+                    float strengthNeeded = us.GetEmpireAI().GetAvgStrengthNeededByExpansionTasks(Them);
+
+                    if (strengthNeeded > 0)
                     {
-                        float blockRatio = blockedGoals / (float)colonizationGoals;
-                        risk = (blockRatio).LowerBound(0);
+                        float currentStrength = us.AIManagedShips.EmpireReadyFleets.AccumulatedStrength;
+                        float currentThreat = us.GetEmpireAI().ThreatLevel;
+                        float possibleStrength = currentStrength / currentThreat;
+                        if (possibleStrength > strengthNeeded)
+                            return 10;
                     }
                 }
+                return 0;
             }
-            else
-            {
-                float expansionRatio = Them.ExpansionScore / us.ExpansionScore.LowerBound(1);
-                risk = (expansionRatio).LowerBound(0);
-            }
+
+            float expansionRatio = Them.ExpansionScore / us.ExpansionScore.LowerBound(1);
+            risk = (expansionRatio).LowerBound(0);
 
             return (risk + expansion) / 2;
         }
