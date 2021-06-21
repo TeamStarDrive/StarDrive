@@ -973,36 +973,37 @@ namespace Ship_Game.Ships
         {
             if (IsTroopBay || IsSupplyBay || !Powered)
                 return;
-
-            if (hangarShip != null && hangarShip.Active)
+            var fighter = hangarShip;
+            var carrier = Parent;
+            if (fighter != null && fighter.Active)
             {
-                if (hangarShip.AI.HasPriorityTarget
-                    || hangarShip.AI.IgnoreCombat
-                    || hangarShip.AI.Target != null
-                    || (hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange) && hangarShip.AI.State != AIState.ReturnToHangar))
+                if (fighter.AI.HasPriorityTarget
+                    || fighter.AI.IgnoreCombat
+                    || fighter.AI.Target != null
+                    || (fighter.Center.InRadius(carrier.Center, Parent.SensorRange) && fighter.AI.State != AIState.ReturnToHangar))
                 {
                     return;
                 }
 
-                hangarShip.DoEscort(Parent);
+                fighter.DoEscort(Parent);
                 return;
             }
 
-            if (hangarTimer <= 0f && (hangarShip == null || hangarShip != null && !hangarShip.Active))
+            if (hangarTimer <= 0f && (fighter == null || !fighter.Active))
             {
-                SetHangarShip(Ship.CreateShipFromHangar(this, Parent.loyalty, Parent.Center + LocalCenter, Parent));
-                if (hangarShip == null)
+                SetHangarShip(Ship.CreateShipFromHangar(this, carrier.loyalty, carrier.Center + LocalCenter, carrier));
+                if (fighter == null)
                 {
                     Log.Warning($"Could not create ship from hangar, UID = {hangarShipUID}");
                     return;
                 }
 
-                hangarShip.DoEscort(Parent);
-                hangarShip.Velocity   = Parent.Velocity + UniverseRandom.RandomDirection() * hangarShip.SpeedLimit;
-                hangarShip.Mothership = Parent;
-                HangarShipGuid        = hangarShip.guid;
+                fighter.DoEscort(Parent);
+                fighter.Velocity         = carrier.Velocity + UniverseRandom.RandomDirection() * fighter.SpeedLimit;
+                fighter.Mothership       = carrier;
+                HangarShipGuid        = fighter.guid;
                 hangarTimer           = hangarTimerConstant;
-                Parent.ChangeOrdnance(-hangarShip.ShipOrdLaunchCost);
+                carrier.ChangeOrdnance(-fighter.ShipOrdLaunchCost);
             }
         }
 

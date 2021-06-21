@@ -279,7 +279,7 @@ namespace Ship_Game.AI.Research
         string DoesCostCompare(ref int previousCost, TechEntry researchTech, TechnologyType techType, bool isCheaper)
         {
             string testResearchTopic = researchTech?.UID ?? string.Empty;
-            if (testResearchTopic.IsEmpty()) 
+            if (testResearchTopic.IsEmpty())
                 return testResearchTopic;
 
             int currentCost = CostToResearchTechType(researchTech, techType);
@@ -287,9 +287,9 @@ namespace Ship_Game.AI.Research
             if (researchTech.IsTechnologyType(TechnologyType.Industry)
                 && researchTech.IsTechnologyType(TechnologyType.ShipHull))
             {
-                // FB - i guess this is for delaying Freighter Hull research, why not just double the 
+                // FB - i guess this is for delaying Freighter Hull research, why not just double the
                 // freighters cost in the xml instead of coding this?
-                currentCost *= 2; 
+                currentCost *= 2;
             }
 
             if (currentCost > 0)
@@ -346,27 +346,28 @@ namespace Ship_Game.AI.Research
 
             TechEntry[] techsTypeFiltered = availableTechs.Filter(tech =>
             {
-                if (!wantsShipTech && tech.IsOnlyShipTech()) 
+                if (!wantsShipTech && tech.IsOnlyShipTech())
                     return false;
 
-                if (wantsShipTech && tech.IsOnlyNonShipTech()) 
+                if (wantsShipTech && tech.IsOnlyNonShipTech())
                     return false;
 
-                if (CostToResearchTechType(tech, techType) >0) 
+                if (CostToResearchTechType(tech, techType) >0)
                     return true;
 
                 return false;
             });
 
-            //if (techsTypeFiltered.Length == 0 && !wantsShipTech)
-            //{
-            //    //this get lookahead is tricky.
-            //    //Its trying here to see if the current tech with the wrong techType has a future tech with the right one.
-            //    //otherwise it would be a simple tech matches techType formula.
-            //    techsTypeFiltered = availableTechs.Filter(tech =>
-            //        tech.CostOfNextTechWithType(techType) > 0);
+            if (techsTypeFiltered.Length == 0 && !wantsShipTech
+                && (GlobalStats.HasMod && GlobalStats.ActiveModInfo.ReadyForLineFocusing))
+            {
+                //this get lookahead is tricky.
+                //Its trying here to see if the current tech with the wrong techType has a future tech with the right one.
+                //otherwise it would be a simple tech matches techType formula.
+                techsTypeFiltered = availableTechs.Filter(tech =>
+                    tech.CostOfNextTechWithType(techType) > 0);
 
-            //}
+            }
             LogPossibleTechs(techsTypeFiltered, techType);
             TechEntry researchTech = TechWithWantedCost(command1, techsTypeFiltered, techType);
 

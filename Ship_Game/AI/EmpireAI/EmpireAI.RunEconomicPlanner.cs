@@ -18,7 +18,7 @@ namespace Ship_Game.AI
     public sealed partial class EmpireAI
     {
         /// <summary>
-        /// value from 0 10 1+
+        /// value from 0 to 1+
         /// This represents the overall threat to the empire. It is calculated from the EmpireRiskAssessment class.
         /// it currently looks at expansion threat, border threat, and general threat from each each empire. 
         /// </summary>
@@ -70,7 +70,7 @@ namespace Ship_Game.AI
 
             // gamestate attempts to increase the budget if there are wars or lack of some resources.  
             // its primarily geared at ship building. 
-            float riskLimit = (normalizedBudget * 3 / treasuryGoal).Clamped(0.01f, 2);
+            float riskLimit = (normalizedBudget * 3 / treasuryGoal).Clamped(0.1f, 2);
             float gameState = ThreatLevel = GetRisk(riskLimit);
 
             AutoSetTaxes(treasuryGoal, normalizedBudget);
