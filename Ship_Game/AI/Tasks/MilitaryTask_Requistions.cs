@@ -331,8 +331,7 @@ namespace Ship_Game.AI.Tasks
             if (TargetPlanet.Owner != null 
                 && TargetPlanet.Owner != Owner
                 && TargetPlanet.Owner != EmpireManager.Unknown
-                && !TargetPlanet.Owner.data.IsRebelFaction
-                || !TargetPlanet.EventsOnTiles())
+                && !TargetPlanet.Owner.data.IsRebelFaction || !TargetPlanet.EventsOnTiles())
             {
                 EndTask();
                 return;
