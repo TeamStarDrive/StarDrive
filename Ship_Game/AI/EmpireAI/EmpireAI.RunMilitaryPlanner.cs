@@ -333,19 +333,13 @@ namespace Ship_Game.AI
             TaskList.AddRange(aiSave.MilitaryTaskList);
         }
 
-        public void TrySendExplorationFleetToCrashSite(Planet p)
-        {
-            if (TaskList.Filter(t => t.Type == MilitaryTask.TaskType.Exploration)
-                    .Length < 5 + (int)CurrentGame.Difficulty)
-            {
-                SendExplorationFleet(p);
-            }
-        }
-
         public void SendExplorationFleet(Planet p)
         {
-            var task = MilitaryTask.CreateExploration(p, OwnerEmpire);
-            AddPendingTask(task);
+            if (!TaskList.Any(t => t.Type == MilitaryTask.TaskType.Exploration && t.TargetPlanet == p))
+            {
+                var task = MilitaryTask.CreateExploration(p, OwnerEmpire);
+                AddPendingTask(task);
+            }
         }
 
         void BuildWarShips(int goalsInConstruction)
