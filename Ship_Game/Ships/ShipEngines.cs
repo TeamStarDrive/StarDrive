@@ -73,12 +73,9 @@ namespace Ship_Game.Ships
                 return Status.NotApplicable;
 
             Vector2 movePosition;
-            if (AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal))
+            if (AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal) && goal.MovePosition != Vector2.Zero)
             {
-                if (goal.MovePosition != Vector2.Zero)
-                    movePosition = goal.MovePosition;
-                else
-                    movePosition = Owner.AI.MovePosition;
+                movePosition = goal.MovePosition;
             }
             else
             {
@@ -92,7 +89,6 @@ namespace Ship_Game.Ships
                 if (facingFleetDirection > 0.02)
                     warpStatus = Status.Poor;
             }
-            
             return warpStatus;
         }
 
