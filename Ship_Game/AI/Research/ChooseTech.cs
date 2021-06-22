@@ -235,7 +235,7 @@ namespace Ship_Game.AI.Research
             string researchTopic = "";
 
             availableTechs = LineFocus.LineFocusShipTechs(modifier, availableTechs, command2);
-
+            
             int previousCost = command1 == "CHEAPEST" ? int.MaxValue : int.MinValue;
             switch (command2)
             {
@@ -245,15 +245,22 @@ namespace Ship_Game.AI.Research
                         string[] script = modifier.Split(':');
                         for (int i = 1; i < script.Length; i++)
                         {
-                            var techType             = ConvertTechStringTechType(script[i]);
+                            var techTypeName    = script[i];
+                            var techType             = ConvertTechStringTechType(techTypeName);
                             TechEntry researchTech   = GetScriptedTech(command1, techType, availableTechs);
                             bool isCheaper           = command1 == "CHEAPEST";
                             string testResearchTopic = DoesCostCompare(ref previousCost, researchTech, techType, isCheaper);
 
                             if (testResearchTopic.NotEmpty())
                                 researchTopic = testResearchTopic;
+                            float priority = 0;
+                            // bump priority but consider ship tech categories as more of a unit. 
+                            if (techTypeName.Contains("ship"))
+                                priority = 0.0002f;
+                            else
+                                priority = 0.005f;
 
-                            CostNormalizer += isCheaper ? 0.005f : 0.25f;
+                            CostNormalizer += isCheaper ? priority : 0.25f;
                         }
 
                         break;
@@ -282,15 +289,7 @@ namespace Ship_Game.AI.Research
             if (testResearchTopic.IsEmpty())
                 return testResearchTopic;
 
-            int currentCost = CostToResearchTechType(researchTech, techType);
-
-            if (researchTech.IsTechnologyType(TechnologyType.Industry)
-                && researchTech.IsTechnologyType(TechnologyType.ShipHull))
-            {
-                // FB - i guess this is for delaying Freighter Hull research, why not just double the
-                // freighters cost in the xml instead of coding this?
-                currentCost *= 2;
-            }
+            int currentCost = (int)(CostToResearchTechType(researchTech, techType));
 
             if (currentCost > 0)
             {
@@ -359,7 +358,7 @@ namespace Ship_Game.AI.Research
             });
 
             if (techsTypeFiltered.Length == 0 && !wantsShipTech
-                && (GlobalStats.HasMod && GlobalStats.ActiveModInfo.ReadyForLineFocusing))
+                && (GlobalStats.HasMod && GlobalStats.ActiveModInfo.EnableShipTechLineFocusing))
             {
                 //this get lookahead is tricky.
                 //Its trying here to see if the current tech with the wrong techType has a future tech with the right one.
