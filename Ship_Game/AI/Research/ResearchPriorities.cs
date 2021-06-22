@@ -18,9 +18,9 @@ namespace Ship_Game.AI.Research
         public ResearchPriorities(Empire empire, float buildCapacity) : this()
         {
             OwnerEmpire   = empire;
-            BuildCapacity = buildCapacity;
+            
             ResearchDebt  = CalcResearchDebt(empire, out Array<TechEntry> availableTechs);
-            Wars          = CalcWars(empire, availableTechs);
+            Wars          = OwnerEmpire.GetEmpireAI().ThreatLevel;
             Economics     = CalcEconomics(empire);
 
             CalcFoodAndIndustry(empire, out FoodNeeds, out Industry);
@@ -57,19 +57,7 @@ namespace Ship_Game.AI.Research
 
             return techCategoryPrioritized;
         }
-
-        float CalcEnemyThreats()
-        {
-            float score = 0;
-            foreach (Empire empire in EmpireManager.ActiveMajorEmpires)
-            {
-                if (OwnerEmpire.IsEmpireAttackable(empire))
-                    score += empire.TotalScore;
-            }
-
-            return score * (1 + OwnerEmpire.ActiveWarPreparations + OwnerEmpire.AllActiveWars.Length);
-        }
-
+        
         void AddDebugLog(Map<string, int> priority)
         {
             int maxNameLength = priority.Keys.Max(name => name.Length);
@@ -83,7 +71,7 @@ namespace Ship_Game.AI.Research
             EconomicResearchStrategy strat = empire.Research.Strategy;
             var priority = new Map<string, int>
             {
-                { "SHIPTECH",     Randomizer(strat.MilitaryRatio,  Wars)},
+                { "SHIPTECH",     Randomizer(Wars / 2f , 1f)},
                 { "Research",     Randomizer(strat.ResearchRatio,  ResearchDebt)},
                 { "Colonization", Randomizer(strat.ExpansionRatio, FoodNeeds)   },
                 { "Economic",     Randomizer(strat.ExpansionRatio, Economics)   },
@@ -94,18 +82,6 @@ namespace Ship_Game.AI.Research
 
             return priority;
         }
-
-        float CalcWars(Empire empire, Array<TechEntry> availableTechs)
-        {
-            float enemyThreats   = CalcEnemyThreats();
-            float factionThreats = empire.TotalFactionsStrTryingToClear() / empire.OffensiveStrength.LowerBound(1);
-            float wars           = factionThreats / empire.OffensiveStrength.LowerBound(1) 
-                                   + enemyThreats / OwnerEmpire.TotalScore.LowerBound(1);
-
-            wars += OwnerEmpire.GetEmpireAI().TechChooser.LineFocus.BestShipNeedsHull(availableTechs) ? 0.5f : 0;
-            return wars.Clamped(0, 8);
-        }
-
         void CalcFoodAndIndustry(Empire empire, out float foodNeeds, out float industry)
         {
             foodNeeds = 0;
