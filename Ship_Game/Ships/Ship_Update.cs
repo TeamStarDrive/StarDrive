@@ -198,7 +198,7 @@ namespace Ship_Game.Ships
                     if (p.Center.OutsideRadius(Center, 3000f))
                         continue;
 
-                    if (p.TilesList.Any(t => t.EventOnTile))
+                    if (p.EventsOnTiles())
                     {
                         if (loyalty == EmpireManager.Player)
                         {
