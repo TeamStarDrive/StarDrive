@@ -1145,7 +1145,7 @@ namespace Ship_Game
                 if (ship.IsMeteor)
                     CrashMeteor(ship, crashTile);
                 else
-                    crashTile.CrashSite.CrashShip(ship.loyalty, ship.Name, troopName, numTroopsSurvived, this, crashTile);
+                    crashTile.CrashSite.CrashShip(ship.loyalty, ship.Name, troopName, numTroopsSurvived, this, crashTile, ship.SurfaceArea);
             }
 
             // Local Functions
