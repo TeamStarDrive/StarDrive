@@ -992,18 +992,19 @@ namespace Ship_Game.Ships
             if (hangarTimer <= 0f && (fighter == null || !fighter.Active))
             {
                 SetHangarShip(Ship.CreateShipFromHangar(this, carrier.loyalty, carrier.Center + LocalCenter, carrier));
-                if (fighter == null)
+
+                if (hangarShip == null)
                 {
                     Log.Warning($"Could not create ship from hangar, UID = {hangarShipUID}");
                     return;
                 }
 
-                fighter.DoEscort(Parent);
-                fighter.Velocity         = carrier.Velocity + UniverseRandom.RandomDirection() * fighter.SpeedLimit;
-                fighter.Mothership       = carrier;
-                HangarShipGuid        = fighter.guid;
+                hangarShip.DoEscort(Parent);
+                hangarShip.Velocity         = carrier.Velocity + UniverseRandom.RandomDirection() * hangarShip.SpeedLimit;
+                hangarShip.Mothership       = carrier;
+                HangarShipGuid        = hangarShip.guid;
                 hangarTimer           = hangarTimerConstant;
-                carrier.ChangeOrdnance(-fighter.ShipOrdLaunchCost);
+                carrier.ChangeOrdnance(-hangarShip.ShipOrdLaunchCost);
             }
         }
 
