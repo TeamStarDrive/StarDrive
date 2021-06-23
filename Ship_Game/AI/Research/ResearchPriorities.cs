@@ -44,8 +44,8 @@ namespace Ship_Game.AI.Research
 
                 if (pWeighted.Key == "SHIPTECH")
                 {
-                    techCategoryPrioritized += GetShipTechString(availableTechs);
-                    numStrings += 3;
+                    techCategoryPrioritized += GetShipTechString(availableTechs, out int numShipTechs);
+                    numStrings += numShipTechs;
                 }
                 else if (availableTechs.Any(t => t.IsTechnologyType(ChooseTech.ConvertTechStringTechType(pWeighted.Key))))
                 {
@@ -160,10 +160,18 @@ namespace Ship_Game.AI.Research
             return (needs * p.Level / 2).LowerBound(0);
         }
 
-        string GetShipTechString(Array<TechEntry> availableTech)
+        string GetShipTechString(Array<TechEntry> availableTech, out int numTechs)
         {
-            string shipTechToAdd = "";
+            string shipTechToAdd   = "";
+            numTechs               = 0;
             Array<string> shipTech = new Array<string>();
+
+            if (availableTech.Any(t => t.IsTechnologyType(ChooseTech.ConvertTechStringTechType("ShipHull"))))
+            {
+                shipTechToAdd += ":ShipHull"; // always get the hull first if available for research
+                numTechs = 1;
+            }
+
             if (availableTech.Any(t => t.IsTechnologyType(ChooseTech.ConvertTechStringTechType("ShipWeapons"))))
                 shipTech.Add("ShipWeapons");
 
@@ -173,15 +181,13 @@ namespace Ship_Game.AI.Research
             if (availableTech.Any(t => t.IsTechnologyType(ChooseTech.ConvertTechStringTechType("ShipGeneral"))))
                 shipTech.Add("ShipGeneral");
 
+            numTechs += shipTech.Count;
             while (shipTech.Count > 0)
             {
                 string techToAdd = shipTech.RandItem();
                 shipTechToAdd   += $":{techToAdd}";
                 shipTech.Remove(techToAdd);
             }
-
-            if (availableTech.Any(t => t.IsTechnologyType(ChooseTech.ConvertTechStringTechType("ShipHull"))))
-                shipTechToAdd += ":ShipHull";
 
             return shipTechToAdd;
         }
