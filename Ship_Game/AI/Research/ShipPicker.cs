@@ -31,8 +31,7 @@ namespace Ship_Game.AI.Research
                     {
                         var cost = tech.Tech.ActualCost;
 
-                        if (tech.IsTechnologyType(TechnologyType.Economic) && !s.isColonyShip) cost *= 2f;
-                        if (tech.IsTechnologyType(TechnologyType.ShipHull))                    cost *= 2f;
+                        if (tech.IsTechnologyType(TechnologyType.ShipHull))                    cost *= 1.5f;
                         if (tech.IsTechnologyType(TechnologyType.GroundCombat))                cost *= 0.95f;
 
                         techScore += cost;
@@ -42,9 +41,9 @@ namespace Ship_Game.AI.Research
                 switch (s.DesignRole)
                 {
                     case ShipData.RoleName.platform:
-                    case ShipData.RoleName.station:                                     techScore *= 1.25f;  break;
-                    case ShipData.RoleName.colony:                                      techScore *= 0.95f; break;
-                    case ShipData.RoleName.freighter:                                   techScore *= 1.25f; break;
+                    case ShipData.RoleName.station:                                     techScore *= 2f;    break;
+                    case ShipData.RoleName.colony:                                      techScore *= 2f;    break;
+                    case ShipData.RoleName.freighter:                                   techScore *= 2f;    break;
                     case ShipData.RoleName.troopShip when !empire.canBuildTroopShips:   techScore *= 0.95f; break;
                     case ShipData.RoleName.support   when !empire.canBuildSupportShips: techScore *= 0.95f; break;
                     case ShipData.RoleName.bomber    when !empire.canBuildBombers:      techScore *= 0.95f; break;
