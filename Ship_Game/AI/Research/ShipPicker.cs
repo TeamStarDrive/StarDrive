@@ -9,18 +9,16 @@ namespace Ship_Game.AI.Research
 
         public Ship FindCheapestShipInList(Empire empire, Array<Ship> ships, HashSet<string> nonShipTechs)
         {
-            float averageShipTechCost = float.MaxValue;
+            float avgNonShipTechCost = float.MaxValue;
 
             foreach (string techName in nonShipTechs)
             {
                 var tech = empire.GetTechEntry(techName);
                 float techCost = tech.Tech.ActualCost;
-                if (!tech.Unlocked && tech.Tech.RootNode == 0 && averageShipTechCost > techCost)
-                    averageShipTechCost = techCost;
+                if (!tech.Unlocked && tech.Tech.RootNode == 0 && avgNonShipTechCost > techCost)
+                    avgNonShipTechCost = techCost;
             }
-
-            //averageShipTechCost /= nonShipTechs.Count;
-
+            
             // find cheapest ship to research in current set of ships. 
             // adjust cost of some techs to make ships more or less wanted. 
             var pickedShip = ships.FindMin(s =>
@@ -34,23 +32,18 @@ namespace Ship_Game.AI.Research
                         var cost = tech.Tech.ActualCost;
 
                         if (tech.IsTechnologyType(TechnologyType.Economic) && !s.isColonyShip) cost *= 2f;
-                        else if (tech.IsTechnologyType(TechnologyType.ShipHull)) cost *= 1.5f;
-                        if (tech.IsTechnologyType(TechnologyType.Colonization)) cost *= 0.5f;
-                        if (tech.IsTechnologyType(TechnologyType.GroundCombat)) cost = 0;
+                        else if (tech.IsTechnologyType(TechnologyType.ShipHull))               cost *= 1.5f;
+                        if (tech.IsTechnologyType(TechnologyType.Colonization))                cost *= 0.5f;
+                        if (tech.IsTechnologyType(TechnologyType.GroundCombat))                cost = 0;
 
                         techScore += cost;
                     }
                 }
-                if (s.IsPlatformOrStation)
-                    techScore *= 1.5f;
-                if (s.isColonyShip)
-                    techScore *= 0.9f;
-                if (s.DesignRole == ShipData.RoleName.freighter)
-                    techScore *= 1.25f;
+                
                 switch (s.DesignRole)
                 {
                     case ShipData.RoleName.platform:
-                    case ShipData.RoleName.station:                                     techScore *= 1.5f; break;
+                    case ShipData.RoleName.station:                                     techScore *= 1.5f;  break;
                     case ShipData.RoleName.colony:                                      techScore *= 0.75f; break;
                     case ShipData.RoleName.freighter:                                   techScore *= 1.25f; break;
                     case ShipData.RoleName.troopShip when !empire.canBuildTroopShips:   techScore *= 0.75f; break;
@@ -58,7 +51,7 @@ namespace Ship_Game.AI.Research
                     case ShipData.RoleName.bomber    when !empire.canBuildBombers:      techScore *= 0.75f; break;
                     case ShipData.RoleName.carrier   when !empire.canBuildCarriers:     techScore *= 0.75f; break;
                 }
-                float costRatio = techScore / averageShipTechCost;
+                float costRatio = techScore / avgNonShipTechCost;
                 return techScore * costRatio;
             });
             return pickedShip;
