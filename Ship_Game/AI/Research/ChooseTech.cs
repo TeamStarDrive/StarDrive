@@ -318,12 +318,12 @@ namespace Ship_Game.AI.Research
         {
             if (researchTech.IsTechnologyType(techType))
                 return NormalizeTechCost(researchTech.TechCost);
-            
+
+            if (!researchTech.IsPrimaryShipTech() && LineFocus.BestCombatShip?.shipData.TechsNeeded.Contains(researchTech.UID) == true)
+                return NormalizeTechCost(researchTech.TechCost);
+
             if (!techType.ToString().Contains("Ship"))
                 return NormalizeTechCost(researchTech.CostOfNextTechWithType(techType));
-
-            if (!researchTech.ContainsShipTech() && LineFocus.BestCombatShip.shipData.TechsNeeded.Contains(researchTech.UID))
-                return NormalizeTechCost(researchTech.TechCost);
 
             return 0;
         }
