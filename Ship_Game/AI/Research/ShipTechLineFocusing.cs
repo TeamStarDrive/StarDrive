@@ -9,6 +9,7 @@ namespace Ship_Game.AI.Research
     {
         readonly Empire OwnerEmpire;
         public Ship BestCombatShip { get; private set; }
+        public ShipPicker PickShipToResearch = new ShipPicker();
 
         void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
 
@@ -385,7 +386,10 @@ namespace Ship_Game.AI.Research
                     }
                 }
             }
-
+            //BestCombatShip = PickShipToResearch.FindCheapestShipInList(OwnerEmpire, researchableShips, nonShipTechs);
+            //if (BestCombatShip != null)
+            //    return UseBestShipTechs(shipTechs, nonShipTechs);
+            
             return UseOnlyWantedShipTechs(goodShipTechs, nonShipTechs);
         }
 
