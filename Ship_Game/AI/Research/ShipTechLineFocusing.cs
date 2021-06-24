@@ -386,10 +386,10 @@ namespace Ship_Game.AI.Research
                     }
                 }
             }
-            //BestCombatShip = PickShipToResearch.FindCheapestShipInList(OwnerEmpire, researchableShips, nonShipTechs);
-            //if (BestCombatShip != null)
-            //    return UseBestShipTechs(shipTechs, nonShipTechs);
-            
+            BestCombatShip = PickShipToResearch.FindCheapestShipInList(OwnerEmpire, researchableShips, nonShipTechs);
+            if (BestCombatShip != null)
+                return UseBestShipTechs(shipTechs, nonShipTechs);
+
             return UseOnlyWantedShipTechs(goodShipTechs, nonShipTechs);
         }
 
