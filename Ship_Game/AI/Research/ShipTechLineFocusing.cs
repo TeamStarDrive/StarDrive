@@ -366,11 +366,11 @@ namespace Ship_Game.AI.Research
 
             if (BestCombatShip != null)
             {
-                var bestShipTechs = shipTechs.Intersect(BestCombatShip.shipData.TechsNeeded);
+                var bestShipTechs = shipTechs.Intersect(BestCombatShip.shipData.TechsNeeded).ToArray();
                 if (!bestShipTechs.Any())
                 {
-                    var bestNoneShipTechs = nonShipTechs.Intersect(BestCombatShip.shipData.TechsNeeded);
-                    if (!bestNoneShipTechs.Any())
+                    var bestNoneShipTechs = nonShipTechs.Intersect(BestCombatShip.shipData.TechsNeeded).ToArray();
+                    if (bestNoneShipTechs.Length == 0)
                         BestCombatShip = null;
                     else
                         Log.Warning($"ship tech classified as non ship tech {bestNoneShipTechs.First()} for {BestCombatShip}");
