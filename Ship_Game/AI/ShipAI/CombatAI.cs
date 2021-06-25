@@ -229,6 +229,7 @@ namespace Ship_Game.AI
                         break;
                     case CombatState.OrbitalDefense:
                         break;
+                    case CombatState.GuardMode: // in guard mode use Artillery, to preserve fleet formation
                     case CombatState.AssaultShip:
                     case CombatState.ShortRange:
                         CombatTactic = new CombatTactics.Artillery(Owner.AI);
