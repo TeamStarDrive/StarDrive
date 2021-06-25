@@ -32,7 +32,8 @@ namespace Ship_Game.AI.Research
                     {
                         var cost = tech.Tech.ActualCost;
 
-                        if (tech.IsTechnologyType(TechnologyType.GroundCombat))                cost *= options.GetShipMod(GroundCombat);
+                        if (tech.IsTechnologyType(TechnologyType.GroundCombat))              cost *= options.GetShipMod(GroundCombat);
+                        if (tech.IsTechnologyType(TechnologyType.ShipHull))                  cost *= options.GetShipMod(AllHulls);
 
                         techScore += cost * options.GetUIDMod(techName) * options.GetAnyTypeMod(tech);
                     }
