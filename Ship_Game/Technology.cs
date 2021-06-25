@@ -24,6 +24,7 @@ namespace Ship_Game
         public bool Secret;
         public bool Discovered;
         public bool Unlockable;
+        public float LowPriorityCostMultiplier = 1;
 
         [XmlIgnore] public SortedSet<TechnologyType> TechnologyTypes = new SortedSet<TechnologyType>();
         [XmlIgnore] public int NumStuffUnlocked => ModulesUnlocked.Count + BuildingsUnlocked.Count
