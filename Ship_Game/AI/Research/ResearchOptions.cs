@@ -54,7 +54,7 @@ namespace Ship_Game.AI.Research
             ShipMods[ShipCosts.Support]      = 0.95f;
             ShipMods[ShipCosts.ColonyShip]   = 2f;
             ShipMods[ShipCosts.Freighter]    = 2f;
-            ShipMods[ShipCosts.AllHulls]     = 2;
+            ShipMods[ShipCosts.AllHulls]     = 1;
             ShipMods[ShipCosts.Orbitals]     = 2f;
             ShipMods[ShipCosts.GroundCombat] = 0.95f;
             /// Random= TechCost * randomizer
