@@ -5042,5 +5042,7 @@ namespace Ship_Game
         SaveShipDesign = -23,
         /// <summary>Save Hull Design</summary>
         SaveHullDesign = -24,
+        /// <summary>Guard Mode Tooltip</summary>
+        TT_GuardMode = -25,
     }
 }

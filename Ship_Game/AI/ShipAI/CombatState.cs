@@ -31,6 +31,8 @@ namespace Ship_Game.AI
         OrbitalDefense,
         /// <summary> For a carrier use the min between max weapons range and hangar range. </summary>
         ShortRange,
+        /// <summary> Ship will be in guard stance and avoid aggressively engaging and chasing enemy ships </summary>
+        GuardMode,
         /// <summary> No combat stance. Take no action in combat </summary>
         None
     }

@@ -909,7 +909,11 @@ namespace Ship_Game.Ships
             }
         }
 
+        // if enemy ships get within guard mode range, ships will enter combat
+        public const float GuardModeRange = 5000;
+        public const float HoldPositionRange = 1000; // enter combat at this range
         public const float UnarmedRange = 10000; // also used as evade range
+
         public float WeaponsMaxRange { get; private set; }
         public float WeaponsMinRange { get; private set; }
         public float WeaponsAvgRange { get; private set; }
@@ -929,7 +933,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < Weapons.Count; ++i) // using raw loops for perf
             {
                 Weapon w = Weapons[i];
-                if (w.Module.Active && w.DamageAmount > 0.1f && !w.TruePD)
+                if (w.Module?.Active == true && w.DamageAmount > 0.1f && !w.TruePD)
                     weapons.Add(w);
             }
 
@@ -940,7 +944,7 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < Weapons.Count; ++i) // using raw loops for perf
                 {
                     Weapon w = Weapons[i];
-                    if (w.Module.Active)
+                    if (w.Module?.Active == true)
                         weapons.Add(w);
                 }
             }
@@ -952,14 +956,14 @@ namespace Ship_Game.Ships
         /// </summary>
         /// <param name="weapons">The weapons.</param>
         /// <returns></returns>
-        float[] GetWeaponsRanges(Array<Weapon> weapons)
+        static float[] GetWeaponsRanges(Array<Weapon> weapons)
         {
-            Array<float> ranges = new Array<float>();
+            var ranges = new float[weapons.Count];
 
             for (int i = 0; i < weapons.Count; ++i) // using raw loops for perf
-                ranges.Add(weapons[i].GetActualRange());
+                ranges[i] = weapons[i].GetActualRange();
 
-            return ranges.ToArray();
+            return ranges;
         }
 
 
@@ -1005,14 +1009,14 @@ namespace Ship_Game.Ships
 
         // This is used for previewing range during CombatState change
         // Not performance critical.
-        public float GetDesiredCombatRangeForState(CombatState state)
+        float GetDesiredCombatRangeForState(CombatState state)
         {
             float[] ranges = GetWeaponsRanges(GetActiveWeapons());
             return CalcDesiredDesiredCombatRange(ranges, state);
         }
 
         // NOTE: Make sure to validate TestShipRanges.ShipRanges and TestShipRanges.ShipRangesWithModifiers
-        public float CalcDesiredDesiredCombatRange(float[] ranges, CombatState state)
+        float CalcDesiredDesiredCombatRange(float[] ranges, CombatState state)
         {
             if (ranges.Length == 0)
                 return UnarmedRange;
@@ -1021,6 +1025,7 @@ namespace Ship_Game.Ships
             // and still have chance to hit while moving
             switch (state)
             {
+                case CombatState.GuardMode:    return WeaponsMaxRange * 0.9f;
                 case CombatState.Evade:        return UnarmedRange;
                 case CombatState.HoldPosition: return WeaponsMaxRange;
                 case CombatState.ShortRange:   return WeaponsMinRange * 0.9f;

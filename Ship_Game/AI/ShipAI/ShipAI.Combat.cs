@@ -392,7 +392,7 @@ namespace Ship_Game.AI
             return radius;
         }
 
-        public void SensorScanAndAutoCombat()
+        public void SensorScanAndSelectTarget()
         {
             float radius = SensorScan();
 
@@ -400,49 +400,103 @@ namespace Ship_Game.AI
 
             // SSP only scans for Contacts, no more work needed
             if (!Owner.IsSubspaceProjector)
-                AutoEnterCombat(scannedTarget);
-        }
-
-        void AutoEnterCombat(Ship scannedTarget)
-        {
-            if (Owner.fleet == null && scannedTarget == null && Owner.IsHangarShip)
             {
-                scannedTarget = Owner.Mothership.AI.Target;
-            }
-
-            // automatically choose `Target` if ship does not have Priority
-            // or if current target already died
-            if (!HasPriorityOrder && (!HasPriorityTarget || !IsTargetActive(Target)))
-                Target = scannedTarget;
-
-            if (State != AIState.Resupply && !DoNotEnterCombat)
-            {
-                if (Owner.fleet != null && State == AIState.FormationWarp &&
-                    HasPriorityOrder && !HasPriorityTarget)
+                if (Owner.fleet == null && scannedTarget == null && Owner.IsHangarShip)
                 {
-                    bool finalApproach = Owner.Center.InRadius(Owner.fleet.FinalPosition + Owner.FleetOffset, 15000f);
-                    if (!finalApproach)
-                        return;
+                    scannedTarget = Owner.Mothership.AI.Target;
                 }
 
-                // we have a combat target, but we're not in combat state?
-                if (Target != null && State != AIState.Combat)
+                // automatically choose `Target` if ship does not have Priority
+                // or if current target already died
+                if (!HasPriorityOrder && (!HasPriorityTarget || !IsTargetActive(Target)))
                 {
-                    Owner.InCombatTimer = 15f;
-                    if (!HasPriorityOrder)
-                        EnterCombat();
-                    else if ((Owner.IsPlatform || Owner.shipData.Role == ShipData.RoleName.station)
-                             && OrderQueue.PeekFirst?.Plan != Plan.DoCombat)
-                        EnterCombat();
-                    else if (CombatState != CombatState.HoldPosition && !OrderQueue.NotEmpty)
-                        EnterCombat();
+                    Target = scannedTarget;
                 }
             }
         }
 
-        void EnterCombat()
+        bool ShouldEnterAutoCombat()
         {
-            AddShipGoal(Plan.DoCombat, AIState.Combat, pushToFront: true);
+            if (Target == null || State == AIState.Combat ||
+                IgnoreCombat || HasPriorityOrder || DoNotEnterCombat)
+                return false;
+
+            bool canAttack = Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters;
+            if (!canAttack)
+                return false;
+
+            if (CombatState == CombatState.GuardMode && 
+                !Target.Center.InRadius(Owner.Center, Ship.GuardModeRange))
+                return false;
+
+            if (CombatState == CombatState.HoldPosition &&
+                !Target.Center.InRadius(Owner.Center, Ship.HoldPositionRange))
+                return false;
+
+            return true;
+        }
+
+        void UpdateCombatStateAI(FixedSimTime timeStep)
+        {
+            FireWeapons(timeStep);
+
+            if (BadGuysNear && ShouldEnterAutoCombat())
+            {
+                switch (OrderQueue.PeekFirst?.Plan)
+                {
+                    // if not in combative state, enter auto-combat AFTER current order queue is finished
+                    default:
+                        if (!FindGoal(Plan.DoCombat, out ShipGoal _))
+                        {
+                            Owner.InCombatTimer = 15f;
+                            AddShipGoal(Plan.DoCombat, AIState.Combat, pushToFront: true);
+                        }
+                        break;
+                    case Plan.DoCombat:
+                    case Plan.Bombard:
+                    case Plan.BoardShip:
+                        break;
+                }
+            }
+            else if (!BadGuysNear)
+            {
+                FireOnMainTargetTime = 0;
+                int count = Owner.Weapons.Count;
+                Weapon[] items = Owner.Weapons.GetInternalArrayItems();
+                for (int x = 0; x < count; x++)
+                    items[x].ClearFireTarget();
+
+                if (Owner.Carrier.HasHangars)
+                {
+                    foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
+                    {
+                        if (hangar.TryGetHangarShip(out Ship hangarShip) 
+                            && hangarShip.Active 
+                            && hangarShip.AI.State != AIState.ReturnToHangar)
+                        {
+                            if (Owner.loyalty == Empire.Universe.player
+                                && (hangarShip.AI.HasPriorityTarget || hangarShip.AI.HasPriorityOrder))
+                            {
+                                continue;
+                            }
+
+                            if (Owner.Carrier.FightersLaunched)
+                                hangarShip.DoEscort(Owner);
+                            else
+                                hangarShip.AI.OrderReturnToHangar();
+                        }
+                    }
+                }
+            }
+
+            // fbedard: civilian ships will evade combat (nice target practice)
+            if (Owner.shipData.ShipCategory == ShipData.Category.Civilian && BadGuysNear)
+            {
+                if (Owner.WeaponsMaxRange <= 0 || PotentialTargets.Sum(o => o.GetStrength()) < Owner.GetStrength())
+                {
+                    CombatState = CombatState.Evade;
+                }
+            }
         }
 
         public float GetSensorRadius() => GetSensorRadius(out Ship _);
