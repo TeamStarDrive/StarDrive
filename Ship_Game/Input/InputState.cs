@@ -134,7 +134,7 @@ namespace Ship_Game
         public bool SpawnPlayerTroop => KeyPressed(Keys.Z);
 
         public bool BlowExplodingModule      => KeyPressed(Keys.N);
-        public bool ToggleSpatialManagerType => KeyPressed(Keys.G);
+        public bool ToggleSpatialManagerType => KeyPressed(Keys.G) && !IsKeyDown(Keys.LeftWindows);
         // Ingame controls
         public bool PreviousTarget  => BackMouseClick;
         public bool ChaseCam        => MiddleMouseClick;

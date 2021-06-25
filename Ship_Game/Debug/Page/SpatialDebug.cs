@@ -133,7 +133,6 @@ namespace Ship_Game.Debug.Page
                 var timer = new PerfTimer();
                 Found = Spatial.FindNearby(ref opt);
                 FindElapsed = timer.Elapsed;
-                return true;
             }
             return false;
         }
