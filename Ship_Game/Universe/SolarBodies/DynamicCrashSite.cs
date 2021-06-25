@@ -24,7 +24,7 @@ namespace Ship_Game.Universe.SolarBodies
         }
 
         public void CrashShip(Empire empire, string shipName, string troopName, int numTroopsSurvived,
-            Planet p, PlanetGridSquare tile, bool fromSave = false)
+            Planet p, PlanetGridSquare tile, int shipSize,  bool fromSave = false)
         {
             if (!TryCreateCrashSite(p, tile, out string message))
                 return;
@@ -38,7 +38,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (!fromSave)
             {
                 p.SetInGroundCombat(p.Owner);
-                NotifyPlayerAndAi(p, message);
+                NotifyPlayerAndAi(p, message, shipSize);
                 RecoverShip = RecoverChance();
             }
         }
@@ -46,7 +46,8 @@ namespace Ship_Game.Universe.SolarBodies
         public void CrashShip(SavedGame.PGSData d, Planet p, PlanetGridSquare tile)
         {
             Empire e = EmpireManager.GetEmpireById(d.CrashSiteEmpireId);
-            CrashShip(e, d.CrashSiteShipName, d.CrashSiteTroopName, d.CrashSiteTroops, p, tile, true);
+            // ShipSize 0 since it is not relevant when called from save
+            CrashShip(e, d.CrashSiteShipName, d.CrashSiteTroopName, d.CrashSiteTroops, p, tile, 0, true);
             RecoverShip = d.CrashSiteRecoverShip;
         }
 
@@ -82,7 +83,7 @@ namespace Ship_Game.Universe.SolarBodies
             return true;
         }
 
-        void NotifyPlayerAndAi(Planet p, string message)
+        void NotifyPlayerAndAi(Planet p, string message, int shipSize)
         {
             foreach (Empire e in EmpireManager.ActiveMajorEmpires)
             {
@@ -94,33 +95,30 @@ namespace Ship_Game.Universe.SolarBodies
                     if (e.isPlayer)
                         Empire.Universe.NotificationManager.AddShipCrashed(p, message);
                     else
-                        AiProcessCrashSite(p, e);
+                        AiProcessCrashSite(p, e, shipSize);
                 }
             }
         }
 
-        void AiProcessCrashSite(Planet p, Empire e)
+        void AiProcessCrashSite(Planet p, Empire e, int shipSize)
         {
             if (p.Owner == null)
             {
-                if (!p.ParentSystem.OwnerList.ToArray().Any(empire => empire.IsNAPactWith(e)))
-                    e.GetEmpireAI().TrySendExplorationFleetToCrashSite(p);
+                if (!p.ParentSystem.OwnerList.ToArray().Any(empire => empire.IsNAPactWith(e)) && shipSize >= 100)
+                    e.GetEmpireAI().SendExplorationFleet(p);
             }
-            else if (!p.TroopsInTheWorks && !p.AnyOfOurTroops(e) && !p.SpaceCombatNearPlanet)
+            else if (!p.TroopsInTheWorks && !p.AnyOfOurTroops(e) && !p.SpaceCombatNearPlanet) // owner is this empire
             {
-                TrySend4Troops(e, p);
+                SendTroop(e, p);
             }
         }
 
-        void TrySend4Troops(Empire e, Planet p)
+        void SendTroop(Empire e, Planet p)
         {
-            for (int i = 1; i <= 4; i++) // send 4 troops to explore, if possible
-            {
-                if (e.GetTroopShipForRebase(out Ship troopShip, p.Center, p.Name))
-                    troopShip.AI.OrderLandAllTroops(p);
-                else
-                    break;
-            }
+            if (e.GetTroopShipForRebase(out Ship troopShip, p.Center, p.Name))
+                troopShip.AI.OrderLandAllTroops(p);
+            else
+                e.GetEmpireAI().SendExplorationFleet(p); // Create a task to be processed normally
         }
 
         public void ActivateSite(Planet p, Empire activatingEmpire, PlanetGridSquare tile)
