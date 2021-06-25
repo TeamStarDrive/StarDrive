@@ -164,6 +164,22 @@ namespace Ship_Game
                 || IsTechnologyType(TechnologyType.ShipWeapons);
         }
 
+        public bool IsPrimaryShipTech() => IsTechTypeShipTech(Tech.TechnologyTypes.First());
+
+        bool IsTechTypeShipTech(TechnologyType techType)
+        {
+            switch (techType)
+            {
+                case TechnologyType.ShipHull:
+                case TechnologyType.ShipDefense:
+                case TechnologyType.ShipWeapons:
+                case TechnologyType.ShipGeneral:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         public bool ContainsNonShipTechOrBonus()
         {
             return IsTechnologyType(TechnologyType.General)

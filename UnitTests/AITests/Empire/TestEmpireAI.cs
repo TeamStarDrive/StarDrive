@@ -272,7 +272,7 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void TestOverBudgetSpending()
         {
-            Player.Money = 1000;
+            Player.Money = 500;
 
             for (int x = -1; x < 11; x++)
             {
@@ -281,10 +281,10 @@ namespace UnitTests.AITests.Empire
                 percent = 2 - percent;
                 Assert.IsTrue(overSpend.AlmostEqual(percent), $"Expected {percent} got {overSpend}");
             }
-            Player.Money = 100;
+            Player.Money = 50;
             for (int x = -1; x < 1; x++)
             {
-                float percent = x * 0.1f;
+                float percent = x * 0.05f;
                 float overSpend = Player.GetEmpireAI().OverSpendRatio(1000, percent, 10f);
                 percent = 0.2f - percent;
                 Assert.IsTrue(overSpend.AlmostEqual(percent), $"Expected {percent} got {overSpend}");
