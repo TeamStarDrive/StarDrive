@@ -8,7 +8,7 @@ TestImpl(TestGrid)
     {
     }
 
-    TestCase(update_perf)
+    TestCase(rebuild)
     {
         SimParams p {};
         SpatialWithObjects swo = createSpatialWithObjects(spatial::SpatialType::Grid, p);
@@ -19,7 +19,7 @@ TestImpl(TestGrid)
         });
     }
 
-    TestCase(search_perf)
+    TestCase(findNearby)
     {
         SimParams p {};
         SpatialWithObjects swo = createSpatialWithObjects(spatial::SpatialType::Grid, p);
@@ -37,7 +37,7 @@ TestImpl(TestGrid)
         });
     }
 
-    TestCase(collision_perf)
+    TestCase(collideAll)
     {
         SimParams p {};
         p.numObjects = 100'000;

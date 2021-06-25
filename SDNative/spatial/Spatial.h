@@ -4,7 +4,7 @@
 #include "Config.h"
 #include "SpatialObject.h"
 #include "Visualizer.h"
-#include "Search.h"
+#include "SearchOptions.h"
 #include "Collision.h"
 #include "ObjectCollection.h"
 
