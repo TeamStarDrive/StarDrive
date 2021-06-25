@@ -249,10 +249,7 @@ namespace Ship_Game.AI
             // the position is always wrong unless it was forced in a ui move. 
             wp = wayPoints[wayPoints.Length - 1];
 
-            // FB - do not remove priority order if the ship belongs to the player and not offensive move
-            MoveTypes lastMove = Owner.loyalty.isPlayer && !offensiveMove ? combatEndMove = MoveTypes.None 
-                                                                          : MoveTypes.LastWayPoint | combatEndMove;
-
+            MoveTypes lastMove = MoveTypes.LastWayPoint | combatEndMove; // Allow ships to engage combat if within 1000 of the move target
             AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, lastMove);
 
             // FB - Do not make final approach and stop, since the ship has more orders which do not
