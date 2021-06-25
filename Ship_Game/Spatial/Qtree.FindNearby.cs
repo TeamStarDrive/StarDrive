@@ -70,12 +70,12 @@ namespace Ship_Game.Spatial
 
             uint loyaltyMask = NativeSpatialObject.GetLoyaltyMask(opt);
             uint typeMask = opt.Type == GameObjectType.Any ? 0xff : (uint)opt.Type;
+            int excludeObject = opt.Exclude?.SpatialIndex ?? -1;
 
             float searchFX = opt.FilterOrigin.X;
             float searchFY = opt.FilterOrigin.Y;
             float searchFR = opt.FilterRadius;
             bool useSearchRadius = searchFR > 0f;
-            int objectMask = (opt.Exclude == null) ? 0x7fffffff : ~(opt.Exclude.SpatialIndex+1);
 
             QtreeNode root = Root;
             FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
@@ -120,7 +120,7 @@ namespace Ship_Game.Spatial
                         // FLAGS: either 0x00 (failed) or some bits 0100 (success)
                         if ((so->LoyaltyMask & loyaltyMask) != 0 &&
                             ((uint)so->Type & typeMask) != 0 &&
-                            ((so->ObjectId+1) & objectMask) != 0)
+                            (so->ObjectId != excludeObject))
                         {
                             if (!so->AABB.Overlaps(searchRect))
                                 continue;
@@ -130,19 +130,21 @@ namespace Ship_Game.Spatial
                                 if (!so->AABB.Overlaps(searchFX, searchFY, searchFR))
                                     continue; // AABB not in SearchRadius
                             }
-
+                            
+                            // PERF: this is the fastest point for duplicate check
                             int id = so->ObjectId;
                             int wordIndex = id / 32;
                             uint idMask = (uint)(1 << (id % 32));
                             if ((idBitArray[wordIndex] & idMask) != 0)
-                                continue; // already present in results array
+                                continue; // object was already checked
+
+                            idBitArray[wordIndex] |= idMask; // flag it as checked
 
                             GameplayObject go = objects[id];
                             if (opt.FilterFunction == null || opt.FilterFunction(go))
                             {
                                 dfn?.SearchResults.Add(go);
                                 buffer.Items[buffer.Count++] = go;
-                                idBitArray[wordIndex] |= idMask; // set unique result
                                 if (buffer.Count == opt.MaxResults)
                                     break; // we are done !
                             }

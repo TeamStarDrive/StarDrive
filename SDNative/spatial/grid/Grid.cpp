@@ -97,7 +97,7 @@ namespace spatial
         int numResults = 0;
         if (View.findNodes(cells, opt, found))
         {
-            numResults = spatial::findNearby(outResults, Objects.data(), Objects.maxObjects(), opt, found);
+            numResults = found.filterResults(outResults, Objects, opt);
         }
         
         if (opt.DebugId)

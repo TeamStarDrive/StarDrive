@@ -5,6 +5,8 @@
 
 namespace spatial
 {
+    class ObjectCollection;
+
     struct FoundCell
     {
         SpatialObject** objects;
@@ -14,7 +16,7 @@ namespace spatial
     };
     
     #pragma warning(disable:26495)
-    struct FoundCells
+    struct SPATIAL_API FoundCells
     {
         static constexpr int MAX = 4096;
         int count = 0;
@@ -29,6 +31,10 @@ namespace spatial
                 totalObjects += size;
             }
         }
+
+        int filterResults(int* outResults,
+                          const ObjectCollection& objects,
+                          const SearchOptions& opt);
     };
 
     // Gets the loyalty mask from Search Options
@@ -39,8 +45,5 @@ namespace spatial
         if (opt.ExcludeLoyalty) loyaltyMask = ~getLoyaltyMask(opt.ExcludeLoyalty);
         return loyaltyMask;
     }
-
-    int findNearby(int* outResults, const SpatialObject* objects, int maxObjectId,
-                   const SearchOptions& opt, FoundCells& found);
 
 }

@@ -32,7 +32,7 @@ TestImpl(QuadTree)
         return out;
     }
 
-    TestCase(findnearby_onlyloyalty)
+    TestCase(findNearby_onlyloyalty)
     {
         SimParams p {};
         p.numObjects = 5'000;
@@ -68,7 +68,7 @@ TestImpl(QuadTree)
         }
     }
 
-    TestCase(findnearby_excludeloyalty)
+    TestCase(findNearby_excludeloyalty)
     {
         SimParams p {};
         p.numObjects = 5'000;
@@ -104,7 +104,7 @@ TestImpl(QuadTree)
         }
     }
 
-    TestCase(update_perf)
+    TestCase(updateAll)
     {
         SimParams p {};
         SpatialWithObjects swo = createSpatialWithObjects(spatial::SpatialType::QuadTree, p);
@@ -115,7 +115,7 @@ TestImpl(QuadTree)
         });
     }
 
-    TestCase(search_perf)
+    TestCase(findNearby)
     {
         SimParams p {};
         p.numObjects = 5'000;
@@ -132,7 +132,7 @@ TestImpl(QuadTree)
         });
     }
 
-    TestCase(collision_perf)
+    TestCase(collideAll)
     {
         SimParams p {};
         p.numObjects = 10'000;

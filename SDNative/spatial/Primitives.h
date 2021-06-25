@@ -102,6 +102,12 @@ namespace spatial
             return result;
         }
 
+        /** @returns Circle from this rectangle */
+        Circle toCircle() const
+        {
+            return Circle{centerX(), centerY(), (width()+height()) / 4};
+        }
+
         SPATIAL_FINLINE static Rect fromPointRadius(int x, int y, int r)
         {
             return Rect{x-r, y-r, x+r, y+r};
@@ -112,10 +118,12 @@ namespace spatial
             return Rect{ (int)x1, (int)y1, (int)x2, (int)y2 };
         }
 
+        // True if two rectangles overlap or perfectly touch
         SPATIAL_FINLINE bool overlaps(const Rect& r) const
         {
-            return x1 <= r.x2 && x2 > r.x1
-                && y1 <= r.y2 && y2 > r.y1;
+            // NOTE: >= vs > determines whether there's a match if rectangles touch
+            return x1 <= r.x2 && x2 >= r.x1
+                && y1 <= r.y2 && y2 >= r.y1;
         }
 
         /**
@@ -134,7 +142,7 @@ namespace spatial
     };
     
     /**
-     * Convert rect to circle and do Circle/Circle overlap
+     * Convert rect to circle and do Circle/Circle overlap OR touch
      * @return True if Circle{r} overlaps Circle c
      *         Rectangle's radius is calculated as (width/2 + height/2)/2
      */
@@ -146,6 +154,7 @@ namespace spatial
         float dx = c.x - (r.x1 + rw);
         float dy = c.y - (r.y1 + rh);
         float rr = c.radius + ((rw + rh) >> 1);
+        // <= vs < determines if we include touching primitives
         return (dx*dx + dy*dy) <= (rr*rr);
     }
 }

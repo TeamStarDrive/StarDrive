@@ -28,7 +28,7 @@ namespace Ship_Game.Debug.Page
             Spatial = UniverseScreen.Spatial;
             Loyalty = EmpireManager.GetEmpireById(1);
 
-            var list = AddList(50, 210);
+            var list = AddList(50, 160);
             list.AddCheckbox(() => Spatial.VisOpt.Enabled,
                     "Enable Overlay", "Enable Spatial Debug Overlay");
 
@@ -87,7 +87,7 @@ namespace Ship_Game.Debug.Page
 
             Spatial.DebugVisualize(Screen);
 
-            SetTextCursor(50f, 100f, Color.White);
+            SetTextCursor(50, 80, Color.White);
             DrawString($"Type: {Spatial.Name}");
             DrawString($"Collisions: {Spatial.Collisions}");
             DrawString($"ActiveObjects: {Spatial.Count}");

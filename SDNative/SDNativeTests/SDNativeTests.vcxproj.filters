@@ -79,6 +79,9 @@
     <ClCompile Include="Simulation.cpp">
       <Filter>tests</Filter>
     </ClCompile>
+    <ClCompile Include="TestFindNearby.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ReCpp\rpp\collections.h">
