@@ -10,6 +10,7 @@ namespace Ship_Game.AI.Research
         Map<string, float> TechUIDMods             = new Map<string, float>();
         Map<TechnologyType, float> TechTypeMods    = new Map<TechnologyType, float>();
         Map<ShipCosts, float> ShipMods             = new Map<ShipCosts, float>();
+        Map<ResearchArea, float> Priority          = new Map<ResearchArea, float>();
 
         public enum ResearchMods
         {
@@ -29,6 +30,17 @@ namespace Ship_Game.AI.Research
             Freighter,
             AllHulls,
             Orbitals,
+            GroundCombat
+        }
+
+        public enum ResearchArea
+        {
+            ShipTech,
+            Research,
+            Colonization,
+            Economic,
+            Industry,
+            General,
             GroundCombat
         }
 
@@ -54,6 +66,15 @@ namespace Ship_Game.AI.Research
 
             //TechTypes
             TechTypeMods[TechnologyType.ShipHull] = 1f;
+
+            //Tech Priorities
+            Priority[ResearchArea.Colonization] = 1;
+            Priority[ResearchArea.Economic]     = 1;
+            Priority[ResearchArea.GroundCombat] = 1;
+            Priority[ResearchArea.Industry]     = 1;
+            Priority[ResearchArea.General]      = 1;
+            Priority[ResearchArea.Research]     = 1;
+            Priority[ResearchArea.ShipTech]     = 1;
         }
 
         public float GetUIDMod(string techUID)
@@ -87,6 +108,13 @@ namespace Ship_Game.AI.Research
         public float GetShipMod(ShipCosts costType)
         {
             if (ShipMods.TryGetValue(costType, out float modifier))
+                return modifier;
+            return 1;
+        }
+
+        public float GetPriority(ResearchArea priorities)
+        {
+            if (Priority.TryGetValue(priorities, out float modifier))
                 return modifier;
             return 1;
         }

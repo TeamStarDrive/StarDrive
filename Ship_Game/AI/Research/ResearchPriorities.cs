@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Ship_Game.Gameplay;
+using static Ship_Game.AI.Research.ResearchOptions;
 
 namespace Ship_Game.AI.Research
 {
@@ -14,11 +15,12 @@ namespace Ship_Game.AI.Research
         private readonly float Industry;
         public readonly string TechCategoryPrioritized;
         private readonly Empire OwnerEmpire;
+        private readonly ResearchOptions Priority;
 
-        public ResearchPriorities(Empire empire, float buildCapacity) : this()
+        public ResearchPriorities(Empire empire, ResearchOptions options) : this()
         {
             OwnerEmpire   = empire;
-            
+            Priority      = options;
             ResearchDebt  = CalcResearchDebt(empire, out Array<TechEntry> availableTechs);
             Wars          = OwnerEmpire.GetEmpireAI().ThreatLevel;
             Economics     = CalcEconomics(empire);
@@ -72,17 +74,18 @@ namespace Ship_Game.AI.Research
             var threat = OwnerEmpire.GetEmpireAI().ThreatLevel;
             var priority = new Map<string, int>
             {
-                { "SHIPTECH",     Randomizer(threat,                   1f)          },
-                { "Research",     Randomizer(strat.ResearchRatio + 1,  ResearchDebt)},
-                { "Colonization", Randomizer(strat.ExpansionRatio + 1, FoodNeeds)   },
-                { "Economic",     Randomizer(strat.ExpansionRatio + 1, Economics)   },
-                { "Industry",     Randomizer(strat.IndustryRatio + 1,  Industry)    },
-                { "General",      Randomizer(strat.ResearchRatio + 1,  0)           },
-                { "GroundCombat", Randomizer(strat.MilitaryRatio + 1,  threat)},
+                { "SHIPTECH",     Randomizer(threat,                Priority.GetPriority(ResearchArea.ShipTech))},
+                { "Research",     Randomizer(strat.ResearchRatio  + Priority.GetPriority(ResearchArea.Research),     ResearchDebt)},
+                { "Colonization", Randomizer(strat.ExpansionRatio + Priority.GetPriority(ResearchArea.Colonization), FoodNeeds)},
+                { "Economic",     Randomizer(strat.ExpansionRatio + Priority.GetPriority(ResearchArea.Economic),     Economics)},
+                { "Industry",     Randomizer(strat.IndustryRatio  + Priority.GetPriority(ResearchArea.Industry),     Industry)},
+                { "General",      Randomizer(strat.ResearchRatio  + Priority.GetPriority(ResearchArea.General),      0)},
+                { "GroundCombat", Randomizer(strat.MilitaryRatio  + Priority.GetPriority(ResearchArea.GroundCombat), threat)},
             };
 
             return priority;
         }
+
         void CalcFoodAndIndustry(Empire empire, out float foodNeeds, out float industry)
         {
             foodNeeds = 0;
