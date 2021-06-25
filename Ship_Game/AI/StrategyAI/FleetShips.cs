@@ -139,7 +139,7 @@ namespace Ship_Game.AI
                 extractedShipStrength += gatheredShips.Sum(s => s.GetStrength());
                 ships.AddRange(gatheredShips);
 
-                if (goodSet)
+                if (goodSet && ships.Count > 0)
                 {
                     completeFleets++;
                     neededFleets--;
@@ -176,13 +176,20 @@ namespace Ship_Game.AI
         public Array<Ship> ExtractCoreFleetRole(RoleName role, out bool fullFilled)
         {
             int combatIndex = FleetRatios.CombatRoleToRatio(role);
-            int maxIndex = Ratios.MaxCombatRoleIndex();
-            float wanted = Ratios.GetWanted(role);
+            int maxIndex    = Ratios.MaxCombatRoleIndex();
+            float wanted    = Ratios.GetWanted(role);
+
             int requirementSpread = 0;
             if (maxIndex > 2) requirementSpread += 1;
             bool required =  maxIndex > 0 && wanted >= 1 && combatIndex + requirementSpread >= maxIndex;
+            bool doWeHaveAny = false;
+            if (required)
+                 doWeHaveAny = ((Ship[])OwnerEmpire.OwnedShips).Any(s => s.DesignRole == role);
+            required = doWeHaveAny;
 
-
+            if (wanted < 1)
+                wanted = Ships.Count(s => s.DesignRole == role);
+            wanted = wanted > 0 ? (float)Math.Ceiling(wanted) : 0;
             var ships = ExtractShips(Ships,  wanted, role, required);
             fullFilled = !required || ships.NotEmpty;
             return ships;
