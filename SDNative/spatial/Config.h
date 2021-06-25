@@ -25,6 +25,16 @@
 #  endif
 #endif
 
+//// @note Some functions get inlined too aggressively, leading to some serious code bloat
+////       Need to hint the compiler to take it easy ^_^'
+#ifndef SPATIAL_NOINLINE
+#  ifdef _MSC_VER
+#    define SPATIAL_NOINLINE __declspec(noinline)
+#  else
+#    define SPATIAL_NOINLINE __attribute__((noinline))
+#  endif
+#endif
+
 namespace spatial
 {
     /// <summary>

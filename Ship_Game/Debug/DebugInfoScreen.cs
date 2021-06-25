@@ -380,20 +380,23 @@ namespace Ship_Game.Debug
                         DrawShadowStringProjected(m.Center, 0f, 1f, inArcColor, text);
                     }
                 }
-
-                foreach (Projectile p in ship.AI.TrackProjectiles)
-                {
-                    float r = Math.Max(p.Radius, 32f);
-                    DrawCircleImm(p.Center, r, Color.Yellow, 1f);
-                }
-                foreach (Ship s in ship.AI.FriendliesNearby)
-                {
-                    DrawCircleImm(s.Center, s.Radius, Color.Green, 1f);
-                }
-                foreach (Ship s in ship.AI.PotentialTargets)
-                {
-                    DrawCircleImm(s.Center, s.Radius, Color.Red, 1f);
-                }
+            }
+        }
+        
+        void DrawSensorInfo(Ship ship)
+        {
+            foreach (Projectile p in ship.AI.TrackProjectiles)
+            {
+                float r = Math.Max(p.Radius, 32f);
+                DrawCircleImm(p.Center, r, Color.Yellow, 1f);
+            }
+            foreach (Ship s in ship.AI.FriendliesNearby)
+            {
+                DrawCircleImm(s.Center, s.Radius, Color.Green, 1f);
+            }
+            foreach (Ship s in ship.AI.PotentialTargets)
+            {
+                DrawCircleImm(s.Center, s.Radius, Color.Red, 1f);
             }
         }
 
@@ -464,6 +467,7 @@ namespace Ship_Game.Debug
                           +$"  {ship.ThrustThisFrame}  {ship.DebugThrustStatus}");
                 VisualizeShipOrderQueue(ship);
                 DrawWeaponArcs(ship);
+                DrawSensorInfo(ship);
 
                 DrawString($"On Defense: {ship.loyalty.GetEmpireAI().DefensiveCoordinator.Contains(ship)}");
                 if (ship.fleet != null)
