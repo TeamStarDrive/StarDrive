@@ -235,7 +235,7 @@ namespace Ship_Game.AI.Research
             string researchTopic = "";
 
             availableTechs = LineFocus.LineFocusShipTechs(modifier, availableTechs, command2);
-
+            
             int previousCost = command1 == "CHEAPEST" ? int.MaxValue : int.MinValue;
             switch (command2)
             {
@@ -245,15 +245,22 @@ namespace Ship_Game.AI.Research
                         string[] script = modifier.Split(':');
                         for (int i = 1; i < script.Length; i++)
                         {
-                            var techType             = ConvertTechStringTechType(script[i]);
+                            var techTypeName    = script[i];
+                            var techType             = ConvertTechStringTechType(techTypeName);
                             TechEntry researchTech   = GetScriptedTech(command1, techType, availableTechs);
                             bool isCheaper           = command1 == "CHEAPEST";
                             string testResearchTopic = DoesCostCompare(ref previousCost, researchTech, techType, isCheaper);
 
                             if (testResearchTopic.NotEmpty())
                                 researchTopic = testResearchTopic;
+                            float priority = 0;
+                            // bump priority but consider ship tech categories as more of a unit. 
+                            if (techTypeName.Contains("ship"))
+                                priority = 0.0002f;
+                            else
+                                priority = 0.005f;
 
-                            CostNormalizer += isCheaper ? 0.005f : 0.25f;
+                            CostNormalizer += isCheaper ? priority : 0.25f;
                         }
 
                         break;
@@ -279,18 +286,10 @@ namespace Ship_Game.AI.Research
         string DoesCostCompare(ref int previousCost, TechEntry researchTech, TechnologyType techType, bool isCheaper)
         {
             string testResearchTopic = researchTech?.UID ?? string.Empty;
-            if (testResearchTopic.IsEmpty()) 
+            if (testResearchTopic.IsEmpty())
                 return testResearchTopic;
 
-            int currentCost = CostToResearchTechType(researchTech, techType);
-
-            if (researchTech.IsTechnologyType(TechnologyType.Industry)
-                && researchTech.IsTechnologyType(TechnologyType.ShipHull))
-            {
-                // FB - i guess this is for delaying Freighter Hull research, why not just double the 
-                // freighters cost in the xml instead of coding this?
-                currentCost *= 2; 
-            }
+            int currentCost = (int)(CostToResearchTechType(researchTech, techType));
 
             if (currentCost > 0)
             {
@@ -319,8 +318,13 @@ namespace Ship_Game.AI.Research
         {
             if (researchTech.IsTechnologyType(techType))
                 return NormalizeTechCost(researchTech.TechCost);
+
+            if (!researchTech.IsPrimaryShipTech() && LineFocus.BestCombatShip?.shipData.TechsNeeded.Contains(researchTech.UID) == true)
+                return NormalizeTechCost(researchTech.TechCost);
+
             if (!techType.ToString().Contains("Ship"))
                 return NormalizeTechCost(researchTech.CostOfNextTechWithType(techType));
+
             return 0;
         }
 
@@ -343,34 +347,89 @@ namespace Ship_Game.AI.Research
 
             DebugLog($"\nFind : {techType.ToString()}");
             bool wantsShipTech = techType.ToString().Contains("Ship");
+            bool generalTechs = techType == TechnologyType.GroundCombat || techType == TechnologyType.General;
 
             TechEntry[] techsTypeFiltered = availableTechs.Filter(tech =>
             {
-                if (!wantsShipTech && tech.IsOnlyShipTech()) 
+                // verify that the tech has a cost. filters out techs that cant be researched
+                if (CostToResearchTechType(tech, techType) <= 0)
                     return false;
 
-                if (wantsShipTech && tech.IsOnlyNonShipTech()) 
+                // do a tight comparison for ships
+                if (wantsShipTech && !tech.IsPrimaryShipTech())
+                {
+                    return IsLineFocusedShipTech(tech);
+                }
+                // dont use primary ship techs for normal techs. 
+                if (!wantsShipTech && tech.IsPrimaryShipTech())
+                    return false;
+                // do a loose check for tech type. 
+                if (!tech.IsTechnologyType(techType))
                     return false;
 
-                if (CostToResearchTechType(tech, techType) >0) 
-                    return true;
-
-                return false;
+                return true;
             });
 
-            //if (techsTypeFiltered.Length == 0 && !wantsShipTech)
-            //{
-            //    //this get lookahead is tricky.
-            //    //Its trying here to see if the current tech with the wrong techType has a future tech with the right one.
-            //    //otherwise it would be a simple tech matches techType formula.
-            //    techsTypeFiltered = availableTechs.Filter(tech =>
-            //        tech.CostOfNextTechWithType(techType) > 0);
+            if (techsTypeFiltered.Length == 0)
+            {
+                // if not techs found do a looser check. 
+                // does the tech have any of the wanted types. 
+                // if not do any future techs have teh wanted type
+                if (wantsShipTech)
+                {
+                    if (LineFocus.BestCombatShip != null)
+                    {
+                        techsTypeFiltered = availableTechs.Filter(tech =>
+                        {
+                            if (!tech.ContainsShipTech())
+                            {
+                                foreach (var shipTech in LineFocus.BestCombatShip.shipData.TechsNeeded)
+                                {
+                                    bool foundTech = tech.Tech.UID == shipTech;
+                                    if (foundTech && tech.Tech.ActualCost > 0)
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                            return false;
+                        });
+                    }
+                    else
+                    {
+                        techsTypeFiltered = availableTechs.Filter(tech => tech.IsTechnologyType(techType));
+                    }
+                }
+                else
+                {
+                    techsTypeFiltered = availableTechs.Filter(tech =>
+                    {
+                        {
+                            if (!tech.IsTechnologyType(techType) && tech.CostOfNextTechWithType(techType) <= 0)
+                                return false;
+                            if (tech.IsPrimaryShipTech())
+                                return false;
 
-            //}
+                            if (CostToResearchTechType(tech, techType) <= 0)
+                                return false;
+                        }
+                        return true;
+                    });
+                }
+            }
             LogPossibleTechs(techsTypeFiltered, techType);
             TechEntry researchTech = TechWithWantedCost(command1, techsTypeFiltered, techType);
 
             return researchTech;
+        }
+
+        bool IsLineFocusedShipTech(TechEntry tech)
+        {
+            bool isShipTech = false;
+            var shipTechs = LineFocus.BestCombatShip?.shipData.TechsNeeded;
+            if (shipTechs != null)
+                isShipTech = LineFocus.BestCombatShip?.shipData.TechsNeeded.Contains(tech.Tech.UID) == true;
+            return isShipTech;
         }
 
         private TechEntry TechWithWantedCost(string command1, TechEntry[] filteredTechs, TechnologyType techType)

@@ -264,10 +264,9 @@ namespace Ship_Game.Gameplay
                 SetSystem(Planet.ParentSystem);
             }
 
-            if (playSound && (System != null && System.isVisible || Owner?.InFrustum == true))
+            if (playSound && Owner != null && Owner.IsVisibleToPlayer)
             {
                 Weapon.PlayToggleAndFireSfx(Emitter);
-
                 string cueName = ResourceManager.GetWeaponTemplate(Weapon.UID).dieCue;
                 if (cueName.NotEmpty())     DieCueName  = cueName;
                 if (InFlightCue.NotEmpty()) InFlightCue = Weapon.InFlightCue;
@@ -393,7 +392,7 @@ namespace Ship_Game.Gameplay
             {
                 if (Animation != null)
                 {
-                    screen.ProjectToScreenCoords(Center, -ZStart, 20f*Weapon.ProjectileRadius*Weapon.Scale,
+                    screen.ProjectToScreenCoords(Center, -ZStart, 20f * Weapon.ProjectileRadius * Weapon.Scale,
                                                  out Vector2 pos, out float size);
 
                     Animation.Draw(batch, pos, new Vector2(size), Rotation, 1f);
@@ -588,6 +587,7 @@ namespace Ship_Game.Gameplay
 
         void ExplodeProjectile(bool cleanupOnly, ShipModule atModule = null)
         {
+            bool visibleToPlayer = Module?.GetParent().InSensorRange == true;
             Vector3 origin = new Vector3(atModule?.Center ?? Center, -50f);
             if (Explodes)
             {
@@ -596,7 +596,7 @@ namespace Ship_Game.Gameplay
                     DamageRadius += Owner.loyalty.data.OrdnanceEffectivenessBonus * DamageRadius;
                 }
 
-                if (!cleanupOnly && CloseEnoughForExplosion)
+                if (!cleanupOnly && CloseEnoughForExplosion && visibleToPlayer)
                 {
                     ExplosionManager.AddExplosion(origin, Velocity*0.1f,
                         DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
@@ -614,7 +614,7 @@ namespace Ship_Game.Gameplay
                 else
                     UniverseScreen.Spatial.ProjectileExplode(this, DamageAmount, DamageRadius, Center);
             }
-            else if (Weapon.FakeExplode && CloseEnoughForExplosion)
+            else if (Weapon.FakeExplode && CloseEnoughForExplosion && visibleToPlayer)
             {
                 ExplosionManager.AddExplosion(origin, Velocity*0.1f, 
                     DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
@@ -698,6 +698,7 @@ namespace Ship_Game.Gameplay
                 return false;
             }
 
+            bool showFx = true;
             switch (target)
             {
                 case Projectile projectile:
@@ -730,17 +731,26 @@ namespace Ship_Game.Gameplay
 
                     ArmourPiercingTouch(module, parent);
                     Health = 0f;
+                    showFx = parent.InSensorRange;
                     break;
             }
 
+            if (showFx)
+                CreateWeaponTypeFx(target);
+
+            DieNextFrame = !Deflected;
+            return true;
+        }
+
+        void CreateWeaponTypeFx(GameplayObject target)
+        {
+            var center       = new Vector3(Center.X, Center.Y, -100f);
+            Vector3 forward  = Rotation.RadiansToDirection3D();
+            Vector3 right    = forward.RightVector2D(z: 1f);
+            Vector3 backward = -forward;
             switch (WeaponEffectType)
             {
                 case "Plasma":
-                {
-                    var center  = new Vector3(Center.X, Center.Y, -100f);
-                    Vector3 forward  = Rotation.RadiansToDirection3D();
-                    Vector3 right    = forward.RightVector2D(z:1f);
-                    Vector3 backward = -forward;
                     for (int i = 0; i < 20; i++)
                     {
                         Vector3 random = UniverseRandom.Vector3D(250f) * right;
@@ -751,41 +761,30 @@ namespace Ship_Game.Gameplay
                     }
 
                     break;
-                }
                 // currently unused
                 case "MuzzleBlast":
-                {
-                    var center  = new Vector3(Center.X, Center.Y, -100f);
-                    Vector3 forward  = Rotation.RadiansToDirection3D();
-                    Vector3 right    = forward.RightVector2D(z:1f);
-                    Vector3 backward = -forward;
                     for (int i = 0; i < 20; i++)
                     {
                         Vector3 random = UniverseRandom.Vector3D(500f) * right;
                         Empire.Universe.fireTrailParticles.AddParticleThreadA(center, random);
 
-                        random = backward + new Vector3(UniverseRandom.RandomBetween(-500f, 500f), 
-                                     UniverseRandom.RandomBetween(-500f, 500f), 
+                        random = backward + new Vector3(UniverseRandom.RandomBetween(-500f, 500f),
+                                     UniverseRandom.RandomBetween(-500f, 500f),
                                      UniverseRandom.RandomBetween(-150f, 150f));
                         Empire.Universe.fireTrailParticles.AddParticleThreadA(center, random);
                     }
 
                     break;
-                }
                 default:
-                {
                     if (WeaponType == "Ballistic Cannon")
                     {
                         if (target is ShipModule shipModule && !shipModule.Is(ShipModuleType.Shield))
                             GameAudio.PlaySfxAsync("sd_impact_bullet_small_01", Emitter);
                     }
                     break;
-                }
             }
-
-            DieNextFrame = !Deflected;
-            return true;
         }
+
 
         void RayTracedExplosion(ShipModule module)
         {

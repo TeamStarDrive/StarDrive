@@ -766,7 +766,7 @@ namespace Ship_Game.Ships
                         BeamMassDamage(beam, hittingShields: true);
                     }
 
-                    if (Parent.InFrustum && Empire.Universe?.IsShipViewOrCloser == true)
+                    if (Parent.IsVisibleToPlayer)
                         Shield.HitShield(this, proj);
                 }
 
@@ -784,7 +784,7 @@ namespace Ship_Game.Ships
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {modifiedDamage}  hp  {Health} by {proj?.WeaponType}");
             }
 
-            if (Parent.InFrustum && Empire.Universe?.IsShipViewOrCloser == true)
+            if (Parent.IsVisibleToPlayer)
             {
                 if      (beam != null)            beam.CreateHitParticles(Center3D.Z);
                 else if (proj?.Explodes == false) proj.CreateHitParticles(modifiedDamage, Center3D);
@@ -887,7 +887,7 @@ namespace Ship_Game.Ships
             ++DebugInfoScreen.ModulesDied;
             ShieldPower = 0f;
 
-            if (Active && Parent.InFrustum)
+            if (Active && Parent.IsVisibleToPlayer)
             {
                 var center = new Vector3(Center.X, Center.Y, -100f);
                 bool parentAlive = !Parent.dying;
@@ -907,10 +907,8 @@ namespace Ship_Game.Ships
 
             if (!cleanupOnly && source != null)
             {
-                if (Parent.Active && Parent.InFrustum && Empire.Universe.IsShipViewOrCloser)
-                {
+                if (Parent.Active && Parent.IsVisibleToPlayer)
                     GameAudio.PlaySfxAsync("sd_explosion_module_small", Parent.SoundEmitter);
-                }
 
                 if (explodes)
                 {
@@ -975,24 +973,26 @@ namespace Ship_Game.Ships
         {
             if (IsTroopBay || IsSupplyBay || !Powered)
                 return;
-
-            if (hangarShip != null && hangarShip.Active)
+            var fighter = hangarShip;
+            var carrier = Parent;
+            if (fighter != null && fighter.Active)
             {
-                if (hangarShip.AI.HasPriorityTarget
-                    || hangarShip.AI.IgnoreCombat
-                    || hangarShip.AI.Target != null
-                    || (hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange) && hangarShip.AI.State != AIState.ReturnToHangar))
+                if (fighter.AI.HasPriorityTarget
+                    || fighter.AI.IgnoreCombat
+                    || fighter.AI.Target != null
+                    || (fighter.Center.InRadius(carrier.Center, Parent.SensorRange) && fighter.AI.State != AIState.ReturnToHangar))
                 {
                     return;
                 }
 
-                hangarShip.DoEscort(Parent);
+                fighter.DoEscort(Parent);
                 return;
             }
 
-            if (hangarTimer <= 0f && (hangarShip == null || hangarShip != null && !hangarShip.Active))
+            if (hangarTimer <= 0f && (fighter == null || !fighter.Active))
             {
-                SetHangarShip(Ship.CreateShipFromHangar(this, Parent.loyalty, Parent.Center + LocalCenter, Parent));
+                SetHangarShip(Ship.CreateShipFromHangar(this, carrier.loyalty, carrier.Center + LocalCenter, carrier));
+
                 if (hangarShip == null)
                 {
                     Log.Warning($"Could not create ship from hangar, UID = {hangarShipUID}");
@@ -1000,11 +1000,11 @@ namespace Ship_Game.Ships
                 }
 
                 hangarShip.DoEscort(Parent);
-                hangarShip.Velocity   = Parent.Velocity + UniverseRandom.RandomDirection() * hangarShip.SpeedLimit;
-                hangarShip.Mothership = Parent;
+                hangarShip.Velocity         = carrier.Velocity + UniverseRandom.RandomDirection() * hangarShip.SpeedLimit;
+                hangarShip.Mothership       = carrier;
                 HangarShipGuid        = hangarShip.guid;
                 hangarTimer           = hangarTimerConstant;
-                Parent.ChangeOrdnance(-hangarShip.ShipOrdLaunchCost);
+                carrier.ChangeOrdnance(-hangarShip.ShipOrdLaunchCost);
             }
         }
 
@@ -1144,7 +1144,7 @@ namespace Ship_Game.Ships
         // @note This is called every frame for every module for every ship in the universe
         void UpdateDamageVisualization(FixedSimTime timeStep)
         {
-            if (OnFire && Parent.InFrustum && Empire.Universe.IsSystemViewOrCloser)
+            if (OnFire && Parent.IsVisibleToPlayer)
             {
                 if (DamageVisualizer == null)
                     DamageVisualizer = new ShipModuleDamageVisualization(this);

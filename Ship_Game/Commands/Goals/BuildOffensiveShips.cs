@@ -29,7 +29,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FindPlanetToBuildAt()
         {
-            return FindPlanetToBuildAt(SpacePortType.Any);
+            return TryBuildShip(SpacePortType.Any);
         }
 
         GoalStep MainGoalKeepRushingProductionOfOurShip()
@@ -40,12 +40,14 @@ namespace Ship_Game.Commands.Goals
             if (PlanetBuildingAt == null || PlanetBuildingAt.NotConstructing)
                 return GoalStep.RestartGoal;
 
-            if (empire.IsMilitarists 
+            float importance = empire.GetEmpireAI().ThreatLevel;
+
+            if ((importance > 0.5f || empire.IsMilitarists)
                 && PlanetBuildingAt.ConstructionQueue[0].Goal == this
-                && PlanetBuildingAt.Storage.ProdRatio > 0.75f 
-                && empire.data.TaxRate < 0.25f) 
+                && PlanetBuildingAt.Storage.ProdRatio > 0.75f
+                && empire.GetEmpireAI().SafeToRush) 
             {
-                float rush = 10f.UpperBound(PlanetBuildingAt.ProdHere);
+                float rush = (10f * (importance + 0.5f)).UpperBound(PlanetBuildingAt.ProdHere);
                 PlanetBuildingAt.Construction.RushProduction(0, rush, rush: true);
             }
             return GoalStep.TryAgain;

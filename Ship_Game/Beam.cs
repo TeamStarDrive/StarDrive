@@ -61,7 +61,10 @@ namespace Ship_Game
 
             Initialize();
 
-            if (Owner != null && Owner.InFrustum && Empire.Universe.IsSystemViewOrCloser)
+            if (Owner != null 
+                && Owner.InFrustum 
+                && Empire.Universe.IsSystemViewOrCloser
+                && (Owner.InSensorRange || target is ShipModule m && m.GetParent()?.InSensorRange == true))
             {
                 weapon.PlayToggleAndFireSfx(Emitter);
             }

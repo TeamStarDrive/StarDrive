@@ -239,7 +239,25 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public float TradeIncome() => (0.25f * Treaty_Trade_TurnsExisted - 3f).Clamped(-3f, 3f);
+        public float TradeIncome(Empire us)
+        {
+            float setupIncome = (0.1f * Treaty_Trade_TurnsExisted - 3f).Clamped(-3, 3);
+            if (setupIncome < 0) 
+                return setupIncome; // Need Several turns of investment before trade is profitable
+
+            Empire them         = Them;
+            float demandDivisor = 20; // They want our goods more if we are in better relations
+            if      (Treaty_Alliance)    demandDivisor = 10;
+            else if (Treaty_OpenBorders) demandDivisor = 15;
+
+            float income         = them.MaxPopBillion / demandDivisor; // Their potential demand
+            float tradeCapacity  = us.TotalPlanetsTradeValue / them.TotalPlanetsTradeValue; // Our ability to supply the demand
+            tradeCapacity        = (tradeCapacity * (1 + us.data.Traits.Mercantile)).UpperBound(1);
+            float maxIncome      = (income * tradeCapacity).LowerBound(3);
+            float netIncome      = (0.1f * Treaty_Trade_TurnsExisted - 3f).Clamped(-3, maxIncome);
+
+            return netIncome.RoundToFractionOf10();
+        }
 
         public SolarSystem[] GetPlanetsLostFromWars()
         {
