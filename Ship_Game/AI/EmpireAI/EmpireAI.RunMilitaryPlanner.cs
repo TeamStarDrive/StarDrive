@@ -541,17 +541,20 @@ namespace Ship_Game.AI
                 {
                     switch (Role)
                     {
-                        case CombatRole.Disabled: return 0;
-                        case CombatRole.Fighter:  return ratio.MinFighters;
-                        case CombatRole.Corvette: return ratio.MinCorvettes;
-                        case CombatRole.Frigate:  return ratio.MinFrigates;
-                        case CombatRole.Cruiser:  return ratio.MinCruisers;
-                        case CombatRole.Capital:  return ratio.MinCapitals;
-                        case CombatRole.Carrier:  return ratio.MinCarriers;
-                        case CombatRole.Bomber:   return ratio.MinBombers;
-                        case CombatRole.Support:  return ratio.MinSupport;
-                        case CombatRole.TroopShip:return ratio.MinTroopShip;
-                        default:                  return 0;
+                        case CombatRole.Disabled:   return 0;
+                        case CombatRole.Fighter:    return ratio.MinFighters;
+                        case CombatRole.Corvette:   return ratio.MinCorvettes;
+                        case CombatRole.Frigate:    return ratio.MinFrigates;
+                        case CombatRole.Cruiser:    return ratio.MinCruisers;
+                        case CombatRole.Capital:    return ratio.MinCapitals;
+                        case CombatRole.Carrier:    return ratio.MinCarriers;
+                        case CombatRole.Bomber:     return ratio.MinBombers;
+                        case CombatRole.Support:    return ratio.MinSupport;
+                        case CombatRole.TroopShip:  return ratio.MinTroopShip;
+                        case CombatRole.Battleship: return ratio.MinBattleships;
+
+                        default:
+                            throw new ArgumentOutOfRangeException($"Missing {Role} in MinRatios");
                     }
                 }
 
