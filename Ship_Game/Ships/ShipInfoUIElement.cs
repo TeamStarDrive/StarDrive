@@ -84,7 +84,6 @@ namespace Ship_Game.Ships
             var ordersBarPos = new Vector2(startX, (Ordnance.Y + Ordnance.Height + spacing + 3));
 
             OrdersButtons = new ShipStanceButtons(screen, ordersBarPos);
-            OrdersButtons.LoadContent();
         }
 
         void DrawOrderButtons(SpriteBatch batch, float transitionOffset)

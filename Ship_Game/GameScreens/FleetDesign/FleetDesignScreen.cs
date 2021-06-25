@@ -199,7 +199,6 @@ namespace Ship_Game
 
             var ordersBarPos = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 65);
             OrdersButtons = new FleetStanceButtons(this, ordersBarPos);
-            OrdersButtons.LoadContent();
             Add(OrdersButtons);
 
             RequisitionForces = new BlueButton(new Vector2(SelectedStuffRect.X + 240, SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20), "Requisition...");
