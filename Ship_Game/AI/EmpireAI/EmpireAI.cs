@@ -17,8 +17,10 @@ namespace Ship_Game.AI
     {
         private int NumberOfShipGoals  = 6;
         public float BuildCapacity { get; private set; }
+        public float AvailableBuildCapacity => BuildCapacity - OwnerEmpire.TotalWarShipMaintenance - OwnerEmpire.TotalTroopShipMaintenance;
+        public float CivShipBudget => OwnerEmpire.data.FreightBudget;
+        public float AvailableCivShipBudget => OwnerEmpire.data.FreightBudget - OwnerEmpire.TotalCivShipMaintenance;
         public float AllianceBuildCapacity { get; private set; }
-        public float TroopShuttleCapacity { get; private set; }
 
         private readonly Empire OwnerEmpire;
         public readonly OffensiveForcePoolManager OffensiveForcePoolManager;
@@ -72,6 +74,15 @@ namespace Ship_Game.AI
                 RunDiplomaticPlanner();
                 RunResearchPlanner();
                 RunAgentManager();
+                if (Empire.Universe?.StarDate % 50 == 0)
+                {
+                    Log.Write($"------- ship list -----{Empire.Universe?.StarDate} Ship list for {OwnerEmpire.Name}");
+                    foreach (var logit in OwnerEmpire.ShipsWeCanBuild)
+                    {
+                        var template = ResourceManager.GetShipTemplate(logit, false);
+                        Log.Info($"{template.BaseHull.Role}, {template.DesignRole}, '{logit}'");
+                    }
+                }
             }
 
             RunMilitaryPlanner();
@@ -261,6 +272,18 @@ namespace Ship_Game.AI
                 Goals.Add(new RearmShipFromPlanet(ship, p, OwnerEmpire));
             else
                 Goals.Add(new RearmShipFromPlanet(ship, existingSupplyShip, p, OwnerEmpire));
+        }
+
+        public void CancelColonization(Planet p)
+        {
+            Goal goal = Goals.Find(g => g.type == GoalType.Colonize && g.ColonizationTarget == p);
+            if (goal != null)
+            {
+                goal.FinishedShip?.AI.OrderOrbitNearest(true);
+                goal.PlanetBuildingAt?.Construction.Cancel(goal);
+                Goals.QueuePendingRemoval(goal);
+                Goals.ApplyPendingRemovals();
+            }
         }
 
         public void Update()

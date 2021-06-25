@@ -332,9 +332,7 @@ Mercantile:
  SPA: "Mercantil"
 MercantileRacesAreNaturalTraders:
  Id: 67
- ENG: "Mercantile races are natural traders, and gain 0.5 Credits for each unit of food or production moved via freighter within the empire"
- RUS: "Меркантильные расы - прирожденные торговцы. Они получают 0,5 кредита за каждую единицу еды или промышленности, перемещаемую в пределах империи на грузовых кораблях."
- SPA: "Las razas mercantiles son comerciantes natos y obtienen 0,5 créditos por cada unidad de comida o producción transportada en carguero dentro de su imperio"
+ ENG: "Mercantile races are natural traders, and gain 0.5 Credits for each unit of food or production moved via freighter within the empire, they also have improved supply chains for trade agreements which can help supply the demand of larger empires having trade agreements with them."
 Wasteful:
  Id: 68
  ENG: "Wasteful"
@@ -6457,9 +6455,9 @@ BB_Tech_AceTraining_Desc:
  SPA: "Nuestros pilotos de cazas deben ser lo mejor de lo mejor. Al invertir en una selección rigurosa de los candidatos e intensificar los protocolos de adiestramiento, podemos conseguir que los pilotos sean nuestras mejores armas en la galaxia. "
 BB_Tech_AceTraining_BonusFighterLevels_Bonus:
  Id: 2013
- ENG: "All fighter class vessels receive 2 free experience levels."
- RUS: "Все корабли класса истребителей получают 2 \"бесплатных\" уровня опыта."
- SPA: "Todas las naves de clase caza reciben 2 niveles de experiencia gratis."
+ ENG: "All fighter hulls, and any drone or corvette designated ship, receive 2 free experience levels."
+ RUS: "Все корпуса истребителей и любой корабль, предназначенный для дронов или корветов, получают 2 уровня бесплатного опыта."
+ SPA: "Todos los cascos de caza y cualquier nave designada como dron o corbeta reciben 2 niveles de experiencia gratuitos."
 BB_Tech_XenoIntelligence_Name:
  Id: 2014
  ENG: "Xeno Intelligence"

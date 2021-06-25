@@ -81,7 +81,7 @@ namespace Ship_Game.Ships
                 // stop the SFX and always reset the replay timeout
                 JumpSfx.Stop();
 
-                if (engineState == MoveState.Warp && InFrustum && IsVisibleToPlayer)
+                if (engineState == MoveState.Warp && IsVisibleToPlayer)
                 {
                     GameAudio.PlaySfxAsync(GetEndWarpCue(), SoundEmitter);
                     FTLManager.ExitFTL(GetWarpEffectPosition, Direction3D, Radius);

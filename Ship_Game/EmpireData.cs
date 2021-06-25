@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -223,7 +224,7 @@ namespace Ship_Game
         // economy
         [Serialize(71)] public float SSPBudget     = 0;
         [Serialize(72)] public float SpyBudget     = 0;
-        [Serialize(73)] public float ShipBudget    = 0;
+        [Serialize(73)] public float FreightBudget    = 0;
         [Serialize(74)] public float ColonyBudget  = 0;
         [Serialize(75)] public float DefenseBudget = 0;
 
@@ -315,6 +316,7 @@ namespace Ship_Game
         [Serialize(146)] public string SpacePortModel;
         [Serialize(147)] public float BombEnvironmentDamageMultiplier = 1;
         [Serialize(148)] public float OngoingDiplomaticModifier;
+        [Serialize(149)] public int[] RoleLevels = new int[Enum.GetNames(typeof(ShipData.RoleName)).Length];
 
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
         [XmlIgnore][JsonIgnore] public string ArchetypeName => PortraitName;

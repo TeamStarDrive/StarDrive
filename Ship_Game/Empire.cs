@@ -67,6 +67,9 @@ namespace Ship_Game
             }
         }
 
+        /// <summary>
+        /// Returns an average of empire money over several turns.
+        /// </summary>
         public float NormalizedMoney
         {
             get
@@ -95,7 +98,8 @@ namespace Ship_Game
         //public Array<Ship> ShipsToAdd = new Array<Ship>();
         public Array<SpaceRoad> SpaceRoadsList = new Array<SpaceRoad>();
 
-        float MoneyValue = 1000f;
+        public const float StartingMoney = 1000f;
+        float MoneyValue = StartingMoney;
         public float Money
         {
             get => MoneyValue;
@@ -959,9 +963,9 @@ namespace Ship_Game
             if (isPlayer)
                 return;
 
-            if (p.TilesList.Any(t => t.EventOnTile))
+            if (p.EventsOnTiles())
                 EmpireAI.SendExplorationFleet(p);
-
+            
             if (CurrentGame.Difficulty <= UniverseData.GameDifficulty.Normal || p.ParentSystem.IsExclusivelyOwnedBy(this))
                 return;
 
@@ -1305,9 +1309,15 @@ namespace Ship_Game
 
         public void IncreaseEmpireShipRoleLevel(ShipData.RoleName role, int bonus)
         {
-            foreach (Ship ship in OwnedShips)
+            IncreaseEmpireShipRoleLevel(new[] { role }, bonus);
+        }
+
+        public void IncreaseEmpireShipRoleLevel(ShipData.RoleName[] role, int bonus)
+        {
+            for (int i = 0; i < OwnedShips.Count; i++)
             {
-                if (ship.shipData.Role == role)
+                Ship ship = OwnedShips[i];
+                if (role.Contains(ship.shipData.Role))
                     ship.AddToShipLevel(bonus);
             }
         }
@@ -1375,7 +1385,7 @@ namespace Ship_Game
 
                     if (ignoreList.Contains(checkedEmpire) 
                         || ship.NotThreatToPlayer()
-                        || !ship.inSensorRange)
+                        || !ship.InSensorRange)
                     {
                         ignoreList.Add(checkedEmpire);
                         continue;
@@ -1936,7 +1946,7 @@ namespace Ship_Game
             foreach (Ship ship in OwnedShips)
             {
                 float maintenance = ship.GetMaintCost();
-                if (!ship.Active || ship.AI.State >= AIState.Scrap)
+                if (!ship.Active || ship.AI.State == AIState.Scrap)
                 {
                     TotalMaintenanceInScrap += maintenance;
                     continue;
@@ -1981,8 +1991,6 @@ namespace Ship_Game
                 }
                 TotalShipMaintenance += ship.GetMaintCost();
             }
-
-            TotalShipMaintenance *= data.Traits.MaintMultiplier;
         }
 
         public float EstimateNetIncomeAtTaxRate(float rate)
@@ -2008,7 +2016,7 @@ namespace Ship_Game
                     {
                         if (hangar.hangarShipUID.NotEmpty())
                         {
-                            var hangarShip = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
+                            var hangarShip = ResourceManager.GetShipTemplate(hangar.hangarShipUID, throwIfError: false);
                             if (hangarShip?.CanBeAddedToBuildableShips(this) == true)
                                 ShipsWeCanBuild.Add(hangar.hangarShipUID);
                         }
@@ -3404,7 +3412,7 @@ namespace Ship_Game
 
             if (rel.CanAttack && target is null)
                 return true;
-            
+
             return target?.IsAttackable(this, rel) ?? false;
         }
 
@@ -3413,8 +3421,8 @@ namespace Ship_Game
             if (targetEmpire == this || targetEmpire == null)
                 return false;
 
-            Relationship rel = GetRelations(targetEmpire);
-            return rel.IsHostile;
+            Relationship rel = GetRelationsOrNull(targetEmpire);
+            return rel?.IsHostile == true;
         }
 
         public bool WillInhibit(Empire e) => e != this && !e.WeAreRemnants && IsAtWarWith(e);
