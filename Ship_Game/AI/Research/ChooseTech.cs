@@ -316,14 +316,15 @@ namespace Ship_Game.AI.Research
 
         public int CostToResearchTechType(TechEntry researchTech, TechnologyType techType)
         {
+            float lowPriorityMultiplier = researchTech.Tech.LowPriorityCostMultiplier.Clamped(0.1f, 10);
             if (researchTech.IsTechnologyType(techType))
-                return NormalizeTechCost(researchTech.TechCost);
+                return (int)(NormalizeTechCost(researchTech.TechCost) * lowPriorityMultiplier);
 
             if (!researchTech.IsPrimaryShipTech() && LineFocus.BestCombatShip?.shipData.TechsNeeded.Contains(researchTech.UID) == true)
-                return NormalizeTechCost(researchTech.TechCost);
+                return (int)(NormalizeTechCost(researchTech.TechCost) * lowPriorityMultiplier);
 
             if (!techType.ToString().Contains("Ship"))
-                return NormalizeTechCost(researchTech.CostOfNextTechWithType(techType));
+                return (int)(NormalizeTechCost(researchTech.CostOfNextTechWithType(techType)) * lowPriorityMultiplier);
 
             return 0;
         }
