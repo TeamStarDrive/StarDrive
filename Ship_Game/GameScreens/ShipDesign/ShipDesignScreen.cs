@@ -495,7 +495,6 @@ namespace Ship_Game
             float ordersBarX = ClassifCursor.X - 15;
             var ordersBarPos = new Vector2(ordersBarX, ClassifCursor.Y + 20);
             OrdersButton = new DesignStanceButtons(this, ordersBarPos);
-            OrdersButton.LoadContent();
             Add(OrdersButton);
 
             UIList bottomListRight = AddList(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));

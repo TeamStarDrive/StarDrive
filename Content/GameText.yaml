@@ -12038,3 +12038,5 @@ SaveShipDesign:
  ENG: "Save Ship Design"
 SaveHullDesign:
  ENG: "Save Hull Design"
+TT_GuardMode:
+ ENG: "Ship will be in guard stance and avoid aggressively engaging and chasing enemy ships"

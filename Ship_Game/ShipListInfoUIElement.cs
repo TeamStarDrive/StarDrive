@@ -70,7 +70,6 @@ namespace Ship_Game
             var ordersBarPos = new Vector2(ordersStartX, Screen.Height - 45f);
 
             OrdersButtons = new ShipStanceButtons(screen, ordersBarPos);
-            OrdersButtons.LoadContent();
 
             var slsubRect = new Rectangle(RightRect.X, Housing.Y + 110 - 35, RightRect.Width - 5, 140);
             SelectedShipsSL = new ScrollList2<SelectedShipListItem>(slsubRect, 24);
