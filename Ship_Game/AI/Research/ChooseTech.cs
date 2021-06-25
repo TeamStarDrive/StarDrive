@@ -267,7 +267,7 @@ namespace Ship_Game.AI.Research
             string researchTopic = "";
 
             availableTechs = LineFocus.LineFocusShipTechs(modifier, availableTechs, command2);
-            
+
             int previousCost = command1 == "CHEAPEST" ? int.MaxValue : int.MinValue;
             switch (command2)
             {
@@ -286,7 +286,7 @@ namespace Ship_Game.AI.Research
                             if (testResearchTopic.NotEmpty())
                                 researchTopic = testResearchTopic;
                             float priority = 0;
-                            // bump priority but consider ship tech categories as more of a unit. 
+                            // bump priority but consider ship tech categories as more of a unit.
                             if (techTypeName.Contains("ship"))
                                 priority = 0.0002f;
                             else
@@ -322,8 +322,6 @@ namespace Ship_Game.AI.Research
                 return testResearchTopic;
 
             int currentCost = CostToResearchTechType(researchTech, techType);
-            currentCost    *= (int)(currentCost * ResearchMods.GetUIDMod(testResearchTopic));
-            currentCost    *= (int)(currentCost * ResearchMods.GetPrimaryTypeMod(techType));
 
             if (currentCost > 0)
             {
@@ -350,17 +348,17 @@ namespace Ship_Game.AI.Research
 
         public int CostToResearchTechType(TechEntry researchTech, TechnologyType techType)
         {
-            float lowPriorityMultiplier = researchTech.Tech.LowPriorityCostMultiplier.Clamped(0.1f, 10);
+            float cost = 0;
             if (researchTech.IsTechnologyType(techType))
-                return (int)(NormalizeTechCost(researchTech.TechCost) * lowPriorityMultiplier);
+                cost = NormalizeTechCost(researchTech.TechCost);
 
-            if (!researchTech.IsPrimaryShipTech() && LineFocus.BestCombatShip?.shipData.TechsNeeded.Contains(researchTech.UID) == true)
-                return (int)(NormalizeTechCost(researchTech.TechCost) * lowPriorityMultiplier);
+            else if (!researchTech.IsPrimaryShipTech() && LineFocus.BestCombatShip?.shipData.TechsNeeded.Contains(researchTech.UID) == true)
+                cost = NormalizeTechCost(researchTech.TechCost);
 
-            if (!techType.ToString().Contains("Ship"))
-                return (int)(NormalizeTechCost(researchTech.CostOfNextTechWithType(techType)) * lowPriorityMultiplier);
+            else  if (!techType.ToString().Contains("Ship"))
+                cost = NormalizeTechCost(researchTech.CostOfNextTechWithType(techType));
 
-            return 0;
+            return (int)Math.Ceiling(cost * (cost > 0 ? ResearchMods.CostMultiplier(researchTech) : 0));
         }
 
         public static TechnologyType ConvertTechStringTechType(string typeName)
@@ -395,10 +393,10 @@ namespace Ship_Game.AI.Research
                 {
                     return IsLineFocusedShipTech(tech);
                 }
-                // dont use primary ship techs for normal techs. 
+                // dont use primary ship techs for normal techs.
                 if (!wantsShipTech && tech.IsPrimaryShipTech())
                     return false;
-                // do a loose check for tech type. 
+                // do a loose check for tech type.
                 if (!tech.IsTechnologyType(techType))
                     return false;
 
@@ -407,8 +405,8 @@ namespace Ship_Game.AI.Research
 
             if (techsTypeFiltered.Length == 0)
             {
-                // if not techs found do a looser check. 
-                // does the tech have any of the wanted types. 
+                // if not techs found do a looser check.
+                // does the tech have any of the wanted types.
                 // if not do any future techs have teh wanted type
                 if (wantsShipTech)
                 {
