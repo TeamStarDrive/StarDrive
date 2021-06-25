@@ -50,20 +50,12 @@ namespace Ship_Game.AI.Research
                     case ShipData.RoleName.bomber    when !empire.canBuildBombers:      techScore *= options.GetShipMod(Bomber);     break;
                     case ShipData.RoleName.carrier   when !empire.canBuildCarriers:     techScore *= options.GetShipMod(Carrier);    break;
                 }
-                float costRatio = techScore / avgNonShipTechCost;
-                return techScore * costRatio;
+                float costRatio  = techScore / avgNonShipTechCost;
+                float randomBase = techScore * options.GetShipMod(Randomize);
+                float random     = randomBase > 0 ? RandomMath.AvgRandomBetween(-randomBase, randomBase) : 0;
+                return techScore * costRatio + random;
             });
             return pickedShip;
         }
-
-        /*
-         *              { "SHIPTECH",     Randomizer(threat,                   1f)          },
-                { "Research",     Randomizer(strat.ResearchRatio + 1,  ResearchDebt)},
-                { "Colonization", Randomizer(strat.ExpansionRatio + 1, FoodNeeds)   },
-                { "Economic",     Randomizer(strat.ExpansionRatio + 1, Economics)   },
-                { "Industry",     Randomizer(strat.IndustryRatio + 1,  Industry)    },
-                { "General",      Randomizer(strat.ResearchRatio + 1,  0)           },
-                { "GroundCombat", Randomizer(strat.MilitaryRatio + 1,  threat)},
-         */
     }
 }
