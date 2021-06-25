@@ -11,6 +11,7 @@ namespace Ship_Game
         class DebugStatItem : ScrollListItem<DebugStatItem>
         {
             string Title;
+            const float TitleOffset = 100;
             readonly AggregatePerfTimer ThisTime;
             readonly AggregatePerfTimer MasterTime;
             readonly Func<string> DynamicText;
@@ -31,18 +32,18 @@ namespace Ship_Game
                 Title = title;
                 HeaderMaxWidth = 800;
                 ThisTime = perfTimer;
-                Init(title, 0, 80);
+                Init(title, 0, TitleOffset);
             }
             public DebugStatItem(string title, Func<string> dynamicText)
             {
                 DynamicText = dynamicText;
-                Init(title, 0, 80);
+                Init(title, 0, TitleOffset);
             }
             public DebugStatItem(string title, AggregatePerfTimer perfTimer, AggregatePerfTimer master)
             {
                 ThisTime = perfTimer;
                 MasterTime = master;
-                Init(title, 10, 80);
+                Init(title, 10, TitleOffset);
             }
             void Init(string title, float titleX, float valueX)
             {
@@ -88,10 +89,8 @@ namespace Ship_Game
                 DebugStats.AddItem(new DebugStatItem("Perf", () => "avg-sample  max-sample  total/sec"));
 
                 var sim = DebugStats.AddItem(new DebugStatItem("Sim", ProcessSimTurnsPerf, true));
-                sim.AddSubItem(new DebugStatItem("FPS", 
-                    () => $"actual:{ActualSimFPS}  target:{CurrentSimFPS}"));
-                sim.AddSubItem(new DebugStatItem("NumTurns", 
-                    () => ProcessSimTurnsPerf.MeasuredSamples.ToString()));
+                sim.AddSubItem(new DebugStatItem("FPS", () => $"actual:{ActualSimFPS}  target:{CurrentSimFPS}"));
+                sim.AddSubItem(new DebugStatItem("NumTurns", () => ProcessSimTurnsPerf.MeasuredSamples.ToString()));
 
                 var turn = DebugStats.AddItem(new DebugStatItem("Turn", TurnTimePerf, true));
                 turn.AddSubItem(new DebugStatItem("PreEmp", PreEmpirePerf, TurnTimePerf));
@@ -106,6 +105,8 @@ namespace Ship_Game
                 objects.AddSubItem(new DebugStatItem("Systems", Objects.SysPerf, Objects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Ships", Objects.ShipsPerf, Objects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Projectiles", Objects.ProjPerf, Objects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("Sensors", Objects.SensorPerf, Objects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("Sensors", () => $"current:{Objects.Scans} per/s:{Objects.ScansPerSec}"));
                 objects.AddSubItem(new DebugStatItem("Visibility", Objects.VisPerf, Objects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Spatial", Spatial.UpdateTime, Objects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Collide", Spatial.CollisionTime, Objects.TotalTime));

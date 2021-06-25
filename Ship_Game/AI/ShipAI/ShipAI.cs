@@ -766,7 +766,7 @@ namespace Ship_Game.AI
             ScanForThreatTimer -= timeStep.FixedTime;
             if (ScanForThreatTimer <= 0f)
             {
-                SensorScan();
+                SensorScanAndAutoCombat();
             }
         }
 
@@ -776,7 +776,6 @@ namespace Ship_Game.AI
             if (OrderQueue.NotEmpty)
                 OrderQueue.RemoveLast();
         }
-
 
         void PrioritizePlayerCommands()
         {

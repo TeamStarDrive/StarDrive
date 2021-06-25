@@ -35,10 +35,10 @@ namespace Ship_Game.Gameplay
             switch (type)
             {
                 default:
-                case SpatialType.Grid:         newSpatial = new NativeSpatial(type, UniverseWidth, 10_000); break;
+                case SpatialType.Grid:         newSpatial = new NativeSpatial(type, UniverseWidth, 8_000); break;
                 case SpatialType.Qtree:        newSpatial = new NativeSpatial(type, UniverseWidth, 1024); break;
-                case SpatialType.GridL2:       newSpatial = new NativeSpatial(type, UniverseWidth, 20_000, 1000); break;
-                case SpatialType.ManagedQtree: newSpatial = new Qtree(UniverseWidth, 1024); break;
+                case SpatialType.GridL2:       newSpatial = new NativeSpatial(type, UniverseWidth, 16_000, 500); break;
+                case SpatialType.ManagedQtree: newSpatial = new Qtree(UniverseWidth, 512); break;
             }
             Log.Info($"SpatialManager {newSpatial.Name} Width: {UniverseWidth}  FullSize: {(int)newSpatial.FullSize}");
             return newSpatial;

@@ -111,9 +111,12 @@ namespace Ship_Game.Spatial
 
         public void Clear()
         {
-            SpatialClear(Spat);
-            Root = SpatialGetRoot(Spat);
-            Objects = Empty<GameplayObject>.Array;
+            using (Lock.AcquireWriteLock())
+            {
+                SpatialClear(Spat);
+                Root = SpatialGetRoot(Spat);
+                Objects = Empty<GameplayObject>.Array;
+            }
         }
 
         public void UpdateAll(Array<GameplayObject> allObjects)
@@ -214,12 +217,12 @@ namespace Ship_Game.Spatial
                 },
                 MaxResults = opt.MaxResults,
                 SortByDistance = opt.SortByDistance ? 1 : 0,
-                FilterByType = (int)opt.Type,
-                FilterExcludeObjectId = ignoreId,
-                FilterExcludeByLoyalty = opt.ExcludeLoyalty?.Id ?? 0,
-                FilterIncludeOnlyByLoyalty = opt.OnlyLoyalty?.Id ?? 0,
+                Type = (int)opt.Type,
+                ExcludeObjectId = ignoreId,
+                ExcludeLoyalty = opt.ExcludeLoyalty?.Id ?? 0,
+                IncludeLoyalty = opt.OnlyLoyalty?.Id ?? 0,
                 FilterFunction = null,
-                EnableSearchDebugId = opt.DebugId,
+                DebugId = opt.DebugId,
             };
             
             (GameplayObject[] objects, IntPtr root) = GetObjectsAndRootSafe();
@@ -270,12 +273,12 @@ namespace Ship_Game.Spatial
             public Circle RadialFilter;
             public int MaxResults;
             public int SortByDistance;
-            public int FilterByType;
-            public int FilterExcludeObjectId;
-            public int FilterExcludeByLoyalty;
-            public int FilterIncludeOnlyByLoyalty;
+            public int Type;
+            public int ExcludeObjectId;
+            public int ExcludeLoyalty;
+            public int IncludeLoyalty;
             public SearchFilter FilterFunction;
-            public int EnableSearchDebugId;
+            public int DebugId;
         };
 
         struct Point
@@ -324,8 +327,7 @@ namespace Ship_Game.Spatial
         static GameScreen Screen;
         static void DrawRect(AABoundingBox2Di r, SpatialColor c)
         {
-            Screen.DrawRectangleProjected(new Rectangle(r.X1, r.Y1, r.Width, r.Height),
-                                          new Color(c.r, c.g, c.b, c.a));
+            Screen.DrawRectProjected(r, new Color(c.r, c.g, c.b, c.a));
         }
         static void DrawCircle(Circle ci, SpatialColor c)
         {
