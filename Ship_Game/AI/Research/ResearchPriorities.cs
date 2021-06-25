@@ -10,7 +10,7 @@ namespace Ship_Game.AI.Research
         public float ResearchDebt { get; }
         public float Wars { get; }
         public float Economics { get; }
-        public float BuildCapacity { get; }
+
         private readonly float FoodNeeds;
         private readonly float Industry;
         public readonly string TechCategoryPrioritized;

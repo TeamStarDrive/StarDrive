@@ -7,7 +7,7 @@ namespace Ship_Game.AI.Research
     {
         readonly Empire OwnerEmpire;
         int ScriptIndex;
-        public EmpireAI.ResearchStrategy ScriptType { get; private set; }
+        public ResearchStrategy ScriptType { get; private set; }
         public readonly ShipTechLineFocusing LineFocus;
         ResearchPriorities ResearchPriorities;
         readonly EconomicResearchStrategy Strategy;
@@ -21,21 +21,48 @@ namespace Ship_Game.AI.Research
             return (int)Math.Ceiling(techCost * CostNormalizer);
         }
 
+        public enum ResearchStrategy
+        {
+            Random,
+            Scripted
+        }
+
         public ChooseTech(Empire empire)
         {
             OwnerEmpire    = empire;
             Strategy       = OwnerEmpire.Research.Strategy;
             ResearchMods   = new ResearchOptions();
             LineFocus      = new ShipTechLineFocusing(empire, ResearchMods);
-            ScriptType     = Strategy?.TechPath?.Count > 0 ? EmpireAI.ResearchStrategy.Scripted : EmpireAI.ResearchStrategy.Random;
+            ScriptType     = Strategy?.TechPath?.Count > 0 ? ResearchStrategy.Scripted : ResearchStrategy.Random;
         }
 
         private void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
 
-        public void InitializeNewResearchRun(ResearchPriorities researchPriority)
+        public ResearchPriorities GetPriorities() => ResearchPriorities;
+
+        public void PickResearchTopic(string command)
         {
-            ResearchPriorities = researchPriority;
+            Empire.Universe?.DebugWin?.ClearResearchLog(OwnerEmpire);
+            OwnerEmpire.data.TechDelayTime++;
+            ResearchPriorities = new ResearchPriorities(OwnerEmpire, ResearchMods);
             CostNormalizer = OwnerEmpire.Research.NetResearch.LowerBound(1) / 100f;
+            DebugLog($"ResearchStrategy : {ScriptType.ToString()}");
+
+            switch (ScriptType)
+            {
+                case ResearchStrategy.Random:
+                    {
+                        ScriptedResearch(command, "RANDOM", GetPriorities().TechCategoryPrioritized);
+                        break;
+                    }
+                case ResearchStrategy.Scripted:
+                    {
+                        ProcessScript();
+                        break;
+                    }
+                default:
+                    return;
+            }
         }
 
         public bool ProcessScript()
@@ -195,7 +222,7 @@ namespace Ship_Game.AI.Research
             {
                 GoRandomOnce();
                 if (loopCount >= OwnerEmpire.Research.Strategy.TechPath.Count)
-                    ScriptType = EmpireAI.ResearchStrategy.Random;
+                    ScriptType = ResearchStrategy.Random;
 
             }
             return false;
@@ -204,9 +231,9 @@ namespace Ship_Game.AI.Research
         bool GoRandomOnce(string command = "CHEAPEST")
         {
             DebugLog("Go Random Once");
-            ScriptType = EmpireAI.ResearchStrategy.Random;
+            ScriptType = ResearchStrategy.Random;
             ScriptedResearch(command, "RANDOM", ResearchPriorities.TechCategoryPrioritized);
-            ScriptType = EmpireAI.ResearchStrategy.Scripted;
+            ScriptType = ResearchStrategy.Scripted;
             return OwnerEmpire.Research.HasTopic;
         }
 
