@@ -364,70 +364,6 @@ namespace Ship_Game.AI
             return false;
         }
 
-
-        void UpdateCombatStateAI(FixedSimTime timeStep)
-        {
-            FireWeapons(timeStep);
-
-            if (BadGuysNear && !IgnoreCombat && !HasPriorityOrder)
-            {
-                if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters)
-                {
-                    if (Target != null && !HasPriorityOrder && State != AIState.Resupply)
-                    {
-                        switch (OrderQueue.PeekFirst?.Plan)
-                        {
-                            default: PushGoalToFront(new ShipGoal(Plan.DoCombat, State)); break;
-                            case Plan.DoCombat:
-                            case Plan.Bombard:
-                            case Plan.BoardShip: break;
-                        }
-                    }
-                }
-            }
-            else if (!BadGuysNear)
-            {
-                FireOnMainTargetTime = 0;
-                int count = Owner.Weapons.Count;
-                Weapon[] items = Owner.Weapons.GetInternalArrayItems();
-                for (int x = 0; x < count; x++)
-                    items[x].ClearFireTarget();
-
-                if (Owner.Carrier.HasHangars)
-                {
-                    foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
-                    {
-                        if (hangar.TryGetHangarShip(out Ship hangarShip) 
-                            && hangarShip.Active 
-                            && hangarShip.AI.State != AIState.ReturnToHangar)
-                        {
-                            if (Owner.loyalty == Empire.Universe.player
-                                && (hangarShip.AI.HasPriorityTarget || hangarShip.AI.HasPriorityOrder))
-                            {
-                                continue;
-                            }
-
-                            if (Owner.Carrier.FightersLaunched)
-                                hangarShip.DoEscort(Owner);
-                            else
-                                hangarShip.AI.OrderReturnToHangar();
-                        }
-                    }
-                }
-            }
-
-            // fbedard: civilian ships will evade combat (nice target practice)
-            if (Owner.shipData.ShipCategory == ShipData.Category.Civilian && BadGuysNear)
-            {
-                if (Owner.WeaponsMaxRange <= 0 || PotentialTargets.Sum(o => o.GetStrength()) < Owner.GetStrength())
-                {
-                    CombatState = CombatState.Evade;
-                }
-                
-
-            }
-        }
-
         void AIStateRebase()
         {
             if (State != AIState.Rebase) 
@@ -766,7 +702,7 @@ namespace Ship_Game.AI
             ScanForThreatTimer -= timeStep.FixedTime;
             if (ScanForThreatTimer <= 0f)
             {
-                SensorScanAndAutoCombat();
+                SensorScanAndSelectTarget();
             }
         }
 

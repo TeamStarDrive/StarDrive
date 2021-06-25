@@ -20,7 +20,6 @@ namespace Ship_Game.AI.CombatTactics.UI
                 Reset(new CombatState[0]);
             else
                 Reset(ships.Select(s => s.shipData.CombatState));
-
         }
 
         protected override void ApplyStance(CombatState stance)

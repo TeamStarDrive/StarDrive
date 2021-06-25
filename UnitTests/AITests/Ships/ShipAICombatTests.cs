@@ -42,7 +42,7 @@ namespace UnitTests.AITests.Ships
                 Universe.Objects.Update(TestSimStep);
                 // 2. then run the scans
                 foreach (Ship s in Universe.Objects.Ships)
-                    s.AI.SensorScanAndAutoCombat();
+                    s.AI.SensorScanAndSelectTarget();
             }
         }
 
