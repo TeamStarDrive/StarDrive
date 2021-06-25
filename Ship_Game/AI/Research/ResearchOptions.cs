@@ -30,7 +30,8 @@ namespace Ship_Game.AI.Research
             Freighter,
             AllHulls,
             Orbitals,
-            GroundCombat
+            GroundCombat,
+            Randomize
         }
 
         public enum ResearchArea
@@ -43,10 +44,6 @@ namespace Ship_Game.AI.Research
             General,
             GroundCombat
         }
-
-        //ToDo: put research priority mods here.
-        public enum TechPriorityBonuses
-        {}
 
         public ResearchOptions()
         {
@@ -61,6 +58,9 @@ namespace Ship_Game.AI.Research
             ShipMods[ShipCosts.AllHulls]     = 2;
             ShipMods[ShipCosts.Orbitals]     = 2f;
             ShipMods[ShipCosts.GroundCombat] = 0.95f;
+            /// Random= TechCost * randomizer
+            /// TechCost += randomBetween -Random and Random.
+            ShipMods[ShipCosts.Randomize]    = 0f;
 
             //TechUIDS
 
