@@ -7,30 +7,62 @@ namespace Ship_Game.AI.Research
     {
         readonly Empire OwnerEmpire;
         int ScriptIndex;
-        public EmpireAI.ResearchStrategy ScriptType { get; private set; }
+        public ResearchStrategy ScriptType { get; private set; }
         public readonly ShipTechLineFocusing LineFocus;
         ResearchPriorities ResearchPriorities;
         readonly EconomicResearchStrategy Strategy;
+        readonly ResearchOptions ResearchMods;
 
         // this reduces the cost of techs so that techs that are near the same cost
         // get compared as if they are the same cost.
         float CostNormalizer;
-        int NormalizeTechCost(float techCost) => (int)Math.Ceiling(techCost * CostNormalizer);
+        int NormalizeTechCost(float techCost)
+        {
+            return (int)Math.Ceiling(techCost * CostNormalizer);
+        }
+
+        public enum ResearchStrategy
+        {
+            Random,
+            Scripted
+        }
 
         public ChooseTech(Empire empire)
         {
-            OwnerEmpire = empire;
-            Strategy    = OwnerEmpire.Research.Strategy;
-            LineFocus   = new ShipTechLineFocusing(empire);
-            ScriptType  = Strategy?.TechPath?.Count > 0 ? EmpireAI.ResearchStrategy.Scripted : EmpireAI.ResearchStrategy.Random;
+            OwnerEmpire    = empire;
+            Strategy       = OwnerEmpire.Research.Strategy;
+            ResearchMods   = new ResearchOptions();
+            LineFocus      = new ShipTechLineFocusing(empire, ResearchMods);
+            ScriptType     = Strategy?.TechPath?.Count > 0 ? ResearchStrategy.Scripted : ResearchStrategy.Random;
         }
 
         private void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
 
-        public void InitializeNewResearchRun(ResearchPriorities researchPriority)
+        public ResearchPriorities GetPriorities() => ResearchPriorities;
+
+        public void PickResearchTopic(string command)
         {
-            ResearchPriorities = researchPriority;
+            Empire.Universe?.DebugWin?.ClearResearchLog(OwnerEmpire);
+            OwnerEmpire.data.TechDelayTime++;
+            ResearchPriorities = new ResearchPriorities(OwnerEmpire, ResearchMods);
             CostNormalizer = OwnerEmpire.Research.NetResearch.LowerBound(1) / 100f;
+            DebugLog($"ResearchStrategy : {ScriptType.ToString()}");
+
+            switch (ScriptType)
+            {
+                case ResearchStrategy.Random:
+                    {
+                        ScriptedResearch(command, "RANDOM", GetPriorities().TechCategoryPrioritized);
+                        break;
+                    }
+                case ResearchStrategy.Scripted:
+                    {
+                        ProcessScript();
+                        break;
+                    }
+                default:
+                    return;
+            }
         }
 
         public bool ProcessScript()
@@ -190,7 +222,7 @@ namespace Ship_Game.AI.Research
             {
                 GoRandomOnce();
                 if (loopCount >= OwnerEmpire.Research.Strategy.TechPath.Count)
-                    ScriptType = EmpireAI.ResearchStrategy.Random;
+                    ScriptType = ResearchStrategy.Random;
 
             }
             return false;
@@ -199,9 +231,9 @@ namespace Ship_Game.AI.Research
         bool GoRandomOnce(string command = "CHEAPEST")
         {
             DebugLog("Go Random Once");
-            ScriptType = EmpireAI.ResearchStrategy.Random;
+            ScriptType = ResearchStrategy.Random;
             ScriptedResearch(command, "RANDOM", ResearchPriorities.TechCategoryPrioritized);
-            ScriptType = EmpireAI.ResearchStrategy.Scripted;
+            ScriptType = ResearchStrategy.Scripted;
             return OwnerEmpire.Research.HasTopic;
         }
 
@@ -235,7 +267,7 @@ namespace Ship_Game.AI.Research
             string researchTopic = "";
 
             availableTechs = LineFocus.LineFocusShipTechs(modifier, availableTechs, command2);
-            
+
             int previousCost = command1 == "CHEAPEST" ? int.MaxValue : int.MinValue;
             switch (command2)
             {
@@ -254,7 +286,7 @@ namespace Ship_Game.AI.Research
                             if (testResearchTopic.NotEmpty())
                                 researchTopic = testResearchTopic;
                             float priority = 0;
-                            // bump priority but consider ship tech categories as more of a unit. 
+                            // bump priority but consider ship tech categories as more of a unit.
                             if (techTypeName.Contains("ship"))
                                 priority = 0.0002f;
                             else
@@ -289,7 +321,7 @@ namespace Ship_Game.AI.Research
             if (testResearchTopic.IsEmpty())
                 return testResearchTopic;
 
-            int currentCost = (int)(CostToResearchTechType(researchTech, techType));
+            int currentCost = CostToResearchTechType(researchTech, techType);
 
             if (currentCost > 0)
             {
@@ -316,17 +348,17 @@ namespace Ship_Game.AI.Research
 
         public int CostToResearchTechType(TechEntry researchTech, TechnologyType techType)
         {
-            float lowPriorityMultiplier = researchTech.Tech.LowPriorityCostMultiplier.Clamped(0.1f, 10);
+            float cost = 0;
             if (researchTech.IsTechnologyType(techType))
-                return (int)(NormalizeTechCost(researchTech.TechCost) * lowPriorityMultiplier);
+                cost = NormalizeTechCost(researchTech.TechCost);
 
-            if (!researchTech.IsPrimaryShipTech() && LineFocus.BestCombatShip?.shipData.TechsNeeded.Contains(researchTech.UID) == true)
-                return (int)(NormalizeTechCost(researchTech.TechCost) * lowPriorityMultiplier);
+            else if (!researchTech.IsPrimaryShipTech() && LineFocus.BestCombatShip?.shipData.TechsNeeded.Contains(researchTech.UID) == true)
+                cost = NormalizeTechCost(researchTech.TechCost);
 
-            if (!techType.ToString().Contains("Ship"))
-                return (int)(NormalizeTechCost(researchTech.CostOfNextTechWithType(techType)) * lowPriorityMultiplier);
+            else  if (!techType.ToString().Contains("Ship"))
+                cost = NormalizeTechCost(researchTech.CostOfNextTechWithType(techType));
 
-            return 0;
+            return (int)Math.Ceiling(cost * (cost > 0 ? ResearchMods.CostMultiplier(researchTech) : 0));
         }
 
         public static TechnologyType ConvertTechStringTechType(string typeName)
@@ -361,10 +393,10 @@ namespace Ship_Game.AI.Research
                 {
                     return IsLineFocusedShipTech(tech);
                 }
-                // dont use primary ship techs for normal techs. 
+                // dont use primary ship techs for normal techs.
                 if (!wantsShipTech && tech.IsPrimaryShipTech())
                     return false;
-                // do a loose check for tech type. 
+                // do a loose check for tech type.
                 if (!tech.IsTechnologyType(techType))
                     return false;
 
@@ -373,8 +405,8 @@ namespace Ship_Game.AI.Research
 
             if (techsTypeFiltered.Length == 0)
             {
-                // if not techs found do a looser check. 
-                // does the tech have any of the wanted types. 
+                // if not techs found do a looser check.
+                // does the tech have any of the wanted types.
                 // if not do any future techs have teh wanted type
                 if (wantsShipTech)
                 {

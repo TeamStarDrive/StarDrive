@@ -10,12 +10,14 @@ namespace Ship_Game.AI.Research
         readonly Empire OwnerEmpire;
         public Ship BestCombatShip { get; private set; }
         public ShipPicker PickShipToResearch = new ShipPicker();
+        ResearchOptions ResearchMods;
 
         void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
 
-        public ShipTechLineFocusing (Empire empire)
+        public ShipTechLineFocusing (Empire empire, ResearchOptions researchMods)
         {
-            OwnerEmpire = empire;
+            OwnerEmpire  = empire;
+            ResearchMods = researchMods;
         }
 
         public Array<TechEntry> LineFocusShipTechs(string modifier, Array<TechEntry> availableTechs, string scriptedOrRandom)
@@ -403,7 +405,7 @@ namespace Ship_Game.AI.Research
 
             if (!DisableShipPicker)
             {
-                BestCombatShip = PickShipToResearch.FindCheapestShipInList(OwnerEmpire, researchableShips, nonShipTechs);
+                BestCombatShip = PickShipToResearch.FindCheapestShipInList(OwnerEmpire, researchableShips, nonShipTechs, ResearchMods);
                 if (BestCombatShip != null)
                     return UseBestShipTechs(shipTechs, nonShipTechs);
             }
