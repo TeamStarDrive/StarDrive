@@ -223,9 +223,6 @@ namespace Ship_Game.AI.Tasks
 
         void RequisitionClaimForce()
         {
-            if (Owner.GetEmpireAI().TroopShuttleCapacity <= 0)
-                return;
-
             if (TargetPlanet.Owner != null
                 && TargetPlanet.Owner != EmpireManager.Unknown && !TargetPlanet.Owner.data.IsRebelFaction)
             {
@@ -331,14 +328,10 @@ namespace Ship_Game.AI.Tasks
 
         void RequisitionExplorationForce()
         {
-            if (Owner.GetEmpireAI().TroopShuttleCapacity <= 0)
-                return;
-
             if (TargetPlanet.Owner != null 
                 && TargetPlanet.Owner != Owner
                 && TargetPlanet.Owner != EmpireManager.Unknown
-                && !TargetPlanet.Owner.data.IsRebelFaction
-                || !TargetPlanet.EventsOnTiles())
+                && !TargetPlanet.Owner.data.IsRebelFaction || !TargetPlanet.EventsOnTiles())
             {
                 EndTask();
                 return;

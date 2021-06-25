@@ -22,7 +22,7 @@ namespace Ship_Game.Debug.Page
         {
             foreach (SolarSystem system in Empire.Universe.SolarSystemDict.Values)
             {
-                if (system.isVisible)
+                if (system.IsVisible)
                 {
                     System = system;
                     break;

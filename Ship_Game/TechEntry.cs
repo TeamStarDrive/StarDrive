@@ -164,6 +164,22 @@ namespace Ship_Game
                 || IsTechnologyType(TechnologyType.ShipWeapons);
         }
 
+        public bool IsPrimaryShipTech() => IsTechTypeShipTech(Tech.TechnologyTypes.First());
+
+        bool IsTechTypeShipTech(TechnologyType techType)
+        {
+            switch (techType)
+            {
+                case TechnologyType.ShipHull:
+                case TechnologyType.ShipDefense:
+                case TechnologyType.ShipWeapons:
+                case TechnologyType.ShipGeneral:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         public bool ContainsNonShipTechOrBonus()
         {
             return IsTechnologyType(TechnologyType.General)
@@ -822,9 +838,16 @@ namespace Ship_Game
                     break;
                 case "Top Guns":
                 case "Bonus Fighter Levels":
-                    data.BonusFighterLevels += (int)unlockedBonus.Bonus;
-                    empire.IncreaseEmpireShipRoleLevel(ShipData.RoleName.fighter, (int)unlockedBonus.Bonus);
-                    break;
+                    {
+                        data.BonusFighterLevels += (int)unlockedBonus.Bonus;
+                        data.RoleLevels[(int)ShipData.RoleName.corvette - 1] += (int)unlockedBonus.Bonus;
+                        data.RoleLevels[(int)ShipData.RoleName.drone - 1]    += (int)unlockedBonus.Bonus;
+
+                        var roles = new[]{ ShipData.RoleName.fighter, ShipData.RoleName.corvette, ShipData.RoleName.drone};
+
+                        empire.IncreaseEmpireShipRoleLevel(roles, (int)unlockedBonus.Bonus);
+                        break;
+                    }
                 case "Mass Reduction":
                 case "Percent Mass Adjustment": data.MassModifier += unlockedBonus.Bonus; break;
                 case "ArmourMass": data.ArmourMassModifier += unlockedBonus.Bonus; break;
@@ -900,6 +923,21 @@ namespace Ship_Game
                 case "Smart Missiles": data.Traits.SmartMissiles = true; break; // Fb - Smart re target
                 case "Minimum Troop Level": data.MinimumTroopLevel += (int)unlockedBonus.Bonus; break; // FB Minimum Troop Level Bonus
                 case "Bomb Environment Damage Bonus": data.BombEnvironmentDamageMultiplier += unlockedBonus.Bonus; break;
+                case "ShipRoleLevels":
+                {
+                        var roles = new Array<ShipData.RoleName>();
+                        foreach (var tag in unlockedBonus.Tags)
+                        {
+                            bool foundRole = Enum.TryParse(tag, out ShipData.RoleName roleName);
+                            if (foundRole)
+                            {
+                                roles.Add(roleName);
+                                data.RoleLevels[(int)roleName -1] += (int)unlockedBonus.Bonus;
+                            }
+                        }
+                        empire.IncreaseEmpireShipRoleLevel(roles.ToArray(), (int)unlockedBonus.Bonus);
+                        break;
+                }
             }
         }
 

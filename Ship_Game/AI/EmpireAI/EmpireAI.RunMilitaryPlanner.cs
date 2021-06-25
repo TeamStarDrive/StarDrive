@@ -185,9 +185,9 @@ namespace Ship_Game.AI
             return TaskList.Sum(task => filter(task) ? task.MinimumTaskForceStrength : 0);
         }
 
-        public float GetAvgStrengthNeededByExpansionTasks()
+        public float GetAvgStrengthNeededByExpansionTasks(Empire targetEmpire)
         {
-            var tasks = GetExpansionTasks();
+            var tasks = GetExpansionTasks(targetEmpire);
             if (tasks.Length == 0) return 0;
 
             return tasks.Average(task =>  task.WhichFleet >0 ? task.MinimumTaskForceStrength : 0);
@@ -223,10 +223,17 @@ namespace Ship_Game.AI
             return TaskList.Filter(task => task.Type == MilitaryTask.TaskType.AssaultPirateBase);
         }
 
-        public MilitaryTask[] GetExpansionTasks()
+        public MilitaryTask[] GetExpansionTasks(Empire targetEmpire = null)
         {
-            return TaskList.Filter(task => task.TargetPlanet != null &&
-                (task.Type == MilitaryTask.TaskType.DefendClaim || task.Type == MilitaryTask.TaskType.Exploration));
+            return TaskList.Filter(task =>
+            {
+                if (task.TargetPlanet != null &&
+                    (task.Type == MilitaryTask.TaskType.DefendClaim ||
+                     task.Type == MilitaryTask.TaskType.Exploration) && 
+                     (task.TargetEmpire == targetEmpire || targetEmpire == null)) 
+                    return true;
+                return false;
+            });
         }
 
         public MilitaryTask[] GetPotentialTasksToCompare() 
@@ -326,24 +333,18 @@ namespace Ship_Game.AI
             TaskList.AddRange(aiSave.MilitaryTaskList);
         }
 
-        public void TrySendExplorationFleetToCrashSite(Planet p)
-        {
-            if (TaskList.Filter(t => t.Type == MilitaryTask.TaskType.Exploration)
-                    .Length < 5 + (int)CurrentGame.Difficulty)
-            {
-                SendExplorationFleet(p);
-            }
-        }
-
         public void SendExplorationFleet(Planet p)
         {
-            var task = MilitaryTask.CreateExploration(p, OwnerEmpire);
-            AddPendingTask(task);
+            if (!TaskList.Any(t => t.Type == MilitaryTask.TaskType.Exploration && t.TargetPlanet == p))
+            {
+                var task = MilitaryTask.CreateExploration(p, OwnerEmpire);
+                AddPendingTask(task);
+            }
         }
 
         void BuildWarShips(int goalsInConstruction)
         {
-            var buildRatios = new RoleBuildInfo(BuildCapacity, this, OwnerEmpire.data.TaxRate < 0.15f);
+            var buildRatios = new RoleBuildInfo(BuildCapacity, this, ignoreDebt: FinancialStability > 0.6f);
             //
             while (!buildRatios.OverBudget && goalsInConstruction < NumberOfShipGoals)
             {
@@ -534,17 +535,20 @@ namespace Ship_Game.AI
                 {
                     switch (Role)
                     {
-                        case CombatRole.Disabled: return 0;
-                        case CombatRole.Fighter:  return ratio.MinFighters;
-                        case CombatRole.Corvette: return ratio.MinCorvettes;
-                        case CombatRole.Frigate:  return ratio.MinFrigates;
-                        case CombatRole.Cruiser:  return ratio.MinCruisers;
-                        case CombatRole.Capital:  return ratio.MinCapitals;
-                        case CombatRole.Carrier:  return ratio.MinCarriers;
-                        case CombatRole.Bomber:   return ratio.MinBombers;
-                        case CombatRole.Support:  return ratio.MinSupport;
-                        case CombatRole.TroopShip:return ratio.MinTroopShip;
-                        default:                  return 0;
+                        case CombatRole.Disabled:   return 0;
+                        case CombatRole.Fighter:    return ratio.MinFighters;
+                        case CombatRole.Corvette:   return ratio.MinCorvettes;
+                        case CombatRole.Frigate:    return ratio.MinFrigates;
+                        case CombatRole.Cruiser:    return ratio.MinCruisers;
+                        case CombatRole.Capital:    return ratio.MinCapitals;
+                        case CombatRole.Carrier:    return ratio.MinCarriers;
+                        case CombatRole.Bomber:     return ratio.MinBombers;
+                        case CombatRole.Support:    return ratio.MinSupport;
+                        case CombatRole.TroopShip:  return ratio.MinTroopShip;
+                        case CombatRole.Battleship: return ratio.MinBattleships;
+
+                        default:
+                            throw new ArgumentOutOfRangeException($"Missing {Role} in MinRatios");
                     }
                 }
 

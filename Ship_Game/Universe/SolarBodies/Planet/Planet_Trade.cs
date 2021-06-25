@@ -35,7 +35,7 @@ namespace Ship_Game
         public int FreeProdImportSlots     => FreeFreighterSlots(ProdImportSlots, IncomingProdFreighters);
         public int FreeColonistImportSlots => FreeFreighterSlots(ColonistsImportSlots, IncomingColonistsFreighters);
 
-        public bool TradeBlocked => HasSpacePort && SpaceCombatNearPlanet || !HasSpacePort && !Safe;
+        public bool TradeBlocked => HasSpacePort && SpaceCombatNearPlanet || !HasSpacePort && !Safe || Quarantine;
 
         public int FoodExportSlots
         {

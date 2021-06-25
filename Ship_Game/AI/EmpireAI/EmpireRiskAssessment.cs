@@ -32,59 +32,111 @@ namespace Ship_Game.AI
             MaxRisk     = MathExt.Max3(Expansion, Border, KnownThreat);
         }
 
+        /// <summary>
+        /// figure the expansion risk created by target empire.
+        /// for factions we are just going to look at raw blocked colony goals.
+        /// for others we are going to compare expansion scores. 
+        /// </summary>
         private float ExpansionRiskAssessment(Empire us)
         {
-            float expansion = us.GetExpansionRatio(); 
             if (!Relation.Known  || Them == null || Them.data.Defeated)
-                return expansion;
+                return 0;
+            if (Relation.Treaty_OpenBorders)
+                return 0;
 
-            var numberofTheirPlanets = Them.NumPlanets;
-            if (Them.isFaction)
-                numberofTheirPlanets = us.GetEmpireAI().ThreatMatrix.GetAllSystemsWithFactions().Sum(s => s.PlanetList.Count);
+            float expansion = us.GetExpansionRatio() / 4;
 
-            if (us.NumPlanets > 0 && Them.NumPlanets > 0)
+            float risk = 0;
+            if (Them.isFaction || us.isFaction)
             {
-                var planetRatio = Them.NumPlanets / (float)us.NumPlanets;
+                if (us.GetEmpireAI().FinancialStability > 0.75f && (Relation.AtWar || Relation.IsHostile))
+                {
+                    float strengthNeeded = us.GetEmpireAI().GetAvgStrengthNeededByExpansionTasks(Them);
 
-                expansion *= planetRatio;
-                if (planetRatio > us.DifficultyModifiers.ExpansionMultiplier)
-                    expansion /= us.DifficultyModifiers.ExpansionMultiplier;
+                    if (strengthNeeded > 0)
+                    {
+                        float currentStrength = us.AIManagedShips.EmpireReadyFleets.AccumulatedStrength;
+                        float currentThreat = us.GetEmpireAI().ThreatLevel;
+                        float possibleStrength = currentStrength / currentThreat;
+                        if (possibleStrength > strengthNeeded)
+                            return 10;
+                    }
+                }
+                return 0;
             }
 
-            return expansion;
+            float expansionRatio = Them.ExpansionScore / us.ExpansionScore.LowerBound(1);
+            risk = (expansionRatio).LowerBound(0);
+
+            return (risk + expansion) / 2;
         }
 
+        /// <summary>
+        /// For faction we will return 0 threat from borders.
+        /// For empires we will find the closest system to any of ours.
+        /// use that to determine the border pressure that they are putting on us. 
+        /// </summary>
         private float BorderRiskAssessment(Empire us, float riskLimit = 2)
         {
-            float ourOffensiveRatio = us.GetWarOffensiveRatio().LowerBound(0.1f);
-            float ourTotalSystems = us.NumSystems;
-            if (!Relation.Known || Them.data.Defeated || ourTotalSystems < 1 || Them.GetOwnedSystems().Count == 0 || Them == EmpireManager.Unknown)
-                return ourOffensiveRatio;
+            if (!Relation.Known || Them.data.Defeated || us.NumSystems < 1 || Them.GetOwnedSystems().Count == 0 || Them == EmpireManager.Unknown)
+                return 0;
 
-            int ourBorderSystems = us.GetOurBorderSystemsTo(Them, true).Count;
-            float space = Empire.Universe.UniverseSize ;
-            float distance = (space - us.WeightedCenter.Distance(Them.WeightedCenter)).LowerBound(1);
-            distance /= space;
+            // if we have an open borders treaty or they are a faction return 0
+            if (Relation.Treaty_OpenBorders || Them.isFaction)
+                return 0;
 
-            float borders = (ourBorderSystems / ourTotalSystems);
+            float ourOffensiveRatio = us.GetWarOffensiveRatio();
+            float distanceToNearest = float.MaxValue;
+            foreach (var system in us.GetOwnedSystems())
+            {
+                foreach(var theirSystem in Them.GetOwnedSystems())
+                {
+                    float distance = system.Position.Distance(theirSystem.Position);
+                    distanceToNearest = Math.Min(distanceToNearest, distance);
+                    if (distanceToNearest == 0) break;
+                }
+                if (distanceToNearest == 0) break;
+            }
 
-            return (borders ) * ourOffensiveRatio;
-; 
+            // size is only the positive half of the universe. so double it.
+            float space = Empire.Universe.UniverseSize * 2;
+            float distanceThreat = (space - distanceToNearest) / space;
+            float threat = (float)Them.TotalScore / us.TotalScore;
+            float risk = (threat * distanceThreat - 0.5f).LowerBound(0);
+
+            risk = Math.Max(risk, ourOffensiveRatio);
+            bool reduceThreat = Relation.Treaty_NAPact;
+            
+            risk /= reduceThreat ? 2 : 1;
+
+            return risk;
         }
 
         private float RiskAssessment(Empire us, float riskLimit = 2)
         {
             if (!Relation.Known || Them.data.Defeated || Them == EmpireManager.Unknown)
                 return 0;
+            if (Them.isFaction || Relation.Treaty_Alliance)
+                return 0;
 
             var riskBase = us.GetWarOffensiveRatio();
             float risk = 0;
-            float ourBuildCap = us.GetEmpireAI().BuildCapacity.LowerBound(1);
-            float theirBuildCap = Relation.KnownInformation.AllianceEconomicStrength;
-            risk = theirBuildCap / ourBuildCap;
-            risk = risk * riskBase;
+
+            float ourScore = us.TotalScore;
+            float theirScore = Them.TotalScore;
+            
+            risk = theirScore / ourScore;
+            risk = (riskBase + risk) / 2;
+            if (!Relation.PreparingForWar && !Relation.AtWar)
+            {
+                risk = (risk - 0.5f).LowerBound(0);
+                risk = (risk - Relation.Trust * 0.01f).LowerBound(0);
+                risk /= (!Relation.PreparingForWar && Relation.Treaty_NAPact) ? 2 : 1;
+            }
+            else
+                risk = 10;
+
             return risk; 
         }
-
     }
 }

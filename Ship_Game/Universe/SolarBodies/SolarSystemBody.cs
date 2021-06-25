@@ -159,7 +159,7 @@ namespace Ship_Game
         public BatchRemovalCollection<Combat> ActiveCombats = new BatchRemovalCollection<Combat>();
         public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<OrbitalDrop>();
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
-        protected readonly Array<Building> BuildingsCanBuild = new Array<Building>();
+        protected Array<Building> BuildingsCanBuild = new Array<Building>();
         public bool IsConstructing => Construction.NotEmpty;
         public bool NotConstructing => Construction.Empty;
         public int NumConstructing => Construction.Count;
@@ -319,7 +319,7 @@ namespace Ship_Game
         protected void UpdatePosition(FixedSimTime timeStep)
         {
             PosUpdateTimer -= timeStep.FixedTime;
-            if (!Empire.Universe.Paused && (PosUpdateTimer <= 0.0f || ParentSystem.isVisible))
+            if (!Empire.Universe.Paused && (PosUpdateTimer <= 0.0f || ParentSystem.IsVisible))
             {
                 PosUpdateTimer = 5f;
                 OrbitalAngle += (float) Math.Asin(15.0 / OrbitalRadius);
@@ -328,7 +328,7 @@ namespace Ship_Game
                 Center = ParentSystem.Position.PointFromAngle(OrbitalAngle, OrbitalRadius);
             }
 
-            if (ParentSystem.isVisible)
+            if (ParentSystem.IsVisible)
             {
                 Zrotate += ZrotateAmount * timeStep.FixedTime;
                 SO.World = Matrix.CreateScale(3f)

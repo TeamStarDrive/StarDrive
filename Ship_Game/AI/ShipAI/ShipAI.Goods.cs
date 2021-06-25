@@ -1,7 +1,4 @@
-﻿using Ship_Game.Commands.Goals;
-using Ship_Game.Ships;
-
-namespace Ship_Game.AI
+﻿namespace Ship_Game.AI
 {
     internal sealed class PickupGoods : ShipAIPlan
     {
@@ -14,6 +11,8 @@ namespace Ship_Game.AI
             Planet exportPlanet = g.Trade.ExportFrom;
             Planet importPlanet = g.Trade.ImportTo;
             if (exportPlanet.Owner == null 
+                || exportPlanet.Quarantine
+                || importPlanet.Quarantine
                 || importPlanet.Owner == null // colony was wiped out
                 || importPlanet.Owner != Owner.loyalty && !importPlanet.Owner.IsTradeTreaty(Owner.loyalty)) 
             {
@@ -110,6 +109,7 @@ namespace Ship_Game.AI
             Planet exportPlanet = g.Trade.ExportFrom;
 
             if (importPlanet.Owner == null  // colony was wiped out
+                || importPlanet.Quarantine
                 || importPlanet.Owner != Owner.loyalty && !importPlanet.Owner.IsTradeTreaty(Owner.loyalty)) 
             {
                 AI.CancelTradePlan(exportPlanet);

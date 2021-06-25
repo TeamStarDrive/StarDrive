@@ -133,7 +133,7 @@ namespace Ship_Game.Ships
         public bool ShouldRecalculatePower;
         public bool Deleted;
         public float BonusEMP_Protection;
-        public bool inSensorRange => KnownByEmpires.KnownByPlayer;
+        public bool InSensorRange => KnownByEmpires.KnownByPlayer;
         public KnownByEmpire KnownByEmpires;
         public KnownByEmpire HasSeenEmpires;
         public bool EMPdisabled;
@@ -1395,7 +1395,7 @@ namespace Ship_Game.Ships
 
         void ExplodeShip(float size, bool addWarpExplode)
         {
-            if (!InFrustum) 
+            if (!InFrustum || !IsVisibleToPlayer) 
                 return;
 
             var position = new Vector3(Center.X, Center.Y, -100f);
@@ -1444,7 +1444,9 @@ namespace Ship_Game.Ships
                     amount = ResourceManager.ShipRoles[shipData.Role].DamageRelations;
                 loyalty.DamageRelationship(pSource.Owner.loyalty, "Destroyed Ship", amount, null);
             }
-            if (!cleanupOnly && InFrustum)
+
+            bool visible = IsVisibleToPlayer;
+            if (!cleanupOnly && visible)
             {
                 string dieSoundEffect;
                 if (SurfaceArea < 80)       dieSoundEffect = "sd_explosion_ship_det_small";
@@ -1477,7 +1479,7 @@ namespace Ship_Game.Ships
                 if (!HasExploded)
                 {
                     HasExploded = true;
-                    if (PlanetCrash != null)
+                    if (PlanetCrash != null || !visible)
                         return;
 
                     // Added by RedFox - spawn flaming spacejunk when a ship dies
@@ -1849,14 +1851,26 @@ namespace Ship_Game.Ships
         {
             if (!Active) return false;
             empire = empire ?? loyalty;
-            float goodPowerSupply = PowerFlowMax - NetPower.NetWarpPowerDraw;
-            float powerTime = GlobalStats.MinimumWarpRange;
-            if (goodPowerSupply < 0)
-                powerTime = PowerStoreMax / -goodPowerSupply * MaxFTLSpeed;
 
-            bool warpTimeGood = goodPowerSupply >= 0 || powerTime >= GlobalStats.MinimumWarpRange;
-            if (!warpTimeGood || empire == null)
-                Empire.Universe?.DebugWin?.DebugLogText($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {NetPower.NetWarpPowerDraw}/{PowerFlowMax}", DebugModes.Normal);
+            //bool goodWarp = rangeStatus >= Status.Excellent;
+            //float goodPowerSupply = PowerFlowMax - NetPower.NetWarpPowerDraw;
+            //float powerTime = GlobalStats.MinimumWarpRange;
+            //if (goodPowerSupply < 0)
+            //    powerTime = PowerStoreMax / -goodPowerSupply * MaxFTLSpeed;
+
+            //bool warpTimeGood = goodPowerSupply >= 0 || powerTime >= GlobalStats.MinimumWarpRange;
+            //if (!warpTimeGood || empire == null)
+            
+            Status rangeStatus = Status.Critical;
+            if (empire != null)
+            {
+                 rangeStatus= WarpRangeStatus(GlobalStats.MinimumWarpRange);
+            }
+            bool warpTimeGood = rangeStatus >= Status.Excellent;
+            if (!warpTimeGood)
+                Empire.Universe?.DebugWin?.DebugLogText(
+                    $"WARNING ship design {Name} with hull {shipData.Hull} :{rangeStatus} WarpTime. {NetPower.NetWarpPowerDraw}/{PowerFlowMax}",
+                    DebugModes.Normal);
 
             return warpTimeGood;
         }

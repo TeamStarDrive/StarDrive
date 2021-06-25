@@ -149,7 +149,9 @@ namespace Ship_Game.Commands.Goals
             if (!empire.FindPlanetToBuildAt(empire.SafeSpacePorts, colonyShip, out Planet planet))
                 return GoalStep.TryAgain;
 
-            planet.Construction.Enqueue(colonyShip, this, notifyOnEmpty:empire.isPlayer);
+            planet.Construction.Enqueue(colonyShip, this, notifyOnEmpty:empire.isPlayer,
+                displayName: $"{colonyShip.Name} ({ColonizationTarget.Name})");
+
             planet.Construction.PrioritizeShip(colonyShip, 1);
             return GoalStep.GoToNextStep;
         }
@@ -161,6 +163,7 @@ namespace Ship_Game.Commands.Goals
                 if (TryGetClaimTask(out MilitaryTask task))
                     task.EndTask();
 
+                PlanetBuildingAt?.Construction.Cancel(this);
                 return GoalStep.GoalFailed;
             }
 
