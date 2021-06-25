@@ -32,28 +32,28 @@ namespace Ship_Game.AI.Research
                     {
                         var cost = tech.Tech.ActualCost;
 
-                        if (tech.IsTechnologyType(TechnologyType.GroundCombat))              cost *= options.GetShipMod(GroundCombat);
-                        if (tech.IsTechnologyType(TechnologyType.ShipHull))                  cost *= options.GetShipMod(AllHulls);
+                        if (tech.IsTechnologyType(TechnologyType.GroundCombat))              cost *= options.CostMultiplier(GroundCombat);
+                        if (tech.IsTechnologyType(TechnologyType.ShipHull))                  cost *= options.CostMultiplier(AllHulls);
 
-                        techScore += cost * options.GetUIDMod(techName) * options.GetAnyTypeMod(tech);
+                        techScore += cost * options.CostMultiplier(tech);
                     }
                 }
                 
                 switch (s.DesignRole)
                 {
                     case ShipData.RoleName.platform:
-                    case ShipData.RoleName.station:                                     techScore *= options.GetShipMod(Orbitals);   break;
-                    case ShipData.RoleName.colony:                                      techScore *= options.GetShipMod(ColonyShip); break;
-                    case ShipData.RoleName.freighter:                                   techScore *= options.GetShipMod(Freighter);  break;
-                    case ShipData.RoleName.troopShip when !empire.canBuildTroopShips:   techScore *= options.GetShipMod(TroopShip);  break;
-                    case ShipData.RoleName.support   when !empire.canBuildSupportShips: techScore *= options.GetShipMod(Support);    break;
-                    case ShipData.RoleName.bomber    when !empire.canBuildBombers:      techScore *= options.GetShipMod(Bomber);     break;
-                    case ShipData.RoleName.carrier   when !empire.canBuildCarriers:     techScore *= options.GetShipMod(Carrier);    break;
+                    case ShipData.RoleName.station:                                     techScore *= options.CostMultiplier(Orbitals);   break;
+                    case ShipData.RoleName.colony:                                      techScore *= options.CostMultiplier(ColonyShip); break;
+                    case ShipData.RoleName.freighter:                                   techScore *= options.CostMultiplier(Freighter);  break;
+                    case ShipData.RoleName.troopShip when !empire.canBuildTroopShips:   techScore *= options.CostMultiplier(TroopShip);  break;
+                    case ShipData.RoleName.support   when !empire.canBuildSupportShips: techScore *= options.CostMultiplier(Support);    break;
+                    case ShipData.RoleName.bomber    when !empire.canBuildBombers:      techScore *= options.CostMultiplier(Bomber);     break;
+                    case ShipData.RoleName.carrier   when !empire.canBuildCarriers:     techScore *= options.CostMultiplier(Carrier);    break;
                 }
                 float costRatio  = techScore / avgNonShipTechCost;
-                float randomBase = techScore * options.GetShipMod(Randomize);
+                float randomBase = techScore * options.CostMultiplier(Randomize);
                 float random     = randomBase > 0 ? RandomMath.AvgRandomBetween(-randomBase, randomBase) : 0;
-                return techScore * costRatio + random;
+                return (int)(techScore * costRatio + random);
             });
             return pickedShip;
         }

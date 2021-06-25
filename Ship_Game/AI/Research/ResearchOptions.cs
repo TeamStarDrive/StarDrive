@@ -7,7 +7,6 @@ namespace Ship_Game.AI.Research
 {
     public class ResearchOptions
     {
-        Map<string, float> TechUIDMods             = new Map<string, float>();
         Map<TechnologyType, float> TechTypeMods    = new Map<TechnologyType, float>();
         Map<ShipCosts, float> ShipMods             = new Map<ShipCosts, float>();
         Map<ResearchArea, float> Priority          = new Map<ResearchArea, float>();
@@ -76,16 +75,9 @@ namespace Ship_Game.AI.Research
             Priority[ResearchArea.Research]     = 1;
             Priority[ResearchArea.ShipTech]     = 1;
         }
-
-        public float GetUIDMod(string techUID)
-        {
-            if (TechUIDMods.TryGetValue(techUID, out float modifier))
-                return modifier;
-            return 1;
-        }
-
+        
         // This may be kinda slow...
-        public float GetAnyTypeMod(TechEntry tech)
+        float GetAnyTypeMod(TechEntry tech)
         {
             foreach(KeyValuePair<TechnologyType, float> kv in TechTypeMods)
             {
@@ -98,14 +90,14 @@ namespace Ship_Game.AI.Research
             return 1;
         }
 
-        public float GetPrimaryTypeMod(TechnologyType costType)
+        public float CostMultiplier(TechEntry tech)
         {
-            if (TechTypeMods.TryGetValue(costType, out float modifier))
-                return modifier;
-            return 1;
+            float lowPriorityMultiplier = tech.Tech.LowPriorityCostMultiplier.Clamped(0.1f, 10);
+            float typeMod = GetAnyTypeMod(tech);
+            return lowPriorityMultiplier * typeMod;
         }
 
-        public float GetShipMod(ShipCosts costType)
+        public float CostMultiplier(ShipCosts costType)
         {
             if (ShipMods.TryGetValue(costType, out float modifier))
                 return modifier;
