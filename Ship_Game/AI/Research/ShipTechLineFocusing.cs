@@ -361,10 +361,24 @@ namespace Ship_Game.AI.Research
         private HashSet<string> UseBestShipTechs(HashSet<string> shipTechs, HashSet<string> nonShipTechs)
         {
             // Match researchable techs to techs ship needs.
-            string[] bestShipTechs = shipTechs.Intersect(BestCombatShip.shipData.TechsNeeded).ToArray();
-            if (bestShipTechs.Length == 0)
+            if (OwnerEmpire.ShipsWeCanBuild.Contains(BestCombatShip?.Name))
                 BestCombatShip = null;
-            return UseOnlyWantedShipTechs(bestShipTechs, nonShipTechs);
+
+            if (BestCombatShip != null)
+            {
+                var bestShipTechs = shipTechs.Intersect(BestCombatShip.shipData.TechsNeeded).ToArray();
+                if (!bestShipTechs.Any())
+                {
+                    var bestNoneShipTechs = nonShipTechs.Intersect(BestCombatShip.shipData.TechsNeeded).ToArray();
+                    if (bestNoneShipTechs.Length == 0)
+                        BestCombatShip = null;
+                    else
+                        Log.Warning($"ship tech classified as non ship tech {bestNoneShipTechs.First()} for {BestCombatShip}");
+                }
+                if (BestCombatShip != null)
+                    return UseOnlyWantedShipTechs(bestShipTechs, nonShipTechs);
+            }
+            return UseOnlyWantedShipTechs(shipTechs, nonShipTechs);
         }
 
         private HashSet<string> UseResearchableShipTechs(Array<Ship> researchableShips, HashSet<string> shipTechs, HashSet<string> nonShipTechs)
@@ -386,10 +400,10 @@ namespace Ship_Game.AI.Research
                     }
                 }
             }
-            //BestCombatShip = PickShipToResearch.FindCheapestShipInList(OwnerEmpire, researchableShips, nonShipTechs);
-            //if (BestCombatShip != null)
-            //    return UseBestShipTechs(shipTechs, nonShipTechs);
-            
+            BestCombatShip = PickShipToResearch.FindCheapestShipInList(OwnerEmpire, researchableShips, nonShipTechs);
+            if (BestCombatShip != null)
+                return UseBestShipTechs(shipTechs, nonShipTechs);
+
             return UseOnlyWantedShipTechs(goodShipTechs, nonShipTechs);
         }
 
