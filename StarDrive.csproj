@@ -221,6 +221,7 @@
     <Compile Include="Ship_Game\AI\CombatTactics\UI\DesignStanceButtons.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\UI\ShipStanceButtons.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\UI\StanceButtons.cs" />
+    <Compile Include="Ship_Game\AI\Research\ResearchOptions.cs" />
     <Compile Include="Ship_Game\AI\Research\ShipPicker.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.ShipWeight.cs" />
     <Compile Include="Ship_Game\AI\ShipMovement\CombatManeuvers\CombatMovement.cs" />

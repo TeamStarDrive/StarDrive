@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Ship_Game.Ships;
+using static Ship_Game.AI.Research.ResearchOptions.ShipCosts;
 
 namespace Ship_Game.AI.Research
 {
@@ -7,7 +8,7 @@ namespace Ship_Game.AI.Research
     {
         public ShipPicker() {}
 
-        public Ship FindCheapestShipInList(Empire empire, Array<Ship> ships, HashSet<string> nonShipTechs)
+        public Ship FindCheapestShipInList(Empire empire, Array<Ship> ships, HashSet<string> nonShipTechs, ResearchOptions options)
         {
             float avgNonShipTechCost = float.MaxValue;
 
@@ -31,23 +32,22 @@ namespace Ship_Game.AI.Research
                     {
                         var cost = tech.Tech.ActualCost;
 
-                        if (tech.IsTechnologyType(TechnologyType.ShipHull))                    cost *= 1.5f;
-                        if (tech.IsTechnologyType(TechnologyType.GroundCombat))                cost *= 0.95f;
+                        if (tech.IsTechnologyType(TechnologyType.GroundCombat))                cost *= options.GetShipMod(GroundCombat);
 
-                        techScore += cost;
+                        techScore += cost * options.GetUIDMod(techName) * options.GetAnyTypeMod(tech);
                     }
                 }
                 
                 switch (s.DesignRole)
                 {
                     case ShipData.RoleName.platform:
-                    case ShipData.RoleName.station:                                     techScore *= 2f;    break;
-                    case ShipData.RoleName.colony:                                      techScore *= 2f;    break;
-                    case ShipData.RoleName.freighter:                                   techScore *= 2f;    break;
-                    case ShipData.RoleName.troopShip when !empire.canBuildTroopShips:   techScore *= 0.95f; break;
-                    case ShipData.RoleName.support   when !empire.canBuildSupportShips: techScore *= 0.95f; break;
-                    case ShipData.RoleName.bomber    when !empire.canBuildBombers:      techScore *= 0.95f; break;
-                    case ShipData.RoleName.carrier   when !empire.canBuildCarriers:     techScore *= 0.95f; break;
+                    case ShipData.RoleName.station:                                     techScore *= options.GetShipMod(Orbitals);   break;
+                    case ShipData.RoleName.colony:                                      techScore *= options.GetShipMod(ColonyShip); break;
+                    case ShipData.RoleName.freighter:                                   techScore *= options.GetShipMod(Freighter);  break;
+                    case ShipData.RoleName.troopShip when !empire.canBuildTroopShips:   techScore *= options.GetShipMod(TroopShip);  break;
+                    case ShipData.RoleName.support   when !empire.canBuildSupportShips: techScore *= options.GetShipMod(Support);    break;
+                    case ShipData.RoleName.bomber    when !empire.canBuildBombers:      techScore *= options.GetShipMod(Bomber);     break;
+                    case ShipData.RoleName.carrier   when !empire.canBuildCarriers:     techScore *= options.GetShipMod(Carrier);    break;
                 }
                 float costRatio = techScore / avgNonShipTechCost;
                 return techScore * costRatio;
