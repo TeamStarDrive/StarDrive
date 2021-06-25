@@ -1,6 +1,5 @@
 #pragma once
-#include "Primitives.h"
-#include <cstdint>
+#include "Primitives.h" // Rect
 
 namespace spatial
 {

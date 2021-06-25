@@ -76,6 +76,12 @@
     <ClCompile Include="TestPrimitiveMath.cpp">
       <Filter>tests</Filter>
     </ClCompile>
+    <ClCompile Include="Simulation.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="TestFindNearby.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ReCpp\rpp\collections.h">
@@ -135,10 +141,13 @@
     <ClInclude Include="SpatialSimUtils.h">
       <Filter>tests</Filter>
     </ClInclude>
-    <ClInclude Include="SpatialSim.h">
+    <ClInclude Include="Simulation.h">
       <Filter>tests</Filter>
     </ClInclude>
     <ClInclude Include="SimParams.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="LoyaltyFilterType.h">
       <Filter>tests</Filter>
     </ClInclude>
   </ItemGroup>

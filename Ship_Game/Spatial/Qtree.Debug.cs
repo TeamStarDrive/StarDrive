@@ -14,7 +14,11 @@ namespace Ship_Game.Spatial
         static readonly Color VioletBright = new Color(199, 21, 133, 150);
         static readonly Color Purple = new Color(96, 63, 139, 150);
         static readonly Color Yellow = new Color(Color.Yellow, 100);
+        static readonly Color YellowBright = new Color(255, 255, 0, 255);
         static readonly Color Blue   = new Color( 95, 158, 160, 200);
+        static readonly Color Red    = new Color(255, 80, 80, 200);
+
+        static Map<int, DebugFindNearby> FindNearbyDbg = new Map<int, DebugFindNearby>();
 
         public unsafe void DebugVisualize(GameScreen screen, VisualizerOptions opt)
         {
@@ -70,6 +74,40 @@ namespace Ship_Game.Spatial
                     }
                 }
             } while (buffer.NextNode >= 0);
+
+            foreach (var kv in FindNearbyDbg)
+            {
+                kv.Value.Draw(screen, opt);
+            }
+        }
+
+        class DebugFindNearby
+        {
+            public AABoundingBox2D SearchArea;
+            public Vector2 FilterOrigin;
+            public float RadialFilter;
+            public Array<AABoundingBox2D> FindCells = new Array<AABoundingBox2D>();
+            public Array<GameplayObject> SearchResults = new Array<GameplayObject>();
+
+            public void Draw(GameScreen screen, VisualizerOptions opt)
+            {
+                if (!SearchArea.IsEmpty)
+                    screen.DrawRectProjected(SearchArea, Yellow);
+
+                if (RadialFilter > 0)
+                    screen.DrawCircleProjected(FilterOrigin, RadialFilter, Yellow);
+
+                foreach (AABoundingBox2D r in FindCells)
+                    screen.DrawRectProjected(r, Blue);
+
+                if (opt.SearchResults)
+                {
+                    foreach (GameplayObject go in SearchResults)
+                    {
+                        screen.DrawRectProjected(new AABoundingBox2D(go), YellowBright);
+                    }
+                }
+            }
         }
     }
 }

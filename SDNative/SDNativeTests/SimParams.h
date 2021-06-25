@@ -14,6 +14,9 @@ struct SimParams
     int numObjects = 10'000;
     float objectRadius = 500;
 
+    bool spawnProjectiles = false; // if true, each ship spawns projectiles
+    float projectileOffset = -500; // Y offset from spawned ship
+
     int qtreeCellSize = 1024;
     int gridCellSize = 20'000;
 
@@ -21,6 +24,7 @@ struct SimParams
     int gridL2CellSize2 = 5000;
 
     bool useRandomVelocity = true;
+
     rpp::Vector2 singleSystemPos; // if solarSystems == 1
     
     // debug loyalty values

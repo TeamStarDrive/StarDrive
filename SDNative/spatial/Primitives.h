@@ -43,7 +43,22 @@ namespace spatial
         constexpr CircleF(const Circle& c) : x{(float)c.x}, y{(float)c.y}, radius{(float)c.radius} {}
 
         static constexpr CircleF Zero() { return { 0.0f, 0.0f, 0.0f }; }
+
+        /**
+         * @return True if Circle{p, pRadius} overlaps this Circle 
+         */
+        bool overlaps(Point p, int pRadius) const
+        {
+            // need to use floats here, otherwise some of the math breaks
+            float dx = x - p.x;
+            float dy = y - p.y;
+            float rr = radius + pRadius;
+            return (dx*dx + dy*dy) <= (rr*rr);
+        }
     };
+    
+    static constexpr float max(float a, float b) { return a > b ? a : b; }
+    static constexpr float min(float a, float b) { return a < b ? a : b; }
 
     struct Rect
     {
@@ -87,6 +102,12 @@ namespace spatial
             return result;
         }
 
+        /** @returns Circle from this rectangle */
+        Circle toCircle() const
+        {
+            return Circle{centerX(), centerY(), (width()+height()) / 4};
+        }
+
         SPATIAL_FINLINE static Rect fromPointRadius(int x, int y, int r)
         {
             return Rect{x-r, y-r, x+r, y+r};
@@ -97,15 +118,17 @@ namespace spatial
             return Rect{ (int)x1, (int)y1, (int)x2, (int)y2 };
         }
 
+        // True if two rectangles overlap or perfectly touch
         SPATIAL_FINLINE bool overlaps(const Rect& r) const
         {
-            return x1 <= r.x2 && x2 > r.x1
-                && y1 <= r.y2 && y2 > r.y1;
+            // NOTE: >= vs > determines whether there's a match if rectangles touch
+            return x1 <= r.x2 && x2 >= r.x1
+                && y1 <= r.y2 && y2 >= r.y1;
         }
 
-        static constexpr float max(float a, float b) { return a > b ? a : b; }
-        static constexpr float min(float a, float b) { return a < b ? a : b; }
-
+        /**
+         * @return True if any part of this Rect overlaps with the Circle
+         */
         SPATIAL_FINLINE bool overlaps(const CircleF& c) const
         {
             // find the nearest point on the rectangle to the center of the circle
@@ -117,4 +140,21 @@ namespace spatial
             return (dx*dx + dy*dy) <= (rr*rr);
         }
     };
+    
+    /**
+     * Convert rect to circle and do Circle/Circle overlap OR touch
+     * @return True if Circle{r} overlaps Circle c
+     *         Rectangle's radius is calculated as (width/2 + height/2)/2
+     */
+    SPATIAL_FINLINE bool overlapsRadius(const Rect& r, const CircleF& c)
+    {
+        int rw = (r.x2 - r.x1) >> 1;
+        int rh = (r.y2 - r.y1) >> 1;
+        // need to use floats here, otherwise some of the math breaks
+        float dx = c.x - (r.x1 + rw);
+        float dy = c.y - (r.y1 + rh);
+        float rr = c.radius + ((rw + rh) >> 1);
+        // <= vs < determines if we include touching primitives
+        return (dx*dx + dy*dy) <= (rr*rr);
+    }
 }

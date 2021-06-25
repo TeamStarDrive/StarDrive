@@ -9,25 +9,39 @@ namespace Ship_Game
     /// </summary>
     public class PerfTimer
     {
-        [DllImport("Kernel32.dll")]
-        static extern bool QueryPerformanceCounter(out long perfcount);
+        [DllImport("Kernel32.dll", EntryPoint = "QueryPerformanceCounter")]
+        public static extern bool GetCurrentTicks(out long count);
 
         [DllImport("Kernel32.dll")]
         static extern bool QueryPerformanceFrequency(out long freq);
 
-        static long Frequency;
+        public static long Frequency;
+        public static double InvFrequency;
+
         long Time;
 
+        public static void GetFrequency(out long freq, out double invFreq)
+        {
+            QueryPerformanceFrequency(out freq);
+            invFreq = 1.0 / freq;
+        }
+        
         /// <summary>
         /// Create new instance and Start the timer
         /// </summary>
         public PerfTimer()
         {
             if (Frequency == 0)
-            {
-                QueryPerformanceFrequency(out Frequency);
-            }
-            QueryPerformanceCounter(out Time);
+                GetFrequency(out Frequency, out InvFrequency);
+            GetCurrentTicks(out Time);
+        }
+
+        public PerfTimer(bool start)
+        {
+            if (Frequency == 0)
+                GetFrequency(out Frequency, out InvFrequency);
+            if (start)
+                GetCurrentTicks(out Time);
         }
 
         /// <summary>
@@ -35,7 +49,7 @@ namespace Ship_Game
         /// </summary>
         public void Start()
         {
-            QueryPerformanceCounter(out Time);
+            GetCurrentTicks(out Time);
         }
 
         /// <summary>
@@ -45,14 +59,41 @@ namespace Ship_Game
         {
             get
             {
-                QueryPerformanceCounter(out long end);
-                return (float)((double)(end - Time) / Frequency);
+                GetCurrentTicks(out long end);
+                double elapsed = (end - Time) * InvFrequency;
+                return (float)elapsed;
             }
         }
 
         public override string ToString()
         {
             return $"{Elapsed*1000f,5:0.0}ms";
+        }
+
+        /// <summary>
+        /// Converts seconds into time stamp ticks
+        /// </summary>
+        public static long GetTicks(float seconds)
+        {
+            if (Frequency == 0)
+                GetFrequency(out Frequency, out InvFrequency);
+            return (long)(seconds * Frequency);
+        }
+
+        /// <summary>
+        /// Use the timer to spin wait this thread
+        /// </summary>
+        public static void SpinWait(float seconds)
+        {
+            GetCurrentTicks(out long start);
+            long ticksToWait = GetTicks(seconds);
+            while (true)
+            {
+                GetCurrentTicks(out long end);
+                long ticksElapsed = (end - start);
+                if (ticksElapsed >= ticksToWait)
+                    break;
+            }
         }
     }
 
@@ -61,21 +102,14 @@ namespace Ship_Game
     /// </summary>
     public class AggregatePerfTimer
     {
-        [DllImport("Kernel32.dll")]
-        static extern bool QueryPerformanceCounter(out long perfcount);
-
-        [DllImport("Kernel32.dll")]
-        static extern bool QueryPerformanceFrequency(out long freq);
-
-        static long Frequency;
-        long Time;
+        long StartTime;
 
         float CurrentTotal;
         float CurrentMax;
         int CurrentSamples;
 
         public float MeasuredTotal { get; private set; }
-        float MeasuredMax;
+        public float MeasuredMax { get; private set; }
         public int MeasuredSamples { get; private set; }
         public float AvgTime { get; private set; }
 
@@ -84,11 +118,7 @@ namespace Ship_Game
 
         public AggregatePerfTimer(float statRefreshInterval = 1f/*refresh once per second*/)
         {
-            if (Frequency == 0)
-            {
-                QueryPerformanceFrequency(out Frequency);
-            }
-            StatRefreshInterval = (long)(statRefreshInterval * Frequency);
+            StatRefreshInterval = PerfTimer.GetTicks(statRefreshInterval);
         }
 
         public void Clear()
@@ -106,40 +136,58 @@ namespace Ship_Game
         // start new sampling
         public void Start()
         {
-            QueryPerformanceCounter(out Time);
+            PerfTimer.GetCurrentTicks(out StartTime);
+
+            // if we run multi-frame sampling, this ensures our
+            // refresh time doesn't drift
             if (NextRefreshTime == 0)
-                NextRefreshTime = Time + StatRefreshInterval;
+                NextRefreshTime = StartTime + StatRefreshInterval;
+        }
+
+        public float TimeUntilNextRefresh
+        {
+            get
+            {
+                PerfTimer.GetCurrentTicks(out long now);
+                float remaining = (float)((NextRefreshTime - now) * PerfTimer.InvFrequency);
+                return remaining;
+            }
         }
 
         // stop and accumulate performance sample
-        public void Stop()
+        // @return True if stats were refreshed
+        public bool Stop()
         {
-            QueryPerformanceCounter(out long now);
-            float elapsed = (float)((double)(now - Time) / Frequency);
+            PerfTimer.GetCurrentTicks(out long now);
+            float elapsed = (float)((now - StartTime) * PerfTimer.InvFrequency);
             CurrentMax = Math.Max(CurrentMax, elapsed);
             CurrentTotal += elapsed;
             ++CurrentSamples;
 
+            if (now < NextRefreshTime)
+                return false;
+
+            NextRefreshTime += StatRefreshInterval;
             if (now >= NextRefreshTime)
             {
-                while (now >= NextRefreshTime)
-                    NextRefreshTime += StatRefreshInterval;
-
-                MeasuredTotal = CurrentTotal;
-                MeasuredMax = CurrentMax;
-                MeasuredSamples = CurrentSamples;
-                AvgTime = MeasuredTotal / MeasuredSamples;
-
-                CurrentTotal = 0f;
-                CurrentMax = 0f;
-                CurrentSamples = 0;
+                long n = (now - NextRefreshTime) / StatRefreshInterval;
+                NextRefreshTime += (n + 1) * StatRefreshInterval;
             }
+
+            MeasuredTotal = CurrentTotal;
+            MeasuredMax = CurrentMax;
+            MeasuredSamples = CurrentSamples;
+            AvgTime = MeasuredTotal / MeasuredSamples;
+
+            CurrentTotal = 0f;
+            CurrentMax = 0f;
+            CurrentSamples = 0;
+            return true;
         }
 
         public override string ToString()
         {
-            float avg = MeasuredTotal / MeasuredSamples;
-            return $"{avg*1000,4:0.0}ms   max {MeasuredMax*1000f,4:0.0}ms   all {MeasuredTotal*1000f,4:0}ms";
+            return $"{AvgTime*1000,4:0.0}ms   max {MeasuredMax*1000f,4:0.0}ms   all {MeasuredTotal*1000f,4:0}ms";
         }
 
         public string String(AggregatePerfTimer total)

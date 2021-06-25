@@ -16,6 +16,8 @@ namespace Ship_Game.Debug.Page
         GameObjectType[] Types = (GameObjectType[])typeof(GameObjectType).GetEnumValues();
         GameObjectType FilterByType = GameObjectType.Ship;
         bool FilterByLoyalty = false;
+        double FindElapsed;
+        AABoundingBox2D SearchArea;
 
         GameplayObject[] Found = Empty<GameplayObject>.Array;
 
@@ -26,7 +28,7 @@ namespace Ship_Game.Debug.Page
             Spatial = UniverseScreen.Spatial;
             Loyalty = EmpireManager.GetEmpireById(1);
 
-            var list = AddList(50, 210);
+            var list = AddList(50, 160);
             list.AddCheckbox(() => Spatial.VisOpt.Enabled,
                     "Enable Overlay", "Enable Spatial Debug Overlay");
 
@@ -66,13 +68,13 @@ namespace Ship_Game.Debug.Page
             var changeLoyaltyBtn = list.Add(new UIButton(ButtonStyle.DanButtonBlue, $"Change Loyalty"));
             changeLoyaltyBtn.OnClick = (UIButton b) =>
             {
-                if (Empire.Universe.SelectedShip != null)
+                if (Screen.SelectedShip != null)
                 {
-                    Empire.Universe.SelectedShip.LoyaltyChangeByGift(Loyalty);
+                    Screen.SelectedShip.LoyaltyChangeByGift(Loyalty);
                 }
-                else if (Empire.Universe.SelectedShipList.NotEmpty)
+                else if (Screen.SelectedShipList.NotEmpty)
                 {
-                    foreach (Ship ship in Empire.Universe.SelectedShipList)
+                    foreach (Ship ship in Screen.SelectedShipList)
                         ship.LoyaltyChangeByGift(Loyalty);
                 }
             };
@@ -83,12 +85,28 @@ namespace Ship_Game.Debug.Page
             if (!Visible)
                 return;
 
-            SetTextCursor(50f, 150f, Color.White);
-            DrawString($"Spatial.Type: {Spatial.Name}");
-            DrawString($"Spatial.Collisions: {Spatial.Collisions}");
-            DrawString($"Spatial.ActiveObjects: {Spatial.Count}");
-            DrawString($"Spatial.SearchResults: {Found.Length}");
             Spatial.DebugVisualize(Screen);
+
+            SetTextCursor(50, 80, Color.White);
+            DrawString($"Type: {Spatial.Name}");
+            DrawString($"Collisions: {Spatial.Collisions}");
+            DrawString($"ActiveObjects: {Spatial.Count}");
+            DrawString($"FindNearby W={(int)SearchArea.Width} H={(int)SearchArea.Height}");
+            DrawString($"FindNearby {Found.Length}  {FindElapsed*1000,4:0.000}ms");
+
+            Ship ship = Screen.SelectedShip;
+            if (ship != null)
+            {
+                SetTextCursor(Width - 150f, 250f, Color.White);
+
+                float radius = ship.AI.GetSensorRadius();
+                ship.AI.ScanForFriendlies(ship, radius);
+                ship.AI.ScanForEnemies(ship, radius);
+
+                DrawString($"ScanRadius: {radius}");
+                DrawString($"Friends: {ship.AI.FriendliesNearby.Length}");
+                DrawString($"Enemies: {ship.AI.PotentialTargets.Length}");
+            }
 
             base.Draw(batch, elapsed);
         }
@@ -101,16 +119,20 @@ namespace Ship_Game.Debug.Page
             if (input.LeftMouseHeld(0.05f))
             {
                 AABoundingBox2D screenArea = AABoundingBox2D.FromIrregularPoints(input.StartLeftHold, input.EndLeftHold);
-                var opt = new Spatial.SearchOptions(Screen.UnprojectToWorldRect(screenArea), FilterByType)
+                SearchArea = Screen.UnprojectToWorldRect(screenArea);
+
+                var opt = new Spatial.SearchOptions(SearchArea, FilterByType)
                 {
-                    MaxResults = 1024,
+                    MaxResults = 32,
                     DebugId = 1
                 };
+
                 if (FilterByLoyalty)
                     opt.OnlyLoyalty = Loyalty;
 
+                var timer = new PerfTimer();
                 Found = Spatial.FindNearby(ref opt);
-                return true;
+                FindElapsed = timer.Elapsed;
             }
             return false;
         }

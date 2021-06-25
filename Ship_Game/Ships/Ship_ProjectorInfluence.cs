@@ -18,12 +18,6 @@ namespace Ship_Game.Ships
             public Empire Foreign;
             public Relationship Relationship; // our relation with this foreign empire
             public float Timer;
-            public ForeignInfluence(float defaultTimer)
-            {
-                Foreign = null;
-                Relationship = null;
-                Timer = defaultTimer;
-            }
         }
 
         int InfluenceCount;
@@ -40,9 +34,10 @@ namespace Ship_Game.Ships
         void UpdateInfluence(FixedSimTime timeStep)
         {
             OwnerInfluenceTimer -= timeStep.FixedTime;
-            InOwnerInfluence     = OwnerInfluenceTimer + InfluenceTimerBuffer > 0;
+            InOwnerInfluence = OwnerInfluenceTimer + InfluenceTimerBuffer > 0;
             
-            if (InfluenceCount < 1) return;
+            if (InfluenceCount < 1)
+                return;
 
             for (int i = 0; i < InfluenceCount; i++)
             {

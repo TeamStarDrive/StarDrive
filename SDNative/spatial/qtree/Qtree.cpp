@@ -1,4 +1,5 @@
 #include "Qtree.h"
+#include "../Search.h"
 #include <algorithm>
 #include <unordered_set>
 
@@ -42,7 +43,7 @@ namespace spatial
 
         Levels = 0;
         int currentSize = FullSize;
-        while (currentSize > SmallestCell*2)
+        while (currentSize >= SmallestCell)
         {
             currentSize /= 2;
             ++Levels;
@@ -264,7 +265,7 @@ namespace spatial
         int numResults = 0;
         if (found.count)
         {
-            numResults = spatial::findNearby(outResults, Objects.data(), Objects.maxObjects(), opt, found);
+            numResults = found.filterResults(outResults, Objects, opt);
         }
 
         if (opt.DebugId)

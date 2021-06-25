@@ -277,7 +277,9 @@
     <ClCompile Include="..\ReCpp\rpp\timer.cpp" />
     <ClCompile Include="..\ReCpp\rpp\vec.cpp" />
     <ClCompile Include="DebugGfxWindow.cpp" />
+    <ClCompile Include="Simulation.cpp" />
     <ClCompile Include="TestCellLoyalty.cpp" />
+    <ClCompile Include="TestFindNearby.cpp" />
     <ClCompile Include="TestObjectCollection.cpp" />
     <ClCompile Include="TestPrimitiveMath.cpp" />
     <ClCompile Include="TestQuadTree.cpp" />
@@ -303,9 +305,10 @@
     <ClInclude Include="..\ReCpp\rpp\timer.h" />
     <ClInclude Include="..\ReCpp\rpp\vec.h" />
     <ClInclude Include="DebugGfxWindow.h" />
+    <ClInclude Include="LoyaltyFilterType.h" />
     <ClInclude Include="SimParams.h" />
     <ClInclude Include="SpatialSimObject.h" />
-    <ClInclude Include="SpatialSim.h" />
+    <ClInclude Include="Simulation.h" />
     <ClInclude Include="SpatialSimUtils.h" />
   </ItemGroup>
   <ItemGroup>

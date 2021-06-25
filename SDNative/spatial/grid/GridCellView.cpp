@@ -1,4 +1,5 @@
 #include "GridCellView.h"
+#include "../Search.h"
 
 namespace spatial
 {
