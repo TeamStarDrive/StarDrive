@@ -49,7 +49,7 @@ namespace Ship_Game
 
         // added by Fat Bastard
         public bool EnableShipTechLineFocusing; // Use short term researchable techs with no best ship
-
+        public bool DisableShipPicker; // Disable the ship picker and use all techs that can be researched based on ship designs
 
 
         public string SupportedBlackBoxVersions;
