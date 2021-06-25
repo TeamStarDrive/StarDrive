@@ -147,7 +147,11 @@ namespace Ship_Game
         public float TotalMaintenanceInScrap { get; private set; }
         public float TotalTroopShipMaintenance { get; private set; }
 
-        public float MaxContactTimer = 0.25f;
+        /// <summary>
+        /// The known duration. how long the object will be known for. 0.5 = roughly half a second.
+        /// </summary>
+        public const float MaxContactTimer = 0.5f;
+
         private bool HostilesDictForPlayerInitialized;
         public float NetPlanetIncomes { get; private set; }
         public float TroopCostOnPlanets { get; private set; } // Maintenance in all Owned planets
@@ -1441,13 +1445,13 @@ namespace Ship_Game
                 var targetShip = (Ship)targets[i];
                 targetShip.KnownByEmpires.SetSeen(this);
             }
-        }	
+        }
 
         void ScanForInfluence(InfluenceNode node, FixedSimTime timeStep)
         {
             // find anyone within this influence node
             GameplayObject[] targets = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
-                                                       node.Position, node.Radius, maxResults:1024);
+                                                       node.Position, node.Radius, maxResults:128);
             for (int i = 0; i < targets.Length; i++)
             {
                 var ship = (Ship)targets[i];
@@ -1456,7 +1460,7 @@ namespace Ship_Game
                 // Civilian infrastructure spotting enemy fleets
                 if (node.SourceObject is Ship ssp)
                 {
-                    ssp.HasSeenEmpires.Update(timeStep);
+                    ssp.HasSeenEmpires.Update(timeStep, ssp.loyalty);
                     if (ship.fleet != null)
                     {
                         if (isPlayer || Universe.Debug && Universe.SelectedShip?.loyalty == this)

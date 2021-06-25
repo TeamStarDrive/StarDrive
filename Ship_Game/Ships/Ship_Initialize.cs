@@ -44,8 +44,8 @@ namespace Ship_Game.Ships
                 LoyaltyTracker.OnSpawn(this);
 
             Stats = new ShipStats(this);
-            KnownByEmpires = new Components.KnownByEmpire(this);
-            HasSeenEmpires = new Components.KnownByEmpire(this);
+            KnownByEmpires = new Components.KnownByEmpire();
+            HasSeenEmpires = new Components.KnownByEmpire();
 
             InitializeThrusters(data);
             InitializeStatus(fromSave);
@@ -76,8 +76,8 @@ namespace Ship_Game.Ships
             LoyaltyTracker.OnSpawn(this);
 
             Stats = new ShipStats(this);
-            KnownByEmpires = new Components.KnownByEmpire(this);
-            HasSeenEmpires = new Components.KnownByEmpire(this);
+            KnownByEmpires = new Components.KnownByEmpire();
+            HasSeenEmpires = new Components.KnownByEmpire();
 
             VanityName = ResourceManager.ShipNames.GetName(owner.data.Traits.ShipType, shipData.Role);
 
