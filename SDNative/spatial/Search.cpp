@@ -27,8 +27,8 @@ namespace spatial
         SearchFilterFunc filterFunc = opt.FilterFunction;
         int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
 
-        FoundCell* nodes = this->cells;
-        int count = this->count;
+        FoundCell* cells = this->cells;
+        int numCells = this->count;
 
         // if total candidates is more than we can fit, we need to sort LEAF nodes by distance to Origin
         bool sortByDistance = opt.SortByDistance != 0 || this->totalObjects > maxResults;
@@ -36,7 +36,7 @@ namespace spatial
         {
             int x = searchRect.centerX();
             int y = searchRect.centerY();
-            std::sort(nodes, nodes+count, [x,y](const FoundCell& a, const FoundCell& b) -> bool
+            std::sort(cells, cells+numCells, [x,y](const FoundCell& a, const FoundCell& b) -> bool
             {
                 float adx = x - a.world.x;
                 float ady = y - a.world.y;
@@ -49,11 +49,11 @@ namespace spatial
         }
 
         int numResults = 0;
-        for (int leafIndex = 0; leafIndex < count; ++leafIndex)
+        for (int leafIndex = 0; leafIndex < numCells; ++leafIndex)
         {
-            const FoundCell& node = nodes[leafIndex];
-            const int size = node.count;
-            SpatialObject** const nodeObjects = node.objects;
+            const FoundCell& cell = cells[leafIndex];
+            const int size = cell.count;
+            SpatialObject** const nodeObjects = cell.objects;
             for (int i = 0; i < size; ++i)
             {
                 const SpatialObject& o = *nodeObjects[i];
