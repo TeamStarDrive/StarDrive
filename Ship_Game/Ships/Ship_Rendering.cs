@@ -387,7 +387,7 @@ namespace Ship_Game.Ships
                     screen.ProjectToScreenCoords(m.Center, m.shield_radius * 2.75f, 
                         out Vector2 posOnScreen, out float radiusOnScreen);
 
-                    float shieldRate = 0.001f + m.ShieldPower / m.ActualShieldPowerMax;                    
+                    float shieldRate = 0.001f + m.ShieldPower / m.ActualShieldPowerMax;
                     screen.DrawTextureSized(uiNode, posOnScreen, 0f, radiusOnScreen, radiusOnScreen, 
                         Shield.GetBubbleColor(shieldRate, m.ShieldBubbleColor));
                 }
@@ -398,10 +398,15 @@ namespace Ship_Game.Ships
 
         public void DrawWeaponRanges(GameScreen screen, CombatState state)
         {
-            // create the variables to add to the draw so that they are not created during draw. 
-            Vector2 center = Center;
-            float radius = GetDesiredCombatRangeForState(state);
-            screen.Renderer.DrawCircleDeferred(center, radius, Colors.CombatOrders());
+            float radius;
+            if (state == CombatState.GuardMode)
+                radius = GuardModeRange;
+            else if (state == CombatState.HoldPosition)
+                radius = HoldPositionRange;
+            else
+                radius = GetDesiredCombatRangeForState(state);
+            
+            screen.Renderer.DrawCircleDeferred(Center, radius, Colors.CombatOrders());
         }
     }
 }

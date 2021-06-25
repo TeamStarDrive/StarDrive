@@ -50,7 +50,8 @@ namespace Ship_Game.AI
             if (ship == null)
                 return false;
 
-            if (ship.Active && !ship.dying && !ship.IsInWarp && Owner.loyalty.IsEmpireAttackable(ship.GetLoyalty(), ship))
+            if (ship.Active && !ship.dying && !ship.IsInWarp &&
+                Owner.loyalty.IsEmpireAttackable(ship.loyalty, ship))
                 return true;
 
             return Owner.loyalty.isPlayer 
@@ -61,10 +62,11 @@ namespace Ship_Game.AI
 
         Ship UpdateCombatTarget()
         {
-            if (IsTargetValid(Target)) return Target;
+            if (IsTargetValid(Target))
+                return Target;
 
-            Target = PotentialTargets.FirstOrDefault(t => IsTargetValid(t) 
-                                                          && t.Center.InRadius(Owner.Center, Owner.SensorRange));
+            Target = PotentialTargets.Find(t => IsTargetValid(t) 
+                                            && t.Center.InRadius(Owner.Center, Owner.SensorRange));
             return Target;
         }
 
@@ -90,7 +92,7 @@ namespace Ship_Game.AI
             float distanceToTarget = target.Center.Distance(Owner.Center);
             if (HasPriorityOrder || distanceToTarget > Owner.DesiredCombatRange && distanceToTarget > 7500f)
             {
-                    MoveToEngageTarget(target, timeStep);
+                MoveToEngageTarget(target, timeStep);
             }
             else
             {
@@ -106,7 +108,6 @@ namespace Ship_Game.AI
                         Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
                         if (target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
                         {
-
                             if (Owner.Center.OutsideRadius(nodePos, 1000f))
                             {
                                 ThrustOrWarpToPos(nodePos, timeStep);
@@ -115,7 +116,6 @@ namespace Ship_Game.AI
                             {
                                 DoHoldPositionCombat(timeStep);
                             }
-
                             return;
                         }
                     }
@@ -141,7 +141,7 @@ namespace Ship_Game.AI
                         ThrustOrWarpToPos(target.Center, timeStep);
                         return;
                     }
-                    else if (distanceToTarget < Owner.DesiredCombatRange)
+                    if (distanceToTarget < Owner.DesiredCombatRange)
                         Intercepting = false;
                 }
 
