@@ -11,18 +11,23 @@ namespace Ship_Game.AI.Research
         public readonly ShipTechLineFocusing LineFocus;
         ResearchPriorities ResearchPriorities;
         readonly EconomicResearchStrategy Strategy;
+        readonly ResearchOptions ResearchMods;
 
         // this reduces the cost of techs so that techs that are near the same cost
         // get compared as if they are the same cost.
         float CostNormalizer;
-        int NormalizeTechCost(float techCost) => (int)Math.Ceiling(techCost * CostNormalizer);
+        int NormalizeTechCost(float techCost)
+        {
+            return (int)Math.Ceiling(techCost * CostNormalizer);
+        }
 
         public ChooseTech(Empire empire)
         {
-            OwnerEmpire = empire;
-            Strategy    = OwnerEmpire.Research.Strategy;
-            LineFocus   = new ShipTechLineFocusing(empire);
-            ScriptType  = Strategy?.TechPath?.Count > 0 ? EmpireAI.ResearchStrategy.Scripted : EmpireAI.ResearchStrategy.Random;
+            OwnerEmpire    = empire;
+            Strategy       = OwnerEmpire.Research.Strategy;
+            ResearchMods   = new ResearchOptions();
+            LineFocus      = new ShipTechLineFocusing(empire, ResearchMods);
+            ScriptType     = Strategy?.TechPath?.Count > 0 ? EmpireAI.ResearchStrategy.Scripted : EmpireAI.ResearchStrategy.Random;
         }
 
         private void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
@@ -289,7 +294,9 @@ namespace Ship_Game.AI.Research
             if (testResearchTopic.IsEmpty())
                 return testResearchTopic;
 
-            int currentCost = (int)(CostToResearchTechType(researchTech, techType));
+            int currentCost = CostToResearchTechType(researchTech, techType);
+            currentCost    *= (int)(currentCost * ResearchMods.GetUIDMod(testResearchTopic));
+            currentCost    *= (int)(currentCost * ResearchMods.GetPrimaryTypeMod(techType));
 
             if (currentCost > 0)
             {
