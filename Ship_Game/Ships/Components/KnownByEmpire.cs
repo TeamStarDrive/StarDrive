@@ -8,7 +8,6 @@ namespace Ship_Game.Ships.Components
     /// </summary>
     public class KnownByEmpire
     {
-        Ship Owner;
         float[] SeenByID;
 
         /// <summary>
@@ -18,19 +17,13 @@ namespace Ship_Game.Ships.Components
         /// <value>
         ///   <c>true</c> if [known by player]; otherwise, <c>false</c>.
         /// </value>
-        public bool KnownByPlayer => SeenByID[EmpireManager.Player.Id-1] + KnownDuration > 0;
+        public bool KnownByPlayer => (SeenByID[EmpireManager.Player.Id-1] + Empire.MaxContactTimer) > 0;
 
-        /// <summary>
-        /// The known duration. how long the object will be known for. 0.5 = roughly half a second.
-        /// </summary>
-        public float KnownDuration => Owner.loyalty.MaxContactTimer;
-
-        public KnownByEmpire(Ship ship)
+        public KnownByEmpire()
         {
             SeenByID = new float[EmpireManager.NumEmpires];
             for (int i = 0; i < SeenByID.Length; i++)
                 SeenByID[i] = -100;
-            Owner = ship;
         }
 
         float[] GetSeenByID()
@@ -48,14 +41,16 @@ namespace Ship_Game.Ships.Components
 
         /// <summary>
         /// Updates visibility timers of all known empires
+        /// Resets visibility for owner
         /// </summary>
-        public void Update(FixedSimTime timeStep)
+        public void Update(FixedSimTime timeStep, Empire owner)
         {
             float[] seenById = GetSeenByID();
             for (int i = 0; i < seenById.Length; i++)
             {
                 seenById[i] -= timeStep.FixedTime;
             }
+            seenById[owner.Id-1] = Empire.MaxContactTimer;
         }
 
         /// <summary>
@@ -65,13 +60,13 @@ namespace Ship_Game.Ships.Components
         public void SetSeen(Empire empire)
         {
             float[] seenById = GetSeenByID();
-            seenById[empire.Id-1] = KnownDuration;
+            seenById[empire.Id-1] = Empire.MaxContactTimer;
         }
 
         public bool KnownBy(Empire empire)
         {
             float[] seenById = GetSeenByID();
-            return seenById[empire.Id-1] + KnownDuration > 0;
+            return (seenById[empire.Id-1] + Empire.MaxContactTimer) > 0;
         }
 
         /// <summary>

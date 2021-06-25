@@ -58,7 +58,7 @@ namespace Ship_Game.Ships
             if (empire == loyalty)
             {
                 InOwnerInfluence    = isInsideInfluence;
-                OwnerInfluenceTimer = loyalty.MaxContactTimer;
+                OwnerInfluenceTimer = Empire.MaxContactTimer;
             }
             else if (isInsideInfluence) // set foreign influence (may already exist)
             {
@@ -67,7 +67,7 @@ namespace Ship_Game.Ships
                     ref ForeignInfluence influence = ref Influences[index];
                     if (influence.Foreign == empire) // it's already set?
                     {
-                        influence.Timer = empire.MaxContactTimer;
+                        influence.Timer = Empire.MaxContactTimer;
                         return;
                     }
                 }
@@ -84,7 +84,7 @@ namespace Ship_Game.Ships
                 ref ForeignInfluence dst = ref Influences[InfluenceCount++];
                 dst.Foreign              = empire;
                 dst.Relationship         = relation;
-                dst.Timer                = empire.MaxContactTimer;
+                dst.Timer                = Empire.MaxContactTimer;
             }
         }
 

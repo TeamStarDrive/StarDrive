@@ -381,7 +381,6 @@ namespace Ship_Game.AI
 
             float radius = GetSensorRadius(out Ship sensorShip);
 
-            Owner.KnownByEmpires.SetSeen(Owner.loyalty);
             BadGuysNear = false;
             UpdateTrackedProjectiles(sensorShip);
             
