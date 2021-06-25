@@ -402,9 +402,13 @@ namespace Ship_Game.AI.Research
                     }
                 }
             }
-            BestCombatShip = PickShipToResearch.FindCheapestShipInList(OwnerEmpire, researchableShips, nonShipTechs, ResearchMods);
-            if (BestCombatShip != null)
-                return UseBestShipTechs(shipTechs, nonShipTechs);
+
+            if (!DisableShipPicker)
+            {
+                BestCombatShip = PickShipToResearch.FindCheapestShipInList(OwnerEmpire, researchableShips, nonShipTechs, ResearchMods);
+                if (BestCombatShip != null)
+                    return UseBestShipTechs(shipTechs, nonShipTechs);
+            }
 
             return UseOnlyWantedShipTechs(goodShipTechs, nonShipTechs);
         }
@@ -518,5 +522,7 @@ namespace Ship_Game.AI.Research
             }
             return false;
         }
+
+        bool DisableShipPicker => GlobalStats.HasMod && GlobalStats.ActiveModInfo.DisableShipPicker;
     }
 }
