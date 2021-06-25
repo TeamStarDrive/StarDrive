@@ -55,5 +55,15 @@ namespace Ship_Game.AI.Research
             });
             return pickedShip;
         }
+
+        /*
+         *              { "SHIPTECH",     Randomizer(threat,                   1f)          },
+                { "Research",     Randomizer(strat.ResearchRatio + 1,  ResearchDebt)},
+                { "Colonization", Randomizer(strat.ExpansionRatio + 1, FoodNeeds)   },
+                { "Economic",     Randomizer(strat.ExpansionRatio + 1, Economics)   },
+                { "Industry",     Randomizer(strat.IndustryRatio + 1,  Industry)    },
+                { "General",      Randomizer(strat.ResearchRatio + 1,  0)           },
+                { "GroundCombat", Randomizer(strat.MilitaryRatio + 1,  threat)},
+         */
     }
 }
