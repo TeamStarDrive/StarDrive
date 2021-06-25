@@ -151,7 +151,7 @@ namespace Ship_Game.AI
                 // and our ship has seen nearbyShip
                 sensorShip.HasSeenEmpires.SetSeen(enemy.loyalty);
 
-                if (Owner.loyalty.IsEmpireAttackable(us, enemy))
+                if (us.IsEmpireAttackable(enemy.loyalty, enemy))
                 {
                     BadGuysNear = true;
                     ScannedTargets.Add(enemy);
