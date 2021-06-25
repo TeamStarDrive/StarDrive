@@ -32,7 +32,7 @@ namespace Ship_Game.AI.Research
             GroundCombat
         }
 
-        //ToDo: put research priority mods here. 
+        //ToDo: put research priority mods here.
         public enum TechPriorityBonuses
         {}
 
@@ -53,7 +53,7 @@ namespace Ship_Game.AI.Research
             //TechUIDS
 
             //TechTypes
-            TechTypeMods[TechnologyType.ShipHull] = 2f;
+            TechTypeMods[TechnologyType.ShipHull] = 1f;
         }
 
         public float GetUIDMod(string techUID)
@@ -62,7 +62,7 @@ namespace Ship_Game.AI.Research
                 return modifier;
             return 1;
         }
-        
+
         // This may be kinda slow...
         public float GetAnyTypeMod(TechEntry tech)
         {
