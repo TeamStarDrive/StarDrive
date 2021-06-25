@@ -33,6 +33,7 @@ namespace spatial
         int SortByDistance = 0;
 
         /// Filter search results by object type
+        /// This MUST be a BitField value, eg. 0, 1, 2, 4, 8...
         /// 0: disabled
         int Type = 0;
 

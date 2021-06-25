@@ -82,8 +82,9 @@ namespace Ship_Game
         [Pure][MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Overlaps(in AABoundingBox2D r)
         {
-            return X1 <= r.X2 && X2 > r.X1
-                && Y1 <= r.Y2 && Y2 > r.Y1;
+            // NOTE: >= vs > determines whether there's a match if rectangles touch
+            return X1 <= r.X2 && X2 >= r.X1
+                && Y1 <= r.Y2 && Y2 >= r.Y1;
         }
         
         [Pure][MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -168,8 +169,9 @@ namespace Ship_Game
         [Pure][MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Overlaps(in AABoundingBox2Di r)
         {
-            return X1 <= r.X2 && X2 > r.X1
-                && Y1 <= r.Y2 && Y2 > r.Y1;
+            // NOTE: >= vs > determines whether there's a match if rectangles touch
+            return X1 <= r.X2 && X2 >= r.X1
+                && Y1 <= r.Y2 && Y2 >= r.Y1;
         }
     }
 }

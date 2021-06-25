@@ -111,15 +111,19 @@ namespace UnitTests.Universe
             {
                 Assert.AreEqual(expected, go.Type);
                 float distance = go.Position.Distance(pos);
-                Assert.IsTrue(distance <= radius, $"distance:{distance} <= radius:{radius} is false");
+                float maxError = 0.5f;
+                Assert.IsTrue(distance-maxError <= radius, $"distance:{distance} <= radius:{radius} is false");
             }
         }
 
-        void CheckShipsLoyalty(GameplayObject[] found, Empire expected = null, Empire notExpected = null)
+        void CheckShipsLoyalty(GameplayObject[] found, Empire expected = null, 
+                              Empire notExpected = null, Ship notShip = null)
         {
             foreach (GameplayObject foundObj in found)
                 if (foundObj is Ship foundShip)
                 {
+                    if (notShip != null)
+                        Assert.AreNotEqual(notShip, foundShip);
                     if (expected != null)
                         Assert.AreEqual(expected, foundShip.loyalty);
                     else if (notExpected != null)
@@ -158,12 +162,12 @@ namespace UnitTests.Universe
                 var opt = new SearchOptions(s.Position, 10000, GameObjectType.Ship)
                 {
                     MaxResults = 32,
-                    OnlyLoyalty = s.loyalty,
                     Exclude = s,
+                    OnlyLoyalty = s.loyalty,
                 };
                 GameplayObject[] found = tree.FindNearby(ref opt);
                 CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
-                CheckShipsLoyalty(found, expected:s.loyalty);
+                CheckShipsLoyalty(found, expected:s.loyalty, notShip:s);
             }
         }
         
@@ -179,13 +183,37 @@ namespace UnitTests.Universe
                 var opt = new SearchOptions(s.Position, 10000, GameObjectType.Ship)
                 {
                     MaxResults = 32,
-                    ExcludeLoyalty = s.loyalty,
                     Exclude = s,
+                    ExcludeLoyalty = s.loyalty,
                 };
                 GameplayObject[] found = tree.FindNearby(ref opt);
                 CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
-                CheckShipsLoyalty(found, notExpected:s.loyalty);
+                CheckShipsLoyalty(found, notExpected:s.loyalty, notShip:s);
             }
+        }
+        
+        /// <summary>
+        /// Specific regression which happened with specific ObjectId,
+        /// OnlyLoyalty and Exclude id combinations.
+        /// </summary>
+        [TestMethod]
+        public void FindNearbyFriendsExcludeSelf_Regression()
+        {
+            // we only need a tiny universe with 8 ships
+            ISpatial tree = CreateQuadTree(30_000, 8);
+
+            // second ship, this created the specific bitmask 0010+0001 for search fail
+            var s = AllObjects[2] as Ship;
+            var opt = new SearchOptions(s.Position, 30000, GameObjectType.Ship)
+            {
+                MaxResults = 32,
+                Exclude = s,
+                OnlyLoyalty = s.loyalty, // loyalty must be '1', not '0'
+            };
+            GameplayObject[] found = tree.FindNearby(ref opt);
+            Assert.AreEqual(3, found.Length, "FindNearby must include all friends and not self");
+            CheckFindNearby(found, GameObjectType.Ship, s.Position, 30000);
+            CheckShipsLoyalty(found, expected:s.loyalty, notShip:s);
         }
         
         [TestMethod]
