@@ -520,10 +520,10 @@ namespace Ship_Game
                 {
                     ViewingShip    = false;
                     AdjustCamTimer = 0.5f;
-                    CamDestination = SelectedFleet.AveragePosition().ToVec3();
+                    CamDestination = SelectedFleet.AveragePosition().ToVec3(CamDestination.Z);
 
                     if (CamHeight < GetZfromScreenState(UnivScreenState.SystemView))
-                        CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
+                        CamDestination.Z = GetZfromScreenState(UnivScreenState.PlanetView);
                 }
             }
         }
