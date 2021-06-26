@@ -202,7 +202,6 @@ namespace Ship_Game.AI
                 State = AIState.Exterminate;
 
             CheckTargetQueue();
-
             PrioritizePlayerCommands();
             if (HadPO && State != AIState.AwaitingOrders)
                 HadPO = false;
