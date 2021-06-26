@@ -604,6 +604,7 @@ namespace Ship_Game.Fleets
             switch (FleetTask.Type)
             {
                 case MilitaryTask.TaskType.StrikeForce:
+                case MilitaryTask.TaskType.ReclaimPlanet:
                 case MilitaryTask.TaskType.AssaultPlanet:              DoAssaultPlanet(FleetTask);              break;
                 case MilitaryTask.TaskType.ClearAreaOfEnemies:         DoClearAreaOfEnemies(FleetTask);         break;
                 case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: DoCohesiveClearAreaOfEnemies(FleetTask); break;
@@ -737,8 +738,22 @@ namespace Ship_Game.Fleets
             }
         }
 
+        void RemoveTroopShips()
+        {
+            for (int i = Ships.Count -1; i >= 0; i--)
+            {
+                Ship ship = Ships[i];
+                if (ship.DesignRole == ShipData.RoleName.troop)
+                {
+                    ship.AI.ClearOrders();
+                    RemoveShip(ship);
+                }
+            }
+        }
+
         public static void CreatePostInvasionFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner, string name)
         {
+            fleet.RemoveTroopShips();
             task.FlagFleetNeededForAnotherTask();
             fleet.TaskStep   = 0;
             var postInvasion = MilitaryTask.CreatePostInvasion(task.TargetPlanet, task.WhichFleet, owner);
@@ -748,7 +763,7 @@ namespace Ship_Game.Fleets
             owner.GetEmpireAI().AddPendingTask(postInvasion);
         }
 
-        // Note - the task type of the reclaim fleet is Assualt Planet
+        // Note - the task type of the reclaim fleet is Assault Planet
         public static void CreateReclaimFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner)
         {
             task.FlagFleetNeededForAnotherTask();
@@ -961,6 +976,8 @@ namespace Ship_Game.Fleets
         bool TryGetNewTargetPlanet(MilitaryTask task, out Planet newTarget)
         {
             Planet currentTarget = task.TargetPlanet;
+            newTarget            = null;
+
             if (currentTarget.Owner != null && Owner.IsAtWarWith(currentTarget.Owner))
             {
                 newTarget = currentTarget; // Invasion or bombing was not effective, retry
@@ -972,6 +989,9 @@ namespace Ship_Game.Fleets
 
             if (newTarget != null)
                 return true;
+
+            if (task.Type == MilitaryTask.TaskType.ReclaimPlanet)
+                return false; // No targets found in system for reclaim fleets
 
             newTarget =  task.Type == MilitaryTask.TaskType.StrikeForce 
                 ? TryGetNewTargetPlanetStrike(currentSystem, task.TargetEmpire) 
@@ -1421,7 +1441,7 @@ namespace Ship_Game.Fleets
             if (EndInvalidTask(task.TargetPlanet.Owner == null || remnantsTargeting || !StillCombatEffective(task)))
                 return;
 
-            bool bombOk  = Ships.Select(s => s.Bomb60SecStatus()).Any(bt => bt != Status.NotApplicable && bt != Status.Critical);
+            bool bombOk = Ships.Select(s => s.Bomb60SecStatus()).Any(bt => bt != Status.NotApplicable && bt != Status.Critical);
             if (!bombOk)
                 EndInvalidTask(true);
         }
