@@ -170,7 +170,7 @@ namespace Ship_Game
             AddOrbital(orbital);
         }
 
-        private int TimeVsCostThreshold => 40 + (int)(Owner.Money / 1000);
+        private int TimeVsCostThreshold => (int)(40 + EstimatedAverageProduction*Level + Owner.Money/250);
 
         // Adds an Orbital to ConstructionQueue
         public void AddOrbital(Ship orbital)
@@ -198,8 +198,8 @@ namespace Ship_Game
             if (bestWeCanBuild == null)
                 return;
 
-            if (bestWeCanBuild.BaseStrength.Less(weakestWeHave.BaseStrength * 1.05f))
-                return; // replace only if str is 5% more than the current weakest orbital
+            if (bestWeCanBuild.BaseStrength.Less(weakestWeHave.BaseStrength * 1.1f))
+                return; // replace only if str is 10% more than the current weakest orbital
 
             string debugReplaceOrRefit;
             if (weakestWeHave.DesignRole == bestWeCanBuild.DesignRole)
@@ -228,7 +228,7 @@ namespace Ship_Game
 
             if (orbital != null)
             {
-                // If we can build the selected orbital in a timely manner at full production potential, select it.
+                // If we can build the selected orbital in a timely, select it.
                 if (LogicalBuiltTimeVsCost(orbital.GetCost(Owner), TimeVsCostThreshold))
                     return orbital;
             }
