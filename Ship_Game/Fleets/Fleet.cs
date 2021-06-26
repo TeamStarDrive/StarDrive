@@ -1319,10 +1319,19 @@ namespace Ship_Game.Fleets
 
         void DoGlassPlanet(MilitaryTask task)
         {
-            if (task.TargetPlanet.Owner == null || !Owner.IsEmpireAttackable(task.TargetPlanet.Owner))
+            if (task.TargetPlanet.Owner == null)
+            {
+                task.IncreaseColonyLostValueByBombing();
                 TaskStep = 6;
+            }
+            else if (!Owner.IsEmpireAttackable(task.TargetPlanet.Owner))
+            {
+                TaskStep = 6;
+            }
             else
+            {
                 task.TargetEmpire = task.TargetPlanet.Owner;
+            }
 
             task.AO = task.TargetPlanet.Center;
             switch (TaskStep)
