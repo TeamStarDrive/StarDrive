@@ -1464,13 +1464,12 @@ namespace Ship_Game.Fleets
                     {
                         if (enemyStrength < 1)
                             TaskStep = 5; // search and destroy the threat, which is parked somewhere, doing nothing
-                        else
-                            break; // enemies detected in AO (system)
                     }
                     else if (enemyStrength < 1) // No threats and no enemies
                     {
                         TaskStep = 4;
                     }
+
                     break;
                 case 4:
                     SolarSystem  system = task.TargetSystem;

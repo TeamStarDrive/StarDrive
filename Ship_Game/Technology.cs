@@ -175,8 +175,7 @@ namespace Ship_Game
         {
             float value = Cost * valuePerTechCost;
             if (us.isPlayer && !us.IsAlliedWith(offeringEmpire)) // Some modifiers vs. Player based on Difficulty and AI personality
-                value *= offeringEmpire.PersonalityModifiers.TechValueModifier
-                         * offeringEmpire.DifficultyModifiers.TechValueModifier;
+                value *= offeringEmpire.PersonalityModifiers.TechValueModifier;
 
             return value;
         }
