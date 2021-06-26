@@ -60,7 +60,7 @@ namespace Ship_Game.AI
 
         void PrioritizeTasks()
         {
-            int numWars = (OwnerEmpire.TryGetActiveWars(out Array<War> wars) ? wars : new Array<War>()).Count;
+            int numWars = OwnerEmpire.TryGetActiveWars(out Array<War> wars) ? wars.Count : 0;
             for (int i = 0; i < TaskList.Count; i++)
             {
                 MilitaryTask task = TaskList[i];
