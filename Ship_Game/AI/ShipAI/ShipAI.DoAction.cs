@@ -75,15 +75,13 @@ namespace Ship_Game.AI
             Ship target = UpdateCombatTarget();
             if (target == null)
             {
-                DequeueCurrentOrder();
-                Owner.InCombat = false;
+                // this check here, in-case exit auto-combat logic already triggered
+                if (Owner.InCombat)
+                    ExitCombatState();
                 return;
             }
 
             AwaitClosest = null; // TODO: Why is this set here?
-            State = AIState.Combat;
-            Owner.InCombat = true;
-            Owner.InCombatTimer = 15f;
 
             if (!HasPriorityOrder && !HasPriorityTarget && Owner.Weapons.Count == 0 && !Owner.Carrier.HasActiveHangars)
                 CombatState = CombatState.Evade;
@@ -96,7 +94,6 @@ namespace Ship_Game.AI
             }
             else
             {
-
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
 
@@ -148,9 +145,6 @@ namespace Ship_Game.AI
                 CombatAI.ExecuteCombatTactic(timeStep);
                 Owner.Carrier.TryAssaultShipCombat();
             }
-            
-            // Target was modified by one of the CombatStates (?)
-            Owner.InCombat = Target != null;
         }
 
         void MoveToEngageTarget(Ship target, FixedSimTime timeStep)

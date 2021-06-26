@@ -80,7 +80,6 @@ namespace Ship_Game.Ships
         public int kills;
         public float experience;
         public bool EnginesKnockedOut;
-        public float InCombatTimer;
         public bool IsTurning { get; private set; }
         public float InhibitionRadius;
         public bool IsPlatform;
@@ -704,14 +703,6 @@ namespace Ship_Game.Ships
             AI.State = AIState.Explore;
             AI.SetPriorityOrder(true);
         }
-
-        /// <summary>Forces the ship to be in combat without a target.</summary>
-        public void ForceCombatTimer(float timer = 15f) => InCombatTimer = timer;
-
-        public bool InRadiusOfSystem(SolarSystem system) =>
-            system != null && InRadius(system.Position, system.Radius);
-
-        public bool InRadiusOfCurrentSystem => InRadiusOfSystem(System);
 
         public bool InRadius(Vector2 worldPos, float radius)
             => Center.InRadius(worldPos, Radius + radius);
