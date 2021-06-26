@@ -254,9 +254,10 @@ namespace Ship_Game
         public int Id;
 
         public string Name => data.Traits.Name;
+
         public void AddShipToManagedPools(Ship s)
         {
-            s.AI.ClearOrdersAndWayPoints(AIState.AwaitingOrders, false);
+            s.AI.ClearOrdersAndWayPoints();
             AIManagedShips.AddToEmpireForcePool(s);
         }
         
