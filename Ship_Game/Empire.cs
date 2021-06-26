@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.AI.ExpansionAI;
 using Ship_Game.AI.Tasks;
-using Ship_Game.Empires;
 using Ship_Game.Empires.Components;
 using Ship_Game.Empires.ShipPools;
 using Ship_Game.GameScreens.DiplomacyScreen;
@@ -39,11 +38,11 @@ namespace Ship_Game
 
 
         public readonly Map<string, bool> UnlockedHullsDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
-        private readonly Map<string, bool> UnlockedTroopDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
-        private readonly Map<string, bool> UnlockedBuildingsDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
-        private readonly Map<string, bool> UnlockedModulesDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+        readonly Map<string, bool> UnlockedTroopDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+        readonly Map<string, bool> UnlockedBuildingsDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+        readonly Map<string, bool> UnlockedModulesDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
 
-        private readonly Array<Troop> UnlockedTroops = new Array<Troop>();
+        readonly Array<Troop> UnlockedTroops = new Array<Troop>();
 
         readonly int[] MoneyHistory = new int[10];
         int MoneyHistoryIndex = 0;
@@ -95,7 +94,6 @@ namespace Ship_Game
 
         public Map<string, TechEntry> TechnologyDict = new Map<string, TechEntry>(StringComparer.InvariantCultureIgnoreCase);
         public Array<Ship> Inhibitors = new Array<Ship>();
-        //public Array<Ship> ShipsToAdd = new Array<Ship>();
         public Array<SpaceRoad> SpaceRoadsList = new Array<SpaceRoad>();
 
         public const float StartingMoney = 1000f;
@@ -106,19 +104,19 @@ namespace Ship_Game
             set => MoneyValue = value.NaNChecked(0f, "Empire.Money");
         }
 
-        private BatchRemovalCollection<Planet> OwnedPlanets = new BatchRemovalCollection<Planet>();
-        private BatchRemovalCollection<SolarSystem> OwnedSolarSystems = new BatchRemovalCollection<SolarSystem>();
+        BatchRemovalCollection<Planet> OwnedPlanets = new BatchRemovalCollection<Planet>();
+        BatchRemovalCollection<SolarSystem> OwnedSolarSystems = new BatchRemovalCollection<SolarSystem>();
         public IReadOnlyList<Ship> OwnedShips => EmpireShips.OwnedShips;
         public IReadOnlyList<Ship> OwnedProjectors => EmpireShips.OwnedProjectors;
-        public BatchRemovalCollection<Ship> KnownShips = new BatchRemovalCollection<Ship>();
+
         public BatchRemovalCollection<InfluenceNode> BorderNodes = new BatchRemovalCollection<InfluenceNode>();
         public BatchRemovalCollection<InfluenceNode> SensorNodes = new BatchRemovalCollection<InfluenceNode>();
-        private readonly Map<SolarSystem, bool> HostilesLogged = new Map<SolarSystem, bool>(); // Only for Player warnings
+        readonly Map<SolarSystem, bool> HostilesLogged = new Map<SolarSystem, bool>(); // Only for Player warnings
         public Array<IncomingThreat> SystemsWithThreat = new Array<IncomingThreat>();
         public HashSet<string> ShipsWeCanBuild = new HashSet<string>();
         public HashSet<string> structuresWeCanBuild = new HashSet<string>();
-        private float FleetUpdateTimer = 5f;
-        private int TurnCount = 1;
+        float FleetUpdateTimer = 5f;
+        int TurnCount = 1;
         public EmpireData data;
         public DiplomacyDialog dd;
         public string PortraitName;
@@ -136,8 +134,8 @@ namespace Ship_Game
 
         public Color EmpireColor;
         public static UniverseScreen Universe;
-        private EmpireAI EmpireAI;
-        private float UpdateTimer;
+        EmpireAI EmpireAI;
+        float UpdateTimer;
         public bool isPlayer;
         public float TotalShipMaintenance { get; private set; }
         public float TotalWarShipMaintenance { get; private set; }
@@ -201,7 +199,6 @@ namespace Ship_Game
         public Ship BestPlatformWeCanBuild { get; private set; }
         public Ship BestStationWeCanBuild { get; private set; }
         public HashSet<string> ShipTechs = new HashSet<string>();
-        public EmpireUI UI;
         public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
         public Vector2 WeightedCenter;
         public bool RushAllConstruction;
@@ -263,7 +260,6 @@ namespace Ship_Game
         
         public Empire()
         {
-            UI = new EmpireUI(this);
             Research = new EmpireResearch(this);
             AIManagedShips = new ShipPool(this);
             EmpireShips = new LoyaltyLists(this);
@@ -3529,7 +3525,7 @@ namespace Ship_Game
             {
                 ResetBorders();
                 ScanFromAllInfluenceNodes(timeStep);
-                PopulateKnownShips();
+                CheckForFirstContacts();
             }
 
             ThreatMatrixUpdateTimer -= timeStep.FixedTime;
@@ -3548,25 +3544,58 @@ namespace Ship_Game
             GlobalStats.CordrazinePlanetCaptured = true;
         }
 
-        public void PopulateKnownShips()
+        public void CheckForFirstContacts()
         {
-            var currentlyKnown = new Array<Ship>();
-
-            IReadOnlyList<Ship> ships = Universe.GetMasterShipList();
-
-            for (int i = 0; i < ships.Count; i++)
+            // mark known empires that already have done first contact
+            var knownEmpires = new Ships.Components.KnownByEmpire();
+            int numUnknown = 0;
+            for (int i = 0; i < EmpireManager.NumEmpires; ++i)
             {
-                Ship ship = ships[i];
-                bool shipKnown = ship != null
-                            && (ship.loyalty == this || ship.KnownByEmpires.KnownBy(this));
-                if (shipKnown)
+                Empire other = EmpireManager.Empires[i];
+                if (other != this && !IsKnown(other))
                 {
-                    currentlyKnown.Add(ship);
-                    if (ship.loyalty != this && !IsKnown(ship.loyalty))
-                        DoFirstContact(ship.loyalty);
+                    ++numUnknown;
+                }
+                else
+                {
+                    knownEmpires.SetSeen(other);
                 }
             }
-            KnownShips = new BatchRemovalCollection<Ship>(currentlyKnown);
+
+            // we already known everyone in the universe
+            // this is an important optimization for late-game where we have 5000+ ships
+            if (numUnknown == 0)
+                return;
+
+            // this part is quite heavy, we go through all of our ship's
+            // scan results and try to find any first contact ships
+            Ship[] ourShips = EmpireShips.OwnedShips;
+            for (int i = 0; i < ourShips.Length; ++i)
+            {
+                Ship ship = ourShips[i];
+                Ship[] enemyShips = ship.AI.PotentialTargets;
+                for (int j = 0; j < enemyShips.Length; ++j)
+                {
+                    Ship enemy = enemyShips[j];
+                    Empire other = enemy.loyalty;
+                    if (!knownEmpires.IsSet(other))
+                    {
+                        DoFirstContact(other);
+                        return;
+                    }
+                }
+            }
+            //Array<Ship> ships = Universe.Objects.Ships;
+            //for (int i = 0; i < ships.Count; i++)
+            //{
+            //    Ship ship = ships[i];
+            //    Empire other = ship.loyalty;
+            //    if (other != this && !knownEmpires.IsSet(other))
+            //    {
+            //        DoFirstContact(other);
+            //        return;
+            //    }
+            //}
         }
 
         public int EstimateCreditCost(float itemCost)   => (int)Math.Round(ProductionCreditCost(itemCost), 0);
@@ -3670,7 +3699,6 @@ namespace Ship_Game
             ActiveRelations = Empty<OurRelationsToThem>.Array;
             RelationsMap = Empty<OurRelationsToThem>.Array;
             HostilesLogged.Clear();
-            KnownShips.Clear();
             SensorNodes.Clear();
             BorderNodes.Clear();
             TechnologyDict.Clear();
@@ -3696,7 +3724,6 @@ namespace Ship_Game
 
             BorderNodes?.Dispose(ref BorderNodes);
             SensorNodes?.Dispose(ref SensorNodes);
-            KnownShips?.Dispose(ref KnownShips);
             if (data != null)
             {
                 data.AgentList = new BatchRemovalCollection<Agent>();
