@@ -18,6 +18,7 @@ namespace Ship_Game.Universe
         }
 
         bool OffensiveMove => Input.IsCtrlKeyDown;
+        bool PinPointMove  => Input.IsAltKeyDown;
 
         public bool RightClickOnShip(Ship selectedShip, Ship targetShip)
         {
@@ -255,18 +256,26 @@ namespace Ship_Game.Universe
             GameAudio.AffirmativeClick();
             if (Input.QueueAction)
             {
-                if (Input.OrderOption)
-                    ship.AI.OrderMoveDirectlyTo(pos, direction, false, AI.AIState.MoveTo, offensiveMove: OffensiveMove);
+                if (Input.MoveDirectly)
+                {
+                    ship.AI.OrderMoveDirectlyTo(pos, direction, false, AI.AIState.MoveTo, 
+                        offensiveMove: OffensiveMove, pinPoint: PinPointMove);
+                }
                 else
-                    ship.AI.OrderMoveTo(pos, direction, false, AI.AIState.MoveTo, offensiveMove: OffensiveMove);
+                {
+                    ship.AI.OrderMoveTo(pos, direction, false, AI.AIState.MoveTo, 
+                        offensiveMove: OffensiveMove, pinPoint: PinPointMove);
+                }
             }
-            else if (Input.OrderOption)
+            else if (Input.MoveDirectly)
             {
-                ship.AI.OrderMoveDirectlyTo(pos, direction, true, AI.AIState.MoveTo, offensiveMove: OffensiveMove);
+                ship.AI.OrderMoveDirectlyTo(pos, direction, true, AI.AIState.MoveTo, 
+                    offensiveMove: OffensiveMove, pinPoint: PinPointMove);
             }
             else
             {
-                ship.AI.OrderMoveTo(pos, direction, true, AI.AIState.MoveTo, offensiveMove: OffensiveMove);
+                ship.AI.OrderMoveTo(pos, direction, true, AI.AIState.MoveTo, 
+                    offensiveMove: OffensiveMove, pinPoint: PinPointMove);
             }
 
             ship.AI.OrderHoldPositionOffensive(pos, direction);
