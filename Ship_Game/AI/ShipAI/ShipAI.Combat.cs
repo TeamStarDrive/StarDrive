@@ -128,6 +128,8 @@ namespace Ship_Game.AI
 
         public void ScanForEnemies(Ship sensorShip, float radius)
         {
+            BadGuysNear = false;
+
             Empire us = sensorShip.loyalty;
             var findEnemies = new SearchOptions(sensorShip.Center, radius, GameObjectType.Ship)
             {
@@ -380,21 +382,15 @@ namespace Ship_Game.AI
             ScanForThreatTimer = 1.0f;
 
             float radius = GetSensorRadius(out Ship sensorShip);
-
-            BadGuysNear = false;
             UpdateTrackedProjectiles(sensorShip);
-            
             ScanForFriendlies(sensorShip, radius);
-
             ScanForEnemies(sensorShip, radius);
-
             return radius;
         }
 
         public void SensorScanAndSelectTarget()
         {
             float radius = SensorScan();
-
             Ship scannedTarget = SelectCombatTarget(radius);
 
             // SSP only scans for Contacts, no more work needed
@@ -435,66 +431,99 @@ namespace Ship_Game.AI
             return true;
         }
 
-        void UpdateCombatStateAI(FixedSimTime timeStep)
+        void EnterCombatState(AIState combatState)
         {
-            FireWeapons(timeStep);
-
-            if (BadGuysNear && ShouldEnterAutoCombat())
+            if (!Owner.InCombat)
             {
-                switch (OrderQueue.PeekFirst?.Plan)
-                {
-                    // if not in combative state, enter auto-combat AFTER current order queue is finished
-                    default:
-                        if (!FindGoal(Plan.DoCombat, out ShipGoal _))
-                        {
-                            Owner.InCombatTimer = 15f;
-                            AddShipGoal(Plan.DoCombat, AIState.Combat, pushToFront: true);
-                        }
-                        break;
-                    case Plan.DoCombat:
-                    case Plan.Bombard:
-                    case Plan.BoardShip:
-                        break;
-                }
+                Owner.InCombat = true;
+                //Log.Write(ConsoleColor.Green, $"ENTER combat: {Owner}");
             }
-            else if (!BadGuysNear)
+
+            // always override the combat state
+            State = combatState;
+
+            switch (OrderQueue.PeekFirst?.Plan)
             {
-                FireOnMainTargetTime = 0;
-                int count = Owner.Weapons.Count;
-                Weapon[] items = Owner.Weapons.GetInternalArrayItems();
-                for (int x = 0; x < count; x++)
-                    items[x].ClearFireTarget();
+                // if not in combative state, enter auto-combat AFTER current order queue is finished
+                default:
+                    if (!FindGoal(Plan.DoCombat, out ShipGoal _))
+                        AddShipGoal(Plan.DoCombat, combatState, pushToFront: true);
+                    break;
+                case Plan.DoCombat:
+                case Plan.Bombard:
+                case Plan.BoardShip:
+                    break;
+            }
+        }
 
-                if (Owner.Carrier.HasHangars)
+        void ExitCombatState()
+        {
+            if (OrderQueue.TryPeekFirst(out ShipGoal goal) &&
+                goal.WantedState == AIState.Combat)
+            {
+                DequeueCurrentOrder();
+            }
+
+            //Log.Write(ConsoleColor.Red, $"EXIT combat: {Owner}");
+            Owner.InCombat = false;
+            if (OrderQueue.IsEmpty) // need to change the state to prevent re-enter combat bug
+                State = AIState.AwaitingOrders;
+
+            FireOnMainTargetTime = 0;
+            int count = Owner.Weapons.Count;
+            Weapon[] items = Owner.Weapons.GetInternalArrayItems();
+            for (int x = 0; x < count; x++)
+                items[x].ClearFireTarget();
+
+            if (Owner.Carrier.HasHangars)
+            {
+                foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
                 {
-                    foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
+                    if (hangar.TryGetHangarShip(out Ship hangarShip) 
+                        && hangarShip.Active 
+                        && hangarShip.AI.State != AIState.ReturnToHangar)
                     {
-                        if (hangar.TryGetHangarShip(out Ship hangarShip) 
-                            && hangarShip.Active 
-                            && hangarShip.AI.State != AIState.ReturnToHangar)
+                        if (Owner.loyalty.isPlayer
+                            && (hangarShip.AI.HasPriorityTarget || hangarShip.AI.HasPriorityOrder))
                         {
-                            if (Owner.loyalty == Empire.Universe.player
-                                && (hangarShip.AI.HasPriorityTarget || hangarShip.AI.HasPriorityOrder))
-                            {
-                                continue;
-                            }
-
-                            if (Owner.Carrier.FightersLaunched)
-                                hangarShip.DoEscort(Owner);
-                            else
-                                hangarShip.AI.OrderReturnToHangar();
+                            continue;
                         }
+
+                        if (Owner.Carrier.FightersLaunched)
+                            hangarShip.DoEscort(Owner);
+                        else
+                            hangarShip.AI.OrderReturnToHangar();
                     }
                 }
             }
+        }
+
+        void UpdateCombatStateAI(FixedSimTime timeStep)
+        {
+            bool badGuysNear = BadGuysNear;
+            bool inCombat = Owner.InCombat;
+            if (badGuysNear && !inCombat && ShouldEnterAutoCombat())
+            {
+                EnterCombatState(AIState.Combat);
+            }
+            // no nearby bad guys, no priority target, exit auto-combat
+            else if (!badGuysNear && inCombat && Target == null)
+            {
+                ExitCombatState();
+            }
 
             // fbedard: civilian ships will evade combat (nice target practice)
-            if (Owner.shipData.ShipCategory == ShipData.Category.Civilian && BadGuysNear)
+            if (badGuysNear && Owner.shipData.ShipCategory == ShipData.Category.Civilian)
             {
-                if (Owner.WeaponsMaxRange <= 0 || PotentialTargets.Sum(o => o.GetStrength()) < Owner.GetStrength())
+                if (Owner.WeaponsMaxRange <= 0)
                 {
                     CombatState = CombatState.Evade;
                 }
+            }
+
+            if (badGuysNear)
+            {
+                FireWeapons(timeStep);
             }
         }
 
@@ -514,8 +543,6 @@ namespace Ship_Game.AI
             sensorShip = Owner;
             float sensorRange = Owner.SensorRange + (Owner.IsInFriendlyProjectorRange ? 10000 : 0);
             return sensorRange;
-            
-            
         }
 
         bool DoNotEnterCombat
