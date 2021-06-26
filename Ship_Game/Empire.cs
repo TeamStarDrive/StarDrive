@@ -14,6 +14,7 @@ using Ship_Game.Empires.Components;
 using Ship_Game.Empires.ShipPools;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Fleets;
+using Ship_Game.Utils;
 
 namespace Ship_Game
 {
@@ -3521,12 +3522,12 @@ namespace Ship_Game
         
         public void UpdateContactsAndBorders(FixedSimTime timeStep)
         {
-            if (!IsEmpireDead())
-            {
-                ResetBorders();
-                ScanFromAllInfluenceNodes(timeStep);
-                CheckForFirstContacts();
-            }
+            if (IsEmpireDead())
+                return;
+
+            ResetBorders();
+            ScanFromAllInfluenceNodes(timeStep);
+            CheckForFirstContacts();
 
             ThreatMatrixUpdateTimer -= timeStep.FixedTime;
             if (ThreatMatrixUpdateTimer <= 0f)
@@ -3544,22 +3545,18 @@ namespace Ship_Game
             GlobalStats.CordrazinePlanetCaptured = true;
         }
 
-        public void CheckForFirstContacts()
+        void CheckForFirstContacts()
         {
             // mark known empires that already have done first contact
-            var knownEmpires = new Ships.Components.KnownByEmpire();
+            var knownEmpires = new SmallBitSet();
             int numUnknown = 0;
             for (int i = 0; i < EmpireManager.NumEmpires; ++i)
             {
                 Empire other = EmpireManager.Empires[i];
                 if (other != this && !IsKnown(other))
-                {
                     ++numUnknown;
-                }
                 else
-                {
-                    knownEmpires.SetSeen(other);
-                }
+                    knownEmpires.Set(other.Id);
             }
 
             // we already known everyone in the universe
@@ -3578,24 +3575,13 @@ namespace Ship_Game
                 {
                     Ship enemy = enemyShips[j];
                     Empire other = enemy.loyalty;
-                    if (!knownEmpires.IsSet(other))
+                    if (!knownEmpires.IsSet(other.Id))
                     {
                         DoFirstContact(other);
                         return;
                     }
                 }
             }
-            //Array<Ship> ships = Universe.Objects.Ships;
-            //for (int i = 0; i < ships.Count; i++)
-            //{
-            //    Ship ship = ships[i];
-            //    Empire other = ship.loyalty;
-            //    if (other != this && !knownEmpires.IsSet(other))
-            //    {
-            //        DoFirstContact(other);
-            //        return;
-            //    }
-            //}
         }
 
         public int EstimateCreditCost(float itemCost)   => (int)Math.Round(ProductionCreditCost(itemCost), 0);
