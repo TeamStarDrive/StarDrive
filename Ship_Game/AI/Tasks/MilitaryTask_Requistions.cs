@@ -208,8 +208,11 @@ namespace Ship_Game.AI.Tasks
 
         void RequisitionDefenseForce()
         {
-            if (EnemyStrength < 1)
+            if (!Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == TargetSystem)
+                && TargetSystem.DangerousForcesPresent(Owner))
+            {
                 EndTask();
+            }
 
             if (AO.AlmostZero())
                 Log.Error($"no area of operation set for task: {Type}");

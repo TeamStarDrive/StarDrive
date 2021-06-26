@@ -781,7 +781,7 @@ namespace Ship_Game.Debug
 
                 var tasksForEval = tasks.Filter(t => t.NeedEvaluation);
                 NewLine();
-                DrawString(Color.Gray, "--Tasks Needing Evaluation--");
+                DrawString(Color.Gray, "--Tasks Being Evaluated ---");
                 for (int i = tasksForEval.Length - 1; i >= 0; i--)
                 {
                     if (taskEvalCounter == taskEvalLimit)
