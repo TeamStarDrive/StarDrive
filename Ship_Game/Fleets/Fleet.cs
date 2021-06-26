@@ -1524,7 +1524,7 @@ namespace Ship_Game.Fleets
 
                     Vector2 enemyFleetPos = threat.NearestFleet.FinalPosition;
                     task.AO = enemyFleetPos;
-                    GatherAtAO(task, distanceFromAO: 10000);
+                    GatherAtAO(task, distanceFromAO: 20000);
                     TaskStep = 1;
                     break;
             }
