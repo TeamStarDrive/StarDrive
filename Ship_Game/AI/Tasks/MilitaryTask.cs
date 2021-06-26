@@ -29,6 +29,7 @@ namespace Ship_Game.AI.Tasks
         [Serialize(14)] public Guid TaskGuid = Guid.NewGuid();
         [Serialize(15)] public Array<Vector2> PatrolPoints;
         [Serialize(16)] public int TargetEmpireId = -1;
+        [Serialize(17)] public int TargetPlanetWarValue; // Used for doom fleets to affect colony lost value in war
 
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
 
@@ -477,6 +478,18 @@ namespace Ship_Game.AI.Tasks
                 }
             }
             Owner.GetEmpireAI().QueueForRemoval(this);
+        }
+
+        public void IncreaseColonyLostValueByBombing()
+        {
+            if (!TargetEmpire.isFaction
+                && TargetEmpire.IsAtWarWith(Owner)
+                && TargetEmpire.TryGetActiveWars(out Array<War> wars))
+            {
+                var war = wars.Find(w => w.Them == Owner);
+                if (war != null)
+                    war.ColoniesValueLost += TargetPlanetWarValue;
+            }
         }
 
         public void SetEmpire(Empire e)
