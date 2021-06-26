@@ -211,7 +211,7 @@ namespace Ship_Game
 
         public bool HasWarTaskTargetingSystem(SolarSystem system)
         {
-            return EmpireAI.GetTasks().Any(t => t.IsWarTask && t.TargetPlanet.ParentSystem == system);
+            return EmpireAI.GetTasks().Any(t => t.IsWarTask && (t.TargetPlanet?.ParentSystem == system || t.TargetSystem == system));
         }
     }
 

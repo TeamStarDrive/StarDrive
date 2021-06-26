@@ -208,6 +208,7 @@ namespace Ship_Game.AI.Tasks
 
         void RequisitionDefenseForce()
         {
+            EnemyStrength = TargetSystem.GetKnownStrengthHostileTo(Owner);
             if (EnemyStrength < 1)
                 EndTask();
 
