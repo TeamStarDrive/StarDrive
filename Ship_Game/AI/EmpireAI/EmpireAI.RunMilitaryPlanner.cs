@@ -240,12 +240,10 @@ namespace Ship_Game.AI
         {
             var expansionTasks        = GetExpansionTasks();
             var warTasks              = GetWarTasks();
-            var defenseTasks          = TaskList.Filter(task => task.Type == MilitaryTask.TaskType.ClearAreaOfEnemies);
             Array<MilitaryTask> tasks = new Array<MilitaryTask>();
 
             tasks.AddRange(expansionTasks);
             tasks.AddRange(warTasks);
-            tasks.AddRange(defenseTasks);
             return tasks.ToArray();
         }
 
