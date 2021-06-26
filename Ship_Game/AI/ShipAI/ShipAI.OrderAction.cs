@@ -179,19 +179,21 @@ namespace Ship_Game.AI
         }
 
         public void OrderMoveDirectlyTo(Vector2 position, Vector2 finalDir, bool clearWayPoints,
-                                        AIState wantedState, float speedLimit = 0f, bool offensiveMove = false)
+                                        AIState wantedState, float speedLimit = 0f, bool offensiveMove = false, bool pinPoint = false)
         {
-            AddWayPoint(position, finalDir, clearWayPoints, speedLimit, wantedState, offensiveMove, true);
+            AddWayPoint(position, finalDir, clearWayPoints, speedLimit, wantedState, offensiveMove, true, pinPoint);
         }
 
-        public void OrderMoveTo(Vector2 position, Vector2 finalDir, bool clearWayPoints, AIState wantedState, Goal goal = null, bool offensiveMove = false)
+        public void OrderMoveTo(Vector2 position, Vector2 finalDir, bool clearWayPoints, 
+                                        AIState wantedState, Goal goal = null, bool offensiveMove = false, bool pinPoint = false)
         {
-            AddWayPoint(position, finalDir, clearWayPoints, speedLimit:0f, wantedState, offensiveMove, true, goal);
+            AddWayPoint(position, finalDir, clearWayPoints, speedLimit:0f, wantedState, offensiveMove, true, pinPoint, goal);
         }
 
-        public void OrderMoveToNoStop(Vector2 position, Vector2 finalDir, bool clearWayPoints, AIState wantedState, Goal goal = null, bool offensiveMove = false)
+        public void OrderMoveToNoStop(Vector2 position, Vector2 finalDir, bool clearWayPoints,
+                                        AIState wantedState, Goal goal = null, bool offensiveMove = false, bool pinPoint = false)
         {
-            AddWayPoint(position, finalDir, clearWayPoints, speedLimit: 0f, wantedState, offensiveMove, false, goal);
+            AddWayPoint(position, finalDir, clearWayPoints, speedLimit: 0f, wantedState, offensiveMove, false, pinPoint, goal);
         }
 
         public void OrderResupplyEscape(Vector2 position, Vector2 finalDir)
@@ -203,8 +205,8 @@ namespace Ship_Game.AI
         // Adds a WayPoint, optionally clears previous WayPoints
         // Then clears all existing ship orders and generates new move orders from WayPoints
         void AddWayPoint(Vector2 position, Vector2 finalDir, bool clearWayPoints,
-                         float speedLimit, AIState wantedState, 
-                         bool offensiveMove, bool stop, Goal goal = null)
+                         float speedLimit, AIState wantedState,
+                         bool offensiveMove, bool stop, bool pinPoint, Goal goal = null)
         {
             if (!finalDir.IsUnitVector())
                 Log.Error($"GenerateOrdersFromWayPoints finalDirection {finalDir} must be a direction unit vector!");
@@ -248,8 +250,10 @@ namespace Ship_Game.AI
             // rotate to desired facing <= this needs to be fixed.
             // the position is always wrong unless it was forced in a ui move. 
             wp = wayPoints[wayPoints.Length - 1];
+            MoveTypes lastMove = Owner.loyalty.isPlayer && !offensiveMove && pinPoint 
+                ? combatEndMove = MoveTypes.None  // Ships will move to the exact location  before engaging combat (secondary fire will apply)
+                : MoveTypes.LastWayPoint | combatEndMove; // Allow ships to engage combat if within 1000 of the move target
 
-            MoveTypes lastMove = MoveTypes.LastWayPoint | combatEndMove; // Allow ships to engage combat if within 1000 of the move target
             AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, lastMove);
 
             // FB - Do not make final approach and stop, since the ship has more orders which do not
