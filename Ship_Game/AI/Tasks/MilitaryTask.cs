@@ -409,6 +409,8 @@ namespace Ship_Game.AI.Tasks
                 }
             }
 
+            NeedEvaluation = Fleet == null;
+
             if (!NeedEvaluation)
                 return false;
 
@@ -489,6 +491,48 @@ namespace Ship_Game.AI.Tasks
                 var war = wars.Find(w => w.Them == Owner);
                 if (war != null)
                     war.ColoniesValueLost += TargetPlanetWarValue;
+            }
+        }
+
+        public void Prioritize(int numWars)
+        {
+            int priority;
+            switch (Type)
+            {
+                default:                                  priority = 5;                               break;
+                case TaskType.StageFleet:                 priority = 2 * (numWars * 2).LowerBound(1); break;
+                case TaskType.GuardBeforeColonize:        priority = 3 + numWars;                     break;
+                case TaskType.DefendVsRemnants:           priority = 0;                               break;
+                case TaskType.CohesiveClearAreaOfEnemies:
+                case TaskType.ClearAreaOfEnemies:         priority = 1;                               break;
+                case TaskType.StrikeForce:                priority = 2;                               break;
+                case TaskType.ReclaimPlanet:
+                case TaskType.AssaultPlanet:              priority = 5;                               break;
+                case TaskType.GlassPlanet:                priority = 5;                               break;
+                case TaskType.Exploration:                priority = GetExplorationPriority();        break;
+                case TaskType.DefendClaim:                priority = 5 + numWars * 2;                 break;
+                case TaskType.AssaultPirateBase:          priority = GetAssaultPirateBasePriority();  break;
+            }
+
+            if (TargetEmpire == EmpireManager.Player)
+                priority -= Owner.DifficultyModifiers.WarTaskPriorityMod;
+
+            Priority = priority;
+
+            // Local Function
+            int GetAssaultPirateBasePriority()
+            {
+                Empire enemy = TargetEmpire;
+                if (enemy?.WeArePirates == true && !enemy.Pirates.PaidBy(Owner))
+                    return (Pirates.MaxLevel - enemy.Pirates.Level).LowerBound(3);
+
+                return 10;
+            }
+
+            int GetExplorationPriority()
+            {
+                int initial = TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner) ? 4 : 5;
+                return initial + numWars + (MinimumTaskForceStrength > 100 ? 1 : 0);
             }
         }
 
@@ -601,7 +645,6 @@ namespace Ship_Game.AI.Tasks
             Ship ship = Empire.Universe.Objects.FindShip(TargetShipGuid);
             var planet = Planet.GetPlanetFromGuid(TargetPlanetGuid);
             RestoreFromSaveFromSave(e, ship, planet);
-
             foreach (var system in Empire.Universe.SolarSystemDict.Values)
             {
                 if (IsTaskAOInSystem(system))
