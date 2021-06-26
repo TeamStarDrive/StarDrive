@@ -32,7 +32,7 @@ namespace Ship_Game.Ships
                 data.UpdateBaseHull(); // when loading from save, the basehull data might not be set
             
             // loyalty must be set before modules are initialized
-            LoyaltyTracker = new Components.LoyaltyChanges(empire);
+            LoyaltyTracker = new Components.LoyaltyChanges(this, empire);
             // loyalty tracker can not add to the empire ships here yet as this is done during resource loading.
             // currently this is done during create entities for save load and
 
@@ -67,7 +67,7 @@ namespace Ship_Game.Ships
             shipData     = template.shipData;
 
             // loyalty must be set before modules are initialized
-            LoyaltyTracker = new Components.LoyaltyChanges(owner);
+            LoyaltyTracker = new Components.LoyaltyChanges(this, owner);
 
             if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
                 return; // return and crash again...

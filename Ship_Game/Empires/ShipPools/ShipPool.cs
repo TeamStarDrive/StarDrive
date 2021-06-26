@@ -10,8 +10,6 @@ namespace Ship_Game.Empires.ShipPools
         readonly Empire Owner;
         ChangePendingList<Ship> ForcePool;
 
-        object ChangeLocker = new object();
-
         EmpireAI OwnerAI => Owner.GetEmpireAI();
 
         /// <summary>
