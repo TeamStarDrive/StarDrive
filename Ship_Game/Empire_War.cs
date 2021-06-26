@@ -203,14 +203,14 @@ namespace Ship_Game
             return !EmpireAI.Goals.Any(g => g.type == GoalType.EmpireDefense);
         }
 
-        public void AddDefenseSystemGoal(SolarSystem system, int priority, float strengthWanted, int fleetCount)
+        public void AddDefenseSystemGoal(SolarSystem system, float strengthWanted, int fleetCount)
         {
-            EmpireAI.Goals.Add(new DefendSystem(this, system, priority, strengthWanted, fleetCount));
+            EmpireAI.Goals.Add(new DefendSystem(this, system, strengthWanted, fleetCount));
         }
 
-        public bool IsAlreadyDefendingSystem(SolarSystem system)
+        public bool HasWarTaskTargetingSystem(SolarSystem system)
         {
-            return EmpireAI.Goals.Any(g => g.type == GoalType.DefendSystem && g.TargetSystem == system);
+            return EmpireAI.GetTasks().Any(t => t.IsWarTask && t.TargetPlanet.ParentSystem == system);
         }
     }
 
