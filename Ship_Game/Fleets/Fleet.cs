@@ -1463,6 +1463,9 @@ namespace Ship_Game.Fleets
                     TaskStep = 3;
                     break;
                 case 3:
+                    if (task.TargetPlanet == null)
+                        task.SetTargetPlanet(task.TargetSystem.PlanetList.FindMax(p => p.ColonyBaseValue(Owner) + p.ColonyPotentialValue(Owner)));
+
                     if (task.TargetPlanet != null)
                         DoOrbitTaskArea(task);
                     else
@@ -1502,7 +1505,7 @@ namespace Ship_Game.Fleets
                                 AddFleetProjectorGoal();
 
                             GatherAtAO(task, distanceFromAO: 20000);
-                            TaskStep = 4; // This sets the step for the reclaim fleet.
+                            TaskStep = 4; // This sets the step for the reclaim fleet (assault planet).
                         }
                         else
                         {
@@ -1511,7 +1514,18 @@ namespace Ship_Game.Fleets
                     }
 
                     break;
-                case 5:  // Todo - search for the threat
+                case 5:
+                    var threat = Owner.SystemsWithThreat.Find(t => !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
+                    if (threat?.NearestFleet == null)
+                    {
+                        TaskStep = 4;
+                        break;
+                    }
+
+                    Vector2 enemyFleetPos = threat.NearestFleet.FinalPosition;
+                    task.AO = enemyFleetPos;
+                    GatherAtAO(task, distanceFromAO: 10000);
+                    TaskStep = 1;
                     break;
             }
         }
