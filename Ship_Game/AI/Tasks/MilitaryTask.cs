@@ -141,7 +141,7 @@ namespace Ship_Game.AI.Tasks
             {
                 TargetPlanet   = targetPlanet,
                 AO             = targetPlanet.Center,
-                Type           = TaskType.AssaultPlanet,
+                Type           = TaskType.ReclaimPlanet,
                 AORadius       = targetPlanet.ParentSystem.Radius,
                 Owner          = owner,
                 WhichFleet     = fleetId,
@@ -522,7 +522,8 @@ namespace Ship_Game.AI.Tasks
         public enum TaskType
         {
             // The order of these can not change without breaking save games. 
-            // If you add new task, make sure to have them added to the PrioritizesTask method in RunMilitaryPlanner.
+            // If you add new task, make sure to have them added to the PrioritizeTask method in RunMilitaryPlanner
+            // And to GetTaskCategory (to determine if it is a war task).
             ClearAreaOfEnemies,
             Resupply,
             AssaultPlanet,
@@ -538,7 +539,8 @@ namespace Ship_Game.AI.Tasks
             DefendVsRemnants,
             GuardBeforeColonize,
             StrikeForce,
-            StageFleet
+            StageFleet,
+            ReclaimPlanet
         }
 
         [Flags]
@@ -559,6 +561,7 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.StageFleet:
                 case TaskType.StrikeForce:
                 case TaskType.AssaultPlanet:
+                case TaskType.ReclaimPlanet:
                 case TaskType.DefendPostInvasion:
                 case TaskType.GlassPlanet:
                 case TaskType.CorsairRaid:
