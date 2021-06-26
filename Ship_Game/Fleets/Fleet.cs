@@ -748,6 +748,7 @@ namespace Ship_Game.Fleets
             owner.GetEmpireAI().AddPendingTask(postInvasion);
         }
 
+        // Note - the task type of the reclaim fleet is Assualt Planet
         public static void CreateReclaimFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner)
         {
             task.FlagFleetNeededForAnotherTask();
@@ -1459,10 +1460,17 @@ namespace Ship_Game.Fleets
                         DoCombatMoveToTaskArea(task, true);
 
                     bool threatIncoming = Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
-                    bool stillThreats = threatIncoming || enemyStrength > 1;
-                    if (!stillThreats)
+                    if (threatIncoming)
+                    {
+                        if (enemyStrength < 1)
+                            TaskStep = 5; // search and destroy the threat, which is parked somewhere, doing nothing
+                        else
+                            break; // enemies detected in AO (system)
+                    }
+                    else if (enemyStrength < 1) // No threats and no enemies
+                    {
                         TaskStep = 4;
-
+                    }
                     break;
                 case 4:
                     SolarSystem  system = task.TargetSystem;
@@ -1494,6 +1502,8 @@ namespace Ship_Game.Fleets
                         }
                     }
 
+                    break;
+                case 5:  // Todo - search for the threat
                     break;
             }
         }
