@@ -76,11 +76,11 @@ namespace Ship_Game.AI
             AutoSetTaxes(treasuryGoal, normalizedBudget);
             // the commented numbers are for debugging to compare the current values to the previous ones. 
             // the values below are now weights to adjust the budget areas. 
-            float defense                  = 2;
+            float defense                  = 5;
             float SSP                      = 1;
             float build                    = 7;
             float spy                      = 25;
-            float colony                   = 15f;
+            float colony                   = 10f;
             float freight                  = 2f;
             float savings                  = 500;
 
