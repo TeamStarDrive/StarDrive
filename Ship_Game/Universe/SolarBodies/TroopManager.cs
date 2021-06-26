@@ -618,11 +618,15 @@ namespace Ship_Game
                     else
                     {
                         DefendingForces += 1;
-                        DefendingEmpires.AddUnique(troop.Loyalty);
+                        if (troop.Loyalty != ground.Owner)
+                            DefendingEmpires.AddUnique(troop.Loyalty);
                     }
                 }
 
-                DefendingForces += ground.BuildingList.Count(b => b.IsAttackable);
+                // PERF TODO: Maybe cache these? It is quite intensive
+                for (int i = 0; i < ground.BuildingList.Count; ++i)
+                    if (ground.BuildingList[i].IsAttackable)
+                        ++DefendingForces;
             }
         }
     }
