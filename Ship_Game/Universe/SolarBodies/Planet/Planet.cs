@@ -535,22 +535,25 @@ namespace Ship_Game
             }
 
             bool enemyInRange = ParentSystem.DangerousForcesPresent(Owner);
-            if (NoSpaceCombatTargetsFoundDelay.Less(2) || enemyInRange)
+            if (NoSpaceCombatTargetsFoundDelay < 2f || enemyInRange)
             {
                 bool targetNear = false;
                 NoSpaceCombatTargetsFoundDelay -= timeStep.FixedTime;
+
                 for (int i = 0; i < BuildingList.Count; ++i)
                 {
                     Building building = BuildingList[i];
-                    bool targetFound  = false;
-                    building?.UpdateSpaceCombatActions(timeStep, this, out targetFound);
-                    targetNear |= targetFound;
+                    if (building != null)
+                    {
+                        bool targetFound = building.UpdateSpaceCombatActions(timeStep, this);
+                        targetNear |= targetFound;
+                    }
                 }
 
                 SpaceCombatNearPlanet |= targetNear;
                 if (!targetNear && NoSpaceCombatTargetsFoundDelay <= 0)
                 {
-                    SpaceCombatNearPlanet          = ThreatsNearPlanet(enemyInRange);
+                    SpaceCombatNearPlanet = ThreatsNearPlanet(enemyInRange);
                     NoSpaceCombatTargetsFoundDelay = 2f;
                 }
             }

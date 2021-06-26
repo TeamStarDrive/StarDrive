@@ -3415,7 +3415,7 @@ namespace Ship_Game
 
             Relationship rel = GetRelations(targetEmpire);
 
-            if (rel.CanAttack && target is null)
+            if (rel.CanAttack && target == null)
                 return true;
 
             return target?.IsAttackable(this, rel) ?? false;
@@ -3667,8 +3667,8 @@ namespace Ship_Game
             EmpireAI = null;
             OwnedPlanets.Clear();
             OwnedSolarSystems.Clear();
-            ActiveRelations.Clear();
-            RelationsMap.Clear();
+            ActiveRelations = Empty<OurRelationsToThem>.Array;
+            RelationsMap = Empty<OurRelationsToThem>.Array;
             HostilesLogged.Clear();
             KnownShips.Clear();
             SensorNodes.Clear();
