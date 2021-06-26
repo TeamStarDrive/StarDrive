@@ -111,7 +111,7 @@ namespace Ship_Game
         public bool AddToFleet           => IsCtrlKeyDown && IsShiftKeyDown;
         public bool ReplaceFleet         => IsCtrlKeyDown && !IsShiftKeyDown;
         public bool QueueAction          => IsShiftKeyDown;
-        public bool OrderOption          => IsAltKeyDown;
+        public bool MoveDirectly         => IsKeyDown(Keys.F);
         public bool ShipPieMenu          => KeyPressed(Keys.Q);
         
         // IngameWiki
