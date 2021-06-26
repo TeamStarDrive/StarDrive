@@ -347,8 +347,7 @@ namespace Ship_Game
             for (int i = 0; i < EmpireManager.Empires.Count; ++i)
             {
                 Empire empireToUpdate = EmpireManager.Empires[i];
-                if (!empireToUpdate.IsEmpireDead())
-                    empireToUpdate.UpdateContactsAndBorders(timeStep);
+                empireToUpdate.UpdateContactsAndBorders(timeStep);
             }
 
             EmpireInfluPerf.Stop();

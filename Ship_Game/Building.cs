@@ -226,9 +226,15 @@ namespace Ship_Game
             if (!isWeapon && DefenseShipsCapacity == 0)
                 return false;
 
-            WeaponTimer -= timeStep.FixedTime;
-            bool canFireWeapon = WeaponTimer < 0f;
+            bool canFireWeapon = false;
+            if (TheWeapon != null)
+            {
+                WeaponTimer -= timeStep.FixedTime;
+                canFireWeapon = WeaponTimer < 0f;
+            }
+
             bool canLaunchShips = CanLaunchDefenseShips(p.Owner);
+
             if (canFireWeapon || canLaunchShips)
             {
                 // this scan is pretty expensive
