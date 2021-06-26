@@ -327,15 +327,15 @@ namespace Ship_Game
             var ships = player.OwnedShips;
             foreach (Ship ship in ships)
             {
-                if (ship != null && ScreenRectangle.HitTest(ship.ScreenPosition))
+                if (ship != null && ship.InFrustum)
                 {
                     Rectangle destinationRectangle = new Rectangle(
                         (int) (ship.Position.X * num),
                         (int) (ship.Position.Y * num),
                         (int) (ship.SensorRange * num * 2.0),
                         (int) (ship.SensorRange * num * 2.0));
-                    ScreenManager.SpriteBatch.Draw(uiNode, destinationRectangle, new Color(255, 0, 0, 255), 0.0f,
-                        uiNode.CenterF, SpriteEffects.None, 1f);
+                    batch.Draw(uiNode, destinationRectangle, new Color(255, 0, 0, 255), 0.0f,
+                               uiNode.CenterF, SpriteEffects.None, 1f);
                 }
             }
             batch.End();
@@ -1024,10 +1024,11 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; ++i)
             {
                 Ship ship = ships[i];
-                if (ship.InSensorRange)
+                if (ship.InFrustum && ship.InSensorRange)
                 {
                     if (!IsCinematicModeEnabled)
                         DrawTacticalIcon(ship);
+
                     DrawOverlay(ship);
 
                     if (SelectedShip == ship || SelectedShipList.Contains(ship))
@@ -1035,7 +1036,12 @@ namespace Ship_Game
                         Color color = Color.LightGreen;
                         if (player != ship.loyalty)
                             color = player.IsEmpireAttackable(ship.loyalty) ? Color.Red : Color.Gray;
-                        batch.BracketRectangle(ship.ScreenPosition, ship.ScreenRadius, color);
+
+                        ProjectToScreenCoords(ship.Position, ship.Radius,
+                            out Vector2 shipScreenPos, out float screenRadius);
+
+                        float radius = screenRadius < 7f ? 7f : screenRadius;
+                        batch.BracketRectangle(shipScreenPos, radius, color);
                     }
                 }
             }

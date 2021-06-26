@@ -333,7 +333,6 @@
     <Compile Include="Ship_Game\Debug\Page\DebugWar.cs" />
     <Compile Include="Ship_Game\Debug\Page\SpatialDebug.cs" />
     <Compile Include="Ship_Game\EmpireResearch.cs" />
-    <Compile Include="Ship_Game\Empires\EmpireUI.cs" />
     <Compile Include="Ship_Game\EmpireDifficultyModifers.cs" />
     <Compile Include="Ship_Game\Empires\ShipPools\WarSupportShips.cs" />
     <Compile Include="Ship_Game\Empires\ShipPools\ShipPool.cs" />

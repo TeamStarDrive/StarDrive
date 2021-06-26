@@ -63,10 +63,22 @@ namespace Ship_Game.Ships.Components
             seenById[empire.Id-1] = Empire.MaxContactTimer;
         }
 
+        /// <summary>
+        /// TRUE if the empire is marked as seen, including grace time
+        /// </summary>
         public bool KnownBy(Empire empire)
         {
             float[] seenById = GetSeenByID();
-            return (seenById[empire.Id-1] + Empire.MaxContactTimer) > 0;
+            return (seenById[empire.Id-1] + Empire.MaxContactTimer) > 0f;
+        }
+
+        /// <summary>
+        /// TRUE if empire is set
+        /// </summary>
+        public bool IsSet(Empire empire)
+        {
+            float[] seenById = GetSeenByID();
+            return seenById[empire.Id-1] > 0f;
         }
 
         /// <summary>

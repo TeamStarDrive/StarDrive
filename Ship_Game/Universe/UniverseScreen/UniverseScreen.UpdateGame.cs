@@ -266,7 +266,6 @@ namespace Ship_Game
             UpdateInfluenceForAllEmpires(simTime);
 
             EndOfTurnUpdate(simTime);
-            EmpireManager.Player.PopulateKnownShips();
         }
 
         public void UpdateStarDateAndTriggerEvents(float newStarDate)

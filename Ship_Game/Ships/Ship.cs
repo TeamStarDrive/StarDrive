@@ -50,7 +50,6 @@ namespace Ship_Game.Ships
         public Array<Weapon> Weapons = new Array<Weapon>();
         float JumpTimer = 3f;
         public AudioEmitter SoundEmitter = new AudioEmitter();
-        public Vector2 ScreenPosition;
         public float ScuttleTimer = -1f;
         public Vector2 FleetOffset;
         public Vector2 RelativeFleetOffset;
@@ -132,7 +131,6 @@ namespace Ship_Game.Ships
         public float ShieldRechargeTimer;
         public bool InCombat;
         public float xRotation;
-        public float ScreenRadius;
         public bool ShouldRecalculatePower;
         public bool Deleted;
         public float BonusEMP_Protection;
