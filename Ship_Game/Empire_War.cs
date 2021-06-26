@@ -122,9 +122,10 @@ namespace Ship_Game
 
             MilitaryTask task = new MilitaryTask(targetPlanet, this)
             {
-                Type     = taskType,
-                GoalGuid = goal.guid,
-                Goal     = goal
+                Type                 = taskType,
+                GoalGuid             = goal.guid,
+                Goal                 = goal,
+                TargetPlanetWarValue = (int)(targetPlanet.ColonyBaseValue(enemy) + targetPlanet.ColonyPotentialValue(enemy))
             };
 
             EmpireAI.AddPendingTask(task);
