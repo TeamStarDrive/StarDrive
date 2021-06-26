@@ -78,6 +78,7 @@ namespace Ship_Game.AI
                     case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: 
                     case MilitaryTask.TaskType.ClearAreaOfEnemies:  priority = 1;                                  break;
                     case MilitaryTask.TaskType.StrikeForce:         priority = 2;                                  break;
+                    case MilitaryTask.TaskType.ReclaimPlanet:
                     case MilitaryTask.TaskType.AssaultPlanet:       priority = 5;                                  break;
                     case MilitaryTask.TaskType.GlassPlanet:         priority = 5;                                  break;
                     case MilitaryTask.TaskType.Exploration:         priority = GetExplorationPriority(task);       break;

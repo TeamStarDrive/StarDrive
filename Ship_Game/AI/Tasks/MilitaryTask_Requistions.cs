@@ -209,7 +209,7 @@ namespace Ship_Game.AI.Tasks
         void RequisitionDefenseForce()
         {
             if (!Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == TargetSystem)
-                && TargetSystem.GetKnownStrengthHostileTo(Owner) < 1)
+                && TargetSystem.DangerousForcesPresent(Owner))
             {
                 EndTask();
             }
