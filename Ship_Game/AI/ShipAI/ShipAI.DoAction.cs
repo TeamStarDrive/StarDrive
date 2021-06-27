@@ -514,6 +514,10 @@ namespace Ship_Game.AI
                     GoOrbitNearestPlanetAndResupply(true);
                 return;
             }
+
+            if (Owner.DesignRole == ShipData.RoleName.drone && !Owner.InRadius(Owner.Mothership.Center, Owner.Mothership.SensorRange))
+                Owner.Die(null, true);
+
             ThrustOrWarpToPos(Owner.Mothership.Center, timeStep);
 
             if (Owner.Center.InRadius(Owner.Mothership.Center, Owner.Mothership.Radius + 300f))
