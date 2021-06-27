@@ -13,32 +13,6 @@ namespace Ship_Game
     public partial class UniverseScreen
     {
         readonly object SimTimeLock = new object();
-        
-        // empire perf indicators
-        readonly AggregatePerfTimer PreEmpirePerf     = new AggregatePerfTimer();
-        readonly AggregatePerfTimer EmpireInfluPerf   = new AggregatePerfTimer();
-        readonly AggregatePerfTimer EmpireUpdatePerf  = new AggregatePerfTimer();
-        readonly AggregatePerfTimer EmpireMiscPerf    = new AggregatePerfTimer();
-        readonly AggregatePerfTimer PostEmpirePerf    = new AggregatePerfTimer();
-
-        readonly AggregatePerfTimer TurnTimePerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer ProcessSimTurnsPerf = new AggregatePerfTimer();
-        
-        readonly AggregatePerfTimer DrawPerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawMain3D = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawBackdropPerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawSOPerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawPlanetsPerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawShieldsPerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawParticles = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawFogInfluence = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawBorders = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawFogOfWar = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawOverFog = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawProj = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawShips = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawIcons = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawUI = new AggregatePerfTimer();
 
         // Can be used in unit testing to prevent LoadContent() from launching sim thread
         public bool CreateSimThread = true;
