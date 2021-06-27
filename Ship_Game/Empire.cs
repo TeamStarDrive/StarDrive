@@ -226,6 +226,8 @@ namespace Ship_Game
         public bool WeArePirates  => Pirates != null; // Use this to figure out if this empire is pirate faction
         public bool WeAreRemnants => Remnants != null; // Use this to figure out if this empire is pirate faction
 
+        public float GrossIncomeBeforeTax => PotentialIncome + TotalAvgTradeIncome + data.FlatMoneyBonus;
+
         // Income this turn before deducting ship maintenance
         public float GrossIncome              => GrossPlanetIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus;
         public float NetIncome                => GrossIncome - AllSpending;

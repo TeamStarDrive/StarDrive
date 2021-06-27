@@ -24,7 +24,10 @@ namespace Ship_Game.AI
 
             RunGroundPlanner();
 
-            NumberOfShipGoals   = 2 + OwnerEmpire.GetBestPortsForShipBuilding()?.Count ?? 0;
+            int buildPlanets = OwnerEmpire.GetBestPortsForShipBuilding()?.Count ?? 0;
+
+            NumberOfShipGoals = (int)Math.Max(buildPlanets - 1, 1f);
+
             var offensiveGoals  = SearchForGoals(GoalType.BuildOffensiveShips);
 
             BuildWarShips(offensiveGoals.Count);
@@ -302,8 +305,9 @@ namespace Ship_Game.AI
 
         void BuildWarShips(int goalsInConstruction)
         {
-            var buildRatios = new RoleBuildInfo(BuildCapacity, this, ignoreDebt: FinancialStability > 0.6f);
-            //
+            bool shouldIgnoreDebt = OwnerEmpire.TotalWarShipMaintenance < BuildCapacity || FinancialStability > 0.5f;
+            var buildRatios = new RoleBuildInfo(BuildCapacity, this, ignoreDebt: shouldIgnoreDebt);
+
             while (!buildRatios.OverBudget && goalsInConstruction < NumberOfShipGoals)
             {
                 string s = GetAShip(buildRatios);
