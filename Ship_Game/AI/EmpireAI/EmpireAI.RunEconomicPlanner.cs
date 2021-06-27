@@ -249,7 +249,7 @@ namespace Ship_Game.AI
             float taxesNeeded          = FindTaxRateToReturnAmount(neededPerTurn).Clamped(0.0f, 0.95f);
             float increase             = taxesNeeded - OwnerEmpire.data.TaxRate;
             float treasuryToMoneyRatio = (money / treasuryGoal).Clamped(0.01f, 1);
-            
+
             // try to control the amount of change of the tax so that it can not wildly change to low. 
             if (!increase.AlmostZero())
             {
