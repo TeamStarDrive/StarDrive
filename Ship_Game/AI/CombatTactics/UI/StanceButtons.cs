@@ -43,8 +43,6 @@ namespace Ship_Game.AI.CombatTactics.UI
             OrdersBarPos = new Vector2(OrdersBarPos.X - 3 * 25f, OrdersBarPos.Y + 25f);
             AddOrderBtn("SelectionBox/icon_formation_bleft", CombatState.BroadsideLeft, toolTip: GameText.ShipWillMoveWithinMaximum);
             AddOrderBtn("SelectionBox/icon_formation_bright", CombatState.BroadsideRight, toolTip: GameText.ShipWillMoveWithinMaximum2);
-            
-            OrdersBarPos = new Vector2(topLeft.X, topLeft.Y + 25f);
             AddOrderBtn("UI/icon_shield", CombatState.GuardMode, toolTip: GameText.TT_GuardMode);
         }
 
