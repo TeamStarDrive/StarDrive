@@ -52,7 +52,7 @@ namespace Ship_Game.AI
                 float taxRate = i / 100f;
                 //float amountMade = OwnerEmpire.EstimateNetIncomeAtTaxRate(taxRate);
 
-                float amountMade = taxRate * OwnerEmpire.GrossIncome;
+                float amountMade = taxRate * OwnerEmpire.GrossIncomeBeforeTax;
 
                 if (amountMade >= amount)
                 {
@@ -190,7 +190,7 @@ namespace Ship_Game.AI
         public float TreasuryGoal(float normalizedMoney)
         {
             //gremlin: Use self adjusting tax rate based on wanted treasury of 10(1 full years) of total income.
-            float treasuryGoal = Math.Max(OwnerEmpire.PotentialIncome, 0)
+            float treasuryGoal = Math.Max(OwnerEmpire.GrossIncomeBeforeTax, 0)
                                  + OwnerEmpire.data.FlatMoneyBonus;
             
             float timeSpan = (200 - normalizedMoney / 500).Clamped(100,200) * OwnerEmpire.data.treasuryGoal;
@@ -243,7 +243,7 @@ namespace Ship_Game.AI
             }
 
             float treasuryGap = treasuryGoal - money;
-            float neededPerTurn = treasuryGap / timeSpan;
+            float neededPerTurn = treasuryGap / timeSpan + OwnerEmpire.AllSpending;
             float treasuryToMoneyRatio = (money / treasuryGoal).Clamped(0.01f, 1);
             float taxesNeeded = FindTaxRateToReturnAmount(neededPerTurn).Clamped(0.0f, 0.95f);
             float increase = taxesNeeded - OwnerEmpire.data.TaxRate;
