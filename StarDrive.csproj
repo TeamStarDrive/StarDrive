@@ -651,6 +651,7 @@
     <Compile Include="Ship_Game\Utils\Deque.cs" />
     <Compile Include="Ship_Game\Utils\DoubleBufferedArray.cs" />
     <Compile Include="Ship_Game\Utils\EnumFlatMap.cs" />
+    <Compile Include="Ship_Game\Utils\ObjectPool.cs" />
     <Compile Include="Ship_Game\Utils\ReadRestAPIFromSite.cs" />
     <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetEdict.cs" />
