@@ -45,7 +45,7 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            Owner.SetDieTimer(2);
+            Owner.SetDieTimer(Scale > 1 ? -1 : 2); // die if the ship was shot out of the atmosphere
 
             // Fiery trail atmospheric entry
             if (!P.Type.EarthLike || !Owner.Position.InRadius(P.Center, P.ObjectRadius + 1000f))
@@ -83,7 +83,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ship.System.PlanetList.Count; i++)
             {
                 Planet p = ship.System.PlanetList[i];
-                if (ship.Center.InRadius(p.Center, p.GravityWellRadius)
+                if (ship.Center.InRadius(p.Center, p.GravityWellRadius * 0.5f)
                    || ship.IsPlatformOrStation && ship.GetTether() == p)
                 {
                     planet = p;

@@ -171,7 +171,10 @@ namespace Ship_Game.AI.Research
             Array<string> shipTech = new Array<string>();
 
             if (availableTech.Any(t => t.IsTechnologyType(ChooseTech.ConvertTechStringTechType("ShipHull"))))
-                shipTech.Add("ShipHull"); 
+            {
+                shipTechToAdd += ":ShipHull"; // prioritize hulls since there is a ship which can be used
+                numTechs      += 1;
+            }
 
             if (availableTech.Any(t => t.IsTechnologyType(ChooseTech.ConvertTechStringTechType("ShipWeapons"))))
                 shipTech.Add("ShipWeapons");
