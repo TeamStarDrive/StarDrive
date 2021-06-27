@@ -397,8 +397,6 @@ namespace Ship_Game.AI.Research
                     {
                         foreach (var techName in researchableTechs)
                             goodShipTechs.Add(techName);
-
-                        break;
                     }
                 }
             }
