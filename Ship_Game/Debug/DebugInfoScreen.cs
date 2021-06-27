@@ -1001,8 +1001,8 @@ namespace Ship_Game.Debug
                 var ships = e.OwnedShips;
                 DrawString("Threat :        " + gameState.ToString("#0.00"));
                 DrawString("Tax Rate:     "+taxRate.ToString("#.0")+"%");
-                DrawString($"Ship War Maint:  ({(int)e.GetEmpireAI().BuildCapacity}) Shp:{(int)e.TotalWarShipMaintenance} " +
-                           $"Trp:{(int)e.TotalTroopShipMaintenance}");
+                DrawString($"War Maint:  ({(int)e.GetEmpireAI().BuildCapacity}) Shp:{(int)e.TotalWarShipMaintenance} " +
+                           $"Trp:{(int)(e.TotalTroopShipMaintenance + e.TroopCostOnPlanets)}");
                 var warShips = ships.Filter(s => s.DesignRoleType == ShipData.RoleType.Warship);
                 DrawString($"   #:({warShips.Length})" +
                            $" f{warShips.Count(warship => warship?.DesignRole == ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
@@ -1013,9 +1013,10 @@ namespace Ship_Game.Debug
                            $" v{warShips.Count(warship => warship?.DesignRole == ShipData.RoleName.carrier)}" +
                            $" m{warShips.Count(warship => warship?.DesignRole == ShipData.RoleName.bomber)}"
                            );
-                DrawString($"Ship Civ Maint:  " +
+                DrawString($"Civ Maint:  " +
                            $"({(int)e.GetEmpireAI().CivShipBudget}) {(int)e.TotalCivShipMaintenance} " +
-                           $"#:{ships.Count(freighter => freighter?.DesignRoleType == ShipData.RoleType.Civilian)}");
+                           $"#{ships.Count(freighter => freighter?.DesignRoleType == ShipData.RoleType.Civilian)} " +
+                           $"Inc({e.AverageTradeIncome})");
                 DrawString($"Other Ship Maint:  Orb:{(int)e.TotalOrbitalMaintenance} - Sup:{(int)e.TotalEmpireSupportMaintenance}" +
                            $" #{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.platform || warship?.DesignRole == ShipData.RoleName.station)}");
                 DrawString($"Scrap:  {(int)e.TotalMaintenanceInScrap}");
