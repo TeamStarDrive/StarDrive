@@ -397,6 +397,9 @@ namespace Ship_Game.AI.Research
                     {
                         foreach (var techName in researchableTechs)
                             goodShipTechs.Add(techName);
+
+                        if (goodShipTechs.Count >= 5)
+                            break;
                     }
                 }
             }
@@ -454,13 +457,13 @@ namespace Ship_Game.AI.Research
             for (int i = 0; i < shipTechs.Count; i++)
             {
                 TechEntry tech = shipTechs[i];
-                if (!tech.Unlocked)
+                if (tech.Locked)
                 {
                     if (tech.GetUnlockableHulls(OwnerEmpire).Count > 0)
                     {
                         if (hullTech.IsEmpty())
                             hullTech = tech.UID;
-                        else  // we are looking for a ship which is only one hull away
+                        else  // this ship is more than one hull away, so ignore it
                             return false;
                     }
                     else
@@ -470,8 +473,8 @@ namespace Ship_Game.AI.Research
                 }
             }
 
-
-            // If there are no new  tech to reseach besides the hull, its time to research the hull
+            // If there are no new techs to research besides the hull, it means that ship can put to use
+            // once the hull is researched, so its time to research the hull
             if (techsToAdd.Count == 0 && hullTech.NotEmpty())
                 techsToAdd.Add(hullTech);
 
