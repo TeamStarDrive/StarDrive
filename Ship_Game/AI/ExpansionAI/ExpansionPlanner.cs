@@ -141,8 +141,7 @@ namespace Ship_Game.AI.ExpansionAI
             if (!Owner.isPlayer)
             {
                 var ai = Owner.GetEmpireAI();
-                if (ai.AvailableCivShipBudget / ai.CivShipBudget.LowerBound(1) > 0.1f &&
-                    Owner.TotalBuildingMaintenance / Owner.data.ColonyBudget.LowerBound(1) < 0.9f)
+                if (Owner.TotalBuildingMaintenance / Owner.data.ColonyBudget.LowerBound(1) < 0.9f)
                 {
 
                     if (potentialSystems.Length > 0)
