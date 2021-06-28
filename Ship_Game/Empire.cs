@@ -1761,7 +1761,7 @@ namespace Ship_Game
             MaxColonyValue             = 0;
             TotalColonyValues          = 0;
             TotalColonyPotentialValues = 0;
-
+            
             for (int i = 0; i < OwnedPlanets.Count; i++)
             {
                 Planet planet = OwnedPlanets[i];
