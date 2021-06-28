@@ -521,7 +521,8 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (badGuysNear)
+            // fire weapons if hostiles or hostile projectiles nearby
+            if (badGuysNear || TrackProjectiles.Length != 0)
             {
                 FireWeapons(timeStep);
             }
