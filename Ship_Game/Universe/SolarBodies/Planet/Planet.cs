@@ -372,6 +372,7 @@ namespace Ship_Game
             return GravityWellRadius;
         }
 
+        // this is calculating colonyRawValue twice.
         public float ColonyDiplomaticValueTo(Empire empire)
         {
             float worth = ColonyBaseValue(empire) + ColonyRawValue(empire);
@@ -657,6 +658,7 @@ namespace Ship_Game
                 RemoveBuildingFromPlanet(b);
 
             ProdHere += b.ActualCost / 2f;
+            Owner.GetEmpireAI().MaintSavedByBuildingScrappedThisTurn += b.Maintenance;
         }
 
         public void DestroyBuildingOn(PlanetGridSquare tile)
