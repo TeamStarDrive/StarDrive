@@ -338,7 +338,7 @@ namespace Ship_Game.AI.Research
 
             // If we have a best ship already then use that and return.
             // But only if not using a script
-            if (BestCombatShip != null && command == "RANDOM")
+            if (BestCombatShip != null && command == "RANDOM" && (EnableTechLineFocusing || !DisableShipPicker))
                 return UseBestShipTechs(shipTechs, nonShipTechs);
 
             // Doesn't have a best ship so find one
@@ -349,8 +349,7 @@ namespace Ship_Game.AI.Research
             if (researchableShips.Count <= 0) return nonShipTechs;
             // If not using a script dont get a best ship.
             // Or if the modder decided they want to use short term researchable tech only
-            if (command != "RANDOM"
-                || (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.EnableShipTechLineFocusing))
+            if (command != "RANDOM" || !EnableTechLineFocusing)
             {
                 return UseResearchableShipTechs(researchableShips, shipTechs, nonShipTechs);
             }
@@ -385,22 +384,32 @@ namespace Ship_Game.AI.Research
 
         private HashSet<string> UseResearchableShipTechs(Array<Ship> researchableShips, HashSet<string> shipTechs, HashSet<string> nonShipTechs)
         {
-            //filter out all current shiptechs that arent in researchableShips.
+            BestCombatShip = null;
+            bool containsOnlyHullTech = true;
+            // Filter out all current ship techs that aren't in researchableShips.
             var sortedShips               = researchableShips.Sorted(ExtractTechCost);
             HashSet<string> goodShipTechs = new HashSet<string>();
             foreach (var ship in sortedShips)
             {
-                if (TryExtractNeedTechs(ship, out HashSet<string> techs))
+                if (!TryExtractNeedTechs(ship, out HashSet<string> techs, out bool onlyHullLeft)) 
+                    continue;
+
+                var researchableTechs = shipTechs.Intersect(techs).ToArray();
+                if (researchableTechs.Length > 0)
                 {
-                    var researchableTechs = shipTechs.Intersect(techs).ToArray();
-                    if (researchableTechs.Length > 0)
+                    if (goodShipTechs.Count == 0 || onlyHullLeft || goodShipTechs.Count > 0 && containsOnlyHullTech)  
                     {
+                        if (BestCombatShip == null)
+                            BestCombatShip = ship;
+
+                        // Add the cheapest ship tech to research, but also the hull which
+                        // if researched, will unlock more ships
                         foreach (var techName in researchableTechs)
                             goodShipTechs.Add(techName);
-
-                        if (goodShipTechs.Count >= 5)
-                            break;
                     }
+
+                    if (!onlyHullLeft)
+                        containsOnlyHullTech = false;
                 }
             }
 
@@ -443,9 +452,12 @@ namespace Ship_Game.AI.Research
             return bestShipTechs;
         }
 
-        bool TryExtractNeedTechs(Ship ship, out HashSet<string> techsToAdd)
+        bool TryExtractNeedTechs(Ship ship, out HashSet<string> techsToAdd, out bool onlyHullLeft)
         {
-            if (OwnerEmpire.IsHullUnlocked(ship.shipData.Hull))
+            onlyHullLeft  = false;
+            var shipTechs = ConvertStringToTech(ship.shipData.TechsNeeded);
+            if (OwnerEmpire.IsHullUnlocked(ship.shipData.Hull)
+                && !shipTechs.Any(t => t.Locked && t.ContainsHullTech()))
             {
                 techsToAdd = ship.shipData.TechsNeeded;
                 return true;
@@ -453,7 +465,6 @@ namespace Ship_Game.AI.Research
 
             string hullTech = "";
             techsToAdd = new HashSet<string>();
-            var shipTechs      = ConvertStringToTech(ship.shipData.TechsNeeded);
             for (int i = 0; i < shipTechs.Count; i++)
             {
                 TechEntry tech = shipTechs[i];
@@ -475,8 +486,11 @@ namespace Ship_Game.AI.Research
 
             // If there are no new techs to research besides the hull, it means that ship can put to use
             // once the hull is researched, so its time to research the hull
-            if (techsToAdd.Count == 0 && hullTech.NotEmpty())
+            if (techsToAdd.Count == 0 && hullTech.NotEmpty() && ship.BaseStrength > 0)
+            {
                 techsToAdd.Add(hullTech);
+                onlyHullLeft = true;
+            }
 
             return techsToAdd.Count > 0;
         }
@@ -525,5 +539,6 @@ namespace Ship_Game.AI.Research
         }
 
         bool DisableShipPicker => GlobalStats.HasMod && GlobalStats.ActiveModInfo.DisableShipPicker;
+        bool EnableTechLineFocusing => !GlobalStats.HasMod || GlobalStats.HasMod && GlobalStats.ActiveModInfo.EnableShipTechLineFocusing;
     }
 }
