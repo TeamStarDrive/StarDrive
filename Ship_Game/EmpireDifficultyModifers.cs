@@ -32,6 +32,9 @@
         public readonly int NumWarTasksPerWar;
         public readonly int WarTaskPriorityMod; // higher priority vs player if at war with them
 
+        // A mod can set the general str of remnant designs. Default is 2 an this is a multiplier for starting fleet multiplier
+        public readonly float RemnantStrModifier; 
+
         // AI Buffs/Nerfs
         public readonly float FlatMoneyBonus;
         public readonly float ProductionMod;
@@ -48,6 +51,10 @@
 
         public DifficultyModifiers(Empire empire, UniverseData.GameDifficulty difficulty)
         {
+            float remnantGeneralStr = GlobalStats.HasMod && GlobalStats.ActiveModInfo.RemnantDesignStrMultiplier <= 0
+                ? 2 // Vanilla will be 2
+                : GlobalStats.ActiveModInfo.RemnantDesignStrMultiplier;
+
             DataVisibleToPlayer    = false;
             FlatMoneyBonus         = 0;
             ProductionMod          = 0;
@@ -86,6 +93,7 @@
                     NumSystemsToSniff    = 1;
                     NumWarTasksPerWar    = 1;
                     WarTaskPriorityMod   = 0;
+                    RemnantStrModifier   = remnantGeneralStr;
                     if (!empire.isPlayer)
                     {
                         ProductionMod = -0.1f;
@@ -122,6 +130,7 @@
                     NumSystemsToSniff    = 2;
                     NumWarTasksPerWar    = 2;
                     WarTaskPriorityMod   = 0;
+                    RemnantStrModifier   = remnantGeneralStr + 0.5f; 
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 5;
@@ -155,6 +164,7 @@
                     NumSystemsToSniff    = 3;
                     NumWarTasksPerWar    = 3;
                     WarTaskPriorityMod   = 1;
+                    RemnantStrModifier = remnantGeneralStr + 1;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 10;
@@ -193,6 +203,7 @@
                     NumSystemsToSniff    = 4;
                     NumWarTasksPerWar    = 4;
                     WarTaskPriorityMod   = 2;
+                    RemnantStrModifier   = remnantGeneralStr + 1.5f;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 20;
