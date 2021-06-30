@@ -338,7 +338,7 @@ namespace Ship_Game.AI.Research
 
             // If we have a best ship already then use that and return.
             // But only if not using a script
-            if (BestCombatShip != null && command == "RANDOM" && (EnableTechLineFocusing || !DisableShipPicker))
+            if (ShouldUseExistingCombatShip(command))
                 return UseBestShipTechs(shipTechs, nonShipTechs);
 
             // Doesn't have a best ship so find one
@@ -346,7 +346,9 @@ namespace Ship_Game.AI.Research
             Array<Ship> racialShips = FilterRacialShips();
             Array<Ship> researchableShips = GetResearchableShips(racialShips);
 
-            if (researchableShips.Count <= 0) return nonShipTechs;
+            if (researchableShips.Count <= 0) 
+                return nonShipTechs;
+
             // If not using a script dont get a best ship.
             // Or if the modder decided they want to use short term researchable tech only
             if (command != "RANDOM" || !EnableTechLineFocusing)
@@ -451,5 +453,8 @@ namespace Ship_Game.AI.Research
 
         bool DisableShipPicker => GlobalStats.HasMod && GlobalStats.ActiveModInfo.DisableShipPicker;
         bool EnableTechLineFocusing => !GlobalStats.HasMod || GlobalStats.HasMod && GlobalStats.ActiveModInfo.EnableShipTechLineFocusing;
+
+        bool ShouldUseExistingCombatShip(string command) =>
+            BestCombatShip != null && command == "RANDOM" && (EnableTechLineFocusing || !DisableShipPicker);
     }
 }
