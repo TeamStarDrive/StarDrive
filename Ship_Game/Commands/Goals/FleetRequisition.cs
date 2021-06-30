@@ -46,7 +46,7 @@ namespace Ship_Game.Commands.Goals
         GoalStep FindPlanetForFleetRequisition()
         {            
             if (PlanetBuildingAt == null || !PlanetBuildingAt.HasSpacePort)
-                empire.FindPlanetToBuildAt(empire.SpacePorts, ShipToBuild, out PlanetBuildingAt);
+                empire.FindPlanetToBuildAt(empire.SpacePorts, ShipToBuild, out PlanetBuildingAt, portQuality: 1.00f);
 
             if (PlanetBuildingAt == null)
                 return GoalStep.TryAgain;
