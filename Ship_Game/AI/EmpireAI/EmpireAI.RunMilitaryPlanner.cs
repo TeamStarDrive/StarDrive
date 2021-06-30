@@ -24,7 +24,7 @@ namespace Ship_Game.AI
 
             RunGroundPlanner();
 
-            int buildPlanets = OwnerEmpire.GetBestPortsForShipBuilding()?.Count ?? 0;
+            int buildPlanets = OwnerEmpire.GetBestPortsForShipBuilding(portQuality: 1.00f)?.Count ?? 0;
 
             NumberOfShipGoals = (int)Math.Max(buildPlanets - 1, 1f);
 
@@ -305,8 +305,8 @@ namespace Ship_Game.AI
 
         void BuildWarShips(int goalsInConstruction)
         {
-            bool shouldIgnoreDebt = OwnerEmpire.TotalWarShipMaintenance < BuildCapacity || (CreditRating * 3 + 1 - OwnerEmpire.data.TaxRate) / 4 > 0.5f;
-            var buildRatios = new RoleBuildInfo(BuildCapacity, this, ignoreDebt: shouldIgnoreDebt);
+            bool shouldIgnoreDebt = OwnerEmpire.TotalWarShipMaintenance < BuildCapacity || CreditRating > 0.5f;
+            var buildRatios       = new RoleBuildInfo(BuildCapacity, this, ignoreDebt: shouldIgnoreDebt);
 
             while (!buildRatios.OverBudget && goalsInConstruction < NumberOfShipGoals)
             {
@@ -473,14 +473,12 @@ namespace Ship_Game.AI
                 public void CalculateDesiredShips(FleetRatios ratio, float buildCapacity, float totalFleetMaintenance)
                 {
                     float minimum = CombatRoleToRatioMin(ratio);
-                    if (minimum.AlmostZero())
+                    if (minimum <= 0)
                         return;
                     CalculateBuildCapacity(buildCapacity, minimum, totalFleetMaintenance);
                     float buildBudget    = RoleBuildBudget.LowerBound(.001f);
                     float maintenanceMax = PerUnitMaintenanceMax.LowerBound(0.001f);
-                    DesiredCount = (int)(buildBudget / maintenanceMax); // MinimumMaintenance));
-                    //if (Role < CombatRole.Frigate)
-                    //    DesiredCount = Math.Min(50, DesiredCount);
+                    DesiredCount = (int)Math.Ceiling(buildBudget / maintenanceMax);
                 }
 
                 private void CalculateBuildCapacity(float totalCapacity, float wantedMin, float totalFleetMaintenance)
