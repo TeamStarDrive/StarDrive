@@ -120,7 +120,7 @@ namespace Ship_Game.AI.Research
         float CalcEconomics(Empire empire)
         {
             float workerEfficiency = empire.Research.NetResearch / empire.Research.MaxResearchPotential.LowerBound(1);
-            return (empire.GetEmpireAI().FinancialStability + workerEfficiency) / 2f;
+            return (empire.GetEmpireAI().CreditRating + workerEfficiency) / 2f;
         }
 
         float CalcResearchDebt(Empire empire, out Array<TechEntry> availableTechs)
