@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Ship_Game.AI;
+﻿using Ship_Game.AI;
 using Ship_Game.Ships;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -9,7 +9,7 @@ namespace Ship_Game
     {
         public void RefreshBuildingsWeCanBuildHere()
         {
-            if (Owner == null) 
+            if (Owner == null)
                 return;
 
             var canBuild = new Array<Building>();
@@ -100,7 +100,7 @@ namespace Ship_Game
             // also be exporting that production and then these calculation would not apply.
             // for the purposes of calculating the best planet to build on
             // it could be changed to just totalProdNeeded / Prod.NetMaxPotential which would give
-            // a reliable baseline that isnt dependent on the unknown future of the production stores. 
+            // a reliable baseline that isnt dependent on the unknown future of the production stores.
 
             // max production useable per turn when we have production stored.
             float maxProductionWithInfra    = MaxProductionToQueue.LowerBound(0.01f);
