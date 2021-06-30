@@ -1168,7 +1168,7 @@ namespace Ship_Game.Fleets
                 case 8: // Go back to portal, this step is set from the Remnant goal
                     ClearOrders();
                     GatherAtAO(task, 500);
-                    TaskStep = 9;
+                    TaskStep = 9;  // Tasks steps below 9 are a signal that the remnant fleet still on target (GetRemnantEngagementsGoalsFor)
                     break;
                 case 9:
                     if (!ArrivedAtCombatRally(FinalPosition, 50000))
@@ -1501,7 +1501,10 @@ namespace Ship_Game.Fleets
                     {
                         TaskStep = 4;
                     }
-
+                    else
+                    {
+                        TaskStep = 2; // Attack in system again
+                    }
                     break;
                 case 4:
                     SolarSystem  system = task.TargetSystem;

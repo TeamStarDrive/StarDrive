@@ -69,7 +69,7 @@ namespace Ship_Game.AI.Research
             //Tech Priorities
             Priority[ResearchArea.Colonization] = 1;
             Priority[ResearchArea.Economic]     = 1;
-            Priority[ResearchArea.GroundCombat] = 1;
+            Priority[ResearchArea.GroundCombat] = 0.5f;
             Priority[ResearchArea.Industry]     = 1;
             Priority[ResearchArea.General]      = 1;
             Priority[ResearchArea.Research]     = 1;
