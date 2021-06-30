@@ -90,9 +90,7 @@ namespace Ship_Game.AI
             if (!OwnerEmpire.canBuildBombers)
                 MinBombers = 0;
 
-            if (OwnerEmpire.canBuildCarriers)
-                MinFighters = 0;
-            else
+            if (!OwnerEmpire.canBuildCarriers)
                 MinCarriers = 0;
 
             if (!OwnerEmpire.canBuildSupportShips)
