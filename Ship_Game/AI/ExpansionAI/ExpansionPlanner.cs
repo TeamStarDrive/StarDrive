@@ -140,16 +140,11 @@ namespace Ship_Game.AI.ExpansionAI
 
             if (!Owner.isPlayer)
             {
-                var ai = Owner.GetEmpireAI();
-                if (Owner.TotalBuildingMaintenance / Owner.data.ColonyBudget.LowerBound(1) < 0.9f)
+                if (potentialSystems.Length > 0)
                 {
-
-                    if (potentialSystems.Length > 0)
-                    {
-                        potentialSystems.Sort(s => empireCenter.Distance(s.Position));
-                        potentialSystems = potentialSystems.Take(maxCheckedSystems).ToArray();
-                        potentialPlanets.AddRange(GetPotentialPlanetsNonLocal(potentialSystems));
-                    }
+                    potentialSystems.Sort(s => empireCenter.Distance(s.Position));
+                    potentialSystems = potentialSystems.Take(maxCheckedSystems).ToArray();
+                    potentialPlanets.AddRange(GetPotentialPlanetsNonLocal(potentialSystems));
                 }
             }
             else if (potentialSystems.Length > 0)

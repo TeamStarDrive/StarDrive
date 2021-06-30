@@ -43,7 +43,7 @@ namespace Ship_Game.Commands.Goals
             float importance = empire.GetEmpireAI().ThreatLevel;
 
             if ((importance > 0.5f || empire.IsMilitarists)
-                && PlanetBuildingAt.ConstructionQueue[0].Goal == this
+                && PlanetBuildingAt.ConstructionQueue[0]?.Goal == this
                 && PlanetBuildingAt.Storage.ProdRatio > 0.75f
                 && empire.GetEmpireAI().SafeToRush) 
             {
