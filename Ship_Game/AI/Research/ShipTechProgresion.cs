@@ -1,5 +1,4 @@
 ﻿using Ship_Game.Ships;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -28,7 +27,8 @@ namespace Ship_Game.AI.Research
                         foreach (var techName in researchableTechs)
                             goodShipTechs.Add(techName);
 
-                        break;
+                        HashSet<string> noTechs = new HashSet<string>(); // Shortcut to hull
+                        return UseOnlyWantedShipTechs(goodShipTechs, noTechs);
                     }
 
                     if (goodShipTechs.Count == 0 || onlyHullLeft || goodShipTechs.Count > 0 && containsOnlyHullTech)
@@ -67,9 +67,10 @@ namespace Ship_Game.AI.Research
 
         bool CanResearchHullInTimelyManner(TechEntry tech)
         {
-            int turnsThreshold = (int)OwnerEmpire.MaxPopBillion.Clamped(1, 200);
-            float netResearch  = OwnerEmpire.Research.NetResearch.LowerBound(1);
-            return tech.Tech.ActualCost / netResearch <= turnsThreshold;
+            int turnsThreshold  = (int)OwnerEmpire.TotalPopBillion.Clamped(1, 200);
+            float netResearch   = OwnerEmpire.Research.NetResearch.LowerBound(1);
+            float researchTurns = tech.Tech.ActualCost / netResearch;
+            return researchTurns <= turnsThreshold;
         }
 
         float ExtractTechCost(Ship ship)
