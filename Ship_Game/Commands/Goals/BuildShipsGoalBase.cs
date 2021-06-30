@@ -32,20 +32,21 @@ namespace Ship_Game.Commands.Goals
 
         protected enum SpacePortType { Any, Safe }
 
-        protected bool FindPlanetToBuildShipAt(SpacePortType portType, Ship ship, out Planet planet)
+        protected bool FindPlanetToBuildShipAt(SpacePortType portType, Ship ship, out Planet planet, float portQuality)
         {
             FindPlanetRetryTimer -= 0.016f; // fixed countdown
             if (FindPlanetRetryTimer > 0f)
             {
                 planet = null;
                 return false;
+
             }
 
             Planet[] spacePorts = portType == SpacePortType.Safe
                                 ? empire.SafeSpacePorts
                                 : empire.SpacePorts;
 
-            if (empire.FindPlanetToBuildAt(spacePorts, ship, out planet))
+            if (empire.FindPlanetToBuildAt(spacePorts, ship, out planet, portQuality: portQuality))
             {
                 return true; // OK
             }
@@ -60,7 +61,7 @@ namespace Ship_Game.Commands.Goals
             if (!GetShipTemplate(ToBuildUID, out Ship template))
                 return GoalStep.GoalFailed;
 
-            if (!FindPlanetToBuildShipAt(portType, template, out Planet planet))
+            if (!FindPlanetToBuildShipAt(portType, template, out Planet planet, portQuality: 1.00f))
                 return GoalStep.TryAgain;
 
             planet.Construction.Enqueue(template, this);
