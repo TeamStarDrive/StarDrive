@@ -51,9 +51,9 @@
 
         public DifficultyModifiers(Empire empire, UniverseData.GameDifficulty difficulty)
         {
-            float remnantGeneralStr = GlobalStats.HasMod && GlobalStats.ActiveModInfo.RemnantDesignStrMultiplier <= 0
-                ? 2 // Vanilla will be 2
-                : GlobalStats.ActiveModInfo.RemnantDesignStrMultiplier;
+            float remnantGeneralStr = 2; // Vanilla will be 2
+            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.RemnantDesignStrMultiplier > 0.01f)
+                remnantGeneralStr = GlobalStats.ActiveModInfo.RemnantDesignStrMultiplier;
 
             DataVisibleToPlayer    = false;
             FlatMoneyBonus         = 0;
