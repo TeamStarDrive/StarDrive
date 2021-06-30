@@ -353,13 +353,19 @@ namespace Ship_Game
             return closest != null;
         }
 
-        public bool FindPlanetToBuildAt(IReadOnlyList<Planet> ports, Ship ship, out Planet chosen)
+        /// <summary>
+        /// checks planets for shortest time to build.
+        /// port quality says how average a port can be.
+        /// 1 is above average. 0.2 is below average.
+        /// the default is below average. not recommended to set above 1 but you can. 
+        /// </summary>
+        public bool FindPlanetToBuildAt(IReadOnlyList<Planet> ports, Ship ship, out Planet chosen, float portQuality = 0.2f)
         {
             if (ports.Count != 0)
             {
                 float cost = ship.GetCost(this);
 
-                chosen = FindPlanetToBuildAt(ports, cost);
+                chosen = FindPlanetToBuildAt(ports, cost, portQuality: portQuality);
                 return chosen != null;
             }
             Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {ship} at! Candidates:{ports.Count}");
@@ -381,10 +387,10 @@ namespace Ship_Game
             return false;
         }
 
-        public Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, bool forTroop = false)
+        public Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, bool forTroop = false, float portQuality = 0.2f)
         {
             // focus on the best producing planets (number depends on the empire size)
-            if (GetBestPorts(ports, out Planet[] bestPorts))
+            if (GetBestPorts(ports, out Planet[] bestPorts, portQuality))
                 return bestPorts.FindMin(p => p.TurnsUntilQueueComplete(cost, forTroop));
 
             return null;
@@ -418,21 +424,21 @@ namespace Ship_Game
             return planet != null;
         }
 
-        public IReadOnlyCollection<Planet> GetBestPortsForShipBuilding() => GetBestPortsForShipBuilding(OwnedPlanets);
-        public IReadOnlyCollection<Planet> GetBestPortsForShipBuilding(IReadOnlyList<Planet> ports)
+        public IReadOnlyCollection<Planet> GetBestPortsForShipBuilding(float portQuality) => GetBestPortsForShipBuilding(OwnedPlanets, portQuality);
+        public IReadOnlyCollection<Planet> GetBestPortsForShipBuilding(IReadOnlyList<Planet> ports, float portQuality)
         {
             if (ports == null) return Empty<Planet>.Array;
-            GetBestPorts(ports, out Planet[] bestPorts); 
+            GetBestPorts(ports, out Planet[] bestPorts, portQuality); 
             return bestPorts?.Filter(p=> p.HasSpacePort || p.NumShipyards > 0) ?? Empty<Planet>.Array;
         }
 
-        bool GetBestPorts(IReadOnlyList<Planet> ports, out Planet[] bestPorts)
+        bool GetBestPorts(IReadOnlyList<Planet> ports, out Planet[] bestPorts, float portQuality = 0.2f)
         {
             bestPorts = null;
             if (ports.Count > 0)
             {
                 float averageMaxProd = ports.Average(p => p.Prod.NetMaxPotential);
-                bestPorts            = ports.Filter(p => !p.IsCrippled && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd/5));
+                bestPorts            = ports.Filter(p => !p.IsCrippled && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd * portQuality));
                 bestPorts            = bestPorts.SortedDescending(p => p.Prod.NetMaxPotential);
             }
 

@@ -89,15 +89,19 @@ namespace Ship_Game
         public bool BuildingBuiltOrQueued(Building b) => BuildingBuilt(b.BID) || BuildingInQueue(b.BID);
         public bool BuildingBuiltOrQueued(int bid) => BuildingBuilt(bid) || BuildingInQueue(bid);
 
-        public int TurnsUntilQueueCompleted(float extraItemCost = 0)
+        public int TurnsUntilQueueCompleted(float extraItemCost = 0, bool includeRush = false)
         {
             float totalProdNeeded = TotalProdNeededInQueue() + extraItemCost;
             if (totalProdNeeded.AlmostZero())
                 return 0;
 
+            //max production useable per turn. rush?
             float maxProductionWithInfra    = MaxProductionToQueue.LowerBound(0.01f);
+            // turns to use all stored production. without rush?
             float turnsWithInfra            = ProdHere / InfraStructure.LowerBound(0.01f);
-            float totalProdWithInfra        = turnsWithInfra * maxProductionWithInfra;
+            // this looks like a  rush check. since we dont know if we are going to rush.
+            // lets use this only for trade. 
+            float totalProdWithInfra = turnsWithInfra * (includeRush ? maxProductionWithInfra : 1);
             float prodNeededAfterStorageEnd = totalProdNeeded - totalProdWithInfra;
 
             if (prodNeededAfterStorageEnd.LessOrEqual(0)) // we can produce all queue with max prod and storage
