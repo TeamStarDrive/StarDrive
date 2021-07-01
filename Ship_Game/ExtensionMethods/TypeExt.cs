@@ -270,8 +270,16 @@ namespace Ship_Game
                 if (val1.Equals(val2))
                     return true;
 
-                // in this case, the Equals() check was sufficient
                 Type subType = val1.GetType();
+                
+                // for floats we need special treatment because of parser issues
+                if (subType == typeof(float) && !((float)val1).AlmostEqual((float)val2, 0.0001f))
+                {
+                    Error(member, $"first={val1} != second={val2}");
+                    return false;
+                }
+                
+                // in this case, the Equals() check was sufficient
                 if (subType.IsEnum || subType.IsBuiltIn())
                 {
                     Error(member, $"first={val1} != second={val2}");
