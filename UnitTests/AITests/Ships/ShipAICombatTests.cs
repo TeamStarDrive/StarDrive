@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.AI;
+using Ship_Game.Empires;
 using Ship_Game.Ships;
 
 namespace UnitTests.AITests.Ships
@@ -34,22 +35,22 @@ namespace UnitTests.AITests.Ships
             TheirShip.AI.CanTrackProjectiles = true;
         }
 
-        void Update(int iterations = 1)
+        void Update(int iterations, FixedSimTime timeStep)
         {
             for (int i = 0; i < iterations; ++i)
             {
                 // 1. first update universe object states
-                Universe.Objects.Update(TestSimStep);
+                Universe.Objects.Update(timeStep);
                 // 2. then run the scans
                 foreach (Ship s in Universe.Objects.Ships)
-                    s.AI.SensorScanAndSelectTarget();
+                    s.AI.ScanForTargets(timeStep);
             }
         }
 
         [TestMethod]
         public void EnemyShipsDetectedOnScan()
         {
-            Update(iterations:1);
+            Update(iterations:1, timeStep:TestSimStep);
             Assert.AreEqual(2, OurShip.AI.PotentialTargets.Length);
             Assert.AreEqual(0, OurShip.AI.FriendliesNearby.Length);
             Assert.AreEqual(0, OurShip.AI.TrackProjectiles.Length);
@@ -62,7 +63,7 @@ namespace UnitTests.AITests.Ships
         [TestMethod]
         public void ClosestEnemyShipSelectedAsTarget()
         {
-            Update(iterations:1);
+            Update(iterations:1, timeStep:TestSimStep);
             Assert.AreEqual(2, OurShip.AI.PotentialTargets.Length);
             Assert.AreEqual(1, TheirShip.AI.PotentialTargets.Length);
 
@@ -76,7 +77,7 @@ namespace UnitTests.AITests.Ships
         [TestMethod]
         public void WeCanDetectEnemyRockets()
         {
-            Update(iterations:1);
+            Update(iterations:1, timeStep:TestSimStep);
             Assert.AreEqual(2, OurShip.AI.PotentialTargets.Length);
             Assert.AreEqual(0, OurShip.AI.TrackProjectiles.Length);
             
@@ -85,7 +86,8 @@ namespace UnitTests.AITests.Ships
             bool didFireWeapons = TheirShip.AI.FireWeapons(TestSimStep);
             Assert.IsTrue(didFireWeapons, "Rocket Scout couldn't fire on our Ship. BUG!!");
 
-            Update(iterations:1);
+            var minTime = new FixedSimTime(EmpireConstants.ProjectileScanInterval);
+            Update(iterations:1, timeStep:minTime);
             Assert.AreEqual(2, OurShip.AI.PotentialTargets.Length);
             Assert.AreEqual(3, OurShip.AI.TrackProjectiles.Length, "Rockets weren't detected! BUG!");
         }

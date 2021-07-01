@@ -735,7 +735,6 @@ namespace Ship_Game.Ships
             if (source != null)
                 Parent.LastDamagedBy = LastDamagedBy = source;
 
-            Parent.InCombatTimer       = 15f;
             Parent.ShieldRechargeTimer = 0f;
 
             var beam = source as Beam;
