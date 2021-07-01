@@ -53,6 +53,9 @@ namespace Ship_Game.AI
         // Stores Maintenance saved by scrapping this turn;
         public float MaintSavedByBuildingScrappedThisTurn = 0;
 
+        // Empire spaceDefensive Reserves high enough to support fractional build budgets
+        public bool EmpireCanSupportSpcDefense => OwnerEmpire.data.DefenseBudget > OwnerEmpire.TotalOrbitalMaintenance && CreditRating > 0.90f;
+
         private float FindTaxRateToReturnAmount(float amount)
         {
             if (amount <= 0) return 0f;
