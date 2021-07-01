@@ -10,8 +10,8 @@ namespace Ship_Game.AI
         {
             if (DefensiveCoordinator.TroopsToTroopsWantedRatio > 0.95f)
                 return;
-
-            if (NumTroopGoals() > (OwnerEmpire.GetPlanets().Count / 5).LowerBound(2))
+            int buildPlanets = OwnerEmpire.GetBestPortsForShipBuilding(OwnerEmpire.MilitaryOutposts, portQuality: 0.2f).Count;
+            if (NumTroopGoals() > buildPlanets)
                 return;
 
             Troop[] troops = ResourceManager.GetTroopTemplatesFor(OwnerEmpire);
