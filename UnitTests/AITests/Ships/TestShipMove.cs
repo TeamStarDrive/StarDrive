@@ -36,6 +36,7 @@ namespace UnitTests.AITests.Ships
             var sw = Stopwatch.StartNew();
             while (ship.engineState != state)
             {
+                PerfTimer.SpinWait(TestSimStep.FixedTime);
                 update();
                 if (sw.Elapsed.TotalSeconds > 5.0)
                     throw new TimeoutException("Timed out while waiting for engine state change");
@@ -44,7 +45,7 @@ namespace UnitTests.AITests.Ships
 
         void DoManualSensorScan(Ship s, FixedSimTime time)
         {
-            s.AI.SensorScanAndSelectTarget();
+            s.AI.ScanForTargets(time);
             s.AI.Update(time);
         }
 
@@ -100,9 +101,9 @@ namespace UnitTests.AITests.Ships
             // wait for ship to exit warp
             WaitForEngineChangeTo(Ship.MoveState.Sublight, ship, () =>
             {
-                Universe.Objects.Update(TestSimStep); // update ships           
-                ship.AI.SensorScanAndSelectTarget();
-                enemy.AI.SensorScanAndSelectTarget();
+                Universe.Objects.Update(TestSimStep); // update ships
+                ship.AI.ScanForTargets(TestSimStep);
+                enemy.AI.ScanForTargets(TestSimStep);
                 sawEnemyShip |= ship.AI.BadGuysNear;
             });
 

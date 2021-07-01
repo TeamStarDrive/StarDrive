@@ -1108,7 +1108,7 @@ namespace Ship_Game.Ships
             SetFleetCapableStatus();
             
             // scan universe and make decisions for combat
-            AI.CheckSensors(timeStep);
+            AI.ScanForTargets(timeStep);
         }
 
         public void UpdateModulePositions(FixedSimTime timeStep, bool isSystemView, bool forceUpdate = false)

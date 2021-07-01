@@ -14,7 +14,6 @@ namespace Ship_Game.AI
         Planet AwaitClosest;
         Planet PatrolTarget;
         float UtilityModuleCheckTimer;
-        int StopNumber;
         public FleetDataNode FleetNode;
 
         public Ship Owner;
@@ -42,6 +41,7 @@ namespace Ship_Game.AI
             DropOffGoods = new DropOffGoods(this);
             PickupGoods = new PickupGoods(this);
             Orbit = new OrbitPlan(this);
+            CombatAI = new CombatAI(this);
             InitializeTargeting();
         }
 
@@ -222,13 +222,14 @@ namespace Ship_Game.AI
             Owner.Carrier.HandleHangarShipsScramble();
         }
 
-        public Ship NearBySupplyShip => 
-            FriendliesNearby.FindMinFiltered(supply => supply.Carrier.HasSupplyBays && supply.SupplyShipCanSupply,
-        supply => -supply.Center.SqDist(Owner.Center));
+        public Ship NearBySupplyShip => FriendliesNearby.FindMinFiltered(
+            supply => supply.Carrier.HasSupplyBays && supply.SupplyShipCanSupply,
+            supply => -supply.Center.SqDist(Owner.Center));
 
-        public Ship NearByRepairShip => 
-            FriendliesNearby.FindMinFiltered(supply => supply.hasRepairBeam || supply.HasRepairModule,
-        supply => -supply.Center.SqDist(Owner.Center));
+        public Ship NearByRepairShip => FriendliesNearby.FindMinFiltered(
+            supply => supply.hasRepairBeam || supply.HasRepairModule,
+            supply => -supply.Center.SqDist(Owner.Center));
+
         public void ProcessResupply(ResupplyReason resupplyReason)
         {
             Planet nearestRallyPoint = null;
@@ -695,16 +696,6 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.TroopToShip, State);
         }
         
-        // Checks whether it's time to run a SensorScan
-        public void CheckSensors(FixedSimTime timeStep)
-        {
-            ScanForThreatTimer -= timeStep.FixedTime;
-            if (ScanForThreatTimer <= 0f)
-            {
-                SensorScanAndSelectTarget();
-            }
-        }
-
         void ResetStateFlee()
         {
             if (State != AIState.Flee || BadGuysNear || State == AIState.Resupply || HasPriorityOrder) return;
