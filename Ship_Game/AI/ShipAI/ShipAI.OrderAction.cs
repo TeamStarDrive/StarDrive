@@ -324,7 +324,6 @@ namespace Ship_Game.AI
 
         public void OrderPirateFleeHome(bool signalRetreat = false)
         {
-
             if (Owner.loyalty.WeArePirates 
                 && !Owner.IsPlatformOrStation 
                 && Owner.loyalty.Pirates.GetBases(out Array<Ship> pirateBases))
@@ -339,9 +338,9 @@ namespace Ship_Game.AI
 
             if (signalRetreat)
             {
-                var friends = FriendliesNearby;
+                Ship[] friends = FriendliesNearby;
                 for (int i = 0; i < friends.Length; i++)
-                    FriendliesNearby[i].AI.OrderPirateFleeHome();
+                    friends[i].AI.OrderPirateFleeHome();
             }
         }
 

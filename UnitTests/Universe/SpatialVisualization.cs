@@ -77,8 +77,8 @@ namespace UnitTests.Universe
                     {
                         p.TestUpdatePhysics(simTime);
                     }
-
                 }
+
                 var timer1 = new PerfTimer();
                 Spat.UpdateAll(AllObjects);
                 UpdateTime = timer1.Elapsed;

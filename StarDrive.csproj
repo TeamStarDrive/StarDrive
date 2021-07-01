@@ -278,6 +278,7 @@
     <Compile Include="Ship_Game\Empires\Components\HangarShips.cs" />
     <Compile Include="Ship_Game\Empires\Components\LoyaltyLists.cs" />
     <Compile Include="Ship_Game\Empires\Components\IEmpireShipLists.cs" />
+    <Compile Include="Ship_Game\Empires\EmpireConstants.cs" />
     <Compile Include="Ship_Game\GameScreens\DeveloperUniverse.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadGame\LoadGame.cs" />
     <Compile Include="Ship_Game\Ships\Components\LoyaltyChanges.cs" />
