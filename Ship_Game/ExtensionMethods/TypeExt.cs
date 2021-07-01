@@ -273,8 +273,10 @@ namespace Ship_Game
                 Type subType = val1.GetType();
 
                 // for floats we need special treatment because of parser issues
-                if (subType == typeof(float) && !((float)val1).AlmostEqual((float)val2, 0.001f))
+                if (subType == typeof(float))
                 {
+                    if (((float)val1).AlmostEqual((float)val2, 0.0001f))
+                        return true;
                     Error(member, $"first={val1:0.#####} != second={val2:0.#####}");
                     return false;
                 }
