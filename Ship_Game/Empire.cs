@@ -45,50 +45,20 @@ namespace Ship_Game
 
         readonly Array<Troop> UnlockedTroops = new Array<Troop>();
 
-        readonly int[] MoneyHistory = new int[10];
-        int MoneyHistoryIndex = 0;
-
-        public void SaveMoneyHistory(SavedGame.EmpireSaveData empire)
-        {
-            if (empire.NormalizedMoney == null) empire.NormalizedMoney = new Array<float>();
-            for (int x = 0; x < MoneyHistory.Length; x++) empire.NormalizedMoney.Add(MoneyHistory[x]);
-        }
-
-        public void RestoreMoneyHistoryFromSave(SavedGame.EmpireSaveData empire)
-        {
-            if (empire.NormalizedMoney == null)
-            {
-                NormalizedMoney = empire.Money;
-            }
-            else
-            {
-                for (int x = 0; x < empire.NormalizedMoney.Count(); x++)
-                    NormalizedMoney = (int)empire.NormalizedMoney[x];
-            }
-        }
+        float NormalizedMoneyValue;
 
         /// <summary>
         /// Returns an average of empire money over several turns.
         /// </summary>
         public float NormalizedMoney
         {
-            get
-            {
-                float total = 0;
-                int count = 0;
-                for (int index = 0; index < MoneyHistory.Length; index++)
-                {
-                    int money = MoneyHistory[index];
-                    if (money <= 0) continue;
-                    count++;
-                    total += money;
-                }
-                return count > 0 ? total / count : Money;
-            }
+            get => NormalizedMoneyValue;
             set
             {
-                MoneyHistory[MoneyHistoryIndex] = (int)value;
-                MoneyHistoryIndex = ++MoneyHistoryIndex > 9 ? 0 : MoneyHistoryIndex;
+                if (NormalizedMoneyValue == 0f)
+                    NormalizedMoneyValue = value;
+                else
+                    NormalizedMoneyValue = NormalizedMoneyValue*0.9f + value*0.1f;
             }
         }
 
