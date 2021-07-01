@@ -131,7 +131,7 @@ namespace Ship_Game.AI
                     }
                 }
             }
-            if (filledRoles == float.MaxValue)
+            if (filledRoles >= float.MaxValue)
                 return 0;
             return (int)filledRoles;
         }
