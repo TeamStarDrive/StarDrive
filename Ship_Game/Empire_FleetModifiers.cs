@@ -36,9 +36,16 @@
                 return;
 
             if (FleetStrEmpireMultiplier.ContainsKey(targetEmpire.Id))
+            {
                 FleetStrEmpireMultiplier[targetEmpire.Id] = (FleetStrEmpireMultiplier[targetEmpire.Id] + value).LowerBound(0.5f);
+            }
             else
-                FleetStrEmpireMultiplier.Add(targetEmpire.Id, DifficultyModifiers.TaskForceStrength * (targetEmpire.isFaction ? 2 : 1));
+            {
+                float startingMultiplier = targetEmpire.WeAreRemnants ? DifficultyModifiers.RemnantStrModifier 
+                                                                      : DifficultyModifiers.TaskForceStrength;
+
+                FleetStrEmpireMultiplier.Add(targetEmpire.Id, startingMultiplier);
+            }
         }
 
         public void InitFleetEmpireStrMultiplier()

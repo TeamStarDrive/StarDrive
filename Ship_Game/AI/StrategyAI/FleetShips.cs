@@ -74,11 +74,11 @@ namespace Ship_Game.AI
                 return false;
             }
 
-            int roleIndex            = (int)EmpireAI.RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(ship.DesignRole);
-            RoleCount[roleIndex]    += 1;
-            RoleStrength[roleIndex] += ship.GetStrength(); 
-            AccumulatedStrength     += ship.GetStrength();
-            
+            int roleIndex = (int)EmpireAI.RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(ship.DesignRole);
+            RoleCount[roleIndex] += 1;
+            RoleStrength[roleIndex] += ship.GetStrength();
+            AccumulatedStrength += ship.GetStrength();
+
             Ships.Add(ship);
 
             if (ShipRoleToRoleType(ship.DesignRole) == RoleType.Troop)
@@ -100,25 +100,39 @@ namespace Ship_Game.AI
 
         public int CountFleets(out float strength)
         {
+            if (OwnerEmpire.isFaction || OwnerEmpire.isPlayer)
+            {
+                strength = 0;
+                return 0;
+            }
+
             float filledRoles = float.MaxValue;
             strength = 0;
-            int wantedRoles = 0;
             float completionWanted = 0.1f;
-            int maxCombatIndex = Ratios.MaxCombatRoleIndex();
             foreach(EmpireAI.RoleBuildInfo.RoleCounts.CombatRole item in Enum.GetValues(typeof(EmpireAI.RoleBuildInfo.RoleCounts.CombatRole)))
             {
-                float wanted       = (Ratios.GetWanted(item) * completionWanted).LowerBound(1);// > 0 ? 1 : 0;
-                if (wanted        <= 0) continue;
-                wantedRoles++;
-                int index          = (int)item;
-                float have         = RoleCount[index];
-                float filled       = have / wanted;
-                float roleStrength = RoleStrength[index];
-                strength          += (filled > 1 ? roleStrength : 0);
-                bool requiredRole = index > maxCombatIndex - 1 && index < maxCombatIndex + 1;
-                if (!requiredRole) continue;
-                filledRoles       = Math.Min(filled, filledRoles);
+                float wanted = Ratios.GetWanted(item);
+                
+
+                if (wanted > 0)
+                {
+                    wanted = (Ratios.GetWanted(item) * completionWanted).LowerBound(1);
+                    int index          = (int)item;
+
+                    float have = RoleCount[index];
+
+                    if (have > 0)
+                    {
+                        float filled = have / wanted;
+                        float roleStrength = RoleStrength[index] * wanted / have;
+                        strength += (filled > 1 ? roleStrength : 0);
+
+                        filledRoles = Math.Min(filled, filledRoles);
+                    }
+                }
             }
+            if (filledRoles >= float.MaxValue)
+                return 0;
             return (int)filledRoles;
         }
 
@@ -128,7 +142,7 @@ namespace Ship_Game.AI
             float extractedShipStrength = 0;
             int completeFleets          = 0;
             ships                       = new Array<Ship>();
-            int neededFleets              = wantedFleetCount.LowerBound(1);
+            int neededFleets            = wantedFleetCount.LowerBound(1);
             var utilityShips            = new Array<Ship>();
             do
             {
@@ -149,8 +163,11 @@ namespace Ship_Game.AI
             }
             while (neededFleets > 0 || extractedShipStrength < strengthNeeded);
 
-            if (extractedShipStrength >= strengthNeeded && completeFleets > 0)
+            // we have enough strength so its good.
+            if (extractedShipStrength >= strengthNeeded)
                 completeFleets = wantedFleetCount + 1;
+            else
+                return 0; // bail on failed fleet creation
 
             for (int x =0; x< (wantedFleetCount + completeFleets).LowerBound(1); x++)
                 utilityShips.AddRange(GetSupplementalFleet());
@@ -159,39 +176,27 @@ namespace Ship_Game.AI
             return completeFleets;
         }
 
+        // core combat section of a fleet
         public Array<Ship> GetCoreFleet(out bool goodSet)
         {
             var ships = new Array<Ship>();
-            goodSet   = true;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.fighter,  out bool roleGood));   bool badSet = !roleGood;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.corvette, out roleGood));        badSet = badSet || !roleGood;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.frigate, out roleGood));         badSet = badSet || !roleGood;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.cruiser, out roleGood));         badSet = badSet || !roleGood;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.battleship, out roleGood));      badSet = badSet || !roleGood;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.capital, out roleGood));         badSet = badSet || !roleGood;
-            goodSet = !badSet;
+            goodSet   = false;
+            bool roleGood = false;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.fighter,  out roleGood));   goodSet |= roleGood;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.corvette, out roleGood));   goodSet |= roleGood;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.frigate, out roleGood));    goodSet |= roleGood;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.cruiser, out roleGood));    goodSet |= roleGood;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.battleship, out roleGood)); goodSet |= roleGood;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.capital, out roleGood));    goodSet |= roleGood;
+            goodSet = roleGood;
             return ships;
         }
 
         public Array<Ship> ExtractCoreFleetRole(RoleName role, out bool fullFilled)
         {
-            int combatIndex = FleetRatios.CombatRoleToRatio(role);
-            int maxIndex    = Ratios.MaxCombatRoleIndex();
             float wanted    = Ratios.GetWanted(role);
-
-            int requirementSpread = 0;
-            if (maxIndex > 2) requirementSpread += 1;
-            bool required =  maxIndex > 0 && wanted >= 1 && combatIndex + requirementSpread >= maxIndex;
-            bool doWeHaveAny = false;
-            if (required)
-                 doWeHaveAny = ((Ship[])OwnerEmpire.OwnedShips).Any(s => s.DesignRole == role);
-            required = doWeHaveAny;
-
-            if (wanted < 1)
-                wanted = Ships.Count(s => s.DesignRole == role);
-            wanted = wanted > 0 ? (float)Math.Ceiling(wanted) : 0;
-            var ships = ExtractShips(Ships,  wanted, role, required);
-            fullFilled = !required || ships.NotEmpty;
+            var ships = ExtractShips(Ships, wanted.LowerBound(1), role, required: false);
+            fullFilled      = wanted == 0 || ships.NotEmpty;
             return ships;
         }
 

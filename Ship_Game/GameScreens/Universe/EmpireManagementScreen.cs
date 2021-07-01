@@ -21,6 +21,8 @@ namespace Ship_Game
         private readonly SortButton SbRes;
         private readonly SortButton SbMoney;
 
+        private RectF GovernorRect;
+
         private readonly Color Cream           = Colors.Cream;
         private readonly Color White           = Color.White;
         private readonly Graphics.Font NormalFont = Fonts.Arial20Bold;
@@ -58,8 +60,8 @@ namespace Ship_Game
 
             var planets = EmpireManager.Player.GetPlanets();
             int sidePanelWidths = (int)(ScreenWidth * 0.3f);
-            var governorRect = new RectF(ColoniesList.Right - sidePanelWidths - 23, ColoniesList.Bottom - 5, sidePanelWidths, ScreenHeight - ColoniesList.Bottom - 22);
-            GovernorDetails = Add(new GovernorDetailsComponent(this, planets[0], governorRect));
+            GovernorRect = new RectF(ColoniesList.Right - sidePanelWidths - 23, ColoniesList.Bottom - 5, sidePanelWidths, ScreenHeight - ColoniesList.Bottom - 22);
+            GovernorDetails = Add(new GovernorDetailsComponent(this, planets[0], GovernorRect));
             ResetColoniesList(planets);
         }
 
@@ -258,7 +260,7 @@ namespace Ship_Game
         void OnColonyListItemClicked(ColoniesListItem item)
         {
             SelectedPlanet = item.P;
-            GovernorDetails.SetPlanetDetails(SelectedPlanet, (int)GovernorDetails?.CurrentTabIndex);
+            GovernorDetails.SetPlanetDetails(SelectedPlanet, GovernorRect, (int)GovernorDetails?.CurrentTabIndex);
             GovernorDetails.PerformLayout();
         }
 
@@ -312,7 +314,7 @@ namespace Ship_Game
             }
 
             SelectedPlanet = ColoniesList.AllEntries[0].P;
-            GovernorDetails.SetPlanetDetails(SelectedPlanet, (int)GovernorDetails?.CurrentTabIndex);
+            GovernorDetails.SetPlanetDetails(SelectedPlanet, GovernorRect, (int)GovernorDetails?.CurrentTabIndex);
             GovernorDetails.PerformLayout();
         }
     }

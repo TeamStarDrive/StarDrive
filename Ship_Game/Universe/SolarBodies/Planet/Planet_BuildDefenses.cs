@@ -118,13 +118,13 @@ namespace Ship_Game
             int orbitalsWeHave = orbitalList.Filter(o => !o.shipData.IsShipyard).Length + OrbitalsBeingBuilt(role);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"{role}s we have: {orbitalsWeHave}, {role}s we want: {orbitalsWeWant}");
+            var eAI = Owner.GetEmpireAI();
 
-            if (orbitalList.NotEmpty && (orbitalsWeHave > orbitalsWeWant || budget < 0))
+            if (orbitalList.NotEmpty && (orbitalsWeHave > orbitalsWeWant || (budget < 0 && !eAI.EmpireCanSupportSpcDefense)))
             {
                 Ship weakest = orbitalList.FindMin(s => s.BaseStrength);
                 if (weakest != null)
                     ScrapOrbital(weakest);
-               
                 return;
             }
 
@@ -170,7 +170,7 @@ namespace Ship_Game
             AddOrbital(orbital);
         }
 
-        private int TimeVsCostThreshold => 40 + (int)(Owner.Money / 1000);
+        private int TimeVsCostThreshold => (int)(40 + EstimatedAverageProduction*Level + Owner.Money/250);
 
         // Adds an Orbital to ConstructionQueue
         public void AddOrbital(Ship orbital)
@@ -198,8 +198,8 @@ namespace Ship_Game
             if (bestWeCanBuild == null)
                 return;
 
-            if (bestWeCanBuild.BaseStrength.Less(weakestWeHave.BaseStrength * 1.05f))
-                return; // replace only if str is 5% more than the current weakest orbital
+            if (bestWeCanBuild.BaseStrength.Less(weakestWeHave.BaseStrength * 1.1f))
+                return; // replace only if str is 10% more than the current weakest orbital
 
             string debugReplaceOrRefit;
             if (weakestWeHave.DesignRole == bestWeCanBuild.DesignRole)
@@ -228,7 +228,7 @@ namespace Ship_Game
 
             if (orbital != null)
             {
-                // If we can build the selected orbital in a timely manner at full production potential, select it.
+                // If we can build the selected orbital in a timely, select it.
                 if (LogicalBuiltTimeVsCost(orbital.GetCost(Owner), TimeVsCostThreshold))
                     return orbital;
             }
@@ -245,15 +245,24 @@ namespace Ship_Game
         // This returns the best orbital the empire can build
         private Ship GetBestOrbital(ShipData.RoleName role, float budget)
         {
+            if (budget < 0)
+                return null;
             Ship orbital = null;
+
             switch (role)
             {
                 case ShipData.RoleName.platform: orbital = Owner.BestPlatformWeCanBuild; break;
-                case ShipData.RoleName.station: orbital  = Owner.BestStationWeCanBuild;  break;
+                case ShipData.RoleName.station: orbital = Owner.BestStationWeCanBuild; break;
             }
-            if (orbital != null && orbital.GetMaintCost(Owner) > budget)
-                return null; // Too much maintenance
 
+            if (orbital != null)
+            {
+                budget     = (float)Math.Ceiling(budget);
+                float cost = orbital.GetMaintCost(Owner);
+
+                if (cost > budget)
+                    orbital = null;
+            }
             return orbital;
         }
 

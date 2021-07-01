@@ -208,8 +208,11 @@ namespace Ship_Game.AI.Tasks
 
         void RequisitionDefenseForce()
         {
-            if (EnemyStrength < 1)
+            if (!Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == TargetSystem)
+                && TargetSystem.DangerousForcesPresent(Owner))
+            {
                 EndTask();
+            }
 
             if (AO.AlmostZero())
                 Log.Error($"no area of operation set for task: {Type}");
@@ -426,7 +429,7 @@ namespace Ship_Game.AI.Tasks
 
             MinimumTaskForceStrength = (EnemyStrength + buildingsSpaceOffense).LowerBound(lowerBound);
             float multiplier         = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
-            MinimumTaskForceStrength = (MinimumTaskForceStrength * multiplier).UpperBound(Owner.OffensiveStrength / 2);
+            MinimumTaskForceStrength = (MinimumTaskForceStrength * multiplier).UpperBound(Owner.OffensiveStrength / 4);
         }
 
         string GetFleetName()

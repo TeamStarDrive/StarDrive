@@ -781,7 +781,7 @@ namespace Ship_Game.Debug
 
                 var tasksForEval = tasks.Filter(t => t.NeedEvaluation);
                 NewLine();
-                DrawString(Color.Gray, "--Tasks Needing Evaluation--");
+                DrawString(Color.Gray, "--Tasks Being Evaluated ---");
                 for (int i = tasksForEval.Length - 1; i >= 0; i--)
                 {
                     if (taskEvalCounter == taskEvalLimit)
@@ -977,7 +977,7 @@ namespace Ship_Game.Debug
             {
                 if (e.data.Defeated)
                     continue;
-
+                EmpireAI eAI = e.GetEmpireAI();
                 SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 95, e.EmpireColor);
                 DrawString(e.data.Traits.Name);
 
@@ -989,20 +989,16 @@ namespace Ship_Game.Debug
                 DrawString($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.GrossIncome.String()})");
                 float normalizedBudget = e.NormalizedMoney;
                 float treasuryGoal = e.GetEmpireAI().TreasuryGoal(normalizedBudget);
-                if (!e.isPlayer)
-                {
-                    float totalMain = (e.TotalBuildingMaintenance + e.TotalShipMaintenance) * 40;
-                    float maxTreasury = Math.Max(totalMain, treasuryGoal * 0.5f);
-                    treasuryGoal = treasuryGoal.Clamped(totalMain, maxTreasury);
-                }
-                DrawString($"Treasury Goal: {(int)treasuryGoal} {(int)( e.GetEmpireAI().FinancialStability * 100)}%");
+               
+                DrawString($"Treasury Goal: {(int)eAI.ProjectedMoney} {(int)( e.GetEmpireAI().CreditRating * 100)}%");
                 float taxRate = e.data.TaxRate * 100f;
-                float gameState = e.GetEmpireAI().ThreatLevel;
+                
                 var ships = e.OwnedShips;
-                DrawString("Threat :        " + gameState.ToString("#0.00"));
+                DrawString($"Threat : av:{eAI.ThreatLevel:#0.00} $:{eAI.EconomicThreat:#0.00} " +
+                           $"b:{eAI.BorderThreat:#0.00} e:{eAI.EnemyThreat:#0.00}");
                 DrawString("Tax Rate:     "+taxRate.ToString("#.0")+"%");
-                DrawString($"Ship War Maint:  ({(int)e.GetEmpireAI().BuildCapacity}) Shp:{(int)e.TotalWarShipMaintenance} " +
-                           $"Trp:{(int)e.TotalTroopShipMaintenance}");
+                DrawString($"War Maint:  ({(int)e.GetEmpireAI().BuildCapacity}) Shp:{(int)e.TotalWarShipMaintenance} " +
+                           $"Trp:{(int)(e.TotalTroopShipMaintenance + e.TroopCostOnPlanets)}");
                 var warShips = ships.Filter(s => s.DesignRoleType == ShipData.RoleType.Warship);
                 DrawString($"   #:({warShips.Length})" +
                            $" f{warShips.Count(warship => warship?.DesignRole == ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
@@ -1013,9 +1009,10 @@ namespace Ship_Game.Debug
                            $" v{warShips.Count(warship => warship?.DesignRole == ShipData.RoleName.carrier)}" +
                            $" m{warShips.Count(warship => warship?.DesignRole == ShipData.RoleName.bomber)}"
                            );
-                DrawString($"Ship Civ Maint:  " +
+                DrawString($"Civ Maint:  " +
                            $"({(int)e.GetEmpireAI().CivShipBudget}) {(int)e.TotalCivShipMaintenance} " +
-                           $"#:{ships.Count(freighter => freighter?.DesignRoleType == ShipData.RoleType.Civilian)}");
+                           $"#{ships.Count(freighter => freighter?.DesignRoleType == ShipData.RoleType.Civilian)} " +
+                           $"Inc({e.AverageTradeIncome})");
                 DrawString($"Other Ship Maint:  Orb:{(int)e.TotalOrbitalMaintenance} - Sup:{(int)e.TotalEmpireSupportMaintenance}" +
                            $" #{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.platform || warship?.DesignRole == ShipData.RoleName.station)}");
                 DrawString($"Scrap:  {(int)e.TotalMaintenanceInScrap}");

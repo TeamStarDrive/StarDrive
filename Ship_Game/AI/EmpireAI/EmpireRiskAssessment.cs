@@ -49,7 +49,7 @@ namespace Ship_Game.AI
             float risk = 0;
             if (Them.isFaction || us.isFaction)
             {
-                if (us.GetEmpireAI().FinancialStability > 0.75f && (Relation.AtWar || Relation.IsHostile))
+                if (us.GetEmpireAI().CreditRating > 0.75f && (Relation.AtWar || Relation.IsHostile))
                 {
                     float strengthNeeded = us.GetEmpireAI().GetAvgStrengthNeededByExpansionTasks(Them);
 
