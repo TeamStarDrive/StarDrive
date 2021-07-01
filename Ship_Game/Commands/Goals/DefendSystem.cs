@@ -19,7 +19,7 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public DefendSystem(Empire empire, SolarSystem system, int priority, float strengthWanted, int fleetCount) : this()
+        public DefendSystem(Empire empire, SolarSystem system, float strengthWanted, int fleetCount) : this()
         {
             this.empire    = empire;
             StarDateAdded  = Empire.Universe.StarDate;
@@ -29,7 +29,6 @@ namespace Ship_Game.Commands.Goals
 
             MilitaryTask task = new MilitaryTask(empire, center, radius, system, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
             {
-                Priority                 = priority,
                 FleetCount               = fleetCount,
                 MinimumTaskForceStrength = strengthWanted
             };
@@ -56,7 +55,7 @@ namespace Ship_Game.Commands.Goals
 
             if (task.Fleet == null)
             {
-                if (LifeTime > 15 && !empire.SystemsWithThreat.Any(ts => !ts.ThreatTimedOut && ts.TargetSystem == TargetSystem))
+                if (LifeTime > 10 && !empire.SystemsWithThreat.Any(ts => !ts.ThreatTimedOut && ts.TargetSystem == TargetSystem))
                 {
                     task.EndTask(); // Timeout
                     return GoalStep.GoalFailed;

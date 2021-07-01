@@ -9,8 +9,7 @@ namespace Ship_Game.AI.Budget
         public bool Initialized { get; }
         public readonly float TotalRemaining;
         public readonly float EmpireRatio;
-        public float SystemRank => SysCom?.RankImportance ?? 0;
-        public readonly SystemCommander SysCom;
+        public readonly float DefenseRatio;
         private readonly Empire Owner;
         private float EmpireColonizationBudget => Owner.data.ColonyBudget;
         private float EmpireDefenseBudget => Owner.data.DefenseBudget;
@@ -31,17 +30,16 @@ namespace Ship_Game.AI.Budget
                 return;
 
             P                   = planet;
-            SysCom              = P.Owner.GetEmpireAI().DefensiveCoordinator.GetSystemCommander(P.ParentSystem);
             Owner               = P.Owner;
             EmpireRatio         = P.ColonyPotentialValue(Owner) / Owner.TotalColonyPotentialValues;
-            float defenseBudget = EmpireDefenseBudget * EmpireRatio;
+            DefenseRatio        = P.ColonyBaseValue(Owner) / Owner.TotalColonyValues;
+            float defenseBudget = EmpireDefenseBudget * DefenseRatio;
             float groundRatio   = MilitaryBuildingsBudgetRatio();
             float orbitalRatio  = 1 - groundRatio;
 
             GrdDefAlloc   = P.ManualGrdDefBudget.LessOrEqual(0) ? defenseBudget * groundRatio : P.ManualGrdDefBudget;
             SpcDefAlloc   = P.ManualSpcDefBudget.LessOrEqual(0) ? defenseBudget * orbitalRatio : P.ManualSpcDefBudget;
-            CivilianAlloc = P.ManualCivilianBudget.LessOrEqual(0) ? EmpireColonizationBudget * EmpireRatio + P.ColonyDebtTolerance
-                                                                    : P.ManualCivilianBudget;
+            CivilianAlloc = P.ManualCivilianBudget.LessOrEqual(0) ? EmpireColonizationBudget * EmpireRatio : P.ManualCivilianBudget;
 
             RemainingGroundDef = (GrdDefAlloc - P.GroundDefMaintenance).RoundToFractionOf10();
             RemainingSpaceDef  = (SpcDefAlloc - P.SpaceDefMaintenance).RoundToFractionOf10();
@@ -75,8 +73,7 @@ namespace Ship_Game.AI.Budget
                               $"\nCivilianBudget: {RemainingCivilian.String(2)}" +
                               $"\nDefenseBudge (orbitals and ground): {(RemainingSpaceDef + RemainingGroundDef).String(2)}" +
                               $"\nOrbitals: {RemainingSpaceDef.String(2)}" +
-                              $"\nMilitaryBuildings: {RemainingGroundDef.String(2)}" +
-                              $"\nSystem Rank: {SystemRank}";
+                              $"\nMilitaryBuildings: {RemainingGroundDef.String(2)}";
 
             screen.DrawStringProjected(P.Center + new Vector2(1000, 0), 0f, 1f, Color.LightGray, drawText);
         }

@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Ship_Game.AI;
+﻿using Ship_Game.AI;
 using Ship_Game.Ships;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -9,7 +9,7 @@ namespace Ship_Game
     {
         public void RefreshBuildingsWeCanBuildHere()
         {
-            if (Owner == null) 
+            if (Owner == null)
                 return;
 
             var canBuild = new Array<Building>();
@@ -89,20 +89,32 @@ namespace Ship_Game
         public bool BuildingBuiltOrQueued(Building b) => BuildingBuilt(b.BID) || BuildingInQueue(b.BID);
         public bool BuildingBuiltOrQueued(int bid) => BuildingBuilt(bid) || BuildingInQueue(bid);
 
-        public int TurnsUntilQueueCompleted(float extraItemCost = 0)
+        public int TurnsUntilQueueCompleted(float extraItemCost = 0, bool includeRush = false)
         {
             float totalProdNeeded = TotalProdNeededInQueue() + extraItemCost;
             if (totalProdNeeded.AlmostZero())
                 return 0;
 
+            // issue in this calculation is that we dont know the future of the production stores.
+            // we assume we will have all of it for the build queue but that is unpredictable as it can
+            // also be exporting that production and then these calculation would not apply.
+            // for the purposes of calculating the best planet to build on
+            // it could be changed to just totalProdNeeded / Prod.NetMaxPotential which would give
+            // a reliable baseline that isnt dependent on the unknown future of the production stores.
+
+            // max production useable per turn when we have production stored.
             float maxProductionWithInfra    = MaxProductionToQueue.LowerBound(0.01f);
+            // turns to use all stored production with just infra
             float turnsWithInfra            = ProdHere / InfraStructure.LowerBound(0.01f);
+            // turns in queue using just infra * max production that can be added per turn with stores.
             float totalProdWithInfra        = turnsWithInfra * maxProductionWithInfra;
+            // how much is left to build after all production is gone.
             float prodNeededAfterStorageEnd = totalProdNeeded - totalProdWithInfra;
 
-            if (prodNeededAfterStorageEnd.LessOrEqual(0)) // we can produce all queue with max prod and storage
+            if (prodNeededAfterStorageEnd <=0) // we can produce all queue with max prod and storage
                 return (int)(totalProdNeeded / maxProductionWithInfra);
 
+            // there is no more production stored. How long to build without it.
             float potentialProduction = Prod.NetMaxPotential.LowerBound(0.01f);
             float turnsWithoutInfra   = prodNeededAfterStorageEnd / potentialProduction;
 

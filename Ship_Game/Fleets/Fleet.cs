@@ -604,6 +604,7 @@ namespace Ship_Game.Fleets
             switch (FleetTask.Type)
             {
                 case MilitaryTask.TaskType.StrikeForce:
+                case MilitaryTask.TaskType.ReclaimPlanet:
                 case MilitaryTask.TaskType.AssaultPlanet:              DoAssaultPlanet(FleetTask);              break;
                 case MilitaryTask.TaskType.ClearAreaOfEnemies:         DoClearAreaOfEnemies(FleetTask);         break;
                 case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: DoCohesiveClearAreaOfEnemies(FleetTask); break;
@@ -737,8 +738,22 @@ namespace Ship_Game.Fleets
             }
         }
 
+        void RemoveTroopShips()
+        {
+            for (int i = Ships.Count -1; i >= 0; i--)
+            {
+                Ship ship = Ships[i];
+                if (ship.DesignRole == ShipData.RoleName.troop)
+                {
+                    ship.AI.ClearOrders();
+                    RemoveShip(ship);
+                }
+            }
+        }
+
         public static void CreatePostInvasionFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner, string name)
         {
+            fleet.RemoveTroopShips();
             task.FlagFleetNeededForAnotherTask();
             fleet.TaskStep   = 0;
             var postInvasion = MilitaryTask.CreatePostInvasion(task.TargetPlanet, task.WhichFleet, owner);
@@ -748,6 +763,7 @@ namespace Ship_Game.Fleets
             owner.GetEmpireAI().AddPendingTask(postInvasion);
         }
 
+        // Note - the task type of the reclaim fleet is Assault Planet
         public static void CreateReclaimFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner)
         {
             task.FlagFleetNeededForAnotherTask();
@@ -960,6 +976,8 @@ namespace Ship_Game.Fleets
         bool TryGetNewTargetPlanet(MilitaryTask task, out Planet newTarget)
         {
             Planet currentTarget = task.TargetPlanet;
+            newTarget            = null;
+
             if (currentTarget.Owner != null && Owner.IsAtWarWith(currentTarget.Owner))
             {
                 newTarget = currentTarget; // Invasion or bombing was not effective, retry
@@ -971,6 +989,9 @@ namespace Ship_Game.Fleets
 
             if (newTarget != null)
                 return true;
+
+            if (task.Type == MilitaryTask.TaskType.ReclaimPlanet)
+                return false; // No targets found in system for reclaim fleets
 
             newTarget =  task.Type == MilitaryTask.TaskType.StrikeForce 
                 ? TryGetNewTargetPlanetStrike(currentSystem, task.TargetEmpire) 
@@ -1147,7 +1168,7 @@ namespace Ship_Game.Fleets
                 case 8: // Go back to portal, this step is set from the Remnant goal
                     ClearOrders();
                     GatherAtAO(task, 500);
-                    TaskStep = 9;
+                    TaskStep = 9;  // Tasks steps below 9 are a signal that the remnant fleet still on target (GetRemnantEngagementsGoalsFor)
                     break;
                 case 9:
                     if (!ArrivedAtCombatRally(FinalPosition, 50000))
@@ -1318,10 +1339,19 @@ namespace Ship_Game.Fleets
 
         void DoGlassPlanet(MilitaryTask task)
         {
-            if (task.TargetPlanet.Owner == null || !Owner.IsEmpireAttackable(task.TargetPlanet.Owner))
+            if (task.TargetPlanet.Owner == null)
+            {
+                task.IncreaseColonyLostValueByBombing();
                 TaskStep = 6;
+            }
+            else if (!Owner.IsEmpireAttackable(task.TargetPlanet.Owner))
+            {
+                TaskStep = 6;
+            }
             else
+            {
                 task.TargetEmpire = task.TargetPlanet.Owner;
+            }
 
             task.AO = task.TargetPlanet.Center;
             switch (TaskStep)
@@ -1411,7 +1441,7 @@ namespace Ship_Game.Fleets
             if (EndInvalidTask(task.TargetPlanet.Owner == null || remnantsTargeting || !StillCombatEffective(task)))
                 return;
 
-            bool bombOk  = Ships.Select(s => s.Bomb60SecStatus()).Any(bt => bt != Status.NotApplicable && bt != Status.Critical);
+            bool bombOk = Ships.Select(s => s.Bomb60SecStatus()).Any(bt => bt != Status.NotApplicable && bt != Status.Critical);
             if (!bombOk)
                 EndInvalidTask(true);
         }
@@ -1453,16 +1483,28 @@ namespace Ship_Game.Fleets
                     TaskStep = 3;
                     break;
                 case 3:
+                    if (task.TargetPlanet == null)
+                        task.SetTargetPlanet(task.TargetSystem.PlanetList.FindMax(p => p.ColonyBaseValue(Owner) + p.ColonyPotentialValue(Owner)));
+
                     if (task.TargetPlanet != null)
                         DoOrbitTaskArea(task);
                     else
                         DoCombatMoveToTaskArea(task, true);
 
                     bool threatIncoming = Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
-                    bool stillThreats = threatIncoming || enemyStrength > 1;
-                    if (!stillThreats)
+                    if (threatIncoming)
+                    {
+                        if (enemyStrength < 1)
+                            TaskStep = 5; // search and destroy the threat, which is parked somewhere, doing nothing
+                    }
+                    else if (enemyStrength < 1) // No threats and no enemies
+                    {
                         TaskStep = 4;
-
+                    }
+                    else
+                    {
+                        TaskStep = 2; // Attack in system again
+                    }
                     break;
                 case 4:
                     SolarSystem  system = task.TargetSystem;
@@ -1486,7 +1528,7 @@ namespace Ship_Game.Fleets
                                 AddFleetProjectorGoal();
 
                             GatherAtAO(task, distanceFromAO: 20000);
-                            TaskStep = 4; // This sets the step for the reclaim fleet.
+                            TaskStep = 4; // This sets the step for the reclaim fleet (assault planet).
                         }
                         else
                         {
@@ -1494,6 +1536,19 @@ namespace Ship_Game.Fleets
                         }
                     }
 
+                    break;
+                case 5:
+                    var threat = Owner.SystemsWithThreat.Find(t => !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
+                    if (threat?.NearestFleet == null)
+                    {
+                        TaskStep = 4;
+                        break;
+                    }
+
+                    Vector2 enemyFleetPos = threat.NearestFleet.FinalPosition;
+                    task.AO = enemyFleetPos;
+                    GatherAtAO(task, distanceFromAO: 20000);
+                    TaskStep = 1;
                     break;
             }
         }
