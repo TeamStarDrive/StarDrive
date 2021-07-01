@@ -279,6 +279,7 @@
     <Compile Include="Ship_Game\Empires\Components\HangarShips.cs" />
     <Compile Include="Ship_Game\Empires\Components\LoyaltyLists.cs" />
     <Compile Include="Ship_Game\Empires\Components\IEmpireShipLists.cs" />
+    <Compile Include="Ship_Game\Empires\EmpireConstants.cs" />
     <Compile Include="Ship_Game\GameScreens\DeveloperUniverse.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadGame\LoadGame.cs" />
     <Compile Include="Ship_Game\Ships\Components\LoyaltyChanges.cs" />
@@ -334,7 +335,6 @@
     <Compile Include="Ship_Game\Debug\Page\DebugWar.cs" />
     <Compile Include="Ship_Game\Debug\Page\SpatialDebug.cs" />
     <Compile Include="Ship_Game\EmpireResearch.cs" />
-    <Compile Include="Ship_Game\Empires\EmpireUI.cs" />
     <Compile Include="Ship_Game\EmpireDifficultyModifers.cs" />
     <Compile Include="Ship_Game\Empires\ShipPools\WarSupportShips.cs" />
     <Compile Include="Ship_Game\Empires\ShipPools\ShipPool.cs" />
@@ -653,6 +653,7 @@
     <Compile Include="Ship_Game\Utils\Deque.cs" />
     <Compile Include="Ship_Game\Utils\DoubleBufferedArray.cs" />
     <Compile Include="Ship_Game\Utils\EnumFlatMap.cs" />
+    <Compile Include="Ship_Game\Utils\ObjectPool.cs" />
     <Compile Include="Ship_Game\Utils\ReadRestAPIFromSite.cs" />
     <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetEdict.cs" />
@@ -821,6 +822,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Ship_Game\Utils\SmallBitSet.cs" />
     <Compile Include="Ship_Game\Utils\SteamManager.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>

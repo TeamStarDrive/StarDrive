@@ -309,7 +309,6 @@ namespace Ship_Game
                         Ship ship = Ships[i];
                         if (!ship.Active)
                         {
-                            Log.Info($"Removing inactive ship: {ship}");
                             OnShipRemoved?.Invoke(ship);
                             ship.RemoveFromUniverseUnsafe();
                         }

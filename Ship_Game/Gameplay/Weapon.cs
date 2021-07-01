@@ -388,7 +388,6 @@ namespace Ship_Game.Gameplay
             // increase the cooldown by SalvoTimer
             CooldownTimer = NetFireDelay + RandomMath.RandomBetween(-10f, +10f) * 0.008f;
 
-            Owner.InCombatTimer = 15f;
             Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
             Owner.PowerCurrent -= PowerRequiredToFire;
         }
@@ -411,7 +410,6 @@ namespace Ship_Game.Gameplay
             SalvoFireTimer -= timeBetweenShots;
             --SalvosToFire;
 
-            Owner.InCombatTimer = 15f;
             Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
             Owner.PowerCurrent -= PowerRequiredToFire;
             return true;
@@ -813,9 +811,8 @@ namespace Ship_Game.Gameplay
 
         public void FireFromPlanet(Planet planet, Ship targetShip)
         {
-            targetShip.InCombatTimer = 15f;
-            PlanetOrigin             = planet.Center.GenerateRandomPointInsideCircle(planet.ObjectRadius);
-            GameplayObject target    = targetShip.GetRandomInternalModule(this) ?? (GameplayObject) targetShip;
+            PlanetOrigin = planet.Center.GenerateRandomPointInsideCircle(planet.ObjectRadius);
+            GameplayObject target = targetShip.GetRandomInternalModule(this) ?? (GameplayObject) targetShip;
 
             if (isBeam)
             {

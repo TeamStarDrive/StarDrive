@@ -16,9 +16,9 @@ TestImpl(CellLoyalty)
         AssertThat(getLoyaltyMask(1), 0b0001);
         AssertThat(getLoyaltyMask(2), 0b0010);
         AssertThat(getLoyaltyMask(3), 0b0100);
-        AssertThat(getLoyaltyMask(31), 0b01000000'00000000'00000000'00000000);
-        AssertThat(getLoyaltyMask(32), 0b10000000'00000000'00000000'00000000);
-        AssertThat(getLoyaltyMask(33), spatial::MATCH_ALL);
+        AssertThat(getLoyaltyMask(23), 0b00000000'01000000'00000000'00000000);
+        AssertThat(getLoyaltyMask(24), 0b00000000'10000000'00000000'00000000);
+        AssertThat(getLoyaltyMask(25), spatial::MATCH_ALL);
     }
 
     TestCase(getLoyaltyMaskFromSearchOptions)
@@ -48,7 +48,7 @@ TestImpl(CellLoyalty)
 
         uint32_t expectedMask = 0;
         int expectedCount = 0;
-        for (int i = 1; i <= 32; ++i)
+        for (int i = 1; i <= spatial::MAX_LOYALTIES; ++i)
         {
             expectedMask |= (1 << (i-1));
             expectedCount += 1;
@@ -67,9 +67,9 @@ TestImpl(CellLoyalty)
         AssertThat(loyalty1.mask, spatial::MATCH_ALL);
         AssertThat(loyalty1.count, 1);
 
-        spatial::CellLoyalty loyalty33;
-        loyalty33.addLoyalty(33);
-        AssertThat(loyalty33.mask, spatial::MATCH_ALL);
-        AssertThat(loyalty33.count, 1);
+        spatial::CellLoyalty loyalty25;
+        loyalty25.addLoyalty(25);
+        AssertThat(loyalty25.mask, spatial::MATCH_ALL);
+        AssertThat(loyalty25.count, 1);
     }
 };

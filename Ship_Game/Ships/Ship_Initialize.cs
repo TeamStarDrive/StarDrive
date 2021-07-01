@@ -188,10 +188,9 @@ namespace Ship_Game.Ships
             Rotation         = save.Rotation;
             Velocity         = save.Velocity;
             IsSpooling       = save.AfterBurnerOn;
-            InCombatTimer    = save.InCombatTimer;
             TetherGuid       = save.TetheredTo;
             TetherOffset     = save.TetherOffset;
-            InCombat         = InCombatTimer > 0f;
+            InCombat         = save.InCombat;
 
             TransportingFood          = save.TransportingFood;
             TransportingProduction    = save.TransportingProduction;
@@ -358,7 +357,6 @@ namespace Ship_Game.Ships
             if (shipData == null)
                 return;
             AI.CombatState = shipData.CombatState;
-            AI.CombatAI    = new CombatAI(this);
         }
 
         void InitializeAIFromAISave(SavedGame.ShipAISave aiSave)
