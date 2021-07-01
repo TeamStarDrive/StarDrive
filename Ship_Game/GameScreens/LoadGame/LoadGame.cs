@@ -23,19 +23,24 @@ namespace Ship_Game.GameScreens.LoadGame
 
         public float ProgressPercent => Progress.Percent;
         public bool LoadingFailed { get; private set; }
+        bool StartSimThread;
 
         public LoadGame(FileInfo saveFile)
         {
             SaveFile = saveFile;
         }
 
-        public static UniverseScreen Load(FileInfo file, bool noErrorDialogs = false)
+        /// <param name="file">SaveGame file</param>
+        /// <param name="noErrorDialogs">Do not show error dialogs</param>
+        /// <param name="startSimThread">Start Universe sim thread (set false for testing)</param>
+        public static UniverseScreen Load(FileInfo file, bool noErrorDialogs = false, bool startSimThread = true)
         {
-            return new LoadGame(file).Load(noErrorDialogs);
+            return new LoadGame(file).Load(noErrorDialogs, startSimThread);
         }
 
-        public UniverseScreen Load(bool noErrorDialogs = false)
+        public UniverseScreen Load(bool noErrorDialogs = false, bool startSimThread = true)
         {
+            StartSimThread = startSimThread;
             GlobalStats.Statreset();
             try
             {
@@ -166,6 +171,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 CamPos    = new Vector3(save.campos.X, save.campos.Y, save.camheight),
                 CamHeight = save.camheight,
                 Paused    = true,
+                CreateSimThread = StartSimThread,
             };
 
             step.Start(0.3f, 0.4f, 0.3f);
@@ -179,9 +185,11 @@ namespace Ship_Game.GameScreens.LoadGame
             
             GameBase.Base.ResetElapsedTime();
             us.LoadContent();
+
             CreateAOs(data);
             FinalizeShips(us);
             us.Objects.UpdateLists(removeInactiveObjects: false);
+
             foreach(Empire empire in EmpireManager.Empires)
             {
                 empire.GetEmpireAI().ThreatMatrix.RestorePinGuidsFromSave();
@@ -298,7 +306,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 e.PortraitName = e.data.PortraitName;
                 e.dd           = ResourceManager.GetDiplomacyDialog(e.data.DiplomacyDialogPath);
                 e.EmpireColor  = e.data.Traits.Color;
-                e.RestoreMoneyHistoryFromSave(sdata);
+                e.NormalizedMoney = sdata.NormalizedMoney;
                 e.data.CurrentAutoScout       = sdata.CurrentAutoScout     ?? e.data.ScoutShip;
                 e.data.CurrentAutoColony      = sdata.CurrentAutoColony    ?? e.data.ColonyShip;
                 e.data.CurrentAutoFreighter   = sdata.CurrentAutoFreighter ?? e.data.FreighterShip;
