@@ -359,13 +359,13 @@ namespace Ship_Game
         /// 1 is above average. 0.2 is below average.
         /// the default is below average. not recommended to set above 1 but you can. 
         /// </summary>
-        public bool FindPlanetToBuildAt(IReadOnlyList<Planet> ports, Ship ship, out Planet chosen, float portQuality = 0.2f)
+        public bool FindPlanetToBuildAt(IReadOnlyList<Planet> ports, Ship ship, out Planet chosen, float priority)
         {
             if (ports.Count != 0)
             {
                 float cost = ship.GetCost(this);
 
-                chosen = FindPlanetToBuildAt(ports, cost, portQuality: portQuality);
+                chosen = FindPlanetToBuildAt(ports, cost, priority: priority);
                 return chosen != null;
             }
             Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {ship} at! Candidates:{ports.Count}");
@@ -373,12 +373,12 @@ namespace Ship_Game
             return false;
         }
 
-        public bool FindPlanetToBuildTroopAt(IReadOnlyList<Planet> ports, Troop troop, out Planet chosen)
+        public bool FindPlanetToBuildTroopAt(IReadOnlyList<Planet> ports, Troop troop, out Planet chosen, float priority)
         {
             if (ports.Count != 0)
             {
                 float cost = troop.ActualCost;
-                chosen     = FindPlanetToBuildAt(ports, cost, forTroop: true);
+                chosen     = FindPlanetToBuildAt(ports, cost, forTroop: true, priority);
                 return chosen != null;
             }
 
@@ -387,11 +387,11 @@ namespace Ship_Game
             return false;
         }
 
-        public Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, bool forTroop = false, float portQuality = 0.2f)
+        public Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, bool forTroop = false, float priority = 1.00f)
         {
             // focus on the best producing planets (number depends on the empire size)
-            if (GetBestPorts(ports, out Planet[] bestPorts, portQuality))
-                return bestPorts.FindMin(p => p.TurnsUntilQueueComplete(cost, forTroop));
+            if (GetBestPorts(ports, out Planet[] bestPorts))
+                return bestPorts.FindMin(p => p.TurnsUntilQueueComplete(cost, forTroop, priority));
 
             return null;
         }
@@ -404,7 +404,7 @@ namespace Ship_Game
             if (ports.Count == 0)
                 return false;
 
-            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, false) 
+            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, false, priority: 1.00f) 
                                         + ship.GetAstrogateTimeTo(p) * travelMultiplier);
 
             return planet != null;
@@ -420,7 +420,7 @@ namespace Ship_Game
             if (ports.Count == 0)
                 return false;
 
-            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, false));
+            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, false, priority: 1.00f));
             return planet != null;
         }
 
@@ -439,7 +439,6 @@ namespace Ship_Game
             {
                 float averageMaxProd = ports.Average(p => p.Prod.NetMaxPotential);
                 bestPorts            = ports.Filter(p => !p.IsCrippled && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd * portQuality));
-                bestPorts            = bestPorts.SortedDescending(p => p.Prod.NetMaxPotential);
             }
 
             return bestPorts?.Length > 0;
