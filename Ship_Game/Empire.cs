@@ -1626,11 +1626,16 @@ namespace Ship_Game
         }
 
         /// <summary>
-        /// This should be run on save load to set economic values without taking a turn.
+        /// Initializes non-serialized empire values after save load
         /// </summary>
-        public void InitEmpireEconomyFromSave()
+        public void InitEmpireFromSave()
         {
+            EmpireShips.UpdatePublicLists();
+            Research.UpdateNetResearch();
+
+            RestoreUnserializableDataFromSave();
             UpdateEmpirePlanets();
+
             UpdateNetPlanetIncomes();
             UpdateMilitaryStrengths();
             CalculateScore(fromSave: true);

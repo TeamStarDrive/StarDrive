@@ -411,7 +411,12 @@ namespace Ship_Game
             InitializeSolarSystems();
             CreatePlanetsLookupTable();
             CreateStationTethers();
-            EmpireManager.RestoreUnserializableDataFromSave();
+
+            foreach (Empire empire in EmpireManager.Empires)
+                empire.InitEmpireFromSave();
+
+            WarmUpShipsForLoad();
+
             RecomputeFleetButtons(true);
 
             if (StarDate.AlmostEqual(1000)) // Run once to get all empire goals going
