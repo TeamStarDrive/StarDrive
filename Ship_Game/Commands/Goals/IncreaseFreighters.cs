@@ -29,7 +29,7 @@ namespace Ship_Game.Commands.Goals
             if (!GetFreighter(out Ship freighter))
                 return GoalStep.GoalFailed;
 
-            if (!empire.FindPlanetToBuildAt(empire.SafeSpacePorts, freighter, out Planet planet))
+            if (!empire.FindPlanetToBuildAt(empire.SafeSpacePorts, freighter, out Planet planet, priority: 0.1f))
                 return GoalStep.GoalFailed;
 
             planet.Construction.Enqueue(freighter, this, notifyOnEmpty: false);

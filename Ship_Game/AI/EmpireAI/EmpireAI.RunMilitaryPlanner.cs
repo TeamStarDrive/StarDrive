@@ -26,7 +26,7 @@ namespace Ship_Game.AI
 
             int buildPlanets = OwnerEmpire.GetBestPortsForShipBuilding(portQuality: 1.00f)?.Count ?? 0;
 
-            NumberOfShipGoals = (int)Math.Max(buildPlanets - 1, 1f);
+            NumberOfShipGoals = buildPlanets;
 
             var offensiveGoals  = SearchForGoals(GoalType.BuildOffensiveShips);
 
