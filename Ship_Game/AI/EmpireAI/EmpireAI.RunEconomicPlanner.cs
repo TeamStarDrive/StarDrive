@@ -74,15 +74,21 @@ namespace Ship_Game.AI
             return 1;
         }
 
-        public void RunEconomicPlanner()
+        public void RunEconomicPlanner(bool fromSave = false)
         {
             MaintSavedByBuildingScrappedThisTurn = 0;
 
-            float money                    = OwnerEmpire.Money;
-            float normalizedBudget         = OwnerEmpire.NormalizedMoney = money;
-            normalizedBudget               = money < 0 ? money : normalizedBudget;
-            float treasuryGoal             = TreasuryGoal(normalizedBudget);
-            ProjectedMoney                 = treasuryGoal / 2;
+            float money = OwnerEmpire.Money;
+            if (!fromSave)
+            {
+                OwnerEmpire.UpdateNormalizedMoney(money);
+            }
+
+            float normalizedBudget = OwnerEmpire.NormalizedMoney;
+            normalizedBudget = money < 0 ? money : normalizedBudget;
+
+            float treasuryGoal = TreasuryGoal(normalizedBudget);
+            ProjectedMoney = treasuryGoal / 2;
 
             // gamestate attempts to increase the budget if there are wars or lack of some resources.  
             // its primarily geared at ship building. 
@@ -91,13 +97,13 @@ namespace Ship_Game.AI
 
             AutoSetTaxes(treasuryGoal, normalizedBudget);
             // the values below are now weights to adjust the budget areas. 
-            float defense                  = 5;
-            float SSP                      = 1;
-            float build                    = 7;
-            float spy                      = 25;
-            float colony                   = 5;
-            float freight                  = 2f;
-            float savings                  = 550;
+            float defense = 5;
+            float SSP     = 1;
+            float build   = 7;
+            float spy     = 25;
+            float colony  = 5;
+            float freight = 2f;
+            float savings = 550;
 
             float total = (defense + SSP + build + spy + colony + freight + savings);
 

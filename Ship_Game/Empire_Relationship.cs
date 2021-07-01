@@ -170,7 +170,7 @@ namespace Ship_Game
         OurRelationsToThem[] RelationsMap = Empty<OurRelationsToThem>.Array;
         OurRelationsToThem[] ActiveRelations = Empty<OurRelationsToThem>.Array;
 
-        public IReadOnlyList<OurRelationsToThem> AllRelations => ActiveRelations;
+        public OurRelationsToThem[] AllRelations => ActiveRelations;
         
         /// <returns>Get relations with another empire. NULL if there is no relations</returns> 
         public Relationship GetRelationsOrNull(Empire withEmpire)
