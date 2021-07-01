@@ -45,23 +45,19 @@ namespace Ship_Game
 
         readonly Array<Troop> UnlockedTroops = new Array<Troop>();
 
-        float NormalizedMoneyValue;
-
         /// <summary>
         /// Returns an average of empire money over several turns.
         /// </summary>
-        public float NormalizedMoney
-        {
-            get => NormalizedMoneyValue;
-            set
-            {
-                if (NormalizedMoneyValue == 0f)
-                    NormalizedMoneyValue = value;
-                else
-                    NormalizedMoneyValue = NormalizedMoneyValue*0.9f + value*0.1f;
-            }
-        }
+        public float NormalizedMoney { get; private set; }
 
+        public void UpdateNormalizedMoney(float money, bool fromSave = false)
+        {
+            const float rate = 0.1f;
+            if (fromSave || NormalizedMoney == 0f)
+                NormalizedMoney = money;
+            else // simple moving average:
+                NormalizedMoney = NormalizedMoney*(1f-rate) + money*rate;
+        }
 
         public Map<string, TechEntry> TechnologyDict = new Map<string, TechEntry>(StringComparer.InvariantCultureIgnoreCase);
         public Array<Ship> Inhibitors = new Array<Ship>();
@@ -1632,16 +1628,16 @@ namespace Ship_Game
         /// <summary>
         /// This should be run on save load to set economic values without taking a turn.
         /// </summary>
-        public void InitEmpireEconomy()
+        public void InitEmpireEconomyFromSave()
         {
             UpdateEmpirePlanets();
             UpdateNetPlanetIncomes();
             UpdateMilitaryStrengths();
-            CalculateScore();
+            CalculateScore(fromSave: true);
             UpdateRelationships(takeTurn: false);
             UpdateShipMaintenance();
             UpdateMaxColonyValues();
-            EmpireAI.RunEconomicPlanner();
+            EmpireAI.RunEconomicPlanner(fromSave: true);
         }
 
         public void UpdateMilitaryStrengths()
@@ -1682,13 +1678,11 @@ namespace Ship_Game
             }
 
             var knownFleets = new Array<Fleet>();
-            for (int i = 0; i < AllRelations.Count; i++)
+            foreach ((Empire them, Relationship rel) in AllRelations)
             {
-                var relations = AllRelations[i];
-                if (IsAtWarWith(relations.Them) || relations.Them.isPlayer && !IsNAPactWith(relations.Them))
+                if (IsAtWarWith(them) || them.isPlayer && !IsNAPactWith(them))
                 {
-                    var enemy = relations.Them;
-                    foreach (var fleet in enemy.FleetsDict)
+                    foreach (var fleet in them.FleetsDict)
                     {
                         if (fleet.Value.Ships.Any(s => s.IsInBordersOf(this) || s.KnownByEmpires.KnownBy(this)))
                             knownFleets.Add(fleet.Value);
@@ -1724,7 +1718,6 @@ namespace Ship_Game
 
                 if (planet.ColonyValue > MaxColonyValue)
                     MaxColonyValue = planet.ColonyValue;
-
             }
         }
 
@@ -2901,40 +2894,30 @@ namespace Ship_Game
             Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.IconPath, "SnapToShip", ship, initiator);
         }
 
-        private void CalculateScore()
+        void CalculateScore(bool fromSave = false)
         {
-            TotalScore      = 0;
-            TechScore       = 0;
+            TechScore = 0;
+            foreach (KeyValuePair<string, TechEntry> keyValuePair in TechnologyDict)
+                if (keyValuePair.Value.Unlocked)
+                    TechScore += ResourceManager.Tech(keyValuePair.Key).Cost;
+            TechScore /= 100;
+
             IndustrialScore = 0;
             ExpansionScore  = 0;
-
-            CalcTechScore();
-            CalcExpansionIndustrialScore();
-            MilitaryScore = data.NormalizeMilitaryScore(CurrentMilitaryStrength); // Avoid fluctuations
-            TotalScore    = (int)(MilitaryScore + IndustrialScore + TechScore + ExpansionScore);
-
-            void CalcTechScore()
+            for (int i = 0; i < OwnedPlanets.Count; i++)
             {
-                foreach (KeyValuePair<string, TechEntry> keyValuePair in TechnologyDict)
-                {
-                    if (keyValuePair.Value.Unlocked)
-                        TechScore += ResourceManager.Tech(keyValuePair.Key).Cost;
-                }
-
-                TechScore /= 100;
+                Planet p = OwnedPlanets[i];
+                ExpansionScore  += p.Fertility*10 + p.MineralRichness*10 + p.PopulationBillion;
+                IndustrialScore += p.BuildingList.Sum(b => b.ActualCost);
             }
+            IndustrialScore /= 20;
 
-            void CalcExpansionIndustrialScore()
-            {
-                for (int i = 0; i < OwnedPlanets.Count; i++)
-                {
-                    Planet planet    = OwnedPlanets[i];
-                    ExpansionScore  += planet.Fertility*10 + planet.MineralRichness*10 + planet.PopulationBillion;
-                    IndustrialScore += planet.BuildingList.Sum(b => b.ActualCost);
-                }
+            if (fromSave)
+                MilitaryScore = data.MilitaryScoreAverage;
+            else
+                MilitaryScore = data.NormalizeMilitaryScore(CurrentMilitaryStrength); // Avoid fluctuations
 
-                IndustrialScore /= 20;
-            }
+            TotalScore = (int)(MilitaryScore + IndustrialScore + TechScore + ExpansionScore);
         }
 
         private void AbsorbAllEnvPreferences(Empire target)

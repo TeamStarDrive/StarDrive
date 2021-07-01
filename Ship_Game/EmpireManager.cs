@@ -334,7 +334,7 @@ namespace Ship_Game
             foreach (Empire empire in Empires)
             { 
                 empire.RestoreUnserializableDataFromSave();
-                empire.InitEmpireEconomy();
+                empire.InitEmpireEconomyFromSave();
                 empire.AIManagedShips.Update();
             }
         }
