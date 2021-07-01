@@ -45,7 +45,7 @@ namespace Ship_Game.Commands.Goals
             if (ShipToBuild == null)
                 return GoalStep.GoalFailed;
 
-            Planet planet = empire.FindPlanetToBuildAt(empire.SafeSpacePorts, toBuild.GetCost(empire));
+            Planet planet = empire.FindPlanetToBuildAt(empire.SafeSpacePorts, toBuild.GetCost(empire), priority: 0.25f);
             if (planet == null)
                 return GoalStep.TryAgain;
 
