@@ -469,13 +469,14 @@ namespace Ship_Game
                 foreach (Anomaly anomaly in solarSystem.AnomaliesList)
                 {
                     if (anomaly.type == "DP")
-                        anomalyManager.AnomaliesList.Add(
-                            new DimensionalPrison(solarSystem.Position + anomaly.Position));
+                    {
+                        anomalyManager.AnomaliesList.Add(new DimensionalPrison(solarSystem.Position + anomaly.Position));
+                    }
                 }
 
                 foreach (Empire empire in EmpireManager.ActiveEmpires)
                 {
-                        solarSystem.UpdateFullyExploredBy(empire);
+                    solarSystem.UpdateFullyExploredBy(empire);
                 }
             }
         }

@@ -271,14 +271,14 @@ namespace Ship_Game
                     return true;
 
                 Type subType = val1.GetType();
-                
+
                 // for floats we need special treatment because of parser issues
-                if (subType == typeof(float) && !((float)val1).AlmostEqual((float)val2, 0.0001f))
+                if (subType == typeof(float) && !((float)val1).AlmostEqual((float)val2, 0.001f))
                 {
-                    Error(member, $"first={val1} != second={val2}");
+                    Error(member, $"first={val1:0.#####} != second={val2:0.#####}");
                     return false;
                 }
-                
+
                 // in this case, the Equals() check was sufficient
                 if (subType.IsEnum || subType.IsBuiltIn())
                 {
@@ -295,6 +295,7 @@ namespace Ship_Game
                 if (val1 is IEnumerable en1)
                     return CompareEnumerable(member, en1, (IEnumerable)val2);
 
+                // this is a class with fields and properties, recurse:
                 return CompareFields(subType, val1, val2);
             }
 
@@ -315,7 +316,7 @@ namespace Ship_Game
                 int numErrors = 0;
                 foreach (FieldInfo field in fields)
                 {
-                    if (type.GetCustomAttribute<JsonIgnoreAttribute>() != null)
+                    if (field.GetCustomAttribute<JsonIgnoreAttribute>() != null)
                         continue;
                     object val1 = field.GetValue(firstObj);
                     object val2 = field.GetValue(secondObj);
@@ -324,7 +325,7 @@ namespace Ship_Game
                 }
                 foreach (PropertyInfo prop in properties)
                 {
-                    if (type.GetCustomAttribute<JsonIgnoreAttribute>() != null)
+                    if (prop.GetCustomAttribute<JsonIgnoreAttribute>() != null)
                         continue;
                     object val1 = prop.GetValue(firstObj);
                     object val2 = prop.GetValue(secondObj);
