@@ -317,26 +317,5 @@ namespace Ship_Game
             }
             return null;
         }
-
-        public static void RestoreUnserializableDataFromSave()
-        {
-            if (Empires.IsEmpty)
-                Log.Error("must be called after empireList is populated.");
-
-            foreach (Empire empire in Empires)
-            {
-                empire.EmpireShips.UpdatePublicLists();
-                empire.Research.UpdateNetResearch();
-            }
-
-            Empire.Universe.WarmUpShipsForLoad();
-
-            foreach (Empire empire in Empires)
-            { 
-                empire.RestoreUnserializableDataFromSave();
-                empire.InitEmpireEconomyFromSave();
-                empire.AIManagedShips.Update();
-            }
-        }
     }
 }
