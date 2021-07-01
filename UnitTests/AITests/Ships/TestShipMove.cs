@@ -36,7 +36,6 @@ namespace UnitTests.AITests.Ships
             var sw = Stopwatch.StartNew();
             while (ship.engineState != state)
             {
-                PerfTimer.SpinWait(TestSimStep.FixedTime);
                 update();
                 if (sw.Elapsed.TotalSeconds > 5.0)
                     throw new TimeoutException("Timed out while waiting for engine state change");
