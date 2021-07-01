@@ -29,6 +29,7 @@ namespace Ship_Game.AI.Tasks
         [Serialize(14)] public Guid TaskGuid = Guid.NewGuid();
         [Serialize(15)] public Array<Vector2> PatrolPoints;
         [Serialize(16)] public int TargetEmpireId = -1;
+        [Serialize(17)] public int TargetPlanetWarValue; // Used for doom fleets to affect colony lost value in war
 
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
 
@@ -140,7 +141,7 @@ namespace Ship_Game.AI.Tasks
             {
                 TargetPlanet   = targetPlanet,
                 AO             = targetPlanet.Center,
-                Type           = TaskType.AssaultPlanet,
+                Type           = TaskType.ReclaimPlanet,
                 AORadius       = targetPlanet.ParentSystem.Radius,
                 Owner          = owner,
                 WhichFleet     = fleetId,
@@ -408,6 +409,8 @@ namespace Ship_Game.AI.Tasks
                 }
             }
 
+            NeedEvaluation = Fleet == null;
+
             if (!NeedEvaluation)
                 return false;
 
@@ -479,6 +482,60 @@ namespace Ship_Game.AI.Tasks
             Owner.GetEmpireAI().QueueForRemoval(this);
         }
 
+        public void IncreaseColonyLostValueByBombing()
+        {
+            if (!TargetEmpire.isFaction
+                && TargetEmpire.IsAtWarWith(Owner)
+                && TargetEmpire.TryGetActiveWars(out Array<War> wars))
+            {
+                var war = wars.Find(w => w.Them == Owner);
+                if (war != null)
+                    war.ColoniesValueLost += TargetPlanetWarValue;
+            }
+        }
+
+        public void Prioritize(int numWars)
+        {
+            int priority;
+            switch (Type)
+            {
+                default:                                  priority = 5;                               break;
+                case TaskType.StageFleet:                 priority = 2 * (numWars * 2).LowerBound(1); break;
+                case TaskType.GuardBeforeColonize:        priority = 3 + numWars;                     break;
+                case TaskType.DefendVsRemnants:           priority = 0;                               break;
+                case TaskType.CohesiveClearAreaOfEnemies:
+                case TaskType.ClearAreaOfEnemies:         priority = 1;                               break;
+                case TaskType.StrikeForce:                priority = 2;                               break;
+                case TaskType.ReclaimPlanet:
+                case TaskType.AssaultPlanet:              priority = 5;                               break;
+                case TaskType.GlassPlanet:                priority = 5;                               break;
+                case TaskType.Exploration:                priority = GetExplorationPriority();        break;
+                case TaskType.DefendClaim:                priority = 5 + numWars * 2;                 break;
+                case TaskType.AssaultPirateBase:          priority = GetAssaultPirateBasePriority();  break;
+            }
+
+            if (TargetEmpire == EmpireManager.Player)
+                priority -= Owner.DifficultyModifiers.WarTaskPriorityMod;
+
+            Priority = priority;
+
+            // Local Function
+            int GetAssaultPirateBasePriority()
+            {
+                Empire enemy = TargetEmpire;
+                if (enemy?.WeArePirates == true && !enemy.Pirates.PaidBy(Owner))
+                    return (Pirates.MaxLevel - enemy.Pirates.Level).LowerBound(3);
+
+                return 10;
+            }
+
+            int GetExplorationPriority()
+            {
+                int initial = TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner) ? 4 : 5;
+                return initial + numWars + (MinimumTaskForceStrength > 100 ? 1 : 0);
+            }
+        }
+
         public void SetEmpire(Empire e)
         {
             Owner = e;
@@ -509,7 +566,8 @@ namespace Ship_Game.AI.Tasks
         public enum TaskType
         {
             // The order of these can not change without breaking save games. 
-            // If you add new task, make sure to have them added to the PrioritizesTask method in RunMilitaryPlanner.
+            // If you add new task, make sure to have them added to the PrioritizeTask method in RunMilitaryPlanner
+            // And to GetTaskCategory (to determine if it is a war task).
             ClearAreaOfEnemies,
             Resupply,
             AssaultPlanet,
@@ -525,7 +583,8 @@ namespace Ship_Game.AI.Tasks
             DefendVsRemnants,
             GuardBeforeColonize,
             StrikeForce,
-            StageFleet
+            StageFleet,
+            ReclaimPlanet
         }
 
         [Flags]
@@ -546,6 +605,7 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.StageFleet:
                 case TaskType.StrikeForce:
                 case TaskType.AssaultPlanet:
+                case TaskType.ReclaimPlanet:
                 case TaskType.DefendPostInvasion:
                 case TaskType.GlassPlanet:
                 case TaskType.CorsairRaid:
@@ -585,7 +645,6 @@ namespace Ship_Game.AI.Tasks
             Ship ship = Empire.Universe.Objects.FindShip(TargetShipGuid);
             var planet = Planet.GetPlanetFromGuid(TargetPlanetGuid);
             RestoreFromSaveFromSave(e, ship, planet);
-
             foreach (var system in Empire.Universe.SolarSystemDict.Values)
             {
                 if (IsTaskAOInSystem(system))

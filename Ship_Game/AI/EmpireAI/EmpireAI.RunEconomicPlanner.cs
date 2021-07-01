@@ -22,27 +22,39 @@ namespace Ship_Game.AI
         /// This represents the overall threat to the empire. It is calculated from the EmpireRiskAssessment class.
         /// it currently looks at expansion threat, border threat, and general threat from each each empire. 
         /// </summary>
-        public float ThreatLevel { get; private set; } = 0;
+        public float ThreatLevel { get; private set; }    = 0;
+        public float EconomicThreat { get; private set; } = 0;
+        public float BorderThreat { get; private set; }   = 0;
+        public float EnemyThreat { get; private set; }    = 0;
         /// <summary>
         /// This is the budgeted amount of money that will be available to empire looking over 20 years.  
         /// </summary>
         public float ProjectedMoney { get; private set; } = 0;
         /// <summary>
-        /// This a ratio of projectedMoney and the normalized money. It should be fairly stable. 
+        /// This a ratio of projectedMoney and the normalized money then multiplied by 2 then add 1 - taxrate
+        /// then the whole thing divided by 3. This puts a large emphasis on money goal to money ratio
+        /// but a high tax will greatly effect the result. 
         /// </summary>
-        public float FinancialStability
+        public float CreditRating
         {
             get
             {
                 float normalMoney = OwnerEmpire.NormalizedMoney;
-                float treasury    = ProjectedMoney / 2;
-                return normalMoney / treasury;
+                float goalRatio = normalMoney / ProjectedMoney;
+
+                return (goalRatio.UpperBound(1) * 3 + (1 - OwnerEmpire.data.TaxRate)) / 4f;
             }
         }
         /// <summary>
         /// This is a quick set check to see if we are financially able to rush production
         /// </summary>
-        public bool SafeToRush => FinancialStability > 0.75f; 
+        public bool SafeToRush => CreditRating > 0.75f;
+
+        // Stores Maintenance saved by scrapping this turn;
+        public float MaintSavedByBuildingScrappedThisTurn = 0;
+
+        // Empire spaceDefensive Reserves high enough to support fractional build budgets
+        public bool EmpireCanSupportSpcDefense => OwnerEmpire.data.DefenseBudget > OwnerEmpire.TotalOrbitalMaintenance && CreditRating > 0.90f;
 
         private float FindTaxRateToReturnAmount(float amount)
         {
@@ -52,7 +64,7 @@ namespace Ship_Game.AI
                 float taxRate = i / 100f;
                 //float amountMade = OwnerEmpire.EstimateNetIncomeAtTaxRate(taxRate);
 
-                float amountMade = taxRate * OwnerEmpire.GrossIncome;
+                float amountMade = taxRate * OwnerEmpire.GrossIncomeBeforeTax;
 
                 if (amountMade >= amount)
                 {
@@ -64,25 +76,28 @@ namespace Ship_Game.AI
 
         public void RunEconomicPlanner()
         {
+            MaintSavedByBuildingScrappedThisTurn = 0;
+
             float money                    = OwnerEmpire.Money;
             float normalizedBudget         = OwnerEmpire.NormalizedMoney = money;
-            float treasuryGoal             = ProjectedMoney = TreasuryGoal(normalizedBudget);
+            normalizedBudget               = money < 0 ? money : normalizedBudget;
+            float treasuryGoal             = TreasuryGoal(normalizedBudget);
+            ProjectedMoney                 = treasuryGoal / 2;
 
             // gamestate attempts to increase the budget if there are wars or lack of some resources.  
             // its primarily geared at ship building. 
-            float riskLimit = (normalizedBudget * 3 / treasuryGoal).Clamped(0.1f, 2);
+            float riskLimit = (CreditRating * 2).Clamped(0.1f, 2);
             float gameState = ThreatLevel = GetRisk(riskLimit);
 
             AutoSetTaxes(treasuryGoal, normalizedBudget);
-            // the commented numbers are for debugging to compare the current values to the previous ones. 
             // the values below are now weights to adjust the budget areas. 
-            float defense                  = 2;
+            float defense                  = 5;
             float SSP                      = 1;
             float build                    = 7;
             float spy                      = 25;
-            float colony                   = 15f;
+            float colony                   = 5;
             float freight                  = 2f;
-            float savings                  = 500;
+            float savings                  = 550;
 
             float total = (defense + SSP + build + spy + colony + freight + savings);
 
@@ -94,9 +109,7 @@ namespace Ship_Game.AI
             freight       /= total;
 
             // for the player they don't use some budgets. so distribute them to areas they do
-            // spy budget is a special case currently and is not distributed. 
-            // dont set the build cap to zero. the build cap is used for potential economic strength. 
-            // and setting to 0 doesnt do anything past this point. 
+            // spy budget is a special case currently and is not distributed.
             if (OwnerEmpire.isPlayer)
             {
                 float budgetBalance = (build) / 3f;
@@ -110,7 +123,6 @@ namespace Ship_Game.AI
             BuildCapacity                  = DetermineBuildCapacity(treasuryGoal, gameState, build);
             OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(treasuryGoal, spy);
             OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(treasuryGoal * 0.5f, colony);
-            OwnerEmpire.data.FreightBudget = SetBudgetForeArea(freight, 1, treasuryGoal);
             PlanetBudgetDebugInfo();
             float allianceBudget = 0;
             foreach (var ally in EmpireManager.GetAllies(OwnerEmpire)) allianceBudget += ally.GetEmpireAI().BuildCapacity;
@@ -135,8 +147,7 @@ namespace Ship_Game.AI
         float DetermineBuildCapacity(float money, float risk, float percentOfMoney)
         {
             float buildBudget    = SetBudgetForeArea(percentOfMoney, risk, money);
-            float troopMaintenance = OwnerEmpire.TotalTroopShipMaintenance;
-            return buildBudget - troopMaintenance;
+            return buildBudget;
         }
 
         float DetermineColonyBudget(float money, float percentOfMoney)
@@ -190,8 +201,9 @@ namespace Ship_Game.AI
         public float TreasuryGoal(float normalizedMoney)
         {
             //gremlin: Use self adjusting tax rate based on wanted treasury of 10(1 full years) of total income.
-            float treasuryGoal = Math.Max(OwnerEmpire.PotentialIncome, 0)
-                                 + OwnerEmpire.data.FlatMoneyBonus;
+            float gross = OwnerEmpire.GrossIncomeBeforeTax - OwnerEmpire.TotalCivShipMaintenance -
+                          OwnerEmpire.TroopCostOnPlanets - OwnerEmpire.TotalTroopShipMaintenance; ;
+            float treasuryGoal = Math.Max(gross, 0);
             
             float timeSpan = (200 - normalizedMoney / 500).Clamped(100,200) * OwnerEmpire.data.treasuryGoal;
             treasuryGoal *= timeSpan;
@@ -233,25 +245,27 @@ namespace Ship_Game.AI
 
             float timeSpan = 200 * OwnerEmpire.data.treasuryGoal;
 
-            float totalMaintenance = OwnerEmpire.TotalShipMaintenance + OwnerEmpire.TotalBuildingMaintenance;
-
             if (!OwnerEmpire.isPlayer)
             {
-                float max = Math.Max(totalMaintenance * timeSpan, treasuryGoal / 2);
-                float min = Math.Min(totalMaintenance * timeSpan, treasuryGoal);
-                treasuryGoal = treasuryGoal.Clamped(min, max);
+                // set the money to the min maintenance or the treasury goal
+                float totalMaintenance = OwnerEmpire.TotalShipMaintenance + OwnerEmpire.TotalBuildingMaintenance;
+                float max              = Math.Max(totalMaintenance * timeSpan, treasuryGoal / 2);
+                float min              = Math.Min(totalMaintenance * timeSpan, treasuryGoal);
+                treasuryGoal           = treasuryGoal.Clamped(min, max);
             }
 
-            float treasuryGap = treasuryGoal - money;
-            float neededPerTurn = treasuryGap / timeSpan;
+            // figure how much is needed for treasury
+            float treasuryGap          = treasuryGoal - money;
+            //figure how much is needed to fulfill treasury in timespan and cover current costs
+            float neededPerTurn        = treasuryGap / timeSpan + OwnerEmpire.AllSpending;
+            float taxesNeeded          = FindTaxRateToReturnAmount(neededPerTurn).Clamped(0.0f, 0.95f);
+            float increase             = taxesNeeded - OwnerEmpire.data.TaxRate;
             float treasuryToMoneyRatio = (money / treasuryGoal).Clamped(0.01f, 1);
-            float taxesNeeded = FindTaxRateToReturnAmount(neededPerTurn).Clamped(0.0f, 0.95f);
-            float increase = taxesNeeded - OwnerEmpire.data.TaxRate;
+
+            // try to control the amount of change of the tax so that it can not wildly change to low. 
             if (!increase.AlmostZero())
             {
-                float wanted = OwnerEmpire.data.TaxRate + (increase ) * treasuryToMoneyRatio;
-                //float wanted = OwnerEmpire.data.TaxRate + (increase > 0 ? 0.05f : -0.05f) * treasuryToMoneyRatio;
-
+                float wanted             = OwnerEmpire.data.TaxRate + (increase ) * treasuryToMoneyRatio;
                 OwnerEmpire.data.TaxRate = wanted.Clamped(0.01f, 0.95f);
             }
         }
@@ -264,22 +278,29 @@ namespace Ship_Game.AI
             float budget = money * percentOfIncome * risk;
             return budget.LowerBound(1);
         }
+
         public float GetRisk(float riskLimit = 2f)
         {
-            float risk = 0;
-            float maxRisk = 0;
-            int totalRels = 0;
+            float maxRisk    = 0;
+            float econRisk   = 0;
+            float borderRisk = 0;
+            float enemyRisk  = 0;
+
             foreach ((Empire other, Relationship rel) in OwnerEmpire.AllRelations)
             {
                 if (other.data.Defeated || !rel.Known) continue;
-                if (rel.Risk.Risk <= 0) 
+                if (rel.Risk.Risk <= 0)
                     continue;
-                maxRisk = Math.Max(maxRisk, rel.Risk.Risk);
-                risk += rel.Risk.Risk;
-                totalRels++;
+                maxRisk    = Math.Max(maxRisk, rel.Risk.Risk);
+                econRisk   = Math.Max(econRisk, rel.Risk.Expansion);
+                borderRisk = Math.Max(borderRisk, rel.Risk.Border);
+                enemyRisk  = Math.Max(enemyRisk, rel.Risk.KnownThreat);
             }
 
-            risk /= totalRels.LowerBound(1);
+            ThreatLevel    = maxRisk;
+            EconomicThreat = econRisk;
+            BorderThreat   = borderRisk;
+            EnemyThreat    = enemyRisk;
 
             return Math.Min(maxRisk, riskLimit);
         }

@@ -248,7 +248,7 @@ namespace UnitTests.AITests.Empire
                 build                  = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), false);
                 int roleCountWanted    = build.RoleCountDesired(combatRole);
                 int shipsBeingScrapped = ships.Filter(s => s.AI.State == AIState.Scrap).Length;
-                int expectedBuildCount = (int)(build.RoleBudget(combatRole) / roleUnitMaint);
+                int expectedBuildCount = (int)Math.Ceiling(build.RoleBudget(combatRole) / roleUnitMaint);
 
                 Assert.AreEqual(expectedBuildCount, roleCountWanted);
 

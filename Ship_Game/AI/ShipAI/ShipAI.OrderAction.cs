@@ -42,7 +42,6 @@ namespace Ship_Game.AI
                 return;
             if (State == AIState.SystemDefender && Target == toAttack)
                 return;
-
             if (Owner.Weapons.Count == 0 || Owner.shipData.Role == ShipData.RoleName.troop)
             {
                 OrderInterceptShip(toAttack);
@@ -52,24 +51,30 @@ namespace Ship_Game.AI
             Intercepting = true;
             ClearWayPoints();
             Target = toAttack;
+            Owner.InCombatTimer = 15f;
             IgnoreCombat = false;
-
             //HACK. To fix this all the fleet tasks that use attackspecifictarget must be changed
             //if they also use hold position to keep ships from moving.
             if (!Owner.loyalty.isPlayer)
                 CombatState = Owner.shipData.CombatState;
             TargetQueue.Add(toAttack);
             HasPriorityTarget = true;
-
             ClearOrders();
-            EnterCombatState(AIState.AttackTarget);
+            AddShipGoal(Plan.DoCombat, AIState.AttackTarget);
         }
 
         public void OrderBombardPlanet(Planet toBombard)
         {
+            Owner.InCombatTimer = 15f;
             ClearOrdersAndWayPoints();
-            AddPlanetGoal(Plan.Bombard, toBombard, AIState.Bombard);
-            EnterCombatState(AIState.Bombard);
+            AddBombPlanetGoal(toBombard);
+        }
+
+        public void OrderBombardWithPriority(Planet toBombard)
+        {
+            Owner.InCombatTimer = 15f;
+            ClearOrdersAndWayPoints();
+            AddPriorityBombPlanetGoal(toBombard);
         }
 
         public void OrderColonization(Planet toColonize, Goal g = null)
@@ -120,8 +125,8 @@ namespace Ship_Game.AI
         public void OrderAttackPriorityTarget(Ship target)
         {
             HasPriorityTarget = true;
-            Target = target;
-            EnterCombatState(AIState.AttackTarget);
+            Target            = target;
+            AddShipGoal(Plan.DoCombat, AIState.AttackTarget);
         }
 
         public void OrderFindExterminationTarget()
@@ -174,19 +179,21 @@ namespace Ship_Game.AI
         }
 
         public void OrderMoveDirectlyTo(Vector2 position, Vector2 finalDir, bool clearWayPoints,
-                                        AIState wantedState, float speedLimit = 0f, bool offensiveMove = false)
+                                        AIState wantedState, float speedLimit = 0f, bool offensiveMove = false, bool pinPoint = false)
         {
-            AddWayPoint(position, finalDir, clearWayPoints, speedLimit, wantedState, offensiveMove, true);
+            AddWayPoint(position, finalDir, clearWayPoints, speedLimit, wantedState, offensiveMove, stop:true, pinPoint);
         }
 
-        public void OrderMoveTo(Vector2 position, Vector2 finalDir, bool clearWayPoints, AIState wantedState, Goal goal = null, bool offensiveMove = false)
+        public void OrderMoveTo(Vector2 position, Vector2 finalDir, bool clearWayPoints, 
+                                        AIState wantedState, Goal goal = null, bool offensiveMove = false, bool pinPoint = false)
         {
-            AddWayPoint(position, finalDir, clearWayPoints, speedLimit:0f, wantedState, offensiveMove, stop:true, goal);
+            AddWayPoint(position, finalDir, clearWayPoints, speedLimit:0f, wantedState, offensiveMove, stop:true, pinPoint, goal);
         }
 
-        public void OrderMoveToNoStop(Vector2 position, Vector2 finalDir, bool clearWayPoints, AIState wantedState, Goal goal = null, bool offensiveMove = false)
+        public void OrderMoveToNoStop(Vector2 position, Vector2 finalDir, bool clearWayPoints,
+                                        AIState wantedState, Goal goal = null, bool offensiveMove = false, bool pinPoint = false)
         {
-            AddWayPoint(position, finalDir, clearWayPoints, speedLimit: 0f, wantedState, offensiveMove, stop:false, goal);
+            AddWayPoint(position, finalDir, clearWayPoints, speedLimit: 0f, wantedState, offensiveMove, stop:false, pinPoint, goal);
         }
 
         public void OrderResupplyEscape(Vector2 position, Vector2 finalDir)
@@ -198,8 +205,8 @@ namespace Ship_Game.AI
         // Adds a WayPoint, optionally clears previous WayPoints
         // Then clears all existing ship orders and generates new move orders from WayPoints
         void AddWayPoint(Vector2 position, Vector2 finalDir, bool clearWayPoints,
-                         float speedLimit, AIState wantedState, 
-                         bool offensiveMove, bool stop, Goal goal = null)
+                         float speedLimit, AIState wantedState,
+                         bool offensiveMove, bool stop, bool pinPoint, Goal goal = null)
         {
             if (!finalDir.IsUnitVector())
                 Log.Error($"GenerateOrdersFromWayPoints finalDirection {finalDir} must be a direction unit vector!");
@@ -243,8 +250,10 @@ namespace Ship_Game.AI
             // rotate to desired facing <= this needs to be fixed.
             // the position is always wrong unless it was forced in a ui move. 
             wp = wayPoints[wayPoints.Length - 1];
+            MoveTypes lastMove = Owner.loyalty.isPlayer && !offensiveMove && pinPoint 
+                ? combatEndMove = MoveTypes.None  // Ships will move to the exact location  before engaging combat (secondary fire will apply)
+                : MoveTypes.LastWayPoint | combatEndMove; // Allow ships to engage combat if within 1000 of the move target
 
-            MoveTypes lastMove = MoveTypes.LastWayPoint | combatEndMove; // Allow ships to engage combat if within 1000 of the move target
             AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, lastMove);
 
             // FB - Do not make final approach and stop, since the ship has more orders which do not
@@ -324,6 +333,7 @@ namespace Ship_Game.AI
 
         public void OrderPirateFleeHome(bool signalRetreat = false)
         {
+
             if (Owner.loyalty.WeArePirates 
                 && !Owner.IsPlatformOrStation 
                 && Owner.loyalty.Pirates.GetBases(out Array<Ship> pirateBases))
@@ -338,9 +348,9 @@ namespace Ship_Game.AI
 
             if (signalRetreat)
             {
-                Ship[] friends = FriendliesNearby;
+                var friends = FriendliesNearby;
                 for (int i = 0; i < friends.Length; i++)
-                    friends[i].AI.OrderPirateFleeHome();
+                    FriendliesNearby[i].AI.OrderPirateFleeHome();
             }
         }
 

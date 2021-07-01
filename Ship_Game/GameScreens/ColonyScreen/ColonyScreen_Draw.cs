@@ -171,7 +171,6 @@ namespace Ship_Game
             batch.DrawString(Fonts.Laserian14, Localizer.Token(GameText.ColonyOverview), TitlePos, Colors.Cream);
 
             PlanetInfo.Draw(batch, elapsed);
-            PDescription.Draw(batch, elapsed);
             PStorage.Draw(batch, elapsed);
             SubColonyGrid.Draw(batch, elapsed);
 

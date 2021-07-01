@@ -285,7 +285,6 @@ namespace Ship_Game.Universe.SolarBodies
             // And finally we adjust local TaxRate by the bonus multiplier
             TaxRate     *= taxRateMultiplier;
             Maintenance *= Planet.Owner.data.Traits.MaintMultiplier;
-            Maintenance += TroopMaint;
 
             GrossRevenue = Planet.PopulationBillion * IncomePerColonist * TaxRate;
             NetRevenue   = GrossRevenue - Maintenance;

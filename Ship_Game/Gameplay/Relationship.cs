@@ -83,9 +83,6 @@ namespace Ship_Game.Gameplay
         [Serialize(40)] public bool HaveWarnedTwice;
         [Serialize(41)] public bool HaveWarnedThrice;
         [Serialize(42)] public Guid contestedSystemGuid;
-
-        [JsonIgnore] private SolarSystem contestedSystem;
-
         [Serialize(43)] public bool AtWar;
         [Serialize(44)] public bool PreparingForWar; // Use prepareForWar or CancelPrepareForWar
         [Serialize(45)] public WarType PreparingForWarType = WarType.ImperialistWar;  // Use prepareForWar or CancelPrepareForWar
@@ -463,10 +460,7 @@ namespace Ship_Game.Gameplay
                             WarnedAboutColonizing  = true;
 
                             if (p != null)
-                            {
-                                contestedSystem = p.ParentSystem;
                                 contestedSystemGuid = p.ParentSystem.guid;
-                            }
                         }
                     }
                 }

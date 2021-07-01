@@ -24,7 +24,10 @@ namespace Ship_Game.AI
 
             RunGroundPlanner();
 
-            NumberOfShipGoals   = 2 + OwnerEmpire.GetBestPortsForShipBuilding()?.Count ?? 0;
+            int buildPlanets = OwnerEmpire.GetBestPortsForShipBuilding(portQuality: 1.00f)?.Count ?? 0;
+
+            NumberOfShipGoals = (int)Math.Max(buildPlanets - 1, 1f);
+
             var offensiveGoals  = SearchForGoals(GoalType.BuildOffensiveShips);
 
             BuildWarShips(offensiveGoals.Count);
@@ -60,51 +63,11 @@ namespace Ship_Game.AI
 
         void PrioritizeTasks()
         {
-            bool isAtWarWithPlayer = OwnerEmpire.GetRelations(EmpireManager.Player).AtWar;
-            var activeWars         = OwnerEmpire.TryGetActiveWars(out Array<War> wars) ? wars : new Array<War>();
-            int numWars            = activeWars.Count;
-
-
+            int numWars = OwnerEmpire.TryGetActiveWars(out Array<War> wars) ? wars.Count : 0;
             for (int i = 0; i < TaskList.Count; i++)
             {
                 MilitaryTask task = TaskList[i];
-                int priority;
-                switch (task.Type)
-                {
-                    default:                                        priority = 5;                                  break;
-                    case MilitaryTask.TaskType.StageFleet:          priority = 2 * (numWars * 2).LowerBound(1);    break;
-                    case MilitaryTask.TaskType.GuardBeforeColonize: priority = 3 + numWars;                        break;
-                    case MilitaryTask.TaskType.DefendVsRemnants:    priority = 0;                                  break;
-                    case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: 
-                    case MilitaryTask.TaskType.ClearAreaOfEnemies:  priority = 1;                                  break;
-                    case MilitaryTask.TaskType.StrikeForce:         priority = 2;                                  break;
-                    case MilitaryTask.TaskType.AssaultPlanet:       priority = 5;                                  break;
-                    case MilitaryTask.TaskType.GlassPlanet:         priority = 5;                                  break;
-                    case MilitaryTask.TaskType.Exploration:         priority = GetExplorationPriority(task);       break;
-                    case MilitaryTask.TaskType.DefendClaim:         priority = 5 + numWars*2;                      break;
-                    case MilitaryTask.TaskType.AssaultPirateBase:   priority = GetAssaultPirateBasePriority(task); break;
-                }
-
-                if (task.TargetEmpire == EmpireManager.Player)
-                    priority -= OwnerEmpire.DifficultyModifiers.WarTaskPriorityMod;
-
-                task.Priority = priority;
-            }
-
-            // Local Function
-            int GetAssaultPirateBasePriority(MilitaryTask task)
-            {
-                Empire enemy = task.TargetEmpire;
-                if (enemy?.WeArePirates == true && !enemy.Pirates.PaidBy(OwnerEmpire))
-                    return (Pirates.MaxLevel - enemy.Pirates.Level).LowerBound(3);
-
-                return 10;
-            }
-
-            int GetExplorationPriority(MilitaryTask task)
-            {
-                int initial = task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(OwnerEmpire) ? 4 : 5;
-                return initial + numWars + (task.MinimumTaskForceStrength > 100 ? 1 : 0); 
+                task.Prioritize(numWars);
             }
         }
 
@@ -215,7 +178,7 @@ namespace Ship_Game.AI
         public Goal[] GetRemnantEngagementGoalsFor(Planet p)
         {
             return Goals.Filter(g => g.type == GoalType.RemnantEngageEmpire
-                                        && g.TargetPlanet == p);
+                                        && g.TargetPlanet == p && g.Fleet?.TaskStep < 9);
         }
         
         public MilitaryTask[] GetAssaultPirateTasks()
@@ -240,12 +203,10 @@ namespace Ship_Game.AI
         {
             var expansionTasks        = GetExpansionTasks();
             var warTasks              = GetWarTasks();
-            var defenseTasks          = TaskList.Filter(task => task.Type == MilitaryTask.TaskType.ClearAreaOfEnemies);
             Array<MilitaryTask> tasks = new Array<MilitaryTask>();
 
             tasks.AddRange(expansionTasks);
             tasks.AddRange(warTasks);
-            tasks.AddRange(defenseTasks);
             return tasks.ToArray();
         }
 
@@ -344,8 +305,9 @@ namespace Ship_Game.AI
 
         void BuildWarShips(int goalsInConstruction)
         {
-            var buildRatios = new RoleBuildInfo(BuildCapacity, this, ignoreDebt: FinancialStability > 0.6f);
-            //
+            bool shouldIgnoreDebt = OwnerEmpire.TotalWarShipMaintenance < BuildCapacity || CreditRating > 0.5f;
+            var buildRatios       = new RoleBuildInfo(BuildCapacity, this, ignoreDebt: shouldIgnoreDebt);
+
             while (!buildRatios.OverBudget && goalsInConstruction < NumberOfShipGoals)
             {
                 string s = GetAShip(buildRatios);
@@ -511,14 +473,12 @@ namespace Ship_Game.AI
                 public void CalculateDesiredShips(FleetRatios ratio, float buildCapacity, float totalFleetMaintenance)
                 {
                     float minimum = CombatRoleToRatioMin(ratio);
-                    if (minimum.AlmostZero())
+                    if (minimum <= 0)
                         return;
                     CalculateBuildCapacity(buildCapacity, minimum, totalFleetMaintenance);
                     float buildBudget    = RoleBuildBudget.LowerBound(.001f);
                     float maintenanceMax = PerUnitMaintenanceMax.LowerBound(0.001f);
-                    DesiredCount = (int)(buildBudget / maintenanceMax); // MinimumMaintenance));
-                    //if (Role < CombatRole.Frigate)
-                    //    DesiredCount = Math.Min(50, DesiredCount);
+                    DesiredCount = (int)Math.Ceiling(buildBudget / maintenanceMax);
                 }
 
                 private void CalculateBuildCapacity(float totalCapacity, float wantedMin, float totalFleetMaintenance)

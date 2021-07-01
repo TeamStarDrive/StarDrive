@@ -41,18 +41,16 @@ namespace Ship_Game.Commands.Goals
             {
                 var threatenedSystem = systems[i];
                 if (!threatenedSystem.TargetSystem.HasPlanetsOwnedBy(empire)
-                    || empire.IsAlreadyDefendingSystem(threatenedSystem.TargetSystem))
+                    || empire.HasWarTaskTargetingSystem(threatenedSystem.TargetSystem))
                 {
                     continue;
                 }
 
-                var priority = 6 - threatenedSystem.TargetSystem.PlanetList.Filter(p => p.Owner == empire).Sum(p => p.Level).UpperBound(5);
                 float minStr = threatenedSystem.Strength.Greater(500) ? threatenedSystem.Strength : 1000;
-
                 if (threatenedSystem.Enemies.Length > 0)
                     minStr *= empire.GetFleetStrEmpireMultiplier(threatenedSystem.Enemies[0]).UpperBound(empire.OffensiveStrength / 5);
 
-                empire.AddDefenseSystemGoal(threatenedSystem.TargetSystem, priority, minStr, 1);
+                empire.AddDefenseSystemGoal(threatenedSystem.TargetSystem, minStr, 1);
             }
 
             return GoalStep.GoToNextStep;
@@ -78,12 +76,8 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.RestartGoal;
         }
 
-        // todo - by the task priority
         bool DefenseTaskHasHigherPriority(MilitaryTask defenseTask, MilitaryTask possibleTask)
         {
-            if (possibleTask.Type == MilitaryTask.TaskType.ClearAreaOfEnemies)
-                return false;
-
             SolarSystem system = defenseTask.TargetSystem ?? defenseTask.TargetPlanet.ParentSystem;
             if (system.PlanetList.Any(p => p.Owner == empire && p.HasCapital)
                 && !possibleTask.TargetSystem?.PlanetList.Any(p => p.Owner == empire && p.HasCapital) == true)
@@ -91,11 +85,24 @@ namespace Ship_Game.Commands.Goals
                 return true; // Defend our home systems at all costs (unless the other task also has a home system)!
             }
 
-            Planet target = possibleTask.TargetPlanet;
-            float defenseValue = system.PotentialValueFor(empire) * empire.PersonalityModifiers.DefenseTaskWeight;
-            float possibleValue = target?.ParentSystem.PotentialValueFor(empire)
-                ?? possibleTask.TargetSystem?.PotentialValueFor(empire) 
-                ?? 0;
+            if (possibleTask.Type == MilitaryTask.TaskType.ClearAreaOfEnemies)
+                return false;
+
+            Planet target            = possibleTask.TargetPlanet;
+            SolarSystem targetSystem = target?.ParentSystem ?? possibleTask.TargetSystem;
+
+            if (system == targetSystem)
+                return false; // The checked task has the same target system, no need to cancel it
+
+            if (possibleTask.Type == MilitaryTask.TaskType.DefendPostInvasion
+                && !empire.SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == targetSystem)
+                && !targetSystem?.DangerousForcesPresent(empire) == true)
+            {
+                return true; // Cancel idle post invasion fleets if we need to defend
+            }
+
+            float defenseValue  = system.PotentialValueFor(empire) * empire.PersonalityModifiers.DefenseTaskWeight;
+            float possibleValue = targetSystem?.PotentialValueFor(empire) ?? 0;
 
             if (possibleTask.Fleet != null) // compare fleet distances
             {

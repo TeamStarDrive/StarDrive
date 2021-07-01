@@ -78,10 +78,10 @@ namespace Ship_Game
         public GovernorDetailsComponent(GameScreen screen, Planet p, in Rectangle rect, int selectedIndex = 0) : base(rect)
         {
             Screen = screen;
-            SetPlanetDetails(p, selectedIndex);
+            SetPlanetDetails(p, rect, selectedIndex);
         }
 
-        public void SetPlanetDetails(Planet p, int selectedIndex = 0)
+        public void SetPlanetDetails(Planet p, in Rectangle rect, int selectedIndex = 0)
         {
             Log.Assert(p != null, "GovernorDetailsComponent Planet cannot be null");
             if (Planet == p || p == null)
@@ -194,7 +194,7 @@ namespace Ship_Game
             NoGovernorGrdExpense = Add(new UILabel(" ", FontBig, Color.DarkOrange));
             NoGovernorSpcExpense = Add(new UILabel(" ", FontBig, Color.SteelBlue));
 
-            Tabs = Add(new Submenu(Rect));
+            Tabs = Add(new Submenu(rect));
             Tabs.AddTab(GameText.Governor); // Governor
             Tabs.AddTab(GameText.Defense2); // Defense
             Tabs.AddTab(GameText.Budget); // Budget

@@ -14,7 +14,6 @@ namespace Ship_Game
         readonly Menu1 LeftMenu;
         readonly Menu1 RightMenu;
         readonly Submenu PlanetInfo;
-        readonly Submenu PDescription;
         readonly Submenu PStorage;
         readonly Submenu PFacilities;
         readonly Submenu BuildableTabs;
@@ -73,15 +72,15 @@ namespace Ship_Game
             Add(new CloseButton(RightMenu.Right - 52, RightMenu.Y + 22));
             PlanetInfo = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20, (int)(0.4f * LeftMenu.Width), (int)(0.23f * (LeftMenu.Height - 80)));
             PlanetInfo.AddTab(title:GameText.PlanetInfo);
-            PDescription = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 40 + PlanetInfo.Height, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
+            Submenu pDescription = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 40 + PlanetInfo.Height, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
 
 
-            var labor = new RectF(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + PDescription.Height + 40,
+            var labor = new RectF(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + 40,
                                   0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
 
             AssignLabor = Add(new AssignLaborComponent(P, labor, useTitleFrame: true));
 
-            PStorage = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + PDescription.Height + labor.H + 60, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
+            PStorage = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + labor.H + 60, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
             PStorage.AddTab(title:GameText.Storage);
 
             Vector2 blockadePos = new Vector2(PStorage.X + 20, PStorage.Y + 35);
@@ -177,7 +176,7 @@ namespace Ship_Game
             if (p.Owner != null)
             {
                 DetailInfo = p.Description;
-                GovernorDetails = Add(new GovernorDetailsComponent(this, p, PDescription.Rect, governorTabSelected));
+                GovernorDetails = Add(new GovernorDetailsComponent(this, p, pDescription.Rect, governorTabSelected));
             }
             else
             {
