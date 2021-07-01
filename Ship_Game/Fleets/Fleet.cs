@@ -1801,9 +1801,6 @@ namespace Ship_Game.Fleets
                     float attackStr = 0.0f;
                     for (int i = availableShips.Count - 1; i >= 0; --i)
                     {
-                        //if (attackStr > kv.Value * 3)
-                        //    break;
-
                         Ship ship = availableShips[i];
                         if (ship.AI.HasPriorityOrder
                             || ship.InCombat
@@ -1815,7 +1812,6 @@ namespace Ship_Game.Fleets
                         }
                         Vector2 vFacing = ship.Center.DirectionToTarget(kv.Key);
                         ship.AI.OrderMoveTo(kv.Key, vFacing, true, AIState.MoveTo, offensiveMove: true);
-                        ship.ForceCombatTimer();
 
                         availableShips.RemoveAtSwapLast(i);
                         attackStr += ship.GetStrength();

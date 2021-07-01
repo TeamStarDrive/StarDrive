@@ -160,28 +160,8 @@ namespace Ship_Game
             AttackTimer = 10;
         }
 
-        void ResetSpaceWeaponTimer(Planet p)
-        {
-            WeaponTimer = ActualFireDelay(p);
-        }
-
         public float ActualFireDelay(Planet p) => TheWeapon != null ? TheWeapon.fireDelay / (p.Level.LowerBound(1) / 2f) : 1;
 
-        void UpdateSpaceWeaponTimer(FixedSimTime timeStep)
-        {
-            WeaponTimer -= timeStep.FixedTime;
-        }
-
-        void FireOnSpaceTarget(Planet planet, Ship target)
-        {
-            if (isWeapon && target != null)
-            {
-                TheWeapon.FireFromPlanet(planet, target);
-                ResetSpaceWeaponTimer(planet);
-            }
-        }
-
-        bool ReadyToFireOnSpaceTargets            => WeaponTimer.Less(0);
         bool CanLaunchDefenseShips(Empire empire) => !HasLaunchedAllDefenseShips && empire.Money > 100;
 
         static Ship GetDefenseShipName(ShipData.RoleName roleName, Empire empire) 
@@ -241,20 +221,39 @@ namespace Ship_Game
                 CurrentNumDefenseShips = (CurrentNumDefenseShips + num).Clamped(0, DefenseShipsCapacity);
         }
 
-        public void UpdateSpaceCombatActions(FixedSimTime timeStep, Planet p, out bool targetFound)
+        public bool UpdateSpaceCombatActions(FixedSimTime timeStep, Planet p)
         {
-            targetFound = false;
             if (!isWeapon && DefenseShipsCapacity == 0)
-                return;
+                return false;
 
-            UpdateSpaceWeaponTimer(timeStep);
-            if (ReadyToFireOnSpaceTargets || CanLaunchDefenseShips(p.Owner))
+            bool canFireWeapon = false;
+            if (TheWeapon != null)
             {
-                Ship target = p.ScanForSpaceCombatTargets(SpaceRange);
-                targetFound = target != null;
-                FireOnSpaceTarget(p, target);
-                LaunchDefenseShips(p, target, p.Owner);
+                WeaponTimer -= timeStep.FixedTime;
+                canFireWeapon = WeaponTimer < 0f;
             }
+
+            bool canLaunchShips = CanLaunchDefenseShips(p.Owner);
+
+            if (canFireWeapon || canLaunchShips)
+            {
+                // this scan is pretty expensive
+                Ship target = p.ScanForSpaceCombatTargets(SpaceRange);
+                if (target != null)
+                {
+                    if (canFireWeapon)
+                    {
+                        TheWeapon.FireFromPlanet(p, target);
+                        WeaponTimer = ActualFireDelay(p);
+                    }
+                    if (canLaunchShips)
+                    {
+                        LaunchDefenseShips(p, target, p.Owner);
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
 
         public bool TryLandOnBuilding(Ship ship)

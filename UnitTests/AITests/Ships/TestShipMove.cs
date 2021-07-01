@@ -44,7 +44,7 @@ namespace UnitTests.AITests.Ships
 
         void DoManualSensorScan(Ship s, FixedSimTime time)
         {
-            s.AI.SensorScanAndSelectTarget();
+            s.AI.ScanForTargets(time);
             s.AI.Update(time);
         }
 
@@ -100,9 +100,9 @@ namespace UnitTests.AITests.Ships
             // wait for ship to exit warp
             WaitForEngineChangeTo(Ship.MoveState.Sublight, ship, () =>
             {
-                Universe.Objects.Update(TestSimStep); // update ships           
-                ship.AI.SensorScanAndSelectTarget();
-                enemy.AI.SensorScanAndSelectTarget();
+                Universe.Objects.Update(TestSimStep); // update ships
+                ship.AI.ScanForTargets(TestSimStep);
+                enemy.AI.ScanForTargets(TestSimStep);
                 sawEnemyShip |= ship.AI.BadGuysNear;
             });
 

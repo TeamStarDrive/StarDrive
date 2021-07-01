@@ -45,5 +45,4 @@ namespace spatial
         if (opt.ExcludeLoyalty) loyaltyMask = ~getLoyaltyMask(opt.ExcludeLoyalty);
         return loyaltyMask;
     }
-
 }

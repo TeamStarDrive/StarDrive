@@ -144,20 +144,6 @@ namespace Ship_Game.Ships
             if (!Active)
                 return;
 
-            InCombatTimer -= timeStep.FixedTime;
-            if (InCombatTimer > 0.0f)
-            {
-                InCombat = true;
-            }
-            else
-            {
-                InCombat = false;
-                if (AI.State == AIState.Combat && loyalty != EmpireManager.Player)
-                {
-                    AI.ClearOrders();
-                }
-            }
-
             if (timeStep.FixedTime > 0f)
             {
                 UpdateShipStatus(timeStep);
