@@ -39,7 +39,8 @@ namespace Ship_Game.AI.Budget
 
             GrdDefAlloc   = P.ManualGrdDefBudget.LessOrEqual(0) ? defenseBudget * groundRatio : P.ManualGrdDefBudget;
             SpcDefAlloc   = P.ManualSpcDefBudget.LessOrEqual(0) ? defenseBudget * orbitalRatio : P.ManualSpcDefBudget;
-            CivilianAlloc = P.ManualCivilianBudget.LessOrEqual(0) ? EmpireColonizationBudget * EmpireRatio : P.ManualCivilianBudget;
+            CivilianAlloc = P.ManualCivilianBudget.LessOrEqual(0) ? EmpireColonizationBudget * EmpireRatio + P.ColonyDebtTolerance
+                                                                  : P.ManualCivilianBudget;
 
             RemainingGroundDef = (GrdDefAlloc - P.GroundDefMaintenance).RoundToFractionOf10();
             RemainingSpaceDef  = (SpcDefAlloc - P.SpaceDefMaintenance).RoundToFractionOf10();
