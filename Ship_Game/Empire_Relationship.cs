@@ -132,7 +132,7 @@ namespace Ship_Game
             return (territorialism + expansion + opportunism + cybernetic);
         }
 
-        public void UpdateRelationships()
+        public void UpdateRelationships(bool takeTurn)
         {
             int atWarCount = 0;
             var wars = new Array<War>();
@@ -141,6 +141,11 @@ namespace Ship_Game
                 if (rel.Known || isPlayer)
                 {
                     rel.UpdateRelationship(this, them);
+                    if (takeTurn && !isFaction)
+                    {
+                        rel.AdvanceRelationshipTurn(this, them);
+                    }
+
                     if (rel.AtWar)
                     {
                         if (!them.isFaction)

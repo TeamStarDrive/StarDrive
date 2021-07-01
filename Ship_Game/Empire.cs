@@ -1638,7 +1638,7 @@ namespace Ship_Game
             UpdateNetPlanetIncomes();
             UpdateMilitaryStrengths();
             CalculateScore();
-            UpdateRelationships();
+            UpdateRelationships(takeTurn: false);
             UpdateShipMaintenance();
             UpdateMaxColonyValues();
             EmpireAI.RunEconomicPlanner();
@@ -2610,7 +2610,7 @@ namespace Ship_Game
             if ((Universe.StarDate % 1).AlmostZero())
                 CalculateScore();
 
-            UpdateRelationships();
+            UpdateRelationships(takeTurn: true);
 
             if (Money > data.CounterIntelligenceBudget)
             {
