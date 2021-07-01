@@ -118,13 +118,13 @@ namespace Ship_Game
             int orbitalsWeHave = orbitalList.Filter(o => !o.shipData.IsShipyard).Length + OrbitalsBeingBuilt(role);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"{role}s we have: {orbitalsWeHave}, {role}s we want: {orbitalsWeWant}");
+            var eAI = Owner.GetEmpireAI();
 
-            if (orbitalList.NotEmpty && (orbitalsWeHave > orbitalsWeWant || budget < 0))
+            if (orbitalList.NotEmpty && (orbitalsWeHave > orbitalsWeWant || (budget < 0 && !eAI.EmpireCanSupportSpcDefense)))
             {
                 Ship weakest = orbitalList.FindMin(s => s.BaseStrength);
                 if (weakest != null)
                     ScrapOrbital(weakest);
-               
                 return;
             }
 
@@ -245,15 +245,24 @@ namespace Ship_Game
         // This returns the best orbital the empire can build
         private Ship GetBestOrbital(ShipData.RoleName role, float budget)
         {
+            if (budget < 0)
+                return null;
             Ship orbital = null;
+
             switch (role)
             {
                 case ShipData.RoleName.platform: orbital = Owner.BestPlatformWeCanBuild; break;
-                case ShipData.RoleName.station: orbital  = Owner.BestStationWeCanBuild;  break;
+                case ShipData.RoleName.station: orbital = Owner.BestStationWeCanBuild; break;
             }
-            if (orbital != null && orbital.GetMaintCost(Owner) > budget)
-                return null; // Too much maintenance
 
+            if (orbital != null)
+            {
+                budget     = (float)Math.Ceiling(budget);
+                float cost = orbital.GetMaintCost(Owner);
+
+                if (cost > budget)
+                    orbital = null;
+            }
             return orbital;
         }
 

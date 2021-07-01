@@ -82,6 +82,7 @@ namespace Ship_Game.AI
                         var template = ResourceManager.GetShipTemplate(logit, false);
                         Log.Write(ConsoleColor.Green ,$"{template.BaseHull.Role}, {template.DesignRole}, '{logit}'");
                     }
+                    Log.Write($"------- ship list -----{Empire.Universe?.StarDate} Ship list for {OwnerEmpire.Name}");
                 }
             }
 
