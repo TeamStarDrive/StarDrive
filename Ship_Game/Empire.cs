@@ -147,11 +147,6 @@ namespace Ship_Game
         public float TotalMaintenanceInScrap { get; private set; }
         public float TotalTroopShipMaintenance { get; private set; }
 
-        /// <summary>
-        /// The known duration. how long the object will be known for. 0.5 = roughly half a second.
-        /// </summary>
-        public const float MaxContactTimer = 0.5f;
-
         private bool HostilesDictForPlayerInitialized;
         public float NetPlanetIncomes { get; private set; }
         public float TroopCostOnPlanets { get; private set; } // Maintenance in all Owned planets

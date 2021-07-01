@@ -357,7 +357,6 @@ namespace Ship_Game.Ships
             if (shipData == null)
                 return;
             AI.CombatState = shipData.CombatState;
-            AI.CombatAI    = new CombatAI(this);
         }
 
         void InitializeAIFromAISave(SavedGame.ShipAISave aiSave)
