@@ -10,8 +10,6 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
-        public bool IsFiringAtMainTarget => FireOnMainTargetTime > 0;
-        float FireOnMainTargetTime;
         StanceType CombatRangeType => ToStanceType(CombatState);
 
         void DoBoardShip(FixedSimTime timeStep)

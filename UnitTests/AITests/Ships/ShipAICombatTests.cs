@@ -31,8 +31,8 @@ namespace UnitTests.AITests.Ships
 
             OurShip.AI.SetCombatTriggerDelay(10f);
             TheirShip.AI.SetCombatTriggerDelay(10f);
-            OurShip.AI.CanTrackProjectiles = true;
-            TheirShip.AI.CanTrackProjectiles = true;
+            OurShip.AI.TargetProjectiles = true;
+            TheirShip.AI.TargetProjectiles = true;
         }
 
         void Update(int iterations, FixedSimTime timeStep)

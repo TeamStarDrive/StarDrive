@@ -141,10 +141,6 @@ namespace Ship_Game
         {
             return false;
         }
-        public virtual bool ParentIsThis(Ship ship)
-        {
-            return false;
-        }
 
         public virtual void Update(FixedSimTime timeStep)
         {

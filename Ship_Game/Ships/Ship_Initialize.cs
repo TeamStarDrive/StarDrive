@@ -362,12 +362,10 @@ namespace Ship_Game.Ships
         void InitializeAIFromAISave(SavedGame.ShipAISave aiSave)
         {
             InitializeAI();
-            AI.State              = aiSave.State;
-            AI.DefaultAIState     = aiSave.DefaultState;
-            AI.MovePosition       = aiSave.MovePosition;
-            AI.HasPriorityTarget  = aiSave.PriorityTarget;
-
-            AI.SetPriorityOrder(aiSave.PriorityOrder);
+            AI.State          = aiSave.State;
+            AI.StateBits      = aiSave.StateBits;
+            AI.DefaultAIState = aiSave.DefaultState;
+            AI.MovePosition   = aiSave.MovePosition;
         }
 
         // This should be called when a Ship is ready to enter the universe
