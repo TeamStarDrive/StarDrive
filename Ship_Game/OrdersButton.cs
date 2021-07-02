@@ -176,15 +176,11 @@ namespace Ship_Game
                 {
                     EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
                     ship.AI.ClearOrders();
-                    ship.AI.SystemToDefend = null;
-                    ship.AI.SystemToDefendGuid = Guid.Empty;
                 }
                 else
                 {
                     EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.Remove(ship);
                     ship.AI.ClearOrders();
-                    ship.AI.SystemToDefend = null;
-                    ship.AI.SystemToDefendGuid = Guid.Empty;
                 }
             }
         }

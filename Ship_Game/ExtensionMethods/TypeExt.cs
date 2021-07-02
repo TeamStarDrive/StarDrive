@@ -155,22 +155,16 @@ namespace Ship_Game
             return BuiltinTypes.Contains(type);
         }
 
-        /// <summary>
-        /// Does a member-wise deep compare of 2 objects and returns
-        /// error string of mismatched fields.
-        ///
-        /// Used for Unit Testing
-        /// </summary>
-        public static Array<string> MemberwiseCompare<T>(this T first, T second)
+        class MemberwiseComparer
         {
-            var errors = new Array<string>();
-            var checkedObjects = new HashSet<ObjectPair>();
+            readonly Array<string> Errors = new Array<string>();
+            readonly HashSet<ObjectPair> Checked = new HashSet<ObjectPair>();
 
             void Error(MemberInfo member, string err)
             {
                 Type type = (member is PropertyInfo p) ? p.PropertyType : ((FieldInfo)member).FieldType;
                 string text = $"{member.DeclaringType.GetTypeName()}::{member.Name} {type.GetTypeName()} {err}";
-                errors.Add(text);
+                Errors.Add(text);
                 Log.Warning(text);
             }
             
@@ -189,10 +183,6 @@ namespace Ship_Game
                     en2.MoveNext();
                     object o2 = en2.Current;
                     bool equal = CheckEqual(member, o1, o2);
-                    //if (!equal)
-                    //{
-                    //    Debugger.Break();
-                    //}
                     if (!equal)
                     {
                         Error(member, $"elements at [{i}] were not equal: {o1} != {o2}");
@@ -270,8 +260,18 @@ namespace Ship_Game
                 if (val1.Equals(val2))
                     return true;
 
-                // in this case, the Equals() check was sufficient
                 Type subType = val1.GetType();
+
+                // for floats we need special treatment because of parser issues
+                if (subType == typeof(float))
+                {
+                    if (((float)val1).AlmostEqual((float)val2, 0.0001f))
+                        return true;
+                    Error(member, $"first={val1:0.#####} != second={val2:0.#####}");
+                    return false;
+                }
+
+                // in this case, the Equals() check was sufficient
                 if (subType.IsEnum || subType.IsBuiltIn())
                 {
                     Error(member, $"first={val1} != second={val2}");
@@ -287,6 +287,7 @@ namespace Ship_Game
                 if (val1 is IEnumerable en1)
                     return CompareEnumerable(member, en1, (IEnumerable)val2);
 
+                // this is a class with fields and properties, recurse:
                 return CompareFields(subType, val1, val2);
             }
 
@@ -295,10 +296,10 @@ namespace Ship_Game
                 // if this pair was already compared, ignore it,
                 // otherwise we'll run into cyclic reference issues
                 var pair = new ObjectPair(firstObj, secondObj);
-                if (checkedObjects.Contains(pair))
+                if (Checked.Contains(pair))
                     return true;
 
-                checkedObjects.Add(pair);
+                Checked.Add(pair);
 
                 //Log.Info($"Compare type {type.GetTypeName()}");
 
@@ -307,7 +308,7 @@ namespace Ship_Game
                 int numErrors = 0;
                 foreach (FieldInfo field in fields)
                 {
-                    if (type.GetCustomAttribute<JsonIgnoreAttribute>() != null)
+                    if (field.GetCustomAttribute<JsonIgnoreAttribute>() != null)
                         continue;
                     object val1 = field.GetValue(firstObj);
                     object val2 = field.GetValue(secondObj);
@@ -316,7 +317,7 @@ namespace Ship_Game
                 }
                 foreach (PropertyInfo prop in properties)
                 {
-                    if (type.GetCustomAttribute<JsonIgnoreAttribute>() != null)
+                    if (prop.GetCustomAttribute<JsonIgnoreAttribute>() != null)
                         continue;
                     object val1 = prop.GetValue(firstObj);
                     object val2 = prop.GetValue(secondObj);
@@ -325,8 +326,26 @@ namespace Ship_Game
                 }
                 return numErrors == 0;
             }
-            CompareFields(first.GetType(), first, second);
-            return errors;
+
+            public Array<string> Compare(object first, object second)
+            {
+                Errors.Clear();
+                Checked.Clear();
+                CompareFields(first.GetType(), first, second);
+                Errors.Reverse();
+                return Errors;
+            }
+        }
+
+        /// <summary>
+        /// Does a member-wise deep compare of 2 objects and returns
+        /// error string of mismatched fields.
+        ///
+        /// Used for Unit Testing
+        /// </summary>
+        public static Array<string> MemberwiseCompare<T>(this T first, T second)
+        {
+            return new MemberwiseComparer().Compare(first, second);
         }
     }
 }

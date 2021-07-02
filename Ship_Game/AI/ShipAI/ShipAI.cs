@@ -18,10 +18,7 @@ namespace Ship_Game.AI
 
         public Ship Owner;
         public AIState State = AIState.AwaitingOrders;
-        public Guid OrbitTargetGuid;
-        public Planet ColonizeTarget;
         public Planet ResupplyTarget;
-        public Guid SystemToDefendGuid;
         public SolarSystem SystemToDefend;
         public SolarSystem ExplorationTarget;
         public AIState DefaultAIState = AIState.AwaitingOrders;
@@ -68,7 +65,6 @@ namespace Ship_Game.AI
             AwaitClosest = null;
             PatrolTarget = null;
             FleetNode = null;
-            ColonizeTarget = null;
             ResupplyTarget = null;
             SystemToDefend = null;
             ExplorationTarget = null;
@@ -110,7 +106,6 @@ namespace Ship_Game.AI
                 return;
 
             Target = null;
-            ColonizeTarget = null;
             ResupplyTarget = null;
             EscortTarget = null;
             SystemToDefend = null;
@@ -122,6 +117,9 @@ namespace Ship_Game.AI
             NearByShips.Clear();
             ClearOrders();
         }
+
+        public Planet ColonizeTarget => FindGoal(Plan.Colonize, out ShipGoal g)
+                                      ? g.TargetPlanet : null;
 
         public Vector2 GoalTarget
         {
@@ -137,14 +135,15 @@ namespace Ship_Game.AI
                 return Target?.Position
                     ?? ExplorationTarget?.Position
                     ?? SystemToDefend?.Position
-                    ?? ColonizeTarget?.Center
                     ?? ResupplyTarget?.Center
+                    ?? ColonizeTarget?.Center
                     ?? Vector2.Zero;
             }
         }
 
-        void Colonize(Planet targetPlanet, ShipGoal shipGoal)
+        void Colonize(ShipGoal shipGoal)
         {
+            Planet targetPlanet = shipGoal.TargetPlanet;
             if (Owner.Center.OutsideRadius(targetPlanet.Center, 2000f))
             {
                 DequeueCurrentOrder();
@@ -159,8 +158,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            ColonizeTarget = targetPlanet;
-            ColonizeTarget.Colonize(Owner);
+            targetPlanet.Colonize(Owner);
             Owner.QueueTotalRemoval();
         }
 
@@ -414,7 +412,7 @@ namespace Ship_Game.AI
                 case Plan.MakeFinalApproach:        MakeFinalApproach(timeStep, goal);        break;
                 case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(timeStep);       break;
                 case Plan.Orbit:                    Orbit.Orbit(goal.TargetPlanet, timeStep); break;
-                case Plan.Colonize:                 Colonize(goal.TargetPlanet, goal);        break;
+                case Plan.Colonize:                 Colonize(goal);                           break;
                 case Plan.Explore:                  DoExplore(timeStep);                      break;
                 case Plan.Rebase:                   DoLandTroop(timeStep, goal);              break;
                 case Plan.DefendSystem:             DoSystemDefense(timeStep);                break;
