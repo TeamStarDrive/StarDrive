@@ -89,11 +89,13 @@ namespace Ship_Game
         public bool BuildingBuiltOrQueued(Building b) => BuildingBuilt(b.BID) || BuildingInQueue(b.BID);
         public bool BuildingBuiltOrQueued(int bid) => BuildingBuilt(bid) || BuildingInQueue(bid);
 
-        public int TurnsUntilQueueCompleted(float extraItemCost = 0, bool includeRush = false)
+        public int TurnsUntilQueueCompleted(float extraItemCost = 0, float priority = 1.00f)
         {
             float totalProdNeeded = TotalProdNeededInQueue() + extraItemCost;
             if (totalProdNeeded.AlmostZero())
                 return 0;
+
+            priority = priority.Clamped(0, 1);
 
             // issue in this calculation is that we dont know the future of the production stores.
             // we assume we will have all of it for the build queue but that is unpredictable as it can
@@ -106,8 +108,10 @@ namespace Ship_Game
             float maxProductionWithInfra    = MaxProductionToQueue.LowerBound(0.01f);
             // turns to use all stored production with just infra
             float turnsWithInfra            = ProdHere / InfraStructure.LowerBound(0.01f);
+            // modify the number of turns that can use all production.
+            float prioritizedTurns          = turnsWithInfra * priority;
             // turns in queue using just infra * max production that can be added per turn with stores.
-            float totalProdWithInfra        = turnsWithInfra * maxProductionWithInfra;
+            float totalProdWithInfra        = prioritizedTurns * maxProductionWithInfra;
             // how much is left to build after all production is gone.
             float prodNeededAfterStorageEnd = totalProdNeeded - totalProdWithInfra;
 
@@ -123,14 +127,14 @@ namespace Ship_Game
 
         // @return Total numbers before ship will be finished if
         //         inserted to the end of the queue.
-        public int TurnsUntilQueueComplete(float cost, bool forTroop)
+        public int TurnsUntilQueueComplete(float cost, bool forTroop, float priority)
         {
             if (!forTroop && !HasSpacePort || forTroop && (!CanBuildInfantry || ConstructionQueue.Count(q => q.isTroop) >= 2))
                 return 9999; // impossible
 
             float effectiveCost = forTroop ? cost : (cost * ShipBuildingModifier).LowerBound(0);
             effectiveCost      += TotalShipCostInRefitGoals();
-            int total           = TurnsUntilQueueCompleted(effectiveCost); // FB - this is just an estimation
+            int total           = TurnsUntilQueueCompleted(effectiveCost, priority); // FB - this is just an estimation
             return total.UpperBound(9999);
         }
 

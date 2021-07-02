@@ -77,6 +77,8 @@ namespace Ship_Game
 
         public static float StartingPlanetRichness;
         public static int IconSize;
+
+        // Time in seconds for a single turn
         public static int TurnTimer = 5;
 
         public static bool PreventFederations;

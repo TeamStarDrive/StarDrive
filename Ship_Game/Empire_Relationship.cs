@@ -162,17 +162,16 @@ namespace Ship_Game
 
         // The FlatMap is used for fast lookup
         // Active relations are used for iteration
-        readonly Array<OurRelationsToThem> RelationsMap = new Array<OurRelationsToThem>();
-        readonly Array<OurRelationsToThem> ActiveRelations = new Array<OurRelationsToThem>();
+        OurRelationsToThem[] RelationsMap = Empty<OurRelationsToThem>.Array;
+        OurRelationsToThem[] ActiveRelations = Empty<OurRelationsToThem>.Array;
 
         public IReadOnlyList<OurRelationsToThem> AllRelations => ActiveRelations;
         
         /// <returns>Get relations with another empire. NULL if there is no relations</returns> 
         public Relationship GetRelationsOrNull(Empire withEmpire)
         {
-
             int index = (withEmpire?.Id ?? int.MaxValue) - 1;
-            if (index < RelationsMap.Count)
+            if (index < RelationsMap.Length)
             {
                 OurRelationsToThem usToThem = RelationsMap[index];
                 if (usToThem.Them != null)
@@ -200,9 +199,10 @@ namespace Ship_Game
         void AddNewRelationToThem(Empire them, Relationship rel)
         {
             int index = them.Id - 1;
-            if (index >= RelationsMap.Count)
+            if (index >= RelationsMap.Length)
             {
-                RelationsMap.Resize(Math.Max(EmpireManager.NumEmpires, RelationsMap.Count));
+                int newSize = Math.Max(EmpireManager.NumEmpires, RelationsMap.Length);
+                Array.Resize(ref RelationsMap, newSize);
             }
 
             if (RelationsMap[index].Them != null)
@@ -210,7 +210,9 @@ namespace Ship_Game
             
             var usToThem = new OurRelationsToThem{ Them = them, Rel = rel };
             RelationsMap[index] = usToThem;
-            ActiveRelations.Add(usToThem);
+
+            Array.Resize(ref ActiveRelations, ActiveRelations.Length + 1);
+            ActiveRelations[ActiveRelations.Length - 1] = usToThem;
         }
         
         // TRUE if we know the other empire

@@ -49,7 +49,7 @@ namespace Ship_Game
 
             batch.Begin();
 
-            UpdateKnownShipsScreenState();
+            UpdateClickableShips();
 
             lock (GlobalStats.ClickableSystemsLock)
             {
@@ -107,41 +107,26 @@ namespace Ship_Game
             DrawBackdropPerf.Stop();
         }
 
-        void UpdateKnownShipsScreenState()
+        void UpdateClickableShips()
         {
-            var viewport = new Rectangle(0, 0, ScreenWidth, ScreenHeight);
-
             ClickableShipsList.Clear();
+            Ship[] ships = Objects.VisibleShips;
 
-            using (player.KnownShips.AcquireReadLock())
+            for (int i = 0; i < ships.Length; i++)
             {
-                for (int i = 0; i < player.KnownShips.Count; i++)
+                Ship ship = ships[i];
+                if ((viewState == UnivScreenState.GalaxyView && ship.IsPlatform))
+                    continue;
+
+                ProjectToScreenCoords(ship.Position, ship.Radius,
+                    out Vector2 shipScreenPos, out float screenRadius);
+
+                ClickableShipsList.Add(new ClickableShip
                 {
-                    Ship ship = player.KnownShips[i];
-                    if (ship == null || !ship.Active ||
-                        (viewState == UnivScreenState.GalaxyView && ship.IsPlatform))
-                        continue;
-
-                    ProjectToScreenCoords(ship.Position, ship.Radius,
-                        out Vector2 shipScreenPos, out float screenRadius);
-
-                    if (viewport.HitTest(shipScreenPos))
-                    {
-                        if (screenRadius < 7.0f) screenRadius = 7f;
-                        ship.ScreenRadius = screenRadius;
-                        ship.ScreenPosition = shipScreenPos;
-                        ClickableShipsList.Add(new ClickableShip
-                        {
-                            Radius = screenRadius,
-                            ScreenPos = shipScreenPos,
-                            shipToClick = ship
-                        });
-                    }
-                    else
-                    {
-                        ship.ScreenPosition = new Vector2(-1f, -1f);
-                    }
-                }
+                    Radius = screenRadius < 7f ? 7f : screenRadius,
+                    ScreenPos = shipScreenPos,
+                    shipToClick = ship
+                });
             }
         }
 
@@ -523,20 +508,20 @@ namespace Ship_Game
                 vector2.X -= SolarsystemOverlay.SysFont.MeasureString(solarSystem.Name).X / 2f;
         }
 
-
-        private void RenderThrusters()
+        void RenderThrusters()
         {
             if (viewState > UnivScreenState.ShipView)
                 return;
-            using (player.KnownShips.AcquireReadLock())
-                for (int i = 0; i < player.KnownShips.Count; ++i)
+
+            Ship[] ships = Objects.VisibleShips;
+            for (int i = 0; i < ships.Length; ++i)
+            {
+                Ship ship = ships[i];
+                if (ship.InSensorRange)
                 {
-                    Ship ship = player.KnownShips[i];
-                    if (ship != null && ship.InFrustum && ship.InSensorRange)
-                    {
-                        ship.RenderThrusters(ref View, ref Projection);
-                    }
+                    ship.RenderThrusters(ref View, ref Projection);
                 }
+            }
         }
 
         public void DrawZones(Graphics.Font font, string text, ref int cursorY, Color color)

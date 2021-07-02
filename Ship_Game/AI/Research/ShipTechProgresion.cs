@@ -21,15 +21,8 @@ namespace Ship_Game.AI.Research
                 var researchableTechs = shipTechs.Intersect(techs).ToArray();
                 if (researchableTechs.Length > 0)
                 {
-                    if (onlyHullLeft && CanResearchOnlyHull(researchableTechs))
-                    {
-                        goodShipTechs = new HashSet<string>();
-                        foreach (var techName in researchableTechs)
-                            goodShipTechs.Add(techName);
-
-                        HashSet<string> noTechs = new HashSet<string>(); // Shortcut to hull
-                        return UseOnlyWantedShipTechs(goodShipTechs, noTechs);
-                    }
+                    if (onlyHullLeft && CanResearchOnlyHull(researchableTechs)) // shortcut to hull
+                        return UseOnlyWantedShipTechs(researchableTechs, new HashSet<string>());
 
                     if (goodShipTechs.Count == 0 || onlyHullLeft || goodShipTechs.Count > 0 && containsOnlyHullTech)
                     {

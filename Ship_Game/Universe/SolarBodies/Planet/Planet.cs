@@ -6,6 +6,7 @@ using Ship_Game.Universe.SolarBodies;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.Spatial;
 
 namespace Ship_Game
 {
@@ -491,7 +492,7 @@ namespace Ship_Game
                 return;
 
             PlanetUpdatePerTurnTimer -= timeStep.FixedTime;
-            if (PlanetUpdatePerTurnTimer < 0 )
+            if (PlanetUpdatePerTurnTimer < 0)
             {
                 UpdateBaseFertility();
                 UpdateDynamicBuildings();
@@ -535,22 +536,25 @@ namespace Ship_Game
             }
 
             bool enemyInRange = ParentSystem.DangerousForcesPresent(Owner);
-            if (NoSpaceCombatTargetsFoundDelay.Less(2) || enemyInRange)
+            if (NoSpaceCombatTargetsFoundDelay < 2f || enemyInRange)
             {
                 bool targetNear = false;
                 NoSpaceCombatTargetsFoundDelay -= timeStep.FixedTime;
+
                 for (int i = 0; i < BuildingList.Count; ++i)
                 {
                     Building building = BuildingList[i];
-                    bool targetFound  = false;
-                    building?.UpdateSpaceCombatActions(timeStep, this, out targetFound);
-                    targetNear |= targetFound;
+                    if (building != null)
+                    {
+                        bool targetFound = building.UpdateSpaceCombatActions(timeStep, this);
+                        targetNear |= targetFound;
+                    }
                 }
 
                 SpaceCombatNearPlanet |= targetNear;
                 if (!targetNear && NoSpaceCombatTargetsFoundDelay <= 0)
                 {
-                    SpaceCombatNearPlanet          = ThreatsNearPlanet(enemyInRange);
+                    SpaceCombatNearPlanet = ThreatsNearPlanet(enemyInRange);
                     NoSpaceCombatTargetsFoundDelay = 2f;
                 }
             }
@@ -578,24 +582,31 @@ namespace Ship_Game
 
         public Ship ScanForSpaceCombatTargets(float weaponRange) // @todo FB - need to work on this
         {
+            // don't do this expensive scan if there are no hostiles
+            if (!ParentSystem.HostileForcesPresent(Owner))
+                return null;
+
             weaponRange = weaponRange.UpperBound(SensorRange);
-            float closestTroop = weaponRange;
-            float closestShip = weaponRange;
+            float closestTroop = weaponRange*weaponRange;
+            float closestShip = weaponRange*weaponRange;
             Ship troop = null;
             Ship closest = null;
 
-            GameplayObject[] enemyShips = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
-                                                 Center, weaponRange, maxResults:64, excludeLoyalty:Owner);
+            var opt = new SearchOptions(Center, weaponRange, GameObjectType.Ship)
+            {
+                MaxResults = 32,
+                ExcludeLoyalty = Owner,
+            };
+            GameplayObject[] enemyShips = UniverseScreen.Spatial.FindNearby(ref opt);
 
             for (int j = 0; j < enemyShips.Length; ++j)
             {
                 var ship = (Ship)enemyShips[j];
-                if (!ship.Active || ship.dying || ship.IsInWarp || !Owner.IsEmpireAttackable(ship.loyalty))
+                if (ship.dying || ship.IsInWarp || !Owner.IsEmpireAttackable(ship.loyalty))
                     continue;
 
-                float dist = Center.Distance(ship.Center);
-                if ((ship.shipData.Role == ShipData.RoleName.troop 
-                     || ship.DesignRole == ShipData.RoleName.bomber) && dist < closestTroop)
+                float dist = Center.SqDist(ship.Center);
+                if (dist < closestTroop && (ship.IsTroopShip || ship.IsBomber))
                 {
                     closestTroop = dist;
                     troop = ship;

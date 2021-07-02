@@ -95,4 +95,6 @@ namespace spatial
             nodes[3].setCoords(cx-r2, cy+r2, r2); // SW
         }
     };
+
+    static_assert(sizeof(QtreeNode) <= 24, "QtreeNode must be 24 bytes");
 }
