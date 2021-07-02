@@ -376,11 +376,16 @@ namespace Ship_Game.AI
 
         private void LaunchTroopsAndAddToShipList(int wantedTroopStrength, Array<Troop> planetTroops)
         {
-            foreach (Troop troop in planetTroops.Filter(t => t.HostPlanet != null
-                                                             && t.Loyalty != null
-                                                             && t.CanMove // save some iterations to find tiles for irrelevant troops
-                                                             && !t.HostPlanet.RecentCombat
-                                                             && !t.HostPlanet.ParentSystem.DangerousForcesPresent(t.Loyalty)))
+            foreach (Troop troop in planetTroops.Filter(delegate(Troop t)
+            {
+                if (t.HostPlanet != null
+                    && t.Loyalty != null
+                    && t.CanMove // save some iterations to find tiles for irrelevant troops
+                    && !t.HostPlanet.RecentCombat
+                    && !t.HostPlanet.ParentSystem.DangerousForcesPresent(t.Loyalty)) 
+                    return true;
+                return false;
+            }))
             {
                 if (InvasionTroopStrength > wantedTroopStrength)
                     break;

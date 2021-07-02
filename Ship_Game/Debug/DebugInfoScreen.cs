@@ -999,7 +999,9 @@ namespace Ship_Game.Debug
                 DrawString("Tax Rate:     "+taxRate.ToString("#.0")+"%");
                 DrawString($"War Maint:  ({(int)e.GetEmpireAI().BuildCapacity}) Shp:{(int)e.TotalWarShipMaintenance} " +
                            $"Trp:{(int)(e.TotalTroopShipMaintenance + e.TroopCostOnPlanets)}");
-                var warShips = ships.Filter(s => s.DesignRoleType == ShipData.RoleType.Warship);
+                var warShips = ships.Filter(s => s.DesignRoleType == ShipData.RoleType.Warship ||
+                                                 s.DesignRoleType == ShipData.RoleType.WarSupport ||
+                                                 s.DesignRoleType == ShipData.RoleType.Troop);
                 DrawString($"   #:({warShips.Length})" +
                            $" f{warShips.Count(warship => warship?.DesignRole == ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
                            $" g{warShips.Count(warship => warship?.DesignRole == ShipData.RoleName.frigate || warship.DesignRole == ShipData.RoleName.prototype)}" +
