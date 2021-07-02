@@ -457,15 +457,17 @@ namespace Ship_Game.AI
                         break;
                 }
             }
-            else if (!BadGuysNear)
+            else 
             {
-                FireOnMainTargetTime = 0;
-                int count = Owner.Weapons.Count;
-                Weapon[] items = Owner.Weapons.GetInternalArrayItems();
-                for (int x = 0; x < count; x++)
-                    items[x].ClearFireTarget();
-
-                if (Owner.Carrier.HasHangars)
+                if (!BadGuysNear)
+                {
+                    FireOnMainTargetTime = 0;
+                    int count = Owner.Weapons.Count;
+                    Weapon[] items = Owner.Weapons.GetInternalArrayItems();
+                    for (int x = 0; x < count; x++)
+                        items[x].ClearFireTarget();
+                }
+                if (Owner.Carrier.HasHangars && PotentialTargets.Length == 0 && Target == null)
                 {
                     foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
                     {

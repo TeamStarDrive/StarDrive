@@ -220,7 +220,8 @@ namespace Ship_Game.AI
 
             AIStateRebase();
 
-            Owner.Carrier.HandleHangarShipsScramble();
+            // need to figure out why i moved this call and from where. 
+            //Owner.Carrier.HandleHangarShipsScramble();
         }
 
         public Ship NearBySupplyShip => 
@@ -792,7 +793,7 @@ namespace Ship_Game.AI
 
         void AIStateAwaitingOrders(FixedSimTime timeStep)
         {
-            if (Owner.loyalty != Empire.Universe.player)
+            if (!Owner.loyalty.isPlayer)
                 AwaitOrders(timeStep);
             else
                 AwaitOrdersPlayer(timeStep);
