@@ -309,8 +309,6 @@ namespace Ship_Game.Ships
         public bool IsHangarShipActive => TryGetHangarShip(out Ship ship) && ship.Active;
         public bool TryGetHangarShipActive(out Ship ship) => TryGetHangarShip(out ship) && ship.Active;
 
-        public override bool ParentIsThis(Ship ship) => Parent == ship;
-
         ShipModule() : base(GameObjectType.ShipModule)
         {
             DisableSpatialCollision = true;
