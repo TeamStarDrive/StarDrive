@@ -861,6 +861,11 @@ namespace Ship_Game
             [Serialize(10)] public Guid TargetShipGuid;
             [Serialize(11)] public ShipAI.MoveTypes MoveType;
             [Serialize(12)] public float VariableNumber;
+
+            public override string ToString()
+            {
+                return $"SGSave {Plan} MP={MovePosition} TS={TargetShipGuid} TP={TargetPlanetGuid}";
+            }
         }
 
         public class TradePlanSave
