@@ -377,11 +377,11 @@ namespace Ship_Game
             ToolTipItems.Add(new TippedItem(TerraformedPopRect, GameText.ThisIndicatesWhatWouldThe2));
         }
 
-        void DrawPlanetStats(Rectangle rect, string data, string texturePath, Color color, Color texcolor)
+        void DrawPlanetStats(Rectangle rect, string data, string texturePath, Color color, Color texColor)
         {
             Graphics.Font font = Fonts.Arial12Bold;
             Vector2 pos     = new Vector2((rect.X + rect.Width + 2), (rect.Y + 11 - font.LineSpacing / 2));
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(texturePath), rect, texcolor);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(texturePath), rect, texColor);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data, pos, color);
         }
 

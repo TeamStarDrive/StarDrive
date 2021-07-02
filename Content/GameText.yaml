@@ -2051,9 +2051,7 @@ Terraformer:
  SPA: "Terraformador"
 TheseMachinesWhileExpensiveTo:
  Id: 462
- ENG: "These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. This building does not need to be built under a biosphere. Terraformers will first make terrformable parts of the planet Habitable, and then slowly transform the planet to a heaven for your Empire. After the planet was terraformed, any remaining biospheres over tiles which were terraformed will be removed to complete the process. The number of Terraformers which can be placed on a planet is affected by the number of tiles which can be terraformed and it is dynamically reduced during the terraforming operation."
- RUS: "Эти дорогостоящие машины неустанно трудятся над ландшафтом планеты, постепенно превращая безжизненные камни в плодородную почву и пригодную для дыхания атмосферу. Это строение необязательно возводить под биосферой."
- SPA: "Estas máquinas, aunque su mantenimiento es caro, transforman incesantemente planetas de roca yerma en mundos habitables con atmósferas respirables. No hace falta construir este edificio debajo de una biosfera."
+ ENG: "These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. Terraform Level of an empire can be 1 to 3. each level increases the effectiveness of terraforming operations  until they are able to terraform any barren planet to a heaven for your empire."
 TerraformsThePlanetToYour:
  Id: 463
  ENG: "Terraforms the planet to your preferred Environment"
@@ -6058,8 +6056,7 @@ ThisIndicatesWhatWouldThe:
  RUS: "Указывает на то, каким было бы максимальное население этой планеты, если бы вы построили биосферы на всех непригодных для жизни клетках."
 ThisIndicatesWhatWouldThe2:
  Id: 1907
- ENG: "This indicates what would the maximum population of this planet be, if you fully terraformed this planet. This number might be the same as Biosphered Planet, but a Terraformed planet does not cost Biosphere maintenance."
- RUS: "Указывает, каким было бы максимальное население этой планеты, если бы вы полностью терраформировали эту планету. Это число может быть таким же, как у Биосферной планеты, но терраформированная планета не требует затрат на содержание биосферы."
+ ENG: "This indicates what would the maximum population of this planet be, if you fully terraformed this planet (at Terraform Level 3). This number might be the same as Biosphered Planet, but a Terraformed planet does not cost Biosphere maintenance." 
 Regenerate:
  Id: 1908
  ENG: "Regenerate"
@@ -10130,6 +10127,18 @@ UsePlayerDesignsTitle:
 UsePlayerDesignsTip:
  Id: 4306
  ENG: "The AI will use player designed ships in the database. This could slow down AI tech progression"
+TerraformLevel:
+ Id: 4307
+ ENG: "Terraform Level" 
+TerraformLevel1:
+ Id: 4308
+ ENG: "Terraform Level 1. At this Level, Terraformers will remove any Volcanoes in the planet. Level 2 will also make terraformable tiles habitable, and level 3 will transform your planet in to the best planet for your race."  
+TerraformLevel2:
+ Id: 4309
+ ENG: "Terraform Level 2. At this Level, Terraformers will remove any Volcanoes in the planet and will also make terraformable tiles habitable, and level 3 will transform your planet in to the best planet for your race."   
+TerraformLevel3:
+ Id: 4310
+ ENG: "Terraform Level 3. At this Level, Terraformers will remove any Volcanoes in the planet, make terraformable tiles habitable and will also transform your planet into the best suitable planet for your race."
 OnSurface:
  Id: 4993
  ENG: "on surface"
