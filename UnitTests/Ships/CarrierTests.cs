@@ -46,7 +46,6 @@ namespace UnitTests.Ships
 
         void LaunchFighters(Ship ship)
         {
-            ship.Carrier.PrepShipHangars(Player);
             ship.Carrier.ScrambleFighters();
             Universe.Objects.Update(ScanInterval);
 
@@ -65,6 +64,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void RecallForWarp()
         {
+            SpawnEnemyShip(); // need an enemy so that ships don't immediately ReturnToHangar
             LaunchFighters(Carrier);
 
             float dist = CarrierBays.RecallMoveDistance + 5000;
@@ -77,6 +77,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void NoRecallWithin10k()
         {
+            SpawnEnemyShip(); // need an enemy so that ships don't immediately ReturnToHangar
             LaunchFighters(Carrier);
 
             Carrier.AI.OrderMoveTo(new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
@@ -153,6 +154,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void RecallDuringFleetMove()
         {
+            SpawnEnemyShip(); // need an enemy so that ships don't immediately ReturnToHangar
             Fleet fleet = CreateFleet();
             LaunchFighters(Carrier);
             fleet.MoveToNow(new Vector2(30000, 30000), Vectors.Up);
