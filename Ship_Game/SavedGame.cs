@@ -394,7 +394,7 @@ namespace Ship_Game
             sdata.Ordnance = ship.Ordinance;
             sdata.yRotation = ship.yRotation;
             sdata.Rotation = ship.Rotation;
-            sdata.InCombatTimer = ship.InCombatTimer;
+            sdata.InCombat = ship.InCombat;
             sdata.FoodCount = ship.GetFood();
             sdata.ProdCount = ship.GetProduction();
             sdata.PopCount = ship.GetColonists();
@@ -486,8 +486,8 @@ namespace Ship_Game
         {
             var sd = new ShipSaveData
             {
-                guid       = ship.guid,
-                data       = new ShipData(ship),
+                guid = ship.guid,
+                data = new ShipData(ship),
                 Position   = ship.Position,
                 experience = ship.experience,
                 kills      = ship.kills,
@@ -500,12 +500,12 @@ namespace Ship_Game
             }
             sd.Name = ship.Name;
             sd.VanityName = ship.VanityName;
-            sd.Hull          = ship.shipData.Hull;
-            sd.Power         = ship.PowerCurrent;
-            sd.Ordnance      = ship.Ordinance;
-            sd.yRotation     = ship.yRotation;
-            sd.Rotation      = ship.Rotation;
-            sd.InCombatTimer = ship.InCombatTimer;
+            sd.Hull      = ship.shipData.Hull;
+            sd.Power     = ship.PowerCurrent;
+            sd.Ordnance  = ship.Ordinance;
+            sd.yRotation = ship.yRotation;
+            sd.Rotation  = ship.Rotation;
+            sd.InCombat  = ship.InCombat;
             sd.AISave = new ShipAISave
             {
                 State           = ship.AI.State,
@@ -890,7 +890,7 @@ namespace Ship_Game
             [Serialize(10)] public float yRotation;
             [Serialize(11)] public float Power;
             [Serialize(12)] public float Ordnance;
-            [Serialize(13)] public float InCombatTimer;
+            [Serialize(13)] public bool InCombat;
             [Serialize(14)] public float experience;
             [Serialize(15)] public int kills;
             [Serialize(16)] public Array<Troop> TroopList;

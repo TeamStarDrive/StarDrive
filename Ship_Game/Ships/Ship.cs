@@ -50,7 +50,6 @@ namespace Ship_Game.Ships
         public Array<Weapon> Weapons = new Array<Weapon>();
         float JumpTimer = 3f;
         public AudioEmitter SoundEmitter = new AudioEmitter();
-        public Vector2 ScreenPosition;
         public float ScuttleTimer = -1f;
         public Vector2 FleetOffset;
         public Vector2 RelativeFleetOffset;
@@ -81,7 +80,6 @@ namespace Ship_Game.Ships
         public int kills;
         public float experience;
         public bool EnginesKnockedOut;
-        public float InCombatTimer;
         public bool IsTurning { get; private set; }
         public float InhibitionRadius;
         public bool IsPlatform;
@@ -132,7 +130,6 @@ namespace Ship_Game.Ships
         public float ShieldRechargeTimer;
         public bool InCombat;
         public float xRotation;
-        public float ScreenRadius;
         public bool ShouldRecalculatePower;
         public bool Deleted;
         public float BonusEMP_Protection;
@@ -173,6 +170,8 @@ namespace Ship_Game.Ships
         public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || Empire.DefaultBoardingShuttleName == Name;
         public bool IsDefaultTroopShip      => !IsDefaultAssaultShuttle && (loyalty.data.DefaultTroopShip == Name || DesignRole == ShipData.RoleName.troop);
         public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
+        public bool IsTroopShip             => DesignRole == ShipData.RoleName.troop;
+        public bool IsBomber                => DesignRole == ShipData.RoleName.bomber;
         public bool IsSubspaceProjector     => Name == "Subspace Projector";
         public bool HasBombs                => BombBays.Count > 0;
 
@@ -705,14 +704,6 @@ namespace Ship_Game.Ships
             AI.SetPriorityOrder(true);
         }
 
-        /// <summary>Forces the ship to be in combat without a target.</summary>
-        public void ForceCombatTimer(float timer = 15f) => InCombatTimer = timer;
-
-        public bool InRadiusOfSystem(SolarSystem system) =>
-            system != null && InRadius(system.Position, system.Radius);
-
-        public bool InRadiusOfCurrentSystem => InRadiusOfSystem(System);
-
         public bool InRadius(Vector2 worldPos, float radius)
             => Center.InRadius(worldPos, Radius + radius);
 
@@ -1117,7 +1108,7 @@ namespace Ship_Game.Ships
             SetFleetCapableStatus();
             
             // scan universe and make decisions for combat
-            AI.CheckSensors(timeStep);
+            AI.ScanForTargets(timeStep);
         }
 
         public void UpdateModulePositions(FixedSimTime timeStep, bool isSystemView, bool forceUpdate = false)

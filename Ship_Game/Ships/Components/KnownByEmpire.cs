@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Web.UI;
+using Ship_Game.Empires;
 
 namespace Ship_Game.Ships.Components
 {
@@ -17,7 +18,7 @@ namespace Ship_Game.Ships.Components
         /// <value>
         ///   <c>true</c> if [known by player]; otherwise, <c>false</c>.
         /// </value>
-        public bool KnownByPlayer => (SeenByID[EmpireManager.Player.Id-1] + Empire.MaxContactTimer) > 0;
+        public bool KnownByPlayer => SeenByID[EmpireManager.Player.Id-1] > 0f;
 
         public KnownByEmpire()
         {
@@ -50,7 +51,7 @@ namespace Ship_Game.Ships.Components
             {
                 seenById[i] -= timeStep.FixedTime;
             }
-            seenById[owner.Id-1] = Empire.MaxContactTimer;
+            seenById[owner.Id-1] = EmpireConstants.KnownContactTimer;
         }
 
         /// <summary>
@@ -60,13 +61,25 @@ namespace Ship_Game.Ships.Components
         public void SetSeen(Empire empire)
         {
             float[] seenById = GetSeenByID();
-            seenById[empire.Id-1] = Empire.MaxContactTimer;
+            seenById[empire.Id-1] = EmpireConstants.KnownContactTimer;
         }
 
+        /// <summary>
+        /// TRUE if the empire is marked as seen, including grace time
+        /// </summary>
         public bool KnownBy(Empire empire)
         {
             float[] seenById = GetSeenByID();
-            return (seenById[empire.Id-1] + Empire.MaxContactTimer) > 0;
+            return seenById[empire.Id-1] > 0f;
+        }
+
+        /// <summary>
+        /// TRUE if empire is set
+        /// </summary>
+        public bool IsSet(Empire empire)
+        {
+            float[] seenById = GetSeenByID();
+            return seenById[empire.Id-1] > 0f;
         }
 
         /// <summary>

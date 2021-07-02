@@ -42,7 +42,7 @@ namespace Ship_Game.Ships
         
         public Array<Ship> GetActiveFighters()
         {
-            Array<Ship> fighters = new Array<Ship>();
+            var fighters = new Array<Ship>();
             foreach (var hangar in AllFighterHangars)
             {
                 if (hangar.TryGetHangarShipActive(out Ship fighter))

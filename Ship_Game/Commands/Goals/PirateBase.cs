@@ -48,7 +48,8 @@ namespace Ship_Game.Commands.Goals
             }
 
             Base.ChangeOrdnance(Base.OrdinanceMax / 10); // Slowly replenish the base's ordnance stores
-            var friendlies = Base.AI.FriendliesNearby;
+
+            Ship[] friendlies = Base.AI.FriendliesNearby;
             for (int i = 0; i < friendlies.Length; i++)
             {
                 Ship ship = friendlies[i];

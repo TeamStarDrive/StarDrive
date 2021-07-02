@@ -226,7 +226,6 @@ namespace Ship_Game.AI
                 {
                     HadPO = true;
                     ClearPriorityOrderAndTarget();
-
                 }
             }
 
