@@ -706,14 +706,15 @@ namespace Ship_Game.Ships
 
         public void HandleHangarShipsScramble()
         {
-            if (Owner == null)
-                return;
+            if (Owner?.loyalty.isPlayer == true)
+            {
 
-            if (FightersLaunched) // for ships with hangars and with fighters out button on.
-                ScrambleFighters(); // FB: If new fighters are ready in hangars, scramble them
+                if (FightersLaunched) // for ships with hangars and with fighters out button on.
+                    ScrambleFighters(); // FB: If new fighters are ready in hangars, scramble them
 
-            if (TroopsLaunched)
-                ScrambleAllAssaultShips(); // FB: if the troops out button is on, launch every available assault shuttle
+                if (TroopsLaunched)
+                    ScrambleAllAssaultShips(); // FB: if the troops out button is on, launch every available assault shuttle
+            }
         }
 
         public void SetSendTroopsToShip(bool value)
@@ -728,21 +729,18 @@ namespace Ship_Game.Ships
 
         public void RecallAfterCombat()
         {
-            foreach (ShipModule hangar in AllFighterHangars)
+            for (int i = 0; i < AllFighterHangars.Length; i++)
             {
-                if (hangar.TryGetHangarShip(out Ship hangarShip) && hangarShip.Active
-                                                                 && hangarShip.AI.State != AIState.ReturnToHangar)
+                ShipModule hangar = AllFighterHangars[i];
+                if (hangar.TryGetHangarShip(out Ship hangarShip) && hangarShip.Active && hangarShip.AI.State != AIState.ReturnToHangar)
                 {
-                    if (Owner.loyalty.isPlayer
-                        && (hangarShip.AI.HasPriorityTarget || hangarShip.AI.HasPriorityOrder))
+                    if (!Owner.loyalty.isPlayer || !(hangarShip.AI.HasPriorityTarget || hangarShip.AI.HasPriorityOrder))
                     {
-                        continue;
+                        if (FightersLaunched)
+                            hangarShip.DoEscort(Owner);
+                        else
+                            hangarShip.AI.OrderReturnToHangar();
                     }
-
-                    if (FightersLaunched)
-                        hangarShip.DoEscort(Owner);
-                    else
-                        hangarShip.AI.OrderReturnToHangar();
                 }
             }
         }
