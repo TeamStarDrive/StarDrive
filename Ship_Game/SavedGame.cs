@@ -471,9 +471,6 @@ namespace Ship_Game
             if (ship.AI.OrbitTarget != null)
                 sdata.AISave.OrbitTarget = ship.AI.OrbitTarget.guid;
 
-            if (ship.AI.ColonizeTarget != null)
-                sdata.AISave.ColonizeTarget = ship.AI.ColonizeTarget.guid;
-
             if (ship.AI.SystemToDefend != null)
                 sdata.AISave.SystemToDefend = ship.AI.SystemToDefend.guid;
 
@@ -842,12 +839,11 @@ namespace Ship_Game
             [Serialize(3)] public Array<WayPoint> WayPoints;
             [Serialize(4)] public Vector2 MovePosition;
             [Serialize(5)] public Guid OrbitTarget;
-            [Serialize(6)] public Guid ColonizeTarget;
-            [Serialize(7)] public Guid SystemToDefend;
-            [Serialize(8)] public Guid AttackTarget;
-            [Serialize(9)] public Guid EscortTarget;
-            [Serialize(10)] public bool PriorityOrder;
-            [Serialize(11)] public bool PriorityTarget;
+            [Serialize(6)] public Guid SystemToDefend;
+            [Serialize(7)] public Guid AttackTarget;
+            [Serialize(8)] public Guid EscortTarget;
+            [Serialize(9)] public bool PriorityOrder;
+            [Serialize(10)] public bool PriorityTarget;
         }
 
         public class ShipGoalSave
