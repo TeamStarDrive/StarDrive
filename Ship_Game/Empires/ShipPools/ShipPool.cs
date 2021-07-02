@@ -145,8 +145,6 @@ namespace Ship_Game.Empires.ShipPools
                 {
                     if (!OwnerAI.DefensiveCoordinator.DefensiveForcePool.Contains(ship))
                     {
-                        ship.AI.SystemToDefend = null;
-                        ship.AI.SystemToDefendGuid = Guid.Empty;
                         ship.AI.ClearOrders();
                         Log.Warning("ShipPool: Ship was in a system defense state but not in system defense pool");
                         if (!AssignShipsToOtherPools(ship))

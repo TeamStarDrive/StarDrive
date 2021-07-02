@@ -44,10 +44,8 @@ namespace Ship_Game.AI
         public void AddShip(Ship ship)
         {
             ship.AI.ClearOrders(AIState.SystemDefender);
-            ship.AI.SystemToDefend     = null;
-            ship.AI.SystemToDefendGuid = Guid.Empty;
             ship.AI.SetPriorityOrder(false);
-            DefenseDeficit            -= ship.GetStrength();
+            DefenseDeficit -= ship.GetStrength();
             DefensiveForcePool.AddUnique(ship);
         }
 
@@ -107,7 +105,6 @@ namespace Ship_Game.AI
             if (found)
             {
                 ship.AI.SystemToDefend = null;
-                ship.AI.SystemToDefendGuid = Guid.Empty;
                 ship.AI.ClearOrders();
                 if (addToEmpirePool && !ship.loyalty.isPlayer && ship.Active && ship.AI.State != AIState.Scrap && ship.loyalty == Us)
                     Us.AddShipToManagedPools(ship);

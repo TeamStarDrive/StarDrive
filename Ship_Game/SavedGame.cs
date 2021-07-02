@@ -167,7 +167,7 @@ namespace Ship_Game
                 empireToSave.CurrentConstructor   = e.data.CurrentConstructor;
                 empireToSave.OwnedShips           = new Array<ShipSaveData>();
                 empireToSave.TechTree             = new Array<TechEntry>();
-                e.SaveMoneyHistory(empireToSave);
+                empireToSave.NormalizedMoneyVal      = e.NormalizedMoney;
                 empireToSave.FastVsBigFreighterRatio   = e.FastVsBigFreighterRatio;
                 empireToSave.AverageFreighterCargoCap  = e.AverageFreighterCargoCap;
                 empireToSave.AverageFreighterFTLSpeed  = e.AverageFreighterFTLSpeed;
@@ -471,9 +471,6 @@ namespace Ship_Game
             if (ship.AI.OrbitTarget != null)
                 sdata.AISave.OrbitTarget = ship.AI.OrbitTarget.guid;
 
-            if (ship.AI.ColonizeTarget != null)
-                sdata.AISave.ColonizeTarget = ship.AI.ColonizeTarget.guid;
-
             if (ship.AI.SystemToDefend != null)
                 sdata.AISave.SystemToDefend = ship.AI.SystemToDefend.guid;
 
@@ -613,7 +610,7 @@ namespace Ship_Game
             [Serialize(22)] public Map<int, int> PiratePaymentTimers;
             [Serialize(23)] public Array<Guid> SpawnedShips;
             [Serialize(24)] public Array<string> ShipsWeCanSpawn;
-            [Serialize(25)] public Array<float> NormalizedMoney;
+            [Serialize(25)] public float NormalizedMoneyVal;
             [Serialize(26)] public int ExpandSearchTimer;
             [Serialize(27)] public int MaxSystemsToCheckedDiv;
             [Serialize(28)] public int AverageFreighterFTLSpeed;
@@ -842,12 +839,11 @@ namespace Ship_Game
             [Serialize(3)] public Array<WayPoint> WayPoints;
             [Serialize(4)] public Vector2 MovePosition;
             [Serialize(5)] public Guid OrbitTarget;
-            [Serialize(6)] public Guid ColonizeTarget;
-            [Serialize(7)] public Guid SystemToDefend;
-            [Serialize(8)] public Guid AttackTarget;
-            [Serialize(9)] public Guid EscortTarget;
-            [Serialize(10)] public bool PriorityOrder;
-            [Serialize(11)] public bool PriorityTarget;
+            [Serialize(6)] public Guid SystemToDefend;
+            [Serialize(7)] public Guid AttackTarget;
+            [Serialize(8)] public Guid EscortTarget;
+            [Serialize(9)] public bool PriorityOrder;
+            [Serialize(10)] public bool PriorityTarget;
         }
 
         public class ShipGoalSave
@@ -865,6 +861,11 @@ namespace Ship_Game
             [Serialize(10)] public Guid TargetShipGuid;
             [Serialize(11)] public ShipAI.MoveTypes MoveType;
             [Serialize(12)] public float VariableNumber;
+
+            public override string ToString()
+            {
+                return $"SGSave {Plan} MP={MovePosition} TS={TargetShipGuid} TP={TargetPlanetGuid}";
+            }
         }
 
         public class TradePlanSave

@@ -244,34 +244,52 @@ namespace Ship_Game
 
             TotalTime.Start();
             
+            bool isRunning = timeStep.FixedTime > 0f;
+
             // only remove and kill objects if game is not paused
-            UpdateLists(removeInactiveObjects: timeStep.FixedTime > 0f);
+            UpdateLists(removeInactiveObjects: isRunning);
             UpdateAllSystems(timeStep);
             UpdateAllShips(timeStep);
             UpdateAllProjectiles(timeStep);
 
-            // spatial update will automatically:
-            //   add objects with no spatial Id
-            //   remove objects that are !Active
-            //   update objects that have spatial Id
-            lock (AllObjectsLocker)
+            if (isRunning)
             {
-                Spatial.Update(Objects);
-                // remove inactive objects only after Spatial has seen them as inactive
-                Objects.RemoveInActiveObjects();
-            }
-            
-            // update sensors AFTER spatial update, but only if we are not paused!
-            if (timeStep.FixedTime > 0f)
+                // spatial update will automatically:
+                //   add objects with no spatial Id
+                //   remove objects that are !Active
+                //   update objects that have spatial Id
+                lock (AllObjectsLocker)
+                {
+                    Spatial.Update(Objects);
+                    // remove inactive objects only after Spatial has seen them as inactive
+                    Objects.RemoveInActiveObjects();
+                }
+
+                // update sensors AFTER spatial update, but only if we are not paused!
                 UpdateAllSensors(timeStep);
 
-            // trigger all Hit events, but only if we are not paused!
-            if (timeStep.FixedTime > 0f)
+                // trigger all Hit events, but only if we are not paused!
                 Spatial.CollideAll(timeStep);
+            }
 
             UpdateVisibleObjects();
 
             TotalTime.Stop();
+        }
+
+        /// <summary>
+        /// Run once after save is loaded to restore object visibility
+        /// </summary>
+        public void InitializeFromSave()
+        {
+            UpdateLists(removeInactiveObjects: true);
+            UpdateAllSystems(FixedSimTime.Zero);
+            lock (AllObjectsLocker)
+            {
+                Spatial.Update(Objects);
+            }
+            UpdateAllSensors(FixedSimTime.Zero);
+            UpdateVisibleObjects();
         }
 
         /// <summary>
@@ -388,11 +406,7 @@ namespace Ship_Game
             }
 
             UpdateSystems(0, UniverseScreen.SolarSystemList.Count);
-
-            //Parallel.For(UniverseScreen.SolarSystemList.Count, (start, end) =>
-            //{
-            //    UpdateSystems(start, end);
-            //}, Universe.MaxTaskCores);
+            //Parallel.For(UniverseScreen.SolarSystemList.Count, UpdateSystems, Universe.MaxTaskCores);
 
             // TODO: SolarSystem.Update is not thread safe because of resource loading
             for (int i = 0; i < UniverseScreen.SolarSystemList.Count; ++i)

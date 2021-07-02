@@ -45,6 +45,7 @@ namespace Ship_Game.AI
             EscortTarget = null;
             PatrolTarget = null;
             OrbitTarget  = null;
+            SystemToDefend = null;
             if (ExplorationTarget != null)
             {
                 Owner.loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);
@@ -306,17 +307,26 @@ namespace Ship_Game.AI
             bool IsDisposed;
             // ship goal variables are read-only by design, do not allow writes!
             public readonly Plan Plan;
-            private Vector2 StaticMovePosition;
+
+            Vector2 StaticMovePosition;
+
             public Vector2 MovePosition
             {
                 get
                 {
-                    if (Goal != null) return Goal.MovePosition;
-                    if (TargetPlanet != null) return TargetPlanet.Center;
+                    if (Goal != null)
+                        return Goal.MovePosition;
+
+                    // for Orbit plans we don't use Planet.Center
+                    // TODO: There is a mismatch here after save load
+                    if (TargetPlanet != null && Plan != Plan.Orbit)
+                        return TargetPlanet.Center;
+
                     return StaticMovePosition;
                 }
                 set => StaticMovePosition = value;
             }
+
             public readonly Vector2 Direction; // direction param for this goal, can have multiple meanings
             public readonly Planet TargetPlanet;
             public readonly Ship TargetShip;
