@@ -236,8 +236,8 @@ namespace Ship_Game
             }
 
             int crippledTurns;
-            Planet targetPlanet = victim.FindPlanetToBuildAt(victim.SpacePorts, 0) 
-                                  ?? victim.FindPlanetToBuildAt(victim.GetPlanets(), 0);
+            Planet targetPlanet = victim.FindPlanetToBuildAt(victim.SpacePorts, 0, priority: 1.00f) 
+                                  ?? victim.FindPlanetToBuildAt(victim.GetPlanets(), 0, priority: 1.00f);
 
             if (targetPlanet == null) // no planet was found, abort mission
             {
