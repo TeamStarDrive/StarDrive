@@ -34,7 +34,7 @@ namespace Ship_Game.AI
         OrbitPlan Orbit;
 
         public bool IsDisposed => Owner == null;
-        
+
         public ShipAI(Ship owner)
         {
             Owner = owner;
@@ -54,12 +54,12 @@ namespace Ship_Game.AI
                 g?.Dispose();
             }
         }
-        
+
         public void Dispose()
         {
             if (IsDisposed)
                 return;
-            
+
             // Absolutely necessary to dispose all of these manually
             // because C# is not always able to break bugged cyclic references
             Owner = null;
@@ -72,7 +72,7 @@ namespace Ship_Game.AI
             ResupplyTarget = null;
             SystemToDefend = null;
             ExplorationTarget = null;
-            
+
             OrderQueue?.Dispose(ref OrderQueue);
             NearByShips?.Clear();
             NearByShips = null;
@@ -193,7 +193,7 @@ namespace Ship_Game.AI
 
             // Waiting to be scrapped by Empire goal
             if (!Owner.loyalty.GetEmpireAI().Goals.Any(g => g.type == GoalType.ScrapShip && g.OldShip == Owner))
-                ClearOrders(); // Could not find empire scrap goal 
+                ClearOrders(); // Could not find empire scrap goal
         }
 
         public void Update(FixedSimTime timeStep)
@@ -319,7 +319,7 @@ namespace Ship_Game.AI
             if (Owner.AI.State != AIState.Resupply && Owner.AI.State != AIState.ResupplyEscort)
                 return;
 
-            if (!Owner.Supply.DoneResupplying(supplyType)) 
+            if (!Owner.Supply.DoneResupplying(supplyType))
             {
                 if (State != AIState.ResupplyEscort || EscortTarget?.SupplyShipCanSupply == true)
                     return;
@@ -329,7 +329,7 @@ namespace Ship_Game.AI
             Owner.AI.SetPriorityOrder(false);
             Owner.AI.IgnoreCombat = false;
             if (Owner.fleet != null)
-                OrderMoveTo(Owner.fleet.FinalPosition + Owner.RelativeFleetOffset, 
+                OrderMoveTo(Owner.fleet.FinalPosition + Owner.RelativeFleetOffset,
                     Owner.fleet.FinalDirection, true, State);
         }
 
@@ -364,7 +364,7 @@ namespace Ship_Game.AI
 
         void AIStateRebase()
         {
-            if (State != AIState.Rebase) 
+            if (State != AIState.Rebase)
                 return;
 
             if (OrderQueue.IsEmpty)
@@ -376,9 +376,9 @@ namespace Ship_Game.AI
             for (int x = 0; x < OrderQueue.Count; x++)
             {
                 ShipGoal goal = OrderQueue[x];
-                if (goal.Plan == Plan.Rebase 
+                if (goal.Plan == Plan.Rebase
                     && goal.TargetPlanet.Owner != Owner.loyalty
-                    && !Owner.loyalty.isPlayer) // player rebase is not cancelled 
+                    && !Owner.loyalty.isPlayer) // player rebase is not cancelled
                 {
                     ClearOrders();
                     return;
@@ -693,7 +693,7 @@ namespace Ship_Game.AI
             EscortTarget = s;
             AddShipGoal(Plan.TroopToShip, State);
         }
-        
+
         void ResetStateFlee()
         {
             if (State != AIState.Flee || BadGuysNear || State == AIState.Resupply || HasPriorityOrder) return;
@@ -704,11 +704,11 @@ namespace Ship_Game.AI
         void PrioritizePlayerCommands()
         {
             if (Owner.loyalty == EmpireManager.Player &&
-                (State == AIState.Bombard 
-                || State == AIState.AssaultPlanet 
-                || State == AIState.Rebase 
-                || State == AIState.Scrap 
-                || State == AIState.Resupply 
+                (State == AIState.Bombard
+                || State == AIState.AssaultPlanet
+                || State == AIState.Rebase
+                || State == AIState.Scrap
+                || State == AIState.Resupply
                 || State == AIState.Refit))
             {
                 SetPriorityOrder(true);
@@ -751,10 +751,10 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (Owner.GetStrength() <= 0 
-                || !Owner.IsHangarShip && escortTarget.Center.InRadius(Owner.Center, Owner.SensorRange) 
+            if (Owner.GetStrength() <= 0
+                || !Owner.IsHangarShip && escortTarget.Center.InRadius(Owner.Center, Owner.SensorRange)
                 || !Owner.IsHangarShip
-                || !Owner.Mothership.AI.BadGuysNear 
+                || !Owner.Mothership.AI.BadGuysNear
                 || escortTarget != Owner.Mothership)
             {
                 Orbit.Orbit(escortTarget, timeStep);

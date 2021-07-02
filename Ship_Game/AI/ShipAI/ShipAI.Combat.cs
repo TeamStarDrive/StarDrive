@@ -578,6 +578,9 @@ namespace Ship_Game.AI
             {
                 FireWeapons(timeStep);
             }
+
+            // Honor fighter launch buttons
+            Owner.Carrier.HandleHangarShipsScramble();
         }
 
         public float GetSensorRadius() => GetSensorRadius(out Ship _);
