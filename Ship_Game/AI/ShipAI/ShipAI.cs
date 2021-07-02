@@ -5,6 +5,7 @@ using Ship_Game.Ships;
 using Ship_Game.Utils;
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Ship_Game.Ships.AI;
 
 namespace Ship_Game.AI
@@ -31,7 +32,60 @@ namespace Ship_Game.AI
         OrbitPlan Orbit;
 
         public bool IsDisposed => Owner == null;
+
+        [Flags]
+        public enum Flags
+        {
+            None = 0,
+            HasPriorityTarget = (1 << 0),
+            HasPriorityOrder  = (1 << 1),
+            HadPO             = (1 << 2),
+            IgnoreCombat      = (1 << 3),
+            IsNonCombatant    = (1 << 4),
+            TargetProjectiles = (1 << 5),
+            Intercepting      = (1 << 6),
+            FiringAtMainTarget= (1 << 7),
+            BadShipsNear      = (1 << 8),
+            BadPlanetsNear    = (1 << 9),
+            BadShipsOrPlanetsNear = BadShipsNear | BadPlanetsNear,
+        }
+
+        public Flags StateBits;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void Bit(Flags tag, bool value) => StateBits = value ? StateBits|tag : StateBits & ~tag;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool Bit(Flags tag) => (StateBits & tag) != 0;
         
+        public bool HasPriorityTarget
+        { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.HasPriorityTarget);
+          [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(Flags.HasPriorityTarget, value); }
+        public bool HasPriorityOrder
+        { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.HasPriorityOrder);
+          [MethodImpl(MethodImplOptions.AggressiveInlining)] private set => Bit(Flags.HasPriorityOrder, value); }
+        public bool HadPO
+        { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.HadPO);
+          [MethodImpl(MethodImplOptions.AggressiveInlining)] private set => Bit(Flags.HadPO, value); }
+        public bool BadGuysNear
+        { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.BadShipsNear);
+          [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(Flags.BadShipsNear, value); }
+        public bool IgnoreCombat
+        { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.IgnoreCombat);
+          [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(Flags.IgnoreCombat, value); }
+        public bool Intercepting
+        { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.Intercepting);
+          [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(Flags.Intercepting, value); }
+        public bool TargetProjectiles
+        { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.TargetProjectiles);
+          [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(Flags.TargetProjectiles, value); }
+        public bool IsNonCombatant
+        { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.IsNonCombatant);
+          [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(Flags.IsNonCombatant, value); }
+        public bool IsFiringAtMainTarget
+        { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.FiringAtMainTarget); 
+          [MethodImpl(MethodImplOptions.AggressiveInlining)] private set => Bit(Flags.FiringAtMainTarget, value); }
+
         public ShipAI(Ship owner)
         {
             Owner = owner;
@@ -61,7 +115,8 @@ namespace Ship_Game.AI
             // because C# is not always able to break bugged cyclic references
             Owner = null;
             DisposeOrders(); // dispose any active goals
-
+            
+            StateBits = Flags.None;
             AwaitClosest = null;
             PatrolTarget = null;
             FleetNode = null;
@@ -353,7 +408,6 @@ namespace Ship_Game.AI
         public bool FireWeapons(FixedSimTime timeStep)
         {
             TriggerDelay -= timeStep.FixedTime;
-            FireOnMainTargetTime -= timeStep.FixedTime;
             if (TriggerDelay <= 0f)
             {
                 TriggerDelay = timeStep.FixedTime * 2;
