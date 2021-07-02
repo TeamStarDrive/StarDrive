@@ -155,7 +155,9 @@ namespace Ship_Game.Empires.ShipPools
                         }
                     }
                 }
-                else if (ship.DesignRoleType == ShipData.RoleType.Warship)
+                else if (ship.DesignRoleType == ShipData.RoleType.Warship 
+                         || ship.DesignRoleType == ShipData.RoleType.WarSupport
+                         || ship.DesignRoleType == ShipData.RoleType.Troop)
                 {
                     bool notInEmpireForcePool = !ForcePool.Contains(ship);
                     bool notInAOs = !OwnerAI.AreasOfOperations.Any(ao => ao.OffensiveForcePoolContains(ship));
@@ -190,7 +192,7 @@ namespace Ship_Game.Empires.ShipPools
       
             if (!AssignShipsToOtherPools(ship))
             {
-                if (ship.DesignRoleType    == ShipData.RoleType.Troop
+                if (ship.DesignRoleType == ShipData.RoleType.Troop
                     || ship.DesignRoleType == ShipData.RoleType.WarSupport
                     || ship.DesignRole     == ShipData.RoleName.carrier)
                 {
