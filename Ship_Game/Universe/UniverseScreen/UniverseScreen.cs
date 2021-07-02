@@ -411,7 +411,12 @@ namespace Ship_Game
             InitializeSolarSystems();
             CreatePlanetsLookupTable();
             CreateStationTethers();
-            EmpireManager.RestoreUnserializableDataFromSave();
+
+            foreach (Empire empire in EmpireManager.Empires)
+                empire.InitEmpireFromSave();
+
+            WarmUpShipsForLoad();
+
             RecomputeFleetButtons(true);
 
             if (StarDate.AlmostEqual(1000)) // Run once to get all empire goals going
@@ -469,13 +474,14 @@ namespace Ship_Game
                 foreach (Anomaly anomaly in solarSystem.AnomaliesList)
                 {
                     if (anomaly.type == "DP")
-                        anomalyManager.AnomaliesList.Add(
-                            new DimensionalPrison(solarSystem.Position + anomaly.Position));
+                    {
+                        anomalyManager.AnomaliesList.Add(new DimensionalPrison(solarSystem.Position + anomaly.Position));
+                    }
                 }
 
                 foreach (Empire empire in EmpireManager.ActiveEmpires)
                 {
-                        solarSystem.UpdateFullyExploredBy(empire);
+                    solarSystem.UpdateFullyExploredBy(empire);
                 }
             }
         }

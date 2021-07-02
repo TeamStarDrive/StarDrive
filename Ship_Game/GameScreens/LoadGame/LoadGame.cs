@@ -23,19 +23,24 @@ namespace Ship_Game.GameScreens.LoadGame
 
         public float ProgressPercent => Progress.Percent;
         public bool LoadingFailed { get; private set; }
+        bool StartSimThread;
 
         public LoadGame(FileInfo saveFile)
         {
             SaveFile = saveFile;
         }
 
-        public static UniverseScreen Load(FileInfo file, bool noErrorDialogs = false)
+        /// <param name="file">SaveGame file</param>
+        /// <param name="noErrorDialogs">Do not show error dialogs</param>
+        /// <param name="startSimThread">Start Universe sim thread (set false for testing)</param>
+        public static UniverseScreen Load(FileInfo file, bool noErrorDialogs = false, bool startSimThread = true)
         {
-            return new LoadGame(file).Load(noErrorDialogs);
+            return new LoadGame(file).Load(noErrorDialogs, startSimThread);
         }
 
-        public UniverseScreen Load(bool noErrorDialogs = false)
+        public UniverseScreen Load(bool noErrorDialogs = false, bool startSimThread = true)
         {
+            StartSimThread = startSimThread;
             GlobalStats.Statreset();
             try
             {
@@ -166,6 +171,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 CamPos    = new Vector3(save.campos.X, save.campos.Y, save.camheight),
                 CamHeight = save.camheight,
                 Paused    = true,
+                CreateSimThread = StartSimThread,
             };
 
             step.Start(0.3f, 0.4f, 0.3f);
@@ -179,9 +185,11 @@ namespace Ship_Game.GameScreens.LoadGame
             
             GameBase.Base.ResetElapsedTime();
             us.LoadContent();
+
             CreateAOs(data);
             FinalizeShips(us);
             us.Objects.UpdateLists(removeInactiveObjects: false);
+
             foreach(Empire empire in EmpireManager.Empires)
             {
                 empire.GetEmpireAI().ThreatMatrix.RestorePinGuidsFromSave();
@@ -260,15 +268,6 @@ namespace Ship_Game.GameScreens.LoadGame
                     }
                 }
             }
-
-            if (ship.AI.State == AIState.Orbit && data.FindPlanet(ship.AI.OrbitTargetGuid, out Planet toOrbit))
-            {
-                ship.AI.RestoreOrbitFromSave(toOrbit);
-            }
-
-            ship.AI.SystemToDefend = data.FindSystemOrNull(ship.AI.SystemToDefendGuid);
-            ship.AI.EscortTarget   = data.FindShipOrNull(ship.AI.EscortTargetGuid);
-            ship.AI.Target         = data.FindShipOrNull(ship.AI.TargetGuid);
         }
 
         static void RestoreCommodities(Planet p, SavedGame.PlanetSaveData psdata)
@@ -298,7 +297,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 e.PortraitName = e.data.PortraitName;
                 e.dd           = ResourceManager.GetDiplomacyDialog(e.data.DiplomacyDialogPath);
                 e.EmpireColor  = e.data.Traits.Color;
-                e.RestoreMoneyHistoryFromSave(sdata);
+                e.UpdateNormalizedMoney(sdata.NormalizedMoneyVal, fromSave:true);
                 e.data.CurrentAutoScout       = sdata.CurrentAutoScout     ?? e.data.ScoutShip;
                 e.data.CurrentAutoColony      = sdata.CurrentAutoColony    ?? e.data.ColonyShip;
                 e.data.CurrentAutoFreighter   = sdata.CurrentAutoFreighter ?? e.data.FreighterShip;
@@ -790,16 +789,13 @@ namespace Ship_Game.GameScreens.LoadGame
                 if (shipData.AISave.WayPoints != null)
                     ship.AI.SetWayPoints(shipData.AISave.WayPoints);
 
+                ship.AI.Target         = data.FindShipOrNull(shipData.AISave.AttackTarget);
+                ship.AI.EscortTarget   = data.FindShipOrNull(shipData.AISave.EscortTarget);
+                ship.AI.OrbitTarget    = data.FindPlanetOrNull(shipData.AISave.OrbitTarget);
+                ship.AI.SystemToDefend = data.FindSystemOrNull(shipData.AISave.SystemToDefend);
+
                 foreach (SavedGame.ShipGoalSave sg in shipData.AISave.ShipGoalsList)
                 {
-                    foreach (SolarSystem s in data.SolarSystemsList)
-                    {
-                        foreach (Planet p in s.PlanetList)
-                        {
-                            if (p.guid == sg.TargetPlanetGuid) ship.AI.ColonizeTarget = p;
-                        }
-                    }
-
                     if (sg.Plan == ShipAI.Plan.DeployStructure || sg.Plan == ShipAI.Plan.DeployOrbital)
                         ship.IsConstructor = true;
 
@@ -842,7 +838,7 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        
+
         static void CreateTasksGoalsRoads(SavedGame.UniverseSaveData saveData, UniverseData data)
         {
             foreach (SavedGame.EmpireSaveData esd in saveData.EmpireDataList)

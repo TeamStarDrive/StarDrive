@@ -132,7 +132,7 @@ namespace Ship_Game
             return (territorialism + expansion + opportunism + cybernetic);
         }
 
-        public void UpdateRelationships()
+        public void UpdateRelationships(bool takeTurn)
         {
             int atWarCount = 0;
             var wars = new Array<War>();
@@ -141,6 +141,11 @@ namespace Ship_Game
                 if (rel.Known || isPlayer)
                 {
                     rel.UpdateRelationship(this, them);
+                    if (takeTurn && !isFaction)
+                    {
+                        rel.AdvanceRelationshipTurn(this, them);
+                    }
+
                     if (rel.AtWar)
                     {
                         if (!them.isFaction)
@@ -165,7 +170,7 @@ namespace Ship_Game
         OurRelationsToThem[] RelationsMap = Empty<OurRelationsToThem>.Array;
         OurRelationsToThem[] ActiveRelations = Empty<OurRelationsToThem>.Array;
 
-        public IReadOnlyList<OurRelationsToThem> AllRelations => ActiveRelations;
+        public OurRelationsToThem[] AllRelations => ActiveRelations;
         
         /// <returns>Get relations with another empire. NULL if there is no relations</returns> 
         public Relationship GetRelationsOrNull(Empire withEmpire)

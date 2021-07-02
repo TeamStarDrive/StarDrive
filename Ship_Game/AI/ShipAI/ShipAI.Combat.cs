@@ -26,12 +26,10 @@ namespace Ship_Game.AI
         
         public Planet ExterminationTarget;
         public bool Intercepting { get; private set; }
-        public Guid TargetGuid;
         public bool IgnoreCombat;
         public bool BadGuysNear;
         public bool CanTrackProjectiles { get; set; }
         bool IsNonCombatant;
-        public Guid EscortTargetGuid;
         public Ship Target;
         public Array<Ship> TargetQueue = new Array<Ship>();
         public bool HasPriorityTarget;

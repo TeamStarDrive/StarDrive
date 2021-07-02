@@ -230,16 +230,15 @@ namespace Ship_Game
         /// </summary>
         public void WarmUpShipsForLoad()
         {
-            var simTime = new FixedSimTime(CurrentSimFPS);
-            
             foreach (Empire empire in EmpireManager.Empires)
                 RemoveDuplicateProjectorWorkAround(empire); 
 
-            // makes sure all empire vision is updated.
-            Objects.Update(simTime);
-            UpdateInfluenceForAllEmpires(simTime);
+            // We need to update objects at least once to have visibility
+            Objects.InitializeFromSave();
 
-            EndOfTurnUpdate(simTime);
+            // makes sure all empire vision is updated.
+            UpdateInfluenceForAllEmpires(FixedSimTime.Zero);
+            EndOfTurnUpdate(FixedSimTime.Zero);
         }
 
         public void UpdateStarDateAndTriggerEvents(float newStarDate)
@@ -393,8 +392,8 @@ namespace Ship_Game
         {
             PostEmpirePerf.Start();
             if (IsActive)
-            {                
-                Parallel.For(EmpireManager.Empires.Count, (start, end) =>
+            {
+                void PostEmpireUpdate(int start, int end)
                 {
                     for (int i = start; i < end; i++)
                     {
@@ -412,8 +411,8 @@ namespace Ship_Game
                             }
                         }
                     }
-                }, MaxTaskCores);
-
+                }
+                Parallel.For(EmpireManager.Empires.Count, PostEmpireUpdate, MaxTaskCores);
             }
 
             PostEmpirePerf.Stop();

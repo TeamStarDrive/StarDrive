@@ -519,7 +519,7 @@ namespace Ship_Game.Gameplay
             InitialStrength = 50f + n;
         }
 
-        private void UpdateIntelligence(Empire us, Empire them) // Todo - not sure what this does
+        void UpdateIntelligence(Empire us, Empire them) // Todo - not sure what this does
         {
             // Moving towards adding intelligence. 
             // everything after the update is not used.
@@ -546,54 +546,49 @@ namespace Ship_Game.Gameplay
                 IntelligencePenetration = 100f;
         }
 
-        public void UpdatePlayerRelations(Empire us, Empire them)
-        {
-            UpdateIntelligence(us, them);
-            Risk.UpdateRiskAssessment(us);
-            if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
-            {
-                us.EndPeaceWith(them);
-                Empire.Universe.NotificationManager?.AddPeaceTreatyExpiredNotification(them);
-            }
-        }
-        
+        // updates basic relationship metrics
+        // but doesn't create big side-effects
         public void UpdateRelationship(Empire us, Empire them)
         {
             if (us.data.Defeated)
                 return;
 
-            if (them.data.Defeated && AtWar)
-            {
-                CancelPrepareForWar(); ;
-                AtWar                 = false;
-                ActiveWar.EndStarDate = Empire.Universe.StarDate;
-                WarHistory.Add(ActiveWar);
-                ActiveWar             = null;
-            }
             Risk.UpdateRiskAssessment(us);
 
-            if (GlobalStats.RestrictAIPlayerInteraction && them.isPlayer)
-                return;
-
-            TurnsAtWar = AtWar ? TurnsAtWar + 1 : 0;
-
-            bool canAttack = CanWeAttackThem(us, them);
-            if (CanAttack != canAttack)
+            bool noAttackPlayer = GlobalStats.RestrictAIPlayerInteraction && them.isPlayer;
+            if (!noAttackPlayer)
             {
-                CanAttack = canAttack;
-                if (canAttack) // make sure enemy can also attack us
-                    them.GetRelations(us).CanAttack = true;
+                IsHostile = IsEmpireHostileToUs(us, them);
+                bool canAttack = CanWeAttackThem(us, them);
+                if (CanAttack != canAttack)
+                {
+                    CanAttack = canAttack;
+                    if (canAttack) // make sure enemy can also attack us
+                        them.GetRelations(us).CanAttack = true;
+                }
+            }
+        }
+
+        // This should be done only once per turn in Empire.UpdateRelationships
+        public void AdvanceRelationshipTurn(Empire us, Empire them)
+        {
+            if (them.data.Defeated && AtWar)
+            {
+                CancelPrepareForWar();
+                AtWar = false;
+                ActiveWar.EndStarDate = Empire.Universe.StarDate;
+                WarHistory.Add(ActiveWar);
+                ActiveWar = null;
             }
 
-            IsHostile = IsEmpireHostileToUs(us, them);
-
-            if (us.isFaction)
-                return;
-
+            TurnsAtWar = AtWar ? TurnsAtWar + 1 : 0;
             Treaty_Trade_TurnsExisted = Treaty_Trade ? Treaty_Trade_TurnsExisted + 1 : 0;
             TurnsAllied               = Treaty_Alliance ? TurnsAllied + 1 : 0;
             TurnsKnown               += 1;
             turnsSinceLastContact    += 1;
+            
+            if (AtWar && ActiveWar != null)
+                ActiveWar.TurnsAtWar += 1f;
 
             if (us.isPlayer)
             {
@@ -601,25 +596,32 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            if (AtWar && ActiveWar != null)
-                ActiveWar.TurnsAtWar += 1f;
+            bool wasAbsorbed = AttemptAIFederationAbsorb(aiEmpire: us);
+            if (!wasAbsorbed)
+            {
+                DTrait dt = us.data.DiplomaticPersonality;
+                UpdateThreat(us, them);
+                UpdateIntelligence(us, them);
+                UpdateTrust(us, them, dt);
+                UpdateAnger(us, them, dt);
+                UpdateFear();
 
-            UpdateFederationQuest(us, out bool questCompleted);
-            if (questCompleted)
-                return; // Empire was absorbed
-
-            DTrait dt = us.data.DiplomaticPersonality;
-            UpdateThreat(us, them);
-            UpdateIntelligence(us, them);
-            UpdateTrust(us, them, dt);
-            UpdateAnger(us, them, dt);
-            UpdateFear();
-
-            InitialStrength       += dt.NaturalRelChange;
-            TurnsKnown            += 1;
-            turnsSinceLastContact += 1;
+                InitialStrength       += dt.NaturalRelChange;
+                TurnsKnown            += 1;
+                turnsSinceLastContact += 1;
+            }
         }
-
+        
+        void UpdatePlayerRelations(Empire us, Empire them)
+        {
+            UpdateIntelligence(us, them);
+            if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
+            {
+                us.EndPeaceWith(them);
+                Empire.Universe.NotificationManager?.AddPeaceTreatyExpiredNotification(them);
+            }
+        }
+        
         bool CanWeAttackThem(Empire us, Empire them)
         {
             if (!Known || AtWar)
@@ -797,21 +799,20 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        void UpdateFederationQuest(Empire us, out bool success)
+        // TODO: This is really funky, something is wrong with it
+        bool AttemptAIFederationAbsorb(Empire aiEmpire)
         {
-            success = false;
             if (FedQuest == null) 
-                return;
+                return false;
 
             Empire player = Empire.Universe.PlayerEmpire;
             Empire enemyEmpire = EmpireManager.GetEmpireByName(FedQuest.EnemyName);
             if (FedQuest.type == QuestType.DestroyEnemy && enemyEmpire.data.Defeated)
             {
-                DiplomacyScreen.ShowEndOnly(us, player, "Federation_YouDidIt_KilledEnemy", enemyEmpire);
-                player.AbsorbEmpire(us);
+                DiplomacyScreen.ShowEndOnly(aiEmpire, player, "Federation_YouDidIt_KilledEnemy", enemyEmpire);
+                player.AbsorbEmpire(aiEmpire);
                 FedQuest = null;
-                success  = true;
-                return;
+                return true;
             }
 
             if (FedQuest.type == QuestType.AllyFriend)
@@ -822,21 +823,20 @@ namespace Ship_Game.Gameplay
                 }
                 else if (player.IsAlliedWith(enemyEmpire))
                 {
-                    DiplomacyScreen.ShowEndOnly(us, player, "Federation_YouDidIt_AllyFriend",
-                        EmpireManager.GetEmpireByName(FedQuest.EnemyName));
-                    Empire.Universe.PlayerEmpire.AbsorbEmpire(us);
+                    DiplomacyScreen.ShowEndOnly(aiEmpire, player, "Federation_YouDidIt_AllyFriend", enemyEmpire);
+                    player.AbsorbEmpire(aiEmpire);
                     FedQuest = null;
-                    success  = true;
+                    return true;
                 }
             }
+            return false;
         }
 
         void UpdateThreat(Empire us, Empire them)
         {
             float ourMilScore   = 10 + us.MilitaryScore; // The 2.3 is to reduce fluctuations for small numbers
             float theirMilScore = 10 + them.MilitaryScore;
-            Threat              = (theirMilScore - ourMilScore) / ourMilScore * 100; // This will give a threat of -100 to 100
-
+            Threat = (theirMilScore - ourMilScore) / ourMilScore * 100; // This will give a threat of -100 to 100
         }
 
         public bool AttackForBorderViolation(DTrait personality, Empire targetEmpire, Empire attackingEmpire, bool isTrader)
