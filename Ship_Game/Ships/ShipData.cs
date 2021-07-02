@@ -397,7 +397,7 @@ namespace Ship_Game.Ships
                 case RoleName.freighter: return RoleType.Civilian;
                 case RoleName.platform:
                 case RoleName.station:   return RoleType.Orbital;
-                case RoleName.supply:
+                case RoleName.supply:    return RoleType.NotApplicable;
                 case RoleName.support:
                 case RoleName.bomber:    return RoleType.WarSupport;
                 case RoleName.troop:
