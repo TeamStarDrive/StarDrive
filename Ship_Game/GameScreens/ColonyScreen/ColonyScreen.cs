@@ -226,7 +226,7 @@ namespace Ship_Game
             string text        = "Terraformer Process Stages:\n";
             string initialText = text;
 
-            if (numUninhabitableTiles > 0)
+            if (numVolcanoes > 0)
                 text += $"  * Remove {numVolcanoes} Volcano.\n";
 
             if (numUninhabitableTiles > 0 && terraLevel >= 2)
