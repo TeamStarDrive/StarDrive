@@ -1919,23 +1919,14 @@ namespace Ship_Game
                 switch (ship.DesignRoleType)
                 {
                     case ShipData.RoleType.WarSupport:
-                    case ShipData.RoleType.Warship:
-                        TotalWarShipMaintenance += maintenance;
-                        break;
-                    case ShipData.RoleType.Civilian:
-                        TotalCivShipMaintenance += maintenance;
-                        break;
-                    case ShipData.RoleType.EmpireSupport:
-                        TotalEmpireSupportMaintenance += maintenance;
-                        break;
-                    case ShipData.RoleType.Orbital:
-                        TotalOrbitalMaintenance += maintenance;
-                        break;
-                    case ShipData.RoleType.Troop:
-                        TotalTroopShipMaintenance += maintenance;
-                        break;
+                    case ShipData.RoleType.Warship: TotalWarShipMaintenance             += maintenance; break;
+                    case ShipData.RoleType.Civilian: TotalCivShipMaintenance            += maintenance; break;
+                    case ShipData.RoleType.EmpireSupport: TotalEmpireSupportMaintenance += maintenance; break;
+                    case ShipData.RoleType.Orbital: TotalOrbitalMaintenance             += maintenance; break;
+                    case ShipData.RoleType.Troop: TotalTroopShipMaintenance             += maintenance; break;
+                    case ShipData.RoleType.NotApplicable: break;
                     default:
-                        Log.Warning("what is it");
+                        Log.Warning($"Type not included in maintenance and not in notapplicable {ship.DesignRoleType}\n    {ship} ");
                         break;
                 }
                 TotalShipMaintenance += maintenance;

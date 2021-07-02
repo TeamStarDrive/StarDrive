@@ -543,28 +543,6 @@ namespace Ship_Game.AI
             Weapon[] items = Owner.Weapons.GetInternalArrayItems();
             for (int x = 0; x < count; x++)
                 items[x].ClearFireTarget();
-
-            if (Owner.Carrier.HasHangars)
-            {
-                foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
-                {
-                    if (hangar.TryGetHangarShip(out Ship hangarShip) 
-                        && hangarShip.Active 
-                        && hangarShip.AI.State != AIState.ReturnToHangar)
-                    {
-                        if (Owner.loyalty.isPlayer
-                            && (hangarShip.AI.HasPriorityTarget || hangarShip.AI.HasPriorityOrder))
-                        {
-                            continue;
-                        }
-
-                        if (Owner.Carrier.FightersLaunched)
-                            hangarShip.DoEscort(Owner);
-                        else
-                            hangarShip.AI.OrderReturnToHangar();
-                    }
-                }
-            }
         }
 
         void UpdateCombatStateAI(FixedSimTime timeStep)
@@ -581,6 +559,9 @@ namespace Ship_Game.AI
                 ExitCombatState();
             }
 
+            if (PotentialTargets.Length == 0 && Target == null)
+                Owner.Carrier.RecallAfterCombat();
+
             // fbedard: civilian ships will evade combat (nice target practice)
             if (badGuysNear && Owner.shipData.ShipCategory == ShipData.Category.Civilian)
             {
@@ -595,6 +576,9 @@ namespace Ship_Game.AI
             {
                 FireWeapons(timeStep);
             }
+
+            // Honor fighter launch buttons
+            Owner.Carrier.HandleHangarShipsScramble();
         }
 
         public float GetSensorRadius() => GetSensorRadius(out Ship _);
