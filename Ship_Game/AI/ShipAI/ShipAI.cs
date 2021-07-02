@@ -218,9 +218,6 @@ namespace Ship_Game.AI
                 return;
 
             AIStateRebase();
-
-            // need to figure out why i moved this call and from where. 
-            //Owner.Carrier.HandleHangarShipsScramble();
         }
 
         public Ship NearBySupplyShip => FriendliesNearby.FindMinFiltered(
