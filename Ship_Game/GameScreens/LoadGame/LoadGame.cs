@@ -268,15 +268,6 @@ namespace Ship_Game.GameScreens.LoadGame
                     }
                 }
             }
-
-            if (ship.AI.State == AIState.Orbit && data.FindPlanet(ship.AI.OrbitTargetGuid, out Planet toOrbit))
-            {
-                ship.AI.RestoreOrbitFromSave(toOrbit);
-            }
-
-            ship.AI.SystemToDefend = data.FindSystemOrNull(ship.AI.SystemToDefendGuid);
-            ship.AI.EscortTarget   = data.FindShipOrNull(ship.AI.EscortTargetGuid);
-            ship.AI.Target         = data.FindShipOrNull(ship.AI.TargetGuid);
         }
 
         static void RestoreCommodities(Planet p, SavedGame.PlanetSaveData psdata)
@@ -798,16 +789,13 @@ namespace Ship_Game.GameScreens.LoadGame
                 if (shipData.AISave.WayPoints != null)
                     ship.AI.SetWayPoints(shipData.AISave.WayPoints);
 
+                ship.AI.Target         = data.FindShipOrNull(shipData.AISave.AttackTarget);
+                ship.AI.EscortTarget   = data.FindShipOrNull(shipData.AISave.EscortTarget);
+                ship.AI.OrbitTarget    = data.FindPlanetOrNull(shipData.AISave.OrbitTarget);
+                ship.AI.SystemToDefend = data.FindSystemOrNull(shipData.AISave.SystemToDefend);
+
                 foreach (SavedGame.ShipGoalSave sg in shipData.AISave.ShipGoalsList)
                 {
-                    foreach (SolarSystem s in data.SolarSystemsList)
-                    {
-                        foreach (Planet p in s.PlanetList)
-                        {
-                            if (p.guid == sg.TargetPlanetGuid) ship.AI.ColonizeTarget = p;
-                        }
-                    }
-
                     if (sg.Plan == ShipAI.Plan.DeployStructure || sg.Plan == ShipAI.Plan.DeployOrbital)
                         ship.IsConstructor = true;
 
@@ -850,7 +838,7 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        
+
         static void CreateTasksGoalsRoads(SavedGame.UniverseSaveData saveData, UniverseData data)
         {
             foreach (SavedGame.EmpireSaveData esd in saveData.EmpireDataList)

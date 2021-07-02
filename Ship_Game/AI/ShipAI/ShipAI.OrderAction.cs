@@ -77,7 +77,6 @@ namespace Ship_Game.AI
             if (toColonize == null)
                 return;
 
-            ColonizeTarget = toColonize;
             OrderMoveAndColonize(toColonize, g);
         }
 
@@ -499,12 +498,13 @@ namespace Ship_Game.AI
         {
             ShipGoal goal = OrderQueue.PeekLast;
 
-            if (SystemToDefend == null || SystemToDefend != system || AwaitClosest == null ||
-                AwaitClosest.Owner == null || AwaitClosest.Owner != Owner.loyalty || Owner.System != system &&
+            if (SystemToDefend != system || AwaitClosest?.Owner == null ||
+                AwaitClosest.Owner != Owner.loyalty || Owner.System != system &&
                 goal != null && OrderQueue.PeekLast.Plan != Plan.DefendSystem)
             {
-                SystemToDefend = system;
                 ClearOrders(State);
+
+                SystemToDefend = system;
                 OrbitTarget = null;
                 if (SystemToDefend.PlanetList.Count > 0)
                 {
@@ -540,11 +540,6 @@ namespace Ship_Game.AI
                 ClearOrders();
             }
             OrderMoveTo(position, direction, true, AIState.MoveTo);
-        }
-
-        public void RestoreOrbitFromSave(Planet toOrbit)
-        {
-            OrbitTarget = toOrbit;
         }
 
         public void OrderToOrbit(Planet toOrbit, bool offensiveMove = false)

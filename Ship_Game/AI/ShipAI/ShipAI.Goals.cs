@@ -45,6 +45,7 @@ namespace Ship_Game.AI
             EscortTarget = null;
             PatrolTarget = null;
             OrbitTarget  = null;
+            SystemToDefend = null;
             if (ExplorationTarget != null)
             {
                 Owner.loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);

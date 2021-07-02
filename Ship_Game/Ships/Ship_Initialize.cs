@@ -365,10 +365,6 @@ namespace Ship_Game.Ships
             AI.State              = aiSave.State;
             AI.DefaultAIState     = aiSave.DefaultState;
             AI.MovePosition       = aiSave.MovePosition;
-            AI.OrbitTargetGuid    = aiSave.OrbitTarget;
-            AI.TargetGuid         = aiSave.AttackTarget;
-            AI.SystemToDefendGuid = aiSave.SystemToDefend;
-            AI.EscortTargetGuid   = aiSave.EscortTarget;
             AI.HasPriorityTarget  = aiSave.PriorityTarget;
 
             AI.SetPriorityOrder(aiSave.PriorityOrder);

@@ -33,8 +33,6 @@ namespace Ship_Game
                 return;
             player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Add(SelectedShip);
             SelectedShip.AI.ClearOrders(AIState.SystemDefender);
-            SelectedShip.AI.SystemToDefend = null;
-            SelectedShip.AI.SystemToDefendGuid = Guid.Empty;
         }
 
         public void DoTransportGoods() // @todo FB - check this

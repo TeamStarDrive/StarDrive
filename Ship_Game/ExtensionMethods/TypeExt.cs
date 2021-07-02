@@ -155,22 +155,16 @@ namespace Ship_Game
             return BuiltinTypes.Contains(type);
         }
 
-        /// <summary>
-        /// Does a member-wise deep compare of 2 objects and returns
-        /// error string of mismatched fields.
-        ///
-        /// Used for Unit Testing
-        /// </summary>
-        public static Array<string> MemberwiseCompare<T>(this T first, T second)
+        class MemberwiseComparer
         {
-            var errors = new Array<string>();
-            var checkedObjects = new HashSet<ObjectPair>();
+            readonly Array<string> Errors = new Array<string>();
+            readonly HashSet<ObjectPair> Checked = new HashSet<ObjectPair>();
 
             void Error(MemberInfo member, string err)
             {
                 Type type = (member is PropertyInfo p) ? p.PropertyType : ((FieldInfo)member).FieldType;
                 string text = $"{member.DeclaringType.GetTypeName()}::{member.Name} {type.GetTypeName()} {err}";
-                errors.Add(text);
+                Errors.Add(text);
                 Log.Warning(text);
             }
             
@@ -189,10 +183,6 @@ namespace Ship_Game
                     en2.MoveNext();
                     object o2 = en2.Current;
                     bool equal = CheckEqual(member, o1, o2);
-                    //if (!equal)
-                    //{
-                    //    Debugger.Break();
-                    //}
                     if (!equal)
                     {
                         Error(member, $"elements at [{i}] were not equal: {o1} != {o2}");
@@ -306,10 +296,10 @@ namespace Ship_Game
                 // if this pair was already compared, ignore it,
                 // otherwise we'll run into cyclic reference issues
                 var pair = new ObjectPair(firstObj, secondObj);
-                if (checkedObjects.Contains(pair))
+                if (Checked.Contains(pair))
                     return true;
 
-                checkedObjects.Add(pair);
+                Checked.Add(pair);
 
                 //Log.Info($"Compare type {type.GetTypeName()}");
 
@@ -336,8 +326,26 @@ namespace Ship_Game
                 }
                 return numErrors == 0;
             }
-            CompareFields(first.GetType(), first, second);
-            return errors;
+
+            public Array<string> Compare(object first, object second)
+            {
+                Errors.Clear();
+                Checked.Clear();
+                CompareFields(first.GetType(), first, second);
+                Errors.Reverse();
+                return Errors;
+            }
+        }
+
+        /// <summary>
+        /// Does a member-wise deep compare of 2 objects and returns
+        /// error string of mismatched fields.
+        ///
+        /// Used for Unit Testing
+        /// </summary>
+        public static Array<string> MemberwiseCompare<T>(this T first, T second)
+        {
+            return new MemberwiseComparer().Compare(first, second);
         }
     }
 }
