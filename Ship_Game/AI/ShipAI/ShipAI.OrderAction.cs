@@ -528,6 +528,12 @@ namespace Ship_Game.AI
 
         public void GoOrbitNearestPlanetAndResupply(bool cancelOrders)
         {
+            if (Owner.shipData.HullRole == ShipData.RoleName.drone)
+            {
+                Owner.Die(null, true);
+                return; // Drones never go to resupply, using hull role in case someone makes a drone module which changes the DesignRole
+            }
+
             Planet nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
             DecideWhereToResupply(nearestRallyPoint, cancelOrders: cancelOrders);
         }
