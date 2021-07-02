@@ -221,6 +221,7 @@ namespace Ship_Game
             int numBiospheres           = P.TilesList.Count(t => t.BioCanTerraform);
             float minEstimatedMaxPop    = P.PotentialMaxPopBillionsFor(Player);
             float maxPopWithBiospheres  = P.PotentialMaxPopBillionsFor(Player, true);
+            int terraLevel              = Player.data.Traits.TerraformingLevel;
 
             string text        = "Terraformer Process Stages:\n";
             string initialText = text;
@@ -228,27 +229,30 @@ namespace Ship_Game
             if (numUninhabitableTiles > 0)
                 text += $"  * Remove {numVolcanoes} Volcano.\n";
 
-            if (numUninhabitableTiles > 0)
+            if (numUninhabitableTiles > 0 && terraLevel >= 2)
                 text += $"  * Make {numUninhabitableTiles} tiles habitable.\n";
 
-            if (P.Category != Player.data.PreferredEnv)
+            if (P.Category != Player.data.PreferredEnv && terraLevel >= 3)
                 text += $"  * Terraform the planet to {Player.data.PreferredEnv}.\n";
 
-            if (numBiospheres > 0)
+            if (numBiospheres > 0 && (terraLevel >= 3 || P.Category == Player.data.PreferredEnv))
                 text += $"  * Remove {numBiospheres} Biospheres.\n";
 
-            if (targetFertility.AlmostZero())
+            if (terraLevel >= 3)
             {
-                text += "  * Max Fertility will be 0 due to negative effecting environment buildings.\n";
-                color = Color.Red;
-            }
-            else if (targetFertility.Less(1))
-            {
-                text += $"  * Max Fertility will only be changed to {targetFertility} due to negative effecting environment buildings.\n";
-            }
-            else if (targetFertility.Greater(P.MaxFertilityFor(Player))) // better new fertility max
-            {
-                text += $"  * Max Fertility will be changed to {targetFertility}.\n";
+                if (targetFertility.AlmostZero())
+                {
+                    text += "  * Max Fertility will be 0 due to negative effecting environment buildings.\n";
+                    color = Color.Red;
+                }
+                else if (targetFertility.Less(1))
+                {
+                    text += $"  * Max Fertility will only be changed to {targetFertility} due to negative effecting environment buildings.\n";
+                }
+                else if (targetFertility.Greater(P.MaxFertilityFor(Player))) // better new fertility max
+                {
+                    text += $"  * Max Fertility will be changed to {targetFertility}.\n";
+                }
             }
 
             if (minEstimatedMaxPop > maxPopWithBiospheres)
