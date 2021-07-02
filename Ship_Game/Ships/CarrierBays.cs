@@ -725,5 +725,26 @@ namespace Ship_Game.Ships
         {
             RecallFightersBeforeFTL = value;
         }
+
+        public void RecallAfterCombat()
+        {
+            foreach (ShipModule hangar in AllFighterHangars)
+            {
+                if (hangar.TryGetHangarShip(out Ship hangarShip) && hangarShip.Active
+                                                                 && hangarShip.AI.State != AIState.ReturnToHangar)
+                {
+                    if (Owner.loyalty.isPlayer
+                        && (hangarShip.AI.HasPriorityTarget || hangarShip.AI.HasPriorityOrder))
+                    {
+                        continue;
+                    }
+
+                    if (FightersLaunched)
+                        hangarShip.DoEscort(Owner);
+                    else
+                        hangarShip.AI.OrderReturnToHangar();
+                }
+            }
+        }
     }
 }
