@@ -60,7 +60,7 @@ namespace Ship_Game
             TargetFertility.Text         = GetTargetFertilityText(out Color color);
             TargetFertility.Color        = color;
 
-            EstimatedMaxPop.Text         = $"{MinEstimatedMaxPop.String(2)}";
+            EstimatedMaxPop.Text         = $"{MinEstimatedMaxPop.String(1)}";
             EstimatedMaxPopTitle.Visible =
             EstimatedMaxPop.Visible      = IsTerraformTabSelected 
                                             && NeedLevel3Terraform 
