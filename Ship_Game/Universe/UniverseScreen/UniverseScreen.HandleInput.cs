@@ -802,7 +802,7 @@ namespace Ship_Game
         {
             fleet              = null;
             var potentialShips = new BatchRemovalCollection<Ship>();
-            var clickableShips = ClickableShipsList.Filter(cs => screenArea.HitTest(cs.ScreenPos));
+            var clickableShips = ClickableShipsList.Filter(cs => screenArea.HitTest(cs.ScreenPos) && cs.shipToClick?.InSensorRange == true);
 
             if (clickableShips.Length == 0)
                 return potentialShips;
