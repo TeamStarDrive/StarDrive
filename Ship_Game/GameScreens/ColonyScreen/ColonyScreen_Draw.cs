@@ -741,9 +741,7 @@ namespace Ship_Game
 
             if (P.MaxFertility + b.MaxFertilityOnBuildFor(Player, P.Category) < 0)
             {
-                string warning = MultiLineFormat("WARNING - This building won't raise Max Fertility " +
-                                                  "above 0 due to currently present negative environment " +
-                                                  $"buildings on this planet (effective Max Fertility is {P.MaxFertility}).");
+                string warning = MultiLineFormat($"{Localizer.Token(4322)} {P.MaxFertility}).");
 
                 cursor.Y += TextFont.LineSpacing;
                 batch.DrawString(TextFont, warning, cursor, Color.Red);
@@ -773,7 +771,7 @@ namespace Ship_Game
                 if (TerraTargetFertility <= 0)
                     color = Color.Red;
 
-                return $" {TerraTargetFertility.String(2)} (negative effecting environment buildings)";
+                return $" {TerraTargetFertility.String(2)} {Localizer.Token(4321)}";
             }
 
             if (TerraTargetFertility.Greater(P.MaxFertilityFor(Player))) // B etter new fertility max
