@@ -305,9 +305,12 @@ namespace Ship_Game
 
             if (ShowShipNames && !LookingAtPlanet)
             {
-                foreach (ClickableShip clickable in ClickableShipsList)
-                    if (clickable.shipToClick.InFrustum)
+                for (int i = 0; i < ClickableShipsList.Count; i++)
+                {
+                    ClickableShip clickable = ClickableShipsList[i];
+                    if (clickable.shipToClick.IsVisibleToPlayer)
                         clickable.shipToClick.DrawShieldBubble(this);
+                }
             }
 
             DrawMain3D.Stop();
@@ -567,7 +570,7 @@ namespace Ship_Game
                 foreach (ClickableShip clickable in ClickableShipsList)
                 {
                     Ship ship = clickable.shipToClick;
-                    if (ship != null && ship.WeaponsMaxRange > 0f)
+                    if (ship != null &&  ship.IsVisibleToPlayer && ship.WeaponsMaxRange > 0f)
                     {
                         Color color = ship.loyalty == EmpireManager.Player
                                         ? new Color(0, 200, 0, 30)
