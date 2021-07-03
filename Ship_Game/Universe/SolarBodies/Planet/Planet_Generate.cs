@@ -364,6 +364,20 @@ namespace Ship_Game
                 colonyType = Owner.AssessColonyNeeds(this);
         }
 
+        public bool Terraformable // Checks if the owner can terraform the planet or parts of it
+        {
+            get
+            {
+                int terraLevel = Owner.data.Traits.TerraformingLevel;
+                return terraLevel > 0 && HasVolcanoesToTerraform
+                    || terraLevel > 1 && HasTilesToTerraform
+                    || terraLevel > 2 && BioSpheresToTerraform
+                    || terraLevel > 2 &&
+                        (Category != Owner.data.PreferredEnv || BaseMaxFertility.Less(TerraformedMaxFertility));
+            }
+        }
+
+
         // FB - This will give the Natural Max Fertility the planet should have after terraforming is complete
         public float TerraformedMaxFertility
         {
