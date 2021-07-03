@@ -6,7 +6,6 @@ namespace Ship_Game
 {
     public partial class ColonyScreen
     {
-
         int IncomingFreighters;
         int IncomingFoodFreighters;
         int IncomingProdFreighters;
@@ -442,6 +441,11 @@ namespace Ship_Game
                 DrawMoney(ref bCursor, batch);
                 DrawPlanetStat(ref bCursor, batch);
                 //DrawCommoditiesArea(bCursor);
+                return;
+            }
+
+            if (PFacilities.SelectedIndex == 2)
+            {
                 return;
             }
 
