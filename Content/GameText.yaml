@@ -10142,55 +10142,55 @@ Terraforming:
  ENG: "Terraforming"
 Blockade2:
  Id: 4312
- ENG: "Blockade!" 
+ ENG: "Blockade!"
 Starvation:
  Id: 4313
- ENG: "Starvation!"  
+ ENG: "Starvation!"
 TerraformingOperationsLevel:
  Id: 4314
- ENG: "Terraforming Operations - Level"   
+ ENG: "Terraforming Operations - Level"
 TerraformingStatus:
  Id: 4315
- ENG: "Status:"    
+ ENG: "Status:"
 TerraformersHere:
  Id: 4316
  ENG: "Terraformers:"
 TerraformersDone:
  Id: 4317
- ENG: "Done" 
+ ENG: "Done"
 TerraformPlanet:
  Id: 4318
- ENG: "Planet:"  
+ ENG: "Planet:"
 TerraformTargetFert:
  Id: 4319
- ENG: "Target Fertility:"   
+ ENG: "Target Fertility:"
 TerraformEsPop:
  Id: 4320
- ENG: "Estimated Population:"    
+ ENG: "Estimated Population:"
 TerraformNegativeEnv:
  Id: 4321
- ENG: "(negative environment buildings)"     
+ ENG: "(negative environment buildings)"
 NegativeEnvWarning:
  Id: 4322
- ENG: "WARNING - This building won't raise Max Fertility above 0 due to currently present negative environment buildings on this planet (effective Max Fertility is"      
+ ENG: "WARNING - This building won't raise Max Fertility above 0 due to currently present negative environment buildings on this planet (effective Max Fertility is"
 TerraformersNotStarted:
  Id: 4323
- ENG: "Not Started"  
+ ENG: "Not Started"
 TerraformersInProgress:
  Id: 4324
- ENG: "In Progress"  
+ ENG: "In Progress"
 TerraformersVolcanoes:
  Id: 4325
- ENG: "Volcanoes:"   
+ ENG: "Volcanoes:"
 TerraformersTiles:
  Id: 4326
- ENG: "Tiles: 
+ ENG: "Tiles: "
 TerraformersVolcanoes2:
  Id: 4327
- ENG: "Volcanoes ("   
+ ENG: "Volcanoes ("
 TerraformersTiles2:
  Id: 4328
- ENG: "Tiles (  
+ ENG: "Tiles ("
 OnSurface:
  Id: 4993
  ENG: "on surface"

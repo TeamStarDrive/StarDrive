@@ -80,7 +80,8 @@ namespace Ship_Game
         UILabel EstimatedMaxPopTitle;
         UILabel EstimatedMaxPop;
 
-        public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI, int governorTabSelected = 0) : base(parent)
+        public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI, 
+            int governorTabSelected = 0, int facilitiesTabSelected = 0) : base(parent)
         {
             P = p;
             Eui = empUI;
@@ -108,9 +109,9 @@ namespace Ship_Game
             PStorage.AddTab(title:GameText.Storage);
 
             Vector2 blockadePos = new Vector2(PStorage.X + 20, PStorage.Y + 35);
-            BlockadeLabel = Add(new UILabel(blockadePos, Localizer.Token(4312), Fonts.Pirulen16, Color.Red));
+            BlockadeLabel = Add(new UILabel(blockadePos, Localizer.Token(GameText.Blockade2), Fonts.Pirulen16, Color.Red));
             Vector2 starvationPos = new Vector2(PStorage.X + 200, PStorage.Y + 35);
-            StarvationLabel = Add(new UILabel(starvationPos, Localizer.Token(4313), Fonts.Pirulen16, Color.Red));
+            StarvationLabel = Add(new UILabel(starvationPos, Localizer.Token(GameText.Starvation), Fonts.Pirulen16, Color.Red));
             FoodStorage = new ProgressBar(PStorage.X + 100, PStorage.Y + 25 + 0.33f*(PStorage.Height - 25), 0.4f*PStorage.Width, 18);
             FoodStorage.Max = p.Storage.Max;
             FoodStorage.Progress = p.FoodHere;
@@ -141,6 +142,13 @@ namespace Ship_Game
             //PFacilities.AddTab(GameText.Trade2); // Trade
             if (Player.data.Traits.TerraformingLevel > 0)
                 PFacilities.AddTab(GameText.Terraforming); // Terraforming
+
+            if (facilitiesTabSelected < PFacilities.Tabs.Count)
+            {
+                // FB - sticky tab selection on colony change via arrows
+                PFacilitiesPlayerTabSelected =
+                PFacilities.SelectedIndex    = facilitiesTabSelected;
+            }
 
             FilterBuildableItems = Add(new UITextEntry(new Vector2(RightMenu.X + 75, RightMenu.Y + 15), Font12, ""));
             FilterBuildableItems.AutoCaptureOnHover = true;
@@ -230,11 +238,11 @@ namespace Ship_Game
             int spacing  = font.LineSpacing + 2;
             int barWidth = (int)(PFacilities.Width * 0.33f);
 
-            TerraformTitle = Add(new UILabel(pos, $"{Localizer.Token(4314)} {P.Owner.data.Traits.TerraformingLevel}", LowRes ? Font12 : Font20, Color.White));
+            TerraformTitle = Add(new UILabel(pos, $"{Localizer.Token(GameText.TerraformingOperationsLevel)} {P.Owner.data.Traits.TerraformingLevel}", LowRes ? Font12 : Font20, Color.White));
             TerraformTitle.Visible = false;
 
             Vector2 statusTitlePos       = new Vector2(pos.X, pos.Y + spacing*2);
-            TerraformStatusTitle         = Add(new UILabel(statusTitlePos, Localizer.Token(4315), font, Color.Gray));
+            TerraformStatusTitle         = Add(new UILabel(statusTitlePos, Localizer.Token(GameText.TerraformingStatus), font, Color.Gray));
             TerraformStatusTitle.Visible = false;
 
             float indent = font.MeasureString(TerraformStatusTitle.Text).X + 125;
@@ -244,7 +252,7 @@ namespace Ship_Game
             TerraformStatus.Visible = false;
 
             Vector2 numTerraformersTitlePos = new Vector2(pos.X, TerraformStatusTitle.Y + spacing);
-            TerraformersHereTitle           = Add(new UILabel(numTerraformersTitlePos, Localizer.Token(4316), font, Color.Gray));
+            TerraformersHereTitle           = Add(new UILabel(numTerraformersTitlePos, Localizer.Token(GameText.TerraformersHere), font, Color.Gray));
             TerraformersHereTitle.Visible   = false;
 
             Vector2 numTerraformersPos    = new Vector2(pos.X + indent, numTerraformersTitlePos.Y);
@@ -256,7 +264,7 @@ namespace Ship_Game
             VolcanoTerraformTitle.Visible = false;
 
             Vector2 terraVolcanoPos      = new Vector2(pos.X + indent, terraVolcanoTitlePos.Y);
-            VolcanoTerraformDone         = Add(new UILabel(terraVolcanoPos, Localizer.Token(4317), font, Color.Green));
+            VolcanoTerraformDone         = Add(new UILabel(terraVolcanoPos, Localizer.Token(GameText.TerraformersDone), font, Color.Green));
             VolcanoTerraformDone.Visible = false;
 
             Rectangle terraVolcanoRect = new Rectangle((int)terraVolcanoPos.X, (int)terraVolcanoPos.Y, barWidth, 20);
@@ -271,7 +279,7 @@ namespace Ship_Game
             TileTerraformTitle.Visible    = false;
 
             Vector2 terraTilePos      = new Vector2(pos.X + indent, terraTileTitlePos.Y);
-            TileTerraformDone         = Add(new UILabel(terraTilePos, Localizer.Token(4316), font, Color.Green));
+            TileTerraformDone         = Add(new UILabel(terraTilePos, Localizer.Token(GameText.TerraformersDone), font, Color.Green));
             TileTerraformDone.Visible = false;
 
             Rectangle terraTileRect = new Rectangle((int)terraTilePos.X, (int)terraTilePos.Y, barWidth, 20);
@@ -283,11 +291,11 @@ namespace Ship_Game
             };
 
             Vector2 terraPlanetTitlePos   = new Vector2(pos.X, terraTileTitlePos.Y + spacing);
-            PlanetTerraformTitle          = Add(new UILabel(terraPlanetTitlePos, Localizer.Token(4318), font, Color.Gray));
+            PlanetTerraformTitle          = Add(new UILabel(terraPlanetTitlePos, Localizer.Token(GameText.TerraformPlanet), font, Color.Gray));
             PlanetTerraformTitle.Visible  = false;
 
             Vector2 terraPlanetPos      = new Vector2(pos.X + indent, terraPlanetTitlePos.Y);
-            PlanetTerraformDone         = Add(new UILabel(terraPlanetPos, Localizer.Token(4316), font, Color.Green));
+            PlanetTerraformDone         = Add(new UILabel(terraPlanetPos, Localizer.Token(GameText.TerraformersDone), font, Color.Green));
             PlanetTerraformDone.Visible = false;
 
             Rectangle terraPlanetRect = new Rectangle((int)terraPlanetPos.X, (int)terraPlanetPos.Y, barWidth, 20);
@@ -299,13 +307,13 @@ namespace Ship_Game
             };
 
             Vector2 targetFertilityTitlePos = new Vector2(pos.X, terraPlanetTitlePos.Y + spacing * 2);
-            TargetFertilityTitle            = Add(new UILabel(targetFertilityTitlePos, Localizer.Token(4319), font, Color.Gray));
+            TargetFertilityTitle            = Add(new UILabel(targetFertilityTitlePos, Localizer.Token(GameText.TerraformTargetFert), font, Color.Gray));
 
             Vector2 targetFertilityPos = new Vector2(pos.X + indent, targetFertilityTitlePos.Y);
             TargetFertility            = Add(new UILabel(targetFertilityPos, "", font, Color.LightGreen));
 
             Vector2 estimatedMaxPopTitlePos = new Vector2(pos.X, targetFertilityTitlePos.Y + spacing);
-            EstimatedMaxPopTitle            = Add(new UILabel(estimatedMaxPopTitlePos, Localizer.Token(4320), font, Color.Gray));
+            EstimatedMaxPopTitle            = Add(new UILabel(estimatedMaxPopTitlePos, Localizer.Token(GameText.TerraformEsPop), font, Color.Gray));
 
             Vector2 estimatedMaxPopPos = new Vector2(pos.X + indent, estimatedMaxPopTitlePos.Y);
             EstimatedMaxPop            = Add(new UILabel(estimatedMaxPopPos, "", font, Color.Green));
