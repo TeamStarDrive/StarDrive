@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Ship_Game.GameScreens.ShipDesign;
+using Ship_Game.Graphics;
 
 namespace Ship_Game
 {
@@ -57,8 +58,19 @@ namespace Ship_Game
         public readonly Empire Player = EmpireManager.Player;
 
         UILabel TerraformTitle;
-
-
+        UILabel TerraformStatusTitle;
+        UILabel TerraformStatus;
+        UILabel TerraformersHereTitle;
+        UILabel TerraformersHere;
+        UILabel VolcanoTerraformTitle;
+        UILabel TileTerraformTitle;
+        UILabel PlanetTerraformTitle;
+        UILabel VolcanoTerraform;
+        UILabel TileTerraform;
+        UILabel PlanetTerraform;
+        ProgressBar VolcanoTerraformBar;
+        ProgressBar TileTerraformBar;
+        ProgressBar PlanetTerraformBar;
 
         public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI, int governorTabSelected = 0) : base(parent)
         {
@@ -117,11 +129,12 @@ namespace Ship_Game
             PFacilities.AddTab(GameText.Statistics2); // Statistics
             PFacilities.AddTab(GameText.Description); // Description
             //PFacilities.AddTab(GameText.Trade2); // Trade
-            PFacilities.AddTab(GameText.Terraforming); // Terraforming
+            if (p.Terraformable)
+                PFacilities.AddTab(GameText.Terraforming); // Terraforming
 
             FilterBuildableItems = Add(new UITextEntry(new Vector2(RightMenu.X + 75, RightMenu.Y + 15), Font12, ""));
             FilterBuildableItems.AutoCaptureOnHover = true;
-
+            
             FilterFrame = Add(new Submenu(RightMenu.X + 70, RightMenu.Y-10, RightMenu.Width - 400, 42));
             Label(FilterFrame.Pos + new Vector2(-45,25), "Filter:", Font12, Color.White);
             var customStyle = new UIButton.StyleTextures("NewUI/icon_clear_filter", "NewUI/icon_clear_filter_hover");
@@ -195,9 +208,53 @@ namespace Ship_Game
 
         void CreateTerraformingDetails(Vector2 pos)
         {
-            TerraformTitle = Add(new UILabel(pos, $"Terraforming Operations - Level {P.Owner.data.Traits.TerraformingLevel}", P.Owner.EmpireColor));
-            TerraformTitle.Font = LowRes ? Font12 : Font20;
+            Font font = LowRes ? Font8 : Font14;
+            int spacing = font.LineSpacing + 2;
+
+            TerraformTitle = Add(new UILabel(pos, $"Terraforming Operations - Level {P.Owner.data.Traits.TerraformingLevel}", LowRes ? Font12 : Font20, Color.White));
             TerraformTitle.Visible = false;
+
+            Vector2 statusTitlePos       = new Vector2(pos.X, pos.Y + spacing*2);
+            TerraformStatusTitle         = Add(new UILabel(statusTitlePos, "Status: ", font, Color.Gray));
+            TerraformStatusTitle.Visible = false;
+
+            float indent = font.MeasureString(TerraformStatusTitle.Text).X + 100;
+
+            Vector2 statusPos       = new Vector2(pos.X + indent, pos.Y + spacing*2);
+            TerraformStatus         = Add(new UILabel(statusPos, " ", font, Color.Gray));
+            TerraformStatus.Visible = false;
+
+            Vector2 numTerraformersTitlePos = new Vector2(pos.X, TerraformStatusTitle.Y + spacing);
+            TerraformersHereTitle           = Add(new UILabel(numTerraformersTitlePos, "Terraformers:", font, Color.Gray));
+            TerraformersHereTitle.Visible   = false;
+
+            Vector2 numTerraformersPos    = new Vector2(pos.X + indent, numTerraformersTitlePos.Y);
+            TerraformersHere              = Add(new UILabel(numTerraformersPos, " ", font, Color.White));
+            TerraformersHereTitle.Visible = false;
+
+            Vector2 terraVolcanoTitlePos  = new Vector2(pos.X, numTerraformersTitlePos.Y + spacing*2);
+            VolcanoTerraformTitle         = Add(new UILabel(terraVolcanoTitlePos, "Volcanoes:", font, Color.Gray));
+            VolcanoTerraformTitle.Visible = false;
+
+            Vector2 terraVolcanoPos  = new Vector2(pos.X + indent, terraVolcanoTitlePos.Y);
+            VolcanoTerraform         = Add(new UILabel(terraVolcanoPos, "OK", font, Color.Green));
+            VolcanoTerraform.Visible = false;
+
+            Vector2 terraTileTitlePos     = new Vector2(pos.X, terraVolcanoTitlePos.Y + spacing);
+            TileTerraformTitle            = Add(new UILabel(terraTileTitlePos, "Tiles:", font, Color.Gray));
+            TileTerraformTitle.Visible    = false;
+
+            Vector2 terraTilePos  = new Vector2(pos.X + indent, terraVolcanoTitlePos.Y);
+            TileTerraform         = Add(new UILabel(terraTilePos, "OK", font, Color.Green));
+            TileTerraform.Visible = false;
+
+            Vector2 terraPlanetTitlePos   = new Vector2(pos.X, terraTileTitlePos.Y + spacing);
+            PlanetTerraformTitle          = Add(new UILabel(terraPlanetTitlePos, "Planet:", font, Color.Gray));
+            PlanetTerraformTitle.Visible  = false;
+
+            Vector2 terraPlanetPos  = new Vector2(pos.X + indent, terraPlanetTitlePos.Y);
+            PlanetTerraform         = Add(new UILabel(terraPlanetPos, "OK", font, Color.Green));
+            PlanetTerraform.Visible = false;
         }
 
         void OnPlanetNameSubmit(string name)

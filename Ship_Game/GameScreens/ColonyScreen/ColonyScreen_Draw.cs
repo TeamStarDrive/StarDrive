@@ -21,6 +21,12 @@ namespace Ship_Game
         bool Blockade;
         bool BioSpheresResearched;
         float TroopConsumption;
+        bool Terraformable; 
+        int NumTerraformersHere;
+        int NumMaxTerraformers;
+        bool NeedLevel1Terraform;
+        bool NeedLevel2Terraform;
+        bool NeedLevel3Terraform;
 
         void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, string texture,
             string toolTip, bool percent = false, bool signs = true, int digits = 2)
@@ -436,7 +442,7 @@ namespace Ship_Game
 
         void DrawDetailInfo(SpriteBatch batch, Vector2 bCursor)
         {
-            if (PFacilities.SelectedIndex == 0)
+            if (IsStatTabSelected)
             {
                 DrawMoney(ref bCursor, batch);
                 DrawPlanetStat(ref bCursor, batch);
@@ -444,7 +450,7 @@ namespace Ship_Game
                 return;
             }
 
-            if (PFacilities.SelectedIndex == 2)
+            if (IsTerraformTabSelected)
             {
                 return;
             }
@@ -776,7 +782,13 @@ namespace Ship_Game
                 IncomingPop            = (TotalIncomingCargo(Goods.Colonists) / 1000).RoundToFractionOf100();
                 Blockade               = P.Quarantine || P.SpaceCombatNearPlanet;
                 TroopConsumption       = P.TotalTroopConsumption;
-                UpdateTimer            = 300;
+                Terraformable          = P.Terraformable;
+                NumTerraformersHere    = P.TerraformersHere;
+                NumMaxTerraformers     = P.TerraformerLimit;
+                NeedLevel1Terraform    = P.HasVolcanoesToTerraform;
+                NeedLevel2Terraform    = P.HasTilesToTerraform;
+                NeedLevel3Terraform    = P.Category != P.Owner.data.PreferredEnv || P.BaseMaxFertility.Less(P.TerraformedMaxFertility);
+                UpdateTimer            = 150;
             }
             else if (!Empire.Universe.Paused)
             {
