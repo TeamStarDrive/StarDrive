@@ -741,7 +741,7 @@ namespace Ship_Game
 
             if (P.MaxFertility + b.MaxFertilityOnBuildFor(Player, P.Category) < 0)
             {
-                string warning = MultiLineFormat($"{Localizer.Token(4322)} {P.MaxFertility}).");
+                string warning = MultiLineFormat($"{Localizer.Token(GameText.NegativeEnvWarning)} {P.MaxFertility}).");
 
                 cursor.Y += TextFont.LineSpacing;
                 batch.DrawString(TextFont, warning, cursor, Color.Red);
@@ -771,7 +771,7 @@ namespace Ship_Game
                 if (TerraTargetFertility <= 0)
                     color = Color.Red;
 
-                return $" {TerraTargetFertility.String(2)} {Localizer.Token(4321)}";
+                return $" {TerraTargetFertility.String(2)} {Localizer.Token(GameText.TerraformNegativeEnv)}";
             }
 
             if (TerraTargetFertility.Greater(P.MaxFertilityFor(Player))) // B etter new fertility max
