@@ -6056,7 +6056,7 @@ ThisIndicatesWhatWouldThe:
  RUS: "Указывает на то, каким было бы максимальное население этой планеты, если бы вы построили биосферы на всех непригодных для жизни клетках."
 ThisIndicatesWhatWouldThe2:
  Id: 1907
- ENG: "This indicates what would the maximum population of this planet be, if you fully terraformed this planet (at Terraform Level 3). This number might be the same as Biosphered Planet, but a Terraformed planet does not cost Biosphere maintenance." 
+ ENG: "This indicates what would the maximum population of this planet be, if you fully terraformed this planet (at Terraform Level 3). This number might be the same as Biosphered Planet, but a Terraformed planet does not cost Biosphere maintenance."
 Regenerate:
  Id: 1908
  ENG: "Regenerate"
@@ -10129,16 +10129,19 @@ UsePlayerDesignsTip:
  ENG: "The AI will use player designed ships in the database. This could slow down AI tech progression"
 TerraformLevel:
  Id: 4307
- ENG: "Terraform Level" 
+ ENG: "Terraform Level"
 TerraformLevel1:
  Id: 4308
- ENG: "Terraform Level 1. At this Level, Terraformers will remove any Volcanoes in the planet. Level 2 will also make terraformable tiles habitable, and level 3 will transform your planet in to the best planet for your race."  
+ ENG: "Terraform Level 1. At this Level, Terraformers will remove any Volcanoes in the planet. Level 2 will also make terraformable tiles habitable, and level 3 will transform your planet in to the best planet for your race."
 TerraformLevel2:
  Id: 4309
- ENG: "Terraform Level 2. At this Level, Terraformers will remove any Volcanoes in the planet and will also make terraformable tiles habitable, and level 3 will transform your planet in to the best planet for your race."   
-TerraformLevel3:
+ ENG: "Terraform Level 2. At this Level, Terraformers will remove any Volcanoes in the planet and will also make terraformable tiles habitable, and level 3 will transform your planet in to the best planet for your race."
+BB_Tech_Terraforming_Bonus:
  Id: 4310
  ENG: "Terraform Level 3. At this Level, Terraformers will remove any Volcanoes in the planet, make terraformable tiles habitable and will also transform your planet into the best suitable planet for your race."
+Terraforming:
+ Id: 4311
+ ENG: "Terraforming"
 OnSurface:
  Id: 4993
  ENG: "on surface"
