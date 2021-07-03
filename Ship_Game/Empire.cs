@@ -1689,7 +1689,7 @@ namespace Ship_Game
                 {
                     foreach (var fleet in them.FleetsDict)
                     {
-                        if (fleet.Value.Ships.Any(s => s.IsInBordersOf(this) || s.KnownByEmpires.KnownBy(this)))
+                        if (fleet.Value.Ships.Any(s => s?.IsInBordersOf(this) == true || s?.KnownByEmpires.KnownBy(this) == true))
                             knownFleets.Add(fleet.Value);
                     }
                 }
