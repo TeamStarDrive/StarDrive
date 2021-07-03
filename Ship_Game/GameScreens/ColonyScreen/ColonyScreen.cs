@@ -111,8 +111,9 @@ namespace Ship_Game
             SubColonyGrid.AddTab(Localizer.Token(GameText.Colony));
             PFacilities = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, SubColonyGrid.Bottom + 20, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height - 20 - SubColonyGrid.Height - 40);
             PFacilities.AddTab(GameText.Statistics2); // Statistics
-            //PFacilities.AddTab(GameText.Trade2.Text); // Trade
             PFacilities.AddTab(GameText.Description); // Description
+            PFacilities.AddTab(GameText.Trade2); // Trade
+            //PFacilities.AddTab(GameText.terr); // Terraforming
 
             FilterBuildableItems = Add(new UITextEntry(new Vector2(RightMenu.X + 75, RightMenu.Y + 15), Font12, ""));
             FilterBuildableItems.AutoCaptureOnHover = true;

@@ -2674,7 +2674,7 @@ namespace Ship_Game
         BB_Tech_AceTraining_Name = 2011,
         /// <summary>Our fighter pilots should be the best of the best.</summary>
         BB_Tech_AceTraining_Desc = 2012,
-        /// <summary>All fighter class vessels receive 2 free experience levels.</summary>
+        /// <summary>All fighter hulls, and any drone or corvette designated ship,</summary>
         BB_Tech_AceTraining_BonusFighterLevels_Bonus = 2013,
         /// <summary>Xeno Intelligence</summary>
         BB_Tech_XenoIntelligence_Name = 2014,
@@ -4256,6 +4256,16 @@ namespace Ship_Game
         UsePlayerDesignsTitle = 4305,
         /// <summary>The AI will use player designed ships in the database.</summary>
         UsePlayerDesignsTip = 4306,
+        /// <summary>Terraform Level</summary>
+        TerraformLevel = 4307,
+        /// <summary>Terraform Level 1. At this Level, Terraformers will remove any</summary>
+        TerraformLevel1 = 4308,
+        /// <summary>Terraform Level 2. At this Level, Terraformers will remove any</summary>
+        TerraformLevel2 = 4309,
+        /// <summary>Terraform Level 3. At this Level, Terraformers will remove any</summary>
+        BB_Tech_Terraforming_Bonus = 4310,
+        /// <summary>Terraforming</summary>
+        Terraforming = 4311,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>
@@ -5042,7 +5052,7 @@ namespace Ship_Game
         SaveShipDesign = -23,
         /// <summary>Save Hull Design</summary>
         SaveHullDesign = -24,
-        /// <summary>Guard Mode Tooltip</summary>
+        /// <summary>Ship will be in guard stance and avoid aggressively engaging</summary>
         TT_GuardMode = -25,
     }
 }

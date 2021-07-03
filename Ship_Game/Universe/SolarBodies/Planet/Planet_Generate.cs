@@ -392,7 +392,7 @@ namespace Ship_Game
             // Notify player that the planet was terraformed
             if (Owner.isPlayer)
             {
-                string msg = $"{Localizer.Token(4307)} {Owner.data.Traits.TerraformingLevel}:\n" +
+                string msg = $"{Localizer.Token(GameText.TerraformLevel)} {Owner.data.Traits.TerraformingLevel}:\n" +
                              $"{Name} {Localizer.Token(GameText.TerraformingCompletedAndTerraformersWere)}";
                 Empire.Universe.NotificationManager.AddRandomEventNotification(msg, Type.IconPath, "SnapToPlanet", this);
             }
