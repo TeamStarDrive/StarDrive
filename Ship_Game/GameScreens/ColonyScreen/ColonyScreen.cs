@@ -56,6 +56,10 @@ namespace Ship_Game
         readonly Graphics.Font TextFont;
         public readonly Empire Player = EmpireManager.Player;
 
+        UILabel TerraformTitle;
+
+
+
         public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI, int governorTabSelected = 0) : base(parent)
         {
             P = p;
@@ -112,8 +116,8 @@ namespace Ship_Game
             PFacilities = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, SubColonyGrid.Bottom + 20, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height - 20 - SubColonyGrid.Height - 40);
             PFacilities.AddTab(GameText.Statistics2); // Statistics
             PFacilities.AddTab(GameText.Description); // Description
-            PFacilities.AddTab(GameText.Trade2); // Trade
-            //PFacilities.AddTab(GameText.terr); // Terraforming
+            //PFacilities.AddTab(GameText.Trade2); // Trade
+            PFacilities.AddTab(GameText.Terraforming); // Terraforming
 
             FilterBuildableItems = Add(new UITextEntry(new Vector2(RightMenu.X + 75, RightMenu.Y + 15), Font12, ""));
             FilterBuildableItems.AutoCaptureOnHover = true;
@@ -186,6 +190,14 @@ namespace Ship_Game
 
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
             P.RefreshBuildingsWeCanBuildHere();
+            CreateTerraformingDetails(new Vector2(PFacilities.Rect.X + 15, PFacilities.Rect.Y + 35));
+        }
+
+        void CreateTerraformingDetails(Vector2 pos)
+        {
+            TerraformTitle = Add(new UILabel(pos, $"Terraforming Operations - Level {P.Owner.data.Traits.TerraformingLevel}", P.Owner.EmpireColor));
+            TerraformTitle.Font = LowRes ? Font12 : Font20;
+            TerraformTitle.Visible = false;
         }
 
         void OnPlanetNameSubmit(string name)
