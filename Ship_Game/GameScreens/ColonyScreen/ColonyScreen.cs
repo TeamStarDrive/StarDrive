@@ -30,6 +30,8 @@ namespace Ship_Game
         readonly UIButton ClearFilter;
         readonly UILabel BlockadeLabel;
         readonly UILabel StarvationLabel;
+        readonly Rectangle PlanetShieldIconRect;
+        readonly ProgressBar PlanetShieldBar;
 
         readonly ScrollList2<BuildableListItem> BuildableList;
         readonly ScrollList2<ConstructionQueueScrollListItem> ConstructionQueue;
@@ -186,6 +188,14 @@ namespace Ship_Game
 
             PlanetIcon = new Rectangle((int)PlanetInfo.Right - iconOffsetX, 
                 (int)PlanetInfo.Y + ((int)PlanetInfo.Height - iconOffsetY) / 2 - iconSize/2 + (LowRes ? 0 : 25), iconSize, iconSize);
+
+            Rectangle planetShieldBarRect = new Rectangle(PlanetIcon.X, PlanetInfo.Rect.Y + 4, PlanetIcon.Width, 20);
+            PlanetShieldBar = new ProgressBar(planetShieldBarRect)
+            {
+                color = "blue"
+            };
+
+            PlanetShieldIconRect = new Rectangle(planetShieldBarRect.X - 30, planetShieldBarRect.Y-2, 20, 20);
 
             GridPos = new Rectangle(SubColonyGrid.Rect.X + 10, SubColonyGrid.Rect.Y + 30, SubColonyGrid.Rect.Width - 20, SubColonyGrid.Rect.Height - 35);
             int width = GridPos.Width / 7;
