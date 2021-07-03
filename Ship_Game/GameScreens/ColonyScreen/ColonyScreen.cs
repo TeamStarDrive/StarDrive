@@ -238,7 +238,7 @@ namespace Ship_Game
             int spacing  = font.LineSpacing + 2;
             int barWidth = (int)(PFacilities.Width * 0.33f);
 
-            TerraformTitle = Add(new UILabel(pos, $"{Localizer.Token(GameText.TerraformingOperationsLevel)} {P.Owner.data.Traits.TerraformingLevel}", LowRes ? Font12 : Font20, Color.White));
+            TerraformTitle = Add(new UILabel(pos, "", LowRes ? Font12 : Font20, Color.White));
             TerraformTitle.Visible = false;
 
             Vector2 statusTitlePos       = new Vector2(pos.X, pos.Y + spacing*2);
