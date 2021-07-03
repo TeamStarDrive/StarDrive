@@ -39,17 +39,17 @@ namespace Ship_Game
 
             if (P.TerraformingHere)
             {
-                TerraformStatus.Text  = "In Progress";
+                TerraformStatus.Text  = Localizer.Token(4324);
                 TerraformStatus.Color = ApplyCurrentAlphaToColor(Color.Yellow);
             }
             else
             {
-                TerraformStatus.Text  = Terraformable ? "Not Started" : "Done";
+                TerraformStatus.Text  = Terraformable ? Localizer.Token(4323) : Localizer.Token(4317);
                 TerraformStatus.Color = Terraformable ? Color.Orange : Color.Green;
             }
 
-            VolcanoTerraformTitle.Text = NumVolcanoes > 0 ?  $"Volcanoes ({NumVolcanoes}):" : "Volcanoes:";
-            TileTerraformTitle.Text    = NumTerraformableTiles > 0 ? $"Tiles ({NumTerraformableTiles}):" : "Tiles:";
+            VolcanoTerraformTitle.Text = NumVolcanoes > 0 ?  $"{Localizer.Token(4327)}{NumVolcanoes}):" : Localizer.Token(4325);
+            TileTerraformTitle.Text    = NumTerraformableTiles > 0 ? $"{Localizer.Token(4328)}{ NumTerraformableTiles}):" : Localizer.Token(4326);
 
             VolcanoTerraformBar.Progress = NeedLevel1Terraform ? P.TerraformPoints * 100 : 0;
             TileTerraformBar.Progress    = NeedLevel2Terraform && !NeedLevel1Terraform ? P.TerraformPoints * 100 : 0;
