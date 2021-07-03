@@ -35,6 +35,7 @@ namespace Ship_Game
             TileTerraformDone.Visible    = TileTerraformTitle.Visible && !NeedLevel2Terraform;
             PlanetTerraformDone.Visible  = PlanetTerraformTitle.Visible && !NeedLevel3Terraform;
 
+            TerraformTitle.Text   = $"{Localizer.Token(GameText.TerraformingOperationsLevel)} {TerraformLevel}";
             TerraformersHere.Text = $"{NumTerraformersHere}/{NumMaxTerraformers}";
 
             if (P.TerraformingHere)

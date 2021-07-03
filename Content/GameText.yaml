@@ -2051,12 +2051,10 @@ Terraformer:
  SPA: "Terraformador"
 TheseMachinesWhileExpensiveTo:
  Id: 462
- ENG: "These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. Terraform Level of an empire can be 1 to 3. each level increases the effectiveness of terraforming operations  until they are able to terraform any barren planet to a heaven for your empire."
+ ENG: "These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. Terraform Level of an empire can be 1 to 3. Each level increases the effectiveness of terraforming operations until they are able to terraform barrens planet into a heaven for your people."
 TerraformsThePlanetToYour:
  Id: 463
- ENG: "Terraforms the planet to your preferred Environment"
- RUS: "Постепенно терраформирует планету"
- SPA: "Terraforma lentamente un planeta"
+ ENG: "Terraforms the planet based on the Empire's Terraforming Level"
 TrackingStation:
  Id: 464
  ENG: "Tracking Station"
@@ -8560,9 +8558,7 @@ ThisSmallShieldIsCapable:
  SPA: "Este pequeño escudo absorbe hasta 500 puntos de daño en un radio de 50 metros. Su rapidez de recarga hace que sea ideal para pequeños cazas. "
 BB_Tech_Terraforming_Desc:
  Id: 684
- ENG: "Terraforming planets is a slow process but it can produce excellent results. Any planet with a fertility score lower than 1.0 can benefit from the effects of a terraformer. Terraforming will never increase a planet's fertility beyond 1.0. "
- RUS: "Терраформирование планеты - процесс не быстрый, но он может принести прекрасные результаты. Любая планета с индексом плодородия ниже 1,0 выиграет от терраформирования. Терраформирование ни при каких условиях не может повысить индекс плодородия планеты выше 1,0."
- SPA: "Terraformar planetas es un proceso lento, pero puede dar excelentes frutos. Todo planeta con una puntuación de fertilidad inferior a 1,0 puede beneficiarse del uso de un terraformador. La terraformación nunca aumentará la fertilidad de un planeta más de 1,0. "
+ ENG: "Terraforming planets is a slow process but it can produce excellent results. Any planet with a fertility score lower than 1 can benefit from the effects of a terraformer. Terraforming will never increase a planet's natural fertility beyond 1"
 CloningCentersIncreaseThePopulation:
  Id: 413
  ENG: "Cloning Centers increase the population growth of a planet at a fixed rate of .02 per turn.  "
@@ -10130,13 +10126,13 @@ TerraformLevel:
  ENG: "Terraform Level"
 TerraformLevel1:
  Id: 4308
- ENG: "Terraform Level 1. At this Level, Terraformers will remove any Volcanoes in the planet. Level 2 will also make terraformable tiles habitable, and level 3 will transform your planet in to the best planet for your race."
+ ENG: "Terraform Level 1. At this Level, Terraformers will gradually remove all Volcanoes in the planet."
 TerraformLevel2:
  Id: 4309
- ENG: "Terraform Level 2. At this Level, Terraformers will remove any Volcanoes in the planet and will also make terraformable tiles habitable, and level 3 will transform your planet in to the best planet for your race."
+ ENG: "Terraform Level 2. At this Level, Terraformers will remove all Volcanoes in the planet and will also make terraformable tiles habitable"
 BB_Tech_Terraforming_Bonus:
  Id: 4310
- ENG: "Terraform Level 3. At this Level, Terraformers will remove any Volcanoes in the planet, make terraformable tiles habitable and will also transform your planet into the best suitable planet for your race."
+ ENG: "Terraform Level 3. At this Level, Terraformers will remove all Volcanoes in the planet, make terraformable tiles habitable and will also transform your planet into the best suitable planet for your race while increasing its fertility to 1."
 Terraforming:
  Id: 4311
  ENG: "Terraforming"
