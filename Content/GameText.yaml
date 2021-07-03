@@ -3019,9 +3019,7 @@ BB_Tech_TachyonScanning_SensorRangeBonus_Bonus:
  SPA: "Dobla el alcance de todos los sensores"
 BB_Tech_Terraforming_Name:
  Id: 683
- ENG: "Terraforming Planet"
- RUS: "Терраформинг"
- SPA: "Terraformación"
+ ENG: "Terraforming In Progress"
 BB_Tech_ThalaronBlaster_Name:
  Id: 685
  ENG: "Thalaron Blaster"
