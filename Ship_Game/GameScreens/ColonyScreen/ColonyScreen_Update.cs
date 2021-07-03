@@ -1,4 +1,5 @@
 using System.Linq;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.AI.Budget;
 using Ship_Game.Ships;
@@ -17,10 +18,42 @@ namespace Ship_Game
 
         void UpdateTerraformTab()
         {
-            if (P.Owner.data.Traits.TerraformingLevel < 1)
+            int terraLevel = P.Owner.data.Traits.TerraformingLevel;
+            if (terraLevel < 1)
                 return;
 
-            TerraformTitle.Visible = PFacilities.SelectedIndex == 2;
+            VolcanoTerraformTitle.Visible =
+            TerraformStatusTitle.Visible  =
+            TerraformStatus.Visible       =
+            TerraformTitle.Visible        = IsTerraformTabSelected;
+
+            TerraformersHereTitle.Visible =
+            TerraformersHere.Visible      = IsTerraformTabSelected && Terraformable;
+
+            TileTerraformTitle.Visible   = IsTerraformTabSelected && terraLevel >= 2;
+            PlanetTerraformTitle.Visible = IsTerraformTabSelected && terraLevel >= 3;
+            VolcanoTerraform.Visible     = VolcanoTerraformTitle.Visible && !NeedLevel1Terraform;
+            TileTerraform.Visible        = TileTerraformTitle.Visible && !NeedLevel2Terraform;
+            PlanetTerraform.Visible      = PlanetTerraformTitle.Visible && !NeedLevel3Terraform;
+
+            TerraformersHere.Text = $"{NumTerraformersHere}/{NumMaxTerraformers}";
+
+            if (P.TerraformingHere)
+            {
+                TerraformStatus.Text  = "In Progress";
+                TerraformStatus.Color = ApplyCurrentAlphaToColor(Color.Yellow);
+            }
+            else
+            {
+                TerraformStatus.Text  = Terraformable ? "Not Started" : "Done";
+                TerraformStatus.Color = Terraformable ? Color.Orange : Color.Green;
+            }
+
+
+
         }
+
+        bool IsTerraformTabSelected => PFacilities.SelectedIndex == 2;
+        bool IsStatTabSelected      => PFacilities.SelectedIndex == 0;
     }
 }
