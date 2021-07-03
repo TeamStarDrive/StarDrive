@@ -175,6 +175,11 @@ namespace Ship_Game.SpriteSystem
                 HelperFunctions.CollectMemorySilent();
                 return atlas;
             }
+            catch (Exception e)
+            {
+                Log.Error(e, $"Atlas.FromFolder failed: {folder}");
+                throw;
+            }
             finally
             {
                 atlas?.LoadSync.ReleaseMutex();
