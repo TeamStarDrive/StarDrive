@@ -222,27 +222,25 @@ namespace Ship_Game
 
         void ApplyTerraforming() // Added by Fat Bastard
         {
-            if (TerraformToAdd.LessOrEqual(0) || Owner == null)
+            if (!Terraformable)
+                return;
+
+            if (TerraformToAdd <= 0 || Owner == null)
             {
                 TerraformPoints = 0;
                 return; // No Terraformers or No owner (Terraformers cannot continue working)
             }
 
-            int terraLevel = Owner.data.Traits.TerraformingLevel;
             // First, remove Volcanoes
-            if (terraLevel < 1 || TerraformVolcanoes(terraLevel))
+            if (TerraformVolcanoes())
                 return;
 
-            // Then, make un-habitable tiles habitable
-            if (terraLevel < 2 || TerraformTiles(terraLevel)) 
+            // Then, make un-habitable terraformable tiles habitable
+            if (TerraformTiles()) 
                 return;
 
-            // Then, if all tiles are habitable, proceed to Planet Terraform
-            if (terraLevel < 3 || TerraformPlanet())
-                return;
-
-            // Then, remove any existing biospheres from the new heaven
-            TerraformBioSpheres(terraLevel);
+            // Then, if all tiles are habitable and Terraforming Level is 3, proceed to Planet Terraform
+            TerraformPlanet();
         }
 
         public bool HasTilesToTerraform     => TilesList.Any(t => t.CanTerraform);
@@ -250,34 +248,34 @@ namespace Ship_Game
         public bool BioSpheresToTerraform   => TilesList.Any(t => t.BioCanTerraform);
         public int TerraformerLimit         => TilesList.Count(t => t.CanTerraform)/2 + 2;
 
-        bool TerraformVolcanoes(int terraLevel)
+        bool TerraformVolcanoes()
         {
             if (!HasVolcanoesToTerraform)
                 return false;
 
             TerraformPoints += TerraformToAdd * 4f; // Terraforming a Volcano is faster than the whole planet
             if (TerraformPoints.GreaterOrEqual(1))
-                CompleteVolcanoTerraforming(TilesList.Filter(t => t.VolcanoHere), terraLevel);
+                CompleteVolcanoTerraforming(TilesList.Filter(t => t.VolcanoHere));
 
             return true;
         }
 
-        bool TerraformTiles(int terraLevel)
+        bool TerraformTiles()
         {
             if (!HasTilesToTerraform)
                 return false; // no tiles need terraforming
 
             TerraformPoints += TerraformToAdd * 3f; // Terraforming a tile is faster than the whole planet
             if (TerraformPoints.GreaterOrEqual(1))
-                CompleteTileTerraforming(TilesList.Filter(t => !t.Habitable && t.Terraformable), terraLevel);
+                CompleteTileTerraforming(TilesList.Filter(t => !t.Habitable && t.Terraformable || t.BioCanTerraform));
 
             return true;
         }
 
-        bool TerraformPlanet()
+        void TerraformPlanet()
         {
             if (Category == Owner.data.PreferredEnv && BaseMaxFertility.GreaterOrEqual(TerraformedMaxFertility))
-                return false;
+                return;
 
             if (TerraformPoints.AlmostZero()) // Starting terraform
                 SetBaseFertilityTerraform();
@@ -291,26 +289,10 @@ namespace Ship_Game
             if (TerraformPoints.GreaterOrEqual(1))
                 CompletePlanetTerraform();
 
-            return true;
+            return;
         }
 
-        void TerraformBioSpheres(int terraLevel)
-        {
-            if (Category == Owner.data.PreferredEnv && terraLevel < 2)
-                return;
-
-            if (!BioSpheresToTerraform)
-            {
-                RemoveTerraformers();
-                return;
-            }
-
-            TerraformPoints += TerraformToAdd * 1.5f; // Terraforming Biospheres is less complex than terraforming a planet
-            if (TerraformPoints.GreaterOrEqual(1))
-                CompleteTileTerraforming(TilesList.Filter(t => t.BioCanTerraform), 3);
-        }
-
-        void CompleteVolcanoTerraforming(PlanetGridSquare[] possibleTiles, int terraLevel)
+        void CompleteVolcanoTerraforming(PlanetGridSquare[] possibleTiles)
         {
             if (possibleTiles.Length > 0)
             {
@@ -319,13 +301,13 @@ namespace Ship_Game
             }
 
             UpdateTerraformPoints(0); // Start terraforming a new tile or remove terraformers if terra level is 1.
-            if (terraLevel == 1)
+            if (!Terraformable)
                 RemoveTerraformers();
             else if (TerraformersHere > TerraformerLimit)
                 RemoveTerraformers(removeOne: true); // Dynamically remove terraformers
         }
 
-        void CompleteTileTerraforming(PlanetGridSquare[] possibleTiles, int terraLevel)
+        void CompleteTileTerraforming(PlanetGridSquare[] possibleTiles)
         {
             if (possibleTiles.Length > 0)
             {
@@ -334,7 +316,7 @@ namespace Ship_Game
             }
 
             UpdateTerraformPoints(0); // Start terraforming a new tile
-            if (terraLevel == 2)
+            if (!Terraformable)
                 RemoveTerraformers();
             else if (TerraformersHere > TerraformerLimit)
                 RemoveTerraformers(removeOne: true); // Dynamically remove terraformers
@@ -376,7 +358,6 @@ namespace Ship_Game
                         (Category != Owner.data.PreferredEnv || BaseMaxFertility.Less(TerraformedMaxFertility));
             }
         }
-
 
         // FB - This will give the Natural Max Fertility the planet should have after terraforming is complete
         public float TerraformedMaxFertility
