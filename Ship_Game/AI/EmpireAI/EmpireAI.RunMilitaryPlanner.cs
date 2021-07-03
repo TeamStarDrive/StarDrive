@@ -305,7 +305,7 @@ namespace Ship_Game.AI
 
         void BuildWarShips(int goalsInConstruction)
         {
-            bool shouldIgnoreDebt = OwnerEmpire.TotalWarShipMaintenance < BuildCapacity || CreditRating > 0.5f;
+            bool shouldIgnoreDebt = OwnerEmpire.TotalWarShipMaintenance < BuildCapacity || CreditRating >= 0.9f;
             var buildRatios       = new RoleBuildInfo(BuildCapacity, this, ignoreDebt: shouldIgnoreDebt);
 
             while (!buildRatios.OverBudget && goalsInConstruction < NumberOfShipGoals)
