@@ -1226,7 +1226,7 @@ namespace Ship_Game
         BB_Tech_TachyonScanning_Desc = 681,
         /// <summary>Doubles the range of all sensors</summary>
         BB_Tech_TachyonScanning_SensorRangeBonus_Bonus = 682,
-        /// <summary>Terraforming Planet</summary>
+        /// <summary>Terraforming In Progress</summary>
         BB_Tech_Terraforming_Name = 683,
         /// <summary>Thalaron Blaster</summary>
         BB_Tech_ThalaronBlaster_Name = 685,
@@ -4266,6 +4266,40 @@ namespace Ship_Game
         BB_Tech_Terraforming_Bonus = 4310,
         /// <summary>Terraforming</summary>
         Terraforming = 4311,
+        /// <summary>Blockade!</summary>
+        Blockade2 = 4312,
+        /// <summary>Starvation!</summary>
+        Starvation = 4313,
+        /// <summary>Terraforming Operations - Level</summary>
+        TerraformingOperationsLevel = 4314,
+        /// <summary>Status:</summary>
+        TerraformingStatus = 4315,
+        /// <summary>Terraformers:</summary>
+        TerraformersHere = 4316,
+        /// <summary>Done</summary>
+        TerraformersDone = 4317,
+        /// <summary>Planet:</summary>
+        TerraformPlanet = 4318,
+        /// <summary>Target Fertility:</summary>
+        TerraformTargetFert = 4319,
+        /// <summary>Estimated Population:</summary>
+        TerraformEsPop = 4320,
+        /// <summary>(negative environment buildings)</summary>
+        TerraformNegativeEnv = 4321,
+        /// <summary>WARNING - This building won't raise Max Fertility above 0</summary>
+        NegativeEnvWarning = 4322,
+        /// <summary>Not Started</summary>
+        TerraformersNotStarted = 4323,
+        /// <summary>In Progress</summary>
+        TerraformersInProgress = 4324,
+        /// <summary>Volcanoes:</summary>
+        TerraformersVolcanoes = 4325,
+        /// <summary>Tiles:</summary>
+        TerraformersTiles = 4326,
+        /// <summary>Volcanoes (</summary>
+        TerraformersVolcanoes2 = 4327,
+        /// <summary>Tiles (</summary>
+        TerraformersTiles2 = 4328,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>
