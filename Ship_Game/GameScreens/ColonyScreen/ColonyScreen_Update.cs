@@ -18,8 +18,7 @@ namespace Ship_Game
 
         void UpdateTerraformTab()
         {
-            int terraLevel = P.Owner.data.Traits.TerraformingLevel;
-            if (terraLevel < 1)
+            if (TerraformLevel < 1)
                 return;
 
             VolcanoTerraformTitle.Visible =
@@ -30,11 +29,11 @@ namespace Ship_Game
             TerraformersHereTitle.Visible =
             TerraformersHere.Visible      = IsTerraformTabSelected && Terraformable;
 
-            TileTerraformTitle.Visible   = IsTerraformTabSelected && terraLevel >= 2;
-            PlanetTerraformTitle.Visible = IsTerraformTabSelected && terraLevel >= 3;
-            VolcanoTerraform.Visible     = VolcanoTerraformTitle.Visible && !NeedLevel1Terraform;
-            TileTerraform.Visible        = TileTerraformTitle.Visible && !NeedLevel2Terraform;
-            PlanetTerraform.Visible      = PlanetTerraformTitle.Visible && !NeedLevel3Terraform;
+            TileTerraformTitle.Visible   = IsTerraformTabSelected && TerraformLevel >= 2;
+            PlanetTerraformTitle.Visible = IsTerraformTabSelected && TerraformLevel >= 3;
+            VolcanoTerraformDone.Visible = VolcanoTerraformTitle.Visible && !NeedLevel1Terraform;
+            TileTerraformDone.Visible    = TileTerraformTitle.Visible && !NeedLevel2Terraform;
+            PlanetTerraformDone.Visible  = PlanetTerraformTitle.Visible && !NeedLevel3Terraform;
 
             TerraformersHere.Text = $"{NumTerraformersHere}/{NumMaxTerraformers}";
 
@@ -49,8 +48,23 @@ namespace Ship_Game
                 TerraformStatus.Color = Terraformable ? Color.Orange : Color.Green;
             }
 
+            VolcanoTerraformTitle.Text = NumVolcanoes > 0 ?  $"Volcanoes ({NumVolcanoes}):" : "Volcanoes:";
+            TileTerraformTitle.Text    = NumTerraformableTiles > 0 ? $"Tiles ({NumTerraformableTiles}):" : "Tiles:";
 
+            VolcanoTerraformBar.Progress = NeedLevel1Terraform ? P.TerraformPoints * 100 : 0;
+            TileTerraformBar.Progress    = NeedLevel2Terraform && !NeedLevel1Terraform ? P.TerraformPoints * 100 : 0;
+            PlanetTerraformBar.Progress  = NeedLevel3Terraform && !NeedLevel2Terraform & !NeedLevel1Terraform ? P.TerraformPoints * 100 : 0;
 
+            TargetFertilityTitle.Visible =
+            TargetFertility.Visible      = IsTerraformTabSelected  && NeedLevel3Terraform && TerraformLevel >= 3;
+            TargetFertility.Text         = GetTargetFertilityText(out Color color);
+            TargetFertility.Color        = color;
+
+            EstimatedMaxPop.Text         = $"{MinEstimatedMaxPop.String(2)}";
+            EstimatedMaxPopTitle.Visible =
+            EstimatedMaxPop.Visible      = IsTerraformTabSelected 
+                                            && NeedLevel3Terraform 
+                                            && TerraformLevel >= 3 && TerraMaxPopBillion.Less(MinEstimatedMaxPop);
         }
 
         bool IsTerraformTabSelected => PFacilities.SelectedIndex == 2;

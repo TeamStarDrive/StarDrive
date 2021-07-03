@@ -245,7 +245,7 @@ namespace Ship_Game
             TerraformBioSpheres(terraLevel);
         }
 
-        public bool HasTilesToTerraform     => TilesList.Any(t => t.CanTerraform && !t.Biosphere);
+        public bool HasTilesToTerraform     => TilesList.Any(t => t.CanTerraform);
         public bool HasVolcanoesToTerraform => TilesList.Any(t => t.VolcanoHere);
         public bool BioSpheresToTerraform   => TilesList.Any(t => t.BioCanTerraform);
         public int TerraformerLimit         => TilesList.Count(t => t.CanTerraform)/2 + 2;
