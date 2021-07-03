@@ -27,6 +27,12 @@ namespace Ship_Game
         bool NeedLevel1Terraform;
         bool NeedLevel2Terraform;
         bool NeedLevel3Terraform;
+        int NumVolcanoes;
+        int NumTerraformableTiles;
+        int TerraformLevel;
+        float MinEstimatedMaxPop;
+        float TerraMaxPopBillion; // After terraforming
+        float TerraTargetFertility; // After terraforming
 
         void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, string texture,
             string toolTip, bool percent = false, bool signs = true, int digits = 2)
@@ -232,29 +238,6 @@ namespace Ship_Game
                 var fertMultiplier = new Vector2(position3.X + TextFont.MeasureString($"{fertility} ").X, position3.Y+2);
                 batch.DrawString(Font8, $"(x {fertEnvMultiplier.String(2)})", fertMultiplier, fertEnvColor);
             }
-            if (P.TerraformPoints > 0)
-            {
-                Color terraformColor = P.Owner?.EmpireColor ?? Color.White;
-                string terraformText = Localizer.Token(GameText.BB_Tech_Terraforming_Name); // Terraform Planet is the default text
-                if (P.HasVolcanoesToTerraform)
-                {
-                    terraformText = Localizer.Token(GameText.RemovingAVolcano);
-                }
-                else if (P.HasTilesToTerraform)
-                {
-                    terraformText  = Localizer.Token(GameText.TerraformingATile);
-                }
-                else if (P.BioSpheresToTerraform
-                      && P.Category == P.Owner?.data.PreferredEnv 
-                      && P.BaseMaxFertility.GreaterOrEqual(P.TerraformedMaxFertility))
-                {
-                    terraformText = Localizer.Token(GameText.RemovingBiospheres);
-                }
-
-                int terraformOffSetX = LowRes ? 30 : 20;
-                var terraformPos = new Vector2(PlanetIcon.X - terraformOffSetX, PlanetIcon.Y + PlanetIcon.Height + TextFont.LineSpacing-5);
-                batch.DrawString(TextFont, $"{terraformText} - {(P.TerraformPoints * 100).String(0)}%", terraformPos, terraformColor);
-            }
 
             UpdateData();
             if (IncomingFreighters > 0 && (P.Owner?.isPlayer == true || Empire.Universe.Debug))
@@ -271,7 +254,6 @@ namespace Ship_Game
                 string popString = IncomingPop.LessOrEqual(1) ? $"{(IncomingPop * 1000).String(2)}m" : $"{IncomingPop.String()}b";
                 DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingColoFreighters,
                     popString, GameText.Colonists);
-
             }
 
             if (OutgoingFreighters > 0 && (P.Owner?.isPlayer == true || Empire.Universe.Debug))
@@ -287,6 +269,7 @@ namespace Ship_Game
             rect = new Rectangle((int)cursor.X, (int)cursor.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Fertility) + ":").X, TextFont.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(GameText.IndicatesHowMuchFoodThis);
+
             cursor.Y += TextFont.LineSpacing + 2;
             position3 = new Vector2(cursor.X + num5, cursor.Y);
             batch.DrawString(TextFont, Localizer.Token(GameText.Richness) + ":", cursor, Color.Orange);
@@ -295,9 +278,19 @@ namespace Ship_Game
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(GameText.APlanetsMineralRichnessDirectly);
 
+            cursor.Y += TextFont.LineSpacing * 2 + 4;
+            if (P.TerraformPoints > 0)
+            {
+                Color terraformColor = P.Owner?.EmpireColor ?? Color.White;
+                string terraformText = Localizer.Token(GameText.BB_Tech_Terraforming_Name); // Terraforming in Progress
+                batch.DrawString(TextFont, terraformText, cursor, ApplyCurrentAlphaToColor(terraformColor));
+            }
+
             DrawFoodAndStorage(batch);
-            BlockadeLabel.Visible = Blockade;
-            BlockadeLabel.Color   = ApplyCurrentAlphaToColor(Color.Red);
+            BlockadeLabel.Visible   = Blockade;
+            BlockadeLabel.Color     = ApplyCurrentAlphaToColor(Color.Red);
+            StarvationLabel.Visible = P.IsStarving;
+            StarvationLabel.Color   = ApplyCurrentAlphaToColor(Color.Red);
 
             base.Draw(batch, elapsed);
         }
@@ -452,6 +445,9 @@ namespace Ship_Game
 
             if (IsTerraformTabSelected)
             {
+                if (NeedLevel1Terraform && TerraformLevel >= 1) VolcanoTerraformBar.Draw(batch);
+                if (NeedLevel2Terraform && TerraformLevel >= 2) TileTerraformBar.Draw(batch);
+                if (NeedLevel3Terraform && TerraformLevel >= 3) PlanetTerraformBar.Draw(batch);
                 return;
             }
 
@@ -696,7 +692,6 @@ namespace Ship_Game
             DrawBuildingInfo(ref bCursor, batch, maintenance, "NewUI/icon_money", Localizer.Token(GameText.CreditsPerTurnInMaintenance));
 
             DrawBuildingWeaponStats(ref bCursor, batch, b);
-            DrawTerraformerStats(ref bCursor, batch, b);
             DrawFertilityOnBuildWarning(ref bCursor, batch, b);
 
             if (tile?.VolcanoHere == true)
@@ -742,17 +737,6 @@ namespace Ship_Game
             }
         }
 
-        void DrawTerraformerStats(ref Vector2 cursor, SpriteBatch batch, Building b)
-        {
-            if (b.PlusTerraformPoints.LessOrEqual(0))
-                return;
-
-            string terraformStats = TerraformPotential(out Color terraformColor);
-            cursor.Y += TextFont.LineSpacing;
-            batch.DrawString(TextFont, terraformStats, cursor, terraformColor);
-            cursor.Y += TextFont.LineSpacing * 5;
-        }
-
         void DrawBuildingWeaponStats(ref Vector2 cursor, SpriteBatch batch, Building b)
         {
             if (b.TheWeapon == null)
@@ -762,6 +746,29 @@ namespace Ship_Game
             DrawBuildingInfo(ref cursor, batch, b.TheWeapon.DamageAmount, "UI/icon_offense", "Damage", signs: false);
             DrawBuildingInfo(ref cursor, batch, b.TheWeapon.EMPDamage, "UI/icon_offense", "EMP Damage", signs: false);
             DrawBuildingInfo(ref cursor, batch, b.ActualFireDelay(P), "UI/icon_offense", "Fire Delay", signs: false);
+        }
+
+        string GetTargetFertilityText(out Color color)
+        {
+            color = Color.Yellow;
+            if (TerraformLevel < 3)
+                return "";
+
+            if (TerraTargetFertility.Less(1))
+            {
+                if (TerraTargetFertility <= 0)
+                    color = Color.Red;
+
+                return $" {TerraTargetFertility.String(2)} (negative effecting environment buildings)";
+            }
+
+            if (TerraTargetFertility.Greater(P.MaxFertilityFor(Player))) // B etter new fertility max
+            {
+                color = Color.Green;
+                return $" {TerraTargetFertility.String(2)}";
+            }
+
+            return "";
         }
 
         void UpdateData() // This will update statistics in an interval to reduce threading issues
@@ -788,6 +795,12 @@ namespace Ship_Game
                 NeedLevel1Terraform    = P.HasVolcanoesToTerraform;
                 NeedLevel2Terraform    = P.HasTilesToTerraform;
                 NeedLevel3Terraform    = P.Category != P.Owner.data.PreferredEnv || P.BaseMaxFertility.Less(P.TerraformedMaxFertility);
+                NumVolcanoes           = P.TilesList.Filter(t => t.VolcanoHere).Length;
+                NumTerraformableTiles  = P.TilesList.Filter(t => t.CanTerraform).Length;
+                TerraformLevel         = P.Owner.data.Traits.TerraformingLevel;
+                TerraTargetFertility   = TerraformTargetFertility();
+                MinEstimatedMaxPop     = P.PotentialMaxPopBillionsFor(P.Owner);
+                TerraMaxPopBillion     = P.PotentialMaxPopBillionsFor(P.Owner, true);
                 UpdateTimer            = 150;
             }
             else if (!Empire.Universe.Paused)

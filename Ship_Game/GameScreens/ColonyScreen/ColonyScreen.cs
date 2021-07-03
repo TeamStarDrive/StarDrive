@@ -29,6 +29,7 @@ namespace Ship_Game
         readonly Submenu FilterFrame;
         readonly UIButton ClearFilter;
         readonly UILabel BlockadeLabel;
+        readonly UILabel StarvationLabel;
 
         readonly ScrollList2<BuildableListItem> BuildableList;
         readonly ScrollList2<ConstructionQueueScrollListItem> ConstructionQueue;
@@ -65,12 +66,17 @@ namespace Ship_Game
         UILabel VolcanoTerraformTitle;
         UILabel TileTerraformTitle;
         UILabel PlanetTerraformTitle;
-        UILabel VolcanoTerraform;
-        UILabel TileTerraform;
-        UILabel PlanetTerraform;
+        UILabel VolcanoTerraformDone;
+        UILabel TileTerraformDone;
+        UILabel PlanetTerraformDone;
         ProgressBar VolcanoTerraformBar;
         ProgressBar TileTerraformBar;
         ProgressBar PlanetTerraformBar;
+
+        UILabel TargetFertilityTitle;
+        UILabel TargetFertility;
+        UILabel EstimatedMaxPopTitle;
+        UILabel EstimatedMaxPop;
 
         public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI, int governorTabSelected = 0) : base(parent)
         {
@@ -101,6 +107,8 @@ namespace Ship_Game
 
             Vector2 blockadePos = new Vector2(PStorage.X + 20, PStorage.Y + 35);
             BlockadeLabel = Add(new UILabel(blockadePos, "Blockade!", Fonts.Pirulen16, Color.Red));
+            Vector2 starvationPos = new Vector2(PStorage.X + 200, PStorage.Y + 35);
+            StarvationLabel = Add(new UILabel(starvationPos, "Starvation!", Fonts.Pirulen16, Color.Red));
             FoodStorage = new ProgressBar(PStorage.X + 100, PStorage.Y + 25 + 0.33f*(PStorage.Height - 25), 0.4f*PStorage.Width, 18);
             FoodStorage.Max = p.Storage.Max;
             FoodStorage.Progress = p.FoodHere;
@@ -129,7 +137,7 @@ namespace Ship_Game
             PFacilities.AddTab(GameText.Statistics2); // Statistics
             PFacilities.AddTab(GameText.Description); // Description
             //PFacilities.AddTab(GameText.Trade2); // Trade
-            if (p.Terraformable)
+            if (Player.data.Traits.TerraformingLevel > 0)
                 PFacilities.AddTab(GameText.Terraforming); // Terraforming
 
             FilterBuildableItems = Add(new UITextEntry(new Vector2(RightMenu.X + 75, RightMenu.Y + 15), Font12, ""));
@@ -208,8 +216,9 @@ namespace Ship_Game
 
         void CreateTerraformingDetails(Vector2 pos)
         {
-            Font font = LowRes ? Font8 : Font14;
-            int spacing = font.LineSpacing + 2;
+            Font font    = LowRes ? Font8 : Font14;
+            int spacing  = font.LineSpacing + 2;
+            int barWidth = (int)(PFacilities.Width * 0.33f);
 
             TerraformTitle = Add(new UILabel(pos, $"Terraforming Operations - Level {P.Owner.data.Traits.TerraformingLevel}", LowRes ? Font12 : Font20, Color.White));
             TerraformTitle.Visible = false;
@@ -218,7 +227,7 @@ namespace Ship_Game
             TerraformStatusTitle         = Add(new UILabel(statusTitlePos, "Status: ", font, Color.Gray));
             TerraformStatusTitle.Visible = false;
 
-            float indent = font.MeasureString(TerraformStatusTitle.Text).X + 100;
+            float indent = font.MeasureString(TerraformStatusTitle.Text).X + 125;
 
             Vector2 statusPos       = new Vector2(pos.X + indent, pos.Y + spacing*2);
             TerraformStatus         = Add(new UILabel(statusPos, " ", font, Color.Gray));
@@ -233,28 +242,63 @@ namespace Ship_Game
             TerraformersHereTitle.Visible = false;
 
             Vector2 terraVolcanoTitlePos  = new Vector2(pos.X, numTerraformersTitlePos.Y + spacing*2);
-            VolcanoTerraformTitle         = Add(new UILabel(terraVolcanoTitlePos, "Volcanoes:", font, Color.Gray));
+            VolcanoTerraformTitle         = Add(new UILabel(terraVolcanoTitlePos, " ", font, Color.Gray));
             VolcanoTerraformTitle.Visible = false;
 
-            Vector2 terraVolcanoPos  = new Vector2(pos.X + indent, terraVolcanoTitlePos.Y);
-            VolcanoTerraform         = Add(new UILabel(terraVolcanoPos, "OK", font, Color.Green));
-            VolcanoTerraform.Visible = false;
+            Vector2 terraVolcanoPos      = new Vector2(pos.X + indent, terraVolcanoTitlePos.Y);
+            VolcanoTerraformDone         = Add(new UILabel(terraVolcanoPos, "Done", font, Color.Green));
+            VolcanoTerraformDone.Visible = false;
+
+            Rectangle terraVolcanoRect = new Rectangle((int)terraVolcanoPos.X, (int)terraVolcanoPos.Y, barWidth, 20);
+            VolcanoTerraformBar        = new ProgressBar(terraVolcanoRect)
+            {
+                Max            = 100,
+                DrawPercentage = true
+            };
 
             Vector2 terraTileTitlePos     = new Vector2(pos.X, terraVolcanoTitlePos.Y + spacing);
-            TileTerraformTitle            = Add(new UILabel(terraTileTitlePos, "Tiles:", font, Color.Gray));
+            TileTerraformTitle            = Add(new UILabel(terraTileTitlePos, " ", font, Color.Gray));
             TileTerraformTitle.Visible    = false;
 
-            Vector2 terraTilePos  = new Vector2(pos.X + indent, terraVolcanoTitlePos.Y);
-            TileTerraform         = Add(new UILabel(terraTilePos, "OK", font, Color.Green));
-            TileTerraform.Visible = false;
+            Vector2 terraTilePos      = new Vector2(pos.X + indent, terraTileTitlePos.Y);
+            TileTerraformDone         = Add(new UILabel(terraTilePos, "Done", font, Color.Green));
+            TileTerraformDone.Visible = false;
+
+            Rectangle terraTileRect = new Rectangle((int)terraTilePos.X, (int)terraTilePos.Y, barWidth, 20);
+            TileTerraformBar        = new ProgressBar(terraTileRect)
+            {
+                Max            = 100,
+                color          = "green",
+                DrawPercentage = true
+            };
 
             Vector2 terraPlanetTitlePos   = new Vector2(pos.X, terraTileTitlePos.Y + spacing);
             PlanetTerraformTitle          = Add(new UILabel(terraPlanetTitlePos, "Planet:", font, Color.Gray));
             PlanetTerraformTitle.Visible  = false;
 
-            Vector2 terraPlanetPos  = new Vector2(pos.X + indent, terraPlanetTitlePos.Y);
-            PlanetTerraform         = Add(new UILabel(terraPlanetPos, "OK", font, Color.Green));
-            PlanetTerraform.Visible = false;
+            Vector2 terraPlanetPos      = new Vector2(pos.X + indent, terraPlanetTitlePos.Y);
+            PlanetTerraformDone         = Add(new UILabel(terraPlanetPos, "Done", font, Color.Green));
+            PlanetTerraformDone.Visible = false;
+
+            Rectangle terraPlanetRect = new Rectangle((int)terraPlanetPos.X, (int)terraPlanetPos.Y, barWidth, 20);
+            PlanetTerraformBar        = new ProgressBar(terraPlanetRect)
+            {
+                Max            = 100,
+                color          = "blue",
+                DrawPercentage = true
+            };
+
+            Vector2 targetFertilityTitlePos = new Vector2(pos.X, terraPlanetTitlePos.Y + spacing * 2);
+            TargetFertilityTitle            = Add(new UILabel(targetFertilityTitlePos, "Target Fertility:", font, Color.Gray));
+
+            Vector2 targetFertilityPos = new Vector2(pos.X + indent, targetFertilityTitlePos.Y);
+            TargetFertility            = Add(new UILabel(targetFertilityPos, "", font, Color.LightGreen));
+
+            Vector2 estimatedMaxPopTitlePos = new Vector2(pos.X, targetFertilityTitlePos.Y + spacing);
+            EstimatedMaxPopTitle            = Add(new UILabel(estimatedMaxPopTitlePos, "Estimated Population:", font, Color.Gray));
+
+            Vector2 estimatedMaxPopPos = new Vector2(pos.X + indent, estimatedMaxPopTitlePos.Y);
+            EstimatedMaxPop            = Add(new UILabel(estimatedMaxPopPos, "", font, Color.Green));
         }
 
         void OnPlanetNameSubmit(string name)
@@ -282,65 +326,6 @@ namespace Ship_Game
             return (1 + fertilityOnBuild*Player.PlayerPreferredEnvModifier).LowerBound(0);
         }
 
-        string TerraformPotential(out Color color)
-        {
-            color                       = Color.LightGreen;
-            float targetFertility       = TerraformTargetFertility();
-            int numVolcanoes            = P.TilesList.Count(t => t.VolcanoHere);
-            int numUninhabitableTiles   = P.TilesList.Count(t => t.CanTerraform && !t.Biosphere);
-            int numBiospheres           = P.TilesList.Count(t => t.BioCanTerraform);
-            float minEstimatedMaxPop    = P.PotentialMaxPopBillionsFor(Player);
-            float maxPopWithBiospheres  = P.PotentialMaxPopBillionsFor(Player, true);
-            int terraLevel              = Player.data.Traits.TerraformingLevel;
-
-            string text        = "Terraformer Process Stages:\n";
-            string initialText = text;
-
-            if (numVolcanoes > 0)
-                text += $"  * Remove {numVolcanoes} Volcano.\n";
-
-            if (numUninhabitableTiles > 0 && terraLevel >= 2)
-                text += $"  * Make {numUninhabitableTiles} tiles habitable.\n";
-
-            if (P.Category != Player.data.PreferredEnv && terraLevel >= 3)
-                text += $"  * Terraform the planet to {Player.data.PreferredEnv}.\n";
-
-            if (numBiospheres > 0 && (terraLevel >= 3 || P.Category == Player.data.PreferredEnv))
-                text += $"  * Remove {numBiospheres} Biospheres.\n";
-
-            if (terraLevel >= 3)
-            {
-                if (targetFertility.AlmostZero())
-                {
-                    text += "  * Max Fertility will be 0 due to negative effecting environment buildings.\n";
-                    color = Color.Red;
-                }
-                else if (targetFertility.Less(1))
-                {
-                    text += $"  * Max Fertility will only be changed to {targetFertility} due to negative effecting environment buildings.\n";
-                }
-                else if (targetFertility.Greater(P.MaxFertilityFor(Player))) // better new fertility max
-                {
-                    text += $"  * Max Fertility will be changed to {targetFertility}.\n";
-                }
-            }
-
-            if (minEstimatedMaxPop > maxPopWithBiospheres)
-                text += $"  * Expected Max Population is {(minEstimatedMaxPop).String(2)} Billion colonists.\n";
-
-            if (text == initialText)
-            {
-                color = Color.Yellow;
-                text = "Terraformers will have no effect on this planet.";
-            }
-            else
-            {
-                text += $"  * Current Maximum Terraformers: {P.TerraformerLimit}\n";
-            }
-
-            return text;
-        }
-
         void ScrapAccepted()
         {
             if (ToScrap != null)
@@ -357,6 +342,5 @@ namespace Ship_Game
             Update(0f);
             BioToScrap = null;
         }
-
     }
 }
