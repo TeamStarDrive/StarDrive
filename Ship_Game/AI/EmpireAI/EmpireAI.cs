@@ -76,12 +76,23 @@ namespace Ship_Game.AI
                 RunAgentManager();
                 if (Empire.Universe?.Debug == true && Empire.Universe?.StarDate % 50 == 0)
                 {
+                    int techScore     = 0;
+                    int totalStrength = 0;
+                    int maxStrength   = 0;
+                    int maxTechScore  = 0;
                     Log.Write($"------- ship list -----{Empire.Universe?.StarDate} Ship list for {OwnerEmpire.Name}");
                     foreach (var logit in OwnerEmpire.ShipsWeCanBuild)
                     {
                         var template = ResourceManager.GetShipTemplate(logit, false);
                         Log.Write(ConsoleColor.Green ,$"{template.BaseHull.Role}, {template.DesignRole}, '{logit}'");
+                        int strength   = (int)template.GetStrength();
+                        techScore     += template.shipData.TechsNeeded.Count;
+                        totalStrength += strength;
+                        maxStrength    = Math.Max(maxStrength, strength);
+                        maxTechScore   = Math.Max(maxTechScore, techScore);
                     }
+                    Log.Write($"ShipTechCount= {techScore} MaxShipTechs={maxTechScore} MaxShipStrength= {maxStrength}");
+                    Log.Write($"PlanetBudget= {OwnerEmpire.data.ColonyBudget:0.0}/{OwnerEmpire.TotalBuildingMaintenance:0.0} Population= {OwnerEmpire.TotalPopBillion:0.0} Planets= {OwnerEmpire.NumPlanets}");
                     Log.Write($"------- ship list -----{Empire.Universe?.StarDate} Ship list for {OwnerEmpire.Name}");
                 }
             }
