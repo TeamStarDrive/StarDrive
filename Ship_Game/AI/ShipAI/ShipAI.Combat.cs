@@ -528,7 +528,7 @@ namespace Ship_Game.AI
         void ExitCombatState()
         {
             if (OrderQueue.TryPeekFirst(out ShipGoal goal) &&
-                goal.WantedState == AIState.Combat)
+                goal?.WantedState == AIState.Combat)
             {
                 DequeueCurrentOrder();
             }

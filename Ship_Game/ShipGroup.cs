@@ -380,7 +380,7 @@ namespace Ship_Game
                 for (int i = 0; i < Ships.Count; i++)
                 {
                     Ship ship = Ships[i];
-                    if (ship.Active)
+                    if (ship?.Active == true)
                         Strength += ship.GetStrength();
                 }
             }
