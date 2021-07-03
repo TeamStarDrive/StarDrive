@@ -287,12 +287,26 @@ namespace Ship_Game
             }
 
             DrawFoodAndStorage(batch);
+            DrawShields(batch);
             BlockadeLabel.Visible   = Blockade;
             BlockadeLabel.Color     = ApplyCurrentAlphaToColor(Color.Red);
             StarvationLabel.Visible = P.IsStarving;
             StarvationLabel.Color   = ApplyCurrentAlphaToColor(Color.Red);
 
             base.Draw(batch, elapsed);
+        }
+
+        void DrawShields(SpriteBatch batch)
+        {
+            if (P.ShieldStrengthMax <= 0)
+                return;
+
+            PlanetShieldBar.Max      = P.ShieldStrengthMax;
+            PlanetShieldBar.Progress = P.ShieldStrengthCurrent;
+            PlanetShieldBar.Draw(batch);
+            batch.Draw(ResourceManager.Texture("NewUI/icon_planetshield"), PlanetShieldIconRect, Color.LightSkyBlue);
+            if (P.ShieldStrengthCurrent > 0)
+                batch.Draw(P.PlanetTexture, PlanetIcon, ApplyCurrentAlphaToColor(Color.LightSkyBlue));
         }
 
         void DrawIncomingFreighters(SpriteBatch batch, ref Vector2 incomingTitle, ref Vector2 incomingData, 
