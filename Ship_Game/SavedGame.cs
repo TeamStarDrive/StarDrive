@@ -765,6 +765,13 @@ namespace Ship_Game
             [Serialize(48)] public float ManualGrdDefBudget;
             [Serialize(49)] public float ManualSpcDefBudget;
             [Serialize(50)] public bool HasLimitedResourcesBuildings;
+            [Serialize(51)] public int ManualFoodMaxImportSlots;
+            [Serialize(52)] public int ManualProdMaxImportSlots;
+            [Serialize(53)] public int ManualColoMaxImportSlots;
+            [Serialize(54)] public int ManualFoodMaxExportSlots;
+            [Serialize(55)] public int ManualProdMaxExportSlots;
+            [Serialize(56)] public int ManualColoMaxExportSlots;
+
 
             public override string ToString() => $"PlanetSD {Name}";
         }
