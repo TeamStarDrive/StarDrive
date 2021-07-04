@@ -78,6 +78,12 @@ namespace Ship_Game
         UILabel IncomingFoodAmount;
         UILabel IncomingProdAmount;
         UILabel IncomingColoAmount;
+        FloatSlider ImportFoodSlotSlider;
+        FloatSlider ImportProdSlotSlider;
+        FloatSlider ImportColoSlotSlider;
+        FloatSlider ExportFoodSlotSlider;
+        FloatSlider ExportProdSlotSlider;
+        FloatSlider ExportColoSlotSlider;
 
         UILabel TerraformTitle;
         UILabel TerraformStatusTitle;
@@ -253,7 +259,7 @@ namespace Ship_Game
             CreateTerraformingDetails(detailsVector);
         }
 
-        void AddTradeUiLabel(ref UILabel uiLabel, Vector2 pos, string text, Font font, Color color)
+        void AddLabel(ref UILabel uiLabel, Vector2 pos, string text, Font font, Color color)
         {
             if (uiLabel == null)
                 uiLabel = Add(new UILabel(pos, text, font, color));
@@ -261,7 +267,7 @@ namespace Ship_Game
             uiLabel.Visible = false;
         }
 
-        void AddUiPanel(ref UIPanel panel, Vector2 pos, string texPath, int size)
+        void AddPanel(ref UIPanel panel, Vector2 pos, string texPath, int size)
         {
             if (panel == null)
                 panel = Add(new UIPanel(pos, ResourceManager.Texture(texPath)));
@@ -270,7 +276,7 @@ namespace Ship_Game
             panel.Visible = false;
         }
 
-        void AddUiProgressBar(ref ProgressBar bar, Rectangle rect, float max, string color, bool percentage = false)
+        void AddProgressBar(ref ProgressBar bar, Rectangle rect, float max, string color, bool percentage = false)
         {
             if (bar == null)
             {
@@ -283,63 +289,88 @@ namespace Ship_Game
             }
         }
 
+        void AddUiSlider(ref FloatSlider slider, Rectangle rect, LocalizedText text, float min, float max, float value)
+        {
+            if (slider == null)
+            {
+                slider = Slider(rect, text, min, max, value);
+                slider.Visible = false;
+                slider.ZeroString = "Automatic";
+            }
+        }
+
         void CreateTradeDetails(Vector2 pos)
         {
-            Font font    = LowRes ? Font8 : Font14;
-            int spacing  = font.LineSpacing + 5;
-            int barWidth = (int)(PFacilities.Width * 0.33f);
-            float indent = 30;
+            Font font       = LowRes ? Font8 : Font14;
+            int spacing     = font.LineSpacing + 10;
+            int barWidth    = (int)(PFacilities.Width * 0.33f);
+            int sliderWidth = (int)(PFacilities.Width * 0.33f);
+            int sliderSize  = 30;
+            float indent    = 30;
             float indentTradeAmount = indent + barWidth + 5;
+            float indentSlider      = indentTradeAmount + 60;
 
-            AddTradeUiLabel(ref TradeTitle, pos, "Colony Trade", LowRes ? Font14 : Font20, Color.White);
+            AddLabel(ref TradeTitle, pos, "Colony Trade", LowRes ? Font14 : Font20, Color.White);
 
-            Vector2 incomingTitlePos = new Vector2(pos.X, pos.Y + spacing * 2);
-            AddTradeUiLabel(ref IncomingTradeTitle, incomingTitlePos, "Incoming Freighters", font, Color.Gray);
+            Vector2 incomingTitlePos = new Vector2(pos.X, pos.Y + spacing * (LowRes ? 1 : 1.5f));
+            AddLabel(ref IncomingTradeTitle, incomingTitlePos, "Incoming Freighters", font, Color.Gray);
 
             // Incoming food
             Vector2 incomingFoodPos = new Vector2(pos.X, incomingTitlePos.Y + spacing + 3);
-            AddUiPanel(ref IncomingFoodPanel, incomingFoodPos, "NewUI/icon_food", font.LineSpacing);
+            AddPanel(ref IncomingFoodPanel, incomingFoodPos, "NewUI/icon_food", font.LineSpacing);
             Rectangle incomingFoodRect = new Rectangle((int)(incomingFoodPos.X + indent), (int)incomingFoodPos.Y, barWidth, 20);
-            AddUiProgressBar(ref IncomingFoodBar, incomingFoodRect, P.FoodImportSlots, "green");
+            AddProgressBar(ref IncomingFoodBar, incomingFoodRect, P.FoodImportSlots, "green");
             Vector2 incomingFoodAmountPos = new Vector2(pos.X + indentTradeAmount, incomingFoodPos.Y + (LowRes ? 0 : 2));
-            AddTradeUiLabel(ref IncomingFoodAmount, incomingFoodAmountPos, "", Font8, Color.White);
+            AddLabel(ref IncomingFoodAmount, incomingFoodAmountPos, "", Font8, Color.White);
+            Rectangle importFoodSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(incomingFoodPos.Y-12), sliderWidth, sliderSize);
+            AddUiSlider(ref ImportFoodSlotSlider, importFoodSlotsRect, "", 0, 20, P.ManualFoodImportSlots);
 
             // Incoming Prod
             Vector2 incomingProdPos = new Vector2(pos.X, incomingFoodPos.Y + spacing);
-            AddUiPanel(ref IncomingProdPanel, incomingProdPos, "NewUI/icon_production", font.LineSpacing);
+            AddPanel(ref IncomingProdPanel, incomingProdPos, "NewUI/icon_production", font.LineSpacing);
             Rectangle incomingProdRect = new Rectangle((int)(incomingProdPos.X + indent), (int)incomingProdPos.Y, barWidth, 20);
-            AddUiProgressBar(ref IncomingProdBar, incomingProdRect, P.ProdImportSlots, "brown");
+            AddProgressBar(ref IncomingProdBar, incomingProdRect, P.ProdImportSlots, "brown");
             Vector2 incomingProdAmountPos = new Vector2(pos.X + indentTradeAmount, incomingProdPos.Y + (LowRes ? 0 : 2));
-            AddTradeUiLabel(ref IncomingProdAmount, incomingProdAmountPos, "", Font8, Color.White);
+            AddLabel(ref IncomingProdAmount, incomingProdAmountPos, "", Font8, Color.White);
+            Rectangle importProdSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(incomingProdPos.Y-12), sliderWidth, sliderSize);
+            AddUiSlider(ref ImportProdSlotSlider, importProdSlotsRect, "", 0, 20, P.ManualProdImportSlots);
 
             // Incoming Colonists
             Vector2 incomingColoPos = new Vector2(pos.X, incomingProdPos.Y + spacing);
-            AddUiPanel(ref IncomingColoPanel, incomingColoPos, "UI/icon_pop", font.LineSpacing);
+            AddPanel(ref IncomingColoPanel, incomingColoPos, "UI/icon_pop", font.LineSpacing);
             Rectangle incomingColoRect = new Rectangle((int)(incomingColoPos.X + indent), (int)incomingColoPos.Y, barWidth, 20);
-            AddUiProgressBar(ref IncomingColoBar, incomingColoRect, P.ColonistsImportSlots, "blue");
+            AddProgressBar(ref IncomingColoBar, incomingColoRect, P.ColonistsImportSlots, "blue");
             Vector2 incomingColoAmountPos = new Vector2(pos.X + indentTradeAmount, incomingColoPos.Y + (LowRes ? 0 : 2));
-            AddTradeUiLabel(ref IncomingColoAmount, incomingColoAmountPos, "", Font8, Color.White);
+            AddLabel(ref IncomingColoAmount, incomingColoAmountPos, "", Font8, Color.White);
+            Rectangle importColoSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(incomingColoPos.Y-12), sliderWidth, sliderSize);
+            AddUiSlider(ref ImportColoSlotSlider, importColoSlotsRect, "", 0, 20, P.ManualColoImportSlots);
 
-            Vector2 outgoingTitlePos = new Vector2(pos.X, incomingColoAmountPos.Y + spacing * 2);
-            AddTradeUiLabel(ref OutgoingTradeTitle, outgoingTitlePos, "Outgoing Freighters", font, Color.Gray);
+            Vector2 outgoingTitlePos = new Vector2(pos.X, incomingColoAmountPos.Y + spacing * (LowRes ? 1 : 1.5f));
+            AddLabel(ref OutgoingTradeTitle, outgoingTitlePos, "Outgoing Freighters", font, Color.Gray);
 
             // Outgoing food
             Vector2 outgoingFoodPos = new Vector2(pos.X, outgoingTitlePos.Y + spacing + 3);
-            AddUiPanel(ref OutgoingFoodPanel, outgoingFoodPos, "NewUI/icon_food", font.LineSpacing);
+            AddPanel(ref OutgoingFoodPanel, outgoingFoodPos, "NewUI/icon_food", font.LineSpacing);
             Rectangle outgoingFoodRect = new Rectangle((int)(outgoingFoodPos.X + indent), (int)outgoingFoodPos.Y, barWidth, 20);
-            AddUiProgressBar(ref OutgoingFoodBar, outgoingFoodRect, P.FoodExportSlots, "green");
+            AddProgressBar(ref OutgoingFoodBar, outgoingFoodRect, P.FoodExportSlots, "green");
+            Rectangle exportFoodSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(outgoingFoodPos.Y-12), sliderWidth, sliderSize);
+            AddUiSlider(ref ExportFoodSlotSlider, exportFoodSlotsRect, "", 0, 20, P.ManualFoodExportSlots);
 
             // Outgoing Prod
             Vector2 outgoingProdPos = new Vector2(pos.X, outgoingFoodPos.Y + spacing);
-            AddUiPanel(ref OutgoingProdPanel, outgoingProdPos, "NewUI/icon_production", font.LineSpacing);
+            AddPanel(ref OutgoingProdPanel, outgoingProdPos, "NewUI/icon_production", font.LineSpacing);
             Rectangle outgoingProdRect = new Rectangle((int)(outgoingProdPos.X + indent), (int)outgoingProdPos.Y, barWidth, 20);
-            AddUiProgressBar(ref OutgoingProdBar, outgoingProdRect, P.ProdExportSlots, "brown");
+            AddProgressBar(ref OutgoingProdBar, outgoingProdRect, P.ProdExportSlots, "brown");
+            Rectangle exportProdSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(outgoingProdPos.Y-12), sliderWidth, sliderSize);
+            AddUiSlider(ref ExportProdSlotSlider, exportProdSlotsRect, "", 0, 20, P.ManualProdExportSlots);
 
             // Outgoing Colonists
             Vector2 outgoingColoPos = new Vector2(pos.X, outgoingProdPos.Y + spacing);
-            AddUiPanel(ref OutgoingColoPanel, outgoingColoPos, "UI/icon_pop", font.LineSpacing);
+            AddPanel(ref OutgoingColoPanel, outgoingColoPos, "UI/icon_pop", font.LineSpacing);
             Rectangle outgoingColoRect = new Rectangle((int)(outgoingColoPos.X + indent), (int)outgoingColoPos.Y, barWidth, 20);
-            AddUiProgressBar(ref OutgoingColoBar, outgoingColoRect, P.ColonistsExportSlots, "blue");
+            AddProgressBar(ref OutgoingColoBar, outgoingColoRect, P.ColonistsExportSlots, "blue");
+            Rectangle exportColoSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(outgoingColoPos.Y-12), sliderWidth, sliderSize);
+            AddUiSlider(ref ExportColoSlotSlider, exportColoSlotsRect, "", 0, 20, P.ManualColoExportSlots);
         }
 
         void CreateTerraformingDetails(Vector2 pos)

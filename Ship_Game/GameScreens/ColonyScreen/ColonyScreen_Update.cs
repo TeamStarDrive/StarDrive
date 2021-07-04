@@ -19,18 +19,26 @@ namespace Ship_Game
 
         void UpdateTradeTab()
         {
-            TradeTitle.Visible         =
-            IncomingTradeTitle.Visible =
-            OutgoingTradeTitle.Visible =
-            IncomingColoPanel.Visible  =
-            IncomingProdPanel.Visible  = 
-            IncomingFoodPanel.Visible  = 
-            OutgoingColoPanel.Visible  =
-            OutgoingProdPanel.Visible  =
-            OutgoingFoodPanel.Visible  = IsTradeTabSelected;
-            IncomingFoodAmount.Visible = IsTradeTabSelected && IncomingFood > 0;
-            IncomingProdAmount.Visible = IsTradeTabSelected && IncomingProd > 0;
-            IncomingColoAmount.Visible = IsTradeTabSelected && IncomingPop > 0;
+            TradeTitle.Visible           =
+            IncomingTradeTitle.Visible   =
+            OutgoingTradeTitle.Visible   =
+            IncomingColoPanel.Visible    =
+            IncomingProdPanel.Visible    = 
+            IncomingFoodPanel.Visible    = 
+            OutgoingColoPanel.Visible    =
+            OutgoingProdPanel.Visible    =
+            OutgoingFoodPanel.Visible    = IsTradeTabSelected;
+
+            ImportFoodSlotSlider.Visible =
+            ImportProdSlotSlider.Visible =
+            ImportColoSlotSlider.Visible =
+            ExportFoodSlotSlider.Visible =
+            ExportProdSlotSlider.Visible =
+            ExportColoSlotSlider.Visible = IsTradeTabSelected && P.Owner == Player;
+
+            IncomingFoodAmount.Visible   = IsTradeTabSelected && IncomingFood > 0;
+            IncomingProdAmount.Visible   = IsTradeTabSelected && IncomingProd > 0;
+            IncomingColoAmount.Visible   = IsTradeTabSelected && IncomingPop > 0;
 
             if (!IsTradeTabSelected)
                 return;
@@ -52,6 +60,12 @@ namespace Ship_Game
             IncomingProdAmount.Text = $"({IncomingProd.String()})";
             IncomingColoAmount.Text = $"({IncomingPopString})";
 
+            P.SetManualFoodImportSlots((int)ImportFoodSlotSlider.AbsoluteValue);
+            P.SetManualProdImportSlots((int)ImportProdSlotSlider.AbsoluteValue);
+            P.SetManualColoImportSlots((int)ImportColoSlotSlider.AbsoluteValue);
+            P.SetManualFoodExportSlots((int)ExportFoodSlotSlider.AbsoluteValue);
+            P.SetManualProdExportSlots((int)ExportProdSlotSlider.AbsoluteValue);
+            P.SetManualColoExportSlots((int)ExportColoSlotSlider.AbsoluteValue);
         }
 
         void UpdateTerraformTab()
