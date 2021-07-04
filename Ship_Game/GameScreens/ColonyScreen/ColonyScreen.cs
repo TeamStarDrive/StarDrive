@@ -279,14 +279,14 @@ namespace Ship_Game
             panel.Tooltip = tip;
         }
 
-        void AddProgressBar(ref ProgressBar bar, Rectangle rect, float max, string color, bool percentage = false)
+        void AddProgressBar(ref ProgressBar bar, Rectangle rect, float max, string colorStr, bool percentage = false)
         {
             if (bar == null)
             {
                 bar = new ProgressBar(rect)
                 {
                     Max            = max,
-                    color          = color,
+                    color          = colorStr,
                     DrawPercentage = percentage
                 };
             }
