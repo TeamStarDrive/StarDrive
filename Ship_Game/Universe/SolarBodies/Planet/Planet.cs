@@ -156,9 +156,9 @@ namespace Ship_Game
         float PotentialMaxPopFor(Empire empire, bool forceOnlyBiospheres = false)
         {
             bool bioSpheresResearched = empire.IsBuildingUnlocked(Building.BiospheresId);
-            bool terraformResearched  = empire.IsBuildingUnlocked(Building.TerraformerId);
+            bool terraformResearched  = empire.CanFullTerraformPlanets;
 
-            // We calculate this  and not using MaxPop since it might be an enemy planet with biospheres
+            // We calculate this and not using MaxPop since it might be an enemy planet with biospheres
             int numNaturalHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
             float racialEnvModifier      = Empire.RacialEnvModifer(Category, empire);
             float naturalMaxPop          = BasePopPerTile * numNaturalHabitableTiles * racialEnvModifier;
@@ -197,8 +197,8 @@ namespace Ship_Game
 
         public float PotentialMaxFertilityFor(Empire empire)
         {
-            float minimumMaxFertilityPotential = empire.IsBuildingUnlocked(Building.TerraformerId) ? 1 : 0;
-                return MaxFertilityFor(empire).LowerBound(minimumMaxFertilityPotential);
+            float minimumMaxFertilityPotential = empire.CanFullTerraformPlanets ? 1 : 0;
+            return MaxFertilityFor(empire).LowerBound(minimumMaxFertilityPotential);
         }
 
         public float MaxPopulationFor(Empire empire)
@@ -440,7 +440,7 @@ namespace Ship_Game
                 if (empire.NonCybernetic 
                     && HabitablePercentage < 0.25f
                     && empire.IsBuildingUnlocked(Building.BiospheresId)
-                    && !empire.IsBuildingUnlocked(Building.TerraformerId))
+                    && !empire.CanFullTerraformPlanets)
                 {
                     multiplier = 2.5f; // Avoid crappy barren planets unless they have really large pop potential
                 }
