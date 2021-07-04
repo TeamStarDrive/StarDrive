@@ -389,97 +389,68 @@ namespace Ship_Game
             int spacing  = font.LineSpacing + 2;
             int barWidth = (int)(PFacilities.Width * 0.33f);
 
-            TerraformTitle = Add(new UILabel(pos, "", LowRes ? Font14 : Font20, Color.White));
-            TerraformTitle.Visible = false;
+            AddLabel(ref TerraformTitle, pos, "", LowRes ? Font14 : Font20, Color.White);
 
-            Vector2 statusTitlePos       = new Vector2(pos.X, pos.Y + spacing*2);
-            TerraformStatusTitle         = Add(new UILabel(statusTitlePos, Localizer.Token(GameText.TerraformingStatus), font, Color.Gray));
-            TerraformStatusTitle.Visible = false;
+            Vector2 statusTitlePos = new Vector2(pos.X, pos.Y + spacing*2);
+            AddLabel(ref TerraformStatusTitle, statusTitlePos, Localizer.Token(GameText.TerraformingStatus), font, Color.White);
 
             float indent = font.MeasureString(TerraformStatusTitle.Text).X + 125;
 
-            Vector2 statusPos       = new Vector2(pos.X + indent, pos.Y + spacing*2);
-            TerraformStatus         = Add(new UILabel(statusPos, " ", font, Color.Gray));
-            TerraformStatus.Visible = false;
+            Vector2 statusPos = new Vector2(pos.X + indent, pos.Y + spacing*2);
+            AddLabel(ref TerraformStatus, statusPos, " ", font, Color.Gray);
 
             Vector2 numTerraformersTitlePos = new Vector2(pos.X, TerraformStatusTitle.Y + spacing);
-            TerraformersHereTitle           = Add(new UILabel(numTerraformersTitlePos, Localizer.Token(GameText.TerraformersHere), font, Color.Gray));
-            TerraformersHereTitle.Visible   = false;
+            AddLabel(ref TerraformersHereTitle, numTerraformersTitlePos, Localizer.Token(GameText.TerraformersHere), font, Color.Gray);
 
-            Vector2 numTerraformersPos    = new Vector2(pos.X + indent, numTerraformersTitlePos.Y);
-            TerraformersHere              = Add(new UILabel(numTerraformersPos, " ", font, Color.White));
-            TerraformersHereTitle.Visible = false;
+            Vector2 numTerraformersPos = new Vector2(pos.X + indent, numTerraformersTitlePos.Y);
+            AddLabel(ref TerraformersHere, numTerraformersPos, " ", font, Color.White);
 
-            Vector2 terraVolcanoTitlePos  = new Vector2(pos.X, numTerraformersTitlePos.Y + spacing*2);
-            VolcanoTerraformTitle         = Add(new UILabel(terraVolcanoTitlePos, " ", font, Color.Gray));
-            VolcanoTerraformTitle.Visible = false;
+            Vector2 terraVolcanoTitlePos = new Vector2(pos.X, numTerraformersTitlePos.Y + spacing*2);
+            AddLabel(ref VolcanoTerraformTitle, terraVolcanoTitlePos, " ", font, Color.Gray);
 
-            Vector2 terraVolcanoPos      = new Vector2(pos.X + indent, terraVolcanoTitlePos.Y);
-            VolcanoTerraformDone         = Add(new UILabel(terraVolcanoPos, Localizer.Token(GameText.TerraformersDone), font, Color.Green));
-            VolcanoTerraformDone.Visible = false;
+            Vector2 terraVolcanoPos = new Vector2(pos.X + indent, terraVolcanoTitlePos.Y);
+            AddLabel(ref VolcanoTerraformDone, terraVolcanoPos, Localizer.Token(GameText.TerraformersDone), font, Color.Green);
 
             Rectangle terraVolcanoRect = new Rectangle((int)terraVolcanoPos.X, (int)terraVolcanoPos.Y, barWidth, 20);
-            VolcanoTerraformBar        = new ProgressBar(terraVolcanoRect)
-            {
-                Max            = 100,
-                DrawPercentage = true
-            };
+            AddProgressBar(ref VolcanoTerraformBar, terraVolcanoRect, 100, "brown", percentage: true);
 
-            Vector2 terraTileTitlePos  = new Vector2(pos.X, terraVolcanoTitlePos.Y + spacing);
-            TileTerraformTitle         = Add(new UILabel(terraTileTitlePos, " ", font, Color.Gray));
-            TileTerraformTitle.Visible = false;
+            Vector2 terraTileTitlePos = new Vector2(pos.X, terraVolcanoTitlePos.Y + spacing);
+            AddLabel(ref TileTerraformTitle, terraTileTitlePos, " ", font, Color.Gray);
 
-            Vector2 terraTilePos      = new Vector2(pos.X + indent, terraTileTitlePos.Y);
-            TileTerraformDone         = Add(new UILabel(terraTilePos, Localizer.Token(GameText.TerraformersDone), font, Color.Green));
-            TileTerraformDone.Visible = false;
+            Vector2 terraTilePos = new Vector2(pos.X + indent, terraTileTitlePos.Y);
+            AddLabel(ref TileTerraformDone, terraTilePos, Localizer.Token(GameText.TerraformersDone), font, Color.Green);
 
             Rectangle terraTileRect = new Rectangle((int)terraTilePos.X, (int)terraTilePos.Y, barWidth, 20);
-            TileTerraformBar        = new ProgressBar(terraTileRect)
-            {
-                Max            = 100,
-                color          = "green",
-                DrawPercentage = true
-            };
+            AddProgressBar(ref TileTerraformBar, terraTileRect, 100, "green", percentage: true);
 
-            Vector2 terraPlanetTitlePos   = new Vector2(pos.X, terraTileTitlePos.Y + spacing);
-            PlanetTerraformTitle          = Add(new UILabel(terraPlanetTitlePos, Localizer.Token(GameText.TerraformPlanet), font, Color.Gray));
-            PlanetTerraformTitle.Visible  = false;
+            Vector2 terraPlanetTitlePos = new Vector2(pos.X, terraTileTitlePos.Y + spacing);
+            AddLabel(ref PlanetTerraformTitle, terraPlanetTitlePos, Localizer.Token(GameText.TerraformPlanet), font, Color.Gray);
 
-            Vector2 terraPlanetPos      = new Vector2(pos.X + indent, terraPlanetTitlePos.Y);
-            PlanetTerraformDone         = Add(new UILabel(terraPlanetPos, Localizer.Token(GameText.TerraformersDone), font, Color.Green));
-            PlanetTerraformDone.Visible = false;
+            Vector2 terraPlanetPos = new Vector2(pos.X + indent, terraPlanetTitlePos.Y);
+            AddLabel(ref PlanetTerraformDone, terraPlanetPos, Localizer.Token(GameText.TerraformersDone), font, Color.Green);
 
             Rectangle terraPlanetRect = new Rectangle((int)terraPlanetPos.X, (int)terraPlanetPos.Y, barWidth, 20);
-            PlanetTerraformBar        = new ProgressBar(terraPlanetRect)
-            {
-                Max            = 100,
-                color          = "blue",
-                DrawPercentage = true
-            };
+            AddProgressBar(ref PlanetTerraformBar, terraPlanetRect, 100, "blue", percentage: true);
 
             Vector2 targetFertilityTitlePos = new Vector2(pos.X, terraPlanetTitlePos.Y + spacing * 2);
-            TargetFertilityTitle            = Add(new UILabel(targetFertilityTitlePos, Localizer.Token(GameText.TerraformTargetFert), font, Color.Gray));
-            TargetFertilityTitle.Visible    = false;
+            AddLabel(ref TargetFertilityTitle, targetFertilityTitlePos, Localizer.Token(GameText.TerraformTargetFert), font, Color.Gray);
 
             Vector2 targetFertilityPos = new Vector2(pos.X + indent, targetFertilityTitlePos.Y);
-            TargetFertility            = Add(new UILabel(targetFertilityPos, "", font, Color.LightGreen));
-            TargetFertility.Visible    = false;
+            AddLabel(ref TargetFertility, targetFertilityPos, "", font, Color.Green);
 
             Vector2 estimatedMaxPopTitlePos = new Vector2(pos.X, targetFertilityTitlePos.Y + spacing);
-            EstimatedMaxPopTitle            = Add(new UILabel(estimatedMaxPopTitlePos, Localizer.Token(GameText.TerraformEsPop), font, Color.Gray));
-            EstimatedMaxPopTitle.Visible    = false;
+            AddLabel(ref EstimatedMaxPopTitle, estimatedMaxPopTitlePos, Localizer.Token(GameText.TerraformEsPop), font, Color.Gray);
 
             Vector2 estimatedMaxPopPos = new Vector2(pos.X + indent, estimatedMaxPopTitlePos.Y);
-            EstimatedMaxPop            = Add(new UILabel(estimatedMaxPopPos, "", font, Color.Green));
-            EstimatedMaxPop.Visible    = false;
+            AddLabel(ref EstimatedMaxPop, estimatedMaxPopPos, "", font, Color.Green);
         }
 
         void OnPlanetNameSubmit(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
-                int ringnum = 1 + P.ParentSystem.RingList.IndexOf(r => r.planet == P);
-                P.Name = string.Concat(P.ParentSystem.Name, " ", RomanNumerals.ToRoman(ringnum));
+                int ringNum = 1 + P.ParentSystem.RingList.IndexOf(r => r.planet == P);
+                P.Name = string.Concat(P.ParentSystem.Name, " ", RomanNumerals.ToRoman(ringNum));
                 PlanetName.Reset(P.Name);
             }
             else
