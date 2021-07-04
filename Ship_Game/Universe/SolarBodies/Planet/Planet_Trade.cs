@@ -87,8 +87,10 @@ namespace Ship_Game
                 if (TradeBlocked || ColonistsTradeState != GoodState.EXPORT)
                     return 0;
 
-                int min = ManualColoExportSlots > 0 && Owner == EmpireManager.Player ? ManualColoExportSlots : 0;
-                return (int)PopulationBillion.LowerBound(min);
+                if (ManualColoExportSlots > 0 && Owner == EmpireManager.Player)
+                    return ManualColoExportSlots;
+
+                return (int)PopulationBillion;
             }
         }
 

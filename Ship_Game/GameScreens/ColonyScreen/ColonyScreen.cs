@@ -63,6 +63,8 @@ namespace Ship_Game
         UILabel TradeTitle;
         UILabel IncomingTradeTitle;
         UILabel OutgoingTradeTitle;
+        UILabel ManualImportTitle;
+        UILabel ManualExportTitle;
         UIPanel IncomingFoodPanel;
         UIPanel IncomingProdPanel;
         UIPanel IncomingColoPanel;
@@ -267,13 +269,14 @@ namespace Ship_Game
             uiLabel.Visible = false;
         }
 
-        void AddPanel(ref UIPanel panel, Vector2 pos, string texPath, int size)
+        void AddPanel(ref UIPanel panel, Vector2 pos, string texPath, int size, LocalizedText tip)
         {
             if (panel == null)
                 panel = Add(new UIPanel(pos, ResourceManager.Texture(texPath)));
 
             panel.Size    = new Vector2(size, size);
             panel.Visible = false;
+            panel.Tooltip = tip;
         }
 
         void AddProgressBar(ref ProgressBar bar, Rectangle rect, float max, string color, bool percentage = false)
@@ -289,13 +292,14 @@ namespace Ship_Game
             }
         }
 
-        void AddUiSlider(ref FloatSlider slider, Rectangle rect, LocalizedText text, float min, float max, float value)
+        void AddUiSlider(ref FloatSlider slider, Rectangle rect, LocalizedText text, float min, float max, float value, LocalizedText tip)
         {
             if (slider == null)
             {
-                slider = Slider(rect, text, min, max, value);
-                slider.Visible = false;
-                slider.ZeroString = "Automatic";
+                slider            = Slider(rect, text, min, max, value);
+                slider.Visible    = false;
+                slider.ZeroString = Localizer.Token(4329);
+                slider.Tip        = tip;
             }
         }
 
@@ -310,67 +314,73 @@ namespace Ship_Game
             float indentTradeAmount = indent + barWidth + 5;
             float indentSlider      = indentTradeAmount + 60;
 
-            AddLabel(ref TradeTitle, pos, "Colony Trade", LowRes ? Font14 : Font20, Color.White);
+            AddLabel(ref TradeTitle, pos, Localizer.Token(4332), LowRes ? Font14 : Font20, Color.White);
 
             Vector2 incomingTitlePos = new Vector2(pos.X, pos.Y + spacing * (LowRes ? 1 : 1.5f));
-            AddLabel(ref IncomingTradeTitle, incomingTitlePos, "Incoming Freighters", font, Color.Gray);
+            AddLabel(ref IncomingTradeTitle, incomingTitlePos, Localizer.Token(4330), font, Color.Gray);
+
+            Vector2 manualImportTitlePos = new Vector2(pos.X + indentSlider - 10, incomingTitlePos.Y);
+            AddLabel(ref ManualImportTitle, manualImportTitlePos, Localizer.Token(4333), font, Color.Gray);
 
             // Incoming food
             Vector2 incomingFoodPos = new Vector2(pos.X, incomingTitlePos.Y + spacing + 3);
-            AddPanel(ref IncomingFoodPanel, incomingFoodPos, "NewUI/icon_food", font.LineSpacing);
+            AddPanel(ref IncomingFoodPanel, incomingFoodPos, "NewUI/icon_food", font.LineSpacing, Localizer.Token(4335));
             Rectangle incomingFoodRect = new Rectangle((int)(incomingFoodPos.X + indent), (int)incomingFoodPos.Y, barWidth, 20);
             AddProgressBar(ref IncomingFoodBar, incomingFoodRect, P.FoodImportSlots, "green");
             Vector2 incomingFoodAmountPos = new Vector2(pos.X + indentTradeAmount, incomingFoodPos.Y + (LowRes ? 0 : 2));
             AddLabel(ref IncomingFoodAmount, incomingFoodAmountPos, "", Font8, Color.White);
             Rectangle importFoodSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(incomingFoodPos.Y-12), sliderWidth, sliderSize);
-            AddUiSlider(ref ImportFoodSlotSlider, importFoodSlotsRect, "", 0, 20, P.ManualFoodImportSlots);
+            AddUiSlider(ref ImportFoodSlotSlider, importFoodSlotsRect, "", 0, 20, P.ManualFoodImportSlots, Localizer.Token(4336));
 
             // Incoming Prod
             Vector2 incomingProdPos = new Vector2(pos.X, incomingFoodPos.Y + spacing);
-            AddPanel(ref IncomingProdPanel, incomingProdPos, "NewUI/icon_production", font.LineSpacing);
+            AddPanel(ref IncomingProdPanel, incomingProdPos, "NewUI/icon_production", font.LineSpacing, Localizer.Token(4335));
             Rectangle incomingProdRect = new Rectangle((int)(incomingProdPos.X + indent), (int)incomingProdPos.Y, barWidth, 20);
             AddProgressBar(ref IncomingProdBar, incomingProdRect, P.ProdImportSlots, "brown");
             Vector2 incomingProdAmountPos = new Vector2(pos.X + indentTradeAmount, incomingProdPos.Y + (LowRes ? 0 : 2));
             AddLabel(ref IncomingProdAmount, incomingProdAmountPos, "", Font8, Color.White);
             Rectangle importProdSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(incomingProdPos.Y-12), sliderWidth, sliderSize);
-            AddUiSlider(ref ImportProdSlotSlider, importProdSlotsRect, "", 0, 20, P.ManualProdImportSlots);
+            AddUiSlider(ref ImportProdSlotSlider, importProdSlotsRect, "", 0, 20, P.ManualProdImportSlots, Localizer.Token(4336));
 
             // Incoming Colonists
             Vector2 incomingColoPos = new Vector2(pos.X, incomingProdPos.Y + spacing);
-            AddPanel(ref IncomingColoPanel, incomingColoPos, "UI/icon_pop", font.LineSpacing);
+            AddPanel(ref IncomingColoPanel, incomingColoPos, "UI/icon_pop", font.LineSpacing, Localizer.Token(4335));
             Rectangle incomingColoRect = new Rectangle((int)(incomingColoPos.X + indent), (int)incomingColoPos.Y, barWidth, 20);
             AddProgressBar(ref IncomingColoBar, incomingColoRect, P.ColonistsImportSlots, "blue");
             Vector2 incomingColoAmountPos = new Vector2(pos.X + indentTradeAmount, incomingColoPos.Y + (LowRes ? 0 : 2));
             AddLabel(ref IncomingColoAmount, incomingColoAmountPos, "", Font8, Color.White);
             Rectangle importColoSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(incomingColoPos.Y-12), sliderWidth, sliderSize);
-            AddUiSlider(ref ImportColoSlotSlider, importColoSlotsRect, "", 0, 20, P.ManualColoImportSlots);
+            AddUiSlider(ref ImportColoSlotSlider, importColoSlotsRect, "", 0, 20, P.ManualColoImportSlots, Localizer.Token(4336));
 
             Vector2 outgoingTitlePos = new Vector2(pos.X, incomingColoAmountPos.Y + spacing * (LowRes ? 1 : 1.5f));
-            AddLabel(ref OutgoingTradeTitle, outgoingTitlePos, "Outgoing Freighters", font, Color.Gray);
+            AddLabel(ref OutgoingTradeTitle, outgoingTitlePos, Localizer.Token(4331), font, Color.Gray);
+
+            Vector2 manualExportTitlePos = new Vector2(pos.X + indentSlider - 10, outgoingTitlePos.Y);
+            AddLabel(ref ManualExportTitle, manualExportTitlePos, Localizer.Token(4334), font, Color.Gray);
 
             // Outgoing food
             Vector2 outgoingFoodPos = new Vector2(pos.X, outgoingTitlePos.Y + spacing + 3);
-            AddPanel(ref OutgoingFoodPanel, outgoingFoodPos, "NewUI/icon_food", font.LineSpacing);
+            AddPanel(ref OutgoingFoodPanel, outgoingFoodPos, "NewUI/icon_food", font.LineSpacing, Localizer.Token(4335));
             Rectangle outgoingFoodRect = new Rectangle((int)(outgoingFoodPos.X + indent), (int)outgoingFoodPos.Y, barWidth, 20);
             AddProgressBar(ref OutgoingFoodBar, outgoingFoodRect, P.FoodExportSlots, "green");
             Rectangle exportFoodSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(outgoingFoodPos.Y-12), sliderWidth, sliderSize);
-            AddUiSlider(ref ExportFoodSlotSlider, exportFoodSlotsRect, "", 0, 20, P.ManualFoodExportSlots);
+            AddUiSlider(ref ExportFoodSlotSlider, exportFoodSlotsRect, "", 0, 20, P.ManualFoodExportSlots, Localizer.Token(4336));
 
             // Outgoing Prod
             Vector2 outgoingProdPos = new Vector2(pos.X, outgoingFoodPos.Y + spacing);
-            AddPanel(ref OutgoingProdPanel, outgoingProdPos, "NewUI/icon_production", font.LineSpacing);
+            AddPanel(ref OutgoingProdPanel, outgoingProdPos, "NewUI/icon_production", font.LineSpacing, Localizer.Token(4335));
             Rectangle outgoingProdRect = new Rectangle((int)(outgoingProdPos.X + indent), (int)outgoingProdPos.Y, barWidth, 20);
             AddProgressBar(ref OutgoingProdBar, outgoingProdRect, P.ProdExportSlots, "brown");
             Rectangle exportProdSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(outgoingProdPos.Y-12), sliderWidth, sliderSize);
-            AddUiSlider(ref ExportProdSlotSlider, exportProdSlotsRect, "", 0, 20, P.ManualProdExportSlots);
+            AddUiSlider(ref ExportProdSlotSlider, exportProdSlotsRect, "", 0, 20, P.ManualProdExportSlots, Localizer.Token(4336));
 
             // Outgoing Colonists
             Vector2 outgoingColoPos = new Vector2(pos.X, outgoingProdPos.Y + spacing);
-            AddPanel(ref OutgoingColoPanel, outgoingColoPos, "UI/icon_pop", font.LineSpacing);
+            AddPanel(ref OutgoingColoPanel, outgoingColoPos, "UI/icon_pop", font.LineSpacing, Localizer.Token(4335));
             Rectangle outgoingColoRect = new Rectangle((int)(outgoingColoPos.X + indent), (int)outgoingColoPos.Y, barWidth, 20);
             AddProgressBar(ref OutgoingColoBar, outgoingColoRect, P.ColonistsExportSlots, "blue");
             Rectangle exportColoSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(outgoingColoPos.Y-12), sliderWidth, sliderSize);
-            AddUiSlider(ref ExportColoSlotSlider, exportColoSlotsRect, "", 0, 20, P.ManualColoExportSlots);
+            AddUiSlider(ref ExportColoSlotSlider, exportColoSlotsRect, "", 0, 20, P.ManualColoExportSlots, Localizer.Token(4336));
         }
 
         void CreateTerraformingDetails(Vector2 pos)
@@ -415,9 +425,9 @@ namespace Ship_Game
                 DrawPercentage = true
             };
 
-            Vector2 terraTileTitlePos     = new Vector2(pos.X, terraVolcanoTitlePos.Y + spacing);
-            TileTerraformTitle            = Add(new UILabel(terraTileTitlePos, " ", font, Color.Gray));
-            TileTerraformTitle.Visible    = false;
+            Vector2 terraTileTitlePos  = new Vector2(pos.X, terraVolcanoTitlePos.Y + spacing);
+            TileTerraformTitle         = Add(new UILabel(terraTileTitlePos, " ", font, Color.Gray));
+            TileTerraformTitle.Visible = false;
 
             Vector2 terraTilePos      = new Vector2(pos.X + indent, terraTileTitlePos.Y);
             TileTerraformDone         = Add(new UILabel(terraTilePos, Localizer.Token(GameText.TerraformersDone), font, Color.Green));

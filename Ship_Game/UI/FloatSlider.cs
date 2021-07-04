@@ -17,7 +17,7 @@ namespace Ship_Game
         Rectangle KnobRect;   // knob area used to move the slider value
         public LocalizedText Text;
         public LocalizedText Tip;
-        public string ZeroString; // Display this string if the value is 0
+        public LocalizedText ZeroString; // Display this string if the value is 0
 
         public Action<FloatSlider> OnChange;
 
@@ -144,8 +144,8 @@ namespace Ship_Game
                     default:                   value = (RelativeValue * 100f).ToString("00") + "%"; break;
                 }
 
-                if (ZeroString.NotEmpty() && AbsoluteValue < 1)
-                    value = ZeroString;
+                if (ZeroString.Text.NotEmpty() && AbsoluteValue < 1)
+                    value = ZeroString.Text;
 
                 return value;
             }
