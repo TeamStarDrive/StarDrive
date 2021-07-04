@@ -10131,10 +10131,10 @@ TerraformLevel1:
  ENG: "Terraform Level 1. At this Level, Terraformers will gradually remove all Volcanoes in the planet."
 TerraformLevel2:
  Id: 4309
- ENG: "Terraform Level 2. At this Level, Terraformers will remove all Volcanoes in the planet and will also make terraformable tiles habitable"
+ ENG: "Terraform Level 2. At this Level, Terraformers will remove all Volcanoes in the planet and will also make terraformable tiles habitable."
 BB_Tech_Terraforming_Bonus:
  Id: 4310
- ENG: "Terraform Level 3. At this Level, Terraformers will remove all Volcanoes in the planet, make terraformable tiles habitable and will also transform your planet into the best suitable planet for your race while increasing its fertility to 1."
+ ENG: "Terraform Level 3. At this Level, Terraformers will remove all Volcanoes in the planet, make terraformable tiles habitable and will also transform your planet into the best suitable planet for your race and increase its fertility to 1."
 Terraforming:
  Id: 4311
  ENG: "Terraforming In Progress"
