@@ -20,6 +20,8 @@ namespace Ship_Game
         void UpdateTradeTab()
         {
             TradeTitle.Visible           =
+            ManualImportTitle.Visible    =
+            ManualExportTitle.Visible    =
             IncomingTradeTitle.Visible   =
             OutgoingTradeTitle.Visible   =
             IncomingColoPanel.Visible    =
@@ -66,6 +68,11 @@ namespace Ship_Game
             P.SetManualFoodExportSlots((int)ExportFoodSlotSlider.AbsoluteValue);
             P.SetManualProdExportSlots((int)ExportProdSlotSlider.AbsoluteValue);
             P.SetManualColoExportSlots((int)ExportColoSlotSlider.AbsoluteValue);
+
+            IncomingTradeTitle.Color = GetIncomingTradeTitleColor();
+            OutgoingTradeTitle.Color = GetOutgoingTradeTitleColor();
+            ManualImportTitle.Color  = GetManualImportSlotsOverrideColor();
+            ManualExportTitle.Color  = GetManualExportSlotsOverrideColor();
         }
 
         void UpdateTerraformTab()
@@ -123,5 +130,55 @@ namespace Ship_Game
         bool IsTerraformTabSelected => PFacilities.SelectedIndex == 3;
         bool IsTradeTabSelected     => PFacilities.SelectedIndex == 2;
         bool IsStatTabSelected      => PFacilities.SelectedIndex == 0;
+
+        Color GetManualImportSlotsOverrideColor()
+        {
+            if (P.ManualFoodImportSlots > 0
+                || P.ManualProdImportSlots > 0
+                || P.ManualColoImportSlots > 0)
+            {
+                return P.Owner.EmpireColor;
+            }
+
+            return Color.Gray;
+        }
+
+        Color GetManualExportSlotsOverrideColor()
+        {
+            if (P.ManualFoodExportSlots > 0
+                || P.ManualProdExportSlots > 0
+                || P.ManualColoExportSlots > 0)
+            {
+                return P.Owner.EmpireColor;
+            }
+
+            return Color.Gray;
+        }
+
+        Color GetIncomingTradeTitleColor()
+        {
+            if (IncomingFoodFreighters > 0
+                || IncomingProdFreighters > 0
+                || IncomingColoFreighters > 0)
+            {
+                return P.Owner.EmpireColor;
+            }
+
+            return Color.Gray;
+        }
+
+        Color GetOutgoingTradeTitleColor()
+        {
+            if (OutgoingFoodFreighters > 0
+                || OutgoingProdFreighters > 0
+                || OutgoingColoFreighters > 0)
+            {
+                return P.Owner.EmpireColor;
+            }
+
+            return Color.Gray;
+        }
     }
+
+
 }
