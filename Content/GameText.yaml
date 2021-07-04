@@ -12123,3 +12123,7 @@ SaveHullDesign:
  ENG: "Save Hull Design"
 TT_GuardMode:
  ENG: "Ship will be in guard stance and avoid aggressively engaging and chasing enemy ships"
+EngineTrails:
+ ENG: "Enable engine trails"
+TT_EngineTrails:
+ ENG: "This will enable engine trails for moving ships, disabling this will improve performance"
