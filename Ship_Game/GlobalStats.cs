@@ -113,7 +113,6 @@ namespace Ship_Game
         // Dev Options
         public static bool RestrictAIPlayerInteraction;
         public static bool DisableAIEmpires;
-        public static bool EnableSaveExportButton = true;
 
         ////////////////////////////////
         // From old Config
@@ -309,7 +308,6 @@ namespace Ship_Game
             GetSetting("DisableAsteroids",     ref DisableAsteroids);
             GetSetting("SimulationFramesPerSecond", ref SimulationFramesPerSecond);
             GetSetting("NotifyEnemyInSystemAfterLoad", ref NotifyEnemyInSystemAfterLoad);
-            GetSetting("NotifyEnemyInSystemAfterLoad", ref EnableSaveExportButton);
         }
 
         public static void SaveSettings()
@@ -347,7 +345,6 @@ namespace Ship_Game
             WriteSetting(config, "AltArcControl",       AltArcControl);
             WriteSetting(config, "LimitSpeed",          LimitSpeed);
             WriteSetting(config, "DisableAsteroids",    DisableAsteroids);
-            WriteSetting(config, "DisableAsteroids",    EnableSaveExportButton);
             WriteSetting(config, "SimulationFramesPerSecond", SimulationFramesPerSecond);
             WriteSetting(config, "NotifyEnemyInSystemAfterLoad", NotifyEnemyInSystemAfterLoad);
 
