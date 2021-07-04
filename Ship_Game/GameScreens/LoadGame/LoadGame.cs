@@ -396,6 +396,12 @@ namespace Ship_Game.GameScreens.LoadGame
             p.RestoreWantedOrbitals(psData.WantedPlatforms, psData.WantedStations, psData.WantedShipyards);
             p.RestoreManualBudgets(psData.ManualCivilianBudget, psData.ManualGrdDefBudget, psData.ManualSpcDefBudget);
             p.SetHasLimitedResourceBuilding(psData.HasLimitedResourcesBuildings);
+            p.SetManualFoodMaxImportSlots(psData.ManualFoodMaxImportSlots);
+            p.SetManualProdMaxImportSlots(psData.ManualProdMaxImportSlots);
+            p.SetManualColoMaxImportSlots(psData.ManualColoMaxImportSlots);
+            p.SetManualFoodMaxExportSlots(psData.ManualFoodMaxExportSlots);
+            p.SetManualProdMaxExportSlots(psData.ManualProdMaxExportSlots);
+            p.SetManualColoMaxExportSlots(psData.ManualColoMaxExportSlots);
 
             if (p.HasRings)
                 p.RingTilt = RandomMath.RandomBetween(-80f, -45f);
