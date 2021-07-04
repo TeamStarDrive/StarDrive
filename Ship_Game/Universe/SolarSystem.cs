@@ -741,12 +741,12 @@ namespace Ship_Game
                     ExploredBy           = planet.ExploredByEmpires.Select(e => e.data.Traits.Name),
                     BaseFertilityTerraformRatio  = planet.BaseFertilityTerraformRatio,
                     HasLimitedResourcesBuildings = planet.HasLimitedResourceBuilding,
-                    ManualFoodMaxImportSlots     = planet.ManualFoodMaxImportSlots,
-                    ManualProdMaxImportSlots     = planet.ManualProdMaxImportSlots,
-                    ManualColoMaxImportSlots     = planet.ManualColoMaxImportSlots,
-                    ManualFoodMaxExportSlots     = planet.ManualFoodMaxExportSlots,
-                    ManualProdMaxExportSlots     = planet.ManualProdMaxExportSlots,
-                    ManualColoMaxExportSlots     = planet.ManualColoMaxExportSlots,
+                    ManualFoodImportSlots     = planet.ManualFoodImportSlots,
+                    ManualProdImportSlots     = planet.ManualProdImportSlots,
+                    ManualColoImportSlots     = planet.ManualColoImportSlots,
+                    ManualFoodExportSlots     = planet.ManualFoodExportSlots,
+                    ManualProdExportSlots     = planet.ManualProdExportSlots,
+                    ManualColoExportSlots     = planet.ManualColoExportSlots,
                 };
 
                 if (planet.Owner != null)
