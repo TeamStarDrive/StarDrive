@@ -211,7 +211,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 if (!ship.Active)
                     continue;
 
-                if (ship.loyalty != EmpireManager.Player && ship.fleet == null)
+                if (ship.loyalty != EmpireManager.Player && !ship.loyalty.isFaction && ship.fleet == null)
                 {
                     if (!ship.AddedOnLoad) ship.loyalty.AddShipToManagedPools(ship);
                 }
