@@ -238,7 +238,7 @@ namespace Ship_Game
             DrawPlanetStats(PopPerTileRect, $"{popPerTile.String(0)}m", "NewUI/icon_poppertile", Color.White, Color.White);
             DrawPlanetStats(BiospheredPopRect, biospherePop.String(1), "NewUI/icon_biospheres", Color.White, Color.White);
 
-            if (EmpireManager.Player.IsBuildingUnlocked(Building.TerraformerId))
+            if (EmpireManager.Player.CanFullTerraformPlanets)
             {
                 float terraformedPop = P.PotentialMaxPopBillionsFor(EmpireManager.Player);
                 DrawPlanetStats(TerraformedPopRect, terraformedPop.String(1),
