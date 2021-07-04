@@ -10189,6 +10189,30 @@ TerraformersVolcanoes2:
 TerraformersTiles2:
  Id: 4328
  ENG: "Tiles ("
+Automatic:
+ Id: 4329
+ ENG: "Aucomatic" 
+IncomingFreighters:
+ Id: 4330
+ ENG: "Incoming Freighters"  
+OutgoingFreighters:
+ Id: 4331
+ ENG: "Outgoing Freighters"   
+ColonyTrade:
+ Id: 4332
+ ENG: "Colony Trade"    
+ManualImport:
+ Id: 4333
+ ENG: "Override Import Trade Slots"    
+ManualExport:
+ Id: 4334
+ ENG: "Override Export Trade Slots"     
+IncomingOutGoingTip:
+ Id: 4335
+ ENG: "The number of freighters incoming or outgoing vs. the number of goods slots the planet is has opens. if the planet does not export or import the goods, the open slots will be zero."      
+ManualTradeSlotTip:
+ Id: 4336
+ ENG: "You may adjust out many slots are open for the goods import or export. When set to 0, the open slot calcultion will resume automatic mode. Use manual slots carefully, as high number of slots might lock your freighters on specific goods."       
 OnSurface:
  Id: 4993
  ENG: "on surface"
