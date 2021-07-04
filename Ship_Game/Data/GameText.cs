@@ -840,7 +840,7 @@ namespace Ship_Game
         Terraformer = 461,
         /// <summary>These machines, while expensive to maintain, will tirelessly transform barren</summary>
         TheseMachinesWhileExpensiveTo = 462,
-        /// <summary>Terraforms the planet to your preferred Environment</summary>
+        /// <summary>Terraforms the planet based on the Empire's Terraforming Level</summary>
         TerraformsThePlanetToYour = 463,
         /// <summary>Tracking Station</summary>
         TrackingStation = 464,
@@ -1226,7 +1226,7 @@ namespace Ship_Game
         BB_Tech_TachyonScanning_Desc = 681,
         /// <summary>Doubles the range of all sensors</summary>
         BB_Tech_TachyonScanning_SensorRangeBonus_Bonus = 682,
-        /// <summary>Terraforming Planet</summary>
+        /// <summary>Terraforming</summary>
         BB_Tech_Terraforming_Name = 683,
         /// <summary>Thalaron Blaster</summary>
         BB_Tech_ThalaronBlaster_Name = 685,
@@ -2674,7 +2674,7 @@ namespace Ship_Game
         BB_Tech_AceTraining_Name = 2011,
         /// <summary>Our fighter pilots should be the best of the best.</summary>
         BB_Tech_AceTraining_Desc = 2012,
-        /// <summary>All fighter class vessels receive 2 free experience levels.</summary>
+        /// <summary>All fighter hulls, and any drone or corvette designated ship,</summary>
         BB_Tech_AceTraining_BonusFighterLevels_Bonus = 2013,
         /// <summary>Xeno Intelligence</summary>
         BB_Tech_XenoIntelligence_Name = 2014,
@@ -4256,6 +4256,66 @@ namespace Ship_Game
         UsePlayerDesignsTitle = 4305,
         /// <summary>The AI will use player designed ships in the database.</summary>
         UsePlayerDesignsTip = 4306,
+        /// <summary>Terraform Level</summary>
+        TerraformLevel = 4307,
+        /// <summary>Terraform Level 1. At this Level, Terraformers will remove any</summary>
+        TerraformLevel1 = 4308,
+        /// <summary>Terraform Level 2. At this Level, Terraformers will remove any</summary>
+        TerraformLevel2 = 4309,
+        /// <summary>Terraform Level 3. At this Level, Terraformers will remove any</summary>
+        BB_Tech_Terraforming_Bonus = 4310,
+        /// <summary>Terraforming</summary>
+        Terraforming = 4311,
+        /// <summary>Blockade!</summary>
+        Blockade2 = 4312,
+        /// <summary>Starvation!</summary>
+        Starvation = 4313,
+        /// <summary>Terraforming Operations - Level</summary>
+        TerraformingOperationsLevel = 4314,
+        /// <summary>Status:</summary>
+        TerraformingStatus = 4315,
+        /// <summary>Terraformers:</summary>
+        TerraformersHere = 4316,
+        /// <summary>Done</summary>
+        TerraformersDone = 4317,
+        /// <summary>Planet:</summary>
+        TerraformPlanet = 4318,
+        /// <summary>Target Fertility:</summary>
+        TerraformTargetFert = 4319,
+        /// <summary>Estimated Population:</summary>
+        TerraformEsPop = 4320,
+        /// <summary>(negative environment buildings)</summary>
+        TerraformNegativeEnv = 4321,
+        /// <summary>WARNING - This building won't raise Max Fertility above 0</summary>
+        NegativeEnvWarning = 4322,
+        /// <summary>Not Started</summary>
+        TerraformersNotStarted = 4323,
+        /// <summary>In Progress</summary>
+        TerraformersInProgress = 4324,
+        /// <summary>Volcanoes:</summary>
+        TerraformersVolcanoes = 4325,
+        /// <summary>Tiles:</summary>
+        TerraformersTiles = 4326,
+        /// <summary>Volcanoes (</summary>
+        TerraformersVolcanoes2 = 4327,
+        /// <summary>Tiles (</summary>
+        TerraformersTiles2 = 4328,
+        /// <summary>Aucomatic</summary>
+        Automatic = 4329,
+        /// <summary>Incoming Freighters</summary>
+        IncomingFreighters = 4330,
+        /// <summary>Outgoing Freighters</summary>
+        OutgoingFreighters = 4331,
+        /// <summary>Colony Trade</summary>
+        ColonyTrade = 4332,
+        /// <summary>Override Import Trade Slots</summary>
+        ManualImport = 4333,
+        /// <summary>Override Export Trade Slots</summary>
+        ManualExport = 4334,
+        /// <summary>The number of freighters incoming or outgoing vs. the number</summary>
+        IncomingOutGoingTip = 4335,
+        /// <summary>You may adjust out many slots are open for the</summary>
+        ManualTradeSlotTip = 4336,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>
@@ -5042,7 +5102,7 @@ namespace Ship_Game
         SaveShipDesign = -23,
         /// <summary>Save Hull Design</summary>
         SaveHullDesign = -24,
-        /// <summary>Guard Mode Tooltip</summary>
+        /// <summary>Ship will be in guard stance and avoid aggressively engaging</summary>
         TT_GuardMode = -25,
     }
 }

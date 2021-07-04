@@ -15,7 +15,13 @@
       <Name>Terraformer</Name>
     </UnlockedBuilding>
   </BuildingsUnlocked>
-  <BonusUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Terraforming Max Level</Name>
+      <Bonus>3</Bonus>
+      <BonusIndex>4310</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>	
   <TroopsUnlocked />
   <HullsUnlocked />
 </Technology>
