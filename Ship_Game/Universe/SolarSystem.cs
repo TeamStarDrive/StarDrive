@@ -740,7 +740,13 @@ namespace Ship_Game
                     StationsList         = planet.OrbitalStations.Where(s => s.Active).Select(s => s.guid).ToArray(),
                     ExploredBy           = planet.ExploredByEmpires.Select(e => e.data.Traits.Name),
                     BaseFertilityTerraformRatio  = planet.BaseFertilityTerraformRatio,
-                    HasLimitedResourcesBuildings = planet.HasLimitedResourceBuilding
+                    HasLimitedResourcesBuildings = planet.HasLimitedResourceBuilding,
+                    ManualFoodImportSlots     = planet.ManualFoodImportSlots,
+                    ManualProdImportSlots     = planet.ManualProdImportSlots,
+                    ManualColoImportSlots     = planet.ManualColoImportSlots,
+                    ManualFoodExportSlots     = planet.ManualFoodExportSlots,
+                    ManualProdExportSlots     = planet.ManualProdExportSlots,
+                    ManualColoExportSlots     = planet.ManualColoExportSlots,
                 };
 
                 if (planet.Owner != null)

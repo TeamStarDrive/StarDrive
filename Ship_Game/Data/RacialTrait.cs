@@ -120,6 +120,7 @@ namespace Ship_Game
         [Serialize(94)] public float ResearchTaxMultiplier = 1;
         [Serialize(95)] public bool TaxGoods;
         [Serialize(96)] public bool SmartMissiles;
+        [Serialize(97)] public int TerraformingLevel;  // FB from 0 to 3
 
         public float HomeworldSizeMultiplier => 1f + HomeworldSizeMod;
         public float MaintMultiplier => 1f + MaintMod; // Ex: 1.25
