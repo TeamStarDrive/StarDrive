@@ -45,7 +45,8 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            Owner.SetDieTimer(Scale > 1 ? -1 : 2); // die if the ship was shot out of the atmosphere
+            if (Scale < 1.01f)
+                Owner.SetDieTimer(2); // If ship shot out of the Atmosphere (scale bigger than 1) - dont update the timer and let it die
 
             // Fiery trail atmospheric entry
             if (!P.Type.EarthLike || !Owner.Position.InRadius(P.Center, P.ObjectRadius + 1000f))
