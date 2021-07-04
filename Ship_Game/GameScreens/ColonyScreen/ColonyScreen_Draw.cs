@@ -240,32 +240,6 @@ namespace Ship_Game
             }
 
             UpdateData();
-            if (IncomingFreighters > 0 && (P.Owner?.isPlayer == true || Empire.Universe.Debug))
-            {
-                Vector2 incomingTitle = new Vector2(cursor.X + + 200, cursor.Y - (TextFont.LineSpacing + 2) * 3);
-                Vector2 incomingData =  new Vector2(cursor.X + 200 + num5, cursor.Y - (TextFont.LineSpacing + 2) * 3);
-                batch.DrawString(TextFont, "Incoming Freighters:", incomingTitle, Color.White);
-
-                DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingFoodFreighters,
-                    IncomingFood.String(), GameText.Food);
-                DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingProdFreighters,
-                    IncomingProd.String(), GameText.Production);
-
-                string popString = IncomingPop.LessOrEqual(1) ? $"{(IncomingPop * 1000).String(2)}m" : $"{IncomingPop.String()}b";
-                DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingColoFreighters,
-                    popString, GameText.Colonists);
-            }
-
-            if (OutgoingFreighters > 0 && (P.Owner?.isPlayer == true || Empire.Universe.Debug))
-            {
-                Vector2 outgoingTitle = new Vector2(cursor.X + +200, cursor.Y + (TextFont.LineSpacing + 2) * 2);
-                Vector2 outgoingData  = new Vector2(cursor.X + 200 + num5, cursor.Y + (TextFont.LineSpacing + 2) * 2);
-                batch.DrawString(TextFont, "Outgoing Freighters:", outgoingTitle, Color.White);
-                DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingFoodFreighters, GameText.Food);
-                DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingProdFreighters, GameText.Production);
-                DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingColoFreighters, GameText.Colonists);
-            }
-
             rect = new Rectangle((int)cursor.X, (int)cursor.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Fertility) + ":").X, TextFont.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(GameText.IndicatesHowMuchFoodThis);
@@ -296,6 +270,8 @@ namespace Ship_Game
             base.Draw(batch, elapsed);
         }
 
+        string IncomingPopString => IncomingPop.LessOrEqual(1) ? $"{(IncomingPop * 1000).String(2)}m" : $"{IncomingPop.String()}b";
+
         void DrawShields(SpriteBatch batch)
         {
             if (P.ShieldStrengthMax <= 0)
@@ -307,39 +283,6 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture("NewUI/icon_planetshield"), PlanetShieldIconRect, Color.LightSkyBlue);
             if (P.ShieldStrengthCurrent > 0)
                 batch.Draw(P.PlanetTexture, PlanetIcon, ApplyCurrentAlphaToColor(Color.LightSkyBlue));
-        }
-
-        void DrawIncomingFreighters(SpriteBatch batch, ref Vector2 incomingTitle, ref Vector2 incomingData, 
-            int numFreighters, string incomingCargo, GameText text)
-        {
-            if (numFreighters == 0)
-                return;
-
-            int lineDown      = TextFont.LineSpacing + 2;
-            string freighters = $"{numFreighters} ";
-            incomingTitle.Y  += lineDown;
-            incomingData.Y   += lineDown;
-
-            batch.DrawString(TextFont, $"{Localizer.Token(text)}:", incomingTitle, Color.Gray);
-            batch.DrawString(TextFont, freighters, incomingData, Color.LightGreen);
-            if (incomingCargo == "0" || incomingCargo == "0m")
-                return;
-
-            Vector2 numCargo = new Vector2(incomingData.X + TextFont.MeasureString(freighters).X, incomingData.Y + 1);
-            batch.DrawString(Font8, $"({incomingCargo})", numCargo, Color.DarkKhaki);
-        }
-
-        void DrawOutgoingFreighters(SpriteBatch batch, ref Vector2 outgoingTitle, ref Vector2 outgoingData, 
-            int numFreighters, GameText text)
-        {
-            if (numFreighters == 0)
-                return;
-
-            int lineDown     = TextFont.LineSpacing + 2;
-            outgoingTitle.Y += lineDown;
-            outgoingData.Y  += lineDown;
-            batch.DrawString(TextFont, $"{Localizer.Token(text)}:", outgoingTitle, Color.Gray);
-            batch.DrawString(TextFont, numFreighters.String(), outgoingData, Color.Gold);
         }
 
         void DrawFoodAndStorage(SpriteBatch batch)
@@ -454,6 +397,17 @@ namespace Ship_Game
                 DrawMoney(ref bCursor, batch);
                 DrawPlanetStat(ref bCursor, batch);
                 //DrawCommoditiesArea(bCursor);
+                return;
+            }
+
+            if (IsTradeTabSelected)
+            {
+                IncomingFoodBar.Draw(batch);
+                IncomingProdBar.Draw(batch);
+                IncomingColoBar.Draw(batch);
+                OutgoingFoodBar.Draw(batch);
+                OutgoingProdBar.Draw(batch);
+                OutgoingColoBar.Draw(batch);
                 return;
             }
 
@@ -774,7 +728,7 @@ namespace Ship_Game
                 return $" {TerraTargetFertility.String(2)} {Localizer.Token(GameText.TerraformNegativeEnv)}";
             }
 
-            if (TerraTargetFertility.Greater(P.MaxFertilityFor(Player))) // B etter new fertility max
+            if (TerraTargetFertility.Greater(P.MaxFertilityFor(Player))) // Better new fertility max
             {
                 color = Color.Green;
                 return $" {TerraTargetFertility.String(2)}";
