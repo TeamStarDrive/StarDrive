@@ -3017,7 +3017,9 @@ BB_Tech_TachyonScanning_SensorRangeBonus_Bonus:
  SPA: "Dobla el alcance de todos los sensores"
 BB_Tech_Terraforming_Name:
  Id: 683
- ENG: "Terraforming In Progress"
+ ENG: "Terraforming"
+ RUS: "Терраформинг"
+ SPA: "Terraformación"
 BB_Tech_ThalaronBlaster_Name:
  Id: 685
  ENG: "Thalaron Blaster"
@@ -10135,7 +10137,7 @@ BB_Tech_Terraforming_Bonus:
  ENG: "Terraform Level 3. At this Level, Terraformers will remove all Volcanoes in the planet, make terraformable tiles habitable and will also transform your planet into the best suitable planet for your race while increasing its fertility to 1."
 Terraforming:
  Id: 4311
- ENG: "Terraforming"
+ ENG: "Terraforming In Progress"
 Blockade2:
  Id: 4312
  ENG: "Blockade!"
