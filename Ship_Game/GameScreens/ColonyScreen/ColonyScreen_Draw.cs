@@ -6,7 +6,6 @@ namespace Ship_Game
 {
     public partial class ColonyScreen
     {
-
         int IncomingFreighters;
         int IncomingFoodFreighters;
         int IncomingProdFreighters;
@@ -22,6 +21,18 @@ namespace Ship_Game
         bool Blockade;
         bool BioSpheresResearched;
         float TroopConsumption;
+        bool Terraformable; 
+        int NumTerraformersHere;
+        int NumMaxTerraformers;
+        bool NeedLevel1Terraform;
+        bool NeedLevel2Terraform;
+        bool NeedLevel3Terraform;
+        int NumVolcanoes;
+        int NumTerraformableTiles;
+        int TerraformLevel;
+        float MinEstimatedMaxPop;
+        float TerraMaxPopBillion; // After terraforming
+        float TerraTargetFertility; // After terraforming
 
         void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, string texture,
             string toolTip, bool percent = false, bool signs = true, int digits = 2)
@@ -227,61 +238,12 @@ namespace Ship_Game
                 var fertMultiplier = new Vector2(position3.X + TextFont.MeasureString($"{fertility} ").X, position3.Y+2);
                 batch.DrawString(Font8, $"(x {fertEnvMultiplier.String(2)})", fertMultiplier, fertEnvColor);
             }
-            if (P.TerraformPoints > 0)
-            {
-                Color terraformColor = P.Owner?.EmpireColor ?? Color.White;
-                string terraformText = Localizer.Token(GameText.BB_Tech_Terraforming_Name); // Terraform Planet is the default text
-                if (P.HasVolcanoesToTerraform)
-                {
-                    terraformText = Localizer.Token(GameText.RemovingAVolcano);
-                }
-                else if (P.HasTilesToTerraform)
-                {
-                    terraformText  = Localizer.Token(GameText.TerraformingATile);
-                }
-                else if (P.BioSpheresToTerraform
-                      && P.Category == P.Owner?.data.PreferredEnv 
-                      && P.BaseMaxFertility.GreaterOrEqual(P.TerraformedMaxFertility))
-                {
-                    terraformText = Localizer.Token(GameText.RemovingBiospheres);
-                }
-
-                int terraformOffSetX = LowRes ? 30 : 20;
-                var terraformPos = new Vector2(PlanetIcon.X - terraformOffSetX, PlanetIcon.Y + PlanetIcon.Height + TextFont.LineSpacing-5);
-                batch.DrawString(TextFont, $"{terraformText} - {(P.TerraformPoints * 100).String(0)}%", terraformPos, terraformColor);
-            }
 
             UpdateData();
-            if (IncomingFreighters > 0 && (P.Owner?.isPlayer == true || Empire.Universe.Debug))
-            {
-                Vector2 incomingTitle = new Vector2(cursor.X + + 200, cursor.Y - (TextFont.LineSpacing + 2) * 3);
-                Vector2 incomingData =  new Vector2(cursor.X + 200 + num5, cursor.Y - (TextFont.LineSpacing + 2) * 3);
-                batch.DrawString(TextFont, "Incoming Freighters:", incomingTitle, Color.White);
-
-                DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingFoodFreighters,
-                    IncomingFood.String(), GameText.Food);
-                DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingProdFreighters,
-                    IncomingProd.String(), GameText.Production);
-
-                string popString = IncomingPop.LessOrEqual(1) ? $"{(IncomingPop * 1000).String(2)}m" : $"{IncomingPop.String()}b";
-                DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingColoFreighters,
-                    popString, GameText.Colonists);
-
-            }
-
-            if (OutgoingFreighters > 0 && (P.Owner?.isPlayer == true || Empire.Universe.Debug))
-            {
-                Vector2 outgoingTitle = new Vector2(cursor.X + +200, cursor.Y + (TextFont.LineSpacing + 2) * 2);
-                Vector2 outgoingData  = new Vector2(cursor.X + 200 + num5, cursor.Y + (TextFont.LineSpacing + 2) * 2);
-                batch.DrawString(TextFont, "Outgoing Freighters:", outgoingTitle, Color.White);
-                DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingFoodFreighters, GameText.Food);
-                DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingProdFreighters, GameText.Production);
-                DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingColoFreighters, GameText.Colonists);
-            }
-
             rect = new Rectangle((int)cursor.X, (int)cursor.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Fertility) + ":").X, TextFont.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(GameText.IndicatesHowMuchFoodThis);
+
             cursor.Y += TextFont.LineSpacing + 2;
             position3 = new Vector2(cursor.X + num5, cursor.Y);
             batch.DrawString(TextFont, Localizer.Token(GameText.Richness) + ":", cursor, Color.Orange);
@@ -290,44 +252,37 @@ namespace Ship_Game
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(GameText.APlanetsMineralRichnessDirectly);
 
+            cursor.Y += TextFont.LineSpacing * 2 + 4;
+            if (P.TerraformPoints > 0)
+            {
+                Color terraformColor = P.Owner?.EmpireColor ?? Color.White;
+                string terraformText = Localizer.Token(GameText.Terraforming); // Terraforming in Progress
+                batch.DrawString(TextFont, terraformText, cursor, ApplyCurrentAlphaToColor(terraformColor));
+            }
+
             DrawFoodAndStorage(batch);
-            BlockadeLabel.Visible = Blockade;
-            BlockadeLabel.Color   = ApplyCurrentAlphaToColor(Color.Red);
+            DrawShields(batch);
+            BlockadeLabel.Visible   = Blockade;
+            BlockadeLabel.Color     = ApplyCurrentAlphaToColor(Color.Red);
+            StarvationLabel.Visible = P.IsStarving;
+            StarvationLabel.Color   = ApplyCurrentAlphaToColor(Color.Red);
 
             base.Draw(batch, elapsed);
         }
 
-        void DrawIncomingFreighters(SpriteBatch batch, ref Vector2 incomingTitle, ref Vector2 incomingData, 
-            int numFreighters, string incomingCargo, GameText text)
+        string IncomingPopString => IncomingPop.LessOrEqual(1) ? $"{(IncomingPop * 1000).String(2)}m" : $"{IncomingPop.String()}b";
+
+        void DrawShields(SpriteBatch batch)
         {
-            if (numFreighters == 0)
+            if (P.ShieldStrengthMax <= 0)
                 return;
 
-            int lineDown      = TextFont.LineSpacing + 2;
-            string freighters = $"{numFreighters} ";
-            incomingTitle.Y  += lineDown;
-            incomingData.Y   += lineDown;
-
-            batch.DrawString(TextFont, $"{Localizer.Token(text)}:", incomingTitle, Color.Gray);
-            batch.DrawString(TextFont, freighters, incomingData, Color.LightGreen);
-            if (incomingCargo == "0" || incomingCargo == "0m")
-                return;
-
-            Vector2 numCargo = new Vector2(incomingData.X + TextFont.MeasureString(freighters).X, incomingData.Y + 1);
-            batch.DrawString(Font8, $"({incomingCargo})", numCargo, Color.DarkKhaki);
-        }
-
-        void DrawOutgoingFreighters(SpriteBatch batch, ref Vector2 outgoingTitle, ref Vector2 outgoingData, 
-            int numFreighters, GameText text)
-        {
-            if (numFreighters == 0)
-                return;
-
-            int lineDown     = TextFont.LineSpacing + 2;
-            outgoingTitle.Y += lineDown;
-            outgoingData.Y  += lineDown;
-            batch.DrawString(TextFont, $"{Localizer.Token(text)}:", outgoingTitle, Color.Gray);
-            batch.DrawString(TextFont, numFreighters.String(), outgoingData, Color.Gold);
+            PlanetShieldBar.Max      = P.ShieldStrengthMax;
+            PlanetShieldBar.Progress = P.ShieldStrengthCurrent;
+            PlanetShieldBar.Draw(batch);
+            batch.Draw(ResourceManager.Texture("NewUI/icon_planetshield"), PlanetShieldIconRect, Color.LightSkyBlue);
+            if (P.ShieldStrengthCurrent > 0)
+                batch.Draw(P.PlanetTexture, PlanetIcon, ApplyCurrentAlphaToColor(Color.LightSkyBlue));
         }
 
         void DrawFoodAndStorage(SpriteBatch batch)
@@ -437,11 +392,30 @@ namespace Ship_Game
 
         void DrawDetailInfo(SpriteBatch batch, Vector2 bCursor)
         {
-            if (PFacilities.SelectedIndex == 0)
+            if (IsStatTabSelected)
             {
                 DrawMoney(ref bCursor, batch);
                 DrawPlanetStat(ref bCursor, batch);
                 //DrawCommoditiesArea(bCursor);
+                return;
+            }
+
+            if (IsTradeTabSelected)
+            {
+                IncomingFoodBar.Draw(batch);
+                IncomingProdBar.Draw(batch);
+                IncomingColoBar.Draw(batch);
+                OutgoingFoodBar.Draw(batch);
+                OutgoingProdBar.Draw(batch);
+                OutgoingColoBar.Draw(batch);
+                return;
+            }
+
+            if (IsTerraformTabSelected)
+            {
+                if (NeedLevel1Terraform && TerraformLevel >= 1) VolcanoTerraformBar.Draw(batch);
+                if (NeedLevel2Terraform && TerraformLevel >= 2) TileTerraformBar.Draw(batch);
+                if (NeedLevel3Terraform && TerraformLevel >= 3) PlanetTerraformBar.Draw(batch);
                 return;
             }
 
@@ -686,7 +660,6 @@ namespace Ship_Game
             DrawBuildingInfo(ref bCursor, batch, maintenance, "NewUI/icon_money", Localizer.Token(GameText.CreditsPerTurnInMaintenance));
 
             DrawBuildingWeaponStats(ref bCursor, batch, b);
-            DrawTerraformerStats(ref bCursor, batch, b);
             DrawFertilityOnBuildWarning(ref bCursor, batch, b);
 
             if (tile?.VolcanoHere == true)
@@ -722,25 +695,12 @@ namespace Ship_Game
 
             if (P.MaxFertility + b.MaxFertilityOnBuildFor(Player, P.Category) < 0)
             {
-                string warning = MultiLineFormat("WARNING - This building won't raise Max Fertility " +
-                                                  "above 0 due to currently present negative environment " +
-                                                  $"buildings on this planet (effective Max Fertility is {P.MaxFertility}).");
+                string warning = MultiLineFormat($"{Localizer.Token(GameText.NegativeEnvWarning)} {P.MaxFertility}).");
 
                 cursor.Y += TextFont.LineSpacing;
                 batch.DrawString(TextFont, warning, cursor, Color.Red);
                 cursor.Y += TextFont.LineSpacing * 4;
             }
-        }
-
-        void DrawTerraformerStats(ref Vector2 cursor, SpriteBatch batch, Building b)
-        {
-            if (b.PlusTerraformPoints.LessOrEqual(0))
-                return;
-
-            string terraformStats = TerraformPotential(out Color terraformColor);
-            cursor.Y += TextFont.LineSpacing;
-            batch.DrawString(TextFont, terraformStats, cursor, terraformColor);
-            cursor.Y += TextFont.LineSpacing * 5;
         }
 
         void DrawBuildingWeaponStats(ref Vector2 cursor, SpriteBatch batch, Building b)
@@ -752,6 +712,29 @@ namespace Ship_Game
             DrawBuildingInfo(ref cursor, batch, b.TheWeapon.DamageAmount, "UI/icon_offense", "Damage", signs: false);
             DrawBuildingInfo(ref cursor, batch, b.TheWeapon.EMPDamage, "UI/icon_offense", "EMP Damage", signs: false);
             DrawBuildingInfo(ref cursor, batch, b.ActualFireDelay(P), "UI/icon_offense", "Fire Delay", signs: false);
+        }
+
+        string GetTargetFertilityText(out Color color)
+        {
+            color = Color.Yellow;
+            if (TerraformLevel < 3)
+                return "";
+
+            if (TerraTargetFertility.Less(1))
+            {
+                if (TerraTargetFertility <= 0)
+                    color = Color.Red;
+
+                return $" {TerraTargetFertility.String(2)} {Localizer.Token(GameText.TerraformNegativeEnv)}";
+            }
+
+            if (TerraTargetFertility.Greater(P.MaxFertilityFor(Player))) // Better new fertility max
+            {
+                color = Color.Green;
+                return $" {TerraTargetFertility.String(2)}";
+            }
+
+            return "";
         }
 
         void UpdateData() // This will update statistics in an interval to reduce threading issues
@@ -772,9 +755,21 @@ namespace Ship_Game
                 IncomingPop            = (TotalIncomingCargo(Goods.Colonists) / 1000).RoundToFractionOf100();
                 Blockade               = P.Quarantine || P.SpaceCombatNearPlanet;
                 TroopConsumption       = P.TotalTroopConsumption;
-                UpdateTimer            = 300;
+                Terraformable          = P.Terraformable;
+                NumTerraformersHere    = P.TerraformersHere;
+                NumMaxTerraformers     = P.TerraformerLimit;
+                NeedLevel1Terraform    = P.HasVolcanoesToTerraform;
+                NeedLevel2Terraform    = P.HasTilesToTerraform;
+                NeedLevel3Terraform    = P.Category != P.Owner.data.PreferredEnv || P.BaseMaxFertility.Less(P.TerraformedMaxFertility);
+                NumVolcanoes           = P.TilesList.Filter(t => t.VolcanoHere).Length;
+                NumTerraformableTiles  = P.TilesList.Filter(t => t.CanTerraform).Length;
+                TerraformLevel         = P.Owner.data.Traits.TerraformingLevel;
+                TerraTargetFertility   = TerraformTargetFertility();
+                MinEstimatedMaxPop     = P.PotentialMaxPopBillionsFor(P.Owner);
+                TerraMaxPopBillion     = P.PotentialMaxPopBillionsFor(P.Owner, true);
+                UpdateTimer            = 150;
             }
-            else if (!Empire.Universe.Paused)
+            else
             {
                 UpdateTimer -= 1;
             }
