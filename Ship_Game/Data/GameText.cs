@@ -840,7 +840,7 @@ namespace Ship_Game
         Terraformer = 461,
         /// <summary>These machines, while expensive to maintain, will tirelessly transform barren</summary>
         TheseMachinesWhileExpensiveTo = 462,
-        /// <summary>Terraforms the planet to your preferred Environment</summary>
+        /// <summary>Terraforms the planet based on the Empire's Terraforming Level</summary>
         TerraformsThePlanetToYour = 463,
         /// <summary>Tracking Station</summary>
         TrackingStation = 464,
@@ -1226,7 +1226,7 @@ namespace Ship_Game
         BB_Tech_TachyonScanning_Desc = 681,
         /// <summary>Doubles the range of all sensors</summary>
         BB_Tech_TachyonScanning_SensorRangeBonus_Bonus = 682,
-        /// <summary>Terraforming In Progress</summary>
+        /// <summary>Terraforming</summary>
         BB_Tech_Terraforming_Name = 683,
         /// <summary>Thalaron Blaster</summary>
         BB_Tech_ThalaronBlaster_Name = 685,
@@ -4300,6 +4300,22 @@ namespace Ship_Game
         TerraformersVolcanoes2 = 4327,
         /// <summary>Tiles (</summary>
         TerraformersTiles2 = 4328,
+        /// <summary>Aucomatic</summary>
+        Automatic = 4329,
+        /// <summary>Incoming Freighters</summary>
+        IncomingFreighters = 4330,
+        /// <summary>Outgoing Freighters</summary>
+        OutgoingFreighters = 4331,
+        /// <summary>Colony Trade</summary>
+        ColonyTrade = 4332,
+        /// <summary>Override Import Trade Slots</summary>
+        ManualImport = 4333,
+        /// <summary>Override Export Trade Slots</summary>
+        ManualExport = 4334,
+        /// <summary>The number of freighters incoming or outgoing vs. the number</summary>
+        IncomingOutGoingTip = 4335,
+        /// <summary>You may adjust out many slots are open for the</summary>
+        ManualTradeSlotTip = 4336,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>
