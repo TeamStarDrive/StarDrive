@@ -30,7 +30,11 @@ namespace Ship_Game.AI.Research
             AllHulls,
             Orbitals,
             GroundCombat,
-            Randomize
+            Randomize,
+            /// <summary>
+            /// How much bonus a similar gives.
+            /// </summary>
+            LineFocusIntensity
         }
 
         public enum ResearchArea
@@ -60,6 +64,7 @@ namespace Ship_Game.AI.Research
             /// Random= TechCost * randomizer
             /// TechCost += randomBetween -Random and Random.
             ShipMods[ShipCosts.Randomize]    = 0f;
+            ShipMods[ShipCosts.LineFocusIntensity] = 1;
 
             //TechUIDS
 
