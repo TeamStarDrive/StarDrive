@@ -60,6 +60,25 @@ namespace Ship_Game
         readonly Graphics.Font TextFont;
         public readonly Empire Player = EmpireManager.Player;
 
+        UILabel TradeTitle;
+        UILabel IncomingTradeTitle;
+        UILabel OutgoingTradeTitle;
+        UIPanel IncomingFoodPanel;
+        UIPanel IncomingProdPanel;
+        UIPanel IncomingColoPanel;
+        UIPanel OutgoingFoodPanel;
+        UIPanel OutgoingProdPanel;
+        UIPanel OutgoingColoPanel;
+        ProgressBar IncomingFoodBar;
+        ProgressBar IncomingProdBar;
+        ProgressBar IncomingColoBar;
+        ProgressBar OutgoingFoodBar;
+        ProgressBar OutgoingProdBar;
+        ProgressBar OutgoingColoBar;
+        UILabel IncomingFoodAmount;
+        UILabel IncomingProdAmount;
+        UILabel IncomingColoAmount;
+
         UILabel TerraformTitle;
         UILabel TerraformStatusTitle;
         UILabel TerraformStatus;
@@ -139,7 +158,7 @@ namespace Ship_Game
             PFacilities = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, SubColonyGrid.Bottom + 20, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height - 20 - SubColonyGrid.Height - 40);
             PFacilities.AddTab(GameText.Statistics2); // Statistics
             PFacilities.AddTab(GameText.Description); // Description
-            //PFacilities.AddTab(GameText.Trade2); // Trade
+            PFacilities.AddTab(GameText.Trade2); // Trade
             if (Player.data.Traits.TerraformingLevel > 0)
                 PFacilities.AddTab(GameText.BB_Tech_Terraforming_Name); // Terraforming
 
@@ -229,7 +248,98 @@ namespace Ship_Game
 
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
             P.RefreshBuildingsWeCanBuildHere();
-            CreateTerraformingDetails(new Vector2(PFacilities.Rect.X + 15, PFacilities.Rect.Y + 35));
+            Vector2 detailsVector = new Vector2(PFacilities.Rect.X + 15, PFacilities.Rect.Y + 35);
+            CreateTradeDetails(detailsVector);
+            CreateTerraformingDetails(detailsVector);
+        }
+
+        void AddTradeUiLabel(ref UILabel uiLabel, Vector2 pos, string text, Font font, Color color)
+        {
+            if (uiLabel == null)
+                uiLabel = Add(new UILabel(pos, text, font, color));
+
+            uiLabel.Visible = false;
+        }
+
+        void AddUiPanel(ref UIPanel panel, Vector2 pos, string texPath, int size)
+        {
+            if (panel == null)
+                panel = Add(new UIPanel(pos, ResourceManager.Texture(texPath)));
+
+            panel.Size    = new Vector2(size, size);
+            panel.Visible = false;
+        }
+
+        void AddUiProgressBar(ref ProgressBar bar, Rectangle rect, float max, string color, bool percentage = false)
+        {
+            if (bar == null)
+            {
+                bar = new ProgressBar(rect)
+                {
+                    Max            = max,
+                    color          = color,
+                    DrawPercentage = percentage
+                };
+            }
+        }
+
+        void CreateTradeDetails(Vector2 pos)
+        {
+            Font font    = LowRes ? Font8 : Font14;
+            int spacing  = font.LineSpacing + 5;
+            int barWidth = (int)(PFacilities.Width * 0.33f);
+            float indent = 30;
+            float indentTradeAmount = indent + barWidth + 5;
+
+            AddTradeUiLabel(ref TradeTitle, pos, "Colony Trade", LowRes ? Font14 : Font20, Color.White);
+
+            Vector2 incomingTitlePos = new Vector2(pos.X, pos.Y + spacing * 2);
+            AddTradeUiLabel(ref IncomingTradeTitle, incomingTitlePos, "Incoming Freighters", font, Color.Gray);
+
+            // Incoming food
+            Vector2 incomingFoodPos = new Vector2(pos.X, incomingTitlePos.Y + spacing + 3);
+            AddUiPanel(ref IncomingFoodPanel, incomingFoodPos, "NewUI/icon_food", font.LineSpacing);
+            Rectangle incomingFoodRect = new Rectangle((int)(incomingFoodPos.X + indent), (int)incomingFoodPos.Y, barWidth, 20);
+            AddUiProgressBar(ref IncomingFoodBar, incomingFoodRect, P.FoodImportSlots, "green");
+            Vector2 incomingFoodAmountPos = new Vector2(pos.X + indentTradeAmount, incomingFoodPos.Y + (LowRes ? 0 : 2));
+            AddTradeUiLabel(ref IncomingFoodAmount, incomingFoodAmountPos, "", Font8, Color.White);
+
+            // Incoming Prod
+            Vector2 incomingProdPos = new Vector2(pos.X, incomingFoodPos.Y + spacing);
+            AddUiPanel(ref IncomingProdPanel, incomingProdPos, "NewUI/icon_production", font.LineSpacing);
+            Rectangle incomingProdRect = new Rectangle((int)(incomingProdPos.X + indent), (int)incomingProdPos.Y, barWidth, 20);
+            AddUiProgressBar(ref IncomingProdBar, incomingProdRect, P.ProdImportSlots, "brown");
+            Vector2 incomingProdAmountPos = new Vector2(pos.X + indentTradeAmount, incomingProdPos.Y + (LowRes ? 0 : 2));
+            AddTradeUiLabel(ref IncomingProdAmount, incomingProdAmountPos, "", Font8, Color.White);
+
+            // Incoming Colonists
+            Vector2 incomingColoPos = new Vector2(pos.X, incomingProdPos.Y + spacing);
+            AddUiPanel(ref IncomingColoPanel, incomingColoPos, "UI/icon_pop", font.LineSpacing);
+            Rectangle incomingColoRect = new Rectangle((int)(incomingColoPos.X + indent), (int)incomingColoPos.Y, barWidth, 20);
+            AddUiProgressBar(ref IncomingColoBar, incomingColoRect, P.ColonistsImportSlots, "blue");
+            Vector2 incomingColoAmountPos = new Vector2(pos.X + indentTradeAmount, incomingColoPos.Y + (LowRes ? 0 : 2));
+            AddTradeUiLabel(ref IncomingColoAmount, incomingColoAmountPos, "", Font8, Color.White);
+
+            Vector2 outgoingTitlePos = new Vector2(pos.X, incomingColoAmountPos.Y + spacing * 2);
+            AddTradeUiLabel(ref OutgoingTradeTitle, outgoingTitlePos, "Outgoing Freighters", font, Color.Gray);
+
+            // Outgoing food
+            Vector2 outgoingFoodPos = new Vector2(pos.X, outgoingTitlePos.Y + spacing + 3);
+            AddUiPanel(ref OutgoingFoodPanel, outgoingFoodPos, "NewUI/icon_food", font.LineSpacing);
+            Rectangle outgoingFoodRect = new Rectangle((int)(outgoingFoodPos.X + indent), (int)outgoingFoodPos.Y, barWidth, 20);
+            AddUiProgressBar(ref OutgoingFoodBar, outgoingFoodRect, P.FoodExportSlots, "green");
+
+            // Outgoing Prod
+            Vector2 outgoingProdPos = new Vector2(pos.X, outgoingFoodPos.Y + spacing);
+            AddUiPanel(ref OutgoingProdPanel, outgoingProdPos, "NewUI/icon_production", font.LineSpacing);
+            Rectangle outgoingProdRect = new Rectangle((int)(outgoingProdPos.X + indent), (int)outgoingProdPos.Y, barWidth, 20);
+            AddUiProgressBar(ref OutgoingProdBar, outgoingProdRect, P.ProdExportSlots, "brown");
+
+            // Outgoing Colonists
+            Vector2 outgoingColoPos = new Vector2(pos.X, outgoingProdPos.Y + spacing);
+            AddUiPanel(ref OutgoingColoPanel, outgoingColoPos, "UI/icon_pop", font.LineSpacing);
+            Rectangle outgoingColoRect = new Rectangle((int)(outgoingColoPos.X + indent), (int)outgoingColoPos.Y, barWidth, 20);
+            AddUiProgressBar(ref OutgoingColoBar, outgoingColoRect, P.ColonistsExportSlots, "blue");
         }
 
         void CreateTerraformingDetails(Vector2 pos)
@@ -238,7 +348,7 @@ namespace Ship_Game
             int spacing  = font.LineSpacing + 2;
             int barWidth = (int)(PFacilities.Width * 0.33f);
 
-            TerraformTitle = Add(new UILabel(pos, "", LowRes ? Font12 : Font20, Color.White));
+            TerraformTitle = Add(new UILabel(pos, "", LowRes ? Font14 : Font20, Color.White));
             TerraformTitle.Visible = false;
 
             Vector2 statusTitlePos       = new Vector2(pos.X, pos.Y + spacing*2);
@@ -308,15 +418,19 @@ namespace Ship_Game
 
             Vector2 targetFertilityTitlePos = new Vector2(pos.X, terraPlanetTitlePos.Y + spacing * 2);
             TargetFertilityTitle            = Add(new UILabel(targetFertilityTitlePos, Localizer.Token(GameText.TerraformTargetFert), font, Color.Gray));
+            TargetFertilityTitle.Visible    = false;
 
             Vector2 targetFertilityPos = new Vector2(pos.X + indent, targetFertilityTitlePos.Y);
             TargetFertility            = Add(new UILabel(targetFertilityPos, "", font, Color.LightGreen));
+            TargetFertility.Visible    = false;
 
             Vector2 estimatedMaxPopTitlePos = new Vector2(pos.X, targetFertilityTitlePos.Y + spacing);
             EstimatedMaxPopTitle            = Add(new UILabel(estimatedMaxPopTitlePos, Localizer.Token(GameText.TerraformEsPop), font, Color.Gray));
+            EstimatedMaxPopTitle.Visible    = false;
 
             Vector2 estimatedMaxPopPos = new Vector2(pos.X + indent, estimatedMaxPopTitlePos.Y);
             EstimatedMaxPop            = Add(new UILabel(estimatedMaxPopPos, "", font, Color.Green));
+            EstimatedMaxPop.Visible    = false;
         }
 
         void OnPlanetNameSubmit(string name)
