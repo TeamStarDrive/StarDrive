@@ -32,18 +32,18 @@ The current goals of BlackBox - Hyperion are:
 ### How do I get set up for Development? ###
 
 * Install [Visual Studio 2019 Community](https://visualstudio.microsoft.com/vs/community/).
-    * Workloads Module: .NET desktop development
-    * Workloads Module: Desktop development with C++
-    * Workloads Module: Game development with C++
+    * Workloads Module: `.NET desktop development` with `.NET Framework 4.8 development tools`
+    * Workloads Module: `Desktop development with C++` with `MSVC v142`
+    * Workloads Module: `Game development with C++` with `Windows 10 SDK`
 * Install [SourceTree](https://www.sourcetreeapp.com/) or some other GIT client. 
-    * Configure SourceTree: Tools->Options->Git: [v] Perform submodule actions recursively
+    * Configure SourceTree: Tools->Options->Git: [v] Perform submodule actions recursively _(Important!!!)_
 * [Clone](https://confluence.atlassian.com/sourcetreekb/clone-a-repository-into-sourcetree-780870050.html) this repository to a local directory, for example: C:/Projects/BlackBox
-    * Advanced Options When cloning: [v] Recurse submodules (Important!)
+    * Advanced Options When cloning: [v] Recurse submodules _(Important!!!)_
     * Advanced Options When cloning: Checkout branch: develop  Clone Depth 0
-* Switch to DEVELOP branch, which is our main branch for latest ongoing development.
-* Copy the original StarDrive game folder to repository root. For example: C:/Projects/BlackBox/StarDrive/StarDrive.exe
+* Switch to `develop` branch, which is our main branch for latest ongoing development.
+* `Copy` the original StarDrive game folder to repository root. For example: C:/Projects/BlackBox/StarDrive/StarDrive.exe
 * Launch Visual Studio, any missing DLL references should be in BlackBox/StarDrive directory.
-* Launch a full build (Build -> Build Solution) to produce the BlackBox StarDrive executable.
+* Launch a full build (Build -> Build Solution) in `Release` configuration to produce the BlackBox StarDrive executable.
     * If you get this build error: "Windows 10 SDK is not installed", then you need to go back to VS2019 installer and enable Desktop development with C++
     * If you get this build error: ".. Cannot open include file: 'corecrt.h': No such file or directory ..", then you are also missing Desktop development with C++
 
@@ -51,7 +51,6 @@ The current goals of BlackBox - Hyperion are:
 * Please join the [discord discussion](https://discord.gg/dfvnfH4).
 * Please join the [BlackBox Google Group](https://groups.google.com/forum/#!forum/blackboxmod) for automated bug reports. 
 * Please NOTE: if the **default** Release and Debug configurations *do not work* for you then your setup is incorrect. Contact us in Discord #general. 
-* A list of new guy tasks can be found here [new guy tasks](https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues?component=New+Guy+Tasks%3A+CleanUp&status=open&status=new) These are low priority low impact tasks. Where changes can be made without breaking the game and causing merge issues in most cases. 
 
 ### Contribution Guidelines ###
 
