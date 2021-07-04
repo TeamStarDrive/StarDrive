@@ -282,7 +282,7 @@ namespace Ship_Game
             if (P.TerraformPoints > 0)
             {
                 Color terraformColor = P.Owner?.EmpireColor ?? Color.White;
-                string terraformText = Localizer.Token(GameText.BB_Tech_Terraforming_Name); // Terraforming in Progress
+                string terraformText = Localizer.Token(GameText.Terraforming); // Terraforming in Progress
                 batch.DrawString(TextFont, terraformText, cursor, ApplyCurrentAlphaToColor(terraformColor));
             }
 
@@ -815,7 +815,7 @@ namespace Ship_Game
                 TerraMaxPopBillion     = P.PotentialMaxPopBillionsFor(P.Owner, true);
                 UpdateTimer            = 150;
             }
-            else if (!Empire.Universe.Paused)
+            else
             {
                 UpdateTimer -= 1;
             }
