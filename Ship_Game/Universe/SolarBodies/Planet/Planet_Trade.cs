@@ -37,6 +37,14 @@ namespace Ship_Game
 
         public bool TradeBlocked => HasSpacePort && SpaceCombatNearPlanet || !HasSpacePort && !Safe || Quarantine;
 
+        // These values can be set by the player. If 0, the code will determine the slots limit automatically
+        public int ManualFoodMaxImportSlots { get; protected set; } 
+        public int ManualProdMaxImportSlots { get; protected set; }
+        public int ManualColoMaxImportSlots { get; protected set; }
+        public int ManualFoodMaxExportSlots { get; protected set; }
+        public int ManualProdMaxExportSlots { get; protected set; }
+        public int ManualColoMaxExportSlots { get; protected set; }
+
         public int FoodExportSlots
         {
             get
@@ -46,6 +54,9 @@ namespace Ship_Game
 
                 int min      = Storage.FoodRatio > 0.75f ? 1 : 0;
                 int maxSlots = colonyType == ColonyType.Agricultural || colonyType == ColonyType.Colony ? 10 : 7;
+                if (ManualFoodMaxExportSlots > 0 && Owner == EmpireManager.Player)
+                    maxSlots = ManualFoodMaxExportSlots;
+
                 return ((int)(Food.NetIncome + Storage.Food / 25)).Clamped(min, maxSlots);
             }
         }
@@ -62,6 +73,9 @@ namespace Ship_Game
                                || colonyType == ColonyType.Colony
                                || colonyType == ColonyType.Core ? 8 : 5;
 
+                if (ManualProdMaxExportSlots > 0 && Owner == EmpireManager.Player)
+                    maxSlots = ManualProdMaxExportSlots;
+
                 return ((int)(Prod.NetIncome / 2 + Storage.Prod / 50)).Clamped(min, maxSlots);
             }
         }
@@ -73,7 +87,8 @@ namespace Ship_Game
                 if (TradeBlocked || ColonistsTradeState != GoodState.EXPORT)
                     return 0;
 
-                return (int)PopulationBillion;
+                int maxSlots = ManualColoMaxExportSlots > 0 && Owner == EmpireManager.Player ? ManualColoMaxExportSlots : 20;
+                return (int)PopulationBillion.UpperBound(maxSlots);
             }
         }
 
@@ -93,8 +108,12 @@ namespace Ship_Game
 
                 float foodMissing = Storage.Max - FoodHere - IncomingFood;
                 foodMissing      += (-Food.NetIncome * AverageImportTurns).LowerBound(0);
-                int maxSlots      = ((int)(CurrentGame.GalaxySize) * 5).LowerBound(5) + Owner.NumTradeTreaties;
+                int maxSlots      = ((int)(CurrentGame.GalaxySize) * 4).LowerBound(4) + Owner.NumTradeTreaties;
                 int foodSlots     = foodMissing < 5 ? 0 : (foodMissing / Owner.AverageFreighterCargoCap).RoundUpTo(1);
+
+                if (ManualColoMaxImportSlots > 0 && Owner == EmpireManager.Player)
+                    maxSlots = ManualColoMaxImportSlots;
+
                 return foodSlots.Clamped(0, maxSlots);
             }
         }
@@ -106,7 +125,7 @@ namespace Ship_Game
                 if (TradeBlocked || !ImportProd)
                     return 0;
 
-                int maxSlots = ((int)(CurrentGame.GalaxySize) * 5).LowerBound(5) + Owner.NumTradeTreaties;
+                int maxSlots = ((int)(CurrentGame.GalaxySize) * 4).LowerBound(4) + Owner.NumTradeTreaties;
                 if (colonyType == ColonyType.Industrial
                     || colonyType == ColonyType.Core
                     || colonyType == ColonyType.Colony)
@@ -133,6 +152,9 @@ namespace Ship_Game
                 if (IsCybernetic) // They need prod as food
                     totalProdSlots += ((int)(-Prod.NetIncome * AverageImportTurns / averageFreighterCargoCap)).LowerBound(0);
 
+                if (ManualProdMaxImportSlots > 0 && Owner == EmpireManager.Player)
+                    maxSlots = ManualProdMaxImportSlots;
+
                 return (int)totalProdSlots.Clamped(0, maxSlots);
             }
         }
@@ -145,7 +167,8 @@ namespace Ship_Game
                     return 0;
 
                 float slots = 2 / PopulationRatio.LowerBound(0.2f);
-                return (int)slots.Clamped(1, 5);
+                int maxSlots = ManualProdMaxImportSlots > 0 && Owner == EmpireManager.Player ? ManualProdMaxImportSlots : 5;
+                return (int)slots.Clamped(1, maxSlots);
             }
         }
 
@@ -309,6 +332,36 @@ namespace Ship_Game
                 case Goods.Colonists:  limit = Population * 0.2f;                                                               break;
             }
             return limit;
+        }
+
+        public void SetManualFoodMaxImportSlots(int value)
+        {
+            ManualFoodMaxImportSlots = value;
+        }
+
+        public void SetManualProdMaxImportSlots(int value)
+        {
+            ManualProdMaxImportSlots = value;
+        }
+
+        public void SetManualColoMaxImportSlots(int value)
+        {
+            ManualColoMaxImportSlots = value;
+        }
+
+        public void SetManualFoodMaxExportSlots(int value)
+        {
+            ManualFoodMaxExportSlots = value;
+        }
+
+        public void SetManualProdMaxExportSlots(int value)
+        {
+            ManualProdMaxExportSlots = value;
+        }
+
+        public void SetManualColoMaxExportSlots(int value)
+        {
+            ManualColoMaxExportSlots = value;
         }
     }
 }
