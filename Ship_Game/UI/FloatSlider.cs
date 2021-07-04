@@ -144,7 +144,7 @@ namespace Ship_Game
                     default:                   value = (RelativeValue * 100f).ToString("00") + "%"; break;
                 }
 
-                if (ZeroString.Text.NotEmpty() && AbsoluteValue < 1)
+                if (ZeroString.IsValid && AbsoluteValue < 1)
                     value = ZeroString.Text;
 
                 return value;
