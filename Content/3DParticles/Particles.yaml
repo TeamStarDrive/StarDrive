@@ -13,7 +13,6 @@
   MaxHorizontalVelocity: 0
   MinVerticalVelocity: 0
   MaxVerticalVelocity: 0
-  Gravity: [0,0,0]
   EndVelocity: 0
   MinColor: [255,255,255,255]
   MaxColor: [255,255,255,255]
@@ -29,7 +28,7 @@
 - ParticleSettings:
   Name: EngineTrail
   TextureName: "Glow.png"
-  MaxParticles: 20000
+  MaxParticles: 50000
   Duration: 1
   DurationRandomness: 0.2
   EmitterVelocitySensitivity: 1
@@ -37,16 +36,15 @@
   MaxHorizontalVelocity: 0
   MinVerticalVelocity: 0
   MaxVerticalVelocity: 0
-  Gravity: [0,0,0]
   EndVelocity: 0
-  MinColor: [25,128,255,100]
-  MaxColor: [35,148,255,100]
+  MinColor: [255,255,255,100]
+  MaxColor: [255,255,255,100]
   MinRotateSpeed: 0
   MaxRotateSpeed: 0
-  MinStartSize: 40
-  MaxStartSize: 40
+  MinStartSize: 50
+  MaxStartSize: 60
   MinEndSize: 5
-  MaxEndSize: 5
+  MaxEndSize: 10
   SourceBlend: SourceAlpha
   DestinationBlend: One
 
@@ -61,7 +59,6 @@
   MaxHorizontalVelocity: 50
   MinVerticalVelocity: -50
   MaxVerticalVelocity: 50
-  Gravity: [0,0,0]
   EndVelocity: 0
   MinColor: [128,128,128,255]
   MaxColor: [169,169,169,255]
@@ -85,7 +82,6 @@
   MaxHorizontalVelocity: 50
   MinVerticalVelocity: -50
   MaxVerticalVelocity: 50
-  Gravity: [0,0,0]
   EndVelocity: 0
   MinColor: [0,0,0,255]
   MaxColor: [0,0,0,255]
@@ -109,7 +105,7 @@
   MaxHorizontalVelocity: 15
   MinVerticalVelocity: -10
   MaxVerticalVelocity: 10
-  Gravity: [0,15,0]
+  #Gravity: [0,15,0]
   EndVelocity: 1
   MinColor: [255,255,255,10]
   MaxColor: [255,255,255,40]
@@ -205,7 +201,6 @@
   MaxHorizontalVelocity: 0
   MinVerticalVelocity: 0
   MaxVerticalVelocity: 0
-  Gravity: [0,0,0]
   EndVelocity: 0
   MinColor: [0,0,255,255]
   MaxColor: [255,255,255,255]
@@ -229,7 +224,6 @@
   MaxHorizontalVelocity: 50
   MinVerticalVelocity: -50
   MaxVerticalVelocity: 50
-  Gravity: [0,0,0]
   EndVelocity: 0
   MinColor: [0,0,255,255]
   MaxColor: [255,255,255,255]
@@ -253,7 +247,6 @@
   MaxHorizontalVelocity: 50
   MinVerticalVelocity: -50
   MaxVerticalVelocity: 50
-  Gravity: [0,0,0]
   EndVelocity: 0
   MinColor: [0,0,255,255]
   MaxColor: [0,255,255,255]
@@ -277,7 +270,6 @@
   MaxHorizontalVelocity: 1
   MinVerticalVelocity: -1
   MaxVerticalVelocity: 1
-  Gravity: [0,0,0]
   EndVelocity: 1
   MinColor: [64,96,128,255]
   MaxColor: [255,255,255,128]
@@ -301,7 +293,6 @@
   MaxHorizontalVelocity: 15
   MinVerticalVelocity: -20
   MaxVerticalVelocity: 20
-  Gravity: [0,0,0]
   EndVelocity: 0.8
   MinColor: [143,109,86,255]
   MaxColor: [143,109,86,255]
@@ -325,7 +316,6 @@
   MaxHorizontalVelocity: 50
   MinVerticalVelocity: -50
   MaxVerticalVelocity: 50
-  Gravity: [0,0,0]
   EndVelocity: 0
   MinColor: [0,0,255,255]
   MaxColor: [255,255,255,255]
@@ -349,7 +339,6 @@
   MaxHorizontalVelocity: 0
   MinVerticalVelocity: 0
   MaxVerticalVelocity: 0
-  Gravity: [0,0,0]
   EndVelocity: 0
   MinColor: [255,255,255,255]
   MaxColor: [255,255,255,255]
