@@ -439,7 +439,7 @@ namespace Ship_Game.Ships
                     {
                         // visualize radiation hits on external modules
                         for (int j = 0; j < 50; j++)
-                            Empire.Universe.sparks.AddParticleThreadB(module.GetCenter3D, Vector3.Zero);
+                            Empire.Universe.Particles.Sparks.AddParticleThreadB(module.GetCenter3D, Vector3.Zero);
                     }
                 }
             }

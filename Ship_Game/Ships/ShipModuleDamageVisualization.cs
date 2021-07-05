@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Particle3DSample;
 
 namespace Ship_Game.Ships
 {
@@ -32,28 +31,28 @@ namespace Ship_Game.Ships
             switch (type) // FB: other special effects based on some module types, use main moduletypes for performance sake
             {
                 case ShipModuleType.Shield:
-                    Lightning = Empire.Universe.sparks.NewEmitter(40f, center.ToVec2(), -10f + modelZ);
+                    Lightning = Empire.Universe.Particles.Sparks.NewEmitter(40f, center.ToVec2(), -10f + modelZ);
                     LightningVelZ = -6f;
                     break;
                 case ShipModuleType.PowerConduit:
-                    Lightning = Empire.Universe.sparks.NewEmitter(25f, center.ToVec2(), -10f + modelZ);
+                    Lightning = Empire.Universe.Particles.Sparks.NewEmitter(25f, center.ToVec2(), -10f + modelZ);
                     LightningVelZ = -3f;
                     return;
                 case ShipModuleType.PowerPlant:
-                    Lightning = Empire.Universe.photonExplosionParticles.NewEmitter(Area * 6f, center, modelZ);
+                    Lightning = Empire.Universe.Particles.PhotonExplosion.NewEmitter(Area * 6f, center, modelZ);
                     LightningVelZ = -4;
                     break;
             }
 
             // after all the special cases and removing irrelevant modules, we come to smoke emitters
-            Trail = Empire.Universe.smokePlumeParticles.NewEmitter(Area * 0.7f , center, modelZ);
-            Smoke = Empire.Universe.explosionSmokeParticles.NewEmitter(Area * 3f, center, modelZ);
+            Trail = Empire.Universe.Particles.SmokePlume.NewEmitter(Area * 0.7f , center, modelZ);
+            Smoke = Empire.Universe.Particles.ExplosionSmoke.NewEmitter(Area * 3f, center, modelZ);
 
             // armor doesnt produce flames. 
             if (type == ShipModuleType.Armor)
                 return;
-            Flame = Area >= 15f ? Empire.Universe.flameParticles.NewEmitter(Area * 2 * GlobalStats.DamageIntensity , center, modelZ) : 
-                                 Empire.Universe.SmallflameParticles.NewEmitter(Area * 3f * GlobalStats.DamageIntensity, center, modelZ);
+            Flame = Area >= 15f ? Empire.Universe.Particles.Flame.NewEmitter(Area * 2 * GlobalStats.DamageIntensity , center, modelZ) : 
+                                 Empire.Universe.Particles.SmallFlame.NewEmitter(Area * 3f * GlobalStats.DamageIntensity, center, modelZ);
         }
 
         // This is called when module is OnFire or completely dead
