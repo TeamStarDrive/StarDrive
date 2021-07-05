@@ -35,6 +35,11 @@ namespace Ship_Game
 
         static Map<string, ParticleSettings> Settings = new Map<string, ParticleSettings>();
 
+        public ParticleSettings Clone()
+        {
+            return (ParticleSettings)MemberwiseClone();
+        }
+
         public static void LoadAll()
         {
             GameLoadingScreen.SetStatus("LoadParticles");
