@@ -28,24 +28,24 @@
 
 - ParticleSettings:
   Name: EngineTrail
-  TextureName: "smoke.png"
+  TextureName: "Glow.png"
   MaxParticles: 20000
-  Duration: 4
-  DurationRandomness: 0.5
-  EmitterVelocitySensitivity: 0
-  MinHorizontalVelocity: 1
-  MaxHorizontalVelocity: 1
-  MinVerticalVelocity: 1
-  MaxVerticalVelocity: 1
+  Duration: 1
+  DurationRandomness: 0.2
+  EmitterVelocitySensitivity: 1
+  MinHorizontalVelocity: 0
+  MaxHorizontalVelocity: 0
+  MinVerticalVelocity: 0
+  MaxVerticalVelocity: 0
   Gravity: [0,0,0]
   EndVelocity: 0
-  MinColor: [25,128,255,180]
-  MaxColor: [35,148,255,255]
-  MinRotateSpeed: -1
-  MaxRotateSpeed: 1
-  MinStartSize: 50
-  MaxStartSize: 100
-  MinEndSize: 1
+  MinColor: [25,128,255,100]
+  MaxColor: [35,148,255,100]
+  MinRotateSpeed: 0
+  MaxRotateSpeed: 0
+  MinStartSize: 40
+  MaxStartSize: 40
+  MinEndSize: 5
   MaxEndSize: 5
   SourceBlend: SourceAlpha
   DestinationBlend: One
