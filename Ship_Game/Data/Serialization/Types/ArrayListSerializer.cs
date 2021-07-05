@@ -15,6 +15,7 @@ namespace Ship_Game.Data.Serialization.Types
         {
             ElemType = elemType;
             ElemSerializer = elemSerializer;
+            IsCollection = true;
         }
 
         public override object Convert(object value)
@@ -59,30 +60,61 @@ namespace Ship_Game.Data.Serialization.Types
             return base.Deserialize(node); // try to deserialize value as Array
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        // YAML array serialization is pretty dope, so we need a full utility method and reuse it
+
+        public static void Serialize(IList list, TypeSerializer ser, TextSerializerContext context)
         {
+            int count = list.Count;
+            var tw = context.Writer;
+
+            if (count == 0)
+            {
+                tw.Write(" []");
+                return;
+            }
+
+            // [StarData] Array<int> Primitives;
+            // Primitives: [1,2,3,4]
+            if (!ser.IsUserClass)
+            {
+                tw.Write(" [");
+                for (int i = 0; i < count; ++i)
+                {
+                    object element = list[i];
+                    ser.Serialize(context, element);
+                    if (i != count-1)
+                        tw.Write(',');
+                }
+                tw.Write(']');
+                return;
+            }
+
             // [StarData] Array<Ship> Ships;
             // Ships:
             //   - Ship: ship1
-            //     Position: ...
+            //     Position: [1,2,3]
             //   - Ship: ship2
-            //     Position: ...
-            var list = (IList)obj;
-            int count = list.Count;
+            //     Position: [1,2,3]
 
-            context.Writer.Write(new string(' ', context.Depth));
-            context.Writer.Write("- ");
-
+            tw.Write('\n');
             context.Depth += 2;
-            context.IgnoreSpacePrefixOnce = true;
+            string prefix = new string(' ', context.Depth) + "- ";
 
             for (int i = 0; i < count; ++i)
             {
+                tw.Write(prefix); // "  - "
                 object element = list[i];
-                ElemSerializer.Serialize(context, element);
+                context.IgnoreSpacePrefixOnce = true;
+                ser.Serialize(context, element);
             }
 
             context.Depth -= 2;
+        }
+
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            var list = (IList)obj;
+            Serialize(list, ElemSerializer, context);
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
