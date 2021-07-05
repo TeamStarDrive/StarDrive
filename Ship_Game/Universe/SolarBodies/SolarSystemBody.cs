@@ -510,6 +510,9 @@ namespace Ship_Game
                 newOwner.data.Traits.Spiritual            = GetTraitMax(newOwner.data.Traits.Spiritual, ownerTraits.Spiritual);
                 newOwner.data.Traits.TerraformingLevel    = (int)GetTraitMax(newOwner.data.Traits.TerraformingLevel, ownerTraits.TerraformingLevel);
 
+                newOwner.data.Traits.EnemyPlanetInhibitionPercentCounter =
+                    GetTraitMax(newOwner.data.Traits.EnemyPlanetInhibitionPercentCounter, ownerTraits.EnemyPlanetInhibitionPercentCounter);
+
                 // Do not add AI difficulty modifiers for the below
                 float realProductionMod = ownerTraits.ProductionMod - Owner.DifficultyModifiers.ProductionMod;
                 float realResearchMod   = ownerTraits.ResearchMod - Owner.DifficultyModifiers.ResearchMod;
