@@ -17,6 +17,9 @@ namespace Ship_Game.Data.Serialization
             public int Depth;
             public StringBuilder Buffer = new StringBuilder();
 
+            // If True, no prefix spaces should be written
+            public bool NoPrefix;
+
             // If True, next Serialized value will omit prefix spaces
             public bool IgnoreSpacePrefixOnce;
 
@@ -27,12 +30,24 @@ namespace Ship_Game.Data.Serialization
         internal ushort Id;
         internal Type Type;
 
+        /// <summary>
+        /// If TRUE, this serializer is a collection serializer for Arrays or Maps
+        /// </summary>
+        public bool IsCollection { get; protected set; }
+
+        /// <summary>
+        /// If TRUE, this serializer as a custom user class type
+        /// </summary>
+        public bool IsUserClass { get; protected set; }
+
+        /// <summary>
+        /// Convert from a generic Deserialized object into the underlying Type
+        /// </summary>
         public virtual object Convert(object value)
         {
             Log.Error($"Direct Convert not supported for {ToString()}. Value: {value}");
             return null;
         }
-
 
         /// <summary>
         /// Deserialize FROM YamlNode (TEXT)
