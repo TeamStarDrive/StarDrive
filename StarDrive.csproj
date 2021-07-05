@@ -206,17 +206,15 @@
       <HintPath>StarDrive\XNAnimation.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="ParticleSettings">
-      <HintPath>StarDrive\ParticleSettings.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="Particle3DSample\ParticleSettings.cs" />
+    <Compile Include="Ship_Game\Data\Serialization\Types\MapSerializer.cs" />
+    <Compile Include="Ship_Game\Graphics\Particles\ParticleManager.cs" />
+    <Compile Include="Ship_Game\Graphics\Particles\ParticleSettings.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\Evade.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\UI\FleetStanceButtons.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\UI\DesignStanceButtons.cs" />
@@ -1147,7 +1145,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Particle3DSample\ParticleSystem.cs">
+    <Compile Include="Ship_Game\Graphics\Particles\ParticleSystem.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1495,7 +1493,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Particle3DSample\ParticleEmitter.cs">
+    <Compile Include="Ship_Game\Graphics\Particles\ParticleEmitter.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

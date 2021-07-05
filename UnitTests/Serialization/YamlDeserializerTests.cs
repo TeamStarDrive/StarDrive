@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game;
 using Ship_Game.Data;
 using Ship_Game.Data.Serialization;
@@ -168,7 +169,8 @@ namespace UnitTests.Serialization
         public void ParseSunLayers()
         {
             const string yaml = @"
-                Sun: star_red2 # Yellowish Giant?
+                Sun:
+                  Id: star_red2
                   IconPath: Suns/star_red2_icon.png
                   IconLayer: 2 
                   IconScale: 2.5
@@ -177,31 +179,81 @@ namespace UnitTests.Serialization
                   LightColor: [255,160,122] # LightSalmon
                   Habitable: true
                   Layers:
-                    TexturePath: Suns/star_yellow.png
-                    TextureColor: [1.0,0.8,0.8,0.5]
-                    BlendMode: Additive
-                    LayerScale: 2.5
-                    RotationSpeed: -0.015
-                    PulsePeriod: 5.0
-                    PulseScale: [0.96,1.08]
-                    PulseColor: [1.1,1.1]
-                  Layers:
-                    AnimationPath: sd_explosion_12a_bb
-                    AnimationSpeed: 0.1
-                    LayerScale: 1.0
-                    TextureColor: 0.5
-                    BlendMode: Additive
-                    RotationSpeed: 0.05
-                    PulsePeriod: 5
-                    PulseScale: [0.96,1.04]
-                    PulseColor: [0.5,0.9]
+                    - Layer:
+                      TexturePath: Suns/star_yellow.png
+                      TextureColor: [1.0,0.8,0.8,0.5]
+                      BlendMode: Additive
+                      LayerScale: 2.5
+                      RotationSpeed: -0.015
+                      PulsePeriod: 5.0
+                      PulseScale: [0.96,1.08]
+                      PulseColor: [1.1,1.1]
+                    - Layer:
+                      AnimationPath: sd_explosion_12a_bb
+                      AnimationSpeed: 0.1
+                      LayerScale: 1.0
+                      TextureColor: 0.5
+                      BlendMode: Additive
+                      RotationSpeed: 0.05
+                      PulsePeriod: 5
+                      PulseScale: [0.96,1.04]
+                      PulseColor: [0.5,0.9]
                 ";
             using (var parser = new YamlParser(">SunLayers<", new StringReader(yaml)))
             {
                 ParserDump(parser);
 
                 var sun = parser.DeserializeOne<SunType>();
+                Assert.AreEqual("star_red2", sun.Id);
+                Assert.AreEqual("Suns/star_red2_icon.png", sun.IconPath);
+                Assert.AreEqual(2, sun.IconLayer);
+                Assert.AreEqual(2.5f, sun.IconScale);
+                Assert.AreEqual(1.4f, sun.LightIntensity);
+                Assert.AreEqual(100000f, sun.Radius);
+                Assert.AreEqual(new Color(255,160,122,255), sun.LightColor);
+                Assert.AreEqual(true, sun.Habitable);
 
+                Assert.AreEqual(2, sun.Layers.Count);
+                Assert.AreEqual("Suns/star_yellow.png", sun.Layers[0].TexturePath);
+                Assert.AreEqual(new Color(1.0f,0.8f,0.8f,0.5f), sun.Layers[0].TextureColor);
+                Assert.AreEqual(SpriteBlendMode.Additive, sun.Layers[0].BlendMode);
+                Assert.AreEqual(2.5f, sun.Layers[0].LayerScale);
+                Assert.AreEqual(-0.015f, sun.Layers[0].RotationSpeed);
+                Assert.AreEqual(5.0f, sun.Layers[0].PulsePeriod);
+                Assert.AreEqual(new Range(0.96f,1.08f), sun.Layers[0].PulseScale);
+                Assert.AreEqual(new Range(1.1f,1.1f), sun.Layers[0].PulseColor);
+            }
+        }
+
+        enum MapKeys { House, Plane, Ship, }
+
+        [StarDataType]
+        class SettingsMap
+        {
+            #pragma warning disable 649
+            [StarData] public Map<MapKeys, float> Settings;
+            #pragma warning restore 649
+        }
+
+        [TestMethod]
+        public void ParseKeyValueMap()
+        {
+            const string yaml = @"
+                SettingsMap:
+                  Settings:
+                    House: 1.1
+                    Plane: 2.2
+                    Ship: 3.3
+                ";
+            using (var parser = new YamlParser(">SettingsMap<", new StringReader(yaml)))
+            {
+                ParserDump(parser);
+                var map = parser.DeserializeOne<SettingsMap>();
+
+                Assert.AreEqual(3, map.Settings.Count);
+                Assert.AreEqual(1.1f, map.Settings[MapKeys.House]);
+                Assert.AreEqual(2.2f, map.Settings[MapKeys.Plane]);
+                Assert.AreEqual(3.3f, map.Settings[MapKeys.Ship]);
             }
         }
     }
