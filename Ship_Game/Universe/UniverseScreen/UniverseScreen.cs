@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Particle3DSample;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Empires;
@@ -18,6 +17,7 @@ using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Universe;
 using Ship_Game.Fleets;
+using Ship_Game.Graphics.Particles;
 
 namespace Ship_Game
 {
@@ -81,22 +81,9 @@ namespace Ship_Game
         PieMenu pieMenu;
         PieMenuNode planetMenu;
         PieMenuNode shipMenu;
-        public ParticleSystem beamflashes;
-        public ParticleSystem explosionParticles;
-        public ParticleSystem photonExplosionParticles;
-        public ParticleSystem explosionSmokeParticles;
-        public ParticleSystem projectileTrailParticles;
-        public ParticleSystem fireTrailParticles;
-        public ParticleSystem smokePlumeParticles;
-        public ParticleSystem fireParticles;
-        public ParticleSystem engineTrailParticles;
-        public ParticleSystem flameParticles;
-        public ParticleSystem SmallflameParticles;
-        public ParticleSystem sparks;
-        public ParticleSystem lightning;
-        public ParticleSystem flash;
-        public ParticleSystem star_particles;
-        public ParticleSystem neb_particles;
+
+        public ParticleManager Particles;
+
         public Background3D bg3d;
         public bool GravityWells;
         public Empire PlayerEmpire;
@@ -507,26 +494,6 @@ namespace Ship_Game
             }
         }
 
-        void LoadParticles(Data.GameContentManager content, GraphicsDevice device)
-        {
-            beamflashes              = new ParticleSystem(content, "3DParticles/BeamFlash", device);
-            explosionParticles       = new ParticleSystem(content, "3DParticles/ExplosionSettings", device);
-            photonExplosionParticles = new ParticleSystem(content, "3DParticles/PhotonExplosionSettings", device);
-            explosionSmokeParticles  = new ParticleSystem(content, "3DParticles/ExplosionSmokeSettings", device);
-            projectileTrailParticles = new ParticleSystem(content, "3DParticles/ProjectileTrailSettings", device, 1f);
-            fireTrailParticles       = new ParticleSystem(content, "3DParticles/FireTrailSettings", device,1);
-            smokePlumeParticles      = new ParticleSystem(content, "3DParticles/SmokePlumeSettings", device , 1);
-            fireParticles            = new ParticleSystem(content, "3DParticles/FireSettings", device, 1);
-            engineTrailParticles     = new ParticleSystem(content, "3DParticles/EngineTrailSettings", device);
-            flameParticles           = new ParticleSystem(content, "3DParticles/FlameSettings", device);
-            SmallflameParticles      = new ParticleSystem(content, "3DParticles/FlameSettings", device, .25f, (int)(4000 * GlobalStats.DamageIntensity));
-            sparks                   = new ParticleSystem(content, "3DParticles/sparks", device, 1);
-            lightning                = new ParticleSystem(content, "3DParticles/lightning", device, 1);
-            flash                    = new ParticleSystem(content, "3DParticles/FlashSettings", device);
-            star_particles           = new ParticleSystem(content, "3DParticles/star_particles", device);
-            neb_particles            = new ParticleSystem(content, "3DParticles/GalaxyParticle", device);
-        }
-
         void CreateStarParticles()
         {
             int numStars = (int)(UniverseSize / 5000.0f);
@@ -536,7 +503,7 @@ namespace Ship_Game
                     RandomMath.RandomBetween(-0.5f * UniverseSize, UniverseSize + 0.5f * UniverseSize),
                     RandomMath.RandomBetween(-0.5f * UniverseSize, UniverseSize + 0.5f * UniverseSize),
                     RandomMath.RandomBetween(-200000f, -2E+07f));
-                star_particles.AddParticleThreadA(position, Vector3.Zero);
+                Particles.StarParticles.AddParticleThreadA(position, Vector3.Zero);
             }
         }
 
@@ -549,7 +516,7 @@ namespace Ship_Game
             int width   = GameBase.ScreenWidth;
             int height  = GameBase.ScreenHeight;
 
-            LoadParticles(content, device);
+            Particles = new ParticleManager(content, device);
 
             if (GlobalStats.DrawStarfield)
             {
@@ -792,23 +759,7 @@ namespace Ship_Game
             BorderRT    ?.Dispose(ref BorderRT);
             MainTarget  ?.Dispose(ref MainTarget);
             LightsTarget?.Dispose(ref LightsTarget);
-
-            beamflashes             ?.Dispose(ref beamflashes);
-            explosionParticles      ?.Dispose(ref explosionParticles);
-            photonExplosionParticles?.Dispose(ref photonExplosionParticles);
-            explosionSmokeParticles ?.Dispose(ref explosionSmokeParticles);
-            projectileTrailParticles?.Dispose(ref projectileTrailParticles);
-            fireTrailParticles      ?.Dispose(ref fireTrailParticles);
-            smokePlumeParticles     ?.Dispose(ref smokePlumeParticles);
-            fireParticles           ?.Dispose(ref fireParticles);
-            engineTrailParticles    ?.Dispose(ref engineTrailParticles);
-            flameParticles          ?.Dispose(ref flameParticles);
-            SmallflameParticles     ?.Dispose(ref SmallflameParticles);
-            sparks                  ?.Dispose(ref sparks);
-            lightning               ?.Dispose(ref lightning);
-            flash                   ?.Dispose(ref flash);
-            star_particles          ?.Dispose(ref star_particles);
-            neb_particles           ?.Dispose(ref neb_particles);
+            Particles?.Dispose(ref Particles);
         }
 
         protected override void Destroy()
