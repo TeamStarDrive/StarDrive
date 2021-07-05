@@ -44,6 +44,12 @@ namespace Ship_Game.Data.Serialization.Types
             return Color.Red;
         }
 
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            var color = (Color)obj;
+            context.Writer.Write($"[{color.R},{color.G},{color.B},{color.A}]");
+        }
+
         public override void Serialize(BinaryWriter writer, object obj)
         {
             var color = (Color)obj;
