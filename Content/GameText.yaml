@@ -10213,6 +10213,12 @@ IncomingOutGoingTip:
 ManualTradeSlotTip:
  Id: 4336
  ENG: "You may adjust out many slots are open for the goods import or export. When set to 0, the open slot calcultion will resume automatic mode. Use manual slots carefully, as high number of slots might lock your freighters on specific goods. If the planet is not importing or exporting the goods, the corresponding slots will be zero."
+MeteorShowerWarningNotOurPlanet:
+ Id: 4337
+ ENG: ": A Meteor Shower is passing through the system.\nWe estimate that some of the meteors are going to crash on the planet\nbut we do not have a colony there." 
+MeteorShowerWarning:
+ Id: 4338
+ ENG: ": A Meteor Shower is passing through the system.\nWe estimate that some of the meteors are going to crash on the planet!"  
 OnSurface:
  Id: 4993
  ENG: "on surface"
