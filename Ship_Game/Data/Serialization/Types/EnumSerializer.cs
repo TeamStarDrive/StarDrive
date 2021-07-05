@@ -40,6 +40,13 @@ namespace Ship_Game.Data.Serialization.Types
             return ToEnum.GetEnumValues().GetValue(0);
         }
 
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            var e = (Enum)obj;
+            string text = e.ToString();
+            context.Writer.Write(text);
+        }
+
         public override void Serialize(BinaryWriter writer, object obj)
         {
             int enumIndex = (int)obj;

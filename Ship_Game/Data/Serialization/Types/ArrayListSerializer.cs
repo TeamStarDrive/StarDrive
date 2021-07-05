@@ -40,7 +40,7 @@ namespace Ship_Game.Data.Serialization.Types
         public override object Deserialize(YamlNode node)
         {
             // [StarData] Array<Ship> Ships;
-            // Ships: my_ships
+            // Ships:
             //   - Ship: ship1
             //     Position: ...
             //   - Ship: ship2
@@ -57,6 +57,32 @@ namespace Ship_Game.Data.Serialization.Types
                 return list;
             }
             return base.Deserialize(node); // try to deserialize value as Array
+        }
+
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            // [StarData] Array<Ship> Ships;
+            // Ships:
+            //   - Ship: ship1
+            //     Position: ...
+            //   - Ship: ship2
+            //     Position: ...
+            var list = (IList)obj;
+            int count = list.Count;
+
+            context.Writer.Write(new string(' ', context.Depth));
+            context.Writer.Write("- ");
+
+            context.Depth += 2;
+            context.IgnoreSpacePrefixOnce = true;
+
+            for (int i = 0; i < count; ++i)
+            {
+                object element = list[i];
+                ElemSerializer.Serialize(context, element);
+            }
+
+            context.Depth -= 2;
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
