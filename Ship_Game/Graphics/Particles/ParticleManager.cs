@@ -80,8 +80,7 @@ namespace Ship_Game.Graphics.Particles
             for (int i = 0; i < Tracked.Count; ++i)
             {
                 ParticleSystem ps = Tracked[i];
-                ps.SetCamera(view, projection);
-                ps.Draw();
+                ps.Draw(view, projection);
             }
         }
 
