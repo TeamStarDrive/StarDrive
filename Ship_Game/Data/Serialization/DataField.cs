@@ -39,6 +39,12 @@ namespace Ship_Game.Data.Serialization
             else               return Prop.GetValue(instance);
         }
 
+        public void Serialize(TypeSerializer.TextSerializerContext context, object instance)
+        {
+            object value = Get(instance);
+            Serializer.Serialize(context, value);
+        }
+
         public void Serialize(BinaryWriter writer, object instance)
         {
             object value = Get(instance);

@@ -10,6 +10,19 @@ namespace Ship_Game.Data.Serialization
 {
     public abstract class TypeSerializer
     {
+        public class TextSerializerContext
+        {
+            // StringWriter(StringBuilder) or StreamWriter(File)
+            public TextWriter Writer;
+            public int Depth;
+            public StringBuilder Buffer = new StringBuilder();
+
+            // If True, next Serialized value will omit prefix spaces
+            public bool IgnoreSpacePrefixOnce;
+
+            public int TabSize = 2; // default tab size for Depth increase
+        }
+        
         // Id which is valid in a single serialization context
         internal ushort Id;
         internal Type Type;
@@ -20,6 +33,10 @@ namespace Ship_Game.Data.Serialization
             return null;
         }
 
+
+        /// <summary>
+        /// Deserialize FROM YamlNode (TEXT)
+        /// </summary>
         public virtual object Deserialize(YamlNode node)
         {
             object value = node.Value;
@@ -28,8 +45,27 @@ namespace Ship_Game.Data.Serialization
             return Convert(value);
         }
 
+        /// <summary>
+        /// TEXT Serialize this object
+        /// </summary>
+        public abstract void Serialize(TextSerializerContext context, object obj);
+
+        /// <summary>
+        /// TEXT Serialize this object
+        /// </summary>
+        public virtual void Serialize(TextWriter writer, object obj)
+        {
+            throw new NotImplementedException("This is not a top-level serializer like YamlSerializer");
+        }
+
+        /// <summary>
+        /// BINARY Serialize this object
+        /// </summary>
         public abstract void Serialize(BinaryWriter writer, object obj);
         
+        /// <summary>
+        /// BINARY Deserialize this object
+        /// </summary>
         public abstract object Deserialize(BinaryReader reader);
 
         public static void WriteFieldId(BinaryWriter writer, int fieldId)

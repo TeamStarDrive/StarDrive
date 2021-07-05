@@ -209,7 +209,7 @@ namespace Ship_Game.Data.Yaml
             return true;
         }
 
-        static StringBuilder EscapeString(StringBuilder sb, string text)
+        public static StringBuilder EscapeString(StringBuilder sb, string text)
         {
             sb.Append('"');
             foreach (char ch in text)

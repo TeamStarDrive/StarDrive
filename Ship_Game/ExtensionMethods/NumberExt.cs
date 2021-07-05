@@ -8,6 +8,11 @@ namespace Ship_Game
         {
             return number.ToString("0.#", CultureInfo.InvariantCulture);
         }
+        
+        public static string String(this double number)
+        {
+            return number.ToString("0.#", CultureInfo.InvariantCulture);
+        }
 
         public static string String(this int number)
         {
