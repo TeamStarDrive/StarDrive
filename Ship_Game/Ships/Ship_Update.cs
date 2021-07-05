@@ -214,23 +214,25 @@ namespace Ship_Game.Ships
             Color thrust0 = loyalty.ThrustColor0;
             Color thrust1 = loyalty.ThrustColor1;
             float velocityPercent = Velocity.Length() / VelocityMaximum;
+
             for (int i = 0; i < ThrusterList.Length; ++i)
             {
                 Thruster thruster = ThrusterList[i];
                 thruster.UpdatePosition();
-                if (ThrustThisFrame != Ships.Thrust.Coast)
+
+                bool enginesOn = ThrustThisFrame == Ships.Thrust.Forward || ThrustThisFrame == Ships.Thrust.Reverse;
+                if (enginesOn)
                 {
+                    if (thruster.heat < velocityPercent)
+                        thruster.heat += 0.06f;
+
                     if (engineState == MoveState.Warp)
                     {
-                        if (thruster.heat < velocityPercent)
-                            thruster.heat += 0.06f;
                         thruster.Update(Direction3D, thruster.heat, 0.004f, Empire.Universe.CamPos, thrust0, thrust1);
                     }
                     else
                     {
-                        if (thruster.heat < velocityPercent)
-                            thruster.heat += 0.06f;
-                        if (thruster.heat > 0.600000023841858)
+                        if (thruster.heat > 0.6f)
                             thruster.heat = 0.6f;
                         thruster.Update(Direction3D, thruster.heat, 0.002f, Empire.Universe.CamPos, thrust0, thrust1);
                     }
@@ -241,10 +243,9 @@ namespace Ship_Game.Ships
                     thruster.Update(Direction3D, 0.1f, 1.0f / 500.0f, Empire.Universe.CamPos, thrust0, thrust1);
                 }
 
-                if (GlobalStats.EnableEngineTrails && timeStep.FixedTime > 0f)
+                if (GlobalStats.EnableEngineTrails && velocityPercent > 0.1f && timeStep.FixedTime > 0f)
                 {
-                    float intensity = thruster.heat * -CurrentVelocity;
-                    Empire.Universe.Particles.EngineTrail.AddParticleThreadA(thruster.WorldPos, Direction3D*intensity);
+                    Empire.Universe.Particles.EngineTrail.AddParticleThreadA(thruster.WorldPos, Direction3D*velocityPercent);
                 }
             }
         }
