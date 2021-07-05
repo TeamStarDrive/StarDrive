@@ -37,9 +37,9 @@ namespace Ship_Game.Tools.Localization
             Log.Write(ConsoleColor.Cyan, $"FromYaml: {yamlFile}");
             using (var parser = new YamlParser(file))
             {
-                foreach (KeyValuePair<object, LangToken> kv in parser.DeserializeMap<LangToken>())
+                foreach (KeyValuePair<string, LangToken> kv in parser.DeserializeMap<string, LangToken>())
                 {
-                    string nameId = (string)kv.Key;
+                    string nameId = kv.Key;
                     LangToken t = kv.Value;
                     if (t.ENG != null) tokens.Add(new TextToken("ENG", t.Id, nameId, t.ENG));
                     if (t.RUS != null) tokens.Add(new TextToken("RUS", t.Id, nameId, t.RUS));
