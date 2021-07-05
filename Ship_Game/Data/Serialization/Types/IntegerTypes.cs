@@ -17,6 +17,12 @@ namespace Ship_Game.Data.Serialization.Types
             return false;
         }
 
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            bool b = (bool)obj;
+            context.Writer.Write(b ? "true" : "false");
+        }
+
         public override void Serialize(BinaryWriter writer, object obj)
         {
             bool value = (bool)obj;
@@ -33,6 +39,12 @@ namespace Ship_Game.Data.Serialization.Types
     internal class ByteSerializer : TypeSerializer
     {
         public override string ToString() => "ByteSerializer";
+
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            byte value = (byte)obj;
+            context.Writer.Write(value);
+        }
 
         public override void Serialize(BinaryWriter writer, object obj)
         {
@@ -51,6 +63,12 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public override string ToString() => "ShortSerializer";
 
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            short value = (short)obj;
+            context.Writer.Write(value);
+        }
+
         public override void Serialize(BinaryWriter writer, object obj)
         {
             short value = (short)obj;
@@ -67,6 +85,12 @@ namespace Ship_Game.Data.Serialization.Types
     internal class UShortSerializer : TypeSerializer
     {
         public override string ToString() => "UShortSerializer";
+
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            ushort value = (ushort)obj;
+            context.Writer.Write(value);
+        }
         
         public override void Serialize(BinaryWriter writer, object obj)
         {
@@ -94,6 +118,12 @@ namespace Ship_Game.Data.Serialization.Types
             return 0;
         }
 
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            int value = (int)obj;
+            context.Writer.Write(value);
+        }
+
         public override void Serialize(BinaryWriter writer, object obj)
         {
             int value = (int)obj;
@@ -110,6 +140,12 @@ namespace Ship_Game.Data.Serialization.Types
     internal class UIntSerializer : TypeSerializer
     {
         public override string ToString() => "UIntSerializer";
+
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            uint value = (uint)obj;
+            context.Writer.Write(value);
+        }
 
         public override void Serialize(BinaryWriter writer, object obj)
         {
@@ -128,6 +164,12 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public override string ToString() => "LongSerializer";
 
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            long value = (long)obj;
+            context.Writer.Write(value);
+        }
+
         public override void Serialize(BinaryWriter writer, object obj)
         {
             long value = (long)obj;
@@ -144,6 +186,12 @@ namespace Ship_Game.Data.Serialization.Types
     internal class ULongSerializer : TypeSerializer
     {
         public override string ToString() => "ULongSerializer";
+
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            ulong value = (ulong)obj;
+            context.Writer.Write(value);
+        }
 
         public override void Serialize(BinaryWriter writer, object obj)
         {

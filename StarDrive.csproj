@@ -216,6 +216,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Particle3DSample\ParticleSettings.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\Evade.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\UI\FleetStanceButtons.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\UI\DesignStanceButtons.cs" />
@@ -276,6 +277,7 @@
     <Compile Include="Ship_Game\Commands\Goals\WarMission.cs" />
     <Compile Include="Ship_Game\Commands\Goals\ScoutSystem.cs" />
     <Compile Include="Ship_Game\Data\GenericStringViewParser.cs" />
+    <Compile Include="Ship_Game\Data\Serialization\Types\StringTypes.cs" />
     <Compile Include="Ship_Game\Empires\Components\HangarShips.cs" />
     <Compile Include="Ship_Game\Empires\Components\LoyaltyLists.cs" />
     <Compile Include="Ship_Game\Empires\Components\IEmpireShipLists.cs" />

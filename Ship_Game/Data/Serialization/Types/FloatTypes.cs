@@ -21,6 +21,12 @@ namespace Ship_Game.Data.Serialization.Types
             return 0.0f;
         }
 
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            float value = (float)obj;
+            context.Writer.Write(value.String());
+        }
+
         public override void Serialize(BinaryWriter writer, object obj)
         {
             float value = (float)obj;
@@ -45,6 +51,12 @@ namespace Ship_Game.Data.Serialization.Types
             if (value is string s) return StringView.ToDouble(s);
             Error(value, "Double -- expected int or float or string");
             return 0.0;
+        }
+
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            double value = (double)obj;
+            context.Writer.Write(value.String());
         }
 
         public override void Serialize(BinaryWriter writer, object obj)

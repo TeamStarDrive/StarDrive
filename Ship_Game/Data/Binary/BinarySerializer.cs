@@ -113,6 +113,11 @@ namespace Ship_Game.Data.Binary
             }
         }
 
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            throw new NotImplementedException($"Serialize (text) not supported for {ToString()}");
+        }
+
         public override void Serialize(BinaryWriter writer, object obj)
         {
             if (Mapping == null)
