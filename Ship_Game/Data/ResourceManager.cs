@@ -254,6 +254,7 @@ namespace Ship_Game
             Profiled(LoadAsteroids);
             Profiled(LoadProjTexts);
             Profiled(LoadProjectileMeshes);
+            Profiled("LoadParticles", ParticleSettings.LoadAll);
             Profiled("LoadSunTypes", () => SunType.LoadSunTypes()); // Hotspot #3 174.8ms  7.91%
             Profiled("LoadBeamFX", () =>
             {
@@ -304,6 +305,7 @@ namespace Ship_Game
             ProjectileModelDict.Clear();
             ProjectileMeshDict.Clear();
 
+            ParticleSettings.Unload();
             SunType.Unload();
             ShieldManager.UnloadContent();
             Beam.BeamEffect = null;
@@ -1606,6 +1608,7 @@ namespace Ship_Game
             if (options.HasFlag(TestOptions.LoadEverything))
             {
                 LoadContent();
+                ParticleSettings.LoadAll();
                 SunType.LoadSunTypes(enableHotLoading: false);
                 Fonts.LoadFonts(RootContent, Localizer.Language);
                 return;

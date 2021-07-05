@@ -28,7 +28,7 @@ namespace Ship_Game
         }
     }
 
-    public struct Range
+    public struct Range : IEquatable<Range>
     {
         public float Min;
         public float Max;
@@ -39,6 +39,10 @@ namespace Ship_Game
         public Range(float min, float max)
         {
             Min = min; Max = max;
+        }
+        public bool Equals(Range other)
+        {
+            return Min == other.Min && Max == other.Max;
         }
         [Pure] public float Generate()
         {

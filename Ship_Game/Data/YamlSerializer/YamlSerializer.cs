@@ -16,6 +16,7 @@ namespace Ship_Game.Data.YamlSerializer
 
         public YamlSerializer(Type type) : base(type)
         {
+            IsUserClass = true;
         }
 
         protected override TypeSerializerMap CreateTypeMap()
@@ -71,17 +72,56 @@ namespace Ship_Game.Data.YamlSerializer
             return item;
         }
 
+        bool HasOnlyPrimitiveFields
+        {
+            get
+            {
+                foreach (KeyValuePair<string, DataField> kv in Mapping)
+                {
+                    if (kv.Value.Serializer.IsCollection || kv.Value.Serializer.IsUserClass)
+                        return false;
+                }
+                return true;
+            }
+        }
+
         public override void Serialize(TextSerializerContext context, object obj)
         {
             if (Mapping == null)
                 ResolveTypes();
+            
+            var tw = context.Writer;
+            int count = Mapping.Count;
+            if (count == 0)
+            {
+                tw.Write(" {}\n");
+                return;
+            }
+
+            // Short form, Primitives
+            // { Key1: Value1, Key2: Value2 }
+            if (count <= 3 && HasOnlyPrimitiveFields)
+            {
+                bool noPrefix = context.NoPrefix;
+                context.NoPrefix = true;
+                int i = 0;
+                tw.Write("{ ");
+                foreach (KeyValuePair<string, DataField> kv in Mapping)
+                {
+                    tw.Write(kv.Key);
+                    tw.Write(": ");
+                    kv.Value.Serialize(context, obj);
+                    if (++i != count)
+                        tw.Write(", ");
+                }
+                tw.Write(" }");
+                context.NoPrefix = noPrefix;
+                return;
+            }
 
             context.Depth += 2;
-
-            var tw = context.Writer;
             string prefixSpaces = new string(' ', context.Depth);
 
-            // serialize each field using the resolved serializers from TypeSerializerMap
             foreach (KeyValuePair<string, DataField> kv in Mapping)
             {
                 if (context.IgnoreSpacePrefixOnce)
@@ -90,9 +130,19 @@ namespace Ship_Game.Data.YamlSerializer
                     tw.Write(prefixSpaces);
 
                 tw.Write(kv.Key);
-                tw.Write(": ");
-                kv.Value.Serialize(context, obj);
-                tw.Write('\n');
+
+                if (kv.Value.Serializer.IsCollection)
+                {
+                    tw.Write(":");
+                    kv.Value.Serialize(context, obj);
+                    tw.Write('\n');
+                }
+                else
+                {
+                    tw.Write(": ");
+                    kv.Value.Serialize(context, obj);
+                    tw.Write('\n');
+                }
             }
 
             context.Depth -= 2;
