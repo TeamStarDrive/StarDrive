@@ -18,7 +18,7 @@ namespace Ship_Game
     public struct LocalizedText : IEquatable<LocalizedText>
     {
         public readonly int Id; // localization id
-        public readonly string String; // could be RawText or Parseable text
+        public readonly string String; // could be NameId, RawText or Parseable text
         public readonly LocalizationMethod Method;
 
         public static readonly LocalizedText None = new LocalizedText();
