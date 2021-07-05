@@ -4300,7 +4300,7 @@ namespace Ship_Game
         TerraformersVolcanoes2 = 4327,
         /// <summary>Tiles (</summary>
         TerraformersTiles2 = 4328,
-        /// <summary>Aucomatic</summary>
+        /// <summary>Automatic</summary>
         Automatic = 4329,
         /// <summary>Incoming Freighters</summary>
         IncomingFreighters = 4330,
@@ -4316,6 +4316,10 @@ namespace Ship_Game
         IncomingOutGoingTip = 4335,
         /// <summary>You may adjust out many slots are open for the</summary>
         ManualTradeSlotTip = 4336,
+        /// <summary>: A Meteor Shower is passing through the system. We</summary>
+        MeteorShowerWarningNotOurPlanet = 4337,
+        /// <summary>: A Meteor Shower is passing through the system. We</summary>
+        MeteorShowerWarning = 4338,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>
@@ -5104,5 +5108,9 @@ namespace Ship_Game
         SaveHullDesign = -24,
         /// <summary>Ship will be in guard stance and avoid aggressively engaging</summary>
         TT_GuardMode = -25,
+        /// <summary>Enable engine trails</summary>
+        EngineTrails = -26,
+        /// <summary>This will enable engine trails for moving ships, disabling this</summary>
+        TT_EngineTrails = -27,
     }
 }
