@@ -270,9 +270,11 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
-        public void TestOverBudgetSpending()
+        public void TestOverBudgetSpendingHigh()
         {
+            // normalized money is not reset to zero
             Player.Money = 500;
+            Player.UpdateNormalizedMoney(Player.Money);
 
             for (int x = -1; x < 11; x++)
             {
@@ -281,7 +283,14 @@ namespace UnitTests.AITests.Empire
                 percent = 2 - percent;
                 Assert.IsTrue(overSpend.AlmostEqual(percent), $"Expected {percent} got {overSpend}");
             }
+        }
+
+        [TestMethod]
+        public void TestOverBudgetSpendingLow()
+        {
+            // normalized money is not reset to zero
             Player.Money = 50;
+            Player.UpdateNormalizedMoney(Player.Money);
             for (int x = -1; x < 1; x++)
             {
                 float percent = x * 0.05f;
