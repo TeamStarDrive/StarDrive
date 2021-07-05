@@ -20,7 +20,6 @@ namespace Ship_Game
         [StarData] public float MaxHorizontalVelocity;
         [StarData] public float MinVerticalVelocity;
         [StarData] public float MaxVerticalVelocity;
-        [StarData] public Vector3 Gravity = Vector3.Zero;
         [StarData] public float EndVelocity = 1f;
         [StarData] public Color MinColor = Color.White;
         [StarData] public Color MaxColor = Color.White;
