@@ -99,12 +99,12 @@ namespace Ship_Game
 
             if (P.TerraformingHere)
             {
-                TerraformStatus.Text  = Localizer.Token(GameText.TerraformersInProgress);
+                TerraformStatus.Text  = GameText.TerraformersInProgress;
                 TerraformStatus.Color = ApplyCurrentAlphaToColor(Color.Yellow);
             }
             else
             {
-                TerraformStatus.Text  = Terraformable ? Localizer.Token(GameText.TerraformersNotStarted) : Localizer.Token(GameText.TerraformersDone);
+                TerraformStatus.Text  = Terraformable ? GameText.TerraformersNotStarted : GameText.TerraformersDone;
                 TerraformStatus.Color = Terraformable ? Color.Orange : Color.Green;
             }
 

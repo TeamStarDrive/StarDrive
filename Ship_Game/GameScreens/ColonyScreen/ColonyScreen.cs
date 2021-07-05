@@ -261,7 +261,7 @@ namespace Ship_Game
             CreateTerraformingDetails(detailsVector);
         }
 
-        void AddLabel(ref UILabel uiLabel, Vector2 pos, string text, Font font, Color color)
+        void AddLabel(ref UILabel uiLabel, Vector2 pos, LocalizedText text, Font font, Color color)
         {
             if (uiLabel == null)
                 uiLabel = Add(new UILabel(pos, text, font, color));
@@ -314,73 +314,73 @@ namespace Ship_Game
             float indentTradeAmount = indent + barWidth + 5;
             float indentSlider      = indentTradeAmount + 60;
 
-            AddLabel(ref TradeTitle, pos, Localizer.Token(GameText.ColonyTrade), LowRes ? Font14 : Font20, Color.White);
+            AddLabel(ref TradeTitle, pos, GameText.ColonyTrade, LowRes ? Font14 : Font20, Color.White);
 
             Vector2 incomingTitlePos = new Vector2(pos.X, pos.Y + spacing * (LowRes ? 1 : 1.5f));
-            AddLabel(ref IncomingTradeTitle, incomingTitlePos, Localizer.Token(GameText.IncomingFreighters), font, Color.Gray);
+            AddLabel(ref IncomingTradeTitle, incomingTitlePos, GameText.IncomingFreighters, font, Color.Gray);
 
             Vector2 manualImportTitlePos = new Vector2(pos.X + indentSlider - 10, incomingTitlePos.Y);
             AddLabel(ref ManualImportTitle, manualImportTitlePos, Localizer.Token(GameText.ManualImport), font, Color.Gray);
 
             // Incoming food
             Vector2 incomingFoodPos = new Vector2(pos.X, incomingTitlePos.Y + spacing + 3);
-            AddPanel(ref IncomingFoodPanel, incomingFoodPos, "NewUI/icon_food", font.LineSpacing, Localizer.Token(GameText.IncomingOutGoingTip));
+            AddPanel(ref IncomingFoodPanel, incomingFoodPos, "NewUI/icon_food", font.LineSpacing, GameText.IncomingOutGoingTip);
             Rectangle incomingFoodRect = new Rectangle((int)(incomingFoodPos.X + indent), (int)incomingFoodPos.Y, barWidth, 20);
             AddProgressBar(ref IncomingFoodBar, incomingFoodRect, P.FoodImportSlots, "green");
             Vector2 incomingFoodAmountPos = new Vector2(pos.X + indentTradeAmount, incomingFoodPos.Y + (LowRes ? 0 : 2));
             AddLabel(ref IncomingFoodAmount, incomingFoodAmountPos, "", Font8, Color.White);
             Rectangle importFoodSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(incomingFoodPos.Y-12), sliderWidth, sliderSize);
-            AddUiSlider(ref ImportFoodSlotSlider, importFoodSlotsRect, "", 0, 20, P.ManualFoodImportSlots, Localizer.Token(GameText.ManualTradeSlotTip));
+            AddUiSlider(ref ImportFoodSlotSlider, importFoodSlotsRect, "", 0, 20, P.ManualFoodImportSlots, GameText.ManualTradeSlotTip);
 
             // Incoming Prod
             Vector2 incomingProdPos = new Vector2(pos.X, incomingFoodPos.Y + spacing);
-            AddPanel(ref IncomingProdPanel, incomingProdPos, "NewUI/icon_production", font.LineSpacing, Localizer.Token(GameText.IncomingOutGoingTip));
+            AddPanel(ref IncomingProdPanel, incomingProdPos, "NewUI/icon_production", font.LineSpacing, GameText.IncomingOutGoingTip);
             Rectangle incomingProdRect = new Rectangle((int)(incomingProdPos.X + indent), (int)incomingProdPos.Y, barWidth, 20);
             AddProgressBar(ref IncomingProdBar, incomingProdRect, P.ProdImportSlots, "brown");
             Vector2 incomingProdAmountPos = new Vector2(pos.X + indentTradeAmount, incomingProdPos.Y + (LowRes ? 0 : 2));
             AddLabel(ref IncomingProdAmount, incomingProdAmountPos, "", Font8, Color.White);
             Rectangle importProdSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(incomingProdPos.Y-12), sliderWidth, sliderSize);
-            AddUiSlider(ref ImportProdSlotSlider, importProdSlotsRect, "", 0, 20, P.ManualProdImportSlots, Localizer.Token(GameText.ManualTradeSlotTip));
+            AddUiSlider(ref ImportProdSlotSlider, importProdSlotsRect, "", 0, 20, P.ManualProdImportSlots, GameText.ManualTradeSlotTip);
 
             // Incoming Colonists
             Vector2 incomingColoPos = new Vector2(pos.X, incomingProdPos.Y + spacing);
-            AddPanel(ref IncomingColoPanel, incomingColoPos, "UI/icon_pop", font.LineSpacing, Localizer.Token(GameText.IncomingOutGoingTip));
+            AddPanel(ref IncomingColoPanel, incomingColoPos, "UI/icon_pop", font.LineSpacing, GameText.IncomingOutGoingTip);
             Rectangle incomingColoRect = new Rectangle((int)(incomingColoPos.X + indent), (int)incomingColoPos.Y, barWidth, 20);
             AddProgressBar(ref IncomingColoBar, incomingColoRect, P.ColonistsImportSlots, "blue");
             Vector2 incomingColoAmountPos = new Vector2(pos.X + indentTradeAmount, incomingColoPos.Y + (LowRes ? 0 : 2));
             AddLabel(ref IncomingColoAmount, incomingColoAmountPos, "", Font8, Color.White);
             Rectangle importColoSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(incomingColoPos.Y-12), sliderWidth, sliderSize);
-            AddUiSlider(ref ImportColoSlotSlider, importColoSlotsRect, "", 0, 20, P.ManualColoImportSlots, Localizer.Token(GameText.ManualTradeSlotTip));
+            AddUiSlider(ref ImportColoSlotSlider, importColoSlotsRect, "", 0, 20, P.ManualColoImportSlots, GameText.ManualTradeSlotTip);
 
             Vector2 outgoingTitlePos = new Vector2(pos.X, incomingColoAmountPos.Y + spacing * (LowRes ? 1 : 1.5f));
-            AddLabel(ref OutgoingTradeTitle, outgoingTitlePos, Localizer.Token(GameText.OutgoingFreighters), font, Color.Gray);
+            AddLabel(ref OutgoingTradeTitle, outgoingTitlePos, GameText.OutgoingFreighters, font, Color.Gray);
 
             Vector2 manualExportTitlePos = new Vector2(pos.X + indentSlider - 10, outgoingTitlePos.Y);
-            AddLabel(ref ManualExportTitle, manualExportTitlePos, Localizer.Token(GameText.ManualExport), font, Color.Gray);
+            AddLabel(ref ManualExportTitle, manualExportTitlePos, GameText.ManualExport, font, Color.Gray);
 
             // Outgoing food
             Vector2 outgoingFoodPos = new Vector2(pos.X, outgoingTitlePos.Y + spacing + 3);
-            AddPanel(ref OutgoingFoodPanel, outgoingFoodPos, "NewUI/icon_food", font.LineSpacing, Localizer.Token(GameText.IncomingOutGoingTip));
+            AddPanel(ref OutgoingFoodPanel, outgoingFoodPos, "NewUI/icon_food", font.LineSpacing, GameText.IncomingOutGoingTip);
             Rectangle outgoingFoodRect = new Rectangle((int)(outgoingFoodPos.X + indent), (int)outgoingFoodPos.Y, barWidth, 20);
             AddProgressBar(ref OutgoingFoodBar, outgoingFoodRect, P.FoodExportSlots, "green");
             Rectangle exportFoodSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(outgoingFoodPos.Y-12), sliderWidth, sliderSize);
-            AddUiSlider(ref ExportFoodSlotSlider, exportFoodSlotsRect, "", 0, 20, P.ManualFoodExportSlots, Localizer.Token(GameText.ManualTradeSlotTip));
+            AddUiSlider(ref ExportFoodSlotSlider, exportFoodSlotsRect, "", 0, 20, P.ManualFoodExportSlots, GameText.ManualTradeSlotTip);
 
             // Outgoing Prod
             Vector2 outgoingProdPos = new Vector2(pos.X, outgoingFoodPos.Y + spacing);
-            AddPanel(ref OutgoingProdPanel, outgoingProdPos, "NewUI/icon_production", font.LineSpacing, Localizer.Token(GameText.IncomingOutGoingTip));
+            AddPanel(ref OutgoingProdPanel, outgoingProdPos, "NewUI/icon_production", font.LineSpacing, GameText.IncomingOutGoingTip);
             Rectangle outgoingProdRect = new Rectangle((int)(outgoingProdPos.X + indent), (int)outgoingProdPos.Y, barWidth, 20);
             AddProgressBar(ref OutgoingProdBar, outgoingProdRect, P.ProdExportSlots, "brown");
             Rectangle exportProdSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(outgoingProdPos.Y-12), sliderWidth, sliderSize);
-            AddUiSlider(ref ExportProdSlotSlider, exportProdSlotsRect, "", 0, 20, P.ManualProdExportSlots, Localizer.Token(GameText.ManualTradeSlotTip));
+            AddUiSlider(ref ExportProdSlotSlider, exportProdSlotsRect, "", 0, 20, P.ManualProdExportSlots, GameText.ManualTradeSlotTip);
 
             // Outgoing Colonists
             Vector2 outgoingColoPos = new Vector2(pos.X, outgoingProdPos.Y + spacing);
-            AddPanel(ref OutgoingColoPanel, outgoingColoPos, "UI/icon_pop", font.LineSpacing, Localizer.Token(GameText.IncomingOutGoingTip));
+            AddPanel(ref OutgoingColoPanel, outgoingColoPos, "UI/icon_pop", font.LineSpacing, GameText.IncomingOutGoingTip);
             Rectangle outgoingColoRect = new Rectangle((int)(outgoingColoPos.X + indent), (int)outgoingColoPos.Y, barWidth, 20);
             AddProgressBar(ref OutgoingColoBar, outgoingColoRect, P.ColonistsExportSlots, "blue");
             Rectangle exportColoSlotsRect = new Rectangle((int)(pos.X + indentSlider), (int)(outgoingColoPos.Y-12), sliderWidth, sliderSize);
-            AddUiSlider(ref ExportColoSlotSlider, exportColoSlotsRect, "", 0, 20, P.ManualColoExportSlots, Localizer.Token(GameText.ManualTradeSlotTip));
+            AddUiSlider(ref ExportColoSlotSlider, exportColoSlotsRect, "", 0, 20, P.ManualColoExportSlots, GameText.ManualTradeSlotTip);
         }
 
         void CreateTerraformingDetails(Vector2 pos)
@@ -392,7 +392,7 @@ namespace Ship_Game
             AddLabel(ref TerraformTitle, pos, "", LowRes ? Font14 : Font20, Color.White);
 
             Vector2 statusTitlePos = new Vector2(pos.X, pos.Y + spacing*2);
-            AddLabel(ref TerraformStatusTitle, statusTitlePos, Localizer.Token(GameText.TerraformingStatus), font, Color.White);
+            AddLabel(ref TerraformStatusTitle, statusTitlePos, GameText.TerraformingStatus, font, Color.White);
 
             float indent = font.MeasureString(TerraformStatusTitle.Text).X + 125;
 
@@ -400,7 +400,7 @@ namespace Ship_Game
             AddLabel(ref TerraformStatus, statusPos, " ", font, Color.Gray);
 
             Vector2 numTerraformersTitlePos = new Vector2(pos.X, TerraformStatusTitle.Y + spacing);
-            AddLabel(ref TerraformersHereTitle, numTerraformersTitlePos, Localizer.Token(GameText.TerraformersHere), font, Color.Gray);
+            AddLabel(ref TerraformersHereTitle, numTerraformersTitlePos, GameText.TerraformersHere, font, Color.Gray);
 
             Vector2 numTerraformersPos = new Vector2(pos.X + indent, numTerraformersTitlePos.Y);
             AddLabel(ref TerraformersHere, numTerraformersPos, " ", font, Color.White);
@@ -409,7 +409,7 @@ namespace Ship_Game
             AddLabel(ref VolcanoTerraformTitle, terraVolcanoTitlePos, " ", font, Color.Gray);
 
             Vector2 terraVolcanoPos = new Vector2(pos.X + indent, terraVolcanoTitlePos.Y);
-            AddLabel(ref VolcanoTerraformDone, terraVolcanoPos, Localizer.Token(GameText.TerraformersDone), font, Color.Green);
+            AddLabel(ref VolcanoTerraformDone, terraVolcanoPos, GameText.TerraformersDone, font, Color.Green);
 
             Rectangle terraVolcanoRect = new Rectangle((int)terraVolcanoPos.X, (int)terraVolcanoPos.Y, barWidth, 20);
             AddProgressBar(ref VolcanoTerraformBar, terraVolcanoRect, 100, "brown", percentage: true);
@@ -418,28 +418,28 @@ namespace Ship_Game
             AddLabel(ref TileTerraformTitle, terraTileTitlePos, " ", font, Color.Gray);
 
             Vector2 terraTilePos = new Vector2(pos.X + indent, terraTileTitlePos.Y);
-            AddLabel(ref TileTerraformDone, terraTilePos, Localizer.Token(GameText.TerraformersDone), font, Color.Green);
+            AddLabel(ref TileTerraformDone, terraTilePos, GameText.TerraformersDone, font, Color.Green);
 
             Rectangle terraTileRect = new Rectangle((int)terraTilePos.X, (int)terraTilePos.Y, barWidth, 20);
             AddProgressBar(ref TileTerraformBar, terraTileRect, 100, "green", percentage: true);
 
             Vector2 terraPlanetTitlePos = new Vector2(pos.X, terraTileTitlePos.Y + spacing);
-            AddLabel(ref PlanetTerraformTitle, terraPlanetTitlePos, Localizer.Token(GameText.TerraformPlanet), font, Color.Gray);
+            AddLabel(ref PlanetTerraformTitle, terraPlanetTitlePos, GameText.TerraformPlanet, font, Color.Gray);
 
             Vector2 terraPlanetPos = new Vector2(pos.X + indent, terraPlanetTitlePos.Y);
-            AddLabel(ref PlanetTerraformDone, terraPlanetPos, Localizer.Token(GameText.TerraformersDone), font, Color.Green);
+            AddLabel(ref PlanetTerraformDone, terraPlanetPos, GameText.TerraformersDone, font, Color.Green);
 
             Rectangle terraPlanetRect = new Rectangle((int)terraPlanetPos.X, (int)terraPlanetPos.Y, barWidth, 20);
             AddProgressBar(ref PlanetTerraformBar, terraPlanetRect, 100, "blue", percentage: true);
 
             Vector2 targetFertilityTitlePos = new Vector2(pos.X, terraPlanetTitlePos.Y + spacing * 2);
-            AddLabel(ref TargetFertilityTitle, targetFertilityTitlePos, Localizer.Token(GameText.TerraformTargetFert), font, Color.Gray);
+            AddLabel(ref TargetFertilityTitle, targetFertilityTitlePos, GameText.TerraformTargetFert, font, Color.Gray);
 
             Vector2 targetFertilityPos = new Vector2(pos.X + indent, targetFertilityTitlePos.Y);
             AddLabel(ref TargetFertility, targetFertilityPos, "", font, Color.Green);
 
             Vector2 estimatedMaxPopTitlePos = new Vector2(pos.X, targetFertilityTitlePos.Y + spacing);
-            AddLabel(ref EstimatedMaxPopTitle, estimatedMaxPopTitlePos, Localizer.Token(GameText.TerraformEsPop), font, Color.Gray);
+            AddLabel(ref EstimatedMaxPopTitle, estimatedMaxPopTitlePos, GameText.TerraformEsPop, font, Color.Gray);
 
             Vector2 estimatedMaxPopPos = new Vector2(pos.X + indent, estimatedMaxPopTitlePos.Y);
             AddLabel(ref EstimatedMaxPop, estimatedMaxPopPos, "", font, Color.Green);
