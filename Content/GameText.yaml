@@ -10218,10 +10218,13 @@ MeteorShowerWarningNotOurPlanet:
  ENG: ": A Meteor Shower is passing through the system.\nWe estimate that some of the meteors are going to crash on the planet\nbut we do not have a colony there."
 MeteorShowerWarning:
  Id: 4338
- ENG: ": A Meteor Shower is passing through the system.\nWe estimate that some of the meteors are going to crash on the planet!" 
+ ENG: ": A Meteor Shower is passing through the system.\nWe estimate that some of the meteors are going to crash on the planet!"
 BudgetLimitReached:
  Id: 4339
  ENG: "Civilian Budget Limit Reached!"
+BB_Tech_SubspatialDynamics_CounterEnemyPlanetInhibitionBonus_Bonus:
+ Id: 4340
+ ENG: "Normaly, hostile planets negate our own projector effects and inhibit our ships. This tech allows us to decrease the enemy planet's gravity well by 25%, if we have a projector in range."
 OnSurface:
  Id: 4993
  ENG: "on surface"
