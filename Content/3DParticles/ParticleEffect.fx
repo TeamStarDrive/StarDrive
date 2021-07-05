@@ -19,7 +19,6 @@ float CurrentTime;
 // Parameters describing how the particles animate.
 float Duration;
 float DurationRandomness;
-float3 Gravity;
 float EndVelocity;
 float4 MinColor;
 float4 MaxColor;
@@ -57,8 +56,10 @@ struct VertexShaderInput
 	float2 Corner : POSITION0;
     float3 Position : POSITION1;
     float3 Velocity : NORMAL0;
-    float4 Random : COLOR0;
-    float Time : TEXCOORD0;
+    float4 Color : COLOR0;
+    float4 Random : COLOR1;
+    float Scale : TEXCOORD0;
+    float Time : TEXCOORD1;
 };
 
 
@@ -72,8 +73,8 @@ struct VertexShaderOutput
 
 
 // Vertex shader helper for computing the position of a particle.
-float4 ComputeParticlePosition(float3 position, float3 velocity,
-                               float age, float normalizedAge)
+float4 GetPosition(float3 position, float3 velocity,
+                   float age, float normalizedAge)
 {
     float startVelocity = length(velocity);
 
@@ -93,16 +94,13 @@ float4 ComputeParticlePosition(float3 position, float3 velocity,
      
     position += normalize(velocity) * velocityIntegral * Duration;
     
-    // Apply the gravitational force.
-    position += Gravity * age * normalizedAge;
-    
     // Apply the camera view and projection transforms.
     return mul(mul(float4(position, 1), View), Projection);
 }
 
 
 // Vertex shader helper for computing the size of a particle.
-float ComputeParticleSize(float randomValue, float normalizedAge)
+float GetParticleSize(float randomValue, float normalizedAge)
 {
     // Apply a random factor to make each particle a slightly different size.
     float startSize = lerp(StartSize.x, StartSize.y, randomValue);
@@ -117,8 +115,8 @@ float ComputeParticleSize(float randomValue, float normalizedAge)
 
 
 // Vertex shader helper for computing the color of a particle.
-float4 ComputeParticleColor(float4 projectedPosition,
-                            float randomValue, float normalizedAge)
+float4 GetParticleColor(float4 projectedPosition,
+                        float randomValue, float normalizedAge)
 {
     // Apply a random factor to make each particle a slightly different color.
     float4 color = lerp(MinColor, MaxColor, randomValue);
@@ -136,7 +134,7 @@ float4 ComputeParticleColor(float4 projectedPosition,
 
 
 // Vertex shader helper for computing the rotation of a particle.
-float2x2 ComputeParticleRotation(float randomValue, float age)
+float2x2 GetRandomizedRotation(float randomValue, float age)
 {    
     // Apply a random factor to make each particle rotate at a different speed.
     float rotateSpeed = lerp(RotateSpeed.x, RotateSpeed.y, randomValue);
@@ -166,15 +164,14 @@ VertexShaderOutput ParticleVertexShader(VertexShaderInput input)
     float normalizedAge = saturate(age / Duration);
 
     // Compute the particle position, size, color, and rotation.
-    output.Position = ComputeParticlePosition(input.Position, input.Velocity,
-                                              age, normalizedAge);
+    output.Position = GetPosition(input.Position, input.Velocity, age, normalizedAge);
 
-    float size = ComputeParticleSize(input.Random.y, normalizedAge);
-    float2x2 rotation = ComputeParticleRotation(input.Random.w, age);
+    float size = GetParticleSize(input.Random.y, normalizedAge) * input.Scale;
+    float2x2 rotation = GetRandomizedRotation(input.Random.w, age);
 
+    // this cleverly scales the Quad corners
     output.Position.xy += mul(input.Corner, rotation) * size * ViewportScale;
-    
-    output.Color = ComputeParticleColor(output.Position, input.Random.z, normalizedAge);
+    output.Color = GetParticleColor(output.Position, input.Random.z, normalizedAge) * input.Color;
     output.TextureCoordinate = (input.Corner + 1) / 2;
     
     return output;
@@ -190,6 +187,15 @@ float4 ParticlePixelShader(VertexShaderOutput input) : COLOR0
 
 // Effect technique for drawing particles.
 technique Particles
+{
+    pass P0
+    {
+        VertexShader = compile vs_2_0 ParticleVertexShader();
+        PixelShader = compile ps_2_0 ParticlePixelShader();
+    }
+}
+
+technique StaticParticle
 {
     pass P0
     {
