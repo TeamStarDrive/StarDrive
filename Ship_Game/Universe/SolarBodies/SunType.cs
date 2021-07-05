@@ -45,7 +45,7 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public readonly bool  Habitable = true; // is this star habitable, or is this a dangerous type?
         [StarData] public readonly float RadiationDamage = 0f; // is this star dangerous and damages nearby ships??
         [StarData] public readonly float RadiationRadius = 0f;
-        [StarData] readonly Array<SunLayerInfo> Layers;
+        [StarData] public readonly Array<SunLayerInfo> Layers;
         public SubTexture Icon { get; private set; } // lo-res icon used in background star fields
 
         public override string ToString() => $"SunType {Id}  {IconPath}  Light:{LightColor}  Habit:{Habitable}";
