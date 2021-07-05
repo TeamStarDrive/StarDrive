@@ -263,6 +263,7 @@ namespace Ship_Game
             right.AddCheckbox(() => GlobalStats.ZoomTracking,                 title: GameText.ToggleZoomTracking, tooltip: GameText.ZoomWillCenterOnSelected);
             right.AddCheckbox(() => GlobalStats.AutoErrorReport,              title: GameText.AutomaticErrorReport, tooltip: GameText.SendAutomaticErrorReportsTo);
             right.AddCheckbox(() => GlobalStats.DisableAsteroids,             title: GameText.DisableAsteroids, tooltip: GameText.ThisWillPreventAsteroidsFrom);
+            right.AddCheckbox(() => GlobalStats.EnableEngineTrails,           title: GameText.EngineTrails, tooltip: GameText.TT_EngineTrails);
             right.AddCheckbox(() => GlobalStats.NotifyEnemyInSystemAfterLoad, title: GameText.AlertEnemyPresenceAfterLoad, tooltip: GameText.AddNotificationsRegardingEnemiesIn);
 
             CurrentLanguage = new DropOptions<Language>(105, 18);

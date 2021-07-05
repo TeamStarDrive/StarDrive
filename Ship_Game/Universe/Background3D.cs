@@ -54,7 +54,7 @@ namespace Ship_Game
                 neb.LoadContent(Screen.ScreenManager);
                 BGItems.Add(neb);
                 if (starParts)
-                    Screen.star_particles.AddParticleThreadB(new Vector3(nebrect.X, nebrect.Y, nebZ), Vector3.Zero);
+                    Screen.Particles.StarParticles.AddParticleThreadB(new Vector3(nebrect.X, nebrect.Y, nebZ), Vector3.Zero);
                 return nebZ;
             }
             zPos = CreateNebulaPart(r, zPos, ResourceManager.Texture("hqspace/neb_pointy"), 0, 0);

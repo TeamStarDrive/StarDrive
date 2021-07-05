@@ -44,6 +44,7 @@ namespace Ship_Game
         UILabel NoGovernorCivExpense;
         UILabel NoGovernorGrdExpense;
         UILabel NoGovernorSpcExpense;
+        UILabel BudgetLimitReached;
 
 
         private readonly Graphics.Font Font14 = Fonts.Arial14Bold;
@@ -53,6 +54,7 @@ namespace Ship_Game
         private Graphics.Font Font;
         private Graphics.Font FontBig;
         private bool OverrideCivBudget, OverrideGrdBudget, OverrideSpcBudget;
+        private bool BudgetLimitWarningVisible;
 
         Rectangle CivBudgetRect;
         Rectangle GrdBudgetRect;
@@ -151,15 +153,16 @@ namespace Ship_Game
             BuildStation.Tooltip  = GameText.BuildAStationTheStrongest;
             BuildPlatform.Tooltip = GameText.BuildAPlatformTheStrongest;
 
-            PlatformsText    = Add(new UILabel(" "));
-            ShipyardsText    = Add(new UILabel(" "));
-            StationsText     = Add(new UILabel(" "));
-            NoGovernor       = Add(new UILabel(GameText.NoGovernor, Font, Color.Gray));
-            ColonyRank       = Add(new UILabel(" ", Font, Color.LightGreen));
+            PlatformsText      = Add(new UILabel(" "));
+            ShipyardsText      = Add(new UILabel(" "));
+            StationsText       = Add(new UILabel(" "));
+            NoGovernor         = Add(new UILabel(GameText.NoGovernor, Font, Color.Gray));
+            ColonyRank         = Add(new UILabel(" ", Font, Color.LightGreen));
+            BudgetLimitReached = Add(new UILabel(GameText.BudgetLimitReached, FontBig, Color.Red));
 
-            CivBudgetRect    = new Rectangle((int)X + 57, (int)Y + 40, (int)(Width*0.33f), 20);
-            GrdBudgetRect    = new Rectangle((int)X + 57, (int)Y + 70, (int)(Width*0.33f), 20);
-            SpcBudgetRect    = new Rectangle((int)X + 57, (int)Y + 100, (int)(Width*0.33f), 20);
+            CivBudgetRect     = new Rectangle((int)X + 57, (int)Y + 40, (int)(Width*0.33f), 20);
+            GrdBudgetRect     = new Rectangle((int)X + 57, (int)Y + 70, (int)(Width*0.33f), 20);
+            SpcBudgetRect     = new Rectangle((int)X + 57, (int)Y + 100, (int)(Width*0.33f), 20);
             CivBudgetIconRect = new Rectangle((int)X + 5, (int)Y + 38, 47, 23);
             GrdBudgetIconRect = new Rectangle((int)X + 5, (int)Y + 68, 47, 23);
             SpcBudgetIconRect = new Rectangle((int)X + 5, (int)Y + 96, 47, 23);
@@ -212,12 +215,13 @@ namespace Ship_Game
             Portrait.Size = new Vector2((float)Math.Round(aspect*height), height);
             Portrait.Pos  = new Vector2(X + 10, Y + 30);
 
-            WorldType.Pos         = new Vector2(Portrait.Right + 10, Portrait.Y);
-            ColonyTypeList.Pos    = new Vector2(WorldType.X, Portrait.Y + 16);
-            WorldDescription.Pos  = new Vector2(WorldType.X, Portrait.Y + 40);
-            WorldDescription.Text = GetParsedDescription();
-            Quarantine.Pos        = new Vector2(Portrait.X, Bottom - 24);
-            GovNoScrap.Pos        = new Vector2(TopRight.X - 250, Bottom - 24);
+            WorldType.Pos          = new Vector2(Portrait.Right + 10, Portrait.Y);
+            ColonyTypeList.Pos     = new Vector2(WorldType.X, Portrait.Y + 16);
+            WorldDescription.Pos   = new Vector2(WorldType.X, Portrait.Y + 40);
+            WorldDescription.Text  = GetParsedDescription();
+            Quarantine.Pos         = new Vector2(Portrait.X, Bottom - 24);
+            GovNoScrap.Pos         = new Vector2(TopRight.X - 250, Bottom - 24);
+            BudgetLimitReached.Pos = new Vector2(ColonyTypeList.Right + 10, ColonyTypeList.Pos.Y);
 
             AutoTroops.Pos        = new Vector2(TopLeft.X + 10, Y + 30);
             Garrison.Pos          = new Vector2(TopLeft.X + 20, Y + 50);
@@ -306,12 +310,14 @@ namespace Ship_Game
         {
             if (Planet.Owner != null)
             {
-                WorldDescription.Visible = GovernorTabView && Planet.Owner.isPlayer;
-                ColonyTypeList.Visible   = GovernorTabView && Planet.Owner.isPlayer;
-                Portrait.Visible         = GovernorTabView;
-                WorldType.Visible        = GovernorTabView;
-                Quarantine.Visible       = GovernorTabView && Planet.Owner.isPlayer;
-                Quarantine.TextColor     = Planet.Quarantine ? Color.Red : Color.Gray;
+                WorldDescription.Visible   = GovernorTabView && Planet.Owner.isPlayer;
+                ColonyTypeList.Visible     = GovernorTabView && Planet.Owner.isPlayer;
+                Portrait.Visible           = GovernorTabView;
+                WorldType.Visible          = GovernorTabView;
+                Quarantine.Visible         = GovernorTabView && Planet.Owner.isPlayer;
+                Quarantine.TextColor       = Planet.Quarantine ? Color.Red : Color.Gray;
+                BudgetLimitReached.Visible = GovernorTabView && Planet.Owner.isPlayer && GovernorOn && BudgetLimitWarningVisible;
+                BudgetLimitReached.Color   = Screen.CurrentFlashColorRed;
 
                 // Not for trade hubs, which do not build structures anyway
                 GovNoScrap.Visible = GovernorTabView && Planet.colonyType != Planet.ColonyType.TradeHub && GovernorOn && Planet.Owner.isPlayer;
@@ -642,6 +648,7 @@ namespace Ship_Game
             SpcBudgetBar.Max      = budget.SpcDefAlloc;
             SpcBudgetBar.Progress = Planet.SpaceDefMaintenance;
 
+            BudgetLimitWarningVisible = CivBudgetBar.Progress >= CivBudgetBar.Max && Planet.GetBuildingsCanBuild().Any(b => !b.IsMilitary);
             float spent = Planet.CivilianBuildingsMaintenance + Planet.GroundDefMaintenance + Planet.SpaceDefMaintenance;
             if (GovernorOn)
             {

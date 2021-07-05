@@ -56,18 +56,32 @@ namespace Ship_Game.Data.Serialization
         {
             if (type.IsGenericType)
             {
-                if (type.GetGenericTypeDefinition() == typeof(Array<>))
-                    return type.GenericTypeArguments[0];
-                if (type.GetInterfaces().Contains(typeof(IList)))
+                if (type.GetGenericTypeDefinition() == typeof(Array<>) ||
+                    type.GetInterfaces().Contains(typeof(IList)))
                     return type.GenericTypeArguments[0];
             }
             return null;
+        }
+
+        static (Type Key, Type Value) GetMapTypes(Type type)
+        {
+            if (type.IsGenericType)
+            {
+                var genType = type.GetGenericTypeDefinition();
+                if (genType == typeof(Map<,>) ||
+                    genType == typeof(IDictionary<,>))
+                    return (type.GenericTypeArguments[0], type.GenericTypeArguments[1]);
+            }
+            return (null, null);
         }
 
         public TypeSerializer Get(Type type)
         {
             if (Serializers.TryGetValue(type, out TypeSerializer converter))
                 return converter;
+            
+            if (type.IsEnum)
+                return Add(type, new EnumSerializer(type));
 
             if (type.IsArray)
             {
@@ -79,8 +93,9 @@ namespace Ship_Game.Data.Serialization
             if (listElemType != null)
                 return Add(type, new ArrayListSerializer(listElemType, Get(listElemType)));
 
-            if (type.IsEnum)
-                return Add(type, new EnumSerializer(type));
+            (Type key, Type value) = GetMapTypes(type);
+            if (key != null)
+                return Add(type, new MapSerializer(key, Get(key), value, Get(value)));
 
             if (type.GetCustomAttribute<StarDataTypeAttribute>() != null)
                 return Add(type, AddUserTypeSerializer(type));
