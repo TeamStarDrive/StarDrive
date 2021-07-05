@@ -7,9 +7,9 @@ namespace Ship_Game.AI.Research
 {
     public class ResearchOptions
     {
-        static readonly Map<TechnologyType, float> TechTypeMods = new Map<TechnologyType, float>();
-        static readonly Map<ShipCosts, float> ShipMods          = new Map<ShipCosts, float>();
-        static readonly Map<ResearchArea, float> Priority       = new Map<ResearchArea, float>();
+        readonly Map<TechnologyType, float> TechTypeMods = new Map<TechnologyType, float>();
+        readonly Map<ShipCosts, float> ShipMods          = new Map<ShipCosts, float>();
+        readonly Map<ResearchArea, float> Priority       = new Map<ResearchArea, float>();
 
         /// <summary>
         /// Used for loading yamls
@@ -19,6 +19,15 @@ namespace Ship_Game.AI.Research
             TechType,
             ShipCost,
             AreaPriority
+        }
+
+        public int Count()
+        {
+            int total = 0;
+            total += ShipMods.Count;
+            total += Priority.Count;
+            total += TechTypeMods.Count;
+            return total;
         }
 
         /// <summary>
@@ -62,7 +71,12 @@ namespace Ship_Game.AI.Research
             GroundCombat
         }
 
-        public ResearchOptions()
+        /// <summary>
+        /// No defaults or load for testing
+        /// </summary>
+        public ResearchOptions(){}
+
+        public ResearchOptions(Empire empire)
         {
             //Set default values.
             //ShipCosts
@@ -96,7 +110,7 @@ namespace Ship_Game.AI.Research
             Priority[ResearchArea.General]      = 1;
             Priority[ResearchArea.Research]     = 1;
             Priority[ResearchArea.ShipTech]     = 1;
-            LoadResearchOptions();
+            LoadResearchOptions(empire);
         }
 
         // This may be kinda slow...
@@ -144,20 +158,30 @@ namespace Ship_Game.AI.Research
         }
 
         //ToDo: create loadable options
-        static void LoadResearchOptions()
+        public void LoadResearchOptions(Empire empire)
         {
-            GameLoadingScreen.SetStatus("ResearchOptions");
-
             Array<ResearchSettings> researchMods = YamlParser.DeserializeArray<ResearchSettings>("Research.yaml");
 
-            foreach (var area in researchMods)
+            // Apply setting to "ALL" first. Apply specific empire settings next
+            researchMods.Sort(i => i.PortraitName.Equals("All", StringComparison.InvariantCultureIgnoreCase));
+
+            foreach(var mods in researchMods)
             {
-                switch (area.ResearchArea)
+                bool isAll = mods.PortraitName.Equals("All", StringComparison.InvariantCultureIgnoreCase);
+                bool isUs  = mods.PortraitName == empire.Name;
+                if (isAll || isUs)
                 {
-                    case ResearchMods.TechType: area.ConvertTo(TechTypeMods); break;
-                    case ResearchMods.ShipCost: area.ConvertTo(ShipMods);     break;
-                    case ResearchMods.AreaPriority: area.ConvertTo(Priority); break;
-                    default: throw new ArgumentOutOfRangeException();
+                    ApplyYamlMap(TechTypeMods, mods.TechnologyTypeModifiers);
+                    ApplyYamlMap(ShipMods, mods.ShipCostModifiers);
+                    ApplyYamlMap(Priority, mods.ResearchAreaModifiers);
+                }
+            }
+
+            void ApplyYamlMap<T>(Map<T,float> toMap, Map<T,float> fromMap)
+            {
+                foreach(var kv in fromMap)
+                {
+                    toMap[kv.Key] = kv.Value;
                 }
             }
         }
@@ -165,27 +189,12 @@ namespace Ship_Game.AI.Research
         [StarDataType]
         public class ResearchSettings
         {
-            [StarData] public readonly ResearchMods ResearchArea;
-            [StarData] public readonly Setting[] AreaSettings;
+            [StarData] public readonly String PortraitName;
+            [StarData] public readonly Map<TechnologyType, float> TechnologyTypeModifiers;
+            [StarData] public readonly Map<ShipCosts, float> ShipCostModifiers;
+            [StarData] public readonly Map<ResearchArea, float> ResearchAreaModifiers;
 
-            public void ConvertTo<TEnum>(Map<TEnum, float> addTo) where TEnum : struct
-            {
-                foreach (var item in AreaSettings)
-                {
-                    TEnum techType;
-                    if (Enum.TryParse(item.Key, out techType))
-                        addTo[techType] = item.Value;
-                }
-            }
-
-            public override string ToString() => $"Research Area {ResearchArea} ItemCount= {AreaSettings.Length}";
-        }
-
-        [StarDataType]
-        public class Setting
-        {
-            [StarData] public string Key;
-            [StarData] public float Value;
+            public override string ToString() => $"Empire {PortraitName}";
         }
     }
 }
