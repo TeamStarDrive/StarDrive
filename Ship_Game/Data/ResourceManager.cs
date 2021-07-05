@@ -1608,6 +1608,7 @@ namespace Ship_Game
             if (options.HasFlag(TestOptions.LoadEverything))
             {
                 LoadContent();
+                ParticleSettings.LoadAll();
                 SunType.LoadSunTypes(enableHotLoading: false);
                 Fonts.LoadFonts(RootContent, Localizer.Language);
                 return;
