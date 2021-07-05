@@ -10,26 +10,6 @@ namespace Ship_Game
 {
     public partial class UniverseScreen
     {
-        private void RenderParticles()
-        {
-            beamflashes             .SetCamera(View, Projection);
-            explosionParticles      .SetCamera(View, Projection);
-            photonExplosionParticles.SetCamera(View, Projection);
-            explosionSmokeParticles .SetCamera(View, Projection);
-            projectileTrailParticles.SetCamera(View, Projection);
-            fireTrailParticles      .SetCamera(View, Projection);
-            smokePlumeParticles     .SetCamera(View, Projection);
-            fireParticles           .SetCamera(View, Projection);
-            engineTrailParticles    .SetCamera(View, Projection);
-            flameParticles          .SetCamera(View, Projection);
-            SmallflameParticles     .SetCamera(View, Projection);
-            sparks                  .SetCamera(View, Projection);
-            lightning               .SetCamera(View, Projection);
-            flash                   .SetCamera(View, Projection);
-            star_particles          .SetCamera(View, Projection);
-            neb_particles           .SetCamera(View, Projection);
-        }
-
         Map<PlanetGlow, SubTexture> Glows;
 
         public void DrawStarField()
@@ -677,45 +657,13 @@ namespace Ship_Game
             if (viewState < UnivScreenState.SectorView)
             {
                 RenderThrusters();
-                RenderParticles();
                 DrawWarpFlash();
-
-                beamflashes.Draw();
-                explosionParticles.Draw();
-                photonExplosionParticles.Draw();
-                explosionSmokeParticles.Draw();
-                projectileTrailParticles.Draw();
-                fireTrailParticles.Draw();
-                smokePlumeParticles.Draw();
-                fireParticles.Draw();
-                engineTrailParticles.Draw();
-                star_particles.Draw();
-                neb_particles.Draw();
-                flameParticles.Draw();
-                SmallflameParticles.Draw();
-                sparks.Draw();
-                lightning.Draw();
-                flash.Draw();
+                Particles.Draw(View, Projection);
             }
 
             if (!Paused) // Particle pools need to be updated
             {
-                beamflashes.Update(elapsed);
-                explosionParticles.Update(elapsed);
-                photonExplosionParticles.Update(elapsed);
-                explosionSmokeParticles.Update(elapsed);
-                projectileTrailParticles.Update(elapsed);
-                fireTrailParticles.Update(elapsed);
-                smokePlumeParticles.Update(elapsed);
-                fireParticles.Update(elapsed);
-                engineTrailParticles.Update(elapsed);
-                star_particles.Update(elapsed);
-                neb_particles.Update(elapsed);
-                flameParticles.Update(elapsed);
-                SmallflameParticles.Update(elapsed);
-                sparks.Update(elapsed);
-                lightning.Update(elapsed);
-                flash.Update(elapsed);
+                Particles.Update(elapsed);
             }
 
             DrawParticles.Stop();
