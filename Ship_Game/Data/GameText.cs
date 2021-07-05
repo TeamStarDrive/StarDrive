@@ -4300,7 +4300,7 @@ namespace Ship_Game
         TerraformersVolcanoes2 = 4327,
         /// <summary>Tiles (</summary>
         TerraformersTiles2 = 4328,
-        /// <summary>Aucomatic</summary>
+        /// <summary>Automatic</summary>
         Automatic = 4329,
         /// <summary>Incoming Freighters</summary>
         IncomingFreighters = 4330,
@@ -5104,5 +5104,9 @@ namespace Ship_Game
         SaveHullDesign = -24,
         /// <summary>Ship will be in guard stance and avoid aggressively engaging</summary>
         TT_GuardMode = -25,
+        /// <summary>Enable engine trails</summary>
+        EngineTrails = -26,
+        /// <summary>This will enable engine trails for moving ships, disabling this</summary>
+        TT_EngineTrails = -27,
     }
 }

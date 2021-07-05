@@ -131,7 +131,7 @@ namespace Ship_Game.Ships
                 for (int i = 5 - 1; i >= 0; --i)
                 {
                     Vector3 randPos = UniverseRandom.Vector32D(third);
-                    Empire.Universe.lightning.AddParticleThreadA(Center.ToVec3() + randPos, Vector3.Zero);
+                    Empire.Universe.Particles.Lightning.AddParticleThreadA(Center.ToVec3() + randPos, Vector3.Zero);
                 }
             }
 
@@ -240,6 +240,12 @@ namespace Ship_Game.Ships
                     thruster.heat = 0.01f;
                     thruster.Update(Direction3D, 0.1f, 1.0f / 500.0f, Empire.Universe.CamPos, thrust0, thrust1);
                 }
+
+                if (GlobalStats.EnableEngineTrails)
+                {
+                    float intensity = thruster.heat * -10f;
+                    Empire.Universe.Particles.FireTrail.AddParticleThreadA(thruster.WorldPos, Direction3D*intensity);
+                }
             }
         }
 
@@ -283,12 +289,12 @@ namespace Ship_Game.Ships
                 {
                     Vector3 position = UniverseRandom.Vector3D(0f, Radius);
                     ExplosionManager.AddExplosion(position, Velocity, ShipSO.WorldBoundingSphere.Radius, 2.5f, ExplosionType.Ship);
-                    Empire.Universe.flash.AddParticleThreadA(position, Vector3.Zero);
+                    Empire.Universe.Particles.Flash.AddParticleThreadA(position, Vector3.Zero);
                 }
                 if (num1 >= 40)
                 {
                     Vector3 position = UniverseRandom.Vector3D(0f, Radius);
-                    Empire.Universe.sparks.AddParticleThreadA(position, Vector3.Zero);
+                    Empire.Universe.Particles.Sparks.AddParticleThreadA(position, Vector3.Zero);
                 }
             }
 

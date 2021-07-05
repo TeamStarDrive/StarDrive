@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Particle3DSample;
 
 namespace Ship_Game.Ships
 {
@@ -57,8 +56,8 @@ namespace Ship_Game.Ships
             {
                 if (FireTrailEmitter == null)
                 {
-                    FireTrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(500f, trailPos);
-                    FlameTrail       = Empire.Universe.flameParticles.NewEmitter(300, trailPos);
+                    FireTrailEmitter = Empire.Universe.Particles.FireTrail.NewEmitter(500f, trailPos);
+                    FlameTrail       = Empire.Universe.Particles.Flame.NewEmitter(300, trailPos);
                 }
 
                 FireTrailEmitter.Update(timeStep.FixedTime, trailPos);
@@ -68,7 +67,7 @@ namespace Ship_Game.Ships
             if (Owner.Position.InRadius(P.Center, P.ObjectRadius))
             {
                 if (TrailEmitter == null)
-                    TrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(500, trailPos);
+                    TrailEmitter = Empire.Universe.Particles.ProjectileTrail.NewEmitter(500, trailPos);
 
                 TrailEmitter.Update(timeStep.FixedTime, trailPos);
             }
