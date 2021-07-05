@@ -96,6 +96,7 @@
     <Compile Include="Planets\LandOnTiles.cs" />
     <Compile Include="Planets\TestOrbitalBomb.cs" />
     <Compile Include="Serialization\StringViewTests.cs" />
+    <Compile Include="Serialization\YamlSerializerTests.cs" />
     <Compile Include="Ships\CarrierTests.cs" />
     <Compile Include="Ships\ModuleGridTests.cs" />
     <Compile Include="Ships\ShipDataTests.cs" />
@@ -131,7 +132,7 @@
     <Compile Include="TestProgressCounter.cs" />
     <Compile Include="LinearAlgebra\TestVectorMath.cs" />
     <Compile Include="TestImpactPredictor.cs" />
-    <Compile Include="Serialization\TestYamlSerializer.cs" />
+    <Compile Include="Serialization\YamlDeserializerTests.cs" />
     <Compile Include="Serialization\TestBinarySerializer.cs" />
     <Compile Include="UI\MockGameScreen.cs" />
     <Compile Include="UI\MockInputProvider.cs" />

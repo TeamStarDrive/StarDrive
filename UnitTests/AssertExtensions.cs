@@ -156,5 +156,52 @@ namespace UnitTests
                 throw new AssertFailedException($"MemberwiseEqual found {mismatches.Count} mismatches: {message}\n{mismatchText}");
             }
         }
+        
+        static string SafeSubstring(string s, int startIndex, int length, out int inserted)
+        {
+            inserted = 0;
+            string result = "";
+            for (int i = startIndex, n = 0; i < s.Length && n < length; ++i, ++n)
+            {
+                char ch = s[i];
+                if      (ch == '\n') { result += "\\n"; ++inserted; }
+                else if (ch == '\t') { result += "\\t"; ++inserted; }
+                else result += ch;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Asserts two strings are equal. On failure, generates a comparison
+        /// </summary>
+        public static void Equal(this Assert assert, string expected, string actual)
+        {
+            if (string.Equals(expected, actual))
+                return;
+
+            if (string.IsNullOrEmpty(expected) || string.IsNullOrEmpty(actual))
+                throw new AssertFailedException($"Expected:<{expected}>. Actual:<{actual}>.");
+
+            int mismatch = 0;
+            for (int i = 0; i < expected.Length && i < actual.Length; ++i, ++mismatch)
+                if (expected[i] != actual[i])
+                    break;
+
+            const int offset = 5;
+            int from = mismatch - offset;
+            if (from < 0) from = 0;
+
+            string s1 = SafeSubstring(expected, from, offset*3, out _);
+            string s2 = SafeSubstring(actual, from, offset*3, out int inserted);
+            int actualOffset = (mismatch - from) + inserted;
+
+            throw new AssertFailedException(
+                $"Expected: \"{s1}\"\n"+
+                $"Actual:   \"{s2}\"\n"+
+                $"           {new string('.', actualOffset)}^\n"+
+                $"Strings mismatch at index {mismatch}\n"+
+                $"Expected:<{expected}>. Actual:<{actual}>."
+            );
+        }
     }
 }
