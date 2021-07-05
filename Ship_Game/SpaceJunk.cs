@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Particle3DSample;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -66,12 +65,12 @@ namespace Ship_Game
                 case 7:
                     RandomValues(parentPos, -2.5f, 2.5f, 0.01f, 0.5f, 0.3f, 0.8f);
                     flameParts = 500f;
-                    ProjTrail  = Empire.Universe.projectileTrailParticles.NewEmitter(200f, Position);
+                    ProjTrail  = Empire.Universe.Particles.ProjectileTrail.NewEmitter(200f, Position);
                     break;
                 case 8:
                     RandomValues(parentPos, -5f, 5f, 0.5f, 3.5f, 0.7f, 0.1f);
                     flameParts = 30f;
-                    ProjTrail  = Empire.Universe.projectileTrailParticles.NewEmitter(200f * Scale, Position);
+                    ProjTrail  = Empire.Universe.Particles.ProjectileTrail.NewEmitter(200f * Scale, Position);
                     break;
                 case 11:
                     RandomValues(parentPos, -5f, 5f, 0.5f, 3.5f, 0.5f, 0.8f);
@@ -92,11 +91,11 @@ namespace Ship_Game
             }
 
             if (ignite)
-                FlameTrail = Empire.Universe.flameParticles.NewEmitter(flameParts * Scale, Position);
+                FlameTrail = Empire.Universe.Particles.Flame.NewEmitter(flameParts * Scale, Position);
 
             // special Emitter that will degrade faster than the others and doesnt move from the original spawn locaton. 
             if (UseStaticSmoke)
-                StaticSmoke = Empire.Universe.smokePlumeParticles.NewEmitter(60 * Scale, Position);
+                StaticSmoke = Empire.Universe.Particles.SmokePlume.NewEmitter(60 * Scale, Position);
 
             ModelMesh mesh = ResourceManager.GetJunkModel(random).Meshes[0];
             So = new SceneObject(mesh)

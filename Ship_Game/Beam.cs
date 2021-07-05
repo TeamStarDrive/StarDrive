@@ -136,19 +136,19 @@ namespace Ship_Game
             GraphicsDevice device = screen.Device;
             lock (GlobalStats.BeamEffectLocker)
             {
-                Empire.Universe.beamflashes.AddParticleThreadA(new Vector3(Source, BeamZ), Vector3.Zero);
+                Empire.Universe.Particles.BeamFlash.AddParticleThreadA(new Vector3(Source, BeamZ), Vector3.Zero);
 
                 var hit = new Vector3(ActualHitDestination, BeamZ);
                 if (BeamCollidedThisFrame) // a cool hit effect
                 {
-                    Empire.Universe.sparks.AddParticleThreadA(hit, new Vector3(50f));
-                    Empire.Universe.fireTrailParticles.AddParticleThreadA(hit, new Vector3(50f));
-                    Empire.Universe.fireTrailParticles.AddParticleThreadA(hit, Vector3.Zero);
+                    Empire.Universe.Particles.Sparks.AddParticleThreadA(hit, new Vector3(50f));
+                    Empire.Universe.Particles.FireTrail.AddParticleThreadA(hit, new Vector3(50f));
+                    Empire.Universe.Particles.FireTrail.AddParticleThreadA(hit, Vector3.Zero);
                 }
                 else // dispersion effect
                 {
-                    Empire.Universe.sparks.AddParticleThreadA(hit, Vector3.Zero);
-                    Empire.Universe.sparks.AddParticleThreadA(hit, Vector3.Zero);
+                    Empire.Universe.Particles.Sparks.AddParticleThreadA(hit, Vector3.Zero);
+                    Empire.Universe.Particles.Sparks.AddParticleThreadA(hit, Vector3.Zero);
                 }
 
                 device.VertexDeclaration = QuadVertexDecl;
@@ -361,11 +361,11 @@ namespace Ship_Game
             if (!HasParticleHitEffect(10f)) return;
             Vector2 impactNormal = (Source - Center).Normalized();
             var pos = ActualHitDestination.ToVec3(centerAxisZ);
-            Empire.Universe.flash.AddParticleThreadB(pos, Vector3.Zero);
+            Empire.Universe.Particles.Flash.AddParticleThreadB(pos, Vector3.Zero);
             for (int i = 0; i < 20; i++)
             {
                 var vel = new Vector3(impactNormal * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f));
-                Empire.Universe.sparks.AddParticleThreadB(pos, vel);
+                Empire.Universe.Particles.Sparks.AddParticleThreadB(pos, vel);
             }
         }
 

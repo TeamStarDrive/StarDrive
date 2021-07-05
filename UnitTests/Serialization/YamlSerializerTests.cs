@@ -20,6 +20,7 @@ namespace UnitTests.Serialization
         {
             var ps = new ParticleSettings
             {
+                Name = "Flame",
                 TextureName = "texture1",
                 MaxParticles = 10,
                 Duration = TimeSpan.FromSeconds(123.5),
@@ -50,6 +51,7 @@ namespace UnitTests.Serialization
             string text = sw.ToString();
             string yaml =
               @"ParticleSettings:
+                  Name: ""Flame""
                   TextureName: ""texture1""
                   MaxParticles: 10
                   Duration: 123.5
