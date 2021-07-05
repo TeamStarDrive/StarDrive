@@ -115,10 +115,10 @@ namespace Ship_Game
 
             Vector3 vel = (pos - center3D).Normalized();
 
-            Empire.Universe.flash.AddParticleThreadB(pos, Vector3.Zero);
+            Empire.Universe.Particles.Flash.AddParticleThreadB(pos, Vector3.Zero);
             for (int i = 0; i < 200; ++i)
             {
-                Empire.Universe.sparks.AddParticleThreadB(pos, vel * RandomMath.Vector3D(25f));
+                Empire.Universe.Particles.Sparks.AddParticleThreadB(pos, vel * RandomMath.Vector3D(25f));
             }
         }
 
@@ -128,12 +128,12 @@ namespace Ship_Game
             Vector3 pos = impact.ToVec3(victim.Z);
 
             if (!beamFlash || RandomMath.RandomBetween(0f, 100f) > 90f)
-                Empire.Universe.flash.AddParticleThread(!beamFlash, pos, Vector3.Zero);
+                Empire.Universe.Particles.Flash.AddParticleThread(!beamFlash, pos, Vector3.Zero);
 
             for (int i = 0; i < 20; ++i)
             {
                 var randVel = new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f));
-                Empire.Universe.sparks.AddParticleThread(!beamFlash, pos, randVel);
+                Empire.Universe.Particles.Sparks.AddParticleThread(!beamFlash, pos, randVel);
             }
         }
 

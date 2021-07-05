@@ -79,6 +79,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         public static void Unload()
         {
+            GameBase.ScreenManager.RemoveHotLoadTarget("Suns");
             Map.Clear();
             HabitableSuns = Empty<SunType>.Array;
             BarrenSuns    = Empty<SunType>.Array;
