@@ -10222,6 +10222,9 @@ MeteorShowerWarning:
 BudgetLimitReached:
  Id: 4339
  ENG: "Civilian Budget Limit Reached!"
+BB_Bonus_Tech_EnhancedProjection:
+ Id: 4340
+ ENG: "Normaly, hostile planets negate our own projector effects and inhibit our ships. This tech allows us to decrease the enemy planet's gravity well by 25%, if we have a projector in range." 
 OnSurface:
  Id: 4993
  ENG: "on surface"
