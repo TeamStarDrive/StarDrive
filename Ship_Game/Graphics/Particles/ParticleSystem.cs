@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
@@ -486,17 +487,19 @@ namespace Ship_Game
                 return;
             
             // Figure out where in the circular queue to allocate the new particle.
-            // TODO: Thread safety
-            int firstFreeParticle = FirstFreeParticle;
-            int nextFreeParticle = firstFreeParticle + 1;
-            if (nextFreeParticle >= MaxParticles)
-                nextFreeParticle = 0;
-            FirstFreeParticle = nextFreeParticle;
+            // Need to increment this index thread-safely because multiple threads will be adding particles
+            int nextFreeParticle = Interlocked.Add(ref FirstFreeParticle, 1);
+            int firstFreeParticle = nextFreeParticle - 1;
+
+            // reset during exact overflow (concurrent increment)
+            if (nextFreeParticle == MaxParticles)
+                FirstFreeParticle = 0;
 
             // If there are no free particles, we just have to give up.
-            if (nextFreeParticle == FirstRetiredParticle)
+            if (firstFreeParticle == FirstRetiredParticle || 
+                firstFreeParticle >= MaxParticles) // or we ran into a concurrent increment issue
                 return;
-            
+
             // Adjust the input velocity based on how much
             // this particle system wants to be affected by it.
             velocity *= Settings.EmitterVelocitySensitivity;
