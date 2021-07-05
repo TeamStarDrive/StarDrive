@@ -213,7 +213,8 @@ namespace Ship_Game.Ships
         {
             Color thrust0 = loyalty.ThrustColor0;
             Color thrust1 = loyalty.ThrustColor1;
-            float velocityPercent = Velocity.Length() / VelocityMaximum;
+            float velocity = Velocity.Length();
+            float velocityPercent = velocity / VelocityMaximum;
 
             for (int i = 0; i < ThrusterList.Length; ++i)
             {
@@ -245,7 +246,10 @@ namespace Ship_Game.Ships
 
                 if (GlobalStats.EnableEngineTrails && velocityPercent > 0.1f && timeStep.FixedTime > 0f)
                 {
-                    Empire.Universe.Particles.EngineTrail.AddParticleThreadA(thruster.WorldPos, Direction3D*velocityPercent);
+                    float thrustScale = Radius / 100f;
+                    Vector3 thrustVelocity = thruster.heat * Direction3D * -velocity;
+                    Empire.Universe.Particles.EngineTrail.AddParticle(thruster.WorldPos, thrustVelocity,
+                                                                      thrustScale, loyalty.EmpireColor);
                 }
             }
         }
