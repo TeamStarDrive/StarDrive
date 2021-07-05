@@ -94,8 +94,8 @@ namespace Ship_Game.GameScreens.ShipDesign
             PointDefenseValue = weapons.Sum(w => (w.TruePD?4:0) + (w.Tag_PD?1:0));
             TotalHangarArea   = modules.Sum(m => m.MaximumHangarShipSize);
             HasPowerCells    = modules.Any(m => m.ModuleType == ShipModuleType.FuelCell && m.PowerStoreMax > 0);
-            CanTargetFighters  = weapons.Any(w => !w.Excludes_Fighters);
-            CanTargetCorvettes = weapons.Any(w => !w.Excludes_Corvettes);
+            CanTargetFighters  = weapons.Any(w => !w.TruePD && !w.Excludes_Fighters);
+            CanTargetCorvettes = weapons.Any(w => !w.TruePD && !w.Excludes_Corvettes);
             CanTargetCapitals  = weapons.Any(w => !w.Excludes_Capitals);
             HasEnergyWeapons   = weapons.Any(w => w.PowerRequiredToFire > 0 || w.BeamPowerCostPerSecond > 0);
             UnpoweredModules   = S.Modules.Any(m => m.PowerDraw > 0 && !m.Powered && m.ModuleType != ShipModuleType.PowerConduit);
