@@ -529,7 +529,7 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                Message         = $"{p.Name}{Localizer.Token(4337)}",
+                Message         = $"{p.Name}{Localizer.Token(GameText.MeteorShowerWarningNotOurPlanet)}",
                 ReferencedItem1 = p.ParentSystem,
                 IconPath        = p.IconPath,
                 Action          = "SnapToSystem"
@@ -540,7 +540,7 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                Message         = $"{p.Name}{Localizer.Token(4338)}",
+                Message         = $"{p.Name}{Localizer.Token(GameText.MeteorShowerWarning)}",
                 ReferencedItem1 = p.ParentSystem,
                 IconPath        = p.IconPath,
                 Action          = "SnapToSystem"
