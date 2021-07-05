@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -26,6 +27,8 @@ namespace Ship_Game.Graphics.Particles
         readonly Data.GameContentManager Content;
         readonly GraphicsDevice Device;
         readonly Array<ParticleSystem> Tracked = new Array<ParticleSystem>();
+
+        public IReadOnlyList<ParticleSystem> ParticleSystems => Tracked;
 
         public ParticleManager(Data.GameContentManager content, GraphicsDevice device)
         {

@@ -11,8 +11,8 @@ namespace Ship_Game.Debug.Page
         public DebugModes Mode { get; }
         protected Array<UILabel> TextColumns = new Array<UILabel>();
 
-        Vector2 TextCursor  = Vector2.Zero;
-        Color TextColor     = Color.White;
+        protected Vector2 TextCursor { get; private set; } = Vector2.Zero;
+        protected Color TextColor = Color.White;
         Graphics.Font TextFont = Fonts.Arial12Bold;
 
         public DebugPage(GameScreen parent, DebugModes mode) : base(parent.Rect)
@@ -73,9 +73,11 @@ namespace Ship_Game.Debug.Page
 
         protected void NewLine(int lines = 1)
         {
-            TextCursor.Y += (TextFont == Fonts.Arial12Bold 
+            var cursor = TextCursor;
+            cursor.Y += (TextFont == Fonts.Arial12Bold 
                         ? TextFont.LineSpacing 
                         : TextFont.LineSpacing + 2) * lines;
+            TextCursor = cursor;
         }
     }
 }
