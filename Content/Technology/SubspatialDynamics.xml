@@ -34,6 +34,13 @@
       <Description></Description>
       <BonusIndex>678</BonusIndex>
     </UnlockedBonus>
+    <UnlockedBonus>
+      <Name>Enhanced Projection</Name>
+      <BonusType>Counter Enemy Planet Inhibition Bonus</BonusType>
+      <Bonus>0.25</Bonus>
+      <Description></Description>
+      <BonusIndex>4340</BonusIndex>
+    </UnlockedBonus>	
 
   </BonusUnlocked>
   <TroopsUnlocked />
