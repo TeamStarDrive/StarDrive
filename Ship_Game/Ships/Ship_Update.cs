@@ -158,7 +158,7 @@ namespace Ship_Game.Ships
                                  * Matrix.CreateRotationZ(Rotation)
                                  * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
                     ShipSO.UpdateAnimation(timeStep.FixedTime);
-                    UpdateThrusters();
+                    UpdateThrusters(timeStep);
                 }
                 else // auto-create scene objects if possible
                 {
@@ -209,7 +209,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        void UpdateThrusters()
+        void UpdateThrusters(FixedSimTime timeStep)
         {
             Color thrust0 = loyalty.ThrustColor0;
             Color thrust1 = loyalty.ThrustColor1;
@@ -241,10 +241,10 @@ namespace Ship_Game.Ships
                     thruster.Update(Direction3D, 0.1f, 1.0f / 500.0f, Empire.Universe.CamPos, thrust0, thrust1);
                 }
 
-                if (GlobalStats.EnableEngineTrails)
+                if (GlobalStats.EnableEngineTrails && timeStep.FixedTime > 0f)
                 {
-                    float intensity = thruster.heat * -10f;
-                    Empire.Universe.Particles.FireTrail.AddParticleThreadA(thruster.WorldPos, Direction3D*intensity);
+                    float intensity = thruster.heat * -CurrentVelocity;
+                    Empire.Universe.Particles.EngineTrail.AddParticleThreadA(thruster.WorldPos, Direction3D*intensity);
                 }
             }
         }
