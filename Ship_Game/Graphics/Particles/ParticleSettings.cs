@@ -45,6 +45,7 @@ namespace Ship_Game
 
         public static void Unload()
         {
+            GameBase.ScreenManager.RemoveHotLoadTarget("Particles");
             Settings.Clear();
         }
 
@@ -71,6 +72,8 @@ namespace Ship_Game
 
         public static ParticleSettings Get(string name)
         {
+            if (Settings.Count == 0)
+                throw new InvalidOperationException("ParticleSettings have not been loaded!");
             if (!Settings.TryGetValue(name, out ParticleSettings ps))
                 throw new InvalidDataException($"Unknown ParticleSettings Name: {name}");
             return ps;
