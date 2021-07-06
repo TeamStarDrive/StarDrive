@@ -214,29 +214,6 @@
   DestinationBlend: One
 
 - ParticleSettings:
-  Name: Galaxy
-  TextureName: "smoke.png"
-  MaxParticles: 50000
-  Duration: 6.7
-  DurationRandomness: 1
-  EmitterVelocitySensitivity: 0
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: 0
-  MaxVerticalVelocity: 0
-  EndVelocity: 0
-  MinColor: [0,0,255,255]
-  MaxColor: [255,255,255,255]
-  MinRotateSpeed: -0.2
-  MaxRotateSpeed: 0.2
-  MinStartSize: 120000000
-  MaxStartSize: 120000000
-  MinEndSize: 100000000
-  MaxEndSize: 100000000
-  SourceBlend: SourceAlpha
-  DestinationBlend: One
-
-- ParticleSettings:
   Name: Lightning
   TextureName: "lightning_particle.png"
   MaxParticles: 20000
@@ -352,17 +329,26 @@
   DestinationBlend: One
 
 - ParticleSettings:
+  Name: Galaxy
+  TextureName: "smoke.png"
+  MaxParticles: 50000
+  Static: true
+  MinColor: [0,0,255,255]
+  MaxColor: [255,255,255,255]
+  MinRotateSpeed: -0.2
+  MaxRotateSpeed: 0.2
+  MinStartSize: 120000000
+  MaxStartSize: 120000000
+  MinEndSize: 100000000
+  MaxEndSize: 100000000
+  SourceBlend: SourceAlpha
+  DestinationBlend: One
+
+- ParticleSettings:
   Name: StarParticles
   TextureName: "Particle005.png"
   MaxParticles: 50000
-  Duration: 6.7
-  DurationRandomness: 1
-  EmitterVelocitySensitivity: 0
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: 0
-  MaxVerticalVelocity: 0
-  EndVelocity: 0
+  Static: true
   MinColor: [255,255,255,255]
   MaxColor: [255,255,255,255]
   MinRotateSpeed: -0.2

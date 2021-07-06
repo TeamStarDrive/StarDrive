@@ -50,6 +50,7 @@ namespace UnitTests.Serialization
                 MaxEndSize = 12,
                 SourceBlend = Blend.BlendFactor,
                 DestinationBlend = Blend.InverseBlendFactor,
+                Static = true,
             };
 
             string text = SerializeToString(ps);
@@ -76,6 +77,7 @@ namespace UnitTests.Serialization
                   MaxEndSize: 12
                   SourceBlend: BlendFactor
                   DestinationBlend: InverseBlendFactor
+                  Static: true
                 ".Replace("\r\n", "\n").Replace("                ", "");
 
             Assert.That.Equal(yaml, text);
