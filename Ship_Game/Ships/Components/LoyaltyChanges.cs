@@ -58,13 +58,10 @@ namespace Ship_Game.Ships.Components
             if (changeTo == null || changeTo == ship.loyalty)
                 return false;
 
-            Type type = ChangeType;
-            ChangeTo = null;
+            Type type  = ChangeType;
+            ChangeTo   = null;
             ChangeType = Type.None;
-            bool loyaltyChanged = DoLoyaltyChange(ship, type, changeTo);
-            if (loyaltyChanged)
-                ship.loyalty.AddShipToManagedPools(ship);
-            return loyaltyChanged;
+            return DoLoyaltyChange(ship, type, changeTo);
         }
 
         static bool DoLoyaltyChange(Ship ship, Type type, Empire changeTo)
@@ -72,13 +69,21 @@ namespace Ship_Game.Ships.Components
             switch (type)
             {
                 default:
-                case Type.None: return false;
-                case Type.Spawn:          LoyaltyChangeDueToSpawn(ship, changeTo);             return true;
-                case Type.Boarded:        LoyaltyChangeDueToBoarding(ship, changeTo, false);   return true;
-                case Type.BoardedNotify:  LoyaltyChangeDueToBoarding(ship, changeTo, true);    return true;
-                case Type.Absorbed:       LoyaltyChangeDueToFederation(ship, changeTo, false); return true;
-                case Type.AbsorbedNotify: LoyaltyChangeDueToFederation(ship, changeTo, true);  return true;
+                case Type.None:                                                                break;
+                case Type.Spawn:          LoyaltyChangeDueToSpawn(ship, changeTo);             break;
+                case Type.Boarded:        LoyaltyChangeDueToBoarding(ship, changeTo, false);   break;
+                case Type.BoardedNotify:  LoyaltyChangeDueToBoarding(ship, changeTo, true);    break;
+                case Type.Absorbed:       LoyaltyChangeDueToFederation(ship, changeTo, false); break;
+                case Type.AbsorbedNotify: LoyaltyChangeDueToFederation(ship, changeTo, true);  break;
             }
+
+            // Spawned ships should not clear orders since some of them are given immediate orders
+            // Like pirates and meteors
+            if (type != Type.Spawn) 
+                ship.AI.ClearOrdersAndWayPoints();
+
+            ship.loyalty.AddShipToManagedPools(ship);
+            return true;
         }
 
         static void LoyaltyChangeDueToSpawn(Ship ship, Empire newLoyalty)

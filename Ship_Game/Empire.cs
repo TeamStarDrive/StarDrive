@@ -219,7 +219,6 @@ namespace Ship_Game
 
         public void AddShipToManagedPools(Ship s)
         {
-            s.AI.ClearOrdersAndWayPoints();
             AIManagedShips.AddToEmpireForcePool(s);
         }
         
