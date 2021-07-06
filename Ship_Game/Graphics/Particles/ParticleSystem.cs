@@ -4,10 +4,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
 using Ship_Game.Data;
+using Ship_Game.Graphics.Particles;
 
 namespace Ship_Game
 {
-    public sealed class ParticleSystem : IDisposable
+    public sealed class ParticleSystem : IParticleSystem, IDisposable
     {
         // Settings class controls the appearance and animation of this particle system.
         ParticleSettings Settings;
@@ -128,12 +129,12 @@ namespace Ship_Game
         /// <summary>
         /// Can be used to disable this particle system (for debugging purposes or otherwise)
         /// </summary>
-        public bool IsEnabled = true;
+        public bool IsEnabled { get; set; } = true;
 
         /// <summary>
         /// If true, particle shader will generate debug markers around particles
         /// </summary>
-        public bool EnableDebug;
+        public bool EnableDebug { get; set; }
 
         readonly ThreadSafeRandom Random = new ThreadSafeRandom();
         readonly GraphicsDevice GraphicsDevice;
@@ -227,7 +228,7 @@ namespace Ship_Game
 
         void LoadParticleEffect()
         {
-            var effect = Content.LoadEffect("3DParticles/ParticleEffect.fx");
+            Effect effect = Settings.GetEffect(Content);
 
             // If we have several particle systems, the content manager will return
             // a single shared effect instance to them all. But we want to preconfigure
@@ -255,7 +256,8 @@ namespace Ship_Game
             parameters["StartSize"].SetValue(new Vector2(Settings.MinStartSize, Settings.MaxStartSize) * Scale);
             parameters["EndSize"].SetValue(new Vector2(Settings.MinEndSize, Settings.MaxEndSize) * Scale);
             
-            SetTexture();
+            Texture2D texture = Settings.GetTexture(Content);
+            ParticleEffect.Parameters["Texture"].SetValue(texture);
 
             string technique = "FullDynamicParticles";
             if (Settings.Static && Settings.IsRotating) technique = "StaticRotatingParticles";
@@ -263,16 +265,6 @@ namespace Ship_Game
             else if (!Settings.Static && !Settings.IsRotating) technique = "DynamicNonRotatingParticles";
 
             ParticleEffect.CurrentTechnique = ParticleEffect.Techniques[technique];
-        }
-
-        void SetTexture()
-        {
-            SetTexture(Content.Load<Texture2D>("3DParticles/" + Settings.TextureName));
-        }
-
-        void SetTexture(Texture2D texture)
-        {
-            ParticleEffect.Parameters["Texture"].SetValue(texture);
         }
 
         public ParticleEmitter NewEmitter(float particlesPerSecond, Vector3 initialPosition)
@@ -286,9 +278,9 @@ namespace Ship_Game
             return new ParticleEmitter(this, particlesPerSecond, initialPosition);
         }
 
-        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector2 initialCenter, float initialZ = 0f)
+        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector2 initialCenter, float zPosition)
         {
-            return new ParticleEmitter(this, particlesPerSecond, new Vector3(initialCenter, initialZ));
+            return new ParticleEmitter(this, particlesPerSecond, new Vector3(initialCenter, zPosition));
         }
 
         /// <summary>
@@ -379,10 +371,10 @@ namespace Ship_Game
             }
         }
 
-        public void Draw(in Matrix view, in Matrix projection)
+        public void Draw(in Matrix view, in Matrix projection, bool nearView)
         {
             var particles = Particles;
-            if (particles == null || !IsEnabled)
+            if (particles == null || !IsEnabled || (!nearView && Settings.OnlyNearView))
                 return;
             
             int firstNew = FirstNewParticle;
@@ -515,12 +507,8 @@ namespace Ship_Game
         }
 
         public bool IsOutOfParticles => FirstFreeParticle == FirstRetiredParticle && FirstFreeParticle != 0;
-        public int FirstActive => FirstActiveParticle;
-        public int FirstNew => FirstNewParticle;
-        public int FirstFree => FirstFreeParticle;
-        public int FirstRetired => FirstRetiredParticle;
         
-        public int NumActive
+        public int ActiveParticles
         {
             get
             {

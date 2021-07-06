@@ -18,7 +18,7 @@ namespace Ship_Game.Debug.Page
             Origin = new Vector2(50, 280);
 
             Vector2 pos = Origin;
-            foreach (ParticleSystem ps in screen.Particles.ParticleSystems.ToArray())
+            foreach (IParticleSystem ps in screen.Particles.ParticleSystems.ToArray())
             {
                 Add(new UICheckBox(pos.X - 32f, pos.Y, () => ps.IsEnabled, Fonts.Arial12,
                     "", "Toggle to enable/disable particle system"));
@@ -38,7 +38,7 @@ namespace Ship_Game.Debug.Page
 
             SetTextCursor(Origin.X, Origin.Y, Color.White);
 
-            foreach (ParticleSystem ps in particleSystems)
+            foreach (IParticleSystem ps in particleSystems)
             {
                 DrawParticleStats(batch, ps);
             }
@@ -46,7 +46,7 @@ namespace Ship_Game.Debug.Page
             base.Draw(batch, elapsed);
         }
 
-        void DrawParticleStats(SpriteBatch batch, ParticleSystem ps)
+        void DrawParticleStats(SpriteBatch batch, IParticleSystem ps)
         {
             if (ps.IsOutOfParticles)
                 TextColor = Color.Orange;
@@ -56,7 +56,7 @@ namespace Ship_Game.Debug.Page
             var cursor = TextCursor;
             DrawString($"PS {ps.Name,-32}");
             SetTextCursor(Origin.X + 140, cursor.Y, TextColor);
-            DrawString($" NAct:{ps.NumActive}  Act:{ps.FirstActive}  New:{ps.FirstNew}  Free:{ps.FirstFree}  Ret:{ps.FirstRetired}  Max:{ps.MaxParticles}  Out:{ps.IsOutOfParticles}");
+            DrawString($" Active:{ps.ActiveParticles}  Max:{ps.MaxParticles}  Out:{ps.IsOutOfParticles}");
             SetTextCursor(Origin.X, TextCursor.Y, TextColor); // restore X
         }
     }
