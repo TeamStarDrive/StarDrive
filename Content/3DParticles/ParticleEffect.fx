@@ -53,7 +53,7 @@ sampler Sampler = sampler_state
 // along with some random values that affect its size and rotation.
 struct VertexShaderInput
 {
-	float2 Corner : POSITION0;
+    float2 Corner : POSITION0;
     float3 Position : POSITION1;
     float3 Velocity : NORMAL0;
     float4 Color : COLOR0;
@@ -77,7 +77,6 @@ float4 ToScreenCoords(float3 pos)
     return mul(mul(float4(pos, 1), View), Projection);
 }
 
-// Vertex shader helper for computing the position of a particle.
 float4 GetPosition(float3 position, float3 velocity,
                    float age, float normalizedAge)
 {
@@ -102,8 +101,6 @@ float4 GetPosition(float3 position, float3 velocity,
     return ToScreenCoords(position);
 }
 
-
-// Vertex shader helper for computing the size of a particle.
 float GetParticleSize(float randomValue, float normalizedAge)
 {
     // Apply a random factor to make each particle a slightly different size.
@@ -117,27 +114,25 @@ float GetParticleSize(float randomValue, float normalizedAge)
     return size * Projection._m11;
 }
 
-
-// Vertex shader helper for computing the color of a particle.
-float4 GetParticleColor(float4 projectedPosition,
-                        float randomValue, float normalizedAge)
+float4 GetStaticParticleColor(float randomValue)
 {
     // Apply a random factor to make each particle a slightly different color.
-    float4 color = lerp(MinColor, MaxColor, randomValue);
+    return lerp(MinColor, MaxColor, randomValue);
+}
+
+float4 GetParticleColor(float randomValue, float normalizedAge)
+{
+    float4 color = GetStaticParticleColor(randomValue);
     
     // Fade the alpha based on the age of the particle. This curve is hard coded
     // to make the particle fade in fairly quickly, then fade out more slowly:
     // plot x*(1-x)*(1-x) for x=0:1 in a graphing program if you want to see what
     // this looks like. The 6.7 scaling factor normalizes the curve so the alpha
     // will reach all the way up to fully solid.
-    
     color.a *= normalizedAge * (1-normalizedAge) * (1-normalizedAge) * 6.7;
-   
     return color;
 }
 
-
-// Vertex shader helper for computing the rotation of a particle.
 float2x2 GetRandomizedRotation(float randomValue, float age)
 {    
     // Apply a random factor to make each particle rotate at a different speed.
@@ -178,7 +173,7 @@ VertexShaderOutput DynamicParticleVS(VertexShaderInput input)
     output.Position = GetPosition(input.Position, input.Velocity, age, normalizedAge);
     // this cleverly scales the Quad corners
     output.Position.xy += mul(input.Corner, rotation) * size * ViewportScale;
-    output.Color = GetParticleColor(output.Position, input.Random.z, normalizedAge) * input.Color;
+    output.Color = GetParticleColor(input.Random.z, normalizedAge) * input.Color;
     output.TextureCoordinate = (input.Corner + 1) / 2;
     return output;
 }
@@ -194,7 +189,7 @@ VertexShaderOutput DynamicNonRotatingParticleVS(VertexShaderInput input)
     output.Position = GetPosition(input.Position, input.Velocity, age, normalizedAge);
     // this cleverly scales the Quad corners
     output.Position.xy += input.Corner * size * ViewportScale;
-    output.Color = GetParticleColor(output.Position, input.Random.z, normalizedAge) * input.Color;
+    output.Color = GetParticleColor(input.Random.z, normalizedAge) * input.Color;
     output.TextureCoordinate = (input.Corner + 1) / 2;
     return output;
 }
@@ -211,7 +206,7 @@ VertexShaderOutput StaticRotatingParticleVS(VertexShaderInput input)
     output.Position = ToScreenCoords(input.Position);
     // this cleverly scales the Quad corners
     output.Position.xy += mul(input.Corner, rotation) * size * ViewportScale;
-    output.Color = GetParticleColor(output.Position, input.Random.z, normalizedAge) * input.Color;
+    output.Color = GetStaticParticleColor(input.Random.z) * input.Color;
     output.TextureCoordinate = (input.Corner + 1) / 2;
     return output;
 }
@@ -227,7 +222,7 @@ VertexShaderOutput StaticNonRotatingParticleVS(VertexShaderInput input)
     output.Position = ToScreenCoords(input.Position);
     // this cleverly scales the Quad corners
     output.Position.xy += input.Corner * size * ViewportScale;
-    output.Color = GetParticleColor(output.Position, input.Random.z, normalizedAge) * input.Color;
+    output.Color = GetStaticParticleColor(input.Random.z) * input.Color;
     output.TextureCoordinate = (input.Corner + 1) / 2;
     return output;
 }
