@@ -4320,8 +4320,10 @@ namespace Ship_Game
         MeteorShowerWarningNotOurPlanet = 4337,
         /// <summary>: A Meteor Shower is passing through the system. We</summary>
         MeteorShowerWarning = 4338,
-        /// <summary>Budget Limit Reached!</summary>
+        /// <summary>Civilian Budget Limit Reached!</summary>
         BudgetLimitReached = 4339,
+        /// <summary>Normaly, hostile planets negate our own projector effects and inhibit</summary>
+        BB_Tech_SubspatialDynamics_CounterEnemyPlanetInhibitionBonus_Bonus = 4340,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>

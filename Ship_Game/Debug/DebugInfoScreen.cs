@@ -39,6 +39,7 @@ namespace Ship_Game.Debug
         FleetMulti,
         StoryAndEvents,
         Tasks,
+        Particles,
         Last // dummy value
     }
 
@@ -173,6 +174,7 @@ namespace Ship_Game.Debug
                     case DebugModes.AO:             Page = Add(new DebugAO(Screen, this)); break;
                     case DebugModes.SpatialManager: Page = Add(new SpatialDebug(Screen, this)); break;
                     case DebugModes.StoryAndEvents: Page = Add(new StoryAndEventsDebug(Screen, this)); break;
+                    case DebugModes.Particles:      Page = Add(new ParticleDebug(Screen, this)); break;
                 }
             }
 
@@ -205,8 +207,6 @@ namespace Ship_Game.Debug
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            Page?.Draw(batch, elapsed);
-
             try
             {
                 TextFont = Fonts.Arial20Bold;

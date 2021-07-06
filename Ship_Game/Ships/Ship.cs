@@ -157,7 +157,6 @@ namespace Ship_Game.Ships
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         public int TrackingPower;
         public int TargetingAccuracy;
-        public override bool ParentIsThis(Ship ship) => this == ship;
         public float BoardingDefenseTotal => MechanicalBoardingDefense + TroopBoardingDefense;
 
         public float FTLModifier { get; private set; } = 1f;

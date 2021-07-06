@@ -17,9 +17,6 @@ namespace Ship_Game.Data.Serialization
             public int Depth;
             public StringBuilder Buffer = new StringBuilder();
 
-            // If True, no prefix spaces should be written
-            public bool NoPrefix;
-
             // If True, next Serialized value will omit prefix spaces
             public bool IgnoreSpacePrefixOnce;
 
@@ -61,12 +58,12 @@ namespace Ship_Game.Data.Serialization
         }
 
         /// <summary>
-        /// TEXT Serialize this object
+        /// TEXT Serialize this object into YamlNode
         /// </summary>
-        public abstract void Serialize(TextSerializerContext context, object obj);
+        public abstract void Serialize(YamlNode parent, object obj);
 
         /// <summary>
-        /// TEXT Serialize this object
+        /// TEXT Serialize this object (default is YAML)
         /// </summary>
         public virtual void Serialize(TextWriter writer, object obj)
         {

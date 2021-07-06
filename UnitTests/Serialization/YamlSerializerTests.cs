@@ -30,7 +30,7 @@ namespace UnitTests.Serialization
             var ps = new ParticleSettings
             {
                 Name = "Flame",
-                TextureName = "texture1",
+                TextureName = "trail 1.png",
                 MaxParticles = 10,
                 Duration = TimeSpan.FromSeconds(123.5),
                 DurationRandomness = 1,
@@ -39,7 +39,6 @@ namespace UnitTests.Serialization
                 MaxHorizontalVelocity = 4.2f,
                 MinVerticalVelocity = 5.4f,
                 MaxVerticalVelocity = 5.8f,
-                Gravity = new Vector3(1,2,3),
                 EndVelocity = 6,
                 MinColor = new Color(10,20,30,255),
                 MaxColor = new Color(40,50,60,255),
@@ -56,8 +55,8 @@ namespace UnitTests.Serialization
             string text = SerializeToString(ps);
             string yaml =
               @"ParticleSettings:
-                  Name: ""Flame""
-                  TextureName: ""texture1""
+                  Name: Flame
+                  TextureName: ""trail 1.png""
                   MaxParticles: 10
                   Duration: 123.5
                   DurationRandomness: 1
@@ -66,7 +65,6 @@ namespace UnitTests.Serialization
                   MaxHorizontalVelocity: 4.2
                   MinVerticalVelocity: 5.4
                   MaxVerticalVelocity: 5.8
-                  Gravity: [1,2,3]
                   EndVelocity: 6
                   MinColor: [10,20,30,255]
                   MaxColor: [40,50,60,255]
@@ -139,9 +137,9 @@ namespace UnitTests.Serialization
             string yaml =
               @"SmallObjectList:
                   NamedValues:
-                    - { Key: House, Value: 1.1 }
-                    - { Key: Plane, Value: 2.2 }
-                    - { Key: Ship, Value: 3.3 }
+                    - { Key:House, Value:1.1 }
+                    - { Key:Plane, Value:2.2 }
+                    - { Key:Ship, Value:3.3 }
                 ".Replace("\r\n", "\n").Replace("                ", "");
             Assert.That.Equal(yaml, text);
         }

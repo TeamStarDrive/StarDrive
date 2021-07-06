@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
@@ -21,10 +22,9 @@ namespace Ship_Game.Data.Serialization.Types
             return 0.0f;
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
-            float value = (float)obj;
-            context.Writer.Write(value.String());
+            parent.Value = obj;
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
@@ -53,10 +53,9 @@ namespace Ship_Game.Data.Serialization.Types
             return 0.0;
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
-            double value = (double)obj;
-            context.Writer.Write(value.String());
+            parent.Value = obj;
         }
 
         public override void Serialize(BinaryWriter writer, object obj)

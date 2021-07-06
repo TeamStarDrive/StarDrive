@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
@@ -14,9 +15,9 @@ namespace Ship_Game.Data.Serialization.Types
             return value;
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
-            // ????
+            parent.Value = obj;
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
@@ -47,10 +48,10 @@ namespace Ship_Game.Data.Serialization.Types
             return new Range(Float(objects[0]), Float(objects[1]));
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
             var r = (Range)obj;
-            context.Writer.Write($"[{r.Min},{r.Max}]");
+            parent.Value = new object[]{ r.Min, r.Max };
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
@@ -81,11 +82,10 @@ namespace Ship_Game.Data.Serialization.Types
             return TimeSpan.Zero;
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
             var span = (TimeSpan)obj;
-            float seconds = (float)span.TotalSeconds;
-            context.Writer.Write(seconds.String());
+            parent.Value = (float)span.TotalSeconds;
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
