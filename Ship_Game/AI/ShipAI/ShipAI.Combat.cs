@@ -23,16 +23,10 @@ namespace Ship_Game.AI
         float FriendScanTimer;
 
         public Ship EscortTarget;
-        
         public Planet ExterminationTarget;
-        public bool Intercepting { get; private set; }
-        public bool IgnoreCombat;
-        public bool BadGuysNear;
-        public bool CanTrackProjectiles { get; set; }
-        bool IsNonCombatant;
+
         public Ship Target;
         public Array<Ship> TargetQueue = new Array<Ship>();
-        public bool HasPriorityTarget;
         float TriggerDelay;
         
         Array<Ship> ScannedTargets = new Array<Ship>();
@@ -41,7 +35,7 @@ namespace Ship_Game.AI
 
         void InitializeTargeting()
         {
-            CanTrackProjectiles = DoesShipHavePointDefense(Owner);
+            TargetProjectiles = DoesShipHavePointDefense(Owner);
             IsNonCombatant = Owner.IsSubspaceProjector
                           || Owner.IsFreighter
                           || Owner.IsConstructor
@@ -93,21 +87,24 @@ namespace Ship_Game.AI
             int count = Owner.Weapons.Count;
             Weapon[] weapons = Owner.Weapons.GetInternalArrayItems();
 
+            bool didFireAtMainTarget = false;
             bool didFireAtAny = false;
             for (int i = 0; i < count; ++i)
             {
                 var weapon = weapons[i];
                 bool didFire = weapon.UpdateAndFireAtTarget(Target, TrackProjectiles, PotentialTargets);
                 didFireAtAny |= didFire;
-                if (didFire && weapon.FireTarget.ParentIsThis(Target))
+                if (didFire)
                 {
-                    float weaponFireTime;
-                    if      (weapon.isBeam)            weaponFireTime = weapon.BeamDuration;
-                    else if (weapon.SalvoDuration > 0) weaponFireTime = weapon.SalvoDuration;
-                    else                               weaponFireTime = (1f - weapon.CooldownTimer);
-                    FireOnMainTargetTime = weaponFireTime.LowerBound(FireOnMainTargetTime);
+                    GameplayObject target = weapon.FireTarget;
+                    Ship parent = target is Ship s ? s : ((ShipModule)target).GetParent();
+                    if (parent == Target)
+                        didFireAtMainTarget = true;
                 }
             }
+
+            if (didFireAtAny)
+                IsFiringAtMainTarget = didFireAtMainTarget;
             return didFireAtAny;
         }
 
@@ -424,7 +421,7 @@ namespace Ship_Game.AI
 
             // projectiles can only be tracked by ships with PD-s and tracking power
             // anything else should avoid tracking projectiles since this is really expensive
-            bool canTrackProjectiles = CanTrackProjectiles && Owner.TrackingPower > 0;
+            bool canTrackProjectiles = TargetProjectiles && Owner.TrackingPower > 0;
             // if we're a HangarShip, we can fetch targets from carrier
             bool canFetchCarrierTargets = Owner.IsHangarShip;
             if (canTrackProjectiles || canFetchCarrierTargets)
@@ -538,7 +535,6 @@ namespace Ship_Game.AI
             if (OrderQueue.IsEmpty) // need to change the state to prevent re-enter combat bug
                 State = AIState.AwaitingOrders;
 
-            FireOnMainTargetTime = 0;
             int count = Owner.Weapons.Count;
             Weapon[] items = Owner.Weapons.GetInternalArrayItems();
             for (int x = 0; x < count; x++)
