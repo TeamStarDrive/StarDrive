@@ -940,8 +940,16 @@ namespace Ship_Game.Fleets
                         bool inSystem = AveragePos.InRadius(newTarget.ParentSystem.Position, newTarget.ParentSystem.Radius);
                         if (inSystem)
                         {
-                            TaskStep = 3;
                             GatherAtAO(task, distanceFromAO: 30000);
+                            if (CanInvadeNow(newTarget, task))
+                            {
+                                TaskStep = 7;
+                                EscortingToPlanet(newTarget.Center, true);
+                            }
+                            else
+                            {
+                                TaskStep = 3;
+                            }
                         }
                         else
                         {
@@ -971,6 +979,22 @@ namespace Ship_Game.Fleets
 
             EndInvalidTask(remnantsTargeting 
                            || !MajorityTroopShipsAreInWell() && (!invasionEffective || !combatEffective));
+        }
+
+        bool CanInvadeNow(Planet p, MilitaryTask task)
+        {
+            if (!StillCombatEffective(task))
+                return false;
+
+            var troopShipsInArea = Ships.Filter(s => s.Center.InRadius(p.Center, p.ParentSystem.Radius) 
+                                                     && (s.DesignRole == ShipData.RoleName.troop || s.DesignRole == ShipData.RoleName.troopShip));
+
+            if (troopShipsInArea.Length == 0)
+                return false;
+
+            float troopStr  = troopShipsInArea.Sum(s => s.GetOurTroopStrength(s.TroopCount));
+            float groundStr = p.GetGroundStrength(task.TargetEmpire) * Owner.DifficultyModifiers.EnemyTroopStrength;
+            return troopStr > groundStr;
         }
 
         bool TryGetNewTargetPlanet(MilitaryTask task, out Planet newTarget)
