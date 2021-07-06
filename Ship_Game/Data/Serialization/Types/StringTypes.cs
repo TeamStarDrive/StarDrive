@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
@@ -13,18 +14,10 @@ namespace Ship_Game.Data.Serialization.Types
             return value?.ToString();
         }
         
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
             string text = obj as string ?? "";
-            WriteString(context, text);
-        }
-
-        public static void WriteString(TextSerializerContext context, string text)
-        {
-            StringBuilder sb = context.Buffer;
-            sb.Clear();
-            Yaml.YamlNode.EscapeString(sb, text);
-            context.Writer.Write(sb.ToString());
+            parent.Value = text;
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
@@ -59,22 +52,18 @@ namespace Ship_Game.Data.Serialization.Types
             return new LocalizedText("INVALID TEXT", LocalizationMethod.RawText);
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
             var lt = (LocalizedText)obj;
             switch (lt.Method)
             {
                 case LocalizationMethod.Id:
-                    context.Writer.Write(lt.Id);
+                    parent.Value = lt.Id;
                     break;
                 case LocalizationMethod.NameId:
-                    context.Writer.Write(lt.String);
-                    break;
                 case LocalizationMethod.RawText:
-                    StringSerializer.WriteString(context, lt.String);
-                    break;
                 case LocalizationMethod.Parse:
-                    StringSerializer.WriteString(context, lt.String);
+                    parent.Value = lt.String;
                     break;
             }
         }
