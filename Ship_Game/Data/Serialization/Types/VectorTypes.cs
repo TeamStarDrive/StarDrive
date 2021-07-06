@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
@@ -25,10 +23,10 @@ namespace Ship_Game.Data.Serialization.Types
             return Vector2.Zero;
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
             var v = (Vector2)obj;
-            context.Writer.Write($"[{v.X.String()},{v.Y.String()}]");
+            parent.Value = new object[]{ v.X, v.Y };
         }
         
         public override void Serialize(BinaryWriter writer, object obj)
@@ -72,10 +70,10 @@ namespace Ship_Game.Data.Serialization.Types
             return Vector3.Zero;
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
             var v = (Vector3)obj;
-            context.Writer.Write($"[{v.X.String()},{v.Y.String()},{v.Z.String()}]");
+            parent.Value = new object[]{ v.X, v.Y, v.Z };
         }
         
         public override void Serialize(BinaryWriter writer, object obj)
@@ -115,10 +113,10 @@ namespace Ship_Game.Data.Serialization.Types
             return Vector4.Zero;
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
             var v = (Vector4)obj;
-            context.Writer.Write($"[{v.X.String()},{v.Y.String()},{v.Z.String()},{v.W.String()}]");
+            parent.Value = new object[]{ v.X, v.Y, v.Z, v.W };
         }
         
         public override void Serialize(BinaryWriter writer, object obj)
@@ -169,10 +167,10 @@ namespace Ship_Game.Data.Serialization.Types
             return Point.Zero;
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
             var p = (Point)obj;
-            context.Writer.Write($"[{p.X},{p.Y}]");
+            parent.Value = new object[]{ p.X, p.Y };
         }
         
         public override void Serialize(BinaryWriter writer, object obj)

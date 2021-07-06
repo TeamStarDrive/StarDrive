@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
@@ -17,10 +18,9 @@ namespace Ship_Game.Data.Serialization.Types
             return false;
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
-            bool b = (bool)obj;
-            context.Writer.Write(b ? "true" : "false");
+            parent.Value = obj;
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
@@ -40,10 +40,9 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public override string ToString() => "ByteSerializer";
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
-            byte value = (byte)obj;
-            context.Writer.Write(value);
+            parent.Value = (int)(byte)obj;
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
@@ -63,10 +62,9 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public override string ToString() => "ShortSerializer";
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
-            short value = (short)obj;
-            context.Writer.Write(value);
+            parent.Value = (int)(short)obj;
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
@@ -86,10 +84,9 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public override string ToString() => "UShortSerializer";
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
-            ushort value = (ushort)obj;
-            context.Writer.Write(value);
+            parent.Value = (int)(ushort)obj;
         }
         
         public override void Serialize(BinaryWriter writer, object obj)
@@ -118,10 +115,9 @@ namespace Ship_Game.Data.Serialization.Types
             return 0;
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
-            int value = (int)obj;
-            context.Writer.Write(value);
+            parent.Value = obj;
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
@@ -141,10 +137,9 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public override string ToString() => "UIntSerializer";
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
-            uint value = (uint)obj;
-            context.Writer.Write(value);
+            parent.Value = (int)(uint)obj;
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
@@ -164,10 +159,10 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public override string ToString() => "LongSerializer";
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
             long value = (long)obj;
-            context.Writer.Write(value);
+            parent.Value = value.ToString();
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
@@ -187,10 +182,10 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public override string ToString() => "ULongSerializer";
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
             ulong value = (ulong)obj;
-            context.Writer.Write(value);
+            parent.Value = value.ToString();
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
