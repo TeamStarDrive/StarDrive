@@ -435,8 +435,7 @@ namespace Ship_Game
             sdata.AISave.MovePosition = ship.AI.MovePosition;
             sdata.AISave.WayPoints = new Array<WayPoint>(ship.AI.CopyWayPoints());
             sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
-            sdata.AISave.PriorityOrder = ship.AI.HasPriorityOrder;
-            sdata.AISave.PriorityTarget = ship.AI.HasPriorityTarget;
+            sdata.AISave.StateBits = ship.AI.StateBits;
 
             foreach (ShipAI.ShipGoal sg in ship.AI.OrderQueue)
             {
@@ -840,17 +839,16 @@ namespace Ship_Game
         {
             [Serialize(0)] public AIState State;
             [Serialize(1)] public AIState DefaultState;
-            [Serialize(2)] public Array<ShipGoalSave> ShipGoalsList;
+            [Serialize(2)] public ShipAI.Flags StateBits;
+            [Serialize(3)] public Array<ShipGoalSave> ShipGoalsList;
             // NOTE: Old Vector2 waypoints are no longer compatible
             // Renaming essentially clears all waypoints
-            [Serialize(3)] public Array<WayPoint> WayPoints;
-            [Serialize(4)] public Vector2 MovePosition;
-            [Serialize(5)] public Guid OrbitTarget;
-            [Serialize(6)] public Guid SystemToDefend;
-            [Serialize(7)] public Guid AttackTarget;
-            [Serialize(8)] public Guid EscortTarget;
-            [Serialize(9)] public bool PriorityOrder;
-            [Serialize(10)] public bool PriorityTarget;
+            [Serialize(4)] public Array<WayPoint> WayPoints;
+            [Serialize(5)] public Vector2 MovePosition;
+            [Serialize(6)] public Guid OrbitTarget;
+            [Serialize(7)] public Guid SystemToDefend;
+            [Serialize(8)] public Guid AttackTarget;
+            [Serialize(9)] public Guid EscortTarget;
         }
 
         public class ShipGoalSave
