@@ -125,8 +125,7 @@ namespace Ship_Game
 
         public string Name => Settings.Name;
 
-        static readonly Random RandomA = new Random();
-        static readonly Random RandomB = new Random();
+        readonly ThreadSafeRandom Random = new ThreadSafeRandom();
         readonly GraphicsDevice GraphicsDevice;
 
         struct ParticleVertex
@@ -171,6 +170,13 @@ namespace Ship_Game
         void LoadContent(ParticleSettings settings, int maxParticles)
         {
             MaxParticles = maxParticles > 0 ? maxParticles : settings.MaxParticles;
+
+            //// each particle requires 4 vertices, using ushort indices
+            //// we can render only up to 16383 particles
+            //const int maxPossibleParticles = ushort.MaxValue / 4;
+            //if (MaxParticles > maxPossibleParticles)
+            //    MaxParticles = maxPossibleParticles;
+
             Settings = settings.Clone();
             Settings.MaxParticles = MaxParticles; 
 
@@ -192,20 +198,21 @@ namespace Ship_Game
             }
 
             // Create and populate the index buffer.
-            ushort[] indices = new ushort[MaxParticles * 6];
+            uint[] indices = new uint[MaxParticles * 6];
 
+            
             for (int i = 0; i < MaxParticles; i++)
             {
-                indices[i * 6 + 0] = (ushort)(i * 4 + 0);
-                indices[i * 6 + 1] = (ushort)(i * 4 + 1);
-                indices[i * 6 + 2] = (ushort)(i * 4 + 2);
+                indices[i * 6 + 0] = (uint)(i * 4 + 0);
+                indices[i * 6 + 1] = (uint)(i * 4 + 1);
+                indices[i * 6 + 2] = (uint)(i * 4 + 2);
 
-                indices[i * 6 + 3] = (ushort)(i * 4 + 0);
-                indices[i * 6 + 4] = (ushort)(i * 4 + 2);
-                indices[i * 6 + 5] = (ushort)(i * 4 + 3);
+                indices[i * 6 + 3] = (uint)(i * 4 + 0);
+                indices[i * 6 + 4] = (uint)(i * 4 + 2);
+                indices[i * 6 + 5] = (uint)(i * 4 + 3);
             }
 
-            IndexBuffer = new IndexBuffer(GraphicsDevice, typeof(ushort), indices.Length, BufferUsage.WriteOnly);
+            IndexBuffer = new IndexBuffer(GraphicsDevice, typeof(uint), indices.Length, BufferUsage.WriteOnly);
             IndexBuffer.SetData(indices);
         }
 
@@ -481,12 +488,21 @@ namespace Ship_Game
 
         public bool IsOutOfParticles => FirstFreeParticle == FirstRetiredParticle && FirstFreeParticle != 0;
         public int FirstActive => FirstActiveParticle;
-        public int NumActive => (FirstFreeParticle - FirstActiveParticle);
+        public int NumActive
+        {
+            get
+            {
+                if (FirstActiveParticle < FirstFreeParticle)
+                    return (FirstFreeParticle - FirstActiveParticle);
+                else
+                    return FirstFreeParticle + (MaxParticles - FirstActiveParticle);
+            }
+        }
         public int FirstNew => FirstNewParticle;
         public int FirstFree => FirstFreeParticle;
         public int FirstRetired => FirstRetiredParticle;
 
-        void AddParticle(Random random, Vector3 position, Vector3 velocity, float scale, Color color)
+        public void AddParticle(Vector3 position, Vector3 velocity, float scale, Color color)
         {
             // when Graphics device is reset, this particle system will be disposed
             // and Particles will be set to null
@@ -495,7 +511,7 @@ namespace Ship_Game
                 return;
 
             int firstFreeParticle;
-            lock (particles)
+            while (true)
             {
                 // Figure out where in the circular queue to allocate the new particle.
                 // Need to increment this index thread-safely because multiple threads will be adding particles
@@ -506,31 +522,36 @@ namespace Ship_Game
                 if (nextFreeParticle == MaxParticles)
                     FirstFreeParticle = 0;
 
-                // If there are no free particles, we just have to give up.
-                if (firstFreeParticle == FirstRetiredParticle)
-                    return;
-
+                if (firstFreeParticle < MaxParticles)
+                    break; // all good
+                // else: We couldn't grab an appropriate slot, retry
             }
+
+            // If there are no free particles, we just have to give up.
+            if (firstFreeParticle == FirstRetiredParticle)
+                return;
 
             // Adjust the input velocity based on how much
             // this particle system wants to be affected by it.
             velocity *= Settings.EmitterVelocitySensitivity;
 
+            ThreadSafeRandom random = Random;
+
             // Add in some random amount of horizontal velocity.
-            float horizontalVelocity = Settings.MinHorizontalVelocity.LerpTo(Settings.MaxHorizontalVelocity, (float)random.NextDouble());
-            float horizontalAngle = (float)random.NextDouble() * RadMath.TwoPI;
+            float horizontalVelocity = Settings.MinHorizontalVelocity.LerpTo(Settings.MaxHorizontalVelocity, random.Float());
+            float horizontalAngle = random.Float() * RadMath.TwoPI;
             velocity.X += horizontalVelocity * RadMath.Cos(horizontalAngle);
             velocity.Z += horizontalVelocity * RadMath.Sin(horizontalAngle);
 
             // Add in some random amount of vertical velocity.
-            velocity.Y += Settings.MinVerticalVelocity.LerpTo(Settings.MaxVerticalVelocity, (float)random.NextDouble());
+            velocity.Y += Settings.MinVerticalVelocity.LerpTo(Settings.MaxVerticalVelocity, random.Float());
             
             // Choose four random control values. These will be used by the vertex
             // shader to give each particle a different size, rotation, and color.
-            var randomValues = new Color((byte)random.Next(255),
-                                         (byte)random.Next(255),
-                                         (byte)random.Next(255),
-                                         (byte)random.Next(255));
+            var randomValues = new Color(random.Byte(),
+                                         random.Byte(),
+                                         random.Byte(),
+                                         random.Byte());
 
             // Fill in the particle vertex structure.
             for (int i = 0; i < 4; i++)
@@ -545,14 +566,9 @@ namespace Ship_Game
             }
         }
 
-        public void AddParticle(Vector3 position, Vector3 velocity, float scale, Color color)
-        {
-            AddParticle(RandomA, position, velocity, scale, color);
-        }
-
-        public void AddParticleThreadA(Vector3 position, Vector3 velocity) => AddParticle(RandomA, position, velocity, 1f, Color.White);
-        public void AddParticleThreadB(Vector3 position, Vector3 velocity) => AddParticle(RandomB, position, velocity, 1f, Color.White);
-        public void AddParticleThread(bool randomA, Vector3 position, Vector3 velocity) => AddParticle(randomA ? RandomA : RandomB, position, velocity, 1f, Color.White);
+        public void AddParticleThreadA(Vector3 position, Vector3 velocity) => AddParticle(position, velocity, 1f, Color.White);
+        public void AddParticleThreadB(Vector3 position, Vector3 velocity) => AddParticle(position, velocity, 1f, Color.White);
+        public void AddParticleThread(bool randomA, Vector3 position, Vector3 velocity) => AddParticle(position, velocity, 1f, Color.White);
 
         public void Dispose()
         {
