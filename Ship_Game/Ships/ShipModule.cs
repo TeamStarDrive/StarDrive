@@ -891,7 +891,7 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < 30; ++i)
                 {
                     Vector3 pos = parentAlive ? center : new Vector3(Parent.Center, UniverseRandom.RandomBetween(-25f, 25f));
-                    Empire.Universe.Particles.Explosion.AddParticleThreadA(pos, Vector3.Zero);
+                    Empire.Universe.Particles.Explosion.AddParticle(pos);
                 }
 
                 SpawnDebris(Area, Parent.Velocity,0);
@@ -1207,7 +1207,7 @@ namespace Ship_Game.Ships
                 modelZ = modelZ.Clamped(0, 200) * -1;
                 Vector3 repairEffectOrigin = Center.ToVec3(modelZ);
                 for (int i = 0; i < 50; i++)
-                    Empire.Universe.Particles.Sparks.AddParticleThreadB(repairEffectOrigin, Vector3.Zero);
+                    Empire.Universe.Particles.Sparks.AddParticle(repairEffectOrigin);
             }
         }
 
