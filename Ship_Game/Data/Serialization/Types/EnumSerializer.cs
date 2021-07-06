@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
@@ -40,11 +41,10 @@ namespace Ship_Game.Data.Serialization.Types
             return ToEnum.GetEnumValues().GetValue(0);
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
             var e = (Enum)obj;
-            string text = e.ToString();
-            context.Writer.Write(text);
+            parent.Value = e.ToString();
         }
 
         public override void Serialize(BinaryWriter writer, object obj)

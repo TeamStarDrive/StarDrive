@@ -20,7 +20,6 @@ namespace Ship_Game
         [StarData] public float MaxHorizontalVelocity;
         [StarData] public float MinVerticalVelocity;
         [StarData] public float MaxVerticalVelocity;
-        [StarData] public Vector3 Gravity = Vector3.Zero;
         [StarData] public float EndVelocity = 1f;
         [StarData] public Color MinColor = Color.White;
         [StarData] public Color MaxColor = Color.White;
@@ -34,6 +33,11 @@ namespace Ship_Game
         [StarData] public Blend DestinationBlend = Blend.InverseSourceAlpha;
 
         static Map<string, ParticleSettings> Settings = new Map<string, ParticleSettings>();
+
+        public ParticleSettings Clone()
+        {
+            return (ParticleSettings)MemberwiseClone();
+        }
 
         public static void LoadAll()
         {

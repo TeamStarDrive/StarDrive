@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Binary
 {
@@ -113,9 +114,9 @@ namespace Ship_Game.Data.Binary
             }
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
-            throw new NotImplementedException($"Serialize (text) not supported for {ToString()}");
+            throw new NotImplementedException($"Serialize (yaml) not supported for {ToString()}");
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
