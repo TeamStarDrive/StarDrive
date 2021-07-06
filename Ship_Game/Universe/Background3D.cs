@@ -41,7 +41,7 @@ namespace Ship_Game
             neb.FillVertices();
         }
 
-        private void CreateRandomLargeNebula(Rectangle r)
+        void CreateRandomLargeNebula(Rectangle r)
         {
             const float startz = 1500000f;
             float zPos = 1500000f;
@@ -54,7 +54,7 @@ namespace Ship_Game
                 neb.LoadContent(Screen.ScreenManager);
                 BGItems.Add(neb);
                 if (starParts)
-                    Screen.Particles.StarParticles.AddParticleThreadB(new Vector3(nebrect.X, nebrect.Y, nebZ), Vector3.Zero);
+                    Screen.Particles.StarParticles.AddParticle(new Vector3(nebrect.X, nebrect.Y, nebZ));
                 return nebZ;
             }
             zPos = CreateNebulaPart(r, zPos, ResourceManager.Texture("hqspace/neb_pointy"), 0, 0);

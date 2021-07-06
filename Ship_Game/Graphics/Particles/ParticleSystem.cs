@@ -566,9 +566,15 @@ namespace Ship_Game
             }
         }
 
-        public void AddParticleThreadA(Vector3 position, Vector3 velocity) => AddParticle(position, velocity, 1f, Color.White);
-        public void AddParticleThreadB(Vector3 position, Vector3 velocity) => AddParticle(position, velocity, 1f, Color.White);
-        public void AddParticleThread(bool randomA, Vector3 position, Vector3 velocity) => AddParticle(position, velocity, 1f, Color.White);
+        public void AddParticle(Vector3 position, Vector3 velocity)
+        {
+            AddParticle(position, velocity, 1f, Color.White);
+        }
+
+        public void AddParticle(Vector3 position)
+        {
+            AddParticle(position, Vector3.Zero, 1f, Color.White);
+        }
 
         public void Dispose()
         {

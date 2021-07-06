@@ -503,7 +503,7 @@ namespace Ship_Game
                     RandomMath.RandomBetween(-0.5f * UniverseSize, UniverseSize + 0.5f * UniverseSize),
                     RandomMath.RandomBetween(-0.5f * UniverseSize, UniverseSize + 0.5f * UniverseSize),
                     RandomMath.RandomBetween(-200000f, -2E+07f));
-                Particles.StarParticles.AddParticleThreadA(position, Vector3.Zero);
+                Particles.StarParticles.AddParticle(position);
             }
         }
 
