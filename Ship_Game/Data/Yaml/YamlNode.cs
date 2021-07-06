@@ -217,7 +217,7 @@ namespace Ship_Game.Data.Yaml
         static bool EscapeNotNeeded(string text)
         {
             foreach (char ch in text)
-                if (!char.IsLetterOrDigit(ch) && ch != '_')
+                if (!char.IsLetterOrDigit(ch) && ch != '_' && ch != '.')
                     return false;
             return true;
         }

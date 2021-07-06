@@ -59,9 +59,9 @@ namespace Ship_Game
             }
             zPos = CreateNebulaPart(r, zPos, ResourceManager.Texture("hqspace/neb_pointy"), 0, 0);
             zPos = CreateNebulaPart(r, zPos, ResourceManager.BigNebula(2), -200000, -600000);
-            zPos = CreateNebulaPart(r, zPos, ResourceManager.Texture("hqspace/neb_floaty"), -200000, -600000);            
-            zPos = CreateNebulaPart(r, zPos, ResourceManager.NebulaMedRandom(), 0, 0);            
-            zPos = CreateNebulaPart(r, zPos, ResourceManager.NebulaMedRandom(), 250000, 800000);            
+            zPos = CreateNebulaPart(r, zPos, ResourceManager.Texture("hqspace/neb_floaty"), -200000, -600000);
+            zPos = CreateNebulaPart(r, zPos, ResourceManager.NebulaMedRandom(), 0, 0);
+            zPos = CreateNebulaPart(r, zPos, ResourceManager.NebulaMedRandom(), 250000, 800000);
             zPos = CreateNebulaPart(r, zPos, ResourceManager.NebulaMedRandom(), 250000, 800000);
 
             SubTexture smoke = ResourceManager.Texture("smoke");

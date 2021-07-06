@@ -658,8 +658,9 @@ namespace Ship_Game
             {
                 RenderThrusters();
                 DrawWarpFlash();
-                Particles.Draw(View, Projection);
             }
+
+            Particles.Draw(View, Projection, nearView: viewState < UnivScreenState.SectorView);
 
             if (!Paused) // Particle pools need to be updated
             {
