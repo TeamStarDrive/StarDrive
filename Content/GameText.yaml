@@ -2051,14 +2051,10 @@ Terraformer:
  SPA: "Terraformador"
 TheseMachinesWhileExpensiveTo:
  Id: 462
- ENG: "These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. This building does not need to be built under a biosphere. Terraformers will first make terrformable parts of the planet Habitable, and then slowly transform the planet to a heaven for your Empire. After the planet was terraformed, any remaining biospheres over tiles which were terraformed will be removed to complete the process. The number of Terraformers which can be placed on a planet is affected by the number of tiles which can be terraformed and it is dynamically reduced during the terraforming operation."
- RUS: "Эти дорогостоящие машины неустанно трудятся над ландшафтом планеты, постепенно превращая безжизненные камни в плодородную почву и пригодную для дыхания атмосферу. Это строение необязательно возводить под биосферой."
- SPA: "Estas máquinas, aunque su mantenimiento es caro, transforman incesantemente planetas de roca yerma en mundos habitables con atmósferas respirables. No hace falta construir este edificio debajo de una biosfera."
+ ENG: "These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. Terraform Level of an empire can be 1 to 3. Each level increases the effectiveness of terraforming operations until they are able to terraform barrens planet into a heaven for your people."
 TerraformsThePlanetToYour:
  Id: 463
- ENG: "Terraforms the planet to your preferred Environment"
- RUS: "Постепенно терраформирует планету"
- SPA: "Terraforma lentamente un planeta"
+ ENG: "Terraforms the planet based on the Empire's Terraforming Level"
 TrackingStation:
  Id: 464
  ENG: "Tracking Station"
@@ -3021,7 +3017,7 @@ BB_Tech_TachyonScanning_SensorRangeBonus_Bonus:
  SPA: "Dobla el alcance de todos los sensores"
 BB_Tech_Terraforming_Name:
  Id: 683
- ENG: "Terraforming Planet"
+ ENG: "Terraforming"
  RUS: "Терраформинг"
  SPA: "Terraformación"
 BB_Tech_ThalaronBlaster_Name:
@@ -6058,8 +6054,7 @@ ThisIndicatesWhatWouldThe:
  RUS: "Указывает на то, каким было бы максимальное население этой планеты, если бы вы построили биосферы на всех непригодных для жизни клетках."
 ThisIndicatesWhatWouldThe2:
  Id: 1907
- ENG: "This indicates what would the maximum population of this planet be, if you fully terraformed this planet. This number might be the same as Biosphered Planet, but a Terraformed planet does not cost Biosphere maintenance."
- RUS: "Указывает, каким было бы максимальное население этой планеты, если бы вы полностью терраформировали эту планету. Это число может быть таким же, как у Биосферной планеты, но терраформированная планета не требует затрат на содержание биосферы."
+ ENG: "This indicates what would the maximum population of this planet be, if you fully terraformed this planet (at Terraform Level 3). This number might be the same as Biosphered Planet, but a Terraformed planet does not cost Biosphere maintenance."
 Regenerate:
  Id: 1908
  ENG: "Regenerate"
@@ -8565,9 +8560,7 @@ ThisSmallShieldIsCapable:
  SPA: "Este pequeño escudo absorbe hasta 500 puntos de daño en un radio de 50 metros. Su rapidez de recarga hace que sea ideal para pequeños cazas. "
 BB_Tech_Terraforming_Desc:
  Id: 684
- ENG: "Terraforming planets is a slow process but it can produce excellent results. Any planet with a fertility score lower than 1.0 can benefit from the effects of a terraformer. Terraforming will never increase a planet's fertility beyond 1.0. "
- RUS: "Терраформирование планеты - процесс не быстрый, но он может принести прекрасные результаты. Любая планета с индексом плодородия ниже 1,0 выиграет от терраформирования. Терраформирование ни при каких условиях не может повысить индекс плодородия планеты выше 1,0."
- SPA: "Terraformar planetas es un proceso lento, pero puede dar excelentes frutos. Todo planeta con una puntuación de fertilidad inferior a 1,0 puede beneficiarse del uso de un terraformador. La terraformación nunca aumentará la fertilidad de un planeta más de 1,0. "
+ ENG: "Terraforming planets is a slow process but it can produce excellent results. Any planet with a fertility score lower than 1 can benefit from the effects of a terraformer. Terraforming will never increase a planet's natural fertility beyond 1"
 CloningCentersIncreaseThePopulation:
  Id: 413
  ENG: "Cloning Centers increase the population growth of a planet at a fixed rate of .02 per turn.  "
@@ -10130,6 +10123,108 @@ UsePlayerDesignsTitle:
 UsePlayerDesignsTip:
  Id: 4306
  ENG: "The AI will use player designed ships in the database. This could slow down AI tech progression"
+TerraformLevel:
+ Id: 4307
+ ENG: "Terraform Level"
+TerraformLevel1:
+ Id: 4308
+ ENG: "Terraform Level 1. At this Level, Terraformers will gradually remove all Volcanoes in the planet."
+TerraformLevel2:
+ Id: 4309
+ ENG: "Terraform Level 2. At this Level, Terraformers will remove all Volcanoes in the planet and will also make terraformable tiles habitable."
+BB_Tech_Terraforming_Bonus:
+ Id: 4310
+ ENG: "Terraform Level 3. At this Level, Terraformers will remove all Volcanoes in the planet, make terraformable tiles habitable and will also transform your planet into the best suitable planet for your race and increase its fertility to 1."
+Terraforming:
+ Id: 4311
+ ENG: "Terraforming In Progress"
+Blockade2:
+ Id: 4312
+ ENG: "Blockade!"
+Starvation:
+ Id: 4313
+ ENG: "Starvation!"
+TerraformingOperationsLevel:
+ Id: 4314
+ ENG: "Terraforming Operations - Level"
+TerraformingStatus:
+ Id: 4315
+ ENG: "Status:"
+TerraformersHere:
+ Id: 4316
+ ENG: "Terraformers:"
+TerraformersDone:
+ Id: 4317
+ ENG: "Done"
+TerraformPlanet:
+ Id: 4318
+ ENG: "Planet:"
+TerraformTargetFert:
+ Id: 4319
+ ENG: "Target Fertility:"
+TerraformEsPop:
+ Id: 4320
+ ENG: "Estimated Population:"
+TerraformNegativeEnv:
+ Id: 4321
+ ENG: "(negative environment buildings)"
+NegativeEnvWarning:
+ Id: 4322
+ ENG: "WARNING - This building won't raise Max Fertility above 0 due to currently present negative environment buildings on this planet (effective Max Fertility is"
+TerraformersNotStarted:
+ Id: 4323
+ ENG: "Not Started"
+TerraformersInProgress:
+ Id: 4324
+ ENG: "In Progress"
+TerraformersVolcanoes:
+ Id: 4325
+ ENG: "Volcanoes:"
+TerraformersTiles:
+ Id: 4326
+ ENG: "Tiles: "
+TerraformersVolcanoes2:
+ Id: 4327
+ ENG: "Volcanoes ("
+TerraformersTiles2:
+ Id: 4328
+ ENG: "Tiles ("
+Automatic:
+ Id: 4329
+ ENG: "Automatic"
+IncomingFreighters:
+ Id: 4330
+ ENG: "Incoming Freighters"
+OutgoingFreighters:
+ Id: 4331
+ ENG: "Outgoing Freighters"
+ColonyTrade:
+ Id: 4332
+ ENG: "Colony Trade"
+ManualImport:
+ Id: 4333
+ ENG: "Override Import Trade Slots"
+ManualExport:
+ Id: 4334
+ ENG: "Override Export Trade Slots"
+IncomingOutGoingTip:
+ Id: 4335
+ ENG: "The number of freighters incoming or outgoing vs. the number of goods slots the planet is has opened. If the planet does not export or import the goods, the open slots will be zero."
+ManualTradeSlotTip:
+ Id: 4336
+ ENG: "You may adjust out many slots are open for the goods import or export. When set to 0, the open slot calcultion will resume automatic mode. Use manual slots carefully, as high number of slots might lock your freighters on specific goods. If the planet is not importing or exporting the goods, the corresponding slots will be zero."
+MeteorShowerWarningNotOurPlanet:
+ Id: 4337
+ ENG: ": A Meteor Shower is passing through the system.\nWe estimate that some of the meteors are going to crash on the planet\nbut we do not have a colony there."
+MeteorShowerWarning:
+ Id: 4338
+ ENG: ": A Meteor Shower is passing through the system.\nWe estimate that some of the meteors are going to crash on the planet!"
+BudgetLimitReached:
+ Id: 4339
+ ENG: "Civilian Budget Limit Reached!"
+BB_Tech_SubspatialDynamics_CounterEnemyPlanetInhibitionBonus_Bonus:
+ Id: 4340
+ ENG: "Normaly, hostile planets negate our own projector effects and inhibit our ships. This tech allows us to decrease the enemy planet's gravity well by 25%, if we have a projector in range."
 OnSurface:
  Id: 4993
  ENG: "on surface"
@@ -12040,3 +12135,7 @@ SaveHullDesign:
  ENG: "Save Hull Design"
 TT_GuardMode:
  ENG: "Ship will be in guard stance and avoid aggressively engaging and chasing enemy ships"
+EngineTrails:
+ ENG: "Enable engine trails"
+TT_EngineTrails:
+ ENG: "This will enable engine trails for moving ships, disabling this will improve performance"

@@ -179,9 +179,13 @@ namespace Ship_Game.Ships
 
         public (float STL, float Warp, float Turn) GetThrust(ShipModule[] modules)
         {
-            float stl = 0f;
+            float stl  = 0f;
             float warp = 0f;
             float turn = 0f;
+
+            if (IsStationary)
+                return (0, 0, 0);
+
             for (int i = 0; i < modules.Length; i++)
             {
                 ShipModule m = modules[i];

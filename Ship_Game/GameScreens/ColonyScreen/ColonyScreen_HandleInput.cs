@@ -180,7 +180,8 @@ namespace Ship_Game
 
                 Planet nextOrPrevPlanet = planets[newIndex];
                 if (nextOrPrevPlanet != P)
-                    Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, nextOrPrevPlanet, Eui, GovernorDetails.CurrentTabIndex);
+                    Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, nextOrPrevPlanet, Eui, 
+                        GovernorDetails.CurrentTabIndex, PFacilities.SelectedIndex);
 
                 return true; // planet changed, ColonyScreen will be replaced
             }

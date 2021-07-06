@@ -766,6 +766,10 @@ namespace Ship_Game
         public bool IsBuildingUnlocked(int bid) => ResourceManager.GetBuilding(bid, out Building b)
                                                         && IsBuildingUnlocked(b.Name);
 
+        public bool CanTerraformVolcanoes   => IsBuildingUnlocked(Building.TerraformerId) && data.Traits.TerraformingLevel >= 1;
+        public bool CanTerraformPlanetTiles => IsBuildingUnlocked(Building.TerraformerId) && data.Traits.TerraformingLevel >= 2;
+        public bool CanFullTerraformPlanets => IsBuildingUnlocked(Building.TerraformerId) && data.Traits.TerraformingLevel >= 3;
+
         public bool IsModuleUnlocked(string moduleUID) => UnlockedModulesDict.TryGetValue(moduleUID, out bool found) && found;
 
         public Map<string, TechEntry>.ValueCollection TechEntries => TechnologyDict.Values;
@@ -1689,7 +1693,7 @@ namespace Ship_Game
                 {
                     foreach (var fleet in them.FleetsDict)
                     {
-                        if (fleet.Value.Ships.Any(s => s.IsInBordersOf(this) || s.KnownByEmpires.KnownBy(this)))
+                        if (fleet.Value.Ships.Any(s => s?.IsInBordersOf(this) == true || s?.KnownByEmpires.KnownBy(this) == true))
                             knownFleets.Add(fleet.Value);
                     }
                 }
@@ -1919,23 +1923,14 @@ namespace Ship_Game
                 switch (ship.DesignRoleType)
                 {
                     case ShipData.RoleType.WarSupport:
-                    case ShipData.RoleType.Warship:
-                        TotalWarShipMaintenance += maintenance;
-                        break;
-                    case ShipData.RoleType.Civilian:
-                        TotalCivShipMaintenance += maintenance;
-                        break;
-                    case ShipData.RoleType.EmpireSupport:
-                        TotalEmpireSupportMaintenance += maintenance;
-                        break;
-                    case ShipData.RoleType.Orbital:
-                        TotalOrbitalMaintenance += maintenance;
-                        break;
-                    case ShipData.RoleType.Troop:
-                        TotalTroopShipMaintenance += maintenance;
-                        break;
+                    case ShipData.RoleType.Warship: TotalWarShipMaintenance             += maintenance; break;
+                    case ShipData.RoleType.Civilian: TotalCivShipMaintenance            += maintenance; break;
+                    case ShipData.RoleType.EmpireSupport: TotalEmpireSupportMaintenance += maintenance; break;
+                    case ShipData.RoleType.Orbital: TotalOrbitalMaintenance             += maintenance; break;
+                    case ShipData.RoleType.Troop: TotalTroopShipMaintenance             += maintenance; break;
+                    case ShipData.RoleType.NotApplicable: break;
                     default:
-                        Log.Warning("what is it");
+                        Log.Warning($"Type not included in maintenance and not in notapplicable {ship.DesignRoleType}\n    {ship} ");
                         break;
                 }
                 TotalShipMaintenance += maintenance;

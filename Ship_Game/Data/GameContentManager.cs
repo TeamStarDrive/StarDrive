@@ -90,7 +90,8 @@ namespace Ship_Game.Data
             asset = default;
             return false;
         }
-
+        
+        // SUNBURN COMPATIBILITY
         public bool TryGetEffect<T>(string assetName, out T asset) where T : Effect
         {
             GameContentManager mgr = this;
@@ -110,6 +111,7 @@ namespace Ship_Game.Data
             return false;
         }
 
+        // SUNBURN COMPATIBILITY
         public void AddEffect(string assetName, Effect effect) 
         {
             lock (LoadSync)
@@ -408,6 +410,26 @@ namespace Ship_Game.Data
                 return DefaultTexture();
             var texture = Load<Texture2D>(modTexPath);
             return new SubTexture(texture.Name, texture);
+        }
+
+        // Load and compile an .fx file
+        public Effect LoadEffect(string effectFile)
+        {
+            if (TryGetAsset(effectFile, out Effect existing))
+                return existing;
+
+            FileInfo file = ResourceManager.GetModOrVanillaFile(effectFile);
+            string sourceCode = File.ReadAllText(file.FullName);
+            CompiledEffect compiled = Effect.CompileEffectFromSource(sourceCode, new CompilerMacro[0], null, 
+                                                                     CompilerOptions.None, TargetPlatform.Windows);
+            if (!compiled.Success)
+            {
+                throw new Exception($"LoadEffect {effectFile} failed: {compiled.ErrorsAndWarnings}");
+            }
+            
+            var fx = new Effect(Device, compiled.GetEffectCode(), CompilerOptions.None, null);
+            RecordCacheObject(effectFile, fx);
+            return fx;
         }
 
         public StaticMesh LoadStaticMesh(string modelName)

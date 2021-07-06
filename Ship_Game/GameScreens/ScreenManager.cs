@@ -430,6 +430,12 @@ namespace Ship_Game
             };
         }
 
+        // Remove an entry from registered hot load targets
+        public void RemoveHotLoadTarget(string key)
+        {
+            HotLoadTargets.Remove(key);
+        }
+
         void PerformHotLoadTasks(UpdateTimes elapsed)
         {
             HotloadTimer += elapsed.RealTime.Seconds;

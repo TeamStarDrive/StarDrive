@@ -143,8 +143,8 @@ namespace Ship_Game
                 ExportSave();
             });
 
-            ExportBtn.Visible = GlobalStats.EnableSaveExportButton && SaveExport;
-            ExportBtn.Tooltip = "Export Selected Save for developers.";
+            ExportBtn.Visible = SaveExport;
+            ExportBtn.Tooltip = GameText.ThisWillLetYouEasily;
             base.LoadContent();
         }
 
