@@ -1,0 +1,9 @@
+- BudgetSettings
+	PortraitName : All
+	Budgets:
+            Defense:5
+            SSP:    1
+            Build:  7
+            Spy:    25
+            Colony: 5
+            Savings:550

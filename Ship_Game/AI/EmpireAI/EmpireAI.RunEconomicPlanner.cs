@@ -3,7 +3,9 @@
 using Ship_Game.AI.Budget;
 using System;
 using System.Linq;
+using Ship_Game.AI.Compnonents;
 using Ship_Game.Gameplay;
+using static Ship_Game.AI.Compnonents.BudgetPriorities;
 
 namespace Ship_Game.AI
 {
@@ -30,6 +32,8 @@ namespace Ship_Game.AI
         /// This is the budgeted amount of money that will be available to empire looking over 20 years.  
         /// </summary>
         public float ProjectedMoney { get; private set; } = 0;
+
+        BudgetPriorities BudgetSettings;
         /// <summary>
         /// This a ratio of projectedMoney and the normalized money then multiplied by 2 then add 1 - taxrate
         /// then the whole thing divided by 3. This puts a large emphasis on money goal to money ratio
@@ -97,23 +101,13 @@ namespace Ship_Game.AI
 
             AutoSetTaxes(treasuryGoal, normalizedBudget);
             // the values below are now weights to adjust the budget areas. 
-            float defense = 5;
-            float SSP     = 1;
-            float build   = 7;
-            float spy     = 25;
-            float colony  = 5;
-            float freight = 2f;
-            float savings = 550;
-
-            float total = (defense + SSP + build + spy + colony + freight + savings);
-
-            defense       /= total;
-            SSP           /= total;
-            build         /= total;
-            spy           /= total;
-            colony        /= total;
-            freight       /= total;
-
+            float defense = BudgetSettings.GetBudgetFor(BudgetAreas.Defense);
+            float SSP     = BudgetSettings.GetBudgetFor(BudgetAreas.SSP); 
+            float build   = BudgetSettings.GetBudgetFor(BudgetAreas.Build);
+            float spy     = BudgetSettings.GetBudgetFor(BudgetAreas.Spy);
+            float colony  = BudgetSettings.GetBudgetFor(BudgetAreas.Colony);
+            float savings = BudgetSettings.GetBudgetFor(BudgetAreas.Savings);
+            
             // for the player they don't use some budgets. so distribute them to areas they do
             // spy budget is a special case currently and is not distributed.
             if (OwnerEmpire.isPlayer)
