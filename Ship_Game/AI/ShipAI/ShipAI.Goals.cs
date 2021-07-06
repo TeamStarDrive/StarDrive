@@ -9,9 +9,6 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
-        public bool HasPriorityOrder { get; private set;}
-        public bool HadPO;
-
         void DequeueWayPointAndOrder()
         {
             if (WayPoints.Count > 0)
@@ -299,7 +296,6 @@ namespace Ship_Game.AI
             SubLightApproach = End | Positioning,
             CombatWayPoint   = Combat | WayPoint,
             CombatApproach   = Combat | SubLightApproach
-
         }
 
         public class ShipGoal : IDisposable
