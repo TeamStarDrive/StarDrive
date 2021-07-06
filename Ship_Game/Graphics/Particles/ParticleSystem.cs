@@ -125,6 +125,16 @@ namespace Ship_Game
 
         public string Name => Settings.Name;
 
+        /// <summary>
+        /// Can be used to disable this particle system (for debugging purposes or otherwise)
+        /// </summary>
+        public bool IsEnabled = true;
+
+        /// <summary>
+        /// If true, particle shader will generate debug markers around particles
+        /// </summary>
+        public bool EnableDebug;
+
         readonly ThreadSafeRandom Random = new ThreadSafeRandom();
         readonly GraphicsDevice GraphicsDevice;
 
@@ -245,9 +255,7 @@ namespace Ship_Game
             parameters["StartSize"].SetValue(new Vector2(Settings.MinStartSize, Settings.MaxStartSize) * Scale);
             parameters["EndSize"].SetValue(new Vector2(Settings.MinEndSize, Settings.MaxEndSize) * Scale);
             
-            // Load the particle texture, and set it onto the effect.
-            var texture = Content.Load<Texture2D>("3DParticles/" + Settings.TextureName);
-            parameters["Texture"].SetValue(texture);
+            SetTexture();
 
             string technique = "FullDynamicParticles";
             if (Settings.Static && Settings.IsRotating) technique = "StaticRotatingParticles";
@@ -255,6 +263,16 @@ namespace Ship_Game
             else if (!Settings.Static && !Settings.IsRotating) technique = "DynamicNonRotatingParticles";
 
             ParticleEffect.CurrentTechnique = ParticleEffect.Techniques[technique];
+        }
+
+        void SetTexture()
+        {
+            SetTexture(Content.Load<Texture2D>("3DParticles/" + Settings.TextureName));
+        }
+
+        void SetTexture(Texture2D texture)
+        {
+            ParticleEffect.Parameters["Texture"].SetValue(texture);
         }
 
         public ParticleEmitter NewEmitter(float particlesPerSecond, Vector3 initialPosition)
@@ -279,7 +297,7 @@ namespace Ship_Game
         public void Update(DrawTimes elapsed)
         {
             var particles = Particles;
-            if (particles == null)
+            if (particles == null || !IsEnabled)
                 return;
 
             CurrentTime += elapsed.RealTime.Seconds;
@@ -360,19 +378,16 @@ namespace Ship_Game
                     FirstRetiredParticle = 0;
             }
         }
-        
+
         public void Draw(in Matrix view, in Matrix projection)
         {
             var particles = Particles;
-            if (particles == null)
+            if (particles == null || !IsEnabled)
                 return;
             
             int firstNew = FirstNewParticle;
             int firstFree = FirstFreeParticle;
             int firstActive = FirstActiveParticle;
-
-            EffectViewParameter.SetValue(view);
-            EffectProjectionParameter.SetValue(projection);
 
             // Restore the vertex buffer contents if the graphics device was lost.
             if (VertexBuffer.IsContentLost)
@@ -401,6 +416,15 @@ namespace Ship_Game
                 rs.ReferenceAlpha         = 0;
                 rs.DepthBufferEnable      = true;
                 rs.DepthBufferWriteEnable = false;
+
+                EffectViewParameter.SetValue(view);
+                EffectProjectionParameter.SetValue(projection);
+
+                if (EnableDebug)
+                {
+                    rs.AlphaBlendEnable = false;
+                    rs.AlphaTestEnable = false;
+                }
 
                 // Set an effect parameter describing the viewport size. This is
                 // needed to convert particle sizes into screen space point sizes.
@@ -492,26 +516,26 @@ namespace Ship_Game
 
         public bool IsOutOfParticles => FirstFreeParticle == FirstRetiredParticle && FirstFreeParticle != 0;
         public int FirstActive => FirstActiveParticle;
+        public int FirstNew => FirstNewParticle;
+        public int FirstFree => FirstFreeParticle;
+        public int FirstRetired => FirstRetiredParticle;
+        
         public int NumActive
         {
             get
             {
                 if (FirstActiveParticle < FirstFreeParticle)
                     return (FirstFreeParticle - FirstActiveParticle);
-                else
-                    return FirstFreeParticle + (MaxParticles - FirstActiveParticle);
+                return FirstFreeParticle + (MaxParticles - FirstActiveParticle);
             }
         }
-        public int FirstNew => FirstNewParticle;
-        public int FirstFree => FirstFreeParticle;
-        public int FirstRetired => FirstRetiredParticle;
 
         public void AddParticle(Vector3 position, Vector3 velocity, float scale, Color color)
         {
             // when Graphics device is reset, this particle system will be disposed
             // and Particles will be set to null
             var particles = Particles;
-            if (particles == null)
+            if (particles == null || !IsEnabled)
                 return;
 
             int firstFreeParticle;
