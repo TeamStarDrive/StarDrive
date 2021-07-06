@@ -60,61 +60,40 @@ namespace Ship_Game.Data.Serialization.Types
             return base.Deserialize(node); // try to deserialize value as Array
         }
 
-        // YAML array serialization is pretty dope, so we need a full utility method and reuse it
-
-        public static void Serialize(IList list, TypeSerializer ser, TextSerializerContext context)
+        public static void Serialize(IList list, TypeSerializer ser, YamlNode parent)
         {
             int count = list.Count;
-            var tw = context.Writer;
-
             if (count == 0)
             {
-                tw.Write(" []");
-                return;
+                parent.Value = Empty<object>.Array; // so we format as "Parent: []"
             }
-
-            // [StarData] Array<int> Primitives;
-            // Primitives: [1,2,3,4]
-            if (!ser.IsUserClass)
+            else
             {
-                tw.Write(" [");
-                for (int i = 0; i < count; ++i)
+                bool isPrimitive = !ser.IsUserClass;
+                if (isPrimitive)
                 {
-                    object element = list[i];
-                    ser.Serialize(context, element);
-                    if (i != count-1)
-                        tw.Write(',');
+                    object[] items = new object[count];
+                    parent.Value = items;
+                    for (int i = 0; i < items.Length; ++i)
+                        items[i] = list[i];
                 }
-                tw.Write(']');
-                return;
+                else
+                {
+                    for (int i = 0; i < count; ++i)
+                    {
+                        object element = list[i];
+                        var seqElem = new YamlNode();
+                        ser.Serialize(seqElem, element);
+                        parent.AddSequenceElement(seqElem);
+                    }
+                }
             }
-
-            // [StarData] Array<Ship> Ships;
-            // Ships:
-            //   - Ship: ship1
-            //     Position: [1,2,3]
-            //   - Ship: ship2
-            //     Position: [1,2,3]
-
-            tw.Write('\n');
-            context.Depth += 2;
-            string prefix = new string(' ', context.Depth) + "- ";
-
-            for (int i = 0; i < count; ++i)
-            {
-                tw.Write(prefix); // "  - "
-                object element = list[i];
-                context.IgnoreSpacePrefixOnce = true;
-                ser.Serialize(context, element);
-            }
-
-            context.Depth -= 2;
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
             var list = (IList)obj;
-            Serialize(list, ElemSerializer, context);
+            Serialize(list, ElemSerializer, parent);
         }
 
         public override void Serialize(BinaryWriter writer, object obj)

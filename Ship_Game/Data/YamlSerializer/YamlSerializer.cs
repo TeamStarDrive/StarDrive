@@ -85,84 +85,31 @@ namespace Ship_Game.Data.YamlSerializer
             }
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
             if (Mapping == null)
                 ResolveTypes();
-            
-            var tw = context.Writer;
-            int count = Mapping.Count;
-            if (count == 0)
-            {
-                tw.Write(" {}\n");
-                return;
-            }
-
-            // Short form, Primitives
-            // { Key1: Value1, Key2: Value2 }
-            if (count <= 3 && HasOnlyPrimitiveFields)
-            {
-                bool noPrefix = context.NoPrefix;
-                context.NoPrefix = true;
-                int i = 0;
-                tw.Write("{ ");
-                foreach (KeyValuePair<string, DataField> kv in Mapping)
-                {
-                    tw.Write(kv.Key);
-                    tw.Write(": ");
-                    kv.Value.Serialize(context, obj);
-                    if (++i != count)
-                        tw.Write(", ");
-                }
-                tw.Write(" }");
-                context.NoPrefix = noPrefix;
-                return;
-            }
-
-            context.Depth += 2;
-            string prefixSpaces = new string(' ', context.Depth);
 
             foreach (KeyValuePair<string, DataField> kv in Mapping)
             {
-                if (context.IgnoreSpacePrefixOnce)
-                    context.IgnoreSpacePrefixOnce = false;
-                else
-                    tw.Write(prefixSpaces);
-
-                tw.Write(kv.Key);
-
-                if (kv.Value.Serializer.IsCollection)
+                var childNode = new YamlNode
                 {
-                    tw.Write(":");
-                    kv.Value.Serialize(context, obj);
-                    tw.Write('\n');
-                }
-                else
-                {
-                    tw.Write(": ");
-                    kv.Value.Serialize(context, obj);
-                    tw.Write('\n');
-                }
+                    Key = kv.Key
+                };
+                parent.AddSubNode(childNode);
+                kv.Value.Serialize(childNode, obj);
             }
-
-            context.Depth -= 2;
         }
 
         public override void Serialize(TextWriter writer, object obj)
         {
-            if (Mapping == null)
-                ResolveTypes();
-
-            var context = new TextSerializerContext
+            var root = new YamlNode
             {
-                Writer = writer,
-                Depth = 0,
+                Key = TheType.Name
             };
 
-            writer.Write(TheType.Name);
-            writer.Write(":\n");
-
-            Serialize(context, obj);
+            Serialize(root, obj);
+            root.SerializeTo(writer);
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
