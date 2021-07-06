@@ -156,7 +156,7 @@ namespace Ship_Game
             CreateHomeWorldBuildings();
         }
 
-        private void SetTileHabitability(float tileChance, out int numHabitableTiles)
+        void SetTileHabitability(float tileChance, out int numHabitableTiles)
         {
             numHabitableTiles = 0;
 
@@ -174,7 +174,7 @@ namespace Ship_Game
             }
         }
 
-        private void SetHomeworldTiles()
+        void SetHomeworldTiles()
         {
             for (int i = 0; i < 28; ++i)
             {
@@ -183,7 +183,7 @@ namespace Ship_Game
             }
         }
 
-        private void CreateHomeWorldPopulation(float preDefinedPop, int numHabitableTiles)
+        void CreateHomeWorldPopulation(float preDefinedPop, int numHabitableTiles)
         {
             // Homeworld Pop is always 14 (or if defined else in the xml) multiplied by scale (homeworld size mod)
             float envMultiplier = 1 / Empire.PreferredEnvModifier(Owner);
@@ -193,7 +193,7 @@ namespace Ship_Game
             Population          = MaxPopulation;
         }
 
-        private void CreateHomeWorldFertilityAndRichness()
+        void CreateHomeWorldFertilityAndRichness()
         {
             // Set the base fertility so it always corresponds to preferred env plus any modifiers from traits
             float baseMaxFertility = (2 + Owner.data.Traits.HomeworldFertMod) / Empire.PreferredEnvModifier(Owner);
@@ -202,7 +202,7 @@ namespace Ship_Game
             MineralRichness = 1f + Owner.data.Traits.HomeworldRichMod;
         }
 
-        private void CreateHomeWorldEnvironment()
+        void CreateHomeWorldEnvironment()
         {
             PlanetCategory preferred = Owner.data.PreferredEnv == PlanetCategory.Other ? PlanetCategory.Terran
                                                                                        : Owner.data.PreferredEnv;
@@ -211,7 +211,7 @@ namespace Ship_Game
             Zone = SunZone.Any;
         }
 
-        private void CreateHomeWorldBuildings()
+        void CreateHomeWorldBuildings()
         {
             ResourceManager.CreateBuilding(Building.CapitalId).AssignBuildingToTilePlanetCreation(this, out _);
             ResourceManager.CreateBuilding(Building.SpacePortId).AssignBuildingToTilePlanetCreation(this, out _);
@@ -220,9 +220,12 @@ namespace Ship_Game
             ProdHere    = Storage.Max / 2;
         }
 
-        private void ApplyTerraforming() // Added by Fat Bastard
+        void ApplyTerraforming() // Added by Fat Bastard
         {
-            if (TerraformToAdd.LessOrEqual(0) || Owner == null)
+            if (!Terraformable)
+                return;
+
+            if (TerraformToAdd <= 0 || Owner == null)
             {
                 TerraformPoints = 0;
                 return; // No Terraformers or No owner (Terraformers cannot continue working)
@@ -232,19 +235,15 @@ namespace Ship_Game
             if (TerraformVolcanoes())
                 return;
 
-            // Then, make un-habitable tiles habitable
+            // Then, make un-habitable terraformable tiles habitable
             if (TerraformTiles()) 
                 return;
 
-            // Then, if all tiles are habitable, proceed to Planet Terraform
-            if (TerraformPlanet())
-                return;
-
-            // Then, remove any existing biospheres from the new heaven
-            TerraformBioSpheres();
+            // Then, if all tiles are habitable and Terraforming Level is 3, proceed to Planet Terraform
+            TerraformPlanet();
         }
 
-        public bool HasTilesToTerraform     => TilesList.Any(t => t.CanTerraform && !t.Biosphere);
+        public bool HasTilesToTerraform     => TilesList.Any(t => t.CanTerraform);
         public bool HasVolcanoesToTerraform => TilesList.Any(t => t.VolcanoHere);
         public bool BioSpheresToTerraform   => TilesList.Any(t => t.BioCanTerraform);
         public int TerraformerLimit         => TilesList.Count(t => t.CanTerraform)/2 + 2;
@@ -261,22 +260,22 @@ namespace Ship_Game
             return true;
         }
 
-        private bool TerraformTiles()
+        bool TerraformTiles()
         {
             if (!HasTilesToTerraform)
                 return false; // no tiles need terraforming
 
             TerraformPoints += TerraformToAdd * 3f; // Terraforming a tile is faster than the whole planet
             if (TerraformPoints.GreaterOrEqual(1))
-                CompleteTileTerraforming(TilesList.Filter(t => !t.Habitable && t.Terraformable));
+                CompleteTileTerraforming(TilesList.Filter(t => !t.Habitable && t.Terraformable || t.BioCanTerraform));
 
             return true;
         }
 
-        private bool TerraformPlanet()
+        void TerraformPlanet()
         {
             if (Category == Owner.data.PreferredEnv && BaseMaxFertility.GreaterOrEqual(TerraformedMaxFertility))
-                return false;
+                return;
 
             if (TerraformPoints.AlmostZero()) // Starting terraform
                 SetBaseFertilityTerraform();
@@ -290,23 +289,7 @@ namespace Ship_Game
             if (TerraformPoints.GreaterOrEqual(1))
                 CompletePlanetTerraform();
 
-            return true;
-        }
-
-        private void TerraformBioSpheres()
-        {
-            if (!BioSpheresToTerraform)
-            {
-                RemoveTerraformers();
-                if (Owner.isPlayer) // Notify player that the planet was terraformed
-                    Empire.Universe.NotificationManager.AddRandomEventNotification(
-                        Name + " " + Localizer.Token(GameText.TerraformingCompletedAndTerraformersWere), Type.IconPath, "SnapToPlanet", this);
-                return;
-            }
-
-            TerraformPoints += TerraformToAdd * 1.5f; // Terraforming Biospheres is more complex than terraforming a tile
-            if (TerraformPoints.GreaterOrEqual(1))
-                CompleteTileTerraforming(TilesList.Filter(t => t.BioCanTerraform));
+            return;
         }
 
         void CompleteVolcanoTerraforming(PlanetGridSquare[] possibleTiles)
@@ -317,13 +300,14 @@ namespace Ship_Game
                 Volcano.RemoveVolcano(tile, this);
             }
 
-            if (TerraformersHere > TerraformerLimit)
+            UpdateTerraformPoints(0); // Start terraforming a new tile or remove terraformers if terra level is 1.
+            if (!Terraformable)
+                RemoveTerraformers();
+            else if (TerraformersHere > TerraformerLimit)
                 RemoveTerraformers(removeOne: true); // Dynamically remove terraformers
-
-            UpdateTerraformPoints(0); // Start terraforming a new tile
         }
 
-        private void CompleteTileTerraforming(PlanetGridSquare[] possibleTiles)
+        void CompleteTileTerraforming(PlanetGridSquare[] possibleTiles)
         {
             if (possibleTiles.Length > 0)
             {
@@ -331,13 +315,14 @@ namespace Ship_Game
                 MakeTileHabitable(tile);
             }
 
-            if (TerraformersHere > TerraformerLimit)
-                RemoveTerraformers(removeOne: true); // Dynamically remove terraformers
-
             UpdateTerraformPoints(0); // Start terraforming a new tile
+            if (!Terraformable)
+                RemoveTerraformers();
+            else if (TerraformersHere > TerraformerLimit)
+                RemoveTerraformers(removeOne: true); // Dynamically remove terraformers
         }
 
-        private void CompletePlanetTerraform()
+        void CompletePlanetTerraform()
         {
             Terraform(Owner.data.PreferredEnv);
             UpdateTerraformPoints(0);
@@ -361,6 +346,19 @@ namespace Ship_Game
                 colonyType = Owner.AssessColonyNeeds(this);
         }
 
+        public bool Terraformable // Checks if the owner can terraform the planet or parts of it
+        {
+            get
+            {
+                int terraLevel = Owner.data.Traits.TerraformingLevel;
+                return terraLevel > 0 && HasVolcanoesToTerraform
+                    || terraLevel > 1 && HasTilesToTerraform
+                    || terraLevel > 2 && BioSpheresToTerraform
+                    || terraLevel > 2 &&
+                        (Category != Owner.data.PreferredEnv || BaseMaxFertility.Less(TerraformedMaxFertility));
+            }
+        }
+
         // FB - This will give the Natural Max Fertility the planet should have after terraforming is complete
         public float TerraformedMaxFertility
         {
@@ -374,7 +372,7 @@ namespace Ship_Game
             }
         }
 
-        private void RemoveTerraformers(bool removeOne = false)
+        void RemoveTerraformers(bool removeOne = false)
         {
             foreach (PlanetGridSquare tile in TilesList)
             {
@@ -384,6 +382,14 @@ namespace Ship_Game
                     if (removeOne)
                         return;
                 }
+            }
+
+            // Notify player that the planet was terraformed
+            if (Owner.isPlayer)
+            {
+                string msg = $"{Localizer.Token(GameText.TerraformLevel)} {Owner.data.Traits.TerraformingLevel}:\n" +
+                             $"{Name} {Localizer.Token(GameText.TerraformingCompletedAndTerraformersWere)}";
+                Empire.Universe.NotificationManager.AddRandomEventNotification(msg, Type.IconPath, "SnapToPlanet", this);
             }
         }
 
@@ -406,7 +412,7 @@ namespace Ship_Game
         }
 
         // Refactored by Fat Bastard && RedFox
-        private void Terraform(PlanetCategory newCategory)
+        void Terraform(PlanetCategory newCategory)
         {
             if (Category == newCategory)
                 return; // A planet with the same category was Terraformed (probably to increase fertility)

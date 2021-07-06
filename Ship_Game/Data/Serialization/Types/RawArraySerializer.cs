@@ -15,6 +15,7 @@ namespace Ship_Game.Data.Serialization.Types
         {
             ElemType = elemType;
             ElemSerializer = elemSerializer;
+            IsCollection = true;
         }
 
         public override object Convert(object value)
@@ -40,7 +41,7 @@ namespace Ship_Game.Data.Serialization.Types
         public override object Deserialize(YamlNode node)
         {
             // [StarData] Ship[] Ships;
-            // Ships: my_ships
+            // Ships:
             //   - Ship: ship1
             //     Position: ...
             //   - Ship: ship2
@@ -57,6 +58,12 @@ namespace Ship_Game.Data.Serialization.Types
                 return converted;
             }
             return base.Deserialize(node); // try to deserialize value as Array
+        }
+
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            var array = (Array)obj;
+            ArrayListSerializer.Serialize(array, ElemSerializer, context);
         }
 
         public override void Serialize(BinaryWriter writer, object obj)

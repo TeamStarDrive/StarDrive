@@ -525,6 +525,28 @@ namespace Ship_Game
             }, "sd_ui_notification_warning");
         }
 
+        public void AddMeteorShowerInSystem(Planet p)
+        {
+            AddNotification(new Notification
+            {
+                Message         = $"{p.Name}{Localizer.Token(GameText.MeteorShowerWarningNotOurPlanet)}",
+                ReferencedItem1 = p.ParentSystem,
+                IconPath        = p.IconPath,
+                Action          = "SnapToSystem"
+            }, "sd_ui_notification_warning");
+        }
+
+        public void AddMeteorShowerTargetingOurPlanet(Planet p)
+        {
+            AddNotification(new Notification
+            {
+                Message         = $"{p.Name}{Localizer.Token(GameText.MeteorShowerWarning)}",
+                ReferencedItem1 = p.ParentSystem,
+                IconPath        = p.IconPath,
+                Action          = "SnapToSystem"
+            }, "sd_notify_alert");
+        }
+
         public void AddRandomEventNotification(string message, string iconPath, string action, Planet p)
         {
             AddNotification(new Notification

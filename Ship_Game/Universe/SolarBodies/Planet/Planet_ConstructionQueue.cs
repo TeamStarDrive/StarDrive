@@ -43,7 +43,7 @@ namespace Ship_Game
                 if (b.BuildOnlyOnce && IsBuiltOrQueuedWithinEmpire(b))
                     continue;
                 // Terraformer Limit check
-                if (b.IsTerraformer && TerraformersHere + ConstructionQueue.Count(i => i.isBuilding && i.Building.IsTerraformer) >= TerraformerLimit)
+                if (b.IsTerraformer && (!Terraformable || TerraformersHere + ConstructionQueue.Count(i => i.isBuilding && i.Building.IsTerraformer) >= TerraformerLimit))
                     continue;
                 // If the building is still a candidate after all that, then add it to the list!
                 canBuild.Add(b);

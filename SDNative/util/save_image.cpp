@@ -20,7 +20,7 @@ struct Color // BGRA
 
 struct RGB
 {
-	byte r, g, b;
+    byte r, g, b;
 };
 struct RGBA
 {
@@ -51,44 +51,44 @@ DLLEXPORT void __stdcall ConvertBGRAtoRGBA(int w, int h, Color* image)
 std::unique_ptr<RGBA[]> CopyBGRAtoRGBA(int w, int h, const Color* src)
 {
     const int count = w * h;
-	std::unique_ptr<RGBA[]> storage { new RGBA[count] };
-	RGBA* dst = storage.get();
+    std::unique_ptr<RGBA[]> storage { new RGBA[count] };
+    RGBA* dst = storage.get();
     for (int i = 0; i < count; ++i)
     {
-    	dst[i].r = src[i].r;
-    	dst[i].g = src[i].g;
-    	dst[i].b = src[i].b;
-    	dst[i].a = src[i].a;
+        dst[i].r = src[i].r;
+        dst[i].g = src[i].g;
+        dst[i].b = src[i].b;
+        dst[i].a = src[i].a;
     }
-	return storage;
+    return storage;
 }
 
 std::unique_ptr<RGB[]> CopyBGRAtoRGB(int w, int h, const Color* src)
 {
     const int count = w * h;
-	std::unique_ptr<RGB[]> storage { new RGB[count] };
-	RGB* dst = storage.get();
+    std::unique_ptr<RGB[]> storage { new RGB[count] };
+    RGB* dst = storage.get();
     for (int i = 0; i < count; ++i)
     {
-    	dst[i].r = src[i].r;
-    	dst[i].g = src[i].g;
-    	dst[i].b = src[i].b;
+        dst[i].r = src[i].r;
+        dst[i].g = src[i].g;
+        dst[i].b = src[i].b;
     }
-	return storage;
+    return storage;
 }
 
 std::unique_ptr<RGB[]> CopyRGBAtoRGB(int w, int h, const RGBA* src)
 {
     const int count = w * h;
-	std::unique_ptr<RGB[]> storage { new RGB[count] };
-	RGB* dst = storage.get();
+    std::unique_ptr<RGB[]> storage { new RGB[count] };
+    RGB* dst = storage.get();
     for (int i = 0; i < count; ++i)
     {
-    	dst[i].r = src[i].r;
-    	dst[i].g = src[i].g;
-    	dst[i].b = src[i].b;
+        dst[i].r = src[i].r;
+        dst[i].g = src[i].g;
+        dst[i].b = src[i].b;
     }
-	return storage;
+    return storage;
 }
 
 /**
@@ -113,43 +113,56 @@ DLLEXPORT const char* __stdcall SaveImageAsPNG(
 DLLEXPORT const char* __stdcall SaveImageAsDDS(
     const char* filename, int w, int h, Color* rgbaImage, DDSFlags flags)
 {
-    int error;
-	if (flags & Dxt1)
-	{
-		std::unique_ptr<RGB[]> temp;
-	    if (flags & SourceBGRA)
-	    	temp = CopyBGRAtoRGB(w, h, rgbaImage);
-        else
-	        temp = CopyRGBAtoRGB(w, h, (const RGBA*)rgbaImage);
-		
-		const byte* img = (const byte*)temp.get();
-		error = save_image_as_DDS(filename, w, h, 3, img);
-    }
-    else if (flags & Dxt5)
+    try
     {
-		const byte* img = (const byte*)rgbaImage;
-		std::unique_ptr<RGBA[]> temp;
-	    if (flags & SourceBGRA)
-		{
-	    	temp = CopyBGRAtoRGBA(w, h, rgbaImage);
-	    	img = (const byte*)temp.get();
-		}
+        int error;
+        if (flags & Dxt1)
+        {
+            std::unique_ptr<RGB[]> temp;
+            if (flags & SourceBGRA)
+                temp = CopyBGRAtoRGB(w, h, rgbaImage);
+            else
+                temp = CopyRGBAtoRGB(w, h, (const RGBA*)rgbaImage);
+        
+            const byte* img = (const byte*)temp.get();
+            error = save_image_as_DDS(filename, w, h, 3, img);
+        }
+        else if (flags & Dxt5)
+        {
+            const byte* img = (const byte*)rgbaImage;
+            std::unique_ptr<RGBA[]> temp;
+            if (flags & SourceBGRA)
+            {
+                temp = CopyBGRAtoRGBA(w, h, rgbaImage);
+                img = (const byte*)temp.get();
+            }
+            else
+            {
+                // RGBA: no additional work required
+            }
+            error = save_image_as_DDS(filename, w, h, 4, img);
+        }
         else
         {
-        	// RGBA: no additional work required
+            return "Require at least Dxt1 or Dxt5 flags to be set!";
         }
-    	error = save_image_as_DDS(filename, w, h, 4, img);
-    }
-    else
-    {
-	    return "Require at least Dxt1 or Dxt5 flags to be set!";
-    }
 
-    if (error == 1)
-        return "Invalid parameters for DDS";
-    if (error == 2)
-        return "Failed to create DDS file. Directory not created? File already opened?";
-    return nullptr;
+        if (error == 1)
+            return "Invalid parameters for DDS";
+        if (error == 2)
+            return "Failed to create DDS file. Directory not created? File already opened?";
+        return nullptr;
+    }
+    catch (const std::exception& e)
+    {
+        static std::string error_storage;
+        error_storage = "SaveImageAsDDS failed with exception: " + std::string{e.what()};
+        return error_storage.c_str();
+    }
+    catch (...)
+    {
+        return "SaveImageAsDDS failed with unknown SEH exception";
+    }
 }
 
 struct Image
@@ -262,14 +275,14 @@ DLLEXPORT void __stdcall FillPixels(Image dst, int x, int y, Color color, int w,
 
 DLLEXPORT int __stdcall HasTransparentPixels(Image img)
 {
-	for (int y = 0; y < img.height; ++y)
-	{
-		Color* row = &img.data[img.width * y];
-		for (int x = 0; x < img.width; ++x)
-		{
+    for (int y = 0; y < img.height; ++y)
+    {
+        Color* row = &img.data[img.width * y];
+        for (int x = 0; x < img.width; ++x)
+        {
             if (row[x].a != byte{255})
                 return true;
-		}
-	}
-	return false; // all pixel Alphas were 255
+        }
+    }
+    return false; // all pixel Alphas were 255
 }

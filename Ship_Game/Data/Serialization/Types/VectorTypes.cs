@@ -24,6 +24,12 @@ namespace Ship_Game.Data.Serialization.Types
             Error(value, "Vector2 -- expected [float,float]");
             return Vector2.Zero;
         }
+
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            var v = (Vector2)obj;
+            context.Writer.Write($"[{v.X.String()},{v.Y.String()}]");
+        }
         
         public override void Serialize(BinaryWriter writer, object obj)
         {
@@ -65,6 +71,12 @@ namespace Ship_Game.Data.Serialization.Types
             Error(value, "Vector3 -- expected [float,float,float]");
             return Vector3.Zero;
         }
+
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            var v = (Vector3)obj;
+            context.Writer.Write($"[{v.X.String()},{v.Y.String()},{v.Z.String()}]");
+        }
         
         public override void Serialize(BinaryWriter writer, object obj)
         {
@@ -101,6 +113,12 @@ namespace Ship_Game.Data.Serialization.Types
             }
             Error(value, "Vector4 -- expected [float,float,float,float]");
             return Vector4.Zero;
+        }
+
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            var v = (Vector4)obj;
+            context.Writer.Write($"[{v.X.String()},{v.Y.String()},{v.Z.String()},{v.W.String()}]");
         }
         
         public override void Serialize(BinaryWriter writer, object obj)
@@ -149,6 +167,12 @@ namespace Ship_Game.Data.Serialization.Types
             }
             Error(value, "Point -- expected [int,int]");
             return Point.Zero;
+        }
+
+        public override void Serialize(TextSerializerContext context, object obj)
+        {
+            var p = (Point)obj;
+            context.Writer.Write($"[{p.X},{p.Y}]");
         }
         
         public override void Serialize(BinaryWriter writer, object obj)
