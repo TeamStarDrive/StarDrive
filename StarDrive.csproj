@@ -212,6 +212,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\Compnonents\BudgetPriorities.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\MapSerializer.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\ParticleManager.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\ParticleSettings.cs" />
