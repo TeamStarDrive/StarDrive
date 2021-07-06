@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.IO;
 using System.Text;
 
 namespace Ship_Game.Data.Yaml
@@ -182,9 +183,9 @@ namespace Ship_Game.Data.Yaml
 
         public string SerializedText()
         {
-            var sb = new StringBuilder();
-            SerializeTo(sb);
-            return sb.ToString();
+            var sw = new StringWriter();
+            SerializeTo(sw);
+            return sw.ToString();
         }
 
         public bool IsLeafNode => Count == 0;
@@ -195,6 +196,18 @@ namespace Ship_Game.Data.Yaml
             {
                 if (SubNodes == null) return true;
                 foreach (YamlNode node in SubNodes)
+                    if (node.Count > 0 || node.ValueArray != null)
+                        return false;
+                return true;
+            }
+        }
+
+        public bool SequenceIsPrimitives
+        {
+            get
+            {
+                if (SeqNodes == null) return false;
+                foreach (YamlNode node in SeqNodes)
                     if (node.Count > 0) return false;
                 return true;
             }
@@ -209,107 +222,142 @@ namespace Ship_Game.Data.Yaml
             return true;
         }
 
-        public static StringBuilder EscapeString(StringBuilder sb, string text)
+        public static TextWriter EscapeString(TextWriter tw, string text)
         {
-            sb.Append('"');
+            tw.Write('"');
             foreach (char ch in text)
             {
                 switch (ch)
                 {
-                    case '\\': sb.Append("\\\\"); break;
-                    case '\r': sb.Append("\\r");  break;
-                    case '\n': sb.Append("\\n");  break;
-                    case '\t': sb.Append("\\t");  break;
-                    case '\'': sb.Append("\\'");  break;
-                    case '"':  sb.Append("\\\""); break;
-                    default:   sb.Append(ch);     break;
+                    case '\\': tw.Write("\\\\"); break;
+                    case '\r': tw.Write("\\r");  break;
+                    case '\n': tw.Write("\\n");  break;
+                    case '\t': tw.Write("\\t");  break;
+                    case '\'': tw.Write("\\'");  break;
+                    case '"':  tw.Write("\\\""); break;
+                    default:   tw.Write(ch);     break;
                 }
             }
-            return sb.Append('"');
+            tw.Write('"');
+            return tw;
         }
 
-        static StringBuilder Append(StringBuilder sb, object o)
+        static TextWriter Write(TextWriter tw, object o)
         {
             switch (o)
             {
-                case bool boolean: return sb.Append(boolean ? "true" : "false");
-                case int integer:  return sb.Append(integer);
-                case float number: return sb.Append(number.ToString(CultureInfo.InvariantCulture));
+                case bool boolean: tw.Write(boolean ? "true" : "false"); break;
+                case int integer:  tw.Write(integer); break;
+                case float number: tw.Write(number.ToString(CultureInfo.InvariantCulture)); break;
+                case double number: tw.Write(number.ToString(CultureInfo.InvariantCulture)); break;
                 case string str:
                     if (EscapeNotNeeded(str))
-                        return sb.Append(str);
-                    return EscapeString(sb, str);
-                case object[] arr:
-                    sb.Append('[');
-                    for (int i = 0; i < arr.Length; ++i)
                     {
-                        Append(sb, arr[i]);
-                        if (i != arr.Length-1)
-                            sb.Append(", ");
+                        tw.Write(str);
+                        break;
                     }
-                    return sb.Append(']');
+                    EscapeString(tw, str);
+                    break;
+                case object[] arr:
+                    tw.Write('[');
+                    for (int i = 0; i < arr.Length;)
+                    {
+                        Write(tw, arr[i]);
+                        if (++i != arr.Length)
+                            tw.Write(',');
+                    }
+                    tw.Write(']');
+                    break;
                 //case null:
                 //    return sb.Append("null");
             }
-            return sb;
+            return tw;
         }
 
-        static void AppendSpaces(StringBuilder sb, int numSpaces)
+        static void AppendSpaces(TextWriter tw, int numSpaces)
         {
-            for (; numSpaces >= 4; numSpaces -= 4) sb.Append("    ");
-            for (; numSpaces >= 2; numSpaces -= 2) sb.Append("  ");
-            for (; numSpaces > 0; --numSpaces) sb.Append(' ');
+            for (; numSpaces >= 4; numSpaces -= 4) tw.Write("    ");
+            for (; numSpaces >= 2; numSpaces -= 2) tw.Write("  ");
+            for (; numSpaces > 0; --numSpaces) tw.Write(' ');
         }
 
-        public void SerializeTo(StringBuilder sb, int depth = 0, bool sequenceElement = false)
+        public void SerializeTo(TextWriter tw, int depth = 0, 
+                                bool sequenceElement = false,
+                                bool noSpacePrefix = false)
         {
-            AppendSpaces(sb, depth);
+            if (noSpacePrefix == false)
+                AppendSpaces(tw, depth);
 
             if (sequenceElement)
-                sb.Append("- ");
+                tw.Write("- ");
 
             if (Key != null)
             {
-                Append(sb, Key).Append(": ");
+                Write(tw, Key).Write(':');
             }
             if (Value != null)
             {
-                Append(sb, Value);
+                tw.Write(' ');
+                Write(tw, Value);
             }
 
             if (SubNodes != null)
             {
-                if (Value == null && SubNodes.Count <= 2 && NodesAreLeafNodes)
+                if (Value == null && SubNodes.Count <= 3 && NodesAreLeafNodes)
                 {
-                    sb.Append("{ ");
+                    if (!sequenceElement)
+                        tw.Write(' ');
+                    tw.Write("{ ");
                     for (int i = 0; i < SubNodes.Count; ++i)
                     {
                         YamlNode node = SubNodes[i];
-                        Append(sb, node.Key).Append(": ");
-                        Append(sb, node.Value);
+                        Write(tw, node.Key).Write(':');
+                        Write(tw, node.Value);
                         if (i != SubNodes.Count-1)
-                            sb.Append(',');
+                            tw.Write(", ");
                     }
-                    sb.AppendLine(" }");
+                    tw.Write(" }\n");
                 }
                 else
                 {
-                    sb.AppendLine();
-                    foreach (YamlNode child in SubNodes)
-                        child.SerializeTo(sb, depth+2);
+                    if (!sequenceElement)
+                        tw.Write('\n');
+                    
+                    for (int i = 0; i < SubNodes.Count; ++i)
+                    {
+                        YamlNode node = SubNodes[i];
+                        bool noSpaces = sequenceElement && i == 0;
+                        node.SerializeTo(tw, depth+2, noSpacePrefix: noSpaces);
+                    }
                 }
             }
             else if (SeqNodes != null)
             {
-                sb.AppendLine();
-                foreach (YamlNode element in SeqNodes)
+                if (Value == null && SequenceIsPrimitives)
                 {
-                    element.SerializeTo(sb, depth+2, sequenceElement: true);
+                    if (!sequenceElement)
+                        tw.Write(' ');
+                    tw.Write('[');
+                    for (int i = 0; i < SeqNodes.Count;)
+                    {
+                        Write(tw, SeqNodes[i].Value);
+                        if (++i != SeqNodes.Count)
+                            tw.Write(',');
+                    }
+                    tw.Write("]\n");
+                }
+                else
+                {
+                    tw.Write('\n');
+                    foreach (YamlNode element in SeqNodes)
+                    {
+                        element.SerializeTo(tw, depth+2, sequenceElement: true);
+                    }
                 }
             }
             else
             {
-                sb.AppendLine();
+                tw.Write('\n');
             }
         }
     }
