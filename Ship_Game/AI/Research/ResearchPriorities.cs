@@ -59,12 +59,12 @@ namespace Ship_Game.AI.Research
 
             return techCategoryPrioritized;
         }
-        
+
         void AddDebugLog(Map<string, int> priority)
         {
             int maxNameLength = priority.Keys.Max(name => name.Length);
             maxNameLength    += 5;
-            foreach (var kv in priority) 
+            foreach (var kv in priority)
                 DebugLog($"{kv.Key.PadRight(maxNameLength, '.')} {kv.Value}");
         }
 

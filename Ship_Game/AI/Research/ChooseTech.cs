@@ -31,7 +31,7 @@ namespace Ship_Game.AI.Research
         {
             OwnerEmpire    = empire;
             Strategy       = OwnerEmpire.Research.Strategy;
-            ResearchMods   = new ResearchOptions();
+            ResearchMods   = new ResearchOptions(empire);
             LineFocus      = new ShipTechLineFocusing(empire, ResearchMods);
             ScriptType     = Strategy?.TechPath?.Count > 0 ? ResearchStrategy.Scripted : ResearchStrategy.Random;
         }

@@ -1,0 +1,58 @@
+# specifies cost multipliers or weights for research
+# Omitting a value with set it to hard coded defaults
+-ResearchSettings:
+# The portrait name of the empire.
+# "All" applies to all empires and is applied first.
+ PortraitName:All
+ 
+ # Technology Type modifiers
+ TechnologyTypeModifiers: 
+  General: 1  
+ 
+ # Ship cost modifiers used with ship picker.
+ # Decreases or increases the tech cost of ship
+ # making it more or less likely to be choosen.
+ ShipCostModifiers: 
+    Carrier:        0.095
+    Bomber:         0.95
+    TroopShip:      0.95
+    Support:        0.95
+    ColonyShip:     2
+    Freighter:      2
+    AllHulls:       1
+    Orbitals:       2
+    GroundCombat:   0.95
+# Randomize is a percentage cost of a ship used to generate 
+# a random ranging from -percentage to postive pecentage.
+# The percentage is then added to the cost of the ship.
+    Randomize: 0
+# Line Focus effectively decreases the cost of a ship
+# by the number of already known techs the ship has 
+# when deciding to research its technologies. 
+# this value is the weight added for each known tech. 
+# Line Focus is calculated for each ship role. 
+# Line focusing can be disabled by setting this to 0
+    LineFocusIntensity: 1
+    
+ # Empires divide research into areas when choosing what
+ # to research. This value is the random percent range to
+ # choose this area. its modified internally by need calculations
+ # and empire personality. 
+ # The base percentage of 1 means 1-100%
+ # these values can be seen in the debug info "tech" screen.
+ ResearchAreaModifiers: 
+  Colonization:     1.00
+  Economic:         1.00
+  GroundCombat:     0.5
+  Industry:         1.00
+  General:          1.00
+  Research:         1.00
+  ShipTech:         1.00
+  
+# Empire specific modifiers. 
+# these will override the "All" settings.
+-ResearchSettings:
+ PortraitName:Cordrazine
+ 
+ TechnologyTypeModifiers: 
+  General: 1  
