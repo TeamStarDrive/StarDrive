@@ -48,6 +48,7 @@ namespace Ship_Game
         public static void LoadAll()
         {
             GameLoadingScreen.SetStatus("LoadParticles");
+            
             FileInfo file = ResourceManager.GetModOrVanillaFile("3DParticles/Particles.yaml");
             LoadParticles(file);
             GameBase.ScreenManager.AddHotLoadTarget(null, "Particles", file.FullName, LoadParticles);
@@ -61,6 +62,8 @@ namespace Ship_Game
 
         static void LoadParticles(FileInfo file)
         {
+            ResourceManager.RootContent.LoadEffect("3DParticles/ParticleEffect.fx");
+
             Settings.Clear();
             using (var parser = new YamlParser(file))
             {
