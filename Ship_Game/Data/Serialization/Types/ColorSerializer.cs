@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
@@ -44,10 +45,10 @@ namespace Ship_Game.Data.Serialization.Types
             return Color.Red;
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
-            var color = (Color)obj;
-            context.Writer.Write($"[{color.R},{color.G},{color.B},{color.A}]");
+            var c = (Color)obj;
+            parent.Value = new object[]{ (int)c.R, (int)c.G, (int)c.B, (int)c.A };
         }
 
         public override void Serialize(BinaryWriter writer, object obj)

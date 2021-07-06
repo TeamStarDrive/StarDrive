@@ -54,57 +54,29 @@ namespace Ship_Game.Data.Serialization.Types
             return base.Deserialize(node); // try to deserialize value as Array
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
             // [StarData] Map<Type, float> Settings;
             // Settings:
             //   House: 1.0
             //   Ship: 2.0
             var dict = (IDictionary)obj;
-            int count = dict.Count;
-            var tw = context.Writer;
-
-            if (dict.Count == 0)
+            if (dict.Count != 0)
             {
-                tw.Write(" {}");
-                return;
-            }
-
-            // [StarData] Map<string, float> Primitives;
-            // Primitives: {one:1,two:2,three:3}
-            if (count <= 3 && !ValSerializer.IsUserClass)
-            {
-                tw.Write(" { ");
-                int i = 0;
                 var e = dict.GetEnumerator();
                 while (e.MoveNext())
                 {
-                    KeySerializer.Serialize(context, e.Key);
-                    tw.Write(':');
-                    ValSerializer.Serialize(context, e.Value);
-                    if (++i != count)
-                        tw.Write(", ");
+                    var childObject = new YamlNode();
+                    parent.AddSubNode(childObject);
+
+                    // first get value for the key
+                    KeySerializer.Serialize(childObject, e.Key);
+                    childObject.Key = childObject.Value;
+
+                    // get the value
+                    childObject.Value = null;
+                    ValSerializer.Serialize(childObject, e.Value);
                 }
-                tw.Write(" }");
-            }
-            else
-            {
-                tw.Write('\n');
-                context.Depth += 2;
-                string prefixSpaces = new string(' ', context.Depth);
-                
-                int i = 0;
-                var e = dict.GetEnumerator();
-                while (e.MoveNext())
-                {
-                    tw.Write(prefixSpaces);
-                    KeySerializer.Serialize(context, e.Key);
-                    tw.Write(": ");
-                    ValSerializer.Serialize(context, e.Value);
-                    if (++i != count)
-                        tw.Write('\n');
-                }
-                context.Depth -= 2;
             }
         }
 

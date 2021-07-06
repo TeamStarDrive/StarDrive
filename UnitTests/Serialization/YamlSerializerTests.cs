@@ -30,7 +30,7 @@ namespace UnitTests.Serialization
             var ps = new ParticleSettings
             {
                 Name = "Flame",
-                TextureName = "texture1",
+                TextureName = "trail 1.png",
                 MaxParticles = 10,
                 Duration = TimeSpan.FromSeconds(123.5),
                 DurationRandomness = 1,
@@ -55,8 +55,8 @@ namespace UnitTests.Serialization
             string text = SerializeToString(ps);
             string yaml =
               @"ParticleSettings:
-                  Name: ""Flame""
-                  TextureName: ""texture1""
+                  Name: Flame
+                  TextureName: ""trail 1.png""
                   MaxParticles: 10
                   Duration: 123.5
                   DurationRandomness: 1
@@ -137,9 +137,9 @@ namespace UnitTests.Serialization
             string yaml =
               @"SmallObjectList:
                   NamedValues:
-                    - { Key: House, Value: 1.1 }
-                    - { Key: Plane, Value: 2.2 }
-                    - { Key: Ship, Value: 3.3 }
+                    - { Key:House, Value:1.1 }
+                    - { Key:Plane, Value:2.2 }
+                    - { Key:Ship, Value:3.3 }
                 ".Replace("\r\n", "\n").Replace("                ", "");
             Assert.That.Equal(yaml, text);
         }
