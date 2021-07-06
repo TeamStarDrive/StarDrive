@@ -211,7 +211,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 if (!ship.Active)
                     continue;
 
-                if (ship.loyalty != EmpireManager.Player && ship.fleet == null)
+                if (ship.loyalty != EmpireManager.Player && !ship.loyalty.isFaction && ship.fleet == null)
                 {
                     if (!ship.AddedOnLoad) ship.loyalty.AddShipToManagedPools(ship);
                 }
@@ -396,6 +396,12 @@ namespace Ship_Game.GameScreens.LoadGame
             p.RestoreWantedOrbitals(psData.WantedPlatforms, psData.WantedStations, psData.WantedShipyards);
             p.RestoreManualBudgets(psData.ManualCivilianBudget, psData.ManualGrdDefBudget, psData.ManualSpcDefBudget);
             p.SetHasLimitedResourceBuilding(psData.HasLimitedResourcesBuildings);
+            p.SetManualFoodImportSlots(psData.ManualFoodImportSlots);
+            p.SetManualProdImportSlots(psData.ManualProdImportSlots);
+            p.SetManualColoImportSlots(psData.ManualColoImportSlots);
+            p.SetManualFoodExportSlots(psData.ManualFoodExportSlots);
+            p.SetManualProdExportSlots(psData.ManualProdExportSlots);
+            p.SetManualColoExportSlots(psData.ManualColoExportSlots);
 
             if (p.HasRings)
                 p.RingTilt = RandomMath.RandomBetween(-80f, -45f);

@@ -629,8 +629,7 @@ namespace Ship_Game.Fleets
 
             if (EndInvalidTask(!eventBuildingFound
                                || targetPlanet.Owner != null && !Owner.IsAtWarWith(targetPlanet.Owner)
-                               || !StillInvasionEffective(task)
-                               || !StillCombatEffective(task)))
+                               || !MajorityTroopShipsAreInWell() && (!StillInvasionEffective(task) || !StillCombatEffective(task))))
             {
                 return;
             }
@@ -970,7 +969,8 @@ namespace Ship_Game.Fleets
                                         && EmpireManager.Remnants.GetFleetsDict().Values.ToArray()
                                            .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == task.TargetPlanet.ParentSystem);
 
-            EndInvalidTask(!invasionEffective || !combatEffective || remnantsTargeting);
+            EndInvalidTask(remnantsTargeting 
+                           || !MajorityTroopShipsAreInWell() && (!invasionEffective || !combatEffective));
         }
 
         bool TryGetNewTargetPlanet(MilitaryTask task, out Planet newTarget)
@@ -1921,6 +1921,26 @@ namespace Ship_Game.Fleets
 
             DebugInfo(task, $"Enemy Strength too high. Them: {enemyStrength} Us: {GetStrength()}");
             return false;
+        }
+
+
+        // Most of out troop ships are committed (they are in te planet's gravity well)
+        bool MajorityTroopShipsAreInWell()
+        {
+            int numTroopShips    = 0;
+            int troopShipsInWell = 0;
+            for (int i = 0; i < Ships.Count; i++)
+            {
+                Ship ship = Ships[i];
+                if (ship.IsTroopShip || ship.DesignRole == ShipData.RoleName.troopShip)
+                {
+                    numTroopShips += 1;
+                    if (ship.IsInhibitedByUnfriendlyGravityWell)
+                        troopShipsInWell += 1;
+                }
+            }
+
+            return troopShipsInWell / (float)numTroopShips.LowerBound(1) > 0.75f;
         }
 
         bool StillInvasionEffective(MilitaryTask task)

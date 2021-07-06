@@ -133,15 +133,18 @@ namespace Ship_Game
 
         static void Meteors()
         {
-            if (Empire.Universe.StarDate < 1050 || !GetAffectedPlanet(Potentials.Habitable, out Planet planet))
+            if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet))
                 return;
 
-            int rand       = RandomMath.RollDie(10);
-            int numMeteors = RandomMath.IntBetween(rand * 3, rand * 10);
+            int rand       = RandomMath.RollDie(12);
+            int numMeteors = RandomMath.IntBetween(rand * 3, rand * 10).Clamped(3, (int)Empire.Universe.StarDate - 1000);
             CreateMeteors(planet, numMeteors);
             Log.Info($"{numMeteors} Meteors Created in {planet.ParentSystem.Name} targeting {planet.Name}");
 
-            // todo notify player
+            if (planet.Owner == EmpireManager.Player)
+                Empire.Universe.NotificationManager.AddMeteorShowerTargetingOurPlanet(planet);
+            else if (planet.ParentSystem.HasPlanetsOwnedBy(EmpireManager.Player))
+                Empire.Universe.NotificationManager.AddMeteorShowerInSystem(planet);
         }
 
         static void CreateMeteors(Planet p, int numMeteors)

@@ -502,14 +502,15 @@ namespace Ship_Game.Data.Yaml
         ///  ENG: "Artillery Order"
         /// ...
         /// </summary>
-        public Array<KeyValuePair<object, T>> DeserializeMap<T>() where T : new()
+        public Array<KeyValuePair<TKey, TValue>> DeserializeMap<TKey, TValue>() where TValue : new()
         {
-            var items = new Array<KeyValuePair<object, T>>();
-            var ser = new YamlSerializer.YamlSerializer(typeof(T));
+            var items = new Array<KeyValuePair<TKey, TValue>>();
+            var ser = new YamlSerializer.YamlSerializer(typeof(TValue));
             foreach (YamlNode child in Root)
             {
-                var val = (T)ser.Deserialize(child);
-                items.Add(new KeyValuePair<object, T>(child.Key, val));
+                var key = (TKey)child.Key;
+                var val = (TValue)ser.Deserialize(child);
+                items.Add(new KeyValuePair<TKey, TValue>(key, val));
             }
             return items;
         }

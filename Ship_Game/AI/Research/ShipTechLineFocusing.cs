@@ -9,15 +9,16 @@ namespace Ship_Game.AI.Research
     {
         readonly Empire OwnerEmpire;
         public Ship BestCombatShip { get; private set; }
-        public ShipPicker PickShipToResearch = new ShipPicker();
+        public ShipPicker PickShipToResearch;
         ResearchOptions ResearchMods;
 
         void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
 
         public ShipTechLineFocusing (Empire empire, ResearchOptions researchMods)
         {
-            OwnerEmpire  = empire;
-            ResearchMods = researchMods;
+            OwnerEmpire        = empire;
+            ResearchMods       = researchMods;
+            PickShipToResearch = new ShipPicker(researchMods);
         }
 
         public Array<TechEntry> LineFocusShipTechs(string modifier, Array<TechEntry> availableTechs, string scriptedOrRandom)
@@ -200,44 +201,12 @@ namespace Ship_Game.AI.Research
             return keyChosen;
         }
 
-        bool GetLineFocusedShip(Array<Ship> researchableShips, HashSet<string> shipTechs)
-        {
-            // Bucket ships by how many techs they have that are not already researched
-            SortedList<int, Array<Ship>> techCountSorter = TechCountSorter(researchableShips,shipTechs);
-            if (techCountSorter.Count == 0)
-                return false; // Bail if there aren't any ships to research
+        //bool GetLineFocusedShip(Array<Ship> researchableShips, HashSet<string> shipTechs)
+        //{
+        //    BestCombatShip = PickShipToResearch.FindCheapestShipInList(OwnerEmpire, researchableShips, ResearchMods);
 
-            int techCountKey = PickRandomKey(techCountSorter, 1.5f);
-
-            SortedList<int, Array<Ship>> techSorter = TechCostSorter(techCountSorter[techCountKey]);
-            int techKey = PickRandomKey(techSorter, 1.5f);
-
-            /* This is part that chooses the  hull
-            takes the first entry from the least techs needed list.
-             then sorts it by the number of techs needed for the hull
-             */
-
-            SortedList<int, Array<Ship>> hullSorter = HullSorter(techSorter, techKey);
-            int hullKey = PickRandomKey(hullSorter, 2);
-            //sort roles
-            SortedList<int, Array<Ship>> roleSorter = RoleSorter(hullSorter, hullKey);
-            int roleKey = PickRandomKey(roleSorter, roleSorter.Count);
-
-            //choose Ship
-            var ships = roleSorter[roleKey];
-
-            for (int x = 0; x <= ships.Count -1; x++)
-            {
-                var ship     = ships[x];
-                float chance = (float)(x + 1) / ships.Count;
-                float rand   = RandomMath.RandomBetween(.01f, 1f);
-
-                if (rand > chance)
-                    continue;
-                return (BestCombatShip = ship) != null;
-            }
-            return false;
-        }
+        //    return BestCombatShip != null;
+        //}
 
         SortedList<int, Array<Ship>> RoleSorter(SortedList<int, Array<Ship>> hullSorter, int hullKey)
         {
@@ -286,7 +255,7 @@ namespace Ship_Game.AI.Research
             {
                 int costNormalizer = 5;
                 int techCost = OwnerEmpire.TechCost(shortTermBest);
-                techCost /=  costNormalizer; 
+                techCost /=  costNormalizer;
                 return techCost;
             });
         }
@@ -319,8 +288,8 @@ namespace Ship_Game.AI.Research
 
         HashSet<string> FindBestShip(string modifier, Array<TechEntry> availableTechs, string command)
         {
-            var shipTechs = new HashSet<string>();
-            var nonShipTechs = new HashSet<string>();
+            var shipTechs     = new HashSet<string>();
+            var nonShipTechs  = new HashSet<string>();
             bool needShipTech = modifier.Contains("Ship");
 
             foreach (TechEntry techEntry in availableTechs)
@@ -346,27 +315,17 @@ namespace Ship_Game.AI.Research
             Array<Ship> racialShips = FilterRacialShips();
             Array<Ship> researchableShips = GetResearchableShips(racialShips);
 
-            if (researchableShips.Count <= 0) 
+            if (researchableShips.Count <= 0)
                 return nonShipTechs;
 
             // If not using a script dont get a best ship.
             // Or if the modder decided they want to use short term researchable tech only
-            if (command != "RANDOM" || !EnableTechLineFocusing)
+            if (command != "RANDOM" || DisableShipPicker)
             {
-                if (!DisableShipPicker)
-                    return UseShipPicker(researchableShips, shipTechs, nonShipTechs);
-
                 return UseShipTechProgression(researchableShips, shipTechs, nonShipTechs);
             }
-
-            // Now find a new ship to research that uses most of the tech we already have.
-            GetLineFocusedShip(researchableShips, shipTechs);
-            return BestCombatShip != null ? UseBestShipTechs(shipTechs, nonShipTechs) : shipTechs;
-        }
-
-        private HashSet<string> UseShipPicker(Array<Ship> researchableShips, HashSet<string> shipTechs, HashSet<string> nonShipTechs)
-        {
-            BestCombatShip = PickShipToResearch.FindCheapestShipInList(OwnerEmpire, researchableShips, nonShipTechs, ResearchMods);
+            // choose techs by cheapest ship to research while attempting to also research ships in the same tech tree
+            BestCombatShip = PickShipToResearch.FindCheapestShipInList(OwnerEmpire, researchableShips, nonShipTechs);
             return UseBestShipTechs(shipTechs, nonShipTechs);
         }
 
