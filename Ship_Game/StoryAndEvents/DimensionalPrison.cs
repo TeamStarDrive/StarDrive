@@ -71,11 +71,11 @@ namespace Ship_Game
             manager.GraphicsDevice.RenderState.CullMode = CullMode.None;
             for (int i = 0; i < 20; i++)
             {
-                screen.Particles.Sparks.AddParticleThreadA(new Vector3(PlaformCenter, 0f) + GenerateRandomWithin(100f), GenerateRandomWithin(25f));
+                screen.Particles.Sparks.AddParticle(new Vector3(PlaformCenter, 0f) + GenerateRandomWithin(100f), GenerateRandomWithin(25f));
             }
             if (RandomMath.RandomBetween(0f, 100f) > 97f)
             {
-                screen.Particles.Flash.AddParticleThreadA(new Vector3(PlaformCenter, 0f), Vector3.Zero);
+                screen.Particles.Flash.AddParticle(new Vector3(PlaformCenter, 0f));
             }
             Prison.Draw(manager, screen.View, screen.Projection, 1f);
         }

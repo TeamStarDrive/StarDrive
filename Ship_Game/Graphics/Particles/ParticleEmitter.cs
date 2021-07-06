@@ -44,7 +44,7 @@ namespace Ship_Game
                         position.Z += RandomMath2.RandomBetween(-jitter, jitter);
                         jitter *=.75f;
                     }
-                    ParticleSystem.AddParticleThreadA(position, velocity);
+                    ParticleSystem.AddParticle(position, velocity);
                 }
                 TimeLeftOver = timeToSpend;
             }
@@ -70,7 +70,7 @@ namespace Ship_Game
                     timeToSpend = timeToSpend - TimeBetweenParticles;
                     float mu = currentTime / elapsedTime;
                     Vector3 position = Vector3.Lerp(PreviousPosition, newPosition, mu);
-                    ParticleSystem.AddParticleThreadA(position, velocity);
+                    ParticleSystem.AddParticle(position, velocity);
                 }
                 TimeLeftOver = timeToSpend;
             }

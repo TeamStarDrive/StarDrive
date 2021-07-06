@@ -60,9 +60,9 @@ namespace Ship_Game
             {
                 TargetPlanet.PlayPlanetSfx("sd_bomb_impact_01", Position);
                 ExplosionManager.AddExplosionNoFlames(Position, 200f, 7.5f);
-                Empire.Universe.Particles.Flash.AddParticleThreadB(Position, Vector3.Zero);
+                Empire.Universe.Particles.Flash.AddParticle(Position, Vector3.Zero);
                 for (int i = 0; i < 50; i++)
-                    Empire.Universe.Particles.Explosion.AddParticleThreadB(Position, Vector3.Zero);
+                    Empire.Universe.Particles.Explosion.AddParticle(Position, Vector3.Zero);
             }
         }
 

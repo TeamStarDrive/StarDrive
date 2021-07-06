@@ -334,7 +334,7 @@ namespace Ship_Game.Gameplay
             Velocity             = Speed * newDirection;
             Rotation             = Velocity.Normalized().ToRadians();
             if (RandomMath.RollDie(2) == 2)
-                Empire.Universe.Particles.BeamFlash.AddParticleThreadB(GetBackgroundPos(deflectionPoint), Vector3.Zero);
+                Empire.Universe.Particles.BeamFlash.AddParticle(GetBackgroundPos(deflectionPoint), Vector3.Zero);
         }
 
         public void CreateMirv(GameplayObject target)
@@ -603,7 +603,7 @@ namespace Ship_Game.Gameplay
                     if (FlashExplode && CloseEnoughForFlashExplode)
                     {
                         GameAudio.PlaySfxAsync(DieCueName, Emitter);
-                        Empire.Universe.Particles.Flash.AddParticleThreadB(origin, Vector3.Zero);
+                        Empire.Universe.Particles.Flash.AddParticle(origin, Vector3.Zero);
                     }
                 }
 
@@ -620,7 +620,7 @@ namespace Ship_Game.Gameplay
                 if (FlashExplode && CloseEnoughForFlashExplode)
                 {
                     GameAudio.PlaySfxAsync(DieCueName, Emitter);
-                    Empire.Universe.Particles.Flash.AddParticleThreadB(origin, Vector3.Zero);
+                    Empire.Universe.Particles.Flash.AddParticle(origin, Vector3.Zero);
                 }
             }
         }
@@ -753,10 +753,10 @@ namespace Ship_Game.Gameplay
                     for (int i = 0; i < 20; i++)
                     {
                         Vector3 random = UniverseRandom.Vector3D(250f) * right;
-                        Empire.Universe.Particles.Flame.AddParticleThreadA(center, random);
+                        Empire.Universe.Particles.Flame.AddParticle(center, random);
 
                         random = UniverseRandom.Vector3D(150f) + backward;
-                        Empire.Universe.Particles.Flame.AddParticleThreadA(center, random);
+                        Empire.Universe.Particles.Flame.AddParticle(center, random);
                     }
 
                     break;
@@ -765,12 +765,12 @@ namespace Ship_Game.Gameplay
                     for (int i = 0; i < 20; i++)
                     {
                         Vector3 random = UniverseRandom.Vector3D(500f) * right;
-                        Empire.Universe.Particles.FireTrail.AddParticleThreadA(center, random);
+                        Empire.Universe.Particles.FireTrail.AddParticle(center, random);
 
                         random = backward + new Vector3(UniverseRandom.RandomBetween(-500f, 500f),
                                      UniverseRandom.RandomBetween(-500f, 500f),
                                      UniverseRandom.RandomBetween(-150f, 150f));
-                        Empire.Universe.Particles.FireTrail.AddParticleThreadA(center, random);
+                        Empire.Universe.Particles.FireTrail.AddParticle(center, random);
                     }
 
                     break;
@@ -882,12 +882,12 @@ namespace Ship_Game.Gameplay
             float flashChance = GetHitProjectileFlashEmitChance(damageAmount);
             if (HasParticleHitEffect(flashChance))
             {
-                Empire.Universe.Particles.Flash.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
+                Empire.Universe.Particles.Flash.AddParticle(GetBackgroundPos(center), Vector3.Zero);
                 return;
             }
             float beamFlashChance = GetHitProjectileBeamFlashEmitChance(Weapon.ProjectileSpeed);
             if (HasParticleHitEffect(beamFlashChance))
-                Empire.Universe.Particles.BeamFlash.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
+                Empire.Universe.Particles.BeamFlash.AddParticle(GetBackgroundPos(center), Vector3.Zero);
         }
 
         void AddEnergyParticleHitEffects(float damageAmount, Vector3 center)
@@ -896,24 +896,24 @@ namespace Ship_Game.Gameplay
             float flashChance  = GetHitProjectileFlashEmitChance(damageAmount);
             float sparksChance = GetHitProjectileSparksEmitChance(Weapon.ProjectileSpeed);
             if (HasParticleHitEffect(flashChance))
-                Empire.Universe.Particles.Flash.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
+                Empire.Universe.Particles.Flash.AddParticle(GetBackgroundPos(center), Vector3.Zero);
             if (!HasParticleHitEffect(sparksChance)) return;
             int randomEffect = RandomMath2.IntBetween(0, 2);
             switch (randomEffect)
             {
                 case 0:
                     for (int i = 0; i < 20; i++)
-                        Empire.Universe.Particles.FireTrail.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
+                        Empire.Universe.Particles.FireTrail.AddParticle(GetBackgroundPos(center), Vector3.Zero);
                     for (int i = 0; i < 5; i++)
-                        Empire.Universe.Particles.ExplosionSmoke.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
+                        Empire.Universe.Particles.ExplosionSmoke.AddParticle(GetBackgroundPos(center), Vector3.Zero);
                     break;
                 case 1:
                     for (int i = 0; i < 50; i++)
-                        Empire.Universe.Particles.Sparks.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
-                    Empire.Universe.Particles.SmokePlume.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
+                        Empire.Universe.Particles.Sparks.AddParticle(GetBackgroundPos(center), Vector3.Zero);
+                    Empire.Universe.Particles.SmokePlume.AddParticle(GetBackgroundPos(center), Vector3.Zero);
                     break;
                 case 2:
-                    Empire.Universe.Particles.BeamFlash.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
+                    Empire.Universe.Particles.BeamFlash.AddParticle(GetBackgroundPos(center), Vector3.Zero);
                     break;
             }
         }
