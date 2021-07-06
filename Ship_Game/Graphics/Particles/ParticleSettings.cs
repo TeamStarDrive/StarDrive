@@ -31,6 +31,12 @@ namespace Ship_Game
         [StarData] public float MaxEndSize = 100f;
         [StarData] public Blend SourceBlend = Blend.SourceAlpha;
         [StarData] public Blend DestinationBlend = Blend.InverseSourceAlpha;
+        // if true, particle duration is infinite and the particle does not move
+        // but it does rotate 
+        [StarData] public bool Static;
+
+        // Is this a rotating particle? important for effect technique selection
+        public bool IsRotating => MinRotateSpeed != 0f || MaxRotateSpeed != 0f;
 
         static Map<string, ParticleSettings> Settings = new Map<string, ParticleSettings>();
 

@@ -200,7 +200,6 @@ namespace Ship_Game
             // Create and populate the index buffer.
             uint[] indices = new uint[MaxParticles * 6];
 
-            
             for (int i = 0; i < MaxParticles; i++)
             {
                 indices[i * 6 + 0] = (uint)(i * 4 + 0);
@@ -250,10 +249,12 @@ namespace Ship_Game
             var texture = Content.Load<Texture2D>("3DParticles/" + Settings.TextureName);
             parameters["Texture"].SetValue(texture);
 
-            // if Duration > 6.66, use StaticParticles
-            // if (Settings.MinRotateSpeed > 0f || Settings.MaxRotateSpeed > 0f) use RotatingParticles
-            // else NonRotatingParticles
-            ParticleEffect.CurrentTechnique = ParticleEffect.Techniques["Particles"];
+            string technique = "FullDynamicParticles";
+            if (Settings.Static && Settings.IsRotating) technique = "StaticRotatingParticles";
+            else if (Settings.Static && !Settings.IsRotating) technique = "StaticNonRotatingParticles";
+            else if (!Settings.Static && !Settings.IsRotating) technique = "DynamicNonRotatingParticles";
+
+            ParticleEffect.CurrentTechnique = ParticleEffect.Techniques[technique];
         }
 
         public ParticleEmitter NewEmitter(float particlesPerSecond, Vector3 initialPosition)
@@ -282,20 +283,23 @@ namespace Ship_Game
                 return;
 
             CurrentTime += elapsed.RealTime.Seconds;
-            RetireActiveParticles(particles);
-            FreeRetiredParticles(particles);
 
-            // If we let our timer go on increasing for ever, it would eventually
-            // run out of floating point precision, at which point the particles
-            // would render incorrectly. An easy way to prevent this is to notice
-            // that the time value doesn't matter when no particles are being drawn,
-            // so we can reset it back to zero any time the active queue is empty.
+            if (!Settings.Static)
+            {
+                RetireActiveParticles(particles);
+                FreeRetiredParticles(particles);
 
-            if (FirstActiveParticle == FirstFreeParticle)
-                CurrentTime = 0f;
+                // If we let our timer go on increasing for ever, it would eventually
+                // run out of floating point precision, at which point the particles
+                // would render incorrectly. An easy way to prevent this is to notice
+                // that the time value doesn't matter when no particles are being drawn,
+                // so we can reset it back to zero any time the active queue is empty.
+                if (FirstActiveParticle == FirstFreeParticle)
+                    CurrentTime = 0f;
 
-            if (FirstRetiredParticle == FirstActiveParticle)
-                DrawCounter = 0;
+                if (FirstRetiredParticle == FirstActiveParticle)
+                    DrawCounter = 0;
+            }
         }
 
         /// <summary>
