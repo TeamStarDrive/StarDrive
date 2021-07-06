@@ -441,17 +441,18 @@ namespace Ship_Game
             {
                 var s = new ShipGoalSave
                 {
-                    Plan = sg.Plan,
-                    Direction = sg.Direction,
-                    VariableString = sg.VariableString,
-                    SpeedLimit = sg.SpeedLimit,
-                    MovePosition = sg.MovePosition,
-                    fleetGuid = sg.Fleet?.Guid ?? Guid.Empty,
-                    goalGuid = sg.Goal?.guid ?? Guid.Empty,
+                    Plan             = sg.Plan,
+                    Direction        = sg.Direction,
+                    VariableString   = sg.VariableString,
+                    SpeedLimit       = sg.SpeedLimit,
+                    MovePosition     = sg.MovePosition,
+                    fleetGuid        = sg.Fleet?.Guid ?? Guid.Empty,
+                    goalGuid         = sg.Goal?.guid ?? Guid.Empty,
                     TargetPlanetGuid = sg.TargetPlanet?.guid ?? Guid.Empty,
-                    TargetShipGuid = sg.TargetShip?.guid ?? Guid.Empty,
-                    MoveType = sg.MoveType,
-                    VariableNumber = sg.VariableNumber
+                    TargetShipGuid   = sg.TargetShip?.guid ?? Guid.Empty,
+                    MoveType         = sg.MoveType,
+                    VariableNumber   = sg.VariableNumber,
+                    WantedState      = sg.WantedState
                 };
 
                 if (sg.Trade != null)
