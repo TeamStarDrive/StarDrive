@@ -39,7 +39,6 @@ namespace UnitTests.Serialization
                 MaxHorizontalVelocity = 4.2f,
                 MinVerticalVelocity = 5.4f,
                 MaxVerticalVelocity = 5.8f,
-                Gravity = new Vector3(1,2,3),
                 EndVelocity = 6,
                 MinColor = new Color(10,20,30,255),
                 MaxColor = new Color(40,50,60,255),
@@ -66,7 +65,6 @@ namespace UnitTests.Serialization
                   MaxHorizontalVelocity: 4.2
                   MinVerticalVelocity: 5.4
                   MaxVerticalVelocity: 5.8
-                  Gravity: [1,2,3]
                   EndVelocity: 6
                   MinColor: [10,20,30,255]
                   MaxColor: [40,50,60,255]

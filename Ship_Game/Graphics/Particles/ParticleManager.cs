@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -14,6 +15,7 @@ namespace Ship_Game.Graphics.Particles
         public ParticleSystem FireTrail;
         public ParticleSystem SmokePlume;
         public ParticleSystem Fire;
+        public ParticleSystem ThrustEffect;
         public ParticleSystem EngineTrail;
         public ParticleSystem Flame;
         public ParticleSystem SmallFlame;
@@ -27,6 +29,8 @@ namespace Ship_Game.Graphics.Particles
         readonly GraphicsDevice Device;
         readonly Array<ParticleSystem> Tracked = new Array<ParticleSystem>();
 
+        public IReadOnlyList<ParticleSystem> ParticleSystems => Tracked;
+
         public ParticleManager(Data.GameContentManager content, GraphicsDevice device)
         {
             Content = content;
@@ -39,6 +43,8 @@ namespace Ship_Game.Graphics.Particles
         {
             UnloadContent();
             BeamFlash       = Add("BeamFlash");
+            ThrustEffect    = Add("ThrustEffect");
+            EngineTrail     = Add("EngineTrail");
             Explosion       = Add("Explosion");
             PhotonExplosion = Add("PhotonExplosion");
             ExplosionSmoke  = Add("ExplosionSmoke");
@@ -46,7 +52,6 @@ namespace Ship_Game.Graphics.Particles
             FireTrail       = Add("FireTrail");
             SmokePlume      = Add("SmokePlume");
             Fire            = Add("Fire");
-            EngineTrail     = Add("EngineTrail");
             Flame           = Add("Flame");
             SmallFlame      = Add("Flame", 0.25f, (int)(4000 * GlobalStats.DamageIntensity));
             Sparks          = Add("Sparks");
@@ -80,8 +85,7 @@ namespace Ship_Game.Graphics.Particles
             for (int i = 0; i < Tracked.Count; ++i)
             {
                 ParticleSystem ps = Tracked[i];
-                ps.SetCamera(view, projection);
-                ps.Draw();
+                ps.Draw(view, projection);
             }
         }
 
