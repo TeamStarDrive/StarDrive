@@ -97,8 +97,8 @@ namespace Ship_Game.AI
                 if (didFire)
                 {
                     GameplayObject target = weapon.FireTarget;
-                    Ship parent = target is Ship s ? s : ((ShipModule)target).GetParent();
-                    if (parent == Target)
+                    Ship parent = (target as Ship) ?? (target as ShipModule)?.GetParent();
+                    if (parent != null && parent == Target)
                         didFireAtMainTarget = true;
                 }
             }
