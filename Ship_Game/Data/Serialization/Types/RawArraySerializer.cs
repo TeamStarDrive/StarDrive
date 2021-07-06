@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.IO;
 using Ship_Game.Data.Yaml;
 
@@ -60,10 +59,10 @@ namespace Ship_Game.Data.Serialization.Types
             return base.Deserialize(node); // try to deserialize value as Array
         }
 
-        public override void Serialize(TextSerializerContext context, object obj)
+        public override void Serialize(YamlNode parent, object obj)
         {
             var array = (Array)obj;
-            ArrayListSerializer.Serialize(array, ElemSerializer, context);
+            ArrayListSerializer.Serialize(array, ElemSerializer, parent);
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
