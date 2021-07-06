@@ -213,8 +213,10 @@ namespace Ship_Game.Ships
         {
             Color thrust0 = loyalty.ThrustColor0;
             Color thrust1 = loyalty.ThrustColor1;
+            Color thrust2 = loyalty.EmpireColor;
             float velocity = Velocity.Length();
             float velocityPercent = velocity / VelocityMaximum;
+            bool notPaused = timeStep.FixedTime > 0f;
 
             for (int i = 0; i < ThrusterList.Length; ++i)
             {
@@ -224,7 +226,7 @@ namespace Ship_Game.Ships
                 bool enginesOn = ThrustThisFrame == Ships.Thrust.Forward || ThrustThisFrame == Ships.Thrust.Reverse;
                 if (enginesOn)
                 {
-                    if (thruster.heat < velocityPercent)
+                    if (notPaused && thruster.heat < velocityPercent)
                         thruster.heat += 0.06f;
 
                     if (engineState == MoveState.Warp)
@@ -240,16 +242,31 @@ namespace Ship_Game.Ships
                 }
                 else
                 {
-                    thruster.heat = 0.01f;
+                    if (notPaused)
+                        thruster.heat = 0.01f;
                     thruster.Update(Direction3D, 0.1f, 1.0f / 500.0f, Empire.Universe.CamPos, thrust0, thrust1);
                 }
 
-                if (GlobalStats.EnableEngineTrails && velocityPercent > 0.1f && timeStep.FixedTime > 0f)
+                if (GlobalStats.EnableEngineTrails && velocityPercent > 0.1f && notPaused)
                 {
-                    float thrustScale = Radius / 100f;
-                    Vector3 thrustVelocity = thruster.heat * Direction3D * -velocity;
-                    Empire.Universe.Particles.EngineTrail.AddParticle(thruster.WorldPos, thrustVelocity,
-                                                                      thrustScale, loyalty.EmpireColor);
+                    // tscale is in world units, engine-trail effect width at scale=1 is 32 units
+                    float thrustScale = thruster.tscale / 32f;
+                    float thrustPower = (thruster.heat * (Thrust / 64f)).Clamped(32f, 320f) * thrustScale;
+                    Vector3 thrustDirection = -Direction3D;
+                    Vector3 thrustVelocity = thrustDirection * thrustPower;
+                    
+                    var thrustFx = Empire.Universe.Particles.ThrustEffect;
+                    
+                    for (int x = 0; x < 3; ++x)
+                    {
+                        thrustFx.AddParticle(thruster.WorldPos + thrustDirection*(x*3f), thrustVelocity,
+                                             thrustScale, thrust2);
+                    }
+
+                    var trailFx = Empire.Universe.Particles.EngineTrail;
+                    Vector3 trailOffset = thrustDirection*16f;
+                    trailFx.AddParticle(thruster.WorldPos + trailOffset, thrustVelocity*0.5f,
+                                        thrustScale, thrust1);
                 }
             }
         }

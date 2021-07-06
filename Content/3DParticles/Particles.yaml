@@ -26,11 +26,11 @@
   DestinationBlend: One
 
 - ParticleSettings:
-  Name: EngineTrail
+  Name: ThrustEffect
   TextureName: "Glow.png"
-  MaxParticles: 50000
-  Duration: 1
-  DurationRandomness: 0.2
+  MaxParticles: 16000
+  Duration: 0.25
+  DurationRandomness: 0.05
   EmitterVelocitySensitivity: 1
   MinHorizontalVelocity: 0
   MaxHorizontalVelocity: 0
@@ -41,10 +41,33 @@
   MaxColor: [255,255,255,100]
   MinRotateSpeed: 0
   MaxRotateSpeed: 0
-  MinStartSize: 50
-  MaxStartSize: 60
-  MinEndSize: 5
-  MaxEndSize: 10
+  MinStartSize: 28
+  MaxStartSize: 32
+  MinEndSize: 6
+  MaxEndSize: 8
+  SourceBlend: SourceAlpha
+  DestinationBlend: One
+
+- ParticleSettings:
+  Name: EngineTrail
+  TextureName: "Glow.png"
+  MaxParticles: 32000
+  Duration: 1.66
+  DurationRandomness: 0
+  EmitterVelocitySensitivity: 1
+  MinHorizontalVelocity: 0
+  MaxHorizontalVelocity: 0
+  MinVerticalVelocity: 0
+  MaxVerticalVelocity: 0
+  EndVelocity: 0
+  MinColor: [255,255,255,50]
+  MaxColor: [255,255,255,50]
+  MinRotateSpeed: 0
+  MaxRotateSpeed: 0
+  MinStartSize: 15
+  MaxStartSize: 17
+  MinEndSize: 3
+  MaxEndSize: 5
   SourceBlend: SourceAlpha
   DestinationBlend: One
 
