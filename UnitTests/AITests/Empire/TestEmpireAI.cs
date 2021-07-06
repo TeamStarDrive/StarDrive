@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.AI;
+using Ship_Game.AI.Compnonents;
 using Ship_Game.Empires;
 using Ship_Game.Empires.Components;
 using Ship_Game.GameScreens.NewGame;
@@ -535,6 +536,14 @@ namespace UnitTests.AITests.Empire
             Assert.AreEqual(forcePools.Count , Player.OwnedShips.Count - unAdded);
             Assert.AreEqual(shipsOnDefense.Count, 1, "Did Something change in ship system defender states?");
             Assert.AreEqual(shipsThatCantBeAdded.Count, 2,"Did something change in supply shuttles or stations");
+        }
+
+        [TestMethod]
+        public void TestBudgetLoad()
+        {
+            var budget = new BudgetPriorities(Enemy);
+            int budgetAreas = Enum.GetNames(typeof(BudgetPriorities.BudgetAreas)).Length;
+            Assert.IsTrue(budget.Count() == budgetAreas);
         }
     }
 }

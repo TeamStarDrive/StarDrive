@@ -5,6 +5,7 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Ship_Game.AI.Compnonents;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.GameScreens.DiplomacyScreen;
@@ -43,7 +44,7 @@ namespace Ship_Game.AI
             OffensiveForcePoolManager = new OffensiveForcePoolManager(e);
             TechChooser               = new Research.ChooseTech(e);
             ExpansionAI               = new ExpansionAI.ExpansionPlanner(OwnerEmpire);
-
+            BudgetSettings            = new BudgetPriorities(e);
             if (OwnerEmpire.data.EconomicPersonality != null)
                 NumberOfShipGoals += OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
 
