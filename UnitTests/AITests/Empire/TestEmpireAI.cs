@@ -206,14 +206,14 @@ namespace UnitTests.AITests.Empire
             Assert.AreEqual(build.RoleCount(combatRole), (int)(roleBudget / roleUnitMaint));
         }
         
-        // TODO: Fix this test
         [TestMethod]
         public void TestBuildScrap()
         {
-            var combatRole = RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(ShipData.RoleName.fighter);
+            var combatRole      = RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(ShipData.RoleName.fighter);
             float buildCapacity = 0.75f;
-            var build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), true);
+            var build           = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), true);
 
+            // build 50 ships
             for (int x = 0; x < 50; x++)
             {
                 // This will peak the "Rocket Inquisitor" ships since it is stronger
@@ -222,6 +222,7 @@ namespace UnitTests.AITests.Empire
                     SpawnShip(shipName, Player, Vector2.Zero);
             }
 
+            // add them to the universe
             Universe.Objects.UpdateLists();
 
             // The expected maintenance for the Flak Fang is 0.12, since Cordrazine
@@ -231,43 +232,50 @@ namespace UnitTests.AITests.Empire
 
             // simulate building a bunch of ships by lowering the role build budget by the 
             // role maintenance. Keep building until it starts to scrap.
-            // then use the build process to scrap enough ships to increase the build capacity
-            // do this over and over. 
+            // 
             for (int x = 0; x < 20; ++x)
             {
                 buildCapacity = build.RoleBudget(combatRole) - roleUnitMaint;
+
                 if (buildCapacity < 0)
                 {
-                    buildCapacity = roleUnitMaint * 3;
                     foreach (Ship ship in Player.OwnedShips)
                         if (ship.AI.State == AIState.Scrap)
                             ship.Die(ship, true);
                 }
-                
+
+                // once we bottom out add three more ships to build cap
+                if (buildCapacity + roleUnitMaint <= 0)
+                    buildCapacity = roleUnitMaint * 3;
+
                 Universe.Objects.UpdateLists();
 
                 build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), false);
-                // this is the actual number of ships to build with available budget. 
+                // this is the actual number of ships to build with available budget.
                 int roleCountWanted    = build.RoleCountDesired(combatRole);
                 // this is the formula used to determine the number of ships that can be built with available budget.
                 int expectedBuildCount = (int)Math.Ceiling(build.RoleBudget(combatRole) / roleUnitMaint);
 
-                // test that role counts wanted and build counts are equal
+                // test that formula for building ships matches the actual building ships process.
                 Assert.AreEqual(expectedBuildCount, roleCountWanted, $"{combatRole}: expected number of ships to build did not match actual");
 
                 float currentMain      = build.RoleCurrentMaintenance(combatRole);
                 int shipsBeingScrapped = Player.OwnedShips.Filter(s => s.AI.State == AIState.Scrap).Length;
 
-                if (currentMain + roleUnitMaint > buildCapacity || build.RoleIsScrapping(combatRole))
+                // now make sure that the maintenance and budgets dont create a scrap loop.
+                if (currentMain + roleUnitMaint > buildCapacity)
                 {
                     string shipName = Player.GetEmpireAI().GetAShip(build);
-                    Assert.IsTrue(shipName.IsEmpty(), "Scrap Loop");
+                    Assert.IsTrue(shipName.IsEmpty(), $"Current maintenance {currentMain}" +
+                                                      $" + new ship maintenance {roleUnitMaint} was greater than build cap {buildCapacity}" +
+                                                      $" but we still built a ship.");
                 }
                 else
                 {
-                    Assert.IsTrue(shipsBeingScrapped <= 0, "Scrap Loop");
+                    Assert.IsFalse(build.RoleIsScrapping(combatRole), "We have build budget and we are set to scrap");
+                    Assert.IsTrue(shipsBeingScrapped <= 0, $"We have build budget and we have ships scrapping: {shipsBeingScrapped}");
                     string shipName = Player.GetEmpireAI().GetAShip(build);
-                    Assert.IsTrue(shipName.NotEmpty(), "Scrap Loop");
+                    Assert.IsTrue(shipName.NotEmpty(), "We have build budget but we aren't building");
                 }
             }
         }
