@@ -302,10 +302,7 @@ namespace Ship_Game.AI.Tasks
 
             if (WhichFleet == -1 || Fleet == null)
             {
-                foreach (var ship in TaskForce)
-                    Owner.AddShipToManagedPools(ship);
-                
-                TaskForce.Clear();
+                DisbandFleet(Fleet);
                 return;
             }
 
@@ -374,7 +371,12 @@ namespace Ship_Game.AI.Tasks
 
         public void DisbandFleet(Fleet fleet)
         {
-            Fleet.Reset();
+            foreach (var ship in TaskForce)
+            {
+                if (ship.fleet == null)
+                    Owner.AddShipToManagedPools(ship);
+            }
+            Fleet?.Reset();
             TaskForce.Clear();
         }
 
