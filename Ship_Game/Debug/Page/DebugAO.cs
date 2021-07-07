@@ -52,8 +52,11 @@ namespace Ship_Game.Debug.Page
         {
             if (EmpireAtWar.data.Defeated) return;
 
-            var allShips = Empire.Universe.GetMasterShipList().ToArray().Filter(s=> s.loyalty == EmpireAtWar);
+            var allShips = Empire.Universe.GetMasterShipList().ToArray().Filter(s=> s.loyalty == EmpireAtWar && s.Active);
             var ourShips = new Array<Ship>(EmpireAtWar.OwnedShips);
+            var hangarShips = ourShips.Filter(s => s.IsHangarShip);
+            var civilianShips = ourShips.Filter(s => s.DesignRoleType == ShipData.RoleType.Civilian);
+            var AOs = EmpireAtWar.GetEmpireAI().AreasOfOperations.ToArray();
             var aoShips = EmpireAtWar.AIManagedShips;
             var fleets = EmpireAtWar.GetFleetsDict().Values;
 
@@ -67,9 +70,20 @@ namespace Ship_Game.Debug.Page
 
             column.AddLine($"MasterShip List: {allShips.Length}");
             column.AddLine($"Empire Ship List: {ourShips.Count}");
-            column.AddLine($"EmpirePool Ship List: {aoShips.EmpireForcePool.GetInternalArrayItems().Length}");
+            column.AddLine($"Hangar Ships: {hangarShips.Length}");
+            column.AddLine($"Civilian Ships: {civilianShips.Length}");
+            column.AddLine($"EmpirePool Ship List: {aoShips.AllPoolShips}");
+            column.AddLine($"EmpirePool Ready: {aoShips.InitialReadyShips}");
             column.AddLine($"EmpirePool fleets: {aoShips.CurrentUseableFleets}");
             column.AddLine($"Fleets in use: {fleets.Count}");
+            column.AddLine($"AO's {AOs.Length}");
+            foreach(var ao in AOs)
+            {
+                Planet coreWorld = ao.CoreWorld;
+                int ships = ao.GetNumOffensiveForcePoolShips();
+                column.AddLine($"AO: {coreWorld.ParentSystem.Name}");
+                column.AddLine($"   #Ships {ships}");
+            }
             text.Add(column);
 
             column = new DebugTextBlock();

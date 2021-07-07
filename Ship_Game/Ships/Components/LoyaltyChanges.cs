@@ -5,7 +5,7 @@ namespace Ship_Game.Ships.Components
 {
     public class LoyaltyChanges
     {
-        enum Type
+        public enum Type
         {
             None,
             Spawn,
@@ -14,7 +14,7 @@ namespace Ship_Game.Ships.Components
         }
 
         Empire ChangeTo;
-        Type ChangeType;
+        public Type ChangeType { get; private set; }
 
         public LoyaltyChanges(Ship ship, Empire loyalty)
         {
@@ -29,7 +29,7 @@ namespace Ship_Game.Ships.Components
         public void OnSpawn(Ship ship)
         {
             if (ship.loyalty != EmpireManager.Void)
-                LoyaltyChangeDueToSpawn(ship, ship.loyalty);
+                SetLoyaltyForNewShip(ship.loyalty);
         }
 
         // Loyalty change is ignored if loyalty == CurrentLoyalty
@@ -55,7 +55,7 @@ namespace Ship_Game.Ships.Components
         public bool Update(Ship ship)
         {
             Empire changeTo = ChangeTo;
-            if (changeTo == null || changeTo == ship.loyalty)
+            if (ChangeType != Type.Spawn && (changeTo == null || changeTo == ship.loyalty))
                 return false;
 
             Type type  = ChangeType;
@@ -122,7 +122,7 @@ namespace Ship_Game.Ships.Components
         static void SafelyTransferShip(Ship ship, Empire oldLoyalty, Empire newLoyalty)
         {
             // remove ship from fleet but do not add it back to empire pools.
-            ship.fleet?.RemoveShip(ship, false);
+            ship.fleet?.RemoveShip(ship, returnToEmpireAI: false);
             ship.AI.ClearOrders();
 
             ship.loyalty = newLoyalty;
