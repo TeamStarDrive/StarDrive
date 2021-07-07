@@ -16,12 +16,16 @@ namespace Ship_Game.Empires.ShipPools
                                         || ship.AI.HasPriorityOrder
                                         || ship.IsSupplyShuttle
                                         || ship.DesignRoleType == ShipData.RoleType.EmpireSupport
-                                        || ship.DesignRoleType == ShipData.RoleType.Orbital;
+                                        || ship.DesignRoleType == ShipData.RoleType.Orbital
+                                        //|| ship.DesignRole == ShipData.RoleName.troop
+                                        || ship.AI.State == AIState.Refit
+                                        || ship.AI.State == AIState.Scrap
+                                        || ship.AI.State == AIState.Scuttle;
         bool ShouldAddToAOPools(Ship ship) => ship.DesignRoleType == ShipData.RoleType.Warship;
-        bool ShouldAddToEmpirePool(Ship ship) => ship.DesignRoleType == ShipData.RoleType.WarSupport ||
-                                                 ship.DesignRoleType == ShipData.RoleType.Troop ||
-                                                 ship.DesignRole == ShipData.RoleName.carrier ||
-                                                 !ship.BaseCanWarp;
+        bool ShouldAddToEmpirePool(Ship ship) => ship.BaseCanWarp && ship.AI.State != AIState.Rebase &&
+                                                 (ship.DesignRoleType == ShipData.RoleType.WarSupport ||
+                                                 ship.DesignRole == ShipData.RoleName.troopShip ||
+                                                 ship.DesignRole == ShipData.RoleName.carrier);
 
         ChangePendingList<Ship> ForcePool;
 
@@ -36,7 +40,7 @@ namespace Ship_Game.Empires.ShipPools
             if (s.loyalty != Owner)
                 Log.Error($"Incorrect loyalty. Ship {s.loyalty} != Empire {Owner}");
 
-            if (!Owner.isPlayer && !Owner.isFaction && s.Active && !s.IsHomeDefense)
+            if (!Owner.isPlayer && !Owner.isFaction && ShouldAddToEmpirePool(s))
                 EmpireForcePoolAdd(s);
         }
 
@@ -160,7 +164,7 @@ namespace Ship_Game.Empires.ShipPools
                         Log.Warning("ShipPool: Ship was in a system defense state but not in system defense pool");
                         if (!AssignShipsToOtherPools(ship))
                         {
-                            if (ship.DesignRole < ShipData.RoleName.fighter)
+                            if (ShouldAddToEmpirePool(ship))
                                 EmpireForcePoolAdd(ship);
                             Log.Error($"ShipPool: Could not assign ship to pools {ship}");
                         }
@@ -183,9 +187,10 @@ namespace Ship_Game.Empires.ShipPools
                         Log.Warning($"ShipPool: WarShip was not in any pools {ship}");
                         if (!AssignShipsToOtherPools(ship))
                         {
-                            if (ship.DesignRole < ShipData.RoleName.fighter)
+                            if (ShouldAddToEmpirePool(ship))
                                 EmpireForcePoolAdd(ship);
-                            Log.Info($"ShipPool: Could not assign ship to pools {ship}");
+                            else if (Owner.GetEmpireAI().AreasOfOperations.Count > 0)
+                                Log.Info($"ShipPool: Could not assign ship to pools {ship}");
                         }
                     }
                 }
@@ -226,18 +231,17 @@ namespace Ship_Game.Empires.ShipPools
                 baseDefensePct = 0.35f;
             if (OwnerAI != null)
             {
+                // need to rework this better divide the ships.
+                AO area = OwnerAI.AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Center));
+                if (area?.AddShip(toAdd) == true)
+                {
+                    return true;
+                }
                 bool needDef = (Owner.CurrentMilitaryStrength * baseDefensePct - OwnerAI.DefStr) >= 0
                                && OwnerAI.DefensiveCoordinator.DefenseDeficit >= 0;
                 if (needDef && !Owner.isFaction)
                 {
                     OwnerAI.DefensiveCoordinator.AddShip(toAdd);
-                    return true;
-                }
-
-                // need to rework this better divide the ships.
-                AO area = OwnerAI.AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Center));
-                if (area?.AddShip(toAdd) == true)
-                {
                     return true;
                 }
             }
