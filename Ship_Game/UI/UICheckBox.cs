@@ -14,11 +14,11 @@ namespace Ship_Game
         readonly LocalizedText Tooltip;
         Ref<bool> Binding;
 
-        Vector2 TextPos;
-        Vector2 CheckPos;
-
         public Action<UICheckBox> OnChange;
         public Color TextColor = Color.White;
+
+        int TextPadding = 4;
+        int CheckBoxSize = 12;
 
         public bool Checked => Binding.Value;
         public override string ToString() => $"{TypeName} {ElementDescr} Text={Text} Checked={Checked}";
@@ -56,7 +56,6 @@ namespace Ship_Game
         {
         }
 
-
         public void Bind(BoolExpression binding)
         {
             Binding = new Ref<bool>(binding);
@@ -64,16 +63,21 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            var checkRect = new Rectangle((int)CheckPos.X, (int)CenterY - 6, 10, 12);
-            batch.DrawRectangle(checkRect, new Color(96, 81, 49));
+            var checkBox = new Rectangle((int)Pos.X, (int)CenterY - CheckBoxSize/2, CheckBoxSize, CheckBoxSize);
+            batch.DrawRectangle(checkBox, new Color(96, 81, 49));
             //batch.DrawRectangle(Rect, Color.Red); // DEBUG
 
             if (Text.NotEmpty)
-                batch.DrawString(Font, Text, TextPos, TextColor);
+            {
+                var textPos = new Vector2(checkBox.X + CheckBoxSize + TextPadding, (int)CenterY - Font.LineSpacing / 2);
+                batch.DrawString(Font, Text, textPos, TextColor);
+            }
 
             if (Binding.Value)
             {
-                batch.DrawString(Fonts.Arial12Bold, "x", CheckPos, Color.White);
+                var check = ResourceManager.Texture("NewUI/Checkmark10x");
+                var checkMark = checkBox.Bevel(-1);
+                batch.Draw(check, checkMark, Color.White);
             }
         }
 
@@ -101,12 +105,8 @@ namespace Ship_Game
             RequiresLayout = false;
             Pos.X = (int)Pos.X;
             Pos.Y = (int)Pos.Y;
-            int h = Math.Max(10, Font.LineSpacing);
-            int th = Font.LineSpacing / 2;
-            Size = new Vector2(h + Font.MeasureString(Text).X, h+1);
-            TextPos  = new Vector2(Pos.X + 25, (int)CenterY - th);
-            CheckPos = new Vector2(Pos.X + 6 - Font.TextWidth("x") / 2,
-                                   Pos.Y + 5 - th);
+            int h = Math.Max(CheckBoxSize, Font.LineSpacing);
+            Size = new Vector2(CheckBoxSize + TextPadding + Font.TextWidth(Text), h);
         }
     }
 }
