@@ -10126,15 +10126,12 @@ UsePlayerDesignsTip:
 TerraformLevel:
  Id: 4307
  ENG: "Terraform Level"
-TerraformLevel1:
+BB_Tech_Terraforming_Bonus:
  Id: 4308
  ENG: "Terraform Level 1. At this Level, Terraformers will gradually remove all Volcanoes in the planet."
-TerraformLevel2:
+BB_Tech_Terraforming2_Bonus:
  Id: 4309
  ENG: "Terraform Level 2. At this Level, Terraformers will remove all Volcanoes in the planet and will also make terraformable tiles habitable."
-BB_Tech_Terraforming_Bonus:
- Id: 4310
- ENG: "Terraform Level 3. At this Level, Terraformers will remove all Volcanoes in the planet, make terraformable tiles habitable and will also transform your planet into the best suitable planet for your race and increase its fertility to 1."
 Terraforming:
  Id: 4311
  ENG: "Terraforming In Progress"
@@ -10227,10 +10224,10 @@ BB_Tech_SubspatialDynamics_CounterEnemyPlanetInhibitionBonus_Bonus:
  ENG: "Normaly, hostile planets negate our own projector effects and inhibit our ships. This tech allows us to decrease the enemy planet's gravity well by 25%, if we have a projector in range."
 OurSpiesReport:
  Id: 4341
- ENG: "Our spies detected that" 
+ ENG: "Our spies detected that"
 TheyPreparingForWar:
  Id: 4342
- ENG: "are plotting a war\n against us and amassing a fleet somewhere."  
+ ENG: "are plotting a war\n against us and are amassing a fleet somewhere."
 OnSurface:
  Id: 4993
  ENG: "on surface"
