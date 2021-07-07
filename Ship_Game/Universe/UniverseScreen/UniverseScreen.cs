@@ -494,19 +494,6 @@ namespace Ship_Game
             }
         }
 
-        void CreateStarParticles()
-        {
-            int numStars = (int)(UniverseSize / 5000.0f);
-            for (int i = 0; i < numStars; ++i)
-            {
-                var position = new Vector3(
-                    RandomMath.RandomBetween(-0.5f * UniverseSize, UniverseSize + 0.5f * UniverseSize),
-                    RandomMath.RandomBetween(-0.5f * UniverseSize, UniverseSize + 0.5f * UniverseSize),
-                    RandomMath.RandomBetween(-200000f, -2E+07f));
-                Particles.StarParticles.AddParticle(position);
-            }
-        }
-
         void LoadGraphics()
         {
             const int minimapOffSet = 14;
@@ -522,11 +509,12 @@ namespace Ship_Game
             {
                 bg = new Background(this);
             }
-            if (GlobalStats.DrawNebulas)
-                bg3d = new Background3D(this);
-            
-            CreateStarParticles();
 
+            if (GlobalStats.DrawNebulas)
+            {
+                bg3d = new Background3D(this);
+            }
+            
             Frustum            = new BoundingFrustum(View * Projection);
             mmHousing          = new Rectangle(width - (276 + minimapOffSet), height - 256, 276 + minimapOffSet, 256);
             MinimapDisplayRect = new Rectangle(mmHousing.X + 61 + minimapOffSet, mmHousing.Y + 43, 200, 200);
