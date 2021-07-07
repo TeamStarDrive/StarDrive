@@ -230,27 +230,14 @@ namespace UnitTests.AITests.Empire
             float roleUnitMaint = build.RoleUnitMaintenance(combatRole);
             Assert.AreEqual(0.12f, roleUnitMaint, "Unexpected maintenance value");
 
-            // simulate building a bunch of ships by lowering the role build budget by the 
-            // role maintenance. Keep building until it starts to scrap.
-            // 
+            // simulate building a bunch of ships by lowering the role build budget by the role maintenance.
+            // Keep building until it starts to scrap.
             for (int x = 0; x < 20; ++x)
             {
+                // reduce the budget by the role maintenance.
                 buildCapacity = build.RoleBudget(combatRole) - roleUnitMaint;
 
-                if (buildCapacity < 0)
-                {
-                    foreach (Ship ship in Player.OwnedShips)
-                        if (ship.AI.State == AIState.Scrap)
-                            ship.Die(ship, true);
-                }
-
-                // once we bottom out add three more ships to build cap
-                if (buildCapacity + roleUnitMaint <= 0)
-                    buildCapacity = roleUnitMaint * 3;
-
-                Universe.Objects.UpdateLists();
-
-                build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), false);
+                build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), ignoreDebt: false);
                 // this is the actual number of ships to build with available budget.
                 int roleCountWanted    = build.RoleCountDesired(combatRole);
                 // this is the formula used to determine the number of ships that can be built with available budget.
@@ -276,6 +263,27 @@ namespace UnitTests.AITests.Empire
                     Assert.IsTrue(shipsBeingScrapped <= 0, $"We have build budget and we have ships scrapping: {shipsBeingScrapped}");
                     string shipName = Player.GetEmpireAI().GetAShip(build);
                     Assert.IsTrue(shipName.NotEmpty(), "We have build budget but we aren't building");
+                }
+
+                // once we bottom out then kill all scrapping ships, reset build capacity, and add more ships
+                if (buildCapacity < 0)
+                {
+                    foreach (Ship ship in Player.OwnedShips)
+                        if (ship.AI.State == AIState.Scrap)
+                            ship.Die(ship, true);
+
+                    Universe.Objects.UpdateLists();
+                    buildCapacity = roleUnitMaint * (x / 2f);
+                    string shipName;
+                    build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), false);
+                    do
+                    {
+                        shipName = Player.GetEmpireAI().GetAShip(build);
+                        if (shipName.NotEmpty())
+                            SpawnShip(shipName, Player, Vector2.Zero);
+                    }
+                    while (shipName.NotEmpty());
+                    Universe.Objects.UpdateLists();
                 }
             }
         }
