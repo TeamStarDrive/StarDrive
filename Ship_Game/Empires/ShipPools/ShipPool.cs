@@ -8,13 +8,20 @@ namespace Ship_Game.Empires.ShipPools
     public class ShipPool
     {
         readonly Empire Owner;
-        bool ShouldNotAdd(Ship ship) => !ship.Active
+        bool ShouldNotAddToAnyPool(Ship ship) => !ship.Active
                                         || ship.fleet != null
                                         || ship.IsHangarShip
                                         || ship.IsHomeDefense
                                         || ship.shipData.CarrierShip
                                         || ship.AI.HasPriorityOrder
-                                        || ship.IsSupplyShuttle;
+                                        || ship.IsSupplyShuttle
+                                        || ship.DesignRoleType == ShipData.RoleType.EmpireSupport
+                                        || ship.DesignRoleType == ShipData.RoleType.Orbital;
+        bool ShouldAddToAOPools(Ship ship) => ship.DesignRoleType == ShipData.RoleType.Warship;
+        bool ShouldAddToEmpirePool(Ship ship) => ship.DesignRoleType == ShipData.RoleType.WarSupport ||
+                                                 ship.DesignRoleType == ShipData.RoleType.Troop ||
+                                                 ship.DesignRole == ShipData.RoleName.carrier ||
+                                                 !ship.BaseCanWarp;
 
         ChangePendingList<Ship> ForcePool;
 
@@ -118,7 +125,7 @@ namespace Ship_Game.Empires.ShipPools
             for (int i = 0; i < allShips.Count; i++)
             {
                 var ship = allShips[i];
-                if (ShouldNotAdd(ship))
+                if (ShouldNotAddToAnyPool(ship))
                 {
                     continue;
                 }
@@ -159,9 +166,7 @@ namespace Ship_Game.Empires.ShipPools
                         }
                     }
                 }
-                else if (ship.DesignRoleType == ShipData.RoleType.Warship 
-                         || ship.DesignRoleType == ShipData.RoleType.WarSupport
-                         || ship.DesignRoleType == ShipData.RoleType.Troop)
+                else if (ShouldAddToAOPools(ship) || ShouldAddToEmpirePool(ship))
                 {
                     bool notInEmpireForcePool = !ForcePool.Contains(ship);
                     bool notInAOs = !OwnerAI.AreasOfOperations.Any(ao => ao.OffensiveForcePoolContains(ship));
@@ -189,16 +194,14 @@ namespace Ship_Game.Empires.ShipPools
 
         void EmpireForcePoolAdd(Ship ship)
         {
-            if (Owner.isPlayer || Owner.isFaction || !ship.Active || ship.fleet != null || ShouldNotAdd(ship))
+            if (Owner.isPlayer || Owner.isFaction || ShouldNotAddToAnyPool(ship))
                 return;
 
             RemoveShipFromFleetAndPools(ship);
-      
+
             if (!AssignShipsToOtherPools(ship))
             {
-                if (ship.DesignRoleType == ShipData.RoleType.Troop
-                    || ship.DesignRoleType == ShipData.RoleType.WarSupport
-                    || ship.DesignRole     == ShipData.RoleName.carrier)
+                if (ShouldAddToEmpirePool(ship))
                 {
                     if (!ForcePool.AddItemPending(ship))
                         Log.Warning($"Attempted to add an existing ship to Empire EmpireForcePool. ShipRole: {ship}");
@@ -212,14 +215,12 @@ namespace Ship_Game.Empires.ShipPools
 
         bool AssignShipsToOtherPools(Ship toAdd)
         {
+            if (!ShouldAddToAOPools(toAdd) || ShouldNotAddToAnyPool(toAdd))
+                return false; // we don't need this ship
+
             int numWars = Owner.AtWarCount;
             float baseDefensePct = 0.1f;
-            baseDefensePct      += 0.15f * numWars;
-
-            if (toAdd.DesignRole < ShipData.RoleName.fighter || ShouldNotAdd(toAdd))
-            {
-                return false; // we don't need this ship
-            }
+            baseDefensePct += 0.15f * numWars;
 
             if (baseDefensePct > 0.35f)
                 baseDefensePct = 0.35f;
@@ -243,17 +244,7 @@ namespace Ship_Game.Empires.ShipPools
 
             return false; // nothing to do with you
         }
-
-        public bool ImmediateRemoveShipFromEmpire(Ship ship)
-        {
-            if(RemoveShipFromEmpire(ship))
-            {
-                Update();
-                return true;
-            }
-            return false;
-        }
-
+        
         /// <summary>
         /// This is not thread safe. run this on empire thread for safe removals.
         /// </summary>
