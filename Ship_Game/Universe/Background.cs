@@ -68,18 +68,37 @@ namespace Ship_Game
             StarField?.Dispose(ref StarField);
         }
 
-        public void Draw(UniverseScreen universe)
+        public void Draw(UniverseScreen u)
         {
-            Vector2 camPos = universe.CamPos.ToVec2();	    
-            var blackRect = new Rectangle(0, 0, universe.ScreenWidth, universe.ScreenHeight);
+            Vector2 camPos = u.CamPos.ToVec2();
+            var blackRect = new Rectangle(0, 0, u.ScreenWidth, u.ScreenHeight);
 
-            SpriteBatch batch = universe.ScreenManager.SpriteBatch;
-            float width  = universe.ScreenWidth;
-            float height = universe.ScreenHeight;
+            SpriteBatch batch = u.ScreenManager.SpriteBatch;
+            float width  = u.ScreenWidth;
+            float height = u.ScreenHeight;
 
+            // these are drawn with RenderState Additive
             batch.Begin();
+            batch.FillRectangle(blackRect, Color.Black); // new Color(12, 17, 24));
+
+            // dynamic 3d backgrop galaxy, it doesn't really work that well :(
+            //float uSize = u.UniverseSize;
+            //Viewport vp = u.Viewport;
+            //Vector3 topLeft = vp.Project(new Vector3(-uSize * 1.5f, -uSize * 1.5f, 0f), u.Projection, u.View, Matrix.Identity);
+            //Vector3 botRight = vp.Project(new Vector3(uSize * 1.5f, uSize * 1.5f, 0f), u.Projection, u.View, Matrix.Identity);
+            //Rectangle galaxyRect = RectF.FromPoints(topLeft.X, botRight.X, topLeft.Y, botRight.Y);
+            //batch.Draw(ResourceManager.Texture("Galaxy/galaxy3.dds"), galaxyRect, Color.White);
+
+            // static background texture
+            //if (true)
+            //{
+            //    var galaxy = ResourceManager.Texture("Galaxy/galaxy3.dds");
+            //    float srcHeight = Math.Min(galaxy.Height, galaxy.Width / u.Viewport.AspectRatio);
+            //    Rectangle srcRect = new RectF(0, 0, galaxy.Width, srcHeight);
+            //    batch.Draw(galaxy, blackRect, srcRect, Color.White);
+            //}
+
             var c = new Color(255, 255, 255, 160);
-            batch.FillRectangle(blackRect, Color.Black);// new Color(12, 17, 24));
             if (width > 2048)
                 batch.Draw(ResourceManager.Texture("hqstarfield1"), blackRect, c);
             else
@@ -101,21 +120,6 @@ namespace Ship_Game
             batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
             batch.Draw(ResourceManager.BigNebula(1), BkgRect, new Color(255, 255, 255, 60));
             batch.Draw(ResourceManager.BigNebula(3), BkgRect, new Color(255, 255, 255, 60));
-            batch.End();
-        }
-
-        public void DrawGalaxyBackdrop(UniverseScreen u)
-        {
-            SpriteBatch batch = u.ScreenManager.SpriteBatch;
-            Viewport vp = u.Viewport;
-            var blackRect = new Rectangle(0, 0, vp.Width, vp.Height);
-            batch.Begin();
-            batch.FillRectangle(blackRect, Color.Black);
-            Vector3 upperLeft  = vp.Project(Vector3.Zero, u.Projection, u.View, Matrix.Identity);
-            Vector3 lowerRight = vp.Project(new Vector3(u.UniverseSize, u.UniverseSize, 0f), u.Projection, u.View, Matrix.Identity);
-            vp.Project(new Vector3(u.UniverseSize / 2f, u.UniverseSize / 2f, 0f), u.Projection, u.View, Matrix.Identity);
-            var drawRect = new Rectangle((int)upperLeft.X, (int)upperLeft.Y, (int)lowerRight.X - (int)upperLeft.X, (int)lowerRight.Y - (int)upperLeft.Y);
-            batch.Draw(ResourceManager.Texture("galaxy"), drawRect, Color.White);
             batch.End();
         }
 
