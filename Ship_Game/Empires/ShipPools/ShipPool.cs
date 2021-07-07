@@ -8,6 +8,14 @@ namespace Ship_Game.Empires.ShipPools
     public class ShipPool
     {
         readonly Empire Owner;
+        bool ShouldNotAdd(Ship ship) => !ship.Active
+                                        || ship.fleet != null
+                                        || ship.IsHangarShip
+                                        || ship.IsHomeDefense
+                                        || ship.shipData.CarrierShip
+                                        || ship.AI.HasPriorityOrder
+                                        || ship.IsSupplyShuttle;
+
         ChangePendingList<Ship> ForcePool;
 
         EmpireAI OwnerAI => Owner.GetEmpireAI();
@@ -110,11 +118,7 @@ namespace Ship_Game.Empires.ShipPools
             for (int i = 0; i < allShips.Count; i++)
             {
                 var ship = allShips[i];
-                if (!ship.Active
-                    || ship.fleet != null
-                    || ship.IsHangarShip
-                    || ship.IsHomeDefense
-                    || ship.AI.HasPriorityOrder)
+                if (ShouldNotAdd(ship))
                 {
                     continue;
                 }
@@ -185,7 +189,7 @@ namespace Ship_Game.Empires.ShipPools
 
         void EmpireForcePoolAdd(Ship ship)
         {
-            if (Owner.isPlayer || Owner.isFaction || ship.IsHangarShip || ship.IsHomeDefense || !ship.Active || ship.fleet != null || ship.IsSupplyShuttle)
+            if (Owner.isPlayer || Owner.isFaction || !ship.Active || ship.fleet != null || ShouldNotAdd(ship))
                 return;
 
             RemoveShipFromFleetAndPools(ship);
@@ -212,12 +216,7 @@ namespace Ship_Game.Empires.ShipPools
             float baseDefensePct = 0.1f;
             baseDefensePct      += 0.15f * numWars;
 
-            if (toAdd.DesignRole < ShipData.RoleName.fighter
-                || !toAdd.Active
-                || toAdd.BaseStrength <= 0f
-                || !toAdd.BaseCanWarp
-                || toAdd.IsHangarShip
-                || toAdd.IsHomeDefense)
+            if (toAdd.DesignRole < ShipData.RoleName.fighter || ShouldNotAdd(toAdd))
             {
                 return false; // we don't need this ship
             }
