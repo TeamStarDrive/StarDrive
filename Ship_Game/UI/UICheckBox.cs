@@ -15,7 +15,6 @@ namespace Ship_Game
         Ref<bool> Binding;
 
         Vector2 TextPos;
-        Vector2 CheckPos;
 
         public Action<UICheckBox> OnChange;
         public Color TextColor = Color.White;
@@ -56,7 +55,6 @@ namespace Ship_Game
         {
         }
 
-
         public void Bind(BoolExpression binding)
         {
             Binding = new Ref<bool>(binding);
@@ -64,8 +62,8 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            var checkRect = new Rectangle((int)CheckPos.X, (int)CenterY - 6, 10, 12);
-            batch.DrawRectangle(checkRect, new Color(96, 81, 49));
+            var checkBox = new Rectangle((int)Pos.X + 6, (int)CenterY - 5, 10, 10);
+            batch.DrawRectangle(checkBox, new Color(96, 81, 49));
             //batch.DrawRectangle(Rect, Color.Red); // DEBUG
 
             if (Text.NotEmpty)
@@ -73,7 +71,8 @@ namespace Ship_Game
 
             if (Binding.Value)
             {
-                batch.DrawString(Fonts.Arial12Bold, "x", CheckPos, Color.White);
+                var checkPos = new Vector2(checkBox.X+1, checkBox.Y+4-Font.LineSpacing/2);
+                batch.DrawString(Fonts.Arial12Bold, "x", checkPos, Color.White);
             }
         }
 
@@ -102,11 +101,8 @@ namespace Ship_Game
             Pos.X = (int)Pos.X;
             Pos.Y = (int)Pos.Y;
             int h = Math.Max(10, Font.LineSpacing);
-            int th = Font.LineSpacing / 2;
-            Size = new Vector2(h + Font.MeasureString(Text).X, h+1);
-            TextPos  = new Vector2(Pos.X + 25, (int)CenterY - th);
-            CheckPos = new Vector2(Pos.X + 6 - Font.TextWidth("x") / 2,
-                                   Pos.Y + 5 - th);
+            Size = new Vector2(h + Font.TextWidth(Text), h+1);
+            TextPos = new Vector2(Pos.X + h, (int)CenterY - Font.LineSpacing / 2);
         }
     }
 }
