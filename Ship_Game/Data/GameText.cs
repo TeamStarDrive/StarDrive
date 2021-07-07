@@ -4324,6 +4324,10 @@ namespace Ship_Game
         BudgetLimitReached = 4339,
         /// <summary>Normaly, hostile planets negate our own projector effects and inhibit</summary>
         BB_Tech_SubspatialDynamics_CounterEnemyPlanetInhibitionBonus_Bonus = 4340,
+        /// <summary>Our spies detected that</summary>
+        OurSpiesReport = 4341,
+        /// <summary>are plotting a war against us and amassing a fleet</summary>
+        TheyPreparingForWar = 4342,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>
