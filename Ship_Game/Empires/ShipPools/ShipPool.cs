@@ -20,11 +20,12 @@ namespace Ship_Game.Empires.ShipPools
                                         //|| ship.DesignRole == ShipData.RoleName.troop
                                         || ship.AI.State == AIState.Refit
                                         || ship.AI.State == AIState.Scrap
-                                        || ship.AI.State == AIState.Scuttle;
+                                        || ship.AI.State == AIState.Scuttle
+                                        || ship.AI.State == AIState.Rebase;
         bool ShouldAddToAOPools(Ship ship) => ship.DesignRoleType == ShipData.RoleType.Warship;
-        bool ShouldAddToEmpirePool(Ship ship) => ship.BaseCanWarp && ship.AI.State != AIState.Rebase &&
+        bool ShouldAddToEmpirePool(Ship ship) => ship.BaseCanWarp &&
                                                  (ship.DesignRoleType == ShipData.RoleType.WarSupport ||
-                                                 ship.DesignRole == ShipData.RoleName.troopShip ||
+                                                 ship.DesignRoleType == ShipData.RoleType.Troop ||
                                                  ship.DesignRole == ShipData.RoleName.carrier);
 
         ChangePendingList<Ship> ForcePool;
@@ -40,8 +41,7 @@ namespace Ship_Game.Empires.ShipPools
             if (s.loyalty != Owner)
                 Log.Error($"Incorrect loyalty. Ship {s.loyalty} != Empire {Owner}");
 
-            if (!Owner.isPlayer && !Owner.isFaction && ShouldAddToEmpirePool(s))
-                EmpireForcePoolAdd(s);
+            EmpireForcePoolAdd(s);
         }
 
         public bool EmpireForcePoolContains(Ship s) => EmpireForcePool.ContainsRef(s);
