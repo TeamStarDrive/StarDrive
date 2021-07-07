@@ -1093,7 +1093,7 @@ namespace Ship_Game.Gameplay
 
         void RequestPeace(Empire us, bool requestNow = false)
         {
-            if ((ActiveWar.TurnsAtWar % 100).NotZero() && !requestNow)
+            if (ActiveWar.TurnsAtWar == 0 || ActiveWar.TurnsAtWar % 100 > 0 && !requestNow)
                 return;
 
             WarState warState    = ActiveWar.GetWarScoreState();
