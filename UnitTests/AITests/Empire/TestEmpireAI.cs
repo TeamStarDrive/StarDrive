@@ -229,6 +229,10 @@ namespace UnitTests.AITests.Empire
             float roleUnitMaint = build.RoleUnitMaintenance(combatRole);
             Assert.AreEqual(0.12f, roleUnitMaint, "Unexpected maintenance value");
 
+            // simulate building a bunch of ships by lowering the role build budget by the 
+            // role maintenance. Keep building until it starts to scrap.
+            // then use the build process to scrap enough ships to increase the build capacity
+            // do this over and over. 
             for (int x = 0; x < 20; ++x)
             {
                 buildCapacity = build.RoleBudget(combatRole) - roleUnitMaint;
@@ -244,13 +248,13 @@ namespace UnitTests.AITests.Empire
 
                 build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), false);
                 int roleCountWanted    = build.RoleCountDesired(combatRole);
-                int shipsBeingScrapped = Player.OwnedShips.Filter(s => s.AI.State == AIState.Scrap).Length;
                 int expectedBuildCount = (int)Math.Ceiling(build.RoleBudget(combatRole) / roleUnitMaint);
 
-                // TODO: Fix this test
-                //Assert.AreEqual(expectedBuildCount, roleCountWanted);
+                // test that role counts wanted and build counts are equal
+                Assert.AreEqual(expectedBuildCount, roleCountWanted, $"{combatRole}: maintenance = {roleUnitMaint} role budget = {build.RoleBudget(combatRole)} ");
 
-                float currentMain = build.RoleCurrentMaintenance(combatRole);
+                float currentMain      = build.RoleCurrentMaintenance(combatRole);
+                int shipsBeingScrapped = Player.OwnedShips.Filter(s => s.AI.State == AIState.Scrap).Length;
 
                 if (currentMain + roleUnitMaint > buildCapacity || build.RoleIsScrapping(combatRole))
                 {
