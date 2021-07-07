@@ -476,7 +476,7 @@ namespace Ship_Game.AI
                     if (minimum <= 0)
                         return;
                     CalculateBuildCapacity(buildCapacity, minimum, totalFleetMaintenance);
-                    float buildBudget    = RoleBuildBudget.LowerBound(.001f);
+                    float buildBudget = RoleBuildBudget;
                     float maintenanceMax = PerUnitMaintenanceMax.LowerBound(0.001f);
                     DesiredCount = (int)Math.Ceiling(buildBudget / maintenanceMax);
                 }
