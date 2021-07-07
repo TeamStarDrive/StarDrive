@@ -145,26 +145,39 @@ namespace Ship_Game
             LabelFont = font;
             Size = new Vector2(font.LineSpacing); // give it a mock size to ease debugging
         }
-        public UILabel(float x, float y, in LocalizedText text) : this(new Vector2(x,y), text, Fonts.Arial12Bold)
+
+        public UILabel(float x, float y, in LocalizedText text)
+            : this(new Vector2(x,y), text, Fonts.Arial12Bold)
         {
         }
-        public UILabel(Vector2 pos, in LocalizedText text) : this(pos, text, Fonts.Arial12Bold)
+        public UILabel(Vector2 pos, in LocalizedText text)
+            : this(pos, text, Fonts.Arial12Bold)
         {
         }
-        public UILabel(Vector2 pos, in LocalizedText text, Color color) : this(pos, text, Fonts.Arial12Bold)
+        public UILabel(Vector2 pos, in LocalizedText text, Color color)
+            : this(pos, text, Fonts.Arial12Bold)
         {
             Color = color;
-        }
-        public UILabel(Vector2 pos, in LocalizedText text, Graphics.Font font) : base(pos)
-        {
-            LabelFont = font;
-            LabelText = text;
-            UpdateSizeFromText(text.Text);
         }
         public UILabel(Vector2 pos, in LocalizedText text, Graphics.Font font, Color color)
             : this(pos, text, font)
         {
             Color = color;
+        }
+
+        public UILabel(Vector2 pos, in LocalizedText text, Graphics.Font font)
+            : base(pos)
+        {
+            LabelFont = font;
+            LabelText = text;
+            UpdateSizeFromText(text.Text);
+        }
+        public UILabel(Vector2 pos, Vector2 minSize, in LocalizedText text, Graphics.Font font)
+            : base(pos, minSize)
+        {
+            LabelFont = font;
+            LabelText = text;
+            UpdateSizeFromText(text.Text);
         }
         public UILabel(in Rectangle rect, in LocalizedText text, Graphics.Font font, Color color)
         {
