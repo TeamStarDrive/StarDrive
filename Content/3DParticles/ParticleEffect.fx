@@ -53,7 +53,7 @@ sampler Sampler = sampler_state
 // along with some random values that affect its size and rotation.
 struct VertexShaderInput
 {
-	float2 Corner : POSITION0;
+    float2 Corner : POSITION0;
     float3 Position : POSITION1;
     float3 Velocity : NORMAL0;
     float4 Color : COLOR0;
@@ -71,8 +71,12 @@ struct VertexShaderOutput
     float2 TextureCoordinate : COLOR1;
 };
 
+// Apply the camera view and projection transforms.
+float4 ToScreenCoords(float3 pos)
+{
+    return mul(mul(float4(pos, 1), View), Projection);
+}
 
-// Vertex shader helper for computing the position of a particle.
 float4 GetPosition(float3 position, float3 velocity,
                    float age, float normalizedAge)
 {
@@ -94,12 +98,9 @@ float4 GetPosition(float3 position, float3 velocity,
      
     position += normalize(velocity) * velocityIntegral * Duration;
     
-    // Apply the camera view and projection transforms.
-    return mul(mul(float4(position, 1), View), Projection);
+    return ToScreenCoords(position);
 }
 
-
-// Vertex shader helper for computing the size of a particle.
 float GetParticleSize(float randomValue, float normalizedAge)
 {
     // Apply a random factor to make each particle a slightly different size.
@@ -113,27 +114,25 @@ float GetParticleSize(float randomValue, float normalizedAge)
     return size * Projection._m11;
 }
 
-
-// Vertex shader helper for computing the color of a particle.
-float4 GetParticleColor(float4 projectedPosition,
-                        float randomValue, float normalizedAge)
+float4 GetStaticParticleColor(float randomValue)
 {
     // Apply a random factor to make each particle a slightly different color.
-    float4 color = lerp(MinColor, MaxColor, randomValue);
+    return lerp(MinColor, MaxColor, randomValue);
+}
+
+float4 GetParticleColor(float randomValue, float normalizedAge)
+{
+    float4 color = GetStaticParticleColor(randomValue);
     
     // Fade the alpha based on the age of the particle. This curve is hard coded
     // to make the particle fade in fairly quickly, then fade out more slowly:
     // plot x*(1-x)*(1-x) for x=0:1 in a graphing program if you want to see what
     // this looks like. The 6.7 scaling factor normalizes the curve so the alpha
     // will reach all the way up to fully solid.
-    
     color.a *= normalizedAge * (1-normalizedAge) * (1-normalizedAge) * 6.7;
-   
     return color;
 }
 
-
-// Vertex shader helper for computing the rotation of a particle.
 float2x2 GetRandomizedRotation(float randomValue, float age)
 {    
     // Apply a random factor to make each particle rotate at a different speed.
@@ -148,35 +147,85 @@ float2x2 GetRandomizedRotation(float randomValue, float age)
     return float2x2(c, -s, s, c);
 }
 
+float GetParticleAge(float time, float random)
+{
+    float age = CurrentTime - time;
+    // Apply a random factor to make different particles age at different rates.
+    age *= 1 + random * DurationRandomness;
+    return age;
+}
 
-// Custom vertex shader animates particles entirely on the GPU.
-VertexShaderOutput ParticleVertexShader(VertexShaderInput input)
+// Normalize the age into the range zero to one.
+float GetNormalizedAge(float age)
+{
+    return saturate(age / Duration);
+}
+
+VertexShaderOutput DynamicParticleVS(VertexShaderInput input)
 {
     VertexShaderOutput output;
     
-    // Compute the age of the particle.
-    float age = CurrentTime - input.Time;
-    
-    // Apply a random factor to make different particles age at different rates.
-    age *= 1 + input.Random.x * DurationRandomness;
-    
-    // Normalize the age into the range zero to one.
-    float normalizedAge = saturate(age / Duration);
-
-    // Compute the particle position, size, color, and rotation.
-    output.Position = GetPosition(input.Position, input.Velocity, age, normalizedAge);
-
+    float age = GetParticleAge(input.Time, input.Random.x);
+    float normalizedAge = GetNormalizedAge(age);
     float size = GetParticleSize(input.Random.y, normalizedAge) * input.Scale;
     float2x2 rotation = GetRandomizedRotation(input.Random.w, age);
 
+    output.Position = GetPosition(input.Position, input.Velocity, age, normalizedAge);
     // this cleverly scales the Quad corners
     output.Position.xy += mul(input.Corner, rotation) * size * ViewportScale;
-    output.Color = GetParticleColor(output.Position, input.Random.z, normalizedAge) * input.Color;
+    output.Color = GetParticleColor(input.Random.z, normalizedAge) * input.Color;
     output.TextureCoordinate = (input.Corner + 1) / 2;
-    
     return output;
 }
 
+VertexShaderOutput DynamicNonRotatingParticleVS(VertexShaderInput input)
+{
+    VertexShaderOutput output;
+    
+    float age = GetParticleAge(input.Time, input.Random.x);
+    float normalizedAge = GetNormalizedAge(age);
+    float size = GetParticleSize(input.Random.y, normalizedAge) * input.Scale;
+
+    output.Position = GetPosition(input.Position, input.Velocity, age, normalizedAge);
+    // this cleverly scales the Quad corners
+    output.Position.xy += input.Corner * size * ViewportScale;
+    output.Color = GetParticleColor(input.Random.z, normalizedAge) * input.Color;
+    output.TextureCoordinate = (input.Corner + 1) / 2;
+    return output;
+}
+
+VertexShaderOutput StaticRotatingParticleVS(VertexShaderInput input)
+{
+    VertexShaderOutput output;
+    
+    float age = GetParticleAge(input.Time, input.Random.x);
+    float normalizedAge = GetNormalizedAge(age);
+    float size = GetParticleSize(input.Random.y, normalizedAge) * input.Scale;
+    float2x2 rotation = GetRandomizedRotation(input.Random.w, age);
+
+    output.Position = ToScreenCoords(input.Position);
+    // this cleverly scales the Quad corners
+    output.Position.xy += mul(input.Corner, rotation) * size * ViewportScale;
+    output.Color = GetStaticParticleColor(input.Random.z) * input.Color;
+    output.TextureCoordinate = (input.Corner + 1) / 2;
+    return output;
+}
+
+VertexShaderOutput StaticNonRotatingParticleVS(VertexShaderInput input)
+{
+    VertexShaderOutput output;
+    
+    float age = GetParticleAge(input.Time, input.Random.x);
+    float normalizedAge = GetNormalizedAge(age);
+    float size = GetParticleSize(input.Random.y, normalizedAge) * input.Scale;
+
+    output.Position = ToScreenCoords(input.Position);
+    // this cleverly scales the Quad corners
+    output.Position.xy += input.Corner * size * ViewportScale;
+    output.Color = GetStaticParticleColor(input.Random.z) * input.Color;
+    output.TextureCoordinate = (input.Corner + 1) / 2;
+    return output;
+}
 
 // Pixel shader for drawing particles.
 float4 ParticlePixelShader(VertexShaderOutput input) : COLOR0
@@ -184,22 +233,42 @@ float4 ParticlePixelShader(VertexShaderOutput input) : COLOR0
     return tex2D(Sampler, input.TextureCoordinate) * input.Color;
 }
 
-
-// Effect technique for drawing particles.
-technique Particles
+// Dynamic particles have velocity, rotation, all features
+technique FullDynamicParticles
 {
     pass P0
     {
-        VertexShader = compile vs_2_0 ParticleVertexShader();
+        VertexShader = compile vs_2_0 DynamicParticleVS();
         PixelShader = compile ps_2_0 ParticlePixelShader();
     }
 }
 
-technique StaticParticle
+// Particles that move but do not rotate
+technique DynamicNonRotatingParticles
 {
     pass P0
     {
-        VertexShader = compile vs_2_0 ParticleVertexShader();
+        VertexShader = compile vs_2_0 DynamicNonRotatingParticleVS();
+        PixelShader = compile ps_2_0 ParticlePixelShader();
+    }
+}
+
+// Static particles never move, but they can rotate
+technique StaticRotatingParticles
+{
+    pass P0
+    {
+        VertexShader = compile vs_2_0 StaticRotatingParticleVS();
+        PixelShader = compile ps_2_0 ParticlePixelShader();
+    }
+}
+
+// Static non-rotating particles, never move, never rotate
+technique StaticNonRotatingParticle
+{
+    pass P0
+    {
+        VertexShader = compile vs_2_0 StaticNonRotatingParticleVS();
         PixelShader = compile ps_2_0 ParticlePixelShader();
     }
 }

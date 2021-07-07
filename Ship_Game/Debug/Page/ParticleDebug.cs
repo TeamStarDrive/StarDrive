@@ -10,9 +10,22 @@ namespace Ship_Game.Debug.Page
     {
         readonly UniverseScreen Screen;
 
+        Vector2 Origin;
+
         public ParticleDebug(UniverseScreen screen, DebugInfoScreen parent) : base(parent, DebugModes.Trade)
         {
             Screen = screen;
+            Origin = new Vector2(50, 280);
+
+            Vector2 pos = Origin;
+            foreach (IParticleSystem ps in screen.Particles.ParticleSystems.ToArray())
+            {
+                Add(new UICheckBox(pos.X - 32f, pos.Y, () => ps.IsEnabled, Fonts.Arial12,
+                    "", "Toggle to enable/disable particle system"));
+                Add(new UICheckBox(pos.X - 16f, pos.Y, () => ps.EnableDebug, Fonts.Arial12,
+                    "", "Toggle to enable/disable particle DEBUG"));
+                pos.Y += TextFont.LineSpacing;
+            }
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -23,9 +36,9 @@ namespace Ship_Game.Debug.Page
             ParticleManager manager = Screen.Particles;
             var particleSystems = manager.ParticleSystems.ToArray();
 
-            SetTextCursor(50, 280, Color.White);
+            SetTextCursor(Origin.X, Origin.Y, Color.White);
 
-            foreach (ParticleSystem ps in particleSystems)
+            foreach (IParticleSystem ps in particleSystems)
             {
                 DrawParticleStats(batch, ps);
             }
@@ -33,22 +46,18 @@ namespace Ship_Game.Debug.Page
             base.Draw(batch, elapsed);
         }
 
-        void DrawParticleStats(SpriteBatch batch, ParticleSystem ps)
+        void DrawParticleStats(SpriteBatch batch, IParticleSystem ps)
         {
             if (ps.IsOutOfParticles)
-            {
                 TextColor = Color.Orange;
-            }
             else
-            {
                 TextColor = Color.White;
-            }
             
             var cursor = TextCursor;
             DrawString($"PS {ps.Name,-32}");
-            SetTextCursor(190, cursor.Y, TextColor);
-            DrawString($" NAct:{ps.NumActive}  Act:{ps.FirstActive}  New:{ps.FirstNew}  Free:{ps.FirstFree}  Ret:{ps.FirstRetired}  Max:{ps.MaxParticles}  Out:{ps.IsOutOfParticles}");
-            SetTextCursor(cursor.X, TextCursor.Y, TextColor); // restore X
+            SetTextCursor(Origin.X + 140, cursor.Y, TextColor);
+            DrawString($" Active:{ps.ActiveParticles}  Max:{ps.MaxParticles}  Out:{ps.IsOutOfParticles}");
+            SetTextCursor(Origin.X, TextCursor.Y, TextColor); // restore X
         }
     }
 }

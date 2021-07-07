@@ -304,16 +304,16 @@ namespace Ship_Game.Gameplay
                     FiretrailEmitter = Empire.Universe.Particles.FireTrail.NewEmitter(100f, Center, -ZStart);
                     break;
                 case "Plasma":
-                    FiretrailEmitter = Empire.Universe.Particles.Flame.NewEmitter(100f, Center);
+                    FiretrailEmitter = Empire.Universe.Particles.Flame.NewEmitter(100f, Center, 0f);
                     break;
                 case "SmokeTrail":
                     TrailEmitter     = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Center, -ZStart);
                     break;
                 case "MuzzleSmoke":
-                    FiretrailEmitter = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Center);
+                    FiretrailEmitter = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Center, 0f);
                     break;
                 case "MuzzleSmokeFire":
-                    FiretrailEmitter = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Center);
+                    FiretrailEmitter = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Center, 0f);
                     TrailEmitter     = Empire.Universe.Particles.FireTrail.NewEmitter(100f, Center, -ZStart);
                     break;
                 case "FullSmokeMuzzleFire":
