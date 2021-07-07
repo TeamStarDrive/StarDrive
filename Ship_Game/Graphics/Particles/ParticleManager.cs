@@ -7,29 +7,29 @@ namespace Ship_Game.Graphics.Particles
 {
     public class ParticleManager : IDisposable
     {
-        public ParticleSystem BeamFlash;
-        public ParticleSystem Explosion;
-        public ParticleSystem PhotonExplosion;
-        public ParticleSystem ExplosionSmoke;
-        public ParticleSystem ProjectileTrail;
-        public ParticleSystem FireTrail;
-        public ParticleSystem SmokePlume;
-        public ParticleSystem Fire;
-        public ParticleSystem ThrustEffect;
-        public ParticleSystem EngineTrail;
-        public ParticleSystem Flame;
-        public ParticleSystem SmallFlame;
-        public ParticleSystem Sparks;
-        public ParticleSystem Lightning;
-        public ParticleSystem Flash;
-        public ParticleSystem StarParticles;
-        public ParticleSystem Galaxy;
+        public IParticleSystem BeamFlash;
+        public IParticleSystem Explosion;
+        public IParticleSystem PhotonExplosion;
+        public IParticleSystem ExplosionSmoke;
+        public IParticleSystem ProjectileTrail;
+        public IParticleSystem FireTrail;
+        public IParticleSystem SmokePlume;
+        public IParticleSystem Fire;
+        public IParticleSystem ThrustEffect;
+        public IParticleSystem EngineTrail;
+        public IParticleSystem Flame;
+        public IParticleSystem SmallFlame;
+        public IParticleSystem Sparks;
+        public IParticleSystem Lightning;
+        public IParticleSystem Flash;
+        public IParticleSystem StarParticles;
+        public IParticleSystem Galaxy;
 
         readonly Data.GameContentManager Content;
         readonly GraphicsDevice Device;
-        readonly Array<ParticleSystem> Tracked = new Array<ParticleSystem>();
+        readonly Array<IParticleSystem> Tracked = new Array<IParticleSystem>();
 
-        public IReadOnlyList<ParticleSystem> ParticleSystems => Tracked;
+        public IReadOnlyList<IParticleSystem> ParticleSystems => Tracked;
 
         public ParticleManager(Data.GameContentManager content, GraphicsDevice device)
         {
@@ -61,16 +61,17 @@ namespace Ship_Game.Graphics.Particles
             Galaxy          = Add("Galaxy");
         }
 
-        ParticleSystem Add(string name, float scale = 1, int particleCount = -1)
+        IParticleSystem Add(string name, float scale = 1, int particleCount = -1)
         {
-            var ps = new ParticleSystem(Content, ParticleSettings.Get(name), Device, scale, particleCount);
+            var settings = ParticleSettings.Get(name);
+            var ps = new ParticleSystem(Content, settings, Device, scale, particleCount);
             Tracked.Add(ps);
             return ps;
         }
 
         public void UnloadContent()
         {
-            foreach (ParticleSystem sys in Tracked)
+            foreach (IParticleSystem sys in Tracked)
                 sys.Dispose();
             Tracked.Clear();
         }
@@ -80,21 +81,21 @@ namespace Ship_Game.Graphics.Particles
             UnloadContent();
         }
 
-        public void Draw(in Matrix view, in Matrix projection)
-        {
-            for (int i = 0; i < Tracked.Count; ++i)
-            {
-                ParticleSystem ps = Tracked[i];
-                ps.Draw(view, projection);
-            }
-        }
-
         public void Update(DrawTimes elapsed)
         {
             for (int i = 0; i < Tracked.Count; ++i)
             {
-                ParticleSystem ps = Tracked[i];
+                IParticleSystem ps = Tracked[i];
                 ps.Update(elapsed);
+            }
+        }
+
+        public void Draw(in Matrix view, in Matrix projection, bool nearView)
+        {
+            for (int i = 0; i < Tracked.Count; ++i)
+            {
+                IParticleSystem ps = Tracked[i];
+                ps.Draw(view, projection, nearView);
             }
         }
     }

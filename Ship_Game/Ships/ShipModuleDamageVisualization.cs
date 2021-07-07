@@ -23,7 +23,7 @@ namespace Ship_Game.Ships
         public ShipModuleDamageVisualization(ShipModule module)
         {
             Area                = module.XSIZE * module.YSIZE;
-            Vector3 center      = module.GetCenter3D;            
+            Vector3 center      = module.GetCenter3D;
             ShipModuleType type = module.ModuleType;
             
             float modelZ = module.GetParent().BaseHull.ModelZ;
@@ -31,11 +31,11 @@ namespace Ship_Game.Ships
             switch (type) // FB: other special effects based on some module types, use main moduletypes for performance sake
             {
                 case ShipModuleType.Shield:
-                    Lightning = Empire.Universe.Particles.Sparks.NewEmitter(40f, center.ToVec2(), -10f + modelZ);
+                    Lightning = Empire.Universe.Particles.Sparks.NewEmitter(40f, new Vector3(center.ToVec2(), modelZ - 10f));
                     LightningVelZ = -6f;
                     break;
                 case ShipModuleType.PowerConduit:
-                    Lightning = Empire.Universe.Particles.Sparks.NewEmitter(25f, center.ToVec2(), -10f + modelZ);
+                    Lightning = Empire.Universe.Particles.Sparks.NewEmitter(25f, new Vector3(center.ToVec2(), modelZ - 10f));
                     LightningVelZ = -3f;
                     return;
                 case ShipModuleType.PowerPlant:
