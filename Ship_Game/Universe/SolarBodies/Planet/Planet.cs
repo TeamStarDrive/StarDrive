@@ -606,7 +606,7 @@ namespace Ship_Game
                     continue;
 
                 float dist = Center.SqDist(ship.Center);
-                if (dist < closestTroop && (ship.IsTroopShip || ship.IsBomber))
+                if (dist < closestTroop && (ship.IsSingleTroopShip || ship.IsDefaultAssaultShuttle || ship.IsBomber))
                 {
                     closestTroop = dist;
                     troop = ship;

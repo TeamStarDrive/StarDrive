@@ -169,7 +169,8 @@ namespace Ship_Game.Ships
         public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || Empire.DefaultBoardingShuttleName == Name;
         public bool IsDefaultTroopShip      => !IsDefaultAssaultShuttle && (loyalty.data.DefaultTroopShip == Name || DesignRole == ShipData.RoleName.troop);
         public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
-        public bool IsTroopShip             => DesignRole == ShipData.RoleName.troop;
+        public bool IsSingleTroopShip       => DesignRole == ShipData.RoleName.troop;
+        public bool IsTroopShip             => DesignRole == ShipData.RoleName.troop || DesignRole == ShipData.RoleName.troopShip;
         public bool IsBomber                => DesignRole == ShipData.RoleName.bomber;
         public bool IsSubspaceProjector     => Name == "Subspace Projector";
         public bool HasBombs                => BombBays.Count > 0;
@@ -245,6 +246,22 @@ namespace Ship_Game.Ships
             foreach (Rectangle ao in AreaOfOperation)
                 if (ao.HitTest(planet.Center))
                     return true;
+
+            return false;
+        }
+
+        public bool IsBeingTargeted(out Ship targetingShip)
+        {
+            targetingShip = null;
+            for (int i = 0; i < AI.PotentialTargets.Length; i++)
+            {
+                Ship potentialShip = AI.PotentialTargets[i];
+                if (potentialShip.AI.Target == this)
+                {
+                    targetingShip = potentialShip;
+                    return true;
+                }
+            }
 
             return false;
         }
