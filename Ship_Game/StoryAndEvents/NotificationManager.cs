@@ -133,7 +133,16 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 RelevantEmpire = empire,
-                Message        = $"{our} {treaty} {with} {empire.Name} {wasRevoked}",
+                Message        = $"{our} {treaty} {with} {empire.Name} {wasRevoked}"
+            }, "sd_ui_notification_warning");
+        }
+
+        public void NotifyPreparingForWar(Empire e)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire = e,
+                Message        = $"{Localizer.Token(4341)} {e.Name} {Localizer.Token(4342)}"
             }, "sd_ui_notification_warning");
         }
 

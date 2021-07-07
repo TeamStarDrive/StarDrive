@@ -10225,6 +10225,12 @@ BudgetLimitReached:
 BB_Tech_SubspatialDynamics_CounterEnemyPlanetInhibitionBonus_Bonus:
  Id: 4340
  ENG: "Normaly, hostile planets negate our own projector effects and inhibit our ships. This tech allows us to decrease the enemy planet's gravity well by 25%, if we have a projector in range."
+OurSpiesReport:
+ Id: 4341
+ ENG: "Our spies detected that" 
+TheyPreparingForWar:
+ Id: 4342
+ ENG: "are plotting a war\n against us and amassing a fleet somewhere."  
 OnSurface:
  Id: 4993
  ENG: "on surface"
