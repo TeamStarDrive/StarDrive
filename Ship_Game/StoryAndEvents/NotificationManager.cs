@@ -142,7 +142,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 RelevantEmpire = e,
-                Message        = $"{Localizer.Token(4341)} {e.Name} {Localizer.Token(4342)}"
+                Message        = $"{Localizer.Token(GameText.OurSpiesReport)} {e.Name} {Localizer.Token(GameText.TheyPreparingForWar)}"
             }, "sd_ui_notification_warning");
         }
 
