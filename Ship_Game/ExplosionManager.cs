@@ -144,20 +144,6 @@ namespace Ship_Game
 
         public static void Update(UniverseScreen us, float elapsedTime)
         {
-            // This is purely for DEBUGGING all explosion effects
-            bool debugExplosions = Log.HasDebugger && false;
-            if (debugExplosions && us.Input.IsCtrlKeyDown && us.Input.LeftMouseClick)
-            {
-                GameAudio.PlaySfxAsync("sd_explosion_ship_det_large");
-                AddExplosion(us.CursorWorldPosition, RandomMath.Vector2D(50f), 500.0f, 5.0f, ExplosionType.Ship);
-                AddExplosion(us.CursorWorldPosition+RandomMath.Vector3D(500f), RandomMath.Vector2D(50f), 500.0f, 5.0f, ExplosionType.Projectile);
-                AddExplosion(us.CursorWorldPosition+RandomMath.Vector3D(500f), RandomMath.Vector2D(50f), 500.0f, 5.0f, ExplosionType.Photon);
-                AddExplosion(us.CursorWorldPosition+RandomMath.Vector3D(500f), RandomMath.Vector2D(50f), 500.0f, 5.0f, ExplosionType.Warp);
-
-                for (int i = 0; i < 15; ++i) // some fireworks!
-                    AddExplosion(us.CursorWorldPosition+RandomMath.Vector3D(500f), RandomMath.Vector2D(50f), 200.0f, 5.0f, ExplosionType.Projectile);
-            }
-
             using (Lock.AcquireWriteLock())
             {
                 for (int i = 0; i < ActiveExplosions.Count; ++i)

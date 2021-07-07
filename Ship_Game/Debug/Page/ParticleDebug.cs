@@ -1,8 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.AI;
+using Ship_Game.Audio;
 using Ship_Game.Graphics.Particles;
-using Ship_Game.Ships;
 
 namespace Ship_Game.Debug.Page
 {
@@ -10,54 +9,102 @@ namespace Ship_Game.Debug.Page
     {
         readonly UniverseScreen Screen;
 
-        Vector2 Origin;
+        Map<IParticleSystem, bool> Selected = new Map<IParticleSystem, bool>();
+        FloatSlider Scale;
+        FloatSlider Velocity;
+        FloatSlider LoyaltySlider;
+        Empire Loyalty;
 
-        public ParticleDebug(UniverseScreen screen, DebugInfoScreen parent) : base(parent, DebugModes.Trade)
+        ParticleManager Manager => Screen.Particles;
+        IParticleSystem[] ParticleSystems => Manager.ParticleSystems.ToArray();
+
+        public ParticleDebug(UniverseScreen screen, DebugInfoScreen parent)
+            : base(parent, DebugModes.Particles)
         {
             Screen = screen;
-            Origin = new Vector2(50, 280);
 
-            Vector2 pos = Origin;
-            foreach (IParticleSystem ps in screen.Particles.ParticleSystems.ToArray())
+            var right = AddList(Screen.Width - 300, 300);
+            right.AddLabel("Ctrl+LeftMouse to trigger Explosion");
+            Scale = right.Add(new FloatSlider(SliderStyle.Decimal1, 200, 30,
+                                              "Particle Draw Scale", 0.1f, 20.0f, 5.0f));
+            Velocity = right.Add(new FloatSlider(SliderStyle.Decimal, 200, 30,
+                                                 "Particle Velocity", 0, 10000, 500));
+
+            Loyalty = EmpireManager.GetEmpireById(1);
+            LoyaltySlider = right.Add(new FloatSlider(SliderStyle.Decimal, 200, 30,
+                                                     $"Particle Loyalty: {Loyalty.Name}",
+                                                     1, EmpireManager.NumEmpires, 0));
+            LoyaltySlider.OnChange = (FloatSlider f) =>
             {
-                Add(new UICheckBox(pos.X - 32f, pos.Y, () => ps.IsEnabled, Fonts.Arial12,
-                    "", "Toggle to enable/disable particle system"));
-                Add(new UICheckBox(pos.X - 16f, pos.Y, () => ps.EnableDebug, Fonts.Arial12,
-                    "", "Toggle to enable/disable particle DEBUG"));
-                pos.Y += TextFont.LineSpacing;
+                Loyalty = EmpireManager.GetEmpireById((int)f.AbsoluteValue);
+                f.Text = $"Particle Loyalty: {Loyalty.Name}";
+            };
+
+            var left = AddList(20, 320);
+            foreach (IParticleSystem ps in ParticleSystems)
+            {
+                Selected[ps] = false;
+
+                var horizontal = left.AddList(Vector2.Zero, new Vector2(400, 20));
+                horizontal.Direction = new Vector2(1f, 0);
+
+                horizontal.AddCheckbox(() => ps.IsEnabled, "on", "Toggle to enable/disable particle system");
+                horizontal.AddCheckbox(() => ps.EnableDebug, "dbg", "Toggle to enable/disable particle DEBUG");
+                horizontal.AddCheckbox(() => Selected[ps], b => Selected[ps] = b, "draw", "Select this particle for drawing");
+
+                var name = horizontal.AddLabel(new Vector2(100, 20), $"PS {ps.Name}");
+                name.DynamicText = l =>
+                {
+                    if (ps.IsOutOfParticles) l.Color = Color.Orange;
+                    else if (Selected[ps])   l.Color = Color.Green;
+                    else                     l.Color = Color.White;
+                    return $"PS {ps.Name}";
+                };
+
+                var stats = horizontal.AddLabel(new Vector2(200, 20), "");
+                stats.DynamicText = l => $" Active:{ps.ActiveParticles}  Max:{ps.MaxParticles}  Out:{ps.IsOutOfParticles}";
             }
         }
 
-        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+        public override bool HandleInput(InputState input)
         {
-            if (!Visible)
-                return;
-
-            ParticleManager manager = Screen.Particles;
-            var particleSystems = manager.ParticleSystems.ToArray();
-
-            SetTextCursor(Origin.X, Origin.Y, Color.White);
-
-            foreach (IParticleSystem ps in particleSystems)
+            if (input.IsCtrlKeyDown && input.LeftMouseClick)
             {
-                DrawParticleStats(batch, ps);
+                GameAudio.PlaySfxAsync("sd_explosion_ship_det_large");
+                MakeItRain(offset: 0f,   velocity: 50f, radius: 500f, ExplosionType.Ship);
+                MakeItRain(offset: 500f, velocity: 50f, radius: 500f, ExplosionType.Projectile);
+                MakeItRain(offset: 500f, velocity: 50f, radius: 500f, ExplosionType.Photon);
+                MakeItRain(offset: 500f, velocity: 50f, radius: 500f, ExplosionType.Warp);
+                for (int i = 0; i < 15; ++i) // some fireworks!
+                    MakeItRain(offset: 500f, velocity: 50f, radius: 200f, ExplosionType.Projectile);
+                return true;
             }
-
-            base.Draw(batch, elapsed);
+            return base.HandleInput(input);
         }
 
-        void DrawParticleStats(SpriteBatch batch, IParticleSystem ps)
+        void MakeItRain(float offset, float velocity, float radius, ExplosionType type)
         {
-            if (ps.IsOutOfParticles)
-                TextColor = Color.Orange;
-            else
-                TextColor = Color.White;
-            
-            var cursor = TextCursor;
-            DrawString($"PS {ps.Name,-32}");
-            SetTextCursor(Origin.X + 140, cursor.Y, TextColor);
-            DrawString($" Active:{ps.ActiveParticles}  Max:{ps.MaxParticles}  Out:{ps.IsOutOfParticles}");
-            SetTextCursor(Origin.X, TextCursor.Y, TextColor); // restore X
+            ExplosionManager.AddExplosion(Screen.CursorWorldPosition + RandomMath.Vector3D(offset),
+                                          velocity:RandomMath.Vector2D(velocity),
+                                          radius: radius, intensity:5.0f, type:type);
+        }
+
+        public override void Update(float fixedDeltaTime)
+        {
+            foreach (IParticleSystem ps in ParticleSystems)
+            {
+                if (Selected[ps])
+                {
+                    Color color = Color.White;
+                    if      (ps == Manager.ThrustEffect) color = Loyalty.ThrustColor1;
+                    else if (ps == Manager.EngineTrail)  color = Loyalty.EmpireColor;
+
+                    ps.AddParticle(Screen.CursorWorldPosition,
+                                   new Vector3(Velocity.AbsoluteValue, 0, 0),
+                                   Scale.AbsoluteValue, color);
+                }
+            }
+            base.Update(fixedDeltaTime);
         }
     }
 }
