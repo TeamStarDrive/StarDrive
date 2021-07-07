@@ -251,6 +251,16 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////
         
+        public UILabel AddLabel(in LocalizedText text)
+        {
+            return Add(new UILabel(text));
+        }
+
+        public UILabel AddLabel(Vector2 minSize, in LocalizedText text)
+        {
+            return Add(new UILabel(Vector2.Zero, minSize, text, Fonts.Arial12Bold));
+        }
+
         public UIButton AddButton(in LocalizedText text, Action<UIButton> click)
         {
             UIButton button = Add(new UIButton(ButtonStyle.Default, text));
@@ -270,6 +280,10 @@ namespace Ship_Game
         public UICheckBox AddCheckbox(Expression<Func<bool>> binding, 
                                       in LocalizedText title, in LocalizedText tooltip)
             => Add(new UICheckBox(binding, Fonts.Arial12Bold, title, tooltip));
+
+        public UICheckBox AddCheckbox(Func<bool> getter, Action<bool> setter,
+                                      in LocalizedText title, in LocalizedText tooltip)
+            => Add(new UICheckBox(0, 0, getter, setter, Fonts.Arial12Bold, title, tooltip));
 
         /////////////////////////////////////////////////////////////////////////////
     }
