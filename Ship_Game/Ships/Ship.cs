@@ -1560,6 +1560,7 @@ namespace Ship_Game.Ships
             Active = false;
             TetheredTo?.RemoveFromOrbitalStations(this);
             AI.ClearOrdersAndWayPoints(); // This calls immediate Dispose() on Orders that require cleanup
+            loyalty.RemoveShipFromAIPools(this);
         }
 
         public override void RemoveFromUniverseUnsafe()
@@ -1605,7 +1606,7 @@ namespace Ship_Game.Ships
             base.RemoveFromUniverseUnsafe();
         }
 
-        public void ClearFleet() => fleet?.RemoveShip(this);
+        public void ClearFleet(bool returnToManagedPools = true) => fleet?.RemoveShip(this, returnToManagedPools);
         public void UnsafeClearFleet() => fleet?.UnSafeRemoveShip(this);
 
         public void Dispose()
