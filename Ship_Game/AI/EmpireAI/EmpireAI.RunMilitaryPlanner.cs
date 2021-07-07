@@ -473,11 +473,19 @@ namespace Ship_Game.AI
                 public void CalculateDesiredShips(FleetRatios ratio, float buildCapacity, float totalFleetMaintenance)
                 {
                     float minimum = CombatRoleToRatioMin(ratio);
-                    if (minimum <= 0)
+                    // quick check and set. if min is 0 or build is 0 there is no need to figure out that it can build 0
+                    if (minimum <= 0 || buildCapacity <= 0)
+                    {
+                        DesiredCount = 0;
                         return;
+                    }
+
                     CalculateBuildCapacity(buildCapacity, minimum, totalFleetMaintenance);
-                    float buildBudget = RoleBuildBudget;
+                    float buildBudget    = RoleBuildBudget;
                     float maintenanceMax = PerUnitMaintenanceMax.LowerBound(0.001f);
+                    // if it has any budget to build it will build at least one ship
+                    // this will give it a slight over build but it will allow it to always be able
+                    // to build ships even on factional budgets.
                     DesiredCount = (int)Math.Ceiling(buildBudget / maintenanceMax);
                 }
 

@@ -247,11 +247,13 @@ namespace UnitTests.AITests.Empire
                 Universe.Objects.UpdateLists();
 
                 build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), false);
+                // this is the actual number of ships to build with available budget. 
                 int roleCountWanted    = build.RoleCountDesired(combatRole);
+                // this is the formula used to determine the number of ships that can be built with available budget.
                 int expectedBuildCount = (int)Math.Ceiling(build.RoleBudget(combatRole) / roleUnitMaint);
 
                 // test that role counts wanted and build counts are equal
-                Assert.AreEqual(expectedBuildCount, roleCountWanted, $"{combatRole}: maintenance = {roleUnitMaint} role budget = {build.RoleBudget(combatRole)} ");
+                Assert.AreEqual(expectedBuildCount, roleCountWanted, $"{combatRole}: expected number of ships to build did not match actual");
 
                 float currentMain      = build.RoleCurrentMaintenance(combatRole);
                 int shipsBeingScrapped = Player.OwnedShips.Filter(s => s.AI.State == AIState.Scrap).Length;
