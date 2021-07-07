@@ -15,7 +15,9 @@ namespace Ship_Game
         public void DrawStarField()
         {
             if (GlobalStats.DrawStarfield)
-                bg.Draw(this);
+            {
+                bg?.Draw(this);
+            }
         }
 
         void RenderBackdrop(SpriteBatch batch)
@@ -25,7 +27,9 @@ namespace Ship_Game
             DrawStarField();
 
             if (GlobalStats.DrawNebulas)
+            {
                 bg3d?.Draw();
+            }
 
             batch.Begin();
 
@@ -175,7 +179,6 @@ namespace Ship_Game
         // I think this draws a big galaxy texture
         void RenderGalaxyBackdrop()
         {
-            bg.DrawGalaxyBackdrop(this);
             ScreenManager.SpriteBatch.Begin();
             for (int index = 0; index < 41; ++index)
             {

@@ -12,14 +12,21 @@ namespace Ship_Game
         public Background3D(UniverseScreen screen)
         {
             Screen = screen;
-            int size = (int) RandomMath.AvgRandomBetween(1000000+ screen.UniverseSize / 4f, screen.UniverseSize);
+            float universeSize = screen.UniverseSize;
+
+            int size = (int) RandomMath.AvgRandomBetween(1000000 + universeSize / 4f, universeSize);
             
             CreateRandomLargeNebula(new Rectangle(
-                (int) RandomMath.AvgRandomBetween(-screen.UniverseSize * 1.5f, screen.UniverseSize * 2 - size),
-                (int) RandomMath.AvgRandomBetween(-screen.UniverseSize * 1.5f, screen.UniverseSize * 2 - size),
-                size, size)); //Updated to take full advantage of the bigger maps -Gretman
-            for (int i = 0; i < 4 + (int) (Screen.UniverseSize / 4000000); i++) //And add more nedulas and stuff
-                CreateRandomSmallObject();
+                (int) RandomMath.AvgRandomBetween(-universeSize * 1.5f, universeSize * 2 - size),
+                (int) RandomMath.AvgRandomBetween(-universeSize * 1.5f, universeSize * 2 - size),
+                size, size));
+
+            for (int i = 0; i < 4 + (int) (universeSize / 4000000); i++)
+            {
+                CreateRandomSmallObject(universeSize);
+            }
+
+            CreateForegroundStars(universeSize);
         }
 
         ~Background3D() { Destroy(); }
@@ -41,6 +48,21 @@ namespace Ship_Game
             neb.FillVertices();
         }
 
+        // these are the stars which float on top of simulated universe
+        // the negative Z means out of the screen
+        void CreateForegroundStars(float universeSize)
+        {
+            int numStars = (int)(universeSize / 5000.0f);
+            for (int i = 0; i < numStars; ++i)
+            {
+                var position = new Vector3(
+                    RandomMath.RandomBetween(-1.5f * universeSize, 1.5f * universeSize),
+                    RandomMath.RandomBetween(-1.5f * universeSize, 1.5f * universeSize),
+                    RandomMath.RandomBetween(-200000f, -2E+07f));
+                Screen.Particles.StarParticles.AddParticle(position);
+            }
+        }
+
         void CreateRandomLargeNebula(Rectangle r)
         {
             const float startz = 1500000f;
@@ -53,6 +75,8 @@ namespace Ship_Game
                 CreateBGItem(nebrect, nebZ, neb);
                 neb.LoadContent(Screen.ScreenManager);
                 BGItems.Add(neb);
+
+                // add star particles inside of the nebulae
                 if (starParts)
                     Screen.Particles.StarParticles.AddParticle(new Vector3(nebrect.X, nebrect.Y, nebZ));
                 return nebZ;
@@ -73,53 +97,50 @@ namespace Ship_Game
                     (int)(r.Y + RandomMath.RandomBetween(r.Height * 0.2f, r.Height * 0.8f)),
                     (int)rw,
                     (int)rw);
-                CreateNebulaPart(b, 0, smoke, startz, zPos, true);
+                CreateNebulaPart(b, 0, smoke, startz, zPos, starParts: true);
             }
         }
 
-        private void CreateRandomSmallObject()
+        void CreateRandomSmallObject(float universeSize)
         {
-            var BigNeb_1 = new BackgroundItem(ResourceManager.SmallNebulaRandom());
+            var neb1 = new BackgroundItem(ResourceManager.SmallNebulaRandom());
             var nebUpperLeft = new Vector2(
-                RandomMath.RandomBetween(-Screen.UniverseSize * 1.5f, Screen.UniverseSize * 0.75f),
-                RandomMath.RandomBetween(-Screen.UniverseSize * 1.5f,
-                    Screen.UniverseSize * 0.75f)); //More Random Here -Gretman
+                RandomMath.RandomBetween(-universeSize * 1.5f, universeSize * 0.75f),
+                RandomMath.RandomBetween(-universeSize * 1.5f, universeSize * 0.75f));
             float zPos = RandomMath.RandomBetween(500000f, 5000000f);
-            float xSize = RandomMath.RandomBetween(800000f, Screen.UniverseSize * 0.75f);
-            float ySize = BigNeb_1.Texture.Height / BigNeb_1.Texture.Width * xSize;
-            BigNeb_1.UpperLeft = new Vector3(nebUpperLeft, zPos);
-            BigNeb_1.LowerLeft = BigNeb_1.UpperLeft + new Vector3(0f, ySize, 0f);
-            BigNeb_1.UpperRight = BigNeb_1.UpperLeft + new Vector3(xSize, 0f, 0f);
-            BigNeb_1.LowerRight = BigNeb_1.UpperLeft + new Vector3(xSize, ySize, 0f);
-            BigNeb_1.FillVertices();
-            BigNeb_1.LoadContent(Screen.ScreenManager);
-            BGItems.Add(BigNeb_1);
+            float xSize = RandomMath.RandomBetween(800000f, universeSize * 0.75f);
+            float ySize = (float)neb1.Texture.Height / neb1.Texture.Width * xSize;
+            neb1.UpperLeft = new Vector3(nebUpperLeft, zPos);
+            neb1.LowerLeft = neb1.UpperLeft + new Vector3(0f, ySize, 0f);
+            neb1.UpperRight = neb1.UpperLeft + new Vector3(xSize, 0f, 0f);
+            neb1.LowerRight = neb1.UpperLeft + new Vector3(xSize, ySize, 0f);
+            neb1.FillVertices();
+            neb1.LoadContent(Screen.ScreenManager);
+            BGItems.Add(neb1);
 
-            var BigNeb_2 = new BackgroundItem(ResourceManager.SmallNebulaRandom());
-            zPos = zPos + RandomMath.RandomBetween(300000f, 500000f);
-            xSize = RandomMath.RandomBetween(800000f, Screen.UniverseSize * 0.75f);
-            ySize = BigNeb_2.Texture.Height / BigNeb_2.Texture.Width * xSize;
-            BigNeb_2.UpperLeft = new Vector3(nebUpperLeft, zPos);
-            BigNeb_2.LowerLeft = BigNeb_2.UpperLeft + new Vector3(0f, ySize, 0f);
-            BigNeb_2.UpperRight = BigNeb_2.UpperLeft + new Vector3(xSize, 0f, 0f);
-            BigNeb_2.LowerRight = BigNeb_2.UpperLeft + new Vector3(xSize, ySize, 0f);
-            BigNeb_2.FillVertices();
-            BigNeb_2.LoadContent(Screen.ScreenManager);
-            BGItems.Add(BigNeb_2);
+            var neb2 = new BackgroundItem(ResourceManager.SmallNebulaRandom());
+            zPos += RandomMath.RandomBetween(300000f, 500000f);
+            xSize = RandomMath.RandomBetween(800000f, universeSize * 0.75f);
+            ySize = (float)neb2.Texture.Height / neb2.Texture.Width * xSize;
+            neb2.UpperLeft = new Vector3(nebUpperLeft, zPos);
+            neb2.LowerLeft = neb2.UpperLeft + new Vector3(0f, ySize, 0f);
+            neb2.UpperRight = neb2.UpperLeft + new Vector3(xSize, 0f, 0f);
+            neb2.LowerRight = neb2.UpperLeft + new Vector3(xSize, ySize, 0f);
+            neb2.FillVertices();
+            neb2.LoadContent(Screen.ScreenManager);
+            BGItems.Add(neb2);
 
-            var BigNeb_3 = new BackgroundItem(ResourceManager.SmallNebulaRandom());
-            //zPos = zPos + 200000f;
-            zPos = zPos + RandomMath.RandomBetween(300000f, 500000f);
-            //xSize = RandomMath.RandomBetween(800000f, 1800000f);
-            xSize = RandomMath.RandomBetween(800000f, Screen.UniverseSize * 0.75f);
-            ySize = BigNeb_3.Texture.Height / (float)BigNeb_3.Texture.Width * xSize;
-            BigNeb_3.UpperLeft = new Vector3(nebUpperLeft, zPos);
-            BigNeb_3.LowerLeft = BigNeb_3.UpperLeft + new Vector3(0f, ySize, 0f);
-            BigNeb_3.UpperRight = BigNeb_3.UpperLeft + new Vector3(xSize, 0f, 0f);
-            BigNeb_3.LowerRight = BigNeb_3.UpperLeft + new Vector3(xSize, ySize, 0f);
-            BigNeb_3.FillVertices();
-            BigNeb_3.LoadContent(Screen.ScreenManager);
-            BGItems.Add(BigNeb_3);
+            var neb3 = new BackgroundItem(ResourceManager.SmallNebulaRandom());
+            zPos += RandomMath.RandomBetween(300000f, 500000f);
+            xSize = RandomMath.RandomBetween(800000f, universeSize * 0.75f);
+            ySize = neb3.Texture.Height / (float)neb3.Texture.Width * xSize;
+            neb3.UpperLeft = new Vector3(nebUpperLeft, zPos);
+            neb3.LowerLeft = neb3.UpperLeft + new Vector3(0f, ySize, 0f);
+            neb3.UpperRight = neb3.UpperLeft + new Vector3(xSize, 0f, 0f);
+            neb3.LowerRight = neb3.UpperLeft + new Vector3(xSize, ySize, 0f);
+            neb3.FillVertices();
+            neb3.LoadContent(Screen.ScreenManager);
+            BGItems.Add(neb3);
         }
 
         public void Draw()
