@@ -2172,6 +2172,17 @@ namespace Ship_Game
             return (int)defense;
         }
 
+        public bool DetectPrepareForWarVsPlayer(Empire enemy)
+        {
+            if (!enemy.isPlayer)
+                return false;
+
+            int ourSpyDefense   = GetSpyDefense() + (IsCunning ? 10 : 0);
+            int theirSpyDefense = enemy.GetSpyDefense();
+            int totalRoll       = theirSpyDefense + ourSpyDefense;
+            return RandomMath.RollDie(totalRoll) <= theirSpyDefense;
+        }
+
         /// <summary>
         /// Gets the total population in billions and option for max pop
         /// </summary>
