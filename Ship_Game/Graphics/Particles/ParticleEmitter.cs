@@ -1,26 +1,39 @@
 using Microsoft.Xna.Framework;
 using Ship_Game;
+using Ship_Game.Graphics.Particles;
 
 namespace Ship_Game
 {
     public class ParticleEmitter
     {
-        private readonly ParticleSystem ParticleSystem;
-        private readonly float TimeBetweenParticles;
-        private Vector3 PreviousPosition;
-        private float TimeLeftOver;
+        readonly IParticleSystem ParticleSystem;
+        readonly float TimeBetweenParticles;
+        Vector3 PreviousPosition;
+        float TimeLeftOver;
 
         // Use ParticleSystem NewEmitter() instead
-        internal ParticleEmitter(ParticleSystem particleSystem, float particlesPerSecond, Vector3 initialPosition)
+        internal ParticleEmitter(IParticleSystem particleSystem, float particlesPerSecond, Vector3 initialPosition)
         {
             ParticleSystem       = particleSystem;
             TimeBetweenParticles = 1f / particlesPerSecond;
-            PreviousPosition     = initialPosition;        
+            PreviousPosition     = initialPosition;
         }
-        public void Update(float elapsedTime, Vector3 newPosition) => Update(elapsedTime, newPosition, 0, 0, 0);
-        public void Update(float elapsedTime, Vector3 newPosition, float zVelocity) => Update(elapsedTime, newPosition, zVelocity, 0, 0);
-        public void Update(float elapsedTime, Vector3 newPosition, float zVelocity, float jitter) 
-            => Update(elapsedTime, newPosition, zVelocity, 0, jitter);
+
+        public void Update(float elapsedTime, Vector3 newPosition)
+        {
+            Update(elapsedTime, newPosition, 0, 0, 0);
+        }
+
+        public void Update(float elapsedTime, Vector3 newPosition, float zVelocity)
+        {
+            Update(elapsedTime, newPosition, zVelocity, 0, 0);
+        }
+
+        public void Update(float elapsedTime, Vector3 newPosition, float zVelocity, float jitter)
+        {
+            Update(elapsedTime, newPosition, zVelocity, 0, jitter);
+        }
+
         public void Update(float elapsedTime, Vector3 newPosition, float zVelocity, float zAxisPos, float jitter)
         {
             if (elapsedTime > 0f)

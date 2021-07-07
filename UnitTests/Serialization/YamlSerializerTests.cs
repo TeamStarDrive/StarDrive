@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game;
 using Ship_Game.Data.Serialization;
@@ -31,6 +26,9 @@ namespace UnitTests.Serialization
             {
                 Name = "Flame",
                 TextureName = "trail 1.png",
+                Effect = "ParticleEffect.fx",
+                Static = true,
+                OnlyNearView = true,
                 MaxParticles = 10,
                 Duration = TimeSpan.FromSeconds(123.5),
                 DurationRandomness = 1,
@@ -57,6 +55,9 @@ namespace UnitTests.Serialization
               @"ParticleSettings:
                   Name: Flame
                   TextureName: ""trail 1.png""
+                  Effect: ParticleEffect.fx
+                  Static: true
+                  OnlyNearView: true
                   MaxParticles: 10
                   Duration: 123.5
                   DurationRandomness: 1
