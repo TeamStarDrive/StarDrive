@@ -251,6 +251,9 @@ namespace Ship_Game.AI
                 ResetPriorityOrder(clearOrders: false);
             }
 
+            // refitting ships must not be in any pools or fleets
+            Owner.RemoveFromPoolAndFleet(clearOrders: false);
+
             AddShipGoal(Plan.Refit, planet, g, AIState.Refit);
         }
 
