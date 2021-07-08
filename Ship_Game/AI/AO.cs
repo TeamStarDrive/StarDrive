@@ -40,43 +40,43 @@ namespace Ship_Game.AI
         }
     }
 
-    public sealed class AO : IDisposable
+    public sealed class AO : IShipPool
     {
-        public static readonly Planet[] NoPlanets     = new Planet[0];
+        public static readonly Planet[] NoPlanets = new Planet[0];
         public static readonly SolarSystem[] NoSystem = new SolarSystem[0];
 
         [XmlIgnore][JsonIgnore] public Planet CoreWorld { get; private set; }
-        [XmlIgnore][JsonIgnore] Array<Ship> OffensiveForcePool                     = new Array<Ship>();
         [XmlIgnore][JsonIgnore] public Fleet CoreFleet { get; private set; }
-        [XmlIgnore][JsonIgnore] Array<Ship> ShipsWaitingForCoreFleet               = new Array<Ship>();
-        [XmlIgnore][JsonIgnore] Planet[] PlanetsInAo                               = NoPlanets;
+        [XmlIgnore][JsonIgnore] Array<Ship> OffensiveForcePool = new Array<Ship>();
+        [XmlIgnore][JsonIgnore] Array<Ship> ShipsWaitingForCoreFleet = new Array<Ship>();
+        [XmlIgnore][JsonIgnore] Planet[] PlanetsInAo = NoPlanets;
         AOPlanetData[] PlanetData;
-        [XmlIgnore][JsonIgnore] Planet[] OurPlanetsInAo                            = NoPlanets;
-        [XmlIgnore][JsonIgnore] SolarSystem[] SystemsInAo                          = NoSystem;
+        [XmlIgnore][JsonIgnore] Planet[] OurPlanetsInAo = NoPlanets;
+        [XmlIgnore][JsonIgnore] SolarSystem[] SystemsInAo = NoSystem;
         [XmlIgnore][JsonIgnore] Empire Owner;
         [XmlIgnore][JsonIgnore] int ThreatTimer;
 
-        [Serialize(0)] public int ThreatLevel;
-        [Serialize(1)] public Guid CoreWorldGuid;
-        [Serialize(2)] public Array<Guid> OffensiveForceGuids = new Array<Guid>();
-        [Serialize(3)] public Array<Guid> ShipsWaitingGuids   = new Array<Guid>();
-        [Serialize(4)] public Guid FleetGuid;
-        [Serialize(5)] public int WhichFleet                  = -1;
-        //[Serialize(6)] private bool Flip; // @todo Change savegame version before reassigning Serialize indices
-        [Serialize(7)] public float Radius;
-        [Serialize(8)] public int TurnsToRelax;
-        [Serialize(9)] public Guid AOGuid                     = Guid.NewGuid();
-        [Serialize(10)] public Vector2 Center;
-        [Serialize(11)] public float WarValueOfPlanets;
+        [Serialize(0)] public Guid Guid { get; set; } = Guid.NewGuid();
+        [Serialize(1)] public string Name { get; set; }
+        [Serialize(2)] public int ThreatLevel;
+        [Serialize(3)] public Guid CoreWorldGuid;
+        [Serialize(4)] public Array<Guid> OffensiveForceGuids = new Array<Guid>();
+        [Serialize(5)] public Array<Guid> ShipsWaitingGuids   = new Array<Guid>();
+        [Serialize(6)] public Guid FleetGuid;
+        [Serialize(7)] public int WhichFleet = -1;
+        [Serialize(8)] public float Radius;
+        [Serialize(9)] public Vector2 Center;
+        [Serialize(10)] public float WarValueOfPlanets;
         
-        public Fleet GetCoreFleet()                           => CoreFleet;
-        public Planet GetPlanet()                             => CoreWorld;
+        public Empire OwnerEmpire => Owner;
+        public Array<Ship> Ships => OffensiveForcePool;
 
-        public Planet[] GetOurPlanets()                       => OurPlanetsInAo;
-        public Planet[] GetAllPlanets()                       => PlanetsInAo;
+        public Fleet GetCoreFleet() => CoreFleet;
+        public Planet GetPlanet() => CoreWorld;
+        public Planet[] GetOurPlanets() => OurPlanetsInAo;
 
         public IReadOnlyList<Ship> GetOffensiveForcePool() => OffensiveForcePool;
-        [XmlIgnore][JsonIgnore] public bool AOFull { get; private set; }           = true;
+        [XmlIgnore][JsonIgnore] public bool AOFull { get; private set; } = true;
         
         [XmlIgnore][JsonIgnore]
         public float OffensiveForcePoolStrength
@@ -89,8 +89,6 @@ namespace Ship_Game.AI
                 return strength;
             }
         }
-
-        public Array<SolarSystem> GetAoSystems() => new Array<SolarSystem>(SystemsInAo);
 
         public void UpdateThreatLevel()
         {
@@ -122,43 +120,46 @@ namespace Ship_Game.AI
 
         public AO(Planet p, float radius)
         {
-            Radius                              = radius;
-            CoreWorld                           = p;
-            CoreWorldGuid                       = p.guid;
-            Owner                               = p.Owner;
-            WhichFleet                          = p.Owner.CreateFleetKey();
-            CoreFleet                           = new Fleet();
+            Radius        = radius;
+            CoreWorld     = p;
+            CoreWorldGuid = p.guid;
+            Owner         = p.Owner;
+            Center        = p.Center;
+            WhichFleet    = p.Owner.CreateFleetKey();
+
+            CoreFleet = new Fleet();
+            CoreFleet.Name = "Core Fleet";
+            CoreFleet.FinalPosition = p.Center;
+            CoreFleet.Owner         = p.Owner;
+            CoreFleet.IsCoreFleet   = true;
             p.Owner.GetFleetsDict()[WhichFleet] = CoreFleet;
-            CoreFleet.Name                      = "Core Fleet";
-            CoreFleet.FinalPosition             = p.Center;
-            CoreFleet.Owner                     = p.Owner;
-            CoreFleet.IsCoreFleet               = true;
-            Center                              = CoreWorld.Center;
+
             SetupPlanetsInAO();
         }
 
         public AO(Planet p, float radius, int whichFleet, Fleet coreFleet)
         {
-            Radius                              = radius;
-            CoreWorld                           = p;
-            CoreWorldGuid                       = p.guid;
-            Owner                               = p.Owner;
-            WhichFleet                          = whichFleet;
+            Radius        = radius;
+            CoreWorld     = p;
+            CoreWorldGuid = p.guid;
+            Owner         = p.Owner;
+            Center        = p.Center;
+            WhichFleet    = whichFleet;
+
             if (coreFleet == null)
             {
-                CoreFleet                           = new Fleet();
+                CoreFleet = new Fleet();
+                CoreFleet.Name          = "Core Fleet";
+                CoreFleet.FinalPosition = p.Center;
+                CoreFleet.Owner         = p.Owner;
+                CoreFleet.IsCoreFleet   = true;
                 p.Owner.GetFleetsDict()[WhichFleet] = CoreFleet;
-                CoreFleet.Name                      = "Core Fleet";
-                CoreFleet.FinalPosition             = p.Center;
-                CoreFleet.Owner                     = p.Owner;
-                CoreFleet.IsCoreFleet               = true;
             }
             else
             {
                 CoreFleet = coreFleet;
             }
 
-            Center                              = CoreWorld.Center;
             SetupPlanetsInAO();
         }
 
@@ -170,34 +171,7 @@ namespace Ship_Game.AI
             SetupPlanetsInAO();
         }
 
-        public void AddPlanet(Planet p)
-        {
-            PlanetsInAo.Add(p, out var ps);
-            PlanetsInAo = ps;
-        }
-
-        public void AddPlanets(IList<Planet> ps)
-        {
-            var planets = PlanetsInAo.Union(ps);
-            PlanetsInAo = planets.ToArray();
-        }
-
-        private bool IsCoreFleetFull()
-        {
-            float str = 0;
-            foreach (Ship ship in ShipsWaitingForCoreFleet)
-                str += ship.GetStrength();
-
-            return ThreatLevel + str.LowerBound(100) < CoreFleet.GetStrength();
-        }
-
-        private void CoreFleetAddShip(Ship ship)
-        {
-            ship.AI.ClearOrders();
-            CoreFleet.AddShip(ship);
-        }
-
-        public bool AddShip(Ship ship)
+        public bool Add(Ship ship)
         {
             if (ship.BaseStrength < 1f 
                 || ship.DesignRole == ShipData.RoleName.bomber 
@@ -205,32 +179,39 @@ namespace Ship_Game.AI
                 || ship.DesignRole == ShipData.RoleName.support)
                 return false;
 
-            OffensiveForcePool.AddUniqueRef(ship);
+            if (ship.Pool == this)
+                return true;
+
+            ship.Pool?.Remove(ship);
+            ship.Pool = this;
+            OffensiveForcePool.Add(ship);
             return true;
         }
 
-        public void AddAnyShips(Array<Ship> ships)
+        public bool Remove(Ship ship)
         {
-            OffensiveForcePool.AddUniqueRef(ships);
-        }
+            if (ship.Pool != this)
+                return false;
 
-        public bool RemoveShip(Ship ship)
-        {
+            ship.Pool = null;
+
             if (ship.fleet?.IsCoreFleet ?? false)
             {
                 CoreFleet.RemoveShip(ship);
-                Log.Warning(ConsoleColor.Red, "Ship was in core fleet");
             }
-            ShipsWaitingForCoreFleet.RemoveRef(ship);            
-            return OffensiveForcePool.RemoveRef(ship);
+            ShipsWaitingForCoreFleet.RemoveRef(ship);
+            OffensiveForcePool.RemoveRef(ship);
+            return true;
         }
+
+        public bool Contains(Ship ship) => ship.Pool == this;
 
         public void InitFromSave(Empire owner)
         {
             SetPlanet(Planet.GetPlanetFromGuid(CoreWorldGuid));
             Owner = owner;
             SetupPlanetsInAO();
-            OffensiveForcePool       = Ship.GetShipsFromGuids(OffensiveForceGuids);
+            OffensiveForcePool = Ship.GetShipsFromGuids(OffensiveForceGuids);
             ShipsWaitingForCoreFleet = Ship.GetShipsFromGuids(ShipsWaitingGuids);
             
             var fleet = owner.GetFleetsDict().FilterValues(f => f.Guid == FleetGuid).FirstOrDefault();
@@ -291,23 +272,6 @@ namespace Ship_Game.AI
             foreach (Ship ship in ShipsWaitingForCoreFleet)
                 ShipsWaitingGuids.Add(ship.guid);
             FleetGuid = CoreFleet?.Guid ?? Guid.Empty; 
-        }
-
-        public float GetPoolStrength()
-        {
-            float str = 0;
-            for (int i = 0; i < OffensiveForcePool.Count; i++)
-            {
-                Ship ship = OffensiveForcePool[i];
-                if (ship.AI.State == AIState.Scrap
-                    || ship.AI.State == AIState.Refit
-                    || ship.AI.State == AIState.Resupply
-                    || !ship.ShipIsGoodForGoals()
-                ) continue;
-                str += ship.GetStrength();
-            }
-
-            return str;
         }
 
         public void SetFleet(Fleet f)
@@ -401,30 +365,5 @@ namespace Ship_Game.AI
                 ship.loyalty.AddShipToManagedPools(ship);
             }
         }
-
-        public float GetWarAttackValueOfSystemsInAOTo(Empire empire)
-        {
-            if (Owner == empire) return WarValueOfPlanets;
-            return SystemsInAo.Sum(s => s.WarValueTo(empire));
-        }
-
-        public float StrengthOpposing(Empire empire)
-        {
-            return empire.GetEmpireAI().ThreatMatrix.GetEnemyPinsInAO(this, empire).Sum(p=> p.Strength);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~AO() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            OffensiveForcePool = null;
-        }
-       
     }
 }
