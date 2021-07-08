@@ -567,7 +567,7 @@ namespace Ship_Game.AI.Tasks
 
         private int WantedNumberOfFleets()
         {
-            int maxFleets = Owner.AllFleetsReady().CountFleets(out _);
+            int maxFleets = Owner.AIManagedShips.CurrentUseableFleets;
             int wantedNumberOfFleets = FleetCount;
             if (TargetPlanet?.Owner != null)
             {

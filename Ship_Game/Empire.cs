@@ -2888,7 +2888,7 @@ namespace Ship_Game
             if (!isPlayer) 
                 return;
 
-            string message = $"{Localizer.Token(GameText.YourShipWasCaptured)} {this.Name}!";
+            string message = $"{Localizer.Token(GameText.YourShipWasCaptured)} {boarder.Name}!";
             Universe.NotificationManager?.AddBoardNotification(message, ship.BaseHull.IconPath, "SnapToShip", ship, boarder);
         }
 
