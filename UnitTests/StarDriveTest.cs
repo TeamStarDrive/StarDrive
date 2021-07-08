@@ -142,9 +142,12 @@ namespace UnitTests
 
             var data = new UniverseData();
             Player = data.CreateEmpire(ResourceManager.MajorRaces[0], isPlayer:true);
+            Enemy = data.CreateEmpire(ResourceManager.MajorRaces[1], isPlayer:false);
             Empire.Universe = Universe = new UniverseScreen(data, Player);
-            Enemy = EmpireManager.CreateRebelsFromEmpireData(ResourceManager.MajorRaces[0], Player);
             Player.TestInitModifiers();
+
+            Player.AddRelation(Enemy);
+            Player.GetRelations(Enemy).AtWar = true;
         }
 
         public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)

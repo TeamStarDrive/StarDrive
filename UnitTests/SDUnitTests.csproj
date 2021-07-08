@@ -104,6 +104,7 @@
     <Compile Include="Ships\ShipLoyaltyTests.cs" />
     <Compile Include="Ships\ShipModuleGridTests.cs" />
     <Compile Include="Ships\ShipModuleTests.cs" />
+    <Compile Include="Ships\ShipPoolTests.cs" />
     <Compile Include="Ships\TestHealth.cs" />
     <Compile Include="Ships\TestShields.cs" />
     <Compile Include="Ships\TestSupplyShuttles.cs" />
