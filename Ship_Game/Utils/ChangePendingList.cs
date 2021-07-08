@@ -4,69 +4,66 @@ namespace Ship_Game.Utils
 {
     public class ChangePendingList<T>  where T : class
     {
-        Array<T> PendingAdds;
-        Array<T> PendingRemoves;
-        Array<T> List;
+        struct PendingItem
+        {
+            public T Item;
+            public bool Add; // true: Add, false: Remove
+        }
+        
+        public Array<T> Items { get; private set; }
+        Array<PendingItem> Pending;
         readonly Predicate<T> AddItemFilter;
 
         public ChangePendingList(Predicate<T> addFilter)
         {
-            PendingAdds    = new Array<T>();
-            PendingRemoves = new Array<T>();
-            List           = new Array<T>();
-            AddItemFilter  = addFilter;
+            Items = new Array<T>();
+            Pending = new Array<PendingItem>();
+            AddItemFilter = addFilter;
         }
-
-        public Array<T> Items => List;
 
         public void Update()
         {
-            while(PendingRemoves.NotEmpty)
+            while (Pending.TryPopLast(out PendingItem pending))
             {
-                var item = PendingRemoves.PopFirst();
-                PendingAdds.RemoveRef(item);
-                List.RemoveRef(item);
-            }
-
-            while(PendingAdds.NotEmpty)
-            {
-                var item = PendingAdds.PopFirst();
-                if (AddItemFilter(item))
+                if (pending.Add)
                 {
-                    bool addFail = !List.AddUnique(item);
-                    if (addFail)
-                        Log.Error("Ship already in force pool");
+                    if (AddItemFilter(pending.Item))
+                        Items.Add(pending.Item);
+                }
+                else
+                {
+                    Items.RemoveRef(pending.Item);
                 }
             }
         }
 
-        public bool AddItemPending(T item)
+        public void Add(T item)
         {
-            if (List.Contains(item)) return false;
-            return PendingAdds.AddUniqueRef(item);
+            Pending.Add(new PendingItem{ Item = item, Add = true });
         }
 
-        public bool RemoveItemPending(T item) => PendingRemoves.AddUniqueRef(item);
         public bool RemoveItemImmediate(T item)
         {
-            bool removed = List.RemoveRef(item);
-            removed |= PendingRemoves.RemoveRef(item);
-            removed |= PendingAdds.RemoveRef(item);
-            return removed;
+            if (Items.RemoveRef(item))
+                return true;
+            return Pending.RemoveFirst(s => s.Item == item);
         }
 
         public bool Contains(T item)
         {
-            if (PendingRemoves.ContainsRef(item)) return false;
-            if (PendingAdds.ContainsRef(item))    return true;
-            return List.ContainsRef(item);
+            for (int i = 0; i < Pending.Count; ++i)
+            {
+                if (Pending[i].Item == item)
+                    return Pending[i].Add;
+            }
+            return Items.ContainsRef(item);
         }
 
         public void Clear()
         {
-            PendingAdds    = new Array<T>();
-            PendingRemoves = new Array<T>();
-            List           = new Array<T>();
+            // Thread-safety: Just replace the lists
+            Pending = new Array<PendingItem>();
+            Items    = new Array<T>();
         }
     }
 }
