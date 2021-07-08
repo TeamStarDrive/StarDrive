@@ -1461,7 +1461,7 @@ namespace Ship_Game.Gameplay
                     ChangeToHostileIfPossible(us);
                     break;
                 case Posture.Hostile when ActiveWar != null:
-                    if (us.GetAverageWarGrade().LessOrEqual(us.PersonalityModifiers.WarGradeThresholdForPeace))
+                    if (us.GetAverageWarGrade() <= us.PersonalityModifiers.WarGradeThresholdForPeace)
                         RequestPeace(us);
 
                     RequestHelpFromAllies(us, them, FirstDemand);
