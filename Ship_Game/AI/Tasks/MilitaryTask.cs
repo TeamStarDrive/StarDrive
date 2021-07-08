@@ -302,7 +302,7 @@ namespace Ship_Game.AI.Tasks
 
             if (WhichFleet == -1 || Fleet == null)
             {
-                DisbandFleet(Fleet);
+                DisbandTaskForce(Fleet);
                 return;
             }
 
@@ -314,7 +314,7 @@ namespace Ship_Game.AI.Tasks
                 if (Fleet.IsCoreFleet || Owner == Empire.Universe.player)
                     return;
 
-                DisbandFleet(Fleet);
+                DisbandTaskForce(Fleet);
                 return;
             }
 
@@ -328,7 +328,7 @@ namespace Ship_Game.AI.Tasks
                 return;
 
             if (!FleetNeededForNextTask)
-                DisbandFleet(Fleet);
+                DisbandTaskForce(Fleet);
 
             if (Type == TaskType.Exploration && TargetPlanet != null)
                 RemoveTaskTroopsFromPlanet();
@@ -369,13 +369,20 @@ namespace Ship_Game.AI.Tasks
             Fleet.FleetTask = null;
         }
 
-        public void DisbandFleet(Fleet fleet)
+        /// <summary>
+        /// Fleets will add back to the force pool when they are reset.
+        /// Non fleet ships need to be manually sent back
+        /// </summary>
+        /// <param name="fleet"></param>
+        public void DisbandTaskForce(Fleet fleet)
         {
-            foreach (var ship in TaskForce)
+            for (int i = 0; i < TaskForce.Count; i++)
             {
+                var ship = TaskForce[i];
                 if (ship.fleet == null)
                     Owner.AddShipToManagedPools(ship);
             }
+
             Fleet?.Reset();
             TaskForce.Clear();
         }

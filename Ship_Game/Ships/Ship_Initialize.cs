@@ -74,7 +74,6 @@ namespace Ship_Game.Ships
 
             // ship must not be added to empire ship list until after modules are validated.
             LoyaltyChangeAtSpawn(owner);
-            //LoyaltyTracker.OnSpawn(this);
 
             Stats = new ShipStats(this);
             KnownByEmpires = new Components.KnownByEmpire();
