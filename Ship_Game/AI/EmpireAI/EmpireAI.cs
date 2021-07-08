@@ -40,7 +40,7 @@ namespace Ship_Game.AI
             EmpireName                = e.data.Traits.Name;
             OwnerEmpire               = e;
             ThreatMatrix              = new ThreatMatrix(e);
-            DefensiveCoordinator      = new DefensiveCoordinator(e);
+            DefensiveCoordinator      = new DefensiveCoordinator(e, "DefensiveCoordinator");
             OffensiveForcePoolManager = new OffensiveForcePoolManager(e);
             TechChooser               = new Research.ChooseTech(e);
             ExpansionAI               = new ExpansionAI.ExpansionPlanner(OwnerEmpire);
