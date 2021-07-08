@@ -31,7 +31,6 @@ namespace Ship_Game.AI
                 {
                     AreasOfOperations.RemoveAt(index);
                     areasOfOperation.ClearOut();
-                    areasOfOperation.Dispose();
                 }
             }
             
