@@ -16,7 +16,7 @@ namespace Ship_Game.AI
         int TotalValue;
         public float TroopsToTroopsWantedRatio;
 
-        public Guid Guid { get; } = new Guid();
+        public Guid Guid { get; } = Guid.NewGuid();
         public string Name { get; }
         public Empire OwnerEmpire => Us;
         public Array<Ship> Ships => DefensiveForcePool;

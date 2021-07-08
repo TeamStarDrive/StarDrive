@@ -68,8 +68,8 @@ namespace Ship_Game.AI
         [Serialize(9)] public Vector2 Center;
         [Serialize(10)] public float WarValueOfPlanets;
         
-        public Empire OwnerEmpire => Owner;
-        public Array<Ship> Ships => OffensiveForcePool;
+        [XmlIgnore][JsonIgnore] public Empire OwnerEmpire => Owner;
+        [XmlIgnore][JsonIgnore] public Array<Ship> Ships => OffensiveForcePool;
 
         public Fleet GetCoreFleet() => CoreFleet;
         public Planet GetPlanet() => CoreWorld;
