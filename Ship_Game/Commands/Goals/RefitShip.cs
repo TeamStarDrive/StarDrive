@@ -6,7 +6,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 {
-    class RefitShip : Goal
+    public class RefitShip : Goal
     {
         public const string ID = "RefitShips";
         public override string UID => ID;
