@@ -1,19 +1,33 @@
 # specifies cost multipliers or weights for research
-# Omitting a value with set it to hard coded defaults
+# Omitting a value will set it to hard coded defaults
+# note that specific techs can be given a cost multiplier in the tech XML
 -ResearchSettings:
 # The portrait name of the empire.
 # "All" applies to all empires and is applied first.
+# PortraitName is foind in the Race xml
  PortraitName:All
  
  # Technology Type modifiers
+ # To see the available types of technology types check here:
+ # https://bitbucket.org/codegremlins/stardrive-blackbox/src/e429f2804c33dc578f77d0d29905232aba2e40bf/Ship_Game/TechnologyType.cs#lines-3
  TechnologyTypeModifiers: 
-  General: 1  
- 
+    General:        1 
+    Colonization:   1
+    Economic:       1
+    Industry:       1
+    Research:       1
+    GroundCombat:   1
+    ShipHull:       1
+    ShipDefense:    1
+    ShipWeapons:    1
+    ShipGeneral:    1
  # Ship cost modifiers used with ship picker.
  # Decreases or increases the tech cost of ship
  # making it more or less likely to be choosen.
+ # to verify these options for changes check here
+ # https://bitbucket.org/codegremlins/stardrive-blackbox/src/develop/Ship_Game/AI/Research/ResearchOptions.cs#lines-26
  ShipCostModifiers: 
-    Carrier:        0.095
+    Carrier:        0.95
     Bomber:         0.95
     TroopShip:      0.95
     Support:        0.95
@@ -25,7 +39,7 @@
 # Randomize is a percentage cost of a ship used to generate 
 # a random ranging from -percentage to postive pecentage.
 # The percentage is then added to the cost of the ship.
-    Randomize: 0
+    Randomize: 0.1
 # Line Focus effectively decreases the cost of a ship
 # by the number of already known techs the ship has 
 # when deciding to research its technologies. 
@@ -40,6 +54,8 @@
  # and empire personality. 
  # The base percentage of 1 means 1-100%
  # these values can be seen in the debug info "tech" screen.
+ # To verify these values for changes check here
+ # https://bitbucket.org/codegremlins/stardrive-blackbox/src/develop/Ship_Game/AI/Research/ResearchOptions.cs#lines-53
  ResearchAreaModifiers: 
   Colonization:     1.00
   Economic:         1.00
