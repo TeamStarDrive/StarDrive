@@ -142,24 +142,9 @@ namespace Ship_Game.AI.Research
                 if (tech?.IsRoot == false)
                 {
                     alreadyResearched += lineFocusBonus;
-                    //foreach (var lead in tech.Tech.LeadsTo)
-                    //    alreadyResearched += RecursiveTechStep(ship, lead.UID, knowTechs, lineFocusBonus);
                 }
             }
             return alreadyResearched > 0 ? alreadyResearched : 1;
-        }
-
-        int RecursiveTechStep(Ship ship, string leadsTo, Array<TechEntry> knowTechs, int lineBonus)
-        {
-            var tech = knowTechs.Find(k => k.UID == leadsTo);
-            int total = 0;
-            if (tech != null && ship.shipData.TechsNeeded.Contains(tech.UID))
-            {
-                total += lineBonus;
-                foreach (var lead in tech.Tech.LeadsTo)
-                    total += RecursiveTechStep(ship, lead.UID, knowTechs,lineBonus);
-            }
-            return total;
         }
     }
 }
