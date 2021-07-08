@@ -202,7 +202,7 @@ namespace Ship_Game.AI
         {
             //gremlin: Use self adjusting tax rate based on wanted treasury of 10(1 full years) of total income.
             float gross = OwnerEmpire.GrossIncomeBeforeTax - OwnerEmpire.TotalCivShipMaintenance -
-                          OwnerEmpire.TroopCostOnPlanets - OwnerEmpire.TotalTroopShipMaintenance; ;
+                          OwnerEmpire.TroopCostOnPlanets - OwnerEmpire.TotalTroopShipMaintenance;
             float treasuryGoal = Math.Max(gross, 0);
             
             float timeSpan = (200 - normalizedMoney / 500).Clamped(100,200) * OwnerEmpire.data.treasuryGoal;
