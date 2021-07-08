@@ -219,13 +219,14 @@ namespace Ship_Game
 
         public void AddShipToManagedPools(Ship s)
         {
-            AIManagedShips.AddToEmpireForcePool(s);
+            AIManagedShips.Add(s);
         }
         
         public Empire()
         {
             Research = new EmpireResearch(this);
-            AIManagedShips = new ShipPool(this);
+            
+            AIManagedShips = new ShipPool(this, "AIManagedShips");
             EmpireShips = new LoyaltyLists(this);
         }
 
@@ -3257,8 +3258,6 @@ namespace Ship_Game
             data.ShieldPenBonusChance        -= art.GetShieldPenMod(data);
             EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
         }
-
-        public bool RemoveShipFromAIPools(Ship ship) => AIManagedShips.RemoveShipFromEmpire(ship);
 
         void IEmpireShipLists.RemoveShipAtEndOfTurn(Ship s) => EmpireShips?.Remove(s);
 
