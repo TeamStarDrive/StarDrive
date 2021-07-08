@@ -11,22 +11,12 @@ namespace Ship_Game.AI.Research
         readonly Map<ShipCosts, float> ShipMods          = new Map<ShipCosts, float>();
         readonly Map<ResearchArea, float> Priority       = new Map<ResearchArea, float>();
 
-        /// <summary>
-        /// Used for loading yamls
-        /// </summary>
-        public enum ResearchMods
-        {
-            TechType,
-            ShipCost,
-            AreaPriority
-        }
-
         public int Count()
         {
             int total = 0;
-            total += ShipMods.Count;
-            total += Priority.Count;
-            total += TechTypeMods.Count;
+            total    += ShipMods.Count;
+            total    += Priority.Count;
+            total    += TechTypeMods.Count;
             return total;
         }
 
@@ -74,25 +64,25 @@ namespace Ship_Game.AI.Research
         /// <summary>
         /// No defaults or load for testing
         /// </summary>
-        public ResearchOptions(){}
+        public ResearchOptions() { }
 
         public ResearchOptions(Empire empire)
         {
             //Set default values.
             //ShipCosts
             ShipMods.Clear();
-            ShipMods[ShipCosts.Carrier]            = 0.95f;
-            ShipMods[ShipCosts.Bomber]             = 0.95f;
-            ShipMods[ShipCosts.TroopShip]          = 0.95f;
-            ShipMods[ShipCosts.Support]            = 0.95f;
-            ShipMods[ShipCosts.ColonyShip]         = 2f;
-            ShipMods[ShipCosts.Freighter]          = 2f;
-            ShipMods[ShipCosts.AllHulls]           = 1;
-            ShipMods[ShipCosts.Orbitals]           = 2f;
-            ShipMods[ShipCosts.GroundCombat]       = 0.95f;
-            /// TechCost * random = randomizer
-            /// random is -randomizer to +randomizer
-            ShipMods[ShipCosts.Randomize]          = 0f;
+            ShipMods[ShipCosts.Carrier]      = 0.95f;
+            ShipMods[ShipCosts.Bomber]       = 0.95f;
+            ShipMods[ShipCosts.TroopShip]    = 0.95f;
+            ShipMods[ShipCosts.Support]      = 0.95f;
+            ShipMods[ShipCosts.ColonyShip]   = 2f;
+            ShipMods[ShipCosts.Freighter]    = 2f;
+            ShipMods[ShipCosts.AllHulls]     = 1;
+            ShipMods[ShipCosts.Orbitals]     = 2f;
+            ShipMods[ShipCosts.GroundCombat] = 0.95f;
+            // TechCost * random = randomizer
+            // random is -randomizer to +randomizer
+            ShipMods[ShipCosts.Randomize] = 0f;
             ShipMods[ShipCosts.LineFocusIntensity] = 1;
 
             //TechUIDS
@@ -157,32 +147,15 @@ namespace Ship_Game.AI.Research
             return 1;
         }
 
-        //ToDo: create loadable options
         public void LoadResearchOptions(Empire empire)
         {
-            Array<ResearchSettings> researchMods = YamlParser.DeserializeArray<ResearchSettings>("Research.yaml");
+            Array<ResearchSettings> researchMods = ResearchSettings.LoadYaml();
 
-            // Apply setting to "ALL" first. Apply specific empire settings next
-            researchMods.Sort(i => i.PortraitName.Equals("All", StringComparison.InvariantCultureIgnoreCase));
-
-            foreach(var mods in researchMods)
+            foreach (var mods in researchMods)
             {
-                bool isAll = mods.PortraitName.Equals("All", StringComparison.InvariantCultureIgnoreCase);
-                bool isUs  = mods.PortraitName == empire.Name;
-                if (isAll || isUs)
-                {
-                    ApplyYamlMap(TechTypeMods, mods.TechnologyTypeModifiers);
-                    ApplyYamlMap(ShipMods, mods.ShipCostModifiers);
-                    ApplyYamlMap(Priority, mods.ResearchAreaModifiers);
-                }
-            }
-
-            void ApplyYamlMap<T>(Map<T,float> toMap, Map<T,float> fromMap)
-            {
-                foreach(var kv in fromMap)
-                {
-                    toMap[kv.Key] = kv.Value;
-                }
+                mods.ApplyYamlMap(TechTypeMods, mods.TechnologyTypeModifiers, empire);
+                mods.ApplyYamlMap(ShipMods,     mods.ShipCostModifiers,       empire);
+                mods.ApplyYamlMap(Priority,     mods.ResearchAreaModifiers,   empire);
             }
         }
 
@@ -191,10 +164,30 @@ namespace Ship_Game.AI.Research
         {
             [StarData] public readonly String PortraitName;
             [StarData] public readonly Map<TechnologyType, float> TechnologyTypeModifiers;
-            [StarData] public readonly Map<ShipCosts, float> ShipCostModifiers;
-            [StarData] public readonly Map<ResearchArea, float> ResearchAreaModifiers;
-
+            [StarData] public readonly Map<ShipCosts,      float> ShipCostModifiers;
+            [StarData] public readonly Map<ResearchArea,   float> ResearchAreaModifiers;
+            bool IsAll => PortraitName.Equals("All", StringComparison.InvariantCultureIgnoreCase);
             public override string ToString() => $"Empire {PortraitName}";
+
+            public static Array<ResearchSettings> LoadYaml()
+            {
+                Array<ResearchSettings> researchMods = YamlParser.DeserializeArray<ResearchSettings>("Research.yaml");
+
+                // Apply setting to "ALL" first. Apply specific empire settings next
+                researchMods.Sort(i => i.IsAll);
+                return researchMods;
+            }
+
+            public void ApplyYamlMap<T>(Map<T, float> toMap, Map<T, float> fromMap, Empire empire)
+            {
+                if (IsAll || PortraitName == empire.PortraitName && fromMap?.Count > 0)
+                {
+                    foreach (var kv in fromMap)
+                    {
+                        toMap[kv.Key] = kv.Value;
+                    }
+                }
+            }
         }
     }
 }
