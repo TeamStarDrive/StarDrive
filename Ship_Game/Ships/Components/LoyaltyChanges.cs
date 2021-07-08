@@ -79,7 +79,7 @@ namespace Ship_Game.Ships.Components
 
             // Spawned ships should not clear orders since some of them are given immediate orders
             // Like pirates and meteors
-            if (type != Type.Spawn) 
+            if (type != Type.Spawn)
                 ship.AI.ClearOrdersAndWayPoints();
 
             ship.loyalty.AddShipToManagedPools(ship);
@@ -98,13 +98,14 @@ namespace Ship_Game.Ships.Components
             Empire oldLoyalty = ship.loyalty;
             oldLoyalty.TheyKilledOurShip(newLoyalty, ship);
             newLoyalty.WeKilledTheirShip(oldLoyalty, ship);
-            SafelyTransferShip(ship, oldLoyalty, newLoyalty);
 
             if (notification)
             {
                 newLoyalty.AddBoardSuccessNotification(ship);
                 oldLoyalty.AddBoardedNotification(ship, newLoyalty);
             }
+
+            SafelyTransferShip(ship, oldLoyalty, newLoyalty);
         }
 
         static void LoyaltyChangeDueToFederation(Ship ship, Empire newLoyalty, bool notification)
@@ -137,7 +138,7 @@ namespace Ship_Game.Ships.Components
 
             IEmpireShipLists oldShips = oldLoyalty;
             IEmpireShipLists newShips = newLoyalty;
-            
+
             oldShips.RemoveShipAtEndOfTurn(ship);
             oldLoyalty.RemoveShipFromAIPools(ship);
             newShips.AddNewShipAtEndOfTurn(ship);;
