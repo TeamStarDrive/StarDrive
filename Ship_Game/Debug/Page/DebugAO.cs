@@ -97,7 +97,8 @@ namespace Ship_Game.Debug.Page
             text.Add(column);
 
             text.Add(ShipStates(allShips));
-            text.AddRange(RoleCounts(allShips));
+            if (allShips.Length > 0)
+                text.AddRange(RoleCounts(allShips));
             text.AddRange(GetAllShipsUnderConstruction());
             text.Add(Tasks());
             SetTextColumns(text);
