@@ -174,12 +174,18 @@ namespace Ship_Game.Ships
         public bool IsSubspaceProjector     => Name == "Subspace Projector";
         public bool HasBombs                => BombBays.Count > 0;
         public bool IsEmpireSupport         => DesignRoleType == ShipData.RoleType.EmpireSupport;
+        
         /// <summary>
         /// Ship is expected to exchange fire with enemy ships directly not through hangar ships and other such things.
         /// </summary>
-        public bool IsAWarShip              => DesignRoleType == ShipData.RoleType.Warship;
-        public bool IsOrbital               => DesignRoleType == ShipData.RoleType.Orbital;
-        public bool IsInAFleet              => fleet != null;
+        public bool IsAWarShip => DesignRoleType == ShipData.RoleType.Warship;
+        public bool IsOrbital  => DesignRoleType == ShipData.RoleType.Orbital;
+        public bool IsInAFleet => fleet != null;
+
+        /// <summary>
+        /// This ship is a carrier which launches fighters/corvettes/frigates
+        /// </summary>
+        public bool IsAFighterCarrier => Carrier.HasFighterBays;
         
         // Current pool that this ship is assigned to
         public IShipPool Pool;
@@ -210,8 +216,8 @@ namespace Ship_Game.Ships
         public bool ShouldNotBeAddedToForcePools()
         {
             return !Active || IsInAFleet || IsHangarShip || IsHomeDefense ||
-                   shipData.CarrierShip || IsSupplyShuttle || IsEmpireSupport ||
-                   IsOrbital || DoingRefit || DoingScrap || DoingScuttle;
+                   shipData.CarrierShip || IsEmpireSupport ||
+                   IsOrbital || DoingRefit || DoingScrap || DoingScuttle || IsSupplyShuttle;
         }
 
         /// <summary>

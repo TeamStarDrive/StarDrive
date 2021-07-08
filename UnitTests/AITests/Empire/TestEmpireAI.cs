@@ -364,9 +364,6 @@ namespace UnitTests.AITests.Empire
         {
             Assert.AreEqual(0, Enemy.OwnedShips.Count);
 
-            // we need to rework basic empires. Proper empire updates cannot be done the way they currently are.
-            Enemy.data.IsRebelFaction = false;
-
             // create areas of operation among empires
             foreach(var empire in EmpireManager.Empires)
             {
