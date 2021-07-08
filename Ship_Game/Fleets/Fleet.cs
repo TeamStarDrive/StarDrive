@@ -102,14 +102,19 @@ namespace Ship_Game.Fleets
                 return false;
 
             // This is finding a logic bug: Ship is already in a fleet or this fleet already contains the ship.
-            // This should likely be two different checks. There is also the possibilty that the ship is in another
+            // This should likely be two different checks. There is also the possibility that the ship is in another
             // Fleet ship list.
             if (newShip.fleet != null || !base.AddShip(newShip))
             {
-                Log.Warning($"{newShip}: \n already in fleet:\n{newShip.fleet}\nthis fleet:\n{this}");
-                return false; // recover
+                if (newShip.fleet != this)
+                {
+                    Log.Warning($"{newShip}: \n already in fleet:\n{newShip.fleet}\nthis fleet:\n{this}");
+                    return false; // recover
+                }
+                Log.Warning($"{newShip}: \n Added to fleet it was already part of:\n{newShip.fleet}");
+                return true;
             }
-
+            Owner.RemoveShipFromAIPools(newShip);
             UpdateOurFleetShip(newShip);
 
             SortIntoFlanks(newShip, TotalFleetAttributes.GetAveragedValues());

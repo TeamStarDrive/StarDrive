@@ -174,11 +174,38 @@ namespace Ship_Game.Ships
         public bool IsBomber                => DesignRole == ShipData.RoleName.bomber;
         public bool IsSubspaceProjector     => Name == "Subspace Projector";
         public bool HasBombs                => BombBays.Count > 0;
+        public bool IsEmpireSupport         => DesignRoleType == ShipData.RoleType.EmpireSupport;
+        /// <summary>
+        /// Ship is expected to exchange fire with enemy ships directly not through hangar ships and other such things.
+        /// </summary>
+        public bool IsAWarShip              => DesignRoleType == ShipData.RoleType.Warship;
+        public bool IsOrbital               => DesignRoleType == ShipData.RoleType.Orbital;
+        public bool IsInAFleet              => fleet != null;
 
         public bool IsConstructor
         {
             get => DesignRole == ShipData.RoleName.construction;
             set => DesignRole = value ? ShipData.RoleName.construction : GetDesignRole();
+        }
+
+        /// <summary>
+        /// Where this is true the force pool add will reject these ships.
+        /// </summary>
+        public bool ShouldNotBeAddedToForcePools()
+        {
+            return !Active || IsInAFleet || IsHangarShip || IsHomeDefense ||
+                   shipData.CarrierShip || IsSupplyShuttle || IsEmpireSupport ||
+                   IsOrbital || DoingRefit || DoingScrap || DoingScuttle;
+        }
+
+        /// <summary>
+        /// Ship is not directly a combat ship. It is used to support a fleet or fleet goals
+        /// </summary>
+        public bool IsFleetSupportShip()
+        {
+            return DesignRoleType == ShipData.RoleType.WarSupport ||
+                   DesignRoleType == ShipData.RoleType.Troop ||
+                       DesignRole == ShipData.RoleName.carrier;
         }
 
         public bool CanBeAddedToBuildableShips(Empire empire) => DesignRole != ShipData.RoleName.prototype && DesignRole != ShipData.RoleName.disabled
@@ -626,6 +653,12 @@ namespace Ship_Game.Ships
         {
             get => AI.State == AIState.Refit;
             set => Empire.Universe.ScreenManager.AddScreen(new RefitToWindow(Empire.Universe, this));
+        }
+
+        public bool DoingScuttle
+        {
+            get => AI.State == AIState.Scuttle;
+            // needs set attribute
         }
 
         public bool IsInhibitedByUnfriendlyGravityWell
@@ -1577,6 +1610,7 @@ namespace Ship_Game.Ships
             Active = false;
             TetheredTo?.RemoveFromOrbitalStations(this);
             AI.ClearOrdersAndWayPoints(); // This calls immediate Dispose() on Orders that require cleanup
+            loyalty.RemoveShipFromAIPools(this);
         }
 
         public override void RemoveFromUniverseUnsafe()
@@ -1622,7 +1656,7 @@ namespace Ship_Game.Ships
             base.RemoveFromUniverseUnsafe();
         }
 
-        public void ClearFleet() => fleet?.RemoveShip(this);
+        public void ClearFleet(bool returnToManagedPools = true) => fleet?.RemoveShip(this, returnToManagedPools);
         public void UnsafeClearFleet() => fleet?.UnSafeRemoveShip(this);
 
         public void Dispose()
