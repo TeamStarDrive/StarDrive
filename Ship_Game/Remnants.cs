@@ -368,7 +368,7 @@ namespace Ship_Game
             if (fleet == null)
                 return goalStep;
 
-            fleet.FleetTask?.DisbandFleet(fleet);
+            fleet.FleetTask?.DisbandTaskForce(fleet);
             fleet.FleetTask?.EndTask();
             return goalStep;
         }

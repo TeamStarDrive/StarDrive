@@ -8,24 +8,6 @@ namespace Ship_Game.Empires.ShipPools
     public class ShipPool
     {
         readonly Empire Owner;
-        bool ShouldNotAddToAnyPool(Ship ship) => !ship.Active
-                                        || ship.fleet != null
-                                        || ship.IsHangarShip
-                                        || ship.IsHomeDefense
-                                        || ship.shipData.CarrierShip
-                                        //|| ship.AI.HasPriorityOrder
-                                        || ship.IsSupplyShuttle
-                                        || ship.DesignRoleType == ShipData.RoleType.EmpireSupport
-                                        || ship.DesignRoleType == ShipData.RoleType.Orbital
-                                        //|| ship.DesignRole == ShipData.RoleName.troop
-                                        || ship.AI.State == AIState.Refit
-                                        || ship.AI.State == AIState.Scrap
-                                        || ship.AI.State == AIState.Scuttle;
-        bool ShouldAddToAOPools(Ship ship) => ship.DesignRoleType == ShipData.RoleType.Warship;
-        bool ShouldAddToEmpirePool(Ship ship) => ship.BaseCanWarp &&
-                                                 (ship.DesignRoleType == ShipData.RoleType.WarSupport ||
-                                                 ship.DesignRoleType == ShipData.RoleType.Troop ||
-                                                 ship.DesignRole == ShipData.RoleName.carrier);
 
         ChangePendingList<Ship> ForcePool;
 
@@ -66,9 +48,17 @@ namespace Ship_Game.Empires.ShipPools
             ForcePool = new ChangePendingList<Ship>(s => s.loyalty == Owner &&
                                                                     !s.loyalty.isPlayer &&
                                                                     !s.loyalty.isFaction &&
-                                                                     s.Active &&
-                                                                    !s.IsHomeDefense);
+                                                                    !s.ShouldNotBeAddedToForcePools());
         }
+
+        /// <summary>
+        /// Ships meeting the criteria here should not be added to the empire force pools.
+        /// these are temporary ships or soon to be removed or otherwise cant or should not be available
+        /// to add to fleets. 
+        /// </summary>
+        bool ShouldNotAddToAnyPool(Ship ship) => ship.ShouldNotBeAddedToForcePools();
+        bool ShouldAddToAOPools(Ship ship)    => ship.IsAWarShip;
+        bool ShouldAddToEmpirePool(Ship ship) => ship.BaseCanWarp && ship.IsFleetSupportShip();
 
         public void Update()
         {
@@ -129,6 +119,10 @@ namespace Ship_Game.Empires.ShipPools
             return ships;
         }
 
+        /// <summary>
+        /// Once all the logic errors are fixed in the ship pool tracking process this should be removed and turned into unit tests.
+        /// the purpose of this method is to fix the errors where ships are incorrectly put into or not put into force pools for fleets and such. 
+        /// </summary>
         void ErrorCheckPools()
         {
             if (Owner.isPlayer || Owner.isFaction) return;

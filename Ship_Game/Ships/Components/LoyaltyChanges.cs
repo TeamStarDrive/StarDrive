@@ -98,14 +98,13 @@ namespace Ship_Game.Ships.Components
             Empire oldLoyalty = ship.loyalty;
             oldLoyalty.TheyKilledOurShip(newLoyalty, ship);
             newLoyalty.WeKilledTheirShip(oldLoyalty, ship);
+            SafelyTransferShip(ship, oldLoyalty, newLoyalty);
 
             if (notification)
             {
                 newLoyalty.AddBoardSuccessNotification(ship);
                 oldLoyalty.AddBoardedNotification(ship, newLoyalty);
             }
-
-            SafelyTransferShip(ship, oldLoyalty, newLoyalty);
         }
 
         static void LoyaltyChangeDueToFederation(Ship ship, Empire newLoyalty, bool notification)
