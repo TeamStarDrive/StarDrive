@@ -617,7 +617,8 @@ namespace Ship_Game.AI
 
         bool SetAwaitClosestForAIEmpire()
         {
-            if (Owner.loyalty.isFaction || Owner.loyalty.isPlayer) return false;
+            if (Owner.loyalty.isFaction || Owner.loyalty.isPlayer)
+                return false;
 
             SolarSystem home = Owner.System?.OwnerList.Contains(Owner.loyalty) != true? null : Owner.System;
             if (home == null)
@@ -628,6 +629,9 @@ namespace Ship_Game.AI
                 {
                     var system = Empire.Universe.SolarSystemDict.FindMinValue(ss =>
                                Owner.Center.SqDist(ss.Position) * (ss.OwnerList.Count + 1));
+                    if (system == null)
+                        return false;
+
                     AwaitClosest = system.PlanetList.FindClosestTo(Owner);
                 }
             }
