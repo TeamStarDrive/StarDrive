@@ -38,7 +38,6 @@ namespace Ship_Game.Ships
         }
 
         public string VanityName = ""; // user modifiable ship name. Usually same as Ship.Name
-        public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
 
         public float RepairRate  = 1f;
         public float SensorRange = 20000f;
@@ -181,6 +180,23 @@ namespace Ship_Game.Ships
         public bool IsAWarShip              => DesignRoleType == ShipData.RoleType.Warship;
         public bool IsOrbital               => DesignRoleType == ShipData.RoleType.Orbital;
         public bool IsInAFleet              => fleet != null;
+        
+        // Current pool that this ship is assigned to
+        public IShipPool Pool;
+
+        public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
+        
+        public void RemoveFromPoolAndFleet(bool clearOrders)
+        {
+            if (clearOrders)
+                AI?.ClearOrders();
+            Pool?.Remove(this);
+            fleet?.RemoveShip(this);
+        }
+
+        public bool RemoveFromPool() => Pool?.Remove(this) ?? false;
+        public void ClearFleet(bool returnToManagedPools = true) => fleet?.RemoveShip(this, returnToManagedPools);
+        public void UnsafeClearFleet() => fleet?.UnSafeRemoveShip(this);
 
         public bool IsConstructor
         {
@@ -638,7 +654,7 @@ namespace Ship_Game.Ships
                     AI.ClearOrders();
                     return;
                 }
-                EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.AddShip(this);
+                EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.Add(this);
                 AI.State = AIState.SystemDefender;
             }
         }
@@ -1610,7 +1626,7 @@ namespace Ship_Game.Ships
             Active = false;
             TetheredTo?.RemoveFromOrbitalStations(this);
             AI.ClearOrdersAndWayPoints(); // This calls immediate Dispose() on Orders that require cleanup
-            loyalty.RemoveShipFromAIPools(this);
+            Pool?.Remove(this);
         }
 
         public override void RemoveFromUniverseUnsafe()
@@ -1651,13 +1667,11 @@ namespace Ship_Game.Ships
             PlanetCrash = null;
 
             ((IEmpireShipLists)loyalty).RemoveShipAtEndOfTurn(this);
+            RemoveFromPoolAndFleet(clearOrders: false/*already cleared*/);
             RemoveTether();
             RemoveSceneObject();
             base.RemoveFromUniverseUnsafe();
         }
-
-        public void ClearFleet(bool returnToManagedPools = true) => fleet?.RemoveShip(this, returnToManagedPools);
-        public void UnsafeClearFleet() => fleet?.UnSafeRemoveShip(this);
 
         public void Dispose()
         {
