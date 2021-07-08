@@ -114,7 +114,8 @@ namespace Ship_Game.Fleets
                 Log.Warning($"{newShip}: \n Added to fleet it was already part of:\n{newShip.fleet}");
                 return true;
             }
-            Owner.RemoveShipFromAIPools(newShip);
+
+            Owner.AIManagedShips.Remove(newShip);
             UpdateOurFleetShip(newShip);
 
             SortIntoFlanks(newShip, TotalFleetAttributes.GetAveragedValues());
