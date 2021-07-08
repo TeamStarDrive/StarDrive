@@ -66,9 +66,11 @@ namespace Ship_Game.AI
             for (int i = 1; i < 100; i++)
             {
                 float taxRate = i / 100f;
-                //float amountMade = OwnerEmpire.EstimateNetIncomeAtTaxRate(taxRate);
+                OwnerEmpire.data.TaxRate = taxRate;
+                OwnerEmpire.UpdateNetPlanetIncomes();
 
-                float amountMade = taxRate * OwnerEmpire.GrossIncomeBeforeTax;
+                //float amountMade = income * taxRate;
+                float amountMade = OwnerEmpire.GrossIncome;
 
                 if (amountMade >= amount)
                 {
@@ -92,14 +94,14 @@ namespace Ship_Game.AI
             normalizedBudget = money < 0 ? money : normalizedBudget;
 
             float treasuryGoal = TreasuryGoal(normalizedBudget);
-            ProjectedMoney = treasuryGoal / 2;
+            ProjectedMoney = treasuryGoal / (OwnerEmpire.isPlayer ? 1 : 2);
 
             // gamestate attempts to increase the budget if there are wars or lack of some resources.  
             // its primarily geared at ship building. 
             float riskLimit = (CreditRating * 2).Clamped(0.1f, 2);
             float gameState = ThreatLevel = GetRisk(riskLimit);
 
-            AutoSetTaxes(treasuryGoal, normalizedBudget);
+            
             // the values below are now weights to adjust the budget areas. 
             float defense = BudgetSettings.GetBudgetFor(BudgetAreas.Defense);
             float SSP     = BudgetSettings.GetBudgetFor(BudgetAreas.SSP); 
@@ -107,7 +109,7 @@ namespace Ship_Game.AI
             float spy     = BudgetSettings.GetBudgetFor(BudgetAreas.Spy);
             float colony  = BudgetSettings.GetBudgetFor(BudgetAreas.Colony);
             float savings = BudgetSettings.GetBudgetFor(BudgetAreas.Savings);
-            
+            AutoSetTaxes(ProjectedMoney, normalizedBudget);
             // for the player they don't use some budgets. so distribute them to areas they do
             // spy budget is a special case currently and is not distributed.
             if (OwnerEmpire.isPlayer)
@@ -204,11 +206,26 @@ namespace Ship_Game.AI
             float gross = OwnerEmpire.GrossIncomeBeforeTax - OwnerEmpire.TotalCivShipMaintenance -
                           OwnerEmpire.TroopCostOnPlanets - OwnerEmpire.TotalTroopShipMaintenance;
             float treasuryGoal = Math.Max(gross, 0);
-            
-            float timeSpan = (200 - normalizedMoney / 500).Clamped(100,200) * OwnerEmpire.data.treasuryGoal;
-            treasuryGoal *= timeSpan;
 
-            return treasuryGoal.LowerBound(Empire.StartingMoney);
+            float timeSpan = 0;
+            float minimum = 0;
+
+            if (OwnerEmpire.isPlayer)
+            {
+                treasuryGoal = gross * OwnerEmpire.data.treasuryGoal;
+                timeSpan      = 200;
+                treasuryGoal *= timeSpan;
+            }
+            else
+            {
+                timeSpan = (200 - normalizedMoney / 500).Clamped(100, 200) * OwnerEmpire.data.treasuryGoal;
+                treasuryGoal *= timeSpan;
+                minimum = OwnerEmpire.isPlayer ? 0 : Empire.StartingMoney;
+            }
+
+            
+
+            return treasuryGoal.LowerBound(minimum);
         }
 
         /// <summary>
@@ -243,29 +260,34 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer && !OwnerEmpire.data.AutoTaxes)
                 return;
 
-            float timeSpan = 200 * OwnerEmpire.data.treasuryGoal;
+            float timeSpan = 200;
 
             if (!OwnerEmpire.isPlayer)
             {
                 // set the money to the min maintenance or the treasury goal
                 float totalMaintenance = OwnerEmpire.TotalShipMaintenance + OwnerEmpire.TotalBuildingMaintenance;
-                float max              = Math.Max(totalMaintenance * timeSpan, treasuryGoal / 2);
-                float min              = Math.Min(totalMaintenance * timeSpan, treasuryGoal);
+                float max              = Math.Max(totalMaintenance * timeSpan, treasuryGoal);
+                float min              = Math.Min(totalMaintenance * timeSpan, treasuryGoal * 2);
                 treasuryGoal           = treasuryGoal.Clamped(min, max);
             }
 
+            float spending = OwnerEmpire.TotalCivShipMaintenance +
+                          OwnerEmpire.TroopCostOnPlanets + OwnerEmpire.TotalTroopShipMaintenance;
+            //treasuryGoal -= OwnerEmpire.AllSpending;
             // figure how much is needed for treasury
-            float treasuryGap          = treasuryGoal - money;
+            float treasuryToMoneyRatio = (treasuryGoal - money) / treasuryGoal;//.Clamped(0.01f, 1);
+            float treasuryGap = treasuryGoal - money + spending;
+
             //figure how much is needed to fulfill treasury in timespan and cover current costs
-            float neededPerTurn        = treasuryGap / timeSpan + OwnerEmpire.AllSpending;
-            float taxesNeeded          = FindTaxRateToReturnAmount(neededPerTurn).Clamped(0.0f, 0.95f);
+            float neededPerTurn = treasuryGap / 200 ; // + spending;
+            float taxesNeeded = FindTaxRateToReturnAmount(neededPerTurn).Clamped(0.0f, 0.95f); // * treasuryToMoneyRatio;
             float increase             = taxesNeeded - OwnerEmpire.data.TaxRate;
-            float treasuryToMoneyRatio = (money / treasuryGoal).Clamped(0.01f, 1);
+            
 
             // try to control the amount of change of the tax so that it can not wildly change to low. 
             if (!increase.AlmostZero())
             {
-                float wanted             = OwnerEmpire.data.TaxRate + (increase ) * treasuryToMoneyRatio;
+                float wanted             = OwnerEmpire.data.TaxRate + (increase);
                 OwnerEmpire.data.TaxRate = wanted.Clamped(0.01f, 0.95f);
             }
         }
