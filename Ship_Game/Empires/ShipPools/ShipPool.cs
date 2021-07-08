@@ -9,30 +9,13 @@ namespace Ship_Game.Empires.ShipPools
     public class ShipPool : IShipPool
     {
         readonly Empire Owner;
+        readonly ChangePendingList<Ship> ForcePool;
 
-        ChangePendingList<Ship> ForcePool;
-
-        public Guid Guid { get; } = new Guid();
+        public Guid Guid { get; } = Guid.NewGuid();
         public string Name { get; }
         public Empire OwnerEmpire => Owner;
         public EmpireAI OwnerAI => Owner.GetEmpireAI();
         public Array<Ship> Ships => ForcePool.Items;
-
-        /// <summary>
-        /// This is for adding to the Empire AI pool management.
-        /// Player and other ships that can't be added to empireAI pool management will be safely ignored.
-        /// </summary>
-        public bool Add(Ship s)
-        {
-            if (s.loyalty != Owner && s.LoyaltyTracker.ChangeType == LoyaltyChanges.Type.None)
-            {
-                Log.Error($"Incorrect loyalty. Ship {s.loyalty} != Empire {Owner}");
-                return false;
-            }
-            return EmpireForcePoolAdd(s);
-        }
-
-        public bool Contains(Ship s) => s.Pool == this;
 
         public float InitialStrength;
         public int InitialReadyFleets;
@@ -56,6 +39,15 @@ namespace Ship_Game.Empires.ShipPools
             ForcePool = new ChangePendingList<Ship>(ShouldAddToForcePool);
         }
 
+        /// <summary>
+        /// Ships meeting the criteria here should not be added to the empire force pools.
+        /// these are temporary ships or soon to be removed or otherwise cant or should not be available
+        /// to add to fleets. 
+        /// </summary>
+        bool ShouldNotAddToAnyPool(Ship ship) => ship.ShouldNotBeAddedToForcePools();
+        bool ShouldAddToAOPools(Ship ship)    => ship.IsAWarShip && !ship.IsAFighterCarrier;
+        bool ShouldAddToEmpirePool(Ship ship) => ship.BaseCanWarp && ship.IsFleetSupportShip();
+        
         bool ShouldAddToForcePool(Ship s)
         {
             return s.Active
@@ -66,33 +58,38 @@ namespace Ship_Game.Empires.ShipPools
         }
 
         /// <summary>
-        /// Ships meeting the criteria here should not be added to the empire force pools.
-        /// these are temporary ships or soon to be removed or otherwise cant or should not be available
-        /// to add to fleets. 
+        /// This is for adding to the Empire AI pool management.
+        /// Player and other ships that can't be added to empireAI pool management will be safely ignored.
         /// </summary>
-        bool ShouldNotAddToAnyPool(Ship ship) => ship.ShouldNotBeAddedToForcePools();
-        bool ShouldAddToAOPools(Ship ship)    => ship.IsAWarShip;
-        bool ShouldAddToEmpirePool(Ship ship) => ship.BaseCanWarp && ship.IsFleetSupportShip();
-
-        public void Update()
+        public bool Add(Ship s)
         {
-            ForcePool.Update();
+            if (s.Pool == this || Owner.isPlayer || Owner.isFaction || ShouldNotAddToAnyPool(s))
+                return false;
 
-            if (!Owner.isPlayer)
+            if (s.loyalty != Owner && s.LoyaltyTracker.ChangeType == LoyaltyChanges.Type.None)
             {
-                if (PoolCheckTimer-- < 0)
+                Log.Error($"Incorrect loyalty. Ship {s.loyalty} != Empire {Owner}");
+                return false;
+            }
+
+            s.Pool?.Remove(s);
+
+            // first try to add to other pools
+            if (!AssignShipsToOtherPools(s))
+            {
+                if (ShouldAddToEmpirePool(s))
                 {
-                    PoolCheckTimer = 60;
-                    ErrorCheckPools();
+                    s.Pool = this;
+                    ForcePool.Add(s);
+                    return true;
+                }
+
+                if (s.DesignRoleType == ShipData.RoleType.Warship && s.BaseCanWarp)
+                {
+                    Log.Warning($"Could Not add ship to force pools. {s} ");
                 }
             }
-            var fleets             = new FleetShips(Owner, Owner.AllFleetReadyShips());
-            EmpireReadyFleets      = fleets;
-            CurrentUseableFleets   = InitialReadyFleets = EmpireReadyFleets.CountFleets(out float initialStrength);
-            CurrentUseableStrength = InitialStrength = initialStrength;
-            InitialReadyShips      = EmpireReadyFleets.TotalShips;
-            var allShips           = GetShipsFromOffensePools();
-            AllPoolShips           = allShips.Count;
+            return false;
         }
 
         public bool Remove(Ship ship)
@@ -105,7 +102,45 @@ namespace Ship_Game.Empires.ShipPools
             ship.Pool = null;
             return true;
         }
+        
+        public bool Contains(Ship s) => s.Pool == this;
 
+        bool AssignShipsToOtherPools(Ship toAdd)
+        {
+            if (!ShouldAddToAOPools(toAdd) || ShouldNotAddToAnyPool(toAdd))
+                return false; // we don't need this ship
+
+            if (OwnerAI != null)
+            {
+                // need to rework this better divide the ships.
+                AO area = OwnerAI.AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Center));
+                if (area?.Add(toAdd) == true)
+                    return true;
+            }
+            return false; // nothing to do with you
+        }
+        
+        public void Update()
+        {
+            ForcePool.Update();
+
+            if (!Owner.isPlayer)
+            {
+                if (PoolCheckTimer-- < 0)
+                {
+                    PoolCheckTimer = 60;
+                    ErrorCheckPools();
+                }
+            }
+
+            EmpireReadyFleets      = new FleetShips(Owner, Owner.AllFleetReadyShips());
+            CurrentUseableFleets   = InitialReadyFleets = EmpireReadyFleets.CountFleets(out float initialStrength);
+            CurrentUseableStrength = InitialStrength = initialStrength;
+            InitialReadyShips      = EmpireReadyFleets.TotalShips;
+            Array<Ship> allShips   = GetShipsFromOffensePools();
+            AllPoolShips           = allShips.Count;
+        }
+        
         public Array<Ship> GetShipsFromOffensePools(bool onlyAO = false)
         {
             var ships = new Array<Ship>();
@@ -166,7 +201,7 @@ namespace Ship_Game.Empires.ShipPools
                         if (!AssignShipsToOtherPools(ship))
                         {
                             if (ShouldAddToEmpirePool(ship))
-                                EmpireForcePoolAdd(ship);
+                                Add(ship);
                             Log.Error($"ShipPool: Could not assign ship to pools {ship}");
                         }
                     }
@@ -190,70 +225,13 @@ namespace Ship_Game.Empires.ShipPools
                         if (!AssignShipsToOtherPools(ship))
                         {
                             if (ShouldAddToEmpirePool(ship))
-                                EmpireForcePoolAdd(ship);
+                                Add(ship);
                             else if (Owner.GetEmpireAI().AreasOfOperations.Count > 0)
                                 Log.Info($"ShipPool: Could not assign ship to pools {ship}");
                         }
                     }
                 }
             }
-        }
-
-        bool EmpireForcePoolAdd(Ship ship)
-        {
-            if (ship.Pool == this || Owner.isPlayer || Owner.isFaction || ShouldNotAddToAnyPool(ship))
-                return false;
-
-            ship.Pool?.Remove(ship);
-            
-            // first try to add to other pools
-            if (!AssignShipsToOtherPools(ship))
-            {
-                if (ShouldAddToEmpirePool(ship))
-                {
-                    ship.Pool = this;
-                    ForcePool.Add(ship);
-                    return true;
-                }
-
-                if (ship.DesignRoleType == ShipData.RoleType.Warship && ship.BaseCanWarp)
-                {
-                    Log.Warning($"Could Not add ship to force pools. {ship} ");
-                }
-            }
-            return false;
-        }
-
-        bool AssignShipsToOtherPools(Ship toAdd)
-        {
-            if (!ShouldAddToAOPools(toAdd) || ShouldNotAddToAnyPool(toAdd))
-                return false; // we don't need this ship
-
-            int numWars = Owner.AtWarCount;
-            float baseDefensePct = 0.1f;
-            baseDefensePct += 0.15f * numWars;
-
-            if (baseDefensePct > 0.35f)
-                baseDefensePct = 0.35f;
-
-            if (OwnerAI != null)
-            {
-                // need to rework this better divide the ships.
-                AO area = OwnerAI.AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Center));
-                if (area?.Add(toAdd) == true)
-                {
-                    return true;
-                }
-                //bool needDef = (Owner.CurrentMilitaryStrength * baseDefensePct - OwnerAI.DefStr) >= 0
-                //               && OwnerAI.DefensiveCoordinator.DefenseDeficit >= 0;
-                //if (needDef && !Owner.isFaction)
-                //{
-                //    OwnerAI.DefensiveCoordinator.AddShip(toAdd);
-                //    return true;
-                //}
-            }
-
-            return false; // nothing to do with you
         }
 
         public void Clear()
