@@ -1101,9 +1101,9 @@ namespace Ship_Game.Gameplay
             float warsGrade      = us.GetAverageWarGrade();
             float gradeThreshold = us.PersonalityModifiers.WarGradeThresholdForPeace;
 
-            if (them.isPlayer || !us.IsLosingInWarWith(EmpireManager.Player))
+            if (!us.IsLosingInWarWith(EmpireManager.Player))
             {
-                if (warsGrade > gradeThreshold)
+                if (warsGrade > gradeThreshold && !us.IsLosingInWarWith(them))
                     return;
             }
 
@@ -1326,13 +1326,6 @@ namespace Ship_Game.Gameplay
                 turnsSinceLastContact = 0;
                 WarnedAboutShips = true;
             }
-
-            if (!WarnedAboutShips || AtWar || !us.IsEmpireAttackable(them))
-                return;
-
-            int territorialism = us.data.DiplomaticPersonality.Territorialism;
-            if (them.OffensiveStrength < us.OffensiveStrength * (1f - territorialism * 0.01f) && !Treaty_Peace)
-                us.GetEmpireAI().DeclareWarOn(them, WarType.ImperialistWar);
         }
 
         public void RequestHelpFromAllies(Empire us, Empire enemy, int contactThreshold)
@@ -1344,11 +1337,12 @@ namespace Ship_Game.Gameplay
             foreach ((Empire them, Relationship rel) in us.AllRelations)
             {
                 if (rel.Treaty_Alliance
-                    && them.IsKnown(enemy) && !them.IsAtWarWith(enemy))
+                    && them.IsKnown(enemy) && !them.IsAtWarWith(enemy) && !them.IsPeaceTreaty(enemy))
                 {
                     allies.Add(them);
                 }
             }
+
             foreach (Empire ally in allies)
             {
                 Relationship usToAlly = us.GetRelations(ally);
@@ -1370,7 +1364,7 @@ namespace Ship_Game.Gameplay
                 return;
 
             Empire them = Them;
-            if (us.IsAggressive && Threat < -15f && us.GetAverageWarGrade().GreaterOrEqual(5) && !us.IsAtWar)
+            if (us.IsAggressive && Threat < -15f && !us.IsAtWar)
             {
                 float angerMod = -Threat / 15; // every -15 threat will give +0.1 anger
                 AddAngerMilitaryConflict(us.data.DiplomaticPersonality.AngerDissipation + 0.1f * angerMod);
@@ -1378,9 +1372,7 @@ namespace Ship_Game.Gameplay
 
             if (Anger_MilitaryConflict > 80 && !PreparingForWar && !AtWar && !Treaty_Peace)
             {
-                if (Anger_MilitaryConflict > 99)
-                    us.GetEmpireAI().DeclareWarOn(them, WarType.ImperialistWar);
-                else if (us.TryConfirmPrepareForWarType(them, WarType.DefensiveWar, out WarType warType))
+                if (us.TryConfirmPrepareForWarType(them, WarType.DefensiveWar, out WarType warType))
                     PrepareForWar(warType, us);
 
                 return;
@@ -1388,7 +1380,10 @@ namespace Ship_Game.Gameplay
 
             if (!PreparingForWar
                 && Anger_TerritorialConflict + Anger_FromShipsInOurBorders >= us.data.DiplomaticPersonality.Territorialism
-                && !AtWar && !Treaty_OpenBorders && !Treaty_Peace && them.CurrentMilitaryStrength < us.OffensiveStrength)
+                && !AtWar 
+                && !Treaty_OpenBorders 
+                && !Treaty_Peace 
+                && them.CurrentMilitaryStrength  * us.PersonalityModifiers.GoToWarTolerance < us.OffensiveStrength)
             {
                 if (us.TryConfirmPrepareForWarType(them, WarType.BorderConflict, out WarType warType))
                     PrepareForWar(warType, us);
