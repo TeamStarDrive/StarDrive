@@ -214,14 +214,15 @@ namespace Ship_Game.Gameplay
         {
             switch (treatyType)
             {
-                case TreatyType.Alliance:      Treaty_Alliance    = value; CancelPrepareForWar();         break;
-                case TreatyType.NonAggression: Treaty_NAPact      = value; WarnedSystemsList.Clear();     break;
+                case TreatyType.Alliance:      Treaty_Alliance    = value; HandleAlliance();              break;
+                case TreatyType.NonAggression: Treaty_NAPact      = value;                                break;
                 case TreatyType.OpenBorders:   Treaty_OpenBorders = value;                                break;
-                case TreatyType.Peace:         Treaty_Peace       = value; SetPeace();                    break;
+                case TreatyType.Peace:         Treaty_Peace       = value; HandlePeace();                 break;
                 case TreatyType.Trade:         Treaty_Trade       = value; Treaty_Trade_TurnsExisted = 0; break;
             }
 
-            void SetPeace()
+            // Local Method
+            void HandlePeace()
             {
                 if (value)
                 {
@@ -232,6 +233,16 @@ namespace Ship_Game.Gameplay
                 else
                 {
                     PeaceTurnsRemaining = 0;
+                }
+            }
+
+            // Local Method
+            void HandleAlliance()
+            {
+                if (value) // If treaty is signed
+                {
+                    CancelPrepareForWar();
+                    WarnedSystemsList.Clear();
                 }
             }
         }
@@ -280,7 +291,8 @@ namespace Ship_Game.Gameplay
         {
             NumberStolenClaims++;
             AddAngerTerritorialConflict(5f + (float)Math.Pow(5, NumberStolenClaims));
-            Trust -= owner.data.DiplomaticPersonality.Territorialism / 5f;
+            Trust -= owner.DifficultyModifiers.TrustLostStoleColony;
+            Trust -= owner.data.DiplomaticPersonality.Territorialism/5 * StolenSystems.Count.LowerBound(1);
             newTheft = !StolenSystems.Contains(claimedPlanet.ParentSystem.guid);
             StolenSystems.AddUnique(claimedPlanet.ParentSystem.guid);
         }

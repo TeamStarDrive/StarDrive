@@ -2644,14 +2644,11 @@ namespace Ship_Game
 
             Empire empire = EmpireManager.GetEmpireById(DiplomacyContactQueue.First().Key);
             string dialog = DiplomacyContactQueue.First().Value;
+
             if (dialog == "DECLAREWAR")
-            {
                 empire.GetEmpireAI().DeclareWarOn(this, WarType.ImperialistWar);
-            }
             else
-            {
                 DiplomacyScreen.ContactPlayerFromDiplomacyQueue(empire, dialog);
-            }
 
             DiplomacyContactQueue.RemoveAt(0);
         }

@@ -58,7 +58,9 @@ namespace Ship_Game.AI.ExpansionAI
             }
 
             if (s.OwnerList.Any(e => s.HasPlanetsOwnedBy(e)
-                                     && (ownerEmpire.IsOpenBordersTreaty(e) || ownerEmpire.IsAtWarWith(e))))
+                                     && (ownerEmpire.WarnedThemAboutThisSystem(s, e)
+                                         || ownerEmpire.IsOpenBordersTreaty(e) 
+                                         || ownerEmpire.IsAtWarWith(e))))
             {
                 return false;
             }
