@@ -45,7 +45,9 @@ namespace Ship_Game.Ships
         public bool Animated;
         public bool IsShipyard;
         public bool IsOrbitalDefense;
-        // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
+        // The Doctor: intending to use this as a user-toggled
+        // flag which tells the AI not to build a design as a stand-alone vessel
+        // from a planet; only for use in a hangar
         public bool CarrierShip;
 
         public CombatState CombatState;

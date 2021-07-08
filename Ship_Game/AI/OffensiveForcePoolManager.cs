@@ -8,12 +8,9 @@ namespace Ship_Game.AI
     {
         readonly Empire Owner;
         EmpireAI EmpireAI => Owner.GetEmpireAI();
-        ThreatMatrix ThreatMatrix => EmpireAI.ThreatMatrix;
-        DefensiveCoordinator DefensiveCoordinator => EmpireAI.DefensiveCoordinator;
-        Array<AO> AreasOfOperations => EmpireAI.AreasOfOperations;
-        float ThreatTimer = 0;
+        float ThreatTimer;
 
-        public OffensiveForcePoolManager (Empire owner)
+        public OffensiveForcePoolManager(Empire owner)
         {
             Owner = owner;
         }
@@ -23,13 +20,13 @@ namespace Ship_Game.AI
             
             if (ThreatTimer < 0) ThreatTimer = 2f;
 
-            for (int index = AreasOfOperations.Count - 1; index >= 0; index--)
+            for (int index = EmpireAI.AreasOfOperations.Count - 1; index >= 0; index--)
             {
-                AO areasOfOperation = AreasOfOperations[index];
+                AO areasOfOperation = EmpireAI.AreasOfOperations[index];
                 Planet aoCoreWorld = areasOfOperation.CoreWorld;
                 if (aoCoreWorld?.Owner != Owner)
                 {
-                    AreasOfOperations.RemoveAt(index);
+                    EmpireAI.AreasOfOperations.RemoveAt(index);
                     areasOfOperation.ClearOut();
                 }
             }
@@ -59,7 +56,7 @@ namespace Ship_Game.AI
                         aoSize = Vector2.Distance(coreWorld.Center, system.Position);
                 }          
                 bool flag1 = true;
-                foreach (AO areasOfOperation2 in AreasOfOperations)
+                foreach (AO areasOfOperation2 in EmpireAI.AreasOfOperations)
                 {
 
                     if (Vector2.Distance(areasOfOperation2.GetPlanet().Center, coreWorld.Center) >= aoSize)
@@ -72,20 +69,19 @@ namespace Ship_Game.AI
                     continue;
                 }
 
-                AO aO2 = new AO(coreWorld, aoSize);
-                AreasOfOperations.Add(aO2);
+                CreateAO(coreWorld, aoSize);
             }
         }
         public Planet[] GetAOPlanets(out HashSet<SolarSystem> systems)
         {
             systems = new HashSet<SolarSystem>();
             int planetCount = 0;
-            foreach (AO ao in AreasOfOperations)
+            foreach (AO ao in EmpireAI.AreasOfOperations)
                 planetCount += ao.GetOurPlanets().Length;
 
             Planet[] allPlanets = new Planet[planetCount];
             int x = 0;
-            foreach (AO ao in AreasOfOperations)
+            foreach (AO ao in EmpireAI.AreasOfOperations)
                 foreach (Planet planet in ao.GetOurPlanets())
                 {
                     systems.Add(planet.ParentSystem);
@@ -94,35 +90,35 @@ namespace Ship_Game.AI
             return allPlanets;
         }
 
-        Planet[] GetAOCoreWorlds() => AreasOfOperations.Select(ao => ao.CoreWorld);
+        Planet[] GetAOCoreWorlds() => EmpireAI.AreasOfOperations.Select(ao => ao.CoreWorld);
 
         public AO GetAOContaining(Planet planetToCheck)
         {
-            return AreasOfOperations.Find(ao=> ao.CoreWorld == planetToCheck || ao.CoreWorld.ParentSystem == planetToCheck.ParentSystem || ao.GetOurPlanets().Contains(planetToCheck));
+            return EmpireAI.AreasOfOperations.Find(ao=> ao.CoreWorld == planetToCheck || ao.CoreWorld.ParentSystem == planetToCheck.ParentSystem || ao.GetOurPlanets().Contains(planetToCheck));
         }
 
         public AO GetAOContaining(Vector2 point)
         {
-            return AreasOfOperations.Find(ao => point.InRadius(ao.Center, ao.Radius));
+            return EmpireAI.AreasOfOperations.Find(ao => point.InRadius(ao.Center, ao.Radius));
         }
 
         public bool IsPlanetCoreWorld(Planet planetToCheck)
         {
             if (planetToCheck.Owner != Owner) return false;
-            return AreasOfOperations.Any(ao=> ao.CoreWorld == planetToCheck);
+            return EmpireAI.AreasOfOperations.Any(ao=> ao.CoreWorld == planetToCheck);
         }
 
         public AO CreateAO(Planet coreWorld, float radius)
         {
             var newAO = new AO(coreWorld, radius);
-            AreasOfOperations.Add(newAO);
+            EmpireAI.AreasOfOperations.Add(newAO);
             return newAO;
         }
 
         public AO CreateAO(Planet coreWorld, float radius, AO fromAO)
         {
             var newAO = new AO(coreWorld, radius, fromAO.WhichFleet, fromAO.CoreFleet);
-            AreasOfOperations.Add(newAO);
+            EmpireAI.AreasOfOperations.Add(newAO);
             return newAO;
         }
 
