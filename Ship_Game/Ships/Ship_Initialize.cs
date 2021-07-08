@@ -41,7 +41,7 @@ namespace Ship_Game.Ships
 
             // Ships unable to create the moduleslots cant be safely added to empire shiplists. 
             if (!isTemplate && !shipyardDesign)
-                LoyaltyTracker.OnSpawn(this);
+                LoyaltyChangeAtSpawn(empire);
 
             Stats = new ShipStats(this);
             KnownByEmpires = new Components.KnownByEmpire();
@@ -71,9 +71,9 @@ namespace Ship_Game.Ships
 
             if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
                 return; // return and crash again...
-            
+
             // ship must not be added to empire ship list until after modules are validated.
-            LoyaltyTracker.OnSpawn(this);
+            LoyaltyChangeAtSpawn(owner);
 
             Stats = new ShipStats(this);
             KnownByEmpires = new Components.KnownByEmpire();
