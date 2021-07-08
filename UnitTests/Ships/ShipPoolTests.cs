@@ -80,6 +80,23 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
+        public void ResupplyingShipMustNotBeInAPool()
+        {
+            Ship ship = SpawnShip("Vulcan Scout", Enemy, Vector2.Zero);
+            ship.Position = new Vector2(10000, 10000);
+            Universe.Objects.Update(TestSimStep);
+            Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");
+            IShipPool originalPool = ship.Pool;
+
+            ship.AI.OrderResupply(Homeworld, true);
+            while (ship.AI.State == AIState.Resupply)
+            {
+                Universe.Objects.Update(TestSimStep);
+                Assert.AreEqual(originalPool, ship.Pool, "Ship must remain in the same pool during Resupply");
+            }
+        }
+
+        [TestMethod]
         public void ShipIsRemovedFromPoolsAfterDeath()
         {
             Ship ship = SpawnShip("Vulcan Scout", Enemy, Vector2.Zero);
