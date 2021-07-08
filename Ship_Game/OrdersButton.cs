@@ -140,7 +140,7 @@ namespace Ship_Game
                         case OrderType.Explore:            ship.AI.OrderExplore();                                 break;
                         case OrderType.OrderResupply:      ship.Supply.ResupplyFromButton();                       break;
                         case OrderType.Scrap:              ship.AI.OrderScrapShip();                               break;
-                        case OrderType.EmpireDefense:      AddOrRemoveFromForcePool(ship);                         break;
+                        case OrderType.EmpireDefense:      ToggleEmpireDefenseFor(ship);                           break;
                         case OrderType.FighterRecall:      ship.Carrier.SetRecallFightersBeforeFTL(!input.RightMouseClick); break;
                         case OrderType.SendTroops:         ship.Carrier.SetSendTroopsToShip(!input.RightMouseClick);        break;
                     }
@@ -168,21 +168,15 @@ namespace Ship_Game
             return Hovering;
         }
 
-        void AddOrRemoveFromForcePool(Ship ship)
+        void ToggleEmpireDefenseFor(Ship ship)
         {
-            lock (ship)
-            {
-                if (!EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))
-                {
-                    EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
-                    ship.AI.ClearOrders();
-                }
-                else
-                {
-                    EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.Remove(ship);
-                    ship.AI.ClearOrders();
-                }
-            }
+            var pool = EmpireManager.Player.GetEmpireAI().DefensiveCoordinator;
+            if (ship.Pool != pool)
+                pool.Add(ship);
+            else
+                ship.RemoveFromPool();
+
+            ship.AI.ClearOrders();
         }
     }
 }
