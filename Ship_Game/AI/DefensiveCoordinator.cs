@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Ship_Game.AI
 {
-    public sealed class DefensiveCoordinator : IDisposable
+    public sealed class DefensiveCoordinator : IShipPool, IDisposable
     {
         readonly Empire Us;
         public float DefenseDeficit;
@@ -16,9 +16,15 @@ namespace Ship_Game.AI
         int TotalValue;
         public float TroopsToTroopsWantedRatio;
 
-        public DefensiveCoordinator(Empire e)
+        public Guid Guid { get; } = new Guid();
+        public string Name { get; }
+        public Empire OwnerEmpire => Us;
+        public Array<Ship> Ships => DefensiveForcePool;
+
+        public DefensiveCoordinator(Empire e, string name)
         {
             Us = e;
+            Name = name;
         }
 
         public void Dispose()
@@ -41,12 +47,19 @@ namespace Ship_Game.AI
             DefenseDict = null;
         }
 
-        public void AddShip(Ship ship)
+        public bool Add(Ship ship)
         {
+            if (ship.Pool == this)
+                return true;
+
+            ship.Pool?.Remove(ship);
+            ship.Pool = this;
+
             ship.AI.ClearOrders(AIState.SystemDefender);
             ship.AI.SetPriorityOrder(false);
             DefenseDeficit -= ship.GetStrength();
-            DefensiveForcePool.AddUnique(ship);
+            DefensiveForcePool.Add(ship);
+            return true;
         }
 
         //added by gremlin parallel forcepool
@@ -75,8 +88,13 @@ namespace Ship_Game.AI
             return DefenseDict.First().Value.AssignIdleDuties(ship);
         }
 
-        public void Remove(Ship ship, bool addToEmpirePool = true)
+        public bool Remove(Ship ship)
         {
+            if (ship.Pool != this)
+                return false;
+
+            ship.Pool = null;
+
             SolarSystem sysToDefend = ship.AI.SystemToDefend;
             if (DefensiveForcePool.RemoveSwapLast(ship))
             {
@@ -106,11 +124,11 @@ namespace Ship_Game.AI
             {
                 ship.AI.SystemToDefend = null;
                 ship.AI.ClearOrders();
-                if (addToEmpirePool && !ship.loyalty.isPlayer && ship.Active && ship.AI.State != AIState.Scrap && ship.loyalty == Us)
-                    Us.AddShipToManagedPools(ship);
+                Us.AddShipToManagedPools(ship);
             }
 
             DebugInfoScreen.DefenseCoLogsNull(found, ship, sysToDefend);
+            return true;
         }
 
         public bool Contains(Ship ship)
@@ -145,7 +163,7 @@ namespace Ship_Game.AI
                     if (p.ParentSystem == null || DefenseDict.ContainsKey(p.ParentSystem))
                         continue;
 
-                    DefenseDict.Add(p.ParentSystem, new SystemCommander(Us, p.ParentSystem));
+                    DefenseDict.Add(p.ParentSystem, new SystemCommander(this, p.ParentSystem, Us));
                 }
             }
         }
@@ -238,8 +256,7 @@ namespace Ship_Game.AI
                     else
                         ship.AI.State = AIState.SystemDefender;
                 }
-                else
-                if (!ship.AI.HasPriorityOrder && ship.AI.State != AIState.Resupply)
+                else if (!ship.AI.HasPriorityOrder && ship.AI.State != AIState.Resupply)
                     Remove(ship);
             }
 
