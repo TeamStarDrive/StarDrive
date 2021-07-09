@@ -27,6 +27,10 @@ namespace Ship_Game
             InfraStructure
         }
 
+        // This logs the building maintenance the governor tried to build but could not due to low budget
+        // It can be used by the empire to allow building this, if they have reserves
+        public float BuildingMaintenanceNeeded { get; private set; }
+
         bool IsPlanetExtraDebugTarget()
         {
             if (Name == ExtraInfoOnPlanet)
@@ -39,15 +43,9 @@ namespace Ship_Game
                    && colony.P == this;
         }
 
-        void DebugEvalBuild(Building b, string what, float score)
-        {
-            if (IsPlanetExtraDebugTarget())
-                Log.Info(ConsoleColor.DarkGray,
-                    $"Eval VALUE  {b.Name,-20}  {what,-16} {(+score).SignString()}");
-        }
-
         void BuildAndScrapCivilianBuildings(float budget)
         {
+            BuildingMaintenanceNeeded = float.MaxValue;
             UpdateGovernorPriorities();
             if (budget < 0f)
             {
@@ -66,7 +64,9 @@ namespace Ship_Game
         {
             if (FreeHabitableTiles > 0)
             {
-                SimpleBuild(budget); // Let's try to build something within our budget
+                if (SimpleBuild(budget)) // Let's try to build something within our budget
+                    BuildingMaintenanceNeeded = 0; // We built a building. No over spend is needed from the empire
+
                 if (TryPrioritizeColonyBuilding())
                     return;
             }
@@ -390,9 +390,15 @@ namespace Ship_Game
             }
 
             float maintenance = b.ActualMaintenance(this);
-
             if ((budget > 0 && maintenance <= budget) || b.IsMoneyBuilding && b.MoneyBuildingAndProfitable(maintenance, PopulationBillion))
                 return true;
+
+            if (maintenance < BuildingMaintenanceNeeded
+                && maintenance > 0
+                && (ManualCivilianBudget <= 0 || !Owner.isPlayer))
+            {
+                BuildingMaintenanceNeeded = maintenance;
+            }
 
             return false; // Too expensive for us and its not getting profitable juice from the population
         }
