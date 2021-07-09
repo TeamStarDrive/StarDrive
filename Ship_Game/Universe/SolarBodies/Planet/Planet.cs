@@ -1051,8 +1051,7 @@ namespace Ship_Game
             ShieldStrengthMax *= (1 + Owner.data.ShieldPowerMod);
             // Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             ShieldStrengthCurrent = ShieldStrengthCurrent.Clamped(0,ShieldStrengthMax);
-            HasSpacePort          = spacePort && (colonyType != ColonyType.Research || Owner.isPlayer); // FB todo - why research Governor is omitted here?
-            //this is a hack to prevent research planets from wasting workers on production.
+            HasSpacePort = spacePort;
 
             // greedy bastards
             Consumption = (ConsumptionPerColonist * PopulationBillion) + TotalTroopConsumption;
