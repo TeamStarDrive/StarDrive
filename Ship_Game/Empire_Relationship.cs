@@ -477,7 +477,6 @@ namespace Ship_Game
 
         public void RespondPlayerStoleColony(Relationship usToPlayer)
         {
-            usToPlayer.Trust -= DifficultyModifiers.TrustLostStoleColony;
             Empire player     = EmpireManager.Player;
             switch (usToPlayer.StolenSystems.Count)
             {
@@ -513,17 +512,13 @@ namespace Ship_Game
                 default: // 3 and above
                     switch (Personality)
                     {
+                        case PersonalityType.Pacifist    when usToPlayer.StolenSystems.Count >= 4:
+                        case PersonalityType.Cunning:    usToPlayer.PrepareForWar(WarType.DefensiveWar, player);   break;
                         case PersonalityType.Aggressive: 
-                        case PersonalityType.Ruthless:
+                        case PersonalityType.Ruthless:   usToPlayer.PrepareForWar(WarType.ImperialistWar, player); break;
                         case PersonalityType.Xenophobic:
-                        case PersonalityType.Honorable:
-                        case PersonalityType.Cunning:
-                        case PersonalityType.Pacifist when usToPlayer.StolenSystems.Count >= 4:
-                            player.AddToDiplomacyContactView(this, "DECLAREWAR");
-                            break;
-                        case PersonalityType.Pacifist: 
-                            BreakAllTreatiesWith(player);
-                            break;
+                        case PersonalityType.Honorable:  player.AddToDiplomacyContactView(this, "DECLAREWAR");     break;
+                        case PersonalityType.Pacifist:   BreakAllTreatiesWith(player);                             break;
                     }
 
                     break;
@@ -532,17 +527,20 @@ namespace Ship_Game
 
         void AddToDiplomacyContactView(Empire empire, string dialog)
         {
+            if (dialog == "DECLAREWAR" && IsAtWarWith(empire))
+                return;
+
             DiplomacyContactQueue.Add(new KeyValuePair<int, string>(empire.Id, dialog));
         }
 
         public float ColonizationDetectionChance(Relationship usToThem, Empire them)
         {
-            int minChance = 0;
-            if (usToThem.Treaty_NAPact)      minChance = 1;
-            if (usToThem.Treaty_Trade)       minChance = 2;
-            if (usToThem.Treaty_OpenBorders) minChance = 4;
+            int minChance = 1;
+            if (usToThem.Treaty_NAPact)      minChance = 2;
+            if (usToThem.Treaty_Trade)       minChance = 3;
+            if (usToThem.Treaty_OpenBorders) minChance = 6;
+            if (usToThem.Treaty_Alliance)    minChance = 25;
 
-            // Note - Allied parties will always detect colonization efforts since they share scan info.
             return (GetSpyDefense() - them.GetSpyDefense()).LowerBound(minChance);
         }
 
@@ -621,6 +619,12 @@ namespace Ship_Game
             }
 
             return false;
+        }
+
+        public bool WarnedThemAboutThisSystem(SolarSystem s, Empire them)
+        {
+            Relationship rel = GetRelations(them);
+            return rel?.WarnedSystemsList.Contains(s.guid) == true;
         }
     }
 }
