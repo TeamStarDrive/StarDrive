@@ -145,7 +145,7 @@ namespace Ship_Game
 
         public bool ShouldCancelPrepareForWar()
         {
-            return IsAtWar && GetAverageWarGrade() < PersonalityModifiers.WarGradeThresholdForPeace;
+            return IsAtWarWithMajorEmpire && GetAverageWarGrade() < PersonalityModifiers.WarGradeThresholdForPeace;
         }
 
         public bool ShouldGoToWar(Relationship rel, Empire them)
