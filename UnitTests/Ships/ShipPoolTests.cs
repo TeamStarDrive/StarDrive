@@ -107,5 +107,21 @@ namespace UnitTests.Ships
             Universe.Objects.Update(TestSimStep);
             Assert.AreEqual(null, ship.Pool, "Ship must be removed from ShipPools after Death");
         }
+
+        [TestMethod]
+        public void ShipIsRemovedFromPoolsAfterLoyaltyChange()
+        {
+            Player.isPlayer = false;
+            Player.GetEmpireAI().AreasOfOperations.Add(new AO());
+            Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
+            Universe.Objects.Update(TestSimStep);
+            Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");
+
+            var oldPool = ship.Pool;
+            ship.LoyaltyChangeFromBoarding(Enemy, false);
+            Universe.Objects.Update(TestSimStep);
+            Assert.AreNotEqual(oldPool, ship.Pool, "Ship must be moved to new pool");
+            Player.isPlayer = true;
+        }
     }
 }
