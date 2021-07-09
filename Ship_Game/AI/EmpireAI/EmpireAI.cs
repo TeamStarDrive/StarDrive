@@ -191,6 +191,7 @@ namespace Ship_Game.AI
             // even if they decided to colonize a planet after another empire did so
             bool warnAnyway       = OwnerEmpire.IsXenophobic && usToThem.Posture != Posture.Friendly;
             float detectionChance = OwnerEmpire.ColonizationDetectionChance(usToThem, them);
+            Relationship themToUs = them.GetRelations(OwnerEmpire);
             foreach (Goal ourGoal in ourColonizationGoals)
             {
                 var system = ourGoal.ColonizationTarget.ParentSystem;
@@ -234,6 +235,9 @@ namespace Ship_Game.AI
                 // Detected their colonization efforts
                 if (warnExclusive || warnAnyway)
                     return true;
+
+                if (themToUs.WarnedSystemsList.Contains(goal.ColonizationTarget.ParentSystem.guid))
+                    return false; // They warned us, so no need to warn them
 
                 // If they stole planets from us, we will value our targets more.
                 // If we have more pop then them, we will cut them some slack.

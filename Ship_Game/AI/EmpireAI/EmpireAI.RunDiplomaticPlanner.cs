@@ -140,7 +140,7 @@ namespace Ship_Game.AI
 
         void PrepareToAttackClosest(Array<Empire> potentialTargets)
         {
-            if (!OwnerEmpire.IsAtWar
+            if (!OwnerEmpire.IsAtWarWithMajorEmpire
                 && potentialTargets.Count > 0 
                 && TotalEnemiesStrength() * 1.5f < OwnerEmpire.OffensiveStrength)
             {
@@ -153,7 +153,7 @@ namespace Ship_Game.AI
 
         void PrepareToAttackXenophobic(Array<Empire> potentialTargets)
         {
-            if (!OwnerEmpire.IsAtWar
+            if (!OwnerEmpire.IsAtWarWithMajorEmpire
                 && potentialTargets.Count > 0 
                 && TotalEnemiesStrength() < OwnerEmpire.OffensiveStrength)
             {
@@ -166,7 +166,7 @@ namespace Ship_Game.AI
 
         void PrepareToAttackWeakest(Array<Empire> potentialTargets)
         {
-            if (!OwnerEmpire.IsAtWar
+            if (!OwnerEmpire.IsAtWarWithMajorEmpire
                 && potentialTargets.Count > 0 
                 && TotalEnemiesStrength() < OwnerEmpire.OffensiveStrength)
             {
