@@ -58,9 +58,22 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             var rel = empire.GetRelations(TargetEmpire);
-            return empire.ShouldGoToWar(rel, TargetEmpire) 
-                ? GoalStep.GoToNextStep 
-                : GoalStep.TryAgain;
+
+            if (empire.ShouldCancelPrepareForWar())
+            {
+                rel.CancelPrepareForWar();
+                return GoalStep.GoalFailed;
+            }
+
+            if (empire.ShouldGoToWar(rel, TargetEmpire))
+            {
+                if (empire.DetectPrepareForWarVsPlayer(TargetEmpire))
+                    Empire.Universe.NotificationManager.NotifyPreparingForWar(empire);
+
+                return GoalStep.GoToNextStep;
+            }
+
+            return GoalStep.TryAgain;
         }
 
         GoalStep CreateTask()

@@ -71,7 +71,7 @@ namespace Ship_Game
         void BuildAndScrapCivilianBuildings(float budget)
         {
             UpdateGovernorPriorities();
-            if (budget < 0f && !EmpireWillPreventScrap)
+            if (budget < 0f)
             {
                 TryScrapBuilding(); // We must scrap something to bring us above of our debt tolerance
             }
@@ -412,7 +412,7 @@ namespace Ship_Game
 
             float maintenance = b.ActualMaintenance(this);
 
-            if ((budget > 0 && EmpireWillSupportBuild) || b.IsMoneyBuilding && b.MoneyBuildingAndProfitable(maintenance, PopulationBillion))
+            if ((budget > 0 && maintenance <= budget) || b.IsMoneyBuilding && b.MoneyBuildingAndProfitable(maintenance, PopulationBillion))
                 return true;
 
             return false; // Too expensive for us and its not getting profitable juice from the population

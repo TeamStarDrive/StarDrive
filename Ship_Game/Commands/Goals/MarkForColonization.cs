@@ -58,7 +58,10 @@ namespace Ship_Game.Commands.Goals
         GoalStep TargetPlanetStatus()
         {
             if (!empire.isPlayer && PlanetRanker.IsColonizeBlockedByMorals(ColonizationTarget.ParentSystem, empire))
+            {
+                ReleaseShipFromGoal();
                 return GoalStep.GoalFailed;
+            }
 
             if (ColonizationTarget.Owner != null)
             {
