@@ -362,7 +362,7 @@ namespace Ship_Game.AI
         {
             foreach(var ship in ships)
             {
-                ship.loyalty.AddShipToManagedPools(ship);
+                ship?.loyalty.AddShipToManagedPools(ship);
             }
         }
     }

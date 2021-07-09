@@ -192,12 +192,12 @@ namespace Ship_Game.Ships
 
         public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
         
-        public void RemoveFromPoolAndFleet(bool clearOrders)
+        public void RemoveFromPoolAndFleet(bool clearOrders, bool returnToPool = true)
         {
             if (clearOrders)
                 AI?.ClearOrders();
             Pool?.Remove(this);
-            fleet?.RemoveShip(this);
+            fleet?.RemoveShip(this, returnToPool);
         }
 
         public bool RemoveFromPool() => Pool?.Remove(this) ?? false;
