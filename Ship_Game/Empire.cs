@@ -387,7 +387,7 @@ namespace Ship_Game
         {
             if (ports == null) return Empty<Planet>.Array;
             GetBestPorts(ports, out Planet[] bestPorts, portQuality); 
-            return bestPorts?.Filter(p=> p.HasSpacePort || p.NumShipyards > 0) ?? Empty<Planet>.Array;
+            return bestPorts?.Filter(p=> p.HasSpacePort && p.colonyType != Planet.ColonyType.Research) ?? Empty<Planet>.Array;
         }
 
         bool GetBestPorts(IReadOnlyList<Planet> ports, out Planet[] bestPorts, float portQuality = 0.2f)
