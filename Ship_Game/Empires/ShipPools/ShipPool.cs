@@ -45,7 +45,7 @@ namespace Ship_Game.Empires.ShipPools
         /// to add to fleets. 
         /// </summary>
         bool ShouldNotAddToAnyPool(Ship ship) => ship.ShouldNotBeAddedToForcePools();
-        bool ShouldAddToAOPools(Ship ship)    => ship.IsAWarShip && !ship.IsAFighterCarrier;
+        bool ShouldAddToAOPools(Ship ship)    => ship.IsAWarShip;
         bool ShouldAddToEmpirePool(Ship ship) => ship.BaseCanWarp && ship.IsFleetSupportShip();
         
         bool ShouldAddToForcePool(Ship s)
