@@ -535,10 +535,10 @@ namespace Ship_Game
 
         public float ColonizationDetectionChance(Relationship usToThem, Empire them)
         {
-            int minChance = 1;
-            if (usToThem.Treaty_NAPact)      minChance = 2;
-            if (usToThem.Treaty_Trade)       minChance = 3;
-            if (usToThem.Treaty_OpenBorders) minChance = 6;
+            int minChance = 0;
+            if (usToThem.Treaty_NAPact)      minChance = 1;
+            if (usToThem.Treaty_Trade)       minChance = 2;
+            if (usToThem.Treaty_OpenBorders) minChance = 4;
             if (usToThem.Treaty_Alliance)    minChance = 25;
 
             return (GetSpyDefense() - them.GetSpyDefense()).LowerBound(minChance);
