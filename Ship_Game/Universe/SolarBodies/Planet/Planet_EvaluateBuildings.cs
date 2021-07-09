@@ -1,35 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using Ship_Game.AI.Budget;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
-using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
     public partial class Planet
     {
         private readonly EnumFlatMap<ColonyPriority, float> Priorities = new EnumFlatMap<ColonyPriority, float>();
-        bool EmpireWillSupportBuild
-        {
-            get
-            {
-                float stability = Owner.GetEmpireAI().CreditRating;
-                return Owner.data.ColonyBudget > Owner.TotalBuildingMaintenance && stability > 0.9f;
-            }
-        }
 
-
-        bool EmpireWillPreventScrap
-        {
-            get
-            {
-                float scrapped = Owner.GetEmpireAI().MaintSavedByBuildingScrappedThisTurn;
-                float stability = Owner.GetEmpireAI().CreditRating;
-                return Owner.data.ColonyBudget > Owner.TotalBuildingMaintenance - scrapped || stability > 0.9f;
-            }
-        }
         private enum ColonyPriority
         {
             FoodFlat,
