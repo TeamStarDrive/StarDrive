@@ -185,8 +185,9 @@ namespace Ship_Game.Ships
         /// <summary>
         /// This ship is a carrier which launches fighters/corvettes/frigates
         /// </summary>
-        public bool IsAFighterCarrier => Carrier.HasFighterBays;
-        
+        public bool IsPrimaryCarrier   => DesignRole == ShipData.RoleName.carrier;
+        public bool IsSecondaryCarrier => !IsPrimaryCarrier && Carrier.HasFighterBays;
+
         // Current pool that this ship is assigned to
         public IShipPool Pool;
 
