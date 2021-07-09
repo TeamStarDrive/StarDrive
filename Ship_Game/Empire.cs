@@ -2178,7 +2178,7 @@ namespace Ship_Game
                 return false;
 
             int ourSpyDefense   = GetSpyDefense() + (IsCunning ? 10 : 0);
-            int theirSpyDefense = enemy.GetSpyDefense();
+            int theirSpyDefense = enemy.GetSpyDefense() + (enemy.IsCunning ? 10 : 0);
             int totalRoll       = theirSpyDefense + ourSpyDefense;
             return RandomMath.RollDie(totalRoll) <= theirSpyDefense;
         }
