@@ -4259,11 +4259,11 @@ namespace Ship_Game
         /// <summary>Terraform Level</summary>
         TerraformLevel = 4307,
         /// <summary>Terraform Level 1. At this Level, Terraformers will remove any</summary>
-        TerraformLevel1 = 4308,
+        BB_Tech_Terraforming_Bonus = 4308,
         /// <summary>Terraform Level 2. At this Level, Terraformers will remove any</summary>
-        TerraformLevel2 = 4309,
+        BB_Tech_Terraforming2_Bonus = 4309,
         /// <summary>Terraform Level 3. At this Level, Terraformers will remove any</summary>
-        BB_Tech_Terraforming_Bonus = 4310,
+        BB_Tech_Terraforming3_Bonus = 4310,
         /// <summary>Terraforming</summary>
         Terraforming = 4311,
         /// <summary>Blockade!</summary>
