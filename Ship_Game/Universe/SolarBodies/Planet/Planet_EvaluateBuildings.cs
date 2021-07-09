@@ -109,7 +109,7 @@ namespace Ship_Game
             if (IsCybernetic)
                 return;
 
-            float foodToFeedAll     = FoodConsumptionPerColonist * PopulationBillion * 1.5f;
+            float foodToFeedAll     = FoodConsumptionPerColonist * MaxPopulationBillion;
             float flatFoodToFeedAll = foodToFeedAll - Food.NetFlatBonus;
             float fertilityBonus    = Fertility.InRange(0.1f, 0.99f) ? 1 : Fertility;
 
@@ -155,11 +155,12 @@ namespace Ship_Game
                 perRichness += 1.5f * MineralRichness;
             }
 
+
             flat   += 1 - Storage.ProdRatio;
             perCol += (1 - Storage.ProdRatio) * MineralRichness;
             perCol *= PopulationRatio;
 
-            flat        = ApplyGovernorBonus(flat, 1f, 2f, 0.5f, 0.5f, 1.5f);
+            flat        = ApplyGovernorBonus(flat, 1f, 2f, 1f, 1f, 1.5f);
             perRichness = ApplyGovernorBonus(perRichness, 1f, 2f, 0.5f, 0.5f, 1.5f);
             perCol      = ApplyGovernorBonus(perCol, 1f, 2f, 0.5f, 0.5f, 1.5f);
             Priorities[ColonyPriority.ProdFlat]        = flat;

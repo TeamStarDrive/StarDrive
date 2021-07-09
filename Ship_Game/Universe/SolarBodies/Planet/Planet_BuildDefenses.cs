@@ -475,6 +475,10 @@ namespace Ship_Game
                 case 15: WantedPlatforms = 9; WantedStations = 6; WantedShipyards = 2; break;
                 default: WantedPlatforms = 0; WantedStations = 0; WantedShipyards = 0; break;
             }
+
+            // Research planets are not a good platform for building ships
+            if (colonyType == ColonyType.Research)
+                WantedShipyards = 0;
         }
 
         public void RestoreWantedOrbitals(byte platforms, byte stations, byte shipyards)
