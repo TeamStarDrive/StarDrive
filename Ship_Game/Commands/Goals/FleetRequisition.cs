@@ -44,13 +44,13 @@ namespace Ship_Game.Commands.Goals
         }
 
         GoalStep FindPlanetForFleetRequisition()
-        {            
+        {
             if (PlanetBuildingAt == null || !PlanetBuildingAt.HasSpacePort)
-                empire.FindPlanetToBuildAt(empire.SpacePorts, ShipToBuild, out PlanetBuildingAt, priority: 1.00f);
+            {
+                if (!empire.FindPlanetToBuildShipAt(empire.SpacePorts, ShipToBuild, out PlanetBuildingAt))
+                    return GoalStep.TryAgain;
+            }
 
-            if (PlanetBuildingAt == null)
-                return GoalStep.TryAgain;
-            
             PlanetBuildingAt.Construction.Enqueue(ShipToBuild, this, notifyOnEmpty: false);
             if (Rush)
                 PlanetBuildingAt.Construction.MoveToAndContinuousRushFirstItem();
