@@ -159,62 +159,53 @@ namespace Ship_Game
         }
 
         // This creates items based on the new item we want to check completion and
-        // Adding all refit goals cost as a new item to calculate these as well
+        // Adding all refit goals as a new items to calculate these as well
         Array<QueueItem> CreateItemsForTurnsCompleted(QueueItem newItem)
         {
             Array<QueueItem> items = new Array<QueueItem>();
-            if (TryGetQueueItemFromRefitGoals(out QueueItem refitQi))
-                items.Add(refitQi);
+            if (TryGetQueueItemsFromRefitGoals(out Array<QueueItem> refitItems))
+                items.AddRange(refitItems);
 
             items.Add(newItem);
             return items;
 
             // Local Method
-            bool TryGetQueueItemFromRefitGoals(out QueueItem qi)
+            bool TryGetQueueItemsFromRefitGoals(out Array<QueueItem> refitQueue)
             {
-                qi = null;
-                float totalRefitCost = TotalShipCostInRefitGoals();
-                if (totalRefitCost > 0)
-                {
-                    qi = new QueueItem(this)
-                    {
-                        isShip = true,
-                        Cost = totalRefitCost,
-                        QueueNumber = ConstructionQueue.Count,
-                    };
+                refitQueue = new Array<QueueItem>();
+                var refitGoals = Owner.GetEmpireAI().Goals
+                    .Filter(g => (g.type == GoalType.Refit || g.type == GoalType.RefitOrbital) && g.PlanetBuildingAt == this);
 
+                if (refitGoals.Length == 0)
+                    return false;
+
+                for (int i = 0; i < refitGoals.Length; i++)
+                {
+                    Goal goal  = refitGoals[i];
+                    if (goal.ToBuildUID.NotEmpty())
+                    {
+                        var newShip = ResourceManager.GetShipTemplate(goal.ToBuildUID, false);
+                        if (goal.OldShip != null && newShip != null)
+                        {
+                            var qi = new QueueItem(this)
+                            {
+                                isShip = true,
+                                Cost   = goal.OldShip.RefitCost(newShip) * ShipBuildingModifier,
+                                sData  = newShip.shipData
+                            };
+
+                            refitQueue.Add(qi);
+                        }
+                    }
                 }
 
-                return qi != null;
+                return refitQueue.Count > 0;
             }
         }
 
         public float TotalProdNeededInQueue()
         {
             return ConstructionQueue.Sum(qi => qi.ProductionNeeded);
-        }
-
-        float TotalShipCostInRefitGoals()
-        {
-            var refitGoals = Owner.GetEmpireAI().Goals
-                .Filter(g => (g.type == GoalType.Refit || g.type == GoalType.RefitOrbital) && g.PlanetBuildingAt == this);
-
-            if (refitGoals.Length == 0)
-                return 0;
-
-            float cost = 0;
-            for (int i = 0; i < refitGoals.Length; i++)
-            {
-                Goal goal = refitGoals[i];
-                if (goal.ToBuildUID.NotEmpty())
-                {
-                    var newShip = ResourceManager.GetShipTemplate(goal.ToBuildUID, false);
-                    if (goal.OldShip != null && newShip != null)
-                        cost += goal.OldShip.RefitCost(newShip) * ShipBuildingModifier;
-                }
-            }
-
-            return cost.LowerBound(0);
         }
 
         public float MissingProdHereForScrap(Goal[] scrapGoals)
