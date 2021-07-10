@@ -117,7 +117,7 @@ namespace Ship_Game
         }
 
         // returns the amount of production to spend in the build queue based on import/export state
-        public float LimitedProductionExpenditure()
+        public float LimitedProductionExpenditure(float availableProductionToQueue)
         {
             float prodToSpend;
             bool empireCanExport = Owner.TotalProdExportSlots - FreeProdExportSlots > Level.LowerBound(3);
@@ -183,7 +183,7 @@ namespace Ship_Game
                 }
             }
 
-            return prodToSpend.UpperBound(CurrentProductionToQueue);
+            return prodToSpend.UpperBound(availableProductionToQueue);
         }
     }
 }
