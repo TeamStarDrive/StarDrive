@@ -236,11 +236,9 @@ namespace Ship_Game
             }
 
             int crippledTurns;
-            Planet targetPlanet = victim.FindPlanetToBuildAt(victim.SpacePorts, 0, priority: 1.00f) 
-                                  ?? victim.FindPlanetToBuildAt(victim.GetPlanets(), 0, priority: 1.00f);
-
-            if (targetPlanet == null) // no planet was found, abort mission
+            if (!victim.FindPlanetToSabotage(victim.SpacePorts, out Planet targetPlanet)) 
             {
+                // no planet was found, abort mission
                 aftermath.ShouldAddXp = false;
                 return aftermath;
             }

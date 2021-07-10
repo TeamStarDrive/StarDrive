@@ -89,53 +89,104 @@ namespace Ship_Game
         public bool BuildingBuiltOrQueued(Building b) => BuildingBuilt(b.BID) || BuildingInQueue(b.BID);
         public bool BuildingBuiltOrQueued(int bid) => BuildingBuilt(bid) || BuildingInQueue(bid);
 
-        public int TurnsUntilQueueCompleted(float extraItemCost = 0, float priority = 1.00f)
+        public int TurnsUntilQueueCompleted(float priority, Array<QueueItem> newItems = null)
         {
-            float totalProdNeeded = TotalProdNeededInQueue() + extraItemCost;
-            if (totalProdNeeded.AlmostZero())
+            if (newItems == null && ConstructionQueue.Count == 0)
                 return 0;
 
             priority = priority.Clamped(0, 1);
+            // Turns to use all stored production with just infra, if exporting, expect only 50% will remain
+            float turnsWithInfra = (ExportProd ? ProdHere/2 : ProdHere) / InfraStructure.LowerBound(0.01f);
+            // Modify the number of turns that can use all production.
+            turnsWithInfra *= priority;
+            // Percentage of the pop allocated to production
+            float workPercentage = IsCybernetic ? 1 : 1 - Food.Percent;
 
-            // issue in this calculation is that we dont know the future of the production stores.
-            // we assume we will have all of it for the build queue but that is unpredictable as it can
-            // also be exporting that production and then these calculation would not apply.
-            // for the purposes of calculating the best planet to build on
-            // it could be changed to just totalProdNeeded / Prod.NetMaxPotential which would give
-            // a reliable baseline that isnt dependent on the unknown future of the production stores.
+            // Getting the queue copied and inserting the new items into it to check time to finish
+            // This is needed since the planet has dynamic production allocation based on queue items
+            var modifiedQueue = ConstructionQueue.ToArrayList();
+            if (newItems != null)
+                modifiedQueue.AddRange(newItems);
 
-            // max production useable per turn when we have production stored.
-            float maxProductionWithInfra    = MaxProductionToQueue.LowerBound(0.01f);
-            // turns to use all stored production with just infra
-            float turnsWithInfra            = ProdHere / InfraStructure.LowerBound(0.01f);
-            // modify the number of turns that can use all production.
-            float prioritizedTurns          = turnsWithInfra * priority;
-            // turns in queue using just infra * max production that can be added per turn with stores.
-            float totalProdWithInfra        = prioritizedTurns * maxProductionWithInfra;
-            // how much is left to build after all production is gone.
-            float prodNeededAfterStorageEnd = totalProdNeeded - totalProdWithInfra;
+            float totalTurnsToCompleteQueue = 0;
+            for (int i = 0; i < modifiedQueue.Count; i++)
+            {
+                QueueItem qi = modifiedQueue[i];
+                // How much production will be created for this item (since some will be diverted to research)
+                float productionOutputForItem = workPercentage * EvaluateProductionQueue(qi) * PopulationBillion;
+                // How much net production will be applied to the queue item after checking planet's trade state
+                float netProdPerTurn = LimitedProductionExpenditure(turnsWithInfra <= 0 ? productionOutputForItem 
+                                                                                       : productionOutputForItem + InfraStructure);
 
-            if (prodNeededAfterStorageEnd <=0) // we can produce all queue with max prod and storage
-                return (int)(totalProdNeeded / maxProductionWithInfra);
+                float turnsToCompleteItem = qi.ProductionNeeded / netProdPerTurn.LowerBound(0.01f);
+                // Reduce the turns with infra by the turns needed to complete the item so it can be better evaluated next qi
+                // We are ignoring excess turns without infra for simplicity
+                turnsWithInfra            -= turnsToCompleteItem;
+                totalTurnsToCompleteQueue += turnsToCompleteItem;
+            }
 
-            // there is no more production stored. How long to build without it.
-            float potentialProduction = Prod.NetMaxPotential.LowerBound(0.01f);
-            float turnsWithoutInfra   = prodNeededAfterStorageEnd / potentialProduction;
-
-            return (int)(turnsWithInfra + turnsWithoutInfra);
+            return (int)totalTurnsToCompleteQueue;
         }
 
         // @return Total numbers before ship will be finished if
-        //         inserted to the end of the queue.
-        public int TurnsUntilQueueComplete(float cost, bool forTroop, float priority)
+        // inserted to the end of the queue.
+        // if sData is null, then we want a troop
+        public int TurnsUntilQueueComplete(float cost, float priority, ShipData sData = null)
         {
-            if (!forTroop && !HasSpacePort || forTroop && (!CanBuildInfantry || ConstructionQueue.Count(q => q.isTroop) >= 2))
-                return 9999; // impossible
+            bool forTroop = sData == null;
+            if (forTroop && !HasSpacePort
+                || forTroop && (!CanBuildInfantry || ConstructionQueue.Count(q => q.isTroop) >= 2))
+            {
+                return 9999;
+            }
 
-            float effectiveCost = forTroop ? cost : (cost * ShipBuildingModifier).LowerBound(0);
-            effectiveCost      += TotalShipCostInRefitGoals();
-            int total           = TurnsUntilQueueCompleted(effectiveCost, priority); // FB - this is just an estimation
+            int total = TurnsUntilQueueCompleted(priority, CreateItemsForTurnsCompleted(CreateQi())); // FB - this is just an estimation
             return total.UpperBound(9999);
+
+            // Local Method
+            QueueItem CreateQi()
+            {
+                var qi = new QueueItem(this)
+                {
+                    isShip  = !forTroop,
+                    sData   = sData,
+                    isTroop = forTroop,
+                    Cost    = forTroop ? cost : cost * ShipBuildingModifier,
+                };
+
+                return qi;
+            }
+        }
+
+        // This creates items based on the new item we want to check completion and
+        // Adding all refit goals cost as a new item to calculate these as well
+        Array<QueueItem> CreateItemsForTurnsCompleted(QueueItem newItem)
+        {
+            Array<QueueItem> items = new Array<QueueItem>();
+            if (TryGetQueueItemFromRefitGoals(out QueueItem refitQi))
+                items.Add(refitQi);
+
+            items.Add(newItem);
+            return items;
+
+            // Local Method
+            bool TryGetQueueItemFromRefitGoals(out QueueItem qi)
+            {
+                qi = null;
+                float totalRefitCost = TotalShipCostInRefitGoals();
+                if (totalRefitCost > 0)
+                {
+                    qi = new QueueItem(this)
+                    {
+                        isShip = true,
+                        Cost = totalRefitCost,
+                        QueueNumber = ConstructionQueue.Count,
+                    };
+
+                }
+
+                return qi != null;
+            }
         }
 
         public float TotalProdNeededInQueue()
