@@ -89,7 +89,7 @@ namespace Ship_Game
         public bool BuildingBuiltOrQueued(Building b) => BuildingBuilt(b.BID) || BuildingInQueue(b.BID);
         public bool BuildingBuiltOrQueued(int bid) => BuildingBuilt(bid) || BuildingInQueue(bid);
 
-        public int TurnsUntilQueueCompleted(float priority, Array<QueueItem> newItems = null)
+        int TurnsUntilQueueCompleted(float priority, Array<QueueItem> newItems = null)
         {
             if (newItems == null && ConstructionQueue.Count == 0)
                 return 0;
