@@ -399,7 +399,7 @@ namespace Ship_Game
         {
             if (ports == null) return Empty<Planet>.Array;
             GetBestPorts(ports, out Planet[] bestPorts, portQuality); 
-            return bestPorts?.Filter(p=> p.HasSpacePort && p.colonyType != Planet.ColonyType.Research) ?? Empty<Planet>.Array;
+            return bestPorts?.Filter(p => p.HasSpacePort) ?? Empty<Planet>.Array;
         }
 
         bool GetBestPorts(IReadOnlyList<Planet> ports, out Planet[] bestPorts, float portQuality = 0.2f)
@@ -408,7 +408,9 @@ namespace Ship_Game
             if (ports.Count > 0)
             {
                 float averageMaxProd = ports.Average(p => p.Prod.NetMaxPotential);
-                bestPorts            = ports.Filter(p => !p.IsCrippled && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd * portQuality));
+                bestPorts            = ports.Filter(p => !p.IsCrippled
+                                                         && p.colonyType != Planet.ColonyType.Research
+                                                         && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd * portQuality));
             }
 
             return bestPorts?.Length > 0;
