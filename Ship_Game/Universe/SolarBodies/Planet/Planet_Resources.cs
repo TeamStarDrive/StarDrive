@@ -102,10 +102,10 @@ namespace Ship_Game
 
             if (Owner.NonCybernetic)
             {
-                if (TurnsToEmptyStorage(Food.NetIncome, FoodHere + IncomingFood) < AverageImportTurns)
+                if (TurnsToEmptyStorage(Food.NetIncome, FoodHere + IncomingFood) < AverageFoodImportTurns)
                     return true;
             }
-            else if (TurnsToEmptyStorage(Prod.NetIncome, ProdHere + IncomingProd) < AverageImportTurns)
+            else if (TurnsToEmptyStorage(Prod.NetIncome, ProdHere + IncomingProd) < AverageProdImportTurns)
                 return true;
 
             return false;
