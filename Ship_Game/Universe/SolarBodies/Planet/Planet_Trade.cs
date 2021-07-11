@@ -56,8 +56,8 @@ namespace Ship_Game
                 if (ManualFoodExportSlots > 0 && Owner == EmpireManager.Player)
                     return ManualFoodExportSlots.LowerBound(min);
 
-                int maxSlots = colonyType == ColonyType.Agricultural || colonyType == ColonyType.Colony ? 10 : 7;
-                return ((int)(Food.NetIncome + Storage.Food / 25)).Clamped(min, maxSlots);
+                int maxSlots = colonyType == ColonyType.Agricultural || colonyType == ColonyType.Colony ? 14 : 10;
+                return ((int)(Food.NetMaxPotential/2 + Storage.Food / 25)).Clamped(min, maxSlots);
             }
         }
 
@@ -68,15 +68,20 @@ namespace Ship_Game
                 if (TradeBlocked || !ExportProd)
                     return 0;
 
-                int min      = Storage.ProdRatio > 0.5f ? 1 : 0;
-                int maxSlots = colonyType == ColonyType.Industrial 
-                               || colonyType == ColonyType.Colony
-                               || colonyType == ColonyType.Core ? 8 : 5;
-
+                int min = Storage.ProdRatio > 0.5f ? 1 : 0;
                 if (ManualProdExportSlots > 0 && Owner == EmpireManager.Player)
                     return ManualProdExportSlots.LowerBound(min);
 
-                return ((int)(Prod.NetIncome / 2 + Storage.Prod / 50)).Clamped(min, maxSlots);
+                int maxSlots = IsCybernetic ? 6 : 5;
+                switch (colonyType)
+                {
+                    case ColonyType.Industrial: maxSlots += 7; break;
+                    case ColonyType.Core:       maxSlots += 5; break;
+                    case ColonyType.Research:   maxSlots += 3;  break;
+                }
+
+                float divisor = IsCybernetic ? 2 : 3;
+                return ((int)(Prod.NetMaxPotential / divisor + Storage.Prod / 25)).Clamped(min, maxSlots);
             }
         }
 
@@ -331,10 +336,11 @@ namespace Ship_Game
             float limit = 0; // it is a multiplier
             switch (goods)
             {
-                case Goods.Food:       limit = FoodHere / NumOutgoingFreightersPickUp(OutgoingFreighters, goods).LowerBound(1); break;
-                case Goods.Production: limit = ProdHere / NumOutgoingFreightersPickUp(OutgoingFreighters, goods).LowerBound(1); break;
-                case Goods.Colonists:  limit = Population * 0.2f;                                                               break;
+                case Goods.Food:       limit = FoodHere*1.5f / NumOutgoingFreightersPickUp(OutgoingFreighters, goods).LowerBound(1); break;
+                case Goods.Production: limit = ProdHere*1.5f / NumOutgoingFreightersPickUp(OutgoingFreighters, goods).LowerBound(1); break;
+                case Goods.Colonists:  limit = Population * 0.2f;                                                                     break;
             }
+
             return limit;
         }
 
