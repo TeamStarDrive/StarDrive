@@ -1,11 +1,12 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.AI.Budget
 {
     public class PlanetBudget
     {
-        //if not initialized then it is not safe to use. 
+        // if not initialized then it is not safe to use. 
         public bool Initialized { get; }
         public readonly float TotalRemaining;
         public readonly float EmpireRatio;
@@ -29,29 +30,36 @@ namespace Ship_Game.AI.Budget
             if (planet?.Owner == null)
                 return;
 
-            P                   = planet;
-            Owner               = P.Owner;
-            EmpireRatio         = P.ColonyPotentialValue(Owner) / Owner.TotalColonyPotentialValues;
-            DefenseRatio        = P.ColonyBaseValue(Owner) / Owner.TotalColonyValues;
+            P     = planet;
+            Owner = P.Owner;
+
+            EmpireRatio  = P.ColonyPotentialValue(Owner) / Owner.TotalColonyPotentialValues;
+            DefenseRatio = P.ColonyBaseValue(Owner) / Owner.TotalColonyValues;
+
             float defenseBudget = EmpireDefenseBudget * DefenseRatio;
             float groundRatio   = MilitaryBuildingsBudgetRatio();
             float orbitalRatio  = 1 - groundRatio;
+            float aiCivBudget   = CivBudget();
 
-            GrdDefAlloc   = P.ManualGrdDefBudget.LessOrEqual(0) ? defenseBudget * groundRatio : P.ManualGrdDefBudget;
-            SpcDefAlloc   = P.ManualSpcDefBudget.LessOrEqual(0) ? defenseBudget * orbitalRatio : P.ManualSpcDefBudget;
-            CivilianAlloc = P.ManualCivilianBudget.LessOrEqual(0) ? EmpireColonizationBudget * EmpireRatio + P.ColonyDebtTolerance
-                                                                  : P.ManualCivilianBudget;
+
+            GrdDefAlloc   = P.ManualGrdDefBudget   <= 0 ? defenseBudget * groundRatio : P.ManualGrdDefBudget;
+            SpcDefAlloc   = P.ManualSpcDefBudget   <= 0 ? defenseBudget * orbitalRatio : P.ManualSpcDefBudget;
+            CivilianAlloc = P.ManualCivilianBudget <= 0 ? aiCivBudget : P.ManualCivilianBudget;
 
             RemainingGroundDef = (GrdDefAlloc - P.GroundDefMaintenance).RoundToFractionOf10();
             RemainingSpaceDef  = (SpcDefAlloc - P.SpaceDefMaintenance).RoundToFractionOf10();
             RemainingCivilian  = (CivilianAlloc - P.CivilianBuildingsMaintenance).RoundToFractionOf10();
-            TotalRemaining     = RemainingSpaceDef + RemainingGroundDef + RemainingCivilian; // total remaining budget for this planet
-            TotalAlloc         = GrdDefAlloc + SpcDefAlloc + CivilianAlloc;
-            Initialized        = true;
+
+            TotalRemaining = RemainingSpaceDef + RemainingGroundDef + RemainingCivilian; // total remaining budget for this planet
+            TotalAlloc     = GrdDefAlloc + SpcDefAlloc + CivilianAlloc;
+
+            Initialized = true;
         }
 
-        // This is Orbitals vs. Military Buildings ratio of budget, since Building maintenance is much less than Orbitals.
-        float MilitaryBuildingsBudgetRatio() 
+        /// <summary>
+        /// This is Orbitals vs. Military Buildings ratio of budget, since Building maintenance is much less than Orbitals.
+        /// </summary>
+        float MilitaryBuildingsBudgetRatio()
         {
             float preference;
             switch (P.colonyType)
@@ -64,9 +72,39 @@ namespace Ship_Game.AI.Budget
             return P.HabitablePercentage * preference;
         }
 
+        float CivBudget()
+        {
+            var eAI = Owner.GetEmpireAI();
+
+            float wants           = P.BuildingMaintenanceNeeded;
+            float aiCivBudget     = EmpireColonizationBudget * EmpireRatio + P.ColonyDebtTolerance;
+            float civMaintenance  = P.CivilianBuildingsMaintenance;
+            float remainingBudget = aiCivBudget - civMaintenance;
+            float empireBudget    = Owner.data.ColonyBudget - Owner.TotalBuildingMaintenance +
+                                    eAI.MaintSavedByBuildingScrappedThisTurn;
+            bool empireCanSupport = eAI.CreditRating > 0.25f;
+            float deficit  = remainingBudget < 0 ? Math.Abs(remainingBudget) : 0;
+            float deficitBudget = eAI.BuildingSupportedByEmpireLastTurn + eAI.BuildingSupportedByEmpireThisTurn;
+
+            if (remainingBudget > 0 && wants > 0)
+            {
+                if (empireBudget > wants && empireCanSupport && empireBudget - deficitBudget > 0) 
+                {
+                    aiCivBudget += wants;
+                    eAI.BuildingSupportedByEmpireThisTurn += wants;
+                }
+            }
+            else if (deficit > 0 && empireBudget > deficit && empireCanSupport)
+            {
+                aiCivBudget += deficit;
+                eAI.BuildingSupportedByEmpireThisTurn += deficit;
+            }
+            return aiCivBudget;
+        }
+
         public void DrawBudgetInfo(UniverseScreen screen)
         {
-            if (!screen.Debug) 
+            if (!screen.Debug)
                 return;
 
             string drawText = $"<\nTotal Budget: {TotalRemaining.String(2)}" +
