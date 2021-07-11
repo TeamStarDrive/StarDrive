@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using static Ship_Game.AI.Research.ResearchOptions.ShipCosts;
 
@@ -76,6 +77,19 @@ namespace Ship_Game.AI.Research
                         techScore += cost * Options.CostMultiplier(tech);
                     }
                 }
+
+                var tags = new Array<WeaponTag>();
+                foreach (var weapon in s.Weapons)
+                {
+                    foreach (var tag in weapon.ActiveWeaponTags)
+                        tags.AddUnique(tag);
+                }
+
+                foreach(var tag in tags)
+                {
+                    techScore *= Options.CostMultiplier(tag);
+                }
+
 
                 // now adjust cost by the role of the ship.
                 switch (s.DesignRole)
