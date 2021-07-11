@@ -172,7 +172,7 @@ namespace Ship_Game
             }
 
             bool weAreStronger = ourCurrentStrength > theirKnownStrength * PersonalityModifiers.GoToWarTolerance
-                                 && ourBuildCapacity > theirBuildCapacity * PersonalityModifiers.GoToWarTolerance;
+                                 && ourBuildCapacity > theirBuildCapacity;
 
             return weAreStronger;
         }
