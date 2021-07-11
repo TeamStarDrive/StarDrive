@@ -459,10 +459,11 @@ namespace Ship_Game
                 {
                     s.Trade = new TradePlanSave
                     {
-                        Goods = sg.Trade.Goods,
-                        ExportFrom = sg.Trade.ExportFrom?.guid ?? Guid.Empty,
-                        ImportTo = sg.Trade.ImportTo?.guid ?? Guid.Empty,
+                        Goods         = sg.Trade.Goods,
+                        ExportFrom    = sg.Trade.ExportFrom?.guid ?? Guid.Empty,
+                        ImportTo      = sg.Trade.ImportTo?.guid ?? Guid.Empty,
                         BlockadeTimer = sg.Trade.BlockadeTimer,
+                        StardateAdded = sg.Trade.StardateAdded
                     };
                 }
                 sdata.AISave.ShipGoalsList.Add(s);
@@ -771,7 +772,10 @@ namespace Ship_Game
             [Serialize(54)] public int ManualFoodExportSlots;
             [Serialize(55)] public int ManualProdExportSlots;
             [Serialize(56)] public int ManualColoExportSlots;
-
+            [Serialize(57)] public int AverageFoodImportTurns;
+            [Serialize(58)] public int AverageProdImportTurns;
+            [Serialize(59)] public int AverageFoodExportTurns;
+            [Serialize(60)] public int AverageProdExportTurns;
 
             public override string ToString() => $"PlanetSD {Name}";
         }
@@ -880,6 +884,7 @@ namespace Ship_Game
             [Serialize(1)] public Guid ImportTo;
             [Serialize(2)] public Goods Goods;
             [Serialize(3)] public float BlockadeTimer;
+            [Serialize(4)] public float StardateAdded;
         }
 
         public class ShipSaveData

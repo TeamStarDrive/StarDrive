@@ -343,6 +343,7 @@ namespace Ship_Game.GameScreens.LoadGame
             return e;
         }
 
+        // todo should be moved to planet class so we could better use get private set 
         static Planet CreatePlanetFromPlanetSaveData(SolarSystem forSystem, SavedGame.PlanetSaveData psData)
         {
             var p = new Planet
@@ -402,6 +403,8 @@ namespace Ship_Game.GameScreens.LoadGame
             p.SetManualFoodExportSlots(psData.ManualFoodExportSlots);
             p.SetManualProdExportSlots(psData.ManualProdExportSlots);
             p.SetManualColoExportSlots(psData.ManualColoExportSlots);
+            p.SetAverageTradeTurns(psData.AverageFoodImportTurns, psData.AverageProdImportTurns,
+                psData.AverageFoodExportTurns, psData.AverageProdExportTurns);
 
             if (p.HasRings)
                 p.RingTilt = RandomMath.RandomBetween(-80f, -45f);
