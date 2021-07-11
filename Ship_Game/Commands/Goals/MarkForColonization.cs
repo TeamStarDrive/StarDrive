@@ -58,7 +58,10 @@ namespace Ship_Game.Commands.Goals
         GoalStep TargetPlanetStatus()
         {
             if (!empire.isPlayer && PlanetRanker.IsColonizeBlockedByMorals(ColonizationTarget.ParentSystem, empire))
+            {
+                ReleaseShipFromGoal();
                 return GoalStep.GoalFailed;
+            }
 
             if (ColonizationTarget.Owner != null)
             {
@@ -146,7 +149,7 @@ namespace Ship_Game.Commands.Goals
             if (!ShipBuilder.PickColonyShip(empire, out Ship colonyShip))
                 return GoalStep.GoalFailed;
 
-            if (!empire.FindPlanetToBuildAt(empire.SafeSpacePorts, colonyShip, out Planet planet, priority: 1.00f))
+            if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, colonyShip, out Planet planet))
                 return GoalStep.TryAgain;
 
             planet.Construction.Enqueue(colonyShip, this, notifyOnEmpty:empire.isPlayer,

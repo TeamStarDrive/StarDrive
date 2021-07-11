@@ -208,7 +208,7 @@ namespace Ship_Game
                         exportThreshold = (exportThreshold - offsetAmount).Clamped(0.10f, 1.00f);
                     }
                 }
-                else
+                else if (importThreshold > 0 || Construction.Count > 0)
                 {
                     float offsetAmount = Prod.FlatBonus * 0.05f;
                     offsetAmount = offsetAmount.Clamped(0.00f, 0.15f);

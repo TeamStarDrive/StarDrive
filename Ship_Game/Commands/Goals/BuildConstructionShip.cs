@@ -45,8 +45,7 @@ namespace Ship_Game.Commands.Goals
             if (ShipToBuild == null)
                 return GoalStep.GoalFailed;
 
-            Planet planet = empire.FindPlanetToBuildAt(empire.SafeSpacePorts, toBuild.GetCost(empire), priority: 0.25f);
-            if (planet == null)
+            if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, toBuild, out Planet planet, priority: 0.25f))
                 return GoalStep.TryAgain;
 
             // toBuild is only used for cost calculation
