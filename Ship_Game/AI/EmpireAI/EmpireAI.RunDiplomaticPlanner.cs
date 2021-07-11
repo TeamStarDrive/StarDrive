@@ -31,7 +31,7 @@ namespace Ship_Game.AI
 
         void DoConservativeRelations()
         {
-            float territorialDiv = OwnerEmpire.Personality == PersonalityType.Pacifist ? 50 : 10;
+            float territorialDiv = OwnerEmpire.IsPacifist ? 50 : 10;
             AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / territorialDiv);
             foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
@@ -42,7 +42,7 @@ namespace Ship_Game.AI
 
         void DoRuthlessRelations()
         {
-            AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 5f);
+            AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
             var potentialTargets = new Array<Empire>();
 
             foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
@@ -79,7 +79,7 @@ namespace Ship_Game.AI
         void DoXenophobicRelations()
         {
             var potentialTargets = new Array<Empire>();
-            AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
+            AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 7f);
             foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
                 if (DoNotInteract(rel, them))
@@ -140,7 +140,9 @@ namespace Ship_Game.AI
 
         void PrepareToAttackClosest(Array<Empire> potentialTargets)
         {
-            if (potentialTargets.Count > 0 && TotalEnemiesStrength() * 1.5f < OwnerEmpire.OffensiveStrength)
+            if (!OwnerEmpire.IsAtWarWithMajorEmpire
+                && potentialTargets.Count > 0 
+                && TotalEnemiesStrength() * 1.5f < OwnerEmpire.OffensiveStrength)
             {
                 Empire closest = potentialTargets.Sorted(e => e.WeightedCenter.Distance(OwnerEmpire.WeightedCenter)).First();
                 Relationship usToThem = OwnerEmpire.GetRelations(closest);
@@ -151,7 +153,9 @@ namespace Ship_Game.AI
 
         void PrepareToAttackXenophobic(Array<Empire> potentialTargets)
         {
-            if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.OffensiveStrength)
+            if (!OwnerEmpire.IsAtWarWithMajorEmpire
+                && potentialTargets.Count > 0 
+                && TotalEnemiesStrength() < OwnerEmpire.OffensiveStrength)
             {
                 Empire closest = potentialTargets.Sorted(e => e.WeightedCenter.Distance(OwnerEmpire.WeightedCenter)).First();
                 Relationship usToThem = OwnerEmpire.GetRelations(closest);
@@ -162,7 +166,9 @@ namespace Ship_Game.AI
 
         void PrepareToAttackWeakest(Array<Empire> potentialTargets)
         {
-            if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.OffensiveStrength)
+            if (!OwnerEmpire.IsAtWarWithMajorEmpire
+                && potentialTargets.Count > 0 
+                && TotalEnemiesStrength() < OwnerEmpire.OffensiveStrength)
             {
                 Empire weakest        = potentialTargets.Sorted(e => e.CurrentMilitaryStrength).First();
                 Relationship usToThem = OwnerEmpire.GetRelations(weakest);
@@ -192,10 +198,8 @@ namespace Ship_Game.AI
 
                         float modifiedWeight = GetModifiedTerritorialWeight(weight, usToThem, others, closeSystem);
 
-                        if (usToThem.Anger_TerritorialConflict > 0)
-                            usToThem.AddAngerTerritorialConflict((usToThem.Anger_TerritorialConflict + borders.RankImportance * modifiedWeight) / usToThem.Anger_TerritorialConflict);
-                        else
-                            usToThem.AddAngerTerritorialConflict(borders.RankImportance * modifiedWeight);
+                        float angerConflict = usToThem.Anger_TerritorialConflict.LowerBound(1);
+                        usToThem.AddAngerTerritorialConflict(borders.RankImportance * modifiedWeight / angerConflict);
                     }
                 }
             }
@@ -205,7 +209,7 @@ namespace Ship_Game.AI
         {
             float modifiedWeight = weight;
             float ourStr         = OwnerEmpire.CurrentMilitaryStrength.LowerBound(1);
-            modifiedWeight      *= (ourStr + system.GetActualStrengthPresent(others)) / ourStr;
+            modifiedWeight      *= (system.GetActualStrengthPresent(others) / ourStr).UpperBound(1f);
 
             if (usToThem.Treaty_Trade)
                 modifiedWeight *= 0.5f;
