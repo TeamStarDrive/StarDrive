@@ -289,7 +289,7 @@ namespace Ship_Game
             else
             {
                 if (importPlanet.ConstructionQueue.Count > 0)
-                    maxProdLoad += importPlanet.Prod.NetIncome * eta.UpperBound(importPlanet.TurnsUntilQueueCompleted(priority: 1.00f));
+                    maxProdLoad += importPlanet.Prod.NetIncome * eta.UpperBound(importPlanet.TurnsUntilQueueCompleted(1f));
                 else
                     maxProdLoad = ProdHere.UpperBound(maxProdLoad);
             }

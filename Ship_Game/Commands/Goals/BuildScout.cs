@@ -29,7 +29,7 @@ namespace Ship_Game.Commands.Goals
             if (!empire.ChooseScoutShipToBuild(out Ship scout))
                 return GoalStep.GoalFailed;
 
-            if (!empire.FindPlanetToBuildAt(empire.SafeSpacePorts, scout, out Planet planet, priority: 1.00f))
+            if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, scout, out Planet planet))
                 return GoalStep.TryAgain;
 
             var queue    = planet.Construction.GetConstructionQueue();

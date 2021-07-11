@@ -239,7 +239,7 @@ namespace Ship_Game.Universe.SolarBodies
                 return; // Massive sabotage to planetary facilities or no items
 
             float percentToApply = P.RecentCombat ? 0.1f : 1f; // Ongoing combat is hindering logistics
-            float limitSpentProd = P.LimitedProductionExpenditure();
+            float limitSpentProd = P.LimitedProductionExpenditure(P.CurrentProductionToQueue);
             ApplyProductionToQueue(maxAmount: limitSpentProd * percentToApply, 0);
             TryPlayerRush();
         }
