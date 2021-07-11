@@ -740,7 +740,6 @@ namespace Ship_Game
             UpdateDevelopmentLevel();
             Description = DevelopmentStatus;
             GeodeticManager.AffectNearbyShips();
-            CalcAverageImportTurns();
             ApplyTerraforming();
             UpdateColonyValue();
             CalcIncomingGoods();
@@ -756,25 +755,6 @@ namespace Ship_Game
             RepairBuildings(1);
             CallForHelp();
             TotalTroopConsumption = GetTotalTroopConsumption();
-        }
-
-        void CalcAverageImportTurns()
-        {
-            if (Owner.isFaction)
-                return;
-
-            if (Owner.GetPlanets().Count <= 1)
-            {
-                AverageImportTurns = 0;
-                return;
-            }
-
-            // Calc per 2 Years (20 turns)
-            if (AverageImportTurns.Greater(0) && (Empire.Universe.StarDate % 2).Greater(0))
-                return;
-
-            AverageImportTurns = Center.Distance(Owner.WeightedCenter) * 2 / (Owner.AverageFreighterFTLSpeed * GlobalStats.TurnTimer);
-            AverageImportTurns = AverageImportTurns.LowerBound(1);
         }
 
         private void NotifyEmptyQueue()
