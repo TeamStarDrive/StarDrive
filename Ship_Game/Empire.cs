@@ -48,7 +48,7 @@ namespace Ship_Game
         /// <summary>
         /// Returns an average of empire money over several turns.
         /// </summary>
-        public float NormalizedMoney { get; private set; }
+        public float NormalizedMoney { get; private set; } = StartingMoney;
 
         public void UpdateNormalizedMoney(float money, bool fromSave = false)
         {
@@ -186,7 +186,7 @@ namespace Ship_Game
         public bool WeArePirates  => Pirates != null; // Use this to figure out if this empire is pirate faction
         public bool WeAreRemnants => Remnants != null; // Use this to figure out if this empire is pirate faction
 
-        public float GrossIncomeBeforeTax => PotentialIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus; // + AverageTradeIncome + data.FlatMoneyBonus;
+        public float MaxiumumIncome => PotentialIncome + AverageTradeIncome + data.FlatMoneyBonus;
 
         // Income this turn before deducting ship maintenance
         public float GrossIncome              => GrossPlanetIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus;
