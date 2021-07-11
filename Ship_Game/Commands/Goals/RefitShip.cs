@@ -48,7 +48,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 RemoveOldRefitGoal();
 
             if (!empire.FindPlanetToRefitAt(empire.SafeSpacePorts, OldShip.RefitCost(newShip), 
-                OldShip, OldShip.fleet != null, out PlanetBuildingAt))
+                OldShip, newShip, OldShip.fleet != null, out PlanetBuildingAt))
             {
                 OldShip.AI.ClearOrders();
                 return GoalStep.GoalFailed;  // No planet to refit
