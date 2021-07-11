@@ -1,5 +1,5 @@
 # specifies cost multipliers or weights for research
-# Omitting a value will set it to hard coded defaults
+# Omitting a value will set it to 1 or the hardcorded values which are the same as in this document
 # note that specific techs can be given a cost multiplier in the tech XML
 -ResearchSettings:
 # The portrait name of the empire.
@@ -64,7 +64,32 @@
   General:          1.00
   Research:         1.00
   ShipTech:         1.00
-  
+#WeaponModifiers are used to modify the cost of a ship based on the kind of weapons it has on board.   
+# we dont currently have a description of these tags. if its not clear ask in the discord chat. 
+https://bitbucket.org/codegremlins/stardrive-blackbox/src/5bb3a64dc86413c2c1add1ab41504d51d3acbd5d/Ship_Game/Gameplay/Weapon.cs?at=develop#Weapon.cs-18  
+WeaponModifiers:
+        Kinetic:  1.00
+        Energy:   1.00
+        Guided:   1.00
+        Missile:  1.00
+        Hybrid:   1.00
+        Beam:     1.00
+        Explosive:1.00
+        Intercept:1.00
+        Railgun:  1.00
+        Bomb:     1.00
+        SpaceBomb:1.00
+        BioWeapon:1.00
+        Drone:    1.00
+        Warp:     1.00
+        Torpedo:  1.00
+        Cannon:   1.00
+        Subspace: 1.00
+        PD:       1.00
+        Flak:     1.00
+        Array:    1.00
+        Tractor:  1.00
+    
 # Empire specific modifiers. 
 # these will override the "All" settings.
 -ResearchSettings:
