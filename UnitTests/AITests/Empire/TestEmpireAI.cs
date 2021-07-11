@@ -552,7 +552,8 @@ namespace UnitTests.AITests.Empire
             // verify counts
             int unAdded = shipsOnDefense.Count + shipsThatCantBeAdded.Count;
             Assert.AreEqual(forcePools.Count , Player.OwnedShips.Count - unAdded);
-            Assert.AreEqual(shipsOnDefense.Count, 1, "Did Something change in ship system defender states?");
+            // no ships are added to the defensive pools anymore.
+            //Assert.AreEqual(shipsOnDefense.Count, 1, "Did Something change in ship system defender states?");
             Assert.AreEqual(shipsThatCantBeAdded.Count, 2,"Did something change in supply shuttles or stations");
         }
 

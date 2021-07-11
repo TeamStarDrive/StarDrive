@@ -1,35 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using Ship_Game.AI.Budget;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
-using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
     public partial class Planet
     {
         private readonly EnumFlatMap<ColonyPriority, float> Priorities = new EnumFlatMap<ColonyPriority, float>();
-        bool EmpireWillSupportBuild
-        {
-            get
-            {
-                float stability = Owner.GetEmpireAI().CreditRating;
-                return Owner.data.ColonyBudget > Owner.TotalBuildingMaintenance && stability > 0.9f;
-            }
-        }
 
-
-        bool EmpireWillPreventScrap
-        {
-            get
-            {
-                float scrapped = Owner.GetEmpireAI().MaintSavedByBuildingScrappedThisTurn;
-                float stability = Owner.GetEmpireAI().CreditRating;
-                return Owner.data.ColonyBudget > Owner.TotalBuildingMaintenance - scrapped || stability > 0.9f;
-            }
-        }
         private enum ColonyPriority
         {
             FoodFlat,
@@ -49,6 +27,10 @@ namespace Ship_Game
             InfraStructure
         }
 
+        // This logs the building maintenance the governor tried to build but could not due to low budget
+        // It can be used by the empire to allow building this, if they have reserves
+        public float BuildingMaintenanceNeeded { get; private set; }
+
         bool IsPlanetExtraDebugTarget()
         {
             if (Name == ExtraInfoOnPlanet)
@@ -61,17 +43,11 @@ namespace Ship_Game
                    && colony.P == this;
         }
 
-        void DebugEvalBuild(Building b, string what, float score)
-        {
-            if (IsPlanetExtraDebugTarget())
-                Log.Info(ConsoleColor.DarkGray,
-                    $"Eval VALUE  {b.Name,-20}  {what,-16} {(+score).SignString()}");
-        }
-
         void BuildAndScrapCivilianBuildings(float budget)
         {
+            BuildingMaintenanceNeeded = float.MaxValue;
             UpdateGovernorPriorities();
-            if (budget < 0f && !EmpireWillPreventScrap)
+            if (budget < 0f)
             {
                 TryScrapBuilding(); // We must scrap something to bring us above of our debt tolerance
             }
@@ -88,7 +64,9 @@ namespace Ship_Game
         {
             if (FreeHabitableTiles > 0)
             {
-                SimpleBuild(budget); // Let's try to build something within our budget
+                if (SimpleBuild(budget)) // Let's try to build something within our budget
+                    BuildingMaintenanceNeeded = 0; // We built a building. No over spend is needed from the empire
+
                 if (TryPrioritizeColonyBuilding())
                     return;
             }
@@ -131,7 +109,7 @@ namespace Ship_Game
             if (IsCybernetic)
                 return;
 
-            float foodToFeedAll     = FoodConsumptionPerColonist * PopulationBillion * 1.5f;
+            float foodToFeedAll     = FoodConsumptionPerColonist * MaxPopulationBillion;
             float flatFoodToFeedAll = foodToFeedAll - Food.NetFlatBonus;
             float fertilityBonus    = Fertility.InRange(0.1f, 0.99f) ? 1 : Fertility;
 
@@ -177,11 +155,12 @@ namespace Ship_Game
                 perRichness += 1.5f * MineralRichness;
             }
 
+
             flat   += 1 - Storage.ProdRatio;
             perCol += (1 - Storage.ProdRatio) * MineralRichness;
             perCol *= PopulationRatio;
 
-            flat        = ApplyGovernorBonus(flat, 1f, 2f, 0.5f, 0.5f, 1.5f);
+            flat        = ApplyGovernorBonus(flat, 1f, 2f, 1f, 1f, 1.5f);
             perRichness = ApplyGovernorBonus(perRichness, 1f, 2f, 0.5f, 0.5f, 1.5f);
             perCol      = ApplyGovernorBonus(perCol, 1f, 2f, 0.5f, 0.5f, 1.5f);
             Priorities[ColonyPriority.ProdFlat]        = flat;
@@ -411,9 +390,15 @@ namespace Ship_Game
             }
 
             float maintenance = b.ActualMaintenance(this);
-
-            if ((budget > 0 && EmpireWillSupportBuild) || b.IsMoneyBuilding && b.MoneyBuildingAndProfitable(maintenance, PopulationBillion))
+            if ((budget > 0 && maintenance <= budget) || b.IsMoneyBuilding && b.MoneyBuildingAndProfitable(maintenance, PopulationBillion))
                 return true;
+
+            if (maintenance < BuildingMaintenanceNeeded
+                && maintenance > 0
+                && (ManualCivilianBudget <= 0 || !Owner.isPlayer))
+            {
+                BuildingMaintenanceNeeded = maintenance;
+            }
 
             return false; // Too expensive for us and its not getting profitable juice from the population
         }
