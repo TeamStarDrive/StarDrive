@@ -2,7 +2,6 @@
 
 using Ship_Game.AI.Budget;
 using System;
-using System.Linq;
 using Ship_Game.AI.Compnonents;
 using Ship_Game.Gameplay;
 using static Ship_Game.AI.Compnonents.BudgetPriorities;
@@ -29,6 +28,25 @@ namespace Ship_Game.AI
         public float BorderThreat { get; private set; }   = 0;
         public float EnemyThreat { get; private set; }    = 0;
         /// <summary>
+        /// This is a quick set check to see if we are financially able to rush production
+        /// </summary>
+        public bool SafeToRush => CreditRating > 0.75f;
+
+        /// <summary>
+        /// Stores Maintenance saved by scrapping this turn;
+        /// </summary>
+        public float MaintSavedByBuildingScrappedThisTurn = 0;
+
+        /// <summary>
+        /// How much building cost the empire has subsidized this turn.
+        /// </summary>
+        public float BuildingSupportedByEmpireThisTurn = 0;
+        public float BuildingSupportedByEmpireLastTurn = 0;
+
+        // Empire spaceDefensive Reserves high enough to support fractional build budgets
+        public bool EmpireCanSupportSpcDefense => OwnerEmpire.data.DefenseBudget > OwnerEmpire.TotalOrbitalMaintenance && CreditRating > 0.90f;
+
+        /// <summary>
         /// This is the budgeted amount of money that will be available to empire looking over 20 years.  
         /// </summary>
         public float ProjectedMoney { get; private set; } = 0;
@@ -49,16 +67,6 @@ namespace Ship_Game.AI
                 return (goalRatio.UpperBound(1) * 3 + (1 - OwnerEmpire.data.TaxRate)) / 4f;
             }
         }
-        /// <summary>
-        /// This is a quick set check to see if we are financially able to rush production
-        /// </summary>
-        public bool SafeToRush => CreditRating > 0.75f;
-
-        // Stores Maintenance saved by scrapping this turn;
-        public float MaintSavedByBuildingScrappedThisTurn = 0;
-
-        // Empire spaceDefensive Reserves high enough to support fractional build budgets
-        public bool EmpireCanSupportSpcDefense => OwnerEmpire.data.DefenseBudget > OwnerEmpire.TotalOrbitalMaintenance && CreditRating > 0.90f;
 
         private float FindTaxRateToReturnAmount(float amount)
         {
@@ -81,6 +89,8 @@ namespace Ship_Game.AI
         public void RunEconomicPlanner(bool fromSave = false)
         {
             MaintSavedByBuildingScrappedThisTurn = 0;
+            BuildingSupportedByEmpireLastTurn = BuildingSupportedByEmpireThisTurn;
+            BuildingSupportedByEmpireThisTurn    = 0;
 
             float money = OwnerEmpire.Money;
             if (!fromSave)
