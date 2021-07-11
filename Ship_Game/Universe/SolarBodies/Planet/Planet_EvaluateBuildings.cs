@@ -27,8 +27,10 @@ namespace Ship_Game
             InfraStructure
         }
 
-        // This logs the building maintenance the governor tried to build but could not due to low budget
-        // It can be used by the empire to allow building this, if they have reserves
+        /// <summary>
+        /// This logs the building maintenance the governor tried to build but could not due to low budget
+        /// It can be used by the empire to allow building this, if they have reserves
+        /// </summary>
         public float BuildingMaintenanceNeeded { get; private set; }
 
         bool IsPlanetExtraDebugTarget()
