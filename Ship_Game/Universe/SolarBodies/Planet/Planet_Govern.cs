@@ -30,6 +30,10 @@ namespace Ship_Game
             if ((!Owner.isPlayer || Owner.AutoResearch) && colonyType == ColonyType.Research && Owner.Research.NoTopic)
                 colonyType = ColonyType.Core;
 
+            // Change to core colony if there is only 1 planet so the AI can build stuff
+            if (!Owner.isPlayer && Owner.GetPlanets().Count == 1)
+                colonyType = ColonyType.Core;
+
             Food.Percent = 0;
             Prod.Percent = 0;
             Res.Percent  = 0;
@@ -54,7 +58,7 @@ namespace Ship_Game
                     BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.75f, 0.99f);    // Start Importing if food drops below 75%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
                     if (NonCybernetic)
-                        DetermineProdState(0.1f, 0.5f); // Start Importing if prod drops below 10%, stop importing at 20%. Start exporting at 50%, and dont stop unless below 25%.
+                        DetermineProdState(0f, 0.5f); // Never import (unless constructing something) Start exporting at 50%, and dont stop unless below 25%.
                     else
                         DetermineProdState(0.2f, 0.66f); // Start Importing if prod drops below 20%, stop importing at 40%. Start exporting at 66%, and dont stop unless below 33%.
 
@@ -113,7 +117,7 @@ namespace Ship_Game
         }
 
         // returns the amount of production to spend in the build queue based on import/export state
-        public float LimitedProductionExpenditure()
+        public float LimitedProductionExpenditure(float availableProductionToQueue)
         {
             float prodToSpend;
             bool empireCanExport = Owner.TotalProdExportSlots - FreeProdExportSlots > Level.LowerBound(3);
@@ -179,7 +183,7 @@ namespace Ship_Game
                 }
             }
 
-            return prodToSpend.UpperBound(CurrentProductionToQueue);
+            return prodToSpend.UpperBound(availableProductionToQueue);
         }
     }
 }

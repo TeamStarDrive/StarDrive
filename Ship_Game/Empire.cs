@@ -317,44 +317,56 @@ namespace Ship_Game
         /// 1 is above average. 0.2 is below average.
         /// the default is below average. not recommended to set above 1 but you can. 
         /// </summary>
-        public bool FindPlanetToBuildAt(IReadOnlyList<Planet> ports, Ship ship, out Planet chosen, float priority)
+        public bool FindPlanetToBuildShipAt(IReadOnlyList<Planet> ports, Ship ship, out Planet chosen, float priority = 1f)
         {
             if (ports.Count != 0)
             {
                 float cost = ship.GetCost(this);
-
-                chosen = FindPlanetToBuildAt(ports, cost, priority: priority);
+                chosen     = FindPlanetToBuildAt(ports, cost, ship.shipData, priority);
                 return chosen != null;
             }
+
             Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {ship} at! Candidates:{ports.Count}");
             chosen = null;
             return false;
         }
 
-        public bool FindPlanetToBuildTroopAt(IReadOnlyList<Planet> ports, Troop troop, out Planet chosen, float priority)
+        public bool FindPlanetToBuildTroopAt(IReadOnlyList<Planet> ports, Troop troop, float priority, out Planet chosen)
         {
+            chosen = null;
             if (ports.Count != 0)
             {
                 float cost = troop.ActualCost;
-                chosen     = FindPlanetToBuildAt(ports, cost, forTroop: true, priority);
+                chosen     = FindPlanetToBuildAt(ports, cost, sData: null, priority);
                 return chosen != null;
             }
 
             Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {troop} at! Candidates:{ports.Count}");
-            chosen = null;
             return false;
         }
 
-        public Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, bool forTroop = false, float priority = 1.00f)
+        public bool FindPlanetToSabotage(IReadOnlyList<Planet> ports, out Planet chosen)
+        {
+            chosen = null;
+            if (ports.Count != 0)
+            {
+                chosen = ports.FindMax(p => p.Prod.NetMaxPotential);
+                return true;
+            }
+
+            return false;
+        }
+
+        Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, ShipData sData, float priority = 1f)
         {
             // focus on the best producing planets (number depends on the empire size)
             if (GetBestPorts(ports, out Planet[] bestPorts))
-                return bestPorts.FindMin(p => p.TurnsUntilQueueComplete(cost, forTroop, priority));
+                return bestPorts.FindMin(p => p.TurnsUntilQueueComplete(cost, priority, sData));
 
             return null;
         }
 
-        public bool FindPlanetToRefitAt(IReadOnlyList<Planet> ports, float cost, Ship ship, bool travelBack, out Planet planet)
+        public bool FindPlanetToRefitAt(IReadOnlyList<Planet> ports, float cost, Ship ship, Ship newShip, bool travelBack, out Planet planet)
         {
             planet               = null;
             int travelMultiplier = travelBack ? 2 : 1;
@@ -362,13 +374,13 @@ namespace Ship_Game
             if (ports.Count == 0)
                 return false;
 
-            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, false, priority: 1.00f) 
+            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip.shipData) 
                                         + ship.GetAstrogateTimeTo(p) * travelMultiplier);
 
             return planet != null;
         }
 
-        public bool FindPlanetToRefitAt(IReadOnlyList<Planet> ports, float cost, out Planet planet)
+        public bool FindPlanetToRefitAt(IReadOnlyList<Planet> ports, float cost, Ship newShip, out Planet planet)
         {
             planet = null;
             if (ports.Count == 0)
@@ -378,7 +390,7 @@ namespace Ship_Game
             if (ports.Count == 0)
                 return false;
 
-            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, false, priority: 1.00f));
+            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip.shipData));
             return planet != null;
         }
 
@@ -387,7 +399,7 @@ namespace Ship_Game
         {
             if (ports == null) return Empty<Planet>.Array;
             GetBestPorts(ports, out Planet[] bestPorts, portQuality); 
-            return bestPorts?.Filter(p=> p.HasSpacePort || p.NumShipyards > 0) ?? Empty<Planet>.Array;
+            return bestPorts?.Filter(p => p.HasSpacePort) ?? Empty<Planet>.Array;
         }
 
         bool GetBestPorts(IReadOnlyList<Planet> ports, out Planet[] bestPorts, float portQuality = 0.2f)
@@ -396,7 +408,9 @@ namespace Ship_Game
             if (ports.Count > 0)
             {
                 float averageMaxProd = ports.Average(p => p.Prod.NetMaxPotential);
-                bestPorts            = ports.Filter(p => !p.IsCrippled && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd * portQuality));
+                bestPorts            = ports.Filter(p => !p.IsCrippled
+                                                         && p.colonyType != Planet.ColonyType.Research
+                                                         && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd * portQuality));
             }
 
             return bestPorts?.Length > 0;
@@ -2172,6 +2186,17 @@ namespace Ship_Game
             return (int)defense;
         }
 
+        public bool DetectPrepareForWarVsPlayer(Empire enemy)
+        {
+            if (!enemy.isPlayer)
+                return false;
+
+            int ourSpyDefense   = GetSpyDefense() + (IsCunning ? 10 : 0);
+            int theirSpyDefense = enemy.GetSpyDefense() + (enemy.IsCunning ? 10 : 0);
+            int totalRoll       = theirSpyDefense + ourSpyDefense;
+            return RandomMath.RollDie(totalRoll) <= theirSpyDefense;
+        }
+
         /// <summary>
         /// Gets the total population in billions and option for max pop
         /// </summary>
@@ -2633,14 +2658,11 @@ namespace Ship_Game
 
             Empire empire = EmpireManager.GetEmpireById(DiplomacyContactQueue.First().Key);
             string dialog = DiplomacyContactQueue.First().Value;
+
             if (dialog == "DECLAREWAR")
-            {
                 empire.GetEmpireAI().DeclareWarOn(this, WarType.ImperialistWar);
-            }
             else
-            {
                 DiplomacyScreen.ContactPlayerFromDiplomacyQueue(empire, dialog);
-            }
 
             DiplomacyContactQueue.RemoveAt(0);
         }
@@ -2880,7 +2902,7 @@ namespace Ship_Game
             if (!isPlayer) 
                 return;
 
-            string message = $"{Localizer.Token(GameText.YourShipWasCaptured)} {this.Name}!";
+            string message = $"{Localizer.Token(GameText.YourShipWasCaptured)} {boarder.Name}!";
             Universe.NotificationManager?.AddBoardNotification(message, ship.BaseHull.IconPath, "SnapToShip", ship, boarder);
         }
 

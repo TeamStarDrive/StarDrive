@@ -42,7 +42,7 @@ namespace Ship_Game.Commands.Goals
             if (!ShipBuilder.PickColonyShip(empire, out Ship colonyShip))
                 return GoalStep.GoalFailed;
 
-            if (!empire.FindPlanetToBuildAt(empire.SafeSpacePorts, colonyShip, out Planet planet, priority: 1.00f))
+            if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, colonyShip, out Planet planet))
                 return GoalStep.TryAgain;
 
             planet.Construction.Enqueue(colonyShip, this);
