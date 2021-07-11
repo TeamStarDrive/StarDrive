@@ -1341,7 +1341,7 @@ namespace Ship_Game
             if (MineralRichness.LessOrEqual(0.1f)) // minimum decay limit
                 return;
 
-            // If the planet outputs 100 production on Brutal, the chance to decay is 5%
+            // If the planet outputs 100 production on Brutal, the chance to decay is 2.5%, normal will be 1%
             float decayChance = Prod.GrossIncome / (Owner.DifficultyModifiers.MineralDecayDivider / GlobalStats.CustomMineralDecay);
 
             // Larger planets have less chance for reduction
@@ -1357,7 +1357,7 @@ namespace Ship_Game
             if (RandomMath.RollDice(decayChance))
             {
                 bool notifyPlayer = MineralRichness.AlmostEqual(1);
-                MineralRichness  -= 0.02f;
+                MineralRichness  -= 0.01f;
                 if (notifyPlayer)
                 {
                     string fullText = $"{Name} {Localizer.Token(GameText.MineralRichnessHasGoneDown)}";
