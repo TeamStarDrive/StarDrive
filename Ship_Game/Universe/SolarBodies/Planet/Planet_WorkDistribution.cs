@@ -190,12 +190,12 @@ namespace Ship_Game
             return LeftoverWorkers() * MaxPopulationBillion;
         }
 
-        float EvaluateProductionQueue()
+        float EvaluateProductionQueue(QueueItem qi = null)
         {
             if (IsCybernetic || Owner.Research.NoTopic)
                 return 1;
 
-            var item = ConstructionQueue.FirstOrDefault();
+            var item = qi ?? ConstructionQueue.FirstOrDefault();
             if (item == null || Res.YieldPerColonist.AlmostZero())
             {
                 return 1;
