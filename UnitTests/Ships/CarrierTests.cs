@@ -77,7 +77,8 @@ namespace UnitTests.Ships
         [TestMethod]
         public void NoRecallWithin10k()
         {
-            SpawnEnemyShip(); // need an enemy so that ships don't immediately ReturnToHangar
+            SpawnEnemyShip();// need an enemy so that ships don't immediately ReturnToHangar
+            Universe.Objects.Update(ScanInterval);
             LaunchFighters(Carrier);
 
             Carrier.AI.OrderMoveTo(new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
@@ -90,6 +91,8 @@ namespace UnitTests.Ships
         public void NoRecallDuringCombat()
         {
             SpawnEnemyShip();
+            Universe.Objects.Update(ScanInterval);
+            Player.UpdateRelationships(false);
             LaunchFighters(Carrier);
 
             Carrier.AI.OrderMoveTo(new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
