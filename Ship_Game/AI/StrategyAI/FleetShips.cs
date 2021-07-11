@@ -28,6 +28,7 @@ namespace Ship_Game.AI
         readonly int[] RoleCount;
         readonly float[] RoleStrength;
         public int ShipSetsExtracted;
+        public int TotalShips => Ships.Count;
 
         public FleetShips(Empire ownerEmpire)
         {
