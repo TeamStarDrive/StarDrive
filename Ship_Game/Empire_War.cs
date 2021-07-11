@@ -143,6 +143,11 @@ namespace Ship_Game
             return true;
         }
 
+        public bool ShouldCancelPrepareForWar()
+        {
+            return IsAtWarWithMajorEmpire && GetAverageWarGrade() < PersonalityModifiers.WarGradeThresholdForPeace;
+        }
+
         public bool ShouldGoToWar(Relationship rel, Empire them)
         {
             if (them.data.Defeated || !rel.PreparingForWar || rel.AtWar || IsPeaceTreaty(them))
@@ -167,7 +172,7 @@ namespace Ship_Game
             }
 
             bool weAreStronger = ourCurrentStrength > theirKnownStrength * PersonalityModifiers.GoToWarTolerance
-                                 && ourBuildCapacity > theirBuildCapacity * PersonalityModifiers.GoToWarTolerance;
+                                 && ourBuildCapacity > theirBuildCapacity;
 
             return weAreStronger;
         }

@@ -46,7 +46,7 @@ namespace Ship_Game.Commands.Goals
                                 ? empire.SafeSpacePorts
                                 : empire.SpacePorts;
 
-            if (empire.FindPlanetToBuildAt(spacePorts, ship, out planet, priority: priority))
+            if (empire.FindPlanetToBuildShipAt(spacePorts, ship, out planet, priority))
             {
                 return true; // OK
             }
@@ -61,7 +61,7 @@ namespace Ship_Game.Commands.Goals
             if (!GetShipTemplate(ToBuildUID, out Ship template))
                 return GoalStep.GoalFailed;
 
-            if (!FindPlanetToBuildShipAt(portType, template, out Planet planet, priority: 1.00f))
+            if (!FindPlanetToBuildShipAt(portType, template, out Planet planet, priority: 1f))
                 return GoalStep.TryAgain;
 
             planet.Construction.Enqueue(template, this);
