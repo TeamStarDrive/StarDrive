@@ -60,21 +60,21 @@ namespace Ship_Game.AI
         // Empire spaceDefensive Reserves high enough to support fractional build budgets
         public bool EmpireCanSupportSpcDefense => OwnerEmpire.data.DefenseBudget > OwnerEmpire.TotalOrbitalMaintenance && CreditRating > 0.90f;
 
+        /// <summary>
+        /// Horribly inefficient. best not to use but i havent found a way to get a more accurate tax for amount
+        /// </summary>
         private float FindTaxRateToReturnAmount(float amount)
         {
             float spending = OwnerEmpire.BuildingAndShipMaint + OwnerEmpire.TroopCostOnPlanets;
             float initialTaxRate = OwnerEmpire.data.TaxRate;
-            
+
             for (int i = 1; i < 100; i++)
             {
                 float taxRate = i / 100f;
                 OwnerEmpire.data.TaxRate = taxRate;
                 OwnerEmpire.UpdateNetPlanetIncomes();
-                float amountMade = OwnerEmpire.NetIncome - amount;
 
-                //float amountMade = income * taxRate;
-                //float amountMade = OwnerEmpire.GrossIncomeBeforeTax * taxRate - amount - spending;
-                //float amountMade = (OwnerEmpire.NetIncome) * taxRate;
+                float amountMade = OwnerEmpire.NetIncome - amount;
 
                 if (amountMade >0)
                 {
