@@ -133,6 +133,8 @@
             importPlanet.Population += Owner.UnloadColonists(importPlanet.MaxPopulation - importPlanet.Population);
 
             importPlanet.UpdateAverageFreightTurns(importPlanet, exportPlanet, g.Trade.Goods, g.Trade.StardateAdded);
+            Owner.loyalty.UpdateAverageFreightFTL(Owner.MaxFTLSpeed);
+            Owner.loyalty.UpdateAverageFreightCargoCap(Owner.CargoSpaceMax);
             // If we did not unload all cargo, its better to build faster smaller cheaper freighters
             FreighterPriority freighterPriority = fullBeforeUnload && Owner.CargoSpaceUsed.AlmostZero()
                                                   ? FreighterPriority.UnloadedAllCargo
