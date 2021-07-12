@@ -195,7 +195,7 @@ namespace Ship_Game.Ships
         {
             return !Active || IsInAFleet || IsHangarShip || IsHomeDefense ||
                    shipData.CarrierShip || IsSupplyShuttle || IsEmpireSupport ||
-                   IsOrbital || DoingRefit || DoingScrap || DoingScuttle;
+                   IsOrbital || DoingRefit || DoingScrap || DoingScuttle || isColonyShip;
         }
 
         /// <summary>
