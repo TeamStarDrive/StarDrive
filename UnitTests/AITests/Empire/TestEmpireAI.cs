@@ -520,51 +520,6 @@ namespace UnitTests.AITests.Empire
             // test that ship is removed from target empire
             Assert.AreEqual(0, Enemy.OwnedShips.Count);
         }
-        [TestMethod]
-        public void AIManagedPools()
-        {
-            Player.GetEmpireAI().AreasOfOperations.Add(new AO(Player.Capital, 10));
-            Enemy.ShipsWeCanBuild = Player.ShipsWeCanBuild;
-            Player.isPlayer = false;
-
-            // add ships one by one for easier debugging. 
-            foreach (var shipName in Enemy.ShipsWeCanBuild)
-            {
-                var ship = SpawnShip(shipName, Enemy, Vector2.Zero);
-                ship.LoyaltyChangeByGift(Player);
-                Universe.Objects.UpdateLists();
-                Universe.EndOfTurnUpdate(TestSimStep);
-            }
-
-            var forcePools = Player.AIManagedShips.GetShipsFromOffensePools();
-            var shipsOnDefense = new Array<Ship>();
-            var shipsThatCantBeAdded = new Array<Ship>();
-
-            // filter out ships that should not be in force pool
-            foreach (var ship in Player.OwnedShips)
-            {
-                if (ship.AI.State == AIState.SystemDefender)
-                {
-                    Log.Write($"Cant be added {ship.Name}");
-                    shipsOnDefense.Add(ship);
-                }
-                if (ship.ShouldNotBeAddedToForcePools())
-                {
-                    shipsThatCantBeAdded.Add(ship);
-                    Log.Write($"Cant be added {ship.Name}");
-                }
-            }
-
-            foreach (var shipName in forcePools)
-                Log.Write($"Added to forcePool {shipName}");
-
-            // verify counts
-            int unAdded = shipsOnDefense.Count + shipsThatCantBeAdded.Count;
-            Assert.AreEqual(forcePools.Count , Player.OwnedShips.Count - unAdded);
-            // no ships are added to the defensive pools anymore.
-            //Assert.AreEqual(shipsOnDefense.Count, 1, "Did Something change in ship system defender states?");
-            Assert.AreEqual(shipsThatCantBeAdded.Count, 3,"Check ShouldNotBeAddedToForcePools");
-        }
 
         [TestMethod]
         public void TestBudgetLoad()
