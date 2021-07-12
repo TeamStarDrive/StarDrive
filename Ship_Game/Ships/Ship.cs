@@ -216,9 +216,10 @@ namespace Ship_Game.Ships
         /// </summary>
         public bool ShouldNotBeAddedToForcePools()
         {
-            return !Active || IsInAFleet || IsHangarShip || IsHomeDefense ||
-                   shipData.CarrierShip || IsSupplyShuttle || IsEmpireSupport ||
-                   IsOrbital || DoingRefit || DoingScrap || DoingScuttle || isColonyShip;
+            return !Active || IsInAFleet || IsHangarShip || IsHomeDefense
+                || shipData.CarrierShip || IsEmpireSupport || IsOrbital
+                || DoingRefit || DoingScrap || DoingScuttle || isColonyShip
+                || IsFreighter || IsSupplyShuttle;
         }
 
         /// <summary>
@@ -678,11 +679,7 @@ namespace Ship_Game.Ships
             set => Empire.Universe.ScreenManager.AddScreen(new RefitToWindow(Empire.Universe, this));
         }
 
-        public bool DoingScuttle
-        {
-            get => AI.State == AIState.Scuttle;
-            // needs set attribute
-        }
+        public bool DoingScuttle => AI.State == AIState.Scuttle;
 
         public bool IsInhibitedByUnfriendlyGravityWell
         {

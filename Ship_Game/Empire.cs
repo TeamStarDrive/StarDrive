@@ -961,10 +961,11 @@ namespace Ship_Game
         //public IReadOnlyList<Ship> GetShips() => OwnedShips;
         //public Ship[] GetShipsAtomic() => OwnedShips.ToArray();
 
-        public Ship[] AllFleetReadyShips()
+        public Array<Ship> AllFleetReadyShips()
         {
             //Get all available ships from AO's
-            var ships = isPlayer ? new Array<Ship>(OwnedShips) : AIManagedShips.GetShipsFromOffensePools();
+            var ships = isPlayer ? new Array<Ship>(OwnedShips)
+                                            : AIManagedShips.GetShipsFromOffensePools();
 
             var readyShips = new Array<Ship>();
             for (int i = 0; i < ships.Count; i++)
@@ -985,14 +986,7 @@ namespace Ship_Game
                 readyShips.Add(ship);
             }
 
-            return readyShips.ToArray();
-        }
-
-        public FleetShips AllFleetsReady()
-        {
-            var ships = AllFleetReadyShips();
-            //return a fleet creator.
-            return new FleetShips(this, ships);
+            return readyShips;
         }
 
         public IReadOnlyList<Ship> GetProjectors() => OwnedProjectors;

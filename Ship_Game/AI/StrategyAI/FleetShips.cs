@@ -39,14 +39,15 @@ namespace Ship_Game.AI
             RoleStrength = new float[items];
         }
 
-        public FleetShips(Empire ownerEmpire, Ship[] ships) : this(ownerEmpire)
+        public FleetShips(Empire ownerEmpire, Array<Ship> ships) : this(ownerEmpire)
         {
             AddShips(ships);
         }
 
-        void AddShips(IEnumerable<Ship> ships)
+        void AddShips(Array<Ship> ships)
         {
-            foreach (var ship in ships) AddShip(ship);
+            foreach (Ship ship in ships)
+                AddShip(ship);
         }
 
         public bool AddShip(Ship ship)

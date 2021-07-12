@@ -17,15 +17,17 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             {
                 FindPlanetToScrapAndOrderScrap,
                 WaitForOldShipAtPlanet,
-                ScrapTheShip
+                ScrapTheShip,
+                ImmediateScuttleSelfDestruct
             };
         }
 
-        public ScrapShip(Ship shipToScrap, Empire owner) : this()
+        public ScrapShip(Ship shipToScrap, Empire owner, bool immediateScuttle) : this()
         {
             OldShip = shipToScrap;
             empire  = owner;
-
+            if (immediateScuttle)
+                ChangeToStep(ImmediateScuttleSelfDestruct);
             Evaluate();
         }
 
@@ -43,8 +45,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (OldShip.shipData.Role <= ShipData.RoleName.station && OldShip.ScuttleTimer < 0
                 || !empire.FindPlanetToScrapIn(OldShip, out PlanetBuildingAt))
             {
-                ScuttleShip();
-                return GoalStep.GoalFailed;  // No planet to refit, scuttling ship
+                // No planet to refit, scuttling ship
+                return ImmediateScuttleSelfDestruct();
             }
 
             OldShip.AI.IgnoreCombat = true;
@@ -92,11 +94,12 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 OldShip.loyalty.GetEmpireAI().FindAndRemoveGoal(GoalType.ScrapShip, g => g.OldShip == OldShip);
         }
 
-        void ScuttleShip()
+        GoalStep ImmediateScuttleSelfDestruct()
         {
             OldShip.ScuttleTimer = 1;
             OldShip.AI.ClearOrders(AIState.Scuttle, priority: true);
             OldShip.QueueTotalRemoval(); // fbedard
+            return GoalStep.GoalComplete;
         }
     }
 }

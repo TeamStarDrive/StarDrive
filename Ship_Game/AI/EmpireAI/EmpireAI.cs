@@ -273,9 +273,9 @@ namespace Ship_Game.AI
             }
         }
 
-        public void AddScrapShipGoal(Ship ship)
+        public void AddScrapShipGoal(Ship ship, bool immediateScuttle)
         {
-            Goals.Add(new ScrapShip(ship, OwnerEmpire));
+            Goals.Add(new ScrapShip(ship, OwnerEmpire, immediateScuttle));
         }
 
         public void AddPlanetaryRearmGoal(Ship ship, Planet p, Ship existingSupplyShip = null)
