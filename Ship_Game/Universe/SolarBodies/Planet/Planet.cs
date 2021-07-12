@@ -669,7 +669,6 @@ namespace Ship_Game
                 RemoveBuildingFromPlanet(b);
 
             ProdHere += b.ActualCost / 2f;
-            Owner.GetEmpireAI().MaintSavedByBuildingScrappedThisTurn += b.Maintenance;
         }
 
         public void DestroyBuildingOn(PlanetGridSquare tile)
