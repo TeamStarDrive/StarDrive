@@ -24,19 +24,11 @@ namespace UnitTests.AITests.Empire
             CreateUniverseAndPlayerEmpire("Human");
         }
 
-        (Ship ship, Ship prototype) PrepareShipsAndWipeBuildList()
-        {
-            var ship = SpawnShip("Excalibur-Class Supercarrier", Player, Vector2.Zero);
-            var prototype = SpawnShip("Prototype Frigate", Player, Vector2.Zero);
-            Player.ShipsWeCanBuild.Remove(ship.Name);
-            Player.ShipsWeCanBuild.Remove(prototype.Name);
-            return (ship, prototype);
-        }
-
         [TestMethod]
         public void ShipsCannotBeUnlockedIfWeLackTech()
         {
-            (Ship ship, Ship prototype) = PrepareShipsAndWipeBuildList();
+            var ship = SpawnShip("Excalibur-Class Supercarrier", Player, Vector2.Zero);
+            Player.ShipsWeCanBuild.Remove(ship.Name);
 
             // verify that we can not currently add wanted ship
             Player.UpdateShipsWeCanBuild();
@@ -46,7 +38,10 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void ShipsWillBeUnlockedAfterTechUnlock()
         {
-            (Ship ship, Ship prototype) = PrepareShipsAndWipeBuildList();
+            var ship = SpawnShip("Excalibur-Class Supercarrier", Player, Vector2.Zero);
+            var prototype = SpawnShip("Prototype Frigate", Player, Vector2.Zero);
+            Player.ShipsWeCanBuild.Clear();
+
             UnlockAllTechsForShip(Player, ship.Name); // this must automatically unlock the ships
             Assert.IsTrue(Player.ShipsWeCanBuild.Contains(ship.Name), $"{ship.Name} Not found in ShipWeCanBuild");
             Assert.IsTrue(Player.canBuildCarriers, $"{ship.Name} did not set canBuildCarriers");
