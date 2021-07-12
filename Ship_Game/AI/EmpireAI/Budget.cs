@@ -24,6 +24,7 @@ namespace Ship_Game.AI.Budget
         public readonly float GrdDefAlloc;
         public readonly float SpcDefAlloc;
         public readonly float TotalAlloc;
+        public readonly bool AboveAverage;
 
         public PlanetBudget(Planet planet)
         {
@@ -33,7 +34,20 @@ namespace Ship_Game.AI.Budget
             P     = planet;
             Owner = P.Owner;
 
-            EmpireRatio  = P.ColonyPotentialValue(Owner) / Owner.TotalColonyPotentialValues;
+            float avgColonyValue = Owner.TotalColonyPotentialValues / Owner.GetPlanets().Count;
+            var avgPlanets       = Owner.GetPlanets().Filter(p => p.ColonyPotentialValue(Owner) > avgColonyValue);
+            float totalAvgValue  = avgPlanets.Sum(p => p.ColonyPotentialValue(Owner));
+            float potentialValue = P.ColonyPotentialValue(Owner);
+            AboveAverage         = potentialValue >= avgColonyValue;
+            if (AboveAverage)
+            {
+                EmpireRatio = potentialValue / totalAvgValue;
+            }
+            else
+            {
+                EmpireRatio  = P.ColonyPotentialValue(Owner) / Owner.TotalColonyPotentialValues;
+            }
+
             DefenseRatio = P.ColonyBaseValue(Owner) / Owner.TotalColonyValues;
 
             float defenseBudget = EmpireDefenseBudget * DefenseRatio;
@@ -74,31 +88,9 @@ namespace Ship_Game.AI.Budget
 
         float CivBudget()
         {
-            var eAI = Owner.GetEmpireAI();
-
-            float wants           = P.BuildingMaintenanceNeeded;
-            float aiCivBudget     = EmpireColonizationBudget * EmpireRatio + P.ColonyDebtTolerance;
-            float civMaintenance  = P.CivilianBuildingsMaintenance;
-            float remainingBudget = aiCivBudget - civMaintenance;
-            float empireBudget    = Owner.data.ColonyBudget - Owner.TotalBuildingMaintenance +
-                                    eAI.MaintSavedByBuildingScrappedThisTurn;
-            bool empireCanSupport = eAI.CreditRating > 0.25f;
-            float deficit  = remainingBudget < 0 ? Math.Abs(remainingBudget) : 0;
-            float deficitBudget = eAI.BuildingSupportedByEmpireLastTurn + eAI.BuildingSupportedByEmpireThisTurn;
-
-            if (remainingBudget > 0 && wants > 0)
-            {
-                if (empireBudget > wants && empireCanSupport && empireBudget - deficitBudget > 0) 
-                {
-                    aiCivBudget += wants;
-                    eAI.BuildingSupportedByEmpireThisTurn += wants;
-                }
-            }
-            else if (deficit > 0 && empireBudget > deficit && empireCanSupport)
-            {
-                aiCivBudget += deficit;
-                eAI.BuildingSupportedByEmpireThisTurn += deficit;
-            }
+            float aiCivBudget = EmpireColonizationBudget * EmpireRatio + P.ColonyDebtTolerance;
+            if (!AboveAverage)
+                aiCivBudget = (float)(Math.Round(aiCivBudget * 2) / 2);
             return aiCivBudget;
         }
 
