@@ -137,14 +137,25 @@ namespace UnitTests
                 throw new Exception($"LoadStarterContent() or LoadStarterShips() must be called BEFORE {functionName}() !");
         }
 
-        public void CreateUniverseAndPlayerEmpire()
+        /// <param name="playerArchetype">for example "Human"</param>
+        public void CreateUniverseAndPlayerEmpire(string playerArchetype = null)
         {
             RequireGameInstance(nameof(CreateUniverseAndPlayerEmpire));
             RequireStarterContentLoaded(nameof(CreateUniverseAndPlayerEmpire));
 
             var data = new UniverseData();
-            Player = data.CreateEmpire(ResourceManager.MajorRaces[0], isPlayer:true);
-            Enemy = data.CreateEmpire(ResourceManager.MajorRaces[1], isPlayer:false);
+            IEmpireData playerData = ResourceManager.MajorRaces[0];
+            IEmpireData enemyData = ResourceManager.MajorRaces[1];
+            if (playerArchetype != null)
+            {
+                playerData = ResourceManager.MajorRaces.FirstOrDefault(e => e.ArchetypeName.Contains(playerArchetype));
+                if (playerData == null)
+                    throw new Exception($"Could not find MajorRace archetype matching '{playerArchetype}'");
+                enemyData = ResourceManager.MajorRaces.FirstOrDefault(e => e != playerData);
+            }
+
+            Player = data.CreateEmpire(playerData, isPlayer:true);
+            Enemy = data.CreateEmpire(enemyData, isPlayer:false);
             Empire.Universe = Universe = new UniverseScreen(data, Player);
             Player.TestInitModifiers();
 
@@ -164,9 +175,10 @@ namespace UnitTests
             Empire.UpdateBilateralRelations(Enemy, ThirdMajor);
         }
 
-        public void CreateRebelFaction(bool atWarWithPlayer = true)
+        public void CreateRebelFaction()
         {
-            Faction = EmpireManager.CreateRebelsFromEmpireData(ResourceManager.MajorRaces[0], Player);
+            IEmpireData data = ResourceManager.MajorRaces.FirstOrDefault(e => e.Name == Player.data.Name);
+            Faction = EmpireManager.CreateRebelsFromEmpireData(data, Player);
         }
 
         public void UnlockAllShipsFor(Empire empire)
@@ -178,11 +190,15 @@ namespace UnitTests
         public void UnlockAllTechsForShip(Empire empire, string shipName)
         {
             Ship ship = ResourceManager.GetShipTemplate(shipName);
+            empire.UnlockedHullsDict[ship.shipData.Hull] = true;
+            
+            // this populates `TechsNeeded`
+            ShipDesignUtils.MarkDesignsUnlockable(new ProgressCounter());
+            
             foreach (var tech in ship.shipData.TechsNeeded)
             {
                 empire.UnlockTech(tech, TechUnlockType.Normal);
             }
-            ShipDesignUtils.MarkDesignsUnlockable(new ProgressCounter());
         }
 
         public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)
@@ -240,6 +256,9 @@ namespace UnitTests
         public Ship SpawnShip(string shipName, Empire empire, Vector2 position, Vector2 shipDirection = default)
         {
             var target = Ship.CreateShipAtPoint(shipName, empire, position);
+            if (target == null)
+                throw new Exception($"Failed to create ship: {shipName} (did you call LoadStarterShips?)");
+
             target.Rotation = shipDirection.Normalized().ToRadians();
             target.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
             target.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
