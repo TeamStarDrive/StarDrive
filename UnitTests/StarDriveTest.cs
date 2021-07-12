@@ -148,7 +148,7 @@ namespace UnitTests
             Player.TestInitModifiers();
 
             Player.SetRelationsAsKnown(Enemy);
-            Player.GetRelations(Enemy).AtWar = true;
+            Player.GetEmpireAI().DeclareWarOn(Enemy, WarType.BorderConflict);
             Empire.UpdateBilateralRelations(Player, Enemy);
         }
 
