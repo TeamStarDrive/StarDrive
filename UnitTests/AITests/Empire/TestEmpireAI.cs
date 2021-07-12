@@ -41,8 +41,8 @@ namespace UnitTests.AITests.Empire
             AddPlanetToUniverse(hw1, true, Vector2.Zero);
             AddHomeWorldToEmpire(Enemy, out Planet hw2);
             AddPlanetToUniverse(hw2, true, new Vector2(2000));
-            foreach (string uid in ResourceManager.GetShipTemplateIds())
-                Player.ShipsWeCanBuild.Add(uid);
+
+            UnlockAllShipsFor(Player);
 
             Universe.Objects.UpdateLists(true);
         }
