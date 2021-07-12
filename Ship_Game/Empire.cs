@@ -1844,7 +1844,7 @@ namespace Ship_Game
                 FleetUpdateTimer = 5f;
         }
 
-        void DoMoney()
+        public void DoMoney()
         {
             MoneyLastTurn = Money;
             ++TurnCount;

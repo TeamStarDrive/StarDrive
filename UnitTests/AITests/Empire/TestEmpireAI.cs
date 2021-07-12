@@ -544,17 +544,27 @@ namespace UnitTests.AITests.Empire
             // filter out ships that should not be in force pool
             foreach (var ship in Player.OwnedShips)
             {
-                if (ship.AI.State == AIState.SystemDefender) shipsOnDefense.Add(ship);
-                if (ship.DesignRole == ShipData.RoleName.supply) shipsThatCantBeAdded.Add(ship);
-                if (ship.IsPlatformOrStation) shipsThatCantBeAdded.Add(ship);
+                if (ship.AI.State == AIState.SystemDefender)
+                {
+                    Log.Write($"Cant be added {ship.Name}");
+                    shipsOnDefense.Add(ship);
+                }
+                if (ship.ShouldNotBeAddedToForcePools())
+                {
+                    shipsThatCantBeAdded.Add(ship);
+                    Log.Write($"Cant be added {ship.Name}");
+                }
             }
+
+            foreach (var shipName in forcePools)
+                Log.Write($"Added to forcePool {shipName}");
 
             // verify counts
             int unAdded = shipsOnDefense.Count + shipsThatCantBeAdded.Count;
             Assert.AreEqual(forcePools.Count , Player.OwnedShips.Count - unAdded);
             // no ships are added to the defensive pools anymore.
             //Assert.AreEqual(shipsOnDefense.Count, 1, "Did Something change in ship system defender states?");
-            Assert.AreEqual(shipsThatCantBeAdded.Count, 2,"Did something change in supply shuttles or stations");
+            Assert.AreEqual(shipsThatCantBeAdded.Count, 3,"Check ShouldNotBeAddedToForcePools");
         }
 
         [TestMethod]
@@ -582,7 +592,7 @@ namespace UnitTests.AITests.Empire
 
             foreach (var planet in Universe.PlanetsDict.Values)
             {
-                if (planet.Owner != Player)
+                if (planet.Owner != Enemy)
                 {
                     float maxPotential   = Enemy.MaximumStableIncome;
                     float previousBudget = eAI.ProjectedMoney;
@@ -594,6 +604,43 @@ namespace UnitTests.AITests.Empire
                     eAI.RunEconomicPlanner();
                     float expectedIncrease = planetRevenue * Enemy.data.treasuryGoal * 200;
                     float actualValue      = eAI.ProjectedMoney;
+                    Assert.IsTrue(actualValue.AlmostEqual(previousBudget + expectedIncrease, 1f), "Projected Money value was unexpected");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void TestTaxes()
+        {
+            var budget = new BudgetPriorities(Enemy);
+            int budgetAreas = Enum.GetNames(typeof(BudgetPriorities.BudgetAreas)).Length;
+
+            Assert.IsTrue(budget.Count() == budgetAreas);
+
+            var eAI = Enemy.GetEmpireAI();
+
+            var colonyShip = SpawnShip("Colony Ship", Enemy, Vector2.Zero);
+            Enemy.UpdateEmpirePlanets();
+            Enemy.UpdateNetPlanetIncomes();
+            Enemy.GetEmpireAI().RunEconomicPlanner();
+            Enemy.Money = 0;
+            Enemy.UpdateNormalizedMoney(Enemy.Money);
+            foreach (var planet in Universe.PlanetsDict.Values)
+            {
+                if (planet.Owner != Enemy)
+                {
+                    float previousTaxRate = Enemy.data.TaxRate;
+                    float previousBudget = eAI.ProjectedMoney;
+                    float money = Enemy.Money;
+                    planet.Colonize(colonyShip);
+                    Enemy.UpdateEmpirePlanets();
+                    Enemy.DoMoney();
+                    float planetRevenue = planet.Money.PotentialRevenue;
+                    //Assert.IsTrue(Enemy.MaximumStableIncome.AlmostEqual(maxPotential + planetRevenue, 1f), "MaxStableIncome value was unexpected");
+                    eAI.RunEconomicPlanner();
+                    float currentTaxRate = Enemy.data.TaxRate;
+                    float expectedIncrease = planetRevenue * Enemy.data.treasuryGoal * 200;
+                    float actualValue = eAI.ProjectedMoney;
                     Assert.IsTrue(actualValue.AlmostEqual(previousBudget + expectedIncrease, 1f), "Projected Money value was unexpected");
                 }
             }
