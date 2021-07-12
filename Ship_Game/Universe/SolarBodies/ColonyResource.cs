@@ -52,6 +52,10 @@ namespace Ship_Game.Universe.SolarBodies
         // Purely used for estimation
         protected virtual float AvgResourceConsumption() => 0.0f;
 
+        // For Food Per Colonist output
+        public float FoodYieldFormula(float fertility, float plusPerColonist)
+            => fertility.Less(1) ? fertility + plusPerColonist : fertility * (1 + plusPerColonist);
+
         public virtual void Update(float consumption)
         {
             Initialized = true;
@@ -144,7 +148,8 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
             float fertility  = Planet.Fertility;
-            YieldPerColonist = fertility.Less(1) ? fertility + plusPerColonist : fertility * (1 + plusPerColonist);
+            YieldPerColonist = FoodYieldFormula(fertility, plusPerColonist);
+
             Tax = 0f;
             // If we use tax effects with Food resource,
             // we need a base yield offset for balance
