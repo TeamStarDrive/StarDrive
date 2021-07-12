@@ -48,7 +48,7 @@ namespace Ship_Game
         /// <summary>
         /// Returns an average of empire money over several turns.
         /// </summary>
-        public float NormalizedMoney { get; private set; } = StartingMoney;
+        public float NormalizedMoney { get; private set; }
 
         public void UpdateNormalizedMoney(float money, bool fromSave = false)
         {
