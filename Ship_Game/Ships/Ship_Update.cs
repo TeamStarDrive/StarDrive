@@ -135,12 +135,6 @@ namespace Ship_Game.Ships
                 }
             }
 
-            if (timeStep.FixedTime > 0f)
-            {
-                if (Active && !EMPdisabled) 
-                    AI.Update(timeStep);
-            }
-
             if (!Active)
                 return;
 
