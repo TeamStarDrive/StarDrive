@@ -415,7 +415,7 @@ namespace Ship_Game
                 || b.IsMilitary
                 || b.BuildOnlyOnce
                 || b.MoneyBuildingAndProfitable(b.ActualMaintenance(this), PopulationBillion)
-                || IsStarving && b.ProducesFood && NonCybernetic // Dont scrap food buildings when starving
+                || WillMaintainPositiveFoodOutput(b) 
                 || b.IsSpacePort && Owner.GetPlanets().Count == 1 // Dont scrap our last spaceport
                 || !IsBuildingOnHabitableTile(b) && replacing)  // Dont allow buildings on non habitable tiles to be scrapped when replacing
             {
@@ -425,11 +425,26 @@ namespace Ship_Game
             return true;
         }
 
-        /*
-        bool WillCauseNegativeFoodOutput(Building b)
+        bool WillMaintainPositiveFoodOutput(Building b)
         {
+            if (NonCybernetic && b.ProducesFood && IsStarving
+                || IsCybernetic && b.ProducesProduction && IsStarving)
+            {
+                return false; // Dont scrap food buildings if starving
+            }
 
-        }*/
+            if (NonCybernetic && !b.ProducesFood || IsCybernetic && !b.ProducesProduction)
+                return true;
+
+            // checking at 80% of max potential
+            float potential      = 0.8f * (NonCybernetic ? Food.NetMaxPotential : Prod.NetMaxPotential);
+            float maxPop80       = MaxPopulationBillion * 0.8f;
+            float buildingOutput = NonCybernetic 
+                ? Food.AfterTax(b.PlusFlatFoodAmount + maxPop80*Food.FoodYieldFormula(Fertility, b.PlusFlatFoodAmount))
+                : Prod.AfterTax(b.PlusFlatProductionAmount + maxPop80 * b.PlusProdPerColonist * b.IncreaseRichness * MineralRichness);
+
+            return potential - buildingOutput > 0;
+        }
 
         bool SuitableForScrap(Building b, float storageInUse, bool scrapZeroMaintenance, bool replacing)
         {
