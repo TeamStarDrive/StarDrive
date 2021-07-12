@@ -202,7 +202,7 @@ namespace Ship_Game
             Relationship relations = GetRelationsOrNull(withEmpire);
             if (relations != null)
                 return relations;
-            throw new KeyNotFoundException($"No relationship by us:'{Name}' with:{withEmpire.Name}");
+            throw new KeyNotFoundException($"No relationship by us:'{Name}' with:'{withEmpire.Name}'");
         }
 
         void AddNewRelationToThem(Empire them, Relationship rel)

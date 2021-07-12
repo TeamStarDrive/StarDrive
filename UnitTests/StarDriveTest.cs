@@ -147,19 +147,31 @@ namespace UnitTests
             Empire.Universe = Universe = new UniverseScreen(data, Player);
             Player.TestInitModifiers();
 
-            Player.AddRelation(Enemy);
+            Player.SetRelationsAsKnown(Enemy);
             Player.GetRelations(Enemy).AtWar = true;
+            Empire.UpdateBilateralRelations(Player, Enemy);
         }
 
         public void CreateThirdMajorEmpire()
         {
             ThirdMajor = EmpireManager.CreateEmpireFromEmpireData(ResourceManager.MajorRaces[2], isPlayer:false);
             EmpireManager.Add(ThirdMajor);
+
+            Player.SetRelationsAsKnown(ThirdMajor);
+            Enemy.SetRelationsAsKnown(ThirdMajor);
+            Empire.UpdateBilateralRelations(Player, ThirdMajor);
+            Empire.UpdateBilateralRelations(Enemy, ThirdMajor);
         }
 
-        public void CreateRebelFaction()
+        public void CreateRebelFaction(bool atWarWithPlayer = true)
         {
             Faction = EmpireManager.CreateRebelsFromEmpireData(ResourceManager.MajorRaces[0], Player);
+        }
+
+        public void UnlockAllShipsFor(Empire empire)
+        {
+            foreach (string uid in ResourceManager.GetShipTemplateIds())
+                empire.ShipsWeCanBuild.Add(uid);
         }
 
         public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)
