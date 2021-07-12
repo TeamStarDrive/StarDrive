@@ -772,10 +772,10 @@ namespace Ship_Game
             [Serialize(54)] public int ManualFoodExportSlots;
             [Serialize(55)] public int ManualProdExportSlots;
             [Serialize(56)] public int ManualColoExportSlots;
-            [Serialize(57)] public int AverageFoodImportTurns;
-            [Serialize(58)] public int AverageProdImportTurns;
-            [Serialize(59)] public int AverageFoodExportTurns;
-            [Serialize(60)] public int AverageProdExportTurns;
+            [Serialize(57)] public float AverageFoodImportTurns;
+            [Serialize(58)] public float AverageProdImportTurns;
+            [Serialize(59)] public float AverageFoodExportTurns;
+            [Serialize(60)] public float AverageProdExportTurns;
 
             public override string ToString() => $"PlanetSD {Name}";
         }
