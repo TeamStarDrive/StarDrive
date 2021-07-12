@@ -568,20 +568,23 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void TestTreasury()
         {
-            var budget = new BudgetPriorities(Enemy);
+            var budget      = new BudgetPriorities(Enemy);
             int budgetAreas = Enum.GetNames(typeof(BudgetPriorities.BudgetAreas)).Length;
+
             Assert.IsTrue(budget.Count() == budgetAreas);
 
             var eAI = Enemy.GetEmpireAI();
+
             var colonyShip = SpawnShip("Colony Ship", Enemy, Vector2.Zero);
             Enemy.UpdateEmpirePlanets();
             Enemy.UpdateNetPlanetIncomes();
             Enemy.GetEmpireAI().RunEconomicPlanner();
+
             foreach (var planet in Universe.PlanetsDict.Values)
             {
                 if (planet.Owner != Player)
                 {
-                    float maxPotential = Enemy.MaximumStableIncome;
+                    float maxPotential   = Enemy.MaximumStableIncome;
                     float previousBudget = eAI.ProjectedMoney;
                     planet.Colonize(colonyShip);
                     Enemy.UpdateEmpirePlanets();
@@ -590,11 +593,10 @@ namespace UnitTests.AITests.Empire
                     Assert.IsTrue(Enemy.MaximumStableIncome.AlmostEqual(maxPotential + planetRevenue,1f), "MaxStableIncome value was unexpected");
                     eAI.RunEconomicPlanner();
                     float expectedIncrease = planetRevenue * Enemy.data.treasuryGoal * 200;
-                    float actualValue = eAI.ProjectedMoney;
+                    float actualValue      = eAI.ProjectedMoney;
                     Assert.IsTrue(actualValue.AlmostEqual(previousBudget + expectedIncrease, 1f), "Projected Money value was unexpected");
                 }
             }
-
         }
     }
 }
