@@ -1671,7 +1671,8 @@ namespace Ship_Game.Ships
             PlanetCrash = null;
 
             ((IEmpireShipLists)loyalty).RemoveShipAtEndOfTurn(this);
-            RemoveFromPoolAndFleet(clearOrders: false/*already cleared*/);
+            RemoveFromPoolAndFleet(clearOrders: false/*already cleared*/,
+                                   returnToPool: false/*we're dead*/);
             RemoveTether();
             RemoveSceneObject();
             base.RemoveFromUniverseUnsafe();
