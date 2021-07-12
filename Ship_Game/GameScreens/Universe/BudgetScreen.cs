@@ -81,14 +81,13 @@ namespace Ship_Game.GameScreens
             SummaryPanel tax = Add(new SummaryPanel("", taxRect, new Color(17, 21, 28)));
             var taxTitle = Player.data.AutoTaxes ? GameText.AutoTaxes : GameText.TaxRate;
 
-            TaxSlider = tax.AddSlider(Localizer.Token(taxTitle), 0.25f);
+            TaxSlider = tax.AddSlider(Localizer.Token(taxTitle), EmpireManager.Player.data.TaxRate);
             TaxSlider.Tip = GameText.TaxesAreCollectedFromYour;
             TaxSlider.OnChange = TaxSliderOnChange;
 
-            TreasuryGoal = tax.AddSlider(GameText.TreasuryGoal, 0.20f);
-            TreasuryGoal.Tip = GameText.TreasuryGoalIsTheTarget;
+            TreasuryGoal          = tax.AddSlider(GameText.TreasuryGoal, EmpireManager.Player.data.treasuryGoal);
+            TreasuryGoal.Tip      = GameText.TreasuryGoalIsTheTarget;
             TreasuryGoal.OnChange = TreasurySliderOnChange;
-            
 
             TreasuryGoal.RelativeValue = Player.data.treasuryGoal; // trigger updates
             TaxSlider.RelativeValue    = Player.data.TaxRate;
@@ -110,7 +109,7 @@ namespace Ship_Game.GameScreens
             base.LoadContent();
         }
 
-        private void AutoTaxCheckBox(Rectangle footerRect)
+        private UICheckBox AutoTaxCheckBox(Rectangle footerRect)
         {
             var autoTax = Checkbox(new Vector2(footerRect.X, footerRect.Y), () => Player.data.AutoTaxes, 
                                    GameText.AutoTaxes, GameText.YourEmpireWillAutomaticallyManage3);
@@ -124,6 +123,8 @@ namespace Ship_Game.GameScreens
                 TaxSlider.Enabled = !cb.Checked;
                 TaxSlider.Text = Player.data.AutoTaxes ? GameText.AutoTaxes : GameText.TaxRate;
             };
+            TaxSlider.Enabled = !autoTax.Checked;
+            return autoTax;
         }
 
         private void BudgetTab(Rectangle budgetRect)
@@ -178,7 +179,9 @@ namespace Ship_Game.GameScreens
         private void TreasurySliderOnChange(FloatSlider s)
         {
             Player.data.treasuryGoal = s.RelativeValue;
-            int goal = (int) Player.GetEmpireAI().TreasuryGoal(Player.Money);
+            EmpireManager.Player.data.treasuryGoal = s.AbsoluteValue;
+            
+            int goal = (int)Player.GetEmpireAI().TreasuryGoal(Player.NormalizedMoney) / 2;
             s.Text = $"{Localizer.Token(GameText.TreasuryGoal)} : {goal}";
             Player.GetEmpireAI().RunEconomicPlanner();
 
@@ -221,6 +224,12 @@ namespace Ship_Game.GameScreens
                 return true;
             }
             return base.HandleInput(input);
+        }
+        public override void Update(float fixedDeltaTime)
+        {
+            TreasuryGoal.Text = $"{Localizer.Token(GameText.TreasuryGoal)} : {EmpireManager.Player.GetEmpireAI().ProjectedMoney:0.00}";
+            base.Update(fixedDeltaTime);
+
         }
     }
 }
