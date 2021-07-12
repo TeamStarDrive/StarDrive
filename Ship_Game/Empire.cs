@@ -2014,12 +2014,10 @@ namespace Ship_Game
 
                 if (WeCanBuildThis(ship.Name))
                 {
-                    bool shipAdded;
-
                     if (ship.shipData.Role <= ShipData.RoleName.station)
                         structuresWeCanBuild.Add(ship.Name);
 
-                    shipAdded = ShipsWeCanBuild.Add(ship.Name);
+                    bool shipAdded = ShipsWeCanBuild.Add(ship.Name);
 
                     if (isPlayer)
                         Universe?.aw?.UpdateDropDowns();
