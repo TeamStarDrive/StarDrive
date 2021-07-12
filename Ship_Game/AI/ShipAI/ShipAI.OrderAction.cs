@@ -480,9 +480,16 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.ReturnHome, AIState.ReturnHome);
         }
 
+        // Move to closest colony and get back some resources
         public void OrderScrapShip()
         {
-            Owner.loyalty.GetEmpireAI().AddScrapShipGoal(Owner);
+            Owner.loyalty.GetEmpireAI().AddScrapShipGoal(Owner, immediateScuttle:false);
+        }
+
+        // Immediately self-destruct
+        public void OrderScuttleShip()
+        {
+            Owner.loyalty.GetEmpireAI().AddScrapShipGoal(Owner, immediateScuttle:true);
         }
 
         public void AddSupplyShipGoal(Ship supplyTarget, Plan plan = Plan.SupplyShip)
