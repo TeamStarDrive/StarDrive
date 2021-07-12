@@ -605,7 +605,7 @@ namespace Ship_Game
             [Serialize(16)] public string CurrentAutoScout;
             [Serialize(17)] public string CurrentConstructor;
             [Serialize(18)] public float FastVsBigFreighterRatio;
-            [Serialize(19)] public int AverageFreighterCargoCap;
+            [Serialize(19)] public float AverageFreighterCargoCap;
             [Serialize(20)] public int PirateLevel;
             [Serialize(21)] public Map<int, int> PirateThreatLevels;
             [Serialize(22)] public Map<int, int> PiratePaymentTimers;

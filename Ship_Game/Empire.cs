@@ -2645,7 +2645,6 @@ namespace Ship_Game
 
             if (!isFaction)
             {
-                CalcAverageFreighterCargoCapAndFTLSpeed();
                 CalcWeightedCenter();
                 DispatchBuildAndScrapFreighters();
                 AssignSniffingTasks();
