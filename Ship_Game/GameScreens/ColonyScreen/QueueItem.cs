@@ -17,6 +17,7 @@ namespace Ship_Game
         public bool isShip;
         public bool isOrbital;
         public bool isTroop;
+        public bool IsCivilianBuilding => isBuilding && !IsMilitary;
         public ShipData sData;
         public Building Building;
         public string TroopType;
