@@ -268,7 +268,7 @@ namespace Ship_Game
                 // update sensors AFTER spatial update, but only if we are not paused!
                 UpdateAllSensors(timeStep);
 
-                // trigger all Hit events, but only if we are not paused!
+                // trigger all Hit events
                 Spatial.CollideAll(timeStep);
 
                 // now that we have a complete view of the universe

@@ -30,6 +30,9 @@ namespace Ship_Game.AI
             KnownThreat = RiskAssessment(us);
             Risk        = (Expansion + Border + KnownThreat) / 3;
             MaxRisk     = MathExt.Max3(Expansion, Border, KnownThreat);
+
+            if (float.IsNaN(Risk))
+                throw new Exception("Risk cannot be NaN!");
         }
 
         /// <summary>
@@ -120,12 +123,11 @@ namespace Ship_Game.AI
                 return 0;
 
             var riskBase = us.GetWarOffensiveRatio();
-            float risk = 0;
-
             float ourScore = us.TotalScore;
             float theirScore = Them.TotalScore;
-            
-            risk = theirScore / ourScore;
+            float risk = 0;
+            if (ourScore != 0f) // avoid Div by zero
+                risk = theirScore / ourScore;
             risk = (riskBase + risk) / 2;
             if (!Relation.PreparingForWar && !Relation.AtWar)
             {
