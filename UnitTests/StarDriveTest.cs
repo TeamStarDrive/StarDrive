@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Data;
 using Ship_Game.Gameplay;
+using Ship_Game.GameScreens.NewGame;
 using Ship_Game.Ships;
 using UnitTests.UI;
 
@@ -172,6 +173,16 @@ namespace UnitTests
         {
             foreach (string uid in ResourceManager.GetShipTemplateIds())
                 empire.ShipsWeCanBuild.Add(uid);
+        }
+        
+        public void UnlockAllTechsForShip(Empire empire, string shipName)
+        {
+            Ship ship = ResourceManager.GetShipTemplate(shipName);
+            foreach (var tech in ship.shipData.TechsNeeded)
+            {
+                empire.UnlockTech(tech, TechUnlockType.Normal);
+            }
+            ShipDesignUtils.MarkDesignsUnlockable(new ProgressCounter());
         }
 
         public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)
