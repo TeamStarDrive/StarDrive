@@ -270,6 +270,10 @@ namespace Ship_Game
 
                 // trigger all Hit events, but only if we are not paused!
                 Spatial.CollideAll(timeStep);
+
+                // now that we have a complete view of the universe
+                // allow ships to make decisions
+                UpdateAllShipAI(timeStep);
             }
 
             UpdateVisibleObjects();
@@ -502,6 +506,25 @@ namespace Ship_Game
             {
                 ScansPerSec = ScansAcc;
                 ScansAcc = 0;
+            }
+        }
+
+        void UpdateAllShipAI(FixedSimTime timeStep)
+        {
+            lock (ShipsLocker)
+            {
+                Ship[] allShips = Ships.GetInternalArrayItems();
+                void UpdateAI(int start, int end)
+                {
+                    for (int i = start; i < end; ++i)
+                    {
+                        Ship ship = allShips[i];
+                        if (ship.Active && !ship.dying && !ship.EMPdisabled)
+                            ship.AI.Update(timeStep);
+                    }
+                }
+                //UpdateAI(0, Ships.Count);
+                Parallel.For(Ships.Count, UpdateAI, Universe.MaxTaskCores);
             }
         }
 
