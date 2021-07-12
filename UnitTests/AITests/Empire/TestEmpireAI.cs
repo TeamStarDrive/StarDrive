@@ -27,7 +27,7 @@ namespace UnitTests.AITests.Empire
             LoadStarterShips(testOptions,
                              "Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle",
                              "Flak Fang", "Akagi-Class Mk Ia Escort Carrier", "Rocket Inquisitor",
-                             "Cordrazine Prototype", "Cordrazine Troop", "PLT-Defender");
+                             "Cordrazine Prototype", "Cordrazine Troop", "PLT-Defender", "Colony Ship");
 
             CreateUniverseAndPlayerEmpire();
             Enemy.isFaction = false;
@@ -563,6 +563,38 @@ namespace UnitTests.AITests.Empire
             var budget = new BudgetPriorities(Enemy);
             int budgetAreas = Enum.GetNames(typeof(BudgetPriorities.BudgetAreas)).Length;
             Assert.IsTrue(budget.Count() == budgetAreas);
+        }
+
+        [TestMethod]
+        public void TestTreasury()
+        {
+            var budget = new BudgetPriorities(Enemy);
+            int budgetAreas = Enum.GetNames(typeof(BudgetPriorities.BudgetAreas)).Length;
+            Assert.IsTrue(budget.Count() == budgetAreas);
+
+            var eAI = Enemy.GetEmpireAI();
+            var colonyShip = SpawnShip("Colony Ship", Enemy, Vector2.Zero);
+            Enemy.UpdateEmpirePlanets();
+            Enemy.UpdateNetPlanetIncomes();
+            Enemy.GetEmpireAI().RunEconomicPlanner();
+            foreach (var planet in Universe.PlanetsDict.Values)
+            {
+                if (planet.Owner != Player)
+                {
+                    float maxPotential = Enemy.MaximumStableIncome;
+                    float previousBudget = eAI.ProjectedMoney;
+                    planet.Colonize(colonyShip);
+                    Enemy.UpdateEmpirePlanets();
+                    Enemy.UpdateNetPlanetIncomes();
+                    float planetRevenue = planet.Money.PotentialRevenue;
+                    Assert.IsTrue(Enemy.MaximumStableIncome.AlmostEqual(maxPotential + planetRevenue,1f), "MaxStableIncome value was unexpected");
+                    eAI.RunEconomicPlanner();
+                    float expectedIncrease = planetRevenue * Enemy.data.treasuryGoal * 200;
+                    float actualValue = eAI.ProjectedMoney;
+                    Assert.IsTrue(actualValue.AlmostEqual(previousBudget + expectedIncrease, 1f), "Projected Money value was unexpected");
+                }
+            }
+
         }
     }
 }
