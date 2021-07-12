@@ -38,6 +38,7 @@ namespace Ship_Game.Ships
         }
 
         public string VanityName = ""; // user modifiable ship name. Usually same as Ship.Name
+        public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
 
         public float RepairRate  = 1f;
         public float SensorRange = 20000f;
@@ -174,36 +175,12 @@ namespace Ship_Game.Ships
         public bool IsSubspaceProjector     => Name == "Subspace Projector";
         public bool HasBombs                => BombBays.Count > 0;
         public bool IsEmpireSupport         => DesignRoleType == ShipData.RoleType.EmpireSupport;
-        
         /// <summary>
         /// Ship is expected to exchange fire with enemy ships directly not through hangar ships and other such things.
         /// </summary>
-        public bool IsAWarShip => DesignRoleType == ShipData.RoleType.Warship;
-        public bool IsOrbital  => DesignRoleType == ShipData.RoleType.Orbital;
-        public bool IsInAFleet => fleet != null;
-
-        /// <summary>
-        /// This ship is a carrier which launches fighters/corvettes/frigates
-        /// </summary>
-        public bool IsPrimaryCarrier   => DesignRole == ShipData.RoleName.carrier;
-        public bool IsSecondaryCarrier => !IsPrimaryCarrier && Carrier.HasFighterBays;
-
-        // Current pool that this ship is assigned to
-        public IShipPool Pool;
-
-        public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
-        
-        public void RemoveFromPoolAndFleet(bool clearOrders, bool returnToPool = true)
-        {
-            if (clearOrders)
-                AI?.ClearOrders();
-            Pool?.Remove(this);
-            fleet?.RemoveShip(this, returnToPool);
-        }
-
-        public bool RemoveFromPool() => Pool?.Remove(this) ?? false;
-        public void ClearFleet(bool returnToManagedPools = true) => fleet?.RemoveShip(this, returnToManagedPools);
-        public void UnsafeClearFleet() => fleet?.UnSafeRemoveShip(this);
+        public bool IsAWarShip              => DesignRoleType == ShipData.RoleType.Warship;
+        public bool IsOrbital               => DesignRoleType == ShipData.RoleType.Orbital;
+        public bool IsInAFleet              => fleet != null;
 
         public bool IsConstructor
         {
@@ -217,8 +194,8 @@ namespace Ship_Game.Ships
         public bool ShouldNotBeAddedToForcePools()
         {
             return !Active || IsInAFleet || IsHangarShip || IsHomeDefense ||
-                   shipData.CarrierShip || IsEmpireSupport ||
-                   IsOrbital || DoingRefit || DoingScrap || DoingScuttle || IsSupplyShuttle;
+                   shipData.CarrierShip || IsSupplyShuttle || IsEmpireSupport ||
+                   IsOrbital || DoingRefit || DoingScrap || DoingScuttle || isColonyShip;
         }
 
         /// <summary>
@@ -661,7 +638,7 @@ namespace Ship_Game.Ships
                     AI.ClearOrders();
                     return;
                 }
-                EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.Add(this);
+                EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.AddShip(this);
                 AI.State = AIState.SystemDefender;
             }
         }
@@ -1633,7 +1610,7 @@ namespace Ship_Game.Ships
             Active = false;
             TetheredTo?.RemoveFromOrbitalStations(this);
             AI.ClearOrdersAndWayPoints(); // This calls immediate Dispose() on Orders that require cleanup
-            Pool?.Remove(this);
+            loyalty.RemoveShipFromAIPools(this);
         }
 
         public override void RemoveFromUniverseUnsafe()
@@ -1674,11 +1651,13 @@ namespace Ship_Game.Ships
             PlanetCrash = null;
 
             ((IEmpireShipLists)loyalty).RemoveShipAtEndOfTurn(this);
-            RemoveFromPoolAndFleet(clearOrders: false/*already cleared*/);
             RemoveTether();
             RemoveSceneObject();
             base.RemoveFromUniverseUnsafe();
         }
+
+        public void ClearFleet(bool returnToManagedPools = true) => fleet?.RemoveShip(this, returnToManagedPools);
+        public void UnsafeClearFleet() => fleet?.UnSafeRemoveShip(this);
 
         public void Dispose()
         {
