@@ -237,7 +237,7 @@ namespace Ship_Game.AI.Tasks
             }
 
             if (AO.AlmostZero())
-                throw new Exception();
+                throw new Exception("AO cannot be empty");
 
             if (Owner.AIManagedShips.CurrentUseableFleets < 0) 
                 return;

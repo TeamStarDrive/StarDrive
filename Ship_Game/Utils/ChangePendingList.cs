@@ -12,13 +12,11 @@ namespace Ship_Game.Utils
         
         public Array<T> Items { get; private set; }
         Array<PendingItem> Pending;
-        readonly Predicate<T> AddItemFilter;
 
-        public ChangePendingList(Predicate<T> addFilter)
+        public ChangePendingList()
         {
             Items = new Array<T>();
             Pending = new Array<PendingItem>();
-            AddItemFilter = addFilter;
         }
 
         public void Update()
@@ -27,8 +25,7 @@ namespace Ship_Game.Utils
             {
                 if (pending.Add)
                 {
-                    if (AddItemFilter(pending.Item))
-                        Items.Add(pending.Item);
+                    Items.Add(pending.Item);
                 }
                 else
                 {

@@ -66,6 +66,7 @@ namespace UnitTests
         public UniverseScreen Universe { get; private set; }
         public Empire Player { get; private set; }
         public Empire Enemy { get; private set; }
+        public Empire ThirdMajor { get; private set; }
         public Empire Faction { get; private set; }
 
         public FixedSimTime TestSimStep { get; private set; } = new FixedSimTime(1f / 60f);
@@ -148,6 +149,17 @@ namespace UnitTests
 
             Player.AddRelation(Enemy);
             Player.GetRelations(Enemy).AtWar = true;
+        }
+
+        public void CreateThirdMajorEmpire()
+        {
+            ThirdMajor = EmpireManager.CreateEmpireFromEmpireData(ResourceManager.MajorRaces[2], isPlayer:false);
+            EmpireManager.Add(ThirdMajor);
+        }
+
+        public void CreateRebelFaction()
+        {
+            Faction = EmpireManager.CreateRebelsFromEmpireData(ResourceManager.MajorRaces[0], Player);
         }
 
         public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)
