@@ -8,10 +8,10 @@ namespace Ship_Game
     {
         public readonly Array<Ship> IncomingFreighters = new Array<Ship>();
         readonly Array<Ship> OutgoingFreighters = new Array<Ship>();
-        public int AverageFoodImportTurns { get; protected set; } = 10; // EMA (90/10) time it took the traded to deliver food
-        public int AverageProdImportTurns { get; protected set; } = 10; // EMA (90/10) time it took the traded to deliver prod
-        public int AverageFoodExportTurns { get; protected set; } = 10; // Turns for the trader to arrive to the *export* planet to pick up food
-        public int AverageProdExportTurns { get; protected set; } = 10; // Turns for the trader to arrive to the *export* planet to pick up prod
+        public float AverageFoodImportTurns { get; protected set; } = 10; // EMA (90/10) time it took the traded to deliver food
+        public float AverageProdImportTurns { get; protected set; } = 10; // EMA (90/10) time it took the traded to deliver prod
+        public float AverageFoodExportTurns { get; protected set; } = 10; // Turns for the trader to arrive to the *export* planet to pick up food
+        public float AverageProdExportTurns { get; protected set; } = 10; // Turns for the trader to arrive to the *export* planet to pick up prod
 
         public float IncomingFood { get; protected set; }
         public float IncomingProd { get; protected set; }
@@ -359,10 +359,10 @@ namespace Ship_Game
             float numTurns = (Empire.Universe.StarDate - startTime).LowerBound(0.5f); // not * 10 for turns since we are using 10% of value anyway
             switch (goods)
             {
-                case Goods.Food       when importPlanet == this: AverageFoodImportTurns = (int)(AverageFoodImportTurns * 0.9f + numTurns); break;
-                case Goods.Production when importPlanet == this: AverageProdImportTurns = (int)(AverageProdImportTurns * 0.9f + numTurns); break;
-                case Goods.Food       when exportPlanet == this: AverageFoodExportTurns = (int)(AverageFoodExportTurns * 0.9f + numTurns); break;
-                case Goods.Production when exportPlanet == this: AverageProdExportTurns = (int)(AverageProdExportTurns * 0.9f + numTurns); break;
+                case Goods.Food       when importPlanet == this: AverageFoodImportTurns = AverageFoodImportTurns * 0.9f + numTurns; break;
+                case Goods.Production when importPlanet == this: AverageProdImportTurns = AverageProdImportTurns * 0.9f + numTurns; break;
+                case Goods.Food       when exportPlanet == this: AverageFoodExportTurns = AverageFoodExportTurns * 0.9f + numTurns; break;
+                case Goods.Production when exportPlanet == this: AverageProdExportTurns = AverageProdExportTurns * 0.9f + numTurns; break;
             }
         }
 
@@ -396,7 +396,7 @@ namespace Ship_Game
             ManualColoExportSlots = value;
         }
 
-        public void SetAverageTradeTurns(int foodImport, int prodImport, int foodExport, int prodExport)
+        public void SetAverageTradeTurns(float foodImport, float prodImport, float foodExport, float prodExport)
         {
             AverageFoodImportTurns = foodImport;
             AverageProdImportTurns = prodImport;
