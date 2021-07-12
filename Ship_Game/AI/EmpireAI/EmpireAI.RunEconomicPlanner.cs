@@ -222,7 +222,7 @@ namespace Ship_Game.AI
         /// </summary>
         public float OverSpendRatio(float treasuryGoal, float percentageOfTreasuryToSave, float maxRatio)
         {
-            float money    = OwnerEmpire.NormalizedMoney * 2;
+            float money    = OwnerEmpire.NormalizedMoney;
             float treasury = treasuryGoal.LowerBound(1);
             float minMoney = money - treasury * percentageOfTreasuryToSave;
             float ratio    = (money + minMoney) / treasury.LowerBound(1);
