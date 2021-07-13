@@ -281,6 +281,7 @@ namespace Ship_Game
                         VanityName    = g.VanityName,
                         TetherTarget  = g.TetherTarget,
                         TetherOffset  = g.TetherOffset,
+                        StarDateAdded = g.StarDateAdded
                     };
                     if (g.FinishedShip != null)       gdata.colonyShipGuid            = g.FinishedShip.guid;
                     if (g.ColonizationTarget != null) gdata.markedPlanetGuid          = g.ColonizationTarget.guid;
