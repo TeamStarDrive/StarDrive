@@ -262,7 +262,7 @@ namespace Ship_Game.AI.ExpansionAI
             if (Owner.isPlayer || Owner.isFaction || !thiefRelationship.Known)
                 return;
 
-            if (claimedPlanet.Owner != thievingEmpire || thiefRelationship.AtWar)
+            if (!claimedPlanet.ParentSystem.HasPlanetsOwnedBy(thievingEmpire) || thiefRelationship.AtWar)
                 return;
 
             bool newTheft = false;

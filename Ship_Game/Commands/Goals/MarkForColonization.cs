@@ -63,6 +63,13 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
+            if (ColonizationTarget.ParentSystem.OwnerList.Count > 0
+                && !ColonizationTarget.ParentSystem.IsExclusivelyOwnedBy(empire))
+            {
+                foreach ((Empire them, Relationship rel) in empire.AllRelations)
+                    empire.GetEmpireAI().ExpansionAI.CheckClaim(them, rel, ColonizationTarget);
+            }
+
             if (ColonizationTarget.Owner != null)
             {
                 if (ColonizationTarget.Owner == empire)
@@ -97,8 +104,7 @@ namespace Ship_Game.Commands.Goals
                 empireAi.AddPendingTask(task);
                 empireAi.Goals.Add(new StandbyColonyShip(empire));
             }
-            else if (!ColonizationTarget.ParentSystem.HasPlanetsOwnedBy(empire)
-                     && empire.GetFleetsDict().FilterValues(f => f.FleetTask?.TargetPlanet?.ParentSystem == ColonizationTarget.ParentSystem).Length == 0)
+            else if (empire.GetFleetsDict().FilterValues(f => f.FleetTask?.TargetPlanet?.ParentSystem == ColonizationTarget.ParentSystem).Length == 0)
             {
                 var task = MilitaryTask.CreateGuardTask(empire, ColonizationTarget);
                 empire.GetEmpireAI().AddPendingTask(task);
