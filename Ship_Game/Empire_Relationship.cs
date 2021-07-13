@@ -621,6 +621,17 @@ namespace Ship_Game
             return false;
         }
 
+        public bool WarnedOwnersAboutThisSystem(SolarSystem system)
+        {
+            foreach (Empire empire in system.OwnerList)
+            {
+                if (empire != this && !empire.isFaction && WarnedThemAboutThisSystem(system, empire))
+                    return true;
+            }
+
+            return false;
+        }
+
         public bool WarnedThemAboutThisSystem(SolarSystem s, Empire them)
         {
             Relationship rel = GetRelations(them);

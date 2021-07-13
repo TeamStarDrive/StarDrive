@@ -752,6 +752,10 @@ namespace Ship_Game
                     ManualFoodExportSlots     = planet.ManualFoodExportSlots,
                     ManualProdExportSlots     = planet.ManualProdExportSlots,
                     ManualColoExportSlots     = planet.ManualColoExportSlots,
+                    AverageFoodImportTurns    = planet.AverageFoodImportTurns,
+                    AverageProdImportTurns    = planet.AverageProdImportTurns,
+                    AverageFoodExportTurns    = planet.AverageFoodExportTurns,
+                    AverageProdExportTurns    = planet.AverageProdExportTurns,
                 };
 
                 if (planet.Owner != null)
