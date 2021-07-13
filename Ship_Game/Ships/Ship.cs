@@ -193,12 +193,15 @@ namespace Ship_Game.Ships
 
         public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
         
-        public void RemoveFromPoolAndFleet(bool clearOrders, bool returnToPool = true)
+        /// <summary>
+        /// Removes ship from any pools and fleets and doesn't put them back into Empire Force Pools
+        /// </summary>
+        public void RemoveFromPoolAndFleet(bool clearOrders)
         {
             if (clearOrders)
                 AI?.ClearOrders();
             Pool?.Remove(this);
-            fleet?.RemoveShip(this, returnToPool);
+            fleet?.RemoveShip(this, returnToEmpireAI: false);
         }
 
         public bool RemoveFromPool() => Pool?.Remove(this) ?? false;
@@ -1671,8 +1674,7 @@ namespace Ship_Game.Ships
             PlanetCrash = null;
 
             ((IEmpireShipLists)loyalty).RemoveShipAtEndOfTurn(this);
-            RemoveFromPoolAndFleet(clearOrders: false/*already cleared*/,
-                                   returnToPool: false/*we're dead*/);
+            RemoveFromPoolAndFleet(clearOrders: false/*already cleared*/);
             RemoveTether();
             RemoveSceneObject();
             base.RemoveFromUniverseUnsafe();
