@@ -125,8 +125,7 @@
                 return;
 
             bool fullBeforeUnload = Owner.CargoSpaceFree.AlmostZero();
-            if (Owner.GetCargo(Goods.Colonists).AlmostZero())
-                Owner.loyalty.TaxGoods(Owner.CargoSpaceUsed, importPlanet);
+            Owner.loyalty.TaxGoods(Owner.CargoSpaceUsed, importPlanet);
 
             importPlanet.FoodHere   += Owner.UnloadFood(importPlanet.Storage.Max - importPlanet.FoodHere);
             importPlanet.ProdHere   += Owner.UnloadProduction(importPlanet.Storage.Max - importPlanet.ProdHere);
