@@ -96,7 +96,7 @@ namespace Ship_Game.Ships.Components
         static void LoyaltyChangeDueToBoarding(Ship ship, Empire newLoyalty, bool notification)
         {
             Empire oldLoyalty = ship.loyalty;
-            ship.RemoveFromPoolAndFleet(clearOrders: true, returnToPool: false);
+            ship.RemoveFromPoolAndFleet(clearOrders: true);
             oldLoyalty.TheyKilledOurShip(newLoyalty, ship);
             newLoyalty.WeKilledTheirShip(oldLoyalty, ship);
             SafelyTransferShip(ship, oldLoyalty, newLoyalty);
