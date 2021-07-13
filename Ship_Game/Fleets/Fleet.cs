@@ -1247,7 +1247,7 @@ namespace Ship_Game.Fleets
         void DoPreColonizationGuard(MilitaryTask task)
         {
             if (EndInvalidTask(task.TargetPlanet.Owner != null
-                               || !task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner) && task.TargetPlanet.ParentSystem.OwnerList.Count > 0
+                               || !Owner.WarnedOwnersAboutThisSystem(task.TargetPlanet.ParentSystem)
                                || Owner.KnownEnemyStrengthIn(task.TargetPlanet.ParentSystem)
                                    > task.MinimumTaskForceStrength / Owner.GetFleetStrEmpireMultiplier(task.TargetEmpire)))
             {

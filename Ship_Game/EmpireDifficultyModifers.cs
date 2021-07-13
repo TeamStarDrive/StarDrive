@@ -114,7 +114,7 @@
                     MaxDesiredPlanets    = 0.5f;
                     CreditsMultiplier    = 0.2f;
                     EnemyTroopStrength   = 1.4f;
-                    MineralDecayDivider  = 50;
+                    MineralDecayDivider  = 80;
                     PiratePayModifier    = 0.75f;
                     ExpansionMultiplier  = 0.75f;
                     MinStartingColonies  = 3;
@@ -148,7 +148,7 @@
                     MaxDesiredPlanets    = 0.75f;
                     CreditsMultiplier    = empire.isPlayer ? 0.3f : 0.1f;
                     EnemyTroopStrength   = 1.6f;
-                    MineralDecayDivider  = 25;
+                    MineralDecayDivider  = 60;
                     PiratePayModifier    = 1f;
                     ExpansionMultiplier  = 0.25f;
                     MinStartingColonies  = 5;
@@ -187,7 +187,7 @@
                     MaxDesiredPlanets    = 1f;
                     CreditsMultiplier    = empire.isPlayer ? 0.5f : 0.05f;
                     EnemyTroopStrength   = 1.8f;
-                    MineralDecayDivider  = 15;
+                    MineralDecayDivider  = 40;
                     PiratePayModifier    = 1.5f;
                     ExpansionMultiplier  = 0.1f;
                     MinStartingColonies  = 6;
