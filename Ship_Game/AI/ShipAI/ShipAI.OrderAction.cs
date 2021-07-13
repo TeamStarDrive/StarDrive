@@ -457,7 +457,7 @@ namespace Ship_Game.AI
             ClearWayPoints();
 
             if (!Owner.loyalty.isPlayer)
-                Owner.fleet?.RemoveShip(Owner); // Avoid lingering fleets for the AI
+                Owner.fleet?.RemoveShip(Owner, returnToEmpireAI: false); // Avoid lingering fleets for the AI
 
             Target       = null;
             OrbitTarget  = toOrbit;
@@ -470,7 +470,7 @@ namespace Ship_Game.AI
 
         public void OrderReturnToHangar()
         {
-            ClearOrders(AIState.ReturnToHangar ,priority: true);
+            ClearOrders(AIState.ReturnToHangar, priority: true);
             AddShipGoal(Plan.ReturnToHangar, AIState.ReturnToHangar);
         }
 
