@@ -8,6 +8,7 @@ using System.Runtime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Data;
@@ -263,6 +264,7 @@ namespace UnitTests
             target.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
             target.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
             target.SetSystem(null);
+            Assert.IsTrue(target.Active, "Spawned ship is Inactive! This is a bug in Status update!");
             return target;
         }
 

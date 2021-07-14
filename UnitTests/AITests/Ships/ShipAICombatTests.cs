@@ -18,6 +18,8 @@ namespace UnitTests.AITests.Ships
     {
         Ship OurShip, TheirShip, ThirdShip;
 
+        FixedSimTime EnemyScanInterval = new FixedSimTime(EmpireConstants.EnemyScanInterval);
+
         public ShipAICombatTests()
         {
             CreateGameInstance();
@@ -113,8 +115,15 @@ namespace UnitTests.AITests.Ships
             Assert.IsFalse(OurShip.InCombat, "ship should not be in combat yet");
 
             SpawnEnemyShips();
-            Update(new FixedSimTime(EmpireConstants.EnemyScanInterval));
+            Update(EnemyScanInterval);
             Assert.IsTrue(OurShip.InCombat, "ship should be in combat");
+        }
+
+        void InjectSteroids(Ship s)
+        {
+            // inject some steroids into our vulcan cannons 
+            foreach (var w in OurShip.Weapons) w.DamageAmount = 50f;
+            OurShip.AI.CombatState = CombatState.ShortRange;
         }
 
         [TestMethod]
@@ -122,12 +131,10 @@ namespace UnitTests.AITests.Ships
         {
             var colonyShip = SpawnShip("Colony Ship", Enemy, new Vector2(500,500));
             colonyShip.AI.HoldPosition();
-            Update(new FixedSimTime(EmpireConstants.EnemyScanInterval));
+            Update(EnemyScanInterval);
             Assert.IsTrue(OurShip.InCombat, "ship should be in combat");
 
-            // inject some steroids into our vulcan cannons to kill the colony ship faster
-            foreach (var w in OurShip.Weapons)
-                w.DamageAmount *= 10f;
+            InjectSteroids(OurShip);
 
             LoopWhile(5, () => colonyShip.Active, () =>
             {
@@ -135,7 +142,33 @@ namespace UnitTests.AITests.Ships
                 Update(TestSimStep);
             });
 
-            Assert.IsTrue(colonyShip.Health.AlmostZero(), "ColonyShip should be destroyed");
+            Update(EnemyScanInterval);
+            Assert.IsFalse(OurShip.InCombat, "ship must exit combat after target destroyed");
+        }
+
+        [TestMethod]
+        public void InCombatAutoEnterWithCombatMoveShouldKillColonyShip()
+        {
+            var colonyShip = SpawnShip("Colony Ship", Enemy, new Vector2(500,500));
+            colonyShip.AI.HoldPosition();
+            Update(EnemyScanInterval);
+            Assert.IsTrue(OurShip.InCombat, "ship should be in combat");
+
+            InjectSteroids(OurShip);
+
+            // now assign offensive move order
+            OurShip.AI.OrderMoveTo(colonyShip.Center, Vectors.Up, true, AIState.AwaitingOrders,
+                                   offensiveMove: true);
+
+            // our ship must remain in combat the whole time until enemy ship is destroyed
+            LoopWhile(5, () => colonyShip.Active, () =>
+            {
+                Assert.IsTrue(OurShip.InCombat, "ship must stay in combat until target destroyed");
+                Update(TestSimStep);
+            });
+
+            Update(EnemyScanInterval);
+            Assert.IsFalse(OurShip.InCombat, "ship must exit combat after target destroyed");
         }
 
         [TestMethod]
@@ -143,13 +176,13 @@ namespace UnitTests.AITests.Ships
         {
             Update(TestSimStep);
             SpawnEnemyShips();
-            Update(new FixedSimTime(EmpireConstants.EnemyScanInterval));
+            Update(EnemyScanInterval);
             Assert.IsTrue(OurShip.InCombat, "ship should be in combat");
 
             TheirShip.Die(TheirShip, cleanupOnly: true);
             ThirdShip.Die(ThirdShip, cleanupOnly: true);
 
-            Update(new FixedSimTime(EmpireConstants.EnemyScanInterval));
+            Update(EnemyScanInterval);
             Assert.IsFalse(OurShip.InCombat, "ship should have exited combat");
         }
 
@@ -158,14 +191,14 @@ namespace UnitTests.AITests.Ships
         {
             Update(TestSimStep);
             SpawnEnemyShips();
-            Update(new FixedSimTime(EmpireConstants.EnemyScanInterval));
+            Update(EnemyScanInterval);
             Assert.IsTrue(OurShip.InCombat, "ship should be in combat");
 
             // move the ships to the middle of nowhere (outside sensor range)
             TheirShip.Position = new Vector2(200000, 200000);
             ThirdShip.Position = new Vector2(200000, 200000);
 
-            Update(new FixedSimTime(EmpireConstants.EnemyScanInterval));
+            Update(EnemyScanInterval);
             Assert.IsFalse(OurShip.InCombat, "ship should have exited combat");
         }
 
@@ -176,7 +209,7 @@ namespace UnitTests.AITests.Ships
             Assert.IsFalse(OurShip.InCombat, "ship should not be in combat yet");
             
             SpawnEnemyPlanet();
-            Update(new FixedSimTime(EmpireConstants.EnemyScanInterval));
+            Update(EnemyScanInterval);
             Assert.IsFalse(OurShip.InCombat, "ship should not be in combat with a planet");
         }
     }
