@@ -1615,6 +1615,7 @@ namespace Ship_Game
             }
 
             InitContentDir();
+            LoadLanguage(GlobalStats.Language);
             LoadWeapons();
             LoadHullData();
             LoadShipRoles();

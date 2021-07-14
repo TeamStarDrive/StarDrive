@@ -1,8 +1,10 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Debug;
+using Ship_Game.Empires.Components;
 using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships.Components;
@@ -11,9 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Empires;
-using Ship_Game.Empires.Components;
 
 namespace Ship_Game.Ships
 {
@@ -1116,6 +1115,43 @@ namespace Ship_Game.Ships
             return speeds.Avg();
         }
 
+        public void OnModuleDeath(ShipModule m)
+        {
+            shipStatusChanged = true;
+            if (m.PowerDraw > 0 || m.ActualPowerFlowMax > 0 || m.PowerRadius > 0)
+                ShouldRecalculatePower = true;
+            if (m.isExternal)
+                UpdateExternalSlots(m, becameActive: false);
+            if (m.HasInternalRestrictions)
+            {
+                SetActiveInternalSlotCount(ActiveInternalSlotCount - m.Area);
+            }
+
+            // kill the ship if all modules exploded or internal slot percent is below critical
+            if (Health <= 0f || InternalSlotsHealthPercent < ShipResupply.ShipDestroyThreshold)
+            {
+                Die(LastDamagedBy, false);
+            }
+        }
+
+        public void OnModuleResurrect(ShipModule m)
+        {
+            shipStatusChanged = true; // update ship status sometime in the future (can be 1 second)
+            if (m.PowerDraw > 0 || m.ActualPowerFlowMax > 0 || m.PowerRadius > 0)
+                ShouldRecalculatePower = true;
+            UpdateExternalSlots(m, becameActive: true);
+            if (m.HasInternalRestrictions)
+            {
+                SetActiveInternalSlotCount(ActiveInternalSlotCount + m.Area);
+            }
+        }
+
+        public void SetActiveInternalSlotCount(int activeInternalSlots)
+        {
+            ActiveInternalSlotCount = activeInternalSlots;
+            InternalSlotsHealthPercent = (float)activeInternalSlots / InternalSlotCount;
+        }
+
         public void UpdateShipStatus(FixedSimTime timeStep)
         {
             if (!Empire.Universe.Paused && VelocityMaximum <= 0f
@@ -1150,12 +1186,7 @@ namespace Ship_Game.Ships
                 UpdateModulesAndStatus(FixedSimTime.One);
                 SecondsAlive += 1;
             }
-
-            InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
-
-            if (InternalSlotsHealthPercent < ShipResupply.ShipDestroyThreshold)
-                Die(LastDamagedBy, false);
-
+            
             PowerCurrent -= PowerDraw * timeStep.FixedTime;
             if (PowerCurrent < PowerStoreMax)
                 PowerCurrent += (PowerFlowMax + PowerFlowMax * (loyalty?.data.PowerFlowMod ?? 0)) * timeStep.FixedTime;
@@ -1276,7 +1307,7 @@ namespace Ship_Game.Ships
                 ReturnHome();
 
             // Repair
-            if (Health.Less(HealthMax))
+            if (Health < HealthMax)
             {
                 if (!InCombat || (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.UseCombatRepair))
                 {
@@ -1385,7 +1416,16 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void AddShipHealth(float addHealth) => Health = (Health + addHealth).Clamped(0, HealthMax);
+        public void OnHealthChange(float change)
+        {
+            float newHealth = Health + change;
+
+            if (newHealth > HealthMax)
+                newHealth = HealthMax;
+            else if (newHealth < 0.5f)
+                newHealth = 0f;
+            Health = newHealth;
+        }
 
         public bool IsTethered => TetheredTo != null;
 
