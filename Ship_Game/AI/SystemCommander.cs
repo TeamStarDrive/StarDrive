@@ -10,7 +10,10 @@ namespace Ship_Game.AI
     // defense ships and assigning targets
     public sealed class SystemCommander
     {
+        public readonly DefensiveCoordinator Owner;
         public SolarSystem System;
+        readonly Empire Us;
+
         public float TotalValueToUs;
         public float OurPlanetsTotalValue { get; private set; }
         public float OurPlanetsMaxValue { get; private set; }
@@ -26,9 +29,8 @@ namespace Ship_Game.AI
         public float RankImportance;
         public int TroopCount;
         public int TroopsWanted => IdealTroopCount - TroopCount;
-        public Map<Guid, Ship> OurShips         = new Map<Guid, Ship>();
-        public ICollection<Ship> GetShipList => OurShips.Values;
-        readonly Empire Us;
+        public Map<Guid, Ship> OurShips = new Map<Guid, Ship>();
+
         public Map<Planet, PlanetTracker> PlanetValues = new Map<Planet, PlanetTracker>();
         readonly int GameDifficultyModifier;
         float PredictionTimer = 0;
@@ -36,8 +38,9 @@ namespace Ship_Game.AI
 
         float PlanetToSystemDevelopmentRatio(Planet p) => p.Level / SystemDevelopmentlevel;
 
-        public SystemCommander(Empire e, SolarSystem system)
+        public SystemCommander(DefensiveCoordinator owner, SolarSystem system, Empire e)
         {
+            Owner = owner;
             System = system;
             Us = e;
             GameDifficultyModifier = e.DifficultyModifiers.SysComModifier;

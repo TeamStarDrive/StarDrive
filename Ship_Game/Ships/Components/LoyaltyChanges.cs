@@ -96,6 +96,7 @@ namespace Ship_Game.Ships.Components
         static void LoyaltyChangeDueToBoarding(Ship ship, Empire newLoyalty, bool notification)
         {
             Empire oldLoyalty = ship.loyalty;
+            ship.RemoveFromPoolAndFleet(clearOrders: true);
             oldLoyalty.TheyKilledOurShip(newLoyalty, ship);
             newLoyalty.WeKilledTheirShip(oldLoyalty, ship);
             SafelyTransferShip(ship, oldLoyalty, newLoyalty);
@@ -122,8 +123,6 @@ namespace Ship_Game.Ships.Components
         static void SafelyTransferShip(Ship ship, Empire oldLoyalty, Empire newLoyalty)
         {
             // remove ship from fleet but do not add it back to empire pools.
-            ship.fleet?.RemoveShip(ship, returnToEmpireAI: false);
-            ship.AI.ClearOrders();
 
             ship.loyalty = newLoyalty;
 
@@ -139,8 +138,8 @@ namespace Ship_Game.Ships.Components
             IEmpireShipLists newShips = newLoyalty;
 
             oldShips.RemoveShipAtEndOfTurn(ship);
-            oldLoyalty.RemoveShipFromAIPools(ship);
-            newShips.AddNewShipAtEndOfTurn(ship);;
+            ship.RemoveFromPool();
+            newShips.AddNewShipAtEndOfTurn(ship);
         }
     }
 }
