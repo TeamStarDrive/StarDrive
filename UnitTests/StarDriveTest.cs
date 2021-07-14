@@ -294,8 +294,11 @@ namespace UnitTests
             p.ParentSystem = s;
         }
 
-        public static void AddDummyPlanetToEmpire(Empire empire) => 
-            AddDummyPlanetToEmpire(empire,0, 0, 0);
+        public static void AddDummyPlanetToEmpire(Empire empire)
+        {
+            AddDummyPlanetToEmpire(empire, 0, 0, 0);
+        }
+
         public static void AddDummyPlanetToEmpire(Empire empire, float fertility, float minerals, float maxPop)
         {
             AddDummyPlanet(fertility, minerals, maxPop, out Planet p);
@@ -320,6 +323,21 @@ namespace UnitTests
         public Beam[] GetBeams(Ship ship)
         {
             return Universe.Objects.GetBeams(ship);
+        }
+
+        /// <summary>
+        /// Loops up to `timeout` seconds While condition is True
+        /// Throws exception if timeout is reached and the test should fail
+        /// </summary>
+        public void LoopWhile(double timeout, Func<bool> condition, Action body)
+        {
+            var sw = Stopwatch.StartNew();
+            while (condition())
+            {
+                body();
+                if (sw.Elapsed.TotalSeconds > timeout)
+                    throw new TimeoutException("Timed out in LoopWhile");
+            }
         }
     }
 }

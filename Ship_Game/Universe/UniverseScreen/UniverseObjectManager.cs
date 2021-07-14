@@ -264,12 +264,12 @@ namespace Ship_Game
                     // remove inactive objects only after Spatial has seen them as inactive
                     Objects.RemoveInActiveObjects();
                 }
+                
+                // trigger all Hit events
+                Spatial.CollideAll(timeStep);
 
                 // update sensors AFTER spatial update, but only if we are not paused!
                 UpdateAllSensors(timeStep);
-
-                // trigger all Hit events
-                Spatial.CollideAll(timeStep);
 
                 // now that we have a complete view of the universe
                 // allow ships to make decisions
