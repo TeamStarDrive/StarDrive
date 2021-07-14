@@ -114,7 +114,8 @@ namespace Ship_Game.Fleets
                 Log.Warning($"{newShip}: \n Added to fleet it was already part of:\n{newShip.fleet}");
                 return true;
             }
-            Owner.RemoveShipFromAIPools(newShip);
+
+            Owner.AIManagedShips.Remove(newShip);
             UpdateOurFleetShip(newShip);
 
             SortIntoFlanks(newShip, TotalFleetAttributes.GetAveragedValues());
@@ -750,7 +751,7 @@ namespace Ship_Game.Fleets
                 if (ship.DesignRole == ShipData.RoleName.troop)
                 {
                     ship.AI.ClearOrders();
-                    RemoveShip(ship);
+                    RemoveShip(ship, returnToEmpireAI: true);
                 }
             }
         }
@@ -2288,7 +2289,7 @@ namespace Ship_Game.Fleets
         /// removes the ship from fleet and error checks.
         /// option to not give back to AI for new assignments
         /// </summary>
-        public bool RemoveShip(Ship ship, bool returnToEmpireAI = true)
+        public bool RemoveShip(Ship ship, bool returnToEmpireAI)
         {
             if (ship == null)
             {
@@ -2438,12 +2439,12 @@ namespace Ship_Game.Fleets
                 Ship ship = Ships[i];
                 if (!ship.Active)
                 {
-                    RemoveShip(ship);
+                    RemoveShip(ship, returnToEmpireAI: true);
                     continue;
                 }
                 if (ship.fleet != this)
                 {
-                    RemoveShip(ship);
+                    RemoveShip(ship, returnToEmpireAI: true);
                     Log.Warning("Fleet Update. Ship in fleet was not assigned to this fleet");
                     continue;
                 }

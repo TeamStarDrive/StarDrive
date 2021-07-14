@@ -219,13 +219,14 @@ namespace Ship_Game
 
         public void AddShipToManagedPools(Ship s)
         {
-            AIManagedShips.AddToEmpireForcePool(s);
+            AIManagedShips.Add(s);
         }
 
         public Empire()
         {
             Research = new EmpireResearch(this);
-            AIManagedShips = new ShipPool(this);
+            
+            AIManagedShips = new ShipPool(this, "AIManagedShips");
             EmpireShips = new LoyaltyLists(this);
         }
 
@@ -294,15 +295,17 @@ namespace Ship_Game
             return capitals.Length > 0;
         }
 
-        public string GetAssaultShuttleName() // this will get the name of an Assault Shuttle if defined in race.xml or use default one
+        // this will get the name of an Assault Shuttle if defined in race.xml or use default one
+        public string GetAssaultShuttleName()
         {
             return data.DefaultAssaultShuttle.IsEmpty() ? BoardingShuttle.Name : data.DefaultAssaultShuttle;
         }
 
-        public string GetSupplyShuttleName() // this will get the name of a Supply Shuttle if defined in race.xml or use default one
+        // this will get the name of a Supply Shuttle if defined in race.xml or use default one
+        public string GetSupplyShuttleName()
         {
-            return data.DefaultSupplyShuttle.IsEmpty() ? SupplyShuttle.Name
-                                                       : data.DefaultSupplyShuttle;
+            return data.DefaultSupplyShuttle.NotEmpty() ? data.DefaultSupplyShuttle
+                                                        : DefaultSupplyShuttleName;
         }
 
         public bool FindClosestSpacePort(Vector2 position, out Planet closest)
@@ -958,10 +961,11 @@ namespace Ship_Game
         //public IReadOnlyList<Ship> GetShips() => OwnedShips;
         //public Ship[] GetShipsAtomic() => OwnedShips.ToArray();
 
-        public Ship[] AllFleetReadyShips()
+        public Array<Ship> AllFleetReadyShips()
         {
             //Get all available ships from AO's
-            var ships = isPlayer ? new Array<Ship>(OwnedShips) : AIManagedShips.GetShipsFromOffensePools();
+            var ships = isPlayer ? new Array<Ship>(OwnedShips)
+                                            : AIManagedShips.GetShipsFromOffensePools();
 
             var readyShips = new Array<Ship>();
             for (int i = 0; i < ships.Count; i++)
@@ -982,14 +986,7 @@ namespace Ship_Game
                 readyShips.Add(ship);
             }
 
-            return readyShips.ToArray();
-        }
-
-        public FleetShips AllFleetsReady()
-        {
-            var ships = AllFleetReadyShips();
-            //return a fleet creator.
-            return new FleetShips(this, ships);
+            return readyShips;
         }
 
         public IReadOnlyList<Ship> GetProjectors() => OwnedProjectors;
@@ -2017,12 +2014,10 @@ namespace Ship_Game
 
                 if (WeCanBuildThis(ship.Name))
                 {
-                    bool shipAdded;
-
                     if (ship.shipData.Role <= ShipData.RoleName.station)
                         structuresWeCanBuild.Add(ship.Name);
 
-                    shipAdded = ShipsWeCanBuild.Add(ship.Name);
+                    bool shipAdded = ShipsWeCanBuild.Add(ship.Name);
 
                     if (isPlayer)
                         Universe?.aw?.UpdateDropDowns();
@@ -3280,8 +3275,6 @@ namespace Ship_Game
             data.ShieldPenBonusChance        -= art.GetShieldPenMod(data);
             EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
         }
-
-        public bool RemoveShipFromAIPools(Ship ship) => AIManagedShips.RemoveShipFromEmpire(ship);
 
         void IEmpireShipLists.RemoveShipAtEndOfTurn(Ship s) => EmpireShips?.Remove(s);
 

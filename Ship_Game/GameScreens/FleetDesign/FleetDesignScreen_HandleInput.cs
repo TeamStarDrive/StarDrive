@@ -319,7 +319,7 @@ namespace Ship_Game
                         if (node.Ship.GetSO() != null)
                             node.Ship.GetSO().World = Matrix.CreateTranslation(new Vector3(node.Ship.RelativeFleetOffset, -500000f));
                         SelectedFleet.Ships.Remove(node.Ship);
-                        node.Ship.fleet?.RemoveShip(node.Ship);
+                        node.Ship.fleet?.RemoveShip(node.Ship, returnToEmpireAI: true);
                     }
 
                     SelectedNodeList.Clear();
