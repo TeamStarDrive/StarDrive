@@ -28,10 +28,10 @@ namespace Ship_Game.AI
 
         public string EmpireName;
         public DefensiveCoordinator DefensiveCoordinator;
-        public BatchRemovalCollection<Goal> Goals            = new BatchRemovalCollection<Goal>();
+        public BatchRemovalCollection<Goal> Goals = new BatchRemovalCollection<Goal>();
         public ThreatMatrix ThreatMatrix;                     
-        public Array<AO> AreasOfOperations                   = new Array<AO>();
-        public Array<int> UsedFleets                         = new Array<int>();
+        public Array<AO> AreasOfOperations = new Array<AO>();
+        public Array<int> UsedFleets = new Array<int>();
         public float DefStr;
         public ExpansionAI.ExpansionPlanner ExpansionAI;
 
@@ -40,7 +40,7 @@ namespace Ship_Game.AI
             EmpireName                = e.data.Traits.Name;
             OwnerEmpire               = e;
             ThreatMatrix              = new ThreatMatrix(e);
-            DefensiveCoordinator      = new DefensiveCoordinator(e);
+            DefensiveCoordinator      = new DefensiveCoordinator(e, "DefensiveCoordinator");
             OffensiveForcePoolManager = new OffensiveForcePoolManager(e);
             TechChooser               = new Research.ChooseTech(e);
             ExpansionAI               = new ExpansionAI.ExpansionPlanner(OwnerEmpire);
@@ -144,18 +144,13 @@ namespace Ship_Game.AI
             var aos = AreasOfOperations;
             if (aos.Count == 0)
             {
-                return new AO(OwnerEmpire);
+                var ao = new AO(OwnerEmpire);
+                AreasOfOperations.Add(ao);
+                return ao;
             }
 
             AO closestAO = aos.FindMin(ao => ao.Center.SqDist(position));
             return closestAO;
-        }
-
-        public float DistanceToClosestAO(Vector2 position)
-        {
-            AO ao = FindClosestAOTo(position);
-            if (ao == null) return OwnerEmpire.WeightedCenter.Distance(position);
-            return ao.Center.Distance(position);
         }
 
         public AO AoContainingPosition(Vector2 location)
@@ -278,9 +273,9 @@ namespace Ship_Game.AI
             }
         }
 
-        public void AddScrapShipGoal(Ship ship)
+        public void AddScrapShipGoal(Ship ship, bool immediateScuttle)
         {
-            Goals.Add(new ScrapShip(ship, OwnerEmpire));
+            Goals.Add(new ScrapShip(ship, OwnerEmpire, immediateScuttle));
         }
 
         public void AddPlanetaryRearmGoal(Ship ship, Planet p, Ship existingSupplyShip = null)
