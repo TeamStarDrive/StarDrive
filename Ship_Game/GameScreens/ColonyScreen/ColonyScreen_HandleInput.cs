@@ -52,6 +52,8 @@ namespace Ship_Game
             if (!isHoveringOverBuildArea && HandleCycleColoniesLeftRight(input))
                 return true;
 
+            FilterBuildableItems.AutoCaptureOnKeys = isHoveringOverBuildArea;
+
             P.UpdateIncomes(false);
 
             // We are monitoring AI Colonies
