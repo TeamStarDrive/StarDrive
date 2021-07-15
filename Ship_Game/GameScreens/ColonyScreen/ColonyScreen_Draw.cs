@@ -186,9 +186,9 @@ namespace Ship_Game
             SubColonyGrid.Draw(batch, elapsed);
 
             DrawPlanetSurfaceGrid(batch);
-            PFacilities.Draw(batch, elapsed);
-            DrawDetailInfo(batch, new Vector2(PFacilities.Rect.X + 15, PFacilities.Rect.Y + 35));
             batch.Draw(P.PlanetTexture, PlanetIcon, Color.White);
+
+            DrawDetailInfo(batch, new Vector2(PFacilities.Rect.X + 15, PFacilities.Rect.Y + 35));
 
             float num5 = 80f;
             var cursor = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
