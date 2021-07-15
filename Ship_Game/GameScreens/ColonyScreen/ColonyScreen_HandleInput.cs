@@ -8,24 +8,39 @@ namespace Ship_Game
     {
         int PFacilitiesPlayerTabSelected;
 
-        void HandleDetailInfo(InputState input)
+        // Gets the item which we want to use for detail info text
+        object GetHoveredDetailItem(InputState input)
         {
             foreach (BuildableListItem e in BuildableList.AllEntries)
             {
                 if (e.Hovered)
                 {
-                    if (e.Troop != null)    DetailInfo = e.Troop;
-                    if (e.Building != null) DetailInfo = e.Building;
+                    if (e.Building != null) return e.Building;
+                    if (e.Troop != null)    return e.Troop;
                 }
             }
 
-            if (DetailInfo == null || !BuildableList.HitTest(input.CursorPosition))
-                DetailInfo = P.Description;
+            foreach (PlanetGridSquare pgs in P.TilesList)
+            {
+                if (pgs.TroopsAreOnTile)
+                {
+                    using (pgs.TroopsHere.AcquireReadLock())
+                        for (int i = 0; i < pgs.TroopsHere.Count; ++i)
+                            if (pgs.TroopsHere[i].ClickRect.HitTest(input.CursorPosition))
+                                return pgs.TroopsHere[i];
+                }
+            }
+
+            foreach (PlanetGridSquare pgs in P.TilesList)
+                if (pgs.ClickRect.HitTest(input.CursorPosition))
+                    return pgs;
+            return null; // default: use planet description text
         }
 
         public override bool HandleInput(InputState input)
         {
-            HandleDetailInfo(input);
+            // always get the currently hovered item
+            DetailInfo = GetHoveredDetailItem(input);
 
             if (PFacilities.HandleInput(input) && PFacilitiesPlayerTabSelected != PFacilities.SelectedIndex)
             {
@@ -58,7 +73,7 @@ namespace Ship_Game
             if (PFacilitiesPlayerTabSelected != PFacilities.SelectedIndex && PFacilities.SelectedIndex == 0)
                 PFacilitiesPlayerTabSelected = PFacilities.SelectedIndex;
 
-            PFacilities.SelectedIndex = DetailInfo is string ? PFacilitiesPlayerTabSelected : 1; // Set the Tab for view
+            PFacilities.SelectedIndex = DetailInfo == null ? PFacilitiesPlayerTabSelected : 1; // Set the Tab for view
 
             return false;
         }
@@ -91,7 +106,6 @@ namespace Ship_Game
                             Troop troop = pgs.TroopsHere[i];
                             if (troop.ClickRect.HitTest(MousePos))
                             {
-                                DetailInfo = troop;
                                 if (input.RightMouseClick && troop.Loyalty == EmpireManager.Player)
                                 {
                                     Ship troopShip = troop.Launch(pgs);
@@ -99,7 +113,6 @@ namespace Ship_Game
                                     {
                                         GameAudio.TroopTakeOff();
                                         ClickedTroop = true;
-                                        DetailInfo = null;
                                     }
                                     else
                                     {
@@ -120,7 +133,6 @@ namespace Ship_Game
                 {
                     if (pgs.ClickRect.HitTest(input.CursorPosition))
                     {
-                        DetailInfo = pgs;
                         var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32,
                             pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 50, 50);
                         if (pgs.BuildingOnTile && bRect.HitTest(input.CursorPosition) && Input.RightMouseClick)
