@@ -168,6 +168,11 @@ namespace Ship_Game
             this.PerformLayout();
         }
 
+        public ToggleButton(float x, float y, ToggleButtonStyle style, string iconPath = "")
+            : this(new Vector2(x, y), style, iconPath)
+        {
+        }
+
         public ToggleButton(ToggleButtonStyle style, string iconPath, Action<ToggleButton> onClick)
         {
             Size = new Vector2(style.Width, style.Height);
@@ -255,7 +260,7 @@ namespace Ship_Game
                     GameAudio.ButtonMouseOver();
 
                 if (Tooltip.IsValid)
-                        ToolTip.CreateTooltip(Tooltip);
+                    ToolTip.CreateTooltip(Tooltip);
 
                 OnHover?.Invoke(this);
 
@@ -269,6 +274,7 @@ namespace Ship_Game
                 }
 
                 // edge case: capture mouse release events
+                // NOTE: this is legacy behaviour and hard to fix
                 return input.LeftMouseReleased;
             }
             return false;
