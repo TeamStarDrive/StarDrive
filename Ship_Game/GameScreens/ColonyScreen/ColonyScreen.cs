@@ -255,7 +255,6 @@ namespace Ship_Game
 
             if (p.Owner != null)
             {
-                DetailInfo = p.Description;
                 GovernorDetails = Add(new GovernorDetailsComponent(this, p, pDescription.Rect, governorTabSelected));
             }
             else
