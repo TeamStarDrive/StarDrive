@@ -20,13 +20,7 @@ namespace UnitTests.AITests.Ships
 
         void WaitForEngineChangeTo(Ship.MoveState state, Ship ship, Action update)
         {
-            var sw = Stopwatch.StartNew();
-            while (ship.engineState != state)
-            {
-                update();
-                if (sw.Elapsed.TotalSeconds > 5.0)
-                    throw new TimeoutException("Timed out while waiting for engine state change");
-            }
+            LoopWhile(5, () => ship.engineState != state, update);
         }
 
         [TestMethod]

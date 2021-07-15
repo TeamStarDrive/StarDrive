@@ -8,6 +8,7 @@ using System.Runtime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Data;
@@ -263,6 +264,7 @@ namespace UnitTests
             target.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
             target.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
             target.SetSystem(null);
+            Assert.IsTrue(target.Active, "Spawned ship is Inactive! This is a bug in Status update!");
             return target;
         }
 
@@ -294,8 +296,11 @@ namespace UnitTests
             p.ParentSystem = s;
         }
 
-        public static void AddDummyPlanetToEmpire(Empire empire) => 
-            AddDummyPlanetToEmpire(empire,0, 0, 0);
+        public static void AddDummyPlanetToEmpire(Empire empire)
+        {
+            AddDummyPlanetToEmpire(empire, 0, 0, 0);
+        }
+
         public static void AddDummyPlanetToEmpire(Empire empire, float fertility, float minerals, float maxPop)
         {
             AddDummyPlanet(fertility, minerals, maxPop, out Planet p);
@@ -320,6 +325,21 @@ namespace UnitTests
         public Beam[] GetBeams(Ship ship)
         {
             return Universe.Objects.GetBeams(ship);
+        }
+
+        /// <summary>
+        /// Loops up to `timeout` seconds While condition is True
+        /// Throws exception if timeout is reached and the test should fail
+        /// </summary>
+        public void LoopWhile(double timeout, Func<bool> condition, Action body)
+        {
+            var sw = Stopwatch.StartNew();
+            while (condition())
+            {
+                body();
+                if (sw.Elapsed.TotalSeconds > timeout)
+                    throw new TimeoutException("Timed out in LoopWhile");
+            }
         }
     }
 }
