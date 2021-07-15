@@ -26,8 +26,6 @@ namespace Ship_Game
         readonly UITextEntry FilterBuildableItems;
         readonly Rectangle GridPos;
         readonly Submenu SubColonyGrid;
-        readonly Submenu FilterFrame;
-        readonly UIButton ClearFilter;
         readonly UILabel BlockadeLabel;
         readonly UILabel StarvationLabel;
         readonly Rectangle PlanetShieldIconRect;
@@ -137,6 +135,8 @@ namespace Ship_Game
 
             Vector2 blockadePos = new Vector2(PStorage.X + 20, PStorage.Y + 35);
             BlockadeLabel = Add(new UILabel(blockadePos, Localizer.Token(GameText.Blockade2), Fonts.Pirulen16, Color.Red));
+            BlockadeLabel.Tooltip = GameText.IndicatesThatThisPlanetIs;
+            
             Vector2 starvationPos = new Vector2(PStorage.X + 200, PStorage.Y + 35);
             StarvationLabel = Add(new UILabel(starvationPos, Localizer.Token(GameText.Starvation), Fonts.Pirulen16, Color.Red));
             FoodStorage = new ProgressBar(PStorage.X + 100, PStorage.Y + 25 + 0.33f*(PStorage.Height - 25), 0.4f*PStorage.Width, 18);
@@ -177,17 +177,18 @@ namespace Ship_Game
                 PFacilities.SelectedIndex    = facilitiesTabSelected;
             }
             
-            FilterFrame = Add(new Submenu(RightMenu.X + 70, RightMenu.Y + 12, RightMenu.Width - 400, 22));
-            Label(RightMenu.X + 25, FilterFrame.Y + 3, "Filter:", Font12);
-            FilterBuildableItems = Add(new UITextEntry(FilterFrame.Rect.Bevel(-5), Font12, ""));
+            var filterRect = new RectF(RightMenu.X + 70, RightMenu.Y + 12, RightMenu.Width - 400, 22);
+            FilterBuildableItems = Add(new UITextEntry(filterRect, Font12, ""));
             FilterBuildableItems.AutoCaptureOnHover = true;
+            FilterBuildableItems.Background = new Submenu(filterRect);
+            Label(RightMenu.X + 25, filterRect.Y + 3, "Filter:", Font12);
             
             var customStyle = new UIButton.StyleTextures("NewUI/icon_clear_filter", "NewUI/icon_clear_filter_hover");
-            ClearFilter = Add(new UIButton(customStyle, new Vector2(17, 17), "")
+            Add(new UIButton(customStyle, new Vector2(17, 17), "")
             {
                 Tooltip = GameText.ClearBuildableItemsFilter,
                 OnClick = OnClearFilterClick,
-                Pos     = new Vector2(FilterFrame.Right + 10, FilterFrame.Y + 3)
+                Pos     = new Vector2(filterRect.Right + 10, filterRect.Y + 3)
             });
 
             BuildableTabs = new Submenu(RightMenu.X + 20, RightMenu.Y + 40, 
