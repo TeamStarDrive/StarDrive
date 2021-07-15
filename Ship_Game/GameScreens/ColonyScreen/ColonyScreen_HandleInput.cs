@@ -6,17 +6,18 @@ namespace Ship_Game
 {
     public partial class ColonyScreen
     {
-        int PFacilitiesPlayerTabSelected;
-
         // Gets the item which we want to use for detail info text
         object GetHoveredDetailItem(InputState input)
         {
-            foreach (BuildableListItem e in BuildableList.AllEntries)
+            if (BuildableList.HitTest(input.CursorPosition))
             {
-                if (e.Hovered)
+                foreach (BuildableListItem e in BuildableList.AllEntries)
                 {
-                    if (e.Building != null) return e.Building;
-                    if (e.Troop != null)    return e.Troop;
+                    if (e.Hovered)
+                    {
+                        if (e.Building != null) return e.Building;
+                        if (e.Troop != null) return e.Troop;
+                    }
                 }
             }
 
@@ -34,6 +35,7 @@ namespace Ship_Game
             foreach (PlanetGridSquare pgs in P.TilesList)
                 if (pgs.ClickRect.HitTest(input.CursorPosition))
                     return pgs;
+
             return null; // default: use planet description text
         }
 
@@ -41,12 +43,8 @@ namespace Ship_Game
         {
             // always get the currently hovered item
             DetailInfo = GetHoveredDetailItem(input);
-
-            if (PFacilities.HandleInput(input) && PFacilitiesPlayerTabSelected != PFacilities.SelectedIndex)
-            {
-                PFacilitiesPlayerTabSelected = PFacilities.SelectedIndex;
-                return true;
-            }
+            if (DetailInfo != null) // if hovering over an item, show the Description TAB
+                PFacilities.SelectedIndex = 1;
 
             // WORKAROUND: disable left-right cycle if player is hovering over
             //             the build area and wants to type Filter text
@@ -66,14 +64,12 @@ namespace Ship_Game
             if (HandleTroopSelect(input))
                 return true;
 
+            // update all Added UI elements
             if (base.HandleInput(input))
                 return true;
 
-            HandleExportImportButtons(input);
-            if (PFacilitiesPlayerTabSelected != PFacilities.SelectedIndex && PFacilities.SelectedIndex == 0)
-                PFacilitiesPlayerTabSelected = PFacilities.SelectedIndex;
-
-            PFacilities.SelectedIndex = DetailInfo == null ? PFacilitiesPlayerTabSelected : 1; // Set the Tab for view
+            if (HandleExportImportButtons(input))
+                return true;
 
             return false;
         }
@@ -199,7 +195,7 @@ namespace Ship_Game
             return false;
         }
 
-        void HandleExportImportButtons(InputState input)
+        bool HandleExportImportButtons(InputState input)
         {
             if (FoodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
@@ -208,6 +204,7 @@ namespace Ship_Game
                 P.FS = (Planet.GoodState) ((int) P.FS + (int) Planet.GoodState.IMPORT);
                 if (P.FS > Planet.GoodState.EXPORT)
                     P.FS = Planet.GoodState.STORE;
+                return true;
             }
 
             if (ProdDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
@@ -217,7 +214,9 @@ namespace Ship_Game
                 P.PS = (Planet.GoodState) ((int) P.PS + (int) Planet.GoodState.IMPORT);
                 if (P.PS > Planet.GoodState.EXPORT)
                     P.PS = Planet.GoodState.STORE;
+                return true;
             }
+            return false;
         }
     }
 }

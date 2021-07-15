@@ -171,19 +171,20 @@ namespace Ship_Game
 
             SubColonyGrid = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, PlanetInfo.Y, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height * 0.5f);
             SubColonyGrid.AddTab(Localizer.Token(GameText.Colony));
-            PFacilities = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, SubColonyGrid.Bottom + 20, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height - 20 - SubColonyGrid.Height - 40);
+
+            PFacilities = Add(new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20,
+                                          SubColonyGrid.Bottom + 20,
+                                          LeftMenu.Width - 60 - PlanetInfo.Width,
+                                          LeftMenu.Height - 20 - SubColonyGrid.Height - 40));
             PFacilities.AddTab(GameText.Statistics2); // Statistics
             PFacilities.AddTab(GameText.Description); // Description
             PFacilities.AddTab(GameText.Trade2); // Trade
             if (Player.data.Traits.TerraformingLevel > 0)
                 PFacilities.AddTab(GameText.BB_Tech_Terraforming_Name); // Terraforming
 
+            // FB - sticky tab selection on colony change via arrows
             if (facilitiesTabSelected < PFacilities.Tabs.Count)
-            {
-                // FB - sticky tab selection on colony change via arrows
-                PFacilitiesPlayerTabSelected =
-                PFacilities.SelectedIndex    = facilitiesTabSelected;
-            }
+                PFacilities.SelectedIndex = facilitiesTabSelected;
             
             var filterRect = new RectF(RightMenu.X + 70, RightMenu.Y + 12, RightMenu.Width - 400, 22);
             FilterBuildableItems = Add(new UITextEntry(filterRect, Font12, ""));
