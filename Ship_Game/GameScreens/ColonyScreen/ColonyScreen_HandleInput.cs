@@ -159,33 +159,28 @@ namespace Ship_Game
             return false;
         }
 
+        void OnChangeColony(int change)
+        {
+            var planets = P.Owner.GetPlanets();
+            int newIndex = planets.IndexOf(P) + change;
+            if (newIndex >= planets.Count) newIndex = 0;
+            else if (newIndex < 0) newIndex = planets.Count - 1;
+
+            Planet nextOrPrevPlanet = planets[newIndex];
+            if (nextOrPrevPlanet != P)
+            {
+                Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, nextOrPrevPlanet, Eui,
+                    GovernorDetails.CurrentTabIndex, PFacilities.SelectedIndex);
+            }
+        }
+
         bool HandleCycleColoniesLeftRight(InputState input)
         {
-            if     (RightColony.Rect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GameText.ViewNextColony);
-            else if (LeftColony.Rect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GameText.ViewPreviousColony);
-
             bool canView = (Empire.Universe.Debug || P.Owner == EmpireManager.Player);
-            if (!canView)
-                return false;
-
-            int change = 0;
-            if (input.Right || RightColony.HandleInput(input) && input.LeftMouseClick)
-                change = +1;
-            else if (input.Left || LeftColony.HandleInput(input) && input.LeftMouseClick)
-                change = -1;
-
-            if (change != 0)
+            if (canView && (input.Left || input.Right))
             {
-                var planets = P.Owner.GetPlanets();
-                int newIndex = planets.IndexOf(P) + change;
-                if (newIndex >= planets.Count) newIndex = 0;
-                else if (newIndex < 0) newIndex = planets.Count - 1;
-
-                Planet nextOrPrevPlanet = planets[newIndex];
-                if (nextOrPrevPlanet != P)
-                    Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, nextOrPrevPlanet, Eui, 
-                        GovernorDetails.CurrentTabIndex, PFacilities.SelectedIndex);
-
+                int change = input.Left ? -1 : +1;
+                OnChangeColony(change);
                 return true; // planet changed, ColonyScreen will be replaced
             }
 
