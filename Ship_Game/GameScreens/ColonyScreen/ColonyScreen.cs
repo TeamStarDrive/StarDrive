@@ -112,10 +112,18 @@ namespace Ship_Game
             Eui = empUI;
             empUI.Player.UpdateShipsWeCanBuild();
             TextFont = LowRes ? Font8 : Font12;
+            
             var titleBar = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             TitleBar = new Menu2(titleBar);
-            LeftColony = new ToggleButton(new Vector2(titleBar.X + 25, titleBar.Y + 24), ToggleButtonStyle.ArrowLeft);
-            RightColony = new ToggleButton(new Vector2(titleBar.X + titleBar.Width - 39, titleBar.Y + 24), ToggleButtonStyle.ArrowRight);
+            
+            LeftColony = Add(new ToggleButton(titleBar.X + 25, titleBar.Y + 24, ToggleButtonStyle.ArrowLeft));
+            LeftColony.Tooltip = GameText.ViewPreviousColony;
+            LeftColony.OnClick = b => OnChangeColony(-1);
+
+            RightColony = Add(new ToggleButton(titleBar.Right - 39, titleBar.Y + 24, ToggleButtonStyle.ArrowRight));
+            RightColony.Tooltip = GameText.ViewNextColony;
+            RightColony.OnClick = b => OnChangeColony(+1);
+
             TitlePos = new Vector2(titleBar.X + titleBar.Width / 2 - Fonts.Laserian14.MeasureString("Colony Overview").X / 2f, titleBar.Y + titleBar.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             LeftMenu = new Menu1(2, titleBar.Y + titleBar.Height + 5, titleBar.Width, ScreenHeight - (titleBar.Y + titleBar.Height) - 7);
             RightMenu = new Menu1(titleBar.Right + 10, titleBar.Y, ScreenWidth / 3 - 15, ScreenHeight - titleBar.Y - 2);
