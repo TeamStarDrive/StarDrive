@@ -176,18 +176,18 @@ namespace Ship_Game
                 PFacilitiesPlayerTabSelected =
                 PFacilities.SelectedIndex    = facilitiesTabSelected;
             }
-
-            FilterBuildableItems = Add(new UITextEntry(new Vector2(RightMenu.X + 75, RightMenu.Y + 15), Font12, ""));
+            
+            FilterFrame = Add(new Submenu(RightMenu.X + 70, RightMenu.Y + 12, RightMenu.Width - 400, 22));
+            Label(RightMenu.X + 25, FilterFrame.Y + 3, "Filter:", Font12);
+            FilterBuildableItems = Add(new UITextEntry(FilterFrame.Rect.Bevel(-5), Font12, ""));
             FilterBuildableItems.AutoCaptureOnHover = true;
             
-            FilterFrame = Add(new Submenu(RightMenu.X + 70, RightMenu.Y-10, RightMenu.Width - 400, 42));
-            Label(FilterFrame.Pos + new Vector2(-45,25), "Filter:", Font12, Color.White);
             var customStyle = new UIButton.StyleTextures("NewUI/icon_clear_filter", "NewUI/icon_clear_filter_hover");
             ClearFilter = Add(new UIButton(customStyle, new Vector2(17, 17), "")
             {
                 Tooltip = GameText.ClearBuildableItemsFilter,
                 OnClick = OnClearFilterClick,
-                Pos     = new Vector2(FilterFrame.Pos.X + FilterFrame.Width + 10, FilterFrame.Pos.Y + 25)
+                Pos     = new Vector2(FilterFrame.Right + 10, FilterFrame.Y + 3)
             });
 
             BuildableTabs = new Submenu(RightMenu.X + 20, RightMenu.Y + 40, 

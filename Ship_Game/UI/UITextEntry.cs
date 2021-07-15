@@ -27,7 +27,7 @@ namespace Ship_Game
         public bool Hover;
         public bool AllowPeriod = false;
         public bool AutoClearTextOnInputCapture;
-        public int MaxCharacters = 30;
+        public int MaxCharacters = 40;
         int CursorPos;
 
         /// <summary>
