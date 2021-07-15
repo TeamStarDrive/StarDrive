@@ -202,7 +202,7 @@ namespace Ship_Game
             Relationship relations = GetRelationsOrNull(withEmpire);
             if (relations != null)
                 return relations;
-            throw new KeyNotFoundException($"No relationship by us:'{Name}' with:{withEmpire.Name}");
+            throw new KeyNotFoundException($"No relationship by us:'{Name}' with:'{withEmpire.Name}'");
         }
 
         void AddNewRelationToThem(Empire them, Relationship rel)
@@ -616,6 +616,17 @@ namespace Ship_Game
             {
                 WarState state = relations.ActiveWar.GetWarScoreState();
                 return state == WarState.LosingBadly || state == WarState.LosingSlightly;
+            }
+
+            return false;
+        }
+
+        public bool WarnedOwnersAboutThisSystem(SolarSystem system)
+        {
+            foreach (Empire empire in system.OwnerList)
+            {
+                if (empire != this && !empire.isFaction && WarnedThemAboutThisSystem(system, empire))
+                    return true;
             }
 
             return false;

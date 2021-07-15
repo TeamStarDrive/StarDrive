@@ -286,6 +286,7 @@
     <Compile Include="Ship_Game\GameScreens\DeveloperUniverse.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadGame\LoadGame.cs" />
     <Compile Include="Ship_Game\Ships\Components\LoyaltyChanges.cs" />
+    <Compile Include="Ship_Game\Ships\IShipPool.cs" />
     <Compile Include="Ship_Game\Ships\ShipDataWriter.cs" />
     <Compile Include="Ship_Game\Ships\ShipHull.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Save.cs" />
@@ -339,7 +340,6 @@
     <Compile Include="Ship_Game\Debug\Page\SpatialDebug.cs" />
     <Compile Include="Ship_Game\EmpireResearch.cs" />
     <Compile Include="Ship_Game\EmpireDifficultyModifers.cs" />
-    <Compile Include="Ship_Game\Empires\ShipPools\WarSupportShips.cs" />
     <Compile Include="Ship_Game\Empires\ShipPools\ShipPool.cs" />
     <Compile Include="Ship_Game\Empire_Relationship.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\AABoundingBox2D.cs" />

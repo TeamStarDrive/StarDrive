@@ -251,6 +251,9 @@ namespace Ship_Game.AI
                 ResetPriorityOrder(clearOrders: false);
             }
 
+            // refitting ships must not be in any pools or fleets
+            Owner.RemoveFromPoolAndFleet(clearOrders: false);
+
             AddShipGoal(Plan.Refit, planet, g, AIState.Refit);
         }
 
@@ -459,7 +462,8 @@ namespace Ship_Game.AI
             public readonly Planet ExportFrom;
             public readonly Planet ImportTo;
             public readonly Ship Freighter;
-            public float BlockadeTimer; // indicates how much time to wait with freight when trade is blocked
+            public readonly float StardateAdded;
+            public float BlockadeTimer; // Indicates how much time to wait with freight when trade is blocked
 
             public TradePlan(Planet exportPlanet, Planet importPlanet, Goods goodsType, Ship freighter, float blockadeTimer)
             {
@@ -467,7 +471,8 @@ namespace Ship_Game.AI
                 ImportTo      = importPlanet;
                 Goods         = goodsType;
                 BlockadeTimer = blockadeTimer;
-                Freighter      = freighter;
+                Freighter     = freighter;
+                StardateAdded = Empire.Universe.StarDate;
 
                 ExportFrom.AddToOutgoingFreighterList(freighter);
                 ImportTo.AddToIncomingFreighterList(freighter);
@@ -480,6 +485,7 @@ namespace Ship_Game.AI
                 ImportTo      = data.FindPlanetOrNull(save.ImportTo);
                 BlockadeTimer = save.BlockadeTimer;
                 Freighter     = freighter;
+                StardateAdded = save.StardateAdded;
             }
 
             public void UnRegisterTrade(Ship freighter)

@@ -203,5 +203,19 @@ namespace UnitTests
                 $"Expected:<{expected}>. Actual:<{actual}>."
             );
         }
+
+        /// <summary>
+        /// Asserts that `actual` value is less than provided value
+        /// e.g. Assert.That.LessThan(healthPercent, 0.5f);
+        /// </summary>
+        public static void LessThan<T>(this Assert assert, T actual, T lessThan)
+            where T : IComparable<T>
+        {
+            int difference = actual.CompareTo(lessThan);
+            if (difference >= 0)
+            {
+                throw new AssertFailedException($"LessThan failed: {actual} < {lessThan}");
+            }
+        }
     }
 }

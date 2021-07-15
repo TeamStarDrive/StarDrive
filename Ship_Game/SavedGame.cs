@@ -281,6 +281,7 @@ namespace Ship_Game
                         VanityName    = g.VanityName,
                         TetherTarget  = g.TetherTarget,
                         TetherOffset  = g.TetherOffset,
+                        StarDateAdded = g.StarDateAdded
                     };
                     if (g.FinishedShip != null)       gdata.colonyShipGuid            = g.FinishedShip.guid;
                     if (g.ColonizationTarget != null) gdata.markedPlanetGuid          = g.ColonizationTarget.guid;
@@ -459,10 +460,11 @@ namespace Ship_Game
                 {
                     s.Trade = new TradePlanSave
                     {
-                        Goods = sg.Trade.Goods,
-                        ExportFrom = sg.Trade.ExportFrom?.guid ?? Guid.Empty,
-                        ImportTo = sg.Trade.ImportTo?.guid ?? Guid.Empty,
+                        Goods         = sg.Trade.Goods,
+                        ExportFrom    = sg.Trade.ExportFrom?.guid ?? Guid.Empty,
+                        ImportTo      = sg.Trade.ImportTo?.guid ?? Guid.Empty,
                         BlockadeTimer = sg.Trade.BlockadeTimer,
+                        StardateAdded = sg.Trade.StardateAdded
                     };
                 }
                 sdata.AISave.ShipGoalsList.Add(s);
@@ -604,7 +606,7 @@ namespace Ship_Game
             [Serialize(16)] public string CurrentAutoScout;
             [Serialize(17)] public string CurrentConstructor;
             [Serialize(18)] public float FastVsBigFreighterRatio;
-            [Serialize(19)] public int AverageFreighterCargoCap;
+            [Serialize(19)] public float AverageFreighterCargoCap;
             [Serialize(20)] public int PirateLevel;
             [Serialize(21)] public Map<int, int> PirateThreatLevels;
             [Serialize(22)] public Map<int, int> PiratePaymentTimers;
@@ -771,7 +773,10 @@ namespace Ship_Game
             [Serialize(54)] public int ManualFoodExportSlots;
             [Serialize(55)] public int ManualProdExportSlots;
             [Serialize(56)] public int ManualColoExportSlots;
-
+            [Serialize(57)] public float AverageFoodImportTurns;
+            [Serialize(58)] public float AverageProdImportTurns;
+            [Serialize(59)] public float AverageFoodExportTurns;
+            [Serialize(60)] public float AverageProdExportTurns;
 
             public override string ToString() => $"PlanetSD {Name}";
         }
@@ -880,6 +885,7 @@ namespace Ship_Game
             [Serialize(1)] public Guid ImportTo;
             [Serialize(2)] public Goods Goods;
             [Serialize(3)] public float BlockadeTimer;
+            [Serialize(4)] public float StardateAdded;
         }
 
         public class ShipSaveData

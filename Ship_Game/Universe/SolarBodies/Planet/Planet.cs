@@ -669,7 +669,6 @@ namespace Ship_Game
                 RemoveBuildingFromPlanet(b);
 
             ProdHere += b.ActualCost / 2f;
-            Owner.GetEmpireAI().MaintSavedByBuildingScrappedThisTurn += b.Maintenance;
         }
 
         public void DestroyBuildingOn(PlanetGridSquare tile)
@@ -740,7 +739,6 @@ namespace Ship_Game
             UpdateDevelopmentLevel();
             Description = DevelopmentStatus;
             GeodeticManager.AffectNearbyShips();
-            CalcAverageImportTurns();
             ApplyTerraforming();
             UpdateColonyValue();
             CalcIncomingGoods();
@@ -756,25 +754,6 @@ namespace Ship_Game
             RepairBuildings(1);
             CallForHelp();
             TotalTroopConsumption = GetTotalTroopConsumption();
-        }
-
-        void CalcAverageImportTurns()
-        {
-            if (Owner.isFaction)
-                return;
-
-            if (Owner.GetPlanets().Count <= 1)
-            {
-                AverageImportTurns = 0;
-                return;
-            }
-
-            // Calc per 2 Years (20 turns)
-            if (AverageImportTurns.Greater(0) && (Empire.Universe.StarDate % 2).Greater(0))
-                return;
-
-            AverageImportTurns = Center.Distance(Owner.WeightedCenter) * 2 / (Owner.AverageFreighterFTLSpeed * GlobalStats.TurnTimer);
-            AverageImportTurns = AverageImportTurns.LowerBound(1);
         }
 
         private void NotifyEmptyQueue()
@@ -1361,7 +1340,7 @@ namespace Ship_Game
             if (MineralRichness.LessOrEqual(0.1f)) // minimum decay limit
                 return;
 
-            // If the planet outputs 100 production on Brutal, the chance to decay is 5%
+            // If the planet outputs 100 production on Brutal, the chance to decay is 2.5%, normal will be 1%
             float decayChance = Prod.GrossIncome / (Owner.DifficultyModifiers.MineralDecayDivider / GlobalStats.CustomMineralDecay);
 
             // Larger planets have less chance for reduction
@@ -1377,7 +1356,7 @@ namespace Ship_Game
             if (RandomMath.RollDice(decayChance))
             {
                 bool notifyPlayer = MineralRichness.AlmostEqual(1);
-                MineralRichness  -= 0.02f;
+                MineralRichness  -= 0.01f;
                 if (notifyPlayer)
                 {
                     string fullText = $"{Name} {Localizer.Token(GameText.MineralRichnessHasGoneDown)}";

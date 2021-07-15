@@ -27,8 +27,10 @@ namespace Ship_Game
             InfraStructure
         }
 
-        // This logs the building maintenance the governor tried to build but could not due to low budget
-        // It can be used by the empire to allow building this, if they have reserves
+        /// <summary>
+        /// This logs the building maintenance the governor tried to build but could not due to low budget
+        /// It can be used by the empire to allow building this, if they have reserves
+        /// </summary>
         public float BuildingMaintenanceNeeded { get; private set; }
 
         bool IsPlanetExtraDebugTarget()
@@ -45,7 +47,6 @@ namespace Ship_Game
 
         void BuildAndScrapCivilianBuildings(float budget)
         {
-            BuildingMaintenanceNeeded = float.MaxValue;
             UpdateGovernorPriorities();
             if (budget < 0f)
             {
@@ -62,6 +63,7 @@ namespace Ship_Game
 
         void BuildOrReplaceBuilding(float budget)
         {
+            BuildingMaintenanceNeeded = float.MaxValue;
             if (FreeHabitableTiles > 0)
             {
                 if (SimpleBuild(budget)) // Let's try to build something within our budget
@@ -73,6 +75,7 @@ namespace Ship_Game
             else
             {
                 ReplaceBuilding(budget); // We don't have room for expansion. Let's see if we can replace to a better value building
+                BuildingMaintenanceNeeded = 0;
             }
 
             PrioritizeCriticalFoodBuildings();
@@ -127,8 +130,8 @@ namespace Ship_Game
             if (colonyType == ColonyType.Agricultural)
                 perCol *= fertilityBonus;
 
-
-            flat   = ApplyGovernorBonus(flat, 0.5f, 2f, 2f, 2.5f, 1f);
+            float flatMulti = Food.NetMaxPotential <= 0 ? 3 : 1;
+            flat   = ApplyGovernorBonus(flat, 0.5f, 2f, 2f, 2.5f, 1f) * flatMulti;
             perCol = ApplyGovernorBonus(perCol, 1.75f, 0.25f, 0.25f, 3f, 0.25f);
             Priorities[ColonyPriority.FoodFlat]   = flat;
             Priorities[ColonyPriority.FoodPerCol] = perCol;
@@ -137,7 +140,7 @@ namespace Ship_Game
         void CalcProductionPriorities()
         {
             float netProdPerColonist = Prod.NetYieldPerColonist - ProdConsumptionPerColonist;
-            float flatProdToFeedAll  = IsCybernetic ? ConsumptionPerColonist * PopulationBillion - Prod.NetFlatBonus : 0;
+            float flatProdToFeedAll  = IsCybernetic ? ConsumptionPerColonist * MaxPopulationBillion - Prod.NetFlatBonus : 0;
             float richnessBonus      = MineralRichness > 0 ? 1 / MineralRichness : 0;
 
             float flat = NonCybernetic ? (10 - netProdPerColonist - Prod.NetFlatBonus).LowerBound(0)
@@ -160,7 +163,8 @@ namespace Ship_Game
             perCol += (1 - Storage.ProdRatio) * MineralRichness;
             perCol *= PopulationRatio;
 
-            flat        = ApplyGovernorBonus(flat, 1f, 2f, 1f, 1f, 1.5f);
+            float flatMulti = Prod.NetMaxPotential < 1 ? 3 : 1;
+            flat        = ApplyGovernorBonus(flat, 1f, 2f, 1f, 1f, 1.5f) * flatMulti;
             perRichness = ApplyGovernorBonus(perRichness, 1f, 2f, 0.5f, 0.5f, 1.5f);
             perCol      = ApplyGovernorBonus(perCol, 1f, 2f, 0.5f, 0.5f, 1.5f);
             Priorities[ColonyPriority.ProdFlat]        = flat;
@@ -319,8 +323,8 @@ namespace Ship_Game
                 Log.Info(ConsoleColor.Cyan, $"==== Planet  {Name}  CHOOSE BEST BUILDING, Budget: {budget} ====");
 
 
-            float highestScore = 1f; // So a building with a low value of 1 or less will not be built.
-            float totalProd    = Storage.Prod + IncomingProd + Prod.NetIncome.LowerBound(0);
+            float highestScore = 1f; // Score threshold to build stuff
+            float totalProd    = Storage.Prod + IncomingProd;
 
             for (int i = 0; i < buildings.Count; i++)
             {
@@ -335,6 +339,9 @@ namespace Ship_Game
                     highestScore = buildingScore;
                 }
             }
+
+            if (highestScore.AlmostEqual(1))
+                BuildingMaintenanceNeeded = 0; // No building is good enough
 
             if (best != null && IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Green, $"-- Planet {Name}: Best Building is {best.Name} " +
@@ -412,7 +419,7 @@ namespace Ship_Game
                 || b.IsMilitary
                 || b.BuildOnlyOnce
                 || b.MoneyBuildingAndProfitable(b.ActualMaintenance(this), PopulationBillion)
-                || IsStarving && b.ProducesFood && NonCybernetic // Dont scrap food buildings when starving
+                || !WillMaintainPositiveFoodOutput(b) 
                 || b.IsSpacePort && Owner.GetPlanets().Count == 1 // Dont scrap our last spaceport
                 || !IsBuildingOnHabitableTile(b) && replacing)  // Dont allow buildings on non habitable tiles to be scrapped when replacing
             {
@@ -420,6 +427,27 @@ namespace Ship_Game
             }
 
             return true;
+        }
+
+        bool WillMaintainPositiveFoodOutput(Building b)
+        {
+            if (NonCybernetic && b.ProducesFood && IsStarving
+                || IsCybernetic && b.ProducesProduction && IsStarving)
+            {
+                return false; // Dont scrap food buildings if starving
+            }
+
+            if (NonCybernetic && !b.ProducesFood || IsCybernetic && !b.ProducesProduction)
+                return true;
+
+            // checking at 80% of max potential
+            float potential      = 0.8f * (NonCybernetic ? Food.NetMaxPotential : Prod.NetMaxPotential);
+            float pop80          = PopulationBillion * 0.8f;
+            float buildingOutput = NonCybernetic 
+                ? Food.AfterTax(b.PlusFlatFoodAmount + pop80*Food.FoodYieldFormula(Fertility, b.PlusFoodPerColonist))
+                : Prod.AfterTax(b.PlusFlatProductionAmount + pop80 * b.PlusProdPerColonist * b.IncreaseRichness * MineralRichness);
+
+            return potential - buildingOutput > 0;
         }
 
         bool SuitableForScrap(Building b, float storageInUse, bool scrapZeroMaintenance, bool replacing)
@@ -453,7 +481,7 @@ namespace Ship_Game
             float score = 0;
             if (IsLimitedByPerCol(b))
             {
-                if (IsPlanetExtraDebugTarget())
+                if (chooseBest && IsPlanetExtraDebugTarget())
                 {
                     Log.Info(ConsoleColor.DarkRed, $"Eval BUILD  {b.Name,-33}  {"NOT GOOD",-10} " +
                                                    $"{score.SignString()} {"",3} Has Per Col traits which are not needed.");
@@ -543,12 +571,9 @@ namespace Ship_Game
 
         float CostEffectivenessMultiplier(float cost, float expectedProd)
         {
-            if (expectedProd >= cost)
-                return 1;
-
             // This will allow the colony to slowly build more expensive buildings as it grows
             float multiplier = expectedProd / cost.LowerBound(1);
-            return multiplier.Clamped(0, 1);
+            return multiplier.LowerBound(0);
         }
 
         void TryBuildTerraformers(float budget)
