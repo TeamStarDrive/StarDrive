@@ -75,6 +75,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AITests\Empire\ShipsWeCanBuildTests.cs" />
     <Compile Include="AITests\Empire\TestEmpireAI.cs" />
     <Compile Include="AITests\Ships\ShipAICombatTests.cs" />
     <Compile Include="AITests\Ships\TestShipMove.cs" />
@@ -104,7 +105,8 @@
     <Compile Include="Ships\ShipLoyaltyTests.cs" />
     <Compile Include="Ships\ShipModuleGridTests.cs" />
     <Compile Include="Ships\ShipModuleTests.cs" />
-    <Compile Include="Ships\TestHealth.cs" />
+    <Compile Include="AITests\Empire\ShipPoolTests.cs" />
+    <Compile Include="Ships\ShipHealthTests.cs" />
     <Compile Include="Ships\TestShields.cs" />
     <Compile Include="Ships\TestSupplyShuttles.cs" />
     <Compile Include="Ships\TestWeaponArcs.cs" />

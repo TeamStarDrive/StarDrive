@@ -81,11 +81,7 @@ namespace Ship_Game.Ships
         {
             if (Active && Health <= 0)
             {
-                if (Health <= 0)
-                {
-                    Log.Warning($"Ship Terminated due to 0 health bug. Active: {Active}");
-                }
-                Die(null, true);
+                Die(null, cleanupOnly:true);
             }
             
             UpdateVisibilityToPlayer(timeStep, forceVisible: false);
@@ -103,7 +99,7 @@ namespace Ship_Game.Ships
             {
                 ScuttleTimer -= timeStep.FixedTime;
                 if (ScuttleTimer <= 0f) 
-                    Die(null, true);
+                    Die(null, cleanupOnly:true);
             }
 
             ShieldRechargeTimer += timeStep.FixedTime;
@@ -133,12 +129,6 @@ namespace Ship_Game.Ships
                     Vector3 randPos = UniverseRandom.Vector32D(third);
                     Empire.Universe.Particles.Lightning.AddParticle(Center.ToVec3() + randPos);
                 }
-            }
-
-            if (timeStep.FixedTime > 0f)
-            {
-                if (Active && !EMPdisabled) 
-                    AI.Update(timeStep);
             }
 
             if (!Active)

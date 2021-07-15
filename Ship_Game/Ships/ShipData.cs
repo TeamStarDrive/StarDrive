@@ -45,7 +45,9 @@ namespace Ship_Game.Ships
         public bool Animated;
         public bool IsShipyard;
         public bool IsOrbitalDefense;
-        // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
+        // The Doctor: intending to use this as a user-toggled
+        // flag which tells the AI not to build a design as a stand-alone vessel
+        // from a planet; only for use in a hangar
         public bool CarrierShip;
 
         public CombatState CombatState;
@@ -399,10 +401,10 @@ namespace Ship_Game.Ships
                 case RoleName.station:   return RoleType.Orbital;
                 case RoleName.supply:    return RoleType.NotApplicable;
                 case RoleName.support:
+                case RoleName.carrier:
                 case RoleName.bomber:    return RoleType.WarSupport;
                 case RoleName.troop:
                 case RoleName.troopShip: return RoleType.Troop;
-                case RoleName.carrier:
                 case RoleName.fighter:
                 case RoleName.gunboat:
                 case RoleName.drone:

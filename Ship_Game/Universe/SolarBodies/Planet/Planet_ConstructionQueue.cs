@@ -64,9 +64,9 @@ namespace Ship_Game
         {
             return TilesList.All(tile => tile.Habitable);
         }
-
+        
         public bool MilitaryBuildingInTheWorks => ConstructionQueue.Any(b => b.isBuilding && b.IsMilitary);
-        public bool CivilianBuildingInTheWorks => ConstructionQueue.Any(b => b.isBuilding && !b.IsMilitary);
+        public bool CivilianBuildingInTheWorks => ConstructionQueue.Any(b => b.IsCivilianBuilding);
         public bool MilitaryBaseInTheWorks     => ConstructionQueue.Any(b => b.isBuilding && !b.Building.AllowInfantry);
 
         public bool CanBuildInfantry         => BuildingList.Any(b => b.AllowInfantry);

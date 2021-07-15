@@ -8,11 +8,14 @@ namespace Ship_Game
     {
         public readonly Array<Ship> IncomingFreighters = new Array<Ship>();
         readonly Array<Ship> OutgoingFreighters = new Array<Ship>();
-        private float AverageImportTurns;
+        public float AverageFoodImportTurns { get; protected set; } = 10; // EMA (90/10) time it took the traded to deliver food
+        public float AverageProdImportTurns { get; protected set; } = 10; // EMA (90/10) time it took the traded to deliver prod
+        public float AverageFoodExportTurns { get; protected set; } = 10; // Turns for the trader to arrive to the *export* planet to pick up food
+        public float AverageProdExportTurns { get; protected set; } = 10; // Turns for the trader to arrive to the *export* planet to pick up prod
 
         public float IncomingFood { get; protected set; }
         public float IncomingProd { get; protected set; }
-        public float IncomingPop { get; protected set; }
+        public float IncomingPop  { get; protected set; }
 
         public int NumIncomingFreighters   => IncomingFreighters.Count;
         public int NumOutgoingFreighters   => OutgoingFreighters.Count;
@@ -56,8 +59,10 @@ namespace Ship_Game
                 if (ManualFoodExportSlots > 0 && Owner == EmpireManager.Player)
                     return ManualFoodExportSlots.LowerBound(min);
 
-                int maxSlots = colonyType == ColonyType.Agricultural || colonyType == ColonyType.Colony ? 10 : 7;
-                return ((int)(Food.NetIncome + Storage.Food / 25)).Clamped(min, maxSlots);
+                int maxSlots     = colonyType == ColonyType.Agricultural || colonyType == ColonyType.Colony ? 14 : 10;
+                int storageSlots = (int)(Storage.Food / Owner.AverageFreighterCargoCap);
+                int outputSlots  = (int)(Food.NetIncome * AverageFoodExportTurns / Owner.AverageFreighterCargoCap);
+                return (storageSlots + outputSlots).Clamped(min, maxSlots);
             }
         }
 
@@ -68,15 +73,22 @@ namespace Ship_Game
                 if (TradeBlocked || !ExportProd)
                     return 0;
 
-                int min      = Storage.ProdRatio > 0.5f ? 1 : 0;
-                int maxSlots = colonyType == ColonyType.Industrial 
-                               || colonyType == ColonyType.Colony
-                               || colonyType == ColonyType.Core ? 8 : 5;
-
+                int min = Storage.ProdRatio > 0.5f ? 1 : 0;
                 if (ManualProdExportSlots > 0 && Owner == EmpireManager.Player)
                     return ManualProdExportSlots.LowerBound(min);
 
-                return ((int)(Prod.NetIncome / 2 + Storage.Prod / 50)).Clamped(min, maxSlots);
+                int maxSlots = IsCybernetic ? 6 : 5;
+                switch (colonyType)
+                {
+                    case ColonyType.Industrial: maxSlots += 7; break;
+                    case ColonyType.Core:       maxSlots += 5; break;
+                    case ColonyType.Research:   maxSlots += 3;  break;
+                }
+
+                int storageSlots = (int)(Storage.Prod / Owner.AverageFreighterCargoCap);
+                int outputSlots  = (int)(Prod.NetIncome * AverageFoodExportTurns / Owner.AverageFreighterCargoCap);
+
+                return (storageSlots + outputSlots).Clamped(min, maxSlots);
             }
         }
 
@@ -112,7 +124,7 @@ namespace Ship_Game
                     return ManualFoodImportSlots;
 
                 float foodMissing = Storage.Max - FoodHere - IncomingFood;
-                foodMissing      += (-Food.NetIncome * AverageImportTurns).LowerBound(0);
+                foodMissing      += (-Food.NetIncome * AverageFoodImportTurns).LowerBound(0);
                 int maxSlots      = ((int)(CurrentGame.GalaxySize) * 4).LowerBound(4) + Owner.NumTradeTreaties;
                 int foodSlots     = foodMissing < 5 ? 0 : (foodMissing / Owner.AverageFreighterCargoCap).RoundUpTo(1);
 
@@ -155,7 +167,7 @@ namespace Ship_Game
                 float totalProdSlots  = (totalProdNeeded / averageFreighterCargoCap).LowerBound(0);
 
                 if (IsCybernetic) // They need prod as food
-                    totalProdSlots += ((int)(-Prod.NetIncome * AverageImportTurns / averageFreighterCargoCap)).LowerBound(0);
+                    totalProdSlots += ((int)(-Prod.NetIncome * AverageProdImportTurns / averageFreighterCargoCap)).LowerBound(0);
 
                 return (int)totalProdSlots.Clamped(0, maxSlots);
             }
@@ -331,11 +343,27 @@ namespace Ship_Game
             float limit = 0; // it is a multiplier
             switch (goods)
             {
-                case Goods.Food:       limit = FoodHere / NumOutgoingFreightersPickUp(OutgoingFreighters, goods).LowerBound(1); break;
-                case Goods.Production: limit = ProdHere / NumOutgoingFreightersPickUp(OutgoingFreighters, goods).LowerBound(1); break;
-                case Goods.Colonists:  limit = Population * 0.2f;                                                               break;
+                case Goods.Food:       limit = Storage.Max / NumOutgoingFreightersPickUp(OutgoingFreighters, goods).LowerBound(1); break;
+                case Goods.Production: limit = Storage.Max / NumOutgoingFreightersPickUp(OutgoingFreighters, goods).LowerBound(1); break;
+                case Goods.Colonists:  limit = Population * 0.2f;                                                                  break;
             }
+
             return limit;
+        }
+
+        public void UpdateAverageFreightTurns(Planet importPlanet, Planet exportPlanet, Goods goods, float startTime)
+        {
+            if (importPlanet == exportPlanet || startTime == 0)  // startTime is 0 in older saves
+                return; // Express import, ignore
+
+            float numTurns = (Empire.Universe.StarDate - startTime).LowerBound(0.5f); // not * 10 for turns since we are using 10% of value anyway
+            switch (goods)
+            {
+                case Goods.Food       when importPlanet == this: AverageFoodImportTurns = AverageFoodImportTurns * 0.9f + numTurns; break;
+                case Goods.Production when importPlanet == this: AverageProdImportTurns = AverageProdImportTurns * 0.9f + numTurns; break;
+                case Goods.Food       when exportPlanet == this: AverageFoodExportTurns = AverageFoodExportTurns * 0.9f + numTurns; break;
+                case Goods.Production when exportPlanet == this: AverageProdExportTurns = AverageProdExportTurns * 0.9f + numTurns; break;
+            }
         }
 
         public void SetManualFoodImportSlots(int value)
@@ -366,6 +394,14 @@ namespace Ship_Game
         public void SetManualColoExportSlots(int value)
         {
             ManualColoExportSlots = value;
+        }
+
+        public void SetAverageTradeTurns(float foodImport, float prodImport, float foodExport, float prodExport)
+        {
+            AverageFoodImportTurns = foodImport;
+            AverageProdImportTurns = prodImport;
+            AverageFoodExportTurns = foodExport;
+            AverageProdExportTurns = prodExport;
         }
     }
 }

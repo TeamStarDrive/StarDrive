@@ -63,6 +63,13 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
+            if (ColonizationTarget.ParentSystem.OwnerList.Count > 0
+                && !ColonizationTarget.ParentSystem.IsExclusivelyOwnedBy(empire))
+            {
+                foreach ((Empire them, Relationship rel) in empire.AllRelations)
+                    empire.GetEmpireAI().ExpansionAI.CheckClaim(them, rel, ColonizationTarget);
+            }
+
             if (ColonizationTarget.Owner != null)
             {
                 if (ColonizationTarget.Owner == empire)
@@ -97,8 +104,7 @@ namespace Ship_Game.Commands.Goals
                 empireAi.AddPendingTask(task);
                 empireAi.Goals.Add(new StandbyColonyShip(empire));
             }
-            else if (!ColonizationTarget.ParentSystem.HasPlanetsOwnedBy(empire)
-                     && empire.GetFleetsDict().FilterValues(f => f.FleetTask?.TargetPlanet?.ParentSystem == ColonizationTarget.ParentSystem).Length == 0)
+            else if (empire.GetFleetsDict().FilterValues(f => f.FleetTask?.TargetPlanet?.ParentSystem == ColonizationTarget.ParentSystem).Length == 0)
             {
                 var task = MilitaryTask.CreateGuardTask(empire, ColonizationTarget);
                 empire.GetEmpireAI().AddPendingTask(task);
@@ -272,8 +278,9 @@ namespace Ship_Game.Commands.Goals
 
             foreach (Ship ship in empire.OwnedShips)
             {
-                if (ship.isColonyShip && !ship.DoingRefit 
-                                      && ship.AI != null && !ship.AI.FindGoal(ShipAI.Plan.Colonize, out _))
+                if (ship.isColonyShip && !ship.DoingRefit
+                                      && ship.AI != null && !ship.AI.FindGoal(ShipAI.Plan.Colonize, out _)
+                                      && NotAssignedToColonizationGoal(ship))
                 {
                     return ship;
                 }
@@ -287,6 +294,12 @@ namespace Ship_Game.Commands.Goals
         bool TryGetClaimTask(out MilitaryTask task)
         {
             return empire.GetEmpireAI().GetDefendClaimTaskFor(ColonizationTarget, out task);
+        }
+
+        // Checks if the ship is not taken by another colonization goal
+        bool NotAssignedToColonizationGoal(Ship colonyShip)
+        {
+            return !colonyShip.loyalty.GetEmpireAI().Goals.Any(g => g.type == GoalType.Colonize && g.FinishedShip == colonyShip);
         }
     }
 }
