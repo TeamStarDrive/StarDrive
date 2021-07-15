@@ -72,7 +72,6 @@ namespace Ship_Game.Debug.Page
             column.AddLine($"Empire Ship List: {ourShips.Count}");
             column.AddLine($"Hangar Ships: {hangarShips.Length}");
             column.AddLine($"Civilian Ships: {civilianShips.Length}");
-            column.AddLine($"EmpirePool Ship List: {aoShips.AllPoolShips}");
             column.AddLine($"EmpirePool Ready: {aoShips.InitialReadyShips}");
             column.AddLine($"EmpirePool fleets: {aoShips.CurrentUseableFleets}");
             column.AddLine($"Fleets in use: {fleets.Count}");

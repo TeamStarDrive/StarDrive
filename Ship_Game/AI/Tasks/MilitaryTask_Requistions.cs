@@ -98,8 +98,7 @@ namespace Ship_Game.AI.Tasks
             newFleet.FleetTask = this;
             foreach (Ship ship in ships)
             {
-                ship.AI.ClearOrders();
-                Owner.AIManagedShips.RemoveShipFromFleetAndPools(ship);
+                ship.RemoveFromPoolAndFleet(clearOrders: true);
                 newFleet.AddShip(ship);
             }
 
@@ -238,7 +237,7 @@ namespace Ship_Game.AI.Tasks
             }
 
             if (AO.AlmostZero())
-                throw new Exception();
+                throw new Exception("AO cannot be empty");
 
             if (Owner.AIManagedShips.CurrentUseableFleets < 0) 
                 return;

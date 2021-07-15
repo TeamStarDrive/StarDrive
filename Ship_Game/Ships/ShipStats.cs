@@ -51,6 +51,7 @@ namespace Ship_Game.Ships
             Hull = S.shipData;
 
             float maxSensorBonus = 0f;
+            int activeInternalSlots = 0;
             S.ActiveInternalSlotCount = 0;
             S.BonusEMP_Protection     = 0f;
             S.PowerStoreMax           = 0f;
@@ -72,7 +73,7 @@ namespace Ship_Game.Ships
                 ShipModule module = modules[i];
                 // active internal slots
                 if (module.HasInternalRestrictions && module.Active)
-                    S.ActiveInternalSlotCount += module.XSIZE * module.YSIZE;
+                    activeInternalSlots += module.XSIZE * module.YSIZE;
 
                 S.RepairRate += module.Active ? module.ActualBonusRepairRate : module.ActualBonusRepairRate / 10; // FB - so destroyed modules with repair wont have full repair rate
 
@@ -110,7 +111,9 @@ namespace Ship_Game.Ships
             S.SensorRange   *= Hull.Bonuses.SensorModifier;
             S.CargoSpaceMax *= Hull.Bonuses.CargoModifier;
             S.RepairRate    += (float)(S.RepairRate * S.Level * 0.05);
-            
+
+            S.SetActiveInternalSlotCount(activeInternalSlots);
+
             // TODO: are these used? (legacy?)
             //S.TrackingPower += 1 + e.data.Traits.Militaristic + (S.IsPlatform ? 3 : 0);
             //S.TargetingAccuracy += 1 + e.data.Traits.Militaristic + (S.IsPlatform ? 3 : 0);

@@ -9,7 +9,7 @@ namespace Ship_Game
     /// <summary>
     /// Contains optimized reduction utilities like Any, Sum, Max, Count, ...
     /// </summary>
-    static class CollectionSum
+    public static class CollectionSum
     {
         
         /// <summary>

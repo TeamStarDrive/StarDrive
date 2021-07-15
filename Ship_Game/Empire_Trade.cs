@@ -15,7 +15,7 @@ namespace Ship_Game
         public float FastVsBigFreighterRatio      { get; private set; } = 0.5f;
         public float TradeMoneyAddedThisTurn      { get; private set; }
         public float TotalTradeMoneyAddedThisTurn { get; private set; }
-        public int AverageFreighterCargoCap       { get; private set; } = 10;
+        public float AverageFreighterCargoCap     { get; private set; } = 10;
         public int AverageFreighterFTLSpeed       { get; private set; } = 20000;
         public int  TotalProdExportSlots          { get; private set; }
 
@@ -78,8 +78,9 @@ namespace Ship_Game
             if (NonCybernetic)
                 DispatchOrBuildFreighters(Goods.Food, OwnedPlanets, false);
 
-            float pop = GetTotalPop(out float maxPop);
-            if (pop / maxPop > 0.5f)
+            float popRatio              = TotalPopBillion / MaxPopBillion;
+            float productionFirstChance = popRatio * 100;
+            if (RandomMath.RollDice(productionFirstChance))
             {
                 DispatchOrBuildFreighters(Goods.Production, OwnedPlanets, false);
                 DispatchOrBuildFreighters(Goods.Colonists, OwnedPlanets, false);
@@ -298,39 +299,24 @@ namespace Ship_Game
                 GetEmpireAI().Goals.Add(new RefitShip(freighter, betterFreighter.Name, this));
         }
 
-        void CalcAverageFreighterCargoCapAndFTLSpeed()
+        public void UpdateAverageFreightFTL(float value)
         {
-            if ((Universe.StarDate % 2).Greater(0))
-                return; // Do this once per 2 years
-
-            int numFreighters = 0;
-            float cargoCap    = 0;
-            float warpSpeed   = 0;
-
-            var ships = OwnedShips;
-            for (int i = 0; i < ships.Count; i++)
-            {
-                Ship ship = ships[i];
-                if (ship.IsFreighter)
-                {
-                    numFreighters += 1;
-                    cargoCap += ship.CargoSpaceMax;
-                    warpSpeed += ship.MaxFTLSpeed;
-                }
-            }
-
-            AverageFreighterCargoCap = (int)(cargoCap / numFreighters.LowerBound(1)).LowerBound(10);
-            AverageFreighterFTLSpeed = ((int)(warpSpeed / numFreighters.LowerBound(1))).LowerBound(5000);
+            AverageFreighterFTLSpeed = (int)(AverageFreighterFTLSpeed * 0.9f + value * 0.1f);
         }
 
-        public void SetAverageFreighterCargoCap(int value)
+        public void UpdateAverageFreightCargoCap(float value)
+        {
+            AverageFreighterCargoCap = (AverageFreighterCargoCap * 0.9f + value * 0.1f).RoundToFractionOf10();
+        }
+
+        public void SetAverageFreighterCargoCap(float value)
         {
             AverageFreighterCargoCap = value.LowerBound(10);
         }
 
         public void SetAverageFreighterFTLSpeed(int value)
         {
-            AverageFreighterFTLSpeed = value.LowerBound(20000);
+            AverageFreighterFTLSpeed = value.LowerBound(5000);
         }
 
         public float TotalPlanetsTradeValue => OwnedPlanets.Sum(p => p.Level).LowerBound(1);
