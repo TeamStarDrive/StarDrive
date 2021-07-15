@@ -75,6 +75,8 @@ namespace Ship_Game
         // Text Alignment will change the alignment axis along which the text is drawn
         public TextAlign TextAlign = TextAlign.Default;
 
+        public LocalizedText Tooltip;
+
         public LocalizedText Text
         {
             get => LabelText;
@@ -293,6 +295,9 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             bool hit = HitTest(input.CursorPosition);
+            if (hit && Tooltip.IsValid)
+                ToolTip.CreateTooltip(Tooltip);
+
             if (hit && OnClick != null)
             {
                 if (!IsMouseOver)

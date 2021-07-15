@@ -28,12 +28,15 @@ namespace Ship_Game
             HandleDetailInfo(input);
 
             if (PFacilities.HandleInput(input) && PFacilitiesPlayerTabSelected != PFacilities.SelectedIndex)
+            {
                 PFacilitiesPlayerTabSelected = PFacilities.SelectedIndex;
+                return true;
+            }
 
-            if (BlockadeLabel.Visible && BlockadeLabel.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(GameText.IndicatesThatThisPlanetIs);
-
-            if (HandleCycleColoniesLeftRight(input))
+            // WORKAROUND: disable left-right cycle if player is hovering over
+            //             the build area and wants to type Filter text
+            bool isHoveringOverBuildArea = RightMenu.HitTest(input.CursorPosition);
+            if (!isHoveringOverBuildArea && HandleCycleColoniesLeftRight(input))
                 return true;
 
             P.UpdateIncomes(false);
