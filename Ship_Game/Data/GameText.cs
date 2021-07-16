@@ -4258,13 +4258,13 @@ namespace Ship_Game
         UsePlayerDesignsTip = 4306,
         /// <summary>Terraform Level</summary>
         TerraformLevel = 4307,
-        /// <summary>Terraform Level 1. At this Level, Terraformers will remove any</summary>
+        /// <summary>Terraform Level 1. At this Level, Terraformers will gradually remove</summary>
         BB_Tech_Terraforming_Bonus = 4308,
-        /// <summary>Terraform Level 2. At this Level, Terraformers will remove any</summary>
+        /// <summary>Terraform Level 2. At this Level, Terraformers will remove all</summary>
         BB_Tech_Terraforming2_Bonus = 4309,
-        /// <summary>Terraform Level 3. At this Level, Terraformers will remove any</summary>
+        /// <summary>Terraform Level 3. At this Level, Terraformers will remove all</summary>
         BB_Tech_Terraforming3_Bonus = 4310,
-        /// <summary>Terraforming</summary>
+        /// <summary>Terraforming In Progress</summary>
         Terraforming = 4311,
         /// <summary>Blockade!</summary>
         Blockade2 = 4312,
@@ -4326,8 +4326,14 @@ namespace Ship_Game
         BB_Tech_SubspatialDynamics_CounterEnemyPlanetInhibitionBonus_Bonus = 4340,
         /// <summary>Our spies detected that</summary>
         OurSpiesReport = 4341,
-        /// <summary>are plotting a war against us and amassing a fleet</summary>
+        /// <summary>are plotting a war against us and are amassing a</summary>
         TheyPreparingForWar = 4342,
+        /// <summary>Build Capital</summary>
+        ButtonBuildCapitalName = 4343,
+        /// <summary>You can build a new capital here, since you do</summary>
+        ButtonBuildCapitalTip = 4344,
+        /// <summary>Capital is being rebuilt here, and removed from</summary>
+        NotifyCapitalTransfer = 4345,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>

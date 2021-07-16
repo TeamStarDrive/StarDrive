@@ -478,6 +478,7 @@ namespace Ship_Game
 
             thisPlanet.Construction.ClearQueue();
             thisPlanet.UpdateTerraformPoints(0);
+            thisPlanet.SetHomeworld(false);
             foreach (PlanetGridSquare planetGridSquare in TilesList)
                 planetGridSquare.QItem = null;
 
@@ -494,10 +495,9 @@ namespace Ship_Game
             if (newOwner.data.Traits.Assimilators && planetLevel >= 3)
             {
                 RacialTrait ownerTraits = Owner.data.Traits;
-                newOwner.data.Traits.ConsumptionModifier = GetTraitMin(newOwner.data.Traits.ConsumptionModifier, ownerTraits.ConsumptionModifier);
-                newOwner.data.Traits.PopGrowthMax        = GetTraitMin(newOwner.data.Traits.PopGrowthMax, ownerTraits.PopGrowthMax);
-                newOwner.data.Traits.MaintMod            = GetTraitMin(newOwner.data.Traits.MaintMod, ownerTraits.MaintMod);
-
+                newOwner.data.Traits.ConsumptionModifier  = GetTraitMin(newOwner.data.Traits.ConsumptionModifier, ownerTraits.ConsumptionModifier);
+                newOwner.data.Traits.PopGrowthMax         = GetTraitMin(newOwner.data.Traits.PopGrowthMax, ownerTraits.PopGrowthMax);
+                newOwner.data.Traits.MaintMod             = GetTraitMin(newOwner.data.Traits.MaintMod, ownerTraits.MaintMod);
                 newOwner.data.Traits.DiplomacyMod         = GetTraitMax(newOwner.data.Traits.DiplomacyMod, ownerTraits.DiplomacyMod);
                 newOwner.data.Traits.DodgeMod             = GetTraitMax(newOwner.data.Traits.DodgeMod, ownerTraits.DodgeMod);
                 newOwner.data.Traits.EnergyDamageMod      = GetTraitMax(newOwner.data.Traits.EnergyDamageMod, ownerTraits.EnergyDamageMod);
@@ -559,6 +559,8 @@ namespace Ship_Game
                 colonyType = Planet.ColonyType.Colony;
             else
                 colonyType = Owner.AssessColonyNeeds(thisPlanet);
+
+            Owner.TryTransferCapital(thisPlanet);
         }
 
         protected void GenerateMoons(Planet newOrbital)
