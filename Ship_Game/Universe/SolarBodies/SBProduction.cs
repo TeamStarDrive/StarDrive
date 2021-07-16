@@ -40,7 +40,8 @@ namespace Ship_Game.Universe.SolarBodies
             return ConstructionQueue;
         }
 
-        public bool RushProduction(int itemIndex, float maxAmount, bool rush = false)
+        // Rush button is used only in debug mode for fast debug rush
+        public bool RushProduction(int itemIndex, float maxAmount, bool rushButton = false)
         {
             // don't allow rush if we're crippled
             if (P.IsCrippled || ConstructionQueue.IsEmpty || Owner == null)
@@ -50,22 +51,14 @@ namespace Ship_Game.Universe.SolarBodies
             if (amount > Owner.Money)
                 return false; // Not enough credits to rush
 
+            // dont charge rush fees if in debug and the rush button was clicked
+            bool rushFees = !Empire.Universe.Debug || !rushButton;
+
             // inject artificial surplus to instantly rush & finish production
-            if (Empire.Universe.Debug && Owner.isPlayer)
-            {
+            if (Empire.Universe.Debug && rushButton)
                 amount = SurplusThisTurn = 1000;
-            }
 
-            return ApplyProductionToQueue(maxAmount: amount, itemIndex, rush);
-        }
-
-        // The Remnant get a "magic" production cheat
-        public void RemnantCheatProduction()
-        {
-            foreach (QueueItem item in ConstructionQueue)
-                item.Cost = 0;
-            ProductionHere += 1f; // add some free production before building
-            ApplyProductionToQueue(maxAmount:2f, 0);
+            return ApplyProductionToQueue(maxAmount: amount, itemIndex, rushFees);
         }
 
         // Spend up to `max` production for QueueItem
@@ -93,7 +86,7 @@ namespace Ship_Game.Universe.SolarBodies
         // @note `maxProduction` is a max limit, this method will attempt
         //       to consume no more than `maxAmount` from local production
         // @return true if at least some production was applied
-        bool ApplyProductionToQueue(float maxAmount, int itemIndex, bool rush = false)
+        bool ApplyProductionToQueue(float maxAmount, int itemIndex, bool rushFees)
         {
             if (maxAmount <= 0.0f || ConstructionQueue.IsEmpty)
                 return false;
@@ -104,7 +97,7 @@ namespace Ship_Game.Universe.SolarBodies
                 QueueItem item = ConstructionQueue[itemIndex];
                 SpendProduction(item, maxAmount);
 
-                if (rush && (!Owner.isPlayer || !Empire.Universe.Debug))
+                if (rushFees && (!Owner.isPlayer || !Empire.Universe.Debug))
                 {
                     Owner.ChargeRushFees(maxAmount);
                 }
@@ -176,7 +169,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (!GlobalStats.SuppressOnBuildNotifications
                 && !Empire.Universe.IsViewingColonyScreen(P)
                 && P.Owner == EmpireManager.Player
-                && q.IsPlayerAdded)
+                && (q.IsPlayerAdded || q.Building.IsCapital))
             {
                 Empire.Universe.NotificationManager.AddBuildingConstructed(P, b);
             }
@@ -240,7 +233,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             float percentToApply = P.RecentCombat ? 0.1f : 1f; // Ongoing combat is hindering logistics
             float limitSpentProd = P.LimitedProductionExpenditure(P.CurrentProductionToQueue);
-            ApplyProductionToQueue(maxAmount: limitSpentProd * percentToApply, 0);
+            ApplyProductionToQueue(maxAmount: limitSpentProd * percentToApply, 0, rushFees: false);
             TryPlayerRush();
         }
 
@@ -251,7 +244,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             QueueItem item = ConstructionQueue[0];
             if (item.Rush || Owner.RushAllConstruction)
-                RushProduction(0, item.ProductionNeeded, true);
+                RushProduction(0, item.ProductionNeeded);
         }
 
         // @return TRUE if building was added to CQ,
@@ -379,6 +372,13 @@ namespace Ship_Game.Universe.SolarBodies
         {
             ConstructionQueue.Remove(q);
             q.OnComplete?.Invoke(success: true);
+        }
+
+        public bool Cancel(Building b)
+        {
+            QueueItem item = ConstructionQueue.Find(q => q.Building == b);
+            item?.SetCanceled();
+            return item != null;
         }
 
         public bool Cancel(Goal g)
