@@ -186,9 +186,9 @@ namespace Ship_Game
             SubColonyGrid.Draw(batch, elapsed);
 
             DrawPlanetSurfaceGrid(batch);
-            PFacilities.Draw(batch, elapsed);
-            DrawDetailInfo(batch, new Vector2(PFacilities.Rect.X + 15, PFacilities.Rect.Y + 35));
             batch.Draw(P.PlanetTexture, PlanetIcon, Color.White);
+
+            DrawDetailInfo(batch, new Vector2(PFacilities.Rect.X + 15, PFacilities.Rect.Y + 35));
 
             float num5 = 80f;
             var cursor = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
@@ -419,125 +419,150 @@ namespace Ship_Game
                 return;
             }
 
-            Color color = Color.Wheat;
             switch (DetailInfo)
             {
-                case Troop t:
-                    batch.DrawString(Font20, t.DisplayNameEmpire(P.Owner), bCursor, TextColor);
-                    bCursor.Y += Font20.LineSpacing + 2;
-                    string strength = t.Strength < t.ActualStrengthMax ? t.Strength + "/" + t.ActualStrengthMax
-                        : t.ActualStrengthMax.String(1);
-
-                    DrawMultiLine(ref bCursor, t.Description);
-                    DrawTitledLine(ref bCursor, GameText.TroopClass, t.TargetType.ToString());
-                    DrawTitledLine(ref bCursor, GameText.Strength, strength);
-                    DrawTitledLine(ref bCursor, GameText.HardAttack, t.ActualHardAttack.ToString());
-                    DrawTitledLine(ref bCursor, GameText.SoftAttack, t.ActualSoftAttack.ToString());
-                    DrawTitledLine(ref bCursor, GameText.Boarding, t.BoardingStrength.ToString());
-                    DrawTitledLine(ref bCursor, GameText.Level, t.Level.ToString());
-                    DrawTitledLine(ref bCursor, GameText.Range2, t.ActualRange.ToString());
+                case Building buildableBuilding: // BuildList building
+                    DrawHoveredBuildListBuildingInfo(batch, bCursor, buildableBuilding);
                     break;
-
-                case string _:
-                    DrawMultiLine(ref bCursor, P.Description);
-                    string desc = "";
-                    if (P.IsCybernetic)  desc = Localizer.Token(GameText.TheOccupantsOfThisPlanet);
-                    else switch (P.FS)
-                    {
-                        case Planet.GoodState.EXPORT: desc = Localizer.Token(GameText.ThisColonyIsSetTo); break;
-                        case Planet.GoodState.IMPORT: desc = Localizer.Token(GameText.ThisColonyIsSetTo2); break;
-                        case Planet.GoodState.STORE:  desc = Localizer.Token(GameText.ThisPlanetIsNeitherImporting); break;
-                    }
-
-                    DrawMultiLine(ref bCursor, desc);
-                    desc = "";
-                    if (P.colonyType == Planet.ColonyType.Colony)
-                    {
-                        switch (P.PS)
-                        {
-                            case Planet.GoodState.EXPORT: desc = Localizer.Token(GameText.ThisPlanetIsManuallyExporting); break;
-                            case Planet.GoodState.IMPORT: desc = Localizer.Token(GameText.ThisPlanetIsManuallyImporting); break;
-                            case Planet.GoodState.STORE:  desc = Localizer.Token(GameText.ThisPlanetIsManuallyStoring); break;
-                        }
-                    }
-                    else
-                        switch (P.PS)
-                        {
-                            case Planet.GoodState.EXPORT: desc = Localizer.Token(GameText.TheGovernorIsExportingProduction); break;
-                            case Planet.GoodState.IMPORT: desc = Localizer.Token(GameText.TheGovernorIsImportingProduction); break;
-                            case Planet.GoodState.STORE:  desc = Localizer.Token(GameText.TheGovernorIsStoringProduction); break;
-                        }
-                    DrawMultiLine(ref bCursor, desc);
-                    if (P.IsStarving)
-                        DrawMultiLine(ref bCursor, Localizer.Token(GameText.ThisPlanetsPopulationIsShrinking), Color.LightPink);
-
+                case Troop buildableTroop: // BuildList troop
+                    DrawHoveredBuildListTroopInfo(batch, bCursor, buildableTroop);
                     break;
-                case PlanetGridSquare pgs:
-                    switch (pgs.Building)
-                    {
-                        case null when pgs.Habitable && pgs.Biosphere:
-                            batch.DrawString(Font20, Localizer.Token(GameText.HabitableBiosphere), bCursor, color);
-                            bCursor.Y += Font20.LineSpacing + 5;
-                            batch.DrawString(TextFont, MultiLineFormat(GameText.DragAStructureFromThe), bCursor, color);
-                            DrawTilePopInfo(ref bCursor, batch, pgs);
-                            return;
-                        case null when pgs.Habitable:
-                            batch.DrawString(Font20, Localizer.Token(GameText.HabitableLand), bCursor, color);
-                            bCursor.Y += Font20.LineSpacing + 5;
-                            batch.DrawString(TextFont, MultiLineFormat(GameText.DragAStructureFromThe), bCursor, color);
-                            DrawTilePopInfo(ref bCursor, batch, pgs);
-                            return;
-                    }
-
-                    if (!pgs.Habitable && !pgs.BuildingOnTile)
-                    {
-                        if (P.IsBarrenType)
-                        {
-                            batch.DrawString(Font20, Localizer.Token(GameText.UninhabitableLand), bCursor, color);
-                            bCursor.Y += Font20.LineSpacing + 5;
-                            batch.DrawString(TextFont, MultiLineFormat(GameText.ThisLandIsNotHabitable), bCursor, color);
-                        }
-                        else
-                        {
-                            batch.DrawString(Font20, Localizer.Token(GameText.UninhabitableLand), bCursor, color);
-                            bCursor.Y += Font20.LineSpacing + 5;
-                            batch.DrawString(TextFont, MultiLineFormat(GameText.ThisLandIsNotHabitable), bCursor, color);
-                        }
-
-                        DrawTilePopInfo(ref bCursor, batch, pgs);
-                    }
-
-                    if (pgs.Building == null)
-                        return;
-
-                    var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                    batch.Draw(ResourceManager.Texture("Ground_UI/GC_Square Selection"), bRect, Color.White);
-                    batch.DrawString(Font20, pgs.Building.TranslatedName, bCursor, color);
-                    bCursor.Y   += Font20.LineSpacing + 5;
-                    string buildingDescription  = MultiLineFormat(pgs.Building.DescriptionText);
-                    batch.DrawString(TextFont, buildingDescription, bCursor, color);
-                    bCursor.Y   += TextFont.MeasureString(buildingDescription).Y + Font20.LineSpacing;
-                    DrawSelectedBuildingInfo(ref bCursor, batch, pgs.Building, pgs);
-                    DrawTilePopInfo(ref bCursor, batch, pgs, 2);
-                    if (!pgs.Building.Scrappable)
-                        return;
-
-                    bCursor.Y += TextFont.LineSpacing * 2;
-                    batch.DrawString(TextFont, "You may scrap this building by right clicking it", bCursor, Color.White);
+                // for null or string case, we always draw entire colony descr
+                case null: case string _:
+                    DrawColonyDescription(bCursor);
                     break;
-
-                case Building selectedBuilding:
-                    batch.DrawString(Font20, selectedBuilding.TranslatedName, bCursor, color);
-                    bCursor.Y += Font20.LineSpacing + 5;
-                    string selectionText = MultiLineFormat(selectedBuilding.DescriptionText);
-                    batch.DrawString(TextFont, selectionText, bCursor, color);
-                    bCursor.Y += TextFont.MeasureString(selectionText).Y + Font20.LineSpacing;
-                    if (selectedBuilding.isWeapon)
-                        selectedBuilding.CalcMilitaryStrength(); // So the building will have TheWeapon for stats
-
-                    DrawSelectedBuildingInfo(ref bCursor, batch, selectedBuilding);
+                case PlanetGridSquare pgs: // hovering over a PlanetGridSquare
+                    DrawHoveredPGSInfo(batch, bCursor, pgs);
                     break;
             }
+        }
+
+        // TODO: extracted method, needs refactor/clean
+        void DrawHoveredPGSInfo(SpriteBatch batch, Vector2 bCursor, PlanetGridSquare pgs)
+        {
+            Color color = Color.Wheat;
+
+            switch (pgs.Building)
+            {
+                case null when pgs.Habitable && pgs.Biosphere:
+                    batch.DrawString(Font20, Localizer.Token(GameText.HabitableBiosphere), bCursor, color);
+                    bCursor.Y += Font20.LineSpacing + 5;
+                    batch.DrawString(TextFont, MultiLineFormat(GameText.DragAStructureFromThe), bCursor, color);
+                    DrawTilePopInfo(ref bCursor, batch, pgs);
+                    return;
+                case null when pgs.Habitable:
+                    batch.DrawString(Font20, Localizer.Token(GameText.HabitableLand), bCursor, color);
+                    bCursor.Y += Font20.LineSpacing + 5;
+                    batch.DrawString(TextFont, MultiLineFormat(GameText.DragAStructureFromThe), bCursor, color);
+                    DrawTilePopInfo(ref bCursor, batch, pgs);
+                    return;
+            }
+
+            if (!pgs.Habitable && !pgs.BuildingOnTile)
+            {
+                if (P.IsBarrenType)
+                {
+                    batch.DrawString(Font20, Localizer.Token(GameText.UninhabitableLand), bCursor, color);
+                    bCursor.Y += Font20.LineSpacing + 5;
+                    batch.DrawString(TextFont, MultiLineFormat(GameText.ThisLandIsNotHabitable), bCursor, color);
+                }
+                else
+                {
+                    batch.DrawString(Font20, Localizer.Token(GameText.UninhabitableLand), bCursor, color);
+                    bCursor.Y += Font20.LineSpacing + 5;
+                    batch.DrawString(TextFont, MultiLineFormat(GameText.ThisLandIsNotHabitable), bCursor, color);
+                }
+
+                DrawTilePopInfo(ref bCursor, batch, pgs);
+            }
+
+            if (pgs.Building == null)
+                return;
+
+            var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
+            batch.Draw(ResourceManager.Texture("Ground_UI/GC_Square Selection"), bRect, Color.White);
+            batch.DrawString(Font20, pgs.Building.TranslatedName, bCursor, color);
+            bCursor.Y += Font20.LineSpacing + 5;
+            string buildingDescription = MultiLineFormat(pgs.Building.DescriptionText);
+            batch.DrawString(TextFont, buildingDescription, bCursor, color);
+            bCursor.Y += TextFont.MeasureString(buildingDescription).Y + Font20.LineSpacing;
+            DrawSelectedBuildingInfo(ref bCursor, batch, pgs.Building, pgs);
+            DrawTilePopInfo(ref bCursor, batch, pgs, 2);
+            if (!pgs.Building.Scrappable)
+                return;
+
+            bCursor.Y += TextFont.LineSpacing * 2;
+            batch.DrawString(TextFont, "You may scrap this building by right clicking it", bCursor, Color.White);
+        }
+
+        // TODO: extracted method, needs refactor/clean
+        void DrawHoveredBuildListBuildingInfo(SpriteBatch batch, Vector2 bCursor, Building selectedBuilding)
+        {
+            Color color = Color.Wheat;
+
+            batch.DrawString(Font20, selectedBuilding.TranslatedName, bCursor, color);
+            bCursor.Y += Font20.LineSpacing + 5;
+            string selectionText = MultiLineFormat(selectedBuilding.DescriptionText);
+            batch.DrawString(TextFont, selectionText, bCursor, color);
+            bCursor.Y += TextFont.MeasureString(selectionText).Y + Font20.LineSpacing;
+            if (selectedBuilding.isWeapon)
+                selectedBuilding.CalcMilitaryStrength(); // So the building will have TheWeapon for stats
+
+            DrawSelectedBuildingInfo(ref bCursor, batch, selectedBuilding);
+        }
+
+        // TODO: extracted method, needs refactor/clean
+        void DrawHoveredBuildListTroopInfo(SpriteBatch batch, Vector2 bCursor, Troop t)
+        {
+            batch.DrawString(Font20, t.DisplayNameEmpire(P.Owner), bCursor, TextColor);
+            bCursor.Y += Font20.LineSpacing + 2;
+            string strength = t.Strength < t.ActualStrengthMax ? t.Strength + "/" + t.ActualStrengthMax
+                : t.ActualStrengthMax.String(1);
+
+            DrawMultiLine(ref bCursor, t.Description);
+            DrawTitledLine(ref bCursor, GameText.TroopClass, t.TargetType.ToString());
+            DrawTitledLine(ref bCursor, GameText.Strength, strength);
+            DrawTitledLine(ref bCursor, GameText.HardAttack, t.ActualHardAttack.ToString());
+            DrawTitledLine(ref bCursor, GameText.SoftAttack, t.ActualSoftAttack.ToString());
+            DrawTitledLine(ref bCursor, GameText.Boarding, t.BoardingStrength.ToString());
+            DrawTitledLine(ref bCursor, GameText.Level, t.Level.ToString());
+            DrawTitledLine(ref bCursor, GameText.Range2, t.ActualRange.ToString());
+        }
+
+        // TODO: extracted method, needs refactor/clean
+        void DrawColonyDescription(Vector2 bCursor)
+        {
+            DrawMultiLine(ref bCursor, P.Description);
+            string desc = "";
+            if (P.IsCybernetic) desc = Localizer.Token(GameText.TheOccupantsOfThisPlanet);
+            else switch (P.FS)
+                {
+                    case Planet.GoodState.EXPORT: desc = Localizer.Token(GameText.ThisColonyIsSetTo); break;
+                    case Planet.GoodState.IMPORT: desc = Localizer.Token(GameText.ThisColonyIsSetTo2); break;
+                    case Planet.GoodState.STORE: desc = Localizer.Token(GameText.ThisPlanetIsNeitherImporting); break;
+                }
+
+            DrawMultiLine(ref bCursor, desc);
+            desc = "";
+            if (P.colonyType == Planet.ColonyType.Colony)
+            {
+                switch (P.PS)
+                {
+                    case Planet.GoodState.EXPORT: desc = Localizer.Token(GameText.ThisPlanetIsManuallyExporting); break;
+                    case Planet.GoodState.IMPORT: desc = Localizer.Token(GameText.ThisPlanetIsManuallyImporting); break;
+                    case Planet.GoodState.STORE: desc = Localizer.Token(GameText.ThisPlanetIsManuallyStoring); break;
+                }
+            }
+            else
+                switch (P.PS)
+                {
+                    case Planet.GoodState.EXPORT: desc = Localizer.Token(GameText.TheGovernorIsExportingProduction); break;
+                    case Planet.GoodState.IMPORT: desc = Localizer.Token(GameText.TheGovernorIsImportingProduction); break;
+                    case Planet.GoodState.STORE: desc = Localizer.Token(GameText.TheGovernorIsStoringProduction); break;
+                }
+            DrawMultiLine(ref bCursor, desc);
+            if (P.IsStarving)
+                DrawMultiLine(ref bCursor, Localizer.Token(GameText.ThisPlanetsPopulationIsShrinking), Color.LightPink);
         }
 
         void DrawMoney(ref Vector2 cursor, SpriteBatch batch)
