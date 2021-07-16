@@ -119,6 +119,7 @@
     <Compile Include="Ships\TestWeaponMunition.cs" />
     <Compile Include="Ships\TestWeaponModifiers.cs" />
     <Compile Include="Technologies\TestResearchPriorities.cs" />
+    <Compile Include="Technologies\TestShipCostMods.cs" />
     <Compile Include="Technologies\TestTechnologyUnlock.cs" />
     <Compile Include="TestGameComponent.cs" />
     <Compile Include="TestImpactPredictor.Scenario.cs" />
