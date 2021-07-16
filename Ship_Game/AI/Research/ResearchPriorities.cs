@@ -34,7 +34,7 @@ namespace Ship_Game.AI.Research
         string CreateTechString(Map<string, int> priority, Array<TechEntry> availableTechs)
         {
             string techCategoryPrioritized = "TECH";
-            int maxStrings                 = priority.Count + 3;
+            int maxStrings                 = priority.Count + 4;
             int numStrings                 = 0;
             foreach (var pWeighted in priority.OrderByDescending(weight => weight.Value))
             {
@@ -120,7 +120,8 @@ namespace Ship_Game.AI.Research
         float CalcEconomics(Empire empire)
         {
             float workerEfficiency = empire.Research.NetResearch / empire.Research.MaxResearchPotential.LowerBound(1);
-            return (empire.GetEmpireAI().CreditRating + workerEfficiency) / 2f;
+            float credit = empire.GetEmpireAI().CreditRating.NaNChecked(1, "CreditRating");
+            return (credit + workerEfficiency) / 2f;
         }
 
         float CalcResearchDebt(Empire empire, out Array<TechEntry> availableTechs)
@@ -201,7 +202,6 @@ namespace Ship_Game.AI.Research
             int b = (int)(bonus * 100);
             int p = (int)(priority * 100);
             return RandomMath.AvgRandomBetween(b, p + b);
-
         }
 
         void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
