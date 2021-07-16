@@ -149,7 +149,7 @@ namespace Ship_Game
                     RunOnEmpireThread(() =>
                     {
                         bool hasValidConstruction = P.Construction.NotEmpty && !P.ConstructionQueue[0].IsComplete;
-                        if (hasValidConstruction && P.Construction.RushProduction(0, maxAmount, rush: true))
+                        if (hasValidConstruction && P.Construction.RushProduction(0, maxAmount, rushButton: true))
                         {
                             GameAudio.AcceptClick();
                             UpdateQueueItemsList();

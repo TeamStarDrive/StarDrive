@@ -920,7 +920,7 @@ namespace Ship_Game
                 case "Smart Missiles": data.Traits.SmartMissiles = true; break; // Fb - Smart re target
                 case "Minimum Troop Level": data.MinimumTroopLevel += (int)unlockedBonus.Bonus; break; // FB Minimum Troop Level Bonus
                 case "Bomb Environment Damage Bonus": data.BombEnvironmentDamageMultiplier += unlockedBonus.Bonus; break;
-                case "Terraforming Max Level": data.Traits.TerraformingLevel = ((int)unlockedBonus.Bonus).Clamped(0,3); break;
+                case "Terraforming": data.Traits.TerraformingLevel = ((int)unlockedBonus.Bonus).Clamped(0,3); break;
                 case "Counter Enemy Planet Inhibition Bonus": 
                     data.Traits.EnemyPlanetInhibitionPercentCounter = (data.Traits.EnemyPlanetInhibitionPercentCounter
                                                                        + unlockedBonus.Bonus).Clamped(0, 0.75f); break;
