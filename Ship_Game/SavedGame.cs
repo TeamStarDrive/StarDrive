@@ -178,6 +178,7 @@ namespace Ship_Game
                 empireToSave.FleetStrEmpireModifier    = e.FleetStrEmpireMultiplier;
                 empireToSave.DiplomacyContactQueue     = e.DiplomacyContactQueue;
                 empireToSave.ObsoletePlayerShipModules = e.ObsoletePlayerShipModules;
+                empireToSave.CapitalGuid               = e.Capital?.guid ?? Guid.Empty;
 
                 if (e.WeArePirates)
                 {
@@ -632,6 +633,7 @@ namespace Ship_Game
             [Serialize(42)] public Map<int, float> FleetStrEmpireModifier;
             [Serialize(43)] public List<KeyValuePair<int, string>> DiplomacyContactQueue;
             [Serialize(44)] public Array<string> ObsoletePlayerShipModules;
+            [Serialize(45)] public Guid CapitalGuid;
         }
 
         public class FleetSave
@@ -777,6 +779,7 @@ namespace Ship_Game
             [Serialize(58)] public float AverageProdImportTurns;
             [Serialize(59)] public float AverageFoodExportTurns;
             [Serialize(60)] public float AverageProdExportTurns;
+            [Serialize(61)] public bool IsHomeworld;
 
             public override string ToString() => $"PlanetSD {Name}";
         }

@@ -113,6 +113,17 @@ namespace Ship_Game
             }, "sd_ui_notification_colonized_01");
         }
 
+        public void AddCapitalTransfer(Planet from, Planet to)
+        {
+            AddNotification(new Notification
+            {
+                Message         = $"{to.Name}: {Localizer.Token(GameText.NotifyCapitalTransfer)} {from.Name}",
+                ReferencedItem1 = to,
+                IconPath        = to.IconPath,
+                Action          = "SnapToPlanet"
+            }, "sd_ui_notification_encounter");
+        }
+
         public void AddTreatyBreak(Empire empire, TreatyType type)
         {
             string treaty = "";

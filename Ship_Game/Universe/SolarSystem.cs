@@ -756,6 +756,7 @@ namespace Ship_Game
                     AverageProdImportTurns    = planet.AverageProdImportTurns,
                     AverageFoodExportTurns    = planet.AverageFoodExportTurns,
                     AverageProdExportTurns    = planet.AverageProdExportTurns,
+                    IsHomeworld               = planet.IsHomeworld
                 };
 
                 if (planet.Owner != null)

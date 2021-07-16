@@ -48,7 +48,7 @@ namespace Ship_Game.Commands.Goals
                 && empire.GetEmpireAI().SafeToRush) 
             {
                 float rush = (10f * (importance + 0.5f)).UpperBound(PlanetBuildingAt.ProdHere);
-                PlanetBuildingAt.Construction.RushProduction(0, rush, rush: true);
+                PlanetBuildingAt.Construction.RushProduction(0, rush);
             }
             return GoalStep.TryAgain;
         }
