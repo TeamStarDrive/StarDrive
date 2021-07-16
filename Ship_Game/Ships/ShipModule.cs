@@ -39,7 +39,7 @@ namespace Ship_Game.Ships
         bool CanVisualizeDamage;
         public float ShieldPower { get; private set; }
         public short OrdinanceCapacity;
-        bool OnFire;
+        bool OnFire; // is this module on fire?
         Vector3 Center3D;
         public Vector3 GetCenter3D => Center3D;
         const float OnFireThreshold = 0.15f;
@@ -233,7 +233,8 @@ namespace Ship_Game.Ships
         public float ActualShieldPowerMax { get; private set; }
         public float ActualMaxHealth       => TemplateMaxHealth * Bonuses.HealthMod;
 
-        public bool HasInternalRestrictions => Restrictions == Restrictions.I || Restrictions == Restrictions.IO;
+        public bool HasInternalRestrictions => Restrictions == Restrictions.I
+                                            || Restrictions == Restrictions.IO;
 
         // FB: This method was created to deal with modules which have secondary functionality. Use this whenever you want to check
         // module types for calculations. Dont use it when you are looking for main functionality as defined in the xml (for instance - ship design screen)
@@ -274,6 +275,7 @@ namespace Ship_Game.Ships
             float healthChange = newHealth - Health;
             Health = newHealth;
             OnFire = (newHealth / maxHealth) < OnFireThreshold;
+            Parent.OnHealthChange(healthChange);
 
             if (!fromSave) // do not trigger Die() or Resurrect() during savegame loading
             {
@@ -286,7 +288,6 @@ namespace Ship_Game.Ships
                     ResurrectModule();
                 }
             }
-            Parent.AddShipHealth(healthChange);
         }
 
         public void UpdateShieldPowerMax(float shieldAmplify)
@@ -894,13 +895,12 @@ namespace Ship_Game.Ships
                     Empire.Universe.Particles.Explosion.AddParticle(pos);
                 }
 
-                SpawnDebris(Area, Parent.Velocity,0);
+                SpawnDebris(Area, Parent.Velocity, 0);
             }
 
             Active = false;
-            Parent.shipStatusChanged = true;
-            Parent.ShouldRecalculatePower |= ActualPowerFlowMax > 0 || PowerRadius > 0;
-            Parent.UpdateExternalSlots(this, becameActive: false);
+            SetHealth(0f);
+            Parent.OnModuleDeath(this);
 
             if (!cleanupOnly && source != null)
             {
@@ -913,6 +913,12 @@ namespace Ship_Game.Ships
                         ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
                 }
             }
+        }
+
+        void ResurrectModule()
+        {
+            Active = true;
+            Parent.OnModuleResurrect(this);
         }
 
         void SpawnDebris(int size, Vector2 velocity, int count, bool ignite = true)
@@ -1070,14 +1076,6 @@ namespace Ship_Game.Ships
             SetHangarShip(newShipToLink);
             newShipToLink.Mothership = Parent;
             newShipToLink.AI.OrderReturnToHangar();
-        }
-
-        void ResurrectModule()
-        {
-            Active = true;
-            Parent.shipStatusChanged = true;
-            Parent.ShouldRecalculatePower = true;
-            Parent.UpdateExternalSlots(this, becameActive: true);
         }
 
         public override void Update(FixedSimTime timeStep)
@@ -1454,7 +1452,10 @@ namespace Ship_Game.Ships
             }
         }
 
-        public override string ToString() => $"{UID}  {Id}  x {Position.X} y {Position.Y}  size {XSIZE}x{YSIZE}  world={Center}  Ship={Parent?.Name}";
+        public override string ToString()
+        {
+            return $"{UID}  {Id}  {XSIZE}x{YSIZE} {Restrictions} [{Position.X};{Position.Y}] hp={Health} world={Center} ship={Parent?.Name}";
+        }
 
         public void Dispose()
         {
