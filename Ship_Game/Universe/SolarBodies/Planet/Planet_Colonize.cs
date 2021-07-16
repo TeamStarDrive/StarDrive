@@ -26,6 +26,7 @@ namespace Ship_Game
             SetupCyberneticsWorkerAllocations();
             SetInGroundCombat(Owner);
             AbortLandingPlayerFleets();
+            Owner.TryTransferCapital(this);
             StatTracker.StatAddColony(Empire.Universe.StarDate, this);
         }
 
@@ -125,7 +126,7 @@ namespace Ship_Game
             Building outpost       = ResourceManager.GetBuildingTemplate(Building.OutpostId);
             
             // always spawn an outpost on a new colony
-            if (!OutpostBuiltOrInQueue())
+            if (!OutpostOrCapitalBuiltOrInQueue())
                 SpawnNewColonyBuilding(outpost);
 
             SpawnExtraBuildings(startingEquipment);
