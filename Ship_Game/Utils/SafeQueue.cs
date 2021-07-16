@@ -377,10 +377,14 @@ namespace Ship_Game.Utils
             Count = 0;
             if (force)
             {
-                if (ItemAdded != null)
+                var itemAdded = ItemAdded;
+                if (itemAdded != null)
                 {
-                    ItemAdded.Set();
-                    ItemAdded = null;
+                    if (itemAdded.SafeWaitHandle.IsClosed == false)
+                    {
+                        ItemAdded = null;
+                        itemAdded.Set();
+                    }
                 }
             }
         }

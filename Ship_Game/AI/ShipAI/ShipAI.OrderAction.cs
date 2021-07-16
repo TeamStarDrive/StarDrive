@@ -457,7 +457,7 @@ namespace Ship_Game.AI
             ClearWayPoints();
 
             if (!Owner.loyalty.isPlayer)
-                Owner.fleet?.RemoveShip(Owner); // Avoid lingering fleets for the AI
+                Owner.fleet?.RemoveShip(Owner, returnToEmpireAI: false); // Avoid lingering fleets for the AI
 
             Target       = null;
             OrbitTarget  = toOrbit;
@@ -470,7 +470,7 @@ namespace Ship_Game.AI
 
         public void OrderReturnToHangar()
         {
-            ClearOrders(AIState.ReturnToHangar ,priority: true);
+            ClearOrders(AIState.ReturnToHangar, priority: true);
             AddShipGoal(Plan.ReturnToHangar, AIState.ReturnToHangar);
         }
 
@@ -480,9 +480,16 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.ReturnHome, AIState.ReturnHome);
         }
 
+        // Move to closest colony and get back some resources
         public void OrderScrapShip()
         {
-            Owner.loyalty.GetEmpireAI().AddScrapShipGoal(Owner);
+            Owner.loyalty.GetEmpireAI().AddScrapShipGoal(Owner, immediateScuttle:false);
+        }
+
+        // Immediately self-destruct
+        public void OrderScuttleShip()
+        {
+            Owner.loyalty.GetEmpireAI().AddScrapShipGoal(Owner, immediateScuttle:true);
         }
 
         public void AddSupplyShipGoal(Ship supplyTarget, Plan plan = Plan.SupplyShip)
@@ -617,7 +624,8 @@ namespace Ship_Game.AI
 
         bool SetAwaitClosestForAIEmpire()
         {
-            if (Owner.loyalty.isFaction || Owner.loyalty.isPlayer) return false;
+            if (Owner.loyalty.isFaction || Owner.loyalty.isPlayer)
+                return false;
 
             SolarSystem home = Owner.System?.OwnerList.Contains(Owner.loyalty) != true? null : Owner.System;
             if (home == null)
@@ -628,6 +636,9 @@ namespace Ship_Game.AI
                 {
                     var system = Empire.Universe.SolarSystemDict.FindMinValue(ss =>
                                Owner.Center.SqDist(ss.Position) * (ss.OwnerList.Count + 1));
+                    if (system == null)
+                        return false;
+
                     AwaitClosest = system.PlanetList.FindClosestTo(Owner);
                 }
             }

@@ -1,8 +1,10 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Debug;
+using Ship_Game.Empires.Components;
 using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships.Components;
@@ -11,9 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Empires;
-using Ship_Game.Empires.Components;
 
 namespace Ship_Game.Ships
 {
@@ -38,7 +37,6 @@ namespace Ship_Game.Ships
         }
 
         public string VanityName = ""; // user modifiable ship name. Usually same as Ship.Name
-        public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
 
         public float RepairRate  = 1f;
         public float SensorRange = 20000f;
@@ -175,13 +173,40 @@ namespace Ship_Game.Ships
         public bool IsSubspaceProjector     => Name == "Subspace Projector";
         public bool HasBombs                => BombBays.Count > 0;
         public bool IsEmpireSupport         => DesignRoleType == ShipData.RoleType.EmpireSupport;
+                
         /// <summary>
         /// Ship is expected to exchange fire with enemy ships directly not through hangar ships and other such things.
         /// </summary>
-        public bool IsAWarShip              => DesignRoleType == ShipData.RoleType.Warship;
-        public bool IsOrbital               => DesignRoleType == ShipData.RoleType.Orbital;
-        public bool IsInAFleet              => fleet != null;
+        public bool IsAWarShip => DesignRoleType == ShipData.RoleType.Warship;
+        public bool IsOrbital  => DesignRoleType == ShipData.RoleType.Orbital;
+        public bool IsInAFleet => fleet != null;
 
+        /// <summary>
+        /// This ship is a carrier which launches fighters/corvettes/frigates
+        /// </summary>
+        public bool IsPrimaryCarrier   => DesignRole == ShipData.RoleName.carrier;
+        public bool IsSecondaryCarrier => !IsPrimaryCarrier && Carrier.HasFighterBays;
+
+        // Current pool that this ship is assigned to
+        public IShipPool Pool;
+
+        public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
+        
+        /// <summary>
+        /// Removes ship from any pools and fleets and doesn't put them back into Empire Force Pools
+        /// </summary>
+        public void RemoveFromPoolAndFleet(bool clearOrders)
+        {
+            if (clearOrders)
+                AI?.ClearOrders();
+            Pool?.Remove(this);
+            fleet?.RemoveShip(this, returnToEmpireAI: false);
+        }
+
+        public bool RemoveFromPool() => Pool?.Remove(this) ?? false;
+        public void ClearFleet(bool returnToManagedPools = true) => fleet?.RemoveShip(this, returnToManagedPools);
+        public void UnsafeClearFleet() => fleet?.UnSafeRemoveShip(this);
+        
         public bool IsConstructor
         {
             get => DesignRole == ShipData.RoleName.construction;
@@ -193,9 +218,10 @@ namespace Ship_Game.Ships
         /// </summary>
         public bool ShouldNotBeAddedToForcePools()
         {
-            return !Active || IsInAFleet || IsHangarShip || IsHomeDefense ||
-                   shipData.CarrierShip || IsSupplyShuttle || IsEmpireSupport ||
-                   IsOrbital || DoingRefit || DoingScrap || DoingScuttle || isColonyShip;
+            return !Active || IsInAFleet || IsHangarShip || IsHomeDefense
+                || shipData.CarrierShip || IsEmpireSupport || IsOrbital
+                || DoingRefit || DoingScrap || DoingScuttle || isColonyShip
+                || IsFreighter || IsSupplyShuttle;
         }
 
         /// <summary>
@@ -638,7 +664,7 @@ namespace Ship_Game.Ships
                     AI.ClearOrders();
                     return;
                 }
-                EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.AddShip(this);
+                EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.Add(this);
                 AI.State = AIState.SystemDefender;
             }
         }
@@ -655,11 +681,7 @@ namespace Ship_Game.Ships
             set => Empire.Universe.ScreenManager.AddScreen(new RefitToWindow(Empire.Universe, this));
         }
 
-        public bool DoingScuttle
-        {
-            get => AI.State == AIState.Scuttle;
-            // needs set attribute
-        }
+        public bool DoingScuttle => AI.State == AIState.Scuttle;
 
         public bool IsInhibitedByUnfriendlyGravityWell
         {
@@ -1093,6 +1115,43 @@ namespace Ship_Game.Ships
             return speeds.Avg();
         }
 
+        public void OnModuleDeath(ShipModule m)
+        {
+            shipStatusChanged = true;
+            if (m.PowerDraw > 0 || m.ActualPowerFlowMax > 0 || m.PowerRadius > 0)
+                ShouldRecalculatePower = true;
+            if (m.isExternal)
+                UpdateExternalSlots(m, becameActive: false);
+            if (m.HasInternalRestrictions)
+            {
+                SetActiveInternalSlotCount(ActiveInternalSlotCount - m.Area);
+            }
+
+            // kill the ship if all modules exploded or internal slot percent is below critical
+            if (Health <= 0f || InternalSlotsHealthPercent < ShipResupply.ShipDestroyThreshold)
+            {
+                Die(LastDamagedBy, false);
+            }
+        }
+
+        public void OnModuleResurrect(ShipModule m)
+        {
+            shipStatusChanged = true; // update ship status sometime in the future (can be 1 second)
+            if (m.PowerDraw > 0 || m.ActualPowerFlowMax > 0 || m.PowerRadius > 0)
+                ShouldRecalculatePower = true;
+            UpdateExternalSlots(m, becameActive: true);
+            if (m.HasInternalRestrictions)
+            {
+                SetActiveInternalSlotCount(ActiveInternalSlotCount + m.Area);
+            }
+        }
+
+        public void SetActiveInternalSlotCount(int activeInternalSlots)
+        {
+            ActiveInternalSlotCount = activeInternalSlots;
+            InternalSlotsHealthPercent = (float)activeInternalSlots / InternalSlotCount;
+        }
+
         public void UpdateShipStatus(FixedSimTime timeStep)
         {
             if (!Empire.Universe.Paused && VelocityMaximum <= 0f
@@ -1127,12 +1186,7 @@ namespace Ship_Game.Ships
                 UpdateModulesAndStatus(FixedSimTime.One);
                 SecondsAlive += 1;
             }
-
-            InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
-
-            if (InternalSlotsHealthPercent < ShipResupply.ShipDestroyThreshold)
-                Die(LastDamagedBy, false);
-
+            
             PowerCurrent -= PowerDraw * timeStep.FixedTime;
             if (PowerCurrent < PowerStoreMax)
                 PowerCurrent += (PowerFlowMax + PowerFlowMax * (loyalty?.data.PowerFlowMod ?? 0)) * timeStep.FixedTime;
@@ -1253,7 +1307,7 @@ namespace Ship_Game.Ships
                 ReturnHome();
 
             // Repair
-            if (Health.Less(HealthMax))
+            if (Health < HealthMax)
             {
                 if (!InCombat || (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.UseCombatRepair))
                 {
@@ -1362,7 +1416,16 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void AddShipHealth(float addHealth) => Health = (Health + addHealth).Clamped(0, HealthMax);
+        public void OnHealthChange(float change)
+        {
+            float newHealth = Health + change;
+
+            if (newHealth > HealthMax)
+                newHealth = HealthMax;
+            else if (newHealth < 0.5f)
+                newHealth = 0f;
+            Health = newHealth;
+        }
 
         public bool IsTethered => TetheredTo != null;
 
@@ -1610,7 +1673,7 @@ namespace Ship_Game.Ships
             Active = false;
             TetheredTo?.RemoveFromOrbitalStations(this);
             AI.ClearOrdersAndWayPoints(); // This calls immediate Dispose() on Orders that require cleanup
-            loyalty.RemoveShipFromAIPools(this);
+            Pool?.Remove(this);
         }
 
         public override void RemoveFromUniverseUnsafe()
@@ -1651,13 +1714,11 @@ namespace Ship_Game.Ships
             PlanetCrash = null;
 
             ((IEmpireShipLists)loyalty).RemoveShipAtEndOfTurn(this);
+            RemoveFromPoolAndFleet(clearOrders: false/*already cleared*/);
             RemoveTether();
             RemoveSceneObject();
             base.RemoveFromUniverseUnsafe();
         }
-
-        public void ClearFleet(bool returnToManagedPools = true) => fleet?.RemoveShip(this, returnToManagedPools);
-        public void UnsafeClearFleet() => fleet?.UnSafeRemoveShip(this);
 
         public void Dispose()
         {

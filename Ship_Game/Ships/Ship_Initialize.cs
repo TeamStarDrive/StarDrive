@@ -52,14 +52,8 @@ namespace Ship_Game.Ships
         }
 
         // create a NEW ship from template and add it to the universe
-        Ship(Ship template, Empire owner, Vector2 position) : base(GameObjectType.Ship)
+        protected Ship(Ship template, Empire owner, Vector2 position) : base(GameObjectType.Ship)
         {
-            if (!template.shipData.IsValidForCurrentMod)
-            {
-                Log.Info($"Design {template.shipData.Name} [Mod:{template.shipData.ModName}] is not valid for [{GlobalStats.ModOrVanillaName}]");
-                return;
-            }
-
             Position     = position;
             Name         = template.Name;
             BaseStrength = template.BaseStrength;
@@ -88,12 +82,7 @@ namespace Ship_Game.Ships
             Empire.Universe?.Objects.Add(this);
         }
 
-        protected Ship(string shipName, Empire owner, Vector2 position)
-                : this(GetShipTemplate(shipName), owner, position)
-        {
-        }
-
-        static Ship GetShipTemplate(string shipName)
+        protected static Ship GetShipTemplate(string shipName)
         {
             if (ResourceManager.GetShipTemplate(shipName, out Ship template))
                 return template;
@@ -284,7 +273,20 @@ namespace Ship_Game.Ships
         // Added by RedFox - Debug, Hangar Ship, and Platform creation
         public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 position)
         {
-            var ship = new Ship(shipName, owner, position);
+            Ship template = GetShipTemplate(shipName);
+            if (template == null)
+            {
+                Log.Warning($"CreateShip failed, no such design: {shipName}");
+                return null;
+            }
+            
+            if (!template.shipData.IsValidForCurrentMod)
+            {
+                Log.Info($"Design {template.shipData.Name} [Mod:{template.shipData.ModName}] is not valid for [{GlobalStats.ModOrVanillaName}]");
+                return null;
+            }
+
+            var ship = new Ship(template, owner, position);
             return ship.HasModules ? ship : null;
         }
 
