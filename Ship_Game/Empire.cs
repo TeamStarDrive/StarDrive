@@ -3278,19 +3278,19 @@ namespace Ship_Game
 
         void IEmpireShipLists.RemoveShipAtEndOfTurn(Ship s) => EmpireShips?.Remove(s);
 
-        public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
+        public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null, bool forSensorScan = false)
         {
             if (targetEmpire == this || targetEmpire == null)
                 return false;
 
             Relationship rel = GetRelations(targetEmpire);
 
-            if (rel.CanAttack && target == null)
+            if ((rel.CanAttack && target == null) || (forSensorScan && !rel.Known))
                 return true;
 
             return target?.IsAttackable(this, rel) ?? false;
         }
-
+        
         public bool IsEmpireHostile(Empire targetEmpire)
         {
             if (targetEmpire == this || targetEmpire == null)
