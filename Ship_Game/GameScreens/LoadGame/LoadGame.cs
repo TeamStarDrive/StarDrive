@@ -158,6 +158,7 @@ namespace Ship_Game.GameScreens.LoadGame
             CreatePlanetImportExportShipLists(saveData, data); step.Advance();
             UpdateDefenseShipBuildingOffense();                step.Advance();
             UpdatePopulation();                                step.Advance();
+            RestoreCapitals(saveData, data);                   step.Advance();
             RestoreSolarSystemCQs(saveData, data);             step.Finish();
             return data;
         }
@@ -406,6 +407,8 @@ namespace Ship_Game.GameScreens.LoadGame
             p.SetAverageTradeTurns(psData.AverageFoodImportTurns, psData.AverageProdImportTurns,
                 psData.AverageFoodExportTurns, psData.AverageProdExportTurns);
 
+            p.SetHomeworld(psData.IsHomeworld); 
+
             if (p.HasRings)
                 p.RingTilt = RandomMath.RandomBetween(-80f, -45f);
 
@@ -493,9 +496,6 @@ namespace Ship_Game.GameScreens.LoadGame
                         p.Station.LoadContent(ScreenManager.Instance, p.Owner);
                         p.HasSpacePort = true;
                     }
-
-                    if (p.Owner != null && p.HasCapital && p.Owner.Capital == null)
-                        p.Owner.Capital = p;
                     
                     if (p.Owner != null && !system.OwnerList.Contains(p.Owner))
                         system.OwnerList.Add(p.Owner);
@@ -623,6 +623,15 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
+        static void RestoreCapitals(SavedGame.UniverseSaveData sData, UniverseData data)
+        {
+            foreach (SavedGame.EmpireSaveData d in sData.EmpireDataList)
+            {
+                Empire e       = EmpireManager.GetEmpireByName(d.Name);
+                data.FindPlanet(d.CapitalGuid, out Planet capital);
+                e.SetCapital(capital);
+            }
+        }
         
         static void RestoreSolarSystemCQs(SavedGame.UniverseSaveData saveData, UniverseData data)
         {
