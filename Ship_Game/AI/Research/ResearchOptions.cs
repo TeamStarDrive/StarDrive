@@ -157,6 +157,11 @@ namespace Ship_Game.AI.Research
             return 1;
         }
 
+        /// <summary>
+        /// Used for testing
+        /// </summary>
+        public void ChangePriority(ResearchArea area, float priority) => Priority[area] = priority;
+
         public void LoadResearchOptions(Empire empire)
         {
             Array<ResearchSettings> researchMods = ResearchSettings.LoadYaml();
