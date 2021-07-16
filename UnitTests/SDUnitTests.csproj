@@ -118,7 +118,7 @@
     <Compile Include="StarDriveTest.cs" />
     <Compile Include="Ships\TestWeaponMunition.cs" />
     <Compile Include="Ships\TestWeaponModifiers.cs" />
-    <Compile Include="Technologies\Research.cs" />
+    <Compile Include="Technologies\ResearchPriorities.cs" />
     <Compile Include="Technologies\TestTechnologyUnlock.cs" />
     <Compile Include="TestGameComponent.cs" />
     <Compile Include="TestImpactPredictor.Scenario.cs" />
