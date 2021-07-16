@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 
@@ -6,6 +7,7 @@ namespace Ship_Game
 {
     public partial class ColonyScreen
     {
+        int PFacilitiesPlayerTabSelected;
         // Gets the item which we want to use for detail info text
         object GetHoveredDetailItem(InputState input)
         {
@@ -39,21 +41,26 @@ namespace Ship_Game
             return null; // default: use planet description text
         }
 
+        public void OnPFacilitiesTabChange(int tabindex)
+        {
+            // Using PlayerSelectedTab here to be able to return to the tab the player selected when there is no Detail Info item.
+            // So if the player selected the trade tab, then viewed a planet tile and then moved the cursor away, the trade tab will be set again
+            if (DetailInfo == null)
+                PFacilitiesPlayerTabSelected = tabindex;
+        }
+
         public override bool HandleInput(InputState input)
         {
             // always get the currently hovered item
             DetailInfo = GetHoveredDetailItem(input);
-            if (DetailInfo != null) // if hovering over an item, show the Description TAB
-                PFacilities.SelectedIndex = 1;
 
-            // WORKAROUND: disable left-right cycle if player is hovering over
-            //             the build area and wants to type Filter text
-            bool isHoveringOverBuildArea = RightMenu.HitTest(input.CursorPosition);
-            if (!isHoveringOverBuildArea && HandleCycleColoniesLeftRight(input))
+            // If there is a detail info, display the Description TAB, else display last tab the player selected.
+            PFacilities.SelectedIndex = DetailInfo == null ? PFacilitiesPlayerTabSelected : 1;
+
+            if (!FilterBuildableItems.HandlingInput && HandleCycleColoniesLeftRight(input))
                 return true;
 
-            FilterBuildableItems.AutoCaptureOnKeys = isHoveringOverBuildArea;
-
+            FilterBuildableItemsLabel.Color = FilterBuildableItems.HandlingInput ? Color.White : Color.Gray;
             P.UpdateIncomes(false);
 
             // We are monitoring AI Colonies
@@ -180,7 +187,7 @@ namespace Ship_Game
             if (nextOrPrevPlanet != P)
             {
                 Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, nextOrPrevPlanet, Eui,
-                    GovernorDetails.CurrentTabIndex, PFacilities.SelectedIndex);
+                    GovernorDetails.CurrentTabIndex, PFacilitiesPlayerTabSelected);
             }
         }
 

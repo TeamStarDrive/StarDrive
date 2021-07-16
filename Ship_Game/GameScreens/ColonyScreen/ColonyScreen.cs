@@ -30,6 +30,7 @@ namespace Ship_Game
         readonly UILabel StarvationLabel;
         readonly Rectangle PlanetShieldIconRect;
         readonly ProgressBar PlanetShieldBar;
+        readonly UILabel FilterBuildableItemsLabel;
 
         readonly ScrollList2<BuildableListItem> BuildableList;
         readonly ScrollList2<ConstructionQueueScrollListItem> ConstructionQueue;
@@ -182,15 +183,18 @@ namespace Ship_Game
             if (Player.data.Traits.TerraformingLevel > 0)
                 PFacilities.AddTab(GameText.BB_Tech_Terraforming_Name); // Terraforming
 
+            PFacilities.OnTabChange = OnPFacilitiesTabChange;
             // FB - sticky tab selection on colony change via arrows
             if (facilitiesTabSelected < PFacilities.Tabs.Count)
                 PFacilities.SelectedIndex = facilitiesTabSelected;
-            
-            var filterRect = new RectF(RightMenu.X + 70, RightMenu.Y + 12, RightMenu.Width - 400, 22);
+
+            var filterBgRect = new RectF(RightMenu.X + 70, RightMenu.Y + 15, RightMenu.Width - 400, 20);
+            var filterRect = new RectF(filterBgRect.X + 5, filterBgRect.Y, filterBgRect.W, filterBgRect.H);
             FilterBuildableItems = Add(new UITextEntry(filterRect, Font12, ""));
             FilterBuildableItems.AutoCaptureOnHover = true;
-            FilterBuildableItems.Background = new Submenu(filterRect);
-            Label(RightMenu.X + 25, filterRect.Y + 3, "Filter:", Font12);
+            FilterBuildableItems.Background = new Submenu(filterBgRect);
+            Vector2 filterLabelPos = new Vector2(RightMenu.X + 25, filterRect.Y+2);
+            FilterBuildableItemsLabel = Add(new UILabel(filterLabelPos, "Filter:", Font12, Color.Gray));
             
             var customStyle = new UIButton.StyleTextures("NewUI/icon_clear_filter", "NewUI/icon_clear_filter_hover");
             Add(new UIButton(customStyle, new Vector2(17, 17), "")
