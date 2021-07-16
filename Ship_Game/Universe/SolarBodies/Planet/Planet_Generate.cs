@@ -6,6 +6,20 @@ namespace Ship_Game
     using static RandomMath;
     public partial class Planet
     {
+        // This is true if the empire can build capital on this world
+        // There can be several home worlds if federating, allowing multiple capitals
+        // But if a planet is taken in combat, it will not be a homeworld anymore
+        // If an empire loses a homeworld, it can designate a new one and build a new capital
+        // And the IsHomeworld for this planet will be set
+        // If the original Capital of the race is taken by this race, the Capital will be
+        // moved from its current planet to the original one (If the planet is not a capital by origin.
+        // The `Planet Capital` var is used for this)
+        public bool IsHomeworld { get; private set; } 
+
+        public void SetHomeworld(bool value)
+        {
+            IsHomeworld = value;
+        }
 
         public static string TextCategory(PlanetCategory category)
         {
@@ -77,6 +91,7 @@ namespace Ship_Game
         public PlanetGridSquare FindTileUnderMouse(Vector2 mousePos)
             => TilesList.Find(pgs => pgs.ClickRect.HitTest(mousePos));
 
+        // preDefinedPop is in millions
         public void GenerateNewFromPlanetType(PlanetType type, float scale, float preDefinedPop = 0)
         {
             TilesList.Clear();
@@ -133,8 +148,9 @@ namespace Ship_Game
         public void GenerateNewHomeWorld(Empire owner, float preDefinedPop = 0)
         {
             Owner         = owner;
-            Owner.Capital = this;
             Scale         = 1 * Owner.data.Traits.HomeworldSizeMultiplier; // base max pop is affected by scale
+            IsHomeworld   = true;
+            Owner.SetCapital(this);
             Owner.AddPlanet(this);
 
             CreateHomeWorldEnvironment();

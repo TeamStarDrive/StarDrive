@@ -21,10 +21,11 @@ namespace Ship_Game
             BuildTroops();
             BuildTroopsForEvents(); // For AI to explore event in colony
 
+            // If there is no Outpost or Capital, build it. This is done for non governor planets as well
+            BuildOutpostOrCapitalIfAble();
+
             if (colonyType == ColonyType.Colony)
                 return; // No Governor? Never mind!
-
-            BuildOutpostIfAble();   //If there is no Outpost or Capital, build it
 
             // Switch to Core for AI if there is nothing in the research queue (Does not actually change assigned Governor)
             if ((!Owner.isPlayer || Owner.AutoResearch) && colonyType == ColonyType.Research && Owner.Research.NoTopic)
