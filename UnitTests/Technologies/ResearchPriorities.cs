@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.AI.Research;
@@ -109,15 +110,15 @@ namespace UnitTests.Technologies
         [TestMethod]
         public void TestResearchPrioritiesResearch()
         {
-            var area               = ResearchOptions.ResearchArea.Research;
-            Technology[] techs = ResourceManager.TechTree.Values.Filter(t => t.TechnologyTypes.Contains(TechnologyType.Research));
-            foreach(Technology tech in techs)
+            var area = ResearchOptions.ResearchArea.Research;
+
+            Technology tech = ResourceManager.TechTree.Values.First(t => t.TechnologyTypes.First() == TechnologyType.Research);
+            
+            foreach (Technology.LeadsToTech techName in tech.ComesFrom)
             {
-                foreach(Technology.LeadsToTech techName in tech.ComesFrom)
-                {
-                    Enemy.UnlockTech(techName.UID, TechUnlockType.Normal);
-                }
+                Enemy.UnlockTech(techName.UID, TechUnlockType.Normal);
             }
+
             var researchPriorities = ResetPriorities(area);
             string categories      = researchPriorities.TechCategoryPrioritized;
             bool first             = categories.StartsWith($"TECH:{area}");
