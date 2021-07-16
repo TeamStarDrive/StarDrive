@@ -24,13 +24,9 @@ namespace UnitTests.Ships
             // Excalibur class has all the bells and whistles
             LoadStarterShips("Excalibur-Class Supercarrier", "Ving Defender", "Supply Shuttle", "Alliance-Class Mk Ia Hvy Assault", "Assault Shuttle");
             CreateUniverseAndPlayerEmpire();
-
-            foreach (string uid in ResourceManager.GetShipTemplateIds())
-                Player.ShipsWeCanBuild.Add(uid);
-
+            UnlockAllShipsFor(Player);
             Carrier = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", Player, Vector2.Zero);
             Universe.Objects.Update(TestSimStep);
-            Player.GetRelations(Enemy).AtWar = true;
         }
 
         void SpawnEnemyShip()
@@ -77,7 +73,8 @@ namespace UnitTests.Ships
         [TestMethod]
         public void NoRecallWithin10k()
         {
-            SpawnEnemyShip(); // need an enemy so that ships don't immediately ReturnToHangar
+            SpawnEnemyShip();// need an enemy so that ships don't immediately ReturnToHangar
+            Universe.Objects.Update(ScanInterval);
             LaunchFighters(Carrier);
 
             Carrier.AI.OrderMoveTo(new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
@@ -90,6 +87,7 @@ namespace UnitTests.Ships
         public void NoRecallDuringCombat()
         {
             SpawnEnemyShip();
+            Universe.Objects.Update(ScanInterval);
             LaunchFighters(Carrier);
 
             Carrier.AI.OrderMoveTo(new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);

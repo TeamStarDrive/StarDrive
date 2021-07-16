@@ -8,10 +8,12 @@ using System.Runtime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Data;
 using Ship_Game.Gameplay;
+using Ship_Game.GameScreens.NewGame;
 using Ship_Game.Ships;
 using UnitTests.UI;
 
@@ -66,6 +68,7 @@ namespace UnitTests
         public UniverseScreen Universe { get; private set; }
         public Empire Player { get; private set; }
         public Empire Enemy { get; private set; }
+        public Empire ThirdMajor { get; private set; }
         public Empire Faction { get; private set; }
 
         public FixedSimTime TestSimStep { get; private set; } = new FixedSimTime(1f / 60f);
@@ -135,16 +138,68 @@ namespace UnitTests
                 throw new Exception($"LoadStarterContent() or LoadStarterShips() must be called BEFORE {functionName}() !");
         }
 
-        public void CreateUniverseAndPlayerEmpire()
+        /// <param name="playerArchetype">for example "Human"</param>
+        public void CreateUniverseAndPlayerEmpire(string playerArchetype = null)
         {
             RequireGameInstance(nameof(CreateUniverseAndPlayerEmpire));
             RequireStarterContentLoaded(nameof(CreateUniverseAndPlayerEmpire));
 
             var data = new UniverseData();
-            Player = data.CreateEmpire(ResourceManager.MajorRaces[0], isPlayer:true);
+            IEmpireData playerData = ResourceManager.MajorRaces[0];
+            IEmpireData enemyData = ResourceManager.MajorRaces[1];
+            if (playerArchetype != null)
+            {
+                playerData = ResourceManager.MajorRaces.FirstOrDefault(e => e.ArchetypeName.Contains(playerArchetype));
+                if (playerData == null)
+                    throw new Exception($"Could not find MajorRace archetype matching '{playerArchetype}'");
+                enemyData = ResourceManager.MajorRaces.FirstOrDefault(e => e != playerData);
+            }
+
+            Player = data.CreateEmpire(playerData, isPlayer:true);
+            Enemy = data.CreateEmpire(enemyData, isPlayer:false);
             Empire.Universe = Universe = new UniverseScreen(data, Player);
-            Enemy = EmpireManager.CreateRebelsFromEmpireData(ResourceManager.MajorRaces[0], Player);
             Player.TestInitModifiers();
+
+            Player.SetRelationsAsKnown(Enemy);
+            Player.GetEmpireAI().DeclareWarOn(Enemy, WarType.BorderConflict);
+            Empire.UpdateBilateralRelations(Player, Enemy);
+        }
+
+        public void CreateThirdMajorEmpire()
+        {
+            ThirdMajor = EmpireManager.CreateEmpireFromEmpireData(ResourceManager.MajorRaces[2], isPlayer:false);
+            EmpireManager.Add(ThirdMajor);
+
+            Player.SetRelationsAsKnown(ThirdMajor);
+            Enemy.SetRelationsAsKnown(ThirdMajor);
+            Empire.UpdateBilateralRelations(Player, ThirdMajor);
+            Empire.UpdateBilateralRelations(Enemy, ThirdMajor);
+        }
+
+        public void CreateRebelFaction()
+        {
+            IEmpireData data = ResourceManager.MajorRaces.FirstOrDefault(e => e.Name == Player.data.Name);
+            Faction = EmpireManager.CreateRebelsFromEmpireData(data, Player);
+        }
+
+        public void UnlockAllShipsFor(Empire empire)
+        {
+            foreach (string uid in ResourceManager.GetShipTemplateIds())
+                empire.ShipsWeCanBuild.Add(uid);
+        }
+        
+        public void UnlockAllTechsForShip(Empire empire, string shipName)
+        {
+            Ship ship = ResourceManager.GetShipTemplate(shipName);
+            empire.UnlockedHullsDict[ship.shipData.Hull] = true;
+            
+            // this populates `TechsNeeded`
+            ShipDesignUtils.MarkDesignsUnlockable(new ProgressCounter());
+            
+            foreach (var tech in ship.shipData.TechsNeeded)
+            {
+                empire.UnlockTech(tech, TechUnlockType.Normal);
+            }
         }
 
         public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)
@@ -202,10 +257,14 @@ namespace UnitTests
         public Ship SpawnShip(string shipName, Empire empire, Vector2 position, Vector2 shipDirection = default)
         {
             var target = Ship.CreateShipAtPoint(shipName, empire, position);
+            if (target == null)
+                throw new Exception($"Failed to create ship: {shipName} (did you call LoadStarterShips?)");
+
             target.Rotation = shipDirection.Normalized().ToRadians();
             target.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
             target.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
             target.SetSystem(null);
+            Assert.IsTrue(target.Active, "Spawned ship is Inactive! This is a bug in Status update!");
             return target;
         }
 
@@ -237,8 +296,11 @@ namespace UnitTests
             p.ParentSystem = s;
         }
 
-        public static void AddDummyPlanetToEmpire(Empire empire) => 
-            AddDummyPlanetToEmpire(empire,0, 0, 0);
+        public static void AddDummyPlanetToEmpire(Empire empire)
+        {
+            AddDummyPlanetToEmpire(empire, 0, 0, 0);
+        }
+
         public static void AddDummyPlanetToEmpire(Empire empire, float fertility, float minerals, float maxPop)
         {
             AddDummyPlanet(fertility, minerals, maxPop, out Planet p);
@@ -263,6 +325,21 @@ namespace UnitTests
         public Beam[] GetBeams(Ship ship)
         {
             return Universe.Objects.GetBeams(ship);
+        }
+
+        /// <summary>
+        /// Loops up to `timeout` seconds While condition is True
+        /// Throws exception if timeout is reached and the test should fail
+        /// </summary>
+        public void LoopWhile(double timeout, Func<bool> condition, Action body)
+        {
+            var sw = Stopwatch.StartNew();
+            while (condition())
+            {
+                body();
+                if (sw.Elapsed.TotalSeconds > timeout)
+                    throw new TimeoutException("Timed out in LoopWhile");
+            }
         }
     }
 }
