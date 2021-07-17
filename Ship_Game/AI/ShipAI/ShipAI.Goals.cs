@@ -38,12 +38,12 @@ namespace Ship_Game.AI
         public void ClearOrders(AIState newState = AIState.AwaitingOrders, bool priority = false)
         {
             DisposeOrders();
-            ChangeAIState(newState);
             EscortTarget = null;
             PatrolTarget = null;
             OrbitTarget  = null;
             SystemToDefend = null;
             ExitCombatState();
+            ChangeAIState(newState); // Must come after ExitCombatState since ExitCombatState change the AIstate to awaiting orders.
             if (ExplorationTarget != null)
             {
                 Owner.loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);
