@@ -97,7 +97,6 @@ namespace Ship_Game
                 }
             }
 
-            RunOnEmpireThread(() => EmpireManager.Player.GetEmpireAI().ThreatMatrix.UpdateAllPins(EmpireManager.Player));
             CalcPlanetsDistances();
             cb_hideOwned = Add(new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 15,
                 () => HideOwned, 
