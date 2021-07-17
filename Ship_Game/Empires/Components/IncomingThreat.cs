@@ -78,7 +78,7 @@ namespace Ship_Game.Empires.Components
                 }
 
                 MilitaryTask.TaskCategory cat = MilitaryTask.TaskCategory.FleetNeeded | MilitaryTask.TaskCategory.War;
-                if (fleet.Owner.isPlayer || fleet.FleetTask?.GetTaskCategory() == cat)
+                if (fleet.Owner.isPlayer && fleet.GetStrength() > 0 || fleet.FleetTask?.GetTaskCategory() == cat)
                 {
                     HighPriority = true;
                 }
