@@ -191,19 +191,24 @@ namespace Ship_Game.AI
             {
                 var system = ourGoal.ColonizationTarget.ParentSystem;
                 if (usToThem.WarnedSystemsList.Contains(system.guid))
-                    continue;
+                    continue; // Already warned them
 
                 // Non allied empires will always warn if the system is exclusively owned by them
                 bool warnExclusive = !usToThem.Treaty_Alliance && system.IsExclusivelyOwnedBy(OwnerEmpire);
                 foreach (Goal theirGoal in theirColonizationGoals)
                 {
-                    if (theirGoal.ColonizationTarget.ParentSystem != ourGoal.ColonizationTarget.ParentSystem)
+                    if (theirGoal.ColonizationTarget.ParentSystem != system)
                         continue;
 
                     if (DetectAndWarn(theirGoal, warnExclusive))
                     {
-                        if (system.HasPlanetsOwnedBy(them) && theirGoal.ColonizationTarget != ourGoal.ColonizationTarget && !warnAnyway)
-                            continue; // They already have colonies in this system and targeting a different planet
+                        if (system.HasPlanetsOwnedBy(them)
+                            && theirGoal.ColonizationTarget.ParentSystem == them.Capital?.ParentSystem
+                            && theirGoal.ColonizationTarget != ourGoal.ColonizationTarget
+                            && !warnAnyway)
+                        {
+                            continue; // They already have colonies in this system and targeting a different planet, or its their home system
+                        }
 
                         if (them.isPlayer)
                             DiplomacyScreen.Show(OwnerEmpire, "Claim System", system);
@@ -219,6 +224,7 @@ namespace Ship_Game.AI
                 return planetList.Count > 0;
             }
 
+            // Local method
             bool DetectAndWarn(Goal goal, bool warnExclusive)
             {
                 if (!RandomMath.RollDice(detectionChance)
