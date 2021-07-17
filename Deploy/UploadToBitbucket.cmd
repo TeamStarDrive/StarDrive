@@ -5,6 +5,7 @@ if not defined BB_UPLOAD_PASS ( echo envvar BB_UPLOAD_PASS undefined && goto err
 
 echo APPVEYOR_REPO_BRANCH=%APPVEYOR_REPO_BRANCH%
 echo APPVEYOR_REPO_COMMIT=%APPVEYOR_REPO_COMMIT%
+echo APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH=%
 ::git name-rev --name-only %APPVEYOR_REPO_COMMIT%
 ::for /f %%b in ('git name-rev --name-only HEAD') do set BRANCH_NAME=%%b
 set AutoDeploy=0
