@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 
@@ -7,35 +8,59 @@ namespace Ship_Game
     public partial class ColonyScreen
     {
         int PFacilitiesPlayerTabSelected;
-
-        void HandleDetailInfo(InputState input)
+        // Gets the item which we want to use for detail info text
+        object GetHoveredDetailItem(InputState input)
         {
-            foreach (BuildableListItem e in BuildableList.AllEntries)
+            if (BuildableList.HitTest(input.CursorPosition))
             {
-                if (e.Hovered)
+                foreach (BuildableListItem e in BuildableList.AllEntries)
                 {
-                    if (e.Troop != null)    DetailInfo = e.Troop;
-                    if (e.Building != null) DetailInfo = e.Building;
+                    if (e.Hovered)
+                    {
+                        if (e.Building != null) return e.Building;
+                        if (e.Troop != null) return e.Troop;
+                    }
                 }
             }
 
-            if (DetailInfo == null || !BuildableList.HitTest(input.CursorPosition))
-                DetailInfo = P.Description;
+            foreach (PlanetGridSquare pgs in P.TilesList)
+            {
+                if (pgs.TroopsAreOnTile)
+                {
+                    using (pgs.TroopsHere.AcquireReadLock())
+                        for (int i = 0; i < pgs.TroopsHere.Count; ++i)
+                            if (pgs.TroopsHere[i].ClickRect.HitTest(input.CursorPosition))
+                                return pgs.TroopsHere[i];
+                }
+            }
+
+            foreach (PlanetGridSquare pgs in P.TilesList)
+                if (pgs.ClickRect.HitTest(input.CursorPosition))
+                    return pgs;
+
+            return null; // default: use planet description text
+        }
+
+        public void OnPFacilitiesTabChange(int tabindex)
+        {
+            // Using PlayerSelectedTab here to be able to return to the tab the player selected when there is no Detail Info item.
+            // So if the player selected the trade tab, then viewed a planet tile and then moved the cursor away, the trade tab will be set again
+            if (DetailInfo == null)
+                PFacilitiesPlayerTabSelected = tabindex;
         }
 
         public override bool HandleInput(InputState input)
         {
-            HandleDetailInfo(input);
+            // always get the currently hovered item
+            DetailInfo = GetHoveredDetailItem(input);
 
-            if (PFacilities.HandleInput(input) && PFacilitiesPlayerTabSelected != PFacilities.SelectedIndex)
-                PFacilitiesPlayerTabSelected = PFacilities.SelectedIndex;
+            // If there is a detail info, display the Description TAB, else display last tab the player selected.
+            PFacilities.SelectedIndex = DetailInfo == null ? PFacilitiesPlayerTabSelected : 1;
 
-            if (BlockadeLabel.Visible && BlockadeLabel.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(GameText.IndicatesThatThisPlanetIs);
-
-            if (HandleCycleColoniesLeftRight(input))
+            if (!FilterBuildableItems.HandlingInput && HandleCycleColoniesLeftRight(input))
                 return true;
 
+            FilterBuildableItemsLabel.Color = FilterBuildableItems.HandlingInput ? Color.White : Color.Gray;
             P.UpdateIncomes(false);
 
             // We are monitoring AI Colonies
@@ -48,14 +73,12 @@ namespace Ship_Game
             if (HandleTroopSelect(input))
                 return true;
 
+            // update all Added UI elements
             if (base.HandleInput(input))
                 return true;
 
-            HandleExportImportButtons(input);
-            if (PFacilitiesPlayerTabSelected != PFacilities.SelectedIndex && PFacilities.SelectedIndex == 0)
-                PFacilitiesPlayerTabSelected = PFacilities.SelectedIndex;
-
-            PFacilities.SelectedIndex = DetailInfo is string ? PFacilitiesPlayerTabSelected : 1; // Set the Tab for view
+            if (HandleExportImportButtons(input))
+                return true;
 
             return false;
         }
@@ -88,7 +111,6 @@ namespace Ship_Game
                             Troop troop = pgs.TroopsHere[i];
                             if (troop.ClickRect.HitTest(MousePos))
                             {
-                                DetailInfo = troop;
                                 if (input.RightMouseClick && troop.Loyalty == EmpireManager.Player)
                                 {
                                     Ship troopShip = troop.Launch(pgs);
@@ -96,7 +118,6 @@ namespace Ship_Game
                                     {
                                         GameAudio.TroopTakeOff();
                                         ClickedTroop = true;
-                                        DetailInfo = null;
                                     }
                                     else
                                     {
@@ -117,7 +138,6 @@ namespace Ship_Game
                 {
                     if (pgs.ClickRect.HitTest(input.CursorPosition))
                     {
-                        DetailInfo = pgs;
                         var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32,
                             pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 50, 50);
                         if (pgs.BuildingOnTile && bRect.HitTest(input.CursorPosition) && Input.RightMouseClick)
@@ -156,40 +176,35 @@ namespace Ship_Game
             return false;
         }
 
+        void OnChangeColony(int change)
+        {
+            var planets = P.Owner.GetPlanets();
+            int newIndex = planets.IndexOf(P) + change;
+            if (newIndex >= planets.Count) newIndex = 0;
+            else if (newIndex < 0) newIndex = planets.Count - 1;
+
+            Planet nextOrPrevPlanet = planets[newIndex];
+            if (nextOrPrevPlanet != P)
+            {
+                Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, nextOrPrevPlanet, Eui,
+                    GovernorDetails.CurrentTabIndex, PFacilitiesPlayerTabSelected);
+            }
+        }
+
         bool HandleCycleColoniesLeftRight(InputState input)
         {
-            if     (RightColony.Rect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GameText.ViewNextColony);
-            else if (LeftColony.Rect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GameText.ViewPreviousColony);
-
             bool canView = (Empire.Universe.Debug || P.Owner == EmpireManager.Player);
-            if (!canView)
-                return false;
-
-            int change = 0;
-            if (input.Right || RightColony.HandleInput(input) && input.LeftMouseClick)
-                change = +1;
-            else if (input.Left || LeftColony.HandleInput(input) && input.LeftMouseClick)
-                change = -1;
-
-            if (change != 0)
+            if (canView && (input.Left || input.Right))
             {
-                var planets = P.Owner.GetPlanets();
-                int newIndex = planets.IndexOf(P) + change;
-                if (newIndex >= planets.Count) newIndex = 0;
-                else if (newIndex < 0) newIndex = planets.Count - 1;
-
-                Planet nextOrPrevPlanet = planets[newIndex];
-                if (nextOrPrevPlanet != P)
-                    Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, nextOrPrevPlanet, Eui, 
-                        GovernorDetails.CurrentTabIndex, PFacilities.SelectedIndex);
-
+                int change = input.Left ? -1 : +1;
+                OnChangeColony(change);
                 return true; // planet changed, ColonyScreen will be replaced
             }
 
             return false;
         }
 
-        void HandleExportImportButtons(InputState input)
+        bool HandleExportImportButtons(InputState input)
         {
             if (FoodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
@@ -198,6 +213,7 @@ namespace Ship_Game
                 P.FS = (Planet.GoodState) ((int) P.FS + (int) Planet.GoodState.IMPORT);
                 if (P.FS > Planet.GoodState.EXPORT)
                     P.FS = Planet.GoodState.STORE;
+                return true;
             }
 
             if (ProdDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
@@ -207,7 +223,9 @@ namespace Ship_Game
                 P.PS = (Planet.GoodState) ((int) P.PS + (int) Planet.GoodState.IMPORT);
                 if (P.PS > Planet.GoodState.EXPORT)
                     P.PS = Planet.GoodState.STORE;
+                return true;
             }
+            return false;
         }
     }
 }
