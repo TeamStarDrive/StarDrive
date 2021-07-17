@@ -2191,7 +2191,7 @@ namespace Ship_Game.Fleets
             for (int x = 0; x < invasionShips.Length && numberOfShipsToSend > 0; x++)
             {
                 Ship ship = invasionShips[x];
-                if (ship.DesignRoleType == ShipData.RoleType.Troop && ship.AI.State != AIState.AssaultPlanet)
+                if (ship.IsTroopShip && ship.AI.State != AIState.AssaultPlanet)
                 {
                     ship.AI.ClearOrders();
                     ship.AI.OrderLandAllTroops(task.TargetPlanet);
