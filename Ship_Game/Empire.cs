@@ -132,7 +132,12 @@ namespace Ship_Game
         public float ExpansionScore;
         public float MilitaryScore;
         public float IndustrialScore;
-        public Planet Capital;
+
+        // This is the original capital of the empire. It is used in capital elimination and 
+        // is used in capital elimination and also to determine if another capital will be moved here if the
+        // empire retakes this planet. This value should never be changed after it was set.
+        public Planet Capital { get; private set; } 
+
         public int EmpireShipCountReserve;
         public int empireShipTotal;
         public int empireShipCombat;    //fbedard
@@ -1591,17 +1596,33 @@ namespace Ship_Game
                 UpdateAI(); // Must be done before DoMoney
                 GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game
                 DoMoney();
+                AssignNewHomeWorldIfNeeded();
                 TakeTurn();
             }
             SetRallyPoints();
             UpdateFleets(timeStep);
         }
 
+        // FB - for unittest only!
+        public void TestAssignNewHomeWorldIfNeeded() => AssignNewHomeWorldIfNeeded();
+
+        void AssignNewHomeWorldIfNeeded()
+        {
+            if (isPlayer | isFaction)
+                return;
+
+            if (!GlobalStats.EliminationMode 
+                && Capital?.Owner != this 
+                && !OwnedPlanets.Any(p => p.IsHomeworld))
+            {
+                var potentialHomeworld = OwnedPlanets.FindMaxFiltered(p => p.FreeHabitableTiles > 0, p => p.ColonyPotentialValue(this));
+                potentialHomeworld?.BuildCapitalHere();
+            }
+        }
+
         public void UpdateTroopsInSpaceConsumption()
         {
-            int numTroops;
-            numTroops = OwnedShips.Sum(s => s.TroopCount);
-
+            int numTroops         = OwnedShips.Sum(s => s.TroopCount);
             TroopInSpaceFoodNeeds = numTroops * Troop.Consumption * (1 + data.Traits.ConsumptionModifier);
         }
 
@@ -2192,6 +2213,27 @@ namespace Ship_Game
             int theirSpyDefense = enemy.GetSpyDefense() + (enemy.IsCunning ? 10 : 0);
             int totalRoll       = theirSpyDefense + ourSpyDefense;
             return RandomMath.RollDie(totalRoll) <= theirSpyDefense;
+        }
+
+        /// <summary>
+        /// Transfer the capital to the new planet if this planet was the original capital of the empire
+        /// It will not transfer original capital worlds of other races, so federations can keep several capitals
+        /// </summary>
+        public void TryTransferCapital(Planet newHomeworld)
+        {
+            if (newHomeworld != Capital)
+                return;
+
+            foreach (Planet p in OwnedPlanets)
+            {
+                if (p.IsHomeworld && EmpireManager.MajorEmpires.Any(e => e.Capital != p))
+                {
+                    if (p.RemoveCapital() && isPlayer)
+                        Universe.NotificationManager.AddCapitalTransfer(p, newHomeworld);
+                }
+            }
+
+            newHomeworld.BuildCapitalHere();
         }
 
         /// <summary>
@@ -3278,17 +3320,22 @@ namespace Ship_Game
 
         void IEmpireShipLists.RemoveShipAtEndOfTurn(Ship s) => EmpireShips?.Remove(s);
 
-        public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
+        public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null, bool scanOnly = false)
         {
             if (targetEmpire == this || targetEmpire == null)
                 return false;
 
             Relationship rel = GetRelations(targetEmpire);
 
-            if (rel.CanAttack && target == null)
+            if ((rel.CanAttack && target == null) || (scanOnly && !rel.Known))
                 return true;
 
             return target?.IsAttackable(this, rel) ?? false;
+        }
+
+        public bool IsEmpireScannedAsEnemy(Empire targetEmpire, GameplayObject target = null)
+        {
+            return IsEmpireAttackable(targetEmpire, target, scanOnly: true);
         }
 
         public bool IsEmpireHostile(Empire targetEmpire)
@@ -3522,6 +3569,11 @@ namespace Ship_Game
         {
             if (diplomacyContactQueue != null)
                 DiplomacyContactQueue = diplomacyContactQueue;
+        }
+
+        public void SetCapital(Planet planet)
+        {
+            Capital = planet;
         }
 
         public struct InfluenceNode

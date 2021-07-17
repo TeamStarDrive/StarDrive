@@ -26,12 +26,11 @@ namespace Ship_Game
         readonly UITextEntry FilterBuildableItems;
         readonly Rectangle GridPos;
         readonly Submenu SubColonyGrid;
-        readonly Submenu FilterFrame;
-        readonly UIButton ClearFilter;
         readonly UILabel BlockadeLabel;
         readonly UILabel StarvationLabel;
         readonly Rectangle PlanetShieldIconRect;
         readonly ProgressBar PlanetShieldBar;
+        readonly UILabel FilterBuildableItemsLabel;
 
         readonly ScrollList2<BuildableListItem> BuildableList;
         readonly ScrollList2<ConstructionQueueScrollListItem> ConstructionQueue;
@@ -114,10 +113,18 @@ namespace Ship_Game
             Eui = empUI;
             empUI.Player.UpdateShipsWeCanBuild();
             TextFont = LowRes ? Font8 : Font12;
+            
             var titleBar = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             TitleBar = new Menu2(titleBar);
-            LeftColony = new ToggleButton(new Vector2(titleBar.X + 25, titleBar.Y + 24), ToggleButtonStyle.ArrowLeft);
-            RightColony = new ToggleButton(new Vector2(titleBar.X + titleBar.Width - 39, titleBar.Y + 24), ToggleButtonStyle.ArrowRight);
+            
+            LeftColony = Add(new ToggleButton(titleBar.X + 25, titleBar.Y + 24, ToggleButtonStyle.ArrowLeft));
+            LeftColony.Tooltip = GameText.ViewPreviousColony;
+            LeftColony.OnClick = b => OnChangeColony(-1);
+
+            RightColony = Add(new ToggleButton(titleBar.Right - 39, titleBar.Y + 24, ToggleButtonStyle.ArrowRight));
+            RightColony.Tooltip = GameText.ViewNextColony;
+            RightColony.OnClick = b => OnChangeColony(+1);
+
             TitlePos = new Vector2(titleBar.X + titleBar.Width / 2 - Fonts.Laserian14.MeasureString("Colony Overview").X / 2f, titleBar.Y + titleBar.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             LeftMenu = new Menu1(2, titleBar.Y + titleBar.Height + 5, titleBar.Width, ScreenHeight - (titleBar.Y + titleBar.Height) - 7);
             RightMenu = new Menu1(titleBar.Right + 10, titleBar.Y, ScreenWidth / 3 - 15, ScreenHeight - titleBar.Y - 2);
@@ -137,6 +144,8 @@ namespace Ship_Game
 
             Vector2 blockadePos = new Vector2(PStorage.X + 20, PStorage.Y + 35);
             BlockadeLabel = Add(new UILabel(blockadePos, Localizer.Token(GameText.Blockade2), Fonts.Pirulen16, Color.Red));
+            BlockadeLabel.Tooltip = GameText.IndicatesThatThisPlanetIs;
+            
             Vector2 starvationPos = new Vector2(PStorage.X + 200, PStorage.Y + 35);
             StarvationLabel = Add(new UILabel(starvationPos, Localizer.Token(GameText.Starvation), Fonts.Pirulen16, Color.Red));
             FoodStorage = new ProgressBar(PStorage.X + 100, PStorage.Y + 25 + 0.33f*(PStorage.Height - 25), 0.4f*PStorage.Width, 18);
@@ -163,31 +172,36 @@ namespace Ship_Game
 
             SubColonyGrid = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, PlanetInfo.Y, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height * 0.5f);
             SubColonyGrid.AddTab(Localizer.Token(GameText.Colony));
-            PFacilities = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, SubColonyGrid.Bottom + 20, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height - 20 - SubColonyGrid.Height - 40);
+
+            PFacilities = Add(new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20,
+                                          SubColonyGrid.Bottom + 20,
+                                          LeftMenu.Width - 60 - PlanetInfo.Width,
+                                          LeftMenu.Height - 20 - SubColonyGrid.Height - 40));
             PFacilities.AddTab(GameText.Statistics2); // Statistics
             PFacilities.AddTab(GameText.Description); // Description
             PFacilities.AddTab(GameText.Trade2); // Trade
             if (Player.data.Traits.TerraformingLevel > 0)
                 PFacilities.AddTab(GameText.BB_Tech_Terraforming_Name); // Terraforming
 
+            PFacilities.OnTabChange = OnPFacilitiesTabChange;
+            // FB - sticky tab selection on colony change via arrows
             if (facilitiesTabSelected < PFacilities.Tabs.Count)
-            {
-                // FB - sticky tab selection on colony change via arrows
-                PFacilitiesPlayerTabSelected =
-                PFacilities.SelectedIndex    = facilitiesTabSelected;
-            }
+                PFacilities.SelectedIndex = facilitiesTabSelected;
 
-            FilterBuildableItems = Add(new UITextEntry(new Vector2(RightMenu.X + 75, RightMenu.Y + 15), Font12, ""));
+            var filterBgRect = new RectF(RightMenu.X + 70, RightMenu.Y + 15, RightMenu.Width - 400, 20);
+            var filterRect = new RectF(filterBgRect.X + 5, filterBgRect.Y, filterBgRect.W, filterBgRect.H);
+            FilterBuildableItems = Add(new UITextEntry(filterRect, Font12, ""));
             FilterBuildableItems.AutoCaptureOnHover = true;
+            FilterBuildableItems.Background = new Submenu(filterBgRect);
+            Vector2 filterLabelPos = new Vector2(RightMenu.X + 25, filterRect.Y+2);
+            FilterBuildableItemsLabel = Add(new UILabel(filterLabelPos, "Filter:", Font12, Color.Gray));
             
-            FilterFrame = Add(new Submenu(RightMenu.X + 70, RightMenu.Y-10, RightMenu.Width - 400, 42));
-            Label(FilterFrame.Pos + new Vector2(-45,25), "Filter:", Font12, Color.White);
             var customStyle = new UIButton.StyleTextures("NewUI/icon_clear_filter", "NewUI/icon_clear_filter_hover");
-            ClearFilter = Add(new UIButton(customStyle, new Vector2(17, 17), "")
+            Add(new UIButton(customStyle, new Vector2(17, 17), "")
             {
                 Tooltip = GameText.ClearBuildableItemsFilter,
                 OnClick = OnClearFilterClick,
-                Pos     = new Vector2(FilterFrame.Pos.X + FilterFrame.Width + 10, FilterFrame.Pos.Y + 25)
+                Pos     = new Vector2(filterRect.Right + 10, filterRect.Y + 3)
             });
 
             BuildableTabs = new Submenu(RightMenu.X + 20, RightMenu.Y + 40, 
@@ -246,7 +260,6 @@ namespace Ship_Game
 
             if (p.Owner != null)
             {
-                DetailInfo = p.Description;
                 GovernorDetails = Add(new GovernorDetailsComponent(this, p, pDescription.Rect, governorTabSelected));
             }
             else

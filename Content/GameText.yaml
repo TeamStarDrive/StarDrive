@@ -10134,7 +10134,7 @@ BB_Tech_Terraforming2_Bonus:
  ENG: "Terraform Level 2. At this Level, Terraformers will remove all Volcanoes in the planet and will also make terraformable tiles habitable."
 BB_Tech_Terraforming3_Bonus:
  Id: 4310
- ENG: "Terraform Level 3. At this Level, Terraformers will remove all Volcanoes in the planet, make terraformable tiles habitable and will also transform your planet into the best suitable planet for your race and increase its fertility to 1." 
+ ENG: "Terraform Level 3. At this Level, Terraformers will remove all Volcanoes in the planet, make terraformable tiles habitable and will also transform your planet into the best suitable planet for your race and increase its fertility to 1."
 Terraforming:
  Id: 4311
  ENG: "Terraforming In Progress"
@@ -10231,6 +10231,15 @@ OurSpiesReport:
 TheyPreparingForWar:
  Id: 4342
  ENG: "are plotting a war\n against us and are amassing a fleet somewhere."
+ButtonBuildCapitalName:
+ Id: 4343
+ ENG: "Build Capital"
+ButtonBuildCapitalTip:
+ Id: 4344
+ ENG: "You can build a new capital here, since you do not have any capitals within your empire. If we retake our origin Homeworld, the capital will be removed from this planet and built back in our homeworld."
+NotifyCapitalTransfer:
+ Id: 4345
+ ENG: "Capital is being rebuilt here, and removed from"
 OnSurface:
  Id: 4993
  ENG: "on surface"
