@@ -533,13 +533,13 @@ namespace Ship_Game
 
         public float ColonizationDetectionChance(Relationship usToThem, Empire them)
         {
-            int minChance = 0;
-            if (usToThem.Treaty_NAPact)      minChance = 1;
-            if (usToThem.Treaty_Trade)       minChance = 2;
-            if (usToThem.Treaty_OpenBorders) minChance = 4;
-            if (usToThem.Treaty_Alliance)    minChance = 25;
+            float chance = 0;
+            if (usToThem.Treaty_NAPact) chance      = 0.5f;
+            if (usToThem.Treaty_Trade) chance       = 1;
+            if (usToThem.Treaty_OpenBorders) chance = 1.5f;
+            if (usToThem.Treaty_Alliance) chance    = 2;
 
-            return (GetSpyDefense() - them.GetSpyDefense()).LowerBound(minChance);
+            return IsCunning ? chance * 2 : chance;
         }
 
         public bool TryGetActiveWars(out Array<War> activeWars)

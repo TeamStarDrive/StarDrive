@@ -259,11 +259,14 @@ namespace Ship_Game.AI.ExpansionAI
 
         public void CheckClaim(Empire thievingEmpire, Relationship thiefRelationship, Planet claimedPlanet)
         {
-            if (Owner.isPlayer || Owner.isFaction || !thiefRelationship.Known)
+            if (Owner.isPlayer
+                || Owner.isFaction
+                || !thiefRelationship.Known
+                || thiefRelationship.AtWar
+                || !claimedPlanet.ParentSystem.HasPlanetsOwnedBy(thievingEmpire)) // this empire does not have planets here
+            {
                 return;
-
-            if (!claimedPlanet.ParentSystem.HasPlanetsOwnedBy(thievingEmpire) || thiefRelationship.AtWar)
-                return;
+            }
 
             bool newTheft = false;
             if (thiefRelationship.WarnedSystemsList.Contains(claimedPlanet.ParentSystem.guid))
