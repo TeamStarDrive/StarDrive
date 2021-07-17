@@ -153,10 +153,8 @@ namespace Ship_Game
                         wars.Add(rel.ActiveWar);
                     }
                 }
-                else if (!rel.Known)
-                {
-                    rel.CanAttack = true;
-                }
+                else if (!rel.Known && them == EmpireManager.Unknown)
+                    SetRelationsAsKnown(them);
             }
             AllActiveWars = wars.ToArray();
             ActiveWarPreparations = EmpireAI.Goals.Count(g => g.type == GoalType.PrepareForWar);
