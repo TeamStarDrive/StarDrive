@@ -1612,7 +1612,7 @@ namespace Ship_Game
                 return;
 
             if (!GlobalStats.EliminationMode 
-                && Capital.Owner != this 
+                && Capital?.Owner != this 
                 && !OwnedPlanets.Any(p => p.IsHomeworld))
             {
                 var potentialHomeworld = OwnedPlanets.FindMaxFiltered(p => p.FreeHabitableTiles > 0, p => p.ColonyPotentialValue(this));
