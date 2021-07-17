@@ -27,6 +27,7 @@ namespace Ship_Game
         private FloatSlider ManualStations;
         private Submenu Tabs;
 
+        UIButton BuildCapital; // Visible when the original capital is lost and there is an option to build it on a sustitude planet
         UIButton LaunchAllTroops;
         UIButton LaunchSingleTroop;
         UIButton CallTroops;
@@ -136,7 +137,10 @@ namespace Ship_Game
             ColonyTypeList.ActiveValue = Planet.colonyType;
             ColonyTypeList.OnValueChange = OnColonyTypeChanged;
 
-            ButtonUpdateTimer = 1;
+            ButtonUpdateTimer    = 1;
+            BuildCapital         = Button(ButtonStyle.BigDip, GameText.ButtonBuildCapitalName, OnBuildCapitalClicked);
+            BuildCapital.Tooltip = GameText.ButtonBuildCapitalTip;
+
             LaunchAllTroops   = Button(ButtonStyle.Default, GameText.LaunchAllTroops, OnLaunchTroopsClicked);
             LaunchSingleTroop = Button(ButtonStyle.Default, GameText.LaunchOneTroop, OnLaunchSingleTroopClicked);
             CallTroops        = Button(ButtonStyle.Default, GameText.CallTroops, OnSendTroopsClicked);
@@ -222,6 +226,7 @@ namespace Ship_Game
             Quarantine.Pos         = new Vector2(Portrait.X, Bottom - 24);
             GovNoScrap.Pos         = new Vector2(TopRight.X - 250, Bottom - 24);
             BudgetLimitReached.Pos = new Vector2(ColonyTypeList.Right + 10, ColonyTypeList.Pos.Y);
+            BuildCapital.Pos       = new Vector2(ColonyTypeList.Right + 50, Quarantine.Pos.Y - 26);
 
             AutoTroops.Pos        = new Vector2(TopLeft.X + 10, Y + 30);
             Garrison.Pos          = new Vector2(TopLeft.X + 20, Y + 50);
@@ -318,6 +323,12 @@ namespace Ship_Game
                 Quarantine.TextColor       = Planet.Quarantine ? Color.Red : Color.Gray;
                 BudgetLimitReached.Visible = GovernorTabView && Planet.Owner.isPlayer && GovernorOn && BudgetLimitWarningVisible;
                 BudgetLimitReached.Color   = Screen.CurrentFlashColorRed;
+                BuildCapital.Visible       = GovernorTabView 
+                                             && Planet.Owner.isPlayer 
+                                             && !Planet.Owner.GetPlanets().Any(p => p.IsHomeworld);
+
+                if (Planet.Owner.isPlayer && Planet.Owner.Capital == Planet && Planet.HasCapital)
+                    BuildCapital.Visible = false; // This is for old save support. It can be removed post Mars.
 
                 // Not for trade hubs, which do not build structures anyway
                 GovNoScrap.Visible = GovernorTabView && Planet.colonyType != Planet.ColonyType.TradeHub && GovernorOn && Planet.Owner.isPlayer;
@@ -478,6 +489,11 @@ namespace Ship_Game
             {
                 GameAudio.NegativeClick();
             }
+        }
+
+        void OnBuildCapitalClicked(UIButton b)
+        {
+            Planet.BuildCapitalHere();
         }
 
         void OnLaunchTroopsClicked(UIButton b)

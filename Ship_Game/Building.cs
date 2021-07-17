@@ -376,7 +376,7 @@ namespace Ship_Game
         public void OnBuildingBuiltAt(Planet p)
         {
             p.AddBuildingsFertility(MaxFertilityOnBuild);
-            p.MineralRichness += IncreaseRichness.LowerBound(0); //This must be positive. since richness cannot go below 0.
+            p.MineralRichness += IncreaseRichness.LowerBound(0); // This must be positive. since richness cannot go below 0.
             p.BuildingList.Add(this);
             if (IsSpacePort && Empire.Universe != null)
             {
@@ -398,6 +398,9 @@ namespace Ship_Game
                 ExplorationEvent e = ResourceManager.Event(EventOnBuild);
                 u.ScreenManager.AddScreen(new EventPopup(u, u.PlayerEmpire, e, e.PotentialOutcomes[0], true, p));
             }
+
+            if (IsCapital)
+                p.RemoveOutpost();
 
             UpdateOffense(p.Level);
         }

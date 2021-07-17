@@ -1453,6 +1453,7 @@ namespace Ship_Game
 
         public void WipeOutColony(Empire attacker)
         {
+            SetHomeworld(false); // It is possible to capture a capital (it is exists), but it wont be rebuilt
             Population = 0f;
             if (Owner == null)
                 return;
