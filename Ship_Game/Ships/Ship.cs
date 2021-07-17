@@ -1130,7 +1130,8 @@ namespace Ship_Game.Ships
             // kill the ship if all modules exploded or internal slot percent is below critical
             if (Health <= 0f || InternalSlotsHealthPercent < ShipResupply.ShipDestroyThreshold)
             {
-                Die(LastDamagedBy, false);
+                if (Active)
+                    Die(LastDamagedBy, false);
             }
         }
 
@@ -1566,7 +1567,6 @@ namespace Ship_Game.Ships
                 GameAudio.PlaySfxAsync(dieSoundEffect, SoundEmitter);
             }
 
-            NotifyPlayerIfDiedExploring();
             Carrier.ScuttleHangarShips();
             ResetProjectorInfluence();
 
@@ -1590,21 +1590,24 @@ namespace Ship_Game.Ships
                 if (!HasExploded)
                 {
                     HasExploded = true;
-                    if (PlanetCrash != null || !visible)
-                        return;
-
-                    // Added by RedFox - spawn flaming spacejunk when a ship dies
-                    float radSqrt   = (float)Math.Sqrt(Radius);
-                    float junkScale = (radSqrt * 0.05f).UpperBound(1.4f); // trial and error, depends on junk model sizes // bigger doesn't look good
-
-                    //Log.Info("Ship.Explode r={1} rsq={2} junk={3} scale={4}   {0}", Name, Radius, radSqrt, explosionJunk, junkScale);
-                    for (int x = 0; x < 3; ++x)
+                    if (PlanetCrash == null && visible)
                     {
-                        int howMuchJunk = (int)RandomMath.RandomBetween(Radius * 0.05f, Radius * 0.15f);
-                        SpaceJunk.SpawnJunk(howMuchJunk, Center.GenerateRandomPointOnCircle(Radius/2),
-                            Velocity, this, Radius, junkScale, true);
+                        // Added by RedFox - spawn flaming spacejunk when a ship dies
+                        float radSqrt = (float)Math.Sqrt(Radius);
+                        float junkScale = (radSqrt * 0.05f).UpperBound(1.4f); // trial and error, depends on junk model sizes // bigger doesn't look good
+
+                        //Log.Info("Ship.Explode r={1} rsq={2} junk={3} scale={4}   {0}", Name, Radius, radSqrt, explosionJunk, junkScale);
+                        for (int x = 0; x < 3; ++x)
+                        {
+                            int howMuchJunk = (int)RandomMath.RandomBetween(Radius * 0.05f, Radius * 0.15f);
+                            SpaceJunk.SpawnJunk(howMuchJunk, Center.GenerateRandomPointOnCircle(Radius / 2),
+                                Velocity, this, Radius, junkScale, true);
+                        }
                     }
                 }
+
+                NotifyPlayerIfDiedExploring();
+                loyalty.TryAutoRequisitionShip(fleet, this);
             }
 
             if (BaseHull.EventOnDeath != null)
@@ -1613,8 +1616,6 @@ namespace Ship_Game.Ships
                 Empire.Universe.ScreenManager.AddScreen(
                     new EventPopup(Empire.Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
             }
-
-            loyalty.TryAutoRequisitionShip(fleet, this);
 
             QueueTotalRemoval();
             base.Die(source, cleanupOnly);
