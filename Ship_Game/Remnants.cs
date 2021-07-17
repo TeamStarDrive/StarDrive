@@ -951,7 +951,7 @@ namespace Ship_Game
                     ship.SetSystem(p.ParentSystem); // needed for Threat Matrix update pins to register the threatened system 
                     ActivationXpNeeded += (ShipRole.GetExpSettings(ship).KillExp / divider) * StoryTurnsLevelUpModifier();
 
-                    foreach (Empire e in EmpireManager.NonPlayerMajorEmpires)
+                    foreach (Empire e in EmpireManager.MajorEmpires)
                     {
                         if (p.IsExploredBy(e))
                             e.GetEmpireAI().ThreatMatrix.AddOrUpdatePin(ship, false, true);

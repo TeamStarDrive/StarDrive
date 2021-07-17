@@ -1,11 +1,10 @@
-using System;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -174,12 +173,12 @@ namespace Ship_Game
 
         void AddHostileWarning()
         {
-            if (!Planet.ParentSystem.HostileForcesPresent(Player)) 
-                return;
-            
-            SubTexture flash = ResourceManager.Texture("Ground_UI/EnemyHere");
-            UIPanel enemyHere = Panel(SysNameRect.X + SysNameRect.Width - 40, SysNameRect.Y + 5, flash);
-            enemyHere.Tooltip = GameText.IndicatesThatHostileForcesWere;
+            if (EmpireManager.Player.KnownEnemyStrengthIn(Planet.ParentSystem) > 0)
+            {
+                SubTexture flash = ResourceManager.Texture("Ground_UI/EnemyHere");
+                UIPanel enemyHere = Panel(SysNameRect.X + SysNameRect.Width - 40, SysNameRect.Y + 5, flash);
+                enemyHere.Tooltip = GameText.IndicatesThatHostileForcesWere;
+            }
         }
 
         void AddPlanetTextureAndStatus()
