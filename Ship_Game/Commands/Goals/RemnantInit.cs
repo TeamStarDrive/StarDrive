@@ -31,6 +31,7 @@ namespace Ship_Game.Commands.Goals
                 }
             }
 
+            EmpireManager.Player.GetEmpireAI().ThreatMatrix.UpdateAllPins(EmpireManager.Player);
             return GoalStep.GoToNextStep;
         }
 
