@@ -134,6 +134,13 @@ namespace Ship_Game
         public bool TryGetPrepareForWarType(Empire enemy, out WarType warType)
         {
             warType = WarType.SkirmishWar;
+
+            if (this == enemy)
+            {
+                Log.Warning($"{Name}: trying to prepare for war vs itself!");
+                return false;
+            }
+
             Relationship rel = GetRelations(enemy);
             if (!rel.AtWar && rel.PreparingForWar)
                 warType = rel.PreparingForWarType;

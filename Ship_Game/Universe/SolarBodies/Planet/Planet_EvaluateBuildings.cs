@@ -686,30 +686,71 @@ namespace Ship_Game
             return Money.NetRevenueGain(bio).GreaterOrEqual(0);
         }
 
-        bool OutpostBuiltOrInQueue()
+        // FB - For unit tests only!
+        public bool TestIsCapitalInQueue() => ConstructionQueue.Any(q => q.isBuilding && q.Building.IsCapital);
+        public bool TestIsOutpostInQueue() => ConstructionQueue.Any(q => q.isBuilding && q.Building.IsOutpost);
+        
+        bool OutpostOrCapitalBuiltOrInQueue(bool checkExisting = true)
         {
             // First check the existing buildings
-            if (BuildingList.Any(b => b.IsCapitalOrOutpost))
+            if (checkExisting && BuildingList.Any(b => b.IsCapitalOrOutpost))
                 return true;
 
             // Then check the queue
-            return ConstructionQueue.Any(q => q.isBuilding && q.Building.IsOutpost);
+            return ConstructionQueue.Any(q => q.isBuilding && q.Building.IsCapitalOrOutpost);
         }
 
-        void BuildOutpostIfAble() // A Gretman function to support DoGoverning()
+        public bool RemoveCapital()
+        {
+            SetHomeworld(false);
+            if (Construction.Cancel(ResourceManager.CreateBuilding(Building.CapitalId)))
+                return true;
+
+            Building capital = BuildingList.Find(b => b.IsCapital);
+            if (capital != null)
+            {
+                ScrapBuilding(capital);
+                return true;
+            }
+
+            return false;
+        }
+
+        public void RemoveOutpost()
+        {
+            Construction.Cancel(ResourceManager.CreateBuilding(Building.OutpostId));
+            Building outpost = BuildingList.Find(b => b.IsOutpost);
+            if (outpost != null)
+                ScrapBuilding(outpost);
+
+        }
+
+        /// <summary>
+        /// Sets the homeworld and builds the capital
+        /// If its the original empire's capital world, it will try to remove a capital from a non capital planet
+        /// to here
+        /// </summary>
+        public void BuildCapitalHere()
+        {
+            SetHomeworld(true);
+            BuildOutpostOrCapitalIfAble(checkExisting: false);
+        }
+
+        void BuildOutpostOrCapitalIfAble(bool checkExisting = true) // A Gretman function to support DoGoverning()
         {
             // Check Existing Buildings and the queue
-            if (OutpostBuiltOrInQueue())
+            if (OutpostOrCapitalBuiltOrInQueue(checkExisting))
                 return;
 
             // Build it!
-            Construction.Enqueue(ResourceManager.CreateBuilding(Building.OutpostId));
+            int id = IsHomeworld ? Building.CapitalId : Building.OutpostId;
+            Construction.Enqueue(ResourceManager.CreateBuilding(id));
 
             // Move Outpost to the top of the list
             for (int i = 1; i < ConstructionQueue.Count; ++i)
             {
                 QueueItem q = ConstructionQueue[i];
-                if (q.isBuilding && q.Building.IsOutpost)
+                if (q.isBuilding && q.Building.IsCapitalOrOutpost)
                 {
                     Construction.MoveTo(0, i);
                     break;
@@ -733,7 +774,7 @@ namespace Ship_Game
                     if (q.Building.ProducesFood)
                     {
                         Construction.MoveTo(0, i);
-                        Construction.RushProduction(0, 10, true);
+                        Construction.RushProduction(0, 10);
                         break;
                     }
 
@@ -786,7 +827,7 @@ namespace Ship_Game
                 if (q.isBuilding && q.Building.ProducesProduction)
                 {
                     Construction.MoveTo(0, i);
-                    Construction.RushProduction(0, 10, true);
+                    Construction.RushProduction(0, 10);
                     break;
                 }
             }
