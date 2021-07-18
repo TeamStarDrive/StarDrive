@@ -548,6 +548,9 @@ namespace Ship_Game.Ships
 
                 if (module.Regenerate > 0)
                     HasRegeneratingModules = true;
+
+                if (module.UID == "MeteorPart")
+                    IsMeteor = true;
             }
             HealthMax = Health;
         }
