@@ -460,7 +460,7 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
-        public void TestTreasury()
+        public void TestTreasuryIsSetToExpectedValues()
         {
             var budget      = new BudgetPriorities(Enemy);
             int budgetAreas = Enum.GetNames(typeof(BudgetPriorities.BudgetAreas)).Length;

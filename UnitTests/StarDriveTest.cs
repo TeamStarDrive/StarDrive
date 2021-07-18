@@ -202,6 +202,36 @@ namespace UnitTests
             }
         }
 
+        /// <summary>
+        /// Should be run after empires are created.
+        /// populates all shipdata techs.
+        /// unlocks all non shiptech. Locks all shiptechs.
+        /// Sets all ships to belong to Enemy Empire
+        /// Clears Ships WeCanBuild
+        /// </summary>
+        public void PrepareShipAndEmpireForShipTechTests()
+        {
+            ShipDesignUtils.MarkDesignsUnlockable(new ProgressCounter());
+            foreach (var ship in ResourceManager.GetShipTemplates())
+            {
+                ship.shipData.ShipStyle = Enemy.data.PortraitName;
+                ship.BaseHull.ShipStyle = Enemy.data.PortraitName;
+            }
+            Player.ShipsWeCanBuild.Clear();
+            Enemy.ShipsWeCanBuild.Clear();
+            var techs = Enemy.TechEntries;
+            foreach (var tech in techs)
+            {
+                if (tech.IsRoot)
+                    continue;
+
+                if (tech.ContainsShipTech())
+                    tech.Unlocked = false;
+                else
+                    tech.Unlocked = true;
+            }
+        }
+
         public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)
         {
             var data = DeveloperUniverse.Create(playerPreference, numOpponents);

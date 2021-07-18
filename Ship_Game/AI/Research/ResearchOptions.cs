@@ -46,7 +46,13 @@ namespace Ship_Game.AI.Research
             /// <summary>
             /// How much bonus a similar tech gives in ship cost.
             /// </summary>
-            LineFocusIntensity
+            LineFocusIntensity,
+            /// <summary>
+            /// Ship tech costs are balanced against non ship techs by taking the max cost of the infra tech
+            /// and increasing the tech cost of ship by how much more expensive it is than the max infra cost.
+            /// increasing this value increases the effect. 
+            /// </summary>
+            BalanceToInfraIntensity,
         }
 
         /// <summary>
@@ -161,6 +167,12 @@ namespace Ship_Game.AI.Research
         /// Used for testing
         /// </summary>
         public void ChangePriority(ResearchArea area, float priority) => Priority[area] = priority;
+        /// <summary>
+        /// Used for testing
+        /// </summary>
+        public void ChangePriority(ShipCosts area, float priority) => ShipMods[area] = priority;
+        public void ChangePriority(WeaponTag area, float priority) => WeaponPreference[area] = priority;
+        public void ChangePriority(TechnologyType area, float priority) => TechTypeMods[area] = priority;
 
         public void LoadResearchOptions(Empire empire)
         {
