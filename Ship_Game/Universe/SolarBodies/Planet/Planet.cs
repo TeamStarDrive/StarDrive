@@ -536,6 +536,9 @@ namespace Ship_Game
             }
 
             bool enemyInRange = ParentSystem.DangerousForcesPresent(Owner);
+            if (!enemyInRange)
+                SpaceCombatNearPlanet = false;
+
             if (NoSpaceCombatTargetsFoundDelay < 2f || enemyInRange)
             {
                 bool targetNear = false;
