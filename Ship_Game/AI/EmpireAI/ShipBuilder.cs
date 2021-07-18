@@ -62,10 +62,33 @@ namespace Ship_Game.AI
                                                 && !ship.shipData.IsShipyard
                                                 && !ship.IsSubspaceProjector);
 
+            if (potentialShips.Length == 0 && role == ShipData.RoleName.drone)
+                return GetDefaultEventDrone();
+
             if (potentialShips.Length == 0)
                 return null;
 
             return potentialShips.FindMax(s => s.BaseStrength);
+        }
+
+        // Try to get a pre-defined default drone for event buildings which can launch drones
+        static Ship GetDefaultEventDrone()
+        {
+            Ship drone;
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.DefaultEventDrone.NotEmpty())
+            {
+                drone = ResourceManager.GetShipTemplate(GlobalStats.ActiveModInfo.DefaultEventDrone, false);
+                if (drone != null)
+                    return drone;
+
+                Log.Warning($"Could not find default drone - {GlobalStats.DefaultEventDrone} in mod ShipDesigns folder");
+            }
+
+            drone = ResourceManager.GetShipTemplate(GlobalStats.DefaultEventDrone, false);
+            if (drone == null)
+                Log.Warning($"Could not find default drone - {GlobalStats.DefaultEventDrone} - in Vanilla SavedDesigns folder");
+
+            return drone;
         }
         
         static Ship PickFromCandidatesByStrength(ShipData.RoleName role, Empire empire,

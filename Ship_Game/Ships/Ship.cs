@@ -64,6 +64,7 @@ namespace Ship_Game.Ships
         public bool IsSupplyShip;
         public bool IsReadonlyDesign;
         public bool isColonyShip;
+        public bool IsMeteor;
         public bool HasRegeneratingModules;
         Planet TetheredTo;
         public Vector2 TetherOffset;
@@ -1650,8 +1651,6 @@ namespace Ship_Game.Ships
 
             return true;
         }
-
-        public bool IsMeteor => ModuleSlotList.Any(m => m.UID == "MeteorPart");
 
         public void SetReallyDie()
         {
