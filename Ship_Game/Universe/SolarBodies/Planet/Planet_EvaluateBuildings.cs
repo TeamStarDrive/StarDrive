@@ -6,6 +6,9 @@ namespace Ship_Game
 {
     public partial class Planet
     {
+        bool LowProdPotential => Prod.GrossMaxPotential < 1;
+        bool LowFoodPotential => NonCybernetic && Food.GrossMaxPotential < 1;
+
         private readonly EnumFlatMap<ColonyPriority, float> Priorities = new EnumFlatMap<ColonyPriority, float>();
 
         private enum ColonyPriority
@@ -26,12 +29,6 @@ namespace Ship_Game
             SpacePort,
             InfraStructure
         }
-
-        /// <summary>
-        /// This logs the building maintenance the governor tried to build but could not due to low budget
-        /// It can be used by the empire to allow building this, if they have reserves
-        /// </summary>
-        public float BuildingMaintenanceNeeded { get; private set; }
 
         bool IsPlanetExtraDebugTarget()
         {
@@ -63,19 +60,15 @@ namespace Ship_Game
 
         void BuildOrReplaceBuilding(float budget)
         {
-            BuildingMaintenanceNeeded = float.MaxValue;
             if (FreeHabitableTiles > 0)
             {
-                if (SimpleBuild(budget)) // Let's try to build something within our budget
-                    BuildingMaintenanceNeeded = 0; // We built a building. No over spend is needed from the empire
-
+                SimpleBuild(budget); // Let's try to build something within our budget
                 if (TryPrioritizeColonyBuilding())
                     return;
             }
             else
             {
                 ReplaceBuilding(budget); // We don't have room for expansion. Let's see if we can replace to a better value building
-                BuildingMaintenanceNeeded = 0;
             }
 
             PrioritizeCriticalFoodBuildings();
@@ -86,8 +79,21 @@ namespace Ship_Game
         void UpdateGovernorPriorities()
         {
             Priorities.Clear();
-            CalcFoodPriorities();
+
             CalcProductionPriorities();
+            if (ProdInfraStructureNeeded())
+            {
+                ShowDebugPriorities();
+                return; // need to setup minimal flat prod 
+            }
+
+            CalcFoodPriorities();
+            if (FoodInfraStructureNeeded())
+            {
+                ShowDebugPriorities();
+                return; // need to setup minimal flat food 
+            }
+
             CalcPopulationPriorities();
             CalcResearchPriorities();
             CalcFertilityPriorities();
@@ -96,13 +102,36 @@ namespace Ship_Game
             CalcSpacePortPriorities();
             CalcInfrastructurePriority();
 
-            if (IsPlanetExtraDebugTarget())
+            ShowDebugPriorities();
+
+            // Local Method
+            bool ProdInfraStructureNeeded()
             {
+                return LowProdPotential
+                       && Prod.FlatBonus < 0.25f
+                       && BuildingsCanBuild.Any(b => b.GoodFlatProduction(this));
+            }
+
+            // Local Method
+            bool FoodInfraStructureNeeded()
+            {
+                return LowFoodPotential
+                       && Food.FlatBonus < 0.25f
+                       && BuildingsCanBuild.Any(b => b.GoodFlatFood());
+            }
+
+            // Local Method
+            void ShowDebugPriorities()
+            {
+                if (!IsPlanetExtraDebugTarget())
+                    return;
+
                 int rank = GetColonyRank();
                 Log.Info($"Planet Rank: {rank} ({ColonyValue.String(0)}/{Owner.MaxColonyValue.String(0)})");
                 Log.Info(ConsoleColor.Green, $"**** {Name} - Governor Priorities        ****");
                 foreach ((ColonyPriority key, float value) in Priorities.Values)
                     Log.Info($"{key,-16} = {value}");
+
                 Log.Info(ConsoleColor.Green, "---------------------------------------------");
             }
         }
@@ -268,7 +297,7 @@ namespace Ship_Game
             if (CivilianBuildingInTheWorks)
                 return false;
 
-            ChooseBestBuilding(BuildingsCanBuild, budget, out Building bestBuilding);
+            ChooseBestBuilding(BuildingsCanBuild, budget, replacing: false, out Building bestBuilding);
             return bestBuilding != null && Construction.Enqueue(bestBuilding);
         }
 
@@ -298,7 +327,7 @@ namespace Ship_Game
                 return;
 
             float replacementBudget = budget + worstBuilding.ActualMaintenance(this);
-            float bestBuildingScore = ChooseBestBuilding(BuildingsCanBuild, replacementBudget, out Building bestBuilding);
+            float bestBuildingScore = ChooseBestBuilding(BuildingsCanBuild, replacementBudget, replacing: true, out Building bestBuilding);
             if (bestBuilding == null)
                 return;
 
@@ -313,7 +342,7 @@ namespace Ship_Game
             }
         }
 
-        float ChooseBestBuilding(Array<Building> buildings, float budget, out Building best)
+        float ChooseBestBuilding(Array<Building> buildings, float budget, bool replacing, out Building best)
         {
             best = null;
             if (buildings.Count == 0)
@@ -332,16 +361,13 @@ namespace Ship_Game
                 if (!SuitableForBuild(b, budget))
                     continue;
 
-                float buildingScore = EvaluateBuilding(b, totalProd);
+                float buildingScore = EvaluateBuilding(b, totalProd, !replacing);
                 if (buildingScore > highestScore)
                 {
                     best         = b;
                     highestScore = buildingScore;
                 }
             }
-
-            if (highestScore.AlmostEqual(1))
-                BuildingMaintenanceNeeded = 0; // No building is good enough
 
             if (best != null && IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Green, $"-- Planet {Name}: Best Building is {best.Name} " +
@@ -399,13 +425,6 @@ namespace Ship_Game
             float maintenance = b.ActualMaintenance(this);
             if ((budget > 0 && maintenance <= budget) || b.IsMoneyBuilding && b.MoneyBuildingAndProfitable(maintenance, PopulationBillion))
                 return true;
-
-            if (maintenance < BuildingMaintenanceNeeded
-                && maintenance > 0
-                && (ManualCivilianBudget <= 0 || !Owner.isPlayer))
-            {
-                BuildingMaintenanceNeeded = maintenance;
-            }
 
             return false; // Too expensive for us and its not getting profitable juice from the population
         }
@@ -476,7 +495,7 @@ namespace Ship_Game
         bool IsStorageWasted(float storageInUse, float storageAdded) => Storage.Max - storageAdded < storageInUse;
 
         // Gretman function, to support DoGoverning()
-        float EvaluateBuilding(Building b, float totalProd, bool chooseBest = true)
+        float EvaluateBuilding(Building b, float totalProd, bool chooseBest)
         {
             float score = 0;
             if (IsLimitedByPerCol(b))
@@ -517,6 +536,10 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.InfraStructure],  b.Infrastructure * 3);
 
             score *= FertilityMultiplier(b);
+
+            // When choosing the best building, we all check if that building can be built fast enough
+            // If we are evaluating for worst building or choosing a building to replace, we ignore
+            // Cost effectiveness, since we want to compare the buildings without cost modifiers
             float effectiveness = chooseBest ? CostEffectivenessMultiplier(b.Cost, totalProd) : 1;
             score *= effectiveness;
 
