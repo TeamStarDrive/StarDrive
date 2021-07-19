@@ -95,7 +95,9 @@ namespace Ship_Game
             PlanetTerraformDone.Visible  = PlanetTerraformTitle.Visible && !NeedLevel3Terraform;
 
             TerraformTitle.Text   = $"{Localizer.Token(GameText.TerraformingOperationsLevel)} {TerraformLevel}";
-            TerraformersHere.Text = $"{NumTerraformersHere}/{NumMaxTerraformers}";
+            TerraformersHere.Text = P.ContainsEventTerraformers && P.Owner.data.Traits.TerraformingLevel < 1 
+                ? Localizer.Token(GameText.TerraformersUnknownOrigin) 
+                : $"{NumTerraformersHere}/{NumMaxTerraformers}";
 
             if (P.TerraformingHere)
             {

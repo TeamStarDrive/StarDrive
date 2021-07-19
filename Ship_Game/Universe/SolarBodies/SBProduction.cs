@@ -524,5 +524,15 @@ namespace Ship_Game.Universe.SolarBodies
             foreach (PlanetGridSquare tile in P.TilesList)
                 tile.QItem = null; // Clear all planned buildings from tiles
         }
+
+        public bool FirstItemCanFeedUs()
+        {
+            if (ConstructionQueue.Count == 0 || !ConstructionQueue[0].isBuilding)
+                return false;
+
+            QueueItem first = ConstructionQueue[0];
+            return P.NonCybernetic && first.Building.ProducesFood
+                   || P.IsCybernetic && first.Building.ProducesProduction;
+        }
     }
 }

@@ -180,7 +180,7 @@ namespace Ship_Game
             PFacilities.AddTab(GameText.Statistics2); // Statistics
             PFacilities.AddTab(GameText.Description); // Description
             PFacilities.AddTab(GameText.Trade2); // Trade
-            if (Player.data.Traits.TerraformingLevel > 0)
+            if (Player.data.Traits.TerraformingLevel > 0 || P.Terraformable)
                 PFacilities.AddTab(GameText.BB_Tech_Terraforming_Name); // Terraforming
 
             PFacilities.OnTabChange = OnPFacilitiesTabChange;
