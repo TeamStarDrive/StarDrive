@@ -520,8 +520,6 @@ namespace Ship_Game
 
         float CalcBuildingScore(Building b, float totalProd, bool chooseBest)
         {
-            if (b.Name == "Nano Storage")
-                Log.Info("");
             float score = 0;
 
             score += EvalTraits(Priorities[ColonyPriority.FoodFlat],        b.PlusFlatFoodAmount);
