@@ -51,7 +51,7 @@ namespace Ship_Game.AI.Compnonents
             foreach ( var budget in budgetSettings)
             {
                 bool isAll = budget.PortraitName.Equals("All", StringComparison.InvariantCultureIgnoreCase);
-                bool isUs = budget.PortraitName.Equals(empire.Name, StringComparison.InvariantCultureIgnoreCase);
+                bool isUs = budget.PortraitName.Equals(empire?.Name, StringComparison.InvariantCultureIgnoreCase);
                 if (isAll || isUs)
                 {
                     foreach (var area in budget.Budgets)
