@@ -257,10 +257,8 @@ namespace Ship_Game.AI.Research
                 OwnerEmpire.Research.SetNoResearchLeft(true);
                 return false;
             }
-            else
-            {
-                OwnerEmpire.Research.SetNoResearchLeft(false);
-            }
+
+            OwnerEmpire.Research.SetNoResearchLeft(false);
 
             DebugLog($"Possible Techs : {availableTechs.Count}");
 
