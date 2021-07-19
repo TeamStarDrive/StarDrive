@@ -788,7 +788,7 @@ namespace Ship_Game
                 NeedLevel3Terraform    = P.Category != P.Owner.data.PreferredEnv || P.BaseMaxFertility.Less(P.TerraformedMaxFertility);
                 NumVolcanoes           = P.TilesList.Filter(t => t.VolcanoHere).Length;
                 NumTerraformableTiles  = P.TilesList.Filter(t => t.CanTerraform).Length;
-                TerraformLevel         = P.Owner.data.Traits.TerraformingLevel;
+                TerraformLevel         = P.ContainsEventTerraformers ? 3 : P.Owner.data.Traits.TerraformingLevel;
                 TerraTargetFertility   = TerraformTargetFertility();
                 MinEstimatedMaxPop     = P.PotentialMaxPopBillionsFor(P.Owner);
                 TerraMaxPopBillion     = P.PotentialMaxPopBillionsFor(P.Owner, true);
