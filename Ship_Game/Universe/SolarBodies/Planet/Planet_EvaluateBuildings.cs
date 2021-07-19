@@ -361,8 +361,6 @@ namespace Ship_Game
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
-                if (b.Name == "Rover Bay")
-                    Log.Info("");
                 if (!SuitableForBuild(b, budget))
                     continue;
 
