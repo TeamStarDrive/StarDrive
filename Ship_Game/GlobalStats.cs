@@ -65,6 +65,7 @@ namespace Ship_Game
         public static string ModOrVanillaName => HasMod ? ModName : "Vanilla";
         public static string ResearchRootUIDToDisplay = "Colonization";
         public static bool CordrazinePlanetCaptured;
+        public static string DefaultEventDrone = "Xeno Fighter"; // In case an event building has defense drones and drones are not researched
 
         public static bool ExtraNotifications;
         public static bool PauseOnNotification;

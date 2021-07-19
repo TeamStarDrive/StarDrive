@@ -66,6 +66,7 @@ namespace Ship_Game.Commands.Goals
             if (ColonizationTarget.ParentSystem.OwnerList.Count > 0
                 && !ColonizationTarget.ParentSystem.IsExclusivelyOwnedBy(empire))
             {
+                // Someone got planets in that system, need to check if we warned them
                 foreach ((Empire them, Relationship rel) in empire.AllRelations)
                     empire.GetEmpireAI().ExpansionAI.CheckClaim(them, rel, ColonizationTarget);
             }
@@ -78,9 +79,6 @@ namespace Ship_Game.Commands.Goals
                 // If the owner is a faction, fail the goal so next time we also get a claim fleet to invade
                 if (ColonizationTarget.Owner.isFaction) 
                     return FinishedShip != null ? GoalStep.GoalFailed : GoalStep.GoToNextStep;
-
-                foreach ((Empire them, Relationship rel) in empire.AllRelations)
-                    empire.GetEmpireAI().ExpansionAI.CheckClaim(them, rel, ColonizationTarget);
 
                 ReleaseShipFromGoal();
                 Log.Info($"Colonize: {ColonizationTarget.Owner.Name} got there first");
