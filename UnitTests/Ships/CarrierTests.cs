@@ -102,12 +102,12 @@ namespace UnitTests.Ships
             SpawnEnemyShip();
             LaunchFighters(Carrier);
             MoveShipWithoutFightersTo(Carrier, new Vector2(Carrier.SensorRange + 25000));
-            
+
             // start warping away
             Carrier.AI.OrderMoveTo(Carrier.Center + new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
             Universe.Objects.Update(ScanInterval);
 
-            Assert.AreEqual(ActiveFighters, RecallingFighters, "Fighters should be recalling because too far");
+            Assert.AreEqual(ActiveFighters, RecallingFighters, "Fighters should be recalling when far away");
         }
 
         [TestMethod]
@@ -116,12 +116,12 @@ namespace UnitTests.Ships
             SpawnEnemyShip();
             LaunchFighters(Carrier);
             MoveShipWithoutFightersTo(Carrier, new Vector2(Carrier.SensorRange + 25000));
-            
+
             // start warping away
             Carrier.AI.OrderMoveToNoStop(Carrier.Center + new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
             Universe.Objects.Update(ScanInterval);
 
-            Assert.AreEqual(ActiveFighters, RecallingFighters, "Fighters should be recalling because too far");
+            Assert.AreEqual(ActiveFighters, RecallingFighters, "Fighters should be recalling during no stop move");
         }
 
         [TestMethod]
@@ -130,13 +130,13 @@ namespace UnitTests.Ships
             SpawnEnemyShip();
             LaunchFighters(Carrier);
             MoveShipWithoutFightersTo(Carrier, new Vector2(Carrier.SensorRange + 25000));
-            
+
             // start warping away
             Carrier.AI.OrderMoveTo(Carrier.Center + new Vector2(10000), Vectors.Up, true, 
                                    AIState.AwaitingOrders, offensiveMove:true);
             Universe.Objects.Update(ScanInterval);
 
-            Assert.AreEqual(ActiveFighters, RecallingFighters, "Fighters should be recalling because too far");
+            Assert.AreEqual(ActiveFighters, RecallingFighters, "Fighters should be recalling during combat move");
         }
 
         Fleet CreateFleet()
@@ -148,7 +148,7 @@ namespace UnitTests.Ships
             Player.FirstFleet = fleet;
             return fleet;
         }
-        
+
         [TestMethod]
         public void RecallDuringFleetMove()
         {
@@ -158,7 +158,7 @@ namespace UnitTests.Ships
             fleet.MoveToNow(new Vector2(30000, 30000), Vectors.Up);
             Universe.Objects.Update(ScanInterval);
 
-            Assert.AreEqual(ActiveFighters, RecallingFighters, "Fighters should be recalling because too far");
+            Assert.AreEqual(ActiveFighters, RecallingFighters, "Fighters should be recalling during fleet move");
         }
 
         [TestMethod]

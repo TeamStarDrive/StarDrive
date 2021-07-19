@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI.Research
 {
@@ -10,6 +11,7 @@ namespace Ship_Game.AI.Research
         readonly Map<TechnologyType, float> TechTypeMods = new Map<TechnologyType, float>();
         readonly Map<ShipCosts, float> ShipMods          = new Map<ShipCosts, float>();
         readonly Map<ResearchArea, float> Priority       = new Map<ResearchArea, float>();
+        readonly Map<WeaponTag, float> WeaponPreference  = new Map<WeaponTag, float>();
 
         public int Count()
         {
@@ -17,6 +19,7 @@ namespace Ship_Game.AI.Research
             total    += ShipMods.Count;
             total    += Priority.Count;
             total    += TechTypeMods.Count;
+            total    += WeaponPreference.Count;
             return total;
         }
 
@@ -43,7 +46,13 @@ namespace Ship_Game.AI.Research
             /// <summary>
             /// How much bonus a similar tech gives in ship cost.
             /// </summary>
-            LineFocusIntensity
+            LineFocusIntensity,
+            /// <summary>
+            /// Ship tech costs are balanced against non ship techs by taking the max cost of the infra tech
+            /// and increasing the tech cost of ship by how much more expensive it is than the max infra cost.
+            /// increasing this value increases the effect. 
+            /// </summary>
+            BalanceToInfraIntensity,
         }
 
         /// <summary>
@@ -137,6 +146,13 @@ namespace Ship_Game.AI.Research
             return 1;
         }
 
+        public float CostMultiplier(WeaponTag weaponType)
+        {
+            if (WeaponPreference.TryGetValue(weaponType, out float modifier))
+                return modifier;
+            return 1;
+        }
+
         /// <summary>
         /// Research category priority bonus
         /// </summary>/returns>
@@ -147,15 +163,27 @@ namespace Ship_Game.AI.Research
             return 1;
         }
 
+        /// <summary>
+        /// Used for testing
+        /// </summary>
+        public void ChangePriority(ResearchArea area, float priority) => Priority[area] = priority;
+        /// <summary>
+        /// Used for testing
+        /// </summary>
+        public void ChangePriority(ShipCosts area, float priority) => ShipMods[area] = priority;
+        public void ChangePriority(WeaponTag area, float priority) => WeaponPreference[area] = priority;
+        public void ChangePriority(TechnologyType area, float priority) => TechTypeMods[area] = priority;
+
         public void LoadResearchOptions(Empire empire)
         {
             Array<ResearchSettings> researchMods = ResearchSettings.LoadYaml();
 
             foreach (var mods in researchMods)
             {
-                mods.ApplyYamlMap(TechTypeMods, mods.TechnologyTypeModifiers, empire);
-                mods.ApplyYamlMap(ShipMods,     mods.ShipCostModifiers,       empire);
-                mods.ApplyYamlMap(Priority,     mods.ResearchAreaModifiers,   empire);
+                mods.ApplyMatchingModifiers(TechTypeMods,     mods.TechnologyTypeModifiers, empire);
+                mods.ApplyMatchingModifiers(ShipMods,         mods.ShipCostModifiers,       empire);
+                mods.ApplyMatchingModifiers(Priority,         mods.ResearchAreaModifiers,   empire);
+                mods.ApplyMatchingModifiers(WeaponPreference, mods.WeaponModifiers,         empire);
             }
         }
 
@@ -166,6 +194,7 @@ namespace Ship_Game.AI.Research
             [StarData] public readonly Map<TechnologyType, float> TechnologyTypeModifiers;
             [StarData] public readonly Map<ShipCosts,      float> ShipCostModifiers;
             [StarData] public readonly Map<ResearchArea,   float> ResearchAreaModifiers;
+            [StarData] public readonly Map<WeaponTag,      float> WeaponModifiers;
             bool IsAll => PortraitName.Equals("All", StringComparison.InvariantCultureIgnoreCase);
             public override string ToString() => $"Empire {PortraitName}";
 
@@ -178,7 +207,7 @@ namespace Ship_Game.AI.Research
                 return researchMods;
             }
 
-            public void ApplyYamlMap<T>(Map<T, float> toMap, Map<T, float> fromMap, Empire empire)
+            public void ApplyMatchingModifiers<T>(Map<T, float> toMap, Map<T, float> fromMap, Empire empire)
             {
                 if (IsAll || PortraitName == empire.PortraitName && fromMap?.Count > 0)
                 {
