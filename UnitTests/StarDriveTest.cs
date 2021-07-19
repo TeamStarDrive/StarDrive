@@ -202,6 +202,36 @@ namespace UnitTests
             }
         }
 
+        /// <summary>
+        /// Should be run after empires are created.
+        /// populates all shipdata techs.
+        /// unlocks all non shiptech. Locks all shiptechs.
+        /// Sets all ships to belong to Enemy Empire
+        /// Clears Ships WeCanBuild
+        /// </summary>
+        public void PrepareShipAndEmpireForShipTechTests()
+        {
+            ShipDesignUtils.MarkDesignsUnlockable(new ProgressCounter());
+            foreach (var ship in ResourceManager.GetShipTemplates())
+            {
+                ship.shipData.ShipStyle = Enemy.data.PortraitName;
+                ship.BaseHull.ShipStyle = Enemy.data.PortraitName;
+            }
+            Player.ShipsWeCanBuild.Clear();
+            Enemy.ShipsWeCanBuild.Clear();
+            var techs = Enemy.TechEntries;
+            foreach (var tech in techs)
+            {
+                if (tech.IsRoot)
+                    continue;
+
+                if (tech.ContainsShipTech())
+                    tech.Unlocked = false;
+                else
+                    tech.Unlocked = true;
+            }
+        }
+
         public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)
         {
             var data = DeveloperUniverse.Create(playerPreference, numOpponents);
@@ -280,38 +310,55 @@ namespace UnitTests
             ResourceManager.LoadTechContentForTesting();
         }
 
-        static void AddDummyPlanet(out Planet p)
+        static SolarSystem AddDummyPlanet(out Planet p)
         {
             p = new Planet();
             var s = new SolarSystem();
-            s.PlanetList.Add(p);
-            p.ParentSystem = s;
+            AddPlanetToSolarSystem(s, p);
+            return s;
         }
 
-        public static void AddDummyPlanet(float fertility, float minerals, float pop, out Planet p)
+        public static SolarSystem AddDummyPlanet(float fertility, float minerals, float pop, out Planet p)
         {
             p = new Planet(fertility, minerals, pop);
             var s = new SolarSystem();
-            s.PlanetList.Add(p);
-            p.ParentSystem = s;
+            AddPlanetToSolarSystem(s, p);
+            return s;
         }
 
-        public static void AddDummyPlanetToEmpire(Empire empire)
+        public static SolarSystem AddDummyPlanetToEmpire(Empire empire)
         {
-            AddDummyPlanetToEmpire(empire, 0, 0, 0);
+            return AddDummyPlanetToEmpire(empire, 0, 0, 0);
         }
 
-        public static void AddDummyPlanetToEmpire(Empire empire, float fertility, float minerals, float maxPop)
+        public static SolarSystem AddDummyPlanetToEmpire(Empire empire, float fertility, float minerals, float maxPop)
         {
-            AddDummyPlanet(fertility, minerals, maxPop, out Planet p);
+            var s = AddDummyPlanet(fertility, minerals, maxPop, out Planet p);
             empire?.AddPlanet(p);
+            p.Owner = empire;
             p.Type = ResourceManager.PlanetOrRandom(0);
+            return s;
         }
 
-        public static void AddHomeWorldToEmpire(Empire empire, out Planet p)
+        public static SolarSystem AddHomeWorldToEmpire(Empire empire, out Planet p)
         {
-            AddDummyPlanet(out p);
+            var s = AddDummyPlanet(out p);
             p.GenerateNewHomeWorld(empire);
+            return s;
+        }
+
+        public static void AddPlanetToSolarSystem( SolarSystem s, Planet p)
+        {
+            float distance = p.Center.Distance(s.Position);
+            var r = new SolarSystem.Ring() { Asteroids = false, OrbitalDistance = distance, planet = p };
+            s.RingList.Add(r);
+            p.ParentSystem = s;
+            s.PlanetList.Add(p);
+            if (Empire.Universe != null)
+            {
+                Empire.Universe.PlanetsDict[p.guid] = p;
+                Empire.Universe.SolarSystemDict[s.guid] = s;
+            }
         }
 
         public Array<Projectile> GetProjectiles(Ship ship)
