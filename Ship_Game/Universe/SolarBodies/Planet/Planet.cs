@@ -1514,8 +1514,8 @@ namespace Ship_Game
         public int TotalMoneyBuildings   => TilesList.Count(tile => tile.BuildingOnTile &&  tile.Building.IsMoneyBuilding);
 
         public int TotalBuildings    => TilesList.Count(tile => tile.BuildingOnTile);
-        public bool TerraformingHere => BuildingList.Any(b => b.IsTerraformer);
-        public int  TerraformersHere => BuildingList.Count(b => b.IsTerraformer);
+        public bool TerraformingHere => BuildingList.Any(b => b.IsTerraformer || b.IsEventTerraformer);
+        public int  TerraformersHere => BuildingList.Count(b => b.IsTerraformer || b.IsEventTerraformer);
         public bool HasCapital       => BuildingList.Any(b => b.IsCapital);
 
 
