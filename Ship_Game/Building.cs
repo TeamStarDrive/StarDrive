@@ -296,6 +296,11 @@ namespace Ship_Game
                                         && !IsCapitalOrOutpost
                                         && MaxPopIncrease.AlmostZero(); // FB - pop relevant because of CA
 
+        public bool GoodFlatProduction(Planet p) =>
+            PlusFlatProductionAmount > 0 || PlusProdPerRichness > 0 && p.MineralRichness > 0.2f;
+
+        public bool GoodFlatFood() => PlusFlatFoodAmount > 0;
+
         static float Production(Planet planet, float flatBonus, float perColonistBonus, float adjust = 1)
         {
             return flatBonus + perColonistBonus * planet.PopulationBillion * adjust;
