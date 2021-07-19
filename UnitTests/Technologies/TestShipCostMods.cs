@@ -13,7 +13,7 @@ namespace UnitTests.Technologies
     [TestClass]
     public class TestShipCostMods : StarDriveTest
     {
-        ChooseTech TechChooser;
+        readonly ChooseTech TechChooser;
         public TestShipCostMods()
         {
             CreateGameInstance();
@@ -52,8 +52,8 @@ namespace UnitTests.Technologies
         public int ShipPickerReturnsATechCost()
         {
             var lineFocus = new ShipPicker(CreateResearchMod());
-            var ship = ResourceManager.GetShipTemplate("Rocket Scout");
-            int techCost = lineFocus.GetModifiedShipCost(ship, Enemy, 1);
+            var ship      = ResourceManager.GetShipTemplate("Rocket Scout");
+            int techCost  = lineFocus.GetModifiedShipCost(ship, Enemy, 1);
             Assert.IsTrue(techCost > 0);
             return techCost;
         }
@@ -74,12 +74,12 @@ namespace UnitTests.Technologies
         [TestMethod]
         public void WeaponTagReducesShipCost()
         {
-            int baseCost = ShipPickerReturnsATechCost();
+            int baseCost     = ShipPickerReturnsATechCost();
             var researchMods = CreateResearchMod();
             // adjust researchModsToMakeSureValuesWork
             researchMods.ChangePriority(WeaponTag.Missile, 0.1f);
-            var lineFocus = new ShipPicker(researchMods);
-            var ship = ResourceManager.GetShipTemplate("Rocket Scout");
+            var lineFocus  = new ShipPicker(researchMods);
+            var ship       = ResourceManager.GetShipTemplate("Rocket Scout");
             float techCost = lineFocus.GetModifiedShipCost(ship, Enemy, 1);
             Assert.IsTrue(techCost < baseCost);
         }
@@ -87,12 +87,12 @@ namespace UnitTests.Technologies
         [TestMethod]
         public void TechTypeReducesShipCost()
         {
-            int baseCost = ShipPickerReturnsATechCost();
+            int baseCost     = ShipPickerReturnsATechCost();
             var researchMods = CreateResearchMod();
             // adjust researchModsToMakeSureValuesWork
             researchMods.ChangePriority(TechnologyType.ShipWeapons, 0.1f);
-            var lineFocus = new ShipPicker(researchMods);
-            var ship = ResourceManager.GetShipTemplate("Rocket Scout");
+            var lineFocus  = new ShipPicker(researchMods);
+            var ship       = ResourceManager.GetShipTemplate("Rocket Scout");
             float techCost = lineFocus.GetModifiedShipCost(ship, Enemy, 1);
             Assert.IsTrue(techCost < baseCost);
         }
