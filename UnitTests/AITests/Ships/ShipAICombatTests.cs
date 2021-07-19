@@ -160,6 +160,11 @@ namespace UnitTests.AITests.Ships
             OurShip.AI.OrderMoveTo(colonyShip.Center, Vectors.Up, true, AIState.AwaitingOrders,
                                    offensiveMove: true);
 
+            Assert.IsFalse(OurShip.InCombat, "ship must exit combat after giving a move order, since giving a move order clears orders");
+            // Let the ship reacquire the target since giving an order caused an exit
+            // combat (as it should, otherwise the ship will not enter combat again). 
+            Update(EnemyScanInterval); 
+
             // our ship must remain in combat the whole time until enemy ship is destroyed
             LoopWhile(5, () => colonyShip.Active, () =>
             {
