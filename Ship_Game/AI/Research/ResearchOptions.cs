@@ -209,7 +209,10 @@ namespace Ship_Game.AI.Research
 
             public void ApplyMatchingModifiers<T>(Map<T, float> toMap, Map<T, float> fromMap, Empire empire)
             {
-                if (IsAll || PortraitName == empire.PortraitName && fromMap?.Count > 0)
+                if (fromMap == null)
+                    return;
+
+                if (IsAll || PortraitName == empire.PortraitName && fromMap.Count > 0)
                 {
                     foreach (var kv in fromMap)
                     {
