@@ -22,6 +22,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private SolarSystem ParentSystem     => P.ParentSystem;
         private int TurnsSinceTurnover       => P.TurnsSinceTurnover;
         private float ShieldStrengthCurrent  => P.ShieldStrengthCurrent;
+        private float ShieldStrengthPercent  => P.ShieldStrengthMax > 0.01f ? P.ShieldStrengthCurrent / P.ShieldStrengthMax : 0;
         private Array<PlanetGridSquare> TilesList => P.TilesList;
 
         public GeodeticManager (Planet planet)
@@ -47,7 +48,17 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             P.SetInGroundCombat(Owner);
 
             if (ShieldStrengthCurrent > 0f)
+            {
+                if (ShieldStrengthPercent < 0.2f)
+                {
+                    // Start increasing the chance to launch assault vs bombers
+                    float assaultBombersChance = 1 - ShieldStrengthPercent*5f;
+                    if (RandomMath.RollDice(assaultBombersChance))
+                        Owner?.CreateAssaultBombersGoal(bomb.Owner, P);
+                }
+
                 DamageColonyShields(bomb);
+            }
             else
             {
                 var orbitalDrop = new OrbitalDrop

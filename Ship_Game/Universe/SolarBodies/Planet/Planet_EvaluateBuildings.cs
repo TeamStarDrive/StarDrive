@@ -141,7 +141,7 @@ namespace Ship_Game
             if (IsCybernetic)
                 return;
 
-            float foodToFeedAll     = FoodConsumptionPerColonist * MaxPopulationBillion;
+            float foodToFeedAll     = FoodConsumptionPerColonist * (MaxPopulationBillion/3).LowerBound(PopulationBillion);
             float flatFoodToFeedAll = foodToFeedAll - Food.NetFlatBonus;
             float fertilityBonus    = Fertility.InRange(0.1f, 0.99f) ? 1 : Fertility;
 
@@ -213,7 +213,10 @@ namespace Ship_Game
             float eatableRatio = IsCybernetic ? Storage.ProdRatio : Storage.FoodRatio;
             float popGrowth    = (10 - PopulationRatio * 10).LowerBound(0);
             popGrowth   *= eatableRatio;
-            float popCap = FreeHabitableTiles > 0 ? (PopulationRatio * 10).Clamped(0, 10) : 0;
+            float popCap = 0;
+            if (FreeHabitableTiles > 0 && PopulationRatio > 0.5f)
+                popCap = (PopulationRatio - 0.5f) * 2;
+
             popGrowth    = ApplyGovernorBonus(popGrowth, 1f, 1f, 1f, 1f, 1f);
             popCap       = ApplyGovernorBonus(popCap, 1f, 1f, 1f, 1f, 1f);
             Priorities[ColonyPriority.PopGrowth] = popGrowth;
@@ -222,9 +225,9 @@ namespace Ship_Game
 
         void CalcStoragePriorities()
         {
-            float storage = NonCybernetic ? (Storage.FoodRatio + Storage.ProdRatio) * 2.5f
-                                          : Storage.ProdRatio * 5f;
-            storage += (Level / 2f).LowerBound(0.5f);
+            float storage = NonCybernetic ? (Storage.FoodRatio + Storage.ProdRatio)
+                                          : Storage.ProdRatio * 2f;
+            storage += (Level / 3f).LowerBound(0.5f);
             storage = ApplyGovernorBonus(storage, 1f, 1f, 0.5f, 1.25f, 1f);
             Priorities[ColonyPriority.StorageNeeds] = storage;
         }
@@ -416,8 +419,9 @@ namespace Ship_Game
                 || b.IsBiospheres  // Different logic for the above
                 || Owner.isPlayer && b.BuildOnlyOnce
                 || !Owner.isPlayer && b.BuildOnlyOnce && Level < (int)DevelopmentLevel.MegaWorld
-                // If starving and this buildings does not produce food while we have food buildings available for build, filter it
-                || NonCybernetic && IsStarving && !b.ProducesFood && BuildingsCanBuild.Any(f => f.ProducesFood))
+                // If starving and dont have low prod potential and this building does not produce
+                // food while we have food buildings available for build, filter it
+                || NonCybernetic && IsStarving && !LowProdPotential && !b.ProducesFood && BuildingsCanBuild.Any(f => f.ProducesFood))
             {
                 return false;
             }
@@ -526,7 +530,7 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.ProdPerRichness], b.IncreaseRichness * 50);
             score += EvalTraits(Priorities[ColonyPriority.PopGrowth],       b.PlusFlatPopulation / 10);
             score += EvalTraits(Priorities[ColonyPriority.PopCap],          b.MaxPopIncrease / 200);
-            score += EvalTraits(Priorities[ColonyPriority.StorageNeeds],    b.StorageAdded / 50f);
+            score += EvalTraits(Priorities[ColonyPriority.StorageNeeds],    b.StorageAdded / 100f);
             score += EvalTraits(Priorities[ColonyPriority.ResearchFlat],    b.PlusFlatResearchAmount * 3);
             score += EvalTraits(Priorities[ColonyPriority.ResearchPerCol],  b.PlusResearchPerColonist * 10);
             score += EvalTraits(Priorities[ColonyPriority.CreditsPerCol],   b.CreditsPerColonist * 3);
