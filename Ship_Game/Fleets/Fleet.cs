@@ -635,7 +635,7 @@ namespace Ship_Game.Fleets
 
             if (EndInvalidTask(!eventBuildingFound
                                || targetPlanet.Owner != null && !Owner.IsAtWarWith(targetPlanet.Owner)
-                               || !MajorityTroopShipsAreInWell() && (!StillInvasionEffective(task) || !StillCombatEffective(task))))
+                               || !MajorityTroopShipsAreInWell(targetPlanet) && (!StillInvasionEffective(task) || !StillCombatEffective(task))))
             {
                 return;
             }
@@ -979,7 +979,7 @@ namespace Ship_Game.Fleets
                                            .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == task.TargetPlanet.ParentSystem);
 
             EndInvalidTask(remnantsTargeting 
-                           || !MajorityTroopShipsAreInWell() && (!invasionEffective || !combatEffective));
+                           || !MajorityTroopShipsAreInWell(task.TargetPlanet) && (!invasionEffective || !combatEffective));
         }
 
 
@@ -1967,17 +1967,19 @@ namespace Ship_Game.Fleets
 
 
         // Most of out troop ships are committed (they are in te planet's gravity well)
-        bool MajorityTroopShipsAreInWell()
+        bool MajorityTroopShipsAreInWell(Planet p)
         {
             int numTroopShips    = 0;
             int troopShipsInWell = 0;
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-                if (ship.IsTroopShip)
+                if (ship.IsTroopShip && ship.System == p.ParentSystem)
                 {
                     numTroopShips += 1;
-                    if (ship.IsInhibitedByUnfriendlyGravityWell)
+                    // Checking in radius to make sure the well belongs to the correct planet
+                    // Checking inhibition as well since some tech can affect grav well, so in radius is not enough.
+                    if (ship.InRadius(p.Center, p.GravityWellRadius) && ship.IsInhibitedByUnfriendlyGravityWell)
                         troopShipsInWell += 1;
                 }
             }
