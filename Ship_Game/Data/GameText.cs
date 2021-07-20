@@ -4334,6 +4334,8 @@ namespace Ship_Game
         ButtonBuildCapitalTip = 4344,
         /// <summary>Capital is being rebuilt here, and removed from</summary>
         NotifyCapitalTransfer = 4345,
+        /// <summary>Unknown Origin</summary>
+        TerraformersUnknownOrigin = 4346,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>

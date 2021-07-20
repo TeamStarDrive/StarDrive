@@ -362,11 +362,15 @@ namespace Ship_Game
                 colonyType = Owner.AssessColonyNeeds(this);
         }
 
-        public bool Terraformable // Checks if the owner can terraform the planet or parts of it
+        public bool ContainsEventTerraformers => BuildingList.Any(b => b.IsEventTerraformer);
+
+        // Checks if the owner can terraform the planet or parts of it
+        // Commodity terraformers will set the Terraform level to 3.
+        public bool Terraformable 
         {
             get
             {
-                int terraLevel = Owner.data.Traits.TerraformingLevel;
+                int terraLevel = ContainsEventTerraformers ? 3 : Owner.data.Traits.TerraformingLevel;
                 return terraLevel > 0 && HasVolcanoesToTerraform
                     || terraLevel > 1 && HasTilesToTerraform
                     || terraLevel > 2 && BioSpheresToTerraform

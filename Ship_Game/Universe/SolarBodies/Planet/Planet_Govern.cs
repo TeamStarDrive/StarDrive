@@ -184,6 +184,9 @@ namespace Ship_Game
                 }
             }
 
+            if (IsStarving && Construction.FirstItemCanFeedUs())
+                prodToSpend = ProdHere;
+
             return prodToSpend.UpperBound(availableProductionToQueue);
         }
     }

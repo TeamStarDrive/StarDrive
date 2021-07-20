@@ -296,6 +296,9 @@ namespace Ship_Game
                                         && !IsCapitalOrOutpost
                                         && MaxPopIncrease.AlmostZero(); // FB - pop relevant because of CA
 
+        [XmlIgnore] [JsonIgnore]
+        public bool IsEventTerraformer => IsCommodity && PlusTerraformPoints > 0;
+
         public bool GoodFlatProduction(Planet p) =>
             PlusFlatProductionAmount > 0 || PlusProdPerRichness > 0 && p.MineralRichness > 0.2f;
 
