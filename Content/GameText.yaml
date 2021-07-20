@@ -10240,6 +10240,9 @@ ButtonBuildCapitalTip:
 NotifyCapitalTransfer:
  Id: 4345
  ENG: "Capital is being rebuilt here, and removed from"
+TerraformersUnknownOrigin:
+ Id: 4346
+ ENG: "Unknown Origin"
 OnSurface:
  Id: 4993
  ENG: "on surface"
