@@ -183,8 +183,9 @@ namespace Ship_Game.AI
                     }
                     break;
                 case WarType.GenocidalWar:
+                    DiplomacyScreen.Show(OwnerEmpire, player, "Declare War Imperialism");
                     break;
-                case WarType.SkirmishWar:
+                case WarType.SkirmishWar: // no diplo for player. Pirates use skirmish wars
                     break;
             }
         }
