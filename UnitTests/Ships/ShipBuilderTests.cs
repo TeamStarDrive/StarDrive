@@ -8,7 +8,7 @@ namespace UnitTests.Ships
     [TestClass]
     public class ShipBuilderTests : StarDriveTest
     {
-        string DefaultDroneName = GlobalStats.DefaultEventDrone;
+        readonly string DefaultDroneName = GlobalStats.DefaultEventDrone;
 
         public ShipBuilderTests()
         {

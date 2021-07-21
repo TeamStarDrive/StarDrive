@@ -286,8 +286,7 @@ namespace Ship_Game.AI
                 if (Owner.TryGetScoutFleeVector(out Vector2 escapePos))
                 {
                     OrderMoveToNoStop(escapePos, Owner.Direction.DirectionToTarget(escapePos), true, AIState.Flee);
-                    if (!Owner.loyalty.AutoExplore) // Add a new exploration order, since it was set exploring by player button click
-                        AddShipGoal(Plan.Explore, AIState.Explore);
+                    AddShipGoal(Plan.Explore, AIState.Explore); // Add a new exploration order to the queue to fall back to after flee is done
                 }
                 else
                 {

@@ -1502,7 +1502,7 @@ namespace Ship_Game.Ships
 
         void NotifyPlayerIfDiedExploring()
         {
-            if (AI.State == AIState.Explore && loyalty.isPlayer)
+            if (loyalty.isPlayer &&  AI.OrderQueue.Any(o => o.Plan == ShipAI.Plan.Explore))
                 Empire.Universe.NotificationManager.AddExplorerDestroyedNotification(this);
         }
 
