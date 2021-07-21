@@ -64,5 +64,13 @@ namespace UnitTests.Ships
             ++NumShipsLaunched;
             base.OnShipLaunched(ship);
         }
+
+        public int NumShipsReturned; // TEST: # of ships that have returned to hangar
+
+        public override void OnShipReturned(Ship ship)
+        {
+            ++NumShipsReturned;
+            base.OnShipReturned(ship);
+        }
     }
 }

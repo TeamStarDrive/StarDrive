@@ -45,5 +45,10 @@ namespace Ship_Game.Ships
         public virtual void OnShipLaunched(Ship ship)
         {
         }
+
+        // EVT: when a fighter of this carrier returns to hangar
+        public virtual void OnShipReturned(Ship ship)
+        {
+        }
     }
 }
