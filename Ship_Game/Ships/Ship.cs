@@ -1192,8 +1192,8 @@ namespace Ship_Game.Ships
                 float cos = RadMath.Cos(Rotation);
                 float sin = RadMath.Sin(Rotation);
                 float tan = (float)Math.Tan(yRotation);
-                float parentX = Center.X;
-                float parentY = Center.Y;
+                float parentX = Position.X;
+                float parentY = Position.Y;
                 float rotation = Rotation;
                 for (int i = 0; i < ModuleSlotList.Length; ++i)
                 {

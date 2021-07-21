@@ -107,9 +107,9 @@ namespace Ship_Game.Ships
             if (TetheredTo != null)
             {
                 Position = TetheredTo.Center + TetherOffset;
-                Center   = TetheredTo.Center + TetherOffset;
                 VelocityMaximum = 0;
             }
+
             if (IsHangarShip && !Mothership.Active) //Problematic for drones...
                 Mothership = null;
 

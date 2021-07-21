@@ -225,8 +225,7 @@ namespace UnitTests.Universe
             {
                 foreach (Ship ship in AllObjects)
                 {
-                    ship.Center.X += 10f;
-                    ship.Position = ship.Center;
+                    ship.Position.X += 10f;
                     ship.UpdateModulePositions(TestSimStep, true, forceUpdate: true);
                 }
                 var t = new PerfTimer();
@@ -293,8 +292,7 @@ namespace UnitTests.Universe
                     {
                         if (AllObjects[i] is Ship ship)
                         {
-                            ship.Center.X += 10f;
-                            ship.Position = ship.Center;
+                            ship.Position.X += 10f;
                             ship.UpdateModulePositions(TestSimStep, true, forceUpdate: true);
 
                             if (rand.Next(100) <= 10 && !spawned.Contains(ship)) // 10% chance
