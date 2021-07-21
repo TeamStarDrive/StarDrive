@@ -196,6 +196,15 @@ namespace Ship_Game.AI
             }
         }
 
+        /// <summary>
+        /// Check if a ship has an exploration order
+        ///
+        /// A ship can have Evade/Escape order during exploration, hack workaround is to iterate orders queue
+        /// </summary>
+        public bool IsExploring => State == AIState.Explore
+                                || ExplorationTarget != null
+                                || OrderQueue.Any(g => g.Plan == Plan.Explore);
+
         void Colonize(ShipGoal shipGoal)
         {
             Planet targetPlanet = shipGoal.TargetPlanet;
