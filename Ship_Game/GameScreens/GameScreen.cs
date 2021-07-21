@@ -80,7 +80,7 @@ namespace Ship_Game
         public DeferredRenderer Renderer { get; }
         
         // Thread safe queue for running UI commands
-        readonly SafeQueue<Action> PendingUIThreadActions = new SafeQueue<Action>();
+        readonly SafeQueue<Action> PendingActions = new SafeQueue<Action>();
 
 
         protected GameScreen(GameScreen parent, bool pause = true) 
@@ -246,8 +246,8 @@ namespace Ship_Game
 
             //Log.Info($"Update {Name} {DeltaTime:0.000}  DidLoadContent:{DidLoadContent}");
 
-            // Process Pending UI Actions
-            InvokePendingUIThreadActions();
+            // Process Pending Actions
+            InvokePendingActions();
 
             Visible = ScreenState != ScreenState.Hidden;
 
@@ -704,15 +704,15 @@ namespace Ship_Game
         }
 
         /// <summary>
-        /// This runs actions on the gamescreen update.
-        /// Action will only work while the screen is visible.
-        /// Actions will be run before draws happen.
+        /// This runs actions on the next GameScreen Update(), before Draw().
+        /// 
+        /// Action will only work while the screen is Visible.
         /// </summary>
-        public void RunOnUIThread(Action action)
+        public void RunOnNextFrame(Action action)
         {
             if (action != null)
             {
-                PendingUIThreadActions.Enqueue(action);
+                PendingActions.Enqueue(action);
             }
             else
             {
@@ -722,20 +722,19 @@ namespace Ship_Game
                 else
                     Log.WarningWithCallStack(msg);
             }
-#if DEBUG
-            if (Thread.CurrentThread.ManagedThreadId == GameBase.MainThreadId)
-            {
-                Log.Error("RunOnUIThread called from UI Thread. You are already on the UI thread you don't need to use this function");
-            }
-#endif
         }
 
         /// <summary>
-        /// Invokes all Pending actions. 
+        /// True if current thread is the UI Thread
         /// </summary>
-        void InvokePendingUIThreadActions()
+        public bool IsUIThread => Thread.CurrentThread.ManagedThreadId == GameBase.MainThreadId;
+
+        /// <summary>
+        /// Invokes all Pending actions.
+        /// </summary>
+        void InvokePendingActions()
         {
-            while (PendingUIThreadActions.TryDequeue(out Action action))
+            while (PendingActions.TryDequeue(out Action action))
                 action();
         }
     }
