@@ -1509,17 +1509,19 @@ namespace Ship_Game.Ships
         // cleanupOnly: for tumbling ships that are already dead
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
-            ++DebugInfoScreen.ShipsDied;
-            Projectile pSource = source as Projectile;
-            if (!cleanupOnly)
-            {
-                pSource?.Module?.GetParent().UpdateEmpiresOnKill(this);
-                pSource?.Module?.GetParent().AddKill(this);
-            }
+            if (!Active)
+                return; // already dead
 
+            var pSource = source as Projectile;
             reallyDie = cleanupOnly || WillShipDieNow(pSource);
             if (dying && !reallyDie)
                 return; // planet crash or tumble
+
+            QueueTotalRemoval(); // sets Active=false
+            
+            ++DebugInfoScreen.ShipsDied;
+            pSource?.Module?.GetParent().UpdateEmpiresOnKill(this);
+            pSource?.Module?.GetParent().AddKill(this);
 
             if (pSource?.Owner != null)
             {
@@ -1542,44 +1544,40 @@ namespace Ship_Game.Ships
             Carrier.ScuttleHangarShips();
             ResetProjectorInfluence();
 
+            NotifyPlayerIfDiedExploring();
+            loyalty.TryAutoRequisitionShip(fleet, this);
+
             float size = Radius * (shipData.EventOnDeath?.NotEmpty() == true ? 3 : 1);
-            if (Active)
+            switch (shipData.HullRole)
             {
-                Active = false;
-                switch (shipData.HullRole)
-                {
-                    case ShipData.RoleName.corvette:
-                    case ShipData.RoleName.scout:
-                    case ShipData.RoleName.fighter:
-                    case ShipData.RoleName.frigate:   ExplodeShip(size * 10, cleanupOnly); break;
-                    case ShipData.RoleName.battleship:
-                    case ShipData.RoleName.capital:
-                    case ShipData.RoleName.cruiser:
-                    case ShipData.RoleName.station:   ExplodeShip(size * 8, true);         break;
-                    default:                          ExplodeShip(size * 8, cleanupOnly);  break;
-                }
+                case ShipData.RoleName.corvette:
+                case ShipData.RoleName.scout:
+                case ShipData.RoleName.fighter:
+                case ShipData.RoleName.frigate:   ExplodeShip(size * 10, cleanupOnly); break;
+                case ShipData.RoleName.battleship:
+                case ShipData.RoleName.capital:
+                case ShipData.RoleName.cruiser:
+                case ShipData.RoleName.station:   ExplodeShip(size * 8, true);         break;
+                default:                          ExplodeShip(size * 8, cleanupOnly);  break;
+            }
 
-                if (!HasExploded)
+            if (!HasExploded)
+            {
+                HasExploded = true;
+                if (PlanetCrash == null && visible)
                 {
-                    HasExploded = true;
-                    if (PlanetCrash == null && visible)
+                    // Added by RedFox - spawn flaming spacejunk when a ship dies
+                    float radSqrt = (float)Math.Sqrt(Radius);
+                    float junkScale = (radSqrt * 0.05f).UpperBound(1.4f); // trial and error, depends on junk model sizes // bigger doesn't look good
+
+                    //Log.Info("Ship.Explode r={1} rsq={2} junk={3} scale={4}   {0}", Name, Radius, radSqrt, explosionJunk, junkScale);
+                    for (int x = 0; x < 3; ++x)
                     {
-                        // Added by RedFox - spawn flaming spacejunk when a ship dies
-                        float radSqrt = (float)Math.Sqrt(Radius);
-                        float junkScale = (radSqrt * 0.05f).UpperBound(1.4f); // trial and error, depends on junk model sizes // bigger doesn't look good
-
-                        //Log.Info("Ship.Explode r={1} rsq={2} junk={3} scale={4}   {0}", Name, Radius, radSqrt, explosionJunk, junkScale);
-                        for (int x = 0; x < 3; ++x)
-                        {
-                            int howMuchJunk = (int)RandomMath.RandomBetween(Radius * 0.05f, Radius * 0.15f);
-                            SpaceJunk.SpawnJunk(howMuchJunk, Center.GenerateRandomPointOnCircle(Radius / 2),
-                                Velocity, this, Radius, junkScale, true);
-                        }
+                        int howMuchJunk = (int)RandomMath.RandomBetween(Radius * 0.05f, Radius * 0.15f);
+                        SpaceJunk.SpawnJunk(howMuchJunk, Center.GenerateRandomPointOnCircle(Radius / 2),
+                            Velocity, this, Radius, junkScale, true);
                     }
                 }
-
-                NotifyPlayerIfDiedExploring();
-                loyalty.TryAutoRequisitionShip(fleet, this);
             }
 
             if (BaseHull.EventOnDeath != null)
@@ -1588,9 +1586,6 @@ namespace Ship_Game.Ships
                 Empire.Universe.ScreenManager.AddScreen(
                     new EventPopup(Empire.Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
             }
-
-            QueueTotalRemoval();
-            base.Die(source, cleanupOnly);
         }
 
         bool WillShipDieNow(Projectile proj)
@@ -1642,6 +1637,10 @@ namespace Ship_Game.Ships
             TetherGuid = Guid.Empty;
         }
 
+        /// <summary>
+        /// Sets ship as Inactive and marks it for removal from UniverseObjectManager
+        /// during next Objects.Update()
+        /// </summary>
         public void QueueTotalRemoval()
         {
             Active = false;
