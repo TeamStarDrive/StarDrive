@@ -103,7 +103,7 @@
     <Compile Include="Serialization\YamlSerializerTests.cs" />
     <Compile Include="Ships\ShipBuilderTests.cs" />
     <Compile Include="Ships\CarrierTests.cs" />
-    <Compile Include="Ships\MockShip.cs" />
+    <Compile Include="Ships\TestShip.cs" />
     <Compile Include="Ships\ModuleGridTests.cs" />
     <Compile Include="Ships\ShipDataTests.cs" />
     <Compile Include="Ships\ShipHullTests.cs" />

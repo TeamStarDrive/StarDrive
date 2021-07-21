@@ -14,8 +14,8 @@ namespace UnitTests.Ships
     [TestClass]
     public class CarrierTests : StarDriveTest
     {
-        Ship Carrier;
-        Ship Hostile;
+        TestShip Carrier;
+        TestShip Hostile;
         FixedSimTime ScanInterval = new FixedSimTime(EmpireConstants.EnemyScanInterval);
 
         public CarrierTests()
@@ -25,7 +25,7 @@ namespace UnitTests.Ships
             LoadStarterShips("Excalibur-Class Supercarrier", "Ving Defender", "Supply Shuttle", "Alliance-Class Mk Ia Hvy Assault", "Assault Shuttle");
             CreateUniverseAndPlayerEmpire();
             UnlockAllShipsFor(Player);
-            Carrier = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", Player, Vector2.Zero);
+            Carrier = SpawnShip("Excalibur-Class Supercarrier", Player, Vector2.Zero);
             Universe.Objects.Update(TestSimStep);
         }
 
@@ -41,7 +41,7 @@ namespace UnitTests.Ships
 
         void SpawnEnemyShip()
         {
-            Hostile = Ship.CreateShipAtPoint("Ving Defender", Enemy, new Vector2(1000));
+            Hostile = SpawnShip("Ving Defender", Enemy, new Vector2(1000));
             RunObjectsSim(ScanInterval);
         }
         
@@ -155,6 +155,7 @@ namespace UnitTests.Ships
         {
             SpawnEnemyShip();
             AssertFighters(active: MaxFighters, recalling: 0, "Fighters should have automatically launched");
+            MoveFightersBy(new Vector2(1500)); // move fighters further so they can't recover immediately
 
             MoveShipWithoutFightersTo(Carrier, new Vector2(Carrier.SensorRange + 25000));
 
