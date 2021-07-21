@@ -137,7 +137,7 @@ namespace Ship_Game.AI
                 if (!TargetValid(sourceTargetShip))
                     continue;
 
-                float sqDist = Missile.Center.SqDist(sourceTargetShip.Center);
+                float sqDist = Missile.Position.SqDist(sourceTargetShip.Position);
                 if (sqDist > bestSqDist)
                     continue;
 
@@ -160,7 +160,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            Vector2 targetPos = Target.Center;
+            Vector2 targetPos = Target.Position;
             if (!Missile.ErrorSet)
             {
                 float randomDeviation = RandomMath.RandomBetween(900f, 1400f);
@@ -177,7 +177,7 @@ namespace Ship_Game.AI
 
             Missile.GuidedMoveTowards(timeStep, targetPos, 0f);
 
-            float distanceToEnd = Missile.Center.Distance(targetPos);
+            float distanceToEnd = Missile.Position.Distance(targetPos);
             if (distanceToEnd <= 300f)
                 Missile.Die(Missile, false);
             Target = null;
@@ -190,7 +190,7 @@ namespace Ship_Game.AI
             if (Target != null)
             {                
                 targetIntercept = Missile.PredictImpact(Target);
-                float distanceToTarget = Missile.Center.Distance(targetIntercept);
+                float distanceToTarget = Missile.Position.Distance(targetIntercept);
 
                 if (!CalculatedJamming && distanceToTarget <= 4000f && Target is ShipModule targetModule)
                 {

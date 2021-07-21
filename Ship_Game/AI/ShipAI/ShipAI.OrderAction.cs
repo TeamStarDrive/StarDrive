@@ -84,7 +84,7 @@ namespace Ship_Game.AI
         {
             ClearOrders(State, priority:true);
             Vector2 pos = goal.BuildPosition;
-            Vector2 dir = Owner.Center.DirectionToTarget(pos);
+            Vector2 dir = Owner.Position.DirectionToTarget(pos);
             OrderMoveTo(pos, dir, true, AIState.MoveTo, goal);
             if (goal.type == GoalType.DeepSpaceConstruction || goal.TetherTarget == Guid.Empty) // deep space structures
                 AddShipGoal(Plan.DeployStructure, pos, dir, goal, goal.ToBuildUID, 0f, AIState.MoveTo);
@@ -133,7 +133,7 @@ namespace Ship_Game.AI
                     if (planetsDict.Value.Owner != null) plist.Add(planetsDict.Value);
                 }
 
-                Planet closest = plist.FindMin(p => Owner.Center.SqDist(p.Center));
+                Planet closest = plist.FindMin(p => Owner.Position.SqDist(p.Center));
                 if (closest != null)
                     OrderExterminatePlanet(closest);
             }
@@ -270,7 +270,7 @@ namespace Ship_Game.AI
             if (clearOrders)
                 ClearOrders(State, HasPriorityOrder);
 
-            Planet closest = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
+            Planet closest = Owner.loyalty.RallyShipYardNearestTo(Owner.Position);
             if (closest != null)
             {
                 ResupplyTarget = closest;
@@ -278,7 +278,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            SolarSystem closestSystem = Owner.loyalty.GetOwnedSystems().FindMin(s => s.Position.SqDist(Owner.Center));
+            SolarSystem closestSystem = Owner.loyalty.GetOwnedSystems().FindMin(s => s.Position.SqDist(Owner.Position));
             if (closestSystem != null)
             {
                 ResupplyTarget = closestSystem.PlanetList[0];
@@ -287,7 +287,7 @@ namespace Ship_Game.AI
             }
 
             var emergencyPlanet = Empire.Universe.PlanetsDict.Values.ToArray().Filter(p => p.Owner == null);
-            emergencyPlanet.Sort(p => p.Center.SqDist(Owner.Center));
+            emergencyPlanet.Sort(p => p.Center.SqDist(Owner.Position));
             OrbitTarget = emergencyPlanet[0];
         }
 
@@ -304,7 +304,7 @@ namespace Ship_Game.AI
             var systemList = (
                 from sys in Owner.loyalty.GetOwnedSystems()
                 where !sys.DangerousForcesPresent(Owner.loyalty) && sys.Position.Distance(Owner.Position) > (sys.Radius*1.5f)
-                orderby Owner.Center.Distance(sys.Position)
+                orderby Owner.Position.Distance(sys.Position)
                 select sys).ToArray();
 
             if (systemList.Length > 0)
@@ -331,7 +331,7 @@ namespace Ship_Game.AI
                 && !Owner.IsPlatformOrStation 
                 && Owner.loyalty.Pirates.GetBases(out Array<Ship> pirateBases))
             {
-                Ship ship = pirateBases.FindMin(s => s.Center.Distance(Owner.Center));
+                Ship ship = pirateBases.FindMin(s => s.Position.Distance(Owner.Position));
                 OrderMoveToPirateBase(ship);
             }
             else
@@ -349,7 +349,7 @@ namespace Ship_Game.AI
 
         void OrderMoveToPirateBase(Ship pirateBase)
         {
-            OrderMoveToNoStop(pirateBase.Center.GenerateRandomPointOnCircle(5000), Owner.Direction,
+            OrderMoveToNoStop(pirateBase.Position.GenerateRandomPointOnCircle(5000), Owner.Direction,
                 true, AIState.MoveTo);
 
             AddEscortGoal(pirateBase, clearOrders: false); // Orders are cleared in OrderMoveTo
@@ -424,7 +424,7 @@ namespace Ship_Game.AI
             }
 
             Planet planet = Owner.loyalty.GetPlanets().Filter(p => p.FreeTilesWithRebaseOnTheWay(Owner.loyalty) > 0)
-                                                      .FindMin(p => Vector2.Distance(Owner.Center, p.Center));
+                                                      .FindMin(p => Vector2.Distance(Owner.Position, p.Center));
 
             if (planet == null)
             {
@@ -541,7 +541,7 @@ namespace Ship_Game.AI
                 return; // Drones never go to resupply, using hull role in case someone makes a drone module which changes the DesignRole
             }
 
-            Planet nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
+            Planet nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Position);
             DecideWhereToResupply(nearestRallyPoint, cancelOrders: cancelOrders);
         }
 
@@ -567,7 +567,7 @@ namespace Ship_Game.AI
             {
                 // only order to move if we are too far, no need to waste time here.
                 float threshold = toOrbit.ObjectRadius + 1000 * toOrbit.Scale;
-                if (Owner.Center.Distance(toOrbit.Center) > threshold)
+                if (Owner.Position.Distance(toOrbit.Center) > threshold)
                 {
                     Vector2 finalDir = Owner.Position.DirectionToTarget(toOrbit.Center);
                     OrderMoveToNoStop(toOrbit.Center, finalDir, false, AIState.MoveTo);
@@ -595,19 +595,19 @@ namespace Ship_Game.AI
             {
                 var ships = Owner.loyalty.OwnedShips;
                 var solarSystem = ships.FindMinFiltered(ships.Count, ship => ship.System != null,
-                                     ship => Owner.Center.SqDist(ship.Center))?.System;               
+                                     ship => Owner.Position.SqDist(ship.Position))?.System;               
 
                 AwaitClosest = solarSystem?.PlanetList.FindMax(p => p.FindNearbyFriendlyShips().Length);
                 if (AwaitClosest == null)
                 {
                     var system = Empire.Universe.SolarSystemDict.FindMinValue(ss =>
-                                 Owner.Center.SqDist(ss.Position) * (ss.OwnerList.Count + 1));
+                                 Owner.Position.SqDist(ss.Position) * (ss.OwnerList.Count + 1));
                     AwaitClosest = system?.PlanetList.FindClosestTo(Owner);
                 }
                 if (AwaitClosest == null)
                 {
                     AwaitClosest = Empire.Universe.PlanetsDict.FindMinValue(p =>
-                        p.Center.SqDist(Owner.Center));
+                        p.Center.SqDist(Owner.Position));
                 }
             }
             return AwaitClosest != null;
@@ -618,7 +618,7 @@ namespace Ship_Game.AI
         {
             if (!Owner.loyalty.isPlayer) return false;
 
-            AwaitClosest = Owner.loyalty.GetPlanets().FindMin(p => Owner.Center.SqDist(p.Center));
+            AwaitClosest = Owner.loyalty.GetPlanets().FindMin(p => Owner.Position.SqDist(p.Center));
             return AwaitClosest != null;
         }
 
@@ -635,7 +635,7 @@ namespace Ship_Game.AI
                 if (AwaitClosest == null) //Find any system with no owners and planets.
                 {
                     var system = Empire.Universe.SolarSystemDict.FindMinValue(ss =>
-                               Owner.Center.SqDist(ss.Position) * (ss.OwnerList.Count + 1));
+                               Owner.Position.SqDist(ss.Position) * (ss.OwnerList.Count + 1));
                     if (system == null)
                         return false;
 
@@ -645,7 +645,7 @@ namespace Ship_Game.AI
             else
             {
                 AwaitClosest = home.PlanetList.FindMinFiltered(p => p.Owner == Owner.loyalty
-                                                            , p => p.Center.SqDist(Owner.Center));
+                                                            , p => p.Center.SqDist(Owner.Position));
             }
             return AwaitClosest != null;
         }
@@ -711,7 +711,7 @@ namespace Ship_Game.AI
                     return;
                 }
                 AwaitClosest = Owner.loyalty.GetEmpireAI().GetKnownPlanets()
-                    .FindMin(p => p.Center.SqDist(Owner.Center) + (Owner.loyalty != p.Owner ? 300000 : 0));
+                    .FindMin(p => p.Center.SqDist(Owner.Position) + (Owner.loyalty != p.Owner ? 300000 : 0));
                 return;
             }
             if (Owner.System?.OwnerList.Contains(Owner.loyalty) ?? false)

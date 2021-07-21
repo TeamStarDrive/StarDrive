@@ -56,7 +56,7 @@ namespace Ship_Game.Commands.Goals
                 if (ship.IsPlatformOrStation || ship.IsHangarShip)
                     continue; // Do not mess with our own structures
 
-                if (ship.InRadius(Base.Center, Base.Radius + 3000))
+                if (ship.InRadius(Base.Position, Base.Radius + 3000))
                 {
                     ship.ChangeOrdnance(ship.OrdinanceMax / 10);
                     Pirates.ProcessShip(ship, Base);

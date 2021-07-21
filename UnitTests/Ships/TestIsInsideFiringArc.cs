@@ -40,7 +40,7 @@ namespace UnitTests.Ships
             {
                 Vector2 c = Game.Manager.ScreenCenter;
                 ShipModule m = Wep.Module;
-                Vector2 mc = c + m.Center;
+                Vector2 mc = c + m.Position;
                 float facing = (Ship.Rotation + m.FacingRadians);
                 Vector2 md = facing.RadiansToDirection();
                 batch.DrawCircle(mc, m.Radius, Color.Yellow, 2);
@@ -76,9 +76,9 @@ namespace UnitTests.Ships
             float mf = m.FacingRadians;
             float gf = sr + mf;
             float ff = m.FieldOfFire;
-            return $"ship position: {ship.Center}\n"+
+            return $"ship position: {ship.Position}\n"+
                    $"ship rotation: {sr.String(3)} rads {sr.ToDegrees().String(3)} degrees\n"+
-                   $"module pos:    {m.Center}\n"+
+                   $"module pos:    {m.Position}\n"+
                    $"module local  facing: {mf.String(3)} rads {mf.ToDegrees().String(3)} degrees\n"+
                    $"module global facing: {gf.String(3)} rads {gf.ToDegrees().String(3)} degrees\n"+
                    $"module arc:    {ff.String(3)} rads {ff.ToDegrees().String(3)} degrees\n"+

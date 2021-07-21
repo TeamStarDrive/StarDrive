@@ -16,14 +16,14 @@ namespace Ship_Game.AI.CombatTactics
                 if (ship.Ship.loyalty == Owner.loyalty ||
                     !ship.Ship.loyalty.isFaction && !Owner.loyalty.IsAtWarWith(ship.Ship.loyalty))
                     continue;
-                avgDir += Owner.Center.DirectionToTarget(ship.Ship.Center);
+                avgDir += Owner.Position.DirectionToTarget(ship.Ship.Position);
                 count += 1;
             }
             if (count != 0)
             {
                 avgDir /= count;
                 Vector2 evadeOffset = avgDir.Normalized() * -7500f;
-                AI.ThrustOrWarpToPos(Owner.Center + evadeOffset, timeStep);
+                AI.ThrustOrWarpToPos(Owner.Position + evadeOffset, timeStep);
 
             }
         }

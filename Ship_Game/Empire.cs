@@ -442,8 +442,8 @@ namespace Ship_Game
 
             if (!ship.BaseCanWarp)
             {
-                planet = FindNearestRallyPoint(ship.Center);
-                if (planet == null || planet.Center.Distance(ship.Center) > 50000)
+                planet = FindNearestRallyPoint(ship.Position);
+                if (planet == null || planet.Center.Distance(ship.Position) > 50000)
                     ship.ScuttleTimer = 5;
 
                 return planet != null;
@@ -454,7 +454,7 @@ namespace Ship_Game
             if (potentialPlanets.Length == 0)
                 return false;
 
-            planet = potentialPlanets.FindMin(p => p.Center.Distance(ship.Center));
+            planet = potentialPlanets.FindMin(p => p.Center.Distance(ship.Position));
             return planet != null;
         }
 
@@ -610,13 +610,13 @@ namespace Ship_Game
 
             if (home == null)
             {
-                var nearestAO = ship.loyalty.GetEmpireAI().FindClosestAOTo(ship.Center);
+                var nearestAO = ship.loyalty.GetEmpireAI().FindClosestAOTo(ship.Position);
                 home = nearestAO.GetOurPlanets().FindClosestTo(ship);
             }
 
             if (home == null)
             {
-                home = Universe.PlanetsDict.FindMinValue(p => p.Center.Distance(ship.Center));
+                home = Universe.PlanetsDict.FindMinValue(p => p.Center.Distance(ship.Position));
             }
 
             return home;
@@ -2143,7 +2143,7 @@ namespace Ship_Game
         public bool GetTroopShipForRebase(out Ship troopShip, Ship ship)
         {
             // Try free troop ships first if there is not one free, launch a troop from the nearest planet to space if possible
-            return NearestFreeTroopShip(out troopShip, ship.Center) || LaunchNearestTroopForRebase(out troopShip, ship.Center);
+            return NearestFreeTroopShip(out troopShip, ship.Position) || LaunchNearestTroopForRebase(out troopShip, ship.Position);
         }
 
         private bool NearestFreeTroopShip(out Ship troopShip, Vector2 objectCenter)
@@ -2152,7 +2152,7 @@ namespace Ship_Game
             Array<Ship> troopShips;
             troopShips = new Array<Ship>(OwnedShips
                 .Filter(troopship => troopship.IsIdleSingleTroopship)
-                .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
+                .OrderBy(distance => Vector2.Distance(distance.Position, objectCenter)));
 
             if (troopShips.Count > 0)
                 troopShip = troopShips.First();
@@ -3127,7 +3127,7 @@ namespace Ship_Game
                 {
                     var planet = ships[i];
                     ++items;
-                    avgEmpireCenter += planet.Center;
+                    avgEmpireCenter += planet.Position;
                 }
                 center =avgEmpireCenter / items.LowerBound(1);
             }
@@ -3377,7 +3377,7 @@ namespace Ship_Game
             else
             {
                 var furthest = OwnedShips.FindMax(s => s.Position.SqDist(center));
-                radius = furthest.Center.Distance(center);
+                radius = furthest.Position.Distance(center);
             }
             return new AO(this, center, radius);
         }
@@ -3592,7 +3592,7 @@ namespace Ship_Game
             }
             public InfluenceNode(Ship ship, bool known = false)
             {
-                Position      = ship.Center;
+                Position      = ship.Position;
                 Radius        = ship.SensorRange;
                 SourceObject  = ship;
                 KnownToPlayer = known || ship.InSensorRange;

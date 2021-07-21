@@ -113,7 +113,7 @@ namespace Ship_Game.Commands.Goals
             }
             else // compare planet distances
             {
-                Vector2 pos = target?.Center ?? possibleTask.TargetSystem?.Position ?? possibleTask.TargetShip.Center;
+                Vector2 pos = target?.Center ?? possibleTask.TargetSystem?.Position ?? possibleTask.TargetShip.Position;
                 defenseValue /= empire.WeightedCenter.Distance(pos).LowerBound(1);
                 possibleValue /= empire.WeightedCenter.Distance(pos).LowerBound(1);
             }

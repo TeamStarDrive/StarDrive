@@ -103,7 +103,7 @@ namespace Ship_Game.Ships
 
         void CreateShuttle(ShipModule hangar, out Ship supplyShuttle)
         {
-            supplyShuttle = Ship.CreateShipFromHangar(hangar, Owner.loyalty, Owner.Center, Owner);
+            supplyShuttle = Ship.CreateShipFromHangar(hangar, Owner.loyalty, Owner.Position, Owner);
             supplyShuttle.Velocity = Owner.Velocity + UniverseRandom.RandomDirection() * supplyShuttle.SpeedLimit;
             Owner.ChangeOrdnance(-supplyShuttle.ShipOrdLaunchCost);
             hangar.SetHangarShip(supplyShuttle);
@@ -173,13 +173,13 @@ namespace Ship_Game.Ships
                        && ship.Supply.AcceptExternalSupply(SupplyType.Rearm);
             });
 
-            shipsInNeed.Sort(ship =>
+            shipsInNeed.Sort((System.Func<Ship, float>)(ship =>
             {
-                var distance = Owner.Center.Distance(ship.Center);
+                var distance = Vectors.Distance(Owner.Position, (Microsoft.Xna.Framework.Vector2)ship.Position);
                 distance = (int)distance * 10 / sensorRange;
                 var supplyStatus = ship.Supply.ShipStatusWithPendingResupply(SupplyType.Rearm);
                 return (int)supplyStatus * distance + (ship.fleet == Owner.fleet ? 0 : 10);
-            });
+            }));
             return shipsInNeed;
         }
     }

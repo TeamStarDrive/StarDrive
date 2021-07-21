@@ -83,7 +83,7 @@ namespace Ship_Game.Commands.Goals
                 if (Fleet.Ships.Count == 0)
                     Fleet.FinalPosition = ship.Position + RandomMath.Vector2D(3000f);        
                 if (Fleet.FinalPosition == Vector2.Zero)
-                    Fleet.FinalPosition = empire.FindNearestRallyPoint(ship.Center).Center;
+                    Fleet.FinalPosition = empire.FindNearestRallyPoint(ship.Position).Center;
 
                 Fleet.AddExistingShip(ship,node);
                 ship.AI.ResetPriorityOrder(false);
