@@ -512,35 +512,44 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (Owner.DesignRole == ShipData.RoleName.drone && !Owner.InRadius(Owner.Mothership.Center, Owner.Mothership.SensorRange))
-                Owner.Die(null, true);
-
-            ThrustOrWarpToPos(Owner.Mothership.Center, timeStep);
-
-            if (Owner.Center.InRadius(Owner.Mothership.Center, Owner.Mothership.Radius + 300f))
+            // scrap drones which fall outside of Mothership's control radius
+            if (Owner.DesignRole == ShipData.RoleName.drone && 
+                !Owner.InRadius(Owner.Mothership.Position, Owner.Mothership.SensorRange))
             {
+                Owner.Die(null, true);
+                return;
+            }
+
+            ThrustOrWarpToPos(Owner.Mothership.Position, timeStep);
+
+            // recover the ship
+            if (Owner.Position.InRadius(Owner.Mothership.Position, Owner.Mothership.Radius))
+            {
+                Log.Write($"Recover Ship Dist: {Owner.Position.Distance(Owner.Mothership.Position)} MinRecover:{Owner.Mothership.Radius} {Owner}");
+
                 Owner.LandTroopsOnShip(Owner.Mothership);
 
                 if (Owner.shipData.Role == ShipData.RoleName.supply) // fbedard: Supply ship return with Ordinance
                     Owner.Mothership.ChangeOrdnance(Owner.Ordinance);
 
                 Owner.Mothership.ChangeOrdnance(Owner.ShipRetrievalOrd); // Get back the ordnance it took to launch the ship
-                // Set up repair and rearm times
-                float missingHealth   = Owner.HealthMax - Owner.Health;
-                float missingOrdnance = Owner.OrdinanceMax - Owner.Ordinance;
-                float repairTime      = missingHealth / (Owner.Mothership.RepairRate + Owner.RepairRate + Owner.Mothership.Level * 10);
-                float rearmTime       = missingOrdnance / (2 + Owner.Mothership.Level);
-                float shuttlePrepTime = Owner.IsDefaultAssaultShuttle ? 5 : 0;
                 Owner.QueueTotalRemoval();
-                foreach (ShipModule hangar in Owner.Mothership.Carrier.AllActiveHangars)
+                
+                // find which hangar is the owner of this ship
+                ShipModule owningHangar = Owner.Mothership.Carrier.AllActiveHangars.Find(
+                                        h => h.TryGetHangarShip(out Ship hs) && hs == Owner);
+                if (owningHangar != null)
                 {
-                    if (hangar.TryGetHangarShip(out Ship hangarShip) && hangarShip != Owner)
-                        continue;
+                    owningHangar.SetHangarShip(null);
 
-                    hangar.SetHangarShip(null);
+                    // Set up repair and rearm times
+                    float missingHealth   = Owner.HealthMax - Owner.Health;
+                    float missingOrdnance = Owner.OrdinanceMax - Owner.Ordinance;
+                    float repairTime      = missingHealth / (Owner.Mothership.RepairRate + Owner.RepairRate + Owner.Mothership.Level * 10);
+                    float rearmTime       = missingOrdnance / (2 + Owner.Mothership.Level);
+                    float shuttlePrepTime = Owner.IsDefaultAssaultShuttle ? 5 : 0;
                     // FB - Here we are setting the hangar timer according to the R&R time. Cant be over the time to rebuild the ship
-                    hangar.hangarTimer = (repairTime + rearmTime + shuttlePrepTime).Clamped(5, hangar.hangarTimerConstant);
-                    hangar.HangarShipGuid = Guid.Empty;
+                    owningHangar.hangarTimer = (repairTime + rearmTime + shuttlePrepTime).Clamped(5, owningHangar.hangarTimerConstant);
                 }
             }
         }

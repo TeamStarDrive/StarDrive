@@ -29,23 +29,48 @@ namespace UnitTests.Ships
             Universe.Objects.Update(TestSimStep);
         }
 
+        protected override void OnObjectSimStep()
+        {
+            var fighters = Carrier.Carrier.GetActiveFighters();
+            Log.Write($"Carrier: {Carrier.Position} fighters={fighters.Count}");
+            foreach (Ship fighter in fighters)
+            {
+                Log.Write($"  Fighter dist={Carrier.Position.Distance(fighter.Position)} pos={fighter.Position}");
+            }
+        }
+
         void SpawnEnemyShip()
         {
             Hostile = Ship.CreateShipAtPoint("Ving Defender", Enemy, new Vector2(1000));
-            Universe.Objects.Update(ScanInterval);
+            RunObjectsSim(ScanInterval);
         }
         
-        int ActiveFighters => Carrier.Carrier.GetActiveFighters().Count;
+        int MaxFighters => Carrier.Carrier.AllFighterHangars.Length;
 
-        int RecallingFighters => Carrier.Carrier.GetActiveFighters()
-                                .Count(f => f.AI.State == AIState.ReturnToHangar);
-
-        void LaunchFighters(Ship ship)
+        void AssertFighters(int active, int recalling, string recallMsg)
         {
-            ship.Carrier.ScrambleFighters();
-            Universe.Objects.Update(ScanInterval);
+            var fighters = Carrier.Carrier.GetActiveFighters();
+            
+            // looks like some ships have already returned to hangar?
+            Assert.AreEqual(active, fighters.Count, "BUG: not all fighters are active");
 
-            Assert.AreEqual(ship.Carrier.AllFighterHangars.Length, ActiveFighters, "BUG: Not all fighter hangars launched");
+            int actualRecalling = fighters.Count(s => s.AI.State == AIState.ReturnToHangar);
+            Assert.AreEqual(recalling, actualRecalling, recallMsg);
+        }
+
+        void LaunchFighters(Vector2 offset = default)
+        {
+            Carrier.Carrier.ScrambleFighters();
+            MoveFightersBy(offset);
+
+            RunObjectsSim(TestSimStep);
+            AssertFighters(active: MaxFighters, recalling: 0, "No fighters should be recalling right after Scramble");
+        }
+
+        void MoveFightersBy(Vector2 offset)
+        {
+            foreach (Ship fighter in  Carrier.Carrier.GetActiveFighters())
+                fighter.Position += offset;
         }
 
         void MoveShipWithoutFightersTo(Ship ship, Vector2 pos)
@@ -61,82 +86,84 @@ namespace UnitTests.Ships
         public void RecallForWarp()
         {
             SpawnEnemyShip(); // need an enemy so that ships don't immediately ReturnToHangar
-            LaunchFighters(Carrier);
+            LaunchFighters();
 
             float dist = CarrierBays.RecallMoveDistance + 5000;
             Carrier.AI.OrderMoveTo(new Vector2(dist), Vectors.Up, true, AIState.AwaitingOrders);
-            Universe.Objects.Update(ScanInterval);
+            RunObjectsSim(TestSimStep);
 
-            Assert.AreEqual(ActiveFighters, RecallingFighters, "All Fighters should be recalling due to Warp move");
+            AssertFighters(active: MaxFighters, recalling: MaxFighters, "All fighters should be recalling due to Warp move");
         }
 
         [TestMethod]
         public void NoRecallWithin10k()
         {
             SpawnEnemyShip();// need an enemy so that ships don't immediately ReturnToHangar
-            Universe.Objects.Update(ScanInterval);
-            LaunchFighters(Carrier);
+            RunObjectsSim(ScanInterval);
+            LaunchFighters();
 
             Carrier.AI.OrderMoveTo(new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
-            Universe.Objects.Update(ScanInterval);
-
-            Assert.AreEqual(0, RecallingFighters, "NO Fighters should be recalling within 10k");
+            RunObjectsSim(ScanInterval);
+            
+            AssertFighters(active: MaxFighters, recalling: 0, "NO fighters should be recalling within 10k");
         }
 
         [TestMethod]
         public void NoRecallDuringCombat()
         {
             SpawnEnemyShip();
-            Universe.Objects.Update(ScanInterval);
-            LaunchFighters(Carrier);
+            AssertFighters(active: MaxFighters, recalling: 0, "Fighters should have automatically launched");
 
             Carrier.AI.OrderMoveTo(new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
-            Universe.Objects.Update(ScanInterval);
-
-            Assert.AreEqual(0, RecallingFighters, "NO Fighters should be recalling during combat");
+            RunObjectsSim(ScanInterval);
+            
+            AssertFighters(active: MaxFighters, recalling: 0, "NO fighters should be recalling during combat");
         }
 
         [TestMethod]
         public void RecallWhenFarAway()
         {
             SpawnEnemyShip();
-            LaunchFighters(Carrier);
+            AssertFighters(active: MaxFighters, recalling: 0, "Fighters should have automatically launched");
+
             MoveShipWithoutFightersTo(Carrier, new Vector2(Carrier.SensorRange + 25000));
 
             // start warping away
-            Carrier.AI.OrderMoveTo(Carrier.Center + new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
-            Universe.Objects.Update(ScanInterval);
-
-            Assert.AreEqual(ActiveFighters, RecallingFighters, "Fighters should be recalling when far away");
+            Carrier.AI.OrderMoveTo(Carrier.Position + new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
+            RunObjectsSim(ScanInterval);
+            
+            AssertFighters(active: MaxFighters, recalling: MaxFighters, "Fighters should be recalling when far away");
         }
 
         [TestMethod]
         public void RecallDuringNoStopMove()
         {
             SpawnEnemyShip();
-            LaunchFighters(Carrier);
+            AssertFighters(active: MaxFighters, recalling: 0, "Fighters should have automatically launched");
+
             MoveShipWithoutFightersTo(Carrier, new Vector2(Carrier.SensorRange + 25000));
 
             // start warping away
-            Carrier.AI.OrderMoveToNoStop(Carrier.Center + new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
-            Universe.Objects.Update(ScanInterval);
-
-            Assert.AreEqual(ActiveFighters, RecallingFighters, "Fighters should be recalling during no stop move");
+            Carrier.AI.OrderMoveToNoStop(Carrier.Position + new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
+            RunObjectsSim(ScanInterval);
+            
+            AssertFighters(active: MaxFighters, recalling: MaxFighters, "Fighters should be recalling during no stop move");
         }
 
         [TestMethod]
         public void RecallDuringCombatMove()
         {
             SpawnEnemyShip();
-            LaunchFighters(Carrier);
+            AssertFighters(active: MaxFighters, recalling: 0, "Fighters should have automatically launched");
+
             MoveShipWithoutFightersTo(Carrier, new Vector2(Carrier.SensorRange + 25000));
 
             // start warping away
-            Carrier.AI.OrderMoveTo(Carrier.Center + new Vector2(10000), Vectors.Up, true, 
+            Carrier.AI.OrderMoveTo(Carrier.Position + new Vector2(10000), Vectors.Up, true, 
                                    AIState.AwaitingOrders, offensiveMove:true);
-            Universe.Objects.Update(ScanInterval);
-
-            Assert.AreEqual(ActiveFighters, RecallingFighters, "Fighters should be recalling during combat move");
+            RunObjectsSim(ScanInterval);
+            
+            AssertFighters(active: MaxFighters, recalling: MaxFighters, "Fighters should be recalling during combat move");
         }
 
         Fleet CreateFleet()
@@ -153,12 +180,13 @@ namespace UnitTests.Ships
         public void RecallDuringFleetMove()
         {
             SpawnEnemyShip(); // need an enemy so that ships don't immediately ReturnToHangar
-            Fleet fleet = CreateFleet();
-            LaunchFighters(Carrier);
-            fleet.MoveToNow(new Vector2(30000, 30000), Vectors.Up);
-            Universe.Objects.Update(ScanInterval);
+            AssertFighters(active: MaxFighters, recalling: 0, "Fighters should have automatically launched");
 
-            Assert.AreEqual(ActiveFighters, RecallingFighters, "Fighters should be recalling during fleet move");
+            Fleet fleet = CreateFleet();
+            fleet.MoveToNow(new Vector2(30000, 30000), Vectors.Up);
+            RunObjectsSim(ScanInterval);
+            
+            AssertFighters(active: MaxFighters, recalling: MaxFighters, "Fighters should be recalling during fleet move");
         }
 
         [TestMethod]
@@ -166,7 +194,7 @@ namespace UnitTests.Ships
         {
             var friendlyShip = Ship.CreateShipAtPoint("Alliance-Class Mk Ia Hvy Assault", Player, Vector2.Zero);
             friendlyShip.Carrier.ScrambleAssaultShips(1);
-            Universe.Objects.Update(ScanInterval);
+            RunObjectsSim(ScanInterval);
 
             int assaultShips = Player.OwnedShips.Count(s => s.DesignRole == ShipData.RoleName.troop);
             Assert.AreNotEqual(0, assaultShips, "Should have launched assault ships");
