@@ -512,9 +512,6 @@ namespace Ship_Game.Ships
                 TroopCapacity += module.TroopCapacity;
                 MechanicalBoardingDefense += module.MechanicalBoardingDefense;
 
-                if (module.UID == "MeteorPart")
-                    IsMeteor = true;
-
                 switch (module.ModuleType)
                 {
                     case ShipModuleType.Construction:
