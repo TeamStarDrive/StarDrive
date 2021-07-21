@@ -15,6 +15,9 @@ namespace Ship_Game.Ships
             throw new InvalidOperationException(
                 $"BUG! ShipModule must not be serialized! Add [XmlIgnore][JsonIgnore] to `public ShipModule XXX;` PROPERTIES/FIELDS. {this}");
 
+        float ZPos;
+        public Vector3 Center3D => new Vector3(Position, ZPos);
+
         //private static int TotalModules = 0;
         //public int ID = ++TotalModules;
         public ShipModuleFlyweight Flyweight; //This is where all the other member variables went. Having this as a member object
@@ -40,8 +43,6 @@ namespace Ship_Game.Ships
         public float ShieldPower { get; private set; }
         public short OrdinanceCapacity;
         bool OnFire; // is this module on fire?
-        Vector3 Center3D;
-        public Vector3 GetCenter3D => Center3D;
         const float OnFireThreshold = 0.15f;
         ShipModuleDamageVisualization DamageVisualizer;
         public EmpireShipBonuses Bonuses = EmpireShipBonuses.Default;
@@ -520,9 +521,7 @@ namespace Ship_Game.Ships
             float cy = parentY + offset.X * sin + offset.Y * cos;
             Position.X = cx;
             Position.Y = cy;
-            Center3D.X = cx;
-            Center3D.Y = cy;
-            Center3D.Z = tan * (256f - XMLPosition.X);
+            ZPos = tan * (256f - XMLPosition.X);
             Rotation = parentRotation; // assume parent rotation is already normalized
 
             if (CanVisualizeDamage && Parent.PlanetCrash == null)
@@ -672,7 +671,7 @@ namespace Ship_Game.Ships
             damageRemainder = (int)(damageAmount - absorbedDamage);
         }
 
-        private void Deflect(GameplayObject source)
+        void Deflect(GameplayObject source)
         {
             if (!Parent.InFrustum || Empire.Universe?.IsShipViewOrCloser == false)
                 return;
@@ -782,7 +781,7 @@ namespace Ship_Game.Ships
 
             if (Parent.IsVisibleToPlayer)
             {
-                if      (beam != null)            beam.CreateHitParticles(Center3D.Z);
+                if      (beam != null)            beam.CreateHitParticles(ZPos);
                 else if (proj?.Explodes == false) proj.CreateHitParticles(modifiedDamage, Center3D);
 
                 CreateHitDebris(proj);
@@ -1157,7 +1156,6 @@ namespace Ship_Game.Ships
             if (Parent.PlanetCrash == null || !RandomMath.RollDice(5))
                 return; 
 
-            Center3D = Parent.Position.ToVec3(UniverseRandom.RandomBetween(-10f, 10));
             if (CanVisualizeDamage)
                 UpdateDamageVisualization(timeStep);
         }
