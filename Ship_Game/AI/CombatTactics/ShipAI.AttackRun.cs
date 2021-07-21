@@ -55,8 +55,8 @@ namespace Ship_Game.AI.CombatTactics
             if (DistanceToTarget < 500f) 
             {
                 // stop applying thrust when we get really close, and focus on aiming at Target.Center:
-                AI.RotateTowardsPosition(AI.Target.Center, timeStep, 0.05f);
-                DrawDebugTarget(AI.Target.Center, Owner.Radius);
+                AI.RotateTowardsPosition(AI.Target.Position, timeStep, 0.05f);
+                DrawDebugTarget(AI.Target.Position, Owner.Radius);
                 return CombatMoveState.Face;
             }
 
@@ -76,7 +76,7 @@ namespace Ship_Game.AI.CombatTactics
             if (WeAreChasingAndCantCatchThem)
             {
                 // we can't catch these bastards! use warp
-                Vector2 pip = Owner.FastestWeapon?.ProjectedImpactPointNoError(AI.Target)?? AI.Target.Center;
+                Vector2 pip = Owner.FastestWeapon?.ProjectedImpactPointNoError(AI.Target)?? AI.Target.Position;
                 DrawDebugTarget(pip, Owner.Radius);
                 AI.ThrustOrWarpToPos(pip, timeStep);
                 return;
@@ -85,8 +85,8 @@ namespace Ship_Game.AI.CombatTactics
             if (distanceToAttack < 500f)
             {
                 // stop applying thrust when we get really close, and focus on aiming at Target.Center:
-                DrawDebugTarget(AI.Target.Center, Owner.Radius);
-                AI.RotateTowardsPosition(AI.Target.Center, timeStep, 0.05f);
+                DrawDebugTarget(AI.Target.Position, Owner.Radius);
+                AI.RotateTowardsPosition(AI.Target.Position, timeStep, 0.05f);
                 DrawDebugText("TerminalStrafe");
             }
             else
@@ -167,7 +167,7 @@ namespace Ship_Game.AI.CombatTactics
 
             //disengageDistance = disengageDistance.UpperBound(cooldownTime * disengageDistance);
 
-            DisengageStart = AI.Target.Center;
+            DisengageStart = AI.Target.Position;
 
             Vector2 direction = (Owner.Rotation + rotation).RadiansToDirection();
             DisengagePos1 = DisengageStart + direction * (disengageDistance + SpacerDistance);
@@ -180,7 +180,7 @@ namespace Ship_Game.AI.CombatTactics
         {
             Vector2 disengagePos = (State == RunState.Disengage1) ? DisengagePos1 : DisengagePos2;
             float disengageLimit = DesiredCombatRange * 0.25f + SpacerDistance;
-            float distance = DisengageStart.Distance(Owner.Center).LowerBound(SpacerDistance);
+            float distance = DisengageStart.Distance(Owner.Position).LowerBound(SpacerDistance);
 
             float disengageSpeed = (Owner.VelocityMaximum * 0.8f).Clamped(200f, 1000f);
             if (State == RunState.Disengage1)
@@ -197,7 +197,7 @@ namespace Ship_Game.AI.CombatTactics
                 }
                 else
                 {
-                    AI.SubLightContinuousMoveInDirection(Owner.Center.DirectionToTarget(DisengagePos1),
+                    AI.SubLightContinuousMoveInDirection(Owner.Position.DirectionToTarget(DisengagePos1),
                     timeStep, disengageSpeed);
 
                 }
@@ -211,7 +211,7 @@ namespace Ship_Game.AI.CombatTactics
                 }
                 else
                 {
-                    AI.SubLightContinuousMoveInDirection(Owner.Center.DirectionToTarget(DisengagePos2),
+                    AI.SubLightContinuousMoveInDirection(Owner.Position.DirectionToTarget(DisengagePos2),
                     timeStep, disengageSpeed);
                 }
             }
@@ -224,7 +224,7 @@ namespace Ship_Game.AI.CombatTactics
                 debug.DrawCircle(DebugModes.Targeting, DisengagePos1, 30f, Owner.loyalty.EmpireColor, 0f);
                 debug.DrawCircle(DebugModes.Targeting, DisengagePos2, 30f, Owner.loyalty.EmpireColor, 0f);
                 debug.DrawCircle(DebugModes.Targeting, DisengageStart, disengageLimit, Color.Bisque, 0f);
-                debug.DrawLine(DebugModes.Targeting, Owner.Center, disengagePos, 1f, Owner.loyalty.EmpireColor, 0f);
+                debug.DrawLine(DebugModes.Targeting, Owner.Position, disengagePos, 1f, Owner.loyalty.EmpireColor, 0f);
                 DrawDebugText(State.ToString());
             }
         }

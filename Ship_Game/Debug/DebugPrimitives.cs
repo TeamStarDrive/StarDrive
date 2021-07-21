@@ -73,7 +73,7 @@ namespace Ship_Game.Debug
         }
         public override void Draw(UniverseScreen screen)
         {
-            screen.DrawCircleProjected(Obj.Center, Obj.Radius, Color, 2);
+            screen.DrawCircleProjected(Obj.Position, Obj.Radius, Color, 2);
         }
     }
 

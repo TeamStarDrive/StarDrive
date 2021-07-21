@@ -65,10 +65,10 @@ namespace Ship_Game.Commands.Goals
             float desiredRange = Portal.DesiredCombatRange;
             Ship nearest       = Portal.AI.Target;
 
-            if (nearest != null && !nearest.Center.InRadius(Portal.Center, desiredRange))
+            if (nearest != null && !nearest.Position.InRadius(Portal.Position, desiredRange))
             {
                 int frontOrRear = RandomMath.RollDice((Portal.HealthPercent * 100).Clamped(25, 80)) ? 1 : -1;
-                Vector2 pos = nearest.Center + frontOrRear * nearest.Center.DirectionToTarget(Portal.Center).Normalized() * (desiredRange + nearest.Radius);
+                Vector2 pos = nearest.Position + frontOrRear * nearest.Position.DirectionToTarget(Portal.Position).Normalized() * (desiredRange + nearest.Radius);
                 MoveToPos(pos);
             }
         }
@@ -79,10 +79,10 @@ namespace Ship_Game.Commands.Goals
                 return; // save support - can be removed in 2021
 
             Vector2 systemPos = Portal.System?.Position 
-                                ?? Empire.Universe.SolarSystemDict.Values.ToArray().FindMin(s => s.Position.SqDist(Portal.Center)).Position;
+                                ?? Empire.Universe.SolarSystemDict.Values.ToArray().FindMin(s => s.Position.SqDist(Portal.Position)).Position;
 
             Vector2 desiredPos = Portal.Position = systemPos + TetherOffset;
-            if (!Portal.Center.InRadius(desiredPos, 1000))
+            if (!Portal.Position.InRadius(desiredPos, 1000))
                 MoveToPos(desiredPos);
         }
 
@@ -95,8 +95,8 @@ namespace Ship_Game.Commands.Goals
         GoalStep CallGuardians()
         {
             Remnants.CallGuardians(Portal);
-            TetherOffset = Portal.System.Position.DirectionToTarget(Portal.Center).Normalized()
-                           * Portal.System.Position.Distance(Portal.Center);
+            TetherOffset = Portal.System.Position.DirectionToTarget(Portal.Position).Normalized()
+                           * Portal.System.Position.Distance(Portal.Position);
 
             return GoalStep.GoToNextStep;
         }

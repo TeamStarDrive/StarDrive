@@ -37,8 +37,8 @@ namespace UnitTests.AITests.Ships
             TheirShip = SpawnShip("Rocket Scout", Enemy, new Vector2(0, -400));
             ThirdShip = SpawnShip("Vulcan Scout", Enemy, new Vector2(0, -600));
             // Rotate to LOOK AT our ship
-            TheirShip.Rotation = TheirShip.Center.DirectionToTarget(OurShip.Center).ToRadians();
-            ThirdShip.Rotation = ThirdShip.Center.DirectionToTarget(OurShip.Center).ToRadians();
+            TheirShip.Rotation = TheirShip.Position.DirectionToTarget(OurShip.Position).ToRadians();
+            ThirdShip.Rotation = ThirdShip.Position.DirectionToTarget(OurShip.Position).ToRadians();
 
             TheirShip.AI.SetCombatTriggerDelay(10f); // disable firing weapons
             ThirdShip.AI.SetCombatTriggerDelay(10f); // disable firing weapons
@@ -157,7 +157,7 @@ namespace UnitTests.AITests.Ships
             InjectSteroids(OurShip);
 
             // now assign offensive move order
-            OurShip.AI.OrderMoveTo(colonyShip.Center, Vectors.Up, true, AIState.AwaitingOrders,
+            OurShip.AI.OrderMoveTo(colonyShip.Position, Vectors.Up, true, AIState.AwaitingOrders,
                                    offensiveMove: true);
 
             Assert.IsFalse(OurShip.InCombat, "ship must exit combat after giving a move order, since giving a move order clears orders");

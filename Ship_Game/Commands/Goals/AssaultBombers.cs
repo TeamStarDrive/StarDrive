@@ -41,7 +41,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 return GoalStep.GoalFailed;
 
             var potentialTargets = PlanetBuildingAt.ParentSystem.ShipList.Filter(s => s.loyalty == TargetEmpire);
-            potentialTargets     = potentialTargets.Sorted(s => s.Center.Distance(PlanetBuildingAt.Center));
+            potentialTargets     = potentialTargets.Sorted(s => s.Position.Distance(PlanetBuildingAt.Center));
             bool launchedTroops  = false;
             foreach (Ship ship in potentialTargets)
             {
@@ -64,9 +64,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                                     Empire.Universe.NotificationManager.AddEnemyLaunchedTroopsVsFleet(PlanetBuildingAt, empire);
                             }
 
-                            float distance = ship.Center.InRadius(PlanetBuildingAt.Center, PlanetBuildingAt.ObjectRadius + 1500) ? 300 : 600;
-                            troopShip.Position = ship.Center.GenerateRandomPointOnCircle(distance);
-                            troopShip.Rotation = troopShip.Position.DirectionToTarget(ship.Center).ToRadians();
+                            float distance = ship.Position.InRadius(PlanetBuildingAt.Center, PlanetBuildingAt.ObjectRadius + 1500) ? 300 : 600;
+                            troopShip.Position = ship.Position.GenerateRandomPointOnCircle(distance);
+                            troopShip.Rotation = troopShip.Position.DirectionToTarget(ship.Position).ToRadians();
                             troopShip.AI.OrderTroopToBoardShip(ship);
                             if (numTroopsWanted == 0)
                                 return GoalStep.GoToNextStep;

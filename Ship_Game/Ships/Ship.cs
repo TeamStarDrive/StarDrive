@@ -462,7 +462,7 @@ namespace Ship_Game.Ships
                 return;
             if (beam.Owner == null || beam.Weapon == null)
                 return;
-            Vector2 repulsion = (Center - beam.Owner.Center) * beam.Weapon.RepulsionDamage;
+            Vector2 repulsion = (Position - beam.Owner.Position) * beam.Weapon.RepulsionDamage;
             ApplyForce(repulsion);
         }
 
@@ -711,7 +711,7 @@ namespace Ship_Game.Ships
         // Calculates estimated trip time by turns
         public float GetAstrogateTimeTo(Planet destination)
         {
-            float distance    = Center.Distance(destination.Center);
+            float distance    = Position.Distance(destination.Center);
             float distanceSTL = destination.GravityWellForEmpire(loyalty);
             Planet planet     = System?.IdentifyGravityWell(this); // Get the gravity well owner if the ship is in one
 
@@ -731,9 +731,9 @@ namespace Ship_Game.Ships
 
         private float GetAstrogateTime(float distance, float distanceSTL, Vector2 targetPos)
         {
-            float angleDiff = Center.AngleToTarget(targetPos) - RotationDegrees;
+            float angleDiff = Position.AngleToTarget(targetPos) - RotationDegrees;
             if (angleDiff > 180)
-                angleDiff = 360 - Center.AngleToTarget(targetPos) + RotationDegrees;
+                angleDiff = 360 - Position.AngleToTarget(targetPos) + RotationDegrees;
 
             float rotationTime = angleDiff / RotationRadiansPerSecond.ToDegrees().LowerBound(1);
             float distanceFTL  = Math.Max(distance - distanceSTL, 0);
@@ -746,7 +746,7 @@ namespace Ship_Game.Ships
         public void TetherToPlanet(Planet p)
         {
             TetheredTo = p;
-            TetherOffset = Center - p.Center;
+            TetherOffset = Position - p.Center;
         }
 
         public Planet GetTether()
@@ -778,7 +778,7 @@ namespace Ship_Game.Ships
         }
 
         public bool InRadius(Vector2 worldPos, float radius)
-            => Center.InRadius(worldPos, Radius + radius);
+            => Position.InRadius(worldPos, Radius + radius);
 
         public bool CheckRangeToTarget(Weapon w, GameplayObject target)
         {
@@ -809,7 +809,7 @@ namespace Ship_Game.Ships
             }
 
             float range = attackRunRange + w.BaseRange;
-            return target.Center.InRadius(w.Module.Center, range);
+            return target.Position.InRadius(w.Module.Position, range);
         }
 
         // Added by McShooterz
@@ -830,7 +830,7 @@ namespace Ship_Game.Ships
             }
 
             ShipModule m = w.Module;
-            return RadMath.IsTargetInsideArc(m.Center, target.Center,
+            return RadMath.IsTargetInsideArc(m.Position, target.Position,
                                              Rotation + m.FacingRadians, m.FieldOfFire);
         }
 
@@ -838,7 +838,7 @@ namespace Ship_Game.Ships
         public bool IsInsideFiringArc(Weapon w, Vector2 pickedPos)
         {
             ShipModule m = w.Module;
-            return RadMath.IsTargetInsideArc(m.Center, pickedPos,
+            return RadMath.IsTargetInsideArc(m.Position, pickedPos,
                                              Rotation + m.FacingRadians, m.FieldOfFire);
         }
 
@@ -1482,7 +1482,7 @@ namespace Ship_Game.Ships
             if (!InFrustum || !IsVisibleToPlayer) 
                 return;
 
-            var position = new Vector3(Center.X, Center.Y, -100f);
+            var position = new Vector3(Position.X, Position.Y, -100f);
 
             float boost = 1f;
             if (GlobalStats.HasMod)
@@ -1497,7 +1497,7 @@ namespace Ship_Game.Ships
             if (addWarpExplode)
                 ExplosionManager.AddExplosion(position, Velocity, size*1.75f, 12f, ExplosionType.Warp);
 
-            UniverseScreen.Spatial.ShipExplode(this, size * 50, Center, Radius);
+            UniverseScreen.Spatial.ShipExplode(this, size * 50, Position, Radius);
         }
 
         public void InstantKill()
@@ -1574,7 +1574,7 @@ namespace Ship_Game.Ships
                     for (int x = 0; x < 3; ++x)
                     {
                         int howMuchJunk = (int)RandomMath.RandomBetween(Radius * 0.05f, Radius * 0.15f);
-                        SpaceJunk.SpawnJunk(howMuchJunk, Center.GenerateRandomPointOnCircle(Radius / 2),
+                        SpaceJunk.SpawnJunk(howMuchJunk, Position.GenerateRandomPointOnCircle(Radius / 2),
                             Velocity, this, Radius, junkScale, true);
                     }
                 }

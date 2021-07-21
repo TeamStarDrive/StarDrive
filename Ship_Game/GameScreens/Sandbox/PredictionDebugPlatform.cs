@@ -54,7 +54,7 @@ namespace Ship_Game.GameScreens.Sandbox
             {
                 GameplayObject[] nearby = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
                                                                                  this, 4000f, maxResults:64);
-                nearby.SortByDistance(Center);
+                nearby.SortByDistance(Position);
 
                 var nearbyShips = nearby.FastCast<GameplayObject, Ship>();
                 var noProjectiles = Empty<Projectile>.Array;

@@ -357,7 +357,7 @@ namespace Ship_Game
 
             var keys = new float[array.Length];
             for (int i = 0; i < array.Length; ++i)
-                keys[i] = array[i].Center.SqDist(fromPos);
+                keys[i] = array[i].Position.SqDist(fromPos);
 
             Array.Sort(keys, array, 0, array.Length);
         }

@@ -104,7 +104,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        Vector3 GetWarpEffectPosition() => Center.ToVec3();
+        Vector3 GetWarpEffectPosition() => Position.ToVec3();
 
         void UpdateHyperspaceInhibited(FixedSimTime timeStep)
         {
@@ -160,7 +160,7 @@ namespace Ship_Game.Ships
                     if (engineState == MoveState.Sublight)
                     {
                         if (IsVisibleToPlayer)
-                            FTLManager.EnterFTL(Center.ToVec3(), Direction3D, Radius);
+                            FTLManager.EnterFTL(Position.ToVec3(), Direction3D, Radius);
                         engineState = MoveState.Warp;
                     }
                     IsSpooling = false;
@@ -180,7 +180,7 @@ namespace Ship_Game.Ships
                     for (int i = 0; i < e.Inhibitors.Count; ++i)
                     {
                         Ship ship = e.Inhibitors[i];
-                        if (ship != null && Center.InRadius(ship.Position, ship.InhibitionRadius))
+                        if (ship != null && Position.InRadius(ship.Position, ship.InhibitionRadius))
                         {
                             Inhibited = true;
                             InhibitedByEnemy = true;

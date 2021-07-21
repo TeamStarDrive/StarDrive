@@ -495,7 +495,7 @@ namespace Ship_Game
         {
             bombersList = P.ParentSystem.ShipList.Filter(s => s.loyalty == EmpireManager.Player
                                                          && s.BombBays.Count > 0
-                                                         && s.Center.InRadius(P.Center, P.ObjectRadius + 15000f));
+                                                         && s.Position.InRadius(P.Center, P.ObjectRadius + 15000f));
 
             return bombersList?.Length > 0;
         }

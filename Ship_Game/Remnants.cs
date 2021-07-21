@@ -239,7 +239,7 @@ namespace Ship_Game
                     Ship portal = portals.RandItem();
                     for (int i = 0; i < ((int)CurrentGame.Difficulty + 1) * 3; i++)
                     {
-                        if (!SpawnShip(RemnantShipType.Exterminator, portal.Center, out _))
+                        if (!SpawnShip(RemnantShipType.Exterminator, portal.Position, out _))
                             return;
                     }
 
@@ -379,7 +379,7 @@ namespace Ship_Game
             if (!GetPortals(out Ship[] portals))
                 return false;
 
-            portal = portals.FindMin(s => s.Center.Distance(position));
+            portal = portals.FindMin(s => s.Position.Distance(position));
             return portal != null;
         }
 
@@ -557,7 +557,7 @@ namespace Ship_Game
             if (!ShipCosts.TryGetValue(type, out float cost) || Production < cost)
                 return false;
 
-            if (!SpawnShip(type, portal.Center, out ship))
+            if (!SpawnShip(type, portal.Position, out ship))
                 return false;
 
             GenerateProduction(-cost);

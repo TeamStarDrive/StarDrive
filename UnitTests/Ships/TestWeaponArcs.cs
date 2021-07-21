@@ -72,12 +72,12 @@ namespace UnitTests.Ships
             weapon.Tag_PD = true;
 
             Vector2 inFrontOfUs = new Vector2(0, -1000f);
-            Vector2 lookingAtUs = inFrontOfUs.DirectionToTarget(us.Center);
+            Vector2 lookingAtUs = inFrontOfUs.DirectionToTarget(us.Position);
             Ship enemy = SpawnShip("Rocket Scout", Enemy, inFrontOfUs, lookingAtUs);
 
             Weapon rockets = enemy.Weapons.Find(w => w.UID == "Rocket");
             Assert.IsTrue(rockets.UpdateAndFireAtTarget(us, NoProjectiles, NoShips), "Fire at target must succeed");
-            enemy.AI.OrderHoldPosition(enemy.Center, enemy.Direction);
+            enemy.AI.OrderHoldPosition(enemy.Position, enemy.Direction);
             enemy.Update(new FixedSimTime(0.01f)); // update weapons & projectiles
 
             var projectiles = GetProjectiles(enemy).ToArray();

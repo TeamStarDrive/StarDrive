@@ -45,7 +45,7 @@ namespace Ship_Game
             {
                 World = Matrix.CreateScale(Radius /2) 
                       * Matrix.CreateRotationZ(Rotation)
-                      * Matrix.CreateTranslation(Owner.Center.X, Owner.Center.Y, 0f);
+                      * Matrix.CreateTranslation(Owner.Position.X, Owner.Position.Y, 0f);
             }
             else
             {
@@ -57,7 +57,7 @@ namespace Ship_Game
 
         public bool InFrustum()
         {
-            Vector2 center = Owner?.Center ?? PlanetCenter;
+            Vector2 center = Owner?.Position ?? PlanetCenter;
             return Empire.Universe.Frustum.Contains(center, Radius);
         }
 
@@ -143,7 +143,7 @@ namespace Ship_Game
 
             float intensity = 10f.Clamped(1, proj.DamageAmount / module.ShieldPower);
 
-            Rotation     = module.Center.RadiansToTarget(proj.Center);
+            Rotation     = module.Position.RadiansToTarget(proj.Position);
             Radius       = module.ShieldHitRadius;
             TexScale     = 2.8f - 0.185f * RandomMath.RandomBetween(intensity, 10f);
             Displacement = 0.085f * RandomMath.RandomBetween(intensity, 10f);
@@ -155,7 +155,7 @@ namespace Ship_Game
             Light.Intensity    = RandomMath.RandomBetween(intensity * 0.5f, 10f);
             Light.Enabled      = true;
 
-            CreateShieldHitParticles(module.GetCenter3D, proj.Center, beamFlash: false);
+            CreateShieldHitParticles(module.GetCenter3D, proj.Position, beamFlash: false);
         }
 
         public static Color GetBubbleColor(float shieldRate, string colorName = "Green")
