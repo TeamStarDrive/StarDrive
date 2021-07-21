@@ -155,7 +155,7 @@ namespace Ship_Game
             Light.Intensity    = RandomMath.RandomBetween(intensity * 0.5f, 10f);
             Light.Enabled      = true;
 
-            CreateShieldHitParticles(module.GetCenter3D, proj.Position, beamFlash: false);
+            CreateShieldHitParticles(module.Center3D, proj.Position, beamFlash: false);
         }
 
         public static Color GetBubbleColor(float shieldRate, string colorName = "Green")

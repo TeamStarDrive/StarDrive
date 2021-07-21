@@ -509,8 +509,9 @@ namespace Ship_Game.Ships
                     if (InFrustum && Empire.Universe?.IsShipViewOrCloser == true)
                     {
                         // visualize radiation hits on external modules
+                        Vector3 center = module.Center3D;
                         for (int j = 0; j < 50; j++)
-                            Empire.Universe.Particles.Sparks.AddParticle(module.GetCenter3D);
+                            Empire.Universe.Particles.Sparks.AddParticle(center);
                     }
                 }
             }
