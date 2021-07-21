@@ -154,11 +154,11 @@ namespace Ship_Game.AI.Tasks
         public static MilitaryTask CreateAssaultPirateBaseTask(Ship targetShip, Empire empire)
         {
             var threatMatrix = empire.GetEmpireAI().ThreatMatrix;
-            float pingStr    = threatMatrix.PingRadarStr(targetShip.Center, 20000, empire);
+            float pingStr    = threatMatrix.PingRadarStr(targetShip.Position, 20000, empire);
             var militaryTask = new MilitaryTask
             {
                 TargetShip               = targetShip,
-                AO                       = targetShip.Center,
+                AO                       = targetShip.Position,
                 Type                     = TaskType.AssaultPirateBase,
                 AORadius                 = 20000,
                 Owner                    = empire,

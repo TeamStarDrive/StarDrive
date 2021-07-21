@@ -472,8 +472,8 @@ namespace Ship_Game.Ships
             {
                 Empire.Universe.ViewingShip = false;
                 Empire.Universe.AdjustCamTimer = 0.5f;
-                Empire.Universe.CamDestination.X = Ship.Center.X;
-                Empire.Universe.CamDestination.Y = Ship.Center.Y;
+                Empire.Universe.CamDestination.X = Ship.Position.X;
+                Empire.Universe.CamDestination.Y = Ship.Position.Y;
                 if (Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView)
                     Empire.Universe.CamDestination.Z = Empire.Universe.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
             }

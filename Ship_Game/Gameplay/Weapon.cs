@@ -310,7 +310,7 @@ namespace Ship_Game.Gameplay
             if (CanFireWeaponCooldown())
             {
                 PrepareToFire();
-                Projectile.Create(this, Module.Center, direction, null, playSound: true);
+                Projectile.Create(this, Module.Position, direction, null, playSound: true);
             }
         }
 
@@ -427,8 +427,8 @@ namespace Ship_Game.Gameplay
             if (SalvoTarget != null) // check for new direction
             {
                 // update direction only if we have a new valid pip
-                if (PrepareFirePos(SalvoTarget, SalvoTarget.Center, out Vector2 firePos))
-                    SalvoDirection = (firePos - Module.Center).ToRadians() - Owner.Rotation;
+                if (PrepareFirePos(SalvoTarget, SalvoTarget.Position, out Vector2 firePos))
+                    SalvoDirection = (firePos - Module.Position).ToRadians() - Owner.Rotation;
             }
 
             bool playSound = salvoIndex % SalvoSoundInterval == 0;
@@ -609,7 +609,7 @@ namespace Ship_Game.Gameplay
             return (targetSpeed + 25) / 175;
         }
 
-        public Vector2 Origin => Module?.Center ?? PlanetOrigin;
+        public Vector2 Origin => Module?.Position ?? PlanetOrigin;
         public Vector2 OwnerVelocity => Owner?.Velocity ?? Module?.GetParent()?.Velocity ?? Vector2.Zero;
 
         Vector2 Predict(Vector2 origin, GameplayObject target, bool advancedTargeting)
@@ -621,8 +621,8 @@ namespace Ship_Game.Gameplay
             float maxPredictionRange = BaseRange*2;
             if (distance > maxPredictionRange)
             {
-                Vector2 predictionVector = target.Center.DirectionToTarget(pip);
-                pip = target.Center + predictionVector*maxPredictionRange;
+                Vector2 predictionVector = target.Position.DirectionToTarget(pip);
+                pip = target.Position + predictionVector*maxPredictionRange;
             }
 
             return pip;
@@ -673,9 +673,9 @@ namespace Ship_Game.Gameplay
             if (FireTarget != null)
             {
                 if (isBeam)
-                    return FireBeam(Module.Center, FireTarget.Center, FireTarget);
+                    return FireBeam(Module.Position, FireTarget.Position, FireTarget);
                 else
-                    return FireAtTarget(FireTarget.Center, FireTarget);
+                    return FireAtTarget(FireTarget.Position, FireTarget);
             }
             return false; // no target to fire at
         }
@@ -793,7 +793,7 @@ namespace Ship_Game.Gameplay
 
         public void FireTargetedBeam(GameplayObject target)
         {
-            FireBeam(Module.Center, target.Center, target);
+            FireBeam(Module.Position, target.Position, target);
         }
 
         public bool ManualFireTowardsPos(Vector2 targetPos)
@@ -802,7 +802,7 @@ namespace Ship_Game.Gameplay
             {
                 if (isBeam)
                 {
-                    return FireBeam(Module.Center, targetPos, null);
+                    return FireBeam(Module.Position, targetPos, null);
                 }
                 return FireAtTarget(targetPos, null);
             }
@@ -816,7 +816,7 @@ namespace Ship_Game.Gameplay
 
             if (isBeam)
             {
-                FireBeam(PlanetOrigin, target.Center, target);
+                FireBeam(PlanetOrigin, target.Position, target);
                 return;
             }
 

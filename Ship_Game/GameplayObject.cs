@@ -30,22 +30,21 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] public bool Active = true;
         [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
-        [XmlIgnore] [JsonIgnore] public SolarSystem SystemBackBuffer { get; private set; }
+        [XmlIgnore][JsonIgnore] public SolarSystem SystemBackBuffer { get; private set; }
 
         // TODO: Position and Center are duplicates. One of them should be removed eventually.
         [Serialize(0)] public Vector2 Position;
-        [Serialize(1)] public Vector2 Center;
-        [Serialize(2)] public Vector2 Velocity;
+        [Serialize(1)] public Vector2 Velocity;
 
         // rotation in RADIANS
         // MUST be normalized to [0; +2PI]
-        [Serialize(3)] public float Rotation;
+        [Serialize(2)] public float Rotation;
 
-        [Serialize(4)] public float Radius = 1f;
-        [Serialize(5)] public float Mass = 1f;
-        [Serialize(6)] public float Health;
+        [Serialize(3)] public float Radius = 1f;
+        [Serialize(4)] public float Mass = 1f;
+        [Serialize(5)] public float Health;
 
-        [Serialize(7)] public readonly GameObjectType Type;
+        [Serialize(6)] public readonly GameObjectType Type;
 
         [XmlIgnore][JsonIgnore] public GameplayObject LastDamagedBy;
 
@@ -68,7 +67,7 @@ namespace Ship_Game
             set => Rotation = value.ToRadians();
         }
 
-        private static int GameObjIds;
+        static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
 
         protected GameplayObject(GameObjectType type)
@@ -98,7 +97,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore]
         public bool IsInFrustum => Empire.Universe != null &&
             Empire.Universe.IsSystemViewOrCloser &&
-            Empire.Universe.Frustum.Contains(Center, 2000f);
+            Empire.Universe.Frustum.Contains(Position, 2000f);
 
         [XmlIgnore][JsonIgnore]
         public string SystemName => System?.Name ?? "Deep Space";

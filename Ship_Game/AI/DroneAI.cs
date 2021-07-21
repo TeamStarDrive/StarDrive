@@ -26,11 +26,11 @@ namespace Ship_Game.AI
                 .FindMinFiltered(ship => ship.Active 
                                          && !ship.IsHangarShip
                                          && ship.HealthStatus < Status.Maximum
-                                         && ship.Center.InRadius(Drone.Owner.Center, 10000)
+                                         && ship.Position.InRadius(Drone.Owner.Position, 10000)
                 , ship =>
                 {
-                    var ownerCenter      = Drone.Owner.Center;
-                    var distance         = ship.Center.Distance(ownerCenter);
+                    var ownerCenter      = Drone.Owner.Position;
+                    var distance         = ship.Position.Distance(ownerCenter);
                     var distanceWeight   = 1 + (int)(10 * distance / DroneWeapon.BaseRange);
                     var repairWeight     = (int)ship.HealthStatus;
                     float weight         = distanceWeight * repairWeight ;
@@ -43,16 +43,16 @@ namespace Ship_Game.AI
         // the drone will orbit around the ship it's healing
         void OrbitShip(Ship ship, FixedSimTime timeStep)
         {
-            Vector2 orbitalPos = ship.Center.PointFromAngle(OrbitalAngle, 1500f);
-            if (orbitalPos.InRadius(Drone.Center, 1500f))
+            Vector2 orbitalPos = ship.Position.PointFromAngle(OrbitalAngle, 1500f);
+            if (orbitalPos.InRadius(Drone.Position, 1500f))
             {
                 OrbitalAngle += 15f;
                 if (OrbitalAngle >= 360f)
                     OrbitalAngle -= 360f;
-                orbitalPos = ship.Center.PointFromAngle(OrbitalAngle, 2500f);
+                orbitalPos = ship.Position.PointFromAngle(OrbitalAngle, 2500f);
             }
             if (timeStep.FixedTime > 0f)
-                Drone.GuidedMoveTowards(timeStep, DroneTarget?.Center ?? orbitalPos, 0f);
+                Drone.GuidedMoveTowards(timeStep, DroneTarget?.Position ?? orbitalPos, 0f);
         }
 
         public void Think(FixedSimTime timeStep)
@@ -96,7 +96,7 @@ namespace Ship_Game.AI
                 DroneTarget.Health < DroneTarget.HealthMax &&
                 DroneWeapon.CooldownTimer <= 0f &&
                 DroneTarget != null &&
-                Drone.Center.Distance(DroneTarget.Center) <= DroneWeapon.BaseRange)
+                Drone.Position.Distance(DroneTarget.Position) <= DroneWeapon.BaseRange)
             {
                 // NOTE: Beam projectile is updated by universe
                 DroneBeam droneBeam = DroneWeapon.FireDroneBeam(this);

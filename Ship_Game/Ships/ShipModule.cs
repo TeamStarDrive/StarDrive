@@ -545,8 +545,8 @@ namespace Ship_Game.Ships
         public bool HitTestNoShields(Vector2 worldPos, float radius)
         {
             float r2 = radius + Radius;
-            float dx = Center.X - worldPos.X;
-            float dy = Center.Y - worldPos.Y;
+            float dx = Position.X - worldPos.X;
+            float dy = Position.Y - worldPos.Y;
             if ((dx*dx + dy*dy) > (r2*r2))
                 return false; // definitely out of radius for SQUARE and non-square modules
 
@@ -574,8 +574,8 @@ namespace Ship_Game.Ships
             float longerOffset = longer * 8.0f - smallerOffset;
 
             return new Capsule(
-                Center - longerDir * longerOffset,
-                Center + longerDir * longerOffset,
+                Position - longerDir * longerOffset,
+                Position + longerDir * longerOffset,
                 shorter * CollisionRadiusMultiplier
             );
         }
@@ -583,24 +583,24 @@ namespace Ship_Game.Ships
         public bool HitTestShield(Vector2 worldPos, float radius)
         {
             float r2 = radius + ShieldHitRadius;
-            float dx = Center.X - worldPos.X;
-            float dy = Center.Y - worldPos.Y;
+            float dx = Position.X - worldPos.X;
+            float dy = Position.Y - worldPos.Y;
             return (dx*dx + dy*dy) <= (r2*r2);
         }
 
         public bool RayHitTestShield(Vector2 startPos, Vector2 endPos, float rayRadius, out float distanceFromStart)
         {
-            return Center.RayCircleIntersect(rayRadius + ShieldHitRadius, startPos, endPos, out distanceFromStart);
+            return Position.RayCircleIntersect(rayRadius + ShieldHitRadius, startPos, endPos, out distanceFromStart);
         }
 
         public bool RayHitTest(Vector2 startPos, Vector2 endPos, float rayRadius, out float distanceFromStart)
         {
             if (ShieldsAreActive)
             {
-                return Center.RayCircleIntersect(rayRadius + ShieldHitRadius, startPos, endPos, out distanceFromStart);
+                return Position.RayCircleIntersect(rayRadius + ShieldHitRadius, startPos, endPos, out distanceFromStart);
             }
 
-            distanceFromStart = Center.FindClosestPointOnLine(startPos, endPos).Distance(startPos);
+            distanceFromStart = Position.FindClosestPointOnLine(startPos, endPos).Distance(startPos);
             return distanceFromStart > 0f;
         }
 
@@ -621,7 +621,7 @@ namespace Ship_Game.Ships
         public bool DamageExplosive(GameplayObject source, Vector2 worldHitPos, float damageRadius, ref float damageInOut)
         {
             float moduleRadius = ShieldsAreActive ? ShieldHitRadius : Radius;
-            float damage = damageInOut * DamageFalloff(worldHitPos, Center, damageRadius, moduleRadius);
+            float damage = damageInOut * DamageFalloff(worldHitPos, Position, damageRadius, moduleRadius);
             if (damage <= 0.001f)
                 return true;
 
@@ -885,11 +885,11 @@ namespace Ship_Game.Ships
 
             if (Active && Parent.IsVisibleToPlayer)
             {
-                var center = new Vector3(Center.X, Center.Y, -100f);
+                var center = new Vector3(Position.X, Position.Y, -100f);
                 bool parentAlive = !Parent.dying;
                 for (int i = 0; i < 30; ++i)
                 {
-                    Vector3 pos = parentAlive ? center : new Vector3(Parent.Center, UniverseRandom.RandomBetween(-25f, 25f));
+                    Vector3 pos = parentAlive ? center : new Vector3(Parent.Position, UniverseRandom.RandomBetween(-25f, 25f));
                     Empire.Universe.Particles.Explosion.AddParticle(pos);
                 }
 
@@ -927,7 +927,7 @@ namespace Ship_Game.Ships
             if (count != 0)
             {
                 float debrisScale = size * 0.05f;
-                SpaceJunk.SpawnJunk(count, Center, velocity, this, 1.0f, debrisScale, ignite: ignite);
+                SpaceJunk.SpawnJunk(count, Position, velocity, this, 1.0f, debrisScale, ignite: ignite);
             }
         }
 
@@ -954,7 +954,7 @@ namespace Ship_Game.Ships
 
             if (hangarTimer <= 0f && hangarShip == null) // launch the troopship
             {
-                ship = Ship.CreateTroopShipAtPoint(Parent.loyalty.GetAssaultShuttleName(), Parent.loyalty, Center, troop);
+                ship = Ship.CreateTroopShipAtPoint(Parent.loyalty.GetAssaultShuttleName(), Parent.loyalty, Position, troop);
                 SetHangarShip(ship);
                 hangarShip.Mothership = Parent;
                 hangarShip.DoEscort(Parent);
@@ -983,7 +983,7 @@ namespace Ship_Game.Ships
                 if (fighter.AI.HasPriorityTarget
                     || fighter.AI.IgnoreCombat
                     || fighter.AI.Target != null
-                    || (fighter.Center.InRadius(carrier.Center, Parent.SensorRange) && fighter.AI.State != AIState.ReturnToHangar))
+                    || (fighter.Position.InRadius(carrier.Position, Parent.SensorRange) && fighter.AI.State != AIState.ReturnToHangar))
                 {
                     return;
                 }
@@ -994,7 +994,7 @@ namespace Ship_Game.Ships
 
             if (hangarTimer <= 0f && (fighter == null || !fighter.Active))
             {
-                SetHangarShip(Ship.CreateShipFromHangar(this, carrier.loyalty, carrier.Center + LocalCenter, carrier));
+                SetHangarShip(Ship.CreateShipFromHangar(this, carrier.loyalty, carrier.Position + LocalCenter, carrier));
 
                 if (hangarShip == null)
                 {
@@ -1157,7 +1157,7 @@ namespace Ship_Game.Ships
             if (Parent.PlanetCrash == null || !RandomMath.RollDice(5))
                 return; 
 
-            Center3D = Parent.Center.ToVec3(UniverseRandom.RandomBetween(-10f, 10));
+            Center3D = Parent.Position.ToVec3(UniverseRandom.RandomBetween(-10f, 10));
             if (CanVisualizeDamage)
                 UpdateDamageVisualization(timeStep);
         }
@@ -1203,7 +1203,7 @@ namespace Ship_Game.Ships
             {
                 float modelZ = Parent.BaseHull.ModelZ;
                 modelZ = modelZ.Clamped(0, 200) * -1;
-                Vector3 repairEffectOrigin = Center.ToVec3(modelZ);
+                Vector3 repairEffectOrigin = Position.ToVec3(modelZ);
                 for (int i = 0; i < 50; i++)
                     Empire.Universe.Particles.Sparks.AddParticle(repairEffectOrigin);
             }
@@ -1454,7 +1454,7 @@ namespace Ship_Game.Ships
 
         public override string ToString()
         {
-            return $"{UID}  {Id}  {XSIZE}x{YSIZE} {Restrictions} [{LocalCenter.X};{LocalCenter.Y}] hp={Health} world={Center} ship={Parent?.Name}";
+            return $"{UID}  {Id}  {XSIZE}x{YSIZE} {Restrictions} [{LocalCenter.X};{LocalCenter.Y}] hp={Health} world={Position} ship={Parent?.Name}";
         }
 
         public void Dispose()

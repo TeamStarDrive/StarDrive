@@ -47,7 +47,7 @@ namespace Ship_Game.AI.ShipMovement
             // this approach is very fast and simple
 
             OrbitUpdateTimer -= timeStep.FixedTime;
-            if (OrbitUpdateTimer <= 0f || Owner.Center.InRadius(OrbitPos, WayPointProximity))
+            if (OrbitUpdateTimer <= 0f || Owner.Position.InRadius(OrbitPos, WayPointProximity))
             {
                 OrbitUpdateTimer = OrbitUpdateInterval;
 
@@ -79,7 +79,7 @@ namespace Ship_Game.AI.ShipMovement
             }
           
             float radius = (orbitTarget.ObjectRadius*2 + Owner.Radius).UpperBound(12000);
-            float distance = orbitTarget.Center.Distance(Owner.Center);
+            float distance = orbitTarget.Center.Distance(Owner.Position);
 
             if (distance > 15000f) // we are still far away, thrust towards the planet
             {
@@ -117,7 +117,7 @@ namespace Ship_Game.AI.ShipMovement
             float precisionSpeed = Math.Min(OrbitalSpeedLimit, maxVel);
 
             // We are within orbit radius, so do actual orbiting:
-            if (Owner.Center.InRadius(OrbitPos, radius * 1.2f))
+            if (Owner.Position.InRadius(OrbitPos, radius * 1.2f))
             {
                 InOrbit = true;
                 AI.RotateTowardsPosition(OrbitPos, timeStep, 0.01f);
@@ -138,7 +138,7 @@ namespace Ship_Game.AI.ShipMovement
 
         public void Orbit(Ship ship, FixedSimTime timeStep)
         {
-            UpdateOrbitPos(ship.Center, 1500f, timeStep);
+            UpdateOrbitPos(ship.Position, 1500f, timeStep);
             AI.ThrustOrWarpToPos(OrbitPos, timeStep, OrbitalSpeedLimit);
         }
     }

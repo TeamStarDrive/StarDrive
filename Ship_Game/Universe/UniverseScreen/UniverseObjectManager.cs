@@ -113,7 +113,7 @@ namespace Ship_Game
                     Duration = p.Duration,
                     Rotation = p.Rotation,
                     Velocity = p.Velocity,
-                    Position = p.Center,
+                    Position = p.Position,
                     Loyalty  = p.Loyalty.Id,
                 });
             }

@@ -127,7 +127,7 @@ namespace Ship_Game.Ships
                 for (int i = 5 - 1; i >= 0; --i)
                 {
                     Vector3 randPos = UniverseRandom.Vector32D(third);
-                    Empire.Universe.Particles.Lightning.AddParticle(Center.ToVec3() + randPos);
+                    Empire.Universe.Particles.Lightning.AddParticle(Position.ToVec3() + randPos);
                 }
             }
 
@@ -146,7 +146,7 @@ namespace Ship_Game.Ships
                 {
                     ShipSO.World = Matrix.CreateRotationY(yRotation)
                                  * Matrix.CreateRotationZ(Rotation)
-                                 * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
+                                 * Matrix.CreateTranslation(new Vector3(Position, 0.0f));
                     ShipSO.UpdateAnimation(timeStep.FixedTime);
                     UpdateThrusters(timeStep);
                 }
@@ -156,7 +156,7 @@ namespace Ship_Game.Ships
                 }
             }
 
-            SoundEmitter.Position = new Vector3(Center, 0);
+            SoundEmitter.Position = new Vector3(Position, 0);
 
             ResetFrameThrustState();
         }
@@ -171,7 +171,7 @@ namespace Ship_Game.Ships
                 {
                     if (p.IsExploredBy(loyalty)) // already explored
                         continue;
-                    if (p.Center.OutsideRadius(Center, 3000f))
+                    if (p.Center.OutsideRadius(Position, 3000f))
                         continue;
 
                     if (p.EventsOnTiles())
@@ -322,21 +322,21 @@ namespace Ship_Game.Ships
                              * Matrix.CreateRotationY(yRotation)
                              * Matrix.CreateRotationX(xRotation)
                              * Matrix.CreateRotationZ(Rotation)
-                             * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
+                             * Matrix.CreateTranslation(new Vector3(Position, 0.0f));
 
 
                 if (RandomMath.RollDice(10) && !IsMeteor) // Spawn some junk when tumbling
                 {
                     float radSqrt = (float)Math.Sqrt(Radius);
                     float junkScale = (radSqrt * 0.02f).UpperBound(0.2f) * scale;
-                    SpaceJunk.SpawnJunk(1, Center.GenerateRandomPointOnCircle(Radius / 20),
+                    SpaceJunk.SpawnJunk(1, Position.GenerateRandomPointOnCircle(Radius / 20),
                         Velocity * scale, this, Radius, junkScale, true);
                 }
 
                 ShipSO.UpdateAnimation(timeStep.FixedTime);
             }
 
-            SoundEmitter.Position = new Vector3(Center, 0);
+            SoundEmitter.Position = new Vector3(Position, 0);
 
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {

@@ -59,7 +59,7 @@ namespace UnitTests.AITests.Ships
                                                              " by the ship since it is over 75000");
             Assert.IsNotNull(scout.AI.TestGetPatrolTarget(), "Patrol target planet is not set, but it should at this stage");
 
-            Planet closestPlanet   = CloseSystem.PlanetList.FindMin(p => p.Center.SqDist(scout.Center));
+            Planet closestPlanet   = CloseSystem.PlanetList.FindMin(p => p.Center.SqDist(scout.Position));
             Planet planetToExplore = scout.AI.TestGetPatrolTarget();
             Assert.AreSame(closestPlanet, planetToExplore, "Scout did not target the closest planet for exploration.");
 

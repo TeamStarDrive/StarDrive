@@ -312,7 +312,7 @@ namespace Ship_Game.Debug
                     if (module == null || module.GetParent() != ship.AI.Target || weapon.Tag_Beam || weapon.Tag_Guided)
                         continue;
 
-                    Screen.DrawCircleProjected(module.Center, 8f, 6, Color.MediumVioletRed);
+                    Screen.DrawCircleProjected(module.Position, 8f, 6, Color.MediumVioletRed);
                     if (weapon.DebugLastImpactPredict.NotZero())
                     {
                         Vector2 impactNoError = weapon.ProjectedImpactPointNoError(module);
@@ -342,7 +342,7 @@ namespace Ship_Game.Debug
                 float facing = ship.Rotation + m.FacingRadians;
                 float size = w.GetActualRange();
 
-                Screen.ProjectToScreenCoords(m.Center, size, 
+                Screen.ProjectToScreenCoords(m.Position, size, 
                                       out Vector2 posOnScreen, out float sizeOnScreen);
                 ShipDesignScreen.DrawWeaponArcs(ScreenManager.SpriteBatch,
                                       ship.Rotation, w, m, posOnScreen, sizeOnScreen*0.25f, ship.TrackingPower);
@@ -361,23 +361,23 @@ namespace Ship_Game.Debug
                 {
                     bool inRange = ship.CheckRangeToTarget(w, target);
                     float bigArc = m.FieldOfFire*1.2f;
-                    bool inBigArc = RadMath.IsTargetInsideArc(m.Center, target.Center,
+                    bool inBigArc = RadMath.IsTargetInsideArc(m.Position, target.Position,
                                                     ship.Rotation + m.FacingRadians, bigArc);
                     if (inRange && inBigArc) // show arc lines if we are close to arc edges
                     {
-                        bool inArc = ship.IsInsideFiringArc(w, target.Center);
+                        bool inArc = ship.IsInsideFiringArc(w, target.Position);
 
                         Color inArcColor = inArc ? Color.LawnGreen : Color.Orange;
-                        DrawLineImm(m.Center, target.Center, inArcColor, 3f);
+                        DrawLineImm(m.Position, target.Position, inArcColor, 3f);
 
-                        DrawLineImm(m.Center, m.Center + facing.RadiansToDirection() * size, Color.Crimson);
+                        DrawLineImm(m.Position, m.Position + facing.RadiansToDirection() * size, Color.Crimson);
                         Vector2 left  = (facing - m.FieldOfFire * 0.5f).RadiansToDirection();
                         Vector2 right = (facing + m.FieldOfFire * 0.5f).RadiansToDirection();
-                        DrawLineImm(m.Center, m.Center + left * size, Color.Crimson);
-                        DrawLineImm(m.Center, m.Center + right * size, Color.Crimson);
+                        DrawLineImm(m.Position, m.Position + left * size, Color.Crimson);
+                        DrawLineImm(m.Position, m.Position + right * size, Color.Crimson);
 
                         string text = $"Target: {targetShip.Name}\nInArc: {inArc}";
-                        DrawShadowStringProjected(m.Center, 0f, 1f, inArcColor, text);
+                        DrawShadowStringProjected(m.Position, 0f, 1f, inArcColor, text);
                     }
                 }
             }
@@ -388,15 +388,15 @@ namespace Ship_Game.Debug
             foreach (Projectile p in ship.AI.TrackProjectiles)
             {
                 float r = Math.Max(p.Radius, 32f);
-                DrawCircleImm(p.Center, r, Color.Yellow, 1f);
+                DrawCircleImm(p.Position, r, Color.Yellow, 1f);
             }
             foreach (Ship s in ship.AI.FriendliesNearby)
             {
-                DrawCircleImm(s.Center, s.Radius, Color.Green, 1f);
+                DrawCircleImm(s.Position, s.Radius, Color.Green, 1f);
             }
             foreach (Ship s in ship.AI.PotentialTargets)
             {
-                DrawCircleImm(s.Center, s.Radius, Color.Red, 1f);
+                DrawCircleImm(s.Position, s.Radius, Color.Red, 1f);
             }
         }
 
@@ -461,7 +461,7 @@ namespace Ship_Game.Debug
             {
                 Ship ship = Screen.SelectedShip;
 
-                DrawString($"Ship {ship.ShipName}  x {(int)ship.Center.X} y {(int)ship.Center.Y}");
+                DrawString($"Ship {ship.ShipName}  x {(int)ship.Position.X} y {(int)ship.Position.Y}");
                 DrawString($"VEL: {(int)ship.Velocity.Length()}  "
                           +$"LIMIT: {(int)ship.SpeedLimit}  {ship.WarpState}"
                           +$"  {ship.ThrustThisFrame}  {ship.DebugThrustStatus}");
@@ -598,7 +598,7 @@ namespace Ship_Game.Debug
                 Vector2 formationPos = ship.fleet.GetFormationPos(ship);
                 Color color = Color.Magenta.Alpha(0.5f);
                 DrawCircleImm(formationPos, ship.Radius-10, color, 0.8f);
-                DrawLineImm(ship.Center, formationPos, color, 0.8f);
+                DrawLineImm(ship.Position, formationPos, color, 0.8f);
             }
         }
 
@@ -609,7 +609,7 @@ namespace Ship_Game.Debug
             if (ship.AI.OrderQueue.NotEmpty)
             {
                 ShipGoal[] goals = ship.AI.OrderQueue.ToArray();
-                Vector2 pos = goals[0].TargetPlanet?.Center ?? ship.AI.Target?.Center ?? goals[0].MovePosition;
+                Vector2 pos = goals[0].TargetPlanet?.Center ?? ship.AI.Target?.Position ?? goals[0].MovePosition;
                 DrawString($"Ship distance from goal: {pos.Distance(ship.Position)}");
                 DrawString($"AI State: {ship.AI.State}");
                 DrawString($"Combat State: {ship.AI.CombatState}");
@@ -1126,7 +1126,7 @@ namespace Ship_Game.Debug
                     Screen.DrawCircleProjectedZ(kv.Value.System.Position, kv.Value.TroopsWanted * 100, e.EmpireColor, 4);
                 }
                 foreach(Ship ship in defco.DefensiveForcePool)
-                    Screen.DrawCircleProjectedZ(ship.Center, 50f, e.EmpireColor, 6);
+                    Screen.DrawCircleProjectedZ(ship.Position, 50f, e.EmpireColor, 6);
 
                 foreach(AO ao in e.GetEmpireAI().AreasOfOperations)
                     Screen.DrawCircleProjectedZ(ao.Center, ao.Radius, e.EmpireColor, 16);

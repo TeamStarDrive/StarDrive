@@ -192,7 +192,7 @@ namespace Ship_Game.Universe
             if (shipToAttack == null || shipToAttack.loyalty == Universe.player)
                 return false;
 
-            fleet.FinalPosition = shipToAttack.Center;
+            fleet.FinalPosition = shipToAttack.Position;
             fleet.AssignPositions(Vectors.Up);
             foreach (Ship fleetShip in fleet.Ships)
                 AttackSpecificShip(fleetShip, shipToAttack);

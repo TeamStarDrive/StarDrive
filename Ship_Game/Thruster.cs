@@ -113,7 +113,7 @@ namespace Ship_Game
          {
             Vector2 dir = Parent.Direction;
             Vector2 thrusterOffset = dir * OffsetFromShipCenter.Y + dir.LeftVector() * OffsetFromShipCenter.X;
-            Vector2 thrusterPos = Parent.Center + thrusterOffset;
+            Vector2 thrusterPos = Parent.Position + thrusterOffset;
             float zPos = XMLPos.Z + (float)Math.Sin(Parent.yRotation) * OffsetFromShipCenter.X;
             WorldPos = new Vector3(thrusterPos, zPos);
         }

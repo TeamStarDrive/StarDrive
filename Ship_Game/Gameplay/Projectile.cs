@@ -299,25 +299,25 @@ namespace Ship_Game.Gameplay
             switch (Weapon.WeaponEffectType)
             {
                 case "RocketTrail":
-                    TrailEmitter     = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Center, -ZStart);
-                    FiretrailEmitter = Empire.Universe.Particles.FireTrail.NewEmitter(100f, Center, -ZStart);
+                    TrailEmitter     = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Position, -ZStart);
+                    FiretrailEmitter = Empire.Universe.Particles.FireTrail.NewEmitter(100f, Position, -ZStart);
                     break;
                 case "Plasma":
-                    FiretrailEmitter = Empire.Universe.Particles.Flame.NewEmitter(100f, Center, 0f);
+                    FiretrailEmitter = Empire.Universe.Particles.Flame.NewEmitter(100f, Position, 0f);
                     break;
                 case "SmokeTrail":
-                    TrailEmitter     = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Center, -ZStart);
+                    TrailEmitter     = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Position, -ZStart);
                     break;
                 case "MuzzleSmoke":
-                    FiretrailEmitter = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Center, 0f);
+                    FiretrailEmitter = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Position, 0f);
                     break;
                 case "MuzzleSmokeFire":
-                    FiretrailEmitter = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Center, 0f);
-                    TrailEmitter     = Empire.Universe.Particles.FireTrail.NewEmitter(100f, Center, -ZStart);
+                    FiretrailEmitter = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Position, 0f);
+                    TrailEmitter     = Empire.Universe.Particles.FireTrail.NewEmitter(100f, Position, -ZStart);
                     break;
                 case "FullSmokeMuzzleFire":
-                    TrailEmitter     = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Center, -ZStart);
-                    FiretrailEmitter = Empire.Universe.Particles.FireTrail.NewEmitter(100f, Center, -ZStart);
+                    TrailEmitter     = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Position, -ZStart);
+                    FiretrailEmitter = Empire.Universe.Particles.FireTrail.NewEmitter(100f, Position, -ZStart);
                     break;
             }
         }
@@ -390,7 +390,7 @@ namespace Ship_Game.Gameplay
             {
                 if (Animation != null)
                 {
-                    screen.ProjectToScreenCoords(Center, -ZStart, 20f * Weapon.ProjectileRadius * Weapon.Scale,
+                    screen.ProjectToScreenCoords(Position, -ZStart, 20f * Weapon.ProjectileRadius * Weapon.Scale,
                                                  out Vector2 pos, out float size);
 
                     Animation.Draw(batch, pos, new Vector2(size), Rotation, 1f);
@@ -404,7 +404,7 @@ namespace Ship_Game.Gameplay
 
             if (MissileAI != null && MissileAI.Jammed)
             {
-                screen.DrawStringProjected(Center + new Vector2(16), 50f, Color.Red, "Jammed");
+                screen.DrawStringProjected(Position + new Vector2(16), 50f, Color.Red, "Jammed");
             }
         }
 
@@ -508,7 +508,7 @@ namespace Ship_Game.Gameplay
                 else
                     ZStart = -25f;
 
-                WorldMatrix = Matrix.CreateScale(Weapon.Scale) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(Center.X, Center.Y, -ZStart);
+                WorldMatrix = Matrix.CreateScale(Weapon.Scale) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(Position.X, Position.Y, -ZStart);
 
                 if (UsesVisibleMesh) // lazy init rocket projectile meshes
                 {
@@ -524,7 +524,7 @@ namespace Ship_Game.Gameplay
                     ProjSO.World = WorldMatrix;
                 }
             }
-            var newPosition = new Vector3(Center.X, Center.Y, -ZStart);
+            var newPosition = new Vector3(Position.X, Position.Y, -ZStart);
 
             if (FiretrailEmitter != null && InFrustum && TrailTurnedOn)
             {
@@ -544,7 +544,7 @@ namespace Ship_Game.Gameplay
             if (InFrustum && Light == null && Weapon.Light != null && !LightWasAddedToSceneGraph)
             {
                 LightWasAddedToSceneGraph = true;
-                var pos = new Vector3(Center.X, Center.Y, -25f);
+                var pos = new Vector3(Position.X, Position.Y, -25f);
                 Light = new PointLight
                 {
                     Position   = pos,
@@ -567,7 +567,7 @@ namespace Ship_Game.Gameplay
             }
             else if (Light != null && Weapon.Light != null && LightWasAddedToSceneGraph)
             {
-                Light.Position = new Vector3(Center.X, Center.Y, -25f);
+                Light.Position = new Vector3(Position.X, Position.Y, -25f);
                 Light.World = Matrix.CreateTranslation(Light.Position);
             }
             if (Module != null && !MuzzleFlashAdded && Module.InstalledWeapon?.MuzzleFlash != null && InFrustum)
@@ -585,7 +585,7 @@ namespace Ship_Game.Gameplay
         void ExplodeProjectile(bool cleanupOnly, ShipModule atModule = null)
         {
             bool visibleToPlayer = Module?.GetParent().InSensorRange == true;
-            Vector3 origin = new Vector3(atModule?.Center ?? Center, -50f);
+            Vector3 origin = new Vector3(atModule?.Position ?? Position, -50f);
             if (Explodes)
             {
                 if (Weapon.OrdinanceRequiredToFire > 0f && Owner != null)
@@ -609,7 +609,7 @@ namespace Ship_Game.Gameplay
                 if (atModule != null) 
                     UniverseScreen.Spatial.ExplodeAtModule(this, atModule, IgnoresShields, DamageAmount, DamageRadius);
                 else
-                    UniverseScreen.Spatial.ProjectileExplode(this, DamageAmount, DamageRadius, Center);
+                    UniverseScreen.Spatial.ProjectileExplode(this, DamageAmount, DamageRadius, Position);
             }
             else if (Weapon.FakeExplode && CloseEnoughForExplosion && visibleToPlayer)
             {
@@ -626,13 +626,13 @@ namespace Ship_Game.Gameplay
         public void GuidedMoveTowards(FixedSimTime timeStep, Vector2 targetPos, float thrustNozzleRotation,
                                       bool terminalPhase = false)
         {
-            float distance = Center.Distance(targetPos);
+            float distance = Position.Distance(targetPos);
             
             bool finalPhase = distance <= 1000f;
 
             Vector2 adjustedPos = finalPhase ? targetPos // if we get close, then just aim at targetPos
                 // if we're still far, apply thrust offset, which will increase our accuracy
-                : ImpactPredictor.ThrustOffset(Center, Velocity, targetPos, 1f);
+                : ImpactPredictor.ThrustOffset(Position, Velocity, targetPos, 1f);
 
             //var debug = Empire.Universe?.DebugWin;
             //debug?.DrawLine(DebugModes.Targeting, Center, adjustedPos, 1f, Color.DarkOrange.Alpha(0.2f), 0f);
@@ -741,7 +741,7 @@ namespace Ship_Game.Gameplay
 
         void CreateWeaponTypeFx(GameplayObject target)
         {
-            var center       = new Vector3(Center.X, Center.Y, -100f);
+            var center       = new Vector3(Position.X, Position.Y, -100f);
             Vector3 forward  = Rotation.RadiansToDirection3D();
             Vector3 right    = forward.RightVector2D(z: 1f);
             Vector3 backward = -forward;
@@ -817,7 +817,7 @@ namespace Ship_Game.Gameplay
                 return;
 
             ArmorPiercing -= module.XSIZE;
-            var projectedModules = parent.RayHitTestModules(module.Center, VelocityDirection, distance:parent.Radius, rayRadius:Radius);
+            var projectedModules = parent.RayHitTestModules(module.Position, VelocityDirection, distance:parent.Radius, rayRadius:Radius);
 
             DebugTargetCircle();
             for (int i = 1; i < projectedModules.Count; i++) // I is 1 since we dealt with the first module above to save performance
@@ -865,7 +865,7 @@ namespace Ship_Game.Gameplay
             DroneAI = null;
         }
 
-        public override string ToString() => $"Proj[{WeaponType}] Wep={Weapon?.Name} Pos={Center} Rad={Radius} Loy=[{Loyalty}]";
+        public override string ToString() => $"Proj[{WeaponType}] Wep={Weapon?.Name} Pos={Position} Rad={Radius} Loy=[{Loyalty}]";
 
         public void CreateHitParticles(float damageAmount, Vector3 center)
         {
