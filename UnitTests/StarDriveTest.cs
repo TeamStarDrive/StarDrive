@@ -15,6 +15,7 @@ using Ship_Game.Data;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.NewGame;
 using Ship_Game.Ships;
+using UnitTests.Ships;
 using UnitTests.UI;
 
 namespace UnitTests
@@ -284,11 +285,14 @@ namespace UnitTests
             LoadStarterShips(options, "Vulcan Scout", "Rocket Scout", "Laserclaw");
         }
         
-        public Ship SpawnShip(string shipName, Empire empire, Vector2 position, Vector2 shipDirection = default)
+        public MockShip SpawnShip(string shipName, Empire empire, Vector2 position, Vector2 shipDirection = default)
         {
-            var target = Ship.CreateShipAtPoint(shipName, empire, position);
-            if (target == null)
+            if (!ResourceManager.GetShipTemplate(shipName, out Ship template))
                 throw new Exception($"Failed to create ship: {shipName} (did you call LoadStarterShips?)");
+
+            var target = new MockShip(template, empire, position);
+            if (!target.HasModules)
+                throw new Exception($"Failed to create ship modules: {shipName} (did you load modules?)");
 
             target.Rotation = shipDirection.Normalized().ToRadians();
             target.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
