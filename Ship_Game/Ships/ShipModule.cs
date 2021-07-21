@@ -956,15 +956,16 @@ namespace Ship_Game.Ships
 
             if (hangarTimer <= 0f && hangarShip == null) // launch the troopship
             {
-                hangarShip = Ship.CreateTroopShipAtPoint(Parent.loyalty.GetAssaultShuttleName(), Parent.loyalty, Center, troop);
+                ship = Ship.CreateTroopShipAtPoint(Parent.loyalty.GetAssaultShuttleName(), Parent.loyalty, Center, troop);
+                SetHangarShip(ship);
                 hangarShip.Mothership = Parent;
                 hangarShip.DoEscort(Parent);
                 hangarShip.Velocity = Parent.Velocity;
-                HangarShipGuid      = hangarShip.guid;
-                hangarTimer         = hangarTimerConstant;
-                ship                = hangarShip;
+                hangarTimer = hangarTimerConstant;
                 // transfer our troop onto the shuttle we just spawned
                 troop.LandOnShip(hangarShip);
+
+                Parent.OnShipLaunched(hangarShip);
                 return true;
             }
 
@@ -976,6 +977,7 @@ namespace Ship_Game.Ships
         {
             if (IsTroopBay || IsSupplyBay || !Powered)
                 return;
+
             var fighter = hangarShip;
             var carrier = Parent;
             if (fighter != null && fighter.Active)
@@ -1003,11 +1005,12 @@ namespace Ship_Game.Ships
                 }
 
                 hangarShip.DoEscort(Parent);
-                hangarShip.Velocity         = carrier.Velocity + UniverseRandom.RandomDirection() * hangarShip.SpeedLimit;
-                hangarShip.Mothership       = carrier;
-                HangarShipGuid        = hangarShip.guid;
-                hangarTimer           = hangarTimerConstant;
+                hangarShip.Velocity = carrier.Velocity + UniverseRandom.RandomDirection() * hangarShip.SpeedLimit;
+                hangarShip.Mothership = carrier;
+                hangarTimer = hangarTimerConstant;
+
                 carrier.ChangeOrdnance(-hangarShip.ShipOrdLaunchCost);
+                carrier.OnShipLaunched(hangarShip);
             }
         }
 
@@ -1061,8 +1064,7 @@ namespace Ship_Game.Ships
         public void SetHangarShip(Ship ship)
         {
             hangarShip = ship;
-            if (ship != null)
-                HangarShipGuid = ship.guid;  //fbedard: save mothership
+            HangarShipGuid = ship?.guid ?? Guid.Empty;
         }
 
         public void ResetHangarShip(Ship newShipToLink)
