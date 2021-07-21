@@ -57,8 +57,8 @@ namespace Ship_Game
 
         public AABoundingBox2D(GameplayObject go)
         {
-            float x = go.Center.X;
-            float y = go.Center.Y;
+            float x = go.Position.X;
+            float y = go.Position.Y;
             float rx, ry;
 
             // beam AABB's is a special case

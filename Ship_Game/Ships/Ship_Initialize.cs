@@ -372,8 +372,6 @@ namespace Ship_Game.Ships
         // Before this call, the ship doesn't have an AI instance
         public void InitializeShip(bool loadingFromSaveGame = false)
         {
-            Center = Position;
-
             if (VanityName.IsEmpty())
                 VanityName = Name;
 

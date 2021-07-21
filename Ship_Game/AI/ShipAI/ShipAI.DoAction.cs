@@ -230,7 +230,7 @@ namespace Ship_Game.AI
             Ship orbital = Ship.CreateShipAtPoint(g.Goal.ToBuildUID, Owner.loyalty, g.Goal.BuildPosition);
             if (orbital != null)
             {
-                orbital.Center = g.Goal.BuildPosition;
+                orbital.Position = g.Goal.BuildPosition;
                 orbital.TetherToPlanet(target);
                 target.OrbitalStations.Add(orbital);
                 Owner.QueueTotalRemoval();

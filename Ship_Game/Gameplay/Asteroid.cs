@@ -60,7 +60,6 @@ namespace Ship_Game.Gameplay
         {
             if (So != null)
             {
-                Center = Position; // TODO: why do we have Center and Position both...
                 RotationRadians += Spin * timeStep.FixedTime;
                 So.AffineTransform(new Vector3(Position, -500f), RotationRadians, Scale);
             }
