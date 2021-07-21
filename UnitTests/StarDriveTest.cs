@@ -388,5 +388,28 @@ namespace UnitTests
                     throw new TimeoutException("Timed out in LoopWhile");
             }
         }
+
+        /// <summary>
+        /// Update Universe.Objects for provided seconds
+        /// </summary>
+        public void RunObjectsSim(float totalSeconds)
+        {
+            // we run multiple iterations in order to allow the universe to properly simulate
+            for (float time = 0f; time < totalSeconds; time += TestSimStep.FixedTime)
+            {
+                Universe.Objects.Update(TestSimStep);
+                OnObjectSimStep();
+            }
+        }
+
+        public void RunObjectsSim(FixedSimTime totalTime)
+        {
+            RunObjectsSim(totalTime.FixedTime);
+        }
+
+        // Can override this function to do work between sim steps
+        protected virtual void OnObjectSimStep()
+        {
+        }
     }
 }

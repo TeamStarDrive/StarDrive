@@ -680,10 +680,6 @@ namespace Ship_Game.AI
             {
                 Orbit.Orbit(AwaitClosest, timeStep);
             }
-            else
-            {
-                Log.Warning($"Could not find planet to idle at for {Owner}");
-            }
         }
 
         void AwaitOrdersPlayer(FixedSimTime timeStep)
