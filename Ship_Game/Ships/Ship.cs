@@ -1471,8 +1471,10 @@ namespace Ship_Game.Ships
 
         void NotifyPlayerIfDiedExploring()
         {
-            if (AI.State == AIState.Explore && loyalty.isPlayer)
+            if (loyalty.isPlayer && AI.IsExploring)
+            {
                 Empire.Universe.NotificationManager.AddExplorerDestroyedNotification(this);
+            }
         }
 
         void ExplodeShip(float size, bool addWarpExplode)
