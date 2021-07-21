@@ -208,7 +208,7 @@ namespace Ship_Game.Ships
                                 || ModuleType == ShipModuleType.Drone
                                 || ModuleType == ShipModuleType.Bomb;
 
-        public Vector2 LocalCenter;// => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
+        public Vector2 LocalCenter;
         public int Area => XSIZE * YSIZE;
 
         public float ActualCost => Cost * CurrentGame.ProductionPace;
@@ -444,12 +444,10 @@ namespace Ship_Game.Ships
             // center of the top left 1x1 slot of this module
             //Vector2 topLeftCenter = pos - new Vector2(256f, 256f);
 
-            // top left position of this module
-            Position = new Vector2(pos.X - ModuleSlotOffset, pos.Y - ModuleSlotOffset);
-            LocalCenter = new Vector2(Position.X + XSIZE * 8f, Position.Y + YSIZE * 8f);
+            LocalCenter = new Vector2(pos.X - ModuleSlotOffset + XSIZE * 8f,
+                                      pos.Y - ModuleSlotOffset + YSIZE * 8f);
             // center of this module
-            Center.X = Position.X + XSIZE * 8f;
-            Center.Y = Position.Y + YSIZE * 8f;
+            Position = LocalCenter;
             CanVisualizeDamage = ShipModuleDamageVisualization.CanVisualize(this);
 
             SetAttributes();
@@ -457,7 +455,7 @@ namespace Ship_Game.Ships
             if (!isTemplate)
             {
                 if (shield_power_max > 0.0f)
-                    Shield = ShieldManager.AddShield(this, Rotation, Center);
+                    Shield = ShieldManager.AddShield(this, Rotation, Position);
             }
         }
 
@@ -520,8 +518,8 @@ namespace Ship_Game.Ships
             Vector2 offset = LocalCenter;
             float cx = parentX + offset.X * cos - offset.Y * sin;
             float cy = parentY + offset.X * sin + offset.Y * cos;
-            Center.X   = cx;
-            Center.Y   = cy;
+            Position.X = cx;
+            Position.Y = cy;
             Center3D.X = cx;
             Center3D.Y = cy;
             Center3D.Z = tan * (256f - XMLPosition.X);
@@ -1456,7 +1454,7 @@ namespace Ship_Game.Ships
 
         public override string ToString()
         {
-            return $"{UID}  {Id}  {XSIZE}x{YSIZE} {Restrictions} [{Position.X};{Position.Y}] hp={Health} world={Center} ship={Parent?.Name}";
+            return $"{UID}  {Id}  {XSIZE}x{YSIZE} {Restrictions} [{LocalCenter.X};{LocalCenter.Y}] hp={Health} world={Center} ship={Parent?.Name}";
         }
 
         public void Dispose()

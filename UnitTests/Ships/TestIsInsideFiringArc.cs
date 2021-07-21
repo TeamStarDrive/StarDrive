@@ -87,7 +87,7 @@ namespace UnitTests.Ships
 
         void CheckArc(string what, Ship ship, Weapon w, float facing, float fireArc, Vector2 point, bool expectedResult)
         {
-            w.Module.Center = w.Module.Position = Vector2.Zero;
+            w.Module.Position = Vector2.Zero;
             w.Module.FacingDegrees = facing;
             w.Module.FieldOfFire = fireArc.ToRadians();
             bool result = ship.IsInsideFiringArc(w, point);
@@ -126,7 +126,7 @@ namespace UnitTests.Ships
 
         void SetShipPosAndFacing(Ship ship, Vector2 center, float rotation)
         {
-            ship.Center = ship.Position = center;
+            ship.Position = center;
             ship.RotationDegrees = rotation;
         }
 

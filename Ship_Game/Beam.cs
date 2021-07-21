@@ -273,8 +273,8 @@ namespace Ship_Game
             int y2 = (int)Math.Max(source.Y, target.Y);
 
             // These are used by Spatial management
-            Center = new Vector2((x1 + x2) >> 1,
-                                 (y1 + y2) >> 1);
+            Position = new Vector2((x1 + x2) >> 1,
+                                   (y1 + y2) >> 1);
             RadiusX = (x2 - x1) >> 1;
             RadiusY = (y2 - y1) >> 1;
         }

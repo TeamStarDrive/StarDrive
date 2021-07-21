@@ -197,7 +197,6 @@ namespace Ship_Game.Gameplay
         {
             ++DebugInfoScreen.ProjCreated;
             Position = origin;
-            Center   = origin;
             Emitter.Position = new Vector3(origin, 0f);
 
             Range                 = Weapon.BaseRange;
@@ -449,8 +448,7 @@ namespace Ship_Game.Gameplay
         {
             if (!Active)
                 return;
-            Center += Velocity * timeStep.FixedTime;
-            Position = Center;
+            Position += Velocity * timeStep.FixedTime;
             Duration -= timeStep.FixedTime;
             if (Duration < 0f)
             {
@@ -473,7 +471,6 @@ namespace Ship_Game.Gameplay
                 return;
             }
             
-            Position += Velocity * timeStep.FixedTime;
             if (Weapon.Animated == 1 && InFrustum)
             {
                 Animation.Update(timeStep.FixedTime);
@@ -497,12 +494,13 @@ namespace Ship_Game.Gameplay
             DroneAI?.Think(timeStep);
             if (FirstRun && Module != null)
             {
-                Position = Module.Center;
-                Center = Module.Center;
+                Position = Module.Position;
                 FirstRun = false;
             }
-            else Center = Position;
-            Emitter.Position = new Vector3(Center, 0.0f);
+
+            Position += Velocity * timeStep.FixedTime;
+            Emitter.Position = new Vector3(Position, 0.0f);
+
             if (InFrustum)
             {
                 if (ZStart < -25.0)
