@@ -64,8 +64,9 @@ namespace Ship_Game.Ships
         public bool IsSupplyShip;
         public bool IsReadonlyDesign;
         public bool isColonyShip;
-        public bool IsMeteor;
         public bool HasRegeneratingModules;
+        public bool IsMeteor { get; private set; }
+
         Planet TetheredTo;
         public Vector2 TetherOffset;
         public Guid TetherGuid;
