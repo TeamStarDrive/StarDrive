@@ -1634,6 +1634,7 @@ namespace Ship_Game
                 LoadPlanetTypes();
                 LoadSunZoneData();
                 LoadBuildRatios();
+                LoadExpEvents();
             }
             if (loadTechs)
             {

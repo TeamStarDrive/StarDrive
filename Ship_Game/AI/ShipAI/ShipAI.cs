@@ -837,5 +837,8 @@ namespace Ship_Game.AI
             else
                 AwaitOrdersPlayer(timeStep);
         }
+
+        // For Unit tests
+        public Planet TestGetPatrolTarget() => PatrolTarget;
     }
 }
