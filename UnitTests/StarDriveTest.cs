@@ -285,12 +285,12 @@ namespace UnitTests
             LoadStarterShips(options, "Vulcan Scout", "Rocket Scout", "Laserclaw");
         }
         
-        public MockShip SpawnShip(string shipName, Empire empire, Vector2 position, Vector2 shipDirection = default)
+        public TestShip SpawnShip(string shipName, Empire empire, Vector2 position, Vector2 shipDirection = default)
         {
             if (!ResourceManager.GetShipTemplate(shipName, out Ship template))
                 throw new Exception($"Failed to create ship: {shipName} (did you call LoadStarterShips?)");
 
-            var target = new MockShip(template, empire, position);
+            var target = new TestShip(template, empire, position);
             if (!target.HasModules)
                 throw new Exception($"Failed to create ship modules: {shipName} (did you load modules?)");
 
