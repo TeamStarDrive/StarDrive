@@ -1519,7 +1519,7 @@ namespace Ship_Game.Ships
 
             reallyDie = cleanupOnly || WillShipDieNow(pSource);
             if (dying && !reallyDie)
-                return;
+                return; // planet crash or tumble
 
             if (pSource?.Owner != null)
             {
@@ -1598,21 +1598,29 @@ namespace Ship_Game.Ships
             if (proj != null && proj.Explodes && proj.DamageAmount > (SurfaceArea/2f).LowerBound(200))
                 return true;
 
-            if (InFrustum && !dying && RandomMath.RollDice(35))
+            if (RandomMath.RollDice(35))
             {
                 // 35% the ship will not explode immediately, but will start tumbling out of control
                 // we mark the ship as dying and the main update loop will set reallyDie
                 if (PlanetCrash.GetPlanetToCrashOn(this, out Planet planet))
                 {
+                    dying = true;
                     PlanetCrash = new PlanetCrash(planet, this, Stats.Thrust);
                 }
 
-                dying = true;
-                dietimer = UniverseRandom.IntBetween(4, 8);
-                DieRotation.X = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
-                DieRotation.Y = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
-                DieRotation.Z = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
-                return false;
+                if (InFrustum)
+                {
+                    dying = true;
+                    dietimer = UniverseRandom.IntBetween(4, 8);
+                }
+
+                if (dying)
+                {
+                    DieRotation.X = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
+                    DieRotation.Y = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
+                    DieRotation.Z = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
+                    return false; // ship will really die later
+                }
             }
 
             return true;
