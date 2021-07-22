@@ -32,7 +32,6 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
         [XmlIgnore][JsonIgnore] public SolarSystem SystemBackBuffer { get; private set; }
 
-        // TODO: Position and Center are duplicates. One of them should be removed eventually.
         [Serialize(0)] public Vector2 Position;
         [Serialize(1)] public Vector2 Velocity;
 
