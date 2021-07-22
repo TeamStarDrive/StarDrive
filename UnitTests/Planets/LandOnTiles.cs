@@ -13,7 +13,6 @@ namespace UnitTests.Planets
 
         public TestLandOnTile()
         {
-            CreateGameInstance();
             LoadPlanetContent();
             ResourceManager.LoadProjectileMeshes();
             CreateUniverseAndPlayerEmpire();

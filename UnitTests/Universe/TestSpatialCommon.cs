@@ -21,7 +21,6 @@ namespace UnitTests.Universe
         protected TestSpatialCommon()
         {
             EnableMockInput(false);
-            CreateGameInstance(800, 800);
 
             LoadStarterShipVulcan();
             CreateUniverseAndPlayerEmpire();

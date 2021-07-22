@@ -32,27 +32,7 @@ namespace UnitTests
         [AssemblyInitialize]
         public static void InitializeStarDriveTests(TestContext context)
         {
-            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
-            
-            Directory.SetCurrentDirectory("../../../stardrive");
-            StarDriveAbsolutePath = Directory.GetCurrentDirectory();
-            ResourceManager.InitContentDir();
-            try
-            {
-                var xna2 = Assembly.LoadFile(
-                    $"{StarDriveAbsolutePath}\\Microsoft.Xna.Framework.dll");
-                Console.WriteLine($"XNA Path: {xna2.Location}");
-            }
-            catch (FileNotFoundException e)
-            {
-                Console.WriteLine($"XNA Load Failed: {e.Message}\n{e.FileName}\n{e.FusionLog}");
-                throw;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"XNA Load Failed: {e.Message}\n");
-                throw;
-            }
+            ConfigureAssembly();
 
             var sw = Stopwatch.StartNew();
 
@@ -64,7 +44,6 @@ namespace UnitTests
             GlobalStats.DrawStarfield = false;
             GlobalStats.DrawNebulas = false;
 
-            
             // @note: This is slow! It can take 500-1000ms
             //        Which is why we only do it ONCE
             Game = new TestGameDummy(new AutoResetEvent(false), 800, 800, show:false);
@@ -88,11 +67,6 @@ namespace UnitTests
             Log.Close();
         }
 
-        static void CurrentDomain_ProcessExit(object sender, EventArgs e)
-        {
-            Cleanup();
-        }
-
         public static void EnableMockInput(bool enabled)
         {
             if (enabled)
@@ -100,5 +74,31 @@ namespace UnitTests
             else
                 Game.Manager.input.Provider = new DefaultInputProvider();
         }
+
+        static void ConfigureAssembly()
+        {
+            AppDomain.CurrentDomain.ProcessExit += (sender, e) => Cleanup();
+            
+            Directory.SetCurrentDirectory("../../../stardrive");
+            StarDriveAbsolutePath = Directory.GetCurrentDirectory();
+            ResourceManager.InitContentDir();
+            try
+            {
+                var xna2 = Assembly.LoadFile(
+                    $"{StarDriveAbsolutePath}\\Microsoft.Xna.Framework.dll");
+                Console.WriteLine($"XNA Path: {xna2.Location}");
+            }
+            catch (FileNotFoundException e)
+            {
+                Console.WriteLine($"XNA Load Failed: {e.Message}\n{e.FileName}\n{e.FusionLog}");
+                throw;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"XNA Load Failed: {e.Message}\n");
+                throw;
+            }
+        }
+
     }
 }

@@ -14,7 +14,6 @@ namespace UnitTests.Ships
     {
         public TestShipRanges()
         {
-            CreateGameInstance();
             // Excalibur class has all the bells and whistles
             LoadStarterShips("Excalibur-Class Supercarrier", "Supply Shuttle");
             CreateUniverseAndPlayerEmpire();

@@ -14,7 +14,6 @@ namespace UnitTests.AITests.Empire
 
         void UsePlanetAndShipContent()
         {
-            CreateGameInstance();
             LoadGameContent(ResourceManager.TestOptions.LoadPlanets | ResourceManager.TestOptions.AllStarterShips);
             LoadStarterShips(ResourceManager.TestOptions.None, "Colony Ship");
             CreateUniverseAndPlayerEmpire("Cordrazine");
@@ -23,7 +22,6 @@ namespace UnitTests.AITests.Empire
 
         void UsePlanetContent(int extraPlanets)
         {
-            CreateGameInstance();
             LoadGameContent(ResourceManager.TestOptions.LoadPlanets);
             CreateUniverseAndPlayerEmpire("Cordrazine");
             CreatePlanets(extraPlanets);

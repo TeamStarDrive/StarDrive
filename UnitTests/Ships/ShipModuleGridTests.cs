@@ -14,7 +14,6 @@ namespace UnitTests.Ships
     {
         public ShipModuleGridTests()
         {
-            CreateGameInstance();
             LoadStarterShips(starterShips:new[]{ "Vulcan Scout" }, 
                              savedDesigns:new[]{ "Prototype Frigate" });
             CreateUniverseAndPlayerEmpire();

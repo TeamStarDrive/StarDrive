@@ -20,7 +20,6 @@ namespace UnitTests.AITests.Empire
 
         public ShipPoolTests()
         {
-            CreateGameInstance();
             LoadStarterShips(starterShips:new[]{ "Vulcan Scout", "Excalibur-Class Supercarrier",
                                                  "Colony Ship", "Small Transport", "Medium Freighter" },
                              savedDesigns:new[]{ "Prototype Frigate" },
