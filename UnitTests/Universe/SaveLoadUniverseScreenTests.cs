@@ -20,7 +20,6 @@ namespace UnitTests.Universe
     {
         public SaveLoadUniverseScreenTests()
         {
-            LoadGameContent(ResourceManager.TestOptions.LoadEverything);
             Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder);
             Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder+"Headers/");
             Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder+"Fog Maps/");

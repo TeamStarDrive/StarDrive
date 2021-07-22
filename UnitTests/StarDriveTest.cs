@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
@@ -25,10 +18,12 @@ namespace UnitTests
     /// </summary>
     public class StarDriveTest : IDisposable
     {
+        // Game and Content is shared between all StarDriveTests
         public static TestGameDummy Game => StarDriveTestContext.Game;
         public static GameContentManager Content => StarDriveTestContext.Content;
         public static MockInputProvider MockInput => StarDriveTestContext.MockInput;
 
+        // Universe and Player/Enemy empires are specific for each test instance
         public UniverseScreen Universe { get; private set; }
         public Empire Player { get; private set; }
         public Empire Enemy { get; private set; }
@@ -69,6 +64,7 @@ namespace UnitTests
             RequireGameInstance(nameof(CreateUniverseAndPlayerEmpire));
             RequireStarterContentLoaded(nameof(CreateUniverseAndPlayerEmpire));
 
+            var sw = new Stopwatch();
             var data = new UniverseData();
             IEmpireData playerData = ResourceManager.MajorRaces[0];
             IEmpireData enemyData = ResourceManager.MajorRaces[1];
@@ -88,6 +84,23 @@ namespace UnitTests
             Player.SetRelationsAsKnown(Enemy);
             Player.GetEmpireAI().DeclareWarOn(Enemy, WarType.BorderConflict);
             Empire.UpdateBilateralRelations(Player, Enemy);
+            
+            Log.Info($"CreateUniverseAndPlayerEmpire elapsed: {sw.Elapsed.TotalMilliseconds}ms");
+        }
+        
+        public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)
+        {
+            var data = DeveloperUniverse.Create(playerPreference, numOpponents);
+            Empire.Universe = Universe = new DeveloperUniverse(data, data.EmpireList.First, paused);
+            Player = EmpireManager.Player;
+            Enemy  = EmpireManager.NonPlayerEmpires[0];
+        }
+
+        public void DestroyUniverse()
+        {
+            Empire.Universe?.ExitScreen();
+            Empire.Universe?.Dispose();
+            Empire.Universe = Universe = null;
         }
 
         public void CreateThirdMajorEmpire()
@@ -157,58 +170,22 @@ namespace UnitTests
             }
         }
 
-        public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)
+        /// <summary>
+        /// Since some Unit Tests have side-effects to global ships list
+        /// This can be used to reset starter ships
+        /// </summary>
+        public static void ReloadStarterShips()
         {
-            var data = DeveloperUniverse.Create(playerPreference, numOpponents);
-            SetUniverse(new DeveloperUniverse(data, data.EmpireList.First, paused));
+            StarDriveTestContext.ReloadStarterShips();
         }
 
-        public void SetUniverse(UniverseScreen us)
-        {
-            Empire.Universe = Universe = us;
-            Player = EmpireManager.Player;
-            Enemy  = EmpireManager.NonPlayerEmpires[0];
-        }
-
-        public void DestroyUniverse()
-        {
-            Empire.Universe?.ExitScreen();
-            Empire.Universe?.Dispose();
-            Empire.Universe = Universe = null;
-        }
-
-        public static void LoadGameContent(ResourceManager.TestOptions options = ResourceManager.TestOptions.None)
-        {
-            RequireGameInstance(nameof(LoadGameContent));
-            ResourceManager.LoadContentForTesting(options);
-        }
-
+        // Loads additional ships into ResourceManager
+        // If the ship is already loaded this will be a No-Op
         public static void LoadStarterShips(params string[] shipList)
         {
-            LoadStarterShips(ResourceManager.TestOptions.None, shipList);
+            ResourceManager.LoadStarterShipsForTesting(shipList, null);
         }
 
-        public static void LoadStarterShips(ResourceManager.TestOptions options, params string[] shipList)
-        {
-            RequireGameInstance(nameof(LoadStarterShips));
-            if (shipList == null)
-                throw new NullReferenceException(nameof(shipList));
-            ResourceManager.LoadStarterShipsForTesting(shipsList:shipList.Length == 0 ? null : shipList,
-                                                       savedDesigns:null, options);
-        }
-
-        public void LoadStarterShips(string[] starterShips, string[] savedDesigns,
-                                     ResourceManager.TestOptions options = ResourceManager.TestOptions.None)
-        {
-            RequireGameInstance(nameof(LoadStarterShips));
-            ResourceManager.LoadStarterShipsForTesting(starterShips, savedDesigns, options);
-        }
-
-        public static void LoadStarterShipVulcan(ResourceManager.TestOptions options = ResourceManager.TestOptions.None)
-        {
-            LoadStarterShips(options, "Vulcan Scout", "Rocket Scout", "Laserclaw");
-        }
-        
         public TestShip SpawnShip(string shipName, Empire empire, Vector2 position, Vector2 shipDirection = default)
         {
             if (!ResourceManager.GetShipTemplate(shipName, out Ship template))
@@ -224,18 +201,6 @@ namespace UnitTests
             target.SetSystem(null);
             Assert.IsTrue(target.Active, "Spawned ship is Inactive! This is a bug in Status update!");
             return target;
-        }
-
-        public void LoadPlanetContent()
-        {
-            RequireGameInstance(nameof(LoadPlanetContent));
-            ResourceManager.LoadPlanetContentForTesting();
-        }
-
-        public void LoadTechContent()
-        {
-            RequireGameInstance(nameof(LoadPlanetContent));
-            ResourceManager.LoadTechContentForTesting();
         }
 
         static SolarSystem AddDummyPlanet(out Planet p)

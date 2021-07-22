@@ -14,15 +14,12 @@ namespace UnitTests.AITests.Empire
 
         void UsePlanetAndShipContent()
         {
-            LoadGameContent(ResourceManager.TestOptions.LoadPlanets | ResourceManager.TestOptions.AllStarterShips);
-            LoadStarterShips(ResourceManager.TestOptions.None, "Colony Ship");
             CreateUniverseAndPlayerEmpire("Cordrazine");
             CreatePlanets();
         }
 
         void UsePlanetContent(int extraPlanets)
         {
-            LoadGameContent(ResourceManager.TestOptions.LoadPlanets);
             CreateUniverseAndPlayerEmpire("Cordrazine");
             CreatePlanets(extraPlanets);
         }

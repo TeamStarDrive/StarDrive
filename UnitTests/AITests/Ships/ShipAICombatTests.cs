@@ -22,8 +22,6 @@ namespace UnitTests.AITests.Ships
 
         public ShipAICombatTests()
         {
-            LoadStarterShips(ResourceManager.TestOptions.LoadPlanets,
-                             "Vulcan Scout", "Rocket Scout", "Colony Ship");
             CreateUniverseAndPlayerEmpire();
 
             OurShip = SpawnShip("Vulcan Scout", Player, new Vector2(0, 0));

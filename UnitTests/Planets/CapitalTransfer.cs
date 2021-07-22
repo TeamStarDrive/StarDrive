@@ -16,9 +16,6 @@ namespace UnitTests.Planets
 
         public CapitalTransfer()
         {
-            LoadPlanetContent();
-            ResourceManager.LoadProjectileMeshes();
-            LoadStarterShips("Colony Ship");
             CreateUniverseAndPlayerEmpire();
             Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
             AddDummyPlanet(2, 1, 3, out NewPlanet);

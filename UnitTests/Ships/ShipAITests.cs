@@ -16,7 +16,6 @@ namespace UnitTests.Ships
             CreateUniverseAndPlayerEmpire();
         }
 
-
         [TestMethod]
         public void IsTargetValidTest()
         {
