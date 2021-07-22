@@ -13,6 +13,11 @@ namespace Ship_Game
         readonly SpatialManager Spatial;
 
         /// <summary>
+        /// Should be TRUE by default. Can be used to detect threading issues.
+        /// </summary>
+        static bool EnableParallelUpdate = true;
+
+        /// <summary>
         /// All objects: ships, projectiles, beams
         /// </summary>
         public readonly Array<GameplayObject> Objects = new Array<GameplayObject>();
@@ -447,7 +452,11 @@ namespace Ship_Game
                             ship.KnownByEmpires.SetSeenByPlayer();
                     }
                 }
-                Parallel.For(Ships.Count, UpdateShips, Universe.MaxTaskCores);
+
+                if (EnableParallelUpdate)
+                    Parallel.For(Ships.Count, UpdateShips, Universe.MaxTaskCores);
+                else
+                    UpdateShips(0, Ships.Count);
             }
 
             ShipsPerf.Stop();
@@ -470,7 +479,11 @@ namespace Ship_Game
                             proj.Update(timeStep);
                         }
                     }
-                    Parallel.For(Projectiles.Count, UpdateProjectiles, Universe.MaxTaskCores);
+
+                    if (EnableParallelUpdate)
+                        Parallel.For(Projectiles.Count, UpdateProjectiles, Universe.MaxTaskCores);
+                    else
+                        UpdateProjectiles(0, Projectiles.Count);
                 }
             }
 
@@ -498,8 +511,11 @@ namespace Ship_Game
                             ship.UpdateSensorsAndInfluence(timeStep);
                     }
                 }
-                //UpdateSensors(0, Ships.Count);
-                Parallel.For(Ships.Count, UpdateSensors, Universe.MaxTaskCores);
+
+                if (EnableParallelUpdate)
+                    Parallel.For(Ships.Count, UpdateSensors, Universe.MaxTaskCores);
+                else
+                    UpdateSensors(0, Ships.Count);
             }
 
             ScansAcc += Scans;
@@ -525,8 +541,11 @@ namespace Ship_Game
                             ship.AI.Update(timeStep);
                     }
                 }
-                //UpdateAI(0, Ships.Count);
-                Parallel.For(Ships.Count, UpdateAI, Universe.MaxTaskCores);
+
+                if (EnableParallelUpdate)
+                    Parallel.For(Ships.Count, UpdateAI, Universe.MaxTaskCores);
+                else
+                    UpdateAI(0, Ships.Count);
             }
         }
 
