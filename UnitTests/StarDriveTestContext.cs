@@ -81,7 +81,7 @@ namespace UnitTests
             string[] starterShips = { "Vulcan Scout", "Rocket Scout", 
                                       "Colony Ship", "Small Transport", "Supply Shuttle" };
             string[] savedDesigns = { "Prototype Frigate" };
-            ResourceManager.LoadStarterShipsForTesting(starterShips, savedDesigns);
+            ResourceManager.LoadStarterShipsForTesting(starterShips, savedDesigns, clearAll: true);
         }
 
         public static void Cleanup()
