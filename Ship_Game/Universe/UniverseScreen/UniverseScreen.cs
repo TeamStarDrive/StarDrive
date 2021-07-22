@@ -45,10 +45,14 @@ namespace Ship_Game
         public float LastAutosaveTime = 0;
         public Array<ClickablePlanets> ClickPlanetList = new Array<ClickablePlanets>();
         public BatchRemovalCollection<ClickableItemUnderConstruction> ItemsToBuild = new BatchRemovalCollection<ClickableItemUnderConstruction>();
-        Array<ClickableSystem> ClickableSystems    = new Array<ClickableSystem>();
-        public BatchRemovalCollection<Ship> SelectedShipList = new BatchRemovalCollection<Ship>();
-        Array<ClickableShip> ClickableShipsList    = new Array<ClickableShip>();
+        
+        public Array<Ship> SelectedShipList = new Array<Ship>();
+        
+        Array<ClickableSystem> ClickableSystems = new Array<ClickableSystem>();
+        Array<ClickableShip> ClickableShipsList = new Array<ClickableShip>();
+        
         Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
+        
         public Background bg;
         public float UniverseSize       = 5000000f; // universe width and height in world units
         public float FTLModifier        = 1f;
@@ -758,8 +762,8 @@ namespace Ship_Game
             ItemsToBuild       ?.Dispose(ref ItemsToBuild);
             anomalyManager     ?.Dispose(ref anomalyManager);
             BombList           ?.Dispose(ref BombList);
-            SelectedShipList   ?.Dispose(ref SelectedShipList);
             NotificationManager?.Dispose(ref NotificationManager);
+            SelectedShipList = new Array<Ship>();
 
             base.Destroy();
         }
