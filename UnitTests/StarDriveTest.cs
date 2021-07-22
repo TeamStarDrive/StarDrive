@@ -15,6 +15,7 @@ using Ship_Game.Data;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.NewGame;
 using Ship_Game.Ships;
+using UnitTests.Ships;
 using UnitTests.UI;
 
 namespace UnitTests
@@ -284,11 +285,14 @@ namespace UnitTests
             LoadStarterShips(options, "Vulcan Scout", "Rocket Scout", "Laserclaw");
         }
         
-        public Ship SpawnShip(string shipName, Empire empire, Vector2 position, Vector2 shipDirection = default)
+        public TestShip SpawnShip(string shipName, Empire empire, Vector2 position, Vector2 shipDirection = default)
         {
-            var target = Ship.CreateShipAtPoint(shipName, empire, position);
-            if (target == null)
+            if (!ResourceManager.GetShipTemplate(shipName, out Ship template))
                 throw new Exception($"Failed to create ship: {shipName} (did you call LoadStarterShips?)");
+
+            var target = new TestShip(template, empire, position);
+            if (!target.HasModules)
+                throw new Exception($"Failed to create ship modules: {shipName} (did you load modules?)");
 
             target.Rotation = shipDirection.Normalized().ToRadians();
             target.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
@@ -387,6 +391,29 @@ namespace UnitTests
                 if (sw.Elapsed.TotalSeconds > timeout)
                     throw new TimeoutException("Timed out in LoopWhile");
             }
+        }
+
+        /// <summary>
+        /// Update Universe.Objects for provided seconds
+        /// </summary>
+        public void RunObjectsSim(float totalSeconds)
+        {
+            // we run multiple iterations in order to allow the universe to properly simulate
+            for (float time = 0f; time < totalSeconds; time += TestSimStep.FixedTime)
+            {
+                Universe.Objects.Update(TestSimStep);
+                OnObjectSimStep();
+            }
+        }
+
+        public void RunObjectsSim(FixedSimTime totalTime)
+        {
+            RunObjectsSim(totalTime.FixedTime);
+        }
+
+        // Can override this function to do work between sim steps
+        protected virtual void OnObjectSimStep()
+        {
         }
     }
 }
