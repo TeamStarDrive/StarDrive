@@ -96,7 +96,13 @@ namespace Ship_Game
                 int scienceBonus = (int)(Outcome.ScienceBonus * 100f);
                 textBox.AddLine($"Research Bonus Granted: {scienceBonus}%", Fonts.Arial12Bold, Color.Blue);
             }
-            
+
+            if (Outcome.IndustryBonus > 0f)
+            {
+                int industryBonus = (int)(Outcome.IndustryBonus * 100f);
+                textBox.AddLine($"Research Bonus Granted: {industryBonus}%", Fonts.Arial12Bold, Color.SandyBrown);
+            }
+
             if (Outcome.UnlockTech != null)
             {
                 AddUnlockedTechToTextBox(textBox, Outcome.UnlockTech);
