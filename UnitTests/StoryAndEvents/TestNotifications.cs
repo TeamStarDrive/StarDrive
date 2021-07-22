@@ -12,7 +12,6 @@ namespace UnitTests.NotificationTests
 
         public TestNotifications()
         {
-            CreateGameInstance();
             LoadPlanetContent();
             CreateUniverseAndPlayerEmpire();
             AddDummyPlanetToEmpire(Player);

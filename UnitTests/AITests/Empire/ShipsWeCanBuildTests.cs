@@ -15,7 +15,6 @@ namespace UnitTests.AITests.Empire
     {
         public ShipsWeCanBuildTests()
         {
-            CreateGameInstance();
             ResourceManager.TestOptions testOptions = ResourceManager.TestOptions.LoadPlanets;
             testOptions |= ResourceManager.TestOptions.TechContent;
             LoadStarterShips(testOptions,

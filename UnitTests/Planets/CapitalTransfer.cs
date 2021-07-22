@@ -16,7 +16,6 @@ namespace UnitTests.Planets
 
         public CapitalTransfer()
         {
-            CreateGameInstance();
             LoadPlanetContent();
             ResourceManager.LoadProjectileMeshes();
             LoadStarterShips("Colony Ship");

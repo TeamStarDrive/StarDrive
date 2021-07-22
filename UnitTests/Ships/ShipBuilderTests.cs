@@ -12,7 +12,6 @@ namespace UnitTests.Ships
 
         public ShipBuilderTests()
         {
-            CreateGameInstance();
             LoadStarterShips(DefaultDroneName);
             CreateUniverseAndPlayerEmpire();
         }

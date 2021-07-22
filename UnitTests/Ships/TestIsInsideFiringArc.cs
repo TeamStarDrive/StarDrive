@@ -15,7 +15,6 @@ namespace UnitTests.Ships
 
         public TestIsInsideFiringArcs()
         {
-            CreateGameInstance();
             LoadStarterShips("Flak Fang");
             CreateUniverseAndPlayerEmpire();
         }
