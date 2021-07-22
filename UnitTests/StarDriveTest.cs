@@ -49,6 +49,12 @@ namespace UnitTests
                 Console.WriteLine($"XNA Load Failed: {e.Message}\n");
                 throw;
             }
+
+            try
+            {
+                Thread.CurrentThread.Name = "StarDriveTest";
+            }
+            catch {}
         }
 
         static void CurrentDomain_ProcessExit(object sender, EventArgs e)

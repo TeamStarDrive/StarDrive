@@ -11,7 +11,6 @@ using Ship_Game.Ships;
 
 namespace UnitTests.Ships
 {
-    [Ignore]
     [TestClass]
     public class CarrierTests : StarDriveTest
     {
@@ -30,20 +29,24 @@ namespace UnitTests.Ships
             Universe.Objects.Update(TestSimStep);
         }
 
-        protected override void OnObjectSimStep()
-        {
-            var fighters = Carrier.Carrier.GetActiveFighters();
-            Log.Write($"Carrier fighters={fighters.Count} pos=[{Carrier.Position.X:0.};{Carrier.Position.Y:0.]}");
-            foreach (Ship fighter in fighters)
-            {
-                if (fighter.AI.State == AIState.ReturnToHangar)
-                    Log.Write($"  ReturnToHangar dist={Carrier.Position.Distance(fighter.Position):0.} pos=[{fighter.Position.X:0.};{fighter.Position.Y:0.}]");
-            }
-        }
+        //protected override void OnObjectSimStep()
+        //{
+        //    var fighters = Carrier.Carrier.GetActiveFighters();
+        //    int recalling = fighters.Count(f => f.AI.State == AIState.ReturnToHangar);
+        //    Log.Write($"Carrier activeF={fighters.Count} recallF={recalling} pos=[{Carrier.Position.X:0.};{Carrier.Position.Y:0.]}");
+        //    foreach (Ship fighter in fighters)
+        //    {
+        //        if (fighter.AI.State == AIState.ReturnToHangar)
+        //            Log.Write($"  ReturnToHangar dist={Carrier.Position.Distance(fighter.Position):0.} pos=[{fighter.Position.X:0.};{fighter.Position.Y:0.}]");
+        //        else if (fighter.AI.State == AIState.Combat)
+        //            Log.Write($"  Combat dist={Carrier.Position.Distance(fighter.Position):0.} pos=[{fighter.Position.X:0.};{fighter.Position.Y:0.}]");
+        //    }
+        //}
 
         void SpawnEnemyShip()
         {
-            Hostile = SpawnShip("Ving Defender", Enemy, new Vector2(1000));
+            Hostile = SpawnShip("Ving Defender", Enemy, new Vector2(5000));
+            Hostile.AI.HoldPosition();
             RunObjectsSim(ScanInterval);
         }
         
@@ -141,13 +144,15 @@ namespace UnitTests.Ships
             SpawnEnemyShipAndEnsureFightersLaunch();
             
             // move ship really far
-            Carrier.Position = new Vector2(Carrier.SensorRange + 25000);
+            Carrier.Position = new Vector2(Carrier.SensorRange + 35000);
 
             // start warping even farther
-            Carrier.AI.OrderMoveTo(Carrier.Position + new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
+            Carrier.AI.OrderMoveTo(Carrier.Position + new Vector2(15000),
+                                   Vectors.Up, true, AIState.AwaitingOrders);
 
-            // fighters should recall
-            RunObjectsSim(TestSimStep);
+            // fighters should recall because Carrier is really far
+            // this must override combat state
+            RunObjectsSim(ScanInterval);
             AssertFighters(active: MaxFighters, recalling: MaxFighters, "Fighters should be recalling when far away");
         }
 
@@ -161,8 +166,8 @@ namespace UnitTests.Ships
 
             // start warping away
             Carrier.AI.OrderMoveToNoStop(Carrier.Position + new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
-            RunObjectsSim(ScanInterval);
             
+            RunObjectsSim(ScanInterval);
             AssertFighters(active: MaxFighters, recalling: MaxFighters, "Fighters should be recalling during no stop move");
         }
 
