@@ -729,17 +729,22 @@ namespace Ship_Game.Ships
 
         public void RecallAfterCombat()
         {
+            if (Owner == null)
+                return; // not a carrier
+
+            bool isAI = !Owner.loyalty.isPlayer;
             for (int i = 0; i < AllFighterHangars.Length; i++)
             {
                 ShipModule hangar = AllFighterHangars[i];
                 if (hangar.TryGetHangarShip(out Ship hangarShip) && hangarShip.Active && hangarShip.AI.State != AIState.ReturnToHangar)
                 {
-                    if (!Owner.loyalty.isPlayer || !(hangarShip.AI.HasPriorityTarget || hangarShip.AI.HasPriorityOrder))
+                    bool hasPriorityOrderOrTarget = hangarShip.AI.HasPriorityTarget || hangarShip.AI.HasPriorityOrder;
+                    if (isAI || !hasPriorityOrderOrTarget)
                     {
                         if (FightersLaunched)
                             hangarShip.DoEscort(Owner);
                         else
-                            hangarShip.AI.OrderReturnToHangar();
+                            hangarShip.AI.OrderReturnToHangarDeferred();
                     }
                 }
             }
