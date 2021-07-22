@@ -11,6 +11,7 @@ using Ship_Game.Ships;
 
 namespace UnitTests.Ships
 {
+    [Ignore]
     [TestClass]
     public class CarrierTests : StarDriveTest
     {
