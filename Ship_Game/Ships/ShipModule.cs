@@ -1402,11 +1402,20 @@ namespace Ship_Game.Ships
             }
             return new Point(XSIZE, YSIZE);
         }
-        
+
         // Gets the size of this Module, correctly oriented
+        // Required by ModuleGrid
         public Point GetSize()
         {
             return new Point(XSIZE, YSIZE);
+        }
+        
+        // Gets the Grid position of this module
+        // Required by ModuleGrid
+        public Vector2 GetLegacyGridPos()
+        {
+            return new Vector2(XMLPosition.X - ModuleSlotOffset,
+                               XMLPosition.Y - ModuleSlotOffset);
         }
 
         // For specific cases were non squared icons requires a different texture when oriented,

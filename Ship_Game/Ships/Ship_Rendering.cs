@@ -216,7 +216,7 @@ namespace Ship_Game.Ships
                         }
 
                         // draw the debug x/y pos
-                        ModulePosToGridPoint(slot.Position, out int x, out int y);
+                        ModulePosToGridPoint(slot.GetLegacyGridPos(), out int x, out int y);
                         sc.DrawString(posOnScreen, shipRotation, 600f / camHeight, Color.Red, $"X{x} Y{y}\nF{slotFacing}");
                     }
                 }
