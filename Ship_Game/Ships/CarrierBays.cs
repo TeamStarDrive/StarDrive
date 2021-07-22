@@ -38,6 +38,7 @@ namespace Ship_Game.Ships
                                             || Owner.DesignRoleType == ShipData.RoleType.Orbital);
 
         AssaultShipCombat TroopTactics;
+
         public const int RecallMoveDistance = 25000;
         
         public Array<Ship> GetActiveFighters()
@@ -232,9 +233,9 @@ namespace Ship_Game.Ships
             if (Owner == null || Owner.IsSpoolingOrInWarp || RecallingShipsBeforeWarp)
                 return;
 
-            PrepShipHangars(Owner.loyalty);
-            for (int i = 0; i < AllActiveHangars.Length; ++i)
-                AllActiveHangars[i].ScrambleFighters();
+            ShipModule[] readyHangars = PrepShipHangars(Owner.loyalty);
+            for (int i = 0; i < readyHangars.Length; ++i)
+                readyHangars[i].ScrambleFighters();
         }
 
         public void RecoverFighters()
@@ -243,7 +244,7 @@ namespace Ship_Game.Ships
             {
                 if (hangar.TryGetHangarShipActive(out Ship hangarShip) && hangarShip.AI.State != AIState.ReturnToHangar)
                 {
-                    hangarShip.AI.OrderReturnToHangar();
+                    hangarShip.AI.OrderReturnToHangarDeferred();
                 }
             }
         }
@@ -319,7 +320,7 @@ namespace Ship_Game.Ships
             foreach (ShipModule hangar in AllTroopBays)
             {
                 if (hangar.TryGetHangarShipActive(out Ship hangarShip) && hangarShip.AI.State != AIState.ReturnToHangar)
-                    hangarShip.AI.OrderReturnToHangar();
+                    hangarShip.AI.OrderReturnToHangarDeferred();
             }
         }
 
@@ -328,7 +329,7 @@ namespace Ship_Game.Ships
             foreach (ShipModule hangar in AllSupplyBays)
             {
                 if (hangar.TryGetHangarShipActive(out Ship hangarShip) && hangarShip.AI.State != AIState.ReturnToHangar)
-                    hangarShip.AI.OrderReturnToHangar();
+                    hangarShip.AI.OrderReturnToHangarDeferred();
             }
         }
 
@@ -436,21 +437,45 @@ namespace Ship_Game.Ships
         /// </summary>
         public bool RecallingFighters()
         {
-            if (Owner == null || !RecallFightersBeforeFTL || !HasActiveHangars || Owner.IsInWarp)
-                return RecallingShipsBeforeWarp = false;
+            if (Owner == null)
+                return false; // not a carrier
+
+            if (ShouldRecallFighters())
+            {
+                RecoverAssaultShips();
+                RecoverSupplyShips();
+                RecoverFighters();
+
+                if (DoneRecovering)
+                {
+                    RecallingShipsBeforeWarp = false;
+                    return false;
+                }
+                
+                RecallingShipsBeforeWarp = true;
+                return true;
+            }
+            
+            RecallingShipsBeforeWarp = false;
+            return false;
+        }
+
+        bool ShouldRecallFighters()
+        {
+            if (!RecallFightersBeforeFTL || !HasActiveHangars || Owner.IsInWarp)
+                return false;
 
             Vector2 moveTo = Owner.AI.OrderQueue.PeekFirst?.MovePosition ?? Vector2.Zero;
             if (moveTo == Vector2.Zero)
-                return RecallingShipsBeforeWarp = false;
+                return false;
 
-            bool recallFighters       = false;
-            float jumpDistance        = Owner.Position.Distance(moveTo);
-            float slowestFighterSpeed = 3000;
+            float jumpDistance = Owner.Position.Distance(moveTo);
 
-            RecallingShipsBeforeWarp = true;
             if (jumpDistance > RecallMoveDistance) // allows the carrier to jump small distances and then recall fighters
             {
-                recallFighters = true;
+                bool recallFighters = true;
+                float slowestFighterSpeed = Ship.LightSpeedConstant;
+
                 foreach (ShipModule hangar in AllActiveHangars)
                 {
                     if (!hangar.TryGetHangarShip(out Ship hangarShip) 
@@ -460,7 +485,7 @@ namespace Ship_Game.Ships
                         continue;
                     }
 
-                    slowestFighterSpeed  = hangarShip.SpeedLimit.UpperBound(slowestFighterSpeed);
+                    slowestFighterSpeed = hangarShip.SpeedLimit.UpperBound(slowestFighterSpeed);
                     float rangeToCarrier = hangarShip.Position.Distance(Owner.Position);
                     if (hangarShip.EMPdisabled
                         || !hangarShip.hasCommand
@@ -477,23 +502,15 @@ namespace Ship_Game.Ships
                     recallFighters = true;
                     break;
                 }
-            }
-            if (!recallFighters)
-            {
-                RecallingShipsBeforeWarp = false;
-                return false;
-            }
-            RecoverAssaultShips();
-            RecoverSupplyShips();
-            RecoverFighters();
-            if (DoneRecovering)
-            {
-                RecallingShipsBeforeWarp = false;
-                return false;
-            }
 
-            Owner.SetSpeedLimit((slowestFighterSpeed * 0.25f).UpperBound(Owner.SpeedLimit));
-            return true;
+                if (recallFighters)
+                {
+                    Owner.SetSpeedLimit((slowestFighterSpeed * 0.25f).UpperBound(Owner.SpeedLimit));
+                    return true;
+                }
+            }
+            
+            return false;
         }
 
         public bool DoneRecovering
@@ -563,15 +580,16 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void PrepShipHangars(Empire empire) // This will set dynamic hangar UIDs to the best ships
+        public ShipModule[] PrepShipHangars(Empire empire) // This will set dynamic hangar UIDs to the best ships
         {
             if (empire.Id == -1) // ID -1 since there is a loyalty without a race when saving s ship
-                return;
+                return Empty<ShipModule>.Array;
 
             string defaultShip = empire.data.StartingShip;
-            foreach (ShipModule hangar in AllFighterHangars.Filter(hangar => hangar.Active
-                                                                        && hangar.hangarTimer <= 0
-                                                                        && !hangar.TryGetHangarShip(out _)))
+            ShipModule[] readyHangars = AllFighterHangars.Filter(hangar => hangar.Active
+                                                                 && hangar.hangarTimer <= 0
+                                                                 && !hangar.TryGetHangarShip(out _));
+            foreach (ShipModule hangar in readyHangars)
             {
                 if (hangar.DynamicHangar == DynamicHangarOptions.Static)
                 {
@@ -596,6 +614,7 @@ namespace Ship_Game.Ships
                     Log.Warning($"No startingShip defined and no {roles} designs available for {Owner}");
                 }
             }
+            return readyHangars;
         }
 
         private static ShipData.HangarOptions GetCategoryFromHangarType(DynamicHangarOptions hangarType)
