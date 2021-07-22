@@ -140,7 +140,7 @@ namespace Ship_Game.Spatial
             if (hitDistance > 0f)
                 hitPos = beamStart + (beamEnd - beamStart).Normalized()*Math.Min(beam.Range,hitDistance);
             else // the beam probably glanced the module from side, so just get the closest point:
-                hitPos = victim.Center.FindClosestPointOnLine(beamStart, beamEnd);
+                hitPos = victim.Position.FindClosestPointOnLine(beamStart, beamEnd);
 
             beam.BeamCollidedThisFrame = true;
             beam.SetActualHitDestination(hitPos);
@@ -188,7 +188,7 @@ namespace Ship_Game.Spatial
             }
 
             // intersect projectiles or anything else that can collide
-            return victim.Center.RayCircleIntersect(victim.Radius, beamStart, beamEnd, out distanceToHit);
+            return victim.Position.RayCircleIntersect(victim.Radius, beamStart, beamEnd, out distanceToHit);
         }
 
         static bool HitTestProj(float simTimeStep, Projectile proj, GameplayObject victim, out ShipModule hitModule)
@@ -204,7 +204,7 @@ namespace Ship_Game.Spatial
             var ship = (Ship)victim;
             float velocity = proj.Velocity.Length();
             float maxDistPerFrame = velocity * simTimeStep;
-            Vector2 center = proj.Center;
+            Vector2 center = proj.Position;
 
             // if this projectile will move more than 15 units (1 module grid = 16x16) within one simulation step
             // we have to use ray-casting to avoid projectiles clipping through objects

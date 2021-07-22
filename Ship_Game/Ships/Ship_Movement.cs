@@ -215,7 +215,6 @@ namespace Ship_Game.Ships
             float dt2 = dt*dt*0.5f;
             Position.X += (Velocity.X*dt + oldAcc.X*dt2);
             Position.Y += (Velocity.Y*dt + oldAcc.Y*dt2);
-            Center = Position;
 
             // integrate velocity using Velocity Verlet method:
             // v' = v + (a0+a1)*0.5*dt

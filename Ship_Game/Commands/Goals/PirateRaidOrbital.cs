@@ -56,7 +56,7 @@ namespace Ship_Game.Commands.Goals
 
             TargetShip           = orbital; // This is the main target, we want this dead or possibly boarded
             float spawnDistance  = TargetShip.System?.Radius ?? 80000;
-            Vector2 where        = orbital.Center.GenerateRandomPointOnCircle(spawnDistance);
+            Vector2 where        = orbital.Position.GenerateRandomPointOnCircle(spawnDistance);
             int numBoardingShips = (TargetShip.TroopCount / 2).LowerBound(1);
 
             if (Pirates.SpawnForce(TargetShip, where, 5000, out Array<Ship> force))

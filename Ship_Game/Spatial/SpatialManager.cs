@@ -112,7 +112,7 @@ namespace Ship_Game.Gameplay
                                            Empire onlyLoyalty = null,
                                            int debugId = 0)
         {
-            var opt = new SearchOptions(obj.Center, radius, type)
+            var opt = new SearchOptions(obj.Position, radius, type)
             {
                 MaxResults = maxResults,
                 Exclude = obj,
@@ -208,7 +208,7 @@ namespace Ship_Game.Gameplay
             if (shipToDamage.loyalty?.data.ExplosiveRadiusReduction > 0f)
                 modifiedRadius *= 1f - shipToDamage.loyalty.data.ExplosiveRadiusReduction;
 
-            shipToDamage.DamageModulesExplosive(damageSource, damageAmount, hitModule.Center, modifiedRadius, ignoresShields);
+            shipToDamage.DamageModulesExplosive(damageSource, damageAmount, hitModule.Position, modifiedRadius, ignoresShields);
         }
 
         // @note This is called quite rarely, so optimization is not a priority
@@ -232,11 +232,11 @@ namespace Ship_Game.Gameplay
                     if (nearest == null)
                         continue;
 
-                    float reducedDamageRadius = damageRadius - explosionCenter.Distance(nearest.Center);
+                    float reducedDamageRadius = damageRadius - explosionCenter.Distance(nearest.Position);
                     if (reducedDamageRadius <= 0.0f)
                         continue;
 
-                    float damageFalloff = ShipModule.DamageFalloff(explosionCenter, nearest.Center, damageRadius, nearest.Radius);
+                    float damageFalloff = ShipModule.DamageFalloff(explosionCenter, nearest.Position, damageRadius, nearest.Radius);
                     ExplodeAtModule(thisShip, nearest, false, damageAmount * damageFalloff, reducedDamageRadius);
 
                     if (!otherShip.dying)
@@ -247,7 +247,7 @@ namespace Ship_Game.Gameplay
                     }
 
                     // apply some impulse from the explosion
-                    Vector2 impulse = 3f * (otherShip.Center - explosionCenter);
+                    Vector2 impulse = 3f * (otherShip.Position - explosionCenter);
                     if (impulse.Length() > 200f)
                         impulse = impulse.Normalized() * 200f;
 
@@ -256,7 +256,7 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    float damageFalloff = ShipModule.DamageFalloff(explosionCenter, otherShip.Center, damageRadius, otherShip.Radius, 0.25f);
+                    float damageFalloff = ShipModule.DamageFalloff(explosionCenter, otherShip.Position, damageRadius, otherShip.Radius, 0.25f);
                     otherShip.Damage(thisShip, damageAmount * damageFalloff);
                 }
             }

@@ -307,12 +307,12 @@ namespace Ship_Game
             if (count == 0)
                 return Vector2.Zero;
 
-            if (commandShip != null) return commandShip.Center - commandShip.FleetOffset; 
+            if (commandShip != null) return commandShip.Position - commandShip.FleetOffset; 
 
             float fleetCapableShipCount = 1;
             Ship[] items = ships.GetInternalArrayItems();
             commandShip = commandShip ?? items[0];
-            Vector2 avg = commandShip.Center - commandShip.FleetOffset;
+            Vector2 avg = commandShip.Position - commandShip.FleetOffset;
             float commandShipSize = commandShip.SurfaceArea;
  
             for (int i = 0; i < count; ++i)
@@ -322,7 +322,7 @@ namespace Ship_Game
                 {
                     float ratio = ship.SurfaceArea / commandShipSize;
                     fleetCapableShipCount += (1f * ratio);
-                    Vector2 p = (ship.Center -  ship.FleetOffset) * ratio;
+                    Vector2 p = (ship.Position -  ship.FleetOffset) * ratio;
                     avg.X += p.X;
                     avg.Y += p.Y;
                 }
@@ -402,7 +402,7 @@ namespace Ship_Game
 
         public Ship GetClosestShipTo(Vector2 worldPos)
         {
-            return Ships.FindMin(ship => ship.Center.SqDist(worldPos));
+            return Ships.FindMin(ship => ship.Position.SqDist(worldPos));
         }
 
         protected bool IsFleetSupplied(float wantedSupplyRatio =.1f)
@@ -501,7 +501,7 @@ namespace Ship_Game
                 if (excludeInvade && (ship.DesignRole == ShipData.RoleName.troopShip || ship.shipData.Role == ShipData.RoleName.troop))
                     continue;
 
-                if (ship.AI.State == AIState.Orbit || !ship.Center.InRadius(position, radius))
+                if (ship.AI.State == AIState.Orbit || !ship.Position.InRadius(position, radius))
                     continue;
 
                 ship.OrderToOrbit(planet, true);
@@ -548,13 +548,13 @@ namespace Ship_Game
                 if (!ship.IsSpoolingOrInWarp)
                 {
                     var combatRadius = radius;
-                    if (ship.Center.OutsideRadius(ao , combatRadius))
+                    if (ship.Position.OutsideRadius(ao , combatRadius))
                     {
                         if (ship.CanTakeFleetOrders)
                             moveStatus |= MoveStatus.Dispersed;
 
                         bool cantAttackValidTarget = ship.AI.Target?.BaseStrength > 0 && ship.AI.HasPriorityOrder;
-                        if (cantAttackValidTarget && ship.AI.Target.Center.InRadius(ship.Center, ship.AI.FleetNode.OrdersRadius))
+                        if (cantAttackValidTarget && ship.AI.Target.Position.InRadius(ship.Position, ship.AI.FleetNode.OrdersRadius))
                             moveStatus |= MoveStatus.DispersedInCombat;
                     }
                     else //Ship is in AO
@@ -563,7 +563,7 @@ namespace Ship_Game
 
                         moveStatus |= MoveStatus.Assembled;
 
-                        if (netStrengthInAO > 0 && ship.AI.Target?.BaseStrength > 0 && ship.AI.Target.Center.InRadius(ship.Center, ship.AI.FleetNode.OrdersRadius))
+                        if (netStrengthInAO > 0 && ship.AI.Target?.BaseStrength > 0 && ship.AI.Target.Position.InRadius(ship.Position, ship.AI.FleetNode.OrdersRadius))
                         {
                             moveStatus |= MoveStatus.AssembledInCombat;
                         }
@@ -603,7 +603,7 @@ namespace Ship_Game
         protected CombatStatus CombatStatusOfShipInArea(Ship ship, Vector2 position, float radius)
         {
             float combatRadius = Math.Min(radius, ship.AI.FleetNode.OrdersRadius);
-            if (!ship.CanTakeFleetOrders || ship.Center.OutsideRadius(position + ship.FleetOffset, combatRadius))
+            if (!ship.CanTakeFleetOrders || ship.Position.OutsideRadius(position + ship.FleetOffset, combatRadius))
                 return CombatStatus.ClearSpace;
 
             if (ship.InCombat) return CombatStatus.InCombat;
@@ -622,7 +622,7 @@ namespace Ship_Game
 
         public float GetSpeedLimitFor(Ship ship)
         {
-            if (ship.Center.InRadius(AveragePos + ship.FleetOffset, 1000))
+            if (ship.Position.InRadius(AveragePos + ship.FleetOffset, 1000))
                 return SpeedLimit;
             return 0;
         }
@@ -638,7 +638,7 @@ namespace Ship_Game
 
                 if (ship.CanTakeFleetMoveOrders() && !ship.InCombat)
                 {
-                    if (CommandShip == null || ship.Center.InRadius(AveragePos + ship.FleetOffset, 15000))
+                    if (CommandShip == null || ship.Position.InRadius(AveragePos + ship.FleetOffset, 15000))
                         slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
                 }
             }

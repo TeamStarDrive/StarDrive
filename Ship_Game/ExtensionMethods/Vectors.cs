@@ -373,7 +373,7 @@ namespace Ship_Game
         // versus when looking towards position
         public static float AngleDifferenceToPosition(this GameplayObject origin, Vector2 targetPos)
         {
-            Vector2 wantedForward = origin.Center.DirectionToTarget(targetPos);
+            Vector2 wantedForward = origin.Position.DirectionToTarget(targetPos);
             Vector2 currentForward = origin.Rotation.RadiansToDirection();
             return AngleDifference(wantedForward, currentForward);
         }
@@ -382,7 +382,7 @@ namespace Ship_Game
         public static bool RotationNeededForTarget(this GameplayObject origin, Vector2 targetPos, float minDiff, 
                                                    out float angleDiff, out float rotationDir)
         {
-            Vector2 wantedForward = origin.Center.DirectionToTarget(targetPos);
+            Vector2 wantedForward = origin.Position.DirectionToTarget(targetPos);
             Vector2 currentForward = origin.Rotation.RadiansToDirection();
             angleDiff = AngleDifference(wantedForward, currentForward);
             if (angleDiff > minDiff)

@@ -165,7 +165,7 @@ namespace Ship_Game
             if (SelectedShip == null)
                 return;
 
-            CamDestination  = new Vector3(SelectedShip.Center.X, SelectedShip.Center.Y + 400f, 2500f);
+            CamDestination  = new Vector3(SelectedShip.Position.X, SelectedShip.Position.Y + 400f, 2500f);
             LookingAtPlanet = false;
             transitionStartPosition = CamPos;
             AdjustCamTimer  = 2f;
@@ -222,8 +222,8 @@ namespace Ship_Game
             AdjustCamTimer -= elapsedTime;
             if (ViewingShip && !snappingToShip)
             {
-                CamPos.X = ShipToView.Center.X;
-                CamPos.Y = ShipToView.Center.Y;
+                CamPos.X = ShipToView.Position.X;
+                CamPos.Y = ShipToView.Position.Y;
                 CamHeight =
                     (int) MathHelper.SmoothStep(CamHeight, CamDestination.Z, 0.2f);
                 if (CamHeight < minCamHeight)
@@ -235,8 +235,8 @@ namespace Ship_Game
                     snappingToShip = false;
                 if (snappingToShip)
                 {
-                    CamDestination.X = ShipToView.Center.X;
-                    CamDestination.Y = ShipToView.Center.Y;
+                    CamDestination.X = ShipToView.Position.X;
+                    CamDestination.Y = ShipToView.Position.Y;
                     transitionElapsedTime += elapsedTime;
                     float amount = (float) Math.Pow(transitionElapsedTime / (double) transDuration, 0.699999988079071);
                     camTransitionPosition.X = MathHelper.SmoothStep(CamPos.X, CamDestination.X, amount);

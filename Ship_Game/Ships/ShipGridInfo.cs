@@ -36,7 +36,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < modules.Length; ++i)
             {
                 ShipModule module = modules[i];
-                Vector2 topLeft = module.Position;
+                Vector2 topLeft = module.GetLegacyGridPos();
                 var botRight = new Vector2(topLeft.X + module.XSIZE * 16.0f,
                                            topLeft.Y + module.YSIZE * 16.0f);
                 SurfaceArea += (module.XSIZE * module.YSIZE);

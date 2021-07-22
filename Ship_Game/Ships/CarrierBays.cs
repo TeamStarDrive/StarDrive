@@ -423,7 +423,7 @@ namespace Ship_Game.Ships
                     && hangarShip.HasOurTroops)
                 {
                     hangarShip.AI.OrderLandAllTroops(planet);
-                    hangarShip.Rotation = Owner.Center.DirectionToTarget(planet.Center).ToRadians();
+                    hangarShip.Rotation = Owner.Position.DirectionToTarget(planet.Center).ToRadians();
                 }
             }
         }
@@ -444,7 +444,7 @@ namespace Ship_Game.Ships
                 return RecallingShipsBeforeWarp = false;
 
             bool recallFighters       = false;
-            float jumpDistance        = Owner.Center.Distance(moveTo);
+            float jumpDistance        = Owner.Position.Distance(moveTo);
             float slowestFighterSpeed = 3000;
 
             RecallingShipsBeforeWarp = true;
@@ -461,7 +461,7 @@ namespace Ship_Game.Ships
                     }
 
                     slowestFighterSpeed  = hangarShip.SpeedLimit.UpperBound(slowestFighterSpeed);
-                    float rangeToCarrier = hangarShip.Center.Distance(Owner.Center);
+                    float rangeToCarrier = hangarShip.Position.Distance(Owner.Position);
                     if (hangarShip.EMPdisabled
                         || !hangarShip.hasCommand
                         || hangarShip.dying
@@ -635,7 +635,7 @@ namespace Ship_Game.Ships
         }
         
         public bool IsInHangarLaunchRange(GameplayObject target) 
-                                        => IsInHangarLaunchRange(target.Center.Distance(Owner.Center));
+                                        => IsInHangarLaunchRange(target.Position.Distance(Owner.Position));
 
         /// <summary>
         /// Determines whether distance to target is near enough to launch hangar ships>.

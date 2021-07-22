@@ -194,7 +194,7 @@ namespace Ship_Game
         Vector2 GetDirectionToFinalPos(Ship ship, Vector2 finalPos)
         {
             Vector2 fleetPos = Input.QueueAction && ship.AI.HasWayPoints
-                             ? ship.AI.MovePosition : ship.Center;
+                             ? ship.AI.MovePosition : ship.Position;
             Vector2 finalDir = fleetPos.DirectionToTarget(finalPos);
             return finalDir;
         }

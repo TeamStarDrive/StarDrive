@@ -245,7 +245,7 @@ namespace Ship_Game.Commands.Goals
             if (FinishedShip != null)
             {
                 FinishedShip.AI.ClearOrdersAndWayPoints(AIState.AwaitingOrders);
-                var nearestRallyPoint = empire.FindNearestRallyPoint(FinishedShip.Center);
+                var nearestRallyPoint = empire.FindNearestRallyPoint(FinishedShip.Position);
                 if (nearestRallyPoint != null)
                     FinishedShip.AI.OrderOrbitPlanet(nearestRallyPoint);
             }
