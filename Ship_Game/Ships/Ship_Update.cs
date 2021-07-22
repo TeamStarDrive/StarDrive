@@ -419,8 +419,9 @@ namespace Ship_Game.Ships
                     if (!slot2.Active || slot2.Powered  || slot2 == module || slot2.ModuleType == ShipModuleType.PowerConduit)
                         continue;
 
-                    int distanceFromPowerX = (int)Math.Abs(cx - (slot2.Position.X + 8)) ;
-                    int distanceFromPowerY = (int)Math.Abs(cy - (slot2.Position.Y + 8));
+                    Vector2 localCenter2 = slot2.LocalCenter;
+                    int distanceFromPowerX = (int)Math.Abs(cx - localCenter2.X);
+                    int distanceFromPowerY = (int)Math.Abs(cy - localCenter2.Y);
                     if (distanceFromPowerX + distanceFromPowerY <= powerRadius)
                     {
                         slot2.Powered = true;
@@ -433,20 +434,21 @@ namespace Ship_Game.Ships
                 }
             }
         }
-        //not sure where to put this. I guess shipModule but its huge. Maybe an extension?
-        private static bool IsAnyPartOfModuleInRadius(ShipModule moduleAreaToCheck, Vector2 pos, int radius)
+
+        static bool IsAnyPartOfModuleInRadius(ShipModule moduleAreaToCheck, Vector2 pos, int radius)
         {
             float cx = pos.X;
             float cy = pos.Y;
+            Vector2 localCenter = moduleAreaToCheck.LocalCenter;
             for (int y = 0; y < moduleAreaToCheck.YSIZE; ++y)
             {
-                float sy = moduleAreaToCheck.Position.Y + (y * 16) + 8;
+                float sy = localCenter.Y + (y * 16);
                 for (int x = 0; x < moduleAreaToCheck.XSIZE; ++x)
                 {
                     if (y == moduleAreaToCheck.YSIZE * 16 && x == moduleAreaToCheck.XSIZE *16)
                         continue;
 
-                    float sx = moduleAreaToCheck.Position.X + (x * 16) + 8;
+                    float sx = localCenter.X + (x * 16);
                     if ((int) Math.Abs(cx - sx) + (int) Math.Abs(cy - sy) <= radius + 8)
                         return true;
                 }
