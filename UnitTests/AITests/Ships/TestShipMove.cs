@@ -13,7 +13,6 @@ namespace UnitTests.AITests.Ships
     {
         public TestShipMove()
         {
-            LoadStarterShipVulcan();
             CreateUniverseAndPlayerEmpire();
         }
 

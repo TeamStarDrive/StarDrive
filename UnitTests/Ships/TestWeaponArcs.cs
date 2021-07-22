@@ -13,7 +13,7 @@ namespace UnitTests.Ships
     {
         public TestWeaponArcs()
         {
-            LoadStarterShipVulcan();
+            LoadStarterShips("Laserclaw");
             CreateUniverseAndPlayerEmpire();
         }
 

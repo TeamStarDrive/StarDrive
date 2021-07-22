@@ -16,8 +16,6 @@ namespace UnitTests.Ships
     {
         public ShipDataTests()
         {
-            LoadStarterShips(starterShips:new[]{ "Vulcan Scout" }, 
-                             savedDesigns:new[]{ "Prototype Frigate" });
         }
 
         // Makes sure two ShipData are absolutely equal

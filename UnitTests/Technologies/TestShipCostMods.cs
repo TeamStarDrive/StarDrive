@@ -16,7 +16,6 @@ namespace UnitTests.Technologies
         readonly ChooseTech TechChooser;
         public TestShipCostMods()
         {
-            LoadStarterShipVulcan(ResourceManager.TestOptions.TechContent);
             CreateUniverseAndPlayerEmpire();
             PrepareShipAndEmpireForShipTechTests();
             TechChooser = new ChooseTech(Enemy);

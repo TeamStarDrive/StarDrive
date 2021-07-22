@@ -11,7 +11,6 @@ namespace UnitTests.Technologies
     {
         public TestResearchPriorities()
         {
-            LoadTechContent();
             CreateUniverseAndPlayerEmpire();
         }
 

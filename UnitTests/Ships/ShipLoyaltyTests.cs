@@ -15,7 +15,6 @@ namespace UnitTests.Ships
     {
         public ShipLoyaltyTests()
         {
-            LoadStarterShipVulcan();
             CreateUniverseAndPlayerEmpire();
         }
 
@@ -99,6 +98,7 @@ namespace UnitTests.Ships
             Universe.Objects.UpdateLists(true);
             Assert.AreEqual(Player.OwnedShips.Count, 1, "Critical Error. Designs cant be added to empires");
             
+            spawnedShip.shipData = spawnedShip.shipData.GetClone();
             spawnedShip.shipData.ModuleSlots =  new ModuleSlotData[0];
             ship = new DesignShip(spawnedShip.shipData);
             Universe.Objects.UpdateLists(true);
