@@ -66,6 +66,7 @@ namespace Ship_Game
         void HandleInputNotLookingAtPlanet(InputState input)
         {
             mouseWorldPos = UnprojectToWorldPosition(input.CursorPosition);
+
             if (input.DeepSpaceBuildWindow) InputOpenDeepSpaceBuildWindow();
             if (input.FTLOverlay)       ToggleUIComponent("sd_ui_accept_alt3", ref showingFTLOverlay);
             if (input.RangeOverlay)     ToggleUIComponent("sd_ui_accept_alt3", ref showingRangeOverlay);
@@ -81,7 +82,8 @@ namespace Ship_Game
             HandleFleetSelections(input);
             HandleShipSelectionAndOrders();
 
-            InputClickableItems(input);
+            if (input.LeftMouseDoubleClick)
+                HandleDoubleClickShipsAndSolarObjects(input);
 
             if (!LookingAtPlanet)
             {
@@ -789,6 +791,11 @@ namespace Ship_Game
             SelectionBox = new Rectangle(0, 0, -1, -1);
         }
 
+        bool IsCombatShip(Ship ship)
+        {
+            return NonCombatShip(ship) == false;
+        }
+
         bool NonCombatShip(Ship ship)
         {
             return ship != null && (ship.shipData.Role <= ShipData.RoleName.freighter 
@@ -798,44 +805,46 @@ namespace Ship_Game
                                     || ship.AI.State == AIState.Colonize);
         }
 
-        BatchRemovalCollection<Ship> GetAllShipsInArea(Rectangle screenArea, InputState input, out Fleet fleet)
+        Array<Ship> GetAllShipsInArea(Rectangle screenArea, InputState input, out Fleet fleet)
         {
-            fleet              = null;
-            var potentialShips = new BatchRemovalCollection<Ship>();
-            var clickableShips = ClickableShipsList.Filter(cs => screenArea.HitTest(cs.ScreenPos) && cs.shipToClick?.InSensorRange == true);
+            fleet = null;
+            Ship[] potentialShips = ClickableShipsList.FilterSelect(
+                cs => screenArea.HitTest(cs.ScreenPos) && cs.shipToClick?.InSensorRange == true,
+                cs => cs.shipToClick);
 
-            if (clickableShips.Length == 0)
-                return potentialShips;
+            if (potentialShips.Length == 0)
+                return new Array<Ship>();
 
-            foreach (ClickableShip cs in clickableShips)
-            {
-                if (cs.shipToClick != null)
-                    potentialShips.Add(cs.shipToClick);
-            }
+            bool hasCombatShips = potentialShips.Any(IsCombatShip);
 
-            bool addToSelection         = input.IsShiftKeyDown;
-            bool selectPlayerEverything = input.IsCtrlKeyDown || !potentialShips.Any(s => !NonCombatShip(s)); ;
-            bool nonPlayer               = input.IsAltKeyDown || !potentialShips.Any(s => s.loyalty.isPlayer);
-            bool onlyPlayer              = !nonPlayer && potentialShips.Any(s => s.loyalty.isPlayer);
+            // TODO: These are not documented to the players
+            bool addToSelection = input.IsShiftKeyDown;
+            bool selectAll      = input.IsCtrlKeyDown || !hasCombatShips;
+            bool nonPlayer      = input.IsAltKeyDown || !potentialShips.Any(s => s.loyalty.isPlayer);
+            bool onlyPlayer     = !nonPlayer && potentialShips.Any(s => s.loyalty.isPlayer);
 
-            var ships = new BatchRemovalCollection<Ship>();
+            var ships = new Array<Ship>();
             if (addToSelection)
                 ships.AddRange(SelectedShipList);
 
             foreach (Ship ship in potentialShips)
             {
-                if (onlyPlayer && ship.loyalty.isPlayer) ships.AddUnique(ship);
+                if       (onlyPlayer && ship.loyalty.isPlayer) ships.AddUnique(ship);
                 else if  (nonPlayer && !ship.loyalty.isPlayer) ships.AddUnique(ship);
             }
 
-            if (onlyPlayer && !selectPlayerEverything && fleet == null) // Need to remove non combat ship.
+            if (onlyPlayer && !selectAll && fleet == null) // Need to remove non combat ship.
             {
-                for (int i = ships.Count - 1; i >= 0; i--)
-                {
-                    Ship ship = ships[i];
-                    if (NonCombatShip(ship))
-                        ships.RemoveAt(i);
-                }
+                ships.RemoveAll(NonCombatShip);
+            }
+
+            if (onlyPlayer && !hasCombatShips)
+            {
+                // if we selected a bunch of civilian ships, but some of them are troop transports
+                // then discard all ships that aren't troop transports
+                bool hasTroopTransports = potentialShips.Any(s => s.IsSingleTroopShip);
+                if (hasTroopTransports)
+                    ships.RemoveAll(s => !s.IsSingleTroopShip);
             }
 
             if (onlyPlayer && ships.Count > 0 && ships.First.fleet != null)
@@ -1020,15 +1029,13 @@ namespace Ship_Game
             return true;
         }
 
-        void InputClickableItems(InputState input)
+        void HandleDoubleClickShipsAndSolarObjects(InputState input)
         {
-            if (!input.LeftMouseDoubleClick) return;
-
             SelectedShipList.Clear();
             if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
                 previousSelection = SelectedShip;
+            
             SelectedShip = null;
-
 
             if (viewState <= UnivScreenState.SystemView)
             {
@@ -1043,7 +1050,7 @@ namespace Ship_Game
                 }
             }
 
-            SelectShipsByClickingonShip(input);
+            SelectMultipleShipsByClickingOnShip(input);
 
             if (viewState > UnivScreenState.SystemView)
             {
@@ -1064,42 +1071,54 @@ namespace Ship_Game
             }
         }
 
-        private void SelectShipsByClickingonShip(InputState input)
+        Ship FindClickedShip(InputState input)
         {
             foreach (ClickableShip clickableShip in ClickableShipsList)
-            {
-                if (!clickableShip.HitTest(input.CursorPosition))
-                    continue;
+                if (clickableShip.HitTest(input.CursorPosition))
+                    return clickableShip.shipToClick;
+            return null;
+        }
 
+        void SelectMultipleShipsByClickingOnShip(InputState input)
+        {
+            Ship clicked = FindClickedShip(input);
+            if (clicked != null)
+            {
                 pickedSomethingThisFrame = true;
-                SelectedShipList.AddUnique(clickableShip.shipToClick);
-                var clicked = clickableShip.shipToClick;
+                SelectedShipList.AddUnique(clicked);
 
                 foreach (ClickableShip clickTest in ClickableShipsList)
                 {
                     var ship = clickTest.shipToClick;
-
-                    if (clicked == ship || ship.loyalty != clicked.loyalty) continue;
+                    if (clicked == ship || ship.loyalty != clicked.loyalty)
+                        continue;
 
                     bool sameHull   = ship.BaseHull == clicked.BaseHull;
                     bool sameRole   = ship.DesignRole == clicked.DesignRole;
                     bool sameDesign = ship.Name == clicked.Name;
-
-                    if (input.SelectSameDesign)
+                    
+                    // TODO: These are not documented to the players
+                    if (input.SelectSameDesign) // Ctrl+Alt+DoubleClick
                     {
-                        if (sameDesign) SelectedShipList.AddUnique(ship);
+                        if (sameDesign)
+                            SelectedShipList.AddUnique(ship);
                     }
-                    else if (input.SelectSameRoleAndHull)
+                    else if (input.SelectSameRoleAndHull) // Ctrl+DoubleClick
                     {
-                        if (sameRole && sameHull) SelectedShipList.AddUnique(ship);
+                        if (sameRole && sameHull)
+                            SelectedShipList.AddUnique(ship);
                     }
-                    else if (input.SelectSameRole)
+                    else if (input.SelectSameHull) // Alt+DoubleClick
                     {
-                        if (sameRole) SelectedShipList.AddUnique(ship);
+                        if (sameHull)
+                            SelectedShipList.AddUnique(ship);
                     }
-                    else if (clicked.BaseHull == ship.BaseHull) SelectedShipList.AddUnique(ship);
+                    else // simple DoubleClick, select Same Role
+                    {
+                        if (sameRole)
+                            SelectedShipList.AddUnique(ship);
+                    }
                 }
-                break;
             }
         }
 
