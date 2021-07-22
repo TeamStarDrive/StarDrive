@@ -233,12 +233,13 @@ namespace Ship_Game
 
         void Objects_OnShipRemoved(Ship ship)
         {
-            RunOnUIThread(() =>
+            void RemoveShip()
             {
                 if (SelectedShip == ship)
                     SelectedShip = null;
                 SelectedShipList.RemoveRef(ship);
-            });
+            }
+            RunOnNextFrame(RemoveShip);
         }
 
         public Planet GetPlanet(Guid guid)

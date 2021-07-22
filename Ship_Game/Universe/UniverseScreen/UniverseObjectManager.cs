@@ -48,6 +48,7 @@ namespace Ship_Game
 
         /// <summary>
         /// Invoked when a Ship is removed from the universe
+        /// OnShipRemove(Ship ship, bool onUIThread);
         /// </summary>
         public event Action<Ship> OnShipRemoved;
 
@@ -245,6 +246,7 @@ namespace Ship_Game
             TotalTime.Start();
             
             bool isRunning = timeStep.FixedTime > 0f;
+            bool isUIThread = Universe.IsUIThread;
 
             // only remove and kill objects if game is not paused
             UpdateLists(removeInactiveObjects: isRunning);
