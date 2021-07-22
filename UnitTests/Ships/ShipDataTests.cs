@@ -16,7 +16,6 @@ namespace UnitTests.Ships
     {
         public ShipDataTests()
         {
-            CreateGameInstance();
             LoadStarterShips(starterShips:new[]{ "Vulcan Scout" }, 
                              savedDesigns:new[]{ "Prototype Frigate" });
         }

@@ -21,7 +21,6 @@ namespace UnitTests.AITests.Empire
         // NOTE: This constructor is called every time a [TestMethod] is executed
         public TestEmpireAI()
         {
-            CreateGameInstance();
             ResourceManager.TestOptions testOptions = ResourceManager.TestOptions.LoadPlanets;
             testOptions |= ResourceManager.TestOptions.TechContent;
             LoadStarterShips(testOptions,

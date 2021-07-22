@@ -35,16 +35,12 @@ namespace UnitTests
         public Empire ThirdMajor { get; private set; }
         public Empire Faction { get; private set; }
 
-        public FixedSimTime TestSimStep { get; private set; } = new FixedSimTime(1f / 60f);
+        public readonly FixedSimTime TestSimStep = new FixedSimTime(1f / 60f);
 
         public StarDriveTest()
         {
         }
 
-        public static void CreateGameInstance(int width=800, int height=800, bool show=false)
-        {
-        }
-        
         public static void EnableMockInput(bool enabled)
         {
             StarDriveTestContext.EnableMockInput(enabled);

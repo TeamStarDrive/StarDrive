@@ -12,7 +12,6 @@ namespace UnitTests.Ships
     {
         public ShipAITests()
         {
-            CreateGameInstance();
             LoadStarterShips("Excalibur-Class Supercarrier", "Owlwok Freighter S");
             CreateUniverseAndPlayerEmpire();
         }

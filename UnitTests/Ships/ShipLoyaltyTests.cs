@@ -15,7 +15,6 @@ namespace UnitTests.Ships
     {
         public ShipLoyaltyTests()
         {
-            CreateGameInstance();
             LoadStarterShipVulcan();
             CreateUniverseAndPlayerEmpire();
         }

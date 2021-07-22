@@ -13,7 +13,6 @@ namespace UnitTests.Ships
     {
         public TestWeaponArcs()
         {
-            CreateGameInstance();
             LoadStarterShipVulcan();
             CreateUniverseAndPlayerEmpire();
         }

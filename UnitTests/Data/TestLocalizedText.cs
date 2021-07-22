@@ -11,7 +11,6 @@ namespace UnitTests.Data
     {
         public TestLocalizedText()
         {
-            CreateGameInstance();
             ResourceManager.LoadLanguage(Language.English);
             Fonts.LoadFonts(ResourceManager.RootContent, Language.English);
         }

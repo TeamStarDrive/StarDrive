@@ -12,7 +12,6 @@ namespace UnitTests.Ships
     {
         public ModuleGridTests()
         {
-            CreateGameInstance();
             LoadStarterShips("Vulcan Scout");
             CreateUniverseAndPlayerEmpire();
         }
