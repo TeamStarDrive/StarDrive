@@ -205,14 +205,11 @@ namespace Ship_Game.AI
             }
         }
 
-        public void AddMeteorGoal(Planet p, float rotation, Vector2 direction, int speed)
+        public void AddMeteorGoal(Planet p, float rotation, Vector2 direction, float speed)
         {
             Owner.Rotation = rotation;
-            speed          = RandomMath.IntBetween(speed-100, speed+100);
-            ShipGoal goal  = new ShipGoal(Plan.Meteor, p.Center, direction, p,
-                null, speed, "", 0f, AIState.MoveTo, null);
-
-            EnqueueOrPush(goal, true);
+            PushGoalToFront(new ShipGoal(Plan.Meteor, p.Center, direction, p,
+                                         null, speed, "", 0f, AIState.MoveTo, null));
         }
 
         void AddLandTroopGoal(Planet p)      => AddPlanetGoal(Plan.LandTroop, p, AIState.AssaultPlanet);

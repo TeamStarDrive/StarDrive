@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game.Debug.Page
 {
@@ -35,6 +36,7 @@ namespace Ship_Game.Debug.Page
             }
         }
 
+        UniverseScreen Universe;
         Submenu Menu;
         readonly ScrollList2<EvtItem> ExplorationEvents;
         readonly ScrollList2<EvtItem> EncounterDialogs;
@@ -42,9 +44,11 @@ namespace Ship_Game.Debug.Page
         public StoryAndEventsDebug(UniverseScreen screen, DebugInfoScreen parent)
             : base(parent, DebugModes.StoryAndEvents)
         {
+            Universe = screen;
+
             ExplorationEvent[] events = ResourceManager.EventsDict.Values.ToArray();
 
-            Menu = Add(new Submenu(50, 200, 400, 800));
+            Menu = Add(new Submenu(50, 260, 400, 600));
             Menu.AddTab("ExpEvts");
             Menu.AddTab("Encounters");
             Menu.OnTabChange = OnTabChanged;
@@ -83,12 +87,36 @@ namespace Ship_Game.Debug.Page
             }
 
             Menu.SelectedIndex = 0;
+
+            Label(Width - 200, 200, "Ctrl+M to spawn Meteors");
         }
 
         void OnTabChanged(int tab)
         {
             ExplorationEvents.Visible = tab == 0;
             EncounterDialogs.Visible = tab == 1;
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            if (input.IsCtrlKeyDown && input.KeyPressed(Keys.M))
+            {
+                SolarSystem system = null;
+                foreach (var sys in UniverseScreen.SolarSystemList)
+                {
+                    if (sys.IsVisible)
+                    {
+                        system = sys;
+                        break;
+                    }
+                }
+
+                if (system != null && system.PlanetList.Count > 0)
+                {
+                    RandomEventManager.CreateMeteors(system.PlanetList[0]);
+                }
+            }
+            return base.HandleInput(input);
         }
     }
 }
