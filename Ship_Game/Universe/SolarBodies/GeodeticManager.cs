@@ -25,7 +25,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private float ShieldStrengthPercent  => P.ShieldStrengthMax > 0.01f ? P.ShieldStrengthCurrent / P.ShieldStrengthMax : 0;
         private Array<PlanetGridSquare> TilesList => P.TilesList;
 
-        public GeodeticManager (Planet planet)
+        public GeodeticManager(Planet planet)
         {
             P = planet;
             //AllNearShips = new BasicSensors(this,P.Owner);
