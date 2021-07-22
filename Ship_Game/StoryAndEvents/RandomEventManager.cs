@@ -137,10 +137,7 @@ namespace Ship_Game
             if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet))
                 return;
 
-            int rand       = RandomMath.RollDie(12);
-            int numMeteors = RandomMath.IntBetween(rand * 3, rand * 10).Clamped(3, (int)Empire.Universe.StarDate - 1000);
-            CreateMeteors(planet, numMeteors);
-            Log.Info($"{numMeteors} Meteors Created in {planet.ParentSystem.Name} targeting {planet.Name}");
+            CreateMeteors(planet);
 
             if (planet.Owner == EmpireManager.Player)
                 Empire.Universe.NotificationManager.AddMeteorShowerTargetingOurPlanet(planet);
@@ -148,39 +145,38 @@ namespace Ship_Game
                 Empire.Universe.NotificationManager.AddMeteorShowerInSystem(planet);
         }
 
-        public static void CreateMeteors(Planet p, int numMeteors)
+        public static void CreateMeteors(Planet p)
         {
-            int speed = RandomMath.RollDie(1000, 500);
+            int rand = RandomMath.RollDie(12);
+            int numMeteors = RandomMath.IntBetween(rand * 3, rand * 10).Clamped(3, (int)Empire.Universe.StarDate - 1000);
+
+            int baseSpeed = RandomMath.RollDie(1000, 500);
             Vector2 origin = GetMeteorOrigin(p);
+            
+            // all meteors get the same direction, so some will miss the planet
+            Vector2 direction = origin.DirectionToTarget(p.Center);
+            float rotation = direction.ToDegrees();
+
+            const string METEOR_VARIANTS = "ABCDEFG";
 
             for (int i = 0; i < numMeteors; i++)
             {
-                string meteorName;
-                switch (RandomMath.RollDie(7))
-                {
-                    default:
-                    case 1: meteorName = "Meteor A"; break;
-                    case 2: meteorName = "Meteor B"; break;
-                    case 3: meteorName = "Meteor C"; break;
-                    case 4: meteorName = "Meteor D"; break;
-                    case 5: meteorName = "Meteor E"; break;
-                    case 6: meteorName = "Meteor F"; break;
-                    case 7: meteorName = "Meteor G"; break;
-                }
-
                 Vector2 pos = origin.GenerateRandomPointInsideCircle(p.GravityWellRadius);
-                Ship meteor = Ship.CreateShipAtPoint(meteorName, EmpireManager.Unknown, pos);
-                if (meteor == null)
+
+                string meteorName = "Meteor " + METEOR_VARIANTS[RandomMath.RollDie(7) - 1];
+                var meteor = Ship.CreateShipAtPoint(meteorName, EmpireManager.Unknown, pos);
+                if (meteor != null)
                 {
-                    Log.Warning($"Meteors: Could not create {meteorName} is random event");
-                    continue;
+                    float speed = RandomMath.IntBetween(baseSpeed-100, baseSpeed+100);
+                    meteor.AI.AddMeteorGoal(p, rotation, direction, speed);
                 }
-                
-                Vector2 direction = pos.DirectionToTarget(p.Center);
-                float rotation = direction.ToDegrees();
-                float thisSpeed = RandomMath.IntBetween(speed-100, speed+100);
-                meteor.AI.AddMeteorGoal(p, rotation, direction, thisSpeed);
+                else
+                {
+                    Log.Warning($"Meteors: Could not create {meteorName} in random event");
+                }
             }
+            
+            Log.Info($"{numMeteors} Meteors Created in {p.ParentSystem.Name} targeting {p.Name}");
         }
 
         static Vector2 GetMeteorOrigin(Planet p)

@@ -48,7 +48,7 @@ namespace Ship_Game.Debug.Page
 
             ExplorationEvent[] events = ResourceManager.EventsDict.Values.ToArray();
 
-            Menu = Add(new Submenu(50, 200, 400, 600));
+            Menu = Add(new Submenu(50, 260, 400, 600));
             Menu.AddTab("ExpEvts");
             Menu.AddTab("Encounters");
             Menu.OnTabChange = OnTabChanged;
@@ -113,8 +113,7 @@ namespace Ship_Game.Debug.Page
 
                 if (system != null && system.PlanetList.Count > 0)
                 {
-                    Planet p = system.PlanetList[0];
-                    RandomEventManager.CreateMeteors(p, 1);
+                    RandomEventManager.CreateMeteors(system.PlanetList[0]);
                 }
             }
             return base.HandleInput(input);

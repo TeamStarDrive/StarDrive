@@ -730,16 +730,15 @@ namespace Ship_Game.AI
 
         void DoMeteor(FixedSimTime timeStep, ShipGoal g)
         {
-            if (Owner.SecondsAlive > 1 &&  Owner.System == null)
+            if (Owner.SecondsAlive > 1 && Owner.System == null)
                 Owner.Die(null, true);
 
             // constant velocity, no acceleration
             // Ship Sim should take care of the rest
-            Vector2 dir = Owner.Position.DirectionToTarget(g.TargetPlanet.Center);
-            Owner.Velocity = dir * g.SpeedLimit;
+            Owner.Velocity = g.Direction * g.SpeedLimit;
             Owner.MaxSTLSpeed = g.SpeedLimit;
 
-            if (Owner.Position.InRadius(g.TargetPlanet.Center, g.TargetPlanet.GravityWellRadius * 0.25f))
+            if (Owner.Position.InRadius(g.TargetPlanet.Center, g.TargetPlanet.GravityWellRadius * 0.5f))
             {
                 Owner.PlanetCrash = new PlanetCrash(g.TargetPlanet, Owner, g.SpeedLimit*0.85f);
                 Owner.dying       = true;
