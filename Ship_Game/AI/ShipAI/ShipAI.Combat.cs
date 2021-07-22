@@ -478,7 +478,7 @@ namespace Ship_Game.AI
 
         bool ShouldEnterAutoCombat()
         {
-            if (Target == null || State == AIState.Combat ||
+            if (Target == null || State == AIState.Combat || State == AIState.ReturnToHangar ||
                 HasPriorityOrder || IgnoreCombat || IsNonCombatant)
                 return false;
 

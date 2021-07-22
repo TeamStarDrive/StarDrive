@@ -468,6 +468,13 @@ namespace Ship_Game.AI
                 OrderResupplyEscape(escapePos, Owner.Direction);
         }
 
+        // Thread-Safe: orders the ship to return to Hangar during next ship AI update
+        public void OrderReturnToHangarDeferred()
+        {
+            ReturnToHangarSoon = true;
+        }
+
+        // @warning This is NOT thread-safe! Do not call externally from other Ships!
         public void OrderReturnToHangar()
         {
             ClearOrders(AIState.ReturnToHangar, priority: true);

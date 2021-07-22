@@ -47,6 +47,7 @@ namespace Ship_Game.AI
             FiringAtMainTarget= (1 << 7),
             BadShipsNear      = (1 << 8),
             BadPlanetsNear    = (1 << 9),
+            ReturnToHangarSoon = (1 << 10),
             BadShipsOrPlanetsNear = BadShipsNear | BadPlanetsNear,
         }
 
@@ -85,6 +86,9 @@ namespace Ship_Game.AI
         public bool IsFiringAtMainTarget
         { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.FiringAtMainTarget); 
           [MethodImpl(MethodImplOptions.AggressiveInlining)] private set => Bit(Flags.FiringAtMainTarget, value); }
+        bool ReturnToHangarSoon
+        { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.ReturnToHangarSoon); 
+          [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(Flags.ReturnToHangarSoon, value); }
 
         public ShipAI(Ship owner)
         {
@@ -271,8 +275,16 @@ namespace Ship_Game.AI
             ResetStateFlee();
 
             Owner.loyalty.data.Traits.ApplyTraitToShip(Owner);
+
             UpdateUtilityModuleAI(timeStep);
             ThrustTarget = Vector2.Zero;
+
+            // deferred return to hangar
+            if (ReturnToHangarSoon)
+            {
+                ReturnToHangarSoon = false;
+                OrderReturnToHangar();
+            }
 
             UpdateCombatStateAI(timeStep);
 
