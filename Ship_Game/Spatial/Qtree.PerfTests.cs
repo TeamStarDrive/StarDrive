@@ -94,7 +94,7 @@ namespace Ship_Game.Spatial
                 for (int i = 0; i < ships.Count; ++i)
                 {
                     var s = (Ship)ships[i];
-                    var opt = new SearchOptions(s.Center, defaultSensorRange)
+                    var opt = new SearchOptions(s.Position, defaultSensorRange)
                     {
                         MaxResults = 256
                     };
@@ -110,7 +110,7 @@ namespace Ship_Game.Spatial
                 for (int i = 0; i < ships.Count; ++i)
                 {
                     var s = (Ship)ships[i];
-                    var opt = new SearchOptions(s.Center, defaultSensorRange)
+                    var opt = new SearchOptions(s.Position, defaultSensorRange)
                     {
                         MaxResults = 256
                     };

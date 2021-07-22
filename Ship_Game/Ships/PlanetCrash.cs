@@ -83,7 +83,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ship.System.PlanetList.Count; i++)
             {
                 Planet p = ship.System.PlanetList[i];
-                if (ship.Center.InRadius(p.Center, p.GravityWellRadius * 0.5f)
+                if (ship.Position.InRadius(p.Center, p.GravityWellRadius * 0.5f)
                    || ship.IsPlatformOrStation && ship.GetTether() == p)
                 {
                     planet = p;

@@ -76,7 +76,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 return GoalStep.GoalFailed;
             }
 
-            if (SupplyShip.Center.InRadius(TargetShip.Center, TargetShip.Radius + 500f))
+            if (SupplyShip.Position.InRadius(TargetShip.Position, TargetShip.Radius + 500f))
             {
                 float leftOverOrdnance  = TargetShip.ChangeOrdnance(FinishedShip.Ordinance);
                 float ordnanceDelivered = SupplyShip.Ordinance - leftOverOrdnance;
@@ -106,7 +106,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 return GoalStep.GoalComplete;
             }
 
-            if (SupplyShip.Center.InRadius(PlanetBuildingAt.Center, PlanetBuildingAt.ObjectRadius + 500f))
+            if (SupplyShip.Position.InRadius(PlanetBuildingAt.Center, PlanetBuildingAt.ObjectRadius + 500f))
             {
                 SupplyShip.QueueTotalRemoval();
                 return GoalStep.GoalComplete;

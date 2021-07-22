@@ -672,12 +672,12 @@ namespace Ship_Game
             {
                 if (Debug && DebugWin != null)
                 {
-                    DebugWin.DrawCircleImm(SelectedShip.Center,
+                    DebugWin.DrawCircleImm(SelectedShip.Position,
                         SelectedShip.AI.GetSensorRadius(), Color.Crimson);
                     for (int i = 0; i < SelectedShip.AI.NearByShips.Count; i++)
                     {
                         var target = SelectedShip.AI.NearByShips[i];
-                        DebugWin.DrawCircleImm(target.Ship.Center,
+                        DebugWin.DrawCircleImm(target.Ship.Position,
                             target.Ship.AI.GetSensorRadius(), Color.Crimson);
                     }
                 }
@@ -766,7 +766,7 @@ namespace Ship_Game
 
                 if (Debug || ship.loyalty.isPlayer || ship.loyalty.IsAlliedWith(player) || !player.DifficultyModifiers.HideTacticalData)
                 {
-                    Vector2 shipScreenPos = ProjectToScreenPosition(ship.Center);
+                    Vector2 shipScreenPos = ProjectToScreenPosition(ship.Position);
                     ScreenManager.SpriteBatch.DrawLine(shipScreenPos, fleetCenterOnScreen, FleetLineColor);
                 }
             }
@@ -1122,27 +1122,27 @@ namespace Ship_Game
         {
             if (ship == null)
                 return;
-            Vector2 start = ship.Center;
+            Vector2 start = ship.Position;
 
             if (!ship.InCombat || ship.AI.HasPriorityOrder)
             {
                 Color color = Colors.Orders(alpha);
                 if (ship.AI.State == AIState.Ferrying)
                 {
-                    DrawLineProjected(start, ship.AI.EscortTarget.Center, color);
+                    DrawLineProjected(start, ship.AI.EscortTarget.Position, color);
                     return;
                 }
                 if (ship.AI.State == AIState.ReturnToHangar)
                 {
                     if (ship.IsHangarShip)
-                        DrawLineProjected(start, ship.Mothership.Center, color);
+                        DrawLineProjected(start, ship.Mothership.Position, color);
                     else
                         ship.AI.State = AIState.AwaitingOrders; //@todo this looks like bug fix hack. investigate and fix.
                     return;
                 }
                 if (ship.AI.State == AIState.Escort && ship.AI.EscortTarget != null)
                 {
-                    DrawLineProjected(start, ship.AI.EscortTarget.Center, color);
+                    DrawLineProjected(start, ship.AI.EscortTarget.Position, color);
                     return;
                 }
 
@@ -1172,14 +1172,14 @@ namespace Ship_Game
                 ShipAI.ShipGoal goal = ship.AI.OrderQueue.PeekFirst;
                 if (ship.AI.State == AIState.Bombard && goal?.TargetPlanet != null)
                 {
-                    DrawLineProjected(ship.Center, goal.TargetPlanet.Center, Colors.CombatOrders(alpha), 2500f);
+                    DrawLineProjected(ship.Position, goal.TargetPlanet.Center, Colors.CombatOrders(alpha), 2500f);
                     DrawWayPointLines(ship, Colors.CombatOrders(alpha));
                 }
             }
             if (!ship.AI.HasPriorityOrder &&
                 (ship.AI.State == AIState.AttackTarget || ship.AI.State == AIState.Combat) && ship.AI.Target is Ship)
             {
-                DrawLineProjected(ship.Center, ship.AI.Target.Center, Colors.Attack(alpha));
+                DrawLineProjected(ship.Position, ship.AI.Target.Position, Colors.Attack(alpha));
                 if (ship.AI.TargetQueue.Count > 1)
                 {
                     for (int i = 0; i < ship.AI.TargetQueue.Count - 1; ++i)
@@ -1187,7 +1187,7 @@ namespace Ship_Game
                         var target = ship.AI.TargetQueue[i];
                         if (target == null || !target.Active)
                             continue;
-                        DrawLineProjected(target.Center, ship.AI.TargetQueue[i].Center,
+                        DrawLineProjected(target.Position, ship.AI.TargetQueue[i].Position,
                             Colors.Attack((byte) (alpha * .5f)));
                     }
                 }
@@ -1195,7 +1195,7 @@ namespace Ship_Game
             }
             if (ship.AI.State == AIState.Boarding && ship.AI.EscortTarget != null)
             {
-                DrawLineProjected(start, ship.AI.EscortTarget.Center, Colors.CombatOrders(alpha));
+                DrawLineProjected(start, ship.AI.EscortTarget.Position, Colors.CombatOrders(alpha));
                 return;
             }
 
@@ -1242,7 +1242,7 @@ namespace Ship_Game
 
             WayPoint[] wayPoints = ship.AI.CopyWayPoints();
 
-            DrawLineProjected(ship.Center, wayPoints[0].Position, color);
+            DrawLineProjected(ship.Position, wayPoints[0].Position, color);
 
             for (int i = 1; i < wayPoints.Length; ++i)
             {

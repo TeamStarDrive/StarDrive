@@ -23,7 +23,7 @@ namespace Ship_Game.AI
         public bool HasWayPoints => WayPoints.Count > 0;
         public WayPoint[] CopyWayPoints() => WayPoints.ToArray();
 
-        public Vector2 DebugDrawPosition => Owner.Center + Owner.Velocity.Normalized() * Owner.Radius;
+        public Vector2 DebugDrawPosition => Owner.Position + Owner.Velocity.Normalized() * Owner.Radius;
         public void ClearWayPoints()
         {
             WayPoints.Clear();
@@ -112,7 +112,7 @@ namespace Ship_Game.AI
 
             if (autoSlowDown)
             {
-                float distance = position.Distance(Owner.Center);
+                float distance = position.Distance(Owner.Position);
                 if (distance < 50f)
                 {
                     ReverseThrustUntilStopped(timeStep);
@@ -149,7 +149,7 @@ namespace Ship_Game.AI
             Vector2 movePos = goal.MovePosition; // dynamic move position
             ThrustOrWarpToPos(movePos, timeStep, speedLimit);
 
-            float distance = Owner.Center.Distance(movePos);
+            float distance = Owner.Position.Distance(movePos);
 
             // we need to bail out way earlier when warping
             if (Owner.engineState == Ship.MoveState.Warp)
@@ -171,22 +171,22 @@ namespace Ship_Game.AI
                     {
                         float targetStrength = Owner.AI.PotentialTargets.Sum(s => s.GetStrength());
                         if (targetStrength > 0)
-                            closestShip = Owner.AI.PotentialTargets.FindMin(s => s.Center.Distance(Owner.Center));
+                            closestShip = Owner.AI.PotentialTargets.FindMin(s => s.Position.Distance(Owner.Position));
                     }
 
                     if (closestShip != null)
                     {
                         float fleetDistance = 0;
-                        float actualDistance = Owner.Center.Distance(closestShip.Center);
+                        float actualDistance = Owner.Position.Distance(closestShip.Position);
                         switch (Owner.fleet.Fcs)
                         {
                             case Fleet.FleetCombatStatus.Maintain:
-                                fleetDistance = (Owner.fleet.AveragePosition() + Owner.AI.FleetNode.FleetOffset).Distance(closestShip.Center);
+                                fleetDistance = (Owner.fleet.AveragePosition() + Owner.AI.FleetNode.FleetOffset).Distance(closestShip.Position);
                                 if (actualDistance < Owner.AI.FleetNode.OrdersRadius && fleetDistance <= Owner.AI.FleetNode.OrdersRadius)
                                     SetPriorityOrder(false);
                                 break;
                             case Fleet.FleetCombatStatus.Loose:
-                                fleetDistance = Owner.fleet.AveragePosition().Distance(closestShip.Center);
+                                fleetDistance = Owner.fleet.AveragePosition().Distance(closestShip.Position);
                                 if (actualDistance < Owner.AI.FleetNode.OrdersRadius && fleetDistance <= Owner.AI.FleetNode.OrdersRadius)
                                     SetPriorityOrder(false);
                                 break;
@@ -241,7 +241,7 @@ namespace Ship_Game.AI
 
             // to make the ship perfectly centered
             Vector2 direction = Owner.Direction;
-            float distance = Owner.Center.Distance(targetPos);
+            float distance = Owner.Position.Distance(targetPos);
             if (distance <= 75) // final stop, by this point our speed should be sufficiently
             {
                 if (debug) Empire.Universe.DebugWin.DrawText(DebugDrawPosition, "STOP", Color.Red);
@@ -261,11 +261,11 @@ namespace Ship_Game.AI
             {
                 // prediction to enhance movement precision
                 Vector2 predictedPoint = PredictThrustPosition(targetPos);
-                direction = Owner.Center.DirectionToTarget(predictedPoint);
+                direction = Owner.Position.DirectionToTarget(predictedPoint);
             }
             else
             {
-                direction = Owner.Center.DirectionToTarget(targetPos);
+                direction = Owner.Position.DirectionToTarget(targetPos);
             }
 
             bool isFacingTarget = !RotateToDirection(direction, timeStep, 0.05f);
@@ -363,7 +363,7 @@ namespace Ship_Game.AI
         {
             // because or ship is actively moving, it needs to correct its thrusting direction
             // this reduces drift and prevents stupidly missing targets with naive "thrust toward target"
-            Vector2 prediction = new ImpactPredictor(Owner.Center, Owner.Velocity, targetPos).PredictMovePos();
+            Vector2 prediction = new ImpactPredictor(Owner.Position, Owner.Velocity, targetPos).PredictMovePos();
             ThrustTarget = prediction;
             return prediction;
         }
@@ -394,7 +394,7 @@ namespace Ship_Game.AI
             // we don't need to use predicted position here, since warp is more linear
             // and prediction errors can cause warp to disengage due to sharp angle
             float actualDiff = Owner.AngleDifferenceToPosition(pos);
-            float distance = pos.Distance(Owner.Center);
+            float distance = pos.Distance(Owner.Position);
             if (UpdateWarpThrust(timeStep, actualDiff, distance))
             {
                 return; // WayPoint short-cut
@@ -454,7 +454,7 @@ namespace Ship_Game.AI
             }
             else // In a fleet
             {
-                if (Owner.fleet.AveragePosition().Distance(Owner.Center) > 15000)
+                if (Owner.fleet.AveragePosition().Distance(Owner.Position) > 15000)
                 {
                     // This ship is far away from the fleet
                     Owner.EngageStarDrive();
@@ -508,7 +508,7 @@ namespace Ship_Game.AI
                 if (WayPoints.Count >= 2 && distance > Owner.loyalty.GetProjectorRadius() * 0.5f)
                 {
                     WayPoint next = WayPoints.ElementAt(1);
-                    float nextDistance = Owner.Center.Distance(next.Position);
+                    float nextDistance = Owner.Position.Distance(next.Position);
                     if (nextDistance < Owner.loyalty.GetProjectorRadius() * 5f) // within cut range
                     {
                         float nextDiff = Owner.AngleDifferenceToPosition(next.Position);

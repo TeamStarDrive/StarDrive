@@ -20,7 +20,7 @@ namespace Ship_Game.AI.CombatTactics
             Vector2 initialOffset = Vectors.Up * DesiredCombatRange;
             if (OwnerTarget != null)
             {
-                Vector2 initialDirection = OwnerTarget.Center.DirectionToTarget(Owner.Center);
+                Vector2 initialDirection = OwnerTarget.Position.DirectionToTarget(Owner.Position);
                 initialOffset = initialDirection * DesiredCombatRange;
 
                 // desiredCombatRange * 0.25... need a turn friendly value here. 
@@ -45,7 +45,7 @@ namespace Ship_Game.AI.CombatTactics
 
             if (DistanceToTarget > DesiredCombatRange + Owner.Radius)
             {
-                Vector2 initialMovePoint = OwnerTarget.Center + SetInitialOrbitEntryPoint();
+                Vector2 initialMovePoint = OwnerTarget.Position + SetInitialOrbitEntryPoint();
                 AI.SubLightMoveTowardsPosition(initialMovePoint, timeStep);
                 moveState = CombatMoveState.Approach;
             }

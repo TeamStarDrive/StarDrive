@@ -273,7 +273,7 @@ namespace Ship_Game.AI
                     if (startingStr < 0f) break;
 
                     foreach (Ship ship in shipsAvailableForAssignment
-                        .OrderBy(ship => ship.Center.SqDist(kv.Key.Position)))
+                        .OrderBy(ship => ship.Position.SqDist(kv.Key.Position)))
                     {
                         if (ship.AI.State == AIState.Resupply
                             || ship.AI.State == AIState.SystemDefender
@@ -412,7 +412,7 @@ namespace Ship_Game.AI
             {
                 Ship troopShip = troopShips[i];
 
-                SolarSystem solarSystem = GetNearestSystemNeedingTroops(troopShip.Center, troopShip.loyalty);
+                SolarSystem solarSystem = GetNearestSystemNeedingTroops(troopShip.Position, troopShip.loyalty);
 
                 if (solarSystem == null)
                     break;

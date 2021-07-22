@@ -119,7 +119,7 @@ namespace Ship_Game.AI
 
             ++Empire.Universe.Objects.Scans;
 
-            var findFriends = new SearchOptions(sensorShip.Center, sensorRadius, GameObjectType.Ship)
+            var findFriends = new SearchOptions(sensorShip.Position, sensorRadius, GameObjectType.Ship)
             {
                 MaxResults = 32,
                 Exclude = sensorShip,
@@ -151,7 +151,7 @@ namespace Ship_Game.AI
             BadGuysNear = false;
 
             Empire us = sensorShip.loyalty;
-            var findEnemies = new SearchOptions(sensorShip.Center, sensorRadius, GameObjectType.Ship)
+            var findEnemies = new SearchOptions(sensorShip.Position, sensorRadius, GameObjectType.Ship)
             {
                 MaxResults = 64,
                 Exclude = sensorShip,
@@ -196,7 +196,7 @@ namespace Ship_Game.AI
             ++Empire.Universe.Objects.Scans;
 
             // as optimization we use WeaponsMaxRange instead
-            var opt = new SearchOptions(sensorShip.Center, sensorShip.WeaponsMaxRange, GameObjectType.Proj)
+            var opt = new SearchOptions(sensorShip.Position, sensorShip.WeaponsMaxRange, GameObjectType.Proj)
             {
                 MaxResults = 32,
                 SortByDistance = true, // only care about closest results
@@ -269,8 +269,8 @@ namespace Ship_Game.AI
                 SensorRange += ship.SensorRange;
 
                 MaxSensorRange = Math.Max(MaxSensorRange, ship.SensorRange);
-                Center        += ship.Center;
-                DPSCenter     += ship.Center * ship.TotalDps;
+                Center        += ship.Position;
+                DPSCenter     += ship.Position * ship.TotalDps;
             }
 
             public TargetParameterTotals GetAveragedValues()
@@ -322,7 +322,7 @@ namespace Ship_Game.AI
                     Planet p = thisSystem.PlanetList[i];
                     if (!BadGuysNear)
                         BadGuysNear = Owner.loyalty.IsEmpireAttackable(p.Owner)
-                                   && Owner.Center.InRadius(p.Center, radius);
+                                   && Owner.Position.InRadius(p.Center, radius);
                 }
             }
 
@@ -391,10 +391,10 @@ namespace Ship_Game.AI
                        ? ship.BombBays.Count * 500 
                        : ship.BombBays.Count * 100;
 
-            float angleMod = Owner.AngleDifferenceToPosition(ship.Center).Clamped(0.5f, 3)
+            float angleMod = Owner.AngleDifferenceToPosition(ship.Position).Clamped(0.5f, 3)
                              / Owner.RotationRadiansPerSecond.LowerBound(0.5f);
 
-            float distance = Owner.Center.Distance(ship.Center).LowerBound(minimumDistance);
+            float distance = Owner.Position.Distance(ship.Position).LowerBound(minimumDistance);
             value /= angleMod;
             return value / distance;
         }
@@ -487,11 +487,11 @@ namespace Ship_Game.AI
                 return false;
 
             if (CombatState == CombatState.GuardMode && 
-                !Target.Center.InRadius(Owner.Center, Ship.GuardModeRange))
+                !Target.Position.InRadius(Owner.Position, Ship.GuardModeRange))
                 return false;
 
             if (CombatState == CombatState.HoldPosition &&
-                !Target.Center.InRadius(Owner.Center, Ship.HoldPositionRange))
+                !Target.Position.InRadius(Owner.Position, Ship.HoldPositionRange))
                 return false;
 
             return true;
@@ -587,7 +587,7 @@ namespace Ship_Game.AI
                 float motherRange = Owner.Mothership.AI.GetSensorRadius(out sensorShip);
 
                 // in radius of the motherships sensors then use that.
-                if (Owner.Center.InRadius(sensorShip.Center, motherRange - Owner.SensorRange))
+                if (Owner.Position.InRadius(sensorShip.Position, motherRange - Owner.SensorRange))
                     return motherRange;
             }
             sensorShip = Owner;
@@ -604,7 +604,7 @@ namespace Ship_Game.AI
             {
                 if (bombBay.InstalledWeapon.CooldownTimer > 0f)
                     continue;
-                var bomb = new Bomb(new Vector3(Owner.Center, 0f), Owner.loyalty, bombBay.BombType);
+                var bomb = new Bomb(new Vector3(Owner.Position, 0f), Owner.loyalty, bombBay.BombType);
                 if (Owner.Ordinance > bombBay.InstalledWeapon.OrdinanceRequiredToFire)
                 {
                     Owner.ChangeOrdnance(-bombBay.InstalledWeapon.OrdinanceRequiredToFire);

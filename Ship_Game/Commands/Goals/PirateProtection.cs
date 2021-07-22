@@ -46,11 +46,11 @@ namespace Ship_Game.Commands.Goals
             if (!Pirates.PaidBy(TargetEmpire) || ShipToProtect == null || !ShipToProtect.Active)
                 return GoalStep.GoalFailed; // They stopped the contract or the ship is dead
 
-            Vector2 where = ShipToProtect.Center.GenerateRandomPointOnCircle(1000);
+            Vector2 where = ShipToProtect.Position.GenerateRandomPointOnCircle(1000);
             if (Pirates.SpawnBoardingShip(ShipToProtect, where, out Ship boardingShip))
             {
                 ShipToProtect.HyperspaceReturn();
-                if (Pirates.SpawnForce(TargetShip, boardingShip.Center, 5000, out Array<Ship> force))
+                if (Pirates.SpawnForce(TargetShip, boardingShip.Position, 5000, out Array<Ship> force))
                    Pirates.OrderEscortShip(boardingShip, force);
 
                 return GoalStep.GoToNextStep;

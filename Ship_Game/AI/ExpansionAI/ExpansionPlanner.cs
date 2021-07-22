@@ -313,8 +313,8 @@ namespace Ship_Game.AI.ExpansionAI
                 return false; // All systems were explored or are marked by someone else
 
             // Sort by distance from explorer center
-            potentials.Sort(s => ship.Center.SqDist(s.Position));
-            potentialHostiles.Sort(s => ship.Center.SqDist(s.Position));
+            potentials.Sort(s => ship.Position.SqDist(s.Position));
+            potentialHostiles.Sort(s => ship.Position.SqDist(s.Position));
             potentials.AddRange(potentialHostiles); // revisit hostile not full explored lastly
 
             targetSystem = potentials.First();

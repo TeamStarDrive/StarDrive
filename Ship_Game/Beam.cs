@@ -76,7 +76,7 @@ namespace Ship_Game
             : base(ship.loyalty, GameObjectType.Beam)
         {
             Owner       = ship;
-            Source      = ship.Center;
+            Source      = ship.Position;
             Destination = destination;
             Thickness   = thickness;
 
@@ -273,8 +273,8 @@ namespace Ship_Game
             int y2 = (int)Math.Max(source.Y, target.Y);
 
             // These are used by Spatial management
-            Center = new Vector2((x1 + x2) >> 1,
-                                 (y1 + y2) >> 1);
+            Position = new Vector2((x1 + x2) >> 1,
+                                   (y1 + y2) >> 1);
             RadiusX = (x2 - x1) >> 1;
             RadiusY = (y2 - y1) >> 1;
         }
@@ -288,7 +288,7 @@ namespace Ship_Game
             }
 
             Vector2 slotForward  = (Owner.Rotation + Module.Rotation.ToRadians()).RadiansToDirection();
-            Vector2 muzzleOrigin = Module.Center + slotForward * (Module.YSIZE * 8f);
+            Vector2 muzzleOrigin = Module.Position + slotForward * (Module.YSIZE * 8f);
 
             // @todo Varying beam width
             //int thickness = (int)UniverseRandom.RandomBetween(Thickness*0.75f, Thickness*1.1f);
@@ -316,7 +316,7 @@ namespace Ship_Game
             Source = muzzleOrigin;
 
             // always update Destination to ensure beam stays in range
-            Vector2 newDestination = (Target?.Center ?? Destination);
+            Vector2 newDestination = (Target?.Position ?? Destination);
 
             // old destination adjusted to same distance as newDestination,
             // so we get two equal length lines \/
@@ -359,7 +359,7 @@ namespace Ship_Game
         public void CreateHitParticles(float centerAxisZ)
         {
             if (!HasParticleHitEffect(10f)) return;
-            Vector2 impactNormal = (Source - Center).Normalized();
+            Vector2 impactNormal = (Source - Position).Normalized();
             var pos = ActualHitDestination.ToVec3(centerAxisZ);
             Empire.Universe.Particles.Flash.AddParticle(pos, Vector3.Zero);
             for (int i = 0; i < 20; i++)
@@ -376,7 +376,7 @@ namespace Ship_Game
     {
         readonly DroneAI AI;
         public DroneBeam(DroneAI ai) :
-            base(ai.DroneWeapon, ai.Drone.Center, ai.DroneTarget.Center, ai.DroneTarget)
+            base(ai.DroneWeapon, ai.Drone.Position, ai.DroneTarget.Position, ai.DroneTarget)
         {
             AI = ai;
             Owner = ai.Drone.Owner;
@@ -385,8 +385,8 @@ namespace Ship_Game
         public override void Update(FixedSimTime timeStep)
         {
             Duration -= timeStep.FixedTime;
-            Source = AI.Drone.Center;
-            SetActualHitDestination(AI.DroneTarget?.Center ?? Source);
+            Source = AI.Drone.Position;
+            SetActualHitDestination(AI.DroneTarget?.Position ?? Source);
             // apply drone repair effect, 5 times more if not in combat
             if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
             {

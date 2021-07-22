@@ -18,7 +18,7 @@ namespace Ship_Game.AI.CombatTactics
 
         protected override void OverrideCombatValues(FixedSimTime timeStep)
         {
-            DistanceToTarget = Owner.Center.Distance(OwnerTarget.Center) + 0.5f * OwnerTarget.Radius;
+            DistanceToTarget = Owner.Position.Distance(OwnerTarget.Position) + 0.5f * OwnerTarget.Radius;
         }
 
         // @note We don't cache min/max distance, because combat state and target can change most of the dynamics
@@ -49,7 +49,7 @@ namespace Ship_Game.AI.CombatTactics
                     // This move will keep the ship aligned with the intercept point (for fastest closing of distance).
                     // You won't notice when charging head to head / chasing directly behind, but there are cases 
                     // where this is quite bad for weapons alignment. That is the reason for the buffer.                    
-                    AI.SubLightMoveTowardsPosition(target.Center, timeStep);
+                    AI.SubLightMoveTowardsPosition(target.Position, timeStep);
                 }
                 else 
                 {

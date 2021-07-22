@@ -10,7 +10,7 @@ namespace Ship_Game.AI.CombatTactics
         public BroadSides(ShipAI ai, OrbitPlan.OrbitDirection direction) : base(ai, direction)
         {
         }
-        Vector2 InitialMovePoint(float desiredTargetRange) => OwnerTarget.Center + SetInitialOrbitEntryPoint(desiredTargetRange);
+        Vector2 InitialMovePoint(float desiredTargetRange) => OwnerTarget.Position + SetInitialOrbitEntryPoint(desiredTargetRange);
        
         protected override void OverrideCombatValues(FixedSimTime timeStep)
         {
@@ -44,12 +44,12 @@ namespace Ship_Game.AI.CombatTactics
 
         CombatMoveState ExecuteBroadside(FixedSimTime timeStep)
         {
-            Vector2 dir = Owner.Center.DirectionToTarget(AI.Target.Center);
+            Vector2 dir = Owner.Position.DirectionToTarget(AI.Target.Position);
             // when doing broadside to Right, wanted forward dir is 90 degrees left
             // when doing broadside to Left, wanted forward dir is 90 degrees right
             dir = (Direction == OrbitDirection.Right) ? dir.LeftVector() : dir.RightVector();
             AI.ReverseThrustUntilStopped(timeStep);
-            AI.RotateTowardsPosition(Owner.Center + dir, timeStep, 0.02f);
+            AI.RotateTowardsPosition(Owner.Position + dir, timeStep, 0.02f);
             return CombatMoveState.Maintain;
         }
         /// <summary>
@@ -60,7 +60,7 @@ namespace Ship_Game.AI.CombatTactics
             Vector2 initialOffset = Vectors.Up * wantedRangeToTarget;
             if (OwnerTarget != null)
             {
-                Vector2 initialDirection = OwnerTarget.Center.DirectionToTarget(Owner.Center);
+                Vector2 initialDirection = OwnerTarget.Position.DirectionToTarget(Owner.Position);
                 initialOffset = initialDirection * DesiredCombatRange;
 
                 if (Direction == OrbitDirection.Left)

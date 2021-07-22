@@ -229,14 +229,14 @@ namespace Ship_Game.AI
 
         public void OrderMoveAndRebase(Planet p)
         {
-            Vector2 direction = Owner.Center.DirectionToTarget(p.Center);
+            Vector2 direction = Owner.Position.DirectionToTarget(p.Center);
             OrderMoveToNoStop(GetPositionOnPlanet(p), direction, false, AIState.Rebase);
             AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
         }
 
         public void OrderSupplyShipLand(Planet p)
         {
-            Vector2 direction = Owner.Center.DirectionToTarget(p.Center);
+            Vector2 direction = Owner.Position.DirectionToTarget(p.Center);
             OrderMoveToNoStop(GetPositionOnPlanet(p), direction, false, AIState.SupplyReturnHome);
             IgnoreCombat = true;
             EscortTarget = null;
@@ -260,7 +260,7 @@ namespace Ship_Game.AI
 
         public void OrderMoveAndScrap(Planet p)
         {
-            Vector2 direction = Owner.Center.DirectionToTarget(p.Center);
+            Vector2 direction = Owner.Position.DirectionToTarget(p.Center);
             OrbitTarget = p;
             OrderMoveTo(GetPositionOnPlanet(p), direction, true, AIState.Scrap);
             AddPlanetGoal(Plan.Scrap, p, AIState.Scrap);

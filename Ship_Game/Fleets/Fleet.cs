@@ -875,8 +875,8 @@ namespace Ship_Game.Fleets
                     if (ShipsUnderAttackInAo(RearShips, task.TargetPlanet.Center,
                         task.TargetPlanet.ParentSystem.Radius, out Ship shipBeingTargeted))
                     {
-                        EngageCombatToPlanet(shipBeingTargeted.Center, true);
-                        ClearPriorityOrderForShipsInAO(Ships, shipBeingTargeted.Center, shipBeingTargeted.SensorRange);
+                        EngageCombatToPlanet(shipBeingTargeted.Position, true);
+                        ClearPriorityOrderForShipsInAO(Ships, shipBeingTargeted.Position, shipBeingTargeted.SensorRange);
                         TaskStep = 6;
                         break;
                     }
@@ -989,7 +989,7 @@ namespace Ship_Game.Fleets
             for (int i = 0; i < ships.Count; i++)
             {
                 Ship ship = ships[i];
-                if (ship.Center.InRadius(ao, radius) && ship.IsBeingTargeted(out _))
+                if (ship.Position.InRadius(ao, radius) && ship.IsBeingTargeted(out _))
                 {
                     shipBeingTargeted = ship;
                     return true;
@@ -1011,7 +1011,7 @@ namespace Ship_Game.Fleets
 
         bool TryGetTroopShipsInArea(Vector2 center, float radius, out Ship[] troopShips)
         {
-            troopShips = Ships.Filter(s => s.Center.InRadius(center, radius) && s.IsTroopShip);
+            troopShips = Ships.Filter(s => s.Position.InRadius(center, radius) && s.IsTroopShip);
             return troopShips.Length > 0;
         }
 
@@ -1308,7 +1308,7 @@ namespace Ship_Game.Fleets
                 return;
             }
 
-            task.AO = task.TargetShip.Center;
+            task.AO = task.TargetShip.Position;
             switch (TaskStep)
             {
                 case 0:
@@ -1672,7 +1672,7 @@ namespace Ship_Game.Fleets
         {
             foreach (Ship ship in Ships)
             {
-                if (ship.CanTakeFleetOrders && !ship.Center.OutsideRadius(pos, radius) &&
+                if (ship.CanTakeFleetOrders && !ship.Position.OutsideRadius(pos, radius) &&
                     ship.AI.State == AIState.FormationWarp)
                 {
                     ship.AI.State = AIState.AwaitingOrders;
@@ -1727,7 +1727,7 @@ namespace Ship_Game.Fleets
 
             // if the command ship is stuck, unstuck it. Since the fleet average position is the command ship's position
             if (CommandShip != null 
-                && !CommandShip.Center.InRadius(FinalPosition, fleetRadius) 
+                && !CommandShip.Position.InRadius(FinalPosition, fleetRadius) 
                 && (CommandShip.AI.State == AIState.AwaitingOrders || CommandShip.AI.State == AIState.HoldPosition))
             {
                 CommandShip.AI.OrderMoveTo(FinalPosition, FinalDirection, true, AIState.MoveTo, null, CommandShip.IsInhibitedByUnfriendlyGravityWell);
@@ -1852,7 +1852,7 @@ namespace Ship_Game.Fleets
                             availableShips.RemoveAtSwapLast(i);
                             continue;
                         }
-                        Vector2 vFacing = ship.Center.DirectionToTarget(kv.Key);
+                        Vector2 vFacing = ship.Position.DirectionToTarget(kv.Key);
                         ship.AI.OrderMoveTo(kv.Key, vFacing, true, AIState.MoveTo, offensiveMove: true);
 
                         availableShips.RemoveAtSwapLast(i);
@@ -1897,7 +1897,7 @@ namespace Ship_Game.Fleets
             return AllButRearShips.Any(ship => ship.CanTakeFleetOrders &&
                                                !ship.AI.HasPriorityOrder &&
                                                !ship.InCombat &&
-                                               ship.Center.OutsideRadius(task.AO, task.AORadius * 1.5f));
+                                               ship.Position.OutsideRadius(task.AO, task.AORadius * 1.5f));
         }
 
         void SetOrdersRadius(Array<Ship> ships, float ordersRadius)
@@ -1912,7 +1912,7 @@ namespace Ship_Game.Fleets
         bool ReadyToInvade(MilitaryTask task)
         {
             float invasionSafeZone = (task.TargetPlanet.GravityWellRadius);
-            return Ships.Any(ship => ship.Center.InRadius(task.TargetPlanet.Center, invasionSafeZone));
+            return Ships.Any(ship => ship.Position.InRadius(task.TargetPlanet.Center, invasionSafeZone));
         }
 
         /// <summary>
@@ -2221,13 +2221,13 @@ namespace Ship_Game.Fleets
         {
             foreach (Ship ship in Ships)
             {
-                if (ship.Center.SqDist(FleetTask.AO) > ship.AI.FleetNode.OrdersRadius)
+                if (ship.Position.SqDist(FleetTask.AO) > ship.AI.FleetNode.OrdersRadius)
                     ship.AI.OrderThrustTowardsPosition(FleetTask.AO + ship.FleetOffset, 60f.AngleToDirection(), true);
             }
         }
 
         bool PostInvasionAnyShipsOutOfAO(MilitaryTask task) =>
-            Ships.Any(ship => task.AO.OutsideRadius(ship.Center, ship.AI.FleetNode.OrdersRadius));
+            Ships.Any((Predicate<Ship>)(ship => task.AO.OutsideRadius((Vector2)ship.Position, ship.AI.FleetNode.OrdersRadius)));
 
         public void UpdateAI(FixedSimTime timeStep, int which)
         {
@@ -2333,8 +2333,8 @@ namespace Ship_Game.Fleets
         // @return The Final destination position for this ship
         public Vector2 GetFinalPos(Ship ship)
         {
-            if (CommandShip?.InCombat == true && FinalPosition.InRadius(CommandShip.Center, CommandShip.AI.FleetNode.OrdersRadius))
-                return CommandShip.Center + ship.FleetOffset;
+            if (CommandShip?.InCombat == true && FinalPosition.InRadius(CommandShip.Position, CommandShip.AI.FleetNode.OrdersRadius))
+                return CommandShip.Position + ship.FleetOffset;
             
             return FinalPosition + ship.FleetOffset;
         }
@@ -2345,8 +2345,8 @@ namespace Ship_Game.Fleets
             Vector2 desiredFormationPos = GetFormationPos(ship);
             Vector2 desiredFinalPos = GetFinalPos(ship);
 
-            float distToFinalPos = ship.Center.Distance(desiredFinalPos);
-            float distFromFormation = ship.Center.Distance(desiredFormationPos);
+            float distToFinalPos = ship.Position.Distance(desiredFinalPos);
+            float distFromFormation = ship.Position.Distance(desiredFormationPos);
             float distFromFormationToFinal = desiredFormationPos.Distance(desiredFinalPos);
             float shipSpeed = SpeedLimit;
 

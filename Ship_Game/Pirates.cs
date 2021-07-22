@@ -324,7 +324,7 @@ namespace Ship_Game
             else if (GetBases(out Array<Ship> bases))
             {
                 Ship pirateBase = bases.RandItem();
-                Vector2 pos     = pirateBase.Center.GenerateRandomPointOnCircle(2000);
+                Vector2 pos     = pirateBase.Position.GenerateRandomPointOnCircle(2000);
                 if (SpawnShip(PirateShipType.FlagShip, pos, out Ship flagShip))
                 {
                     flagShip.AI.AddEscortGoal(pirateBase);
@@ -346,7 +346,7 @@ namespace Ship_Game
             {
                 Ship selectedBase = bases.RandItem();
                 Planet planet     = selectedBase.GetTether();
-                Vector2 pos       = planet?.Center ?? selectedBase.Center;
+                Vector2 pos       = planet?.Center ?? selectedBase.Position;
 
                 Vector2 stationPos = pos.GenerateRandomPointOnCircle(2000);
                 if (SpawnShip(PirateShipType.Station, stationPos, out Ship station, level) && planet != null)

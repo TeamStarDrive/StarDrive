@@ -55,10 +55,10 @@ namespace Ship_Game.Debug.Page
                     switch (ai.OrderQueue.PeekLast.Plan)
                     {
                         case ShipAI.Plan.DropOffGoods:
-                            Screen.DrawCircleProjectedZ(ship.Center, 50f, debugColor, 6);
+                            Screen.DrawCircleProjectedZ(ship.Position, 50f, debugColor, 6);
                             break;
                         case ShipAI.Plan.PickupGoods:
-                            Screen.DrawCircleProjectedZ(ship.Center, 50f, debugColor, 3);
+                            Screen.DrawCircleProjectedZ(ship.Position, 50f, debugColor, 3);
                             break;
                     }
                 }
