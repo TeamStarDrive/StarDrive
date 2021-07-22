@@ -29,20 +29,6 @@ namespace UnitTests.Ships
             Universe.Objects.Update(TestSimStep);
         }
 
-        //protected override void OnObjectSimStep()
-        //{
-        //    var fighters = Carrier.Carrier.GetActiveFighters();
-        //    int recalling = fighters.Count(f => f.AI.State == AIState.ReturnToHangar);
-        //    Log.Write($"Carrier activeF={fighters.Count} recallF={recalling} pos=[{Carrier.Position.X:0.};{Carrier.Position.Y:0.]}");
-        //    foreach (Ship fighter in fighters)
-        //    {
-        //        if (fighter.AI.State == AIState.ReturnToHangar)
-        //            Log.Write($"  ReturnToHangar dist={Carrier.Position.Distance(fighter.Position):0.} pos=[{fighter.Position.X:0.};{fighter.Position.Y:0.}]");
-        //        else if (fighter.AI.State == AIState.Combat)
-        //            Log.Write($"  Combat dist={Carrier.Position.Distance(fighter.Position):0.} pos=[{fighter.Position.X:0.};{fighter.Position.Y:0.}]");
-        //    }
-        //}
-
         void SpawnEnemyShip()
         {
             Hostile = SpawnShip("Ving Defender", Enemy, new Vector2(5000));
