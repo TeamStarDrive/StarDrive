@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -147,12 +148,11 @@ namespace Ship_Game
                 Empire.Universe.NotificationManager.AddMeteorShowerInSystem(planet);
         }
 
-        static void CreateMeteors(Planet p, int numMeteors)
+        public static void CreateMeteors(Planet p, int numMeteors)
         {
-            Vector2 origin    = GetMeteorOrigin(p);
-            Vector2 direction = origin.DirectionToTarget(p.Center);
-            float rotation    = direction.ToDegrees();
-            int speed         = RandomMath.RollDie(1000, 500);
+            int speed = RandomMath.RollDie(1000, 500);
+            Vector2 origin = GetMeteorOrigin(p);
+
             for (int i = 0; i < numMeteors; i++)
             {
                 string meteorName;
@@ -175,8 +175,11 @@ namespace Ship_Game
                     Log.Warning($"Meteors: Could not create {meteorName} is random event");
                     continue;
                 }
-
-                meteor.AI.AddMeteorGoal(p, rotation, direction, speed);
+                
+                Vector2 direction = pos.DirectionToTarget(p.Center);
+                float rotation = direction.ToDegrees();
+                float thisSpeed = RandomMath.IntBetween(speed-100, speed+100);
+                meteor.AI.AddMeteorGoal(p, rotation, direction, thisSpeed);
             }
         }
 
