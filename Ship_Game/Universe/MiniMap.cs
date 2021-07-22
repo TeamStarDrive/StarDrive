@@ -193,11 +193,11 @@ namespace Ship_Game
 
         void DrawSelected(SpriteBatch batch, Empire empire)
         {
-            Ship ship         = Screen.SelectedShip;
-            Planet planet     = Screen.SelectedPlanet;
-            var system        = Screen.SelectedSystem;
-            Ship[] containsShip = Screen.SelectedShipList.AtomicCopy();
-            var fleet         = Screen.SelectedFleet;
+            Ship ship     = Screen.SelectedShip;
+            Planet planet = Screen.SelectedPlanet;
+            var system    = Screen.SelectedSystem;
+            var fleet     = Screen.SelectedFleet;
+            Ship[] containsShip = Screen.SelectedShipList.ToArray();
 
             Array<Vector2> centers = new Array<Vector2>();
 

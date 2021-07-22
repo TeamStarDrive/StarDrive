@@ -150,7 +150,7 @@ namespace Ship_Game
 
         // ship selection
         public bool SelectSameDesign      => IsCtrlKeyDown && IsAltKeyDown;
-        public bool SelectSameRole        => IsAltKeyDown;
+        public bool SelectSameHull        => IsAltKeyDown;
         public bool SelectSameRoleAndHull => IsCtrlKeyDown;
 
         // researchScreen
