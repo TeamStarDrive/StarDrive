@@ -16,8 +16,6 @@ namespace UnitTests.Ships
     {
         public ShipModuleTests()
         {
-            LoadStarterShips(starterShips:new[]{ "Vulcan Scout" }, 
-                             savedDesigns:new[]{ "Prototype Frigate" });
             CreateUniverseAndPlayerEmpire();
         }
 

@@ -21,12 +21,9 @@ namespace UnitTests.AITests.Empire
         // NOTE: This constructor is called every time a [TestMethod] is executed
         public TestEmpireAI()
         {
-            ResourceManager.TestOptions testOptions = ResourceManager.TestOptions.LoadPlanets;
-            testOptions |= ResourceManager.TestOptions.TechContent;
-            LoadStarterShips(testOptions,
-                             "Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle",
+            LoadStarterShips("Excalibur-Class Supercarrier", "Corsair",
                              "Flak Fang", "Akagi-Class Mk Ia Escort Carrier", "Rocket Inquisitor",
-                             "Cordrazine Prototype", "Cordrazine Troop", "PLT-Defender", "Colony Ship");
+                             "Cordrazine Prototype", "Cordrazine Troop", "PLT-Defender");
 
             CreateUniverseAndPlayerEmpire("Cordrazine");
 
@@ -93,7 +90,10 @@ namespace UnitTests.AITests.Empire
         {
             var build = new RoleBuildInfo(10, Player.GetEmpireAI(), true);
             string shipName = Player.GetEmpireAI().GetAShip(build);
-            Assert.AreEqual("Rocket Inquisitor", shipName, "Build did not create expected ship");
+
+            // it should be random:
+            if (!(shipName == "Rocket Scout" || shipName == "Rocket Inquisitor"))
+                throw new AssertFailedException($"Build should have created Rocket Scout or Rocket Inquisitor but created: {shipName}");
         }
 
         [TestMethod]

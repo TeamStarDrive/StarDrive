@@ -12,7 +12,6 @@ namespace UnitTests.NotificationTests
 
         public TestNotifications()
         {
-            LoadPlanetContent();
             CreateUniverseAndPlayerEmpire();
             AddDummyPlanetToEmpire(Player);
             NotifMgr = new NotificationManager(Universe.ScreenManager, Universe);

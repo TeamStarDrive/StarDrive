@@ -34,8 +34,25 @@ namespace UnitTests
         {
             ConfigureAssembly();
 
-            var sw = Stopwatch.StartNew();
+            var s1 = Stopwatch.StartNew();
+            CreateGameInstance();
+            Log.Info($"CreateGameInstance elapsed: {s1.Elapsed.TotalMilliseconds}ms");
 
+            var s2 = Stopwatch.StartNew();
+            LoadStarterContent();
+            Log.Info($"LoadStarterContent elapsed: {s2.Elapsed.TotalMilliseconds}ms");
+        }
+
+        [AssemblyCleanup]
+        public static void TeardownStarDriveTests()
+        {
+            Game?.Dispose();
+            Game = null;
+            Cleanup();
+        }
+        
+        static void CreateGameInstance()
+        {
             GlobalStats.LoadConfig();
             Log.Initialize(enableSentry: false);
             Log.VerboseLogging = true;
@@ -50,15 +67,21 @@ namespace UnitTests
             Game.Create();
             Content = Game.Content;
             Game.Manager.input.Provider = MockInput = new MockInputProvider();
-            Log.Info($"CreateGameInstance elapsed: {sw.Elapsed.TotalMilliseconds}ms");
         }
 
-        [AssemblyCleanup]
-        public static void TeardownStarDriveTests()
+        static void LoadStarterContent()
         {
-            Game?.Dispose();
-            Game = null;
-            Cleanup();
+            ResourceManager.LoadContentForTesting();
+            ReloadStarterShips();
+        }
+
+        public static void ReloadStarterShips()
+        {
+            // some basic ships that we always use
+            string[] starterShips = { "Vulcan Scout", "Rocket Scout", 
+                                      "Colony Ship", "Small Transport", "Supply Shuttle" };
+            string[] savedDesigns = { "Prototype Frigate" };
+            ResourceManager.LoadStarterShipsForTesting(starterShips, savedDesigns);
         }
 
         public static void Cleanup()

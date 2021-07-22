@@ -13,7 +13,6 @@ namespace UnitTests.AITests.Ships
 
         public TestShipExploration()
         {
-            LoadStarterShipVulcan(ResourceManager.TestOptions.LoadPlanets);
             CreateUniverseAndPlayerEmpire();
             GlobalStats.ExtraPlanets     = 1; // Ensures there is at least one planet to explore
             GlobalStats.DisableAsteroids = true; // Ensures no asteroids will be created instead of a planet

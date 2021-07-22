@@ -21,7 +21,8 @@ namespace UnitTests.Ships
         public CarrierTests()
         {
             // Excalibur class has all the bells and whistles
-            LoadStarterShips("Excalibur-Class Supercarrier", "Ving Defender", "Supply Shuttle", "Alliance-Class Mk Ia Hvy Assault", "Assault Shuttle");
+            LoadStarterShips("Excalibur-Class Supercarrier", "Ving Defender", 
+                             "Alliance-Class Mk Ia Hvy Assault", "Assault Shuttle");
             CreateUniverseAndPlayerEmpire();
             UnlockAllShipsFor(Player);
             Carrier = SpawnShip("Excalibur-Class Supercarrier", Player, Vector2.Zero);

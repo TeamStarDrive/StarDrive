@@ -20,10 +20,7 @@ namespace UnitTests.AITests.Empire
 
         public ShipPoolTests()
         {
-            LoadStarterShips(starterShips:new[]{ "Vulcan Scout", "Excalibur-Class Supercarrier",
-                                                 "Colony Ship", "Small Transport", "Medium Freighter" },
-                             savedDesigns:new[]{ "Prototype Frigate" },
-                             ResourceManager.TestOptions.LoadPlanets);
+            LoadStarterShips("Excalibur-Class Supercarrier", "Medium Freighter");
             CreateUniverseAndPlayerEmpire();
             AddHomeWorldToEmpire(Enemy, out Homeworld);
             Enemy.Update(TestSimStep); // need to update the empire first to create AO's
