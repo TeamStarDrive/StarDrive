@@ -237,7 +237,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < troopsToRemove && i < toRemove.Length; ++i)
             {
                 Troop troop = toRemove[i];
-                Ship assaultShip = CreateTroopShipAtPoint(loyalty.GetAssaultShuttleName(), loyalty, Center, troop);
+                Ship assaultShip = CreateTroopShipAtPoint(loyalty.GetAssaultShuttleName(), loyalty, Position, troop);
                 assaultShip.Velocity = UniverseRandom.RandomDirection() * assaultShip.SpeedLimit + Velocity;
 
                 Ship friendlyTroopShipToRebase = FindClosestAllyToRebase(assaultShip);
@@ -260,7 +260,7 @@ namespace Ship_Game.Ships
             return ship.AI.FriendliesNearby.FindMinFiltered(
                 troopShip => troopShip.Carrier.NumTroopsInShipAndInSpace < troopShip.TroopCapacity &&
                              troopShip.Carrier.HasActiveTroopBays,
-                troopShip => ship.Center.SqDist(troopShip.Center));
+                troopShip => ship.Position.SqDist(troopShip.Position));
         }
         
         void UpdateTroops(FixedSimTime timeSinceLastUpdate)

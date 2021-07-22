@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Ship_Game.Graphics.Particles;
 
 namespace Ship_Game.Ships
 {
@@ -11,7 +12,6 @@ namespace Ship_Game.Ships
         private readonly float LightningVelZ;
         private readonly float Area;
 
-
         public static bool CanVisualize(ShipModule module)
         {
             int area = module.XSIZE * module.YSIZE;
@@ -22,37 +22,41 @@ namespace Ship_Game.Ships
 
         public ShipModuleDamageVisualization(ShipModule module)
         {
-            Area                = module.XSIZE * module.YSIZE;
-            Vector3 center      = module.GetCenter3D;
+            Area = module.XSIZE * module.YSIZE;
+            Vector3 center = module.Center3D;
             ShipModuleType type = module.ModuleType;
-            
+
             float modelZ = module.GetParent().BaseHull.ModelZ;
             modelZ = modelZ.Clamped(0, 200) * -1;
+
+            ParticleManager particles = Empire.Universe.Particles;
+
             switch (type) // FB: other special effects based on some module types, use main moduletypes for performance sake
             {
                 case ShipModuleType.Shield:
-                    Lightning = Empire.Universe.Particles.Sparks.NewEmitter(40f, new Vector3(center.ToVec2(), modelZ - 10f));
+                    Lightning = particles.Sparks.NewEmitter(40f, new Vector3(module.Position, modelZ - 10f));
                     LightningVelZ = -6f;
                     break;
                 case ShipModuleType.PowerConduit:
-                    Lightning = Empire.Universe.Particles.Sparks.NewEmitter(25f, new Vector3(center.ToVec2(), modelZ - 10f));
+                    Lightning = particles.Sparks.NewEmitter(25f, new Vector3(module.Position, modelZ - 10f));
                     LightningVelZ = -3f;
                     return;
                 case ShipModuleType.PowerPlant:
-                    Lightning = Empire.Universe.Particles.PhotonExplosion.NewEmitter(Area * 6f, center, modelZ);
+                    Lightning = particles.PhotonExplosion.NewEmitter(Area * 6f, center, modelZ);
                     LightningVelZ = -4;
                     break;
             }
 
             // after all the special cases and removing irrelevant modules, we come to smoke emitters
-            Trail = Empire.Universe.Particles.SmokePlume.NewEmitter(Area * 0.7f , center, modelZ);
-            Smoke = Empire.Universe.Particles.ExplosionSmoke.NewEmitter(Area * 3f, center, modelZ);
+            Trail = particles.SmokePlume.NewEmitter(Area * 0.7f, center, modelZ);
+            Smoke = particles.ExplosionSmoke.NewEmitter(Area * 3f, center, modelZ);
 
             // armor doesnt produce flames. 
-            if (type == ShipModuleType.Armor)
-                return;
-            Flame = Area >= 15f ? Empire.Universe.Particles.Flame.NewEmitter(Area * 2 * GlobalStats.DamageIntensity , center, modelZ) : 
-                                 Empire.Universe.Particles.SmallFlame.NewEmitter(Area * 3f * GlobalStats.DamageIntensity, center, modelZ);
+            if (type != ShipModuleType.Armor)
+            {
+                Flame = Area >= 15f ? particles.Flame.NewEmitter(Area * 2 * GlobalStats.DamageIntensity, center, modelZ) :
+                                      particles.SmallFlame.NewEmitter(Area * 3f * GlobalStats.DamageIntensity, center, modelZ);
+            }
         }
 
         // This is called when module is OnFire or completely dead

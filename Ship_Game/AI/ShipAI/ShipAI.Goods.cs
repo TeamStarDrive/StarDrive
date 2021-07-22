@@ -24,7 +24,7 @@
                 return;
 
             AI.ThrustOrWarpToPos(exportPlanet.Center, timeStep);
-            if (!Owner.Center.InRadius(exportPlanet.Center, exportPlanet.ObjectRadius + 300f))
+            if (!Owner.Position.InRadius(exportPlanet.Center, exportPlanet.ObjectRadius + 300f))
                 return;
 
             if (exportPlanet.Storage.GetGoodAmount(g.Trade.Goods) < 1) // other freighter took the goods, damn!
@@ -121,7 +121,7 @@
                 return;
 
             AI.ThrustOrWarpToPos(importPlanet.Center, timeStep);
-            if (!Owner.Center.InRadius(importPlanet.Center, importPlanet.ObjectRadius + 300f))
+            if (!Owner.Position.InRadius(importPlanet.Center, importPlanet.ObjectRadius + 300f))
                 return;
 
             bool fullBeforeUnload = Owner.CargoSpaceFree.AlmostZero();
@@ -144,7 +144,7 @@
 
             Planet toOrbit = importPlanet;
             if (toOrbit.TradeBlocked || Owner.loyalty != toOrbit.Owner)
-                toOrbit = Owner.loyalty.FindNearestRallyPoint(Owner.Center); // get out of here!
+                toOrbit = Owner.loyalty.FindNearestRallyPoint(Owner.Position); // get out of here!
 
             AI.CancelTradePlan(toOrbit);
             Owner.loyalty.CheckForRefitFreighter(Owner, 10);

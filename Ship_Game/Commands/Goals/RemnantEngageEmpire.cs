@@ -51,13 +51,13 @@ namespace Ship_Game.Commands.Goals
             // Target owned planet in the portal system first, target empire is not relevant
             if (Portal.System != null && Portal.System.PlanetList.Any(p => p.Owner != null))
             {
-                TargetPlanet = Portal.System.PlanetList.FindMin(p => p.Center.Distance(Portal.Center));
+                TargetPlanet = Portal.System.PlanetList.FindMin(p => p.Center.Distance(Portal.Position));
                 return TargetPlanet != null;
             }
 
             // Find closest planet in the map to Portal and target a planet from the victim's planet list
             var planets   = Empire.Universe.PlanetsDict.Values.ToArray().Filter(p => p.Owner != null);
-            Planet planet = planets.FindMin(p => p.Center.Distance(Portal.Center));
+            Planet planet = planets.FindMin(p => p.Center.Distance(Portal.Position));
             if (!Remnants.TargetNextPlanet(TargetEmpire, planet, 0, out Planet targetPlanet))
                 return false; // Could not find a target planet
 
@@ -95,7 +95,7 @@ namespace Ship_Game.Commands.Goals
                 if (!Remnants.GetClosestPortal(Fleet.AveragePosition(), out Ship closestPortal))
                     return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
 
-                Fleet.FleetTask.ChangeAO(closestPortal.Center);
+                Fleet.FleetTask.ChangeAO(closestPortal.Position);
                 Fleet.TaskStep = 8; // Order fleet to go back to portal
             }
 
@@ -111,7 +111,7 @@ namespace Ship_Game.Commands.Goals
             {
                 if (Remnants.CreateShip(Portal, true, 0, out Ship ship))
                 {
-                    ship.Position = Portal.Center.GenerateRandomPointInsideCircle(3000);
+                    ship.Position = Portal.Position.GenerateRandomPointInsideCircle(3000);
                     ship.EmergeFromPortal();
                     Fleet.AddShip(ship);
                 }

@@ -79,7 +79,7 @@ namespace Ship_Game.Commands.Goals
                 for (int i = 0; i < projectors.Count; i++)
                 {
                     Ship ship = projectors[i];
-                    if (ship.Center.InRadius(BuildPosition, 1000))
+                    if (ship.Position.InRadius(BuildPosition, 1000))
                         ship.ScuttleTimer = 120;
                 }
 

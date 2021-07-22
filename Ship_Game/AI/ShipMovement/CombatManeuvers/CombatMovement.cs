@@ -144,7 +144,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         }
 
         protected bool IsTargetInterceptingUs => Owner.Direction.Dot(OwnerTarget.Direction) < -0.8f
-                                    && RadMath.IsTargetInsideArc(OwnerTarget.Center, Owner.Center, OwnerTarget.Rotation, RadMath.HalfPI*0.5f);
+                                    && RadMath.IsTargetInsideArc(OwnerTarget.Position, Owner.Position, OwnerTarget.Rotation, RadMath.HalfPI*0.5f);
         
         // they are intercepting us and they're really strong
         protected bool TargetIsMightyAndChasing(float ratioToOurDefense) => IsTargetInterceptingUs && TargetIsMighty(ratioToOurDefense);
@@ -177,8 +177,8 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// </summary>
         void Initialize(float desiredWeaponsRange)
         {
-            DistanceToTarget  = Owner.Center.Distance(OwnerTarget.Center);
-            DirectionToTarget = Owner.Center.DirectionToTarget(OwnerTarget.Center);
+            DistanceToTarget  = Owner.Position.Distance(OwnerTarget.Position);
+            DirectionToTarget = Owner.Position.DirectionToTarget(OwnerTarget.Position);
 
             SpacerDistance = Owner.Radius + AI.Target.Radius;
             DebugTextIndex = 0;
@@ -238,7 +238,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             }
             else
             {
-                Vector2 positionOffset = Owner.Center - OwnerTarget.Center;
+                Vector2 positionOffset = Owner.Position - OwnerTarget.Position;
                 Vector2 rightward = OwnerTarget.Direction.RightVector();
 
                 float targetFacingToOwner = positionOffset.Dot(rightward);
@@ -284,9 +284,9 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             ChaseState chase = ChaseState.None;
 
             float dotToInterceptDir = Owner.VelocityDirection.Dot(DirectionToTarget);
-            if (dotToInterceptDir > 0.35f && RadMath.IsTargetInsideArc(Owner.Center, OwnerTarget.Center, Owner.Rotation, RadMath.Deg20AsRads))
+            if (dotToInterceptDir > 0.35f && RadMath.IsTargetInsideArc(Owner.Position, OwnerTarget.Position, Owner.Rotation, RadMath.Deg20AsRads))
                 chase |= ChaseState.WeAreChasing;
-            else if (dotToInterceptDir < -0.35f && RadMath.IsTargetInsideArc(OwnerTarget.Center, Owner.Center, OwnerTarget.Rotation, RadMath.Deg20AsRads))
+            else if (dotToInterceptDir < -0.35f && RadMath.IsTargetInsideArc(OwnerTarget.Position, Owner.Position, OwnerTarget.Rotation, RadMath.Deg20AsRads))
                 chase |= ChaseState.TheyAreChasing;
 
             chase |= CanCatchState(chase, distance);
@@ -309,7 +309,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 return;
             }
 
-            bool inErraticArc = RadMath.IsTargetInsideArc(OwnerTarget.Center, Owner.Center, OwnerTarget.Rotation, RadMath.Deg3AsRads);
+            bool inErraticArc = RadMath.IsTargetInsideArc(OwnerTarget.Position, Owner.Position, OwnerTarget.Rotation, RadMath.Deg3AsRads);
 
             if (inErraticArc || ErraticTimer > 0)
                 return;
@@ -332,7 +332,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             }
             else
             {
-                Vector2 dir = Owner.Center.DirectionToTarget(AI.Target.Center);
+                Vector2 dir = Owner.Position.DirectionToTarget(AI.Target.Position);
                 if (RandomMath.IntBetween(0, 1) == 1)
                 {
                     ZigZag = dir.RightVector() * 100 * Owner.RotationRadiansPerSecond;
@@ -351,7 +351,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 Empire.Universe.SelectedShip == Owner)
             {
                 Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, pip, radius, Owner.loyalty.EmpireColor, 0f);
-                Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, AI.Target.Center, pip, 1f, Owner.loyalty.EmpireColor, 0f);
+                Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, AI.Target.Position, pip, 1f, Owner.loyalty.EmpireColor, 0f);
             }
         }
 
@@ -363,7 +363,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             {
                 DebugTextIndex++;
                 Empire.Universe.DebugWin?.DrawText(DebugModes.Targeting,
-                    Owner.Center + new Vector2(Owner.Radius, Owner.Radius + 50 * DebugTextIndex), text, Color.Red, 0f);
+                    Owner.Position + new Vector2(Owner.Radius, Owner.Radius + 50 * DebugTextIndex), text, Color.Red, 0f);
             }
         }
     }

@@ -147,7 +147,7 @@ namespace Ship_Game.Ships
 
                 float w = sc.ProjectToScreenSize(moduleWidth);
                 float h = sc.ProjectToScreenSize(moduleHeight);
-                Vector2 posOnScreen = sc.ProjectToScreenPosition(slot.Center);
+                Vector2 posOnScreen = sc.ProjectToScreenPosition(slot.Position);
 
                 // round all the values to TRY prevent module flickering on screen
                 // it helps by a noticeable amount
@@ -176,7 +176,7 @@ namespace Ship_Game.Ships
                     {
                         sc.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
                         if (showDebugSelect)
-                            sc.DrawCircleProjected(slot.Center, slot.Radius, Color.Orange, 2f);
+                            sc.DrawCircleProjected(slot.Position, slot.Radius, Color.Orange, 2f);
                     }
                     else
                     {
@@ -216,7 +216,7 @@ namespace Ship_Game.Ships
                         }
 
                         // draw the debug x/y pos
-                        ModulePosToGridPoint(slot.Position, out int x, out int y);
+                        ModulePosToGridPoint(slot.GetLegacyGridPos(), out int x, out int y);
                         sc.DrawString(posOnScreen, shipRotation, 600f / camHeight, Color.Red, $"X{x} Y{y}\nF{slotFacing}");
                     }
                 }
@@ -384,7 +384,7 @@ namespace Ship_Game.Ships
                 ShipModule m = Shields[i];
                 if (m.Active && m.ShieldsAreActive)
                 {
-                    screen.ProjectToScreenCoords(m.Center, m.shield_radius * 2.75f, 
+                    screen.ProjectToScreenCoords(m.Position, m.shield_radius * 2.75f, 
                         out Vector2 posOnScreen, out float radiusOnScreen);
 
                     float shieldRate = 0.001f + m.ShieldPower / m.ActualShieldPowerMax;
@@ -406,7 +406,7 @@ namespace Ship_Game.Ships
             else
                 radius = GetDesiredCombatRangeForState(state);
             
-            screen.Renderer.DrawCircleDeferred(Center, radius, Colors.CombatOrders());
+            screen.Renderer.DrawCircleDeferred(Position, radius, Colors.CombatOrders());
         }
     }
 }

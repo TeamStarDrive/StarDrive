@@ -297,7 +297,7 @@ namespace Ship_Game.AI.Tasks
             if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
                 return;
 
-            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(TargetShip.Center,
+            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(TargetShip.Position,
                    40000, Owner, true).LowerBound(100);
 
             UpdateMinimumTaskForceStrength();
@@ -555,7 +555,7 @@ namespace Ship_Game.AI.Tasks
                 if (troopShip == null)
                     break; // No more troops
 
-                Vector2 dir = troopShip.Center.DirectionToTarget(TargetPlanet.ParentSystem.Position);
+                Vector2 dir = troopShip.Position.DirectionToTarget(TargetPlanet.ParentSystem.Position);
                 troopShip.AI.OrderMoveTo(TargetPlanet.ParentSystem.Position, dir, true, AIState.MoveTo);
                 troopStr += troopShip.GetOurTroopStrength(maxTroops: 500);
                 moreTroops.Add(troopShip);

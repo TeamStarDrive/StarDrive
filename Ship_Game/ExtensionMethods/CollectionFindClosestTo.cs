@@ -45,11 +45,11 @@ namespace Ship_Game
                 return null;
 
             Ship found = ships[0];
-            float min = to.SqDist(found.Center);
+            float min = to.SqDist(found.Position);
             for (int i = 1; i < count; ++i)
             {
                 Ship ship = ships[i];
-                float distance = to.SqDist(ship.Center);
+                float distance = to.SqDist(ship.Position);
                 if (distance < min)
                 {
                     min = distance;
@@ -77,12 +77,12 @@ namespace Ship_Game
 
         public static Planet FindClosestTo(this Planet[] planets, Ship toShip)
         {
-            return FindClosestTo(planets, planets.Length, toShip.Center);
+            return FindClosestTo(planets, planets.Length, toShip.Position);
         }
 
         public static Planet FindClosestTo(this Array<Planet> planets, Ship toShip)
         {
-            return FindClosestTo(planets.GetInternalArrayItems(), planets.Count, toShip.Center);
+            return FindClosestTo(planets.GetInternalArrayItems(), planets.Count, toShip.Position);
         }
 
         public static Planet FindClosestTo(this Planet[] planets, int count, Vector2 to)
@@ -125,13 +125,13 @@ namespace Ship_Game
             if (count <= 0 || !ships.FindFirstValid(count, filter, out int i, out Ship found))
                 return null; // no elements passed the filter!
             
-            float min = to.SqDist(found.Center);
+            float min = to.SqDist(found.Position);
             for (; i < count; ++i)
             {
                 Ship ship = ships[i];
                 if (filter(ship))
                 {
-                    float value = to.SqDist(ship.Center);
+                    float value = to.SqDist(ship.Position);
                     if (value < min)
                     {
                         min = value;
@@ -159,12 +159,12 @@ namespace Ship_Game
 
         public static SolarSystem FindClosestTo(this SolarSystem[] systems, Ship toShip)
         {
-            return FindClosestTo(systems, systems.Length, toShip.Center);
+            return FindClosestTo(systems, systems.Length, toShip.Position);
         }
 
         public static SolarSystem FindClosestTo(this Array<SolarSystem> systems, Ship toShip)
         {
-            return FindClosestTo(systems.GetInternalArrayItems(), systems.Count, toShip.Center);
+            return FindClosestTo(systems.GetInternalArrayItems(), systems.Count, toShip.Position);
         }
 
         public static SolarSystem FindClosestTo(this Array<SolarSystem> systems, Vector2 position)

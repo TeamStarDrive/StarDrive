@@ -61,7 +61,7 @@ namespace Ship_Game.Gameplay
         // This is used during interception / attack runs
         public ImpactPredictor(Ship ourShip, GameplayObject target)
         {
-            Pos = ourShip.Center;
+            Pos = ourShip.Position;
             Vel = ourShip.Velocity;
             InterceptSpeed = ourShip.InterceptSpeed;
             TargetInfo info = GetTargetInfo(target);
@@ -72,7 +72,7 @@ namespace Ship_Game.Gameplay
 
         public ImpactPredictor(Projectile proj, GameplayObject target)
         {
-            Pos = proj.Center;
+            Pos = proj.Position;
             Vel = proj.Velocity;
             InterceptSpeed = proj.Speed;
             // guided missiles should not account for speed, since they are
@@ -91,14 +91,14 @@ namespace Ship_Game.Gameplay
             {
                 return new TargetInfo
                 {
-                    Pos = target.Center,
+                    Pos = target.Position,
                     Vel = ship.Velocity,
                     Acc = ship.Acceleration
                 };
             }
             return new TargetInfo
             {
-                Pos = target.Center,
+                Pos = target.Position,
                 Vel = target.Velocity
             };
         }

@@ -38,7 +38,7 @@ namespace Ship_Game.AI
 
             public Pin(Ship ship, bool inBorders)
             {
-                Position   = ship.Center;
+                Position   = ship.Position;
                 Strength   = ship.GetStrength();
                 EmpireName = ship.loyalty.data.Traits.Name;
                 InBorders  = inBorders;
@@ -72,7 +72,7 @@ namespace Ship_Game.AI
             {
                 if (inSensorRadius)
                 {
-                    Position   = ship.Center;
+                    Position   = ship.Position;
                     Strength   = ship.GetStrength();
                     EmpireName = ship.loyalty.data.Traits.Name;
                     EmpireId   = ship.loyalty.Id;
@@ -569,11 +569,11 @@ namespace Ship_Game.AI
                 for (int x = threatCopyPins.Length - 1; x >= 0; x--)
                 {
                     Pin pin = threatCopyPins[x];
-                    if (ship.Center.InRadius(pin.Position, ship.SensorRange))
+                    if (ship.Position.InRadius(pin.Position, ship.SensorRange))
                     {
                         if (pin.Ship?.Active != true)
                             threatCopy.Pins.Remove(pin.PinGuid);
-                        else if (!ship.Center.InRadius(pin.Ship.Center, ship.SensorRange))
+                        else if (!ship.Position.InRadius(pin.Ship.Position, ship.SensorRange))
                             threatCopy.Pins.Remove(pin.PinGuid);
                     }
                 }

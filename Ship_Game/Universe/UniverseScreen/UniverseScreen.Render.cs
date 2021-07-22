@@ -244,7 +244,7 @@ namespace Ship_Game
                         var empire = enemies[x];
                         if (ssp.HasSeenEmpires.KnownBy(empire))
                         {
-                            var screenPos = ProjectToScreenPosition(ssp.Center);
+                            var screenPos = ProjectToScreenPosition(ssp.Position);
                             var flag = empire.data.Traits.FlagIndex;
                             int xPos = (int)screenPos.X + (15 + GlobalStats.IconSize) * spacing;
                             Rectangle rectangle2 = new Rectangle(xPos, (int)screenPos.Y, 15 + GlobalStats.IconSize, 15 + GlobalStats.IconSize);
@@ -544,7 +544,7 @@ namespace Ship_Game
                         Planet planet = GetPlanet(planetGuid);
                         if (planet.Owner != null)
                         {
-                            DrawLineToPlanet(SelectedShip.Center, planet.Center, planet.Owner.EmpireColor);
+                            DrawLineToPlanet(SelectedShip.Position, planet.Center, planet.Owner.EmpireColor);
                             DrawZones(Fonts.Arial14Bold, $"- {planet.Name}", ref cursorY, planet.Owner.EmpireColor);
                         }
                     }

@@ -43,7 +43,7 @@ namespace Ship_Game.AI.CombatTactics
             if (Owner == null || targetShip == null || targetShip.loyalty == Owner.loyalty)
                 return false;
 
-            if (!Owner.Carrier.AnyAssaultOpsAvailable || !targetShip.Center.InRadius(Owner.Center, Owner.DesiredCombatRange * 2))
+            if (!Owner.Carrier.AnyAssaultOpsAvailable || !targetShip.Position.InRadius(Owner.Position, Owner.DesiredCombatRange * 2))
                 return false;
 
             bool sendingTroops = false;

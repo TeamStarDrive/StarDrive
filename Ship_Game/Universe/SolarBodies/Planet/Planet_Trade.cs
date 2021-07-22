@@ -271,7 +271,7 @@ namespace Ship_Game
                 {
                     // cancel trade plan and remove from list if trade treaty was canceled
                     freighters.RemoveAtSwapLast(i);
-                    ship.AI.CancelTradePlan(ship.loyalty.FindNearestRallyPoint(ship.Center));
+                    ship.AI.CancelTradePlan(ship.loyalty.FindNearestRallyPoint(ship.Position));
                 }
             }
         }

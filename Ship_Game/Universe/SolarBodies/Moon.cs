@@ -11,12 +11,12 @@ namespace Ship_Game.Gameplay
 {
     public sealed class Moon : GameplayObject
     {
-        [Serialize(8)]  public float scale;
-        [Serialize(9)]  public int   moonType;
-        [Serialize(10)] public Guid  orbitTarget;
-        [Serialize(11)] public float OrbitRadius;
-        [Serialize(12)] public float OrbitalAngle;
-        [Serialize(13)] public Vector3 RotationRadians;
+        [Serialize(7)]  public float scale;
+        [Serialize(8)]  public int   moonType;
+        [Serialize(9)]  public Guid  orbitTarget;
+        [Serialize(10)] public float OrbitRadius;
+        [Serialize(11)] public float OrbitalAngle;
+        [Serialize(12)] public Vector3 RotationRadians;
 
         [XmlIgnore][JsonIgnore] SceneObject So;
         [XmlIgnore][JsonIgnore] Planet OrbitPlanet;

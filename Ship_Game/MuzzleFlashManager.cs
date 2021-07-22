@@ -23,7 +23,7 @@ namespace Ship_Game
             public void Update()
             {
                 ShipModule mod = Projectile.Module;
-                Vector2 muzzlePos = mod.Center + mod.Direction*mod.Radius;
+                Vector2 muzzlePos = mod.Position + mod.Direction*mod.Radius;
                 Position = new Vector3(muzzlePos.X, muzzlePos.Y, -45f);
                 Rotation = Projectile.Rotation;
             }

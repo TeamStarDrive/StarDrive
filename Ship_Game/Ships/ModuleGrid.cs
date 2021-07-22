@@ -16,33 +16,52 @@ namespace Ship_Game.Ships
         // ReSharper disable once StaticMemberInGenericType
         static readonly MethodInfo GetGridPosM;
         // ReSharper disable once StaticMemberInGenericType
+        static readonly MethodInfo GetLegacyGridPosM;
+        // ReSharper disable once StaticMemberInGenericType
         static readonly MethodInfo GetSizeMethod;
 
         static ModuleGrid()
         {
             Type type = typeof(T);
-            GetGridPosM   = type.GetMethod("GetGridPos", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-            PositionField = type.GetField("Position", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-            GetSizeMethod = type.GetMethod("GetSize", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 
-            if (GetGridPosM == null && PositionField == null)
-                throw new Exception($"ModuleGrid<T> type T={type.GetTypeName()} does not contain `GetGridPos` method OR `Position` field");
+            BindingFlags anyMember = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+            GetGridPosM       = type.GetMethod("GetGridPos", anyMember);
+            GetLegacyGridPosM = type.GetMethod("GetLegacyGridPos", anyMember);
+            PositionField     = type.GetField("Position", anyMember);
+            GetSizeMethod     = type.GetMethod("GetSize", anyMember);
+
+            void Error(string message) => throw new Exception($"ModuleGrid<T> type T={type.GetTypeName()} {message}");
+
+            if (GetGridPosM == null && GetLegacyGridPosM == null && PositionField == null)
+                Error("does not contain `GetGridPos` method OR `GetLegacyGridPosM` method OR `Position` field");
+
             if (GetGridPosM != null && GetGridPosM.ReturnType != typeof(Point))
-                throw new Exception($"ModuleGrid<T> type T={type.GetTypeName()} method `GetGridPos()` return {GetGridPosM.ReturnType} is not of type Point");
+                Error($"method `GetGridPos()` return {GetGridPosM.ReturnType} is not of type Point");
+
+            if (GetLegacyGridPosM != null && GetLegacyGridPosM.ReturnType != typeof(Vector2))
+                Error($"method `GetLegacyGridPosM()` return {GetLegacyGridPosM.ReturnType} is not of type Vector2");
+
             if (PositionField != null && PositionField.FieldType != typeof(Vector2))
-                throw new Exception($"ModuleGrid<T> type T={type.GetTypeName()} field `Position` {PositionField.FieldType} is not of type Vector2");
+                Error($"field `Position` {PositionField.FieldType} is not of type Vector2");
 
             if (GetSizeMethod == null)
-                throw new Exception($"ModuleGrid<T> type T={type.GetTypeName()} does not contain `GetSize()` method");
-            if (GetSizeMethod.ReturnType != typeof(Point))
-                throw new Exception($"ModuleGrid<T> type T={type.GetTypeName()} method `GetSize()` return {GetSizeMethod.ReturnType} is not of type Point");
+                Error("does not contain `GetSize()` method");
+            else if (GetSizeMethod.ReturnType != typeof(Point))
+                Error($"method `GetSize()` return {GetSizeMethod.ReturnType} is not of type Point");
         }
 
         Point GetGridPos(T module)
         {
+            // legacy adapter used in ShipModule.cs
+            if (GetLegacyGridPosM != null)
+                return ToGridPos((Vector2)GetLegacyGridPosM.Invoke(module, null));
+
+            // used in latest adapters such as `HullSlot` struct
+            // going forward, this is the main method we want to implement for ModuleGrids
             if (GetGridPosM != null)
                 return (Point)GetGridPosM.Invoke(module, null);
 
+            // legacy Position field: currently used for ModuleSlotData only
             var position = (Vector2)PositionField.GetValue(module);
             if (module is ModuleSlotData) // legacy module slot offset
             {

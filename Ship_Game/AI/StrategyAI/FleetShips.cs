@@ -350,9 +350,9 @@ namespace Ship_Game.AI
             Ships.Sort(s =>
             {
                 if (s.System?.HostileForcesPresent(OwnerEmpire) ?? false)
-                    return s.Center.SqDist(point) + Empire.Universe.UniverseSize;
+                    return s.Position.SqDist(point) + Empire.Universe.UniverseSize;
 
-                return s.Center.SqDist(point);
+                return s.Position.SqDist(point);
             });
         }
 
