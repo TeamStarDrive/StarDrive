@@ -347,13 +347,13 @@ namespace Ship_Game.AI
 
         void SortShipsByDistanceToPoint(Vector2 point)
         {
-            Ships.Sort((Func<Ship, float>)(s =>
+            Ships.Sort(s =>
             {
                 if (s.System?.HostileForcesPresent(OwnerEmpire) ?? false)
-                    return Vectors.SqDist(s.Position, (Vector2)point) + Empire.Universe.UniverseSize;
+                    return s.Position.SqDist(point) + Empire.Universe.UniverseSize;
 
-                return Vectors.SqDist(s.Position, (Vector2)point);
-            }));
+                return s.Position.SqDist(point);
+            });
         }
 
         static void CheckForShipErrors(Array<Ship> ships)
