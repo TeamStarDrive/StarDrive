@@ -1155,7 +1155,7 @@ namespace Ship_Game
                     chance *= 1.5f; // No atmosphere, not able to burn during planetfall
 
                 chance *= 1 + ship.loyalty.data.Traits.ModHpModifier; // Skilled engineers (or not)
-                chance += ship.SurfaceArea / 100f;
+                chance += ship.SurfaceArea / (ship.IsMeteor ? 50f : 100f);
                 return chance.Clamped(1, 100);
             }
 

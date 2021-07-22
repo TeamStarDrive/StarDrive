@@ -32,9 +32,9 @@ namespace Ship_Game.Ships
 
         public void Update(FixedSimTime timeStep)
         {
-            Vector2 dir = Owner.Position.DirectionToTarget(CrashPos);
-            Owner.Position += dir.Normalized() * Thrust.UpperBound(200) * timeStep.FixedTime;
-            Scale = Owner.Position.Distance(CrashPos) / Distance;
+            Vector2 dir    = Owner.Position.DirectionToTarget(CrashPos);
+            Owner.Velocity = dir * (Owner.MaxSTLSpeed * 0.8f).LowerBound(200);
+            Scale          = Owner.Position.Distance(CrashPos) / Distance;
 
             if (Owner.Position.InRadius(CrashPos, 200))
             {
