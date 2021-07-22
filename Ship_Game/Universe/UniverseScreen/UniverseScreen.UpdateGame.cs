@@ -288,7 +288,6 @@ namespace Ship_Game
                 for (int index = 0; index < JunkList.Count; ++index)
                     JunkList[index].Update(timeStep);
             }
-            SelectedShipList.ApplyPendingRemovals();
             EmpireMiscPerf.Stop();
         }
 

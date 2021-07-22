@@ -339,9 +339,9 @@ namespace Ship_Game
             {
                 FilterShipList(s => s.Name == HoveredShip.Name);
             }
-            else if (Screen.Input.SelectSameRole)
+            else if (Screen.Input.SelectSameHull)
             {
-                FilterShipList(s=> s.DesignRole == HoveredShip.DesignRole);
+                FilterShipList(s=> s.BaseHull == HoveredShip.BaseHull);
             }
             else if (Screen.Input.SelectSameRoleAndHull)
             {
