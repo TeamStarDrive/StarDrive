@@ -1480,7 +1480,7 @@ namespace Ship_Game.Ships
 
         void ExplodeShip(float size, bool addWarpExplode)
         {
-            if (!InFrustum || !IsVisibleToPlayer) 
+            if (!InFrustum || !IsVisibleToPlayer)
                 return;
 
             var position = new Vector3(Position.X, Position.Y, -100f);
@@ -1492,13 +1492,13 @@ namespace Ship_Game.Ships
             ExplosionManager.AddExplosion(position, Velocity,
                 PlanetCrash != null ? size * 0.05f : size * boost, 12f, ExplosionType.Ship);
 
-            if (PlanetCrash != null)
-                return;
+            if (PlanetCrash == null)
+            {
+                if (addWarpExplode)
+                    ExplosionManager.AddExplosion(position, Velocity, size * 1.75f, 12f, ExplosionType.Warp);
 
-            if (addWarpExplode)
-                ExplosionManager.AddExplosion(position, Velocity, size*1.75f, 12f, ExplosionType.Warp);
-
-            UniverseScreen.Spatial.ShipExplode(this, size * 50, Position, Radius);
+                UniverseScreen.Spatial.ShipExplode(this, size * 50, Position, Radius);
+            }
         }
 
         public void InstantKill()
