@@ -110,7 +110,7 @@ namespace Ship_Game.Ships
 
         bool IsModuleOverlappingInternalSlot(ShipModule module, bool[] internalGrid)
         {
-            ModulePosToGridPoint(module.Position, out int x, out int y);
+            ModulePosToGridPoint(module.GetLegacyGridPos(), out int x, out int y);
             int endX = x + module.XSIZE;
             int endY = y + module.YSIZE;
             for (; y < endY; ++y)
@@ -189,7 +189,7 @@ namespace Ship_Game.Ships
             if (!GetModuleAt(SparseModuleGrid, x, y, out ShipModule module))
                 return false;
 
-            ModulePosToGridPoint(module.Position, out x, out y); // now get the true topleft root coordinates of module
+            ModulePosToGridPoint(module.GetLegacyGridPos(), out x, out y); // now get the true topleft root coordinates of module
             if (ShouldBeExternal(x, y, module))
             {
                 if (!module.isExternal)
@@ -220,7 +220,7 @@ namespace Ship_Game.Ships
         // updates the isExternal status of a module, depending on whether it died or resurrected
         public void UpdateExternalSlots(ShipModule module, bool becameActive)
         {
-            ModulePosToGridPoint(module.Position, out int x, out int y);
+            ModulePosToGridPoint(module.GetLegacyGridPos(), out int x, out int y);
 
             if (becameActive) // we resurrected, so add us to external module grid and update all surrounding slots
                 AddExternalModule(module, x, y, GetQuadrantEstimate(x, y));
@@ -243,7 +243,7 @@ namespace Ship_Game.Ships
 
         void UpdateGridSlot(ShipModule[] sparseGrid, ShipModule module, bool becameActive)
         {
-            ModulePosToGridPoint(module.Position, out int x, out int y);
+            ModulePosToGridPoint(module.GetLegacyGridPos(), out int x, out int y);
             UpdateGridSlot(sparseGrid, x, y, module, becameActive);
         }
 
