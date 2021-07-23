@@ -59,6 +59,9 @@ namespace Ship_Game.Commands.Goals
                 if (ship.InRadius(Base.Position, Base.Radius + 3000))
                 {
                     ship.ChangeOrdnance(ship.OrdinanceMax / 10);
+                    if (ship.AI.State == AIState.Escort)
+                        ship.AI.SetPriorityOrder(false);
+
                     Pirates.ProcessShip(ship, Base);
                 }
             }
