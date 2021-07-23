@@ -117,7 +117,7 @@ namespace UnitTests.AITests.Ships
             Assert.IsTrue(OurShip.InCombat, "ship should be in combat");
         }
 
-        static void InjectSteroids(Ship s, Ship target)
+        static void InjectSteroids(Ship s)
         {
             // inject some steroids into our vulcan cannons 
             foreach (var w in s.Weapons)
@@ -126,8 +126,9 @@ namespace UnitTests.AITests.Ships
                 w.OrdinanceRequiredToFire = 0f;
                 w.fireDelay = 0.5f;
             }
+
+            s.AI.SetCombatTriggerDelay(0f);
             s.AI.CombatState = CombatState.ShortRange;
-            s.Rotation = s.Position.RadiansToTarget(target.Position);
         }
 
         void DebugPrintKillFailure(TestShip colonyShip)
@@ -150,7 +151,7 @@ namespace UnitTests.AITests.Ships
             Update(EnemyScanInterval);
             Assert.IsTrue(OurShip.InCombat, "ship should be in combat");
             
-            InjectSteroids(OurShip, target:colonyShip);
+            InjectSteroids(OurShip);
 
             LoopWhile((timeout:5, fatal:false), () => colonyShip.Active, () =>
             {
@@ -177,7 +178,7 @@ namespace UnitTests.AITests.Ships
             Update(EnemyScanInterval);
             Assert.IsTrue(OurShip.InCombat, "ship should be in combat");
             
-            InjectSteroids(OurShip, target:colonyShip);
+            InjectSteroids(OurShip);
 
             // now assign offensive move order
             OurShip.AI.OrderMoveTo(colonyShip.Position, Vectors.Up, true, AIState.AwaitingOrders,
