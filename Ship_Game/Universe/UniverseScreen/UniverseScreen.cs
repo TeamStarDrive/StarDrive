@@ -653,7 +653,8 @@ namespace Ship_Game
 
         public override void UnloadContent()
         {
-            Log.Write(ConsoleColor.Cyan, "UniverseScreen.UnloadContent");
+            if (StarDriveGame.Instance != null) // don't show in tests
+                Log.Write(ConsoleColor.Cyan, "UniverseScreen.UnloadContent");
             ScreenManager.UnloadSceneObjects();
             base.UnloadContent();
         }
