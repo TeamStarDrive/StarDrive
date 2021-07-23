@@ -301,16 +301,24 @@ namespace Ship_Game.AI
             if (clearOrders)
                 ClearOrders(State, HasPriorityOrder);
 
-            var systemList = (
-                from sys in Owner.loyalty.GetOwnedSystems()
-                where !sys.DangerousForcesPresent(Owner.loyalty) && sys.Position.Distance(Owner.Position) > (sys.Radius*1.5f)
-                orderby Owner.Position.Distance(sys.Position)
-                select sys).ToArray();
+            var potentialPlanets = Owner.loyalty.GetPlanets().Filter(p => !p.ParentSystem.DangerousForcesPresent(Owner.loyalty));
+            // fallback to any safe planet
+            if (potentialPlanets.Length == 0)
+                potentialPlanets = Empire.Universe.PlanetsDict.Values
+                    .Filter(p => p.ParentSystem != Owner.System && !p.ParentSystem.DangerousForcesPresent(Owner.loyalty));
 
-            if (systemList.Length > 0)
+            if (potentialPlanets.Length > 0)
             {
-                ResupplyTarget = systemList[0].PlanetList[0];
+                ResupplyTarget = potentialPlanets.FindMin(p => p.Center.SqDist(Owner.Position));
                 AddOrbitPlanetGoal(ResupplyTarget, AIState.Flee);
+            }
+            else if (Owner.TryGetScoutFleeVector(out Vector2 pos)) // just get out of here
+            {
+                OrderMoveToNoStop(pos, Owner.Direction.DirectionToTarget(pos), true, AIState.Flee);
+            }
+            else
+            {
+                ClearOrders(); // give up and resume combat
             }
         }
 
@@ -336,7 +344,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                ClearOrders();
+                OrderFlee(true);
             }
 
             if (signalRetreat)
@@ -344,6 +352,23 @@ namespace Ship_Game.AI
                 Ship[] friends = FriendliesNearby;
                 for (int i = 0; i < friends.Length; i++)
                     friends[i].AI.OrderPirateFleeHome();
+            }
+        }
+
+        public void OrderRemnantFlee()
+        {
+            if (Owner.loyalty.WeAreRemnants
+                && !Owner.IsPlatformOrStation
+                && Owner.loyalty.Remnants.GetClosestPortal(Owner.Position, out Ship portal))
+            {
+                OrderMoveToNoStop(portal.Position.GenerateRandomPointOnCircle(5000), Owner.Direction,
+                    true, AIState.MoveTo);
+
+                AddEscortGoal(portal, clearOrders: false); // Orders are cleared in OrderMoveTo
+            }
+            else
+            {
+                OrderFlee(true);
             }
         }
 
