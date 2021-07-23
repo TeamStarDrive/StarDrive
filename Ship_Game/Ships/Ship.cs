@@ -1281,11 +1281,13 @@ namespace Ship_Game.Ships
             // Repair
             if (Health < HealthMax)
             {
-                if (!InCombat || (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.UseCombatRepair))
+                if (CanRepair)
                 {
                     // Added by McShooterz: Priority repair
-                    float repair = InCombat ? RepairRate * 0.1f : RepairRate;
+                    float repair = AI.BadGuysNear ? RepairRate * 0.1f : RepairRate;
                     ApplyAllRepair(repair, Level);
+                    if (AI.State == AIState.Flee && HealthPercent > ShipResupply.DamageThreshold(shipData.ShipCategory))
+                        AI.OrderAwaitOrders(); // Stop fleeing and get back into combat if needed
                 }
 
                 if (!EMPdisabled)
@@ -1298,6 +1300,8 @@ namespace Ship_Game.Ships
             if (!AI.BadGuysNear)
                 ShieldManager.RemoveShieldLights(Shields);
         }
+
+        public bool CanRepair => !AI.BadGuysNear || GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.UseCombatRepair;
 
         void PerformRegeneration()
         {
