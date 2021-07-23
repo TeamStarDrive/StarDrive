@@ -385,7 +385,6 @@ namespace Ship_Game.AI
                 true, AIState.MoveTo);
 
             AddEscortGoal(pirateBase, clearOrders: false); // Orders are cleared in OrderMoveTo
-            Owner.AI.SetPriorityOrder(true);
         }
 
         public void OrderQueueSpecificTarget(Ship toAttack)
