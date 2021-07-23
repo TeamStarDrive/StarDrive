@@ -109,7 +109,6 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < s->TechsLen; ++i)
                     ship.TechsNeeded.Add(s->Techs[i].AsInterned);
 
-                Log.Write($"ShipData.Parser ShipStyle: {ship.ShipStyle}");
                 ship.FinalizeAfterLoad(info, isHullDefinition);
                 return ship;
             }
