@@ -41,7 +41,7 @@ namespace UnitTests.Technologies
                 opts.ChangePriority(a, 1);
             opts.ChangePriority(area, 10);
 
-            var priorities = new ResearchPriorities(Enemy, opts);
+            var priorities = new ResearchPriorities(Enemy, opts, enableRandomizer: false);
             string firstPriority = priorities.TechCategoryPrioritized.Split(':')[1]; // skip "TECH:"
             Assert.AreEqual(expected, firstPriority,
                             $"{area} Was not the highest priority: {priorities.TechCategoryPrioritized}");
