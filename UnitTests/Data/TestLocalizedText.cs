@@ -11,6 +11,12 @@ namespace UnitTests.Data
     {
         public TestLocalizedText()
         {
+        }
+
+        // restore default language settings after these tests
+        [ClassCleanup]
+        public static void ClassTeardown()
+        {
             ResourceManager.LoadLanguage(Language.English);
             Fonts.LoadFonts(ResourceManager.RootContent, Language.English);
         }

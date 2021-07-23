@@ -9,7 +9,6 @@ namespace UnitTests.Planets
     {
         public TestOrbitalBomb()
         {
-            ResourceManager.LoadProjectileMeshes();
             CreateUniverseAndPlayerEmpire();
             AddDummyPlanetToEmpire(Player);
             AddHomeWorldToEmpire(Player, out P);
