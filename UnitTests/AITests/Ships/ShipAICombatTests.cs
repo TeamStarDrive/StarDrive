@@ -155,6 +155,8 @@ namespace UnitTests.AITests.Ships
             {
                 Assert.IsTrue(OurShip.InCombat, "ship must stay in combat until target destroyed");
                 Update(TestSimStep);
+                Log.Write($"ColonyShip Pos={colonyShip.Position} State={colonyShip.AI.State} Engines={colonyShip.engineState}");
+                Log.Write($"OurShip    Pos={OurShip.Position} State={OurShip.AI.State} Engines={OurShip.engineState}");
             });
 
             if (colonyShip.Active)
@@ -191,6 +193,8 @@ namespace UnitTests.AITests.Ships
             {
                 Assert.IsTrue(OurShip.InCombat, "ship must stay in combat until target destroyed");
                 Update(TestSimStep);
+                Log.Write($"ColonyShip Pos={colonyShip.Position} State={colonyShip.AI.State} Engines={colonyShip.engineState}");
+                Log.Write($"OurShip    Pos={OurShip.Position} State={OurShip.AI.State} Engines={OurShip.engineState}");
             });
 
             if (colonyShip.Active)
