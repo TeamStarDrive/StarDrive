@@ -117,16 +117,17 @@ namespace UnitTests.AITests.Ships
             Assert.IsTrue(OurShip.InCombat, "ship should be in combat");
         }
 
-        void InjectSteroids(Ship s)
+        static void InjectSteroids(Ship s, Ship target)
         {
             // inject some steroids into our vulcan cannons 
-            foreach (var w in OurShip.Weapons)
+            foreach (var w in s.Weapons)
             {
                 w.DamageAmount = 150f;
                 w.OrdinanceRequiredToFire = 0f;
                 w.fireDelay = 0.5f;
             }
-            OurShip.AI.CombatState = CombatState.ShortRange;
+            s.AI.CombatState = CombatState.ShortRange;
+            s.Rotation = s.Position.RadiansToTarget(target.Position);
         }
 
         void DebugPrintKillFailure(TestShip colonyShip)
@@ -143,13 +144,13 @@ namespace UnitTests.AITests.Ships
         [TestMethod]
         public void InCombatAutoEnterAndExitWhenColonyShipDestroyed()
         {
-            TestShip colonyShip = SpawnShip("Colony Ship", Enemy, new Vector2(500,500));
+            TestShip colonyShip = SpawnShip("Colony Ship", Enemy, new Vector2(0,-500));
             colonyShip.AI.HoldPosition();
             colonyShip.shipData.ShipCategory = ShipData.Category.Kamikaze;
             Update(EnemyScanInterval);
             Assert.IsTrue(OurShip.InCombat, "ship should be in combat");
-
-            InjectSteroids(OurShip);
+            
+            InjectSteroids(OurShip, target:colonyShip);
 
             LoopWhile((timeout:5, fatal:false), () => colonyShip.Active, () =>
             {
@@ -171,12 +172,12 @@ namespace UnitTests.AITests.Ships
         [TestMethod]
         public void InCombatAutoEnterWithCombatMoveShouldKillColonyShip()
         {
-            var colonyShip = SpawnShip("Colony Ship", Enemy, new Vector2(500,500));
+            TestShip colonyShip = SpawnShip("Colony Ship", Enemy, new Vector2(0,-500));
             colonyShip.AI.HoldPosition();
             Update(EnemyScanInterval);
             Assert.IsTrue(OurShip.InCombat, "ship should be in combat");
-
-            InjectSteroids(OurShip);
+            
+            InjectSteroids(OurShip, target:colonyShip);
 
             // now assign offensive move order
             OurShip.AI.OrderMoveTo(colonyShip.Position, Vectors.Up, true, AIState.AwaitingOrders,
