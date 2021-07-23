@@ -260,6 +260,13 @@ namespace Ship_Game.AI
             }
         }
 
+        public void OrderAwaitOrders(bool clearPriorityOrder = true)
+        {
+            State = AIState.AwaitingOrders;
+            if (clearPriorityOrder)
+                SetPriorityOrder(false);
+        }
+
         public void OrderOrbitNearest(bool clearOrders)
         {
             ClearWayPoints();
@@ -302,14 +309,14 @@ namespace Ship_Game.AI
                 ClearOrders(State, HasPriorityOrder);
 
             var potentialPlanets = Owner.loyalty.GetPlanets().Filter(p => !p.ParentSystem.DangerousForcesPresent(Owner.loyalty));
-            // fallback to any safe planet
+            // fallback to any safe planet - this is a very rare case were an alternatives are found
             if (potentialPlanets.Length == 0)
                 potentialPlanets = Empire.Universe.PlanetsDict.Values
                     .Filter(p => p.ParentSystem != Owner.System && !p.ParentSystem.DangerousForcesPresent(Owner.loyalty));
 
             if (potentialPlanets.Length > 0)
             {
-                ResupplyTarget = potentialPlanets.FindMin(p => p.Center.SqDist(Owner.Position));
+                ResupplyTarget = potentialPlanets.FindClosestTo(Owner);
                 AddOrbitPlanetGoal(ResupplyTarget, AIState.Flee);
             }
             else if (Owner.TryGetScoutFleeVector(out Vector2 pos)) // just get out of here
