@@ -284,11 +284,11 @@ namespace Ship_Game.AI
 
         public Ship NearBySupplyShip => FriendliesNearby.FindMinFiltered(
             supply => supply.Carrier.HasSupplyBays && supply.SupplyShipCanSupply,
-            (Func<Ship, float>)(            supply => -Vectors.SqDist(supply.Position, (Vector2)Owner.Position)));
+            supply => supply.Position.SqDist(Owner.Position));
 
         public Ship NearByRepairShip => FriendliesNearby.FindMinFiltered(
             supply => supply.hasRepairBeam || supply.HasRepairModule,
-            (Func<Ship, float>)(            supply => -Vectors.SqDist(supply.Position, (Vector2)Owner.Position)));
+            supply => supply.Position.SqDist(Owner.Position));
 
         public void ProcessResupply(ResupplyReason resupplyReason)
         {
@@ -367,12 +367,11 @@ namespace Ship_Game.AI
             else
             {
                 nearestRallyPoint = Owner.loyalty.FindNearestRallyPoint(Owner.Position);
-                if (nearestRallyPoint != null)
-                    OrderResupply(nearestRallyPoint, cancelOrders);
-                else if (Owner.loyalty.WeArePirates)
-                    OrderPirateFleeHome();
-                else
-                    OrderFlee(true);
+
+                if      (nearestRallyPoint != null)   OrderResupply(nearestRallyPoint, cancelOrders);
+                else if (Owner.loyalty.WeArePirates)  OrderPirateFleeHome();
+                else if (Owner.loyalty.WeAreRemnants) OrderRemnantFlee();
+                else                                  OrderFlee(true);
             }
         }
 
