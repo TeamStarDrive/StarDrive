@@ -290,7 +290,7 @@ namespace Ship_Game.AI
                 }
                 else
                 {
-                    OrderFlee(true);
+                    OrderFlee();
                 }
 
                 return false;
