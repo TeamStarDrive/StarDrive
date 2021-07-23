@@ -1287,10 +1287,7 @@ namespace Ship_Game.Ships
                     float repair = AI.BadGuysNear ? RepairRate * 0.1f : RepairRate;
                     ApplyAllRepair(repair, Level);
                     if (AI.State == AIState.Flee && HealthPercent > ShipResupply.DamageThreshold(shipData.ShipCategory))
-                    {
-                        AI.State = AIState.AwaitingOrders;
-                        AI.SetPriorityOrder(false); // Stop fleeing and get back into combat if needed
-                    }
+                        AI.OrderAwaitOrders(); // Stop fleeing and get back into combat if needed
                 }
 
                 if (!EMPdisabled)
