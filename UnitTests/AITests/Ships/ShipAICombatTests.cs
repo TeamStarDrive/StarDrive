@@ -133,7 +133,8 @@ namespace UnitTests.AITests.Ships
         {
             Log.Write($"Failed to kill colony ship!: {colonyShip}");
             Log.Write($"OurShip: {OurShip}");
-            Log.Write($"OurShip.Target = {OurShip.AI.Target}  CombatState = {OurShip.AI.CombatState}");
+            Log.Write($"OurShip.Target = {OurShip.AI.Target}  CombatState = {OurShip.AI.CombatState} InCombat = {OurShip.InCombat}");
+            Log.Write($"ColonyShip.CombatState = {colonyShip.AI.CombatState}  InCombat = {colonyShip.InCombat}");
             Log.Write($"ColonyShip.health = {colonyShip.Health}  percent = {colonyShip.HealthPercent}");
             foreach (var m in colonyShip.Modules)
                 Log.Write($"  ColonyShip.Module {m}");
