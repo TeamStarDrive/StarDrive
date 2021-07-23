@@ -1,6 +1,6 @@
 @echo off
 echo Deploy should only be done via AppVeyor
-if /i not defined APPVEYOR_BUILD_VERSION set APPVEYOR_BUILD_VERSION=0.0.0.0
+if /i not defined APPVEYOR_BUILD_VERSION set APPVEYOR_BUILD_VERSION=1.20.12000
 
 echo APPVEYOR_BUILD_VERSION=%APPVEYOR_BUILD_VERSION%
 
@@ -8,6 +8,15 @@ echo APPVEYOR_BUILD_VERSION=%APPVEYOR_BUILD_VERSION%
 if not [%1]==[] (
     echo CurrentDir=%cd% ChangeDirTo=%1
     cd %1
+)
+
+:: if this is a remote build on AppVeyor CI, then only build `develop` or `release` branch
+if defined APPVEYOR_BUILD_FOLDER (
+    :: TODO: Add release/ branch support
+    if "%APPVEYOR_REPO_BRANCH%" NEQ "develop" (
+        echo "Not creating installer: APPVEYOR_REPO_BRANCH(%APPVEYOR_REPO_BRANCH%) != develop"
+        exit /b 0
+    )
 )
 
 :: Assume MakeInstaller.cmd is called from C:\Projects\BlackBox folder
