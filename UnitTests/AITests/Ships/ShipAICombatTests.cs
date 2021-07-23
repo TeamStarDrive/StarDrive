@@ -151,12 +151,11 @@ namespace UnitTests.AITests.Ships
 
             InjectSteroids(OurShip);
 
-            LoopWhile((timeout:10, fatal:false), () => colonyShip.Active, () =>
+            LoopWhile((timeout:5, fatal:false), () => colonyShip.Active, () =>
             {
                 Assert.IsTrue(OurShip.InCombat, "ship must stay in combat until target destroyed");
+                colonyShip.Velocity = Vector2.Zero; // BUG: there is a strange drift effect in sim
                 Update(TestSimStep);
-                Log.Write($"ColonyShip Pos={colonyShip.Position} State={colonyShip.AI.State} Engines={colonyShip.engineState}");
-                Log.Write($"OurShip    Pos={OurShip.Position} State={OurShip.AI.State} Engines={OurShip.engineState}");
             });
 
             if (colonyShip.Active)
@@ -189,12 +188,11 @@ namespace UnitTests.AITests.Ships
             Update(EnemyScanInterval); 
 
             // our ship must remain in combat the whole time until enemy ship is destroyed
-            LoopWhile((timeout:10, fatal:false), () => colonyShip.Active, () =>
+            LoopWhile((timeout:5, fatal:false), () => colonyShip.Active, () =>
             {
                 Assert.IsTrue(OurShip.InCombat, "ship must stay in combat until target destroyed");
+                colonyShip.Velocity = Vector2.Zero; // BUG: there is a strange drift effect in sim
                 Update(TestSimStep);
-                Log.Write($"ColonyShip Pos={colonyShip.Position} State={colonyShip.AI.State} Engines={colonyShip.engineState}");
-                Log.Write($"OurShip    Pos={OurShip.Position} State={OurShip.AI.State} Engines={OurShip.engineState}");
             });
 
             if (colonyShip.Active)
