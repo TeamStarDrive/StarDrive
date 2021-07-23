@@ -260,6 +260,13 @@ namespace Ship_Game.AI
             }
         }
 
+        public void OrderAwaitOrders(bool clearPriorityOrder = true)
+        {
+            State = AIState.AwaitingOrders;
+            if (clearPriorityOrder)
+                SetPriorityOrder(false);
+        }
+
         public void OrderOrbitNearest(bool clearOrders)
         {
             ClearWayPoints();
@@ -291,27 +298,28 @@ namespace Ship_Game.AI
             OrbitTarget = emergencyPlanet[0];
         }
 
-        public void OrderFlee(bool clearOrders)
+        public void OrderFlee()
         {
             ClearWayPoints();
 
             Target = null;
             Intercepting = false;
             Owner.HyperspaceReturn();
-            if (clearOrders)
-                ClearOrders(State, HasPriorityOrder);
+            ClearOrders(State, HasPriorityOrder);
 
-            var systemList = (
-                from sys in Owner.loyalty.GetOwnedSystems()
-                where !sys.DangerousForcesPresent(Owner.loyalty) && sys.Position.Distance(Owner.Position) > (sys.Radius*1.5f)
-                orderby Owner.Position.Distance(sys.Position)
-                select sys).ToArray();
+                ResupplyTarget = Owner.loyalty.GetPlanets().FindClosestTo(Owner, IsSafePlanet)
+                             // fallback to any safe planet - this is a very rare case where no alternatives were found
+                             ?? Empire.Universe.PlanetsDict.Values.ToArray().FindClosestTo(Owner, IsSafePlanet);
 
-            if (systemList.Length > 0)
-            {
-                ResupplyTarget = systemList[0].PlanetList[0];
+            if (ResupplyTarget != null)
                 AddOrbitPlanetGoal(ResupplyTarget, AIState.Flee);
-            }
+            else if (Owner.TryGetScoutFleeVector(out Vector2 pos)) // just get out of here
+                OrderMoveToNoStop(pos, Owner.Direction.DirectionToTarget(pos), true, AIState.Flee);
+            else
+                ClearOrders(); // give up and resume combat
+
+            // Local method
+            bool IsSafePlanet(Planet p) => !p.ParentSystem.DangerousForcesPresent(Owner.loyalty);
         }
 
         public void OrderOrbitPlanet(Planet p)
@@ -331,12 +339,12 @@ namespace Ship_Game.AI
                 && !Owner.IsPlatformOrStation 
                 && Owner.loyalty.Pirates.GetBases(out Array<Ship> pirateBases))
             {
-                Ship ship = pirateBases.FindMin(s => s.Position.Distance(Owner.Position));
+                Ship ship = pirateBases.FindClosestTo(Owner);
                 OrderMoveToPirateBase(ship);
             }
             else
             {
-                ClearOrders();
+                OrderFlee();
             }
 
             if (signalRetreat)
@@ -347,13 +355,29 @@ namespace Ship_Game.AI
             }
         }
 
+        public void OrderRemnantFlee()
+        {
+            if (Owner.loyalty.WeAreRemnants
+                && !Owner.IsPlatformOrStation
+                && Owner.loyalty.Remnants.GetClosestPortal(Owner.Position, out Ship portal))
+            {
+                OrderMoveToNoStop(portal.Position.GenerateRandomPointOnCircle(5000), Owner.Direction,
+                    true, AIState.MoveTo);
+
+                AddEscortGoal(portal, clearOrders: false); // Orders are cleared in OrderMoveTo
+            }
+            else
+            {
+                OrderFlee();
+            }
+        }
+
         void OrderMoveToPirateBase(Ship pirateBase)
         {
             OrderMoveToNoStop(pirateBase.Position.GenerateRandomPointOnCircle(5000), Owner.Direction,
                 true, AIState.MoveTo);
 
             AddEscortGoal(pirateBase, clearOrders: false); // Orders are cleared in OrderMoveTo
-            Owner.AI.SetPriorityOrder(true);
         }
 
         public void OrderQueueSpecificTarget(Ship toAttack)

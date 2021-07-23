@@ -31,7 +31,7 @@ namespace Ship_Game.Ships
                 IncomingSupply.Add(supply, 0);
         }
 
-        private static float DamageThreshold(ShipData.Category category)
+        public static float DamageThreshold(ShipData.Category category)
         {
             float threshold;
             switch (category)
