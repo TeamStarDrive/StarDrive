@@ -97,7 +97,7 @@ namespace Ship_Game
                 return null;
 
             Planet found = planets[0]; // must return a value
-            float min = float.MaxValue;
+            float min = to.SqDist(found.Center);
             for (int i = 1; i < count; ++i)
             {
                 Planet planet = planets[i];
