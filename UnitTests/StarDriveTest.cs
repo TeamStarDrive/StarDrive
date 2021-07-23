@@ -65,6 +65,9 @@ namespace UnitTests
             RequireStarterContentLoaded(nameof(CreateUniverseAndPlayerEmpire));
 
             var sw = new Stopwatch();
+
+            EmpireManager.Clear();
+
             var data = new UniverseData();
             IEmpireData playerData = ResourceManager.MajorRaces[0];
             IEmpireData enemyData = ResourceManager.MajorRaces[1];
@@ -98,6 +101,7 @@ namespace UnitTests
 
         public void DestroyUniverse()
         {
+            EmpireManager.Clear();
             Empire.Universe?.ExitScreen();
             Empire.Universe?.Dispose();
             Empire.Universe = Universe = null;
