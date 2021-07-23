@@ -183,7 +183,10 @@ namespace Ship_Game.Ships
                 UpdateGridInfo();
 
             if (ShipStyle.IsEmpty())
+            {
                 ShipStyle = BaseHull.ShipStyle;
+                Log.Write($"ShipData.FixMissingFields ShipStyle: {ShipStyle}");
+            }
 
             if (IconPath.IsEmpty())
                 IconPath = BaseHull.IconPath;
@@ -202,6 +205,7 @@ namespace Ship_Game.Ships
                 // make sure to calculate the surface area correctly
                 UpdateGridInfo();
                 ShipStyle = info.Directory?.Name ?? "";
+                Log.Write($"ShipData.FinalizeAfterLoad ShipStyle: {ShipStyle}");
                 Hull      = ShipStyle + "/" + Hull;
 
                 // Note: carrier role as written in the hull file was changed to battleship, since now carriers are a design role
