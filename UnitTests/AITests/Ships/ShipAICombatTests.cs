@@ -123,6 +123,7 @@ namespace UnitTests.AITests.Ships
             {
                 w.DamageAmount = 150f;
                 w.OrdinanceRequiredToFire = 0f;
+                w.fireDelay = 0.5f;
             }
             OurShip.AI.CombatState = CombatState.ShortRange;
         }
@@ -138,7 +139,7 @@ namespace UnitTests.AITests.Ships
 
             InjectSteroids(OurShip);
 
-            LoopWhile(5, () => colonyShip.Active, () =>
+            LoopWhile(5, () => colonyShip.Active && !colonyShip.dying, () =>
             {
                 Assert.IsTrue(OurShip.InCombat, "ship must stay in combat until target destroyed");
                 Update(TestSimStep);
@@ -168,7 +169,7 @@ namespace UnitTests.AITests.Ships
             Update(EnemyScanInterval); 
 
             // our ship must remain in combat the whole time until enemy ship is destroyed
-            LoopWhile(5, () => colonyShip.Active, () =>
+            LoopWhile(5, () => colonyShip.Active && !colonyShip.dying, () =>
             {
                 Assert.IsTrue(OurShip.InCombat, "ship must stay in combat until target destroyed");
                 Update(TestSimStep);
