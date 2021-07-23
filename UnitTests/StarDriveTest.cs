@@ -207,7 +207,7 @@ namespace UnitTests
             return target;
         }
 
-        static SolarSystem AddDummyPlanet(out Planet p)
+        SolarSystem AddDummyPlanet(out Planet p)
         {
             p = new Planet();
             var s = new SolarSystem();
@@ -215,7 +215,7 @@ namespace UnitTests
             return s;
         }
 
-        public static SolarSystem AddDummyPlanet(float fertility, float minerals, float pop, out Planet p)
+        public SolarSystem AddDummyPlanet(float fertility, float minerals, float pop, out Planet p)
         {
             p = new Planet(fertility, minerals, pop);
             var s = new SolarSystem();
@@ -223,12 +223,12 @@ namespace UnitTests
             return s;
         }
 
-        public static SolarSystem AddDummyPlanetToEmpire(Empire empire)
+        public SolarSystem AddDummyPlanetToEmpire(Empire empire)
         {
             return AddDummyPlanetToEmpire(empire, 0, 0, 0);
         }
 
-        public static SolarSystem AddDummyPlanetToEmpire(Empire empire, float fertility, float minerals, float maxPop)
+        public SolarSystem AddDummyPlanetToEmpire(Empire empire, float fertility, float minerals, float maxPop)
         {
             var s = AddDummyPlanet(fertility, minerals, maxPop, out Planet p);
             empire?.AddPlanet(p);
@@ -237,24 +237,24 @@ namespace UnitTests
             return s;
         }
 
-        public static SolarSystem AddHomeWorldToEmpire(Empire empire, out Planet p)
+        public SolarSystem AddHomeWorldToEmpire(Empire empire, out Planet p)
         {
             var s = AddDummyPlanet(out p);
             p.GenerateNewHomeWorld(empire);
             return s;
         }
 
-        public static void AddPlanetToSolarSystem( SolarSystem s, Planet p)
+        public void AddPlanetToSolarSystem(SolarSystem s, Planet p)
         {
             float distance = p.Center.Distance(s.Position);
             var r = new SolarSystem.Ring() { Asteroids = false, OrbitalDistance = distance, planet = p };
             s.RingList.Add(r);
             p.ParentSystem = s;
             s.PlanetList.Add(p);
-            if (Empire.Universe != null)
+            if (Universe != null)
             {
-                Empire.Universe.PlanetsDict[p.guid] = p;
-                Empire.Universe.SolarSystemDict[s.guid] = s;
+                Universe.PlanetsDict[p.guid] = p;
+                Universe.SolarSystemDict[s.guid] = s;
             }
         }
 
