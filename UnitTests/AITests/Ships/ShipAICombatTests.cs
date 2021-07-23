@@ -119,7 +119,11 @@ namespace UnitTests.AITests.Ships
         void InjectSteroids(Ship s)
         {
             // inject some steroids into our vulcan cannons 
-            foreach (var w in OurShip.Weapons) w.DamageAmount = 50f;
+            foreach (var w in OurShip.Weapons)
+            {
+                w.DamageAmount = 150f;
+                w.OrdinanceRequiredToFire = 0f;
+            }
             OurShip.AI.CombatState = CombatState.ShortRange;
         }
 
