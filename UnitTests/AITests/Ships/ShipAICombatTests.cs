@@ -129,6 +129,16 @@ namespace UnitTests.AITests.Ships
             OurShip.AI.CombatState = CombatState.ShortRange;
         }
 
+        void DebugPrintKillFailure(TestShip colonyShip)
+        {
+            Log.Write($"Failed to kill colony ship!: {colonyShip}");
+            Log.Write($"OurShip: {OurShip}");
+            Log.Write($"OurShip.Target = {OurShip.AI.Target}  CombatState = {OurShip.AI.CombatState}");
+            Log.Write($"ColonyShip.health = {colonyShip.Health}  percent = {colonyShip.HealthPercent}");
+            foreach (var m in colonyShip.Modules)
+                Log.Write($"  ColonyShip.Module {m}");
+        }
+
         [TestMethod]
         public void InCombatAutoEnterAndExitWhenColonyShipDestroyed()
         {
@@ -148,11 +158,7 @@ namespace UnitTests.AITests.Ships
 
             if (colonyShip.Active)
             {
-                Log.Write($"Failed to kill colony ship!: {colonyShip}");
-                Log.Write($"OurShip: {OurShip}");
-                Log.Write($"ColonyShip.health = {colonyShip.Health}  percent = {colonyShip.HealthPercent}");
-                foreach (var m in colonyShip.Modules)
-                    Log.Write($"  ColonyShip.Module {m}");
+                DebugPrintKillFailure(colonyShip);
                 Assert.Fail("Failed to kill colony ship");
             }
 
@@ -188,11 +194,7 @@ namespace UnitTests.AITests.Ships
 
             if (colonyShip.Active)
             {
-                Log.Write($"Failed to kill colony ship!: {colonyShip}");
-                Log.Write($"OurShip: {OurShip}");
-                Log.Write($"ColonyShip.health = {colonyShip.Health}  percent = {colonyShip.HealthPercent}");
-                foreach (var m in colonyShip.Modules)
-                    Log.Write($"  ColonyShip.Module {m}");
+                DebugPrintKillFailure(colonyShip);
                 Assert.Fail("Failed to kill colony ship");
             }
 
