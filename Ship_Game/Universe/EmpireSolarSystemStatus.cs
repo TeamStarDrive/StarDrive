@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ship_Game.Ships;
+﻿using Ship_Game.Ships;
 
 namespace Ship_Game.Universe
 {
@@ -20,7 +15,8 @@ namespace Ship_Game.Universe
         public EmpireSolarSystemStatus(SolarSystem system, Empire empire)
         {
             System = system;
-            Owner = empire;
+            Owner  = empire;
+            UpdateInCombat();
         }
 
         public void Update(FixedSimTime timeStep)
