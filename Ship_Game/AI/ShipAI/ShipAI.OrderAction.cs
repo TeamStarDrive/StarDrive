@@ -298,35 +298,28 @@ namespace Ship_Game.AI
             OrbitTarget = emergencyPlanet[0];
         }
 
-        public void OrderFlee(bool clearOrders)
+        public void OrderFlee()
         {
             ClearWayPoints();
 
             Target = null;
             Intercepting = false;
             Owner.HyperspaceReturn();
-            if (clearOrders)
-                ClearOrders(State, HasPriorityOrder);
+            ClearOrders(State, HasPriorityOrder);
 
-            var potentialPlanets = Owner.loyalty.GetPlanets().Filter(p => !p.ParentSystem.DangerousForcesPresent(Owner.loyalty));
-            // fallback to any safe planet - this is a very rare case were an alternatives are found
-            if (potentialPlanets.Length == 0)
-                potentialPlanets = Empire.Universe.PlanetsDict.Values
-                    .Filter(p => p.ParentSystem != Owner.System && !p.ParentSystem.DangerousForcesPresent(Owner.loyalty));
+                ResupplyTarget = Owner.loyalty.GetPlanets().FindClosestTo(Owner, IsSafePlanet)
+                             // fallback to any safe planet - this is a very rare case where no alternatives were found
+                             ?? Empire.Universe.PlanetsDict.Values.ToArray().FindClosestTo(Owner, IsSafePlanet);
 
-            if (potentialPlanets.Length > 0)
-            {
-                ResupplyTarget = potentialPlanets.FindClosestTo(Owner);
+            if (ResupplyTarget != null)
                 AddOrbitPlanetGoal(ResupplyTarget, AIState.Flee);
-            }
             else if (Owner.TryGetScoutFleeVector(out Vector2 pos)) // just get out of here
-            {
                 OrderMoveToNoStop(pos, Owner.Direction.DirectionToTarget(pos), true, AIState.Flee);
-            }
             else
-            {
                 ClearOrders(); // give up and resume combat
-            }
+
+            // Local method
+            bool IsSafePlanet(Planet p) => !p.ParentSystem.DangerousForcesPresent(Owner.loyalty);
         }
 
         public void OrderOrbitPlanet(Planet p)
@@ -346,12 +339,12 @@ namespace Ship_Game.AI
                 && !Owner.IsPlatformOrStation 
                 && Owner.loyalty.Pirates.GetBases(out Array<Ship> pirateBases))
             {
-                Ship ship = pirateBases.FindMin(s => s.Position.Distance(Owner.Position));
+                Ship ship = pirateBases.FindClosestTo(Owner);
                 OrderMoveToPirateBase(ship);
             }
             else
             {
-                OrderFlee(true);
+                OrderFlee();
             }
 
             if (signalRetreat)
@@ -375,7 +368,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                OrderFlee(true);
+                OrderFlee();
             }
         }
 

@@ -383,7 +383,7 @@ namespace Ship_Game.AI
                 if      (nearestRallyPoint != null)   OrderResupply(nearestRallyPoint, cancelOrders);
                 else if (Owner.loyalty.WeArePirates)  OrderPirateFleeHome();
                 else if (Owner.loyalty.WeAreRemnants) OrderRemnantFlee();
-                else                                  OrderFlee(true);
+                else                                  OrderFlee();
             }
         }
 
