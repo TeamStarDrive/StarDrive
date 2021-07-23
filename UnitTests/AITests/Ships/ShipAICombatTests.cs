@@ -10,6 +10,7 @@ using Ship_Game.AI;
 using Ship_Game.Empires;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using UnitTests.Ships;
 
 namespace UnitTests.AITests.Ships
 {
@@ -131,7 +132,7 @@ namespace UnitTests.AITests.Ships
         [TestMethod]
         public void InCombatAutoEnterAndExitWhenColonyShipDestroyed()
         {
-            var colonyShip = SpawnShip("Colony Ship", Enemy, new Vector2(500,500));
+            TestShip colonyShip = SpawnShip("Colony Ship", Enemy, new Vector2(500,500));
             colonyShip.AI.HoldPosition();
             colonyShip.shipData.ShipCategory = ShipData.Category.Kamikaze;
             Update(EnemyScanInterval);
@@ -139,13 +140,13 @@ namespace UnitTests.AITests.Ships
 
             InjectSteroids(OurShip);
 
-            LoopWhile((timeout:5, fatal:false), () => colonyShip.Active && !colonyShip.dying, () =>
+            LoopWhile((timeout:10, fatal:false), () => colonyShip.Active, () =>
             {
                 Assert.IsTrue(OurShip.InCombat, "ship must stay in combat until target destroyed");
                 Update(TestSimStep);
             });
 
-            if (colonyShip.Active || !colonyShip.dying)
+            if (colonyShip.Active)
             {
                 Log.Write($"Failed to kill colony ship!: {colonyShip}");
                 Log.Write($"OurShip: {OurShip}");
@@ -179,13 +180,13 @@ namespace UnitTests.AITests.Ships
             Update(EnemyScanInterval); 
 
             // our ship must remain in combat the whole time until enemy ship is destroyed
-            LoopWhile((timeout:5, fatal:false), () => colonyShip.Active && !colonyShip.dying, () =>
+            LoopWhile((timeout:10, fatal:false), () => colonyShip.Active, () =>
             {
                 Assert.IsTrue(OurShip.InCombat, "ship must stay in combat until target destroyed");
                 Update(TestSimStep);
             });
 
-            if (colonyShip.Active || !colonyShip.dying)
+            if (colonyShip.Active)
             {
                 Log.Write($"Failed to kill colony ship!: {colonyShip}");
                 Log.Write($"OurShip: {OurShip}");

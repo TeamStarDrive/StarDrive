@@ -26,7 +26,8 @@ namespace UnitTests.Ships
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
             ++NumDieCalls;
-            base.Die(source, cleanupOnly);
+            // always call cleanupOnly, because we don't want tumbling ships in unit tests
+            base.Die(source, cleanupOnly: true);
         }
 
         // TEST: tracks currently dead modules
