@@ -46,9 +46,9 @@ namespace Ship_Game
             if (count <= 0)
                 return null;
 
-            Ship found = ships[0]; // must return a value
-            float min = float.MaxValue;
-            for (int i = 0; i < count; ++i)
+            Ship found = ships[0];
+            float min = to.SqDist(found.Position);
+            for (int i = 1; i < count; ++i)
             {
                 Ship ship = ships[i];
                 float distance = to.SqDist(ship.Position);
@@ -113,12 +113,11 @@ namespace Ship_Game
 
         public static Planet FindClosestTo(this Planet[] planets, int count, Vector2 to, Predicate<Planet> filter)
         {
-            if (count <= 0)
-                return null;
+            if (count <= 0 || !planets.FindFirstValid(count, filter, out int i, out Planet found))
+                return null; // no elements passed the filter!
 
-            Planet found = planets[0]; // must return a value
             float min = float.MaxValue;
-            for (int i = 0; i < count; ++i)
+            for (; i < count; ++i)
             {
                 Planet planet = planets[i];
                 float distance = to.SqDist(planet.Center);
