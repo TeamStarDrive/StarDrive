@@ -18,7 +18,7 @@ namespace UnitTests.AITests.Ships
 
         void WaitForEngineChangeTo(Ship.MoveState state, Ship ship, Action update)
         {
-            LoopWhile(5, () => ship.engineState != state, update);
+            LoopWhile((timeout:5, fatal:true), () => ship.engineState != state, update);
         }
 
         [TestMethod]

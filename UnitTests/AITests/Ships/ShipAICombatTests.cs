@@ -139,11 +139,21 @@ namespace UnitTests.AITests.Ships
 
             InjectSteroids(OurShip);
 
-            LoopWhile(5, () => colonyShip.Active && !colonyShip.dying, () =>
+            LoopWhile((timeout:5, fatal:false), () => colonyShip.Active && !colonyShip.dying, () =>
             {
                 Assert.IsTrue(OurShip.InCombat, "ship must stay in combat until target destroyed");
                 Update(TestSimStep);
             });
+
+            if (colonyShip.Active || !colonyShip.dying)
+            {
+                Log.Write($"Failed to kill colony ship!: {colonyShip}");
+                Log.Write($"OurShip: {OurShip}");
+                Log.Write($"ColonyShip.health = {colonyShip.Health}  percent = {colonyShip.HealthPercent}");
+                foreach (var m in colonyShip.Modules)
+                    Log.Write($"  ColonyShip.Module {m}");
+                Assert.Fail("Failed to kill colony ship");
+            }
 
             Update(EnemyScanInterval);
             Assert.IsFalse(OurShip.InCombat, "ship must exit combat after target destroyed");
@@ -169,11 +179,21 @@ namespace UnitTests.AITests.Ships
             Update(EnemyScanInterval); 
 
             // our ship must remain in combat the whole time until enemy ship is destroyed
-            LoopWhile(5, () => colonyShip.Active && !colonyShip.dying, () =>
+            LoopWhile((timeout:5, fatal:false), () => colonyShip.Active && !colonyShip.dying, () =>
             {
                 Assert.IsTrue(OurShip.InCombat, "ship must stay in combat until target destroyed");
                 Update(TestSimStep);
             });
+
+            if (colonyShip.Active || !colonyShip.dying)
+            {
+                Log.Write($"Failed to kill colony ship!: {colonyShip}");
+                Log.Write($"OurShip: {OurShip}");
+                Log.Write($"ColonyShip.health = {colonyShip.Health}  percent = {colonyShip.HealthPercent}");
+                foreach (var m in colonyShip.Modules)
+                    Log.Write($"  ColonyShip.Module {m}");
+                Assert.Fail("Failed to kill colony ship");
+            }
 
             Update(EnemyScanInterval);
             Assert.IsFalse(OurShip.InCombat, "ship must exit combat after target destroyed");
