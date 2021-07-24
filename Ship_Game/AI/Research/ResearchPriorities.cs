@@ -16,11 +16,13 @@ namespace Ship_Game.AI.Research
         public readonly string TechCategoryPrioritized;
         private readonly Empire OwnerEmpire;
         private readonly ResearchOptions Priority;
+        readonly bool EnableRandomizer;
 
-        public ResearchPriorities(Empire empire, ResearchOptions options) : this()
+        public ResearchPriorities(Empire empire, ResearchOptions options, bool enableRandomizer = true) : this()
         {
             OwnerEmpire   = empire;
             Priority      = options;
+            EnableRandomizer = enableRandomizer;
             ResearchDebt  = CalcResearchDebt(empire, out Array<TechEntry> availableTechs);
             Wars          = OwnerEmpire.GetEmpireAI().ThreatLevel;
             Economics     = CalcEconomics(empire);
@@ -74,13 +76,13 @@ namespace Ship_Game.AI.Research
             var threat = OwnerEmpire.GetEmpireAI().ThreatLevel;
             var priority = new Map<string, int>
             {
-                { "SHIPTECH",     Randomizer(threat,                Priority.GetPriority(ResearchArea.ShipTech))},
-                { "Research",     Randomizer(strat.ResearchRatio  + Priority.GetPriority(ResearchArea.Research),     ResearchDebt)},
-                { "Colonization", Randomizer(strat.ExpansionRatio + Priority.GetPriority(ResearchArea.Colonization), FoodNeeds)},
-                { "Economic",     Randomizer(strat.ExpansionRatio + Priority.GetPriority(ResearchArea.Economic),     Economics)},
-                { "Industry",     Randomizer(strat.IndustryRatio  + Priority.GetPriority(ResearchArea.Industry),     Industry)},
-                { "General",      Randomizer(strat.ResearchRatio  + Priority.GetPriority(ResearchArea.General),      0)},
-                { "GroundCombat", Randomizer(strat.MilitaryRatio  + Priority.GetPriority(ResearchArea.GroundCombat), threat)},
+                { "SHIPTECH",     GetPriorityValue(threat,                Priority.GetPriority(ResearchArea.ShipTech))},
+                { "Research",     GetPriorityValue(strat.ResearchRatio  + Priority.GetPriority(ResearchArea.Research),     ResearchDebt)},
+                { "Colonization", GetPriorityValue(strat.ExpansionRatio + Priority.GetPriority(ResearchArea.Colonization), FoodNeeds)},
+                { "Economic",     GetPriorityValue(strat.ExpansionRatio + Priority.GetPriority(ResearchArea.Economic),     Economics)},
+                { "Industry",     GetPriorityValue(strat.IndustryRatio  + Priority.GetPriority(ResearchArea.Industry),     Industry)},
+                { "General",      GetPriorityValue(strat.ResearchRatio  + Priority.GetPriority(ResearchArea.General),      0)},
+                { "GroundCombat", GetPriorityValue(strat.MilitaryRatio  + Priority.GetPriority(ResearchArea.GroundCombat), threat)},
             };
 
             return priority;
@@ -197,11 +199,14 @@ namespace Ship_Game.AI.Research
             return shipTechToAdd;
         }
 
-        int Randomizer(float priority, float bonus)
+        int GetPriorityValue(float priority, float bonus)
         {
-            int b = (int)(bonus * 100);
             int p = (int)(priority * 100);
-            return RandomMath.AvgRandomBetween(b, p + b);
+            int b = (int)(bonus * 100);
+            if (EnableRandomizer)
+                return RandomMath.AvgRandomBetween(b, p + b);
+            else
+                return p + b;
         }
 
         void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);

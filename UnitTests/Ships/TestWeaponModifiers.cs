@@ -13,8 +13,6 @@ namespace UnitTests.Ships
     {
         public TestWeaponModifiers()
         {
-            CreateGameInstance();
-            LoadStarterShipVulcan();
         }
 
         void CreateTestEnv(out Empire empire, out Ship ship, out Weapon weapon)

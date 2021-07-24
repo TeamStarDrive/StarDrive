@@ -10,7 +10,6 @@ namespace UnitTests.Ships
     {
         public TestShields()
         {
-            CreateGameInstance();
             LoadStarterShips("TEST_ShipShield");
             CreateUniverseAndPlayerEmpire();
         }

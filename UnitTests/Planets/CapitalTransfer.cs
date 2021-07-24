@@ -9,32 +9,24 @@ namespace UnitTests.Planets
     [TestClass]
     public class CapitalTransfer : StarDriveTest
     {
-        private readonly Planet Homeworld;
-        private readonly Planet NewPlanet;
-        private readonly Planet EnemyHome;
-        private readonly Array<PlanetType> PlanetTypes;
+        readonly Planet Homeworld;
+        readonly Planet NewPlanet;
+        readonly Planet EnemyHome;
 
         public CapitalTransfer()
         {
-            CreateGameInstance();
-            LoadPlanetContent();
-            ResourceManager.LoadProjectileMeshes();
-            LoadStarterShips("Colony Ship");
             CreateUniverseAndPlayerEmpire();
             Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
             AddDummyPlanet(2, 1, 3, out NewPlanet);
             AddHomeWorldToEmpire(Player, out Homeworld);
             AddHomeWorldToEmpire(Enemy, out EnemyHome);
 
-            using (var parser = new YamlParser("PlanetTypes.yaml"))
-                PlanetTypes = parser.DeserializeArray<PlanetType>();
-
-            PlanetType type = PlanetTypes.Find(t => t.Category == PlanetCategory.Terran);
-            NewPlanet.GenerateNewFromPlanetType(type, 2);
+            PlanetType type = ResourceManager.RandomPlanet(PlanetCategory.Terran);
+            NewPlanet.GenerateNewFromPlanetType(type, scale:1.5f, preDefinedPop:16);
         }
 
         [TestMethod]
-        public void TestInitialHomeworld()
+        public void InitialHomeworld()
         {
             Assert.IsTrue(Homeworld.HasCapital, "New Homeworld does not have a capital");
             Assert.IsTrue(Player.Capital == Homeworld, "The Player's capital is the created homeworld");
@@ -43,7 +35,7 @@ namespace UnitTests.Planets
         }
 
         [TestMethod]
-        public void TestTransferCapital()
+        public void TransferCapital()
         {
             Ship colonyShip = Ship.CreateShipAtPoint("Colony Ship", Enemy, Vector2.Zero);
             NewPlanet.Colonize(colonyShip);

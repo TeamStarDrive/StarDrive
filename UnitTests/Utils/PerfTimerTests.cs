@@ -25,10 +25,11 @@ namespace UnitTests.Utils
         [TestMethod]
         public void PerfTimerWorksAsExpected()
         {
+            PerfTimer.SpinWait(0f); // JIT
             var timer = new PerfTimer(start:true);
             PerfTimer.SpinWait(_20ms);
             float elapsed = timer.Elapsed;
-            Assert.AreEqual(_20ms, elapsed, 0.001f);
+            Assert.AreEqual(_20ms, elapsed, 0.005f);
         }
 
         [TestMethod]
