@@ -118,6 +118,7 @@
     <Compile Include="Ships\TestIsInsideFiringArc.cs" />
     <Compile Include="Ships\TestShipWarpStates.cs" />
     <Compile Include="Ships\ShipAITests.cs" />
+    <Compile Include="StarDriveTestContext.cs" />
     <Compile Include="StoryAndEvents\TestNotifications.cs" />
     <Compile Include="Ships\TestShipRanges.cs" />
     <Compile Include="StarDriveTest.cs" />

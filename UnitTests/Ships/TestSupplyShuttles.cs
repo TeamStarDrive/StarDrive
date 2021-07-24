@@ -12,8 +12,7 @@ namespace UnitTests.Ships
         public TestSupplyShuttles()
         {
             // Excalibur class has all the bells and whistles
-            CreateGameInstance();
-            LoadStarterShips("Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle");
+            LoadStarterShips("Excalibur-Class Supercarrier", "Corsair");
             CreateUniverseAndPlayerEmpire();
         }
 

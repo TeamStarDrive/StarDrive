@@ -13,14 +13,12 @@ namespace UnitTests.AITests.Ships
     {
         public TestShipMove()
         {
-            CreateGameInstance();
-            LoadStarterShipVulcan();
             CreateUniverseAndPlayerEmpire();
         }
 
         void WaitForEngineChangeTo(Ship.MoveState state, Ship ship, Action update)
         {
-            LoopWhile(5, () => ship.engineState != state, update);
+            LoopWhile((timeout:5, fatal:true), () => ship.engineState != state, update);
         }
 
         [TestMethod]

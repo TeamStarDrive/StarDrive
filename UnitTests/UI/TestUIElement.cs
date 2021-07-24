@@ -44,7 +44,6 @@ namespace UnitTests.UI
 
         public TestUIElement()
         {
-            CreateGameInstance();
         }
 
         [TestMethod]

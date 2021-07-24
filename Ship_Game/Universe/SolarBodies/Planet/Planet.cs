@@ -260,7 +260,7 @@ namespace Ship_Game
             MineralRichness   = minerals;
             BasePopPerTileVal = maxPop;
             if (fertility > 0)
-                Type          = ResourceManager.RandomPlanet(PlanetCategory.Terran);
+                Type = ResourceManager.RandomPlanet(PlanetCategory.Terran);
         }
 
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null, float preDefinedPop = 0)
