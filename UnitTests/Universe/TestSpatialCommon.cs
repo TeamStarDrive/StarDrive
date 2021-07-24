@@ -17,11 +17,17 @@ namespace UnitTests.Universe
         //protected Array<Ship> AllShips = new Array<Ship>();
         protected Array<GameplayObject> AllObjects = new Array<GameplayObject>();
 
+
         protected TestSpatialCommon()
         {
-            CreateGameInstance(800, 800, mockInput:false);
-            LoadStarterShipVulcan();
+            EnableMockInput(false);
             CreateUniverseAndPlayerEmpire();
+        }
+
+        [TestCleanup]
+        public void Teardown()
+        {
+            EnableMockInput(true);
         }
 
         protected abstract ISpatial Create(int worldSize);
@@ -358,7 +364,7 @@ namespace UnitTests.Universe
         [TestMethod]
         public void CollisionPerformance()
         {
-            ISpatial tree = CreateQuadTree(100_000, 10_000);
+            ISpatial tree = CreateQuadTree(40_000, 2_000);
 
             int x = 0;
             foreach (GameplayObject go in AllObjects.ToArray())

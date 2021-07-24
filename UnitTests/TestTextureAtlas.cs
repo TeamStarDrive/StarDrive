@@ -11,7 +11,6 @@ namespace UnitTests
     {
         public TestTextureAtlas()
         {
-            CreateGameInstance();
         }
 
         [TestMethod]

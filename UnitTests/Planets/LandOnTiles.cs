@@ -13,9 +13,6 @@ namespace UnitTests.Planets
 
         public TestLandOnTile()
         {
-            CreateGameInstance();
-            LoadPlanetContent();
-            ResourceManager.LoadProjectileMeshes();
             CreateUniverseAndPlayerEmpire();
             Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
             AddDummyPlanetToEmpire(Player);

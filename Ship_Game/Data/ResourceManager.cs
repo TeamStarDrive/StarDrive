@@ -204,7 +204,7 @@ namespace Ship_Game
             HelperFunctions.CollectMemory();
         }
 
-        static void LoadContent()
+        static void LoadContent(bool loadShips = true)
         {
             InitContentDir();
             CreateCoreGfxResources();
@@ -221,7 +221,8 @@ namespace Ship_Game
             Profiled(LoadShipModules); // Hotspot #4 124.9ms  5.65%
             Profiled(LoadGoods);
             Profiled(LoadShipRoles);
-            Profiled(LoadShipTemplates); // Hotspot #1  502.9ms  22.75%
+            if (loadShips)
+                Profiled(LoadShipTemplates); // Hotspot #1  502.9ms  22.75%
             Profiled(LoadBuildings);
             Profiled(LoadRandomItems);
             Profiled(LoadDialogs);
@@ -331,9 +332,7 @@ namespace Ship_Game
             BuildingsDict.Clear();
             BuildingsById.Clear();
 
-            foreach (var s in ShipsDict)
-                s.Value.Dispose();
-            ShipsDict.Clear();
+            UnloadShipTemplates();
 
             foreach (var m in ModuleTemplates)
                 m.Value.Dispose();
@@ -1554,10 +1553,17 @@ namespace Ship_Game
             }
         }
 
+        static void UnloadShipTemplates()
+        {
+            foreach (var s in ShipsDict)
+                s.Value.Dispose();
+            ShipsDict.Clear();
+        }
+
         // Refactored by RedFox
         static void LoadShipTemplates()
         {
-            ShipsDict.Clear();
+            UnloadShipTemplates();
 
             var designs = new Map<string, ShipDesignInfo>();
             string ext = ShipData.UseNewShipDataLoaders ? "design" : "xml";
@@ -1568,93 +1574,47 @@ namespace Ship_Game
             LoadShipTemplates(designs.Values.ToArray());
         }
 
-        [Flags]
-        public enum TestOptions
-        {
-            None = 0,
-            LoadEverything = (1 << 1), // rare: load pretty much all game content
-            LoadPlanets = (1 << 2),
-            TechContent = (1 << 3),
-            AllStarterShips = (1 << 4),
-        }
-
         // @note This is used for Unit Tests and is not part of the core game
         // @param shipsList Only load these ships to make loading faster.
         //                  Example:  shipsList: new [] { "Vulcan Scout" }
         public static void LoadStarterShipsForTesting(string[] shipsList = null,
                                                       string[] savedDesigns = null,
-                                                      TestOptions options = TestOptions.None)
+                                                      bool clearAll = false)
         {
-            LoadContentForTesting(options);
-            if (options.HasFlag(TestOptions.LoadEverything))
-                return; // all ships already loaded
+            if (clearAll)
+                UnloadShipTemplates();
 
             var ships = new Array<FileInfo>();
-            if (options.HasFlag(TestOptions.AllStarterShips))
-                ships.AddRange(GatherFilesUnified("StarterShips", "xml"));
-            else if (shipsList != null)
-                ships.AddRange(shipsList.Select(ship => GetModOrVanillaFile($"StarterShips/{ship}.xml")));
+
+            if (shipsList != null)
+            {
+                string[] newShips = shipsList.Filter(name => !ShipTemplateExists(name));
+                ships.AddRange(newShips.Select(ship => GetModOrVanillaFile($"StarterShips/{ship}.xml")));
+            }
+
             if (savedDesigns != null)
-                ships.AddRange(savedDesigns.Select(ship => GetModOrVanillaFile($"SavedDesigns/{ship}.xml")));
-
-            ShipsDict.Clear();
-            var designs = new Map<string, ShipDesignInfo>();
-            CombineOverwrite(designs, ships.ToArray(), readOnly: true, playerDesign: false);
-            LoadShipTemplates(designs.Values.ToArray());
-        }
-
-        public static void LoadContentForTesting(TestOptions options = TestOptions.None)
-        {
-            if (options.HasFlag(TestOptions.LoadEverything))
             {
-                LoadContent();
-                ParticleSettings.LoadAll();
-                SunType.LoadSunTypes(enableHotLoading: false);
-                Fonts.LoadFonts(RootContent, Localizer.Language);
-                return;
+                string[] newShips = savedDesigns.Filter(name => !ShipTemplateExists(name));
+                ships.AddRange(newShips.Select(ship => GetModOrVanillaFile($"SavedDesigns/{ship}.xml")));
             }
 
-            InitContentDir();
-            LoadLanguage(GlobalStats.Language);
-            LoadWeapons();
-            LoadHullData();
-            LoadShipRoles();
-            LoadShipModules();
-            LoadTroops();
-            LoadDialogs(); // for CreateEmpire
-            LoadEmpires();
-            LoadEcoResearchStrats();
-            LoadBuildings();
-
-            bool loadPlanets = options.HasFlag(TestOptions.LoadPlanets);
-            bool loadTechs = options.HasFlag(TestOptions.TechContent);
-
-            if (loadPlanets)
+            if (ships.Count > 0)
             {
-                LoadPlanetTypes();
-                LoadSunZoneData();
-                LoadBuildRatios();
-                LoadExpEvents();
-            }
-            if (loadTechs)
-            {
-                LoadTechTree();
-                TechValidator();
-            }
-            if (loadPlanets || loadTechs)
-            {
-                SunType.LoadSunTypes(enableHotLoading: false);
+                var designs = new Map<string, ShipDesignInfo>();
+                CombineOverwrite(designs, ships.ToArray(), readOnly: true, playerDesign: false);
+                LoadShipTemplates(designs.Values.ToArray());
             }
         }
 
-        public static void LoadPlanetContentForTesting()
+        public static void LoadContentForTesting()
         {
-            LoadContentForTesting(TestOptions.LoadPlanets);
-        }
+            LoadContent(loadShips:false);
 
-        public static void LoadTechContentForTesting()
-        {
-            LoadContentForTesting(TestOptions.TechContent);
+            // essential graphics:
+            ParticleSettings.LoadAll();
+            SunType.LoadSunTypes(enableHotLoading: false);
+            Fonts.LoadFonts(RootContent, Localizer.Language);
+            LoadProjectileMeshes();
         }
 
         static void TechValidator()

@@ -14,7 +14,6 @@ namespace UnitTests.Data
     {
         public TestMeshImportExport()
         {
-            CreateGameInstance();
         }
 
         [TestMethod]

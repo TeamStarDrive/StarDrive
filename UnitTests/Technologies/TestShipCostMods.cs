@@ -14,11 +14,9 @@ namespace UnitTests.Technologies
     public class TestShipCostMods : StarDriveTest
     {
         readonly ChooseTech TechChooser;
+
         public TestShipCostMods()
         {
-            CreateGameInstance();
-            LoadTechContent();
-            LoadStarterShipVulcan();
             CreateUniverseAndPlayerEmpire();
             PrepareShipAndEmpireForShipTechTests();
             TechChooser = new ChooseTech(Enemy);
@@ -48,7 +46,6 @@ namespace UnitTests.Technologies
             Assert.IsTrue(TechChooser.LineFocus.BestCombatShip != null, "Best combat ship was null");
         }
 
-        [TestMethod]
         public int ShipPickerReturnsATechCost()
         {
             var lineFocus = new ShipPicker(CreateResearchMod());
@@ -61,7 +58,7 @@ namespace UnitTests.Technologies
         [TestMethod]
         public void InfraCostIncreasesShipCost()
         {
-            int baseCost     = ShipPickerReturnsATechCost();
+            int baseCost = ShipPickerReturnsATechCost();
             var researchMods = CreateResearchMod();
             // adjust researchModsToMakeSureValuesWork
             researchMods.ChangePriority(ResearchOptions.ShipCosts.BalanceToInfraIntensity, 100);
@@ -74,7 +71,7 @@ namespace UnitTests.Technologies
         [TestMethod]
         public void WeaponTagReducesShipCost()
         {
-            int baseCost     = ShipPickerReturnsATechCost();
+            int baseCost = ShipPickerReturnsATechCost();
             var researchMods = CreateResearchMod();
             // adjust researchModsToMakeSureValuesWork
             researchMods.ChangePriority(WeaponTag.Missile, 0.1f);
@@ -87,7 +84,7 @@ namespace UnitTests.Technologies
         [TestMethod]
         public void TechTypeReducesShipCost()
         {
-            int baseCost     = ShipPickerReturnsATechCost();
+            int baseCost = ShipPickerReturnsATechCost();
             var researchMods = CreateResearchMod();
             // adjust researchModsToMakeSureValuesWork
             researchMods.ChangePriority(TechnologyType.ShipWeapons, 0.1f);

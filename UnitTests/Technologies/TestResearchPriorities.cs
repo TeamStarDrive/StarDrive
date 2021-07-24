@@ -11,8 +11,6 @@ namespace UnitTests.Technologies
     {
         public TestResearchPriorities()
         {
-            CreateGameInstance();
-            LoadTechContent();
             CreateUniverseAndPlayerEmpire();
         }
 
@@ -25,93 +23,45 @@ namespace UnitTests.Technologies
         }
 
         [TestMethod]
-        public void TestResearchPrioritiesTechCategories()
+        public void ResearchPrioritiesTechCategories()
         {
             var researchMods = new ResearchOptions();
             researchMods.LoadResearchOptions(Enemy);
             var researchPriorities = new ResearchPriorities(Enemy, researchMods);
-            int researchAreas      = researchPriorities.TechCategoryPrioritized.Split(':').Length;
+            int researchAreas = researchPriorities.TechCategoryPrioritized.Split(':').Length;
             Assert.AreEqual(10, researchAreas, $"Unexpected number of tech areas: {researchPriorities.TechCategoryPrioritized}");
         }
-
-        ResearchPriorities ResetPriorities(ResearchOptions.ResearchArea testArea)
+        
+        
+        void ResetToFirstPriority(ResearchOptions.ResearchArea area, string expected)
         {
-            var researchMods = new ResearchOptions();
-            researchMods.LoadResearchOptions(Enemy);
-            foreach (ResearchOptions.ResearchArea area in Enum.GetValues(typeof(ResearchOptions.ResearchArea)))
-            {
-                researchMods.ChangePriority(area, 1);
-            }
-            researchMods.ChangePriority(testArea, 10);
-            var researchPriorities = new ResearchPriorities(Enemy, researchMods);
-            return researchPriorities;
+            var opts = new ResearchOptions();
+            opts.LoadResearchOptions(Enemy);
+            foreach (ResearchOptions.ResearchArea a in Enum.GetValues(typeof(ResearchOptions.ResearchArea)))
+                opts.ChangePriority(a, 1);
+            opts.ChangePriority(area, 10);
+
+            var priorities = new ResearchPriorities(Enemy, opts, enableRandomizer: false);
+            string firstPriority = priorities.TechCategoryPrioritized.Split(':')[1]; // skip "TECH:"
+            Assert.AreEqual(expected, firstPriority,
+                            $"{area} Was not the highest priority: {priorities.TechCategoryPrioritized}");
         }
 
         [TestMethod]
-        public void TestResearchPrioritiesShips()
+        public void ResearchPriorityChangeToFirstPriority()
         {
-            var area               = ResearchOptions.ResearchArea.ShipTech;
-            var researchPriorities = ResetPriorities(area);
-            string categories      = researchPriorities.TechCategoryPrioritized;
-            bool first             = categories.StartsWith("TECH:Ship");
-            Assert.IsTrue(first, $"{area} Was not the highest priority {categories}");
+            ResetToFirstPriority(ResearchOptions.ResearchArea.ShipTech, "ShipHull");
+            ResetToFirstPriority(ResearchOptions.ResearchArea.Colonization, "Colonization");
+            ResetToFirstPriority(ResearchOptions.ResearchArea.Economic, "Economic");
+            ResetToFirstPriority(ResearchOptions.ResearchArea.General, "General");
+            ResetToFirstPriority(ResearchOptions.ResearchArea.GroundCombat, "GroundCombat");
+            ResetToFirstPriority(ResearchOptions.ResearchArea.Industry, "Industry");
         }
 
-        [TestMethod]
-        public void TestResearchPrioritiesColonization()
-        {
-            var area               = ResearchOptions.ResearchArea.Colonization;
-            var researchPriorities = ResetPriorities(area);
-            string categories      = researchPriorities.TechCategoryPrioritized;
-            bool first             = categories.StartsWith($"TECH:{area}");
-            Assert.IsTrue(first, $"{area} Was not the highest priority {categories}");
-        }
 
         [TestMethod]
-        public void TestResearchPrioritiesEconomic()
+        public void ResearchPrioritiesResearch()
         {
-            var area               = ResearchOptions.ResearchArea.Economic;
-            var researchPriorities = ResetPriorities(area);
-            string categories      = researchPriorities.TechCategoryPrioritized;
-            bool first             = categories.StartsWith($"TECH:{area}");
-            Assert.IsTrue(first, $"{area} Was not the highest priority {categories}");
-        }
-
-        [TestMethod]
-        public void TestResearchPrioritiesGeneral()
-        {
-            var area               = ResearchOptions.ResearchArea.General;
-            var researchPriorities = ResetPriorities(area);
-            string categories      = researchPriorities.TechCategoryPrioritized;
-            bool first             = categories.StartsWith($"TECH:{area}");
-            Assert.IsTrue(first, $"{area} Was not the highest priority {categories}");
-        }
-
-        [TestMethod]
-        public void TestResearchPrioritiesGroundCombat()
-        {
-            var area               = ResearchOptions.ResearchArea.GroundCombat;
-            var researchPriorities = ResetPriorities(area);
-            string categories      = researchPriorities.TechCategoryPrioritized;
-            bool first             = categories.StartsWith($"TECH:{area}");
-            Assert.IsTrue(first, $"{area} Was not the highest priority {categories}");
-        }
-
-        [TestMethod]
-        public void TestResearchPrioritiesIndustry()
-        {
-            var area               = ResearchOptions.ResearchArea.Industry;
-            var researchPriorities = ResetPriorities(area);
-            string categories      = researchPriorities.TechCategoryPrioritized;
-            bool first             = categories.StartsWith($"TECH:{area}");
-            Assert.IsTrue(first, $"{area} Was not the highest priority {categories}");
-        }
-
-        [TestMethod]
-        public void TestResearchPrioritiesResearch()
-        {
-            var area = ResearchOptions.ResearchArea.Research;
-
             Technology tech = ResourceManager.TechTree.Values.First(t => t.TechnologyTypes.First() == TechnologyType.Research);
             
             foreach (Technology.LeadsToTech techName in tech.ComesFrom)
@@ -119,10 +69,7 @@ namespace UnitTests.Technologies
                 Enemy.UnlockTech(techName.UID, TechUnlockType.Normal);
             }
 
-            var researchPriorities = ResetPriorities(area);
-            string categories      = researchPriorities.TechCategoryPrioritized;
-            bool first             = categories.StartsWith($"TECH:{area}");
-            Assert.IsTrue(first, $"{area} Was not the highest priority {categories}");
+            ResetToFirstPriority(ResearchOptions.ResearchArea.Research, "Research");
         }
     }
 }

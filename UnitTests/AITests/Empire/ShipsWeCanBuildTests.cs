@@ -15,13 +15,15 @@ namespace UnitTests.AITests.Empire
     {
         public ShipsWeCanBuildTests()
         {
-            CreateGameInstance();
-            ResourceManager.TestOptions testOptions = ResourceManager.TestOptions.LoadPlanets;
-            testOptions |= ResourceManager.TestOptions.TechContent;
-            LoadStarterShips(testOptions,
-                             "Excalibur-Class Supercarrier", "Prototype Frigate", "Supply Shuttle",
+            LoadStarterShips("Excalibur-Class Supercarrier", "Prototype Frigate",
                              "Flak Fang", "Rocket Inquisitor", "PLT-Defender");
             CreateUniverseAndPlayerEmpire("Human");
+        }
+
+        [TestCleanup]
+        public void Teardown()
+        {
+            ReloadStarterShips();
         }
 
         [TestMethod]

@@ -30,9 +30,10 @@ namespace Ship_Game.Ships.Components
         float[] GetSeenByID()
         {
             float[] seenById = SeenByID;
-            if (seenById.Length != EmpireManager.NumEmpires)
+            int numEmpires = EmpireManager.NumEmpires;
+            if (seenById.Length < numEmpires)
             {
-                var newArray = new float[EmpireManager.NumEmpires];
+                var newArray = new float[numEmpires];
                 Array.Copy(seenById, newArray, seenById.Length);
                 SeenByID = newArray;
                 return newArray;

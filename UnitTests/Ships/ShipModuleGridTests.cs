@@ -14,10 +14,22 @@ namespace UnitTests.Ships
     {
         public ShipModuleGridTests()
         {
-            CreateGameInstance();
-            LoadStarterShips(starterShips:new[]{ "Vulcan Scout" }, 
-                             savedDesigns:new[]{ "Prototype Frigate" });
             CreateUniverseAndPlayerEmpire();
+        }
+
+        /// <summary>
+        /// If any of these fail, the ModuleGrid is broken!
+        /// Fix the bug inside ModuleGrid
+        /// </summary>
+        [TestMethod]
+        public void Regression_LoadSavedShip_ModuleGrid()
+        {
+            Ship toSave = SpawnShip("Prototype Frigate", Player, Vector2.Zero);
+            SavedGame.ShipSaveData saved = SavedGame.ShipSaveFromShip(toSave);
+
+            Ship prototype = Ship.CreateShipFromSave(Player, saved);
+            Assert.AreEqual(6, prototype.GridWidth);
+            Assert.AreEqual(16, prototype.GridHeight);
         }
 
         /// <summary>
@@ -32,17 +44,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(4, vulcan.GridHeight);
 
             Ship prototype = SpawnShip("Prototype Frigate", Player, Vector2.Zero);
-            Assert.AreEqual(6, prototype.GridWidth);
-            Assert.AreEqual(16, prototype.GridHeight);
-        }
-
-        [TestMethod]
-        public void Regression_LoadSavedShip_ModuleGrid()
-        {
-            Ship toSave = SpawnShip("Prototype Frigate", Player, Vector2.Zero);
-            SavedGame.ShipSaveData saved = SavedGame.ShipSaveFromShip(toSave);
-
-            Ship prototype = Ship.CreateShipFromSave(Player, saved);
             Assert.AreEqual(6, prototype.GridWidth);
             Assert.AreEqual(16, prototype.GridHeight);
         }

@@ -16,9 +16,6 @@ namespace UnitTests.Ships
     {
         public ShipDataTests()
         {
-            CreateGameInstance();
-            LoadStarterShips(starterShips:new[]{ "Vulcan Scout" }, 
-                             savedDesigns:new[]{ "Prototype Frigate" });
         }
 
         // Makes sure two ShipData are absolutely equal
@@ -93,7 +90,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipHull_LoadVanilla_TerranShuttle()
         {
-            ResourceManager.Hull("Terran/Shuttle", out ShipData hull);
+            ShipData hull = ShipData.Parse(new FileInfo("Content/Hulls/Terran/Shuttle.xml"), isHullDefinition:true);
             Assert.AreEqual("Shuttle", hull.Name);
             Assert.AreEqual("", hull.ModName);
             Assert.AreEqual("Terran", hull.ShipStyle);
@@ -136,7 +133,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipHull_LoadVanilla_TerranGunboat()
         {
-            ResourceManager.Hull("Terran/Gunboat", out ShipData hull);
+            ShipData hull = ShipData.Parse(new FileInfo("Content/Hulls/Terran/Gunboat.xml"), isHullDefinition:true);
             Assert.AreEqual("Gunboat", hull.Name);
             Assert.AreEqual("", hull.ModName);
             Assert.AreEqual("Terran", hull.ShipStyle);

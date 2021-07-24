@@ -11,8 +11,7 @@ namespace UnitTests.Ships
     {
         public ShipHealthTests()
         {
-            CreateGameInstance();
-            LoadStarterShips("TEST_ShipShield", "Colony Ship");
+            LoadStarterShips("TEST_ShipShield");
             CreateUniverseAndPlayerEmpire();
         }
 

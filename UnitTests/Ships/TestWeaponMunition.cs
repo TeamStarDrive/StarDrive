@@ -12,8 +12,6 @@ namespace UnitTests.Ships
     {
         public TestWeaponMunition()
         {
-            CreateGameInstance();
-            LoadStarterShipVulcan();
             CreateUniverseAndPlayerEmpire();
         }
 

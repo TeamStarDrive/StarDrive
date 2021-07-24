@@ -13,8 +13,6 @@ namespace UnitTests.Technologies
 
         public TestTechnologyUnlock()
         {
-            CreateGameInstance();
-            LoadTechContent();
             CreateUniverseAndPlayerEmpire();
             MajorEnemy = EmpireManager.CreateEmpireFromEmpireData(ResourceManager.MajorRaces[1], isPlayer:false);
             Universe.aw = new AutomationWindow(Universe);
