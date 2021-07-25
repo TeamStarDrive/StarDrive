@@ -45,3 +45,4 @@ bin/x86/Release-2017/
 Microsoft.Xna.Framework.Game/bin/
 SynapseGaming-SunBurn-Pro/bin/
 UnitTests/bin/
+*.pyc
