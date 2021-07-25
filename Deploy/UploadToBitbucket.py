@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import os, sys, glob, subprocess
+import os, glob
 from DeployUtils import fatal_error, exit_with_message, is_appveyor_build, should_deploy, env, appveyor_branch
 
 # need to make sure this script is executed in `BlackBox/` root dir
@@ -30,4 +30,7 @@ file = os.path.abspath(upload_candidates[0])
 print(f'BitBucket Upload: {file}')
 api_url = 'https://api.bitbucket.org/2.0/repositories/codegremlins/stardrive-blackbox/downloads'
 result = os.system(f'curl -X POST -u "{BB_UPLOAD_USER}:{BB_UPLOAD_PASS}" -F files=@"{file}" "{api_url}"')
-# dont care bout result
+if result != 0:
+    fatal_error(f'curl returned with error code: {result}')
+else:
+    exit_with_message(f'curl upload success')
