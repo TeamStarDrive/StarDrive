@@ -4,6 +4,7 @@ using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Ship_Game.Graphics;
 
 namespace Ship_Game.GameScreens.DiplomacyScreen
 {
@@ -69,6 +70,9 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         Empire EmpireToDiscuss;
         readonly SolarSystem SysToDiscuss;
 
+        Array<Empire> AlliedEmpiresAtWar = new Array<Empire>();
+        Array<Empire> EmpiresTheyAreAlliedWith = new Array<Empire>();
+
 
         // BASE constructor
         DiplomacyScreen(GameScreen parent, Empire them, Empire us, string whichDialog) : base(parent)
@@ -81,6 +85,9 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             WhichDialog                     = whichDialog;
             IsPopup                         = true;
             TransitionOnTime                = 1.0f;
+
+            GetAlliedEmpiresTheyAreAtWarWith(them, us);
+            GetAiAlliedEmpires(them, us);
         }
 
         DiplomacyScreen(Empire them, Empire us, string whichDialog, GameScreen parent)
@@ -256,6 +263,33 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         }
 
 
+        void GetAlliedEmpiresTheyAreAtWarWith(Empire them, Empire us)
+        {
+            AlliedEmpiresAtWar.Clear();
+            Empire ai = !them.isPlayer ? them : us;
+            foreach (Empire empire in EmpireManager.ActiveMajorEmpires)
+            {
+                if (ai.IsAtWarWith(empire) && empire.IsAlliedWith(Player))
+                    AlliedEmpiresAtWar.Add(empire);
+            }
+        }
+
+        void GetAiAlliedEmpires(Empire them, Empire us)
+        {
+            EmpiresTheyAreAlliedWith.Clear();
+            Empire ai = !them.isPlayer ? them : us;
+            foreach (Empire empire in EmpireManager.ActiveMajorEmpires)
+            {
+                if (ai.IsAlliedWith(empire) && (CanViewAlliance(empire) || CanViewAlliance(ai)))
+                    EmpiresTheyAreAlliedWith.Add(empire);
+            }
+        }
+
+        bool CanViewAlliance(Empire e)
+        {
+            return e.IsTradeTreaty(Player) || e.IsOpenBordersTreaty(Player) || e.IsAlliedWith(Player) || e.IsNAPactWith(Player);
+        }
+
         void DoNegotiationResponse(string answer)
         {
             StatementsSL.Reset();
@@ -301,6 +335,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 batch.Draw(ResourceManager.Texture("UI/bw_bargradient_2"), FearRect, Color.Red);
             }
 
+            DrawAlliesAndWars(batch);
             OfferTextSL.Visible = false;
 
             switch (DState)
@@ -390,6 +425,26 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             pos.X  -= 8f;
             base.Draw(batch, elapsed);
             batch.End();
+        }
+
+        void DrawAlliesAndWars(SpriteBatch batch)
+        {
+            Font font = Fonts.Arial12Bold;
+            Vector2 cursor = new Vector2(Portrait.X + 40,  FearRect.Y + 50);
+            foreach (Empire empire in AlliedEmpiresAtWar)
+            {
+                batch.DrawDropShadowText($"They are at war with your ally, {empire.Name}", cursor, font, empire.EmpireColor, 1);
+                cursor.Y += font.LineSpacing + 2;
+            }
+
+            if (AlliedEmpiresAtWar.Count > 0)
+                cursor.Y += font.LineSpacing + 5;
+
+            foreach (Empire empire in EmpiresTheyAreAlliedWith)
+            {
+                batch.DrawDropShadowText($"They are allied with {empire.Name}", cursor, font, empire.EmpireColor, 1);
+                cursor.Y += font.LineSpacing + 2;
+            }
         }
 
         void DrawBackground(SpriteBatch batch)
