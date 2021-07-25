@@ -99,7 +99,7 @@ namespace Ship_Game
             int ranMax = PotentialOutcomes.Filter(outcome => !outcome.OnlyTriggerOnce || !outcome.AlreadyTriggered)
                 .Sum(outcome => outcome.Chance);
 
-            int random = (int)RandomMath.RandomBetween(0, ranMax);
+            int random = (int)RandomMath.RandomBetween(1, ranMax);
             Outcome triggeredOutcome = new Outcome();
             int cursor = 0;
 
@@ -107,7 +107,8 @@ namespace Ship_Game
             {
                 if (outcome.OnlyTriggerOnce && outcome.AlreadyTriggered)
                     continue;
-                cursor = cursor + outcome.Chance;
+
+                cursor += outcome.Chance;
                 if (random <= cursor)
                 {
                     triggeredOutcome = outcome;
