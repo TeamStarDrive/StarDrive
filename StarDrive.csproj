@@ -1703,7 +1703,8 @@
 powershell -ExecutionPolicy Bypass -File $(SolutionDir)CopyGameContent.ps1  $(SolutionDir)  $(SolutionDir)StarDrive\  COPYMODS
 
 if "$(ConfigurationName)" == "Deploy"  (
-  $(SolutionDir)Deploy\MakeInstaller.cmd $(SolutionDir)
+  :: run the installer generator script with Python 3
+  py -3 $(SolutionDir)Deploy\MakeInstaller.py $(SolutionDir)
 )
 </PostBuildEvent>
   </PropertyGroup>
