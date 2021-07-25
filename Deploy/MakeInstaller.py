@@ -24,5 +24,7 @@ if not os.path.exists('Deploy/upload'):
 
 print('MakeNSIS Deploy/BlackBox-Mars.nsi')
 result = os.system(f'"{makensis}" /V3 /DVERSION={BUILD_VERSION} /DSOURCE_DIR={source} Deploy/BlackBox-Mars.nsi')
-if not result:
-    fatal_error('Failed to create installer!')
+if result != 0:
+    fatal_error(f'MakeNSIS returned with error: {result}')
+else:
+    exit_with_message('MakeNSIS succeeded')
