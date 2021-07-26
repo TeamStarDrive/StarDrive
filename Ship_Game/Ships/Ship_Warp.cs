@@ -18,8 +18,25 @@ namespace Ship_Game.Ships
         public const float MaxTurnRadians = 3.14159f;
         public bool IsSpooling { get; private set; }
         public float InhibitedTimer;
+        /// <summary>
+        /// While at warp check 10 * a second.
+        /// we can adjust this as needed but it should give a visually perfect and functional inhibition.
+        /// </summary>
+        public const float InhibitedAtWarpCheckFrequency = 0.1f;
+        // While at sublight there is no need for quick checks. 
+        public const float InhibitedAtSubLightCheckFrequency = 1f;
+        /// <summary>
+        /// Always check if inhibited and inhibition timer has run out.
+        /// While at warp we will use a higher frequency for the check. At sublight we can use a lower frequency.
+        /// We are using the negative side of the inhibited Timer here which saves
+        /// some memory by not using another float for all ships. 
+        /// </summary>
+        bool ShouldCheckForWarpInhibitors => (InhibitedTimer <= 0 && MaxFTLSpeed > 0) &&
+                                             (Inhibited ||
+                                             engineState == MoveState.Warp     && InhibitedTimer <= -InhibitedAtWarpCheckFrequency ||
+                                             engineState == MoveState.Sublight && InhibitedTimer <= -InhibitedAtSubLightCheckFrequency);
         public bool Inhibited { get; private set; }
-        public bool InhibitedByEnemy { get; private set; }
+        public bool InhibitedByEnemy { get; protected set; }
         public MoveState engineState;
 
          // [0.0 to 1.0], current Warp thrust percentage
@@ -106,25 +123,33 @@ namespace Ship_Game.Ships
 
         Vector3 GetWarpEffectPosition() => Position.ToVec3();
 
-        void UpdateHyperspaceInhibited(FixedSimTime timeStep)
+        protected void UpdateHyperspaceInhibited(FixedSimTime timeStep)
         {
             InhibitedTimer -= timeStep.FixedTime;
-            if (InhibitedTimer <= 0f) // timer has run out, lets do the expensive inhibit check
+
+            if (ShouldCheckForWarpInhibitors)
             {
-                // if we're inside a system, check every frame
-                if (System != null && IsInhibitedByUnfriendlyGravityWell)
+                if (RandomEventManager.ActiveEvent?.InhibitWarp == true)
+                {
+                    InhibitedTimer = 10f;
+                }
+                else if (System != null && IsInhibitedByUnfriendlyGravityWell)
                 {
                     InhibitedTimer = 0.5f;
                 }
+                else if (IsInhibitedFromEnemyShips())
+                {
+                    InhibitedByEnemy = true;
+                    InhibitedTimer   = 5f;
+                }
+                else
+                {
+                    InhibitedTimer = 0;
+                    InhibitedByEnemy = false;
+                }
+            }
 
-                Inhibited = InhibitedTimer > 0f;
-            }
-            // already inhibited, just wait for the timer to run out before checking again
-            else
-            {
-                // @note InhibitedTimer might be set from where ever
-                Inhibited = true;
-            }
+            Inhibited = InhibitedTimer > 0f;
 
             if (IsSpoolingOrInWarp && (Inhibited || MaxFTLSpeed < LightSpeedConstant))
                 HyperspaceReturn();
@@ -170,26 +195,22 @@ namespace Ship_Game.Ships
         }
 
         // todo: Move to action queue
-        void UpdateInhibitedFromEnemyShips()
+        bool IsInhibitedFromEnemyShips()
         {
-            InhibitedByEnemy = false;
-            foreach (Empire e in EmpireManager.Empires)
+            for (int x = 0; x < EmpireManager.Empires.Count; x++)
             {
+                Empire e = EmpireManager.Empires[x];
                 if (e.WillInhibit(loyalty))
                 {
                     for (int i = 0; i < e.Inhibitors.Count; ++i)
                     {
                         Ship ship = e.Inhibitors[i];
                         if (ship != null && Position.InRadius(ship.Position, ship.InhibitionRadius))
-                        {
-                            Inhibited = true;
-                            InhibitedByEnemy = true;
-                            InhibitedTimer = 5f;
-                            return;
-                        }
+                            return true;
                     }
                 }
             }
+            return false;
         }
 
         /// <summary>
