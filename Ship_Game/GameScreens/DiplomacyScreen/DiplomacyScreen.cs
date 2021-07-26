@@ -86,8 +86,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             IsPopup                         = true;
             TransitionOnTime                = 1.0f;
 
-            GetAlliedEmpiresTheyAreAtWarWith(them, us);
-            GetAiAlliedEmpires(them, us);
+            UpdateAlliedEmpiresTheyAreAtWarWith(them, us);
+            UpdateAiAlliedEmpires(them, us);
         }
 
         DiplomacyScreen(Empire them, Empire us, string whichDialog, GameScreen parent)
@@ -263,7 +263,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         }
 
 
-        void GetAlliedEmpiresTheyAreAtWarWith(Empire them, Empire us)
+        void UpdateAlliedEmpiresTheyAreAtWarWith(Empire them, Empire us)
         {
             AlliedEmpiresAtWar.Clear();
             Empire ai = !them.isPlayer ? them : us;
@@ -274,13 +274,13 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             }
         }
 
-        void GetAiAlliedEmpires(Empire them, Empire us)
+        void UpdateAiAlliedEmpires(Empire them, Empire us)
         {
             EmpiresTheyAreAlliedWith.Clear();
             Empire ai = !them.isPlayer ? them : us;
-            foreach (Empire empire in EmpireManager.ActiveMajorEmpires)
+            foreach (Empire empire in EmpireManager.GetAllies(ai))
             {
-                if (ai.IsAlliedWith(empire) && (CanViewAlliance(empire) || CanViewAlliance(ai)))
+                if (CanViewAlliance(empire) || CanViewAlliance(ai))
                     EmpiresTheyAreAlliedWith.Add(empire);
             }
         }
