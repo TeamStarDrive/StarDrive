@@ -1,14 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.DiplomacyScreen;
-using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -43,6 +40,9 @@ namespace Ship_Game
         Array<Empire> Friends;
         Array<Empire> Traders;
         HashSet<Empire> Moles;
+
+        UIButton DiagramButton;
+        Rectangle LeftRect;
 
 
         public MainDiplomacyScreen(UniverseScreen screen) : base(screen)
@@ -841,10 +841,10 @@ namespace Ship_Game
             Rectangle titleRect = new Rectangle((int)screenWidth / 2 - 200, 44, 400, 80);
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(GameText.DiplomaticOverview)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
-            Rectangle leftRect = new Rectangle((int)screenWidth / 2 - 700, (screenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1400, 660);
-            DMenu = new Menu2(leftRect);
-            Add(new CloseButton(leftRect.Right - 40, leftRect.Y + 20));
-            SelectedInfoRect = new Rectangle(leftRect.X + 60, leftRect.Y + 250, 368, 376);
+            LeftRect = new Rectangle((int)screenWidth / 2 - 700, (screenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1400, 660);
+            DMenu = new Menu2(LeftRect);
+            Add(new CloseButton(LeftRect.Right - 40, LeftRect.Y + 20));
+            SelectedInfoRect = new Rectangle(LeftRect.X + 60, LeftRect.Y + 250, 368, 376);
             IntelligenceRect = new Rectangle(SelectedInfoRect.X + SelectedInfoRect.Width + 30, SelectedInfoRect.Y, 368, 376);
             OperationsRect = new Rectangle(IntelligenceRect.X + IntelligenceRect.Width + 30, SelectedInfoRect.Y, 368, 376);
             ArtifactsRect = new Rectangle(SelectedInfoRect.X , SelectedInfoRect.Y + 190, SelectedInfoRect.Width - 40, 130);
@@ -867,14 +867,23 @@ namespace Ship_Game
                 }
                 Races.Add(new RaceEntry { e = e });
             }
-            Vector2 Cursor = new Vector2(screenWidth / 2f - 148 * Races.Count / 2, leftRect.Y + 10);
+            Vector2 Cursor = new Vector2(screenWidth / 2f - 148 * Races.Count / 2, LeftRect.Y + 10);
             int j = 0;
             foreach (RaceEntry re in Races)
             {
-                re.container = new Rectangle((int)Cursor.X + 10 + j * 148, leftRect.Y + 40, 124, 148);
+                re.container = new Rectangle((int)Cursor.X + 10 + j * 148, LeftRect.Y + 40, 124, 148);
                 j++;
             }
             GameAudio.MuteRacialMusic();
+
+            DiagramButton = Add(new UIButton(ButtonStyle.Default, new Vector2(LeftRect.X + 70, LeftRect.Bottom - 60), "View Relationships"));
+            DiagramButton.OnClick = b => AddRelationShipDiagramScreen();
+        }
+
+        void AddRelationShipDiagramScreen()
+        {
+            var diagram = new RelationshipsDiagramScreen(this, LeftRect);
+            ScreenManager.AddScreen(diagram);
         }
     }
 }
