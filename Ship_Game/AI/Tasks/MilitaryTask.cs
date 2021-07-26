@@ -523,8 +523,8 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.AssaultPirateBase:          priority = GetAssaultPirateBasePriority();  break;
             }
 
-            if (TargetEmpire == EmpireManager.Player)
-                priority -= Owner.DifficultyModifiers.WarTaskPriorityMod;
+            if (TargetEmpire == EmpireManager.Player && EmpireManager.Player.AllActiveWars.Length <= Owner.DifficultyModifiers.WarTaskPriorityMod)
+                priority -= 1;
 
             Priority = priority;
 
