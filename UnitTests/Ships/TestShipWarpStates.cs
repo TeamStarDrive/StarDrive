@@ -117,8 +117,6 @@ namespace UnitTests.Ships
             ship.EngageStarDrive();
             ship.Update(new FixedSimTime(2f));
             ship.Update(new FixedSimTime(2f));
-            //ship.Update(TestSimStep);
-            //ship.Update(TestSimStep);
             float timeInhibited = ship.InhibitedTimer;
             while (timeInhibited > -Ship.InhibitedAtWarpCheckFrequency)
             {
