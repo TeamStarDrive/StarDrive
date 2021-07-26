@@ -129,7 +129,7 @@
                     FleetStrModifier     = 0.3f;
                     NumSystemsToSniff    = 2;
                     NumWarTasksPerWar    = 2;
-                    WarTaskPriorityMod   = 0;
+                    WarTaskPriorityMod   = 1;
                     RemnantStrModifier   = remnantGeneralStr + 0.5f; 
                     if (!empire.isPlayer)
                     {
