@@ -1152,13 +1152,14 @@ namespace Ship_Game.Ships
             AI.CombatAI.SetCombatTactics(AI.CombatState);
 
             updateTimer -= timeStep.FixedTime;
+
             if (updateTimer <= 0f)
             {
                 updateTimer += 1f; // update the ship modules and status only once per second
                 UpdateModulesAndStatus(FixedSimTime.One);
                 SecondsAlive += 1;
             }
-            
+
             PowerCurrent -= PowerDraw * timeStep.FixedTime;
             if (PowerCurrent < PowerStoreMax)
                 PowerCurrent += (PowerFlowMax + PowerFlowMax * (loyalty?.data.PowerFlowMod ?? 0)) * timeStep.FixedTime;
@@ -1221,11 +1222,6 @@ namespace Ship_Game.Ships
                         }
                     }
                 }
-            }
-
-            if (InhibitedTimer < 1f)
-            {
-                UpdateInhibitedFromEnemyShips();
             }
 
             for (int i = 0; i < ModuleSlotList.Length; ++i)
