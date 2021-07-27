@@ -54,7 +54,7 @@ namespace UnitTests.Ships
         {
             var ship = CreateWarpTestShip();
             // inhibit while spooling
-            ship.InhibitedTimer = 3f;
+            ship.SetInhibitedState(3f, false);
             ship.EngageStarDrive();
             ship.Update(new FixedSimTime(2f));
             Assert.IsFalse(ship.IsSpoolingOrInWarp);
@@ -68,57 +68,57 @@ namespace UnitTests.Ships
             ship.EngageStarDrive();
             ship.Update(new FixedSimTime(2f));
             // inhibit while spooling
-            ship.InhibitedTimer = 4f;
+            ship.SetInhibitedState(4f, false);
             ship.Update(new FixedSimTime(2f));
             Assert.IsFalse(ship.IsSpoolingOrInWarp);
             Assert.IsFalse(ship.IsInWarp);
         }
 
         [TestMethod]
-        public void TestInhibitedTimer()
+        public void InhibitedTimerIsAccurate()
         {
             TestShip ship = CreateWarpTestShip();
             ship.EngageStarDrive();
             ship.Update(new FixedSimTime(2f));
             // Test timer for accuracy
-            ship.InhibitedTimer = 4f;
+            ship.SetInhibitedState(4f, false);
             ship.Update(TestSimStep);
             float inhibited = 0;
-            while (ship.Inhibited)
-            {
-                ship.UpdateInhibitLogic(TestSimStep);
-                inhibited += TestSimStep.FixedTime;
-            }
+            LoopWhile((5d, true), () => ship.Inhibited, () =>
+             {
+                 ship.UpdateInhibitLogic(TestSimStep);
+                 inhibited += TestSimStep.FixedTime;
+             });
             Assert.AreEqual(4, inhibited, 0.001d, "Inhibitor time was not equal to expect duration");
             Assert.IsTrue(ship.InhibitedTimer == 0, "Inhibitor timer reset failure");
         }
 
         [TestMethod]
-        public void TestResetInhibitedByEnemyFlag()
+        public void InhibitedByEnemyFlagIsSetToFalse()
         {
             TestShip ship = CreateWarpTestShip();
             ship.EngageStarDrive();
             ship.Update(new FixedSimTime(2f));
             // Test timer for accuracy
-            ship.InhibitedTimer = 4f;
+            ship.SetInhibitedState(duration: 4f, inhibitedByShip: true);
             ship.Update(TestSimStep);
-            ship.SetInhibitedByEnemy(true);
-            while (ship.Inhibited)
-            {
-                ship.UpdateInhibitLogic(TestSimStep);
-            }
+
+            LoopWhile((5d, true), () => ship.Inhibited, () => ship.UpdateInhibitLogic(TestSimStep));
+
             Assert.IsFalse(ship.InhibitedByEnemy, "Failed to unset enemy inhibition status");
         }
 
         [TestMethod]
-        public void TestInhibitedWarpFrequencyCheck()
+        public void InhibitionChecksAtWarpHappenAtCorrectIntervals()
         {
             TestShip ship = CreateWarpTestShip();
             ship.EngageStarDrive();
             ship.Update(new FixedSimTime(2f));
             ship.Update(new FixedSimTime(2f));
             float timeInhibited = ship.InhibitedTimer;
-            while (timeInhibited > -Ship.InhibitedAtWarpCheckFrequency)
+            bool wasTested = false;
+
+            LoopWhile((2d, true), () => timeInhibited > -Ship.InhibitedAtWarpCheckFrequency, () =>
             {
                 Assert.IsTrue(ship.engineState == Ship.MoveState.Warp);
                 timeInhibited -= TestSimStep.FixedTime;
@@ -126,8 +126,10 @@ namespace UnitTests.Ships
                 if (timeInhibited <= -Ship.InhibitedAtWarpCheckFrequency)
                 {
                     Assert.IsTrue(ship.InhibitedTimer == 0, "Failed to reset inhibitorTimer at InhibitedAtWarpFrequency");
+                    wasTested = true;
                 }
-            }
+            });
+            Assert.IsTrue(wasTested, $"Time inhibited did not fall below Frequency threshold!!!! Debug");
         }
     }
 }
