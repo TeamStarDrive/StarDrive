@@ -137,28 +137,20 @@ namespace Ship_Game.Ships
                                  engineState == MoveState.Sublight && InhibitedTimer <= -InhibitedAtSubLightCheckFrequency)
                 {
                     // All general inhibition sources should be below.
-                    // NOTE: if a source cant be in this list reasonably we will need a force inhibition method.
-                    // this method would simply set the states as below and it will work.
-                    // similar to what is in the TestShip Class. Such as a directed weapon that inhibits a specific ship.
+                    // NOTE: if a source cant be in this list reasonably use SetInhibted
 
                     // in future if we have more event inhibiting effects we should have a method that iterates them
                     if (RandomEventManager.ActiveEvent?.InhibitWarp == true)
                     {
-                        InhibitedTimer   = 5f;
-                        Inhibited        = true;
-                        InhibitedByEnemy = false;
+                        SetWarpInhibited(sourceEnemyShip: false, secondsToInhibit: 5f);
                     }
                     else if (System != null && IsInhibitedByUnfriendlyGravityWell)
                     {
-                        InhibitedTimer   = 0.5f;
-                        Inhibited        = true;
-                        InhibitedByEnemy = false;
+                        SetWarpInhibited(sourceEnemyShip: false, secondsToInhibit: 0.5f);
                     }
                     else if (IsInhibitedFromEnemyShips())
                     {
-                        InhibitedTimer   = 5f;
-                        Inhibited        = true;
-                        InhibitedByEnemy = true;
+                        SetWarpInhibited(sourceEnemyShip: true, secondsToInhibit: 5f);
                     }
                     // nothing is inhibiting so reset timer and states
                     else
@@ -177,6 +169,13 @@ namespace Ship_Game.Ships
             // TODO: this lightspeed constant check isnt in the right place. Its buried here. 
             if (IsSpoolingOrInWarp && (Inhibited || MaxFTLSpeed < LightSpeedConstant))
                 HyperspaceReturn();
+        }
+
+        public void SetWarpInhibited(bool sourceEnemyShip, float secondsToInhibit)
+        {
+            InhibitedTimer   = secondsToInhibit;
+            Inhibited        = true;
+            InhibitedByEnemy = sourceEnemyShip;
         }
 
         // TODO: move this to ship engines. 

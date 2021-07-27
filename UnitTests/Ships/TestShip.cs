@@ -74,13 +74,6 @@ namespace UnitTests.Ships
             base.OnShipReturned(ship);
         }
 
-        public void UpdateInhibitLogic(FixedSimTime timeStep) => UpdateHyperspaceInhibited(timeStep);
-        public bool SetInhibitedByEnemy(bool inhibited) => InhibitedByEnemy = inhibited;
-        public void SetInhibitedState(float duration, bool inhibitedByShip)
-        {
-            InhibitedByEnemy = inhibitedByShip;
-            InhibitedTimer   = duration;
-            Inhibited        = true;
-        }
+        public void UpdateInhibitLogic(FixedSimTime timeStep) => UpdateHyperspaceInhibited(timeStep);              
     }
 }
