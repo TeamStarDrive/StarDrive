@@ -54,7 +54,7 @@ namespace UnitTests.Ships
         {
             var ship = CreateWarpTestShip();
             // inhibit while spooling
-            ship.SetInhibitedState(3f, false);
+            ship.SetWarpInhibited(false, 3f);
             ship.EngageStarDrive();
             ship.Update(new FixedSimTime(2f));
             Assert.IsFalse(ship.IsSpoolingOrInWarp);
@@ -68,7 +68,7 @@ namespace UnitTests.Ships
             ship.EngageStarDrive();
             ship.Update(new FixedSimTime(2f));
             // inhibit while spooling
-            ship.SetInhibitedState(4f, false);
+            ship.SetWarpInhibited(false, 4f);
             ship.Update(new FixedSimTime(2f));
             Assert.IsFalse(ship.IsSpoolingOrInWarp);
             Assert.IsFalse(ship.IsInWarp);
@@ -81,7 +81,7 @@ namespace UnitTests.Ships
             ship.EngageStarDrive();
             ship.Update(new FixedSimTime(2f));
             // Test timer for accuracy
-            ship.SetInhibitedState(4f, false);
+            ship.SetWarpInhibited(false, 4f);
             ship.Update(TestSimStep);
             float inhibited = 0;
             LoopWhile((5d, true), () => ship.Inhibited, () =>
@@ -100,7 +100,7 @@ namespace UnitTests.Ships
             ship.EngageStarDrive();
             ship.Update(new FixedSimTime(2f));
             // Test timer for accuracy
-            ship.SetInhibitedState(duration: 4f, inhibitedByShip: true);
+            ship.SetWarpInhibited(true, 4f);
             ship.Update(TestSimStep);
 
             LoopWhile((5d, true), () => ship.Inhibited, () => ship.UpdateInhibitLogic(TestSimStep));
