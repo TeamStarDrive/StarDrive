@@ -156,9 +156,9 @@ namespace Ship_Game.Ships
                     }
                     else if (IsInhibitedFromEnemyShips())
                     {
-                        InhibitedByEnemy = true;
                         InhibitedTimer   = 5f;
                         Inhibited        = true;
+                        InhibitedByEnemy = true;
                     }
                     // nothing is inhibiting so reset timer and states
                     else
