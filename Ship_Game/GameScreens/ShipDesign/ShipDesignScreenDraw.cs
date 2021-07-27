@@ -186,22 +186,23 @@ namespace Ship_Game
                 if (slot.Module != null)
                 {
                     slot.Draw(batch, concreteGlass, Color.Gray);
-                    continue;
                 }
-
-                if (slot.Root.Module != null)
-                    continue;
-
-                bool valid = ActiveModule == null || slot.CanSlotSupportModule(ActiveModule);
-                Color activeColor = valid ? Color.LightGreen : Color.Red;
-                slot.Draw(batch, concreteGlass, activeColor);
-                if (slot.InPowerRadius)
+                else if (slot.Root.Module == null)
                 {
-                    Color yellow = ActiveModule != null ? new Color(Color.Yellow, 150) : Color.Yellow;
-                    slot.Draw(batch, concreteGlass, yellow);
+                    bool valid = ActiveModule == null || slot.CanSlotSupportModule(ActiveModule);
+                    Color activeColor = valid ? Color.LightGreen : Color.Red;
+                    slot.Draw(batch, concreteGlass, activeColor);
+
+                    Point gridPos = ModuleGrid.ToGridPos(slot.Position);
+                    if (DesignedShip.PwrGrid.IsPowered(gridPos.X, gridPos.Y))
+                    {
+                        Color yellow = ActiveModule != null ? new Color(Color.Yellow, 150) : Color.Yellow;
+                        slot.Draw(batch, concreteGlass, yellow);
+                    }
+
+                    batch.DrawString(Fonts.Arial20Bold, " " + slot.Restrictions, slot.PosVec2,
+                                     Color.Navy, 0f, Vector2.Zero, 0.4f);
                 }
-                batch.DrawString(Fonts.Arial20Bold, " " + slot.Restrictions, slot.PosVec2,
-                                 Color.Navy, 0f, Vector2.Zero, 0.4f);
             }
         }
 
