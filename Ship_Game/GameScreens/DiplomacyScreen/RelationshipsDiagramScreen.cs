@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
+using Ship_Game.Gameplay;
 
 
 namespace Ship_Game.GameScreens.DiplomacyScreen
@@ -11,9 +12,9 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         private readonly Menu2 Window;
         private readonly Color Cream = Colors.Cream;
         private readonly Graphics.Font LargeFont = Fonts.Arial20Bold;
-        Vector2 Center;
-        Array<Peer> Peers = new Array<Peer>();
 
+        Array<Peer> Peers = new Array<Peer>();
+        Vector2 WeightCenter;
         public RelationshipsDiagramScreen(GameScreen screen, Rectangle rect) : base(screen)
         {
             IsPopup           = true;
@@ -27,20 +28,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             int w  = (int)Window.Width - 30;
             int h  = (int)Window.Height - 80;
 
-            Center = new Vector2(Window.X + Window.Width / 2 + 100, Window.Y + Window.Height / 2);
-
-            UILabel designIssueLabel = Add(new UILabel("Design Issue", LargeFont, Cream));
-            UILabel descriptionLabel = Add(new UILabel("Issue Description", LargeFont, Cream));
-            UILabel remediationLabel = Add(new UILabel("Remediation", LargeFont, Cream));
-            designIssueLabel.Size    = new Vector2(230, 20);
-            descriptionLabel.Size    = new Vector2(370, 20);
-            remediationLabel.Size    = new Vector2(370, 20);
-            designIssueLabel.Pos     = new Vector2(x, y - 10);
-            descriptionLabel.Pos     = new Vector2(x + 180, y - 10);
-            remediationLabel.Pos     = new Vector2(x + 550, y - 10);
-            designIssueLabel.TextAlign   = TextAlign.HorizontalCenter;
-            descriptionLabel.TextAlign   = TextAlign.HorizontalCenter;
-            remediationLabel.TextAlign   = TextAlign.HorizontalCenter;
+            WeightCenter = new Vector2(Window.X + Window.Width / 2 + 100, Window.Y + Window.Height / 2);
         }
 
         public override void LoadContent()
@@ -61,64 +49,122 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             foreach (Empire e in EmpireManager.ActiveMajorEmpires)
             {
                 // todo add empires based on player knowledge on relations
-                Peer peer = new Peer(Center, Window.Rect, peerAngle, e);
+                Peer peer = new Peer(WeightCenter, Window.Rect, peerAngle, e);
                 Peers.Add(peer);
-                Add(new UIPanel(peer.Rect, peer.Portrait));
+                //Add(new UIPanel(peer.Rect, peer.Portrait));
                 peerAngle += angle;
             }
         }
 
-         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
             base.Draw(batch, elapsed);
+            DrawRelations(batch);
             batch.End();
         }
 
         public override bool HandleInput(InputState input)
         {
-            /*
-            if (input.KeyPressed(Keys.T) && !GlobalStats.TakingInput)
-            {
-                GameAudio.EchoAffirmative();
-                ExitScreen();
-                return true;
-            }*/
             if (input.Escaped || input.RightMouseClick)
             {
                 ExitScreen();
                 return true;
             }
+
             return base.HandleInput(input);
+        }
+
+        void DrawRelations(SpriteBatch batch)
+        {
+            foreach (Peer empire in Peers)
+            {
+                foreach (Peer peer in Peers)
+                {
+                    if (empire.Empire != peer.Empire)
+                        DrawPeerLinesNoWarOrAlliance(batch, empire, peer);
+                }
+            }
+
+            foreach (Peer empire in Peers)
+            {
+                foreach (Peer peer in Peers)
+                {
+                    if (empire.Empire != peer.Empire)
+                        DrawPeerLinesWarOrAlliance(batch, empire, peer);
+                }
+            }
+
+            foreach (Peer empire in Peers)
+            {
+                batch.Draw(empire.Portrait, empire.Rect);
+            }
+        }
+
+        void DrawPeerLinesNoWarOrAlliance(SpriteBatch batch, Peer source, Peer peer)
+        {
+            Relationship rel = source.Empire.GetRelationsOrNull(peer.Empire);
+            if (rel == null || rel.AtWar || rel.Treaty_Alliance)
+                return;
+
+            if (rel.Treaty_Peace)
+            {
+                DrawPeerLine(batch, source.PeacePos, peer.PeacePos, Color.Gray); 
+                return;
+            }
+
+            if (rel.Treaty_OpenBorders)
+                DrawPeerLine(batch, source.OpenBordersPos, peer.OpenBordersPos, Color.LightSeaGreen);
+            else if (rel.Treaty_Trade)
+                DrawPeerLine(batch, source.TradePos, peer.TradePos, Color.DeepSkyBlue);
+            else if (rel.Treaty_NAPact)
+                DrawPeerLine(batch, source.NapPos, peer.NapPos, Color.White);
+        }
+
+        void DrawPeerLinesWarOrAlliance(SpriteBatch batch, Peer source, Peer peer)
+        {
+            Relationship rel = source.Empire.GetRelationsOrNull(peer.Empire);
+            if (rel == null)
+                return;
+
+            if (rel.AtWar)
+                DrawPeerLine(batch, source.WarPos, peer.WarPos, Color.Red, thickness: 3);
+            else if (rel.Treaty_Alliance)
+                DrawPeerLine(batch, source.AlliancePos, peer.AlliancePos, Color.Green, thickness: 3);
+        }
+
+        void DrawPeerLine(SpriteBatch batch, Vector2 pos1, Vector2 pos2, Color color, int thickness = 1)
+        {
+            batch.DrawLine(pos1, pos2, color.Alpha(0.75f), thickness);
         }
 
         struct Peer
         {
-            public Rectangle Rect;
+            public readonly Rectangle Rect;
             //int Angle;
 
-            public Vector2 PeacePos; // Gray
+            public Vector2 PeacePos; // Yellow
             public Vector2 WarPos; // Red
-            public Vector2 NapPos; // Yellow
+            public Vector2 NapPos; // White
             public Vector2 TradePos; //  Blue
             public Vector2 OpenBordersPos; // Light Green
             public Vector2 AlliancePos; // Green
-            public Empire Empire;
-            public SubTexture Portrait;
+            public readonly Empire Empire;
+            public readonly SubTexture Portrait;
             Vector2 Center;
 
-            public Peer(Vector2 windowCenter, Rectangle window, int angle, Empire e)
+            public Peer(Vector2 center, Rectangle window, int angle, Empire e)
             {
-                Center   = windowCenter.PointFromAngle(angle, window.Height/2f - 80);
+                Center   = center.PointFromAngle(angle, window.Height/2f - 80);
                 Rect     = new Rectangle((int)Center.X - 47, (int)Center.Y - 55, 94, 111);
                 Empire   = e;
                 Portrait = ResourceManager.Texture("Portraits/" + Empire.data.PortraitName);
-                WarPos   =  PeacePos = Center;
-                NapPos   = Center.PointFromAngle(0, 45);
-                TradePos = Center.PointFromAngle(90, 45);
-                OpenBordersPos = Center.PointFromAngle(180, 45);
-                AlliancePos    = Center.PointFromAngle(270, 45);
+                WarPos   = PeacePos = Center.PointFromAngle(180 + angle, 42);
+                NapPos   = Center.PointFromAngle(180 + angle, 42); //Center.PointFromAngle(0, 10);
+                TradePos = Center.PointFromAngle(180 + angle, 42);
+                OpenBordersPos = Center.PointFromAngle(180 + angle, 42); ; //Center.PointFromAngle(180, 10);
+                AlliancePos = Center.PointFromAngle(180 + angle, 42); ; //Center.PointFromAngle(270, 10);
             }
         }
     }
