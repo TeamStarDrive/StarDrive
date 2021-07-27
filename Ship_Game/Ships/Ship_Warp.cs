@@ -144,13 +144,15 @@ namespace Ship_Game.Ships
                     // in future if we have more event inhibiting effects we should have a method that iterates them
                     if (RandomEventManager.ActiveEvent?.InhibitWarp == true)
                     {
-                        InhibitedTimer = 5f;
-                        Inhibited      = true;
+                        InhibitedTimer   = 5f;
+                        Inhibited        = true;
+                        InhibitedByEnemy = false;
                     }
                     else if (System != null && IsInhibitedByUnfriendlyGravityWell)
                     {
-                        InhibitedTimer = 0.5f;
-                        Inhibited      = true;
+                        InhibitedTimer   = 0.5f;
+                        Inhibited        = true;
+                        InhibitedByEnemy = false;
                     }
                     else if (IsInhibitedFromEnemyShips())
                     {
