@@ -25,17 +25,8 @@ namespace Ship_Game.Ships
         public const float InhibitedAtWarpCheckFrequency = 0.1f;
         // While at sublight there is no need for quick checks. 
         public const float InhibitedAtSubLightCheckFrequency = 1f;
-        /// <summary>
-        /// Always check if inhibited and inhibition timer has run out.
-        /// While at warp we will use a higher frequency for the check. At sublight we can use a lower frequency.
-        /// We are using the negative side of the inhibited Timer here which saves
-        /// some memory by not using another float for all ships. 
-        /// </summary>
-        bool ShouldCheckForWarpInhibitors => (InhibitedTimer <= 0 && MaxFTLSpeed > 0) &&
-                                             (Inhibited ||
-                                             engineState == MoveState.Warp     && InhibitedTimer <= -InhibitedAtWarpCheckFrequency ||
-                                             engineState == MoveState.Sublight && InhibitedTimer <= -InhibitedAtSubLightCheckFrequency);
-        public bool Inhibited { get; private set; }
+
+        public bool Inhibited { get; protected set; }
         public bool InhibitedByEnemy { get; protected set; }
         public MoveState engineState;
 
@@ -123,34 +114,65 @@ namespace Ship_Game.Ships
 
         Vector3 GetWarpEffectPosition() => Position.ToVec3();
 
+        /// <summary>
+        /// Updates timers and see that inhibition needs to be checked.
+        /// if so checks all inhibition sources in order of easiest checks. Only the first positive source will be used.
+        /// if inhibited call hyperspace return.
+        /// </summary>
         protected void UpdateHyperspaceInhibited(FixedSimTime timeStep)
         {
+            // TODO: protect inhibitionTimer and states.
             InhibitedTimer -= timeStep.FixedTime;
 
-            if (ShouldCheckForWarpInhibitors)
+            // if inhibited timer has gone below zero start looking to see if the ship is inhibited
+            // ships that cant be effected by inhibiting should not be checked.
+            // this will exclude all stations, platforms, SSP's, and engine damaged ships.
+            if (InhibitedTimer <= 0 && MaxFTLSpeed >= LightSpeedConstant)
             {
-                if (RandomEventManager.ActiveEvent?.InhibitWarp == true)
+                // Always check if already inhibited and inhibition timer has run out to ensure that the timer is accurate.
+                // Else check that timer is below engine state check frequency.
+                // We are using the negative side of the inhibited Timer here which saves
+                // some memory by not using another float for all ships.
+                if (Inhibited || engineState == MoveState.Warp && InhibitedTimer <= -InhibitedAtWarpCheckFrequency ||
+                                 engineState == MoveState.Sublight && InhibitedTimer <= -InhibitedAtSubLightCheckFrequency)
                 {
-                    InhibitedTimer = 10f;
-                }
-                else if (System != null && IsInhibitedByUnfriendlyGravityWell)
-                {
-                    InhibitedTimer = 0.5f;
-                }
-                else if (IsInhibitedFromEnemyShips())
-                {
-                    InhibitedByEnemy = true;
-                    InhibitedTimer   = 5f;
-                }
-                else
-                {
-                    InhibitedTimer = 0;
-                    InhibitedByEnemy = false;
+                    // All general inhibition sources should be below.
+                    // NOTE: if a source cant be in this list reasonably we will need a force inhibition method.
+                    // this method would simply set the states as below and it will work.
+                    // similar to what is in the TestShip Class. Such as a directed weapon that inhibits a specific ship.
+
+                    // in future if we have more event inhibiting effects we should have a method that iterates them
+                    if (RandomEventManager.ActiveEvent?.InhibitWarp == true)
+                    {
+                        InhibitedTimer = 5f;
+                        Inhibited      = true;
+                    }
+                    else if (System != null && IsInhibitedByUnfriendlyGravityWell)
+                    {
+                        InhibitedTimer = 0.5f;
+                        Inhibited      = true;
+                    }
+                    else if (IsInhibitedFromEnemyShips())
+                    {
+                        InhibitedByEnemy = true;
+                        InhibitedTimer   = 5f;
+                        Inhibited        = true;
+                    }
+                    // nothing is inhibiting so reset timer and states
+                    else
+                    {
+                        InhibitedTimer = 0;
+                        // to avoid constantly setting the inhibited state check that it needs to be set.
+                        if (Inhibited)
+                        {
+                            InhibitedByEnemy = false;
+                            Inhibited        = false;
+                        }
+                    }
                 }
             }
 
-            Inhibited = InhibitedTimer > 0f;
-
+            // TODO: this lightspeed constant check isnt in the right place. Its buried here. 
             if (IsSpoolingOrInWarp && (Inhibited || MaxFTLSpeed < LightSpeedConstant))
                 HyperspaceReturn();
         }
