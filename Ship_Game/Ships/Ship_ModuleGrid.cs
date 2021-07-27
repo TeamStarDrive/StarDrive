@@ -13,6 +13,8 @@ namespace Ship_Game.Ships
         ShipModule[] ModuleSlotList;
         ShipModule[] SparseModuleGrid;   // single dimensional grid, for performance reasons
         ShipModule[] ExternalModuleGrid; // only contains external modules
+        public PowerGrid PwrGrid;
+
         public int NumExternalSlots { get; private set; }
 
         /// <summary>  Ship slot (1x1 modules) width </summary>
@@ -20,12 +22,13 @@ namespace Ship_Game.Ships
         
         /// <summary>Ship slot (1x1 modules) height </summary>
         public int GridHeight { get; private set; }
-        Vector2 GridOrigin; // local origin, eg -32, -48
+        protected Vector2 GridOrigin; // local origin, eg -32, -48
         
         static bool EnableDebugGridExport = false;
 
         public ShipModule[] Modules => ModuleSlotList;
         public bool HasModules => ModuleSlotList != null && ModuleSlotList.Length != 0;
+
 
         void CreateModuleGrid(in ShipGridInfo gridInfo, bool shipyardDesign)
         {
@@ -53,6 +56,7 @@ namespace Ship_Game.Ships
             GridHeight = info.Size.Y;
             SparseModuleGrid   = new ShipModule[GridWidth * GridHeight];
             ExternalModuleGrid = new ShipModule[GridWidth * GridHeight];
+            PwrGrid = new PowerGrid(SparseModuleGrid, GridWidth, GridHeight, GridOrigin);
 
             // Ship's true radius is half of Module Grid's Diagonal Length
             Radius = 0.5f * gridInfo.Span.Length();
