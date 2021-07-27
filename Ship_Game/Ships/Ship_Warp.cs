@@ -166,16 +166,20 @@ namespace Ship_Game.Ships
                 }
             }
 
-            // TODO: this lightspeed constant check isnt in the right place. Its buried here. 
+            // TODO: this lightspeed constant check isnt in the right place. Its buried here.
             if (IsSpoolingOrInWarp && (Inhibited || MaxFTLSpeed < LightSpeedConstant))
                 HyperspaceReturn();
         }
 
+        /// <summary>
+        /// Sets the warp inhibited state of the ship.
+        /// by setting the timer to 0f the inhibted flag will be set to false.
+        /// </summary>
         public void SetWarpInhibited(bool sourceEnemyShip, float secondsToInhibit)
         {
             InhibitedTimer   = secondsToInhibit;
-            Inhibited        = true;
-            InhibitedByEnemy = sourceEnemyShip;
+            Inhibited        = secondsToInhibit > 0;
+            InhibitedByEnemy = Inhibited ? sourceEnemyShip : false;
         }
 
         // TODO: move this to ship engines. 
