@@ -517,7 +517,7 @@ namespace Ship_Game.Ships
                         shipData.Role = ShipData.RoleName.construction;
                         break;
                     case ShipModuleType.PowerConduit:
-                        module.IconTexturePath = GetConduitGraphic(module);
+                        module.IconTexturePath = PwrGrid.GetConduitGraphic(module);
                         break;
                     case ShipModuleType.Colony:
                         isColonyShip = true;

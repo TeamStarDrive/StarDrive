@@ -130,7 +130,6 @@ namespace Ship_Game.Ships
         public float ShieldRechargeTimer;
         public bool InCombat;
         public float xRotation;
-        public bool ShouldRecalculatePower;
         public bool Deleted;
         public float BonusEMP_Protection;
         public bool InSensorRange => KnownByEmpires.KnownByPlayer;
@@ -918,63 +917,6 @@ namespace Ship_Game.Ships
                 slots[i] = new ModuleSlotData(ModuleSlotList[i]);
             }
             return slots;
-        }
-
-        private string GetConduitGraphic(ShipModule forModule)
-        {
-            var conduit = new ConduitGraphic();
-            foreach (ShipModule module in ModuleSlotList)
-                if (module.ModuleType == ShipModuleType.PowerConduit)
-                    conduit.Add((int)(module.XMLPosition.X - forModule.XMLPosition.X),
-                                (int)(module.XMLPosition.Y - forModule.XMLPosition.Y));
-            return conduit.GetGraphic();
-        }
-
-        public struct ConduitGraphic
-        {
-            public bool Right;
-            public bool Left;
-            public bool Down;
-            public bool Up;
-            public void Add(int dx, int dy)
-            {
-                AddGridPos(dx / 16, dy / 16);
-            }
-            public void AddGridPos(int dx, int dy)
-            {
-                Left  |= dx == -1 && dy == 0;
-                Right |= dx == +1 && dy == 0;
-                Down  |= dx ==  0 && dy == -1;
-                Up    |= dx ==  0 && dy == +1;
-            }
-            public int Sides => (Left?1:0) + (Right?1:0) + (Down?1:0) + (Up?1:0);
-            public string GetGraphic()
-            {
-                switch (Sides)
-                {
-                    case 1:
-                        if (Down)  return "Conduits/conduit_powerpoint_down";
-                        if (Up)    return "Conduits/conduit_powerpoint_up";
-                        if (Left)  return "Conduits/conduit_powerpoint_right";
-                        if (Right) return "Conduits/conduit_powerpoint_left";
-                        break;
-                    case 2:
-                        if (Left && Down)  return "Conduits/conduit_corner_BR";
-                        if (Left && Up)    return "Conduits/conduit_corner_TR";
-                        if (Right && Down) return "Conduits/conduit_corner_BL";
-                        if (Right && Up)   return "Conduits/conduit_corner_TL";
-                        if (Down && Up)    return "Conduits/conduit_straight_vertical";
-                        if (Left && Right) return "Conduits/conduit_straight_horizontal";
-                        break;
-                    case 3:
-                        if (!Right)  return "Conduits/conduit_tsection_left";
-                        if (!Left)   return "Conduits/conduit_tsection_right";
-                        if (!Down)   return "Conduits/conduit_tsection_down";
-                        if (!Up)     return "Conduits/conduit_tsection_up";
-                        break;
-                }
-                return "Conduits/conduit_intersection";
-            }
         }
 
         // if enemy ships get within guard mode range, ships will enter combat
