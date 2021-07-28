@@ -186,35 +186,46 @@ namespace Ship_Game
                 if (slot.Module != null)
                 {
                     slot.Draw(batch, concreteGlass, Color.Gray);
-                    continue;
                 }
-
-                if (slot.Root.Module != null)
-                    continue;
-
-                bool valid = ActiveModule == null || slot.CanSlotSupportModule(ActiveModule);
-                Color activeColor = valid ? Color.LightGreen : Color.Red;
-                slot.Draw(batch, concreteGlass, activeColor);
-                if (slot.InPowerRadius)
+                else if (slot.Root.Module == null)
                 {
-                    Color yellow = ActiveModule != null ? new Color(Color.Yellow, 150) : Color.Yellow;
-                    slot.Draw(batch, concreteGlass, yellow);
+                    bool valid = ActiveModule == null || slot.CanSlotSupportModule(ActiveModule);
+                    Color activeColor = valid ? Color.LightGreen : Color.Red;
+                    slot.Draw(batch, concreteGlass, activeColor);
+
+                    if (DesignedShip.PwrGrid.IsPowered(ModuleGrid.ToGridPos(slot.Position)))
+                    {
+                        Color yellow = ActiveModule != null ? new Color(Color.Yellow, 150) : Color.Yellow;
+                        slot.Draw(batch, concreteGlass, yellow);
+                    }
+
+                    batch.DrawString(Fonts.Arial20Bold, " " + slot.Restrictions, slot.PosVec2,
+                                     Color.Navy, 0f, Vector2.Zero, 0.4f);
                 }
-                batch.DrawString(Fonts.Arial20Bold, " " + slot.Restrictions, slot.PosVec2,
-                                 Color.Navy, 0f, Vector2.Zero, 0.4f);
             }
         }
 
-        void DrawModules(SpriteBatch spriteBatch)
+        void DrawModules(SpriteBatch batch)
         {
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
-                if (slot.ModuleUID != null && slot.Tex != null)
-                    DrawModuleTex(slot.Orientation, spriteBatch, slot, slot.ModuleRect);
+                if (slot.Module != null && slot.Tex != null)
+                {
+                    if (slot.Module.ModuleType == ShipModuleType.PowerConduit)
+                    {
+                        Point p = ModuleGrid.ToGridPos(slot.Position);
+
+                        // get the module from the design ship, this is not the same as
+                        // ModuleGrid.SlotsList modules :(
+                        ShipModule m = DesignedShip.GetModuleAt(p);
+                        slot.Tex = m.Powered ? ResourceManager.Texture(m.IconTexturePath + "_power") : m.ModuleTexture;
+                    }
+                    DrawModuleTex(slot.Orientation, batch, slot, slot.ModuleRect);
+                }
             }
         }
 
-        static void DrawModuleTex(ModuleOrientation orientation, SpriteBatch spriteBatch, 
+        static void DrawModuleTex(ModuleOrientation orientation, SpriteBatch batch, 
                                   SlotStruct slot, Rectangle r, ShipModule template = null, float alpha = 1)
         {
             SpriteEffects effects = SpriteEffects.None;
@@ -252,7 +263,7 @@ namespace Ship_Game
                     break;
             }
 
-            spriteBatch.Draw(texture, r, Color.White.Alpha(alpha), rotation, Vector2.Zero, effects, 1f);
+            batch.Draw(texture, r, Color.White.Alpha(alpha), rotation, Vector2.Zero, effects, 1f);
         }
 
         void DrawTacticalOverlays(SpriteBatch batch)
@@ -301,25 +312,21 @@ namespace Ship_Game
             }
         }
 
-        void DrawUnpoweredTex(SpriteBatch spriteBatch)
+        void DrawUnpoweredTex(SpriteBatch batch)
         {
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
-                if (slot.Module == null)
+                ShipModule m = slot.Module;
+                if (m == null || m == HighlightedModule && Input.LeftMouseHeld() && m.ModuleType == ShipModuleType.Turret)
                     continue;
-
-                if (slot.Module == HighlightedModule && Input.LeftMouseHeld() && slot.Module.ModuleType == ShipModuleType.Turret)
-                    continue;
-
-                Vector2 lightOrigin = new Vector2(8f, 8f);
-                if (slot.Module.PowerDraw <= 0f
-                    || slot.Module.Powered
-                    || slot.Module.ModuleType == ShipModuleType.PowerConduit)
+                
+                if (m.PowerDraw > 0f
+                    && m.ModuleType != ShipModuleType.PowerConduit
+                    && !DesignedShip.PwrGrid.IsPowered(ModuleGrid.ToGridPos(slot.Position)))
                 {
-                    continue;
+                    batch.Draw(ResourceManager.Texture("UI/lightningBolt"),
+                        slot.Center, Color.White, 0f, new Vector2(8f, 8f), 1f, SpriteEffects.None, 1f);
                 }
-                spriteBatch.Draw(ResourceManager.Texture("UI/lightningBolt"),
-                    slot.Center, Color.White, 0f, lightOrigin, 1f, SpriteEffects.None, 1f);
             }
         }
 
