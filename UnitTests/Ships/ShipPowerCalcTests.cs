@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
@@ -69,7 +66,7 @@ namespace UnitTests.Ships
             }
 
             double elapsed = sw.Elapsed.TotalMilliseconds;
-            Log.Write($"RecalculatePower {iterations}x elapsed:{elapsed:G5}ms  avg:{elapsed/iterations:G5} modules:{ship.Modules.Length}");
+            Log.Write($"RecalculatePower {iterations}x elapsed:{elapsed:G5}ms  avg:{elapsed/iterations:G5}ms modules:{ship.Modules.Length}");
         }
     }
 }
