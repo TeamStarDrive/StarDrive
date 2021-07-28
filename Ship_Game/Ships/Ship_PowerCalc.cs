@@ -172,6 +172,8 @@ namespace Ship_Game.Ships
 
             public void Recalculate(ShipModule[] modules)
             {
+                PwrGrid.Clear(); // clear all current status
+                Checked.Clear();
                 var open = new Array<Point>(); // used as a fast buffer
 
                 // distribute power from all Power Generators
