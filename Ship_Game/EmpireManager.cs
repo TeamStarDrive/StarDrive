@@ -54,6 +54,9 @@ namespace Ship_Game
         public static Empire[] Factions       => Empires.Filter(empire => empire.isFaction);
         public static Empire[] PirateFactions => Empires.Filter(empire => empire.WeArePirates);
 
+        public static Empire[] MajorEmpiresAtWarWith(Empire empire) 
+            => ActiveMajorEmpires.Filter(e => e.IsAtWarWith(empire));
+
         public static Empire FindDuplicateEmpire(Empire empire)
         {
             if (Empires.ContainsRef(empire))
