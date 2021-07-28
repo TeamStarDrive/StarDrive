@@ -275,7 +275,6 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         void UpdateAiAlliedEmpires(Empire them, Empire us)
         {
-            EmpiresTheyAreAlliedWith.Clear();
             Empire ai = !them.isPlayer ? them : us;
             foreach (Empire empire in EmpireManager.ActiveMajorEmpires)
             {
