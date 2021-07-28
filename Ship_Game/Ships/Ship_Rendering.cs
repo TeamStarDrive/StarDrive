@@ -216,7 +216,7 @@ namespace Ship_Game.Ships
                         }
 
                         // draw the debug x/y pos
-                        ModulePosToGridPoint(slot.GetLegacyGridPos(), out int x, out int y);
+                        ModulePosToGridPoint(slot, out int x, out int y);
                         sc.DrawString(posOnScreen, shipRotation, 600f / camHeight, Color.Red, $"X{x} Y{y}\nF{slotFacing}");
                     }
                 }
@@ -350,7 +350,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
                 ShipModule m = ModuleSlotList[i];
-                ModulePosToGridPoint(m.GetLegacyGridPos(), out int x, out int y);
+                ModulePosToGridPoint(m, out int x, out int y);
                 Vector2 modulePos = new Vector2(x, y) * moduleSize;
                 Color healthColor = moduleHealthColor ? m.GetHealthStatusColor() : new Color(40, 40, 40);
                 Color moduleColorMultiply = healthColor.AddRgb(moduleHealthColor ? 0.66f : 1);
