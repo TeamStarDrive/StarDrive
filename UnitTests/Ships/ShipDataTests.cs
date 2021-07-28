@@ -62,7 +62,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.UnLockable, b.UnLockable);
             Assert.AreEqual(a.HullUnlockable, b.HullUnlockable);
             Assert.AreEqual(a.AllModulesUnlockable, b.AllModulesUnlockable);
-            Assert.AreEqual(a.TechsNeeded, b.TechsNeeded);
+            Assert.That.EqualCollections(a.TechsNeeded, b.TechsNeeded);
 
             Assert.AreEqual(a.Volume, b.Volume);
             Assert.AreEqual(a.ModelZ, b.ModelZ);
@@ -179,6 +179,31 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
+        public void ShipDesign_LoadVanilla_PrototypeFrigate_NewDesign()
+        {
+            if (!File.Exists("Content/SavedDesigns/Prototype Frigate.xml"))
+            {
+                ShipData old = Parse("Content/SavedDesigns/Prototype Frigate.xml", isHull:false);
+                old.Save(new FileInfo("Content/SavedDesigns/Prototype Frigate.design"));
+            }
+
+            ShipData hull = Parse("Content/SavedDesigns/Prototype Frigate.design", isHull:false);
+            Assert.AreEqual("Prototype Frigate", hull.Name);
+            Assert.AreEqual("", hull.ModName);
+            Assert.AreEqual("Terran", hull.ShipStyle);
+            Assert.AreEqual("Terran/Gunboat", hull.Hull);
+            Assert.AreEqual("ShipIcons/10a", hull.IconPath);
+            Assert.AreEqual("Model/Ships/Terran/Gunboat/Gunboat", hull.ModelPath);
+            Assert.AreEqual(ShipData.RoleName.prototype, hull.Role);
+            Assert.AreEqual(1, hull.ThrusterList.Length);
+            Assert.AreEqual(true, hull.UnLockable);
+            Assert.AreEqual(false, hull.HullUnlockable);
+            Assert.AreEqual(false, hull.AllModulesUnlockable);
+            Assert.AreEqual(40, hull.ModuleSlots.Length); // new designs don't have dummy modules
+            Assert.AreEqual(70, hull.GridInfo.SurfaceArea);
+        }
+
+        [TestMethod]
         public void ShipDesign_Clone_EqualToOriginal()
         {
             ShipData original = Parse("Content/SavedDesigns/Prototype Frigate.xml", isHull:false);
@@ -193,7 +218,9 @@ namespace UnitTests.Ships
             old.Save(new FileInfo("Content/SavedDesigns/Prototype Frigate.design"));
             
             ShipData neu = Parse("Content/SavedDesigns/Prototype Frigate.design", isHull:false);
-            AssertAreEqual(old, neu, true);
+            
+            // can't check modules because new designs don't have dummy modules
+            AssertAreEqual(old, neu, checkModules:false);
         }
     }
 }
