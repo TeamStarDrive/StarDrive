@@ -15,15 +15,9 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         UICheckBox ViewTradeTreatiesCheckBox;
         UICheckBox ViewWarsOrAlliesCheckBox;
         UILabel Title;
-        UILabel LegendWar;
-        UILabel LegendPeace;
-        UILabel LegendNap;
-        UILabel LegendTrade;
-        UILabel LegendBorders;
-        UILabel LegendAlly;
 
         readonly Color ColorWar     = Color.Red;
-        readonly Color ColorPeace   = Color.White.Alpha(0.5f);
+        readonly Color ColorPeace   = Color.MediumPurple.Alpha(0.5f);
         readonly Color ColorNap     = Color.Yellow.Alpha(0.5f);
         readonly Color ColorTrade   = Color.DeepSkyBlue.Alpha(0.5f);
         readonly Color ColorBorders = Color.White.Alpha(0.75f);
@@ -61,28 +55,21 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             ViewTradeTreatiesCheckBox.TextColor = Color.Gray;
             ViewWarsOrAlliesCheckBox.CheckedTextColor  = Color.White;
             ViewTradeTreatiesCheckBox.CheckedTextColor = Color.White;
-            Vector2 legendPos = new Vector2(Window.X + 25, Window.Y + 100);
-            LegendPeace = Add(new UILabel(legendPos, GameText.PeaceTreaty, LegendFont, Color.White));
-            legendPos.Y += LegendFont.LineSpacing + 2;
-            LegendNap = Add(new UILabel(legendPos, GameText.NonaggressionPact3, LegendFont, Color.White));
-            legendPos.Y += LegendFont.LineSpacing + 2;
-            LegendTrade = Add(new UILabel(legendPos, GameText.TradeTreaty, LegendFont, Color.White));
-            legendPos.Y += LegendFont.LineSpacing + 2;
-            LegendBorders = Add(new UILabel(legendPos, GameText.OpenBordersTreaty2, LegendFont, Color.White));
-            legendPos.Y += LegendFont.LineSpacing + 2;
-            LegendAlly = Add(new UILabel(legendPos, GameText.Alliance, LegendFont, Color.White));
-            legendPos.Y += LegendFont.LineSpacing + 2;
-            LegendWar = Add(new UILabel(legendPos, GameText.AtWar, LegendFont, Color.White));
-            legendPos.Y += LegendFont.LineSpacing + 2;
 
-            var list = AddList(legendPos, new Vector2(225, 400));
+            Vector2 legendPos = new Vector2(Window.X + 25, Window.Y + 80);
+            var list = AddList(legendPos, new Vector2(240, 400));
             void AddLegendItem(in LocalizedText text, Color color, float thickness)
             {
                 var lb = new UILabel(text, LegendFont, color);
                 var ln = new UILine(new Vector2(100, LegendFont.LineSpacing + 2), 0.8f, thickness, color);
                 list.Add(new SplitElement(lb, ln));
             }
-            AddLegendItem(GameText.PeaceTreaty, ColorPeace, 2f);
+            AddLegendItem(GameText.PeaceTreaty, ColorPeace, 1f);
+            AddLegendItem(GameText.NonaggressionPact3, ColorNap, 1f);
+            AddLegendItem(GameText.TradeTreaty, ColorTrade, 1f);
+            AddLegendItem(GameText.OpenBordersTreaty2, ColorBorders, 1f);
+            AddLegendItem(GameText.Alliance, ColorAlly, 3f);
+            AddLegendItem(GameText.AtWar, ColorWar, 3f);
 
             base.LoadContent();
         }
@@ -112,7 +99,6 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             batch.Begin();
             base.Draw(batch, elapsed); // window
             DrawRelations(batch); // links and then portraits
-            DrawLegendLines(batch);
             batch.End();
         }
 
@@ -141,37 +127,19 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             }
         }
 
-        void DrawLegendLines(SpriteBatch batch)
-        {
-            int offset = 7;
-            DrawLegendLine(LegendPeace.Y+offset,  ColorPeace, 1);
-            DrawLegendLine(LegendNap.Y+offset, ColorNap, 1);
-            DrawLegendLine(LegendTrade.Y+offset, ColorTrade, 1);
-            DrawLegendLine(LegendBorders.Y+offset, ColorBorders, 1);
-            DrawLegendLine(LegendAlly.Y+offset, ColorAlly, 3);
-            DrawLegendLine(LegendWar.Y+offset, ColorWar, 3);
-
-            // Local Method
-            void DrawLegendLine(float y, Color color, float thickness)
-            {
-                Vector2 point1 = new Vector2(Window.X + 170, y);
-                Vector2 point2 = new Vector2(Window.X + 250, y);
-                batch.DrawLine(point1, point2, color, thickness);
-            }
-        }
-
         void DrawRelations(SpriteBatch batch)
         {
+            Peer[] knownPeers = Peers.Filter(p => p.IntelLevel > 0);
             if (!ViewOnlyWarsOrAllies)
             {
-                foreach (Peer us in Peers.Filter(p => p.IntelLevel > 0))
+                foreach (Peer us in knownPeers)
                     foreach (Peer peer in Peers)
                         if (ShowPeer(us.Empire, peer.Empire)) 
                             DrawPeerLinesNoWarOrAlliance(batch, us, peer);
             }
 
             // Drawing War/Alliance on top of all other lines
-            foreach (Peer us in Peers.Filter(p => p.IntelLevel > 0))
+            foreach (Peer us in knownPeers)
                 foreach (Peer peer in Peers)
                     if (ShowPeer(us.Empire, peer.Empire))
                         DrawPeerLinesWarOrAlliance(batch, us, peer);
@@ -187,8 +155,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         bool ShowPeer(Empire us, Empire peer)
         {
             return us != peer && Player.IsKnown(peer)
-                              && (SelectedEmpire == null
-                                  || SelectedEmpire != null && (SelectedEmpire == us || SelectedEmpire == peer));
+                              && (SelectedEmpire == null || SelectedEmpire == us || SelectedEmpire == peer);
         }
 
         void DrawPeerLinesNoWarOrAlliance(SpriteBatch batch, Peer us, Peer peer)
