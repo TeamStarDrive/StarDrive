@@ -16,6 +16,7 @@ namespace Ship_Game
 
         public Action<UICheckBox> OnChange;
         public Color TextColor = Color.White;
+        public Color CheckedTextColor = Color.White;
 
         int TextPadding = 4;
         int CheckBoxSize = 12;
@@ -70,7 +71,7 @@ namespace Ship_Game
             if (Text.NotEmpty)
             {
                 var textPos = new Vector2(checkBox.X + CheckBoxSize + TextPadding, (int)CenterY - Font.LineSpacing / 2);
-                batch.DrawString(Font, Text, textPos, TextColor);
+                batch.DrawString(Font, Text, textPos, Binding.Value ? CheckedTextColor : TextColor);
             }
 
             if (Binding.Value)
