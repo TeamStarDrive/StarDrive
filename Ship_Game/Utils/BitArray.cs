@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ship_Game.Utils
 {
@@ -16,6 +12,12 @@ namespace Ship_Game.Utils
         public BitArray(int size)
         {
             Values = new uint[(size / 32) + 1];
+        }
+
+        // Clears all bits
+        public void Clear()
+        {
+            Array.Clear(Values, 0, Values.Length);
         }
 
         /// <param name="index">Index of the bit</param>
