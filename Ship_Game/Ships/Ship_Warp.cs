@@ -124,8 +124,12 @@ namespace Ship_Game.Ships
         {
             // ships that cant be effected by inhibiting should not be checked.
             if (MaxFTLSpeed < LightSpeedConstant)
+            {
+                // legacy code compatibility. this should be somewhere else. 
+                if (engineState == MoveState.Warp)
+                    HyperspaceReturn();
                 return;
-
+            }
             // TODO: protect inhibitionTimer and states.
             WarpInhibitionCheckTimer -= timeStep.FixedTime;
 
@@ -162,7 +166,7 @@ namespace Ship_Game.Ships
             }
 
             // TODO: this lightspeed constant check isnt in the right place. Its buried here.
-            if (IsSpoolingOrInWarp && (Inhibited || MaxFTLSpeed < LightSpeedConstant))
+            if (IsSpoolingOrInWarp && Inhibited)
                 HyperspaceReturn();
         }
 
