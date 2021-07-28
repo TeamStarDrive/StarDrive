@@ -41,8 +41,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             if (SelectedShip != ship)
             {
                 SelectedShip = ship;
-                // TODO: USE NEW FAST POWER RECALC FROM SHIP DESIGN SCREEN
-                ship.RecalculatePower(); // SLOOOOOOW
+                ship.RecalculatePower();
                 ship.ShipStatusChange();
             }
 
