@@ -15,17 +15,6 @@ namespace Ship_Game.Ships
             PwrGrid.Recalculate(Modules);
         }
 
-        // called during ship initialize to give the correct shape to the conduit
-        string GetConduitGraphic(ShipModule forModule)
-        {
-            var conduit = new ConduitGraphic();
-            foreach (ShipModule module in ModuleSlotList)
-                if (module.ModuleType == ShipModuleType.PowerConduit)
-                    conduit.Add((int)(module.XMLPosition.X - forModule.XMLPosition.X),
-                                (int)(module.XMLPosition.Y - forModule.XMLPosition.Y));
-            return conduit.GetGraphic();
-        }
-
         public struct ConduitGraphic
         {
             public bool Right;
@@ -93,7 +82,7 @@ namespace Ship_Game.Ships
                 GridOrigin = gridOrigin;
             }
 
-            public Point ToGridPoint(ShipModule m)
+            public Point ToGridPos(ShipModule m)
             {
                 // TODO: get rid of the annoying legacy grid pos adapter
                 Vector2 offset = m.GetLegacyGridPos() - GridOrigin;
@@ -120,9 +109,9 @@ namespace Ship_Game.Ships
             }
 
             // check if this 1x1 slot at [x,y] is powered
-            public bool IsPowered(int x, int y)
+            public bool IsPowered(Point gridPos)
             {
-                return PwrGrid.IsSet(x + y*Width);
+                return PwrGrid.IsSet(gridPos.X + gridPos.Y*Width);
             }
 
             void SetPowered(int x, int y)
@@ -140,14 +129,35 @@ namespace Ship_Game.Ships
             // checks if any slot under this module is powered
             public bool IsPowered(ShipModule m)
             {
-                Point pt = ToGridPoint(m);
+                Point pt = ToGridPos(m);
                 int x1 = pt.X + m.XSIZE - 1;
                 int y1 = pt.Y + m.YSIZE - 1;
                 for (int y = pt.Y; y <= y1; ++y)
                     for (int x = pt.X; x <= x1; ++x)
-                        if (IsPowered(x, y))
+                        if (PwrGrid.IsSet(x + y*Width))
                             return true;
                 return false;
+            }
+
+            bool SlotMatches(int gridX, int gridY, ShipModuleType type)
+            {
+                if (gridX < 0 || gridY < 0 || gridX >= Width || gridY >= Height)
+                    return false; // out of bounds
+                return ModuleGrid[gridX + gridY * Width]?.ModuleType == type;
+            }
+        
+            // called during ship initialize to give the correct shape to the conduit
+            public string GetConduitGraphic(ShipModule forModule)
+            {
+                Point ssPos = ToGridPos(forModule);
+                var conduit = new ConduitGraphic();
+
+                if (SlotMatches(ssPos.X - 1, ssPos.Y, ShipModuleType.PowerConduit)) conduit.AddGridPos(-1, 0); // Left
+                if (SlotMatches(ssPos.X + 1, ssPos.Y, ShipModuleType.PowerConduit)) conduit.AddGridPos(+1, 0); // Right
+                if (SlotMatches(ssPos.X, ssPos.Y - 1, ShipModuleType.PowerConduit)) conduit.AddGridPos(0, -1); // North
+                if (SlotMatches(ssPos.X, ssPos.Y + 1, ShipModuleType.PowerConduit)) conduit.AddGridPos(0, +1); // South
+
+                return conduit.GetGraphic();
             }
 
             public void Recalculate(ShipModule[] modules)
@@ -158,7 +168,7 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < modules.Length; ++i)
                 {
                     ShipModule m = modules[i];
-                    Point pt = ToGridPoint(m);
+                    Point pt = ToGridPos(m);
                     if (!IsChecked(pt.X, pt.Y))
                     {
                         if (m.PowerRadius > 0 && m.ModuleType != ShipModuleType.PowerConduit)
