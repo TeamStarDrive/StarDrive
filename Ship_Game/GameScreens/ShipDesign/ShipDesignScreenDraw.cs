@@ -312,7 +312,7 @@ namespace Ship_Game
             }
         }
 
-        void DrawUnpoweredTex(SpriteBatch spriteBatch)
+        void DrawUnpoweredTex(SpriteBatch batch)
         {
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
@@ -324,7 +324,7 @@ namespace Ship_Game
                     && m.ModuleType != ShipModuleType.PowerConduit
                     && !DesignedShip.PwrGrid.IsPowered(ModuleGrid.ToGridPos(slot.Position)))
                 {
-                    spriteBatch.Draw(ResourceManager.Texture("UI/lightningBolt"),
+                    batch.Draw(ResourceManager.Texture("UI/lightningBolt"),
                         slot.Center, Color.White, 0f, new Vector2(8f, 8f), 1f, SpriteEffects.None, 1f);
                 }
             }
