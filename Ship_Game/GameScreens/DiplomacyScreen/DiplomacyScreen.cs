@@ -265,7 +265,6 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         void UpdateAlliedEmpiresTheyAreAtWarWith(Empire them, Empire us)
         {
-            AlliedEmpiresAtWar.Clear();
             Empire ai = !them.isPlayer ? them : us;
             foreach (Empire empire in EmpireManager.ActiveMajorEmpires)
             {
@@ -278,16 +277,22 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         {
             EmpiresTheyAreAlliedWith.Clear();
             Empire ai = !them.isPlayer ? them : us;
-            foreach (Empire empire in EmpireManager.GetAllies(ai))
+            foreach (Empire empire in EmpireManager.ActiveMajorEmpires)
             {
-                if (CanViewAlliance(empire) || CanViewAlliance(ai))
+                if (ai.IsAlliedWith(empire) && (CanViewAlliance(empire) || CanViewAlliance(ai)))
                     EmpiresTheyAreAlliedWith.Add(empire);
             }
         }
 
         bool CanViewAlliance(Empire e)
         {
-            return e.IsTradeTreaty(Player) || e.IsOpenBordersTreaty(Player) || e.IsAlliedWith(Player) || e.IsNAPactWith(Player);
+            // The player can view peer alliances if it has some relations with this empire
+            // Or with the empire's other trade partners.
+            return e.IsTradeTreaty(Player) 
+                   || e.IsOpenBordersTreaty(Player) 
+                   || e.IsAlliedWith(Player) 
+                   || e.IsNAPactWith(Player)
+                   || EmpireManager.ActiveNonPlayerMajorEmpires.Any(other => other.IsTradeTreaty(e) && other.IsTradeTreaty(Player));
         }
 
         void DoNegotiationResponse(string answer)
