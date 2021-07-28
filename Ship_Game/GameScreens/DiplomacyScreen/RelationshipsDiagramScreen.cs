@@ -168,7 +168,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             foreach (Peer empire in Peers)
             {
                 batch.Draw(empire.Portrait, empire.Rect);
-                batch.DrawRectangle(empire.Rect, Player.IsKnown(empire.Empire) ? empire.Empire.EmpireColor : Color.Gray, 
+                batch.DrawRectangle(empire.Rect, Player.IsKnown(empire.Empire) || empire.Empire.isPlayer ? empire.Empire.EmpireColor : Color.Gray, 
                     SelectedEmpire == empire.Empire ? 3 : 1);
             }
         }
