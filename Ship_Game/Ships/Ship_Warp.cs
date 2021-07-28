@@ -130,13 +130,13 @@ namespace Ship_Game.Ships
                     HyperspaceReturn();
                 return;
             }
+
             // TODO: protect inhibitionTimer and states.
             WarpInhibitionCheckTimer -= timeStep.FixedTime;
 
             if (WarpInhibitionCheckTimer <= 0)
             {
                 // All general inhibition sources should be below.
-                // NOTE: if a source cant be in this list reasonably use SetInhibted
 
                 if (RandomEventManager.ActiveEvent?.InhibitWarp == true)
                 {
@@ -165,7 +165,6 @@ namespace Ship_Game.Ships
                 }
             }
 
-            // TODO: this lightspeed constant check isnt in the right place. Its buried here.
             if (IsSpoolingOrInWarp && Inhibited)
                 HyperspaceReturn();
         }
