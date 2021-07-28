@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
+using System.Text;
 using Microsoft.Xna.Framework;
 using Ship_Game.Utils;
 
@@ -91,7 +93,7 @@ namespace Ship_Game.Ships
             }
             
             // whether a module has already been power-checked
-            public bool IsChecked(int x, int y)
+            [Pure] public bool IsChecked(int x, int y)
             {
                 return Checked.IsSet(x + y*Width);
             }
@@ -101,17 +103,33 @@ namespace Ship_Game.Ships
                 Checked.Set(x + y*Width);
             }
 
-            void SetChecked(int x0, int x1, int y0, int y1)
+            public void PrintPwrGrid() => PrintGrid(PwrGrid);
+            void PrintGrid(in BitArray bits)
             {
-                for (int y = y0; y <= y1; ++y)
-                for (int x = x0; x <= x1; ++x)
-                    SetChecked(x, y);
+                var sb = new StringBuilder();
+                for (int y = 0; y < Height; ++y)
+                {
+                    for (int x = 0; x < Width; ++x)
+                    {
+                        sb.Append(bits.IsSet(x + y*Width) ? '+' : '0');
+                    }
+                    sb.Append(" \n");
+                }
+                Log.Write(sb.ToString());
             }
 
             // check if this 1x1 slot at [x,y] is powered
-            public bool IsPowered(Point gridPos)
+            [Pure] public bool IsPowered(Point gridPos)
             {
                 return PwrGrid.IsSet(gridPos.X + gridPos.Y*Width);
+            }
+            
+            // checks if this module is powered
+            [Pure] public bool IsPowered(ShipModule m)
+            {
+                // we only need to check top-left, because SetPowered already fills the grid under it
+                Point pt = ToGridPos(m);
+                return PwrGrid.IsSet(pt.X + pt.Y*Width);
             }
 
             void SetPowered(int x0, int y0)
@@ -124,11 +142,13 @@ namespace Ship_Game.Ships
                 ShipModule m = ModuleGrid[gridIndex];
                 if (m != null)
                 {
-                    int x1 = x0 + m.XSIZE - 1;
-                    int y1 = x1 + m.YSIZE - 1;
-                    for (int y = y0; y <= y1; ++y)
-                    for (int x = x0; x <= x1; ++x) // fill everything under this module
-                        PwrGrid.Set(x0 + y0*Width);
+                    // fill everything under this module, so we don't need to check this area again
+                    Point pt = ToGridPos(m);
+                    int x1 = pt.X + m.XSIZE - 1;
+                    int y1 = pt.Y + m.YSIZE - 1;
+                    for (int y = pt.Y; y <= y1; ++y)
+                        for (int x = pt.X; x <= x1; ++x)
+                            PwrGrid.Set(x + y * Width);
                 }
                 else // there's no module here, only set the slot
                 {
@@ -136,18 +156,6 @@ namespace Ship_Game.Ships
                 }
             }
 
-            // checks if any slot under this module is powered
-            public bool IsPowered(ShipModule m)
-            {
-                Point pt = ToGridPos(m);
-                int x1 = pt.X + m.XSIZE - 1;
-                int y1 = pt.Y + m.YSIZE - 1;
-                for (int y = pt.Y; y <= y1; ++y)
-                    for (int x = pt.X; x <= x1; ++x)
-                        if (PwrGrid.IsSet(x + y*Width))
-                            return true;
-                return false;
-            }
 
             bool SlotMatches(int gridX, int gridY, ShipModuleType type)
             {
@@ -176,7 +184,7 @@ namespace Ship_Game.Ships
                 Checked.Clear();
                 var open = new Array<Point>(); // used as a fast buffer
 
-                // distribute power from all Power Generators
+                // distribute power from all PowerPlants
                 for (int i = 0; i < modules.Length; ++i)
                 {
                     ShipModule m = modules[i];
@@ -266,7 +274,7 @@ namespace Ship_Game.Ships
                 int x1 = x0 + m.XSIZE - 1;
                 int y1 = y0 + m.YSIZE - 1;
 
-                SetChecked(x0, x1, y0, y1); // make sure we don't visit it again
+                SetChecked(x0, y0); // make sure we don't visit it again
                 SetPowered(x0, y0); // these slots are entirely POWERED
 
                 SetInPowerRadius(x0, x1, y0-radius, y0-1); // Check North
