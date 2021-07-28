@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
+using System.Text;
 
 namespace Ship_Game.Utils
 {
@@ -22,7 +24,7 @@ namespace Ship_Game.Utils
 
         /// <param name="index">Index of the bit</param>
         /// <returns>True if the bit is set, false otherwise.</returns>
-        public bool IsSet(int index)
+        [Pure] public bool IsSet(int index)
         {
             int wordIndex = index / 32;
             uint mask = (uint)(1 << (index % 32));
@@ -57,6 +59,22 @@ namespace Ship_Game.Utils
             uint mask = (uint)(1 << (index % 32));
 
             Values[wordIndex] = (Values[wordIndex] & ~mask);
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            for (int i = 0; i < Values.Length; ++i)
+            {
+                uint word = Values[i];
+                for (int j = 0; j < 32; ++j)
+                {
+                    bool isSet = (word & (1 << j)) != 0;
+                    sb.Append(isSet ? '1' : '0');
+                }
+                sb.Append(" \n");
+            }
+            return sb.ToString();
         }
     }
 }
