@@ -85,11 +85,21 @@ namespace UnitTests.Ships
                 Assert.IsNull(a.ModuleSlots[i].ModuleUID);
         }
 
-        
+        static ShipData Parse(string path, bool isHull)
+        {
+            ShipData data = ShipData.Parse(new FileInfo(path), isHullDefinition:isHull);
+            if (path.EndsWith(".xml"))
+            {
+                // one of the main changes, new designs have a specific module sorting order
+                Array.Sort(data.ModuleSlots, ModuleSlotData.Sorter);
+            }
+            return data;
+        }
+
         [TestMethod]
         public void ShipHull_LoadVanilla_TerranShuttle()
         {
-            ShipData hull = ShipData.Parse(new FileInfo("Content/Hulls/Terran/Shuttle.xml"), isHullDefinition:true);
+            ShipData hull = Parse("Content/Hulls/Terran/Shuttle.xml", isHull:true);
             Assert.AreEqual("Shuttle", hull.Name);
             Assert.AreEqual("", hull.ModName);
             Assert.AreEqual("Terran", hull.ShipStyle);
@@ -109,9 +119,9 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
-        public void ShipHull_LoadVanilla_VulcanScout()
+        public void ShipDesign_LoadVanilla_VulcanScout()
         {
-            ShipData hull = ShipData.Parse(new FileInfo("Content/StarterShips/Vulcan Scout.xml"), isHullDefinition: false);
+            ShipData hull = Parse("Content/StarterShips/Vulcan Scout.xml", isHull:false);
             Assert.AreEqual("Vulcan Scout", hull.Name);
             Assert.AreEqual("", hull.ModName);
             Assert.AreEqual("Terran", hull.ShipStyle);
@@ -132,7 +142,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipHull_LoadVanilla_TerranGunboat()
         {
-            ShipData hull = ShipData.Parse(new FileInfo("Content/Hulls/Terran/Gunboat.xml"), isHullDefinition:true);
+            ShipData hull = Parse("Content/Hulls/Terran/Gunboat.xml", isHull:true);
             Assert.AreEqual("Gunboat", hull.Name);
             Assert.AreEqual("", hull.ModName);
             Assert.AreEqual("Terran", hull.ShipStyle);
@@ -150,9 +160,9 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
-        public void ShipHull_LoadVanilla_PrototypeFrigate()
+        public void ShipDesign_LoadVanilla_PrototypeFrigate()
         {
-            ShipData hull = ShipData.Parse(new FileInfo("Content/SavedDesigns/Prototype Frigate.xml"), isHullDefinition: false);
+            ShipData hull = Parse("Content/SavedDesigns/Prototype Frigate.xml", isHull:false);
             Assert.AreEqual("Prototype Frigate", hull.Name);
             Assert.AreEqual("", hull.ModName);
             Assert.AreEqual("Terran", hull.ShipStyle);
@@ -166,6 +176,24 @@ namespace UnitTests.Ships
             Assert.AreEqual(false, hull.AllModulesUnlockable);
             Assert.AreEqual(70, hull.ModuleSlots.Length);
             Assert.AreEqual(70, hull.GridInfo.SurfaceArea);
+        }
+
+        [TestMethod]
+        public void ShipDesign_Clone_EqualToOriginal()
+        {
+            ShipData original = Parse("Content/SavedDesigns/Prototype Frigate.xml", isHull:false);
+            ShipData clone = new ShipData(original);
+            AssertAreEqual(original, clone, true);
+        }
+
+        [TestMethod]
+        public void ShipDesign_NewFormat_SaveLoad_EqualToOldFormat()
+        {
+            ShipData old = Parse("Content/SavedDesigns/Prototype Frigate.xml", isHull:false);
+            old.Save(new FileInfo("Content/SavedDesigns/Prototype Frigate.design"));
+            
+            ShipData neu = Parse("Content/SavedDesigns/Prototype Frigate.design", isHull:false);
+            AssertAreEqual(old, neu, true);
         }
     }
 }

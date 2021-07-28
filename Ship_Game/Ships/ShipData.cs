@@ -27,7 +27,7 @@ namespace Ship_Game.Ships
 
         public string Name; // ex: "Dodaving", just an arbitrary name
         public string Hull; // ID of the hull, ex: "Cordrazine/Dodaving"
-        public string ModName; // null if vanilla, else mod name eg "Combined Arms"
+        public string ModName = ""; // "" if vanilla, else mod name eg "Combined Arms"
         public string ShipStyle; // "Terran"
         public string Description; // "Early Rocket fighter, great against unshielded foes, but die easily"
         public string IconPath; // "ShipIcons/shuttle"
