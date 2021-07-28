@@ -41,7 +41,7 @@ namespace Ship_Game.Ships
                 sw.Write("Unlockable", UnLockable);
             if (HullUnlockable)
                 sw.Write("HullUnlockable", HullUnlockable);
-            if (AllModulesUnlockable)
+            if (!AllModulesUnlockable) // default is true
                 sw.Write("AllModulesUnlockable", AllModulesUnlockable);
 
             sw.Write("DefaultAIState", DefaultAIState);
