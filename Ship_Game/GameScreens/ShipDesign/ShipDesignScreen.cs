@@ -30,7 +30,7 @@ namespace Ship_Game
         SceneObject shipSO;
         Vector3 CameraPosition = new Vector3(0f, 0f, 1300f);
         Vector2 Offset;
-        readonly Array<ShipData> AvailableHulls = new Array<ShipData>();
+        readonly Array<ShipHull> AvailableHulls = new Array<ShipHull>();
         UIButton BtnSymmetricDesign; // Symmetric Module Placement Feature by Fat Bastard
         UIButton BtnFilterModules;   // Filter Absolute Modules
         UIButton BtnStripShip;       // Removes all modules but armor, shields and command modules
@@ -51,7 +51,6 @@ namespace Ship_Game
         SlotStruct ProjectedSlot;
         Vector2 CameraVelocity;
         Vector2 StartDragPos;
-        ShipData ChangeTo;
         string ScreenToLaunch;
         float TransitionZoom = 1f;
         SlotModOperation Operation;
@@ -343,15 +342,22 @@ namespace Ship_Game
         
         public void ChangeHull(ShipData hull)
         {
-            if (hull == null)
-                return;
+            ChangeHull(new DesignModuleGrid(hull, Offset));
+        }
 
-            ModuleGrid = new DesignModuleGrid(hull, Offset);
+        public void ChangeHull(ShipHull hull)
+        {
+            ChangeHull(new DesignModuleGrid(hull, Offset));
+        }
+
+        void ChangeHull(DesignModuleGrid grid)
+        {
+            ModuleGrid = grid;
             ModuleGrid.OnGridChanged = UpdateDesignedShip;
 
             ActiveHull = ModuleGrid.Hull;
             DesignedShip = new DesignShip(ActiveHull);
-            
+
             InstallModulesFromDesign();
 
             CreateSOFromActiveHull();
@@ -605,7 +611,7 @@ namespace Ship_Game
                 string[] hulls = EmpireManager.Player.GetUnlockedHulls();
                 foreach (string hull in hulls)
                 {
-                    if (ResourceManager.Hull(hull, out ShipData hullData))
+                    if (ResourceManager.Hull(hull, out ShipHull hullData))
                     {
                         if ((!hullData.IsShipyard || Empire.Universe.Debug))
                         {
@@ -679,7 +685,7 @@ namespace Ship_Game
         void InitializeShipHullsList()
         {
             var categories = new Array<string>();
-            foreach (ShipData hull in AvailableHulls)
+            foreach (ShipHull hull in AvailableHulls)
             {
                 string cat = Localizer.GetRole(hull.Role, EmpireManager.Player);
                 if (!categories.Contains(cat))
@@ -692,7 +698,7 @@ namespace Ship_Game
                 var categoryItem = new ShipHullListItem(cat);
                 HullSelectList.AddItem(categoryItem);
 
-                foreach (ShipData hull in AvailableHulls)
+                foreach (ShipHull hull in AvailableHulls)
                 {
                     if (cat == Localizer.GetRole(hull.Role, EmpireManager.Player))
                     {

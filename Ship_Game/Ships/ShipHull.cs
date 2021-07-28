@@ -4,10 +4,15 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 using Ship_Game.AI;
+using Ship_Game.Data;
+using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Serialization.Types;
 using Ship_Game.Gameplay;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Ships
 {
@@ -32,7 +37,10 @@ namespace Ship_Game.Ships
         public ShipData.ThrusterZone[] Thrusters = Empty<ShipData.ThrusterZone>.Array;
         public HullSlot[] HullSlots;
 
-        public FileInfo Source;
+        [XmlIgnore][JsonIgnore] public FileInfo Source;
+        [XmlIgnore][JsonIgnore] public SubTexture Icon => ResourceManager.Texture(IconPath);
+        [XmlIgnore][JsonIgnore] public Vector3 Volume { get; private set; }
+        [XmlIgnore][JsonIgnore] public float ModelZ { get; private set; }
 
         public HullSlot FindSlot(Point p)
         {
@@ -43,6 +51,20 @@ namespace Ship_Game.Ships
                     return slot;
             }
             return null;
+        }
+
+        public void LoadModel(out SceneObject shipSO, GameContentManager content)
+        {
+            lock (this)
+            {
+                shipSO = StaticMesh.GetSceneMesh(content, ModelPath, Animated);
+
+                if (Volume.X.AlmostEqual(0f))
+                {
+                    Volume = shipSO.GetMeshBoundingBox().Max;
+                    ModelZ = Volume.Z;
+                }
+            }
         }
 
         public ShipHull()
@@ -154,6 +176,11 @@ namespace Ship_Game.Ships
 
             HullSlots = slots.ToArray();
             Area = HullSlots.Length;
+        }
+
+        public void Save(string filePath)
+        {
+            Save(new FileInfo(filePath));
         }
 
         public void Save(FileInfo file)

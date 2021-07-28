@@ -73,7 +73,7 @@ namespace Ship_Game.Ships
         [XmlIgnore] [JsonIgnore] public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
 
         // BaseHull is the template layout of the ship hull design
-        [XmlIgnore] [JsonIgnore] public ShipData BaseHull { get; internal set; }
+        [XmlIgnore] [JsonIgnore] public ShipHull BaseHull { get; internal set; }
         [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }
 
         // Model path of the template hull layout
