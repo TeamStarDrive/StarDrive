@@ -265,6 +265,11 @@ namespace Ship_Game.Ships
             return module != null;
         }
 
+        public ShipModule GetModuleAt(Point gridPos)
+        {
+            return SparseModuleGrid[gridPos.X + gridPos.Y*GridWidth];
+        }
+
         static void DebugDrawShield(ShipModule s)
         {
             var color = s.ShieldsAreActive ? Color.AliceBlue : Color.DarkBlue;
