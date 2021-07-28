@@ -227,6 +227,17 @@ namespace Ship_Game.Data
             return -1;
         }
 
+        public bool ToBool()
+        {
+            if (Length >= 4)
+            {
+                char[] s = Chars;
+                int o = Start;
+                return s[o+0] == 't' && s[o+1] == 'r' && s[o+2] == 'u' && s[o+3] == 'e';
+            }
+            return false;
+        }
+
         public unsafe int ToInt()
         {
             fixed (char* str = Chars) return ToInt(str + Start, Length);
