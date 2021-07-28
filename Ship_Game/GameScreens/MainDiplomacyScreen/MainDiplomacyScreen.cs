@@ -826,7 +826,7 @@ namespace Ship_Game
             Rectangle titleRect = new Rectangle((int)screenWidth / 2 - 200, 44, 400, 80);
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(GameText.DiplomaticOverview)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
-            LeftRect = new Rectangle((int)screenWidth / 2 - 700, (screenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1400, 660);
+            LeftRect = new Rectangle((int)screenWidth / 2 - 700, (screenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1400, 700);
             DMenu = new Menu2(LeftRect);
             Add(new CloseButton(LeftRect.Right - 40, LeftRect.Y + 20));
             SelectedInfoRect = new Rectangle(LeftRect.X + 60, LeftRect.Y + 250, 368, 376);
