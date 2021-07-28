@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
+using Ship_Game.UI;
 
 namespace Ship_Game.GameScreens.DiplomacyScreen
 {
@@ -73,6 +74,16 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             legendPos.Y += LegendFont.LineSpacing + 2;
             LegendWar = Add(new UILabel(legendPos, GameText.AtWar, LegendFont, Color.White));
             legendPos.Y += LegendFont.LineSpacing + 2;
+
+            var list = AddList(legendPos, new Vector2(225, 400));
+            void AddLegendItem(in LocalizedText text, Color color, float thickness)
+            {
+                var lb = new UILabel(text, LegendFont, color);
+                var ln = new UILine(new Vector2(100, LegendFont.LineSpacing + 2), 0.8f, thickness, color);
+                list.Add(new SplitElement(lb, ln));
+            }
+            AddLegendItem(GameText.PeaceTreaty, ColorPeace, 2f);
+
             base.LoadContent();
         }
 
