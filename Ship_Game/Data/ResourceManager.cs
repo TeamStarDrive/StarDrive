@@ -1374,8 +1374,6 @@ namespace Ship_Game
 
         static void LoadNewHullData()
         {
-            HullsDict.Clear();
-            HullsList.Clear();
             NewHulls.Clear();
             
             FileInfo[] hullFiles = GatherFilesUnified("Hulls", "hull");
@@ -1397,8 +1395,8 @@ namespace Ship_Game
                     }
                 }
             }
-            //Parallel.For(hullFiles.Length, LoadHulls);
-            LoadHulls(0, hullFiles.Length);
+            Parallel.For(hullFiles.Length, LoadHulls);
+            //LoadHulls(0, hullFiles.Length);
 
             foreach (ShipHull hull in newHulls)
             {
@@ -1418,12 +1416,9 @@ namespace Ship_Game
         {
             HullsDict.Clear();
             HullsList.Clear();
-            NewHulls.Clear();
-
-            LoadNewHullData();
 
             FileInfo[] hullFiles = GatherFilesUnified("Hulls", "xml");
-            var oldHulls = new (FileInfo,ShipData)[hullFiles.Length];
+            var oldHulls = new ShipData[hullFiles.Length];
 
             void LoadHulls(int start, int end)
             {
@@ -1434,7 +1429,13 @@ namespace Ship_Game
                     {
                         GameLoadingScreen.SetStatus("LoadShipHull", info.RelPath());
                         ShipData sd = ShipData.Parse(info, isHullDefinition:true);
-                        oldHulls[i] = (info, sd);
+                        oldHulls[i] = sd;
+
+                        if (ShipData.GenerateNewHullFiles)
+                        {
+                            var hullFile = new FileInfo(Path.ChangeExtension(info.FullName, "hull"));
+                            new ShipHull(sd).Save(hullFile);
+                        }
                     }
                     catch (Exception e)
                     {
@@ -1445,18 +1446,10 @@ namespace Ship_Game
             Parallel.For(hullFiles.Length, LoadHulls);
             //LoadHulls(0, hullFiles.Length);
 
-            foreach ((FileInfo f, ShipData sd) in oldHulls) // Finalize HullsDict:
-            {
+            foreach (ShipData sd in oldHulls) // Finalize HullsDict:
                 AddHull(sd);
-                if (ShipData.GenerateNewHullFiles)
-                {
-                    var hullFile = new FileInfo(Path.ChangeExtension(f.FullName, "hull"));
-                    if (!hullFile.Exists)
-                    {
-                        new ShipHull(sd).Save(hullFile);
-                    }
-                }
-            }
+
+            LoadNewHullData();
         }
 
 
@@ -1505,7 +1498,7 @@ namespace Ship_Game
                                          "\n This can prevent loading of ships that have this filename in the XML :" +
                                         $"\n path '{info.PathNoExt()}'");
 
-                        if (ShipData.GenerateNewDesignFiles)
+                        if (ShipData.GenerateNewDesignFiles && info.Extension == ".xml")
                         {
                             var designFile = new FileInfo(Path.ChangeExtension(info.FullName, "design"));
                             shipData.Save(designFile);
