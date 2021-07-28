@@ -114,16 +114,26 @@ namespace Ship_Game.Ships
                 return PwrGrid.IsSet(gridPos.X + gridPos.Y*Width);
             }
 
-            void SetPowered(int x, int y)
+            void SetPowered(int x0, int y0)
             {
-                PwrGrid.Set(x + y*Width);
-            }
+                int gridIndex = x0 + y0*Width;
+                if (PwrGrid.IsSet(gridIndex))
+                    return; // already powered
 
-            void SetPowered(int x0, int x1, int y0, int y1)
-            {
-                for (int y = y0; y <= y1; ++y)
-                for (int x = x0; x <= x1; ++x)
-                    SetPowered(x, y);
+                // we need to find any underlying module and set all of it as powered
+                ShipModule m = ModuleGrid[gridIndex];
+                if (m != null)
+                {
+                    int x1 = x0 + m.XSIZE - 1;
+                    int y1 = x1 + m.YSIZE - 1;
+                    for (int y = y0; y <= y1; ++y)
+                    for (int x = x0; x <= x1; ++x) // fill everything under this module
+                        PwrGrid.Set(x0 + y0*Width);
+                }
+                else // there's no module here, only set the slot
+                {
+                    PwrGrid.Set(gridIndex);
+                }
             }
 
             // checks if any slot under this module is powered
@@ -255,7 +265,7 @@ namespace Ship_Game.Ships
                 int y1 = y0 + m.YSIZE - 1;
 
                 SetChecked(x0, x1, y0, y1); // make sure we don't visit it again
-                SetPowered(x0, x1, y0, y1); // these slots are entirely POWERED
+                SetPowered(x0, y0); // these slots are entirely POWERED
 
                 SetInPowerRadius(x0, x1, y0-radius, y0-1); // Check North
                 SetInPowerRadius(x0, x1, y1+1, y1+radius); // Check South
@@ -268,7 +278,7 @@ namespace Ship_Game.Ships
                 SetInPowerRadius(x0-radius, x0-1, y1+1, y1+radius, x0, y1, radius); // Check SouthWest
             }
 
-            void SetInPowerRadius(int x0, int x1, int y0, int y1) // 1x1 always in power radius
+            void SetInPowerRadius(int x0, int x1, int y0, int y1) // fill entire area
             {
                 ClampGridCoords(ref x0, ref x1, ref y0, ref y1);
                 for (int y = y0; y <= y1; ++y)
@@ -276,7 +286,7 @@ namespace Ship_Game.Ships
                     SetPowered(x, y);
             }
 
-            void SetInPowerRadius(int x0, int x1, int y0, int y1, int powerX, int powerY, int radius)
+            void SetInPowerRadius(int x0, int x1, int y0, int y1, int powerX, int powerY, int radius) // additional radius check
             {
                 ClampGridCoords(ref x0, ref x1, ref y0, ref y1);
                 for (int y = y0; y <= y1; ++y)
