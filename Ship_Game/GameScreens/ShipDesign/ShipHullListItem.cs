@@ -11,9 +11,9 @@ namespace Ship_Game
 {
     public class ShipHullListItem : ScrollListItem<ShipHullListItem>
     {
-        public ShipData Hull;
+        public ShipHull Hull;
         public ShipHullListItem(string headerText) : base(headerText) {}
-        public ShipHullListItem(ShipData hull) { Hull = hull; }
+        public ShipHullListItem(ShipHull hull) { Hull = hull; }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
@@ -23,9 +23,9 @@ namespace Ship_Game
                 int h = (int)Height;
                 batch.Draw(Hull.Icon, new Rectangle((int)X - 2, (int)Y - 2, h+4, h+4), Color.White);
 
-                batch.DrawString(Fonts.Arial12Bold, Hull.Name, X + h + 6, Y + 2);
+                batch.DrawString(Fonts.Arial12Bold, Hull.HullName, X + h + 6, Y + 2);
 
-                string role = Localizer.GetRole(Hull.HullRole, EmpireManager.Player);
+                string role = Localizer.GetRole(Hull.Role, EmpireManager.Player);
                 batch.DrawString(Fonts.Arial8Bold, role, X + h + 8, Y + 16, Color.Orange);
             }
         }

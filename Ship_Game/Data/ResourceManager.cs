@@ -343,7 +343,6 @@ namespace Ship_Game
 
             HullBonuses.Clear();
             HullsDict.Clear();
-            NewHulls.Clear();
             HullsList.Clear();
 
             TechTree.Clear();
@@ -1338,13 +1337,11 @@ namespace Ship_Game
             }
         }
 
-        static readonly Map<string, ShipData> HullsDict = new Map<string, ShipData>();
-        static readonly Array<ShipData> HullsList       = new Array<ShipData>();
-        static readonly Map<string, ShipHull> NewHulls = new Map<string, ShipHull>();
+        static readonly Map<string, ShipHull> HullsDict = new Map<string, ShipHull>();
+        static readonly Array<ShipHull> HullsList = new Array<ShipHull>();
 
-        public static bool NewHull(string shipHull, out ShipHull hull) => NewHulls.Get(shipHull, out hull);
-        public static bool Hull(string shipHull, out ShipData hullData) => HullsDict.Get(shipHull, out hullData);
-        public static IReadOnlyList<ShipData> Hulls                     => HullsList;
+        public static bool Hull(string shipHull, out ShipHull hull) => HullsDict.Get(shipHull, out hull);
+        public static IReadOnlyList<ShipHull> Hulls => HullsList;
 
         static void LoadHullBonuses()
         {
@@ -1357,25 +1354,57 @@ namespace Ship_Game
             }
         }
 
-        public static ShipData AddHull(ShipData hull)
+        public static ShipHull AddHull(ShipHull hull)
         {
             if (hull != null) // will be null if ShipData.Parse failed
             {
-                if (HullsDict.TryGetValue(hull.Hull, out ShipData existing))
+                if (HullsDict.TryGetValue(hull.HullName, out ShipHull existing))
                 {
                     HullsList.Remove(existing);
                 }
-
-                HullsDict[hull.Hull] = hull;
+                HullsDict[hull.HullName] = hull;
                 HullsList.Add(hull);
             }
             return hull;
         }
 
-        static void LoadNewHullData()
+        static void GenerateNewHullFilesFromLegacyHullData()
         {
-            NewHulls.Clear();
-            
+            FileInfo[] hullFiles = GatherFilesUnified("Hulls", "xml");
+
+            void LoadHulls(int start, int end)
+            {
+                for (int i = start; i < end; ++i)
+                {
+                    FileInfo info = hullFiles[i];
+                    try
+                    {
+                        GameLoadingScreen.SetStatus("LoadShipHull", info.RelPath());
+                        ShipData sd = ShipData.Parse(info, isHullDefinition:true);
+
+                        var hullFile = new FileInfo(Path.ChangeExtension(info.FullName, "hull"));
+                        new ShipHull(sd).Save(hullFile);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e, $"LoadHullData {info.Name} failed");
+                    }
+                }
+            }
+            Parallel.For(hullFiles.Length, LoadHulls);
+            //LoadHulls(0, hullFiles.Length);
+        }
+
+        public static void LoadHullData() // Refactored by RedFox
+        {
+            HullsDict.Clear();
+            HullsList.Clear();
+
+            if (ShipData.GenerateNewHullFiles)
+            {
+                GenerateNewHullFilesFromLegacyHullData();
+            }
+
             FileInfo[] hullFiles = GatherFilesUnified("Hulls", "hull");
             var newHulls = new ShipHull[hullFiles.Length];
 
@@ -1399,57 +1428,7 @@ namespace Ship_Game
             //LoadHulls(0, hullFiles.Length);
 
             foreach (ShipHull hull in newHulls)
-            {
-                if (hull == null) continue;
-                if (NewHulls.TryGetValue(hull.HullName, out ShipHull old))
-                {
-                    Log.Warning($"Cannot overwrite duplicate hull={hull.HullName}\n"+
-                                $"old={old.Source.FullName}\n"+
-                                $"new={hull.Source.FullName}");
-                    continue;
-                }
-                NewHulls[hull.HullName] = hull;
-            }
-        }
-
-        public static void LoadHullData() // Refactored by RedFox
-        {
-            HullsDict.Clear();
-            HullsList.Clear();
-
-            FileInfo[] hullFiles = GatherFilesUnified("Hulls", "xml");
-            var oldHulls = new ShipData[hullFiles.Length];
-
-            void LoadHulls(int start, int end)
-            {
-                for (int i = start; i < end; ++i)
-                {
-                    FileInfo info = hullFiles[i];
-                    try
-                    {
-                        GameLoadingScreen.SetStatus("LoadShipHull", info.RelPath());
-                        ShipData sd = ShipData.Parse(info, isHullDefinition:true);
-                        oldHulls[i] = sd;
-
-                        if (ShipData.GenerateNewHullFiles)
-                        {
-                            var hullFile = new FileInfo(Path.ChangeExtension(info.FullName, "hull"));
-                            new ShipHull(sd).Save(hullFile);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error(e, $"LoadHullData {info.Name} failed");
-                    }
-                }
-            }
-            Parallel.For(hullFiles.Length, LoadHulls);
-            //LoadHulls(0, hullFiles.Length);
-
-            foreach (ShipData sd in oldHulls) // Finalize HullsDict:
-                AddHull(sd);
-
-            LoadNewHullData();
+                AddHull(hull);
         }
 
 

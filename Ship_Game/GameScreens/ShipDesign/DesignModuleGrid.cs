@@ -62,6 +62,11 @@ namespace Ship_Game
         #endif
         }
 
+        public DesignModuleGrid(ShipHull hull, Vector2 slotOffset)
+        {
+            throw new NotImplementedException();
+        }
+
         public void SaveDebugGrid()
         {
         #if DEBUG
