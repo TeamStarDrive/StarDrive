@@ -119,7 +119,7 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             DestroyShip(); // Allow multiple init
 
-            ShipData hull = null;
+            ShipHull hull = null;
             if (GlobalStats.HasMod && ResourceManager.MainMenuShipList.ModelPaths.Count > 0)
             {
                 int shipIndex = RandomMath.InRange(ResourceManager.MainMenuShipList.ModelPaths.Count);
@@ -159,24 +159,24 @@ namespace Ship_Game.GameScreens.MainMenu
             UpdateTransform();
         }
 
-        static ShipData ChooseShip(IEmpireData empire, ShipData.RoleName role)
+        static ShipHull ChooseShip(IEmpireData empire, ShipData.RoleName role)
         {
             string shipType = empire.ShipType;
 
-            ShipData[] empireShips = ResourceManager.Hulls.Filter(s => s.ShipStyle == shipType);
+            ShipHull[] empireShips = ResourceManager.Hulls.Filter(s => s.Style == shipType);
             if (empireShips.Length == 0)
             {
                 Log.Error($"Failed to select '{role}' or 'fighter' Hull for '{shipType}'. Choosing a random ship.");
                 return ResourceManager.Hulls.Filter(s => s.Role == role).RandItem();
             }
 
-            ShipData[] roleHulls = empireShips.Filter(s => s.Role == role);
+            ShipHull[] roleHulls = empireShips.Filter(s => s.Role == role);
             if (roleHulls.Length != 0)
             {
                 return roleHulls.RandItem();
             }
 
-            ShipData[] fighters = empireShips.Filter(s => s.Role == ShipData.RoleName.fighter);
+            ShipHull[] fighters = empireShips.Filter(s => s.Role == ShipData.RoleName.fighter);
             if (fighters.Length != 0)
             {
                 return fighters.RandItem();

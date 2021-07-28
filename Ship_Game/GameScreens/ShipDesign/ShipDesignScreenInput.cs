@@ -91,7 +91,7 @@ namespace Ship_Game
 
             if (!ShipSaved && !goodDesign)
             {
-                ExitMessageBox(this, DoExit, SaveWIP, GameText.ThisShipDesignIsNot);
+                ExitMessageBox(this, SaveWIP, DoExit, GameText.ThisShipDesignIsNot);
                 return;
             }
             if (ShipSaved || !goodDesign)
@@ -99,7 +99,7 @@ namespace Ship_Game
                 ReallyExit();
                 return;
             }
-            ExitMessageBox(this, DoExit, SaveChanges, GameText.YouHaveUnsavedChangesSave);
+            ExitMessageBox(this, SaveChanges, DoExit, GameText.YouHaveUnsavedChangesSave);
         }
 
         public void ExitToMenu(string launches)
@@ -117,16 +117,16 @@ namespace Ship_Game
             }
             if (!ShipSaved && !goodDesign)
             {
-                ExitMessageBox(this, LaunchScreen, SaveWIP, GameText.ThisShipDesignIsNot);
+                ExitMessageBox(this, SaveWIP, LaunchScreen, GameText.ThisShipDesignIsNot);
                 return;
             }
 
             if (!ShipSaved && goodDesign)
             {
-                ExitMessageBox(this, LaunchScreen, SaveChanges, GameText.YouHaveUnsavedChangesSave);
+                ExitMessageBox(this, SaveChanges, LaunchScreen, GameText.YouHaveUnsavedChangesSave);
                 return;
             }
-            ExitMessageBox(this, LaunchScreen, SaveChanges, GameText.ThisShipDesignIsNot);
+            ExitMessageBox(this, SaveChanges, LaunchScreen, GameText.ThisShipDesignIsNot);
         }
 
         public override bool HandleInput(InputState input)
@@ -580,10 +580,10 @@ namespace Ship_Game
             StripModules();
         }
         
-        void JustChangeHull()
+        void JustChangeHull(ShipHull changeTo)
         {
             ShipSaved = true;
-            ChangeHull(ChangeTo);
+            ChangeHull(changeTo);
         }
 
         void LaunchScreen()
@@ -632,8 +632,7 @@ namespace Ship_Game
             GameAudio.AcceptClick();
             if (!ShipSaved && !IsGoodDesign() && !ModuleGrid.IsEmptyDesign())
             {
-                ChangeTo = item.Hull;
-                MakeMessageBox(this, JustChangeHull, SaveWIPThenChangeHull, 
+                MakeMessageBox(this, () => SaveWIPThenChangeHull(item.Hull), () => JustChangeHull(item.Hull),
                                GameText.ThisShipDesignIsNot, "Save", "No");
             }
             else
@@ -761,10 +760,10 @@ namespace Ship_Game
 
         public void SaveHullDesign(string hullName)
         {
-            ShipData toSave = CloneActiveHull(hullName, isShipDesign: false);
-            SerializeShipDesign(toSave, $"Content/Hulls/{ActiveHull.ShipStyle}/{hullName}.xml");
+            ShipHull toSave = new ShipHull(CloneActiveHull(hullName, isShipDesign: false));
+            toSave.Save($"Content/Hulls/{ActiveHull.ShipStyle}/{hullName}.hull");
 
-            ShipData newHull = ResourceManager.AddHull(toSave);
+            ShipHull newHull = ResourceManager.AddHull(toSave);
             ChangeHull(newHull);
         }
 
@@ -774,10 +773,10 @@ namespace Ship_Game
             SerializeShipDesign(toSave, $"{Dir.StarDriveAppData}/WIP/{toSave.Name}.xml");
         }
 
-        void SaveWIPThenChangeHull()
+        void SaveWIPThenChangeHull(ShipHull changeTo)
         {
             SaveWIP();
-            ChangeHull(ChangeTo);
+            ChangeHull(changeTo);
         }
     }
 }
