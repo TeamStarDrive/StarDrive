@@ -56,8 +56,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             ViewWarsOrAlliesCheckBox.CheckedTextColor  = Color.White;
             ViewTradeTreatiesCheckBox.CheckedTextColor = Color.White;
 
-            Vector2 legendPos = new Vector2(Window.X + 25, Window.Y + 80);
-            var list = AddList(legendPos, new Vector2(240, 400));
+            var list = AddList(new Vector2(Window.X + 25, Window.Y + 80), new Vector2(240, 400));
             void AddLegendItem(in LocalizedText text, Color color, float thickness)
             {
                 var lb = new UILabel(text, LegendFont, color);
