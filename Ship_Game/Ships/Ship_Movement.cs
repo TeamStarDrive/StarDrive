@@ -421,27 +421,31 @@ namespace Ship_Game.Ships
         // called from Ship.Update
         void UpdateEnginesAndVelocity(FixedSimTime timeStep)
         {
-            if (engineState == MoveState.Sublight && CurrentVelocity > MaxSTLSpeed)
+            SetMaxFTLSpeed();
+            switch (engineState)
+            {
+                case MoveState.Sublight: VelocityMaximum = MaxSTLSpeed; break;
+                case MoveState.Warp: VelocityMaximum = MaxFTLSpeed; break;
+            }
+
+            bool atWarp = engineState == MoveState.Warp;
+            bool canWarp = MaxFTLSpeed > MaxSTLSpeed;
+
+            if (!atWarp && CurrentVelocity > MaxSTLSpeed)
             {
                 // feature: exit from hyperspace at ridiculous speeds
                 Velocity = Velocity.Normalized() * Math.Min(MaxSTLSpeed, MaxSubLightSpeed);
             }
 
-            UpdateHyperspaceInhibited(timeStep);
-            SetMaxFTLSpeed();
-
-            switch (engineState)
-            {
-                case MoveState.Sublight: VelocityMaximum = MaxSTLSpeed; break;
-                case MoveState.Warp:     VelocityMaximum = MaxFTLSpeed; break;
-            }
+            if (canWarp)
+                UpdateHyperspaceInhibited(timeStep, atWarp || IsSpooling);
 
             if (!IsTurning)
             {
                 RestoreYBankRotation(timeStep);
             }
 
-            if (engineState == MoveState.Warp && Velocity.Length() < SpeedLimit)
+            if (atWarp && Velocity.Length() < SpeedLimit)
             {
                 // enable full thrust, but don't touch the SpeedLimit
                 // so that FormationWarp can work correctly
@@ -450,7 +454,8 @@ namespace Ship_Game.Ships
 
             UpdateVelocityAndPosition(timeStep);
 
-            UpdateWarpSpooling(timeStep);
+            if (canWarp && IsSpooling && !Inhibited)
+                UpdateWarpSpooling(timeStep);
         }
 
         public bool TryGetScoutFleeVector(out Vector2 escapePos) => GetEscapeVector(out escapePos, 100000, true);

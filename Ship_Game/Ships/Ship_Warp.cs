@@ -24,8 +24,6 @@ namespace Ship_Game.Ships
         /// we can adjust this as needed but it should give a nearly visually perfect and functional inhibition.
         /// </summary>
         public const float InhibitedAtWarpCheckFrequency = 0.1f;
-        // While at sublight there is no need for quick checks.
-        public const float InhibitedAtSubLightCheckFrequency = 1f;
 
         public bool Inhibited { get; protected set; }
         public bool InhibitedByEnemy { get; protected set; }
@@ -119,13 +117,10 @@ namespace Ship_Game.Ships
         /// Updates timers and see that inhibition needs to be checked.
         /// if so checks all inhibition sources in order of easiest checks. Only the first positive source will be used.
         /// if inhibited call hyperspace return.
+        /// NOTE: The inhibition checks are very slow. Use this method with care. 
         /// </summary>
-        protected void UpdateHyperspaceInhibited(FixedSimTime timeStep)
+        protected void UpdateHyperspaceInhibited(FixedSimTime timeStep, bool atWarpOrSpooling)
         {
-            // ships that cant be effected by inhibiting should not be checked.
-            if (MaxFTLSpeed < LightSpeedConstant)
-                return;
-
             // TODO: protect inhibitionTimer and states.
             WarpInhibitionCheckTimer -= timeStep.FixedTime;
 
@@ -139,7 +134,7 @@ namespace Ship_Game.Ships
                 }
                 else if (System != null && IsInhibitedByUnfriendlyGravityWell)
                 {
-                    SetWarpInhibited(sourceEnemyShip: false, secondsToInhibit: 0.5f);
+                    SetWarpInhibited(sourceEnemyShip: false, secondsToInhibit: 1f);
                 }
                 else if (IsInhibitedFromEnemyShips())
                 {
@@ -155,7 +150,7 @@ namespace Ship_Game.Ships
                         Inhibited = false;
                     }
                     // reset timer to engine state timers.
-                    float unInhibitedCheckTime = engineState == MoveState.Warp ? InhibitedAtWarpCheckFrequency : InhibitedAtSubLightCheckFrequency;
+                    float unInhibitedCheckTime = atWarpOrSpooling ? InhibitedAtWarpCheckFrequency : Stats.FTLSpoolTime;
                     WarpInhibitionCheckTimer = unInhibitedCheckTime;
                 }
             }
@@ -180,8 +175,6 @@ namespace Ship_Game.Ships
         // TODO: move this to ship engines.
         public void UpdateWarpSpooling(FixedSimTime timeStep)
         {
-            if (!IsSpooling || Inhibited || MaxFTLSpeed < LightSpeedConstant) return;
-
             JumpTimer -= timeStep.FixedTime;
 
             if (ShipEngines.ReadyForFormationWarp < Status.Poor)
