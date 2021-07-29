@@ -428,24 +428,24 @@ namespace Ship_Game.Ships
                 case MoveState.Warp: VelocityMaximum = MaxFTLSpeed; break;
             }
 
-            bool atWarp = engineState == MoveState.Warp;
-            bool canWarp = MaxFTLSpeed > MaxSTLSpeed;
+            bool isAtWarp = engineState == MoveState.Warp;
+            bool isWarpCapable = MaxFTLSpeed > MaxSTLSpeed;
 
-            if (!atWarp && CurrentVelocity > MaxSTLSpeed)
+            if (!isAtWarp && CurrentVelocity > MaxSTLSpeed)
             {
                 // feature: exit from hyperspace at ridiculous speeds
                 Velocity = Velocity.Normalized() * Math.Min(MaxSTLSpeed, MaxSubLightSpeed);
             }
 
-            if (canWarp)
-                UpdateHyperspaceInhibited(timeStep, atWarp || IsSpooling);
+            if (isWarpCapable)
+                UpdateHyperspaceInhibited(timeStep, isAtWarp || IsSpooling);
 
             if (!IsTurning)
             {
                 RestoreYBankRotation(timeStep);
             }
 
-            if (atWarp && Velocity.Length() < SpeedLimit)
+            if (isAtWarp && Velocity.Length() < SpeedLimit)
             {
                 // enable full thrust, but don't touch the SpeedLimit
                 // so that FormationWarp can work correctly
@@ -454,7 +454,7 @@ namespace Ship_Game.Ships
 
             UpdateVelocityAndPosition(timeStep);
 
-            if (canWarp && IsSpooling && !Inhibited)
+            if (isWarpCapable && IsSpooling && !Inhibited)
                 UpdateWarpSpooling(timeStep);
         }
 
