@@ -10243,6 +10243,27 @@ NotifyCapitalTransfer:
 TerraformersUnknownOrigin:
  Id: 4346
  ENG: "Unknown Origin"
+NonaggressionPact3:
+ Id: 4347
+ ENG: "Non Aggression"
+OpenBordersTreaty2:
+ Id: 4348
+ ENG: "Open Borders"
+EmpireRelationships:
+ Id: 4349
+ ENG: "Empire Relationships"
+ViewWarsOrAlliancesName:
+ Id: 4350
+ ENG: "View Wars or Alliances"
+ViewWarsOrAlliancesTip:
+ Id: 4351
+ ENG: "Filters out non War or Alliances links"
+ViewTradeTreatiesName:
+ Id: 4352
+ ENG: "View Trade Treaties"
+ViewTradeTreatiesTip:
+ Id: 4353
+ ENG: "Enable or disable trade treaties view"
 OnSurface:
  Id: 4993
  ENG: "on surface"

@@ -4336,6 +4336,20 @@ namespace Ship_Game
         NotifyCapitalTransfer = 4345,
         /// <summary>Unknown Origin</summary>
         TerraformersUnknownOrigin = 4346,
+        /// <summary>Non Aggression</summary>
+        NonaggressionPact3 = 4347,
+        /// <summary>Open Borders</summary>
+        OpenBordersTreaty2 = 4348,
+        /// <summary>Empire Relationships</summary>
+        EmpireRelationships = 4349,
+        /// <summary>View Wars or Alliances</summary>
+        ViewWarsOrAlliancesName = 4350,
+        /// <summary>Filters out non War or Alliances links</summary>
+        ViewWarsOrAlliancesTip = 4351,
+        /// <summary>View Trade Treaties</summary>
+        ViewTradeTreatiesName = 4352,
+        /// <summary>Enable or disable trade treaties view</summary>
+        ViewTradeTreatiesTip = 4353,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>
