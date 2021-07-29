@@ -344,119 +344,6 @@ namespace Ship_Game.GameScreens.LoadGame
             return e;
         }
 
-        // todo should be moved to planet class so we could better use get private set 
-        static Planet CreatePlanetFromPlanetSaveData(SolarSystem forSystem, SavedGame.PlanetSaveData psData)
-        {
-            var p = new Planet
-            {
-                ParentSystem = forSystem,
-                guid = psData.guid,
-                Name = psData.Name,
-                OrbitalAngle = psData.OrbitalAngle
-            };
-
-            if (psData.Owner.NotEmpty())
-            {
-                p.Owner = EmpireManager.GetEmpireByName(psData.Owner);
-                p.Owner.AddPlanet(p);
-            }
-
-            if (psData.SpecialDescription.NotEmpty())
-                p.SpecialDescription = psData.SpecialDescription;
-
-            p.RestorePlanetTypeFromSave(psData.WhichPlanet);
-            p.Scale = psData.Scale > 0f ? psData.Scale : RandomMath.RandomBetween(1f, 2f);
-            p.colonyType         = psData.ColonyType;
-            p.GovOrbitals        = psData.GovOrbitals;
-            p.GovGroundDefense   = psData.GovGroundDefense;
-            p.AutoBuildTroops    = psData.GovMilitia;
-            p.GarrisonSize       = psData.GarrisonSize;
-            p.Quarantine         = psData.Quarantine;
-            p.ManualOrbitals     = psData.ManualOrbitals;
-            p.DontScrapBuildings = psData.DontScrapBuildings;
-            p.NumShipyards       = psData.NumShipyards;
-            p.FS                 = psData.FoodState;
-            p.PS                 = psData.ProdState;
-            p.Food.PercentLock   = psData.FoodLock;
-            p.Prod.PercentLock   = psData.ProdLock;
-            p.Res.PercentLock    = psData.ResLock;
-            p.OrbitalRadius      = psData.OrbitalDistance;
-            p.BasePopPerTile     = psData.BasePopPerTile;
-
-            p.SetBaseFertility(psData.Fertility, psData.MaxFertility);
-
-            p.MineralRichness       = psData.Richness;
-            p.HasRings              = psData.HasRings;
-            p.ShieldStrengthCurrent = psData.ShieldStrength;
-            p.CrippledTurns         = psData.Crippled_Turns;
-            p.PlanetTilt            = RandomMath.RandomBetween(45f, 135f);
-            p.ObjectRadius          = 1000f * (float)(1 + (Math.Log(p.Scale) / 1.5));
-
-            p.UpdateTerraformPoints(psData.TerraformPoints);
-            p.RestoreBaseFertilityTerraformRatio(psData.BaseFertilityTerraformRatio);
-            p.SetWorkerPercentages(psData.farmerPercentage, psData.workerPercentage, psData.researcherPercentage);
-            p.RestoreWantedOrbitals(psData.WantedPlatforms, psData.WantedStations, psData.WantedShipyards);
-            p.RestoreManualBudgets(psData.ManualCivilianBudget, psData.ManualGrdDefBudget, psData.ManualSpcDefBudget);
-            p.SetHasLimitedResourceBuilding(psData.HasLimitedResourcesBuildings);
-            p.SetManualFoodImportSlots(psData.ManualFoodImportSlots);
-            p.SetManualProdImportSlots(psData.ManualProdImportSlots);
-            p.SetManualColoImportSlots(psData.ManualColoImportSlots);
-            p.SetManualFoodExportSlots(psData.ManualFoodExportSlots);
-            p.SetManualProdExportSlots(psData.ManualProdExportSlots);
-            p.SetManualColoExportSlots(psData.ManualColoExportSlots);
-            p.SetAverageTradeTurns(psData.AverageFoodImportTurns, psData.AverageProdImportTurns,
-                psData.AverageFoodExportTurns, psData.AverageProdExportTurns);
-
-            p.SetHomeworld(psData.IsHomeworld); 
-
-            if (p.HasRings)
-                p.RingTilt = RandomMath.RandomBetween(-80f, -45f);
-
-            foreach (SavedGame.PGSData d in psData.PGSList)
-            {
-                var pgs = new PlanetGridSquare(d.x, d.y, d.building, d.Habitable, d.Terraformable)
-                {
-                    Biosphere = d.Biosphere
-                };
-
-                if (pgs.Biosphere)
-                    p.BuildingList.Add(ResourceManager.CreateBuilding(Building.BiospheresId));
-
-                if (d.CrashSiteActive)
-                    pgs.CrashSite.CrashShip(d, p, pgs);
-
-                p.TilesList.Add(pgs);
-                foreach (Troop t in d.TroopsHere)
-                {
-                    if (!ResourceManager.TroopTypes.Contains(t.Name))
-                        continue;
-                    var fix = ResourceManager.GetTroopTemplate(t.Name);
-                    t.first_frame = fix.first_frame;
-                    t.WhichFrame = fix.first_frame;
-                    p.AddTroop(t, pgs);
-                }
-
-                if (pgs.Building == null || pgs.CrashSite.Active)
-                    continue;
-
-                if (!ResourceManager.GetBuilding(pgs.Building.Name, out Building template))
-                    continue; // this can happen if savegame contains a building which no longer exists in game files
-
-                pgs.SetEventOutcomeNumFromSave(d.EventOutcomeNum);
-                pgs.Building.AssignBuildingId(template.BID);
-                pgs.Building.Scrappable = template.Scrappable;
-                pgs.Building.CalcMilitaryStrength();
-                p.BuildingList.Add(pgs.Building);
-                p.AddBuildingsFertility(pgs.Building.MaxFertilityOnBuild);
-
-                if (d.VolcanoHere)
-                    pgs.CreateVolcanoFromSave(d, p);
-            }
-
-            p.ResetHasDynamicBuildings();
-            return p;
-        }
-
         SolarSystem CreateSystemFromData(SavedGame.SolarSystemSaveData ssd)
         {
             var system = new SolarSystem
@@ -484,7 +371,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 }
                 else
                 {
-                    Planet p = CreatePlanetFromPlanetSaveData(system, ring.Planet);
+                    Planet p = Planet.FromSaveData(system, ring.Planet);
                     p.Center = system.Position.PointFromAngle(p.OrbitalAngle, p.OrbitalRadius);
                     
                     foreach (Building b in p.BuildingList)
