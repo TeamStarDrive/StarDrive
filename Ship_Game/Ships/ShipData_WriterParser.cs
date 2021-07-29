@@ -28,9 +28,9 @@ namespace Ship_Game.Ships
             sw.Write("Size", $"{GridInfo.Size.X},{GridInfo.Size.Y}");
             sw.Write("LegacyOrigin", $"{GridInfo.Origin.X},{GridInfo.Origin.Y}");
             
-            if (this != BaseHull && IconPath != BaseHull.IconPath)
+            if (IconPath != BaseHull.IconPath)
                 sw.Write("IconPath", IconPath);
-            if (this != BaseHull && SelectionGraphic != BaseHull.SelectionGraphic)
+            if (SelectionGraphic != BaseHull.SelectIcon)
                 sw.Write("SelectIcon", SelectionGraphic);
             if (FixedCost > 0)
                 sw.Write("FixedCost", FixedCost);
@@ -180,7 +180,7 @@ namespace Ship_Game.Ships
                 }
             }
 
-            if (!ResourceManager.NewHull(Hull, out ShipHull hull))
+            if (!ResourceManager.Hull(Hull, out ShipHull hull))
                 throw new InvalidDataException($"Hull {Hull} not found");
 
             ThrusterList = hull.Thrusters;

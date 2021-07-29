@@ -82,25 +82,25 @@ namespace Ship_Game.GameScreens.NewGame
         static void MarkHullsUnlockable(Map<string, string> hullUnlocks,
                                         Map<string, string[]> techTreePaths)
         {
-            foreach (ShipData hull in ResourceManager.Hulls)
+            foreach (ShipHull hull in ResourceManager.Hulls)
             {
                 hull.TechsNeeded.Clear(); // always clear techs list
-                hull.UnLockable = false;
+                hull.Unlockable = false;
 
                 if (hull.Role == ShipData.RoleName.disabled)
                     continue;
 
-                if (hullUnlocks.TryGetValue(hull.Hull, out string requiredTech))
+                if (hullUnlocks.TryGetValue(hull.HullName, out string requiredTech))
                 {
                     if (requiredTech != null) // ignore root techs
                     {
-                        hull.UnLockable = true;
+                        hull.Unlockable = true;
                         AddRange(hull.TechsNeeded, techTreePaths[requiredTech]);
                     }
                 }
 
                 if (hull.Role < ShipData.RoleName.fighter || hull.TechsNeeded.Count == 0)
-                    hull.UnLockable = true;
+                    hull.Unlockable = true;
             }
         }
 
@@ -123,7 +123,7 @@ namespace Ship_Game.GameScreens.NewGame
                 shipData.HullUnlockable = false;
                 shipData.AllModulesUnlockable = false;
 
-                if (!shipData.BaseHull.UnLockable ||
+                if (!shipData.BaseHull.Unlockable ||
                     shipData.HullRole == ShipData.RoleName.disabled)
                     continue;
                 

@@ -793,7 +793,7 @@ namespace Ship_Game.Ships
             return GetCost(loyalty) / 2f;
         }
 
-        public ShipData BaseHull => shipData.BaseHull;
+        public ShipHull BaseHull => shipData.BaseHull;
 
         public void Explore()
         {
@@ -1559,9 +1559,9 @@ namespace Ship_Game.Ships
                 }
             }
 
-            if (BaseHull.EventOnDeath != null)
+            if (shipData.EventOnDeath != null)
             {
-                var evt = ResourceManager.EventsDict[BaseHull.EventOnDeath];
+                var evt = ResourceManager.EventsDict[shipData.EventOnDeath];
                 Empire.Universe.ScreenManager.AddScreen(
                     new EventPopup(Empire.Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
             }

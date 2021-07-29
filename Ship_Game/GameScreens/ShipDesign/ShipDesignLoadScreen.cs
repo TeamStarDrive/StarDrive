@@ -82,7 +82,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                     var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     batch.DrawString(Fonts.Arial12Bold, Ship.Name, tCursor, Color.White);
                     tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    var role = Ship.BaseHull.Name;
+                    var role = Ship.BaseHull.HullName;
                     batch.DrawString(Fonts.Arial8Bold, role, tCursor, Color.DarkGray);
                     tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
                     batch.DrawString(Fonts.Arial8Bold, $"Base Strength: {Ship.BaseStrength.String(0)}", tCursor, Color.Orange);
@@ -210,8 +210,8 @@ namespace Ship_Game.GameScreens.ShipDesign
             Ship[] ships = ResourceManager.GetShipTemplates()
                 .Filter(s => CanShowDesign(s, filter))
                 .OrderBy(s => !s.IsPlayerDesign)
-                .ThenBy(s => s.BaseHull.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
-                .ThenBy(s => s.BaseHull.ShipStyle)
+                .ThenBy(s => s.BaseHull.Style != EmpireManager.Player.data.Traits.ShipType)
+                .ThenBy(s => s.BaseHull.Style)
                 .ThenByDescending(s => s.BaseStrength)
                 .ThenBy(s => s.Name)
                 .ToArray();

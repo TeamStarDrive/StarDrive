@@ -37,6 +37,9 @@ namespace Ship_Game.Ships
         public ShipData.ThrusterZone[] Thrusters = Empty<ShipData.ThrusterZone>.Array;
         public HullSlot[] HullSlots;
 
+        [XmlIgnore][JsonIgnore] public bool Unlockable = true;
+        [XmlIgnore][JsonIgnore] public HashSet<string> TechsNeeded = new HashSet<string>();
+
         [XmlIgnore][JsonIgnore] public FileInfo Source;
         [XmlIgnore][JsonIgnore] public SubTexture Icon => ResourceManager.Texture(IconPath);
         [XmlIgnore][JsonIgnore] public Vector3 Volume { get; private set; }
@@ -72,6 +75,44 @@ namespace Ship_Game.Ships
         }
 
         // LEGACY: convert old ShipData hulls into new .hull
+        public ShipHull(Legacy.LegacyShipData sd)
+        {
+            HullName = sd.Hull;
+            ModName = sd.ModName ?? "";
+            Style = sd.ShipStyle;
+            Size = sd.GridInfo.Size;
+            Area = sd.GridInfo.SurfaceArea;
+            IconPath = sd.IconPath;
+            ModelPath = sd.ModelPath;
+
+            Role = (ShipData.RoleName)(int)sd.Role;
+            SelectIcon = sd.SelectionGraphic;
+            Animated = sd.Animated;
+
+            Thrusters = new ShipData.ThrusterZone[sd.ThrusterList.Length];
+            for (int i = 0; i < sd.ThrusterList.Length; ++i)
+            {
+                Thrusters[i].Position = sd.ThrusterList[i].Position;
+                Thrusters[i].Scale = sd.ThrusterList[i].Scale;
+            }
+
+            Vector2 origin = sd.GridInfo.Origin;
+            var legacyOffset = new Vector2(ShipModule.ModuleSlotOffset);
+
+            HullSlots = new HullSlot[sd.ModuleSlots.Length];
+            for (int i = 0; i < sd.ModuleSlots.Length; ++i)
+            {
+                ModuleSlotData msd = sd.ModuleSlots[i];
+                Vector2 pos = (msd.Position - legacyOffset) - origin;
+                HullSlots[i] = new HullSlot((int)(pos.X / 16f),
+                                            (int)(pos.Y / 16f),
+                                            msd.Restrictions);
+            }
+
+            Array.Sort(HullSlots, HullSlot.Sorter);
+        }
+
+        // For Shipyard: convert ShipData into a ShipHull
         public ShipHull(ShipData sd)
         {
             HullName = sd.Hull;
@@ -85,7 +126,13 @@ namespace Ship_Game.Ships
             Role = sd.Role;
             SelectIcon = sd.SelectionGraphic;
             Animated = sd.Animated;
-            Thrusters = sd.ThrusterList.CloneArray();
+
+            Thrusters = new ShipData.ThrusterZone[sd.ThrusterList.Length];
+            for (int i = 0; i < sd.ThrusterList.Length; ++i)
+            {
+                Thrusters[i].Position = sd.ThrusterList[i].Position;
+                Thrusters[i].Scale = sd.ThrusterList[i].Scale;
+            }
 
             Vector2 origin = sd.GridInfo.Origin;
             var legacyOffset = new Vector2(ShipModule.ModuleSlotOffset);
