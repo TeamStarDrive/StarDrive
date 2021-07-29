@@ -90,7 +90,7 @@ namespace Ship_Game.Ships
             SpeedLimit = value;
         }
 
-        void SetMaxFTLSpeed()
+        float SetMaxFTLSpeed()
         {
             float projectorBonus = 1f;
 
@@ -108,7 +108,9 @@ namespace Ship_Game.Ships
                 FTLModifier += loyalty.data.Traits.InBordersSpeedBonus;
             FTLModifier *= projectorBonus;
 
-            MaxFTLSpeed = Stats.MaxFTLSpeed * FTLModifier * WarpPercent;
+            float maxFTLSpeed = Stats.MaxFTLSpeed * FTLModifier * WarpPercent;
+            MaxFTLSpeed = maxFTLSpeed;
+            return maxFTLSpeed;
         }
 
         void SetMaxSTLSpeed()
@@ -418,34 +420,41 @@ namespace Ship_Game.Ships
                 SetSpeedLimit(AI.FormationWarpSpeed(VelocityMaximum));
         }
 
-        // called from Ship.Update
+        // Called from Ship.Update
+        // @warning PERF This is called every simulation frame for every ship in the universe
         void UpdateEnginesAndVelocity(FixedSimTime timeStep)
         {
-            SetMaxFTLSpeed();
-            switch (engineState)
-            {
-                case MoveState.Sublight: VelocityMaximum = MaxSTLSpeed; break;
-                case MoveState.Warp: VelocityMaximum = MaxFTLSpeed; break;
-            }
+            float maxFTLSpeed = SetMaxFTLSpeed();
+            float maxSTLSpeed = MaxSTLSpeed;
+            bool isWarpCapable = maxFTLSpeed > maxSTLSpeed;
+            bool atWarp = engineState == MoveState.Warp;
 
-            bool isAtWarp = engineState == MoveState.Warp;
-            bool isWarpCapable = MaxFTLSpeed > MaxSTLSpeed;
+            VelocityMaximum = atWarp ? maxFTLSpeed : maxSTLSpeed;
 
-            if (!isAtWarp && CurrentVelocity > MaxSTLSpeed)
+            if (!atWarp && Velocity.Length() > maxSTLSpeed)
             {
-                // feature: exit from hyperspace at ridiculous speeds
-                Velocity = Velocity.Normalized() * Math.Min(MaxSTLSpeed, MaxSubLightSpeed);
+                // feature: exit from hyperspace at ridiculous speeds (STL max)
+                Velocity = Velocity.Normalized() * Math.Min(maxSTLSpeed, MaxSubLightSpeed);
             }
 
             if (isWarpCapable)
-                UpdateHyperspaceInhibited(timeStep, isAtWarp || IsSpooling);
+            {
+                bool warpingOrSpooling = atWarp || IsSpooling;
+                // check if ship is Inhibited by anything
+                bool inhibited = UpdateHyperspaceInhibited(timeStep, warpingOrSpooling);
+                // this causes warping ships to exit warp
+                if (inhibited && warpingOrSpooling)
+                {
+                    HyperspaceReturn();
+                }
+            }
 
             if (!IsTurning)
             {
                 RestoreYBankRotation(timeStep);
             }
 
-            if (isAtWarp && Velocity.Length() < SpeedLimit)
+            if (atWarp && Velocity.Length() < SpeedLimit)
             {
                 // enable full thrust, but don't touch the SpeedLimit
                 // so that FormationWarp can work correctly
@@ -454,8 +463,10 @@ namespace Ship_Game.Ships
 
             UpdateVelocityAndPosition(timeStep);
 
-            if (isWarpCapable && IsSpooling && !Inhibited)
+            if (isWarpCapable && IsSpooling)
+            {
                 UpdateWarpSpooling(timeStep);
+            }
         }
 
         public bool TryGetScoutFleeVector(out Vector2 escapePos) => GetEscapeVector(out escapePos, 100000, true);
