@@ -89,12 +89,6 @@ namespace Ship_Game.Ships
             if (!Active)
                 return;
 
-            if (RandomEventManager.ActiveEvent?.InhibitWarp == true)
-            {
-                Inhibited = true;
-                InhibitedTimer = 10f;
-            }
-
             if (ScuttleTimer > -1f || ScuttleTimer < -1f)
             {
                 ScuttleTimer -= timeStep.FixedTime;

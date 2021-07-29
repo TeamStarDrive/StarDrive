@@ -273,12 +273,12 @@ namespace Ship_Game.Ships
                 DrawIconWithTooltip(batch, iconGravwell, () => Localizer.Token(GameText.IndicatesThatThisShipCannot4), mousePos,
                     Color.White, numStatus);
             }
-            else if (RandomEventManager.ActiveEvent == null || !RandomEventManager.ActiveEvent.InhibitWarp) // event
+            else if (RandomEventManager.ActiveEvent?.InhibitWarp == true) // event
             {
                 DrawIconWithTooltip(batch, iconInhibited, () => Localizer.Token(GameText.IndicatesThatThisShipCannot), mousePos,
                     Color.White, numStatus);
             }
-            else // ship inhibitor
+            else if (Ship.InhibitedByEnemy)// ship inhibitor
             {
                 DrawIconWithTooltip(batch, iconFlux, () => Localizer.Token(GameText.IndicatesThatThisShipCannot3), mousePos,
                     Color.White, numStatus);
