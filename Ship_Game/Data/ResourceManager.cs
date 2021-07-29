@@ -14,6 +14,7 @@ using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.SpriteSystem;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.AI;
+using Ship_Game.Ships.Legacy;
 
 namespace Ship_Game
 {
@@ -1368,31 +1369,48 @@ namespace Ship_Game
             return hull;
         }
 
-        static void GenerateNewHullFilesFromLegacyHullData()
+        public static Map<string, LegacyShipData> LoadLegacyShipHulls()
         {
-            FileInfo[] hullFiles = GatherFilesUnified("Hulls", "xml");
-
-            void LoadHulls(int start, int end)
+            LegacyShipData LoadLegacyShipHull(FileInfo info)
             {
-                for (int i = start; i < end; ++i)
+                try
                 {
-                    FileInfo info = hullFiles[i];
-                    try
-                    {
-                        GameLoadingScreen.SetStatus("LoadShipHull", info.RelPath());
-                        ShipData sd = ShipData.Parse(info, isHullDefinition:true);
-
-                        var hullFile = new FileInfo(Path.ChangeExtension(info.FullName, "hull"));
-                        new ShipHull(sd).Save(hullFile);
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error(e, $"LoadHullData {info.Name} failed");
-                    }
+                    GameLoadingScreen.SetStatus("LoadLegacyShipHull", info.RelPath());
+                    return LegacyShipData.Parse(info, isHullDefinition:true);
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, $"LoadLegacyShipHull {info.Name} failed");
+                    return null;
                 }
             }
-            Parallel.For(hullFiles.Length, LoadHulls);
-            //LoadHulls(0, hullFiles.Length);
+            
+            FileInfo[] hullFiles = GatherFilesUnified("Hulls", "xml");
+            LegacyShipData[] hulls = Parallel.Select(hullFiles, LoadLegacyShipHull);
+
+            var map = new Map<string, LegacyShipData>();
+            foreach (var hull in hulls)
+                if (hull != null) map[hull.Name] = hull;
+            return map;
+        }
+
+        public static void ConvertLegacyHulls(Map<string, LegacyShipData> legacyHulls)
+        {
+            LegacyShipData[] hulls = legacyHulls.Values.ToArray();
+            void ConvertHull(LegacyShipData hull)
+            {
+                FileInfo source = hull.Source;
+                try
+                {
+                    GameLoadingScreen.SetStatus("ConvertLegacyHulls", source.RelPath());
+                    new ShipHull(hull).Save(Path.ChangeExtension(source.FullName, "hull"));
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, $"ConvertLegacyHulls {source.Name} failed");
+                }
+            }
+            Parallel.ForEach(hulls, ConvertHull);
         }
 
         public static void LoadHullData() // Refactored by RedFox
@@ -1402,41 +1420,28 @@ namespace Ship_Game
 
             if (ShipData.GenerateNewHullFiles)
             {
-                GenerateNewHullFilesFromLegacyHullData();
+                var legacyHulls = LoadLegacyShipHulls();
+                ConvertLegacyHulls(legacyHulls);
+            }
+
+            ShipHull LoadShipHull(FileInfo info)
+            {
+                try
+                {
+                    GameLoadingScreen.SetStatus("LoadShipHull", info.RelPath());
+                    return new ShipHull(info);
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, $"LoadShipHull {info.Name} failed");
+                    return null;
+                }
             }
 
             FileInfo[] hullFiles = GatherFilesUnified("Hulls", "hull");
-            var newHulls = new ShipHull[hullFiles.Length];
-
-            void LoadHulls(int start, int end)
-            {
-                for (int i = start; i < end; ++i)
-                {
-                    FileInfo info = hullFiles[i];
-                    try
-                    {
-                        GameLoadingScreen.SetStatus("LoadShipHull", info.RelPath());
-                        newHulls[i] = new ShipHull(info);
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error(e, $"LoadHullData {info.Name} failed");
-                    }
-                }
-            }
-            Parallel.For(hullFiles.Length, LoadHulls);
-            //LoadHulls(0, hullFiles.Length);
-
+            ShipHull[] newHulls = Parallel.Select(hullFiles, LoadShipHull);
             foreach (ShipHull hull in newHulls)
                 AddHull(hull);
-        }
-
-
-        struct ShipDesignInfo
-        {
-            public FileInfo File;
-            public bool IsPlayerDesign;
-            public bool IsReadonlyDesign;
         }
 
         public static Ship AddShipTemplate(ShipData shipData, bool fromSave, bool playerDesign = false, bool readOnly = false)
@@ -1453,49 +1458,6 @@ namespace Ship_Game
                 ShipsDict[shipTemplate.Name] = shipTemplate;
             }
             return shipTemplate;
-        }
-
-        static void LoadShipTemplates(ShipDesignInfo[] shipDescriptors)
-        {
-            Log.Info($"Loading {shipDescriptors.Length} Ship Templates");
-            void LoadShips(int start, int end)
-            {
-                for (int i = start; i < end; ++i)
-                {
-                    FileInfo info = shipDescriptors[i].File;
-                    if (info.DirectoryName?.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) != -1)
-                        continue;
-                    try
-                    {
-                        GameLoadingScreen.SetStatus("LoadShipTemplate", info.RelPath());
-                        ShipData shipData = ShipData.Parse(info, isHullDefinition:false);
-                        if (shipData == null || shipData.Role == ShipData.RoleName.disabled)
-                            continue;
-
-                        if (info.NameNoExt() != shipData.Name)
-                            Log.Warning($"File name '{info.NameNoExt()}' does not match ship name '{shipData.Name}'." +
-                                         "\n This can prevent loading of ships that have this filename in the XML :" +
-                                        $"\n path '{info.PathNoExt()}'");
-
-                        if (ShipData.GenerateNewDesignFiles && info.Extension == ".xml")
-                        {
-                            var designFile = new FileInfo(Path.ChangeExtension(info.FullName, "design"));
-                            shipData.Save(designFile);
-                        }
-
-                        AddShipTemplate(shipData, fromSave: false,
-                                              playerDesign: shipDescriptors[i].IsPlayerDesign,
-                                                  readOnly: shipDescriptors[i].IsReadonlyDesign);
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error(e, $"Load.Ship '{info.Name}' failed");
-                    }
-                }
-            }
-
-            Parallel.For(shipDescriptors.Length, LoadShips);
-            //LoadShips(0, shipDescriptors.Length); // test without parallel for
         }
 
         public static Ship GetShipTemplate(string shipName, bool throwIfError = true)
@@ -1526,6 +1488,72 @@ namespace Ship_Game
             return ShipsDict.Keys;
         }
 
+        struct ShipDesignInfo
+        {
+            public FileInfo File;
+            public bool IsPlayerDesign;
+            public bool IsReadonlyDesign;
+        }
+
+        static void LoadShipTemplates(ShipDesignInfo[] shipDescriptors)
+        {
+            Log.Info($"Loading {shipDescriptors.Length} Ship Templates");
+            void LoadShips(int start, int end)
+            {
+                for (int i = start; i < end; ++i)
+                {
+                    FileInfo info = shipDescriptors[i].File;
+                    if (info.DirectoryName?.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) != -1)
+                        continue;
+                    try
+                    {
+                        GameLoadingScreen.SetStatus("LoadShipTemplate", info.RelPath());
+                        ShipData shipData = ShipData.Parse(info, isHullDefinition:false);
+                        if (shipData == null || shipData.Role == ShipData.RoleName.disabled)
+                            continue;
+
+                        if (info.NameNoExt() != shipData.Name)
+                            Log.Warning($"File name '{info.NameNoExt()}' does not match ship name '{shipData.Name}'." +
+                                         "\n This can prevent loading of ships that have this filename in the XML :" +
+                                        $"\n path '{info.PathNoExt()}'");
+
+                        AddShipTemplate(shipData, fromSave: false,
+                                              playerDesign: shipDescriptors[i].IsPlayerDesign,
+                                                  readOnly: shipDescriptors[i].IsReadonlyDesign);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e, $"Load.Ship '{info.Name}' failed");
+                    }
+                }
+            }
+
+            Parallel.For(shipDescriptors.Length, LoadShips);
+            //LoadShips(0, shipDescriptors.Length); // test without parallel for
+        }
+
+        static void ConvertOldDesigns(ShipDesignInfo[] shipDescriptors)
+        {
+            void ConvertOldDesign(ShipDesignInfo designInfo)
+            {
+                FileInfo info = designInfo.File;
+                try
+                {
+                    GameLoadingScreen.SetStatus("ConvertOldDesign", info.RelPath());
+                    LegacyShipData shipData = LegacyShipData.Parse(info, isHullDefinition: false);
+                    if (shipData != null && shipData.Role != LegacyShipData.RoleName.disabled)
+                    {
+                        shipData.SaveDesign(new FileInfo(Path.ChangeExtension(info.FullName, "design")));
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, $"Load.Ship '{info.Name}' failed");
+                }
+            }
+            Parallel.ForEach(shipDescriptors, ConvertOldDesign);
+        }
+
         static void CombineOverwrite(Map<string, ShipDesignInfo> designs, FileInfo[] filesToAdd, bool readOnly, bool playerDesign)
         {
             foreach (FileInfo info in filesToAdd)
@@ -1552,13 +1580,24 @@ namespace Ship_Game
         {
             UnloadShipTemplates();
 
+            if (ShipData.GenerateNewDesignFiles)
+            {
+                var oldDesigns = GetAllShipDesigns("xml");
+                ConvertOldDesigns(oldDesigns.Values.ToArray());
+            }
+
+            var designs = GetAllShipDesigns("design");
+            LoadShipTemplates(designs.Values.ToArray());
+        }
+
+        static Map<string, ShipDesignInfo> GetAllShipDesigns(string ext)
+        {
             var designs = new Map<string, ShipDesignInfo>();
-            string ext = ShipData.UseNewShipDataLoaders ? "design" : "xml";
             CombineOverwrite(designs, GatherFilesModOrVanilla("StarterShips", ext), readOnly: true, playerDesign: false);
             CombineOverwrite(designs, GatherFilesUnified("SavedDesigns", ext), readOnly: true, playerDesign: false);
             CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", ext), readOnly: true, playerDesign: false);
             CombineOverwrite(designs, Dir.GetFiles(Dir.StarDriveAppData + "/Saved Designs", ext), readOnly: false, playerDesign: true);
-            LoadShipTemplates(designs.Values.ToArray());
+            return designs;
         }
 
         // @note This is used for Unit Tests and is not part of the core game

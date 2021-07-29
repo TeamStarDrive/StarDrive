@@ -289,6 +289,10 @@
     <Compile Include="Ship_Game\GameScreens\LoadGame\LoadGame.cs" />
     <Compile Include="Ship_Game\Ships\Components\LoyaltyChanges.cs" />
     <Compile Include="Ship_Game\Ships\IShipPool.cs" />
+    <Compile Include="Ship_Game\Ships\Legacy\LegacyModuleSlotData.cs" />
+    <Compile Include="Ship_Game\Ships\Legacy\LegacyShipData.cs" />
+    <Compile Include="Ship_Game\Ships\Legacy\LegacyShipData_LegacyParser.cs" />
+    <Compile Include="Ship_Game\Ships\Legacy\LegacyShipData_WriterParser.cs" />
     <Compile Include="Ship_Game\Ships\ShipDataWriter.cs" />
     <Compile Include="Ship_Game\Ships\ShipHull.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Events.cs" />
