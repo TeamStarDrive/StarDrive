@@ -396,12 +396,5 @@ namespace Ship_Game
             ManualColoExportSlots = value;
         }
 
-        public void SetAverageTradeTurns(float foodImport, float prodImport, float foodExport, float prodExport)
-        {
-            AverageFoodImportTurns = foodImport;
-            AverageProdImportTurns = prodImport;
-            AverageFoodExportTurns = foodExport;
-            AverageProdExportTurns = prodExport;
-        }
     }
 }
