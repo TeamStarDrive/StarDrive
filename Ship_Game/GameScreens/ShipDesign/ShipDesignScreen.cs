@@ -29,7 +29,6 @@ namespace Ship_Game
         public EmpireUIOverlay EmpireUI;
         SceneObject shipSO;
         Vector3 CameraPosition = new Vector3(0f, 0f, 1300f);
-        Vector2 Offset;
         readonly Array<ShipHull> AvailableHulls = new Array<ShipHull>();
         UIButton BtnSymmetricDesign; // Symmetric Module Placement Feature by Fat Bastard
         UIButton BtnFilterModules;   // Filter Absolute Modules

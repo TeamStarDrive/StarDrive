@@ -15,42 +15,24 @@ namespace Ship_Game
         readonly SlotStruct[] Slots;
         readonly int Width;
         readonly int Height;
-        readonly Point Offset;
 
         public Action OnGridChanged;
 
         // this constructs a [GridWidth][GridHeight] array of current hull
         // and allows for quick lookup for neighbours
-        public DesignModuleGrid(ShipData baseHull, Vector2 slotOffset)
+        public DesignModuleGrid(ShipData design)
         {
-            Hull = new ShipData(baseHull);
+            Hull = new ShipData(design);
 
-            // This must contain ALL empty slots
-            ModuleSlotData[] hullSlots = Hull.ModuleSlots;
+            ShipHull hull = Hull.BaseHull;
+            Width = hull.Size.X;
+            Height = hull.Size.Y;
 
-            var min = new Vector2(+4096, +4096);
-            var max = new Vector2(-4096, -4096);
-
-            for (int i = 0; i < hullSlots.Length; ++i)
-            {
-                ModuleSlotData slot = hullSlots[i];
-                Vector2 pos = slot.Position + slotOffset - new Vector2(8,8);
-                Vector2 end = pos + new Vector2(16f, 16f);
-                if (pos.X < min.X) min.X = pos.X;
-                if (pos.Y < min.Y) min.Y = pos.Y;
-                if (end.X > max.X) max.X = end.X;
-                if (end.Y > max.Y) max.Y = end.Y;
-            }
-            
-            Width  = (int)(max.X - min.X) / 16;
-            Height = (int)(max.Y - min.Y) / 16;
-            Offset = new Point((int)min.X, (int)min.Y);
             Grid = new SlotStruct[Width * Height];
-
-            Slots = new SlotStruct[hullSlots.Length];
-            for (int i = 0; i < hullSlots.Length; ++i)
+            Slots = new SlotStruct[hull.HullSlots.Length];
+            for (int i = 0; i < hull.HullSlots.Length; ++i)
             {
-                var slot = new SlotStruct(hullSlots[i], slotOffset);
+                var slot = new SlotStruct(hull.HullSlots[i]);
                 Slots[i] = slot;
                 Point pt = ToGridPos(slot.Position);
                 Grid[pt.X + pt.Y * Width] = slot;
