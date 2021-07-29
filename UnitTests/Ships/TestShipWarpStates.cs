@@ -60,8 +60,8 @@ namespace UnitTests.Ships
             Assert.IsFalse(ship.IsInWarp);
 
             ship.Update(new FixedSimTime(2f));
-            Assert.IsFalse(ship.IsSpooling);
-            Assert.IsFalse(ship.IsInWarp);
+            Assert.IsFalse(ship.IsInWarp, "Ship should not be in warp while Inhibited");
+            Assert.IsFalse(ship.IsSpooling, "Ship should not be spooling while Inhibited");
         }
 
         [TestMethod]
@@ -76,8 +76,24 @@ namespace UnitTests.Ships
             // inhibit while spooling
             ship.SetWarpInhibitedState(sourceEnemyShip:false, 4f);
             ship.Update(new FixedSimTime(2f));
-            Assert.IsFalse(ship.IsSpooling);
-            Assert.IsFalse(ship.IsInWarp);
+            Assert.IsFalse(ship.IsInWarp, "Ship should not be in warp while Inhibited");
+            Assert.IsFalse(ship.IsSpooling, "Ship should not be spooling while Inhibited");
+        }
+
+        [TestMethod]
+        public void InhibitedWhileAtWarpCancelsStarDrive()
+        {
+            var ship = CreateWarpTestShip();
+
+            ship.EngageStarDrive();
+            ship.Update(new FixedSimTime(4f));
+            Assert.IsTrue(ship.IsInWarp, "Ship should be in warp");
+
+            // inhibit while warping
+            ship.SetWarpInhibitedState(sourceEnemyShip:false, 4f);
+            ship.Update(TestSimStep);
+            Assert.IsFalse(ship.IsInWarp, "Ship should not be in warp while Inhibited");
+            Assert.IsFalse(ship.IsSpooling, "Ship should not be spooling while Inhibited");
         }
 
         [TestMethod]
@@ -86,7 +102,7 @@ namespace UnitTests.Ships
             TestShip ship = CreateWarpTestShip();
             ship.EngageStarDrive(); // start spooling
             ship.Update(new FixedSimTime(2f)); // not enough time to engage warp yet
-            Assert.IsTrue(ship.IsSpooling, "Ship should be spooling (and not in warp)");
+            Assert.IsTrue(ship.IsSpooling, "Ship should be spooling");
 
             ship.SetWarpInhibitedState(sourceEnemyShip:false, 4f);
             Assert.IsFalse(ship.InhibitedByEnemy, "SetWarpInhibited InhibitedByEnemy should be false");
