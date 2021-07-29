@@ -322,7 +322,7 @@ namespace Ship_Game
                 
                 if (m.PowerDraw > 0f
                     && m.ModuleType != ShipModuleType.PowerConduit
-                    && !DesignedShip.PwrGrid.IsPowered(ModuleGrid.ToGridPos(slot.Position)))
+                    && !DesignedShip.PwrGrid.IsPowered(slot.GridPos))
                 {
                     batch.Draw(ResourceManager.Texture("UI/lightningBolt"),
                         slot.Center, Color.White, 0f, new Vector2(8f, 8f), 1f, SpriteEffects.None, 1f);
