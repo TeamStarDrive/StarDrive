@@ -90,7 +90,7 @@ namespace UnitTests.Ships
                  inhibited += TestSimStep.FixedTime;
              });
             Assert.AreEqual(4, inhibited, 0.001d, "Inhibitor time was not equal to expect duration");
-            Assert.IsTrue(ship.WarpInhibitionCheckTimer == Ship.InhibitedAtSubLightCheckFrequency, "Inhibitor timer reset failure");
+            Assert.IsTrue(ship.WarpInhibitionCheckTimer == ship.Stats.FTLSpoolTime, "Inhibitor timer reset failure");
         }
 
         [TestMethod]
