@@ -74,7 +74,6 @@ namespace UnitTests.Ships
             base.OnShipReturned(ship);
         }
 
-        public void UpdateInhibitLogic(FixedSimTime timeStep) => UpdateHyperspaceInhibited(timeStep, engineState == MoveState.Warp || IsSpooling);
         public void SetWarpInhibitedState(bool sourceEnemyShip, float secondsToInhibit) => SetWarpInhibited(sourceEnemyShip, secondsToInhibit);
     }
 }
