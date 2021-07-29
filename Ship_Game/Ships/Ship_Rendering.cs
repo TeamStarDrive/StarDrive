@@ -321,14 +321,12 @@ namespace Ship_Game.Ships
         public void RenderOverlay(SpriteBatch batch, Rectangle drawRect, 
                                   bool showModules, bool moduleHealthColor = true)
         {
-            ShipData hullData = shipData.BaseHull;
-
             bool drawIconOnly = !showModules || ModuleSlotList.Length == 0;
-            if (drawIconOnly && hullData.SelectionGraphic.NotEmpty()) // draw ship icon plus shields
+            if (drawIconOnly && shipData.SelectionGraphic.NotEmpty()) // draw ship icon plus shields
             {
                 Rectangle destRect = drawRect;
                 destRect.X += 2;
-                string icon = "SelectionBox Ships/" + hullData.SelectionGraphic;
+                string icon = "SelectionBox Ships/" + shipData.SelectionGraphic;
                 batch.Draw(ResourceManager.Texture(icon), destRect, Color.White);
                 if (shield_power > 0.0)
                 {

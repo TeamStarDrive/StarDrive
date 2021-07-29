@@ -144,7 +144,7 @@ namespace Ship_Game.GameScreens.MainMenu
             var bounds = ShipObj.GetMeshBoundingBox();
             Radius = bounds.Radius();
             HalfLength = (bounds.Max.Y - bounds.Min.Y) * 0.5f;
-            HullSize = hull?.ModuleSlots.Length ?? (int)(Radius * 4);
+            HullSize = hull?.HullSlots.Length ?? (int)(Radius * 4);
 
             if (DebugMeshInspect)
             {

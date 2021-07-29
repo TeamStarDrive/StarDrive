@@ -724,31 +724,27 @@ namespace Ship_Game
             ShipSaved = true;
         }
 
-        ShipData CloneActiveHull(string newName, bool isShipDesign = true)
+        ShipData CloneActiveDesign(string newName)
         {
             ShipData hull = ActiveHull.GetClone();
             hull.Name = newName;
-            // save name of the mod, so we can ignore it in vanilla
-            if (isShipDesign)
-            {
-                hull.ModName = GlobalStats.ActiveModInfo?.ModName;
-            }
-
             hull.ModuleSlots = CreateModuleSlots();
-
-            if (!isShipDesign) // it's a new blank Hull
-            {
-                hull.Hull = newName;
-                foreach (ModuleSlotData moduleSlotData in hull.ModuleSlots)
-                    moduleSlotData.ModuleUID = null;
-            }
-
             return hull;
+        }
+
+        ShipHull CloneAsHull(string newName)
+        {
+            ShipData hull = ActiveHull.GetClone();
+            hull.Name = newName;
+            hull.Hull = newName;
+            foreach (ModuleSlotData moduleSlotData in hull.ModuleSlots)
+                moduleSlotData.ModuleUID = null;
+            return new ShipHull(hull);
         }
 
         public void SaveShipDesign(string name)
         {
-            ShipData toSave = CloneActiveHull(name);
+            ShipData toSave = CloneActiveDesign(name);
             SerializeShipDesign(toSave, $"{Dir.StarDriveAppData}/Saved Designs/{name}.xml");
 
             Ship newTemplate = ResourceManager.AddShipTemplate(toSave, fromSave: false, playerDesign: true);
@@ -760,7 +756,7 @@ namespace Ship_Game
 
         public void SaveHullDesign(string hullName)
         {
-            ShipHull toSave = new ShipHull(CloneActiveHull(hullName, isShipDesign: false));
+            ShipHull toSave = CloneAsHull(hullName);
             toSave.Save($"Content/Hulls/{ActiveHull.ShipStyle}/{hullName}.hull");
 
             ShipHull newHull = ResourceManager.AddHull(toSave);
@@ -769,7 +765,7 @@ namespace Ship_Game
 
         void SaveWIP()
         {
-            ShipData toSave = CloneActiveHull($"{DateTime.Now:yyyy-MM-dd}__{ActiveHull.Name}");
+            ShipData toSave = CloneActiveDesign($"{DateTime.Now:yyyy-MM-dd}__{ActiveHull.Name}");
             SerializeShipDesign(toSave, $"{Dir.StarDriveAppData}/WIP/{toSave.Name}.xml");
         }
 

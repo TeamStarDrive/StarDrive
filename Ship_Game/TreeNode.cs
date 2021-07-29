@@ -224,10 +224,10 @@ namespace Ship_Game
                     var moddedRect4 = new Rectangle((int)rectPos4.X, (int)rectPos4.Y, gi.rect.Width, gi.rect.Height);
                     if (moddedRect4.HitTest(input.CursorPosition))
                     {
-                        ShipData unlocked = gi.item.hull;
+                        ShipHull unlocked = gi.item.hull;
                         ToolTip.CreateTooltip(unlocked == null
                             ? $"{gi.item.Title}\n\n{gi.item.Description}"
-                            : $"{unlocked.Name} ({Localizer.GetRole(unlocked.Role, EmpireManager.Player)})");
+                            : $"{unlocked.HullName} ({Localizer.GetRole(unlocked.Role, EmpireManager.Player)})");
                     }
                 }
             }

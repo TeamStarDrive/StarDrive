@@ -1032,7 +1032,7 @@ namespace Ship_Game
 
             InitTechs();
 
-            foreach (var hull in ResourceManager.Hulls)       UnlockedHullsDict[hull.Hull]  = false;
+            foreach (var hull in ResourceManager.Hulls)       UnlockedHullsDict[hull.HullName]  = false;
             foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]         = false;
             foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key] = false;
             foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]   = false;
@@ -1185,7 +1185,7 @@ namespace Ship_Game
             if (string.IsNullOrEmpty(data.DefaultTroopShip))
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
 
-            foreach (var hull in ResourceManager.Hulls) UnlockedHullsDict[hull.Hull] = false;
+            foreach (var hull in ResourceManager.Hulls) UnlockedHullsDict[hull.HullName] = false;
             foreach (var tt in ResourceManager.TroopTypes) UnlockedTroopDict[tt] = false;
             foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key] = false;
             foreach (var kv in ResourceManager.ShipModules) UnlockedModulesDict[kv.Key] = false;

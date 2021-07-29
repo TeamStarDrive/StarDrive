@@ -1389,9 +1389,9 @@ namespace Ship_Game.Ships
             }
         }
 
-        public Point GetOrientedSize(ModuleSlotData slotData)
+        public Point GetOrientedSize(string slotOrientation)
         {
-            if (Enum.TryParse(slotData.Orientation, out ModuleOrientation orientation))
+            if (Enum.TryParse(slotOrientation, out ModuleOrientation orientation))
             {
                 switch (orientation)
                 {

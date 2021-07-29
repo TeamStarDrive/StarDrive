@@ -126,7 +126,7 @@ namespace Ship_Game.AI.Research
             foreach (Ship shortTermBest in ResourceManager.GetShipTemplates())
             {
                 // restrict to to ships available to this empire.
-                string shipStyle = shortTermBest.shipData.ShipStyle ?? shortTermBest.shipData.BaseHull?.ShipStyle;
+                string shipStyle = shortTermBest.shipData.ShipStyle ?? shortTermBest.shipData.BaseHull?.Style;
                 if (shipStyle.IsEmpty())
                 {
                     Log.Warning($"Ship {shortTermBest?.Name} Tech FilterRacialShip found a bad ship");
