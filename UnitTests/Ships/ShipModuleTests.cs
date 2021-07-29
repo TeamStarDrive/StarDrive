@@ -96,7 +96,7 @@ namespace UnitTests.Ships
                                               180f, ModuleOrientation.Rear.ToString(),
                                               slotOptions:"Vulcan Scout"/*this is the expected hangarShipUID*/);
 
-            var slot = new SlotStruct(original, new Vector2(0f, 0f));
+            var slot = new SlotStruct(original);
             slot.Module = ShipModule.CreateDesignModule(original.ModuleOrNull, 
                                                         slot.Orientation, slot.Facing, hull);
 

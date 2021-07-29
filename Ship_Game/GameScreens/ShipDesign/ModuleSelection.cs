@@ -279,7 +279,7 @@ namespace Ship_Game
             modTitlePos.Y += (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);
             float starty = modTitlePos.Y;
             modTitlePos.X = 10;
-            float strength = mod.CalculateModuleOffenseDefense(Screen.ActiveHull.ModuleSlots.Length);
+            float strength = mod.CalculateModuleOffenseDefense(Screen.DesignedShip.Modules.Length);
             DrawStat(ref modTitlePos, "Offense", strength, GameText.TT_ShipOffense);
 
             if (mod.BombType == null && !mod.isWeapon || mod.InstalledWeapon == null)

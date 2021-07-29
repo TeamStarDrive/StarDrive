@@ -10,10 +10,18 @@ namespace Ship_Game
 {
     public sealed class SlotStruct
     {
-        public Restrictions Restrictions;
-        public PrimitiveQuad PQ;
-        public Vector2 XMLPos;
+        // Integer position in the local grid, top-left is [0,0]
+        public Point GridPos;
+
+        // Center of the design grid
+        public Point GridCenter;
+
+        // Position of this slot in the world, where center of the Grid
+        // is at world [0,0]
+        public Vector2 WorldPos; 
+
         public float Facing; // Facing is the turret aiming dir
+        public Restrictions Restrictions;
         public ModuleOrientation Orientation; // Orientation controls the visual 4-dir rotation of module
         public SlotStruct Parent;
         public string ModuleUID;
@@ -25,17 +33,13 @@ namespace Ship_Game
         {
         }
 
-        public SlotStruct(ModuleSlotData slot, Vector2 offset)
+        public SlotStruct(HullSlot slot, ShipHull hull)
         {
-            Enum.TryParse(slot.Orientation, out ModuleOrientation slotState);
-            Vector2 pos = slot.Position;
-            XMLPos = pos;
-            PQ = new PrimitiveQuad(pos.X + offset.X - 8f, pos.Y + offset.Y - 8f, 16f, 16f);
-            Restrictions  = slot.Restrictions;
-            Facing        = slot.Facing;
-            ModuleUID     = slot.ModuleUID;
-            Orientation   = slotState;
-            SlotOptions   = slot.SlotOptions;
+            GridPos = slot.P;
+            Restrictions = slot.R;
+
+            GridCenter = new Point(hull.Size.X / 2, hull.Size.Y / 2);
+            WorldPos = new Vector2(slot.P.X - GridCenter.X, slot.P.Y - GridCenter.Y) * 16f;
         }
 
         public override string ToString()
@@ -48,12 +52,11 @@ namespace Ship_Game
             return $"{Position} R:{Restrictions} F:{Facing} O:{Orientation}   Parent={{{parent}}}";
         }
 
+        static bool MatchI(Restrictions b) => b == Restrictions.I || b == Restrictions.IO || b == Restrictions.IE;
+        static bool MatchO(Restrictions b) => b == Restrictions.O || b == Restrictions.IO || b == Restrictions.OE;
+        static bool MatchE(Restrictions b) => b == Restrictions.E || b == Restrictions.IE || b == Restrictions.OE;
 
-        private static bool MatchI(Restrictions b) => b == Restrictions.I || b == Restrictions.IO || b == Restrictions.IE;
-        private static bool MatchO(Restrictions b) => b == Restrictions.O || b == Restrictions.IO || b == Restrictions.OE;
-        private static bool MatchE(Restrictions b) => b == Restrictions.E || b == Restrictions.IE || b == Restrictions.OE;
-
-        private static bool IsPartialMatch(Restrictions a, Restrictions b)
+        static bool IsPartialMatch(Restrictions a, Restrictions b)
         {
             switch (a)
             {
@@ -84,21 +87,18 @@ namespace Ship_Game
             return false;
         }
 
-        public void Draw(SpriteBatch sb, SubTexture texture, Color tint)
+        public void Draw(SpriteBatch sb, GameScreen screen, SubTexture texture, Color tint)
         {
-            Rectangle rect = Module == null ? PQ.Rect : ModuleRect;
+            var size = new Vector2(16f);
+
+            if (Module != null)
+                size = new Vector2(Module.XSIZE * 16f, Module.YSIZE * 16f);
+
+            screen.ProjectToScreenCoords(WorldPos, size, 
+                                         out Vector2 posOnScreen, out Vector2 sizeOnScreen);
+            Rectangle rect = new RectF(posOnScreen, sizeOnScreen);
             sb.Draw(texture, rect, tint);
         }
-
-        [XmlIgnore][JsonIgnore] public Vector2 PosVec2 => new Vector2(PQ.X, PQ.Y);
-        [XmlIgnore][JsonIgnore] public Point Position => new Point(PQ.X, PQ.Y);
-
-        // Width and Height in 1x1, 2x2, etc
-        [XmlIgnore][JsonIgnore] public int Width  => PQ.W/16;
-        [XmlIgnore][JsonIgnore] public int Height => PQ.H/16;
-        [XmlIgnore][JsonIgnore] public Point IntPos  => new Point(PQ.X/16, PQ.Y/16);
-        [XmlIgnore][JsonIgnore] public Point IntSize => new Point(PQ.W/16, PQ.H/16);
-        [XmlIgnore][JsonIgnore] public Rectangle IntRect => new Rectangle(PQ.X/16, PQ.Y/16, PQ.W/16, PQ.H/16);
 
         [XmlIgnore][JsonIgnore] public Vector2 Center
         {

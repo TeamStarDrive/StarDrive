@@ -92,6 +92,21 @@ namespace Ship_Game.Ships
         {
         }
 
+        // Make a DEEP COPY from a `hull` template
+        // This is used in ShipDesignScreen's DesignModuleGrid
+        public ShipData(ShipData design)
+        {
+            Name = design.Name;
+            CombatState = design.CombatState;
+            MechanicalBoardingDefense = design.MechanicalBoardingDefense;
+
+            InitCommonState(design);
+            UpdateBaseHull();
+            GridInfo = design.GridInfo;
+
+            ModuleSlots = null; // these must be initialized by DesignModuleGrid.cs
+        }
+
         // Make ShipData from an actual ship
         // This is used during Saving for ShipSaveData
         public ShipData(Ship ship)
