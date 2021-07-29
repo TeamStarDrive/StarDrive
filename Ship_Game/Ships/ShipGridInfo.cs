@@ -106,7 +106,7 @@ namespace Ship_Game.Ships
                         if (m == null)
                             throw new Exception($"Module {designSlot.ModuleUID} does not exist! This design is invalid.");
 
-                        Point size = m.GetOrientedSize(designSlot);
+                        Point size = m.GetOrientedSize(designSlot.Orientation);
                         for (int x = 0; x < size.X; ++x)
                         for (int y = 0; y < size.Y; ++y)
                         {

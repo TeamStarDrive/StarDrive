@@ -92,46 +92,6 @@ namespace Ship_Game.Ships
         {
         }
 
-        // Make a DEEP COPY from a `hull` template
-        // This is used in ShipDesignScreen
-        // It inserts any missing BaseHull slots to make ShipDesigner code work
-        public ShipData(ShipData hull)
-        {
-            Name = hull.Name;
-            CombatState = hull.CombatState;
-            MechanicalBoardingDefense = hull.MechanicalBoardingDefense;
-
-            InitCommonState(hull);
-            UpdateBaseHull();
-
-            // create a map of unique slots
-            var slotsMap = new Map<Point, ModuleSlotData>();
-
-            // first fill in the slots from the design
-            // which may potentially have 2x2 or 3x3 modules
-            // and might skip over some basehull slots
-            for (int i = 0; i < hull.ModuleSlots.Length; ++i)
-            {
-                ModuleSlotData designSlot = hull.ModuleSlots[i].GetStatelessClone();
-                slotsMap[designSlot.PosAsPoint] = designSlot;
-            }
-
-            // now go through basehull and see if there's any
-            // 1x1 slots that weren't inserted
-            for (int i = 0; i < hull.BaseHull.ModuleSlots.Length; ++i)
-            {
-                ModuleSlotData base1x1slot = hull.BaseHull.ModuleSlots[i];
-                Point position = base1x1slot.PosAsPoint;
-                if (!slotsMap.ContainsKey(position))
-                    slotsMap[position] = base1x1slot.GetStatelessClone();
-            }
-
-            // take all unique slots and sort them according to ModuleSlotData.Sorter rules
-            ModuleSlots = slotsMap.Values.ToArray();
-            Array.Sort(ModuleSlots, ModuleSlotData.Sorter);
-            UpdateGridInfo();
-        }
-
         // Make ShipData from an actual ship
         // This is used during Saving for ShipSaveData
         public ShipData(Ship ship)
@@ -181,7 +141,7 @@ namespace Ship_Game.Ships
                 UpdateGridInfo();
 
             if (ShipStyle.IsEmpty())
-                ShipStyle = BaseHull.ShipStyle;
+                ShipStyle = BaseHull.Style;
 
             if (IconPath.IsEmpty())
                 IconPath = BaseHull.IconPath;
@@ -192,47 +152,29 @@ namespace Ship_Game.Ships
             GridInfo = new ShipGridInfo(ModuleSlots);
         }
 
-        void FinalizeAfterLoad(FileInfo info, bool isHullDefinition)
-        {
-            // This is a Hull definition from Content/Hulls/
-            if (isHullDefinition)
-            {
-                // make sure to calculate the surface area correctly
-                UpdateGridInfo();
-                ShipStyle = info.Directory?.Name ?? "";
-                Hull      = ShipStyle + "/" + Hull;
-
-                // Note: carrier role as written in the hull file was changed to battleship, since now carriers are a design role
-                // originally, carriers are battleships. The naming was poorly thought on 15b, or not fixed later.
-                Role = Role == RoleName.carrier ? RoleName.battleship : Role;
-
-                // Set the BaseHull here to avoid invalid hull lookup
-                BaseHull = this; // Hull definition references itself as the base
-            }
-
-            UpdateBaseHull();
-        }
-
         public void UpdateBaseHull()
         {
             if (BaseHull == null)
             {
-                if (Hull.NotEmpty() && ResourceManager.Hull(Hull, out ShipData hull))
+                if (Hull.NotEmpty() && ResourceManager.Hull(Hull, out ShipHull hull))
                 {
                     BaseHull = hull;
                 }
                 else
                 {
-                    Log.Warning(ConsoleColor.Red, $"ShipData {Hull} '{Name}' cannot find hull: {Hull}");
-                    BaseHull = this;
+                    Log.Warning(ConsoleColor.Red, $"ShipData '{Name}' cannot find hull: {Hull}");
                     if (Hull.IsEmpty())
                         Hull = ShipStyle + "/" + Name;
+                    if (ResourceManager.Hull(Hull, out hull))
+                        BaseHull = hull;
+                    else
+                        throw new Exception($"ShipData '{Name}' has no viable hull named '{Hull}'");
                 }
             }
 
             if (Bonuses == null)
             {
-                Bonuses = ResourceManager.HullBonuses.TryGetValue(BaseHull.Hull, out HullBonus bonus) ? bonus : HullBonus.Default;
+                Bonuses = ResourceManager.HullBonuses.TryGetValue(BaseHull.HullName, out HullBonus bonus) ? bonus : HullBonus.Default;
             }
 
             FixMissingFields();
@@ -244,9 +186,7 @@ namespace Ship_Game.Ships
         {
             try
             {
-                if (info.Extension == ".design")
-                    return ParseDesign(info);
-                return ParseXML(info, isHullDefinition);
+                return ParseDesign(info);
             }
             catch (Exception e)
             {
@@ -261,28 +201,6 @@ namespace Ship_Game.Ships
                 if (!slots[i].IsDummy)
                     return false;
             return true;
-        }
-
-        int GetSurfaceArea()
-        {
-            if (ModuleSlots.Length == BaseHull.ModuleSlots.Length)
-            {
-                if (IsAllDummySlots(ModuleSlots))
-                    return ModuleSlots.Length;
-            }
-
-            // New Designs, calculate SurfaceArea by using module size
-            int surface = 0;
-            for (int i = 0; i < ModuleSlots.Length; ++i)
-            {
-                ModuleSlotData slot = ModuleSlots[i];
-                ShipModule module = slot.ModuleOrNull;
-                if (module != null)
-                    surface += module.XSIZE * module.YSIZE;
-                else if (!slot.IsDummy)
-                    Log.Warning($"GetSurfaceArea({Name}) failed to find module: {slot.ModuleUID}");
-            }
-            return surface;
         }
 
         public ShipData GetClone()
@@ -308,16 +226,7 @@ namespace Ship_Game.Ships
 
         public void LoadModel(out SceneObject shipSO, GameContentManager content)
         {
-            lock (this)
-            {
-                shipSO = StaticMesh.GetSceneMesh(content, HullModel, Animated);
-
-                if (BaseHull.Volume.X.AlmostEqual(0f))
-                {
-                    BaseHull.Volume = shipSO.GetMeshBoundingBox().Max;
-                    BaseHull.ModelZ = BaseHull.Volume.Z;
-                }
-            }
+            BaseHull.LoadModel(out shipSO, content);
         }
         
         public struct ThrusterZone

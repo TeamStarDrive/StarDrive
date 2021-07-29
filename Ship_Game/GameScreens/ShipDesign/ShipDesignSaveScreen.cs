@@ -35,20 +35,21 @@ namespace Ship_Game
         {
             public Ship Ship;
             public readonly string ShipName;
-            readonly ShipData Hull;
+            readonly ShipData Design;
+            readonly ShipHull Hull;
             readonly bool CanBuild;
             readonly bool CanModifyDesign;
             public ShipDesignListItem(Ship template, bool canBuild)
             {
                 Ship = template;
                 ShipName = template.Name;
-                Hull = template.shipData;
+                Design = template.shipData;
                 CanBuild = canBuild;
                 CanModifyDesign = template.IsPlayerDesign;
             }
-            public ShipDesignListItem(ShipData hull)
+            public ShipDesignListItem(ShipHull hull)
             {
-                ShipName = hull.Name;
+                ShipName = hull.HullName;
                 Hull = hull;
                 CanBuild = true;
                 CanModifyDesign = true;
@@ -56,9 +57,12 @@ namespace Ship_Game
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 string reserved = CanModifyDesign ? "" : ("(Reserved Name)");
-                batch.Draw(Hull.Icon, new Rectangle((int)X, (int)Y, 48, 48));
+                string role = Design?.GetRole() ?? ShipData.GetRole(Hull.Role);
+                SubTexture icon = Design?.Icon ?? Hull?.Icon;
+
+                batch.Draw(icon, new Rectangle((int)X, (int)Y, 48, 48));
                 batch.DrawString(Fonts.Arial12Bold, ShipName, X+52, Y+4, CanBuild ? Color.White : Color.Gray);
-                batch.DrawString(Fonts.Arial8Bold, $"{Hull.GetRole()} {reserved}", X+54, Y+19, CanModifyDesign ? Color.Green : Color.IndianRed);
+                batch.DrawString(Fonts.Arial8Bold, $"{role} {reserved}", X+54, Y+19, CanModifyDesign ? Color.Green : Color.IndianRed);
                 base.Draw(batch, elapsed);
             }
         }
@@ -102,8 +106,8 @@ namespace Ship_Game
             string filter = shipNameMatch.ToLower();
             if (Hulls)
             {
-                ShipData[] hulls = ResourceManager.Hulls
-                    .Filter(h => h.Name.ToLower().Contains(filter));
+                ShipHull[] hulls = ResourceManager.Hulls
+                    .Filter(h => h.HullName.ToLower().Contains(filter));
 
                 ShipDesigns.SetItems(hulls.Select(h => new ShipDesignListItem(h)));
             }
@@ -146,7 +150,7 @@ namespace Ship_Game
             {
                 Screen?.SaveHullDesign(shipOrHullName);
 
-                if (!ResourceManager.Hull(shipOrHullName, out ShipData hull))
+                if (!ResourceManager.Hull(shipOrHullName, out ShipHull hull))
                 {
                     Log.Error($"Failed to get Hull Template after Save: {shipOrHullName}");
                     return;
@@ -203,9 +207,9 @@ namespace Ship_Game
 
             if (Hulls)
             {
-                foreach (ShipData hull in ResourceManager.Hulls)
+                foreach (ShipHull hull in ResourceManager.Hulls)
                 {
-                    if (shipOrHullName == hull.Name)
+                    if (shipOrHullName == hull.HullName)
                         exists = true;
                 }
             }

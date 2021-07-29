@@ -193,7 +193,7 @@ namespace Ship_Game.Gameplay
         public Point GetSize()
         {
             ShipModule m = ModuleOrNull;
-            return m?.GetOrientedSize(this) ?? new Point(1, 1);
+            return m?.GetOrientedSize(Orientation) ?? new Point(1, 1);
         }
 
         static string[] Orientations;

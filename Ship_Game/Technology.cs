@@ -386,7 +386,7 @@ namespace Ship_Game
         {
             foreach (UnlockedHull unlockedHull in HullsUnlocked)
             {
-                if (ResourceManager.Hull(unlockedHull.Name, out ShipData hull))
+                if (ResourceManager.Hull(unlockedHull.Name, out ShipHull hull))
                 {
                     if (hull.IsShipyard)
                         types.Add(TechnologyType.Industry);
