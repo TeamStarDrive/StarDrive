@@ -1124,6 +1124,7 @@ namespace Ship_Game.Ships
             InternalSlotsHealthPercent = (float)activeInternalSlots / InternalSlotCount;
         }
 
+        // TODO: This needs a performance refactor
         public void UpdateShipStatus(FixedSimTime timeStep)
         {
             if (!Empire.Universe.Paused && VelocityMaximum <= 0f
