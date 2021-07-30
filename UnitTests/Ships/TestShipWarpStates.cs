@@ -105,7 +105,7 @@ namespace UnitTests.Ships
             Assert.IsTrue(ship.IsSpooling, "Ship should be spooling");
 
             ship.SetWarpInhibited(source: Ship.InhibitionType.GravityWell, 4f);
-            Assert.AreNotEqual(ship.InhibitionSource, Ship.InhibitionType.EnemyShip, "SetWarpInhibited InhibitedByEnemy should be false");
+            Assert.AreNotEqual(Ship.InhibitionType.EnemyShip, ship.InhibitionSource, "SetWarpInhibited InhibitedByEnemy should be false");
 
             // Test timer for accuracy
             float timeInhibited = 0;
