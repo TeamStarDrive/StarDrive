@@ -577,7 +577,7 @@ namespace Ship_Game
         //Added by McShooterz: heal builds and troops every turn
         public void HealTroops(int healAmount)
         {
-            if (MightBeAWarZone(Owner))
+            if (RecentCombat)
                 return;
 
             using (TroopList.AcquireReadLock())
