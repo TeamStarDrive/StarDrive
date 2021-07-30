@@ -54,7 +54,7 @@ namespace UnitTests.Ships
         {
             var ship = CreateWarpTestShip();
 
-            ship.SetWarpInhibitedState(sourceEnemyShip:false, 3f);
+            ship.SetWarpInhibited(source: Ship.InhibitionType.GravityWell, 3f);
             ship.EngageStarDrive();
             Assert.IsFalse(ship.IsSpooling);
             Assert.IsFalse(ship.IsInWarp);
@@ -74,7 +74,7 @@ namespace UnitTests.Ships
             Assert.IsTrue(ship.IsSpooling, "Ship should be spooling (and not in warp)");
 
             // inhibit while spooling
-            ship.SetWarpInhibitedState(sourceEnemyShip:false, 4f);
+            ship.SetWarpInhibited(source: Ship.InhibitionType.GravityWell, 4f);
             ship.Update(new FixedSimTime(2f));
             Assert.IsFalse(ship.IsInWarp, "Ship should not be in warp while Inhibited");
             Assert.IsFalse(ship.IsSpooling, "Ship should not be spooling while Inhibited");
@@ -90,7 +90,7 @@ namespace UnitTests.Ships
             Assert.IsTrue(ship.IsInWarp, "Ship should be in warp");
 
             // inhibit while warping
-            ship.SetWarpInhibitedState(sourceEnemyShip:false, 4f);
+            ship.SetWarpInhibited(source: Ship.InhibitionType.GravityWell, 4f);
             ship.Update(TestSimStep);
             Assert.IsFalse(ship.IsInWarp, "Ship should not be in warp while Inhibited");
             Assert.IsFalse(ship.IsSpooling, "Ship should not be spooling while Inhibited");
@@ -104,8 +104,8 @@ namespace UnitTests.Ships
             ship.Update(new FixedSimTime(2f)); // not enough time to engage warp yet
             Assert.IsTrue(ship.IsSpooling, "Ship should be spooling");
 
-            ship.SetWarpInhibitedState(sourceEnemyShip:false, 4f);
-            Assert.IsFalse(ship.InhibitedByEnemy, "SetWarpInhibited InhibitedByEnemy should be false");
+            ship.SetWarpInhibited(source: Ship.InhibitionType.GravityWell, 4f);
+            Assert.AreEqual(Ship.InhibitionType.GravityWell, ship.InhibitionSource, "Inhibited Source should be gravitywell");
 
             // Test timer for accuracy
             float timeInhibited = 0;
@@ -119,6 +119,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(4f, timeInhibited, 0.001f, "Ship was not Inhibited for expected duration");
             Assert.AreEqual(ship.Stats.FTLSpoolTime, ship.InhibitedCheckTimer, 0.001f,
                             "InhibitedCheckTimer must be FTLSpoolTime when in STL");
+            Assert.AreEqual(Ship.InhibitionType.None, ship.InhibitionSource, "Source should be none");
         }
 
         [TestMethod]
@@ -128,11 +129,12 @@ namespace UnitTests.Ships
             ship.EngageStarDrive();
             ship.Update(new FixedSimTime(2f));
 
-            ship.SetWarpInhibitedState(sourceEnemyShip:true, 4f);
-            Assert.IsTrue(ship.InhibitedByEnemy, "SetWarpInhibited InhibitedByEnemy should be true");
+            ship.SetWarpInhibited(source: Ship.InhibitionType.EnemyShip, 4f);
+            Assert.AreEqual(Ship.InhibitionType.EnemyShip, ship.InhibitionSource, "Source should be EnemyShip");
 
             LoopWhile((5, true), () => ship.Inhibited, () => ship.Update(TestSimStep));
-            Assert.IsFalse(ship.InhibitedByEnemy, "Inhibit failed to clear InhibitedByEnemy flag");
+            Assert.AreNotEqual(Ship.InhibitionType.EnemyShip, ship.InhibitionSource, "Inhibit failed to clear InhibitedByEnemy flag");
+            Assert.AreEqual(Ship.InhibitionType.None, ship.InhibitionSource, "Source should be none");
         }
 
         [TestMethod]
