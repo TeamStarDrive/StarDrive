@@ -3297,7 +3297,7 @@ namespace Ship_Game
             data.Traits.ResearchMod          += art.GetResearchMod(data);
             data.SensorModifier              += art.GetSensorMod(data);
             data.ShieldPenBonusChance        += art.GetShieldPenMod(data);
-            EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
+            EmpireHullBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
         }
 
         public void RemoveArtifact(Artifact art)
@@ -3314,7 +3314,7 @@ namespace Ship_Game
             data.Traits.ResearchMod          -= art.GetResearchMod(data);
             data.SensorModifier              -= art.GetSensorMod(data);
             data.ShieldPenBonusChance        -= art.GetShieldPenMod(data);
-            EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
+            EmpireHullBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
         }
 
         void IEmpireShipLists.RemoveShipAtEndOfTurn(Ship s) => EmpireShips?.Remove(s);
