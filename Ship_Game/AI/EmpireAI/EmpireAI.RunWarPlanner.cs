@@ -9,7 +9,6 @@ namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
-        public float MinWarPriority { get; private set; }
         public static void ShowWarDeclaredNotification(Empire us, Empire them)
         {
             if (us.isPlayer || them.isPlayer ||
@@ -24,7 +23,7 @@ namespace Ship_Game.AI
             if (!ally.isPlayer)
             {
                 if (ally.ProcessAllyCallToWar(OwnerEmpire, enemy, out _))
-                    ally.GetEmpireAI().DeclareWarOnViaCall(enemy, WarType.ImperialistWar);
+                    ally.GetEmpireAI().DeclareWarOnViaCall(enemy, WarType.ImperialistWar, OwnerEmpire);
 
                 return;
             }
@@ -43,7 +42,7 @@ namespace Ship_Game.AI
                 {
                     if (x)
                     {
-                        ally.GetEmpireAI().DeclareWarOnViaCall(enemy, WarType.ImperialistWar);
+                        ally.GetEmpireAI().DeclareWarOnViaCall(enemy, WarType.ImperialistWar, OwnerEmpire);
                         return;
                     }
 
@@ -188,7 +187,7 @@ namespace Ship_Game.AI
             }
         }
 
-        public void DeclareWarOnViaCall(Empire them, WarType wt)
+        public void DeclareWarOnViaCall(Empire them, WarType wt, Empire requestingEmpire)
         {
             Empire us = OwnerEmpire;
             Relationship usToThem = us.GetRelations(them);
@@ -207,6 +206,7 @@ namespace Ship_Game.AI
             if (them.isPlayer && !usToThem.AtWar)
             {
                 AIDeclaresWarOnPlayer(them, wt, usToThem);
+                Empire.Universe.NotificationManager.AddDeclareWarViaAllyCall(OwnerEmpire, requestingEmpire);
             }
 
             ShowWarDeclaredNotification(OwnerEmpire, them);

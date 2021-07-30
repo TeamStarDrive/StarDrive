@@ -10251,7 +10251,7 @@ OpenBordersTreaty2:
  ENG: "Open Borders"
 EmpireRelationships:
  Id: 4349
- ENG: "Empire Relationships"
+ ENG: "Empire Relationships Cross Reference"
 ViewWarsOrAlliancesName:
  Id: 4350
  ENG: "View Wars or Alliances"
@@ -10264,6 +10264,9 @@ ViewTradeTreatiesName:
 ViewTradeTreatiesTip:
  Id: 4353
  ENG: "Enable or disable trade treaties view"
+DeclaredWarOnUsBecause:
+ Id: 4354
+ ENG: "declared war on us because they were requsted\nto do so by their ally -"
 OnSurface:
  Id: 4993
  ENG: "on surface"

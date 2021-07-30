@@ -4340,7 +4340,7 @@ namespace Ship_Game
         NonaggressionPact3 = 4347,
         /// <summary>Open Borders</summary>
         OpenBordersTreaty2 = 4348,
-        /// <summary>Empire Relationships</summary>
+        /// <summary>Empire Relationships Cross Reference</summary>
         EmpireRelationships = 4349,
         /// <summary>View Wars or Alliances</summary>
         ViewWarsOrAlliancesName = 4350,
@@ -4350,6 +4350,8 @@ namespace Ship_Game
         ViewTradeTreatiesName = 4352,
         /// <summary>Enable or disable trade treaties view</summary>
         ViewTradeTreatiesTip = 4353,
+        /// <summary>declared war on us because they were requsted to do</summary>
+        DeclaredWarOnUsBecause = 4354,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>
