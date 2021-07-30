@@ -660,17 +660,21 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
             
             if (rectangle.HitTest(mousePos))
-                ToolTip.CreateTooltip(tooltip);                
+                ToolTip.CreateTooltip(tooltip);
         }
 
         public void DrawStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text)
         {
+            DrawStringProjected(posInWorld, rotation, textScale, textColor, text, Fonts.Arial11Bold);
+        }
+
+        public void DrawStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text, Font font)
+        {
             Vector2 screenPos = Empire.Universe.ProjectToScreenPosition(posInWorld);
-            Vector2 size = Fonts.Arial11Bold.MeasureString(text);
+            Vector2 size = font.MeasureString(text);
             if (Primitives2D.IsIntersectingScreenPosSize(screenPos, size))
             {
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text,
-                    screenPos, textColor, rotation, size * 0.5f, textScale);
+                ScreenManager.SpriteBatch.DrawString(font, text, screenPos, textColor, rotation, size * 0.5f, textScale);
             }
         }
 

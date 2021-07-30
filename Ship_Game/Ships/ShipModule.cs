@@ -1403,6 +1403,9 @@ namespace Ship_Game.Ships
             return new Point(XSIZE, YSIZE);
         }
 
+        // Size of this module in World Coordinates
+        public Vector2 WorldSize => new Vector2(XSIZE * 16, YSIZE * 16);
+
         // Gets the size of this Module, correctly oriented
         // Required by ModuleGrid
         public Point GetSize()
