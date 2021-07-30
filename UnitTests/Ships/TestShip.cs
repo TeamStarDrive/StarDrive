@@ -73,7 +73,5 @@ namespace UnitTests.Ships
             ++NumShipsReturned;
             base.OnShipReturned(ship);
         }
-
-        public void SetWarpInhibitedState(bool sourceEnemyShip, float secondsToInhibit) => SetWarpInhibited(sourceEnemyShip, secondsToInhibit);
     }
 }
