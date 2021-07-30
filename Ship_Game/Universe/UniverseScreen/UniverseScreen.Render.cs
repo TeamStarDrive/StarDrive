@@ -517,7 +517,7 @@ namespace Ship_Game
         public void DrawShipAOAndTradeRoutes()
         {
             if (DefiningAO && Input.LeftMouseDown)
-                DrawRectangleProjected(AORect, Color.Orange);
+                DrawRectangleProjected(new RectF(AORect), Color.Orange);
 
             if ((DefiningAO || DefiningTradeRoutes) && SelectedShip != null)
             {
@@ -534,7 +534,7 @@ namespace Ship_Game
                     DrawZones(Fonts.Pirulen16, $"Current list of planets in trade route: {numRoutes}", ref cursorY, Color.White);
 
                 foreach (Rectangle ao in SelectedShip.AreaOfOperation)
-                    DrawRectangleProjected(ao, Color.Red, new Color(Color.Red, 50));
+                    DrawRectangleProjected(new RectF(ao), Color.Red, new Color(Color.Red, 50));
 
                 // Draw Specific Trade Routes to planets
                 if (SelectedShip.IsFreighter)
