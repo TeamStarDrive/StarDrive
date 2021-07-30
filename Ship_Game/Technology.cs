@@ -133,24 +133,18 @@ namespace Ship_Game
             if (!GlobalStats.ModChangeResearchCost)
                 return Cost;
 
-            int idealNumPlayers     = (int)(CurrentGame.GalaxySize) + 3;
-            float galSizeModifier   = ((int)CurrentGame.GalaxySize / 2f).LowerBound(0.25f);
-            float starsModifier     = CurrentGame.StarsModifier;
-            float extraPlanetsMod   = 1 + CurrentGame.ExtraPlanets * 0.25f;
-            float playerRatio       = (float)idealNumPlayers / CurrentGame.NumMajorEmpires;
-            float settingsRatio     = galSizeModifier * extraPlanetsMod * playerRatio * starsModifier;
+            float settingResearchMultiplier = CurrentGame.SettingsResearchModifier;
+            if (CurrentGame.SettingsResearchModifier < 1f)
+                return (Cost * settingResearchMultiplier.LowerBound(0.5f)).RoundTo10();
 
-            if (settingsRatio.Less(1))
-                return (Cost * settingsRatio.LowerBound(0.5f)).RoundTo10();
-
-            float costRatio         = GetCostRatio();
-            float multiplierToUse   = 1 + settingsRatio * costRatio;
+            float costRatio        = GetCostRatio();
+            float multiplierToUse  = 1 + settingResearchMultiplier * costRatio;
 
             return (Cost * multiplierToUse.Clamped(1, 25)).RoundDownTo10();
 
             float GetCostRatio()
             {
-                if (settingsRatio.LessOrEqual(1))
+                if (settingResearchMultiplier <= 1f)
                     return 0;
 
                 int costThreshold = GlobalStats.ActiveModInfo.CostBasedOnSizeThreshold;
