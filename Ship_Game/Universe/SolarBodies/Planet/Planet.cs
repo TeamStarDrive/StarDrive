@@ -1426,7 +1426,7 @@ namespace Ship_Game
 
         private void GrowPopulation()
         {
-            if (Owner == null || MightBeAWarZone(Owner))
+            if (Owner == null || RecentCombat)
                 return;
 
             if (PopulationRatio.Greater(1)) // Over population - the planet cannot support this amount of population
@@ -1531,7 +1531,7 @@ namespace Ship_Game
 
         private void RepairBuildings(int repairAmount)
         {
-            if (MightBeAWarZone(Owner))
+            if (RecentCombat)
                 return;
 
             for (int i = 0; i < BuildingList.Count; ++i)

@@ -24,6 +24,7 @@ namespace Ship_Game
         public readonly float GoToWarTolerance; // How stronger then them should we be in order to go to war when preparing
         public readonly float DoomFleetThreshold; // If over this threshold, the AI will send a fleet to glass the target planet
         public readonly float WarTasksLifeTime; // How many turns to keep trying fleet requisition before timeout, 1f is 10 turns
+        public readonly int WarSneakiness; // modifier to prepare for war detection by the player (player will need better spy network to detect war plot)
 
         public PersonalityModifiers(PersonalityType type)
         {
@@ -50,6 +51,7 @@ namespace Ship_Game
                     GoToWarTolerance      = 1.5f;
                     WarTasksLifeTime      = 1;
                     TrustCostNaPact       = 0;
+                    WarSneakiness         = 0;
                     break;
                 case PersonalityType.Aggressive:
                     ColonizationClaimRatioWarningThreshold = 0.7f;
@@ -72,6 +74,7 @@ namespace Ship_Game
                     TechValueModifier     = 1.05f;
                     WarTasksLifeTime      = 3;
                     GoToWarTolerance      = 1.1f;
+                    WarSneakiness         = 5;
                     break;
                 case PersonalityType.Ruthless:
                     ColonizationClaimRatioWarningThreshold = 0.6f;
@@ -94,6 +97,7 @@ namespace Ship_Game
                     TechValueModifier     = 1.1f;
                     WarTasksLifeTime      = 2.5f;
                     GoToWarTolerance      = 1.15f;
+                    WarSneakiness         = 0;
                     break;
                 case PersonalityType.Xenophobic:
                     ColonizationClaimRatioWarningThreshold = 0;
@@ -116,6 +120,7 @@ namespace Ship_Game
                     TechValueModifier     = 1.2f;
                     WarTasksLifeTime      = 2.5f;
                     GoToWarTolerance      = 1.5f;
+                    WarSneakiness         = 0;
                     break;
                 case PersonalityType.Cunning:
                     ColonizationClaimRatioWarningThreshold = 1;
@@ -138,6 +143,7 @@ namespace Ship_Game
                     TechValueModifier     = 1.1f;
                     WarTasksLifeTime      = 2;
                     GoToWarTolerance      = 1.5f;
+                    WarSneakiness         = 10;
                     break;
                 case PersonalityType.Honorable:
                     ColonizationClaimRatioWarningThreshold = 1;
@@ -160,6 +166,7 @@ namespace Ship_Game
                     TechValueModifier     = 1;
                     WarTasksLifeTime      = 3;
                     GoToWarTolerance      = 1.1f;
+                    WarSneakiness         = -10;
                     break;
                 case PersonalityType.Pacifist:
                     ColonizationClaimRatioWarningThreshold = 1.25f;
@@ -182,6 +189,7 @@ namespace Ship_Game
                     TechValueModifier     = 1;
                     WarTasksLifeTime      = 1.5f;
                     GoToWarTolerance      = 2f;
+                    WarSneakiness         = -5;
                     break;
             }
         }
