@@ -730,14 +730,13 @@ namespace Ship_Game
             }, "sd_troop_march_01", "sd_notify_alert");
         }
 
-        public void AddWarStartedNotification(Empire first, Empire second)
+        public void AddDeclareWarViaAllyCall(Empire enemy, Empire requestingEmpire)
         {
             AddNotification(new Notification
             {
-                Message  = $"{first.data.Traits.Name} {Localizer.Token(GameText.And3)} {second.data.Traits.Name}\n{Localizer.Token(GameText.AreNowAtWar)}",
-                IconPath = "UI/icon_warning_money",
-                Pause    = first.isPlayer || second.isPlayer
-            }, "sd_ui_notification_startgame");
+                RelevantEmpire = enemy,
+                Message        = $"{enemy.Name} {Localizer.Token(GameText.DeclaredWarOnUsBecause)} {requestingEmpire.Name}",
+            }, "sd_ui_notification_encounter");
         }
 
         public void AddEmptyQueueNotification(Planet planet)
