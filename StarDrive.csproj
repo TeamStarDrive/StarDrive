@@ -217,6 +217,7 @@
     <Compile Include="Ship_Game\Debug\Page\ParticleDebug.cs" />
     <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\RelationshipsDiagramScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\EnvPreferencesPanel.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreen_MirrorSlot.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\IParticleSystem.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\ParticleManager.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\ParticleSettings.cs" />
