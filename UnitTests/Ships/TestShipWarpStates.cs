@@ -119,6 +119,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(4f, timeInhibited, 0.001f, "Ship was not Inhibited for expected duration");
             Assert.AreEqual(ship.Stats.FTLSpoolTime, ship.InhibitedCheckTimer, 0.001f,
                             "InhibitedCheckTimer must be FTLSpoolTime when in STL");
+            Assert.AreEqual(Ship.InhibitionType.None, ship.InhibitionSource, "Source should be none");
         }
 
         [TestMethod]
@@ -133,6 +134,7 @@ namespace UnitTests.Ships
 
             LoopWhile((5, true), () => ship.Inhibited, () => ship.Update(TestSimStep));
             Assert.AreNotEqual(Ship.InhibitionType.EnemyShip, ship.InhibitionSource, "Inhibit failed to clear InhibitedByEnemy flag");
+            Assert.AreEqual(Ship.InhibitionType.None, ship.InhibitionSource, "Source should be none");
         }
 
         [TestMethod]
