@@ -45,7 +45,7 @@ namespace Ship_Game.Ships
         bool OnFire; // is this module on fire?
         const float OnFireThreshold = 0.15f;
         ShipModuleDamageVisualization DamageVisualizer;
-        public EmpireShipBonuses Bonuses = EmpireShipBonuses.Default;
+        public EmpireHullBonuses Bonuses = EmpireHullBonuses.Default;
         Ship Parent;
         public string WeaponType;
         public ushort NameIndex;
@@ -351,13 +351,13 @@ namespace Ship_Game.Ships
 
         // Called by Create() and ShipDesignScreen.CreateDesignModule
         // LOYALTY can be null
-        public static ShipModule CreateNoParent(ShipModule template, Empire loyalty, ShipData hull)
+        public static ShipModule CreateNoParent(ShipModule template, Empire loyalty, ShipHull hull)
         {
             var module = new ShipModule
             {
                 Flyweight         = template.Flyweight,
                 // @note loyalty can be null, in which case it uses hull bonus only
-                Bonuses           = EmpireShipBonuses.Get(loyalty, hull),
+                Bonuses           = EmpireHullBonuses.Get(loyalty, hull),
                 DescriptionIndex  = template.DescriptionIndex,
                 FieldOfFire       = template.FieldOfFire,
                 hangarShipUID     = template.hangarShipUID,
@@ -407,7 +407,7 @@ namespace Ship_Game.Ships
         public static ShipModule Create(ModuleSlotData slot, Ship parent, bool isTemplate, bool fromSave)
         {
             ShipModule template = ResourceManager.GetModuleTemplate(slot.ModuleUID);
-            ShipModule module = CreateNoParent(template, parent.loyalty, parent.shipData);
+            ShipModule module = CreateNoParent(template, parent.loyalty, parent.BaseHull);
             module.Parent = parent;
             module.SetModuleFacing(module.XSIZE, module.YSIZE, slot.GetOrientation(), slot.Facing);
             module.Initialize(slot.Position, isTemplate);
@@ -423,7 +423,7 @@ namespace Ship_Game.Ships
         }
 
         public static ShipModule CreateDesignModule(ShipModule template, ModuleOrientation orientation, 
-                                                    float facing, ShipData hull)
+                                                    float facing, ShipHull hull)
         {
             ShipModule m = CreateNoParent(template, EmpireManager.Player, hull);
             m.SetModuleFacing(m.XSIZE, m.YSIZE, orientation, facing);

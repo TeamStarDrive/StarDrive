@@ -358,7 +358,7 @@ namespace Ship_Game
             }
 
             Owner.data.BaseShipLevel = level / 4;
-            EmpireShipBonuses.RefreshBonuses(Owner);
+            EmpireHullBonuses.RefreshBonuses(Owner);
         }
 
         bool BuildBaseInDeepSpace(int level)

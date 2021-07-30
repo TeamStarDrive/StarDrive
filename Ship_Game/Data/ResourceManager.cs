@@ -218,7 +218,7 @@ namespace Ship_Game
             BeginPerfProfile();
             Profiled("LoadLanguage", () => LoadLanguage(GlobalStats.Language)); // must be before LoadFonts
             Profiled(LoadHullBonuses);
-            Profiled(LoadHullData); // we need Hull Data for main menu ship
+            Profiled(LoadHulls); // we need Hull Data for main menu ship
             Profiled(LoadEmpires); // Hotspot #2 187.4ms  8.48%
 
             Profiled(LoadTroops);
@@ -374,7 +374,7 @@ namespace Ship_Game
             RacialTraits = null;
             DiplomacyTraits = null;
             AgentMissionData = new AgentMissionData();
-            EmpireShipBonuses.Clear();
+            EmpireHullBonuses.Clear();
             EmpireManager.Clear(disposeVoidEmpire: true);
 
             UnloadGraphicsResources(manager);
@@ -1413,7 +1413,7 @@ namespace Ship_Game
             Parallel.ForEach(hulls, ConvertHull);
         }
 
-        public static void LoadHullData() // Refactored by RedFox
+        public static void LoadHulls() // Refactored by RedFox
         {
             HullsDict.Clear();
             HullsList.Clear();

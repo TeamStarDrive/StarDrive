@@ -146,7 +146,8 @@ namespace UnitTests
 
         /// <summary>
         /// Should be run after empires are created.
-        /// populates all shipdata techs.
+        /// * fucks up ship templates and hulls by corrupting the data
+        /// populates all shipdata techs
         /// unlocks all non shiptech. Locks all shiptechs.
         /// Sets all ships to belong to Enemy Empire
         /// Clears Ships WeCanBuild
@@ -157,8 +158,9 @@ namespace UnitTests
             foreach (var ship in ResourceManager.GetShipTemplates())
             {
                 ship.shipData.ShipStyle = Enemy.data.PortraitName;
-                ship.BaseHull.ShipStyle = Enemy.data.PortraitName;
+                ship.BaseHull.Style = Enemy.data.PortraitName;
             }
+
             Player.ShipsWeCanBuild.Clear();
             Enemy.ShipsWeCanBuild.Clear();
             var techs = Enemy.TechEntries;

@@ -44,6 +44,7 @@ namespace Ship_Game.Ships
         [XmlIgnore][JsonIgnore] public SubTexture Icon => ResourceManager.Texture(IconPath);
         [XmlIgnore][JsonIgnore] public Vector3 Volume { get; private set; }
         [XmlIgnore][JsonIgnore] public float ModelZ { get; private set; }
+        [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }
 
         public HullSlot FindSlot(Point p)
         {
@@ -110,6 +111,8 @@ namespace Ship_Game.Ships
             }
 
             Array.Sort(HullSlots, HullSlot.Sorter);
+
+            InitializeCommon();
         }
 
         // For Shipyard: convert ShipData into a ShipHull
@@ -148,6 +151,8 @@ namespace Ship_Game.Ships
             }
 
             Array.Sort(HullSlots, HullSlot.Sorter);
+
+            InitializeCommon();
         }
 
         public ShipHull(FileInfo file)
@@ -223,6 +228,13 @@ namespace Ship_Game.Ships
 
             HullSlots = slots.ToArray();
             Area = HullSlots.Length;
+
+            InitializeCommon();
+        }
+
+        void InitializeCommon()
+        {
+            Bonuses = ResourceManager.HullBonuses.TryGetValue(HullName, out HullBonus bonus) ? bonus : HullBonus.Default;
         }
 
         public void Save(string filePath)
