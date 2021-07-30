@@ -21,20 +21,22 @@ namespace Ship_Game
 
     public sealed partial class ShipDesignScreen : GameScreen
     {
-        public Camera2D Camera;
         //public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
         public DesignStanceButtons OrdersButton;
         public DesignShip DesignedShip { get; private set; }
         public ShipData ActiveHull;
         public EmpireUIOverlay EmpireUI;
         SceneObject shipSO;
+
         Vector3 CameraPosition = new Vector3(0f, 0f, 1300f);
+        float DesiredCamHeight = 1300f;
+        Vector2 StartDragPos;
+
         readonly Array<ShipHull> AvailableHulls = new Array<ShipHull>();
         UIButton BtnSymmetricDesign; // Symmetric Module Placement Feature by Fat Bastard
         UIButton BtnFilterModules;   // Filter Absolute Modules
         UIButton BtnStripShip;       // Removes all modules but armor, shields and command modules
         GenericButton ArcsButton;
-        float OriginalZ;
         Rectangle SearchBar;
         Rectangle BottomSep;
         Rectangle BlackBar;
@@ -48,10 +50,8 @@ namespace Ship_Game
 
         public ShipModule HighlightedModule;
         SlotStruct ProjectedSlot;
-        Vector2 CameraVelocity;
-        Vector2 StartDragPos;
         string ScreenToLaunch;
-        float TransitionZoom = 1f;
+
         SlotModOperation Operation;
         public ShipModule ActiveModule;
         ModuleOrientation ActiveModState;
@@ -106,44 +106,54 @@ namespace Ship_Game
                                          orientation, ShipModule.DefaultFacingFor(orientation));
         }
 
-        ModuleSlotData FindModuleSlotAtPos(Vector2 slotPos)
+        ModuleSlotData FindModuleSlotAtPos(Vector2 modulePos)
         {
             ModuleSlotData[] slots = ActiveHull.ModuleSlots;
             for (int i = 0; i < slots.Length; ++i)
-                if (slots[i].Position == slotPos)
+                if (slots[i].Position == modulePos)
                     return slots[i];
             return null;
         }
 
-        Vector2 WorldToDesignCoords(Vector2 worldCoord)
+        // Convert from WORLD coordinates to Design Grid Pos
+        Point WorldToGridPos(Vector2 worldPos)
         {
-            return new Vector2((int)((worldCoord.X - Offset.X) / 16f) * 16f + Offset.X,
-                               (int)((worldCoord.Y - Offset.Y) / 16f) * 16f + Offset.Y);
+            var rounded = new Point((int)Math.Round(worldPos.X / 16f),
+                                    (int)Math.Round(worldPos.Y / 16f));
+            Point gridCenter = ModuleGrid.SlotsList[0].GridCenter;
+            return new Point(rounded.X - gridCenter.X, rounded.Y - gridCenter.Y);
         }
 
         void AddHullSlot(InputState input)
         {
-            Vector2 cursor = Camera.GetWorldSpaceFromScreenSpace(input.CursorPosition);
+            Point gridPos = ModuleGrid.WorldToGridPos(input.CursorPosition);
 
             // make sure there's no accidental overlap!
-            if (ModuleGrid.Get(new Point((int)cursor.X, (int)cursor.Y), out SlotStruct _))
+            if (ModuleGrid.Get(gridPos, out SlotStruct _))
             {
                 GameAudio.NegativeClick();
                 return;
             }
-            
-            Vector2 position = WorldToDesignCoords(cursor) - Offset + new Vector2(8f, 8f);
-            var slots = new Array<ModuleSlotData>(ActiveHull.ModuleSlots);
-            slots.Add(new ModuleSlotData(position, Restrictions.IO));
-            ActiveHull.ModuleSlots = slots.ToArray();
-            Array.Sort(ActiveHull.ModuleSlots, ModuleSlotData.Sorter);
 
-            ChangeHull(ActiveHull); // rebuild the hull
+            GameAudio.NegativeClick();
+
+            // TODO: Implement this again
+            
+            //var slots = new Array<ModuleSlotData>(ActiveHull.ModuleSlots);
+            //slots.Add(new ModuleSlotData(position, Restrictions.IO));
+            //ActiveHull.ModuleSlots = slots.ToArray();
+            //Array.Sort(ActiveHull.ModuleSlots, ModuleSlotData.Sorter);
+
+            //ChangeHull(ActiveHull); // rebuild the hull
         }
 
-        void EditHullSlot(Vector2 slotPos, SlotModOperation op)
+        void EditHullSlot(SlotStruct slot, SlotModOperation op)
         {
-            ModuleSlotData target = FindModuleSlotAtPos(slotPos);
+            // TODO: Implement this again
+
+            Point gridPos = slot.GridPos;
+            Vector2 modulePos = Vector2.Zero;
+            ModuleSlotData target = FindModuleSlotAtPos(modulePos);
             if (target == null)
                 return;
 
@@ -341,12 +351,12 @@ namespace Ship_Game
         
         public void ChangeHull(ShipData hull)
         {
-            ChangeHull(new DesignModuleGrid(hull, Offset));
+            ChangeHull(new DesignModuleGrid(hull));
         }
 
         public void ChangeHull(ShipHull hull)
         {
-            ChangeHull(new DesignModuleGrid(hull, Offset));
+            ChangeHull(new DesignModuleGrid(hull));
         }
 
         void ChangeHull(DesignModuleGrid grid)
@@ -389,9 +399,9 @@ namespace Ship_Game
                 if (uid == null || uid == "Dummy") // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
                     continue;
 
-                if (!ModuleGrid.Get(designSlot.Position, out SlotStruct targetSlot))
+                if (!ModuleGrid.Get(designSlot.GridPos, out SlotStruct targetSlot))
                 {
-                    Log.Warning($"DesignModuleGrid failed to find Slot at {designSlot.Position}");
+                    Log.Warning($"DesignModuleGrid failed to find Slot at {designSlot.GridPos}");
                     continue;
                 }
 
@@ -442,22 +452,8 @@ namespace Ship_Game
 
         public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            float zoom = MathHelper.SmoothStep(Camera.Zoom, TransitionZoom, 0.2f);
-
-            // this crappy fix is to try and prevent huge jumps in z axis when camera zoom becomes very small. 
-            // at about 0.1 the zoom zaxis change jumps uncontrollably. 
-            if (zoom < 0.1f)
-            {
-                TransitionZoom = Math.Max(zoom-0.01f, TransitionZoom);
-            }
-            
-            Camera.Zoom = zoom;
-            if (Camera.Zoom < 0.03f) Camera.Zoom = 0.03f;
-            if (Camera.Zoom > 2.65f) Camera.Zoom = 2.65f;
-
-            CameraPosition.Z = (OriginalZ / Camera.Zoom);
+            CameraPosition.Z = MathHelper.SmoothStep(CameraPosition.Z, DesiredCamHeight, 0.2f);
             UpdateViewMatrix(CameraPosition);
-
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
@@ -480,7 +476,8 @@ namespace Ship_Game
             Log.Info("ShipDesignScreen.LoadContent");
             UpdateAvailableHulls();
             CreateGUI();
-            InitializeHullAndCamera();
+            InitializeCamera();
+            ChangeHull(AvailableHulls[0]);
             BindListsToActiveHull();
 
             AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
@@ -621,64 +618,11 @@ namespace Ship_Game
             }
         }
 
-        void InitializeHullAndCamera()
+        void InitializeCamera()
         {
-            Offset = new Vector2(Viewport.Width / 2 - 256, Viewport.Height / 2 - 256);
-            Camera = new Camera2D { Pos = new Vector2(Viewport.Width / 2f, Viewport.Height / 2f) };
-            Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-            View = Matrix.CreateRotationY(180f.ToRadians())
-                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
-
             float aspectRatio = (float)Viewport.Width / Viewport.Height;
             Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 120000f);
-            
-            ChangeHull(AvailableHulls[0]);
-
-            float minX = 0f, maxX = 0f;
-            for (int i = 0; i < ActiveHull.ModuleSlots.Length; ++i)
-            {
-                ModuleSlotData slot = ActiveHull.ModuleSlots[i];
-                Vector2 topLeft = slot.Position;
-                var botRight = new Vector2(topLeft.X + slot.Position.X * 16.0f,
-                                           topLeft.Y + slot.Position.Y * 16.0f);
-
-                if (topLeft.X < minX) minX = topLeft.X;
-                if (botRight.X > maxX) maxX = botRight.X;
-            }
-
-            float hullWidth = maxX - minX;
-
-            // So, this attempts to zoom so the entire design is visible
-            float UpdateCameraMatrix()
-            {
-                camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-
-                View = Matrix.CreateRotationY(180f.ToRadians())
-                     * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
-
-                Vector3 center   = Viewport.Project(Vector3.Zero, Projection, View, Matrix.Identity);
-                Vector3 hullEdge = Viewport.Project(new Vector3(hullWidth, 0, 0), Projection, View, Matrix.Identity);
-                return center.Distance(hullEdge) + 10f;
-            }
-
-            float visibleHullWidth = UpdateCameraMatrix();
-            if (visibleHullWidth >= hullWidth)
-            {
-                while (visibleHullWidth > hullWidth)
-                {
-                    CameraPosition.Z += 10f;
-                    visibleHullWidth = UpdateCameraMatrix();
-                }
-            }
-            else
-            {
-                while (visibleHullWidth < hullWidth)
-                {
-                    CameraPosition.Z -= 10f;
-                    visibleHullWidth = UpdateCameraMatrix();
-                }
-            }
-            OriginalZ = CameraPosition.Z;
+            UpdateViewMatrix(CameraPosition);
         }
 
         void InitializeShipHullsList()

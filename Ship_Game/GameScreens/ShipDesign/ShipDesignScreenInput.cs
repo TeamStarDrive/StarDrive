@@ -212,8 +212,8 @@ namespace Ship_Game
 
         public bool GetSlotUnderCursor(InputState input, out SlotStruct slot)
         {
-            Vector2 cursor = Camera.GetWorldSpaceFromScreenSpace(input.CursorPosition);
-            return ModuleGrid.Get(new Point((int)cursor.X, (int)cursor.Y), out slot);
+            Point gridPos = ModuleGrid.WorldToGridPos(CursorWorldPosition.ToVec2());
+            return ModuleGrid.Get(gridPos, out slot);
         }
 
         ModuleOrientation GetMirroredOrientation(ModuleOrientation orientation)
@@ -251,21 +251,12 @@ namespace Ship_Game
 
         bool GetMirrorSlot(SlotStruct slot, int xSize, ModuleOrientation orientation, out MirrorSlot mirrored)
         {
-            int resolutionOffset = (int)slot.XMLPos.X - 256;
-            int center = slot.PQ.X - resolutionOffset;
-            int mirrorOffset = (xSize - 1) * 16;
-            int mirrorX;
-            int x = slot.PQ.X;
-            int y = slot.PQ.Y;
-            if (x > center)
-                mirrorX = center - 8 - mirrorOffset - (x - (center + 8));
-            else
-                mirrorX = center + 8 - mirrorOffset + (center - 8 - x);
+            int offset = slot.GridPos.X - slot.GridCenter.X;
+            var mirrorPos = new Point(slot.GridCenter.X + (-offset - 1), slot.GridPos.Y);
 
-            if (ModuleGrid.Get(new Point(mirrorX, y), out SlotStruct mirrorSS) &&
-                Math.Abs(x - mirrorX) > mirrorOffset && // !overlapping
-                slot.PQ.X != mirrorSS.PQ.X && // !overlapping
-                slot.Root != mirrorSS.Root) // !overlapping @todo some of these checks may be redundant
+            if (ModuleGrid.Get(mirrorPos, out SlotStruct mirrorSS) &&
+                Math.Abs(slot.GridPos.X - mirrorPos.X) > (xSize - 1) && // !overlapping
+                slot.Root != mirrorSS.Root) // !overlapping
             {
                 mirrored = new MirrorSlot{ Slot = mirrorSS, Orientation = GetMirroredOrientation(orientation) };
                 return true;
@@ -317,34 +308,24 @@ namespace Ship_Game
             if (input.MiddleMouseClick)
             {
                 StartDragPos = input.CursorPosition;
-                CameraVelocity.X = 0.0f;
             }
 
-            int slotFactor = 150;
-            if (ModuleGrid.SlotsCount / 2 > slotFactor)
-                slotFactor = ModuleGrid.SlotsCount / 2;
-            
-            float camLimit = slotFactor + ((3 - Camera.Zoom) * slotFactor);
-            Vector2 tempPos = Camera.WASDCamMovement(input, this, camLimit); //This moves the grid
-            CameraPosition.X = tempPos.X; //This moves the model
-            CameraPosition.Y = tempPos.Y;
             if (input.MiddleMouseHeld())
             {
-                float num1 = input.CursorPosition.X - StartDragPos.X;
-                float num2 = input.CursorPosition.Y - StartDragPos.Y;
-                Camera.Pos += new Vector2(-num1, -num2);
+                float dx = input.CursorPosition.X - StartDragPos.X;
+                float dy = input.CursorPosition.Y - StartDragPos.Y;
                 StartDragPos = input.CursorPosition;
-                CameraPosition.X += -num1;
-                CameraPosition.Y += -num2;
+                CameraPosition.X += -dx;
+                CameraPosition.Y += -dy;
             }
             else
             {
-                CameraVelocity.X = 0.0f;
-                CameraVelocity.Y = 0.0f;
+                float limit = 2000f;
+                if (input.WASDLeft  && CameraPosition.X > -limit) CameraPosition.X -= GlobalStats.CameraPanSpeed;
+                if (input.WASDRight && CameraPosition.X < +limit) CameraPosition.X += GlobalStats.CameraPanSpeed;
+                if (input.WASDUp   && CameraPosition.Y > -limit) CameraPosition.Y -= GlobalStats.CameraPanSpeed;
+                if (input.WASDDown && CameraPosition.Y < +limit) CameraPosition.Y += GlobalStats.CameraPanSpeed;
             }
-
-            CameraVelocity.X = CameraVelocity.X.Clamped(-10f, 10f);
-            CameraVelocity.Y = CameraVelocity.Y.Clamped(-10f, 10f);
         }
 
         bool HandleModuleSelection(InputState input)
@@ -367,7 +348,7 @@ namespace Ship_Game
 
                     if (GetSlotUnderCursor(input, out slotStruct))
                     {
-                        EditHullSlot(slotStruct.XMLPos, Operation);
+                        EditHullSlot(slotStruct, Operation);
                         return true;
                     }
                 }
@@ -434,8 +415,8 @@ namespace Ship_Game
 
                 if (input.ShipYardArcMove())
                 {
-                    Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(slotStruct.Center);
-                    float arc = spaceFromWorldSpace.AngleToTarget(input.CursorPosition);
+                    Vector2 worldCursor = CursorWorldPosition.ToVec2();
+                    float arc = Center.AngleToTarget(worldCursor);
 
                     if (Input.IsShiftKeyDown)
                     {
@@ -550,9 +531,9 @@ namespace Ship_Game
 
         void HandleInputZoom(InputState input)
         {
-            if (input.ScrollOut) TransitionZoom -= 0.1f;
-            if (input.ScrollIn)  TransitionZoom += 0.1f;
-            TransitionZoom = TransitionZoom.Clamped(0.03f, 2.65f);
+            if (input.ScrollOut) DesiredCamHeight *= 1.05f;
+            if (input.ScrollIn)  DesiredCamHeight *= 0.95f;
+            DesiredCamHeight = DesiredCamHeight.Clamped(10f, 2000f);
         }
 
         bool HandleInputUndoRedo(InputState input)
@@ -680,13 +661,12 @@ namespace Ship_Game
             float visibleSize = GetHullScreenSize(CameraPosition, hullHeight);
             float ratio = visibleSize / hullHeight;
             CameraPosition.Z = (CameraPosition.Z * ratio).RoundUpTo(1);
-            OriginalZ = CameraPosition.Z;
 
             // and now we zoom in the camera so the ship is all visible
             float desiredVisibleHeight = ScreenHeight * 0.75f;
             float currentVisibleHeight = GetHullScreenSize(CameraPosition, hullHeight);
-            float newZoom = desiredVisibleHeight / currentVisibleHeight;
-            TransitionZoom = newZoom.Clamped(0.03f, 2.65f);
+            float newZoom = currentVisibleHeight / desiredVisibleHeight;
+            DesiredCamHeight = CameraPosition.Z * newZoom.Clamped(0.03f, 2.65f);
         }
 
         void ReallyExit()

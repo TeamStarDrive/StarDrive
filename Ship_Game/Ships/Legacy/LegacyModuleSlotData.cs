@@ -95,23 +95,6 @@ namespace Ship_Game.Ships.Legacy
             }
         }
 
-        // Save SlotStruct as ModuleSlotData in ShipDesignScreen
-        public LegacyModuleSlotData(SlotStruct slot)
-        {
-            Position     = slot.XMLPos;
-            Restrictions = slot.Restrictions;
-            ModuleUID    = slot.ModuleUID != null ? string.Intern(slot.ModuleUID) : null;
-            Orientation  = GetOrientationString(slot.Orientation);
-            if (slot.Module != null)
-            {
-                Facing = slot.Module.FacingDegrees;
-                if (slot.Module.ModuleType == ShipModuleType.Hangar)
-                {
-                    SlotOptions = string.Intern(slot.Module.hangarShipUID);
-                }
-            }
-        }
-
         public override string ToString() => $"{ModuleUID} {Position} {Facing} {Orientation} {SlotOptions} {Restrictions} T={ModuleOrNull}";
 
         [XmlIgnore] [JsonIgnore]

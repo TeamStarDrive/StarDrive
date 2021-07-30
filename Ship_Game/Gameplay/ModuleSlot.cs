@@ -157,7 +157,7 @@ namespace Ship_Game.Gameplay
         // Save SlotStruct as ModuleSlotData in ShipDesignScreen
         public ModuleSlotData(SlotStruct slot)
         {
-            Position     = slot.XMLPos;
+            Position     = slot.WorldPos + new Vector2(ShipModule.ModuleSlotOffset);
             Restrictions = slot.Restrictions;
             ModuleUID    = slot.ModuleUID != null ? string.Intern(slot.ModuleUID) : null;
             Orientation  = GetOrientationString(slot.Orientation);
