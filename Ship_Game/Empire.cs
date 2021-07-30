@@ -2204,15 +2204,15 @@ namespace Ship_Game
             return (int)defense;
         }
 
-        public bool DetectPrepareForWarVsPlayer(Empire enemy)
+        public bool DetectPrepareForWarVsPlayer(Empire ai)
         {
-            if (!enemy.isPlayer)
+            if (!isPlayer) // Only for the Player
                 return false;
 
-            int ourSpyDefense   = GetSpyDefense() + (IsCunning ? 10 : 0);
-            int theirSpyDefense = enemy.GetSpyDefense() + (enemy.IsCunning ? 10 : 0);
-            int totalRoll       = theirSpyDefense + ourSpyDefense;
-            return RandomMath.RollDie(totalRoll) <= theirSpyDefense;
+            int playerSpyDefense = GetSpyDefense();
+            int aiSpyDefense     = ai.GetSpyDefense() + ai.DifficultyModifiers.WarSneakiness + ai.PersonalityModifiers.WarSneakiness;
+            int rollModifier     = playerSpyDefense - aiSpyDefense; // higher modifier will make the roll smaller, which is better
+            return RandomMath.RollDie(100 - rollModifier) <= playerSpyDefense;
         }
 
         /// <summary>
@@ -2520,13 +2520,10 @@ namespace Ship_Game
             }
         }
 
-        public void CreateAssaultBombersGoal(Empire enemy, Planet planet)
+        public void TryCreateAssaultBombersGoal(Empire enemy, Planet planet)
         {
-            if (enemy == this || !enemy.isPlayer || isPlayer
-                || EmpireAI.Goals.Any(g => g.type == GoalType.AssaultBombers && g.PlanetBuildingAt == planet))
-            {
+            if (enemy == this  || EmpireAI.Goals.Any(g => g.type == GoalType.AssaultBombers && g.PlanetBuildingAt == planet))
                 return;
-            }
 
             var goal = new AssaultBombers(planet, this, enemy);
             EmpireAI.Goals.Add(goal);

@@ -5,6 +5,10 @@ namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
+        float ArtifactValue => OwnerEmpire.Research.MaxResearchPotential.LowerBound(30)
+                               * (1 + OwnerEmpire.data.Traits.Spiritual)
+                               * CurrentGame.SettingsResearchModifier.LowerBound(1);
+
         void AcceptNAPact(Empire us, Empire them,  Offer.Attitude attitude)
         {
             us.SignTreatyWith(them, TreatyType.NonAggression);
@@ -237,7 +241,7 @@ namespace Ship_Game.AI
         string ProcessPeace(Offer theirOffer, Offer ourOffer, Empire them,
                            Offer.Attitude attitude)
         {
-            PeaceAnswer answer = AnalyzePeaceOffer(theirOffer, ourOffer, them, attitude);
+            PeaceAnswer answer = AnalyzePeaceOffer(theirOffer, ourOffer, them);
             Relationship rel   = OwnerEmpire.GetRelations(them);
             bool neededPeace   = them.isPlayer  // player asked peace since they is in a real bad state
                                  && rel.ActiveWar.GetWarScoreState() == WarState.Dominating
@@ -330,8 +334,8 @@ namespace Ship_Game.AI
             if (ourOffer.TradeTreaty)   valueToThem += them.EstimateNetIncomeAtTaxRate(0.5f) < 5 ? 15f : 12f;
             if (theirOffer.TradeTreaty) valueToUs   += OwnerEmpire.EstimateNetIncomeAtTaxRate(0.5f) < 5 ? 15f : 12f;
 
-            valueToThem += ourOffer.ArtifactsOffered.Count * 15f;
-            valueToUs   += theirOffer.ArtifactsOffered.Count * 15f;
+            valueToThem += ourOffer.ArtifactsOffered.Count * ArtifactValue;
+            valueToUs   += theirOffer.ArtifactsOffered.Count * ArtifactValue;
 
             if (us.GetPlanets().Count - ourOffer.ColoniesOffered.Count + theirOffer.ColoniesOffered.Count < 1)
             {
@@ -520,13 +524,13 @@ namespace Ship_Game.AI
             return "";
         }
 
-        PeaceAnswer AnalyzePeaceOffer(Offer theirOffer, Offer ourOffer, Empire them, Offer.Attitude attitude)
+        PeaceAnswer AnalyzePeaceOffer(Offer theirOffer, Offer ourOffer, Empire them)
         {
             WarState state;
             Empire us             = OwnerEmpire;
             Relationship usToThem = us.GetRelations(them);
-            float valueToUs       = 10 + theirOffer.ArtifactsOffered.Count * 15f; // default value is 10
-            float valueToThem     = 10 + ourOffer.ArtifactsOffered.Count * 15f; // default value is 10
+            float valueToUs       = 10 + theirOffer.ArtifactsOffered.Count * ArtifactValue; // default value is 10
+            float valueToThem     = 10 + ourOffer.ArtifactsOffered.Count * ArtifactValue; // default value is 10
 
             if (usToThem.ActiveWar != null)
             {

@@ -31,6 +31,7 @@
         public readonly int PlayerWarPriorityLimit; // Priority of wars vs player (war priority is 0 to 10 where 0 means more priority)
         public readonly int NumWarTasksPerWar;
         public readonly int WarTaskPriorityMod; // higher priority vs player if at war with them
+        public readonly int WarSneakiness; // modifier to prepare for war detection by the player (player will need better spy network to detect war plot)
 
         // A mod can set the general str of remnant designs. Default is 2 an this is a multiplier for starting fleet multiplier
         public readonly float RemnantStrModifier; 
@@ -94,6 +95,7 @@
                     NumWarTasksPerWar    = 1;
                     WarTaskPriorityMod   = 0;
                     RemnantStrModifier   = remnantGeneralStr;
+                    WarSneakiness        = -10;
                     if (!empire.isPlayer)
                     {
                         ProductionMod = -0.1f;
@@ -130,7 +132,8 @@
                     NumSystemsToSniff    = 2;
                     NumWarTasksPerWar    = 2;
                     WarTaskPriorityMod   = 1;
-                    RemnantStrModifier   = remnantGeneralStr + 0.5f; 
+                    RemnantStrModifier   = remnantGeneralStr + 0.5f;
+                    WarSneakiness        = 0;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 5;
@@ -164,7 +167,8 @@
                     NumSystemsToSniff    = 3;
                     NumWarTasksPerWar    = 3;
                     WarTaskPriorityMod   = 1;
-                    RemnantStrModifier = remnantGeneralStr + 1;
+                    RemnantStrModifier   = remnantGeneralStr + 1;
+                    WarSneakiness        = 10;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 10;
@@ -204,6 +208,7 @@
                     NumWarTasksPerWar    = 4;
                     WarTaskPriorityMod   = 2;
                     RemnantStrModifier   = remnantGeneralStr + 1.5f;
+                    WarSneakiness        = 25;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 20;
