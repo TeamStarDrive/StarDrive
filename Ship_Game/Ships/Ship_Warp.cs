@@ -27,8 +27,8 @@ namespace Ship_Game.Ships
         // Setting a default value here to reduce impact of ship respawn loops.
         public float InhibitedCheckTimer = 0.1f;
 
+        public InhibitionType InhibitionSource { get; protected set; }
         public bool Inhibited { get; protected set; }
-        public bool InhibitedByEnemy { get; protected set; }
         public MoveState engineState;
 
          // [0.0 to 1.0], current Warp thrust percentage
@@ -124,23 +124,23 @@ namespace Ship_Game.Ships
             {
                 if (RandomEventManager.ActiveEvent?.InhibitWarp == true)
                 {
-                    SetWarpInhibited(sourceEnemyShip: false, secondsToInhibit: 5f);
+                    SetWarpInhibited(source: InhibitionType.GlobalEvent, secondsToInhibit: 5f);
                     return true;
                 }
                 if (System != null && IsInhibitedByUnfriendlyGravityWell)
                 {
-                    SetWarpInhibited(sourceEnemyShip: false, secondsToInhibit: 1f);
+                    SetWarpInhibited(source: InhibitionType.GravityWell, secondsToInhibit: 1f);
                     return true;
                 }
                 if (IsInhibitedFromEnemyShips())
                 {
-                    SetWarpInhibited(sourceEnemyShip: true, secondsToInhibit: 5f);
+                    SetWarpInhibited(source: InhibitionType.EnemyShip, secondsToInhibit: 5f);
                     return true;
                 }
 
                 // nothing is inhibiting so reset timer and states
                 Inhibited = false;
-                InhibitedByEnemy = false;
+                InhibitionSource = InhibitionType.None;
 
                 // set the next inhibition check time
                 // when we are warp, timer=0 because we need to check every frame
@@ -150,11 +150,19 @@ namespace Ship_Game.Ships
             return Inhibited;
         }
 
+        public enum InhibitionType
+        {
+            None,
+            GlobalEvent,
+            GravityWell,
+            EnemyShip
+        }
+
         /// Sets the ship as inhibited
-        protected void SetWarpInhibited(bool sourceEnemyShip, float secondsToInhibit)
+        public void SetWarpInhibited(InhibitionType source, float secondsToInhibit)
         {
             Inhibited = true;
-            InhibitedByEnemy = sourceEnemyShip;
+            InhibitionSource = source;
             InhibitedCheckTimer = secondsToInhibit;
         }
 
