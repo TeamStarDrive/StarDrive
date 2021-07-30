@@ -32,10 +32,9 @@ namespace Ship_Game
             Slots = new SlotStruct[hull.HullSlots.Length];
             for (int i = 0; i < hull.HullSlots.Length; ++i)
             {
-                var slot = new SlotStruct(hull.HullSlots[i]);
+                var slot = new SlotStruct(hull.HullSlots[i], hull);
                 Slots[i] = slot;
-                Point pt = ToGridPos(slot.Position);
-                Grid[pt.X + pt.Y * Width] = slot;
+                Grid[slot.GridPos.X + slot.GridPos.Y * Width] = slot;
             }
 
         #if DEBUG
@@ -44,7 +43,7 @@ namespace Ship_Game
         #endif
         }
 
-        public DesignModuleGrid(ShipHull hull, Vector2 slotOffset)
+        public DesignModuleGrid(ShipHull hull)
         {
             throw new NotImplementedException();
         }
@@ -71,23 +70,27 @@ namespace Ship_Game
         }
 
         #region Grid Coordinate Utils
-
-        public Point ToGridPos(Point modulePos) => new Point((modulePos.X - Offset.X) / 16,
-                                                             (modulePos.Y - Offset.Y) / 16);
-
-        // Gets slotstruct or null at the given location
-        // @note modulePos is in 16x coordinates
-        public SlotStruct Get(Point modulePos)
+        
+        // Convert from WORLD coordinates to GridPos
+        public Point WorldToGridPos(Vector2 worldPos)
         {
-            Point pos = ToGridPos(modulePos);
-            if (pos.X < 0 || pos.Y < 0 || pos.X >= Width || pos.Y >= Height)
-                return null; // out of bounds
-            return Grid[pos.X + pos.Y * Width];
+            var rounded = new Point((int)Math.Round(worldPos.X / 16f),
+                                    (int)Math.Round(worldPos.Y / 16f));
+            Point gridCenter = Slots[0].GridCenter;
+            return new Point(rounded.X - gridCenter.X, rounded.Y - gridCenter.Y);
         }
 
-        public bool Get(Point modulePos, out SlotStruct slot)
+        // Gets SlotStruct or null at the given Grid Pos
+        public SlotStruct Get(Point gridPos)
         {
-            return (slot = Get(modulePos)) != null;
+            if (gridPos.X < 0 || gridPos.Y < 0 || gridPos.X >= Width || gridPos.Y >= Height)
+                return null; // out of bounds
+            return Grid[gridPos.X + gridPos.Y * Width];
+        }
+
+        public bool Get(Point gridPos, out SlotStruct slot)
+        {
+            return (slot = Get(gridPos)) != null;
         }
 
         public bool IsEmptyDesign()
@@ -127,7 +130,7 @@ namespace Ship_Game
             => IsInBounds(r.X0, r.Y0) && IsInBounds(r.X1, r.Y1);
 
         ModuleRect GetModuleSpan(SlotStruct slot, int width, int height)
-            => new ModuleRect(ToGridPos(slot.Position), width, height);
+            => new ModuleRect(slot.GridPos, width, height);
 
         #endregion
 

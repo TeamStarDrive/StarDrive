@@ -18,7 +18,7 @@ namespace Ship_Game
 
         // Position of this slot in the world, where center of the Grid
         // is at world [0,0]
-        public Vector2 WorldPos; 
+        public Vector2 WorldPos;
 
         public float Facing; // Facing is the turret aiming dir
         public Restrictions Restrictions;
@@ -42,14 +42,17 @@ namespace Ship_Game
             WorldPos = new Vector2(slot.P.X - GridCenter.X, slot.P.Y - GridCenter.Y) * 16f;
         }
 
+        [XmlIgnore][JsonIgnore]
+        public Point OffsetFromGridCenter => new Point(GridPos.X - GridCenter.X, GridPos.Y - GridCenter.Y);
+
         public override string ToString()
         {
             if (Parent == null)
-                return $"{Module?.UID} {Position} R:{Restrictions} F:{Facing} O:{Orientation}";
+                return $"{Module?.UID} {GridPos} R:{Restrictions} F:{Facing} O:{Orientation}";
 
             // @note Don't call Parent.ToString(), or we might get a stack overflow
-            string parent = $"{Parent.Position} R:{Parent.Restrictions} F:{Parent.Facing} O:{Orientation}";
-            return $"{Position} R:{Restrictions} F:{Facing} O:{Orientation}   Parent={{{parent}}}";
+            string parent = $"{Parent.GridPos} R:{Parent.Restrictions} F:{Parent.Facing} O:{Orientation}";
+            return $"{GridPos} R:{Restrictions} F:{Facing} O:{Orientation}   Parent={{{parent}}}";
         }
 
         static bool MatchI(Restrictions b) => b == Restrictions.I || b == Restrictions.IO || b == Restrictions.IE;
@@ -89,31 +92,23 @@ namespace Ship_Game
 
         public void Draw(SpriteBatch sb, GameScreen screen, SubTexture texture, Color tint)
         {
-            var size = new Vector2(16f);
-
-            if (Module != null)
-                size = new Vector2(Module.XSIZE * 16f, Module.YSIZE * 16f);
-
-            screen.ProjectToScreenCoords(WorldPos, size, 
-                                         out Vector2 posOnScreen, out Vector2 sizeOnScreen);
+            screen.ProjectToScreenCoords(WorldPos, WorldSize, out Vector2 posOnScreen, out Vector2 sizeOnScreen);
             Rectangle rect = new RectF(posOnScreen, sizeOnScreen);
             sb.Draw(texture, rect, tint);
         }
+        
+        // Center of the module in WORLD coordinates
+        [XmlIgnore][JsonIgnore]
+        public Vector2 Center => WorldPos + WorldSize/2f;
 
-        [XmlIgnore][JsonIgnore] public Vector2 Center
-        {
-            get
-            {
-                if (Module?.UID.IsEmpty() ?? true)
-                    return Vector2.Zero;
-                return new Vector2(PQ.X + Module.XSIZE * 8, PQ.Y + Module.YSIZE * 8);
-            }
-        }
+        // Gets the size of the module rectangle in WORLD coordinates
+        [XmlIgnore][JsonIgnore]
+        public Vector2 WorldSize => Module?.WorldSize ?? new Vector2(16f);
 
-        public Rectangle ModuleRect => new Rectangle(PQ.X, PQ.Y, Module.XSIZE * 16, Module.YSIZE * 16);
-        public Rectangle GetProjectedRect(ShipModule m) => new Rectangle(PQ.X, PQ.Y, m.XSIZE * 16, m.YSIZE * 16);
-
-        public bool Intersects(Rectangle r) => PQ.Rect.Intersects(r);
+        // Gets the module rectangle in WORLD coordinates
+        [XmlIgnore][JsonIgnore]
+        public RectF WorldRect => new RectF(WorldPos, WorldSize);
+        public RectF GetWorldRectFor(ShipModule m) => new RectF(WorldPos, m.WorldSize);
 
         public void Clear()
         {
@@ -124,6 +119,7 @@ namespace Ship_Game
             Orientation = ModuleOrientation.Normal;
         }
 
+        [XmlIgnore][JsonIgnore]
         public SlotStruct Root => Parent ?? this;
 
         public bool IsModuleReplaceableWith(ShipModule other)
