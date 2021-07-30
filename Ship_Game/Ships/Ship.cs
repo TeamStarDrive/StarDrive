@@ -855,7 +855,7 @@ namespace Ship_Game.Ships
 
             ShipModule m = w.Module;
             return RadMath.IsTargetInsideArc(m.Position, target.Position,
-                                             Rotation + m.FacingRadians, m.FieldOfFire);
+                                             Rotation + m.TurretAngleRads, m.FieldOfFire);
         }
 
         // This is used by Beam weapons and by Testing
@@ -863,7 +863,7 @@ namespace Ship_Game.Ships
         {
             ShipModule m = w.Module;
             return RadMath.IsTargetInsideArc(m.Position, pickedPos,
-                                             Rotation + m.FacingRadians, m.FieldOfFire);
+                                             Rotation + m.TurretAngleRads, m.FieldOfFire);
         }
 
         public SceneObject GetSO()

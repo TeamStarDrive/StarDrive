@@ -28,7 +28,7 @@ namespace Ship_Game.Ships
         public int Area;
         public string IconPath; // "ShipIcons/shuttle"
         public string ModelPath; // "Model/Ships/Terran/Shuttle/ship08"
-        
+
         public ShipData.RoleName Role = ShipData.RoleName.fighter;
         public string SelectIcon = "";
         public bool Animated;
@@ -37,6 +37,8 @@ namespace Ship_Game.Ships
         public ShipData.ThrusterZone[] Thrusters = Empty<ShipData.ThrusterZone>.Array;
         public HullSlot[] HullSlots;
 
+        // center of this ShipHull's Grid
+        [XmlIgnore][JsonIgnore] public Point GridCenter;
         [XmlIgnore][JsonIgnore] public bool Unlockable = true;
         [XmlIgnore][JsonIgnore] public HashSet<string> TechsNeeded = new HashSet<string>();
 
@@ -232,8 +234,17 @@ namespace Ship_Game.Ships
             InitializeCommon();
         }
 
+        public ShipHull Clone()
+        {
+            ShipHull hull = (ShipHull)MemberwiseClone();
+            hull.HullSlots = HullSlots.CloneArray();
+            hull.TechsNeeded = new HashSet<string>(TechsNeeded);
+            return hull;
+        }
+
         void InitializeCommon()
         {
+            GridCenter = new Point(Size.X / 2, Size.Y / 2);
             Bonuses = ResourceManager.HullBonuses.TryGetValue(HullName, out HullBonus bonus) ? bonus : HullBonus.Default;
         }
 

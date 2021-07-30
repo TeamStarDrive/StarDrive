@@ -13,6 +13,14 @@ namespace Ship_Game
             return orientation;
         }
 
+        int GetMirroredTurretAngle(ModuleOrientation orientation, int turretAngle)
+        {
+            // TODO: Check these
+            if (orientation == ModuleOrientation.Left) return turretAngle - 180;
+            if (orientation == ModuleOrientation.Right) return turretAngle + 180;
+            return turretAngle;
+        }
+
         bool GetMirrorProjectedSlot(SlotStruct slot, int xSize, ModuleOrientation orientation, out SlotStruct projectedMirror)
         {
             if (GetMirrorSlot(slot, xSize, orientation, out MirrorSlot mirrored))
@@ -56,7 +64,13 @@ namespace Ship_Game
                 !MirroredModulesTooClose(mirrorPos, slot.GridPos, xSize) && 
                 slot.Root != mirrorSS.Root) // !overlapping
             {
-                mirrored = new MirrorSlot { Slot = mirrorSS, Orientation = GetMirroredOrientation(orientation) };
+                int turretAngle = slot.Root.Module != null ? slot.Root.Module.TurretAngle : 0;
+                mirrored = new MirrorSlot
+                {
+                    Slot = mirrorSS,
+                    ModuleRot = GetMirroredOrientation(orientation),
+                    TurretAngle = GetMirroredTurretAngle(orientation, turretAngle)
+                };
                 return true;
             }
 
@@ -67,7 +81,7 @@ namespace Ship_Game
         bool GetMirrorSlotStruct(SlotStruct slot, out SlotStruct mirrored)
         {
             SlotStruct root = slot.Root;
-            if (GetMirrorSlot(root, root.Module.XSIZE, root.Orientation, out MirrorSlot ms))
+            if (GetMirrorSlot(root, root.Module.XSIZE, root.ModuleRot, out MirrorSlot ms))
             {
                 if (ms.Slot?.Module != null)
                 {

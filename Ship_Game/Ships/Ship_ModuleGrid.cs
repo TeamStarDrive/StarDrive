@@ -260,9 +260,8 @@ namespace Ship_Game.Ships
 
         void ModulePosToGridPoint(ShipModule m, out int x, out int y)
         {
-            Vector2 offset = m.GetLegacyGridPos() - GridOrigin;
-            x = (int)Math.Floor(offset.X / 16f);
-            y = (int)Math.Floor(offset.Y / 16f);
+            x = m.GridPos.X;
+            y = m.GridPos.Y;
         }
 
         // safe and fast module lookup by x,y where coordinates (0,1) (2,1) etc

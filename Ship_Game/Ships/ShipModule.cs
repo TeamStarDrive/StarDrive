@@ -15,9 +15,6 @@ namespace Ship_Game.Ships
             throw new InvalidOperationException(
                 $"BUG! ShipModule must not be serialized! Add [XmlIgnore][JsonIgnore] to `public ShipModule XXX;` PROPERTIES/FIELDS. {this}");
 
-        float ZPos;
-        public Vector3 Center3D => new Vector3(Position, ZPos);
-
         //private static int TotalModules = 0;
         //public int ID = ++TotalModules;
         public ShipModuleFlyweight Flyweight; //This is where all the other member variables went. Having this as a member object
@@ -25,20 +22,35 @@ namespace Ship_Game.Ships
                                               //can offer much better memory usage since ShipModules are so numerous.     -Gretman
 
         // @note This is always Normalized to [0; +2PI] by FacingDegrees setter
-        public float FacingRadians;
-        public float FacingDegrees
+        public float TurretAngleRads;
+
+        // Turret angle in degrees
+        public int TurretAngle
         {
-            get => FacingRadians.ToDegrees();
-            set => FacingRadians = value.ToRadians();
+            get => (int)TurretAngleRads.ToDegrees();
+            set => TurretAngleRads = ((float)value).ToRadians();
         }
 
-        public ModuleOrientation Orientation;
+        // This is the Rotation of the Installed Module: Normal, Left, Right, Rear
+        public ModuleOrientation ModuleRot;
+
         public bool CheckedConduits;
         public bool Powered;
         public bool isExternal;
         public int XSIZE = 1;
         public int YSIZE = 1;
-        public Vector2 XMLPosition; // module slot location in the ship design; the coordinate system axis is {256,256}
+
+        // Slot top-left Grid Position in the Ship design
+        public Point GridPos;
+
+        // Center of the module in World Coordinates, relative to ship center
+        public Vector2 LocalCenter;
+
+        float ZPos;
+        public Vector3 Center3D => new Vector3(Position, ZPos);
+
+        public int Area => XSIZE * YSIZE;
+
         bool CanVisualizeDamage;
         public float ShieldPower { get; private set; }
         public short OrdinanceCapacity;
@@ -209,9 +221,6 @@ namespace Ship_Game.Ships
                                 || ModuleType == ShipModuleType.Drone
                                 || ModuleType == ShipModuleType.Bomb;
 
-        public Vector2 LocalCenter;
-        public int Area => XSIZE * YSIZE;
-
         public float ActualCost => Cost * CurrentGame.ProductionPace;
 
         // the actual hit radius is a bit bigger for some legacy reason
@@ -317,7 +326,7 @@ namespace Ship_Game.Ships
             Flyweight = ShipModuleFlyweight.Empty;
         }
 
-        ShipModule(ShipModule_Deserialize template) : base(GameObjectType.ShipModule)
+        ShipModule(ShipModule_XMLTemplate template) : base(GameObjectType.ShipModule)
         {
             DisableSpatialCollision = true;
             Flyweight = new ShipModuleFlyweight(template);
@@ -326,8 +335,6 @@ namespace Ship_Game.Ships
             Mass                  = template.Mass;
             Powered               = template.Powered;
             FieldOfFire           = template.FieldOfFire.ToRadians(); // @note Convert to radians for higher PERF
-            FacingDegrees         = template.facing;
-            XMLPosition           = template.XMLPosition;
             NameIndex             = template.NameIndex;
             DescriptionIndex      = template.DescriptionIndex;
             Restrictions          = template.Restrictions;
@@ -344,7 +351,7 @@ namespace Ship_Game.Ships
             UpdateModuleRadius();
         }
 
-        public static ShipModule CreateTemplate(ShipModule_Deserialize template)
+        public static ShipModule CreateTemplate(ShipModule_XMLTemplate template)
         {
             return new ShipModule(template);
         }
@@ -403,14 +410,23 @@ namespace Ship_Game.Ships
             return module;
         }
 
-        // this is used during Ship creation, Ship template creation or Ship loading from save
+        // this is used during Ship creation
+        public static ShipModule Create(DesignSlot slot, Ship parent, bool isTemplate)
+        {
+            ShipModule template = ResourceManager.GetModuleTemplate(slot.ModuleUID);
+            ShipModule module = CreateNoParent(template, parent.loyalty, parent.BaseHull);
+            module.SetModuleRotation(module.XSIZE, module.YSIZE, slot.ModuleRotation, slot.TurretAngle);
+            module.Initialize(parent, slot.Pos, isTemplate);
+            return module;
+        }
+
+        // this is used during Ship loading from save
         public static ShipModule Create(ModuleSlotData slot, Ship parent, bool isTemplate, bool fromSave)
         {
             ShipModule template = ResourceManager.GetModuleTemplate(slot.ModuleUID);
             ShipModule module = CreateNoParent(template, parent.loyalty, parent.BaseHull);
-            module.Parent = parent;
-            module.SetModuleFacing(module.XSIZE, module.YSIZE, slot.GetOrientation(), slot.Facing);
-            module.Initialize(slot.Position, isTemplate);
+            module.SetModuleRotation(module.XSIZE, module.YSIZE, slot.GetOrientation(), slot.Facing);
+            module.Initialize(parent, slot.Position, isTemplate);
             if (fromSave)
             {
                 module.Active = slot.Health > 0.01f;
@@ -422,32 +438,30 @@ namespace Ship_Game.Ships
             return module;
         }
 
-        public static ShipModule CreateDesignModule(ShipModule template, ModuleOrientation orientation, 
-                                                    float facing, ShipHull hull)
+        public static ShipModule CreateDesignModule(ShipModule template, ModuleOrientation moduleRot, 
+                                                    int turretAngle, ShipHull hull)
         {
             ShipModule m = CreateNoParent(template, EmpireManager.Player, hull);
-            m.SetModuleFacing(m.XSIZE, m.YSIZE, orientation, facing);
+            m.SetModuleRotation(m.XSIZE, m.YSIZE, moduleRot, turretAngle);
             m.hangarShipUID = m.IsTroopBay ? EmpireManager.Player.GetAssaultShuttleName() : template.hangarShipUID;
             return m;
         }
 
         public const float ModuleSlotOffset = 264f;
 
-        void Initialize(Vector2 pos, bool isTemplate)
+        void Initialize(Ship parent, Point gridPos, bool isTemplate)
         {
-            if (Parent == null)
-                Log.Error("module parent cannot be null!");
+            Parent = parent;
 
             ++DebugInfoScreen.ModulesCreated;
 
-            XMLPosition = pos;
+            GridPos = gridPos;
 
-            // center of the top left 1x1 slot of this module
-            //Vector2 topLeftCenter = pos - new Vector2(256f, 256f);
+            Point gridCenter = parent.BaseHull.GridCenter;
+            LocalCenter = new Vector2(gridPos.X - gridCenter.X + XSIZE * 8f,
+                                      gridPos.Y - gridCenter.Y + YSIZE * 8f);
 
-            LocalCenter = new Vector2(pos.X - ModuleSlotOffset + XSIZE * 8f,
-                                      pos.Y - ModuleSlotOffset + YSIZE * 8f);
-            // center of this module
+            // world position of this module, will be overwritten during Ship's Module update
             Position = LocalCenter;
             CanVisualizeDamage = ShipModuleDamageVisualization.CanVisualize(this);
 
@@ -521,7 +535,7 @@ namespace Ship_Game.Ships
             float cy = parentY + offset.X * sin + offset.Y * cos;
             Position.X = cx;
             Position.Y = cy;
-            ZPos = tan * (256f - XMLPosition.X);
+            ZPos = tan * offset.X;
             Rotation = parentRotation; // assume parent rotation is already normalized
 
             if (CanVisualizeDamage && Parent.PlanetCrash == null)
@@ -1358,23 +1372,23 @@ namespace Ship_Game.Ships
             return off;
         }
 
-        public static float DefaultFacingFor(ModuleOrientation orientation)
+        public static int DefaultFacingFor(ModuleOrientation orientation)
         {
             switch (orientation)
             {
                 default:
-                case ModuleOrientation.Normal: return 0f;
-                case ModuleOrientation.Left:   return 270f;
-                case ModuleOrientation.Right:  return 90f;
-                case ModuleOrientation.Rear:   return 180f;
+                case ModuleOrientation.Normal: return 0;
+                case ModuleOrientation.Left:   return 270;
+                case ModuleOrientation.Right:  return 90;
+                case ModuleOrientation.Rear:   return 180;
             }
         }
 
-        public void SetModuleFacing(int w, int h, ModuleOrientation orientation, float facing)
+        public void SetModuleRotation(int w, int h, ModuleOrientation moduleRot, int turretAngle)
         {
-            FacingDegrees = facing;
-            Orientation = orientation;
-            switch (orientation)
+            TurretAngle = turretAngle;
+            ModuleRot = moduleRot;
+            switch (moduleRot)
             {
                 case ModuleOrientation.Normal:
                 case ModuleOrientation.Rear:
@@ -1411,14 +1425,6 @@ namespace Ship_Game.Ships
         public Point GetSize()
         {
             return new Point(XSIZE, YSIZE);
-        }
-        
-        // Gets the Grid position of this module
-        // Required by ModuleGrid
-        public Vector2 GetLegacyGridPos()
-        {
-            return new Vector2(XMLPosition.X - ModuleSlotOffset,
-                               XMLPosition.Y - ModuleSlotOffset);
         }
 
         // For specific cases were non squared icons requires a different texture when oriented,

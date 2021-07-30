@@ -318,9 +318,9 @@ namespace Ship_Game
         {
             slot.ModuleUID   = newModule.UID;
             slot.Module      = newModule;
-            slot.Orientation = orientation;
-            slot.Facing      = newModule.FacingDegrees;
-            slot.Tex         = newModule.ModuleTexture;
+            slot.ModuleRot = orientation;
+            slot.TurrentAngle   = newModule.TurretAngle;
+            slot.Tex            = newModule.ModuleTexture;
             slot.Module.SetAttributes();
 
             ModuleRect span = GetModuleSpan(slot, newModule.XSIZE, newModule.YSIZE);
@@ -356,7 +356,7 @@ namespace Ship_Game
                 SlotStruct root = Grid[x + y*Width].Root;
                 if (root?.Module != null) // only clear module roots which have not been cleared yet
                 {
-                    SaveAction(root, root.Module, root.Orientation, ChangeType.Removed);
+                    SaveAction(root, root.Module, root.ModuleRot, ChangeType.Removed);
                     RemoveModule(root, root.Module);
                 }
             }

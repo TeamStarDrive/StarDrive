@@ -77,8 +77,8 @@ namespace Ship_Game.Ships.Legacy
             : this(xmlPos:       module.XMLPosition,
                    restrictions: module.Restrictions,
                    moduleUid:    module.UID,
-                   facing:       module.FacingDegrees,
-                   orientation:  GetOrientationString(module.Orientation))
+                   facing:       module.TurretAngle,
+                   orientation:  GetOrientationString(module.ModuleRot))
         {
             Health       = module.Health;
             ShieldPower  = module.ShieldPower;

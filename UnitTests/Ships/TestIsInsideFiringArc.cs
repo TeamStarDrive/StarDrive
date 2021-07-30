@@ -40,7 +40,7 @@ namespace UnitTests.Ships
                 Vector2 c = Game.Manager.ScreenCenter;
                 ShipModule m = Wep.Module;
                 Vector2 mc = c + m.Position;
-                float facing = (Ship.Rotation + m.FacingRadians);
+                float facing = (Ship.Rotation + m.TurretAngleRads);
                 Vector2 md = facing.RadiansToDirection();
                 batch.DrawCircle(mc, m.Radius, Color.Yellow, 2);
                 batch.DrawLine(mc, mc + md*m.Radius, Color.Yellow, 2);
@@ -72,7 +72,7 @@ namespace UnitTests.Ships
         {
             ShipModule m = w.Module;
             float sr = ship.Rotation;
-            float mf = m.FacingRadians;
+            float mf = m.TurretAngleRads;
             float gf = sr + mf;
             float ff = m.FieldOfFire;
             return $"ship position: {ship.Position}\n"+
@@ -87,7 +87,7 @@ namespace UnitTests.Ships
         void CheckArc(string what, Ship ship, Weapon w, float facing, float fireArc, Vector2 point, bool expectedResult)
         {
             w.Module.Position = Vector2.Zero;
-            w.Module.FacingDegrees = facing;
+            w.Module.TurretAngleRads = facing.ToRadians();
             w.Module.FieldOfFire = fireArc.ToRadians();
             bool result = ship.IsInsideFiringArc(w, point);
             if (EnableVisualizationOnFailure && result != expectedResult)

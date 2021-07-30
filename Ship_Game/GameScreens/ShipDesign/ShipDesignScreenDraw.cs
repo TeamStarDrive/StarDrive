@@ -81,7 +81,7 @@ namespace Ship_Game
             DrawRectangle(ProjectedSlot.GetWorldRectFor(ActiveModule), fits ? Color.LightGreen : Color.Red, 1.5f);
 
             if (IsSymmetricDesignMode 
-                && GetMirrorProjectedSlot(ProjectedSlot, ActiveModule.XSIZE, ActiveModule.Orientation, out SlotStruct mirrored))
+                && GetMirrorProjectedSlot(ProjectedSlot, ActiveModule.XSIZE, ActiveModule.ModuleRot, out SlotStruct mirrored))
             {
                 bool mirrorFits = ModuleGrid.ModuleFitsAtSlot(mirrored, ActiveModule);
                 DrawRectangle(mirrored.GetWorldRectFor(ActiveModule), mirrorFits 
@@ -129,7 +129,7 @@ namespace Ship_Game
                         ShipModule m = DesignedShip.GetModuleAt(slot.GridPos);
                         slot.Tex = m.Powered ? ResourceManager.Texture(m.IconTexturePath + "_power") : m.ModuleTexture;
                     }
-                    DrawModuleTex(slot.Orientation, batch, slot, slot.WorldRect);
+                    DrawModuleTex(slot.ModuleRot, batch, slot, slot.WorldRect);
                 }
             }
         }
@@ -247,7 +247,7 @@ namespace Ship_Game
             Color fill = Color.Black.Alpha(0.33f);
             Color edge = (slot.Module == HighlightedModule) ? Color.DarkOrange : fill;
             DrawRectangleProjected(slot.WorldRect, edge, fill);
-            DrawStringProjected(slot.Center, 0, 1, Color.Orange, slot.Module.FacingDegrees.String(0));
+            DrawStringProjected(slot.Center, 0, 1, Color.Orange, slot.Module.TurretAngle.ToString());
         }
 
         void DrawHangarShipText(SlotStruct s)
@@ -272,13 +272,13 @@ namespace Ship_Game
             }
         }
 
-        void DrawWeaponArcs(SpriteBatch batch, ShipModule module, Vector2 moduleWorldPos, float facing = 0f)
+        void DrawWeaponArcs(SpriteBatch batch, ShipModule module, Vector2 moduleWorldPos, float shipFacing = 0)
         {
             Weapon w = module.InstalledWeapon;
             if (w != null)
             {
                 Vector2 moduleWorldCenter = moduleWorldPos + module.WorldSize * 0.5f;
-                DrawWeaponArcs(batch, this, facing, module.InstalledWeapon, ActiveModule, moduleWorldCenter, 500f);
+                DrawWeaponArcs(batch, this, shipFacing, module.InstalledWeapon, ActiveModule, moduleWorldCenter, 500f);
             }
         }
 
@@ -302,7 +302,7 @@ namespace Ship_Game
             
             Rectangle rect = posOnScreen.ToRect((int)sizeOnScreen, (int)sizeOnScreen);
 
-            float radians = (shipFacing + m.FacingRadians);
+            float radians = (shipFacing + m.TurretAngleRads);
             batch.Draw(arcTexture, rect, color.Alpha(0.75f), radians, texOrigin, SpriteEffects.None, 1f);
 
             Vector2 direction = radians.RadiansToDirection();
@@ -347,14 +347,9 @@ namespace Ship_Game
                     RectF mirrorWorldRect = new RectF(mirrorWorldPos, ActiveModule.WorldSize);
                     DrawModuleTex(orientation, batch, null, mirrorWorldRect, template, 0.5f);
                     
-                    float mirroredFacingOffset = 0f;
-                    if (orientation != ActiveModState)
-                    {
-                        // this is a hack... we pretend the ship is rotated 180 degrees to draw the arcs facing
-                        // the correct direction.... :D
-                        mirroredFacingOffset = ActiveModule.FacingRadians - ConvertOrientationToFacing(orientation).ToRadians();
-                    }
-                    DrawWeaponArcs(batch, ActiveModule, mirrorWorldPos, mirroredFacingOffset);
+                    int turretAngle = GetMirroredTurretAngle(orientation, ActiveModule.TurretAngle);
+                    float shipFacing = ((float)turretAngle).ToRadians(); // HACK
+                    DrawWeaponArcs(batch, ActiveModule, mirrorWorldPos, shipFacing);
                 }
             }
 
