@@ -158,7 +158,7 @@ namespace Ship_Game
                 Owner.data.ExplosiveRadiusReduction += 0.15f;
 
             Owner.data.BaseShipLevel = Level / 3;
-            EmpireShipBonuses.RefreshBonuses(Owner);
+            EmpireHullBonuses.RefreshBonuses(Owner);
         }
 
         void CheckHibernation() // Start Hibernation some time before leveling up

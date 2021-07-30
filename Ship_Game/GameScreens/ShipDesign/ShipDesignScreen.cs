@@ -174,14 +174,14 @@ namespace Ship_Game
 
         public ShipModule CreateModuleListItem(ShipModule template)
         {
-            ShipModule m = ShipModule.CreateNoParent(template, EmpireManager.Player, ActiveHull);
+            ShipModule m = ShipModule.CreateNoParent(template, EmpireManager.Player, ActiveHull.BaseHull);
             m.SetAttributes();
             return m;
         }
 
         public ShipModule CreateDesignModule(string uid, ModuleOrientation orientation, float facing)
         {
-            return ShipModule.CreateDesignModule(ResourceManager.GetModuleTemplate(uid), orientation, facing, ActiveHull);
+            return ShipModule.CreateDesignModule(ResourceManager.GetModuleTemplate(uid), orientation, facing, ActiveHull.BaseHull);
         }
 
         // spawn a new active module under cursor

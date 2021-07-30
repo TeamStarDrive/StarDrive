@@ -121,7 +121,9 @@ namespace Ship_Game.Ships
 
             InitCommonState(ship.shipData);
             FixMissingFields();
+
             ModuleSlots = ship.GetModuleSlotDataArray();
+            UpdateGridInfo();
         }
 
         void InitCommonState(ShipData hull)
@@ -140,6 +142,7 @@ namespace Ship_Game.Ships
             CarrierShip       = hull.CarrierShip;
             TechsNeeded       = hull.TechsNeeded;
             BaseHull          = hull.BaseHull;
+            Bonuses           = hull.Bonuses;
 
             UnLockable = hull.UnLockable;
             HullUnlockable = hull.HullUnlockable;
@@ -151,10 +154,6 @@ namespace Ship_Game.Ships
 
         void FixMissingFields()
         {
-            // edge case if Hull lookup fails
-            if (GridInfo.SurfaceArea == 0 && ModuleSlots != null)
-                UpdateGridInfo();
-
             if (ShipStyle.IsEmpty())
                 ShipStyle = BaseHull.Style;
 
@@ -187,10 +186,7 @@ namespace Ship_Game.Ships
                 }
             }
 
-            if (Bonuses == null)
-            {
-                Bonuses = ResourceManager.HullBonuses.TryGetValue(BaseHull.HullName, out HullBonus bonus) ? bonus : HullBonus.Default;
-            }
+            Bonuses = BaseHull.Bonuses;
 
             FixMissingFields();
         }

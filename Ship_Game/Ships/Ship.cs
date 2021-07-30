@@ -1238,7 +1238,7 @@ namespace Ship_Game.Ships
             }
 
             // Update max health if needed
-            int latestRevision = EmpireShipBonuses.GetBonusRevisionId(loyalty);
+            int latestRevision = EmpireHullBonuses.GetBonusRevisionId(loyalty);
             if (MaxHealthRevision != latestRevision)
             {
                 MaxHealthRevision = latestRevision;

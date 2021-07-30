@@ -804,7 +804,7 @@ namespace Ship_Game
                 CamPos = new Vector3(homePlanet.Center.X, homePlanet.Center.Y, 5000f),
             };
 
-            EmpireShipBonuses.RefreshBonuses();
+            EmpireHullBonuses.RefreshBonuses();
 
             ScreenManager.AddScreenAndLoadContent(us);
 
