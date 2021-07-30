@@ -339,7 +339,7 @@ namespace Ship_Game.Debug
             foreach (Weapon w in ship.Weapons)
             {
                 ShipModule m = w.Module;
-                float facing = ship.Rotation + m.FacingRadians;
+                float facing = ship.Rotation + m.TurretAngleRads;
                 float range = w.GetActualRange();
 
                 // TODO: This doesn't account for Ship's rotation...
@@ -362,7 +362,7 @@ namespace Ship_Game.Debug
                     bool inRange = ship.CheckRangeToTarget(w, target);
                     float bigArc = m.FieldOfFire*1.2f;
                     bool inBigArc = RadMath.IsTargetInsideArc(m.Position, target.Position,
-                                                    ship.Rotation + m.FacingRadians, bigArc);
+                                                    ship.Rotation + m.TurretAngleRads, bigArc);
                     if (inRange && inBigArc) // show arc lines if we are close to arc edges
                     {
                         bool inArc = ship.IsInsideFiringArc(w, target.Position);

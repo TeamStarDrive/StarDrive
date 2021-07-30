@@ -19,6 +19,16 @@ namespace UnitTests.Ships
             CreateUniverseAndPlayerEmpire();
         }
 
+        public static void AssertAreEqual(DesignSlot expected, DesignSlot actual)
+        {
+            Assert.AreEqual(expected.Pos, actual.Pos);
+            Assert.AreEqual(expected.ModuleUID, actual.ModuleUID);
+            Assert.AreEqual(expected.Size, actual.Size);
+            Assert.AreEqual(expected.TurretAngle, actual.TurretAngle, 0.001f);
+            Assert.AreEqual(expected.ModuleRotation, actual.ModuleRotation);
+            Assert.AreEqual(expected.SlotOptions, actual.SlotOptions);
+        }
+
         public static void AssertAreEqual(ModuleSlotData expected, ModuleSlotData actual)
         {
             Assert.AreEqual(expected.Position, actual.Position);
@@ -38,9 +48,9 @@ namespace UnitTests.Ships
             Assert.AreEqual(expected.UID, actual.UID);
             Assert.AreEqual(expected.hangarShipUID, actual.hangarShipUID);
             Assert.AreEqual(expected.Health, actual.Health, 0.001f);
-            Assert.AreEqual(expected.FacingDegrees, actual.FacingDegrees, 0.001f);
+            Assert.AreEqual(expected.TurretAngle, actual.TurretAngle);
             Assert.AreEqual(expected.ShieldPower, actual.ShieldPower, 0.001f);
-            Assert.AreEqual(expected.Orientation, actual.Orientation);
+            Assert.AreEqual(expected.ModuleRot, actual.ModuleRot);
             Assert.AreEqual(expected.Restrictions, actual.Restrictions);
             Assert.AreEqual(expected.HangarShipGuid, actual.HangarShipGuid);
         }

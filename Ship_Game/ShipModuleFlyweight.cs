@@ -132,7 +132,7 @@ namespace Ship_Game.Gameplay
             ++TotalNumModules;
         }
 
-        public ShipModuleFlyweight(ShipModule_Deserialize s)
+        public ShipModuleFlyweight(ShipModule_XMLTemplate s)
         {
             //This should only be called once per module XML file -Gretman
             ++TotalNumModules;
@@ -248,10 +248,13 @@ namespace Ship_Game.Gameplay
         }
     }
 
+    /// <summary>
+    /// This is used for ShipModule XML Templates
+    /// </summary>
     [XmlType("ShipModule")]
-    public sealed class ShipModule_Deserialize : GameplayObject
+    public sealed class ShipModule_XMLTemplate : GameplayObject
     {
-        public ShipModule_Deserialize() : base(GameObjectType.ShipModule)
+        public ShipModule_XMLTemplate() : base(GameObjectType.ShipModule)
         {
         }
 
@@ -292,8 +295,6 @@ namespace Ship_Game.Gameplay
         public string BombType;
         public float WarpMassCapacity;
         public float FieldOfFire;
-        public float facing;
-        public Vector2 XMLPosition;
         public float BonusRepairRate;
         public float Cargo_Capacity;
         public float HealthMax;
@@ -345,8 +346,6 @@ namespace Ship_Game.Gameplay
         public int TroopsSupplied;
         public float Cost;
         public ShipModuleType ModuleType;
-        public Vector2 moduleCenter;
-        public Vector2 ModuleCenter;
         public string IconTexturePath;
         public string UID;
         public bool isExternal;

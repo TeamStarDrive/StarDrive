@@ -25,6 +25,10 @@ namespace Ship_Game.Ships
         public static bool GenerateNewDesignFiles = false; // only need to do this once
         const int CurrentVersion = 1;
 
+        public bool ThisClassMustNotBeAutoSerializedByDotNet =>
+            throw new InvalidOperationException(
+                $"BUG! ShipData must not be automatically serialized! Add [XmlIgnore][JsonIgnore] to `public ShipData XXX;` PROPERTIES/FIELDS. {this}");
+
         public string Name; // ex: "Dodaving", just an arbitrary name
         public string Hull; // ID of the hull, ex: "Cordrazine/Dodaving"
         public string ModName = ""; // "" if vanilla, else mod name eg "Combined Arms"
@@ -58,35 +62,35 @@ namespace Ship_Game.Ships
 
         public ThrusterZone[] ThrusterList;
 
-        [XmlIgnore] [JsonIgnore] public ShipGridInfo GridInfo;
+        public ShipGridInfo GridInfo;
 
-        [XmlIgnore] [JsonIgnore] public float BaseStrength;
-        [XmlArray(ElementName = "ModuleSlotList")] public ModuleSlotData[] ModuleSlots;
-        [XmlIgnore] [JsonIgnore] public bool UnLockable;
-        [XmlIgnore] [JsonIgnore] public bool HullUnlockable;
-        [XmlIgnore] [JsonIgnore] public bool AllModulesUnlockable = true;
-        [XmlArray(ElementName = "techsNeeded")] public HashSet<string> TechsNeeded = new HashSet<string>();
+        public float BaseStrength;
+        public DesignSlot[] ModuleSlots;
+        public bool UnLockable;
+        public bool HullUnlockable;
+        public bool AllModulesUnlockable = true;
+        public HashSet<string> TechsNeeded = new HashSet<string>();
 
         static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
         static readonly string[] CategoryArray = typeof(Category).GetEnumNames();
-        [XmlIgnore] [JsonIgnore] public RoleName HullRole => BaseHull.Role;
-        [XmlIgnore] [JsonIgnore] public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
+        public RoleName HullRole => BaseHull.Role;
+        public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
 
         // BaseHull is the template layout of the ship hull design
-        [XmlIgnore] [JsonIgnore] public ShipHull BaseHull { get; internal set; }
-        [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }
+        public ShipHull BaseHull { get; internal set; }
+        public HullBonus Bonuses { get; private set; }
 
         // Model path of the template hull layout
-        [XmlIgnore] [JsonIgnore] public string HullModel => BaseHull.ModelPath;
+        public string HullModel => BaseHull.ModelPath;
 
-        [XmlIgnore] [JsonIgnore] public bool IsValidForCurrentMod
+        public bool IsValidForCurrentMod
             => ModName.IsEmpty() || ModName == GlobalStats.ModName;
 
         // You should always use this `Icon` property, because of bugs with `IconPath` initialization
         // when a ShipData is copied. @todo Fix ShipData copying
-        [XmlIgnore] [JsonIgnore] public SubTexture Icon => ResourceManager.Texture(IconPath);
-        [XmlIgnore] [JsonIgnore] public Vector3 Volume { get; private set; }
-        [XmlIgnore] [JsonIgnore] public float ModelZ { get; private set; }
+        public SubTexture Icon => ResourceManager.Texture(IconPath);
+        public Vector3 Volume { get; private set; }
+        public float ModelZ { get; private set; }
 
         public ShipData()
         {
