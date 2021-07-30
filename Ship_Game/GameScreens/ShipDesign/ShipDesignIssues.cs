@@ -480,13 +480,13 @@ namespace Ship_Game.GameScreens.ShipDesign
             if (accuracyList.Count == 0 || maxTargets <1)
                 return;
 
-            var facings = accuracyList.GroupBy(kv=>
+            var facings = accuracyList.GroupBy(kv =>
             {
-                int facing = (int)kv.Key.FacingDegrees;
-                facing     = facing == 360 ? 0 : facing;
-                return (float)facing;
+                int facing = kv.Key.TurretAngle;
+                facing = facing == 360 ? 0 : facing;
+                return facing;
             });
-            float count          = facings.Count();
+            int count = facings.Count();
             float ratioToTargets = count / maxTargets;
 
             WarningLevel severity;
@@ -497,7 +497,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             else return;
 
             string target     = $" {Localizer.Token(GameText.FcsPower)}: {maxTargets.String(1)}, ";
-            string fireArcs   = $"{Localizer.Token(GameText.FireArc)}: {count.String(1)} ";
+            string fireArcs   = $"{Localizer.Token(GameText.FireArc)}: {count} ";
             string baseString = !IsPlatform ? "" : $" {Localizer.Token(GameText.OrbitalTracking)}";
 
             AddDesignIssue(DesignIssueType.Targets, severity, baseString + target + fireArcs);

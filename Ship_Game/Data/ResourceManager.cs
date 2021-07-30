@@ -1302,7 +1302,7 @@ namespace Ship_Game
         static void LoadShipModules()
         {
             // 95% spent loading these XML files:
-            var entities = LoadEntitiesWithInfo<ShipModule_Deserialize>("ShipModules", "LoadShipModules");
+            var entities = LoadEntitiesWithInfo<ShipModule_XMLTemplate>("ShipModules", "LoadShipModules");
 
             foreach (var pair in entities)
             {
@@ -1310,7 +1310,7 @@ namespace Ship_Game
                 if (pair.Info.DirectoryName?.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) > 0)
                     continue;
 
-                ShipModule_Deserialize data = pair.Entity;
+                ShipModule_XMLTemplate data = pair.Entity;
                 data.UID = string.Intern(pair.Info.NameNoExt());
                 data.IconTexturePath = string.Intern(data.IconTexturePath);
                 if (data.WeaponType != null)

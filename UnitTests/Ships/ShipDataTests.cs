@@ -72,8 +72,8 @@ namespace UnitTests.Ships
                 Assert.AreEqual(a.ModuleSlots.Length, b.ModuleSlots.Length);
                 for (int i = 0; i < a.ModuleSlots.Length; ++i)
                 {
-                    ModuleSlotData sa = a.ModuleSlots[i];
-                    ModuleSlotData sb = b.ModuleSlots[i];
+                    DesignSlot sa = a.ModuleSlots[i];
+                    DesignSlot sb = b.ModuleSlots[i];
                     ShipModuleTests.AssertAreEqual(sa, sb);
                 }
             }

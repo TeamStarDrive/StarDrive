@@ -216,22 +216,13 @@ namespace Ship_Game
             return ModuleGrid.Get(gridPos, out slot);
         }
 
-        static float ConvertOrientationToFacing(ModuleOrientation orientation)
+        void SetFiringArc(SlotStruct slot, int turretAngle)
         {
-            switch (orientation)
-            {
-                default:                       return 0;
-                case ModuleOrientation.Left:   return 270;
-                case ModuleOrientation.Right:  return 90;
-                case ModuleOrientation.Rear:   return 180;
-            }
-        }
-
-        void SetFiringArc(SlotStruct slot, float arc)
-        {
-            slot.Module.FacingDegrees = arc;
+            slot.Module.TurretAngle = turretAngle;
             if (IsSymmetricDesignMode && GetMirrorModule(slot, out ShipModule mirrored))
-                mirrored.FacingDegrees = 360 - arc;
+            {
+                mirrored.TurretAngle = GetMirroredTurretAngle(slot.Module.ModuleRot, slot.Module.TurretAngle);
+            }
         }
 
         void HandleCameraMovement(InputState input)
@@ -305,7 +296,7 @@ namespace Ship_Game
                 SlotStruct slot = slotStruct.Parent ?? slotStruct;
                 if (ActiveModule == null && slot.Module != null)
                 {
-                    SetActiveModule(slot.Module.UID, slot.Orientation, slot.Facing);
+                    SetActiveModule(slot.Module.UID, slot.ModuleRot, slot.TurrentAngle);
                     return true;
                 }
 
@@ -351,32 +342,32 @@ namespace Ship_Game
 
                     if (Input.IsShiftKeyDown)
                     {
-                        SetFiringArc(slotStruct, (float)Math.Round(arc));
+                        SetFiringArc(slotStruct, (int)Math.Round(arc));
                         return true;
                     }
 
                     if (!Input.IsAltKeyDown)
                     {
-                        SetFiringArc(slotStruct, (float)Math.Round(arc / 15f) * 15);
+                        SetFiringArc(slotStruct, (int)Math.Round(arc / 15f) * 15);
                         return true;
                     }
 
-                    float minFacing = float.NaN;
-                    float maxFacing = float.NaN;
+                    int minAngle = int.MinValue;
+                    int maxAngle = int.MinValue;
                     foreach(SlotStruct slot in ModuleGrid.SlotsList)
                     {
                         if (slot.Module?.ModuleType == ShipModuleType.Turret)
                         {
-                            float facing = slot.Module.FacingDegrees;
-                            if (float.IsNaN(minFacing)) minFacing = maxFacing = facing;
-                            if (facing > minFacing && facing < arc) minFacing = facing;
-                            if (facing < maxFacing && facing > arc) maxFacing = facing;
+                            int turretAngle = slot.Module.TurretAngle;
+                            if (minAngle == int.MinValue) minAngle = maxAngle = turretAngle;
+                            if (turretAngle > minAngle && turretAngle < arc) minAngle = turretAngle;
+                            if (turretAngle < maxAngle && turretAngle > arc) maxAngle = turretAngle;
                         }
                     }
 
-                    if (!float.IsNaN(minFacing))
+                    if (minAngle != int.MinValue)
                     {
-                        highlighted.FacingDegrees = (arc - minFacing) < (maxFacing - arc) ? minFacing : maxFacing;
+                        highlighted.TurretAngle = (arc - minAngle) < (maxAngle - arc) ? minAngle : maxAngle;
                     }
                     changedArcs = true;
                 }
@@ -553,24 +544,6 @@ namespace Ship_Game
             }
         }
 
-        // Gets the hull dimensions in world coordinate size
-        Vector2 GetHullDimensions(ShipData hull)
-        {
-            float minX = 0f, maxX = 0f, minY = 0f, maxY = 0f;
-            for (int i = 0; i < hull.ModuleSlots.Length; ++i)
-            {
-                ModuleSlotData slot = hull.ModuleSlots[i];
-                Vector2 topLeft = slot.Position;
-                Vector2 botRight = slot.Position + new Vector2(16f, 16f);
-
-                if (topLeft.X  < minX) minX = topLeft.X;
-                if (topLeft.Y  < minY) minY = topLeft.Y;
-                if (botRight.X > maxX) maxX = botRight.X;
-                if (botRight.Y > maxY) maxY = botRight.Y;
-            }
-            return new Vector2(maxX - minX, maxY - minY);
-        }
-
         void UpdateViewMatrix(in Vector3 cameraPosition)
         {
             Vector3 camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
@@ -588,7 +561,7 @@ namespace Ship_Game
         {
             // This ensures our module grid overlay is the same size as the mesh
             CameraPosition.Z = 500;
-            float hullHeight = GetHullDimensions(hull).Y;
+            float hullHeight = hull.BaseHull.Size.Y * 16f;
             float visibleSize = GetHullScreenSize(CameraPosition, hullHeight);
             float ratio = visibleSize / hullHeight;
             CameraPosition.Z = (CameraPosition.Z * ratio).RoundUpTo(1);
@@ -616,13 +589,15 @@ namespace Ship_Game
         }
 
         // Create full modules list for SAVING the design
-        ModuleSlotData[] CreateModuleSlots()
+        DesignSlot[] CreateModuleSlots()
         {
             int count = ModuleGrid.SlotsCount;
-            var savedSlots = new ModuleSlotData[count];
+            var savedSlots = new DesignSlot[count];
             for (int i = 0; i < count; ++i)
             {
-                savedSlots[i] = new ModuleSlotData(ModuleGrid.SlotsList[i]);
+                SlotStruct s = ModuleGrid.SlotsList[i];
+                savedSlots[i] = new DesignSlot(s.GridPos, s.ModuleUID, s.Size, s.TurrentAngle,
+                                               s.ModuleRot, s.SlotOptions);
             }
             return savedSlots;
         }
@@ -648,8 +623,8 @@ namespace Ship_Game
             ShipData hull = ActiveHull.GetClone();
             hull.Name = newName;
             hull.Hull = newName;
-            foreach (ModuleSlotData moduleSlotData in hull.ModuleSlots)
-                moduleSlotData.ModuleUID = null;
+            foreach (DesignSlot slot in hull.ModuleSlots)
+                slot.ModuleUID = null;
             return new ShipHull(hull);
         }
 

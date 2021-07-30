@@ -88,46 +88,26 @@ namespace Ship_Game.Ships
             return ResourceManager.GetShipTemplate("Vulcan Scout", out template) ? template : null;
         }
 
-        protected bool CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave, 
+        protected bool CreateModuleSlotsFromData(DesignSlot[] templateSlots, bool fromSave, 
                                                  bool isTemplate = false, bool shipyardDesign = false)
         {
             Weapons.Clear();
             BombBays.Clear();
 
-            bool hasLegacyDummySlots = false;
             int count = 0;
+            ModuleSlotList = new ShipModule[templateSlots.Length];
+
+            count = 0;
             for (int i = 0; i < templateSlots.Length; ++i)
             {
-                ModuleSlotData slot = templateSlots[i];
+                DesignSlot slot = templateSlots[i];
                 string uid = slot.ModuleUID;
-                // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
-                if (slot.IsDummy)
-                {
-                    // incomplete shipyard designs are a new feature, so no legacy dummies to fix
-                    if (shipyardDesign)
-                        continue;
-                    hasLegacyDummySlots = true;
-                    continue;
-                }
                 if (!ResourceManager.ModuleExists(uid))
                 {
                     Log.Warning($"Failed to load ship '{Name}' due to invalid Module '{uid}'!");
                     return false;
                 }
-                ++count;
-            }
-
-            ModuleSlotList = new ShipModule[count];
-
-            count = 0;
-            for (int i = 0; i < templateSlots.Length; ++i)
-            {
-                ModuleSlotData slotData = templateSlots[i];
-                string uid = slotData.ModuleUID;
-                if (uid == "Dummy" || uid == null)
-                    continue;
-
-                var module = ShipModule.Create(slotData, this, isTemplate, fromSave);
+                var module = ShipModule.Create(slot, this, isTemplate, fromSave);
                 ModuleSlotList[count++] = module;
             }
 
@@ -139,8 +119,6 @@ namespace Ship_Game.Ships
                 return false;
             }
 
-            if (hasLegacyDummySlots)
-                FixLegacyInternalRestrictions(templateSlots);
             return true;
         }
 

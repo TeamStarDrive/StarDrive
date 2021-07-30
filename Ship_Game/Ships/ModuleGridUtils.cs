@@ -49,17 +49,17 @@ namespace Ship_Game.Ships
                 null
             };
 
-            int f = (int)m.FacingDegrees;
-            int o = (int)m.Orientation;
+            int f = (int)m.TurretAngle;
+            int o = (int)m.ModuleRot;
             if (ss != null)
             {
                 if (f != (int)ss.Facing)
-                    Log.Warning($"Module Facing does not match SlotStruct: m.FacingDegrees={m.FacingDegrees} ss={ss}");
-                if (o != (int)ss.Orientation)
-                    Log.Warning($"Module Orientation does not match SlotStruct: m.Orientation={m.Orientation} ss={ss}");
+                    Log.Warning($"Module Facing does not match SlotStruct: m.FacingDegrees={m.TurretAngle} ss={ss}");
+                if (o != (int)ss.ModuleRot)
+                    Log.Warning($"Module Orientation does not match SlotStruct: m.Orientation={m.ModuleRot} ss={ss}");
 
                 f = (int)ss.Facing;
-                o = (int)ss.Orientation;
+                o = (int)ss.ModuleRot;
             }
 
             if (f != 0 || o != 0)

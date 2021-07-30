@@ -19,6 +19,11 @@ namespace Ship_Game.Gameplay
             P = new Point(x, y);
             R = r;
         }
+        public HullSlot(HullSlot slot)
+        {
+            P = slot.P;
+            R = slot.R;
+        }
         public Point GetGridPos() => P;
         public Point GetSize() => new Point(1, 1);
         public override string ToString() => $"{R} {P}";
@@ -47,7 +52,7 @@ namespace Ship_Game.Gameplay
 
     // Used only in new Ship designs
     // # gridX,gridY; moduleUIDIndex; sizeX,sizeY; turretAngle; moduleRotation; slotOptions
-    public sealed class DesignSlot
+    public sealed class DesignSlot : IEquatable<DesignSlot>
     {
         public Point Pos; // integer position in the design, such as [0, 1]
         public string ModuleUID; // module UID, must be interned during parsing
@@ -71,6 +76,17 @@ namespace Ship_Game.Gameplay
         public Point GetGridPos() => Pos;
         public Point GetSize() => new Point(1, 1);
         public override string ToString() => $"{Pos} {ModuleUID} {Size} TA:{TurretAngle} MR:{ModuleRotation} SO:{SlotOptions}";
+
+        public bool Equals(DesignSlot s)
+        {
+            if (s == null) return false;
+            return Pos == s.Pos
+                && ModuleUID == s.ModuleUID
+                && Size == s.Size
+                && TurretAngle == s.TurretAngle
+                && ModuleRotation == s.ModuleRotation
+                && SlotOptions == s.SlotOptions;
+        }
     }
 
     public sealed class ModuleSlotData : IEquatable<ModuleSlotData>
@@ -136,8 +152,8 @@ namespace Ship_Game.Gameplay
             : this(xmlPos:       module.XMLPosition,
                    restrictions: module.Restrictions,
                    moduleUid:    module.UID,
-                   facing:       module.FacingDegrees,
-                   orientation:  GetOrientationString(module.Orientation))
+                   facing:       module.TurretAngle,
+                   orientation:  GetOrientationString(module.ModuleRot))
         {
             Health       = module.Health;
             ShieldPower  = module.ShieldPower;
@@ -160,10 +176,10 @@ namespace Ship_Game.Gameplay
             Position     = slot.WorldPos + new Vector2(ShipModule.ModuleSlotOffset);
             Restrictions = slot.Restrictions;
             ModuleUID    = slot.ModuleUID != null ? string.Intern(slot.ModuleUID) : null;
-            Orientation  = GetOrientationString(slot.Orientation);
+            Orientation  = GetOrientationString(slot.ModuleRot);
             if (slot.Module != null)
             {
-                Facing = slot.Module.FacingDegrees;
+                Facing = slot.Module.TurretAngle;
                 if (slot.Module.ModuleType == ShipModuleType.Hangar)
                 {
                     SlotOptions = string.Intern(slot.Module.hangarShipUID);

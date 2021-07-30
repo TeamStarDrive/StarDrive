@@ -156,7 +156,7 @@ namespace Ship_Game.Ships
                 if (w.AlmostEqual(h, 0.001f)) w = h;
 
                 float slotFacing = 0;
-                switch (slot.Orientation)
+                switch (slot.ModuleRot)
                 {
                     case ModuleOrientation.Right: slotFacing += 90; break;
                     case ModuleOrientation.Left:  slotFacing += 270; break;
@@ -359,7 +359,7 @@ namespace Ship_Game.Ships
                                          (int)moduleSize * m.YSIZE);
 
                 SubTexture tex = m.ModuleTexture;
-                m.GetOrientedModuleTexture(ref tex, m.Orientation);
+                m.GetOrientedModuleTexture(ref tex, m.ModuleRot);
 
                 batch.FillRectangle(rect, healthColor);
                 batch.Draw(tex, rect, moduleColorMultiply);

@@ -20,9 +20,9 @@ namespace Ship_Game
         // is at world [0,0]
         public Vector2 WorldPos;
 
-        public float Facing; // Facing is the turret aiming dir
+        public int TurrentAngle;
         public Restrictions Restrictions;
-        public ModuleOrientation Orientation; // Orientation controls the visual 4-dir rotation of module
+        public ModuleOrientation ModuleRot; // Orientation controls the visual 4-dir rotation of module
         public SlotStruct Parent;
         public string ModuleUID;
         public ShipModule Module;
@@ -38,7 +38,7 @@ namespace Ship_Game
             GridPos = slot.P;
             Restrictions = slot.R;
 
-            GridCenter = new Point(hull.Size.X / 2, hull.Size.Y / 2);
+            GridCenter = hull.GridCenter;
             WorldPos = new Vector2(slot.P.X - GridCenter.X, slot.P.Y - GridCenter.Y) * 16f;
         }
 
@@ -48,11 +48,11 @@ namespace Ship_Game
         public override string ToString()
         {
             if (Parent == null)
-                return $"{Module?.UID} {GridPos} R:{Restrictions} F:{Facing} O:{Orientation}";
+                return $"{Module?.UID} {GridPos} R:{Restrictions} TA:{TurrentAngle} O:{ModuleRot}";
 
             // @note Don't call Parent.ToString(), or we might get a stack overflow
-            string parent = $"{Parent.GridPos} R:{Parent.Restrictions} F:{Parent.Facing} O:{Orientation}";
-            return $"{GridPos} R:{Restrictions} F:{Facing} O:{Orientation}   Parent={{{parent}}}";
+            string parent = $"{Parent.GridPos} R:{Parent.Restrictions} TA:{Parent.TurrentAngle} O:{ModuleRot}";
+            return $"{GridPos} R:{Restrictions} TA:{TurrentAngle} O:{ModuleRot}   Parent={{{parent}}}";
         }
 
         static bool MatchI(Restrictions b) => b == Restrictions.I || b == Restrictions.IO || b == Restrictions.IE;
@@ -105,6 +105,10 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore]
         public Vector2 WorldSize => Module?.WorldSize ?? new Vector2(16f);
 
+        // Gets the design grid size of the module, such as [1,1] or [2,2]
+        [XmlIgnore][JsonIgnore]
+        public Point Size => Module?.GetSize() ?? new Point(1,1);
+
         // Gets the module rectangle in WORLD coordinates
         [XmlIgnore][JsonIgnore]
         public RectF WorldRect => new RectF(WorldPos, WorldSize);
@@ -116,7 +120,7 @@ namespace Ship_Game
             Tex         = null;
             Module      = null;
             Parent      = null;
-            Orientation = ModuleOrientation.Normal;
+            ModuleRot = ModuleOrientation.Normal;
         }
 
         [XmlIgnore][JsonIgnore]
@@ -131,13 +135,13 @@ namespace Ship_Game
                 && Module.Restrictions == other.Restrictions;
         }
 
-        public bool IsSame(ShipModule module, ModuleOrientation orientation, float facing)
+        public bool IsSame(ShipModule module, ModuleOrientation orientation, int turretAngle)
         {
             return Module != null
                 && Module.UID == module.UID
                 && Module.hangarShipUID == module.hangarShipUID
-                && Orientation == orientation
-                && Facing.AlmostEqual(facing);
+                && ModuleRot == orientation
+                && TurrentAngle == turretAngle;
         }
     }
 }

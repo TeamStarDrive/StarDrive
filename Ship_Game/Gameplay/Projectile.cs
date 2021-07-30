@@ -242,7 +242,7 @@ namespace Ship_Game.Gameplay
             else if (Weapon.Tag_Guided)
             {
                 if (!Weapon.isTurret && !isMirv)
-                    Rotation = Owner?.Rotation + Weapon.Module?.FacingRadians ?? Rotation;
+                    Rotation = Owner?.Rotation + Weapon.Module?.TurretAngleRads ?? Rotation;
 
                 Vector2 missileVelocity = inheritedVelocity != Vector2.Zero ? inheritedVelocity : Weapon.Owner?.Velocity ?? Vector2.Zero;
                 MissileAI               = new MissileAI(this, target, missileVelocity);
