@@ -325,9 +325,10 @@ namespace Ship_Game
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public Vector2 ProjectTo2D(Vector3 position)
+        // Projects World Pos into Screen Pos
+        public Vector2 ProjectTo2D(Vector3 worldPos)
         {
-            return Viewport.ProjectTo2D(position, Projection, View);
+            return Viewport.ProjectTo2D(worldPos, Projection, View);
         }
         
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -349,14 +350,14 @@ namespace Ship_Game
 
         // Just draws a given rectangle with a color fill
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawRectangle(Rectangle rectangle, Color edgeColor, Color fillColor, float thickness = 1f)
+        public void DrawRectangle(in Rectangle rectangle, Color edgeColor, Color fillColor, float thickness = 1f)
         {
             ScreenManager.SpriteBatch.FillRectangle(rectangle, fillColor);
             DrawRectangle(rectangle, edgeColor, thickness);               
         }
 
         // Just draws a given rectangle
-        public void DrawRectangle(Rectangle rectangle, Color edgeColor, float thickness = 1f)
+        public void DrawRectangle(in Rectangle rectangle, Color edgeColor, float thickness = 1f)
             => ScreenManager.SpriteBatch.DrawRectangle(rectangle, edgeColor, thickness);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -422,7 +423,7 @@ namespace Ship_Game
             {
                 Accepted = accepted,
                 Cancelled = cancelled,
-            });            
+            });
         }
 
         public void ExitMessageBox(GameScreen screen, Action accepted, Action cancelled, GameText message)
@@ -462,7 +463,7 @@ namespace Ship_Game
             Device.RenderState.DepthBufferWriteEnable = true;
         }
 
-        // this does some magic to convert a game position/coordinate to a drawable screen position
+        // Projects World Pos into Screen Pos
         public Vector2 ProjectToScreenPosition(Vector2 posInWorld, float zAxis = 0f)
         {
             return Viewport.ProjectTo2D(posInWorld.ToVec3(zAxis), Projection, View);
@@ -486,16 +487,13 @@ namespace Ship_Game
             sizeOnScreen = new Vector2(Math.Abs(size.X), Math.Abs(size.Y));
         }
 
-        public RectF ProjectToScreenRect(in RectF worldRect)
+        public Rectangle ProjectToScreenRect(in RectF worldRect)
         {
             Vector2 topLeft = ProjectToScreenPosition(new Vector2(worldRect.X, worldRect.Y));
             Vector2 botRight = ProjectToScreenPosition(new Vector2(worldRect.X + worldRect.W, worldRect.Y + worldRect.H));
-            RectF screenRect = default;
-            screenRect.X = topLeft.X;
-            screenRect.Y = topLeft.Y;
-            screenRect.W = (botRight.X - topLeft.X);
-            screenRect.H = (botRight.Y - topLeft.Y);
-            return screenRect;
+            return new Rectangle((int)topLeft.X, (int)topLeft.Y,
+                                 (int)(botRight.X - topLeft.X),
+                                 (int)(botRight.Y - topLeft.Y));
         }
 
         public Rectangle ProjectToScreenCoords(Vector2 posInWorld, float sizeInWorld)
@@ -605,21 +603,18 @@ namespace Ship_Game
             DrawCircle(screenPos, screenRadius, color, thickness);
         } 
 
-        public void DrawRectangleProjected(Rectangle rectangle, Color edge)
+        // projects a rectangle from World coordinates to Screen coordinates
+        public void DrawRectangleProjected(in RectF worldRect, Color edge, float thickness = 1f)
         {
-            Vector2 rectTopLeft  = ProjectToScreenPosition(new Vector2(rectangle.X, rectangle.Y));
-            Vector2 rectBotRight = ProjectToScreenPosition(new Vector2(rectangle.X - rectangle.Width, rectangle.Y - rectangle.Height));
-            var rect = new Rectangle((int)rectTopLeft.X, (int)rectTopLeft.Y, (int)(rectTopLeft.X - rectBotRight.X), (int)(rectTopLeft.Y - rectBotRight.Y));
-            DrawRectangle(rect, edge);
+            Rectangle screenRect = ProjectToScreenRect(worldRect);
+            DrawRectangle(screenRect, edge, thickness);
         }
 
-        public void DrawRectangleProjected(Rectangle rectangle, Color edge, Color fill)
+        // projects a rectangle from World coordinates to Screen coordinates
+        public void DrawRectangleProjected(in RectF worldRect, Color edge, Color fill, float thickness = 1f)
         {
-            Vector2 rectTopLeft  = ProjectToScreenPosition(new Vector2(rectangle.X, rectangle.Y));
-            Vector2 rectBotRight = ProjectToScreenPosition(new Vector2(rectangle.X + rectangle.Width, rectangle.Y + rectangle.Height));
-            var rect  = new Rectangle((int)rectTopLeft.X, (int)rectTopLeft.Y, 
-                                    (int)Math.Abs(rectTopLeft.X - rectBotRight.X), (int)Math.Abs(rectTopLeft.Y - rectBotRight.Y));
-            DrawRectangle(rect, edge, fill);            
+            Rectangle screenRect = ProjectToScreenRect(worldRect);
+            DrawRectangle(screenRect, edge, fill, thickness);
         }
 
         public void DrawRectangleProjected(Vector2 centerInWorld, Vector2 sizeInWorld, float rotation, Color color, float thickness = 1f)

@@ -58,9 +58,9 @@ namespace Ship_Game
         {
             if (GetSlotForModule(HighlightedModule, out SlotStruct highlighted))
             {
-                DrawRectangle(highlighted.WorldRect, Color.DarkOrange, 1.25f);
+                DrawRectangleProjected(highlighted.WorldRect, Color.DarkOrange, 1.25f);
                 if (IsSymmetricDesignMode && GetMirrorSlotStruct(highlighted, out SlotStruct mirrored))
-                    DrawRectangle(mirrored.WorldRect, Color.DarkOrange.Alpha(0.66f), 1.25f);
+                    DrawRectangleProjected(mirrored.WorldRect, Color.DarkOrange.Alpha(0.66f), 1.25f);
             }
             else if (HullEditMode)
             {
@@ -168,7 +168,7 @@ namespace Ship_Game
                     break;
             }
 
-            RectF screenRect = ProjectToScreenRect(moduleWorldRect);
+            Rectangle screenRect = ProjectToScreenRect(moduleWorldRect);
             batch.Draw(texture, screenRect, Color.White.Alpha(alpha), rotation, Vector2.Zero, effects, 1f);
         }
 
@@ -255,7 +255,7 @@ namespace Ship_Game
             string hangarShipUID = s.Module.hangarShipUID;
             Color color = Color.Black.Alpha(0.33f);
             Color textC = ShipBuilder.GetHangarTextColor(hangarShipUID);
-            DrawRectangle(s.WorldRect, textC, color);
+            DrawRectangleProjected(s.WorldRect, textC, color);
 
             if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship hangarShip))
             {
@@ -366,18 +366,12 @@ namespace Ship_Game
 
         void DrawShieldCircle(ShipModule moduleTemplate, Vector2 moduleWorldPos)
         {
-            Vector2 centerOffset;
-            if (ActiveModState == ModuleOrientation.Normal || ActiveModState == ModuleOrientation.Rear)
-                centerOffset = new Vector2(moduleTemplate.XSIZE, moduleTemplate.YSIZE) * 8f;
-            else
-                centerOffset = new Vector2(moduleTemplate.YSIZE, moduleTemplate.XSIZE) * 8f;
-
-            Vector2 moduleCenter = moduleWorldPos + centerOffset;
+            Vector2 moduleCenter = moduleWorldPos + ActiveModule.WorldSize*0.5f;
             DrawCircleProjected(moduleCenter, ActiveModule.ShieldHitRadius, Color.LightGreen);
 
             if (IsSymmetricDesignMode)
             {
-                Vector2 mirrorCenter = GetMirrorWorldPos(moduleWorldPos) + centerOffset;
+                Vector2 mirrorCenter = GetMirrorWorldPos(moduleWorldPos) + ActiveModule.WorldSize*0.5f;
                 DrawCircleProjected(mirrorCenter, ActiveModule.ShieldHitRadius, Color.LightGreen.Alpha(0.5f));
             }
         }
