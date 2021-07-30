@@ -1389,17 +1389,17 @@ namespace Ship_Game.Ships
             }
         }
 
+        public Point GetOrientedSize(ModuleOrientation orientation)
+        {
+            if (orientation == ModuleOrientation.Left || orientation == ModuleOrientation.Right)
+                return new Point(YSIZE, XSIZE);
+            return new Point(XSIZE, YSIZE);
+        }
+
         public Point GetOrientedSize(string slotOrientation)
         {
             if (Enum.TryParse(slotOrientation, out ModuleOrientation orientation))
-            {
-                switch (orientation)
-                {
-                    case ModuleOrientation.Left:
-                    case ModuleOrientation.Right:
-                        return new Point(YSIZE, XSIZE);
-                }
-            }
+                return GetOrientedSize(orientation);
             return new Point(XSIZE, YSIZE);
         }
 

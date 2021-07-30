@@ -340,12 +340,12 @@ namespace Ship_Game.Debug
             {
                 ShipModule m = w.Module;
                 float facing = ship.Rotation + m.FacingRadians;
-                float size = w.GetActualRange();
+                float range = w.GetActualRange();
 
-                Screen.ProjectToScreenCoords(m.Position, size, 
-                                      out Vector2 posOnScreen, out float sizeOnScreen);
-                ShipDesignScreen.DrawWeaponArcs(ScreenManager.SpriteBatch,
-                                      ship.Rotation, w, m, posOnScreen, sizeOnScreen*0.25f, ship.TrackingPower);
+                // TODO: This doesn't account for Ship's rotation...
+                Vector2 moduleCenter = m.Position + m.WorldSize*0.5f;
+                ShipDesignScreen.DrawWeaponArcs(ScreenManager.SpriteBatch, Screen,
+                    ship.Rotation, w, m, moduleCenter, range * 0.25f);
 
                 DrawCircleImm(w.Origin, m.Radius/(float)Math.Sqrt(2), Color.Crimson);
 
@@ -370,11 +370,11 @@ namespace Ship_Game.Debug
                         Color inArcColor = inArc ? Color.LawnGreen : Color.Orange;
                         DrawLineImm(m.Position, target.Position, inArcColor, 3f);
 
-                        DrawLineImm(m.Position, m.Position + facing.RadiansToDirection() * size, Color.Crimson);
+                        DrawLineImm(m.Position, m.Position + facing.RadiansToDirection() * range, Color.Crimson);
                         Vector2 left  = (facing - m.FieldOfFire * 0.5f).RadiansToDirection();
                         Vector2 right = (facing + m.FieldOfFire * 0.5f).RadiansToDirection();
-                        DrawLineImm(m.Position, m.Position + left * size, Color.Crimson);
-                        DrawLineImm(m.Position, m.Position + right * size, Color.Crimson);
+                        DrawLineImm(m.Position, m.Position + left * range, Color.Crimson);
+                        DrawLineImm(m.Position, m.Position + right * range, Color.Crimson);
 
                         string text = $"Target: {targetShip.Name}\nInArc: {inArc}";
                         DrawShadowStringProjected(m.Position, 0f, 1f, inArcColor, text);
