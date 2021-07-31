@@ -270,8 +270,8 @@ namespace Ship_Game.AI
             float closeToGoalCompensator = 1;
             if (treasuryGoal > 1000f)
             {
-                // if about 90% to treasury start reducing amount wanted. 
-                float reducer          = treasuryGoal / 9;
+                // if about 50% to treasury start reducing amount wanted. 
+                float reducer          = treasuryGoal / 2;
                 closeToGoalCompensator = Math.Min(treasuryGap  / reducer, 1);
             }
             float amount = OwnerEmpire.AllSpending + neededPerTurnForeTreasury;

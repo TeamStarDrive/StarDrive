@@ -637,7 +637,7 @@ namespace Ship_Game
         {
             get
             {
-                if (!Owner.IsBuildingUnlocked(Building.TerraformerId) || TerraformersHere >= TerraformerLimit)
+                if (!Terraformable || TerraformersHere >= TerraformerLimit)
                     return false;
 
                 if (TilesList.Any(t => t.CanTerraform)
