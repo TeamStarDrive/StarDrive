@@ -41,7 +41,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 0;
                     DefenseTaskWeight     = 2;
                     FleetStrMultiplier    = 1;
-                    FederationPopRatioWar = 1.5f;
+                    FederationPopRatioWar = 2f;
                     DoomFleetThreshold    = 2;
                     AssaultBomberRatio    = 0.5f;
                     AllyCallToWarRatio    = 1.2f;
@@ -64,7 +64,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 50;
                     DefenseTaskWeight     = 4f;
                     FleetStrMultiplier    = 1.4f;
-                    FederationPopRatioWar = 1.25f;
+                    FederationPopRatioWar = 1.6f;
                     DoomFleetThreshold    = 1.5f;
                     AssaultBomberRatio    = 0.75f;
                     AllyCallToWarRatio    = 1.15f;
@@ -87,7 +87,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 25;
                     DefenseTaskWeight     = 6;
                     FleetStrMultiplier    = 1.3f;
-                    FederationPopRatioWar = 1.2f;
+                    FederationPopRatioWar = 1.5f;
                     DoomFleetThreshold    = 1f;
                     AssaultBomberRatio    = 1;
                     AllyCallToWarRatio    = 1.2f;
@@ -110,7 +110,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 100;
                     DefenseTaskWeight     = 7;
                     FleetStrMultiplier    = 1.05f;
-                    FederationPopRatioWar = 1.45f;
+                    FederationPopRatioWar = 1.7f;
                     DoomFleetThreshold    = 1.75f;
                     AllyCallToWarRatio    = 1.1f;
                     AssaultBomberRatio    = 0.5f;
@@ -133,7 +133,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 0;
                     DefenseTaskWeight     = 8;
                     FleetStrMultiplier    = 0.95f;
-                    FederationPopRatioWar = 1.2f;
+                    FederationPopRatioWar = 1.5f;
                     DoomFleetThreshold    = 2;
                     AssaultBomberRatio    = 0.8f;
                     AllyCallToWarRatio    = 1.25f;
@@ -156,7 +156,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 75;
                     DefenseTaskWeight     = 9;
                     FleetStrMultiplier    = 1f;
-                    FederationPopRatioWar = 1.25f;
+                    FederationPopRatioWar = 1.45f;
                     DoomFleetThreshold    = 2.5f;
                     AssaultBomberRatio    = 0.6f;
                     AllyCallToWarRatio    = 1f;
@@ -179,7 +179,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 0;
                     DefenseTaskWeight     = 10;
                     FleetStrMultiplier    = 0.9f;
-                    FederationPopRatioWar = 1.1f;
+                    FederationPopRatioWar = 1.4f;
                     DoomFleetThreshold    = 3;
                     AssaultBomberRatio    = 0.5f;
                     AllyCallToWarRatio    = 1.35f;
