@@ -1534,6 +1534,9 @@ namespace Ship_Game.Ships
 
         bool WillShipDieNow(Projectile proj)
         {
+            if (dying) // already dying, no need to calc explosion chances again
+                return false;
+
             if (proj != null && proj.Explodes && proj.DamageAmount > (SurfaceArea/2f).LowerBound(200))
                 return true;
 
