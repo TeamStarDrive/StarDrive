@@ -582,7 +582,10 @@ namespace Ship_Game
 
             using (TroopList.AcquireReadLock())
                 foreach (Troop troop in TroopList)
-                    troop.HealTroop(healAmount);
+                {
+                    if (Ground.CanRepairOrHeal())
+                        troop.HealTroop(healAmount);
+                }
         }
 
         public struct Forces
