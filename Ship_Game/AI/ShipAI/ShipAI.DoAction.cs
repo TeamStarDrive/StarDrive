@@ -525,8 +525,6 @@ namespace Ship_Game.AI
             // recover the ship
             if (Owner.Position.InRadius(Owner.Mothership.Position, Owner.Mothership.Radius))
             {
-                Log.Write($"Recover Ship Dist: {Owner.Position.Distance(Owner.Mothership.Position)} MinRecover:{Owner.Mothership.Radius} {Owner}");
-
                 Owner.LandTroopsOnShip(Owner.Mothership);
 
                 if (Owner.shipData.Role == ShipData.RoleName.supply) // fbedard: Supply ship return with Ordinance

@@ -66,6 +66,14 @@ namespace Ship_Game
             GameSceneState = new SceneState();
             SceneInter = new SceneInterface(graphics);
             SceneInter.CreateDefaultManagers(false, false, true);
+            SceneInter.AddManager(new GameLightManager(graphics));
+        }
+
+        class GameLightManager : LightManager
+        {
+            public GameLightManager(IGraphicsDeviceService device) : base(device) {}
+
+            // TODO: maybe improve it here?
         }
 
         public void UpdatePreferences(LightingSystemPreferences preferences)
@@ -143,18 +151,46 @@ namespace Ship_Game
         ////////////////////////////////////////////////////////////////////////////////////
         
         readonly ChangePendingListSafe<ISceneObject> PendingObjects = new ChangePendingListSafe<ISceneObject>();
-        readonly ChangePendingListSafe<ILight> PendingLights = new ChangePendingListSafe<ILight>();
+        readonly ChangePendingListSafe<(ILight,bool)> PendingLights = new ChangePendingListSafe<(ILight,bool)>();
+        public int ActiveDynamicLights;
 
-        void SubmitPending<T>(ISubmit<T> manager, ChangePendingListSafe<T> pendingList)
+        void SubmitPendingObjects(ISubmit<ISceneObject> manager, ChangePendingListSafe<ISceneObject> pendingList)
         {
-            Array<PendingItem<T>> pending = pendingList.MovePendingItems();
+            Array<PendingItem<ISceneObject>> pending = pendingList.MovePendingItems();
             for (int i = 0; i < pending.Count; ++i)
             {
-                PendingItem<T> pendingLight = pending[i];
-                if (pendingLight.Add)
-                    manager.Submit(pendingLight.Item);
+                PendingItem<ISceneObject> p = pending[i];
+                if (p.Add)
+                    manager.Submit(p.Item);
                 else
-                    manager.Remove(pendingLight.Item);
+                    manager.Remove(p.Item);
+            }
+        }
+        void SubmitPendingLights(ISubmit<ILight> manager, ChangePendingListSafe<(ILight,bool)> pendingList)
+        {
+            Array<PendingItem<(ILight,bool)>> pending = pendingList.MovePendingItems();
+            for (int i = 0; i < pending.Count; ++i)
+            {
+                PendingItem<(ILight,bool)> p = pending[i];
+                bool dynamic = p.Item.Item2;
+                if (p.Add)
+                {
+                    if (dynamic)
+                    {
+                        if (ActiveDynamicLights >= GlobalStats.MaxDynamicLightSources)
+                            continue; // don't add more
+                        ++ActiveDynamicLights;
+                    }
+                    manager.Submit(p.Item.Item1);
+                }
+                else
+                {
+                    if (manager.Remove(p.Item.Item1))
+                    {
+                        if (dynamic)
+                            --ActiveDynamicLights;
+                    }
+                }
             }
         }
 
@@ -165,11 +201,17 @@ namespace Ship_Game
                 PendingObjects.Remove(so);
         }
         
-        public void AddLight(ILight light) => PendingLights.Add(light);
-        public void RemoveLight(ILight light)
+        public void AddLight(ILight light, bool dynamic)
         {
             if (light != null)
-                PendingLights.Remove(light);
+                PendingLights.Add((light,dynamic));
+        }
+        public void RemoveLight(ILight light, bool dynamic)
+        {
+            if (light != null)
+            {
+                PendingLights.Remove((light,dynamic));
+            }
         }
 
         public void RemoveAllObjects()
@@ -188,6 +230,7 @@ namespace Ship_Game
             LightRigIdentity = identity;
             SceneInter.LightManager.Clear();
             PendingLights.Clear();
+            ActiveDynamicLights = 0;
 
             if (rig != null)
                 SceneInter.LightManager.Submit(rig);
@@ -205,6 +248,7 @@ namespace Ship_Game
         {
             SceneInter.Unload();
             LightSysManager.Unload();
+            ActiveDynamicLights = 0;
         }
 
         ////////////////////////////////////////////////////////////////////////////////////
@@ -228,8 +272,8 @@ namespace Ship_Game
             if (!IsMainThread)
                 ErrorMustBeOnMainThread(nameof(BeginFrameRendering));
 
-            SubmitPending(SceneInter.ObjectManager, PendingObjects);
-            SubmitPending(SceneInter.LightManager, PendingLights);
+            SubmitPendingObjects(SceneInter.ObjectManager, PendingObjects);
+            SubmitPendingLights(SceneInter.LightManager, PendingLights);
 
             GameSceneState.BeginFrameRendering(ref view, ref projection,
                                                elapsed.RealTime.Seconds, Environment, true);

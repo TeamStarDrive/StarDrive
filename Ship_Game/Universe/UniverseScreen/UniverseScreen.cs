@@ -318,7 +318,7 @@ namespace Ship_Game
                 light.ShadowType = ShadowType.AllObjects;
 
             light.World = Matrix.CreateTranslation(light.Position);
-            AddLight(light);
+            AddLight(light, dynamic:false);
         }
 
         public void ContactLeader()
