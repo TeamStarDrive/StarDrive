@@ -159,10 +159,18 @@ namespace Ship_Game
         }
 
         public void AddObject(ISceneObject so) => PendingObjects.Add(so);
-        public void RemoveObject(ISceneObject so) => PendingObjects.Remove(so);
+        public void RemoveObject(ISceneObject so)
+        {
+            if (so != null)
+                PendingObjects.Remove(so);
+        }
         
         public void AddLight(ILight light) => PendingLights.Add(light);
-        public void RemoveLight(ILight light) => PendingLights.Remove(light);
+        public void RemoveLight(ILight light)
+        {
+            if (light != null)
+                PendingLights.Remove(light);
+        }
 
         public void RemoveAllObjects()
         {

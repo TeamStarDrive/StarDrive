@@ -91,6 +91,9 @@ namespace Ship_Game
         public static bool NotifyEnemyInSystemAfterLoad = true;
         public static bool EnableEngineTrails = true;
 
+        // NOTE: This can cause severe performance issues in late game battles
+        public static bool DynamicLightSources = true;
+
         public static int AutoSaveFreq = 300;   //Added by Gretman
         public static ExtraRemnantPresence ExtraRemnantGS;
 
@@ -308,6 +311,7 @@ namespace Ship_Game
             GetSetting("LimitSpeed",           ref LimitSpeed);
             GetSetting("DisableAsteroids",     ref DisableAsteroids);
             GetSetting("EnableEngineTrails",   ref EnableEngineTrails);
+            GetSetting("DynamicLightSources", ref DynamicLightSources);
             GetSetting("SimulationFramesPerSecond", ref SimulationFramesPerSecond);
             GetSetting("NotifyEnemyInSystemAfterLoad", ref NotifyEnemyInSystemAfterLoad);
         }
@@ -348,6 +352,7 @@ namespace Ship_Game
             WriteSetting(config, "LimitSpeed",          LimitSpeed);
             WriteSetting(config, "DisableAsteroids",    DisableAsteroids);
             WriteSetting(config, "EnableEngineTrails",  EnableEngineTrails);
+            WriteSetting(config, "DynamicLightSources", DynamicLightSources);
             WriteSetting(config, "SimulationFramesPerSecond", SimulationFramesPerSecond);
             WriteSetting(config, "NotifyEnemyInSystemAfterLoad", NotifyEnemyInSystemAfterLoad);
 
