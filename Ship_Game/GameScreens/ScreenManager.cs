@@ -21,13 +21,11 @@ namespace Ship_Game
         readonly IGraphicsDeviceService GraphicsDeviceService;
         readonly SceneState GameSceneState;
         readonly SceneInterface SceneInter;
-        readonly object InterfaceLock = new object();
         readonly GameBase GameInstance;
 
         public LightRigIdentity LightRigIdentity = LightRigIdentity.Unknown;
 
         public LightingSystemManager LightSysManager;
-        public LightingSystemEditor editor;
         public SceneEnvironment Environment;
         public InputState input;
         public AudioHandle Music = new AudioHandle();
@@ -68,11 +66,6 @@ namespace Ship_Game
             GameSceneState = new SceneState();
             SceneInter = new SceneInterface(graphics);
             SceneInter.CreateDefaultManagers(false, false, true);
-            editor = new LightingSystemEditor(game.Services, graphics, game)
-            {
-                UserHandledView = true
-            };
-            SceneInter.AddManager(editor);
         }
 
         public void UpdatePreferences(LightingSystemPreferences preferences)
@@ -140,61 +133,56 @@ namespace Ship_Game
             return false;
         }
 
+        public bool IsMainThread => Thread.CurrentThread.ManagedThreadId == GameBase.MainThreadId;
+
+        void ErrorMustBeOnMainThread(string functionName)
+        {
+            Log.Error($"{functionName}() must only be called on main draw thread!");
+        }
+
         ////////////////////////////////////////////////////////////////////////////////////
+        
+        readonly ChangePendingListSafe<ISceneObject> PendingObjects = new ChangePendingListSafe<ISceneObject>();
+        readonly ChangePendingListSafe<ILight> PendingLights = new ChangePendingListSafe<ILight>();
 
-        public void AddObject(ISceneObject so)
+        void SubmitPending<T>(ISubmit<T> manager, ChangePendingListSafe<T> pendingList)
         {
-            if (so == null) return;
-            lock (InterfaceLock)
-                SceneInter.ObjectManager.Submit(so);
+            Array<PendingItem<T>> pending = pendingList.MovePendingItems();
+            for (int i = 0; i < pending.Count; ++i)
+            {
+                PendingItem<T> pendingLight = pending[i];
+                if (pendingLight.Add)
+                    manager.Submit(pendingLight.Item);
+                else
+                    manager.Remove(pendingLight.Item);
+            }
         }
 
-        public void RemoveObject(ISceneObject so)
-        {
-            if (so == null) return;
-            lock (InterfaceLock)
-                SceneInter.ObjectManager.Remove(so);
-        }
+        public void AddObject(ISceneObject so) => PendingObjects.Add(so);
+        public void RemoveObject(ISceneObject so) => PendingObjects.Remove(so);
+        
+        public void AddLight(ILight light) => PendingLights.Add(light);
+        public void RemoveLight(ILight light) => PendingLights.Remove(light);
 
         public void RemoveAllObjects()
         {
-            lock (InterfaceLock)
-                SceneInter.ObjectManager.Clear();
-        }
-
-        ////////////////////////////////////////////////////////////////////////////////////
-
-        public void AddLight(ILight light)
-        {
-            if (light == null) return;
-            lock (InterfaceLock)
-                SceneInter.LightManager.Submit(light);
-        }
-
-        public void RemoveLight(ILight light)
-        {
-            if (light == null) return;
-            lock (InterfaceLock)
-                SceneInter.LightManager.Remove(light);
+            PendingObjects.Clear();
+            SceneInter.ObjectManager.Clear();
         }
 
         public void RemoveAllLights()
         {
-            lock (InterfaceLock)
-            {
-                LightRigIdentity = LightRigIdentity.Unknown;
-                SceneInter.LightManager.Clear();
-            }
+            AssignLightRig(LightRigIdentity.Unknown, null);
         }
 
         public void AssignLightRig(LightRigIdentity identity, LightRig rig)
         {
-            lock (InterfaceLock)
-            {
-                LightRigIdentity = identity;
-                SceneInter.LightManager.Clear();
+            LightRigIdentity = identity;
+            SceneInter.LightManager.Clear();
+            PendingLights.Clear();
+
+            if (rig != null)
                 SceneInter.LightManager.Submit(rig);
-            }
         }
 
         ////////////////////////////////////////////////////////////////////////////////////
@@ -215,35 +203,37 @@ namespace Ship_Game
 
         public void UpdateSceneObjects(float deltaTime)
         {
-            lock (InterfaceLock)
-                SceneInter.Update(deltaTime);
+            if (!IsMainThread)
+                ErrorMustBeOnMainThread(nameof(UpdateSceneObjects));
+            SceneInter.Update(deltaTime);
         }
 
         public void RenderSceneObjects()
         {
-            lock (InterfaceLock)
-                SceneInter.RenderManager.Render();
+            if (!IsMainThread)
+                ErrorMustBeOnMainThread(nameof(RenderSceneObjects));
+            SceneInter.RenderManager.Render();
         }
 
         public void BeginFrameRendering(DrawTimes elapsed, ref Matrix view, ref Matrix projection)
         {
-            lock (InterfaceLock)
-            {
-                GameSceneState.BeginFrameRendering(ref view, ref projection,
-                                                   elapsed.RealTime.Seconds, Environment, true);
-                editor.BeginFrameRendering(GameSceneState);
-                SceneInter.BeginFrameRendering(GameSceneState);
-            }
+            if (!IsMainThread)
+                ErrorMustBeOnMainThread(nameof(BeginFrameRendering));
+
+            SubmitPending(SceneInter.ObjectManager, PendingObjects);
+            SubmitPending(SceneInter.LightManager, PendingLights);
+
+            GameSceneState.BeginFrameRendering(ref view, ref projection,
+                                               elapsed.RealTime.Seconds, Environment, true);
+            SceneInter.BeginFrameRendering(GameSceneState);
         }
 
         public void EndFrameRendering()
         {
-            lock (InterfaceLock)
-            {
-                SceneInter.EndFrameRendering();
-                editor.EndFrameRendering();
-                GameSceneState.EndFrameRendering();
-            }
+            if (!IsMainThread)
+                ErrorMustBeOnMainThread(nameof(EndFrameRendering));
+            SceneInter.EndFrameRendering();
+            GameSceneState.EndFrameRendering();
         }
 
         ////////////////////////////////////////////////////////////////////////////////////
