@@ -122,11 +122,19 @@ namespace Ship_Game
 
         public PlanetGridSquare(int x, int y, Building b, bool hab, bool terraformable)
         {
-            this.X        = x;
-            this.Y        = y;
+            X             = x;
+            Y             = y;
             Habitable     = hab;
             Building      = b;
             Terraformable = terraformable;
+        }
+        
+        public static PlanetGridSquare FromSaveData(SavedGame.PGSData data)
+        {
+            return new PlanetGridSquare(data.x, data.y, data.building, data.Habitable, data.Terraformable)
+            {
+                Biosphere = data.Biosphere
+            };
         }
 
         public void AddTroop(Troop troop)
