@@ -82,12 +82,6 @@ namespace Ship_Game
             return ResourceManager.RandomPlanet(chosenCategory);
         }
 
-        public void RestorePlanetTypeFromSave(int planetId)
-        {
-            // we revert to random just in case people unload mods
-            Type = ResourceManager.PlanetOrRandom(planetId);
-        }
-
         public PlanetGridSquare FindTileUnderMouse(Vector2 mousePos)
             => TilesList.Find(pgs => pgs.ClickRect.HitTest(mousePos));
 
@@ -481,11 +475,6 @@ namespace Ship_Game
             BaseFertilityTerraformRatio = ratio;
         }
 
-        public void RestoreBaseFertilityTerraformRatio(float ratio)
-        {
-            BaseFertilityTerraformRatio = ratio;
-        }
-            
         protected void AddEventsAndCommodities()
         {
             if (!Habitable)
