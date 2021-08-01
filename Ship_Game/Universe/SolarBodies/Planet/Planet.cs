@@ -81,6 +81,7 @@ namespace Ship_Game
         public float InfraStructure { get; private set; }
         public bool HasDynamicBuildings { get; private set; } // Has buildings which should update per turn even if no owner
         public bool HasLimitedResourceBuilding { get; private set; } // if true, these buildings will be updated per turn until depleted
+        public int BombingIntensity { get; private set; } // The more bombs hitting the surface, the harder is to heal troops or repair buildings
 
         private const string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
@@ -496,6 +497,7 @@ namespace Ship_Game
             {
                 UpdateBaseFertility();
                 UpdateDynamicBuildings();
+                Mend(((int)InfraStructure).LowerBound(1));
                 PlanetUpdatePerTurnTimer = GlobalStats.TurnTimer;
             }
 
@@ -757,6 +759,11 @@ namespace Ship_Game
             RepairBuildings(1);
             CallForHelp();
             TotalTroopConsumption = GetTotalTroopConsumption();
+        }
+
+        public bool CanRepairOrHeal()
+        {
+            return BombingIntensity == 0 || RandomMath.RollDice(100 - BombingIntensity);
         }
 
         private void NotifyEmptyQueue()
@@ -1426,7 +1433,7 @@ namespace Ship_Game
 
         private void GrowPopulation()
         {
-            if (Owner == null || RecentCombat)
+            if (Owner == null || RecentCombat || !CanRepairOrHeal())
                 return;
 
             if (PopulationRatio.Greater(1)) // Over population - the planet cannot support this amount of population
@@ -1480,6 +1487,12 @@ namespace Ship_Game
 
             Construction.ClearQueue();
             Owner = null;
+        }
+
+        public void Mend(int value) => AddBombingIntensity(-value);
+        public void AddBombingIntensity(int value)
+        {
+            BombingIntensity = (BombingIntensity + value).Clamped(0,100);
         }
 
         public bool EventsOnTiles()
@@ -1536,11 +1549,14 @@ namespace Ship_Game
 
             for (int i = 0; i < BuildingList.Count; ++i)
             {
-                Building b        = BuildingList[i];
-                Building t        = ResourceManager.GetBuildingTemplate(b.BID);
-                b.CombatStrength  = (b.CombatStrength + repairAmount).Clamped(0, t.CombatStrength);
-                b.Strength        = (b.Strength + repairAmount).Clamped(0, t.Strength);
-                UpdateHomeDefenseHangars(b);
+                if (CanRepairOrHeal())
+                {
+                    Building b = BuildingList[i];
+                    Building t = ResourceManager.GetBuildingTemplate(b.BID);
+                    b.CombatStrength = (b.CombatStrength + repairAmount).Clamped(0, t.CombatStrength);
+                    b.Strength = (b.Strength + repairAmount).Clamped(0, t.Strength);
+                    UpdateHomeDefenseHangars(b);
+                }
             }
         }
 

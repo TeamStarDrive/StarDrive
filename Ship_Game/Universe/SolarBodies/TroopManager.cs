@@ -574,7 +574,7 @@ namespace Ship_Game
             return troops;
         }
 
-        //Added by McShooterz: heal builds and troops every turn
+        // Added by McShooterz: heal builds and troops every turn
         public void HealTroops(int healAmount)
         {
             if (RecentCombat)
@@ -582,7 +582,10 @@ namespace Ship_Game
 
             using (TroopList.AcquireReadLock())
                 foreach (Troop troop in TroopList)
-                    troop.HealTroop(healAmount);
+                {
+                    if (Ground.CanRepairOrHeal())
+                        troop.HealTroop(healAmount);
+                }
         }
 
         public struct Forces
