@@ -123,7 +123,9 @@ namespace Ship_Game
                 Radius = radius <= 0f ? 1f : radius*expType.Scale
             };
 
-            AddLight(exp, position, intensity);
+            if (GlobalStats.DynamicLightSources)
+                AddLight(exp, position, intensity);
+
             using (Lock.AcquireWriteLock())
                 ActiveExplosions.Add(exp);
         }
@@ -137,7 +139,10 @@ namespace Ship_Game
                 Pos = position.ToVec2(),
                 Radius = radius <= 0f ? 1f : radius,
             };
-            AddLight(exp, position, intensity);
+
+            if (GlobalStats.DynamicLightSources)
+                AddLight(exp, position, intensity);
+
             using (Lock.AcquireWriteLock())
                 ActiveExplosions.Add(exp);
         }

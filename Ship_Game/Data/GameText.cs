@@ -5144,5 +5144,9 @@ namespace Ship_Game
         EngineTrails = -26,
         /// <summary>This will enable engine trails for moving ships, disabling this</summary>
         TT_EngineTrails = -27,
+        /// <summary>Dynamic Light Sources</summary>
+        DynamicLightSources = -28,
+        /// <summary>This will enable creating dynamic 3D Light Sources</summary>
+        TT_DynamicLightSources = -29,
     }
 }
