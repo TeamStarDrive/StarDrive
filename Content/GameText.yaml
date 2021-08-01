@@ -12181,3 +12181,7 @@ EngineTrails:
  ENG: "Enable engine trails"
 TT_EngineTrails:
  ENG: "This will enable engine trails for moving ships, disabling this will improve performance"
+DynamicLightSources:
+ ENG: "Dynamic Light Sources"
+TT_DynamicLightSources:
+ ENG: "This will enable creating dynamic 3D Light Sources for projectile hits or explosions. It can have a major performance hit during lategame with thousands of ships and projectiles on screen. Disable this to improve performance in battles."
