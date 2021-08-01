@@ -229,11 +229,13 @@ namespace SynapseGaming.LightingSystem.Core
 
         /// <summary>Removes an object from the container.</summary>
         /// <param name="obj"></param>
-        public virtual void Remove(T obj)
+        public virtual bool Remove(T obj)
         {
-            DynamicObjects.Remove(obj);
+            if (!DynamicObjects.Remove(obj))
+                return false;
             Root.Remove(obj.WorldBoundingBox, obj);
             ++Stats.ObjectsRemoved.AccumulationValue;
+            return true;
         }
 
         /// <summary>

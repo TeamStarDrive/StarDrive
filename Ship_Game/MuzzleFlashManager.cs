@@ -45,7 +45,7 @@ namespace Ship_Game
         {
             var f = new MuzzleFlash { Projectile = projectile };
             f.Update();
-            if (GlobalStats.DynamicLightSources)
+            if (GlobalStats.MaxDynamicLightSources != 0)
             {
                 f.Light = new PointLight
                 {
@@ -57,7 +57,7 @@ namespace Ship_Game
                     FillLight    = false,
                     Enabled      = true
                 };
-                Empire.Universe.AddLight(f.Light);
+                Empire.Universe.AddLight(f.Light, dynamic:true);
             }
 
             using (Lock.AcquireWriteLock())
@@ -77,7 +77,7 @@ namespace Ship_Game
                     if (f.Life <= 0f)
                     {
                         if (f.Light != null)
-                            Empire.Universe.RemoveLight(f.Light);
+                            Empire.Universe.RemoveLight(f.Light, dynamic:true);
                         FlashList.RemoveAtSwapLast(i--);
                         continue;
                     }

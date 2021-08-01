@@ -63,11 +63,11 @@ namespace Ship_Game
 
         public void AddLight()
         {
-            if (Light != null)                           
+            if (Light != null)
                 return;
             
             Light = new PointLight();
-            Empire.Universe.AddLight(Light);
+            Empire.Universe.AddLight(Light, dynamic:true);
         }
 
         public void RemoveLight()
@@ -75,7 +75,7 @@ namespace Ship_Game
             if (Light == null)
                 return;
 
-            Empire.Universe.RemoveLight(Light);
+            Empire.Universe.RemoveLight(Light, dynamic:true);
             Light = null;
         }
 
@@ -106,7 +106,7 @@ namespace Ship_Game
             Displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
             TexScale     = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
             
-            if (GlobalStats.DynamicLightSources)
+            if (GlobalStats.MaxDynamicLightSources != 0)
             {
                 AddLight();
                 Light.World        = world;
@@ -151,7 +151,7 @@ namespace Ship_Game
             TexScale     = 2.8f - 0.185f * RandomMath.RandomBetween(intensity, 10f);
             Displacement = 0.085f * RandomMath.RandomBetween(intensity, 10f);
 
-            if (GlobalStats.DynamicLightSources)
+            if (GlobalStats.MaxDynamicLightSources != 0)
             {
                 AddLight();
                 Light.World        = proj.WorldMatrix;
@@ -160,7 +160,6 @@ namespace Ship_Game
                 Light.Intensity    = RandomMath.RandomBetween(intensity * 0.5f, 10f);
                 Light.Enabled      = true;
             }
-
 
             CreateShieldHitParticles(module.Center3D, proj.Position, beamFlash: false);
         }

@@ -112,10 +112,12 @@ namespace SynapseGaming.LightingSystem.Rendering
 
     /// <summary>Removes an object from the container.</summary>
     /// <param name="avatar"></param>
-    public virtual void Remove(IAvatar avatar)
+    public virtual bool Remove(IAvatar avatar)
     {
-      this.list_0.Remove(avatar);
+      if (!this.list_0.Remove(avatar))
+          return false;
       ++this.class56_0.lightingSystemStatistic_1.AccumulationValue;
+      return true;
     }
 
     /// <summary>

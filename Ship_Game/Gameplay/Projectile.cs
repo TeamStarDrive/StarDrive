@@ -427,7 +427,7 @@ namespace Ship_Game.Gameplay
 
             ++DebugInfoScreen.ProjDied;
             if (Light != null)
-                Empire.Universe.RemoveLight(Light);
+                Empire.Universe.RemoveLight(Light, dynamic:true);
 
             if (InFlightSfx.IsPlaying)
                 InFlightSfx.Stop();
@@ -541,7 +541,7 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-            if (GlobalStats.DynamicLightSources)
+            if (GlobalStats.MaxDynamicLightSources != 0)
             {
                 if (InFrustum && Light == null && Weapon.Light != null && !LightWasAddedToSceneGraph)
                 {
@@ -565,7 +565,7 @@ namespace Ship_Game.Gameplay
                         case "Purple": Light.DiffuseColor = new Vector3(0.8f, 0.8f, 0.95f); break;
                         case "Blue":   Light.DiffuseColor = new Vector3(0.0f, 0.8f, 1f);    break;
                     }
-                    Empire.Universe.AddLight(Light);
+                    Empire.Universe.AddLight(Light, dynamic:true);
                 }
                 else if (Light != null && Weapon.Light != null && LightWasAddedToSceneGraph)
                 {
