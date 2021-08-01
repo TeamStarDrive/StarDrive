@@ -780,6 +780,7 @@ namespace Ship_Game
             [Serialize(59)] public float AverageFoodExportTurns;
             [Serialize(60)] public float AverageProdExportTurns;
             [Serialize(61)] public bool IsHomeworld;
+            [Serialize(62)] public int BombingIntensity;
 
             public override string ToString() => $"PlanetSD {Name}";
         }
