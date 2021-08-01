@@ -629,6 +629,7 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Generate.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Govern.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Resources.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Serialization.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_WeCanAffordThis.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_WorkDistribution.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\SBProduction.cs" />
