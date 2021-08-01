@@ -42,7 +42,6 @@ namespace Ship_Game
         public static object ClickableSystemsLock = new object();
         public static object ClickableItemLocker  = new object();
         public static object FleetButtonLocker    = new object();
-        public static object BeamEffectLocker     = new object();
 
         public static bool ShowAllDesigns        = true;
         public static bool SymmetricDesign       = true;
