@@ -68,6 +68,7 @@ namespace Ship_Game
                     () => $"real {GameBase.Base.TotalElapsed:0.00}s   sim.time {CurrentSimTime:0.00}s/{TargetSimTime:0.00}s  lag:{(TargetSimTime - CurrentSimTime) * 1000:0.0}ms"));
                 DebugStats.AddItem(new DebugStatItem("Ships", () => Objects.Ships.Count.ToString()));
                 DebugStats.AddItem(new DebugStatItem("Proj", () => Objects.Projectiles.Count.ToString()));
+                DebugStats.AddItem(new DebugStatItem("DyLights", () => ScreenManager.ActiveDynamicLights.ToString()));
                 DebugStats.AddItem(new DebugStatItem("Perf", () => "avg-sample  max-sample  total/sec"));
 
                 var sim = DebugStats.AddItem(new DebugStatItem("Sim", ProcessSimTurnsPerf, true));
