@@ -48,6 +48,7 @@ namespace Ship_Game
             Res.PercentLock    = data.ResLock;
             OrbitalRadius      = data.OrbitalDistance;
             BasePopPerTile     = data.BasePopPerTile;
+            BombingIntensity   = data.BombingIntensity;
             
             SetBaseFertility(data.Fertility, data.MaxFertility);
             
