@@ -213,9 +213,9 @@ namespace Ship_Game
             if (ShipToView == null) 
                 ViewingShip = false;
 
-#if DEBUG
-            float minCamHeight = 400.0f;
-#else
+            #if DEBUG
+                float minCamHeight = 400.0f;
+            #else
                 float minCamHeight = Debug ? 1337.0f : 400.0f;
             #endif
 
