@@ -231,11 +231,10 @@ namespace SynapseGaming.LightingSystem.Core
         /// <param name="obj"></param>
         public virtual bool Remove(T obj)
         {
-            if (!DynamicObjects.Remove(obj))
-                return false;
+            bool exists = DynamicObjects.Remove(obj);
             Root.Remove(obj.WorldBoundingBox, obj);
             ++Stats.ObjectsRemoved.AccumulationValue;
-            return true;
+            return exists;
         }
 
         /// <summary>
