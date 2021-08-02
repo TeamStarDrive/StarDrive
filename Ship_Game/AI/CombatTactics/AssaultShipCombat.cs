@@ -50,7 +50,8 @@ namespace Ship_Game.AI.CombatTactics
             float totalTroopStrengthToCommit = Carrier.MaxTroopStrengthInShipToCommit + Carrier.MaxTroopStrengthInSpaceToCommit;
             float enemyStrength = targetShip.BoardingDefenseTotal / 2;
 
-            if (totalTroopStrengthToCommit > enemyStrength && (Owner.loyalty.isFaction || targetShip.GetStrength() > 0f))
+            if ((Owner.loyalty.isPlayer && Owner.AI.HasPriorityTarget || totalTroopStrengthToCommit > enemyStrength) 
+                && (Owner.loyalty.isFaction || targetShip.GetStrength() > 0f))
             {
                 if (Carrier.MaxTroopStrengthInSpaceToCommit.AlmostZero() || Carrier.MaxTroopStrengthInSpaceToCommit < enemyStrength)
                     // This will launch salvos of assault shuttles if possible

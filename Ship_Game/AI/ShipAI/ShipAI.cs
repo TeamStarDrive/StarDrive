@@ -392,13 +392,14 @@ namespace Ship_Game.AI
             if (Owner.AI.State != AIState.Resupply && Owner.AI.State != AIState.ResupplyEscort)
                 return;
 
-            if (!Owner.Supply.DoneResupplying(supplyType))
+            if (!Owner.Supply.DoneResupplying(supplyType) && !Owner.AI.BadGuysNear)
             {
                 if (State != AIState.ResupplyEscort || EscortTarget?.SupplyShipCanSupply == true)
                     return;
             }
 
             DequeueCurrentOrder();
+            ExitCombatState();
             Owner.AI.SetPriorityOrder(false);
             Owner.AI.IgnoreCombat = false;
             if (Owner.fleet != null)

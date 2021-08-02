@@ -156,7 +156,7 @@ namespace UnitTests.AITests.Empire
             // add them to the universe
             Universe.Objects.UpdateLists();
 
-            // The expected maintenance for the Flak Fang is 0.081
+            // The expected maintenance for the Flak Fang is 0.081, based on the cost of the ship
             float roleUnitMaint = build.RoleUnitMaintenance(combatRole);
             Assert.AreEqual(0.081f, roleUnitMaint, "Unexpected maintenance value");
 
