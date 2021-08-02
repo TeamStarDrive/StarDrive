@@ -239,7 +239,7 @@ namespace Ship_Game
             if (Level == MaxLevel)
                 return;
 
-            int dieRoll = Level * DifficultyMultiplier() * (int)CurrentGame.Pace;
+            int dieRoll = (int)(Level * CurrentGame.Pace + EmpireManager.ActiveMajorEmpires.Length / 2f);
             if (alwaysLevelUp || RandomMath.RollDie(dieRoll) == 1)
             {
                 int newLevel = Level + 1;
@@ -252,12 +252,6 @@ namespace Ship_Game
             }
         }
 
-        int DifficultyMultiplier()
-        {
-            int max = (int)Enum.GetValues(typeof(UniverseData.GameDifficulty)).Cast<UniverseData.GameDifficulty>().Max() + 1;
-            return (max - (int)CurrentGame.Difficulty).LowerBound(1);
-        }
-
         void AlertPlayerAboutPirateOps(PirateOpsWarning warningType)
         {
             if (!Owner.IsKnown(EmpireManager.Player))
@@ -265,7 +259,7 @@ namespace Ship_Game
 
             float espionageStr = EmpireManager.Player.GetSpyDefense();
             if (espionageStr <= Level)
-                return; // not enough espionage strength to learn about pirate activities
+                return; // Not enough espionage strength to learn about pirate activities
 
             switch (warningType)
             {
@@ -961,8 +955,7 @@ namespace Ship_Game
         public bool CanDoAnotherRaid(out int numRaids)
         {
             numRaids = Goals.Count(g => g.IsRaid);
-            int empiresDivisor = (EmpireManager.ActiveMajorEmpires.Length / 2).LowerBound(1);
-            return numRaids < (Level / empiresDivisor).LowerBound(1);
+            return numRaids < Level;
         }
 
         enum NewBaseSpot
