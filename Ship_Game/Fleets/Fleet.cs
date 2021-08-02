@@ -803,8 +803,9 @@ namespace Ship_Game.Fleets
         {
             Vector2 enemySystemPos = task.TargetPlanet.ParentSystem.Position;
             Vector2 rallySystemPos = task.RallyPlanet.ParentSystem.Position;
+            Vector2 fleetPos       = GetAveragePosition(Ships);
 
-            return rallySystemPos.Distance(enemySystemPos)*2 > GetAveragePosition(Ships).Distance(rallySystemPos);
+            return fleetPos.SqDist(rallySystemPos) < fleetPos.SqDist(enemySystemPos) * 2;
         }
 
         void DoStagingFleet(MilitaryTask task)
