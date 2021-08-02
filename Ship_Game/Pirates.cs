@@ -239,7 +239,7 @@ namespace Ship_Game
             if (Level == MaxLevel)
                 return;
 
-            int dieRoll = Level * DifficultyMultiplier() * (int)CurrentGame.Pace;
+            int dieRoll = (int)(Level * CurrentGame.Pace + EmpireManager.ActiveMajorEmpires.Length / 2f);
             if (alwaysLevelUp || RandomMath.RollDie(dieRoll) == 1)
             {
                 int newLevel = Level + 1;
@@ -250,12 +250,6 @@ namespace Ship_Game
                     Log.Info(ConsoleColor.Green, $"---- Pirates: {Owner.Name} are now level {Level} ----");
                 }
             }
-        }
-
-        int DifficultyMultiplier()
-        {
-            int max = (int)Enum.GetValues(typeof(UniverseData.GameDifficulty)).Cast<UniverseData.GameDifficulty>().Max() + 1;
-            return (max - (int)CurrentGame.Difficulty).LowerBound(1);
         }
 
         void AlertPlayerAboutPirateOps(PirateOpsWarning warningType)
