@@ -428,7 +428,18 @@ namespace Ship_Game.AI.Tasks
 
             MinimumTaskForceStrength = (EnemyStrength + buildingsSpaceOffense).LowerBound(lowerBound);
             float multiplier         = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
-            MinimumTaskForceStrength = (MinimumTaskForceStrength * multiplier).UpperBound(Owner.OffensiveStrength / 2);
+
+            MinimumTaskForceStrength = (MinimumTaskForceStrength * multiplier).UpperBound(Owner.OffensiveStrength / GetBuildCapacityDivisor());
+        }
+
+        float GetBuildCapacityDivisor()
+        {
+            if (TargetEmpire == null || TargetEmpire.isFaction || TargetEmpire.isPlayer)
+                return 2;
+
+            float ownerBuildCapacity = Owner.GetEmpireAI().BuildCapacity;
+            float enemyBuildCapacity = TargetEmpire.GetEmpireAI().BuildCapacity;
+            return (ownerBuildCapacity / enemyBuildCapacity).LowerBound(2);
         }
 
         string GetFleetName()
