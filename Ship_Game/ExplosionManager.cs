@@ -104,7 +104,7 @@ namespace Ship_Game
                 Intensity    = intensity,
                 Enabled      = true
             };
-            Empire.Universe.AddLight(newExp.Light);
+            Empire.Universe.AddLight(newExp.Light, dynamic:true);
         }
 
         public static void AddExplosion(Vector3 position, Vector2 velocity, float radius, float intensity, ExplosionType type)
@@ -123,7 +123,9 @@ namespace Ship_Game
                 Radius = radius <= 0f ? 1f : radius*expType.Scale
             };
 
-            AddLight(exp, position, intensity);
+            if (GlobalStats.MaxDynamicLightSources != 0)
+                AddLight(exp, position, intensity);
+
             using (Lock.AcquireWriteLock())
                 ActiveExplosions.Add(exp);
         }
@@ -137,7 +139,10 @@ namespace Ship_Game
                 Pos = position.ToVec2(),
                 Radius = radius <= 0f ? 1f : radius,
             };
-            AddLight(exp, position, intensity);
+
+            if (GlobalStats.MaxDynamicLightSources != 0)
+                AddLight(exp, position, intensity);
+
             using (Lock.AcquireWriteLock())
                 ActiveExplosions.Add(exp);
         }
@@ -152,7 +157,7 @@ namespace Ship_Game
                     if (e.Time > e.Duration)
                     {
                         ActiveExplosions.RemoveAtSwapLast(i--);
-                        us.RemoveLight(e.Light);
+                        us.RemoveLight(e.Light, dynamic:true);
                         continue;
                     }
 

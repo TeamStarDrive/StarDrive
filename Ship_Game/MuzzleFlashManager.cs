@@ -45,17 +45,20 @@ namespace Ship_Game
         {
             var f = new MuzzleFlash { Projectile = projectile };
             f.Update();
-            f.Light = new PointLight
+            if (GlobalStats.MaxDynamicLightSources != 0)
             {
-                Position     = f.Position,
-                Radius       = 65f,
-                ObjectType   = ObjectType.Dynamic,
-                DiffuseColor = new Vector3(1f, 0.97f, 0.9f),
-                Intensity    = 1f,
-                FillLight    = false,
-                Enabled      = true
-            };
-            Empire.Universe.AddLight(f.Light);
+                f.Light = new PointLight
+                {
+                    Position     = f.Position,
+                    Radius       = 65f,
+                    ObjectType   = ObjectType.Dynamic,
+                    DiffuseColor = new Vector3(1f, 0.97f, 0.9f),
+                    Intensity    = 1f,
+                    FillLight    = false,
+                    Enabled      = true
+                };
+                Empire.Universe.AddLight(f.Light, dynamic:true);
+            }
 
             using (Lock.AcquireWriteLock())
             {
@@ -73,7 +76,8 @@ namespace Ship_Game
                     f.Life -= elapsedTime;
                     if (f.Life <= 0f)
                     {
-                        Empire.Universe.RemoveLight(f.Light);
+                        if (f.Light != null)
+                            Empire.Universe.RemoveLight(f.Light, dynamic:true);
                         FlashList.RemoveAtSwapLast(i--);
                         continue;
                     }
@@ -83,7 +87,8 @@ namespace Ship_Game
                         f.Scale = 6f;
 
                     f.Update();
-                    f.Light.Position = f.Position;
+                    if (f.Light != null)
+                        f.Light.Position = f.Position;
                 }
             }
 		}

@@ -63,11 +63,11 @@ namespace Ship_Game
 
         public void AddLight()
         {
-            if (Light != null)                           
+            if (Light != null)
                 return;
             
             Light = new PointLight();
-            Empire.Universe.AddLight(Light);
+            Empire.Universe.AddLight(Light, dynamic:true);
         }
 
         public void RemoveLight()
@@ -75,7 +75,7 @@ namespace Ship_Game
             if (Light == null)
                 return;
 
-            Empire.Universe.RemoveLight(Light);
+            Empire.Universe.RemoveLight(Light, dynamic:true);
             Light = null;
         }
 
@@ -105,13 +105,16 @@ namespace Ship_Game
             Radius       = shieldRadius;
             Displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
             TexScale     = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
-
-            AddLight();
-            Light.World        = world;
-            Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-            Light.Radius       = Radius* RandomMath.RandomBetween(1, 2);
-            Light.Intensity    = RandomMath.RandomBetween(5, 15);
-            Light.Enabled      = true;
+            
+            if (GlobalStats.MaxDynamicLightSources != 0)
+            {
+                AddLight();
+                Light.World        = world;
+                Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
+                Light.Radius       = Radius* RandomMath.RandomBetween(1, 2);
+                Light.Intensity    = RandomMath.RandomBetween(5, 15);
+                Light.Enabled      = true;
+            }
 
             Vector3 vel = (pos - center3D).Normalized();
 
@@ -148,12 +151,15 @@ namespace Ship_Game
             TexScale     = 2.8f - 0.185f * RandomMath.RandomBetween(intensity, 10f);
             Displacement = 0.085f * RandomMath.RandomBetween(intensity, 10f);
 
-            AddLight();
-            Light.World        = proj.WorldMatrix;
-            Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-            Light.Radius       = module.ShieldHitRadius;
-            Light.Intensity    = RandomMath.RandomBetween(intensity * 0.5f, 10f);
-            Light.Enabled      = true;
+            if (GlobalStats.MaxDynamicLightSources != 0)
+            {
+                AddLight();
+                Light.World        = proj.WorldMatrix;
+                Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
+                Light.Radius       = module.ShieldHitRadius;
+                Light.Intensity    = RandomMath.RandomBetween(intensity * 0.5f, 10f);
+                Light.Enabled      = true;
+            }
 
             CreateShieldHitParticles(module.Center3D, proj.Position, beamFlash: false);
         }
