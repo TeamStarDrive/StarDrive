@@ -259,7 +259,7 @@ namespace Ship_Game
 
             float espionageStr = EmpireManager.Player.GetSpyDefense();
             if (espionageStr <= Level)
-                return; // not enough espionage strength to learn about pirate activities
+                return; // Not enough espionage strength to learn about pirate activities
 
             switch (warningType)
             {
