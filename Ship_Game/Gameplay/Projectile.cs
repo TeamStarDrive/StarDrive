@@ -427,7 +427,7 @@ namespace Ship_Game.Gameplay
 
             ++DebugInfoScreen.ProjDied;
             if (Light != null)
-                Empire.Universe.RemoveLight(Light);
+                Empire.Universe.RemoveLight(Light, dynamic:true);
 
             if (InFlightSfx.IsPlaying)
                 InFlightSfx.Stop();
@@ -541,35 +541,39 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-            if (InFrustum && Light == null && Weapon.Light != null && !LightWasAddedToSceneGraph)
+            if (GlobalStats.MaxDynamicLightSources != 0)
             {
-                LightWasAddedToSceneGraph = true;
-                var pos = new Vector3(Position.X, Position.Y, -25f);
-                Light = new PointLight
+                if (InFrustum && Light == null && Weapon.Light != null && !LightWasAddedToSceneGraph)
                 {
-                    Position   = pos,
-                    Radius     = 100f,
-                    World      = Matrix.CreateTranslation(pos),
-                    ObjectType = ObjectType.Dynamic,
-                    Intensity  = 1.7f,
-                    FillLight  = true,
-                    Enabled    = true
-                };
-                switch (Weapon.Light)
-                {
-                    case "Green":  Light.DiffuseColor = new Vector3(0.0f, 0.8f, 0.0f);  break;
-                    case "Red":    Light.DiffuseColor = new Vector3(1f, 0.0f, 0.0f);    break;
-                    case "Orange": Light.DiffuseColor = new Vector3(0.9f, 0.7f, 0.0f);  break;
-                    case "Purple": Light.DiffuseColor = new Vector3(0.8f, 0.8f, 0.95f); break;
-                    case "Blue":   Light.DiffuseColor = new Vector3(0.0f, 0.8f, 1f);    break;
+                    LightWasAddedToSceneGraph = true;
+                    var pos = new Vector3(Position.X, Position.Y, -25f);
+                    Light = new PointLight
+                    {
+                        Position   = pos,
+                        Radius     = 100f,
+                        World      = Matrix.CreateTranslation(pos),
+                        ObjectType = ObjectType.Dynamic,
+                        Intensity  = 1.7f,
+                        FillLight  = true,
+                        Enabled    = true
+                    };
+                    switch (Weapon.Light)
+                    {
+                        case "Green":  Light.DiffuseColor = new Vector3(0.0f, 0.8f, 0.0f);  break;
+                        case "Red":    Light.DiffuseColor = new Vector3(1f, 0.0f, 0.0f);    break;
+                        case "Orange": Light.DiffuseColor = new Vector3(0.9f, 0.7f, 0.0f);  break;
+                        case "Purple": Light.DiffuseColor = new Vector3(0.8f, 0.8f, 0.95f); break;
+                        case "Blue":   Light.DiffuseColor = new Vector3(0.0f, 0.8f, 1f);    break;
+                    }
+                    Empire.Universe.AddLight(Light, dynamic:true);
                 }
-                Empire.Universe.AddLight(Light);
+                else if (Light != null && Weapon.Light != null && LightWasAddedToSceneGraph)
+                {
+                    Light.Position = new Vector3(Position.X, Position.Y, -25f);
+                    Light.World = Matrix.CreateTranslation(Light.Position);
+                }
             }
-            else if (Light != null && Weapon.Light != null && LightWasAddedToSceneGraph)
-            {
-                Light.Position = new Vector3(Position.X, Position.Y, -25f);
-                Light.World = Matrix.CreateTranslation(Light.Position);
-            }
+
             if (Module != null && !MuzzleFlashAdded && Module.InstalledWeapon?.MuzzleFlash != null && InFrustum)
             {
                 MuzzleFlashAdded = true;

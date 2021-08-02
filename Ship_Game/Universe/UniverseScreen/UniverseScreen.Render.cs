@@ -22,7 +22,7 @@ namespace Ship_Game
 
         void RenderBackdrop(SpriteBatch batch)
         {
-            DrawBackdropPerf.Start();
+            BackdropPerf.Start();
 
             DrawStarField();
 
@@ -88,7 +88,7 @@ namespace Ship_Game
             rs.MultiSampleAntiAlias = true;            
             batch.End();
 
-            DrawBackdropPerf.Stop();
+            BackdropPerf.Stop();
         }
 
         void UpdateClickableShips()
@@ -600,13 +600,17 @@ namespace Ship_Game
 
         void Render(SpriteBatch batch, DrawTimes elapsed)
         {
+            RenderGroupTotalPerf.Start();
             if (Frustum == null)
                 Frustum = new BoundingFrustum(View * Projection);
             else
                 Frustum.Matrix = View * Projection;
 
             CreateShipSceneObjects();
+            
+            BeginSunburnPerf.Start();
             ScreenManager.BeginFrameRendering(elapsed, ref View, ref Projection);
+            BeginSunburnPerf.Stop();
 
             RenderBackdrop(batch);
 
@@ -617,17 +621,28 @@ namespace Ship_Game
 
             DrawBombs();
 
-            DrawSOPerf.Start();
-            ScreenManager.RenderSceneObjects();
-            DrawSOPerf.Stop();
+            SunburnDrawPerf.Start();
+            {
+                ScreenManager.RenderSceneObjects();
+            }
+            SunburnDrawPerf.Stop();
 
             RenderState rs = ScreenManager.GraphicsDevice.RenderState;
             DrawAnomalies(rs);
             DrawPlanets();
-            DrawAndUpdateParticles(elapsed, rs);
 
-            ScreenManager.EndFrameRendering();
             DrawShields();
+            DrawAndUpdateParticles(elapsed, rs);
+            DrawExplosions(batch);
+            DrawOverlayShieldBubbles(batch);
+            
+            EndSunburnPerf.Start();
+            {
+                ScreenManager.EndFrameRendering();
+            }
+            EndSunburnPerf.Stop();
+
+            RenderGroupTotalPerf.Stop();
 
             rs.DepthBufferWriteEnable = true;
         }
