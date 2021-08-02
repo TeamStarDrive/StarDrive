@@ -30,7 +30,7 @@ namespace Ship_Game
         public bool useDestroyers;
         public bool expandedWeaponCats;
         public bool usePlanetaryProjection;
-        public bool UseProportionalUpkeep;
+        public bool UseUpkeepByHullSize;
         public bool reconDropDown;
 
         public float ShipyardBonus;
