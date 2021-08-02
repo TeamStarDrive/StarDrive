@@ -686,7 +686,7 @@ namespace Ship_Game
                 switch (type)
                 {
                     case TargetType.Shipyard         when ship.shipData.IsShipyard:
-                    case TargetType.FreighterAtWarp  when IsFreighterAtWarpNoOwnedSystem(ship):
+                    case TargetType.FreighterAtWarp  when IsFreighterNoOwnedSystem(ship):
                     case TargetType.CombatShipAtWarp when IsCombatShipAtWarp(ship):
                     case TargetType.Station          when ship.IsStation:
                     case TargetType.Platform         when ship.IsPlatform:
@@ -700,10 +700,9 @@ namespace Ship_Game
             target = targets.RandItem();
             return target != null;
 
-            bool IsFreighterAtWarpNoOwnedSystem(Ship ship)
+            bool IsFreighterNoOwnedSystem(Ship ship)
             {
-                return (ship.isColonyShip || ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) 
-                       && ship.IsInWarp 
+                return (ship.isColonyShip || ship.IsFreighter && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) 
                        && (ship.System == null || !ship.System.HasPlanetsOwnedBy(ship.loyalty));
             }
 
@@ -962,7 +961,8 @@ namespace Ship_Game
         public bool CanDoAnotherRaid(out int numRaids)
         {
             numRaids = Goals.Count(g => g.IsRaid);
-            return numRaids < Level;
+            int empiresDivisor = (EmpireManager.ActiveMajorEmpires.Length / 2).LowerBound(1);
+            return numRaids < (Level / empiresDivisor).LowerBound(1);
         }
 
         enum NewBaseSpot
