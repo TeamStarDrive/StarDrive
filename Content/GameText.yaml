@@ -12181,3 +12181,7 @@ EngineTrails:
  ENG: "Enable engine trails"
 TT_EngineTrails:
  ENG: "This will enable engine trails for moving ships, disabling this will improve performance"
+MaxDynamicLightSources:
+ ENG: "Max Dynamic Light Sources"
+TT_MaxDynamicLightSources:
+ ENG: "This will set an upper bound limit for dynamic 3D Light Sources for projectile hits or explosions. Setting this lower will greatly improve performance during battles.\n\nSetting to 0 will disable Dynamic Light Sources"
