@@ -5144,5 +5144,9 @@ namespace Ship_Game
         EngineTrails = -26,
         /// <summary>This will enable engine trails for moving ships, disabling this</summary>
         TT_EngineTrails = -27,
+        /// <summary>Max Dynamic Light Sources</summary>
+        MaxDynamicLightSources = -28,
+        /// <summary>This will set an upper bound limit for dynamic light sources</summary>
+        TT_MaxDynamicLightSources = -29,
     }
 }

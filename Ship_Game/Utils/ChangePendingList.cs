@@ -4,24 +4,18 @@ namespace Ship_Game.Utils
 {
     public class ChangePendingList<T>  where T : class
     {
-        struct PendingItem
-        {
-            public T Item;
-            public bool Add; // true: Add, false: Remove
-        }
-        
         public Array<T> Items { get; private set; }
-        Array<PendingItem> Pending;
+        Array<PendingItem<T>> Pending;
 
         public ChangePendingList()
         {
             Items = new Array<T>();
-            Pending = new Array<PendingItem>();
+            Pending = new Array<PendingItem<T>>();
         }
 
         public void Update()
         {
-            while (Pending.TryPopLast(out PendingItem pending))
+            while (Pending.TryPopLast(out PendingItem<T> pending))
             {
                 if (pending.Add)
                 {
@@ -36,7 +30,7 @@ namespace Ship_Game.Utils
 
         public void Add(T item)
         {
-            Pending.Add(new PendingItem{ Item = item, Add = true });
+            Pending.Add(new PendingItem<T>{ Item = item, Add = true });
         }
 
         public bool RemoveItemImmediate(T item)
@@ -59,8 +53,8 @@ namespace Ship_Game.Utils
         public void Clear()
         {
             // Thread-safety: Just replace the lists
-            Pending = new Array<PendingItem>();
-            Items    = new Array<T>();
+            Pending = new Array<PendingItem<T>>();
+            Items = new Array<T>();
         }
     }
 }

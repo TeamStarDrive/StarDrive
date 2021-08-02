@@ -128,68 +128,71 @@ namespace Ship_Game
             base.Die(source, cleanupOnly);
         }
 
-        public void Draw(GameScreen screen)
+        public static void UpdateBeamEffect(UniverseScreen u)
+        {
+            BeamEffect.Parameters["View"].SetValue(u.View);
+            BeamEffect.Parameters["Projection"].SetValue(u.Projection);
+        }
+
+        public void Draw(UniverseScreen u)
         {
             if (!Source.InRadius(ActualHitDestination, Range + 10.0f))
                 return;
 
-            GraphicsDevice device = screen.Device;
-            lock (GlobalStats.BeamEffectLocker)
+            GraphicsDevice device = u.Device;
+            u.Particles.BeamFlash.AddParticle(new Vector3(Source, BeamZ), Vector3.Zero);
+
+            var hit = new Vector3(ActualHitDestination, BeamZ);
+            if (BeamCollidedThisFrame) // a cool hit effect
             {
-                Empire.Universe.Particles.BeamFlash.AddParticle(new Vector3(Source, BeamZ), Vector3.Zero);
-
-                var hit = new Vector3(ActualHitDestination, BeamZ);
-                if (BeamCollidedThisFrame) // a cool hit effect
-                {
-                    Empire.Universe.Particles.Sparks.AddParticle(hit, new Vector3(50f));
-                    Empire.Universe.Particles.FireTrail.AddParticle(hit, new Vector3(50f));
-                    Empire.Universe.Particles.FireTrail.AddParticle(hit, Vector3.Zero);
-                }
-                else // dispersion effect
-                {
-                    Empire.Universe.Particles.Sparks.AddParticle(hit, Vector3.Zero);
-                    Empire.Universe.Particles.Sparks.AddParticle(hit, Vector3.Zero);
-                }
-
-                device.VertexDeclaration = QuadVertexDecl;
-                BeamEffect.CurrentTechnique = BeamEffect.Techniques["Technique1"];
-                BeamEffect.Parameters["World"].SetValue(Matrix.Identity);
-                string beamTexPath = "Beams/" + Weapon.BeamTexture;
-                BeamEffect.Parameters["tex"].SetValue(ResourceManager.Texture(beamTexPath).Texture);
-                Displacement -= 0.05f;
-                if (Displacement < 0f)
-                    Displacement = 1f;
-
-                BeamEffect.Parameters["displacement"].SetValue(new Vector2(0f, Displacement));
-                BeamEffect.Begin();
-                var rs = device.RenderState;
-                rs.AlphaTestEnable = true;
-                rs.AlphaFunction   = CompareFunction.GreaterEqual;
-                rs.ReferenceAlpha  = 200;
-                foreach (EffectPass pass in BeamEffect.CurrentTechnique.Passes)
-                {
-                    pass.Begin();
-                    device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, Vertices, 0, 4, Indexes, 0, 2);
-                    pass.End();
-                }
-                rs.DepthBufferWriteEnable = false;
-                rs.AlphaBlendEnable       = true;
-                rs.SourceBlend            = Blend.SourceAlpha;
-                rs.DestinationBlend       = Blend.InverseSourceAlpha;
-                rs.AlphaTestEnable        = true;
-                rs.AlphaFunction          = CompareFunction.Less;
-                rs.ReferenceAlpha         = 200;
-                foreach (EffectPass pass in BeamEffect.CurrentTechnique.Passes)
-                {
-                    pass.Begin();
-                    device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, Vertices, 0, 4, Indexes, 0, 2);
-                    pass.End();
-                }
-                rs.AlphaBlendEnable = false;
-                rs.DepthBufferWriteEnable = true;
-                rs.AlphaTestEnable = false;
-                BeamEffect.End();
+                u.Particles.Sparks.AddParticle(hit, new Vector3(50f));
+                u.Particles.FireTrail.AddParticle(hit, new Vector3(50f));
+                u.Particles.FireTrail.AddParticle(hit, Vector3.Zero);
             }
+            else // dispersion effect
+            {
+                u.Particles.Sparks.AddParticle(hit, Vector3.Zero);
+                u.Particles.Sparks.AddParticle(hit, Vector3.Zero);
+            }
+
+            device.VertexDeclaration = QuadVertexDecl;
+            BeamEffect.CurrentTechnique = BeamEffect.Techniques["Technique1"];
+            BeamEffect.Parameters["World"].SetValue(Matrix.Identity);
+            string beamTexPath = "Beams/" + Weapon.BeamTexture;
+            BeamEffect.Parameters["tex"].SetValue(ResourceManager.Texture(beamTexPath).Texture);
+            Displacement -= 0.05f;
+            if (Displacement < 0f)
+                Displacement = 1f;
+
+            BeamEffect.Parameters["displacement"].SetValue(new Vector2(0f, Displacement));
+            BeamEffect.Begin();
+            var rs = device.RenderState;
+            rs.AlphaTestEnable = true;
+            rs.AlphaFunction   = CompareFunction.GreaterEqual;
+            rs.ReferenceAlpha  = 200;
+            foreach (EffectPass pass in BeamEffect.CurrentTechnique.Passes)
+            {
+                pass.Begin();
+                device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, Vertices, 0, 4, Indexes, 0, 2);
+                pass.End();
+            }
+            rs.DepthBufferWriteEnable = false;
+            rs.AlphaBlendEnable       = true;
+            rs.SourceBlend            = Blend.SourceAlpha;
+            rs.DestinationBlend       = Blend.InverseSourceAlpha;
+            rs.AlphaTestEnable        = true;
+            rs.AlphaFunction          = CompareFunction.Less;
+            rs.ReferenceAlpha         = 200;
+            foreach (EffectPass pass in BeamEffect.CurrentTechnique.Passes)
+            {
+                pass.Begin();
+                device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, Vertices, 0, 4, Indexes, 0, 2);
+                pass.End();
+            }
+            rs.AlphaBlendEnable = false;
+            rs.DepthBufferWriteEnable = true;
+            rs.AlphaTestEnable = false;
+            BeamEffect.End();
         }
 
         private void InitBeamMeshIndices()

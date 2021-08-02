@@ -25,8 +25,8 @@ namespace SynapseGaming.LightingSystem.Lights
   public class LightManager : BaseLightManager, ILightManager
   {
       private int int_3 = 8;
-    private List<ILightRig> list_2 = new List<ILightRig>(16);
-    private List<ILight> list_3 = new List<ILight>(64);
+    private List<ILightRig> LightRigs = new List<ILightRig>(16);
+    private List<ILight> Lights = new List<ILight>(64);
     private Class45 class45_0;
     private Class54 class54_0;
 
@@ -131,9 +131,9 @@ namespace SynapseGaming.LightingSystem.Lights
       this.class45_0.SceneDepthMap = renderTarget2D == null ? null : renderTarget2D.GetTexture();
       this.class45_0.Begin();
       this.class45_0.CurrentTechnique.Passes[0].Begin();
-      this.list_3.Clear();
-      this.Find(this.list_3, this.SceneState.ViewFrustum, ObjectFilter.EnabledDynamicAndStatic);
-      foreach (ILight light in this.list_3)
+      this.Lights.Clear();
+      this.Find(this.Lights, this.SceneState.ViewFrustum, ObjectFilter.EnabledDynamicAndStatic);
+      foreach (ILight light in this.Lights)
       {
         if (light is ISpotSource)
         {
@@ -279,7 +279,7 @@ namespace SynapseGaming.LightingSystem.Lights
     /// <param name="lightrig"></param>
     public virtual void Submit(ILightRig lightrig)
     {
-      this.list_2.Add(lightrig);
+      this.LightRigs.Add(lightrig);
     }
 
     /// <summary>
@@ -294,9 +294,9 @@ namespace SynapseGaming.LightingSystem.Lights
 
     /// <summary>Removes an object from the container.</summary>
     /// <param name="lightrig"></param>
-    public virtual void Remove(ILightRig lightrig)
+    public virtual bool Remove(ILightRig lightrig)
     {
-      this.list_2.Remove(lightrig);
+      return this.LightRigs.Remove(lightrig);
     }
 
     /// <summary>
@@ -309,7 +309,7 @@ namespace SynapseGaming.LightingSystem.Lights
     public override void Find(List<ILight> foundobjects, BoundingFrustum worldbounds, ObjectFilter objectfilter)
     {
       base.Find(foundobjects, worldbounds, objectfilter);
-      foreach (IQuery<ILight> query in this.list_2)
+      foreach (IQuery<ILight> query in this.LightRigs)
         query.Find(foundobjects, worldbounds, objectfilter);
     }
 
@@ -323,7 +323,7 @@ namespace SynapseGaming.LightingSystem.Lights
     public override void Find(List<ILight> foundobjects, BoundingBox worldbounds, ObjectFilter objectfilter)
     {
       base.Find(foundobjects, worldbounds, objectfilter);
-      foreach (IQuery<ILight> query in this.list_2)
+      foreach (IQuery<ILight> query in this.LightRigs)
         query.Find(foundobjects, worldbounds, objectfilter);
     }
 
@@ -335,14 +335,14 @@ namespace SynapseGaming.LightingSystem.Lights
     public override void Find(List<ILight> foundobjects, ObjectFilter objectfilter)
     {
       base.Find(foundobjects, objectfilter);
-      foreach (IQuery<ILight> query in this.list_2)
+      foreach (IQuery<ILight> query in this.LightRigs)
         query.Find(foundobjects, objectfilter);
     }
 
     /// <summary>Removes all lights and cleans up scene information.</summary>
     public override void Clear()
     {
-      this.list_2.Clear();
+      this.LightRigs.Clear();
       base.Clear();
     }
 

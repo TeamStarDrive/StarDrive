@@ -113,8 +113,9 @@ namespace Ship_Game
         FloatSlider AutoSaveFreq;
 
         FloatSlider SimulationFps;
+        FloatSlider MaxDynamicLightSources;
 
-        public OptionsScreen(MainMenuScreen mainMenu) : base(mainMenu, 600, 600)
+        public OptionsScreen(MainMenuScreen mainMenu) : base(mainMenu, 600, 640)
         {
             IsPopup           = true;
             TransitionOnTime  = 0.25f;
@@ -125,7 +126,7 @@ namespace Ship_Game
             New = Original.GetClone();
         }
 
-        public OptionsScreen(UniverseScreen universe) : base(universe, 600, 720)
+        public OptionsScreen(UniverseScreen universe) : base(universe, 600, 640)
         {
             Fade              = false;
             IsPopup           = true;
@@ -218,8 +219,8 @@ namespace Ship_Game
 
         void InitScreen()
         {
-            LeftArea  = new Rectangle(Rect.X + 20, Rect.Y + 150, 290, 375);
-            RightArea = new Rectangle(LeftArea.Right + 40, LeftArea.Y, 210, 330);
+            LeftArea  = new Rectangle(Rect.X + 20,         Rect.Y + 150, 290, 375);
+            RightArea = new Rectangle(LeftArea.Right + 40, LeftArea.Y,   210, 375);
 
             UIList graphics = AddList(LeftArea.PosVec(), LeftArea.Size());
             graphics.Padding = new Vector2(2f, 4f);
@@ -244,30 +245,33 @@ namespace Ship_Game
             botLeft.AddSplit(new UILabel(GameText.SoundDevice), SoundDevices);
             MusicVolumeSlider   = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, GameText.MusicVolume, 0f, 1f, GlobalStats.MusicVolume));
             EffectsVolumeSlider = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, GameText.EffectsVolume, 0f, 1f, GlobalStats.EffectsVolume));
+            
+            CurrentLanguage = new DropOptions<Language>(105, 18);
+            Add(botLeft, GameText.Language, CurrentLanguage);
 
             botLeft.ReverseZOrder(); // @todo This is a hacky workaround to zorder limitations
-
+            
             UIList botRight = AddList(new Vector2(RightArea.X, RightArea.Y + 180), RightArea.Size());
             botRight.Padding = new Vector2(2f, 8f);
             botRight.LayoutStyle = ListLayoutStyle.Clip;
+            MaxDynamicLightSources = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, GameText.MaxDynamicLightSources, 0, 1000, GlobalStats.MaxDynamicLightSources));
             IconSize      = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, GameText.IconSizes, 0,  30, GlobalStats.IconSize));
             AutoSaveFreq  = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, GameText.AutosaveFrequency, 60, 540, GlobalStats.AutoSaveFreq));
             SimulationFps = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, GameText.SimulationFps, 10, 120, GlobalStats.SimulationFramesPerSecond));
+            
+            MaxDynamicLightSources.Tip = GameText.TT_MaxDynamicLightSources;
             AutoSaveFreq.Tip = GameText.TheDelayBetweenAutoSaves;
             SimulationFps.Tip = GameText.ChangesTheSimulationFrequencyLower;
 
             UIList right = AddList(RightArea.PosVec(), RightArea.Size());
             right.Padding = new Vector2(2f, 4f);
             right.AddCheckbox(() => GlobalStats.PauseOnNotification,          title: GameText.PauseOnNotifications, tooltip: GameText.PausesGameOnNotificationsClearing);
+            right.AddCheckbox(() => GlobalStats.NotifyEnemyInSystemAfterLoad, title: GameText.AlertEnemyPresenceAfterLoad, tooltip: GameText.AddNotificationsRegardingEnemiesIn);
             right.AddCheckbox(() => GlobalStats.AltArcControl,                title: GameText.KeyboardFireArcLocking, tooltip: GameText.WhenActiveArcsInThe);
             right.AddCheckbox(() => GlobalStats.ZoomTracking,                 title: GameText.ToggleZoomTracking, tooltip: GameText.ZoomWillCenterOnSelected);
             right.AddCheckbox(() => GlobalStats.AutoErrorReport,              title: GameText.AutomaticErrorReport, tooltip: GameText.SendAutomaticErrorReportsTo);
             right.AddCheckbox(() => GlobalStats.DisableAsteroids,             title: GameText.DisableAsteroids, tooltip: GameText.ThisWillPreventAsteroidsFrom);
             right.AddCheckbox(() => GlobalStats.EnableEngineTrails,           title: GameText.EngineTrails, tooltip: GameText.TT_EngineTrails);
-            right.AddCheckbox(() => GlobalStats.NotifyEnemyInSystemAfterLoad, title: GameText.AlertEnemyPresenceAfterLoad, tooltip: GameText.AddNotificationsRegardingEnemiesIn);
-
-            CurrentLanguage = new DropOptions<Language>(105, 18);
-            Add(right, GameText.Language, CurrentLanguage);
 
             var apply = Add(new UIButton(ButtonStyle.Default, new Vector2(RightArea.Right - 172, RightArea.Bottom + 60), GameText.ApplySettings));
             apply.OnClick = button => ApplyOptions();
@@ -420,6 +424,7 @@ namespace Ship_Game
                 GlobalStats.MusicVolume   = MusicVolumeSlider.RelativeValue;
                 GlobalStats.EffectsVolume = EffectsVolumeSlider.RelativeValue;
                 GlobalStats.SimulationFramesPerSecond = (int)SimulationFps.AbsoluteValue;
+                GlobalStats.MaxDynamicLightSources = (int)MaxDynamicLightSources.AbsoluteValue;
                 GameAudio.ConfigureAudioSettings();
                 return true;
             }
