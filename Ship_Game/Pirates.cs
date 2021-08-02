@@ -961,8 +961,7 @@ namespace Ship_Game
         public bool CanDoAnotherRaid(out int numRaids)
         {
             numRaids = Goals.Count(g => g.IsRaid);
-            int empiresDivisor = (EmpireManager.ActiveMajorEmpires.Length / 2).LowerBound(1);
-            return numRaids < (Level / empiresDivisor).LowerBound(1);
+            return numRaids < Level;
         }
 
         enum NewBaseSpot
