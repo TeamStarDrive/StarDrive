@@ -4,7 +4,7 @@
   <Name>Corsair Asteroid Base-Mk2</Name>
   <IconPath>ShipIcons/terran_platform</IconPath>
   <Hull>Corsair/Corsair Asteroid Base</Hull>
-  <Role>platform</Role>
+  <Role>station</Role>
   <ThrusterList />
   <ModelPath>Model/Asteroids/asteroid1</ModelPath>
   <DefaultAIState>AwaitingOrders</DefaultAIState>
