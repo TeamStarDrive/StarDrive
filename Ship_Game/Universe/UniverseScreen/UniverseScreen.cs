@@ -293,11 +293,11 @@ namespace Ship_Game
         void AddLight(string name, SolarSystem system, float intensity, float radius, Color color, float zpos, float fallOff = 1f, bool fillLight = false)
         {
             AddLight($"{system.Name} - {system.Sun.Id} - {name}", system.Position, intensity, radius, color,
-                zpos, fillLight: fillLight, fallOff:fallOff, shadowQuality:0f);
+                     zpos, fillLight: fillLight, fallOff:fallOff, shadowQuality:0f);
         }
 
         void AddLight(string name, Vector2 source, float intensity, float radius, Color color,
-                              float zpos, bool fillLight, float fallOff = 0, float shadowQuality = 1)
+                      float zpos, bool fillLight, float fallOff = 0, float shadowQuality = 1)
         {
             var light = new PointLight
             {
@@ -318,7 +318,7 @@ namespace Ship_Game
                 light.ShadowType = ShadowType.AllObjects;
 
             light.World = Matrix.CreateTranslation(light.Position);
-            AddLight(light);
+            AddLight(light, dynamic:false);
         }
 
         public void ContactLeader()
