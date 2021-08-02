@@ -157,7 +157,6 @@ namespace UnitTests.AITests.Empire
             Universe.Objects.UpdateLists();
 
             // The expected maintenance for the Flak Fang is 0.12, since Cordrazine
-            // Have -25% maintenance reduction
             float roleUnitMaint = build.RoleUnitMaintenance(combatRole);
             Assert.AreEqual(0.081f, roleUnitMaint, "Unexpected maintenance value");
 
