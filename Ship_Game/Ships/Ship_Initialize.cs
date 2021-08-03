@@ -457,8 +457,6 @@ namespace Ship_Game.Ships
             UpdateStatus(initConstants:true, fromSave);
 
             BaseStrength = CurrentStrength; // save base strength for later
-            if (shipData.BaseStrength <= 0f)
-                shipData.BaseStrength = BaseStrength;
 
             if (!BaseCanWarp && DesignRoleType == ShipData.RoleType.Warship)
                 Log.Warning($"Ship.BaseCanWarp is false: {this}");

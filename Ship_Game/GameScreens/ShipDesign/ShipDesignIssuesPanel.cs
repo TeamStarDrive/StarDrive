@@ -117,7 +117,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Issues.CheckTargets(ds.WeaponAccuracies, S.TrackingPower);
                 Issues.CheckSecondaryCarrier(ds.TotalHangarArea > 0, Screen.Role, (int)S.WeaponsMaxRange);
                 Issues.CheckDedicatedCarrier(ds.TotalHangarArea > 0, Screen.Role, (int)S.WeaponsMaxRange, S.SensorRange,
-                    S.shipData.CombatState == CombatState.ShortRange || S.shipData.CombatState == CombatState.AttackRuns);
+                    S.shipData.DefaultCombatState == CombatState.ShortRange || S.shipData.DefaultCombatState == CombatState.AttackRuns);
             }
             
             switch (Issues.CurrentWarningLevel)

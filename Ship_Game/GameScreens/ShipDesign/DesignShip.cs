@@ -11,8 +11,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         public ShipDesignStats DesignStats;
 
         public DesignShip(ShipData designHull)
-            : base(EmpireManager.Player, designHull, fromSave:false, 
-                    isTemplate:true, shipyardDesign:true)
+            : base(EmpireManager.Player, designHull, isTemplate:true, shipyardDesign:true)
         {
             DesignStats = new ShipDesignStats(this);
         }
@@ -23,8 +22,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 return;
 
             PrevSlots = placedSlots;
-            CreateModuleSlotsFromData(placedSlots, fromSave:false, 
-                                      isTemplate:true, shipyardDesign:true);
+            CreateModuleSlotsFromData(placedSlots, isTemplate:true, shipyardDesign:true);
             InitializeShip();
             DesignStats.Update();
         }
