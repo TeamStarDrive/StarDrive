@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -16,44 +14,73 @@ namespace Ship_Game.GameScreens.NewGame
             if (ResourceManager.Hulls.Count == 0)
                 throw new ResourceManagerFailure("Hulls not loaded yet!");
 
-            Map<Technology, Array<string>> shipTechs = GetShipTechs(); // 2ms
-            MarkDefaultUnlockable(shipTechs); // 0ms
-            MarkShipsUnlockable(shipTechs, progress); // 220ms
+            var hullUnlocks = GetHullTechUnlocks(); // 0.3ms
+            var moduleUnlocks = GetModuleTechUnlocks(); // 0.07ms
+            Map<string, string[]> techParentTechs = GetTechParentTechs();
+
+            MarkHullsUnlockable(hullUnlocks, techParentTechs); // 0.3ms
+            MarkShipsUnlockable(moduleUnlocks, techParentTechs, progress); // 52.5ms
         }
 
-        static Map<Technology, Array<string>> GetShipTechs()
+        // Gets a map of <HullName, RequiredTech>
+        static Map<string, string> GetHullTechUnlocks()
         {
-            var shipTechs = new Map<Technology, Array<string>>();
+            var hullUnlocks = new Map<string, string>();
             foreach (Technology tech in ResourceManager.TechTree.Values)
             {
-                if ((tech.ModulesUnlocked.Count > 0 || tech.HullsUnlocked.Count > 0) && tech.Unlockable)
-                {
-                    shipTechs.Add(tech, FindPreviousTechs(tech, new Array<string>()));
-                }
+                for (int i = 0; i < tech.HullsUnlocked.Count; ++i)
+                    hullUnlocks[tech.HullsUnlocked[i].Name] = tech.UID;
             }
-            return shipTechs;
+            return hullUnlocks;
         }
 
-        static Array<string> FindPreviousTechs(Technology target, Array<string> alreadyFound)
+        // Gets a map of <ModuleUID, RequiredTech>
+        static Map<string, string> GetModuleTechUnlocks()
         {
-            //this is supposed to reverse walk through the tech tree.
-            foreach (var techTreeItem in ResourceManager.TechTree)
+            var moduleUnlocks = new Map<string, string>();
+            foreach (Technology tech in ResourceManager.TechTree.Values)
             {
-                Technology tech = techTreeItem.Value;
-                foreach (Technology.LeadsToTech leadsto in tech.LeadsTo)
-                {
-                    // if it finds a tech that leads to the target tech then find the tech that leads to it.
-                    if (leadsto.UID == target.UID )
-                    {
-                        alreadyFound.Add(target.UID);
-                        return FindPreviousTechs(tech, alreadyFound);
-                    }
-                }
+                for (int i = 0; i < tech.ModulesUnlocked.Count; ++i)
+                    moduleUnlocks[tech.ModulesUnlocked[i].ModuleUID] = tech.UID;
             }
-            return alreadyFound;
+            return moduleUnlocks;
+        }
+        
+        // Gets all technologies mapped to include their parent tech trees
+        static Map<string, string[]> GetTechParentTechs()
+        {
+            var techParentTechs = new Map<string, string[]>();
+            foreach (Technology tech in ResourceManager.TechTree.Values)
+            {
+                techParentTechs[tech.UID] = GetParentTechs(tech, new Array<string>()).ToArray();
+            }
+            return techParentTechs;
         }
 
-        static void MarkDefaultUnlockable(Map<Technology, Array<string>> shipTechs)
+        static Array<string> GetParentTechs(Technology target, Array<string> techs)
+        {
+            foreach (Technology parent in target.Parents)
+            {
+                techs.Add(parent.UID);
+                GetParentTechs(parent, techs);
+            }
+            return techs;
+        }
+        
+
+        static void AddRange(HashSet<string> destination, HashSet<string> source)
+        {
+            foreach (string str in source)
+                destination.Add(str);
+        }
+
+        static void AddRange(HashSet<string> destination, string[] source)
+        {
+            foreach (string str in source)
+                destination.Add(str);
+        }
+
+        static void MarkHullsUnlockable(Map<string, string> hullUnlocks, Map<string, string[]> techParentTechs)
         {
             foreach (ShipData hull in ResourceManager.Hulls)
             {
@@ -61,23 +88,12 @@ namespace Ship_Game.GameScreens.NewGame
                     continue;
 
                 hull.UnLockable = false;
-                foreach (Technology tech in shipTechs.Keys)
+
+                if (hullUnlocks.TryGetValue(hull.Name, out string requiredTech))
                 {
-                    if (tech.HullsUnlocked.Count == 0) continue;
-                    foreach (Technology.UnlockedHull hulls in tech.HullsUnlocked)
-                    {
-                        if (hulls.Name == hull.Hull)
-                        {
-                            foreach (string tree in shipTechs[tech])
-                            {
-                                hull.TechsNeeded.Add(tree);
-                                hull.UnLockable = true;
-                            }
-                            break;
-                        }
-                    }
-                    if (hull.UnLockable)
-                        break;
+                    hull.UnLockable = true;
+                    hull.TechsNeeded.Add(requiredTech);
+                    AddRange(hull.TechsNeeded, techParentTechs[requiredTech]);
                 }
 
                 if (hull.Role < ShipData.RoleName.fighter || hull.TechsNeeded.Count == 0)
@@ -85,7 +101,8 @@ namespace Ship_Game.GameScreens.NewGame
             }
         }
 
-        static void MarkShipsUnlockable(Map<Technology, Array<string>> shipTechs, ProgressCounter step)
+        static void MarkShipsUnlockable(Map<string, string> moduleUnlocks,
+                                        Map<string, string[]> techParentTechs, ProgressCounter step)
         {
             var templates = ResourceManager.GetShipTemplates();
             step.Start(templates.Count);
@@ -97,51 +114,42 @@ namespace Ship_Game.GameScreens.NewGame
                 ShipData shipData = ship.shipData;
                 if (shipData == null)
                     continue;
+
                 shipData.UnLockable = false;
+                shipData.HullUnlockable = false;
+                shipData.AllModulesUnlockable = false;
+
                 if (shipData.HullRole == ShipData.RoleName.disabled)
                     continue;
 
-                if (shipData.BaseHull.UnLockable)
-                {
-                    foreach (string str in shipData.BaseHull.TechsNeeded)
-                        shipData.TechsNeeded.Add(str);
-                    shipData.HullUnlockable = true;
-                }
-                else
-                {
-                    shipData.AllModulesUnlockable = false;
-                    shipData.HullUnlockable = false;
-                    //Log.WarningVerbose($"Unlockable hull : '{shipData.Hull}' in ship : '{kv.Key}'");
-                }
+                if (!shipData.BaseHull.UnLockable)
+                    continue;
+                
+                // These are the leaf technologies which actually unlock our modules
+                var leafTechsNeeds = new HashSet<string>();
+                
+                shipData.TechsNeeded.Clear();
+                shipData.HullUnlockable = true;
+                shipData.AllModulesUnlockable = true;
 
-                if (shipData.HullUnlockable)
+                foreach (ModuleSlotData module in ship.shipData.ModuleSlots)
                 {
-                    shipData.AllModulesUnlockable = true;
-                    foreach (ModuleSlotData module in ship.shipData.ModuleSlots)
+                    if (module.IsDummy)
+                        continue;
+                        
+                    ++NumModulesScanned;
+                    if (moduleUnlocks.TryGetValue(module.ModuleUID, out string requiredTech))
                     {
-                        if (module.IsDummy)
-                            continue;
-                        bool modUnlockable = false;
-                        foreach (Technology technology in shipTechs.Keys)
-                        {
-                            foreach (Technology.UnlockedMod mods in technology.ModulesUnlocked)
-                            {
-                                if (mods.ModuleUID != module.ModuleUID) continue;
-                                modUnlockable = true;
-                                shipData.TechsNeeded.Add(technology.UID);
-                                foreach (string tree in shipTechs[technology])
-                                    shipData.TechsNeeded.Add(tree);
-                                break;
-                            }
-
-                            if (modUnlockable)
-                                break;
-                        }
-
-                        if (modUnlockable) continue;
-
+                        ++NumTechsNeededAdded;
+                        leafTechsNeeds.Add(requiredTech);
+                    }
+                    else
+                    {
                         shipData.AllModulesUnlockable = false;
-                        //Log.WarningVerbose($"Unlockable module : '{module.InstalledModuleUID}' in ship : '{kv.Key}'");
+                        //if (!ResourceManager.GetModuleTemplate(module.ModuleUID, out ShipModule _))
+                        //    Log.Warning($"Module does not exist: ModuleUID='{module.ModuleUID}'  ship='{ship.Name}'");
+                        //else
+                        //    Log.Warning($"Module cannot be unlocked by tech: ModuleUID='{module.ModuleUID}'  ship='{ship.Name}'");
                         break;
                     }
                 }
@@ -152,6 +160,14 @@ namespace Ship_Game.GameScreens.NewGame
                     if (shipData.BaseStrength <= 0f)
                         shipData.BaseStrength = ship.CalculateShipStrength();
 
+                    // add the full tree of techs to TechsNeeded
+                    foreach (string techName in leafTechsNeeds)
+                        AddRange(shipData.TechsNeeded, techParentTechs[techName]);
+
+                    // also add techs from basehull (already full tree)
+                    AddRange(shipData.TechsNeeded, shipData.BaseHull.TechsNeeded);
+
+                    // now the TechScore can be calculated with full TechsNeeded
                     shipData.TechScore = 0;
                     foreach (string techname in shipData.TechsNeeded)
                     {
@@ -161,8 +177,6 @@ namespace Ship_Game.GameScreens.NewGame
                 }
                 else
                 {
-                    shipData.UnLockable = false;
-                    shipData.TechsNeeded.Clear();
                     shipData.BaseStrength = 0;
                 }
             }
