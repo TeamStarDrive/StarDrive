@@ -66,12 +66,12 @@ namespace Ship_Game.Ships.Legacy
                 //       GUID should be byte[16]
                 //       Orientation should be int
                 //       
-                ship.ModuleSlots = new ModuleSlotData[s->ModuleSlotsLen];
+                ship.ModuleSlots = new LegacyModuleSlotData[s->ModuleSlotsLen];
                 for (int i = 0; i < s->ModuleSlotsLen; ++i)
                 {
                     CModuleSlot* msd = &s->ModuleSlots[i];
                     Enum.TryParse(msd->Restrictions.AsString, out Restrictions restrictions);
-                    var slot = new ModuleSlotData(
+                    var slot = new LegacyModuleSlotData(
                         xmlPos: new Vector2(msd->PosX, msd->PosY),
                         restrictions: restrictions,
                         // @note Interning the strings saves us roughly 70MB of RAM across all UID-s

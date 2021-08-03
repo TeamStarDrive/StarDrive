@@ -20,7 +20,7 @@ namespace Ship_Game
         // is at world [0,0]
         public Vector2 WorldPos;
 
-        public int TurrentAngle;
+        public int TurretAngle;
         public Restrictions Restrictions;
         public ModuleOrientation ModuleRot; // Orientation controls the visual 4-dir rotation of module
         public SlotStruct Parent;
@@ -35,11 +35,11 @@ namespace Ship_Game
 
         public SlotStruct(HullSlot slot, ShipHull hull)
         {
-            GridPos = slot.P;
+            GridPos = slot.Pos;
             Restrictions = slot.R;
 
             GridCenter = hull.GridCenter;
-            WorldPos = new Vector2(slot.P.X - GridCenter.X, slot.P.Y - GridCenter.Y) * 16f;
+            WorldPos = new Vector2(slot.Pos.X - GridCenter.X, slot.Pos.Y - GridCenter.Y) * 16f;
         }
 
         [XmlIgnore][JsonIgnore]
@@ -48,11 +48,11 @@ namespace Ship_Game
         public override string ToString()
         {
             if (Parent == null)
-                return $"{Module?.UID} {GridPos} R:{Restrictions} TA:{TurrentAngle} O:{ModuleRot}";
+                return $"{Module?.UID} {GridPos} R:{Restrictions} TA:{TurretAngle} O:{ModuleRot}";
 
             // @note Don't call Parent.ToString(), or we might get a stack overflow
-            string parent = $"{Parent.GridPos} R:{Parent.Restrictions} TA:{Parent.TurrentAngle} O:{ModuleRot}";
-            return $"{GridPos} R:{Restrictions} TA:{TurrentAngle} O:{ModuleRot}   Parent={{{parent}}}";
+            string parent = $"{Parent.GridPos} R:{Parent.Restrictions} TA:{Parent.TurretAngle} O:{ModuleRot}";
+            return $"{GridPos} R:{Restrictions} TA:{TurretAngle} O:{ModuleRot}   Parent={{{parent}}}";
         }
 
         static bool MatchI(Restrictions b) => b == Restrictions.I || b == Restrictions.IO || b == Restrictions.IE;
@@ -139,9 +139,9 @@ namespace Ship_Game
         {
             return Module != null
                 && Module.UID == module.UID
-                && Module.hangarShipUID == module.hangarShipUID
+                && Module.HangarShipUID == module.HangarShipUID
                 && ModuleRot == orientation
-                && TurrentAngle == turretAngle;
+                && TurretAngle == turretAngle;
         }
     }
 }

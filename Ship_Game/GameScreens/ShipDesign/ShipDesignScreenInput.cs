@@ -296,7 +296,7 @@ namespace Ship_Game
                 SlotStruct slot = slotStruct.Parent ?? slotStruct;
                 if (ActiveModule == null && slot.Module != null)
                 {
-                    SetActiveModule(slot.Module.UID, slot.ModuleRot, slot.TurrentAngle);
+                    SetActiveModule(slot.Module.UID, slot.ModuleRot, slot.TurretAngle);
                     return true;
                 }
 
@@ -392,7 +392,7 @@ namespace Ship_Game
                 InstallActiveModule(new SlotInstall(slot, ActiveModule, ActiveModState));
                 DisplayBulkReplacementTip();
             }
-            else if (slot.ModuleUID != ActiveModule.UID || slot.Module?.hangarShipUID != ActiveModule.hangarShipUID)
+            else if (slot.ModuleUID != ActiveModule.UID || slot.Module?.HangarShipUID != ActiveModule.HangarShipUID)
             {
                 GameAudio.SubBassMouseOver();
                 ReplaceModulesWith(slot, ActiveModule); // ReplaceModules created by Fat Bastard
@@ -596,7 +596,7 @@ namespace Ship_Game
             for (int i = 0; i < count; ++i)
             {
                 SlotStruct s = ModuleGrid.SlotsList[i];
-                savedSlots[i] = new DesignSlot(s.GridPos, s.ModuleUID, s.Size, s.TurrentAngle,
+                savedSlots[i] = new DesignSlot(s.GridPos, s.ModuleUID, s.Size, s.TurretAngle,
                                                s.ModuleRot, s.SlotOptions);
             }
             return savedSlots;
@@ -620,12 +620,9 @@ namespace Ship_Game
 
         ShipHull CloneAsHull(string newName)
         {
-            ShipData hull = ActiveHull.GetClone();
-            hull.Name = newName;
-            hull.Hull = newName;
-            foreach (DesignSlot slot in hull.ModuleSlots)
-                slot.ModuleUID = null;
-            return new ShipHull(hull);
+            ShipHull hull = ActiveHull.BaseHull.GetClone();
+            hull.HullName = newName;
+            return hull;
         }
 
         public void SaveShipDesign(string name)
@@ -633,7 +630,7 @@ namespace Ship_Game
             ShipData toSave = CloneActiveDesign(name);
             SerializeShipDesign(toSave, $"{Dir.StarDriveAppData}/Saved Designs/{name}.xml");
 
-            Ship newTemplate = ResourceManager.AddShipTemplate(toSave, fromSave: false, playerDesign: true);
+            Ship newTemplate = ResourceManager.AddShipTemplate(toSave, playerDesign: true);
             EmpireManager.Player.UpdateShipsWeCanBuild();
             if (!UnlockAllFactionDesigns && !EmpireManager.Player.WeCanBuildThis(newTemplate.Name))
                 Log.Error("WeCanBuildThis check failed after SaveShipDesign");

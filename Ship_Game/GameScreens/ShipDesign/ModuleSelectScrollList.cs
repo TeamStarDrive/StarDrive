@@ -20,7 +20,7 @@ namespace Ship_Game
             var weaponItem = (ModuleSelectListItem)item;
             if (weaponItem.Module != null)
             {
-                Screen.SetActiveModule(weaponItem.Module.UID, ModuleOrientation.Normal, 0f);
+                Screen.SetActiveModule(weaponItem.Module.UID, ModuleOrientation.Normal, 0);
             }
             base.OnItemClicked(item);
         }

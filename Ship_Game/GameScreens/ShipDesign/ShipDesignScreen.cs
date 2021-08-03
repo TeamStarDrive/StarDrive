@@ -145,7 +145,7 @@ namespace Ship_Game
             if (slot == null)
                 return;
 
-            ShipHull newHull = ActiveHull.BaseHull.Clone();
+            ShipHull newHull = ActiveHull.BaseHull.GetClone();
             switch (op)
             {
                 default: return;
@@ -183,7 +183,7 @@ namespace Ship_Game
             ActiveModule.SetAttributes();
             if (ActiveModule.ModuleType == ShipModuleType.Hangar
                 && !ActiveModule.IsSupplyBay && !ActiveModule.IsTroopBay)
-                ActiveModule.hangarShipUID = DynamicHangarOptions.DynamicLaunch.ToString();
+                ActiveModule.HangarShipUID = DynamicHangarOptions.DynamicLaunch.ToString();
         }
 
         void ResetActiveModule()
@@ -239,7 +239,7 @@ namespace Ship_Game
             {
                 // @warning in order to get correct XSIZE/YSIZE, we MUST use Module Template UID here
                 ShipModule mModule = CreateDesignModule(install.Mod.UID, mirrored.ModuleRot, mirrored.TurretAngle);
-                mModule.hangarShipUID = install.Mod.hangarShipUID;
+                mModule.HangarShipUID = install.Mod.HangarShipUID;
                 return new SlotInstall(mirrored.Slot, mModule, mirrored.ModuleRot);
             }
             return new SlotInstall();
@@ -260,8 +260,8 @@ namespace Ship_Game
                 
                 ShipSaved = false;
                 OnDesignChanged();
-                SpawnActiveModule(active.Mod.UID, active.Ori, active.Slot.TurrentAngle);
-                ActiveModule.hangarShipUID = active.Mod.hangarShipUID;
+                SpawnActiveModule(active.Mod.UID, active.Ori, active.Slot.TurretAngle);
+                ActiveModule.HangarShipUID = active.Mod.HangarShipUID;
             }
         }
 
@@ -281,7 +281,7 @@ namespace Ship_Game
                 if (replaceAt.ModuleUID == replacementId)
                 {
                     ShipModule m = CreateDesignModule(template.UID, replaceAt.ModuleRot, replaceAt.Module.TurretAngle);
-                    m.hangarShipUID = ActiveModule.hangarShipUID;
+                    m.HangarShipUID = ActiveModule.HangarShipUID;
                     ModuleGrid.InstallModule(replaceAt, m, replaceAt.ModuleRot);
                 }
             }
@@ -393,14 +393,14 @@ namespace Ship_Game
                     continue;
                 }
 
-                ShipModule newModule = CreateDesignModule(designSlot.ModuleUID, designSlot.ModuleRot, designSlot.TurrentAngle);
+                ShipModule newModule = CreateDesignModule(designSlot.ModuleUID, designSlot.ModuleRot, designSlot.TurretAngle);
                 if (!ModuleGrid.ModuleFitsAtSlot(targetSlot, newModule, logFailure: true))
                     continue;
 
                 ModuleGrid.InstallModule(targetSlot, newModule, designSlot.ModuleRot);
 
                 if (designSlot.Module?.ModuleType == ShipModuleType.Hangar)
-                    designSlot.Module.hangarShipUID = designSlot.SlotOptions;
+                    designSlot.Module.HangarShipUID = designSlot.SlotOptions;
             }
 
             ModuleGrid.SaveDebugGrid();
@@ -431,7 +431,7 @@ namespace Ship_Game
         {
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
-                ShipModule tiltedModule = CreateDesignModule(module.UID, ModuleOrientation.Right, slot.Facing);
+                ShipModule tiltedModule = CreateDesignModule(module.UID, ModuleOrientation.Right, slot.TurretAngle);
                 if (ModuleGrid.ModuleFitsAtSlot(slot, module) || ModuleGrid.ModuleFitsAtSlot(slot, tiltedModule))
                     return false;
             }

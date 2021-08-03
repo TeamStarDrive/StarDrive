@@ -689,7 +689,7 @@ namespace Ship_Game.GameScreens.LoadGame
         {
             foreach (SavedGame.ShipSaveData shipData in esd.OwnedShips)
             {
-                if (!data.FindShip(shipData.guid, out Ship ship))
+                if (!data.FindShip(shipData.GUID, out Ship ship))
                     continue;
 
                 if (shipData.AISave.WayPoints != null)
