@@ -167,7 +167,7 @@ namespace Ship_Game.AI
             }
         }
 
-        void DoDeploy(ShipGoal g)
+        void DoDeploy(ShipGoal g, FixedSimTime timeStep)
         {
             if (g.Goal == null)
                 return;
@@ -176,13 +176,16 @@ namespace Ship_Game.AI
             if (target == null && g.Goal.TetherTarget != Guid.Empty)
             {
                 target = Empire.Universe.GetPlanet(g.Goal.TetherTarget);
+                if (target == null) 
+                {
+                    OrderScrapShip();
+                    return;
+                }
             }
 
-            if (target != null && (g.Goal.BuildPosition).Distance(Owner.Position) > 200f)
-            {
-                OrderDeepSpaceBuild(g.Goal);
+            ThrustOrWarpToPos(g.Goal.BuildPosition, timeStep);
+            if (g.Goal.BuildPosition.Distance(Owner.Position) > 50)
                 return;
-            }
 
             Ship orbital = Ship.CreateShipAtPoint(g.Goal.ToBuildUID, Owner.loyalty, g.Goal.BuildPosition);
             if (orbital == null)
@@ -205,7 +208,7 @@ namespace Ship_Game.AI
                 g.Goal.OldShip.QueueTotalRemoval();
         }
 
-        void DoDeployOrbital(ShipGoal g)
+        void DoDeployOrbital(ShipGoal g, FixedSimTime timeStep)
         {
             if (g.Goal == null)
             {
@@ -221,11 +224,9 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (g.Goal.BuildPosition.Distance(Owner.Position) > 200f) // correct build position after long travel
-            {
-                OrderDeepSpaceBuild(g.Goal);
+            ThrustOrWarpToPos(g.Goal.BuildPosition, timeStep);
+            if (g.Goal.BuildPosition.Distance(Owner.Position) > 50)
                 return;
-            }
 
             Ship orbital = Ship.CreateShipAtPoint(g.Goal.ToBuildUID, Owner.loyalty, g.Goal.BuildPosition);
             if (orbital != null)
@@ -239,8 +240,6 @@ namespace Ship_Game.AI
                 else 
                     target.TryRemoveExcessOrbital(orbital);
             }
-
-            OrderScrapShip();
         }
 
         void AddStructureToRoadsList(ShipGoal g, Ship platform)
