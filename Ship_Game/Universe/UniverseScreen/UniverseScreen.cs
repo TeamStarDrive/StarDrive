@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Ship_Game.Audio;
+using Ship_Game.Data.Texture;
 using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Universe;
@@ -629,10 +630,7 @@ namespace Ship_Game
                 try
                 {
                     string fogCache = $"{Dir.StarDriveAppData}/Saved Games/Fog Maps/{loadFogPath}.png";
-                    using (FileStream fs = File.OpenRead(fogCache))
-                    {
-                        FogMap = Texture2D.FromFile(device, fs);
-                    }
+                    FogMap = new TextureImporter(content).Load(fogCache);
                 }
                 catch (Exception e) // whatever issue with fog map
                 {
