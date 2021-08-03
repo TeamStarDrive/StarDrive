@@ -490,8 +490,8 @@ namespace Ship_Game.AI
                 case Plan.Rebase:                   DoLandTroop(timeStep, goal);              break;
                 case Plan.DefendSystem:             DoSystemDefense(timeStep);                break;
                 case Plan.DoCombat:                 DoCombat(timeStep);                       break;
-                case Plan.DeployStructure:          DoDeploy(goal);                           break;
-                case Plan.DeployOrbital:            DoDeployOrbital(goal);                    break;
+                case Plan.DeployStructure:          DoDeploy(goal, timeStep);                 break;
+                case Plan.DeployOrbital:            DoDeployOrbital(goal, timeStep);          break;
                 case Plan.PickupGoods:              PickupGoods.Execute(timeStep, goal);      break;
                 case Plan.DropOffGoods:             DropOffGoods.Execute(timeStep, goal);     break;
                 case Plan.ReturnToHangar:           DoReturnToHangar(timeStep);               break;
