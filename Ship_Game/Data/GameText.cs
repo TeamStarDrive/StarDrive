@@ -4352,6 +4352,10 @@ namespace Ship_Game
         ViewTradeTreatiesTip = 4353,
         /// <summary>declared war on us because they were requsted to do</summary>
         DeclaredWarOnUsBecause = 4354,
+        /// <summary>Use Upkeep by Hull Size</summary>
+        RuleOptionsUseHullUpkeepName = 4355,
+        /// <summary>Normally, ship upkeep is calculated as a fraction of the</summary>
+        RuleOptionsUseHullUpkeepTip = 4356,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>
@@ -5146,7 +5150,7 @@ namespace Ship_Game
         TT_EngineTrails = -27,
         /// <summary>Max Dynamic Light Sources</summary>
         MaxDynamicLightSources = -28,
-        /// <summary>This will set an upper bound limit for dynamic light sources</summary>
+        /// <summary>This will set an upper bound limit for dynamic 3D</summary>
         TT_MaxDynamicLightSources = -29,
     }
 }
