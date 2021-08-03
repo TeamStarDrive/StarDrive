@@ -1687,7 +1687,7 @@ namespace Ship_Game.Fleets
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-                ship.AI.CombatState = ship.shipData.CombatState;
+                ship.AI.CombatState = ship.shipData.DefaultCombatState;
                 ship.AI.ClearOrders();
             }
         }
@@ -2003,7 +2003,7 @@ namespace Ship_Game.Fleets
             foreach (Ship ship in flankShips)
             {
                 ShipAI ai = ship.AI;
-                ai.CombatState = ship.shipData.CombatState;
+                ai.CombatState = ship.shipData.DefaultCombatState;
                 if (!ship.CanTakeFleetOrders)
                     continue;
 

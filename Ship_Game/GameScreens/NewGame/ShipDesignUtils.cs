@@ -133,12 +133,9 @@ namespace Ship_Game.GameScreens.NewGame
                 shipData.HullUnlockable = true;
                 shipData.AllModulesUnlockable = true;
 
-                foreach (ModuleSlotData module in ship.shipData.ModuleSlots)
+                foreach (DesignSlot slot in ship.shipData.ModuleSlots)
                 {
-                    if (module.IsDummy)
-                        continue;
-
-                    if (moduleUnlocks.TryGetValue(module.ModuleUID, out string requiredTech))
+                    if (moduleUnlocks.TryGetValue(slot.ModuleUID, out string requiredTech))
                     {
                         if (requiredTech != null) // ignore root techs
                             leafTechsNeeds.Add(requiredTech);
@@ -146,10 +143,10 @@ namespace Ship_Game.GameScreens.NewGame
                     else
                     {
                         shipData.AllModulesUnlockable = false;
-                        if (!ResourceManager.GetModuleTemplate(module.ModuleUID, out ShipModule _))
-                            Log.Info(ConsoleColor.Yellow, $"Module does not exist: ModuleUID='{module.ModuleUID}'  ship='{ship.Name}'");
+                        if (!ResourceManager.GetModuleTemplate(slot.ModuleUID, out ShipModule _))
+                            Log.Info(ConsoleColor.Yellow, $"Module does not exist: ModuleUID='{slot.ModuleUID}'  ship='{ship.Name}'");
                         else
-                            Log.Info(ConsoleColor.Yellow, $"Module cannot be unlocked by tech: ModuleUID='{module.ModuleUID}'  ship='{ship.Name}'");
+                            Log.Info(ConsoleColor.Yellow, $"Module cannot be unlocked by tech: ModuleUID='{slot.ModuleUID}'  ship='{ship.Name}'");
                         break;
                     }
                 }
@@ -157,8 +154,6 @@ namespace Ship_Game.GameScreens.NewGame
                 if (shipData.AllModulesUnlockable)
                 {
                     shipData.UnLockable = true;
-                    if (shipData.BaseStrength <= 0f)
-                        shipData.BaseStrength = ship.CalculateShipStrength();
 
                     // add the full tree of techs to TechsNeeded
                     foreach (string techName in leafTechsNeeds)
@@ -166,10 +161,6 @@ namespace Ship_Game.GameScreens.NewGame
 
                     // also add techs from basehull (already full tree)
                     AddRange(shipData.TechsNeeded, shipData.BaseHull.TechsNeeded);
-                }
-                else
-                {
-                    shipData.BaseStrength = 0;
                 }
             }
         }

@@ -57,7 +57,7 @@ namespace Ship_Game.AI
             //HACK. To fix this all the fleet tasks that use attackspecifictarget must be changed
             //if they also use hold position to keep ships from moving.
             if (!Owner.loyalty.isPlayer)
-                CombatState = Owner.shipData.CombatState;
+                CombatState = Owner.shipData.DefaultCombatState;
             TargetQueue.Add(toAttack);
             HasPriorityTarget = true;
 
