@@ -79,11 +79,12 @@ namespace Ship_Game
             Checkbox(ftlRect.X + indent, ftlRect.Y + 100, () => GlobalStats.UsePlayerDesigns, title: GameText.UsePlayerDesignsTitle, tooltip: GameText.UsePlayerDesignsTip);
             Checkbox(ftlRect.X + indent, ftlRect.Y + 125, () => GlobalStats.DisablePirates, title: GameText.DisablePirates, tooltip: GameText.DisablesAllPirateFactionsFor);
             Checkbox(ftlRect.X + indent, ftlRect.Y + 150, () => GlobalStats.DisableRemnantStory, title: GameText.DisableRemnantStory, tooltip: GameText.IfCheckedRemnantForcesIn);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 175, () => GlobalStats.UseUpkeepByHullSize, title: GameText.RuleOptionsUseHullUpkeepName, tooltip: GameText.RuleOptionsUseHullUpkeepTip);
 
-            var mdRect = new Rectangle(ftlRect.X + indent+2, ftlRect.Y + 195, 270, 50);
+            var mdRect = new Rectangle(ftlRect.X + indent+2, ftlRect.Y + 230, 270, 50);
             CustomMineralDecay = SliderDecimal1(mdRect, Localizer.Token(GameText.MineralDecayRate), 0.5f, 3, GlobalStats.CustomMineralDecay);
 
-            var vaRect = new Rectangle(ftlRect.X + indent + 2, ftlRect.Y + 255, 270, 50);
+            var vaRect = new Rectangle(ftlRect.X + indent + 2, ftlRect.Y + 290, 270, 50);
             VolcanicActivity = SliderDecimal1(vaRect, Localizer.Token(GameText.VolcanicActivity), 0.5f, 3, GlobalStats.VolcanicActivity);
 
             var gwRect = new Rectangle(x, leftRect.Y + 210, 270, 50);
