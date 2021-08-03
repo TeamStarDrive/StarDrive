@@ -402,6 +402,8 @@ namespace Ship_Game.Ships
             {
                 InitializeStatus(fromSave: false);
             }
+
+            UpdateModulePositions(FixedSimTime.Zero, isSystemView: false, forceUpdate: true);
         }
 
         void InitDefendingTroopStrength()

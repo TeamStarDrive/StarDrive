@@ -983,7 +983,8 @@ namespace Ship_Game
                     || ship.AI.State == AIState.ResupplyEscort
                     || ship.AI.State == AIState.Refit
                     || ship.AI.State == AIState.Scrap
-                    || ship.AI.State == AIState.Scuttle)
+                    || ship.AI.State == AIState.Scuttle
+                    || ship.IsPlatformOrStation)
                 {
                     continue;
                 }
