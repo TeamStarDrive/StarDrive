@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Data.Texture
 {
+    using XGraphics = Microsoft.Xna.Framework.Graphics;
+
     public class TextureImporter : TextureInterface
     {
         public TextureImporter(GameContentManager content) : base(content)
@@ -16,22 +18,21 @@ namespace Ship_Game.Data.Texture
         
         public Texture2D Load(string texturePath)
         {
-            using (var fs = new FileStream(texturePath, FileMode.Open))
-            {
-                Texture2D tex = Texture2D.FromFile(Device, fs);
-                tex.Name = texturePath;
-                return tex;
-            }
+            TextureCreationParameters parameters = XGraphics.Texture.GetCreationParameters(Device, texturePath);
+
+            var tex = (Texture2D)XGraphics.Texture.FromFile(Device, texturePath, parameters);
+            tex.Name = texturePath;
+            return tex;
         }
         
         public Texture2D Load(FileInfo textureFile)
         {
-            using (FileStream fs = textureFile.OpenRead())
-            {
-                Texture2D tex = Texture2D.FromFile(Device, fs);
-                tex.Name = textureFile.RelPath();
-                return tex;
-            }
+            string fullPath = textureFile.FullName;
+            TextureCreationParameters parameters = XGraphics.Texture.GetCreationParameters(Device, fullPath);
+
+            var tex = (Texture2D)XGraphics.Texture.FromFile(Device, fullPath, parameters);
+            tex.Name = textureFile.RelPath();
+            return tex;
         }
     }
 }
