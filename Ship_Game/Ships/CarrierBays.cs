@@ -601,17 +601,17 @@ namespace Ship_Game.Ships
             {
                 if (hangar.DynamicHangar == DynamicHangarOptions.Static)
                 {
-                    if (empire.ShipsWeCanBuild.Contains(hangar.hangarShipUID))
+                    if (empire.ShipsWeCanBuild.Contains(hangar.HangarShipUID))
                         continue; // FB: we can build the ship, this hangar is sorted out
                 }
                 // If the ship we want cant be built, will try to launch the best we have by proceeding this method as if the hangar is dynamic
                 string selectedShip = GetDynamicShipName(hangar, empire);
-                hangar.hangarShipUID = selectedShip;
-                if (hangar.hangarShipUID == null || hangar.hangarShipUID.IsEmpty())
-                    hangar.hangarShipUID = defaultShip;
-                if (hangar.hangarShipUID == null || hangar.hangarShipUID.IsEmpty())
+                hangar.HangarShipUID = selectedShip;
+                if (hangar.HangarShipUID == null || hangar.HangarShipUID.IsEmpty())
+                    hangar.HangarShipUID = defaultShip;
+                if (hangar.HangarShipUID == null || hangar.HangarShipUID.IsEmpty())
                 {
-                    hangar.hangarShipUID = EmpireManager.Player.data.StartingShip;
+                    hangar.HangarShipUID = EmpireManager.Player.data.StartingShip;
                     string roles = "";
                     foreach (var role in hangar.HangarRoles)
                     {

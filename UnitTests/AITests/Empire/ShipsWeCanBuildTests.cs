@@ -124,7 +124,7 @@ namespace UnitTests.AITests.Empire
             Ship existingTemplate = ResourceManager.GetShipTemplate(baseDesign);
             ShipData newData = existingTemplate.shipData.GetClone();
             newData.Name = newName;
-            ResourceManager.AddShipTemplate(newData, fromSave:false, playerDesign:playerDesign);
+            ResourceManager.AddShipTemplate(newData, playerDesign:playerDesign);
             empire.UpdateShipsWeCanBuild();
             return newName;
         }

@@ -375,16 +375,7 @@ namespace Ship_Game
 
         public static ShipSaveData ShipSaveFromShip(Ship ship)
         {
-            var sdata = new ShipSaveData
-            {
-                guid       = ship.guid,
-                data       = new ShipData(ship),
-                Position   = ship.Position,
-                experience = ship.experience,
-                kills      = ship.kills,
-                Velocity   = ship.Velocity
-
-            };
+            var sdata = new ShipSaveData(ship);
             if (ship.GetTether() != null)
             {
                 sdata.TetheredTo = ship.GetTether().guid;
@@ -430,17 +421,18 @@ namespace Ship_Game
             sdata.AllowInterEmpireTrade = ship.AllowInterEmpireTrade;
             sdata.AISave = new ShipAISave
             {
-                State = ship.AI.State
+                State = ship.AI.State,
+                DefaultState = ship.AI.DefaultAIState,
+                CombatState = ship.AI.CombatState,
+                StateBits = ship.AI.StateBits,
             };
             if (ship.AI.Target is Ship targetShip)
             {
                 sdata.AISave.AttackTarget = targetShip.guid;
             }
-            sdata.AISave.DefaultState = ship.AI.DefaultAIState;
             sdata.AISave.MovePosition = ship.AI.MovePosition;
             sdata.AISave.WayPoints = new Array<WayPoint>(ship.AI.CopyWayPoints());
             sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
-            sdata.AISave.StateBits = ship.AI.StateBits;
 
             foreach (ShipAI.ShipGoal sg in ship.AI.OrderQueue)
             {
@@ -487,15 +479,7 @@ namespace Ship_Game
 
         public static ShipSaveData ProjectorSaveFromShip(Ship ship)
         {
-            var sd = new ShipSaveData
-            {
-                guid = ship.guid,
-                data = new ShipData(ship),
-                Position   = ship.Position,
-                experience = ship.experience,
-                kills      = ship.kills,
-                Velocity   = ship.Velocity
-            };
+            var sd = new ShipSaveData(ship);
             if (ship.GetTether() != null)
             {
                 sd.TetheredTo = ship.GetTether().guid;
@@ -852,16 +836,15 @@ namespace Ship_Game
         {
             [Serialize(0)] public AIState State;
             [Serialize(1)] public AIState DefaultState;
-            [Serialize(2)] public ShipAI.Flags StateBits;
-            [Serialize(3)] public Array<ShipGoalSave> ShipGoalsList;
-            // NOTE: Old Vector2 waypoints are no longer compatible
-            // Renaming essentially clears all waypoints
-            [Serialize(4)] public Array<WayPoint> WayPoints;
-            [Serialize(5)] public Vector2 MovePosition;
-            [Serialize(6)] public Guid OrbitTarget;
-            [Serialize(7)] public Guid SystemToDefend;
-            [Serialize(8)] public Guid AttackTarget;
-            [Serialize(9)] public Guid EscortTarget;
+            [Serialize(2)] public CombatState CombatState;
+            [Serialize(3)] public ShipAI.Flags StateBits;
+            [Serialize(4)] public Array<ShipGoalSave> ShipGoalsList;
+            [Serialize(5)] public Array<WayPoint> WayPoints;
+            [Serialize(6)] public Vector2 MovePosition;
+            [Serialize(7)] public Guid OrbitTarget;
+            [Serialize(8)] public Guid SystemToDefend;
+            [Serialize(9)] public Guid AttackTarget;
+            [Serialize(10)] public Guid EscortTarget;
         }
 
         public class ShipGoalSave
@@ -897,22 +880,26 @@ namespace Ship_Game
 
         public class ShipSaveData
         {
-            [Serialize(0)] public Guid guid;
+            [Serialize(0)] public Guid GUID;
             [Serialize(1)] public bool AfterBurnerOn;
             [Serialize(2)] public ShipAISave AISave;
             [Serialize(3)] public Vector2 Position;
             [Serialize(4)] public Vector2 Velocity;
             [Serialize(5)] public float Rotation;
-            [Serialize(6)] public ShipData data;
-            [Serialize(7)] public string Hull;
-            [Serialize(8)] public string Name;
-            [Serialize(9)] public string VanityName;
+            // 200 IQ solution: store a base64 string of the ship module saves
+            // and avoid a bunch of annoying serialization issues
+            [Serialize(6)] public string ModulesBase64;
+            [Serialize(7)] public string Hull; // ShipHull name
+            [Serialize(8)] public string Name; // ShipData design name
+            [Serialize(9)] public string VanityName; // User defined name
             [Serialize(10)] public float yRotation;
             [Serialize(11)] public float Power;
             [Serialize(12)] public float Ordnance;
             [Serialize(13)] public bool InCombat;
-            [Serialize(14)] public float experience;
-            [Serialize(15)] public int kills;
+            [Serialize(13)] public float BaseStrength;
+            [Serialize(13)] public int Level;
+            [Serialize(14)] public float Experience;
+            [Serialize(15)] public int Kills;
             [Serialize(16)] public Array<Troop> TroopList;
             [Serialize(17)] public RectangleData[] AreaOfOperation;
             [Serialize(18)] public float FoodCount;
@@ -934,7 +921,25 @@ namespace Ship_Game
             [Serialize(34)] public float OrdnanceInSpace; // For carriers
             [Serialize(35)] public float ScuttleTimer = -1;
 
-            public override string ToString() => $"ShipSave {guid} {Name}";
+            public ShipSaveData() {}
+
+            public ShipSaveData(Ship ship)
+            {
+                Name = ship.Name;
+                MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
+                GUID = ship.guid;
+                Position   = ship.Position;
+
+                BaseStrength = ship.BaseStrength;
+                Level      = ship.Level;
+                Experience = ship.experience;
+                Kills      = ship.kills;
+                Velocity   = ship.Velocity;
+
+                ModulesBase64 = ShipData.GetBase64ModulesString(ship);
+            }
+
+            public override string ToString() => $"ShipSave {GUID} {Name}";
         }
 
         public class SolarSystemSaveData

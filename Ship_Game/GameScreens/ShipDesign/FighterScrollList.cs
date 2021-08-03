@@ -53,7 +53,7 @@ namespace Ship_Game
             {
                 foreach (FighterListItem e in AllEntries)
                 {
-                    if (ActiveModule?.hangarShipUID == e.Ship.Name)
+                    if (ActiveModule?.HangarShipUID == e.Ship.Name)
                     {
                         Highlight = new Selector(new RectF(e.X-15, e.Y-5, e.Width+12, e.Height));
                     }
@@ -67,7 +67,7 @@ namespace Ship_Game
             if (ActiveModule != null)
             {
                 var fighterItem            = (FighterListItem)item;
-                ActiveModule.hangarShipUID = fighterItem.Ship.Name;
+                ActiveModule.HangarShipUID = fighterItem.Ship.Name;
                 HangarShipUIDLast          = fighterItem.Name;
             }
 
@@ -112,7 +112,7 @@ namespace Ship_Game
             Ship fighter = ResourceManager.GetShipTemplate(HangarShipUIDLast, false);
             if (HangarShipUIDLast != "" && activeModule.PermittedHangarRoles.Contains(fighter?.shipData.GetRole()) && activeModule.MaximumHangarShipSize >= fighter?.SurfaceArea)
             {
-                activeModule.hangarShipUID = HangarShipUIDLast;
+                activeModule.HangarShipUID = HangarShipUIDLast;
             }
         }
 

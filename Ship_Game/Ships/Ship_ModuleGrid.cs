@@ -39,7 +39,6 @@ namespace Ship_Game.Ships
             {
                 var modulesInfo = new ShipGridInfo(ModuleSlotList);
                 if (modulesInfo.SurfaceArea != gridInfo.SurfaceArea ||
-                    modulesInfo.Origin != gridInfo.Origin ||
                     modulesInfo.Size != gridInfo.Size)
                 {
                     Log.Warning($"Ship {Name} ModulesGrid does not match ShipDataGrid: {modulesInfo} != {gridInfo}. This is a potentially broken Ship Design");

@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Ships.Legacy;
 
 namespace UnitTests.Ships
 {
@@ -13,7 +14,7 @@ namespace UnitTests.Ships
     {
         static void AssertAreEqual(HullSlot a, HullSlot b)
         {
-            Assert.AreEqual(a.P, b.P);
+            Assert.AreEqual(a.Pos, b.Pos);
             Assert.AreEqual(a.R, b.R);
         }
 
@@ -84,9 +85,8 @@ namespace UnitTests.Ships
 
             foreach (FileInfo xmlHullFile in xmlHulls)
             {
-                ShipData xmlHull = ShipData.Parse(xmlHullFile, isHullDefinition: true);
-                var newHullConverted = new ShipHull(xmlHull);
-                AssertAreEqual(xmlHull, newHullConverted);
+                LegacyShipData oldXmlHull = LegacyShipData.Parse(xmlHullFile, isHullDefinition: true);
+                var newHullConverted = new ShipHull(oldXmlHull);
 
                 var newHullFile = new FileInfo(Path.ChangeExtension(xmlHullFile.FullName, "hull"));
                 newHullConverted.Save(newHullFile);

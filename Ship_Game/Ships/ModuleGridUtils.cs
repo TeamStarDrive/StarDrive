@@ -49,21 +49,21 @@ namespace Ship_Game.Ships
                 null
             };
 
-            int f = (int)m.TurretAngle;
-            int o = (int)m.ModuleRot;
+            int ta = m.TurretAngle;
+            int mr = (int)m.ModuleRot;
             if (ss != null)
             {
-                if (f != (int)ss.Facing)
-                    Log.Warning($"Module Facing does not match SlotStruct: m.FacingDegrees={m.TurretAngle} ss={ss}");
-                if (o != (int)ss.ModuleRot)
-                    Log.Warning($"Module Orientation does not match SlotStruct: m.Orientation={m.ModuleRot} ss={ss}");
+                if (ta != ss.TurretAngle)
+                    Log.Warning($"TurretAngle does not match SlotStruct: m.TurretAngle={m.TurretAngle} ss={ss}");
+                if (mr != (int)ss.ModuleRot)
+                    Log.Warning($"ModuleRot does not match SlotStruct: m.ModuleRot={m.ModuleRot} ss={ss}");
 
-                f = (int)ss.Facing;
-                o = (int)ss.ModuleRot;
+                ta = (int)ss.TurretAngle;
+                mr = (int)ss.ModuleRot;
             }
 
-            if (f != 0 || o != 0)
-                lines[3] = "|" + PadCentered($"F{f} O{o}", 7);
+            if (ta != 0 || mr != 0)
+                lines[3] = "|" + PadCentered($"F{ta} O{mr}", 7);
             else
                 lines[3] = "|"+SafeSub(m.UID, 14, 7);
             return lines;

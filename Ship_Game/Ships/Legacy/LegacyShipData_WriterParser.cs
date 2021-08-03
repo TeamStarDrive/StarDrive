@@ -49,18 +49,18 @@ namespace Ship_Game.Ships.Legacy
                 sw.Write("AllModulesUnlockable", AllModulesUnlockable);
 
             sw.Write("DefaultAIState", DefaultAIState);
-            sw.Write("CombatState", CombatState);
+            sw.Write("DefaultCombatState", CombatState);
             sw.Write("EventOnDeath", EventOnDeath); // "DefeatedMothership" remnant event
 
             var moduleUIDsToIdx = new Array<string>();
-            foreach (ModuleSlotData slot in ModuleSlots)
+            foreach (LegacyModuleSlotData slot in ModuleSlots)
             {
                 if (!slot.IsDummy && !moduleUIDsToIdx.Contains(slot.ModuleUID))
                     moduleUIDsToIdx.Add(slot.ModuleUID);
             }
 
             var moduleLines = new Array<string>();
-            foreach (ModuleSlotData slot in ModuleSlots)
+            foreach (LegacyModuleSlotData slot in ModuleSlots)
             {
                 // New data format does not have dummy modules
                 if (slot.IsDummy)
@@ -96,7 +96,7 @@ namespace Ship_Game.Ships.Legacy
             sw.WriteLine("# Maps module UIDs to Index, first UID has index 0");
             sw.Write("ModuleUIDs", string.Join(";", moduleUIDsToIdx));
             sw.Write("Modules", moduleLines.Count);
-            sw.WriteLine("# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRotation;slotOptions");
+            sw.WriteLine("# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID");
             foreach (string m in moduleLines)
                 sw.WriteLine(m);
 

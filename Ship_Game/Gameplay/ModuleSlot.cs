@@ -10,23 +10,23 @@ namespace Ship_Game.Gameplay
     // Used only in Hull definitions
     public sealed class HullSlot
     {
-        public Point P; // integer position in the design, such as [0, 1]
-        public Restrictions R; // this slots
+        public Point Pos; // integer position in the design, such as [0, 1]
+        public Restrictions R; // this slots restrictions
 
         public HullSlot() {}
         public HullSlot(int x, int y, Restrictions r)
         {
-            P = new Point(x, y);
+            Pos = new Point(x, y);
             R = r;
         }
         public HullSlot(HullSlot slot)
         {
-            P = slot.P;
+            Pos = slot.Pos;
             R = slot.R;
         }
-        public Point GetGridPos() => P;
+        public Point GetGridPos() => Pos;
         public Point GetSize() => new Point(1, 1);
-        public override string ToString() => $"{R} {P}";
+        public override string ToString() => $"{R} {Pos}";
 
         /// <summary>
         /// Sorter for HullSlot[], orders HullSlot grid in scanline order:
@@ -40,42 +40,42 @@ namespace Ship_Game.Gameplay
                 return 0;
 
             // first by scanline (Y axis)
-            if (a.P.Y < b.P.Y) return -1;
-            if (a.P.Y > b.P.Y) return +1;
+            if (a.Pos.Y < b.Pos.Y) return -1;
+            if (a.Pos.Y > b.Pos.Y) return +1;
 
             // and then sort by column (X axis)
-            if (a.P.X < b.P.X) return -1;
-            if (a.P.X > b.P.X) return +1;
+            if (a.Pos.X < b.Pos.X) return -1;
+            if (a.Pos.X > b.Pos.X) return +1;
             return 0;
         }
     }
 
     // Used only in new Ship designs
     // # gridX,gridY; moduleUIDIndex; sizeX,sizeY; turretAngle; moduleRotation; slotOptions
-    public sealed class DesignSlot : IEquatable<DesignSlot>
+    public class DesignSlot : IEquatable<DesignSlot>
     {
         public Point Pos; // integer position in the design, such as [0, 1]
         public string ModuleUID; // module UID, must be interned during parsing
-        public Point Size; // integer size, default is 1,1
+        public Point Size; // integer size, default is 1,1, for a 1x2 module with ModuleRot.Left it is [2,1]
         public int TurretAngle; // angle 0..360 of a mounted turret
-        public ModuleOrientation ModuleRotation; // module's orientation/rotation: Normal,Left,Right,Rear
-        public string SlotOptions; // null by default, only set if there are any options
+        public ModuleOrientation ModuleRot; // module's orientation/rotation: Normal,Left,Right,Rear
+        public string HangarShipUID; // null by default, only set if there are any options
         
         public DesignSlot() {}
         public DesignSlot(Point pos, string uid, Point size, int turretAngle,
-                          ModuleOrientation moduleRot, string slotOptions)
+                          ModuleOrientation moduleRot, string hangarShipUID)
         {
             Pos = pos;
             ModuleUID = uid;
             Size = size;
             TurretAngle = turretAngle;
-            ModuleRotation = moduleRot;
-            SlotOptions = slotOptions;
+            ModuleRot = moduleRot;
+            HangarShipUID = hangarShipUID;
         }
 
         public Point GetGridPos() => Pos;
         public Point GetSize() => new Point(1, 1);
-        public override string ToString() => $"{Pos} {ModuleUID} {Size} TA:{TurretAngle} MR:{ModuleRotation} SO:{SlotOptions}";
+        public override string ToString() => $"{Pos} {ModuleUID} {Size} TA:{TurretAngle} MR:{ModuleRot} HS:{HangarShipUID}";
 
         public bool Equals(DesignSlot s)
         {
@@ -84,8 +84,31 @@ namespace Ship_Game.Gameplay
                 && ModuleUID == s.ModuleUID
                 && Size == s.Size
                 && TurretAngle == s.TurretAngle
-                && ModuleRotation == s.ModuleRotation
-                && SlotOptions == s.SlotOptions;
+                && ModuleRot == s.ModuleRot
+                && HangarShipUID == s.HangarShipUID;
+        }
+    }
+
+    /// <summary>
+    /// Active ships must be saved with all of their DesignSlot data
+    /// and their ShipModule state data.
+    ///
+    /// This is because players can modify an existing ship .design,
+    /// making old designs obsolete.
+    /// </summary>
+    public sealed class ModuleSaveData : DesignSlot
+    {
+        /// --- Saved ShipModule state ---
+        public float Health;
+        public float ShieldPower;
+        public Guid HangarShip;
+
+        public ModuleSaveData(ShipModule m)
+            : base(m.GridPos, m.UID, m.GetSize(), m.TurretAngle, m.ModuleRot, m.HangarShipUID)
+        {
+            Health = m.Health;
+            ShieldPower = m.ShieldPower;
+            HangarShip = m.HangarShipGuid;
         }
     }
 
@@ -147,29 +170,6 @@ namespace Ship_Game.Gameplay
             SlotOptions  = slotOptions;
         }
 
-        // Save ShipModule as ModuleSlotData for Savegame
-        public ModuleSlotData(ShipModule module)
-            : this(xmlPos:       module.XMLPosition,
-                   restrictions: module.Restrictions,
-                   moduleUid:    module.UID,
-                   facing:       module.TurretAngle,
-                   orientation:  GetOrientationString(module.ModuleRot))
-        {
-            Health       = module.Health;
-            ShieldPower  = module.ShieldPower;
-
-            if (module.TryGetHangarShip(out Ship hangarShip))
-                HangarshipGuid = hangarShip.guid;
-
-            if (module.ModuleType == ShipModuleType.Hangar)
-            {
-                SlotOptions = module.DynamicHangar == DynamicHangarOptions.Static
-                            ? module.hangarShipUID
-                            : module.DynamicHangar.ToString();
-                SlotOptions = string.Intern(SlotOptions);
-            }
-        }
-
         // Save SlotStruct as ModuleSlotData in ShipDesignScreen
         public ModuleSlotData(SlotStruct slot)
         {
@@ -182,7 +182,7 @@ namespace Ship_Game.Gameplay
                 Facing = slot.Module.TurretAngle;
                 if (slot.Module.ModuleType == ShipModuleType.Hangar)
                 {
-                    SlotOptions = string.Intern(slot.Module.hangarShipUID);
+                    SlotOptions = string.Intern(slot.Module.HangarShipUID);
                 }
             }
         }
