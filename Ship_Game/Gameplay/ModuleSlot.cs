@@ -72,6 +72,15 @@ namespace Ship_Game.Gameplay
             ModuleRot = moduleRot;
             HangarShipUID = hangarShipUID;
         }
+        public DesignSlot(DesignSlot s)
+        {
+            Pos = s.Pos;
+            ModuleUID = s.ModuleUID;
+            Size = s.Size;
+            TurretAngle = s.TurretAngle;
+            ModuleRot = s.ModuleRot;
+            HangarShipUID = s.HangarShipUID;
+        }
 
         public Point GetGridPos() => Pos;
         public Point GetSize() => new Point(1, 1);
@@ -109,6 +118,19 @@ namespace Ship_Game.Gameplay
             Health = m.Health;
             ShieldPower = m.ShieldPower;
             HangarShip = m.HangarShipGuid;
+        }
+
+        public ModuleSaveData(DesignSlot s, float health, float shieldPower, in Guid hangarShip)
+            : base(s)
+        {
+            Health = health;
+            ShieldPower = shieldPower;
+            HangarShip = hangarShip;
+        }
+
+        public DesignSlot ToDesignSlot() // abandon the state
+        {
+            return new DesignSlot(Pos, ModuleUID, Size, TurretAngle, ModuleRot, HangarShipUID);
         }
     }
 

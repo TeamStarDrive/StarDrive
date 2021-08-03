@@ -42,7 +42,7 @@ namespace Ship_Game.Ships
         // Create a ship from a savegame or a template or in shipyard
         // You can also call Ship.CreateShip... functions to spawn ships
         // @param shipyardDesign This is a potentially incomplete design from Shipyard
-        protected Ship(Empire empire, SavedGame.ShipSaveData save, ModuleSaveData[] savedModules) : base(GameObjectType.Ship)
+        protected Ship(Empire empire, ShipData data, SavedGame.ShipSaveData save, ModuleSaveData[] savedModules) : base(GameObjectType.Ship)
         {
             Position   = new Vector2(200f, 200f);
             Name       = save.Name;
@@ -272,21 +272,32 @@ namespace Ship_Game.Ships
         public static Ship CreateShipFromSave(Empire empire, SavedGame.ShipSaveData save)
         {
             ModuleSaveData[] savedModules = ShipData.GetModuleSaveFromBase64String(save.ModulesBase64);
+            if (savedModules == null)
+                return null;
 
-            if (!ResourceManager.ShipTemplateExists(save.Name))
+            ShipData data;
+            if (ResourceManager.GetShipTemplate(save.Name, out Ship template))
+            {
+                // savedModules are equal to existing ship template? then use that
+                if (template.shipData.AreModulesEqual(savedModules))
+                    data = template.shipData;
+                else
+                    data = ShipData.FromSave(savedModules, template.shipData);
+            }
+            else
             {
                 if (!ResourceManager.Hull(save.Hull, out ShipHull hull))
                 {
                     Log.Error($"CreateShipFromSave failed: no hull named {save.Hull}");
                     return null;
                 }
-
-                var shipData = new ShipData();
-                save.data.Hull = save.Hull;
-                ResourceManager.AddShipTemplate(save.data);
+                
+                // this ShipData doesn't exist in the game designs, it comes from the savegame only
+                data = ShipData.FromSave(savedModules, save, hull);
+                ResourceManager.AddShipTemplate(data, playerDesign: true);
             }
 
-            var ship = new Ship(empire, save, savedModules);
+            var ship = new Ship(empire, data, save, savedModules);
             if (!ship.HasModules)
                 return null; // module creation failed
             ship.InitializeFromSaveData(save);

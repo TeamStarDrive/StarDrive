@@ -43,6 +43,13 @@ namespace Ship_Game.Data
             Reader = new StringReader(text);
             Buffer = new char[4096];
         }
+
+        public GenericStringViewParser(string name, TextReader reader)
+        {
+            Name = name;
+            Reader = reader;
+            Buffer = new char[4096];
+        }
         
         ~GenericStringViewParser()
         {
