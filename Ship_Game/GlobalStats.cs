@@ -106,6 +106,7 @@ namespace Ship_Game
         public static bool ShipListFilterNotInFleets;
         public static bool DisableInhibitionWarning = true;
         public static bool DisableVolcanoWarning;
+        public static bool UseUpkeepByHullSize;
 
         public static int CameraPanSpeed    = 2;
         public static float DamageIntensity = 1;
