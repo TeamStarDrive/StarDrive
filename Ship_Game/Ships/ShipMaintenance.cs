@@ -36,7 +36,7 @@ namespace Ship_Game.Ships
 
         static float GetBaseMainCost(Ship ship, Empire empire, int numTroops)
         {
-            bool hullUpkeep = GlobalStats.ActiveModInfo?.UseUpkeepByHullSize == true;
+            bool hullUpkeep = GlobalStats.UseUpkeepByHullSize;
             float maint;
             if (ship.shipData.FixedUpkeep > 0)
             {
