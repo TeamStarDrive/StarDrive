@@ -1897,7 +1897,7 @@ namespace Ship_Game.Ships
                  rangeStatus= WarpRangeStatus(GlobalStats.MinimumWarpRange);
             }
             bool warpTimeGood = rangeStatus >= Status.Excellent;
-            if (!warpTimeGood)
+            if (!warpTimeGood && !IsPlatformOrStation)
                 Empire.Universe?.DebugWin?.DebugLogText(
                     $"WARNING ship design {Name} with hull {shipData.Hull} :{rangeStatus} WarpTime. {NetPower.NetWarpPowerDraw}/{PowerFlowMax}",
                     DebugModes.Normal);
