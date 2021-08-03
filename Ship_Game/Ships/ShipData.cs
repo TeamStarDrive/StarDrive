@@ -184,12 +184,52 @@ namespace Ship_Game.Ships
             return null;
         }
 
-        public static bool IsAllDummySlots(ModuleSlotData[] slots)
+        public bool AreModulesEqual(ModuleSaveData[] saved)
         {
-            for (int i = 0; i < slots.Length; ++i)
-                if (!slots[i].IsDummy)
+            if (ModuleSlots.Length != saved.Length)
+                return false;
+
+            for (int i = 0; i < saved.Length; ++i)
+                if (ModuleSlots[i].ModuleUID != saved[i].ModuleUID) // it is enough to test only module UID-s
                     return false;
             return true;
+        }
+
+        public static ShipData FromSave(ModuleSaveData[] saved, ShipData template)
+        {
+            // savedModules are different, grab the existing template's defaults but apply the new ship's modules
+            // this is pretty inefficient but it's currently the only way to handle obsolete designs without crashing
+            // TODO: implement obsolete ships and ship versioning
+            ShipData data = template.GetClone();
+            
+            data.ModuleSlots = new DesignSlot[saved.Length];
+            for (int i = 0; i < saved.Length; ++i)
+                data.ModuleSlots[i] = saved[i].ToDesignSlot();
+
+            return data;
+        }
+
+        public static ShipData FromSave(ModuleSaveData[] saved, SavedGame.ShipSaveData save, ShipHull hull)
+        {
+            ShipData data = null;
+            
+            data.BaseHull = hull;
+            data.Name = save.Name;
+            data.Hull = hull.HullName;
+            data.Role = hull.Role;
+            data.ModName = hull.ModName;
+            data.ShipStyle = hull.Style;
+            data.Description = hull.Description;
+            data.GridInfo = new ShipGridInfo(hull.Size, hull.Area);
+            data.IconPath = hull.IconPath;
+            data.SelectionGraphic = hull.SelectIcon;
+            data.UnLockable = hull.Unlockable;
+
+            data.ModuleSlots = new DesignSlot[saved.Length];
+            for (int i = 0; i < saved.Length; ++i)
+                data.ModuleSlots[i] = saved[i].ToDesignSlot();
+
+            return data;
         }
 
         public ShipData GetClone()

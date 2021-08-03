@@ -11,6 +11,12 @@ namespace Ship_Game.Ships
 
         public override string ToString() => $"surface={SurfaceArea} size={Size}";
 
+        public ShipGridInfo(Point size, int surfaceArea)
+        {
+            Size = size;
+            SurfaceArea = surfaceArea;
+        }
+
         public ShipGridInfo(HullSlot[] slots)
         {
             Size = Point.Zero; // [0,0] is always the top-left
