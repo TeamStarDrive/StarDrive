@@ -54,7 +54,7 @@ namespace Ship_Game.Ships
             File.WriteAllText(file.FullName, Sb.ToString(), Encoding.UTF8);
         }
 
-        public byte[] GetTextBytes()
+        public byte[] GetASCIIBytes()
         {
             char[] chars = new char[Sb.Length];
             Sb.CopyTo(0, chars, 0, chars.Length);
