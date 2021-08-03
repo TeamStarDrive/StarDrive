@@ -933,12 +933,12 @@ namespace Ship_Game.Ships
         }
 
         // This is used during Saving for ShipSaveData
-        public ModuleSlotData[] GetModuleSlotDataArray()
+        public ModuleSaveData[] GetModuleSaveData()
         {
-            var slots = new ModuleSlotData[ModuleSlotList.Length];
+            var slots = new ModuleSaveData[ModuleSlotList.Length];
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
-                slots[i] = new ModuleSlotData(ModuleSlotList[i]);
+                slots[i] = new ModuleSaveData(ModuleSlotList[i]);
             }
             return slots;
         }

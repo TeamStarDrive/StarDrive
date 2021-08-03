@@ -55,10 +55,10 @@ namespace Ship_Game.Ships.Legacy
 
         public ThrusterZone[] ThrusterList;
 
-        [XmlIgnore] [JsonIgnore] public ShipGridInfo GridInfo;
+        [XmlIgnore] [JsonIgnore] public LegacyShipGridInfo GridInfo;
 
         [XmlIgnore] [JsonIgnore] public float BaseStrength;
-        [XmlArray(ElementName = "ModuleSlotList")] public ModuleSlotData[] ModuleSlots;
+        [XmlArray(ElementName = "ModuleSlotList")] public LegacyModuleSlotData[] ModuleSlots;
         [XmlIgnore] [JsonIgnore] public bool UnLockable;
         [XmlIgnore] [JsonIgnore] public bool HullUnlockable;
         [XmlIgnore] [JsonIgnore] public bool AllModulesUnlockable = true;
@@ -96,7 +96,7 @@ namespace Ship_Game.Ships.Legacy
 
         public void UpdateGridInfo()
         {
-            GridInfo = new ShipGridInfo(ModuleSlots);
+            GridInfo = new LegacyShipGridInfo(ModuleSlots);
         }
 
         void FinalizeAfterLoad(FileInfo info, bool isHullDefinition)
@@ -164,7 +164,7 @@ namespace Ship_Game.Ships.Legacy
             return null;
         }
 
-        public static bool IsAllDummySlots(ModuleSlotData[] slots)
+        public static bool IsAllDummySlots(LegacyModuleSlotData[] slots)
         {
             for (int i = 0; i < slots.Length; ++i)
                 if (!slots[i].IsDummy)

@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Ship_Game.Data;
 using Ship_Game.Data.Serialization.Types;
@@ -17,6 +15,12 @@ namespace Ship_Game.Ships
     {
         public void Save(FileInfo file)
         {
+            ShipDataWriter sw = CreateShipDataText();
+            sw.FlushToFile(file);
+        }
+
+        ShipDataWriter CreateShipDataText()
+        {
             var sw = new ShipDataWriter();
             sw.Write("Version", CurrentVersion);
             sw.Write("Name", Name);
@@ -26,7 +30,6 @@ namespace Ship_Game.Ships
             sw.Write("Style", ShipStyle);
             sw.Write("Description", Description);
             sw.Write("Size", $"{GridInfo.Size.X},{GridInfo.Size.Y}");
-            sw.Write("LegacyOrigin", $"{GridInfo.Origin.X},{GridInfo.Origin.Y}");
             
             if (IconPath != BaseHull.IconPath)
                 sw.Write("IconPath", IconPath);
@@ -45,40 +48,29 @@ namespace Ship_Game.Ships
                 sw.Write("AllModulesUnlockable", AllModulesUnlockable);
 
             sw.Write("DefaultAIState", DefaultAIState);
-            sw.Write("CombatState", CombatState);
+            sw.Write("DefaultCombatState", DefaultCombatState);
             sw.Write("EventOnDeath", EventOnDeath); // "DefeatedMothership" remnant event
 
-            var moduleUIDsToIdx = new Array<string>();
-            foreach (ModuleSlotData slot in ModuleSlots)
-            {
-                if (!slot.IsDummy && !moduleUIDsToIdx.Contains(slot.ModuleUID))
-                    moduleUIDsToIdx.Add(slot.ModuleUID);
-            }
+            ushort[] slotModuleUIDAndIndex = CreateModuleIndexMapping(ModuleSlots, out Array<string> moduleUIDs);
 
             var moduleLines = new Array<string>();
-            foreach (ModuleSlotData slot in ModuleSlots)
+            for (int i = 0; i < ModuleSlots.Length; ++i)
             {
-                // New data format does not have dummy modules
-                if (slot.IsDummy)
-                    continue;
-
-                Vector2 p = (slot.Position - new Vector2(ShipModule.ModuleSlotOffset)) - GridInfo.Origin;
-                var gp = new Point((int)(p.X / 16f), (int)(p.Y / 16f));
-                if (p.X < 0f || p.Y < 0f)
-                    Log.Error($"Ship {Name} Save BUG: LegacyPos={slot.Position} converted to invalid GridPos={gp}");
-                int moduleIndex = moduleUIDsToIdx.IndexOf(slot.ModuleUID);
+                DesignSlot slot = ModuleSlots[i];
+                Point gp = slot.Pos;
+                ushort moduleIdx = slotModuleUIDAndIndex[i];
                 var sz = slot.GetSize();
-                var f = (int)slot.Facing;
-                var o = (int)slot.GetOrientation();
+                var ta = slot.TurretAngle;
+                var mr = (int)slot.ModuleRot;
 
                 string[] fields = new string[6];
                 fields[0] = gp.X + "," + gp.Y;
-                fields[1] = moduleIndex.ToString();
+                fields[1] = moduleIdx.ToString();
                 // everything after this is optional
                 fields[2] = (sz.X == 1 && sz.Y == 1) ? "" : sz.X + "," + sz.Y;
-                fields[3] = f == 0 ? "" : f.ToString();
-                fields[4] = o == 0 ? "" : o.ToString();
-                fields[5] = slot.SlotOptions.IsEmpty() ? "" : slot.SlotOptions;
+                fields[3] = ta == 0 ? "" : ta.ToString();
+                fields[4] = mr == 0 ? "" : mr.ToString();
+                fields[5] = slot.HangarShipUID.IsEmpty() ? "" : slot.HangarShipUID;
 
                 // get the max span of valid elements, so we can discard empty ones and save space
                 int count = fields.Length;
@@ -90,13 +82,67 @@ namespace Ship_Game.Ships
             }
 
             sw.WriteLine("# Maps module UIDs to Index, first UID has index 0");
-            sw.Write("ModuleUIDs", string.Join(";", moduleUIDsToIdx));
+            sw.Write("ModuleUIDs", string.Join(";", moduleUIDs));
             sw.Write("Modules", moduleLines.Count);
-            sw.WriteLine("# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRotation;slotOptions");
+            sw.WriteLine("# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID");
             foreach (string m in moduleLines)
                 sw.WriteLine(m);
+            return sw;
+        }
 
-            sw.FlushToFile(file);
+        // maps each DesignSlot with a (ModuleUID,ModuleUIDIndex)
+        static ushort[] CreateModuleIndexMapping(DesignSlot[] saved, out Array<string> moduleUIDs)
+        {
+            var slotModuleUIDAndIndex = new ushort[saved.Length];
+            var moduleUIDsToIdx = new Map<string, int>();
+            moduleUIDs = new Array<string>();
+            
+            for (int i = 0, count = 0; i < saved.Length; ++i)
+            {
+                string uid = saved[i].ModuleUID;
+                if (moduleUIDsToIdx.TryGetValue(uid, out int moduleUIDIdx))
+                {
+                    slotModuleUIDAndIndex[i] = (ushort)moduleUIDIdx;
+                }
+                else
+                {
+                    slotModuleUIDAndIndex[i] = (ushort)count;
+                    moduleUIDs.Add(uid);
+                    moduleUIDsToIdx.Add(uid, count);
+                    ++count;
+                }
+            }
+            return slotModuleUIDAndIndex;
+        }
+        
+        public static string GetBase64ModulesString(Ship ship)
+        {
+            ModuleSaveData[] saved = ship.GetModuleSaveData();
+            ushort[] slotModuleUIDAndIndex = CreateModuleIndexMapping(saved, out Array<string> moduleUIDs);
+
+            var sw = new ShipDataWriter();
+            sw.Write("1\n"); // first line is version
+
+            // module1;module2;module3\n
+            for (int i = 0; i < moduleUIDs.Count; ++i)
+            {
+                sw.Write(moduleUIDs[i]);
+                if (i != (moduleUIDs.Count - 1))
+                    sw.Write(';');
+            }
+            sw.Write('\n');
+
+            // each module takes two lines
+            // first line is DesignModule
+            for (int i = 0; i < saved.Length; ++i)
+            {
+                ModuleSaveData slot = saved[i];
+                ushort moduleIdx = slotModuleUIDAndIndex[i];
+                // X,Y,moduleIdx,sizeX,sizeY,turretAngle,moduleRot,hangarShipUid
+            }
+
+            byte[] bytes = sw.GetTextBytes();
+            return Convert.ToBase64String(bytes);
         }
 
         static ShipData ParseDesign(FileInfo file)
@@ -138,7 +184,6 @@ namespace Ship_Game.Ships
                     else if (key == "Style")       ShipStyle = value.Text;
                     else if (key == "Description") Description = value.Text;
                     else if (key == "Size")        GridInfo.Size = PointSerializer.FromString(value);
-                    else if (key == "LegacyOrigin")GridInfo.Origin = Vector2Serializer.FromString(value);
                     else if (key == "IconPath")    IconPath = value.Text;
                     else if (key == "SelectIcon")  SelectionGraphic = value.Text;
                     else if (key == "FixedCost")   FixedCost = value.ToInt();
@@ -147,7 +192,7 @@ namespace Ship_Game.Ships
                     else if (key == "HullUnlockable")       HullUnlockable = value.ToBool();
                     else if (key == "AllModulesUnlockable") AllModulesUnlockable = value.ToBool();
                     else if (key == "DefaultAIState") Enum.TryParse(value.Text, out DefaultAIState);
-                    else if (key == "CombatState")    Enum.TryParse(value.Text, out CombatState);
+                    else if (key == "DefaultCombatState")    Enum.TryParse(value.Text, out DefaultCombatState);
                     else if (key == "EventOnDeath")   EventOnDeath = value.Text;
                     else if (key == "ModuleUIDs")
                         moduleUIDs = value.Split(';').Select(s => string.Intern(s.Text));
@@ -194,35 +239,17 @@ namespace Ship_Game.Ships
             //if (Name.Contains("Acolyte of Flak II"))
             //    Debugger.Break();
 
-            Vector2 realOrigin = GridInfo.Origin + new Vector2(ShipModule.ModuleSlotOffset);
-            GridInfo.Span = new Vector2(GridInfo.Size.X, GridInfo.Size.Y) * 16f;
             GridInfo.SurfaceArea = hull.Area;
 
-            ModuleSlots = ConvertDesignSlotToModuleSlots(this, hull, modules, realOrigin);
+            ModuleSlots = modules;
             
             UpdateBaseHull();
         }
 
-        // Legacy compatibility util
-        public static ModuleSlotData[] ConvertDesignSlotToModuleSlots(ShipData data, ShipHull hull, DesignSlot[] slots, Vector2 origin)
+        public static ModuleSaveData[] GetModuleSaveFromBase64String(string base64string)
         {
-            var modules = new ModuleSlotData[slots.Length];
-            for (int i = 0; i < slots.Length; ++i)
-            {
-                DesignSlot slot = slots[i];
-                Vector2 pos = origin + new Vector2(slot.Pos.X*16f, slot.Pos.Y*16f);
+            byte[] bytes = Convert.FromBase64String(base64string);
 
-                var r = Restrictions.IO;
-                HullSlot hs = hull.FindSlot(slot.Pos);
-                if (hs != null)
-                    r = hs.R;
-                else
-                    Log.Warning($"Hull {hull.HullName} does not match design {data.Name} at grid={slot.Pos} legacy={pos} hullSize={hull.Size} dataSize={data.GridInfo.Size}");
-
-                modules[i] = new ModuleSlotData(pos, r, slot.ModuleUID, slot.TurretAngle,
-                    ModuleSlotData.GetOrientationString(slot.ModuleRotation), slot.SlotOptions);
-            }
-            return modules;
         }
     }
 }

@@ -1444,9 +1444,9 @@ namespace Ship_Game
                 AddHull(hull);
         }
 
-        public static Ship AddShipTemplate(ShipData shipData, bool fromSave, bool playerDesign = false, bool readOnly = false)
+        public static Ship AddShipTemplate(ShipData shipData, bool playerDesign = false, bool readOnly = false)
         {
-            Ship shipTemplate = Ship.CreateNewShipTemplate(shipData, fromSave);
+            Ship shipTemplate = Ship.CreateNewShipTemplate(shipData);
             if (shipTemplate == null) // happens if module creation failed
                 return null;
 
@@ -1517,8 +1517,7 @@ namespace Ship_Game
                                          "\n This can prevent loading of ships that have this filename in the XML :" +
                                         $"\n path '{info.PathNoExt()}'");
 
-                        AddShipTemplate(shipData, fromSave: false,
-                                              playerDesign: shipDescriptors[i].IsPlayerDesign,
+                        AddShipTemplate(shipData, playerDesign: shipDescriptors[i].IsPlayerDesign,
                                                   readOnly: shipDescriptors[i].IsReadonlyDesign);
                     }
                     catch (Exception e)

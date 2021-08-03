@@ -319,7 +319,7 @@ namespace Ship_Game
             slot.ModuleUID   = newModule.UID;
             slot.Module      = newModule;
             slot.ModuleRot = orientation;
-            slot.TurrentAngle   = newModule.TurretAngle;
+            slot.TurretAngle   = newModule.TurretAngle;
             slot.Tex            = newModule.ModuleTexture;
             slot.Module.SetAttributes();
 

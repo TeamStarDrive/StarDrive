@@ -37,13 +37,9 @@ namespace Ship_Game.Ships
         public string IconPath; // "ShipIcons/shuttle"
         public string ModelPath; // "Model/Ships/Terran/Shuttle/ship08"
         
-        public byte Level;
-        public byte experience;
-
         public string EventOnDeath;
         public string SelectionGraphic = "";
 
-        public float MechanicalBoardingDefense;
         public float FixedUpkeep;
         public int FixedCost;
         public bool Animated;
@@ -54,17 +50,16 @@ namespace Ship_Game.Ships
         // from a planet; only for use in a hangar
         public bool CarrierShip;
 
-        public CombatState CombatState;
         public RoleName Role = RoleName.fighter;
         public Category ShipCategory = Category.Unclassified;
         public HangarOptions HangarDesignation = HangarOptions.General;
         public AIState DefaultAIState;
+        public CombatState DefaultCombatState;
 
         public ThrusterZone[] ThrusterList;
 
         public ShipGridInfo GridInfo;
 
-        public float BaseStrength;
         public DesignSlot[] ModuleSlots;
         public bool UnLockable;
         public bool HullUnlockable;
@@ -101,33 +96,12 @@ namespace Ship_Game.Ships
         public ShipData(ShipData design)
         {
             Name = design.Name;
-            CombatState = design.CombatState;
-            MechanicalBoardingDefense = design.MechanicalBoardingDefense;
+            GridInfo = design.GridInfo;
 
             InitCommonState(design);
             UpdateBaseHull();
-            GridInfo = design.GridInfo;
 
             ModuleSlots = null; // these must be initialized by DesignModuleGrid.cs
-        }
-
-        // Make ShipData from an actual ship
-        // This is used during Saving for ShipSaveData
-        public ShipData(Ship ship)
-        {
-            Name        = ship.Name;
-            CombatState = ship.AI.CombatState;
-            MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
-
-            BaseStrength = ship.BaseStrength;
-            Level        = (byte)ship.Level;
-            experience   = (byte)ship.experience;
-
-            InitCommonState(ship.shipData);
-            FixMissingFields();
-
-            ModuleSlots = ship.GetModuleSlotDataArray();
-            UpdateGridInfo();
         }
 
         void InitCommonState(ShipData hull)

@@ -66,7 +66,7 @@ namespace Ship_Game.Ships
         public LocalizedText DescriptionText => new LocalizedText(DescriptionIndex);
         public Restrictions Restrictions;
         public Shield Shield { get; private set; }
-        public string hangarShipUID;
+        public string HangarShipUID;
         Ship hangarShip;
         public Guid HangarShipGuid;
         public float hangarTimer;
@@ -339,7 +339,7 @@ namespace Ship_Game.Ships
             DescriptionIndex      = template.DescriptionIndex;
             Restrictions          = template.Restrictions;
             ShieldPower           = template.shield_power;
-            hangarShipUID         = template.hangarShipUID;
+            HangarShipUID         = template.hangarShipUID;
             hangarTimer           = template.hangarTimer;
             ModuleType            = template.ModuleType;
             WeaponType            = template.WeaponType;
@@ -367,7 +367,7 @@ namespace Ship_Game.Ships
                 Bonuses           = EmpireHullBonuses.Get(loyalty, hull),
                 DescriptionIndex  = template.DescriptionIndex,
                 FieldOfFire       = template.FieldOfFire,
-                hangarShipUID     = template.hangarShipUID,
+                HangarShipUID     = template.HangarShipUID,
                 hangarTimer       = template.hangarTimer,
                 TemplateMaxHealth = template.TemplateMaxHealth,
                 ModuleType        = template.ModuleType,
@@ -414,28 +414,23 @@ namespace Ship_Game.Ships
         public static ShipModule Create(DesignSlot slot, Ship parent, bool isTemplate)
         {
             ShipModule template = ResourceManager.GetModuleTemplate(slot.ModuleUID);
-            ShipModule module = CreateNoParent(template, parent.loyalty, parent.BaseHull);
-            module.SetModuleRotation(module.XSIZE, module.YSIZE, slot.ModuleRotation, slot.TurretAngle);
-            module.Initialize(parent, slot.Pos, isTemplate);
-            return module;
+            ShipModule m = CreateNoParent(template, parent.loyalty, parent.BaseHull);
+            m.SetModuleSizeRotAngle(slot.Size, slot.ModuleRot, slot.TurretAngle);
+            m.Initialize(parent, slot.Pos, isTemplate);
+            return m;
         }
 
         // this is used during Ship loading from save
-        public static ShipModule Create(ModuleSlotData slot, Ship parent, bool isTemplate, bool fromSave)
+        public static ShipModule Create(ModuleSaveData slot, Ship parent)
         {
-            ShipModule template = ResourceManager.GetModuleTemplate(slot.ModuleUID);
-            ShipModule module = CreateNoParent(template, parent.loyalty, parent.BaseHull);
-            module.SetModuleRotation(module.XSIZE, module.YSIZE, slot.GetOrientation(), slot.Facing);
-            module.Initialize(parent, slot.Position, isTemplate);
-            if (fromSave)
-            {
-                module.Active = slot.Health > 0.01f;
-                module.ShieldPower = slot.ShieldPower;
-                module.SetHealth(slot.Health, fromSave: true);
-            }
-            module.HangarShipGuid = slot.HangarshipGuid;
-            module.hangarShipUID  = slot.SlotOptions;
-            return module;
+            ShipModule m = Create(slot as DesignSlot, parent, isTemplate:false);
+
+            m.Active = slot.Health > 0.01f;
+            m.ShieldPower = slot.ShieldPower;
+            m.SetHealth(slot.Health, fromSave: true);
+            m.HangarShipGuid = slot.HangarShip;
+            m.HangarShipUID  = slot.HangarShipUID;
+            return m;
         }
 
         public static ShipModule CreateDesignModule(ShipModule template, ModuleOrientation moduleRot, 
@@ -443,7 +438,7 @@ namespace Ship_Game.Ships
         {
             ShipModule m = CreateNoParent(template, EmpireManager.Player, hull);
             m.SetModuleRotation(m.XSIZE, m.YSIZE, moduleRot, turretAngle);
-            m.hangarShipUID = m.IsTroopBay ? EmpireManager.Player.GetAssaultShuttleName() : template.hangarShipUID;
+            m.HangarShipUID = m.IsTroopBay ? EmpireManager.Player.GetAssaultShuttleName() : template.HangarShipUID;
             return m;
         }
 
@@ -480,7 +475,7 @@ namespace Ship_Game.Ships
             if (Parent.loyalty.isFaction)
                 return;
 
-            DynamicHangar = ShipBuilder.GetDynamicHangarOptions(hangarShipUID);
+            DynamicHangar = ShipBuilder.GetDynamicHangarOptions(HangarShipUID);
             if (DynamicHangar == DynamicHangarOptions.Static && !Parent.loyalty.isPlayer)
                 DynamicHangar = DynamicHangarOptions.DynamicLaunch; //AI will always get dynamic launch.
         }
@@ -500,9 +495,9 @@ namespace Ship_Game.Ships
 
         public string GetHangarShipName()
         {
-            if (ShipBuilder.IsDynamicHangar(hangarShipUID))
+            if (ShipBuilder.IsDynamicHangar(HangarShipUID))
                 return CarrierBays.GetDynamicShipNameShipDesign(this);
-            return hangarShipUID;
+            return HangarShipUID;
         }
 
         public float BayOrdnanceUsagePerSecond
@@ -1011,7 +1006,7 @@ namespace Ship_Game.Ships
 
                 if (hangarShip == null)
                 {
-                    Log.Warning($"Could not create ship from hangar, UID = {hangarShipUID}");
+                    Log.Warning($"Could not create ship from hangar, UID = {HangarShipUID}");
                     return;
                 }
 
@@ -1351,19 +1346,19 @@ namespace Ship_Game.Ships
             float off = InstalledWeapon?.CalculateOffense(this) ?? 0f;
 
             off += IsTroopBay ? 50 : 0;
-            if (ModuleType != ShipModuleType.Hangar || hangarShipUID.IsEmpty()
-                                                    || hangarShipUID == "NotApplicable"
+            if (ModuleType != ShipModuleType.Hangar || HangarShipUID.IsEmpty()
+                                                    || HangarShipUID == "NotApplicable"
                                                     || IsSupplyBay
                                                     || IsTroopBay)
                 return off;
 
-            if (ShipBuilder.IsDynamicHangar(hangarShipUID))
+            if (ShipBuilder.IsDynamicHangar(HangarShipUID))
             {
                 off += MaximumHangarShipSize * 100 * PermittedHangarRoles.Length / hangarTimerConstant.LowerBound(1);
             }
             else
             {
-                if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship hShip))
+                if (ResourceManager.GetShipTemplate(HangarShipUID, out Ship hShip))
                     off += (hShip.BaseStrength > 0f) ? hShip.BaseStrength : hShip.CalculateShipStrength();
                 else
                     off += 100f;
@@ -1382,6 +1377,17 @@ namespace Ship_Game.Ships
                 case ModuleOrientation.Right:  return 90;
                 case ModuleOrientation.Rear:   return 180;
             }
+        }
+
+        // NEW: `orientedSize` comes from DesignSlot data and is already correct
+        //      `ModuleOrientation` is only for visual rotation of the module texture
+        //      `turretAngle` is now only the turret's default arc direction
+        void SetModuleSizeRotAngle(Point orientedSize, ModuleOrientation moduleRot, int turretAngle)
+        {
+            XSIZE = orientedSize.X;
+            YSIZE = orientedSize.Y;
+            TurretAngle = turretAngle;
+            ModuleRot = moduleRot;
         }
 
         public void SetModuleRotation(int w, int h, ModuleOrientation moduleRot, int turretAngle)
@@ -1403,6 +1409,7 @@ namespace Ship_Game.Ships
             }
         }
 
+        // Assuming this is a TEMPLATE, returns the oriented size
         public Point GetOrientedSize(ModuleOrientation orientation)
         {
             if (orientation == ModuleOrientation.Left || orientation == ModuleOrientation.Right)

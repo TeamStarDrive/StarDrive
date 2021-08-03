@@ -252,7 +252,7 @@ namespace Ship_Game
 
         void DrawHangarShipText(SlotStruct s)
         {
-            string hangarShipUID = s.Module.hangarShipUID;
+            string hangarShipUID = s.Module.HangarShipUID;
             Color color = Color.Black.Alpha(0.33f);
             Color textC = ShipBuilder.GetHangarTextColor(hangarShipUID);
             DrawRectangleProjected(s.WorldRect, textC, color);

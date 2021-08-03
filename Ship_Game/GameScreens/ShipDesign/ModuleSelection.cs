@@ -427,12 +427,12 @@ namespace Ship_Game
             if (mod.PermittedHangarRoles.Length == 0)
                 return;
 
-            var hangarOption  = ShipBuilder.GetDynamicHangarOptions(mod.hangarShipUID);
+            var hangarOption  = ShipBuilder.GetDynamicHangarOptions(mod.HangarShipUID);
             string hangerShip = mod.GetHangarShipName();
             Ship hs = ResourceManager.GetShipTemplate(hangerShip, false);
             if (hs != null)
             {
-                Color color   = ShipBuilder.GetHangarTextColor(mod.hangarShipUID);
+                Color color   = ShipBuilder.GetHangarTextColor(mod.HangarShipUID);
                 modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial12Bold.LineSpacing;
                 Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y + 5);
                 string name = hs.VanityName.IsEmpty() ? hs.Name : hs.VanityName;

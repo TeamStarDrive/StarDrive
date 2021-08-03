@@ -2003,11 +2003,11 @@ namespace Ship_Game
                     ShipsWeCanBuild.Add(ship.Name);
                     foreach (ShipModule hangar in ship.Carrier.AllHangars)
                     {
-                        if (hangar.hangarShipUID.NotEmpty())
+                        if (hangar.HangarShipUID.NotEmpty())
                         {
-                            var hangarShip = ResourceManager.GetShipTemplate(hangar.hangarShipUID, throwIfError: false);
+                            var hangarShip = ResourceManager.GetShipTemplate(hangar.HangarShipUID, throwIfError: false);
                             if (hangarShip?.CanBeAddedToBuildableShips(this) == true)
-                                ShipsWeCanBuild.Add(hangar.hangarShipUID);
+                                ShipsWeCanBuild.Add(hangar.HangarShipUID);
                         }
                     }
                 }

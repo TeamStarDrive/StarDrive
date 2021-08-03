@@ -72,29 +72,6 @@ namespace Ship_Game.Ships.Legacy
             SlotOptions  = slotOptions;
         }
 
-        // Save ShipModule as ModuleSlotData for Savegame
-        public LegacyModuleSlotData(ShipModule module)
-            : this(xmlPos:       module.XMLPosition,
-                   restrictions: module.Restrictions,
-                   moduleUid:    module.UID,
-                   facing:       module.TurretAngle,
-                   orientation:  GetOrientationString(module.ModuleRot))
-        {
-            Health       = module.Health;
-            ShieldPower  = module.ShieldPower;
-
-            if (module.TryGetHangarShip(out Ship hangarShip))
-                HangarshipGuid = hangarShip.guid;
-
-            if (module.ModuleType == ShipModuleType.Hangar)
-            {
-                SlotOptions = module.DynamicHangar == DynamicHangarOptions.Static
-                            ? module.hangarShipUID
-                            : module.DynamicHangar.ToString();
-                SlotOptions = string.Intern(SlotOptions);
-            }
-        }
-
         public override string ToString() => $"{ModuleUID} {Position} {Facing} {Orientation} {SlotOptions} {Restrictions} T={ModuleOrNull}";
 
         [XmlIgnore] [JsonIgnore]
