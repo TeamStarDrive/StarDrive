@@ -136,11 +136,9 @@ namespace Ship_Game.GameScreens.NewGame
                 {
                     if (module.IsDummy)
                         continue;
-                        
-                    ++NumModulesScanned;
+
                     if (moduleUnlocks.TryGetValue(module.ModuleUID, out string requiredTech))
                     {
-                        ++NumTechsNeededAdded;
                         leafTechsNeeds.Add(requiredTech);
                     }
                     else
