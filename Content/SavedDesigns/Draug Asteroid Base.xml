@@ -16,7 +16,7 @@
   <CombatState>AttackRuns</CombatState>
   <MechanicalBoardingDefense>0</MechanicalBoardingDefense>
   <Hull>Draugar/Draugar Asteroid Base</Hull>
-  <Role>platform</Role>
+  <Role>station</Role>
   <ThrusterList />
   <ModelPath>Model/Asteroids/asteroid3</ModelPath>
   <DefaultAIState>DoNothing</DefaultAIState>

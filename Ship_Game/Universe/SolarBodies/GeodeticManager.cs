@@ -24,6 +24,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private float ShieldStrengthCurrent  => P.ShieldStrengthCurrent;
         private float ShieldStrengthPercent  => P.ShieldStrengthMax > 0.01f ? P.ShieldStrengthCurrent / P.ShieldStrengthMax : 0;
         private Array<PlanetGridSquare> TilesList => P.TilesList;
+        float ChanceToLaunchTroopsVsBombers = 0;
 
         public GeodeticManager(Planet planet)
         {
@@ -49,14 +50,6 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
             if (ShieldStrengthCurrent > 0f)
             {
-                if (ShieldStrengthPercent < 0.2f)
-                {
-                    // Start increasing the chance to launch assault vs bombers
-                    float assaultBombersChance = 1 - ShieldStrengthPercent*5f;
-                    if (RandomMath.RollDice(assaultBombersChance))
-                        Owner?.CreateAssaultBombersGoal(bomb.Owner, P);
-                }
-
                 DamageColonyShields(bomb);
             }
             else
@@ -67,7 +60,6 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                     Surface = P
                 };
 
-                Owner?.CreateAssaultBombersGoal(bomb.Owner, P);
                 orbitalDrop.DamageColonySurface(bomb);
                 bomb.PlayCombatScreenEffects(P, orbitalDrop);
                 if (Population <= 0f)
@@ -77,6 +69,43 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 }
 
                 bomb.ResolveSpecialBombActions(P); // This is for "Free Owlwoks" bomb
+            }
+
+            TryLaunchTroopsVsBombers(bomb.Owner);
+        }
+
+        void TryLaunchTroopsVsBombers(Empire enemy)
+        {
+            if (Owner == null || Owner.isPlayer || !enemy.isPlayer)
+                return;
+
+            if (ShieldStrengthPercent > 0 && ShieldStrengthPercent < 0.25f)
+            {
+                // Start increasing the chance to launch assault vs bombers
+                float assaultBombersChance = 100 - (ShieldStrengthPercent*100 * 4f);
+                if (RandomMath.RollDice(assaultBombersChance))
+                    Owner.TryCreateAssaultBombersGoal(enemy, P);
+            }
+            else if (P.ShieldStrengthMax <= 0)
+            {
+                if (RandomMath.RollDice(GetTroopLaunchChance()))
+                    Owner.TryCreateAssaultBombersGoal(enemy, P);
+            }
+
+            // Local Method
+            float GetTroopLaunchChance()
+            {
+                if (ChanceToLaunchTroopsVsBombers > 0)
+                    return ChanceToLaunchTroopsVsBombers;
+
+                // Recalculate chance since it is reset every turn
+                var enemyBombers = P.ParentSystem.ShipList.Filter(s => s.loyalty == enemy && s.HasBombs
+                                                                    && s.Position.Distance(P.Center) < P.GravityWellRadius);
+                if (enemyBombers.Length == 0)
+                    return 0;
+
+                int totalBombs = enemyBombers.Sum(s => s.BombBays.Count);
+                return totalBombs * 2;
             }
         }
 
@@ -127,6 +156,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         public void AffectNearbyShips() // Refactored by Fat Bastard - 23, July 2018
         {
+            ChanceToLaunchTroopsVsBombers = 0; // Reset
             AssignPlanetarySupply();
             float repairPool = CalcRepairPool();
             bool spaceCombat = P.SpaceCombatNearPlanet;

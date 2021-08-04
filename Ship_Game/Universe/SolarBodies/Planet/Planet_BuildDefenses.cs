@@ -481,13 +481,6 @@ namespace Ship_Game
                 WantedShipyards = 0;
         }
 
-        public void RestoreWantedOrbitals(byte platforms, byte stations, byte shipyards)
-        {
-            SetWantedPlatforms(platforms);
-            SetWantedStations(stations);
-            SetWantedShipyards(shipyards);
-        }
-
         public void SetWantedPlatforms(byte num)
         {
             WantedPlatforms = num;
@@ -503,12 +496,6 @@ namespace Ship_Game
             WantedStations = num;
         }
 
-        public void RestoreManualBudgets(float civ, float grd, float spc)
-        {
-            SetManualCivBudget(civ);
-            SetManualGroundDefBudget(grd);
-            SetManualSpaceDefBudget(spc);
-        }
 
         public void SetManualCivBudget(float num)
         {

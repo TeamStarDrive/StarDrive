@@ -14,9 +14,9 @@ namespace UnitTests.Ships
             CreateUniverseAndPlayerEmpire();
         }
 
-        Ship CreateWarpTestShip()
+        TestShip CreateWarpTestShip()
         {
-            Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
+            TestShip ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
             ship.Stats.FTLSpoolTime = 3f;
             Assert.IsFalse(ship.IsSpoolingOrInWarp);
             Assert.IsFalse(ship.IsInWarp);
@@ -26,7 +26,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void EngageStarDrive()
         {
-            Ship ship = CreateWarpTestShip();
+            var ship = CreateWarpTestShip();
             ship.EngageStarDrive();
             Assert.IsTrue(ship.IsSpoolingOrInWarp);
             Assert.IsFalse(ship.IsInWarp);
@@ -52,26 +52,105 @@ namespace UnitTests.Ships
         [TestMethod]
         public void InhibitedCannotEngageStarDrive()
         {
-            Ship ship = CreateWarpTestShip();
-            // inhibit while spooling
-            ship.InhibitedTimer = 3f;
+            var ship = CreateWarpTestShip();
+
+            ship.SetWarpInhibited(source: Ship.InhibitionType.GravityWell, 3f);
             ship.EngageStarDrive();
-            ship.Update(new FixedSimTime(2f));
-            Assert.IsFalse(ship.IsSpoolingOrInWarp);
+            Assert.IsFalse(ship.IsSpooling);
             Assert.IsFalse(ship.IsInWarp);
+
+            ship.Update(new FixedSimTime(2f));
+            Assert.IsFalse(ship.IsInWarp, "Ship should not be in warp while Inhibited");
+            Assert.IsFalse(ship.IsSpooling, "Ship should not be spooling while Inhibited");
         }
 
         [TestMethod]
         public void InhibitedWhileSpoolingCancelsStarDrive()
         {
-            Ship ship = CreateWarpTestShip();
+            var ship = CreateWarpTestShip();
+
             ship.EngageStarDrive();
             ship.Update(new FixedSimTime(2f));
+            Assert.IsTrue(ship.IsSpooling, "Ship should be spooling (and not in warp)");
+
             // inhibit while spooling
-            ship.InhibitedTimer = 4f;
+            ship.SetWarpInhibited(source: Ship.InhibitionType.GravityWell, 4f);
             ship.Update(new FixedSimTime(2f));
-            Assert.IsFalse(ship.IsSpoolingOrInWarp);
-            Assert.IsFalse(ship.IsInWarp);
+            Assert.IsFalse(ship.IsInWarp, "Ship should not be in warp while Inhibited");
+            Assert.IsFalse(ship.IsSpooling, "Ship should not be spooling while Inhibited");
+        }
+
+        [TestMethod]
+        public void InhibitedWhileAtWarpCancelsStarDrive()
+        {
+            var ship = CreateWarpTestShip();
+
+            ship.EngageStarDrive();
+            ship.Update(new FixedSimTime(4f));
+            Assert.IsTrue(ship.IsInWarp, "Ship should be in warp");
+
+            // inhibit while warping
+            ship.SetWarpInhibited(source: Ship.InhibitionType.GravityWell, 4f);
+            ship.Update(TestSimStep);
+            Assert.IsFalse(ship.IsInWarp, "Ship should not be in warp while Inhibited");
+            Assert.IsFalse(ship.IsSpooling, "Ship should not be spooling while Inhibited");
+        }
+
+        [TestMethod]
+        public void InhibitedTimerIsAccurate()
+        {
+            TestShip ship = CreateWarpTestShip();
+            ship.EngageStarDrive(); // start spooling
+            ship.Update(new FixedSimTime(2f)); // not enough time to engage warp yet
+            Assert.IsTrue(ship.IsSpooling, "Ship should be spooling");
+
+            ship.SetWarpInhibited(source: Ship.InhibitionType.GravityWell, 4f);
+            Assert.AreEqual(Ship.InhibitionType.GravityWell, ship.InhibitionSource, "Inhibited Source should be gravitywell");
+
+            // Test timer for accuracy
+            float timeInhibited = 0;
+            LoopWhile((5, true), () => ship.Inhibited, () =>
+            {
+                ship.Update(TestSimStep);
+                if (ship.Inhibited)
+                    timeInhibited += TestSimStep.FixedTime;
+            });
+
+            Assert.AreEqual(4f, timeInhibited, 0.001f, "Ship was not Inhibited for expected duration");
+            Assert.AreEqual(ship.Stats.FTLSpoolTime, ship.InhibitedCheckTimer, 0.001f,
+                            "InhibitedCheckTimer must be FTLSpoolTime when in STL");
+            Assert.AreEqual(Ship.InhibitionType.None, ship.InhibitionSource, "Source should be none");
+        }
+
+        [TestMethod]
+        public void InhibitedByEnemyFlagIsSetToFalse()
+        {
+            TestShip ship = CreateWarpTestShip();
+            ship.EngageStarDrive();
+            ship.Update(new FixedSimTime(2f));
+
+            ship.SetWarpInhibited(source: Ship.InhibitionType.EnemyShip, 4f);
+            Assert.AreEqual(Ship.InhibitionType.EnemyShip, ship.InhibitionSource, "Source should be EnemyShip");
+
+            LoopWhile((5, true), () => ship.Inhibited, () => ship.Update(TestSimStep));
+            Assert.AreNotEqual(Ship.InhibitionType.EnemyShip, ship.InhibitionSource, "Inhibit failed to clear InhibitedByEnemy flag");
+            Assert.AreEqual(Ship.InhibitionType.None, ship.InhibitionSource, "Source should be none");
+        }
+
+        [TestMethod]
+        public void InhibitionChecksAtWarpHappenAtCorrectIntervals()
+        {
+            TestShip ship = CreateWarpTestShip();
+            ship.EngageStarDrive();
+            ship.Update(new FixedSimTime(2f));
+            ship.Update(new FixedSimTime(2f));
+            Assert.IsFalse(ship.IsSpooling, "Ship should no longer be spooling");
+            Assert.IsTrue(ship.engineState == Ship.MoveState.Warp, "Ship should be at warp");
+
+            // force immediate inhibition check:
+            ship.InhibitedCheckTimer = 0;
+            ship.Update(TestSimStep);
+            Assert.IsTrue(ship.InhibitedCheckTimer == 0f, "InhibitedCheckTimer must be 0 when warping");
         }
     }
 }

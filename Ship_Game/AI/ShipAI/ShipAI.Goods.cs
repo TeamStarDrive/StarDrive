@@ -141,6 +141,7 @@
                                                   : FreighterPriority.ExcessCargoLeft;
                                                     
             Owner.loyalty.IncreaseFastVsBigFreighterRatio(freighterPriority);
+            importPlanet.Mend(-1); // Helping with planet repair/heal troops/buildings
 
             Planet toOrbit = importPlanet;
             if (toOrbit.TradeBlocked || Owner.loyalty != toOrbit.Owner)

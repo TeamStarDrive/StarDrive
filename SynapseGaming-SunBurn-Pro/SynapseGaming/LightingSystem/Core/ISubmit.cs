@@ -37,7 +37,8 @@ namespace SynapseGaming.LightingSystem.Core
 
     /// <summary>Removes an object from the container.</summary>
     /// <param name="obj"></param>
-    void Remove(T obj);
+    /// <returns>TRUE if the object was actually removed</returns>
+    bool Remove(T obj);
 
     /// <summary>
     /// Removes all objects from the container. Commonly used while clearing the scene.

@@ -89,12 +89,6 @@ namespace Ship_Game.Ships
             if (!Active)
                 return;
 
-            if (RandomEventManager.ActiveEvent?.InhibitWarp == true)
-            {
-                Inhibited = true;
-                InhibitedTimer = 10f;
-            }
-
             if (ScuttleTimer > -1f || ScuttleTimer < -1f)
             {
                 ScuttleTimer -= timeStep.FixedTime;
@@ -342,118 +336,6 @@ namespace Ship_Game.Ships
             {
                 ModuleSlotList[i].UpdateWhileDying(timeStep);
             }
-        }
-
-        void CheckAndPowerConduit(ShipModule module)
-        {
-            if (!module.Active)
-                return;
-            module.Powered = true;
-            module.CheckedConduits = true;
-            Vector2 center = module.LocalCenter;
-            for (int x = 0; x < ModuleSlotList.Length; x++)
-            {
-                ShipModule slot = ModuleSlotList[x];
-                if (slot == module || slot.ModuleType != ShipModuleType.PowerConduit || slot.CheckedConduits)
-                    continue;
-                var distanceX = (int) Math.Abs(center.X - slot.LocalCenter.X) ;
-                var distanceY = (int) Math.Abs(center.Y - slot.LocalCenter.Y) ;
-                if (distanceX + distanceY > 16)
-                {
-                    if (distanceX + distanceY > 33)
-                        continue;
-                    if (distanceX + distanceY < 33)
-                        continue;
-                }
-
-                CheckAndPowerConduit(slot);
-            }
-        }
-
-        public void RecalculatePower()
-        {
-            ShouldRecalculatePower = false;
-
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
-            {
-                ShipModule slot      = ModuleSlotList[i];
-                slot.Powered         = false;
-                slot.CheckedConduits = false;
-            }
-
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
-            {
-                ShipModule module = ModuleSlotList[i];
-                //better fix for modules that dont use power.
-                if (module.PowerRadius < 1 && (module.PowerDraw <= 0 || module.AlwaysPowered))
-                {
-                    module.Powered = true;
-                    continue;
-                }
-                //Filter by powerplants.
-                if (!module.Is(ShipModuleType.PowerPlant) || !module.Active)
-                    continue;
-
-                module.Powered = true;
-                foreach (ShipModule slot2 in ModuleSlotList)
-                {
-                    if (slot2.ModuleType != ShipModuleType.PowerConduit || slot2.Powered)
-                        continue;
-
-                    if (IsAnyPartOfModuleInRadius(module, slot2.LocalCenter, 16))
-                        CheckAndPowerConduit(slot2);
-                }
-            }
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
-            {
-                ShipModule module = ModuleSlotList[i];
-                if (!module.Active || module.PowerRadius < 1 || !module.Powered )
-                    continue;
-
-                float cx = module.LocalCenter.X;
-                float cy = module.LocalCenter.Y;
-                int powerRadius = module.PowerRadius * 16 + (int)module.Radius;
-
-                foreach (ShipModule slot2 in ModuleSlotList)
-                {
-                    if (!slot2.Active || slot2.Powered  || slot2 == module || slot2.ModuleType == ShipModuleType.PowerConduit)
-                        continue;
-
-                    Vector2 localCenter2 = slot2.LocalCenter;
-                    int distanceFromPowerX = (int)Math.Abs(cx - localCenter2.X);
-                    int distanceFromPowerY = (int)Math.Abs(cy - localCenter2.Y);
-                    if (distanceFromPowerX + distanceFromPowerY <= powerRadius)
-                    {
-                        slot2.Powered = true;
-                        continue;
-                    }
-                    //if its really far away dont bother.
-                    if (distanceFromPowerX + distanceFromPowerY > slot2.Radius * 2 + powerRadius)
-                        continue;
-                    slot2.Powered = IsAnyPartOfModuleInRadius(slot2, new Vector2(cx, cy), powerRadius);
-                }
-            }
-        }
-
-        static bool IsAnyPartOfModuleInRadius(ShipModule moduleAreaToCheck, Vector2 pos, int radius)
-        {
-            float cx = pos.X;
-            float cy = pos.Y;
-            Vector2 localCenter = moduleAreaToCheck.LocalCenter;
-            for (int y = 0; y < moduleAreaToCheck.YSIZE; ++y)
-            {
-                float sy = localCenter.Y + (y * 16);
-                for (int x = 0; x < moduleAreaToCheck.XSIZE; ++x)
-                {
-                    if (y == moduleAreaToCheck.YSIZE * 16 && x == moduleAreaToCheck.XSIZE *16)
-                        continue;
-
-                    float sx = localCenter.X + (x * 16);
-                    if ((int) Math.Abs(cx - sx) + (int) Math.Abs(cy - sy) <= radius + 8)
-                        return true;
-                }
-            }
-            return false;
         }
     }
 }

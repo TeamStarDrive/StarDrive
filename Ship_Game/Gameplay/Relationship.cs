@@ -1064,7 +1064,7 @@ namespace Ship_Game.Gameplay
                     if (e == us || e == them)
                         continue;
 
-                    float ratio = us.IsAtWarWith(e) ? popRatioWar : 1.6f;
+                    float ratio = us.IsAtWarWith(e) ? popRatioWar : 3f;
                     if (e.TotalPopBillion / us.TotalPopBillion > ratio) // 3rd party is a potential risk
                         return true;
                 }

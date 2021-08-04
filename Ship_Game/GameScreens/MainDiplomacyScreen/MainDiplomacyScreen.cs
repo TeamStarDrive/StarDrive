@@ -1,14 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.DiplomacyScreen;
-using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -43,6 +40,9 @@ namespace Ship_Game
         Array<Empire> Friends;
         Array<Empire> Traders;
         HashSet<Empire> Moles;
+
+        UIButton DiagramButton;
+        Rectangle LeftRect;
 
 
         public MainDiplomacyScreen(UniverseScreen screen) : base(screen)
@@ -103,11 +103,8 @@ namespace Ship_Game
             if (Friends.Contains(e) || Moles.Contains(e))
                 return 2;
 
-            if (Traders.Contains(e))
-            {
-                if (PlayerEmpire.GetRelations(e).Treaty_Trade_TurnsExisted > 3)
-                    return 1;
-            }
+            if (Traders.Contains(e) && PlayerEmpire.GetRelations(e).Treaty_Trade_TurnsExisted > 30)
+                return 1;
 
             if (e == PlayerEmpire)
                 return 3;
@@ -116,14 +113,12 @@ namespace Ship_Game
             {
                 if (!empire.GetRelations(e, out Relationship rel))
                     continue;
-                if (rel.Treaty_Trade && rel.Treaty_Trade_TurnsExisted >3)
-                {
-                    intelligence = 1;                    
-                }
-                if (rel.Treaty_Alliance && rel.TurnsAllied >3)
-                {
+
+                if (rel.Treaty_Trade && rel.Treaty_Trade_TurnsExisted > 30)
+                    intelligence = 1;
+
+                if (rel.Treaty_Alliance && rel.TurnsAllied > 3)
                     return 2;
-                }
             }
 
             if (intelligence ==0)
@@ -132,15 +127,12 @@ namespace Ship_Game
                 {
                     if (!empire.GetRelations(e, out Relationship rel))
                         continue;
-                    if (rel.Treaty_Trade && rel.Treaty_Trade_TurnsExisted > 6)
-                    {
+
+                    if (rel.Treaty_Trade && rel.Treaty_Trade_TurnsExisted > 60)
                         intelligence = 1;
-                    }
-                    if (rel.Treaty_Alliance && rel.TurnsAllied > 6)
-                    {
-                        intelligence = 2;
+
+                    if (rel.Treaty_Alliance && rel.TurnsAllied > 60)
                         return 2;
-                    }
                 }
             }
             
@@ -225,29 +217,29 @@ namespace Ship_Game
                 ColumnBCursor.X = ColumnBCursor.X + 190f;
                 ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                var Sortlist = new Array<Empire>();
+                var sortlist = new Array<Empire>();
                 foreach (Empire e in EmpireManager.Empires)
                 {
                     if (e.isFaction || e.data.Defeated)
                     {
                         if (SelectedEmpire == e)
-                            Sortlist.Add(e);
+                            sortlist.Add(e);
                     }
                     else if (e != EmpireManager.Player)
                     {
                         if (EmpireManager.Player.IsKnown(e))
-                            Sortlist.Add(e);
+                            sortlist.Add(e);
                     }
                     else
                     {
-                        Sortlist.Add(e);
+                        sortlist.Add(e);
                     }
                 }
                 ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.EconomicStrength), textCursor, Color.White);
                 IOrderedEnumerable<Empire> MoneySortedList = 
-                    from empire in Sortlist
+                    from empire in sortlist
                     orderby empire.GrossIncome descending
                     select empire;
                 int rank = 1;
@@ -263,7 +255,7 @@ namespace Ship_Game
                 ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 IOrderedEnumerable<Empire> ResSortedList = 
-                    from empire in Sortlist
+                    from empire in sortlist
                     orderby GetScientificStr(empire) descending
                     select empire;
                 rank = 1;
@@ -280,7 +272,7 @@ namespace Ship_Game
                 ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 IOrderedEnumerable<Empire> MilSorted = 
-                    from empire in Sortlist
+                    from empire in sortlist
                     orderby empire.CurrentMilitaryStrength descending
                     select empire;
                 rank = 1;
@@ -297,7 +289,7 @@ namespace Ship_Game
                 ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 IOrderedEnumerable<Empire> PopSortedList = 
-                    from empire in Sortlist
+                    from empire in sortlist
                     orderby GetPop(empire) descending
                     select empire;
                 rank = 1;
@@ -333,7 +325,6 @@ namespace Ship_Game
             else if (!SelectedEmpire.data.Defeated)
             {
                 Relationship relation = EmpireManager.Player.GetRelations(SelectedEmpire);
-                float intelligencePenetration = relation.IntelligencePenetration;
                 if (IntelligenceLevel(SelectedEmpire) > 0)
                 {
                     batch.DrawString(Fonts.Arial12Bold, string.Concat(SelectedEmpire.data.DiplomaticPersonality.Name, " ", SelectedEmpire.data.EconomicPersonality.Name), textCursor, Color.White);
@@ -533,17 +524,11 @@ namespace Ship_Game
             //Diplomatic Relations
             foreach ((Empire other, Relationship rel) in SelectedEmpire.AllRelations)
             {
-                if (!rel.Known || other.isFaction)
+                if (!rel.Known || other.isFaction || other.data.Defeated)
                     continue;
 
                 Color color = other.EmpireColor;
                 string name = other.data.Traits.Name;
-                if (other.data.Defeated)
-                {
-                    textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-                    batch.DrawString(Fonts.Arial12, name+Localizer.Token(GameText.GovernmentDestroyed), textCursor, color);
-                    continue;
-                }
                 if (IntelligenceLevel(SelectedEmpire) > 0)
                 {
                     // "and Trade"
@@ -841,10 +826,10 @@ namespace Ship_Game
             Rectangle titleRect = new Rectangle((int)screenWidth / 2 - 200, 44, 400, 80);
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(GameText.DiplomaticOverview)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
-            Rectangle leftRect = new Rectangle((int)screenWidth / 2 - 700, (screenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1400, 660);
-            DMenu = new Menu2(leftRect);
-            Add(new CloseButton(leftRect.Right - 40, leftRect.Y + 20));
-            SelectedInfoRect = new Rectangle(leftRect.X + 60, leftRect.Y + 250, 368, 376);
+            LeftRect = new Rectangle((int)screenWidth / 2 - 700, (screenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1400, 700);
+            DMenu = new Menu2(LeftRect);
+            Add(new CloseButton(LeftRect.Right - 40, LeftRect.Y + 20));
+            SelectedInfoRect = new Rectangle(LeftRect.X + 60, LeftRect.Y + 250, 368, 376);
             IntelligenceRect = new Rectangle(SelectedInfoRect.X + SelectedInfoRect.Width + 30, SelectedInfoRect.Y, 368, 376);
             OperationsRect = new Rectangle(IntelligenceRect.X + IntelligenceRect.Width + 30, SelectedInfoRect.Y, 368, 376);
             ArtifactsRect = new Rectangle(SelectedInfoRect.X , SelectedInfoRect.Y + 190, SelectedInfoRect.Width - 40, 130);
@@ -867,14 +852,43 @@ namespace Ship_Game
                 }
                 Races.Add(new RaceEntry { e = e });
             }
-            Vector2 Cursor = new Vector2(screenWidth / 2f - 148 * Races.Count / 2, leftRect.Y + 10);
+            Vector2 cursor = new Vector2(screenWidth / 2f - 148 * Races.Count / 2, LeftRect.Y + 10);
             int j = 0;
             foreach (RaceEntry re in Races)
             {
-                re.container = new Rectangle((int)Cursor.X + 10 + j * 148, leftRect.Y + 40, 124, 148);
+                re.container = new Rectangle((int)cursor.X + 10 + j * 148, LeftRect.Y + 40, 124, 148);
                 j++;
             }
             GameAudio.MuteRacialMusic();
+
+            DiagramButton = Add(new UIButton(ButtonStyle.Default, new Vector2(LeftRect.X + 70, LeftRect.Bottom - 60), "View Relationships"));
+            DiagramButton.OnClick = b => AddRelationShipDiagramScreen();
+        }
+
+        void AddRelationShipDiagramScreen()
+        {
+            Array<EmpireAndIntelLevel> empiresAndIntel = new Array<EmpireAndIntelLevel>();
+            foreach (Empire empire in EmpireManager.ActiveMajorEmpires)
+            {
+                int intel = empire.isPlayer ? 3 : IntelligenceLevel(empire);
+                empiresAndIntel.Add(new EmpireAndIntelLevel(empire, intel));
+            }
+
+            var diagram = new RelationshipsDiagramScreen(this, empiresAndIntel);
+            ScreenManager.AddScreen(diagram);
         }
     }
+
+    public readonly struct EmpireAndIntelLevel
+    {
+        public readonly Empire Empire;
+        public readonly int IntelLevel;
+
+        public EmpireAndIntelLevel(Empire empire, int level)
+        {
+            Empire     = empire;
+            IntelLevel = level;
+        }
+    }
+
 }

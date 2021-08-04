@@ -263,27 +263,35 @@ namespace Ship_Game.Ships
             if (!Ship.Inhibited)
                 return;
 
-            SubTexture iconGravwell  = ResourceManager.Texture("StatusIcons/icon_gravwell");
-            SubTexture iconInhibited = ResourceManager.Texture("StatusIcons/icon_inhibited");
-            SubTexture iconFlux      = ResourceManager.Texture("StatusIcons/icon_flux");
+            SubTexture icon;
+            GameText text;
 
-            if (Ship.IsInhibitedByUnfriendlyGravityWell) // planet well
+            switch (Ship.InhibitionSource)
             {
-                DrawInhibitWarning(batch, numStatus, mousePos);
-                DrawIconWithTooltip(batch, iconGravwell, () => Localizer.Token(GameText.IndicatesThatThisShipCannot4), mousePos,
-                    Color.White, numStatus);
-            }
-            else if (RandomEventManager.ActiveEvent == null || !RandomEventManager.ActiveEvent.InhibitWarp) // event
-            {
-                DrawIconWithTooltip(batch, iconInhibited, () => Localizer.Token(GameText.IndicatesThatThisShipCannot), mousePos,
-                    Color.White, numStatus);
-            }
-            else // ship inhibitor
-            {
-                DrawIconWithTooltip(batch, iconFlux, () => Localizer.Token(GameText.IndicatesThatThisShipCannot3), mousePos,
-                    Color.White, numStatus);
+                case Ship.InhibitionType.GlobalEvent:
+                    {
+                        icon = ResourceManager.Texture("StatusIcons/icon_flux");
+                        text = GameText.IndicatesThatThisShipCannot4;
+                        break;
+                    }
+                case Ship.InhibitionType.GravityWell:
+                    {
+                        icon = ResourceManager.Texture("StatusIcons/icon_gravwell");
+                        text = GameText.IndicatesThatThisShipCannot4;
+                        DrawInhibitWarning(batch, numStatus, mousePos);
+                        break;
+                    }
+                case Ship.InhibitionType.EnemyShip:
+                    {
+                        icon = ResourceManager.Texture("StatusIcons/icon_inhibited");
+                        text = GameText.IndicatesThatThisShipCannot3;
+                        break;
+                    }
+                default:
+                    return;
             }
 
+            DrawIconWithTooltip(batch, icon, () => Localizer.Token(text), mousePos, Color.White, numStatus);
             numStatus++;
         }
 

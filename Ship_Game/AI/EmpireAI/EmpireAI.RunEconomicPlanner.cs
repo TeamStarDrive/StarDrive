@@ -207,11 +207,16 @@ namespace Ship_Game.AI
             float gross = OwnerEmpire.MaximumStableIncome - OwnerEmpire.TotalCivShipMaintenance -
                           OwnerEmpire.TroopCostOnPlanets - OwnerEmpire.TotalTroopShipMaintenance;
 
-            float treasuryGoal = gross * OwnerEmpire.data.treasuryGoal;
+            float treasuryGoal = gross * OwnerEmpire.data.treasuryGoal / GoalEqualizer;
             float timeSpan     = 200;
             treasuryGoal      *= timeSpan;
             return treasuryGoal.LowerBound(0);
         }
+
+
+        // As the empire grows, it wants more and more money in the bank, and it is getting out of proportion
+        // resulting high taxes. This will reduce the goal to maintain low tax by the AI
+        public float GoalEqualizer => OwnerEmpire.isPlayer || OwnerEmpire.Money  < 2000 ? 1 : (1 + OwnerEmpire.Money * 0.00004f).UpperBound(4);
 
         /// <summary>
         /// Creates a ratio between cash on hand above what we want on hand and treasury goal
@@ -270,8 +275,8 @@ namespace Ship_Game.AI
             float closeToGoalCompensator = 1;
             if (treasuryGoal > 1000f)
             {
-                // if about 90% to treasury start reducing amount wanted. 
-                float reducer          = treasuryGoal / 9;
+                // If about 50% to treasury start reducing amount wanted (or 90% for the player)
+                float reducer          = treasuryGoal / (OwnerEmpire.isPlayer ? 9f : 2f);
                 closeToGoalCompensator = Math.Min(treasuryGap  / reducer, 1);
             }
             float amount = OwnerEmpire.AllSpending + neededPerTurnForeTreasury;
