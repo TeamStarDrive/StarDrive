@@ -138,6 +138,9 @@ namespace Ship_Game.Ships
         public KnownByEmpire HasSeenEmpires;
         public bool EMPdisabled;
         private float updateTimer;
+        private float HighAlertTimer;
+        public bool OnHighAlert => HighAlertTimer > 0;
+        public bool OnLowAlert => HighAlertTimer <= 0;
         public float HealPerTurn;
         public float InternalSlotsHealthPercent; // number_Alive_Internal_slots / number_Internal_slots
         Vector3 DieRotation;
@@ -1157,6 +1160,12 @@ namespace Ship_Game.Ships
                 updateTimer += 1f; // update the ship modules and status only once per second
                 UpdateModulesAndStatus(FixedSimTime.One);
                 SecondsAlive += 1;
+                HighAlertTimer -= 1;
+                if (HighAlertTimer <=0)
+                {
+                    if (InCombat) SetHighAlertStatus();
+                    else if (AI.BadGuysNear || AI.TrackProjectiles.Length > 0) SetMedAlertStatus();
+                }
             }
             
             PowerCurrent -= PowerDraw * timeStep.FixedTime;
@@ -1186,6 +1195,8 @@ namespace Ship_Game.Ships
             AI.ScanForTargets(timeStep);
         }
 
+        public void SetHighAlertStatus() => HighAlertTimer = 10;
+        public void SetMedAlertStatus() => HighAlertTimer = 5;
         public void UpdateModulePositions(FixedSimTime timeStep, bool isSystemView, bool forceUpdate = false)
         {
             if (Active && AI.BadGuysNear || (InFrustum && isSystemView) || forceUpdate)

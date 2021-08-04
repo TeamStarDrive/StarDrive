@@ -364,7 +364,7 @@ namespace Ship_Game.Fleets
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship s = Ships[i];
-                if (s.InCombat)
+                if (s.OnHighAlert)
                     continue;
 
                 s.AI.OrderAllStop();

@@ -17,7 +17,7 @@ namespace Ship_Game.Commands.Goals
         public PirateAI() : base(GoalType.PirateAI)
         {
             Steps = new Func<GoalStep>[]
-            {  
+            {
                PiratePlan
             };
         }
