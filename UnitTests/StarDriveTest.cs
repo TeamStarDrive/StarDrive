@@ -234,6 +234,7 @@ namespace UnitTests
             empire?.AddPlanet(p);
             p.Owner = empire;
             p.Type = ResourceManager.PlanetOrRandom(0);
+            s.OwnerList.Add(empire);
             return s;
         }
 

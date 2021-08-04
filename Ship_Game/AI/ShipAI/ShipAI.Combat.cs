@@ -28,7 +28,6 @@ namespace Ship_Game.AI
         public Ship Target;
         public Array<Ship> TargetQueue = new Array<Ship>();
         float TriggerDelay;
-        
         Array<Ship> ScannedTargets = new Array<Ship>();
         Array<Ship> ScannedFriendlies = new Array<Ship>();
         Array<Projectile> ScannedProjectiles = new Array<Projectile>();
@@ -499,6 +498,7 @@ namespace Ship_Game.AI
 
         void EnterCombatState(AIState combatState)
         {
+            Owner.SetHighAlertStatus();
             if (!Owner.InCombat)
             {
                 Owner.InCombat = true;
@@ -524,6 +524,7 @@ namespace Ship_Game.AI
 
         void ExitCombatState()
         {
+            Owner.SetHighAlertStatus();
             if (OrderQueue.TryPeekFirst(out ShipGoal goal) &&
                 goal?.WantedState == AIState.Combat)
             {
@@ -545,6 +546,7 @@ namespace Ship_Game.AI
         {
             bool badGuysNear = BadGuysNear;
             bool inCombat = Owner.InCombat;
+
             if (badGuysNear && !inCombat && ShouldEnterAutoCombat())
             {
                 EnterCombatState(AIState.Combat);
@@ -568,9 +570,10 @@ namespace Ship_Game.AI
             }
 
             // fire weapons if hostiles or hostile projectiles nearby
-            if (badGuysNear || TrackProjectiles.Length != 0)
+            if (badGuysNear || TrackProjectiles.Length > 0)
             {
-                FireWeapons(timeStep);
+                if (FireWeapons(timeStep) && !Owner.OnHighAlert)
+                    Owner.SetMedAlertStatus();
             }
 
             // Honor fighter launch buttons
