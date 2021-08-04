@@ -554,7 +554,7 @@ namespace Ship_Game.AI
                     foreach (var ship in CurrentShips
                         .OrderBy(ship => ship.shipData.TechsNeeded.Count))
                     {
-                        if(!ship.InCombat &&
+                        if(ship.OnLowAlert &&
                                         (ship.fleet == null)
                                         && ship.AI.State != AIState.Scuttle
                                         && ship.AI.State != AIState.Resupply

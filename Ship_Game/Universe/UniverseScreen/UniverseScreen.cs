@@ -605,7 +605,7 @@ namespace Ship_Game
             var ships = EmpireManager.Player.OwnedShips;
             foreach (Ship ship in ships)
             {
-                if (ship.fleet != null || !ship.InCombat || ship.IsHangarShip || ship.IsHomeDefense || !ship.Active)
+                if (ship.fleet != null || ship.OnLowAlert || ship.IsHangarShip || ship.IsHomeDefense || !ship.Active)
                     continue;
                 if (nbrship == lastshipcombat)
                 {

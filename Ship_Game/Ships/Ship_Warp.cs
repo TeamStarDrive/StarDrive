@@ -32,7 +32,7 @@ namespace Ship_Game.Ships
         // safe Warp out distance so the ship still has time to slow down
         public float WarpOutDistance => 3200f + MaxSTLSpeed * 3f;
         public string WarpState => engineState == MoveState.Warp ? "FTL" : "Sublight";
-        
+
         public void ResetJumpTimer()
         {
             JumpTimer = Stats.FTLSpoolTime;
@@ -97,7 +97,7 @@ namespace Ship_Game.Ships
         // Used for Remnant portal exit
         public void EmergeFromPortal()
         {
-            if (Empire.Universe != null 
+            if (Empire.Universe != null
                 && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
                 FTLManager.ExitFTL(GetWarpEffectPosition, Direction3D, Radius);
@@ -130,7 +130,7 @@ namespace Ship_Game.Ships
                 HyperspaceReturn();
         }
 
-        // TODO: move this to ship engines. 
+        // TODO: move this to ship engines.
         public void UpdateWarpSpooling(FixedSimTime timeStep)
         {
             if (!IsSpooling || Inhibited || MaxFTLSpeed < LightSpeedConstant) return;

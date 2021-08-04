@@ -830,7 +830,7 @@ namespace Ship_Game
                     {
                         try
                         {
-                            if (!fleetButton.Fleet.Ships[ship].InCombat) continue;
+                            if (fleetButton.Fleet.Ships[ship].OnLowAlert) continue;
                             inCombat = true;
                             break;
                         }
@@ -1124,7 +1124,7 @@ namespace Ship_Game
                 return;
             Vector2 start = ship.Position;
 
-            if (!ship.InCombat || ship.AI.HasPriorityOrder)
+            if (ship.OnLowAlert || ship.AI.HasPriorityOrder)
             {
                 Color color = Colors.Orders(alpha);
                 if (ship.AI.State == AIState.Ferrying)
