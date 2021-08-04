@@ -504,7 +504,6 @@ namespace Ship_Game.AI
 
         void EnterCombatState(AIState combatState)
         {
-            Owner.SetHighAlertStatus();
             if (!Owner.InCombat)
             {
                 Owner.InCombat = true;
@@ -513,6 +512,7 @@ namespace Ship_Game.AI
 
             // always override the combat state
             State = combatState;
+            Owner.SetHighAlertStatus();
 
             switch (OrderQueue.PeekFirst?.Plan)
             {
@@ -530,7 +530,6 @@ namespace Ship_Game.AI
 
         void ExitCombatState()
         {
-            Owner.SetHighAlertStatus();
             if (OrderQueue.TryPeekFirst(out ShipGoal goal) &&
                 goal?.WantedState == AIState.Combat)
             {
@@ -539,6 +538,8 @@ namespace Ship_Game.AI
 
             //Log.Write(ConsoleColor.Red, $"EXIT combat: {Owner}");
             Owner.InCombat = false;
+            Owner.SetHighAlertStatus();
+
             if (OrderQueue.IsEmpty) // need to change the state to prevent re-enter combat bug
                 State = AIState.AwaitingOrders;
 
@@ -575,11 +576,10 @@ namespace Ship_Game.AI
                 }
             }
 
-            // fire weapons if hostiles or hostile projectiles nearby
-            if (badGuysNear || TrackProjectiles.Length > 0)
+            // try fire weapons if Alert is set
+            if (Owner.OnHighAlert)
             {
-                if (FireWeapons(timeStep) && !Owner.OnHighAlert)
-                    Owner.SetMedAlertStatus();
+                FireWeapons(timeStep);
             }
 
             // Honor fighter launch buttons

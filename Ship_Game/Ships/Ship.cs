@@ -136,8 +136,8 @@ namespace Ship_Game.Ships
         public KnownByEmpire KnownByEmpires;
         public KnownByEmpire HasSeenEmpires;
         public bool EMPdisabled;
-        private float updateTimer;
-        private float HighAlertTimer;
+        float updateTimer;
+        int HighAlertTimer;
         public bool OnHighAlert => HighAlertTimer > 0;
         public bool OnLowAlert => HighAlertTimer <= 0;
         public float HealPerTurn;
@@ -1105,10 +1105,12 @@ namespace Ship_Game.Ships
                 UpdateModulesAndStatus(FixedSimTime.One);
                 SecondsAlive += 1;
                 HighAlertTimer -= 1;
-                if (HighAlertTimer <=0)
+                if (HighAlertTimer <= 0)
                 {
-                    if (InCombat) SetHighAlertStatus();
-                    else if (AI.BadGuysNear || AI.TrackProjectiles.Length > 0) SetMedAlertStatus();
+                    if (InCombat) 
+                        SetHighAlertStatus();
+                    else if (AI.BadGuysNear || AI.TrackProjectiles.Length != 0)
+                        SetMedAlertStatus();
                 }
             }
 
@@ -1141,6 +1143,7 @@ namespace Ship_Game.Ships
 
         public void SetHighAlertStatus() => HighAlertTimer = 10;
         public void SetMedAlertStatus() => HighAlertTimer = 5;
+
         public void UpdateModulePositions(FixedSimTime timeStep, bool isSystemView, bool forceUpdate = false)
         {
             if (Active && AI.BadGuysNear || (InFrustum && isSystemView) || forceUpdate)
