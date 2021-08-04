@@ -393,6 +393,12 @@ namespace Ship_Game.AI
             float angleMod = Owner.AngleDifferenceToPosition(ship.Position).Clamped(0.5f, 3)
                              / Owner.RotationRadiansPerSecond.LowerBound(0.5f);
 
+            if (Owner.AI.EscortTarget != null && ship.AI.Target == Owner.AI.EscortTarget)
+            {
+                value   *= 10;
+                angleMod = 1;
+            }
+
             float distance = Owner.Position.Distance(ship.Position).LowerBound(minimumDistance);
             value /= angleMod;
             return value / distance;

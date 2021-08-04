@@ -290,19 +290,20 @@ namespace Ship_Game
             }
         }
 
-        void DrawMain(SpriteBatch batch, DrawTimes elapsed)
+        void DrawExplosions(SpriteBatch batch)
         {
-            DrawMain3D.Start();
-
-            Render(batch, elapsed);
-
+            DrawExplosionsPerf.Start();
             batch.Begin(SpriteBlendMode.Additive);
             ExplosionManager.DrawExplosions(batch, View, Projection);
             #if DEBUG
             DrawDebugPlanetBudgets();
             #endif
             batch.End();
+            DrawExplosionsPerf.Stop();
+        }
 
+        void DrawOverlayShieldBubbles(SpriteBatch batch)
+        {
             if (ShowShipNames && !LookingAtPlanet)
             {
                 for (int i = 0; i < ClickableShipsList.Count; i++)
@@ -312,11 +313,9 @@ namespace Ship_Game
                         clickable.shipToClick.DrawShieldBubble(this);
                 }
             }
-
-            DrawMain3D.Stop();
         }
 
-        void DrawLights(SpriteBatch batch, GraphicsDevice device)
+        void DrawFogInfluences(SpriteBatch batch, GraphicsDevice device)
         {
             DrawFogInfluence.Start();
 
@@ -364,15 +363,9 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            DrawPerf.Start();
+            DrawGroupTotalPerf.Start();
             PulseTimer -= elapsed.RealTime.Seconds;
             if (PulseTimer < 0) PulseTimer = 1;
-
-            lock (GlobalStats.BeamEffectLocker)
-            {
-                Beam.BeamEffect.Parameters["View"].SetValue(View);
-                Beam.BeamEffect.Parameters["Projection"].SetValue(Projection);
-            }
 
             AdjustCamera(elapsed.RealTime.Seconds);
             CamPos.Z = CamHeight;
@@ -385,29 +378,28 @@ namespace Ship_Game
 
             GraphicsDevice graphics = ScreenManager.GraphicsDevice;
             graphics.SetRenderTarget(0, MainTarget);
-            DrawMain(batch, elapsed);
+            Render(batch, elapsed);
             graphics.SetRenderTarget(0, null);
-
-            DrawLights(batch, graphics);
-
-            if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
+            
+            OverlaysGroupTotalPerf.Start();
             {
-                DrawColoredEmpireBorders(batch, graphics);
+                DrawFogInfluences(batch, graphics);
+                if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
+                    DrawColoredEmpireBorders(batch, graphics);
+                DrawFogOfWarEffect(batch, graphics);
+
+                View = matrix;
+                if (GlobalStats.RenderBloom)
+                    bloomComponent?.Draw();
+
+                batch.Begin(SpriteBlendMode.AlphaBlend);
+                RenderOverFog(batch);
+                batch.End();
             }
+            OverlaysGroupTotalPerf.Stop();
 
-            DrawFogOfWarEffect(batch, graphics);
-
-            View = matrix;
-            if (GlobalStats.RenderBloom)
-            {
-                bloomComponent?.Draw();
-            }
-
-            batch.Begin(SpriteBlendMode.AlphaBlend);
-            RenderOverFog(batch);
-            batch.End();
-
-             // these are all background elements, such as ship overlays, fleet icons, etc..
+            // these are all background elements, such as ship overlays, fleet icons, etc..
+            IconsGroupTotalPerf.Start();
             batch.Begin();
             {
                 DrawShipsAndProjectiles(batch);
@@ -415,6 +407,7 @@ namespace Ship_Game
                 DrawGeneralUI(batch, elapsed);
             }
             batch.End();
+            IconsGroupTotalPerf.Stop();
 
             // Advance the simulation time just before we Notify
             if (!Paused && IsActive)
@@ -426,7 +419,7 @@ namespace Ship_Game
             // the game logic can be updated
             DrawCompletedEvt.Set();
 
-            DrawPerf.Stop();
+            DrawGroupTotalPerf.Stop();
         }
 
         private void DrawGeneralUI(SpriteBatch batch, DrawTimes elapsed)
@@ -1003,11 +996,16 @@ namespace Ship_Game
 
                 Projectile[] projectiles = Objects.VisibleProjectiles;
                 Beam[] beams = Objects.VisibleBeams;
+
                 for (int i = 0; i < projectiles.Length; ++i)
                 {
                     Projectile proj = projectiles[i];
                     proj.Draw(batch, this);
                 }
+
+                if (beams.Length > 0)
+                    Beam.UpdateBeamEffect(this);
+
                 for (int i = 0; i < beams.Length; ++i)
                 {
                     Beam beam = beams[i];

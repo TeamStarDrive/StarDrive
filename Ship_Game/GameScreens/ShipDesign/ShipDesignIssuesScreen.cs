@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
-using Ship_Game.GameScreens;
 
 namespace Ship_Game.GameScreens.ShipDesign
 {
@@ -14,7 +13,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         private readonly ScrollList2<ShipDesignIssuesListItem> IssueList;
         private readonly Graphics.Font LargeFont = Fonts.Arial20Bold;
 
-        public ShipDesignIssuesScreen(GameScreen screen, Empire player, Array<DesignIssueDetails> issues) : base(screen)
+        public ShipDesignIssuesScreen(GameScreen screen, Array<DesignIssueDetails> issues) : base(screen)
         {
             DesignIssues      = issues;
             IsPopup           = true;

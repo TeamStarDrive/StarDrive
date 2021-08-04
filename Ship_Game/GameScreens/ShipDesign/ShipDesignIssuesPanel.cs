@@ -75,7 +75,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         void AddDesignIssuesScreen()
         {
-            var issues = new ShipDesignIssuesScreen(Screen, EmpireManager.Player, Issues.CurrentDesignIssues);
+            var issues = new ShipDesignIssuesScreen(Screen, Issues.CurrentDesignIssues);
             Screen.ScreenManager.AddScreen(issues);
         }
 

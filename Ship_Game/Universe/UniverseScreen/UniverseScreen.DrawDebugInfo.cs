@@ -21,17 +21,26 @@ namespace Ship_Game
         readonly AggregatePerfTimer TurnTimePerf = new AggregatePerfTimer();
         readonly AggregatePerfTimer ProcessSimTurnsPerf = new AggregatePerfTimer();
         
-        readonly AggregatePerfTimer DrawPerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawMain3D = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawBackdropPerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawSOPerf = new AggregatePerfTimer();
+        readonly AggregatePerfTimer DrawGroupTotalPerf = new AggregatePerfTimer();
+
+        readonly AggregatePerfTimer RenderGroupTotalPerf = new AggregatePerfTimer();
+        readonly AggregatePerfTimer BeginSunburnPerf = new AggregatePerfTimer();
+        readonly AggregatePerfTimer BackdropPerf = new AggregatePerfTimer();
+        readonly AggregatePerfTimer SunburnDrawPerf = new AggregatePerfTimer();
         readonly AggregatePerfTimer DrawPlanetsPerf = new AggregatePerfTimer();
         readonly AggregatePerfTimer DrawShieldsPerf = new AggregatePerfTimer();
         readonly AggregatePerfTimer DrawParticles = new AggregatePerfTimer();
+        readonly AggregatePerfTimer DrawExplosionsPerf = new AggregatePerfTimer();
+        readonly AggregatePerfTimer EndSunburnPerf = new AggregatePerfTimer();
+        
+        readonly AggregatePerfTimer OverlaysGroupTotalPerf = new AggregatePerfTimer();
         readonly AggregatePerfTimer DrawFogInfluence = new AggregatePerfTimer();
         readonly AggregatePerfTimer DrawBorders = new AggregatePerfTimer();
         readonly AggregatePerfTimer DrawFogOfWar = new AggregatePerfTimer();
         readonly AggregatePerfTimer DrawOverFog = new AggregatePerfTimer();
+
+        
+        readonly AggregatePerfTimer IconsGroupTotalPerf = new AggregatePerfTimer();
         readonly AggregatePerfTimer DrawProj = new AggregatePerfTimer();
         readonly AggregatePerfTimer DrawShips = new AggregatePerfTimer();
         readonly AggregatePerfTimer DrawIcons = new AggregatePerfTimer();
@@ -59,6 +68,7 @@ namespace Ship_Game
                     () => $"real {GameBase.Base.TotalElapsed:0.00}s   sim.time {CurrentSimTime:0.00}s/{TargetSimTime:0.00}s  lag:{(TargetSimTime - CurrentSimTime) * 1000:0.0}ms"));
                 DebugStats.AddItem(new DebugStatItem("Ships", () => Objects.Ships.Count.ToString()));
                 DebugStats.AddItem(new DebugStatItem("Proj", () => Objects.Projectiles.Count.ToString()));
+                DebugStats.AddItem(new DebugStatItem("DyLights", () => ScreenManager.ActiveDynamicLights.ToString()));
                 DebugStats.AddItem(new DebugStatItem("Perf", () => "avg-sample  max-sample  total/sec"));
 
                 var sim = DebugStats.AddItem(new DebugStatItem("Sim", ProcessSimTurnsPerf, true));
@@ -87,24 +97,29 @@ namespace Ship_Game
                 objects.AddSubItem(new DebugStatItem("Spatial", Spatial.UpdateTime, Objects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Collide", Spatial.CollisionTime, Objects.TotalTime));
 
-                var draw = DebugStats.AddItem(new DebugStatItem("Draw", DrawPerf, true));
+                DebugStats.AddItem(new DebugStatItem("TotalDraw", DrawGroupTotalPerf, true));
 
-                draw.AddSubItem(new DebugStatItem("Main3D", DrawMain3D, DrawPerf));
-                draw.AddSubItem(new DebugStatItem("Backdrop", DrawBackdropPerf, DrawPerf));
-                draw.AddSubItem(new DebugStatItem("SceneObj", DrawSOPerf, DrawPerf));
-                draw.AddSubItem(new DebugStatItem("Planets", DrawPlanetsPerf, DrawPerf));
-                draw.AddSubItem(new DebugStatItem("Shields", DrawShieldsPerf, DrawPerf));
-                draw.AddSubItem(new DebugStatItem("Particles", DrawParticles, DrawPerf));
+                var render = DebugStats.AddItem(new DebugStatItem("Render", RenderGroupTotalPerf, true));
+                render.AddSubItem(new DebugStatItem("Sunburn.Begin", BeginSunburnPerf, RenderGroupTotalPerf));
+                render.AddSubItem(new DebugStatItem("Backdrop", BackdropPerf, RenderGroupTotalPerf));
+                render.AddSubItem(new DebugStatItem("Sunburn.Draw", SunburnDrawPerf, RenderGroupTotalPerf));
+                render.AddSubItem(new DebugStatItem("Planets", DrawPlanetsPerf, RenderGroupTotalPerf));
+                render.AddSubItem(new DebugStatItem("Shields", DrawShieldsPerf, RenderGroupTotalPerf));
+                render.AddSubItem(new DebugStatItem("Particles", DrawParticles, RenderGroupTotalPerf));
+                render.AddSubItem(new DebugStatItem("Explosions", DrawShieldsPerf, RenderGroupTotalPerf));
+                render.AddSubItem(new DebugStatItem("Sunburn.End", EndSunburnPerf, RenderGroupTotalPerf));
 
-                draw.AddSubItem(new DebugStatItem("Influence", DrawFogInfluence, DrawPerf));
-                draw.AddSubItem(new DebugStatItem("Borders", DrawBorders, DrawPerf));
-                draw.AddSubItem(new DebugStatItem("FogOfWar", DrawFogOfWar, DrawPerf));
-                draw.AddSubItem(new DebugStatItem("OverFog", DrawOverFog, DrawPerf));
+                var overlays = DebugStats.AddItem(new DebugStatItem("Overlays", OverlaysGroupTotalPerf, true));
+                overlays.AddSubItem(new DebugStatItem("Influence", DrawFogInfluence, OverlaysGroupTotalPerf));
+                overlays.AddSubItem(new DebugStatItem("Borders", DrawBorders, OverlaysGroupTotalPerf));
+                overlays.AddSubItem(new DebugStatItem("FogOfWar", DrawFogOfWar, OverlaysGroupTotalPerf));
+                overlays.AddSubItem(new DebugStatItem("OverFog", DrawOverFog, OverlaysGroupTotalPerf));
 
-                draw.AddSubItem(new DebugStatItem("Projectiles", DrawProj, DrawPerf));
-                draw.AddSubItem(new DebugStatItem("ShipOveray", DrawShips, DrawPerf));
-                draw.AddSubItem(new DebugStatItem("Icons", DrawIcons, DrawPerf));
-                draw.AddSubItem(new DebugStatItem("UI", DrawUI, DrawPerf));
+                var icons = DebugStats.AddItem(new DebugStatItem("Icons", IconsGroupTotalPerf, true));
+                icons.AddSubItem(new DebugStatItem("Projectiles", DrawProj, IconsGroupTotalPerf));
+                icons.AddSubItem(new DebugStatItem("ShipOveray", DrawShips, IconsGroupTotalPerf));
+                icons.AddSubItem(new DebugStatItem("Icons", DrawIcons, IconsGroupTotalPerf));
+                icons.AddSubItem(new DebugStatItem("UI", DrawUI, IconsGroupTotalPerf));
                 DebugStats.Update(0f);
             }
         }

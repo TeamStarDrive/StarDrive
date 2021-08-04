@@ -4336,6 +4336,26 @@ namespace Ship_Game
         NotifyCapitalTransfer = 4345,
         /// <summary>Unknown Origin</summary>
         TerraformersUnknownOrigin = 4346,
+        /// <summary>Non Aggression</summary>
+        NonaggressionPact3 = 4347,
+        /// <summary>Open Borders</summary>
+        OpenBordersTreaty2 = 4348,
+        /// <summary>Empire Relationships Cross Reference</summary>
+        EmpireRelationships = 4349,
+        /// <summary>View Wars or Alliances</summary>
+        ViewWarsOrAlliancesName = 4350,
+        /// <summary>Filters out non War or Alliances links</summary>
+        ViewWarsOrAlliancesTip = 4351,
+        /// <summary>View Trade Treaties</summary>
+        ViewTradeTreatiesName = 4352,
+        /// <summary>Enable or disable trade treaties view</summary>
+        ViewTradeTreatiesTip = 4353,
+        /// <summary>declared war on us because they were requsted to do</summary>
+        DeclaredWarOnUsBecause = 4354,
+        /// <summary>Use Upkeep by Hull Size</summary>
+        RuleOptionsUseHullUpkeepName = 4355,
+        /// <summary>Normally, ship upkeep is calculated as a fraction of the</summary>
+        RuleOptionsUseHullUpkeepTip = 4356,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>
@@ -5128,5 +5148,9 @@ namespace Ship_Game
         EngineTrails = -26,
         /// <summary>This will enable engine trails for moving ships, disabling this</summary>
         TT_EngineTrails = -27,
+        /// <summary>Max Dynamic Light Sources</summary>
+        MaxDynamicLightSources = -28,
+        /// <summary>This will set an upper bound limit for dynamic 3D</summary>
+        TT_MaxDynamicLightSources = -29,
     }
 }

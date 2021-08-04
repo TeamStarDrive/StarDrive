@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace Microsoft.Xna.Framework
 {
@@ -413,13 +414,20 @@ namespace Microsoft.Xna.Framework
 
             if (deviceNotReset) // or also, creating a completely new device
                 CreateDevice(bestDevice);
-            PresentationParameters presentParams = device.PresentationParameters;
-            screenDeviceName = device.CreationParameters.Adapter.DeviceName;
-            isReallyFullScreen = presentParams.IsFullScreen;
-            if (presentParams.BackBufferWidth != 0)
-                clientWidth = presentParams.BackBufferWidth;
-            if (presentParams.BackBufferHeight != 0)
-                clientHeight = presentParams.BackBufferHeight;
+
+            string adapterDeviceName = device.CreationParameters.Adapter.DeviceName;
+            if (string.IsNullOrEmpty(adapterDeviceName))
+            {
+                MessageBox.Show("XNA could not correctly detect the graphics device, please ensure XNA 3.1 redistributable is installed", "XNA Error");
+                Environment.Exit(-1);
+            }
+
+            screenDeviceName = adapterDeviceName;
+            
+            PresentationParameters pp = device.PresentationParameters;
+            isReallyFullScreen = pp.IsFullScreen;
+            if (pp.BackBufferWidth != 0)  clientWidth  = pp.BackBufferWidth;
+            if (pp.BackBufferHeight != 0) clientHeight = pp.BackBufferHeight;
             isDeviceDirty = false;
         }
         finally

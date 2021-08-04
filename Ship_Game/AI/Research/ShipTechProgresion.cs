@@ -61,7 +61,7 @@ namespace Ship_Game.AI.Research
         bool CanResearchHullInTimelyManner(TechEntry tech)
         {
             int turnsThreshold  = (int)OwnerEmpire.TotalPopBillion.Clamped(1, 200);
-            float netResearch   = OwnerEmpire.Research.NetResearch.LowerBound(1);
+            float netResearch   = OwnerEmpire.Research.MaxResearchPotential.LowerBound(1);
             float researchTurns = tech.Tech.ActualCost / netResearch;
             return researchTurns <= turnsThreshold;
         }

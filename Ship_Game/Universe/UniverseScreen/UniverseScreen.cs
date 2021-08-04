@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Ship_Game.Audio;
+using Ship_Game.Data.Texture;
 using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Universe;
@@ -293,11 +294,11 @@ namespace Ship_Game
         void AddLight(string name, SolarSystem system, float intensity, float radius, Color color, float zpos, float fallOff = 1f, bool fillLight = false)
         {
             AddLight($"{system.Name} - {system.Sun.Id} - {name}", system.Position, intensity, radius, color,
-                zpos, fillLight: fillLight, fallOff:fallOff, shadowQuality:0f);
+                     zpos, fillLight: fillLight, fallOff:fallOff, shadowQuality:0f);
         }
 
         void AddLight(string name, Vector2 source, float intensity, float radius, Color color,
-                              float zpos, bool fillLight, float fallOff = 0, float shadowQuality = 1)
+                      float zpos, bool fillLight, float fallOff = 0, float shadowQuality = 1)
         {
             var light = new PointLight
             {
@@ -318,7 +319,7 @@ namespace Ship_Game
                 light.ShadowType = ShadowType.AllObjects;
 
             light.World = Matrix.CreateTranslation(light.Position);
-            AddLight(light);
+            AddLight(light, dynamic:false);
         }
 
         public void ContactLeader()
@@ -629,10 +630,7 @@ namespace Ship_Game
                 try
                 {
                     string fogCache = $"{Dir.StarDriveAppData}/Saved Games/Fog Maps/{loadFogPath}.png";
-                    using (FileStream fs = File.OpenRead(fogCache))
-                    {
-                        FogMap = Texture2D.FromFile(device, fs);
-                    }
+                    FogMap = new TextureImporter(content).Load(fogCache);
                 }
                 catch (Exception e) // whatever issue with fog map
                 {

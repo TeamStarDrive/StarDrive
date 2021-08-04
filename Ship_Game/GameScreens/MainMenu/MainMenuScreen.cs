@@ -109,7 +109,7 @@ namespace Ship_Game.GameScreens.MainMenu
                 Name = "MainMenu AmbientFill",
                 DiffuseColor = new Color(40, 60, 110).ToVector3(), // dark violet
                 Intensity = 0.75f,
-            });
+            }, dynamic:false);
         }
 
         void AddLight(string name, Color color, float intensity, Vector3 position)
@@ -131,7 +131,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
             light.ShadowType = ShadowType.AllObjects;
             light.World = Matrix.CreateTranslation(light.Position);
-            AddLight(light);
+            AddLight(light, dynamic:false);
         }
 
         void CreateVersionArea()

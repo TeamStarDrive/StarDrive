@@ -77,6 +77,9 @@ namespace Ship_Game
             {
                 batch.Draw(sData.Icon, r);
                 string name = DisplayName.IsEmpty() ? sData.Name : DisplayName;
+                if (Goal?.Fleet != null)
+                    name = $"{name} ({Goal.Fleet.Name})";
+
                 batch.DrawString(Fonts.Arial12Bold, name, tCursor, Color.White);
                 pb.Draw(batch);
             }

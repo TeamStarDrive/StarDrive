@@ -4,7 +4,7 @@ namespace Ship_Game.Ships
 {
     public static class ShipMaintenance // Created by Fat Bastard - to unify and provide a baseline for future maintenance features
     {
-        private const float MaintModifierRealism = 0.004f;
+        private const float MaintModifierByCost  = 0.004f;
         private const float MaintModifierBySize  = 0.01f;
         public static float TroopMaint           = 0.1f;
 
@@ -36,8 +36,7 @@ namespace Ship_Game.Ships
 
         static float GetBaseMainCost(Ship ship, Empire empire, int numTroops)
         {
-            bool realism = GlobalStats.ActiveModInfo?.UseProportionalUpkeep == true;
-
+            bool hullUpkeep = GlobalStats.UseUpkeepByHullSize;
             float maint;
             if (ship.shipData.FixedUpkeep > 0)
             {
@@ -45,24 +44,23 @@ namespace Ship_Game.Ships
             }
             else
             {
-                float shipCost = ship.GetCost(empire);
+                float shipCost    = ship.GetCost(empire);
                 float hangarsArea = ship.Carrier.AllFighterHangars.Sum(m => m.MaximumHangarShipSize);
                 float surfaceArea = ship.SurfaceArea + hangarsArea;
-                maint = realism ? shipCost * MaintModifierRealism : surfaceArea * MaintModifierBySize;
+                maint = hullUpkeep ? surfaceArea * MaintModifierBySize : shipCost * MaintModifierByCost;
             }
 
             ShipData.RoleName role = ship.shipData.HullRole;
             switch (role)
             {
-
                 case ShipData.RoleName.station:
-                case ShipData.RoleName.platform:                maint *= 0.7f; break;
-                case ShipData.RoleName.troop:                   maint *= 0.5f; break;
-                case ShipData.RoleName.corvette   when realism: maint *= 0.9f; break;
-                case ShipData.RoleName.frigate    when realism: maint *= 0.8f; break;
-                case ShipData.RoleName.cruiser    when realism: maint *= 0.7f; break;
-                case ShipData.RoleName.battleship when realism: maint *= 0.6f; break;
-                case ShipData.RoleName.capital    when realism: maint *= 0.5f; break;
+                case ShipData.RoleName.platform:                    maint *= 0.7f; break;
+                case ShipData.RoleName.troop:                       maint *= 0.5f; break;
+                case ShipData.RoleName.corvette   when !hullUpkeep: maint *= 0.9f; break;
+                case ShipData.RoleName.frigate    when !hullUpkeep: maint *= 0.8f; break;
+                case ShipData.RoleName.cruiser    when !hullUpkeep: maint *= 0.7f; break;
+                case ShipData.RoleName.battleship when !hullUpkeep: maint *= 0.6f; break;
+                case ShipData.RoleName.capital    when !hullUpkeep: maint *= 0.5f; break;
             }
 
             if (role == ShipData.RoleName.freighter ||
