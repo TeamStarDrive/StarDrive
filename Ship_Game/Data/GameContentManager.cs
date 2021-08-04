@@ -345,14 +345,14 @@ namespace Ship_Game.Data
         public Texture2D LoadUncachedTexture(FileInfo file, string ext)
         {
             if (ext != "xnb")
-                return RawContent.LoadImageAsTexture(file);
+                return RawContent.LoadTexture(file);
             return ReadXnaAsset<Texture2D>(file.RelPath());
         }
 
         public Texture2D LoadTexture(FileInfo file, string ext)
         {
             if (ext != "xnb")
-                return RawContent.LoadImageAsTexture(file);
+                return RawContent.LoadTexture(file);
             string assetName = file.RelPath();
             Texture2D tex = ReadXnaAsset<Texture2D>(assetName);
             RecordCacheObject(assetName, tex);

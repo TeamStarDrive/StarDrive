@@ -630,7 +630,7 @@ namespace Ship_Game
                 try
                 {
                     string fogCache = $"{Dir.StarDriveAppData}/Saved Games/Fog Maps/{loadFogPath}.png";
-                    FogMap = new TextureImporter(content).Load(fogCache);
+                    FogMap = content.RawContent.LoadTexture(fogCache);
                 }
                 catch (Exception e) // whatever issue with fog map
                 {
