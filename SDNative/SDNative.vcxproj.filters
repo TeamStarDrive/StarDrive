@@ -76,7 +76,7 @@
     <ClCompile Include="ReCpp\rpp\sprint.cpp">
       <Filter>rpp</Filter>
     </ClCompile>
-    <ClCompile Include="util\save_image.cpp">
+    <ClCompile Include="util\image_utils.cpp">
       <Filter>util</Filter>
     </ClCompile>
     <ClCompile Include="3rdparty\soil2\image_DXT.cpp">
