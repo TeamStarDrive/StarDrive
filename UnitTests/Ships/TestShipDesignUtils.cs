@@ -15,10 +15,10 @@ namespace UnitTests.Ships
         {
             ShipDesignUtilsOld.MarkDesignsUnlockable(new ProgressCounter());
 
-            var map = new Dictionary<string, ShipData>();
+            var legacyUnlockable = new Dictionary<string, ShipData>();
             foreach (var tOld in ResourceManager.GetShipTemplates())
             {
-                map.Add(tOld.Name, tOld.shipData.GetClone()); //Because it gets disposed later on and we get a NPE
+                legacyUnlockable.Add(tOld.Name, tOld.shipData.GetClone()); //Because it gets disposed later on and we get a NPE
             }
             
             StarDriveTestContext.ReloadStarterShips();
@@ -27,8 +27,11 @@ namespace UnitTests.Ships
             
             foreach (var template in templates)
             {
-                if (map.TryGetValue(template.Name, out var legacy)) {
+                if (template.Name == "Prototype Frigate")
+                    continue; // ignore this one, since it has a locked hull
 
+                if (legacyUnlockable.TryGetValue(template.Name, out var legacy))
+                {
                     //if (template.Name == "Prototype Frigate") continue;
                     ShipData shipData = template.shipData;
                     
@@ -46,9 +49,6 @@ namespace UnitTests.Ships
                 {
                     throw new AssertFailedException($"{template.Name} Not found after ReloadStarterShips");
                 }
-                
-
-
             }
             
         }
