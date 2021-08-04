@@ -309,6 +309,9 @@
     <ClInclude Include="3rdparty\libpng\pngconf.h">
       <Filter>3rdparty\libpng</Filter>
     </ClInclude>
+    <ClInclude Include="util\png_loader.h">
+      <Filter>util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="SDNative.natvis">
