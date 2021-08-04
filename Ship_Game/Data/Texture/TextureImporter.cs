@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Data.Texture
@@ -12,27 +9,54 @@ namespace Ship_Game.Data.Texture
 
     public class TextureImporter : TextureInterface
     {
+        enum ImporterType
+        {
+            XNA,
+            ImageUtilsPNG_XnaDDS, // PNG-s from Image Utils
+        }
+
+        ImporterType Type = ImporterType.ImageUtilsPNG_XnaDDS;
+
         public TextureImporter(GameContentManager content) : base(content)
         {
         }
         
         public Texture2D Load(string texturePath)
         {
-            TextureCreationParameters parameters = XGraphics.Texture.GetCreationParameters(Device, texturePath);
-
-            var tex = (Texture2D)XGraphics.Texture.FromFile(Device, texturePath, parameters);
+            Texture2D tex = LoadTexture(texturePath);
             tex.Name = texturePath;
             return tex;
         }
         
         public Texture2D Load(FileInfo textureFile)
         {
-            string fullPath = textureFile.FullName;
-            TextureCreationParameters parameters = XGraphics.Texture.GetCreationParameters(Device, fullPath);
-
-            var tex = (Texture2D)XGraphics.Texture.FromFile(Device, fullPath, parameters);
+            Texture2D tex = LoadTexture(textureFile.FullName);
             tex.Name = textureFile.RelPath();
             return tex;
+        }
+
+        Texture2D LoadTexture(string fullPath)
+        {
+            if (Type == ImporterType.ImageUtilsPNG_XnaDDS)
+                return ImageUtilsPNG_XnaDDS(fullPath);
+            return LoadXna(fullPath);
+        }
+
+        Texture2D LoadXna(string fullPath)
+        {
+            TextureCreationParameters p = XGraphics.Texture.GetCreationParameters(Device, fullPath);
+            var tex = (Texture2D)XGraphics.Texture.FromFile(Device, fullPath, p);
+            return tex;
+        }
+
+        Texture2D ImageUtilsPNG_XnaDDS(string fullPath)
+        {
+            if (fullPath.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
+            {
+                Texture2D tex = ImageUtils.LoadPng(Device, fullPath);
+                return tex;
+            }
+            return LoadXna(fullPath);
         }
     }
 }
