@@ -50,7 +50,6 @@ namespace Ship_Game.Data.Texture
             return colors;
         }
 
-        
         [DllImport("SDNative.dll")]
         static extern unsafe void ConvertBGRAtoRGBA(int width, int height, Color* rgbaImage);
 
@@ -58,6 +57,35 @@ namespace Ship_Game.Data.Texture
         {
             fixed (Color* pColor = bgraImage)
                 ConvertBGRAtoRGBA(width, height, pColor);
+        }
+
+        [DllImport("SDNative.dll")]
+        static extern unsafe void CopyBGRAtoRGBA(int width, int height, Color* src, Color* dst);
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        delegate void OnImageLoaded([MarshalAs(UnmanagedType.LPArray, SizeParamIndex=1)] Color[] color,
+                                    int size, int width, int height);
+
+        [DllImport("SDNative.dll")]
+        static extern IntPtr LoadPNGImage([MarshalAs(UnmanagedType.LPStr)] string filename,
+                                          OnImageLoaded onLoaded);
+
+        public static Texture2D LoadPng(GraphicsDevice device, string filename)
+        {
+            Texture2D tex = null;
+            void OnLoaded(Color[] color, int size, int width, int height)
+            {
+                tex = new Texture2D(device, width, height, 1, TextureUsage.None, SurfaceFormat.Color);
+                tex.SetData(color);
+            }
+
+            IntPtr error = LoadPNGImage(filename, OnLoaded);
+            if (error != IntPtr.Zero)
+            {
+                string message = Marshal.PtrToStringAnsi(error);
+                throw new Exception($"Load PNG {filename} failed: {message}");
+            }
+            return tex;
         }
 
         [DllImport("SDNative.dll")]
