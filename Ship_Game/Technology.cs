@@ -15,6 +15,9 @@ namespace Ship_Game
         [XmlIgnore] public float ActualCost => ResearchMultiplier() * CurrentGame.Pace;
 
         [XmlIgnore] public Technology[] Children;
+
+        // this is the full traceback of all previous techs
+        // ex: Tech="Ace Training", Parents=["FighterTheory","HeavyFighterHull","StarshipConstruction"]
         [XmlIgnore] public Technology[] Parents;
 
         public static readonly Technology Dummy = new Technology();
@@ -36,6 +39,11 @@ namespace Ship_Game
 
         public LocalizedText Name => new LocalizedText(NameIndex);
         public LocalizedText Description => new LocalizedText(DescriptionIndex);
+
+        public override string ToString()
+        {
+            return $"Tech {UID} Name={Name.Text} Root={RootNode} Cost={Cost} Parents={Parents.Length}";
+        }
 
         public Array<LeadsToTech> LeadsTo                = new Array<LeadsToTech>();
         public Array<LeadsToTech> ComesFrom              = new Array<LeadsToTech>();

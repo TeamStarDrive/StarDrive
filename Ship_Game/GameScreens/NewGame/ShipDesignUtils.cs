@@ -8,7 +8,6 @@ namespace Ship_Game.GameScreens.NewGame
 {
     public static class ShipDesignUtils
     {
-
         public static void MarkDesignsUnlockable(ProgressCounter progress)
         {
             if (ResourceManager.Hulls.Count == 0)
@@ -16,10 +15,10 @@ namespace Ship_Game.GameScreens.NewGame
 
             var hullUnlocks = GetHullTechUnlocks(); // 0.3ms
             var moduleUnlocks = GetModuleTechUnlocks(); // 0.07ms
-            Map<string, string[]> techParentTechs = GetTechParentTechs();
+            Map<string, string[]> techTreePaths = GetFullTechTreePaths();
 
-            MarkHullsUnlockable(hullUnlocks, techParentTechs); // 0.3ms
-            MarkShipsUnlockable(moduleUnlocks, techParentTechs, progress); // 52.5ms
+            MarkHullsUnlockable(hullUnlocks, techTreePaths); // 0.3ms
+            MarkShipsUnlockable(moduleUnlocks, techTreePaths, progress); // 52.5ms
         }
 
         // Gets a map of <HullName, RequiredTech>
@@ -46,27 +45,23 @@ namespace Ship_Game.GameScreens.NewGame
             return moduleUnlocks;
         }
         
-        // Gets all technologies mapped to include their parent tech trees
-        static Map<string, string[]> GetTechParentTechs()
+        // Gets all tech UID's mapped to include their preceding tech UID's
+        // For example: Tech="Ace Training" has a full tree path of:
+        //              ["Ace Training","FighterTheory","HeavyFighterHull","StarshipConstruction"]
+        static Map<string, string[]> GetFullTechTreePaths()
         {
             var techParentTechs = new Map<string, string[]>();
             foreach (Technology tech in ResourceManager.TechTree.Values)
             {
-                techParentTechs[tech.UID] = GetParentTechs(tech, new Array<string>()).ToArray();
+                string[] techs = new string[tech.Parents.Length + 1];
+                techs[0] = tech.UID;
+                for (int i = 0; i < tech.Parents.Length; ++i)
+                    techs[i + 1] = tech.Parents[i].UID;
+
+                techParentTechs[tech.UID] = techs;
             }
             return techParentTechs;
         }
-
-        static Array<string> GetParentTechs(Technology target, Array<string> techs)
-        {
-            foreach (Technology parent in target.Parents)
-            {
-                techs.Add(parent.UID);
-                GetParentTechs(parent, techs);
-            }
-            return techs;
-        }
-        
 
         static void AddRange(HashSet<string> destination, HashSet<string> source)
         {
@@ -80,7 +75,8 @@ namespace Ship_Game.GameScreens.NewGame
                 destination.Add(str);
         }
 
-        static void MarkHullsUnlockable(Map<string, string> hullUnlocks, Map<string, string[]> techParentTechs)
+        static void MarkHullsUnlockable(Map<string, string> hullUnlocks,
+                                        Map<string, string[]> techTreePaths)
         {
             foreach (ShipData hull in ResourceManager.Hulls)
             {
@@ -92,8 +88,7 @@ namespace Ship_Game.GameScreens.NewGame
                 if (hullUnlocks.TryGetValue(hull.Name, out string requiredTech))
                 {
                     hull.UnLockable = true;
-                    hull.TechsNeeded.Add(requiredTech);
-                    AddRange(hull.TechsNeeded, techParentTechs[requiredTech]);
+                    AddRange(hull.TechsNeeded, techTreePaths[requiredTech]);
                 }
 
                 if (hull.Role < ShipData.RoleName.fighter || hull.TechsNeeded.Count == 0)
@@ -102,7 +97,7 @@ namespace Ship_Game.GameScreens.NewGame
         }
 
         static void MarkShipsUnlockable(Map<string, string> moduleUnlocks,
-                                        Map<string, string[]> techParentTechs, ProgressCounter step)
+                                        Map<string, string[]> techTreePaths, ProgressCounter step)
         {
             var templates = ResourceManager.GetShipTemplates();
             step.Start(templates.Count);
@@ -144,10 +139,10 @@ namespace Ship_Game.GameScreens.NewGame
                     else
                     {
                         shipData.AllModulesUnlockable = false;
-                        //if (!ResourceManager.GetModuleTemplate(module.ModuleUID, out ShipModule _))
-                        //    Log.Warning($"Module does not exist: ModuleUID='{module.ModuleUID}'  ship='{ship.Name}'");
-                        //else
-                        //    Log.Warning($"Module cannot be unlocked by tech: ModuleUID='{module.ModuleUID}'  ship='{ship.Name}'");
+                        if (!ResourceManager.GetModuleTemplate(module.ModuleUID, out ShipModule _))
+                            Log.Info(ConsoleColor.Yellow, $"Module does not exist: ModuleUID='{module.ModuleUID}'  ship='{ship.Name}'");
+                        else
+                            Log.Info(ConsoleColor.Yellow, $"Module cannot be unlocked by tech: ModuleUID='{module.ModuleUID}'  ship='{ship.Name}'");
                         break;
                     }
                 }
@@ -160,7 +155,7 @@ namespace Ship_Game.GameScreens.NewGame
 
                     // add the full tree of techs to TechsNeeded
                     foreach (string techName in leafTechsNeeds)
-                        AddRange(shipData.TechsNeeded, techParentTechs[techName]);
+                        AddRange(shipData.TechsNeeded, techTreePaths[techName]);
 
                     // also add techs from basehull (already full tree)
                     AddRange(shipData.TechsNeeded, shipData.BaseHull.TechsNeeded);
