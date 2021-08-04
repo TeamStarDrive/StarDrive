@@ -8,18 +8,27 @@ namespace Ship_Game.Ships
         // This is the light speed threshold
         // Warp ships cannot go slower than this
         public const float LightSpeedConstant = 3000f;
+
         /// <summary> This is point at which relativistic effects begin to reduce targeting ability </summary>
         public const float TargetErrorFocalPoint = 2300;
+
         // This is the maximum STL speed that ships can achieve
         // This is both for balancing and for realism, since sub-light
         // ships should not get even close to light speed
         public const float MaxSubLightSpeed = 1500f;
+
         // Limit in Turn Speed in Radians
         public const float MaxTurnRadians = 3.14159f;
+
+        // Ship is trying to enter Warp
         public bool IsSpooling { get; private set; }
-        public float InhibitedTimer;
-        public bool Inhibited { get; private set; }
-        public bool InhibitedByEnemy { get; private set; }
+
+        // Timer for doing Warp Inhibit checks
+        // Setting a default value here to reduce impact of ship respawn loops.
+        public float InhibitedCheckTimer = 0.1f;
+
+        public InhibitionType InhibitionSource { get; protected set; }
+        public bool Inhibited { get; protected set; }
         public MoveState engineState;
 
          // [0.0 to 1.0], current Warp thrust percentage
@@ -61,13 +70,13 @@ namespace Ship_Game.Ships
 
         public void EngageStarDrive() // added by gremlin: Fighter recall and stuff
         {
-            var warpStatus = ShipEngines.ReadyForFormationWarp;
-
+            Status warpStatus = ShipEngines.ReadyForFormationWarp;
             if (warpStatus <= Status.Poor)
             {
-                if (warpStatus == Status.Critical) HyperspaceReturn();
+                if (warpStatus == Status.Critical)
+                    HyperspaceReturn();
             }
-            else if (!IsSpoolingOrInWarp)
+            else if (!IsSpoolingOrInWarp && !Inhibited)
             {
                 IsSpooling = true;
                 ResetJumpTimer();
@@ -91,7 +100,6 @@ namespace Ship_Game.Ships
                 VelocityMaximum = MaxSTLSpeed;
                 SpeedLimit      = VelocityMaximum;
             }
-
         }
 
         // Used for Remnant portal exit
@@ -106,43 +114,69 @@ namespace Ship_Game.Ships
 
         Vector3 GetWarpEffectPosition() => Position.ToVec3();
 
-        void UpdateHyperspaceInhibited(FixedSimTime timeStep)
+        /// Checks whether the ship is in warp Inhibition zone
+        /// @return TRUE if ship is inhibited
+        protected bool UpdateHyperspaceInhibited(FixedSimTime timeStep, bool warpingOrSpooling)
         {
-            InhibitedTimer -= timeStep.FixedTime;
-            if (InhibitedTimer <= 0f) // timer has run out, lets do the expensive inhibit check
+            InhibitedCheckTimer -= timeStep.FixedTime;
+
+            if (InhibitedCheckTimer <= 0f)
             {
-                // if we're inside a system, check every frame
+                if (RandomEventManager.ActiveEvent?.InhibitWarp == true)
+                {
+                    SetWarpInhibited(source: InhibitionType.GlobalEvent, secondsToInhibit: 5f);
+                    return true;
+                }
                 if (System != null && IsInhibitedByUnfriendlyGravityWell)
                 {
-                    InhibitedTimer = 0.5f;
+                    SetWarpInhibited(source: InhibitionType.GravityWell, secondsToInhibit: 1f);
+                    return true;
+                }
+                if (IsInhibitedFromEnemyShips())
+                {
+                    SetWarpInhibited(source: InhibitionType.EnemyShip, secondsToInhibit: 5f);
+                    return true;
                 }
 
-                Inhibited = InhibitedTimer > 0f;
-            }
-            // already inhibited, just wait for the timer to run out before checking again
-            else
-            {
-                // @note InhibitedTimer might be set from where ever
-                Inhibited = true;
-            }
+                // nothing is inhibiting so reset timer and states
+                Inhibited = false;
+                InhibitionSource = InhibitionType.None;
 
-            if (IsSpoolingOrInWarp && (Inhibited || MaxFTLSpeed < LightSpeedConstant))
-                HyperspaceReturn();
+                // set the next inhibition check time
+                // when we are warp, timer=0 because we need to check every frame
+                InhibitedCheckTimer = warpingOrSpooling ? 0f : Stats.FTLSpoolTime;
+                return false;
+            }
+            return Inhibited;
+        }
+
+        public enum InhibitionType
+        {
+            None,
+            GlobalEvent,
+            GravityWell,
+            EnemyShip
+        }
+
+        /// Sets the ship as inhibited
+        public void SetWarpInhibited(InhibitionType source, float secondsToInhibit)
+        {
+            Inhibited = true;
+            InhibitionSource = source;
+            InhibitedCheckTimer = secondsToInhibit;
         }
 
         // TODO: move this to ship engines.
         public void UpdateWarpSpooling(FixedSimTime timeStep)
         {
-            if (!IsSpooling || Inhibited || MaxFTLSpeed < LightSpeedConstant) return;
-
             JumpTimer -= timeStep.FixedTime;
 
             if (ShipEngines.ReadyForFormationWarp < Status.Poor)
             {
-                Log.Info($"ship not ready for warp but spool timer was activated.\n " +
-                            $"               warp Status: {ShipEngines.ReadyForFormationWarp} \n " +
-                            $"               Fleet:       {fleet}\n " +
-                            $"               Ship:        {this} ");
+                Log.Info("ship not ready for warp but spool timer was activated.\n " +
+                        $"               warp Status: {ShipEngines.ReadyForFormationWarp} \n " +
+                        $"               Fleet:       {fleet}\n " +
+                        $"               Ship:        {this} ");
             }
             else
             {
@@ -170,26 +204,22 @@ namespace Ship_Game.Ships
         }
 
         // todo: Move to action queue
-        void UpdateInhibitedFromEnemyShips()
+        bool IsInhibitedFromEnemyShips()
         {
-            InhibitedByEnemy = false;
-            foreach (Empire e in EmpireManager.Empires)
+            for (int x = 0; x < EmpireManager.Empires.Count; x++)
             {
+                Empire e = EmpireManager.Empires[x];
                 if (e.WillInhibit(loyalty))
                 {
                     for (int i = 0; i < e.Inhibitors.Count; ++i)
                     {
                         Ship ship = e.Inhibitors[i];
                         if (ship != null && Position.InRadius(ship.Position, ship.InhibitionRadius))
-                        {
-                            Inhibited = true;
-                            InhibitedByEnemy = true;
-                            InhibitedTimer = 5f;
-                            return;
-                        }
+                            return true;
                     }
                 }
             }
+            return false;
         }
 
         /// <summary>

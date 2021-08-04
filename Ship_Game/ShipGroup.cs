@@ -43,7 +43,10 @@ namespace Ship_Game
         // WORK IN PROGRESS
         protected readonly Stack<FleetGoal> GoalStack = new Stack<FleetGoal>();
 
-        // cached average position of the fleet
+        /// <summary>
+        /// Cached average position of the fleet.
+        /// The average pos is the command ship's pos, if exists
+        /// </summary>
         protected Vector2 AveragePos;
 
         // entire ship group average offset from [0,0]

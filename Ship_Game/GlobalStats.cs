@@ -42,7 +42,6 @@ namespace Ship_Game
         public static object ClickableSystemsLock = new object();
         public static object ClickableItemLocker  = new object();
         public static object FleetButtonLocker    = new object();
-        public static object BeamEffectLocker     = new object();
 
         public static bool ShowAllDesigns        = true;
         public static bool SymmetricDesign       = true;
@@ -92,6 +91,9 @@ namespace Ship_Game
         public static bool NotifyEnemyInSystemAfterLoad = true;
         public static bool EnableEngineTrails = true;
 
+        // Puts an absolute limit to dynamic lights in scenes
+        public static int MaxDynamicLightSources = 100;
+
         public static int AutoSaveFreq = 300;   //Added by Gretman
         public static ExtraRemnantPresence ExtraRemnantGS;
 
@@ -104,6 +106,7 @@ namespace Ship_Game
         public static bool ShipListFilterNotInFleets;
         public static bool DisableInhibitionWarning = true;
         public static bool DisableVolcanoWarning;
+        public static bool UseUpkeepByHullSize;
 
         public static int CameraPanSpeed    = 2;
         public static float DamageIntensity = 1;
@@ -309,6 +312,7 @@ namespace Ship_Game
             GetSetting("LimitSpeed",           ref LimitSpeed);
             GetSetting("DisableAsteroids",     ref DisableAsteroids);
             GetSetting("EnableEngineTrails",   ref EnableEngineTrails);
+            GetSetting("MaxDynamicLightSources", ref MaxDynamicLightSources);
             GetSetting("SimulationFramesPerSecond", ref SimulationFramesPerSecond);
             GetSetting("NotifyEnemyInSystemAfterLoad", ref NotifyEnemyInSystemAfterLoad);
         }
@@ -349,6 +353,7 @@ namespace Ship_Game
             WriteSetting(config, "LimitSpeed",          LimitSpeed);
             WriteSetting(config, "DisableAsteroids",    DisableAsteroids);
             WriteSetting(config, "EnableEngineTrails",  EnableEngineTrails);
+            WriteSetting(config, "MaxDynamicLightSources", MaxDynamicLightSources);
             WriteSetting(config, "SimulationFramesPerSecond", SimulationFramesPerSecond);
             WriteSetting(config, "NotifyEnemyInSystemAfterLoad", NotifyEnemyInSystemAfterLoad);
 

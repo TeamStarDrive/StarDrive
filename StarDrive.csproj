@@ -215,6 +215,7 @@
     <Compile Include="Ship_Game\AI\EmpireAI\Compnonents\BudgetPriorities.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\MapSerializer.cs" />
     <Compile Include="Ship_Game\Debug\Page\ParticleDebug.cs" />
+    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\RelationshipsDiagramScreen.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\IParticleSystem.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\ParticleManager.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\ParticleSettings.cs" />
@@ -290,7 +291,10 @@
     <Compile Include="Ship_Game\Ships\ShipDataWriter.cs" />
     <Compile Include="Ship_Game\Ships\ShipHull.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Events.cs" />
+    <Compile Include="Ship_Game\Ships\Ship_PowerCalc.cs" />
+    <Compile Include="Ship_Game\UI\UILine.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Save.cs" />
+    <Compile Include="Ship_Game\Utils\BitArray.cs" />
     <Compile Include="Ship_Game\Utils\ChangePendingList.cs" />
     <Compile Include="Ship_Game\Utils\DetachedList.cs" />
     <Compile Include="Ship_Game\Data\InterningStringConverter.cs" />
@@ -625,6 +629,7 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Generate.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Govern.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Resources.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Serialization.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_WeCanAffordThis.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_WorkDistribution.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\SBProduction.cs" />
@@ -691,6 +696,7 @@
     </Compile>
     <Compile Include="Ship_Game\Utils\SafeArrayBase.cs" />
     <Compile Include="Ship_Game\Utils\SafeArrayLock.cs" />
+    <Compile Include="Ship_Game\Utils\ChangePendingListSafe.cs" />
     <Compile Include="Ship_Game\Utils\SafeQueue.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadSaveItems\SaveNewGameSetupScreen.cs" />
     <Compile Include="Ship_Game\SetupSave.cs" />
@@ -1070,10 +1076,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\VariableUIElement.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Billboard.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1703,7 +1705,8 @@
 powershell -ExecutionPolicy Bypass -File $(SolutionDir)CopyGameContent.ps1  $(SolutionDir)  $(SolutionDir)StarDrive\  COPYMODS
 
 if "$(ConfigurationName)" == "Deploy"  (
-  $(SolutionDir)Deploy\MakeInstaller.cmd $(SolutionDir)
+  :: run the installer generator script with Python 3
+  py -3 $(SolutionDir)Deploy\MakeInstaller.py $(SolutionDir)
 )
 </PostBuildEvent>
   </PropertyGroup>

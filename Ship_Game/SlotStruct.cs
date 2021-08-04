@@ -15,8 +15,6 @@ namespace Ship_Game
         public Vector2 XMLPos;
         public float Facing; // Facing is the turret aiming dir
         public ModuleOrientation Orientation; // Orientation controls the visual 4-dir rotation of module
-        public bool PowerChecked; // this conduit or power plant already checked?
-        public bool InPowerRadius; // is this slot covered by a power radius?
         public SlotStruct Parent;
         public string ModuleUID;
         public ShipModule Module;
@@ -92,11 +90,8 @@ namespace Ship_Game
             sb.Draw(texture, rect, tint);
         }
 
-        [XmlIgnore][JsonIgnore] public Vector2 PosVec2      => new Vector2(PQ.X, PQ.Y);
-        [XmlIgnore][JsonIgnore] public Vector2 ModuleCenter => new Vector2(PQ.X + PQ.W/2, PQ.Y + PQ.H/2);
-
-        [XmlIgnore][JsonIgnore] public Point Position   => new Point(PQ.X, PQ.Y);
-        [XmlIgnore][JsonIgnore] public Point ModuleSize => new Point(PQ.W, PQ.H);
+        [XmlIgnore][JsonIgnore] public Vector2 PosVec2 => new Vector2(PQ.X, PQ.Y);
+        [XmlIgnore][JsonIgnore] public Point Position => new Point(PQ.X, PQ.Y);
 
         // Width and Height in 1x1, 2x2, etc
         [XmlIgnore][JsonIgnore] public int Width  => PQ.W/16;

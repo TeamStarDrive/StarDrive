@@ -216,7 +216,7 @@ namespace Ship_Game.Ships
                         }
 
                         // draw the debug x/y pos
-                        ModulePosToGridPoint(slot.GetLegacyGridPos(), out int x, out int y);
+                        ModulePosToGridPoint(slot, out int x, out int y);
                         sc.DrawString(posOnScreen, shipRotation, 600f / camHeight, Color.Red, $"X{x} Y{y}\nF{slotFacing}");
                     }
                 }
@@ -317,19 +317,22 @@ namespace Ship_Game.Ships
             offSet.X += size * 1.2f;
         }
 
-        public void RenderOverlay(SpriteBatch batch, Rectangle drawRect, bool showModules, bool moduleHealthColor = true)
+        public void RenderOverlay(SpriteBatch batch, Rectangle drawRect, 
+                                  bool showModules, bool moduleHealthColor = true)
         {
             ShipData hullData = shipData.BaseHull;
-            bool drawIcon = !showModules || ModuleSlotList.Length == 0;
-            if (drawIcon && hullData.SelectionGraphic.NotEmpty()) // draw ship icon plus shields
+
+            bool drawIconOnly = !showModules || ModuleSlotList.Length == 0;
+            if (drawIconOnly && hullData.SelectionGraphic.NotEmpty()) // draw ship icon plus shields
             {
                 Rectangle destRect = drawRect;
                 destRect.X += 2;
-                batch.Draw(ResourceManager.Texture("SelectionBox Ships/" + hullData.SelectionGraphic), destRect, Color.White);
+                string icon = "SelectionBox Ships/" + hullData.SelectionGraphic;
+                batch.Draw(ResourceManager.Texture(icon), destRect, Color.White);
                 if (shield_power > 0.0)
                 {
-                    byte alpha = (byte)(shield_percent * 255.0f);
-                    batch.Draw(ResourceManager.Texture("SelectionBox Ships/" + hullData.SelectionGraphic + "_shields"), destRect, new Color(Color.White, alpha));
+                    batch.Draw(ResourceManager.Texture(icon + "_shields"), destRect,
+                               new Color(Color.White, (float)shield_percent));
                 }
                 return;
             }
@@ -347,7 +350,8 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
                 ShipModule m = ModuleSlotList[i];
-                Vector2 modulePos = (m.Position - GridOrigin) / 16f * moduleSize;
+                ModulePosToGridPoint(m, out int x, out int y);
+                Vector2 modulePos = new Vector2(x, y) * moduleSize;
                 Color healthColor = moduleHealthColor ? m.GetHealthStatusColor() : new Color(40, 40, 40);
                 Color moduleColorMultiply = healthColor.AddRgb(moduleHealthColor ? 0.66f : 1);
                 var rect = new Rectangle(shipDrawRect.X + (int)modulePos.X,

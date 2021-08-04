@@ -13,6 +13,8 @@ namespace Ship_Game.Ships
         ShipModule[] ModuleSlotList;
         ShipModule[] SparseModuleGrid;   // single dimensional grid, for performance reasons
         ShipModule[] ExternalModuleGrid; // only contains external modules
+        public PowerGrid PwrGrid;
+
         public int NumExternalSlots { get; private set; }
 
         /// <summary>  Ship slot (1x1 modules) width </summary>
@@ -20,12 +22,13 @@ namespace Ship_Game.Ships
         
         /// <summary>Ship slot (1x1 modules) height </summary>
         public int GridHeight { get; private set; }
-        Vector2 GridOrigin; // local origin, eg -32, -48
+        protected Vector2 GridOrigin; // local origin, eg -32, -48
         
         static bool EnableDebugGridExport = false;
 
         public ShipModule[] Modules => ModuleSlotList;
         public bool HasModules => ModuleSlotList != null && ModuleSlotList.Length != 0;
+
 
         void CreateModuleGrid(in ShipGridInfo gridInfo, bool shipyardDesign)
         {
@@ -53,6 +56,7 @@ namespace Ship_Game.Ships
             GridHeight = info.Size.Y;
             SparseModuleGrid   = new ShipModule[GridWidth * GridHeight];
             ExternalModuleGrid = new ShipModule[GridWidth * GridHeight];
+            PwrGrid = new PowerGrid(SparseModuleGrid, GridWidth, GridHeight, GridOrigin);
 
             // Ship's true radius is half of Module Grid's Diagonal Length
             Radius = 0.5f * gridInfo.Span.Length();
@@ -110,7 +114,7 @@ namespace Ship_Game.Ships
 
         bool IsModuleOverlappingInternalSlot(ShipModule module, bool[] internalGrid)
         {
-            ModulePosToGridPoint(module.GetLegacyGridPos(), out int x, out int y);
+            ModulePosToGridPoint(module, out int x, out int y);
             int endX = x + module.XSIZE;
             int endY = y + module.YSIZE;
             for (; y < endY; ++y)
@@ -189,7 +193,7 @@ namespace Ship_Game.Ships
             if (!GetModuleAt(SparseModuleGrid, x, y, out ShipModule module))
                 return false;
 
-            ModulePosToGridPoint(module.GetLegacyGridPos(), out x, out y); // now get the true topleft root coordinates of module
+            ModulePosToGridPoint(module, out x, out y); // now get the true topleft root coordinates of module
             if (ShouldBeExternal(x, y, module))
             {
                 if (!module.isExternal)
@@ -220,7 +224,7 @@ namespace Ship_Game.Ships
         // updates the isExternal status of a module, depending on whether it died or resurrected
         public void UpdateExternalSlots(ShipModule module, bool becameActive)
         {
-            ModulePosToGridPoint(module.GetLegacyGridPos(), out int x, out int y);
+            ModulePosToGridPoint(module, out int x, out int y);
 
             if (becameActive) // we resurrected, so add us to external module grid and update all surrounding slots
                 AddExternalModule(module, x, y, GetQuadrantEstimate(x, y));
@@ -243,7 +247,7 @@ namespace Ship_Game.Ships
 
         void UpdateGridSlot(ShipModule[] sparseGrid, ShipModule module, bool becameActive)
         {
-            ModulePosToGridPoint(module.GetLegacyGridPos(), out int x, out int y);
+            ModulePosToGridPoint(module, out int x, out int y);
             UpdateGridSlot(sparseGrid, x, y, module, becameActive);
         }
 
@@ -254,11 +258,23 @@ namespace Ship_Game.Ships
             y = (int)Math.Floor(offset.Y / 16f);
         }
 
+        void ModulePosToGridPoint(ShipModule m, out int x, out int y)
+        {
+            Vector2 offset = m.GetLegacyGridPos() - GridOrigin;
+            x = (int)Math.Floor(offset.X / 16f);
+            y = (int)Math.Floor(offset.Y / 16f);
+        }
+
         // safe and fast module lookup by x,y where coordinates (0,1) (2,1) etc
         bool GetModuleAt(ShipModule[] sparseGrid, int x, int y, out ShipModule module)
         {
             module = (uint)x < GridWidth && (uint)y < GridHeight ? sparseGrid[x + y * GridWidth] : null;
             return module != null;
+        }
+
+        public ShipModule GetModuleAt(Point gridPos)
+        {
+            return SparseModuleGrid[gridPos.X + gridPos.Y*GridWidth];
         }
 
         static void DebugDrawShield(ShipModule s)

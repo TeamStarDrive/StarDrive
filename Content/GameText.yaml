@@ -10243,6 +10243,36 @@ NotifyCapitalTransfer:
 TerraformersUnknownOrigin:
  Id: 4346
  ENG: "Unknown Origin"
+NonaggressionPact3:
+ Id: 4347
+ ENG: "Non Aggression"
+OpenBordersTreaty2:
+ Id: 4348
+ ENG: "Open Borders"
+EmpireRelationships:
+ Id: 4349
+ ENG: "Empire Relationships Cross Reference"
+ViewWarsOrAlliancesName:
+ Id: 4350
+ ENG: "View Wars or Alliances"
+ViewWarsOrAlliancesTip:
+ Id: 4351
+ ENG: "Filters out non War or Alliances links"
+ViewTradeTreatiesName:
+ Id: 4352
+ ENG: "View Trade Treaties"
+ViewTradeTreatiesTip:
+ Id: 4353
+ ENG: "Enable or disable trade treaties view"
+DeclaredWarOnUsBecause:
+ Id: 4354
+ ENG: "declared war on us because they were requsted\nto do so by their ally -"
+RuleOptionsUseHullUpkeepName:
+ Id: 4355
+ ENG: "Use Upkeep by Hull Size"
+RuleOptionsUseHullUpkeepTip:
+ Id: 4356
+ ENG: "Normally, ship upkeep is calculated as a fraction of the ship's cost (with some modifiers). When using Hull Size Based Upkeep, the upkeep of the ship will be 1% of the number of slot it has (Fightger Hangar size is added as well), regardless of cost. This will let you build advanced ships with the same upkeep as less advanced ships with identical size, but the AI will be able to do so as well"
 OnSurface:
  Id: 4993
  ENG: "on surface"
@@ -12157,3 +12187,7 @@ EngineTrails:
  ENG: "Enable engine trails"
 TT_EngineTrails:
  ENG: "This will enable engine trails for moving ships, disabling this will improve performance"
+MaxDynamicLightSources:
+ ENG: "Max Dynamic Light Sources"
+TT_MaxDynamicLightSources:
+ ENG: "This will set an upper bound limit for dynamic 3D Light Sources for projectile hits or explosions. Setting this lower will greatly improve performance during battles.\n\nSetting to 0 will disable Dynamic Light Sources"

@@ -392,13 +392,14 @@ namespace Ship_Game.AI
             if (Owner.AI.State != AIState.Resupply && Owner.AI.State != AIState.ResupplyEscort)
                 return;
 
-            if (!Owner.Supply.DoneResupplying(supplyType))
+            if (!Owner.Supply.DoneResupplying(supplyType) && !Owner.AI.BadGuysNear)
             {
                 if (State != AIState.ResupplyEscort || EscortTarget?.SupplyShipCanSupply == true)
                     return;
             }
 
             DequeueCurrentOrder();
+            ExitCombatState();
             Owner.AI.SetPriorityOrder(false);
             Owner.AI.IgnoreCombat = false;
             if (Owner.fleet != null)
@@ -489,8 +490,8 @@ namespace Ship_Game.AI
                 case Plan.Rebase:                   DoLandTroop(timeStep, goal);              break;
                 case Plan.DefendSystem:             DoSystemDefense(timeStep);                break;
                 case Plan.DoCombat:                 DoCombat(timeStep);                       break;
-                case Plan.DeployStructure:          DoDeploy(goal);                           break;
-                case Plan.DeployOrbital:            DoDeployOrbital(goal);                    break;
+                case Plan.DeployStructure:          DoDeploy(goal, timeStep);                 break;
+                case Plan.DeployOrbital:            DoDeployOrbital(goal, timeStep);          break;
                 case Plan.PickupGoods:              PickupGoods.Execute(timeStep, goal);      break;
                 case Plan.DropOffGoods:             DropOffGoods.Execute(timeStep, goal);     break;
                 case Plan.ReturnToHangar:           DoReturnToHangar(timeStep);               break;

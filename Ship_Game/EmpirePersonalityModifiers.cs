@@ -24,6 +24,7 @@ namespace Ship_Game
         public readonly float GoToWarTolerance; // How stronger then them should we be in order to go to war when preparing
         public readonly float DoomFleetThreshold; // If over this threshold, the AI will send a fleet to glass the target planet
         public readonly float WarTasksLifeTime; // How many turns to keep trying fleet requisition before timeout, 1f is 10 turns
+        public readonly int WarSneakiness; // modifier to prepare for war detection by the player (player will need better spy network to detect war plot)
 
         public PersonalityModifiers(PersonalityType type)
         {
@@ -40,7 +41,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 0;
                     DefenseTaskWeight     = 2;
                     FleetStrMultiplier    = 1;
-                    FederationPopRatioWar = 1.5f;
+                    FederationPopRatioWar = 2f;
                     DoomFleetThreshold    = 2;
                     AssaultBomberRatio    = 0.5f;
                     AllyCallToWarRatio    = 1.2f;
@@ -50,6 +51,7 @@ namespace Ship_Game
                     GoToWarTolerance      = 1.5f;
                     WarTasksLifeTime      = 1;
                     TrustCostNaPact       = 0;
+                    WarSneakiness         = 0;
                     break;
                 case PersonalityType.Aggressive:
                     ColonizationClaimRatioWarningThreshold = 0.7f;
@@ -62,7 +64,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 50;
                     DefenseTaskWeight     = 4f;
                     FleetStrMultiplier    = 1.4f;
-                    FederationPopRatioWar = 1.25f;
+                    FederationPopRatioWar = 1.6f;
                     DoomFleetThreshold    = 1.5f;
                     AssaultBomberRatio    = 0.75f;
                     AllyCallToWarRatio    = 1.15f;
@@ -72,6 +74,7 @@ namespace Ship_Game
                     TechValueModifier     = 1.05f;
                     WarTasksLifeTime      = 3;
                     GoToWarTolerance      = 1.1f;
+                    WarSneakiness         = 5;
                     break;
                 case PersonalityType.Ruthless:
                     ColonizationClaimRatioWarningThreshold = 0.6f;
@@ -84,7 +87,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 25;
                     DefenseTaskWeight     = 6;
                     FleetStrMultiplier    = 1.3f;
-                    FederationPopRatioWar = 1.2f;
+                    FederationPopRatioWar = 1.5f;
                     DoomFleetThreshold    = 1f;
                     AssaultBomberRatio    = 1;
                     AllyCallToWarRatio    = 1.2f;
@@ -94,6 +97,7 @@ namespace Ship_Game
                     TechValueModifier     = 1.1f;
                     WarTasksLifeTime      = 2.5f;
                     GoToWarTolerance      = 1.15f;
+                    WarSneakiness         = 0;
                     break;
                 case PersonalityType.Xenophobic:
                     ColonizationClaimRatioWarningThreshold = 0;
@@ -106,7 +110,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 100;
                     DefenseTaskWeight     = 7;
                     FleetStrMultiplier    = 1.05f;
-                    FederationPopRatioWar = 1.45f;
+                    FederationPopRatioWar = 1.7f;
                     DoomFleetThreshold    = 1.75f;
                     AllyCallToWarRatio    = 1.1f;
                     AssaultBomberRatio    = 0.5f;
@@ -116,6 +120,7 @@ namespace Ship_Game
                     TechValueModifier     = 1.2f;
                     WarTasksLifeTime      = 2.5f;
                     GoToWarTolerance      = 1.5f;
+                    WarSneakiness         = 0;
                     break;
                 case PersonalityType.Cunning:
                     ColonizationClaimRatioWarningThreshold = 1;
@@ -128,7 +133,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 0;
                     DefenseTaskWeight     = 8;
                     FleetStrMultiplier    = 0.95f;
-                    FederationPopRatioWar = 1.2f;
+                    FederationPopRatioWar = 1.5f;
                     DoomFleetThreshold    = 2;
                     AssaultBomberRatio    = 0.8f;
                     AllyCallToWarRatio    = 1.25f;
@@ -138,6 +143,7 @@ namespace Ship_Game
                     TechValueModifier     = 1.1f;
                     WarTasksLifeTime      = 2;
                     GoToWarTolerance      = 1.5f;
+                    WarSneakiness         = 10;
                     break;
                 case PersonalityType.Honorable:
                     ColonizationClaimRatioWarningThreshold = 1;
@@ -150,7 +156,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 75;
                     DefenseTaskWeight     = 9;
                     FleetStrMultiplier    = 1f;
-                    FederationPopRatioWar = 1.25f;
+                    FederationPopRatioWar = 1.45f;
                     DoomFleetThreshold    = 2.5f;
                     AssaultBomberRatio    = 0.6f;
                     AllyCallToWarRatio    = 1f;
@@ -160,6 +166,7 @@ namespace Ship_Game
                     TechValueModifier     = 1;
                     WarTasksLifeTime      = 3;
                     GoToWarTolerance      = 1.1f;
+                    WarSneakiness         = -10;
                     break;
                 case PersonalityType.Pacifist:
                     ColonizationClaimRatioWarningThreshold = 1.25f;
@@ -172,7 +179,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 0;
                     DefenseTaskWeight     = 10;
                     FleetStrMultiplier    = 0.9f;
-                    FederationPopRatioWar = 1.1f;
+                    FederationPopRatioWar = 1.4f;
                     DoomFleetThreshold    = 3;
                     AssaultBomberRatio    = 0.5f;
                     AllyCallToWarRatio    = 1.35f;
@@ -182,6 +189,7 @@ namespace Ship_Game
                     TechValueModifier     = 1;
                     WarTasksLifeTime      = 1.5f;
                     GoToWarTolerance      = 2f;
+                    WarSneakiness         = -5;
                     break;
             }
         }

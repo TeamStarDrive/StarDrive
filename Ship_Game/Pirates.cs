@@ -239,7 +239,7 @@ namespace Ship_Game
             if (Level == MaxLevel)
                 return;
 
-            int dieRoll = Level * DifficultyMultiplier() * (int)CurrentGame.Pace;
+            int dieRoll = (int)(Level * CurrentGame.Pace + EmpireManager.ActiveMajorEmpires.Length / 2f);
             if (alwaysLevelUp || RandomMath.RollDie(dieRoll) == 1)
             {
                 int newLevel = Level + 1;
@@ -252,12 +252,6 @@ namespace Ship_Game
             }
         }
 
-        int DifficultyMultiplier()
-        {
-            int max = (int)Enum.GetValues(typeof(UniverseData.GameDifficulty)).Cast<UniverseData.GameDifficulty>().Max() + 1;
-            return (max - (int)CurrentGame.Difficulty).LowerBound(1);
-        }
-
         void AlertPlayerAboutPirateOps(PirateOpsWarning warningType)
         {
             if (!Owner.IsKnown(EmpireManager.Player))
@@ -265,7 +259,7 @@ namespace Ship_Game
 
             float espionageStr = EmpireManager.Player.GetSpyDefense();
             if (espionageStr <= Level)
-                return; // not enough espionage strength to learn about pirate activities
+                return; // Not enough espionage strength to learn about pirate activities
 
             switch (warningType)
             {
@@ -686,7 +680,7 @@ namespace Ship_Game
                 switch (type)
                 {
                     case TargetType.Shipyard         when ship.shipData.IsShipyard:
-                    case TargetType.FreighterAtWarp  when IsFreighterAtWarpNoOwnedSystem(ship):
+                    case TargetType.FreighterAtWarp  when IsFreighterNoOwnedSystem(ship):
                     case TargetType.CombatShipAtWarp when IsCombatShipAtWarp(ship):
                     case TargetType.Station          when ship.IsStation:
                     case TargetType.Platform         when ship.IsPlatform:
@@ -700,10 +694,9 @@ namespace Ship_Game
             target = targets.RandItem();
             return target != null;
 
-            bool IsFreighterAtWarpNoOwnedSystem(Ship ship)
+            bool IsFreighterNoOwnedSystem(Ship ship)
             {
-                return (ship.isColonyShip || ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) 
-                       && ship.IsInWarp 
+                return (ship.isColonyShip || ship.IsFreighter && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) 
                        && (ship.System == null || !ship.System.HasPlanetsOwnedBy(ship.loyalty));
             }
 
