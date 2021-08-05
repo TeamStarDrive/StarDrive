@@ -53,9 +53,11 @@ namespace Ship_Game.GameScreens.NewGame
             var techParentTechs = new Map<string, string[]>();
             foreach (Technology tech in ResourceManager.TechTree.Values)
             {
-                string[] techs = new string[tech.Parents.Length + 1];
+                int numParents = tech.Parents.Length;
+                string[] techs = new string[numParents == 0 ? 1 : numParents];
                 techs[0] = tech.UID;
-                for (int i = 0; i < tech.Parents.Length; ++i)
+                // NOTE: we include the last tech, since it's always the ROOT node
+                for (int i = 0; i < numParents - 1; ++i)
                     techs[i + 1] = tech.Parents[i].UID;
 
                 techParentTechs[tech.UID] = techs;
@@ -85,7 +87,7 @@ namespace Ship_Game.GameScreens.NewGame
 
                 hull.UnLockable = false;
 
-                if (hullUnlocks.TryGetValue(hull.Name, out string requiredTech))
+                if (hullUnlocks.TryGetValue(hull.Hull, out string requiredTech))
                 {
                     hull.UnLockable = true;
                     AddRange(hull.TechsNeeded, techTreePaths[requiredTech]);
