@@ -437,7 +437,7 @@ namespace Ship_Game
                 return false;
 
             int numPlanetsToTake = Level <= 10 
-                ? Level.UpperBound(5)  // Increase distance spread of checks by level
+                ? Level.UpperBound(10)  // Increase distance spread of checks by level
                 : (MaxLevel - Level).Clamped(2, 10); // Decrease spread to focus on quality targets
 
             if (Level <= 5) // Level 5 or below will go for closest planets to the portal
