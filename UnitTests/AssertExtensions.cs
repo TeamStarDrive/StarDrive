@@ -127,15 +127,15 @@ namespace UnitTests
                 throw new AssertFailedException($"Expected null does not match Actual {actual}. {message}");
             }
 
-            if (expected.Count != actual.Count)
-                throw new AssertFailedException(
-                    $"Expected.Length {expected.Count} does not match Actual.Length {actual.Count}. {message}");
-
-            object[] e = ToArray(expected);
-            object[] a = ToArray(actual);
-
             try
             {
+                if (expected.Count != actual.Count)
+                    throw new AssertFailedException(
+                        $"Expected.Length {expected.Count} does not match Actual.Length {actual.Count}. {message}");
+
+                object[] e = ToArray(expected);
+                object[] a = ToArray(actual);
+
                 for (int i = 0; i < e.Length; ++i)
                 {
                     assert.Equal(e[i], a[i], message);
