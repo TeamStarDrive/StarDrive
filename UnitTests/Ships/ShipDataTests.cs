@@ -28,12 +28,9 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.IconPath, b.IconPath);
             Assert.AreEqual(a.ModelPath, b.ModelPath);
 
-            Assert.AreEqual(a.Level, b.Level);
-            Assert.AreEqual(a.experience, b.experience);
             Assert.AreEqual(a.EventOnDeath, b.EventOnDeath);
             Assert.AreEqual(a.SelectionGraphic, b.SelectionGraphic);
 
-            Assert.AreEqual(a.MechanicalBoardingDefense, b.MechanicalBoardingDefense);
             Assert.AreEqual(a.FixedUpkeep, b.FixedUpkeep);
             Assert.AreEqual(a.FixedCost, b.FixedCost);
             Assert.AreEqual(a.Animated, b.Animated);
@@ -41,11 +38,11 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.IsOrbitalDefense, b.IsOrbitalDefense);
             Assert.AreEqual(a.CarrierShip, b.CarrierShip);
 
-            Assert.AreEqual(a.CombatState, b.CombatState);
             Assert.AreEqual(a.Role, b.Role);
             Assert.AreEqual(a.ShipCategory, b.ShipCategory);
             Assert.AreEqual(a.HangarDesignation, b.HangarDesignation);
             Assert.AreEqual(a.DefaultAIState, b.DefaultAIState);
+            Assert.AreEqual(a.DefaultCombatState, b.DefaultCombatState);
 
             Assert.AreEqual(a.ThrusterList.Length, b.ThrusterList.Length);
             for (int i = 0; i < a.ThrusterList.Length; ++i)
@@ -58,7 +55,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.GridInfo.Size.X, b.GridInfo.Size.X);
             Assert.AreEqual(a.GridInfo.Size.Y, b.GridInfo.Size.Y);
 
-            Assert.AreEqual(a.BaseStrength, b.BaseStrength);
             Assert.AreEqual(a.UnLockable, b.UnLockable);
             Assert.AreEqual(a.HullUnlockable, b.HullUnlockable);
             Assert.AreEqual(a.AllModulesUnlockable, b.AllModulesUnlockable);
@@ -91,7 +87,7 @@ namespace UnitTests.Ships
             if (path.EndsWith(".xml"))
             {
                 // one of the main changes, new designs have a specific module sorting order
-                Array.Sort(data.ModuleSlots, ModuleSlotData.Sorter);
+                Array.Sort(data.ModuleSlots, DesignSlot.Sorter);
             }
             return data;
         }

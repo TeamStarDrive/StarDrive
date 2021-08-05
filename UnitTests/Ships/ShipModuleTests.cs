@@ -29,6 +29,15 @@ namespace UnitTests.Ships
             Assert.AreEqual(expected.HangarShipUID, actual.HangarShipUID);
         }
 
+        public static void AssertAreEqual(ModuleSaveData expected, ModuleSaveData actual)
+        {
+            AssertAreEqual(expected as DesignSlot, actual as DesignSlot);
+
+            Assert.AreEqual(expected.Health, actual.Health);
+            Assert.AreEqual(expected.ShieldPower, actual.ShieldPower);
+            Assert.AreEqual(expected.HangarShip, actual.HangarShip);
+        }
+
         public static void AssertAreEqual(ModuleSlotData expected, ModuleSlotData actual)
         {
             Assert.AreEqual(expected.Position, actual.Position);
@@ -47,11 +56,12 @@ namespace UnitTests.Ships
             Assert.AreEqual(expected.Position, actual.Position);
             Assert.AreEqual(expected.UID, actual.UID);
             Assert.AreEqual(expected.HangarShipUID, actual.HangarShipUID);
-            Assert.AreEqual(expected.Health, actual.Health, 0.001f);
             Assert.AreEqual(expected.TurretAngle, actual.TurretAngle);
-            Assert.AreEqual(expected.ShieldPower, actual.ShieldPower, 0.001f);
             Assert.AreEqual(expected.ModuleRot, actual.ModuleRot);
-            Assert.AreEqual(expected.Restrictions, actual.Restrictions);
+            Assert.AreEqual(expected.Restrictions, actual.Restrictions); // TODO
+
+            Assert.AreEqual(expected.Health, actual.Health, 0.001f);
+            Assert.AreEqual(expected.ShieldPower, actual.ShieldPower, 0.001f);
             Assert.AreEqual(expected.HangarShipGuid, actual.HangarShipGuid);
         }
 
@@ -80,20 +90,18 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
-        public void SaveGame_ShipModule_To_ModuleSlotData()
+        public void SaveGame_ShipModule_To_ModuleSaveData()
         {
             var ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
 
-            var oData = new ModuleSaveData(new Vector2(64f, 128f), Restrictions.O, "FighterBay",
-                                           180f, ModuleOrientation.Rear.ToString(),
-                                           slotOptions:"Vulcan Scout"/*this is the expected hangarShipUID*/);
-            oData.Health = 555f;
-            var original = ShipModule.Create(oData, ship, false, fromSave: true);
+            var dData = new DesignSlot(new Point(4,8), "FighterBay", new Point(3,4), 180, ModuleOrientation.Rear, "Vulcan Scout");
+            var oData = new ModuleSaveData(dData, health:555, shieldPower:0, Guid.Empty);
+            var original = ShipModule.Create(oData, ship);
 
             var data = new ModuleSaveData(original);
             AssertAreEqual(oData, data);
 
-            var recreated = ShipModule.Create(data, ship, false, fromSave: true);
+            var recreated = ShipModule.Create(data, ship);
             AssertAreEqual(original, recreated);
         }
 

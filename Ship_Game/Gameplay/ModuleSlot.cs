@@ -96,6 +96,27 @@ namespace Ship_Game.Gameplay
                 && ModuleRot == s.ModuleRot
                 && HangarShipUID == s.HangarShipUID;
         }
+
+        /// <summary>
+        /// Sorter for DesignSlot[], orders DesignSlot grid in scanline order:
+        /// 0 1 2 3
+        /// 4 5 6 7
+        /// </summary>
+        public static int Sorter(DesignSlot a, DesignSlot b)
+        {
+            // Array.Sort bug in .NET 4.5.2:
+            if (object.ReferenceEquals(a, b))
+                return 0;
+
+            // first by scanline (Y axis)
+            if (a.Pos.Y < b.Pos.Y) return -1;
+            if (a.Pos.Y > b.Pos.Y) return +1;
+
+            // and then sort by column (X axis)
+            if (a.Pos.X < b.Pos.X) return -1;
+            if (a.Pos.X > b.Pos.X) return +1;
+            return 0;
+        }
     }
 
     /// <summary>
