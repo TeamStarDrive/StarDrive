@@ -96,6 +96,7 @@ namespace Ship_Game
 
         public UITextEntry(float x, float y, float width, float height, Graphics.Font font, in LocalizedText text)
         {
+            //public Graphics.Font Font = Fonts.Arial14Bold;
             Font = font;
             Text = text.Text;
             CursorPos = Text.Length;
@@ -202,6 +203,7 @@ namespace Ship_Game
                 pos.X += Font.TextWidth(substring);
                 batch.DrawString(Font, "|", pos, flashColor);
             }
+            batch.DrawLine(new Vector2(pos.X, pos.Y + Font.LineSpacing), new Vector2(pos.X, pos.Y + Font.LineSpacing), color.Alpha(0.2f), thickness: 1);
         }
 
         public override bool HandleInput(InputState input)
