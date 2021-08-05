@@ -61,9 +61,6 @@ namespace UnitTests.Ships
         [TestMethod]
         public void Simple3x2ShipModuleGrid()
         {
-            var localOrigin = new Vector2(64f);
-            Vector2 origin = localOrigin + new Vector2(ShipModule.ModuleSlotOffset);
-
             DesignSlot MakeDesignSlot(int x, int y, string uid, Restrictions r)
             {
                 return new DesignSlot(new Point(x,y), uid, new Point(1,1), 0, ModuleOrientation.Normal, null);
@@ -80,19 +77,15 @@ namespace UnitTests.Ships
             };
 
             Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
-            ShipModule[] modules = design.Select(slot => ShipModule.Create(slot, ship, false, false));
+            ShipModule[] modules = design.Select(slot => ShipModule.Create(slot, ship, false));
 
             var gridInfo = new ShipGridInfo(modules);
-            Assert.AreEqual(localOrigin, gridInfo.Origin);
             Assert.AreEqual(4, gridInfo.SurfaceArea);
-            Assert.AreEqual(new Vector2(48f, 32f), gridInfo.Span);
             Assert.AreEqual(new Point(3, 2), gridInfo.Size);
 
             var grid = new ModuleGrid<ShipModule>(gridInfo, modules);
-            Assert.AreEqual(4,                     gridInfo.SurfaceArea);
-            Assert.AreEqual(localOrigin,           gridInfo.Origin);
-            Assert.AreEqual(new Point(3, 2),       gridInfo.Size);
-            Assert.AreEqual(new Vector2(48f, 32f), gridInfo.Span);
+            Assert.AreEqual(4, gridInfo.SurfaceArea);
+            Assert.AreEqual(new Point(3, 2), gridInfo.Size);
 
             Assert.AreEqual(null,       grid[0, 0]);
             Assert.AreEqual(modules[0], grid[1, 0]);

@@ -1614,13 +1614,13 @@ namespace Ship_Game
             if (shipsList != null)
             {
                 string[] newShips = shipsList.Filter(name => !ShipTemplateExists(name));
-                ships.AddRange(newShips.Select(ship => GetModOrVanillaFile($"StarterShips/{ship}.xml")));
+                ships.AddRange(newShips.Select(ship => GetModOrVanillaFile($"StarterShips/{ship}.design")));
             }
 
             if (savedDesigns != null)
             {
                 string[] newShips = savedDesigns.Filter(name => !ShipTemplateExists(name));
-                ships.AddRange(newShips.Select(ship => GetModOrVanillaFile($"SavedDesigns/{ship}.xml")));
+                ships.AddRange(newShips.Select(ship => GetModOrVanillaFile($"SavedDesigns/{ship}.design")));
             }
 
             if (ships.Count > 0)
