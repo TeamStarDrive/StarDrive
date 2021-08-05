@@ -62,21 +62,21 @@
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
     <OutDir>..\StarDrive\</OutDir>
     <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)3rdparty;$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)NanoMesh/include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)3rdparty/libpng;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
     <OutDir>..\StarDrive\</OutDir>
     <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)3rdparty;$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)NanoMesh/include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)3rdparty/libpng;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-2017|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
     <OutDir>..\StarDrive\</OutDir>
     <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)3rdparty;$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)NanoMesh/include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)3rdparty/libpng;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -98,7 +98,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
+      <AdditionalDependencies>libfbxsdk.lib;libpng16_static.lib;zlibstatic.lib</AdditionalDependencies>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
@@ -124,7 +124,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
+      <AdditionalDependencies>libfbxsdk.lib;libpng16_static.lib;zlibstatic.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)3rdparty\fbxsdk\libfbxsdk.dll" "$(TargetDir)libfbxsdk.dll"</Command>
@@ -149,7 +149,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
+      <AdditionalDependencies>libfbxsdk.lib;libpng16_static.lib;zlibstatic.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)3rdparty\fbxsdk\libfbxsdk.dll" "$(TargetDir)libfbxsdk.dll"</Command>
@@ -157,6 +157,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="3rdparty\fbxsdk\fbxsdk.h" />
+    <ClInclude Include="3rdparty\libpng\png.h" />
+    <ClInclude Include="3rdparty\libpng\pngconf.h" />
+    <ClInclude Include="3rdparty\libpng\pnglibconf.h" />
+    <ClInclude Include="3rdparty\libpng\pngprefix.h" />
     <ClInclude Include="3rdparty\lodepng\lodepng.h" />
     <ClInclude Include="3rdparty\rapidxml\rapidxml.hpp" />
     <ClInclude Include="3rdparty\rapidxml\rapidxml_iterators.hpp" />
@@ -165,6 +169,8 @@
     <ClInclude Include="3rdparty\soil2\image_DXT.h" />
     <ClInclude Include="3rdparty\soil2\image_helper.h" />
     <ClInclude Include="3rdparty\stb\stb_dxt.h" />
+    <ClInclude Include="3rdparty\stb\stb_image.h" />
+    <ClInclude Include="3rdparty\stb\stb_image_write.h" />
     <ClInclude Include="NanoMesh\include\Nano\Mesh.h" />
     <ClInclude Include="NanoMesh\include\Nano\MeshLoader.h" />
     <ClInclude Include="ReCpp\rpp\collections.h" />
@@ -202,6 +208,7 @@
     <ClInclude Include="spatial\Visualizer.h" />
     <ClInclude Include="util\apex_memmove.h" />
     <ClInclude Include="NodeParser.h" />
+    <ClInclude Include="util\png_loader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rdparty\lodepng\lodepng.cpp" />
@@ -236,7 +243,7 @@
     <ClCompile Include="util\apex_memmove.cpp" />
     <ClCompile Include="util\math_utils.cpp" />
     <ClCompile Include="util\os_utils.cpp" />
-    <ClCompile Include="util\save_image.cpp" />
+    <ClCompile Include="util\image_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="NanoMesh\include\Nano\NanoMesh.natvis" />

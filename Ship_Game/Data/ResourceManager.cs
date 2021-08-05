@@ -161,7 +161,8 @@ namespace Ship_Game
         }
 
         static readonly Array<KeyValuePair<string, double>> PerfProfile = new Array<KeyValuePair<string, double>>();
-        static Stopwatch PerfStopwatch = new Stopwatch();
+        static readonly Stopwatch PerfStopwatch = new Stopwatch();
+
         static void BeginPerfProfile()
         {
             PerfProfile.Clear();
@@ -181,11 +182,14 @@ namespace Ship_Game
             double elapsed = PerfStopwatch.Elapsed.TotalSeconds;
             PerfProfile.Sort(kv => kv.Value);
             PerfProfile.Reverse();
+
+            Log.Write(ConsoleColor.Cyan, $"Load Total Elapsed: {elapsed*1000:0.0}ms");
             foreach (var kv in PerfProfile)
             {
                 double percent = (kv.Value / elapsed) * 100.0;
                 Log.Write(ConsoleColor.Cyan, $"{kv.Key,-20} {kv.Value*1000:0.0}ms  {percent:0.00}%");
             }
+
             PerfProfile.Clear();
         }
 

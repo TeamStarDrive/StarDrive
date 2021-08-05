@@ -74,20 +74,31 @@ namespace Ship_Game.Data
             }
 
             //Log.Info(ConsoleColor.Magenta, $"Raw LoadTexture: {fileNameWithExt}");
-            return LoadImageAsTexture(fileNameWithExt);
+            return LoadContentTexture(fileNameWithExt);
         }
 
         ///////////////////////////////////////////////////
 
-        public Texture2D LoadImageAsTexture(string fileNameWithExt)
+        // converts `fileNameWithExt` into Content relative path
+        public Texture2D LoadContentTexture(string fileNameWithExt)
         {
             string contentPath = GetContentPath(fileNameWithExt);
             return TexImport.Load(contentPath);
         }
 
-        public Texture2D LoadImageAsTexture(FileInfo file)
+        public Texture2D LoadTexture(FileInfo file)
         {
             return TexImport.Load(file);
+        }
+
+        public Texture2D LoadTexture(string fullPath)
+        {
+            return TexImport.Load(fullPath);
+        }
+
+        public void SaveTexture(Texture2D texture, string fullPath)
+        {
+            TexExport.SaveAutoFormat(texture, fullPath);
         }
 
         ///////////////////////////////////////////////////

@@ -47,6 +47,9 @@
     <Filter Include="spatial\gridL2">
       <UniqueIdentifier>{91700856-7a20-4226-9aed-bb8c189fb46f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="3rdparty\libpng">
+      <UniqueIdentifier>{b75d4df6-2a2d-419a-bcce-e34c7dcc292a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ShipDataSerializer.cpp">
@@ -73,7 +76,7 @@
     <ClCompile Include="ReCpp\rpp\sprint.cpp">
       <Filter>rpp</Filter>
     </ClCompile>
-    <ClCompile Include="util\save_image.cpp">
+    <ClCompile Include="util\image_utils.cpp">
       <Filter>util</Filter>
     </ClCompile>
     <ClCompile Include="3rdparty\soil2\image_DXT.cpp">
@@ -287,6 +290,27 @@
     </ClInclude>
     <ClInclude Include="spatial\SearchOptions.h">
       <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\stb\stb_image.h">
+      <Filter>3rdparty\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\stb\stb_image_write.h">
+      <Filter>3rdparty\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libpng\png.h">
+      <Filter>3rdparty\libpng</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libpng\pnglibconf.h">
+      <Filter>3rdparty\libpng</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libpng\pngprefix.h">
+      <Filter>3rdparty\libpng</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libpng\pngconf.h">
+      <Filter>3rdparty\libpng</Filter>
+    </ClInclude>
+    <ClInclude Include="util\png_loader.h">
+      <Filter>util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
