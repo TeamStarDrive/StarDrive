@@ -896,7 +896,7 @@ namespace Ship_Game.Debug
         void RemnantInfo()
         {
             Empire e = EmpireManager.Remnants;
-            SetTextCursor(Win.X + 10 + 255, Win.Y + 150, e.EmpireColor);
+            SetTextCursor(Win.X + 10 + 255, Win.Y + 250, e.EmpireColor);
             DrawString($"Remnant Story: {e.Remnants.Story}");
             DrawString(!e.Remnants.Activated
                 ? $"Trigger Progress: {e.Remnants.StoryTriggerKillsXp}/{e.Remnants.ActivationXpNeeded.String()}"
