@@ -36,6 +36,12 @@ namespace Ship_Game.Graphics
             SpaceWidth = XnaFont.MeasureString(" ").X;
         }
 
+        public Font(Font font, object underline)
+        {
+            this.font = font;
+            this.underline = underline;
+        }
+
         public Vector2 MeasureString(string text)
         {
             return XnaFont.MeasureString(text);
@@ -89,6 +95,8 @@ namespace Ship_Game.Graphics
 
         static char[] NewLineString = new char[]{ '\n' };
         static char[] TabString = new char[]{ ' ', ' ', ' ', ' ' }; // 4 spaces
+        private Font font;
+        private object underline;
 
         static StringView NextTextToken(ref StringView view)
         {
