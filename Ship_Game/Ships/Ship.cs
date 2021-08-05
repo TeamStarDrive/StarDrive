@@ -1107,7 +1107,7 @@ namespace Ship_Game.Ships
                 HighAlertTimer -= 1;
                 if (HighAlertTimer <= 0)
                 {
-                    if (InCombat)
+                    if (AI.BadGuysNear || InCombat)
                         SetHighAlertStatus();
                 }
             }
