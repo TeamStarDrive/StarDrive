@@ -1107,10 +1107,8 @@ namespace Ship_Game.Ships
                 HighAlertTimer -= 1;
                 if (HighAlertTimer <= 0)
                 {
-                    if (InCombat) 
+                    if (InCombat)
                         SetHighAlertStatus();
-                    else if (AI.BadGuysNear || AI.TrackProjectiles.Length != 0)
-                        SetMedAlertStatus();
                 }
             }
 
@@ -1136,13 +1134,12 @@ namespace Ship_Game.Ships
             UpdateInfluence(timeStep);
             KnownByEmpires.Update(timeStep, loyalty);
             SetFleetCapableStatus();
-            
+
             // scan universe and make decisions for combat
             AI.ScanForTargets(timeStep);
         }
 
         public void SetHighAlertStatus() => HighAlertTimer = 10;
-        public void SetMedAlertStatus() => HighAlertTimer = 5;
 
         public void UpdateModulePositions(FixedSimTime timeStep, bool isSystemView, bool forceUpdate = false)
         {

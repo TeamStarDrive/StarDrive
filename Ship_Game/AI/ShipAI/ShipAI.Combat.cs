@@ -537,8 +537,9 @@ namespace Ship_Game.AI
             }
 
             //Log.Write(ConsoleColor.Red, $"EXIT combat: {Owner}");
+            if (Owner.InCombat)
+                Owner.SetHighAlertStatus();
             Owner.InCombat = false;
-            Owner.SetHighAlertStatus();
 
             if (OrderQueue.IsEmpty) // need to change the state to prevent re-enter combat bug
                 State = AIState.AwaitingOrders;
@@ -577,7 +578,7 @@ namespace Ship_Game.AI
             }
 
             // try fire weapons if Alert is set
-            if (Owner.OnHighAlert)
+            if (badGuysNear || TrackProjectiles.Length != 0)
             {
                 FireWeapons(timeStep);
             }
