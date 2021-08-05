@@ -129,10 +129,10 @@ namespace Ship_Game
             Add(new UILabel(titlePos, GameText.DesignYourRace, Fonts.Laserian14, Colors.Cream));
 
             NameMenu = Add(new Menu1(ScreenWidth / 2 - (int)(ScreenWidth * 0.5f) / 2,
-                                (int)TitleBar.Bottom + 5, (int)(ScreenWidth * 0.5f), 150, withSub:true));
+                                (int)TitleBar.Bottom + 5, (int)(ScreenWidth * 0.5f), 150, withSub:false));
 
             var flagPos = new Vector2(NameMenu.Right - 80 - 100, NameMenu.Y + 30);
-            FlagRect = new Rectangle((int)flagPos.X + 16, (int)flagPos.Y + 15, 80, 80);
+            FlagRect = new Rectangle((int)flagPos.X, (int)flagPos.Y + 15, 80, 80);
             
             Add(new UILabel(flagPos, GameText.FlagColor, Fonts.Arial14Bold, Color.BurlyWood));
 
@@ -247,8 +247,8 @@ namespace Ship_Game
 
             ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, text:GameText.Engage, click: OnEngageClicked);
             ButtonMedium(10, ScreenHeight - 40, text:GameText.Abort, click: OnAbortClicked);
-            DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked).SetRelPos(DescriptionTextList.Width - 150, DescriptionTextList.Height - 40);
-
+            DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked).SetRelPos(DescriptionTextList.Width - 150, DescriptionTextList.Height - 35);
+            DescriptionTextList.ItemPadding = new Vector2(10, 0);
             DoRaceDescription();
             SetRacialTraits(SelectedData.Traits);
 
@@ -339,7 +339,7 @@ namespace Ship_Game
         void SetEnvPerfVisibility(UIList list1, UIList list2)
         {
             bool visible = GlobalStats.HasMod && GlobalStats.ActiveModInfo.DisplayEnvPerfInRaceDesign;
-            float raceLoadSaveY = visible ? -190 : - 40;
+            float raceLoadSaveY = visible ? -190 : -25;
 
             ChooseRaceList.ButtonMedium("Load Race", OnLoadRaceClicked).SetRelPos(ChooseRaceList.Width / 2 - 142, raceLoadSaveY);
             ChooseRaceList.ButtonMedium("Save Race", OnSaveRaceClicked).SetRelPos(ChooseRaceList.Width / 2 + 10, raceLoadSaveY);
