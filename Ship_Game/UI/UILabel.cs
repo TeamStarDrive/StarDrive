@@ -53,6 +53,7 @@ namespace Ship_Game
         public Action<UILabel> OnClick;
 
         public Color Color { get; set; } = Color.White;
+        Func<UILabel, Color> GetColor; // Dynamic Color Binding
 
         Color TextHoverColor = UIColors.LightBeige;
         bool EnableHighlights;
@@ -114,6 +115,11 @@ namespace Ship_Game
                     UpdateSizeFromText(GetText(this));
                 }
             }
+        }
+
+        public Func<UILabel, Color> DynamicColor
+        {
+            set => GetColor = value;
         }
 
         // Allows to override the default font of the UI Label after creation
@@ -261,13 +267,18 @@ namespace Ship_Game
                 batch.DrawString(LabelFont, text, pos, color);
         }
 
-        Color CurrentColor => IsMouseOver ? Highlight : Color;
+        Color GetCurrentColor()
+        {
+            if (IsMouseOver) return Highlight;
+            if (GetColor != null) return GetColor(this);
+            return Color;
+        }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Lines != null && Lines.NotEmpty)
             {
-                Color color = CurrentColor;
+                Color color = GetCurrentColor();
                 Vector2 cursor = Pos;
                 float lineHeight = LabelFont.LineSpacing + 2;
                 for (int i = 0; i < Lines.Count; ++i)
@@ -284,11 +295,11 @@ namespace Ship_Game
                 RequiresLayout |= CachedText != text;
                 CachedText = text;
                 if (text.NotEmpty())
-                    DrawTextLine(batch, text, Pos, CurrentColor);
+                    DrawTextLine(batch, text, Pos, GetCurrentColor());
             }
             else if (LabelText.NotEmpty)
             {
-                DrawTextLine(batch, LabelText.Text, Pos, CurrentColor);
+                DrawTextLine(batch, LabelText.Text, Pos, GetCurrentColor());
             }
         }
 

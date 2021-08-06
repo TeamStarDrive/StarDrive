@@ -44,6 +44,9 @@ namespace Ship_Game
         protected UIElementContainer(in Vector2 pos, in Vector2 size) : base(pos, size)
         {
         }
+        protected UIElementContainer(in RelPos pos, in Vector2 size) : base(pos, size)
+        {
+        }
         protected UIElementContainer(in Rectangle rect) : base(rect)
         {
         }
@@ -178,7 +181,8 @@ namespace Ship_Game
         // UIElementContainer default implementation performs layout on all child elements
         public override void PerformLayout()
         {
-            RequiresLayout = false;
+            // update RelPos
+            base.PerformLayout();
             for (int i = 0; i < Elements.Count; ++i)
                 Elements[i].PerformLayout();
         }

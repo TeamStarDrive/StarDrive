@@ -66,6 +66,12 @@ namespace Ship_Game
             Color = Color.TransparentBlack;
         }
 
+        public UIList(ListLayoutStyle style)
+        {
+            LayoutStyle = style;
+            Color = Color.TransparentBlack;
+        }
+
         public UIList(Vector2 pos, Vector2 size) : base(pos, size, Color.TransparentBlack)
         {
         }
@@ -169,7 +175,7 @@ namespace Ship_Game
         {
             if (UseRelPos && Parent != null)
             {
-                Pos = Parent.Pos + RelPos;
+                Pos = Parent.Pos + new Vector2(RelPos.X, RelPos.Y);
             }
 
             Vector2 pos = Pos + Padding;

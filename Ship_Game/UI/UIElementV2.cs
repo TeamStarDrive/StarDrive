@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
 using Ship_Game.SpriteSystem;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -53,7 +54,7 @@ namespace Ship_Game
         public Vector2 Pos;    // absolute position in the UI
         public Vector2 Size;   // absolute size in the UI
 
-        public Vector2 RelPos; // relative position on parent, in absolute coordinates
+        public RelPos RelPos; // relative position on parent, in absolute coordinates
         protected bool UseRelPos; // if TRUE, uses RelPos during PerformLayout()
 
         //protected Vector2 AxisOffset = Vector2.Zero;
@@ -108,8 +109,8 @@ namespace Ship_Game
         public Vector2 Center => Pos + Size*0.5f;
 
         protected string TypeName => GetType().GetTypeName();
-        protected string ElementDescr => $"{Name} {{{Pos.X},{Pos.Y} {Size.X}x{Size.Y}}} {(Visible?"Vis":"Hid")}";
-
+        protected string ElementDescr => $"{Name} {{{PosDescr} {Size.X}x{Size.Y}}} {(Visible?"Vis":"Hid")}";
+        protected string PosDescr => UseRelPos ? $"Rel {RelPos.X},{RelPos.Y}" : $"{Pos.X},{Pos.Y}";
         public override string ToString() => $"{TypeName} {ElementDescr}";
 
         static Vector2 RelativeToAbsolute(UIElementV2 parent, float x, float y)
@@ -139,10 +140,15 @@ namespace Ship_Game
 
         public void SetRelPos(float x, float y)
         {
-            SetRelPos(new Vector2(x, y));
+            SetRelPos(new RelPos(x, y));
         }
 
         public void SetRelPos(in Vector2 relPos)
+        {
+            SetRelPos(new RelPos(relPos));
+        }
+
+        public void SetRelPos(in RelPos relPos)
         {
             RelPos = relPos;
             UseRelPos = true;
@@ -187,6 +193,15 @@ namespace Ship_Game
             Pos = pos;
             Size = size;
         }
+        protected UIElementV2(in RelPos relPos)
+        {
+            SetRelPos(relPos);
+        }
+        protected UIElementV2(in RelPos relPos, in Vector2 size)
+        {
+            SetRelPos(relPos);
+            Size = size;
+        }
         protected UIElementV2(in Rectangle rect)
         {
             Pos = new Vector2(rect.X, rect.Y);
@@ -215,7 +230,7 @@ namespace Ship_Game
             RequiresLayout = false;
             if (UseRelPos && Parent != null)
             {
-                Pos = Parent.Pos + RelPos;
+                Pos = Parent.Pos + new Vector2(RelPos.X, RelPos.Y);
             }
         }
 
