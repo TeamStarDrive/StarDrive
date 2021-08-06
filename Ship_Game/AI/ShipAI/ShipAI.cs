@@ -358,7 +358,8 @@ namespace Ship_Game.AI
                 return;
 
             SetPriorityOrder(true);
-            DecideWhereToResupply(nearestRallyPoint);
+            if (State != AIState.Resupply && State != AIState.ResupplyEscort)
+                DecideWhereToResupply(nearestRallyPoint);
         }
 
         void SetUpSupplyEscort(Ship supplyShip, string supplyType = "All")
