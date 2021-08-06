@@ -22,6 +22,7 @@ namespace Ship_Game
 
         public static readonly Technology Dummy = new Technology();
 
+        // if RootNode == 1, then this is a root of a tech tree main branch
         public int RootNode;
         public float Cost;
         public bool Secret;
@@ -29,6 +30,7 @@ namespace Ship_Game
         public bool Unlockable;
         public float LowPriorityCostMultiplier = 1;
 
+        [XmlIgnore] public bool IsRootNode => RootNode == 1;
         [XmlIgnore] public SortedSet<TechnologyType> TechnologyTypes = new SortedSet<TechnologyType>();
         [XmlIgnore] public int NumStuffUnlocked => ModulesUnlocked.Count + BuildingsUnlocked.Count
                                                    + BonusUnlocked.Count + TroopsUnlocked.Count

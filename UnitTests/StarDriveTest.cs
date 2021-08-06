@@ -136,7 +136,7 @@ namespace UnitTests
             empire.UnlockedHullsDict[ship.shipData.Hull] = true;
             
             // this populates `TechsNeeded`
-            ShipDesignUtils.MarkDesignsUnlockable(new ProgressCounter());
+            ShipDesignUtils.MarkDesignsUnlockable();
             
             foreach (var tech in ship.shipData.TechsNeeded)
             {
@@ -153,7 +153,7 @@ namespace UnitTests
         /// </summary>
         public void PrepareShipAndEmpireForShipTechTests()
         {
-            ShipDesignUtils.MarkDesignsUnlockable(new ProgressCounter());
+            ShipDesignUtils.MarkDesignsUnlockable();
             foreach (var ship in ResourceManager.GetShipTemplates())
             {
                 ship.shipData.ShipStyle = Enemy.data.PortraitName;
@@ -188,6 +188,16 @@ namespace UnitTests
         public static void LoadStarterShips(params string[] shipList)
         {
             ResourceManager.LoadStarterShipsForTesting(shipList, null);
+        }
+
+        public static void OnlyLoadShips(params string[] shipList)
+        {
+            ResourceManager.LoadStarterShipsForTesting(shipList, null, clearAll: true);
+        }
+
+        public static void ReloadTechTree()
+        {
+            ResourceManager.LoadTechTree();
         }
 
         public TestShip SpawnShip(string shipName, Empire empire, Vector2 position, Vector2 shipDirection = default)

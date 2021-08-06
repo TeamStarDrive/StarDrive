@@ -175,7 +175,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 CreateSimThread = StartSimThread,
             };
 
-            step.Start(0.3f, 0.4f, 0.3f);
+            step.StartAbsolute(0.05f, 0.5f, 2f);
 
             EmpireShipBonuses.RefreshBonuses();
             ShipDesignUtils.MarkDesignsUnlockable(step.NextStep());
