@@ -29,6 +29,13 @@ namespace Ship_Game
         public float StartingPlanetRichness;
         public bool PlanetaryGravityWells;
         public bool WarpInSystem;
+        public bool FixedPlayerCreditCharge;
+        public bool UsePlayerDesigns;
+        public bool DisablePirates;
+        public bool DisableRemnantStory;
+        public bool UseUpkeepByHullSize;
+        public float CustomMineralDecay;
+        public float VolcanicActivity;
 
         public SetupSave()
         {
@@ -62,6 +69,13 @@ namespace Ship_Game
             StartingPlanetRichness        = GlobalStats.StartingPlanetRichness;
             PlanetaryGravityWells         = GlobalStats.PlanetaryGravityWells;
             WarpInSystem                  = GlobalStats.WarpInSystem;
+            FixedPlayerCreditCharge       = GlobalStats.FixedPlayerCreditCharge;
+            UsePlayerDesigns              = GlobalStats.UsePlayerDesigns;
+            DisablePirates                = GlobalStats.DisablePirates;
+            DisableRemnantStory           = GlobalStats.DisableRemnantStory;
+            UseUpkeepByHullSize           = GlobalStats.UseUpkeepByHullSize;
+            CustomMineralDecay            = GlobalStats.CustomMineralDecay;
+            VolcanicActivity              = GlobalStats.VolcanicActivity;
 
             string str = DateTime.Now.ToString("M/d/yyyy");
             DateTime now = DateTime.Now;
