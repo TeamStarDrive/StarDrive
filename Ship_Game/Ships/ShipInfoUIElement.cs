@@ -345,7 +345,7 @@ namespace Ship_Game.Ships
             if (ship.ScuttleTimer > 0)
                 text = $"Ship will be Scuttled in {(int)ship.ScuttleTimer} seconds";
             else
-                switch (ship.Supply.Resupply(forceSupplyStateCheck: true))
+                switch (ship.Supply.Resupply())
                 {
                     case ResupplyReason.NotNeeded:
                         if (ship.HealthPercent < ShipResupply.RepairDoneThreshold && (ship.AI.State == AIState.Resupply || ship.AI.State == AIState.ResupplyEscort))
