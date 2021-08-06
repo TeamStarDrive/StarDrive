@@ -229,7 +229,6 @@ namespace Ship_Game
             Profiled(LoadTechTree);
             Profiled(LoadEncounters);
             Profiled(LoadExpEvents);
-            Profiled(TechValidator);
 
             Profiled(LoadArtifacts);
             Profiled(LoadPlanetEdicts);
@@ -1399,7 +1398,7 @@ namespace Ship_Game
             }
         }
 
-        static void LoadHullData() // Refactored by RedFox
+        public static void LoadHullData() // Refactored by RedFox
         {
             HullsDict.Clear();
             HullsList.Clear();
@@ -1669,8 +1668,10 @@ namespace Ship_Game
                 tech.ResolveLeadsToTechs();
         }
 
-        static void LoadTechTree()
+        public static void LoadTechTree()
         {
+            TechTree.Clear();
+
             bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.ClearVanillaTechs;
             Array<InfoPair<Technology>> techs = LoadEntitiesWithInfo<Technology>("Technology", "LoadTechTree", modTechsOnly);
 
@@ -1698,6 +1699,8 @@ namespace Ship_Game
                 // categorize extra techs
                 tech.UpdateTechnologyTypesFromUnlocks();
             }
+            
+            TechValidator();
         }
 
         static readonly Map<string, Weapon> WeaponsDict = new Map<string, Weapon>();

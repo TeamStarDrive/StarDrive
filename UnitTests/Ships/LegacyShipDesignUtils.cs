@@ -12,7 +12,7 @@ namespace UnitTests.Ships
     public static class ShipDesignUtilsOld
     {
 
-        public static void MarkDesignsUnlockable(ProgressCounter progress)
+        public static void MarkDesignsUnlockable(ProgressCounter progress = null)
         {
             if (ResourceManager.Hulls.Count == 0)
                 throw new ResourceManagerFailure("Hulls not loaded yet!");
@@ -89,11 +89,11 @@ namespace UnitTests.Ships
         static void MarkShipsUnlockable(Map<Technology, Array<string>> shipTechs, ProgressCounter step)
         {
             var templates = ResourceManager.GetShipTemplates();
-            step.Start(templates.Count);
+            step?.Start(templates.Count);
 
             foreach (Ship ship in templates)
             {
-                step.Advance();
+                step?.Advance();
 
                 ShipData shipData = ship.shipData;
                 if (shipData == null)
@@ -153,12 +153,13 @@ namespace UnitTests.Ships
                     if (shipData.BaseStrength <= 0f)
                         shipData.BaseStrength = ship.CalculateShipStrength();
 
-                    shipData.TechScore = 0;
-                    foreach (string techname in shipData.TechsNeeded)
-                    {
-                        var tech = ResourceManager.TechTree[techname];
-                        shipData.TechScore += tech.RootNode == 0 ? (int) tech.ActualCost : 0;
-                    }
+                    // REMOVED from new version, so not needed here either
+                    //shipData.TechScore = 0;
+                    //foreach (string techname in shipData.TechsNeeded)
+                    //{
+                    //    var tech = ResourceManager.TechTree[techname];
+                    //    shipData.TechScore += tech.RootNode == 0 ? (int) tech.ActualCost : 0;
+                    //}
                 }
                 else
                 {
