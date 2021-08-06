@@ -174,6 +174,7 @@ namespace Ship_Game.Ships
         public bool IsSubspaceProjector     => Name == "Subspace Projector";
         public bool HasBombs                => BombBays.Count > 0;
         public bool IsEmpireSupport         => DesignRoleType == ShipData.RoleType.EmpireSupport;
+        public bool Resupplying             => AI.State == AIState.Resupply || AI.State == AIState.ResupplyEscort;
                 
         /// <summary>
         /// Ship is expected to exchange fire with enemy ships directly not through hangar ships and other such things.
