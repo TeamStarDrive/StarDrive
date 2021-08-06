@@ -211,13 +211,12 @@ namespace Ship_Game.Commands.Goals
             if (TargetPlanetStatus() == GoalStep.GoalFailed)
                 return GoalStep.GoalFailed;
 
-            if (AIControlsColonization 
+            if (AIControlsColonization
                 && empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem) > 10
-                && (!TryGetClaimTask(out MilitaryTask task) || task.Fleet?.TaskStep != 7)) // we lost
+                && ClaimTaskInvalid(out MilitaryTask possibleTask))
             {
-
                 ReleaseShipFromGoal();
-                task?.EndTask();
+                possibleTask?.EndTask();
                 return GoalStep.GoalFailed;
             }
 
@@ -298,6 +297,13 @@ namespace Ship_Game.Commands.Goals
         bool NotAssignedToColonizationGoal(Ship colonyShip)
         {
             return !colonyShip.loyalty.GetEmpireAI().Goals.Any(g => g.type == GoalType.Colonize && g.FinishedShip == colonyShip);
+        }
+
+        bool ClaimTaskInvalid(out MilitaryTask possibleTask)
+        {
+            return !TryGetClaimTask(out possibleTask)
+                   || possibleTask.Fleet != null && LifeTime > 5 // Timeout
+                   || possibleTask.Fleet?.TaskStep != 7; // we lost
         }
     }
 }

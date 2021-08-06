@@ -61,8 +61,8 @@ namespace Ship_Game.Commands.Goals
             var defendSystemTasks = empire.GetEmpireAI().GetDefendSystemTasks();
             foreach (MilitaryTask defendSystem in defendSystemTasks)
             {
-                if (defendSystem.Fleet != null)
-                    continue; // We have a fleet for this task
+                if (defendSystem.Fleet != null || defendSystem.Fleet == null && defendSystem.Goal?.LifeTime > 5)
+                    continue; // We have a fleet for this task or too old to prioritize
 
                 foreach (MilitaryTask possibleTask in empire.GetEmpireAI().GetPotentialTasksToCompare())
                 {
