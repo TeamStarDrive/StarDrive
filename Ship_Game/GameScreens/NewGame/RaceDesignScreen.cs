@@ -135,25 +135,18 @@ namespace Ship_Game
             FlagRect = new Rectangle((int)flagPos.X, (int)flagPos.Y + 15, 80, 80);
             
             Add(new UILabel(flagPos, GameText.FlagColor, Fonts.Arial14Bold, Color.BurlyWood));
+            
+            SelectedData = GetDefaultRace(); //SelectedData is used to populate the UI
 
-            UIList raceTitle = AddList(new Vector2(NameMenu.X + 40, NameMenu.Y + 30));
-            raceTitle.Padding = new Vector2(4,4);
-            UITextEntry AddSplitter(string title, string inputText)
-            {
-                var input = new UITextEntry(Vector2.Zero, Fonts.Arial14Bold, inputText) {Color = Colors.Cream};
-                var label = new UILabel(LocalizedText.Parse(title), Fonts.Arial14Bold, Color.BurlyWood);
-                raceTitle.AddSplit(label, input).Split = 205f;
-                return input;
-            }
+            UIList raceCustomizatioForm = AddList(new Vector2(NameMenu.X + 40, NameMenu.Y + 30));
+            raceCustomizatioForm.Padding = new Vector2(4,4);
 
-            foreach (IEmpireData e in ResourceManager.MajorRaces)
-                if (e.Singular == "Human")
-                    SelectedData = e;
-
-            NameEntry     = AddSplitter("{EmpireName}: ", SelectedData.Name);
-            SingEntry     = AddSplitter("{RaceNameSingular}: ", SelectedData.Singular);
-            PlurEntry     = AddSplitter("{RaceNamePlural}: ", SelectedData.Plural);
-            SysEntry      = AddSplitter("{HomeSystemName}: ", SelectedData.HomeSystemName);
+            const float padRight = 200f;
+            var splitItemWidth = NameMenu.Width - FlagRect.Width - padRight;
+            NameEntry     = AddSplitter(raceCustomizatioForm,"{EmpireName}: ", SelectedData.Name,splitItemWidth);
+            SingEntry     = AddSplitter(raceCustomizatioForm,"{RaceNameSingular}: ", SelectedData.Singular, splitItemWidth);
+            PlurEntry     = AddSplitter(raceCustomizatioForm,"{RaceNamePlural}: ", SelectedData.Plural, splitItemWidth);
+            SysEntry      = AddSplitter(raceCustomizatioForm,"{HomeSystemName}: ", SelectedData.HomeSystemName, splitItemWidth);
             HomeWorldName = SelectedData.HomeWorldName;
 
             var traitsList = new Rectangle(ScreenWidth / 2 - (int)(ScreenWidth * 0.5f) / 2, 
@@ -247,8 +240,12 @@ namespace Ship_Game
 
             ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, text:GameText.Engage, click: OnEngageClicked);
             ButtonMedium(10, ScreenHeight - 40, text:GameText.Abort, click: OnAbortClicked);
-            DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked).SetRelPos(DescriptionTextList.Width - 150, DescriptionTextList.Height - 35);
-            DescriptionTextList.ItemPadding = new Vector2(10, 0);
+            
+            const int containerMarginBottom = 10;
+            const int containerPaddingLeft = 10;
+            DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked)
+                .SetRelPos(containerPaddingLeft, DescriptionTextList.Height + containerMarginBottom);
+
             DoRaceDescription();
             SetRacialTraits(SelectedData.Traits);
 
@@ -285,7 +282,7 @@ namespace Ship_Game
             DesertEnvEntry  = AddEnvSplitter("{Desert}: ", SelectedData.EnvPerfDesert, envPerf2);
             BarrenEnvEntry  = AddEnvSplitter("{Barren}: ", SelectedData.EnvPerfBarren, envPerf2);
 
-            var pos = new Vector2(ScreenWidth / 2 - 84, traitsList.Y + traitsList.Height + 10);
+            var pos = new Vector2(ScreenWidth / 2 - 84, traitsList.Y + traitsList.Height + containerMarginBottom);
 
             SetEnvPerfVisibility(envPerf1, envPerf2);
 
@@ -316,6 +313,34 @@ namespace Ship_Game
 
             base.LoadContent();
         }
+        
+        /// <summary>
+        /// Extracted from LoadContent() verbatim, defaults to first race if e.Singular == "Human" unavailable
+        /// else will throw OutOfBounds
+        /// </summary>
+        IEmpireData GetDefaultRace()
+        {
+            var empires = ResourceManager.MajorRaces;
+            foreach (IEmpireData e in empires)
+                if (e.Singular == "Human")
+                    return e;
+            return empires[0];
+        }
+
+        UITextEntry AddSplitter(UIList list, string title, string inputText, float width)
+        {
+            const float splitAt = 205f;
+            var label = new UILabel(LocalizedText.Parse(title), Fonts.Arial14Bold, Color.BurlyWood);
+            var input = new UITextEntry(Vector2.Zero, Fonts.Arial14Bold, inputText)
+            {
+                Width = width - splitAt,
+                DrawUnderline = true,
+                Color = Colors.Cream
+            };
+                
+            list.AddSplit(label, input).Split = splitAt;
+            return input;
+        }
 
         int GetSystemsNum()
         {
@@ -339,7 +364,7 @@ namespace Ship_Game
         void SetEnvPerfVisibility(UIList list1, UIList list2)
         {
             bool visible = GlobalStats.HasMod && GlobalStats.ActiveModInfo.DisplayEnvPerfInRaceDesign;
-            float raceLoadSaveY = visible ? -190 : -25;
+            float raceLoadSaveY = visible ? -190 : ChooseRaceList.Height + 10;
 
             ChooseRaceList.ButtonMedium("Load Race", OnLoadRaceClicked).SetRelPos(ChooseRaceList.Width / 2 - 142, raceLoadSaveY);
             ChooseRaceList.ButtonMedium("Save Race", OnSaveRaceClicked).SetRelPos(ChooseRaceList.Width / 2 + 10, raceLoadSaveY);

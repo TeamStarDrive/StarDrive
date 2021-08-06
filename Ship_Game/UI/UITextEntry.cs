@@ -45,6 +45,11 @@ namespace Ship_Game
         public Color Color = Color.Orange;
         public Color HoverColor = Color.White;
         public Color InputColor = Color.BurlyWood;
+        
+        /// <summary>
+        /// If TRUE, Draws an underline below UITextEntry
+        /// </summary>
+        public bool DrawUnderline = false;
 
         /// <summary>
         /// EVT: Text input has been captured, user is starting to type text
@@ -96,7 +101,6 @@ namespace Ship_Game
 
         public UITextEntry(float x, float y, float width, float height, Graphics.Font font, in LocalizedText text)
         {
-            //public Graphics.Font Font = Fonts.Arial14Bold;
             Font = font;
             Text = text.Text;
             CursorPos = Text.Length;
@@ -203,7 +207,16 @@ namespace Ship_Game
                 pos.X += Font.TextWidth(substring);
                 batch.DrawString(Font, "|", pos, flashColor);
             }
-            batch.DrawLine(new Vector2(pos.X, pos.Y + Font.LineSpacing), new Vector2(pos.X, pos.Y + Font.LineSpacing), color.Alpha(0.2f), thickness: 1);
+            
+            if (DrawUnderline) RenderUnderline(batch, Pos, Width, color);
+        }
+
+        private void RenderUnderline(SpriteBatch batch, Vector2 pos, float width, Color color)
+        {
+            var start = new Vector2(pos.X, pos.Y + Font.LineSpacing);
+            var end = start;
+            start.X += width;
+            batch.DrawLine(start, end, color.Alpha(0.2f), 3);
         }
 
         public override bool HandleInput(InputState input)
