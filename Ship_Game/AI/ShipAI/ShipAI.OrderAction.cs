@@ -475,9 +475,9 @@ namespace Ship_Game.AI
 
         public void OrderResupply(Planet toOrbit, bool clearOrders)
         {
+            HadPO = HasPriorityOrder;
             ResetPriorityOrder(clearOrders);
             IgnoreCombat = true;
-            HadPO = clearOrders;
             ClearWayPoints();
 
             if (!Owner.loyalty.isPlayer)
