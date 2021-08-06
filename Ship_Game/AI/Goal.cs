@@ -249,6 +249,10 @@ namespace Ship_Game.AI
             MainGoalCompleted = true;
         }
 
+        /// <summary>
+        /// 1 is 10 turns, 5 is 50 turns
+        /// </summary>
+        public float LifeTime => Empire.Universe.StarDate - StarDateAdded;
         public bool IsMainGoalCompleted => MainGoalCompleted;
 
         // @note Goals are mainly evaluated during Empire update

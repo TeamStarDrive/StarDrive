@@ -167,7 +167,7 @@ namespace Ship_Game.AI
         {
             ResetPriorityOrderWithClear();
             // anyassaultops is broken and doesnt work with troop shuttles. 
-            if (Owner.DesignRole == ShipData.RoleName.troop ||  Owner.Carrier.AnyAssaultOpsAvailable) // This deals also with single Troop Ships / Assault Shuttles
+            if (Owner.IsSingleTroopShip || Owner.IsDefaultAssaultShuttle ||  Owner.Carrier.AnyAssaultOpsAvailable) // This deals also with single Troop Ships / Assault Shuttles
                 AddLandTroopGoal(target);
         }
 
@@ -475,8 +475,9 @@ namespace Ship_Game.AI
 
         public void OrderResupply(Planet toOrbit, bool clearOrders)
         {
+            HadPO = HasPriorityOrder;
             ResetPriorityOrder(clearOrders);
-            HadPO = clearOrders;
+            IgnoreCombat = true;
             ClearWayPoints();
 
             if (!Owner.loyalty.isPlayer)

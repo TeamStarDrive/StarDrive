@@ -50,25 +50,17 @@ namespace Ship_Game.Ships
             return threshold;
         }
 
-        public ResupplyReason Resupply(bool forceSupplyStateCheck = false)
+        public ResupplyReason Resupply()
         {
             if (Ship.DesignRole == ShipData.RoleName.construction 
                 || Ship.DesignRole == ShipData.RoleName.troop
                 || Ship.DesignRole == ShipData.RoleName.supply
-                || Ship.AI.HasPriorityOrder && Ship.AI.State != AIState.Bombard)
+                || (Ship.AI.HasPriorityOrder || Ship.AI.HasPriorityTarget) && Ship.AI.State != AIState.Bombard && !Ship.Resupplying)
             {
                 return ResupplyReason.NotNeeded;
             }
 
             InCombat = Ship.InCombat || Ship.AI.State == AIState.Bombard;
-            // this saves calculating supply again for ships already in supply states. 
-            // but sometimes we want to get the reason (like displaying it to the player when he selects a ship in resupply)
-            if (!forceSupplyStateCheck && (Ship.AI.State == AIState.Resupply
-                                       || Ship.AI.State == AIState.ResupplyEscort))
-            {
-                return ResupplyReason.NotNeeded;
-            }
-
             if (!Ship.hasCommand)
                 return ResupplyReason.NoCommand;
 
@@ -83,10 +75,6 @@ namespace Ship_Game.Ships
 
             if (ResupplyNeededLowTroops())
                 return ResupplyReason.LowTroops;
-
-            /*
-            if (ResupplyNeededOrdnanceNotFull())
-                return ResupplyReason.RequestResupplyFromPlanet; */
 
             return ResupplyReason.NotNeeded;
         }
