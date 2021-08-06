@@ -159,8 +159,7 @@ namespace Ship_Game
             {
                 b.Plural(GameText.AreNaturalSailorsAndShipwrights); // | HUMANS | are natural sailors and shipwrights
             }
-
-            DescriptionTextList.ResetWithParseText(DescriptionTextFont, b.ToString(), DescriptionTextList.Width - 50);
+            DescriptionTextList.ResetWithParseText(DescriptionTextFont, b.ToString(), DescriptionTextList.Width-50);
         }
 
     
