@@ -20,17 +20,24 @@ namespace Ship_Game
             if (SelectedFile != null)
             {
                 SetupSave ss = (SetupSave)SelectedFile.Data;
-                GlobalStats.FTLInSystemModifier           = ss.FTLModifier;
-                GlobalStats.EnemyFTLInSystemModifier      = ss.EnemyFTLModifier;
-                GlobalStats.ShipMaintenanceMulti          = ss.OptionIncreaseShipMaintenance;
-                GlobalStats.MinimumWarpRange              = ss.MinimumWarpRange;
-                GlobalStats.TurnTimer                     = ss.TurnTimer;
-                GlobalStats.PreventFederations            = ss.PreventFederations;
-                GlobalStats.GravityWellRange              = ss.GravityWellRange;
-                GlobalStats.ExtraPlanets                  = ss.ExtraPlanets;
-                GlobalStats.StartingPlanetRichness        = ss.StartingPlanetRichness;
-                GlobalStats.PlanetaryGravityWells         = ss.PlanetaryGravityWells;
-                GlobalStats.WarpInSystem                  = ss.WarpInSystem;
+                GlobalStats.FTLInSystemModifier      = ss.FTLModifier;
+                GlobalStats.EnemyFTLInSystemModifier = ss.EnemyFTLModifier;
+                GlobalStats.ShipMaintenanceMulti     = ss.OptionIncreaseShipMaintenance;
+                GlobalStats.MinimumWarpRange         = ss.MinimumWarpRange;
+                GlobalStats.TurnTimer                = ss.TurnTimer;
+                GlobalStats.PreventFederations       = ss.PreventFederations;
+                GlobalStats.GravityWellRange         = ss.GravityWellRange;
+                GlobalStats.ExtraPlanets             = ss.ExtraPlanets;
+                GlobalStats.StartingPlanetRichness   = ss.StartingPlanetRichness;
+                GlobalStats.PlanetaryGravityWells    = ss.PlanetaryGravityWells;
+                GlobalStats.WarpInSystem             = ss.WarpInSystem;
+                GlobalStats.FixedPlayerCreditCharge  = ss.FixedPlayerCreditCharge;
+                GlobalStats.UsePlayerDesigns         = ss.UsePlayerDesigns;
+                GlobalStats.DisablePirates           = ss.DisablePirates;
+                GlobalStats.DisableRemnantStory      = ss.DisableRemnantStory;
+                GlobalStats.UseUpkeepByHullSize      = ss.UseUpkeepByHullSize;
+                GlobalStats.CustomMineralDecay       = ss.CustomMineralDecay;
+                GlobalStats.VolcanicActivity         = ss.VolcanicActivity;
                 Screen.SetCustomSetup(ss.GameDifficulty, ss.StarEnum, ss.GalaxySize, ss.Pacing, ss.ExtraRemnant, ss.NumOpponents, ss.Mode);
             }
             else
