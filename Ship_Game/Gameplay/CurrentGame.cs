@@ -36,7 +36,10 @@
                 return 1f;
 
             int idealNumPlayers   = (int)galaxySize + 3;
-            float galSizeModifier = ((int)galaxySize / 2f).LowerBound(0.25f);
+            float galSizeModifier = galaxySize <= GalSize.Medium 
+                ? ((int)galaxySize / 2f).LowerBound(0.25f) // 0.25, 0.5 or 1
+                : 1 + ((int)galaxySize - (int)GalSize.Medium) * 0.25f; // 1.25, 1.5, 1.75, 2
+
             float extraPlanetsMod = 1 + extraPlanets * 0.25f;
             float playerRatio     = (float)idealNumPlayers / numMajorEmpires;
             float settingsRatio   = galSizeModifier * extraPlanetsMod * playerRatio * starsModifier;
