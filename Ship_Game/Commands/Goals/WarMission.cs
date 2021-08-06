@@ -40,8 +40,6 @@ namespace Ship_Game.Commands.Goals
             Log.Info(ConsoleColor.Green, $"---- WarMission: New Strike Force from stage fleet, {empire.Name} Vs. {TargetEmpire.Name} ----");
         }
 
-        float LifeTime => Empire.Universe.StarDate - StarDateAdded;
-
         public override bool IsWarMission => true;
 
         bool TryGetTask(out MilitaryTask task)

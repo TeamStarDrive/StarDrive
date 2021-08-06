@@ -497,6 +497,8 @@ namespace Ship_Game.Debug
                            ship.InCombat ? ship.AI.BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");
                 DrawString(ship.AI.HasPriorityTarget ? "Priority Target" : "No Priority Target");
                 DrawString(ship.AI.HasPriorityOrder ? "Priority Order" : "No Priority Order");
+                if (ship.AI.IgnoreCombat)
+                    DrawString(Color.Pink, "Ignoring Combat!" );
                 if (ship.IsFreighter)
                 {
                     DrawString($"Trade Timer:{ship.TradeTimer}");
