@@ -8,7 +8,7 @@ namespace Ship_Game.GameScreens.NewGame
 {
     public static class ShipDesignUtils
     {
-        public static void MarkDesignsUnlockable(ProgressCounter progress)
+        public static void MarkDesignsUnlockable(ProgressCounter progress = null)
         {
             if (ResourceManager.Hulls.Count == 0)
                 throw new ResourceManagerFailure("Hulls not loaded yet!");
@@ -27,8 +27,10 @@ namespace Ship_Game.GameScreens.NewGame
             var hullUnlocks = new Map<string, string>();
             foreach (Technology tech in ResourceManager.TechTree.Values)
             {
+                // set root techs to null because they are always unlocked
+                string requiredTech = tech.IsRootNode ? null : tech.UID;
                 for (int i = 0; i < tech.HullsUnlocked.Count; ++i)
-                    hullUnlocks[tech.HullsUnlocked[i].Name] = tech.UID;
+                    hullUnlocks[tech.HullsUnlocked[i].Name] = requiredTech;
             }
             return hullUnlocks;
         }
@@ -82,15 +84,19 @@ namespace Ship_Game.GameScreens.NewGame
         {
             foreach (ShipData hull in ResourceManager.Hulls)
             {
+                hull.TechsNeeded.Clear(); // always clear techs list
+                hull.UnLockable = false;
+
                 if (hull.Role == ShipData.RoleName.disabled)
                     continue;
 
-                hull.UnLockable = false;
-
                 if (hullUnlocks.TryGetValue(hull.Hull, out string requiredTech))
                 {
-                    hull.UnLockable = true;
-                    AddRange(hull.TechsNeeded, techTreePaths[requiredTech]);
+                    if (requiredTech != null) // ignore root techs
+                    {
+                        hull.UnLockable = true;
+                        AddRange(hull.TechsNeeded, techTreePaths[requiredTech]);
+                    }
                 }
 
                 if (hull.Role < ShipData.RoleName.fighter || hull.TechsNeeded.Count == 0)
@@ -102,30 +108,28 @@ namespace Ship_Game.GameScreens.NewGame
                                         Map<string, string[]> techTreePaths, ProgressCounter step)
         {
             var templates = ResourceManager.GetShipTemplates();
-            step.Start(templates.Count);
+            step?.Start(templates.Count);
 
             foreach (Ship ship in templates)
             {
-                step.Advance();
+                step?.Advance();
 
                 ShipData shipData = ship.shipData;
                 if (shipData == null)
                     continue;
-
+                
+                shipData.TechsNeeded.Clear(); // always clear techs list
                 shipData.UnLockable = false;
                 shipData.HullUnlockable = false;
                 shipData.AllModulesUnlockable = false;
 
-                if (shipData.HullRole == ShipData.RoleName.disabled)
-                    continue;
-
-                if (!shipData.BaseHull.UnLockable)
+                if (!shipData.BaseHull.UnLockable ||
+                    shipData.HullRole == ShipData.RoleName.disabled)
                     continue;
                 
                 // These are the leaf technologies which actually unlock our modules
                 var leafTechsNeeds = new HashSet<string>();
                 
-                shipData.TechsNeeded.Clear();
                 shipData.HullUnlockable = true;
                 shipData.AllModulesUnlockable = true;
 
@@ -136,7 +140,8 @@ namespace Ship_Game.GameScreens.NewGame
 
                     if (moduleUnlocks.TryGetValue(module.ModuleUID, out string requiredTech))
                     {
-                        leafTechsNeeds.Add(requiredTech);
+                        if (requiredTech != null) // ignore root techs
+                            leafTechsNeeds.Add(requiredTech);
                     }
                     else
                     {
@@ -161,14 +166,6 @@ namespace Ship_Game.GameScreens.NewGame
 
                     // also add techs from basehull (already full tree)
                     AddRange(shipData.TechsNeeded, shipData.BaseHull.TechsNeeded);
-
-                    // now the TechScore can be calculated with full TechsNeeded
-                    shipData.TechScore = 0;
-                    foreach (string techname in shipData.TechsNeeded)
-                    {
-                        var tech = ResourceManager.TechTree[techname];
-                        shipData.TechScore += tech.RootNode == 0 ? (int) tech.ActualCost : 0;
-                    }
                 }
                 else
                 {

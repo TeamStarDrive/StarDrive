@@ -12,24 +12,53 @@ namespace UnitTests.Ships
     {
         void LoadShips()
         {
-            StarDriveTestContext.ReloadStarterShips();
+            ResourceManager.LoadHullData();
+            ReloadStarterShips();
+            ReloadTechTree();
             LoadStarterShips("Excalibur-Class Supercarrier", "Medium Freighter", "Flak Corvette", "Laserclaw",
                              "Ving Defender", "Corsair", "Alliance-Class Mk Ia Hvy Assault", "Assault Shuttle");
+            //OnlyLoadShips("Vulcan Scout");
         }
 
-        string[] TechsNeeded(ShipData data)
+        [ClassCleanup]
+        public static void Teardown()
+        {
+            ReloadStarterShips();
+        }
+
+        static string[] TechsNeeded(ShipData data)
         {
             string[] techs = data.TechsNeeded.ToArray();
             Array.Sort(techs);
             return techs;
         }
 
+        static Ship GetFirstShipTemplate() => ResourceManager.GetShipTemplates().ToArray()[0];
+        static ShipData GetFirstShipData() => GetFirstShipTemplate().shipData;
+        static ShipData GetFirstBaseHull() => GetFirstShipData().BaseHull;
+        static string GetTechsNeededStr(ShipData data) => string.Join(",", TechsNeeded(data));
+
+        void PrintInfo(string prefix)
+        {
+            ShipData firstBase = GetFirstBaseHull();
+            ShipData firstShip = GetFirstShipData();
+            Log.Info($"{prefix} Hull {firstBase.Name} UnLockable: {firstBase.UnLockable} TechsNeeded: {GetTechsNeededStr(firstBase)}");
+            Log.Info($"{prefix} Ship {firstShip.Name} UnLockable: {firstShip.UnLockable} TechsNeeded: {GetTechsNeededStr(firstShip)}");
+        }
+
         [TestMethod]
         public void MarkDesignsUnlockableMatchesLegacyBehaviour()
         {
+            // NOTE: This 'redundant' step here exposes a rare issue
+            //       where Root techs are accidentally added to ShipData.TechsNeeded
+            LoadShips();
+            ShipDesignUtils.MarkDesignsUnlockable();
+            PrintInfo("1");
+
             // mark unlockable using the old legacy utility which we are imitating
             LoadShips();
-            ShipDesignUtilsOld.MarkDesignsUnlockable(new ProgressCounter());
+            ShipDesignUtilsOld.MarkDesignsUnlockable();
+            PrintInfo("2");
 
             var legacyUnlockable = new Dictionary<string, ShipData>();
             foreach (Ship tOld in ResourceManager.GetShipTemplates())
@@ -39,7 +68,8 @@ namespace UnitTests.Ships
 
             // now try with the new optimized algorithm and make sure it matches
             LoadShips();
-            ShipDesignUtils.MarkDesignsUnlockable(new ProgressCounter());
+            ShipDesignUtils.MarkDesignsUnlockable();
+            PrintInfo("3");
 
             foreach (Ship template in ResourceManager.GetShipTemplates())
             {
@@ -54,7 +84,6 @@ namespace UnitTests.Ships
                     Assert.AreEqual(legacy.AllModulesUnlockable, @new.AllModulesUnlockable, $"{template.Name} Not same AllModulesUnlockable");
                     Assert.AreEqual(legacy.HullUnlockable, @new.HullUnlockable,$"{template.Name} Not same HullUnlockable");
 
-                    Assert.AreEqual(legacy.TechScore, @new.TechScore,$"{template.Name} Not same TechScore");
                     Assert.AreEqual(legacy.BaseStrength, @new.BaseStrength,$"{template.Name} Not same BaseStrength");
                     
                     //${string.Join("",oldShipData.TechsNeeded)} : ${string.Join("",template.shipData.TechsNeeded)}
