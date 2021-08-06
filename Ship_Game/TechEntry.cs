@@ -861,18 +861,13 @@ namespace Ship_Game
                 case "Super Soldiers":
                 case "Troop Strength Modifier Bonus": data.Traits.GroundCombatModifier += unlockedBonus.Bonus; break;
                 case "Fuel Cell Upgrade":
-                case "Fuel Cell Bonus": data.FuelCellModifier += unlockedBonus.Bonus;
-                    EmpireShipBonuses.RefreshBonuses(empire);
-                    break;
+                case "Fuel Cell Bonus": data.FuelCellModifier += unlockedBonus.Bonus; break;
                 case "Trade Tariff":
                 case "Bonus Money Per Trade": data.Traits.Mercantile += unlockedBonus.Bonus; break;
                 case "Missile Armor":
                 case "Missile HP Bonus": data.MissileHPModifier += unlockedBonus.Bonus; break;
                 case "Hull Strengthening":
-                case "Module HP Bonus":
-                    data.Traits.ModHpModifier += unlockedBonus.Bonus;
-                    EmpireShipBonuses.RefreshBonuses(empire); // RedFox: This will refresh all empire module stats
-                    break;
+                case "Module HP Bonus":  data.Traits.ModHpModifier += unlockedBonus.Bonus; break;
                 case "Reaction Drive Upgrade":
                 case "STL Speed Bonus": data.SubLightModifier += unlockedBonus.Bonus; break;
                 case "Reactive Armor":
@@ -902,10 +897,7 @@ namespace Ship_Game
                 case "Civilian Maintenance": data.CivMaintMod -= unlockedBonus.Bonus; break;
                 case "Armor Piercing":
                 case "Armor Phasing": data.ArmorPiercingBonus += (int)unlockedBonus.Bonus; break;
-                case "Kulrathi Might":
-                    data.Traits.ModHpModifier += unlockedBonus.Bonus;
-                    EmpireShipBonuses.RefreshBonuses(empire); // RedFox: This will refresh all empire module stats
-                    break;
+                case "Kulrathi Might":  data.Traits.ModHpModifier += unlockedBonus.Bonus; break;
                 case "Subspace Inhibition": data.Inhibitors = true; break;
                 // Added by McShooterz              : New Bonuses
                 case "Production Bonus": data.Traits.ProductionMod += unlockedBonus.Bonus; break;
@@ -942,6 +934,8 @@ namespace Ship_Game
                         break;
                 }
             }
+
+            EmpireShipBonuses.RefreshBonuses(empire); // RedFox: This will refresh all empire module stats
         }
 
         public bool Equals(TechEntry other)

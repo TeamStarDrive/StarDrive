@@ -301,9 +301,9 @@ namespace Ship_Game.Commands.Goals
 
         bool ClaimTaskInvalid(out MilitaryTask possibleTask)
         {
-            return !TryGetClaimTask(out possibleTask)
-                   || possibleTask.Fleet != null && LifeTime > 5 // Timeout
-                   || possibleTask.Fleet?.TaskStep != 7; // we lost
+            return !TryGetClaimTask(out possibleTask) 
+                || possibleTask.Fleet != null && LifeTime > 5 // Timeout
+                || possibleTask.Fleet?.TaskStep != 7; // we lost
         }
     }
 }
