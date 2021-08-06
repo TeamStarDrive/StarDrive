@@ -153,7 +153,7 @@ namespace UnitTests.AITests.Ships
             
             InjectSteroids(OurShip);
 
-            LoopWhile((timeout:7, fatal:false), () => colonyShip.Active, () =>
+            LoopWhile((timeout:10, fatal:false), () => colonyShip.Active, () =>
             {
                 Assert.IsTrue(OurShip.InCombat, "ship must stay in combat until target destroyed");
                 colonyShip.Velocity = Vector2.Zero; // BUG: there is a strange drift effect in sim
