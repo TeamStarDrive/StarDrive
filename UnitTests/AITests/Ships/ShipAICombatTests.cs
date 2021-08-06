@@ -265,7 +265,7 @@ namespace UnitTests.AITests.Ships
             Update(EnemyScanInterval);
             Assert.IsTrue(OurShip.OnHighAlert, "Enemy planet did not set high alert status");
 
-            float timer = 10;
+            float timer = 15;
             LoopWhile((10, true), () => OurShip.OnHighAlert, () =>
             {
                 Update(EnemyScanInterval);
