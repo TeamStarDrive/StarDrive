@@ -30,13 +30,13 @@ namespace Ship_Game.Commands.Goals
             MilitaryTask task = new MilitaryTask(empire, center, radius, system, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
             {
                 FleetCount               = fleetCount,
-                MinimumTaskForceStrength = strengthWanted
+                MinimumTaskForceStrength = strengthWanted,
+                Goal     = this,
+                GoalGuid = guid
             };
 
             empire.GetEmpireAI().AddPendingTask(task);
         }
-
-        float LifeTime => Empire.Universe.StarDate - StarDateAdded;
 
         bool  TryGetDefenseTask(out MilitaryTask task)
         {
