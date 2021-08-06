@@ -240,7 +240,9 @@ namespace Ship_Game
 
             ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, text:GameText.Engage, click: OnEngageClicked);
             ButtonMedium(10, ScreenHeight - 40, text:GameText.Abort, click: OnAbortClicked);
-            
+
+            DescriptionTextList.ItemPadding = new Vector2(10, 0);
+
             const int containerMarginBottom = 10;
             const int containerPaddingLeft = 10;
             DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked)
@@ -282,7 +284,7 @@ namespace Ship_Game
             DesertEnvEntry  = AddEnvSplitter("{Desert}: ", SelectedData.EnvPerfDesert, envPerf2);
             BarrenEnvEntry  = AddEnvSplitter("{Barren}: ", SelectedData.EnvPerfBarren, envPerf2);
 
-            var pos = new Vector2(ScreenWidth / 2 - 84, traitsList.Y + traitsList.Height + containerMarginBottom);
+            var pos = new Vector2(ScreenWidth / 2 - 84, traitsList.Y + traitsList.Height + 10);
 
             SetEnvPerfVisibility(envPerf1, envPerf2);
 
