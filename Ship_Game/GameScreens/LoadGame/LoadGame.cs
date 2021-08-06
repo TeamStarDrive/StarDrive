@@ -115,6 +115,7 @@ namespace Ship_Game.GameScreens.LoadGame
             GlobalStats.DisableVolcanoWarning         = usData.DisableVolcanoWarning;
             GlobalStats.CordrazinePlanetCaptured      = usData.CordrazinePlanetCaptured;
             GlobalStats.UsePlayerDesigns              = usData.UsePlayerDesigns;
+            GlobalStats.UseUpkeepByHullSize           = usData.UseUpkeepByHullSize;
 
             if (usData.VolcanicActivity > 0) // save support - can remove the if and use the usdata in June 2022
                 GlobalStats.VolcanicActivity = usData.VolcanicActivity;
