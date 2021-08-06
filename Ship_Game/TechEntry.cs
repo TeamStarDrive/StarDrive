@@ -861,7 +861,9 @@ namespace Ship_Game
                 case "Super Soldiers":
                 case "Troop Strength Modifier Bonus": data.Traits.GroundCombatModifier += unlockedBonus.Bonus; break;
                 case "Fuel Cell Upgrade":
-                case "Fuel Cell Bonus": data.FuelCellModifier += unlockedBonus.Bonus; break;
+                case "Fuel Cell Bonus": data.FuelCellModifier += unlockedBonus.Bonus;
+                    EmpireShipBonuses.RefreshBonuses(empire);
+                    break;
                 case "Trade Tariff":
                 case "Bonus Money Per Trade": data.Traits.Mercantile += unlockedBonus.Bonus; break;
                 case "Missile Armor":

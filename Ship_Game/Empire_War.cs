@@ -206,11 +206,6 @@ namespace Ship_Game
             return goals.Length > 0;
         }
 
-        public Goal[] GetDefendSystemsGoal()
-        {
-            return EmpireAI.Goals.Filter(g => g.type == GoalType.DefendSystem);
-        }
-
         public bool NoEmpireDefenseGoal()
         {
             return !EmpireAI.Goals.Any(g => g.type == GoalType.EmpireDefense);
