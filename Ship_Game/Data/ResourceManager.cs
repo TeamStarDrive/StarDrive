@@ -1018,6 +1018,18 @@ namespace Ship_Game
             else
                 Empires.AddRange(LoadEntities<EmpireData>("Races", "LoadEmpires"));
 
+            // Humans should always be first,
+            // The rest should be sorted by the first initial
+            Empires.Sort(data =>
+            {
+                if (data.ArchetypeName == "Human") return 0; // always the first
+                if (data.ArchetypeName == "Dauntless") return 1; // Combined Arms: new expansion race
+                int initial = (int)data.ArchetypeName[0]; // by initial
+                if (data.IsFactionOrMinorRace) // factions are always last
+                    initial += 1000;
+                return initial;
+            });
+
             foreach (IEmpireData e in Empires)
             {
                 if (e.IsFactionOrMinorRace)
