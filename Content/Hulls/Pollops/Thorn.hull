@@ -1,0 +1,15 @@
+﻿Version=1
+HullName=Pollops/Thorn
+Role=fighter
+Style=Pollops
+Size=4,4
+IconPath=ShipIcons/thorn
+ModelPath=Model/Ships/Pollops/Thorn
+SelectIcon=15a
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=255,274,0,39
+Slots
+___|IO |IO |___
+IO |I  |I  |IO 
+___|I  |I  |___
+___|E  |E  |___

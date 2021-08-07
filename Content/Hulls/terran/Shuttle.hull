@@ -1,0 +1,15 @@
+﻿Version=1
+HullName=Terran/Shuttle
+Role=fighter
+Style=Terran
+Size=4,4
+IconPath=ShipIcons/shuttle
+ModelPath=Model/Ships/Terran/Shuttle/ship08
+SelectIcon=08
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=257,251,0,32
+Slots
+___|IO |IO |___
+___|I  |I  |___
+IO |I  |I  |IO 
+___|E  |E  |___

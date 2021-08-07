@@ -1,0 +1,22 @@
+﻿Version=1
+HullName=Meteors/Meteor B
+Role=platform
+Style=Meteors
+Size=14,12
+IconPath=ShipIcons/terran_platform
+ModelPath=Model/Asteroids/asteroid4
+SelectIcon=13e
+#Thruster PosX,PosY,PosZ,Scale
+Slots
+___|___|___|I  |I  |I  |I  |I  |I  |I  |___|___|___|___
+___|___|I  |I  |I  |I  |I  |I  |I  |I  |I  |___|___|___
+___|I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |___|___
+___|I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |___
+I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |___
+I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |___
+___|I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |___
+___|I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |___
+___|___|I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  
+___|___|___|I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  
+___|___|___|___|___|___|I  |I  |I  |I  |I  |I  |I  |I  
+___|___|___|___|___|___|___|___|___|___|I  |I  |I  |I  

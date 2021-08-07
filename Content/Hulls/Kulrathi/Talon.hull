@@ -1,0 +1,27 @@
+﻿Version=1
+HullName=Kulrathi/Talon
+Role=frigate
+Style=Kulrathi
+Size=18,15
+IconPath=ShipIcons/talon
+ModelPath=Model/Ships/Kulrathi/ship11d
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=200,344,0,25
+Thruster=264,344,0,65
+Thruster=312,360,0,25
+Slots
+___|___|___|___|___|___|___|___|O  |O  |___|___|___|___|___|___|___|___
+___|___|___|___|___|___|___|O  |IO |IO |O  |___|___|___|___|___|___|___
+___|___|___|___|___|___|___|O  |IO |IO |O  |___|___|___|___|___|___|___
+___|___|___|___|___|___|___|O  |I  |I  |O  |___|___|___|___|___|___|___
+___|___|___|___|___|___|O  |IO |I  |I  |IO |O  |___|___|___|___|___|___
+___|___|___|___|___|O  |IO |IO |I  |I  |IO |IO |O  |___|___|___|___|___
+___|___|___|___|___|O  |IO |I  |I  |I  |I  |IO |O  |___|___|___|___|___
+___|___|___|___|___|O  |IO |I  |I  |I  |I  |IO |O  |___|___|___|___|___
+___|___|___|___|O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |___|___|___|___
+___|___|___|O  |IO |IO |I  |I  |I  |I  |I  |I  |IO |IO |O  |___|___|___
+___|___|O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |___|___
+___|O  |IO |IO |IO |IO |IO |E  |E  |E  |E  |IO |IO |IO |IO |IO |O  |___
+O  |IO |IO |IO |E  |E  |O  |E  |E  |E  |E  |O  |E  |E  |IO |IO |IO |O  
+___|O  |IO |IO |E  |E  |___|___|___|___|___|___|E  |E  |IO |IO |O  |___
+___|O  |O  |O  |___|___|___|___|___|___|___|___|___|___|O  |O  |O  |___

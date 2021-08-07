@@ -1,0 +1,36 @@
+﻿Version=1
+HullName=Remnant/Xeno Cruiser
+Role=cruiser
+Style=Remnant
+Size=22,23
+IconPath=ShipIcons/xeno gunship
+ModelPath=Model/Ships/Remnant/XenoCruiser/ship09e
+SelectIcon=09e
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=216,424,0,108
+Thruster=248,408,0,108
+Thruster=280,408,0,108
+Slots
+___|___|___|___|___|___|___|___|___|___|O  |O  |___|___|___|___|___|___|___|___|___|___
+___|___|___|___|___|___|___|O  |O  |O  |O  |O  |O  |O  |O  |___|___|___|___|___|___|___
+___|___|___|___|___|___|___|O  |IO |IO |IO |IO |IO |IO |O  |___|___|___|___|___|___|___
+___|___|___|___|___|___|___|O  |IO |IO |IO |IO |IO |IO |O  |___|___|___|___|___|___|___
+___|___|___|___|O  |O  |O  |O  |IO |IO |IO |IO |IO |IO |O  |O  |O  |O  |___|___|___|___
+___|___|___|___|O  |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |O  |___|___|___|___
+___|___|O  |O  |O  |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |O  |O  |O  |___|___
+O  |O  |IO |IO |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |IO |IO |O  |O  
+O  |O  |IO |IO |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |IO |IO |O  |O  
+O  |O  |IO |IO |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |IO |IO |O  |O  
+O  |O  |IO |IO |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |IO |IO |O  |O  
+O  |O  |IO |IO |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |IO |IO |O  |O  
+O  |O  |IO |IO |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |IO |IO |O  |O  
+___|___|O  |O  |O  |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |O  |O  |O  |___|___
+___|___|___|___|___|O  |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |O  |___|___|___|___|___
+___|___|___|___|___|O  |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |O  |___|___|___|___|___
+___|___|___|___|O  |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |O  |___|___|___|___
+___|___|O  |O  |O  |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |O  |O  |O  |___|___
+___|___|O  |O  |O  |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |O  |O  |O  |___|___
+___|___|___|O  |O  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |O  |O  |___|___|___
+___|___|___|O  |O  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |O  |O  |___|___|___
+___|___|___|O  |O  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |O  |O  |___|___|___
+___|___|___|___|___|E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |___|___|___|___|___

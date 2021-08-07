@@ -1,0 +1,23 @@
+﻿Version=1
+HullName=Pollops/Sower
+Role=freighter
+Style=Pollops
+Size=8,13
+IconPath=ShipIcons/Sower
+ModelPath=Model/Ships/Pollops/ship15h
+SelectIcon=15h
+#Thruster PosX,PosY,PosZ,Scale
+Slots
+___|I  |I  |I  |I  |I  |I  |___
+___|___|I  |I  |I  |I  |___|___
+___|___|I  |I  |I  |I  |___|___
+___|I  |I  |I  |I  |I  |I  |___
+___|I  |I  |I  |I  |I  |I  |___
+___|___|I  |I  |I  |I  |___|___
+___|___|I  |I  |I  |I  |___|___
+___|___|I  |I  |I  |I  |___|___
+___|I  |I  |I  |I  |I  |I  |___
+___|___|I  |I  |I  |I  |___|___
+___|___|I  |I  |I  |I  |___|___
+___|I  |E  |E  |E  |E  |I  |___
+I  |___|E  |E  |E  |E  |___|I  

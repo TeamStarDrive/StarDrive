@@ -1,0 +1,15 @@
+﻿Version=1
+HullName=Vulfen/Type I
+Role=fighter
+Style=Vulfen
+Size=4,4
+IconPath=ShipIcons/typeI
+ModelPath=Model/Ships/Vulfen/TypeI
+SelectIcon=13a
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=256,277,0,30
+Slots
+___|IO |IO |___
+___|IO |IO |___
+O  |I  |I  |O  
+___|E  |E  |___

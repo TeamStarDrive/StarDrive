@@ -1,0 +1,18 @@
+﻿Version=1
+HullName=Cordrazine/Litving
+Role=corvette
+Style=Cordrazine
+Size=6,7
+IconPath=ShipIcons/Litving
+ModelPath=Model/Ships/Cordrazine/ship16b
+SelectIcon=16b
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=257,281,0,53
+Slots
+___|___|O  |O  |___|___
+O  |O  |IO |IO |O  |O  
+O  |I  |I  |I  |I  |O  
+O  |IO |I  |I  |IO |O  
+___|___|IO |IO |___|___
+___|O  |E  |E  |O  |___
+O  |O  |E  |E  |O  |O  
