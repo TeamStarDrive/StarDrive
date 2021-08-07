@@ -57,8 +57,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.GridInfo.Size.Y, b.GridInfo.Size.Y);
 
             Assert.AreEqual(a.Unlockable, b.Unlockable);
-            Assert.AreEqual(a.HullUnlockable, b.HullUnlockable);
-            Assert.AreEqual(a.AllModulesUnlockable, b.AllModulesUnlockable);
             Assert.That.EqualCollections(a.TechsNeeded, b.TechsNeeded);
 
             if (checkModules)
@@ -110,8 +108,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.GridInfo.Size.Y, b.GridInfo.Size.Y);
 
             Assert.AreEqual(a.UnLockable, b.Unlockable);
-            Assert.AreEqual(a.HullUnlockable, b.HullUnlockable);
-            Assert.AreEqual(a.AllModulesUnlockable, b.AllModulesUnlockable);
             Assert.That.EqualCollections(a.TechsNeeded, b.TechsNeeded);
         }
 
@@ -146,8 +142,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(ShipData.RoleName.fighter, design.Role);
             Assert.AreEqual(1, design.ThrusterList.Length);
             Assert.AreEqual(true, design.Unlockable);
-            Assert.AreEqual(false, design.HullUnlockable);
-            Assert.AreEqual(false, design.AllModulesUnlockable);
             Assert.AreEqual(10, design.ModuleSlots.Length);
             Assert.AreEqual(10, design.GridInfo.SurfaceArea);
             Assert.AreEqual(4, design.GridInfo.Size.X);
@@ -183,8 +177,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(ShipData.RoleName.prototype, design.Role);
             Assert.AreEqual(1, design.ThrusterList.Length);
             Assert.AreEqual(true, design.Unlockable);
-            Assert.AreEqual(false, design.HullUnlockable);
-            Assert.AreEqual(false, design.AllModulesUnlockable);
             Assert.AreEqual(70, design.ModuleSlots.Length);
             Assert.AreEqual(70, design.GridInfo.SurfaceArea);
         }
@@ -208,8 +200,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(ShipData.RoleName.prototype, design.Role);
             Assert.AreEqual(1, design.ThrusterList.Length);
             Assert.AreEqual(true, design.Unlockable);
-            Assert.AreEqual(false, design.HullUnlockable);
-            Assert.AreEqual(false, design.AllModulesUnlockable);
             Assert.AreEqual(40, design.ModuleSlots.Length); // new designs don't have dummy modules
             Assert.AreEqual(70, design.GridInfo.SurfaceArea);
         }
