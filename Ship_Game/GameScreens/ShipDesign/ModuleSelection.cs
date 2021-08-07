@@ -279,7 +279,8 @@ namespace Ship_Game
             modTitlePos.Y += (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);
             float starty = modTitlePos.Y;
             modTitlePos.X = 10;
-            float strength = mod.CalculateModuleOffenseDefense(Screen.DesignedShip.Modules.Length);
+
+            float strength = mod.CalculateModuleOffenseDefense(Screen.CurrentHull.SurfaceArea);
             DrawStat(ref modTitlePos, "Offense", strength, GameText.TT_ShipOffense);
 
             if (mod.BombType == null && !mod.isWeapon || mod.InstalledWeapon == null)
@@ -674,17 +675,15 @@ namespace Ship_Game
 
         float GetHullDamageBonus()
         {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses &&
-                ResourceManager.HullBonuses.TryGetValue(Screen.ActiveHull.Hull, out HullBonus bonus))
-                return 1f + bonus.DamageBonus;
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses)
+                return 1f + Screen.CurrentHull.Bonuses.DamageBonus;
             return 1f;
         }
 
         float GetHullFireRateBonus()
         {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses &&
-                ResourceManager.HullBonuses.TryGetValue(Screen.ActiveHull.Hull, out HullBonus bonus))
-                return 1f - bonus.FireRateBonus;
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses)
+                return 1f - Screen.CurrentHull.Bonuses.FireRateBonus;
             return 1f;
         }
     }

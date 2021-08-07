@@ -12,6 +12,11 @@ namespace Ship_Game.Ships
     // NOTE: public variables are SERIALIZED
     public partial class ShipData
     {
+        public void Save(string filePath)
+        {
+            Save(new FileInfo(filePath));
+        }
+
         public void Save(FileInfo file)
         {
             ShipDataWriter sw = CreateShipDataText();
@@ -202,8 +207,6 @@ namespace Ship_Game.Ships
             BaseHull = hull;
             Bonuses = hull.Bonuses;
             ThrusterList = hull.Thrusters;
-            ModelPath = hull.ModelPath;
-            Animated = hull.Animated;
             IsShipyard = hull.IsShipyard;
             IsOrbitalDefense = hull.IsOrbitalDefense;
             

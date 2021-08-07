@@ -16,10 +16,10 @@ namespace Ship_Game
             {
                 foreach (Ship ship in ResourceManager.GetShipTemplates())
                 {
-                    if (ship.DesignRole == role && !spawnedMeshes.Contains(ship.shipData.ModelPath))
+                    if (ship.DesignRole == role && !spawnedMeshes.Contains(ship.BaseHull.ModelPath))
                     {
                         Ship.CreateShipAtPoint(ship.Name, player, mouseWorldPos + RandomMath.Vector2D(500f));
-                        spawnedMeshes.Add(ship.shipData.ModelPath);
+                        spawnedMeshes.Add(ship.BaseHull.ModelPath);
                     }
                 }
             }

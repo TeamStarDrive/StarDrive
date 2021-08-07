@@ -61,11 +61,9 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.GridInfo.Size, b.Size);
             Assert.AreEqual(a.GridInfo.SurfaceArea, b.SurfaceArea);
             Assert.AreEqual(a.IconPath, b.IconPath);
-            Assert.AreEqual(a.ModelPath, b.ModelPath);
 
             Assert.AreEqual(a.Role, b.Role);
             Assert.AreEqual(a.SelectionGraphic, b.SelectIcon);
-            Assert.AreEqual(a.Animated, b.Animated);
             Assert.AreEqual(a.IsShipyard, b.IsShipyard);
             Assert.AreEqual(a.IsOrbitalDefense, b.IsOrbitalDefense);
 

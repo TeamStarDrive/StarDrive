@@ -10,7 +10,7 @@ namespace Ship_Game
     // @todo Make this generic enough so that `SlotStruct` is no longer needed
     public class DesignModuleGrid
     {
-        public readonly ShipData Hull;
+        public readonly string Name;
         readonly SlotStruct[] Grid;
         readonly SlotStruct[] Slots;
         readonly int Width;
@@ -19,12 +19,13 @@ namespace Ship_Game
         public Action OnGridChanged;
 
         // this constructs a [GridWidth][GridHeight] array of current hull
-        // and allows for quick lookup for neighbours
-        public DesignModuleGrid(ShipData design)
+        public DesignModuleGrid(ShipData design) : this(design.Name, design.BaseHull)
         {
-            Hull = new ShipData(design);
+        }
 
-            ShipHull hull = Hull.BaseHull;
+        public DesignModuleGrid(string name, ShipHull hull)
+        {
+            Name = name;
             Width = hull.Size.X;
             Height = hull.Size.Y;
 
@@ -34,24 +35,19 @@ namespace Ship_Game
             {
                 var slot = new SlotStruct(hull.HullSlots[i], hull);
                 Slots[i] = slot;
-                Grid[slot.GridPos.X + slot.GridPos.Y * Width] = slot;
+                Grid[slot.Pos.X + slot.Pos.Y * Width] = slot;
             }
 
         #if DEBUG
-            ModuleGridUtils.DebugDumpGrid($"Debug/DesignModuleGrid/{Hull.Name}.HULL.txt",
+            ModuleGridUtils.DebugDumpGrid($"Debug/DesignModuleGrid/{Name}.HULL.txt",
                         Grid, Width, Height, ModuleGridUtils.DumpFormat.SlotStructEmptyHull);
         #endif
-        }
-
-        public DesignModuleGrid(ShipHull hull)
-        {
-            throw new NotImplementedException();
         }
 
         public void SaveDebugGrid()
         {
         #if DEBUG
-            ModuleGridUtils.DebugDumpGrid($"Debug/DesignModuleGrid/{Hull.Name}.txt",
+            ModuleGridUtils.DebugDumpGrid($"Debug/DesignModuleGrid/{Name}.txt",
                         Grid, Width, Height, ModuleGridUtils.DumpFormat.SlotStruct);
         #endif
         }
@@ -130,7 +126,7 @@ namespace Ship_Game
             => IsInBounds(r.X0, r.Y0) && IsInBounds(r.X1, r.Y1);
 
         ModuleRect GetModuleSpan(SlotStruct slot, int width, int height)
-            => new ModuleRect(slot.GridPos, width, height);
+            => new ModuleRect(slot.Pos, width, height);
 
         #endregion
 
