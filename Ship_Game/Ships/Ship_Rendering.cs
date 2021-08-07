@@ -127,7 +127,6 @@ namespace Ship_Game.Ships
         #endif
         }
 
-
         public void DrawModulesOverlay(GameScreen sc, float camHeight,
                                        bool showDebugSelect, bool showDebugStats)
         {
@@ -138,24 +137,26 @@ namespace Ship_Game.Ships
             float shipDegrees = (float)Math.Round(Rotation.ToDegrees());
             float shipRotation = shipDegrees.ToRadians();
 
+            // this size calculation is quite delicate because of float coordinate imprecision issues
+            float moduleSize = sc.ProjectToScreenSize(16f);
+            float oneUnit = moduleSize/16f;
+
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 ShipModule slot = ModuleSlotList[i];
 
-                float moduleWidth  = slot.XSIZE * 16.5f; // using 16.5f instead of 16 to reduce pixel error flickering
-                float moduleHeight = slot.YSIZE * 16.5f;
+                bool square = slot.XSIZE == slot.YSIZE;
+                float w = slot.XSIZE * moduleSize;
+                float h = square ? w : slot.YSIZE * moduleSize;
 
-                float w = sc.ProjectToScreenSize(moduleWidth);
-                float h = sc.ProjectToScreenSize(moduleHeight);
                 Vector2 posOnScreen = sc.ProjectToScreenPosition(slot.Position);
 
                 // round all the values to TRY prevent module flickering on screen
                 // it helps by a noticeable amount
                 posOnScreen.X = (float)Math.Round(posOnScreen.X);
                 posOnScreen.Y = (float)Math.Round(posOnScreen.Y);
-                if (w.AlmostEqual(h, 0.001f)) w = h;
 
-                float slotFacing = 0;
+                int slotFacing = 0;
                 switch (slot.ModuleRot)
                 {
                     case ModuleOrientation.Right: slotFacing += 90; break;
@@ -165,6 +166,7 @@ namespace Ship_Game.Ships
 
                 float slotRotation = (shipDegrees + slotFacing).ToRadians();
                 sc.DrawTextureSized(concreteGlass, posOnScreen, shipRotation, w, h, Color.White);
+
                 if (camHeight > 6000.0f) // long distance view, draw the modules as colored icons
                 {
                     sc.DrawTextureSized(symbolFighter, posOnScreen, shipRotation, w, h, slot.GetHealthStatusColor());
@@ -172,17 +174,17 @@ namespace Ship_Game.Ships
                 else
                 {
                     Color healthColor = slot.GetHealthStatusColorWhite();
-                    if (slot.XSIZE == slot.YSIZE)
+                    if (square)
                     {
                         sc.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
                         if (showDebugSelect)
-                            sc.DrawCircleProjected(slot.Position, slot.Radius, Color.Orange, 2f);
+                            sc.DrawCircle(posOnScreen, slot.Radius*oneUnit, Color.Orange, 2f);
                     }
                     else
                     {
                         // @TODO HACK the dimensions are already rotated so that rotating again puts it in the wrong orientation. 
                         // so to fix that i am switching the height and width if the module is facing left or right. 
-                        if (slotFacing.AlmostEqual(270f) || slotFacing.AlmostEqual(90f))
+                        if (slotFacing == 270 || slotFacing == 90)
                         {
                             float oldW = w; w = h; h = oldW; // swap(w, h)
                         }
@@ -216,8 +218,8 @@ namespace Ship_Game.Ships
                         }
 
                         // draw the debug x/y pos
-                        ModulePosToGridPoint(slot, out int x, out int y);
-                        sc.DrawString(posOnScreen, shipRotation, 600f / camHeight, Color.Red, $"X{x} Y{y}\nF{slotFacing}");
+                        sc.DrawString(posOnScreen, shipRotation, 600f / camHeight, Color.Red,
+                                      $"X{slot.GridPos.X} Y{slot.GridPos.Y}\nF{slotFacing}");
                     }
                 }
             }
@@ -349,7 +351,8 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
                 ShipModule m = ModuleSlotList[i];
-                ModulePosToGridPoint(m, out int x, out int y);
+                int x = m.GridPos.X;
+                int y = m.GridPos.Y;
                 Vector2 modulePos = new Vector2(x, y) * moduleSize;
                 Color healthColor = moduleHealthColor ? m.GetHealthStatusColor() : new Color(40, 40, 40);
                 Color moduleColorMultiply = healthColor.AddRgb(moduleHealthColor ? 0.66f : 1);

@@ -11,15 +11,19 @@ namespace Ship_Game
 {
     public static class Matrices
     {
+        // this is a copy of XNA Viewport.Project, with the third Matrix optimized out
         public static Vector2 ProjectTo2D(this Viewport viewport, Vector3 source, in Matrix projection, in Matrix view)
         {
             view.Multiply(projection, out Matrix viewProjection);
             Vector3.Transform(ref source, ref viewProjection, out Vector3 clipSpacePoint);
-            float len = source.X * viewProjection.M14 + source.Y * viewProjection.M24 + source.Z * viewProjection.M34 + viewProjection.M44;
+            float len = source.X * viewProjection.M14
+                      + source.Y * viewProjection.M24
+                      + source.Z * viewProjection.M34
+                      + viewProjection.M44;
             if (!len.AlmostEqual(1f)) // normalize
                 clipSpacePoint /= len;
-            return new Vector2((clipSpacePoint.X + 1.0f) * 0.5f * viewport.Width + viewport.X,
-                (-clipSpacePoint.Y + 1.0f) * 0.5f * viewport.Height + viewport.Y);
+            return new Vector2( (clipSpacePoint.X + 1.0f) * 0.5f * viewport.Width,
+                               (-clipSpacePoint.Y + 1.0f) * 0.5f * viewport.Height);
         }
 
         public static Vector2 Measure2D(this Viewport viewport, Vector3 a, Vector3 b, in Matrix projection, in Matrix view)

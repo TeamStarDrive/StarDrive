@@ -325,14 +325,6 @@ namespace Ship_Game
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Projects World Pos into Screen Pos
-        public Vector2 ProjectTo2D(Vector3 worldPos)
-        {
-            return Viewport.ProjectTo2D(worldPos, Projection, View);
-        }
-        
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
         // just draws a line, no fancy reprojections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawLine(Vector2 screenPoint1, Vector2 screenPoint2, Color color, float thickness = 1f)
@@ -456,21 +448,30 @@ namespace Ship_Game
                 modelMesh.Draw();
             }
         }
-
+                
         public void DrawTransparentModel(Model model, in Matrix world, SubTexture projTex, float scale)
         {
             DrawModelMesh(model, Matrix.CreateScale(scale) * world, View, Vector3.One, Projection, projTex);
             Device.RenderState.DepthBufferWriteEnable = true;
         }
 
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // Projects World Pos into Screen Pos
+        public Vector2 ProjectTo2D(Vector3 worldPos)
+        {
+            return Viewport.ProjectTo2D(worldPos, Projection, View);
+        }
+
         // Projects World Pos into Screen Pos
         public Vector2 ProjectToScreenPosition(Vector2 posInWorld, float zAxis = 0f)
         {
-            return Viewport.ProjectTo2D(posInWorld.ToVec3(zAxis), Projection, View);
+            return Viewport.ProjectTo2D(new Vector3(posInWorld, zAxis), Projection, View);
         }
 
         public void ProjectToScreenCoords(Vector2 posInWorld, float zAxis, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)
         {
+            // TODO: check accuracy of Pos and Size
             posOnScreen  = ProjectToScreenPosition(posInWorld, zAxis);
             sizeOnScreen = ProjectToScreenPosition(new Vector2(posInWorld.X + sizeInWorld, posInWorld.Y),zAxis).Distance(ref posOnScreen);
         }
@@ -482,6 +483,7 @@ namespace Ship_Game
 
         public void ProjectToScreenCoords(Vector2 posInWorld, Vector2 sizeInWorld, out Vector2 posOnScreen, out Vector2 sizeOnScreen)
         {
+            // TODO: check accuracy of Pos and Size
             posOnScreen  = ProjectToScreenPosition(posInWorld);
             Vector2 size = ProjectToScreenPosition(new Vector2(posInWorld.X + sizeInWorld.X, posInWorld.Y + sizeInWorld.Y)) - posOnScreen;
             sizeOnScreen = new Vector2(Math.Abs(size.X), Math.Abs(size.Y));
@@ -504,9 +506,14 @@ namespace Ship_Game
 
         public float ProjectToScreenSize(float sizeInWorld)
         {
-            Vector2 a = ProjectToScreenPosition(Vector2.Zero);
-            Vector2 b = ProjectToScreenPosition(new Vector2(sizeInWorld, 0f));
-            return a.Distance(b);
+            // NOTE: using Unproject here gives a huge precision and stability boost to the result
+            //       because there is a float precision issue,
+            //       where `Unproject & Project` transform doesn't give back the initial input
+            Vector3 screenWorld = UnprojectToWorldPosition3D(Vector2.Zero);
+            Vector2 a = ProjectToScreenPosition(new Vector2(screenWorld.X, screenWorld.Y));
+            Vector2 b = ProjectToScreenPosition(new Vector2(screenWorld.X + sizeInWorld, screenWorld.Y));
+            float sizeOnScreen = a.Distance(b);
+            return sizeOnScreen;
         }
 
         public Vector3 UnprojectToWorldPosition3D(Vector2 screenSpace)
