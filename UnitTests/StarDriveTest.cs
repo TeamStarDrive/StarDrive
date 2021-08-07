@@ -189,12 +189,12 @@ namespace UnitTests
         // If the ship is already loaded this will be a No-Op
         public static void LoadStarterShips(params string[] shipList)
         {
-            ResourceManager.LoadStarterShipsForTesting(shipList, null);
+            ResourceManager.LoadStarterShipsForTesting(shipList);
         }
 
         public static void OnlyLoadShips(params string[] shipList)
         {
-            ResourceManager.LoadStarterShipsForTesting(shipList, null, clearAll: true);
+            ResourceManager.LoadStarterShipsForTesting(shipList, clearAll: true);
         }
 
         public static void ReloadTechTree()
