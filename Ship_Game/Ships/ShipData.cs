@@ -66,7 +66,6 @@ namespace Ship_Game.Ships
         [XmlIgnore] [JsonIgnore] public bool HullUnlockable;
         [XmlIgnore] [JsonIgnore] public bool AllModulesUnlockable = true;
         [XmlArray(ElementName = "techsNeeded")] public HashSet<string> TechsNeeded = new HashSet<string>();
-        [XmlIgnore] [JsonIgnore] public int TechScore;
 
         static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
         static readonly string[] CategoryArray = typeof(Category).GetEnumNames();
@@ -165,7 +164,6 @@ namespace Ship_Game.Ships
             HangarDesignation = hull.HangarDesignation;
             CarrierShip       = hull.CarrierShip;
             TechsNeeded       = hull.TechsNeeded;
-            TechScore         = hull.TechScore;
             BaseHull          = hull.BaseHull;
 
             UnLockable = hull.UnLockable;
