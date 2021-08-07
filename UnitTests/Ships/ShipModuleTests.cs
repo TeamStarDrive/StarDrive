@@ -38,19 +38,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(expected.HangarShip, actual.HangarShip);
         }
 
-        public static void AssertAreEqual(ModuleSlotData expected, ModuleSlotData actual)
-        {
-            Assert.AreEqual(expected.Position, actual.Position);
-            Assert.AreEqual(expected.ModuleUID, actual.ModuleUID);
-            Assert.AreEqual(expected.HangarshipGuid, actual.HangarshipGuid);
-            Assert.AreEqual(expected.Health, actual.Health, 0.001f);
-            Assert.AreEqual(expected.Facing, actual.Facing, 0.001f);
-            Assert.AreEqual(expected.ShieldPower, actual.ShieldPower, 0.001f);
-            Assert.AreEqual(expected.Orientation, actual.Orientation);
-            Assert.AreEqual(expected.Restrictions, actual.Restrictions);
-            Assert.AreEqual(expected.SlotOptions, actual.SlotOptions);
-        }
-
         public static void AssertAreEqual(ShipModule expected, ShipModule actual)
         {
             Assert.AreEqual(expected.Position, actual.Position);
@@ -71,22 +58,20 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
-        public void New_ModuleSlotData()
+        public void New_DesignSlot()
         {
-            var slot = new ModuleSlotData(new Vector2(64f, 128f), Restrictions.IOE);
-            Assert.AreEqual(new Vector2(64f, 128f), slot.Position);
-            Assert.AreEqual(Restrictions.IOE, slot.Restrictions);
+            var hs = new HullSlot(4, 8, Restrictions.IOE);
+            Assert.AreEqual(new Point(4, 8), hs.Pos);
+            Assert.AreEqual(Restrictions.IOE, hs.R);
 
-            slot = new ModuleSlotData(new Vector2(64f, 128f), Restrictions.IOE,
-                                      "FighterBay", 180f, ModuleOrientation.Rear.ToString(),
-                                      slotOptions:"Vulcan Scout");
+            var slot = new DesignSlot(hs.Pos, "FighterBay", new Point(3,4),
+                                      180, ModuleOrientation.Rear, "Vulcan Scout");
 
-            Assert.AreEqual(new Vector2(64f, 128f), slot.Position);
-            Assert.AreEqual(Restrictions.IOE, slot.Restrictions);
+            Assert.AreEqual(new Vector2(64f, 128f), slot.Pos);
             Assert.AreEqual("FighterBay", slot.ModuleUID);
-            Assert.AreEqual(180f, slot.Facing);
-            Assert.AreEqual(ModuleOrientation.Rear.ToString(), slot.Orientation);
-            Assert.AreEqual("Vulcan Scout", slot.SlotOptions);
+            Assert.AreEqual(180, slot.TurretAngle);
+            Assert.AreEqual(ModuleOrientation.Rear, slot.ModuleRot);
+            Assert.AreEqual("Vulcan Scout", slot.HangarShipUID);
         }
 
         [TestMethod]
@@ -113,9 +98,9 @@ namespace UnitTests.Ships
 
             // TODO: needs to be rewritten
 
-            var original = new ModuleSlotData(new Vector2(64f, 128f), Restrictions.IOE, "FighterBay",
-                                              180f, ModuleOrientation.Rear.ToString(),
-                                              slotOptions:"Vulcan Scout"/*this is the expected hangarShipUID*/);
+            //var original = new ModuleSlotData(new Vector2(64f, 128f), Restrictions.IOE, "FighterBay",
+            //                                  180f, ModuleOrientation.Rear.ToString(),
+            //                                  slotOptions:"Vulcan Scout"/*this is the expected hangarShipUID*/);
 
             //var slot = new SlotStruct(original, hull);
             //slot.Module = ShipModule.CreateDesignModule(original.ModuleOrNull, 
