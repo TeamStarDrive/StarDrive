@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
 using Ship_Game.SpriteSystem;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -50,6 +51,13 @@ namespace Ship_Game
             Sprite = sprite;
         }
 
+        public UIPanel(in RelPos rel, in Vector2 size, Color color, DrawableSprite sprite = null)
+            : base(rel, size)
+        {
+            Color = color;
+            Sprite = sprite;
+        }
+
         public UIPanel(float x, float y, float w, float h, DrawableSprite sprite = null) : base(x, y, w, h)
         {
             Sprite = sprite;
@@ -60,7 +68,13 @@ namespace Ship_Game
             Color = color;
         }
 
-        public UIPanel(in Rectangle rect, SubTexture texture) : this(rect, Color.White, new DrawableSprite(texture))
+        public UIPanel(in Rectangle rect, SubTexture texture)
+            : this(rect, Color.White, new DrawableSprite(texture))
+        {
+        }
+
+        public UIPanel(in RelPos pos, in Vector2 size, SubTexture texture)
+            : this(pos, size, Color.White, new DrawableSprite(texture))
         {
         }
 
@@ -79,7 +93,6 @@ namespace Ship_Game
             Pos = pos;
             Size = Sprite.Size;
         }
-
 
         public override bool HandleInput(InputState input)
         {
