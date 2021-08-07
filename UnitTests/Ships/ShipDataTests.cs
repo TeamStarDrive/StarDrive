@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
@@ -132,7 +131,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipDesign_LoadVanilla_VulcanScout()
         {
-            ShipData design = ShipData.Parse("Content/StarterShips/Vulcan Scout.design");
+            ShipData design = ShipData.Parse("Content/ShipDesigns/Vulcan Scout.design");
             Assert.AreEqual("Vulcan Scout", design.Name);
             Assert.AreEqual("", design.ModName);
             Assert.AreEqual("Terran", design.ShipStyle);
@@ -167,7 +166,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipDesign_LoadVanilla_PrototypeFrigate()
         {
-            ShipData design = ShipData.Parse("Content/SavedDesigns/Prototype Frigate.design");
+            ShipData design = ShipData.Parse("Content/ShipDesigns/Prototype Frigate.design");
             Assert.AreEqual("Prototype Frigate", design.Name);
             Assert.AreEqual("", design.ModName);
             Assert.AreEqual("Terran", design.ShipStyle);
@@ -184,13 +183,13 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipDesign_LoadVanilla_PrototypeFrigate_NewDesign()
         {
-            if (!File.Exists("Content/SavedDesigns/Prototype Frigate.xml"))
+            if (!File.Exists("Content/ShipDesigns/Prototype Frigate.xml"))
             {
-                LegacyShipData old = LegacyShipData.Parse("Content/SavedDesigns/Prototype Frigate.xml", isHullDefinition:false);
-                old.SaveDesign("Content/SavedDesigns/Prototype Frigate.design");
+                LegacyShipData old = LegacyShipData.Parse("Content/ShipDesigns/Prototype Frigate.xml", isHullDefinition:false);
+                old.SaveDesign("Content/ShipDesigns/Prototype Frigate.design");
             }
 
-            ShipData design = ShipData.Parse("Content/SavedDesigns/Prototype Frigate.design");
+            ShipData design = ShipData.Parse("Content/ShipDesigns/Prototype Frigate.design");
             Assert.AreEqual("Prototype Frigate", design.Name);
             Assert.AreEqual("", design.ModName);
             Assert.AreEqual("Terran", design.ShipStyle);
@@ -207,7 +206,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipDesign_Clone_EqualToOriginal()
         {
-            ShipData original = ShipData.Parse("Content/SavedDesigns/Prototype Frigate.design");
+            ShipData original = ShipData.Parse("Content/ShipDesigns/Prototype Frigate.design");
             ShipData clone = new ShipData(original);
             AssertAreEqual(original, clone, true);
         }
@@ -215,10 +214,10 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipDesign_NewFormat_SaveLoad_EqualToOldFormat()
         {
-            LegacyShipData legacy = LegacyShipData.Parse("Content/SavedDesigns/Prototype Frigate.xml", isHullDefinition:false);
-            legacy.SaveDesign("Content/SavedDesigns/Prototype Frigate.design");
+            LegacyShipData legacy = LegacyShipData.Parse("Content/ShipDesigns/Prototype Frigate.xml", isHullDefinition:false);
+            legacy.SaveDesign("Content/ShipDesigns/Prototype Frigate.design");
             
-            ShipData neu = ShipData.Parse("Content/SavedDesigns/Prototype Frigate.design");
+            ShipData neu = ShipData.Parse("Content/ShipDesigns/Prototype Frigate.design");
             AssertAreEqual(legacy, neu);
         }
     }

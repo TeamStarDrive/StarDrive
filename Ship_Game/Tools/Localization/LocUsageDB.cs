@@ -25,8 +25,6 @@ namespace Ship_Game.Tools.Localization
                 if (!path.Contains("/Localization/") &&
                     !path.Contains("/Tooltips/") &&
                     !path.Contains("/Hulls/") &&
-                    !path.Contains("/StarterShips/") &&
-                    !path.Contains("/SavedDesigns/") &&
                     !path.Contains("/ShipDesigns/") &&
                     !path.Contains("/Players/") &&
                     !path.Contains("/Weapons/"))
