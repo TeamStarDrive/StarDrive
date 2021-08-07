@@ -56,8 +56,8 @@ namespace Ship_Game.Ships
             {
                 ShipModule m = modules[i];
                 SurfaceArea += m.Area;
-                var botRight = new Point(m.GridPos.X + m.XSIZE,
-                                         m.GridPos.Y + m.YSIZE);
+                var botRight = new Point(m.Pos.X + m.XSIZE,
+                                         m.Pos.Y + m.YSIZE);
                 if (Size.X < botRight.X) Size.X = botRight.X;
                 if (Size.Y < botRight.Y) Size.Y = botRight.Y;
             }

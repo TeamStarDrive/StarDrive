@@ -107,7 +107,7 @@ namespace Ship_Game.Ships
         {
             if (!module.Active)
                 return false;
-            Point p = module.GridPos;
+            Point p = module.Pos;
             return IsModuleInactiveAt(p.X, p.Y - 1)
                 || IsModuleInactiveAt(p.X - 1, p.Y)
                 || IsModuleInactiveAt(p.X + module.XSIZE, p.Y)
@@ -151,8 +151,8 @@ namespace Ship_Game.Ships
         // updates the isExternal status of a module, depending on whether it died or resurrected
         public void UpdateExternalSlots(ShipModule module, bool becameActive)
         {
-            int x = module.GridPos.X;
-            int y = module.GridPos.Y;
+            int x = module.Pos.X;
+            int y = module.Pos.Y;
             if (becameActive) // we resurrected, so add us to external module grid and update all surrounding slots
                 AddExternalModule(module);
             else // we turned inactive, so clear self from external module grid and
@@ -166,7 +166,7 @@ namespace Ship_Game.Ships
 
         void UpdateGridSlot(ShipModule[] sparseGrid, ShipModule module, bool becameActive)
         {
-            Point p = module.GridPos;
+            Point p = module.Pos;
             int endX = p.X + module.XSIZE, endY = p.Y + module.YSIZE;
             for (int y = p.Y; y < endY; ++y)
                 for (int x = p.X; x < endX; ++x)

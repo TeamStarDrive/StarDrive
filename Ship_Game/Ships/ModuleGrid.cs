@@ -11,7 +11,7 @@ namespace Ship_Game.Ships
     public class ModuleGrid<T>
     {
         // ReSharper disable once StaticMemberInGenericType
-        static readonly MethodInfo GetGridPosM;
+        static readonly FieldInfo PosF;
         // ReSharper disable once StaticMemberInGenericType
         static readonly MethodInfo GetSizeM;
 
@@ -20,15 +20,15 @@ namespace Ship_Game.Ships
             Type type = typeof(T);
 
             BindingFlags anyMember = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-            GetGridPosM = type.GetMethod("GetGridPos", anyMember);
-            GetSizeM    = type.GetMethod("GetSize", anyMember);
+            PosF     = type.GetField("Pos", anyMember);
+            GetSizeM = type.GetMethod("GetSize", anyMember);
 
             void Error(string message) => throw new Exception($"ModuleGrid<T> type T={type.GetTypeName()} {message}");
 
-            if (GetGridPosM == null)
-                Error("does not contain `GetGridPos` method");
-            else if (GetGridPosM.ReturnType != typeof(Point))
-                Error($"method `GetGridPos()` return {GetGridPosM.ReturnType} is not of type Point");
+            if (PosF == null)
+                Error("does not contain `Pos` field");
+            else if (PosF.FieldType != typeof(Point))
+                Error($"field `{PosF.FieldType} Pos` is not of type Point");
 
             if (GetSizeM == null)
                 Error("does not contain `GetSize()` method");
@@ -38,7 +38,7 @@ namespace Ship_Game.Ships
 
         static Point GetGridPos(T module)
         {
-            return (Point)GetGridPosM.Invoke(module, null);
+            return (Point)PosF.GetValue(module);
         }
 
         static Point GetSize(T module)

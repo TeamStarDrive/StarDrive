@@ -118,7 +118,7 @@ namespace Ship_Game.Ships
             [Pure] public bool IsPowered(ShipModule m)
             {
                 // we only need to check top-left, because SetPowered already fills the grid under it
-                Point pt = m.GridPos;
+                Point pt = m.Pos;
                 return PwrGrid.IsSet(pt.X + pt.Y*Width);
             }
 
@@ -133,7 +133,7 @@ namespace Ship_Game.Ships
                 if (m != null)
                 {
                     // fill everything under this module, so we don't need to check this area again
-                    Point pt = m.GridPos;
+                    Point pt = m.Pos;
                     int x1 = pt.X + m.XSIZE - 1;
                     int y1 = pt.Y + m.YSIZE - 1;
                     for (int y = pt.Y; y <= y1; ++y)
@@ -157,7 +157,7 @@ namespace Ship_Game.Ships
             // called during ship initialize to give the correct shape to the conduit
             public string GetConduitGraphic(ShipModule forModule)
             {
-                Point ssPos = forModule.GridPos;
+                Point ssPos = forModule.Pos;
                 var conduit = new ConduitGraphic();
 
                 if (SlotMatches(ssPos.X - 1, ssPos.Y, ShipModuleType.PowerConduit)) conduit.AddGridPos(-1, 0); // Left
@@ -178,7 +178,7 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < modules.Length; ++i)
                 {
                     ShipModule m = modules[i];
-                    Point pt = m.GridPos;
+                    Point pt = m.Pos;
                     if (!IsChecked(pt.X, pt.Y))
                     {
                         if (m.PowerRadius > 0 && m.ModuleType != ShipModuleType.PowerConduit)
