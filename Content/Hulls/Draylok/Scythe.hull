@@ -1,0 +1,22 @@
+﻿Version=1
+HullName=Draylok/Scythe
+Role=frigate
+Style=Draylok
+Size=14,10
+IconPath=ShipIcons/Scythe
+ModelPath=Model/Ships/Draylok/Ship18c
+SelectIcon=18c
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=239,312,0,46
+Thruster=270,314,0,46
+Slots
+___|O  |___|___|___|___|___|___|___|___|___|___|O  |___
+O  |O  |___|___|___|___|O  |O  |___|___|___|___|O  |O  
+O  |O  |___|___|___|___|O  |O  |___|___|___|___|O  |O  
+O  |O  |___|___|___|O  |IO |IO |O  |___|___|___|O  |O  
+O  |IO |___|___|___|O  |IO |IO |O  |___|___|___|IO |O  
+O  |IO |O  |O  |O  |IO |I  |I  |IO |O  |O  |O  |IO |O  
+O  |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |O  
+___|O  |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |O  |___
+___|O  |IO |O  |E  |E  |E  |E  |E  |E  |O  |IO |O  |___
+___|___|O  |___|___|E  |E  |E  |E  |___|___|O  |___|___

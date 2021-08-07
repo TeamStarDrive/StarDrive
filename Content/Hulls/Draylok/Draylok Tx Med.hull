@@ -1,0 +1,25 @@
+﻿Version=1
+HullName=Draylok/Draylok Tx Med
+Role=freighter
+Style=Draylok
+Size=4,14
+IconPath=ShipIcons/DraylokTxMed
+ModelPath=Model/Ships/Draylok/Ship18h
+SelectIcon=18h
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=257,327,0,51
+Slots
+___|IO |IO |___
+IO |I  |I  |IO 
+IO |I  |I  |IO 
+I  |I  |I  |I  
+I  |I  |I  |I  
+I  |I  |I  |I  
+I  |I  |I  |I  
+I  |I  |I  |I  
+I  |I  |I  |I  
+I  |I  |I  |I  
+I  |I  |I  |I  
+I  |I  |I  |I  
+I  |E  |E  |I  
+___|E  |E  |___

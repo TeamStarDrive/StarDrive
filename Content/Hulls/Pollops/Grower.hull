@@ -1,0 +1,29 @@
+﻿Version=1
+HullName=Pollops/Grower
+Role=freighter
+Style=Pollops
+Size=8,19
+IconPath=ShipIcons/Grower
+ModelPath=Model/Ships/Pollops/ship15i
+SelectIcon=15i
+#Thruster PosX,PosY,PosZ,Scale
+Slots
+___|___|I  |I  |I  |I  |___|___
+___|I  |I  |I  |I  |I  |I  |___
+___|I  |I  |I  |I  |I  |I  |___
+___|I  |I  |I  |I  |I  |I  |___
+___|I  |I  |I  |I  |I  |I  |___
+___|I  |I  |I  |I  |I  |I  |___
+___|___|I  |I  |I  |I  |___|___
+___|I  |I  |I  |I  |I  |I  |___
+___|I  |I  |I  |I  |I  |I  |___
+___|I  |I  |I  |I  |I  |I  |___
+___|___|I  |I  |I  |I  |___|___
+___|___|I  |I  |I  |I  |___|___
+___|I  |I  |I  |I  |I  |I  |___
+I  |I  |I  |I  |I  |I  |I  |I  
+___|___|I  |I  |I  |I  |___|___
+___|I  |I  |I  |I  |I  |I  |___
+I  |I  |I  |I  |I  |I  |I  |I  
+I  |I  |E  |E  |E  |E  |I  |I  
+I  |I  |E  |E  |E  |E  |I  |I  

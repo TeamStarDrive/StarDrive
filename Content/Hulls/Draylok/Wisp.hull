@@ -1,0 +1,13 @@
+﻿Version=1
+HullName=Draylok/Wisp
+Role=fighter
+Style=Draylok
+Size=6,2
+IconPath=ShipIcons/Wisp
+ModelPath=Model/Ships/Draylok/Ship18a
+SelectIcon=18a
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=255,252,0,35
+Slots
+___|IO |I  |I  |IO |___
+IO |IO |E  |E  |IO |IO 

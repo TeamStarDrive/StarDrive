@@ -1,0 +1,17 @@
+﻿Version=1
+HullName=Opteris/Worker
+Role=corvette
+Style=Opteris
+Size=8,6
+IconPath=ShipIcons/Worker
+ModelPath=Model/Ships/Opteris/Ship19b
+SelectIcon=19b
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=255,249,0,44
+Slots
+___|___|___|O  |O  |___|___|___
+___|___|O  |IO |IO |O  |___|___
+___|O  |IO |I  |I  |IO |O  |___
+O  |IO |IO |I  |I  |IO |IO |O  
+O  |O  |IO |E  |E  |IO |O  |O  
+___|___|IO |E  |E  |IO |___|___

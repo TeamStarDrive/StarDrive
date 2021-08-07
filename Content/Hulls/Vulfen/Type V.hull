@@ -1,0 +1,24 @@
+﻿Version=1
+HullName=Vulfen/Type V
+Role=corvette
+Style=Vulfen
+Size=12,13
+IconPath=ShipIcons/typeV
+ModelPath=Model/Ships/Vulfen/TypeV
+SelectIcon=13e
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=264,344,0,65
+Slots
+___|___|___|___|O  |O  |O  |O  |___|___|___|___
+___|___|___|O  |O  |IO |IO |O  |O  |___|___|___
+___|___|___|O  |IO |IO |IO |IO |O  |___|___|___
+___|___|___|O  |IO |IO |IO |IO |O  |___|___|___
+___|___|O  |O  |I  |I  |I  |I  |O  |O  |___|___
+___|O  |O  |IO |I  |I  |I  |I  |IO |O  |O  |___
+___|O  |O  |IO |I  |I  |I  |I  |IO |O  |O  |___
+O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |O  
+O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |O  
+___|O  |O  |IO |I  |I  |I  |I  |IO |O  |O  |___
+___|O  |O  |O  |E  |E  |E  |E  |O  |O  |O  |___
+___|___|O  |O  |E  |E  |E  |E  |O  |O  |___|___
+___|___|___|___|E  |E  |E  |E  |___|___|___|___

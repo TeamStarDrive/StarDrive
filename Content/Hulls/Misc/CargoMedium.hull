@@ -1,0 +1,33 @@
+﻿Version=1
+HullName=Misc/CargoMedium
+Role=freighter
+Style=Misc
+Size=6,21
+IconPath=ShipIcons/terran_cargo2
+ModelPath=Model/Ships/CargoShips/CargoHaulerMed
+SelectIcon=05
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=232,424,0,36
+Thruster=280,424,0,36
+Slots
+___|___|O  |O  |___|___
+___|___|O  |O  |___|___
+___|___|I  |I  |___|___
+___|___|I  |I  |___|___
+___|___|I  |I  |___|___
+___|O  |I  |I  |O  |___
+___|O  |I  |I  |O  |___
+___|O  |I  |I  |O  |___
+___|___|I  |I  |___|___
+___|O  |I  |I  |O  |___
+___|O  |I  |I  |O  |___
+___|O  |I  |I  |O  |___
+___|___|I  |I  |___|___
+___|___|I  |I  |___|___
+___|O  |I  |I  |O  |___
+___|O  |I  |I  |O  |___
+___|O  |I  |I  |O  |___
+___|___|I  |I  |___|___
+O  |O  |I  |I  |O  |O  
+___|E  |E  |E  |E  |___
+___|E  |E  |E  |E  |___

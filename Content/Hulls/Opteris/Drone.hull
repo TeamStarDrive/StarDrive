@@ -1,0 +1,15 @@
+﻿Version=1
+HullName=Opteris/Drone
+Role=fighter
+Style=Opteris
+Size=4,4
+IconPath=ShipIcons/drone
+ModelPath=Model/Ships/Opteris/Ship19a
+SelectIcon=19a
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=254,255,0,30
+Slots
+___|O  |O  |___
+O  |I  |I  |O  
+O  |I  |I  |O  
+IO |E  |E  |IO 
