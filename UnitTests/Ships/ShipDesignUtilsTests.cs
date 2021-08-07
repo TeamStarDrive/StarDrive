@@ -76,13 +76,9 @@ namespace UnitTests.Ships
                 if (legacyUnlockable.TryGetValue(template.Name, out ShipData legacy))
                 {
                     ShipData @new = template.shipData;
-
                     Assert.That.Equal(ToArray(legacy.TechsNeeded), ToArray(@new.TechsNeeded),
                                       $"{template.Name} TechsNeeded must be equal");
-                    
                     Assert.AreEqual(legacy.Unlockable, @new.Unlockable, $"{template.Name} Not same Unlockable");
-                    Assert.AreEqual(legacy.AllModulesUnlockable, @new.AllModulesUnlockable, $"{template.Name} Not same AllModulesUnlockable");
-                    Assert.AreEqual(legacy.HullUnlockable, @new.HullUnlockable,$"{template.Name} Not same HullUnlockable");
                 } 
                 else
                 {

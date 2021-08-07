@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -17,6 +16,13 @@ namespace Ship_Game.Ships
         {
             ShipDataWriter sw = CreateShipDataText();
             sw.FlushToFile(file);
+        }
+
+        public string GetBase64DesignString()
+        {
+            ShipDataWriter sw = CreateShipDataText();
+            byte[] ascii = sw.GetASCIIBytes();
+            return Convert.ToBase64String(ascii, Base64FormattingOptions.None);
         }
 
         ShipDataWriter CreateShipDataText()
@@ -39,13 +45,6 @@ namespace Ship_Game.Ships
                 sw.Write("FixedCost", FixedCost);
             if (FixedUpkeep > 0f)
                 sw.Write("FixedUpkeep", FixedUpkeep);
-            
-            if (Unlockable)
-                sw.Write("Unlockable", Unlockable);
-            if (HullUnlockable)
-                sw.Write("HullUnlockable", HullUnlockable);
-            if (!AllModulesUnlockable) // default is true
-                sw.Write("AllModulesUnlockable", AllModulesUnlockable);
 
             sw.Write("DefaultAIState", DefaultAIState);
             sw.Write("DefaultCombatState", DefaultCombatState);
@@ -89,7 +88,7 @@ namespace Ship_Game.Ships
             int count = GetMaxValidFields(fields);
             return string.Join(";", fields, 0, count);
         }
-        
+
         // get the max span of valid elements, so we can discard empty ones and save space
         static int GetMaxValidFields(string[] fields)
         {
@@ -182,9 +181,6 @@ namespace Ship_Game.Ships
                     else if (key == "SelectIcon")  SelectionGraphic = value.Text;
                     else if (key == "FixedCost")   FixedCost = value.ToInt();
                     else if (key == "FixedUpkeep") FixedUpkeep = value.ToFloat();
-                    else if (key == "Unlockable")           Unlockable = value.ToBool();
-                    else if (key == "HullUnlockable")       HullUnlockable = value.ToBool();
-                    else if (key == "AllModulesUnlockable") AllModulesUnlockable = value.ToBool();
                     else if (key == "DefaultAIState") Enum.TryParse(value.Text, out DefaultAIState);
                     else if (key == "DefaultCombatState")    Enum.TryParse(value.Text, out DefaultCombatState);
                     else if (key == "EventOnDeath")   EventOnDeath = value.Text;
@@ -240,7 +236,7 @@ namespace Ship_Game.Ships
                 slotOptions.IsEmpty ? null : slotOptions.Text
             );
         }
-        
+
         public static string GetBase64ModulesString(Ship ship)
         {
             ModuleSaveData[] saved = ship.GetModuleSaveData();

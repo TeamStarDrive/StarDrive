@@ -102,22 +102,18 @@ namespace UnitTests.Ships
                 if (shipData.HullRole == ShipData.RoleName.disabled)
                     continue;
 
+                bool hullUnlockable = false;
+                bool allModulesUnlockable = false;
                 if (shipData.BaseHull.Unlockable)
                 {
                     foreach (string str in shipData.BaseHull.TechsNeeded)
                         shipData.TechsNeeded.Add(str);
-                    shipData.HullUnlockable = true;
-                }
-                else
-                {
-                    shipData.AllModulesUnlockable = false;
-                    shipData.HullUnlockable = false;
-                    //Log.WarningVerbose($"Unlockable hull : '{shipData.Hull}' in ship : '{kv.Key}'");
+                    hullUnlockable = true;
                 }
 
-                if (shipData.HullUnlockable)
+                if (hullUnlockable)
                 {
-                    shipData.AllModulesUnlockable = true;
+                    allModulesUnlockable = true;
                     foreach (DesignSlot slot in ship.shipData.ModuleSlots)
                     {
                         bool modUnlockable = false;
@@ -139,13 +135,13 @@ namespace UnitTests.Ships
 
                         if (modUnlockable) continue;
 
-                        shipData.AllModulesUnlockable = false;
+                        allModulesUnlockable = false;
                         //Log.WarningVerbose($"Unlockable module : '{module.InstalledModuleUID}' in ship : '{kv.Key}'");
                         break;
                     }
                 }
 
-                if (shipData.AllModulesUnlockable)
+                if (allModulesUnlockable)
                 {
                     shipData.Unlockable = true;
 

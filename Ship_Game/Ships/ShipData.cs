@@ -60,8 +60,6 @@ namespace Ship_Game.Ships
 
         public DesignSlot[] ModuleSlots;
         public bool Unlockable;
-        public bool HullUnlockable;
-        public bool AllModulesUnlockable = true;
         public HashSet<string> TechsNeeded = new HashSet<string>();
 
         static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
@@ -120,8 +118,6 @@ namespace Ship_Game.Ships
             Bonuses           = hull.Bonuses;
 
             Unlockable = hull.Unlockable;
-            HullUnlockable = hull.HullUnlockable;
-            AllModulesUnlockable = hull.AllModulesUnlockable;
         }
 
         // used in ShipDesignScreen
