@@ -119,7 +119,7 @@ namespace Ship_Game.GameScreens.NewGame
                     continue;
                 
                 shipData.TechsNeeded.Clear(); // always clear techs list
-                shipData.UnLockable = false;
+                shipData.Unlockable = false;
                 shipData.HullUnlockable = false;
                 shipData.AllModulesUnlockable = false;
 
@@ -153,7 +153,7 @@ namespace Ship_Game.GameScreens.NewGame
 
                 if (shipData.AllModulesUnlockable)
                 {
-                    shipData.UnLockable = true;
+                    shipData.Unlockable = true;
 
                     // add the full tree of techs to TechsNeeded
                     foreach (string techName in leafTechsNeeds)

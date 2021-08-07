@@ -111,7 +111,7 @@ namespace Ship_Game.AI.Research
                 if (!IsRoleValid(shortTermBest.shipData.HullRole)) continue;
                 if (!IsRoleValid(shortTermBest.DesignRole)) continue;
                 if (!IsRoleValid(shortTermBest.shipData.Role)) continue;
-                if (!shortTermBest.shipData.UnLockable) continue;
+                if (!shortTermBest.shipData.Unlockable) continue;
                 if (ShipHasUndiscoveredTech(shortTermBest)) continue;
                 if (!shortTermBest.ShipGoodToBuild(OwnerEmpire)) continue;
 

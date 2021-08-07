@@ -61,7 +61,7 @@ namespace Ship_Game.Ships
         public ShipGridInfo GridInfo;
 
         public DesignSlot[] ModuleSlots;
-        public bool UnLockable;
+        public bool Unlockable;
         public bool HullUnlockable;
         public bool AllModulesUnlockable = true;
         public HashSet<string> TechsNeeded = new HashSet<string>();
@@ -122,7 +122,7 @@ namespace Ship_Game.Ships
             BaseHull          = hull.BaseHull;
             Bonuses           = hull.Bonuses;
 
-            UnLockable = hull.UnLockable;
+            Unlockable = hull.Unlockable;
             HullUnlockable = hull.HullUnlockable;
             AllModulesUnlockable = hull.AllModulesUnlockable;
 
@@ -223,7 +223,7 @@ namespace Ship_Game.Ships
             data.GridInfo = new ShipGridInfo(hull.Size, hull.Area);
             data.IconPath = hull.IconPath;
             data.SelectionGraphic = hull.SelectIcon;
-            data.UnLockable = hull.Unlockable;
+            data.Unlockable = hull.Unlockable;
 
             data.ModuleSlots = new DesignSlot[saved.Length];
             for (int i = 0; i < saved.Length; ++i)

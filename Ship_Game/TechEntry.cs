@@ -935,7 +935,7 @@ namespace Ship_Game
                 }
             }
 
-            EmpireShipBonuses.RefreshBonuses(empire); // RedFox: This will refresh all empire module stats
+            EmpireHullBonuses.RefreshBonuses(empire); // RedFox: This will refresh all empire module stats
         }
 
         public bool Equals(TechEntry other)
