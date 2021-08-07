@@ -22,15 +22,16 @@ namespace Ship_Game
 
         void UpdateCarrierShip()
         {
-            if (ActiveHull.HullRole == ShipData.RoleName.drone)
-                ActiveHull.CarrierShip = true;
+            ShipData design = CurrentDesign;
+            if (design.HullRole == ShipData.RoleName.drone)
+                design.CarrierShip = true;
 
             if (CarrierOnlyCheckBox == null)
                 return; // it is null the first time ship design screen is loaded
 
-            CarrierOnlyCheckBox.Visible = ActiveHull.HullRole != ShipData.RoleName.drone
-                                          && ActiveHull.HullRole != ShipData.RoleName.platform
-                                          && ActiveHull.HullRole != ShipData.RoleName.station;
+            CarrierOnlyCheckBox.Visible = design.HullRole != ShipData.RoleName.drone
+                                          && design.HullRole != ShipData.RoleName.platform
+                                          && design.HullRole != ShipData.RoleName.station;
         }
 
         void BindListsToActiveHull()
@@ -38,27 +39,34 @@ namespace Ship_Game
             if (CategoryList == null)
                 return;
 
-            CategoryList.PropertyBinding = () => ActiveHull.ShipCategory;
+            ShipData design = CurrentDesign;
+            CategoryList.Visible = design != null;
+            HangarOptionsList.Visible = design != null;
 
-            if (ActiveHull.ShipCategory == ShipData.Category.Unclassified)
+            if (design == null)
+                return;
+
+            CategoryList.PropertyBinding = () => design.ShipCategory;
+
+            if (design.ShipCategory == ShipData.Category.Unclassified)
             {
                 // Defaults based on hull types
                 // Freighter hull type defaults to Civilian behaviour when the hull is selected, player has to actively opt to change classification to disable flee/freighter behaviour
-                if (ActiveHull.Role == ShipData.RoleName.freighter)
+                if (design.Role == ShipData.RoleName.freighter)
                     CategoryList.SetActiveValue(ShipData.Category.Civilian);
                 // Scout hull type defaults to Recon behaviour. Not really important, as the 'Recon' tag is going to supplant the notion of having 'Fighter' class hulls automatically be scouts, but it makes things easier when working with scout hulls without existing categorisation.
-                else if (ActiveHull.Role == ShipData.RoleName.scout)
+                else if (design.Role == ShipData.RoleName.scout)
                     CategoryList.SetActiveValue(ShipData.Category.Recon);
                 else
                     CategoryList.SetActiveValue(ShipData.Category.Unclassified);
             }
             else
             {
-                CategoryList.SetActiveValue(ActiveHull.ShipCategory);
+                CategoryList.SetActiveValue(design.ShipCategory);
             }
 
-            HangarOptionsList.PropertyBinding = () => ActiveHull.HangarDesignation;
-            HangarOptionsList.SetActiveValue(ActiveHull.HangarDesignation);
+            HangarOptionsList.PropertyBinding = () => design.HangarDesignation;
+            HangarOptionsList.SetActiveValue(design.HangarDesignation);
         }
 
         bool IsGoodDesign()
@@ -68,15 +76,15 @@ namespace Ship_Game
             {
                 if (slot.ModuleUID == null && slot.Parent == null)
                     return false; // empty slots not allowed!
-                hasBridge |= slot.Module?.IsCommandModule == true;                
+                hasBridge |= slot.Module?.IsCommandModule == true;
             }
-            return (hasBridge || ActiveHull.Role == ShipData.RoleName.platform || ActiveHull.Role == ShipData.RoleName.station);
+            return (hasBridge || Role == ShipData.RoleName.platform || Role == ShipData.RoleName.station);
         }
 
-        void CreateSOFromActiveHull()
+        void CreateSOFromCurrentHull()
         {
             RemoveObject(shipSO);
-            shipSO = StaticMesh.GetSceneMesh(TransientContent, ActiveHull.ModelPath, ActiveHull.Animated);
+            CurrentHull.LoadModel(out shipSO, TransientContent);
             AddObject(shipSO);
         }
 
@@ -436,7 +444,7 @@ namespace Ship_Game
 
             if (input.KeyPressed(Keys.Enter))
             {
-                ScreenManager.AddScreen(new ShipDesignSaveScreen(this, ActiveHull.Name, hullDesigner:true));
+                ScreenManager.AddScreen(new ShipDesignSaveScreen(this, DesignOrHullName, hullDesigner:true));
             }
 
             if (input.Right)
@@ -557,11 +565,11 @@ namespace Ship_Game
             return ProjectToScreenSize(hullSize);
         }
 
-        void ZoomCameraToEncloseHull(ShipData hull)
+        void ZoomCameraToEncloseHull(ShipHull hull)
         {
             // This ensures our module grid overlay is the same size as the mesh
             CameraPosition.Z = 500;
-            float hullHeight = hull.BaseHull.Size.Y * 16f;
+            float hullHeight = hull.Size.Y * 16f;
             float visibleSize = GetHullScreenSize(CameraPosition, hullHeight);
             float ratio = visibleSize / hullHeight;
             CameraPosition.Z = (CameraPosition.Z * ratio).RoundUpTo(1);
@@ -584,7 +592,7 @@ namespace Ship_Game
 
         void SaveChanges()
         {
-            ScreenManager.AddScreen(new ShipDesignSaveScreen(this, ActiveHull.Name, hullDesigner:false));
+            ScreenManager.AddScreen(new ShipDesignSaveScreen(this, DesignOrHullName, hullDesigner:false));
             ShipSaved = true;
         }
 
@@ -596,39 +604,43 @@ namespace Ship_Game
             for (int i = 0; i < count; ++i)
             {
                 SlotStruct s = ModuleGrid.SlotsList[i];
-                savedSlots[i] = new DesignSlot(s.GridPos, s.ModuleUID, s.Size, s.TurretAngle,
+                savedSlots[i] = new DesignSlot(s.Pos, s.ModuleUID, s.Size, s.TurretAngle,
                                                s.ModuleRot, s.SlotOptions);
             }
             return savedSlots;
         }
 
-        void SerializeShipDesign(ShipData shipData, string designFile)
+        ShipData CloneCurrentDesign(string newName)
         {
-            var serializer = new XmlSerializer(typeof(ShipData));
-            using (var ws = new StreamWriter(designFile))
-                serializer.Serialize(ws, shipData);
-            ShipSaved = true;
-        }
-
-        ShipData CloneActiveDesign(string newName)
-        {
-            ShipData hull = ActiveHull.GetClone();
+            ShipData hull = CurrentDesign.GetClone();
             hull.Name = newName;
             hull.ModuleSlots = CreateModuleSlots();
             return hull;
         }
 
-        ShipHull CloneAsHull(string newName)
+        ShipHull CloneCurrentHull(string newName)
         {
-            ShipHull hull = ActiveHull.BaseHull.GetClone();
-            hull.HullName = newName;
-            return hull;
+            ShipHull toSave = CurrentHull.GetClone();
+            toSave.HullName = newName;
+            return toSave;
+        }
+        
+        void SaveDesign(ShipData design, string designFile)
+        {
+            design.Save(designFile);
+            ShipSaved = true;
+        }
+        
+        void SaveHull(ShipHull hull, string hullFile)
+        {
+            hull.Save(hullFile);
+            ShipSaved = true;
         }
 
         public void SaveShipDesign(string name)
         {
-            ShipData toSave = CloneActiveDesign(name);
-            SerializeShipDesign(toSave, $"{Dir.StarDriveAppData}/Saved Designs/{name}.xml");
+            ShipData toSave = CloneCurrentDesign(name);
+            SaveDesign(toSave, $"{Dir.StarDriveAppData}/Saved Designs/{name}.design");
 
             Ship newTemplate = ResourceManager.AddShipTemplate(toSave, playerDesign: true);
             EmpireManager.Player.UpdateShipsWeCanBuild();
@@ -639,8 +651,8 @@ namespace Ship_Game
 
         public void SaveHullDesign(string hullName)
         {
-            ShipHull toSave = CloneAsHull(hullName);
-            toSave.Save($"Content/Hulls/{ActiveHull.ShipStyle}/{hullName}.hull");
+            ShipHull toSave = CloneCurrentHull(hullName);
+            SaveHull(toSave, $"Content/Hulls/{CurrentHull.Style}/{hullName}.hull");
 
             ShipHull newHull = ResourceManager.AddHull(toSave);
             ChangeHull(newHull);
@@ -648,8 +660,16 @@ namespace Ship_Game
 
         void SaveWIP()
         {
-            ShipData toSave = CloneActiveDesign($"{DateTime.Now:yyyy-MM-dd}__{ActiveHull.Name}");
-            SerializeShipDesign(toSave, $"{Dir.StarDriveAppData}/WIP/{toSave.Name}.xml");
+            if (CurrentDesign != null)
+            {
+                ShipData toSave = CloneCurrentDesign($"{DateTime.Now:yyyy-MM-dd}__{DesignOrHullName}");
+                SaveDesign(toSave, $"{Dir.StarDriveAppData}/WIP/{toSave.Name}.design");
+            }
+            else
+            {
+                ShipHull toSave = CloneCurrentHull($"{DateTime.Now:yyyy-MM-dd}__{DesignOrHullName}");
+                SaveHull(toSave, $"{Dir.StarDriveAppData}/WIP/{toSave.HullName}.hull");
+            }
         }
 
         void SaveWIPThenChangeHull(ShipHull changeTo)

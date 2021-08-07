@@ -27,7 +27,7 @@ namespace Ship_Game
 
         bool IsBadModuleSize(ShipModule module)
         {
-            if (Screen.Input.IsShiftKeyDown || Screen.ActiveHull == null || module.XSIZE + module.YSIZE == 2)
+            if (Screen.Input.IsShiftKeyDown || Screen.CurrentDesign == null || module.XSIZE + module.YSIZE == 2)
                 return false;
             return Screen.IsBadModuleSize(module);
         }
@@ -96,7 +96,7 @@ namespace Ship_Game
             if (!EmpireManager.Player.IsModuleUnlocked(template.UID) || template.UID == "Dummy")
                 return false;
 
-            if (RestrictedModCheck(Screen.ActiveHull.Role, template))
+            if (Screen.CurrentDesign == null || RestrictedModCheck(Screen.Role, template))
                 return false;
 
             tmp = Screen.CreateModuleListItem(template);

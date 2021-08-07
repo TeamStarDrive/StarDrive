@@ -105,7 +105,7 @@ namespace Ship_Game
                     Color activeColor = valid ? Color.LightGreen : Color.Red;
                     slot.Draw(batch, this, concreteGlass, activeColor);
 
-                    if (DesignedShip.PwrGrid.IsPowered(slot.GridPos))
+                    if (DesignedShip != null && DesignedShip.PwrGrid.IsPowered(slot.Pos))
                     {
                         Color yellow = ActiveModule != null ? new Color(Color.Yellow, 150) : Color.Yellow;
                         slot.Draw(batch, this, concreteGlass, yellow);
@@ -118,6 +118,8 @@ namespace Ship_Game
 
         void DrawModules(SpriteBatch batch)
         {
+            if (DesignedShip == null)
+                return;
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
                 if (slot.Module != null && slot.Tex != null)
@@ -126,7 +128,7 @@ namespace Ship_Game
                     {
                         // get the module from the design ship, this is not the same as
                         // ModuleGrid.SlotsList modules :(
-                        ShipModule m = DesignedShip.GetModuleAt(slot.GridPos);
+                        ShipModule m = DesignedShip.GetModuleAt(slot.Pos);
                         slot.Tex = m.Powered ? ResourceManager.Texture(m.IconTexturePath + "_power") : m.ModuleTexture;
                     }
                     DrawModuleTex(slot.ModuleRot, batch, slot, slot.WorldRect);
@@ -220,6 +222,9 @@ namespace Ship_Game
 
         void DrawUnpoweredTex(SpriteBatch batch)
         {
+            if (DesignedShip == null)
+                return;
+
             var unpowered = ResourceManager.Texture("UI/lightningBolt");
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
@@ -229,7 +234,7 @@ namespace Ship_Game
                 
                 if (m.PowerDraw > 0f
                     && m.ModuleType != ShipModuleType.PowerConduit
-                    && !DesignedShip.PwrGrid.IsPowered(slot.GridPos))
+                    && !DesignedShip.PwrGrid.IsPowered(slot.Pos))
                 {
                     batch.Draw(unpowered,
                         slot.Center, Color.White, 0f, new Vector2(8f, 8f), 1f, SpriteEffects.None, 1f);
@@ -383,7 +388,7 @@ namespace Ship_Game
         // TODO: Is this used anywhere?
         void DrawHullBonuses(ref Vector2 cursor, float cost)
         {
-            HullBonus bonus = ActiveHull.Bonuses;
+            HullBonus bonus = CurrentDesign.Bonuses;
             if (bonus.Hull.NotEmpty()) //Added by McShooterz: Draw Hull Bonuses
             {
                 if (bonus.ArmoredBonus != 0 || bonus.ShieldBonus != 0
@@ -451,11 +456,11 @@ namespace Ship_Game
             batch.FillRectangle(r, new Color(54, 54, 54));
 
 
-            Graphics.Font font = Fonts.Arial20Bold.MeasureString(ActiveHull.Name).X <= (SearchBar.Width - 5)
-                            ? Fonts.Arial20Bold : Fonts.Arial12Bold;
+            string name = DesignOrHullName;
+            Graphics.Font font = Fonts.Arial20Bold.TextWidth(name) <= (SearchBar.Width - 5)
+                               ? Fonts.Arial20Bold : Fonts.Arial12Bold;
             var cursor1 = new Vector2(SearchBar.X + 3, r.Y + 14 - font.LineSpacing / 2);
-            batch.DrawString(font, ActiveHull.Name, cursor1, Color.White);
-
+            batch.DrawString(font, name, cursor1, Color.White);
 
             r = new Rectangle(r.X - r.Width - 12, r.Y, r.Width, r.Height);
             DesignRoleRect = new Rectangle(r.X , r.Y, r.Width, r.Height);

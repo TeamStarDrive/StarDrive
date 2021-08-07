@@ -33,14 +33,12 @@ namespace Ship_Game.Ships
         public string ShipStyle; // "Terran"
         public string Description; // "Early Rocket fighter, great against unshielded foes, but die easily"
         public string IconPath; // "ShipIcons/shuttle"
-        public string ModelPath; // "Model/Ships/Terran/Shuttle/ship08"
         
         public string EventOnDeath;
         public string SelectionGraphic = "";
 
         public float FixedUpkeep;
         public int FixedCost;
-        public bool Animated;
         public bool IsShipyard;
         public bool IsOrbitalDefense;
         // The Doctor: intending to use this as a user-toggled
@@ -67,7 +65,7 @@ namespace Ship_Game.Ships
 
         // BaseHull is the template layout of the ship hull design
         public ShipHull BaseHull { get; private set; }
-        public HullBonus Bonuses { get; private set; }
+        public HullBonus Bonuses { get; }
 
         // Model path of the template hull layout
         public string HullModel => BaseHull.ModelPath;
@@ -93,29 +91,24 @@ namespace Ship_Game.Ships
             Name = design.Name;
             GridInfo = design.GridInfo;
 
-            InitCommonState(design);
+            Hull              = design.Hull;
+            Role              = design.Role;
+            IconPath          = design.IconPath;
+            IsShipyard        = design.IsShipyard;
+            IsOrbitalDefense  = design.IsOrbitalDefense;
+            ShipStyle         = design.ShipStyle;
+            ThrusterList      = design.ThrusterList;
+            ShipCategory      = design.ShipCategory;
+            HangarDesignation = design.HangarDesignation;
+            CarrierShip       = design.CarrierShip;
+            TechsNeeded       = design.TechsNeeded;
+            BaseHull          = design.BaseHull;
+            Bonuses           = design.Bonuses;
+            DefaultAIState     = design.DefaultAIState;
+            DefaultCombatState = design.DefaultCombatState;
+
+            Unlockable = design.Unlockable;
             ModuleSlots = null; // these must be initialized by DesignModuleGrid.cs
-        }
-
-        void InitCommonState(ShipData hull)
-        {
-            Hull              = hull.Hull;
-            Role              = hull.Role;
-            Animated          = hull.Animated;
-            IconPath          = hull.IconPath;
-            IsShipyard        = hull.IsShipyard;
-            IsOrbitalDefense  = hull.IsOrbitalDefense;
-            ModelPath         = hull.HullModel;
-            ShipStyle         = hull.ShipStyle;
-            ThrusterList      = hull.ThrusterList;
-            ShipCategory      = hull.ShipCategory;
-            HangarDesignation = hull.HangarDesignation;
-            CarrierShip       = hull.CarrierShip;
-            TechsNeeded       = hull.TechsNeeded;
-            BaseHull          = hull.BaseHull;
-            Bonuses           = hull.Bonuses;
-
-            Unlockable = hull.Unlockable;
         }
 
         // used in ShipDesignScreen

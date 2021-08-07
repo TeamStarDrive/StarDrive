@@ -11,7 +11,7 @@ namespace Ship_Game
     public sealed class SlotStruct
     {
         // Integer position in the local grid, top-left is [0,0]
-        public Point GridPos;
+        public Point Pos;
 
         // Center of the design grid
         public Point GridCenter;
@@ -35,7 +35,7 @@ namespace Ship_Game
 
         public SlotStruct(HullSlot slot, ShipHull hull)
         {
-            GridPos = slot.Pos;
+            Pos = slot.Pos;
             Restrictions = slot.R;
 
             GridCenter = hull.GridCenter;
@@ -43,16 +43,16 @@ namespace Ship_Game
         }
 
         [XmlIgnore][JsonIgnore]
-        public Point OffsetFromGridCenter => new Point(GridPos.X - GridCenter.X, GridPos.Y - GridCenter.Y);
+        public Point OffsetFromGridCenter => new Point(Pos.X - GridCenter.X, Pos.Y - GridCenter.Y);
 
         public override string ToString()
         {
             if (Parent == null)
-                return $"{Module?.UID} {GridPos} R:{Restrictions} TA:{TurretAngle} O:{ModuleRot}";
+                return $"{Module?.UID} {Pos} R:{Restrictions} TA:{TurretAngle} O:{ModuleRot}";
 
             // @note Don't call Parent.ToString(), or we might get a stack overflow
-            string parent = $"{Parent.GridPos} R:{Parent.Restrictions} TA:{Parent.TurretAngle} O:{ModuleRot}";
-            return $"{GridPos} R:{Restrictions} TA:{TurretAngle} O:{ModuleRot}   Parent={{{parent}}}";
+            string parent = $"{Parent.Pos} R:{Parent.Restrictions} TA:{Parent.TurretAngle} O:{ModuleRot}";
+            return $"{Pos} R:{Restrictions} TA:{TurretAngle} O:{ModuleRot}   Parent={{{parent}}}";
         }
 
         static bool MatchI(Restrictions b) => b == Restrictions.I || b == Restrictions.IO || b == Restrictions.IE;
