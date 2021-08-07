@@ -1,0 +1,25 @@
+﻿Version=1
+Name=Laser Fang
+Hull=Kulrathi/Fang
+Role=fighter
+Style=Kulrathi
+Size=6,4
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=LaserCannon;SteelArmorSmall;NuclearReactorSmall;Cockpit;WarpEngine_1x1;BasicFuelCell;Engine;LaserTurret
+Modules=13
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,2;0;;335
+0,3;0
+1,1;1
+1,2;2
+1,3;0
+2,0;3
+2,1;2
+2,2;4
+3,0;5
+3,1;2
+3,2;6
+4,1;1
+4,2;7;2,2;1

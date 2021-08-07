@@ -1,0 +1,35 @@
+﻿Version=1
+Name=Slaver Drone
+Hull=Remnant/XenoGunship
+Role=fighter
+Style=Remnant
+Size=8,8
+DefaultAIState=DoNothing
+DefaultCombatState=Artillery
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=TractorBeamTurret2x2;PlaSteelArmorSmall;BasicFuelCell;AncientReactorMed;FrigateEngine;DisruptorTurret;Cockpit;AncientShield2kw
+Modules=23
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,2;0;2,2
+1,1;1
+1,4;1
+1,6;1
+2,1;1
+2,2;2
+2,3;3;2,2
+2,5;1
+2,6;4;2,2
+3,0;5;2,2
+3,2;2
+3,5;2
+4,2;6
+4,3;7;2,2
+4,5;2
+4,6;4;2,2
+5,1;1
+5,2;2
+5,5;1
+6,1;1
+6,2;0;2,2
+6,4;1
+6,6;1

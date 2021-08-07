@@ -1,0 +1,39 @@
+﻿Version=1
+Name=Shade-Class Mk IIa Hvy Fighter
+Hull=Draylok/Crescent
+Role=corvette
+Style=Draylok
+Size=10,6
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=VulcanCannon;Fighter Shield;PowerConduit;NuclearReactorSmall;engine_fighter_1x1;SteelArmorSmall;OrdnanceLockerSmall;NuclearReactorMed;WarpEngine_1x1;Cockpit
+Modules=27
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,2;0
+0,3;0
+0,4;0
+1,3;0
+1,4;0;;185
+2,4;1
+3,3;2
+3,4;3
+3,5;4
+4,0;5
+4,1;6
+4,2;7;2,2
+4,4;4
+4,5;8
+5,0;5
+5,1;6
+5,4;4
+5,5;8
+6,3;2
+6,4;9
+6,5;4
+7,4;1
+8,3;0
+8,4;0;;178
+9,2;0
+9,3;0
+9,4;0

@@ -1,0 +1,30 @@
+﻿Version=1
+Name=Conjurer-Class Mk II Bomber
+Hull=Draylok/Crescent
+Role=corvette
+Style=Draylok
+Size=10,6
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=OrdnanceLockerSmall;OrdnanceLocker;Fighter Shield;VulcanCannon;NuclearReactorSmall;engine_fighter_1x1;NuclearBombBay2x2;NuclearReactorMed;WarpEngine_1x1;Cockpit
+Modules=18
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,2;0
+0,3;1;2,2
+2,4;2
+3,3;3
+3,4;4
+3,5;5
+4,0;6;2,2
+4,2;7;2,2
+4,4;8
+4,5;5
+5,4;8
+5,5;5
+6,3;3
+6,4;9
+6,5;5
+7,4;2
+8,3;1;2,2
+9,2;0

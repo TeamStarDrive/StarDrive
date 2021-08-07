@@ -1,0 +1,29 @@
+﻿Version=1
+Name=Stalker III Flak STL
+Hull=Vulfen/Type III
+Role=corvette
+Style=Vulfen
+Size=6,6
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=OrdnanceLockerSmall;FlakTurret;Powerplant_nuke_1x1;Combat_Thruster_1x1;Cockpit
+Modules=17
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,2;0
+0,3;1;2,2;268
+1,1;0
+1,2;0
+2,0;1;2,2
+2,2;2
+2,3;2
+2,4;3
+2,5;3
+3,2;2
+3,3;2
+3,4;3
+3,5;3
+4,1;4
+4,2;0
+4,3;1;2,2;75
+5,2;0
