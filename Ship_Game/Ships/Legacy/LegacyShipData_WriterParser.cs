@@ -46,13 +46,6 @@ namespace Ship_Game.Ships.Legacy
                 sw.Write("FixedCost", FixedCost);
             if (FixedUpkeep > 0f)
                 sw.Write("FixedUpkeep", FixedUpkeep);
-            
-            if (UnLockable)
-                sw.Write("Unlockable", UnLockable);
-            if (HullUnlockable)
-                sw.Write("HullUnlockable", HullUnlockable);
-            if (!AllModulesUnlockable) // default is true
-                sw.Write("AllModulesUnlockable", AllModulesUnlockable);
 
             sw.Write("DefaultAIState", DefaultAIState);
             sw.Write("DefaultCombatState", CombatState);
