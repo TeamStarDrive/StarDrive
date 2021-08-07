@@ -206,7 +206,6 @@ namespace Ship_Game.Ships
 
             BaseHull = hull;
             Bonuses = hull.Bonuses;
-            ThrusterList = hull.Thrusters;
             IsShipyard = hull.IsShipyard;
             IsOrbitalDefense = hull.IsOrbitalDefense;
             

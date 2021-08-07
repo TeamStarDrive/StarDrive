@@ -85,6 +85,15 @@ namespace Ship_Game.Gameplay
             ModuleRot = s.ModuleRot;
             HangarShipUID = s.HangarShipUID;
         }
+        public DesignSlot(ShipModule s)
+        {
+            Pos = s.Pos;
+            ModuleUID = s.UID;
+            Size = s.GetSize();
+            TurretAngle = s.TurretAngle;
+            ModuleRot = s.ModuleRot;
+            HangarShipUID = s.HangarShipUID;
+        }
         
         public bool Equals(DesignSlot s)
         {
