@@ -49,10 +49,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 for (int i = PlanetBuildingAt.TroopsHere.Count - 1; i >= 0; i--)
                 {
                     Troop troop = PlanetBuildingAt.TroopsHere[i];
-                    if (troop.Loyalty == empire && troop.CanMove)
+                    if (troop.Loyalty == empire && troop.CanLaunchWounded)
                     {
                         float str      = troop.ActualStrengthMax;
-                        Ship troopShip = troop.Launch();
+                        Ship troopShip = troop.Launch(ignoreMovement: true);
                         if (troopShip != null)
                         {
                             defenseToOvercome -= str;

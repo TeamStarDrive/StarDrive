@@ -60,7 +60,7 @@ namespace Ship_Game.Ships
                 return ResupplyReason.NotNeeded;
             }
 
-            InCombat = Ship.InCombat || Ship.AI.State == AIState.Bombard;
+            InCombat = Ship.AI.BadGuysNear || Ship.AI.State == AIState.Bombard;
             if (!Ship.hasCommand)
                 return ResupplyReason.NoCommand;
 
@@ -116,24 +116,6 @@ namespace Ship_Game.Ships
                                  && InsufficientOrdnanceProduction();
         }
 
-        // FB - Disabled for now - done in systems by geodetic manager
-        private bool ResupplyNeededOrdnanceNotFull() 
-        {
-            if (Ship.InCombat
-                || Ship.OrdinanceMax < 1
-                || Ship.loyalty.isFaction
-                || Ship.IsPlatformOrStation
-                || Ship.IsHomeDefense
-                || Ship.IsHangarShip
-                || Ship.OrdAddedPerSecond > 0
-                || Ship.OrdnancePercent > 0.99f)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         private bool ResupplyNeededLowTroops()
         {
             // Logic shortcuts
@@ -156,6 +138,8 @@ namespace Ship_Game.Ships
 
         private bool OrdnanceLow()
         {
+            if (Ship.Name == "Terran-Prototype")
+                Log.Info("");
             if (PlayerKamikaze)
                 return false; // Only player manual command will convince Kamikaze ship to resupply
 

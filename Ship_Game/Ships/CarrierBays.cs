@@ -206,6 +206,8 @@ namespace Ship_Game.Ships
             }
         }
 
+        public float OrdnanceInSpace => GetActiveFighters().Sum(f => f.ShipRetrievalOrd);
+
         public HangarInfo GrossHangarStatus // FB: needed to display hangar status to the player
         {
             get

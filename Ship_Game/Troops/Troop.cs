@@ -69,9 +69,18 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public int ActualRange      => Level < 5 ? Range : Range + 1;  // veterans have bigger range
         [XmlIgnore][JsonIgnore] public bool IsHealthFull    => Strength.AlmostEqual(ActualStrengthMax);
         [XmlIgnore][JsonIgnore] public bool IsWounded       => !IsHealthFull;
+        [XmlIgnore][JsonIgnore] public bool CanLaunchWounded => CanMove;
 
         [XmlIgnore][JsonIgnore] public SubTexture TextureDefault => ResourceManager.Texture("Troops/" + TexturePath);
         [XmlIgnore][JsonIgnore] public SubTexture IconTexture =>  ResourceManager.Texture("TroopIcons/" + Icon + "_icon");
+
+        /// <summary>
+        /// A troop can be launched if it is at full health and can move
+        /// unless there is no planet owner of the troop belongs to the player and then
+        /// it can launch if it can move
+        /// </summary>
+        [XmlIgnore] [JsonIgnore] public bool CanLaunch =>
+                HostPlanet?.Owner == null || Loyalty.isPlayer? CanMove : CanMove && IsHealthFull;
 
         string WhichFrameString => WhichFrame.ToString("00");
 
@@ -428,7 +437,7 @@ namespace Ship_Game
 
         Ship LaunchToSpace(PlanetGridSquare tile, bool ignoreMovement = false)
         {
-            if (!CanMove && !ignoreMovement)
+            if (!CanLaunch && !ignoreMovement)
                 return null;
 
             using (HostPlanet.TroopsHere.AcquireWriteLock())
