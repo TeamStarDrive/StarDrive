@@ -63,7 +63,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.HullUnlockable, b.HullUnlockable);
             Assert.AreEqual(a.AllModulesUnlockable, b.AllModulesUnlockable);
             Assert.AreEqual(a.TechsNeeded, b.TechsNeeded);
-            Assert.AreEqual(a.TechScore, b.TechScore);
 
             Assert.AreEqual(a.Volume, b.Volume);
             Assert.AreEqual(a.ModelZ, b.ModelZ);

@@ -243,11 +243,12 @@ namespace Ship_Game
 
         void GenerateInitialSystemData(ProgressCounter step)
         {
-            step.Start(0.15f, 0.20f, 0.30f, 0.35f); // proportions for each step
+            // expected times of each step
+            step.StartAbsolute(0.2f, 0.04f, 0.42f, 0.425f);
 
             CreateOpponents(step.NextStep());
             Empire.InitializeRelationships(Data.EmpireList, Difficulty);
-            ShipDesignUtils.MarkDesignsUnlockable(step.NextStep()); // 240ms
+            ShipDesignUtils.MarkDesignsUnlockable(step.NextStep()); // 40ms
             LoadEmpireStartingSystems(step.NextStep()); // 420ms
             GenerateRandomSystems(step.NextStep());    // 425ms
 

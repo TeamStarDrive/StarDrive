@@ -48,7 +48,6 @@ namespace Ship_Game.Ships
                     BaseStrength   = s->BaseStrength,
                     HullUnlockable = s->HullUnlockable != 0,
                     UnLockable     = s->UnLockable != 0,
-                    TechScore      = s->TechScore,
                     IsOrbitalDefense          = s->IsOrbitalDefense != 0,
                     SelectionGraphic          = s->SelectionGraphic.AsString,
                     AllModulesUnlockable      = s->AllModulesUnlockable != 0,
