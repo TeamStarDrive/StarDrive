@@ -47,6 +47,8 @@ namespace Ship_Game.GameScreens.ShipDesign
         {
             get
             {
+                if (S == null)
+                    return 0;
                 int slots = S.Modules.Sum(m => m.Area);
                 return (int)((slots == S.SurfaceArea ? 1f : slots / (float)S.SurfaceArea) * 100);
             }
@@ -55,13 +57,15 @@ namespace Ship_Game.GameScreens.ShipDesign
         public void SetActiveDesign(DesignShip ship)
         {
             S = ship;
+            if (ship == null)
+                return;
             Issues = new ShipDesignIssues(ship.shipData);
         }
 
         UIButton AddTextButton(string text)
         {
             string firstLetter = text[0].ToString().ToUpper();
-			string remaining = text.Remove(0, 1);
+            string remaining = text.Remove(0, 1);
 
             var btn = Add(new UIButton(ButtonStyle.Text, LocalizedText.None));
             btn.Pos = new Vector2(Rect.X, Rect.Y);
@@ -81,9 +85,12 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         public override void Update(float fixedDeltaTime)
         {
-            Issues.Reset();
             BtnInformation.Visible = BtnDesignIssues.Visible = false;
-            
+
+            if (S == null)
+                return;
+
+            Issues.Reset();
             int percent = CompletionPercent;
             DesignCompletion.ValueText = percent + "%";
             DesignCompletion.ValueColor = GetCompletionColor(percent);

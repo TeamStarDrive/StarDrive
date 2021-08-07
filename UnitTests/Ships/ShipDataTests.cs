@@ -26,14 +26,12 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.ShipStyle, b.ShipStyle);
             Assert.AreEqual(a.Hull, b.Hull);
             Assert.AreEqual(a.IconPath, b.IconPath);
-            Assert.AreEqual(a.ModelPath, b.ModelPath);
 
             Assert.AreEqual(a.EventOnDeath, b.EventOnDeath);
             Assert.AreEqual(a.SelectionGraphic, b.SelectionGraphic);
 
             Assert.AreEqual(a.FixedUpkeep, b.FixedUpkeep);
             Assert.AreEqual(a.FixedCost, b.FixedCost);
-            Assert.AreEqual(a.Animated, b.Animated);
             Assert.AreEqual(a.IsShipyard, b.IsShipyard);
             Assert.AreEqual(a.IsOrbitalDefense, b.IsOrbitalDefense);
             Assert.AreEqual(a.CarrierShip, b.CarrierShip);
@@ -77,14 +75,12 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.ShipStyle, b.ShipStyle);
             Assert.AreEqual(a.Hull, b.Hull);
             Assert.AreEqual(a.IconPath, b.IconPath);
-            Assert.AreEqual(a.ModelPath, b.ModelPath);
 
             Assert.AreEqual(a.EventOnDeath, b.EventOnDeath);
             Assert.AreEqual(a.SelectionGraphic, b.SelectionGraphic);
 
             Assert.AreEqual(a.FixedUpkeep, b.FixedUpkeep);
             Assert.AreEqual(a.FixedCost, b.FixedCost);
-            Assert.AreEqual(a.Animated, b.Animated);
             Assert.AreEqual(a.IsShipyard, b.IsShipyard);
             Assert.AreEqual(a.IsOrbitalDefense, b.IsOrbitalDefense);
             Assert.AreEqual(a.CarrierShip, b.CarrierShip);
@@ -137,7 +133,6 @@ namespace UnitTests.Ships
             Assert.AreEqual("Terran", design.ShipStyle);
             Assert.AreEqual("Terran/Shuttle", design.Hull);
             Assert.AreEqual("ShipIcons/shuttle", design.IconPath);
-            Assert.AreEqual("Model/Ships/Terran/Shuttle/ship08", design.ModelPath);
             Assert.AreEqual(ShipData.RoleName.fighter, design.Role);
             Assert.AreEqual(1, design.ThrusterList.Length);
             Assert.AreEqual(true, design.Unlockable);
@@ -172,7 +167,6 @@ namespace UnitTests.Ships
             Assert.AreEqual("Terran", design.ShipStyle);
             Assert.AreEqual("Terran/Gunboat", design.Hull);
             Assert.AreEqual("ShipIcons/10a", design.IconPath);
-            Assert.AreEqual("Model/Ships/Terran/Gunboat/Gunboat", design.ModelPath);
             Assert.AreEqual(ShipData.RoleName.prototype, design.Role);
             Assert.AreEqual(1, design.ThrusterList.Length);
             Assert.AreEqual(true, design.Unlockable);
@@ -195,7 +189,6 @@ namespace UnitTests.Ships
             Assert.AreEqual("Terran", design.ShipStyle);
             Assert.AreEqual("Terran/Gunboat", design.Hull);
             Assert.AreEqual("ShipIcons/10a", design.IconPath);
-            Assert.AreEqual("Model/Ships/Terran/Gunboat/Gunboat", design.ModelPath);
             Assert.AreEqual(ShipData.RoleName.prototype, design.Role);
             Assert.AreEqual(1, design.ThrusterList.Length);
             Assert.AreEqual(true, design.Unlockable);

@@ -35,9 +35,9 @@ namespace Ship_Game
 
         Point GetMirrorGridPos(SlotStruct slot)
         {
-            int offset = slot.GridPos.X - slot.GridCenter.X;
+            int offset = slot.Pos.X - slot.GridCenter.X;
             // (-offset - 1) is needed because Right starts at X:0f, Left side at X:-16f
-            return new Point(slot.GridCenter.X + (-offset - 1), slot.GridPos.Y);
+            return new Point(slot.GridCenter.X + (-offset - 1), slot.Pos.Y);
         }
 
         Vector2 GetMirrorWorldPos(Vector2 moduleWorldPos)
@@ -61,7 +61,7 @@ namespace Ship_Game
             Point mirrorPos = GetMirrorGridPos(slot);
 
             if (ModuleGrid.Get(mirrorPos, out SlotStruct mirrorSS) &&
-                !MirroredModulesTooClose(mirrorPos, slot.GridPos, xSize) && 
+                !MirroredModulesTooClose(mirrorPos, slot.Pos, xSize) && 
                 slot.Root != mirrorSS.Root) // !overlapping
             {
                 int turretAngle = slot.Root.Module != null ? slot.Root.Module.TurretAngle : 0;
