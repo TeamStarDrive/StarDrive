@@ -16,14 +16,15 @@ static const char* format_err(const char* fmt, ...)
 // libpng 
 class PngLoader
 {
-    static void err_handler(png_structp self, const char* err) {
+    static void err_fn(png_structp self, const char* err) {
         //PngLoader* loader = reinterpret_cast<PngLoader*>(self);
         //loader->errors.push_back(err);
     }
-    static void warn_handler(png_structp, const char* err) {
-        //fprintf(stderr, "png warn: %s\n", err);
+    static void warn_fn(png_structp self, const char* err) {
+        //PngLoader* loader = reinterpret_cast<PngLoader*>(self);
+        //loader->errors.push_back(err);
     }
-    png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, this, &err_handler, &warn_handler);
+    png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, this, &err_fn, &warn_fn);
     png_infop  info = png_create_info_struct(png);
 
 public:
@@ -154,7 +155,9 @@ public:
         }
 
         //if (!errors.empty()) {
-        //    return format_err("png error: %s", errors[0].c_str());
+        //    for (const std::string& warn : errors) {
+        //        fprintf(stderr, "png error: %s  %s\n", warn.c_str(), filename);
+        //    }
         //}
 
         return nullptr; // Success! No error message.
