@@ -1,0 +1,19 @@
+﻿Version=1
+HullName=Opteris/Creeper
+Role=freighter
+Style=Opteris
+Size=4,8
+IconPath=ShipIcons/Creeper
+ModelPath=Model/Ships/Opteris/Ship19g
+SelectIcon=19g
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=256,296,0,38
+Slots
+___|O  |O  |___
+O  |I  |I  |O  
+O  |I  |I  |O  
+O  |I  |I  |O  
+O  |I  |I  |O  
+O  |I  |I  |O  
+___|E  |E  |___
+___|E  |E  |___

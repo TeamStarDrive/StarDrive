@@ -1,0 +1,20 @@
+﻿Version=1
+HullName=Ralyeh/Zion
+Role=frigate
+Style=Ralyeh
+Size=8,9
+IconPath=ShipIcons/Zion
+ModelPath=Model/Ships/Ralyeh/Ship17c
+SelectIcon=17c
+Animated=true
+#Thruster PosX,PosY,PosZ,Scale
+Slots
+___|___|___|O  |O  |___|___|___
+___|___|O  |IO |IO |O  |___|___
+O  |O  |IO |I  |I  |IO |O  |O  
+O  |IO |I  |I  |I  |I  |IO |O  
+O  |IO |I  |I  |I  |I  |IO |O  
+O  |IO |IO |I  |I  |IO |IO |O  
+O  |___|O  |E  |E  |O  |___|O  
+___|___|O  |E  |E  |O  |___|___
+___|___|O  |E  |E  |O  |___|___

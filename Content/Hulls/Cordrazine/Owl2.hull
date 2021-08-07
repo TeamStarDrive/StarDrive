@@ -1,0 +1,25 @@
+﻿Version=1
+HullName=Cordrazine/Owl2
+Role=freighter
+Style=Cordrazine
+Size=6,14
+IconPath=ShipIcons/Owl2
+ModelPath=Model/Ships/Cordrazine/ship16h
+SelectIcon=16h
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=256,315,0,46
+Slots
+___|___|IO |IO |___|___
+___|___|I  |I  |___|___
+___|I  |I  |I  |I  |___
+IO |I  |I  |I  |I  |IO 
+___|___|I  |I  |___|___
+___|___|I  |I  |___|___
+___|I  |I  |I  |I  |___
+___|I  |I  |I  |I  |___
+___|___|I  |I  |___|___
+___|___|I  |I  |___|___
+___|___|I  |I  |___|___
+___|I  |I  |I  |I  |___
+___|___|E  |E  |___|___
+___|___|E  |E  |___|___
