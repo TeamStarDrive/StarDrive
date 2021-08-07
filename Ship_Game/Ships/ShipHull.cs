@@ -1,31 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
-using Ship_Game.AI;
 using Ship_Game.Data;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Serialization.Types;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships.Legacy;
 using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Ships
 {
     public class ShipHull
     {
+        public static bool GenerateNewHullFiles = true; // only need to do this once
+
+        // Current version of ShipData files
+        // If we introduce incompatibilities we need to convert old to new
         public const int Version = 1;
+        
+        public bool ThisClassMustNotBeAutoSerializedByDotNet =>
+            throw new InvalidOperationException(
+                $"BUG! ShipHull must not be automatically serialized! Add [XmlIgnore][JsonIgnore] to `public ShipHull XXX;` PROPERTIES/FIELDS. {this}");
 
         public string HullName; // ID of the hull, ex: "Cordrazine/Dodaving"
         public string ModName; // null if vanilla, else mod name eg "Combined Arms"
         public string Style; // "Terran"
         public string Description; // "With the advent of more powerful StarDrives, this giant cruiser hull was ..."
         public Point Size;
-        public int Area;
+        public int SurfaceArea;
         public string IconPath; // "ShipIcons/shuttle"
         public string ModelPath; // "Model/Ships/Terran/Shuttle/ship08"
 
@@ -78,13 +84,13 @@ namespace Ship_Game.Ships
         }
 
         // LEGACY: convert old ShipData hulls into new .hull
-        public ShipHull(Legacy.LegacyShipData sd)
+        public ShipHull(LegacyShipData sd)
         {
             HullName = sd.Hull;
             ModName = sd.ModName ?? "";
             Style = sd.ShipStyle;
             Size = sd.GridInfo.Size;
-            Area = sd.GridInfo.SurfaceArea;
+            SurfaceArea = sd.GridInfo.SurfaceArea;
             IconPath = sd.IconPath;
             ModelPath = sd.ModelPath;
 
@@ -105,7 +111,7 @@ namespace Ship_Game.Ships
             HullSlots = new HullSlot[sd.ModuleSlots.Length];
             for (int i = 0; i < sd.ModuleSlots.Length; ++i)
             {
-                Legacy.LegacyModuleSlotData msd = sd.ModuleSlots[i];
+                LegacyModuleSlotData msd = sd.ModuleSlots[i];
                 Vector2 pos = (msd.Position - legacyOffset) - origin;
                 HullSlots[i] = new HullSlot((int)(pos.X / 16f),
                                             (int)(pos.Y / 16f),
@@ -115,6 +121,10 @@ namespace Ship_Game.Ships
             Array.Sort(HullSlots, HullSlot.Sorter);
 
             InitializeCommon();
+        }
+
+        public ShipHull(string filePath) : this(new FileInfo(filePath))
+        {
         }
 
         public ShipHull(FileInfo file)
@@ -189,7 +199,7 @@ namespace Ship_Game.Ships
                 Log.Error($"Hull {file.NameNoExt()} design rows={height} does not match defined Size Height={Size.Y}");
 
             HullSlots = slots.ToArray();
-            Area = HullSlots.Length;
+            SurfaceArea = HullSlots.Length;
 
             InitializeCommon();
         }
@@ -268,7 +278,7 @@ namespace Ship_Game.Ships
             }
 
             sw.FlushToFile(file);
-            Log.Info($"Saved {file.FullName}");
+            Log.Info($"Saved '{HullName}' to {file.FullName}");
         }
     }
 }

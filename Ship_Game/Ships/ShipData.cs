@@ -1,6 +1,4 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Rendering;
@@ -9,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using Ship_Game.Data;
-using Ship_Game.Data.Mesh;
 
 namespace Ship_Game.Ships
 {
@@ -20,10 +17,11 @@ namespace Ship_Game.Ships
     //       However, we will have to support XML for a long time to have backwards compat.
     public sealed partial class ShipData
     {
-        public static bool UseNewShipDataLoaders = false;
-        public static bool GenerateNewHullFiles = false; // only need to do this once
-        public static bool GenerateNewDesignFiles = false; // only need to do this once
-        const int CurrentVersion = 1;
+        public static bool GenerateNewDesignFiles = true; // only need to do this once
+
+        // Current version of ShipData files
+        // If we introduce incompatibilities we need to convert old to new
+        const int Version = 1;
 
         public bool ThisClassMustNotBeAutoSerializedByDotNet =>
             throw new InvalidOperationException(
@@ -72,7 +70,7 @@ namespace Ship_Game.Ships
         public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
 
         // BaseHull is the template layout of the ship hull design
-        public ShipHull BaseHull { get; internal set; }
+        public ShipHull BaseHull { get; private set; }
         public HullBonus Bonuses { get; private set; }
 
         // Model path of the template hull layout
@@ -84,8 +82,6 @@ namespace Ship_Game.Ships
         // You should always use this `Icon` property, because of bugs with `IconPath` initialization
         // when a ShipData is copied. @todo Fix ShipData copying
         public SubTexture Icon => ResourceManager.Texture(IconPath);
-        public Vector3 Volume { get; private set; }
-        public float ModelZ { get; private set; }
 
         public ShipData()
         {
@@ -95,12 +91,13 @@ namespace Ship_Game.Ships
         // This is used in ShipDesignScreen's DesignModuleGrid
         public ShipData(ShipData design)
         {
+            if (design.BaseHull == null)
+                throw new Exception($"ShipData '{design.Name}' has null BaseHull -- this is not allowed!");
+
             Name = design.Name;
             GridInfo = design.GridInfo;
 
             InitCommonState(design);
-            UpdateBaseHull();
-
             ModuleSlots = null; // these must be initialized by DesignModuleGrid.cs
         }
 
@@ -125,53 +122,23 @@ namespace Ship_Game.Ships
             Unlockable = hull.Unlockable;
             HullUnlockable = hull.HullUnlockable;
             AllModulesUnlockable = hull.AllModulesUnlockable;
-
-            Volume = hull.Volume;
-            ModelZ = hull.ModelZ;
         }
 
-        void FixMissingFields()
-        {
-            if (ShipStyle.IsEmpty())
-                ShipStyle = BaseHull.Style;
-
-            if (IconPath.IsEmpty())
-                IconPath = BaseHull.IconPath;
-        }
-
+        // used in ShipDesignScreen
         public void UpdateGridInfo()
         {
             GridInfo = new ShipGridInfo(ModuleSlots);
         }
 
-        public void UpdateBaseHull()
-        {
-            if (BaseHull == null)
-            {
-                if (Hull.NotEmpty() && ResourceManager.Hull(Hull, out ShipHull hull))
-                {
-                    BaseHull = hull;
-                }
-                else
-                {
-                    Log.Warning(ConsoleColor.Red, $"ShipData '{Name}' cannot find hull: {Hull}");
-                    if (Hull.IsEmpty())
-                        Hull = ShipStyle + "/" + Name;
-                    if (ResourceManager.Hull(Hull, out hull))
-                        BaseHull = hull;
-                    else
-                        throw new Exception($"ShipData '{Name}' has no viable hull named '{Hull}'");
-                }
-            }
-
-            Bonuses = BaseHull.Bonuses;
-
-            FixMissingFields();
-        }
-
         public override string ToString() { return Name; }
 
-        public static ShipData Parse(FileInfo info, bool isHullDefinition)
+        public static ShipData Parse(string filePath)
+        {
+            var file = new FileInfo(filePath);
+            return Parse(file);
+        }
+
+        public static ShipData Parse(FileInfo info)
         {
             try
             {
@@ -220,7 +187,7 @@ namespace Ship_Game.Ships
             data.ModName = hull.ModName;
             data.ShipStyle = hull.Style;
             data.Description = hull.Description;
-            data.GridInfo = new ShipGridInfo(hull.Size, hull.Area);
+            data.GridInfo = new ShipGridInfo(hull.Size, hull.SurfaceArea);
             data.IconPath = hull.IconPath;
             data.SelectionGraphic = hull.SelectIcon;
             data.Unlockable = hull.Unlockable;
