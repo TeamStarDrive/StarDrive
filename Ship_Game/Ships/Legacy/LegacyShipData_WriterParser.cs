@@ -15,6 +15,12 @@ namespace Ship_Game.Ships.Legacy
     // NOTE: public variables are SERIALIZED
     public partial class LegacyShipData
     {
+        public void SaveDesign(string filePath)
+        {
+            var file = new FileInfo(filePath);
+            SaveDesign(file);
+        }
+
         /// <summary>
         /// Convert LegacyShipData into new ShipDesign
         /// </summary>

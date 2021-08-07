@@ -22,7 +22,7 @@ namespace Ship_Game.Ships
         ShipDataWriter CreateShipDataText()
         {
             var sw = new ShipDataWriter();
-            sw.Write("Version", CurrentVersion);
+            sw.Write("Version", Version);
             sw.Write("Name", Name);
             sw.Write("Hull", Hull);
             sw.Write("Role", Role);
@@ -124,7 +124,7 @@ namespace Ship_Game.Ships
             }
             return slotModuleUIDAndIndex;
         }
-        
+
         static ShipData ParseDesign(FileInfo file)
         {
             using (var p = new GenericStringViewParser(file))
@@ -134,14 +134,22 @@ namespace Ship_Game.Ships
 
                 firstLine.Next('=');
                 int version = firstLine.ToInt();
-                if (version != CurrentVersion)
+                if (version != Version)
                 {
                     if (version == 0)
                         throw new InvalidDataException($"Ship design version is invalid: {firstLine.Text} File={file}");
 
                     // TODO: convert from this version to newer version
                 }
-                return new ShipData(p);
+
+                var data = new ShipData(p);
+                if (data.BaseHull == null)
+                {
+                    Log.Warning(ConsoleColor.Red, $"Hull='{data.Hull}' does not exist for Design: {file.FullName}");
+                    return null;
+                }
+
+                return data;
             }
         }
 
@@ -150,6 +158,7 @@ namespace Ship_Game.Ships
             string[] moduleUIDs = null;
             DesignSlot[] modules = null;
             int numModules = 0;
+            ShipHull hull = null;
 
             while (p.ReadLine(out StringView line))
             {
@@ -159,7 +168,12 @@ namespace Ship_Game.Ships
                     StringView value = line;
 
                     if      (key == "Name") Name = value.Text;
-                    else if (key == "Hull") Hull = value.Text;
+                    else if (key == "Hull")
+                    {
+                        Hull = value.Text;
+                        if (!ResourceManager.Hull(Hull, out hull)) // If the hull is invalid, then ship loading fails!
+                            return;
+                    }
                     else if (key == "Role") Enum.TryParse(value.Text, out Role);
                     else if (key == "Style")       ShipStyle = value.Text;
                     else if (key == "Description") Description = value.Text;
@@ -189,25 +203,22 @@ namespace Ship_Game.Ships
                 }
             }
 
-            if (!ResourceManager.Hull(Hull, out ShipHull hull))
-                throw new InvalidDataException($"Hull {Hull} not found");
-
+            BaseHull = hull;
+            Bonuses = hull.Bonuses;
             ThrusterList = hull.Thrusters;
-            ShipStyle = hull.Style;
-            IconPath = hull.IconPath;
             ModelPath = hull.ModelPath;
             Animated = hull.Animated;
             IsShipyard = hull.IsShipyard;
             IsOrbitalDefense = hull.IsOrbitalDefense;
+            
+            if (ShipStyle.IsEmpty()) ShipStyle = hull.Style;
+            if (IconPath.IsEmpty()) IconPath = hull.IconPath;
 
             //if (Name.Contains("Acolyte of Flak II"))
             //    Debugger.Break();
 
-            GridInfo.SurfaceArea = hull.Area;
-
+            GridInfo.SurfaceArea = hull.SurfaceArea;
             ModuleSlots = modules;
-            
-            UpdateBaseHull();
         }
 
         static DesignSlot ParseDesignSlot(StringView line, string[] moduleUIDs)
