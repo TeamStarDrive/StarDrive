@@ -15,10 +15,14 @@ namespace Ship_Game
         [XmlIgnore] public float ActualCost => ResearchMultiplier() * CurrentGame.Pace;
 
         [XmlIgnore] public Technology[] Children;
+
+        // this is the full traceback of all previous techs
+        // ex: Tech="Ace Training", Parents=["FighterTheory","HeavyFighterHull","StarshipConstruction"]
         [XmlIgnore] public Technology[] Parents;
 
         public static readonly Technology Dummy = new Technology();
 
+        // if RootNode == 1, then this is a root of a tech tree main branch
         public int RootNode;
         public float Cost;
         public bool Secret;
@@ -26,6 +30,7 @@ namespace Ship_Game
         public bool Unlockable;
         public float LowPriorityCostMultiplier = 1;
 
+        [XmlIgnore] public bool IsRootNode => RootNode == 1;
         [XmlIgnore] public SortedSet<TechnologyType> TechnologyTypes = new SortedSet<TechnologyType>();
         [XmlIgnore] public int NumStuffUnlocked => ModulesUnlocked.Count + BuildingsUnlocked.Count
                                                    + BonusUnlocked.Count + TroopsUnlocked.Count
@@ -36,6 +41,11 @@ namespace Ship_Game
 
         public LocalizedText Name => new LocalizedText(NameIndex);
         public LocalizedText Description => new LocalizedText(DescriptionIndex);
+
+        public override string ToString()
+        {
+            return $"Tech {UID} Name={Name.Text} Root={RootNode} Cost={Cost} Parents={Parents.Length}";
+        }
 
         public Array<LeadsToTech> LeadsTo                = new Array<LeadsToTech>();
         public Array<LeadsToTech> ComesFrom              = new Array<LeadsToTech>();

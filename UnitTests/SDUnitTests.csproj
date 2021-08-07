@@ -104,6 +104,7 @@
     <Compile Include="Ships\TestResupplyLogic.cs" />
     <Compile Include="Ships\ShipBuilderTests.cs" />
     <Compile Include="Ships\CarrierTests.cs" />
+    <Compile Include="Ships\LegacyShipDesignUtils.cs" />
     <Compile Include="Ships\ShipPowerCalcTests.cs" />
     <Compile Include="Ships\TestShip.cs" />
     <Compile Include="Ships\ModuleGridTests.cs" />
@@ -120,6 +121,7 @@
     <Compile Include="Ships\TestIsInsideFiringArc.cs" />
     <Compile Include="Ships\TestShipWarpStates.cs" />
     <Compile Include="Ships\ShipAITests.cs" />
+    <Compile Include="Ships\ShipDesignUtilsTests.cs" />
     <Compile Include="StarDriveTestContext.cs" />
     <Compile Include="StoryAndEvents\TestNotifications.cs" />
     <Compile Include="Ships\TestShipRanges.cs" />

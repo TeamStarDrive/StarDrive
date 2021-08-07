@@ -92,8 +92,7 @@ namespace Ship_Game
             foreach (SolarSystem system in sandbox.SolarSystemsList)
                 SubmitSceneObjectsForRendering(system);
 
-            var progress = new ProgressCounter();
-            ShipDesignUtils.MarkDesignsUnlockable(progress);
+            ShipDesignUtils.MarkDesignsUnlockable();
             ResearchScreenNew.UnlockAllResearch(EmpireManager.Player, unlockBonusTechs: true);
             Log.Info($"CreateSandboxUniverse elapsed:{s.Elapsed.TotalMilliseconds}");
             return sandbox;
