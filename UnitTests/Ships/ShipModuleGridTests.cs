@@ -47,5 +47,44 @@ namespace UnitTests.Ships
             Assert.AreEqual(6, prototype.GridWidth);
             Assert.AreEqual(16, prototype.GridHeight);
         }
+
+        [TestMethod]
+        public void WorldToGridLocalCoords()
+        {
+            var c = new Vector2(1000, 1000);
+            Ship ship = SpawnShip("Vulcan Scout", Player, c);
+            Assert.AreEqual(4, ship.GridWidth);
+
+            Assert.AreEqual(new Vector2(32,32),   ship.WorldToGridLocal( c ));
+            Assert.AreEqual(new Vector2(0,0),     ship.WorldToGridLocal( c - new Vector2(32,32) ));
+            Assert.AreEqual(new Vector2(-32,-32), ship.WorldToGridLocal( c - new Vector2(64,64) ));
+            Assert.AreEqual(new Vector2(64,64),   ship.WorldToGridLocal( c + new Vector2(32,32) ));
+
+            Assert.AreEqual(new Point(2,2),   ship.WorldToGridLocalPoint( c ));
+            Assert.AreEqual(new Point(0,0),   ship.WorldToGridLocalPoint( c - new Vector2(32,32) ));
+            Assert.AreEqual(new Point(-2,-2), ship.WorldToGridLocalPoint( c - new Vector2(64,64) ));
+            Assert.AreEqual(new Point(4,4),   ship.WorldToGridLocalPoint( c + new Vector2(32,32) ));
+
+            Assert.AreEqual(new Point(0,0), ship.WorldToGridLocalPointClipped( c - new Vector2(64,64) ));
+            Assert.AreEqual(new Point(3,3), ship.WorldToGridLocalPointClipped( c + new Vector2(32,32) ));
+        }
+
+        [TestMethod]
+        public void GridLocalToWorldCoords()
+        {
+            var c = new Vector2(1000, 1000);
+            Ship ship = SpawnShip("Vulcan Scout", Player, c);
+            Assert.AreEqual(4, ship.GridWidth);
+
+            Assert.AreEqual(c + new Vector2(0,0),   ship.GridLocalToWorld( new Vector2(32,32)   ));
+            Assert.AreEqual(c - new Vector2(32,32), ship.GridLocalToWorld( new Vector2(0,0)     ));
+            Assert.AreEqual(c - new Vector2(64,64), ship.GridLocalToWorld( new Vector2(-32,-32) ));
+            Assert.AreEqual(c + new Vector2(32,32), ship.GridLocalToWorld( new Vector2(64,64)   ));
+
+            Assert.AreEqual(c + new Vector2(0,0),   ship.GridLocalPointToWorld( new Point(2,2)   ));
+            Assert.AreEqual(c - new Vector2(32,32), ship.GridLocalPointToWorld( new Point(0,0)   ));
+            Assert.AreEqual(c - new Vector2(64,64), ship.GridLocalPointToWorld( new Point(-2,-2) ));
+            Assert.AreEqual(c + new Vector2(32,32), ship.GridLocalPointToWorld( new Point(4,4)   ));
+        }
     }
 }
