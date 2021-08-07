@@ -52,7 +52,6 @@ namespace Ship_Game.Ships
         public AIState DefaultAIState;
         public CombatState DefaultCombatState;
 
-        public ThrusterZone[] ThrusterList;
         public ShipGridInfo GridInfo;
         public DesignSlot[] ModuleSlots;
         public bool Unlockable;
@@ -67,9 +66,6 @@ namespace Ship_Game.Ships
         public ShipHull BaseHull { get; private set; }
         public HullBonus Bonuses { get; }
 
-        // Model path of the template hull layout
-        public string HullModel => BaseHull.ModelPath;
-
         public bool IsValidForCurrentMod
             => ModName.IsEmpty() || ModName == GlobalStats.ModName;
 
@@ -81,34 +77,28 @@ namespace Ship_Game.Ships
         {
         }
 
-        // Make a DEEP COPY from a `hull` template
-        // This is used in ShipDesignScreen's DesignModuleGrid
-        public ShipData(ShipData design)
+        // Create a new empty ShipData from a ShipHull
+        public ShipData(ShipHull hull)
         {
-            if (design.BaseHull == null)
-                throw new Exception($"ShipData '{design.Name}' has null BaseHull -- this is not allowed!");
+            if (hull == null)
+                throw new Exception($"ShipData '{hull.HullName}' has null BaseHull -- this is not allowed!");
 
-            Name = design.Name;
-            GridInfo = design.GridInfo;
+            Name = hull.HullName;
+            GridInfo.Size = hull.Size;
+            GridInfo.SurfaceArea = hull.SurfaceArea;
 
-            Hull              = design.Hull;
-            Role              = design.Role;
-            IconPath          = design.IconPath;
-            IsShipyard        = design.IsShipyard;
-            IsOrbitalDefense  = design.IsOrbitalDefense;
-            ShipStyle         = design.ShipStyle;
-            ThrusterList      = design.ThrusterList;
-            ShipCategory      = design.ShipCategory;
-            HangarDesignation = design.HangarDesignation;
-            CarrierShip       = design.CarrierShip;
-            TechsNeeded       = design.TechsNeeded;
-            BaseHull          = design.BaseHull;
-            Bonuses           = design.Bonuses;
-            DefaultAIState     = design.DefaultAIState;
-            DefaultCombatState = design.DefaultCombatState;
+            Hull              = hull.HullName;
+            Role              = hull.Role;
+            IconPath          = hull.IconPath;
+            IsShipyard        = hull.IsShipyard;
+            IsOrbitalDefense  = hull.IsOrbitalDefense;
+            ShipStyle         = hull.Style;
+            TechsNeeded       = new HashSet<string>(hull.TechsNeeded);
+            BaseHull          = hull;
+            Bonuses           = hull.Bonuses;
 
-            Unlockable = design.Unlockable;
-            ModuleSlots = null; // these must be initialized by DesignModuleGrid.cs
+            Unlockable = hull.Unlockable;
+            ModuleSlots = Array.Empty<DesignSlot>();
         }
 
         // used in ShipDesignScreen

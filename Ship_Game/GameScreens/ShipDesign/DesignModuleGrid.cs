@@ -60,7 +60,7 @@ namespace Ship_Game
         {
             var modules = new Array<ShipModule>();
             foreach (SlotStruct slot in Slots)
-                if (slot.Module != null)
+                if (slot.Module != null && slot.Parent == null)
                     modules.Add(slot.Module);
             return modules.ToArray();
         }
