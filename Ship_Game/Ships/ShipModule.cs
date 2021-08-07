@@ -34,14 +34,20 @@ namespace Ship_Game.Ships
         // This is the Rotation of the Installed Module: Normal, Left, Right, Rear
         public ModuleOrientation ModuleRot;
 
-        public bool CheckedConduits;
         public bool Powered;
         public bool isExternal;
         public int XSIZE = 1;
         public int YSIZE = 1;
 
+        // Gets the size of this Module, correctly oriented
+        // Required by ModuleGrid
+        public Point GetSize() => new Point(XSIZE, YSIZE);
+        
+        // Size of this module in World Coordinates
+        public Vector2 WorldSize => new Vector2(XSIZE * 16, YSIZE * 16);
+
         // Slot top-left Grid Position in the Ship design
-        public Point GridPos;
+        public Point Pos;
 
         // Center of the module in World Coordinates, relative to ship center
         public Vector2 LocalCenter;
@@ -450,7 +456,7 @@ namespace Ship_Game.Ships
 
             ++DebugInfoScreen.ModulesCreated;
 
-            GridPos = gridPos;
+            Pos = gridPos;
 
             Point gridCenter = parent.BaseHull.GridCenter;
             LocalCenter = new Vector2((gridPos.X - gridCenter.X)*16f + XSIZE * 8f,
@@ -1421,16 +1427,6 @@ namespace Ship_Game.Ships
         {
             if (Enum.TryParse(slotOrientation, out ModuleOrientation orientation))
                 return GetOrientedSize(orientation);
-            return new Point(XSIZE, YSIZE);
-        }
-
-        // Size of this module in World Coordinates
-        public Vector2 WorldSize => new Vector2(XSIZE * 16, YSIZE * 16);
-
-        // Gets the size of this Module, correctly oriented
-        // Required by ModuleGrid
-        public Point GetSize()
-        {
             return new Point(XSIZE, YSIZE);
         }
 
