@@ -120,8 +120,6 @@ namespace Ship_Game.GameScreens.NewGame
                 
                 shipData.TechsNeeded.Clear(); // always clear techs list
                 shipData.Unlockable = false;
-                shipData.HullUnlockable = false;
-                shipData.AllModulesUnlockable = false;
 
                 if (!shipData.BaseHull.Unlockable ||
                     shipData.HullRole == ShipData.RoleName.disabled)
@@ -129,9 +127,7 @@ namespace Ship_Game.GameScreens.NewGame
                 
                 // These are the leaf technologies which actually unlock our modules
                 var leafTechsNeeds = new HashSet<string>();
-                
-                shipData.HullUnlockable = true;
-                shipData.AllModulesUnlockable = true;
+                bool allModulesUnlockable = true;
 
                 foreach (DesignSlot slot in ship.shipData.ModuleSlots)
                 {
@@ -142,7 +138,7 @@ namespace Ship_Game.GameScreens.NewGame
                     }
                     else
                     {
-                        shipData.AllModulesUnlockable = false;
+                        allModulesUnlockable = false;
                         if (!ResourceManager.GetModuleTemplate(slot.ModuleUID, out ShipModule _))
                             Log.Info(ConsoleColor.Yellow, $"Module does not exist: ModuleUID='{slot.ModuleUID}'  ship='{ship.Name}'");
                         else
@@ -151,7 +147,7 @@ namespace Ship_Game.GameScreens.NewGame
                     }
                 }
 
-                if (shipData.AllModulesUnlockable)
+                if (allModulesUnlockable)
                 {
                     shipData.Unlockable = true;
 
