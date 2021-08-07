@@ -42,13 +42,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.DefaultAIState, b.DefaultAIState);
             Assert.AreEqual(a.DefaultCombatState, b.DefaultCombatState);
 
-            Assert.AreEqual(a.ThrusterList.Length, b.ThrusterList.Length);
-            for (int i = 0; i < a.ThrusterList.Length; ++i)
-            {
-                Assert.AreEqual(a.ThrusterList[i].Position, b.ThrusterList[i].Position);
-                Assert.AreEqual(a.ThrusterList[i].Scale, b.ThrusterList[i].Scale);
-            }
-            
             Assert.AreEqual(a.GridInfo.SurfaceArea, b.GridInfo.SurfaceArea);
             Assert.AreEqual(a.GridInfo.Size.X, b.GridInfo.Size.X);
             Assert.AreEqual(a.GridInfo.Size.Y, b.GridInfo.Size.Y);
@@ -91,11 +84,11 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.DefaultAIState, b.DefaultAIState);
             Assert.AreEqual(a.CombatState, b.DefaultCombatState);
 
-            Assert.AreEqual(a.ThrusterList.Length, b.ThrusterList.Length);
+            Assert.AreEqual(a.ThrusterList.Length, b.BaseHull.Thrusters.Length);
             for (int i = 0; i < a.ThrusterList.Length; ++i)
             {
-                Assert.AreEqual(a.ThrusterList[i].Position, b.ThrusterList[i].Position);
-                Assert.AreEqual(a.ThrusterList[i].Scale, b.ThrusterList[i].Scale);
+                Assert.AreEqual(a.ThrusterList[i].Position, b.BaseHull.Thrusters[i].Position);
+                Assert.AreEqual(a.ThrusterList[i].Scale, b.BaseHull.Thrusters[i].Scale);
             }
             
             Assert.AreEqual(a.GridInfo.SurfaceArea, b.GridInfo.SurfaceArea);
@@ -134,7 +127,6 @@ namespace UnitTests.Ships
             Assert.AreEqual("Terran/Shuttle", design.Hull);
             Assert.AreEqual("ShipIcons/shuttle", design.IconPath);
             Assert.AreEqual(ShipData.RoleName.fighter, design.Role);
-            Assert.AreEqual(1, design.ThrusterList.Length);
             Assert.AreEqual(true, design.Unlockable);
             Assert.AreEqual(10, design.ModuleSlots.Length);
             Assert.AreEqual(10, design.GridInfo.SurfaceArea);
@@ -168,7 +160,6 @@ namespace UnitTests.Ships
             Assert.AreEqual("Terran/Gunboat", design.Hull);
             Assert.AreEqual("ShipIcons/10a", design.IconPath);
             Assert.AreEqual(ShipData.RoleName.prototype, design.Role);
-            Assert.AreEqual(1, design.ThrusterList.Length);
             Assert.AreEqual(true, design.Unlockable);
             Assert.AreEqual(70, design.ModuleSlots.Length);
             Assert.AreEqual(70, design.GridInfo.SurfaceArea);
@@ -190,7 +181,6 @@ namespace UnitTests.Ships
             Assert.AreEqual("Terran/Gunboat", design.Hull);
             Assert.AreEqual("ShipIcons/10a", design.IconPath);
             Assert.AreEqual(ShipData.RoleName.prototype, design.Role);
-            Assert.AreEqual(1, design.ThrusterList.Length);
             Assert.AreEqual(true, design.Unlockable);
             Assert.AreEqual(40, design.ModuleSlots.Length); // new designs don't have dummy modules
             Assert.AreEqual(70, design.GridInfo.SurfaceArea);
@@ -200,7 +190,7 @@ namespace UnitTests.Ships
         public void ShipDesign_Clone_EqualToOriginal()
         {
             ShipData original = ShipData.Parse("Content/ShipDesigns/Prototype Frigate.design");
-            ShipData clone = new ShipData(original);
+            ShipData clone = original.GetClone();
             AssertAreEqual(original, clone, true);
         }
 

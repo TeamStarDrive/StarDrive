@@ -359,6 +359,12 @@ namespace Ship_Game
 
         public void ChangeHull(ShipHull hullTemplate)
         {
+            if (!HullEditMode)
+            {
+                ChangeHull(new ShipData(hullTemplate));
+                return;
+            }
+
             ModuleGrid = new DesignModuleGrid(hullTemplate.HullName, hullTemplate);
 
             CurrentDesign = null;

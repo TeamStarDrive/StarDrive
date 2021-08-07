@@ -241,7 +241,7 @@ namespace Ship_Game.Ships
 
         void InitializeThrusters(ShipData data)
         {
-            ThrusterList = data.ThrusterList.Select(t => new Thruster(this, t.Scale, t.Position));
+            ThrusterList = data.BaseHull.Thrusters.Select(t => new Thruster(this, t.Scale, t.Position));
 
             if (StarDriveGame.Instance == null) // allows creating ship templates in Unit Tests
                 return;
