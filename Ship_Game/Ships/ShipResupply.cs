@@ -138,8 +138,6 @@ namespace Ship_Game.Ships
 
         private bool OrdnanceLow()
         {
-            if (Ship.Name == "Terran-Prototype")
-                Log.Info("");
             if (PlayerKamikaze)
                 return false; // Only player manual command will convince Kamikaze ship to resupply
 
