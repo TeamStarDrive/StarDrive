@@ -453,8 +453,8 @@ namespace Ship_Game.Ships
             GridPos = gridPos;
 
             Point gridCenter = parent.BaseHull.GridCenter;
-            LocalCenter = new Vector2(gridPos.X - gridCenter.X + XSIZE * 8f,
-                                      gridPos.Y - gridCenter.Y + YSIZE * 8f);
+            LocalCenter = new Vector2((gridPos.X - gridCenter.X)*16f + XSIZE * 8f,
+                                      (gridPos.Y - gridCenter.Y)*16f + YSIZE * 8f);
 
             // world position of this module, will be overwritten during Ship's Module update
             Position = LocalCenter;
