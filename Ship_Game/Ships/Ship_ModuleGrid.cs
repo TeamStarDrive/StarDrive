@@ -3,8 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using System;
-using System.Diagnostics;
-using System.IO;
 
 namespace Ship_Game.Ships
 {
@@ -169,8 +167,8 @@ namespace Ship_Game.Ships
         // updates the isExternal status of a module, depending on whether it died or resurrected
         public void UpdateExternalSlots(ShipModule module, bool becameActive)
         {
-            ModulePosToGridPoint(module, out int x, out int y);
-
+            int x = module.GridPos.X;
+            int y = module.GridPos.Y;
             if (becameActive) // we resurrected, so add us to external module grid and update all surrounding slots
                 AddExternalModule(module);
             else // we turned inactive, so clear self from external module grid and
@@ -189,12 +187,6 @@ namespace Ship_Game.Ships
             for (int y = p.Y; y < endY; ++y)
                 for (int x = p.X; x < endX; ++x)
                     sparseGrid[x + y * GridWidth] = becameActive ? module : null;
-        }
-
-        void ModulePosToGridPoint(ShipModule m, out int x, out int y)
-        {
-            x = m.GridPos.X;
-            y = m.GridPos.Y;
         }
 
         // safe and fast module lookup by x,y where coordinates (0,1) (2,1) etc
