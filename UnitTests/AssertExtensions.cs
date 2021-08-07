@@ -37,6 +37,13 @@ namespace UnitTests
             throw new AssertFailedException($"Expected {expected} does not match Actual {actual}. {message}");
         }
 
+        public static void Equal(this Assert assert, in Point expected, in Point actual)
+        {
+            if (expected.X == actual.X && expected.Y == actual.Y)
+                return; // OK
+            throw new AssertFailedException($"Expected {expected} does not match Actual {actual}");
+        }
+
         public static void Equal(this Assert assert, float tolerance, in Vector2 expected, in Vector2 actual)
         {
             if (expected.X.AlmostEqual(actual.X, tolerance) &&

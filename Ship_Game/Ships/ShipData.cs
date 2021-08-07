@@ -17,7 +17,7 @@ namespace Ship_Game.Ships
     //       However, we will have to support XML for a long time to have backwards compat.
     public sealed partial class ShipData
     {
-        public static bool GenerateNewDesignFiles = true; // only need to do this once
+        public static bool GenerateNewDesignFiles = false; // only need to do this once
 
         // Current version of ShipData files
         // If we introduce incompatibilities we need to convert old to new
@@ -55,9 +55,7 @@ namespace Ship_Game.Ships
         public CombatState DefaultCombatState;
 
         public ThrusterZone[] ThrusterList;
-
         public ShipGridInfo GridInfo;
-
         public DesignSlot[] ModuleSlots;
         public bool Unlockable;
         public HashSet<string> TechsNeeded = new HashSet<string>();
