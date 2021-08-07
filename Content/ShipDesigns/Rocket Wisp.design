@@ -1,0 +1,22 @@
+﻿Version=1
+Name=Rocket Wisp
+Hull=Draylok/Wisp
+Role=fighter
+Style=Draylok
+Size=6,2
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=RocketLauncher;NuclearReactorSmall;Cockpit;WarpEngine_1x1;Engine;OrdnanceLockerSmall
+Modules=10
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,1;0
+1,0;0
+1,1;1
+2,0;2
+2,1;3
+3,0;1
+3,1;4
+4,0;0
+4,1;0
+5,1;5

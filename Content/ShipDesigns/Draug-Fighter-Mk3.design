@@ -1,0 +1,24 @@
+﻿Version=1
+Name=Draug-Fighter-Mk3
+Hull=Draugar/Draug Fighter Advanced
+Role=fighter
+Style=Draugar
+Size=4,6
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=RocketLauncher;OrdnanceLockerSmall;BasicFuelCell;PhasorTurret2x2;Fighter Shield;RemnantSmallReactor;Engine;Cockpit;LaserCannon
+Modules=12
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,4;0
+0,5;1
+1,0;2
+1,1;3;2,2
+1,3;4
+1,4;5
+1,5;6
+2,3;7
+2,4;5
+2,5;6
+3,4;8
+3,5;2
