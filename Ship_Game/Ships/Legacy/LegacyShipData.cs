@@ -133,11 +133,20 @@ namespace Ship_Game.Ships.Legacy
                         HullsDict = ResourceManager.LoadLegacyShipHulls();
                 }
 
-                if (Hull.NotEmpty() && HullsDict.TryGetValue(Hull, out LegacyShipData hull))
+                if (Hull.NotEmpty())
                 {
+                    if (!HullsDict.TryGetValue(Hull, out LegacyShipData hull))
+                    {
+                        string maybeHull = ShipStyle + "/" + Hull;
+                        if (HullsDict.TryGetValue(maybeHull, out hull))
+                        {
+                            Hull = maybeHull;
+                        }
+                    }
                     BaseHull = hull;
                 }
-                else
+
+                if (BaseHull == null)
                 {
                     Log.Warning(ConsoleColor.Red, $"ShipData {Hull} '{Name}' cannot find hull: {Hull}");
                     BaseHull = this;
@@ -150,6 +159,12 @@ namespace Ship_Game.Ships.Legacy
         }
 
         public override string ToString() { return Name; }
+
+        public static LegacyShipData Parse(string filePath, bool isHullDefinition)
+        {
+            var file = new FileInfo(filePath);
+            return Parse(file, isHullDefinition);
+        }
 
         public static LegacyShipData Parse(FileInfo info, bool isHullDefinition)
         {

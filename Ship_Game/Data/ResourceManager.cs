@@ -1390,7 +1390,7 @@ namespace Ship_Game
 
             var map = new Map<string, LegacyShipData>();
             foreach (var hull in hulls)
-                if (hull != null) map[hull.Name] = hull;
+                if (hull != null) map[hull.Hull] = hull;
             return map;
         }
 
@@ -1418,7 +1418,7 @@ namespace Ship_Game
             HullsDict.Clear();
             HullsList.Clear();
 
-            if (ShipData.GenerateNewHullFiles)
+            if (ShipHull.GenerateNewHullFiles)
             {
                 var legacyHulls = LoadLegacyShipHulls();
                 ConvertLegacyHulls(legacyHulls);
@@ -1508,7 +1508,7 @@ namespace Ship_Game
                     try
                     {
                         GameLoadingScreen.SetStatus("LoadShipTemplate", info.RelPath());
-                        ShipData shipData = ShipData.Parse(info, isHullDefinition:false);
+                        ShipData shipData = ShipData.Parse(info);
                         if (shipData == null || shipData.Role == ShipData.RoleName.disabled)
                             continue;
 

@@ -25,7 +25,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.Style, b.Style);
             Assert.AreEqual(a.Description, b.Description);
             Assert.AreEqual(a.Size, b.Size);
-            Assert.AreEqual(a.Area, b.Area);
+            Assert.AreEqual(a.SurfaceArea, b.SurfaceArea);
             Assert.AreEqual(a.IconPath, b.IconPath);
             Assert.AreEqual(a.ModelPath, b.ModelPath);
 
@@ -61,7 +61,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.ShipStyle, b.Style);
             Assert.AreEqual(a.Description, b.Description);
             Assert.AreEqual(a.GridInfo.Size, b.Size);
-            Assert.AreEqual(a.GridInfo.SurfaceArea, b.Area);
+            Assert.AreEqual(a.GridInfo.SurfaceArea, b.SurfaceArea);
             Assert.AreEqual(a.IconPath, b.IconPath);
             Assert.AreEqual(a.ModelPath, b.ModelPath);
 
