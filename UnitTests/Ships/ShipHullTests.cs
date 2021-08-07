@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.Gameplay;
@@ -72,29 +70,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.IsOrbitalDefense, b.IsOrbitalDefense);
 
             Assert.AreEqual(a.ThrusterList.Length, b.Thrusters.Length);
-        }
-
-        /// <summary>
-        /// NOTE: This test can be removed once we delete all XML designs
-        /// Make sure all new hulls have matching information compared to the old XML files
-        /// </summary>
-        [TestMethod]
-        public void NewShipHullsAreEqualToOldHulls()
-        {
-            FileInfo[] xmlHulls = Dir.GetFiles("Content/Hulls/", "xml");
-
-            foreach (FileInfo xmlHullFile in xmlHulls)
-            {
-                LegacyShipData oldXmlHull = LegacyShipData.Parse(xmlHullFile, isHullDefinition: true);
-                var newHullConverted = new ShipHull(oldXmlHull);
-
-                var newHullFile = new FileInfo(Path.ChangeExtension(xmlHullFile.FullName, "hull"));
-                newHullConverted.Save(newHullFile);
-
-                var newHull = new ShipHull(newHullFile);
-
-                AssertAreEqual(newHullConverted, newHull, true);
-            }
         }
     }
 }

@@ -685,9 +685,6 @@ namespace Ship_Game
         // Refactored by RedFox
         public static void DeleteShip(string shipName)
         {
-            //DeleteShipFromDir("Content/StarterShips", shipName);
-            //DeleteShipFromDir("Content/SavedDesigns", shipName);
-
             string appData = Dir.StarDriveAppData;
             DeleteShipFromDir(appData + "/Saved Designs", shipName);
             DeleteShipFromDir(appData + "/WIP", shipName);
@@ -1592,8 +1589,6 @@ namespace Ship_Game
         static Map<string, ShipDesignInfo> GetAllShipDesigns(string ext)
         {
             var designs = new Map<string, ShipDesignInfo>();
-            CombineOverwrite(designs, GatherFilesModOrVanilla("StarterShips", ext), readOnly: true, playerDesign: false);
-            CombineOverwrite(designs, GatherFilesUnified("SavedDesigns", ext), readOnly: true, playerDesign: false);
             CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", ext), readOnly: true, playerDesign: false);
             CombineOverwrite(designs, Dir.GetFiles(Dir.StarDriveAppData + "/Saved Designs", ext), readOnly: false, playerDesign: true);
             return designs;
@@ -1602,9 +1597,7 @@ namespace Ship_Game
         // @note This is used for Unit Tests and is not part of the core game
         // @param shipsList Only load these ships to make loading faster.
         //                  Example:  shipsList: new [] { "Vulcan Scout" }
-        public static void LoadStarterShipsForTesting(string[] shipsList = null,
-                                                      string[] savedDesigns = null,
-                                                      bool clearAll = false)
+        public static void LoadStarterShipsForTesting(string[] shipsList = null, bool clearAll = false)
         {
             if (clearAll)
                 UnloadShipTemplates();
@@ -1614,13 +1607,7 @@ namespace Ship_Game
             if (shipsList != null)
             {
                 string[] newShips = shipsList.Filter(name => !ShipTemplateExists(name));
-                ships.AddRange(newShips.Select(ship => GetModOrVanillaFile($"StarterShips/{ship}.design")));
-            }
-
-            if (savedDesigns != null)
-            {
-                string[] newShips = savedDesigns.Filter(name => !ShipTemplateExists(name));
-                ships.AddRange(newShips.Select(ship => GetModOrVanillaFile($"SavedDesigns/{ship}.design")));
+                ships.AddRange(newShips.Select(ship => GetModOrVanillaFile($"ShipDesigns/{ship}.design")));
             }
 
             if (ships.Count > 0)
