@@ -16,7 +16,7 @@ namespace Ship_Game.Ships
 {
     public class ShipHull
     {
-        public static bool GenerateNewHullFiles = true; // only need to do this once
+        public static bool GenerateNewHullFiles = false; // only need to do this once
 
         // Current version of ShipData files
         // If we introduce incompatibilities we need to convert old to new

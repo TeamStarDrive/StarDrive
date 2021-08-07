@@ -29,25 +29,9 @@ namespace Ship_Game.Ships
         public ShipModule[] Modules => ModuleSlotList;
         public bool HasModules => ModuleSlotList != null && ModuleSlotList.Length != 0;
 
-
-        void CreateModuleGrid(in ShipGridInfo gridInfo, bool shipyardDesign)
+        void CreateModuleGrid(in ShipGridInfo gridInfo)
         {
             ShipGridInfo info = gridInfo;
-
-            #if DEBUG
-            if (!shipyardDesign)
-            {
-                var modulesInfo = new ShipGridInfo(ModuleSlotList);
-                if (modulesInfo.SurfaceArea != gridInfo.SurfaceArea ||
-                    modulesInfo.Size != gridInfo.Size)
-                {
-                    Log.Warning($"Ship {Name} ModulesGrid does not match ShipDataGrid: {modulesInfo} != {gridInfo}. This is a potentially broken Ship Design");
-                }
-            }
-            #endif
-
-            //if (Name.Contains("Acolyte of Flak II"))
-            //    Debugger.Break();
 
             SurfaceArea = info.SurfaceArea;
             GridWidth  = info.Size.X;
@@ -276,31 +260,60 @@ namespace Ship_Game.Ships
             return shield != null;
         }
 
-
-
         // Converts a world position to a grid local position (such as [16f,32f])
+        // TESTED in ShipModuleGridTests
         public Vector2 WorldToGridLocal(Vector2 worldPoint)
         {
             Vector2 offset = worldPoint - Position;
-            return offset.RotatePoint(-Rotation) - GridLocalCenter;
+            return offset.RotatePoint(-Rotation) + GridLocalCenter;
         }
-
+        
+        // Converts a world position to a grid point such as [1,2]
+        // TESTED in ShipModuleGridTests
         public Point WorldToGridLocalPoint(Vector2 worldPoint)
         {
-            return GridLocalToPoint(WorldToGridLocal(worldPoint));
+            Vector2 gridLocal = WorldToGridLocal(worldPoint);
+            Point gridPoint = GridLocalToPoint(gridLocal);
+            return gridPoint;
         }
-
-        public Point GridLocalToPoint(Vector2 localPos)
-        {
-            return new Point((int)Math.Floor(localPos.X / 16f), (int)Math.Floor(localPos.Y / 16f));
-        }
-
+        
+        // Converts a world position to a grid point such as [1,2]
+        // CLIPS the value in range of [0, GRIDSIZE-1]
+        // TESTED in ShipModuleGridTests
         public Point WorldToGridLocalPointClipped(Vector2 worldPoint)
         {
             return ClipLocalPoint(WorldToGridLocalPoint(worldPoint));
         }
 
-        public Point ClipLocalPoint(Point pt)
+        // Converts a grid-local pos to a grid point
+        // TESTED via WorldToGridLocalPoint() in ShipModuleGridTests
+        public Point GridLocalToPoint(Vector2 localPos)
+        {
+            return new Point((int)Math.Floor(localPos.X / 16f),
+                             (int)Math.Floor(localPos.Y / 16f));
+        }
+
+        // Converts a grid-local pos to world pos
+        // TESTED in ShipModuleGridTests
+        public Vector2 GridLocalToWorld(Vector2 localPoint)
+        {
+            Vector2 centerLocal = localPoint - GridLocalCenter;
+            return centerLocal.RotatePoint(Rotation) + Position;
+        }
+        
+        // Converts a grid-local POINT to world pos
+        // TESTED in ShipModuleGridTests
+        public Vector2 GridLocalPointToWorld(Point gridLocalPoint)
+        {
+            return GridLocalToWorld(new Vector2(gridLocalPoint.X * 16f, gridLocalPoint.Y * 16f));
+        }
+
+        Vector2 GridSquareToWorld(int x, int y)
+        {
+            return GridLocalToWorld(new Vector2(x * 16f + 8f, y * 16f + 8f));
+        }
+
+        Point ClipLocalPoint(Point pt)
         {
             if (pt.X < 0) pt.X = 0; else if (pt.X >= GridWidth)  pt.X = GridWidth  - 1;
             if (pt.Y < 0) pt.Y = 0; else if (pt.Y >= GridHeight) pt.Y = GridHeight - 1;
@@ -322,22 +335,6 @@ namespace Ship_Game.Ships
                 && (point.X < GridWidth - 1 || point.Y < GridHeight - 1)
                 && (point.X > 0 || point.Y < GridHeight - 1)
                 && (point.Y > 0 || point.X < GridWidth - 1);
-        }
-
-        public Vector2 GridLocalToWorld(Vector2 localPoint)
-        {
-            Vector2 centerLocal = GridLocalCenter + localPoint;
-            return centerLocal.RotatePoint(Rotation) + Position;
-        }
-
-        public Vector2 GridLocalPointToWorld(Point gridLocalPoint)
-        {
-            return GridLocalToWorld(new Vector2(gridLocalPoint.X * 16f, gridLocalPoint.Y * 16f));
-        }
-
-        public Vector2 GridSquareToWorld(int x, int y)
-        {
-            return GridLocalToWorld(new Vector2(x * 16f + 8f, y * 16f + 8f));
         }
 
 
@@ -614,7 +611,7 @@ namespace Ship_Game.Ships
                 if (m != null)
                 {
                     //if (DebugInfoScreen.Mode == DebugModes.Targeting)
-                    //    Empire.Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, m.Center, 6f, Color.IndianRed.Alpha(0.5f), 3f);
+                    //    Empire.Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, m.Position, 6f, Color.IndianRed.Alpha(0.5f), 3f);
                     return m;
                 }
             }

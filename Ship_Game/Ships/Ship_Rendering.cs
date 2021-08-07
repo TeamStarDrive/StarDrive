@@ -138,8 +138,8 @@ namespace Ship_Game.Ships
             float shipRotation = shipDegrees.ToRadians();
 
             // this size calculation is quite delicate because of float coordinate imprecision issues
-            float moduleSize = sc.ProjectToScreenSize(16f);
-            float oneUnit = moduleSize/16f;
+            float moduleSize = sc.ProjectToScreenSize(16.5f);
+            float oneUnit = moduleSize/16.5f;
 
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
