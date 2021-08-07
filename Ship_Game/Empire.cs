@@ -2076,7 +2076,7 @@ namespace Ship_Game
 
             if (shipData.TechsNeeded.Count > 0)
             {
-                if (!shipData.UnLockable)
+                if (!shipData.Unlockable)
                     return false;
 
                 foreach (string shipTech in shipData.TechsNeeded)

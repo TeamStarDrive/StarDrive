@@ -40,8 +40,8 @@ namespace Ship_Game.Ships
             if (FixedUpkeep > 0f)
                 sw.Write("FixedUpkeep", FixedUpkeep);
             
-            if (UnLockable)
-                sw.Write("Unlockable", UnLockable);
+            if (Unlockable)
+                sw.Write("Unlockable", Unlockable);
             if (HullUnlockable)
                 sw.Write("HullUnlockable", HullUnlockable);
             if (!AllModulesUnlockable) // default is true
@@ -168,7 +168,7 @@ namespace Ship_Game.Ships
                     else if (key == "SelectIcon")  SelectionGraphic = value.Text;
                     else if (key == "FixedCost")   FixedCost = value.ToInt();
                     else if (key == "FixedUpkeep") FixedUpkeep = value.ToFloat();
-                    else if (key == "Unlockable")           UnLockable = value.ToBool();
+                    else if (key == "Unlockable")           Unlockable = value.ToBool();
                     else if (key == "HullUnlockable")       HullUnlockable = value.ToBool();
                     else if (key == "AllModulesUnlockable") AllModulesUnlockable = value.ToBool();
                     else if (key == "DefaultAIState") Enum.TryParse(value.Text, out DefaultAIState);

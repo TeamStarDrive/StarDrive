@@ -55,7 +55,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.GridInfo.Size.X, b.GridInfo.Size.X);
             Assert.AreEqual(a.GridInfo.Size.Y, b.GridInfo.Size.Y);
 
-            Assert.AreEqual(a.UnLockable, b.UnLockable);
+            Assert.AreEqual(a.Unlockable, b.Unlockable);
             Assert.AreEqual(a.HullUnlockable, b.HullUnlockable);
             Assert.AreEqual(a.AllModulesUnlockable, b.AllModulesUnlockable);
             Assert.That.EqualCollections(a.TechsNeeded, b.TechsNeeded);
@@ -104,7 +104,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("Model/Ships/Terran/Shuttle/ship08", hull.ModelPath);
             Assert.AreEqual(ShipData.RoleName.fighter, hull.Role);
             Assert.AreEqual(1, hull.ThrusterList.Length);
-            Assert.AreEqual(true, hull.UnLockable);
+            Assert.AreEqual(true, hull.Unlockable);
             Assert.AreEqual(false, hull.HullUnlockable);
             Assert.AreEqual(false, hull.AllModulesUnlockable);
             Assert.AreEqual(10, hull.ModuleSlots.Length);
@@ -126,7 +126,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("Model/Ships/Terran/Shuttle/ship08", hull.ModelPath);
             Assert.AreEqual(ShipData.RoleName.fighter, hull.Role);
             Assert.AreEqual(1, hull.ThrusterList.Length);
-            Assert.AreEqual(true, hull.UnLockable);
+            Assert.AreEqual(true, hull.Unlockable);
             Assert.AreEqual(false, hull.HullUnlockable);
             Assert.AreEqual(false, hull.AllModulesUnlockable);
             Assert.AreEqual(10, hull.ModuleSlots.Length);
@@ -147,7 +147,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("Model/Ships/Terran/Gunboat/Gunboat", hull.ModelPath);
             Assert.AreEqual(ShipData.RoleName.frigate, hull.Role);
             Assert.AreEqual(1, hull.ThrusterList.Length);
-            Assert.AreEqual(true, hull.UnLockable);
+            Assert.AreEqual(true, hull.Unlockable);
             Assert.AreEqual(false, hull.HullUnlockable);
             Assert.AreEqual(false, hull.AllModulesUnlockable);
             Assert.AreEqual(70, hull.ModuleSlots.Length);
@@ -167,7 +167,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("Model/Ships/Terran/Gunboat/Gunboat", hull.ModelPath);
             Assert.AreEqual(ShipData.RoleName.prototype, hull.Role);
             Assert.AreEqual(1, hull.ThrusterList.Length);
-            Assert.AreEqual(true, hull.UnLockable);
+            Assert.AreEqual(true, hull.Unlockable);
             Assert.AreEqual(false, hull.HullUnlockable);
             Assert.AreEqual(false, hull.AllModulesUnlockable);
             Assert.AreEqual(70, hull.ModuleSlots.Length);
@@ -192,7 +192,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("Model/Ships/Terran/Gunboat/Gunboat", hull.ModelPath);
             Assert.AreEqual(ShipData.RoleName.prototype, hull.Role);
             Assert.AreEqual(1, hull.ThrusterList.Length);
-            Assert.AreEqual(true, hull.UnLockable);
+            Assert.AreEqual(true, hull.Unlockable);
             Assert.AreEqual(false, hull.HullUnlockable);
             Assert.AreEqual(false, hull.AllModulesUnlockable);
             Assert.AreEqual(40, hull.ModuleSlots.Length); // new designs don't have dummy modules
