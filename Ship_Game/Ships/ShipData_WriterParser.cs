@@ -282,7 +282,7 @@ namespace Ship_Game.Ships
         public static ModuleSaveData[] GetModuleSaveFromBase64String(string base64string)
         {
             byte[] bytes = Convert.FromBase64String(base64string);
-            var p = new GenericStringViewParser("save", new StreamReader(new MemoryStream(bytes), Encoding.ASCII));
+            var p = new GenericStringViewParser("save", bytes);
 
             int version = p.ReadLine().ToInt();
             if (version != 1)

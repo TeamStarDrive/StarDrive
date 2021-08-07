@@ -18,13 +18,13 @@ namespace Ship_Game.Data
         /// </summary>
         public string Name { get; }
 
-        // Reader instance which fetches blocks of data
-        TextReader Reader;
-
         // Temporary buffer, this also defines the maximum length of Data we can view at once
         // For human-readable formats, 4096 characters should be more than enough
         // However, for extremely tight content this may not work, for example uglified json
         char[] Buffer;
+
+        byte[] Data;
+        int SeekPos;
 
         /// <summary>
         /// Uses StreamReader to read file in chunks
@@ -33,34 +33,28 @@ namespace Ship_Game.Data
         public GenericStringViewParser(FileInfo file)
         {
             Name = file.FullName;
-            Reader = new StreamReader(file.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Encoding.UTF8);
             Buffer = new char[4096];
+            Data = File.ReadAllBytes(Name);
+        }
+
+        public GenericStringViewParser(string name, byte[] bytes)
+        {
+            Name = name;
+            Buffer = new char[4096];
+            Data = bytes;
         }
 
         public GenericStringViewParser(string name, string text)
         {
             Name = name;
-            Reader = new StringReader(text);
             Buffer = new char[4096];
+            Data = Encoding.ASCII.GetBytes(text);
         }
 
-        public GenericStringViewParser(string name, TextReader reader)
-        {
-            Name = name;
-            Reader = reader;
-            Buffer = new char[4096];
-        }
-        
-        ~GenericStringViewParser()
-        {
-            Reader?.Dispose(ref Reader);
-            Buffer = null;
-        }
-        
         public void Dispose()
         {
-            Reader?.Dispose(ref Reader);
             Buffer = null;
+            Data = null;
             GC.SuppressFinalize(this);
         }
 
@@ -71,7 +65,7 @@ namespace Ship_Game.Data
         /// </summary>
         public bool ReadLine(out StringView ln)
         {
-            while (ReadLine(Reader, Buffer, out ln))
+            while (ReadLine(Buffer, out ln))
             {
                 if (ln.Length == 0 || ln.Char0 == '#')
                     continue; // skips empty lines or comments
@@ -92,15 +86,17 @@ namespace Ship_Game.Data
          * The most efficient way to read .NET StreamReader for lines of data
          * @return FALSE if End of Stream
          */ 
-        public static bool ReadLine(TextReader reader, char[] buffer, out StringView line)
+        bool ReadLine(char[] buffer, out StringView line)
         {
             int length = 0;
             for (;;)
             {
-                int ch = reader.Read();
+                if (SeekPos >= Data.Length)
+                    goto end_of_stream;
+
+                byte ch = Data[SeekPos++];
                 switch (ch)
                 {
-                    case -1: goto end_of_stream;
                     case 10: goto newline;
                     case 13: goto carriage;
                     default:
@@ -111,8 +107,8 @@ namespace Ship_Game.Data
             }
 
             carriage:
-            if (reader.Peek() == 10) // skip newline
-                reader.Read();
+            if (SeekPos < Data.Length && Data[SeekPos] == 10) // skip newline
+                ++SeekPos;
 
             newline:
             line = new StringView(buffer, 0, length); // allow 0 length
