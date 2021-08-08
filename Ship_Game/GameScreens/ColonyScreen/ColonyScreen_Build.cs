@@ -113,9 +113,15 @@ namespace Ship_Game
 
         void TryPopulateBuildableShips()
         {
-            Ship[] buildableShips = P.Owner.ShipsWeCanBuild
-                .Select(shipName => ResourceManager.GetShipTemplate(shipName))
-                .Where(ship => ship.IsBuildableByPlayer).ToArray();
+            Ship[] buildableShips;
+
+            // enable all ships in the sandbox
+            if (Empire.Universe.Debug && Empire.Universe is DeveloperUniverse)
+                buildableShips = ResourceManager.GetShipTemplates().ToArray();
+            else
+                buildableShips = P.Owner.ShipsWeCanBuild
+                                .Select(shipName => ResourceManager.GetShipTemplate(shipName))
+                                .Where(ship => ship.IsBuildableByPlayer).ToArray();
             
             string filter = FilterBuildableItems.Text.ToLower();
             if (filter.IsEmpty() && FilterItemsText.NotEmpty())

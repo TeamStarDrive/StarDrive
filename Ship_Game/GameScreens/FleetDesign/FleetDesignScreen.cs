@@ -129,7 +129,7 @@ namespace Ship_Game
             SelectedFleet = EmpireManager.Player.GetFleet(which);
             foreach (Ship ship in SelectedFleet.Ships)
             {
-                ship.ShowSceneObjectAt(new Vector3(ship.RelativeFleetOffset, 0f));
+                ship.ShowSceneObjectAt(ship.RelativeFleetOffset, 0f);
             }
         }
 
@@ -254,7 +254,7 @@ namespace Ship_Game
             SetPerspectiveProjection();
             foreach (Ship ship in SelectedFleet.Ships)
             {
-                ship.ShowSceneObjectAt(new Vector3(ship.RelativeFleetOffset, 0f));
+                ship.ShowSceneObjectAt(ship.RelativeFleetOffset, 0f);
             }
             base.LoadContent();
         }
@@ -267,7 +267,7 @@ namespace Ship_Game
             for (int i = fleet.Ships.Count - 1; i >= 0; i--)
             {
                 Ship ship = fleet.Ships[i];
-                ship.ShowSceneObjectAt(new Vector3(ship.RelativeFleetOffset, -1000000f));
+                ship.ShowSceneObjectAt(ship.RelativeFleetOffset, -1000000f);
                 ship.ClearFleet();
             }
             SelectedFleet.DataNodes.Clear();
