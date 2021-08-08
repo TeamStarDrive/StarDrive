@@ -188,14 +188,20 @@ namespace UnitTests.Ships
         {
             CreateThirdMajorEmpire();
 
-            Empire aggressive   = Enemy;
-            Empire peaceful     = ThirdMajor;
+            Empire aggressive = Enemy;
+            Empire peaceful   = ThirdMajor;
+
+            aggressive.data.DiplomaticPersonality.Trustworthiness = 50;
+            peaceful.data.DiplomaticPersonality.Trustworthiness   = 50;
+
             Ship aggressiveShip = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", aggressive, Vector2.Zero);
             Ship peacefulShip   = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", peaceful, Vector2.Zero);
             var aggressiveRel   = aggressive.GetRelations(peaceful);
             var peacefulRel     = peaceful.GetRelations(aggressive);
 
-            Universe.Objects.Update(FixedSimTime.One);
+            aggressiveRel.UpdateRelationship(aggressive, peaceful);
+            peacefulRel.UpdateRelationship(peaceful, aggressive);
+
             Assert.IsFalse(aggressiveShip.IsAttackable(peaceful, peacefulRel), "Aggressive Ship should not be attackable");
             Assert.IsFalse(peacefulShip.IsAttackable(aggressive, aggressiveRel), "Peaceful Ship should not be attackable");
             
@@ -205,7 +211,7 @@ namespace UnitTests.Ships
 
             // Ship can be attacked even when empire is not attackable due to total anger (AttackForTransgressions)
             Assert.IsTrue(peacefulShip.IsAttackable(aggressive, aggressiveRel), "Peaceful Ship should be attackable since other party is angry");
-            Assert.IsFalse(aggressiveShip.IsAttackable(peaceful, peacefulRel), "Aggressive ship should not be attackable");
+            Assert.IsFalse(aggressiveShip.IsAttackable(peaceful, peacefulRel), "Aggressive ship should not be attackable, since Peaceful empire is not angry");
 
             aggressiveShip.AI.Target = peacefulShip;
             Assert.IsTrue(aggressiveShip.IsAttackable(peaceful, peacefulRel), "Aggressive ship should now be attackable since it is targeting the peaceful ship");
