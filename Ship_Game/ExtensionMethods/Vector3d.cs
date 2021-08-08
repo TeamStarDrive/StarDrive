@@ -31,7 +31,12 @@ namespace Ship_Game
             Y = v.Y;
             Z = z;
         }
-        
+
+        public override string ToString()
+        {
+            return string.Format($"{{X:{X:0.###} Y:{Y:0.###} Z:{Z:0.###}}}");
+        }
+
         [Pure] public Vector2 ToVec2f() => new Vector2((float)X, (float)Y);
         [Pure] public Vector3 ToVec3f() => new Vector3((float)X, (float)Y, (float)Z);
         [Pure] public double Length() => Math.Sqrt(X*X + Y*Y + Z*Z);

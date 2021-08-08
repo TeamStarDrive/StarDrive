@@ -51,20 +51,45 @@ namespace Ship_Game
             return worldPos;
         }
 
-        public static Vector3d Unproject(this Viewport viewport, Vector3d source, 
+        // this is a copy of XNA Viewport.Project, with the third Matrix optimized out
+        public static Vector2d ProjectTo2D(this Viewport viewport, in Vector3d source,
+                                           in Matrix projection, in Matrix view)
+        {
+            view.Multiply(projection, out Matrix viewProjection);
+            Vector3d clipSpacePoint = source.Transform(viewProjection);
+            double len = source.X * viewProjection.M14
+                       + source.Y * viewProjection.M24
+                       + source.Z * viewProjection.M34
+                       + viewProjection.M44;
+            if (!len.AlmostEqual(1.0)) // normalize
+                clipSpacePoint /= len;
+            return new Vector2d( (clipSpacePoint.X + 1.0) * 0.5 * viewport.Width,
+                                (-clipSpacePoint.Y + 1.0) * 0.5 * viewport.Height);
+        }
+
+        public static Vector3d Unproject(this Viewport viewport, in Vector3d source,
                                          in Matrix projection, in Matrix view)
         {
             view.Multiply(projection, out Matrix viewProjection);
             Matrix.Invert(ref viewProjection, out Matrix invViewProj);
-            source.X =  ((source.X - viewport.X) / viewport.Width * 2.0 - 1.0);
-            source.Y = -((source.Y - viewport.Y) / viewport.Height * 2.0 - 1.0);
-            source.Z =  ((source.Z - viewport.MinDepth) / (viewport.MaxDepth - viewport.MinDepth));
 
-            Vector3d worldPos = source.Transform(invViewProj);
-            double a = (source.X*invViewProj.M14 + source.Y*invViewProj.M24 + source.Z*invViewProj.M34) + invViewProj.M44;
-            if (!a.AlmostEqual(1.0))
+            Vector3d src;
+            src.X =  ((source.X - viewport.X) / viewport.Width  * 2.0 - 1.0);
+            src.Y = -((source.Y - viewport.Y) / viewport.Height * 2.0 - 1.0);
+            src.Z =  ((source.Z - viewport.MinDepth) / (viewport.MaxDepth - viewport.MinDepth));
+
+            Vector3d worldPos = src.Transform(invViewProj);
+            double a = (src.X*invViewProj.M14 + src.Y*invViewProj.M24 + src.Z*invViewProj.M34) + invViewProj.M44;
+            if (!a.AlmostEqual(1.0)) // normalize
                 worldPos /= a;
             return worldPos;
+        }
+
+        public static Matrix CreateLookAtDown(double camX, double camY, double camZ)
+        {
+            return Matrix.CreateLookAt(new Vector3((float)camX, (float)camY, (float)camZ),
+                                       new Vector3((float)camX, (float)camY, 0.0f),
+                                       new Vector3(0.0f, -1f, 0.0f));
         }
 
         // Creates an Affine World transformation Matrix

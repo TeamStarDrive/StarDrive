@@ -250,7 +250,8 @@ namespace Ship_Game
             SliderSize.SetAmount(0.5f);
             SliderSize.Tooltip = GameText.DeterminesWhetherAShipPrefers;
             StarField = new StarField(this);
-            SetProjection(Matrix.CreatePerspectiveFieldOfView(0.7853982f, Viewport.AspectRatio, 100f, 15000f));
+
+            SetPerspectiveProjection();
             foreach (Ship ship in SelectedFleet.Ships)
             {
                 ship.ShowSceneObjectAt(new Vector3(ship.RelativeFleetOffset, 0f));

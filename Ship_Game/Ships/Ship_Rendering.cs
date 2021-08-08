@@ -127,7 +127,7 @@ namespace Ship_Game.Ships
         #endif
         }
 
-        public void DrawModulesOverlay(GameScreen sc, float camHeight,
+        public void DrawModulesOverlay(GameScreen sc, double camHeight,
                                        bool showDebugSelect, bool showDebugStats)
         {
             SubTexture symbolFighter = ResourceManager.Texture("TacticalIcons/symbol_fighter");
@@ -153,8 +153,8 @@ namespace Ship_Game.Ships
 
                 // round all the values to TRY prevent module flickering on screen
                 // it helps by a noticeable amount
-                posOnScreen.X = Math.Round(posOnScreen.X);
-                posOnScreen.Y = Math.Round(posOnScreen.Y);
+                //posOnScreen.X = Math.Round(posOnScreen.X);
+                //posOnScreen.Y = Math.Round(posOnScreen.Y);
 
                 int slotFacing = 0;
                 switch (slot.ModuleRot)
@@ -218,7 +218,7 @@ namespace Ship_Game.Ships
                         }
 
                         // draw the debug x/y pos
-                        sc.DrawString(posOnScreen.ToVec2f(), shipRotation, 600f / camHeight, Color.Red,
+                        sc.DrawString(posOnScreen.ToVec2f(), shipRotation, (float)(600.0 / camHeight), Color.Red,
                                       $"X{slot.Pos.X} Y{slot.Pos.Y}\nF{slotFacing}");
                     }
                 }

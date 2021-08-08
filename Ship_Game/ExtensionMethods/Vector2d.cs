@@ -28,6 +28,11 @@ namespace Ship_Game
             Y = xy;
         }
 
+        public override string ToString()
+        {
+            return string.Format($"{{X:{X:0.###} Y:{Y:0.###}}}");
+        }
+
         [Pure] public Vector2 ToVec2f() => new Vector2((float)X, (float)Y);
         [Pure] public Vector2 ToVec2fRounded() => new Vector2((float)Math.Round(X), (float)Math.Round(Y));
         [Pure] public double Length() => Math.Sqrt(X*X + Y*Y);
