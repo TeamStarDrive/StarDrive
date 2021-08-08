@@ -236,7 +236,7 @@ namespace Ship_Game
                     {
                         if (excludeProjectors && ship.IsSubspaceProjector)
                             continue;
-                        if (empire.isPlayer && ship.InCombat)
+                        if (empire.isPlayer && ship.OnHighAlert)
                         {
                             combat = true;
                         }
