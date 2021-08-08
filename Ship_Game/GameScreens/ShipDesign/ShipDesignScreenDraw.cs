@@ -12,6 +12,9 @@ namespace Ship_Game
 {
     public sealed partial class ShipDesignScreen // refactored by Fat Bastard
     {
+        Point GridPosUnderCursor;
+        SlotStruct SlotUnderCursor;
+
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.BeginFrameRendering(elapsed, ref View, ref Projection);
@@ -28,6 +31,12 @@ namespace Ship_Game
                 DrawTacticalOverlays(batch);
                 DrawModuleSelections();
                 DrawProjectedModuleRect(batch);
+
+                batch.DrawString(Fonts.Arial12Bold, $"GridPos [{GridPosUnderCursor.X},{GridPosUnderCursor.Y}] slot: {SlotUnderCursor}",
+                                 new Vector2(350,100), Color.Yellow);
+                batch.DrawString(Fonts.Arial12Bold, $"MeshOffset {CurrentHull.MeshOffset}",
+                                 new Vector2(350,120), Color.Yellow);
+
                 batch.End();
             }
 
@@ -72,14 +81,8 @@ namespace Ship_Game
             }
         }
 
-        Point GridPosUnderCursor;
-        SlotStruct SlotUnderCursor;
-
         void DrawProjectedModuleRect(SpriteBatch batch)
         {
-            batch.DrawString(Fonts.Arial12Bold, $"GridPos [{GridPosUnderCursor.X},{GridPosUnderCursor.Y}] slot: {SlotUnderCursor}",
-                             new Vector2(300,100), Color.Yellow);
-
             if (SlotUnderCursor != null)
             {
                 DrawRectangleProjected(SlotUnderCursor.WorldRect, Color.Yellow);

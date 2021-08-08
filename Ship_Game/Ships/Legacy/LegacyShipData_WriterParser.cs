@@ -36,7 +36,7 @@ namespace Ship_Game.Ships.Legacy
             sw.Write("Style", ShipStyle);
             sw.Write("Description", Description);
             sw.Write("Size", $"{GridInfo.Size.X},{GridInfo.Size.Y}");
-            
+
             if (this != BaseHull && IconPath != BaseHull.IconPath)
                 sw.Write("IconPath", IconPath);
             if (this != BaseHull && SelectionGraphic != BaseHull.SelectionGraphic)

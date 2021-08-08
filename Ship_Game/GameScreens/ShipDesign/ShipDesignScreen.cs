@@ -349,6 +349,8 @@ namespace Ship_Game
 
         public void ChangeHull(ShipHull hullTemplate)
         {
+            if (hullTemplate == null) // if ShipDesignLoadScreen has no selected design
+                return;
             if (!HullEditMode)
             {
                 ChangeHull(new ShipData(hullTemplate));

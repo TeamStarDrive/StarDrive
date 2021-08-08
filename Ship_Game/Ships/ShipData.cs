@@ -80,9 +80,6 @@ namespace Ship_Game.Ships
         // Create a new empty ShipData from a ShipHull
         public ShipData(ShipHull hull)
         {
-            if (hull == null)
-                throw new Exception($"ShipData '{hull.HullName}' has null BaseHull -- this is not allowed!");
-
             Name = hull.HullName;
             GridInfo = new ShipGridInfo(hull.Size, hull.SurfaceArea);
 

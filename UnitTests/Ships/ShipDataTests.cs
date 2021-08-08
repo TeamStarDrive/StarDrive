@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -113,8 +114,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(true, hull.Unlockable);
             Assert.AreEqual(10, hull.HullSlots.Length);
             Assert.AreEqual(10, hull.SurfaceArea);
-            Assert.AreEqual(4, hull.Size.X);
-            Assert.AreEqual(4, hull.Size.Y);
+            Assert.AreEqual(new Point(4,4), hull.Size);
         }
 
         [TestMethod]
@@ -130,8 +130,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(true, design.Unlockable);
             Assert.AreEqual(10, design.ModuleSlots.Length);
             Assert.AreEqual(10, design.GridInfo.SurfaceArea);
-            Assert.AreEqual(4, design.GridInfo.Size.X);
-            Assert.AreEqual(4, design.GridInfo.Size.Y);
+            Assert.AreEqual(new Point(4,4), design.GridInfo.Size);
         }
 
         [TestMethod]

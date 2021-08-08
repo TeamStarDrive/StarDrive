@@ -96,7 +96,7 @@ namespace Ship_Game.Ships.Legacy
 
         public void UpdateGridInfo()
         {
-            GridInfo = new LegacyShipGridInfo(ModuleSlots);
+            GridInfo = new LegacyShipGridInfo(Hull, ModuleSlots);
         }
 
         void FinalizeAfterLoad(FileInfo info, bool isHullDefinition)
