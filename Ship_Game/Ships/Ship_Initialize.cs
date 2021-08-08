@@ -228,7 +228,7 @@ namespace Ship_Game.Ships
 
         void SetInitialCrewLevel()
         {
-            Level = 1;
+            Level = 0;
             if (shipData.Role == ShipData.RoleName.fighter)
                 Level += loyalty.data.BonusFighterLevels;
 
