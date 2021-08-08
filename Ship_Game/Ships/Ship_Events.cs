@@ -44,11 +44,13 @@ namespace Ship_Game.Ships
         //      or when a boarding party shuttle launches
         public virtual void OnShipLaunched(Ship ship)
         {
+            Carrier.AddToOrdnanceInSpace(ship.ShipOrdLaunchCost);
         }
 
         // EVT: when a fighter of this carrier returns to hangar
         public virtual void OnShipReturned(Ship ship)
         {
+            Carrier.AddToOrdnanceInSpace(-ship.ShipOrdLaunchCost);
         }
     }
 }

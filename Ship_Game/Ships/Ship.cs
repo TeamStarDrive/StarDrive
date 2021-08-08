@@ -1215,7 +1215,7 @@ namespace Ship_Game.Ships
             }
 
             // return home if it is a defense ship
-            if (!InCombat && IsHomeDefense && !HomePlanet.SpaceCombatNearPlanet)
+            if (!InCombat && IsHomeDefense && !HomePlanet.SpaceCombatNearPlanet && AI.State != AIState.ReturnHome)
                 ReturnHome();
 
             // Repair
@@ -1274,15 +1274,16 @@ namespace Ship_Game.Ships
 
         public bool IsSuitableForPlanetaryRearm()
         {
-            if (InCombat 
+            if (InCombat
                 || !Active
-                || OrdnancePercent.AlmostEqual(1)
+                || OrdnancePercent >= 1
                 || IsPlatformOrStation && TetheredTo?.Owner == loyalty
                 || AI.OrbitTarget?.Owner == loyalty
                 || AI.OrbitTarget?.Owner?.IsAlliedWith(loyalty) == true
                 || AI.State == AIState.Resupply
                 || AI.State == AIState.Scrap
                 || AI.State == AIState.Refit
+                || IsHomeDefense
                 || IsSupplyShuttle)
             {
                 return false;
@@ -1461,6 +1462,8 @@ namespace Ship_Game.Ships
             reallyDie = cleanupOnly || WillShipDieNow(pSource);
             if (dying && !reallyDie)
                 return; // planet crash or tumble
+
+            Mothership?.Carrier.AddToOrdnanceInSpace(-ShipOrdLaunchCost);
 
             QueueTotalRemoval(); // sets Active=false
             
