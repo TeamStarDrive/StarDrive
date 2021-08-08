@@ -3,6 +3,7 @@ HullName=Vulfen/Type XIII
 Role=battleship
 Style=Vulfen
 Size=24,62
+MeshOffset=0,0
 IconPath=ShipIcons/typeXIII
 ModelPath=Model/Ships/Vulfen/TypeXIII
 SelectIcon=14d

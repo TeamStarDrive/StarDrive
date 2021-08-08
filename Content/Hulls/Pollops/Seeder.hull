@@ -3,6 +3,7 @@ HullName=Pollops/Seeder
 Role=freighter
 Style=Pollops
 Size=6,6
+MeshOffset=0,0
 IconPath=ShipIcons/Seeder
 ModelPath=Model/Ships/Pollops/ship15g
 #Thruster PosX,PosY,PosZ,Scale

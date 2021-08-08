@@ -3,6 +3,7 @@ HullName=Corsair/Corsair Asteroid Base
 Role=platform
 Style=Corsair
 Size=20,19
+MeshOffset=0,-8
 IconPath=ShipIcons/terran_platform
 ModelPath=Model/Asteroids/asteroid1
 #Thruster PosX,PosY,PosZ,Scale

@@ -3,6 +3,7 @@ HullName=Ralyeh/Sceptre
 Role=capital
 Style=Ralyeh
 Size=30,20
+MeshOffset=0,-16
 IconPath=ShipIcons/Sceptre
 ModelPath=Model/Ships/Ralyeh/Ship17e
 SelectIcon=17e

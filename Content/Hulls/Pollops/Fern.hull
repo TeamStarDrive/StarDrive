@@ -3,6 +3,7 @@ HullName=Pollops/Fern
 Role=frigate
 Style=Pollops
 Size=16,8
+MeshOffset=0,0
 IconPath=ShipIcons/fern
 ModelPath=Model/Ships/Pollops/Fern
 SelectIcon=15c

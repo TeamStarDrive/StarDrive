@@ -3,6 +3,7 @@ HullName=Opteris/Drone
 Role=fighter
 Style=Opteris
 Size=4,4
+MeshOffset=0,16
 IconPath=ShipIcons/drone
 ModelPath=Model/Ships/Opteris/Ship19a
 SelectIcon=19a

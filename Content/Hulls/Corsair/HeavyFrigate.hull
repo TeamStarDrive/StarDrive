@@ -3,6 +3,7 @@ HullName=Corsair/HeavyFrigate
 Role=frigate
 Style=Corsair
 Size=14,21
+MeshOffset=0,8
 IconPath=ShipIcons/caravan
 ModelPath=Model/Ships/Terran/Caravan/Caravan
 SelectIcon=3

@@ -3,6 +3,7 @@ HullName=Pollops/Thorn
 Role=fighter
 Style=Pollops
 Size=4,4
+MeshOffset=0,0
 IconPath=ShipIcons/thorn
 ModelPath=Model/Ships/Pollops/Thorn
 SelectIcon=15a

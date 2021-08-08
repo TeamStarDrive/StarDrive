@@ -3,6 +3,7 @@ HullName=Draylok/Sentinel
 Role=battleship
 Style=Draylok
 Size=66,61
+MeshOffset=0,8
 IconPath=ShipIcons/Sentinel
 ModelPath=Model/Ships/Draylok/Ship18f
 SelectIcon=18f

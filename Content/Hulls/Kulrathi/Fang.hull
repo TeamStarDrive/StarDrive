@@ -3,6 +3,7 @@ HullName=Kulrathi/Fang
 Role=fighter
 Style=Kulrathi
 Size=6,4
+MeshOffset=0,0
 IconPath=ShipIcons/fang
 ModelPath=Model/Ships/Kulrathi/ship11a
 SelectIcon=11a

@@ -3,6 +3,7 @@ HullName=Remnant/XenoGunship
 Role=corvette
 Style=Remnant
 Size=8,8
+MeshOffset=0,0
 IconPath=ShipIcons/xeno gunship
 ModelPath=Model/Ships/Remnant/XenoGunboatGreen/ship09b
 SelectIcon=09b

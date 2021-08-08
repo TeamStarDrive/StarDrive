@@ -3,6 +3,7 @@ HullName=Pollops/Thicket
 Role=corvette
 Style=Pollops
 Size=6,5
+MeshOffset=0,8
 IconPath=ShipIcons/thicket
 ModelPath=Model/Ships/Pollops/Thicket
 SelectIcon=15b

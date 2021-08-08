@@ -3,6 +3,7 @@ HullName=Misc/CargoLong
 Role=freighter
 Style=Misc
 Size=6,36
+MeshOffset=0,-16
 IconPath=ShipIcons/terran_cargo3
 ModelPath=Model/Ships/CargoShips/CargoHaulerLong
 SelectIcon=06

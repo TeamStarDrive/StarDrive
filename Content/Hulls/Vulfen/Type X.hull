@@ -3,6 +3,7 @@ HullName=Vulfen/Type X
 Role=cruiser
 Style=Vulfen
 Size=12,41
+MeshOffset=0,8
 IconPath=ShipIcons/typeX
 ModelPath=Model/Ships/Vulfen/TypeX
 SelectIcon=14c

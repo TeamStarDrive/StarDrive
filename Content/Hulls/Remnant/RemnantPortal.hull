@@ -3,6 +3,7 @@ HullName=Remnant/RemnantPortal
 Role=station
 Style=Remnant
 Size=66,76
+MeshOffset=0,0
 IconPath=ShipIcons/xeno gunship
 ModelPath=Model/Ships/Remnant/SharedTextures/RemnantPortal
 SelectIcon=17f

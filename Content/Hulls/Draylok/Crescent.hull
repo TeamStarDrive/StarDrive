@@ -3,6 +3,7 @@ HullName=Draylok/Crescent
 Role=corvette
 Style=Draylok
 Size=10,6
+MeshOffset=0,0
 IconPath=ShipIcons/Crescent
 ModelPath=Model/Ships/Draylok/Ship18b
 SelectIcon=18b

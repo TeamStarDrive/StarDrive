@@ -3,6 +3,7 @@ HullName=Cordrazine/Mordaving
 Role=capital
 Style=Cordrazine
 Size=32,46
+MeshOffset=0,16
 IconPath=ShipIcons/Mordaving
 ModelPath=Model/Ships/Cordrazine/ship16f
 SelectIcon=16f

@@ -3,6 +3,7 @@ HullName=Remnant/AncientFrigate
 Role=frigate
 Style=Remnant
 Size=14,16
+MeshOffset=0,0
 IconPath=ShipIcons/xeno gunship
 ModelPath=Model/Ships/Remnant/SharedTextures/AncientFrigate
 SelectIcon=09b

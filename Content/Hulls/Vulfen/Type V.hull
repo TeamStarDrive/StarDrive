@@ -3,6 +3,7 @@ HullName=Vulfen/Type V
 Role=corvette
 Style=Vulfen
 Size=12,13
+MeshOffset=0,-8
 IconPath=ShipIcons/typeV
 ModelPath=Model/Ships/Vulfen/TypeV
 SelectIcon=13e

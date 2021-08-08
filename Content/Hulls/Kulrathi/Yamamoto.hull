@@ -3,6 +3,7 @@ HullName=Kulrathi/Yamamoto
 Role=capital
 Style=Kulrathi
 Size=30,76
+MeshOffset=0,0
 IconPath=ShipIcons/yamamoto
 ModelPath=Model/Ships/Kulrathi/Yamamoto
 #Thruster PosX,PosY,PosZ,Scale

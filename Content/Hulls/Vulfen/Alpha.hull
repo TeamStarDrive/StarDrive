@@ -3,6 +3,7 @@ HullName=Vulfen/Alpha
 Role=capital
 Style=Vulfen
 Size=30,58
+MeshOffset=0,64
 IconPath=ShipIcons/alpha
 ModelPath=Model/Ships/Vulfen/Alpha
 #Thruster PosX,PosY,PosZ,Scale

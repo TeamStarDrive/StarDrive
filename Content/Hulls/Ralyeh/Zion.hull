@@ -3,6 +3,7 @@ HullName=Ralyeh/Zion
 Role=frigate
 Style=Ralyeh
 Size=8,9
+MeshOffset=0,8
 IconPath=ShipIcons/Zion
 ModelPath=Model/Ships/Ralyeh/Ship17c
 SelectIcon=17c

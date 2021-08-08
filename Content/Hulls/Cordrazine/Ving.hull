@@ -3,6 +3,7 @@ HullName=Cordrazine/Ving
 Role=fighter
 Style=Cordrazine
 Size=6,3
+MeshOffset=0,8
 IconPath=ShipIcons/Ving
 ModelPath=Model/Ships/Cordrazine/ship16a
 SelectIcon=16a
