@@ -88,7 +88,6 @@ namespace UnitTests.Ships
         [TestMethod]
         public void VerifyProperShipAdd()
         {
-            var voidEmpire  = EmpireManager.Void;
             var spawnedShip = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
             Universe.Objects.UpdateLists(true);
             Assert.AreEqual(Player.OwnedShips.Count, 1, " Critical error in ship add. BUG");
