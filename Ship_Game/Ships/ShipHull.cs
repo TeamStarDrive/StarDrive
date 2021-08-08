@@ -32,6 +32,7 @@ namespace Ship_Game.Ships
         public string Description; // "With the advent of more powerful StarDrives, this giant cruiser hull was ..."
         public Point Size;
         public int SurfaceArea;
+        public Vector2 MeshOffset; // offset of the mesh from Mesh object center, for grid to match model
         public string IconPath; // "ShipIcons/shuttle"
         public string ModelPath; // "Model/Ships/Terran/Shuttle/ship08"
 
@@ -91,6 +92,7 @@ namespace Ship_Game.Ships
             Style = sd.ShipStyle;
             Size = sd.GridInfo.Size;
             SurfaceArea = sd.GridInfo.SurfaceArea;
+            MeshOffset  = sd.GridInfo.MeshOffset;
             IconPath = sd.IconPath;
             ModelPath = sd.ModelPath;
 
@@ -161,6 +163,7 @@ namespace Ship_Game.Ships
                         case "Description":Description = val; break;
                         case "Style":      Style = val; break;
                         case "Size":       Size = PointSerializer.FromString(val); break;
+                        case "MeshOffset": MeshOffset = Vector2Serializer.FromString(val); break;
                         case "IconPath":   IconPath = val; break;
                         case "ModelPath":  ModelPath = val; break;
                         case "SelectIcon": SelectIcon = val; break;
@@ -233,6 +236,7 @@ namespace Ship_Game.Ships
             sw.Write("Style", Style);
             sw.Write("Description", Description);
             sw.Write("Size", Size.X+","+Size.Y);
+            sw.Write("MeshOffset", MeshOffset.X+","+MeshOffset.Y);
             sw.Write("IconPath", IconPath);
             sw.Write("ModelPath", ModelPath);
             sw.Write("SelectIcon", SelectIcon);
