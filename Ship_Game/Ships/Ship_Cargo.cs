@@ -20,6 +20,7 @@ namespace Ship_Game.Ships
     public partial class Ship
     {
         CargoContainer Cargo;
+
         public bool OrdnanceChanged { get; private set; }
         public float CargoSpaceMax;
         public float CargoSpaceUsed    => Cargo?.TotalCargo ?? 0;
