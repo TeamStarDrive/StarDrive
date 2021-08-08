@@ -623,8 +623,7 @@ namespace Ship_Game
 
         void InitializeCamera()
         {
-            float aspectRatio = (float)Viewport.Width / Viewport.Height;
-            SetProjection(Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 120000f));
+            SetPerspectiveProjection();
             UpdateViewMatrix(CameraPosition);
         }
 

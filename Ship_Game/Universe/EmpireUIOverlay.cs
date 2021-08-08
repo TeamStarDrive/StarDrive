@@ -321,7 +321,7 @@ namespace Ship_Game
                     {
                         GameAudio.SubBassWhoosh();
                         Screen.SelectedPlanet = capital;
-                        Screen.CamDestination = new Vector3(capital.Center.X, capital.Center.Y + 400f, 9000);
+                        Screen.CamDestination = new Vector3d(capital.Center.X, capital.Center.Y + 400f, 9000);
                     }
                     else
                     {

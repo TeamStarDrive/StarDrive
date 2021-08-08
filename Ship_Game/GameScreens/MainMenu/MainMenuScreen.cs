@@ -77,8 +77,8 @@ namespace Ship_Game.GameScreens.MainMenu
 
             CamPos = new Vector3(0f, 0f, -1000f);
             var lookAt = new Vector3(0f, 0f, 10000f);
-            SetViewProjection(Matrix.CreateLookAt(CamPos, lookAt, Vector3.Down),
-                              Matrix.CreatePerspectiveFieldOfView(0.785f, Viewport.AspectRatio, 10f, 35000f));
+            SetViewMatrix(Matrix.CreateLookAt(CamPos, lookAt, Vector3.Down));
+            SetPerspectiveProjection(maxDistance: 35000);
 
             if (Find("blacbox_animated_logo", out UIPanel logo))
             {

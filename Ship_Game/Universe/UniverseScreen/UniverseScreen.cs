@@ -59,15 +59,16 @@ namespace Ship_Game
         public float FTLModifier        = 1f;
         public float EnemyFTLModifier   = 1f;
         public bool FTLInNuetralSystems = true;
-        public Vector3 transitionStartPosition;
-        public Vector3 camTransitionPosition;
-        Rectangle ScreenRectangle;
         public Map<Guid, Planet> PlanetsDict          = new Map<Guid, Planet>();
         public Map<Guid, SolarSystem> SolarSystemDict = new Map<Guid, SolarSystem>();
         public BatchRemovalCollection<Bomb> BombList  = new BatchRemovalCollection<Bomb>();
         readonly AutoResetEvent DrawCompletedEvt = new AutoResetEvent(false);
-        public float CamHeight = 2550f;
-        public Vector3 CamPos = Vector3.Zero;
+
+        protected double MaxCamHeight;
+        public Vector3d CamDestination;
+        public Vector3d CamPos = new Vector3d(0, 0, 0);
+        public Vector3d transitionStartPosition;
+
         float TooltipTimer = 0.5f;
         float sTooltipTimer = 0.5f;
         int Auto = 1;
@@ -100,7 +101,6 @@ namespace Ship_Game
         public bool LookingAtPlanet;
         public bool snappingToShip;
         public bool returnToShip;
-        public Vector3 CamDestination;
         public Texture2D cloudTex;
         public EmpireUIOverlay EmpireUI;
         public BloomComponent bloomComponent;
@@ -115,7 +115,6 @@ namespace Ship_Game
         public Rectangle MinimapDisplayRect;
         public Rectangle mmShowBorders;
         public Rectangle mmHousing;
-        protected float MaxCamHeight;
         public AnomalyManager anomalyManager;
         public ShipInfoUIElement ShipInfoUIElement;
         public PlanetInfoUIElement pInfoUI;
@@ -271,8 +270,10 @@ namespace Ship_Game
             RemoveLighting();
             ScreenManager.LightRigIdentity = LightRigIdentity.UniverseScreen;
 
-            AddLight("Global Fill Light", new Vector2(0, 0), 0.7f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, -MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
-            AddLight("Global Back Light", new Vector2(0, 0), 0.6f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, +MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
+            float globalLightRad = (float)(UniverseSize * 2 + MaxCamHeight * 10);
+            float globalLightZPos = (float)(MaxCamHeight * 10);
+            AddLight("Global Fill Light", new Vector2(0, 0), 0.7f, globalLightRad, Color.White, -globalLightZPos, fillLight: false, shadowQuality: 0f);
+            AddLight("Global Back Light", new Vector2(0, 0), 0.6f, globalLightRad, Color.White, +globalLightZPos, fillLight: false, shadowQuality: 0f);
 
             foreach (SolarSystem system in SolarSystemList)
             {
@@ -334,12 +335,6 @@ namespace Ship_Game
                 DiplomacyScreen.Show(SelectedShip.loyalty, player, "Greeting");
         }
 
-        void CreateProjectionMatrix()
-        {
-            float aspect = (float)Viewport.Width / Viewport.Height;
-            SetProjection(Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspect, 100f, 3E+07f));
-        }
-
         public override void LoadContent()
         {
             Log.Write(ConsoleColor.Cyan, "UniverseScreen.LoadContent");
@@ -365,33 +360,34 @@ namespace Ship_Game
         void InitializeCamera()
         {
             float univSizeOnScreen = 10f;
-            MaxCamHeight = 15000000;
-            CreateProjectionMatrix();
+            MaxCamHeight = 15000000.0;
+            SetPerspectiveProjection(MaxCamHeight);
 
             while (univSizeOnScreen < (ScreenWidth + 50))
             {
                 float univRadius = UniverseSize / 2f;
-                var camMaxToUnivCenter = Matrix.CreateLookAt(new Vector3(-univRadius, univRadius, MaxCamHeight),
-                                                             new Vector3(-univRadius, univRadius, 0.0f), Vector3.Up);
+                var camMaxToUnivCenter = Matrices.CreateLookAtDown(-univRadius, univRadius, MaxCamHeight);
 
                 Vector3 univTopLeft  = Viewport.Project(Vector3.Zero, Projection, camMaxToUnivCenter, Matrix.Identity);
                 Vector3 univBotRight = Viewport.Project(new Vector3(UniverseSize * 1.25f, UniverseSize * 1.25f, 0.0f), Projection, camMaxToUnivCenter, Matrix.Identity);
-                univSizeOnScreen = univBotRight.X - univTopLeft.X;
+                univSizeOnScreen = Math.Abs(univBotRight.X - univTopLeft.X);
                 if (univSizeOnScreen < (ScreenWidth + 50))
-                    MaxCamHeight -= 0.1f * MaxCamHeight;
+                {
+                    MaxCamHeight -= 0.1 * MaxCamHeight;
+                    SetPerspectiveProjection(MaxCamHeight);
+                }
             }
 
-            if (MaxCamHeight > 15000000)
-                MaxCamHeight = 15000000;
+            if (MaxCamHeight > 15000000.0)
+            {
+                MaxCamHeight = 15000000.0;
+                SetPerspectiveProjection(MaxCamHeight);
+            }
 
             if (!loading)
-            {
-                CamPos.X = PlayerEmpire.GetPlanets()[0].Center.X;
-                CamPos.Y = PlayerEmpire.GetPlanets()[0].Center.Y;
-                CamHeight = 2750f;
-            }
+                CamPos = new Vector3d(PlayerEmpire.GetPlanets()[0].Center, 2750);
 
-            CamDestination = new Vector3(CamPos.X, CamPos.Y, CamHeight);
+            CamDestination = CamPos;
         }
 
         void InitializeUniverse()
@@ -409,7 +405,6 @@ namespace Ship_Game
                 empire.InitEmpireFromSave();
 
             WarmUpShipsForLoad();
-
             RecomputeFleetButtons(true);
 
             if (StarDate.AlmostEqual(1000)) // Run once to get all empire goals going
@@ -576,7 +571,6 @@ namespace Ship_Game
 
             FTLManager.LoadContent(this);
             MuzzleFlashManager.LoadContent(content);
-            ScreenRectangle = new Rectangle(0, 0, width, height);
 
             ShipsInCombat = ButtonMediumMenu(width - 275, height - 280, "Ships: 0");
             ShipsInCombat.DynamicText = () =>
@@ -692,7 +686,7 @@ namespace Ship_Game
                 Log.Warning("DebugWindowCrashed");
             }
 
-            GameAudio.Update3DSound(new Vector3(CamPos.X, CamPos.Y, 0.0f));
+            GameAudio.Update3DSound(new Vector3((float)CamPos.X, (float)CamPos.Y, 0.0f));
 
             ScreenManager.UpdateSceneObjects(fixedDeltaTime);
             EmpireUI.Update(fixedDeltaTime);
@@ -931,11 +925,11 @@ namespace Ship_Game
             GalaxyView
         }
 
-        public float GetZfromScreenState(UnivScreenState screenState)
+        public double GetZfromScreenState(UnivScreenState screenState)
         {
             if (screenState == UnivScreenState.GalaxyView)
                 return MaxCamHeight;
-            return (float)screenState;
+            return (double)screenState;
         }
 
         struct FleetButton

@@ -82,12 +82,6 @@ namespace Ship_Game
             int sides = (int)(radius / logarithmicReduction);
             batch.DrawCircle(posOnScreen, radius, sides, color, thickness);
         }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DrawCircle(this SpriteBatch batch, float x, float y, float radius, Color color, float thickness = 1f)
-        {
-            batch.DrawCircle(new Vector2(x, y), radius, color, thickness);
-        }
 
         /**
          * @param sides This will always be clamped within [3, 256]

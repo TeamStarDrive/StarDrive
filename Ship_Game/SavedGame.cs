@@ -104,8 +104,7 @@ namespace Ship_Game
             SaveData.GravityWells          = screenToSave.GravityWells;
             SaveData.PlayerLoyalty         = screenToSave.PlayerLoyalty;
             SaveData.RandomEvent           = RandomEventManager.ActiveEvent;
-            SaveData.campos                = new Vector2(screenToSave.CamPos.X, screenToSave.CamPos.Y);
-            SaveData.camheight             = screenToSave.CamHeight;
+            SaveData.CamPos                = screenToSave.CamPos.ToVec3f();
             SaveData.MinimumWarpRange      = GlobalStats.MinimumWarpRange;
             SaveData.TurnTimer             = (byte)GlobalStats.TurnTimer;
             SaveData.IconSize              = GlobalStats.IconSize;
@@ -977,8 +976,7 @@ namespace Ship_Game
             [Serialize(3)] public string FileName;
             [Serialize(4)] public string FogMapName;
             [Serialize(5)] public string PlayerLoyalty;
-            [Serialize(6)] public Vector2 campos;
-            [Serialize(7)] public float camheight;
+            [Serialize(6)] public Vector3 CamPos;
             [Serialize(8)] public Vector2 Size;
             [Serialize(9)] public float StarDate;
             [Serialize(10)] public float GameScale;

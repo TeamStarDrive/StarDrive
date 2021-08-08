@@ -168,11 +168,10 @@ namespace Ship_Game.GameScreens.LoadGame
         {
             var us = new UniverseScreen(data, PlayerLoyalty)
             {
-                GamePace  = save.GamePacing,
-                StarDate  = save.StarDate,
-                CamPos    = new Vector3(save.campos.X, save.campos.Y, save.camheight),
-                CamHeight = save.camheight,
-                Paused    = true,
+                GamePace = save.GamePacing,
+                StarDate = save.StarDate,
+                CamPos = new Vector3d(save.CamPos),
+                Paused = true,
                 CreateSimThread = StartSimThread,
             };
 

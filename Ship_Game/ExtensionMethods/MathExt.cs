@@ -92,11 +92,11 @@ namespace Ship_Game
         {
             return Max(min, value);
         }
-        public static int LowerBound(this int value, int min)
+        public static double LowerBound(this double value, double min)
         {
             return Max(min, value);
         }
-        public static double LowerBound(this double value, double min)
+        public static int LowerBound(this int value, int min)
         {
             return Max(min, value);
         }
@@ -105,6 +105,10 @@ namespace Ship_Game
         /// Constrain upper end of value
         /// </summary>
         public static float UpperBound(this float value, float max)
+        {
+            return Min(max, value);
+        }
+        public static double UpperBound(this double value, double max)
         {
             return Min(max, value);
         }
@@ -156,7 +160,10 @@ namespace Ship_Game
         {
             return start + (end - start) * amount;
         }
-
+        public static double LerpTo(this double start, double end, double amount)
+        {
+            return start + (end - start) * amount;
+        }
         public static Color LerpTo(this Color start, Color end, float amount)
         {
             return new Color((byte)(start.R + (end.R - start.R) * amount),
@@ -190,19 +197,25 @@ namespace Ship_Game
         // This will smoothstep "fromValue" towards "targetValue"
         // @warning "fromValue" WILL CHANGE
         // @return The new "fromValue"
-        public static float SmoothStep(this float fromValue, float targetValue, float amount)
+        public static double SmoothStep(this double fromValue, double targetValue, double amount)
         {
-            float clamped = amount.Clamped(0f, 1f);
-            return fromValue.LerpTo(targetValue, clamped*clamped * (3f - 2f * clamped));
+            if (fromValue.AlmostEqual(targetValue, 0.1f))
+                return targetValue;
+            double clamped = amount.Clamped(0.0, 1.0);
+            return fromValue.LerpTo(targetValue, clamped*clamped * (3.0 - 2.0*clamped));
         }
 
-        public static float SmoothStep(ref float fromValue, float targetValue, float amount)
+        public static float SmoothStep(this float fromValue, float targetValue, double amount)
         {
-            float clamped = amount.Clamped(0f, 1f);
-            fromValue = fromValue.LerpTo(targetValue, clamped * clamped * (3f - 2f * clamped));
-            return fromValue;
+            return (float)SmoothStep((double)fromValue, (double)targetValue, amount);
         }
 
+        public static Vector3d SmoothStep(this Vector3d from, in Vector3d to, double amount)
+        {
+            return new Vector3d(from.X.SmoothStep(to.X, amount),
+                                from.Y.SmoothStep(to.Y, amount),
+                                from.Z.SmoothStep(to.Z, amount));
+        }
 
         // Returns true if Frustum either partially or fully contains this 2D circle
         public static bool Contains(this BoundingFrustum frustum, Vector2 center, float radius)
@@ -626,11 +639,16 @@ namespace Ship_Game
             return -DefaultToleranceD <= delta && delta <= DefaultToleranceD;
         }
 
+        public static bool AlmostEqual(this double a, double b, double tolerance)
+        {
+            double delta = a - b;
+            return -tolerance <= delta && delta <= tolerance;
+        }
+
         public static bool AlmostZero(this float a)
         {
             return -DefaultTolerance <= a && a <= DefaultTolerance;
         }
-
         public static bool AlmostZero(this double a)
         {
             return -DefaultToleranceD <= a && a <= DefaultToleranceD;

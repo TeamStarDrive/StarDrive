@@ -122,7 +122,8 @@ namespace Ship_Game
                         slot.Draw(batch, this, concreteGlass, yellow);
                     }
 
-                    DrawStringProjected(slot.WorldPos, 0f, 0.4f, Color.Navy, " " + slot.Restrictions, Fonts.Arial20Bold);
+                    string r = slot.Restrictions.ToString();
+                    DrawStringProjected(slot.WorldPos + new Vector2(8), 8f, Color.Navy, r, Fonts.Arial20Bold);
                 }
             }
         }

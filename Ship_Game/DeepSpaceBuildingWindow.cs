@@ -195,10 +195,10 @@ namespace Ship_Game
 
             if (itemToBuild != null)
             {
-                var platform = ResourceManager.Texture("TacticalIcons/symbol_platform");
-                float scale = (float)itemToBuild.SurfaceArea / platform.Width;
-                Vector2 IconOrigin = new Vector2((platform.Width / 2f), (platform.Width / 2f));
-                scale = scale * 4000f / Screen.CamHeight;
+                SubTexture platform = ResourceManager.Texture("TacticalIcons/symbol_platform");
+                double scale = (double)itemToBuild.SurfaceArea / platform.Width;
+                var IconOrigin = new Vector2((platform.Width / 2f), (platform.Width / 2f));
+                scale = scale * 4000.0 / Screen.CamPos.Z;
                 if (scale > 1f)
                 {
                     scale = 1f;
@@ -233,7 +233,7 @@ namespace Ship_Game
                             new Vector2(Screen.Input.CursorX, Screen.Input.CursorY + 34f), Color.White);
                     }
                 }
-                batch.Draw(platform, Screen.Input.CursorPosition, new Color(0, 255, 0, 100), 0f, IconOrigin, scale, SpriteEffects.None, 1f);
+                batch.Draw(platform, Screen.Input.CursorPosition, new Color(0, 255, 0, 100), 0f, IconOrigin, (float)scale, SpriteEffects.None, 1f);
             }
         }
 
@@ -276,8 +276,9 @@ namespace Ship_Game
             {
                 Vector2 center = Screen.Input.CursorPosition;
                 float screenRadius = (float)Screen.ProjectToScreenSize(EmpireManager.Player.GetProjectorRadius());
-                Screen.DrawCircle(center, MathExt.SmoothStep(ref CurrentRadiusSmoothed, screenRadius, 0.3f),
-                                  Color.Orange, 2f); //
+
+                CurrentRadiusSmoothed = CurrentRadiusSmoothed.SmoothStep(screenRadius, 0.3);
+                Screen.DrawCircle(center, CurrentRadiusSmoothed, Color.Orange, 2f);
             }
         }
 

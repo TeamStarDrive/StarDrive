@@ -347,17 +347,12 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawCircle(posOnScreen, radius, color, thickness);
         }
 
-        // just draws a circle, no fancy reprojections
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawCircle(Vector2 posOnScreen, float radius, int sides, Color color, float thickness = 1f)
-            => ScreenManager.SpriteBatch.DrawCircle(posOnScreen, radius, sides, color, thickness);
-
         // Just draws a given rectangle with a color fill
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawRectangle(in Rectangle rectangle, Color edgeColor, Color fillColor, float thickness = 1f)
         {
             ScreenManager.SpriteBatch.FillRectangle(rectangle, fillColor);
-            DrawRectangle(rectangle, edgeColor, thickness);               
+            DrawRectangle(rectangle, edgeColor, thickness);
         }
 
         // Just draws a given rectangle
@@ -462,7 +457,7 @@ namespace Ship_Game
                     be.View            = view;
                     be.DiffuseColor    = diffuseColor;
                     be.Texture         = projTex.Texture;
-                    be.Alpha           = alpha > 0 ? alpha : be.Alpha;                    
+                    be.Alpha           = alpha > 0 ? alpha : be.Alpha;
                     be.TextureEnabled  = true;
                     be.Projection      = projection;
                     be.LightingEnabled = lightingEnabled;
@@ -470,7 +465,7 @@ namespace Ship_Game
                 modelMesh.Draw();
             }
         }
-                
+
         public void DrawTransparentModel(Model model, in Matrix world, SubTexture projTex, float scale)
         {
             DrawModelMesh(model, Matrix.CreateScale(scale) * world, View, Vector3.One, Projection, projTex);
@@ -485,22 +480,19 @@ namespace Ship_Game
             View = view;
             UpdateWorldScreenProjection();
         }
-        
-        // Sets the Projection matrix and updates necessary variables to enable World <-> Screen coordinate conversion
-        public void SetProjection(in Matrix projection)
+
+        // Sets a common perspective projection to this screen
+        // @param maxDistance The maximum distance for objects on screen.
+        //                    For Universe this is the Maximum supported HEIGHT of the CAMERA
+        public void SetPerspectiveProjection(double maxDistance = 5000.0)
         {
-            Projection = projection;
+            //SetProjection(Matrix.CreatePerspectiveFieldOfView(0.7853982f, Viewport.AspectRatio, 100f, 15000f)); // FleetDesignScreen
+            //SetProjection(Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 120000f)); // ShipDesignScreen
+            //SetProjection(Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspect, 100f, 3E+07f)); // UniverseScreen
+            Projection = Matrix.CreatePerspectiveFieldOfView(0.78f, Viewport.AspectRatio, 100f, (float)maxDistance);
             UpdateWorldScreenProjection();
         }
-        
-        // Sets the View & Projection matrix and updates necessary variables to enable World <-> Screen coordinate conversion
-        public void SetViewProjection(in Matrix view, in Matrix projection)
-        {
-            View = view;
-            Projection = projection;
-            UpdateWorldScreenProjection();
-        }
-        
+
         // visible rectangle in world coordinates
         public AABoundingBox2Dd VisibleWorldRect { get; private set; }
 
@@ -511,15 +503,13 @@ namespace Ship_Game
         
         public Vector2d ProjectToScreenPosition(Vector3d worldPos)
         {
-            // NOTE: the Vector3 projection uses parallax which gives different positions
-            //       depending on fov. This is usually desired, but in our case we use projection
-            //       as completely 2D, so this actually causes unnecessary flickering
-            //return Viewport.ProjectTo2D(worldPos, Projection, View);
+            // NOTE: This is a more 
+            return Viewport.ProjectTo2D(worldPos, Projection, View);
 
-            var visibleRect = VisibleWorldRect;
-            double relX = MathExt.LerpInverse(worldPos.X, visibleRect.X1, visibleRect.X2);
-            double relY = MathExt.LerpInverse(worldPos.Y, visibleRect.Y1, visibleRect.Y2);
-            return new Vector2d(relX * Viewport.Width, relY * Viewport.Height);
+            //var visibleRect = VisibleWorldRect;
+            //double relX = MathExt.LerpInverse(worldPos.X, visibleRect.X1, visibleRect.X2);
+            //double relY = MathExt.LerpInverse(worldPos.Y, visibleRect.Y1, visibleRect.Y2);
+            //return new Vector2d(relX * Viewport.Width, relY * Viewport.Height);
         }
 
         // Projects World Pos into Screen Pos
@@ -528,11 +518,10 @@ namespace Ship_Game
             return ProjectToScreenPosition(new Vector3d(worldPos));
         }
 
-
         // Projects World Pos into Screen Pos
         public Vector2d ProjectToScreenPosition(Vector2 posInWorld, float zAxis = 0f)
         {
-            return ProjectToScreenPosition(new Vector3(posInWorld, zAxis));
+            return ProjectToScreenPosition(new Vector3d(posInWorld, zAxis));
         }
 
         public void ProjectToScreenCoords(Vector2 posInWorld, float zAxis, float sizeInWorld,
@@ -564,8 +553,8 @@ namespace Ship_Game
             Vector2d topLeft = ProjectToScreenPosition(new Vector2(worldRect.X, worldRect.Y));
             Vector2d botRight = ProjectToScreenPosition(new Vector2(worldRect.X + worldRect.W, worldRect.Y + worldRect.H));
             return new Rectangle((int)topLeft.X, (int)topLeft.Y,
-                                 (int)Math.Ceiling(botRight.X - topLeft.X),
-                                 (int)Math.Ceiling(botRight.Y - topLeft.Y));
+                                 (int)(botRight.X - topLeft.X),
+                                 (int)(botRight.Y - topLeft.Y));
         }
 
         public Rectangle ProjectToScreenCoords(Vector2 posInWorld, float sizeInWorld)
@@ -774,16 +763,22 @@ namespace Ship_Game
 
         public void DrawStringProjected(Vector2 posInWorld, float sizeInWorld, Color textColor, string text)
         {
+            DrawStringProjected(posInWorld, sizeInWorld, textColor, text, Fonts.Arial11Bold);
+        }
+
+        // draws a string with 
+        public void DrawStringProjected(Vector2 posInWorld, float sizeInWorld, Color textColor, string text, Font font)
+        {
             Vector2d screenPos = ProjectToScreenPosition(posInWorld);
             Vector2 pos = screenPos.ToVec2f();
-            Vector2 size = Fonts.Arial11Bold.MeasureString(text);
+            Vector2 size = font.MeasureString(text);
 
             if (Primitives2D.IsIntersectingScreenPosSize(pos, size))
             {
                 Vector2d screenPos2 = ProjectToScreenPosition(posInWorld + new Vector2(sizeInWorld, 0f));
                 double widthOnScreen = Math.Abs(screenPos2.X - screenPos.X);
-                double scale = widthOnScreen / size.X;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, pos, textColor, 0f, size * 0.5f, (float)scale);
+                double scale = widthOnScreen / size.Y;
+                ScreenManager.SpriteBatch.DrawString(font, text, pos, textColor, 0f, Vector2.Zero, (float)scale);
             }
         }
 

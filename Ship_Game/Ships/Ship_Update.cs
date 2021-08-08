@@ -202,6 +202,8 @@ namespace Ship_Game.Ships
             float velocityPercent = velocity / VelocityMaximum;
             bool notPaused = timeStep.FixedTime > 0f;
 
+            Vector3 camPos = Empire.Universe.CamPos.ToVec3f();
+
             for (int i = 0; i < ThrusterList.Length; ++i)
             {
                 Thruster thruster = ThrusterList[i];
@@ -215,20 +217,20 @@ namespace Ship_Game.Ships
 
                     if (engineState == MoveState.Warp)
                     {
-                        thruster.Update(Direction3D, thruster.heat, 0.004f, Empire.Universe.CamPos, thrust0, thrust1);
+                        thruster.Update(Direction3D, thruster.heat, 0.004f, camPos, thrust0, thrust1);
                     }
                     else
                     {
                         if (thruster.heat > 0.6f)
                             thruster.heat = 0.6f;
-                        thruster.Update(Direction3D, thruster.heat, 0.002f, Empire.Universe.CamPos, thrust0, thrust1);
+                        thruster.Update(Direction3D, thruster.heat, 0.002f, camPos, thrust0, thrust1);
                     }
                 }
                 else
                 {
                     if (notPaused)
                         thruster.heat = 0.01f;
-                    thruster.Update(Direction3D, 0.1f, 1.0f / 500.0f, Empire.Universe.CamPos, thrust0, thrust1);
+                    thruster.Update(Direction3D, 0.1f, 1.0f / 500.0f, camPos, thrust0, thrust1);
                 }
 
                 if (GlobalStats.EnableEngineTrails && velocityPercent > 0.1f && notPaused)

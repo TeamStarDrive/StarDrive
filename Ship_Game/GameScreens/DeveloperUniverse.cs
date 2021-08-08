@@ -22,8 +22,8 @@ namespace Ship_Game
             base.LoadContent();
 
             // nice zoom in effect, we set the cam height to super high
-            CamHeight *= 10000.0f;
-            CamDestination.Z = 100000.0f; // and set a lower destination
+            CamPos.Z *= 10000.0;
+            CamDestination.Z = 100000.0; // and set a lower destination
 
             // DISABLED these since they are not that useful anymore
 
