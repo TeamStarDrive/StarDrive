@@ -51,9 +51,21 @@ namespace Ship_Game
             return worldPos;
         }
 
+        public static Vector3d Unproject(this Viewport viewport, Vector3d source, 
+                                         in Matrix projection, in Matrix view)
+        {
+            view.Multiply(projection, out Matrix viewProjection);
+            Matrix.Invert(ref viewProjection, out Matrix invViewProj);
+            source.X =  ((source.X - viewport.X) / viewport.Width * 2.0 - 1.0);
+            source.Y = -((source.Y - viewport.Y) / viewport.Height * 2.0 - 1.0);
+            source.Z =  ((source.Z - viewport.MinDepth) / (viewport.MaxDepth - viewport.MinDepth));
 
-
-
+            Vector3d worldPos = source.Transform(invViewProj);
+            double a = (source.X*invViewProj.M14 + source.Y*invViewProj.M24 + source.Z*invViewProj.M34) + invViewProj.M44;
+            if (!a.AlmostEqual(1.0))
+                worldPos /= a;
+            return worldPos;
+        }
 
         // Creates an Affine World transformation Matrix
         public static Matrix AffineTransform(in Vector3 position, in Vector3 rotationRadians, float scale)
@@ -106,6 +118,5 @@ namespace Ship_Game
             result.M43 = (a.M41 * b.M13 + a.M42 * b.M23 + a.M43 * b.M33 + a.M44 * b.M43);
             result.M44 = (a.M41 * b.M14 + a.M42 * b.M24 + a.M43 * b.M34 + a.M44 * b.M44);
         }
-
     }
 }

@@ -95,11 +95,11 @@ namespace Ship_Game
             public void Draw(SpriteBatch batch, GameScreen screen, float radius)
             {
                 float flashSize = Math.Min(radius * 0.75f, 200f);
-                Vector2 pos  = screen.ProjectTo2D(WorldPos);
-                Vector2 edge = screen.ProjectTo2D(WorldPos + new Vector3(flashSize, 0, 0));
+                Vector2d pos  = screen.ProjectToScreenPosition(WorldPos);
+                Vector2d edge = screen.ProjectToScreenPosition(WorldPos + new Vector3(flashSize, 0, 0));
 
-                float relSizeOnScreen = (edge.X - pos.X) / screen.Width;
-                float sizeScaleOnScreen = Scale * relSizeOnScreen;
+                double relSizeOnScreen = (edge.X - pos.X) / screen.Width;
+                float sizeScaleOnScreen = (float)(Scale * relSizeOnScreen);
 
                 Color color = FTL.Color;
                 if (FTL.ColorCurves != null)
@@ -109,7 +109,8 @@ namespace Ship_Game
                     color = color.MultiplyRgb(colorMul);
                 }
 
-                batch.Draw(FTL.Tex, pos, color, Rotation,
+                Vector2 screenPos = pos.ToVec2f();
+                batch.Draw(FTL.Tex, screenPos, color, Rotation,
                            FTL.Tex.CenterF, sizeScaleOnScreen, SpriteEffects.None, 0.9f);
             }
         }

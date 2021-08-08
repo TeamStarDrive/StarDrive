@@ -288,6 +288,7 @@ namespace Ship_Game
             }
 
             for (int x = span.X0; x <= span.X1; ++x)
+            {
                 for (int y = span.Y0; y <= span.Y1; ++y)
                 {
                     SlotStruct target = Grid[x + y * Width];
@@ -304,6 +305,7 @@ namespace Ship_Game
                         return false;
                     }
                 }
+            }
 
             return true;
         }

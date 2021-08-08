@@ -39,6 +39,14 @@ namespace Ship_Game
         }
 
         public static void Draw(this SpriteBatch batch, SubTexture texture, 
+                                Vector2d position, Color color)
+        {
+            CheckSubTextureDisposed(texture);
+            Vector2 pos = position.ToVec2f();
+            batch.Draw(texture.Texture, pos, texture.Rect, color);
+        }
+
+        public static void Draw(this SpriteBatch batch, SubTexture texture, 
                                 in Rectangle destRect, Color color)
         {
             CheckSubTextureDisposed(texture);

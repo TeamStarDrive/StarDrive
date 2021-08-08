@@ -550,14 +550,15 @@ namespace Ship_Game
         void UpdateViewMatrix(in Vector3 cameraPosition)
         {
             Vector3 camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
-            View = Matrix.CreateRotationY(180f.ToRadians())
-                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
+            var lookAt = new Vector3(camPos.X, camPos.Y, 0f);
+            SetViewMatrix(Matrix.CreateRotationY(180f.ToRadians())
+                        * Matrix.CreateLookAt(camPos, lookAt, Vector3.Down));
         }
 
         float GetHullScreenSize(in Vector3 cameraPosition, float hullSize)
         {
             UpdateViewMatrix(cameraPosition);
-            return ProjectToScreenSize(hullSize);
+            return (float)ProjectToScreenSize(hullSize);
         }
 
         void ZoomCameraToEncloseHull(ShipHull hull)
