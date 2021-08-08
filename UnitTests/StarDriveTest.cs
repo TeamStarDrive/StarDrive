@@ -207,16 +207,17 @@ namespace UnitTests
             if (!ResourceManager.GetShipTemplate(shipName, out Ship template))
                 throw new Exception($"Failed to find ship template: {shipName} (did you call LoadStarterShips?)");
 
-            var target = new TestShip(template, empire, position);
-            if (!target.HasModules)
+            var ship = new TestShip(template, empire, position);
+            if (!ship.HasModules)
                 throw new Exception($"Failed to create ship modules: {shipName} (did you load modules?)");
 
-            target.Rotation = shipDirection.Normalized().ToRadians();
-            target.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
-            target.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
-            target.SetSystem(null);
-            Assert.IsTrue(target.Active, "Spawned ship is Inactive! This is a bug in Status update!");
-            return target;
+            Universe?.Objects.Add(ship);
+            ship.Rotation = shipDirection.Normalized().ToRadians();
+            ship.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
+            ship.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
+            ship.SetSystem(null);
+            Assert.IsTrue(ship.Active, "Spawned ship is Inactive! This is a bug in Status update!");
+            return ship;
         }
 
         SolarSystem AddDummyPlanet(out Planet p)

@@ -67,7 +67,7 @@ namespace UnitTests.Ships
             var slot = new DesignSlot(hs.Pos, "FighterBay", new Point(3,4),
                                       180, ModuleOrientation.Rear, "Vulcan Scout");
 
-            Assert.AreEqual(new Vector2(64f, 128f), slot.Pos);
+            Assert.AreEqual(new Point(4, 8), slot.Pos);
             Assert.AreEqual("FighterBay", slot.ModuleUID);
             Assert.AreEqual(180, slot.TurretAngle);
             Assert.AreEqual(ModuleOrientation.Rear, slot.ModuleRot);
@@ -88,26 +88,6 @@ namespace UnitTests.Ships
 
             var recreated = ShipModule.Create(data, ship);
             AssertAreEqual(original, recreated);
-        }
-
-        [Ignore]
-        [TestMethod]
-        public void ShipDesign_SlotStruct_To_ModuleSlotData()
-        {
-            ResourceManager.Hull("Terran/Shuttle", out ShipHull hull);
-
-            // TODO: needs to be rewritten
-
-            //var original = new ModuleSlotData(new Vector2(64f, 128f), Restrictions.IOE, "FighterBay",
-            //                                  180f, ModuleOrientation.Rear.ToString(),
-            //                                  slotOptions:"Vulcan Scout"/*this is the expected hangarShipUID*/);
-
-            //var slot = new SlotStruct(original, hull);
-            //slot.Module = ShipModule.CreateDesignModule(original.ModuleOrNull, 
-            //                                            slot.Orientation, slot.Facing, hull);
-
-            //var recreated = new ModuleSlotData(slot);
-            //AssertAreEqual(original, recreated);
         }
     }
 }

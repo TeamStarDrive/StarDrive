@@ -11,40 +11,38 @@ namespace UnitTests.Ships
     [TestClass]
     public class TestWeaponModifiers : StarDriveTest
     {
+        Empire Empire;
+        Ship Ship;
+        Weapon Weapon;
+
         public TestWeaponModifiers()
         {
+            Empire = EmpireManager.CreateNewEmpire("ModifierEmpire");
+            Empire.TestInitModifiers();
+            Ship = Ship.CreateShipAtPoint("Vulcan Scout", Empire, Vector2.Zero);
+            Weapon = Ship.Weapons.Find(w => w.UID == "VulcanCannon");
         }
 
-        void CreateTestEnv(out Empire empire, out Ship ship, out Weapon weapon)
-        {
-            empire = EmpireManager.CreateNewEmpire("ModifierEmpire");
-            empire.TestInitModifiers();
-            ship = Ship.CreateShipAtPoint("Vulcan Scout", empire, Vector2.Zero);
-            weapon = ship.Weapons.Find(w => w.UID == "VulcanCannon");
-        }
-        
         [TestMethod]
         public void GetActualWeaponRange()
         {
-            CreateTestEnv(out Empire empire, out Ship ship, out Weapon weapon);
-            Assert.That.Equal(1000, weapon.GetActualRange());
+            Assert.That.Equal(1000, Weapon.GetActualRange());
 
-            WeaponTagModifier m = empire.WeaponBonuses(WeaponTag.Kinetic);
+            WeaponTagModifier m = Empire.WeaponBonuses(WeaponTag.Kinetic);
             m.Range = 1; // +100% increase
-            Assert.That.Equal(2000, weapon.GetActualRange());
+            Assert.That.Equal(2000, Weapon.GetActualRange());
 
             m.Range = 0.5f; // revert to +50%
-            Assert.That.Equal(1500, weapon.GetActualRange());
+            Assert.That.Equal(1500, Weapon.GetActualRange());
         }
 
         [TestMethod]
         public void ApplyModsToProjectile()
         {
-            CreateTestEnv(out Empire empire, out Ship ship, out Weapon vulcan);
-            vulcan.HitPoints = 100;
-            vulcan.DamageRadius = 10;
+            Weapon.HitPoints = 100;
+            Weapon.DamageRadius = 10;
 
-            Projectile p1 = Projectile.Create(vulcan, new Vector2(), Vectors.Up, null, false);
+            Projectile p1 = Projectile.Create(Weapon, new Vector2(), Vectors.Up, null, false);
             Assert.That.Equal(2, p1.RotationRadsPerSecond);
             Assert.That.Equal(15, p1.DamageAmount);
             Assert.That.Equal(1000, p1.Range);
@@ -57,7 +55,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(false, p1.IgnoresShields);
             Assert.That.Equal(0.96f, p1.Duration);
 
-            WeaponTagModifier m = empire.WeaponBonuses(WeaponTag.Kinetic);
+            WeaponTagModifier m = Empire.WeaponBonuses(WeaponTag.Kinetic);
             m.Turn   = 1; // p.RotationRadsPerSecond
             m.Damage = 1; // p.DamageAmount
             m.Range  = 1; // p.Range
@@ -70,7 +68,7 @@ namespace UnitTests.Ships
             m.ShieldDamage      = 10; // p.ShieldDamageBonus
             m.ShieldPenetration = 1; // p.IgnoresShields
 
-            Projectile p2 = Projectile.Create(vulcan, new Vector2(), Vectors.Up, null, false);
+            Projectile p2 = Projectile.Create(Weapon, new Vector2(), Vectors.Up, null, false);
             Assert.That.Equal(4, p2.RotationRadsPerSecond);
             Assert.That.Equal(30, p2.DamageAmount);
             Assert.That.Equal(2000, p2.Range);
@@ -82,13 +80,6 @@ namespace UnitTests.Ships
             Assert.That.Equal(10, p2.ShieldDamageBonus);
             Assert.AreEqual(true, p2.IgnoresShields);
             Assert.That.Equal(0.96f, p2.Duration);
-        }
-
-        [TestMethod]
-        public void ApplyModsToWeapon()
-        {
-            CreateTestEnv(out Empire empire, out Ship ship, out Weapon v);
-
         }
     }
 }
