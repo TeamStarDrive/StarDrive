@@ -45,9 +45,9 @@ namespace UnitTests.AITests.Ships
             ThirdShip.AI.TargetProjectiles = true;
         }
 
-        void SpawnEnemyPlanet()
+        SolarSystem SpawnEnemyPlanet()
         {
-            AddDummyPlanetToEmpire(Enemy);
+            return AddDummyPlanetToEmpire(Enemy);
         }
 
         void Update(FixedSimTime timeStep)
@@ -153,7 +153,7 @@ namespace UnitTests.AITests.Ships
             
             InjectSteroids(OurShip);
 
-            LoopWhile((timeout:5, fatal:false), () => colonyShip.Active, () =>
+            LoopWhile((timeout:10, fatal:false), () => colonyShip.Active, () =>
             {
                 Assert.IsTrue(OurShip.InCombat, "ship must stay in combat until target destroyed");
                 colonyShip.Velocity = Vector2.Zero; // BUG: there is a strange drift effect in sim
@@ -185,6 +185,7 @@ namespace UnitTests.AITests.Ships
                                    offensiveMove: true);
 
             Assert.IsFalse(OurShip.InCombat, "ship must exit combat after giving a move order, since giving a move order clears orders");
+            OurShip.AI.CombatState = CombatState.HoldPosition;
             // Let the ship reacquire the target since giving an order caused an exit
             // combat (as it should, otherwise the ship will not enter combat again). 
             Update(EnemyScanInterval); 
@@ -193,8 +194,12 @@ namespace UnitTests.AITests.Ships
             LoopWhile((timeout:5, fatal:false), () => colonyShip.Active, () =>
             {
                 Assert.IsTrue(OurShip.InCombat, "ship must stay in combat until target destroyed");
+                Assert.IsTrue(OurShip.OnHighAlert);
                 colonyShip.Velocity = Vector2.Zero; // BUG: there is a strange drift effect in sim
                 Update(TestSimStep);
+                Assert.AreEqual(CombatState.HoldPosition, colonyShip.AI.CombatState);
+                Log.Info(OurShip.Velocity.Length().String() + " Attacker velocity");
+                Log.Info(colonyShip.Velocity.Length().String() + " Target velocity");
             });
 
             if (colonyShip.Active)
@@ -205,6 +210,14 @@ namespace UnitTests.AITests.Ships
 
             Update(EnemyScanInterval);
             Assert.IsFalse(OurShip.InCombat, "ship must exit combat after target destroyed");
+
+            float timer = 15;
+            LoopWhile((20, true), () => OurShip.OnHighAlert, () =>
+            {
+                Update(EnemyScanInterval);
+                timer -= EnemyScanInterval.FixedTime;
+            });
+            Assert.AreEqual(6, timer, 0.001f, "AlertTimer duration was unexpected");
         }
 
         [TestMethod]
@@ -243,10 +256,26 @@ namespace UnitTests.AITests.Ships
         {
             Update(TestSimStep);
             Assert.IsFalse(OurShip.InCombat, "ship should not be in combat yet");
-            
-            SpawnEnemyPlanet();
+
+            var solarSystem = SpawnEnemyPlanet();
+            OurShip.SetSystem(solarSystem);
+            OurShip.SetSystemBackBuffer(solarSystem);
             Update(EnemyScanInterval);
+            // verify block
+            Assert.IsTrue(OurShip.System != null, "Test wont work without being in system");
+            Assert.IsTrue(OurShip.AI.BadGuysNear, "Test wont work if badguys near false");
+
             Assert.IsFalse(OurShip.InCombat, "ship should not be in combat with a planet");
+            Update(EnemyScanInterval);
+            Assert.IsTrue(OurShip.OnHighAlert, "Enemy planet did not set high alert status");
+
+            float timer = 15;
+            LoopWhile((10, true), () => OurShip.OnHighAlert, () =>
+            {
+                Update(EnemyScanInterval);
+                timer -= EnemyScanInterval.FixedTime;
+            });
+            Assert.AreEqual(5, timer, 0.001f, "AlertTimer duration was unexpected");
         }
     }
 }

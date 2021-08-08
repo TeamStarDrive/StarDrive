@@ -145,13 +145,13 @@ namespace Ship_Game.Ships
 
             float resupplyTroopThreshold = 0;
             if (Ship.Carrier.SendTroopsToShip)
-                resupplyTroopThreshold = Ship.InCombat ? 0.25f : 0.99f;
+                resupplyTroopThreshold = Ship.OnHighAlert ? 0.25f : 0.99f;
 
             if (Ship.Carrier.HasTroopBays) // Counting troops in missions as well for troop carriers
                 return (Ship.Carrier.TroopsMissingVsTroopCapacity).LessOrEqual(resupplyTroopThreshold);
 
             // Ships with Barracks only
-            return ((float)Ship.TroopCount / Ship.TroopCapacity).LessOrEqual(resupplyTroopThreshold) && !Ship.InCombat;
+            return ((float)Ship.TroopCount / Ship.TroopCapacity).LessOrEqual(resupplyTroopThreshold) && Ship.OnLowAlert;
         }
 
         private bool OrdnanceLow()

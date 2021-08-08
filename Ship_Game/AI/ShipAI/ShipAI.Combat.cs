@@ -28,7 +28,6 @@ namespace Ship_Game.AI
         public Ship Target;
         public Array<Ship> TargetQueue = new Array<Ship>();
         float TriggerDelay;
-        
         Array<Ship> ScannedTargets = new Array<Ship>();
         Array<Ship> ScannedFriendlies = new Array<Ship>();
         Array<Projectile> ScannedProjectiles = new Array<Projectile>();
@@ -513,6 +512,7 @@ namespace Ship_Game.AI
 
             // always override the combat state
             State = combatState;
+            Owner.SetHighAlertStatus();
 
             switch (OrderQueue.PeekFirst?.Plan)
             {
@@ -537,7 +537,10 @@ namespace Ship_Game.AI
             }
 
             //Log.Write(ConsoleColor.Red, $"EXIT combat: {Owner}");
+            if (Owner.InCombat)
+                Owner.SetHighAlertStatus();
             Owner.InCombat = false;
+
             if (OrderQueue.IsEmpty) // need to change the state to prevent re-enter combat bug
                 State = AIState.AwaitingOrders;
 
@@ -551,6 +554,7 @@ namespace Ship_Game.AI
         {
             bool badGuysNear = BadGuysNear;
             bool inCombat = Owner.InCombat;
+
             if (badGuysNear && !inCombat && ShouldEnterAutoCombat())
             {
                 EnterCombatState(AIState.Combat);
@@ -573,7 +577,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            // fire weapons if hostiles or hostile projectiles nearby
+            // try fire weapons if Alert is set
             if (badGuysNear || TrackProjectiles.Length != 0)
             {
                 FireWeapons(timeStep);

@@ -2544,7 +2544,7 @@ namespace Ship_Game
                 Ship s = ships[i];
                 if (s.fleet == null
                     && s.Name == ship.Name
-                    && !s.InCombat
+                    && s.OnLowAlert
                     && !s.IsHangarShip
                     && !s.IsHomeDefense
                     && s.AI.State != AIState.Refit

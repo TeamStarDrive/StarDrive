@@ -843,7 +843,7 @@ namespace Ship_Game.AI
             // in a carrier-based role while allowing them to pick appropriate target types depending on the fighter type.
             // gremlin Moved to setcombat status as target scan is expensive and did some of this already. this also shortcuts the UseSensorforTargets switch. Im not sure abuot the using the mothership target.
             // i thought i had added that in somewhere but i cant remember where. I think i made it so that in the scan it takes the motherships target list and adds it to its own.
-            if(!Owner.InCombat )
+            if(!Owner.InCombat)
             {
                 Orbit.Orbit(escortTarget, timeStep);
                 return;
