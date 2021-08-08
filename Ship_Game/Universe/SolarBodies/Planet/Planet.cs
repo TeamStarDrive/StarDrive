@@ -497,7 +497,7 @@ namespace Ship_Game
             {
                 UpdateBaseFertility();
                 UpdateDynamicBuildings();
-                Mend(((int)InfraStructure).LowerBound(1));
+                Mend(((int)InfraStructure + Level).LowerBound(1));
                 PlanetUpdatePerTurnTimer = GlobalStats.TurnTimer;
             }
 
@@ -1102,7 +1102,7 @@ namespace Ship_Game
 
         private void UpdateHomeDefenseHangars(Building b)
         {
-            if (SpaceCombatNearPlanet || b.CurrentNumDefenseShips == b.DefenseShipsCapacity)
+            if (ParentSystem.DangerousForcesPresent(Owner) || b.CurrentNumDefenseShips == b.DefenseShipsCapacity)
                 return;
 
             if (ParentSystem.ShipList.Any(t => t.IsHomeDefense))
@@ -1509,7 +1509,7 @@ namespace Ship_Game
             if (enemyTroops.Length == 0) // we completely filled the planet by ourselves
                 return false;
             Troop lastEnemyTroop = enemyTroops[enemyTroops.Length - 1];
-            return lastEnemyTroop.Launch() != null;
+            return lastEnemyTroop.Launch(ignoreMovement: true) != null;
         }
 
         public int TotalInvadeInjure         => BuildingList.Sum(b => b.InvadeInjurePoints);

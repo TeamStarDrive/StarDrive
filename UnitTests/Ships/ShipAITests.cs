@@ -183,6 +183,40 @@ namespace UnitTests.Ships
             Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), "Player Chooses Alliance Target: " + GetFailString(us, ourShip, theirShip, ourRelation));
         }
 
+        [TestMethod]
+        public void IsTargetValidTargetedBy()
+        {
+            CreateThirdMajorEmpire();
+
+            Empire aggressive = Enemy;
+            Empire peaceful   = ThirdMajor;
+
+            aggressive.data.DiplomaticPersonality.Trustworthiness = 50;
+            peaceful.data.DiplomaticPersonality.Trustworthiness   = 50;
+
+            Ship aggressiveShip = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", aggressive, Vector2.Zero);
+            Ship peacefulShip   = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", peaceful, Vector2.Zero);
+            var aggressiveRel   = aggressive.GetRelations(peaceful);
+            var peacefulRel     = peaceful.GetRelations(aggressive);
+
+            aggressiveRel.UpdateRelationship(aggressive, peaceful);
+            peacefulRel.UpdateRelationship(peaceful, aggressive);
+
+            Assert.IsFalse(aggressiveShip.IsAttackable(peaceful, peacefulRel), "Aggressive Ship should not be attackable");
+            Assert.IsFalse(peacefulShip.IsAttackable(aggressive, aggressiveRel), "Peaceful Ship should not be attackable");
+            
+            aggressiveRel.TotalAnger = 100;
+            Assert.IsFalse(peaceful.IsEmpireAttackable(aggressive), "Peaceful Empire should not be attackable");
+            Assert.IsFalse(aggressive.IsEmpireAttackable(peaceful), "Aggressive Empire should not be attackable");
+
+            // Ship can be attacked even when empire is not attackable due to total anger (AttackForTransgressions)
+            Assert.IsTrue(peacefulShip.IsAttackable(aggressive, aggressiveRel), "Peaceful Ship should be attackable since other party is angry");
+            Assert.IsFalse(aggressiveShip.IsAttackable(peaceful, peacefulRel), "Aggressive ship should not be attackable, since Peaceful empire is not angry");
+
+            aggressiveShip.AI.Target = peacefulShip;
+            Assert.IsTrue(aggressiveShip.IsAttackable(peaceful, peacefulRel), "Aggressive ship should now be attackable since it is targeting the peaceful ship");
+        }
+
         void ResetAnger(Relationship rel)
         {
             rel.AddAngerMilitaryConflict(-rel.Anger_MilitaryConflict + 5);

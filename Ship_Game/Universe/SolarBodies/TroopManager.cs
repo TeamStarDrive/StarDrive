@@ -28,7 +28,7 @@ namespace Ship_Game
         public bool MightBeAWarZone()             => MightBeAWarZone(Ground.Owner);
         public float OwnerTroopStrength           => TroopList.Sum(troop => troop.Loyalty == Owner ? troop.Strength : 0);
 
-        public int NumTroopsCanLaunchFor(Empire empire)      => TroopList.Count(t => t.Loyalty == empire && t.CanMove);
+        public int NumTroopsCanLaunchFor(Empire empire)      => TroopList.Count(t => t.Loyalty == empire && t.CanLaunch);
         private BatchRemovalCollection<Troop> TroopList      => Ground.TroopsHere;
         private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
 
@@ -564,7 +564,7 @@ namespace Ship_Game
             for (int x = 0; x < TroopList.Count; x++)
             {
                 Troop troop = TroopList[x];
-                if (troop.Loyalty == empire && troop.CanMove)
+                if (troop.Loyalty == empire && troop.CanLaunch)
                 {
                     if (maxToTake-- > 0)
                         troops.Add(troop);

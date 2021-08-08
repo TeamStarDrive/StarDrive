@@ -251,7 +251,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         void DisengageTroopsFromCapturedShips(Ship ship)
         {
-            if (ship.TroopCount == 0)
+            if (ship.TroopCount == 0 || ship.IsSingleTroopShip || ship.IsDefaultAssaultShuttle)
                 return;
 
             // If we left garrisoned troops on a captured ship

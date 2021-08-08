@@ -501,7 +501,7 @@ namespace Ship_Game
             bool play = false;
             foreach (PlanetGridSquare pgs in Planet.TilesList)
             {
-                if (pgs.TroopsAreOnTile && pgs.LockOnPlayerTroop(out Troop troop) && troop.CanMove)
+                if (pgs.TroopsAreOnTile && pgs.LockOnPlayerTroop(out Troop troop) && troop.CanLaunch)
                 {
                     play = true;
                     troop.Launch(pgs);
@@ -519,7 +519,7 @@ namespace Ship_Game
 
         void OnLaunchSingleTroopClicked(UIButton b)
         {
-            var potentialTroops = Planet.TroopsHere.Filter(t => t.Loyalty == EmpireManager.Player && t.CanMove);
+            var potentialTroops = Planet.TroopsHere.Filter(t => t.Loyalty == EmpireManager.Player && t.CanLaunch);
             if (potentialTroops.Length == 0)
                 GameAudio.NegativeClick();
             else
