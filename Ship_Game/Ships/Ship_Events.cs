@@ -52,5 +52,11 @@ namespace Ship_Game.Ships
         {
             Carrier.AddToOrdnanceInSpace(-ship.ShipOrdLaunchCost);
         }
+
+        // EVT: when a fighter of this carrier is destroyed
+        public virtual void OnLaunchedShipDie(Ship ship)
+        {
+            Carrier.AddToOrdnanceInSpace(-ship.ShipOrdLaunchCost);
+        }
     }
 }

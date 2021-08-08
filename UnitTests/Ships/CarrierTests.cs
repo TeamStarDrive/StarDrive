@@ -215,10 +215,6 @@ namespace UnitTests.Ships
             Carrier.ChangeOrdnance(ordCombatThreshold - 40); 
             resupplyReason = Carrier.Supply.Resupply();
             Assert.IsTrue(resupplyReason == ResupplyReason.NotNeeded, "Carrier should not want to resupply when in combat and has fighters launched");
-
-            // cleanup
-            Carrier.ChangeOrdnance(-Carrier.OrdinanceMax);
-            Carrier.ChangeOrdnance(Carrier.OrdinanceMax - ordnanceInSpace);
         }
     }
 }
