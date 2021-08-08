@@ -11,17 +11,26 @@ using SynapseGaming.LightingSystem.Shadows;
 
 namespace Ship_Game.GameScreens.MainMenu
 {
+    public enum MainMenuType
+    {
+        Default,
+        Victory,
+        Defeat,
+    }
+
     public sealed class MainMenuScreen : GameScreen
     {
         readonly Array<MenuFleet> Fleets = new Array<MenuFleet>();
         UIElementContainer VersionArea;
         Vector3 CamPos;
+        MainMenuType Type;
 
-        public MainMenuScreen() : base(null /*no parent*/)
+        public MainMenuScreen(MainMenuType type = MainMenuType.Default) : base(null /*no parent*/)
         {
             CanEscapeFromScreen = false;
             TransitionOnTime  = 1.0f;
             TransitionOffTime = 0.5f;
+            Type = type;
         }
         
         static void OnModChanged(FileInfo info)
@@ -184,7 +193,16 @@ namespace Ship_Game.GameScreens.MainMenu
             GameAudio.StopGenericMusic();
             ScreenManager.Music.Stop();
 
-            if (GlobalStats.HasMod && GlobalStats.ActiveMod.MainMenuMusic.NotEmpty())
+            if (Type == MainMenuType.Victory)
+            {
+                GameAudio.SwitchToRacialMusic();
+                ScreenManager.Music = GameAudio.PlayMusic("TitleTheme");
+            }
+            else if (Type == MainMenuType.Defeat)
+            {
+                ScreenManager.Music = GameAudio.PlayMusic("TitleTheme");
+            }
+            else if (GlobalStats.HasMod && GlobalStats.ActiveMod.MainMenuMusic.NotEmpty())
             {
                 ScreenManager.Music = GameAudio.PlayMp3(GlobalStats.ModPath + GlobalStats.ActiveMod.MainMenuMusic);
             }
