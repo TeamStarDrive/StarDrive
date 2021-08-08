@@ -109,6 +109,11 @@ namespace Ship_Game.Data.Serialization
             return 0f;
         }
 
+        public static float Float(string value)
+        {
+            return StringView.ToFloat(value);
+        }
+
         public static byte Byte(object value)
         {
             if (value is int i)   return (byte)i;

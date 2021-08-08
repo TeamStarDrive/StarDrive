@@ -50,6 +50,15 @@ namespace Ship_Game.Data.Serialization.Types
             StringView second = s;
             return new Vector2(first.ToFloat(), second.ToFloat());
         }
+
+        public static Vector2 FromString(string s)
+        {
+            string[] parts = s.Split(',');
+            Vector2 p = default;
+            if (parts.Length >= 1) p.X = Float(parts[0]);
+            if (parts.Length >= 2) p.Y = Float(parts[1]);
+            return p;
+        }
     }
 
     internal class Vector3Serializer : TypeSerializer
