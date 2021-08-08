@@ -46,26 +46,8 @@ namespace Ship_Game.Ships
                 "|"+PadCentered($"{m.Restrictions} {m.XSIZE}x{m.YSIZE}", 7),
                 "|"+SafeSub(m.UID, 0,  7),
                 "|"+SafeSub(m.UID, 7,  7),
-                null
+                "|"+SafeSub(m.UID, 14, 7),
             };
-
-            int ta = m.TurretAngle;
-            int mr = (int)m.ModuleRot;
-            if (ss != null)
-            {
-                if (ta != ss.TurretAngle)
-                    Log.Warning($"TurretAngle does not match SlotStruct: m.TurretAngle={m.TurretAngle} ss={ss}");
-                if (mr != (int)ss.ModuleRot)
-                    Log.Warning($"ModuleRot does not match SlotStruct: m.ModuleRot={m.ModuleRot} ss={ss}");
-
-                ta = (int)ss.TurretAngle;
-                mr = (int)ss.ModuleRot;
-            }
-
-            if (ta != 0 || mr != 0)
-                lines[3] = "|" + PadCentered($"F{ta} O{mr}", 7);
-            else
-                lines[3] = "|"+SafeSub(m.UID, 14, 7);
             return lines;
         }
 

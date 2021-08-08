@@ -86,5 +86,21 @@ namespace UnitTests.Ships
             Assert.AreEqual(c - new Vector2(64,64), ship.GridLocalPointToWorld( new Point(-2,-2) ));
             Assert.AreEqual(c + new Vector2(32,32), ship.GridLocalPointToWorld( new Point(4,4)   ));
         }
+
+        [TestMethod]
+        public void DesignModuleGrid_WorldToGridLocalCoords()
+        {
+            Vector2 c = Vector2.Zero;
+            Ship ship = SpawnShip("Vulcan Scout", Player, c);
+            var grid = new DesignModuleGrid(ship.shipData);
+
+            Assert.AreEqual(4, grid.Width);
+            Assert.AreEqual(4, grid.Height);
+
+            Assert.AreEqual(new Point(2,2),   grid.WorldToGridPos( c ));
+            Assert.AreEqual(new Point(0,0),   grid.WorldToGridPos( c - new Vector2(32,32) ));
+            Assert.AreEqual(new Point(-2,-2), grid.WorldToGridPos( c - new Vector2(64,64) ));
+            Assert.AreEqual(new Point(4,4),   grid.WorldToGridPos( c + new Vector2(32,32) ));
+        }
     }
 }

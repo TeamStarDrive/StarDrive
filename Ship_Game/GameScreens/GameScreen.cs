@@ -356,8 +356,6 @@ namespace Ship_Game
         public void DrawRectangle(Vector2 center, Vector2 size, float rotation, Color color, float thickness = 1f)
             => ScreenManager.SpriteBatch.DrawRectangle(center, size, rotation, color, thickness);
 
-
-
         // just draws a texture to screen, no fancy reprojections, where screenPos is the texture CENTER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTexture(SubTexture texture, Vector2 posOnScreen, float scale, float rotation, Color color)
@@ -386,13 +384,13 @@ namespace Ship_Game
             if (rectangle.HitTest(mousePos))
                 ToolTip.CreateTooltip(toolTip);
         }
-        public void CheckToolTip(LocalizedText toolTip, Vector2 cursor, LocalizedText words, string numbers, Graphics.Font font, Vector2 mousePos)
+        public void CheckToolTip(LocalizedText toolTip, Vector2 cursor, LocalizedText words, string numbers, Font font, Vector2 mousePos)
         {
             var rect = new Rectangle((int)cursor.X, (int)cursor.Y, 
                 font.TextWidth(words) + font.TextWidth(numbers), font.LineSpacing);
             CheckToolTip(toolTip, rect, mousePos);
         }
-        public Vector2 FontSpace(Vector2 cursor, float spacing, LocalizedText drawnString, Graphics.Font font)
+        public Vector2 FontSpace(Vector2 cursor, float spacing, LocalizedText drawnString, Font font)
         {
             cursor.X += (spacing - font.TextWidth(drawnString));
             return cursor;
@@ -404,7 +402,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, centerOnScreen, textColor, rotation, size * 0.5f, textScale);
         }
         // Draw string in screen coordinates. No centering.
-        public void DrawString(Vector2 posOnScreen, Color textColor, string text, Graphics.Font font, float rotation = 0f, float textScale = 1f)
+        public void DrawString(Vector2 posOnScreen, Color textColor, string text, Font font, float rotation = 0f, float textScale = 1f)
         {
             ScreenManager.SpriteBatch.DrawString(font, text, posOnScreen, textColor, rotation, Vector2.Zero, textScale);
         }
@@ -551,6 +549,7 @@ namespace Ship_Game
 
         // Unprojects cursor screen pos to world 3D position
         public Vector3 CursorWorldPosition => UnprojectToWorldPosition3D(Input.CursorPosition);
+        public Vector2 CursorWorldPosition2D => UnprojectToWorldPosition(Input.CursorPosition);
 
 
         // projects the line from World positions into Screen positions, then draws the line

@@ -12,6 +12,7 @@ namespace Ship_Game.GameScreens.ShipDesign
     public class ShipDesignStats
     {
         public Ship S;
+        public ShipModule[] PoweredWeapons;
         public Map<ShipModule, float> WeaponAccuracies;
         public int NumSlots;
         public int NumCmdModules;
@@ -61,7 +62,8 @@ namespace Ship_Game.GameScreens.ShipDesign
         {
             // select only powered modules and powered weapons
             ShipModule[] modules = S.Modules.Filter(m => m.PowerDraw <= 0 || m.Powered);
-            Weapon[] weapons = modules.FilterSelect(m => m.InstalledWeapon != null, m => m.InstalledWeapon);
+            PoweredWeapons = modules.Filter(m => m.InstalledWeapon != null);
+            Weapon[] weapons = PoweredWeapons.Select(m => m.InstalledWeapon);
 
             WeaponAccuracies = new Map<ShipModule, float>();
             foreach (var w in weapons)

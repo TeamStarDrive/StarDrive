@@ -27,7 +27,7 @@ namespace Ship_Game
                 DrawUnpoweredTex(batch);
                 DrawTacticalOverlays(batch);
                 DrawModuleSelections();
-                DrawProjectedModuleRect();
+                DrawProjectedModuleRect(batch);
                 batch.End();
             }
 
@@ -64,7 +64,7 @@ namespace Ship_Game
             }
             else if (HullEditMode)
             {
-                Vector2 cursor = CursorWorldPosition.ToVec2();
+                Vector2 cursor = CursorWorldPosition2D;
                 // round to 16
                 var rounded = new Vector2((float)Math.Round(cursor.X / 16f) * 16f,
                                           (float)Math.Round(cursor.Y / 16f) * 16f);
@@ -72,19 +72,30 @@ namespace Ship_Game
             }
         }
 
-        void DrawProjectedModuleRect()
+        Point GridPosUnderCursor;
+        SlotStruct SlotUnderCursor;
+
+        void DrawProjectedModuleRect(SpriteBatch batch)
         {
+            batch.DrawString(Fonts.Arial12Bold, $"GridPos [{GridPosUnderCursor.X},{GridPosUnderCursor.Y}] slot: {SlotUnderCursor}",
+                             new Vector2(300,100), Color.Yellow);
+
+            if (SlotUnderCursor != null)
+            {
+                DrawRectangleProjected(SlotUnderCursor.WorldRect, Color.Yellow);
+            }
+
             if (ProjectedSlot == null || ActiveModule == null)
                 return;
 
             bool fits = ModuleGrid.ModuleFitsAtSlot(ProjectedSlot, ActiveModule);
-            DrawRectangle(ProjectedSlot.GetWorldRectFor(ActiveModule), fits ? Color.LightGreen : Color.Red, 1.5f);
+            DrawRectangleProjected(ProjectedSlot.GetWorldRectFor(ActiveModule), fits ? Color.LightGreen : Color.Red, 1.5f);
 
             if (IsSymmetricDesignMode 
                 && GetMirrorProjectedSlot(ProjectedSlot, ActiveModule.XSIZE, ActiveModule.ModuleRot, out SlotStruct mirrored))
             {
                 bool mirrorFits = ModuleGrid.ModuleFitsAtSlot(mirrored, ActiveModule);
-                DrawRectangle(mirrored.GetWorldRectFor(ActiveModule), mirrorFits 
+                DrawRectangleProjected(mirrored.GetWorldRectFor(ActiveModule), mirrorFits 
                     ? Color.LightGreen.Alpha(0.66f) : Color.Red.Alpha(0.66f), 1.5f);
             }
         }
@@ -129,9 +140,12 @@ namespace Ship_Game
                         // get the module from the design ship, this is not the same as
                         // ModuleGrid.SlotsList modules :(
                         ShipModule m = DesignedShip.GetModuleAt(slot.Pos);
-                        slot.Tex = m.Powered ? ResourceManager.Texture(m.IconTexturePath + "_power") : m.ModuleTexture;
+                        if (m != null)
+                        {
+                            slot.Tex = m.Powered ? ResourceManager.Texture(m.IconTexturePath + "_power") : m.ModuleTexture;
+                        }
                     }
-                    DrawModuleTex(slot.ModuleRot, batch, slot, slot.WorldRect);
+                    DrawModuleTex(slot.Module.ModuleRot, batch, slot, slot.WorldRect);
                 }
             }
         }
@@ -273,23 +287,24 @@ namespace Ship_Game
             Weapon w = slot.Module.InstalledWeapon;
             if (w != null)
             {
-                DrawWeaponArcs(batch, this, 0f, w, slot.Module, slot.Center, 500f);
+                DrawWeaponArcs(batch, this, w, slot.Module, slot.Center, 500f, 0f, slot.Module.TurretAngle);
             }
         }
 
-        void DrawWeaponArcs(SpriteBatch batch, ShipModule module, Vector2 moduleWorldPos, float shipFacing = 0)
+        void DrawWeaponArcs(SpriteBatch batch, ShipModule module, Vector2 moduleWorldPos, float shipFacing, int turretAngle)
         {
             Weapon w = module.InstalledWeapon;
             if (w != null)
             {
                 Vector2 moduleWorldCenter = moduleWorldPos + module.WorldSize * 0.5f;
-                DrawWeaponArcs(batch, this, shipFacing, module.InstalledWeapon, ActiveModule, moduleWorldCenter, 500f);
+                DrawWeaponArcs(batch, this, module.InstalledWeapon, ActiveModule, 
+                               moduleWorldCenter, 500f, shipFacing, turretAngle);
             }
         }
 
         // @note This is reused in DebugInfoScreen as well
-        public static void DrawWeaponArcs(SpriteBatch batch, GameScreen screen, float shipFacing,
-                                          Weapon w, ShipModule m, Vector2 moduleWorldCenter, float worldSize)
+        public static void DrawWeaponArcs(SpriteBatch batch, GameScreen screen, Weapon w, ShipModule m,
+                                          Vector2 moduleWorldCenter, float worldSize, float shipFacing, int turretAngle)
         {
             Color color;
             if (w.Tag_Cannon && !w.Tag_Energy)        color = new Color(255, 255, 0, 255);
@@ -307,10 +322,10 @@ namespace Ship_Game
             
             Rectangle rect = posOnScreen.ToRect((int)sizeOnScreen, (int)sizeOnScreen);
 
-            float radians = (shipFacing + m.TurretAngleRads);
-            batch.Draw(arcTexture, rect, color.Alpha(0.75f), radians, texOrigin, SpriteEffects.None, 1f);
+            float facing = shipFacing + ((float)turretAngle).ToRadians();
+            batch.Draw(arcTexture, rect, color.Alpha(0.75f), facing, texOrigin, SpriteEffects.None, 1f);
 
-            Vector2 direction = radians.RadiansToDirection();
+            Vector2 direction = facing.RadiansToDirection();
             Vector2 start     = posOnScreen;
             Vector2 end = start + direction * sizeOnScreen;
             batch.DrawLine(start, start.LerpTo(end, 0.45f), color.Alpha(0.25f), 3);
@@ -318,7 +333,7 @@ namespace Ship_Game
             end = start + direction * sizeOnScreen;
             
             Vector2 textPos = start.LerpTo(end, 0.16f);
-            float textRot   = radians + RadMath.HalfPI;
+            float textRot   = facing + RadMath.HalfPI;
             Vector2 offset  = direction.RightVector() * 6f;
             if (direction.X > 0f)
             {
@@ -336,43 +351,43 @@ namespace Ship_Game
         {
             ShipModule template = ResourceManager.GetModuleTemplate(ActiveModule.UID);
 
-            Vector2 moduleWorldPos = CursorWorldPosition.ToVec2().Rounded();
-            RectF worldRect = new RectF(moduleWorldPos, ActiveModule.WorldSize);
-            
-            DrawModuleTex(ActiveModState, batch, null, worldRect, template);
-            DrawWeaponArcs(batch, ActiveModule, moduleWorldPos);
+            Vector2 moduleWorldPos = CursorWorldPosition2D.Rounded();
+            Vector2 moduleWorldSize = ActiveModule.WorldSize;
+            var worldRect = new RectF(moduleWorldPos, moduleWorldSize);
+
+            DrawModuleTex(ActiveModule.ModuleRot, batch, null, worldRect, template);
+            DrawWeaponArcs(batch, ActiveModule, moduleWorldPos, 0, ActiveModule.TurretAngle);
 
             if (IsSymmetricDesignMode)
             {
-                Vector2 mirrorWorldPos = GetMirrorWorldPos(moduleWorldPos);
-                if (!MirroredModulesTooClose(mirrorWorldPos, moduleWorldPos, ActiveModule.WorldSize))
+                Vector2 mirrorWorldPos = GetMirrorWorldPos(moduleWorldPos, moduleWorldSize);
+                if (!MirroredModulesTooClose(mirrorWorldPos, moduleWorldPos, moduleWorldSize))
                 {
-                    ModuleOrientation orientation = GetMirroredOrientation(ActiveModState);
+                    ModuleOrientation orientation = GetMirroredOrientation(ActiveModule.ModuleRot);
 
-                    RectF mirrorWorldRect = new RectF(mirrorWorldPos, ActiveModule.WorldSize);
+                    var mirrorWorldRect = new RectF(mirrorWorldPos, moduleWorldSize);
                     DrawModuleTex(orientation, batch, null, mirrorWorldRect, template, 0.5f);
-                    
-                    int turretAngle = GetMirroredTurretAngle(orientation, ActiveModule.TurretAngle);
-                    float shipFacing = ((float)turretAngle).ToRadians(); // HACK
-                    DrawWeaponArcs(batch, ActiveModule, mirrorWorldPos, shipFacing);
+
+                    int turretAngle = GetMirroredTurretAngle(ActiveModule.TurretAngle);
+                    DrawWeaponArcs(batch, ActiveModule, mirrorWorldPos, 0f, turretAngle);
                 }
             }
 
             if (ActiveModule.shield_power_max > 0f)
             {
-                DrawShieldCircle(template, moduleWorldPos);
+                DrawShieldCircle(template, moduleWorldPos, moduleWorldSize);
             }
         }
 
-        void DrawShieldCircle(ShipModule moduleTemplate, Vector2 moduleWorldPos)
+        void DrawShieldCircle(ShipModule moduleTemplate, Vector2 moduleWorldPos, Vector2 moduleWorldSize)
         {
-            Vector2 moduleCenter = moduleWorldPos + ActiveModule.WorldSize*0.5f;
-            DrawCircleProjected(moduleCenter, ActiveModule.ShieldHitRadius, Color.LightGreen);
+            Vector2 moduleCenter = moduleWorldPos + moduleWorldSize*0.5f;
+            DrawCircleProjected(moduleCenter, moduleTemplate.ShieldHitRadius, Color.LightGreen);
 
             if (IsSymmetricDesignMode)
             {
-                Vector2 mirrorCenter = GetMirrorWorldPos(moduleWorldPos) + ActiveModule.WorldSize*0.5f;
-                DrawCircleProjected(mirrorCenter, ActiveModule.ShieldHitRadius, Color.LightGreen.Alpha(0.5f));
+                Vector2 mirrorCenter = GetMirrorWorldPos(moduleWorldPos, moduleWorldSize) + moduleWorldSize*0.5f;
+                DrawCircleProjected(mirrorCenter, moduleTemplate.ShieldHitRadius, Color.LightGreen.Alpha(0.5f));
             }
         }
 

@@ -1,14 +1,9 @@
 using System;
-using System.IO;
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game.AI;
 using Ship_Game.Audio;
-using Ship_Game.Data.Mesh;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
-using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace
@@ -187,7 +182,7 @@ namespace Ship_Game
             if (ArcsButton.HandleInput(input))
             {
                 ArcsButton.ToggleOn = !ArcsButton.ToggleOn;
-                ShowAllArcs         = ArcsButton.ToggleOn;
+                ShowAllArcs = ArcsButton.ToggleOn;
                 return true;
             }
 
@@ -209,27 +204,32 @@ namespace Ship_Game
             if (HighlightedModule != null && HandleInputMoveArcs(input, HighlightedModule))
                 return true;
 
-            if (HandleModuleSelection(input))
+            Point gridPos = ModuleGrid.WorldToGridPos(CursorWorldPosition2D);
+            SlotStruct slotUnderCursor = ModuleGrid.Get(gridPos);
+
+            GridPosUnderCursor = gridPos;
+            SlotUnderCursor = slotUnderCursor;
+
+            if (HandleModuleSelection(input, slotUnderCursor))
                 return true;
 
-            HandleProjectedSlot(input);
-            HandleDeleteModule(input);
-            HandlePlaceNewModule(input);
+            ProjectedSlot = slotUnderCursor;
+            HandleDeleteModule(input, slotUnderCursor);
+            HandlePlaceNewModule(input, slotUnderCursor);
             return false;
         }
 
-        public bool GetSlotUnderCursor(InputState input, out SlotStruct slot)
-        {
-            Point gridPos = ModuleGrid.WorldToGridPos(CursorWorldPosition.ToVec2());
-            return ModuleGrid.Get(gridPos, out slot);
-        }
 
-        void SetFiringArc(SlotStruct slot, int turretAngle)
+        void SetFiringArc(SlotStruct slot, float arc, bool round)
         {
+            int turretAngle;
+            if (!round) turretAngle = (int)Math.Round(arc);
+            else turretAngle = (int)Math.Round(arc / 15f) * 15;
+
             slot.Module.TurretAngle = turretAngle;
             if (IsSymmetricDesignMode && GetMirrorModule(slot, out ShipModule mirrored))
             {
-                mirrored.TurretAngle = GetMirroredTurretAngle(slot.Module.ModuleRot, slot.Module.TurretAngle);
+                mirrored.TurretAngle = GetMirroredTurretAngle(turretAngle);
             }
         }
 
@@ -258,12 +258,11 @@ namespace Ship_Game
             }
         }
 
-        bool HandleModuleSelection(InputState input)
+        bool HandleModuleSelection(InputState input, SlotStruct slotUnderCursor)
         {
             if (!ToggleOverlay)
                 return false;
 
-            SlotStruct slotStruct;
             if (HullEditMode)
             {
                 if (input.LeftMouseClick)
@@ -276,16 +275,16 @@ namespace Ship_Game
                         return true;
                     }
 
-                    if (GetSlotUnderCursor(input, out slotStruct))
+                    if (slotUnderCursor != null)
                     {
-                        EditHullSlot(slotStruct, Operation);
+                        EditHullSlot(slotUnderCursor, Operation);
                         return true;
                     }
                 }
                 return false;
             }
 
-            if (!GetSlotUnderCursor(input, out slotStruct))
+            if (slotUnderCursor == null)
             {
                 // we clicked on empty space
                 if (input.LeftMouseReleased)
@@ -301,10 +300,10 @@ namespace Ship_Game
             {
                 GameAudio.DesignSoftBeep();
 
-                SlotStruct slot = slotStruct.Parent ?? slotStruct;
+                SlotStruct slot = slotUnderCursor.Parent ?? slotUnderCursor;
                 if (ActiveModule == null && slot.Module != null)
                 {
-                    SetActiveModule(slot.Module.UID, slot.ModuleRot, slot.TurretAngle);
+                    SetActiveModule(slot.Module.UID, slot.Module.ModuleRot, slot.Module.TurretAngle);
                     return true;
                 }
 
@@ -318,7 +317,7 @@ namespace Ship_Game
 
             if (ActiveModule == null && !input.LeftMouseHeld(0.1f))
             {
-                ShipModule highlighted = slotStruct.Module ?? slotStruct.Parent?.Module;
+                ShipModule highlighted = slotUnderCursor.Module ?? slotUnderCursor.Parent?.Module;
                 // RedFox: ARC ROTATE issue fix; prevents clearing highlighted module
                 if (highlighted != null)
                     HighlightedModule = highlighted; 
@@ -345,50 +344,51 @@ namespace Ship_Game
 
                 if (input.ShipYardArcMove())
                 {
-                    Vector2 worldCursor = CursorWorldPosition.ToVec2();
-                    float arc = Center.AngleToTarget(worldCursor);
+                    float arc = slotStruct.WorldPos.AngleToTarget(CursorWorldPosition2D);
 
                     if (Input.IsShiftKeyDown)
                     {
-                        SetFiringArc(slotStruct, (int)Math.Round(arc));
+                        SetFiringArc(slotStruct, arc, round:false);
                         return true;
                     }
 
-                    if (!Input.IsAltKeyDown)
+                    if (Input.IsAltKeyDown) // modify all turrets
                     {
-                        SetFiringArc(slotStruct, (int)Math.Round(arc / 15f) * 15);
-                        return true;
-                    }
-
-                    int minAngle = int.MinValue;
-                    int maxAngle = int.MinValue;
-                    foreach(SlotStruct slot in ModuleGrid.SlotsList)
-                    {
-                        if (slot.Module?.ModuleType == ShipModuleType.Turret)
+                        int minAngle = int.MinValue;
+                        int maxAngle = int.MinValue;
+                        foreach (SlotStruct slot in ModuleGrid.SlotsList)
                         {
-                            int turretAngle = slot.Module.TurretAngle;
-                            if (minAngle == int.MinValue) minAngle = maxAngle = turretAngle;
-                            if (turretAngle > minAngle && turretAngle < arc) minAngle = turretAngle;
-                            if (turretAngle < maxAngle && turretAngle > arc) maxAngle = turretAngle;
+                            if (slot.Module != null && IsArcTurret(slot.Module))
+                            {
+                                int turretAngle = slot.Module.TurretAngle;
+                                if (minAngle == int.MinValue) minAngle = maxAngle = turretAngle;
+                                if (turretAngle > minAngle && turretAngle < arc) minAngle = turretAngle;
+                                if (turretAngle < maxAngle && turretAngle > arc) maxAngle = turretAngle;
+                            }
                         }
-                    }
 
-                    if (minAngle != int.MinValue)
-                    {
-                        highlighted.TurretAngle = (arc - minAngle) < (maxAngle - arc) ? minAngle : maxAngle;
+                        if (minAngle != int.MinValue)
+                        {
+                            highlighted.TurretAngle = (arc - minAngle) < (maxAngle - arc) ? minAngle : maxAngle;
+                        }
+                        changedArcs = true;
                     }
-                    changedArcs = true;
+                    else
+                    {
+                        SetFiringArc(slotStruct, arc, round:true);
+                        return true;
+                    }
                 }
             }
             return changedArcs;
         }
 
-        void HandlePlaceNewModule(InputState input)
+        void HandlePlaceNewModule(InputState input, SlotStruct slotUnderCursor)
         {
             if (!(input.LeftMouseClick || input.LeftMouseHeld()) || ActiveModule == null)
                 return;
 
-            if (!GetSlotUnderCursor(input, out SlotStruct slot))
+            if (slotUnderCursor == null)
             { 
                 GameAudio.NegativeClick();
                 return;
@@ -397,23 +397,18 @@ namespace Ship_Game
             if (!input.IsShiftKeyDown)
             {
                 GameAudio.SubBassMouseOver();
-                InstallActiveModule(new SlotInstall(slot, ActiveModule, ActiveModState));
+                InstallActiveModule(new SlotInstall(slotUnderCursor, ActiveModule));
                 DisplayBulkReplacementTip();
             }
-            else if (slot.ModuleUID != ActiveModule.UID || slot.Module?.HangarShipUID != ActiveModule.HangarShipUID)
+            else if (slotUnderCursor.ModuleUID != ActiveModule.UID || slotUnderCursor.Module?.HangarShipUID != ActiveModule.HangarShipUID)
             {
                 GameAudio.SubBassMouseOver();
-                ReplaceModulesWith(slot, ActiveModule); // ReplaceModules created by Fat Bastard
+                ReplaceModulesWith(slotUnderCursor, ActiveModule); // ReplaceModules created by Fat Bastard
             }
             else
             {
                 GameAudio.NegativeClick();
             }
-        }
-
-        void HandleProjectedSlot(InputState input)
-        {
-            GetSlotUnderCursor(input, out ProjectedSlot);
         }
 
         void DisplayBulkReplacementTip()
@@ -426,13 +421,13 @@ namespace Ship_Game
             }
         }
 
-        void HandleDeleteModule(InputState input)
+        void HandleDeleteModule(InputState input, SlotStruct slotUnderCursor)
         {
             if (!input.RightMouseClick)
                 return;
 
-            if (GetSlotUnderCursor(input, out SlotStruct slot))
-                DeleteModuleAtSlot(slot);
+            if (slotUnderCursor != null)
+                DeleteModuleAtSlot(slotUnderCursor);
             else
                 ActiveModule = null;
         }
