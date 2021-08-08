@@ -433,7 +433,7 @@ namespace Ship_Game
             bool play = false;
             foreach (PlanetGridSquare pgs in P.TilesList)
             {
-                if (pgs.NoTroopsOnTile || !pgs.LockOnPlayerTroop(out Troop troop) || !troop.CanMove)
+                if (pgs.NoTroopsOnTile || !pgs.LockOnPlayerTroop(out Troop troop))
                     continue;
 
                 try
@@ -775,7 +775,7 @@ namespace Ship_Game
             foreach (Troop troop in toAdd)
                 OrbitSL.AddItem(new CombatScreenOrbitListItem(troop));
 
-            UpdateLaunchAllButton(P.TroopsHere.Count(t => t.Loyalty == Empire.Universe.player && t.CanMove));
+            UpdateLaunchAllButton(P.TroopsHere.Count(t => t.Loyalty == Empire.Universe.player && t.CanLaunch));
             UpdateLandAllButton(OrbitSL.NumEntries);
             UpdateBombersButton();
         }

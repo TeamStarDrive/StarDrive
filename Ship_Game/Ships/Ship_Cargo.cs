@@ -26,7 +26,7 @@ namespace Ship_Game.Ships
         public float CargoSpaceUsed    => Cargo?.TotalCargo ?? 0;
         public float CargoSpaceFree    => CargoSpaceMax - CargoSpaceUsed;
         public float PassengerModifier => loyalty.data.Traits.PassengerModifier;
-        public float OrdnancePercent   => OrdinanceMax > 1 ? Ordinance / OrdinanceMax : 1f;
+        public float OrdnancePercent { get; private set; } 
 
         // WARNING: do not use during constants initialization!
         public float ChangeOrdnance(float amount)
@@ -35,15 +35,22 @@ namespace Ship_Game.Ships
                 return amount; // no ordnance was used to refill
 
             float ordnanceLeft = (amount - (OrdinanceMax - Ordinance)).Clamped(0, amount);
-            Ordinance = (Ordinance + amount).Clamped(0, OrdinanceMax);
             OrdnanceChanged = true;
+            SetOrdnance(Ordinance + amount);
             return ordnanceLeft;
         }
 
-        // @note Should only be used for testing
+        // @note Should only be used for testing or by ChanceOrdnance
         public void SetOrdnance(float newOrdnance)
         {
             Ordinance = newOrdnance.Clamped(0, OrdinanceMax);
+            UpdateOrdnancePercentage();
+        }
+
+        void UpdateOrdnancePercentage()
+        {
+            float percent   = OrdinanceMax > 1 ? (Ordinance + Carrier.OrdnanceInSpace) / OrdinanceMax : 1f;
+            OrdnancePercent = percent.Clamped(0, 1f);
         }
 
         public float ShipOrdLaunchCost => Mass / 5f * (GlobalStats.HasMod ? GlobalStats.ActiveModInfo.HangarCombatShipCostMultiplier : 1);

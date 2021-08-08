@@ -1679,6 +1679,7 @@ namespace Ship_Game
             UpdateShipMaintenance();
             UpdateMaxColonyValues();
             EmpireAI.RunEconomicPlanner(fromSave: true);
+            EmpireAI.OffensiveForcePoolManager.ManageAOs();
         }
 
         public void UpdateMilitaryStrengths()
@@ -2174,7 +2175,7 @@ namespace Ship_Game
         {
             troopShip = null;
             Array<Planet> candidatePlanets = new Array<Planet>(OwnedPlanets
-                .Filter(p => p.NumTroopsCanLaunch > 0 && p.TroopsHere.Any(t => t.CanMove) && p.Name != planetName)
+                .Filter(p => p.NumTroopsCanLaunch > 0 && p.TroopsHere.Any(t => t.CanLaunch) && p.Name != planetName)
                 .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
 
             if (candidatePlanets.Count == 0)
@@ -2183,7 +2184,7 @@ namespace Ship_Game
             var troops = candidatePlanets.First().TroopsHere;
             using (troops.AcquireWriteLock())
             {
-                troopShip = troops.FirstOrDefault(t => t.Loyalty == this && t.CanMove)?.Launch();
+                troopShip = troops.FirstOrDefault(t => t.Loyalty == this)?.Launch();
                 return troopShip != null;
             }
         }
