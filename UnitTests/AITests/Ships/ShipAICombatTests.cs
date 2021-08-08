@@ -185,6 +185,7 @@ namespace UnitTests.AITests.Ships
                                    offensiveMove: true);
 
             Assert.IsFalse(OurShip.InCombat, "ship must exit combat after giving a move order, since giving a move order clears orders");
+            OurShip.AI.CombatState = CombatState.HoldPosition;
             // Let the ship reacquire the target since giving an order caused an exit
             // combat (as it should, otherwise the ship will not enter combat again). 
             Update(EnemyScanInterval); 
@@ -196,6 +197,9 @@ namespace UnitTests.AITests.Ships
                 Assert.IsTrue(OurShip.OnHighAlert);
                 colonyShip.Velocity = Vector2.Zero; // BUG: there is a strange drift effect in sim
                 Update(TestSimStep);
+                Assert.AreEqual(CombatState.HoldPosition, colonyShip.AI.CombatState);
+                Log.Info(OurShip.Velocity.Length().String() + " Attacker velocity");
+                Log.Info(colonyShip.Velocity.Length().String() + " Target velocity");
             });
 
             if (colonyShip.Active)
