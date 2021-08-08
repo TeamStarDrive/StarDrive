@@ -35,9 +35,8 @@ namespace Ship_Game.Ships
                 return amount; // no ordnance was used to refill
 
             float ordnanceLeft = (amount - (OrdinanceMax - Ordinance)).Clamped(0, amount);
-            Ordinance = (Ordinance + amount).Clamped(0, OrdinanceMax);
             OrdnanceChanged = true;
-            CalcOrdnancePercentage();
+            SetOrdnance(Ordinance + amount);
             return ordnanceLeft;
         }
 
@@ -45,13 +44,13 @@ namespace Ship_Game.Ships
         public void SetOrdnance(float newOrdnance)
         {
             Ordinance = newOrdnance.Clamped(0, OrdinanceMax);
-            CalcOrdnancePercentage();
+            UpdateOrdnancePercentage();
         }
 
-        float CalcOrdnancePercentage()
+        void UpdateOrdnancePercentage()
         {
-            float percent = OrdnancePercent = OrdinanceMax > 1 ? (Ordinance + Carrier.OrdnanceInSpace) / OrdinanceMax : 1f;
-            return percent.Clamped(0, 1f);
+            float percent   = OrdinanceMax > 1 ? (Ordinance + Carrier.OrdnanceInSpace) / OrdinanceMax : 1f;
+            OrdnancePercent = percent.Clamped(0, 1f);
         }
 
         public float ShipOrdLaunchCost => Mass / 5f * (GlobalStats.HasMod ? GlobalStats.ActiveModInfo.HangarCombatShipCostMultiplier : 1);

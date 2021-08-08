@@ -437,7 +437,7 @@ namespace Ship_Game.Ships
             if (!BaseCanWarp && DesignRoleType == ShipData.RoleType.Warship)
                 Log.Warning($"Ship.BaseCanWarp is false: {this}");
 
-            CalcOrdnancePercentage();
+            UpdateOrdnancePercentage();
         }
 
         public void ShipStatusChange()
