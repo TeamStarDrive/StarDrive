@@ -32,6 +32,7 @@
         public readonly int NumWarTasksPerWar;
         public readonly int WarTaskPriorityMod; // higher priority vs player if at war with them
         public readonly int WarSneakiness; // modifier to prepare for war detection by the player (player will need better spy network to detect war plot)
+        public readonly float HullTechMultiplier; // used in ship progression to modify hull tech cost if needed
 
         // A mod can set the general str of remnant designs. Default is 2 an this is a multiplier for starting fleet multiplier
         public readonly float RemnantStrModifier; 
@@ -96,6 +97,7 @@
                     WarTaskPriorityMod   = 0;
                     RemnantStrModifier   = remnantGeneralStr;
                     WarSneakiness        = -10;
+                    HullTechMultiplier   = 1.1f;
                     if (!empire.isPlayer)
                     {
                         ProductionMod = -0.1f;
@@ -134,6 +136,7 @@
                     WarTaskPriorityMod   = 1;
                     RemnantStrModifier   = remnantGeneralStr + 0.5f;
                     WarSneakiness        = 0;
+                    HullTechMultiplier = 1f;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 5;
@@ -169,6 +172,7 @@
                     WarTaskPriorityMod   = 1;
                     RemnantStrModifier   = remnantGeneralStr + 1;
                     WarSneakiness        = 10;
+                    HullTechMultiplier   = 0.85f;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 10;
@@ -209,6 +213,7 @@
                     WarTaskPriorityMod   = 2;
                     RemnantStrModifier   = remnantGeneralStr + 1.5f;
                     WarSneakiness        = 25;
+                    HullTechMultiplier   = 0.7f;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 20;

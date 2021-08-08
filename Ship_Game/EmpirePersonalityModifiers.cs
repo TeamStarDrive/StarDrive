@@ -25,6 +25,7 @@ namespace Ship_Game
         public readonly float DoomFleetThreshold; // If over this threshold, the AI will send a fleet to glass the target planet
         public readonly float WarTasksLifeTime; // How many turns to keep trying fleet requisition before timeout, 1f is 10 turns
         public readonly int WarSneakiness; // modifier to prepare for war detection by the player (player will need better spy network to detect war plot)
+        public readonly float HullTechMultiplier; // used in ship progression to modify hull tech cost if needed
 
         public PersonalityModifiers(PersonalityType type)
         {
@@ -45,6 +46,7 @@ namespace Ship_Game
                     DoomFleetThreshold    = 2;
                     AssaultBomberRatio    = 0.5f;
                     AllyCallToWarRatio    = 1.2f;
+                    HullTechMultiplier    = 1f;
                     TrustCostTradePact    = 0;
                     TechValueModifier     = 1;
                     PostInvasionTurns     = 50;
@@ -68,6 +70,7 @@ namespace Ship_Game
                     DoomFleetThreshold    = 1.5f;
                     AssaultBomberRatio    = 0.75f;
                     AllyCallToWarRatio    = 1.15f;
+                    HullTechMultiplier    = 0.85f;
                     TrustCostTradePact    = 20;
                     TrustCostNaPact       = 35;
                     PostInvasionTurns     = 25;
@@ -91,6 +94,7 @@ namespace Ship_Game
                     DoomFleetThreshold    = 1f;
                     AssaultBomberRatio    = 1;
                     AllyCallToWarRatio    = 1.2f;
+                    HullTechMultiplier    = 0.8f;
                     TrustCostTradePact    = 15;
                     TrustCostNaPact       = 45f;
                     PostInvasionTurns     = 25;
@@ -113,6 +117,7 @@ namespace Ship_Game
                     FederationPopRatioWar = 1.7f;
                     DoomFleetThreshold    = 1.75f;
                     AllyCallToWarRatio    = 1.1f;
+                    HullTechMultiplier    = 0.7f;
                     AssaultBomberRatio    = 0.5f;
                     TrustCostTradePact    = 15;
                     TrustCostNaPact       = 15;
@@ -137,6 +142,7 @@ namespace Ship_Game
                     DoomFleetThreshold    = 2;
                     AssaultBomberRatio    = 0.8f;
                     AllyCallToWarRatio    = 1.25f;
+                    HullTechMultiplier    = 1f;
                     TrustCostTradePact    = 5;
                     TrustCostNaPact       = 5;
                     PostInvasionTurns     = 60;
@@ -157,6 +163,7 @@ namespace Ship_Game
                     DefenseTaskWeight     = 9;
                     FleetStrMultiplier    = 1f;
                     FederationPopRatioWar = 1.45f;
+                    HullTechMultiplier    = 0.9f;
                     DoomFleetThreshold    = 2.5f;
                     AssaultBomberRatio    = 0.6f;
                     AllyCallToWarRatio    = 1f;
@@ -180,6 +187,7 @@ namespace Ship_Game
                     DefenseTaskWeight     = 10;
                     FleetStrMultiplier    = 0.9f;
                     FederationPopRatioWar = 1.4f;
+                    HullTechMultiplier    = 1f;
                     DoomFleetThreshold    = 3;
                     AssaultBomberRatio    = 0.5f;
                     AllyCallToWarRatio    = 1.35f;
