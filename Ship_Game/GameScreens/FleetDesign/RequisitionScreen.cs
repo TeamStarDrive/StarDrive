@@ -62,7 +62,7 @@ namespace Ship_Game
             }
             foreach (Ship ship in F.Ships)
             {
-                ship.ShowSceneObjectAt(new Vector3(ship.RelativeFleetOffset, -1000000f));
+                ship.ShowSceneObjectAt(ship.RelativeFleetOffset, -1000000f);
             }                       
             F.Owner.GetFleetsDict()[Fds.FleetToEdit] = F;
             Fds.ChangeFleet(Fds.FleetToEdit);

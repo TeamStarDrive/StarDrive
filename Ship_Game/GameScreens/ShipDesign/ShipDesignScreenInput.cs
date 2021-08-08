@@ -80,7 +80,7 @@ namespace Ship_Game
         {
             RemoveObject(shipSO);
             CurrentHull.LoadModel(out shipSO, TransientContent);
-            shipSO.World = Matrix.CreateTranslation(CurrentHull.MeshOffset.X, CurrentHull.MeshOffset.Y, 0);
+            shipSO.World = Matrix.CreateTranslation(new Vector3(CurrentHull.MeshOffset, 0));
             AddObject(shipSO);
         }
 
