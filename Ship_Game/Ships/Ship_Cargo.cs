@@ -40,7 +40,7 @@ namespace Ship_Game.Ships
             return ordnanceLeft;
         }
 
-        // @note Should only be used for testing
+        // @note Should only be used for testing or by ChanceOrdnance
         public void SetOrdnance(float newOrdnance)
         {
             Ordinance = newOrdnance.Clamped(0, OrdinanceMax);
