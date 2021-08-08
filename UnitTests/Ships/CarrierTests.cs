@@ -214,7 +214,7 @@ namespace UnitTests.Ships
             // set the carrier storage just below the threshold so it would want to resupply if it had no fighters launched
             Carrier.ChangeOrdnance(ordCombatThreshold - 40); 
             resupplyReason = Carrier.Supply.Resupply();
-            Assert.IsTrue(resupplyReason == ResupplyReason.NotNeeded, "Carrier should not want to resupply when non combat");
+            Assert.IsTrue(resupplyReason == ResupplyReason.NotNeeded, "Carrier should not want to resupply when in combat and has fighters launched");
 
             // cleanup
             Carrier.ChangeOrdnance(-Carrier.OrdinanceMax);
