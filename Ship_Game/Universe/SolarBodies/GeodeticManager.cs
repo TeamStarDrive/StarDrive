@@ -197,7 +197,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             {
                 float supply = Level;
                 supply      *= HasSpacePort ? 5f : 2f;
-                supply      *= ship.InCombat ? 0.1f : 10f;
+                supply      *= ship.OnHighAlert ? 0.1f : 10f;
                 supply       = Math.Max(.1f, supply);
                 ship.AddPower(supply*10);
                 ship.ChangeOrdnance(supply);
