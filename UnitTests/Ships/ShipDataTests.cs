@@ -78,9 +78,9 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.IsOrbitalDefense, b.IsOrbitalDefense);
             Assert.AreEqual(a.CarrierShip, b.CarrierShip);
 
-            Assert.AreEqual(a.Role, b.Role);
-            Assert.AreEqual(a.ShipCategory, b.ShipCategory);
-            Assert.AreEqual(a.HangarDesignation, b.HangarDesignation);
+            Assert.AreEqual(a.Role.ToString(), b.Role.ToString());
+            Assert.AreEqual(a.ShipCategory.ToString(), b.ShipCategory.ToString());
+            Assert.AreEqual(a.HangarDesignation.ToString(), b.HangarDesignation.ToString());
             Assert.AreEqual(a.DefaultAIState, b.DefaultAIState);
             Assert.AreEqual(a.CombatState, b.DefaultCombatState);
 
@@ -161,7 +161,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("ShipIcons/10a", design.IconPath);
             Assert.AreEqual(ShipData.RoleName.prototype, design.Role);
             Assert.AreEqual(true, design.Unlockable);
-            Assert.AreEqual(70, design.ModuleSlots.Length);
+            Assert.AreEqual(40, design.ModuleSlots.Length);
             Assert.AreEqual(70, design.GridInfo.SurfaceArea);
         }
 

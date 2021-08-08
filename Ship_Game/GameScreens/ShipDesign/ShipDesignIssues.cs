@@ -475,19 +475,21 @@ namespace Ship_Game.GameScreens.ShipDesign
             AddDesignIssue(DesignIssueType.Accuracy, severity, remediation);
         }
 
-        public void CheckTargets(Map<ShipModule, float> accuracyList, float maxTargets)
+        public void CheckTargets(ShipModule[] poweredWeapons, int maxTargets)
         {
-            if (accuracyList.Count == 0 || maxTargets <1)
+            if (poweredWeapons.Length == 0 || maxTargets < 1)
                 return;
 
-            var facings = accuracyList.GroupBy(kv =>
+            Map<int,ShipModule> angleGroups = poweredWeapons.GroupBy(m =>
             {
-                int facing = kv.Key.TurretAngle;
+                int facing = m.TurretAngle;
                 facing = facing == 360 ? 0 : facing;
-                return facing;
+                // round to fixed angles 
+                return facing.RoundDownToMultipleOf(15);
             });
-            int count = facings.Count();
-            float ratioToTargets = count / maxTargets;
+
+            int count = angleGroups.Count;
+            float ratioToTargets = count / (float)maxTargets;
 
             WarningLevel severity;
             if      (ratioToTargets > 4) severity = WarningLevel.Critical;
@@ -496,7 +498,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             else if (ratioToTargets > 1) severity = WarningLevel.Informative;
             else return;
 
-            string target     = $" {Localizer.Token(GameText.FcsPower)}: {maxTargets.String(1)}, ";
+            string target     = $" {Localizer.Token(GameText.FcsPower)}: {maxTargets}, ";
             string fireArcs   = $"{Localizer.Token(GameText.FireArc)}: {count} ";
             string baseString = !IsPlatform ? "" : $" {Localizer.Token(GameText.OrbitalTracking)}";
 

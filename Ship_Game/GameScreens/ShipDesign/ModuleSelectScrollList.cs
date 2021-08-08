@@ -25,16 +25,16 @@ namespace Ship_Game
             base.OnItemClicked(item);
         }
 
-        bool IsBadModuleSize(ShipModule module)
+        bool CanNeverFitModuleGrid(ShipModule module)
         {
             if (Screen.Input.IsShiftKeyDown || Screen.CurrentDesign == null || module.XSIZE + module.YSIZE == 2)
                 return false;
-            return Screen.IsBadModuleSize(module);
+            return Screen.CanNeverFitModuleGrid(module);
         }
 
         bool ShouldBeFiltered(ShipModule m)
         {
-            return IsBadModuleSize(m) || m.IsObsolete() && Screen.IsFilterOldModulesMode;
+            return CanNeverFitModuleGrid(m) || m.IsObsolete() && Screen.IsFilterOldModulesMode;
         }
 
         readonly Map<int, ModuleSelectListItem> Categories = new Map<int, ModuleSelectListItem>();

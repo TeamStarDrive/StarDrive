@@ -344,8 +344,8 @@ namespace Ship_Game.Debug
 
                 // TODO: This doesn't account for Ship's rotation...
                 Vector2 moduleCenter = m.Position + m.WorldSize*0.5f;
-                ShipDesignScreen.DrawWeaponArcs(ScreenManager.SpriteBatch, Screen,
-                    ship.Rotation, w, m, moduleCenter, range * 0.25f);
+                ShipDesignScreen.DrawWeaponArcs(ScreenManager.SpriteBatch, Screen, w, m, moduleCenter, 
+                                                range * 0.25f, ship.Rotation, m.TurretAngle);
 
                 DrawCircleImm(w.Origin, m.Radius/(float)Math.Sqrt(2), Color.Crimson);
 

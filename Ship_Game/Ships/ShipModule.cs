@@ -1473,7 +1473,7 @@ namespace Ship_Game.Ships
 
         public override string ToString()
         {
-            return $"{UID}  {Id}  {XSIZE}x{YSIZE} {Restrictions} [{LocalCenter.X};{LocalCenter.Y}] hp={Health} world={Position} ship={Parent?.Name}";
+            return $"{UID}  {Id}  {XSIZE}x{YSIZE} {Restrictions} grid={Pos.X},{Pos.Y} local={LocalCenter.X};{LocalCenter.Y} hp={Health} world={Position} ship={Parent?.Name}";
         }
 
         public void Dispose()

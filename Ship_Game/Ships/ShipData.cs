@@ -54,7 +54,7 @@ namespace Ship_Game.Ships
 
         public ShipGridInfo GridInfo;
         public DesignSlot[] ModuleSlots;
-        public bool Unlockable;
+        public bool Unlockable = true; // unlocked=true by default
         public HashSet<string> TechsNeeded = new HashSet<string>();
 
         static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
@@ -84,8 +84,7 @@ namespace Ship_Game.Ships
                 throw new Exception($"ShipData '{hull.HullName}' has null BaseHull -- this is not allowed!");
 
             Name = hull.HullName;
-            GridInfo.Size = hull.Size;
-            GridInfo.SurfaceArea = hull.SurfaceArea;
+            GridInfo = new ShipGridInfo(hull.Size, hull.SurfaceArea);
 
             Hull              = hull.HullName;
             Role              = hull.Role;
@@ -99,12 +98,6 @@ namespace Ship_Game.Ships
 
             Unlockable = hull.Unlockable;
             ModuleSlots = Array.Empty<DesignSlot>();
-        }
-
-        // used in ShipDesignScreen
-        public void UpdateGridInfo()
-        {
-            GridInfo = new ShipGridInfo(ModuleSlots);
         }
 
         public override string ToString() { return Name; }
