@@ -20,9 +20,9 @@ namespace Ship_Game
         // is at world [0,0]
         public Vector2 WorldPos;
 
-        public int TurretAngle;
+        // HullSlot restriction
         public Restrictions Restrictions;
-        public ModuleOrientation ModuleRot; // Orientation controls the visual 4-dir rotation of module
+
         public SlotStruct Parent;
         public string ModuleUID;
         public ShipModule Module;
@@ -48,11 +48,11 @@ namespace Ship_Game
         public override string ToString()
         {
             if (Parent == null)
-                return $"{Module?.UID} {Pos} R:{Restrictions} TA:{TurretAngle} O:{ModuleRot}";
+                return $"{Module?.UID} {Pos} R:{Restrictions}";
 
             // @note Don't call Parent.ToString(), or we might get a stack overflow
-            string parent = $"{Parent.Pos} R:{Parent.Restrictions} TA:{Parent.TurretAngle} O:{ModuleRot}";
-            return $"{Pos} R:{Restrictions} TA:{TurretAngle} O:{ModuleRot}   Parent={{{parent}}}";
+            string parent = $"{Parent.Module?.UID} {Parent.Pos} R:{Parent.Restrictions}";
+            return $"{Pos} R:{Restrictions} Parent={{{parent}}}";
         }
 
         static bool MatchI(Restrictions b) => b == Restrictions.I || b == Restrictions.IO || b == Restrictions.IE;
@@ -116,11 +116,10 @@ namespace Ship_Game
 
         public void Clear()
         {
-            ModuleUID   = null;
-            Tex         = null;
-            Module      = null;
-            Parent      = null;
-            ModuleRot = ModuleOrientation.Normal;
+            ModuleUID = null;
+            Tex       = null;
+            Module    = null;
+            Parent    = null;
         }
 
         [XmlIgnore][JsonIgnore]
@@ -128,20 +127,20 @@ namespace Ship_Game
 
         public bool IsModuleReplaceableWith(ShipModule other)
         {
-            return Module              != null
-                && ModuleUID           != null
-                && Module.XSIZE        == other.XSIZE
-                && Module.YSIZE        == other.YSIZE
+            return Module    != null
+                && ModuleUID != null
+                && Module.XSIZE == other.XSIZE
+                && Module.YSIZE == other.YSIZE
                 && Module.Restrictions == other.Restrictions;
         }
 
         public bool IsSame(ShipModule module, ModuleOrientation orientation, int turretAngle)
         {
             return Module != null
-                && Module.UID == module.UID
-                && Module.HangarShipUID == module.HangarShipUID
-                && ModuleRot == orientation
-                && TurretAngle == turretAngle;
+                && Module.UID  == module.UID
+                && Module.ModuleRot   == orientation
+                && Module.TurretAngle == turretAngle
+                && Module.HangarShipUID == module.HangarShipUID;
         }
     }
 }

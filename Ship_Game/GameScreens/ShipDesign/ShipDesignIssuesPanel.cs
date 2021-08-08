@@ -121,7 +121,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Issues.CheckTroopsVsBays(S.TroopCapacity, ds.NumTroopBays);
                 Issues.CheckTroops(S.TroopCapacity, S.SurfaceArea);
                 Issues.CheckAccuracy(ds.WeaponAccuracies);
-                Issues.CheckTargets(ds.WeaponAccuracies, S.TrackingPower);
+                Issues.CheckTargets(ds.PoweredWeapons, S.TrackingPower);
                 Issues.CheckSecondaryCarrier(ds.TotalHangarArea > 0, Screen.Role, (int)S.WeaponsMaxRange);
                 Issues.CheckDedicatedCarrier(ds.TotalHangarArea > 0, Screen.Role, (int)S.WeaponsMaxRange, S.SensorRange,
                     S.shipData.DefaultCombatState == CombatState.ShortRange || S.shipData.DefaultCombatState == CombatState.AttackRuns);

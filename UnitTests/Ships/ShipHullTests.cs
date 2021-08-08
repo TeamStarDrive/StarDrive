@@ -66,8 +66,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.SelectionGraphic, b.SelectIcon);
             Assert.AreEqual(a.IsShipyard, b.IsShipyard);
             Assert.AreEqual(a.IsOrbitalDefense, b.IsOrbitalDefense);
-
-            Assert.AreEqual(a.ThrusterList.Length, b.Thrusters.Length);
         }
     }
 }

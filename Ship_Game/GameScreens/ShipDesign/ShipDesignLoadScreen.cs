@@ -149,7 +149,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             };
 
             WIPs.Clear();
-            foreach (FileInfo info in Dir.GetFiles(Dir.StarDriveAppData + "/WIP"))
+            foreach (FileInfo info in Dir.GetFiles(Dir.StarDriveAppData + "/WIP", "design"))
             {
                 ShipData newShipData = ShipData.Parse(info);
                 if (newShipData == null)
