@@ -74,11 +74,17 @@ namespace Ship_Game.AI.Research
             {
                 TechEntry tech = shipTechs[i];
                 if (tech.Locked)
-                    totalCost += tech.Tech.ActualCost;
+                    totalCost += ModifiedTechCost(tech.Tech);
             }
 
             return totalCost;
         }
+
+        float ModifiedTechCost(Technology tech) => tech.HullsUnlocked.Count == 0 
+            ? tech.ActualCost
+            : tech.ActualCost * OwnerEmpire.PersonalityModifiers.HullTechMultiplier
+                              * OwnerEmpire.DifficultyModifiers.HullTechMultiplier;
+
 
         bool TryExtractNeedTechs(Ship ship, out HashSet<string> techsToAdd, out bool onlyHullLeft)
         {
