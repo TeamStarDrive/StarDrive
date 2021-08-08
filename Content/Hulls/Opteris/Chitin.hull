@@ -3,6 +3,7 @@ HullName=Opteris/Chitin
 Role=cruiser
 Style=Opteris
 Size=20,31
+MeshOffset=0,8
 IconPath=ShipIcons/Chitin
 ModelPath=Model/Ships/Opteris/Ship19d
 SelectIcon=19d

@@ -3,6 +3,7 @@ HullName=Remnant/Xeno Cruiser
 Role=cruiser
 Style=Remnant
 Size=22,23
+MeshOffset=0,-8
 IconPath=ShipIcons/xeno gunship
 ModelPath=Model/Ships/Remnant/XenoCruiser/ship09e
 SelectIcon=09e

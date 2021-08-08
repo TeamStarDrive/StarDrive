@@ -3,6 +3,7 @@ HullName=Vulfen/Type VII
 Role=frigate
 Style=Vulfen
 Size=10,26
+MeshOffset=0,0
 IconPath=ShipIcons/typeVII
 ModelPath=Model/Ships/Vulfen/TypeVII
 SelectIcon=14a

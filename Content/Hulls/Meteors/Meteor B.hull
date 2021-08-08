@@ -3,6 +3,7 @@ HullName=Meteors/Meteor B
 Role=platform
 Style=Meteors
 Size=14,12
+MeshOffset=0,-16
 IconPath=ShipIcons/terran_platform
 ModelPath=Model/Asteroids/asteroid4
 SelectIcon=13e

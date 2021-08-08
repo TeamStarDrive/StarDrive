@@ -3,6 +3,7 @@ HullName=Pollops/Entangler
 Role=capital
 Style=Pollops
 Size=66,38
+MeshOffset=0,-48
 IconPath=ShipIcons/entangler
 ModelPath=Model/Ships/Pollops/Entangler
 SelectIcon=15f

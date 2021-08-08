@@ -3,6 +3,7 @@ HullName=Kulrathi/Claw
 Role=frigate
 Style=Kulrathi
 Size=18,17
+MeshOffset=0,8
 IconPath=ShipIcons/claw
 ModelPath=Model/Ships/Kulrathi/ship11f
 SelectIcon=11f

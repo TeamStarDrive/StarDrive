@@ -3,6 +3,7 @@ HullName=Kulrathi/Razor
 Role=corvette
 Style=Kulrathi
 Size=10,7
+MeshOffset=0,8
 IconPath=ShipIcons/razor
 ModelPath=Model/Ships/Kulrathi/ship11b
 #Thruster PosX,PosY,PosZ,Scale

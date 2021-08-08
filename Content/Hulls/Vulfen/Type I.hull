@@ -3,6 +3,7 @@ HullName=Vulfen/Type I
 Role=fighter
 Style=Vulfen
 Size=4,4
+MeshOffset=0,0
 IconPath=ShipIcons/typeI
 ModelPath=Model/Ships/Vulfen/TypeI
 SelectIcon=13a

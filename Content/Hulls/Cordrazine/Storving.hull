@@ -3,6 +3,7 @@ HullName=Cordrazine/Storving
 Role=cruiser
 Style=Cordrazine
 Size=16,15
+MeshOffset=0,8
 IconPath=ShipIcons/Storving
 ModelPath=Model/Ships/Cordrazine/ship16d
 #Thruster PosX,PosY,PosZ,Scale

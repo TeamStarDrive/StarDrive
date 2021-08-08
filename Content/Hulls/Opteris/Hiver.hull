@@ -3,6 +3,7 @@ HullName=Opteris/Hiver
 Role=battleship
 Style=Opteris
 Size=30,44
+MeshOffset=0,0
 IconPath=ShipIcons/Hiver
 ModelPath=Model/Ships/Opteris/Ship19e
 SelectIcon=19e

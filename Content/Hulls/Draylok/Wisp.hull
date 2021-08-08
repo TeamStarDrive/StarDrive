@@ -3,6 +3,7 @@ HullName=Draylok/Wisp
 Role=fighter
 Style=Draylok
 Size=6,2
+MeshOffset=0,0
 IconPath=ShipIcons/Wisp
 ModelPath=Model/Ships/Draylok/Ship18a
 SelectIcon=18a

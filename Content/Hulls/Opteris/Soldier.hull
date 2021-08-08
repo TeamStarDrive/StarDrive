@@ -3,6 +3,7 @@ HullName=Opteris/Soldier
 Role=frigate
 Style=Opteris
 Size=10,17
+MeshOffset=0,8
 IconPath=ShipIcons/Soldier
 ModelPath=Model/Ships/Opteris/Ship19c
 SelectIcon=19c

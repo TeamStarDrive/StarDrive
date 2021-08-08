@@ -3,6 +3,7 @@ HullName=Draylok/Scythe
 Role=frigate
 Style=Draylok
 Size=14,10
+MeshOffset=0,0
 IconPath=ShipIcons/Scythe
 ModelPath=Model/Ships/Draylok/Ship18c
 SelectIcon=18c

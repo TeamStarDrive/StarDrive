@@ -3,6 +3,7 @@ HullName=Misc/HaulerSmall
 Role=freighter
 Style=Misc
 Size=4,10
+MeshOffset=0,-16
 IconPath=ShipIcons/terran_cargo1
 ModelPath=Model/Ships/CargoShips/CargoHaulerShort
 SelectIcon=04

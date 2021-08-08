@@ -3,6 +3,7 @@ HullName=Cordrazine/Metving
 Role=frigate
 Style=Cordrazine
 Size=12,14
+MeshOffset=0,0
 IconPath=ShipIcons/Metving
 ModelPath=Model/Ships/Cordrazine/ship16c
 SelectIcon=16c

@@ -3,6 +3,7 @@ HullName=Remnant/Xeno Fighter
 Role=fighter
 Style=Remnant
 Size=4,4
+MeshOffset=0,0
 IconPath=ShipIcons/xeno gunship
 ModelPath=Model/Ships/Remnant/XenoFighterGreen/ship09a
 SelectIcon=09a

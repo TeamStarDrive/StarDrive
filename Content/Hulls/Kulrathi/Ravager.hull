@@ -3,6 +3,7 @@ HullName=Kulrathi/Ravager
 Role=battleship
 Style=Kulrathi
 Size=32,50
+MeshOffset=0,-16
 IconPath=ShipIcons/ravager
 ModelPath=Model/Ships/Kulrathi/ship12d
 SelectIcon=12d

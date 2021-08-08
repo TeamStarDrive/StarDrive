@@ -3,6 +3,7 @@ HullName=Pollops/Grower
 Role=freighter
 Style=Pollops
 Size=8,19
+MeshOffset=0,8
 IconPath=ShipIcons/Grower
 ModelPath=Model/Ships/Pollops/ship15i
 SelectIcon=15i

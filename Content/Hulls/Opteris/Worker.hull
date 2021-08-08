@@ -3,6 +3,7 @@ HullName=Opteris/Worker
 Role=corvette
 Style=Opteris
 Size=8,6
+MeshOffset=0,48
 IconPath=ShipIcons/Worker
 ModelPath=Model/Ships/Opteris/Ship19b
 SelectIcon=19b

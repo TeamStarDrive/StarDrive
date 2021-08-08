@@ -3,6 +3,7 @@ HullName=Pollops/Corpse Flower
 Role=capital
 Style=Pollops
 Size=36,26
+MeshOffset=0,-48
 IconPath=ShipIcons/corpseflower
 ModelPath=Model/Ships/Pollops/CorpseFlower
 SelectIcon=15e

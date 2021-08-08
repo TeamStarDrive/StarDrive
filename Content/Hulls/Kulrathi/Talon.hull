@@ -3,6 +3,7 @@ HullName=Kulrathi/Talon
 Role=frigate
 Style=Kulrathi
 Size=18,15
+MeshOffset=0,-8
 IconPath=ShipIcons/talon
 ModelPath=Model/Ships/Kulrathi/ship11d
 #Thruster PosX,PosY,PosZ,Scale

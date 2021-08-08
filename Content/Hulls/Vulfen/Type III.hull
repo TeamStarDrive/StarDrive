@@ -3,6 +3,7 @@ HullName=Vulfen/Type III
 Role=corvette
 Style=Vulfen
 Size=6,6
+MeshOffset=0,0
 IconPath=ShipIcons/typeIII
 ModelPath=Model/Ships/Vulfen/TypeIII
 SelectIcon=13c
