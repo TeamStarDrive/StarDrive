@@ -253,9 +253,9 @@ namespace Ship_Game
 
                     if (ResourceManager.GetShipTemplate(item.UID, out Ship buildTemplate))
                     {
-                        Screen.ProjectToScreenCoords(item.BuildPos, platform.Width, out Vector2 posOnScreen, out float size);
+                        Screen.ProjectToScreenCoords(item.BuildPos, platform.Width, out Vector2d posOnScreen, out double size);
 
-                        float scale = ScaleIconSize(size, 0.01f, 0.125f);
+                        float scale = ScaleIconSize((float)size, 0.01f, 0.125f);
                         Screen.DrawTextureSized(platform, posOnScreen, 0.0f, platform.Width * scale,
                                    platform.Height * scale, new Color(0, 255, 0, 100));
 
@@ -275,7 +275,7 @@ namespace Ship_Game
             if (itemToBuild != null && itemToBuild.IsSubspaceProjector && Screen.AdjustCamTimer <= 0f)
             {
                 Vector2 center = Screen.Input.CursorPosition;
-                float screenRadius = Screen.ProjectToScreenSize(EmpireManager.Player.GetProjectorRadius());
+                float screenRadius = (float)Screen.ProjectToScreenSize(EmpireManager.Player.GetProjectorRadius());
                 Screen.DrawCircle(center, MathExt.SmoothStep(ref CurrentRadiusSmoothed, screenRadius, 0.3f),
                                   Color.Orange, 2f); //
             }

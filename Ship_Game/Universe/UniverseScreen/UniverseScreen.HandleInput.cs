@@ -865,12 +865,12 @@ namespace Ship_Game
                 if (goal.IsDeploymentGoal)
                 {
                     const float radius = 100f;
-                    Vector2 buildPos    = ProjectToScreenPosition(goal.BuildPosition);
-                    Vector2 buildOffSet = ProjectToScreenPosition(goal.BuildPosition.PointFromAngle(90f, radius));
-                    float clickableRadius = buildOffSet.Distance(buildPos) + 10f;
+                    Vector2d buildPos    = ProjectToScreenPosition(goal.BuildPosition);
+                    Vector2d buildOffSet = ProjectToScreenPosition(goal.BuildPosition.PointFromAngle(90f, radius));
+                    double clickableRadius = buildOffSet.Distance(buildPos) + 10;
                     var underConstruction = new ClickableItemUnderConstruction
                     {
-                        Radius = clickableRadius, BuildPos = goal.BuildPosition, ScreenPos = buildPos,
+                        Radius = (float)clickableRadius, BuildPos = goal.BuildPosition, ScreenPos = buildPos.ToVec2f(),
                         UID = goal.ToBuildUID, AssociatedGoal = goal
                     };
 
@@ -1349,8 +1349,7 @@ namespace Ship_Game
             if (LookingAtPlanet)
                 return;
 
-            Vector2 screenTopLeftInWorld = UnprojectToWorldPosition(Vector2.Zero);
-            float worldWidthOnScreen = UnprojectToWorldPosition(ScreenArea).X - screenTopLeftInWorld.X;
+            float worldWidthOnScreen = (float)VisibleWorldRect.Width;
 
             float x = input.CursorX, y = input.CursorY;
             float outer = -50f;

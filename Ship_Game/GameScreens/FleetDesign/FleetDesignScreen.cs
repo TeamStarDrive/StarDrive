@@ -250,7 +250,7 @@ namespace Ship_Game
             SliderSize.SetAmount(0.5f);
             SliderSize.Tooltip = GameText.DeterminesWhetherAShipPrefers;
             StarField = new StarField(this);
-            Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, Viewport.AspectRatio, 100f, 15000f);
+            SetProjection(Matrix.CreatePerspectiveFieldOfView(0.7853982f, Viewport.AspectRatio, 100f, 15000f));
             foreach (Ship ship in SelectedFleet.Ships)
             {
                 ship.ShowSceneObjectAt(new Vector3(ship.RelativeFleetOffset, 0f));
@@ -374,8 +374,10 @@ namespace Ship_Game
             CamPos.X += CamVelocity.X;
             CamPos.Y += CamVelocity.Y;
             CamPos.Z = MathHelper.SmoothStep(CamPos.Z, DesiredCamHeight, 0.2f);
-            View = Matrix.CreateRotationY(180f.ToRadians())
-                * Matrix.CreateLookAt(new Vector3(-CamPos.X, CamPos.Y, CamPos.Z), new Vector3(-CamPos.X, CamPos.Y, 0f), Vector3.Down);
+            var camPos = new Vector3(-CamPos.X, CamPos.Y, CamPos.Z);
+            var lookAt = new Vector3(-CamPos.X, CamPos.Y, 0f);
+            SetViewMatrix(Matrix.CreateRotationY(180f.ToRadians())
+                        * Matrix.CreateLookAt(camPos, lookAt, Vector3.Down));
             
             ClickableSquads.Clear();
             UpdateSelectedFleet();

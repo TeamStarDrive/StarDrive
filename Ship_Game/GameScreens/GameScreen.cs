@@ -330,10 +330,22 @@ namespace Ship_Game
         public void DrawLine(Vector2 screenPoint1, Vector2 screenPoint2, Color color, float thickness = 1f)
             => ScreenManager.SpriteBatch.DrawLine(screenPoint1, screenPoint2, color, thickness);
 
+        // just draws a line, no fancy reprojections
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DrawLine(Vector2d screenPoint1, Vector2d screenPoint2, Color color, float thickness = 1f)
+            => ScreenManager.SpriteBatch.DrawLine(screenPoint1, screenPoint2, color, thickness);
+
         // just draws a circle, no fancy reprojections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCircle(Vector2 posOnScreen, float radius, Color color, float thickness = 1f)
             => ScreenManager.SpriteBatch.DrawCircle(posOnScreen, radius, color, thickness);
+        
+        // just draws a circle, no fancy reprojections
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DrawCircle(Vector2d posOnScreen, double radius, Color color, float thickness = 1f)
+        {
+            ScreenManager.SpriteBatch.DrawCircle(posOnScreen, radius, color, thickness);
+        }
 
         // just draws a circle, no fancy reprojections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -365,7 +377,17 @@ namespace Ship_Game
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTextureSized(SubTexture texture, Vector2 posOnScreen, float rotation, float width, float height, Color color)
         {
-            var rect = new Rectangle((int)posOnScreen.X, (int)posOnScreen.Y, (int)width, (int)height);
+            var rect = new Rectangle((int)Math.Round(posOnScreen.X), (int)Math.Round(posOnScreen.Y),
+                                     (int)Math.Round(width), (int)Math.Round(height));
+            ScreenManager.SpriteBatch.Draw(texture, rect, color, rotation, texture.CenterF, SpriteEffects.None, 1f);
+        }
+
+        // just draws a texture to screen, no fancy reprojections, where screenPos is the texture CENTER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DrawTextureSized(SubTexture texture, Vector2d posOnScreen, float rotation, double width, double height, Color color)
+        {
+            var rect = new Rectangle((int)Math.Round(posOnScreen.X), (int)Math.Round(posOnScreen.Y),
+                                     (int)Math.Round(width), (int)Math.Round(height));
             ScreenManager.SpriteBatch.Draw(texture, rect, color, rotation, texture.CenterF, SpriteEffects.None, 1f);
         }
 
@@ -395,12 +417,14 @@ namespace Ship_Game
             cursor.X += (spacing - font.TextWidth(drawnString));
             return cursor;
         }
+
         // Draw string in screen coordinates. Text will be centered
         public void DrawString(Vector2 centerOnScreen, float rotation, float textScale, Color textColor, string text)
         {
             Vector2 size = Fonts.Arial11Bold.MeasureString(text);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, centerOnScreen, textColor, rotation, size * 0.5f, textScale);
         }
+
         // Draw string in screen coordinates. No centering.
         public void DrawString(Vector2 posOnScreen, Color textColor, string text, Font font, float rotation = 0f, float textScale = 1f)
         {
@@ -454,134 +478,183 @@ namespace Ship_Game
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        // Projects World Pos into Screen Pos
-        public Vector2 ProjectTo2D(Vector3 worldPos)
+        
+        // Sets the View matrix and updates necessary variables to enable World <-> Screen coordinate conversion
+        public void SetViewMatrix(in Matrix view)
         {
-            return Viewport.ProjectTo2D(worldPos, Projection, View);
+            View = view;
+            UpdateWorldScreenProjection();
+        }
+        
+        // Sets the Projection matrix and updates necessary variables to enable World <-> Screen coordinate conversion
+        public void SetProjection(in Matrix projection)
+        {
+            Projection = projection;
+            UpdateWorldScreenProjection();
+        }
+        
+        // Sets the View & Projection matrix and updates necessary variables to enable World <-> Screen coordinate conversion
+        public void SetViewProjection(in Matrix view, in Matrix projection)
+        {
+            View = view;
+            Projection = projection;
+            UpdateWorldScreenProjection();
+        }
+        
+        // visible rectangle in world coordinates
+        public AABoundingBox2Dd VisibleWorldRect { get; private set; }
+
+        protected void UpdateWorldScreenProjection()
+        {
+            VisibleWorldRect = UnprojectToWorldRect(new AABoundingBox2D(0,0, Viewport.Width, Viewport.Height));
+        }
+        
+        public Vector2d ProjectToScreenPosition(Vector3d worldPos)
+        {
+            // NOTE: the Vector3 projection uses parallax which gives different positions
+            //       depending on fov. This is usually desired, but in our case we use projection
+            //       as completely 2D, so this actually causes unnecessary flickering
+            //return Viewport.ProjectTo2D(worldPos, Projection, View);
+
+            var visibleRect = VisibleWorldRect;
+            double relX = MathExt.LerpInverse(worldPos.X, visibleRect.X1, visibleRect.X2);
+            double relY = MathExt.LerpInverse(worldPos.Y, visibleRect.Y1, visibleRect.Y2);
+            return new Vector2d(relX * Viewport.Width, relY * Viewport.Height);
         }
 
         // Projects World Pos into Screen Pos
-        public Vector2 ProjectToScreenPosition(Vector2 posInWorld, float zAxis = 0f)
+        public Vector2d ProjectToScreenPosition(Vector3 worldPos)
         {
-            return Viewport.ProjectTo2D(new Vector3(posInWorld, zAxis), Projection, View);
+            return ProjectToScreenPosition(new Vector3d(worldPos));
         }
 
-        public void ProjectToScreenCoords(Vector2 posInWorld, float zAxis, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)
+
+        // Projects World Pos into Screen Pos
+        public Vector2d ProjectToScreenPosition(Vector2 posInWorld, float zAxis = 0f)
+        {
+            return ProjectToScreenPosition(new Vector3(posInWorld, zAxis));
+        }
+
+        public void ProjectToScreenCoords(Vector2 posInWorld, float zAxis, float sizeInWorld,
+                                          out Vector2d posOnScreen, out double sizeOnScreen)
         {
             // TODO: check accuracy of Pos and Size
-            posOnScreen  = ProjectToScreenPosition(posInWorld, zAxis);
-            sizeOnScreen = ProjectToScreenPosition(new Vector2(posInWorld.X + sizeInWorld, posInWorld.Y),zAxis).Distance(ref posOnScreen);
+            posOnScreen = ProjectToScreenPosition(posInWorld, zAxis);
+            var pos2 = ProjectToScreenPosition(new Vector3(posInWorld.X + sizeInWorld, posInWorld.Y, zAxis));
+            sizeOnScreen = pos2.Distance(posOnScreen);
         }
 
-        public void ProjectToScreenCoords(Vector2 posInWorld, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen, float zAxis = 0)
+        public void ProjectToScreenCoords(Vector2 posInWorld, float sizeInWorld,
+                                          out Vector2d posOnScreen, out double sizeOnScreen, float zAxis = 0)
         {
             ProjectToScreenCoords(posInWorld, zAxis, sizeInWorld, out posOnScreen, out sizeOnScreen);
         }
 
-        public void ProjectToScreenCoords(Vector2 posInWorld, Vector2 sizeInWorld, out Vector2 posOnScreen, out Vector2 sizeOnScreen)
+        public void ProjectToScreenCoords(Vector2 posInWorld, Vector2 sizeInWorld,
+                                          out Vector2d posOnScreen, out Vector2d sizeOnScreen)
         {
             // TODO: check accuracy of Pos and Size
             posOnScreen  = ProjectToScreenPosition(posInWorld);
-            Vector2 size = ProjectToScreenPosition(new Vector2(posInWorld.X + sizeInWorld.X, posInWorld.Y + sizeInWorld.Y)) - posOnScreen;
-            sizeOnScreen = new Vector2(Math.Abs(size.X), Math.Abs(size.Y));
+            Vector2d size = ProjectToScreenPosition(new Vector2(posInWorld.X + sizeInWorld.X, posInWorld.Y + sizeInWorld.Y)) - posOnScreen;
+            sizeOnScreen = new Vector2d(Math.Abs(size.X), Math.Abs(size.Y));
         }
 
         public Rectangle ProjectToScreenRect(in RectF worldRect)
         {
-            Vector2 topLeft = ProjectToScreenPosition(new Vector2(worldRect.X, worldRect.Y));
-            Vector2 botRight = ProjectToScreenPosition(new Vector2(worldRect.X + worldRect.W, worldRect.Y + worldRect.H));
+            Vector2d topLeft = ProjectToScreenPosition(new Vector2(worldRect.X, worldRect.Y));
+            Vector2d botRight = ProjectToScreenPosition(new Vector2(worldRect.X + worldRect.W, worldRect.Y + worldRect.H));
             return new Rectangle((int)topLeft.X, (int)topLeft.Y,
-                                 (int)(botRight.X - topLeft.X),
-                                 (int)(botRight.Y - topLeft.Y));
+                                 (int)Math.Ceiling(botRight.X - topLeft.X),
+                                 (int)Math.Ceiling(botRight.Y - topLeft.Y));
         }
 
         public Rectangle ProjectToScreenCoords(Vector2 posInWorld, float sizeInWorld)
         {
-            ProjectToScreenCoords(posInWorld, 0f, sizeInWorld, out Vector2 pos, out float size);
+            ProjectToScreenCoords(posInWorld, 0f, sizeInWorld, out Vector2d pos, out double size);
             return new Rectangle((int)pos.X, (int)pos.Y, (int)size, (int)size);
         }
 
-        public float ProjectToScreenSize(float sizeInWorld)
+        public double ProjectToScreenSize(float sizeInWorld)
         {
             // NOTE: using Unproject here gives a huge precision and stability boost to the result
             //       because there is a float precision issue,
             //       where `Unproject & Project` transform doesn't give back the initial input
-            Vector3 screenWorld = UnprojectToWorldPosition3D(Vector2.Zero);
-            Vector2 a = ProjectToScreenPosition(new Vector2(screenWorld.X, screenWorld.Y));
-            Vector2 b = ProjectToScreenPosition(new Vector2(screenWorld.X + sizeInWorld, screenWorld.Y));
-            float sizeOnScreen = a.Distance(b);
+            //Vector3 screenWorld = UnprojectToWorldPosition3D(Vector2.Zero);
+            //Vector2 a = ProjectToScreenPosition(new Vector2(screenWorld.X, screenWorld.Y));
+            //Vector2 b = ProjectToScreenPosition(new Vector2(screenWorld.X + sizeInWorld, screenWorld.Y));
+            //float sizeOnScreen = a.Distance(b);
+
+            var topLeft = new Vector3d(VisibleWorldRect.X1, VisibleWorldRect.Y1, 0.0);
+            Vector2d a = ProjectToScreenPosition(topLeft);
+            Vector2d b = ProjectToScreenPosition(new Vector3d(topLeft.X + sizeInWorld, topLeft.Y, 0.0));
+            double sizeOnScreen = a.Distance(b);
             return sizeOnScreen;
         }
 
-        public Vector3 UnprojectToWorldPosition3D(Vector2 screenSpace)
+        public Vector3d UnprojectToWorldPosition3D(Vector2 screenSpace)
         {
-            Vector3 pos = Viewport.Unproject(new Vector3(screenSpace, 0f), Projection, View, Matrix.Identity);
-            Vector3 dir = Viewport.Unproject(new Vector3(screenSpace, 1f), Projection, View, Matrix.Identity) - pos;
-            dir.Normalize();
-            float num = -pos.Z / dir.Z;
-            return (pos + num * dir);
+            // nearPoint is the point inside the camera lens
+            Vector3d nearPoint = Viewport.Unproject(new Vector3d(screenSpace, 0.0), Projection, View);
+            // farPoint points away into the world
+            Vector3d farPoint = Viewport.Unproject(new Vector3d(screenSpace, 1.0), Projection, View);
+
+            // get the direction towards the world plane
+            Vector3d offset = (farPoint - nearPoint);
+            Vector3d dir = offset.Normalized();
+
+            double num = -nearPoint.Z / dir.Z;
+            Vector3d pos2 = (nearPoint + dir * num);
+            return pos2;
         }
 
         public Vector2 UnprojectToWorldPosition(Vector2 screenSpace)
         {
-            return UnprojectToWorldPosition3D(screenSpace).ToVec2();
+            return UnprojectToWorldPosition3D(screenSpace).ToVec2f();
         }
-        public AABoundingBox2D UnprojectToWorldRect(in AABoundingBox2D screenR)
+        public AABoundingBox2Dd UnprojectToWorldRect(in AABoundingBox2D screenR)
         {
-            Vector2 topLeft  = UnprojectToWorldPosition(new Vector2(screenR.X1, screenR.Y1));
-            Vector2 botRight = UnprojectToWorldPosition(new Vector2(screenR.X2, screenR.Y2));
-            return new AABoundingBox2D(topLeft, botRight);
-        }
-
-        public AABoundingBox2D UnprojectToWorldRect(in Rectangle screenR)
-        {
-            Vector2 topLeft  = UnprojectToWorldPosition(new Vector2(screenR.X, screenR.Y));
-            Vector2 botRight = UnprojectToWorldPosition(new Vector2(screenR.Right, screenR.Bottom));
-            return new AABoundingBox2D(topLeft, botRight);
-        }
-
-        // visible rectangle in world coordinates
-        public AABoundingBox2D GetVisibleWorldRect()
-        {
-            return UnprojectToWorldRect(new Rectangle(0,0, Viewport.Width, Viewport.Height));
+            Vector3d topLeft  = UnprojectToWorldPosition3D(new Vector2(screenR.X1, screenR.Y1));
+            Vector3d botRight = UnprojectToWorldPosition3D(new Vector2(screenR.X2, screenR.Y2));
+            return new AABoundingBox2Dd(topLeft, botRight);
         }
 
         // Unprojects cursor screen pos to world 3D position
-        public Vector3 CursorWorldPosition => UnprojectToWorldPosition3D(Input.CursorPosition);
+        public Vector3 CursorWorldPosition => UnprojectToWorldPosition3D(Input.CursorPosition).ToVec3f();
         public Vector2 CursorWorldPosition2D => UnprojectToWorldPosition(Input.CursorPosition);
 
 
         // projects the line from World positions into Screen positions, then draws the line
-        public Vector2 DrawLineProjected(Vector2 startInWorld, Vector2 endInWorld, Color color, 
+        public Vector2d DrawLineProjected(Vector2 startInWorld, Vector2 endInWorld, Color color, 
                                          float zAxis = 0f, float zAxisStart = -1f)
         {
             zAxisStart = zAxisStart < 0f ? zAxis : zAxisStart;
-            Vector2 projPos = ProjectToScreenPosition(startInWorld, zAxisStart);
-            DrawLine(projPos, ProjectToScreenPosition(endInWorld, zAxis), color);
-            return projPos;
+            Vector2d a = ProjectToScreenPosition(startInWorld, zAxisStart);
+            Vector2d b = ProjectToScreenPosition(endInWorld, zAxis);
+            DrawLine(a, b, color);
+            return a;
         }
 
         public void DrawLineWideProjected(Vector2 startInWorld, Vector2 endInWorld, Color color, float thickness)
         {
-            Vector2 projPos = ProjectToScreenPosition(startInWorld);
-            DrawLine(projPos, ProjectToScreenPosition(endInWorld), color, thickness);
+            Vector2d a = ProjectToScreenPosition(startInWorld);
+            Vector2d b = ProjectToScreenPosition(endInWorld);
+            DrawLine(a, b, color, thickness);
         }
 
-        public Vector2 DrawLineToPlanet(Vector2 startInWorld, Vector2 endInWorld, Color color)
+        public Vector2d DrawLineToPlanet(Vector2 startInWorld, Vector2 endInWorld, Color color)
             => DrawLineProjected(startInWorld, endInWorld, color, 2500);
 
 
         public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, float thickness = 1f)
         {
-            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
-            DrawCircle(screenPos, screenRadius, color, thickness);
+            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2d screenPos, out double screenRadius);
+            ScreenManager.SpriteBatch.DrawCircle(screenPos, screenRadius, color, thickness);
         }
 
         public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, int sides, Color color, float thickness = 1f)
         {
-            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
-            DrawCircle(screenPos, screenRadius, sides, color, thickness);
+            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2d screenPos, out double screenRadius);
+            ScreenManager.SpriteBatch.DrawCircle(screenPos, screenRadius, sides, color, thickness);
         }
 
         public void DrawCapsuleProjected(in Capsule capsuleInWorld, Color color, float thickness = 1f)
@@ -596,17 +669,19 @@ namespace Ship_Game
 
         public void DrawCircleProjectedZ(Vector2 posInWorld, float radiusInWorld, Color color, float zAxis = 0f)
         {
-            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius, zAxis);
-            DrawCircle(screenPos, screenRadius, color);
+            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2d screenPos, out double screenRadius, zAxis);
+            ScreenManager.SpriteBatch.DrawCircle(screenPos, screenRadius, color);
         }
 
         // draws a projected circle, with an additional overlay texture
         public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, float thickness, SubTexture overlay, Color overlayColor, float z = 0)
         {
-            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
-            float scale = screenRadius / (overlay.Width * .5f);
-            DrawTexture(overlay, screenPos, scale, 0f, overlayColor);
-            DrawCircle(screenPos, screenRadius, color, thickness);
+            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2d screenPos, out double screenRadius);
+            double scale = screenRadius / (overlay.Width * .5f);
+            Vector2 pos = screenPos.ToVec2f();
+
+            ScreenManager.SpriteBatch.Draw(overlay, pos, color, 0f, overlay.CenterF, (float)scale, SpriteEffects.None, 1f);
+            ScreenManager.SpriteBatch.DrawCircle(screenPos, screenRadius, color, thickness);
         } 
 
         // projects a rectangle from World coordinates to Screen coordinates
@@ -625,35 +700,40 @@ namespace Ship_Game
 
         public void DrawRectangleProjected(Vector2 centerInWorld, Vector2 sizeInWorld, float rotation, Color color, float thickness = 1f)
         {
-            ProjectToScreenCoords(centerInWorld, sizeInWorld, out Vector2 posOnScreen, out Vector2 sizeOnScreen);
-            DrawRectangle(posOnScreen, sizeOnScreen, rotation, color, thickness);
+            ProjectToScreenCoords(centerInWorld, sizeInWorld, out Vector2d posOnScreen, out Vector2d sizeOnScreen);
+            ScreenManager.SpriteBatch.DrawRectangle(posOnScreen, sizeOnScreen, rotation, color, thickness);
         }
 
         public void DrawRectProjected(in AABoundingBox2D worldRect, Color color, float thickness = 1f)
         {
-            Vector2 tl = ProjectToScreenPosition(new Vector2(worldRect.X1, worldRect.Y1));
-            Vector2 br = ProjectToScreenPosition(new Vector2(worldRect.X2, worldRect.Y2));
-            var screenRect = new AABoundingBox2D(tl, br);
+            Vector2d tl = ProjectToScreenPosition(new Vector2(worldRect.X1, worldRect.Y1));
+            Vector2d br = ProjectToScreenPosition(new Vector2(worldRect.X2, worldRect.Y2));
+            var screenRect = new AABoundingBox2Dd(tl, br);
             ScreenManager.SpriteBatch.DrawRectangle(screenRect, color, thickness);
         }
 
         public void DrawRectProjected(in AABoundingBox2Di worldRect, Color color, float thickness = 1f)
         {
-            Vector2 tl = ProjectToScreenPosition(new Vector2(worldRect.X1, worldRect.Y1));
-            Vector2 br = ProjectToScreenPosition(new Vector2(worldRect.X2, worldRect.Y2));
-            var screenRect = new AABoundingBox2D(tl, br);
+            Vector2d tl = ProjectToScreenPosition(new Vector2(worldRect.X1, worldRect.Y1));
+            Vector2d br = ProjectToScreenPosition(new Vector2(worldRect.X2, worldRect.Y2));
+            var screenRect = new AABoundingBox2Dd(tl, br);
             ScreenManager.SpriteBatch.DrawRectangle(screenRect, color, thickness);
         }
 
         public void DrawTextureProjected(SubTexture texture, Vector2 posInWorld, float textureScale, Color color)
         {
-            ProjectToScreenCoords(posInWorld, textureScale*2, out Vector2 posOnScreen, out float sizeOnScreen);
-            DrawTextureSized(texture, posOnScreen, 0.0f, sizeOnScreen, sizeOnScreen, color);
+            ProjectToScreenCoords(posInWorld, textureScale*2, out Vector2d posOnScreen, out double sizeOnScreen);
+            
+            var rect = new Rectangle((int)posOnScreen.X, (int)posOnScreen.Y, (int)sizeOnScreen, (int)sizeOnScreen);
+            ScreenManager.SpriteBatch.Draw(texture, rect, color, 0, texture.CenterF, SpriteEffects.None, 1f);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTextureProjected(SubTexture texture, Vector2 posInWorld, float textureScale, float rotation, Color color)
-            => DrawTexture(texture, ProjectToScreenPosition(posInWorld), textureScale, rotation, color);
+        {
+            var pos = ProjectToScreenPosition(posInWorld).ToVec2f();
+            DrawTexture(texture, pos, textureScale, rotation, color);
+        }
 
         public void DrawTextureWithToolTip(SubTexture texture, Color color, LocalizedText tooltip, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
         {
@@ -671,40 +751,39 @@ namespace Ship_Game
 
         public void DrawStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text, Font font)
         {
-            Vector2 screenPos = Empire.Universe.ProjectToScreenPosition(posInWorld);
+            Vector2 pos = ProjectToScreenPosition(posInWorld).ToVec2f();
             Vector2 size = font.MeasureString(text);
-            if (Primitives2D.IsIntersectingScreenPosSize(screenPos, size))
+            if (Primitives2D.IsIntersectingScreenPosSize(pos, size))
             {
-                ScreenManager.SpriteBatch.DrawString(font, text, screenPos, textColor, rotation, size * 0.5f, textScale);
+                ScreenManager.SpriteBatch.DrawString(font, text, pos, textColor, rotation, size * 0.5f, textScale);
             }
         }
 
         public void DrawShadowStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text)
         {
-            Vector2 screenPos = Empire.Universe.ProjectToScreenPosition(posInWorld);
+            Vector2 pos = ProjectToScreenPosition(posInWorld).ToVec2f();
             Vector2 size = Fonts.Arial12Bold.MeasureString(text);
-            if (Primitives2D.IsIntersectingScreenPosSize(screenPos, size))
+            if (Primitives2D.IsIntersectingScreenPosSize(pos, size))
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text,
-                    screenPos+new Vector2(2), Color.Black, rotation, size * 0.5f, textScale);
+                    pos+new Vector2(2), Color.Black, rotation, size * 0.5f, textScale);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text,
-                    screenPos, textColor, rotation, size * 0.5f, textScale);
+                    pos, textColor, rotation, size * 0.5f, textScale);
             }
         }
 
         public void DrawStringProjected(Vector2 posInWorld, float sizeInWorld, Color textColor, string text)
         {
-            Vector2 screenPos = Empire.Universe.ProjectToScreenPosition(posInWorld);
-            Vector2 screenPos2 = Empire.Universe.ProjectToScreenPosition(posInWorld + new Vector2(sizeInWorld, 0f));
-
-            float widthOnScreen = Math.Abs(screenPos2.X - screenPos.X);
+            Vector2d screenPos = ProjectToScreenPosition(posInWorld);
+            Vector2 pos = screenPos.ToVec2f();
             Vector2 size = Fonts.Arial11Bold.MeasureString(text);
-            float scale = widthOnScreen / size.X;
 
-            if (Primitives2D.IsIntersectingScreenPosSize(screenPos, size))
+            if (Primitives2D.IsIntersectingScreenPosSize(pos, size))
             {
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text,
-                    screenPos, textColor, 0f, size * 0.5f, scale);
+                Vector2d screenPos2 = ProjectToScreenPosition(posInWorld + new Vector2(sizeInWorld, 0f));
+                double widthOnScreen = Math.Abs(screenPos2.X - screenPos.X);
+                double scale = widthOnScreen / size.X;
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, pos, textColor, 0f, size * 0.5f, (float)scale);
             }
         }
 

@@ -337,7 +337,7 @@ namespace Ship_Game
         void CreateProjectionMatrix()
         {
             float aspect = (float)Viewport.Width / Viewport.Height;
-            Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspect, 100f, 3E+07f);
+            SetProjection(Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspect, 100f, 3E+07f));
         }
 
         public override void LoadContent()

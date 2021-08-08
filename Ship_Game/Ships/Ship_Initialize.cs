@@ -135,7 +135,7 @@ namespace Ship_Game.Ships
                 ModuleSlotList[i] = ShipModule.Create(slot, this, isTemplate);
             }
 
-            CreateModuleGrid(shipData.GridInfo);
+            CreateModuleGrid(shipData.GridInfo, isTemplate);
             return true;
         }
 
@@ -162,7 +162,7 @@ namespace Ship_Game.Ships
                 ModuleSlotList[i] = ShipModule.Create(slot, this);
             }
 
-            CreateModuleGrid(shipData.GridInfo);
+            CreateModuleGrid(shipData.GridInfo, isTemplate: false);
             return true;
         }
 

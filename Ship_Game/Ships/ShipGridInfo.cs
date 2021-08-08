@@ -9,7 +9,7 @@ namespace Ship_Game.Ships
         public Point Size; // slot dimensions of the grid, for example 4x4 for Vulcan Scout
         public int SurfaceArea;
 
-        public override string ToString() => $"surface={SurfaceArea} size={Size}";
+        public override string ToString() => $"Size={Size} Slots={SurfaceArea}";
 
         public ShipGridInfo(Point size, int surfaceArea)
         {

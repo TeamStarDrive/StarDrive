@@ -92,8 +92,8 @@ namespace Ship_Game
 
         public void Draw(SpriteBatch sb, GameScreen screen, SubTexture texture, Color tint)
         {
-            screen.ProjectToScreenCoords(WorldPos, WorldSize, out Vector2 posOnScreen, out Vector2 sizeOnScreen);
-            Rectangle rect = new RectF(posOnScreen, sizeOnScreen);
+            screen.ProjectToScreenCoords(WorldPos, WorldSize, out Vector2d posOnScreen, out Vector2d sizeOnScreen);
+            Rectangle rect = new RectF(posOnScreen.ToVec2fRounded(), sizeOnScreen.ToVec2fRounded());
             sb.Draw(texture, rect, tint);
         }
         
