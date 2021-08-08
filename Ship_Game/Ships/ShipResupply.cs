@@ -218,7 +218,7 @@ namespace Ship_Game.Ships
             return Ship.Carrier.TroopsMissingVsTroopCapacity >= 1f;
         }
 
-        private bool PlayerKamikaze => Ship.shipData.ShipCategory == ShipData.Category.Kamikaze && Ship.loyalty.isPlayer;
+        bool PlayerKamikaze => Ship.shipData.ShipCategory == ShipData.Category.Kamikaze && Ship.loyalty.isPlayer;
 
         public void ChangeIncomingSupply(SupplyType supplyType, float amount)
         {
@@ -226,6 +226,7 @@ namespace Ship_Game.Ships
             currentIncoming += amount;
             IncomingSupply[supplyType] = Math.Max(currentIncoming, 0);
         }
+
         public bool AcceptExternalSupply(SupplyType supplyType)
         {
             switch (supplyType)
@@ -245,6 +246,7 @@ namespace Ship_Game.Ships
             }
             return false;
         }
+
         public Status ShipStatusWithPendingResupply(SupplyType supplyType)
         {
             float amount = IncomingSupply[supplyType];
