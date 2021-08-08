@@ -22,6 +22,7 @@ namespace Ship_Game.Ships
         public readonly bool HasActiveTroopBays;
         public readonly bool HasOrdnanceTransporters;
         public readonly bool HasAssaultTransporters;
+        public float OrdnanceInSpace { get; private set; }
         public bool FightersLaunched { get; private set; }
         public bool TroopsLaunched { get; private set; }
         public bool SendTroopsToShip { get; private set; }
@@ -160,6 +161,7 @@ namespace Ship_Game.Ships
             FightersLaunched = save.FightersLaunched;
             TroopsLaunched   = save.TroopsLaunched;
             SendTroopsToShip = save.SendTroopsToShip;
+            OrdnanceInSpace  = save.OrdnanceInSpace;
             SetRecallFightersBeforeFTL(save.RecallFightersBeforeFTL);
         }
         
@@ -204,6 +206,12 @@ namespace Ship_Game.Ships
 
                 return troopStrength;
             }
+        }
+
+        public void AddToOrdnanceInSpace(float amount)
+        {
+            if (Owner != null)
+                OrdnanceInSpace = (OrdnanceInSpace + amount).LowerBound(0);
         }
 
         public HangarInfo GrossHangarStatus // FB: needed to display hangar status to the player

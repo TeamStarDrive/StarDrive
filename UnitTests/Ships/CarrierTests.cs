@@ -189,5 +189,32 @@ namespace UnitTests.Ships
             int assaultShips = Player.OwnedShips.Count(s => s.DesignRole == ShipData.RoleName.troop);
             Assert.AreNotEqual(0, assaultShips, "Should have launched assault ships");
         }
+
+        [TestMethod]
+        public void CarrierOrdnanceInSpace()
+        {
+            Carrier.ChangeOrdnance(-Carrier.OrdinanceMax); // remove all ordnance
+            Assert.IsTrue(Carrier.Ordinance == 0, "Carrier ordnance storage should  be empty");
+
+            ResupplyReason resupplyReason = Carrier.Supply.Resupply();
+            Assert.IsTrue(resupplyReason == ResupplyReason.LowOrdnanceNonCombat, "Carrier should want to resupply non combat");
+
+            Carrier.ChangeOrdnance(Carrier.OrdinanceMax); // add all ordnance
+            Assert.AreEqual(Carrier.Ordinance, Carrier.OrdinanceMax, "Carrier ordnance storage should be full");
+
+            SpawnEnemyShipAndEnsureFightersLaunch();
+            float totalFightersOrdCost = Carrier.Carrier.GetActiveFighters().Sum(f => f.ShipOrdLaunchCost);
+            float ordnanceInSpace      = Carrier.Carrier.OrdnanceInSpace;
+            Assert.AreEqual(totalFightersOrdCost, ordnanceInSpace, "Carrier should track the fighter ord cost is launched");
+
+            float ordCombatThreshold = Carrier.OrdinanceMax * ShipResupply.OrdnanceThresholdCombat;
+            Carrier.ChangeOrdnance(-Carrier.OrdinanceMax); // remove all ordnance
+            Assert.IsTrue(Carrier.OrdnancePercent > 0, "Carrier should track its ordnance in space (launched fighters), even with empty local storage");
+
+            // set the carrier storage just below the threshold so it would want to resupply if it had no fighters launched
+            Carrier.ChangeOrdnance(ordCombatThreshold - 40); 
+            resupplyReason = Carrier.Supply.Resupply();
+            Assert.IsTrue(resupplyReason == ResupplyReason.NotNeeded, "Carrier should not want to resupply when in combat and has fighters launched");
+        }
     }
 }

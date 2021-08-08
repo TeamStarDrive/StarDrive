@@ -436,6 +436,8 @@ namespace Ship_Game.Ships
 
             if (!BaseCanWarp && DesignRoleType == ShipData.RoleType.Warship)
                 Log.Warning($"Ship.BaseCanWarp is false: {this}");
+
+            UpdateOrdnancePercentage();
         }
 
         public void ShipStatusChange()
@@ -549,6 +551,7 @@ namespace Ship_Game.Ships
                 if (module.UID == "MeteorPart")
                     IsMeteor = true;
             }
+
             HealthMax = Health;
         }
 
