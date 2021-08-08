@@ -138,23 +138,23 @@ namespace Ship_Game.Ships
             float shipRotation = shipDegrees.ToRadians();
 
             // this size calculation is quite delicate because of float coordinate imprecision issues
-            float moduleSize = sc.ProjectToScreenSize(16.5f);
-            float oneUnit = moduleSize/16.5f;
+            double moduleSize = sc.ProjectToScreenSize(16.5f);
+            double oneUnit = moduleSize/16.5;
 
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 ShipModule slot = ModuleSlotList[i];
 
                 bool square = slot.XSIZE == slot.YSIZE;
-                float w = slot.XSIZE * moduleSize;
-                float h = square ? w : slot.YSIZE * moduleSize;
+                double w = (slot.XSIZE * moduleSize);
+                double h = (square ? w : slot.YSIZE * moduleSize);
 
-                Vector2 posOnScreen = sc.ProjectToScreenPosition(slot.Position);
+                Vector2d posOnScreen = sc.ProjectToScreenPosition(slot.Position);
 
                 // round all the values to TRY prevent module flickering on screen
                 // it helps by a noticeable amount
-                posOnScreen.X = (float)Math.Round(posOnScreen.X);
-                posOnScreen.Y = (float)Math.Round(posOnScreen.Y);
+                posOnScreen.X = Math.Round(posOnScreen.X);
+                posOnScreen.Y = Math.Round(posOnScreen.Y);
 
                 int slotFacing = 0;
                 switch (slot.ModuleRot)
@@ -186,7 +186,7 @@ namespace Ship_Game.Ships
                         // so to fix that i am switching the height and width if the module is facing left or right. 
                         if (slotFacing == 270 || slotFacing == 90)
                         {
-                            float oldW = w; w = h; h = oldW; // swap(w, h)
+                            double oldW = w; w = h; h = oldW; // swap(w, h)
                         }
 
                         sc.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
@@ -204,7 +204,7 @@ namespace Ship_Game.Ships
                     }
                     else if (slot.Active && !slot.Powered && slot.PowerDraw > 0.0f)
                     {
-                        float smallerSize = Math.Min(w, h);
+                        double smallerSize = Math.Min(w, h);
                         sc.DrawTextureSized(lightningBolt, posOnScreen, slotRotation, smallerSize, smallerSize, Color.White);
                     }
 
@@ -213,12 +213,12 @@ namespace Ship_Game.Ships
                         // draw blue marker on all active external modules
                         if (slot.isExternal && slot.Active)
                         {
-                            float smallerSize = Math.Min(w, h);
+                            double smallerSize = Math.Min(w, h);
                             sc.DrawTextureSized(symbolFighter, posOnScreen, slotRotation, smallerSize, smallerSize, new Color(0, 0, 255, 120));
                         }
 
                         // draw the debug x/y pos
-                        sc.DrawString(posOnScreen, shipRotation, 600f / camHeight, Color.Red,
+                        sc.DrawString(posOnScreen.ToVec2f(), shipRotation, 600f / camHeight, Color.Red,
                                       $"X{slot.Pos.X} Y{slot.Pos.Y}\nF{slotFacing}");
                     }
                 }
@@ -263,25 +263,28 @@ namespace Ship_Game.Ships
         public void DrawTacticalIcon(UniverseScreen us, UniverseScreen.UnivScreenState viewState)
         {
             float shipWorldRadius = Radius;
-            us.ProjectToScreenCoords(Position, shipWorldRadius, out Vector2 screenPos, out float screenRadius);
+            us.ProjectToScreenCoords(Position, shipWorldRadius,
+                                     out Vector2d screenPos, out double screenRadius);
+            Vector2 pos = screenPos.ToVec2f();
+            float radius = (float)screenRadius;
 
-            DrawFlagIcons(us, screenPos, screenRadius);
+            DrawFlagIcons(us, pos, radius);
 
             if (viewState == UniverseScreen.UnivScreenState.GalaxyView)
             {
-                if (!us.IsShipUnderFleetIcon(this, screenPos, 20f))
-                    DrawTactical(us, screenPos, screenRadius, 16f, 8f);
+                if (!us.IsShipUnderFleetIcon(this, pos, 20f))
+                    DrawTactical(us, pos, radius, 16f, 8f);
             }
             // ShowTacticalCloseup => when you hold down LALT key
             else if (us.ShowTacticalCloseup || viewState > UniverseScreen.UnivScreenState.ShipView)
             {
-                if (!us.IsShipUnderFleetIcon(this, screenPos, screenRadius + 3.0f))
-                    DrawTactical(us, screenPos, screenRadius, 16f, 8f);
+                if (!us.IsShipUnderFleetIcon(this, pos, radius + 3.0f))
+                    DrawTactical(us, pos, radius, 16f, 8f);
             }
             else if (viewState <= UniverseScreen.UnivScreenState.ShipView)
             {
-                DrawTactical(us, screenPos, screenRadius, 16f, 8f);
-                DrawStatusIcons(us, screenRadius, screenPos);
+                DrawTactical(us, pos, radius, 16f, 8f);
+                DrawStatusIcons(us, radius, pos);
             }
         }
 
@@ -391,7 +394,7 @@ namespace Ship_Game.Ships
                 if (m.Active && m.ShieldsAreActive)
                 {
                     screen.ProjectToScreenCoords(m.Position, m.shield_radius * 2.75f, 
-                        out Vector2 posOnScreen, out float radiusOnScreen);
+                        out Vector2d posOnScreen, out double radiusOnScreen);
 
                     float shieldRate = 0.001f + m.ShieldPower / m.ActualShieldPowerMax;
                     screen.DrawTextureSized(uiNode, posOnScreen, 0f, radiusOnScreen, radiusOnScreen, 

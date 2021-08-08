@@ -224,8 +224,8 @@ namespace Ship_Game.GameScreens.MainMenu
             {
                 void DrawLine(Vector3 a, Vector3 b, Color color)
                 {
-                    Vector2 sa = screen.ProjectTo2D(a);
-                    Vector2 sb = screen.ProjectTo2D(b);
+                    Vector2d sa = screen.ProjectToScreenPosition(a);
+                    Vector2d sb = screen.ProjectToScreenPosition(b);
                     batch.DrawLine(sa, sb, color, 2f);
                 }
 

@@ -24,7 +24,7 @@ namespace Ship_Game.Spatial
         {
             VisualizerOptions o = opt.Enabled ? opt : VisualizerOptions.None;
 
-            AABoundingBox2D visibleWorld = screen.GetVisibleWorldRect();
+            AABoundingBox2D visibleWorld = screen.VisibleWorldRect;
             FindResultBuffer buffer = GetThreadLocalTraversalBuffer(Root);
             screen.DrawRectProjected(Root.AABB, Yellow);
             do

@@ -52,8 +52,8 @@ namespace UnitTests.Universe
             CamHeight = CamHeight.Clamped(80f, Spat.FullSize*2f);
             Camera.Z = -Math.Abs(CamHeight);
             var down = new Vector3(Camera.X, Camera.Y, 0f);
-            View = Matrix.CreateLookAt(Camera, down, Vector3.Down);
-            Projection = Matrix.CreatePerspectiveFieldOfView(0.785f, Viewport.AspectRatio, 10f, 35000f);
+            SetViewProjection(Matrix.CreateLookAt(Camera, down, Vector3.Down),
+                              Matrix.CreatePerspectiveFieldOfView(0.785f, Viewport.AspectRatio, 10f, 35000f));
 
             if (MoveShips)
             {
@@ -98,7 +98,7 @@ namespace UnitTests.Universe
 
             int numShips = 0;
             int numProjectiles = 0;
-            AABoundingBox2D visibleWorldRect = GetVisibleWorldRect();
+            AABoundingBox2D visibleWorldRect = VisibleWorldRect;
 
             foreach (GameplayObject go in AllObjects)
             {
@@ -114,7 +114,7 @@ namespace UnitTests.Universe
                     }
                     else if (go is Projectile)
                     {
-                        Vector2 screenPos = ProjectToScreenPosition(go.Position);
+                        Vector2 screenPos = ProjectToScreenPosition(go.Position).ToVec2f();
                         DrawLine(screenPos, screenPos+go.Direction*10, Color.Red);
                     }
                 }

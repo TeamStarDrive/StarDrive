@@ -29,9 +29,21 @@ namespace Ship_Game.Ships
         public ShipModule[] Modules => ModuleSlotList;
         public bool HasModules => ModuleSlotList != null && ModuleSlotList.Length != 0;
 
-        void CreateModuleGrid(in ShipGridInfo gridInfo)
+        void CreateModuleGrid(in ShipGridInfo gridInfo, bool isTemplate)
         {
             ShipGridInfo info = gridInfo;
+
+        #if DEBUG
+            if (isTemplate)
+            {
+                var modulesInfo = new ShipGridInfo(ModuleSlotList);
+                if (modulesInfo.SurfaceArea != gridInfo.SurfaceArea ||
+                    modulesInfo.Size != gridInfo.Size)
+                {
+                    Log.Warning($"ShipDesign '{Name}' does not match BaseHull: {modulesInfo} != {gridInfo}. This is a potentially broken Ship Design");
+                }
+            }
+        #endif
 
             SurfaceArea = info.SurfaceArea;
             GridWidth  = info.Size.X;
