@@ -203,7 +203,7 @@ namespace Ship_Game
 
                         node.Ship = ActiveShipDesign;
                         node.Ship.RelativeFleetOffset = node.FleetOffset;
-                        node.Ship.ShowSceneObjectAt(new Vector3(node.Ship.RelativeFleetOffset, -500000f));
+                        node.Ship.ShowSceneObjectAt(node.Ship.RelativeFleetOffset, -500000f);
                         AvailableShips.Remove(ActiveShipDesign);
                         SelectedFleet.AddShip(node.Ship);
 
@@ -316,8 +316,7 @@ namespace Ship_Game
                             continue;
                         }
 
-                        if (node.Ship.GetSO() != null)
-                            node.Ship.GetSO().World = Matrix.CreateTranslation(new Vector3(node.Ship.RelativeFleetOffset, -500000f));
+                        node.Ship.ShowSceneObjectAt(node.Ship.RelativeFleetOffset, -500000f);
                         SelectedFleet.Ships.Remove(node.Ship);
                         node.Ship.fleet?.RemoveShip(node.Ship, returnToEmpireAI: true);
                     }
