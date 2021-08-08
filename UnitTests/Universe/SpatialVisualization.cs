@@ -52,8 +52,8 @@ namespace UnitTests.Universe
             CamHeight = CamHeight.Clamped(80f, Spat.FullSize*2f);
             Camera.Z = -Math.Abs(CamHeight);
             var down = new Vector3(Camera.X, Camera.Y, 0f);
-            SetViewProjection(Matrix.CreateLookAt(Camera, down, Vector3.Down),
-                              Matrix.CreatePerspectiveFieldOfView(0.785f, Viewport.AspectRatio, 10f, 35000f));
+            SetPerspectiveProjection();
+            SetViewMatrix(Matrix.CreateLookAt(Camera, down, Vector3.Down));
 
             if (MoveShips)
             {

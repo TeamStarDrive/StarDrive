@@ -206,7 +206,7 @@ namespace Ship_Game
                     {
                         ViewingShip = false;
                         AdjustCamTimer = 0.5f;
-                        CamDestination = SelectedFleet.AveragePosition().ToVec3(CamPos.Z);
+                        CamDestination = SelectedFleet.AveragePosition().ToVec3d(CamPos.Z);
                         if (viewState < UnivScreenState.SystemView)
                             CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
 
@@ -515,9 +515,9 @@ namespace Ship_Game
                 {
                     ViewingShip    = false;
                     AdjustCamTimer = 0.5f;
-                    CamDestination = SelectedFleet.AveragePosition().ToVec3(CamDestination.Z);
+                    CamDestination = SelectedFleet.AveragePosition().ToVec3d(CamDestination.Z);
 
-                    if (CamHeight < GetZfromScreenState(UnivScreenState.SystemView))
+                    if (CamPos.Z < GetZfromScreenState(UnivScreenState.SystemView))
                         CamDestination.Z = GetZfromScreenState(UnivScreenState.PlanetView);
                 }
             }
@@ -1189,7 +1189,7 @@ namespace Ship_Game
                 pInfoUI.SetPlanet(planetToView);
                 lastplanetcombat++;
 
-                CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y, 9000f);
+                CamDestination = new Vector3d(SelectedPlanet.Center.X, SelectedPlanet.Center.Y, 9000.0);
                 transitionStartPosition = CamPos;
                 transitionElapsedTime = 0.0f;
                 LookingAtPlanet = false;
@@ -1401,33 +1401,31 @@ namespace Ship_Game
             if (AdjustCamTimer >= 0f)
                 return;
 
-            float scrollAmount = 1500.0f * CamHeight / 3000.0f + 100.0f;
+            double scrollAmount = 1500.0 * CamPos.Z / 3000.0 + 100.0;
 
             if ((input.ScrollOut || input.BButtonHeld) && !LookingAtPlanet)
             {
-                CamDestination.X = CamPos.X;
-                CamDestination.Y = CamPos.Y;
-                CamDestination.Z = CamHeight + scrollAmount;
-                if (CamHeight > 12000f)
+                CamDestination = new Vector3d(CamPos.X, CamPos.Y, CamPos.Z + scrollAmount);
+                if (CamPos.Z > 12000.0)
                 {
-                    CamDestination.Z += 3000f;
+                    CamDestination.Z += 3000.0;
                     viewState = UnivScreenState.SectorView;
-                    if (CamHeight > 32000.0f)
-                        CamDestination.Z += 15000f;
-                    if (CamHeight > 100000.0f)
-                        CamDestination.Z += 40000f;
+                    if (CamPos.Z > 32000.0)
+                        CamDestination.Z += 15000.0;
+                    if (CamPos.Z > 100000.0)
+                        CamDestination.Z += 40000.0;
                 }
                 if (input.IsCtrlKeyDown)
                 {
-                    if (CamHeight < 55000f)
+                    if (CamPos.Z < 55000.0)
                     {
-                        CamDestination.Z = 60000f;
+                        CamDestination.Z = 60000.0;
                         AdjustCamTimer = 1f;
                         transitionElapsedTime = 0f;
                     }
                     else
                     {
-                        CamDestination.Z = 4200000f;
+                        CamDestination.Z = 4200000.0;
                         AdjustCamTimer = 1f;
                         transitionElapsedTime = 0f;
                     }
@@ -1436,50 +1434,53 @@ namespace Ship_Game
             if (!input.YButtonHeld && !input.ScrollIn || LookingAtPlanet)
                 return;
 
-            CamDestination.Z = CamHeight - scrollAmount;
-            if (CamHeight >= 16000f)
+            CamDestination.Z = CamPos.Z - scrollAmount;
+            if (CamPos.Z >= 16000f)
             {
                 CamDestination.Z -= 2000f;
-                if (CamHeight > 32000f)
-                    CamDestination.Z -= 7500f;
-                if (CamHeight > 150000f)
-                    CamDestination.Z -= 40000f;
+                if (CamPos.Z > 32000.0)
+                    CamDestination.Z -= 7500.0;
+                if (CamPos.Z > 150000.0)
+                    CamDestination.Z -= 40000.0;
             }
-            if (input.IsCtrlKeyDown && CamHeight > 10000f)
-                CamDestination.Z = CamHeight <= 65000f ? 10000f : 60000f;
+
+            if (input.IsCtrlKeyDown && CamPos.Z > 10000.0)
+                CamDestination.Z = CamPos.Z <= 65000.0 ? 10000.0 : 60000.0;
+
             if (ViewingShip)
                 return;
-            if (CamHeight <= 450.0f)
-                CamHeight = 450f;
-            float camDestinationZ = CamDestination.Z;
+            if (CamPos.Z <= 450.0)
+                CamPos.Z = 450.0;
+
+            double camDestinationZ = CamDestination.Z;
 
             //fbedard: add a scroll on selected object
             if ((!input.IsShiftKeyDown && GlobalStats.ZoomTracking) || (input.IsShiftKeyDown && !GlobalStats.ZoomTracking))
             {
                 if (SelectedShip != null && SelectedShip.Active)
                 {
-                    CamDestination = new Vector3(SelectedShip.Position.X, SelectedShip.Position.Y, camDestinationZ);
+                    CamDestination = new Vector3d(SelectedShip.Position.X, SelectedShip.Position.Y, camDestinationZ);
                 }
                 else
                 if (SelectedPlanet != null)
                 {
-                    CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y, camDestinationZ);
+                    CamDestination = new Vector3d(SelectedPlanet.Center.X, SelectedPlanet.Center.Y, camDestinationZ);
                 }
                 else
                 if (SelectedFleet != null && SelectedFleet.Ships.Count > 0)
                 {
-                    CamDestination = new Vector3(SelectedFleet.AveragePosition(), camDestinationZ);
+                    CamDestination = new Vector3d(SelectedFleet.AveragePosition(), camDestinationZ);
                 }
                 else
                 if (SelectedShipList.Count > 0 && SelectedShipList[0] != null && SelectedShipList[0].Active)
                 {
-                    CamDestination = new Vector3(SelectedShipList[0].Position.X, SelectedShipList[0].Position.Y, camDestinationZ);
+                    CamDestination = new Vector3d(SelectedShipList[0].Position.X, SelectedShipList[0].Position.Y, camDestinationZ);
                 }
                 else
-                    CamDestination = new Vector3(CalculateCameraPositionOnMouseZoom(input.CursorPosition, camDestinationZ), camDestinationZ);
+                    CamDestination = new Vector3d(CalculateCameraPositionOnMouseZoom(input.CursorPosition, camDestinationZ), camDestinationZ);
             }
             else
-                CamDestination = new Vector3(CalculateCameraPositionOnMouseZoom(input.CursorPosition, camDestinationZ), camDestinationZ);
+                CamDestination = new Vector3d(CalculateCameraPositionOnMouseZoom(input.CursorPosition, camDestinationZ), camDestinationZ);
         }
 
         public bool IsShipUnderFleetIcon(Ship ship, Vector2 screenPos, float fleetIconScreenRadius)

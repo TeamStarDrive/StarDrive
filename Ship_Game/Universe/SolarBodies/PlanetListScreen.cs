@@ -306,7 +306,7 @@ namespace Ship_Game
             Empire.Universe.SelectedPlanet = item.Planet;
             Empire.Universe.ViewingShip = false;
             Empire.Universe.returnToShip = false;
-            Empire.Universe.CamDestination = new Vector3(item.Planet.Center, 10000f);
+            Empire.Universe.CamDestination = new Vector3d(item.Planet.Center, 10000);
         }
 
         public void ResetList()
