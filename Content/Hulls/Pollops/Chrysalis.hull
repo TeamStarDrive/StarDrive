@@ -3,6 +3,7 @@ HullName=Pollops/Chrysalis
 Role=cruiser
 Style=Pollops
 Size=20,13
+MeshOffset=0,8
 IconPath=ShipIcons/chrysalis
 ModelPath=Model/Ships/Pollops/ship15d
 SelectIcon=15d

@@ -3,6 +3,7 @@ HullName=Opteris/Creeper
 Role=freighter
 Style=Opteris
 Size=4,8
+MeshOffset=0,0
 IconPath=ShipIcons/Creeper
 ModelPath=Model/Ships/Opteris/Ship19g
 SelectIcon=19g

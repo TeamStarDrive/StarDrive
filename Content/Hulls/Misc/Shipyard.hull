@@ -3,6 +3,7 @@ HullName=Misc/Station
 Role=station
 Style=Misc
 Size=48,46
+MeshOffset=0,-32
 IconPath=ShipIcons/station_blue
 ModelPath=Model/Stations/spacestation01_outer
 #Thruster PosX,PosY,PosZ,Scale

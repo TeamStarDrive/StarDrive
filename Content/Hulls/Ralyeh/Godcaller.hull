@@ -3,6 +3,7 @@ HullName=Ralyeh/Godcaller
 Role=capital
 Style=Ralyeh
 Size=50,39
+MeshOffset=0,-88
 IconPath=ShipIcons/Godcaller
 ModelPath=Model/Ships/Ralyeh/Ship17f
 SelectIcon=17f

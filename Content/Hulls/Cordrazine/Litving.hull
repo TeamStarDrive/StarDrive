@@ -3,6 +3,7 @@ HullName=Cordrazine/Litving
 Role=corvette
 Style=Cordrazine
 Size=6,7
+MeshOffset=0,8
 IconPath=ShipIcons/Litving
 ModelPath=Model/Ships/Cordrazine/ship16b
 SelectIcon=16b

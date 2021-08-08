@@ -3,6 +3,7 @@ HullName=Kulrathi/Mauler
 Role=cruiser
 Style=Kulrathi
 Size=18,31
+MeshOffset=0,-8
 IconPath=ShipIcons/mauler
 ModelPath=Model/Ships/Kulrathi/ship12a
 SelectIcon=12a

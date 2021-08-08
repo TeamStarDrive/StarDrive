@@ -3,6 +3,7 @@ HullName=Platforms/Platform Base
 Role=platform
 Style=Platforms
 Size=8,7
+MeshOffset=0,8
 IconPath=ShipIcons/terran_platform
 ModelPath=Model/Ships/Platforms/platform_base
 #Thruster PosX,PosY,PosZ,Scale

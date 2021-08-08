@@ -3,6 +3,7 @@ HullName=Ralyeh/Vessel S
 Role=freighter
 Style=Ralyeh
 Size=4,9
+MeshOffset=0,-8
 IconPath=ShipIcons/Vessel S
 ModelPath=Model/Ships/Ralyeh/ship17g
 SelectIcon=17g

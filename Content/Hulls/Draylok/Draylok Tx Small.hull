@@ -3,6 +3,7 @@ HullName=Draylok/Draylok Tx Small
 Role=freighter
 Style=Draylok
 Size=4,8
+MeshOffset=0,0
 IconPath=ShipIcons/DraylokTxSmall
 ModelPath=Model/Ships/Draylok/Ship18g
 #Thruster PosX,PosY,PosZ,Scale

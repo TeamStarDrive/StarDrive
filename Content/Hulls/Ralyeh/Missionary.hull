@@ -3,6 +3,7 @@ HullName=Ralyeh/Missionary
 Role=corvette
 Style=Ralyeh
 Size=4,6
+MeshOffset=0,0
 IconPath=ShipIcons/Missionary
 ModelPath=Model/Ships/Ralyeh/Ship17b
 SelectIcon=17b

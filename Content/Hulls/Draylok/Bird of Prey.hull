@@ -3,6 +3,7 @@ HullName=Draylok/Bird of Prey
 Role=cruiser
 Style=Draylok
 Size=24,30
+MeshOffset=0,0
 IconPath=ShipIcons/Bird of Prey
 ModelPath=Model/Ships/Draylok/Ship18d
 SelectIcon=18d

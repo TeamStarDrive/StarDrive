@@ -3,6 +3,7 @@ HullName=Cordrazine/Owl1
 Role=freighter
 Style=Cordrazine
 Size=4,7
+MeshOffset=0,-8
 IconPath=ShipIcons/Owl1
 ModelPath=Model/Ships/Cordrazine/ship16g
 SelectIcon=16g

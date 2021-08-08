@@ -3,6 +3,7 @@ HullName=Opteris/Crawler
 Role=freighter
 Style=Opteris
 Size=4,14
+MeshOffset=0,0
 IconPath=ShipIcons/Crawler
 ModelPath=Model/Ships/Opteris/Ship19h
 SelectIcon=19h

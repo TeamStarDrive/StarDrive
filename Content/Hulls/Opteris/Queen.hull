@@ -3,6 +3,7 @@ HullName=Opteris/Queen
 Role=capital
 Style=Opteris
 Size=52,65
+MeshOffset=0,-8
 IconPath=ShipIcons/Queen
 ModelPath=Model/Ships/Opteris/Ship19f
 SelectIcon=19f

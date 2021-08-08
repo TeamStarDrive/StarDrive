@@ -3,6 +3,7 @@ HullName=Ralyeh/Inquisitor
 Role=fighter
 Style=Ralyeh
 Size=4,4
+MeshOffset=0,0
 IconPath=ShipIcons/Inquisitor
 ModelPath=Model/Ships/Ralyeh/Ship17a
 SelectIcon=17a

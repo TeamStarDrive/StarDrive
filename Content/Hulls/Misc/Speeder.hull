@@ -3,6 +3,7 @@ HullName=Misc/speeder
 Role=frigate
 Style=Misc
 Size=14,22
+MeshOffset=0,48
 IconPath=ShipIcons/speeder
 ModelPath=Model/Ships/speeder/ship07
 SelectIcon=07

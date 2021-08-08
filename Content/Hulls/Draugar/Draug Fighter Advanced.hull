@@ -3,6 +3,7 @@ HullName=Draugar/Draug Fighter Advanced
 Role=fighter
 Style=Draugar
 Size=4,6
+MeshOffset=0,0
 IconPath=ShipIcons/shuttle
 ModelPath=Model/Viper
 SelectIcon=8

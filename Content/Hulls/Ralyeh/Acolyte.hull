@@ -3,6 +3,7 @@ HullName=Ralyeh/Acolyte
 Role=cruiser
 Style=Ralyeh
 Size=26,14
+MeshOffset=0,-32
 IconPath=ShipIcons/Acolyte
 ModelPath=Model/Ships/Ralyeh/Ship17d
 SelectIcon=17d

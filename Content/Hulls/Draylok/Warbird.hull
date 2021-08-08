@@ -3,6 +3,7 @@ HullName=Draylok/Warbird
 Role=capital
 Style=Draylok
 Size=44,43
+MeshOffset=0,-8
 IconPath=ShipIcons/Warbird
 ModelPath=Model/Ships/Draylok/Ship18e
 SelectIcon=18e
