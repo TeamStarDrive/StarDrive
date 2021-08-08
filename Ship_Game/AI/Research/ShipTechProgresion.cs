@@ -75,11 +75,15 @@ namespace Ship_Game.AI.Research
                 TechEntry tech = shipTechs[i];
                 if (tech.Locked)
                 {
-                    totalCost += tech.Tech.HullsUnlocked.Count == 0
-                        ? tech.Tech.ActualCost
-                        : tech.Tech.ActualCost
-                            * OwnerEmpire.PersonalityModifiers.HullTechMultiplier
-                            * OwnerEmpire.DifficultyModifiers.HullTechMultiplier;
+                    float multiplier = 1f;
+                    // On different difficulties / personalities, hull techs are more expensive or cheaper to research
+                    if (tech.Tech.HullsUnlocked.Count != 0)
+                    {
+                        multiplier = OwnerEmpire.PersonalityModifiers.HullTechMultiplier
+                                   * OwnerEmpire.DifficultyModifiers.HullTechMultiplier;
+                    }
+
+                    totalCost += tech.Tech.ActualCost * multiplier;
                 }
             }
 

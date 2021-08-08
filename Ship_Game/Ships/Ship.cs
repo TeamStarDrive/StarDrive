@@ -1463,7 +1463,7 @@ namespace Ship_Game.Ships
             if (dying && !reallyDie)
                 return; // planet crash or tumble
 
-            Mothership?.Carrier.AddToOrdnanceInSpace(-ShipOrdLaunchCost);
+            Mothership?.OnLaunchedShipDie(this);
 
             QueueTotalRemoval(); // sets Active=false
             
