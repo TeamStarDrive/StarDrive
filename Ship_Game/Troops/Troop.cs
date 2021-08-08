@@ -80,7 +80,7 @@ namespace Ship_Game
         /// it can launch if it can move
         /// </summary>
         [XmlIgnore] [JsonIgnore] public bool CanLaunch =>
-                HostPlanet?.Owner == null || Loyalty.isPlayer? CanMove : CanMove && IsHealthFull;
+                HostPlanet?.Owner == null || Loyalty.isPlayer ? CanMove : CanMove && IsHealthFull;
 
         string WhichFrameString => WhichFrame.ToString("00");
 
