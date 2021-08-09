@@ -74,21 +74,21 @@ namespace Ship_Game.Ships
         }
         
         // X,Y,moduleIdx[,sizeX,sizeY,turretAngle,moduleRot,hangarShipUid]
-        static string DesignSlotString(DesignSlot slot, ushort moduleIdx)
+        public static string DesignSlotString(DesignSlot slot, ushort moduleIdx)
         {
             Point gp = slot.Pos;
-            var sz = slot.GetSize();
+            var sz = slot.Size;
             var ta = slot.TurretAngle;
             var mr = (int)slot.ModuleRot;
 
             string[] fields = new string[6];
-            fields[0] = gp.X + "," + gp.Y;
+            fields[0] = $"{gp.X},{gp.Y}";
             fields[1] = moduleIdx.ToString();
             // everything after this is optional
-            fields[2] = (sz.X == 1 && sz.Y == 1) ? "" : sz.X + "," + sz.Y;
+            fields[2] = (sz.X == 1 && sz.Y == 1) ? "" : $"{sz.X},{sz.Y}";
             fields[3] = ta == 0 ? "" : ta.ToString();
             fields[4] = mr == 0 ? "" : mr.ToString();
-            fields[5] = slot.HangarShipUID.IsEmpty() ? "" : slot.HangarShipUID;
+            fields[5] = slot.HangarShipUID;
 
             int count = GetMaxValidFields(fields);
             return string.Join(";", fields, 0, count);
@@ -99,7 +99,7 @@ namespace Ship_Game.Ships
         {
             int count = fields.Length;
             for (; count > 0; --count)
-                if (fields[count - 1] != "")
+                if (fields[count - 1].NotEmpty())
                     break;
             return count;
         }
@@ -219,7 +219,7 @@ namespace Ship_Game.Ships
             ModuleSlots = modules;
         }
 
-        static DesignSlot ParseDesignSlot(StringView line, string[] moduleUIDs)
+        public static DesignSlot ParseDesignSlot(StringView line, string[] moduleUIDs)
         {
             StringView pt = line.Next(';');
             StringView index = line.Next(';');
@@ -242,6 +242,11 @@ namespace Ship_Game.Ships
         public static string GetBase64ModulesString(Ship ship)
         {
             ModuleSaveData[] saved = ship.GetModuleSaveData();
+            return GetBase64ModulesString(saved);
+        }
+
+        public static string GetBase64ModulesString(ModuleSaveData[] saved)
+        {
             ushort[] slotModuleUIDAndIndex = CreateModuleIndexMapping(saved, out Array<string> moduleUIDs);
 
             var sw = new ShipDataWriter();
@@ -268,10 +273,11 @@ namespace Ship_Game.Ships
                 sw.WriteLine(slotString);
 
                 string[] fields = new string[3];
-                fields[0] = slot.Health > 0 ? slot.Health.String(1) : "";
+                 // NOTE: "0" must be written out, so that StringViewParser doesn't ignore the line!
+                fields[0] = slot.Health > 0 ? slot.Health.String(1) : "0";
                 fields[1] = slot.ShieldPower > 0 ? slot.ShieldPower.String(1) : "";
-                fields[2] = slot.HangarShip != Guid.Empty ? slot.HangarShip.ToString() : "";
-                
+                fields[2] = slot.HangarShipGuid;
+
                 int count = GetMaxValidFields(fields);
                 string stateString = string.Join(";", fields, 0, count);
                 sw.WriteLine(stateString);
@@ -284,6 +290,7 @@ namespace Ship_Game.Ships
         public static ModuleSaveData[] GetModuleSaveFromBase64String(string base64string)
         {
             byte[] bytes = Convert.FromBase64String(base64string);
+            //Log.Info(Encoding.ASCII.GetString(bytes));
             var p = new GenericStringViewParser("save", bytes);
 
             int version = p.ReadLine().ToInt();
@@ -301,7 +308,7 @@ namespace Ship_Game.Ships
             {
                 StringView line1 = p.ReadLine();
                 DesignSlot s = ParseDesignSlot(line1, moduleUIDs);
-
+                
                 StringView line2 = p.ReadLine();
                 StringView hp = line2.Next(';');
                 StringView sp = line2.Next(';');
@@ -310,7 +317,7 @@ namespace Ship_Game.Ships
                 var msd = new ModuleSaveData(s,
                     hp.IsEmpty ? 0 : hp.ToFloat(),
                     sp.IsEmpty ? 0 : sp.ToFloat(),
-                    hs.IsEmpty ? Guid.Empty : Guid.Parse(hs.ToString())
+                    hs.IsEmpty ? "" : hs.ToString()
                 );
                 modules[i] = msd;
             }

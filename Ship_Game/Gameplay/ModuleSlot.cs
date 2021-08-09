@@ -61,7 +61,7 @@ namespace Ship_Game.Gameplay
         public string HangarShipUID; // null by default, only set if there are any options
         
         // Required by ModuleGrid
-        public Point GetSize() => new Point(1, 1);
+        public Point GetSize() => Size;
 
         public override string ToString() => $"{Pos} {ModuleUID} {Size} TA:{TurretAngle} MR:{ModuleRot} HS:{HangarShipUID}";
         
@@ -140,22 +140,22 @@ namespace Ship_Game.Gameplay
         /// --- Saved ShipModule state ---
         public float Health;
         public float ShieldPower;
-        public Guid HangarShip;
+        public string HangarShipGuid;
 
         public ModuleSaveData(ShipModule m)
             : base(m.Pos, m.UID, m.GetSize(), m.TurretAngle, m.ModuleRot, m.HangarShipUID)
         {
             Health = m.Health;
             ShieldPower = m.ShieldPower;
-            HangarShip = m.HangarShipGuid;
+            HangarShipGuid = m.HangarShipGuid != Guid.Empty ? m.HangarShipGuid.ToString() : "";
         }
 
-        public ModuleSaveData(DesignSlot s, float health, float shieldPower, in Guid hangarShip)
+        public ModuleSaveData(DesignSlot s, float health, float shieldPower, string hangarShipGuid)
             : base(s)
         {
             Health = health;
             ShieldPower = shieldPower;
-            HangarShip = hangarShip;
+            HangarShipGuid = hangarShipGuid;
         }
 
         public DesignSlot ToDesignSlot() // abandon the state

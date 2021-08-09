@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
+using Ship_Game.Data;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -35,7 +36,7 @@ namespace UnitTests.Ships
 
             Assert.AreEqual(expected.Health, actual.Health);
             Assert.AreEqual(expected.ShieldPower, actual.ShieldPower);
-            Assert.AreEqual(expected.HangarShip, actual.HangarShip);
+            Assert.AreEqual(expected.HangarShipGuid, actual.HangarShipGuid);
         }
 
         public static void AssertAreEqual(ShipModule expected, ShipModule actual)
@@ -80,7 +81,7 @@ namespace UnitTests.Ships
             var ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
 
             var dData = new DesignSlot(new Point(4,8), "FighterBay", new Point(3,4), 180, ModuleOrientation.Rear, "Vulcan Scout");
-            var oData = new ModuleSaveData(dData, health:555, shieldPower:0, Guid.Empty);
+            var oData = new ModuleSaveData(dData, health:555, shieldPower:0, null);
             var original = ShipModule.Create(oData, ship);
 
             var data = new ModuleSaveData(original);
@@ -88,6 +89,42 @@ namespace UnitTests.Ships
 
             var recreated = ShipModule.Create(data, ship);
             AssertAreEqual(original, recreated);
+        }
+
+        [TestMethod]
+        public void ShipDesign_DesignSlot_To_DesignSlotString()
+        {
+            var slot1 = new DesignSlot(new Point(4,8), "FighterBay", new Point(1,1), 0, ModuleOrientation.Normal, null);
+            Assert.AreEqual("4,8;0", ShipData.DesignSlotString(slot1, 0), "Expected gridX,gridY;moduleIdx");
+
+            var slot2 = new DesignSlot(new Point(4,8), "FighterBay", new Point(2,4), 0, ModuleOrientation.Normal, null);
+            Assert.AreEqual("4,8;0;2,4", ShipData.DesignSlotString(slot2, 0), "Expected gridX,gridY;moduleIdx;sizeX,sizeY");
+
+            var slot3 = new DesignSlot(new Point(4,8), "FighterBay", new Point(1,1), 0, ModuleOrientation.Normal, "Vulcan Scout");
+            Assert.AreEqual("4,8;0;;;;Vulcan Scout", ShipData.DesignSlotString(slot3, 0),
+                            "Expected gridX,gridY;moduleIdx;sizeX,sizeY;turretAngle;moduleRot;hangarShip");
+
+            var slot4 = new DesignSlot(new Point(4,8), "FighterBay", new Point(4,3), 123, ModuleOrientation.Left, "Vulcan Scout");
+            Assert.AreEqual("4,8;1;4,3;123;1;Vulcan Scout", ShipData.DesignSlotString(slot4, 1),
+                            "Expected gridX,gridY;moduleIdx;sizeX,sizeY;turretAngle;moduleRot;hangarShip");
+        }
+
+        static DesignSlot ParseDesignSlot(string text, string[] moduleUIDs)
+        {
+            return ShipData.ParseDesignSlot(new StringView(text.ToCharArray()), moduleUIDs);
+        }
+
+        [TestMethod]
+        public void ShipDesign_ParseDesignSlot()
+        {
+            string[] moduleUIDs = { "FighterBay" };
+            var slot1 = new DesignSlot(new Point(4,8), "FighterBay", new Point(1,1), 0, ModuleOrientation.Normal, null);
+            var slot11 = ParseDesignSlot(ShipData.DesignSlotString(slot1, 0), moduleUIDs);
+            Assert.IsTrue(slot1.Equals(slot11), $"DesignSlots were not equal: Expected {slot1} != Actual {slot11}");
+
+            var slot4 = new DesignSlot(new Point(4,8), "FighterBay", new Point(4,3), 123, ModuleOrientation.Left, "Vulcan Scout");
+            var slot44 = ParseDesignSlot(ShipData.DesignSlotString(slot4, 0), moduleUIDs);
+            Assert.IsTrue(slot4.Equals(slot44), $"DesignSlots were not equal: Expected {slot1} != Actual {slot11}");
         }
     }
 }
