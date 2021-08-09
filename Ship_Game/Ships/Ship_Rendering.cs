@@ -165,15 +165,13 @@ namespace Ship_Game.Ships
                 }
 
                 float slotRotation = (shipDegrees + slotFacing).ToRadians();
-                sc.DrawTextureSized(concreteGlass, posOnScreen, shipRotation, w, h, Color.White);
-
-                if (camHeight > 6000.0f) // long distance view, draw the modules as colored icons
+                Color healthColor = slot.GetHealthStatusColorWhite();
+                if (camHeight > 6000f)
                 {
-                    sc.DrawTextureSized(symbolFighter, posOnScreen, shipRotation, w, h, slot.GetHealthStatusColor());
+                    sc.DrawTextureSized(concreteGlass, posOnScreen, shipRotation, w, h, healthColor);
                 }
                 else
                 {
-                    Color healthColor = slot.GetHealthStatusColorWhite();
                     if (square)
                     {
                         sc.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
