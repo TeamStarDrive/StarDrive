@@ -434,7 +434,8 @@ namespace Ship_Game.Ships
             m.Active = slot.Health > 0.01f;
             m.ShieldPower = slot.ShieldPower;
             m.SetHealth(slot.Health, fromSave: true);
-            m.HangarShipGuid = slot.HangarShip;
+            if (slot.HangarShipGuid.NotEmpty())
+                m.HangarShipGuid = Guid.Parse(slot.HangarShipGuid);
             m.HangarShipUID  = slot.HangarShipUID;
             return m;
         }

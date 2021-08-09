@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
@@ -201,6 +202,29 @@ namespace UnitTests.Ships
             
             ShipData neu = ShipData.Parse("Content/ShipDesigns/Prototype Frigate.design");
             AssertAreEqual(legacy, neu);
+        }
+
+        [TestMethod]
+        public void ShipDesign_Base64_Serialization()
+        {
+            CreateUniverseAndPlayerEmpire("Human");
+            Ship ship = SpawnShip("Prototype Frigate", Player, Vector2.Zero);
+
+            // completely nulls this module, this catches empty serialization line bug
+            ship.Modules[5].Health = 0f;
+
+            ModuleSaveData[] toSave = ship.GetModuleSaveData();
+            string base64save = ShipData.GetBase64ModulesString(toSave);
+
+            Log.Info(Encoding.ASCII.GetString(Convert.FromBase64String(base64save)));
+
+            ModuleSaveData[] loaded = ShipData.GetModuleSaveFromBase64String(base64save);
+
+            for (int i = 0; i < toSave.Length && i < loaded.Length; ++i)
+            {
+                ShipModuleTests.AssertAreEqual(toSave[i], loaded[i]);
+            }
+            Assert.AreEqual(toSave.Length, loaded.Length, "Loaded modules are not the same length");
         }
     }
 }

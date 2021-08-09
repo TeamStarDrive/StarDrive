@@ -62,7 +62,7 @@ namespace Ship_Game
     {
         // Every time the savegame layout changes significantly,
         // this version needs to be bumped to avoid loading crashes
-        public const int SaveGameVersion = 6;
+        public const int SaveGameVersion = 7;
         public const string ZipExt = ".sav.gz";
 
         public readonly UniverseSaveData SaveData = new UniverseSaveData();
@@ -970,59 +970,56 @@ namespace Ship_Game
 
         public class UniverseSaveData
         {
-            [Serialize(0)] public int SaveGameVersion;
-            [Serialize(1)] public string path;
-            [Serialize(2)] public string SaveAs;
-            [Serialize(3)] public string FileName;
-            [Serialize(4)] public string FogMapName;
-            [Serialize(5)] public string PlayerLoyalty;
-            [Serialize(6)] public Vector3 CamPos;
-            [Serialize(8)] public Vector2 Size;
-            [Serialize(9)] public float StarDate;
-            [Serialize(10)] public float GameScale;
-            [Serialize(11)] public float GamePacing;
-            [Serialize(12)] public Array<SolarSystemSaveData> SolarSystemDataList;
-            [Serialize(13)] public Array<EmpireSaveData> EmpireDataList;
-            [Serialize(14)] public UniverseData.GameDifficulty gameDifficulty;
-            [Serialize(15)] public bool AutoExplore;
-            [Serialize(16)] public bool AutoColonize;
-            [Serialize(17)] public bool AutoFreighters;
-            [Serialize(18)] public bool AutoProjectors;
-            [Serialize(19)] public int RemnantKills;
-            [Serialize(20)] public int RemnantActivation;
-            [Serialize(21)] public bool RemnantArmageddon;
-            [Serialize(22)] public float FTLModifier = 1.0f;
-            [Serialize(23)] public float EnemyFTLModifier = 1.0f;
-            [Serialize(24)] public bool GravityWells;
-            [Serialize(25)] public RandomEvent RandomEvent;
-            [Serialize(26)] public SerializableDictionary<string, SerializableDictionary<int, Snapshot>> Snapshots;
-            [Serialize(27)] public float OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
-            [Serialize(28)] public float MinimumWarpRange = GlobalStats.MinimumWarpRange;
-            [Serialize(29)] public int IconSize;
-            [Serialize(30)] public byte TurnTimer;
-            [Serialize(31)] public bool preventFederations;
-            [Serialize(32)] public float GravityWellRange = GlobalStats.GravityWellRange;
-            [Serialize(33)] public bool EliminationMode;
-            [Serialize(34)] public bool AutoPickBestFreighter;
-            [Serialize(35)] public GalSize GalaxySize;
-            [Serialize(36)] public float StarsModifier = 1;
-            [Serialize(37)] public int ExtraPlanets;
-            [Serialize(38)] public ProjectileSaveData[] Projectiles; // New global projectile list
-            [Serialize(39)] public BeamSaveData[] Beams; // new global beam list
-            [Serialize(40)] public bool AutoPickBestColonizer;
-            [Serialize(41)] public float CustomMineralDecay;
-            [Serialize(42)] public bool SuppressOnBuildNotifications;
-            [Serialize(43)] public bool PlanetScreenHideOwned;
-            [Serialize(44)] public bool PlanetsScreenHideUnhabitable;
-            [Serialize(45)] public bool ShipListFilterPlayerShipsOnly;
-            [Serialize(46)] public bool ShipListFilterInFleetsOnly;
-            [Serialize(47)] public bool ShipListFilterNotInFleets;
-            [Serialize(48)] public bool DisableInhibitionWarning;
-            [Serialize(49)] public bool CordrazinePlanetCaptured;
-            [Serialize(50)] public bool DisableVolcanoWarning;
-            [Serialize(51)] public float VolcanicActivity;
-            [Serialize(52)] public bool UsePlayerDesigns;
-            [Serialize(53)] public bool UseUpkeepByHullSize;
+            public int SaveGameVersion;
+            public string path;
+            public string SaveAs;
+            public string FileName;
+            public string FogMapName;
+            public string PlayerLoyalty;
+            public Vector3 CamPos;
+            public Vector2 Size;
+            public float StarDate;
+            public float GameScale;
+            public float GamePacing;
+            public Array<SolarSystemSaveData> SolarSystemDataList;
+            public Array<EmpireSaveData> EmpireDataList;
+            public UniverseData.GameDifficulty gameDifficulty;
+            public bool AutoExplore;
+            public bool AutoColonize;
+            public bool AutoFreighters;
+            public bool AutoProjectors;
+            public float FTLModifier = 1.0f;
+            public float EnemyFTLModifier = 1.0f;
+            public bool GravityWells;
+            public RandomEvent RandomEvent;
+            public SerializableDictionary<string, SerializableDictionary<int, Snapshot>> Snapshots;
+            public float OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
+            public float MinimumWarpRange = GlobalStats.MinimumWarpRange;
+            public int IconSize;
+            public byte TurnTimer;
+            public bool preventFederations;
+            public float GravityWellRange = GlobalStats.GravityWellRange;
+            public bool EliminationMode;
+            public bool AutoPickBestFreighter;
+            public GalSize GalaxySize;
+            public float StarsModifier = 1;
+            public int ExtraPlanets;
+            public ProjectileSaveData[] Projectiles; // New global projectile list
+            public BeamSaveData[] Beams; // new global beam list
+            public bool AutoPickBestColonizer;
+            public float CustomMineralDecay;
+            public bool SuppressOnBuildNotifications;
+            public bool PlanetScreenHideOwned;
+            public bool PlanetsScreenHideUnhabitable;
+            public bool ShipListFilterPlayerShipsOnly;
+            public bool ShipListFilterInFleetsOnly;
+            public bool ShipListFilterNotInFleets;
+            public bool DisableInhibitionWarning;
+            public bool CordrazinePlanetCaptured;
+            public bool DisableVolcanoWarning;
+            public float VolcanicActivity;
+            public bool UsePlayerDesigns;
+            public bool UseUpkeepByHullSize;
         }
     }
 }
