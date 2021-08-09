@@ -81,7 +81,7 @@ namespace UnitTests.Ships
             var ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
 
             var dData = new DesignSlot(new Point(4,8), "FighterBay", new Point(3,4), 180, ModuleOrientation.Rear, "Vulcan Scout");
-            var oData = new ModuleSaveData(dData, health:555, shieldPower:0, null);
+            var oData = new ModuleSaveData(dData, health:555, shieldPower:0, "");
             var original = ShipModule.Create(oData, ship);
 
             var data = new ModuleSaveData(original);
