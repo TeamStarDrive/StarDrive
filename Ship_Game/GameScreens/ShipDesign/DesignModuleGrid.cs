@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Ship_Game.Audio;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -64,8 +63,6 @@ namespace Ship_Game
             return modules.ToArray();
         }
 
-        #region Grid Coordinate Utils
-        
         // Convert from WORLD coordinates to GridPos
         public Point WorldToGridPos(Vector2 worldPos)
         {
@@ -96,10 +93,6 @@ namespace Ship_Game
             return true;
         }
 
-        #endregion
-
-
-        #region ModuleRect Bounds
 
         struct ModuleRect
         {
@@ -126,8 +119,6 @@ namespace Ship_Game
 
         ModuleRect GetModuleSpan(SlotStruct slot, int width, int height)
             => new ModuleRect(slot.Pos, width, height);
-
-        #endregion
 
 
         #region Undo Redo
@@ -230,7 +221,7 @@ namespace Ship_Game
                 ChangedModule action2 = actions[actions.Count - 1]; // Last Action
                 ChangedModule action1 = actions[actions.Count - 2]; // Before Last Action
 
-                if (!ReplaceAble(action1.Module, action2.Module) || action1.Type != ChangeType.Removed || action2.Type != ChangeType.Added) 
+                if (!CanBeReplaced(action1.Module, action2.Module) || action1.Type != ChangeType.Removed || action2.Type != ChangeType.Added) 
                     return false;
 
                 if (i == Undoable.Count - 1) // First check
@@ -260,13 +251,10 @@ namespace Ship_Game
         }
 
 
-        bool ReplaceAble(ShipModule module1, ShipModule module2)
+        static bool CanBeReplaced(ShipModule m, ShipModule by)
         {
-            return module1.XSIZE == module2.XSIZE 
-                   && module1.YSIZE == module2.YSIZE 
-                   && module1.Restrictions == module2.Restrictions;
+            return m.XSIZE == by.XSIZE && m.YSIZE == by.YSIZE && m.Restrictions == by.Restrictions;
         }
-
 
         #endregion
 
@@ -301,7 +289,7 @@ namespace Ship_Game
                     if (!target.CanSlotSupportModule(module))
                     {
                         if (logFailure)
-                            Log.Warning($"Design slot {{{x},{y}}} ({target.Restrictions}) cannot support module {module.UID} ({module.Restrictions})");
+                            Log.Warning($"Design slot {{{x},{y}}} ({target.HullRestrict}) cannot support module {module.UID} ({module.Restrictions})");
                         return false;
                     }
                 }

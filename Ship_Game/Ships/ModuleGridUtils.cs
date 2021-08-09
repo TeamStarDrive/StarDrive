@@ -67,7 +67,7 @@ namespace Ship_Game.Ships
             if (ss != null)
             {
                 int middle = (height / 2) + (height % 2 == 0 ? -1 : 0);
-                lines[middle] = "|"+PadCentered(ss.Restrictions.ToString(), width);
+                lines[middle] = "|"+PadCentered(ss.HullRestrict.ToString(), width);
             }
             return lines;
         }
