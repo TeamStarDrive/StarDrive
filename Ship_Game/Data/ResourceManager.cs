@@ -466,7 +466,7 @@ namespace Ship_Game
             // Which means the unification has to be done via `file.Name`
             // For other files such as XNB textures, we use the full path normalized to relative content path
             // such as: "Mods/MyMod/Textures/TechIcons/Aeroponics.xnb" --> "Textures/TechIcons/Aeroponics.xnb"
-            bool fileNames = ext == "xml" || ext == "hull";
+            bool fileNames = ext == "xml" || ext == "hull" || ext == "design";
 
             FileInfo[] vanilla = Dir.GetFiles("Content/" + dir, pattern, search);
             string vanillaPath = Path.GetFullPath("Content/");

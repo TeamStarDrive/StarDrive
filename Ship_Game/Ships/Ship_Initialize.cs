@@ -271,9 +271,16 @@ namespace Ship_Game.Ships
 
         public static Ship CreateShipFromSave(Empire empire, SavedGame.ShipSaveData save)
         {
-            ModuleSaveData[] savedModules = ShipData.GetModuleSaveFromBase64String(save.ModulesBase64);
-            if (savedModules == null)
+            ModuleSaveData[] savedModules;
+            try
+            {
+                savedModules = ShipData.GetModuleSaveFromBase64String(save.ModulesBase64);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"Failed to deserialize ShipSave Name='{save.Name}'");
                 return null;
+            }
 
             ShipData data;
             if (ResourceManager.GetShipTemplate(save.Name, out Ship template))

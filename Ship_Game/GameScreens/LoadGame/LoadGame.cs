@@ -426,7 +426,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 e.SpaceRoadsList.Add(road);
             }
         }
-        
+
         static void CreateShipFromSave(UniverseData data, SavedGame.ShipSaveData shipSave, Empire e)
         {
             Ship ship = Ship.CreateShipFromSave(e, shipSave);
@@ -435,7 +435,6 @@ namespace Ship_Game.GameScreens.LoadGame
             data.MasterShipList.Add(ship);
         }
 
-        
         static void RestorePlanetConstructionQueue(SavedGame.UniverseSaveData saveData, SavedGame.RingSave rsave, Planet p)
         {
             foreach (SavedGame.QueueItemSave qisave in rsave.Planet.QISaveList)
