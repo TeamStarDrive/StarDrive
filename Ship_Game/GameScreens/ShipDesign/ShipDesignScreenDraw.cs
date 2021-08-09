@@ -262,7 +262,9 @@ namespace Ship_Game
 
         void DrawShieldRadius(SpriteBatch batch, SlotStruct slot)
         {
-            batch.DrawCircle(slot.Center, slot.Module.ShieldHitRadius, Color.LightGreen);
+            ProjectToScreenCoords(slot.Center, slot.Module.ShieldHitRadius,
+                                  out Vector2d pos, out double radius);
+            batch.DrawCircle(pos, radius, Color.LightGreen);
         }
 
         void DrawFireArcText(SlotStruct slot)
