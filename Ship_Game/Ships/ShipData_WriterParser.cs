@@ -296,8 +296,8 @@ namespace Ship_Game.Ships
             int version = p.ReadLine().ToInt();
             if (version != 1)
             {
-                Log.Error($"Unsupported ModuleSaveData version: {version}");
-                return null;
+                // TODO: convert from version 1 to version X
+                throw new Exception($"Unsupported ModuleSaveData version: {version}");
             }
 
             string[] moduleUIDs = p.ReadLine().Split(';').Select(s => string.Intern(s.Text));

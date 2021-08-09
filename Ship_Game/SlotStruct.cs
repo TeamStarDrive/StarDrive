@@ -21,12 +21,11 @@ namespace Ship_Game
         public Vector2 WorldPos;
 
         // HullSlot restriction
-        public Restrictions Restrictions;
+        public Restrictions HullRestrict;
 
         public SlotStruct Parent;
         public string ModuleUID;
         public ShipModule Module;
-        public string SlotOptions;
         public SubTexture Tex;
 
         public SlotStruct()
@@ -36,23 +35,20 @@ namespace Ship_Game
         public SlotStruct(HullSlot slot, ShipHull hull)
         {
             Pos = slot.Pos;
-            Restrictions = slot.R;
+            HullRestrict = slot.R;
 
             GridCenter = hull.GridCenter;
             WorldPos = new Vector2(slot.Pos.X - GridCenter.X, slot.Pos.Y - GridCenter.Y) * 16f;
         }
 
-        [XmlIgnore][JsonIgnore]
-        public Point OffsetFromGridCenter => new Point(Pos.X - GridCenter.X, Pos.Y - GridCenter.Y);
-
         public override string ToString()
         {
             if (Parent == null)
-                return $"{Module?.UID} {Pos} R:{Restrictions}";
+                return $"{Module?.UID} {Pos} R:{HullRestrict}";
 
             // @note Don't call Parent.ToString(), or we might get a stack overflow
-            string parent = $"{Parent.Module?.UID} {Parent.Pos} R:{Parent.Restrictions}";
-            return $"{Pos} R:{Restrictions} Parent={{{parent}}}";
+            string parent = $"{Parent.Module?.UID} {Parent.Pos} R:{Parent.HullRestrict}";
+            return $"{Pos} R:{HullRestrict} Parent={{{parent}}}";
         }
 
         static bool MatchI(Restrictions b) => b == Restrictions.I || b == Restrictions.IO || b == Restrictions.IE;
@@ -75,17 +71,21 @@ namespace Ship_Game
 
         public bool CanSlotSupportModule(ShipModule module)
         {
-            if (module == null || module.Restrictions == Restrictions.IOE || module.Restrictions == Restrictions)
+            if (module == null)
                 return true;
 
-            if (module.Restrictions <= Restrictions.IOE)
-                return IsPartialMatch(Restrictions, module.Restrictions);
+            Restrictions r = module.Restrictions;
+            if (r == Restrictions.IOE || r == HullRestrict)
+                return true;
 
-            switch (module.Restrictions) // exclusive restrictions
+            if (r <= Restrictions.IOE)
+                return IsPartialMatch(HullRestrict, r);
+
+            switch (r) // exclusive restrictions
             {
-                case Restrictions.xI:  return Restrictions == Restrictions.I;
-                case Restrictions.xIO: return Restrictions == Restrictions.IO;
-                case Restrictions.xO:  return Restrictions == Restrictions.O;
+                case Restrictions.xI:  return HullRestrict == Restrictions.I;
+                case Restrictions.xIO: return HullRestrict == Restrictions.IO;
+                case Restrictions.xO:  return HullRestrict == Restrictions.O;
             }
             return false;
         }
@@ -116,10 +116,10 @@ namespace Ship_Game
 
         public void Clear()
         {
-            ModuleUID = null;
-            Tex       = null;
-            Module    = null;
             Parent    = null;
+            ModuleUID = null;
+            Module    = null;
+            Tex       = null;
         }
 
         [XmlIgnore][JsonIgnore]
