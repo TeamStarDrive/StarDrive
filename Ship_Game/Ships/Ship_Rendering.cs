@@ -168,10 +168,20 @@ namespace Ship_Game.Ships
                 Color healthColor = slot.GetHealthStatusColorWhite();
                 if (camHeight > 6000f)
                 {
+                    // only draw the slot backgrounds
                     sc.DrawTextureSized(concreteGlass, posOnScreen, shipRotation, w, h, healthColor);
                 }
                 else
                 {
+                    // these kind of modules are known to be 100% opaque, so we can discard the background
+                    bool opaque = slot.ModuleType == ShipModuleType.Armor
+                               || slot.ModuleType == ShipModuleType.PowerConduit
+                               || slot.ModuleType == ShipModuleType.Hangar;
+                    if (!opaque)
+                    {
+                        sc.DrawTextureSized(concreteGlass, posOnScreen, shipRotation, w, h, healthColor);
+                    }
+
                     if (square)
                     {
                         sc.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
