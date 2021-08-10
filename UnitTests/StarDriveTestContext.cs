@@ -54,7 +54,7 @@ namespace UnitTests
         static void CreateGameInstance()
         {
             GlobalStats.LoadConfig();
-            Log.Initialize(enableSentry: false);
+            Log.Initialize(enableSentry: false, showHeader: false);
             Log.VerboseLogging = true;
 
             // This allows us to completely load UniverseScreen inside UnitTests
