@@ -124,7 +124,7 @@ namespace Ship_Game
                 // WARNING: This must be called before ANY Log calls
                 // @note This will override and initialize global system settings
                 GlobalStats.LoadConfig();
-                Log.Initialize(enableSentry: true);
+                Log.Initialize(enableSentry: true, showHeader: true);
                 Thread.CurrentThread.Name = "Main Thread";
                 Log.AddThreadMonitor();
                 
