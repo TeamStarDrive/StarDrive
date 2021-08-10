@@ -59,7 +59,7 @@ namespace Ship_Game
 
         static readonly Array<Thread> MonitoredThreads = new Array<Thread>();
 
-        public static void Initialize(bool enableSentry)
+        public static void Initialize(bool enableSentry, bool showHeader)
         {
             if (LogThread != null)
                 return; // already initialized!
@@ -119,7 +119,7 @@ namespace Ship_Game
             }
 
             // only write log header in main game
-            if (StarDriveGame.Instance != null)
+            if (showHeader)
             {
                 string init = "\r\n";
                 init +=  " ======================================================\r\n";
