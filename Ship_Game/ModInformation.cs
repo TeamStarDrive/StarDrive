@@ -73,6 +73,10 @@ namespace Ship_Game
         public float HangarCombatShipCostMultiplier = 1;
         public bool DisplayEnvPerfInRaceDesign;
 
+        // TRUE by default, but if set false, no vanilla designs will be loaded
+        // from StarDrive/Content/ShipDesigns and the mod is responsible to provide all required designs
+        public bool UseVanillaShips = true;
+
         public int ChanceForCategory(PlanetCategory category)
         {
             switch (category)
