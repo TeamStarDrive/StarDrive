@@ -1589,8 +1589,21 @@ namespace Ship_Game
         static Map<string, ShipDesignInfo> GetAllShipDesigns(string ext)
         {
             var designs = new Map<string, ShipDesignInfo>();
-            CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", ext), readOnly: true, playerDesign: false);
+
+            // saved designs are loaded first, to ensure they don't overwrite mod ShipDesigns
             CombineOverwrite(designs, Dir.GetFiles(Dir.StarDriveAppData + "/Saved Designs", ext), readOnly: false, playerDesign: true);
+
+            if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.UseVanillaShips)
+            {
+                // only get mod files
+                CombineOverwrite(designs, Dir.GetFiles(ModContentDirectory + "ShipDesigns", ext), readOnly: true, playerDesign: false);
+            }
+            else
+            {
+                // first get Vanilla files, then override with ShipDesigns from the mod
+                CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", ext), readOnly: true, playerDesign: false);
+            }
+
             return designs;
         }
 
