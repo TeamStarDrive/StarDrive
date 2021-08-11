@@ -66,8 +66,8 @@ namespace Ship_Game
             };
             ShipInfoRect = new Rectangle(Housing.X + 60, Housing.Y + 110, 115, 115);
 
-            float ordersStartX = Power.X - 3f;
-            var ordersBarPos = new Vector2(ordersStartX, Screen.Height - 45f);
+            float ordersStartX = Power.X + 27f;
+            var ordersBarPos = new Vector2(ordersStartX, Screen.Height - 68f);
 
             OrdersButtons = new ShipStanceButtons(screen, ordersBarPos);
 
