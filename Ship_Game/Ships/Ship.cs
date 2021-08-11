@@ -340,6 +340,19 @@ namespace Ship_Game.Ships
             HomePlanet = planet;
         }
 
+        public bool PlayerShipCannotTakeOrders()
+        {
+            if (loyalty.isPlayer && !CanTakeFleetOrders)
+            {
+                ResupplyReason resupplyReason = Supply.Resupply();
+                // Resupply reason is sever enough for the ship not to respond fleet commands.
+                return resupplyReason != ResupplyReason.LowOrdnanceNonCombat
+                    && resupplyReason != ResupplyReason.NotNeeded;
+            }
+
+            return false;
+        }
+        
         public float EmpTolerance  => SurfaceArea + BonusEMP_Protection;
         public float HealthPercent => Health / HealthMax;
 

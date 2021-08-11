@@ -449,6 +449,9 @@ namespace Ship_Game
                 if (!ship.loyalty.isPlayer && ship.IsInhibitedByUnfriendlyGravityWell)
                     offensiveMove = true;
 
+                if (ship.PlayerShipCannotTakeOrders())
+                    continue;
+
                 if (queueOrder)
                     ship.AI.OrderFormationWarpQ(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove: offensiveMove);
                 else
@@ -481,6 +484,9 @@ namespace Ship_Game
 
             foreach (Ship ship in Ships)
             {
+                if (ship.PlayerShipCannotTakeOrders())
+                    continue;
+
                 ship.AI.ResetPriorityOrder(false);
                 // Allow AI ships in gravity wells to react to incoming attacks
                 if (!ship.loyalty.isPlayer && ship.IsInhibitedByUnfriendlyGravityWell)

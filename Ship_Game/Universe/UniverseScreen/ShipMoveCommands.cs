@@ -22,7 +22,7 @@ namespace Ship_Game.Universe
 
         public bool RightClickOnShip(Ship selectedShip, Ship targetShip)
         {
-            if (targetShip == null || selectedShip == targetShip)
+            if (targetShip == null || selectedShip == targetShip || selectedShip.PlayerShipCannotTakeOrders())
                 return false;
 
             if (targetShip.loyalty == Universe.player)
@@ -195,7 +195,11 @@ namespace Ship_Game.Universe
             fleet.FinalPosition = shipToAttack.Position;
             fleet.AssignPositions(Vectors.Up);
             foreach (Ship fleetShip in fleet.Ships)
-                AttackSpecificShip(fleetShip, shipToAttack);
+            {
+                if (!fleetShip.PlayerShipCannotTakeOrders())
+                    AttackSpecificShip(fleetShip, shipToAttack);
+            }
+
             return true;
         }
 
