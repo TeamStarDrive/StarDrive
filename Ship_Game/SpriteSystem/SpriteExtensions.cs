@@ -9,23 +9,27 @@ namespace Ship_Game
 {
     public static class SpriteExtensions
     {
-        static readonly MethodInfo InternalDrawM;
-        static Rectangle? NullRectangle = new Rectangle?();
+        delegate void InternalDrawD(SpriteBatch batch, Texture2D tex, ref Vector4 dst, bool scaleDst, ref Rectangle? srcRect,
+                                    Color color, float rotation, ref Vector2 origin, SpriteEffects effects, float depth);
+
+        static readonly InternalDrawD DrawInternal;
+        static readonly Rectangle? NullRectangle = new Rectangle?();
 
         static SpriteExtensions()
         {
-            Type type = typeof(SpriteBatch);
-            BindingFlags anyMember = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-            InternalDrawM = type.GetMethod("InternalDraw", anyMember);
+            const BindingFlags anyMethod = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+            MethodInfo method = typeof(SpriteBatch).GetMethod("InternalDraw", anyMethod);
+            if (method == null)
+                throw new InvalidOperationException("Missing InternalDraw from XNA.SpriteBatch");
+            DrawInternal = (InternalDrawD)Delegate.CreateDelegate(typeof(InternalDrawD), null, method);
         }
 
-        static void InternalDraw(SpriteBatch batch, Texture2D tex, in RectF destRect, bool scaleDst,
-                                 in Rectangle? sourceRectangle, Color color, float rotation, in Vector2 origin,
-                                 SpriteEffects effects, float depth)
+        static void InternalDraw(SpriteBatch batch, Texture2D tex, in RectF dstRect, bool scaleDst, Rectangle? srcRect, 
+                                 Color color, float rotation, Vector2 origin,  SpriteEffects effects, float depth)
         {
-            var dst = new Vector4(destRect.X, destRect.Y, destRect.W, destRect.H);
-            object[] args = { tex, dst, scaleDst, sourceRectangle, color, rotation, origin, effects, depth };
-            InternalDrawM.Invoke(batch, args);
+            var dst = new Vector4(dstRect.X, dstRect.Y, dstRect.W, dstRect.H);
+            DrawInternal.Invoke(batch, tex, ref dst, scaleDst, ref srcRect, color, 
+                                rotation, ref origin, effects, depth);
         }
 
         [Conditional("DEBUG")] static void CheckTextureDisposed(Texture2D texture)
