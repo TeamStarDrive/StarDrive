@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Graphics;
@@ -8,6 +9,23 @@ namespace Ship_Game
 {
     public static class SpriteExtensions
     {
+        static readonly MethodInfo InternalDrawM;
+
+        static SpriteExtensions()
+        {
+            Type type = typeof(SpriteBatch);
+            BindingFlags anyMember = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+            InternalDrawM = type.GetMethod("InternalDraw", anyMember);
+        }
+
+        static void InternalDraw(SpriteBatch batch, Texture2D tex, in Vector4 destination, bool scaleDestination,
+                                 in Rectangle? sourceRectangle, Color color, float rotation, in Vector2 origin,
+                                 SpriteEffects effects, float depth)
+        {
+            object[] args = { tex, destination, scaleDestination, sourceRectangle, color, rotation, origin, effects, depth };
+            InternalDrawM.Invoke(batch, args);
+        }
+
         [Conditional("DEBUG")] static void CheckTextureDisposed(Texture2D texture)
         {
             if (texture.IsDisposed)
@@ -44,6 +62,24 @@ namespace Ship_Game
             CheckSubTextureDisposed(texture);
             Vector2 pos = position.ToVec2f();
             batch.Draw(texture.Texture, pos, texture.Rect, color);
+        }
+
+        public static void Draw(this SpriteBatch batch, SubTexture tex,
+                                in RectF destRect, Color color)
+        {
+            CheckSubTextureDisposed(tex);
+
+            var dst = new Vector4(destRect.X, destRect.Y, destRect.W, destRect.H);
+            InternalDraw(batch, tex.Texture, dst, false, tex.Rect, color, 0f, Vector2.Zero, SpriteEffects.None, 1f);
+        }
+
+        public static void Draw(this SpriteBatch batch, SubTexture tex, in RectF destRect, Color color,
+                                float rotation, Vector2 origin, SpriteEffects effects, float layerDepth)
+        {
+            CheckSubTextureDisposed(tex);
+
+            var dst = new Vector4(destRect.X, destRect.Y, destRect.W, destRect.H);
+            InternalDraw(batch, tex.Texture, dst, false, tex.Rect, color, rotation, origin, effects, layerDepth);
         }
 
         public static void Draw(this SpriteBatch batch, SubTexture texture, 

@@ -435,5 +435,19 @@ namespace Ship_Game
             origin.Y += origin.Y > 0 ? amount : -amount;
             return origin;
         }
+
+        public static Vector2 Mul(this Vector2 v, Point scalar)
+        {
+            return new Vector2(v.X * scalar.X, v.Y * scalar.Y);
+        }
+
+        public static Vector2 Mul(this Point p, float scalar)
+        {
+            return new Vector2(p.X * scalar, p.Y * scalar);
+        }
+        public static Point Sub(this Point a, Point b)
+        {
+            return new Point(a.X - b.X, a.Y - b.Y);
+        }
     }
 }

@@ -547,6 +547,24 @@ namespace Ship_Game
             Vector2d size = ProjectToScreenPosition(new Vector2(posInWorld.X + sizeInWorld.X, posInWorld.Y + sizeInWorld.Y)) - posOnScreen;
             sizeOnScreen = new Vector2d(Math.Abs(size.X), Math.Abs(size.Y));
         }
+        
+        public void ProjectToScreenCoordsF(Vector2 posInWorld, Vector2 sizeInWorld,
+                                           out Vector2 posOnScreenF, out Vector2 sizeOnScreenF)
+        {
+            ProjectToScreenCoords(posInWorld, sizeInWorld,
+                                          out Vector2d posOnScreen, out Vector2d sizeOnScreen);
+            posOnScreenF = posOnScreen.ToVec2f();
+            sizeOnScreenF = sizeOnScreen.ToVec2f();
+        }
+
+        public RectF ProjectToScreenRectF(in RectF worldRect)
+        {
+            Vector2d topLeft = ProjectToScreenPosition(new Vector2(worldRect.X, worldRect.Y));
+            Vector2d botRight = ProjectToScreenPosition(new Vector2(worldRect.X + worldRect.W, worldRect.Y + worldRect.H));
+            return new RectF((float)topLeft.X, (float)topLeft.Y,
+                             (float)(botRight.X - topLeft.X),
+                             (float)(botRight.Y - topLeft.Y));
+        }
 
         public Rectangle ProjectToScreenRect(in RectF worldRect)
         {

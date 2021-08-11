@@ -25,6 +25,7 @@ namespace Ship_Game
             if (ToggleOverlay)
             {
                 batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
+
                 DrawEmptySlots(batch);
                 DrawModules(batch);
                 DrawUnpoweredTex(batch);
@@ -32,10 +33,10 @@ namespace Ship_Game
                 DrawModuleSelections();
                 DrawProjectedModuleRect(batch);
 
-                batch.DrawString(Fonts.Arial12Bold, $"GridPos [{GridPosUnderCursor.X},{GridPosUnderCursor.Y}] slot: {SlotUnderCursor}",
-                                 new Vector2(350,100), Color.Yellow);
-                batch.DrawString(Fonts.Arial12Bold, $"MeshOffset {CurrentHull.MeshOffset}",
-                                 new Vector2(350,120), Color.Yellow);
+                if (EnableDebugFeatures)
+                {
+                    DrawDebugDetails(batch);
+                }
 
                 batch.End();
             }
@@ -55,6 +56,24 @@ namespace Ship_Game
             base.Draw(batch, elapsed);
             batch.End();
             ScreenManager.EndFrameRendering();
+        }
+
+        void DrawDebugDetails(SpriteBatch batch)
+        {
+            batch.DrawString(Fonts.Arial12Bold, $"GridPos [{GridPosUnderCursor.X},{GridPosUnderCursor.Y}] slot: {SlotUnderCursor}",
+                             new Vector2(350,100), Color.Yellow);
+            batch.DrawString(Fonts.Arial12Bold, $"MeshOffset {CurrentHull.MeshOffset}",
+                             new Vector2(350,120), Color.Yellow);
+
+            if (SlotUnderCursor != null)
+            {
+                DrawRectangleProjected(SlotUnderCursor.WorldRect, Color.Yellow);
+            }
+            else
+            {
+                Vector2 screenPos = ModuleGrid.GridPosToWorld(GridPosUnderCursor);
+                DrawRectangleProjected(new RectF(screenPos, new Vector2(16)), Color.Yellow);
+            }
         }
 
         bool GetSlotForModule(ShipModule module, out SlotStruct slot)
@@ -83,11 +102,6 @@ namespace Ship_Game
 
         void DrawProjectedModuleRect(SpriteBatch batch)
         {
-            if (SlotUnderCursor != null)
-            {
-                DrawRectangleProjected(SlotUnderCursor.WorldRect, Color.Yellow);
-            }
-
             if (ProjectedSlot == null || ActiveModule == null)
                 return;
 
@@ -109,6 +123,8 @@ namespace Ship_Game
 
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
+                RectF rect = ProjectToScreenRectF(slot.WorldRect);
+
                 if (slot.Module != null)
                 {
                     slot.Draw(batch, this, concreteGlass, Color.Gray);
@@ -171,13 +187,13 @@ namespace Ship_Game
                     moduleWorldRect.W = ySize; // swap width & height
                     moduleWorldRect.H = xSize;
                     moduleWorldRect.Y += ySize;
-                    rotation = -1.57079637f;
+                    rotation = -RadMath.HalfPI;
                     break;
                 case ModuleOrientation.Right when !rotatedTexture:
                     moduleWorldRect.W = ySize; // swap width & height
                     moduleWorldRect.H = xSize;
                     moduleWorldRect.X += xSize;
-                    rotation = 1.57079637f;
+                    rotation = RadMath.HalfPI;
                     break;
                 case ModuleOrientation.Rear when !rotatedTexture:
                     effects = SpriteEffects.FlipVertically;
@@ -188,7 +204,7 @@ namespace Ship_Game
                     break;
             }
 
-            Rectangle screenRect = ProjectToScreenRect(moduleWorldRect);
+            RectF screenRect = ProjectToScreenRectF(moduleWorldRect);
             batch.Draw(texture, screenRect, Color.White.Alpha(alpha), rotation, Vector2.Zero, effects, 1f);
         }
 
@@ -255,7 +271,7 @@ namespace Ship_Game
                     && !DesignedShip.PwrGrid.IsPowered(slot.Pos))
                 {
                     batch.Draw(unpowered,
-                        slot.Center, Color.White, 0f, new Vector2(8f, 8f), 1f, SpriteEffects.None, 1f);
+                        slot.Center, Color.White, 0f, unpowered.CenterF, 1f, SpriteEffects.None, 1f);
                 }
             }
         }
