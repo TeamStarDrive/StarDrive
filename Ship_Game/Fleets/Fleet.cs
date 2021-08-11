@@ -1210,6 +1210,7 @@ namespace Ship_Game.Fleets
                     break; // Change in task step is done from Remnant goals
                 case 8: // Go back to portal, this step is set from the Remnant goal
                     ClearOrders();
+                    task.SetTargetPlanet(null);
                     GatherAtAO(task, 500);
                     TaskStep = 9;  // Tasks steps below 9 are a signal that the remnant fleet still on target (GetRemnantEngagementsGoalsFor)
                     break;
