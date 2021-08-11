@@ -340,7 +340,7 @@ namespace Ship_Game.Ships
             HomePlanet = planet;
         }
 
-        public bool PlayerShipCannotTakeOrders()
+        public bool PlayerShipCannotTakeFleetOrders()
         {
             if (loyalty.isPlayer && !CanTakeFleetOrders)
             {
