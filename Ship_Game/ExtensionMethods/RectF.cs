@@ -30,12 +30,28 @@ namespace Ship_Game
             H = h;
         }
 
+        public RectF(double x, double y, double w, double h)
+        {
+            X = (float)x;
+            Y = (float)y;
+            W = (float)w;
+            H = (float)h;
+        }
+
         public RectF(Vector2 pos, Vector2 size)
         {
             X = pos.X;
             Y = pos.Y;
             W = size.X;
             H = size.Y;
+        }
+
+        public RectF(Vector2d pos, Vector2d size)
+        {
+            X = (float)pos.X;
+            Y = (float)pos.Y;
+            W = (float)size.X;
+            H = (float)size.Y;
         }
 
         public RectF(in Rectangle r)
@@ -72,6 +88,16 @@ namespace Ship_Game
         {
             return Left <= r.Right && Right > r.Left
                 && Top <= r.Bottom && Bottom > r.Top;
+        }
+
+        [Pure] public RectF ScaledBy(float scale)
+        {
+            if (scale.AlmostEqual(1f))
+                return this;
+            float extrude = scale - 1f;
+            float extrudeX = (W*extrude);
+            float extrudeY = (H*extrude);
+            return new RectF(X - extrudeX, Y - extrudeY, W + extrudeX*2, H + extrudeY*2);
         }
     }
 }

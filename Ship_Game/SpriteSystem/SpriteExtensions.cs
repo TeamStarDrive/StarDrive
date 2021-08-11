@@ -10,6 +10,7 @@ namespace Ship_Game
     public static class SpriteExtensions
     {
         static readonly MethodInfo InternalDrawM;
+        static Rectangle? NullRectangle = new Rectangle?();
 
         static SpriteExtensions()
         {
@@ -18,11 +19,12 @@ namespace Ship_Game
             InternalDrawM = type.GetMethod("InternalDraw", anyMember);
         }
 
-        static void InternalDraw(SpriteBatch batch, Texture2D tex, in Vector4 destination, bool scaleDestination,
+        static void InternalDraw(SpriteBatch batch, Texture2D tex, in RectF destRect, bool scaleDst,
                                  in Rectangle? sourceRectangle, Color color, float rotation, in Vector2 origin,
                                  SpriteEffects effects, float depth)
         {
-            object[] args = { tex, destination, scaleDestination, sourceRectangle, color, rotation, origin, effects, depth };
+            var dst = new Vector4(destRect.X, destRect.Y, destRect.W, destRect.H);
+            object[] args = { tex, dst, scaleDst, sourceRectangle, color, rotation, origin, effects, depth };
             InternalDrawM.Invoke(batch, args);
         }
 
@@ -63,24 +65,60 @@ namespace Ship_Game
             Vector2 pos = position.ToVec2f();
             batch.Draw(texture.Texture, pos, texture.Rect, color);
         }
+        
+        ////// RectF overloads - precise sub-pixel drawing which gives less flickering //////
 
-        public static void Draw(this SpriteBatch batch, SubTexture tex,
-                                in RectF destRect, Color color)
+        public static void Draw(this SpriteBatch batch, SubTexture tex, in RectF destRect, Color color)
         {
             CheckSubTextureDisposed(tex);
-
-            var dst = new Vector4(destRect.X, destRect.Y, destRect.W, destRect.H);
-            InternalDraw(batch, tex.Texture, dst, false, tex.Rect, color, 0f, Vector2.Zero, SpriteEffects.None, 1f);
+            InternalDraw(batch, tex.Texture, destRect, false, tex.Rect, color, 0f, 
+                         Vector2.Zero, SpriteEffects.None, 1f);
         }
 
         public static void Draw(this SpriteBatch batch, SubTexture tex, in RectF destRect, Color color,
                                 float rotation, Vector2 origin, SpriteEffects effects, float layerDepth)
         {
             CheckSubTextureDisposed(tex);
-
-            var dst = new Vector4(destRect.X, destRect.Y, destRect.W, destRect.H);
-            InternalDraw(batch, tex.Texture, dst, false, tex.Rect, color, rotation, origin, effects, layerDepth);
+            InternalDraw(batch, tex.Texture, destRect, false, tex.Rect, color,
+                         rotation, origin, effects, layerDepth);
         }
+
+        public static void Draw(this SpriteBatch batch, SubTexture tex, in RectF rect,
+                                float rotation, float scale, float z)
+        {
+            CheckSubTextureDisposed(tex);
+            RectF r = rect.ScaledBy(scale);
+            InternalDraw(batch, tex.Texture, r, false, tex.Rect, Color.White,
+                         rotation, tex.CenterF, SpriteEffects.None, z);
+        }
+
+        public static void Draw(this SpriteBatch batch, SubTexture texture,
+                                Vector2 position, Vector2 size)
+        {
+            CheckSubTextureDisposed(texture);
+            var r = new RectF(position, size);
+            Draw(batch, texture, r, Color.White);
+        }
+
+        public static void Draw(this SpriteBatch batch, Texture2D texture,
+                                Vector2 position, Vector2 size)
+        {
+            CheckTextureDisposed(texture);
+            var r = new RectF(position, size);
+            InternalDraw(batch, texture, r, false, NullRectangle, Color.White,
+                         0f, Vector2.Zero, SpriteEffects.None, 0f);
+        }
+
+        public static void Draw(this SpriteBatch batch, SubTexture texture,
+                                Vector2 position, Vector2 size, Color color)
+        {
+            CheckSubTextureDisposed(texture);
+            var r = new RectF(position, size);
+            InternalDraw(batch, texture.Texture, r, false, texture.Rect, color,
+                         0f, Vector2.Zero, SpriteEffects.None, 0f);
+        }
+
+        ////// Integer Rectangle overloads - only useful for static UI pieces //////
 
         public static void Draw(this SpriteBatch batch, SubTexture texture, 
                                 in Rectangle destRect, Color color)
@@ -94,8 +132,8 @@ namespace Ship_Game
             Color color, float rotation, Vector2 origin, SpriteEffects effects, float layerDepth)
         {
             CheckSubTextureDisposed(texture);
-            batch.Draw(texture.Texture, destRect, texture.Rect,
-                       color, rotation, origin, effects, layerDepth);
+            batch.Draw(texture.Texture, destRect, texture.Rect, color,
+                       rotation, origin, effects, layerDepth);
         }
 
         public static void Draw(
@@ -105,27 +143,6 @@ namespace Ship_Game
             CheckSubTextureDisposed(texture);
             batch.Draw(texture.Texture, position, texture.Rect, color, 
                        rotation, origin, scale, effects, layerDepth);
-        }
-
-        public static void Draw(this SpriteBatch batch, SubTexture texture, Vector2 position, Vector2 size)
-        {
-            CheckSubTextureDisposed(texture);
-            var r = new Rectangle((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
-            batch.Draw(texture.Texture, r, texture.Rect, Color.White);
-        }
-
-        public static void Draw(this SpriteBatch batch, Texture2D texture, Vector2 position, Vector2 size)
-        {
-            CheckTextureDisposed(texture);
-            var r = new Rectangle((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
-            batch.Draw(texture, r, Color.White);
-        }
-
-        public static void Draw(this SpriteBatch batch, SubTexture texture, Vector2 position, Vector2 size, Color color)
-        {
-            CheckSubTextureDisposed(texture);
-            var r = new Rectangle((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
-            batch.Draw(texture.Texture, r, texture.Rect, color);
         }
 
         public static void Draw(this SpriteBatch batch, SubTexture texture, in Rectangle rect, 
