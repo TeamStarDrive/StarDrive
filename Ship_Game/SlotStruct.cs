@@ -11,14 +11,14 @@ namespace Ship_Game
     public sealed class SlotStruct
     {
         // Integer position in the local grid, top-left is [0,0]
-        public Point Pos;
+        public readonly Point Pos;
 
         // Center of the design grid
-        public Point GridCenter;
+        public readonly Point GridCenter;
 
         // Position of this slot in the world, where center of the Grid
         // is at world [0,0]
-        public Vector2 WorldPos;
+        public readonly Vector2 WorldPos;
 
         // HullSlot restriction
         public Restrictions HullRestrict;
@@ -32,13 +32,13 @@ namespace Ship_Game
         {
         }
 
-        public SlotStruct(HullSlot slot, ShipHull hull)
+        public SlotStruct(HullSlot slot, Point gridCenter)
         {
             Pos = slot.Pos;
             HullRestrict = slot.R;
 
-            GridCenter = hull.GridCenter;
-            WorldPos = new Vector2(slot.Pos.X - GridCenter.X, slot.Pos.Y - GridCenter.Y) * 16f;
+            GridCenter = gridCenter;
+            WorldPos = slot.Pos.Sub(gridCenter).Mul(16f);
         }
 
         public override string ToString()

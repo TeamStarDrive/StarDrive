@@ -14,6 +14,8 @@ namespace Ship_Game
         readonly SlotStruct[] Slots;
         public readonly int Width;
         public readonly int Height;
+        public readonly Vector2 WorldTopLeft; // top-left of the module grid in World coords
+        public readonly Point GridCenter;
 
         public Action OnGridChanged;
 
@@ -27,12 +29,14 @@ namespace Ship_Game
             Name = name;
             Width = hull.Size.X;
             Height = hull.Size.Y;
+            GridCenter = hull.GridCenter;
+            WorldTopLeft = GridCenter.Mul(-16f);
 
             Grid = new SlotStruct[Width * Height];
             Slots = new SlotStruct[hull.HullSlots.Length];
             for (int i = 0; i < hull.HullSlots.Length; ++i)
             {
-                var slot = new SlotStruct(hull.HullSlots[i], hull);
+                var slot = new SlotStruct(hull.HullSlots[i], GridCenter);
                 Slots[i] = slot;
                 Grid[slot.Pos.X + slot.Pos.Y * Width] = slot;
             }
@@ -63,13 +67,18 @@ namespace Ship_Game
             return modules.ToArray();
         }
 
+        // Convert from GRID POS into WORLD coordinates
+        public Vector2 GridPosToWorld(Point gridPos)
+        {
+            return WorldTopLeft + new Vector2(gridPos.X * 16f, gridPos.Y * 16f);
+        }
+
         // Convert from WORLD coordinates to GridPos
         public Point WorldToGridPos(Vector2 worldPos)
         {
             var rounded = new Point((int)Math.Floor(worldPos.X / 16f),
                                     (int)Math.Floor(worldPos.Y / 16f));
-            Point gridCenter = Slots[0].GridCenter;
-            return new Point(rounded.X + gridCenter.X, rounded.Y + gridCenter.Y);
+            return new Point(rounded.X + GridCenter.X, rounded.Y + GridCenter.Y);
         }
 
         // Gets SlotStruct or null at the given Grid Pos
