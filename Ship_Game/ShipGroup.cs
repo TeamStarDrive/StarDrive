@@ -449,7 +449,7 @@ namespace Ship_Game
                 if (!ship.loyalty.isPlayer && ship.IsInhibitedByUnfriendlyGravityWell)
                     offensiveMove = true;
 
-                if (ship.PlayerShipCannotTakeOrders())
+                if (ship.PlayerShipCannotTakeFleetOrders())
                     continue;
 
                 if (queueOrder)
@@ -484,7 +484,7 @@ namespace Ship_Game
 
             foreach (Ship ship in Ships)
             {
-                if (ship.PlayerShipCannotTakeOrders())
+                if (ship.PlayerShipCannotTakeFleetOrders())
                     continue;
 
                 ship.AI.ResetPriorityOrder(false);
