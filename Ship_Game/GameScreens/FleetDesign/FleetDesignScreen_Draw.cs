@@ -300,7 +300,7 @@ namespace Ship_Game
                     var r = new Rectangle((int) pPos.X - (int) radius, (int) pPos.Y - (int) radius, 
                                           (int) radius * 2, (int) radius * 2);
 
-                    DrawIcon(ship, r, color);
+                    DrawIcon(ship, r);
                     if (node.GoalGUID == Guid.Empty)
                     {
                         if (NodeShipResupplying())
@@ -347,12 +347,12 @@ namespace Ship_Game
                     Rectangle r = new Rectangle((int) pPos.X - (int) radius, (int) pPos.Y - (int) radius,
                         (int) radius * 2, (int) radius * 2);
 
-                    DrawIcon(ship, r, color);
+                    DrawIcon(ship, r);   
                     if (NodeShipResupplying())
                         batch.DrawString(Fonts.Arial8Bold, "Resupplying", pPos + new Vector2(5f, -5f), Color.White);
                 }
 
-                void DrawIcon(Ship ship, Rectangle r, Color iconColor)
+                void DrawIcon(Ship ship, Rectangle r)
                 {
                     if (!ShouldDrawTacticalIcon())
                         return;
