@@ -220,7 +220,7 @@ namespace Ship_Game.Commands.Goals
             if (BombersLevel > 0 && numBombers < BombersLevel / 2)
                 RequestBombers(numBombers);
 
-            if (numBombers == Fleet.Ships.Count)
+            if (numBombers / 3 >= Fleet.Ships.Count - numBombers)
                 return ReturnToPortal();
 
             if (Fleet.TaskStep != 7 && TargetPlanet?.Owner == TargetEmpire) // Not cleared enemy at target planet yet
