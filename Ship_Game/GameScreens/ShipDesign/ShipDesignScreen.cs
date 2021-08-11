@@ -71,6 +71,9 @@ namespace Ship_Game
         // Used in Developer Sandbox to load any design
         bool UnlockAllFactionDesigns;
 
+        // Used in Dev SandBox to enable some special debug features
+        bool EnableDebugFeatures;
+
         public ShipData.RoleName Role { get; private set; }
         Rectangle DesignRoleRect;
 
@@ -100,6 +103,7 @@ namespace Ship_Game
             TransitionOnTime = 2f;
             HullEditMode = false;
             UnlockAllFactionDesigns = parent is DeveloperUniverse;
+            EnableDebugFeatures = parent is DeveloperUniverse || Empire.Universe.Debug;
         }
 
         void ReorientActiveModule(ModuleOrientation orientation)
