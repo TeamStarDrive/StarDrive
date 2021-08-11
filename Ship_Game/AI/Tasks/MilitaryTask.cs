@@ -553,7 +553,7 @@ namespace Ship_Game.AI.Tasks
         public void SetTargetPlanet(Planet p)
         {
             TargetPlanet = p;
-            TargetPlanetGuid = p.guid;
+            TargetPlanetGuid = p?.guid ?? Guid.Empty;
         }
 
         public void SetTargetShip(Ship ship)
