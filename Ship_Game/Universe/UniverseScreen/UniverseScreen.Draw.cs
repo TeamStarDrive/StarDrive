@@ -893,9 +893,10 @@ namespace Ship_Game
                 if (statColor != Color.Black)
                     batch.Draw(ResourceManager.Texture("TacticalIcons/symbol_status"), iconHousing, ApplyCurrentAlphaToColor(statColor));
 
-                batch.Draw(icon, iconHousing, fleetButton.Fleet.Owner.EmpireColor);
+                Color iconColor = ship.Resupplying ? Color.Gray : fleetButton.Fleet.Owner.EmpireColor;
+                batch.Draw(icon, iconHousing, iconColor);
                 if (secondary != null)
-                    batch.Draw(secondary, iconHousing, fleetButton.Fleet.Owner.EmpireColor);
+                    batch.Draw(secondary, iconHousing, iconColor);
             }
         }
 
@@ -960,7 +961,7 @@ namespace Ship_Game
 
             string GetFullTacticalIconPaths(Ship s)
             {
-                string icon = $"TacticalIcons/{s.GetTacticalIcon(out SubTexture secondary, out _).Name}";
+                string icon = $"TacticalIcons/{s.GetTacticalIcon(out SubTexture secondary).Name}";
                 if (secondary != null)
                     icon = $"{icon}|TacticalIcons/{secondary.Name}";
 
@@ -1039,7 +1040,9 @@ namespace Ship_Game
                     {
                         Color color = Color.LightGreen;
                         if (player != ship.loyalty)
-                            color = player.IsEmpireAttackable(ship.loyalty) ? Color.Red : Color.Gray;
+                            color = player.IsEmpireAttackable(ship.loyalty) ? Color.Red : Color.Yellow;
+                        else if (ship.Resupplying)
+                            color = Color.Gray;
 
                         ProjectToScreenCoords(ship.Position, ship.Radius,
                             out Vector2 shipScreenPos, out float screenRadius);
@@ -1067,7 +1070,7 @@ namespace Ship_Game
 
         void DrawShipProjectionIcon(Ship ship, Vector2 position, Vector2 direction, Color color)
         {
-            SubTexture symbol = ship.GetTacticalIcon(out SubTexture secondary, out _);
+            SubTexture symbol = ship.GetTacticalIcon(out SubTexture secondary);
             float num         = ship.SurfaceArea / (30f + symbol.Width);
             float scale       = (num * 4000f / CamHeight).UpperBound(1);
 

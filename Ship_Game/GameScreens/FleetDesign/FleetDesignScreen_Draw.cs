@@ -282,11 +282,9 @@ namespace Ship_Game
             EmpireUI.Draw(batch);
             foreach (FleetDataNode node in SelectedFleet.DataNodes)
             {
+                Color color = GetColor();
                 if (node.Ship == null || CamPos.Z <= 15000f)
                 {
-                    if (node.Ship != null || node.ShipName == "Troop Shuttle")
-                        continue;
-
                     if (!ResourceManager.GetShipTemplate(node.ShipName, out Ship ship))
                         continue;
 
@@ -302,21 +300,14 @@ namespace Ship_Game
                     var r = new Rectangle((int) pPos.X - (int) radius, (int) pPos.Y - (int) radius, 
                                           (int) radius * 2, (int) radius * 2);
 
-                    SubTexture icon = ship.GetTacticalIcon(out SubTexture secondary, out _);
+                    DrawIcon(ship, r, color);
                     if (node.GoalGUID == Guid.Empty)
                     {
-                        Color color = HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node) ? Color.White : Color.Red;
-                        batch.Draw(icon, r, color);
-                        if (secondary != null)
-                            batch.Draw(secondary, r, color);
+                        if (NodeShipResupplying())
+                            batch.DrawString(Fonts.Arial8Bold, "Resupplying", pPos + new Vector2(5f, -5f), Color.White);
                     }
                     else
                     {
-                        Color color = HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node) ? Color.White : Color.Yellow;
-                        batch.Draw(icon, r, color);
-                        if (secondary != null)
-                            batch.Draw(secondary, r, color);
-
                         string buildingAt = "";
                         foreach (Goal g in SelectedFleet.Owner.GetEmpireAI().Goals)
                         {
@@ -337,7 +328,6 @@ namespace Ship_Game
                 else
                 {
                     Ship ship = node.Ship;
-                    SubTexture icon = ship.GetTacticalIcon(out SubTexture secondary, out _);
                     float radius = ship.GetSO().WorldBoundingSphere.Radius;
                     viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View,
@@ -357,16 +347,46 @@ namespace Ship_Game
                     Rectangle r = new Rectangle((int) pPos.X - (int) radius, (int) pPos.Y - (int) radius,
                         (int) radius * 2, (int) radius * 2);
 
-                    Color color = HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node) ? Color.White : Color.Green;
+                    DrawIcon(ship, r, color);
+                    if (NodeShipResupplying())
+                        batch.DrawString(Fonts.Arial8Bold, "Resupplying", pPos + new Vector2(5f, -5f), Color.White);
+                }
+
+                void DrawIcon(Ship ship, Rectangle r, Color iconColor)
+                {
+                    if (!ShouldDrawTacticalIcon())
+                        return;
+
+                    SubTexture icon = ship.GetTacticalIcon(out SubTexture secondary);
                     batch.Draw(icon, r, color);
                     if (secondary != null)
                         batch.Draw(secondary, r, color);
                 }
+
+                Color GetColor()
+                {
+                    color = Color.Red;
+
+                    if      (Hovered())                   color = Color.White;
+                    else if (node.GoalGUID != Guid.Empty) color = Color.Yellow;
+                    else if (NodeShipResupplying())       color = Color.Gray;
+                    else if (node.Ship != null)           color = Color.Green;
+
+                    return color;
+                }
+
+                bool ShouldDrawTacticalIcon()
+                {
+                    return CamPos.Z > 15000f || node.Ship == null || NodeShipResupplying();
+                }
+
+                bool NodeShipResupplying() => node.Ship?.Resupplying == true;
+                bool Hovered() => HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node);
             }
 
             if (ActiveShipDesign != null)
             {
-                SubTexture icon = ActiveShipDesign.GetTacticalIcon(out SubTexture secondary, out _);
+                SubTexture icon = ActiveShipDesign.GetTacticalIcon(out SubTexture secondary);
                 Vector2 iconOrigin = new Vector2(icon.Width, icon.Width) / 2f;
                 float scale = ActiveShipDesign.SurfaceArea / (float)(30 + icon.Width);
                 scale = scale * 4000f / CamPos.Z;

@@ -402,6 +402,9 @@ namespace Ship_Game.Ships
         public ShipData.RoleType DesignRoleType => ShipData.ShipRoleToRoleType(DesignRole);
         public string DesignRoleName            => ShipData.GetRole(DesignRole);
 
+        public SubTexture GetTacticalIcon(out SubTexture secondaryIcon) =>
+            GetTacticalIcon(out secondaryIcon, out _);
+
         public SubTexture GetTacticalIcon(out SubTexture secondaryIcon, out Color statusColor)
         {
             secondaryIcon = null;
