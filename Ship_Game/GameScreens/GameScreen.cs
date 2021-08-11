@@ -372,8 +372,7 @@ namespace Ship_Game
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTextureSized(SubTexture texture, Vector2 posOnScreen, float rotation, float width, float height, Color color)
         {
-            var rect = new Rectangle((int)Math.Round(posOnScreen.X), (int)Math.Round(posOnScreen.Y),
-                                     (int)Math.Round(width), (int)Math.Round(height));
+            var rect = new RectF(posOnScreen.X, posOnScreen.Y, width, height);
             ScreenManager.SpriteBatch.Draw(texture, rect, color, rotation, texture.CenterF, SpriteEffects.None, 1f);
         }
 
@@ -381,8 +380,7 @@ namespace Ship_Game
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTextureSized(SubTexture texture, Vector2d posOnScreen, float rotation, double width, double height, Color color)
         {
-            var rect = new Rectangle((int)Math.Round(posOnScreen.X), (int)Math.Round(posOnScreen.Y),
-                                     (int)Math.Round(width), (int)Math.Round(height));
+            var rect = new RectF(posOnScreen.X, posOnScreen.Y, width, height);
             ScreenManager.SpriteBatch.Draw(texture, rect, color, rotation, texture.CenterF, SpriteEffects.None, 1f);
         }
 
@@ -561,9 +559,7 @@ namespace Ship_Game
         {
             Vector2d topLeft = ProjectToScreenPosition(new Vector2(worldRect.X, worldRect.Y));
             Vector2d botRight = ProjectToScreenPosition(new Vector2(worldRect.X + worldRect.W, worldRect.Y + worldRect.H));
-            return new RectF((float)topLeft.X, (float)topLeft.Y,
-                             (float)(botRight.X - topLeft.X),
-                             (float)(botRight.Y - topLeft.Y));
+            return new RectF(topLeft.X, topLeft.Y, (botRight.X - topLeft.X), (botRight.Y - topLeft.Y));
         }
 
         public Rectangle ProjectToScreenRect(in RectF worldRect)

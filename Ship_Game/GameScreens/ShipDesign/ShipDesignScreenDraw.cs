@@ -336,15 +336,14 @@ namespace Ship_Game
             else                                      color = new Color(0, 0, 255, 255);
 
             screen.ProjectToScreenCoords(moduleWorldCenter, 0f, worldSize,
-                                        out Vector2d posOnScreen, out double sizeOnScreen);
-            Vector2 pos = posOnScreen.ToVec2fRounded();
-            float size = (float)Math.Round(sizeOnScreen);
+                                         out Vector2d posOnScreen, out double sizeOnScreen);
+            Vector2 pos = posOnScreen.ToVec2f();
+            float size = (float)sizeOnScreen;
 
             SubTexture arcTexture = Empire.Universe.GetArcTexture(m.FieldOfFire.ToDegrees());
 
             var texOrigin = new Vector2(250f, 250f);
-            
-            Rectangle rect = pos.ToRect((int)sizeOnScreen, (int)sizeOnScreen);
+            var rect = new RectF(pos, new Vector2(size));
 
             float facing = shipFacing + ((float)turretAngle).ToRadians();
             batch.Draw(arcTexture, rect, color.Alpha(0.75f), facing, texOrigin, SpriteEffects.None, 1f);

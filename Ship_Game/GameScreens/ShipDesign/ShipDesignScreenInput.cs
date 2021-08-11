@@ -225,7 +225,7 @@ namespace Ship_Game
         {
             int turretAngle;
             if (!round) turretAngle = (int)Math.Round(arc);
-            else turretAngle = (int)Math.Round(arc / 15f) * 15;
+            else        turretAngle = (int)Math.Round(arc / 15f) * 15;
 
             slot.Module.TurretAngle = turretAngle;
             if (IsSymmetricDesignMode && GetMirrorModule(slot, out ShipModule mirrored))
