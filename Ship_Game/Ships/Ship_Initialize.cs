@@ -166,18 +166,18 @@ namespace Ship_Game.Ships
 
         void InitializeFromSaveData(SavedGame.ShipSaveData save)
         {
-            guid             = save.guid;
-            Position         = save.Position;
-            experience       = save.experience;
-            kills            = save.kills;
-            PowerCurrent     = save.Power;
-            yRotation        = save.yRotation;
-            Rotation         = save.Rotation;
-            Velocity         = save.Velocity;
-            IsSpooling       = save.AfterBurnerOn;
-            TetherGuid       = save.TetheredTo;
-            TetherOffset     = save.TetherOffset;
-            InCombat         = save.InCombat;
+            guid         = save.guid;
+            Position     = save.Position;
+            experience   = save.experience;
+            kills        = save.kills;
+            PowerCurrent = save.Power;
+            yRotation    = save.yRotation;
+            Rotation     = save.Rotation;
+            Velocity     = save.Velocity;
+            IsSpooling   = save.AfterBurnerOn;
+            TetherGuid   = save.TetheredTo;
+            TetherOffset = save.TetherOffset;
+            InCombat     = save.InCombat;
 
             TransportingFood          = save.TransportingFood;
             TransportingProduction    = save.TransportingProduction;
@@ -192,6 +192,9 @@ namespace Ship_Game.Ships
             HealthMax = RecalculateMaxHealth();
             CalcTroopBoardingDefense();
             ChangeOrdnance(save.Ordnance);
+
+            if (save.ScuttleTimer.NotZero())
+                ScuttleTimer = save.ScuttleTimer;
 
             if (save.HomePlanetGuid != Guid.Empty)
                 HomePlanet = loyalty.FindPlanet(save.HomePlanetGuid);
