@@ -100,6 +100,9 @@ namespace Ship_Game.Ships
 
             InitializeThrusters(data);
             InitializeStatus(fromSave: false);
+
+            if (isTemplate && !shipyardDesign && !BaseCanWarp && DesignRoleType == ShipData.RoleType.Warship)
+                Log.Warning($"Ship.BaseCanWarp is false: {this}");
         }
 
         protected static Ship GetShipTemplate(string shipName)
@@ -135,7 +138,7 @@ namespace Ship_Game.Ships
                 ModuleSlotList[i] = ShipModule.Create(slot, this, isTemplate);
             }
 
-            CreateModuleGrid(shipData.GridInfo, isTemplate);
+            CreateModuleGrid(shipData.GridInfo, isTemplate, shipyardDesign);
             return true;
         }
 
@@ -162,7 +165,7 @@ namespace Ship_Game.Ships
                 ModuleSlotList[i] = ShipModule.Create(slot, this);
             }
 
-            CreateModuleGrid(shipData.GridInfo, isTemplate: false);
+            CreateModuleGrid(shipData.GridInfo, isTemplate: false, shipyardDesign: false);
             return true;
         }
 
@@ -475,10 +478,6 @@ namespace Ship_Game.Ships
             UpdateStatus(initConstants:true, fromSave);
 
             BaseStrength = CurrentStrength; // save base strength for later
-
-            if (!BaseCanWarp && DesignRoleType == ShipData.RoleType.Warship)
-                Log.Warning($"Ship.BaseCanWarp is false: {this}");
-
             UpdateOrdnancePercentage();
         }
 
