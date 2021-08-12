@@ -480,14 +480,16 @@ namespace Ship_Game
         }
 
         // Sets a common perspective projection to this screen
+        // The default FOV is 45 degrees
         // @param maxDistance The maximum distance for objects on screen.
         //                    For Universe this is the Maximum supported HEIGHT of the CAMERA
-        public void SetPerspectiveProjection(double maxDistance = 5000.0)
+        public void SetPerspectiveProjection(double fovYdegrees = 45, double maxDistance = 5000.0)
         {
             //SetProjection(Matrix.CreatePerspectiveFieldOfView(0.7853982f, Viewport.AspectRatio, 100f, 15000f)); // FleetDesignScreen
             //SetProjection(Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 120000f)); // ShipDesignScreen
-            //SetProjection(Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspect, 100f, 3E+07f)); // UniverseScreen
-            Projection = Matrix.CreatePerspectiveFieldOfView(0.78f, Viewport.AspectRatio, 100f, (float)maxDistance);
+            //SetProjection(Matrix.CreatePerspectiveFieldOfView(0.7853982f/*45 DEGREES*/, aspect, 100f, 3E+07f)); // UniverseScreen
+            float fieldOfViewYrads = (float)fovYdegrees.ToRadians();
+            Projection = Matrix.CreatePerspectiveFieldOfView(fieldOfViewYrads, Viewport.AspectRatio, 100f, (float)maxDistance);
             UpdateWorldScreenProjection();
         }
 

@@ -361,7 +361,7 @@ namespace Ship_Game
         {
             float univSizeOnScreen = 10f;
             MaxCamHeight = 15000000.0;
-            SetPerspectiveProjection(MaxCamHeight);
+            SetPerspectiveProjection(maxDistance: MaxCamHeight);
 
             while (univSizeOnScreen < (ScreenWidth + 50))
             {
@@ -374,14 +374,14 @@ namespace Ship_Game
                 if (univSizeOnScreen < (ScreenWidth + 50))
                 {
                     MaxCamHeight -= 0.1 * MaxCamHeight;
-                    SetPerspectiveProjection(MaxCamHeight);
+                    SetPerspectiveProjection(maxDistance: MaxCamHeight);
                 }
             }
 
             if (MaxCamHeight > 15000000.0)
             {
                 MaxCamHeight = 15000000.0;
-                SetPerspectiveProjection(MaxCamHeight);
+                SetPerspectiveProjection(maxDistance: MaxCamHeight);
             }
 
             if (!loading)
