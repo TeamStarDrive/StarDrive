@@ -70,7 +70,7 @@ namespace Ship_Game
 
             StyleTextures s = GetStyle();
             Rectangle r = Rect;
-            int o = Tabs.NotEmpty ? 25 : 0;
+            int o = r.Height < 25 ? 0 : 25;
             TL = new Rectangle(r.X, r.Y + o - 2, s.CornerTL.Width, s.CornerTL.Height);
             TR = new Rectangle(r.Right - s.CornerTR.Width, r.Y + o - 2, s.CornerTR.Width, s.CornerTR.Height);
             BL = new Rectangle(r.X, r.Bottom - s.CornerBL.Height + 2, s.CornerBL.Width, s.CornerBL.Height);
