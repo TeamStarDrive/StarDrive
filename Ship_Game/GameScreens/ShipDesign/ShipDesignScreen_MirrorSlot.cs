@@ -20,18 +20,6 @@ namespace Ship_Game
             return 360 - turretAngle;
         }
 
-        bool GetMirrorProjectedSlot(SlotStruct slot, int xSize, ModuleOrientation orientation, out SlotStruct projectedMirror)
-        {
-            if (GetMirrorSlot(slot, xSize, orientation, out MirrorSlot mirrored))
-            {
-                projectedMirror = mirrored.Slot;
-                return true;
-            }
-
-            projectedMirror = default;
-            return false;
-        }
-
         static Point GetMirrorGridPos(SlotStruct slot, int xSize)
         {
             int offsetFromCenter = slot.Pos.X - slot.GridCenter.X;
@@ -57,20 +45,19 @@ namespace Ship_Game
             return offsetX < (moduleWorldSize.X - 16f);
         }
 
-        bool GetMirrorSlot(SlotStruct slot, int xSize, ModuleOrientation orientation, out MirrorSlot mirrored)
+        bool GetMirrorSlot(SlotStruct slot, ShipModule forModule, out MirrorSlot mirrored)
         {
-            Point mirrorPos = GetMirrorGridPos(slot, xSize);
+            Point mirrorPos = GetMirrorGridPos(slot, forModule.XSIZE);
 
             if (ModuleGrid.Get(mirrorPos, out SlotStruct mirrorSS) &&
-                !MirroredModulesTooClose(mirrorPos, slot.Pos, xSize) && 
+                !MirroredModulesTooClose(mirrorPos, slot.Pos, forModule.XSIZE) && 
                 slot.Root != mirrorSS.Root) // !overlapping
             {
-                int turretAngle = slot.Root.Module?.TurretAngle ?? 0;
                 mirrored = new MirrorSlot
                 {
                     Slot = mirrorSS,
-                    ModuleRot = GetMirroredOrientation(orientation),
-                    TurretAngle = GetMirroredTurretAngle(turretAngle)
+                    ModuleRot = GetMirroredOrientation(forModule.ModuleRot),
+                    TurretAngle = GetMirroredTurretAngle(forModule.TurretAngle)
                 };
                 return true;
             }
@@ -82,13 +69,10 @@ namespace Ship_Game
         bool GetMirrorSlotStruct(SlotStruct slot, out SlotStruct mirrored)
         {
             SlotStruct root = slot.Root;
-            if (GetMirrorSlot(root, root.Module.XSIZE, root.Module.ModuleRot, out MirrorSlot ms))
+            if (GetMirrorSlot(root, root.Module, out MirrorSlot ms) && ms.Slot.Module != null)
             {
-                if (ms.Slot?.Module != null)
-                {
-                    mirrored = ms.Slot;
-                    return true;
-                }
+                mirrored = ms.Slot;
+                return true;
             }
             mirrored = null;
             return false;
