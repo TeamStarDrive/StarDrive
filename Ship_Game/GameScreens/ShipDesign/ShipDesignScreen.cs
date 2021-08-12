@@ -232,8 +232,7 @@ namespace Ship_Game
 
         SlotInstall CreateMirrorInstall(SlotInstall install)
         {
-            if (IsSymmetricDesignMode &&
-                GetMirrorSlot(install.Slot, install.Mod.XSIZE, install.Mod.ModuleRot, out MirrorSlot mirrored))
+            if (IsSymmetricDesignMode && GetMirrorSlot(install.Slot, install.Mod, out MirrorSlot mirrored))
             {
                 // @warning in order to get correct XSIZE/YSIZE, we MUST use Module Template UID here
                 ShipModule mModule = CreateDesignModule(install.Mod.UID, mirrored.ModuleRot, mirrored.TurretAngle);
@@ -297,8 +296,7 @@ namespace Ship_Game
 
             if (IsSymmetricDesignMode)
             {
-                if (GetMirrorSlotStruct(slot, out SlotStruct mirrored)
-                    && mirrored.Root != slot.Root)
+                if (GetMirrorSlotStruct(slot, out SlotStruct mirrored))
                 {
                     ModuleGrid.ClearSlots(mirrored.Root, mirrored.Root.Module);
                 }
