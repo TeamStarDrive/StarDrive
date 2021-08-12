@@ -627,8 +627,9 @@ namespace Ship_Game
 
         void InitializeCamera()
         {
-            SetPerspectiveProjection();
-            UpdateViewMatrix(CameraPosition);
+            // set shipyard's fov much lower to reduce parallax
+            SetPerspectiveProjection(fovYdegrees: 20, maxDistance: 30000);
+            UpdateViewMatrix(CameraPos);
         }
 
         void InitializeShipHullsList()

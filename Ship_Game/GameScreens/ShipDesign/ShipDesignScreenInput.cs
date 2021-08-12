@@ -459,7 +459,7 @@ namespace Ship_Game
         {
             if (input.ScrollOut) DesiredCamHeight *= 1.05f;
             if (input.ScrollIn)  DesiredCamHeight *= 0.95f;
-            DesiredCamHeight = DesiredCamHeight.Clamped(10f, 2000f);
+            DesiredCamHeight = DesiredCamHeight.Clamped(1000f, 4000f);
         }
 
         bool HandleInputUndoRedo(InputState input)
