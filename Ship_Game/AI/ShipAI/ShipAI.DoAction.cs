@@ -367,7 +367,7 @@ namespace Ship_Game.AI
             }
 
             if (LandingOffset.AlmostZero())
-                LandingOffset = FindLandingSpot(planet);
+                LandingOffset = FindLandingOffset(planet);
 
             Vector2 landingSpot = planet.Center + LandingOffset;
             // force the ship out of warp if we get too close
@@ -416,7 +416,7 @@ namespace Ship_Game.AI
             }
         }
 
-        Vector2 FindLandingSpot(Planet planet)
+        Vector2 FindLandingOffset(Planet planet)
         {
             Vector2 pos;
             if (Owner.IsSingleTroopShip || Owner.IsDefaultAssaultShuttle)
