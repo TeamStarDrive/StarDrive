@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Linq;
+using Ship_Game.AI;
 
 namespace Ship_Game.GameScreens.ShipDesign
 {
@@ -113,6 +114,14 @@ namespace Ship_Game.GameScreens.ShipDesign
         {
             if (Role != ShipData.RoleName.platform && numCommand == 1 && size >= 500)
                 AddDesignIssue(DesignIssueType.BackUpCommand, WarningLevel.Major);
+        }
+
+        public void CheckIssueStationaryHoldPositionHangars(int numFighterHangars, CombatState combatState)
+        {
+            if (numFighterHangars > 0 && Stationary && combatState == CombatState.HoldPosition)
+            {
+                AddDesignIssue(DesignIssueType.OrbitalCarrierHoldPosition, WarningLevel.Critical);
+            }
         }
 
         public void  CheckIssueUnpoweredModules(bool unpoweredModules)
@@ -551,7 +560,8 @@ namespace Ship_Game.GameScreens.ShipDesign
         OneTimeFireEfficiency,
         ExcessPowerCells,
         DedicatedCarrier,
-        SecondaryCarrier
+        SecondaryCarrier,
+        OrbitalCarrierHoldPosition
     }
 
     public enum WarningLevel
@@ -756,6 +766,12 @@ namespace Ship_Game.GameScreens.ShipDesign
                     Problem     = GameText.ThisShipHasSomeFighter;
                     Remediation = GameText.CurrentSelectedFighterLaunchRange;
                     Texture     = ResourceManager.Texture("NewUI/IssueSecondaryCarrier");
+                    break;
+                case DesignIssueType.OrbitalCarrierHoldPosition:
+                    Title       = GameText.DesignIssueOrbitalHangarHoldPositionTitle;
+                    Problem     = GameText.DesignIssueOrbitalHangarHoldPositionProblem;
+                    Remediation = GameText.DesignIssueOrbitalHangarHoldPositionRemidiation;
+                    Texture     = ResourceManager.Texture("NewUI/IssueOrbitalHangarHold");
                     break;
             }
         }
