@@ -10273,6 +10273,15 @@ RuleOptionsUseHullUpkeepName:
 RuleOptionsUseHullUpkeepTip:
  Id: 4356
  ENG: "Normally, ship upkeep is calculated as a fraction of the ship's cost (with some modifiers). When using Hull Size Based Upkeep, the upkeep of the ship will be 1% of the number of slot it has (Fightger Hangar size is added as well), regardless of cost. This will let you build advanced ships with the same upkeep as less advanced ships with identical size, but the AI will be able to do so as well"
+DesignIssueOrbitalHangarHoldPositionTitle:
+ Id: 4357
+ ENG: "Orbital Hangar Launch Range"
+DesignIssueOrbitalHangarHoldPositionProblem:
+ Id: 4358
+ ENG: "Your Orbital is set to Hold Position Combat Stance while having fighter hangars. It will not launch them unless the enemy is at point blank range."
+DesignIssueOrbitalHangarHoldPositionRemidiation:
+ Id: 4359
+ ENG: "It is recommended to use Long / Short range combat stance for orbitals with hangars."
 OnSurface:
  Id: 4993
  ENG: "on surface"
