@@ -613,7 +613,7 @@ namespace Ship_Game
 
                 foreach (ClickableShip ship in ClickableShipsList)
                 {
-                    if (ship.shipToClick != null && ship.shipToClick.InhibitionRadius > 0f)
+                    if (ship.shipToClick != null && ship.shipToClick.InhibitionRadius > 0f && ship.shipToClick.IsVisibleToPlayer)
                     {
                         float radius = ship.shipToClick.InhibitionRadius;
                         DrawCircleProjected(ship.shipToClick.Position, radius, new Color(255, 50, 0, 150), 1f,
