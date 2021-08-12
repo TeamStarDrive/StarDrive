@@ -108,11 +108,10 @@ namespace Ship_Game
             bool fits = ModuleGrid.ModuleFitsAtSlot(ProjectedSlot, ActiveModule);
             DrawRectangleProjected(ProjectedSlot.GetWorldRectFor(ActiveModule), fits ? Color.LightGreen : Color.Red, 1.5f);
 
-            if (IsSymmetricDesignMode 
-                && GetMirrorProjectedSlot(ProjectedSlot, ActiveModule.XSIZE, ActiveModule.ModuleRot, out SlotStruct mirrored))
+            if (IsSymmetricDesignMode && GetMirrorSlot(ProjectedSlot, ActiveModule, out MirrorSlot mirrored))
             {
-                bool mirrorFits = ModuleGrid.ModuleFitsAtSlot(mirrored, ActiveModule);
-                DrawRectangleProjected(mirrored.GetWorldRectFor(ActiveModule), mirrorFits 
+                bool mirrorFits = ModuleGrid.ModuleFitsAtSlot(mirrored.Slot, ActiveModule);
+                DrawRectangleProjected(mirrored.Slot.GetWorldRectFor(ActiveModule), mirrorFits 
                     ? Color.LightGreen.Alpha(0.66f) : Color.Red.Alpha(0.66f), 1.5f);
             }
         }
