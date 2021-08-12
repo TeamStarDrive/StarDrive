@@ -410,6 +410,7 @@ namespace Ship_Game
             sdata.RecallFightersBeforeFTL = ship.Carrier.RecallFightersBeforeFTL;
             sdata.MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
             sdata.OrdnanceInSpace = ship.Carrier.OrdnanceInSpace;
+            sdata.ScuttleTimer = ship.ScuttleTimer;
 
             if (ship.IsHomeDefense)
                 sdata.HomePlanetGuid = ship.HomePlanet.guid;
@@ -931,6 +932,7 @@ namespace Ship_Game
             [Serialize(32)] public bool RecallFightersBeforeFTL;
             [Serialize(33)] public float MechanicalBoardingDefense;
             [Serialize(34)] public float OrdnanceInSpace; // For carriers
+            [Serialize(35)] public float ScuttleTimer;
 
             public override string ToString() => $"ShipSave {guid} {Name}";
         }
