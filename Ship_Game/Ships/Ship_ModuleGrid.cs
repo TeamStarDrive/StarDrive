@@ -29,12 +29,12 @@ namespace Ship_Game.Ships
         public ShipModule[] Modules => ModuleSlotList;
         public bool HasModules => ModuleSlotList != null && ModuleSlotList.Length != 0;
 
-        void CreateModuleGrid(in ShipGridInfo gridInfo, bool isTemplate)
+        void CreateModuleGrid(in ShipGridInfo gridInfo, bool isTemplate, bool shipyardDesign)
         {
             ShipGridInfo info = gridInfo;
 
         #if DEBUG
-            if (isTemplate)
+            if (isTemplate && !shipyardDesign)
             {
                 var modulesInfo = new ShipGridInfo(ModuleSlotList);
                 if (modulesInfo.SurfaceArea != gridInfo.SurfaceArea ||
