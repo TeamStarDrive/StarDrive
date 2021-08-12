@@ -4356,6 +4356,12 @@ namespace Ship_Game
         RuleOptionsUseHullUpkeepName = 4355,
         /// <summary>Normally, ship upkeep is calculated as a fraction of the</summary>
         RuleOptionsUseHullUpkeepTip = 4356,
+        /// <summary>Orbital Hangar Launch Range</summary>
+        DesignIssueOrbitalHangarHoldPositionTitle = 4357,
+        /// <summary>Your Orbital is set to Hold Position Combat Stance while</summary>
+        DesignIssueOrbitalHangarHoldPositionProblem = 4358,
+        /// <summary>It is recommended to use Long / Short range combat</summary>
+        DesignIssueOrbitalHangarHoldPositionRemidiation = 4359,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>

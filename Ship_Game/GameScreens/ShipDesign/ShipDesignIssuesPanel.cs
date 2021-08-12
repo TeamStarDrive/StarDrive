@@ -100,6 +100,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 var ds = S.DesignStats;
                 Issues.CheckIssueNoCommand(ds.NumCmdModules);
                 Issues.CheckIssueBackupCommand(ds.NumCmdModules, S.SurfaceArea);
+                Issues.CheckIssueStationaryHoldPositionHangars(S.Carrier.AllFighterHangars.Length, S.shipData.DefaultCombatState);
                 Issues.CheckIssueUnpoweredModules(ds.UnpoweredModules);
                 Issues.CheckIssueOrdnance(ds.AvgOrdnanceUsed, S.OrdAddedPerSecond, ds.AmmoTime);
                 Issues.CheckIssuePowerRecharge(ds.HasEnergyWeapons, ds.PowerRecharge, S.PowerStoreMax, ds.PowerConsumed);
