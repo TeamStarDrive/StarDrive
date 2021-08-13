@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -22,9 +23,9 @@ namespace Ship_Game
 
         public ShipDesignSaveScreen(ShipDesignScreen screen, string shipName, bool hullDesigner = false) : base(screen)
         {
+            Screen = screen;
             Rect = new Rectangle(ScreenWidth / 2 - 250, ScreenHeight / 2 - 300, 500, 600);
             ShipName = shipName;
-            Screen = screen;
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
@@ -140,15 +141,13 @@ namespace Ship_Game
             TrySave();
         }
 
-        void OverWriteAccepted()
+        void OverWriteAccepted(string shipOrHullName, FileInfo overwriteProtected)
         {
             GameAudio.AffirmativeClick();
 
-            string shipOrHullName = EnterNameArea.Text;
-
             if (Hulls)
             {
-                Screen?.SaveHullDesign(shipOrHullName);
+                Screen.SaveHullDesign(shipOrHullName, overwriteProtected);
 
                 if (!ResourceManager.Hull(shipOrHullName, out ShipHull hull))
                 {
@@ -158,7 +157,7 @@ namespace Ship_Game
             }
             else
             {
-                Screen?.SaveShipDesign(shipOrHullName);
+                Screen.SaveShipDesign(shipOrHullName, overwriteProtected);
 
                 if (!ResourceManager.GetShipTemplate(shipOrHullName, out Ship ship))
                 {
@@ -166,29 +165,34 @@ namespace Ship_Game
                     return;
                 }
 
-                Empire emp = EmpireManager.Player;
-                try
-                {
-                    ship.BaseStrength = ship.GetStrength();
-                    foreach (Planet p in emp.GetPlanets())
-                    {
-                        foreach (QueueItem qi in p.ConstructionQueue)
-                        {
-                            if (qi.isShip && qi.sData.Name == shipOrHullName)
-                            {
-                                qi.sData = ship.shipData;
-                                qi.Cost = ship.GetCost(emp);
-                            }
-                        }
-                    }
-                }
-                catch (Exception x)
-                {
-                    Log.Error(x, "Failed to set strength or rename during ship save");
-                }
+                UpdateConstrucionQueue(ship, shipOrHullName);
             }
 
             ExitScreen();
+        }
+
+        void UpdateConstrucionQueue(Ship ship, string shipOrHullName)
+        {
+            Empire emp = EmpireManager.Player;
+            try
+            {
+                ship.BaseStrength = ship.GetStrength();
+                foreach (Planet p in emp.GetPlanets())
+                {
+                    foreach (QueueItem qi in p.ConstructionQueue)
+                    {
+                        if (qi.isShip && qi.sData.Name == shipOrHullName)
+                        {
+                            qi.sData = ship.shipData;
+                            qi.Cost = ship.GetCost(emp);
+                        }
+                    }
+                }
+            }
+            catch (Exception x)
+            {
+                Log.Error(x, "Failed to set strength or rename during ship save");
+            }
         }
 
         void TrySave()
@@ -204,28 +208,23 @@ namespace Ship_Game
             }
 
             bool exists = false;
+            bool reserved = false;
+            FileInfo source = null;
 
             if (Hulls)
             {
-                foreach (ShipHull hull in ResourceManager.Hulls)
-                {
-                    if (shipOrHullName == hull.HullName)
-                        exists = true;
-                }
+                ShipHull hull = ResourceManager.Hulls.First(h => h.HullName == shipOrHullName);
+                exists = hull != null;
+                source = hull?.Source;
             }
             else
             {
-                bool reserved = false;
-                foreach (Ship ship in ResourceManager.GetShipTemplates())
-                {
-                    if (shipOrHullName == ship.Name)
-                    {
-                        exists = true;
-                        reserved |= ship.IsReadonlyDesign;
-                    }
-                }
+                Ship ship = ResourceManager.GetShipTemplates().First(s => s.Name == shipOrHullName);
+                exists = ship != null;
+                source = ship?.shipData.Source;
+                reserved = ship?.IsReadonlyDesign == true;
 
-                if (reserved && !Empire.Universe.Debug)
+                if (reserved && !Screen.EnableDebugFeatures)
                 {
                     GameAudio.NegativeClick();
                     ScreenManager.AddScreen(new MessageBoxScreen(this, $"{shipOrHullName} is a reserved ship name and you cannot overwrite this design"));
@@ -238,14 +237,17 @@ namespace Ship_Game
                 GameAudio.NegativeClick();
                 string alreadyExists = Hulls ? $"Hull named '{shipOrHullName}' already exists. Overwrite?"
                                              : $"Design named '{shipOrHullName}' already exists. Overwrite?";
+                if (reserved)
+                    alreadyExists = $"Reserved Design named '{shipOrHullName}' already exists. Overwrite at '{source.RelPath()}'?";
+
                 ScreenManager.AddScreen(new MessageBoxScreen(this, alreadyExists)
                 {
-                    Accepted = OverWriteAccepted
-                });
+                    Accepted = () => OverWriteAccepted(shipOrHullName, reserved ? source : null)
+                });;
             }
             else
             {
-                OverWriteAccepted();
+                OverWriteAccepted(shipOrHullName, null);
             }
         }
 

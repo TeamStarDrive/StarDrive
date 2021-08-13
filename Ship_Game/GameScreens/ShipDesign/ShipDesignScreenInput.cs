@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
@@ -619,35 +620,38 @@ namespace Ship_Game
             toSave.HullName = newName;
             return toSave;
         }
-        
-        void SaveDesign(ShipData design, string designFile)
+
+        void SaveDesign(ShipData design, FileInfo designFile)
         {
             design.Save(designFile);
             ShipSaved = true;
         }
-        
-        void SaveHull(ShipHull hull, string hullFile)
+
+        void SaveHull(ShipHull hull, FileInfo hullFile)
         {
             hull.Save(hullFile);
             ShipSaved = true;
         }
 
-        public void SaveShipDesign(string name)
+        public void SaveShipDesign(string name, FileInfo overwriteProtected)
         {
             ShipData toSave = CloneCurrentDesign(name);
-            SaveDesign(toSave, $"{Dir.StarDriveAppData}/Saved Designs/{name}.design");
+            SaveDesign(toSave, overwriteProtected ?? new FileInfo($"{Dir.StarDriveAppData}/Saved Designs/{name}.design"));
 
-            Ship newTemplate = ResourceManager.AddShipTemplate(toSave, playerDesign: true);
+            bool playerDesign = overwriteProtected == null;
+            bool readOnlyDesign = overwriteProtected != null;
+
+            Ship newTemplate = ResourceManager.AddShipTemplate(toSave, playerDesign: playerDesign, readOnly: readOnlyDesign);
             EmpireManager.Player.UpdateShipsWeCanBuild();
             if (!UnlockAllFactionDesigns && !EmpireManager.Player.WeCanBuildThis(newTemplate.Name))
                 Log.Error("WeCanBuildThis check failed after SaveShipDesign");
             ChangeHull(newTemplate.shipData);
         }
 
-        public void SaveHullDesign(string hullName)
+        public void SaveHullDesign(string hullName, FileInfo overwriteProtected)
         {
             ShipHull toSave = CloneCurrentHull(hullName);
-            SaveHull(toSave, $"Content/Hulls/{CurrentHull.Style}/{hullName}.hull");
+            SaveHull(toSave, overwriteProtected ?? new FileInfo($"Content/Hulls/{CurrentHull.Style}/{hullName}.hull"));
 
             ShipHull newHull = ResourceManager.AddHull(toSave);
             ChangeHull(newHull);
@@ -658,12 +662,12 @@ namespace Ship_Game
             if (CurrentDesign != null)
             {
                 ShipData toSave = CloneCurrentDesign($"{DateTime.Now:yyyy-MM-dd}__{DesignOrHullName}");
-                SaveDesign(toSave, $"{Dir.StarDriveAppData}/WIP/{toSave.Name}.design");
+                SaveDesign(toSave, new FileInfo($"{Dir.StarDriveAppData}/WIP/{toSave.Name}.design"));
             }
             else
             {
                 ShipHull toSave = CloneCurrentHull($"{DateTime.Now:yyyy-MM-dd}__{DesignOrHullName}");
-                SaveHull(toSave, $"{Dir.StarDriveAppData}/WIP/{toSave.HullName}.hull");
+                SaveHull(toSave, new FileInfo($"{Dir.StarDriveAppData}/WIP/{toSave.HullName}.hull"));
             }
         }
 
