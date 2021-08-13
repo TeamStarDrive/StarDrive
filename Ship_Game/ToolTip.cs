@@ -24,8 +24,8 @@ namespace Ship_Game
 
         static readonly Array<TipItem> ActiveTips = new Array<TipItem>();
 
-        public static void ShipYardArcTip(Vector2 position)
-            => CreateTooltip("Shift for fine tune\nAlt for previous arcs", "", position);
+        public static void ShipYardArcTip()
+            => CreateTooltip("Shift for fine tune\nAlt for previous arcs");
 
         public static void PlanetLandingSpotsTip(string locationText, int spots)
             => CreateTooltip($"{locationText}\n{spots} Landing Spots");
