@@ -72,7 +72,7 @@ namespace Ship_Game.Ships.Legacy
             SlotOptions  = slotOptions;
         }
 
-        public override string ToString() => $"{ModuleUID} {Position} {Facing} {Orientation} {SlotOptions} {Restrictions} T={ModuleOrNull}";
+        public override string ToString() => $"{Position} {ModuleUID} {Facing} {Orientation} {SlotOptions} {Restrictions} T={ModuleOrNull}";
 
         [XmlIgnore] [JsonIgnore]
         public bool IsDummy => ModuleUID == null || ModuleUID == "Dummy";

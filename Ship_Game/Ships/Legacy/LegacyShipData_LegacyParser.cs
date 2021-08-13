@@ -53,6 +53,7 @@ namespace Ship_Game.Ships.Legacy
                     SelectionGraphic          = s->SelectionGraphic.AsString,
                     AllModulesUnlockable      = s->AllModulesUnlockable != 0,
                     MechanicalBoardingDefense = s->MechanicalBoardingDefense,
+                    IsHull = isHullDefinition,
                     Source = info,
                 };
                 Enum.TryParse(s->Role.AsString,              out ship.Role);

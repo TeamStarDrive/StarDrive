@@ -195,12 +195,22 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
-        public void ShipDesign_NewFormat_SaveLoad_EqualToOldFormat()
+        public void ShipDesign_NewEqualsOld_PrototypeFrigate()
         {
             LegacyShipData legacy = LegacyShipData.Parse("Content/ShipDesigns/Prototype Frigate.xml", isHullDefinition:false);
             legacy.SaveDesign("Content/ShipDesigns/Prototype Frigate.design");
             
             ShipData neu = ShipData.Parse("Content/ShipDesigns/Prototype Frigate.design");
+            AssertAreEqual(legacy, neu);
+        }
+
+        [TestMethod]
+        public void ShipDesign_NewEqualsOld_AncientTorpedoCruiser()
+        {
+            LegacyShipData legacy = LegacyShipData.Parse("Content/ShipDesigns/Ancient Torpedo Cruiser.xml", isHullDefinition: false);
+            legacy.SaveDesign("Content/ShipDesigns/Ancient Torpedo Cruiser.design");
+
+            ShipData neu = ShipData.Parse("Content/ShipDesigns/Ancient Torpedo Cruiser.design");
             AssertAreEqual(legacy, neu);
         }
 

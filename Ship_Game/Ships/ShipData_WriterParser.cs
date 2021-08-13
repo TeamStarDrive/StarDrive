@@ -53,6 +53,7 @@ namespace Ship_Game.Ships
 
             sw.Write("DefaultAIState", DefaultAIState);
             sw.Write("DefaultCombatState", DefaultCombatState);
+            sw.Write("ShipCategory", ShipCategory);
             sw.Write("EventOnDeath", EventOnDeath); // "DefeatedMothership" remnant event
 
             ushort[] slotModuleUIDAndIndex = CreateModuleIndexMapping(ModuleSlots, out Array<string> moduleUIDs);
@@ -186,8 +187,9 @@ namespace Ship_Game.Ships
                     else if (key == "SelectIcon")  SelectionGraphic = value.Text;
                     else if (key == "FixedCost")   FixedCost = value.ToInt();
                     else if (key == "FixedUpkeep") FixedUpkeep = value.ToFloat();
-                    else if (key == "DefaultAIState") Enum.TryParse(value.Text, out DefaultAIState);
-                    else if (key == "DefaultCombatState")    Enum.TryParse(value.Text, out DefaultCombatState);
+                    else if (key == "DefaultAIState")     Enum.TryParse(value.Text, out DefaultAIState);
+                    else if (key == "DefaultCombatState") Enum.TryParse(value.Text, out DefaultCombatState);
+                    else if (key == "ShipCategory")       Enum.TryParse(value.Text, out ShipCategory);
                     else if (key == "EventOnDeath")   EventOnDeath = value.Text;
                     else if (key == "ModuleUIDs")
                         moduleUIDs = value.Split(';').Select(s => string.Intern(s.Text));
