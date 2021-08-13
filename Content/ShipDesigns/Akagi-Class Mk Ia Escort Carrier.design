@@ -4,7 +4,6 @@ Hull=Kulrathi/Mauler
 Role=cruiser
 Style=Kulrathi
 Size=18,31
-DefaultAIState=DoNothing
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorMed;SteelArmorSmall;FighterBay;FlakTurret;VulcanCannon;Shield_1KW;Internal Bulkhead;OrdnanceLocker;NuclearReactorMed;CapEngines;Bridge;Reinforced Bulkhead;NuclearReactorSmall;PowerConduit;WarpEngine_3x3

@@ -4,7 +4,6 @@ Hull=Remnant/RemnantPortal
 Role=station
 Style=Remnant
 Size=66,76
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=Quantanium_3x3;Quantanium_1x1;DisintegratorArray;QTCannon;EMPTurret3x3;RemnantSmallFuelCell;AncientShield2kw;PhasorTurret2x2;DisruptorTurret3x3;OrdnanceLockerSmall;Phalanx PD;Internal Bulkhead;PowerConduit;AncientReactorMed;PlasmaThrower;Main Engineering;Fabricator;CanopyShield;RepairDrone;Pulse Capacitor;CIC;OrdnanceLocker;SubspaceSensors;Quantanium_2x2;MarineBarracks8x4

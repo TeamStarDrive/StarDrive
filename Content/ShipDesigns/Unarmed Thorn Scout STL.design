@@ -4,7 +4,6 @@ Hull=Pollops/Thorn
 Role=scout
 Style=Pollops
 Size=4,4
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicFuelCell;Cockpit;Powerplant_nuke_1x1;Range_Thruster_1x1;Maneuvering_Thruster_1x1

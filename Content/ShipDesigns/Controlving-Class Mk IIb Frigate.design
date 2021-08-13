@@ -4,7 +4,6 @@ Hull=Cordrazine/Metving
 Role=frigate
 Style=Cordrazine
 Size=12,14
-DefaultAIState=DoNothing
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;Shield_1KW;HeavyLaserCannon;BasicFuelCell;LaserCannon;NuclearReactorMed;WarpEngine_2x2;CombatEngine_2x2;SteelArmorMed;Bridge

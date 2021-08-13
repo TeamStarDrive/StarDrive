@@ -4,7 +4,6 @@ Hull=Vulfen/Type III
 Role=corvette
 Style=Vulfen
 Size=6,6
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=Railgun1x3;OrdnanceLockerSmall;SteelArmorSmall;NuclearReactorMed;engine_fighter_1x1;WarpEngine_1x1;Cockpit

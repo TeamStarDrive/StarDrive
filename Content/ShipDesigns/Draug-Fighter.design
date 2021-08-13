@@ -4,7 +4,6 @@ Hull=Draugar/Draug Fighter
 Role=fighter
 Style=Draugar
 Size=4,4
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=RocketLauncher;VulcanCannon;OrdnanceLockerSmall;NuclearReactorSmall;Engine;Cockpit

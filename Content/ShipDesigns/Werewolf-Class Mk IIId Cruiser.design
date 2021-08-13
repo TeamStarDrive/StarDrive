@@ -3,8 +3,7 @@ Name=Werewolf-Class Mk IIId Cruiser
 Hull=Vulfen/Type X
 Role=cruiser
 Style=Vulfen
-Size=12,40
-DefaultAIState=DoNothing
+Size=12,41
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;PolaronTurret3x3;EMPTurret3x3;SteelArmorMed;PolaronTurret2x2;WarpEngine_1x1;EMPTurret2x2;CombatEngine_2x2;LaserCannon;Shield_10KW;BasicFuelCell;CIC;Main Engineering;NuclearReactorSmall;MediumFuelCell;NuclearReactorMed;WarpEngine_3x3;PowerConduit;HeavyLaserCannon

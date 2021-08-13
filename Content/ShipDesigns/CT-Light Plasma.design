@@ -4,7 +4,6 @@ Hull=Ralyeh/Missionary
 Role=corvette
 Style=Ralyeh
 Size=4,6
-DefaultAIState=DoNothing
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=OrdnanceLockerSmall;PlasmaThrower;Cockpit;NuclearReactorSmall;engine_fighter_1x1;PowerConduit;WarpEngine_1x1

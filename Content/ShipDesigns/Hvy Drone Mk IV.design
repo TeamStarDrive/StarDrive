@@ -4,7 +4,6 @@ Hull=Remnant/XenoGunship
 Role=frigate
 Style=Remnant
 Size=8,8
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PhotonTurret;RemnantSmallFuelCell;Fighter Shield;AncientShield2kw;Combat_Thruster_2x2;AncientReactorMed;Cockpit

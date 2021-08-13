@@ -4,7 +4,6 @@ Hull=Meteors/Meteor C
 Role=platform
 Style=Meteors
 Size=12,12
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=MeteorPart

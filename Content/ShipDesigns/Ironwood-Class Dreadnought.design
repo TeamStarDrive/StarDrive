@@ -4,7 +4,6 @@ Hull=Pollops/Entangler
 Role=capital
 Style=Pollops
 Size=66,38
-DefaultAIState=DoNothing
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;PowerConduit;FusionBeam2x3;FusionTurret2x2;Shield_10KW;MRLS;PlaSteelArmorMed;ConventionalTorpedo;MissileLauncher3x3;PlaSteelArmorLarge;OrdnanceLockerSmall;OrdnanceLocker;BasicFuelCell;MediumFuelCell;LaserCannon;Internal Bulkhead;Fabricator;MarineBarracks2x2;Main Engineering;CombatEngine_2x2;WarpEngine_1x1;WarpEngine_4x4;CIC;Titan Engine

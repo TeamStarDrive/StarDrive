@@ -4,7 +4,6 @@ Hull=Draylok/Wisp
 Role=fighter
 Style=Draylok
 Size=6,2
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=OrdnanceLockerSmall;VulcanCannon;NuclearReactorSmall;WarpEngine_1x1;Cockpit;Engine

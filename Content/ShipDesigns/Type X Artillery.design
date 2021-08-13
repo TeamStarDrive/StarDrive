@@ -3,8 +3,7 @@ Name=Type X Artillery
 Hull=Vulfen/Type X
 Role=cruiser
 Style=Vulfen
-Size=12,40
-DefaultAIState=DoNothing
+Size=12,41
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=VulcanCannon;SteelArmorSmall;SteelArmorMed;MissileLauncher3x3;MRLS;NuclearBombBay2x2;WarpEngine_3x3;FrigateEngine;Internal Bulkhead;PowerConduit;NuclearReactorMed;Shield_1KW;OrdnanceLocker;Bridge;OrdnanceLockerSmall

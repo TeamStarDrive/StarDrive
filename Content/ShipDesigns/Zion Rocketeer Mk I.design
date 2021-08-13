@@ -4,7 +4,6 @@ Hull=Ralyeh/Zion
 Role=frigate
 Style=Ralyeh
 Size=8,9
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;OrdnanceLockerSmall;RocketLauncher;PowerConduit;NuclearReactorSmall;Cockpit;NuclearReactorMed;FrigateEngine;WarpEngine_1x1

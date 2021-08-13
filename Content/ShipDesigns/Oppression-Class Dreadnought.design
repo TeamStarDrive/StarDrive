@@ -4,7 +4,6 @@ Hull=Cordrazine/Mordaving
 Role=capital
 Style=Cordrazine
 Size=32,46
-DefaultAIState=DoNothing
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;PlaSteelArmorLarge;PlaSteelArmorMed;PhasorBeam2x3;PhasorTurret2x2;Phalanx PD;NuclearReactorSmall;Shield_10KW;DisintegratorArray;BasicFuelCell;Internal Bulkhead;CombatEngine_2x2;WarpEngine_3x3;CIC;Main Engineering;Fabricator;OrdnanceLocker;MediumFuelCell;FuelCellMediumArmored;NuclearReactorMed;WarpEngine_2x2

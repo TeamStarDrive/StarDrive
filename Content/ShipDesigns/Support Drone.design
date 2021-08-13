@@ -4,7 +4,6 @@ Hull=Remnant/XenoGunship
 Role=corvette
 Style=Remnant
 Size=8,8
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=OrdnanceSupplyBay;PlaSteelArmorSmall;RemnantSmallReactor;AncientReactorMed;RemnantSmallFuelCell;RemnantEngine2;LaserCannon;AncientShield2kw;Fabricator;Cockpit;RepairDrone

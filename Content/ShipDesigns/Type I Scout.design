@@ -4,8 +4,8 @@ Hull=Vulfen/Type I
 Role=scout
 Style=Vulfen
 Size=4,4
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Recon
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=VulcanCannon;OrdnanceLockerSmall;Cockpit;NuclearReactorSmall;WarpEngine_1x1;Engine
 Modules=10

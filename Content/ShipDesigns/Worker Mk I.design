@@ -4,7 +4,6 @@ Hull=Opteris/Worker
 Role=corvette
 Style=Opteris
 Size=8,6
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=OrdnanceLockerSmall;FlakTurret;VulcanCannon;NuclearReactorSmall;NuclearReactorMed;engine_fighter_1x1;WarpEngine_1x1;Cockpit

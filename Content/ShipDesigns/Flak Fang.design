@@ -4,7 +4,6 @@ Hull=Kulrathi/Fang
 Role=fighter
 Style=Kulrathi
 Size=6,4
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=FlakTurret;OrdnanceLockerSmall;Cockpit;NuclearReactorSmall;WarpEngine_1x1;SteelArmorSmall;Engine

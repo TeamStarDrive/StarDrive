@@ -4,7 +4,6 @@ Hull=Kulrathi/Claw
 Role=frigate
 Style=Kulrathi
 Size=18,17
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;OrdnanceLockerSmall;FlakTurret3x3;FlakTurret;Internal Bulkhead;PlaSteelArmorMed;Shield_10KW;AntiMatterReactor;WarpEngine_1x1;WarpEngine_2x2;Bridge;Engine;CombatEngine_2x2

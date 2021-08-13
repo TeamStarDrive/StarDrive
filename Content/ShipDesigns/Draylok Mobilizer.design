@@ -4,8 +4,8 @@ Hull=Draylok/Draylok Tx Lg
 Role=freighter
 Style=Draylok
 Size=8,32
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Civilian
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicCargoHold;WarpEngine_1x1;WarpEngine_2x2;NuclearReactorMed;NuclearReactorSmall;PowerConduit;Cockpit
 Modules=222

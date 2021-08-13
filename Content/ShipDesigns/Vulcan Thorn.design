@@ -4,7 +4,6 @@ Hull=Pollops/Thorn
 Role=fighter
 Style=Pollops
 Size=4,4
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=VulcanCannon;Cockpit;NuclearReactorSmall;WarpEngine_1x1;OrdnanceLockerSmall;Engine
