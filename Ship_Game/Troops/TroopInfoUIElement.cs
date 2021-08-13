@@ -33,9 +33,9 @@ namespace Ship_Game
             RangeRect         = new Rectangle(LeftRect.X + 12, HardAttackRect.Y + 16 + 5, 16, 16);
             DefenseRect.X    -= 3;
             ItemDisplayRect   = new Rectangle(LeftRect.X + 85, LeftRect.Y + 5, 128, 128);
-            Rectangle desRect = new Rectangle(RangeRect.X, RangeRect.Y, LeftRect.Width + 8, 110);
+            Rectangle desRect = new Rectangle(RangeRect.X, RangeRect.Y + 5, LeftRect.Width + 8, 240);
             Submenu sub       = new Submenu(desRect);
-            DescriptionBox = Add(new UITextBox(sub));
+            DescriptionBox    = Add(new UITextBox(sub));
 
             ToolTipItems.Add(new TippedItem(DefenseRect, GameText.IndicatesThisUnitsGroundCombat));
             ToolTipItems.Add(new TippedItem(SoftAttackRect, GameText.IndicatesThisUnitsCombatEffectiveness));
@@ -58,7 +58,8 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, color);
             batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), SoftAttackRect, color);
             batch.Draw(ResourceManager.Texture("Ground_UI/attack_hard"), HardAttackRect, color);
-            batch.Draw(ResourceManager.Texture("UI/icon_offense"), RangeRect, color);
+            if (!Tile.BuildingOnTile)
+                batch.Draw(ResourceManager.Texture("UI/icon_offense"), RangeRect, color);
 
             if (Tile.TroopsAreOnTile) // draw troop_stats
             {
@@ -214,14 +215,14 @@ namespace Ship_Game
                 return;
 
             DescriptionBox.Clear();
+            // Try get the first troop on the tile if troop not known
+            if (troop == null)
+                troop = Tile.TryGetFirstTroop();
+
             if (troop != null)
-            {
                 DescriptionBox.AddLines(troop.Description, Fonts.Arial12, Color.White);
-            }
             else if (pgs.BuildingOnTile)
-            {
                 DescriptionBox.AddLines(pgs.Building.DescriptionText.Text, Fonts.Arial12, Color.White);
-            }
         }
     }
 }

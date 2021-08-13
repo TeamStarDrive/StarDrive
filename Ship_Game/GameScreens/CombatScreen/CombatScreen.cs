@@ -51,8 +51,8 @@ namespace Ship_Game
             Rectangle titleRect = new Rectangle(ScreenWidth / 2 - 250, 44, 500, 80);
             TitlePos            = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Arial20Bold.MeasureString(p.Name).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             AssetsRect          = new Rectangle(10, 48, 225, 200);
-            SelectedItemRect    = new Rectangle(10, 250, 225, 250);
-            HoveredItemRect     = new Rectangle(10, 248, 225, 200);
+            SelectedItemRect    = new Rectangle(10, 250, 225, 380);
+            HoveredItemRect     = new Rectangle(10, 250, 225, 380);
             AssetsUI = Add(new OrbitalAssetsUIElement(AssetsRect, ScreenManager, Empire.Universe, p));
             TInfo = Add(new TroopInfoUIElement(SelectedItemRect, ScreenManager, Empire.Universe));
             HInfo = Add(new TroopInfoUIElement(HoveredItemRect, ScreenManager, Empire.Universe));

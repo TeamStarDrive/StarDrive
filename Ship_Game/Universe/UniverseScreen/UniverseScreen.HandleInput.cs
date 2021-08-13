@@ -111,16 +111,14 @@ namespace Ship_Game
 
             if (SelectedShip != null)
             {
-                if (input.KillThis)
+                if (input.KillThis) // 'X' or 'Delete'
                 {
-                    var damage = 1f;
-                    if (input.IsShiftKeyDown)
-                        damage = .9f;
-                    //Apply damage as a percent of module health to all modules.
+                    // Apply damage as a percent of module health to all modules.
+                    var damage = input.IsShiftKeyDown ? 0.9f : 1f;
                     SelectedShip.DebugDamage(damage);
                 }
 
-                if (input.BlowExplodingModule)
+                if (input.BlowExplodingModule) // "N" key
                 {
                     if (input.IsShiftKeyDown)
                         SelectedShip.DebugBlowSmallestExplodingModule();
@@ -135,12 +133,7 @@ namespace Ship_Game
             }
 
             if (input.SpawnRemnant)
-            {
-                if (EmpireManager.Remnants == null)
-                    Log.Warning("Remnant faction missing!");
-                else
-                    Ship.CreateShipAtPoint(input.EmpireToggle ? "Remnant Mothership" : "Target Dummy", EmpireManager.Remnants, mouseWorldPos);
-            }
+                EmpireManager.Remnants.Remnants.DebugSpawnRemnant(input.EmpireToggle, mouseWorldPos);
 
             if (input.ToggleSpatialManagerType)
                 Spatial.ToggleSpatialType();
