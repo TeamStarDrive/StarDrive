@@ -227,7 +227,7 @@ namespace Ship_Game
                 {
                     DrawFireArcText(s);
                     if (IsSymmetricDesignMode)
-                        ToolTip.ShipYardArcTip(ProjectToScreenPosition(s.Center + new Vector2(s.WorldSize.X)).ToVec2f());
+                        ToolTip.ShipYardArcTip();
                 }
 
                 if (s.Module.ModuleType == ShipModuleType.Hangar)
@@ -287,8 +287,7 @@ namespace Ship_Game
             Color fill = Color.Black.Alpha(0.33f);
             Color edge = (slot.Module == HighlightedModule) ? Color.DarkOrange : fill;
             DrawRectangleProjected(slot.WorldRect, edge, fill);
-            DrawStringProjected(slot.Center - new Vector2(6, 0), 12, Color.Orange,
-                                slot.Module.TurretAngle.ToString(), Fonts.Arial20Bold);
+            DrawStringProjected(slot.Center, 0, 1, Color.Orange, slot.Module.TurretAngle.ToString());
         }
 
         void DrawHangarShipText(SlotStruct s)
