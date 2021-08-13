@@ -98,6 +98,15 @@ namespace Ship_Game
             return false;
         }
 
+        public Troop TryGetFirstTroop()
+        {
+            using (TroopsHere.AcquireReadLock())
+                if (TroopsAreOnTile)
+                    return TroopsHere[0];
+
+            return null;
+        }
+
         public void KillAllTroops(Planet p)
         {
             using (TroopsHere.AcquireWriteLock())

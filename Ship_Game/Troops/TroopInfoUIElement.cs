@@ -215,22 +215,14 @@ namespace Ship_Game
                 return;
 
             DescriptionBox.Clear();
-
             // Try get the first troop on the tile if troop not known
-            if (troop == null && Tile.TroopsAreOnTile)
-            {
-                using (Tile.TroopsHere.AcquireReadLock())
-                    troop = Tile.TroopsHere[0];
-            }
+            if (troop == null)
+                troop = Tile.TryGetFirstTroop();
 
             if (troop != null)
-            {
                 DescriptionBox.AddLines(troop.Description, Fonts.Arial12, Color.White);
-            }
             else if (pgs.BuildingOnTile)
-            {
                 DescriptionBox.AddLines(pgs.Building.DescriptionText.Text, Fonts.Arial12, Color.White);
-            }
         }
     }
 }
