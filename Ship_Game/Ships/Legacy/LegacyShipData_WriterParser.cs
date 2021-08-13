@@ -45,10 +45,11 @@ namespace Ship_Game.Ships.Legacy
                 sw.Write("FixedCost", FixedCost);
             if (FixedUpkeep > 0f)
                 sw.Write("FixedUpkeep", FixedUpkeep);
-
-            sw.Write("DefaultAIState", DefaultAIState);
+            if (DefaultAIState != Ship_Game.AI.AIState.DoNothing)
+                sw.Write("DefaultAIState", DefaultAIState);
             sw.Write("DefaultCombatState", CombatState);
-            sw.Write("ShipCategory", ShipCategory);
+            if (ShipCategory != Category.Unclassified)
+                sw.Write("ShipCategory", ShipCategory);
             sw.Write("EventOnDeath", EventOnDeath); // "DefeatedMothership" remnant event
 
             var moduleUIDsToIdx = new Array<string>();
