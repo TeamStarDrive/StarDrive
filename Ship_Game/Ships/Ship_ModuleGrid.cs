@@ -62,11 +62,14 @@ namespace Ship_Game.Ships
                 UpdateGridSlot(SparseModuleGrid, ModuleSlotList[i], becameActive: true);
             }
 
-            InternalSlotCount = 0;
+            if (GlobalStats.CountInternalModulesFromHull)
+                SetModuleRestrictionsFromHull(shipData.BaseHull);
+
             InitExternalSlots();
 
             var shields    = new Array<ShipModule>();
             var amplifiers = new Array<ShipModule>();
+            InternalSlotCount = 0;
 
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
@@ -88,6 +91,25 @@ namespace Ship_Game.Ships
             {
                 ModuleGridUtils.DebugDumpGrid($"Debug/SparseGrid/{Name}.txt",
                     SparseModuleGrid, GridWidth, GridHeight, ModuleGridUtils.DumpFormat.ShipModule);
+            }
+        }
+
+        // This overrides Restrictions value of modules, based on the actual BaseHull
+        // So if a 2x2 IOE module overlaps an `I` hull slot, it gets set to Restrictions.I
+        void SetModuleRestrictionsFromHull(ShipHull hull)
+        {
+            HullSlot[] hullSlots = hull.HullSlots;
+            for (int i = 0; i < hullSlots.Length; ++i)
+            {
+                HullSlot hs = hullSlots[i];
+                if (hs.R == Restrictions.I)
+                {
+                    ShipModule m = GetModuleAt(hs.Pos);
+                    if (m != null)
+                    {
+                        m.Restrictions = Restrictions.I;
+                    }
+                }
             }
         }
 

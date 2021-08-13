@@ -249,8 +249,9 @@ namespace Ship_Game.Ships
         public float ActualShieldPowerMax { get; private set; }
         public float ActualMaxHealth       => TemplateMaxHealth * Bonuses.HealthMod;
 
-        public bool HasInternalRestrictions => Restrictions == Restrictions.I
-                                            || Restrictions == Restrictions.IO;
+        // NOTE: The way InternalRestrictions is handled, is controlled by
+        //       GlobalStats.CountInternalModulesFromHull
+        public bool HasInternalRestrictions => Restrictions == Restrictions.I;
 
         // FB: This method was created to deal with modules which have secondary functionality. Use this whenever you want to check
         // module types for calculations. Dont use it when you are looking for main functionality as defined in the xml (for instance - ship design screen)

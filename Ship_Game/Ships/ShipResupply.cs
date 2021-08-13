@@ -15,7 +15,7 @@ namespace Ship_Game.Ships
         private const int OrdnanceProductionThresholdCombat    = 75;
         public const Status ResupplyShuttleOrdnanceThreshold   = Status.Average;
 
-        public const float ShipDestroyThreshold = 0.5f;
+        public const float ShipDestroyThreshold = GlobalStats.ShipDestroyThreshold;
         public const float RepairDroneThreshold = 0.9f;
         public const float RepairDoneThreshold  = 0.99f;
         public const float RepairDroneRange     = 20000f;
