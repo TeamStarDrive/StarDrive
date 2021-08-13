@@ -4,7 +4,6 @@ Hull=Draugar/Draugar Asteroid Base
 Role=station
 Style=Draugar
 Size=27,28
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;SteelArmorMed;PhotonTurret3x3;PhasorTurret2x2;OrdnanceLockerSmall;Shield_10KW;FighterBay;FuelCellMediumArmored;LaserCannon;Internal Bulkhead;Main Engineering;FuelCellSmallArmored;Bridge;MarineBarracks2x2;Fabricator;NuclearReactorMed;PowerConduit;MissileLauncher3x3;OrdnanceSupplyBay

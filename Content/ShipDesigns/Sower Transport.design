@@ -4,8 +4,8 @@ Hull=Pollops/Sower
 Role=freighter
 Style=Pollops
 Size=8,13
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Civilian
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicCargoHold;WarpEngine_2x2;NuclearReactorSmall;NuclearReactorMed;Cockpit
 Modules=55

@@ -4,8 +4,8 @@ Hull=Opteris/Crawler
 Role=freighter
 Style=Opteris
 Size=4,14
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Civilian
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicCargoHold;Cockpit;NuclearReactorMed;WarpEngine_1x1;PowerConduit
 Modules=47

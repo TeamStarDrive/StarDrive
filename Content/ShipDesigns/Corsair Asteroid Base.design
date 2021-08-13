@@ -4,7 +4,6 @@ Hull=Corsair/Corsair Asteroid Base
 Role=station
 Style=Corsairs
 Size=20,19
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorLarge;SteelArmorSmall;SteelArmorMed;LaserTurretHeavy;LaserCannon;LaserTurret;PowerConduit;NuclearReactorMed;BasicFuelCell;Bridge;FighterBay

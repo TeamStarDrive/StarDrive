@@ -4,7 +4,6 @@ Hull=Pollops/Thicket
 Role=corvette
 Style=Pollops
 Size=6,5
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=LaserCannon;NuclearReactorSmall;Cockpit;BasicFuelCell;WarpEngine_1x1;engine_fighter_1x1

@@ -4,7 +4,6 @@ Hull=Pollops/Chrysalis
 Role=cruiser
 Style=Pollops
 Size=20,13
-DefaultAIState=DoNothing
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;SteelArmorMed;PhasorTurret2x2;Shield_10KW;PhasorBeam2x3;BasicFuelCell;MediumFuelCell;Bridge;WarpEngine_1x1;CombatEngine_2x2;Main Engineering;WarpEngine_2x2

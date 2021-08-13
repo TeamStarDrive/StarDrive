@@ -4,7 +4,6 @@ Hull=Cordrazine/Dodaving
 Role=capital
 Style=Cordrazine
 Size=22,31
-DefaultAIState=DoNothing
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;PlaSteelArmorMed;FusionBeam2x3;FusionTurret2x2;BasicFuelCell;NuclearReactorSmall;PowerConduit;Shield_10KW;Bridge;Internal Bulkhead;MediumFuelCell;LaserCannon;WarpEngine_1x1;WarpEngine_3x3;NuclearReactorMed;CombatEngine_2x2;CapEngines

@@ -4,7 +4,6 @@ Hull=Corsair/HeavyFrigate
 Role=frigate
 Style=Corsairs
 Size=14,21
-DefaultAIState=DoNothing
 DefaultCombatState=ShortRange
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;LaserCannon;IonCannon1x3;PhotonTurret3x3;Phalanx PD;EMPTorpedo;OrdnanceLockerSmall;CapEngines;Fighter Shield;Main Engineering;Shield_1KW;FuelCellSmallArmored;ConventionalTorpedo;Bridge;WarpEngine_3x3

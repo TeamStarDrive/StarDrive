@@ -4,7 +4,6 @@ Hull=Misc/HaulerSmall
 Role=freighter
 Style=Misc
 Size=4,10
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicFuelCell;ColonyModule;NuclearReactorMed;Engine;WarpEngine_1x1;Cockpit

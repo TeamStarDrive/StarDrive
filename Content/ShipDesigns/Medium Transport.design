@@ -4,8 +4,8 @@ Hull=Misc/CargoMedium
 Role=freighter
 Style=Misc
 Size=6,21
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Civilian
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicFuelCell;BasicCargoHold;WarpEngine_1x1;NuclearReactorSmall;NuclearReactorMed;Engine;Cockpit
 Modules=65

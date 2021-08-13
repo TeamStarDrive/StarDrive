@@ -4,7 +4,6 @@ Hull=Pollops/Fern
 Role=prototype
 Style=Pollops
 Size=16,8
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;LaserCannon;LaserTurret;Shield_1KW;NuclearReactorMed;NuclearReactorSmall;WarpEngine_2x2;Bridge;FrigateEngine;BasicFuelCell

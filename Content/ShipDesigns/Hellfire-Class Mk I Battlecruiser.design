@@ -4,7 +4,6 @@ Hull=Ralyeh/Sceptre
 Role=capital
 Style=Ralyeh
 Size=30,20
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;LaserTurret;Shield_1KW;LaserTurretHeavy;LaserCannon;PowerConduit;Internal Bulkhead;BasicFuelCell;CapEngines;NuclearReactorMed;CombatEngine_2x2;WarpEngine_1x1;Bridge;MediumFuelCell;SteelArmorMed;WarpEngine_3x3

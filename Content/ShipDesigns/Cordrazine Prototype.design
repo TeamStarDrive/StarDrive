@@ -4,7 +4,6 @@ Hull=Cordrazine/Metving
 Role=prototype
 Style=Cordrazine
 Size=12,14
-DefaultAIState=DoNothing
 DefaultCombatState=OrbitRight
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;MRLS;Shield_1KW;VulcanCannon;NuclearReactorSmall;OrdnanceLockerSmall;Cockpit;NuclearReactorMed;WarpEngine_2x2;FrigateEngine;SteelArmorMed

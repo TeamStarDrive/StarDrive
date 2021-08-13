@@ -4,7 +4,6 @@ Hull=Terran/Gunboat
 Role=frigate
 Style=Terran
 Size=6,16
-DefaultAIState=DoNothing
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlasmaThrower;OrdnanceLockerSmall;Shield_1KW;Cockpit;Engine;TractorBeamTurret2x2;NuclearReactorMed;WarpEngine_2x2

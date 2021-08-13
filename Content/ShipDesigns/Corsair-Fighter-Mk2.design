@@ -4,7 +4,6 @@ Hull=Terran/Shuttle
 Role=fighter
 Style=Terran
 Size=4,4
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=LaserCannon;NuclearReactorSmall;engine_fighter_1x1;Cockpit;WarpEngine_1x1;Fighter Shield

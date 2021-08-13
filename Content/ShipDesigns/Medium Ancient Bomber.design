@@ -4,7 +4,6 @@ Hull=Remnant/AncientFrigate
 Role=frigate
 Style=Remnant
 Size=14,16
-DefaultAIState=DoNothing
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorMed;PlaSteelArmorSmall;DisruptorTurret;NuclearBombBay2x2;LaserCannon;IonCannon1x3;AncientReactorMed;OrdnanceLockerSmall;AncientShield2kw;Internal Bulkhead;RemnantSmallReactor;Cockpit;RemnantSmallFuelCell;CombatEngine_2x2;WarpEngine_2x2;Bridge;Fabricator
