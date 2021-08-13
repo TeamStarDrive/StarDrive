@@ -449,15 +449,15 @@ namespace Ship_Game
                 if (!ship.loyalty.isPlayer && ship.IsInhibitedByUnfriendlyGravityWell)
                     offensiveMove = true;
 
-                if (ship.PlayerShipCannotTakeFleetOrders())
-                    continue;
+                if (ship.PlayerShipCanTakeFleetOrders())
+                {
+                    if (queueOrder)
+                        ship.AI.OrderFormationWarpQ(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove: offensiveMove);
+                    else
+                        ship.AI.OrderFormationWarp(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove: offensiveMove);
 
-                if (queueOrder)
-                    ship.AI.OrderFormationWarpQ(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove: offensiveMove);
-                else
-                    ship.AI.OrderFormationWarp(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove: offensiveMove);
-
-                ship.AI.OrderHoldPositionOffensive(FinalPosition + ship.FleetOffset, finalDirection);
+                    ship.AI.OrderHoldPositionOffensive(FinalPosition + ship.FleetOffset, finalDirection);
+                }
             }
         }
 
@@ -484,16 +484,16 @@ namespace Ship_Game
 
             foreach (Ship ship in Ships)
             {
-                if (ship.PlayerShipCannotTakeFleetOrders())
-                    continue;
+                if (ship.PlayerShipCanTakeFleetOrders())
+                {
+                    ship.AI.ResetPriorityOrder(false);
+                    // Allow AI ships in gravity wells to react to incoming attacks
+                    if (!ship.loyalty.isPlayer && ship.IsInhibitedByUnfriendlyGravityWell)
+                        offensiveMove = true;
 
-                ship.AI.ResetPriorityOrder(false);
-                // Allow AI ships in gravity wells to react to incoming attacks
-                if (!ship.loyalty.isPlayer && ship.IsInhibitedByUnfriendlyGravityWell)
-                    offensiveMove = true;
-
-                ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset, finalDirection, true, AIState.MoveTo, null, offensiveMove);
-                ship.AI.OrderHoldPositionOffensive(FinalPosition + ship.FleetOffset, finalDirection);
+                    ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset, finalDirection, true, AIState.MoveTo, null, offensiveMove);
+                    ship.AI.OrderHoldPositionOffensive(FinalPosition + ship.FleetOffset, finalDirection);
+                }
             }
         }
 

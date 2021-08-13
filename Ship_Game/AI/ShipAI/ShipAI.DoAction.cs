@@ -375,7 +375,7 @@ namespace Ship_Game.AI
             ThrustOrWarpToPos(landingSpot, timeStep, warpExitDistance: Owner.WarpOutDistance);
             if (Owner.IsDefaultAssaultShuttle)      LandTroopsViaSingleTransport(planet, landingSpot, timeStep);
             else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, landingSpot, timeStep);
-            else                                    LandTroopsViaTroopShip(timeStep, planet, landingSpot);
+            else                                    LaunchShuttlesFromTroopShip(timeStep, planet, landingSpot);
         }
 
         // Assault Shuttles will dump troops on the surface and return back to the troop ship to transport additional troops
@@ -395,7 +395,7 @@ namespace Ship_Game.AI
         }
 
         // Big Troop Ships will launch their own Assault Shuttles to land them on the planet
-        void LandTroopsViaTroopShip(FixedSimTime timeStep, Planet planet, Vector2 launchPos)
+        void LaunchShuttlesFromTroopShip(FixedSimTime timeStep, Planet planet, Vector2 launchPos)
         {
             if (Owner.Position.InRadius(launchPos, Owner.Radius))
             {

@@ -932,7 +932,7 @@ namespace Ship_Game
             [Serialize(32)] public bool RecallFightersBeforeFTL;
             [Serialize(33)] public float MechanicalBoardingDefense;
             [Serialize(34)] public float OrdnanceInSpace; // For carriers
-            [Serialize(35)] public float ScuttleTimer;
+            [Serialize(35)] public float ScuttleTimer = -1;
 
             public override string ToString() => $"ShipSave {guid} {Name}";
         }

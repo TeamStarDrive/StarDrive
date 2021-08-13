@@ -178,6 +178,7 @@ namespace Ship_Game.Ships
             TetherGuid   = save.TetheredTo;
             TetherOffset = save.TetherOffset;
             InCombat     = save.InCombat;
+            ScuttleTimer = save.ScuttleTimer;
 
             TransportingFood          = save.TransportingFood;
             TransportingProduction    = save.TransportingProduction;
@@ -192,9 +193,6 @@ namespace Ship_Game.Ships
             HealthMax = RecalculateMaxHealth();
             CalcTroopBoardingDefense();
             ChangeOrdnance(save.Ordnance);
-
-            if (save.ScuttleTimer.NotZero())
-                ScuttleTimer = save.ScuttleTimer;
 
             if (save.HomePlanetGuid != Guid.Empty)
                 HomePlanet = loyalty.FindPlanet(save.HomePlanetGuid);
