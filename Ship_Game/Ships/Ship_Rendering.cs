@@ -204,7 +204,7 @@ namespace Ship_Game.Ships
 
                     if (slot.ModuleType == ShipModuleType.PowerConduit)
                     {
-                        if (slot.Powered)
+                        if (slot.Active && slot.Powered)
                         {
                             SubTexture poweredTex = ResourceManager.Texture(slot.IconTexturePath + "_power");
                             sc.DrawTextureSized(poweredTex, posOnScreen, slotRotation, w, h, Color.White);
