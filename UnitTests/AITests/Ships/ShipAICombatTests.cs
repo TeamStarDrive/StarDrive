@@ -147,7 +147,6 @@ namespace UnitTests.AITests.Ships
         {
             TestShip colonyShip = SpawnShip("Colony Ship", Enemy, new Vector2(0,-500));
             colonyShip.AI.HoldPosition();
-            colonyShip.shipData.ShipCategory = ShipData.Category.Kamikaze;
             Update(EnemyScanInterval);
             Assert.IsTrue(OurShip.InCombat, "ship should be in combat");
             
