@@ -340,17 +340,17 @@ namespace Ship_Game.Ships
             HomePlanet = planet;
         }
 
-        public bool PlayerShipCannotTakeFleetOrders()
+        public bool PlayerShipCanTakeFleetOrders()
         {
             if (loyalty.isPlayer && !CanTakeFleetOrders)
             {
                 ResupplyReason resupplyReason = Supply.Resupply();
-                // Resupply reason is sever enough for the ship not to respond fleet commands.
-                return resupplyReason != ResupplyReason.LowOrdnanceNonCombat
-                    && resupplyReason != ResupplyReason.NotNeeded;
+                // Resupply reason is not severe enough for the player ship to ignore fleet commands.
+                return resupplyReason == ResupplyReason.LowOrdnanceNonCombat
+                    || resupplyReason == ResupplyReason.NotNeeded;
             }
 
-            return false;
+            return true; // AI ship or a player ship which can take fleet orders
         }
         
         public float EmpTolerance  => SurfaceArea + BonusEMP_Protection;
