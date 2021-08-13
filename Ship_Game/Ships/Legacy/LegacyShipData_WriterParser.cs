@@ -48,6 +48,7 @@ namespace Ship_Game.Ships.Legacy
 
             sw.Write("DefaultAIState", DefaultAIState);
             sw.Write("DefaultCombatState", CombatState);
+            sw.Write("ShipCategory", ShipCategory);
             sw.Write("EventOnDeath", EventOnDeath); // "DefeatedMothership" remnant event
 
             var moduleUIDsToIdx = new Array<string>();

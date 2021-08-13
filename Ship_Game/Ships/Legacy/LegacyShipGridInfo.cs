@@ -13,7 +13,7 @@ namespace Ship_Game.Ships.Legacy
 
         public override string ToString() => $"surface={SurfaceArea} size={Size} origin={Origin} span={Span}";
 
-        public LegacyShipGridInfo(string name, LegacyModuleSlotData[] templateSlots, bool isHull = false)
+        public LegacyShipGridInfo(string name, LegacyModuleSlotData[] templateSlots, bool isHull, LegacyShipData baseHull)
         {
             SurfaceArea = 0;
             var min = new Vector2(+4096, +4096);
@@ -45,12 +45,23 @@ namespace Ship_Game.Ships.Legacy
 
                 var slotsMap = new Map<Point, LegacyModuleSlotData>();
 
+                // insert BaseHull slots, this is required for some broken designs
+                // where BaseHull has added Slots to the Top, but design has not been updated
+                // leading to a mismatched ModuleGrid
+                for (int i = 0; i < baseHull.ModuleSlots.Length; ++i)
+                {
+                    LegacyModuleSlotData designSlot = baseHull.ModuleSlots[i];
+                    slotsMap[designSlot.PosAsPoint] = designSlot;
+                }
+
                 // insert dummy modules first
                 for (int i = 0; i < templateSlots.Length; ++i)
                 {
                     LegacyModuleSlotData designSlot = templateSlots[i];
                     if (designSlot.IsDummy)
+                    {
                         slotsMap[designSlot.PosAsPoint] = designSlot;
+                    }
                 }
 
                 // now place non-dummy modules as XSIZE*YSIZE grids

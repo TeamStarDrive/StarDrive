@@ -75,6 +75,8 @@ namespace Ship_Game.Ships.Legacy
         // Model path of the template hull layout
         [XmlIgnore] [JsonIgnore] public string HullModel => BaseHull.ModelPath;
 
+        [XmlIgnore] [JsonIgnore] public bool IsHull { get; private set; }
+
         public FileInfo Source;
 
         public LegacyShipData()
@@ -96,7 +98,7 @@ namespace Ship_Game.Ships.Legacy
 
         public void UpdateGridInfo()
         {
-            GridInfo = new LegacyShipGridInfo(Hull, ModuleSlots);
+            GridInfo = new LegacyShipGridInfo(Hull, ModuleSlots, IsHull, BaseHull);
         }
 
         void FinalizeAfterLoad(FileInfo info, bool isHullDefinition)
