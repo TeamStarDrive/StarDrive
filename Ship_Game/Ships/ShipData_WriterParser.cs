@@ -154,6 +154,7 @@ namespace Ship_Game.Ships
                     return null;
                 }
 
+                data.Source = file;
                 return data;
             }
         }

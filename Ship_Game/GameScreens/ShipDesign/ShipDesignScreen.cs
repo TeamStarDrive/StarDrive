@@ -72,7 +72,7 @@ namespace Ship_Game
         bool UnlockAllFactionDesigns;
 
         // Used in Dev SandBox to enable some special debug features
-        bool EnableDebugFeatures;
+        public bool EnableDebugFeatures;
 
         public ShipData.RoleName Role { get; private set; }
         Rectangle DesignRoleRect;
