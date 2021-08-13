@@ -282,7 +282,7 @@ namespace Ship_Game
             EmpireUI.Draw(batch);
             foreach (FleetDataNode node in SelectedFleet.DataNodes)
             {
-                Color color = GetColor();
+                Color color = GetTacticalIconColor();
                 if (node.Ship == null || CamPos.Z <= 15000f)
                 {
                     if (!ResourceManager.GetShipTemplate(node.ShipName, out Ship ship))
@@ -363,16 +363,13 @@ namespace Ship_Game
                         batch.Draw(secondary, r, color);
                 }
 
-                Color GetColor()
+                Color GetTacticalIconColor()
                 {
-                    color = Color.Red;
+                    if (Hovered())                   return Color.White;
+                    if (node.GoalGUID != Guid.Empty) return Color.Yellow;
+                    if (NodeShipResupplying())       return Color.Gray;
 
-                    if      (Hovered())                   color = Color.White;
-                    else if (node.GoalGUID != Guid.Empty) color = Color.Yellow;
-                    else if (NodeShipResupplying())       color = Color.Gray;
-                    else if (node.Ship != null)           color = Color.Green;
-
-                    return color;
+                    return node.Ship != null ? Color.Green : Color.Red;
                 }
 
                 bool ShouldDrawTacticalIcon()
