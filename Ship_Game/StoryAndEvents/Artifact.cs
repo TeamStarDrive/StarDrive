@@ -32,7 +32,7 @@ namespace Ship_Game
                 return false;
 
             outModifier += inModifier + inModifier * traits.Spiritual;
-            popup?.AddArtifactEffect(new EventPopup.ArtifactEffect(text, outModifier, percent));
+            popup?.AddArtifactEffect(new EventPopup.ArtifactEffect(text, inModifier, percent));
             return true;
         }
 
@@ -53,7 +53,8 @@ namespace Ship_Game
             }
             else
             {
-                //apply artifact bonus.
+                // apply artifact bonus.
+                // FB - todo, move text to GameText.cs for translation as well.
                 float bonus = 0;
                 if (TrySetArtifactEffect(ref bonus, FertilityMod,
                     triggerer.data.Traits, "Fertility Bonus to all Owned Colonies: ",popup))
@@ -72,14 +73,13 @@ namespace Ship_Game
                     GroundCombatMod,
                     triggerer.data.Traits, "Empire-wide Ground Combat Bonus: ", popup);
 
-                if (TrySetArtifactEffect(ref triggerer.data.Traits.ModHpModifier,
+                TrySetArtifactEffect(ref triggerer.data.Traits.ModHpModifier,
                     ModuleHPMod,
-                    triggerer.data.Traits, "Empire-wide Ship Module Hitpoint Bonus: ", popup))
-                    EmpireShipBonuses.RefreshBonuses(triggerer); // RedFox: This will refresh all empire module stats
+                    triggerer.data.Traits, "Empire-wide Ship Module Hitpoint Bonus: ", popup);
 
                 TrySetArtifactEffect(ref triggerer.data.FlatMoneyBonus,
                     PlusFlatMoney,
-                    triggerer.data.Traits, "Credits per Turn Bonus: ", popup);
+                    triggerer.data.Traits, "Credits per Turn Bonus: ", popup, percent: false);
 
                 TrySetArtifactEffect(ref triggerer.data.Traits.ProductionMod,
                     ProductionMod,

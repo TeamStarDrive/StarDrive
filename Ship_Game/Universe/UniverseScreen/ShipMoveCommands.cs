@@ -22,7 +22,7 @@ namespace Ship_Game.Universe
 
         public bool RightClickOnShip(Ship selectedShip, Ship targetShip)
         {
-            if (targetShip == null || selectedShip == targetShip)
+            if (targetShip == null || selectedShip == targetShip || !selectedShip.PlayerShipCanTakeFleetOrders())
                 return false;
 
             if (targetShip.loyalty == Universe.player)
@@ -195,7 +195,11 @@ namespace Ship_Game.Universe
             fleet.FinalPosition = shipToAttack.Position;
             fleet.AssignPositions(Vectors.Up);
             foreach (Ship fleetShip in fleet.Ships)
-                AttackSpecificShip(fleetShip, shipToAttack);
+            {
+                if (fleetShip.PlayerShipCanTakeFleetOrders())
+                    AttackSpecificShip(fleetShip, shipToAttack);
+            }
+
             return true;
         }
 
@@ -222,7 +226,8 @@ namespace Ship_Game.Universe
             foreach (Ship ship in fleet.Ships)
             {
                 ship.AI.Target = null;
-                ship.AI.ResetPriorityOrder(!Input.QueueAction);
+                if (ship.PlayerShipCanTakeFleetOrders())
+                    ship.AI.ResetPriorityOrder(!Input.QueueAction);
             }
 
             Universe.player.GetEmpireAI().DefensiveCoordinator.RemoveShipList(Universe.SelectedShipList);
@@ -237,7 +242,8 @@ namespace Ship_Game.Universe
                 return;
 
             foreach (var ship in fleet.Ships)
-                ship.AI.ClearOrders();
+                if (ship.PlayerShipCanTakeFleetOrders())
+                    ship.AI.ClearOrders();
 
             if (Input.IsAltKeyDown)
                 fleet.MoveToNow(movePosition, facingDir);

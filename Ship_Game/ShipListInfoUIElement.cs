@@ -66,8 +66,8 @@ namespace Ship_Game
             };
             ShipInfoRect = new Rectangle(Housing.X + 60, Housing.Y + 110, 115, 115);
 
-            float ordersStartX = Power.X - 3f;
-            var ordersBarPos = new Vector2(ordersStartX, Screen.Height - 45f);
+            float ordersStartX = Power.X + 27f;
+            var ordersBarPos = new Vector2(ordersStartX, Screen.Height - 68f);
 
             OrdersButtons = new ShipStanceButtons(screen, ordersBarPos);
 
@@ -385,12 +385,12 @@ namespace Ship_Game
             {
                 Ship ship  = shipList[i];
                 var button = new SkinnableButton(new Rectangle(0, 0, 20, 20), 
-                    ship.GetTacticalIcon(out SubTexture secondary, out Color status), secondary,
+                    ship.GetTacticalIcon(out SubTexture secondary), secondary,
                     ResourceManager.Texture("TacticalIcons/symbol_status"))
                 {
                     IsToggle = false,
                     ReferenceObject = ship,
-                    BaseColor = ship.loyalty.EmpireColor,
+                    BaseColor = ship.Resupplying ? Color.Gray : ship.loyalty.EmpireColor,
                 };
 
                 if (entry.ShipButtons.Count < 8)

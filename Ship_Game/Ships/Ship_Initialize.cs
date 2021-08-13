@@ -166,18 +166,19 @@ namespace Ship_Game.Ships
 
         void InitializeFromSaveData(SavedGame.ShipSaveData save)
         {
-            guid             = save.guid;
-            Position         = save.Position;
-            experience       = save.experience;
-            kills            = save.kills;
-            PowerCurrent     = save.Power;
-            yRotation        = save.yRotation;
-            Rotation         = save.Rotation;
-            Velocity         = save.Velocity;
-            IsSpooling       = save.AfterBurnerOn;
-            TetherGuid       = save.TetheredTo;
-            TetherOffset     = save.TetherOffset;
-            InCombat         = save.InCombat;
+            guid         = save.guid;
+            Position     = save.Position;
+            experience   = save.experience;
+            kills        = save.kills;
+            PowerCurrent = save.Power;
+            yRotation    = save.yRotation;
+            Rotation     = save.Rotation;
+            Velocity     = save.Velocity;
+            IsSpooling   = save.AfterBurnerOn;
+            TetherGuid   = save.TetheredTo;
+            TetherOffset = save.TetherOffset;
+            InCombat     = save.InCombat;
+            ScuttleTimer = save.ScuttleTimer;
 
             TransportingFood          = save.TransportingFood;
             TransportingProduction    = save.TransportingProduction;

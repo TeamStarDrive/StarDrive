@@ -664,6 +664,20 @@ namespace Ship_Game
             return remnantShip != null;
         }
 
+        public void DebugSpawnRemnant(bool isShiftKeyDown, Vector2 pos)
+        {
+            if (isShiftKeyDown)
+            {
+                SpawnShip(RemnantShipType.Mothership, pos, out _);
+            }
+            else
+            {
+                Ship ship = Ship.CreateShipAtPoint("Target Dummy", Owner, pos);
+                if (ship == null)
+                    Log.Warning("Could not spawn `Target Dummy` ship, it does not exist");
+            }
+        }
+
         public bool Hibernating => HibernationTurns > 0;
 
         public void TryGenerateProduction(float amount)

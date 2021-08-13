@@ -340,6 +340,19 @@ namespace Ship_Game.Ships
             HomePlanet = planet;
         }
 
+        public bool PlayerShipCanTakeFleetOrders()
+        {
+            if (loyalty.isPlayer && !CanTakeFleetOrders)
+            {
+                ResupplyReason resupplyReason = Supply.Resupply();
+                // Resupply reason is not severe enough for the player ship to ignore fleet commands.
+                return resupplyReason == ResupplyReason.LowOrdnanceNonCombat
+                    || resupplyReason == ResupplyReason.NotNeeded;
+            }
+
+            return true; // AI ship or a player ship which can take fleet orders
+        }
+        
         public float EmpTolerance  => SurfaceArea + BonusEMP_Protection;
         public float HealthPercent => Health / HealthMax;
 
@@ -388,6 +401,9 @@ namespace Ship_Game.Ships
         public ShipData.RoleName DesignRole { get; private set; }
         public ShipData.RoleType DesignRoleType => ShipData.ShipRoleToRoleType(DesignRole);
         public string DesignRoleName            => ShipData.GetRole(DesignRole);
+
+        public SubTexture GetTacticalIcon(out SubTexture secondaryIcon) =>
+            GetTacticalIcon(out secondaryIcon, out _);
 
         public SubTexture GetTacticalIcon(out SubTexture secondaryIcon, out Color statusColor)
         {
