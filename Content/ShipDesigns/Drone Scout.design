@@ -6,6 +6,7 @@ Style=Opteris
 Size=4,4
 DefaultAIState=AwaitingOrders
 DefaultCombatState=AttackRuns
+ShipCategory=Recon
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicFuelCell;NuclearReactorSmall;Engine;Cockpit
 Modules=14

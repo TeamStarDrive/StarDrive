@@ -4,8 +4,8 @@ Hull=Draylok/Wisp
 Role=scout
 Style=Draylok
 Size=6,2
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Recon
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicFuelCell;NuclearReactorSmall;Cockpit;WarpEngine_1x1;Engine
 Modules=10

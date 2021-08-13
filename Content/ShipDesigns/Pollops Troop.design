@@ -4,7 +4,6 @@ Hull=Pollops/Seeder
 Role=troop
 Style=Pollops
 Size=6,6
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicCargoHold;NuclearReactorSmall;WarpEngine_1x1;Engine;Cockpit

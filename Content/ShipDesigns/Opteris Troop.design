@@ -4,7 +4,6 @@ Hull=Opteris/Creeper
 Role=troop
 Style=Opteris
 Size=4,8
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicCargoHold;NuclearReactorMed;WarpEngine_1x1;Engine;Cockpit

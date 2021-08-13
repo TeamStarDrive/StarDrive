@@ -4,7 +4,6 @@ Hull=Opteris/Soldier
 Role=frigate
 Style=Opteris
 Size=10,17
-DefaultAIState=DoNothing
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;PhotonTurret;OrdnanceLockerSmall;NuclearBombBay2x2;Shield_1KW;Cockpit;NuclearReactorSmall;FrigateEngine;BasicFuelCell;NuclearReactorMed;WarpEngine_1x1

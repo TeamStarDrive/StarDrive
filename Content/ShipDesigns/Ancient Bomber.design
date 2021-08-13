@@ -4,7 +4,6 @@ Hull=Remnant/Xeno Cruiser
 Role=cruiser
 Style=Remnant
 Size=22,23
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorMed;IonCannon1x3;PhasorTurret2x2;SteelArmorSmall;Quantanium_1x1;OrdnanceLockerSmall;Fabricator;RemnantSmallFuelCell;Quantanium_2x2;Phalanx PD;AncientShield2kw;PowerConduit;RemnantEngine4;SteelArmorLarge;NuclearBombBay2x2;DeathSporeBay;AncientReactorMed;MarineBarracks2x2;Bridge;RemnantSmallReactor

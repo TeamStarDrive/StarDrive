@@ -4,7 +4,6 @@ Hull=Vulfen/Type I
 Role=supply
 Style=Vulfen
 Size=4,4
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=OrdnanceLockerSmall;Cockpit;NuclearReactorSmall;Engine;BasicFuelCell

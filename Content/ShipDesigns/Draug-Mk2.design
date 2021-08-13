@@ -4,7 +4,6 @@ Hull=Opteris/Soldier
 Role=frigate
 Style=Draugar
 Size=10,17
-DefaultAIState=DoNothing
 DefaultCombatState=ShortRange
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=RemnantSmallFuelCell;FusionTurret2x2;PlaSteelArmorSmall;WarpEngine_1x1;RemnantSmallReactor;AncientShield2kw;Bridge;CombatEngine_2x2;PowerConduit

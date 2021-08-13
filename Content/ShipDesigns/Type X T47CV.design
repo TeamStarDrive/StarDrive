@@ -3,8 +3,7 @@ Name=Type X T47CV
 Hull=Vulfen/Type X
 Role=cruiser
 Style=Vulfen
-Size=12,40
-DefaultAIState=DoNothing
+Size=12,41
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicFuelCell;FighterBay;Shield_1KW;LaserCannon;LaserBeam2x3;PowerConduit;WarpEngine_3x3;CombatEngine_2x2;NuclearReactorMed;MediumFuelCell;Bridge;NuclearReactorSmall

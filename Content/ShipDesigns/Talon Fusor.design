@@ -4,7 +4,6 @@ Hull=Kulrathi/Talon
 Role=frigate
 Style=Kulrathi
 Size=18,15
-DefaultAIState=DoNothing
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;FusionTurret2x2;SteelArmorMed;NuclearReactorSmall;WarpEngine_2x2;FusionBeam2x3;BasicFuelCell;Shield_1KW;Internal Bulkhead;FrigateEngine;Bridge;NuclearReactorMed

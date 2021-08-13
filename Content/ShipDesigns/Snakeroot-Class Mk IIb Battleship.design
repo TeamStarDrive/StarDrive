@@ -4,7 +4,6 @@ Hull=Pollops/Corpse Flower
 Role=capital
 Style=Pollops
 Size=36,26
-DefaultAIState=DoNothing
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorMed;PlaSteelArmorSmall;OrdnanceLocker;MRLS;OrdnanceLockerSmall;VulcanCannon;Shield_1KW;PowerConduit;MissileLauncher3x3;Bridge;Engine;NuclearReactorMed;CombatEngine_2x2;WarpEngine_3x3

@@ -4,7 +4,6 @@ Hull=Vulfen/Type VII
 Role=frigate
 Style=Draugar
 Size=10,26
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PirateAssaultBay;PlaSteelArmorSmall;Pirate Inhibitor;Fighter Shield;LaserCannon;OrdnanceLockerSmall;TractorBeamTurret2x2;NuclearReactorSmall;CombatEngine_2x2;WarpEngine_1x1;PlaSteelArmorMed;PowerConduit;NuclearReactorMed;Bridge;Shield_1KW;WarpEngine_2x2

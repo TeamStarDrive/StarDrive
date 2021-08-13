@@ -4,7 +4,6 @@ Hull=Misc/speeder
 Role=frigate
 Style=Corsairs
 Size=14,22
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=MissileLauncher1x3;PlaSteelArmorSmall;Shield_1KW;LaserCannon;FusionBeam2x3;NuclearReactorMed;WarpEngine_2x2;SteelArmorSmall;AntiMatterReactor;IonCannon1x3;BasicFuelCell;NuclearReactorSmall;FuelCellSmallArmored;CombatEngine_2x2;MediumFuelCell;OrdnanceLockerSmall;Bridge;Railgun1x3

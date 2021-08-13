@@ -4,7 +4,6 @@ Hull=Cordrazine/Storving
 Role=cruiser
 Style=Draugar
 Size=16,15
-DefaultAIState=DoNothing
 DefaultCombatState=ShortRange
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;NuclearReactorSmall;RemnantSmallFuelCell;LaserCannon;HeavyLaserCannon;DisintegratorArray;AntiMatterReactor;WarpEngine_3x3;PlaSteelArmorMed;AncientShield2kw;Bridge;CapEngines

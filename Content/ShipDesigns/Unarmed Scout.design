@@ -6,6 +6,7 @@ Style=Terran
 Size=4,4
 DefaultAIState=AttackRunner
 DefaultCombatState=AttackRuns
+ShipCategory=Recon
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicFuelCell;Cockpit;NuclearReactorSmall;Engine
 Modules=10

@@ -4,8 +4,8 @@ Hull=Cordrazine/Owl2
 Role=freighter
 Style=Cordrazine
 Size=6,14
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Civilian
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicCargoHold;NuclearReactorMed;Engine;WarpEngine_1x1;Cockpit
 Modules=37

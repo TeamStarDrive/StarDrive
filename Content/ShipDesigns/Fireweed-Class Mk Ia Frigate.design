@@ -4,7 +4,6 @@ Hull=Pollops/Fern
 Role=frigate
 Style=Pollops
 Size=16,8
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;OrdnanceLockerSmall;MRLS;VulcanCannon;RocketLauncher;NuclearReactorMed;CombatEngine_2x2;OrdnanceLocker;Bridge;WarpEngine_2x2

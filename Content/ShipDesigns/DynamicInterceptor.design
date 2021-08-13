@@ -5,7 +5,6 @@ Role=prototype
 Style=Corsair
 Size=4,4
 IconPath=NewUI/DynamicFighter
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicCargoHold;NuclearReactorSmall;Engine;Cockpit

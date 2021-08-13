@@ -4,7 +4,6 @@ Hull=Terran/Emissary
 Role=cruiser
 Style=Terran
 Size=18,30
-DefaultAIState=DoNothing
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorLarge;SteelArmorSmall;SteelArmorMed;LaserBeamTurret2x2;Shield_1KW;LaserCannon;LaserBeam2x3;MarineBarracks2x2;BasicFuelCell;FrigateEngine;CapEngines;NuclearReactorMed;PowerConduit;SubspaceSensors;Bridge

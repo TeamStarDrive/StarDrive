@@ -4,8 +4,8 @@ Hull=Misc/HaulerSmall
 Role=construction
 Style=Misc
 Size=4,10
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Civilian
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicCargoHold;ConstructionArray;Cockpit;NuclearReactorMed;WarpEngine_1x1;Engine;PowerConduit
 Modules=18

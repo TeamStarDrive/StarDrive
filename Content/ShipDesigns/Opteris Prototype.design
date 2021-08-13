@@ -4,7 +4,6 @@ Hull=Opteris/Soldier
 Role=prototype
 Style=Opteris
 Size=10,17
-DefaultAIState=DoNothing
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;FusionTurret2x2;BasicFuelCell;NuclearReactorSmall;PowerConduit;Internal Bulkhead;WarpEngine_1x1;FusionBeam2x3;Shield_1KW;NuclearReactorMed;Bridge;FrigateEngine;Engine

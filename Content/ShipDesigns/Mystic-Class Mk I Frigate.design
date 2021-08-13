@@ -4,7 +4,6 @@ Hull=Draylok/Scythe
 Role=frigate
 Style=Draylok
 Size=14,10
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;HeavyLaserCannon;BasicFuelCell;LaserTurret;LaserCannon;PowerConduit;NuclearReactorMed;Engine;WarpEngine_2x2;SteelArmorMed;Bridge;CombatEngine_2x2;WarpEngine_1x1

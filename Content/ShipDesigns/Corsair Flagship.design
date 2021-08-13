@@ -4,7 +4,6 @@ Hull=Terran/LightCarrier
 Role=cruiser
 Style=Corsairs
 Size=20,36
-DefaultAIState=DoNothing
 DefaultCombatState=ShortRange
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;QTCannon;LaserCannon;PhasorTurret2x2;FuelCellSmallArmored;Shield_10KW;AntiMatterReactor;Railgun2x5;PlasmaThrower;Phalanx PD;WarpEngine_2x2;Engine;SteelArmorLarge;OrdnanceLockerSmall;MissileLauncher1x3;FuelCellMediumArmored;Internal Bulkhead;OrdnanceLocker;PowerConduit;CIC;Main Engineering;Titan Engine;NuclearReactorMed;Fabricator

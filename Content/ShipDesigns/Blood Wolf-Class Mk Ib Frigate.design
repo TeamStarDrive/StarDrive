@@ -4,7 +4,6 @@ Hull=Vulfen/Type VII
 Role=frigate
 Style=Vulfen
 Size=10,26
-DefaultAIState=DoNothing
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;MRLS;MissileLauncher1x3;NuclearReactorMed;CombatEngine_2x2;WarpEngine_1x1;SteelArmorMed;PowerConduit;NuclearReactorSmall;OrdnanceLocker;Bridge;WarpEngine_2x2

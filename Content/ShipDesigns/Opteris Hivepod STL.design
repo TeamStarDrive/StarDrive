@@ -4,8 +4,8 @@ Hull=Opteris/Creeper
 Role=freighter
 Style=Opteris
 Size=4,8
-DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Civilian
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=ColonyModule;BasicFuelCell;Powerplant_nuke_1x1;Maneuvering_Thruster_1x1;Range_Thruster_1x1;Cockpit
 Modules=21

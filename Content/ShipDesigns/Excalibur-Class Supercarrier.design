@@ -4,7 +4,6 @@ Hull=Terran/Dreadnought
 Role=capital
 Style=Terran
 Size=40,64
-DefaultAIState=DoNothing
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;FighterBay;PlaSteelArmorMed;Phalanx PD;PlaSteelArmorLarge;NuclearReactorSmall;Raider Bay;MarineBarracks2x2;OrdnanceLockerSmall;Shield_10KW;MissileLauncher3x3;OrdnanceSupplyBay;Internal Bulkhead;CombatEngine_2x2;WarpEngine_3x3;VulcanCannon;Main Engineering;OrdnanceLocker;Reinforced Bulkhead;WarpEngine_1x1;Fabricator;SubspaceSensors;CapEngines;Titan Engine;PowerConduit;Inertial Damper;CIC;NuclearReactorMed;WarpEngine_4x4
