@@ -108,6 +108,16 @@ namespace Ship_Game
         public static bool DisableVolcanoWarning;
         public static bool UseUpkeepByHullSize;
 
+        // if true, Counts Ship Design's internal modules from Hull Slots
+        // (any Module overlapping an I slot)
+        // if false, Count Ship's internal modules only
+        // by # of modules with `I` restrictions
+        public static bool CountInternalModulesFromHull = false;
+
+        // How easy ships are to destroy. Ships which have active
+        // internal slots below this ratio, will Die()
+        public const float ShipDestroyThreshold = 0.5f;
+
         public static int CameraPanSpeed    = 2;
         public static float DamageIntensity = 1;
 
