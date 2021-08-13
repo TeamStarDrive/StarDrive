@@ -1578,32 +1578,42 @@ namespace Ship_Game
 
             if (ShipData.GenerateNewDesignFiles)
             {
-                var oldDesigns = GetAllShipDesigns("xml");
+                var oldDesigns = GetLegacyShipDesigns();
                 ConvertOldDesigns(oldDesigns.Values.ToArray());
             }
 
-            var designs = GetAllShipDesigns("design");
+            var designs = GetAllShipDesigns();
             LoadShipTemplates(designs.Values.ToArray());
         }
 
-        static Map<string, ShipDesignInfo> GetAllShipDesigns(string ext)
+        static Map<string, ShipDesignInfo> GetAllShipDesigns()
         {
             var designs = new Map<string, ShipDesignInfo>();
-
             // saved designs are loaded first, to ensure they don't overwrite mod ShipDesigns
-            CombineOverwrite(designs, Dir.GetFiles(Dir.StarDriveAppData + "/Saved Designs", ext), readOnly: false, playerDesign: true);
+            CombineOverwrite(designs, Dir.GetFiles(Dir.StarDriveAppData + "/Saved Designs", "design"), readOnly: false, playerDesign: true);
+            if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.UseVanillaShips) // only get mod files
+                CombineOverwrite(designs, Dir.GetFiles(ModContentDirectory + "ShipDesigns", "design"), readOnly: true, playerDesign: false);
+            else // first get Vanilla files, then override with ShipDesigns from the mod
+                CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "design"), readOnly: true, playerDesign: false);
+            return designs;
+        }
 
+        static Map<string, ShipDesignInfo> GetLegacyShipDesigns()
+        {
+            var designs = new Map<string, ShipDesignInfo>();
+            CombineOverwrite(designs, Dir.GetFiles(Dir.StarDriveAppData + "/Saved Designs", "xml"), readOnly: false, playerDesign: true);
             if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.UseVanillaShips)
             {
-                // only get mod files
-                CombineOverwrite(designs, Dir.GetFiles(ModContentDirectory + "ShipDesigns", ext), readOnly: true, playerDesign: false);
+                CombineOverwrite(designs, Dir.GetFiles(ModContentDirectory + "StarterShips", "xml"), readOnly: true, playerDesign: false);
+                CombineOverwrite(designs, Dir.GetFiles(ModContentDirectory + "SavedDesigns", "xml"), readOnly: true, playerDesign: false);
+                CombineOverwrite(designs, Dir.GetFiles(ModContentDirectory + "ShipDesigns", "xml"), readOnly: true, playerDesign: false);
             }
             else
             {
-                // first get Vanilla files, then override with ShipDesigns from the mod
-                CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", ext), readOnly: true, playerDesign: false);
+                CombineOverwrite(designs, GatherFilesUnified("StarterShips", "xml"), readOnly: true, playerDesign: false);
+                CombineOverwrite(designs, GatherFilesUnified("SavedDesigns", "xml"), readOnly: true, playerDesign: false);
+                CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "xml"), readOnly: true, playerDesign: false);
             }
-
             return designs;
         }
 
