@@ -4,6 +4,7 @@ Hull=Terran/Heavy Cruiser
 Role=cruiser
 Style=Terran
 Size=26,48
+GridCenter=13,23
 DefaultAIState=AttackRunner
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0

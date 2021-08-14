@@ -4,6 +4,7 @@ Hull=Pollops/Fern
 Role=frigate
 Style=Pollops
 Size=16,8
+GridCenter=8,4
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;MissileLauncher3x3;OrdnanceLockerSmall;NuclearReactorMed;Internal Bulkhead;WarpEngine_2x2;Bridge;FrigateEngine

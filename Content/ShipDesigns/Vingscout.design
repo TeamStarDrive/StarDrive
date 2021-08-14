@@ -4,6 +4,7 @@ Hull=Cordrazine/Ving
 Role=scout
 Style=Cordrazine
 Size=6,3
+GridCenter=3,2
 DefaultAIState=AwaitingOrders
 DefaultCombatState=AttackRuns
 ShipCategory=Recon

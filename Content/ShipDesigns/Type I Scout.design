@@ -4,6 +4,7 @@ Hull=Vulfen/Type I
 Role=scout
 Style=Vulfen
 Size=4,4
+GridCenter=2,2
 DefaultCombatState=AttackRuns
 ShipCategory=Recon
 # Maps module UIDs to Index, first UID has index 0

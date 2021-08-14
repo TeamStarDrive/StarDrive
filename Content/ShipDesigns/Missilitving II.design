@@ -4,6 +4,7 @@ Hull=Cordrazine/Litving
 Role=corvette
 Style=Cordrazine
 Size=6,7
+GridCenter=3,4
 DefaultAIState=AwaitingOrders
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0

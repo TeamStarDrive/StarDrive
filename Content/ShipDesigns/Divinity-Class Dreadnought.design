@@ -4,6 +4,7 @@ Hull=Ralyeh/Godcaller
 Role=capital
 Style=Ralyeh
 Size=50,39
+GridCenter=25,14
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;PlaSteelArmorLarge;PlaSteelArmorMed;MissileLauncher3x3;TractorBeam2x3;Reinforced Bulkhead;NuclearReactorSmall;PowerConduit;Main Engineering;MRLS;Internal Bulkhead;OrdnanceLockerSmall;Phalanx PD;OrdnanceLocker;Shield_10KW;SteelArmorSmall;EMPTorpedo;WarpEngine_4x4;CombatEngine_2x2;CIC;MarineBarracks2x2;Titan Engine;Fabricator

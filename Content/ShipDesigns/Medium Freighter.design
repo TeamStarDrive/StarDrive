@@ -4,6 +4,7 @@ Hull=Misc/CargoMedium
 Role=freighter
 Style=Misc
 Size=6,21
+GridCenter=3,9
 DefaultCombatState=AttackRuns
 ShipCategory=Civilian
 # Maps module UIDs to Index, first UID has index 0

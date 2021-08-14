@@ -4,6 +4,7 @@ Hull=Pollops/Fern
 Role=frigate
 Style=Pollops
 Size=16,8
+GridCenter=8,4
 DefaultAIState=AwaitingOrders
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0

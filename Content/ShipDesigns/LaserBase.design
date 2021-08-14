@@ -4,6 +4,7 @@ Hull=Misc/Station
 Role=station
 Style=Misc
 Size=48,46
+GridCenter=24,21
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorMed;SteelArmorSmall;LaserBeamTurret2x2;Shield_1KW;LaserTurret;NuclearReactorMed;BasicFuelCell;OrdnanceLockerSmall;NuclearReactorSmall;Phalanx PD;Fabricator;MarineBarracks2x2;RepairDrone;Bridge;OrdnanceSupplyBay

@@ -4,6 +4,7 @@ Hull=Vulfen/Alpha
 Role=capital
 Style=Vulfen
 Size=30,59
+GridCenter=15,33
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorMed;SteelArmorSmall;PhasorBeam2x3;BasicFuelCell;CanopyShield;Reinforced Bulkhead;WarpEngine_4x4;NuclearReactorMed;DisintegratorArray;Main Engineering;Titan Engine;FrigateEngine;PowerConduit;AntiMatterReactor;CIC;WarpEngine_1x1;Quantanium_1x1;Powerplant_nuke_1x1;CapEngines;WarpEngine_2x2

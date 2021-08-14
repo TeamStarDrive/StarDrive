@@ -4,6 +4,7 @@ Hull=Opteris/Hiver
 Role=carrier
 Style=Opteris
 Size=30,44
+GridCenter=15,22
 DefaultCombatState=Evade
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;PlaSteelArmorMed;PlaSteelArmorLarge;Phalanx PD;Flechette AF Turret;Shield_10KW;LaserCannon;TroopAssaultBay;OrdnanceLocker;DisruptorTurret3x3;BasicFuelCell;NuclearReactorSmall;NuclearBombBay2x2;DisruptorTurret2x2;WarpEngine_3x3;MarineBarracks2x2;CapEngines;Fabricator;Main Engineering;Internal Bulkhead;WarpEngine_1x1;CombatEngine_2x2;CIC

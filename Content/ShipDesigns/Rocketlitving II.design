@@ -4,6 +4,7 @@ Hull=Cordrazine/Litving
 Role=corvette
 Style=Cordrazine
 Size=6,7
+GridCenter=3,4
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=OrdnanceLockerSmall;SteelArmorSmall;RocketLauncher;VulcanCannon;BasicFuelCell;NuclearBombBay2x2;Cockpit;NuclearReactorMed;WarpEngine_1x1;engine_fighter_1x1;NuclearReactorSmall

@@ -4,6 +4,7 @@ Hull=Ralyeh/Sceptre
 Role=capital
 Style=Ralyeh
 Size=30,20
+GridCenter=15,9
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorMed;OrdnanceLocker;Shield_10KW;OrdnanceLockerSmall;BasicFuelCell;NuclearBombBay2x2;LaserCannon;SteelArmorSmall;PowerConduit;NuclearReactorMed;CapEngines;DisintegratorArray;NuclearReactorSmall;PlaSteelArmorSmall;WarpEngine_3x3;Bridge;WarpEngine_1x1;VulcanCannon

@@ -4,6 +4,7 @@ Hull=Draylok/Wisp
 Role=fighter
 Style=Draylok
 Size=6,2
+GridCenter=3,1
 DefaultAIState=AwaitingOrders
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0

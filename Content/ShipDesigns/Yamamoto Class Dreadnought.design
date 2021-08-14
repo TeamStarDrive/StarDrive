@@ -4,6 +4,7 @@ Hull=Kulrathi/Yamamoto
 Role=capital
 Style=Kulrathi
 Size=32,76
+GridCenter=16,38
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorLarge;SteelArmorSmall;SteelArmorMed;ConventionalTorpedo;OrdnanceLocker;OrdnanceLockerSmall;RepairDrone;WarpEngine_3x3;CanopyShield;Phalanx PD;PowerConduit;WarpEngine_1x1;WarpEngine_2x2;Titan Engine;AntiMatterReactor;BigCannon;NuclearBombBay2x2;CIC;Reinforced Bulkhead;Main Engineering;Engine;WarpEngine_4x4;Internal Bulkhead;NuclearReactorMed;Powerplant_nuke_2x2;Fabricator

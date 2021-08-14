@@ -4,6 +4,7 @@ Hull=Opteris/Trawler
 Role=freighter
 Style=Opteris
 Size=6,24
+GridCenter=3,12
 DefaultCombatState=AttackRuns
 ShipCategory=Civilian
 # Maps module UIDs to Index, first UID has index 0

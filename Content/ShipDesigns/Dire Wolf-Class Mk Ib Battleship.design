@@ -4,6 +4,7 @@ Hull=Vulfen/Type XIII
 Role=carrier
 Style=Vulfen
 Size=24,63
+GridCenter=12,32
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;PlaSteelArmorMed;DisruptorTurret3x3;DisruptorTurret2x2;LaserCannon;Shield_1KW;Bridge;Internal Bulkhead;PowerConduit;WarpEngine_3x3;CapEngines;NuclearReactorMed;MediumFuelCell;WarpEngine_1x1;CombatEngine_2x2;NuclearReactorSmall;BasicFuelCell

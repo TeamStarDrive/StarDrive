@@ -4,6 +4,7 @@ Hull=Cordrazine/Storving
 Role=cruiser
 Style=Cordrazine
 Size=16,15
+GridCenter=8,8
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;PlaSteelArmorMed;FusionTurret2x2;Shield_10KW;FuelCellSmallArmored;LaserCannon;FusionBeam2x3;WarpEngine_1x1;CombatEngine_2x2;Main Engineering;FuelCellMediumArmored;Bridge

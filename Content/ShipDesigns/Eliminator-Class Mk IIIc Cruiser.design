@@ -4,6 +4,7 @@ Hull=Vulfen/Type X
 Role=cruiser
 Style=Vulfen
 Size=12,41
+GridCenter=6,21
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;PlaSteelArmorMed;FusionBeam2x3;FusionTurret2x2;WarpEngine_1x1;Shield_10KW;CombatEngine_2x2;LaserCannon;BasicFuelCell;Main Engineering;WarpEngine_3x3;PowerConduit;NuclearReactorSmall;NuclearReactorMed;MediumFuelCell;Bridge

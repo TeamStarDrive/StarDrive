@@ -4,6 +4,7 @@ Hull=Terran/Gunboat
 Role=prototype
 Style=Terran
 Size=6,16
+GridCenter=3,8
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=LaserTurret;LaserCannon;SteelArmorSmall;NuclearReactorSmall;WarpEngine_2x2;LaserBeamTurret2x2;Shield_1KW;NuclearReactorMed;Bridge;FrigateEngine

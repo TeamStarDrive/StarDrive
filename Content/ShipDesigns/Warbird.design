@@ -4,6 +4,7 @@ Hull=Draylok/Warbird
 Role=capital
 Style=Draylok
 Size=44,43
+GridCenter=22,21
 DefaultCombatState=OrbitRight
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;SteelArmorLarge;DisruptorTurret2x2;PowerConduit;DisruptorTurret3x3;NuclearReactorSmall;NuclearBombBay2x2;NuclearReactorMed;SteelArmorMed;MediumFuelCell;OrdnanceLocker;Internal Bulkhead;WarpEngine_3x3;Reinforced Bulkhead;Engine;Shield_10KW;WarpEngine_1x1;WarpEngine_2x2;Bridge

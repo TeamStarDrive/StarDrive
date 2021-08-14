@@ -4,6 +4,7 @@ Hull=Opteris/Queen
 Role=capital
 Style=Opteris
 Size=52,65
+GridCenter=26,32
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;PlaSteelArmorLarge;PowerConduit;NuclearReactorSmall;EMPTurret3x3;PolaronTurret2x2;PlaSteelArmorMed;Phalanx PD;MarineBarracks2x2;EMPTurret2x2;Shield_10KW;OrdnanceLockerSmall;BasicFuelCell;LaserCannon;PolaronTurret3x3;MediumFuelCell;WarpEngine_1x1;Titan Engine;PhotonTurret;EMPTorpedo;QTCannon;CanopyShield;TractorBeam2x3;CombatEngine_2x2;OrdnanceLocker;AntiMatterReactor;HeavyLaserCannon;Internal Bulkhead;Main Engineering;Inertial Damper;Fabricator;WarpEngine_4x4;CIC

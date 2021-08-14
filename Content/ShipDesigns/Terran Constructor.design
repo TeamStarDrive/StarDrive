@@ -4,6 +4,7 @@ Hull=Misc/HaulerSmall
 Role=construction
 Style=Misc
 Size=4,10
+GridCenter=2,4
 DefaultAIState=AwaitingOrders
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0

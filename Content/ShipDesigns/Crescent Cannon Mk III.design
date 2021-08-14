@@ -4,6 +4,7 @@ Hull=Draylok/Crescent
 Role=corvette
 Style=Draylok
 Size=10,6
+GridCenter=5,3
 DefaultAIState=AwaitingOrders
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0

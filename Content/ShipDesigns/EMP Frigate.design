@@ -4,6 +4,7 @@ Hull=Terran/HeavyGunboat
 Role=frigate
 Style=Terran
 Size=6,18
+GridCenter=3,9
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=EMPTurret2x2;FuelCellSmallArmored;FuelCellMediumArmored;Engine;WarpEngine_2x2;Shield_1KW;Bridge;NuclearReactorMed;FrigateEngine

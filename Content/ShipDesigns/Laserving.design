@@ -4,6 +4,7 @@ Hull=Cordrazine/Ving
 Role=fighter
 Style=Cordrazine
 Size=6,3
+GridCenter=3,2
 DefaultAIState=AwaitingOrders
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
