@@ -385,10 +385,10 @@ namespace Ship_Game.AI
             float minimumDistance = Owner.Radius + ship.Radius;
             float value = ship.TotalDps + 100;
             value *= 1 + ship.Carrier.AllFighterHangars.Length/2;
-            value *= 1 + ship.TroopCapacity * 1000;
+            value *= 1 + ship.TroopCapacity/2;
             value *= 1 + (ship.HasBombs && ship.AI.OrbitTarget?.Owner == Owner.loyalty
-                        ? ship.BombBays.Count * 1000
-                        : ship.BombBays.Count * 100);
+                        ? ship.BombBays.Count
+                        : ship.BombBays.Count/2);
 
             float angleMod = Owner.AngleDifferenceToPosition(ship.Position).Clamped(0.5f, 3);
             if (Owner.AI.EscortTarget != null && ship.AI.Target == Owner.AI.EscortTarget)
@@ -401,6 +401,9 @@ namespace Ship_Game.AI
             float distance = Owner.Position.Distance(ship.Position).LowerBound(minimumDistance);
             if (ship.AI.Target == Owner && distance < ship.DesiredCombatRange)
                 value *= 2;
+
+            if (ship.Resupplying)
+                value /= 10;
 
             float sizeMod  = ((float)ship.SurfaceArea / Owner.SurfaceArea).UpperBound(1);
             value /= angleMod;
