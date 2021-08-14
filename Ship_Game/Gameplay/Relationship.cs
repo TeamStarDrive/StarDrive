@@ -1048,7 +1048,7 @@ namespace Ship_Game.Gameplay
 
             turnsSinceLastContact = 0; // Try again after 100 turns
             Relationship themToUs = us.GetRelations(them);
-            if ((themToUs.Trust >= 150 || themToUs.Trust >= 100 && them.GetPlanets().Count < us.GetPlanets().Count / 5)
+            if ((themToUs.Trust >= 150 || themToUs.Trust >= 100 && them.TotalPopBillion < us.TotalPopBillion / 3)
                 && Is3RdPartyBiggerThenUs())
             {
                 Empire.Universe.NotificationManager.AddPeacefulMergerNotification(us, them);

@@ -20,12 +20,13 @@
         }
 
         float IncreaseValue => DifficultyModifiers.FleetStrModifier * PersonalityModifiers.FleetStrMultiplier;
-        float DecreaseValue => DifficultyModifiers.FleetStrModifier / PersonalityModifiers.FleetStrMultiplier / 2;
+        float DecreaseValue => DifficultyModifiers.FleetStrModifier / PersonalityModifiers.FleetStrMultiplier;
 
 
         /// <summary>
         /// This will decrease the str needed vs the target empire slightly. Empire is null safe.
         /// It should be called when a fleet task succeeds
+        /// There is hard limit of 5 or (more if Remnants) on the multiplier
         /// </summary>
         public void DecreaseFleetStrEmpireMultiplier(Empire e) => TryUpdateFleetStrEmpireMultiplier(e, -DecreaseValue);
         public void IncreaseFleetStrEmpireMultiplier(Empire e) => TryUpdateFleetStrEmpireMultiplier(e, IncreaseValue);
@@ -35,9 +36,18 @@
             if (targetEmpire == null || isPlayer)
                 return;
 
+            if (targetEmpire.WeAreRemnants)
+                value *= DifficultyModifiers.RemnantStrModifier;
+
             if (FleetStrEmpireMultiplier.ContainsKey(targetEmpire.Id))
             {
-                FleetStrEmpireMultiplier[targetEmpire.Id] = (FleetStrEmpireMultiplier[targetEmpire.Id] + value).LowerBound(0.5f);
+                float maxMultiplier = targetEmpire.WeAreRemnants ? 5 * DifficultyModifiers.RemnantStrModifier : 5;
+                float currentValue  = FleetStrEmpireMultiplier[targetEmpire.Id];
+                float newValue      = currentValue + value;
+                if (newValue > maxMultiplier)
+                    newValue /= 2; // reached upper limit, restart at lower value
+
+                FleetStrEmpireMultiplier[targetEmpire.Id] = newValue.LowerBound(0.5f);
             }
             else
             {
