@@ -436,18 +436,13 @@ namespace Ship_Game
             return origin;
         }
 
-        public static Vector2 Mul(this Vector2 v, Point scalar)
-        {
-            return new Vector2(v.X * scalar.X, v.Y * scalar.Y);
-        }
+        public static Vector2 Mul(this Point p, float scalar) => new Vector2(p.X * scalar, p.Y * scalar);
+        public static Vector2 Div(this Point p, float scalar) => new Vector2(p.X / scalar, p.Y / scalar);
 
-        public static Vector2 Mul(this Point p, float scalar)
-        {
-            return new Vector2(p.X * scalar, p.Y * scalar);
-        }
-        public static Point Sub(this Point a, Point b)
-        {
-            return new Point(a.X - b.X, a.Y - b.Y);
-        }
+        public static Vector2 Mul(this Vector2 v, Point scalar) => new Vector2(v.X * scalar.X, v.Y * scalar.Y);
+        public static Vector2 Div(this Vector2 v, Point scalar) => new Vector2(v.X / scalar.X, v.Y / scalar.Y);
+
+        public static Point Add(this Point a, Point b) => new Point(a.X + b.X, a.Y + b.Y);
+        public static Point Sub(this Point a, Point b) => new Point(a.X - b.X, a.Y - b.Y);
     }
 }

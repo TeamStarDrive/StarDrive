@@ -8,8 +8,9 @@ namespace Ship_Game.Ships
     {
         // slot dimensions of the grid, for example 4x4 for Vulcan Scout
         public Point Size;
-        // grid origin, which should match BaseHull. If it doesn't then slots need adjustment
-        public Point Origin;
+        // offset from grid TopLeft to the Center slot
+        // this should match BaseHull. If it doesn't then slots need adjustment
+        public Point Center;
         public int SurfaceArea;
 
         public override string ToString() => $"Size={Size} Slots={SurfaceArea}";
@@ -18,7 +19,7 @@ namespace Ship_Game.Ships
         public ShipGridInfo(ShipHull hull)
         {
             Size = hull.Size;
-            Origin = hull.GridOrigin;
+            Center = hull.GridCenter;
             SurfaceArea = hull.SurfaceArea;
         }
 
@@ -26,6 +27,7 @@ namespace Ship_Game.Ships
         public ShipGridInfo(HullSlot[] slots)
         {
             Size = Point.Zero; // [0,0] is always the top-left
+            Center = Point.Zero; // NOTE: we don't need this in Tests currently
             SurfaceArea = slots.Length;
 
             for (int i = 0; i < slots.Length; ++i)
@@ -35,14 +37,13 @@ namespace Ship_Game.Ships
                 if (Size.X < botRight.X) Size.X = botRight.X;
                 if (Size.Y < botRight.Y) Size.Y = botRight.Y;
             }
-
-            Origin = new Point(-Size.X / 2, -Size.Y / 2);
         }
 
         // This is used for DEBUGGING and TESTING
         public ShipGridInfo(ShipModule[] modules)
         {
             Size = Point.Zero; // [0,0] is always the top-left
+            Center = Point.Zero; // NOTE: we don't need this in Tests currently
             SurfaceArea = 0;
 
             for (int i = 0; i < modules.Length; ++i)
@@ -54,8 +55,6 @@ namespace Ship_Game.Ships
                 if (Size.X < botRight.X) Size.X = botRight.X;
                 if (Size.Y < botRight.Y) Size.Y = botRight.Y;
             }
-
-            Origin = new Point(-Size.X / 2, -Size.Y / 2);
         }
     }
 }

@@ -6,11 +6,12 @@ namespace Ship_Game.Ships.Legacy
     public struct LegacyShipGridInfo
     {
         public Point Size; // slot dimensions of the grid, for example 4x4 for Vulcan Scout
-        public Point GridOrigin; // origin of the grid from grid center
         public Vector2 VirtualOrigin; // where is the TopLeft of the grid? in the virtual coordinate space
         public Vector2 Span; // actual size of the grid in world coordinate space (64.0 x 64.0 for vulcan scout)
         public int SurfaceArea;
         public Vector2 MeshOffset; // offset of the mesh from Mesh object center, for grid to match model
+        
+        public Point GridCenter; // offset from grid TopLeft to the Center slot
 
         public override string ToString() => $"surface={SurfaceArea} size={Size} Vorigin={VirtualOrigin} span={Span}";
 
@@ -20,7 +21,9 @@ namespace Ship_Game.Ships.Legacy
             var min = new Vector2(+4096, +4096);
             var max = new Vector2(-4096, -4096);
 
-            if (isHull || LegacyShipData.IsAllDummySlots(templateSlots))
+            isHull = isHull || LegacyShipData.IsAllDummySlots(templateSlots);
+
+            if (isHull)
             {
                 // hulls are simple
                 for (int i = 0; i < templateSlots.Length; ++i)
@@ -109,12 +112,17 @@ namespace Ship_Game.Ships.Legacy
             VirtualOrigin = new Vector2(min.X, min.Y);
             Span = new Vector2(max.X - min.X, max.Y - min.Y);
             Size = new Point((int)Span.X / 16, (int)Span.Y / 16);
-            GridOrigin = new Point(-Size.X / 2, -Size.Y / 2);
 
             Vector2 offset = -(VirtualOrigin + Span*0.5f);
-            if (offset != Vector2.Zero)
-                Log.Info($"MeshOffset {offset}  {name}");
             MeshOffset = offset;
+
+            // Center of the design
+            GridCenter = new Point((int)(-VirtualOrigin.X / 16f),
+                                   (int)(-VirtualOrigin.Y / 16f));
+
+            // Make sure it doesn't go out of bounds
+            if (GridCenter.Y > Size.Y-1)
+                GridCenter.Y = Size.Y-1;
         }
     }
 }
