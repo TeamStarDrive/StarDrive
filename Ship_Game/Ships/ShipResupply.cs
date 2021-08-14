@@ -206,7 +206,10 @@ namespace Ship_Game.Ships
 
         private bool OrdnanceOk()
         {
-            float threshold = InCombat ? OrdnanceThresholdCombat  : OrdnanceThresholdNonCombat;
+            float threshold = InCombat ? OrdnanceThresholdCombat : OrdnanceThresholdNonCombat;
+            if (Ship.Resupplying)
+                threshold = 0.99f;
+
             return Ship.OrdnancePercent >= threshold;
         }
 
