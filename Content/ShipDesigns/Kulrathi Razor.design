@@ -4,6 +4,7 @@ Hull=Kulrathi/Razor
 Role=corvette
 Style=Kulrathi
 Size=10,7
+GridCenter=5,4
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;VulcanCannon;NuclearReactorSmall;WarpEngine_1x1;OrdnanceLockerSmall;Engine;Cockpit

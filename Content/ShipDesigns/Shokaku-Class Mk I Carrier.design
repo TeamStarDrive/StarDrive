@@ -4,6 +4,7 @@ Hull=Kulrathi/Ravager
 Role=carrier
 Style=Kulrathi
 Size=32,50
+GridCenter=16,24
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;SteelArmorMed;SteelArmorLarge;FighterBay;Shield_1KW;FlakTurret;VulcanCannon;PowerConduit;Internal Bulkhead;OrdnanceLockerSmall;OrdnanceLocker;WarpEngine_1x1;CombatEngine_2x2;Reinforced Bulkhead;WarpEngine_2x2;Bridge;NuclearReactorSmall;NuclearReactorMed;WarpEngine_3x3

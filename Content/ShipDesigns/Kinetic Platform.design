@@ -4,6 +4,7 @@ Hull=Platforms/Platform Base
 Role=platform
 Style=Platforms
 Size=8,7
+GridCenter=4,4
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;KineticPlatform;NuclearReactorMed

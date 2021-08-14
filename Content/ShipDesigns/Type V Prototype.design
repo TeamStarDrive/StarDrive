@@ -4,6 +4,7 @@ Hull=Vulfen/Type V
 Role=prototype
 Style=Vulfen
 Size=12,13
+GridCenter=6,6
 DefaultAIState=AwaitingOrders
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0

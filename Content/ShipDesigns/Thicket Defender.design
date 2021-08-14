@@ -4,6 +4,7 @@ Hull=Pollops/Thicket
 Role=corvette
 Style=Pollops
 Size=6,5
+GridCenter=3,3
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=LaserCannon;HeavyLaserCannon;BasicFuelCell;Cockpit;NuclearReactorSmall;Engine

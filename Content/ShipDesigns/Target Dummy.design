@@ -4,6 +4,7 @@ Hull=Terran/Caravan
 Role=frigate
 Style=Terran
 Size=14,21
+GridCenter=7,11
 DefaultAIState=AttackRunner
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0

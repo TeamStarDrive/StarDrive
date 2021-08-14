@@ -4,6 +4,7 @@ Hull=Opteris/Soldier
 Role=frigate
 Style=Opteris
 Size=10,17
+GridCenter=5,9
 DefaultAIState=AwaitingOrders
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0

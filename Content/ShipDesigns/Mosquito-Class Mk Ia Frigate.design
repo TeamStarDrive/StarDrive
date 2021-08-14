@@ -4,6 +4,7 @@ Hull=Opteris/Soldier
 Role=frigate
 Style=Opteris
 Size=10,17
+GridCenter=5,9
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;MRLS;VulcanCannon;RocketLauncher;WarpEngine_2x2;SteelArmorMed;OrdnanceLocker;NuclearReactorMed;Bridge;WarpEngine_1x1;CombatEngine_2x2

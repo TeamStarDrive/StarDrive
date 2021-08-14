@@ -4,6 +4,7 @@ Hull=Draylok/Crescent
 Role=corvette
 Style=Draylok
 Size=10,6
+GridCenter=5,3
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=MissileLauncher1x3;RocketLauncher;Fighter Shield;NuclearReactorSmall;OrdnanceLockerSmall;WarpEngine_1x1;SteelArmorSmall;Cockpit;engine_fighter_1x1;PowerConduit

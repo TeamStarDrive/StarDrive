@@ -4,6 +4,7 @@ Hull=Draylok/Draylok Tx Small
 Role=freighter
 Style=Draylok
 Size=4,8
+GridCenter=2,4
 DefaultCombatState=AttackRuns
 ShipCategory=Civilian
 # Maps module UIDs to Index, first UID has index 0

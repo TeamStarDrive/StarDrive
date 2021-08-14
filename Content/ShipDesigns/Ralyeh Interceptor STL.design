@@ -4,6 +4,7 @@ Hull=Ralyeh/Inquisitor
 Role=fighter
 Style=Ralyeh
 Size=4,4
+GridCenter=2,2
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=VulcanCannon;Cockpit;Powerplant_nuke_1x1;Combat_Thruster_1x1;OrdnanceLockerSmall

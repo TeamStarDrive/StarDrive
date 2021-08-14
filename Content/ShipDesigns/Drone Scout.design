@@ -4,6 +4,7 @@ Hull=Opteris/Drone
 Role=scout
 Style=Opteris
 Size=4,4
+GridCenter=2,3
 DefaultAIState=AwaitingOrders
 DefaultCombatState=AttackRuns
 ShipCategory=Recon

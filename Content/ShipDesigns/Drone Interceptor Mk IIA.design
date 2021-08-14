@@ -4,6 +4,7 @@ Hull=Opteris/Drone
 Role=fighter
 Style=Opteris
 Size=4,4
+GridCenter=2,3
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=LaserCannon;Fighter Shield;NuclearReactorSmall;Engine;Cockpit;WarpEngine_1x1;BasicFuelCell

@@ -4,6 +4,7 @@ Hull=Kulrathi/Claw
 Role=frigate
 Style=Draugar
 Size=18,17
+GridCenter=9,9
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;PirateAssaultBay;TractorBeamTurret2x2;LaserCannon;AncientShield2kw;PowerConduit;ThalaronBeam2x3;RemnantSmallReactor;OrdnanceLockerSmall;AntiMatterReactor;Pirate Inhibitor;CapEngines;Bridge;Inertial Damper;WarpEngine_1x1

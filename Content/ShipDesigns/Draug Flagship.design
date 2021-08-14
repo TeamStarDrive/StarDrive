@@ -4,6 +4,7 @@ Hull=Ralyeh/Godcaller
 Role=capital
 Style=Draugar
 Size=50,39
+GridCenter=25,14
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorMed;SteelArmorSmall;Railgun2x5;BigCannon;PowerConduit;PhasorTurret2x2;OrdnanceLockerSmall;NuclearReactorSmall;MissileLauncher1x3;AntiMatterReactor;Phalanx PD;Railgun1x3;CanopyShield;OrdnanceLocker;Fabricator;Main Engineering;MarineBarracks2x2;CIC;OrdnanceSupplyBay;SteelArmorLarge;WarpEngine_4x4;CombatEngine_2x2;RepairDrone;Titan Engine

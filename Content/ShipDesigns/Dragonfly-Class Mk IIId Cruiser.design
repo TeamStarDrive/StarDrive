@@ -4,6 +4,7 @@ Hull=Opteris/Chitin
 Role=cruiser
 Style=Opteris
 Size=20,31
+GridCenter=10,16
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorMed;PlaSteelArmorSmall;EMPTorpedo;MRLS;Shield_10KW;CombatEngine_2x2;Engine;VulcanCannon;OrdnanceLocker;WarpEngine_1x1;OrdnanceLockerSmall;CapEngines;MissileLauncher1x3;Main Engineering;CIC;Internal Bulkhead;WarpEngine_3x3

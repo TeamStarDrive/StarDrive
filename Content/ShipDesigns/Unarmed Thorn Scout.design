@@ -4,6 +4,7 @@ Hull=Pollops/Thorn
 Role=scout
 Style=Pollops
 Size=4,4
+GridCenter=2,2
 DefaultAIState=AwaitingOrders
 DefaultCombatState=AttackRuns
 ShipCategory=Recon
