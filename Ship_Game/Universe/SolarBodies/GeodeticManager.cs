@@ -172,7 +172,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
                 if (loyaltyMatch)
                 {
-                    if (ship.Position.InRadius(Center, 5000f) || ship.GetTether() == P)
+                    if (ship.Position.InRadius(Center, 5000f) || ship.IsOrbiting(P) || ship.GetTether() == P)
                     {
                         SupplyShip(ship);
                         RepairShip(ship, repairPool);
