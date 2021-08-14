@@ -382,26 +382,29 @@ namespace Ship_Game.AI
             if (ship.IsInWarp)
                 return 0;
 
-            float minimumDistance = Owner.Radius;
+            float minimumDistance = Owner.Radius + ship.Radius;
             float value = ship.TotalDps + 100;
-            value += ship.Carrier.EstimateFightersDps;
-            value += ship.TroopCapacity * 500;
-            value += ship.HasBombs && ship.AI.OrbitTarget?.Owner == Owner.loyalty 
-                       ? ship.BombBays.Count * 500 
-                       : ship.BombBays.Count * 100;
+            value *= 1 + ship.Carrier.AllFighterHangars.Length/2;
+            value *= 1 + ship.TroopCapacity * 1000;
+            value *= 1 + (ship.HasBombs && ship.AI.OrbitTarget?.Owner == Owner.loyalty
+                        ? ship.BombBays.Count * 1000
+                        : ship.BombBays.Count * 100);
 
-            float angleMod = Owner.AngleDifferenceToPosition(ship.Position).Clamped(0.5f, 3)
-                             / Owner.RotationRadiansPerSecond.LowerBound(0.5f);
-
+            float angleMod = Owner.AngleDifferenceToPosition(ship.Position).Clamped(0.5f, 3);
             if (Owner.AI.EscortTarget != null && ship.AI.Target == Owner.AI.EscortTarget)
             {
                 value   *= 10;
                 angleMod = 1;
             }
 
+
             float distance = Owner.Position.Distance(ship.Position).LowerBound(minimumDistance);
+            if (ship.AI.Target == Owner && distance < ship.DesiredCombatRange)
+                value *= 2;
+
+            float sizeMod  = ((float)ship.SurfaceArea / Owner.SurfaceArea).UpperBound(1);
             value /= angleMod;
-            return value / distance;
+            return value / (distance*distance) * sizeMod;
         }
         
         // Checks whether it's time to run a SensorScan
