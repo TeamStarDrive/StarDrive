@@ -28,7 +28,7 @@ ___|___|___|___|___|O  |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |O  |___|
 ___|___|___|___|O  |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |O  |___|___|___|___
 ___|___|___|O  |IO |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |IO |O  |___|___|___
 ___|___|O  |IO |IO |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |IO |IO |O  |___|___
-___|O  |IO |IO |IO |___|___|IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |___|___|IO |IO |IO |O  |___
+___|O  |IO |IO |IO |___|___|IO |IO |IO |I  |I  |IC |I  |IO |IO |IO |___|___|IO |IO |IO |O  |___
 O  |IO |IO |IO |___|___|___|IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |___|___|___|IO |IO |IO |O  
 O  |IO |IO |___|___|___|___|___|IO |IO |I  |I  |I  |I  |IO |IO |___|___|___|___|___|IO |IO |O  
 O  |IO |IO |___|___|___|___|___|IO |IO |I  |I  |I  |I  |IO |IO |___|___|___|___|___|IO |IO |O  
