@@ -1415,7 +1415,7 @@ namespace Ship_Game
             HullsDict.Clear();
             HullsList.Clear();
 
-            if (ShipHull.GenerateNewHullFiles)
+            if (GlobalStats.GenerateNewHullFiles)
             {
                 var legacyHulls = LoadLegacyShipHulls();
                 ConvertLegacyHulls(legacyHulls);
@@ -1576,7 +1576,7 @@ namespace Ship_Game
         {
             UnloadShipTemplates();
 
-            if (ShipData.GenerateNewDesignFiles)
+            if (GlobalStats.GenerateNewShipDesignFiles)
             {
                 var oldDesigns = GetLegacyShipDesigns();
                 ConvertOldDesigns(oldDesigns.Values.ToArray());
