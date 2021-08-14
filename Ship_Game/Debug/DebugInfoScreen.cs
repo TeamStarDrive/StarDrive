@@ -476,7 +476,7 @@ namespace Ship_Game.Debug
                     DrawString($"Fleet speed: {ship.fleet.SpeedLimit}");
                 }
 
-                DrawString(ship.loyalty.GetEmpireAI().AreasOfOperations.Any(ao=> ao.OffensiveForcePoolContains(ship)) ? "In Force Pool" : "NOT In Force Pool");
+                DrawString(ship.Pool != null ? "In Force Pool" : "NOT In Force Pool");
 
                 if (ship.AI.State == AIState.SystemDefender)
                 {

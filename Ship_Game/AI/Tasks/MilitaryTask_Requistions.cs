@@ -218,7 +218,6 @@ namespace Ship_Game.AI.Tasks
 
             AO = TargetPlanet?.Center ?? AO;
             UpdateMinimumTaskForceStrength();
-            InitFleetRequirements(minFleetStrength: MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: 0);
             if (CreateTaskFleet(Completeness) == RequisitionStatus.Complete)
                 NeedEvaluation = false;
         }
@@ -416,9 +415,8 @@ namespace Ship_Game.AI.Tasks
         {
             float initialStr     = geodeticOffense + Owner.KnownEmpireOffensiveStrength(enemy) / 10;
             float enemyStrNearby = geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.ParentSystem, Owner, enemy);
-            float ownStr         = Owner.OffensiveStrength / (Owner.GetPlanets().Count / 5).LowerBound(3);
             float multiplier     = Type == TaskType.StrikeForce ? 2 : 1; // Todo advanced tasks also get multiplier;
-            return initialStr.LowerBound(enemyStrNearby).LowerBound(ownStr) * multiplier;
+            return initialStr.LowerBound(enemyStrNearby) * multiplier;
         }
 
         void UpdateMinimumTaskForceStrength(float buildingsSpaceOffense = 0, float lowerBound = 0)
@@ -429,12 +427,17 @@ namespace Ship_Game.AI.Tasks
             MinimumTaskForceStrength = (EnemyStrength + buildingsSpaceOffense).LowerBound(lowerBound);
             float multiplier         = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
 
-            MinimumTaskForceStrength = (MinimumTaskForceStrength * multiplier).UpperBound(Owner.OffensiveStrength / GetBuildCapacityDivisor());
-        }
+            MinimumTaskForceStrength = (MinimumTaskForceStrength * multiplier)
+                .UpperBound(Owner.OffensiveStrength / GetBuildCapacityDivisor());
 
+            float lifeTimeMax = IsWarTask ? Owner.PersonalityModifiers.WarTasksLifeTime : 10;
+            float goalLifeTime = Goal?.LifeTime ?? 0;
+                MinimumTaskForceStrength *= (lifeTimeMax - goalLifeTime).LowerBound(1) / lifeTimeMax;
+        }
+        
         float GetBuildCapacityDivisor()
         {
-            if (TargetEmpire == null || TargetEmpire.isFaction || TargetEmpire.isPlayer)
+            if (TargetEmpire == null || TargetEmpire.isFaction)
                 return 2;
 
             float ownerBuildCapacity = Owner.GetEmpireAI().BuildCapacity;
