@@ -41,6 +41,7 @@ namespace Ship_Game.Ships
             sw.Write("Style", ShipStyle);
             sw.Write("Description", Description);
             sw.Write("Size", $"{GridInfo.Size.X},{GridInfo.Size.Y}");
+            sw.Write("GridCenter", $"{GridInfo.Center.X},{GridInfo.Center.Y}");
             
             if (IconPath != BaseHull.IconPath)
                 sw.Write("IconPath", IconPath);
@@ -184,7 +185,7 @@ namespace Ship_Game.Ships
                     else if (key == "Style")       ShipStyle = value.Text;
                     else if (key == "Description") Description = value.Text;
                     else if (key == "Size")        GridInfo.Size = PointSerializer.FromString(value);
-                    else if (key == "GridOrigin")  GridInfo.Origin = PointSerializer.FromString(value);
+                    else if (key == "GridCenter")  GridInfo.Center = PointSerializer.FromString(value);
                     else if (key == "IconPath")    IconPath = value.Text;
                     else if (key == "SelectIcon")  SelectionGraphic = value.Text;
                     else if (key == "FixedCost")   FixedCost = value.ToInt();
@@ -216,23 +217,14 @@ namespace Ship_Game.Ships
             if (ShipStyle.IsEmpty()) ShipStyle = hull.Style;
             if (IconPath.IsEmpty()) IconPath = hull.IconPath;
 
-            //if (Name.Contains("Acolyte of Flak II"))
-            //    Debugger.Break();
-
-            // if this ShipDesign
-            Point origin = GridInfo.Origin;
-            if (origin != hull.GridOrigin)
-            {
-                // (ship.Origin - hull.GridOrigin) = [-2,-2] - [-2,-3] = [0, 1]
-                var offset = new Point(origin.X - hull.GridOrigin.X, origin.Y - hull.GridOrigin.Y);
-                Log.Warning($"Design {Name} Origin={origin} differs from BaseHull, using offset={offset}");
-                for (int i = 0; i < modules.Length; ++i)
-                {
-                    DesignSlot slot = modules[i];
-                    slot.Pos.X += offset.X;
-                    slot.Pos.Y += offset.Y;
-                }
-            }
+            // NOTE: we can't "fix" the slots here without expanding the ModuleGrid
+            //       instead we use GridCenter in ShipDesignScreen InstallModules
+            //Point center = GridInfo.Center;
+            //if (center != hull.GridCenter)
+            //{
+            //    var offset = new Point(center.X - hull.GridCenter.X, center.Y - hull.GridCenter.Y);
+            //    Log.Warning(ConsoleColor.Cyan, $"Center={center} != Hull.Center={hull.GridCenter} Offset={offset} Ship={Name}");
+            //}
 
             GridInfo.SurfaceArea = hull.SurfaceArea;
             ModuleSlots = modules;

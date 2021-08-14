@@ -396,11 +396,14 @@ namespace Ship_Game
 
         void InstallModulesFromDesign(ShipData design)
         {
+            Point offset = design.BaseHull.GridCenter.Sub(design.GridInfo.Center);
+
             foreach (DesignSlot designSlot in design.ModuleSlots)
             {
-                if (!ModuleGrid.Get(designSlot.Pos, out SlotStruct targetSlot))
+                Point pos = designSlot.Pos.Add(offset);
+                if (!ModuleGrid.Get(pos, out SlotStruct targetSlot))
                 {
-                    Log.Warning($"DesignModuleGrid failed to find Slot at {designSlot.Pos}");
+                    Log.Warning($"DesignModuleGrid failed to find Slot at {pos}");
                     continue;
                 }
 

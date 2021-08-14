@@ -20,8 +20,6 @@ namespace Ship_Game.Ships.Legacy
     //       However, we will have to support XML for a long time to have backwards compat.
     public sealed partial class LegacyShipData
     {
-        const int CurrentVersion = 1;
-
         public string Name; // ex: "Dodaving", just an arbitrary name
         public string Hull; // ID of the hull, ex: "Cordrazine/Dodaving"
         public string ModName = ""; // "" if vanilla, else mod name eg "Combined Arms"

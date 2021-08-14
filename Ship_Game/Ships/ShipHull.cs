@@ -42,11 +42,8 @@ namespace Ship_Game.Ships
         public ShipData.ThrusterZone[] Thrusters = Empty<ShipData.ThrusterZone>.Array;
         public HullSlot[] HullSlots;
 
-        // center of this ShipHull's Grid
+        // offset from grid TopLeft to the Center slot
         [XmlIgnore][JsonIgnore] public Point GridCenter;
-
-        // top-left of this ShipHull's Grid FROM GridCenter
-        [XmlIgnore][JsonIgnore] public Point GridOrigin;
 
         [XmlIgnore][JsonIgnore] public bool Unlockable = true;
         [XmlIgnore][JsonIgnore] public HashSet<string> TechsNeeded = new HashSet<string>();
@@ -55,7 +52,7 @@ namespace Ship_Game.Ships
         [XmlIgnore][JsonIgnore] public SubTexture Icon => ResourceManager.Texture(IconPath);
         [XmlIgnore][JsonIgnore] public Vector3 Volume { get; private set; }
         [XmlIgnore][JsonIgnore] public float ModelZ { get; private set; }
-        [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }
+        [XmlIgnore][JsonIgnore] public HullBonus Bonuses { get; private set; }
 
         public HullSlot FindSlot(Point p)
         {
@@ -124,8 +121,7 @@ namespace Ship_Game.Ships
 
             Array.Sort(HullSlots, HullSlot.Sorter);
 
-            GridCenter = new Point(sd.GridInfo.Size.X/2, sd.GridInfo.Size.Y/2);
-            GridOrigin = new Point(-GridCenter.X, -GridCenter.Y);
+            GridCenter = sd.GridInfo.GridCenter;
             InitializeCommon();
         }
 
@@ -197,11 +193,17 @@ namespace Ship_Game.Ships
                         string col = cols[x];
                         if (col != "___")
                         {
-                            if (col == "IC_" || col == "IOC")
+                            if (col.IndexOf('C') != -1) // grid center marker
                             {
                                 GridCenter = new Point(x, height);
-                                GridOrigin = new Point(-GridCenter.X, -GridCenter.Y);
-                                slots.Add(new HullSlot(x, height, col == "IC_" ? Restrictions.I : Restrictions.IO));
+                                if (col != "C__")
+                                {
+                                    var r = Restrictions.I;
+                                    if      (col == "IOC") r = Restrictions.IO;
+                                    else if (col == "OC ") r = Restrictions.O;
+                                    else if (col == "EC ") r = Restrictions.E;
+                                    slots.Add(new HullSlot(x, height, r));
+                                }
                             }
                             else if (Enum.TryParse(col.Trim(), out Restrictions r))
                             {
@@ -216,8 +218,8 @@ namespace Ship_Game.Ships
             if (height != Size.Y)
                 Log.Error($"Hull {file.NameNoExt()} design rows={height} does not match defined Size Height={Size.Y}");
 
-            if (GridCenter == Point.Zero || GridOrigin == Point.Zero)
-                Log.Error($"Hull {file.NameNoExt()} invalid GridCenter={GridCenter} GridOrigin={GridOrigin} is `IC` slot missing?");
+            if (GridCenter == Point.Zero)
+                Log.Error($"Hull {file.NameNoExt()} invalid GridCenter={GridCenter}, is `IC` slot missing?");
 
             HullSlots = slots.ToArray();
             SurfaceArea = HullSlots.Length;
@@ -253,6 +255,7 @@ namespace Ship_Game.Ships
             sw.Write("Style", Style);
             sw.Write("Description", Description);
             sw.Write("Size", Size.X+","+Size.Y);
+            // GridCenter is saved as IOC / IC slot
             sw.Write("MeshOffset", MeshOffset.X+","+MeshOffset.Y);
             sw.Write("IconPath", IconPath);
             sw.Write("ModelPath", ModelPath);
@@ -282,15 +285,25 @@ namespace Ship_Game.Ships
                     HullSlot slot = grid[x, y];
                     if (slot == null)
                     {
-                        sb.Append("___");
+                        if (GridCenter.X == x && GridCenter.Y == y)
+                            sb.Append("C__"); // GridCenter in an empty slot (hole in center of ship)
+                        else
+                            sb.Append("___");
                     }
                     else
                     {
                         string r;
-                        if (slot.Pos == GridCenter) // GridCenter must always be IO or I
-                            r = (slot.R == Restrictions.IO ? "IOC" : "IC_");
+                        if (slot.Pos == GridCenter) // GridCenter ontop of an existing slot
+                        {
+                            if      (slot.R == Restrictions.IO) r = "IOC";
+                            else if (slot.R == Restrictions.O)  r = "OC ";
+                            else if (slot.R == Restrictions.E)  r = "EC ";
+                            else                                r = "IC ";
+                        }
                         else
+                        {
                             r = slot.R.ToString();
+                        }
 
                         sb.Append(r);
                         if (3 - r.Length > 0)

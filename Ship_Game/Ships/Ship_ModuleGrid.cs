@@ -40,7 +40,7 @@ namespace Ship_Game.Ships
                 if (modulesInfo.SurfaceArea != gridInfo.SurfaceArea ||
                     modulesInfo.Size != gridInfo.Size)
                 {
-                    Log.Warning($"ShipDesign '{Name}' does not match BaseHull: {modulesInfo} != {gridInfo}. This is a potentially broken Ship Design");
+                    Log.Warning($"BaseHull mismatch: {modulesInfo} != {gridInfo}. Broken Design={Name}");
                 }
             }
         #endif
