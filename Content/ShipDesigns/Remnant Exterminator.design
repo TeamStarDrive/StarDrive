@@ -4,6 +4,7 @@ Hull=Remnant/Remnant Mothership
 Role=carrier
 Style=Remnant
 Size=42,45
+GridCenter=21,21
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=Quantanium_1x1;Quantanium_2x2;Shield_1KW;FighterBay;SteelArmorSmall;PowerConduit;AncientShield2kw;PhotonTurret3x3;DisintegratorArray;NuclearBombBay2x2;DeathSporeBay;OrdnanceLocker;OrdnanceLockerSmall;Warp Inhibitor;WarpEngine_3x3;WarpEngine_1x1;AncientReactorMed;Main Engineering;Fabricator;Bridge;WarpEngine_4x4;CIC;CanopyShield;MarineBarracks8x4;Engine;FrigateEngine;Sickbay

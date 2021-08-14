@@ -4,6 +4,7 @@ Hull=Remnant/Xeno Cruiser
 Role=cruiser
 Style=Remnant
 Size=22,23
+GridCenter=11,11
 DefaultCombatState=AttackRuns
 ShipCategory=Kamikaze
 # Maps module UIDs to Index, first UID has index 0

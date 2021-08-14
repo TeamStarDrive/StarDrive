@@ -4,6 +4,7 @@ Hull=Terran/Hunter
 Role=corvette
 Style=Terran
 Size=10,11
+GridCenter=5,5
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=RocketLauncher;PowerConduit;BasicFuelCell;VulcanCannon;OrdnanceLockerSmall;MissileLauncher1x3;NuclearReactorMed;WarpEngine_1x1;engine_fighter_1x1;Cockpit

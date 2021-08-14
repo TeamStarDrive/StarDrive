@@ -4,6 +4,7 @@ Hull=Vulfen/Type X
 Role=cruiser
 Style=Vulfen
 Size=12,41
+GridCenter=6,21
 DefaultCombatState=Evade
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=VulcanCannon;SteelArmorSmall;FighterBay;SteelArmorMed;MissileLauncher3x3;NuclearBombBay2x2;CapEngines;FrigateEngine;Internal Bulkhead;PowerConduit;NuclearReactorMed;Shield_1KW;OrdnanceLocker;Bridge;OrdnanceLockerSmall;MRLS

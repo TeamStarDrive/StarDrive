@@ -4,6 +4,7 @@ Hull=Terran/Dreadnought
 Role=capital
 Style=Terran
 Size=40,64
+GridCenter=20,31
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;SteelArmorLarge;SteelArmorMed;LaserTurretHeavy;LaserTurret;PowerConduit;Shield_1KW;LaserCannon;Internal Bulkhead;NuclearReactorMed;LaserBeamTurret2x2;LaserBeam2x3;CombatEngine_2x2;WarpEngine_3x3;Reinforced Bulkhead;MediumFuelCell;Bridge;WarpEngine_1x1;WarpEngine_4x4;BasicFuelCell

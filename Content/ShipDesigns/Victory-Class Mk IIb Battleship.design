@@ -4,6 +4,7 @@ Hull=Terran/Heavy Cruiser
 Role=capital
 Style=Terran
 Size=26,48
+GridCenter=13,23
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;PlaSteelArmorMed;PlaSteelArmorLarge;DisruptorTurret2x2;DisruptorTurret3x3;FlakTurret3x3;FlakTurret;MediumFuelCell;PowerConduit;Shield_1KW;Reinforced Bulkhead;Internal Bulkhead;WarpEngine_1x1;WarpEngine_3x3;NuclearReactorSmall;NuclearReactorMed;LaserCannon;OrdnanceLocker;CombatEngine_2x2;CapEngines;Bridge;OrdnanceLockerSmall

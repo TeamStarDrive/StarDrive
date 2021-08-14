@@ -4,6 +4,7 @@ Hull=Draylok/Bird of Prey
 Role=cruiser
 Style=Draylok
 Size=24,30
+GridCenter=12,15
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorLarge;SteelArmorSmall;SteelArmorMed;BasicFuelCell;FusionTurret2x2;Shield_10KW;WarpEngine_2x2;NuclearBombBay2x2;FusionBeam2x3;PhasorTurret2x2;WarpEngine_1x1;CapEngines;Internal Bulkhead;PowerConduit;Bridge;NuclearReactorMed;Reinforced Bulkhead

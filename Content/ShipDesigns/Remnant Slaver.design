@@ -4,6 +4,7 @@ Hull=Remnant/Xeno Cruiser
 Role=cruiser
 Style=Remnant
 Size=22,23
+GridCenter=11,11
 DefaultCombatState=AssaultShip
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorMed;TroopAssaultBay;MarineBarracks2x2;SteelArmorSmall;EMPTurret2x2;RemnantSmallFuelCell;SiphonBeam2x3;AncientShield2kw;Engine;CapEngines;PowerConduit;EMPTurret3x3;SteelArmorLarge;ThalaronBeam2x3;AncientReactorMed;Pulse Capacitor;Bridge

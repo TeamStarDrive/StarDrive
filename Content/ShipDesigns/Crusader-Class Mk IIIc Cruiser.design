@@ -4,6 +4,7 @@ Hull=Ralyeh/Acolyte
 Role=cruiser
 Style=Ralyeh
 Size=26,14
+GridCenter=13,5
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;PhasorBeam2x3;PhasorTurret2x2;LaserCannon;PlaSteelArmorMed;Shield_10KW;Main Engineering;CapEngines;Cockpit;WarpEngine_2x2;Engine;WarpEngine_1x1;Bridge

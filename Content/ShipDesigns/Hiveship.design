@@ -4,6 +4,7 @@ Hull=Opteris/Hiver
 Role=carrier
 Style=Opteris
 Size=30,44
+GridCenter=15,22
 DefaultAIState=AwaitingOrders
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0

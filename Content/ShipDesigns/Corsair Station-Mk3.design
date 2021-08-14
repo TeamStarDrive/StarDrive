@@ -4,6 +4,7 @@ Hull=Misc/Station
 Role=station
 Style=Corsairs
 Size=48,46
+GridCenter=24,21
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;SteelArmorMed;PolaronTurret3x3;PhotonTurret;PhasorTurret2x2;BasicFuelCell;NuclearReactorSmall;AncientShield2kw;VulcanCannon;OrdnanceLocker;MarineBarracks2x2;Phalanx PD;Bridge;Main Engineering;Fabricator

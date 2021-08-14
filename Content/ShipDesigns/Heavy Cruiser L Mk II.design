@@ -4,6 +4,7 @@ Hull=Terran/LightCarrier
 Role=cruiser
 Style=Terran
 Size=20,36
+GridCenter=10,17
 DefaultCombatState=OrbitRight
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorMed;SteelArmorSmall;SteelArmorMed;Reinforced Bulkhead;NuclearReactorMed;VulcanCannon;MediumFuelCell;Bridge;Shield_1KW;NuclearBombBay2x2;LaserTurret;Phalanx PD;Internal Bulkhead;OrdnanceLockerSmall;PowerConduit;WarpEngine_3x3;WarpEngine_1x1;NuclearReactorSmall;FrigateEngine;Engine

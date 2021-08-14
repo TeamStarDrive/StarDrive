@@ -4,6 +4,7 @@ Hull=Kulrathi/Fang
 Role=scout
 Style=Kulrathi
 Size=6,4
+GridCenter=3,2
 DefaultAIState=AttackRunner
 DefaultCombatState=AttackRuns
 ShipCategory=Recon

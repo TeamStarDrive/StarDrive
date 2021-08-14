@@ -4,6 +4,7 @@ Hull=Kulrathi/Fang
 Role=fighter
 Style=Kulrathi
 Size=6,4
+GridCenter=3,2
 DefaultCombatState=Artillery
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicFuelCell;HeavyLaserCannon;Cockpit;NuclearReactorSmall;WarpEngine_1x1;Engine

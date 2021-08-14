@@ -4,6 +4,7 @@ Hull=Draylok/Sentinel
 Role=carrier
 Style=Draylok
 Size=66,61
+GridCenter=33,31
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;LaserBeamTurret2x2;PowerConduit;SteelArmorMed;BasicFuelCell;LaserBeam2x3;Shield_1KW;LaserCannon;LaserTurretHeavy;SteelArmorLarge;LaserTurret;Reinforced Bulkhead;WarpEngine_2x2;Titan Engine;MarineBarracks2x2;Internal Bulkhead;NuclearReactorMed;CombatEngine_2x2;MediumFuelCell;WarpEngine_3x3;WarpEngine_4x4;Bridge;HeavyLaserCannon;WarpEngine_1x1;OrdnanceLockerSmall

@@ -4,6 +4,7 @@ Hull=Cordrazine/Ving
 Role=fighter
 Style=Cordrazine
 Size=6,3
+GridCenter=3,2
 DefaultCombatState=AttackRuns
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=OrdnanceLockerSmall;RocketLauncher;NuclearReactorSmall;Engine;WarpEngine_1x1;Cockpit

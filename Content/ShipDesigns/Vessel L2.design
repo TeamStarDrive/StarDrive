@@ -4,6 +4,7 @@ Hull=Ralyeh/Vessel L
 Role=freighter
 Style=Ralyeh
 Size=8,27
+GridCenter=4,13
 DefaultCombatState=AttackRuns
 ShipCategory=Civilian
 # Maps module UIDs to Index, first UID has index 0

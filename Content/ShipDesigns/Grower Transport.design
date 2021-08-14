@@ -4,6 +4,7 @@ Hull=Pollops/Grower
 Role=freighter
 Style=Pollops
 Size=8,19
+GridCenter=4,10
 DefaultCombatState=AttackRuns
 ShipCategory=Civilian
 # Maps module UIDs to Index, first UID has index 0
