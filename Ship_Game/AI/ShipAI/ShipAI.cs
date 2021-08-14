@@ -406,6 +406,8 @@ namespace Ship_Game.AI
             if (Owner.fleet != null)
                 OrderMoveTo(Owner.fleet.FinalPosition + Owner.RelativeFleetOffset,
                     Owner.fleet.FinalDirection, true, State);
+
+            Owner.loyalty.AddShipToManagedPools(Owner);
         }
 
         void RequestResupplyFromPlanet()
