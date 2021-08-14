@@ -11,6 +11,6 @@ SelectIcon=8
 Thruster=257,251,0,32
 Slots
 ___|IO |IO |___
-___|IO |IO |___
+___|IO |IOC|___
 ___|I  |I  |___
 O  |E  |E  |O  
