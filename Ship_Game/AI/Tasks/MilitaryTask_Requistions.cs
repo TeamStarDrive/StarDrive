@@ -433,7 +433,6 @@ namespace Ship_Game.AI.Tasks
             float lifeTimeMax = IsWarTask ? Owner.PersonalityModifiers.WarTasksLifeTime : 10;
             float goalLifeTime = Goal?.LifeTime ?? 0;
                 MinimumTaskForceStrength *= (lifeTimeMax - goalLifeTime).LowerBound(1) / lifeTimeMax;
-            
         }
         
         float GetBuildCapacityDivisor()
