@@ -36,6 +36,8 @@ namespace Ship_Game.Ships.Legacy
             sw.Write("Style", ShipStyle);
             sw.Write("Description", Description);
             sw.Write("Size", $"{GridInfo.Size.X},{GridInfo.Size.Y}");
+            // TODO: looks suspicious
+            sw.Write("GridOrigin", $"{GridInfo.GridOrigin.X},{GridInfo.GridOrigin.Y}");
 
             if (this != BaseHull && IconPath != BaseHull.IconPath)
                 sw.Write("IconPath", IconPath);
@@ -66,7 +68,7 @@ namespace Ship_Game.Ships.Legacy
                 if (slot.IsDummy)
                     continue;
 
-                Vector2 p = (slot.Position - new Vector2(ShipModule.ModuleSlotOffset)) - GridInfo.Origin;
+                Vector2 p = (slot.Position - new Vector2(ShipModule.ModuleSlotOffset)) - GridInfo.VirtualOrigin;
                 var gp = new Point((int)(p.X / 16f), (int)(p.Y / 16f));
                 if (p.X < 0f || p.Y < 0f)
                     Log.Error($"Ship {Name} Save BUG: LegacyPos={slot.Position} converted to invalid GridPos={gp}");

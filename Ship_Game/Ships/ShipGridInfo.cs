@@ -6,17 +6,23 @@ namespace Ship_Game.Ships
 {
     public struct ShipGridInfo
     {
-        public Point Size; // slot dimensions of the grid, for example 4x4 for Vulcan Scout
+        // slot dimensions of the grid, for example 4x4 for Vulcan Scout
+        public Point Size;
+        // grid origin, which should match BaseHull. If it doesn't then slots need adjustment
+        public Point Origin;
         public int SurfaceArea;
 
         public override string ToString() => $"Size={Size} Slots={SurfaceArea}";
 
-        public ShipGridInfo(Point size, int surfaceArea)
+        // This is used for ACTUAL ShipData
+        public ShipGridInfo(ShipHull hull)
         {
-            Size = size;
-            SurfaceArea = surfaceArea;
+            Size = hull.Size;
+            Origin = hull.GridOrigin;
+            SurfaceArea = hull.SurfaceArea;
         }
 
+        // This is used for TESTING
         public ShipGridInfo(HullSlot[] slots)
         {
             Size = Point.Zero; // [0,0] is always the top-left
@@ -29,24 +35,11 @@ namespace Ship_Game.Ships
                 if (Size.X < botRight.X) Size.X = botRight.X;
                 if (Size.Y < botRight.Y) Size.Y = botRight.Y;
             }
+
+            Origin = new Point(-Size.X / 2, -Size.Y / 2);
         }
 
-        public ShipGridInfo(DesignSlot[] slots)
-        {
-            Size = Point.Zero; // [0,0] is always the top-left
-            SurfaceArea = 0;
-
-            for (int i = 0; i < slots.Length; ++i)
-            {
-                DesignSlot s = slots[i];
-                SurfaceArea += s.Size.X * s.Size.Y;
-                var botRight = new Point(s.Pos.X + s.Size.X,
-                                         s.Pos.Y + s.Size.Y);
-                if (Size.X < botRight.X) Size.X = botRight.X;
-                if (Size.Y < botRight.Y) Size.Y = botRight.Y;
-            }
-        }
-
+        // This is used for DEBUGGING and TESTING
         public ShipGridInfo(ShipModule[] modules)
         {
             Size = Point.Zero; // [0,0] is always the top-left
@@ -61,6 +54,8 @@ namespace Ship_Game.Ships
                 if (Size.X < botRight.X) Size.X = botRight.X;
                 if (Size.Y < botRight.Y) Size.Y = botRight.Y;
             }
+
+            Origin = new Point(-Size.X / 2, -Size.Y / 2);
         }
     }
 }
