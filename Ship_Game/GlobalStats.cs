@@ -118,6 +118,15 @@ namespace Ship_Game
         // internal slots below this ratio, will Die()
         public const float ShipDestroyThreshold = 0.5f;
 
+        // If TRUE, the game will attempt to convert any old XML Hull Designs
+        // into new .hull designs. This should only be enabled on demand because it's slow.
+        public static bool GenerateNewHullFiles = false;
+
+        // If TRUE, the game will attempt to convert any old XML SHIP Designs
+        // into new .design files. This should only be enabled on demand because it's slow.
+        public static bool GenerateNewShipDesignFiles = false;
+
+
         public static int CameraPanSpeed    = 2;
         public static float DamageIntensity = 1;
 
