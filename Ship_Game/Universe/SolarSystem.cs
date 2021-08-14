@@ -262,6 +262,33 @@ namespace Ship_Game
             return null;
         }
 
+        public int DefenseTaskPriority(Empire empire)
+        {
+            int priority = 3;
+            var planetsToCheck = PlanetList.Filter(p => p.Owner == empire);
+            if (planetsToCheck.Length == 0)
+            {
+                if (OwnerList.Any(empire.IsAtWarWith))
+                    planetsToCheck = PlanetList.Filter(p => p.Owner != null);
+            }
+
+            if (planetsToCheck.Length > 0)
+            {
+                int totalLevels = 0;
+                int totalWeights = 0;
+                // Using weighted level here
+                foreach (Planet p in planetsToCheck)
+                {
+                    totalLevels += p.Level;
+                    totalWeights += p.Level*p.Level;
+                }
+
+                priority = 5 - totalWeights / totalLevels.LowerBound(1);
+            }
+
+            return priority;
+        }
+
         public float PotentialValueFor(Empire e)
         {
             return PlanetList.Sum(p => p.ColonyPotentialValue(e));

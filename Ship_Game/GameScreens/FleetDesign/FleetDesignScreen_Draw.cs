@@ -357,7 +357,7 @@ namespace Ship_Game
                     if (!ShouldDrawTacticalIcon())
                         return;
 
-                    SubTexture icon = ship.GetTacticalIcon(out SubTexture secondary);
+                    (SubTexture icon, SubTexture secondary) = ship.TacticalIcon();
                     batch.Draw(icon, r, color);
                     if (secondary != null)
                         batch.Draw(secondary, r, color);
@@ -383,7 +383,7 @@ namespace Ship_Game
 
             if (ActiveShipDesign != null)
             {
-                SubTexture icon = ActiveShipDesign.GetTacticalIcon(out SubTexture secondary);
+                (SubTexture icon, SubTexture secondary) = ActiveShipDesign.TacticalIcon();
                 Vector2 iconOrigin = new Vector2(icon.Width, icon.Width) / 2f;
                 float scale = ActiveShipDesign.SurfaceArea / (float)(30 + icon.Width);
                 scale = scale * 4000f / CamPos.Z;

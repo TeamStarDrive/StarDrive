@@ -32,8 +32,8 @@ namespace UnitTests.AITests.Ships
 
         void SpawnEnemyShips()
         {
-            TheirShip = SpawnShip("Rocket Scout", Enemy, new Vector2(0, -400));
-            ThirdShip = SpawnShip("Vulcan Scout", Enemy, new Vector2(0, -600));
+            TheirShip = SpawnShip("Rocket Scout", Enemy, new Vector2(0, -800));
+            ThirdShip = SpawnShip("Vulcan Scout", Enemy, new Vector2(0, -1000));
             // Rotate to LOOK AT our ship
             TheirShip.Rotation = TheirShip.Position.DirectionToTarget(OurShip.Position).ToRadians();
             ThirdShip.Rotation = ThirdShip.Position.DirectionToTarget(OurShip.Position).ToRadians();
