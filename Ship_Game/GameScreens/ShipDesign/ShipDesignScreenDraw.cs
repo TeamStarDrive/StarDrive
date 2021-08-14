@@ -12,8 +12,8 @@ namespace Ship_Game
 {
     public sealed partial class ShipDesignScreen // refactored by Fat Bastard
     {
-        Point GridPosUnderCursor;
-        SlotStruct SlotUnderCursor;
+        public Point GridPosUnderCursor;
+        public SlotStruct SlotUnderCursor;
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
@@ -65,10 +65,6 @@ namespace Ship_Game
 
         void DrawDebugDetails(SpriteBatch batch)
         {
-            DrawDebugText(batch, 100, $"GridPos [{GridPosUnderCursor.X},{GridPosUnderCursor.Y}] slot: {SlotUnderCursor}");
-            DrawDebugText(batch, 120, $"MeshOffset {CurrentHull.MeshOffset}");
-            DrawDebugText(batch, 140, $"Hull.GridCenter {CurrentHull.GridCenter}");
-
             DrawRectangleProjected(new RectF(ModuleGrid.GridPosToWorld(CurrentHull.GridCenter), new Vector2(16)), Color.LightBlue);
 
             if (SlotUnderCursor != null)

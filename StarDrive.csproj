@@ -219,6 +219,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\Vector3d.cs" />
     <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\RelationshipsDiagramScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\EnvPreferencesPanel.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\HullEditorControls.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreen_MirrorSlot.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\IParticleSystem.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\ParticleManager.cs" />
