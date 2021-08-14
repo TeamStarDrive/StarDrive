@@ -58,12 +58,18 @@ namespace Ship_Game
             ScreenManager.EndFrameRendering();
         }
 
+        void DrawDebugText(SpriteBatch batch, float y, string text)
+        {
+             batch.DrawString(Fonts.Arial12Bold, text, new Vector2(350,y), Color.Yellow);
+        }
+
         void DrawDebugDetails(SpriteBatch batch)
         {
-            batch.DrawString(Fonts.Arial12Bold, $"GridPos [{GridPosUnderCursor.X},{GridPosUnderCursor.Y}] slot: {SlotUnderCursor}",
-                             new Vector2(350,100), Color.Yellow);
-            batch.DrawString(Fonts.Arial12Bold, $"MeshOffset {CurrentHull.MeshOffset}",
-                             new Vector2(350,120), Color.Yellow);
+            DrawDebugText(batch, 100, $"GridPos [{GridPosUnderCursor.X},{GridPosUnderCursor.Y}] slot: {SlotUnderCursor}");
+            DrawDebugText(batch, 120, $"MeshOffset {CurrentHull.MeshOffset}");
+            DrawDebugText(batch, 140, $"Hull.GridCenter {CurrentHull.GridCenter}");
+
+            DrawRectangleProjected(new RectF(ModuleGrid.GridPosToWorld(CurrentHull.GridCenter), new Vector2(16)), Color.LightBlue);
 
             if (SlotUnderCursor != null)
             {

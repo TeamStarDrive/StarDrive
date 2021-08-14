@@ -65,8 +65,7 @@ namespace Ship_Game.Ships
         public HullBonus Bonuses { get; }
         public FileInfo Source { get; private set; }
 
-        public bool IsValidForCurrentMod
-            => ModName.IsEmpty() || ModName == GlobalStats.ModName;
+        public bool IsValidForCurrentMod => ModName.IsEmpty() || ModName == GlobalStats.ModName;
 
         // You should always use this `Icon` property, because of bugs with `IconPath` initialization
         // when a ShipData is copied. @todo Fix ShipData copying

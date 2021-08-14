@@ -460,7 +460,7 @@ namespace Ship_Game
         {
             if (input.ScrollOut) DesiredCamHeight *= 1.05f;
             if (input.ScrollIn)  DesiredCamHeight *= 0.95f;
-            DesiredCamHeight = DesiredCamHeight.Clamped(1000f, 4000f);
+            DesiredCamHeight = DesiredCamHeight.Clamped(1000, 5000);
         }
 
         bool HandleInputUndoRedo(InputState input)
@@ -573,10 +573,26 @@ namespace Ship_Game
             CameraPosition.Z = (CameraPosition.Z * ratio).RoundUpTo(1);
 
             // and now we zoom in the camera so the ship is all visible
-            float desiredVisibleHeight = ScreenHeight * 0.75f;
-            float currentVisibleHeight = GetHullScreenSize(CameraPosition, hullHeight);
-            float newZoom = currentVisibleHeight / desiredVisibleHeight;
-            DesiredCamHeight = CameraPosition.Z * newZoom.Clamped(0.03f, 2.65f);
+            float wantedHeight = ScreenHeight * 0.75f;
+            float currentHeight = GetHullScreenSize(CameraPos, hullHeight);
+
+            float diff = wantedHeight - currentHeight;
+            float camHeight = CameraPos.Z;
+
+            // zoom in or out until we are past the desired visual height,
+            // the scaling is not linear which is why we step through it with a loop
+            while (Math.Abs(diff) > 20)
+            {
+                camHeight += diff < 0 ? 10 : -10;
+                currentHeight = GetHullScreenSize(new Vector3(CameraPos.X, CameraPos.Y, camHeight), hullHeight);
+                float newDiff = wantedHeight - currentHeight;
+                if (diff < 0 && newDiff > 0 || diff > 0 && newDiff < 0)
+                    break; // overshoot, quit the loop
+                diff = newDiff;
+            }
+
+            UpdateViewMatrix(CameraPos);
+            DesiredCamHeight = camHeight.Clamped(1000, 5000);
         }
 
         void ReallyExit()

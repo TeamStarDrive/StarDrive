@@ -12,7 +12,6 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game.Ships.Legacy
 {
-    // NOTE: public variables are SERIALIZED
     public partial class LegacyShipData
     {
         public void SaveDesign(string filePath)
@@ -28,7 +27,7 @@ namespace Ship_Game.Ships.Legacy
         public void SaveDesign(FileInfo file)
         {
             var sw = new ShipDataWriter();
-            sw.Write("Version", CurrentVersion);
+            sw.Write("Version", 1);
             sw.Write("Name", Name);
             sw.Write("Hull", Hull);
             sw.Write("Role", Role);
@@ -36,8 +35,7 @@ namespace Ship_Game.Ships.Legacy
             sw.Write("Style", ShipStyle);
             sw.Write("Description", Description);
             sw.Write("Size", $"{GridInfo.Size.X},{GridInfo.Size.Y}");
-            // TODO: looks suspicious
-            sw.Write("GridOrigin", $"{GridInfo.GridOrigin.X},{GridInfo.GridOrigin.Y}");
+            sw.Write("GridCenter", $"{GridInfo.GridCenter.X},{GridInfo.GridCenter.Y}");
 
             if (this != BaseHull && IconPath != BaseHull.IconPath)
                 sw.Write("IconPath", IconPath);

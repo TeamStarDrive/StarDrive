@@ -101,8 +101,11 @@ namespace Ship_Game.Ships
             InitializeThrusters(data);
             InitializeStatus(fromSave: false);
 
-            if (isTemplate && !shipyardDesign && !BaseCanWarp && DesignRoleType == ShipData.RoleType.Warship)
+            if (isTemplate && !shipyardDesign && !BaseCanWarp &&
+                DesignRoleType == ShipData.RoleType.Warship && !Name.Contains("STL"))
+            {
                 Log.Warning($"Ship.BaseCanWarp is false: {this}");
+            }
         }
 
         protected static Ship GetShipTemplate(string shipName)
