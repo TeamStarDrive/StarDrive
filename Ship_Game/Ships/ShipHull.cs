@@ -44,6 +44,10 @@ namespace Ship_Game.Ships
 
         // center of this ShipHull's Grid
         [XmlIgnore][JsonIgnore] public Point GridCenter;
+
+        // top-left of this ShipHull's Grid FROM GridCenter
+        [XmlIgnore][JsonIgnore] public Point GridOrigin;
+
         [XmlIgnore][JsonIgnore] public bool Unlockable = true;
         [XmlIgnore][JsonIgnore] public HashSet<string> TechsNeeded = new HashSet<string>();
 
@@ -105,7 +109,7 @@ namespace Ship_Game.Ships
                 Thrusters[i].Scale = sd.ThrusterList[i].Scale;
             }
 
-            Vector2 origin = sd.GridInfo.Origin;
+            Vector2 origin = sd.GridInfo.VirtualOrigin;
             var legacyOffset = new Vector2(ShipModule.ModuleSlotOffset);
 
             HullSlots = new HullSlot[sd.ModuleSlots.Length];
@@ -120,6 +124,8 @@ namespace Ship_Game.Ships
 
             Array.Sort(HullSlots, HullSlot.Sorter);
 
+            GridCenter = new Point(sd.GridInfo.Size.X/2, sd.GridInfo.Size.Y/2);
+            GridOrigin = new Point(-GridCenter.X, -GridCenter.Y);
             InitializeCommon();
         }
 
@@ -189,8 +195,19 @@ namespace Ship_Game.Ships
                     for (int x = 0; x < cols.Length; ++x)
                     {
                         string col = cols[x];
-                        if (col != "___" && Enum.TryParse(col.Trim(), out Restrictions r))
-                            slots.Add(new HullSlot(x, height, r));
+                        if (col != "___")
+                        {
+                            if (col == "IC_" || col == "IOC")
+                            {
+                                GridCenter = new Point(x, height);
+                                GridOrigin = new Point(-GridCenter.X, -GridCenter.Y);
+                                slots.Add(new HullSlot(x, height, col == "IC_" ? Restrictions.I : Restrictions.IO));
+                            }
+                            else if (Enum.TryParse(col.Trim(), out Restrictions r))
+                            {
+                                slots.Add(new HullSlot(x, height, r));
+                            }
+                        }
                     }
                     ++height;
                 }
@@ -198,6 +215,9 @@ namespace Ship_Game.Ships
 
             if (height != Size.Y)
                 Log.Error($"Hull {file.NameNoExt()} design rows={height} does not match defined Size Height={Size.Y}");
+
+            if (GridCenter == Point.Zero || GridOrigin == Point.Zero)
+                Log.Error($"Hull {file.NameNoExt()} invalid GridCenter={GridCenter} GridOrigin={GridOrigin} is `IC` slot missing?");
 
             HullSlots = slots.ToArray();
             SurfaceArea = HullSlots.Length;
@@ -215,7 +235,6 @@ namespace Ship_Game.Ships
 
         void InitializeCommon()
         {
-            GridCenter = new Point(Size.X / 2, Size.Y / 2);
             Bonuses = ResourceManager.HullBonuses.TryGetValue(HullName, out HullBonus bonus) ? bonus : HullBonus.Default;
         }
 
@@ -267,7 +286,12 @@ namespace Ship_Game.Ships
                     }
                     else
                     {
-                        string r = slot.R.ToString();
+                        string r;
+                        if (slot.Pos == GridCenter) // GridCenter must always be IO or I
+                            r = (slot.R == Restrictions.IO ? "IOC" : "IC_");
+                        else
+                            r = slot.R.ToString();
+
                         sb.Append(r);
                         if (3 - r.Length > 0)
                             sb.Append(' ', 3 - r.Length);

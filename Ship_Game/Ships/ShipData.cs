@@ -80,7 +80,7 @@ namespace Ship_Game.Ships
         public ShipData(ShipHull hull)
         {
             Name = hull.HullName;
-            GridInfo = new ShipGridInfo(hull.Size, hull.SurfaceArea);
+            GridInfo = new ShipGridInfo(hull);
 
             Hull              = hull.HullName;
             Role              = hull.Role;
@@ -153,7 +153,7 @@ namespace Ship_Game.Ships
             data.ModName = hull.ModName;
             data.ShipStyle = hull.Style;
             data.Description = hull.Description;
-            data.GridInfo = new ShipGridInfo(hull.Size, hull.SurfaceArea);
+            data.GridInfo = new ShipGridInfo(hull);
             data.IconPath = hull.IconPath;
             data.SelectionGraphic = hull.SelectIcon;
             data.Unlockable = hull.Unlockable;

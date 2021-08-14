@@ -6,12 +6,13 @@ namespace Ship_Game.Ships.Legacy
     public struct LegacyShipGridInfo
     {
         public Point Size; // slot dimensions of the grid, for example 4x4 for Vulcan Scout
-        public Vector2 Origin; // where is the TopLeft of the grid? in the virtual coordinate space
+        public Point GridOrigin; // origin of the grid from grid center
+        public Vector2 VirtualOrigin; // where is the TopLeft of the grid? in the virtual coordinate space
         public Vector2 Span; // actual size of the grid in world coordinate space (64.0 x 64.0 for vulcan scout)
         public int SurfaceArea;
         public Vector2 MeshOffset; // offset of the mesh from Mesh object center, for grid to match model
 
-        public override string ToString() => $"surface={SurfaceArea} size={Size} origin={Origin} span={Span}";
+        public override string ToString() => $"surface={SurfaceArea} size={Size} Vorigin={VirtualOrigin} span={Span}";
 
         public LegacyShipGridInfo(string name, LegacyModuleSlotData[] templateSlots, bool isHull, LegacyShipData baseHull)
         {
@@ -105,11 +106,12 @@ namespace Ship_Game.Ships.Legacy
                 }
             }
 
-            Origin = new Vector2(min.X, min.Y);
+            VirtualOrigin = new Vector2(min.X, min.Y);
             Span = new Vector2(max.X - min.X, max.Y - min.Y);
             Size = new Point((int)Span.X / 16, (int)Span.Y / 16);
+            GridOrigin = new Point(-Size.X / 2, -Size.Y / 2);
 
-            Vector2 offset = -(Origin + Span*0.5f);
+            Vector2 offset = -(VirtualOrigin + Span*0.5f);
             if (offset != Vector2.Zero)
                 Log.Info($"MeshOffset {offset}  {name}");
             MeshOffset = offset;

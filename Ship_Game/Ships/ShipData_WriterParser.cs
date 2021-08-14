@@ -184,6 +184,7 @@ namespace Ship_Game.Ships
                     else if (key == "Style")       ShipStyle = value.Text;
                     else if (key == "Description") Description = value.Text;
                     else if (key == "Size")        GridInfo.Size = PointSerializer.FromString(value);
+                    else if (key == "GridOrigin")  GridInfo.Origin = PointSerializer.FromString(value);
                     else if (key == "IconPath")    IconPath = value.Text;
                     else if (key == "SelectIcon")  SelectionGraphic = value.Text;
                     else if (key == "FixedCost")   FixedCost = value.ToInt();
@@ -191,7 +192,7 @@ namespace Ship_Game.Ships
                     else if (key == "DefaultAIState")     Enum.TryParse(value.Text, out DefaultAIState);
                     else if (key == "DefaultCombatState") Enum.TryParse(value.Text, out DefaultCombatState);
                     else if (key == "ShipCategory")       Enum.TryParse(value.Text, out ShipCategory);
-                    else if (key == "EventOnDeath")   EventOnDeath = value.Text;
+                    else if (key == "EventOnDeath")       EventOnDeath = value.Text;
                     else if (key == "ModuleUIDs")
                         moduleUIDs = value.Split(';').Select(s => string.Intern(s.Text));
                     else if (key == "Modules")
@@ -217,6 +218,21 @@ namespace Ship_Game.Ships
 
             //if (Name.Contains("Acolyte of Flak II"))
             //    Debugger.Break();
+
+            // if this ShipDesign
+            Point origin = GridInfo.Origin;
+            if (origin != hull.GridOrigin)
+            {
+                // (ship.Origin - hull.GridOrigin) = [-2,-2] - [-2,-3] = [0, 1]
+                var offset = new Point(origin.X - hull.GridOrigin.X, origin.Y - hull.GridOrigin.Y);
+                Log.Warning($"Design {Name} Origin={origin} differs from BaseHull, using offset={offset}");
+                for (int i = 0; i < modules.Length; ++i)
+                {
+                    DesignSlot slot = modules[i];
+                    slot.Pos.X += offset.X;
+                    slot.Pos.Y += offset.Y;
+                }
+            }
 
             GridInfo.SurfaceArea = hull.SurfaceArea;
             ModuleSlots = modules;
