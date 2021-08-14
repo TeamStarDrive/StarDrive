@@ -226,7 +226,7 @@ namespace Ship_Game.Ships
             return !Active || IsInAFleet || IsHangarShip || IsHomeDefense
                 || shipData.CarrierShip || IsEmpireSupport || IsOrbital
                 || DoingRefit || DoingScrap || DoingScuttle || isColonyShip
-                || IsFreighter || IsSupplyShuttle;
+                || IsFreighter || IsSupplyShuttle || Resupplying;
         }
 
         /// <summary>
@@ -402,34 +402,36 @@ namespace Ship_Game.Ships
         public ShipData.RoleType DesignRoleType => ShipData.ShipRoleToRoleType(DesignRole);
         public string DesignRoleName            => ShipData.GetRole(DesignRole);
 
-        public SubTexture GetTacticalIcon(out SubTexture secondaryIcon) =>
-            GetTacticalIcon(out secondaryIcon, out _);
-
-        public SubTexture GetTacticalIcon(out SubTexture secondaryIcon, out Color statusColor)
+        public (SubTexture primaryIcon, SubTexture secondaryIcon, Color statusColor) TacticalIconWithStatusColor()
         {
-            secondaryIcon = null;
-            statusColor = Color.Black;
+            Color color = Color.Black;
 
-            if (HealthPercent < 0.75f)
-                statusColor = Color.Yellow;
-
-            if (InternalSlotsHealthPercent < 0.75f)
-                statusColor = Color.Red;
+            if (HealthPercent < 0.75f)              color = Color.Yellow;
+            if (InternalSlotsHealthPercent < 0.75f) color = Color.Red;
 
             if (IsConstructor)
-                return ResourceManager.Texture("TacticalIcons/symbol_construction");
+                return (ResourceManager.Texture("TacticalIcons/symbol_construction"), null, color);
 
             if (IsSupplyShuttle)
-                return ResourceManager.Texture("TacticalIcons/symbol_supply");
+                return (ResourceManager.Texture("TacticalIcons/symbol_supply"), null, color);
 
-            string roleName = DesignRole == ShipData.RoleName.scout || DesignRole == ShipData.RoleName.troop 
-                ? DesignRole.ToString() 
+            string roleName = DesignRole == ShipData.RoleName.scout || DesignRole == ShipData.RoleName.troop
+                ? DesignRole.ToString()
                 : shipData.HullRole.ToString();
 
             string iconName = "TacticalIcons/symbol_";
-            secondaryIcon   = ResourceManager.TextureOrNull($"{iconName}design_{DesignRole}");
-            return ResourceManager.TextureOrNull(iconName + roleName) ??
-                ResourceManager.TextureOrDefault(iconName + shipData.HullRole, "TacticalIcons/symbol_construction");
+            SubTexture secondary = ResourceManager.TextureOrNull($"{iconName}design_{DesignRole}");
+
+            SubTexture primary = ResourceManager.TextureOrNull(iconName + roleName) ??
+                                 ResourceManager.TextureOrDefault(iconName + shipData.HullRole, "TacticalIcons/symbol_construction");
+
+            return (primary, secondary, color);
+        }
+
+        public (SubTexture primaryIcon, SubTexture secondaryIcon) TacticalIcon()
+        {
+            (SubTexture primaryIcon, SubTexture secondaryIcon, Color _) = TacticalIconWithStatusColor();
+            return (primaryIcon, secondaryIcon);
         }
 
         float GetYBankAmount(FixedSimTime timeStep)
@@ -535,6 +537,8 @@ namespace Ship_Game.Ships
                 }
             }
         }
+
+        public bool IsOrbiting(Planet p) => AI.IsOrbiting(p);
 
         public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
         {

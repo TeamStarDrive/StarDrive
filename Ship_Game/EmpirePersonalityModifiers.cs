@@ -40,7 +40,7 @@ namespace Ship_Game
                     PlanetStoleTrustMultiplier   = 0.75f;
                     WarGradeThresholdForPeace    = 0.5f * War.MaxWarGrade;
                     AddAngerAlliedWithEnemy      = 0;
-                    DefenseTaskWeight     = 2;
+                    DefenseTaskWeight     = 1;
                     FleetStrMultiplier    = 1;
                     FederationPopRatioWar = 2f;
                     DoomFleetThreshold    = 2;
@@ -64,8 +64,8 @@ namespace Ship_Game
                     WarGradeThresholdForPeace    = 0.4f * War.MaxWarGrade;
                     PlanetStoleTrustMultiplier   = 0.5f;
                     AddAngerAlliedWithEnemy      = 50;
-                    DefenseTaskWeight     = 4f;
-                    FleetStrMultiplier    = 1.4f;
+                    DefenseTaskWeight     = 1.2f;
+                    FleetStrMultiplier    = 1.15f;
                     FederationPopRatioWar = 1.6f;
                     DoomFleetThreshold    = 1.5f;
                     AssaultBomberRatio    = 0.75f;
@@ -88,8 +88,8 @@ namespace Ship_Game
                     WarGradeThresholdForPeace    = 0.4f * War.MaxWarGrade;
                     PlanetStoleTrustMultiplier   = 0.6f;
                     AddAngerAlliedWithEnemy      = 25;
-                    DefenseTaskWeight     = 6;
-                    FleetStrMultiplier    = 1.3f;
+                    DefenseTaskWeight     = 1;
+                    FleetStrMultiplier    = 1.1f;
                     FederationPopRatioWar = 1.5f;
                     DoomFleetThreshold    = 1f;
                     AssaultBomberRatio    = 1;
@@ -112,7 +112,7 @@ namespace Ship_Game
                     PlanetStoleTrustMultiplier   = 0.1f;
                     WarGradeThresholdForPeace    = 0.3f * War.MaxWarGrade;
                     AddAngerAlliedWithEnemy      = 100;
-                    DefenseTaskWeight     = 7;
+                    DefenseTaskWeight     = 1.2f;
                     FleetStrMultiplier    = 1.05f;
                     FederationPopRatioWar = 1.7f;
                     DoomFleetThreshold    = 1.75f;
@@ -136,9 +136,9 @@ namespace Ship_Game
                     PlanetStoleTrustMultiplier   = 0.7f;
                     WarGradeThresholdForPeace    = 0.7f * War.MaxWarGrade;
                     AddAngerAlliedWithEnemy      = 0;
-                    DefenseTaskWeight     = 8;
+                    DefenseTaskWeight     = 1.3f;
                     FleetStrMultiplier    = 0.95f;
-                    FederationPopRatioWar = 1.5f;
+                    FederationPopRatioWar = 1.3f;
                     DoomFleetThreshold    = 2;
                     AssaultBomberRatio    = 0.8f;
                     AllyCallToWarRatio    = 1.25f;
@@ -160,7 +160,7 @@ namespace Ship_Game
                     PlanetStoleTrustMultiplier   = 0.4f;
                     WarGradeThresholdForPeace    = 0.5f * War.MaxWarGrade;
                     AddAngerAlliedWithEnemy      = 75;
-                    DefenseTaskWeight     = 9;
+                    DefenseTaskWeight     = 1.5f;
                     FleetStrMultiplier    = 1f;
                     FederationPopRatioWar = 1.45f;
                     HullTechMultiplier    = 0.9f;
@@ -184,7 +184,7 @@ namespace Ship_Game
                     WarGradeThresholdForPeace    = 0.85f * War.MaxWarGrade;
                     PlanetStoleTrustMultiplier   = 0.8f;
                     AddAngerAlliedWithEnemy      = 0;
-                    DefenseTaskWeight     = 10;
+                    DefenseTaskWeight     = 2;
                     FleetStrMultiplier    = 0.9f;
                     FederationPopRatioWar = 1.4f;
                     HullTechMultiplier    = 1f;

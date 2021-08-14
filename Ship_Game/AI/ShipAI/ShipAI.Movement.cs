@@ -564,5 +564,7 @@ namespace Ship_Game.AI
                 return currentSpeedLimit;
             return Math.Min(Owner.fleet.FormationWarpSpeed(Owner), currentSpeedLimit);
         }
+
+        public bool IsOrbiting(Planet p) => OrbitTarget == p && Orbit.InOrbit;
     }
 }
