@@ -91,7 +91,7 @@
                     ColonyGoalMultiplier = 0;
                     StandByColonyShips   = 1;
                     TrustLostStoleColony = 0;
-                    FleetStrModifier     = 0.2f;
+                    FleetStrModifier     = 0.1f;
                     NumSystemsToSniff    = 1;
                     NumWarTasksPerWar    = 1;
                     WarTaskPriorityMod   = 0;
@@ -130,7 +130,7 @@
                     ColonyGoalMultiplier = 0.5f;
                     StandByColonyShips   = 2;
                     TrustLostStoleColony = 5;
-                    FleetStrModifier     = 0.3f;
+                    FleetStrModifier     = 0.2f;
                     NumSystemsToSniff    = 2;
                     NumWarTasksPerWar    = 2;
                     WarTaskPriorityMod   = 1;
@@ -166,7 +166,7 @@
                     ColonyGoalMultiplier = 0.75f;
                     StandByColonyShips   = 3;
                     TrustLostStoleColony = 10;
-                    FleetStrModifier     = 0.5f;
+                    FleetStrModifier     = 0.3f;
                     NumSystemsToSniff    = 3;
                     NumWarTasksPerWar    = 3;
                     WarTaskPriorityMod   = 1;
@@ -207,7 +207,7 @@
                     ColonyGoalMultiplier = 1;
                     StandByColonyShips   = 3;
                     TrustLostStoleColony = 15;
-                    FleetStrModifier     = 0.65f;
+                    FleetStrModifier     = 0.5f;
                     NumSystemsToSniff    = 4;
                     NumWarTasksPerWar    = 4;
                     WarTaskPriorityMod   = 2;
