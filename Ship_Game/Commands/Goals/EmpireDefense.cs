@@ -115,8 +115,6 @@ namespace Ship_Game.Commands.Goals
             {
                 Vector2 possiblePos = target?.Center ?? targetSystem?.Position ?? possibleTask.TargetShip.Position;
                 Vector2 defensePos  = system.Position;
-                float def = empire.WeightedCenter.Distance(defensePos).LowerBound(1);
-                float poss = empire.WeightedCenter.Distance(possiblePos).LowerBound(1);
                 defenseValue /= empire.WeightedCenter.Distance(defensePos).LowerBound(1);
                 possibleValue /= empire.WeightedCenter.Distance(possiblePos).LowerBound(1);
             }
