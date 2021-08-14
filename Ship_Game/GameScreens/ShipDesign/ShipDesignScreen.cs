@@ -66,7 +66,7 @@ namespace Ship_Game
         bool ShowAllArcs;
         public bool ToggleOverlay = true;
         bool ShipSaved = true;
-        bool HullEditMode;
+        public bool HullEditMode;
 
         // Used in Developer Sandbox to load any design
         bool UnlockAllFactionDesigns;
@@ -506,6 +506,9 @@ namespace Ship_Game
             var ordersBarPos = new Vector2(ordersBarX, ClassifCursor.Y + 20);
             OrdersButton = new DesignStanceButtons(this, ordersBarPos);
             Add(OrdersButton);
+
+            if (HullEditMode || EnableDebugFeatures)
+                Add(new HullEditorControls(this, ModuleSelectComponent.TopRight + new Vector2(50, 0)));
 
             UIList bottomListRight = AddList(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));
             bottomListRight.LayoutStyle = ListLayoutStyle.ResizeList;
