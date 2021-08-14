@@ -17,8 +17,6 @@ namespace Ship_Game.Ships
     //       However, we will have to support XML for a long time to have backwards compat.
     public sealed partial class ShipData
     {
-        public static bool GenerateNewDesignFiles = false; // only need to do this once
-
         // Current version of ShipData files
         // If we introduce incompatibilities we need to convert old to new
         const int Version = 1;
