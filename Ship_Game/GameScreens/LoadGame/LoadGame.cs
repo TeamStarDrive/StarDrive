@@ -189,7 +189,7 @@ namespace Ship_Game.GameScreens.LoadGame
             us.LoadContent();
 
             CreateAOs(data);
-            FinalizeShips(us);
+            FinalizeShips(us, data);
             us.Objects.UpdateLists(removeInactiveObjects: false);
 
             foreach(Empire empire in EmpireManager.Empires)
@@ -206,7 +206,7 @@ namespace Ship_Game.GameScreens.LoadGame
             return us;
         }
 
-        static void FinalizeShips(UniverseScreen us)
+        static void FinalizeShips(UniverseScreen us, UniverseData data)
         {
             foreach (Ship ship in us.GetMasterShipList())
             {
@@ -221,6 +221,15 @@ namespace Ship_Game.GameScreens.LoadGame
                 {
                     ship.loyalty.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
                     ship.AddedOnLoad = true;
+                }
+
+                if (ship.Carrier.HasHangars)
+                {
+                    foreach (ShipModule hangar in ship.Carrier.AllActiveHangars)
+                    {
+                        if (data.FindShip(ship.loyalty, hangar.HangarShipGuid, out Ship hangarShip))
+                            hangar.ResetHangarShip(hangarShip);
+                    }
                 }
             }
         }
@@ -244,7 +253,7 @@ namespace Ship_Game.GameScreens.LoadGame
             step.Start(data.MasterShipList.Count);
             foreach (Ship ship in data.MasterShipList)
             {
-                InitializeShip(data, ship);
+                ship.InitializeShip(loadingFromSaveGame: true);
                 step.Advance();
             }
             foreach (SolarSystem sys in data.SolarSystemsList)
@@ -254,22 +263,6 @@ namespace Ship_Game.GameScreens.LoadGame
                                             select => select.Position.SqDist(sys.Position));
             }
             Log.Info(ConsoleColor.Cyan, $"AllSystemsLoaded {s.Elapsed.TotalMilliseconds}ms");
-        }
-
-        static void InitializeShip(UniverseData data, Ship ship)
-        {
-            ship.InitializeShip(loadingFromSaveGame: true);
-
-            if (ship.Carrier.HasHangars)
-            {
-                foreach (ShipModule hangar in ship.Carrier.AllActiveHangars)
-                {
-                    if (data.FindShip(ship.loyalty, hangar.HangarShipGuid, out Ship hangarShip))
-                    {
-                        hangar.ResetHangarShip(hangarShip);
-                    }
-                }
-            }
         }
 
         static void RestoreCommodities(Planet p, SavedGame.PlanetSaveData psdata)
