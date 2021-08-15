@@ -244,7 +244,11 @@ namespace Ship_Game.Universe.SolarBodies
 
             QueueItem item = ConstructionQueue[0];
             if (item.Rush || Owner.RushAllConstruction)
-                RushProduction(0, item.ProductionNeeded);
+            {
+                float prodToRush = item.ProductionNeeded.UpperBound(P.ProdHere);
+                if (prodToRush * GlobalStats.RushCostPercentage + 1000 < EmpireManager.Player.Money)
+                    RushProduction(0, prodToRush);
+            }
         }
 
         // @return TRUE if building was added to CQ,
