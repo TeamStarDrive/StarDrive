@@ -1,5 +1,6 @@
 ﻿Version=1
 HullName=Misc/CargoMedium
+VisibleName=Medium Freighter
 Role=freighter
 Style=Misc
 Size=6,21

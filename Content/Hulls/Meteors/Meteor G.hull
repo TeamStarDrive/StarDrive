@@ -1,5 +1,6 @@
 ﻿Version=1
 HullName=Meteors/Meteor G
+VisibleName=Meteor G
 Role=platform
 Style=Meteors
 Size=6,6

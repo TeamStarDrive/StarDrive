@@ -1,5 +1,6 @@
 ﻿Version=1
 HullName=Misc/Station
+VisibleName=Station
 Role=station
 Style=Misc
 Size=48,46
