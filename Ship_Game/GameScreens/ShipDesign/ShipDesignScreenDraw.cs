@@ -65,7 +65,20 @@ namespace Ship_Game
 
         void DrawDebugDetails(SpriteBatch batch)
         {
-            DrawRectangleProjected(new RectF(ModuleGrid.GridPosToWorld(CurrentHull.GridCenter), new Vector2(16)), Color.LightBlue);
+            if (DesignedShip != null)
+            {
+                // Draw Internal and External modules for the design
+                foreach (ShipModule m in DesignedShip.Modules)
+                {
+                    var rect = new RectF(ModuleGrid.GridPosToWorld(m.Pos), m.WorldSize);
+                    if (m.HasInternalRestrictions)
+                        DrawRectangleProjected(rect, Color.Green);
+                    else if (m.isExternal)
+                        DrawRectangleProjected(rect, Color.Blue);
+                }
+            }
+
+            DrawCrossHairProjected(ModuleGrid.GridPosToWorld(CurrentHull.GridCenter), 16f, Color.Red, 2f);
 
             if (SlotUnderCursor != null)
             {

@@ -177,6 +177,15 @@ namespace Ship_Game
                       color, angle, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }
 
+        public static void DrawCrossHair(this SpriteBatch batch, in Vector2d center, double size, Color color, float thickness = 1f)
+        {
+            double radius = size*0.5;
+            var v = new Vector2d(0.0, radius);
+            var h = new Vector2d(radius, 0.0);
+            DrawLine(batch, center - v, center + v, color, thickness);
+            DrawLine(batch, center - h, center + h, color, thickness);
+        }
+
         public static void DrawRectangle(this SpriteBatch batch, in Rectangle rect, Color color, float thickness = 1f)
         {
             var tl = new Vector2(rect.X, rect.Y);
