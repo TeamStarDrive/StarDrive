@@ -1,5 +1,6 @@
 ﻿Version=1
 HullName=Misc/HaulerSmall
+VisibleName=Small Freighter
 Role=freighter
 Style=Misc
 Size=4,10

@@ -1,5 +1,6 @@
 ﻿Version=1
 HullName=Remnant/Remnant Mothership
+VisibleName=Remnant Mothership
 Role=battleship
 Style=Remnant
 Size=42,45

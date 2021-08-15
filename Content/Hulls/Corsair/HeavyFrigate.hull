@@ -1,5 +1,6 @@
 ﻿Version=1
 HullName=Corsair/HeavyFrigate
+VisibleName=Heavy Frigate
 Role=frigate
 Style=Corsair
 Size=14,21

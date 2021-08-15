@@ -1,5 +1,6 @@
 ﻿Version=1
 HullName=Misc/CargoLong
+VisibleName=Large Freighter
 Role=freighter
 Style=Misc
 Size=6,36

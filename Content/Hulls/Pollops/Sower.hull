@@ -1,5 +1,6 @@
 ﻿Version=1
 HullName=Pollops/Sower
+VisibleName=Sower
 Role=freighter
 Style=Pollops
 Size=8,13

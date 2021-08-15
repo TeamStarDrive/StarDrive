@@ -1,5 +1,6 @@
 ﻿Version=1
 HullName=Opteris/Worker
+VisibleName=Worker
 Role=corvette
 Style=Opteris
 Size=8,6
