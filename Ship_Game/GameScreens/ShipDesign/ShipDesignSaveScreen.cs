@@ -50,7 +50,7 @@ namespace Ship_Game
             }
             public ShipDesignListItem(ShipHull hull)
             {
-                ShipName = hull.HullName;
+                ShipName = hull.VisibleName;
                 Hull = hull;
                 CanBuild = true;
                 CanModifyDesign = true;
@@ -81,7 +81,7 @@ namespace Ship_Game
             EnterNameArea = Add(new UITextEntry(background.Pos + new Vector2(20, 40), GameText.DesignName));
             EnterNameArea.Text = ShipName;
             EnterNameArea.Color = Colors.Cream;
-            EnterNameArea.OnTextChanged = (text) => PopulateDesigns(text);
+            EnterNameArea.OnTextChanged = PopulateDesigns;
 
             ShipDesigns = Add(new ScrollList2<ShipDesignListItem>(subAllDesigns));
             ShipDesigns.EnableItemHighlight = true;
@@ -108,7 +108,7 @@ namespace Ship_Game
             if (Hulls)
             {
                 ShipHull[] hulls = ResourceManager.Hulls
-                    .Filter(h => h.HullName.ToLower().Contains(filter));
+                    .Filter(h => h.VisibleName.ToLower().Contains(filter));
 
                 ShipDesigns.SetItems(hulls.Select(h => new ShipDesignListItem(h)));
             }
@@ -213,7 +213,7 @@ namespace Ship_Game
 
             if (Hulls)
             {
-                ShipHull hull = ResourceManager.Hulls.FirstOrDefault(h => h.HullName == shipOrHullName);
+                ShipHull hull = ResourceManager.Hulls.FirstOrDefault(h => h.VisibleName == shipOrHullName);
                 exists = hull != null;
                 source = hull?.Source;
             }

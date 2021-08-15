@@ -639,19 +639,34 @@ namespace Ship_Game
         {
             ShipHull toSave = CurrentHull.GetClone();
             toSave.HullName = newName;
+            toSave.VisibleName = newName;
             return toSave;
         }
 
         void SaveDesign(ShipData design, FileInfo designFile)
         {
-            design.Save(designFile);
-            ShipSaved = true;
+            try
+            {
+                design.Save(designFile);
+                ShipSaved = true;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"Failed to Save: '{design.Name}'");
+            }
         }
 
         void SaveHull(ShipHull hull, FileInfo hullFile)
         {
-            hull.Save(hullFile);
-            ShipSaved = true;
+            try
+            {
+                hull.Save(hullFile);
+                ShipSaved = true;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"Failed to Save: '{hull.HullName}'");
+            }
         }
 
         public void SaveShipDesign(string name, FileInfo overwriteProtected)
@@ -688,7 +703,7 @@ namespace Ship_Game
             else
             {
                 ShipHull toSave = CloneCurrentHull($"{DateTime.Now:yyyy-MM-dd}__{DesignOrHullName}");
-                SaveHull(toSave, new FileInfo($"{Dir.StarDriveAppData}/WIP/{toSave.HullName}.hull"));
+                SaveHull(toSave, new FileInfo($"{Dir.StarDriveAppData}/WIP/{toSave.VisibleName}.hull"));
             }
         }
 
