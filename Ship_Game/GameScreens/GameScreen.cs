@@ -335,6 +335,10 @@ namespace Ship_Game
         public void DrawLine(Vector2d screenPoint1, Vector2d screenPoint2, Color color, float thickness = 1f)
             => ScreenManager.SpriteBatch.DrawLine(screenPoint1, screenPoint2, color, thickness);
 
+        // Draw a CrossHair on screen
+        public void DrawCrossHair(in Vector2d center, double size, Color color, float thickness = 1f)
+            => ScreenManager.SpriteBatch.DrawCrossHair(center, size, color, thickness);
+
         // just draws a circle, no fancy reprojections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCircle(Vector2 posOnScreen, float radius, Color color, float thickness = 1f)
@@ -649,6 +653,11 @@ namespace Ship_Game
         public Vector2d DrawLineToPlanet(Vector2 startInWorld, Vector2 endInWorld, Color color)
             => DrawLineProjected(startInWorld, endInWorld, color, 2500);
 
+        public void DrawCrossHairProjected(in Vector2 worldCenter, float worldSize, Color color, float thickness = 1f)
+        {
+            ProjectToScreenCoords(worldCenter, worldSize, out Vector2d screenPos, out double screenSize);
+            DrawCrossHair(screenPos, screenSize, color, thickness);
+        }
 
         public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, float thickness = 1f)
         {
