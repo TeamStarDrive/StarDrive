@@ -245,16 +245,16 @@ namespace Ship_Game
                 float dx = input.CursorPosition.X - StartDragPos.X;
                 float dy = input.CursorPosition.Y - StartDragPos.Y;
                 StartDragPos = input.CursorPosition;
-                CameraPosition.X += -dx;
-                CameraPosition.Y += -dy;
+                CameraPos.X += -dx;
+                CameraPos.Y += -dy;
             }
             else
             {
                 float limit = 2000f;
-                if (input.WASDLeft  && CameraPosition.X > -limit) CameraPosition.X -= GlobalStats.CameraPanSpeed;
-                if (input.WASDRight && CameraPosition.X < +limit) CameraPosition.X += GlobalStats.CameraPanSpeed;
-                if (input.WASDUp   && CameraPosition.Y > -limit) CameraPosition.Y -= GlobalStats.CameraPanSpeed;
-                if (input.WASDDown && CameraPosition.Y < +limit) CameraPosition.Y += GlobalStats.CameraPanSpeed;
+                if (input.WASDLeft  && CameraPos.X > -limit) CameraPos.X -= GlobalStats.CameraPanSpeed;
+                if (input.WASDRight && CameraPos.X < +limit) CameraPos.X += GlobalStats.CameraPanSpeed;
+                if (input.WASDUp   && CameraPos.Y > -limit) CameraPos.Y -= GlobalStats.CameraPanSpeed;
+                if (input.WASDDown && CameraPos.Y < +limit) CameraPos.Y += GlobalStats.CameraPanSpeed;
             }
         }
 
@@ -521,11 +521,11 @@ namespace Ship_Game
         void ZoomCameraToEncloseHull()
         {
             // This ensures our module grid overlay is the same size as the mesh
-            CameraPosition.Z = 500;
-            float hullHeight = hull.Size.Y * 16f;
-            float visibleSize = GetHullScreenSize(CameraPosition, hullHeight);
+            CameraPos.Z = 500;
+            float hullHeight = shipSO.WorldBoundingSphere.Radius * 2;
+            float visibleSize = GetHullScreenSize(CameraPos, hullHeight);
             float ratio = visibleSize / hullHeight;
-            CameraPosition.Z = (CameraPosition.Z * ratio).RoundUpTo(1);
+            CameraPos.Z = (CameraPos.Z * ratio).RoundUpTo(1);
 
             // and now we zoom in the camera so the ship is all visible
             float wantedHeight = ScreenHeight * 0.75f;

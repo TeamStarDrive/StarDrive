@@ -174,7 +174,7 @@ namespace Ship_Game.Ships
 
         void InitializeFromSaveData(SavedGame.ShipSaveData save)
         {
-            guid         = save.guid;
+            guid         = save.GUID;
             Position     = save.Position;
             experience   = save.Experience;
             kills        = save.Kills;

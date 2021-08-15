@@ -34,7 +34,7 @@ namespace Ship_Game
         public EmpireUIOverlay EmpireUI;
         SceneObject shipSO;
 
-        Vector3 CameraPosition = new Vector3(0f, 0f, 1300f);
+        Vector3 CameraPos = new Vector3(0f, 0f, 1300f);
         float DesiredCamHeight = 1300f;
         Vector2 StartDragPos;
 
@@ -399,8 +399,8 @@ namespace Ship_Game
 
         public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            CameraPosition.Z = MathHelper.SmoothStep(CameraPosition.Z, DesiredCamHeight, 0.2f);
-            UpdateViewMatrix(CameraPosition);
+            CameraPos.Z = MathHelper.SmoothStep(CameraPos.Z, DesiredCamHeight, 0.2f);
+            UpdateViewMatrix(CameraPos);
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
@@ -450,7 +450,10 @@ namespace Ship_Game
             });
             bottomListRight.Add(ButtonStyle.Medium, GameText.Load, click: b =>
             {
-                ScreenManager.AddScreen(new ShipDesignLoadScreen(this, UnlockAllFactionDesigns));
+                if (HullEditMode)
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, "Load Design is not available in Hull Edit Mode"));
+                else
+                    ScreenManager.AddScreen(new ShipDesignLoadScreen(this, UnlockAllFactionDesigns));
             });
             bottomListRight.Add(ButtonStyle.Medium, GameText.ToggleOverlay, click: b =>
             {
