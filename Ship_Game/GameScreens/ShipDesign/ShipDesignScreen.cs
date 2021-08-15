@@ -75,7 +75,7 @@ namespace Ship_Game
         // Used in Dev SandBox to enable some special debug features
         public bool EnableDebugFeatures;
 
-        public ShipData.RoleName Role { get; private set; }
+        public ShipData.RoleName Role => CurrentDesign?.Role ?? CurrentHull.Role;
         Rectangle DesignRoleRect;
 
         public bool IsSymmetricDesignMode
@@ -435,13 +435,13 @@ namespace Ship_Game
             if (CurrentDesign == null)
                 return;
 
-            var oldRole = Role;
-            Role = new RoleData(CurrentDesign, ModuleGrid.CopyModulesList()).DesignRole;
+            var oldRole = CurrentDesign.Role;
+            CurrentDesign.Role = new RoleData(CurrentDesign, ModuleGrid.CopyModulesList()).DesignRole;
 
-            if (Role != oldRole && showRoleChangeTip)
+            if (CurrentDesign.Role != oldRole && showRoleChangeTip)
             {
-                Vector2 pos = new Vector2(ScreenCenter.X-100, ModuleSelectComponent.Y + 50);
-                RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect, true, pos);
+                var pos = new Vector2(ScreenCenter.X - 100, ModuleSelectComponent.Y + 50);
+                RoleData.CreateDesignRoleToolTip(CurrentDesign.Role, DesignRoleRect, true, pos);
             }
         }
 
