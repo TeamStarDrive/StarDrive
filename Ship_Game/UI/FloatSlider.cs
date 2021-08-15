@@ -25,10 +25,18 @@ namespace Ship_Game
         float Min, Max, Value;
         public SliderStyle Style = SliderStyle.Decimal;
 
+        // If Step != 0, then AbsoluteValue can only change in increments of this value
+        public float Step = 0;
         public float Range => Max-Min;
+
+        float GetAbsValue(float relValue)
+        {
+            return Min + relValue * Range;
+        }
+
         public float AbsoluteValue
         {
-            get => Min + RelativeValue * Range;
+            get => GetAbsValue(RelativeValue);
             set
             {
                 RelativeValue = (value.Clamped(Min, Max) - Min) / Range;
@@ -139,7 +147,7 @@ namespace Ship_Game
                 string value; 
                 switch (Style)
                 {
-                    case SliderStyle.Decimal:  value = ((int)AbsoluteValue).ToString();             break;
+                    case SliderStyle.Decimal:  value = ((int)Math.Round(AbsoluteValue)).ToString(); break;
                     case SliderStyle.Decimal1: value = (AbsoluteValue).String(1);                   break;
                     default:                   value = (RelativeValue * 100f).ToString("00") + "%"; break;
                 }
@@ -173,7 +181,7 @@ namespace Ship_Game
             knobRect.X -= knobRect.Width / 2;
             batch.Draw(Hover ? SliderKnobHover : SliderKnob, knobRect, Color.White);
 
-            var textPos = new Vector2(SliderRect.X + SliderRect.Width + 8, SliderRect.Y + SliderRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
+            var textPos = new Vector2(SliderRect.Right + 8, SliderRect.Y + SliderRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
             batch.DrawString(Fonts.Arial12Bold, StyledValue, textPos, Colors.Cream);
 
             if (Hover)
@@ -184,6 +192,7 @@ namespace Ship_Game
                 }
             }
         }
+
         public bool HandleInput(InputState input, ref float currentValue, float dynamicMaxValue)
         {
             Max = Math.Min(500000f, dynamicMaxValue);
@@ -196,8 +205,8 @@ namespace Ship_Game
             HandleInput(input);
             currentValue = AbsoluteValue;
             return true;
-
         }
+
         public override bool HandleInput(InputState input)
         {
             Hover = Rect.HitTest(input.CursorPosition);
@@ -211,13 +220,29 @@ namespace Ship_Game
             if (Dragging)
             {
                 KnobRect.X = (int)input.CursorPosition.X;
-                if (KnobRect.X > SliderRect.X + SliderRect.Width) KnobRect.X = SliderRect.X + SliderRect.Width;
-                else if (KnobRect.X < SliderRect.X)               KnobRect.X = SliderRect.X;
+                if (KnobRect.X > SliderRect.Right)  KnobRect.X = SliderRect.Right;
+                else if (KnobRect.X < SliderRect.X) KnobRect.X = SliderRect.X;
 
                 if (input.LeftMouseReleased)
                     Dragging = false;
 
-                RelativeValue = 1f - (SliderRect.X + SliderRect.Width - KnobRect.X) / (float)SliderRect.Width;
+                float newRelPos = 1f - (SliderRect.Right - KnobRect.X) / (float)SliderRect.Width;
+                if (Step != 0)
+                {
+                    float oldAbsVal = AbsoluteValue;
+                    float newAbsVal = GetAbsValue(newRelPos);
+                    float diff = newAbsVal - oldAbsVal;
+                    int steps = (int)Math.Round(diff / Step);
+                    if (steps != 0)
+                    {
+                        AbsoluteValue = (float)Math.Round(oldAbsVal + steps*Step);
+                        OnChange?.Invoke(this);
+                    }
+                }
+                else
+                {
+                    RelativeValue = newRelPos;
+                }
             }
             return Dragging;
         }

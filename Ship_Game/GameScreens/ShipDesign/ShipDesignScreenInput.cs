@@ -32,12 +32,12 @@ namespace Ship_Game
 
         void BindListsToActiveHull()
         {
-            if (CategoryList == null)
-                return;
-
             ShipData design = CurrentDesign;
             CategoryList.Visible = design != null;
             HangarOptionsList.Visible = design != null;
+
+            // bind hull editor to current hull
+            HullEditor?.Initialize(CurrentHull);
 
             if (design == null)
                 return;
@@ -81,8 +81,13 @@ namespace Ship_Game
         {
             RemoveObject(shipSO);
             CurrentHull.LoadModel(out shipSO, TransientContent);
-            shipSO.World = Matrix.CreateTranslation(new Vector3(CurrentHull.MeshOffset, 0));
+            UpdateHullWorldPos();
             AddObject(shipSO);
+        }
+
+        public void UpdateHullWorldPos()
+        {
+            shipSO.World = Matrix.CreateTranslation(new Vector3(CurrentHull.MeshOffset, 0));
         }
 
         void DoExit()
@@ -667,7 +672,7 @@ namespace Ship_Game
         public void SaveHullDesign(string hullName, FileInfo overwriteProtected)
         {
             ShipHull toSave = CloneCurrentHull(hullName);
-            SaveHull(toSave, overwriteProtected ?? new FileInfo($"Content/Hulls/{CurrentHull.Style}/{hullName}.hull"));
+            SaveHull(toSave, overwriteProtected ?? new FileInfo($"Content/Hulls/{hullName}.hull"));
 
             ShipHull newHull = ResourceManager.AddHull(toSave);
             ChangeHull(newHull);
