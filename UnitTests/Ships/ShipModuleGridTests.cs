@@ -92,7 +92,7 @@ namespace UnitTests.Ships
         {
             Vector2 c = Vector2.Zero;
             Ship ship = SpawnShip("Vulcan Scout", Player, c);
-            var grid = new DesignModuleGrid(ship.shipData);
+            var grid = new DesignModuleGrid(null, ship.shipData);
 
             Assert.AreEqual(4, grid.Width);
             Assert.AreEqual(4, grid.Height);
