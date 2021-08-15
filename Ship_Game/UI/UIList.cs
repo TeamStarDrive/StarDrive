@@ -130,6 +130,12 @@ namespace Ship_Game
                 itemSize.X = Math.Max(itemSize.X, item.Width);
                 itemSize.Y = Math.Max(itemSize.Y, item.Height);
             }
+            else if (LayoutStyle == ListLayoutStyle.ResizeList)
+            {
+                // clip size to list boundary
+                itemSize.X = Math.Min(itemSize.X, item.Width);
+                itemSize.Y = Math.Min(itemSize.Y, item.Height);
+            }
 
             if (itemSize.X.NotZero() && item.Width.NotEqual(itemSize.X))
             {

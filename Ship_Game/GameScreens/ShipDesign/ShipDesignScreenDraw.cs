@@ -50,9 +50,6 @@ namespace Ship_Game
             DrawUi(batch, elapsed);
             ArcsButton.DrawWithShadowCaps(batch);
 
-            if (HullEditMode)
-                DrawDebug(batch);
-
             base.Draw(batch, elapsed);
             batch.End();
             ScreenManager.EndFrameRendering();
@@ -99,14 +96,6 @@ namespace Ship_Game
                 DrawRectangleProjected(highlighted.WorldRect, Color.DarkOrange, 1.25f);
                 if (IsSymmetricDesignMode && GetMirrorSlotStruct(highlighted, out SlotStruct mirrored))
                     DrawRectangleProjected(mirrored.WorldRect, Color.DarkOrange.Alpha(0.66f), 1.25f);
-            }
-            else if (HullEditMode)
-            {
-                Vector2 cursor = CursorWorldPosition2D;
-                // round to 16
-                var rounded = new Vector2((float)Math.Round(cursor.X / 16f) * 16f,
-                                          (float)Math.Round(cursor.Y / 16f) * 16f);
-                DrawRectangleProjected(rounded, new Vector2(16), 0f, Color.DarkOrange, thickness:1.25f);
             }
         }
 
@@ -421,15 +410,6 @@ namespace Ship_Game
                 Vector2 mirrorCenter = GetMirrorWorldPos(moduleWorldPos, moduleWorldSize) + moduleWorldSize*0.5f;
                 DrawCircleProjected(mirrorCenter, moduleTemplate.ShieldHitRadius, Color.LightGreen.Alpha(0.5f));
             }
-        }
-
-        void DrawDebug(SpriteBatch batch)
-        {
-            string title = "HULL EDIT MODE";
-            var pos = new Vector2(CenterX - Fonts.Arial20Bold.TextWidth(title) * 0.5f, 120f);
-            batch.DrawDropShadowText(title, pos, Fonts.Arial20Bold);
-            pos = new Vector2(CenterX - Fonts.Arial20Bold.TextWidth(Operation.ToString()) * 0.5f, 140f);
-            batch.DrawDropShadowText(Operation.ToString(), pos, Fonts.Arial20Bold);
         }
 
         // TODO: Is this used anywhere?

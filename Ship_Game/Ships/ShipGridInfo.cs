@@ -23,11 +23,11 @@ namespace Ship_Game.Ships
             SurfaceArea = hull.SurfaceArea;
         }
 
-        // This is used for TESTING
+        // This is used for HULL EDITING and TESTING
         public ShipGridInfo(HullSlot[] slots)
         {
             Size = Point.Zero; // [0,0] is always the top-left
-            Center = Point.Zero; // NOTE: we don't need this in Tests currently
+            Center = Point.Zero; // NOTE: we don't need to initialize this
             SurfaceArea = slots.Length;
 
             for (int i = 0; i < slots.Length; ++i)

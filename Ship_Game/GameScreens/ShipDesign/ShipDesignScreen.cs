@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -28,6 +27,7 @@ namespace Ship_Game
         public DesignShip DesignedShip { get; private set; }
         public ShipData CurrentDesign;
         public ShipHull CurrentHull; // never Null
+        public DesignModuleGrid ModuleGrid;
 
         public string DesignOrHullName => CurrentDesign?.Name ?? CurrentHull.VisibleName;
 
@@ -58,7 +58,6 @@ namespace Ship_Game
         SlotStruct ProjectedSlot;
         string ScreenToLaunch;
 
-        SlotModOperation Operation;
         public ShipModule ActiveModule;
         CategoryDropDown CategoryList;
         HangarDesignationDropDown HangarOptionsList;
@@ -116,50 +115,6 @@ namespace Ship_Game
                                            orientation, ShipModule.DefaultFacingFor(orientation));
         }
 
-        void AddHullSlot(InputState input)
-        {
-            Point gridPos = ModuleGrid.WorldToGridPos(input.CursorPosition);
-
-            // make sure there's no accidental overlap!
-            if (ModuleGrid.Get(gridPos, out SlotStruct _))
-            {
-                GameAudio.NegativeClick();
-                return;
-            }
-
-            GameAudio.NegativeClick();
-
-            // TODO: Implement this again
-            
-            //var slots = new Array<ModuleSlotData>(ActiveHull.ModuleSlots);
-            //slots.Add(new ModuleSlotData(position, Restrictions.IO));
-            //ActiveHull.ModuleSlots = slots.ToArray();
-            //Array.Sort(ActiveHull.ModuleSlots, ModuleSlotData.Sorter);
-
-            //ChangeHull(ActiveHull); // rebuild the hull
-        }
-
-        void EditHullSlot(SlotStruct ss, SlotModOperation op)
-        {
-            HullSlot slot = CurrentHull.FindSlot(ss.Pos);
-            if (slot == null)
-                return;
-
-            ShipHull newHull = CurrentHull.GetClone();
-            switch (op)
-            {
-                default: return;
-                case SlotModOperation.Delete: newHull.HullSlots.Remove(slot, out newHull.HullSlots); break;
-                case SlotModOperation.I:      slot.R = Restrictions.I;  break;
-                case SlotModOperation.O:      slot.R = Restrictions.O;  break;
-                case SlotModOperation.E:      slot.R = Restrictions.E;  break;
-                case SlotModOperation.IO:     slot.R = Restrictions.IO; break;
-                case SlotModOperation.IE:     slot.R = Restrictions.IE; break;
-                case SlotModOperation.OE:     slot.R = Restrictions.OE; break;
-                case SlotModOperation.IOE:    slot.R = Restrictions.IOE; break;
-            }
-            ChangeHull(newHull);
-        }
 
         public ShipModule CreateModuleListItem(ShipModule template)
         {
@@ -313,26 +268,17 @@ namespace Ship_Game
             for (int i = 0; i < ModuleGrid.SlotsList.Count; i++)
             {
                 SlotStruct slot = ModuleGrid.SlotsList[i];
-                if (slot.Module == null)
-                    continue;
-
                 ShipModule module = slot.Module;
-                if (module.Is(ShipModuleType.Armor)
-                    || module.Is(ShipModuleType.Engine)
-                    || module.Is(ShipModuleType.Shield)
-                    || module.Is(ShipModuleType.Command)
-                    || module.DamageThreshold > 0)
+                if (module != null && module.DamageThreshold <= 0 &&
+                    !module.Is(ShipModuleType.Armor) && !module.Is(ShipModuleType.Engine) &&
+                    !module.Is(ShipModuleType.Shield) && !module.Is(ShipModuleType.Command))
                 {
-                    continue;
+                    ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
                 }
-
-                ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
             }
 
             OnDesignChanged();
         }
-
-        DesignModuleGrid ModuleGrid;
 
         public void ChangeHull(ShipData shipDesignTemplate)
         {
@@ -346,29 +292,30 @@ namespace Ship_Game
             DesignedShip = new DesignShip(cloned);
 
             InstallModulesFromDesign(cloned);
-            AfterHullChange();
+            AfterHullChange(zoomToHull:true);
         }
 
-        public void ChangeHull(ShipHull hullTemplate)
+        public void ChangeHull(ShipHull hullTemplate, bool zoomToHull = true)
         {
             if (hullTemplate == null) // if ShipDesignLoadScreen has no selected design
                 return;
 
-            if (!HullEditMode)
+            if (HullEditMode)
+            {
+                ModuleGrid = new DesignModuleGrid(this, hullTemplate.VisibleName, hullTemplate);
+                CurrentDesign = null;
+                CurrentHull = hullTemplate.GetClone();
+                DesignedShip = null;
+
+                AfterHullChange(zoomToHull);
+            }
+            else
             {
                 ChangeHull(new ShipData(hullTemplate));
-                return;
             }
-
-            ModuleGrid = new DesignModuleGrid(this, hullTemplate.VisibleName, hullTemplate);
-            CurrentDesign = null;
-            CurrentHull   = hullTemplate.GetClone();
-            DesignedShip  = null;
-
-            AfterHullChange();
         }
 
-        void AfterHullChange()
+        void AfterHullChange(bool zoomToHull)
         {
             CreateSOFromCurrentHull();
             BindListsToActiveHull();
@@ -382,7 +329,8 @@ namespace Ship_Game
             // force modules list to reset itself, so if we change from Battleship to Fighter
             // the available modules list is adjusted correctly
             ModuleSelectComponent.SelectedIndex = -1;
-            ZoomCameraToEncloseHull(CurrentHull);
+            if (zoomToHull)
+                ZoomCameraToEncloseHull();
 
             // TODO: remove DesignIssues from this page
             InfoPanel.SetActiveDesign(DesignedShip);
@@ -454,20 +402,6 @@ namespace Ship_Game
             CameraPosition.Z = MathHelper.SmoothStep(CameraPosition.Z, DesiredCamHeight, 0.2f);
             UpdateViewMatrix(CameraPosition);
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
-        }
-
-        enum SlotModOperation
-        {
-            Delete,
-            Add,
-            I,
-            O,
-            E,
-            IO,
-            IE,
-            OE,
-            IOE,
-            Normal
         }
 
         public override void LoadContent()
