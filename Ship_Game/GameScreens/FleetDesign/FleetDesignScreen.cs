@@ -131,6 +131,8 @@ namespace Ship_Game
             {
                 ship.ShowSceneObjectAt(new Vector3(ship.RelativeFleetOffset, 0f));
             }
+
+            FleetNameEntry.Size = FleetNameEntry.Font.MeasureString(SelectedFleet.Name);
         }
 
         public void OnSubShipsTabChanged(int tabIndex)

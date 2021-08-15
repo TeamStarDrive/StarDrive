@@ -30,6 +30,8 @@ namespace Ship_Game
         public static string ExtendedVersion = ""; // "BlackBox : 1.20.12000 develop/f83ab4a"
         public static string ExtendedVersionNoHash = ""; // "BlackBox : 1.20.12000"
 
+        public static float RushCostPercentage = 1; // How much rushing costs in percentage of production cost
+
         public static bool TakingInput = false;
         public static bool WarpInSystem = true;
         public static float FTLInSystemModifier = 1f;

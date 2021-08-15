@@ -3537,14 +3537,14 @@ namespace Ship_Game
                 RefundCredits(b.ActualCost, 0.5f);
         }
 
-        public void ChargeRushFees(float amount)
+        public void ChargeRushFees(float productionCost)
         {
-            ChargeCredits(amount, rush: true);
+            ChargeCredits(productionCost, rush: true);
         }
 
         void ChargeCredits(float cost, bool rush = false)
         {
-            float creditsToCharge           = rush ? cost : ProductionCreditCost(cost);
+            float creditsToCharge = rush ? cost  * GlobalStats.RushCostPercentage : ProductionCreditCost(cost);
             MoneySpendOnProductionThisTurn += creditsToCharge;
             AddMoney(-creditsToCharge);
             //Log.Info($"Charging Credits from {Name}: {creditsToCharge}, Rush: {rush}"); // For testing
