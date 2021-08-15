@@ -83,6 +83,7 @@ namespace Ship_Game
             get => LabelText;
             set
             {
+                GetText = null;
                 if (LabelText != value)
                 {
                     LabelText = value;

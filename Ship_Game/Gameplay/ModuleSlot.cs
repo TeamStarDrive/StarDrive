@@ -7,8 +7,8 @@ namespace Ship_Game.Gameplay
     // Used only in Hull definitions
     public sealed class HullSlot
     {
-        public Point Pos; // integer position in the design, such as [0, 1]
-        public Restrictions R; // this slots restrictions
+        public readonly Point Pos; // integer position in the design, such as [0, 1]
+        public readonly Restrictions R; // this slots restrictions
         
         // Required by ModuleGrid
         public Point GetSize() => new Point(1, 1);

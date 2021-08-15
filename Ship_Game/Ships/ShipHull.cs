@@ -243,6 +243,16 @@ namespace Ship_Game.Ships
             Bonuses = ResourceManager.HullBonuses.TryGetValue(HullName, out HullBonus bonus) ? bonus : HullBonus.Default;
         }
 
+        // Sets hull slots of this design and recalculates grid size
+        public void SetHullSlots(Array<HullSlot> slots)
+        {
+            HullSlots = slots.ToArray();
+            var info = new ShipGridInfo(HullSlots);
+            Size = info.Size;
+            SurfaceArea = info.SurfaceArea;
+            Array.Sort(HullSlots, HullSlot.Sorter);
+        }
+
         public void Save(string filePath)
         {
             Save(new FileInfo(filePath));
