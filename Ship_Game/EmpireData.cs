@@ -393,10 +393,10 @@ namespace Ship_Game
             }
 
             // Reset stuff to defaults:
-            data.OwnedArtifacts.Clear();
-            data.ResearchQueue.Clear();
-            data.AgentList.Clear();
-            data.MoleList.Clear();
+            data.OwnedArtifacts = new Array<Artifact>();
+            data.ResearchQueue  = new Array<string>();
+            data.AgentList      = new BatchRemovalCollection<Agent>();
+            data.MoleList       = new BatchRemovalCollection<Mole>();
 
             data.CounterIntelligenceBudget = 0.0f;
             data.FlatMoneyBonus = 0.0f;
