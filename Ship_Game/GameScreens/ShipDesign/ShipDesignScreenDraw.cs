@@ -58,11 +58,6 @@ namespace Ship_Game
             ScreenManager.EndFrameRendering();
         }
 
-        void DrawDebugText(SpriteBatch batch, float y, string text)
-        {
-             batch.DrawString(Fonts.Arial12Bold, text, new Vector2(350,y), Color.Yellow);
-        }
-
         void DrawDebugDetails(SpriteBatch batch)
         {
             if (DesignedShip != null)

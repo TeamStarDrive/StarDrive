@@ -67,6 +67,7 @@ namespace Ship_Game
         public bool ToggleOverlay = true;
         bool ShipSaved = true;
         public bool HullEditMode;
+        HullEditorControls HullEditor;
 
         // Used in Developer Sandbox to load any design
         bool UnlockAllFactionDesigns;
@@ -371,10 +372,10 @@ namespace Ship_Game
         void AfterHullChange()
         {
             CreateSOFromCurrentHull();
+            BindListsToActiveHull();
 
             if (DesignedShip != null)
             {
-                BindListsToActiveHull();
                 OrdersButton.ResetButtons(DesignedShip);
                 UpdateCarrierShip();
             }
@@ -486,7 +487,6 @@ namespace Ship_Game
             CreateGUI();
             InitializeCamera();
             ChangeHull(AvailableHulls[0]);
-            BindListsToActiveHull();
 
             AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
         }
@@ -508,7 +508,7 @@ namespace Ship_Game
             Add(OrdersButton);
 
             if (HullEditMode || EnableDebugFeatures)
-                Add(new HullEditorControls(this, ModuleSelectComponent.TopRight + new Vector2(50, 0)));
+                HullEditor = Add(new HullEditorControls(this, ModuleSelectComponent.TopRight + new Vector2(50, 0)));
 
             UIList bottomListRight = AddList(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));
             bottomListRight.LayoutStyle = ListLayoutStyle.ResizeList;
