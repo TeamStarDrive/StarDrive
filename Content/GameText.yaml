@@ -7943,12 +7943,10 @@ LowWarpTime:
  RUS: "Малая длительность варп-прыжка"
 TheShipsAbilityToSustain:
  Id: 2517
- ENG: "The ship's ability to sustain Warp Speed is limited"
- RUS: "Способность корабля поддерживать варп-прыжок ограничена"
+ ENG: "The ship's ability to sustain Warp Speed is limited, it will need to stop periodically in order to recharge it's storage."
 AddReactorsToIncreaseThe:
  Id: 2518
- ENG: "Add Reactors to increase the power output of the ship to get infinite warp time, or Energy Storage to increase warp time."
- RUS: "Добавьте реакторы, чтобы увеличить выходную мощность корабля, или накопитель энергии, чтобы увеличить время варпа"
+ ENG: "Add Reactors to increase the power output of the ship to get infinite warp time."
 NegativePowerRecharge:
  Id: 2519
  ENG: "Negative Power Recharge"
