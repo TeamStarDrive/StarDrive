@@ -1,5 +1,6 @@
 ﻿Version=1
 HullName=Opteris/Drone
+VisibleName=Drone
 Role=fighter
 Style=Opteris
 Size=4,4

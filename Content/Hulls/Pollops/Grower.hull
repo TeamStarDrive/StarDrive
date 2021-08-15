@@ -1,5 +1,6 @@
 ﻿Version=1
 HullName=Pollops/Grower
+VisibleName=Grower
 Role=freighter
 Style=Pollops
 Size=8,19

@@ -1,5 +1,6 @@
 ﻿Version=1
 HullName=Opteris/Trawler
+VisibleName=Trawler
 Role=freighter
 Style=Opteris
 Size=6,24

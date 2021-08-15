@@ -1,5 +1,6 @@
 ﻿Version=1
 HullName=Platforms/Platform Base
+VisibleName=Platform Base
 Role=platform
 Style=Platforms
 Size=8,7
