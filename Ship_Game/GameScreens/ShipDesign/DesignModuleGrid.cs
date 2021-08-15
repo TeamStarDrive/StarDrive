@@ -6,9 +6,9 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    // @todo Make this generic enough so that `SlotStruct` is no longer needed
     public class DesignModuleGrid
     {
+        readonly ShipDesignScreen Screen;
         public readonly string Name;
         readonly SlotStruct[] Grid;
         readonly SlotStruct[] Slots;
@@ -17,15 +17,15 @@ namespace Ship_Game
         public readonly Vector2 WorldTopLeft; // top-left of the module grid in World coords
         public readonly Point GridCenter;
 
-        public Action OnGridChanged;
-
         // this constructs a [GridWidth][GridHeight] array of current hull
-        public DesignModuleGrid(ShipData design) : this(design.Name, design.BaseHull)
+        public DesignModuleGrid(ShipDesignScreen screen, ShipData design)
+            : this(screen, design.Name, design.BaseHull)
         {
         }
 
-        public DesignModuleGrid(string name, ShipHull hull)
+        public DesignModuleGrid(ShipDesignScreen screen, string name, ShipHull hull)
         {
+            Screen = screen;
             Name = name;
             Width = hull.Size.X;
             Height = hull.Size.Y;
@@ -144,10 +144,9 @@ namespace Ship_Game
         readonly Array<Array<ChangedModule>> Undoable = new Array<Array<ChangedModule>>();
         readonly Array<Array<ChangedModule>> Redoable = new Array<Array<ChangedModule>>();
 
-        // Should be called to trigger OnGridChanged event
         public void OnModuleGridChanged()
         {
-            OnGridChanged?.Invoke();
+            Screen.UpdateDesignedShip();
         }
 
         public void StartUndoableAction()
@@ -176,7 +175,7 @@ namespace Ship_Game
             
             GameAudio.SmallServo();
             Redoable.Add(changes);
-            OnModuleGridChanged();
+            Screen.OnDesignChanged();
         }
 
         public void Redo()
@@ -195,7 +194,7 @@ namespace Ship_Game
             
             GameAudio.SmallServo();
             Undoable.Add(changes);
-            OnModuleGridChanged();
+            Screen.OnDesignChanged();
         }
 
         void SaveAction(SlotStruct slot, ShipModule module, ChangeType type)
