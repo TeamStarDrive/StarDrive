@@ -1062,7 +1062,7 @@ namespace Ship_Game
 
         void DrawShipProjectionIcon(Ship ship, Vector2 position, Vector2 direction, Color color)
         {
-            (SubTexture symbol, SubTexture secondary) = ship.GetTacticalIcon();
+            (SubTexture symbol, SubTexture secondary) = ship.TacticalIcon();
             double num = ship.SurfaceArea / (30.0 + symbol.Width);
             double scale = (num * 4000.0 / CamPos.Z).UpperBound(1);
 

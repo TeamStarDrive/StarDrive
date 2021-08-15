@@ -90,13 +90,6 @@ namespace Ship_Game
             return false;
         }
 
-        public void Draw(SpriteBatch sb, GameScreen screen, SubTexture texture, Color tint)
-        {
-            screen.ProjectToScreenCoords(WorldPos, WorldSize, out Vector2d posOnScreen, out Vector2d sizeOnScreen);
-            Rectangle rect = new RectF(posOnScreen.ToVec2fRounded(), sizeOnScreen.ToVec2fRounded());
-            sb.Draw(texture, rect, tint);
-        }
-        
         // Center of the module in WORLD coordinates
         [XmlIgnore][JsonIgnore]
         public Vector2 Center => WorldPos + WorldSize/2f;
