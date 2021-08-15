@@ -50,8 +50,6 @@ namespace UnitTests.Ships
 
             // Internal slots are counted using Module SurfaceArea
             // This way big 3x3 modules give 9 points, instead of mere 1
-            // total surface area is 26
-            // total surface area of I / IO modules is 22
             Assert.AreEqual(26, ship.SurfaceArea);
             Assert.AreEqual(22, ship.InternalSlotCount);
             Assert.AreEqual(22, ship.ActiveInternalSlotCount);
