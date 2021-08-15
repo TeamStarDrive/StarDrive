@@ -6,12 +6,12 @@ namespace Ship_Game.Ships
 {
     public struct RoleData
     {
-        private readonly ShipModule[] Modules;
-        private readonly ShipData.RoleName HullRole;
-        private readonly ShipData.RoleName DataRole;
-        private readonly int SurfaceArea;
-        private readonly Ship Ship;
-        private readonly ShipData.Category Category;
+        readonly ShipModule[] Modules;
+        readonly ShipData.RoleName HullRole;
+        readonly ShipData.RoleName DataRole;
+        readonly int SurfaceArea;
+        readonly Ship Ship;
+        readonly ShipData.Category Category;
         public ShipData.RoleName DesignRole;
 
         public RoleData(Ship ship, ShipModule[] modules)
@@ -26,19 +26,7 @@ namespace Ship_Game.Ships
             DesignRole  = GetDesignRole();
         }
 
-        public RoleData(ShipData activeHull, ShipModule[] modules)
-        {
-            Modules     = modules;
-            HullRole    = activeHull.HullRole;
-            DataRole    = activeHull.Role;
-            SurfaceArea = activeHull.ModuleSlots.Length;
-            Ship        = null;
-            Category    = activeHull.ShipCategory;
-            DesignRole  = ShipData.RoleName.disabled;
-            DesignRole  = GetDesignRole();
-        }
-
-        private ShipData.RoleName GetDesignRole()
+        ShipData.RoleName GetDesignRole()
         {
             if (Ship != null)
             {
@@ -186,12 +174,12 @@ namespace Ship_Game.Ships
             return HullRole;
         }
 
-        private float SurfaceAreaPercentOf(Func<ShipModule, bool> predicate)
+        float SurfaceAreaPercentOf(Func<ShipModule, bool> predicate)
         {
             return Modules.SurfaceArea(predicate) / (float)SurfaceArea;
         }
 
-        private float SurfaceAreaPercentOf(ShipModuleType moduleType)
+        float SurfaceAreaPercentOf(ShipModuleType moduleType)
         {
             return Modules.SurfaceArea(moduleType) / (float)SurfaceArea;
         }
@@ -199,9 +187,9 @@ namespace Ship_Game.Ships
         public static void CreateDesignRoleToolTip(ShipData.RoleName role, Rectangle designRoleRect, bool floatingText, Vector2 pos)
         {
             Graphics.Font roleFont = Fonts.Arial12;
-            string text         = $"Ship Role was Changed to {RoleDesignString(role)}";
-            float floatTime     = floatingText ? text.Length / 10 : 0;
-            Vector2 spacing     = roleFont.MeasureString(text);
+            string text = $"Ship Role was Changed to {RoleDesignString(role)}";
+            float floatTime = floatingText ? text.Length / 10 : 0;
+            Vector2 spacing = roleFont.MeasureString(text);
 
             if (pos == Vector2.Zero)
             {
@@ -212,7 +200,7 @@ namespace Ship_Game.Ships
             ToolTip.CreateFloatingText(text, "", pos, floatTime.UpperBound(7));
         }
 
-        private static string RoleDesignString(ShipData.RoleName role)
+        static string RoleDesignString(ShipData.RoleName role)
         {
             switch (role)
             {
