@@ -75,7 +75,7 @@ namespace Ship_Game
         // Used in Dev SandBox to enable some special debug features
         public bool EnableDebugFeatures;
 
-        public ShipData.RoleName Role => CurrentDesign?.Role ?? CurrentHull.Role;
+        public ShipData.RoleName Role => DesignedShip?.DesignRole ?? CurrentHull.Role;
         Rectangle DesignRoleRect;
 
         public bool IsSymmetricDesignMode
@@ -338,10 +338,9 @@ namespace Ship_Game
         {
             if (shipDesignTemplate == null) // if ShipDesignLoadScreen has no selected design
                 return;
-            ShipData cloned = shipDesignTemplate.GetClone();
-            ModuleGrid = new DesignModuleGrid(cloned);
-            ModuleGrid.OnGridChanged = UpdateDesignedShip;
 
+            ShipData cloned = shipDesignTemplate.GetClone();
+            ModuleGrid = new DesignModuleGrid(this, cloned);
             CurrentDesign = cloned;
             CurrentHull   = cloned.BaseHull;
             DesignedShip = new DesignShip(cloned);
@@ -354,14 +353,14 @@ namespace Ship_Game
         {
             if (hullTemplate == null) // if ShipDesignLoadScreen has no selected design
                 return;
+
             if (!HullEditMode)
             {
                 ChangeHull(new ShipData(hullTemplate));
                 return;
             }
 
-            ModuleGrid = new DesignModuleGrid(hullTemplate.HullName, hullTemplate);
-
+            ModuleGrid = new DesignModuleGrid(this, hullTemplate.HullName, hullTemplate);
             CurrentDesign = null;
             CurrentHull   = hullTemplate.GetClone();
             DesignedShip  = null;
@@ -390,7 +389,7 @@ namespace Ship_Game
             IssuesPanel.SetActiveDesign(DesignedShip);
         }
 
-        void UpdateDesignedShip()
+        public void UpdateDesignedShip()
         {
             DesignedShip?.UpdateDesign(CreateModuleSlots());
         }
@@ -424,24 +423,15 @@ namespace Ship_Game
             ResetActiveModule();
         }
 
-        void OnDesignChanged(bool showRoleChangeTip = true)
+        public void OnDesignChanged(bool showRoleChangeTip = true)
         {
-            ModuleGrid.OnModuleGridChanged();
-            RecalculateDesignRole(showRoleChangeTip);
-        }
+            var oldRole = Role;
+            UpdateDesignedShip();
 
-        void RecalculateDesignRole(bool showRoleChangeTip)
-        {
-            if (CurrentDesign == null)
-                return;
-
-            var oldRole = CurrentDesign.Role;
-            CurrentDesign.Role = new RoleData(CurrentDesign, ModuleGrid.CopyModulesList()).DesignRole;
-
-            if (CurrentDesign.Role != oldRole && showRoleChangeTip)
+            if (showRoleChangeTip && Role != oldRole)
             {
                 var pos = new Vector2(ScreenCenter.X - 100, ModuleSelectComponent.Y + 50);
-                RoleData.CreateDesignRoleToolTip(CurrentDesign.Role, DesignRoleRect, true, pos);
+                RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect, true, pos);
             }
         }
 
