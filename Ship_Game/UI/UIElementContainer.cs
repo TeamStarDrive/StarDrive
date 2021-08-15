@@ -315,7 +315,6 @@ namespace Ship_Game
             => Button(ButtonStyle.Medium, new Vector2(x, y), text, click);
 
         public UIButton Button(ButtonStyle style, in LocalizedText text, Action<UIButton> click, string clickSfx = null)
-
             => Button(new UIButton(style, text), click, clickSfx);
 
         public UIButton ButtonMedium(in LocalizedText text, Action<UIButton> click, string clickSfx = null)

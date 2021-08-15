@@ -141,13 +141,6 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (input.DebugMode)
-            {
-                HullEditMode = !HullEditMode;
-                LoadContent();
-                return true;
-            }
-
             if (CategoryList.HandleInput(input))
                 return true;
 
@@ -181,7 +174,6 @@ namespace Ship_Game
                 return true;
 
             HandleInputZoom(input);
-            HandleInputDebug(input);
 
             if (ArcsButton.R.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.TogglesTheWeaponFireArc, "Tab");
@@ -211,21 +203,22 @@ namespace Ship_Game
             if (HighlightedModule != null && HandleInputMoveArcs(input, HighlightedModule))
                 return true;
 
-            Point gridPos = ModuleGrid.WorldToGridPos(CursorWorldPosition2D);
-            SlotStruct slotUnderCursor = ModuleGrid.Get(gridPos);
+            (SlotUnderCursor, GridPosUnderCursor) = GetSlotUnderCursor();
 
-            GridPosUnderCursor = gridPos;
-            SlotUnderCursor = slotUnderCursor;
-
-            if (HandleModuleSelection(input, slotUnderCursor))
+            if (HandleModuleSelection(input, SlotUnderCursor))
                 return true;
 
-            ProjectedSlot = slotUnderCursor;
-            HandleDeleteModule(input, slotUnderCursor);
-            HandlePlaceNewModule(input, slotUnderCursor);
+            ProjectedSlot = SlotUnderCursor;
+            HandleDeleteModule(input, SlotUnderCursor);
+            HandlePlaceNewModule(input, SlotUnderCursor);
             return false;
         }
 
+        public (SlotStruct Slot, Point Pos) GetSlotUnderCursor()
+        {
+            Point gridPos = ModuleGrid.WorldToGridPos(CursorWorldPosition2D);
+            return (ModuleGrid.Get(gridPos), gridPos);
+        }
 
         void SetFiringArc(SlotStruct slot, float arc, bool round)
         {
@@ -267,29 +260,8 @@ namespace Ship_Game
 
         bool HandleModuleSelection(InputState input, SlotStruct slotUnderCursor)
         {
-            if (!ToggleOverlay)
+            if (!ToggleOverlay || HullEditMode)
                 return false;
-
-            if (HullEditMode)
-            {
-                if (input.LeftMouseClick)
-                {
-                    GameAudio.DesignSoftBeep();
-
-                    if (Operation == SlotModOperation.Add)
-                    {
-                        AddHullSlot(input);
-                        return true;
-                    }
-
-                    if (slotUnderCursor != null)
-                    {
-                        EditHullSlot(slotUnderCursor, Operation);
-                        return true;
-                    }
-                }
-                return false;
-            }
 
             if (slotUnderCursor == null)
             {
@@ -439,28 +411,6 @@ namespace Ship_Game
                 ActiveModule = null;
         }
 
-        void HandleInputDebug(InputState input)
-        {
-            if (!HullEditMode)
-                return;
-
-            if (input.KeyPressed(Keys.Enter))
-            {
-                ScreenManager.AddScreen(new ShipDesignSaveScreen(this, DesignOrHullName, hullDesigner:true));
-            }
-
-            if (input.Right)
-            {
-                if (++Operation > SlotModOperation.Normal)
-                    Operation = SlotModOperation.Delete;
-            }
-            else if (input.Left)
-            {
-                if (--Operation < SlotModOperation.Delete)
-                    Operation = SlotModOperation.Normal;
-            }
-        }
-
         void HandleInputZoom(InputState input)
         {
             if (input.ScrollOut) DesiredCamHeight *= 1.05f;
@@ -568,7 +518,7 @@ namespace Ship_Game
             return (float)ProjectToScreenSize(hullSize);
         }
 
-        void ZoomCameraToEncloseHull(ShipHull hull)
+        void ZoomCameraToEncloseHull()
         {
             // This ensures our module grid overlay is the same size as the mesh
             CameraPosition.Z = 500;
