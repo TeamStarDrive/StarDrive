@@ -106,6 +106,7 @@ namespace UnitTests.Ships
         {
             var hull = new ShipHull("Content/Hulls/Terran/Shuttle.hull");
             Assert.AreEqual("Terran/Shuttle", hull.HullName);
+            Assert.AreEqual("Shuttle", hull.VisibleName);
             Assert.AreEqual("", hull.ModName);
             Assert.AreEqual("Terran", hull.Style);
             Assert.AreEqual("ShipIcons/shuttle", hull.IconPath);
@@ -139,6 +140,7 @@ namespace UnitTests.Ships
         {
             var hull = new ShipHull("Content/Hulls/Terran/Gunboat.hull");
             Assert.AreEqual("Terran/Gunboat", hull.HullName);
+            Assert.AreEqual("Gunboat", hull.VisibleName);
             Assert.AreEqual("", hull.ModName);
             Assert.AreEqual("Terran", hull.Style);
             Assert.AreEqual("ShipIcons/10a", hull.IconPath);

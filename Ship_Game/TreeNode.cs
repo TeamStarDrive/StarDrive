@@ -227,7 +227,7 @@ namespace Ship_Game
                         ShipHull unlocked = gi.item.hull;
                         ToolTip.CreateTooltip(unlocked == null
                             ? $"{gi.item.Title}\n\n{gi.item.Description}"
-                            : $"{unlocked.HullName} ({Localizer.GetRole(unlocked.Role, EmpireManager.Player)})");
+                            : $"{unlocked.VisibleName} ({Localizer.GetRole(unlocked.Role, EmpireManager.Player)})");
                     }
                 }
             }

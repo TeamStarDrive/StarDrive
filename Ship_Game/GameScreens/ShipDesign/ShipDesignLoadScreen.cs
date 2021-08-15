@@ -81,10 +81,10 @@ namespace Ship_Game.GameScreens.ShipDesign
 
                     var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     batch.DrawString(Fonts.Arial12Bold, Ship.Name, tCursor, Color.White);
-                    tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    var role = Ship.BaseHull.HullName;
-                    batch.DrawString(Fonts.Arial8Bold, role, tCursor, Color.DarkGray);
-                    tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
+                    tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                    var hullName = Ship.BaseHull.VisibleName;
+                    batch.DrawString(Fonts.Arial8Bold, hullName, tCursor, Color.DarkGray);
+                    tCursor.X += Fonts.Arial8Bold.TextWidth(hullName) + 8;
                     batch.DrawString(Fonts.Arial8Bold, $"Base Strength: {Ship.BaseStrength.String(0)}", tCursor, Color.Orange);
                 }
                 else if (WipHull != null)

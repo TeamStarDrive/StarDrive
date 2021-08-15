@@ -479,6 +479,7 @@ namespace Ship_Game
             EmpireUI.Draw(batch);
             CategoryList.Draw(batch, elapsed);
 
+            // TODO: these should be split into separate parts
             DrawTitle(batch, ScreenWidth * 0.375f, "Repair Options");
             DrawTitle(batch, ScreenWidth * 0.65f, "Hangar Designation");
             HangarOptionsList.Draw(batch, elapsed);
@@ -501,7 +502,6 @@ namespace Ship_Game
             if (IsTransitioning)
                 r.Y += (int)(transitionOffset * 50f);
             batch.FillRectangle(r, new Color(54, 54, 54));
-
 
             string name = DesignOrHullName;
             Graphics.Font font = Fonts.Arial20Bold.TextWidth(name) <= (SearchBar.Width - 5)
