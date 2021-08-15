@@ -25,6 +25,7 @@ namespace Ship_Game.Ships
                 $"BUG! ShipHull must not be automatically serialized! Add [XmlIgnore][JsonIgnore] to `public ShipHull XXX;` PROPERTIES/FIELDS. {this}");
 
         public string HullName; // ID of the hull, ex: "Cordrazine/Dodaving"
+        public string VisibleName; // Visible name of the Hull in the UI, ex: Misc/HaulerSmall -> "Small Freighter"
         public string ModName; // null if vanilla, else mod name eg "Combined Arms"
         public string Style; // "Terran"
         public string Description; // "With the advent of more powerful StarDrives, this giant cruiser hull was ..."
@@ -87,6 +88,7 @@ namespace Ship_Game.Ships
         public ShipHull(LegacyShipData sd)
         {
             HullName = sd.Hull;
+            VisibleName = sd.Name;
             ModName = sd.ModName ?? "";
             Style = sd.ShipStyle;
             Size = sd.GridInfo.Size;
@@ -158,6 +160,7 @@ namespace Ship_Game.Ships
                                 Log.Warning($"Hull {file.NameNoExt()} file version={version} does not match current={Version}");
                             break;
                         case "HullName":   HullName = val; break;
+                        case "VisibleName": VisibleName = val; break;
                         case "Role":       Enum.TryParse(val, out Role); break;
                         case "ModName":    ModName = val; break;
                         case "Description":Description = val; break;
@@ -250,6 +253,7 @@ namespace Ship_Game.Ships
             var sw = new ShipDataWriter();
             sw.Write("Version", Version);
             sw.Write("HullName", HullName);
+            sw.Write("VisibleName", VisibleName);
             sw.Write("Role", Role);
             sw.Write("ModName", ModName);
             sw.Write("Style", Style);

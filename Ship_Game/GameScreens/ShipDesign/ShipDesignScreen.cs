@@ -29,7 +29,7 @@ namespace Ship_Game
         public ShipData CurrentDesign;
         public ShipHull CurrentHull; // never Null
 
-        public string DesignOrHullName => CurrentDesign?.Name ?? CurrentHull.HullName;
+        public string DesignOrHullName => CurrentDesign?.Name ?? CurrentHull.VisibleName;
 
         public EmpireUIOverlay EmpireUI;
         SceneObject shipSO;
@@ -360,7 +360,7 @@ namespace Ship_Game
                 return;
             }
 
-            ModuleGrid = new DesignModuleGrid(this, hullTemplate.HullName, hullTemplate);
+            ModuleGrid = new DesignModuleGrid(this, hullTemplate.VisibleName, hullTemplate);
             CurrentDesign = null;
             CurrentHull   = hullTemplate.GetClone();
             DesignedShip  = null;

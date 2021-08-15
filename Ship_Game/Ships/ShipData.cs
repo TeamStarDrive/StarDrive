@@ -79,17 +79,21 @@ namespace Ship_Game.Ships
         public ShipData(ShipHull hull)
         {
             Name = hull.HullName;
+            Hull = hull.HullName;
+            ModName = hull.ModName;
+            ShipStyle = hull.Style;
+            Description = hull.Description;
+            IconPath = hull.IconPath;
             GridInfo = new ShipGridInfo(hull);
 
-            Hull              = hull.HullName;
-            Role              = hull.Role;
-            IconPath          = hull.IconPath;
-            IsShipyard        = hull.IsShipyard;
-            IsOrbitalDefense  = hull.IsOrbitalDefense;
-            ShipStyle         = hull.Style;
-            TechsNeeded       = new HashSet<string>(hull.TechsNeeded);
-            BaseHull          = hull;
-            Bonuses           = hull.Bonuses;
+            Role = hull.Role;
+            SelectionGraphic = hull.SelectIcon;
+
+            IsShipyard       = hull.IsShipyard;
+            IsOrbitalDefense = hull.IsOrbitalDefense;
+            TechsNeeded = new HashSet<string>(hull.TechsNeeded);
+            BaseHull = hull;
+            Bonuses  = hull.Bonuses;
 
             Unlockable = hull.Unlockable;
             ModuleSlots = Array.Empty<DesignSlot>();
@@ -143,19 +147,10 @@ namespace Ship_Game.Ships
 
         public static ShipData FromSave(ModuleSaveData[] saved, SavedGame.ShipSaveData save, ShipHull hull)
         {
-            ShipData data = null;
-            
-            data.BaseHull = hull;
+            var data = new ShipData(hull);
+
             data.Name = save.Name;
-            data.Hull = hull.HullName;
-            data.Role = hull.Role;
-            data.ModName = hull.ModName;
-            data.ShipStyle = hull.Style;
-            data.Description = hull.Description;
-            data.GridInfo = new ShipGridInfo(hull);
-            data.IconPath = hull.IconPath;
-            data.SelectionGraphic = hull.SelectIcon;
-            data.Unlockable = hull.Unlockable;
+            data.ModName = GlobalStats.ModName;
 
             data.ModuleSlots = new DesignSlot[saved.Length];
             for (int i = 0; i < saved.Length; ++i)
