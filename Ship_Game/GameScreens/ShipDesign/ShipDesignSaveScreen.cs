@@ -213,13 +213,13 @@ namespace Ship_Game
 
             if (Hulls)
             {
-                ShipHull hull = ResourceManager.Hulls.First(h => h.HullName == shipOrHullName);
+                ShipHull hull = ResourceManager.Hulls.FirstOrDefault(h => h.HullName == shipOrHullName);
                 exists = hull != null;
                 source = hull?.Source;
             }
             else
             {
-                Ship ship = ResourceManager.GetShipTemplates().First(s => s.Name == shipOrHullName);
+                Ship ship = ResourceManager.GetShipTemplates().FirstOrDefault(s => s.Name == shipOrHullName);
                 exists = ship != null;
                 source = ship?.shipData.Source;
                 reserved = ship?.IsReadonlyDesign == true;
