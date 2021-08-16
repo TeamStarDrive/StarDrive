@@ -31,7 +31,7 @@ namespace Ship_Game
         public bool IsHonorable  => Personality == PersonalityType.Honorable;
         public bool IsPacifist   => Personality == PersonalityType.Pacifist;
 
-        public War[] AllActiveWars { get; private set; } = new War[0];
+        public War[] AllActiveWars { get; private set; } = Array.Empty<War>();
         public int ActiveWarPreparations { get; private set; } 
 
 
