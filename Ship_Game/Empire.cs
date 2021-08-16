@@ -1582,7 +1582,7 @@ namespace Ship_Game
 
                     if (ship.IsHangarShip || ship.DesignRole == RoleName.troop
                                           || ship.DesignRole == RoleName.freighter
-                                          || ship.shipData.ShipCategory == ShipData.Category.Civilian)
+                                          || ship.shipData.ShipCategory == ShipCategory.Civilian)
                     {
                         continue;
                     }

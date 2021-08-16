@@ -73,7 +73,7 @@ namespace Ship_Game
                                           && Ship.shipData.Role != RoleName.troop 
                                           && Ship.AI.State != AIState.Colonize 
                                           && Ship.shipData.Role != RoleName.freighter 
-                                          && Ship.shipData.ShipCategory != ShipData.Category.Civilian)
+                                          && Ship.shipData.ShipCategory != ShipCategory.Civilian)
                 IsCombat = true;
 
             Rectangle refit = new Rectangle(RefitRect.X + RefitRect.Width / 2 - 5 - ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1").Width, RefitRect.Y + RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Height / 2, ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Width, ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Height);

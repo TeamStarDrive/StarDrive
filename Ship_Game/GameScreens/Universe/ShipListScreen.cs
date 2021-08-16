@@ -391,7 +391,7 @@ namespace Ship_Game
                     case 10: return ship.DesignRole == RoleName.troopShip || ship.DesignRole == RoleName.troop;
                     case 11: return ship.DesignRole == RoleName.support;
                     case 12: return ship.DesignRole <= RoleName.platform || ship.DesignRole == RoleName.station;
-                    case 13: return ship.IsConstructor || ship.DesignRole == RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian;
+                    case 13: return ship.IsConstructor || ship.DesignRole == RoleName.freighter || ship.shipData.ShipCategory == ShipCategory.Civilian;
                 }
 
                 return false;

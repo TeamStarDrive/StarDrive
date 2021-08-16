@@ -114,7 +114,7 @@ namespace Ship_Game.Ships
             //Added by McShooterz:
             //longName = string.Concat(ship.Name, " - ", Localizer.GetRole(ship.shipData.Role, ship.loyalty));
             string longName = string.Concat(Ship.Name, " - ", Localizer.GetRole(Ship.DesignRole, Ship.loyalty));
-            if (Ship.shipData.ShipCategory != ShipData.Category.Unclassified)
+            if (Ship.shipData.ShipCategory != ShipCategory.Unclassified)
                 longName += " - "+Ship.shipData.GetCategory();
 
             batch.DrawString(Fonts.Visitor10, longName, shipSuperName, Color.Orange);
@@ -619,7 +619,7 @@ namespace Ship_Game.Ships
                 Orders.Add(ob2);
             }
 
-            if (Ship.shipData.Role >= RoleName.fighter && Ship.Mothership == null && Ship.AI.State != AIState.Colonize && Ship.shipData.ShipCategory != ShipData.Category.Civilian)
+            if (Ship.shipData.Role >= RoleName.fighter && Ship.Mothership == null && Ship.AI.State != AIState.Colonize && Ship.shipData.ShipCategory != ShipCategory.Civilian)
             {
                 var exp = new OrdersButton(Ship, OrderType.Explore, GameText.OrdersThisShipToExplore)
                 {

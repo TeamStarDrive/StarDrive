@@ -792,7 +792,7 @@ namespace Ship_Game
         bool NonCombatShip(Ship ship)
         {
             return ship != null && (ship.shipData.Role <= RoleName.freighter 
-                                    || ship.shipData.ShipCategory == ShipData.Category.Civilian 
+                                    || ship.shipData.ShipCategory == ShipCategory.Civilian 
                                     || ship.DesignRole == RoleName.troop
                                     || ship.Weapons.Count == 0 && !ship.Carrier.HasFighterBays
                                     || ship.AI.State == AIState.Colonize);

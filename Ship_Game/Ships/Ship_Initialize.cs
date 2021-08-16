@@ -395,7 +395,7 @@ namespace Ship_Game.Ships
             ship.VanityName = troop.DisplayName;
             troop.LandOnShip(ship);
             if (ship.shipData.Role == RoleName.troop)
-                ship.shipData.ShipCategory = ShipData.Category.Conservative;
+                ship.shipData.ShipCategory = ShipCategory.Conservative;
             return ship;
         }
 

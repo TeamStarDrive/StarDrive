@@ -16,7 +16,7 @@ namespace Ship_Game.Ships
         public bool IsCandidateForTradingBuild => IsFreighter && !IsConstructor;
 
         public bool IsFreighter => DesignRole == RoleName.freighter
-                                && shipData.ShipCategory == ShipData.Category.Civilian;
+                                && shipData.ShipCategory == ShipCategory.Civilian;
 
         public bool IsIdleFreighter => IsFreighter
                                        && AI != null
