@@ -404,10 +404,10 @@ namespace Ship_Game.AI
                 }
             }
 
-            public Map<ShipData.RoleName, float> CreateBuildPriorities()
+            public Map<RoleName, float> CreateBuildPriorities()
             {
-                var priorities = new Map<ShipData.RoleName, float>();
-                foreach(ShipData.RoleName role in Enum.GetValues(typeof(ShipData.RoleName)))
+                var priorities = new Map<RoleName, float>();
+                foreach(RoleName role in Enum.GetValues(typeof(RoleName)))
                 {
                     var combatRole = RoleCounts.ShipRoleToCombatRole(role);
                     if (combatRole == RoleCounts.CombatRole.Disabled) 
@@ -420,7 +420,7 @@ namespace Ship_Game.AI
                 return priorities;
             }
 
-            public void IncrementShipCount(ShipData.RoleName role)
+            public void IncrementShipCount(RoleName role)
             {
                 var combatRole = RoleCounts.ShipRoleToCombatRole(role);
                 if (combatRole == RoleCounts.CombatRole.Disabled)
@@ -594,35 +594,35 @@ namespace Ship_Game.AI
                     TroopShip
                 }
 
-                public static CombatRole ShipRoleToCombatRole(ShipData.RoleName role)
+                public static CombatRole ShipRoleToCombatRole(RoleName role)
                 {
                     switch (role)
                     {
-                        case ShipData.RoleName.disabled:
-                        case ShipData.RoleName.shipyard:
-                        case ShipData.RoleName.ssp:
-                        case ShipData.RoleName.platform:
-                        case ShipData.RoleName.station:
-                        case ShipData.RoleName.construction:
-                        case ShipData.RoleName.colony:
-                        case ShipData.RoleName.supply:
-                        case ShipData.RoleName.freighter:
-                        case ShipData.RoleName.troop:
-                        case ShipData.RoleName.prototype:
-                        case ShipData.RoleName.drone:
-                        case ShipData.RoleName.scout:      return CombatRole.Disabled;
-                        case ShipData.RoleName.troopShip:  return CombatRole.TroopShip;
-                        case ShipData.RoleName.support:    return CombatRole.Support;
-                        case ShipData.RoleName.bomber:     return CombatRole.Bomber;
-                        case ShipData.RoleName.carrier:    return CombatRole.Carrier;
-                        case ShipData.RoleName.fighter:    return CombatRole.Fighter;
-                        case ShipData.RoleName.gunboat:    return CombatRole.Corvette;
-                        case ShipData.RoleName.corvette:   return CombatRole.Corvette;
-                        case ShipData.RoleName.frigate:    return CombatRole.Frigate;
-                        case ShipData.RoleName.destroyer:  return CombatRole.Frigate;
-                        case ShipData.RoleName.cruiser:    return CombatRole.Cruiser;
-                        case ShipData.RoleName.battleship: return CombatRole.Battleship;
-                        case ShipData.RoleName.capital:    return CombatRole.Capital;
+                        case RoleName.disabled:
+                        case RoleName.shipyard:
+                        case RoleName.ssp:
+                        case RoleName.platform:
+                        case RoleName.station:
+                        case RoleName.construction:
+                        case RoleName.colony:
+                        case RoleName.supply:
+                        case RoleName.freighter:
+                        case RoleName.troop:
+                        case RoleName.prototype:
+                        case RoleName.drone:
+                        case RoleName.scout:      return CombatRole.Disabled;
+                        case RoleName.troopShip:  return CombatRole.TroopShip;
+                        case RoleName.support:    return CombatRole.Support;
+                        case RoleName.bomber:     return CombatRole.Bomber;
+                        case RoleName.carrier:    return CombatRole.Carrier;
+                        case RoleName.fighter:    return CombatRole.Fighter;
+                        case RoleName.gunboat:    return CombatRole.Corvette;
+                        case RoleName.corvette:   return CombatRole.Corvette;
+                        case RoleName.frigate:    return CombatRole.Frigate;
+                        case RoleName.destroyer:  return CombatRole.Frigate;
+                        case RoleName.cruiser:    return CombatRole.Cruiser;
+                        case RoleName.battleship: return CombatRole.Battleship;
+                        case RoleName.capital:    return CombatRole.Capital;
                         default:                           return CombatRole.Disabled;
                     }
                 }
@@ -633,7 +633,7 @@ namespace Ship_Game.AI
         public string GetAShip(RoleBuildInfo buildRatios)
         {
             // Find ship to build
-            Map<ShipData.RoleName, float> pickRoles = buildRatios.CreateBuildPriorities();
+            Map<RoleName, float> pickRoles = buildRatios.CreateBuildPriorities();
 
             foreach (var kv in pickRoles.OrderByDescending(val => val.Value))
             {

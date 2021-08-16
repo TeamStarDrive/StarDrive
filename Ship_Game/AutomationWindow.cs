@@ -192,19 +192,19 @@ namespace Ship_Game
                 ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.isColonyShip);
 
             InitDropOptions(ConstructorDropDown, ref playerData.CurrentConstructor, playerData.DefaultConstructor,
-                ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.DesignRole == ShipData.RoleName.construction);
+                ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.DesignRole == RoleName.construction);
 
             InitDropOptions(ScoutDropDown, ref playerData.CurrentAutoScout, playerData.StartingScout, 
                 ship =>
                 {
                     if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.reconDropDown)
                         return ship.ShipGoodToBuild(EmpireManager.Player) && 
-                              (ship.DesignRole == ShipData.RoleName.scout || 
+                              (ship.DesignRole == RoleName.scout || 
                                ship.shipData?.ShipCategory == ShipData.Category.Recon);
 
                     return ship.ShipGoodToBuild(EmpireManager.Player) && 
-                          (ship.DesignRole == ShipData.RoleName.scout ||
-                           ship.DesignRole == ShipData.RoleName.fighter ||
+                          (ship.DesignRole == RoleName.scout ||
+                           ship.DesignRole == RoleName.fighter ||
                            ship.shipData?.ShipCategory == ShipData.Category.Recon);
                 });
         }

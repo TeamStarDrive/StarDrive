@@ -50,24 +50,24 @@ namespace Ship_Game.Ships
                 maint = hullUpkeep ? surfaceArea * MaintModifierBySize : shipCost * MaintModifierByCost;
             }
 
-            ShipData.RoleName role = ship.shipData.HullRole;
+            RoleName role = ship.shipData.HullRole;
             switch (role)
             {
-                case ShipData.RoleName.station    when !hullUpkeep:
-                case ShipData.RoleName.platform   when !hullUpkeep: maint *= 0.35f; break;
-                case ShipData.RoleName.corvette   when !hullUpkeep: maint *= 0.9f;  break;
-                case ShipData.RoleName.frigate    when !hullUpkeep: maint *= 0.8f;  break;
-                case ShipData.RoleName.cruiser    when !hullUpkeep: maint *= 0.7f;  break;
-                case ShipData.RoleName.battleship when !hullUpkeep: maint *= 0.6f;  break;
-                case ShipData.RoleName.capital    when !hullUpkeep: maint *= 0.5f;  break;
-                case ShipData.RoleName.station:
-                case ShipData.RoleName.platform:                    maint *= 0.7f; break;
-                case ShipData.RoleName.troop:                       maint *= 0.5f; break;
+                case RoleName.station    when !hullUpkeep:
+                case RoleName.platform   when !hullUpkeep: maint *= 0.35f; break;
+                case RoleName.corvette   when !hullUpkeep: maint *= 0.9f;  break;
+                case RoleName.frigate    when !hullUpkeep: maint *= 0.8f;  break;
+                case RoleName.cruiser    when !hullUpkeep: maint *= 0.7f;  break;
+                case RoleName.battleship when !hullUpkeep: maint *= 0.6f;  break;
+                case RoleName.capital    when !hullUpkeep: maint *= 0.5f;  break;
+                case RoleName.station:
+                case RoleName.platform:                    maint *= 0.7f; break;
+                case RoleName.troop:                       maint *= 0.5f; break;
             }
 
-            if (role == ShipData.RoleName.freighter ||
-                role == ShipData.RoleName.platform ||
-                role == ShipData.RoleName.station)
+            if (role == RoleName.freighter ||
+                role == RoleName.platform ||
+                role == RoleName.station)
             {
                 maint *= empire.data.CivMaintMod;
                 if (empire.data.Privatization)

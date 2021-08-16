@@ -135,7 +135,7 @@ namespace Ship_Game.Debug.Page
             ///// ship hulls
             var columns = new Array<DebugTextBlock>();
             var column = new DebugTextBlock();
-            var shipHulls = new Map<ShipData.RoleName, Array<Ship>>();
+            var shipHulls = new Map<RoleName, Array<Ship>>();
             column.Header= $"Ship Roles";
 
             foreach (var ship in allShips)
@@ -193,7 +193,7 @@ namespace Ship_Game.Debug.Page
             var columns = new Array<DebugTextBlock>();
             var column = new DebugTextBlock();
             column.AddLine($"Under Construction");
-            var queue = new Map<ShipData.RoleName, Array<ShipData>>();
+            var queue = new Map<RoleName, Array<ShipData>>();
             var queues = EmpireAtWar.GetPlanets().Select(p => p.ConstructionQueue);
             var shipData = new Array<ShipData>();
             if (queues.Length == 0) return new Array<DebugTextBlock>{column};

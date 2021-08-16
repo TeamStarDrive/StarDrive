@@ -1067,7 +1067,7 @@ namespace Ship_Game
             double scale = (num * 4000.0 / CamPos.Z).UpperBound(1);
 
             if (scale <= 0.1)
-                scale = ship.shipData.Role != ShipData.RoleName.platform || viewState < UnivScreenState.SectorView ? 0.15 : 0.08;
+                scale = ship.shipData.Role != RoleName.platform || viewState < UnivScreenState.SectorView ? 0.15 : 0.08;
 
             DrawTextureProjected(symbol, position, (float)scale, direction.ToRadians(), color);
             if (secondary != null)

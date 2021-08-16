@@ -316,7 +316,7 @@ namespace Ship_Game
         [Serialize(146)] public string SpacePortModel;
         [Serialize(147)] public float BombEnvironmentDamageMultiplier = 1;
         [Serialize(148)] public float OngoingDiplomaticModifier;
-        [Serialize(149)] public int[] RoleLevels = new int[Enum.GetNames(typeof(ShipData.RoleName)).Length];
+        [Serialize(149)] public int[] RoleLevels = new int[Enum.GetNames(typeof(RoleName)).Length];
 
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
         [XmlIgnore][JsonIgnore] public string ArchetypeName => PortraitName;

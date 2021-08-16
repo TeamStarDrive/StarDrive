@@ -12,7 +12,7 @@ namespace Ship_Game.GameScreens.ShipDesign
     public class ShipDesignIssues
     {
         public readonly ShipData Hull;
-        public readonly ShipData.RoleName Role;
+        public readonly RoleName Role;
         public Array<DesignIssueDetails> CurrentDesignIssues { get; } = new Array<DesignIssueDetails>();
         public WarningLevel CurrentWarningLevel { get; private set; }
         private readonly Empire Player;
@@ -81,22 +81,22 @@ namespace Ship_Game.GameScreens.ShipDesign
                 AverageWarpSpeedMilitary = (totalWarpSpeedMilitary / totalWarpShipsMilitary).RoundTo10();
             }
 
-            public float AverageEmpireWarpSpeed(ShipData.RoleName role) => Civilian(role) ? AverageWarpSpeedCivilian
+            public float AverageEmpireWarpSpeed(RoleName role) => Civilian(role) ? AverageWarpSpeedCivilian
                                                                                           : AverageWarpSpeedMilitary;
         }
 
-        bool IsPlatform => Hull.HullRole == ShipData.RoleName.platform;
-        bool Stationary => Hull.HullRole == ShipData.RoleName.station || Hull.HullRole == ShipData.RoleName.platform;
-        bool LargeCraft => Hull.HullRole == ShipData.RoleName.freighter || Hull.HullRole == ShipData.RoleName.destroyer
-                                                                        || Hull.HullRole == ShipData.RoleName.cruiser
-                                                                        || Hull.HullRole == ShipData.RoleName.battleship
-                                                                        || Hull.HullRole == ShipData.RoleName.capital;
+        bool IsPlatform => Hull.HullRole == RoleName.platform;
+        bool Stationary => Hull.HullRole == RoleName.station || Hull.HullRole == RoleName.platform;
+        bool LargeCraft => Hull.HullRole == RoleName.freighter || Hull.HullRole == RoleName.destroyer
+                                                               || Hull.HullRole == RoleName.cruiser
+                                                               || Hull.HullRole == RoleName.battleship
+                                                               || Hull.HullRole == RoleName.capital;
 
-        public static bool Civilian(ShipData.RoleName role) => role == ShipData.RoleName.colony 
-                                                               || role == ShipData.RoleName.freighter 
-                                                               || role == ShipData.RoleName.construction;
+        public static bool Civilian(RoleName role) => role == RoleName.colony 
+                                                      || role == RoleName.freighter 
+                                                      || role == RoleName.construction;
 
-        public static bool Scout(ShipData.RoleName role) => role == ShipData.RoleName.scout;
+        public static bool Scout(RoleName role) => role == RoleName.scout;
 
         public void Reset()
         {
@@ -106,13 +106,13 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         public void CheckIssueNoCommand(int numCommand)
         {
-            if (Role != ShipData.RoleName.platform && numCommand == 0)
+            if (Role != RoleName.platform && numCommand == 0)
                 AddDesignIssue(DesignIssueType.NoCommand, WarningLevel.Critical);
         }
 
         public void CheckIssueBackupCommand(int numCommand, int size)
         {
-            if (Role != ShipData.RoleName.platform && numCommand == 1 && size >= 500)
+            if (Role != RoleName.platform && numCommand == 1 && size >= 500)
                 AddDesignIssue(DesignIssueType.BackUpCommand, WarningLevel.Major);
         }
 
@@ -401,10 +401,10 @@ namespace Ship_Game.GameScreens.ShipDesign
             AddDesignIssue(DesignIssueType.LowTroopsForBays, WarningLevel.Major, troopsMissing);
         }
 
-        public void CheckDedicatedCarrier(bool hasFighterHangars, ShipData.RoleName role, 
+        public void CheckDedicatedCarrier(bool hasFighterHangars, RoleName role, 
                                           int maxWeaponRange, float sensorRange, bool shortRange)
         {
-            if (role != ShipData.RoleName.carrier  && !Stationary || !hasFighterHangars)
+            if (role != RoleName.carrier  && !Stationary || !hasFighterHangars)
                 return;
 
             bool minCarrier  = false;
@@ -419,9 +419,9 @@ namespace Ship_Game.GameScreens.ShipDesign
             AddDesignIssue(DesignIssueType.DedicatedCarrier, WarningLevel.Informative, rangeText);
         }
 
-        public void CheckSecondaryCarrier(bool hasFighterHangars, ShipData.RoleName role, int maxWeaponRange)
+        public void CheckSecondaryCarrier(bool hasFighterHangars, RoleName role, int maxWeaponRange)
         {
-            if (role == ShipData.RoleName.carrier || !hasFighterHangars || Stationary)
+            if (role == RoleName.carrier || !hasFighterHangars || Stationary)
                 return;
 
             string rangeText = $"\n{GetRangeLaunchText(maxWeaponRange, out int minLaunchRangeWeapons, out bool minCarrier)}" +

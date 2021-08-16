@@ -429,7 +429,7 @@ namespace Ship_Game
                 {
                     if (ship.AI.State == AIState.AssaultPlanet && ship.AI.OrderQueue.Any(g => g.TargetPlanet == P))
                     {
-                        if (ship.DesignRole == ShipData.RoleName.troopShip)
+                        if (ship.DesignRole == RoleName.troopShip)
                             ship.AI.OrderOrbitNearest(true);
                         else
                             ship.AI.OrderRebaseToNearest();

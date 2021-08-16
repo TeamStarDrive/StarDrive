@@ -528,7 +528,7 @@ namespace Ship_Game.Ships
             if (Ship.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
                 return;
 
-            if (Ship.shipData.Role > ShipData.RoleName.station)
+            if (Ship.shipData.Role > RoleName.station)
             {
                 OrdersButton resupply = new OrdersButton(Ship, OrderType.OrderResupply, GameText.OrdersSelectedShipOrShips)
                 {
@@ -605,7 +605,7 @@ namespace Ship_Game.Ships
                 Orders.Add(ob);
             }
 
-            if (Ship.shipData.Role != ShipData.RoleName.station && (Ship.Carrier.HasTroopBays || Ship.Carrier.HasFighterBays))
+            if (Ship.shipData.Role != RoleName.station && (Ship.Carrier.HasTroopBays || Ship.Carrier.HasFighterBays))
             {
                 var ob2 = new OrdersButton(Ship, OrderType.FighterRecall, GameText.ClickToToggleWhetherThis)
                 {
@@ -619,7 +619,7 @@ namespace Ship_Game.Ships
                 Orders.Add(ob2);
             }
 
-            if (Ship.shipData.Role >= ShipData.RoleName.fighter && Ship.Mothership == null && Ship.AI.State != AIState.Colonize && Ship.shipData.ShipCategory != ShipData.Category.Civilian)
+            if (Ship.shipData.Role >= RoleName.fighter && Ship.Mothership == null && Ship.AI.State != AIState.Colonize && Ship.shipData.ShipCategory != ShipData.Category.Civilian)
             {
                 var exp = new OrdersButton(Ship, OrderType.Explore, GameText.OrdersThisShipToExplore)
                 {

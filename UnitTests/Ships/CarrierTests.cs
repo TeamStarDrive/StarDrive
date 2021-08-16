@@ -186,7 +186,7 @@ namespace UnitTests.Ships
             friendlyShip.Carrier.ScrambleAssaultShips(1);
             RunObjectsSim(ScanInterval);
 
-            int assaultShips = Player.OwnedShips.Count(s => s.DesignRole == ShipData.RoleName.troop);
+            int assaultShips = Player.OwnedShips.Count(s => s.DesignRole == RoleName.troop);
             Assert.AreNotEqual(0, assaultShips, "Should have launched assault ships");
         }
 

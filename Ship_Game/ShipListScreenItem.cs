@@ -70,9 +70,9 @@ namespace Ship_Game
                 width += 1f;
 
             if (!Ship.IsPlatformOrStation && !Ship.IsHangarShip 
-                                          && Ship.shipData.Role != ShipData.RoleName.troop 
+                                          && Ship.shipData.Role != RoleName.troop 
                                           && Ship.AI.State != AIState.Colonize 
-                                          && Ship.shipData.Role != ShipData.RoleName.freighter 
+                                          && Ship.shipData.Role != RoleName.freighter 
                                           && Ship.shipData.ShipCategory != ShipData.Category.Civilian)
                 IsCombat = true;
 
