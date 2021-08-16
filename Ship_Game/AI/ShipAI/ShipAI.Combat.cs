@@ -38,9 +38,9 @@ namespace Ship_Game.AI
             IsNonCombatant = Owner.IsSubspaceProjector
                           || Owner.IsFreighter
                           || Owner.IsConstructor
-                          || Owner.DesignRole == ShipData.RoleName.supply 
-                          || Owner.DesignRole == ShipData.RoleName.scout
-                          || Owner.DesignRole == ShipData.RoleName.troop;
+                          || Owner.DesignRole == RoleName.supply 
+                          || Owner.DesignRole == RoleName.scout
+                          || Owner.DesignRole == RoleName.troop;
         }
 
         // Allow controlling the Trigger delay for ships

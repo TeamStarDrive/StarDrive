@@ -103,7 +103,7 @@ namespace UnitTests.AITests.Empire
             var build = new RoleBuildInfo(2, Player.GetEmpireAI(), true);
 
             // init base variables
-            var combatRole      = RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(ShipData.RoleName.fighter);
+            var combatRole      = RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(RoleName.fighter);
             float roleBudget    = build.RoleBudget(combatRole);
             float roleUnitMaint = build.RoleUnitMaintenance(combatRole);
             int count;
@@ -140,7 +140,7 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void TestBuildScrap()
         {
-            var combatRole = RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(ShipData.RoleName.fighter);
+            var combatRole = RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(RoleName.fighter);
             float buildCapacity = 0.75f;
             var build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), true);
 

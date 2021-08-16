@@ -102,7 +102,7 @@ namespace Ship_Game.AI
 
         }
 
-        public float GetWanted(ShipData.RoleName role) => GetWanted(EmpireAI.RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(role));
+        public float GetWanted(RoleName role) => GetWanted(EmpireAI.RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(role));
         public float GetWanted(EmpireAI.RoleBuildInfo.RoleCounts.CombatRole role)
         {
             int index = CombatRoleToRatio(role);
@@ -120,7 +120,7 @@ namespace Ship_Game.AI
             return max;
         }
 
-        public static int CombatRoleToRatio(ShipData.RoleName role)
+        public static int CombatRoleToRatio(RoleName role)
         {
             return CombatRoleToRatio(EmpireAI.RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(role));
         } 

@@ -111,7 +111,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("Terran", hull.Style);
             Assert.AreEqual("ShipIcons/shuttle", hull.IconPath);
             Assert.AreEqual("Model/Ships/Terran/Shuttle/ship08", hull.ModelPath);
-            Assert.AreEqual(ShipData.RoleName.fighter, hull.Role);
+            Assert.AreEqual(RoleName.fighter, hull.Role);
             Assert.AreEqual(1, hull.Thrusters.Length);
             Assert.AreEqual(true, hull.Unlockable);
             Assert.AreEqual(10, hull.HullSlots.Length);
@@ -129,7 +129,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("Terran", hull.Style);
             Assert.AreEqual("ShipIcons/10a", hull.IconPath);
             Assert.AreEqual("Model/Ships/Terran/Gunboat/Gunboat", hull.ModelPath);
-            Assert.AreEqual(ShipData.RoleName.frigate, hull.Role);
+            Assert.AreEqual(RoleName.frigate, hull.Role);
             Assert.AreEqual(1, hull.Thrusters.Length);
             Assert.AreEqual(true, hull.Unlockable);
             Assert.AreEqual(70, hull.HullSlots.Length);
@@ -145,7 +145,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("Terran", design.ShipStyle);
             Assert.AreEqual("Terran/Shuttle", design.Hull);
             Assert.AreEqual("ShipIcons/shuttle", design.IconPath);
-            Assert.AreEqual(ShipData.RoleName.fighter, design.Role);
+            Assert.AreEqual(RoleName.fighter, design.Role);
             Assert.AreEqual(true, design.Unlockable);
             Assert.AreEqual(10, design.ModuleSlots.Length);
             Assert.AreEqual(10, design.GridInfo.SurfaceArea);
@@ -161,7 +161,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("Terran", design.ShipStyle);
             Assert.AreEqual("Terran/Gunboat", design.Hull);
             Assert.AreEqual("ShipIcons/10a", design.IconPath);
-            Assert.AreEqual(ShipData.RoleName.prototype, design.Role);
+            Assert.AreEqual(RoleName.prototype, design.Role);
             Assert.AreEqual(true, design.Unlockable);
             Assert.AreEqual(40, design.ModuleSlots.Length);
             Assert.AreEqual(70, design.GridInfo.SurfaceArea);
@@ -182,7 +182,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("Terran", design.ShipStyle);
             Assert.AreEqual("Terran/Gunboat", design.Hull);
             Assert.AreEqual("ShipIcons/10a", design.IconPath);
-            Assert.AreEqual(ShipData.RoleName.prototype, design.Role);
+            Assert.AreEqual(RoleName.prototype, design.Role);
             Assert.AreEqual(true, design.Unlockable);
             Assert.AreEqual(40, design.ModuleSlots.Length); // new designs don't have dummy modules
             Assert.AreEqual(70, design.GridInfo.SurfaceArea);

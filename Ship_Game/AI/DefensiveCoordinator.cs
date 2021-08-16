@@ -326,7 +326,7 @@ namespace Ship_Game.AI
         {
             foreach (Ship troopShip in troopShips)
             {
-                if (troopShip.DesignRole == ShipData.RoleName.troop 
+                if (troopShip.DesignRole == RoleName.troop 
                     && troopShip.AI.State == AIState.AwaitingOrders
                     && troopShip.GetOurFirstTroop(out Troop troop)
                     && troop.Level == Us.data.MinimumTroopLevel) // only scrap rookies

@@ -70,7 +70,7 @@ namespace Ship_Game
         [Serialize(59)] public bool IsPlayerAdded = false;
         [Serialize(60)] public int InvadeInjurePoints;
         [Serialize(61)] public int DefenseShipsCapacity;
-        [Serialize(62)] public ShipData.RoleName DefenseShipsRole;
+        [Serialize(62)] public RoleName DefenseShipsRole;
         [Serialize(63)] public float Infrastructure;
         [Serialize(64)] public bool DetectsRemnantFleet;
         [Serialize(65)] public bool CannotBeBombed;
@@ -164,7 +164,7 @@ namespace Ship_Game
 
         bool CanLaunchDefenseShips(Empire empire) => !HasLaunchedAllDefenseShips && empire.Money > 100;
 
-        static Ship GetDefenseShipName(ShipData.RoleName roleName, Empire empire) 
+        static Ship GetDefenseShipName(RoleName roleName, Empire empire) 
                     => ShipBuilder.PickCostEffectiveShipToBuild(roleName, empire, 
                         empire.Money - 90, empire.Money/10);
 
@@ -258,7 +258,7 @@ namespace Ship_Game
 
         public bool TryLandOnBuilding(Ship ship)
         {
-            ShipData.RoleName roleName = ship.DesignRole;
+            RoleName roleName = ship.DesignRole;
             if (DefenseShipsRole == roleName && CurrentNumDefenseShips < DefenseShipsCapacity)
             {
                 UpdateCurrentDefenseShips(1);
@@ -439,10 +439,10 @@ namespace Ship_Game
             float defenseShipScore;
             switch (DefenseShipsRole)
             {
-                case ShipData.RoleName.drone:    defenseShipScore = 3f;  break;
-                case ShipData.RoleName.fighter:  defenseShipScore = 5f;  break;
-                case ShipData.RoleName.corvette: defenseShipScore = 10f; break;
-                case ShipData.RoleName.frigate:  defenseShipScore = 20f; break;
+                case RoleName.drone:    defenseShipScore = 3f;  break;
+                case RoleName.fighter:  defenseShipScore = 5f;  break;
+                case RoleName.corvette: defenseShipScore = 10f; break;
+                case RoleName.frigate:  defenseShipScore = 20f; break;
                 default:                         defenseShipScore = 50f; break;
             }
 

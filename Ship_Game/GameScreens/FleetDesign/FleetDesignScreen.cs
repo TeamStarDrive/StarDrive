@@ -339,9 +339,9 @@ namespace Ship_Game
 
         bool IsCandidateShip(Ship ship)
         {
-            if (ship.shipData.Role == ShipData.RoleName.troop
-                || ship.DesignRole == ShipData.RoleName.ssp
-                || ship.DesignRole == ShipData.RoleName.construction)
+            if (ship.shipData.Role == RoleName.troop
+                || ship.DesignRole == RoleName.ssp
+                || ship.DesignRole == RoleName.construction)
             {
                 return false;
             }

@@ -58,7 +58,7 @@ namespace UnitTests.Ships
         {
             foreach (ShipHull hull in ResourceManager.Hulls)
             {
-                if (hull.Role == ShipData.RoleName.disabled)
+                if (hull.Role == RoleName.disabled)
                     continue;
 
                 hull.Unlockable = false;
@@ -81,7 +81,7 @@ namespace UnitTests.Ships
                         break;
                 }
 
-                if (hull.Role < ShipData.RoleName.fighter || hull.TechsNeeded.Count == 0)
+                if (hull.Role < RoleName.fighter || hull.TechsNeeded.Count == 0)
                     hull.Unlockable = true;
             }
         }
@@ -99,7 +99,7 @@ namespace UnitTests.Ships
                 if (shipData == null)
                     continue;
                 shipData.Unlockable = false;
-                if (shipData.HullRole == ShipData.RoleName.disabled)
+                if (shipData.HullRole == RoleName.disabled)
                     continue;
 
                 bool hullUnlockable = false;

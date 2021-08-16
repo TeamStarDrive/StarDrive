@@ -9,7 +9,7 @@ namespace Ship_Game.AI
         public const int OrbitalsLimit  = 27; // FB - Maximum of 27 stations or platforms (or shipyards)
         public const int ShipYardsLimit = 2; // FB - Maximum of 2 shipyards
 
-        public static Ship PickFromCandidates(ShipData.RoleName role, Empire empire, int maxSize = 0,
+        public static Ship PickFromCandidates(RoleName role, Empire empire, int maxSize = 0,
                       ShipData.HangarOptions designation = ShipData.HangarOptions.General)
         {
             // The AI will pick ships to build based on their Strength and game difficulty level.
@@ -53,7 +53,7 @@ namespace Ship_Game.AI
         }
 
         // Pick the strongest ship to build with a cost limit and a role
-        public static Ship PickCostEffectiveShipToBuild(ShipData.RoleName role, Empire empire, 
+        public static Ship PickCostEffectiveShipToBuild(RoleName role, Empire empire, 
             float maxCost, float maintBudget)
         {
             Ship[] potentialShips = ShipsWeCanBuild(empire).Filter(
@@ -62,7 +62,7 @@ namespace Ship_Game.AI
                                                 && !ship.shipData.IsShipyard
                                                 && !ship.IsSubspaceProjector);
 
-            if (potentialShips.Length == 0 && role == ShipData.RoleName.drone)
+            if (potentialShips.Length == 0 && role == RoleName.drone)
                 return GetDefaultEventDrone();
 
             if (potentialShips.Length == 0)
@@ -91,7 +91,7 @@ namespace Ship_Game.AI
             return drone;
         }
         
-        static Ship PickFromCandidatesByStrength(ShipData.RoleName role, Empire empire,
+        static Ship PickFromCandidatesByStrength(RoleName role, Empire empire,
             int maxSize, ShipData.HangarOptions designation)
         {
             Ship[] potentialShips = ShipsWeCanBuild(empire).Filter(
@@ -282,7 +282,7 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public static Ship BestShipWeCanBuild(ShipData.RoleName role, Empire empire)
+        public static Ship BestShipWeCanBuild(RoleName role, Empire empire)
         {
             Ship bestShip = PickFromCandidates(role, empire);
             if (bestShip == null || bestShip.shipData.IsShipyard || bestShip.IsSubspaceProjector) 

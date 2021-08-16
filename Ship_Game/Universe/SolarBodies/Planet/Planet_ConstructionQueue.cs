@@ -223,10 +223,10 @@ namespace Ship_Game
 
         public Array<Ship> GetAllShipsInQueue() => ShipRolesInQueue(null);
 
-        public bool IsColonyShipInQueue()       => FirstShipRoleInQueue(ShipData.RoleName.colony) != null;
+        public bool IsColonyShipInQueue()       => FirstShipRoleInQueue(RoleName.colony) != null;
         public bool IsColonyShipInQueue(Goal g) => ConstructionQueue.Any(q => q.isShip && q.Goal == g);
 
-        public Array<Ship> ShipRolesInQueue(ShipData.RoleName[] roles)
+        public Array<Ship> ShipRolesInQueue(RoleName[] roles)
         {
             var ships = new Array<Ship>();
             foreach (var s in ConstructionQueue)
@@ -241,7 +241,7 @@ namespace Ship_Game
             }
             return ships;
         }
-        public Ship FirstShipRoleInQueue(ShipData.RoleName role)
+        public Ship FirstShipRoleInQueue(RoleName role)
         {
             foreach (var s in ConstructionQueue)
             {
@@ -261,13 +261,13 @@ namespace Ship_Game
         {
             var roles = new[]
             {
-                ShipData.RoleName.station,
-                ShipData.RoleName.platform
+                RoleName.station,
+                RoleName.platform
             };
             return MaintenanceCostOfShipRolesInQueue(roles);
         }
 
-        public float MaintenanceCostOfShipRolesInQueue(ShipData.RoleName[] roles)
+        public float MaintenanceCostOfShipRolesInQueue(RoleName[] roles)
         {
             float cost =0 ;
             var ships = GetAllShipsInQueue();

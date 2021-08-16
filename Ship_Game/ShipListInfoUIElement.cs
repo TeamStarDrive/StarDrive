@@ -407,9 +407,9 @@ namespace Ship_Game
                 if (!ship.IsFreighter)                    allFreighters  = false;
                 if (ship.Carrier.HasFighterBays)          carriersHere   = true;
                 if (ship.Carrier.HasTroopBays)            troopShipsHere = true;
-                if (ship.DesignRole < ShipData.RoleName.carrier || ship.shipData.ShipCategory == ShipData.Category.Civilian 
-                                                                || ship.AI.State == AIState.Colonize 
-                                                                || ship.IsHangarShip)
+                if (ship.DesignRole < RoleName.carrier || ship.shipData.ShipCategory == ShipData.Category.Civilian 
+                                                       || ship.AI.State == AIState.Colonize 
+                                                       || ship.IsHangarShip)
                 {
                     allCombat = false;
                 }
