@@ -575,7 +575,7 @@ namespace Ship_Game.AI
                 Owner.Carrier.RecallAfterCombat();
 
             // fbedard: civilian ships will evade combat (nice target practice)
-            if (badGuysNear && Owner.shipData.ShipCategory == ShipData.Category.Civilian)
+            if (badGuysNear && Owner.shipData.ShipCategory == ShipCategory.Civilian)
             {
                 if (Owner.WeaponsMaxRange <= 0)
                 {

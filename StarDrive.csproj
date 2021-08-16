@@ -301,6 +301,7 @@
     <Compile Include="Ship_Game\Ships\Legacy\LegacyShipGridInfo.cs" />
     <Compile Include="Ship_Game\Ships\RoleName.cs" />
     <Compile Include="Ship_Game\Ships\RoleType.cs" />
+    <Compile Include="Ship_Game\Ships\ShipCategory.cs" />
     <Compile Include="Ship_Game\Ships\ShipDataWriter.cs" />
     <Compile Include="Ship_Game\Ships\ShipHull.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Events.cs" />
