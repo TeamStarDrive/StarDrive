@@ -1708,11 +1708,11 @@
   <PropertyGroup>
     <PostBuildEvent>
 :: Copy Game content from BB/Content and BB/Mods into StarDrive/Content and StarDrive/Mods
-powershell -ExecutionPolicy Bypass -File $(SolutionDir)CopyGameContent.ps1  $(SolutionDir)  $(SolutionDir)StarDrive\  COPYMODS
+py -3 "$(SolutionDir)CopyGameContent.py" --root_dir $(SolutionDir) --configuration $(ConfigurationName) --copy_mods
 
 if "$(ConfigurationName)" == "Deploy"  (
   :: run the installer generator script with Python 3
-  py -3 $(SolutionDir)Deploy\MakeInstaller.py $(SolutionDir)
+  py -3 "$(SolutionDir)Deploy\MakeInstaller.py" $(SolutionDir)
 )
 </PostBuildEvent>
   </PropertyGroup>
