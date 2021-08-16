@@ -104,8 +104,6 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipHull_LoadVanilla_TerranShuttle()
         {
-            Log.Write(File.ReadAllText("Content/Hulls/Terran/Shuttle.hull"));
-
             var hull = new ShipHull("Content/Hulls/Terran/Shuttle.hull");
             Assert.AreEqual("Terran/Shuttle", hull.HullName);
             Assert.AreEqual("Shuttle", hull.VisibleName);
@@ -124,8 +122,6 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipHull_LoadVanilla_TerranGunboat()
         {
-            Log.Write(File.ReadAllText("Content/Hulls/Terran/Gunboat.hull"));
-
             var hull = new ShipHull("Content/Hulls/Terran/Gunboat.hull");
             Assert.AreEqual("Terran/Gunboat", hull.HullName);
             Assert.AreEqual("Gunboat", hull.VisibleName);
