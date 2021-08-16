@@ -147,20 +147,20 @@ namespace Ship_Game.Ships
                     // TODO: convert from this version to newer version
                 }
 
-                var data = new ShipDesign(p);
+                var data = new ShipDesign(p, source:file);
                 if (data.BaseHull == null)
                 {
                     Log.Warning(ConsoleColor.Red, $"Hull='{data.Hull}' does not exist for Design: {file.FullName}");
                     return null;
                 }
-
-                data.Source = file;
                 return data;
             }
         }
 
-        ShipDesign(GenericStringViewParser p)
+        ShipDesign(GenericStringViewParser p, FileInfo source = null)
         {
+            Source = source;
+
             string[] moduleUIDs = null;
             DesignSlot[] modules = null;
             int numModules = 0;
@@ -196,7 +196,11 @@ namespace Ship_Game.Ships
                     else if (key == "ModuleUIDs")
                         moduleUIDs = value.Split(';').Select(s => string.Intern(s.Text));
                     else if (key == "Modules")
+                    {
+                        if (GlobalStats.LazyLoadShipDesignSlots)
+                            break;
                         modules = new DesignSlot[value.ToInt()];
+                    }
                 }
                 else
                 {
@@ -216,18 +220,38 @@ namespace Ship_Game.Ships
             if (ShipStyle.IsEmpty()) ShipStyle = hull.Style;
             if (IconPath.IsEmpty()) IconPath = hull.IconPath;
 
-            // NOTE: we can't "fix" the slots here without expanding the ModuleGrid
-            //       instead we use GridCenter in ShipDesignScreen InstallModules
-            //Point center = GridInfo.Center;
-            //if (center != hull.GridCenter)
-            //{
-            //    var offset = new Point(center.X - hull.GridCenter.X, center.Y - hull.GridCenter.Y);
-            //    Log.Warning(ConsoleColor.Cyan, $"Center={center} != Hull.Center={hull.GridCenter} Offset={offset} Ship={Name}");
-            //}
-
             GridInfo.SurfaceArea = hull.SurfaceArea;
             DesignSlots = modules;
             UniqueModuleUIDs = moduleUIDs;
+        }
+
+        // Implemented for Lazy-Loading, only load the design slots and nothing else
+        public static DesignSlot[] LoadDesignSlots(FileInfo file, string[] moduleUIDs)
+        {
+            using (var p = new GenericStringViewParser(file))
+            {
+                DesignSlot[] modules = null;
+                int numModules = 0;
+
+                while (p.ReadLine(out StringView line))
+                {
+                    if (modules == null)
+                    {
+                        StringView key = line.Next('=');
+                        if (key == "Modules")
+                            modules = new DesignSlot[line.ToInt()];
+                    }
+                    else
+                    {
+                        if (numModules == modules.Length)
+                            throw new InvalidDataException($"Ship design module count is incorrect: {p.Name}");
+
+                        DesignSlot slot = ParseDesignSlot(line, moduleUIDs);
+                        modules[numModules++] = slot;
+                    }
+                }
+                return modules;
+            }
         }
 
         public static DesignSlot ParseDesignSlot(StringView line, string[] moduleUIDs)
