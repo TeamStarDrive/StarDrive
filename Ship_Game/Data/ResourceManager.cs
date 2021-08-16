@@ -1441,7 +1441,7 @@ namespace Ship_Game
                 AddHull(hull);
         }
 
-        public static Ship AddShipTemplate(ShipData shipData, bool playerDesign, bool readOnly = false)
+        public static Ship AddShipTemplate(ShipDesign shipData, bool playerDesign, bool readOnly = false)
         {
             Ship shipTemplate = Ship.CreateNewShipTemplate(shipData);
             if (shipTemplate == null) // happens if module creation failed
@@ -1505,7 +1505,7 @@ namespace Ship_Game
                     try
                     {
                         GameLoadingScreen.SetStatus("LoadShipTemplate", info.RelPath());
-                        ShipData shipData = ShipData.Parse(info);
+                        ShipDesign shipData = ShipDesign.Parse(info);
                         if (shipData == null || shipData.Role == RoleName.disabled)
                             continue;
 

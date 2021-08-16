@@ -193,9 +193,9 @@ namespace Ship_Game.Debug.Page
             var columns = new Array<DebugTextBlock>();
             var column = new DebugTextBlock();
             column.AddLine($"Under Construction");
-            var queue = new Map<RoleName, Array<ShipData>>();
+            var queue = new Map<RoleName, Array<ShipDesign>>();
             var queues = EmpireAtWar.GetPlanets().Select(p => p.ConstructionQueue);
-            var shipData = new Array<ShipData>();
+            var shipData = new Array<ShipDesign>();
             if (queues.Length == 0) return new Array<DebugTextBlock>{column};
             for (int i = 0; i < queues.Length; i++)
             {
@@ -217,7 +217,7 @@ namespace Ship_Game.Debug.Page
                 }
                 else
                 {
-                    queue[keys] = new Array<ShipData>() {ship};
+                    queue[keys] = new Array<ShipDesign>() {ship};
                 }
             }
 
@@ -232,8 +232,8 @@ namespace Ship_Game.Debug.Page
                 foreach (var item in items)
                 {
                     if (item?.isShip != true ||// item.DisplayName.IsEmpty() ||
-                            !(ShipData.ShipRoleToRoleType(item.sData.Role) == RoleType.Warship ||
-                            ShipData.ShipRoleToRoleType(item.sData.Role) == RoleType.WarSupport)) continue;
+                            !(ShipDesign.ShipRoleToRoleType(item.sData.Role) == RoleType.Warship ||
+                            ShipDesign.ShipRoleToRoleType(item.sData.Role) == RoleType.WarSupport)) continue;
                     column.AddLine(item.sData.Name);
                 }
             }
@@ -258,8 +258,8 @@ namespace Ship_Game.Debug.Page
                     foreach (var item in items)
                     {
                         if (!item.isShip ||// item.DisplayName.IsEmpty() ||
-                                !(ShipData.ShipRoleToRoleType(item.sData.Role) == RoleType.Warship ||
-                                ShipData.ShipRoleToRoleType(item.sData.Role) == RoleType.WarSupport)) continue;
+                                !(ShipDesign.ShipRoleToRoleType(item.sData.Role) == RoleType.Warship ||
+                                ShipDesign.ShipRoleToRoleType(item.sData.Role) == RoleType.WarSupport)) continue;
                         column.AddLine(item.Planet.Name);
                     }
                 }

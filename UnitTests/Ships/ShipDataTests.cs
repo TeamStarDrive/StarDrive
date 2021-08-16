@@ -21,7 +21,7 @@ namespace UnitTests.Ships
         }
 
         // Makes sure two ShipData are absolutely equal
-        static void AssertAreEqual(ShipData a, ShipData b, bool checkModules)
+        static void AssertAreEqual(ShipDesign a, ShipDesign b, bool checkModules)
         {
             Assert.AreEqual(a.Name, b.Name);
             Assert.AreEqual(a.ModName, b.ModName);
@@ -63,7 +63,7 @@ namespace UnitTests.Ships
             }
         }
 
-        static void AssertAreEqual(LegacyShipData a, ShipData b)
+        static void AssertAreEqual(LegacyShipData a, ShipDesign b)
         {
             Assert.AreEqual(a.Name, b.Name);
             Assert.AreEqual(a.ModName, b.ModName);
@@ -139,7 +139,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipDesign_LoadVanilla_VulcanScout()
         {
-            ShipData design = ShipData.Parse("Content/ShipDesigns/Vulcan Scout.design");
+            ShipDesign design = ShipDesign.Parse("Content/ShipDesigns/Vulcan Scout.design");
             Assert.AreEqual("Vulcan Scout", design.Name);
             Assert.AreEqual("", design.ModName);
             Assert.AreEqual("Terran", design.ShipStyle);
@@ -155,7 +155,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipDesign_LoadVanilla_PrototypeFrigate()
         {
-            ShipData design = ShipData.Parse("Content/ShipDesigns/Prototype Frigate.design");
+            ShipDesign design = ShipDesign.Parse("Content/ShipDesigns/Prototype Frigate.design");
             Assert.AreEqual("Prototype Frigate", design.Name);
             Assert.AreEqual("", design.ModName);
             Assert.AreEqual("Terran", design.ShipStyle);
@@ -176,7 +176,7 @@ namespace UnitTests.Ships
                 old.SaveDesign("Content/ShipDesigns/Prototype Frigate.design");
             }
 
-            ShipData design = ShipData.Parse("Content/ShipDesigns/Prototype Frigate.design");
+            ShipDesign design = ShipDesign.Parse("Content/ShipDesigns/Prototype Frigate.design");
             Assert.AreEqual("Prototype Frigate", design.Name);
             Assert.AreEqual("", design.ModName);
             Assert.AreEqual("Terran", design.ShipStyle);
@@ -191,8 +191,8 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipDesign_Clone_EqualToOriginal()
         {
-            ShipData original = ShipData.Parse("Content/ShipDesigns/Prototype Frigate.design");
-            ShipData clone = original.GetClone();
+            ShipDesign original = ShipDesign.Parse("Content/ShipDesigns/Prototype Frigate.design");
+            ShipDesign clone = original.GetClone();
             AssertAreEqual(original, clone, true);
         }
 
@@ -202,7 +202,7 @@ namespace UnitTests.Ships
             LegacyShipData legacy = LegacyShipData.Parse("Content/ShipDesigns/Prototype Frigate.xml", isHullDefinition:false);
             legacy.SaveDesign("Content/ShipDesigns/Prototype Frigate.design");
             
-            ShipData neu = ShipData.Parse("Content/ShipDesigns/Prototype Frigate.design");
+            ShipDesign neu = ShipDesign.Parse("Content/ShipDesigns/Prototype Frigate.design");
             AssertAreEqual(legacy, neu);
         }
 
@@ -212,7 +212,7 @@ namespace UnitTests.Ships
             LegacyShipData legacy = LegacyShipData.Parse("Content/ShipDesigns/Ancient Torpedo Cruiser.xml", isHullDefinition: false);
             legacy.SaveDesign("Content/ShipDesigns/Ancient Torpedo Cruiser.design");
 
-            ShipData neu = ShipData.Parse("Content/ShipDesigns/Ancient Torpedo Cruiser.design");
+            ShipDesign neu = ShipDesign.Parse("Content/ShipDesigns/Ancient Torpedo Cruiser.design");
             AssertAreEqual(legacy, neu);
         }
 
@@ -226,11 +226,11 @@ namespace UnitTests.Ships
             ship.Modules[5].Health = 0f;
 
             ModuleSaveData[] toSave = ship.GetModuleSaveData();
-            string base64save = ShipData.GetBase64ModulesString(toSave);
+            string base64save = ShipDesign.GetBase64ModulesString(toSave);
 
             Log.Info(Encoding.ASCII.GetString(Convert.FromBase64String(base64save)));
 
-            ModuleSaveData[] loaded = ShipData.GetModuleSaveFromBase64String(base64save);
+            ModuleSaveData[] loaded = ShipDesign.GetModuleSaveFromBase64String(base64save);
 
             for (int i = 0; i < toSave.Length && i < loaded.Length; ++i)
             {

@@ -114,7 +114,7 @@ namespace Ship_Game.GameScreens.NewGame
             {
                 step?.Advance();
 
-                ShipData shipData = ship.shipData;
+                Ships.ShipDesign shipData = ship.shipData;
                 if (shipData == null)
                     continue;
                 

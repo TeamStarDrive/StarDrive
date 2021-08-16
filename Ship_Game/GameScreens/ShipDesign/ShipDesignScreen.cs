@@ -25,7 +25,7 @@ namespace Ship_Game
 
         // this can be Null if we are in HullEdit mode
         public DesignShip DesignedShip { get; private set; }
-        public ShipData CurrentDesign;
+        public ShipDesign CurrentDesign;
         public ShipHull CurrentHull; // never Null
         public DesignModuleGrid ModuleGrid;
 
@@ -280,12 +280,12 @@ namespace Ship_Game
             OnDesignChanged();
         }
 
-        public void ChangeHull(ShipData shipDesignTemplate)
+        public void ChangeHull(ShipDesign shipDesignTemplate)
         {
             if (shipDesignTemplate == null) // if ShipDesignLoadScreen has no selected design
                 return;
 
-            ShipData cloned = shipDesignTemplate.GetClone();
+            ShipDesign cloned = shipDesignTemplate.GetClone();
             ModuleGrid = new DesignModuleGrid(this, cloned);
             CurrentDesign = cloned;
             CurrentHull   = cloned.BaseHull;
@@ -311,7 +311,7 @@ namespace Ship_Game
             }
             else
             {
-                ChangeHull(new ShipData(hullTemplate));
+                ChangeHull(new ShipDesign(hullTemplate));
             }
         }
 
@@ -342,7 +342,7 @@ namespace Ship_Game
             DesignedShip?.UpdateDesign(CreateModuleSlots());
         }
 
-        void InstallModulesFromDesign(ShipData design)
+        void InstallModulesFromDesign(ShipDesign design)
         {
             Point offset = design.BaseHull.GridCenter.Sub(design.GridInfo.Center);
 

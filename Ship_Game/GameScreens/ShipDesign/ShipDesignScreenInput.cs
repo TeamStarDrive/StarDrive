@@ -18,7 +18,7 @@ namespace Ship_Game
 
         void UpdateCarrierShip()
         {
-            ShipData design = CurrentDesign;
+            ShipDesign design = CurrentDesign;
             if (design.HullRole == RoleName.drone)
                 design.CarrierShip = true;
 
@@ -32,7 +32,7 @@ namespace Ship_Game
 
         void BindListsToActiveHull()
         {
-            ShipData design = CurrentDesign;
+            ShipDesign design = CurrentDesign;
             CategoryList.Visible = design != null;
             HangarOptionsList.Visible = design != null;
 
@@ -577,9 +577,9 @@ namespace Ship_Game
             return placed.ToArray();
         }
 
-        ShipData CloneCurrentDesign(string newName)
+        ShipDesign CloneCurrentDesign(string newName)
         {
-            ShipData hull = CurrentDesign.GetClone();
+            ShipDesign hull = CurrentDesign.GetClone();
             hull.Name = newName;
             hull.ModuleSlots = CreateModuleSlots();
             return hull;
@@ -593,7 +593,7 @@ namespace Ship_Game
             return toSave;
         }
 
-        void SaveDesign(ShipData design, FileInfo designFile)
+        void SaveDesign(ShipDesign design, FileInfo designFile)
         {
             try
             {
@@ -621,7 +621,7 @@ namespace Ship_Game
 
         public void SaveShipDesign(string name, FileInfo overwriteProtected)
         {
-            ShipData toSave = CloneCurrentDesign(name);
+            ShipDesign toSave = CloneCurrentDesign(name);
             SaveDesign(toSave, overwriteProtected ?? new FileInfo($"{Dir.StarDriveAppData}/Saved Designs/{name}.design"));
 
             bool playerDesign = overwriteProtected == null;
@@ -647,7 +647,7 @@ namespace Ship_Game
         {
             if (CurrentDesign != null)
             {
-                ShipData toSave = CloneCurrentDesign($"{DateTime.Now:yyyy-MM-dd}__{DesignOrHullName}");
+                ShipDesign toSave = CloneCurrentDesign($"{DateTime.Now:yyyy-MM-dd}__{DesignOrHullName}");
                 SaveDesign(toSave, new FileInfo($"{Dir.StarDriveAppData}/WIP/{toSave.Name}.design"));
             }
             else

@@ -365,7 +365,7 @@ namespace Ship_Game
             return false;
         }
 
-        Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, ShipData sData, float priority = 1f)
+        Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, ShipDesign sData, float priority = 1f)
         {
             // focus on the best producing planets (number depends on the empire size)
             if (GetBestPorts(ports, out Planet[] bestPorts))
@@ -2063,7 +2063,7 @@ namespace Ship_Game
                 return false;
             }
 
-            ShipData shipData = ship.shipData;
+            ShipDesign shipData = ship.shipData;
             if (shipData == null)
             {
                 Log.Warning($"{data.PortraitName} : shipData is null : '{shipName}'");

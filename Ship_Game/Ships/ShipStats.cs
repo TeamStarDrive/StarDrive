@@ -10,7 +10,7 @@ namespace Ship_Game.Ships
     public class ShipStats
     {
         Ship S;
-        ShipData Hull;
+        ShipDesign Hull;
         public float Mass;
         
         public float Thrust;

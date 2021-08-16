@@ -34,14 +34,14 @@ namespace UnitTests.Ships
         }
 
         static Ship GetFirstShipTemplate() => ResourceManager.GetShipTemplates().ToArray()[0];
-        static ShipData GetFirstShipData() => GetFirstShipTemplate().shipData;
+        static ShipDesign GetFirstShipData() => GetFirstShipTemplate().shipData;
         static ShipHull GetFirstBaseHull() => GetFirstShipData().BaseHull;
         static string ToString(HashSet<string> techsNeeded) => string.Join(",", ToArray(techsNeeded));
 
         void PrintInfo(string prefix)
         {
             ShipHull firstBase = GetFirstBaseHull();
-            ShipData firstShip = GetFirstShipData();
+            ShipDesign firstShip = GetFirstShipData();
             Log.Info($"{prefix} Hull {firstBase.HullName} Unlockable: {firstBase.Unlockable} TechsNeeded: {ToString(firstBase.TechsNeeded)}");
             Log.Info($"{prefix} Ship {firstShip.Name} Unlockable: {firstShip.Unlockable} TechsNeeded: {ToString(firstShip.TechsNeeded)}");
         }
@@ -60,7 +60,7 @@ namespace UnitTests.Ships
             ShipDesignUtilsOld.MarkDesignsUnlockable();
             PrintInfo("2");
 
-            var legacyUnlockable = new Dictionary<string, ShipData>();
+            var legacyUnlockable = new Dictionary<string, ShipDesign>();
             foreach (Ship tOld in ResourceManager.GetShipTemplates())
             {
                 legacyUnlockable.Add(tOld.Name, tOld.shipData.GetClone()); //Because it gets disposed later on and we get a NPE
@@ -73,9 +73,9 @@ namespace UnitTests.Ships
 
             foreach (Ship template in ResourceManager.GetShipTemplates())
             {
-                if (legacyUnlockable.TryGetValue(template.Name, out ShipData legacy))
+                if (legacyUnlockable.TryGetValue(template.Name, out ShipDesign legacy))
                 {
-                    ShipData @new = template.shipData;
+                    ShipDesign @new = template.shipData;
                     Assert.That.Equal(ToArray(legacy.TechsNeeded), ToArray(@new.TechsNeeded),
                                       $"{template.Name} TechsNeeded must be equal");
                     Assert.AreEqual(legacy.Unlockable, @new.Unlockable, $"{template.Name} Not same Unlockable");
