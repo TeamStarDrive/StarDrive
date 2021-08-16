@@ -142,6 +142,18 @@ namespace Ship_Game
             cursorPos.X += font.TextWidth(text);
         }
 
+        // Gets the tech cost of the tech which unlocks the module provided, this is for modders in debug
+        float DebugGetModuleTechCost(ShipModule module)
+        {
+            foreach (TechEntry tech in EmpireManager.Player.TechnologyDict.Values)
+            {
+                if (tech.GetUnlockableModules(EmpireManager.Player).Any(m => m.ModuleUID == module.UID))
+                    return tech.Tech.ActualCost;
+            }
+
+            return 0;
+        }
+
         void DrawActiveModuleData(SpriteBatch batch)
         {
             ShipModule mod = Screen.ActiveModule ?? Screen.HighlightedModule;
@@ -168,6 +180,12 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial14Bold, moduleTemplate.NameText.Text,
                     modTitlePos, nameColor);
                 modTitlePos.Y += (Fonts.Arial14Bold.LineSpacing + 4);
+            }
+
+            if (Empire.Universe.Debug)
+            {
+                batch.DrawString(Fonts.Arial12, $"Debug Tech Cost: {DebugGetModuleTechCost(mod).String(1)}", modTitlePos, Color.Gold);
+                modTitlePos.Y += (Fonts.Arial12.LineSpacing + 4);
             }
 
             string rest = "";
