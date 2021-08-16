@@ -203,13 +203,6 @@ namespace Ship_Game.Ships
             Kamikaze
         }
 
-        public enum HangarOptions
-        {
-            General,
-            AntiShip,
-            Interceptor
-        }
-
         public static RoleType ShipRoleToRoleType(RoleName role)
         {
             switch (role)

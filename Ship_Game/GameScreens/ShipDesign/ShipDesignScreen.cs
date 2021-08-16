@@ -513,7 +513,7 @@ namespace Ship_Game
 
             var hangarRect = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 150, 18);
             HangarOptionsList = new HangarDesignationDropDown(hangarRect);
-            foreach (ShipData.HangarOptions item in Enum.GetValues(typeof(ShipData.HangarOptions)).Cast<ShipData.HangarOptions>())
+            foreach (HangarOptions item in Enum.GetValues(typeof(HangarOptions)).Cast<HangarOptions>())
                 HangarOptionsList.AddOption(item.ToString(), item);
 
             var carrierOnlyPos  = new Vector2(dropdownRect.X - 200, dropdownRect.Y);
