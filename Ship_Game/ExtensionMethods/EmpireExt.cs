@@ -18,7 +18,7 @@ namespace Ship_Game
             {
                 Ship ship = collection[x];
                 if (!ship.Active
-                    || ship.shipData.Role != ShipData.RoleName.troop
+                    || ship.shipData.Role != RoleName.troop
                     || ship.IsHangarShip
                     || ship.IsHomeDefense
                     || ship.AI.State == AIState.Scrap

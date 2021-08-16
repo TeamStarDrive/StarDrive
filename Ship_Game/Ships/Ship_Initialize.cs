@@ -195,7 +195,7 @@ namespace Ship_Game.Ships
             TradeRoutes               = save.TradeRoutes ?? new Array<Guid>(); // the null check is here in order to not break saves.
             MechanicalBoardingDefense = save.MechanicalBoardingDefense;
 
-            VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty
+            VanityName = shipData.Role == RoleName.troop && save.TroopList.NotEmpty
                             ? save.TroopList[0].Name : save.VanityName;
 
             HealthMax = RecalculateMaxHealth();
@@ -235,7 +235,7 @@ namespace Ship_Game.Ships
         void SetInitialCrewLevel()
         {
             Level = 0;
-            if (shipData.Role == ShipData.RoleName.fighter)
+            if (shipData.Role == RoleName.fighter)
                 Level += loyalty.data.BonusFighterLevels;
 
             Level += loyalty.data.BaseShipLevel;
@@ -367,13 +367,13 @@ namespace Ship_Game.Ships
             ship.Velocity   = parent.Velocity;
 
             if (hangar.IsSupplyBay)
-                ship.SetSpecialRole(ShipData.RoleName.supply, "Supply Shuttle");
+                ship.SetSpecialRole(RoleName.supply, "Supply Shuttle");
             else if (hangar.IsTroopBay)
-                ship.SetSpecialRole(ShipData.RoleName.troop, "");
+                ship.SetSpecialRole(RoleName.troop, "");
             return ship;
         }
 
-        void SetSpecialRole(ShipData.RoleName role, string vanityName)
+        void SetSpecialRole(RoleName role, string vanityName)
         {
             DesignRole = role;
             if (vanityName.NotEmpty())
@@ -394,7 +394,7 @@ namespace Ship_Game.Ships
             Ship ship = CreateShipAtPoint(shipName, owner, point);
             ship.VanityName = troop.DisplayName;
             troop.LandOnShip(ship);
-            if (ship.shipData.Role == ShipData.RoleName.troop)
+            if (ship.shipData.Role == RoleName.troop)
                 ship.shipData.ShipCategory = ShipData.Category.Conservative;
             return ship;
         }
@@ -425,7 +425,7 @@ namespace Ship_Game.Ships
             if (VanityName.IsEmpty())
                 VanityName = Name;
 
-            if (shipData.Role == ShipData.RoleName.platform)
+            if (shipData.Role == RoleName.platform)
                 IsPlatform = true;
 
             if (ResourceManager.GetShipTemplate(Name, out Ship template))
@@ -562,7 +562,7 @@ namespace Ship_Game.Ships
                 {
                     case ShipModuleType.Construction:
                         IsConstructor = true;
-                        shipData.Role = ShipData.RoleName.construction;
+                        shipData.Role = RoleName.construction;
                         break;
                     case ShipModuleType.PowerConduit:
                         module.IconTexturePath = PwrGrid.GetConduitGraphic(module);
@@ -611,7 +611,7 @@ namespace Ship_Game.Ships
 
             Carrier.PrepShipHangars(loyalty);
 
-            if (shipData.Role == ShipData.RoleName.troop)
+            if (shipData.Role == RoleName.troop)
                 TroopCapacity = 1; // set troopship and assault shuttle not to have 0 TroopCapacity since they have no modules with TroopCapacity
 
             if (InhibitionRadius.Greater(0))
@@ -638,11 +638,11 @@ namespace Ship_Game.Ships
             {
                 default:
                     return mBank;
-                case ShipData.RoleName.drone:
-                case ShipData.RoleName.scout:
-                case ShipData.RoleName.fighter:
+                case RoleName.drone:
+                case RoleName.scout:
+                case RoleName.fighter:
                     return mBank * 2.1f;
-                case ShipData.RoleName.corvette:
+                case RoleName.corvette:
                     return mBank * 1.5f;
             }
         }

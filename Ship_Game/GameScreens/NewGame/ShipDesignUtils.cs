@@ -87,7 +87,7 @@ namespace Ship_Game.GameScreens.NewGame
                 hull.TechsNeeded.Clear(); // always clear techs list
                 hull.Unlockable = false;
 
-                if (hull.Role == ShipData.RoleName.disabled)
+                if (hull.Role == RoleName.disabled)
                     continue;
 
                 if (hullUnlocks.TryGetValue(hull.HullName, out string requiredTech))
@@ -99,7 +99,7 @@ namespace Ship_Game.GameScreens.NewGame
                     }
                 }
 
-                if (hull.Role < ShipData.RoleName.fighter || hull.TechsNeeded.Count == 0)
+                if (hull.Role < RoleName.fighter || hull.TechsNeeded.Count == 0)
                     hull.Unlockable = true;
             }
         }
@@ -122,7 +122,7 @@ namespace Ship_Game.GameScreens.NewGame
                 shipData.Unlockable = false;
 
                 if (!shipData.BaseHull.Unlockable ||
-                    shipData.HullRole == ShipData.RoleName.disabled)
+                    shipData.HullRole == RoleName.disabled)
                     continue;
                 
                 // These are the leaf technologies which actually unlock our modules

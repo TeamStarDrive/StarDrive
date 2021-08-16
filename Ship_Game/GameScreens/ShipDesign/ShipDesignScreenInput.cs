@@ -19,15 +19,15 @@ namespace Ship_Game
         void UpdateCarrierShip()
         {
             ShipData design = CurrentDesign;
-            if (design.HullRole == ShipData.RoleName.drone)
+            if (design.HullRole == RoleName.drone)
                 design.CarrierShip = true;
 
             if (CarrierOnlyCheckBox == null)
                 return; // it is null the first time ship design screen is loaded
 
-            CarrierOnlyCheckBox.Visible = design.HullRole != ShipData.RoleName.drone
-                                          && design.HullRole != ShipData.RoleName.platform
-                                          && design.HullRole != ShipData.RoleName.station;
+            CarrierOnlyCheckBox.Visible = design.HullRole != RoleName.drone
+                                          && design.HullRole != RoleName.platform
+                                          && design.HullRole != RoleName.station;
         }
 
         void BindListsToActiveHull()
@@ -48,10 +48,10 @@ namespace Ship_Game
             {
                 // Defaults based on hull types
                 // Freighter hull type defaults to Civilian behaviour when the hull is selected, player has to actively opt to change classification to disable flee/freighter behaviour
-                if (design.Role == ShipData.RoleName.freighter)
+                if (design.Role == RoleName.freighter)
                     CategoryList.SetActiveValue(ShipData.Category.Civilian);
                 // Scout hull type defaults to Recon behaviour. Not really important, as the 'Recon' tag is going to supplant the notion of having 'Fighter' class hulls automatically be scouts, but it makes things easier when working with scout hulls without existing categorisation.
-                else if (design.Role == ShipData.RoleName.scout)
+                else if (design.Role == RoleName.scout)
                     CategoryList.SetActiveValue(ShipData.Category.Recon);
                 else
                     CategoryList.SetActiveValue(ShipData.Category.Unclassified);
@@ -74,7 +74,7 @@ namespace Ship_Game
                     return false; // empty slots not allowed!
                 hasBridge |= slot.Module?.IsCommandModule == true;
             }
-            return (hasBridge || Role == ShipData.RoleName.platform || Role == ShipData.RoleName.station);
+            return (hasBridge || Role == RoleName.platform || Role == RoleName.station);
         }
 
         void CreateSOFromCurrentHull()

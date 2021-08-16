@@ -74,7 +74,7 @@ namespace Ship_Game
         // Used in Dev SandBox to enable some special debug features
         public bool EnableDebugFeatures;
 
-        public ShipData.RoleName Role => DesignedShip?.DesignRole ?? CurrentHull.Role;
+        public RoleName Role => DesignedShip?.DesignRole ?? CurrentHull.Role;
         Rectangle DesignRoleRect;
 
         public bool IsSymmetricDesignMode

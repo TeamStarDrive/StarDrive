@@ -35,7 +35,7 @@ namespace Ship_Game.Ships
         public string IconPath; // "ShipIcons/shuttle"
         public string ModelPath; // "Model/Ships/Terran/Shuttle/ship08"
 
-        public ShipData.RoleName Role = ShipData.RoleName.fighter;
+        public RoleName Role = RoleName.fighter;
         public string SelectIcon = "";
         public bool Animated;
         public bool IsShipyard;
@@ -97,7 +97,7 @@ namespace Ship_Game.Ships
             IconPath = sd.IconPath;
             ModelPath = sd.ModelPath;
 
-            Role = (ShipData.RoleName)(int)sd.Role;
+            Role = (RoleName)(int)sd.Role;
             SelectIcon = sd.SelectionGraphic;
             Animated = sd.Animated;
 

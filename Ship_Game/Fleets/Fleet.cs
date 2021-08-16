@@ -227,7 +227,7 @@ namespace Ship_Game.Fleets
             {
                 CenterShips.AddUniqueRef(ship);
             }
-            else if (ship.DesignRole == ShipData.RoleName.carrier)
+            else if (ship.DesignRole == RoleName.carrier)
             {
                 if (leftCount <= RightShips.Count)
                 {
@@ -471,7 +471,7 @@ namespace Ship_Game.Fleets
                     case SquadSortType.Size: return ship.SurfaceArea;
                     case SquadSortType.Speed: return (int)ship.MaxSTLSpeed;
                     case SquadSortType.Defense: return (int)(ship.armor_max + ship.shield_max);
-                    case SquadSortType.Utility: return ship.DesignRole == ShipData.RoleName.support || ship.DesignRoleType == RoleType.Troop ? 1 : 0;
+                    case SquadSortType.Utility: return ship.DesignRole == RoleName.support || ship.DesignRoleType == RoleType.Troop ? 1 : 0;
                     default: return 0;
                 }
             }
@@ -748,7 +748,7 @@ namespace Ship_Game.Fleets
             for (int i = Ships.Count -1; i >= 0; i--)
             {
                 Ship ship = Ships[i];
-                if (ship.DesignRole == ShipData.RoleName.troop)
+                if (ship.DesignRole == RoleName.troop)
                 {
                     ship.AI.ClearOrders();
                     RemoveShip(ship, returnToEmpireAI: true);
@@ -1773,7 +1773,7 @@ namespace Ship_Game.Fleets
             {
                 Ship ship = Ships[index];
                 ship.AI.State = AIState.HoldPosition;
-                if (ship.shipData.Role == ShipData.RoleName.troop)
+                if (ship.shipData.Role == RoleName.troop)
                     ship.AI.HoldPosition();
             }
         }
@@ -1991,7 +1991,7 @@ namespace Ship_Game.Fleets
         bool StillInvasionEffective(MilitaryTask task)
         {
             bool troopsOnPlanet = task.TargetPlanet.AnyOfOurTroops(Owner);
-            bool invasionTroops = Ships.Any(troops => troops.DesignRole == ShipData.RoleName.troop || troops.Carrier.AnyAssaultOpsAvailable) && GetStrength() > 0;
+            bool invasionTroops = Ships.Any(troops => troops.DesignRole == RoleName.troop || troops.Carrier.AnyAssaultOpsAvailable) && GetStrength() > 0;
             bool stillMissionEffective = troopsOnPlanet || invasionTroops;
             if (!stillMissionEffective)
                 DebugInfo(task, " No Troops on Planet and No Ships.");
