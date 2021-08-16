@@ -55,8 +55,7 @@ namespace Ship_Game.Ships
         public bool Unlockable = true; // unlocked=true by default
         public HashSet<string> TechsNeeded = new HashSet<string>();
 
-        static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
-        static readonly string[] CategoryArray = typeof(ShipCategory).GetEnumNames();
+        static readonly string[] RoleArray = typeof(RoleName).GetEnumNames();
         public RoleName HullRole => BaseHull.Role;
         public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
 
@@ -175,21 +174,9 @@ namespace Ship_Game.Ships
             return RoleArray[roleNum];
         }
 
-        public string GetCategory()
-        {
-            return CategoryArray[(int)ShipCategory];
-        }
-
         public void LoadModel(out SceneObject shipSO, GameContentManager content)
         {
             BaseHull.LoadModel(out shipSO, content);
-        }
-        
-        public struct ThrusterZone
-        {
-            public Vector3 Position;
-            [XmlElement(ElementName = "scale")]
-            public float Scale;
         }
 
         public static RoleType ShipRoleToRoleType(RoleName role)
