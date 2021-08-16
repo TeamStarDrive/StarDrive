@@ -148,7 +148,7 @@ namespace Ship_Game.GameScreens.MainMenu
             VersionArea = Panel(Rectangle.Empty, Color.TransparentBlack);
             VersionArea.StartFadeIn(3.0f, delay: 2.0f);
 
-            string starDrive = "StarDrive 15B";
+            string starDrive = "StarDrive BlackBox";
             string blackBox = GlobalStats.ExtendedVersionNoHash;
             string modTitle = "";
             if (GlobalStats.HasMod)
