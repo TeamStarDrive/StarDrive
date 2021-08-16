@@ -71,7 +71,7 @@ namespace Ship_Game.Empires.ShipPools
                 return true;
             }
 
-            if (s.DesignRoleType == ShipData.RoleType.Warship && s.BaseCanWarp)
+            if (s.DesignRoleType == RoleType.Warship && s.BaseCanWarp)
             {
                 Log.Warning($"Could Not add ship to force pools. AO Pools {OwnerAI.AreasOfOperations.Count} {s.DesignRole} {s}");
             }

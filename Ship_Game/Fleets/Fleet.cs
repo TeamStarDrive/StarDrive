@@ -219,7 +219,7 @@ namespace Ship_Game.Fleets
             int leftCount = LeftShips.Count;
             var roleType = ship.DesignRoleType;
 
-            if (roleType != ShipData.RoleType.Warship)
+            if (roleType != RoleType.Warship)
             {
                 RearShips.AddUniqueRef(ship);
             }
@@ -471,7 +471,7 @@ namespace Ship_Game.Fleets
                     case SquadSortType.Size: return ship.SurfaceArea;
                     case SquadSortType.Speed: return (int)ship.MaxSTLSpeed;
                     case SquadSortType.Defense: return (int)(ship.armor_max + ship.shield_max);
-                    case SquadSortType.Utility: return ship.DesignRole == ShipData.RoleName.support || ship.DesignRoleType == ShipData.RoleType.Troop ? 1 : 0;
+                    case SquadSortType.Utility: return ship.DesignRole == ShipData.RoleName.support || ship.DesignRoleType == RoleType.Troop ? 1 : 0;
                     default: return 0;
                 }
             }

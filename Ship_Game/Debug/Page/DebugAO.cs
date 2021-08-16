@@ -55,7 +55,7 @@ namespace Ship_Game.Debug.Page
             var allShips = Empire.Universe.GetMasterShipList().ToArray().Filter(s=> s.loyalty == EmpireAtWar && s.Active);
             var ourShips = new Array<Ship>(EmpireAtWar.OwnedShips);
             var hangarShips = ourShips.Filter(s => s.IsHangarShip);
-            var civilianShips = ourShips.Filter(s => s.DesignRoleType == ShipData.RoleType.Civilian);
+            var civilianShips = ourShips.Filter(s => s.DesignRoleType == RoleType.Civilian);
             var AOs = EmpireAtWar.GetEmpireAI().AreasOfOperations.ToArray();
             var aoShips = EmpireAtWar.AIManagedShips;
             var fleets = EmpireAtWar.GetFleetsDict().Values;
@@ -232,8 +232,8 @@ namespace Ship_Game.Debug.Page
                 foreach (var item in items)
                 {
                     if (item?.isShip != true ||// item.DisplayName.IsEmpty() ||
-                            !(ShipData.ShipRoleToRoleType(item.sData.Role) == ShipData.RoleType.Warship ||
-                            ShipData.ShipRoleToRoleType(item.sData.Role) == ShipData.RoleType.WarSupport)) continue;
+                            !(ShipData.ShipRoleToRoleType(item.sData.Role) == RoleType.Warship ||
+                            ShipData.ShipRoleToRoleType(item.sData.Role) == RoleType.WarSupport)) continue;
                     column.AddLine(item.sData.Name);
                 }
             }
@@ -258,8 +258,8 @@ namespace Ship_Game.Debug.Page
                     foreach (var item in items)
                     {
                         if (!item.isShip ||// item.DisplayName.IsEmpty() ||
-                                !(ShipData.ShipRoleToRoleType(item.sData.Role) == ShipData.RoleType.Warship ||
-                                ShipData.ShipRoleToRoleType(item.sData.Role) == ShipData.RoleType.WarSupport)) continue;
+                                !(ShipData.ShipRoleToRoleType(item.sData.Role) == RoleType.Warship ||
+                                ShipData.ShipRoleToRoleType(item.sData.Role) == RoleType.WarSupport)) continue;
                         column.AddLine(item.Planet.Name);
                     }
                 }

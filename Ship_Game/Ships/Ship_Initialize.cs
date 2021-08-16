@@ -102,7 +102,7 @@ namespace Ship_Game.Ships
             InitializeStatus(fromSave: false);
 
             if (isTemplate && !shipyardDesign && !BaseCanWarp &&
-                DesignRoleType == ShipData.RoleType.Warship && !Name.Contains("STL"))
+                DesignRoleType == RoleType.Warship && !Name.Contains("STL"))
             {
                 Log.Warning($"Ship.BaseCanWarp is false: {this}");
             }
