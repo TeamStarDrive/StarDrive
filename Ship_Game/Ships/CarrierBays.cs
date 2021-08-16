@@ -625,13 +625,13 @@ namespace Ship_Game.Ships
             return readyHangars;
         }
 
-        private static ShipData.HangarOptions GetCategoryFromHangarType(DynamicHangarOptions hangarType)
+        private static HangarOptions GetCategoryFromHangarType(DynamicHangarOptions hangarType)
         {
             switch (hangarType)
             {
-                case DynamicHangarOptions.DynamicInterceptor: return ShipData.HangarOptions.Interceptor;
-                case DynamicHangarOptions.DynamicAntiShip:    return ShipData.HangarOptions.AntiShip;
-                default:                                      return ShipData.HangarOptions.General;
+                case DynamicHangarOptions.DynamicInterceptor: return HangarOptions.Interceptor;
+                case DynamicHangarOptions.DynamicAntiShip:    return HangarOptions.AntiShip;
+                default:                                      return HangarOptions.General;
             }
         }
 
@@ -639,7 +639,7 @@ namespace Ship_Game.Ships
 
         static string GetDynamicShipName(ShipModule hangar, Empire empire)
         {
-            ShipData.HangarOptions desiredShipCategory = GetCategoryFromHangarType(hangar.DynamicHangar);
+            HangarOptions desiredShipCategory = GetCategoryFromHangarType(hangar.DynamicHangar);
             float strongest = 0;
             string bestShip = string.Empty;
             foreach (var role in hangar.HangarRoles)
