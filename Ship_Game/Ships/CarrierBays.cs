@@ -36,7 +36,7 @@ namespace Ship_Game.Ships
                                             (Owner.WeaponsMaxRange.AlmostZero()
                                             || Owner.DesignRole == ShipData.RoleName.carrier
                                             || Owner.DesignRole == ShipData.RoleName.support
-                                            || Owner.DesignRoleType == ShipData.RoleType.Orbital);
+                                            || Owner.DesignRoleType == RoleType.Orbital);
 
         AssaultShipCombat TroopTactics;
 

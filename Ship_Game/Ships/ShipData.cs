@@ -238,16 +238,6 @@ namespace Ship_Game.Ships
             capital, 
             prototype
         }
-        public enum RoleType
-        {
-            Civilian,
-            Orbital,
-            EmpireSupport,
-            Warship,
-            WarSupport,
-            Troop,
-            NotApplicable
-        }
 
         public static RoleType ShipRoleToRoleType(RoleName role)
         {
