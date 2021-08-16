@@ -104,6 +104,8 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipHull_LoadVanilla_TerranShuttle()
         {
+            Log.Write(File.ReadAllText("Content/Hulls/Terran/Shuttle.hull"));
+
             var hull = new ShipHull("Content/Hulls/Terran/Shuttle.hull");
             Assert.AreEqual("Terran/Shuttle", hull.HullName);
             Assert.AreEqual("Shuttle", hull.VisibleName);
@@ -120,6 +122,25 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
+        public void ShipHull_LoadVanilla_TerranGunboat()
+        {
+            Log.Write(File.ReadAllText("Content/Hulls/Terran/Gunboat.hull"));
+
+            var hull = new ShipHull("Content/Hulls/Terran/Gunboat.hull");
+            Assert.AreEqual("Terran/Gunboat", hull.HullName);
+            Assert.AreEqual("Gunboat", hull.VisibleName);
+            Assert.AreEqual("", hull.ModName);
+            Assert.AreEqual("Terran", hull.Style);
+            Assert.AreEqual("ShipIcons/10a", hull.IconPath);
+            Assert.AreEqual("Model/Ships/Terran/Gunboat/Gunboat", hull.ModelPath);
+            Assert.AreEqual(ShipData.RoleName.frigate, hull.Role);
+            Assert.AreEqual(1, hull.Thrusters.Length);
+            Assert.AreEqual(true, hull.Unlockable);
+            Assert.AreEqual(70, hull.HullSlots.Length);
+            Assert.AreEqual(70, hull.SurfaceArea);
+        }
+
+        [TestMethod]
         public void ShipDesign_LoadVanilla_VulcanScout()
         {
             ShipData design = ShipData.Parse("Content/ShipDesigns/Vulcan Scout.design");
@@ -133,23 +154,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(10, design.ModuleSlots.Length);
             Assert.AreEqual(10, design.GridInfo.SurfaceArea);
             Assert.AreEqual(new Point(4,4), design.GridInfo.Size);
-        }
-
-        [TestMethod]
-        public void ShipHull_LoadVanilla_TerranGunboat()
-        {
-            var hull = new ShipHull("Content/Hulls/Terran/Gunboat.hull");
-            Assert.AreEqual("Terran/Gunboat", hull.HullName);
-            Assert.AreEqual("Gunboat", hull.VisibleName);
-            Assert.AreEqual("", hull.ModName);
-            Assert.AreEqual("Terran", hull.Style);
-            Assert.AreEqual("ShipIcons/10a", hull.IconPath);
-            Assert.AreEqual("Model/Ships/Terran/Gunboat/Gunboat", hull.ModelPath);
-            Assert.AreEqual(ShipData.RoleName.frigate, hull.Role);
-            Assert.AreEqual(1, hull.Thrusters.Length);
-            Assert.AreEqual(true, hull.Unlockable);
-            Assert.AreEqual(70, hull.HullSlots.Length);
-            Assert.AreEqual(70, hull.SurfaceArea);
         }
 
         [TestMethod]
