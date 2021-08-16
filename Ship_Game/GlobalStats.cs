@@ -227,8 +227,8 @@ namespace Ship_Game
                 .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
                 as AssemblyInformationalVersionAttribute[])?[0].InformationalVersion ?? "";
 
-            ExtendedVersion       = $"BlackBox : {Version}";
-            ExtendedVersionNoHash = $"BlackBox : {Version.Split(' ')[0]}";
+            ExtendedVersion       = $"Mars : {Version}";
+            ExtendedVersionNoHash = $"Mars : {Version.Split(' ')[0]}";
 
             GetSetting("GravityWellRange"      , ref GravityWellRange);
             GetSetting("StartingPlanetRichness", ref StartingPlanetRichness);
