@@ -599,6 +599,7 @@ namespace Ship_Game
             {
                 design.Save(designFile);
                 ShipSaved = true;
+                Log.Write($"Share it with your friends: {design.Name}\n{design.GetBase64DesignString()}\n");
             }
             catch (Exception e)
             {

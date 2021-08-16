@@ -41,7 +41,7 @@ namespace Ship_Game.Ships
         // The Doctor: intending to use this as a user-toggled
         // flag which tells the AI not to build a design as a stand-alone vessel
         // from a planet; only for use in a hangar
-        public bool CarrierShip;
+        public bool CarrierShip; // aka "Carrier Only"
 
         public RoleName Role = RoleName.fighter;
         public ShipCategory ShipCategory = ShipCategory.Unclassified;
@@ -66,9 +66,9 @@ namespace Ship_Game.Ships
         public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
 
         // BaseHull is the template layout of the ship hull design
-        public ShipHull BaseHull { get; private set; }
+        public ShipHull BaseHull { get; }
         public HullBonus Bonuses { get; }
-        public FileInfo Source { get; private set; }
+        public FileInfo Source { get; }
 
         public bool IsValidForCurrentMod => ModName.IsEmpty() || ModName == GlobalStats.ModName;
 
@@ -120,10 +120,12 @@ namespace Ship_Game.Ships
 
         public DesignSlot[] GetOrLoadDesignSlots()
         {
-            // TODO: implement lazy loading
             if (DesignSlots == null || DesignSlots.Length == 0)
             {
-
+                if (Source != null)
+                {
+                    DesignSlots = LoadDesignSlots(Source, UniqueModuleUIDs);
+                }
             }
             return DesignSlots;
         }
