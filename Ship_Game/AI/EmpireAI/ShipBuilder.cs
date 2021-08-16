@@ -10,7 +10,7 @@ namespace Ship_Game.AI
         public const int ShipYardsLimit = 2; // FB - Maximum of 2 shipyards
 
         public static Ship PickFromCandidates(RoleName role, Empire empire, int maxSize = 0,
-                      ShipData.HangarOptions designation = ShipData.HangarOptions.General)
+                      HangarOptions designation = HangarOptions.General)
         {
             // The AI will pick ships to build based on their Strength and game difficulty level.
             // This allows it to choose the toughest ships to build. This is normalized by ship total slots
@@ -92,12 +92,12 @@ namespace Ship_Game.AI
         }
         
         static Ship PickFromCandidatesByStrength(RoleName role, Empire empire,
-            int maxSize, ShipData.HangarOptions designation)
+            int maxSize, HangarOptions designation)
         {
             Ship[] potentialShips = ShipsWeCanBuild(empire).Filter(
                 ship => ship.DesignRole == role
                 && (maxSize == 0 || ship.SurfaceArea <= maxSize)
-                && (designation == ShipData.HangarOptions.General || designation == ship.shipData.HangarDesignation)
+                && (designation == HangarOptions.General || designation == ship.shipData.HangarDesignation)
             );
 
             if (potentialShips.Length == 0)
