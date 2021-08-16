@@ -628,11 +628,11 @@ namespace Ship_Game
             bool playerDesign = overwriteProtected == null;
             bool readOnlyDesign = overwriteProtected != null;
 
-            Ship newTemplate = ResourceManager.AddShipTemplate(toSave, playerDesign: playerDesign, readOnly: readOnlyDesign);
+            ResourceManager.AddShipTemplate(toSave, playerDesign: playerDesign, readOnly: readOnlyDesign);
             EmpireManager.Player.UpdateShipsWeCanBuild();
-            if (!UnlockAllFactionDesigns && !EmpireManager.Player.WeCanBuildThis(newTemplate.Name))
+            if (!UnlockAllFactionDesigns && !EmpireManager.Player.WeCanBuildThis(toSave.Name))
                 Log.Error("WeCanBuildThis check failed after SaveShipDesign");
-            ChangeHull(newTemplate.shipData);
+            ChangeHull(toSave);
         }
 
         public void SaveHullDesign(string hullName, FileInfo overwriteProtected)

@@ -686,11 +686,7 @@ namespace Ship_Game
             DeleteShipFromDir(appData + "/Saved Designs", shipName);
             DeleteShipFromDir(appData + "/WIP", shipName);
 
-            if (GetShipTemplate(shipName, out Ship template))
-            {
-                template.Deleted = true;
-                ShipsDict.Remove(shipName);
-            }
+            Ships.Delete(shipName);
 
             foreach (Empire e in EmpireManager.Empires)
             {
@@ -1438,58 +1434,34 @@ namespace Ship_Game
                 AddHull(hull);
         }
 
-        // Ship designs, mapped by ship.Name
-        static readonly Map<string, Ship> ShipsDict = new Map<string, Ship>();
+        static readonly ShipsManager Ships = new ShipsManager();
 
-        public static Ship AddShipTemplate(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)
+        public static void AddShipTemplate(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)
         {
-            Ship shipTemplate = Ship.CreateNewShipTemplate(shipDesign);
-            if (shipTemplate == null) // happens if module creation failed
-                return null;
-
-            shipTemplate.IsPlayerDesign   = playerDesign;
-            shipTemplate.IsReadonlyDesign = readOnly;
-
-            lock (ShipsDict)
-            {
-                ShipsDict[shipTemplate.Name] = shipTemplate;
-            }
-            return shipTemplate;
+            Ships.Add(shipDesign, playerDesign, readOnly);
         }
 
         public static Ship GetShipTemplate(string shipName, bool throwIfError = true)
         {
-            if (throwIfError)
-                return ShipsDict[shipName];
-            ShipsDict.TryGetValue(shipName, out Ship ship);
-            return ship;
+            return Ships.Get(shipName, throwIfError);
         }
 
-        public static bool ShipTemplateExists(string shipName)
-        {
-            return ShipsDict.ContainsKey(shipName);
-        }
-
-        public static bool GetShipTemplate(string shipName, out Ship template)
-        {
-            return ShipsDict.TryGetValue(shipName, out template);
-        }
+        public static bool GetShipTemplate(string shipName, out Ship template) => Ships.Get(shipName, out template);
+        public static bool ShipTemplateExists(string shipName) => Ships.Exists(shipName);
 
         public static Map<string, Ship>.ValueCollection GetShipTemplates()
         {
-            return ShipsDict.Values;
+            return Ships.GetShips();
         }
 
-        public static Map<string, Ship>.KeyCollection GetShipTemplateIds()
+        public static HashSet<string> GetShipTemplateIds()
         {
-            return ShipsDict.Keys;
+            return Ships.GetShipNames();
         }
 
         static void UnloadShipTemplates()
         {
-            foreach (var s in ShipsDict)
-                s.Value.Dispose();
-            ShipsDict.Clear();
+            Ships.Clear();
         }
 
         // Refactored by RedFox

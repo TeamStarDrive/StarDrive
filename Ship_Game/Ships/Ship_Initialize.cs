@@ -429,9 +429,7 @@ namespace Ship_Game.Ships
             if (shipData.Role == RoleName.platform)
                 IsPlatform = true;
 
-            if (ResourceManager.GetShipTemplate(Name, out Ship template))
-                IsPlayerDesign = template.IsPlayerDesign;
-            else
+            if (!ResourceManager.ShipTemplateExists(Name))
                 FromSave = true; // this is a design which is only available from the savegame
 
             // Begin: ShipSubClass Initialization. Put all ship sub class initializations here
