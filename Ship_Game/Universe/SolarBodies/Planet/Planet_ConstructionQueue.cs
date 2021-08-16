@@ -131,7 +131,7 @@ namespace Ship_Game
         // @return Total numbers before ship will be finished if
         // inserted to the end of the queue.
         // if sData is null, then we want a troop
-        public int TurnsUntilQueueComplete(float cost, float priority, ShipData sData = null)
+        public int TurnsUntilQueueComplete(float cost, float priority, ShipDesign sData = null)
         {
             bool forTroop = sData == null;
             if (forTroop && !HasSpacePort

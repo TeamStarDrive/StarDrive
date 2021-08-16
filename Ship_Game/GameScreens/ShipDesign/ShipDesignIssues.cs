@@ -11,14 +11,14 @@ namespace Ship_Game.GameScreens.ShipDesign
 {
     public class ShipDesignIssues
     {
-        public readonly ShipData Hull;
+        public readonly Ships.ShipDesign Hull;
         public readonly RoleName Role;
         public Array<DesignIssueDetails> CurrentDesignIssues { get; } = new Array<DesignIssueDetails>();
         public WarningLevel CurrentWarningLevel { get; private set; }
         private readonly Empire Player;
         private EmpireShipDesignStats EmpireStats;
 
-        public ShipDesignIssues(ShipData hull)
+        public ShipDesignIssues(Ships.ShipDesign hull)
         {
             Hull   = hull;
             Role   = hull.Role;

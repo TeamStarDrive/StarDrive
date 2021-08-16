@@ -76,7 +76,7 @@ namespace Ship_Game.Ships
         public float MechanicalBoardingDefense;
         public float TroopBoardingDefense;
         public float ECMValue;
-        public ShipData shipData;
+        public ShipDesign shipData;
         public int kills;
         public float experience;
         public bool EnginesKnockedOut;
@@ -399,8 +399,8 @@ namespace Ship_Game.Ships
         }
 
         public RoleName DesignRole { get; private set; }
-        public RoleType DesignRoleType => ShipData.ShipRoleToRoleType(DesignRole);
-        public string DesignRoleName            => ShipData.GetRole(DesignRole);
+        public RoleType DesignRoleType => ShipDesign.ShipRoleToRoleType(DesignRole);
+        public string DesignRoleName            => ShipDesign.GetRole(DesignRole);
 
         public (SubTexture primaryIcon, SubTexture secondaryIcon, Color statusColor) TacticalIconWithStatusColor()
         {

@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
-using Newtonsoft.Json;
 using Ship_Game.Data;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Serialization.Types;
@@ -14,6 +12,14 @@ using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Ships
 {
+    /// <summary>
+    /// This describes an unique StarShip Hull. Ship Designs are built upon
+    /// the slots described by this Hull definition
+    ///
+    /// It also describes visual aspects of the StarShip, such as the Mesh and its visual offset
+    ///
+    /// This class is Serialized/Deserialized using a custom text-based format
+    /// </summary>
     public class ShipHull
     {
         // Current version of ShipData files
@@ -266,7 +272,7 @@ namespace Ship_Game.Ships
 
         public void Save(FileInfo file)
         {
-            var sw = new ShipDataWriter();
+            var sw = new ShipDesignWriter();
             sw.Write("Version", Version);
             sw.Write("HullName", HullName);
             sw.Write("VisibleName", VisibleName);

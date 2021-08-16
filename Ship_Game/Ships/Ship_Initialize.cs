@@ -42,7 +42,7 @@ namespace Ship_Game.Ships
         // Create a ship from a savegame or a template or in shipyard
         // You can also call Ship.CreateShip... functions to spawn ships
         // @param shipyardDesign This is a potentially incomplete design from Shipyard
-        protected Ship(Empire empire, ShipData data, SavedGame.ShipSaveData save, ModuleSaveData[] savedModules) : base(GameObjectType.Ship)
+        protected Ship(Empire empire, ShipDesign data, SavedGame.ShipSaveData save, ModuleSaveData[] savedModules) : base(GameObjectType.Ship)
         {
             Position   = new Vector2(200f, 200f);
             Name       = save.Name;
@@ -71,7 +71,7 @@ namespace Ship_Game.Ships
         // Create a ship as a template in shipyard or from a save
         // You can also call Ship.CreateShip... functions to spawn ships
         // @param shipyardDesign This is a potentially incomplete design from Shipyard
-        protected Ship(Empire empire, ShipData data, bool isTemplate, bool shipyardDesign = false)
+        protected Ship(Empire empire, ShipDesign data, bool isTemplate, bool shipyardDesign = false)
             : base(GameObjectType.Ship)
         {
             if (!data.IsValidForCurrentMod)
@@ -245,7 +245,7 @@ namespace Ship_Game.Ships
                 Level += loyalty.DifficultyModifiers.ShipLevel;
         }
 
-        void InitializeThrusters(ShipData data)
+        void InitializeThrusters(ShipDesign data)
         {
             ThrusterList = data.BaseHull.Thrusters.Select(t => new Thruster(this, t.Scale, t.Position));
 
@@ -269,7 +269,7 @@ namespace Ship_Game.Ships
             ThrusterList = Empty<Thruster>.Array;
         }
         
-        public static Ship CreateNewShipTemplate(ShipData data)
+        public static Ship CreateNewShipTemplate(ShipDesign data)
         {
             var ship = new Ship(EmpireManager.Void, data, isTemplate:true);
             return ship.HasModules ? ship : null;
@@ -280,7 +280,7 @@ namespace Ship_Game.Ships
             ModuleSaveData[] savedModules;
             try
             {
-                savedModules = ShipData.GetModuleSaveFromBase64String(save.ModulesBase64);
+                savedModules = ShipDesign.GetModuleSaveFromBase64String(save.ModulesBase64);
             }
             catch (Exception e)
             {
@@ -288,14 +288,14 @@ namespace Ship_Game.Ships
                 return null;
             }
 
-            ShipData data;
+            ShipDesign data;
             if (ResourceManager.GetShipTemplate(save.Name, out Ship template))
             {
                 // savedModules are equal to existing ship template? then use that
                 if (template.shipData.AreModulesEqual(savedModules))
                     data = template.shipData;
                 else
-                    data = ShipData.FromSave(savedModules, template.shipData);
+                    data = ShipDesign.FromSave(savedModules, template.shipData);
             }
             else
             {
@@ -306,7 +306,7 @@ namespace Ship_Game.Ships
                 }
                 
                 // this ShipData doesn't exist in the game designs, it comes from the savegame only
-                data = ShipData.FromSave(savedModules, save, hull);
+                data = ShipDesign.FromSave(savedModules, save, hull);
                 ResourceManager.AddShipTemplate(data, playerDesign: true);
             }
 

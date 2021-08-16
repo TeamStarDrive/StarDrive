@@ -26,7 +26,7 @@ namespace Ship_Game.Ships.Legacy
         /// <param name="file"></param>
         public void SaveDesign(FileInfo file)
         {
-            var sw = new ShipDataWriter();
+            var sw = new ShipDesignWriter();
             sw.Write("Version", 1);
             sw.Write("Name", Name);
             sw.Write("Hull", Hull);

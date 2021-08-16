@@ -122,7 +122,7 @@ namespace UnitTests.AITests.Empire
             while (ResourceManager.ShipTemplateExists(newName));
 
             Ship existingTemplate = ResourceManager.GetShipTemplate(baseDesign);
-            ShipData newData = existingTemplate.shipData.GetClone();
+            ShipDesign newData = existingTemplate.shipData.GetClone();
             newData.Name = newName;
             ResourceManager.AddShipTemplate(newData, playerDesign:playerDesign);
             empire.UpdateShipsWeCanBuild();
