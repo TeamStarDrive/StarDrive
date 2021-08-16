@@ -46,7 +46,7 @@ namespace Ship_Game
                 ShipName = template.Name;
                 Design = template.shipData;
                 CanBuild = canBuild;
-                CanModifyDesign = template.IsPlayerDesign;
+                CanModifyDesign = Design.IsPlayerDesign;
             }
             public ShipDesignListItem(ShipHull hull)
             {
@@ -115,7 +115,7 @@ namespace Ship_Game
             else
             {
                 Ship[] shipList = ResourceManager.GetShipTemplates()
-                    .Filter(s => !s.Deleted && s.Name.ToLower().Contains(filter));
+                    .Filter(s => !s.shipData.Deleted && s.Name.ToLower().Contains(filter));
 
                 ShipDesigns.SetItems(shipList.Select(s => 
                     new ShipDesignListItem(s, EmpireManager.Player.ShipsWeCanBuild.Contains(s.Name))));
@@ -222,7 +222,7 @@ namespace Ship_Game
                 Ship ship = ResourceManager.GetShipTemplates().FirstOrDefault(s => s.Name == shipOrHullName);
                 exists = ship != null;
                 source = ship?.shipData.Source;
-                reserved = ship?.IsReadonlyDesign == true;
+                reserved = ship?.shipData.IsReadonlyDesign == true;
 
                 if (reserved && !Screen.EnableDebugFeatures)
                 {
