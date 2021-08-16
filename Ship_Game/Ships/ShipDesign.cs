@@ -70,6 +70,10 @@ namespace Ship_Game.Ships
         public HullBonus Bonuses { get; }
         public FileInfo Source { get; }
 
+        public bool IsPlayerDesign;
+        public bool IsReadonlyDesign;
+        public bool Deleted;
+
         public bool IsValidForCurrentMod => ModName.IsEmpty() || ModName == GlobalStats.ModName;
 
         // You should always use this `Icon` property, because of bugs with `IconPath` initialization

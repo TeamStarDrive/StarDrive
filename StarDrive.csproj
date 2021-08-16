@@ -304,6 +304,7 @@
     <Compile Include="Ship_Game\Ships\ShipCategory.cs" />
     <Compile Include="Ship_Game\Ships\ShipDesignWriter.cs" />
     <Compile Include="Ship_Game\Ships\ShipHull.cs" />
+    <Compile Include="Ship_Game\Ships\ShipsManager.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Events.cs" />
     <Compile Include="Ship_Game\Ships\Ship_PowerCalc.cs" />
     <Compile Include="Ship_Game\UI\RelPos.cs" />

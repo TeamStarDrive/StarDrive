@@ -60,9 +60,7 @@ namespace Ship_Game.Ships
         public bool shipStatusChanged;
         public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
-        public bool IsPlayerDesign;
         public bool IsSupplyShip;
-        public bool IsReadonlyDesign;
         public bool isColonyShip;
         public bool HasRegeneratingModules;
         public bool IsMeteor { get; private set; }
@@ -130,7 +128,6 @@ namespace Ship_Game.Ships
         public float ShieldRechargeTimer;
         public bool InCombat;
         public float xRotation;
-        public bool Deleted;
         public float BonusEMP_Protection;
         public bool InSensorRange => KnownByEmpires.KnownByPlayer;
         public KnownByEmpire KnownByEmpires;
@@ -240,10 +237,10 @@ namespace Ship_Game.Ships
         }
 
         public bool CanBeAddedToBuildableShips(Empire empire) => DesignRole != RoleName.prototype && DesignRole != RoleName.disabled
-                                               && !ResourceManager.ShipRoles[shipData.Role].Protected && !Deleted
+                                               && !ResourceManager.ShipRoles[shipData.Role].Protected && !shipData.Deleted
                                                && DesignRole != RoleName.supply
                                                && (empire.isPlayer || ShipGoodToBuild(empire))
-                                               && (!IsPlayerDesign || GlobalStats.UsePlayerDesigns || empire.isPlayer);
+                                               && (!shipData.IsPlayerDesign || GlobalStats.UsePlayerDesigns || empire.isPlayer);
 
         public void SetCombatStance(CombatState stance)
         {
@@ -1945,9 +1942,9 @@ namespace Ship_Game.Ships
             get
             {
                 ShipRole role = shipData.ShipRole;
-                return  !shipData.CarrierShip && !Deleted
+                return  !shipData.CarrierShip && !shipData.Deleted
                     && !role.Protected && !role.NoBuild
-                    && (GlobalStats.ShowAllDesigns || IsPlayerDesign);
+                    && (GlobalStats.ShowAllDesigns || shipData.IsPlayerDesign);
             }
         }
 
