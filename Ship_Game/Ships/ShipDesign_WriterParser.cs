@@ -56,12 +56,12 @@ namespace Ship_Game.Ships
             sw.Write("ShipCategory", ShipCategory);
             sw.Write("EventOnDeath", EventOnDeath); // "DefeatedMothership" remnant event
 
-            ushort[] slotModuleUIDAndIndex = CreateModuleIndexMapping(ModuleSlots, out Array<string> moduleUIDs);
+            ushort[] slotModuleUIDAndIndex = CreateModuleIndexMapping(DesignSlots, out Array<string> moduleUIDs);
 
             var moduleLines = new Array<string>();
-            for (int i = 0; i < ModuleSlots.Length; ++i)
+            for (int i = 0; i < DesignSlots.Length; ++i)
             {
-                string slotString = DesignSlotString(ModuleSlots[i], slotModuleUIDAndIndex[i]);
+                string slotString = DesignSlotString(DesignSlots[i], slotModuleUIDAndIndex[i]);
                 moduleLines.Add(slotString);
             }
 
@@ -226,7 +226,8 @@ namespace Ship_Game.Ships
             //}
 
             GridInfo.SurfaceArea = hull.SurfaceArea;
-            ModuleSlots = modules;
+            DesignSlots = modules;
+            UniqueModuleUIDs = moduleUIDs;
         }
 
         public static DesignSlot ParseDesignSlot(StringView line, string[] moduleUIDs)
@@ -297,7 +298,7 @@ namespace Ship_Game.Ships
             return Convert.ToBase64String(ascii, Base64FormattingOptions.None);
         }
 
-        public static ModuleSaveData[] GetModuleSaveFromBase64String(string base64string)
+        public static (ModuleSaveData[] modules, string[] moduleUIDs) GetModuleSaveFromBase64String(string base64string)
         {
             byte[] bytes = Convert.FromBase64String(base64string);
             //Log.Info(Encoding.ASCII.GetString(bytes));
@@ -332,7 +333,7 @@ namespace Ship_Game.Ships
                 modules[i] = msd;
             }
 
-            return modules;
+            return (modules, moduleUIDs);
         }
     }
 }

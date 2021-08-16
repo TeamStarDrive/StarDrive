@@ -566,7 +566,7 @@ namespace Ship_Game
         }
 
         // Create full modules list for SAVING the design
-        DesignSlot[] CreateModuleSlots()
+        DesignSlot[] CreateDesignSlots()
         {
             var placed = new Array<DesignSlot>();
             ShipModule[] modules = ModuleGrid.CopyModulesList();
@@ -579,10 +579,10 @@ namespace Ship_Game
 
         ShipDesign CloneCurrentDesign(string newName)
         {
-            ShipDesign hull = CurrentDesign.GetClone();
-            hull.Name = newName;
-            hull.ModuleSlots = CreateModuleSlots();
-            return hull;
+            ShipDesign design = CurrentDesign.GetClone();
+            design.Name = newName;
+            design.SetDesignSlots(CreateDesignSlots());
+            return design;
         }
 
         ShipHull CloneCurrentHull(string newName)
