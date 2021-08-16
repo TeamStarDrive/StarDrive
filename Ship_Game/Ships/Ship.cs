@@ -176,14 +176,14 @@ namespace Ship_Game.Ships
         public bool IsBomber                => DesignRole == ShipData.RoleName.bomber;
         public bool IsSubspaceProjector     => Name == "Subspace Projector";
         public bool HasBombs                => BombBays.Count > 0;
-        public bool IsEmpireSupport         => DesignRoleType == ShipData.RoleType.EmpireSupport;
+        public bool IsEmpireSupport         => DesignRoleType == RoleType.EmpireSupport;
         public bool Resupplying             => AI.State == AIState.Resupply || AI.State == AIState.ResupplyEscort;
                 
         /// <summary>
         /// Ship is expected to exchange fire with enemy ships directly not through hangar ships and other such things.
         /// </summary>
-        public bool IsAWarShip => DesignRoleType == ShipData.RoleType.Warship;
-        public bool IsOrbital  => DesignRoleType == ShipData.RoleType.Orbital;
+        public bool IsAWarShip => DesignRoleType == RoleType.Warship;
+        public bool IsOrbital  => DesignRoleType == RoleType.Orbital;
         public bool IsInAFleet => fleet != null;
 
         /// <summary>
@@ -234,8 +234,8 @@ namespace Ship_Game.Ships
         /// </summary>
         public bool IsFleetSupportShip()
         {
-            return DesignRoleType == ShipData.RoleType.WarSupport ||
-                   DesignRoleType == ShipData.RoleType.Troop ||
+            return DesignRoleType == RoleType.WarSupport ||
+                   DesignRoleType == RoleType.Troop ||
                        DesignRole == ShipData.RoleName.carrier;
         }
 
@@ -399,7 +399,7 @@ namespace Ship_Game.Ships
         }
 
         public ShipData.RoleName DesignRole { get; private set; }
-        public ShipData.RoleType DesignRoleType => ShipData.ShipRoleToRoleType(DesignRole);
+        public RoleType DesignRoleType => ShipData.ShipRoleToRoleType(DesignRole);
         public string DesignRoleName            => ShipData.GetRole(DesignRole);
 
         public (SubTexture primaryIcon, SubTexture secondaryIcon, Color statusColor) TacticalIconWithStatusColor()
