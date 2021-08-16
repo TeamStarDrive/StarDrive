@@ -71,13 +71,14 @@ namespace Ship_Game.Ships
             for (int i = 0; i < modules.Length; i++)
             {
                 ShipModule module = modules[i];
-                // active internal slots
-                if (module.HasInternalRestrictions && module.Active)
+                bool active = module.Active;
+                if (active && module.HasInternalRestrictions) // active internal slots
                     activeInternalSlots += module.XSIZE * module.YSIZE;
 
-                S.RepairRate += module.Active ? module.ActualBonusRepairRate : module.ActualBonusRepairRate / 10; // FB - so destroyed modules with repair wont have full repair rate
+                // FB - so destroyed modules with repair wont have full repair rate
+                S.RepairRate += active ? module.ActualBonusRepairRate : module.ActualBonusRepairRate / 10;
 
-                if (module.Active && (module.Powered || module.PowerDraw <= 0f))
+                if (active && (module.Powered || module.PowerDraw <= 0f))
                 {
                     S.hasCommand |= module.IsCommandModule;
                     S.OrdinanceMax        += module.OrdinanceCapacity;

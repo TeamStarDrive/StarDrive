@@ -1,0 +1,49 @@
+﻿Version=1
+Name=Attack Soldier II
+Hull=Opteris/Soldier
+Role=frigate
+Style=Opteris
+Size=10,17
+GridCenter=5,9
+DefaultCombatState=Artillery
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=SteelArmorSmall;MRLS;OrdnanceLockerSmall;NuclearBombBay2x2;Shield_1KW;Cockpit;NuclearReactorSmall;WarpEngine_2x2;Reinforced Bulkhead;NuclearReactorMed;Engine;FrigateEngine
+Modules=37
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,8;0
+1,7;0
+2,4;0
+2,5;1;2,2;270
+2,7;1;2,2;189
+2,9;2
+2,10;3;2,2
+2,12;4;2,2
+3,1;1;2,2;332
+3,3;0
+3,4;5
+3,9;6
+3,14;7;2,2
+4,0;0
+4,3;6
+4,4;4;2,2
+4,6;8;2,2
+4,8;9;2,2
+4,10;9;2,2
+4,12;9;2,2
+4,16;10
+5,0;0
+5,1;1;2,2;20
+5,3;6
+5,14;11;2,2
+5,16;10
+6,3;0
+6,4;6
+6,5;1;2,2;98
+6,7;1;2,2;154
+6,9;6
+6,10;3;2,2
+6,12;4;2,2
+7,4;0
+7,9;2
+8,7;0
+9,8;0

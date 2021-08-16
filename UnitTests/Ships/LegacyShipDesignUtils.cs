@@ -56,33 +56,33 @@ namespace UnitTests.Ships
 
         static void MarkDefaultUnlockable(Map<Technology, Array<string>> shipTechs)
         {
-            foreach (ShipData hull in ResourceManager.Hulls)
+            foreach (ShipHull hull in ResourceManager.Hulls)
             {
                 if (hull.Role == ShipData.RoleName.disabled)
                     continue;
 
-                hull.UnLockable = false;
+                hull.Unlockable = false;
                 foreach (Technology tech in shipTechs.Keys)
                 {
                     if (tech.HullsUnlocked.Count == 0) continue;
                     foreach (Technology.UnlockedHull hulls in tech.HullsUnlocked)
                     {
-                        if (hulls.Name == hull.Hull)
+                        if (hulls.Name == hull.HullName)
                         {
                             foreach (string tree in shipTechs[tech])
                             {
                                 hull.TechsNeeded.Add(tree);
-                                hull.UnLockable = true;
+                                hull.Unlockable = true;
                             }
                             break;
                         }
                     }
-                    if (hull.UnLockable)
+                    if (hull.Unlockable)
                         break;
                 }
 
                 if (hull.Role < ShipData.RoleName.fighter || hull.TechsNeeded.Count == 0)
-                    hull.UnLockable = true;
+                    hull.Unlockable = true;
             }
         }
 
@@ -98,36 +98,30 @@ namespace UnitTests.Ships
                 ShipData shipData = ship.shipData;
                 if (shipData == null)
                     continue;
-                shipData.UnLockable = false;
+                shipData.Unlockable = false;
                 if (shipData.HullRole == ShipData.RoleName.disabled)
                     continue;
 
-                if (shipData.BaseHull.UnLockable)
+                bool hullUnlockable = false;
+                bool allModulesUnlockable = false;
+                if (shipData.BaseHull.Unlockable)
                 {
                     foreach (string str in shipData.BaseHull.TechsNeeded)
                         shipData.TechsNeeded.Add(str);
-                    shipData.HullUnlockable = true;
-                }
-                else
-                {
-                    shipData.AllModulesUnlockable = false;
-                    shipData.HullUnlockable = false;
-                    //Log.WarningVerbose($"Unlockable hull : '{shipData.Hull}' in ship : '{kv.Key}'");
+                    hullUnlockable = true;
                 }
 
-                if (shipData.HullUnlockable)
+                if (hullUnlockable)
                 {
-                    shipData.AllModulesUnlockable = true;
-                    foreach (ModuleSlotData module in ship.shipData.ModuleSlots)
+                    allModulesUnlockable = true;
+                    foreach (DesignSlot slot in ship.shipData.ModuleSlots)
                     {
-                        if (module.IsDummy)
-                            continue;
                         bool modUnlockable = false;
                         foreach (Technology technology in shipTechs.Keys)
                         {
                             foreach (Technology.UnlockedMod mods in technology.ModulesUnlocked)
                             {
-                                if (mods.ModuleUID != module.ModuleUID) continue;
+                                if (mods.ModuleUID != slot.ModuleUID) continue;
                                 modUnlockable = true;
                                 shipData.TechsNeeded.Add(technology.UID);
                                 foreach (string tree in shipTechs[technology])
@@ -141,17 +135,15 @@ namespace UnitTests.Ships
 
                         if (modUnlockable) continue;
 
-                        shipData.AllModulesUnlockable = false;
+                        allModulesUnlockable = false;
                         //Log.WarningVerbose($"Unlockable module : '{module.InstalledModuleUID}' in ship : '{kv.Key}'");
                         break;
                     }
                 }
 
-                if (shipData.AllModulesUnlockable)
+                if (allModulesUnlockable)
                 {
-                    shipData.UnLockable = true;
-                    if (shipData.BaseStrength <= 0f)
-                        shipData.BaseStrength = ship.CalculateShipStrength();
+                    shipData.Unlockable = true;
 
                     // REMOVED from new version, so not needed here either
                     //shipData.TechScore = 0;
@@ -163,9 +155,8 @@ namespace UnitTests.Ships
                 }
                 else
                 {
-                    shipData.UnLockable = false;
+                    shipData.Unlockable = false;
                     shipData.TechsNeeded.Clear();
-                    shipData.BaseStrength = 0;
                 }
             }
         }

@@ -19,13 +19,13 @@ namespace Ship_Game.AI.CombatTactics.UI
             if (ships.IsEmpty)
                 Reset(new CombatState[0]);
             else
-                Reset(ships.Select(s => s.shipData.CombatState));
+                Reset(ships.Select(s => s.shipData.DefaultCombatState));
         }
 
         protected override void ApplyStance(CombatState stance)
         {
             foreach (var ship in SelectedShips)
-                ship.shipData.CombatState = stance;
+                ship.shipData.DefaultCombatState = stance;
         }
 
         protected override void OnOrderButtonHovered(OrdersToggleButton b) { }

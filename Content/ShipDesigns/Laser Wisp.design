@@ -1,0 +1,23 @@
+﻿Version=1
+Name=Laser Wisp
+Hull=Draylok/Wisp
+Role=fighter
+Style=Draylok
+Size=6,2
+GridCenter=3,1
+DefaultAIState=AwaitingOrders
+DefaultCombatState=AttackRuns
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=LaserCannon;BasicFuelCell;NuclearReactorSmall;Cockpit;Engine
+Modules=10
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,1;0
+1,0;1
+1,1;2
+2,0;3
+2,1;4
+3,0;1
+3,1;4
+4,0;0
+4,1;2
+5,1;0

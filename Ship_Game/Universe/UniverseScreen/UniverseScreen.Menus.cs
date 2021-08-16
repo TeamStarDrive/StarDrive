@@ -35,7 +35,7 @@ namespace Ship_Game
             workersPanel = new CombatScreen(this, SelectedPlanet);
             LookingAtPlanet = true;
             transitionStartPosition = CamPos;
-            CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f, 2500f);
+            CamDestination = new Vector3d(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f, 2500.0);
 
             AdjustCamTimer = 2f;
             transitionElapsedTime = 0.0f;

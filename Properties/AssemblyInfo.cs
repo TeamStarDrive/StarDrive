@@ -4,15 +4,15 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyCompany("Zero Sum Games")]
-[assembly: AssemblyCopyright("Copyright © Zero Sum Games 2012")]
+[assembly: AssemblyCopyright("Copyright © Zero Sum Games 2021")]
 [assembly: AssemblyDescription("")]
-[assembly: AssemblyProduct("StarDrive")]
+[assembly: AssemblyProduct("StarDrive BlackBox")]
 
 #if !STEAM
-[assembly: AssemblyTitle("StarDrive")] 
+[assembly: AssemblyTitle("StarDrive BlackBox")] 
 #endif
 #if STEAM
-[assembly: AssemblyTitle("StarDrive")]
+[assembly: AssemblyTitle("StarDrive BlackBox")]
 #endif
 
 
@@ -26,4 +26,4 @@ using System.Runtime.InteropServices;
 [assembly: Guid("b38aad3b-18b8-41a8-b758-0e5614dafc49")]
 [assembly: RuntimeCompatibility(WrapNonExceptionThrows=true)]
 
-[assembly: AssemblyInformationalVersion("1.20.12000 develop-latest")]
+[assembly: AssemblyInformationalVersion("1.30.13000 develop-latest")]

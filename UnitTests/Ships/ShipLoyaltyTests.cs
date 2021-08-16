@@ -88,7 +88,6 @@ namespace UnitTests.Ships
         [TestMethod]
         public void VerifyProperShipAdd()
         {
-            var voidEmpire  = EmpireManager.Void;
             var spawnedShip = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
             Universe.Objects.UpdateLists(true);
             Assert.AreEqual(Player.OwnedShips.Count, 1, " Critical error in ship add. BUG");
@@ -99,7 +98,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(Player.OwnedShips.Count, 1, "Critical Error. Designs cant be added to empires");
             
             spawnedShip.shipData = spawnedShip.shipData.GetClone();
-            spawnedShip.shipData.ModuleSlots =  new ModuleSlotData[0];
+            spawnedShip.shipData.ModuleSlots = new DesignSlot[0];
             ship = new DesignShip(spawnedShip.shipData);
             Universe.Objects.UpdateLists(true);
             Assert.AreEqual(Player.OwnedShips.Count, 1, "Critical Error. Ships with no modules can not be added to the empire");

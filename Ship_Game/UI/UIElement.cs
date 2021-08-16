@@ -67,10 +67,5 @@ namespace Ship_Game
             TransitionPosition = TransitionPosition.Clamped(0f, 1f);
             return false;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawCircle(Vector2 center, float radius, Color color, float thickness = 1.0f)
-            => ScreenManager.SpriteBatch.DrawCircle(center, radius, color, thickness);
-
     }
 }

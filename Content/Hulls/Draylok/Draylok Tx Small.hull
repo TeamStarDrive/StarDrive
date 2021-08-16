@@ -1,0 +1,20 @@
+﻿Version=1
+HullName=Draylok/Draylok Tx Small
+VisibleName=Draylok Tx Small
+Role=freighter
+Style=Draylok
+Size=4,8
+MeshOffset=0,0
+IconPath=ShipIcons/DraylokTxSmall
+ModelPath=Model/Ships/Draylok/Ship18g
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=255,296,0,42
+Slots
+___|I  |I  |___
+I  |I  |I  |I  
+I  |I  |I  |I  
+I  |I  |I  |I  
+I  |I  |IC |I  
+I  |I  |I  |I  
+I  |E  |E  |I  
+___|E  |E  |___

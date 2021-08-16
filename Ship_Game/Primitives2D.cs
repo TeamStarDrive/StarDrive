@@ -27,12 +27,12 @@ namespace Ship_Game
         }
 
         // This is the [ ] selection rectangle you see when selecting planets and ships
-        public static void BracketRectangle(this SpriteBatch batch, Vector2 pos, float radius, Color color)
+        public static void BracketRectangle(this SpriteBatch batch, Vector2d pos, double radius, Color color)
         {
-            Vector2 tl = pos + new Vector2(-(radius + 3f), -(radius + 3f));
-            Vector2 bl = pos + new Vector2(-(radius + 3f), radius);
-            Vector2 tr = pos + new Vector2(radius, -(radius + 3f));
-            Vector2 br = pos + new Vector2(radius, radius);
+            Vector2d tl = pos + new Vector2d(-(radius + 3f), -(radius + 3f));
+            Vector2d bl = pos + new Vector2d(-(radius + 3f), radius);
+            Vector2d tr = pos + new Vector2d(radius, -(radius + 3f));
+            Vector2d br = pos + new Vector2d(radius, radius);
             batch.Draw(ResourceManager.Texture("UI/bracket_TR"), tr, color);
             batch.Draw(ResourceManager.Texture("UI/bracket_TL"), tl, color);
             batch.Draw(ResourceManager.Texture("UI/bracket_BR"), br, color);
@@ -45,7 +45,19 @@ namespace Ship_Game
                 && Min(a.Y, b.Y) < GlobalStats.YRES && 0 < Max(a.Y, b.Y);
         }
 
+        public static bool IsIntersectingScreen(in Vector2d a, in Vector2d b)
+        {
+            return Min(a.X, b.X) < GlobalStats.XRES && 0 < Max(a.X, b.X)
+                && Min(a.Y, b.Y) < GlobalStats.YRES && 0 < Max(a.Y, b.Y);
+        }
+
         public static bool IsIntersectingScreen(in Vector2 pos, float radius)
+        {
+            return (pos.X-radius) < GlobalStats.XRES && 0 < (pos.X+radius)
+                && (pos.Y-radius) < GlobalStats.YRES && 0 < (pos.Y+radius);
+        }
+
+        public static bool IsIntersectingScreen(in Vector2d pos, double radius)
         {
             return (pos.X-radius) < GlobalStats.XRES && 0 < (pos.X+radius)
                 && (pos.Y-radius) < GlobalStats.YRES && 0 < (pos.Y+radius);
@@ -61,7 +73,13 @@ namespace Ship_Game
         {
             double logarithmicReduction = Max(1.0, Log10(radius));
             int sides = (int)(radius / logarithmicReduction);
+            batch.DrawCircle(posOnScreen, radius, sides, color, thickness);
+        }
 
+        public static void DrawCircle(this SpriteBatch batch, Vector2d posOnScreen, double radius, Color color, float thickness = 1f)
+        {
+            double logarithmicReduction = Max(1.0, Log10(radius));
+            int sides = (int)(radius / logarithmicReduction);
             batch.DrawCircle(posOnScreen, radius, sides, color, thickness);
         }
 
@@ -90,6 +108,28 @@ namespace Ship_Game
             DrawLine(batch, previous, start, color, thickness); // connect back to start
         }
 
+        public static void DrawCircle(this SpriteBatch batch, Vector2d posOnScreen, double radius, int sides, Color color, float thickness = 1f)
+        {
+            // intersection tests will eliminate up to 95% of all lines, leading to much faster performance
+            if (!IsIntersectingScreen(posOnScreen, radius))
+                return; // nothing to do here!
+
+            sides = sides.Clamped(3, 256);
+            double step = 6.28318530717959 / sides;
+
+            var start = new Vector2d(posOnScreen.X + radius, posOnScreen.Y); // 0 angle is horizontal right
+            Vector2d previous = start;
+
+            for (double theta = step; theta < 6.28318530717959; theta += step)
+            {
+                var current = new Vector2d(posOnScreen.X + radius * RadMath.Cos(theta), 
+                                           posOnScreen.Y + radius * RadMath.Sin(theta));
+                DrawLine(batch, previous, current, color, thickness);
+                previous = current;
+            }
+            DrawLine(batch, previous, start, color, thickness); // connect back to start
+        }
+
         public static void DrawCapsule(this SpriteBatch batch, in Capsule capsuleOnScreen,
                                        Color color, float thickness = 1f)
         {
@@ -104,10 +144,6 @@ namespace Ship_Game
             DrawCircle(batch, end, radius, color, thickness);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DrawCircle(this SpriteBatch batch, float x, float y, float radius, Color color, float thickness = 1f)
-            => batch.DrawCircle(new Vector2(x, y), radius, color, thickness);
-
         public static void DrawLine(this SpriteBatch batch, in Vector2 point1, in Vector2 point2, Color color, float thickness = 1f)
         {
             // intersection tests will eliminate up to 95% of all lines, leading to much faster rendering performance
@@ -116,16 +152,38 @@ namespace Ship_Game
 
             float distance = point1.Distance(point2);
             float angle = (float)Atan2(point2.Y - point1.Y, point2.X - point1.X);
-            DrawLine(batch, point1, distance, angle, color, thickness);
-        }
 
-        static void DrawLine(this SpriteBatch batch, Vector2 point, float length, float angle, Color color, float thickness)
-        {
             // some hack here - the 1px texture is rotated and scaled to proper width/height
-            var scale = new Vector2(length, thickness);
+            var scale = new Vector2(distance, thickness);
             if (ResourceManager.WhitePixel == null)
                 throw new InvalidOperationException("DrawLine: WhitePixel graphics resource not loaded");
-            batch.Draw(ResourceManager.WhitePixel, point, null, color, angle, Vector2.Zero, scale, SpriteEffects.None, 0f);
+            batch.Draw(ResourceManager.WhitePixel, point1, null, color, angle, Vector2.Zero, scale, SpriteEffects.None, 0f);
+        }
+
+        public static void DrawLine(this SpriteBatch batch, in Vector2d point1, in Vector2d point2, Color color, float thickness = 1f)
+        {
+            // intersection tests will eliminate up to 95% of all lines, leading to much faster rendering performance
+            if (!IsIntersectingScreen(point1, point2))
+                return;
+
+            float distance = (float)point1.Distance(point2);
+            float angle = (float)Atan2(point2.Y - point1.Y, point2.X - point1.X);
+
+            // some hack here - the 1px texture is rotated and scaled to proper width/height
+            var scale = new Vector2(distance, thickness);
+            if (ResourceManager.WhitePixel == null)
+                throw new InvalidOperationException("DrawLine: WhitePixel graphics resource not loaded");
+            batch.Draw(ResourceManager.WhitePixel, new Vector2((float)point1.X, (float)point1.Y), null, 
+                      color, angle, Vector2.Zero, scale, SpriteEffects.None, 0f);
+        }
+
+        public static void DrawCrossHair(this SpriteBatch batch, in Vector2d center, double size, Color color, float thickness = 1f)
+        {
+            double radius = size*0.5;
+            var v = new Vector2d(0.0, radius);
+            var h = new Vector2d(radius, 0.0);
+            DrawLine(batch, center - v, center + v, color, thickness);
+            DrawLine(batch, center - h, center + h, color, thickness);
         }
 
         public static void DrawRectangle(this SpriteBatch batch, in Rectangle rect, Color color, float thickness = 1f)
@@ -147,6 +205,28 @@ namespace Ship_Game
             var tr = new Vector2(center.X + halfSize.X, center.Y - halfSize.Y);
             var br = new Vector2(center.X + halfSize.X, center.Y + halfSize.Y);
             var bl = new Vector2(center.X - halfSize.X, center.Y + halfSize.Y);
+
+            if (rotation != 0f)
+            {
+                tl = tl.RotateAroundPoint(center, rotation);
+                tr = tr.RotateAroundPoint(center, rotation);
+                br = br.RotateAroundPoint(center, rotation);
+                bl = bl.RotateAroundPoint(center, rotation);
+            }
+
+            DrawLine(batch, tl, tr, color, thickness); // ---- top
+            DrawLine(batch, tr, br, color, thickness); //    | right
+            DrawLine(batch, br, bl, color, thickness); // ____ bottom
+            DrawLine(batch, bl, tl, color, thickness); // |    left
+        }
+
+        public static void DrawRectangle(this SpriteBatch batch, Vector2d center, Vector2d size, double rotation, Color color, float thickness = 1f)
+        {
+            Vector2d halfSize = size * 0.5f;
+            var tl = new Vector2d(center.X - halfSize.X, center.Y - halfSize.Y);
+            var tr = new Vector2d(center.X + halfSize.X, center.Y - halfSize.Y);
+            var br = new Vector2d(center.X + halfSize.X, center.Y + halfSize.Y);
+            var bl = new Vector2d(center.X - halfSize.X, center.Y + halfSize.Y);
 
             if (rotation != 0f)
             {

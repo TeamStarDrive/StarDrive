@@ -125,7 +125,15 @@ namespace Ship_Game
         public void Draw(SpriteBatch sb, Vector2 pos, Vector2 size, float rot, float scale, float z = 0f)
         {
             if (!IsVisible) return;
-            var r = new Rectangle((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y);
+            var r = new RectF(pos, size);
+            SubTexture frame = Atlas[CurrentFrameId];
+            sb.Draw(frame, r, rot, scale, z);
+        }
+        
+        public void Draw(SpriteBatch sb, Vector2d pos, Vector2d size, float rot, float scale, float z = 0f)
+        {
+            if (!IsVisible) return;
+            var r = new RectF(pos, size);
             SubTexture frame = Atlas[CurrentFrameId];
             sb.Draw(frame, r, rot, scale, z);
         }

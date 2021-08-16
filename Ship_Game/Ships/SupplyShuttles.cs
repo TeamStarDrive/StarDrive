@@ -87,8 +87,8 @@ namespace Ship_Game.Ships
 
         bool CarrierHasSupplyToLaunch(ShipModule hangar)
         {
-            hangar.hangarShipUID = Owner.loyalty.GetSupplyShuttleName();
-            Ship supplyShuttleTemplate = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
+            hangar.HangarShipUID = Owner.loyalty.GetSupplyShuttleName();
+            Ship supplyShuttleTemplate = ResourceManager.GetShipTemplate(hangar.HangarShipUID);
 
             return supplyShuttleTemplate.ShipOrdLaunchCost < Owner.Ordinance;
         }

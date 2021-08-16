@@ -1,0 +1,22 @@
+﻿Version=1
+Name=Laser Thorn
+Hull=Pollops/Thorn
+Role=fighter
+Style=Pollops
+Size=4,4
+GridCenter=2,2
+DefaultCombatState=Artillery
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=LaserCannon;Cockpit;NuclearReactorSmall;Engine;BasicFuelCell
+Modules=10
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,1;0
+1,0;0;;333
+1,1;1
+1,2;2
+1,3;3
+2,0;0;;28
+2,1;4
+2,2;2
+2,3;3
+3,1;0

@@ -42,10 +42,10 @@ namespace Ship_Game
             ClickTimer += elapsed.RealTime.Seconds;
             SelectionTimer += elapsed.RealTime.Seconds;
 
-            Vector2 pPos = Universe.ProjectTo2D(Sys.Position.ToVec3());
-            Vector2 radialPos = new Vector2(Sys.Position.X + 4500f, Sys.Position.Y);
-            Vector2 insetRadialSS = Universe.ProjectTo2D(radialPos.ToVec3());
-            float pRadius = insetRadialSS.Distance(pPos).LowerBound(5f);
+            Vector2d pPos = Universe.ProjectToScreenPosition(Sys.Position.ToVec3());
+            var radialPos = new Vector2(Sys.Position.X + 4500f, Sys.Position.Y);
+            Vector2d insetRadialSS = Universe.ProjectToScreenPosition(radialPos.ToVec3());
+            double pRadius = insetRadialSS.Distance(pPos).LowerBound(5);
 
             batch.BracketRectangle(pPos, pRadius, Color.White);
 
@@ -62,15 +62,17 @@ namespace Ship_Game
             {
                 for (int i = 0; i < Sys.PlanetList.Count; i++)
                 {
-                    Vector2 planetPos = pPos.PointFromAngle(Sys.PlanetList[i].OrbitalAngle, 40 + 40 * i);
+                    Vector2d planetPos = pPos.PointFromAngle(Sys.PlanetList[i].OrbitalAngle, 40 + 40 * i);
                     planetPos -= ((planetPos - pPos).Normalized() * (40 + 40 * i) * transitionOffset);
-                    DrawCircle(pPos, pPos.Distance(planetPos), (Sys.PlanetList[i].Owner == null ? new Color(50, 50, 50, 90) : new Color(Sys.PlanetList[i].Owner.EmpireColor, 100)), 2f);
+
+                    Color color = Sys.PlanetList[i].Owner == null ? new Color(50, 50, 50, 90) : new Color(Sys.PlanetList[i].Owner.EmpireColor, 100);
+                    ScreenManager.SpriteBatch.DrawCircle(pPos, pPos.Distance(planetPos), color, 2f);
                 }
 
                 for (int i = 0; i < Sys.PlanetList.Count; i++)
                 {
                     Planet planet = Sys.PlanetList[i];
-                    Vector2 planetPos = pPos.PointFromAngle(Sys.PlanetList[i].OrbitalAngle, 40 + 40 * i);
+                    Vector2d planetPos = pPos.PointFromAngle(Sys.PlanetList[i].OrbitalAngle, 40 + 40 * i);
                     planetPos -= ((planetPos - pPos).Normalized() * (40 + 40 * i) * transitionOffset);
 
                     float fIconScale = 1.0f + ((float)Math.Log(Sys.PlanetList[i].Scale));

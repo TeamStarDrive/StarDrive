@@ -3,8 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using System;
-using System.Diagnostics;
-using System.IO;
 
 namespace Ship_Game.Ships
 {
@@ -22,55 +20,56 @@ namespace Ship_Game.Ships
         
         /// <summary>Ship slot (1x1 modules) height </summary>
         public int GridHeight { get; private set; }
-        protected Vector2 GridOrigin; // local origin, eg -32, -48
+
+        // center of the ship in ShipLocal world coordinates, ex [64f, 0f], always positive
+        Vector2 GridLocalCenter;
         
         static bool EnableDebugGridExport = false;
 
         public ShipModule[] Modules => ModuleSlotList;
         public bool HasModules => ModuleSlotList != null && ModuleSlotList.Length != 0;
 
-
-        void CreateModuleGrid(in ShipGridInfo gridInfo, bool shipyardDesign)
+        void CreateModuleGrid(in ShipGridInfo gridInfo, bool isTemplate, bool shipyardDesign)
         {
             ShipGridInfo info = gridInfo;
 
-            #if DEBUG
-            if (!shipyardDesign)
+        #if DEBUG
+            if (isTemplate && !shipyardDesign)
             {
                 var modulesInfo = new ShipGridInfo(ModuleSlotList);
                 if (modulesInfo.SurfaceArea != gridInfo.SurfaceArea ||
-                    modulesInfo.Origin != gridInfo.Origin ||
                     modulesInfo.Size != gridInfo.Size)
                 {
-                    Log.Warning($"Ship {Name} ModulesGrid does not match ShipDataGrid: {modulesInfo} != {gridInfo}. This is a potentially broken Ship Design");
+                    Log.Warning($"BaseHull mismatch: {modulesInfo} != {gridInfo}. Broken Design={Name}");
                 }
             }
-            #endif
-
-            //if (Name.Contains("Acolyte of Flak II"))
-            //    Debugger.Break();
+        #endif
 
             SurfaceArea = info.SurfaceArea;
-            GridOrigin = info.Origin;
             GridWidth  = info.Size.X;
             GridHeight = info.Size.Y;
+            GridLocalCenter = new Vector2(info.Size.X * 8f, info.Size.Y * 8f);
             SparseModuleGrid   = new ShipModule[GridWidth * GridHeight];
             ExternalModuleGrid = new ShipModule[GridWidth * GridHeight];
-            PwrGrid = new PowerGrid(SparseModuleGrid, GridWidth, GridHeight, GridOrigin);
+            PwrGrid = new PowerGrid(SparseModuleGrid, GridWidth, GridHeight);
 
             // Ship's true radius is half of Module Grid's Diagonal Length
-            Radius = 0.5f * gridInfo.Span.Length();
+            var span = new Vector2(info.Size.X, info.Size.Y) * 16f;
+            Radius = span.Length() * 0.5f;
 
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 UpdateGridSlot(SparseModuleGrid, ModuleSlotList[i], becameActive: true);
             }
 
-            InternalSlotCount = 0;
+            if (GlobalStats.CountInternalModulesFromHull)
+                SetModuleRestrictionsFromHull(shipData.BaseHull);
+
             InitExternalSlots();
 
             var shields    = new Array<ShipModule>();
             var amplifiers = new Array<ShipModule>();
+            InternalSlotCount = 0;
 
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
@@ -95,72 +94,41 @@ namespace Ship_Game.Ships
             }
         }
 
-        bool[] CreateInternalGrid(ModuleSlotData[] templateSlots)
+        // This overrides Restrictions value of modules, based on the actual BaseHull
+        // So if a 2x2 IOE module overlaps an `I` hull slot, it gets set to Restrictions.I
+        void SetModuleRestrictionsFromHull(ShipHull hull)
         {
-            // gather a sparse 2D grid of internal slots
-            var internalSlots = new bool[GridWidth * GridHeight];
-            var offset = new Vector2(ShipModule.ModuleSlotOffset);
-            for (int i = 0; i < templateSlots.Length; ++i)
+            HullSlot[] hullSlots = hull.HullSlots;
+            for (int i = 0; i < hullSlots.Length; ++i)
             {
-                ModuleSlotData slot = templateSlots[i];
-                if (slot.Restrictions == Restrictions.I)
+                HullSlot hs = hullSlots[i];
+                if (hs.R == Restrictions.I)
                 {
-                    ModulePosToGridPoint(slot.Position - offset, out int x, out int y);
-                    internalSlots[x + y * GridWidth] = true;
+                    ShipModule m = GetModuleAt(hs.Pos);
+                    if (m != null)
+                    {
+                        m.Restrictions = Restrictions.I;
+                    }
                 }
             }
-            return internalSlots;
         }
 
-        bool IsModuleOverlappingInternalSlot(ShipModule module, bool[] internalGrid)
-        {
-            ModulePosToGridPoint(module, out int x, out int y);
-            int endX = x + module.XSIZE;
-            int endY = y + module.YSIZE;
-            for (; y < endY; ++y)
-            for (; x < endX; ++x)
-                if (internalGrid[x + y*GridWidth])
-                    return true;
-            return false;
-        }
-
-        void FixLegacyInternalRestrictions(ModuleSlotData[] templateSlots)
-        {
-            // gather a sparse 2D grid of internal slots
-            bool[] internalGrid = CreateInternalGrid(templateSlots);
-
-            if (EnableDebugGridExport)
-            {
-                ModuleGridUtils.DebugDumpGrid($"Debug/InternalGrid/{Name}.txt",
-                                              internalGrid, GridWidth, GridHeight,
-                                              ModuleGridUtils.DumpFormat.InternalSlotsBool);
-            }
-
-            // if our module is overlapping an [I] slot, then mark the whole module as internal
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
-            {
-                ShipModule module = ModuleSlotList[i];
-                if (!module.HasInternalRestrictions && IsModuleOverlappingInternalSlot(module, internalGrid))
-                    module.Restrictions = Restrictions.I;
-            }
-        }
-
-        void AddExternalModule(ShipModule module, int x, int y, int quadrant)
+        void AddExternalModule(ShipModule module)
         {
             if (module.isExternal)
                 return;
             ++NumExternalSlots;
             module.isExternal = true;
-            UpdateGridSlot(ExternalModuleGrid, x, y, module, becameActive: true);
+            UpdateGridSlot(ExternalModuleGrid, module, becameActive: true);
         }
 
-        void RemoveExternalModule(ShipModule module, int x, int y)
+        void RemoveExternalModule(ShipModule module)
         {
             if (!module.isExternal)
                 return;
             --NumExternalSlots;
             module.isExternal = false;
-            UpdateGridSlot(ExternalModuleGrid, x, y, module, becameActive: false);
+            UpdateGridSlot(ExternalModuleGrid, module, becameActive: false);
         }
 
         bool IsModuleInactiveAt(int x, int y)
@@ -169,23 +137,15 @@ namespace Ship_Game.Ships
             return module == null || !module.Active;
         }
 
-        int GetQuadrantEstimate(int x, int y)
+        bool ShouldBeExternal(ShipModule module)
         {
-            Vector2 dir = new Vector2(x - (GridWidth / 2), y - (GridHeight / 2)).Normalized();
-            if (dir.X <= 0f && dir.Y <= 0f)
-                return 0;
-            if (Math.Abs(dir.Y) <= 0.5f)
-                return dir.X <= 0f ? 1 /*top*/ : 3 /*bottom*/;
-            return dir.X <= 0f ? 4 /*left*/ : 2 /*right*/;
-        }
-
-        bool ShouldBeExternal(int x, int y, ShipModule module)
-        {
-            return module.Active &&
-                IsModuleInactiveAt(x, y - 1) ||
-                IsModuleInactiveAt(x - 1, y) ||
-                IsModuleInactiveAt(x + module.XSIZE, y) ||
-                IsModuleInactiveAt(x, y + module.YSIZE);
+            if (!module.Active)
+                return false;
+            Point p = module.Pos;
+            return IsModuleInactiveAt(p.X, p.Y - 1)
+                || IsModuleInactiveAt(p.X - 1, p.Y)
+                || IsModuleInactiveAt(p.X + module.XSIZE, p.Y)
+                || IsModuleInactiveAt(p.X, p.Y + module.YSIZE);
         }
 
         bool CheckIfShouldBeExternal(int x, int y)
@@ -193,15 +153,16 @@ namespace Ship_Game.Ships
             if (!GetModuleAt(SparseModuleGrid, x, y, out ShipModule module))
                 return false;
 
-            ModulePosToGridPoint(module, out x, out y); // now get the true topleft root coordinates of module
-            if (ShouldBeExternal(x, y, module))
+            if (ShouldBeExternal(module))
             {
                 if (!module.isExternal)
-                    AddExternalModule(module, x, y, GetQuadrantEstimate(x, y));
+                {
+                    AddExternalModule(module);
+                }
                 return true;
             }
             if (module.isExternal)
-                RemoveExternalModule(module, x, y);
+                RemoveExternalModule(module);
             return false;
         }
 
@@ -224,12 +185,12 @@ namespace Ship_Game.Ships
         // updates the isExternal status of a module, depending on whether it died or resurrected
         public void UpdateExternalSlots(ShipModule module, bool becameActive)
         {
-            ModulePosToGridPoint(module, out int x, out int y);
-
+            int x = module.Pos.X;
+            int y = module.Pos.Y;
             if (becameActive) // we resurrected, so add us to external module grid and update all surrounding slots
-                AddExternalModule(module, x, y, GetQuadrantEstimate(x, y));
+                AddExternalModule(module);
             else // we turned inactive, so clear self from external module grid and
-                RemoveExternalModule(module, x, y);
+                RemoveExternalModule(module);
 
             CheckIfShouldBeExternal(x, y - 1);
             CheckIfShouldBeExternal(x - 1, y);
@@ -237,32 +198,13 @@ namespace Ship_Game.Ships
             CheckIfShouldBeExternal(x, y + module.YSIZE);
         }
 
-        void UpdateGridSlot(ShipModule[] sparseGrid, int gridX, int gridY, ShipModule module, bool becameActive)
-        {
-            int endX = gridX + module.XSIZE, endY = gridY + module.YSIZE;
-            for (int y = gridY; y < endY; ++y)
-                for (int x = gridX; x < endX; ++x)
-                    sparseGrid[x + y * GridWidth] = becameActive ? module : null;
-        }
-
         void UpdateGridSlot(ShipModule[] sparseGrid, ShipModule module, bool becameActive)
         {
-            ModulePosToGridPoint(module, out int x, out int y);
-            UpdateGridSlot(sparseGrid, x, y, module, becameActive);
-        }
-
-        void ModulePosToGridPoint(Vector2 moduleLocalPos, out int x, out int y)
-        {
-            Vector2 offset = moduleLocalPos - GridOrigin;
-            x = (int)Math.Floor(offset.X / 16f);
-            y = (int)Math.Floor(offset.Y / 16f);
-        }
-
-        void ModulePosToGridPoint(ShipModule m, out int x, out int y)
-        {
-            Vector2 offset = m.GetLegacyGridPos() - GridOrigin;
-            x = (int)Math.Floor(offset.X / 16f);
-            y = (int)Math.Floor(offset.Y / 16f);
+            Point p = module.Pos;
+            int endX = p.X + module.XSIZE, endY = p.Y + module.YSIZE;
+            for (int y = p.Y; y < endY; ++y)
+                for (int x = p.X; x < endX; ++x)
+                    sparseGrid[x + y * GridWidth] = becameActive ? module : null;
         }
 
         // safe and fast module lookup by x,y where coordinates (0,1) (2,1) etc
@@ -352,31 +294,60 @@ namespace Ship_Game.Ships
             return shield != null;
         }
 
-
-
         // Converts a world position to a grid local position (such as [16f,32f])
+        // TESTED in ShipModuleGridTests
         public Vector2 WorldToGridLocal(Vector2 worldPoint)
         {
             Vector2 offset = worldPoint - Position;
-            return offset.RotatePoint(-Rotation) - GridOrigin;
+            return offset.RotatePoint(-Rotation) + GridLocalCenter;
         }
-
+        
+        // Converts a world position to a grid point such as [1,2]
+        // TESTED in ShipModuleGridTests
         public Point WorldToGridLocalPoint(Vector2 worldPoint)
         {
-            return GridLocalToPoint(WorldToGridLocal(worldPoint));
+            Vector2 gridLocal = WorldToGridLocal(worldPoint);
+            Point gridPoint = GridLocalToPoint(gridLocal);
+            return gridPoint;
         }
-
-        public Point GridLocalToPoint(Vector2 localPos)
-        {
-            return new Point((int)Math.Floor(localPos.X / 16f), (int)Math.Floor(localPos.Y / 16f));
-        }
-
+        
+        // Converts a world position to a grid point such as [1,2]
+        // CLIPS the value in range of [0, GRIDSIZE-1]
+        // TESTED in ShipModuleGridTests
         public Point WorldToGridLocalPointClipped(Vector2 worldPoint)
         {
             return ClipLocalPoint(WorldToGridLocalPoint(worldPoint));
         }
 
-        public Point ClipLocalPoint(Point pt)
+        // Converts a grid-local pos to a grid point
+        // TESTED via WorldToGridLocalPoint() in ShipModuleGridTests
+        public Point GridLocalToPoint(Vector2 localPos)
+        {
+            return new Point((int)Math.Floor(localPos.X / 16f),
+                             (int)Math.Floor(localPos.Y / 16f));
+        }
+
+        // Converts a grid-local pos to world pos
+        // TESTED in ShipModuleGridTests
+        public Vector2 GridLocalToWorld(Vector2 localPoint)
+        {
+            Vector2 centerLocal = localPoint - GridLocalCenter;
+            return centerLocal.RotatePoint(Rotation) + Position;
+        }
+        
+        // Converts a grid-local POINT to world pos
+        // TESTED in ShipModuleGridTests
+        public Vector2 GridLocalPointToWorld(Point gridLocalPoint)
+        {
+            return GridLocalToWorld(new Vector2(gridLocalPoint.X * 16f, gridLocalPoint.Y * 16f));
+        }
+
+        Vector2 GridSquareToWorld(int x, int y)
+        {
+            return GridLocalToWorld(new Vector2(x * 16f + 8f, y * 16f + 8f));
+        }
+
+        Point ClipLocalPoint(Point pt)
         {
             if (pt.X < 0) pt.X = 0; else if (pt.X >= GridWidth)  pt.X = GridWidth  - 1;
             if (pt.Y < 0) pt.Y = 0; else if (pt.Y >= GridHeight) pt.Y = GridHeight - 1;
@@ -399,19 +370,6 @@ namespace Ship_Game.Ships
                 && (point.X > 0 || point.Y < GridHeight - 1)
                 && (point.Y > 0 || point.X < GridWidth - 1);
         }
-
-        public Vector2 GridLocalToWorld(Vector2 localPoint)
-        {
-            Vector2 centerLocal = GridOrigin + localPoint;
-            return centerLocal.RotatePoint(Rotation) + Position;
-        }
-
-        public Vector2 GridLocalPointToWorld(Point gridLocalPoint)
-        {
-            return GridLocalToWorld(new Vector2(gridLocalPoint.X * 16f, gridLocalPoint.Y * 16f));
-        }
-
-        public Vector2 GridSquareToWorld(int x, int y) => GridLocalToWorld(new Vector2(x * 16f + 8f, y * 16f + 8f));
 
 
 
@@ -687,7 +645,7 @@ namespace Ship_Game.Ships
                 if (m != null)
                 {
                     //if (DebugInfoScreen.Mode == DebugModes.Targeting)
-                    //    Empire.Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, m.Center, 6f, Color.IndianRed.Alpha(0.5f), 3f);
+                    //    Empire.Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, m.Position, 6f, Color.IndianRed.Alpha(0.5f), 3f);
                     return m;
                 }
             }

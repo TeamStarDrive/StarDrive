@@ -1,0 +1,17 @@
+﻿Version=1
+HullName=Meteors/Meteor F
+VisibleName=Meteor F
+Role=platform
+Style=Meteors
+Size=5,5
+MeshOffset=-8,-8
+IconPath=ShipIcons/terran_platform
+ModelPath=Model/Asteroids/asteroid8
+SelectIcon=13e
+#Thruster PosX,PosY,PosZ,Scale
+Slots
+I  |___|I  |I  |___
+I  |I  |I  |I  |I  
+I  |I  |IC |I  |___
+I  |I  |I  |I  |___
+I  |___|___|___|___

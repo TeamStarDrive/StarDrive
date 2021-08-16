@@ -53,7 +53,7 @@ namespace UnitTests.AITests.Empire
 
             // Check that adding again does not does not trigger updates.
             Player.canBuildCarriers = false;
-            Player.UpdateShipsWeCanBuild(new Array<string> { ship.BaseHull.Name });
+            Player.UpdateShipsWeCanBuild(new Array<string> { ship.BaseHull.HullName });
             Assert.IsFalse(Player.canBuildCarriers, "UpdateShipsWeCanBuild triggered unneeded updates");
         }
 
@@ -124,7 +124,7 @@ namespace UnitTests.AITests.Empire
             Ship existingTemplate = ResourceManager.GetShipTemplate(baseDesign);
             ShipData newData = existingTemplate.shipData.GetClone();
             newData.Name = newName;
-            ResourceManager.AddShipTemplate(newData, fromSave:false, playerDesign:playerDesign);
+            ResourceManager.AddShipTemplate(newData, playerDesign:playerDesign);
             empire.UpdateShipsWeCanBuild();
             return newName;
         }

@@ -1,0 +1,32 @@
+﻿Version=1
+HullName=Kulrathi/Claw
+VisibleName=Claw
+Role=frigate
+Style=Kulrathi
+Size=18,17
+MeshOffset=0,8
+IconPath=ShipIcons/claw
+ModelPath=Model/Ships/Kulrathi/ship11f
+SelectIcon=11f
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=200,328,0,40
+Thruster=248,328,0,72
+Thruster=312,328,0,40
+Slots
+___|___|___|___|___|___|O  |___|___|___|___|O  |___|___|___|___|___|___
+___|___|___|___|___|___|O  |O  |___|___|O  |O  |___|___|___|___|___|___
+___|___|___|___|___|___|O  |IO |O  |O  |IO |O  |___|___|___|___|___|___
+___|___|___|___|___|___|O  |IO |IO |IO |IO |O  |___|___|___|___|___|___
+___|___|___|___|___|___|O  |IO |IO |IO |IO |O  |___|___|___|___|___|___
+___|___|___|___|___|___|O  |IO |I  |I  |IO |O  |___|___|___|___|___|___
+___|___|___|___|___|___|O  |IO |I  |I  |IO |O  |___|___|___|___|___|___
+___|___|___|___|___|O  |IO |I  |I  |I  |I  |IO |O  |___|___|___|___|___
+___|___|___|___|O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |___|___|___|___
+___|___|___|___|O  |IO |IO |I  |I  |IC |I  |IO |IO |O  |___|___|___|___
+___|___|___|___|O  |IO |I  |I  |I  |I  |I  |I  |IO |O  |___|___|___|___
+___|___|___|O  |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |O  |___|___|___
+___|___|O  |IO |IO |I  |I  |E  |E  |E  |E  |I  |I  |IO |IO |O  |___|___
+___|O  |IO |IO |IO |IO |O  |E  |E  |E  |E  |O  |IO |IO |IO |IO |O  |___
+O  |IO |IO |IO |IO |O  |___|E  |E  |E  |E  |___|O  |IO |IO |IO |IO |O  
+___|O  |IO |IO |O  |___|___|___|___|___|___|___|___|O  |IO |IO |O  |___
+___|___|O  |O  |___|___|___|___|___|___|___|___|___|___|O  |O  |___|___

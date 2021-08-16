@@ -168,17 +168,16 @@ namespace Ship_Game.GameScreens.LoadGame
         {
             var us = new UniverseScreen(data, PlayerLoyalty)
             {
-                GamePace  = save.GamePacing,
-                StarDate  = save.StarDate,
-                CamPos    = new Vector3(save.campos.X, save.campos.Y, save.camheight),
-                CamHeight = save.camheight,
-                Paused    = true,
+                GamePace = save.GamePacing,
+                StarDate = save.StarDate,
+                CamPos = new Vector3d(save.CamPos),
+                Paused = true,
                 CreateSimThread = StartSimThread,
             };
 
             step.StartAbsolute(0.05f, 0.5f, 2f);
 
-            EmpireShipBonuses.RefreshBonuses();
+            EmpireHullBonuses.RefreshBonuses();
             ShipDesignUtils.MarkDesignsUnlockable(step.NextStep());
             CreateSceneObjects(data);
             AllSystemsLoaded(data, step.NextStep());
@@ -420,7 +419,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 e.SpaceRoadsList.Add(road);
             }
         }
-        
+
         static void CreateShipFromSave(UniverseData data, SavedGame.ShipSaveData shipSave, Empire e)
         {
             Ship ship = Ship.CreateShipFromSave(e, shipSave);
@@ -429,7 +428,6 @@ namespace Ship_Game.GameScreens.LoadGame
             data.MasterShipList.Add(ship);
         }
 
-        
         static void RestorePlanetConstructionQueue(SavedGame.UniverseSaveData saveData, SavedGame.RingSave rsave, Planet p)
         {
             foreach (SavedGame.QueueItemSave qisave in rsave.Planet.QISaveList)
@@ -682,7 +680,7 @@ namespace Ship_Game.GameScreens.LoadGame
         {
             foreach (SavedGame.ShipSaveData shipData in esd.OwnedShips)
             {
-                if (!data.FindShip(shipData.guid, out Ship ship))
+                if (!data.FindShip(shipData.GUID, out Ship ship))
                     continue;
 
                 if (shipData.AISave.WayPoints != null)

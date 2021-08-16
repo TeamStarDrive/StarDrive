@@ -18,28 +18,23 @@ namespace UnitTests.Ships
         [TestMethod]
         public void Simple3x2ModuleSlotGrid()
         {
-            var localOrigin = new Vector2(64f);
-            Vector2 origin = localOrigin + new Vector2(ShipModule.ModuleSlotOffset);
             // ___|O__|___
             // IO_|E__|IO_
             var design = new []
             {
-                new ModuleSlotData(origin + new Vector2(16,0), Restrictions.O),
-                new ModuleSlotData(origin + new Vector2(0,16), Restrictions.IO),
-                new ModuleSlotData(origin + new Vector2(16,16), Restrictions.E),
-                new ModuleSlotData(origin + new Vector2(32,16), Restrictions.IO),
+                new HullSlot(1, 0, Restrictions.O ),
+                new HullSlot(0, 1, Restrictions.IO),
+                new HullSlot(1, 1, Restrictions.E ),
+                new HullSlot(2, 1, Restrictions.IO),
             };
 
-            var gridInfo = new ShipGridInfo(design, isHull:true);
-            Assert.AreEqual(4,                     gridInfo.SurfaceArea);
-            Assert.AreEqual(localOrigin,           gridInfo.Origin);
-            Assert.AreEqual(new Point(3, 2),       gridInfo.Size);
-            Assert.AreEqual(new Vector2(48f, 32f), gridInfo.Span);
+            var gridInfo = new ShipGridInfo(design);
+            Assert.AreEqual(new Point(3, 2), gridInfo.Size);
+            Assert.AreEqual(4, gridInfo.SurfaceArea);
 
-            var grid = new ModuleGrid<ModuleSlotData>(gridInfo, design);
+            var grid = new ModuleGrid<HullSlot>(gridInfo, design);
             Assert.AreEqual(3, grid.Width);
             Assert.AreEqual(2, grid.Height);
-            Assert.AreEqual(localOrigin, grid.Origin);
 
             Assert.AreEqual(null,      grid[0, 0]);
             Assert.AreEqual(design[0], grid[1, 0]);
@@ -66,32 +61,31 @@ namespace UnitTests.Ships
         [TestMethod]
         public void Simple3x2ShipModuleGrid()
         {
-            var localOrigin = new Vector2(64f);
-            Vector2 origin = localOrigin + new Vector2(ShipModule.ModuleSlotOffset);
+            DesignSlot MakeDesignSlot(int x, int y, string uid, Restrictions r)
+            {
+                return new DesignSlot(new Point(x,y), uid, new Point(1,1), 0, ModuleOrientation.Normal, null);
+            }
+
             // ___|O__|___
             // O__|O__|O__
             var design = new []
             {
-                new ModuleSlotData(origin + new Vector2(16, 0), Restrictions.O) { ModuleUID = "SteelArmorSmall" },
-                new ModuleSlotData(origin + new Vector2(0, 16), Restrictions.O) { ModuleUID = "SteelArmorSmall" },
-                new ModuleSlotData(origin + new Vector2(16,16), Restrictions.O) { ModuleUID = "SteelArmorSmall" },
-                new ModuleSlotData(origin + new Vector2(32,16), Restrictions.O) { ModuleUID = "SteelArmorSmall" },
+                MakeDesignSlot(1, 0, "SteelArmorSmall", Restrictions.O),
+                MakeDesignSlot(0, 1, "SteelArmorSmall", Restrictions.O),
+                MakeDesignSlot(1, 1, "SteelArmorSmall", Restrictions.O),
+                MakeDesignSlot(2, 1, "SteelArmorSmall", Restrictions.O),
             };
 
             Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
-            ShipModule[] modules = design.Select(slot => ShipModule.Create(slot, ship, false, false));
+            ShipModule[] modules = design.Select(slot => ShipModule.Create(slot, ship, false));
 
             var gridInfo = new ShipGridInfo(modules);
-            Assert.AreEqual(localOrigin, gridInfo.Origin);
             Assert.AreEqual(4, gridInfo.SurfaceArea);
-            Assert.AreEqual(new Vector2(48f, 32f), gridInfo.Span);
             Assert.AreEqual(new Point(3, 2), gridInfo.Size);
 
             var grid = new ModuleGrid<ShipModule>(gridInfo, modules);
-            Assert.AreEqual(4,                     gridInfo.SurfaceArea);
-            Assert.AreEqual(localOrigin,           gridInfo.Origin);
-            Assert.AreEqual(new Point(3, 2),       gridInfo.Size);
-            Assert.AreEqual(new Vector2(48f, 32f), gridInfo.Span);
+            Assert.AreEqual(4, gridInfo.SurfaceArea);
+            Assert.AreEqual(new Point(3, 2), gridInfo.Size);
 
             Assert.AreEqual(null,       grid[0, 0]);
             Assert.AreEqual(modules[0], grid[1, 0]);

@@ -81,10 +81,10 @@ namespace Ship_Game.GameScreens.ShipDesign
 
                     var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     batch.DrawString(Fonts.Arial12Bold, Ship.Name, tCursor, Color.White);
-                    tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    var role = Ship.BaseHull.Name;
-                    batch.DrawString(Fonts.Arial8Bold, role, tCursor, Color.DarkGray);
-                    tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
+                    tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                    var hullName = Ship.BaseHull.VisibleName ?? "<VisibleName was null>";
+                    batch.DrawString(Fonts.Arial8Bold, hullName, tCursor, Color.DarkGray);
+                    tCursor.X += Fonts.Arial8Bold.TextWidth(hullName) + 8;
                     batch.DrawString(Fonts.Arial8Bold, $"Base Strength: {Ship.BaseStrength.String(0)}", tCursor, Color.Orange);
                 }
                 else if (WipHull != null)
@@ -149,9 +149,9 @@ namespace Ship_Game.GameScreens.ShipDesign
             };
 
             WIPs.Clear();
-            foreach (FileInfo info in Dir.GetFiles(Dir.StarDriveAppData + "/WIP"))
+            foreach (FileInfo info in Dir.GetFiles(Dir.StarDriveAppData + "/WIP", "design"))
             {
-                ShipData newShipData = ShipData.Parse(info, isHullDefinition:false);
+                ShipData newShipData = ShipData.Parse(info);
                 if (newShipData == null)
                     continue;
                 if (UnlockAllDesigns || EmpireManager.Player.IsHullUnlocked(newShipData.Hull))
@@ -210,8 +210,8 @@ namespace Ship_Game.GameScreens.ShipDesign
             Ship[] ships = ResourceManager.GetShipTemplates()
                 .Filter(s => CanShowDesign(s, filter))
                 .OrderBy(s => !s.IsPlayerDesign)
-                .ThenBy(s => s.BaseHull.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
-                .ThenBy(s => s.BaseHull.ShipStyle)
+                .ThenBy(s => s.BaseHull.Style != EmpireManager.Player.data.Traits.ShipType)
+                .ThenBy(s => s.BaseHull.Style)
                 .ThenByDescending(s => s.BaseStrength)
                 .ThenBy(s => s.Name)
                 .ToArray();

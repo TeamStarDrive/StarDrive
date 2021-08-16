@@ -1,0 +1,18 @@
+﻿Version=1
+HullName=Meteors/Meteor G
+VisibleName=Meteor G
+Role=platform
+Style=Meteors
+Size=6,6
+MeshOffset=0,0
+IconPath=ShipIcons/terran_platform
+ModelPath=Model/Asteroids/asteroid9
+SelectIcon=13e
+#Thruster PosX,PosY,PosZ,Scale
+Slots
+___|___|___|I  |___|___
+___|I  |I  |I  |I  |___
+I  |I  |I  |I  |I  |I  
+I  |I  |I  |IC |I  |I  
+___|I  |I  |I  |I  |___
+___|___|I  |___|___|___
