@@ -50,7 +50,14 @@ namespace Ship_Game.Ships
         public CombatState DefaultCombatState;
 
         public ShipGridInfo GridInfo;
-        public DesignSlot[] ModuleSlots;
+
+        // All the slots of the ShipDesign
+        // NOTE: This is loaded on-demand when a new ship is being initialized
+        DesignSlot[] DesignSlots;
+
+        // Complete list of all the unique module UID-s found in this design
+        public string[] UniqueModuleUIDs { get; private set; } = Empty<string>.Array;
+
         public bool Unlockable = true; // unlocked=true by default
         public HashSet<string> TechsNeeded = new HashSet<string>();
 
@@ -68,6 +75,8 @@ namespace Ship_Game.Ships
         // You should always use this `Icon` property, because of bugs with `IconPath` initialization
         // when a ShipData is copied. @todo Fix ShipData copying
         public SubTexture Icon => ResourceManager.Texture(IconPath);
+
+        public override string ToString() { return Name; }
 
         public ShipDesign()
         {
@@ -94,10 +103,30 @@ namespace Ship_Game.Ships
             Bonuses  = hull.Bonuses;
 
             Unlockable = hull.Unlockable;
-            ModuleSlots = Array.Empty<DesignSlot>();
+            DesignSlots = Array.Empty<DesignSlot>();
         }
 
-        public override string ToString() { return Name; }
+
+        // Sets the new design slots and calculates Unique Module UIDs
+        public void SetDesignSlots(DesignSlot[] slots)
+        {
+            var moduleUIDs = new HashSet<string>();
+            for (int i = 0; i < slots.Length; ++i)
+                moduleUIDs.Add(slots[i].ModuleUID);
+
+            DesignSlots = slots;
+            UniqueModuleUIDs = moduleUIDs.ToArray();
+        }
+
+        public DesignSlot[] GetOrLoadDesignSlots()
+        {
+            // TODO: implement lazy loading
+            if (DesignSlots == null || DesignSlots.Length == 0)
+            {
+
+            }
+            return DesignSlots;
+        }
 
         public static ShipDesign Parse(string filePath)
         {
@@ -120,39 +149,41 @@ namespace Ship_Game.Ships
 
         public bool AreModulesEqual(ModuleSaveData[] saved)
         {
-            if (ModuleSlots.Length != saved.Length)
+            if (DesignSlots.Length != saved.Length)
                 return false;
 
             for (int i = 0; i < saved.Length; ++i)
-                if (ModuleSlots[i].ModuleUID != saved[i].ModuleUID) // it is enough to test only module UID-s
+                if (DesignSlots[i].ModuleUID != saved[i].ModuleUID) // it is enough to test only module UID-s
                     return false;
             return true;
         }
 
-        public static ShipDesign FromSave(ModuleSaveData[] saved, ShipDesign template)
+        public static ShipDesign FromSave(ModuleSaveData[] saved, string[] moduleUIDs, ShipDesign template)
         {
             // savedModules are different, grab the existing template's defaults but apply the new ship's modules
             // this is pretty inefficient but it's currently the only way to handle obsolete designs without crashing
             // TODO: implement obsolete ships and ship versioning
             ShipDesign data = template.GetClone();
-            
-            data.ModuleSlots = new DesignSlot[saved.Length];
+
+            data.UniqueModuleUIDs = moduleUIDs;
+            data.DesignSlots = new DesignSlot[saved.Length];
             for (int i = 0; i < saved.Length; ++i)
-                data.ModuleSlots[i] = saved[i].ToDesignSlot();
+                data.DesignSlots[i] = saved[i].ToDesignSlot();
 
             return data;
         }
 
-        public static ShipDesign FromSave(ModuleSaveData[] saved, SavedGame.ShipSaveData save, ShipHull hull)
+        public static ShipDesign FromSave(ModuleSaveData[] saved, string[] moduleUIDs, SavedGame.ShipSaveData save, ShipHull hull)
         {
             var data = new ShipDesign(hull);
 
             data.Name = save.Name;
             data.ModName = GlobalStats.ModName;
 
-            data.ModuleSlots = new DesignSlot[saved.Length];
+            data.UniqueModuleUIDs = moduleUIDs;
+            data.DesignSlots = new DesignSlot[saved.Length];
             for (int i = 0; i < saved.Length; ++i)
-                data.ModuleSlots[i] = saved[i].ToDesignSlot();
+                data.DesignSlots[i] = saved[i].ToDesignSlot();
 
             return data;
         }

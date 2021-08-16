@@ -98,7 +98,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(Player.OwnedShips.Count, 1, "Critical Error. Designs cant be added to empires");
             
             spawnedShip.shipData = spawnedShip.shipData.GetClone();
-            spawnedShip.shipData.ModuleSlots = new DesignSlot[0];
+            spawnedShip.shipData.SetDesignSlots(Empty<DesignSlot>.Array);
             ship = new DesignShip(spawnedShip.shipData);
             Universe.Objects.UpdateLists(true);
             Assert.AreEqual(Player.OwnedShips.Count, 1, "Critical Error. Ships with no modules can not be added to the empire");
