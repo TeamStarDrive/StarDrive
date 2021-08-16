@@ -161,7 +161,7 @@ namespace Ship_Game
                 //Added by Doctor, adds McShooterz' class/hull data to the rollover in the list too:
                 //this.batch.DrawString(Fonts.Visitor10, string.Concat(this.HoveredShip.Name, " - ", Localizer.GetRole(this.HoveredShip.shipData.Role, this.HoveredShip.loyalty)), ShipSuperName, Color.Orange);
                 string longName = string.Concat(HoveredShip.Name, " - ", ShipData.GetRole(HoveredShip.DesignRole));
-                if (HoveredShip.shipData.ShipCategory != ShipData.Category.Unclassified)
+                if (HoveredShip.shipData.ShipCategory != ShipCategory.Unclassified)
                     longName += " - "+HoveredShip.shipData.GetCategory();
                 batch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
                 batch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, Color.White);
@@ -407,7 +407,7 @@ namespace Ship_Game
                 if (!ship.IsFreighter)                    allFreighters  = false;
                 if (ship.Carrier.HasFighterBays)          carriersHere   = true;
                 if (ship.Carrier.HasTroopBays)            troopShipsHere = true;
-                if (ship.DesignRole < RoleName.carrier || ship.shipData.ShipCategory == ShipData.Category.Civilian 
+                if (ship.DesignRole < RoleName.carrier || ship.shipData.ShipCategory == ShipCategory.Civilian 
                                                        || ship.AI.State == AIState.Colonize 
                                                        || ship.IsHangarShip)
                 {

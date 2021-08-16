@@ -31,19 +31,19 @@ namespace Ship_Game.Ships
                 IncomingSupply.Add(supply, 0);
         }
 
-        public static float DamageThreshold(ShipData.Category category)
+        public static float DamageThreshold(ShipCategory category)
         {
             float threshold;
             switch (category)
             {
                 default:
-                case ShipData.Category.Civilian:     threshold = 0.95f; break;
-                case ShipData.Category.Recon:        threshold = 0.85f; break;
-                case ShipData.Category.Neutral:      threshold = 0.75f; break;
-                case ShipData.Category.Unclassified: threshold = 0.7f;  break;
-                case ShipData.Category.Conservative: threshold = 0.8f;  break;
-                case ShipData.Category.Reckless:     threshold = 0.5f;  break;
-                case ShipData.Category.Kamikaze:     threshold = 0.0f;  break;
+                case ShipCategory.Civilian:     threshold = 0.95f; break;
+                case ShipCategory.Recon:        threshold = 0.85f; break;
+                case ShipCategory.Neutral:      threshold = 0.75f; break;
+                case ShipCategory.Unclassified: threshold = 0.7f;  break;
+                case ShipCategory.Conservative: threshold = 0.8f;  break;
+                case ShipCategory.Reckless:     threshold = 0.5f;  break;
+                case ShipCategory.Kamikaze:     threshold = 0.0f;  break;
             }
 
             threshold = threshold * (1 - ShipDestroyThreshold) + ShipDestroyThreshold;
@@ -221,7 +221,7 @@ namespace Ship_Game.Ships
             return Ship.Carrier.TroopsMissingVsTroopCapacity >= 1f;
         }
 
-        bool PlayerKamikaze => Ship.shipData.ShipCategory == ShipData.Category.Kamikaze && Ship.loyalty.isPlayer;
+        bool PlayerKamikaze => Ship.shipData.ShipCategory == ShipCategory.Kamikaze && Ship.loyalty.isPlayer;
 
         public void ChangeIncomingSupply(SupplyType supplyType, float amount)
         {

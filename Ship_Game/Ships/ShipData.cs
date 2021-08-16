@@ -45,7 +45,7 @@ namespace Ship_Game.Ships
         public bool CarrierShip;
 
         public RoleName Role = RoleName.fighter;
-        public Category ShipCategory = Category.Unclassified;
+        public ShipCategory ShipCategory = ShipCategory.Unclassified;
         public HangarOptions HangarDesignation = HangarOptions.General;
         public AIState DefaultAIState;
         public CombatState DefaultCombatState;
@@ -56,7 +56,7 @@ namespace Ship_Game.Ships
         public HashSet<string> TechsNeeded = new HashSet<string>();
 
         static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
-        static readonly string[] CategoryArray = typeof(Category).GetEnumNames();
+        static readonly string[] CategoryArray = typeof(ShipCategory).GetEnumNames();
         public RoleName HullRole => BaseHull.Role;
         public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
 
@@ -190,17 +190,6 @@ namespace Ship_Game.Ships
             public Vector3 Position;
             [XmlElement(ElementName = "scale")]
             public float Scale;
-        }
-
-        public enum Category
-        {
-            Unclassified,
-            Civilian,
-            Recon,
-            Conservative,
-            Neutral,
-            Reckless,
-            Kamikaze
         }
 
         public static RoleType ShipRoleToRoleType(RoleName role)

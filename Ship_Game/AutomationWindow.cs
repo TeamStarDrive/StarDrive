@@ -200,12 +200,12 @@ namespace Ship_Game
                     if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.reconDropDown)
                         return ship.ShipGoodToBuild(EmpireManager.Player) && 
                               (ship.DesignRole == RoleName.scout || 
-                               ship.shipData?.ShipCategory == ShipData.Category.Recon);
+                               ship.shipData?.ShipCategory == ShipCategory.Recon);
 
                     return ship.ShipGoodToBuild(EmpireManager.Player) && 
                           (ship.DesignRole == RoleName.scout ||
                            ship.DesignRole == RoleName.fighter ||
-                           ship.shipData?.ShipCategory == ShipData.Category.Recon);
+                           ship.shipData?.ShipCategory == ShipCategory.Recon);
                 });
         }
 

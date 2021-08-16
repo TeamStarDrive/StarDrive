@@ -594,7 +594,7 @@ namespace Ship_Game.AI
             // FB - this will give priority order for the movement. if offensiveMove is false,
             // it means the player ordered this specifically wanting combat ships to engage targets
             // of opportunity, even dropping our of warp to engage them.
-            if (!offensiveMove || Owner.shipData.ShipCategory == ShipData.Category.Civilian)
+            if (!offensiveMove || Owner.shipData.ShipCategory == ShipCategory.Civilian)
             {
                 // only order to move if we are too far, no need to waste time here.
                 float threshold = toOrbit.ObjectRadius + 1000 * toOrbit.Scale;

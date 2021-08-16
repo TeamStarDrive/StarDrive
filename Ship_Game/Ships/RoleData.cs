@@ -11,7 +11,7 @@ namespace Ship_Game.Ships
         readonly RoleName DataRole;
         readonly int SurfaceArea;
         readonly Ship Ship;
-        readonly ShipData.Category Category;
+        readonly ShipCategory Category;
         public RoleName DesignRole;
 
         public RoleData(Ship ship, ShipModule[] modules)
@@ -56,7 +56,7 @@ namespace Ship_Game.Ships
                 if (Ship.IsSupplyShip && Ship.Weapons.Count == 0)
                     return RoleName.supply;
                 
-                if (HullRole == RoleName.freighter && Category == ShipData.Category.Civilian
+                if (HullRole == RoleName.freighter && Category == ShipCategory.Civilian
                                                    && SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f)
                 {
                     return RoleName.freighter;
@@ -88,12 +88,12 @@ namespace Ship_Game.Ships
                 // check for useability as freighter.
                 // small issue is that ships that are classified civilian will behave as civilian ships.
                 // currently the category can not be set here while in the shipyard.
-                if (Ship == null || Category <= ShipData.Category.Civilian)
+                if (Ship == null || Category <= ShipCategory.Civilian)
                 {
                     // non freighter hull must be set to civilian to be set as freighters.
                     if (HullRole > RoleName.freighter)
                     {
-                        if (SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f && Category == ShipData.Category.Civilian)
+                        if (SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f && Category == ShipCategory.Civilian)
                             return RoleName.freighter;
                     }
                     // freighter hull will be set to civilian if useable as freighter.
@@ -103,13 +103,13 @@ namespace Ship_Game.Ships
                         if (SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.01f)
                         {
                             if (Ship != null)
-                                Ship.shipData.ShipCategory = ShipData.Category.Civilian;
+                                Ship.shipData.ShipCategory = ShipCategory.Civilian;
                             return RoleName.freighter;
                         }
                         // This is for updating the ship and no use if there is no ship. 
-                        if (Ship?.shipData.ShipCategory == ShipData.Category.Civilian)
+                        if (Ship?.shipData.ShipCategory == ShipCategory.Civilian)
                         {
-                            Ship.shipData.ShipCategory = ShipData.Category.Unclassified;
+                            Ship.shipData.ShipCategory = ShipCategory.Unclassified;
                             Log.Warning($"Freighter {Ship.Name} category was reverted to unclassified as it cant be used as civilian ship");
                         }
                     }
@@ -133,23 +133,23 @@ namespace Ship_Game.Ships
             if (pSpecial > 0.10f)
                 return RoleName.support;
 
-            if (Category != ShipData.Category.Unclassified)
+            if (Category != ShipCategory.Unclassified)
             {
                 switch (Category)
                 {
-                    case ShipData.Category.Unclassified:
+                    case ShipCategory.Unclassified:
                         break;
-                    case ShipData.Category.Civilian:
+                    case ShipCategory.Civilian:
                         break;
-                    case ShipData.Category.Recon:
+                    case ShipCategory.Recon:
                         return RoleName.scout;
-                    case ShipData.Category.Conservative:
+                    case ShipCategory.Conservative:
                         break;
-                    case ShipData.Category.Neutral:
+                    case ShipCategory.Neutral:
                         break;
-                    case ShipData.Category.Reckless:
+                    case ShipCategory.Reckless:
                         break;
-                    case ShipData.Category.Kamikaze:
+                    case ShipCategory.Kamikaze:
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
