@@ -162,7 +162,7 @@ namespace Ship_Game
                 //this.batch.DrawString(Fonts.Visitor10, string.Concat(this.HoveredShip.Name, " - ", Localizer.GetRole(this.HoveredShip.shipData.Role, this.HoveredShip.loyalty)), ShipSuperName, Color.Orange);
                 string longName = string.Concat(HoveredShip.Name, " - ", ShipData.GetRole(HoveredShip.DesignRole));
                 if (HoveredShip.shipData.ShipCategory != ShipCategory.Unclassified)
-                    longName += " - "+HoveredShip.shipData.GetCategory();
+                    longName += " - "+HoveredShip.shipData.ShipCategory;
                 batch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
                 batch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, Color.White);
                 Vector2 defPos = new Vector2(DefenseRect.X + DefenseRect.Width + 2, DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
