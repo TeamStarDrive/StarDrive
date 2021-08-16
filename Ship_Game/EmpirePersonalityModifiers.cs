@@ -26,6 +26,7 @@ namespace Ship_Game
         public readonly float WarTasksLifeTime; // How many turns to keep trying fleet requisition before timeout, 1f is 10 turns
         public readonly int WarSneakiness; // modifier to prepare for war detection by the player (player will need better spy network to detect war plot)
         public readonly float HullTechMultiplier; // used in ship progression to modify hull tech cost if needed
+        public readonly float PopRatioBeforeMerge; // If enemy has pop bigger then this ratio, consider merge with other empires or surrender
 
         public PersonalityModifiers(PersonalityType type)
         {
@@ -43,6 +44,7 @@ namespace Ship_Game
                     DefenseTaskWeight     = 1;
                     FleetStrMultiplier    = 1;
                     FederationPopRatioWar = 2f;
+                    PopRatioBeforeMerge   = 0.15f;
                     DoomFleetThreshold    = 2;
                     AssaultBomberRatio    = 0.5f;
                     AllyCallToWarRatio    = 1.2f;
@@ -67,6 +69,7 @@ namespace Ship_Game
                     DefenseTaskWeight     = 1.2f;
                     FleetStrMultiplier    = 1.15f;
                     FederationPopRatioWar = 1.6f;
+                    PopRatioBeforeMerge   = 0.15f;
                     DoomFleetThreshold    = 1.5f;
                     AssaultBomberRatio    = 0.75f;
                     AllyCallToWarRatio    = 1.15f;
@@ -91,6 +94,7 @@ namespace Ship_Game
                     DefenseTaskWeight     = 1;
                     FleetStrMultiplier    = 1.1f;
                     FederationPopRatioWar = 1.5f;
+                    PopRatioBeforeMerge   = 0.125f;
                     DoomFleetThreshold    = 1f;
                     AssaultBomberRatio    = 1;
                     AllyCallToWarRatio    = 1.2f;
@@ -115,6 +119,7 @@ namespace Ship_Game
                     DefenseTaskWeight     = 1.2f;
                     FleetStrMultiplier    = 1.05f;
                     FederationPopRatioWar = 1.7f;
+                    PopRatioBeforeMerge   = 0.03f;
                     DoomFleetThreshold    = 1.75f;
                     AllyCallToWarRatio    = 1.1f;
                     HullTechMultiplier    = 0.7f;
@@ -139,6 +144,7 @@ namespace Ship_Game
                     DefenseTaskWeight     = 1.3f;
                     FleetStrMultiplier    = 0.95f;
                     FederationPopRatioWar = 1.3f;
+                    PopRatioBeforeMerge   = 0.2f;
                     DoomFleetThreshold    = 2;
                     AssaultBomberRatio    = 0.8f;
                     AllyCallToWarRatio    = 1.25f;
@@ -163,6 +169,7 @@ namespace Ship_Game
                     DefenseTaskWeight     = 1.5f;
                     FleetStrMultiplier    = 1f;
                     FederationPopRatioWar = 1.45f;
+                    PopRatioBeforeMerge   = 0.15f;
                     HullTechMultiplier    = 0.9f;
                     DoomFleetThreshold    = 2.5f;
                     AssaultBomberRatio    = 0.6f;
@@ -187,6 +194,7 @@ namespace Ship_Game
                     DefenseTaskWeight     = 2;
                     FleetStrMultiplier    = 0.9f;
                     FederationPopRatioWar = 1.4f;
+                    PopRatioBeforeMerge   = 0.2f;
                     HullTechMultiplier    = 1f;
                     DoomFleetThreshold    = 3;
                     AssaultBomberRatio    = 0.5f;
