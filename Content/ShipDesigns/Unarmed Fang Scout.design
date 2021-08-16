@@ -1,0 +1,30 @@
+﻿Version=1
+Name=Unarmed Fang Scout
+Hull=Kulrathi/Fang
+Role=scout
+Style=Kulrathi
+Size=6,4
+GridCenter=3,2
+DefaultAIState=AttackRunner
+DefaultCombatState=AttackRuns
+ShipCategory=Recon
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=BasicFuelCell;Cockpit;NuclearReactorSmall;Engine
+Modules=16
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,2;0;;;;NotApplicable
+0,3;0;;;;NotApplicable
+1,1;0;;;;NotApplicable
+1,2;0;;;;NotApplicable
+1,3;0;;;;NotApplicable
+2,0;1;;;;NotApplicable
+2,1;2;;;;NotApplicable
+2,2;3;;;;NotApplicable
+3,0;0;;;;NotApplicable
+3,1;2;;;;NotApplicable
+3,2;3;;;;NotApplicable
+4,1;0;;;;NotApplicable
+4,2;0;;;;NotApplicable
+4,3;0;;;;NotApplicable
+5,2;0;;;;NotApplicable
+5,3;0;;;;NotApplicable

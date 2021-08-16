@@ -18,14 +18,15 @@ namespace Ship_Game.Ships
         // after X seconds of ships being invisible, we remove their scene objects
         const float RemoveInvisibleSceneObjectsAfterTime = 15f;
 
-        public void ShowSceneObjectAt(Vector3 position)
+        public void ShowSceneObjectAt(Vector2 pos, float z)
         {
             if (ShipSO == null)
             {
                 Log.Info("Showing SceneObject");
                 CreateSceneObject();
             }
-            ShipSO.World = Matrix.CreateTranslation(position);
+
+            ShipSO.World = Matrix.CreateTranslation(new Vector3(pos + shipData.BaseHull.MeshOffset, z));
             ShipSO.Visibility = GlobalStats.ShipVisibility;
         }
 
@@ -41,7 +42,7 @@ namespace Ship_Game.Ships
 
             //Log.Info($"CreateSO {Id} {Name}");
             shipData.LoadModel(out ShipSO, Empire.Universe.ContentManager);
-            ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
+            ShipSO.World = Matrix.CreateTranslation(new Vector3(Position + shipData.BaseHull.MeshOffset, 0f));
 
             NotVisibleToPlayerTimer = 0;
             UpdateVisibilityToPlayer(FixedSimTime.Zero, forceVisible: true);
@@ -138,9 +139,10 @@ namespace Ship_Game.Ships
             {
                 if (ShipSO != null)
                 {
-                    ShipSO.World = Matrix.CreateRotationY(yRotation)
+                    ShipSO.World = Matrix.CreateTranslation(new Vector3(shipData.BaseHull.MeshOffset, 0f))
+                                 * Matrix.CreateRotationY(yRotation)
                                  * Matrix.CreateRotationZ(Rotation)
-                                 * Matrix.CreateTranslation(new Vector3(Position, 0.0f));
+                                 * Matrix.CreateTranslation(new Vector3(Position, 0f));
                     ShipSO.UpdateAnimation(timeStep.FixedTime);
                     UpdateThrusters(timeStep);
                 }
@@ -202,6 +204,8 @@ namespace Ship_Game.Ships
             float velocityPercent = velocity / VelocityMaximum;
             bool notPaused = timeStep.FixedTime > 0f;
 
+            Vector3 camPos = Empire.Universe.CamPos.ToVec3f();
+
             for (int i = 0; i < ThrusterList.Length; ++i)
             {
                 Thruster thruster = ThrusterList[i];
@@ -215,20 +219,20 @@ namespace Ship_Game.Ships
 
                     if (engineState == MoveState.Warp)
                     {
-                        thruster.Update(Direction3D, thruster.heat, 0.004f, Empire.Universe.CamPos, thrust0, thrust1);
+                        thruster.Update(Direction3D, thruster.heat, 0.004f, camPos, thrust0, thrust1);
                     }
                     else
                     {
                         if (thruster.heat > 0.6f)
                             thruster.heat = 0.6f;
-                        thruster.Update(Direction3D, thruster.heat, 0.002f, Empire.Universe.CamPos, thrust0, thrust1);
+                        thruster.Update(Direction3D, thruster.heat, 0.002f, camPos, thrust0, thrust1);
                     }
                 }
                 else
                 {
                     if (notPaused)
                         thruster.heat = 0.01f;
-                    thruster.Update(Direction3D, 0.1f, 1.0f / 500.0f, Empire.Universe.CamPos, thrust0, thrust1);
+                    thruster.Update(Direction3D, 0.1f, 1.0f / 500.0f, camPos, thrust0, thrust1);
                 }
 
                 if (GlobalStats.EnableEngineTrails && velocityPercent > 0.1f && notPaused)
@@ -312,11 +316,12 @@ namespace Ship_Game.Ships
             if (InSensorRange && Empire.Universe.IsShipViewOrCloser)
             {
                 float scale  = PlanetCrash?.Scale ?? 1;
-                ShipSO.World = Matrix.CreateScale(scale) 
+                ShipSO.World = Matrix.CreateTranslation(new Vector3(shipData.BaseHull.MeshOffset, 0f))
+                             * Matrix.CreateScale(scale) 
                              * Matrix.CreateRotationY(yRotation)
                              * Matrix.CreateRotationX(xRotation)
                              * Matrix.CreateRotationZ(Rotation)
-                             * Matrix.CreateTranslation(new Vector3(Position, 0.0f));
+                             * Matrix.CreateTranslation(new Vector3(Position, 0f));
 
 
                 if (RandomMath.RollDice(10) && !IsMeteor) // Spawn some junk when tumbling

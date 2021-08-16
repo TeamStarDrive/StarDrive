@@ -1,0 +1,25 @@
+﻿Version=1
+Name=Rocket Missionary
+Hull=Ralyeh/Missionary
+Role=corvette
+Style=Ralyeh
+Size=4,6
+GridCenter=2,3
+DefaultAIState=AwaitingOrders
+DefaultCombatState=AttackRuns
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=SteelArmorSmall;RocketLauncher;Cockpit;NuclearReactorMed;FrigateEngine;OrdnanceLockerSmall
+Modules=12
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,1;0
+0,2;0;;305
+0,3;0
+1,0;1
+1,1;2
+1,2;3;2,2
+1,4;4;2,2
+2,0;1
+2,1;5
+3,1;0
+3,2;0;;53
+3,3;0

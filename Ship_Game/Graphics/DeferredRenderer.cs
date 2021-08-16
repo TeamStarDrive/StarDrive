@@ -52,8 +52,8 @@ namespace Ship_Game.Graphics
 
             int count = PrimitivesDrawing.Count;
             Primitive[] primitives = PrimitivesDrawing.GetInternalArrayItems();
-            Vector2 posA, posB;
-            float size;
+            Vector2d posA, posB;
+            double size;
 
             for (int i = 0; i < count; ++i)
             {
@@ -62,7 +62,7 @@ namespace Ship_Game.Graphics
                 {
                     case PrimitiveType.Point:
                         posA = Screen.ProjectToScreenPosition(p.A);
-                        batch.Draw(ResourceManager.WhitePixel, posA, null, p.Color);
+                        batch.Draw(ResourceManager.WhitePixel, posA.ToVec2f(), null, p.Color);
                         break;
                     case PrimitiveType.Circle:
                         Screen.ProjectToScreenCoords(p.A, p.B.X, out posA, out size);
@@ -76,7 +76,7 @@ namespace Ship_Game.Graphics
                     case PrimitiveType.Rect:
                         posA = Screen.ProjectToScreenPosition(p.A);
                         posB = Screen.ProjectToScreenPosition(p.B);
-                        batch.DrawRectangle(new AABoundingBox2D(posA, posB), p.Color);
+                        batch.DrawRectangle(new AABoundingBox2Dd(posA, posB), p.Color);
                         break;
                 }
             }

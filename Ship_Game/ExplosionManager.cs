@@ -25,7 +25,7 @@ namespace Ship_Game
         sealed class ExplosionState
         {
             public PointLight Light;
-            public Vector2 Pos;
+            public Vector3 Pos;
             public Vector2 Vel;
             public float Time;
             public float Duration;
@@ -117,7 +117,7 @@ namespace Ship_Game
             var exp = new ExplosionState
             {
                 Duration = 2.25f,
-                Pos = position.ToVec2(),
+                Pos = position,
                 Vel = velocity,
                 Animation = expType.Atlas,
                 Radius = radius <= 0f ? 1f : radius*expType.Scale
@@ -136,7 +136,7 @@ namespace Ship_Game
             var exp = new ExplosionState
             {
                 Duration = 2.25f,
-                Pos = position.ToVec2(),
+                Pos = position,
                 Radius = radius <= 0f ? 1f : radius,
             };
 
@@ -166,7 +166,9 @@ namespace Ship_Game
                         e.Light.Intensity -= 10f * elapsedTime;
                     }
 
-                    e.Pos += e.Vel * elapsedTime;
+                    // cheap and inaccurate integration
+                    e.Pos.X += e.Vel.X * elapsedTime;
+                    e.Pos.Y += e.Vel.Y * elapsedTime;
 
                     // time is update last, because we don't want to skip frame 0 due to bad interpolation
                     e.Time += elapsedTime;
@@ -191,10 +193,10 @@ namespace Ship_Game
         static void DrawExplosion(SpriteBatch batch, in Viewport vp, in Matrix view, in Matrix projection, ExplosionState e)
         {
             // explosion center in screen coords
-            Vector3 expOnScreen = vp.Project(e.Pos.ToVec3(), projection, view, Matrix.Identity);
+            Vector2 expOnScreen = vp.ProjectTo2D(e.Pos, projection, view);
 
             // edge of the explosion in screen coords
-            Vector3 edgeOnScreen = vp.Project(e.Pos.PointFromAngle(90f, e.Radius).ToVec3(), projection, view, Matrix.Identity);
+            Vector2 edgeOnScreen = vp.ProjectTo2D(new Vector3(e.Pos.X + e.Radius, e.Pos.Y, e.Pos.Z), projection, view);
 
             float size = edgeOnScreen.X - expOnScreen.X;
             if (size < 0.5f) return; // don't draw sub-pixel explosion
@@ -212,7 +214,6 @@ namespace Ship_Game
                 batch.Draw(ExplosionPixel, r, new Color(Color.LightYellow, a));
                 return;
             }
-            
 
             int last = e.Animation.Count-1;
             int frame = (int)(last * (e.Time / e.Duration));

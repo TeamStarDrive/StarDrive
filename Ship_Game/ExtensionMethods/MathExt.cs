@@ -22,6 +22,12 @@ namespace Ship_Game
             End = end;
             Radius = radius;
         }
+        public Capsule(Vector2d start, Vector2d end, double radius)
+        {
+            Start = start.ToVec2f();
+            End = end.ToVec2f();
+            Radius = (float)radius;
+        }
         public bool HitTest(Vector2 hitPos, float hitRadius)
         {
             return hitPos.RayHitTestCircle(hitRadius, Start, End, Radius);
@@ -86,11 +92,11 @@ namespace Ship_Game
         {
             return Max(min, value);
         }
-        public static int LowerBound(this int value, int min)
+        public static double LowerBound(this double value, double min)
         {
             return Max(min, value);
         }
-        public static double LowerBound(this double value, float min)
+        public static int LowerBound(this int value, int min)
         {
             return Max(min, value);
         }
@@ -99,6 +105,10 @@ namespace Ship_Game
         /// Constrain upper end of value
         /// </summary>
         public static float UpperBound(this float value, float max)
+        {
+            return Min(max, value);
+        }
+        public static double UpperBound(this double value, double max)
         {
             return Min(max, value);
         }
@@ -150,7 +160,10 @@ namespace Ship_Game
         {
             return start + (end - start) * amount;
         }
-
+        public static double LerpTo(this double start, double end, double amount)
+        {
+            return start + (end - start) * amount;
+        }
         public static Color LerpTo(this Color start, Color end, float amount)
         {
             return new Color((byte)(start.R + (end.R - start.R) * amount),
@@ -158,22 +171,51 @@ namespace Ship_Game
                              (byte)(start.B + (end.B - start.B) * amount));
         }
 
+        /**
+         * @brief Inverse operation of Linear Interpolation
+         *        ex:  LerpInverse(45.0, 30.0, 60.0); ==> 0.5, because 45 is halfway between [30, 60]
+         * @param value Value somewhere between [start, end].
+         *              !!Out of bounds values are not checked!! Use LerpInverse(value, min, max).Clamped(0, 1); instead
+         * @param start Starting bound of the linear range
+         * @param end Ending bound of the linear range
+         * @return [0..1] if in bounds
+         *         Less than 0 or Greater than 1 if out of bounds
+         *         0 if invalid span (end-start)==0
+         */
+        public static float LerpInverse(float value, float start, float end)
+        {
+            float span = (end - start);
+            return span == 0 ? 0 : (value - start) / span;
+        }
+
+        public static double LerpInverse(double value, double start, double end)
+        {
+            double span = (end - start);
+            return span == 0 ? 0 : (value - start) / span;
+        }
+
         // This will smoothstep "fromValue" towards "targetValue"
         // @warning "fromValue" WILL CHANGE
         // @return The new "fromValue"
-        public static float SmoothStep(this float fromValue, float targetValue, float amount)
+        public static double SmoothStep(this double fromValue, double targetValue, double amount)
         {
-            float clamped = amount.Clamped(0f, 1f);
-            return fromValue.LerpTo(targetValue, clamped*clamped * (3f - 2f * clamped));
+            if (fromValue.AlmostEqual(targetValue, 0.1f))
+                return targetValue;
+            double clamped = amount.Clamped(0.0, 1.0);
+            return fromValue.LerpTo(targetValue, clamped*clamped * (3.0 - 2.0*clamped));
         }
 
-        public static float SmoothStep(ref float fromValue, float targetValue, float amount)
+        public static float SmoothStep(this float fromValue, float targetValue, double amount)
         {
-            float clamped = amount.Clamped(0f, 1f);
-            fromValue = fromValue.LerpTo(targetValue, clamped * clamped * (3f - 2f * clamped));
-            return fromValue;
+            return (float)SmoothStep((double)fromValue, (double)targetValue, amount);
         }
 
+        public static Vector3d SmoothStep(this Vector3d from, in Vector3d to, double amount)
+        {
+            return new Vector3d(from.X.SmoothStep(to.X, amount),
+                                from.Y.SmoothStep(to.Y, amount),
+                                from.Z.SmoothStep(to.Z, amount));
+        }
 
         // Returns true if Frustum either partially or fully contains this 2D circle
         public static bool Contains(this BoundingFrustum frustum, Vector2 center, float radius)
@@ -274,31 +316,23 @@ namespace Ship_Game
 
         public static Vector3 DirectionToTarget(this Vector3 origin, Vector3 target)
         {
-            float dx = target.X - origin.X;
-            float dy = target.Y - origin.Y;
-            float dz = target.Z - origin.Z;
-            float len = (float)Sqrt(dx*dx + dy*dy + dz*dz);
+            double dx = target.X - origin.X;
+            double dy = target.Y - origin.Y;
+            double dz = target.Z - origin.Z;
+            double len = Sqrt(dx*dx + dy*dy + dz*dz);
             if (len.AlmostZero())
                 return new Vector3(0f, -1f, 0f); // UP
-            return new Vector3(dx / len, dy / len, dz / len);
+            return new Vector3((float)(dx / len), (float)(dy / len), (float)(dz / len));
         }
 
-        // this will give values != 1 sometimes resulting in slightly incorrect values
         public static Vector2 DirectionToTarget(this Vector2 origin, Vector2 target)
         {
-            float dx = target.X - origin.X;
-            float dy = target.Y - origin.Y;
-            double len = Sqrt(Pow(dx,2) + Pow(dy,2));
-            if (((float)len).AlmostZero())
+            double dx = target.X - origin.X;
+            double dy = target.Y - origin.Y;
+            double len = Sqrt(dx*dx + dy*dy);
+            if (len.AlmostZero())
                 return Vectors.Up; // UP
-            Vector2 dir = Vector2.Normalize(new Vector2((float)(dx / len), (float)(dy / len)));
-            if (System.Diagnostics.Debugger.IsAttached)
-            {
-                float check = (float)Sqrt(dir.X * dir.X + dir.Y * dir.Y);
-                if (check != 1)
-                    Log.Error("DirectionToTarget unit vector was not equal 1. Bad unit vector will result in incorrect calculations");
-            }
-            return dir;
+            return new Vector2((float)(dx / len), (float)(dy / len));
         }
 
         public static Vector2 PredictImpact(this Ship ourShip, GameplayObject target)
@@ -580,6 +614,7 @@ namespace Ship_Game
         }
 
         public const float DefaultTolerance = 0.000001f;
+        public const double DefaultToleranceD = 0.000001;
 
         // Returns true if a is almost equal to b, within float epsilon error margin
         public static bool AlmostEqual(this float a, float b)
@@ -598,10 +633,25 @@ namespace Ship_Game
             return delta < -DefaultTolerance || DefaultTolerance <= delta;
         }
 
+        public static bool AlmostEqual(this double a, double b)
+        {
+            double delta = a - b;
+            return -DefaultToleranceD <= delta && delta <= DefaultToleranceD;
+        }
+
+        public static bool AlmostEqual(this double a, double b, double tolerance)
+        {
+            double delta = a - b;
+            return -tolerance <= delta && delta <= tolerance;
+        }
 
         public static bool AlmostZero(this float a)
         {
             return -DefaultTolerance <= a && a <= DefaultTolerance;
+        }
+        public static bool AlmostZero(this double a)
+        {
+            return -DefaultToleranceD <= a && a <= DefaultToleranceD;
         }
 
         public static bool NotZero(this float a)

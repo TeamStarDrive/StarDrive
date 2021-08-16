@@ -174,4 +174,51 @@ namespace Ship_Game
                 && Y1 <= r.Y2 && Y2 >= r.Y1;
         }
     }
+
+    public struct AABoundingBox2Dd
+    {
+        public double X1, Y1;
+        public double X2, Y2;
+
+        public double Width => X2 - X1;
+        public double Height => Y2 - Y1;
+        
+        public override string ToString()
+        {
+            return $"X1={X1} Y1={Y1} X2={X2} Y2={Y2}";
+        }
+
+        public AABoundingBox2Dd(double x1, double y1, double x2, double y2)
+        {
+            X1 = x1;
+            Y1 = y1;
+            X2 = x2;
+            Y2 = y2;
+        }
+
+        // WARNING: The vector order must be correct, there is no validation!
+        // Use AABoundingBox2D.FromIrregularPoints() if the points are random
+        public AABoundingBox2Dd(in Vector2d topLeft, in Vector2d botRight)
+        {
+            X1 = topLeft.X;
+            Y1 = topLeft.Y;
+            X2 = botRight.X;
+            Y2 = botRight.Y;
+        }
+
+        // WARNING: The vector order must be correct, there is no validation!
+        // Use AABoundingBox2D.FromIrregularPoints() if the points are random
+        public AABoundingBox2Dd(in Vector3d topLeft, in Vector3d botRight)
+        {
+            X1 = topLeft.X;
+            Y1 = topLeft.Y;
+            X2 = botRight.X;
+            Y2 = botRight.Y;
+        }
+
+        public static implicit operator AABoundingBox2D(in AABoundingBox2Dd bb)
+        {
+            return new AABoundingBox2D((float)bb.X1, (float)bb.Y1, (float)bb.X2, (float)bb.Y2);
+        }
+    }
 }

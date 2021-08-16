@@ -331,6 +331,7 @@ namespace Ship_Game
 
         // Widens this Vector2 to a Vector3, the new Z component is provided as argument
         public static Vector3 ToVec3(this Vector2 a, float z) => new Vector3(a.X, a.Y, z);
+        public static Vector3d ToVec3d(this Vector2 a, double z) => new Vector3d(a.X, a.Y, z);
 
         // Narrows this Vector3 to a Vector2, the Z component is truncated
         public static Vector2 ToVec2(this Vector3 a) => new Vector2(a.X, a.Y);
@@ -434,5 +435,14 @@ namespace Ship_Game
             origin.Y += origin.Y > 0 ? amount : -amount;
             return origin;
         }
+
+        public static Vector2 Mul(this Point p, float scalar) => new Vector2(p.X * scalar, p.Y * scalar);
+        public static Vector2 Div(this Point p, float scalar) => new Vector2(p.X / scalar, p.Y / scalar);
+
+        public static Vector2 Mul(this Vector2 v, Point scalar) => new Vector2(v.X * scalar.X, v.Y * scalar.Y);
+        public static Vector2 Div(this Vector2 v, Point scalar) => new Vector2(v.X / scalar.X, v.Y / scalar.Y);
+
+        public static Point Add(this Point a, Point b) => new Point(a.X + b.X, a.Y + b.Y);
+        public static Point Sub(this Point a, Point b) => new Point(a.X - b.X, a.Y - b.Y);
     }
 }

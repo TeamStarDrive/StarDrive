@@ -279,7 +279,8 @@ namespace Ship_Game
             modTitlePos.Y += (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);
             float starty = modTitlePos.Y;
             modTitlePos.X = 10;
-            float strength = mod.CalculateModuleOffenseDefense(Screen.ActiveHull.ModuleSlots.Length);
+
+            float strength = mod.CalculateModuleOffenseDefense(Screen.CurrentHull.SurfaceArea);
             DrawStat(ref modTitlePos, "Offense", strength, GameText.TT_ShipOffense);
 
             if (mod.BombType == null && !mod.isWeapon || mod.InstalledWeapon == null)
@@ -427,12 +428,12 @@ namespace Ship_Game
             if (mod.PermittedHangarRoles.Length == 0)
                 return;
 
-            var hangarOption  = ShipBuilder.GetDynamicHangarOptions(mod.hangarShipUID);
+            var hangarOption  = ShipBuilder.GetDynamicHangarOptions(mod.HangarShipUID);
             string hangerShip = mod.GetHangarShipName();
             Ship hs = ResourceManager.GetShipTemplate(hangerShip, false);
             if (hs != null)
             {
-                Color color   = ShipBuilder.GetHangarTextColor(mod.hangarShipUID);
+                Color color   = ShipBuilder.GetHangarTextColor(mod.HangarShipUID);
                 modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial12Bold.LineSpacing;
                 Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y + 5);
                 string name = hs.VanityName.IsEmpty() ? hs.Name : hs.VanityName;
@@ -674,17 +675,15 @@ namespace Ship_Game
 
         float GetHullDamageBonus()
         {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses &&
-                ResourceManager.HullBonuses.TryGetValue(Screen.ActiveHull.Hull, out HullBonus bonus))
-                return 1f + bonus.DamageBonus;
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses)
+                return 1f + Screen.CurrentHull.Bonuses.DamageBonus;
             return 1f;
         }
 
         float GetHullFireRateBonus()
         {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses &&
-                ResourceManager.HullBonuses.TryGetValue(Screen.ActiveHull.Hull, out HullBonus bonus))
-                return 1f - bonus.FireRateBonus;
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses)
+                return 1f - Screen.CurrentHull.Bonuses.FireRateBonus;
             return 1f;
         }
     }

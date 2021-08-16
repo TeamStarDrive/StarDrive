@@ -6,30 +6,28 @@ namespace Ship_Game.GameScreens.ShipDesign
 {
     public class DesignShip : Ship
     {
-        ModuleSlotData[] PrevSlots;
+        DesignSlot[] PrevSlots;
 
         public ShipDesignStats DesignStats;
 
         public DesignShip(ShipData designHull)
-            : base(EmpireManager.Player, designHull, fromSave:false, 
-                    isTemplate:true, shipyardDesign:true)
+            : base(EmpireManager.Player, designHull, isTemplate:true, shipyardDesign:true)
         {
             DesignStats = new ShipDesignStats(this);
         }
 
-        public void UpdateDesign(ModuleSlotData[] placedSlots)
+        public void UpdateDesign(DesignSlot[] placedSlots)
         {
             if (PrevSlots != null && AreEqual(PrevSlots, placedSlots))
                 return;
 
             PrevSlots = placedSlots;
-            CreateModuleSlotsFromData(placedSlots, fromSave:false, 
-                                      isTemplate:true, shipyardDesign:true);
+            CreateModuleSlotsFromData(placedSlots, isTemplate:true, shipyardDesign:true);
             InitializeShip();
             DesignStats.Update();
         }
 
-        static bool AreEqual(ModuleSlotData[] slotsA, ModuleSlotData[] slotsB)
+        static bool AreEqual(DesignSlot[] slotsA, DesignSlot[] slotsB)
         {
             if (slotsA.Length != slotsB.Length)
                 return false;

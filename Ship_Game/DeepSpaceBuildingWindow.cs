@@ -195,10 +195,10 @@ namespace Ship_Game
 
             if (itemToBuild != null)
             {
-                var platform = ResourceManager.Texture("TacticalIcons/symbol_platform");
-                float scale = (float)itemToBuild.SurfaceArea / platform.Width;
-                Vector2 IconOrigin = new Vector2((platform.Width / 2f), (platform.Width / 2f));
-                scale = scale * 4000f / Screen.CamHeight;
+                SubTexture platform = ResourceManager.Texture("TacticalIcons/symbol_platform");
+                double scale = (double)itemToBuild.SurfaceArea / platform.Width;
+                var IconOrigin = new Vector2((platform.Width / 2f), (platform.Width / 2f));
+                scale = scale * 4000.0 / Screen.CamPos.Z;
                 if (scale > 1f)
                 {
                     scale = 1f;
@@ -233,7 +233,7 @@ namespace Ship_Game
                             new Vector2(Screen.Input.CursorX, Screen.Input.CursorY + 34f), Color.White);
                     }
                 }
-                batch.Draw(platform, Screen.Input.CursorPosition, new Color(0, 255, 0, 100), 0f, IconOrigin, scale, SpriteEffects.None, 1f);
+                batch.Draw(platform, Screen.Input.CursorPosition, new Color(0, 255, 0, 100), 0f, IconOrigin, (float)scale, SpriteEffects.None, 1f);
             }
         }
 
@@ -253,9 +253,9 @@ namespace Ship_Game
 
                     if (ResourceManager.GetShipTemplate(item.UID, out Ship buildTemplate))
                     {
-                        Screen.ProjectToScreenCoords(item.BuildPos, platform.Width, out Vector2 posOnScreen, out float size);
+                        Screen.ProjectToScreenCoords(item.BuildPos, platform.Width, out Vector2d posOnScreen, out double size);
 
-                        float scale = ScaleIconSize(size, 0.01f, 0.125f);
+                        float scale = ScaleIconSize((float)size, 0.01f, 0.125f);
                         Screen.DrawTextureSized(platform, posOnScreen, 0.0f, platform.Width * scale,
                                    platform.Height * scale, new Color(0, 255, 0, 100));
 
@@ -275,9 +275,10 @@ namespace Ship_Game
             if (itemToBuild != null && itemToBuild.IsSubspaceProjector && Screen.AdjustCamTimer <= 0f)
             {
                 Vector2 center = Screen.Input.CursorPosition;
-                float screenRadius = Screen.ProjectToScreenSize(EmpireManager.Player.GetProjectorRadius());
-                Screen.DrawCircle(center, MathExt.SmoothStep(ref CurrentRadiusSmoothed, screenRadius, 0.3f),
-                                  Color.Orange, 2f); //
+                float screenRadius = (float)Screen.ProjectToScreenSize(EmpireManager.Player.GetProjectorRadius());
+
+                CurrentRadiusSmoothed = CurrentRadiusSmoothed.SmoothStep(screenRadius, 0.3);
+                Screen.DrawCircle(center, CurrentRadiusSmoothed, Color.Orange, 2f);
             }
         }
 

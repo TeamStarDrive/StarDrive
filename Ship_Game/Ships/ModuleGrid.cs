@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using Microsoft.Xna.Framework;
-using Ship_Game.Gameplay;
 
 namespace Ship_Game.Ships
 {
@@ -12,73 +11,43 @@ namespace Ship_Game.Ships
     public class ModuleGrid<T>
     {
         // ReSharper disable once StaticMemberInGenericType
-        static readonly FieldInfo PositionField;
+        static readonly FieldInfo PosF;
         // ReSharper disable once StaticMemberInGenericType
-        static readonly MethodInfo GetGridPosM;
-        // ReSharper disable once StaticMemberInGenericType
-        static readonly MethodInfo GetLegacyGridPosM;
-        // ReSharper disable once StaticMemberInGenericType
-        static readonly MethodInfo GetSizeMethod;
+        static readonly MethodInfo GetSizeM;
 
         static ModuleGrid()
         {
             Type type = typeof(T);
 
             BindingFlags anyMember = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-            GetGridPosM       = type.GetMethod("GetGridPos", anyMember);
-            GetLegacyGridPosM = type.GetMethod("GetLegacyGridPos", anyMember);
-            PositionField     = type.GetField("Position", anyMember);
-            GetSizeMethod     = type.GetMethod("GetSize", anyMember);
+            PosF     = type.GetField("Pos", anyMember);
+            GetSizeM = type.GetMethod("GetSize", anyMember);
 
             void Error(string message) => throw new Exception($"ModuleGrid<T> type T={type.GetTypeName()} {message}");
 
-            if (GetGridPosM == null && GetLegacyGridPosM == null && PositionField == null)
-                Error("does not contain `GetGridPos` method OR `GetLegacyGridPosM` method OR `Position` field");
+            if (PosF == null)
+                Error("does not contain `Pos` field");
+            else if (PosF.FieldType != typeof(Point))
+                Error($"field `{PosF.FieldType} Pos` is not of type Point");
 
-            if (GetGridPosM != null && GetGridPosM.ReturnType != typeof(Point))
-                Error($"method `GetGridPos()` return {GetGridPosM.ReturnType} is not of type Point");
-
-            if (GetLegacyGridPosM != null && GetLegacyGridPosM.ReturnType != typeof(Vector2))
-                Error($"method `GetLegacyGridPosM()` return {GetLegacyGridPosM.ReturnType} is not of type Vector2");
-
-            if (PositionField != null && PositionField.FieldType != typeof(Vector2))
-                Error($"field `Position` {PositionField.FieldType} is not of type Vector2");
-
-            if (GetSizeMethod == null)
+            if (GetSizeM == null)
                 Error("does not contain `GetSize()` method");
-            else if (GetSizeMethod.ReturnType != typeof(Point))
-                Error($"method `GetSize()` return {GetSizeMethod.ReturnType} is not of type Point");
+            else if (GetSizeM.ReturnType != typeof(Point))
+                Error($"method `GetSize()` return {GetSizeM.ReturnType} is not of type Point");
         }
 
-        Point GetGridPos(T module)
+        static Point GetGridPos(T module)
         {
-            // legacy adapter used in ShipModule.cs
-            if (GetLegacyGridPosM != null)
-                return ToGridPos((Vector2)GetLegacyGridPosM.Invoke(module, null));
-
-            // used in latest adapters such as `HullSlot` struct
-            // going forward, this is the main method we want to implement for ModuleGrids
-            if (GetGridPosM != null)
-                return (Point)GetGridPosM.Invoke(module, null);
-
-            // legacy Position field: currently used for ModuleSlotData only
-            var position = (Vector2)PositionField.GetValue(module);
-            if (module is ModuleSlotData) // legacy module slot offset
-            {
-                position.X -= ShipModule.ModuleSlotOffset;
-                position.Y -= ShipModule.ModuleSlotOffset;
-            }
-            return ToGridPos(position);
+            return (Point)PosF.GetValue(module);
         }
 
         static Point GetSize(T module)
         {
-            return (Point)GetSizeMethod.Invoke(module, null);
+            return (Point)GetSizeM.Invoke(module, null);
         }
 
         public readonly int Width;
         public readonly int Height;
-        public readonly Vector2 Origin; // TopLeft boundary of the module grid
         readonly T[] Grid;
 
         /// <summary>
@@ -91,7 +60,6 @@ namespace Ship_Game.Ships
         {
             Width = gridInfo.Size.X;
             Height = gridInfo.Size.Y;
-            Origin = gridInfo.Origin;
             Grid = new T[Width * Height];
             Initialize(modules);
         }
@@ -110,13 +78,6 @@ namespace Ship_Game.Ships
             }
             module = default;
             return false;
-        }
-
-        public Point ToGridPos(Vector2 positionInGrid)
-        {
-            Vector2 offset = positionInGrid - Origin;
-            return new Point((int)Math.Floor(offset.X / 16f),
-                             (int)Math.Floor(offset.Y / 16f));
         }
 
         void Initialize(T[] modules)

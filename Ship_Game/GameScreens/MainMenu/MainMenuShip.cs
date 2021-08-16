@@ -119,7 +119,7 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             DestroyShip(); // Allow multiple init
 
-            ShipData hull = null;
+            ShipHull hull = null;
             if (GlobalStats.HasMod && ResourceManager.MainMenuShipList.ModelPaths.Count > 0)
             {
                 int shipIndex = RandomMath.InRange(ResourceManager.MainMenuShipList.ModelPaths.Count);
@@ -144,7 +144,7 @@ namespace Ship_Game.GameScreens.MainMenu
             var bounds = ShipObj.GetMeshBoundingBox();
             Radius = bounds.Radius();
             HalfLength = (bounds.Max.Y - bounds.Min.Y) * 0.5f;
-            HullSize = hull?.ModuleSlots.Length ?? (int)(Radius * 4);
+            HullSize = hull?.HullSlots.Length ?? (int)(Radius * 4);
 
             if (DebugMeshInspect)
             {
@@ -159,24 +159,24 @@ namespace Ship_Game.GameScreens.MainMenu
             UpdateTransform();
         }
 
-        static ShipData ChooseShip(IEmpireData empire, ShipData.RoleName role)
+        static ShipHull ChooseShip(IEmpireData empire, ShipData.RoleName role)
         {
             string shipType = empire.ShipType;
 
-            ShipData[] empireShips = ResourceManager.Hulls.Filter(s => s.ShipStyle == shipType);
+            ShipHull[] empireShips = ResourceManager.Hulls.Filter(s => s.Style == shipType);
             if (empireShips.Length == 0)
             {
                 Log.Error($"Failed to select '{role}' or 'fighter' Hull for '{shipType}'. Choosing a random ship.");
                 return ResourceManager.Hulls.Filter(s => s.Role == role).RandItem();
             }
 
-            ShipData[] roleHulls = empireShips.Filter(s => s.Role == role);
+            ShipHull[] roleHulls = empireShips.Filter(s => s.Role == role);
             if (roleHulls.Length != 0)
             {
                 return roleHulls.RandItem();
             }
 
-            ShipData[] fighters = empireShips.Filter(s => s.Role == ShipData.RoleName.fighter);
+            ShipHull[] fighters = empireShips.Filter(s => s.Role == ShipData.RoleName.fighter);
             if (fighters.Length != 0)
             {
                 return fighters.RandItem();
@@ -224,8 +224,8 @@ namespace Ship_Game.GameScreens.MainMenu
             {
                 void DrawLine(Vector3 a, Vector3 b, Color color)
                 {
-                    Vector2 sa = screen.ProjectTo2D(a);
-                    Vector2 sb = screen.ProjectTo2D(b);
+                    Vector2d sa = screen.ProjectToScreenPosition(a);
+                    Vector2d sb = screen.ProjectToScreenPosition(b);
                     batch.DrawLine(sa, sb, color, 2f);
                 }
 

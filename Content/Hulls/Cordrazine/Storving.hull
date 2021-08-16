@@ -1,0 +1,27 @@
+﻿Version=1
+HullName=Cordrazine/Storving
+VisibleName=Storving
+Role=cruiser
+Style=Cordrazine
+Size=16,15
+MeshOffset=0,8
+IconPath=ShipIcons/Storving
+ModelPath=Model/Ships/Cordrazine/ship16d
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=264,344,0,79
+Slots
+___|___|___|___|___|___|O  |O  |O  |O  |___|___|___|___|___|___
+___|___|___|___|O  |O  |IO |IO |IO |IO |O  |O  |___|___|___|___
+___|___|___|O  |IO |IO |IO |I  |I  |IO |IO |IO |O  |___|___|___
+___|O  |O  |IO |IO |IO |IO |I  |I  |IO |IO |IO |IO |O  |O  |___
+___|O  |IO |O  |O  |IO |IO |I  |I  |IO |IO |O  |O  |IO |O  |___
+___|O  |O  |___|O  |IO |IO |I  |I  |IO |IO |O  |___|O  |O  |___
+___|___|___|___|O  |IO |IO |I  |I  |IO |IO |O  |___|___|___|___
+___|___|___|___|O  |IO |IO |I  |I  |IO |IO |O  |___|___|___|___
+___|___|O  |O  |O  |IO |IO |I  |IC |IO |IO |O  |O  |O  |___|___
+___|O  |___|IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |___|O  |___
+___|O  |___|IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |___|O  |___
+O  |___|___|IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |___|___|O  
+O  |___|O  |O  |O  |E  |E  |E  |E  |E  |E  |O  |O  |O  |___|O  
+___|O  |___|___|___|E  |E  |E  |E  |E  |E  |___|___|___|O  |___
+___|___|___|___|___|E  |E  |E  |E  |E  |E  |___|___|___|___|___

@@ -12,6 +12,9 @@ namespace Ship_Game
 {
     public sealed partial class ShipDesignScreen // refactored by Fat Bastard
     {
+        public Point GridPosUnderCursor;
+        public SlotStruct SlotUnderCursor;
+
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.BeginFrameRendering(elapsed, ref View, ref Projection);
@@ -21,13 +24,20 @@ namespace Ship_Game
 
             if (ToggleOverlay)
             {
-                batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
+                batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
+
                 DrawEmptySlots(batch);
                 DrawModules(batch);
                 DrawUnpoweredTex(batch);
                 DrawTacticalOverlays(batch);
                 DrawModuleSelections();
-                DrawProjectedModuleRect();
+                DrawProjectedModuleRect(batch);
+
+                if (EnableDebugFeatures)
+                {
+                    DrawDebugDetails(batch);
+                }
+
                 batch.End();
             }
 
@@ -37,105 +47,40 @@ namespace Ship_Game
                 DrawActiveModule(batch);
             }
 
-            DrawTargetReference(DesignedShip.DesignStats.WeaponAccuracies);
-            
             DrawUi(batch, elapsed);
             ArcsButton.DrawWithShadowCaps(batch);
-
-            if (HullEditMode)
-                DrawDebug(batch);
 
             base.Draw(batch, elapsed);
             batch.End();
             ScreenManager.EndFrameRendering();
         }
 
-        void DrawTargetReference(Map<ShipModule, float> weaponAccuracies)
+        void DrawDebugDetails(SpriteBatch batch)
         {
-            if (Camera.Zoom > 0.4f) return;
-            float x = GlobalStats.XRES / 2f - CameraPosition.X * Camera.Zoom;
-            float y = GlobalStats.YRES / 2f - CameraPosition.Y * Camera.Zoom;
-
-            float focalPoint = Ship.TargetErrorFocalPoint;
-            float radius = (focalPoint + shipSO.WorldBoundingSphere.Radius) * Camera.Zoom;
-            float topEdge = y - radius;
-
-            if (shipSO.WorldBoundingSphere.Radius < Ship.TargetErrorFocalPoint * 0.3f)
+            if (DesignedShip != null)
             {
-                DrawRangeCircle(x, y, 0.25f, weaponAccuracies);
-            }
-
-            float[] rangeCircles = new float[5] { 0.5f, 1, 2, 4, 6 };
-            foreach(float range in rangeCircles)
-                if (!DrawRangeCircle(x, y, range, weaponAccuracies))
-                    break;
-        }
-
-        bool DrawRangeCircle(float x, float y, float multiplier, Map<ShipModule, float> weaponAccuracies)
-        {
-            float focalPoint = Ship.TargetErrorFocalPoint * multiplier;
-            float radius     = (focalPoint) * Camera.Zoom;
-            float topEdge    = y - radius;
-            float rightEdge  = x + radius;
-            float leftEdge   = x - radius;
-            float bottomEdge = y + radius;
-            float thickness  = 0.5f + (multiplier / 7);
-
-            Weapon weapon = ActiveModule?.InstalledWeapon ?? HighlightedModule?.InstalledWeapon;
-            if (weapon == null && weaponAccuracies.Count > 0)
-            {
-                weapon = weaponAccuracies.FindMax((k, v) => v).Key.InstalledWeapon;
-            }
-
-            float weaponRange = weapon?.GetActualRange() ?? float.MaxValue;
-
-            // weapon range is exceeded by range circle so draw weapon range circle instead
-            if (weaponRange < focalPoint)
-            {
-                DrawCircle(new Vector2(x, y), weaponRange * Camera.Zoom, Color.OrangeRed.Alpha(0.5f), 1);
-                DrawString(new Vector2(x, y - weaponRange * Camera.Zoom - 10), 0, 1, Color.OrangeRed.Alpha(0.5f), Localizer.Token(GameText.Range3) + " : " + weaponRange);
-
-                radius = weaponRange * Camera.Zoom;
-            }
-
-            Vector2 source = new Vector2(x, y);
-            Vector2 target = new Vector2(x, y - focalPoint);
-            float error = weapon?.BaseTargetError(DesignedShip.TargetingAccuracy, focalPoint, EmpireManager.Player) ?? 0;
-            error = (weapon?.AdjustedImpactPoint(source, target, new Vector2(error, error)) - source ?? Vector2.Zero).X;
-
-            if (weapon != null)
-            {
-                DrawCircle(new Vector2(x, y - radius), error * Camera.Zoom, Color.White, 1);
-                DrawCircle(new Vector2(x, y + radius), error * Camera.Zoom, Color.White, 1);
-                DrawCircle(new Vector2(x - radius, y), error * Camera.Zoom, Color.White, 1);
-            }
-
-            // range circle is within weapon range. so draw it. 
-            if (weaponRange > focalPoint)
-            {
-                DrawCircle(new Vector2(x, y), radius, Color.Red, thickness);
-                DrawString(new Vector2(rightEdge + 20, y), .95f, 1, Color.Red, $"{Localizer.Token(GameText.Range)} {focalPoint}");
-
-                if (multiplier > 1)
+                // Draw Internal and External modules for the design
+                foreach (ShipModule m in DesignedShip.Modules)
                 {
-                    DrawCircle(new Vector2(x, topEdge), 100 * 8 * Camera.Zoom, Color.Red);
-                    DrawString(new Vector2(x, topEdge + (20 + 100 * 8) * Camera.Zoom), 0, 1, Color.Red, Localizer.Token(GameText.Capital));
+                    var rect = new RectF(ModuleGrid.GridPosToWorld(m.Pos), m.WorldSize);
+                    if (m.HasInternalRestrictions)
+                        DrawRectangleProjected(rect, Color.Green);
+                    else if (m.isExternal)
+                        DrawRectangleProjected(rect, Color.Blue);
                 }
-
-                if (multiplier > 0.25f)
-                {
-                    DrawCircle(new Vector2(leftEdge, y), 30 * 8 * Camera.Zoom, Color.Red);
-                    if (multiplier > 0.5 || Camera.Zoom > 0.2f)
-                    {
-                        DrawString(new Vector2(leftEdge, y + 20 + (30 * 8) * Camera.Zoom), 0, 1, Color.Red, Localizer.Token(GameText.Cruiser));
-                    }
-                }
-
-                DrawCircle(new Vector2(x, bottomEdge), 10 * 8 * Camera.Zoom, Color.Red);
-                DrawString(new Vector2(x, bottomEdge + (10 + 10 * 8) * Camera.Zoom), 0, 1, Color.Red, Localizer.Token(GameText.Fighter));
-                return true;
             }
-            return false;
+
+            DrawCrossHairProjected(ModuleGrid.GridPosToWorld(CurrentHull.GridCenter), 16f, Color.Red, 2f);
+
+            if (SlotUnderCursor != null)
+            {
+                DrawRectangleProjected(SlotUnderCursor.WorldRect, Color.Yellow);
+            }
+            else
+            {
+                Vector2 screenPos = ModuleGrid.GridPosToWorld(GridPosUnderCursor);
+                DrawRectangleProjected(new RectF(screenPos, new Vector2(16)), Color.Yellow);
+            }
         }
 
         bool GetSlotForModule(ShipModule module, out SlotStruct slot)
@@ -148,31 +93,24 @@ namespace Ship_Game
         {
             if (GetSlotForModule(HighlightedModule, out SlotStruct highlighted))
             {
-                DrawRectangle(highlighted.ModuleRect, Color.DarkOrange, 1.25f);
+                DrawRectangleProjected(highlighted.WorldRect, Color.DarkOrange, 1.25f);
                 if (IsSymmetricDesignMode && GetMirrorSlotStruct(highlighted, out SlotStruct mirrored))
-                    DrawRectangle(mirrored.ModuleRect, Color.DarkOrange.Alpha(0.66f), 1.25f);
-            }
-            else if (HullEditMode)
-            {
-                Vector2 cursor = Camera.GetWorldSpaceFromScreenSpace(Input.CursorPosition);
-                cursor = WorldToDesignCoords(cursor);
-                DrawRectangle(new RectF(cursor, new Vector2(16f,16f)), Color.DarkOrange, 1.25f);
+                    DrawRectangleProjected(mirrored.WorldRect, Color.DarkOrange.Alpha(0.66f), 1.25f);
             }
         }
 
-        void DrawProjectedModuleRect()
+        void DrawProjectedModuleRect(SpriteBatch batch)
         {
             if (ProjectedSlot == null || ActiveModule == null)
                 return;
 
             bool fits = ModuleGrid.ModuleFitsAtSlot(ProjectedSlot, ActiveModule);
-            DrawRectangle(ProjectedSlot.GetProjectedRect(ActiveModule), fits ? Color.LightGreen : Color.Red, 1.5f);
+            DrawRectangleProjected(ProjectedSlot.GetWorldRectFor(ActiveModule), fits ? Color.LightGreen : Color.Red, 1.5f);
 
-            if (IsSymmetricDesignMode 
-                && GetMirrorProjectedSlot(ProjectedSlot, ActiveModule.XSIZE, ActiveModule.Orientation, out SlotStruct mirrored))
+            if (IsSymmetricDesignMode && GetMirrorSlot(ProjectedSlot, ActiveModule, out MirrorSlot mirrored))
             {
-                bool mirrorFits = ModuleGrid.ModuleFitsAtSlot(mirrored, ActiveModule);
-                DrawRectangle(mirrored.GetProjectedRect(ActiveModule), mirrorFits 
+                bool mirrorFits = ModuleGrid.ModuleFitsAtSlot(mirrored.Slot, ActiveModule);
+                DrawRectangleProjected(mirrored.Slot.GetWorldRectFor(ActiveModule), mirrorFits 
                     ? Color.LightGreen.Alpha(0.66f) : Color.Red.Alpha(0.66f), 1.5f);
             }
         }
@@ -183,87 +121,89 @@ namespace Ship_Game
 
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
+                RectF rect = ProjectToScreenRectF(slot.WorldRect);
+
                 if (slot.Module != null)
                 {
-                    slot.Draw(batch, concreteGlass, Color.Gray);
+                    batch.Draw(concreteGlass, rect, Color.Gray);
                 }
                 else if (slot.Root.Module == null)
                 {
                     bool valid = ActiveModule == null || slot.CanSlotSupportModule(ActiveModule);
                     Color activeColor = valid ? Color.LightGreen : Color.Red;
-                    slot.Draw(batch, concreteGlass, activeColor);
+                    batch.Draw(concreteGlass, rect, activeColor);
 
-                    if (DesignedShip.PwrGrid.IsPowered(ModuleGrid.ToGridPos(slot.Position)))
+                    if (DesignedShip != null && DesignedShip.PwrGrid.IsPowered(slot.Pos))
                     {
                         Color yellow = ActiveModule != null ? new Color(Color.Yellow, 150) : Color.Yellow;
-                        slot.Draw(batch, concreteGlass, yellow);
+                        batch.Draw(concreteGlass, rect, yellow);
                     }
 
-                    batch.DrawString(Fonts.Arial20Bold, " " + slot.Restrictions, slot.PosVec2,
-                                     Color.Navy, 0f, Vector2.Zero, 0.4f);
+                    string r = slot.HullRestrict.ToString();
+                    DrawStringProjected(slot.WorldPos + new Vector2(8), 8f, Color.Navy, r, Fonts.Arial20Bold);
                 }
             }
         }
 
         void DrawModules(SpriteBatch batch)
         {
+            if (DesignedShip == null)
+                return;
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
                 if (slot.Module != null && slot.Tex != null)
                 {
                     if (slot.Module.ModuleType == ShipModuleType.PowerConduit)
                     {
-                        Point p = ModuleGrid.ToGridPos(slot.Position);
-
                         // get the module from the design ship, this is not the same as
                         // ModuleGrid.SlotsList modules :(
-                        ShipModule m = DesignedShip.GetModuleAt(p);
-                        slot.Tex = m.Powered ? ResourceManager.Texture(m.IconTexturePath + "_power") : m.ModuleTexture;
+                        ShipModule m = DesignedShip.GetModuleAt(slot.Pos);
+                        if (m != null)
+                        {
+                            slot.Tex = m.Powered ? ResourceManager.Texture(m.IconTexturePath + "_power") : m.ModuleTexture;
+                        }
                     }
-                    DrawModuleTex(slot.Orientation, batch, slot, slot.ModuleRect);
+                    DrawModuleTex(slot.Module.ModuleRot, batch, slot, slot.WorldRect);
                 }
             }
         }
 
-        static void DrawModuleTex(ModuleOrientation orientation, SpriteBatch batch, 
-                                  SlotStruct slot, Rectangle r, ShipModule template = null, float alpha = 1)
+        void DrawModuleTex(ModuleOrientation orientation, SpriteBatch batch, SlotStruct slot,
+                           RectF moduleWorldRect, ShipModule template = null, float alpha = 1)
         {
             SpriteEffects effects = SpriteEffects.None;
+            SubTexture texture = slot != null ? slot.Tex : ResourceManager.Texture(template.IconTexturePath);
+            float xSize = moduleWorldRect.W;
+            float ySize = moduleWorldRect.H;
             float rotation = 0f;
-            SubTexture texture = template == null ? slot.Tex : ResourceManager.Texture(template.IconTexturePath);
-            int xSize = template == null ? slot.Module.XSIZE * 16 : r.Width;
-            int ySize = template == null ? slot.Module.YSIZE * 16 : r.Height;
 
             bool rotatedTexture = (template ?? slot.Module).GetOrientedModuleTexture(ref texture, orientation);
 
             switch (orientation)
             {
                 case ModuleOrientation.Left when !rotatedTexture:
-                {
-                    r.Width  = ySize; // swap width & height
-                    r.Height = xSize;
-                    rotation = -1.57079637f;
-                    r.Y += ySize;
+                    moduleWorldRect.W = ySize; // swap width & height
+                    moduleWorldRect.H = xSize;
+                    moduleWorldRect.Y += ySize;
+                    rotation = -RadMath.HalfPI;
                     break;
-                }
                 case ModuleOrientation.Right when !rotatedTexture:
-                {
-                    r.Width  = ySize;
-                    r.Height = xSize;
-                    rotation = 1.57079637f;
-                    r.X += xSize;
+                    moduleWorldRect.W = ySize; // swap width & height
+                    moduleWorldRect.H = xSize;
+                    moduleWorldRect.X += xSize;
+                    rotation = RadMath.HalfPI;
                     break;
-                }
                 case ModuleOrientation.Rear when !rotatedTexture:
                     effects = SpriteEffects.FlipVertically;
                     break;
                 case ModuleOrientation.Normal:
-                    if (slot?.XMLPos.X > 256f && slot.Module.ModuleType != ShipModuleType.PowerConduit)
+                    if (slot?.WorldPos.X > 0f && slot.Module.ModuleType != ShipModuleType.PowerConduit)
                         effects = SpriteEffects.FlipHorizontally;
                     break;
             }
 
-            batch.Draw(texture, r, Color.White.Alpha(alpha), rotation, Vector2.Zero, effects, 1f);
+            RectF screenRect = ProjectToScreenRectF(moduleWorldRect);
+            batch.Draw(texture, screenRect, Color.White.Alpha(alpha), rotation, Vector2.Zero, effects, 1f);
         }
 
         void DrawTacticalOverlays(SpriteBatch batch)
@@ -292,7 +232,7 @@ namespace Ship_Game
                 if (s.Module.ModuleType == ShipModuleType.Hangar)
                     DrawHangarShipText(s);
 
-                DrawWeaponArcs(batch, s, DesignedShip.TargetingAccuracy);
+                DrawWeaponArcs(batch, s);
 
                 if (IsSymmetricDesignMode && GetMirrorSlotStruct(s, out SlotStruct mirrored))
                 {
@@ -314,6 +254,10 @@ namespace Ship_Game
 
         void DrawUnpoweredTex(SpriteBatch batch)
         {
+            if (DesignedShip == null)
+                return;
+
+            var unpowered = ResourceManager.Texture("UI/lightningBolt");
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
                 ShipModule m = slot.Module;
@@ -322,62 +266,95 @@ namespace Ship_Game
                 
                 if (m.PowerDraw > 0f
                     && m.ModuleType != ShipModuleType.PowerConduit
-                    && !DesignedShip.PwrGrid.IsPowered(ModuleGrid.ToGridPos(slot.Position)))
+                    && !DesignedShip.PwrGrid.IsPowered(slot.Pos))
                 {
-                    batch.Draw(ResourceManager.Texture("UI/lightningBolt"),
-                        slot.Center, Color.White, 0f, new Vector2(8f, 8f), 1f, SpriteEffects.None, 1f);
+                    batch.Draw(unpowered,
+                        slot.Center, Color.White, 0f, unpowered.CenterF, 1f, SpriteEffects.None, 1f);
                 }
             }
         }
 
         void DrawShieldRadius(SpriteBatch batch, SlotStruct slot)
         {
-            batch.DrawCircle(slot.Center, slot.Module.ShieldHitRadius, Color.LightGreen);
+            ProjectToScreenCoords(slot.Center, slot.Module.ShieldHitRadius,
+                                  out Vector2d pos, out double radius);
+            batch.DrawCircle(pos, radius, Color.LightGreen);
         }
 
         void DrawFireArcText(SlotStruct slot)
         {
             Color fill = Color.Black.Alpha(0.33f);
             Color edge = (slot.Module == HighlightedModule) ? Color.DarkOrange : fill;
-            DrawRectangle(slot.ModuleRect, edge, fill);
-            DrawString(slot.Center, 0, 1, Color.Orange, slot.Module.FacingDegrees.String(0));
+            DrawRectangleProjected(slot.WorldRect, edge, fill);
+            DrawStringProjected(slot.Center, 0, 1, Color.Orange, slot.Module.TurretAngle.ToString());
         }
 
         void DrawHangarShipText(SlotStruct s)
         {
-            string hangarShipUID = s.Module.hangarShipUID;
+            string hangarShipUID = s.Module.HangarShipUID;
             Color color = Color.Black.Alpha(0.33f);
             Color textC = ShipBuilder.GetHangarTextColor(hangarShipUID);
-            DrawRectangle(s.ModuleRect, textC, color);
+            DrawRectangleProjected(s.WorldRect, textC, color);
 
             if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship hangarShip))
             {
-                DrawString(s.Center, 0, 0.4f, textC, hangarShip.Name);
+                DrawStringProjected(s.Center, 0, 0.4f, textC, hangarShip.Name);
             }
         }
 
-        static void DrawArc(SpriteBatch batch, float shipFacing, Weapon w, ShipModule m,
-                            Vector2 posOnScreen, float sizeOnScreen, Color color, float level)
+        public void DrawWeaponArcs(SpriteBatch batch, SlotStruct slot)
         {
+            Weapon w = slot.Module.InstalledWeapon;
+            if (w != null)
+            {
+                DrawWeaponArcs(batch, this, w, slot.Module, slot.Center, 500f, 0f, slot.Module.TurretAngle);
+            }
+        }
+
+        void DrawWeaponArcs(SpriteBatch batch, ShipModule module, Vector2 moduleWorldPos, float shipFacing, int turretAngle)
+        {
+            Weapon w = module.InstalledWeapon;
+            if (w != null)
+            {
+                Vector2 moduleWorldCenter = moduleWorldPos + module.WorldSize * 0.5f;
+                DrawWeaponArcs(batch, this, module.InstalledWeapon, ActiveModule, 
+                               moduleWorldCenter, 500f, shipFacing, turretAngle);
+            }
+        }
+
+        // @note This is reused in DebugInfoScreen as well
+        public static void DrawWeaponArcs(SpriteBatch batch, GameScreen screen, Weapon w, ShipModule m,
+                                          Vector2 moduleWorldCenter, float worldSize, float shipFacing, int turretAngle)
+        {
+            Color color;
+            if (w.Tag_Cannon && !w.Tag_Energy)        color = new Color(255, 255, 0, 255);
+            else if (w.Tag_Railgun || w.Tag_Subspace) color = new Color(255, 0, 255, 255);
+            else if (w.Tag_Cannon)                    color = new Color(0, 255, 0, 255);
+            else if (!w.isBeam)                       color = new Color(255, 0, 0, 255);
+            else                                      color = new Color(0, 0, 255, 255);
+
+            screen.ProjectToScreenCoords(moduleWorldCenter, 0f, worldSize,
+                                         out Vector2d posOnScreen, out double sizeOnScreen);
+            Vector2 pos = posOnScreen.ToVec2f();
+            float size = (float)sizeOnScreen;
+
             SubTexture arcTexture = Empire.Universe.GetArcTexture(m.FieldOfFire.ToDegrees());
 
             var texOrigin = new Vector2(250f, 250f);
-            
-            Rectangle rect = posOnScreen.ToRect((int)sizeOnScreen, (int)sizeOnScreen);
+            var rect = new RectF(pos, new Vector2(size));
 
-            float radians = (shipFacing + m.FacingRadians);
-            batch.Draw(arcTexture, rect, color.Alpha(0.75f), radians, texOrigin, SpriteEffects.None, 1f);
+            float facing = shipFacing + ((float)turretAngle).ToRadians();
+            batch.Draw(arcTexture, rect, color.Alpha(0.75f), facing, texOrigin, SpriteEffects.None, 1f);
 
-            Vector2 direction = radians.RadiansToDirection();
-            Vector2 start     = posOnScreen;
-            Vector2 end = start + direction * sizeOnScreen;
+            Vector2 direction = facing.RadiansToDirection();
+            Vector2 start     = pos;
+            Vector2 end = start + direction * size;
             batch.DrawLine(start, start.LerpTo(end, 0.45f), color.Alpha(0.25f), 3);
-            //
 
-            end = start + direction * sizeOnScreen;
+            end = start + direction * size;
             
             Vector2 textPos = start.LerpTo(end, 0.16f);
-            float textRot   = radians + RadMath.HalfPI;
+            float textRot   = facing + RadMath.HalfPI;
             Vector2 offset  = direction.RightVector() * 6f;
             if (direction.X > 0f)
             {
@@ -391,136 +368,54 @@ namespace Ship_Game
                              textRot, new Vector2(textWidth / 2, 10f));
         }
 
-        // @note This is reused in DebugInfoScreen as well
-        public static void DrawWeaponArcs(SpriteBatch batch, float shipFacing, 
-            Weapon w, ShipModule module, Vector2 posOnScreen, float sizeOnScreen, float shipLevel)
+        void DrawActiveModule(SpriteBatch batch)
         {
-            Color color;
-            if (w.Tag_Cannon && !w.Tag_Energy)        color = new Color(255, 255, 0, 255);
-            else if (w.Tag_Railgun || w.Tag_Subspace) color = new Color(255, 0, 255, 255);
-            else if (w.Tag_Cannon)                    color = new Color(0, 255, 0, 255);
-            else if (!w.isBeam)                       color = new Color(255, 0, 0, 255);
-            else                                      color = new Color(0, 0, 255, 255);
-            DrawArc(batch, shipFacing, w, module, posOnScreen, sizeOnScreen, color, shipLevel);
-        }
+            ShipModule template = ResourceManager.GetModuleTemplate(ActiveModule.UID);
 
-        public static void DrawWeaponArcs(SpriteBatch batch, SlotStruct slot, float shipLevel)
-        {
-            Weapon w = slot.Module.InstalledWeapon;
-            if (w == null)
-                return;
-            DrawWeaponArcs(batch, 0f, w, slot.Module, slot.Center, 500f, shipLevel);
-        }
+            Vector2 moduleWorldPos = CursorWorldPosition2D.Rounded();
+            Vector2 moduleWorldSize = ActiveModule.WorldSize;
+            var worldRect = new RectF(moduleWorldPos, moduleWorldSize);
 
-        void DrawWeaponArcs(SpriteBatch batch, ShipModule module, Vector2 screenPos, float facing = 0f)
-        {
-            Weapon w = module.InstalledWeapon;
-            if (w == null)
-                return;
+            DrawModuleTex(ActiveModule.ModuleRot, batch, null, worldRect, template);
+            DrawWeaponArcs(batch, ActiveModule, moduleWorldPos, 0, ActiveModule.TurretAngle);
 
-            int cx = (int)(8f * module.XSIZE * Camera.Zoom);
-            int cy = (int)(8f * module.YSIZE * Camera.Zoom);
-            DrawWeaponArcs(batch, facing, module.InstalledWeapon, ActiveModule, screenPos + new Vector2(cx, cy), 500f, DesignedShip.TargetingAccuracy);
-        }
-
-        void DrawActiveModule(SpriteBatch spriteBatch)
-        {
-            ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(ActiveModule.UID);
-            int width  = (int)(16f * ActiveModule.XSIZE * Camera.Zoom);
-            int height = (int)(16f * ActiveModule.YSIZE * Camera.Zoom);
-            var r = new Rectangle((int)Input.CursorX, (int)Input.CursorY, width, height);
-            DrawModuleTex(ActiveModState, spriteBatch, null, r, moduleTemplate);
-            DrawWeaponArcs(spriteBatch, ActiveModule, r.PosVec());
-
-            int mirrorX = DrawActiveMirrorModule(spriteBatch, moduleTemplate, r.X);
-
-            if (ActiveModule.shield_power_max.AlmostZero())
-                return;
-
-            Vector2 normalizeShieldCircle;
-            var center = new Vector2(Input.CursorPosition.X, Input.CursorPosition.Y);
-            if (ActiveModState == ModuleOrientation.Normal || ActiveModState == ModuleOrientation.Rear)
-                normalizeShieldCircle = new Vector2(moduleTemplate.XSIZE * 8f, moduleTemplate.YSIZE * 8f);
-            else
-                normalizeShieldCircle = new Vector2(moduleTemplate.YSIZE * 8f, moduleTemplate.XSIZE * 8f);
-
-            center += normalizeShieldCircle;
-            DrawCircle(center, ActiveModule.ShieldHitRadius * Camera.Zoom, Color.LightGreen);
             if (IsSymmetricDesignMode)
             {
-                Vector2 mirrorCenter = new Vector2(mirrorX, Input.CursorPosition.Y);
-                mirrorCenter += normalizeShieldCircle;
-                DrawCircle(mirrorCenter, ActiveModule.ShieldHitRadius * Camera.Zoom, Color.LightGreen.Alpha(0.5f));
+                Vector2 mirrorWorldPos = GetMirrorWorldPos(moduleWorldPos, moduleWorldSize);
+                if (!MirroredModulesTooClose(mirrorWorldPos, moduleWorldPos, moduleWorldSize))
+                {
+                    ModuleOrientation orientation = GetMirroredOrientation(ActiveModule.ModuleRot);
+
+                    var mirrorWorldRect = new RectF(mirrorWorldPos, moduleWorldSize);
+                    DrawModuleTex(orientation, batch, null, mirrorWorldRect, template, 0.5f);
+
+                    int turretAngle = GetMirroredTurretAngle(ActiveModule.TurretAngle);
+                    DrawWeaponArcs(batch, ActiveModule, mirrorWorldPos, 0f, turretAngle);
+                }
+            }
+
+            if (ActiveModule.shield_power_max > 0f)
+            {
+                DrawShieldCircle(template, moduleWorldPos, moduleWorldSize);
             }
         }
 
-        int DrawActiveMirrorModule(SpriteBatch spriteBatch, ShipModule moduleTemplate, int activeModuleX)
+        void DrawShieldCircle(ShipModule moduleTemplate, Vector2 moduleWorldPos, Vector2 moduleWorldSize)
         {
-            if (!IsSymmetricDesignMode)
-                return 0;
+            Vector2 moduleCenter = moduleWorldPos + moduleWorldSize*0.5f;
+            DrawCircleProjected(moduleCenter, moduleTemplate.ShieldHitRadius, Color.LightGreen);
 
-            int effectiveWidth = ActiveModState == ModuleOrientation.Left || ActiveModState == ModuleOrientation.Right
-                               ? moduleTemplate.YSIZE
-                               : moduleTemplate.XSIZE;
-
-            int res          = GlobalStats.XRES / 2;
-            int zoomOffset   = (int)(effectiveWidth * 16 * (2.65 - Camera.Zoom)); // 2.65 is maximum zoom
-            int cameraOffset = (int)(res - CameraPosition.X * Camera.Zoom);
-            int mirrorX      = (int)(cameraOffset + (cameraOffset - Input.CursorPosition.X - 40 * effectiveWidth));
-            mirrorX         += zoomOffset;
-
-            if (MirroredModulesTooClose(mirrorX, activeModuleX, effectiveWidth))
-                return 0;
-
-            // Log.Info($"x: {Input.CursorPosition.X} Zoom: {Camera.Zoom} Mirror: {x} Camera: {CameraPosition.X}");
-            var rMir = new Rectangle(mirrorX, (int)Input.CursorY,
-                                    (int)(16 * ActiveModule.XSIZE * Camera.Zoom),
-                                    (int)(16 * ActiveModule.YSIZE * Camera.Zoom));
-            ModuleOrientation orientation = ActiveModState;
-            switch (ActiveModState)
+            if (IsSymmetricDesignMode)
             {
-                case ModuleOrientation.Left:  orientation = ModuleOrientation.Right; break;
-                case ModuleOrientation.Right: orientation = ModuleOrientation.Left;  break;
+                Vector2 mirrorCenter = GetMirrorWorldPos(moduleWorldPos, moduleWorldSize) + moduleWorldSize*0.5f;
+                DrawCircleProjected(mirrorCenter, moduleTemplate.ShieldHitRadius, Color.LightGreen.Alpha(0.5f));
             }
-
-            DrawModuleTex(orientation, spriteBatch, null, rMir, moduleTemplate, 0.5f);
-            float mirroredFacingOffset = 0f;
-            if (orientation != ActiveModState)
-            {
-                // this is a hack... we pretend the ship is rotated 180 degrees to draw the arcs facing
-                // the correct direction.... :D
-                mirroredFacingOffset = ActiveModule.FacingRadians - ConvertOrientationToFacing(orientation).ToRadians();
-            }
-            DrawWeaponArcs(spriteBatch, ActiveModule, rMir.PosVec(), mirroredFacingOffset);
-            return mirrorX;
-        }
-
-        bool MirroredModulesTooClose(int mirrorX, int activeModuleX, int effectiveWidth)
-        {
-            if (mirrorX > activeModuleX)
-            {
-                if (mirrorX + 20 * (2.65 - Camera.Zoom) - (activeModuleX + (effectiveWidth - 1) * 24) < 0)
-                    return true;
-            }
-            else if (activeModuleX + 20 * (2.65 - Camera.Zoom) - (mirrorX + (effectiveWidth + 1) * 24) < 0)
-                return true;
-
-            return false;
-        }
-
-        void DrawDebug(SpriteBatch batch)
-        {
-            string title = "HULL EDIT MODE";
-            var pos = new Vector2(CenterX - Fonts.Arial20Bold.TextWidth(title) * 0.5f, 120f);
-            batch.DrawDropShadowText(title, pos, Fonts.Arial20Bold);
-            pos = new Vector2(CenterX - Fonts.Arial20Bold.TextWidth(Operation.ToString()) * 0.5f, 140f);
-            batch.DrawDropShadowText(Operation.ToString(), pos, Fonts.Arial20Bold);
         }
 
         // TODO: Is this used anywhere?
         void DrawHullBonuses(ref Vector2 cursor, float cost)
         {
-            HullBonus bonus = ActiveHull.Bonuses;
+            HullBonus bonus = CurrentDesign.Bonuses;
             if (bonus.Hull.NotEmpty()) //Added by McShooterz: Draw Hull Bonuses
             {
                 if (bonus.ArmoredBonus != 0 || bonus.ShieldBonus != 0
@@ -564,6 +459,7 @@ namespace Ship_Game
             EmpireUI.Draw(batch);
             CategoryList.Draw(batch, elapsed);
 
+            // TODO: these should be split into separate parts
             DrawTitle(batch, ScreenWidth * 0.375f, "Repair Options");
             DrawTitle(batch, ScreenWidth * 0.65f, "Hangar Designation");
             HangarOptionsList.Draw(batch, elapsed);
@@ -587,12 +483,11 @@ namespace Ship_Game
                 r.Y += (int)(transitionOffset * 50f);
             batch.FillRectangle(r, new Color(54, 54, 54));
 
-
-            Graphics.Font font = Fonts.Arial20Bold.MeasureString(ActiveHull.Name).X <= (SearchBar.Width - 5)
-                            ? Fonts.Arial20Bold : Fonts.Arial12Bold;
+            string name = DesignOrHullName;
+            Graphics.Font font = Fonts.Arial20Bold.TextWidth(name) <= (SearchBar.Width - 5)
+                               ? Fonts.Arial20Bold : Fonts.Arial12Bold;
             var cursor1 = new Vector2(SearchBar.X + 3, r.Y + 14 - font.LineSpacing / 2);
-            batch.DrawString(font, ActiveHull.Name, cursor1, Color.White);
-
+            batch.DrawString(font, name, cursor1, Color.White);
 
             r = new Rectangle(r.X - r.Width - 12, r.Y, r.Width, r.Height);
             DesignRoleRect = new Rectangle(r.X , r.Y, r.Width, r.Height);

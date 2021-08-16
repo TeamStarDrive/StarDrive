@@ -1,7 +1,7 @@
 import os, sys
 from DeployUtils import appveyor_branch, fatal_error, exit_with_message, should_deploy, env, is_appveyor_build
 
-BUILD_VERSION = env('APPVEYOR_BUILD_VERSION', default='1.20.12000')
+BUILD_VERSION = env('APPVEYOR_BUILD_VERSION', default='1.30.13000')
 
 # chdir to given parameter if it exists
 if len(sys.argv) > 1 and sys.argv[1]:

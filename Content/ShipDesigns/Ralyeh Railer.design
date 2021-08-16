@@ -1,0 +1,23 @@
+﻿Version=1
+Name=Ralyeh Railer
+Hull=Ralyeh/Missionary
+Role=corvette
+Style=Ralyeh
+Size=4,6
+GridCenter=2,3
+DefaultCombatState=Artillery
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=Railgun1x3;OrdnanceLockerSmall;Cockpit;NuclearReactorMed;Engine;NuclearReactorSmall
+Modules=11
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,1;0;1,3
+1,0;1
+1,1;2
+1,2;3;2,2
+1,4;4
+1,5;4
+2,0;1
+2,1;5
+2,4;4
+2,5;4
+3,1;0;1,3

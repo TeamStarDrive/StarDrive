@@ -1,29 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
-using Ship_Game.AI;
+using Newtonsoft.Json;
+using Ship_Game.Data;
+using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Serialization.Types;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships.Legacy;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Ships
 {
     public class ShipHull
     {
+        // Current version of ShipData files
+        // If we introduce incompatibilities we need to convert old to new
         public const int Version = 1;
+        
+        public bool ThisClassMustNotBeAutoSerializedByDotNet =>
+            throw new InvalidOperationException(
+                $"BUG! ShipHull must not be automatically serialized! Add [XmlIgnore][JsonIgnore] to `public ShipHull XXX;` PROPERTIES/FIELDS. {this}");
 
         public string HullName; // ID of the hull, ex: "Cordrazine/Dodaving"
+        public string VisibleName; // Visible name of the Hull in the UI, ex: Misc/HaulerSmall -> "Small Freighter"
         public string ModName; // null if vanilla, else mod name eg "Combined Arms"
         public string Style; // "Terran"
         public string Description; // "With the advent of more powerful StarDrives, this giant cruiser hull was ..."
         public Point Size;
-        public int Area;
+        public int SurfaceArea;
+        public Vector2 MeshOffset; // offset of the mesh from Mesh object center, for grid to match model
         public string IconPath; // "ShipIcons/shuttle"
         public string ModelPath; // "Model/Ships/Terran/Shuttle/ship08"
-        
+
         public ShipData.RoleName Role = ShipData.RoleName.fighter;
         public string SelectIcon = "";
         public bool Animated;
@@ -32,17 +43,41 @@ namespace Ship_Game.Ships
         public ShipData.ThrusterZone[] Thrusters = Empty<ShipData.ThrusterZone>.Array;
         public HullSlot[] HullSlots;
 
-        public FileInfo Source;
+        // offset from grid TopLeft to the Center slot
+        [XmlIgnore][JsonIgnore] public Point GridCenter;
+
+        [XmlIgnore][JsonIgnore] public bool Unlockable = true;
+        [XmlIgnore][JsonIgnore] public HashSet<string> TechsNeeded = new HashSet<string>();
+
+        [XmlIgnore][JsonIgnore] public FileInfo Source;
+        [XmlIgnore][JsonIgnore] public SubTexture Icon => ResourceManager.Texture(IconPath);
+        [XmlIgnore][JsonIgnore] public Vector3 Volume { get; private set; }
+        [XmlIgnore][JsonIgnore] public float ModelZ { get; private set; }
+        [XmlIgnore][JsonIgnore] public HullBonus Bonuses { get; private set; }
 
         public HullSlot FindSlot(Point p)
         {
             for (int i = 0; i < HullSlots.Length; ++i)
             {
                 var slot = HullSlots[i];
-                if (slot.P == p)
+                if (slot.Pos == p)
                     return slot;
             }
             return null;
+        }
+
+        public void LoadModel(out SceneObject shipSO, GameContentManager content)
+        {
+            lock (this)
+            {
+                shipSO = StaticMesh.GetSceneMesh(content, ModelPath, Animated);
+
+                if (Volume.X.AlmostEqual(0f))
+                {
+                    Volume = shipSO.GetMeshBoundingBox().Max;
+                    ModelZ = Volume.Z;
+                }
+            }
         }
 
         public ShipHull()
@@ -50,28 +85,36 @@ namespace Ship_Game.Ships
         }
 
         // LEGACY: convert old ShipData hulls into new .hull
-        public ShipHull(ShipData sd)
+        public ShipHull(LegacyShipData sd)
         {
             HullName = sd.Hull;
+            VisibleName = sd.Name;
             ModName = sd.ModName ?? "";
             Style = sd.ShipStyle;
             Size = sd.GridInfo.Size;
-            Area = sd.GridInfo.SurfaceArea;
+            SurfaceArea = sd.GridInfo.SurfaceArea;
+            MeshOffset  = sd.GridInfo.MeshOffset;
             IconPath = sd.IconPath;
             ModelPath = sd.ModelPath;
 
-            Role = sd.Role;
+            Role = (ShipData.RoleName)(int)sd.Role;
             SelectIcon = sd.SelectionGraphic;
             Animated = sd.Animated;
-            Thrusters = sd.ThrusterList.CloneArray();
 
-            Vector2 origin = sd.GridInfo.Origin;
+            Thrusters = new ShipData.ThrusterZone[sd.ThrusterList.Length];
+            for (int i = 0; i < sd.ThrusterList.Length; ++i)
+            {
+                Thrusters[i].Position = sd.ThrusterList[i].Position;
+                Thrusters[i].Scale = sd.ThrusterList[i].Scale;
+            }
+
+            Vector2 origin = sd.GridInfo.VirtualOrigin;
             var legacyOffset = new Vector2(ShipModule.ModuleSlotOffset);
 
             HullSlots = new HullSlot[sd.ModuleSlots.Length];
             for (int i = 0; i < sd.ModuleSlots.Length; ++i)
             {
-                ModuleSlotData msd = sd.ModuleSlots[i];
+                LegacyModuleSlotData msd = sd.ModuleSlots[i];
                 Vector2 pos = (msd.Position - legacyOffset) - origin;
                 HullSlots[i] = new HullSlot((int)(pos.X / 16f),
                                             (int)(pos.Y / 16f),
@@ -79,6 +122,13 @@ namespace Ship_Game.Ships
             }
 
             Array.Sort(HullSlots, HullSlot.Sorter);
+
+            GridCenter = sd.GridInfo.GridCenter;
+            InitializeCommon();
+        }
+
+        public ShipHull(string filePath) : this(new FileInfo(filePath))
+        {
         }
 
         public ShipHull(FileInfo file)
@@ -110,11 +160,13 @@ namespace Ship_Game.Ships
                                 Log.Warning($"Hull {file.NameNoExt()} file version={version} does not match current={Version}");
                             break;
                         case "HullName":   HullName = val; break;
+                        case "VisibleName": VisibleName = val; break;
                         case "Role":       Enum.TryParse(val, out Role); break;
                         case "ModName":    ModName = val; break;
                         case "Description":Description = val; break;
                         case "Style":      Style = val; break;
                         case "Size":       Size = PointSerializer.FromString(val); break;
+                        case "MeshOffset": MeshOffset = Vector2Serializer.FromString(val); break;
                         case "IconPath":   IconPath = val; break;
                         case "ModelPath":  ModelPath = val; break;
                         case "SelectIcon": SelectIcon = val; break;
@@ -142,8 +194,25 @@ namespace Ship_Game.Ships
                     for (int x = 0; x < cols.Length; ++x)
                     {
                         string col = cols[x];
-                        if (col != "___" && Enum.TryParse(col.Trim(), out Restrictions r))
-                            slots.Add(new HullSlot(x, height, r));
+                        if (col != "___")
+                        {
+                            if (col.IndexOf('C') != -1) // grid center marker
+                            {
+                                GridCenter = new Point(x, height);
+                                if (col != "C__")
+                                {
+                                    var r = Restrictions.I;
+                                    if      (col == "IOC") r = Restrictions.IO;
+                                    else if (col == "OC ") r = Restrictions.O;
+                                    else if (col == "EC ") r = Restrictions.E;
+                                    slots.Add(new HullSlot(x, height, r));
+                                }
+                            }
+                            else if (Enum.TryParse(col.Trim(), out Restrictions r))
+                            {
+                                slots.Add(new HullSlot(x, height, r));
+                            }
+                        }
                     }
                     ++height;
                 }
@@ -152,8 +221,41 @@ namespace Ship_Game.Ships
             if (height != Size.Y)
                 Log.Error($"Hull {file.NameNoExt()} design rows={height} does not match defined Size Height={Size.Y}");
 
+            if (GridCenter == Point.Zero)
+                Log.Error($"Hull {file.NameNoExt()} invalid GridCenter={GridCenter}, is `IC` slot missing?");
+
             HullSlots = slots.ToArray();
-            Area = HullSlots.Length;
+            SurfaceArea = HullSlots.Length;
+
+            InitializeCommon();
+        }
+
+        public ShipHull GetClone()
+        {
+            ShipHull hull = (ShipHull)MemberwiseClone();
+            hull.HullSlots = HullSlots.CloneArray();
+            hull.TechsNeeded = new HashSet<string>(TechsNeeded);
+            return hull;
+        }
+
+        void InitializeCommon()
+        {
+            Bonuses = ResourceManager.HullBonuses.TryGetValue(HullName, out HullBonus bonus) ? bonus : HullBonus.Default;
+        }
+
+        // Sets hull slots of this design and recalculates grid size
+        public void SetHullSlots(Array<HullSlot> slots)
+        {
+            HullSlots = slots.ToArray();
+            var info = new ShipGridInfo(HullSlots);
+            Size = info.Size;
+            SurfaceArea = info.SurfaceArea;
+            Array.Sort(HullSlots, HullSlot.Sorter);
+        }
+
+        public void Save(string filePath)
+        {
+            Save(new FileInfo(filePath));
         }
 
         public void Save(FileInfo file)
@@ -161,11 +263,14 @@ namespace Ship_Game.Ships
             var sw = new ShipDataWriter();
             sw.Write("Version", Version);
             sw.Write("HullName", HullName);
+            sw.Write("VisibleName", VisibleName);
             sw.Write("Role", Role);
             sw.Write("ModName", ModName);
             sw.Write("Style", Style);
             sw.Write("Description", Description);
             sw.Write("Size", Size.X+","+Size.Y);
+            // GridCenter is saved as IOC / IC slot
+            sw.Write("MeshOffset", MeshOffset.X+","+MeshOffset.Y);
             sw.Write("IconPath", IconPath);
             sw.Write("ModelPath", ModelPath);
             sw.Write("SelectIcon", SelectIcon);
@@ -194,11 +299,26 @@ namespace Ship_Game.Ships
                     HullSlot slot = grid[x, y];
                     if (slot == null)
                     {
-                        sb.Append("___");
+                        if (GridCenter.X == x && GridCenter.Y == y)
+                            sb.Append("C__"); // GridCenter in an empty slot (hole in center of ship)
+                        else
+                            sb.Append("___");
                     }
                     else
                     {
-                        string r = slot.R.ToString();
+                        string r;
+                        if (slot.Pos == GridCenter) // GridCenter ontop of an existing slot
+                        {
+                            if      (slot.R == Restrictions.IO) r = "IOC";
+                            else if (slot.R == Restrictions.O)  r = "OC ";
+                            else if (slot.R == Restrictions.E)  r = "EC ";
+                            else                                r = "IC ";
+                        }
+                        else
+                        {
+                            r = slot.R.ToString();
+                        }
+
                         sb.Append(r);
                         if (3 - r.Length > 0)
                             sb.Append(' ', 3 - r.Length);
@@ -211,7 +331,7 @@ namespace Ship_Game.Ships
             }
 
             sw.FlushToFile(file);
-            Log.Info($"Saved {file.FullName}");
+            Log.Info($"Saved '{HullName}' to {file.FullName}");
         }
     }
 }

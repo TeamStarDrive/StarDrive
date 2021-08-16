@@ -47,15 +47,15 @@ namespace Ship_Game
                 if (!Frustum.Contains(solarSystem.Position, solarSystem.Radius))
                     continue;
 
-                ProjectToScreenCoords(solarSystem.Position, 4500f, out Vector2 sysScreenPos,
-                    out float sysScreenPosDisToRight);
+                ProjectToScreenCoords(solarSystem.Position, 4500f, out Vector2d sysScreenPos, out double sysScreenPosDisToRight);
+                Vector2 screenPos = sysScreenPos.ToVec2f();
 
                 lock (GlobalStats.ClickableSystemsLock)
                 {
                     ClickableSystems.Add(new ClickableSystem
                     {
-                        Radius = sysScreenPosDisToRight < 8f ? 8f : sysScreenPosDisToRight,
-                        ScreenPos = sysScreenPos,
+                        Radius = sysScreenPosDisToRight < 8 ? 8f : (float)sysScreenPosDisToRight,
+                        ScreenPos = screenPos,
                         systemToClick = solarSystem
                     });
                 }
@@ -71,7 +71,7 @@ namespace Ship_Game
                 }
                 if (viewState < UnivScreenState.GalaxyView)
                 {
-                    DrawSolarSysWithOrbits(solarSystem, sysScreenPos);
+                    DrawSolarSysWithOrbits(solarSystem, screenPos);
                 }
             }
 
@@ -99,16 +99,16 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; i++)
             {
                 Ship ship = ships[i];
-                if ((viewState == UnivScreenState.GalaxyView && ship.IsPlatform))
+                if (viewState == UnivScreenState.GalaxyView && ship.IsPlatform)
                     continue;
 
-                ProjectToScreenCoords(ship.Position, ship.Radius,
-                    out Vector2 shipScreenPos, out float screenRadius);
+                ProjectToScreenCoords(ship.Position, ship.Radius, out Vector2d shipScreenPos, out double screenRadius);
+                Vector2 screenPos = shipScreenPos.ToVec2f();
 
                 ClickableShipsList.Add(new ClickableShip
                 {
-                    Radius = screenRadius < 7f ? 7f : screenRadius,
-                    ScreenPos = shipScreenPos,
+                    Radius = screenRadius < 7.0 ? 7f : (float)screenRadius,
+                    ScreenPos = screenPos,
                     shipToClick = ship
                 });
             }
@@ -128,7 +128,7 @@ namespace Ship_Game
             for (int i = 0; i < sys.PlanetList.Count; i++)
             {
                 Planet planet = sys.PlanetList[i];
-                Vector2 planetScreenPos = ProjectToScreenPosition(planet.Center, 2500f);
+                Vector2 planetScreenPos = ProjectToScreenPosition(planet.Center, 2500f).ToVec2f();
                 float planetOrbitRadius = sysScreenPos.Distance(planetScreenPos);
 
                 if (viewState > UnivScreenState.ShipView && !IsCinematicModeEnabled)
@@ -152,14 +152,15 @@ namespace Ship_Game
         void DrawPlanetInSectorView(Planet planet)
         {
             ProjectToScreenCoords(planet.Center, 2500f, planet.SO.WorldBoundingSphere.Radius,
-                out Vector2 planetScreenPos, out float planetScreenRadius);
-            float scale = planetScreenRadius / 115f;
+                                  out Vector2d planetScreenPos, out double planetScreenRadius);
+            Vector2 pos = planetScreenPos.ToVec2fRounded();
+            float scale = (float)(planetScreenRadius / 115.0);
 
             // atmospheric glow
             if (planet.Type.Glow != PlanetGlow.None)
             {
                 SubTexture glow = Glows[planet.Type.Glow];
-                ScreenManager.SpriteBatch.Draw(glow, planetScreenPos,
+                ScreenManager.SpriteBatch.Draw(glow, pos,
                     Color.White, 0.0f, new Vector2(128f, 128f), scale,
                     SpriteEffects.None, 1f);
             }
@@ -168,8 +169,8 @@ namespace Ship_Game
             {
                 ClickPlanetList.Add(new ClickablePlanets
                 {
-                    ScreenPos = planetScreenPos,
-                    Radius = planetScreenRadius < 8f ? 8f : planetScreenRadius,
+                    ScreenPos = pos,
+                    Radius = planetScreenRadius < 8.0 ? 8f : (float)planetScreenRadius,
                     planetToClick = planet
                 });
             }
@@ -211,7 +212,7 @@ namespace Ship_Game
             if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
             {
                 // set the alpha value depending on camera height
-                int alpha = (int) (90.0f * CamHeight / 1800000.0f);
+                int alpha = (int) (90.0 * CamPos.Z / 1800000.0);
                 if (alpha > 90) alpha = 90;
                 else if (alpha < 10) alpha = 0;
                 var color = new Color(255, 255, 255, (byte) alpha);
@@ -517,7 +518,7 @@ namespace Ship_Game
         public void DrawShipAOAndTradeRoutes()
         {
             if (DefiningAO && Input.LeftMouseDown)
-                DrawRectangleProjected(AORect, Color.Orange);
+                DrawRectangleProjected(new RectF(AORect), Color.Orange);
 
             if ((DefiningAO || DefiningTradeRoutes) && SelectedShip != null)
             {
@@ -534,7 +535,7 @@ namespace Ship_Game
                     DrawZones(Fonts.Pirulen16, $"Current list of planets in trade route: {numRoutes}", ref cursorY, Color.White);
 
                 foreach (Rectangle ao in SelectedShip.AreaOfOperation)
-                    DrawRectangleProjected(ao, Color.Red, new Color(Color.Red, 50));
+                    DrawRectangleProjected(new RectF(ao), Color.Red, new Color(Color.Red, 50));
 
                 // Draw Specific Trade Routes to planets
                 if (SelectedShip.IsFreighter)

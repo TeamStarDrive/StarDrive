@@ -21,7 +21,7 @@ namespace Ship_Game
         public ShipModule module;
         public Troop troop;
         public Building building;
-        public ShipData hull;
+        public ShipHull hull;
 
         public string Title;
         public string Description;
@@ -56,12 +56,12 @@ namespace Ship_Game
         public UnlockItem(string tech, in Technology.UnlockedHull unlockedHull)
         {
             // Allow NULL, so we can display error icon
-            if (!ResourceManager.Hull(unlockedHull.Name, out ShipData hullData))
+            if (!ResourceManager.Hull(unlockedHull.Name, out ShipHull hullData))
                 Log.Warning(ConsoleColor.Red, $"Tech={tech} unlock hull={unlockedHull.Name} missing");
             
             Type = UnlockType.Hull;
             hull = hullData;
-            Title = hullData?.Name ?? unlockedHull.Name;
+            Title = hullData?.VisibleName ?? unlockedHull.Name;
             Description = Localizer.Token(GameText.UnlocksANewHullType) + " " +
                           (hullData != null ? Localizer.GetRole(hullData.Role, EmpireManager.Player)
                                             : "Hull: " + unlockedHull.Name);

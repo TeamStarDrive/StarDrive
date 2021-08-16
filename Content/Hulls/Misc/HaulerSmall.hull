@@ -1,0 +1,24 @@
+﻿Version=1
+HullName=Misc/HaulerSmall
+VisibleName=Small Freighter
+Role=freighter
+Style=Misc
+Size=4,10
+MeshOffset=0,-16
+IconPath=ShipIcons/terran_cargo1
+ModelPath=Model/Ships/CargoShips/CargoHaulerShort
+SelectIcon=04
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=232,344,0,30
+Thruster=264,328,0,30
+Slots
+___|O  |O  |___
+___|I  |I  |___
+___|I  |I  |___
+___|I  |I  |___
+O  |I  |IC |O  
+O  |I  |I  |O  
+O  |I  |I  |O  
+___|I  |I  |___
+___|E  |E  |___
+___|E  |E  |___

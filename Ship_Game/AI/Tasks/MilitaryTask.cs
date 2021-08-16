@@ -361,7 +361,7 @@ namespace Ship_Game.AI.Tasks
             for (int i = 0; i < Fleet.Ships.Count; i++)
             {
                 Ship ship = Fleet.Ships[i];
-                ship.AI.CombatState = ship.shipData.CombatState;
+                ship.AI.CombatState = ship.shipData.DefaultCombatState;
                 ship.AI.ClearOrders();
                 ship.HyperspaceReturn();
             }

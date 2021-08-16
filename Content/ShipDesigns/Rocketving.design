@@ -1,0 +1,22 @@
+﻿Version=1
+Name=Rocketving
+Hull=Cordrazine/Ving
+Role=fighter
+Style=Cordrazine
+Size=6,3
+GridCenter=3,2
+DefaultCombatState=Artillery
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=OrdnanceLockerSmall;RocketLauncher;Cockpit;NuclearReactorSmall;WarpEngine_1x1;Engine
+Modules=10
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,2;0
+1,1;1
+2,0;2
+2,1;3
+2,2;4
+3,0;1
+3,1;3
+3,2;5
+4,1;1
+5,2;0

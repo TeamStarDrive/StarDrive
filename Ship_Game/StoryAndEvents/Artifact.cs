@@ -102,7 +102,7 @@ namespace Ship_Game
                     triggerer.data.Traits, "Empire-wide Bonus Shield Penetration Chance: ", popup);
 
                 // refresh all bonuses so modules would know their health etc. increased
-                EmpireShipBonuses.RefreshBonuses(triggerer);
+                EmpireHullBonuses.RefreshBonuses(triggerer);
             }
         }
         public float GetGroundCombatBonus(EmpireData data) => ArtifactBonusForEmpire(GroundCombatMod, data.Traits.Spiritual);

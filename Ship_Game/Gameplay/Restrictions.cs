@@ -9,8 +9,8 @@ namespace Ship_Game.Gameplay
         IE,
         OE,
         IOE,
-        xI,
-        xIO,
-        xO
+        xI, // only I
+        xIO, // only IO
+        xO // only O
     }
 }

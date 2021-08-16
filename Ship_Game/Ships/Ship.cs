@@ -793,7 +793,7 @@ namespace Ship_Game.Ships
             return GetCost(loyalty) / 2f;
         }
 
-        public ShipData BaseHull => shipData.BaseHull;
+        public ShipHull BaseHull => shipData.BaseHull;
 
         public void Explore()
         {
@@ -855,7 +855,7 @@ namespace Ship_Game.Ships
 
             ShipModule m = w.Module;
             return RadMath.IsTargetInsideArc(m.Position, target.Position,
-                                             Rotation + m.FacingRadians, m.FieldOfFire);
+                                             Rotation + m.TurretAngleRads, m.FieldOfFire);
         }
 
         // This is used by Beam weapons and by Testing
@@ -863,7 +863,7 @@ namespace Ship_Game.Ships
         {
             ShipModule m = w.Module;
             return RadMath.IsTargetInsideArc(m.Position, pickedPos,
-                                             Rotation + m.FacingRadians, m.FieldOfFire);
+                                             Rotation + m.TurretAngleRads, m.FieldOfFire);
         }
 
         public SceneObject GetSO()
@@ -933,12 +933,12 @@ namespace Ship_Game.Ships
         }
 
         // This is used during Saving for ShipSaveData
-        public ModuleSlotData[] GetModuleSlotDataArray()
+        public ModuleSaveData[] GetModuleSaveData()
         {
-            var slots = new ModuleSlotData[ModuleSlotList.Length];
+            var slots = new ModuleSaveData[ModuleSlotList.Length];
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
-                slots[i] = new ModuleSlotData(ModuleSlotList[i]);
+                slots[i] = new ModuleSaveData(ModuleSlotList[i]);
             }
             return slots;
         }
@@ -1238,7 +1238,7 @@ namespace Ship_Game.Ships
             }
 
             // Update max health if needed
-            int latestRevision = EmpireShipBonuses.GetBonusRevisionId(loyalty);
+            int latestRevision = EmpireHullBonuses.GetBonusRevisionId(loyalty);
             if (MaxHealthRevision != latestRevision)
             {
                 MaxHealthRevision = latestRevision;
@@ -1559,9 +1559,9 @@ namespace Ship_Game.Ships
                 }
             }
 
-            if (BaseHull.EventOnDeath != null)
+            if (shipData.EventOnDeath != null)
             {
-                var evt = ResourceManager.EventsDict[BaseHull.EventOnDeath];
+                var evt = ResourceManager.EventsDict[shipData.EventOnDeath];
                 Empire.Universe.ScreenManager.AddScreen(
                     new EventPopup(Empire.Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
             }

@@ -26,9 +26,9 @@ namespace Ship_Game
     public static class GlobalStats
     {
         // 1.Major.Patch commit
-        public static string Version = ""; // "1.20.12000 develop/f83ab4a"
-        public static string ExtendedVersion = ""; // "BlackBox : 1.20.12000 develop/f83ab4a"
-        public static string ExtendedVersionNoHash = ""; // "BlackBox : 1.20.12000"
+        public static string Version = ""; // "1.30.13000 develop/f83ab4a"
+        public static string ExtendedVersion = ""; // "Mars : 1.20.12000 develop/f83ab4a"
+        public static string ExtendedVersionNoHash = ""; // "Mars : 1.20.12000"
 
         public static float RushCostPercentage = 1; // How much rushing costs in percentage of production cost
 
@@ -109,6 +109,25 @@ namespace Ship_Game
         public static bool DisableInhibitionWarning = true;
         public static bool DisableVolcanoWarning;
         public static bool UseUpkeepByHullSize;
+
+        // if true, Counts Ship Design's internal modules from Hull Slots
+        // (any Module overlapping an I slot)
+        // if false, Count Ship's internal modules only
+        // by # of modules with `I` restrictions
+        public static bool CountInternalModulesFromHull = false;
+
+        // How easy ships are to destroy. Ships which have active
+        // internal slots below this ratio, will Die()
+        public const float ShipDestroyThreshold = 0.5f;
+
+        // If TRUE, the game will attempt to convert any old XML Hull Designs
+        // into new .hull designs. This should only be enabled on demand because it's slow.
+        public static bool GenerateNewHullFiles = false;
+
+        // If TRUE, the game will attempt to convert any old XML SHIP Designs
+        // into new .design files. This should only be enabled on demand because it's slow.
+        public static bool GenerateNewShipDesignFiles = false;
+
 
         public static int CameraPanSpeed    = 2;
         public static float DamageIntensity = 1;
@@ -210,8 +229,8 @@ namespace Ship_Game
                 .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
                 as AssemblyInformationalVersionAttribute[])?[0].InformationalVersion ?? "";
 
-            ExtendedVersion       = $"BlackBox : {Version}";
-            ExtendedVersionNoHash = $"BlackBox : {Version.Split(' ')[0]}";
+            ExtendedVersion       = $"Mars : {Version}";
+            ExtendedVersionNoHash = $"Mars : {Version.Split(' ')[0]}";
 
             GetSetting("GravityWellRange"      , ref GravityWellRange);
             GetSetting("StartingPlanetRichness", ref StartingPlanetRichness);
