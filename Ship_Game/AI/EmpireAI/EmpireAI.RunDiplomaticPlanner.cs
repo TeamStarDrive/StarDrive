@@ -12,33 +12,31 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer)
                 return;
 
-            if (OwnerEmpire.GetAverageWarGrade() < 2)
-            {
-                //TryMergeOrSurrender
-            }
-            else
-            {
-                switch (OwnerEmpire.Personality)
-                {
-                    case PersonalityType.Cunning:
-                    case PersonalityType.Honorable:
-                    case PersonalityType.Pacifist:   DoConservativeRelations(); break;
-                    case PersonalityType.Aggressive: DoAggressiveRelations();   break;
-                    case PersonalityType.Xenophobic: DoXenophobicRelations();   break;
-                    case PersonalityType.Ruthless:   DoRuthlessRelations();     break;
-                }
+            if (OwnerEmpire.GetAverageWarGrade() < 2 && TryMergeOrSurrender())
+                return;
 
-                foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
-                {
-                    if (!them.isFaction && !OwnerEmpire.isFaction && !them.data.Defeated)
-                        CheckColonizationClaims(them, rel);
-                }
+            switch (OwnerEmpire.Personality)
+            {
+                case PersonalityType.Cunning:
+                case PersonalityType.Honorable:
+                case PersonalityType.Pacifist:   DoConservativeRelations(); break;
+                case PersonalityType.Aggressive: DoAggressiveRelations();   break;
+                case PersonalityType.Xenophobic: DoXenophobicRelations();   break;
+                case PersonalityType.Ruthless:   DoRuthlessRelations();     break;
+            }
+
+            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
+            {
+                if (!them.isFaction && !OwnerEmpire.isFaction && !them.data.Defeated)
+                    CheckColonizationClaims(them, rel);
             }
         }
 
-        void TryMergeOrSurrender()
+        bool TryMergeOrSurrender()
         {
-            if (EmpireManager.MajorEmpiresAtWarWith(OwnerEmpire).Any(e => e.TotalPopBillion > OwnerEmpire.TotalPopBillion))
+            float ratio = OwnerEmpire.PersonalityModifiers.PopRatioBeforeMerge;
+            //if (EmpireManager.MajorEmpiresAtWarWith(OwnerEmpire).Any(e => e.TotalPopBillion * ratio > OwnerEmpire.TotalPopBillion))
+            return false;
         }
 
         void DoConservativeRelations()
