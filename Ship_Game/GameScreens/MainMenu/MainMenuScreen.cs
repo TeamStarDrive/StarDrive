@@ -11,17 +11,26 @@ using SynapseGaming.LightingSystem.Shadows;
 
 namespace Ship_Game.GameScreens.MainMenu
 {
+    public enum MainMenuType
+    {
+        Default,
+        Victory,
+        Defeat,
+    }
+
     public sealed class MainMenuScreen : GameScreen
     {
         readonly Array<MenuFleet> Fleets = new Array<MenuFleet>();
         UIElementContainer VersionArea;
         Vector3 CamPos;
+        MainMenuType Type;
 
-        public MainMenuScreen() : base(null /*no parent*/)
+        public MainMenuScreen(MainMenuType type = MainMenuType.Default) : base(null /*no parent*/)
         {
             CanEscapeFromScreen = false;
             TransitionOnTime  = 1.0f;
             TransitionOffTime = 0.5f;
+            Type = type;
         }
         
         static void OnModChanged(FileInfo info)
@@ -77,8 +86,8 @@ namespace Ship_Game.GameScreens.MainMenu
 
             CamPos = new Vector3(0f, 0f, -1000f);
             var lookAt = new Vector3(0f, 0f, 10000f);
-            View = Matrix.CreateLookAt(CamPos, lookAt, Vector3.Down);
-            Projection = Matrix.CreatePerspectiveFieldOfView(0.785f, Viewport.AspectRatio, 10f, 35000f);
+            SetViewMatrix(Matrix.CreateLookAt(CamPos, lookAt, Vector3.Down));
+            SetPerspectiveProjection(maxDistance: 35000);
 
             if (Find("blacbox_animated_logo", out UIPanel logo))
             {
@@ -139,7 +148,7 @@ namespace Ship_Game.GameScreens.MainMenu
             VersionArea = Panel(Rectangle.Empty, Color.TransparentBlack);
             VersionArea.StartFadeIn(3.0f, delay: 2.0f);
 
-            string starDrive = "StarDrive 15B";
+            string starDrive = "StarDrive BlackBox";
             string blackBox = GlobalStats.ExtendedVersionNoHash;
             string modTitle = "";
             if (GlobalStats.HasMod)
@@ -184,7 +193,16 @@ namespace Ship_Game.GameScreens.MainMenu
             GameAudio.StopGenericMusic();
             ScreenManager.Music.Stop();
 
-            if (GlobalStats.HasMod && GlobalStats.ActiveMod.MainMenuMusic.NotEmpty())
+            if (Type == MainMenuType.Victory)
+            {
+                GameAudio.SwitchToRacialMusic();
+                ScreenManager.Music = GameAudio.PlayMusic("TitleTheme");
+            }
+            else if (Type == MainMenuType.Defeat)
+            {
+                ScreenManager.Music = GameAudio.PlayMusic("TitleTheme");
+            }
+            else if (GlobalStats.HasMod && GlobalStats.ActiveMod.MainMenuMusic.NotEmpty())
             {
                 ScreenManager.Music = GameAudio.PlayMp3(GlobalStats.ModPath + GlobalStats.ActiveMod.MainMenuMusic);
             }

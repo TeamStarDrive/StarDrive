@@ -389,21 +389,22 @@ namespace Ship_Game
             return result;
         }
 
-        // this will mess up the ordering of your items due to SwapLast optimization and it will shrink the array by 1 element
-        // the result will be passed to the out parameter
+        // This will mess up the ordering of your items due to SwapLast optimization and
+        // it will shrink the array by 1 element. the result will be passed to the out parameter
         public static void Remove<T>(this T[] array, T item, out T[] result) where T : class
         {
             for (int i = 0; i < array.Length; ++i)
             {
-                if (array[i] != item)
-                    continue;
-
-                int newLength = array.Length - 1;
-                array[i] = array[newLength];
-                Memory.HybridCopyRefs(result = new T[newLength], 0, array, newLength);
-                return;
+                if (array[i] == item)
+                {
+                    int newLength = array.Length - 1;
+                    array[i] = array[newLength];
+                    result = new T[newLength];
+                    Memory.HybridCopyRefs(result, 0, array, newLength);
+                    return;
+                }
             }
-            result = array;
+            result = array; // no change
         }
 
         // Warning! This array add does not have amortized growth and will resize the array every time you Add !

@@ -1,0 +1,27 @@
+﻿Version=1
+HullName=Opteris/Crawler
+VisibleName=Crawler
+Role=freighter
+Style=Opteris
+Size=4,14
+MeshOffset=0,0
+IconPath=ShipIcons/Crawler
+ModelPath=Model/Ships/Opteris/Ship19h
+SelectIcon=19h
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=256,343,0,45
+Slots
+___|O  |O  |___
+O  |I  |I  |O  
+O  |I  |I  |O  
+O  |I  |I  |O  
+O  |I  |I  |O  
+O  |I  |I  |O  
+O  |I  |I  |O  
+O  |I  |IC |O  
+O  |I  |I  |O  
+O  |I  |I  |O  
+O  |I  |I  |O  
+O  |I  |I  |O  
+___|E  |E  |___
+___|E  |E  |___

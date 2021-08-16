@@ -351,7 +351,7 @@ namespace Ship_Game.Spatial
             bool enabled = opt.Enabled;
             var nativeOpt = new NativeVisOptions
             {
-                VisibleWorldRect  = new AABoundingBox2Di(screen.GetVisibleWorldRect()),
+                VisibleWorldRect  = new AABoundingBox2Di(screen.VisibleWorldRect),
                 ObjectBounds      = (byte)(enabled & opt.ObjectBounds?1:0),
                 ObjectToLeafLines = (byte)(enabled & opt.ObjectToLeaf?1:0),
                 ObjectText    = (byte)(enabled & opt.ObjectText?1:0),

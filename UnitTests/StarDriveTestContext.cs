@@ -78,10 +78,9 @@ namespace UnitTests
         public static void ReloadStarterShips()
         {
             // some basic ships that we always use
-            string[] starterShips = { "Vulcan Scout", "Rocket Scout", "Colony Ship", 
-                                      "Small Transport", "Supply Shuttle", "Subspace Projector" };
-            string[] savedDesigns = { "Prototype Frigate" };
-            ResourceManager.LoadStarterShipsForTesting(starterShips, savedDesigns, clearAll: true);
+            string[] shipDesigns = { "Vulcan Scout", "Rocket Scout",  "Prototype Frigate", "Colony Ship",
+                                     "Small Transport", "Supply Shuttle", "Subspace Projector" };
+            ResourceManager.LoadStarterShipsForTesting(shipDesigns, clearAll: true);
         }
 
         public static void Cleanup()

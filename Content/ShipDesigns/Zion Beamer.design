@@ -1,0 +1,42 @@
+﻿Version=1
+Name=Zion Beamer
+Hull=Ralyeh/Zion
+Role=frigate
+Style=Ralyeh
+Size=8,9
+GridCenter=4,5
+DefaultCombatState=Artillery
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=SteelArmorSmall;LaserBeam2x3;Cockpit;BasicFuelCell;NuclearReactorSmall;PowerConduit;LaserBeamTurret2x2;NuclearReactorMed;Shield_1KW;FrigateEngine;WarpEngine_1x1
+Modules=30
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,2;0
+0,3;1;2,3
+0,6;0
+1,2;0;;264
+2,1;0
+2,2;2
+2,3;3
+2,4;4
+2,5;5
+2,6;0
+2,7;0
+2,8;0
+3,0;6;2,2
+3,2;7;2,2
+3,4;8;2,2
+3,6;9;2,2
+3,8;10
+4,8;10
+5,1;0
+5,2;2
+5,3;3
+5,4;4
+5,5;4
+5,6;5
+5,7;0
+5,8;0
+6,2;0;;101
+6,3;1;2,3
+7,2;0
+7,6;0

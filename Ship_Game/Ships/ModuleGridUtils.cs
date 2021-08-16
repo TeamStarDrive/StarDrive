@@ -46,26 +46,8 @@ namespace Ship_Game.Ships
                 "|"+PadCentered($"{m.Restrictions} {m.XSIZE}x{m.YSIZE}", 7),
                 "|"+SafeSub(m.UID, 0,  7),
                 "|"+SafeSub(m.UID, 7,  7),
-                null
+                "|"+SafeSub(m.UID, 14, 7),
             };
-
-            int f = (int)m.FacingDegrees;
-            int o = (int)m.Orientation;
-            if (ss != null)
-            {
-                if (f != (int)ss.Facing)
-                    Log.Warning($"Module Facing does not match SlotStruct: m.FacingDegrees={m.FacingDegrees} ss={ss}");
-                if (o != (int)ss.Orientation)
-                    Log.Warning($"Module Orientation does not match SlotStruct: m.Orientation={m.Orientation} ss={ss}");
-
-                f = (int)ss.Facing;
-                o = (int)ss.Orientation;
-            }
-
-            if (f != 0 || o != 0)
-                lines[3] = "|" + PadCentered($"F{f} O{o}", 7);
-            else
-                lines[3] = "|"+SafeSub(m.UID, 14, 7);
             return lines;
         }
 
@@ -85,7 +67,7 @@ namespace Ship_Game.Ships
             if (ss != null)
             {
                 int middle = (height / 2) + (height % 2 == 0 ? -1 : 0);
-                lines[middle] = "|"+PadCentered(ss.Restrictions.ToString(), width);
+                lines[middle] = "|"+PadCentered(ss.HullRestrict.ToString(), width);
             }
             return lines;
         }

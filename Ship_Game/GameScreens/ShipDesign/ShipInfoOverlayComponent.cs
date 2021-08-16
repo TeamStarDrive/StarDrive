@@ -77,7 +77,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             float turnRateDeg   = ship.Stats.GetTurnRadsPerSec(ship.Level).ToDegrees();
             var cursor = new Vector2(X + (Width*0.06f).RoundTo10(), Y + (int)(Height * 0.025f));
             DrawShipValueLine(batch, TitleFont, ref cursor, ship.Name, "", Color.White);
-            DrawShipValueLine(batch, Font, ref cursor, ship.shipData.ShipCategory + ", " + ship.shipData.CombatState, "", Color.Gray);
+            DrawShipValueLine(batch, Font, ref cursor, ship.shipData.ShipCategory + ", " + ship.shipData.DefaultCombatState, "", Color.Gray);
             WriteLine(ref cursor, Font);
             DrawShipValueLine(batch, Font, ref cursor, "Weapons:", ship.Weapons.Count, Color.LightBlue);
             DrawShipValueLine(batch, Font, ref cursor, "Max W.Range:", ship.WeaponsMaxRange, Color.LightBlue);

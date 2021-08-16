@@ -56,7 +56,7 @@ namespace Ship_Game
             ScreenManager.ExitAllExcept(this);
 			Music.Stop();
 			Ambient.Stop();
-			ScreenManager.AddScreen(new MainMenuScreen());
+			ScreenManager.AddScreen(new MainMenuScreen(MainMenuType.Defeat));
 			base.ExitScreen();
 		}
 
@@ -104,7 +104,9 @@ namespace Ship_Game
 				Portrait.Y = ScreenHeight / 2 - Portrait.Height / 2;
 			}
             GameAudio.SwitchToRacialMusic();
-			Music    = GameAudio.PlayMusic("Female_02_loop");
+
+            Log.Write("Play Lose Theme");
+			Music = GameAudio.PlayMusic("Female_02_loop");
 			Ambient = GameAudio.PlayMusic("sd_battle_ambient");
 			base.LoadContent();
 		}

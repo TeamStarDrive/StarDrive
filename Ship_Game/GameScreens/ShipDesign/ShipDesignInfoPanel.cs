@@ -30,18 +30,26 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         public void SetActiveDesign(Ship ship, ShipDesignStats ds = null)
         {
-            S = ship;
-            Ds = ds ?? new ShipDesignStats(ship);
-            UpdateDesignStats = ds == null;
+            Elements.Clear();
+            DynamicVisibility.Clear();
 
-            CreateElements();
+            if (ship == null)
+            {
+                S = null;
+                Ds = null;
+                UpdateDesignStats = false;
+            }
+            else
+            {
+                S = ship;
+                Ds = ds ?? new ShipDesignStats(ship);
+                UpdateDesignStats = ds == null;
+                CreateElements();
+            }
         }
 
         void CreateElements()
         {
-            Elements.Clear();
-            DynamicVisibility.Clear();
-
             StatsList = Add(new UIList(Pos, Size));
             StatsList.Padding = Vector2.Zero;
             StatsList.SetRelPos(0, 0);

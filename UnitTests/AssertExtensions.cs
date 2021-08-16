@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
@@ -34,6 +35,13 @@ namespace UnitTests
                 return; // OK
             }
             throw new AssertFailedException($"Expected {expected} does not match Actual {actual}. {message}");
+        }
+
+        public static void Equal(this Assert assert, in Point expected, in Point actual)
+        {
+            if (expected.X == actual.X && expected.Y == actual.Y)
+                return; // OK
+            throw new AssertFailedException($"Expected {expected} does not match Actual {actual}");
         }
 
         public static void Equal(this Assert assert, float tolerance, in Vector2 expected, in Vector2 actual)
@@ -99,9 +107,14 @@ namespace UnitTests
             var items = new object[c.Count];
             int i = 0;
             foreach (object o in c)
-            {
                 items[i++] = o;
-            }
+            return items;
+        }
+
+        static T[] ToArray<T>(ICollection<T> c)
+        {
+            var items = new T[c.Count];
+            c.CopyTo(items, 0);
             return items;
         }
 
@@ -117,6 +130,11 @@ namespace UnitTests
             }
             sb.Append("]");
             return sb.ToString();
+        }
+
+        static string ToString<T>(ICollection<T> c)
+        {
+            return ToString((ICollection)ToArray(c));
         }
 
         public static void Equal(this Assert assert, ICollection expected, ICollection actual, string message = "")
@@ -136,6 +154,34 @@ namespace UnitTests
                 object[] e = ToArray(expected);
                 object[] a = ToArray(actual);
 
+                for (int i = 0; i < e.Length; ++i)
+                {
+                    assert.Equal(e[i], a[i], message);
+                }
+            }
+            catch (AssertFailedException ex)
+            {
+                throw new AssertFailedException($"{ex.Message}\nExpected: {ToString(expected)}\nActual: {ToString(actual)}");
+            }
+        }
+
+        public static void EqualCollections<T>(this Assert assert, ICollection<T> expected, ICollection<T> actual, string message = "")
+        {
+            if (expected == null)
+            {
+                if (actual == null) return;
+                throw new AssertFailedException($"Expected null does not match Actual {actual}. {message}");
+            }
+
+            if (expected.Count != actual.Count)
+                throw new AssertFailedException(
+                    $"Expected.Length {expected.Count} does not match Actual.Length {actual.Count}. {message}");
+
+            T[] e = ToArray(expected);
+            T[] a = ToArray(actual);
+
+            try
+            {
                 for (int i = 0; i < e.Length; ++i)
                 {
                     assert.Equal(e[i], a[i], message);

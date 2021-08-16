@@ -2,62 +2,47 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Ship_Game.Audio;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    // @todo Make this generic enough so that `SlotStruct` is no longer needed
     public class DesignModuleGrid
     {
-        public readonly ShipData Hull;
+        readonly ShipDesignScreen Screen;
+        public readonly string Name;
         readonly SlotStruct[] Grid;
         readonly SlotStruct[] Slots;
-        readonly int Width;
-        readonly int Height;
-        readonly Point Offset;
-
-        public Action OnGridChanged;
+        public readonly int Width;
+        public readonly int Height;
+        public readonly Vector2 WorldTopLeft; // top-left of the module grid in World coords
+        public readonly Point GridCenter;
 
         // this constructs a [GridWidth][GridHeight] array of current hull
-        // and allows for quick lookup for neighbours
-        public DesignModuleGrid(ShipData baseHull, Vector2 slotOffset)
+        public DesignModuleGrid(ShipDesignScreen screen, ShipData design)
+            : this(screen, design.Name, design.BaseHull)
         {
-            Hull = new ShipData(baseHull);
+        }
 
-            // This must contain ALL empty slots
-            ModuleSlotData[] hullSlots = Hull.ModuleSlots;
+        public DesignModuleGrid(ShipDesignScreen screen, string name, ShipHull hull)
+        {
+            Screen = screen;
+            Name = name;
+            Width = hull.Size.X;
+            Height = hull.Size.Y;
+            GridCenter = hull.GridCenter;
+            WorldTopLeft = GridCenter.Mul(-16f);
 
-            var min = new Vector2(+4096, +4096);
-            var max = new Vector2(-4096, -4096);
-
-            for (int i = 0; i < hullSlots.Length; ++i)
-            {
-                ModuleSlotData slot = hullSlots[i];
-                Vector2 pos = slot.Position + slotOffset - new Vector2(8,8);
-                Vector2 end = pos + new Vector2(16f, 16f);
-                if (pos.X < min.X) min.X = pos.X;
-                if (pos.Y < min.Y) min.Y = pos.Y;
-                if (end.X > max.X) max.X = end.X;
-                if (end.Y > max.Y) max.Y = end.Y;
-            }
-            
-            Width  = (int)(max.X - min.X) / 16;
-            Height = (int)(max.Y - min.Y) / 16;
-            Offset = new Point((int)min.X, (int)min.Y);
             Grid = new SlotStruct[Width * Height];
-
-            Slots = new SlotStruct[hullSlots.Length];
-            for (int i = 0; i < hullSlots.Length; ++i)
+            Slots = new SlotStruct[hull.HullSlots.Length];
+            for (int i = 0; i < hull.HullSlots.Length; ++i)
             {
-                var slot = new SlotStruct(hullSlots[i], slotOffset);
+                var slot = new SlotStruct(hull.HullSlots[i], GridCenter);
                 Slots[i] = slot;
-                Point pt = ToGridPos(slot.Position);
-                Grid[pt.X + pt.Y * Width] = slot;
+                Grid[slot.Pos.X + slot.Pos.Y * Width] = slot;
             }
 
         #if DEBUG
-            ModuleGridUtils.DebugDumpGrid($"Debug/DesignModuleGrid/{Hull.Name}.HULL.txt",
+            ModuleGridUtils.DebugDumpGrid($"Debug/DesignModuleGrid/{Name}.HULL.txt",
                         Grid, Width, Height, ModuleGridUtils.DumpFormat.SlotStructEmptyHull);
         #endif
         }
@@ -65,12 +50,11 @@ namespace Ship_Game
         public void SaveDebugGrid()
         {
         #if DEBUG
-            ModuleGridUtils.DebugDumpGrid($"Debug/DesignModuleGrid/{Hull.Name}.txt",
+            ModuleGridUtils.DebugDumpGrid($"Debug/DesignModuleGrid/{Name}.txt",
                         Grid, Width, Height, ModuleGridUtils.DumpFormat.SlotStruct);
         #endif
         }
 
-        public int SlotsCount => Slots.Length;
         public IReadOnlyList<SlotStruct> SlotsList => Slots;
 
         /// NOTE: This is an adapter to unify ship stat calculation
@@ -78,29 +62,36 @@ namespace Ship_Game
         {
             var modules = new Array<ShipModule>();
             foreach (SlotStruct slot in Slots)
-                if (slot.Module != null)
+                if (slot.Module != null && slot.Parent == null)
                     modules.Add(slot.Module);
             return modules.ToArray();
         }
 
-        #region Grid Coordinate Utils
-
-        public Point ToGridPos(Point modulePos) => new Point((modulePos.X - Offset.X) / 16,
-                                                             (modulePos.Y - Offset.Y) / 16);
-
-        // Gets slotstruct or null at the given location
-        // @note modulePos is in 16x coordinates
-        public SlotStruct Get(Point modulePos)
+        // Convert from GRID POS into WORLD coordinates
+        public Vector2 GridPosToWorld(Point gridPos)
         {
-            Point pos = ToGridPos(modulePos);
-            if (pos.X < 0 || pos.Y < 0 || pos.X >= Width || pos.Y >= Height)
-                return null; // out of bounds
-            return Grid[pos.X + pos.Y * Width];
+            return WorldTopLeft + new Vector2(gridPos.X * 16f, gridPos.Y * 16f);
         }
 
-        public bool Get(Point modulePos, out SlotStruct slot)
+        // Convert from WORLD coordinates to GridPos
+        public Point WorldToGridPos(Vector2 worldPos)
         {
-            return (slot = Get(modulePos)) != null;
+            var rounded = new Point((int)Math.Floor(worldPos.X / 16f),
+                                    (int)Math.Floor(worldPos.Y / 16f));
+            return new Point(rounded.X + GridCenter.X, rounded.Y + GridCenter.Y);
+        }
+
+        // Gets SlotStruct or null at the given Grid Pos
+        public SlotStruct Get(Point gridPos)
+        {
+            if (gridPos.X < 0 || gridPos.Y < 0 || gridPos.X >= Width || gridPos.Y >= Height)
+                return null; // out of bounds
+            return Grid[gridPos.X + gridPos.Y * Width];
+        }
+
+        public bool Get(Point gridPos, out SlotStruct slot)
+        {
+            return (slot = Get(gridPos)) != null;
         }
 
         public bool IsEmptyDesign()
@@ -111,10 +102,6 @@ namespace Ship_Game
             return true;
         }
 
-        #endregion
-
-
-        #region ModuleRect Bounds
 
         struct ModuleRect
         {
@@ -140,9 +127,7 @@ namespace Ship_Game
             => IsInBounds(r.X0, r.Y0) && IsInBounds(r.X1, r.Y1);
 
         ModuleRect GetModuleSpan(SlotStruct slot, int width, int height)
-            => new ModuleRect(ToGridPos(slot.Position), width, height);
-
-        #endregion
+            => new ModuleRect(slot.Pos, width, height);
 
 
         #region Undo Redo
@@ -153,17 +138,15 @@ namespace Ship_Game
         {
             public SlotStruct At;
             public ShipModule Module;
-            public ModuleOrientation Orientation;
             public ChangeType Type;
         }
 
         readonly Array<Array<ChangedModule>> Undoable = new Array<Array<ChangedModule>>();
         readonly Array<Array<ChangedModule>> Redoable = new Array<Array<ChangedModule>>();
 
-        // Should be called to trigger OnGridChanged event
         public void OnModuleGridChanged()
         {
-            OnGridChanged?.Invoke();
+            Screen.UpdateDesignedShip();
         }
 
         public void StartUndoableAction()
@@ -187,12 +170,12 @@ namespace Ship_Game
             {
                 ChangedModule change = changes[i];
                 if (change.Type == ChangeType.Added)   RemoveModule(change.At, change.Module);
-                if (change.Type == ChangeType.Removed)  PlaceModule(change.At, change.Module, change.Orientation);
+                if (change.Type == ChangeType.Removed)  PlaceModule(change.At, change.Module);
             }
             
             GameAudio.SmallServo();
             Redoable.Add(changes);
-            OnModuleGridChanged();
+            Screen.OnDesignChanged();
         }
 
         public void Redo()
@@ -205,23 +188,23 @@ namespace Ship_Game
             // redo actions in original order
             foreach (ChangedModule change in changes)
             {
-                if (change.Type == ChangeType.Added)   PlaceModule(change.At, change.Module, change.Orientation);
+                if (change.Type == ChangeType.Added)   PlaceModule(change.At, change.Module);
                 if (change.Type == ChangeType.Removed) RemoveModule(change.At, change.Module);
             }
             
             GameAudio.SmallServo();
             Undoable.Add(changes);
-            OnModuleGridChanged();
+            Screen.OnDesignChanged();
         }
 
-        void SaveAction(SlotStruct slot, ShipModule module, ModuleOrientation orientation, ChangeType type)
+        void SaveAction(SlotStruct slot, ShipModule module, ChangeType type)
         {
             if (Undoable.IsEmpty)
                 return; // do not save unless StartUndoableAction() was called
 
             Undoable.Last.Add(new ChangedModule
             {
-                At = slot, Module = module, Orientation = orientation, Type = type
+                At = slot, Module = module, Type = type
             });
         }
 
@@ -246,7 +229,7 @@ namespace Ship_Game
                 ChangedModule action2 = actions[actions.Count - 1]; // Last Action
                 ChangedModule action1 = actions[actions.Count - 2]; // Before Last Action
 
-                if (!ReplaceAble(action1.Module, action2.Module) || action1.Type != ChangeType.Removed || action2.Type != ChangeType.Added) 
+                if (!CanBeReplaced(action1.Module, action2.Module) || action1.Type != ChangeType.Removed || action2.Type != ChangeType.Added) 
                     return false;
 
                 if (i == Undoable.Count - 1) // First check
@@ -276,13 +259,10 @@ namespace Ship_Game
         }
 
 
-        bool ReplaceAble(ShipModule module1, ShipModule module2)
+        static bool CanBeReplaced(ShipModule m, ShipModule by)
         {
-            return module1.XSIZE == module2.XSIZE 
-                   && module1.YSIZE == module2.YSIZE 
-                   && module1.Restrictions == module2.Restrictions;
+            return m.XSIZE == by.XSIZE && m.YSIZE == by.YSIZE && m.Restrictions == by.Restrictions;
         }
-
 
         #endregion
 
@@ -304,6 +284,7 @@ namespace Ship_Game
             }
 
             for (int x = span.X0; x <= span.X1; ++x)
+            {
                 for (int y = span.Y0; y <= span.Y1; ++y)
                 {
                     SlotStruct target = Grid[x + y * Width];
@@ -316,22 +297,23 @@ namespace Ship_Game
                     if (!target.CanSlotSupportModule(module))
                     {
                         if (logFailure)
-                            Log.Warning($"Design slot {{{x},{y}}} ({target.Restrictions}) cannot support module {module.UID} ({module.Restrictions})");
+                            Log.Warning($"Design slot {{{x},{y}}} ({target.HullRestrict}) cannot support module {module.UID} ({module.Restrictions})");
                         return false;
                     }
                 }
+            }
 
             return true;
         }
 
-        void PlaceModule(SlotStruct slot, ShipModule newModule, ModuleOrientation orientation)
+        void PlaceModule(SlotStruct slot, ShipModule newModule)
         {
-            slot.ModuleUID   = newModule.UID;
-            slot.Module      = newModule;
-            slot.Orientation = orientation;
-            slot.Facing      = newModule.FacingDegrees;
-            slot.Tex         = newModule.ModuleTexture;
+            slot.ModuleUID = newModule.UID;
+            slot.Module    = newModule;
+            slot.Tex       = newModule.ModuleTexture;
             slot.Module.SetAttributes();
+
+            newModule.Pos = slot.Pos;
 
             ModuleRect span = GetModuleSpan(slot, newModule.XSIZE, newModule.YSIZE);
             for (int x = span.X0; x <= span.X1; ++x)
@@ -342,11 +324,11 @@ namespace Ship_Game
             }
         }
         
-        public void InstallModule(SlotStruct slot, ShipModule newModule, ModuleOrientation orientation)
+        public void InstallModule(SlotStruct slot, ShipModule newModule)
         {
             ClearSlots(slot, newModule);
-            PlaceModule(slot, newModule, orientation);
-            SaveAction(slot, newModule, orientation, ChangeType.Added);
+            PlaceModule(slot, newModule);
+            SaveAction(slot, newModule, ChangeType.Added);
         }
 
         void RemoveModule(SlotStruct root, ShipModule module)
@@ -366,7 +348,7 @@ namespace Ship_Game
                 SlotStruct root = Grid[x + y*Width].Root;
                 if (root?.Module != null) // only clear module roots which have not been cleared yet
                 {
-                    SaveAction(root, root.Module, root.Orientation, ChangeType.Removed);
+                    SaveAction(root, root.Module, ChangeType.Removed);
                     RemoveModule(root, root.Module);
                 }
             }

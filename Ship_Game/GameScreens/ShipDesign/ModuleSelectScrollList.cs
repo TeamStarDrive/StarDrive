@@ -20,21 +20,21 @@ namespace Ship_Game
             var weaponItem = (ModuleSelectListItem)item;
             if (weaponItem.Module != null)
             {
-                Screen.SetActiveModule(weaponItem.Module.UID, ModuleOrientation.Normal, 0f);
+                Screen.SetActiveModule(weaponItem.Module.UID, ModuleOrientation.Normal, 0);
             }
             base.OnItemClicked(item);
         }
 
-        bool IsBadModuleSize(ShipModule module)
+        bool CanNeverFitModuleGrid(ShipModule module)
         {
-            if (Screen.Input.IsShiftKeyDown || Screen.ActiveHull == null || module.XSIZE + module.YSIZE == 2)
+            if (Screen.Input.IsShiftKeyDown || Screen.CurrentDesign == null || module.XSIZE + module.YSIZE == 2)
                 return false;
-            return Screen.IsBadModuleSize(module);
+            return Screen.CanNeverFitModuleGrid(module);
         }
 
         bool ShouldBeFiltered(ShipModule m)
         {
-            return IsBadModuleSize(m) || m.IsObsolete() && Screen.IsFilterOldModulesMode;
+            return CanNeverFitModuleGrid(m) || m.IsObsolete() && Screen.IsFilterOldModulesMode;
         }
 
         readonly Map<int, ModuleSelectListItem> Categories = new Map<int, ModuleSelectListItem>();
@@ -89,18 +89,19 @@ namespace Ship_Game
             base.Draw(batch, elapsed);
         }
 
-        bool IsModuleAvailable(ShipModule template, out ShipModule tmp)
+        // Tries to get a ModuleListItem, if the ShipModule is unlocked and available for current hull
+        bool TryGetModuleListItem(ShipModule template, out ShipModule m)
         {
-            tmp = null;
-
-            if (!EmpireManager.Player.IsModuleUnlocked(template.UID) || template.UID == "Dummy")
-                return false;
-
-            if (RestrictedModCheck(Screen.ActiveHull.Role, template))
-                return false;
-
-            tmp = Screen.CreateModuleListItem(template);
-            return true;
+            if (EmpireManager.Player.IsModuleUnlocked(template.UID) && template.UID != "Dummy")
+            {
+                if (IsModuleAvailableForHullRole(Screen.CurrentHull.Role, template))
+                {
+                    m = Screen.CreateModuleListItem(template);
+                    return true;
+                }
+            }
+            m = null;
+            return false;
         }
 
         Array<ShipModule> SortedModules
@@ -109,7 +110,7 @@ namespace Ship_Game
             {
                 var modules = new Array<ShipModule>(); // gather into a list so we can sort the modules logically
                 foreach (ShipModule template in ResourceManager.ShipModuleTemplates)
-                    if (IsModuleAvailable(template, out ShipModule tmp))
+                    if (TryGetModuleListItem(template, out ShipModule tmp))
                         modules.Add(tmp);
                 
                 modules.Sort((a, b) =>
@@ -220,7 +221,7 @@ namespace Ship_Game
             OpenCategory((int)ShipModuleType.Storage);
         }
 
-        static bool RestrictedModCheck(ShipData.RoleName role, ShipModule mod)
+        static bool IsModuleAvailableForHullRole(ShipData.RoleName role, ShipModule mod)
         {
             switch (role)
             {
@@ -236,10 +237,9 @@ namespace Ship_Game
                 case ShipData.RoleName.capital    when mod.CapitalModule    == false:
                 case ShipData.RoleName.freighter  when mod.FreighterModule  == false:
                 case ShipData.RoleName.platform   when mod.PlatformModule   == false:
-                case ShipData.RoleName.station    when mod.StationModule    == false: return true;
+                case ShipData.RoleName.station    when mod.StationModule    == false: return false;
             }
-
-            return false;
+            return true;
         }
     }
 }

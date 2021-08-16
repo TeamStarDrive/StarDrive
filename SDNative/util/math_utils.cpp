@@ -1,6 +1,7 @@
 #include <rpp/vec.h>
 #include <cmath>
 using rpp::Vector2;
+using rpp::Vector2d;
 
 #define DLLEXPORT extern "C" __declspec(dllexport)
 
@@ -12,12 +13,30 @@ DLLEXPORT Vector2 __stdcall RadiansToDirection(float radians)
     return { s, -c };
 }
 
+DLLEXPORT Vector2d __stdcall RadiansToDirectionD(double radians)
+{
+    // @note This should invoke x86 FSINCOS instruction
+    double s = sin(radians);
+    double c = cos(radians);
+    return { s, -c };
+}
+
 DLLEXPORT Vector2 __stdcall RotateAroundPoint(const Vector2& self, const Vector2& center, float radians)
 {
     float s = sin(radians);
     float c = cos(radians);
     float dx = (self.x - center.x);
     float dy = (self.y - center.y);
+    return { center.x + c*dx - s*dy, 
+             center.y + s*dx + c*dy };
+}
+
+DLLEXPORT Vector2d __stdcall RotateAroundPointD(const Vector2d& self, const Vector2d& center, double radians)
+{
+    double s = sin(radians);
+    double c = cos(radians);
+    double dx = (self.x - center.x);
+    double dy = (self.y - center.y);
     return { center.x + c*dx - s*dy, 
              center.y + s*dx + c*dy };
 }

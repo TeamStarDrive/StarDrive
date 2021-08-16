@@ -1,0 +1,28 @@
+﻿Version=1
+Name=Ralyeh Colonizer STL
+Hull=Ralyeh/Vessel S
+Role=freighter
+Style=Ralyeh
+Size=4,9
+GridCenter=2,4
+DefaultCombatState=AttackRuns
+ShipCategory=Civilian
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=BasicFuelCell;ColonyModule;Powerplant_nuke_1x1;Range_Thruster_1x1;Maneuvering_Thruster_1x1;Cockpit
+Modules=15
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,1;0
+1,0;1;2,3
+1,3;0
+1,4;0
+1,5;2
+1,6;2
+1,7;3
+1,8;4
+2,3;5
+2,4;0
+2,5;2
+2,6;2
+2,7;3
+2,8;4
+3,1;0

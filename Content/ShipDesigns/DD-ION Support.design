@@ -1,0 +1,47 @@
+﻿Version=1
+Name=DD-ION Support
+Hull=Terran/HeavyGunboat
+Role=frigate
+Style=Terran
+Size=6,18
+GridCenter=3,9
+DefaultCombatState=Artillery
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=OrdnanceLockerSmall;Shield_1KW;IonBeamTurret2x2;OrdnanceLocker;RepairDrone;PowerConduit;NuclearReactorSmall;WarpEngine_2x2;IonBeam2x3;NuclearReactorMed;Bridge;CombatEngine_2x2;OrdnanceSupplyBay
+Modules=35
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,2;0
+0,3;1;2,2
+0,6;2;2,2
+0,8;3;2,2
+0,12;4;2,2
+0,14;1;2,2
+0,16;5
+1,1;0
+1,2;0
+1,5;6
+1,10;0
+1,11;0
+1,16;7;2,2
+2,0;8;2,3
+2,3;0
+2,4;9;2,2
+2,6;9;2,2
+2,8;9;2,2
+2,10;1;2,2
+2,12;9;2,2
+2,14;10;2,2
+3,3;0
+3,16;11;2,2
+4,1;0
+4,2;0
+4,3;1;2,2
+4,5;6
+4,6;2;2,2
+4,8;3;2,2
+4,10;0
+4,11;0
+4,12;12;2,2;;;Drone Interceptor
+4,14;3;2,2
+5,2;0
+5,16;5

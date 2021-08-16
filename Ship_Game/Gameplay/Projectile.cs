@@ -242,7 +242,7 @@ namespace Ship_Game.Gameplay
             else if (Weapon.Tag_Guided)
             {
                 if (!Weapon.isTurret && !isMirv)
-                    Rotation = Owner?.Rotation + Weapon.Module?.FacingRadians ?? Rotation;
+                    Rotation = Owner?.Rotation + Weapon.Module?.TurretAngleRads ?? Rotation;
 
                 Vector2 missileVelocity = inheritedVelocity != Vector2.Zero ? inheritedVelocity : Weapon.Owner?.Velocity ?? Vector2.Zero;
                 MissileAI               = new MissileAI(this, target, missileVelocity);
@@ -391,9 +391,9 @@ namespace Ship_Game.Gameplay
                 if (Animation != null)
                 {
                     screen.ProjectToScreenCoords(Position, -ZStart, 20f * Weapon.ProjectileRadius * Weapon.Scale,
-                                                 out Vector2 pos, out float size);
+                                                 out Vector2d pos, out double size);
 
-                    Animation.Draw(batch, pos, new Vector2(size), Rotation, 1f);
+                    Animation.Draw(batch, pos, new Vector2d(size), Rotation, 1f);
                 }
                 else
                 {

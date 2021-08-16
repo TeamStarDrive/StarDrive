@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -21,21 +20,29 @@ namespace Ship_Game
 
     public sealed partial class ShipDesignScreen : GameScreen
     {
-        public Camera2D Camera;
         //public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
         public DesignStanceButtons OrdersButton;
+
+        // this can be Null if we are in HullEdit mode
         public DesignShip DesignedShip { get; private set; }
-        public ShipData ActiveHull;
+        public ShipData CurrentDesign;
+        public ShipHull CurrentHull; // never Null
+        public DesignModuleGrid ModuleGrid;
+
+        public string DesignOrHullName => CurrentDesign?.Name ?? CurrentHull.VisibleName;
+
         public EmpireUIOverlay EmpireUI;
         SceneObject shipSO;
-        Vector3 CameraPosition = new Vector3(0f, 0f, 1300f);
-        Vector2 Offset;
-        readonly Array<ShipData> AvailableHulls = new Array<ShipData>();
+
+        Vector3 CameraPos = new Vector3(0f, 0f, 1300f);
+        float DesiredCamHeight = 1300f;
+        Vector2 StartDragPos;
+
+        readonly Array<ShipHull> AvailableHulls = new Array<ShipHull>();
         UIButton BtnSymmetricDesign; // Symmetric Module Placement Feature by Fat Bastard
         UIButton BtnFilterModules;   // Filter Absolute Modules
         UIButton BtnStripShip;       // Removes all modules but armor, shields and command modules
         GenericButton ArcsButton;
-        float OriginalZ;
         Rectangle SearchBar;
         Rectangle BottomSep;
         Rectangle BlackBar;
@@ -49,26 +56,25 @@ namespace Ship_Game
 
         public ShipModule HighlightedModule;
         SlotStruct ProjectedSlot;
-        Vector2 CameraVelocity;
-        Vector2 StartDragPos;
-        ShipData ChangeTo;
         string ScreenToLaunch;
-        float TransitionZoom = 1f;
-        SlotModOperation Operation;
+
         public ShipModule ActiveModule;
-        ModuleOrientation ActiveModState;
         CategoryDropDown CategoryList;
         HangarDesignationDropDown HangarOptionsList;
 
         bool ShowAllArcs;
         public bool ToggleOverlay = true;
         bool ShipSaved = true;
-        bool HullEditMode;
+        public bool HullEditMode;
+        HullEditorControls HullEditor;
 
         // Used in Developer Sandbox to load any design
         bool UnlockAllFactionDesigns;
 
-        public ShipData.RoleName Role { get; private set; }
+        // Used in Dev SandBox to enable some special debug features
+        public bool EnableDebugFeatures;
+
+        public ShipData.RoleName Role => DesignedShip?.DesignRole ?? CurrentHull.Role;
         Rectangle DesignRoleRect;
 
         public bool IsSymmetricDesignMode
@@ -86,7 +92,8 @@ namespace Ship_Game
         struct MirrorSlot
         {
             public SlotStruct Slot;
-            public ModuleOrientation Orientation;
+            public ModuleOrientation ModuleRot;
+            public int TurretAngle;
         }
 
         public ShipDesignScreen(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
@@ -96,109 +103,56 @@ namespace Ship_Game
             TransitionOnTime = 2f;
             HullEditMode = false;
             UnlockAllFactionDesigns = parent is DeveloperUniverse;
+            EnableDebugFeatures = parent is DeveloperUniverse || Empire.Universe.Debug;
         }
 
         void ReorientActiveModule(ModuleOrientation orientation)
         {
             if (ActiveModule == null)
                 return;
-            ActiveModState = orientation;
             ShipModule template = ResourceManager.GetModuleTemplate(ActiveModule.UID);
-            ActiveModule.SetModuleFacing(template.XSIZE, template.YSIZE, 
-                                         orientation, ShipModule.DefaultFacingFor(orientation));
+            ActiveModule.SetModuleRotation(template.XSIZE, template.YSIZE, 
+                                           orientation, ShipModule.DefaultFacingFor(orientation));
         }
 
-        ModuleSlotData FindModuleSlotAtPos(Vector2 slotPos)
-        {
-            ModuleSlotData[] slots = ActiveHull.ModuleSlots;
-            for (int i = 0; i < slots.Length; ++i)
-                if (slots[i].Position == slotPos)
-                    return slots[i];
-            return null;
-        }
-
-        Vector2 WorldToDesignCoords(Vector2 worldCoord)
-        {
-            return new Vector2((int)((worldCoord.X - Offset.X) / 16f) * 16f + Offset.X,
-                               (int)((worldCoord.Y - Offset.Y) / 16f) * 16f + Offset.Y);
-        }
-
-        void AddHullSlot(InputState input)
-        {
-            Vector2 cursor = Camera.GetWorldSpaceFromScreenSpace(input.CursorPosition);
-
-            // make sure there's no accidental overlap!
-            if (ModuleGrid.Get(new Point((int)cursor.X, (int)cursor.Y), out SlotStruct _))
-            {
-                GameAudio.NegativeClick();
-                return;
-            }
-            
-            Vector2 position = WorldToDesignCoords(cursor) - Offset + new Vector2(8f, 8f);
-            var slots = new Array<ModuleSlotData>(ActiveHull.ModuleSlots);
-            slots.Add(new ModuleSlotData(position, Restrictions.IO));
-            ActiveHull.ModuleSlots = slots.ToArray();
-            Array.Sort(ActiveHull.ModuleSlots, ModuleSlotData.Sorter);
-
-            ChangeHull(ActiveHull); // rebuild the hull
-        }
-
-        void EditHullSlot(Vector2 slotPos, SlotModOperation op)
-        {
-            ModuleSlotData target = FindModuleSlotAtPos(slotPos);
-            if (target == null)
-                return;
-
-            switch (op)
-            {
-                default: return;
-                case SlotModOperation.Delete: ActiveHull.ModuleSlots.Remove(target, out ActiveHull.ModuleSlots); break;
-                case SlotModOperation.I:      target.Restrictions = Restrictions.I;  break;
-                case SlotModOperation.O:      target.Restrictions = Restrictions.O;  break;
-                case SlotModOperation.E:      target.Restrictions = Restrictions.E;  break;
-                case SlotModOperation.IO:     target.Restrictions = Restrictions.IO; break;
-                case SlotModOperation.IE:     target.Restrictions = Restrictions.IE; break;
-                case SlotModOperation.OE:     target.Restrictions = Restrictions.OE; break;
-                case SlotModOperation.IOE:    target.Restrictions = Restrictions.IOE; break;
-            }
-            ChangeHull(ActiveHull);
-        }
 
         public ShipModule CreateModuleListItem(ShipModule template)
         {
-            ShipModule m = ShipModule.CreateNoParent(template, EmpireManager.Player, ActiveHull);
+            ShipModule m = ShipModule.CreateNoParent(template, EmpireManager.Player, CurrentHull);
             m.SetAttributes();
             return m;
         }
 
-        public ShipModule CreateDesignModule(string uid, ModuleOrientation orientation, float facing)
+        public ShipModule CreateDesignModule(string uid, ModuleOrientation moduleRot, int turretAngle)
         {
-            return ShipModule.CreateDesignModule(ResourceManager.GetModuleTemplate(uid), orientation, facing, ActiveHull);
+            return ShipModule.CreateDesignModule(ResourceManager.GetModuleTemplate(uid),
+                                                 moduleRot, turretAngle, CurrentHull);
         }
 
         // spawn a new active module under cursor
         // WARNING: must use Module UID string here, otherwise we can get incorrect XSIZE/YSIZE due to Orientations
-        void SpawnActiveModule(string moduleUID, ModuleOrientation orientation, float facing)
+        void SpawnActiveModule(string moduleUID, ModuleOrientation moduleRot, int turretAngle)
         {
-            ActiveModule = CreateDesignModule(moduleUID, orientation, facing);
-            ActiveModState = orientation;
+            ActiveModule = CreateDesignModule(moduleUID, moduleRot, turretAngle);
             ActiveModule.SetAttributes();
-            if (ActiveModule.ModuleType == ShipModuleType.Hangar
-                && !ActiveModule.IsSupplyBay && !ActiveModule.IsTroopBay)
-                ActiveModule.hangarShipUID = DynamicHangarOptions.DynamicLaunch.ToString();
+
+            if (!ActiveModule.IsSupplyBay && !ActiveModule.IsTroopBay
+                && ActiveModule.ModuleType == ShipModuleType.Hangar)
+            {
+                ActiveModule.HangarShipUID = DynamicHangarOptions.DynamicLaunch.ToString();
+            }
         }
 
         void ResetActiveModule()
         {
             ActiveModule = null;
-            ActiveModState = ModuleOrientation.Normal;
         }
         
-        public void SetActiveModule(string moduleUID, ModuleOrientation orientation, float facing)
+        public void SetActiveModule(string moduleUID, ModuleOrientation moduleRot, int turretAngle)
         {
             GameAudio.SmallServo();
 
-            SpawnActiveModule(moduleUID, orientation, facing);
+            SpawnActiveModule(moduleUID, moduleRot, turretAngle);
             HighlightedModule = null;
         }
 
@@ -206,14 +160,12 @@ namespace Ship_Game
         {
             public readonly SlotStruct Slot;
             public readonly ShipModule Mod;
-            public readonly ModuleOrientation Ori;
             bool CanInstall;
             public SlotInstall() {}
-            public SlotInstall(SlotStruct slot, ShipModule mod, ModuleOrientation ori)
+            public SlotInstall(SlotStruct slot, ShipModule mod)
             {
                 Slot = slot;
                 Mod = mod;
-                Ori = ori;
             }
             public bool UpdateCanInstallTo(DesignModuleGrid grid)
             {
@@ -224,27 +176,24 @@ namespace Ship_Game
                     GameAudio.NegativeClick();
                     return false;
                 }
-                CanInstall = !Slot.IsSame(Mod, Ori, Mod.FacingDegrees);
+                CanInstall = !Slot.IsSame(Mod, Mod.ModuleRot, Mod.TurretAngle);
                 return CanInstall;
             }
             public void TryInstallTo(DesignModuleGrid designGrid)
             {
                 if (CanInstall)
-                    designGrid.InstallModule(Slot, Mod, Ori);
+                    designGrid.InstallModule(Slot, Mod);
             }
         }
 
         SlotInstall CreateMirrorInstall(SlotInstall install)
         {
-            if (IsSymmetricDesignMode &&
-                GetMirrorSlot(install.Slot, install.Mod.XSIZE, install.Ori, out MirrorSlot mirrored))
+            if (IsSymmetricDesignMode && GetMirrorSlot(install.Slot, install.Mod, out MirrorSlot mirrored))
             {
-                ModuleOrientation mOri = mirrored.Orientation;
-                float mFacing = ConvertOrientationToFacing(mOri);
                 // @warning in order to get correct XSIZE/YSIZE, we MUST use Module Template UID here
-                ShipModule mModule = CreateDesignModule(install.Mod.UID, mOri, mFacing);
-                mModule.hangarShipUID = install.Mod.hangarShipUID;
-                return new SlotInstall(mirrored.Slot, mModule, mOri);
+                ShipModule mModule = CreateDesignModule(install.Mod.UID, mirrored.ModuleRot, mirrored.TurretAngle);
+                mModule.HangarShipUID = install.Mod.HangarShipUID;
+                return new SlotInstall(mirrored.Slot, mModule);
             }
             return new SlotInstall();
         }
@@ -264,8 +213,8 @@ namespace Ship_Game
                 
                 ShipSaved = false;
                 OnDesignChanged();
-                SpawnActiveModule(active.Mod.UID, active.Ori, active.Slot.Facing);
-                ActiveModule.hangarShipUID = active.Mod.hangarShipUID;
+                SpawnActiveModule(active.Mod.UID, active.Mod.ModuleRot, active.Mod.TurretAngle);
+                ActiveModule.HangarShipUID = active.Mod.HangarShipUID;
             }
         }
 
@@ -284,9 +233,9 @@ namespace Ship_Game
             {
                 if (replaceAt.ModuleUID == replacementId)
                 {
-                    ShipModule m    = CreateDesignModule(template.UID, replaceAt.Orientation, replaceAt.Module.FacingDegrees);
-                    m.hangarShipUID = ActiveModule.hangarShipUID;
-                    ModuleGrid.InstallModule(replaceAt, m, replaceAt.Orientation);
+                    ShipModule m = CreateDesignModule(template.UID, replaceAt.Module.ModuleRot, replaceAt.Module.TurretAngle);
+                    m.HangarShipUID = ActiveModule.HangarShipUID;
+                    ModuleGrid.InstallModule(replaceAt, m);
                 }
             }
             
@@ -303,8 +252,7 @@ namespace Ship_Game
 
             if (IsSymmetricDesignMode)
             {
-                if (GetMirrorSlotStruct(slot, out SlotStruct mirrored)
-                    && mirrored.Root != slot.Root)
+                if (GetMirrorSlotStruct(slot, out SlotStruct mirrored))
                 {
                     ModuleGrid.ClearSlots(mirrored.Root, mirrored.Root.Module);
                 }
@@ -320,84 +268,101 @@ namespace Ship_Game
             for (int i = 0; i < ModuleGrid.SlotsList.Count; i++)
             {
                 SlotStruct slot = ModuleGrid.SlotsList[i];
-                if (slot.Module == null)
-                    continue;
-
                 ShipModule module = slot.Module;
-                if (module.Is(ShipModuleType.Armor)
-                    || module.Is(ShipModuleType.Engine)
-                    || module.Is(ShipModuleType.Shield)
-                    || module.Is(ShipModuleType.Command)
-                    || module.DamageThreshold > 0)
+                if (module != null && module.DamageThreshold <= 0 &&
+                    !module.Is(ShipModuleType.Armor) && !module.Is(ShipModuleType.Engine) &&
+                    !module.Is(ShipModuleType.Shield) && !module.Is(ShipModuleType.Command))
                 {
-                    continue;
+                    ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
                 }
-
-                ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
             }
 
             OnDesignChanged();
         }
 
-        DesignModuleGrid ModuleGrid;
-        
-        public void ChangeHull(ShipData hull)
+        public void ChangeHull(ShipData shipDesignTemplate)
         {
-            if (hull == null)
+            if (shipDesignTemplate == null) // if ShipDesignLoadScreen has no selected design
                 return;
 
-            ModuleGrid = new DesignModuleGrid(hull, Offset);
-            ModuleGrid.OnGridChanged = UpdateDesignedShip;
+            ShipData cloned = shipDesignTemplate.GetClone();
+            ModuleGrid = new DesignModuleGrid(this, cloned);
+            CurrentDesign = cloned;
+            CurrentHull   = cloned.BaseHull;
+            DesignedShip = new DesignShip(cloned);
 
-            ActiveHull = ModuleGrid.Hull;
-            DesignedShip = new DesignShip(ActiveHull);
-            
-            InstallModulesFromDesign();
+            InstallModulesFromDesign(cloned);
+            AfterHullChange(zoomToHull:true);
+        }
 
-            CreateSOFromActiveHull();
+        public void ChangeHull(ShipHull hullTemplate, bool zoomToHull = true)
+        {
+            if (hullTemplate == null) // if ShipDesignLoadScreen has no selected design
+                return;
+
+            if (HullEditMode)
+            {
+                ModuleGrid = new DesignModuleGrid(this, hullTemplate.VisibleName, hullTemplate);
+                CurrentDesign = null;
+                CurrentHull = hullTemplate.GetClone();
+                DesignedShip = null;
+
+                AfterHullChange(zoomToHull);
+            }
+            else
+            {
+                ChangeHull(new ShipData(hullTemplate));
+            }
+        }
+
+        void AfterHullChange(bool zoomToHull)
+        {
+            CreateSOFromCurrentHull();
             BindListsToActiveHull();
-            OrdersButton.ResetButtons(DesignedShip);
-            UpdateCarrierShip();
+
+            if (DesignedShip != null)
+            {
+                OrdersButton.ResetButtons(DesignedShip);
+                UpdateCarrierShip();
+            }
 
             // force modules list to reset itself, so if we change from Battleship to Fighter
             // the available modules list is adjusted correctly
             ModuleSelectComponent.SelectedIndex = -1;
-
-            ZoomCameraToEncloseHull(ActiveHull);
+            if (zoomToHull)
+                ZoomCameraToEncloseHull();
 
             // TODO: remove DesignIssues from this page
             InfoPanel.SetActiveDesign(DesignedShip);
             IssuesPanel.SetActiveDesign(DesignedShip);
         }
 
-        void UpdateDesignedShip()
+        public void UpdateDesignedShip()
         {
-            ActiveHull.UpdateGridInfo();
             DesignedShip?.UpdateDesign(CreateModuleSlots());
         }
 
-        void InstallModulesFromDesign()
+        void InstallModulesFromDesign(ShipData design)
         {
-            foreach (SlotStruct designSlot in ModuleGrid.SlotsList)
-            {
-                string uid = designSlot.ModuleUID;
-                if (uid == null || uid == "Dummy") // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
-                    continue;
+            Point offset = design.BaseHull.GridCenter.Sub(design.GridInfo.Center);
 
-                if (!ModuleGrid.Get(designSlot.Position, out SlotStruct targetSlot))
+            foreach (DesignSlot designSlot in design.ModuleSlots)
+            {
+                Point pos = designSlot.Pos.Add(offset);
+                if (!ModuleGrid.Get(pos, out SlotStruct targetSlot))
                 {
-                    Log.Warning($"DesignModuleGrid failed to find Slot at {designSlot.Position}");
+                    Log.Warning($"DesignModuleGrid failed to find Slot at {pos}");
                     continue;
                 }
 
-                ShipModule newModule = CreateDesignModule(designSlot.ModuleUID, designSlot.Orientation, designSlot.Facing);
+                ShipModule newModule = CreateDesignModule(designSlot.ModuleUID, designSlot.ModuleRot, designSlot.TurretAngle);
                 if (!ModuleGrid.ModuleFitsAtSlot(targetSlot, newModule, logFailure: true))
                     continue;
+                
+                if (newModule.ModuleType == ShipModuleType.Hangar)
+                    newModule.HangarShipUID = designSlot.HangarShipUID;
 
-                ModuleGrid.InstallModule(targetSlot, newModule, designSlot.Orientation);
-
-                if (designSlot.Module?.ModuleType == ShipModuleType.Hangar)
-                    designSlot.Module.hangarShipUID = designSlot.SlotOptions;
+                ModuleGrid.InstallModule(targetSlot, newModule);
             }
 
             ModuleGrid.SaveDebugGrid();
@@ -406,30 +371,27 @@ namespace Ship_Game
             ResetActiveModule();
         }
 
-        void OnDesignChanged(bool showRoleChangeTip = true)
-        {
-            ModuleGrid.OnModuleGridChanged();
-            RecalculateDesignRole(showRoleChangeTip);
-        }
-
-        void RecalculateDesignRole(bool showRoleChangeTip)
+        public void OnDesignChanged(bool showRoleChangeTip = true)
         {
             var oldRole = Role;
-            Role = new RoleData(ActiveHull, ModuleGrid.CopyModulesList()).DesignRole;
+            UpdateDesignedShip();
 
-            if (Role != oldRole && showRoleChangeTip)
+            if (showRoleChangeTip && Role != oldRole)
             {
-                Vector2 pos = new Vector2(ScreenCenter.X-100, ModuleSelectComponent.Y + 50);
+                var pos = new Vector2(ScreenCenter.X - 100, ModuleSelectComponent.Y + 50);
                 RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect, true, pos);
             }
         }
 
-        public bool IsBadModuleSize(ShipModule module)
+        // true if this module can never fit into the module grid
+        public bool CanNeverFitModuleGrid(ShipModule module)
         {
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
-                ShipModule tiltedModule = CreateDesignModule(module.UID, ModuleOrientation.Right, slot.Facing);
-                if (ModuleGrid.ModuleFitsAtSlot(slot, module) || ModuleGrid.ModuleFitsAtSlot(slot, tiltedModule))
+                if (ModuleGrid.ModuleFitsAtSlot(slot, module))
+                    return false;
+                ShipModule tiltedModule = CreateDesignModule(module.UID, ModuleOrientation.Right, 0);
+                if (ModuleGrid.ModuleFitsAtSlot(slot, tiltedModule))
                     return false;
             }
             return true;
@@ -437,37 +399,9 @@ namespace Ship_Game
 
         public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            float zoom = MathHelper.SmoothStep(Camera.Zoom, TransitionZoom, 0.2f);
-
-            // this crappy fix is to try and prevent huge jumps in z axis when camera zoom becomes very small. 
-            // at about 0.1 the zoom zaxis change jumps uncontrollably. 
-            if (zoom < 0.1f)
-            {
-                TransitionZoom = Math.Max(zoom-0.01f, TransitionZoom);
-            }
-            
-            Camera.Zoom = zoom;
-            if (Camera.Zoom < 0.03f) Camera.Zoom = 0.03f;
-            if (Camera.Zoom > 2.65f) Camera.Zoom = 2.65f;
-
-            CameraPosition.Z = (OriginalZ / Camera.Zoom);
-            UpdateViewMatrix(CameraPosition);
-
+            CameraPos.Z = MathHelper.SmoothStep(CameraPos.Z, DesiredCamHeight, 0.2f);
+            UpdateViewMatrix(CameraPos);
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
-        }
-
-        enum SlotModOperation
-        {
-            Delete,
-            Add,
-            I,
-            O,
-            E,
-            IO,
-            IE,
-            OE,
-            IOE,
-            Normal
         }
 
         public override void LoadContent()
@@ -475,8 +409,8 @@ namespace Ship_Game
             Log.Info("ShipDesignScreen.LoadContent");
             UpdateAvailableHulls();
             CreateGUI();
-            InitializeHullAndCamera();
-            BindListsToActiveHull();
+            InitializeCamera();
+            ChangeHull(AvailableHulls[0]);
 
             AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
         }
@@ -497,6 +431,9 @@ namespace Ship_Game
             OrdersButton = new DesignStanceButtons(this, ordersBarPos);
             Add(OrdersButton);
 
+            if (HullEditMode || EnableDebugFeatures)
+                HullEditor = Add(new HullEditorControls(this, ModuleSelectComponent.TopRight + new Vector2(50, 0)));
+
             UIList bottomListRight = AddList(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));
             bottomListRight.LayoutStyle = ListLayoutStyle.ResizeList;
             bottomListRight.Direction = new Vector2(-1, 0);
@@ -509,11 +446,14 @@ namespace Ship_Game
                     ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(GameText.ThisShipDesignIsInvalid)));
                     return;
                 }
-                ScreenManager.AddScreen(new ShipDesignSaveScreen(this, ActiveHull.Name, hullDesigner:HullEditMode));
+                ScreenManager.AddScreen(new ShipDesignSaveScreen(this, DesignOrHullName, hullDesigner:HullEditMode));
             });
             bottomListRight.Add(ButtonStyle.Medium, GameText.Load, click: b =>
             {
-                ScreenManager.AddScreen(new ShipDesignLoadScreen(this, UnlockAllFactionDesigns));
+                if (HullEditMode)
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, "Load Design is not available in Hull Edit Mode"));
+                else
+                    ScreenManager.AddScreen(new ShipDesignLoadScreen(this, UnlockAllFactionDesigns));
             });
             bottomListRight.Add(ButtonStyle.Medium, GameText.ToggleOverlay, click: b =>
             {
@@ -577,7 +517,9 @@ namespace Ship_Game
                 HangarOptionsList.AddOption(item.ToString(), item);
 
             var carrierOnlyPos  = new Vector2(dropdownRect.X - 200, dropdownRect.Y);
-            CarrierOnlyCheckBox = Checkbox(carrierOnlyPos, () => ActiveHull.CarrierShip, "Carrier Only", GameText.WhenMarkedThisShipCan);
+            CarrierOnlyCheckBox = Checkbox(carrierOnlyPos,
+                () => CurrentDesign?.CarrierShip == true,
+                (b) => { if (CurrentDesign != null) CurrentDesign.CarrierShip = b; }, "Carrier Only", GameText.WhenMarkedThisShipCan);
 
             ArcsButton = new GenericButton(new Vector2(HullSelectList.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
 
@@ -605,7 +547,7 @@ namespace Ship_Game
                 string[] hulls = EmpireManager.Player.GetUnlockedHulls();
                 foreach (string hull in hulls)
                 {
-                    if (ResourceManager.Hull(hull, out ShipData hullData))
+                    if (ResourceManager.Hull(hull, out ShipHull hullData))
                     {
                         if ((!hullData.IsShipyard || Empire.Universe.Debug))
                         {
@@ -616,70 +558,17 @@ namespace Ship_Game
             }
         }
 
-        void InitializeHullAndCamera()
+        void InitializeCamera()
         {
-            Offset = new Vector2(Viewport.Width / 2 - 256, Viewport.Height / 2 - 256);
-            Camera = new Camera2D { Pos = new Vector2(Viewport.Width / 2f, Viewport.Height / 2f) };
-            Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-            View = Matrix.CreateRotationY(180f.ToRadians())
-                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
-
-            float aspectRatio = (float)Viewport.Width / Viewport.Height;
-            Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 120000f);
-            
-            ChangeHull(AvailableHulls[0]);
-
-            float minX = 0f, maxX = 0f;
-            for (int i = 0; i < ActiveHull.ModuleSlots.Length; ++i)
-            {
-                ModuleSlotData slot = ActiveHull.ModuleSlots[i];
-                Vector2 topLeft = slot.Position;
-                var botRight = new Vector2(topLeft.X + slot.Position.X * 16.0f,
-                                           topLeft.Y + slot.Position.Y * 16.0f);
-
-                if (topLeft.X < minX) minX = topLeft.X;
-                if (botRight.X > maxX) maxX = botRight.X;
-            }
-
-            float hullWidth = maxX - minX;
-
-            // So, this attempts to zoom so the entire design is visible
-            float UpdateCameraMatrix()
-            {
-                camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-
-                View = Matrix.CreateRotationY(180f.ToRadians())
-                     * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
-
-                Vector3 center   = Viewport.Project(Vector3.Zero, Projection, View, Matrix.Identity);
-                Vector3 hullEdge = Viewport.Project(new Vector3(hullWidth, 0, 0), Projection, View, Matrix.Identity);
-                return center.Distance(hullEdge) + 10f;
-            }
-
-            float visibleHullWidth = UpdateCameraMatrix();
-            if (visibleHullWidth >= hullWidth)
-            {
-                while (visibleHullWidth > hullWidth)
-                {
-                    CameraPosition.Z += 10f;
-                    visibleHullWidth = UpdateCameraMatrix();
-                }
-            }
-            else
-            {
-                while (visibleHullWidth < hullWidth)
-                {
-                    CameraPosition.Z -= 10f;
-                    visibleHullWidth = UpdateCameraMatrix();
-                }
-            }
-            OriginalZ = CameraPosition.Z;
+            // set shipyard's fov much lower to reduce parallax
+            SetPerspectiveProjection(fovYdegrees: 20, maxDistance: 30000);
+            UpdateViewMatrix(CameraPos);
         }
 
         void InitializeShipHullsList()
         {
             var categories = new Array<string>();
-            foreach (ShipData hull in AvailableHulls)
+            foreach (ShipHull hull in AvailableHulls)
             {
                 string cat = Localizer.GetRole(hull.Role, EmpireManager.Player);
                 if (!categories.Contains(cat))
@@ -692,7 +581,7 @@ namespace Ship_Game
                 var categoryItem = new ShipHullListItem(cat);
                 HullSelectList.AddItem(categoryItem);
 
-                foreach (ShipData hull in AvailableHulls)
+                foreach (ShipHull hull in AvailableHulls)
                 {
                     if (cat == Localizer.GetRole(hull.Role, EmpireManager.Player))
                     {

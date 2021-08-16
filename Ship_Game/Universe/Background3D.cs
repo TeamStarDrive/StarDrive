@@ -155,12 +155,12 @@ namespace Ship_Game
             device.RenderState.DepthBufferWriteEnable = false;
             device.RenderState.CullMode               = CullMode.None;
 
-            float alpha = Screen.CamHeight / (Screen.GetZfromScreenState(UniverseScreen.UnivScreenState.SectorView) * 2);
-            alpha = alpha.Clamped(0.1f, 0.3f);
+            double alpha = Screen.CamPos.Z / (Screen.GetZfromScreenState(UniverseScreen.UnivScreenState.SectorView) * 2);
+            float a = (float)alpha.Clamped(0.1, 0.3);
 
             for (int i = 0; i < BGItems.Count; i++)
             {
-                BGItems[i].Draw(Screen.ScreenManager, Screen.View, Screen.Projection, alpha);
+                BGItems[i].Draw(Screen.ScreenManager, Screen.View, Screen.Projection, a);
             }
 
             device.RenderState.DestinationBlend = Blend.InverseSourceAlpha;

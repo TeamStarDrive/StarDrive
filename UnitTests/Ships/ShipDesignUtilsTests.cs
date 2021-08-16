@@ -12,7 +12,7 @@ namespace UnitTests.Ships
     {
         void LoadShips()
         {
-            ResourceManager.LoadHullData();
+            ResourceManager.LoadHulls();
             ReloadStarterShips();
             ReloadTechTree();
             LoadStarterShips("Excalibur-Class Supercarrier", "Medium Freighter", "Flak Corvette", "Laserclaw",
@@ -26,24 +26,24 @@ namespace UnitTests.Ships
             ReloadStarterShips();
         }
 
-        static string[] TechsNeeded(ShipData data)
+        static string[] ToArray(HashSet<string> techsNeeded)
         {
-            string[] techs = data.TechsNeeded.ToArray();
+            string[] techs = techsNeeded.ToArray();
             Array.Sort(techs);
             return techs;
         }
 
         static Ship GetFirstShipTemplate() => ResourceManager.GetShipTemplates().ToArray()[0];
         static ShipData GetFirstShipData() => GetFirstShipTemplate().shipData;
-        static ShipData GetFirstBaseHull() => GetFirstShipData().BaseHull;
-        static string GetTechsNeededStr(ShipData data) => string.Join(",", TechsNeeded(data));
+        static ShipHull GetFirstBaseHull() => GetFirstShipData().BaseHull;
+        static string ToString(HashSet<string> techsNeeded) => string.Join(",", ToArray(techsNeeded));
 
         void PrintInfo(string prefix)
         {
-            ShipData firstBase = GetFirstBaseHull();
+            ShipHull firstBase = GetFirstBaseHull();
             ShipData firstShip = GetFirstShipData();
-            Log.Info($"{prefix} Hull {firstBase.Name} UnLockable: {firstBase.UnLockable} TechsNeeded: {GetTechsNeededStr(firstBase)}");
-            Log.Info($"{prefix} Ship {firstShip.Name} UnLockable: {firstShip.UnLockable} TechsNeeded: {GetTechsNeededStr(firstShip)}");
+            Log.Info($"{prefix} Hull {firstBase.HullName} Unlockable: {firstBase.Unlockable} TechsNeeded: {ToString(firstBase.TechsNeeded)}");
+            Log.Info($"{prefix} Ship {firstShip.Name} Unlockable: {firstShip.Unlockable} TechsNeeded: {ToString(firstShip.TechsNeeded)}");
         }
 
         [TestMethod]
@@ -76,18 +76,9 @@ namespace UnitTests.Ships
                 if (legacyUnlockable.TryGetValue(template.Name, out ShipData legacy))
                 {
                     ShipData @new = template.shipData;
-
-                    Assert.That.Equal(TechsNeeded(legacy), TechsNeeded(@new),
+                    Assert.That.Equal(ToArray(legacy.TechsNeeded), ToArray(@new.TechsNeeded),
                                       $"{template.Name} TechsNeeded must be equal");
-                    
-                    Assert.AreEqual(legacy.UnLockable, @new.UnLockable, $"{template.Name} Not same Unlockable");
-                    Assert.AreEqual(legacy.AllModulesUnlockable, @new.AllModulesUnlockable, $"{template.Name} Not same AllModulesUnlockable");
-                    Assert.AreEqual(legacy.HullUnlockable, @new.HullUnlockable,$"{template.Name} Not same HullUnlockable");
-
-                    Assert.AreEqual(legacy.BaseStrength, @new.BaseStrength,$"{template.Name} Not same BaseStrength");
-                    
-                    //${string.Join("",oldShipData.TechsNeeded)} : ${string.Join("",template.shipData.TechsNeeded)}
-                    Assert.IsTrue(legacy.TechsNeeded.SetEquals(@new.TechsNeeded), $"{template.Name} Not SetEquals TechsNeeded");
+                    Assert.AreEqual(legacy.Unlockable, @new.Unlockable, $"{template.Name} Not same Unlockable");
                 } 
                 else
                 {

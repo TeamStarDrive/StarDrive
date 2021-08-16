@@ -92,29 +92,29 @@ namespace Ship_Game.Debug
         public void DrawLineImm(Vector2 worldA, Vector2 worldB, Color color, float thickness = 1f)
         {
             if (!Visible) return;
-            Vector2 screenA = Empire.Universe.ProjectToScreenPosition(worldA);
-            Vector2 screenB = Empire.Universe.ProjectToScreenPosition(worldB);
+            Vector2d screenA = Empire.Universe.ProjectToScreenPosition(worldA);
+            Vector2d screenB = Empire.Universe.ProjectToScreenPosition(worldB);
             DrawLine(screenA, screenB, color, thickness);
         }
 
         public void DrawArrowImm(Vector2 worldA, Vector2 worldB, Color color, float thickness = 1f)
         {
             if (!Visible) return;
-            Vector2 screenA = Empire.Universe.ProjectToScreenPosition(worldA);
-            Vector2 screenB = Empire.Universe.ProjectToScreenPosition(worldB);
+            Vector2d screenA = Empire.Universe.ProjectToScreenPosition(worldA);
+            Vector2d screenB = Empire.Universe.ProjectToScreenPosition(worldB);
             DrawLine(screenA, screenB, color, thickness);
 
-            Vector2 screenDir = screenA.DirectionToTarget(screenB);
-            Vector2 rightDir = screenDir.RightVector();
+            Vector2d screenDir = screenA.DirectionToTarget(screenB);
+            Vector2d rightDir = screenDir.RightVector();
 
-            float arrowSize = screenA.Distance(screenB) * 0.1f;
+            double arrowSize = screenA.Distance(screenB) * 0.1;
             arrowSize = arrowSize.Clamped(5f, ScreenWidth * 0.05f);
 
-            Vector2 thickOffset = rightDir*thickness;
-            Vector2 arrowTip = screenB + thickOffset;
-            Vector2 arrowButt = screenB - screenDir*arrowSize;
-            Vector2 left  = arrowButt + screenDir.LeftVector()*arrowSize;
-            Vector2 right = arrowButt + thickOffset + rightDir*arrowSize;
+            Vector2d thickOffset = rightDir*thickness;
+            Vector2d arrowTip = screenB + thickOffset;
+            Vector2d arrowButt = screenB - screenDir*arrowSize;
+            Vector2d left  = arrowButt + screenDir.LeftVector()*arrowSize;
+            Vector2d right = arrowButt + thickOffset + rightDir*arrowSize;
 
             DrawLine(arrowTip, left, color, thickness);
             DrawLine(arrowTip, right, color, thickness);

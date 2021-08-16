@@ -339,13 +339,13 @@ namespace Ship_Game.Debug
             foreach (Weapon w in ship.Weapons)
             {
                 ShipModule m = w.Module;
-                float facing = ship.Rotation + m.FacingRadians;
-                float size = w.GetActualRange();
+                float facing = ship.Rotation + m.TurretAngleRads;
+                float range = w.GetActualRange();
 
-                Screen.ProjectToScreenCoords(m.Position, size, 
-                                      out Vector2 posOnScreen, out float sizeOnScreen);
-                ShipDesignScreen.DrawWeaponArcs(ScreenManager.SpriteBatch,
-                                      ship.Rotation, w, m, posOnScreen, sizeOnScreen*0.25f, ship.TrackingPower);
+                // TODO: This doesn't account for Ship's rotation...
+                Vector2 moduleCenter = m.Position + m.WorldSize*0.5f;
+                ShipDesignScreen.DrawWeaponArcs(ScreenManager.SpriteBatch, Screen, w, m, moduleCenter, 
+                                                range * 0.25f, ship.Rotation, m.TurretAngle);
 
                 DrawCircleImm(w.Origin, m.Radius/(float)Math.Sqrt(2), Color.Crimson);
 
@@ -362,7 +362,7 @@ namespace Ship_Game.Debug
                     bool inRange = ship.CheckRangeToTarget(w, target);
                     float bigArc = m.FieldOfFire*1.2f;
                     bool inBigArc = RadMath.IsTargetInsideArc(m.Position, target.Position,
-                                                    ship.Rotation + m.FacingRadians, bigArc);
+                                                    ship.Rotation + m.TurretAngleRads, bigArc);
                     if (inRange && inBigArc) // show arc lines if we are close to arc edges
                     {
                         bool inArc = ship.IsInsideFiringArc(w, target.Position);
@@ -370,11 +370,11 @@ namespace Ship_Game.Debug
                         Color inArcColor = inArc ? Color.LawnGreen : Color.Orange;
                         DrawLineImm(m.Position, target.Position, inArcColor, 3f);
 
-                        DrawLineImm(m.Position, m.Position + facing.RadiansToDirection() * size, Color.Crimson);
+                        DrawLineImm(m.Position, m.Position + facing.RadiansToDirection() * range, Color.Crimson);
                         Vector2 left  = (facing - m.FieldOfFire * 0.5f).RadiansToDirection();
                         Vector2 right = (facing + m.FieldOfFire * 0.5f).RadiansToDirection();
-                        DrawLineImm(m.Position, m.Position + left * size, Color.Crimson);
-                        DrawLineImm(m.Position, m.Position + right * size, Color.Crimson);
+                        DrawLineImm(m.Position, m.Position + left * range, Color.Crimson);
+                        DrawLineImm(m.Position, m.Position + right * range, Color.Crimson);
 
                         string text = $"Target: {targetShip.Name}\nInArc: {inArc}";
                         DrawShadowStringProjected(m.Position, 0f, 1f, inArcColor, text);

@@ -1,0 +1,56 @@
+﻿Version=1
+Name=Pikeman-Class Mk IIIc Destroyer
+Hull=Terran/HeavyGunboat
+Role=frigate
+Style=Terran
+Size=6,18
+GridCenter=3,9
+DefaultCombatState=Artillery
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=PlaSteelArmorSmall;PhotonTurret;Engine;FuelCellSmallArmored;Shield_10KW;Main Engineering;CombatEngine_2x2;OrdnanceLockerSmall;Shield_1KW;BasicFuelCell;Bridge;NuclearReactorSmall;WarpEngine_2x2
+Modules=44
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,2;0
+0,3;1;2,2;326
+0,6;1;2,2;269
+0,8;0
+0,9;0
+0,12;0;;225
+0,13;0
+0,14;0
+0,15;0
+0,16;2
+1,1;0
+1,2;3
+1,5;3
+1,8;3
+1,9;4;3,3
+1,12;5;4,4
+1,16;6;2,2
+2,0;0
+2,1;1;2,2
+2,3;7
+2,4;8;2,2
+2,6;9
+2,7;10;2,2
+3,0;0
+3,3;11
+3,6;9
+3,16;12;2,2
+4,1;0
+4,2;3
+4,3;1;2,2;33
+4,5;3
+4,6;1;2,2;90
+4,8;3
+4,9;3
+4,10;0
+4,11;0
+5,2;0
+5,8;0
+5,9;0
+5,12;0
+5,13;0
+5,14;0
+5,15;0
+5,16;2

@@ -111,7 +111,7 @@ namespace Ship_Game.AI.Research
                 if (!IsRoleValid(shortTermBest.shipData.HullRole)) continue;
                 if (!IsRoleValid(shortTermBest.DesignRole)) continue;
                 if (!IsRoleValid(shortTermBest.shipData.Role)) continue;
-                if (!shortTermBest.shipData.UnLockable) continue;
+                if (!shortTermBest.shipData.Unlockable) continue;
                 if (ShipHasUndiscoveredTech(shortTermBest)) continue;
                 if (!shortTermBest.ShipGoodToBuild(OwnerEmpire)) continue;
 
@@ -126,7 +126,7 @@ namespace Ship_Game.AI.Research
             foreach (Ship shortTermBest in ResourceManager.GetShipTemplates())
             {
                 // restrict to to ships available to this empire.
-                string shipStyle = shortTermBest.shipData.ShipStyle ?? shortTermBest.shipData.BaseHull?.ShipStyle;
+                string shipStyle = shortTermBest.shipData.ShipStyle ?? shortTermBest.shipData.BaseHull?.Style;
                 if (shipStyle.IsEmpty())
                 {
                     Log.Warning($"Ship {shortTermBest?.Name} Tech FilterRacialShip found a bad ship");

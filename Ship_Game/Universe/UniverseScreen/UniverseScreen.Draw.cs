@@ -136,37 +136,30 @@ namespace Ship_Game
             rs.DepthBufferWriteEnable = true;
         }
 
-        private void DrawToolTip()
+        void DrawSystemAndPlanetBrackets(SpriteBatch batch)
         {
             if (SelectedSystem != null && !LookingAtPlanet)
             {
-                float num = 4500f;
-                Vector3 vector3_1 = Viewport.Project(
-                    new Vector3(SelectedSystem.Position, 0.0f), Projection, View, Matrix.Identity);
-                Vector2 Position = new Vector2(vector3_1.X, vector3_1.Y);
-                Vector3 vector3_2 = Viewport.Project(
-                    new Vector3(new Vector2(SelectedSystem.Position.X + num, SelectedSystem.Position.Y),
-                        0.0f), Projection, View, Matrix.Identity);
-                float Radius = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), Position);
-                if (Radius < 5.0)
-                    Radius = 5f;
-                ScreenManager.SpriteBatch.BracketRectangle(Position, Radius, Color.White);
+                Vector2 sysPos = SelectedSystem.Position;
+                float sunRadius = 4500f;
+                Vector2 nearPoint = Viewport.Project(new Vector3(sysPos, 0f), Projection, View, Matrix.Identity).ToVec2();
+                Vector2 farPoint  = Viewport.Project(new Vector3(sysPos.X + sunRadius, sysPos.Y, 0.0f), Projection, View, Matrix.Identity).ToVec2();
+                float radius = farPoint.Distance(nearPoint);
+                if (radius < 5f)
+                    radius = 5f;
+                batch.BracketRectangle(new Vector2d(nearPoint), radius, Color.White);
             }
-            if (SelectedPlanet == null || LookingAtPlanet ||
-                viewState >= UnivScreenState.GalaxyView)
-                return;
-            float radius = SelectedPlanet.SO.WorldBoundingSphere.Radius;
-            Vector3 vector3_3 = Viewport.Project(
-                new Vector3(SelectedPlanet.Center, 2500f), Projection, View, Matrix.Identity);
-            Vector2 Position1 = new Vector2(vector3_3.X, vector3_3.Y);
-            Vector3 vector3_4 = Viewport.Project(
-                new Vector3(SelectedPlanet.Center.PointFromAngle(90f, radius), 2500f), Projection, View,
-                Matrix.Identity);
-            float Radius1 = Vector2.Distance(new Vector2(vector3_4.X, vector3_4.Y), Position1);
-            if (Radius1 < 8.0)
-                Radius1 = 8f;
-            ScreenManager.SpriteBatch.BracketRectangle(Position1, Radius1,
-                SelectedPlanet.Owner?.EmpireColor ?? Color.Gray);
+            if (SelectedPlanet != null && !LookingAtPlanet &&  viewState < UnivScreenState.GalaxyView)
+            {
+                Vector2 planetPos = SelectedPlanet.Center;
+                float planetRadius = SelectedPlanet.SO.WorldBoundingSphere.Radius;
+                Vector2 center = Viewport.Project(new Vector3(planetPos, 2500f), Projection, View, Matrix.Identity).ToVec2();
+                Vector2 edge = Viewport.Project(new Vector3(planetPos.X + planetRadius, planetPos.Y, 2500f), Projection, View, Matrix.Identity).ToVec2();
+                float radius = center.Distance(edge);
+                if (radius < 8f)
+                    radius = 8f;
+                batch.BracketRectangle(new Vector2d(center), radius, SelectedPlanet.Owner?.EmpireColor ?? Color.Gray);
+            }
         }
 
         private void DrawFogNodes()
@@ -202,12 +195,12 @@ namespace Ship_Game
             for (int i = 0; i < sensorNodes.Length; ++i)
             {
                 ref Empire.InfluenceNode @in = ref sensorNodes[i];
-                Vector2 screenPos = ProjectToScreenPosition(@in.Position);
+                Vector2d screenPos = ProjectToScreenPosition(@in.Position);
                 Vector3 local_4 = viewport.Project(
                     new Vector3(@in.Position.PointFromAngle(90f, @in.Radius * 1.5f), 0.0f), Projection,
                     View, Matrix.Identity);
 
-                float local_6 = Math.Abs(new Vector2(local_4.X, local_4.Y).X - screenPos.X) * 2.59999990463257f;
+                double local_6 = Math.Abs(new Vector2(local_4.X, local_4.Y).X - screenPos.X) * 2.59999990463257;
                 Rectangle local_7 = new Rectangle((int)screenPos.X, (int)screenPos.Y, (int)local_6, (int)local_6);
 
                 batch.Draw(uiNode, local_7, Color.White, 0.0f, uiNode.CenterF, SpriteEffects.None, 1f);
@@ -246,7 +239,7 @@ namespace Ship_Game
                     if (!Frustum.Contains(@in.Position, @in.Radius))
                         continue;
              
-                    Vector2 nodePos = ProjectToScreenPosition(@in.Position);
+                    Vector2d nodePos = ProjectToScreenPosition(@in.Position);
                     int size = (int) Math.Abs(
                         ProjectToScreenPosition(@in.Position.PointFromAngle(90f, @in.Radius)).X - nodePos.X);
 
@@ -262,7 +255,7 @@ namespace Ship_Game
                             @in.Position.OutsideRadius(in2.Position, @in.Radius + in2.Radius + 150000.0f))
                             continue;
 
-                        Vector2 endPos = ProjectToScreenPosition(in2.Position);
+                        Vector2d endPos = ProjectToScreenPosition(in2.Position);
                         float rotation = nodePos.RadiansToTarget(endPos);
                         rect = new Rectangle((int) endPos.X, (int) endPos.Y, size * 3 / 2,
                             (int) nodePos.Distance(endPos));
@@ -368,12 +361,10 @@ namespace Ship_Game
             if (PulseTimer < 0) PulseTimer = 1;
 
             AdjustCamera(elapsed.RealTime.Seconds);
-            CamPos.Z = CamHeight;
-            View = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f)
-                   * Matrix.CreateRotationY(180f.ToRadians())
-                   * Matrix.CreateRotationX(0.0f.ToRadians())
-                   * Matrix.CreateLookAt(new Vector3(-CamPos.X, CamPos.Y, CamHeight),
-                       new Vector3(-CamPos.X, CamPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
+            SetViewMatrix(Matrix.CreateTranslation(0.0f, 0.0f, 0.0f)
+                        * Matrix.CreateRotationY(180f.ToRadians())
+                        * Matrix.CreateRotationX(0.0f.ToRadians())
+                        * Matrices.CreateLookAtDown(-CamPos.X, CamPos.Y, CamPos.Z));
             Matrix matrix = View;
 
             GraphicsDevice graphics = ScreenManager.GraphicsDevice;
@@ -388,7 +379,7 @@ namespace Ship_Game
                     DrawColoredEmpireBorders(batch, graphics);
                 DrawFogOfWarEffect(batch, graphics);
 
-                View = matrix;
+                SetViewMatrix(matrix);
                 if (GlobalStats.RenderBloom)
                     bloomComponent?.Draw();
 
@@ -457,7 +448,7 @@ namespace Ship_Game
                               LookingAtPlanet && workersPanel is UnownedPlanetScreen);
 
             DrawSelectedItems(batch, elapsed);
-            DrawToolTip();
+            DrawSystemAndPlanetBrackets(batch);
 
             if (Debug)
                 DebugWin?.Draw(batch, elapsed);
@@ -732,7 +723,7 @@ namespace Ship_Game
                         continue;
 
                     SubTexture icon = fleet.Icon;
-                    Vector2 fleetCenterOnScreen = ProjectToScreenPosition(averagePos);
+                    Vector2 fleetCenterOnScreen = ProjectToScreenPosition(averagePos).ToVec2fRounded();
 
                     FleetIconLines(shipsVisible, fleetCenterOnScreen);
 
@@ -759,7 +750,7 @@ namespace Ship_Game
 
                 if (Debug || ship.loyalty.isPlayer || ship.loyalty.IsAlliedWith(player) || !player.DifficultyModifiers.HideTacticalData)
                 {
-                    Vector2 shipScreenPos = ProjectToScreenPosition(ship.Position);
+                    Vector2 shipScreenPos = ProjectToScreenPosition(ship.Position).ToVec2fRounded();
                     ScreenManager.SpriteBatch.DrawLine(shipScreenPos, fleetCenterOnScreen, FleetLineColor);
                 }
             }
@@ -779,7 +770,7 @@ namespace Ship_Game
                 foreach (Planet planet in system.PlanetList)
                 {
                     float fIconScale      = 0.1875f * (0.7f + ((float) (Math.Log(planet.Scale)) / 2.75f));
-                    Vector2 planetIconPos = ProjectToScreenPosition(planet.Center, 2500);
+                    Vector2 planetIconPos = ProjectToScreenPosition(planet.Center, 2500).ToVec2fRounded();
                     Vector2 flagIconPos   = planetIconPos - new Vector2(0, 15);
 
                     SubTexture planetTex = planet.PlanetTexture;
@@ -1046,9 +1037,9 @@ namespace Ship_Game
                             color = Color.Gray;
 
                         ProjectToScreenCoords(ship.Position, ship.Radius,
-                            out Vector2 shipScreenPos, out float screenRadius);
+                            out Vector2d shipScreenPos, out double screenRadius);
 
-                        float radius = screenRadius < 7f ? 7f : screenRadius;
+                        double radius = screenRadius < 7f ? 7f : screenRadius;
                         batch.BracketRectangle(shipScreenPos, radius, color);
                     }
                 }
@@ -1072,15 +1063,15 @@ namespace Ship_Game
         void DrawShipProjectionIcon(Ship ship, Vector2 position, Vector2 direction, Color color)
         {
             (SubTexture symbol, SubTexture secondary) = ship.TacticalIcon();
-            float num         = ship.SurfaceArea / (30f + symbol.Width);
-            float scale       = (num * 4000f / CamHeight).UpperBound(1);
+            double num = ship.SurfaceArea / (30.0 + symbol.Width);
+            double scale = (num * 4000.0 / CamPos.Z).UpperBound(1);
 
-            if (scale <= 0.1f)
-                scale = ship.shipData.Role != ShipData.RoleName.platform || viewState < UnivScreenState.SectorView ? 0.15f : 0.08f;
+            if (scale <= 0.1)
+                scale = ship.shipData.Role != ShipData.RoleName.platform || viewState < UnivScreenState.SectorView ? 0.15 : 0.08;
 
-            DrawTextureProjected(symbol, position, scale, direction.ToRadians(), color);
+            DrawTextureProjected(symbol, position, (float)scale, direction.ToRadians(), color);
             if (secondary != null)
-                DrawTextureProjected(secondary, position, scale, direction.ToRadians(), color);
+                DrawTextureProjected(secondary, position, (float)scale, direction.ToRadians(), color);
         }
 
         void DrawOverlay(Ship ship)
@@ -1091,7 +1082,7 @@ namespace Ship_Game
                 // that will solve invisible ships when the ship model load hits an OOM.
                 if (ShowShipNames || ship.GetSO()?.HasMeshes == false)
                 {
-                    ship.DrawModulesOverlay(this, CamHeight,
+                    ship.DrawModulesOverlay(this, CamPos.Z,
                         showDebugSelect:Debug && ship == SelectedShip,
                         showDebugStats: Debug && DebugWin?.IsOpen == true);
                 }
@@ -1156,9 +1147,9 @@ namespace Ship_Game
 
                 if (ship.AI.State == AIState.Colonize && ship.AI.ColonizeTarget != null)
                 {
-                    Vector2 screenPos = DrawLineProjected(start, ship.AI.ColonizeTarget.Center, color, 2500f, 0);
+                    Vector2d screenPos = DrawLineProjected(start, ship.AI.ColonizeTarget.Center, color, 2500f, 0);
                     string text = $"Colonize\nSystem : {ship.AI.ColonizeTarget.ParentSystem.Name}\nPlanet : {ship.AI.ColonizeTarget.Name}";
-                    DrawPointerWithText(screenPos, ResourceManager.Texture("UI/planetNamePointer"), color, text, new Color(ship.loyalty.EmpireColor, alpha));
+                    DrawPointerWithText(screenPos.ToVec2f(), ResourceManager.Texture("UI/planetNamePointer"), color, text, new Color(ship.loyalty.EmpireColor, alpha));
                     return;
                 }
                 if (ship.AI.State == AIState.Orbit && ship.AI.OrbitTarget != null)
@@ -1298,7 +1289,7 @@ namespace Ship_Game
                 for (int j = 0; j < solarSystem.PlanetList.Count; j++)
                 {
                     Planet planet = solarSystem.PlanetList[j];
-                    Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Center, 2500f);
+                    Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Center, 2500f).ToVec2fRounded();
                     Vector2 posOffSet = screenPosPlanet;
                     posOffSet.X += 20f;
                     posOffSet.Y += 37f;

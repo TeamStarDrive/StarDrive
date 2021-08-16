@@ -801,10 +801,10 @@ namespace Ship_Game
             us = new UniverseScreen(Data, Player)
             {
                 ScreenManager = ScreenManager,
-                CamPos = new Vector3(homePlanet.Center.X, homePlanet.Center.Y, 5000f),
+                CamPos = new Vector3d(homePlanet.Center.X, homePlanet.Center.Y, 5000),
             };
 
-            EmpireShipBonuses.RefreshBonuses();
+            EmpireHullBonuses.RefreshBonuses();
 
             ScreenManager.AddScreenAndLoadContent(us);
 

@@ -553,7 +553,7 @@ namespace Ship_Game
         {
             VisPerf.Start();
 
-            AABoundingBox2D visibleWorld = Universe.GetVisibleWorldRect();
+            AABoundingBox2D visibleWorld = Universe.VisibleWorldRect;
 
             Projectile[] projs = Empty<Projectile>.Array;
             Beam[] beams = Empty<Beam>.Array;

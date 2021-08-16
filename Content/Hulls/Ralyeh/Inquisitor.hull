@@ -1,0 +1,17 @@
+﻿Version=1
+HullName=Ralyeh/Inquisitor
+VisibleName=Inquisitor
+Role=fighter
+Style=Ralyeh
+Size=4,4
+MeshOffset=0,0
+IconPath=ShipIcons/Inquisitor
+ModelPath=Model/Ships/Ralyeh/Ship17a
+SelectIcon=17a
+Animated=true
+#Thruster PosX,PosY,PosZ,Scale
+Slots
+___|IO |IO |___
+IO |IO |IO |IO 
+___|I  |IC |___
+___|E  |E  |___

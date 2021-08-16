@@ -1,0 +1,18 @@
+﻿Version=1
+HullName=Pollops/Thicket
+VisibleName=Thicket
+Role=corvette
+Style=Pollops
+Size=6,5
+MeshOffset=0,8
+IconPath=ShipIcons/thicket
+ModelPath=Model/Ships/Pollops/Thicket
+SelectIcon=15b
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=256,272,0,45
+Slots
+___|O  |___|___|O  |___
+___|O  |IO |IO |O  |___
+O  |IO |I  |I  |IO |O  
+___|IO |I  |IC |IO |___
+___|___|E  |E  |___|___

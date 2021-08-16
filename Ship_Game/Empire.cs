@@ -1032,7 +1032,7 @@ namespace Ship_Game
 
             InitTechs();
 
-            foreach (var hull in ResourceManager.Hulls)       UnlockedHullsDict[hull.Hull]  = false;
+            foreach (var hull in ResourceManager.Hulls)       UnlockedHullsDict[hull.HullName]  = false;
             foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]         = false;
             foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key] = false;
             foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]   = false;
@@ -1185,7 +1185,7 @@ namespace Ship_Game
             if (string.IsNullOrEmpty(data.DefaultTroopShip))
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
 
-            foreach (var hull in ResourceManager.Hulls) UnlockedHullsDict[hull.Hull] = false;
+            foreach (var hull in ResourceManager.Hulls) UnlockedHullsDict[hull.HullName] = false;
             foreach (var tt in ResourceManager.TroopTypes) UnlockedTroopDict[tt] = false;
             foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key] = false;
             foreach (var kv in ResourceManager.ShipModules) UnlockedModulesDict[kv.Key] = false;
@@ -2003,11 +2003,11 @@ namespace Ship_Game
                     ShipsWeCanBuild.Add(ship.Name);
                     foreach (ShipModule hangar in ship.Carrier.AllHangars)
                     {
-                        if (hangar.hangarShipUID.NotEmpty())
+                        if (hangar.HangarShipUID.NotEmpty())
                         {
-                            var hangarShip = ResourceManager.GetShipTemplate(hangar.hangarShipUID, throwIfError: false);
+                            var hangarShip = ResourceManager.GetShipTemplate(hangar.HangarShipUID, throwIfError: false);
                             if (hangarShip?.CanBeAddedToBuildableShips(this) == true)
-                                ShipsWeCanBuild.Add(hangar.hangarShipUID);
+                                ShipsWeCanBuild.Add(hangar.HangarShipUID);
                         }
                     }
                 }
@@ -2076,7 +2076,7 @@ namespace Ship_Game
 
             if (shipData.TechsNeeded.Count > 0)
             {
-                if (!shipData.UnLockable)
+                if (!shipData.Unlockable)
                     return false;
 
                 foreach (string shipTech in shipData.TechsNeeded)
@@ -2095,9 +2095,9 @@ namespace Ship_Game
             else
             {
                 // check if all modules in the ship are unlocked
-                foreach (ModuleSlotData moduleSlotData in shipData.ModuleSlots)
+                foreach (DesignSlot moduleSlotData in shipData.ModuleSlots)
                 {
-                    if (moduleSlotData.IsDummy || UnlockedModulesDict[moduleSlotData.ModuleUID])
+                    if (UnlockedModulesDict[moduleSlotData.ModuleUID])
                         continue;
                     //Log.Info($"Locked module : '{moduleSlotData.InstalledModuleUID}' in design : '{ship}'");
                     return false; // can't build this ship because it contains a locked Module
@@ -2126,7 +2126,7 @@ namespace Ship_Game
             {
                 foreach (Technology.UnlockedMod entry in tech.ModulesUnlocked)
                 {
-                    foreach (ModuleSlotData moduleSlotData in ship.shipData.ModuleSlots)
+                    foreach (DesignSlot moduleSlotData in ship.shipData.ModuleSlots)
                     {
                         if (entry.ModuleUID == moduleSlotData.ModuleUID)
                             return true;
@@ -3297,7 +3297,7 @@ namespace Ship_Game
             data.Traits.ResearchMod          += art.GetResearchMod(data);
             data.SensorModifier              += art.GetSensorMod(data);
             data.ShieldPenBonusChance        += art.GetShieldPenMod(data);
-            EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
+            EmpireHullBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
         }
 
         public void RemoveArtifact(Artifact art)
@@ -3314,7 +3314,7 @@ namespace Ship_Game
             data.Traits.ResearchMod          -= art.GetResearchMod(data);
             data.SensorModifier              -= art.GetSensorMod(data);
             data.ShieldPenBonusChance        -= art.GetShieldPenMod(data);
-            EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
+            EmpireHullBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
         }
 
         void IEmpireShipLists.RemoveShipAtEndOfTurn(Ship s) => EmpireShips?.Remove(s);

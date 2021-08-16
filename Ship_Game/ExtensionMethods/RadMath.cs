@@ -54,6 +54,14 @@ namespace Ship_Game
             return CosTable[idx];
         }
 
+        // Fast Cosine approximation
+        public static float Cos(double radians)
+        {
+            int idx = (int)(radians * InvTwoPiTableFactor) % TableSize;
+            if (idx < 0) idx = -idx;
+            return CosTable[idx];
+        }
+
         // Fast Sine approximation
         public static float Sin(float radians)
         {
@@ -74,6 +82,10 @@ namespace Ship_Game
         [DllImport("SDNative.dll")]
         public static extern Vector2 RadiansToDirection(this float radians);
 
+        // Converts rotation radians into a 2D direction vector
+        [DllImport("SDNative.dll", EntryPoint = "RadiansToDirectionD")]
+        public static extern Vector2d RadiansToDirection(this double radians);
+
         // Converts rotation radians into a 3D direction vector, with Z = 0
         public static Vector3 RadiansToDirection3D(this float radians)
         {
@@ -84,6 +96,13 @@ namespace Ship_Game
         public static Vector2 AngleToDirection(this float degrees)
         {
             float radians = degrees * DegreeToRadian;
+            return RadiansToDirection(radians);
+        }
+
+        // Converts an angle value to a 2D direction vector
+        public static Vector2d AngleToDirection(this double degrees)
+        {
+            double radians = degrees * DegreeToRadian;
             return RadiansToDirection(radians);
         }
 
@@ -120,6 +139,28 @@ namespace Ship_Game
             else
             {
                 return Math.Min(ratio * TwoPI, TwoPI);
+            }
+        }
+
+        // Converts DEGREES angle to radians
+        // Always in a normalized absolute [0, 2PI] range
+        public static double ToRadians(this double degrees)
+        {
+            // BEWARE! Floating point nasal demons lie here!
+            double ratio = degrees * Inv360D;
+            // compare degrees, because Inv360 isn't accurate in
+            // case: ToRadians(360f) expected: 2PI
+            if (degrees > 360.001) // NOTE: .001 is important for rounding 360+EPSILON as TwoPI
+            {
+                return Math.Min((ratio - (int)ratio) * TwoPID, TwoPID); 
+            }
+            else if (degrees < 0)
+            {
+                return Math.Min((1.0 + ratio - (int)ratio) * TwoPID, TwoPID);
+            }
+            else
+            {
+                return Math.Min(ratio * TwoPID, TwoPID);
             }
         }
 
@@ -204,6 +245,10 @@ namespace Ship_Game
         // Takes self and rotates it around the center pivot by some radians
         [DllImport("SDNative.dll")]
         public static extern Vector2 RotateAroundPoint(this in Vector2 self, in Vector2 center, float radians);
+
+        // Takes self and rotates it around the center pivot by some radians
+        [DllImport("SDNative.dll", EntryPoint = "RotateAroundPointD")]
+        public static extern Vector2d RotateAroundPoint(this in Vector2d self, in Vector2d center, double radians);
 
         // Takes self and rotates it around world center [0,0] by some radians
         [DllImport("SDNative.dll")]

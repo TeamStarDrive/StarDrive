@@ -10,50 +10,52 @@ namespace Ship_Game
 {
     public sealed class SlotStruct
     {
-        public Restrictions Restrictions;
-        public PrimitiveQuad PQ;
-        public Vector2 XMLPos;
-        public float Facing; // Facing is the turret aiming dir
-        public ModuleOrientation Orientation; // Orientation controls the visual 4-dir rotation of module
+        // Integer position in the local grid, top-left is [0,0]
+        public readonly Point Pos;
+
+        // Center of the design grid
+        public readonly Point GridCenter;
+
+        // Position of this slot in the world, where center of the Grid
+        // is at world [0,0]
+        public readonly Vector2 WorldPos;
+
+        // HullSlot restriction
+        public Restrictions HullRestrict;
+
         public SlotStruct Parent;
         public string ModuleUID;
         public ShipModule Module;
-        public string SlotOptions;
         public SubTexture Tex;
 
         public SlotStruct()
         {
         }
 
-        public SlotStruct(ModuleSlotData slot, Vector2 offset)
+        public SlotStruct(HullSlot slot, Point gridCenter)
         {
-            Enum.TryParse(slot.Orientation, out ModuleOrientation slotState);
-            Vector2 pos = slot.Position;
-            XMLPos = pos;
-            PQ = new PrimitiveQuad(pos.X + offset.X - 8f, pos.Y + offset.Y - 8f, 16f, 16f);
-            Restrictions  = slot.Restrictions;
-            Facing        = slot.Facing;
-            ModuleUID     = slot.ModuleUID;
-            Orientation   = slotState;
-            SlotOptions   = slot.SlotOptions;
+            Pos = slot.Pos;
+            HullRestrict = slot.R;
+
+            GridCenter = gridCenter;
+            WorldPos = slot.Pos.Sub(gridCenter).Mul(16f);
         }
 
         public override string ToString()
         {
             if (Parent == null)
-                return $"{Module?.UID} {Position} R:{Restrictions} F:{Facing} O:{Orientation}";
+                return $"{Module?.UID} {Pos} R:{HullRestrict}";
 
             // @note Don't call Parent.ToString(), or we might get a stack overflow
-            string parent = $"{Parent.Position} R:{Parent.Restrictions} F:{Parent.Facing} O:{Orientation}";
-            return $"{Position} R:{Restrictions} F:{Facing} O:{Orientation}   Parent={{{parent}}}";
+            string parent = $"{Parent.Module?.UID} {Parent.Pos} R:{Parent.HullRestrict}";
+            return $"{Pos} R:{HullRestrict} Parent={{{parent}}}";
         }
 
+        static bool MatchI(Restrictions b) => b == Restrictions.I || b == Restrictions.IO || b == Restrictions.IE;
+        static bool MatchO(Restrictions b) => b == Restrictions.O || b == Restrictions.IO || b == Restrictions.OE;
+        static bool MatchE(Restrictions b) => b == Restrictions.E || b == Restrictions.IE || b == Restrictions.OE;
 
-        private static bool MatchI(Restrictions b) => b == Restrictions.I || b == Restrictions.IO || b == Restrictions.IE;
-        private static bool MatchO(Restrictions b) => b == Restrictions.O || b == Restrictions.IO || b == Restrictions.OE;
-        private static bool MatchE(Restrictions b) => b == Restrictions.E || b == Restrictions.IE || b == Restrictions.OE;
-
-        private static bool IsPartialMatch(Restrictions a, Restrictions b)
+        static bool IsPartialMatch(Restrictions a, Restrictions b)
         {
             switch (a)
             {
@@ -69,79 +71,69 @@ namespace Ship_Game
 
         public bool CanSlotSupportModule(ShipModule module)
         {
-            if (module == null || module.Restrictions == Restrictions.IOE || module.Restrictions == Restrictions)
+            if (module == null)
                 return true;
 
-            if (module.Restrictions <= Restrictions.IOE)
-                return IsPartialMatch(Restrictions, module.Restrictions);
+            Restrictions r = module.Restrictions;
+            if (r == Restrictions.IOE || r == HullRestrict)
+                return true;
 
-            switch (module.Restrictions) // exclusive restrictions
+            if (r <= Restrictions.IOE)
+                return IsPartialMatch(HullRestrict, r);
+
+            switch (r) // exclusive restrictions
             {
-                case Restrictions.xI:  return Restrictions == Restrictions.I;
-                case Restrictions.xIO: return Restrictions == Restrictions.IO;
-                case Restrictions.xO:  return Restrictions == Restrictions.O;
+                case Restrictions.xI:  return HullRestrict == Restrictions.I;
+                case Restrictions.xIO: return HullRestrict == Restrictions.IO;
+                case Restrictions.xO:  return HullRestrict == Restrictions.O;
             }
             return false;
         }
 
-        public void Draw(SpriteBatch sb, SubTexture texture, Color tint)
-        {
-            Rectangle rect = Module == null ? PQ.Rect : ModuleRect;
-            sb.Draw(texture, rect, tint);
-        }
+        // Center of the module in WORLD coordinates
+        [XmlIgnore][JsonIgnore]
+        public Vector2 Center => WorldPos + WorldSize/2f;
 
-        [XmlIgnore][JsonIgnore] public Vector2 PosVec2 => new Vector2(PQ.X, PQ.Y);
-        [XmlIgnore][JsonIgnore] public Point Position => new Point(PQ.X, PQ.Y);
+        // Gets the size of the module rectangle in WORLD coordinates
+        [XmlIgnore][JsonIgnore]
+        public Vector2 WorldSize => Module?.WorldSize ?? new Vector2(16f);
 
-        // Width and Height in 1x1, 2x2, etc
-        [XmlIgnore][JsonIgnore] public int Width  => PQ.W/16;
-        [XmlIgnore][JsonIgnore] public int Height => PQ.H/16;
-        [XmlIgnore][JsonIgnore] public Point IntPos  => new Point(PQ.X/16, PQ.Y/16);
-        [XmlIgnore][JsonIgnore] public Point IntSize => new Point(PQ.W/16, PQ.H/16);
-        [XmlIgnore][JsonIgnore] public Rectangle IntRect => new Rectangle(PQ.X/16, PQ.Y/16, PQ.W/16, PQ.H/16);
+        // Gets the design grid size of the module, such as [1,1] or [2,2]
+        [XmlIgnore][JsonIgnore]
+        public Point Size => Module?.GetSize() ?? new Point(1,1);
 
-        [XmlIgnore][JsonIgnore] public Vector2 Center
-        {
-            get
-            {
-                if (Module?.UID.IsEmpty() ?? true)
-                    return Vector2.Zero;
-                return new Vector2(PQ.X + Module.XSIZE * 8, PQ.Y + Module.YSIZE * 8);
-            }
-        }
-
-        public Rectangle ModuleRect => new Rectangle(PQ.X, PQ.Y, Module.XSIZE * 16, Module.YSIZE * 16);
-        public Rectangle GetProjectedRect(ShipModule m) => new Rectangle(PQ.X, PQ.Y, m.XSIZE * 16, m.YSIZE * 16);
-
-        public bool Intersects(Rectangle r) => PQ.Rect.Intersects(r);
+        // Gets the module rectangle in WORLD coordinates
+        [XmlIgnore][JsonIgnore]
+        public RectF WorldRect => new RectF(WorldPos, WorldSize);
+        public RectF GetWorldRectFor(ShipModule m) => new RectF(WorldPos, m.WorldSize);
 
         public void Clear()
         {
-            ModuleUID   = null;
-            Tex         = null;
-            Module      = null;
-            Parent      = null;
-            Orientation = ModuleOrientation.Normal;
+            Parent    = null;
+            ModuleUID = null;
+            Module    = null;
+            Tex       = null;
         }
 
+        [XmlIgnore][JsonIgnore]
         public SlotStruct Root => Parent ?? this;
 
         public bool IsModuleReplaceableWith(ShipModule other)
         {
-            return Module              != null
-                && ModuleUID           != null
-                && Module.XSIZE        == other.XSIZE
-                && Module.YSIZE        == other.YSIZE
+            return Module    != null
+                && ModuleUID != null
+                && Module.XSIZE == other.XSIZE
+                && Module.YSIZE == other.YSIZE
                 && Module.Restrictions == other.Restrictions;
         }
 
-        public bool IsSame(ShipModule module, ModuleOrientation orientation, float facing)
+        public bool IsSame(ShipModule module, ModuleOrientation orientation, int turretAngle)
         {
             return Module != null
-                && Module.UID == module.UID
-                && Module.hangarShipUID == module.hangarShipUID
-                && Orientation == orientation
-                && Facing.AlmostEqual(facing);
+                && Module.UID  == module.UID
+                && Module.ModuleRot   == orientation
+                && Module.TurretAngle == turretAngle
+                && Module.HangarShipUID == module.HangarShipUID;
         }
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Linq;
+using Ship_Game.AI;
 
 namespace Ship_Game.GameScreens.ShipDesign
 {
@@ -113,6 +114,14 @@ namespace Ship_Game.GameScreens.ShipDesign
         {
             if (Role != ShipData.RoleName.platform && numCommand == 1 && size >= 500)
                 AddDesignIssue(DesignIssueType.BackUpCommand, WarningLevel.Major);
+        }
+
+        public void CheckIssueStationaryHoldPositionHangars(int numFighterHangars, CombatState combatState)
+        {
+            if (numFighterHangars > 0 && Stationary && combatState == CombatState.HoldPosition)
+            {
+                AddDesignIssue(DesignIssueType.OrbitalCarrierHoldPosition, WarningLevel.Critical);
+            }
         }
 
         public void  CheckIssueUnpoweredModules(bool unpoweredModules)
@@ -475,19 +484,21 @@ namespace Ship_Game.GameScreens.ShipDesign
             AddDesignIssue(DesignIssueType.Accuracy, severity, remediation);
         }
 
-        public void CheckTargets(Map<ShipModule, float> accuracyList, float maxTargets)
+        public void CheckTargets(ShipModule[] poweredWeapons, int maxTargets)
         {
-            if (accuracyList.Count == 0 || maxTargets <1)
+            if (poweredWeapons.Length == 0 || maxTargets < 1)
                 return;
 
-            var facings = accuracyList.GroupBy(kv=>
+            Map<int,ShipModule> angleGroups = poweredWeapons.GroupBy(m =>
             {
-                int facing = (int)kv.Key.FacingDegrees;
-                facing     = facing == 360 ? 0 : facing;
-                return (float)facing;
+                int facing = m.TurretAngle;
+                facing = facing == 360 ? 0 : facing;
+                // round to fixed angles 
+                return facing.RoundDownToMultipleOf(15);
             });
-            float count          = facings.Count();
-            float ratioToTargets = count / maxTargets;
+
+            int count = angleGroups.Count;
+            float ratioToTargets = count / (float)maxTargets;
 
             WarningLevel severity;
             if      (ratioToTargets > 4) severity = WarningLevel.Critical;
@@ -496,8 +507,8 @@ namespace Ship_Game.GameScreens.ShipDesign
             else if (ratioToTargets > 1) severity = WarningLevel.Informative;
             else return;
 
-            string target     = $" {Localizer.Token(GameText.FcsPower)}: {maxTargets.String(1)}, ";
-            string fireArcs   = $"{Localizer.Token(GameText.FireArc)}: {count.String(1)} ";
+            string target     = $" {Localizer.Token(GameText.FcsPower)}: {maxTargets}, ";
+            string fireArcs   = $"{Localizer.Token(GameText.FireArc)}: {count} ";
             string baseString = !IsPlatform ? "" : $" {Localizer.Token(GameText.OrbitalTracking)}";
 
             AddDesignIssue(DesignIssueType.Targets, severity, baseString + target + fireArcs);
@@ -549,7 +560,8 @@ namespace Ship_Game.GameScreens.ShipDesign
         OneTimeFireEfficiency,
         ExcessPowerCells,
         DedicatedCarrier,
-        SecondaryCarrier
+        SecondaryCarrier,
+        OrbitalCarrierHoldPosition
     }
 
     public enum WarningLevel
@@ -754,6 +766,12 @@ namespace Ship_Game.GameScreens.ShipDesign
                     Problem     = GameText.ThisShipHasSomeFighter;
                     Remediation = GameText.CurrentSelectedFighterLaunchRange;
                     Texture     = ResourceManager.Texture("NewUI/IssueSecondaryCarrier");
+                    break;
+                case DesignIssueType.OrbitalCarrierHoldPosition:
+                    Title       = GameText.DesignIssueOrbitalHangarHoldPositionTitle;
+                    Problem     = GameText.DesignIssueOrbitalHangarHoldPositionProblem;
+                    Remediation = GameText.DesignIssueOrbitalHangarHoldPositionRemidiation;
+                    Texture     = ResourceManager.Texture("NewUI/IssueOrbitalHangarHold");
                     break;
             }
         }

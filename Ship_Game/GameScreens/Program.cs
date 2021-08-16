@@ -79,6 +79,14 @@ namespace Ship_Game
                 {
                     GlobalStats.ExportMeshes = true;
                 }
+                else if (key == "--generate-hulls")
+                {
+                    GlobalStats.GenerateNewHullFiles = true;
+                }
+                else if (key == "--generate-ships")
+                {
+                    GlobalStats.GenerateNewShipDesignFiles = true;
+                }
                 else if (key.StartsWith("--run-localizer"))
                 {
                     GlobalStats.RunLocalizer = value.IsEmpty() ? 1 : int.Parse(value);
@@ -86,6 +94,10 @@ namespace Ship_Game
                 else if (key == "--continue")
                 {
                     GlobalStats.ContinueToGame = true;
+                }
+                else
+                {
+                    Log.Warning($"Unrecognized argument: '{arg}'");
                 }
             }
             return true; // all ok
@@ -98,6 +110,8 @@ namespace Ship_Game
             Log.Write("  --mod=\"<mod>\"    Load the game with the specified <mod>, eg: --mod=\"Combined Arms\" ");
             Log.Write("  --export-textures  Exports all texture files as PNG and DDS");
             Log.Write("  --export-meshes    Exports all mesh files as FBX");
+            Log.Write("  --generate-hulls   Generates new .hull files from old XML hulls");
+            Log.Write("  --generate-ships   Generates new ship .design files from old XML ships");
             Log.Write("  --run-localizer=[0-2] Run localization tool to merge missing translations and generate id-s");
             Log.Write("                        0: disabled  1: generate with YAML NameIds  2: generate with C# NameIds");
             PressAnyKey();

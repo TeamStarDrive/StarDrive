@@ -70,7 +70,7 @@ namespace Ship_Game
 
         public void Draw(UniverseScreen u)
         {
-            Vector2 camPos = u.CamPos.ToVec2();
+            Vector2 camPos = u.CamPos.ToVec2f();
             var blackRect = new Rectangle(0, 0, u.ScreenWidth, u.ScreenHeight);
 
             SpriteBatch batch = u.ScreenManager.SpriteBatch;

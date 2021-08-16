@@ -150,8 +150,8 @@ namespace Ship_Game
             // Everything from Left --> to --> Right 
             batch.Draw(ship.BaseHull.Icon, new Vector2(X, Y-2), new Vector2(IconSize)); // Icon
             batch.DrawString(Font12, GetShipName(ship), TextX+2, Y+2, Hovered ? Color.Green : Color.White); // Title
-            batch.DrawLine(Font8, TextX+4, Y+16, 
-                (ship.BaseHull.Name, Color.DarkGray), ($" strength:{ship.BaseStrength.String(0)}", Color.Orange)); // Description
+            batch.DrawLine(Font8, TextX+4, Y+16, (ship.BaseHull.VisibleName, Color.DarkGray),
+                                                 ($" strength:{ship.BaseStrength.String(0)}", Color.Orange)); // Description
 
             int shipProdCost = GetShipProdCost(ship);
             int shipCost     = GetCreditCharge(shipProdCost);
