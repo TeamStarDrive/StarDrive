@@ -114,7 +114,7 @@ namespace UnitTests.Ships
                 if (hullUnlockable)
                 {
                     allModulesUnlockable = true;
-                    foreach (DesignSlot slot in ship.shipData.ModuleSlots)
+                    foreach (DesignSlot slot in ship.shipData.GetOrLoadDesignSlots())
                     {
                         bool modUnlockable = false;
                         foreach (Technology technology in shipTechs.Keys)
