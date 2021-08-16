@@ -95,7 +95,7 @@ namespace UnitTests.Ships
             {
                 step?.Advance();
 
-                ShipData shipData = ship.shipData;
+                ShipDesign shipData = ship.shipData;
                 if (shipData == null)
                     continue;
                 shipData.Unlockable = false;

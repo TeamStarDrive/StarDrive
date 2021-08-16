@@ -302,7 +302,7 @@
     <Compile Include="Ship_Game\Ships\RoleName.cs" />
     <Compile Include="Ship_Game\Ships\RoleType.cs" />
     <Compile Include="Ship_Game\Ships\ShipCategory.cs" />
-    <Compile Include="Ship_Game\Ships\ShipDataWriter.cs" />
+    <Compile Include="Ship_Game\Ships\ShipDesignWriter.cs" />
     <Compile Include="Ship_Game\Ships\ShipHull.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Events.cs" />
     <Compile Include="Ship_Game\Ships\Ship_PowerCalc.cs" />
@@ -514,7 +514,7 @@
     <Compile Include="Ship_Game\Ships\ModuleGrid.cs" />
     <Compile Include="Ship_Game\Ships\ModuleGridUtils.cs" />
     <Compile Include="Ship_Game\Ships\PlanetCrash.cs" />
-    <Compile Include="Ship_Game\Ships\ShipData_WriterParser.cs" />
+    <Compile Include="Ship_Game\Ships\ShipDesign_WriterParser.cs" />
     <Compile Include="Ship_Game\Ships\ShipGridInfo.cs" />
     <Compile Include="Ship_Game\Ships\ShipStats.cs" />
     <Compile Include="Ship_Game\Ships\ShipEngines.cs" />
@@ -925,7 +925,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Ships\ShipData.cs">
+    <Compile Include="Ship_Game\Ships\ShipDesign.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
