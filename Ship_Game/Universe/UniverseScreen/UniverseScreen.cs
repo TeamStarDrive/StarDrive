@@ -94,7 +94,7 @@ namespace Ship_Game
         public bool GravityWells;
         public Empire PlayerEmpire;
         public string PlayerLoyalty;
-        public string loadFogPath;
+        public string FogMapBase64;
         public Model xnaPlanetModel;
         public Texture2D RingTexture;
         public UnivScreenState viewState;
@@ -205,7 +205,7 @@ namespace Ship_Game
         public UniverseScreen(UniverseData data, string loyalty) : base(null) // savegame
         {
             loading = true;
-            loadFogPath = data.loadFogPath;
+            FogMapBase64 = data.FogMapBase64;
             Empire thePlayer = EmpireManager.GetEmpireByName(loyalty);
             SetupUniverseScreen(data, thePlayer);
         }
@@ -619,17 +619,10 @@ namespace Ship_Game
 
         void CreateFogMap(Data.GameContentManager content, GraphicsDevice device, SurfaceFormat backBufferFormat)
         {
-            if (loadFogPath != null)
+            if (FogMapBase64 != null)
             {
-                try
-                {
-                    string fogCache = $"{Dir.StarDriveAppData}/Saved Games/Fog Maps/{loadFogPath}.png";
-                    FogMap = content.RawContent.LoadTexture(fogCache);
-                }
-                catch (Exception e) // whatever issue with fog map
-                {
-                    Log.Warning(e.Message);
-                }
+                FogMap = content.RawContent.TexImport.FromBase64AlphaOnlyString(FogMapBase64);
+                FogMapBase64 = null; // free the mem of course, even if load failed
             }
 
             if (FogMap == null)
