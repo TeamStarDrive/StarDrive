@@ -10,7 +10,7 @@ namespace Ship_Game.Ships
     public class ShipStats
     {
         Ship S;
-        ShipData Hull;
+        ShipDesign Hull;
         public float Mass;
         
         public float Thrust;
@@ -29,8 +29,8 @@ namespace Ship_Game.Ships
         public float ShieldAmplifyPerShield;
         public float ShieldMax;
 
-        public bool IsStationary => Hull.HullRole == ShipData.RoleName.station
-                                 || Hull.HullRole == ShipData.RoleName.platform;
+        public bool IsStationary => Hull.HullRole == RoleName.station
+                                 || Hull.HullRole == RoleName.platform;
 
         public ShipStats(Ship theShip)
         {

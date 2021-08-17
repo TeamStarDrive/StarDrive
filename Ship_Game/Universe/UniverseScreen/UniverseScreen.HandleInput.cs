@@ -619,7 +619,7 @@ namespace Ship_Game
         bool UnselectableShip(Ship ship = null)
         {
             ship = ship ?? SelectedShip;
-            if (!ship.IsConstructor && ship.shipData.Role != ShipData.RoleName.supply) return false;
+            if (!ship.IsConstructor && ship.shipData.Role != RoleName.supply) return false;
             GameAudio.NegativeClick();
             return true;
         }
@@ -791,9 +791,9 @@ namespace Ship_Game
 
         bool NonCombatShip(Ship ship)
         {
-            return ship != null && (ship.shipData.Role <= ShipData.RoleName.freighter 
-                                    || ship.shipData.ShipCategory == ShipData.Category.Civilian 
-                                    || ship.DesignRole == ShipData.RoleName.troop
+            return ship != null && (ship.shipData.Role <= RoleName.freighter 
+                                    || ship.shipData.ShipCategory == ShipCategory.Civilian 
+                                    || ship.DesignRole == RoleName.troop
                                     || ship.Weapons.Count == 0 && !ship.Carrier.HasFighterBays
                                     || ship.AI.State == AIState.Colonize);
         }

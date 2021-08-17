@@ -9,8 +9,7 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game.Ships
 {
-    // NOTE: public variables are SERIALIZED
-    public partial class ShipData
+    public partial class ShipDesign
     {
         public void Save(string filePath)
         {
@@ -19,20 +18,20 @@ namespace Ship_Game.Ships
 
         public void Save(FileInfo file)
         {
-            ShipDataWriter sw = CreateShipDataText();
+            ShipDesignWriter sw = CreateShipDataText();
             sw.FlushToFile(file);
         }
 
         public string GetBase64DesignString()
         {
-            ShipDataWriter sw = CreateShipDataText();
+            ShipDesignWriter sw = CreateShipDataText();
             byte[] ascii = sw.GetASCIIBytes();
             return Convert.ToBase64String(ascii, Base64FormattingOptions.None);
         }
 
-        ShipDataWriter CreateShipDataText()
+        ShipDesignWriter CreateShipDataText()
         {
-            var sw = new ShipDataWriter();
+            var sw = new ShipDesignWriter();
             sw.Write("Version", Version);
             sw.Write("Name", Name);
             sw.Write("Hull", Hull);
@@ -131,7 +130,7 @@ namespace Ship_Game.Ships
             return slotModuleUIDAndIndex;
         }
 
-        static ShipData ParseDesign(FileInfo file)
+        static ShipDesign ParseDesign(FileInfo file)
         {
             using (var p = new GenericStringViewParser(file))
             {
@@ -148,7 +147,7 @@ namespace Ship_Game.Ships
                     // TODO: convert from this version to newer version
                 }
 
-                var data = new ShipData(p);
+                var data = new ShipDesign(p);
                 if (data.BaseHull == null)
                 {
                     Log.Warning(ConsoleColor.Red, $"Hull='{data.Hull}' does not exist for Design: {file.FullName}");
@@ -160,7 +159,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        ShipData(GenericStringViewParser p)
+        ShipDesign(GenericStringViewParser p)
         {
             string[] moduleUIDs = null;
             DesignSlot[] modules = null;
@@ -260,7 +259,7 @@ namespace Ship_Game.Ships
         {
             ushort[] slotModuleUIDAndIndex = CreateModuleIndexMapping(saved, out Array<string> moduleUIDs);
 
-            var sw = new ShipDataWriter();
+            var sw = new ShipDesignWriter();
             sw.Write("1\n"); // first line is version
 
             // module1;module2;module3\n

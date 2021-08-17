@@ -174,9 +174,9 @@ namespace Ship_Game.AI
         public bool Add(Ship ship)
         {
             if (ship.BaseStrength < 1f 
-                || ship.DesignRole == ShipData.RoleName.bomber 
-                || ship.DesignRole == ShipData.RoleName.troopShip 
-                || ship.DesignRole == ShipData.RoleName.support)
+                || ship.DesignRole == RoleName.bomber 
+                || ship.DesignRole == RoleName.troopShip 
+                || ship.DesignRole == RoleName.support)
                 return false;
 
             if (ship.Pool == this)
@@ -307,7 +307,7 @@ namespace Ship_Game.AI
             for (int i = OffensiveForcePool.Count-1; i >= 0; --i)
             {
                 Ship ship = OffensiveForcePool[i];
-                if (ship?.Active != true || ship.fleet != null || ship.shipData.Role == ShipData.RoleName.troop || ship.GetStrength() <= 0)
+                if (ship?.Active != true || ship.fleet != null || ship.shipData.Role == RoleName.troop || ship.GetStrength() <= 0)
                 {
                     OffensiveForcePool.RemoveAtSwapLast(i);
                 }

@@ -177,16 +177,16 @@ namespace Ship_Game
         {
             switch (ship.DesignRole)
             {
-                case ShipData.RoleName.fighter:    return 1;
-                case ShipData.RoleName.gunboat:    return 1;
-                case ShipData.RoleName.corvette:   return 1;
-                case ShipData.RoleName.bomber:     return 2; // bombers behind fighters
-                case ShipData.RoleName.frigate:    return 3;
-                case ShipData.RoleName.destroyer:  return 3;
-                case ShipData.RoleName.cruiser:    return 3;
-                case ShipData.RoleName.prototype:  return 3;
-                case ShipData.RoleName.battleship: return 4;
-                case ShipData.RoleName.capital:    return 5;
+                case RoleName.fighter:    return 1;
+                case RoleName.gunboat:    return 1;
+                case RoleName.corvette:   return 1;
+                case RoleName.bomber:     return 2; // bombers behind fighters
+                case RoleName.frigate:    return 3;
+                case RoleName.destroyer:  return 3;
+                case RoleName.cruiser:    return 3;
+                case RoleName.prototype:  return 3;
+                case RoleName.battleship: return 4;
+                case RoleName.capital:    return 5;
                 default: return 6; // everything else to the back
             }
         }
@@ -396,7 +396,7 @@ namespace Ship_Game
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-                if (ship.Active && ship.DesignRole == ShipData.RoleName.bomber)
+                if (ship.Active && ship.DesignRole == RoleName.bomber)
                     str += ship.GetStrength();
             }
 
@@ -507,7 +507,7 @@ namespace Ship_Game
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-                if (excludeInvade && (ship.DesignRole == ShipData.RoleName.troopShip || ship.shipData.Role == ShipData.RoleName.troop))
+                if (excludeInvade && (ship.DesignRole == RoleName.troopShip || ship.shipData.Role == RoleName.troop))
                     continue;
 
                 if (ship.AI.State == AIState.Orbit || !ship.Position.InRadius(position, radius))

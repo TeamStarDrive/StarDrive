@@ -13,7 +13,7 @@ namespace UnitTests.Serialization
     {
         public class DataToSerialize
         {
-            public ShipData.RoleName RoleName;
+            public RoleName RoleName;
         }
 
         [TestMethod]
@@ -25,7 +25,7 @@ namespace UnitTests.Serialization
                 DefaultValueHandling = DefaultValueHandling.Ignore,
             };
 
-            var data = new DataToSerialize { RoleName = ShipData.RoleName.carrier }; 
+            var data = new DataToSerialize { RoleName = RoleName.carrier }; 
 
             var writer = new StringWriter();
             ser.Serialize(writer, data);
