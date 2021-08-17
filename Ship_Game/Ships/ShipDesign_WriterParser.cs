@@ -197,8 +197,6 @@ namespace Ship_Game.Ships
                         moduleUIDs = value.Split(';').Select(s => string.Intern(s.Text));
                     else if (key == "Modules")
                     {
-                        if (GlobalStats.LazyLoadShipDesignSlots)
-                            break;
                         modules = new DesignSlot[value.ToInt()];
                     }
                 }
@@ -216,13 +214,13 @@ namespace Ship_Game.Ships
             Bonuses = hull.Bonuses;
             IsShipyard = hull.IsShipyard;
             IsOrbitalDefense = hull.IsOrbitalDefense;
-            
-            if (ShipStyle.IsEmpty()) ShipStyle = hull.Style;
-            if (IconPath.IsEmpty()) IconPath = hull.IconPath;
 
-            GridInfo.SurfaceArea = hull.SurfaceArea;
-            DesignSlots = modules;
+            // if lazy loading, throw away the modules to free up memory
+            if (!GlobalStats.LazyLoadShipDesignSlots)
+                DesignSlots = modules;
             UniqueModuleUIDs = moduleUIDs;
+
+            InitializeCommonStats(hull, modules);
         }
 
         // Implemented for Lazy-Loading, only load the design slots and nothing else

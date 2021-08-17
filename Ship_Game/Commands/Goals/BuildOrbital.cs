@@ -45,9 +45,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             }
 
             string constructorId = empire.data.ConstructorShip;
-            if (!ResourceManager.GetShipTemplate(constructorId, out ShipToBuild))
+            if (!ResourceManager.Ships.GetDesign(constructorId, out ShipToBuild))
             {
-                if (!ResourceManager.GetShipTemplate(empire.data.DefaultConstructor, out ShipToBuild))
+                if (!ResourceManager.Ships.GetDesign(empire.data.DefaultConstructor, out ShipToBuild))
                 {
                     Log.Error($"BuildOrbital: no construction ship with uid={constructorId}");
                     return GoalStep.GoalFailed;

@@ -135,7 +135,7 @@ namespace Ship_Game.Ships
             MaxSTLSpeed  = GetSTLSpeed(Mass, e);
             FTLSpoolTime = GetFTLSpoolTime(modules, e);
         }
-        
+
         public static float GetBaseCost(ShipModule[] modules)
         {
             float baseCost = 0f;
@@ -144,20 +144,7 @@ namespace Ship_Game.Ships
             return baseCost;
         }
 
-        public float GetCost(float baseCost, Empire e, bool isOrbital)
-        {
-            if (Hull.FixedCost > 0)
-                return Hull.FixedCost * CurrentGame.ProductionPace;
-
-            float cost = baseCost * CurrentGame.ProductionPace;
-            cost += Hull.Bonuses.StartingCost;
-            cost += cost * e.data.Traits.ShipCostMod;
-            cost *= 1f - Hull.Bonuses.CostBonus; // @todo Sort out (1f - CostBonus) weirdness
-            if (isOrbital)
-                cost *= 0.7f;
-
-            return (int)cost;
-        }
+        public float GetCost(Empire e) => Hull.GetCost(e);
 
         public float InitializeMass(ShipModule[] modules, Empire loyalty, int surfaceArea, float ordnancePercent)
         {

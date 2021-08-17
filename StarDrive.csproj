@@ -303,6 +303,7 @@
     <Compile Include="Ship_Game\Ships\RoleType.cs" />
     <Compile Include="Ship_Game\Ships\ShipCategory.cs" />
     <Compile Include="Ship_Game\Ships\ShipDesignWriter.cs" />
+    <Compile Include="Ship_Game\Ships\ShipDesign_Stats.cs" />
     <Compile Include="Ship_Game\Ships\ShipHull.cs" />
     <Compile Include="Ship_Game\Ships\ShipsManager.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Events.cs" />

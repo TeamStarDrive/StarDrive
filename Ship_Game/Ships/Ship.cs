@@ -16,8 +16,6 @@ using System.Threading;
 
 namespace Ship_Game.Ships
 {
-    using static ShipMaintenance;
-
     public partial class Ship : GameplayObject, IDisposable
     {
         public bool ThisClassMustNotBeAutoSerializedByDotNet =>
@@ -60,8 +58,6 @@ namespace Ship_Game.Ships
         public bool shipStatusChanged;
         public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
-        public bool IsSupplyShip;
-        public bool isColonyShip;
         public bool HasRegeneratingModules;
         public bool IsMeteor { get; private set; }
 
@@ -159,7 +155,6 @@ namespace Ship_Game.Ships
         public float BoardingDefenseTotal => MechanicalBoardingDefense + TroopBoardingDefense;
 
         public float FTLModifier { get; private set; } = 1f;
-        public float BaseCost    { get; private set; }
         public Planet HomePlanet { get; private set; }
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
@@ -171,7 +166,7 @@ namespace Ship_Game.Ships
         public bool IsSingleTroopShip       => DesignRole == RoleName.troop;
         public bool IsTroopShip             => DesignRole == RoleName.troop || DesignRole == RoleName.troopShip;
         public bool IsBomber                => DesignRole == RoleName.bomber;
-        public bool IsSubspaceProjector     => Name == "Subspace Projector";
+        public bool IsSubspaceProjector     => shipData.IsSubspaceProjector;
         public bool HasBombs                => BombBays.Count > 0;
         public bool IsEmpireSupport         => DesignRoleType == RoleType.EmpireSupport;
         public bool Resupplying             => AI.State == AIState.Resupply || AI.State == AIState.ResupplyEscort;
@@ -208,11 +203,11 @@ namespace Ship_Game.Ships
         public bool RemoveFromPool() => Pool?.Remove(this) ?? false;
         public void ClearFleet(bool returnToManagedPools = true) => fleet?.RemoveShip(this, returnToManagedPools);
         public void UnsafeClearFleet() => fleet?.UnSafeRemoveShip(this);
-        
+
         public bool IsConstructor
         {
             get => DesignRole == RoleName.construction;
-            set => DesignRole = value ? RoleName.construction : GetDesignRole();
+            set => DesignRole = value ? RoleName.construction : shipData.DesignRole;
         }
 
         /// <summary>
@@ -222,7 +217,7 @@ namespace Ship_Game.Ships
         {
             return !Active || IsInAFleet || IsHangarShip || IsHomeDefense
                 || shipData.CarrierShip || IsEmpireSupport || IsOrbital
-                || DoingRefit || DoingScrap || DoingScuttle || isColonyShip
+                || DoingRefit || DoingScrap || DoingScuttle || shipData.IsColonyShip
                 || IsFreighter || IsSupplyShuttle || Resupplying;
         }
 
@@ -397,7 +392,7 @@ namespace Ship_Game.Ships
 
         public RoleName DesignRole { get; private set; }
         public RoleType DesignRoleType => ShipDesign.ShipRoleToRoleType(DesignRole);
-        public string DesignRoleName            => ShipDesign.GetRole(DesignRole);
+        public string DesignRoleName => ShipDesign.GetRole(DesignRole);
 
         public (SubTexture primaryIcon, SubTexture secondaryIcon, Color statusColor) TacticalIconWithStatusColor()
         {
@@ -445,8 +440,8 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool IsPlatformOrStation => shipData.Role == RoleName.platform || shipData.Role == RoleName.station;
-        public bool IsStation           => shipData.Role == RoleName.station && !shipData.IsShipyard;
+        public bool IsPlatformOrStation => shipData.IsPlatformOrStation;
+        public bool IsStation           => shipData.IsStation;
 
         public void CauseEmpDamage(float empDamage) // FB - also used for recover EMP
         {
@@ -782,7 +777,7 @@ namespace Ship_Game.Ships
 
         public float GetCost(Empire empire = null)
         {
-            return Stats.GetCost(BaseCost, empire ?? loyalty, IsPlatformOrStation);
+            return Stats.GetCost(empire ?? loyalty);
         }
 
         public float GetScrapCost()
@@ -900,7 +895,7 @@ namespace Ship_Game.Ships
 
         public float GetMaintCost(Empire empire)
         {
-            return GetMaintenanceCost(this, empire, TroopCount);
+            return ShipMaintenance.GetMaintenanceCost(this, empire, TroopCount);
         }
 
         public void DoEscort(Ship escortTarget)
@@ -1773,8 +1768,6 @@ namespace Ship_Game.Ships
         {
             return ModuleSlotList.Count(m => m.DeployBuildingOnColonize.NotEmpty());
         }
-
-        RoleName GetDesignRole() => new RoleData(this, ModuleSlotList).DesignRole;
 
         public void MarkShipRolesUsableForEmpire(Empire empire)
         {

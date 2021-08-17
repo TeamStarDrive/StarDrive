@@ -76,10 +76,10 @@ namespace Ship_Game.Commands.Goals
 
             public ShipInfo(BuildOffensiveShips goal)
             {
-                if (goal.GetShipTemplate(goal.ToBuildUID, out Ship template))
+                if (goal.GetShipTemplate(goal.ToBuildUID, out ShipDesign template))
                 {
                     Role = template.DesignRole;
-                    Upkeep = template.GetMaintCost();
+                    Upkeep = template.GetMaintenanceCost();
                 }
                 else
                 {

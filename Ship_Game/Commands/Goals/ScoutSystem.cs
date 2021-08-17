@@ -46,7 +46,7 @@ namespace Ship_Game.Commands.Goals
                 ChangeToStep(SelectSystem);
                 return GoalStep.TryAgain; 
             }
-            if (!empire.ChooseScoutShipToBuild(out Ship scout))
+            if (!empire.ChooseScoutShipToBuild(out ShipDesign scout))
                 return GoalStep.GoalFailed;
 
             if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, scout, out Planet planet))
