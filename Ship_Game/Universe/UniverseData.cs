@@ -7,7 +7,7 @@ namespace Ship_Game
 {
     public sealed class UniverseData
     {
-        public string loadFogPath;
+        public string FogMapBase64;
 
         public Array<SolarSystem> SolarSystemsList = new Array<SolarSystem>();
 
