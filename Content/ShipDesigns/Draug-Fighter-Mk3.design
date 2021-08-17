@@ -5,7 +5,13 @@ Role=fighter
 Style=Draugar
 Size=4,6
 GridCenter=2,3
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=RocketLauncher;OrdnanceLockerSmall;BasicFuelCell;PhasorTurret2x2;Fighter Shield;RemnantSmallReactor;Engine;Cockpit;LaserCannon
 Modules=12

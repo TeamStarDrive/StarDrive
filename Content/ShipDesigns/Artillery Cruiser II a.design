@@ -5,7 +5,13 @@ Role=cruiser
 Style=Terran
 Size=18,30
 GridCenter=9,15
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorLarge;SteelArmorSmall;SteelArmorMed;FlakTurret3x3;MissileLauncher1x3;NuclearBombBay2x2;VulcanCannon;FlakTurret;OrdnanceLockerSmall;Shield_1KW;CombatEngine_2x2;WarpEngine_3x3;NuclearReactorSmall;OrdnanceLocker;Bridge;PowerConduit;NuclearReactorMed
 Modules=120

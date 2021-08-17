@@ -5,7 +5,13 @@ Role=corvette
 Style=Opteris
 Size=8,6
 GridCenter=4,5
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=OrdnanceLockerSmall;SteelArmorSmall;PlasmaThrower;NuclearReactorMed;engine_fighter_1x1;WarpEngine_1x1;Cockpit
 Modules=23

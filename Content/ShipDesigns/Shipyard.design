@@ -6,7 +6,13 @@ Style=Misc
 Size=48,46
 GridCenter=24,21
 FixedCost=300
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=true
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicCargoHold;Internal Bulkhead;OrdnanceLockerSmall;NuclearReactorSmall;FlakTurret3x3;OrdnanceLocker;VulcanCannon;Cockpit;NuclearReactorMed
 Modules=457

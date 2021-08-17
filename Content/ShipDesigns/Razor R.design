@@ -5,7 +5,13 @@ Role=corvette
 Style=Kulrathi
 Size=10,7
 GridCenter=5,4
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=MRLS;SteelArmorSmall;NuclearReactorSmall;WarpEngine_1x1;OrdnanceLockerSmall;RocketLauncher;Cockpit;Internal Bulkhead;Engine
 Modules=28

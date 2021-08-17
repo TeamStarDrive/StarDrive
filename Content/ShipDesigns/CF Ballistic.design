@@ -5,7 +5,13 @@ Role=capital
 Style=Pollops
 Size=36,26
 GridCenter=18,10
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorMed;SteelArmorLarge;SteelArmorSmall;FlakTurret3x3;PowerConduit;NuclearBombBay2x2;FlakTurret;Railgun2x5;NuclearReactorSmall;Railgun1x3;Internal Bulkhead;BasicFuelCell;OrdnanceLockerSmall;Shield_10KW;AntiMatterReactor;VulcanCannon;FrigateEngine;WarpEngine_3x3;Bridge;OrdnanceLocker;WarpEngine_2x2;Reinforced Bulkhead
 Modules=172

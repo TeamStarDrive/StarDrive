@@ -5,7 +5,13 @@ Role=corvette
 Style=Pollops
 Size=6,5
 GridCenter=3,3
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=RocketLauncher;SteelArmorSmall;BasicFuelCell;Cockpit;NuclearReactorSmall;WarpEngine_1x1;OrdnanceLockerSmall;engine_fighter_1x1
 Modules=18

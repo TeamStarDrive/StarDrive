@@ -5,8 +5,13 @@ Role=scout
 Style=Draylok
 Size=6,2
 GridCenter=3,1
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 ShipCategory=Recon
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicFuelCell;Powerplant_nuke_1x1;Cockpit;Range_Thruster_1x1;Maneuvering_Thruster_1x1
 Modules=10

@@ -5,7 +5,13 @@ Role=fighter
 Style=Cordrazine
 Size=6,3
 GridCenter=3,2
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=VulcanCannon;NuclearReactorSmall;Cockpit;Fighter Shield;engine_fighter_1x1;OrdnanceLockerSmall;WarpEngine_1x1
 Modules=10

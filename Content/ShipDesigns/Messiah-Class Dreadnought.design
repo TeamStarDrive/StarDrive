@@ -5,7 +5,13 @@ Role=capital
 Style=Ralyeh
 Size=50,39
 GridCenter=25,14
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;MissileLauncher1x3;PowerConduit;OrdnanceLocker;FlakTurret3x3;MissileLauncher3x3;Shield_1KW;SteelArmorLarge;MRLS;OrdnanceLockerSmall;SteelArmorMed;Internal Bulkhead;NuclearReactorMed;FlakTurret;Bridge;WarpEngine_4x4;CombatEngine_2x2
 Modules=372
