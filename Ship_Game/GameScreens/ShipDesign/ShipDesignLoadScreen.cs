@@ -50,7 +50,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             {
                 Screen = screen;
                 Ship = ship;
-                if (!ship.IsReadonlyDesign && !ship.FromSave)
+                if (!ship.shipData.IsReadonlyDesign && !ship.FromSave)
                     AddCancel(new Vector2(-30, 0), "Delete this Ship Design", 
                         () => PromptDeleteShip(Ship.Name));
             }
@@ -209,7 +209,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             Ship[] ships = ResourceManager.GetShipTemplates()
                 .Filter(s => CanShowDesign(s, filter))
-                .OrderBy(s => !s.IsPlayerDesign)
+                .OrderBy(s => !s.shipData.IsPlayerDesign)
                 .ThenBy(s => s.BaseHull.Style != EmpireManager.Player.data.Traits.ShipType)
                 .ThenBy(s => s.BaseHull.Style)
                 .ThenByDescending(s => s.BaseStrength)
@@ -264,14 +264,14 @@ namespace Ship_Game.GameScreens.ShipDesign
             if (filter.NotEmpty() && !ship.Name.ToLower().Contains(filter))
                 return false;
 
-            if (ShowOnlyPlayerDesigns && !ship.IsPlayerDesign)
+            if (ShowOnlyPlayerDesigns && !ship.shipData.IsPlayerDesign)
                 return false;
 
             if (UnlockAllDesigns)
-                return !ship.Deleted;
+                return !ship.shipData.Deleted;
 
             string role = Localizer.GetRole(ship.DesignRole, EmpireManager.Player);
-            return !ship.Deleted
+            return !ship.shipData.Deleted
                 && !ship.shipData.IsShipyard
                 && EmpireManager.Player.WeCanBuildThis(ship.Name)
                 && (role.IsEmpty() || role == Localizer.GetRole(ship.DesignRole, EmpireManager.Player))

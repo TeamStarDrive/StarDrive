@@ -84,24 +84,5 @@ namespace UnitTests.Ships
             ship.LoyaltyChangeByGift(Enemy, addNotification:false);
             EnsureLoyaltyTransferAndSpatialCoherence(ship);
         }
-
-        [TestMethod]
-        public void VerifyProperShipAdd()
-        {
-            var spawnedShip = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
-            Universe.Objects.UpdateLists(true);
-            Assert.AreEqual(Player.OwnedShips.Count, 1, " Critical error in ship add. BUG");
-
-            // simulate template
-            var ship = new DesignShip(spawnedShip.shipData);
-            Universe.Objects.UpdateLists(true);
-            Assert.AreEqual(Player.OwnedShips.Count, 1, "Critical Error. Designs cant be added to empires");
-            
-            spawnedShip.shipData = spawnedShip.shipData.GetClone();
-            spawnedShip.shipData.ModuleSlots = new DesignSlot[0];
-            ship = new DesignShip(spawnedShip.shipData);
-            Universe.Objects.UpdateLists(true);
-            Assert.AreEqual(Player.OwnedShips.Count, 1, "Critical Error. Ships with no modules can not be added to the empire");
-        }
     }
 }

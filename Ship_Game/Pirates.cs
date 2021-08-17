@@ -696,7 +696,7 @@ namespace Ship_Game
 
             bool IsFreighterNoOwnedSystem(Ship ship)
             {
-                return (ship.isColonyShip || ship.IsFreighter && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) 
+                return (ship.shipData.IsColonyShip || ship.IsFreighter && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) 
                        && (ship.System == null || !ship.System.HasPlanetsOwnedBy(ship.loyalty));
             }
 
@@ -806,7 +806,7 @@ namespace Ship_Game
 
         void SalvageShip(Ship ship, Ship pirateBase)
         {
-            if (ship.IsFreighter || ship.isColonyShip)
+            if (ship.IsFreighter || ship.shipData.IsColonyShip)
                 SalvageFreighter(ship);
             else 
                 SalvageCombatShip(ship, pirateBase);

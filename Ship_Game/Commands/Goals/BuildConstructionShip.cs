@@ -40,12 +40,12 @@ namespace Ship_Game.Commands.Goals
             // ShipToBuild will be the constructor ship -- usually a freighter
             // once the freighter is deployed, it will mutate into ToBuildUID
 
-            ShipToBuild = ShipBuilder.PickConstructor(empire);
+            ShipToBuild = ShipBuilder.PickConstructor(empire).shipData;
 
             if (ShipToBuild == null)
                 return GoalStep.GoalFailed;
 
-            if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, toBuild, out Planet planet, priority: 0.25f))
+            if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, toBuild.shipData, out Planet planet, priority: 0.25f))
                 return GoalStep.TryAgain;
 
             // toBuild is only used for cost calculation

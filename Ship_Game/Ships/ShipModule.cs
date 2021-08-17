@@ -1043,12 +1043,8 @@ namespace Ship_Game.Ships
                 case ShipModuleType.MissileLauncher: InstallWeapon();                                   break;
                 case ShipModuleType.Turret:          InstallWeapon(); InstalledWeapon.isTurret  = true; break;
                 case ShipModuleType.MainGun:         InstallWeapon(); InstalledWeapon.isMainGun = true; break;
-                case ShipModuleType.Colony:          if (Parent != null) Parent.isColonyShip    = true; break;
                 case ShipModuleType.Bomb:            InstallBomb();                                     break;
             }
-
-            if (IsSupplyBay && Parent != null)
-                Parent.IsSupplyShip = true;
         }
 
         void InstallWeapon()
