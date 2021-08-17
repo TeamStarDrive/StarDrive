@@ -12,7 +12,7 @@ namespace Ship_Game
     public sealed class ShipDesignSaveScreen : GameScreen
     {
         readonly ShipDesignScreen Screen;
-        readonly string ShipName;
+        public readonly string ShipName;
         UITextEntry EnterNameArea;
 
         Submenu subAllDesigns;
@@ -34,17 +34,15 @@ namespace Ship_Game
 
         public class ShipDesignListItem : ScrollListItem<ShipDesignListItem>
         {
-            public Ship Ship;
             public readonly string ShipName;
-            readonly ShipDesign Design;
+            public readonly ShipDesign Design;
             readonly ShipHull Hull;
             readonly bool CanBuild;
             readonly bool CanModifyDesign;
-            public ShipDesignListItem(Ship template, bool canBuild)
+            public ShipDesignListItem(ShipDesign template, bool canBuild)
             {
-                Ship = template;
                 ShipName = template.Name;
-                Design = template.shipData;
+                Design = template;
                 CanBuild = canBuild;
                 CanModifyDesign = Design.IsPlayerDesign;
             }
@@ -93,8 +91,8 @@ namespace Ship_Game
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
             ShipDesigns.OnHovered = (item) =>
             {
-                if (EmpireManager.Player.ShipsWeCanBuild.Contains(item?.Ship?.Name))
-                    ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship);
+                if (EmpireManager.Player.ShipsWeCanBuild.Contains(item?.ShipName))
+                    ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Design);
                 else
                     ShipInfoOverlay.Hide();
             };
@@ -114,8 +112,8 @@ namespace Ship_Game
             }
             else
             {
-                Ship[] shipList = ResourceManager.GetShipTemplates()
-                    .Filter(s => !s.shipData.Deleted && s.Name.ToLower().Contains(filter));
+                ShipDesign[] shipList = ResourceManager.Ships.GetDesigns()
+                    .Filter(s => !s.Deleted && s.Name.ToLower().Contains(filter));
 
                 ShipDesigns.SetItems(shipList.Select(s => 
                     new ShipDesignListItem(s, EmpireManager.Player.ShipsWeCanBuild.Contains(s.Name))));

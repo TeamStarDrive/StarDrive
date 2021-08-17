@@ -21,6 +21,14 @@ namespace Ship_Game.GameScreens.ShipDesign
             LowRes = screen.LowRes;
         }
 
+        public void ShowToLeftOf(Vector2 leftOf, Ships.ShipDesign ship)
+        {
+            if (ResourceManager.GetShipTemplate(ship.Name, out Ship template))
+            {
+                ShowToLeftOf(leftOf, template);
+            }
+        }
+
         public void ShowToLeftOf(Vector2 leftOf, Ship ship)
         {
             if (ship == null)
