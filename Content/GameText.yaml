@@ -10285,10 +10285,13 @@ HasSurrenderedTo:
  ENG: "has surrendered to" 
 DueToLosingWarUs:
  Id: 4361
- ENG: "due to a losing war with us"
+ ENG: "has merged with"
 DueToLosingWarThem:
  Id: 4362
- ENG: "due to a losing war with" 
+ ENG: "due to a losing war with us" 
+DueToLosingWarThem:
+ Id: 4363
+ ENG: "due to a losing war with"  
 OnSurface:
  Id: 4993
  ENG: "on surface"
