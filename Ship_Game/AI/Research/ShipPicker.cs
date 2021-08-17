@@ -15,12 +15,12 @@ namespace Ship_Game.AI.Research
     /// </summary>
     public class ShipPicker
     {
-        public Map<ShipData.RoleName, int> MostTechs;
+        public Map<RoleName, int> MostTechs;
         public Array<TechEntry> KnownTechs;
         ResearchOptions Options;
         public ShipPicker(ResearchOptions options)
         {
-            MostTechs  = new Map<ShipData.RoleName, int>();
+            MostTechs  = new Map<RoleName, int>();
             KnownTechs = new Array<TechEntry>();
             Options    = options;
         }
@@ -99,14 +99,14 @@ namespace Ship_Game.AI.Research
             // now adjust cost by the role of the ship.
             switch (s.DesignRole)
             {
-                case ShipData.RoleName.platform:
-                case ShipData.RoleName.station: techScore *= Options.CostMultiplier(Orbitals); break;
-                case ShipData.RoleName.colony: techScore *= Options.CostMultiplier(ColonyShip); break;
-                case ShipData.RoleName.freighter: techScore *= Options.CostMultiplier(Freighter); break;
-                case ShipData.RoleName.troopShip when !empire.canBuildTroopShips: techScore *= Options.CostMultiplier(TroopShip); break;
-                case ShipData.RoleName.support when !empire.canBuildSupportShips: techScore *= Options.CostMultiplier(Support); break;
-                case ShipData.RoleName.bomber when !empire.canBuildBombers: techScore *= Options.CostMultiplier(Bomber); break;
-                case ShipData.RoleName.carrier when !empire.canBuildCarriers: techScore *= Options.CostMultiplier(Carrier); break;
+                case RoleName.platform:
+                case RoleName.station: techScore *= Options.CostMultiplier(Orbitals); break;
+                case RoleName.colony: techScore *= Options.CostMultiplier(ColonyShip); break;
+                case RoleName.freighter: techScore *= Options.CostMultiplier(Freighter); break;
+                case RoleName.troopShip when !empire.canBuildTroopShips: techScore *= Options.CostMultiplier(TroopShip); break;
+                case RoleName.support when !empire.canBuildSupportShips: techScore *= Options.CostMultiplier(Support); break;
+                case RoleName.bomber when !empire.canBuildBombers: techScore *= Options.CostMultiplier(Bomber); break;
+                case RoleName.carrier when !empire.canBuildCarriers: techScore *= Options.CostMultiplier(Carrier); break;
             }
 
             // adjust cost by how much it varies from already known tech.

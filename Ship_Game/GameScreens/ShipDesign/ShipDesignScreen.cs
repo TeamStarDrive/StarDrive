@@ -25,7 +25,7 @@ namespace Ship_Game
 
         // this can be Null if we are in HullEdit mode
         public DesignShip DesignedShip { get; private set; }
-        public ShipData CurrentDesign;
+        public ShipDesign CurrentDesign;
         public ShipHull CurrentHull; // never Null
         public DesignModuleGrid ModuleGrid;
 
@@ -74,7 +74,7 @@ namespace Ship_Game
         // Used in Dev SandBox to enable some special debug features
         public bool EnableDebugFeatures;
 
-        public ShipData.RoleName Role => DesignedShip?.DesignRole ?? CurrentHull.Role;
+        public RoleName Role => DesignedShip?.DesignRole ?? CurrentHull.Role;
         Rectangle DesignRoleRect;
 
         public bool IsSymmetricDesignMode
@@ -280,12 +280,12 @@ namespace Ship_Game
             OnDesignChanged();
         }
 
-        public void ChangeHull(ShipData shipDesignTemplate)
+        public void ChangeHull(ShipDesign shipDesignTemplate)
         {
             if (shipDesignTemplate == null) // if ShipDesignLoadScreen has no selected design
                 return;
 
-            ShipData cloned = shipDesignTemplate.GetClone();
+            ShipDesign cloned = shipDesignTemplate.GetClone();
             ModuleGrid = new DesignModuleGrid(this, cloned);
             CurrentDesign = cloned;
             CurrentHull   = cloned.BaseHull;
@@ -311,7 +311,7 @@ namespace Ship_Game
             }
             else
             {
-                ChangeHull(new ShipData(hullTemplate));
+                ChangeHull(new ShipDesign(hullTemplate));
             }
         }
 
@@ -339,14 +339,14 @@ namespace Ship_Game
 
         public void UpdateDesignedShip()
         {
-            DesignedShip?.UpdateDesign(CreateModuleSlots());
+            DesignedShip?.UpdateDesign(CreateDesignSlots());
         }
 
-        void InstallModulesFromDesign(ShipData design)
+        void InstallModulesFromDesign(ShipDesign design)
         {
             Point offset = design.BaseHull.GridCenter.Sub(design.GridInfo.Center);
 
-            foreach (DesignSlot designSlot in design.ModuleSlots)
+            foreach (DesignSlot designSlot in design.GetOrLoadDesignSlots())
             {
                 Point pos = designSlot.Pos.Add(offset);
                 if (!ModuleGrid.Get(pos, out SlotStruct targetSlot))
@@ -508,18 +508,18 @@ namespace Ship_Game
             var dropdownRect = new Rectangle((int)(ScreenWidth * 0.375f), (int)ClassifCursor.Y + 25, 125, 18);
 
             CategoryList = new CategoryDropDown(dropdownRect);
-            foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
+            foreach (ShipCategory item in Enum.GetValues(typeof(ShipCategory)).Cast<ShipCategory>())
                 CategoryList.AddOption(item.ToString(), item);
 
             var hangarRect = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 150, 18);
             HangarOptionsList = new HangarDesignationDropDown(hangarRect);
-            foreach (ShipData.HangarOptions item in Enum.GetValues(typeof(ShipData.HangarOptions)).Cast<ShipData.HangarOptions>())
+            foreach (HangarOptions item in Enum.GetValues(typeof(HangarOptions)).Cast<HangarOptions>())
                 HangarOptionsList.AddOption(item.ToString(), item);
 
             var carrierOnlyPos  = new Vector2(dropdownRect.X - 200, dropdownRect.Y);
             CarrierOnlyCheckBox = Checkbox(carrierOnlyPos,
-                () => CurrentDesign?.CarrierShip == true,
-                (b) => { if (CurrentDesign != null) CurrentDesign.CarrierShip = b; }, "Carrier Only", GameText.WhenMarkedThisShipCan);
+                () => CurrentDesign?.IsCarrierOnly == true,
+                (b) => { if (CurrentDesign != null) CurrentDesign.IsCarrierOnly = b; }, "Carrier Only", GameText.WhenMarkedThisShipCan);
 
             ArcsButton = new GenericButton(new Vector2(HullSelectList.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
 

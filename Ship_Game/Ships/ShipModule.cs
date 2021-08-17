@@ -488,14 +488,14 @@ namespace Ship_Game.Ships
                 DynamicHangar = DynamicHangarOptions.DynamicLaunch; //AI will always get dynamic launch.
         }
 
-        public ShipData.RoleName[] HangarRoles
+        public RoleName[] HangarRoles
         {
             get
             {
-                var tempRoles = new Array<ShipData.RoleName>();
+                var tempRoles = new Array<RoleName>();
                 foreach (var roleName in PermittedHangarRoles)
                 {
-                    tempRoles.Add((ShipData.RoleName)Enum.Parse(typeof(ShipData.RoleName), roleName));
+                    tempRoles.Add((RoleName)Enum.Parse(typeof(RoleName), roleName));
                 }
                 return tempRoles.ToArray();
             }
@@ -1043,12 +1043,8 @@ namespace Ship_Game.Ships
                 case ShipModuleType.MissileLauncher: InstallWeapon();                                   break;
                 case ShipModuleType.Turret:          InstallWeapon(); InstalledWeapon.isTurret  = true; break;
                 case ShipModuleType.MainGun:         InstallWeapon(); InstalledWeapon.isMainGun = true; break;
-                case ShipModuleType.Colony:          if (Parent != null) Parent.isColonyShip    = true; break;
                 case ShipModuleType.Bomb:            InstallBomb();                                     break;
             }
-
-            if (IsSupplyBay && Parent != null)
-                Parent.IsSupplyShip = true;
         }
 
         void InstallWeapon()

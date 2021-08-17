@@ -9,6 +9,8 @@ IconPath=ShipIcons/Acolyte
 ModelPath=Model/Ships/Ralyeh/Ship17d
 SelectIcon=17d
 Animated=true
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 O  |O  |O  |O  |___|___|___|___|___|E  |E  |E  |E  |E  |E  |E  |E  |___|___|___|___|___|O  |O  |O  |O  

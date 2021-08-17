@@ -8,6 +8,9 @@ MeshOffset=0,8
 IconPath=ShipIcons/Sentinel
 ModelPath=Model/Ships/Draylok/Ship18f
 SelectIcon=18f
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=88,632,0,86
 Thruster=184,648,0,86

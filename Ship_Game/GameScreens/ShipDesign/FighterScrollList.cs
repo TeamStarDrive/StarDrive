@@ -33,7 +33,7 @@ namespace Ship_Game
             {
                 if (!ResourceManager.GetShipTemplate(shipId, out Ship hangarShip))
                     continue;
-                string role = ShipData.GetRole(hangarShip.shipData.HullRole);
+                string role = ShipDesign.GetRole(hangarShip.shipData.HullRole);
                 if (!ActiveModule.PermittedHangarRoles.Contains(role))
                     continue;
                 if (hangarShip.SurfaceArea > ActiveModule.MaximumHangarShipSize)

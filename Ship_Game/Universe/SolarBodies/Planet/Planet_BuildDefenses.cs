@@ -31,8 +31,8 @@ namespace Ship_Game
             }
 
             int rank             = GetColonyRank();
-            var currentPlatforms = FilterOrbitals(ShipData.RoleName.platform);
-            var currentStations  = FilterOrbitals(ShipData.RoleName.station);
+            var currentPlatforms = FilterOrbitals(RoleName.platform);
+            var currentStations  = FilterOrbitals(RoleName.station);
             UpdateWantedOrbitals(rank);
 
             BuildOrScrapShipyard(WantedShipyards, budget.RemainingSpaceDef);
@@ -47,14 +47,14 @@ namespace Ship_Game
         }
 
         void BuildOrScrapStations(Array<Ship> orbitals, byte wanted, float budget)
-            => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.station, budget);
+            => BuildOrScrapOrbitals(orbitals, wanted, RoleName.station, budget);
 
         void BuildOrScrapPlatforms(Array<Ship> orbitals, byte wanted, float budget)
-            => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.platform, budget);
+            => BuildOrScrapOrbitals(orbitals, wanted, RoleName.platform, budget);
 
         bool GovernorShouldNotScrapBuilding => Owner.isPlayer && DontScrapBuildings;
 
-        private Array<Ship> FilterOrbitals(ShipData.RoleName role)
+        private Array<Ship> FilterOrbitals(RoleName role)
         {
             var orbitalList = new Array<Ship>();
             foreach (Ship orbital in OrbitalStations)
@@ -68,9 +68,9 @@ namespace Ship_Game
             return orbitalList;
         }
 
-        public int OrbitalsBeingBuilt(ShipData.RoleName role) => OrbitalsBeingBuilt(role, Owner);
+        public int OrbitalsBeingBuilt(RoleName role) => OrbitalsBeingBuilt(role, Owner);
 
-        int OrbitalsBeingBuilt(ShipData.RoleName role, Empire owner)
+        int OrbitalsBeingBuilt(RoleName role, Empire owner)
         {
             if (owner == null)
                 return 0;
@@ -113,7 +113,7 @@ namespace Ship_Game
             return shipyardsInQ;
         }
 
-        private void BuildOrScrapOrbitals(Array<Ship> orbitalList, byte orbitalsWeWant, ShipData.RoleName role, float budget)
+        private void BuildOrScrapOrbitals(Array<Ship> orbitalList, byte orbitalsWeWant, RoleName role, float budget)
         {
             int orbitalsWeHave = orbitalList.Filter(o => !o.shipData.IsShipyard).Length + OrbitalsBeingBuilt(role);
             if (IsPlanetExtraDebugTarget())
@@ -158,7 +158,7 @@ namespace Ship_Game
             orbital.QueueTotalRemoval();
         }
 
-        private void BuildOrbital(ShipData.RoleName role, float budget)
+        private void BuildOrbital(RoleName role, float budget)
         {
             if (OrbitalsInTheWorks)
                 return;
@@ -183,7 +183,7 @@ namespace Ship_Game
             Owner.GetEmpireAI().Goals.Add(buildOrbital);
         }
 
-        private void ReplaceOrbital(Array<Ship> orbitalList, ShipData.RoleName role, float budget)
+        private void ReplaceOrbital(Array<Ship> orbitalList, RoleName role, float budget)
         {
             if (orbitalList.IsEmpty || OrbitalsInTheWorks)
                 return;
@@ -220,7 +220,7 @@ namespace Ship_Game
                          $" with {bestWeCanBuild.Name}, STR: {weakestWeHave.BaseStrength} to {bestWeCanBuild.BaseStrength}");
         }
 
-        private Ship PickOrbitalToBuild(ShipData.RoleName role, float budget)
+        private Ship PickOrbitalToBuild(RoleName role, float budget)
         {
             Ship orbital = GetBestOrbital(role, budget);
             if (IsPlanetExtraDebugTarget())
@@ -243,7 +243,7 @@ namespace Ship_Game
         }
 
         // This returns the best orbital the empire can build
-        private Ship GetBestOrbital(ShipData.RoleName role, float budget)
+        private Ship GetBestOrbital(RoleName role, float budget)
         {
             if (budget < 0)
                 return null;
@@ -251,8 +251,8 @@ namespace Ship_Game
 
             switch (role)
             {
-                case ShipData.RoleName.platform: orbital = Owner.BestPlatformWeCanBuild; break;
-                case ShipData.RoleName.station: orbital = Owner.BestStationWeCanBuild; break;
+                case RoleName.platform: orbital = Owner.BestPlatformWeCanBuild; break;
+                case RoleName.station: orbital = Owner.BestStationWeCanBuild; break;
             }
 
             if (orbital != null)
@@ -267,13 +267,13 @@ namespace Ship_Game
         }
 
         //This returns the best orbital the Planet can build based on cost
-        private Ship GetBestOrbital(ShipData.RoleName role, float budget, float maxCost)
+        private Ship GetBestOrbital(RoleName role, float budget, float maxCost)
         {
             Ship orbital = null;
             switch (role)
             {
-                case ShipData.RoleName.station:
-                case ShipData.RoleName.platform: orbital = ShipBuilder.PickCostEffectiveShipToBuild(role, Owner, maxCost, budget); break;
+                case RoleName.station:
+                case RoleName.platform: orbital = ShipBuilder.PickCostEffectiveShipToBuild(role, Owner, maxCost, budget); break;
             }
             return orbital;
         }
@@ -328,8 +328,8 @@ namespace Ship_Game
             }
         }
 
-        public int NumPlatforms => FilterOrbitals(ShipData.RoleName.platform).Count;
-        public int NumStations  => FilterOrbitals(ShipData.RoleName.station).Count;
+        public int NumPlatforms => FilterOrbitals(RoleName.platform).Count;
+        public int NumStations  => FilterOrbitals(RoleName.station).Count;
 
         public bool IsOutOfOrbitalsLimit(Ship ship) => IsOutOfOrbitalsLimit(ship, Owner, 0);
         public bool IsOverOrbitalsLimit(Ship ship)  => IsOutOfOrbitalsLimit(ship, Owner, 1);

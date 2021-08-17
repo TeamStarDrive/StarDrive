@@ -173,8 +173,8 @@ namespace Ship_Game
             }
         }
 
-        public static string GetRole(ShipData.RoleName role, Empire owner) => GetRole(role, owner.data.Traits.ShipType);
-        public static string GetRole(ShipData.RoleName role, string shipType)
+        public static string GetRole(RoleName role, Empire owner) => GetRole(role, owner.data.Traits.ShipType);
+        public static string GetRole(RoleName role, string shipType)
         {
             LocalizedText name = ShipRole.GetRoleName(role, shipType);
             return name.NotEmpty ? name.Text : "unknown";

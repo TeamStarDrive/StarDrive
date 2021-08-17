@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Ship_Game.AI;
 using Ship_Game.Data;
 using Ship_Game.Data.Serialization.Types;
 using Ship_Game.Gameplay;
@@ -26,7 +27,7 @@ namespace Ship_Game.Ships.Legacy
         /// <param name="file"></param>
         public void SaveDesign(FileInfo file)
         {
-            var sw = new ShipDataWriter();
+            var sw = new ShipDesignWriter();
             sw.Write("Version", 1);
             sw.Write("Name", Name);
             sw.Write("Hull", Hull);
@@ -45,11 +46,14 @@ namespace Ship_Game.Ships.Legacy
                 sw.Write("FixedCost", FixedCost);
             if (FixedUpkeep > 0f)
                 sw.Write("FixedUpkeep", FixedUpkeep);
-            if (DefaultAIState != Ship_Game.AI.AIState.DoNothing)
-                sw.Write("DefaultAIState", DefaultAIState);
+
+            sw.Write("DefaultAIState", DefaultAIState);
             sw.Write("DefaultCombatState", CombatState);
-            if (ShipCategory != Category.Unclassified)
-                sw.Write("ShipCategory", ShipCategory);
+            sw.Write("ShipCategory", ShipCategory);
+            sw.Write("HangarDesignation", HangarDesignation);
+            sw.Write("IsShipyard", IsShipyard);
+            sw.Write("IsOrbitalDefense", IsOrbitalDefense);
+            sw.Write("IsCarrierOnly", CarrierShip);
             sw.Write("EventOnDeath", EventOnDeath); // "DefeatedMothership" remnant event
 
             var moduleUIDsToIdx = new Array<string>();

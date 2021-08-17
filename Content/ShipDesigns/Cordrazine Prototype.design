@@ -5,7 +5,13 @@ Role=prototype
 Style=Cordrazine
 Size=12,14
 GridCenter=6,7
+DefaultAIState=DoNothing
 DefaultCombatState=OrbitRight
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;MRLS;Shield_1KW;VulcanCannon;NuclearReactorSmall;OrdnanceLockerSmall;Cockpit;NuclearReactorMed;WarpEngine_2x2;FrigateEngine;SteelArmorMed
 Modules=44

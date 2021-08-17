@@ -455,7 +455,7 @@ namespace Ship_Game.AI.Tasks
                         ship.ClearFleet();
                         ship.HyperspaceReturn();
 
-                        if (ship.shipData.Role != ShipData.RoleName.troop)
+                        if (ship.shipData.Role != RoleName.troop)
                         {
                             ship.AI.GoOrbitNearestPlanetAndResupply(false);
                         }

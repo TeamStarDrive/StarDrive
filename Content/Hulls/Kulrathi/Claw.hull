@@ -8,6 +8,9 @@ MeshOffset=0,8
 IconPath=ShipIcons/claw
 ModelPath=Model/Ships/Kulrathi/ship11f
 SelectIcon=11f
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=200,328,0,40
 Thruster=248,328,0,72

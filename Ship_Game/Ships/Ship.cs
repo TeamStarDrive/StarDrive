@@ -16,8 +16,6 @@ using System.Threading;
 
 namespace Ship_Game.Ships
 {
-    using static ShipMaintenance;
-
     public partial class Ship : GameplayObject, IDisposable
     {
         public bool ThisClassMustNotBeAutoSerializedByDotNet =>
@@ -60,10 +58,6 @@ namespace Ship_Game.Ships
         public bool shipStatusChanged;
         public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
-        public bool IsPlayerDesign;
-        public bool IsSupplyShip;
-        public bool IsReadonlyDesign;
-        public bool isColonyShip;
         public bool HasRegeneratingModules;
         public bool IsMeteor { get; private set; }
 
@@ -76,7 +70,7 @@ namespace Ship_Game.Ships
         public float MechanicalBoardingDefense;
         public float TroopBoardingDefense;
         public float ECMValue;
-        public ShipData shipData;
+        public ShipDesign shipData;
         public int kills;
         public float experience;
         public bool EnginesKnockedOut;
@@ -130,7 +124,6 @@ namespace Ship_Game.Ships
         public float ShieldRechargeTimer;
         public bool InCombat;
         public float xRotation;
-        public bool Deleted;
         public float BonusEMP_Protection;
         public bool InSensorRange => KnownByEmpires.KnownByPlayer;
         public KnownByEmpire KnownByEmpires;
@@ -162,34 +155,33 @@ namespace Ship_Game.Ships
         public float BoardingDefenseTotal => MechanicalBoardingDefense + TroopBoardingDefense;
 
         public float FTLModifier { get; private set; } = 1f;
-        public float BaseCost    { get; private set; }
         public Planet HomePlanet { get; private set; }
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
         public float MaxWeaponError = 0;
 
         public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || Empire.DefaultBoardingShuttleName == Name;
-        public bool IsDefaultTroopShip      => !IsDefaultAssaultShuttle && (loyalty.data.DefaultTroopShip == Name || DesignRole == ShipData.RoleName.troop);
+        public bool IsDefaultTroopShip      => !IsDefaultAssaultShuttle && (loyalty.data.DefaultTroopShip == Name || DesignRole == RoleName.troop);
         public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
-        public bool IsSingleTroopShip       => DesignRole == ShipData.RoleName.troop;
-        public bool IsTroopShip             => DesignRole == ShipData.RoleName.troop || DesignRole == ShipData.RoleName.troopShip;
-        public bool IsBomber                => DesignRole == ShipData.RoleName.bomber;
-        public bool IsSubspaceProjector     => Name == "Subspace Projector";
+        public bool IsSingleTroopShip       => DesignRole == RoleName.troop;
+        public bool IsTroopShip             => DesignRole == RoleName.troop || DesignRole == RoleName.troopShip;
+        public bool IsBomber                => DesignRole == RoleName.bomber;
+        public bool IsSubspaceProjector     => shipData.IsSubspaceProjector;
         public bool HasBombs                => BombBays.Count > 0;
-        public bool IsEmpireSupport         => DesignRoleType == ShipData.RoleType.EmpireSupport;
+        public bool IsEmpireSupport         => DesignRoleType == RoleType.EmpireSupport;
         public bool Resupplying             => AI.State == AIState.Resupply || AI.State == AIState.ResupplyEscort;
                 
         /// <summary>
         /// Ship is expected to exchange fire with enemy ships directly not through hangar ships and other such things.
         /// </summary>
-        public bool IsAWarShip => DesignRoleType == ShipData.RoleType.Warship;
-        public bool IsOrbital  => DesignRoleType == ShipData.RoleType.Orbital;
+        public bool IsAWarShip => DesignRoleType == RoleType.Warship;
+        public bool IsOrbital  => DesignRoleType == RoleType.Orbital;
         public bool IsInAFleet => fleet != null;
 
         /// <summary>
         /// This ship is a carrier which launches fighters/corvettes/frigates
         /// </summary>
-        public bool IsPrimaryCarrier   => DesignRole == ShipData.RoleName.carrier;
+        public bool IsPrimaryCarrier   => DesignRole == RoleName.carrier;
         public bool IsSecondaryCarrier => !IsPrimaryCarrier && Carrier.HasFighterBays;
 
         // Current pool that this ship is assigned to
@@ -211,11 +203,11 @@ namespace Ship_Game.Ships
         public bool RemoveFromPool() => Pool?.Remove(this) ?? false;
         public void ClearFleet(bool returnToManagedPools = true) => fleet?.RemoveShip(this, returnToManagedPools);
         public void UnsafeClearFleet() => fleet?.UnSafeRemoveShip(this);
-        
+
         public bool IsConstructor
         {
-            get => DesignRole == ShipData.RoleName.construction;
-            set => DesignRole = value ? ShipData.RoleName.construction : GetDesignRole();
+            get => DesignRole == RoleName.construction;
+            set => DesignRole = value ? RoleName.construction : shipData.DesignRole;
         }
 
         /// <summary>
@@ -224,8 +216,8 @@ namespace Ship_Game.Ships
         public bool ShouldNotBeAddedToForcePools()
         {
             return !Active || IsInAFleet || IsHangarShip || IsHomeDefense
-                || shipData.CarrierShip || IsEmpireSupport || IsOrbital
-                || DoingRefit || DoingScrap || DoingScuttle || isColonyShip
+                || shipData.IsCarrierOnly || IsEmpireSupport || IsOrbital
+                || DoingRefit || DoingScrap || DoingScuttle || shipData.IsColonyShip
                 || IsFreighter || IsSupplyShuttle || Resupplying;
         }
 
@@ -234,16 +226,16 @@ namespace Ship_Game.Ships
         /// </summary>
         public bool IsFleetSupportShip()
         {
-            return DesignRoleType == ShipData.RoleType.WarSupport ||
-                   DesignRoleType == ShipData.RoleType.Troop ||
-                       DesignRole == ShipData.RoleName.carrier;
+            return DesignRoleType == RoleType.WarSupport ||
+                   DesignRoleType == RoleType.Troop ||
+                       DesignRole == RoleName.carrier;
         }
 
-        public bool CanBeAddedToBuildableShips(Empire empire) => DesignRole != ShipData.RoleName.prototype && DesignRole != ShipData.RoleName.disabled
-                                               && !ResourceManager.ShipRoles[shipData.Role].Protected && !Deleted
-                                               && DesignRole != ShipData.RoleName.supply
+        public bool CanBeAddedToBuildableShips(Empire empire) => DesignRole != RoleName.prototype && DesignRole != RoleName.disabled
+                                               && !ResourceManager.ShipRoles[shipData.Role].Protected && !shipData.Deleted
+                                               && DesignRole != RoleName.supply
                                                && (empire.isPlayer || ShipGoodToBuild(empire))
-                                               && (!IsPlayerDesign || GlobalStats.UsePlayerDesigns || empire.isPlayer);
+                                               && (!shipData.IsPlayerDesign || GlobalStats.UsePlayerDesigns || empire.isPlayer);
 
         public void SetCombatStance(CombatState stance)
         {
@@ -398,9 +390,9 @@ namespace Ship_Game.Ships
             KillAllTroops();
         }
 
-        public ShipData.RoleName DesignRole { get; private set; }
-        public ShipData.RoleType DesignRoleType => ShipData.ShipRoleToRoleType(DesignRole);
-        public string DesignRoleName            => ShipData.GetRole(DesignRole);
+        public RoleName DesignRole { get; private set; }
+        public RoleType DesignRoleType => ShipDesign.ShipRoleToRoleType(DesignRole);
+        public string DesignRoleName => ShipDesign.GetRole(DesignRole);
 
         public (SubTexture primaryIcon, SubTexture secondaryIcon, Color statusColor) TacticalIconWithStatusColor()
         {
@@ -415,7 +407,7 @@ namespace Ship_Game.Ships
             if (IsSupplyShuttle)
                 return (ResourceManager.Texture("TacticalIcons/symbol_supply"), null, color);
 
-            string roleName = DesignRole == ShipData.RoleName.scout || DesignRole == ShipData.RoleName.troop
+            string roleName = DesignRole == RoleName.scout || DesignRole == RoleName.troop
                 ? DesignRole.ToString()
                 : shipData.HullRole.ToString();
 
@@ -441,15 +433,15 @@ namespace Ship_Game.Ships
             {
                 default:
                     return yBank;
-                case ShipData.RoleName.drone:
-                case ShipData.RoleName.scout:
-                case ShipData.RoleName.fighter:
+                case RoleName.drone:
+                case RoleName.scout:
+                case RoleName.fighter:
                     return yBank * 2f;
             }
         }
 
-        public bool IsPlatformOrStation => shipData.Role == ShipData.RoleName.platform || shipData.Role == ShipData.RoleName.station;
-        public bool IsStation           => shipData.Role == ShipData.RoleName.station && !shipData.IsShipyard;
+        public bool IsPlatformOrStation => shipData.IsPlatformOrStation;
+        public bool IsStation           => shipData.IsStation;
 
         public void CauseEmpDamage(float empDamage) // FB - also used for recover EMP
         {
@@ -559,7 +551,7 @@ namespace Ship_Game.Ships
                     if (attackerToUs.WarnedSystemsList.Contains(system.guid) && !IsFreighter)
                         return true;
 
-                    if (DesignRole == ShipData.RoleName.troop &&
+                    if (DesignRole == RoleName.troop &&
                         attacker.GetOwnedSystems().ContainsRef(system))
                         return true;
                 }
@@ -617,10 +609,10 @@ namespace Ship_Game.Ships
                 || AI.State == AIState.Resupply
                 || AI.State == AIState.Refit 
                 || !CanBeRefitted
-                || shipData.Role == ShipData.RoleName.supply
-                || shipData.HullRole < ShipData.RoleName.fighter && shipData.HullRole != ShipData.RoleName.station
+                || shipData.Role == RoleName.supply
+                || shipData.HullRole < RoleName.fighter && shipData.HullRole != RoleName.station
                 || OrdinanceMax < 1
-                || IsTethered && shipData.HullRole == ShipData.RoleName.platform)
+                || IsTethered && shipData.HullRole == RoleName.platform)
             {
                 return Status.NotApplicable;
             }
@@ -785,7 +777,7 @@ namespace Ship_Game.Ships
 
         public float GetCost(Empire empire = null)
         {
-            return Stats.GetCost(BaseCost, empire ?? loyalty, IsPlatformOrStation);
+            return Stats.GetCost(empire ?? loyalty);
         }
 
         public float GetScrapCost()
@@ -877,23 +869,23 @@ namespace Ship_Game.Ships
         }
 
         // Calculate maintenance by proportion of ship cost
-        private static float GetModMaintenanceModifier(ShipData.RoleName role)
+        private static float GetModMaintenanceModifier(RoleName role)
         {
             ModInformation mod = GlobalStats.ActiveModInfo;
             switch (role)
             {
-                case ShipData.RoleName.fighter:
-                case ShipData.RoleName.scout:      return mod.UpkeepFighter;
-                case ShipData.RoleName.corvette:
-                case ShipData.RoleName.gunboat:    return mod.UpkeepCorvette;
-                case ShipData.RoleName.frigate:
-                case ShipData.RoleName.destroyer:  return mod.UpkeepFrigate;
-                case ShipData.RoleName.cruiser:    return mod.UpkeepCruiser;
-                case ShipData.RoleName.battleship: return mod.UpkeepCarrier;
-                case ShipData.RoleName.capital:    return mod.UpkeepCapital;
-                case ShipData.RoleName.freighter:  return mod.UpkeepFreighter;
-                case ShipData.RoleName.platform:   return mod.UpkeepPlatform;
-                case ShipData.RoleName.station:    return mod.UpkeepStation;
+                case RoleName.fighter:
+                case RoleName.scout:      return mod.UpkeepFighter;
+                case RoleName.corvette:
+                case RoleName.gunboat:    return mod.UpkeepCorvette;
+                case RoleName.frigate:
+                case RoleName.destroyer:  return mod.UpkeepFrigate;
+                case RoleName.cruiser:    return mod.UpkeepCruiser;
+                case RoleName.battleship: return mod.UpkeepCarrier;
+                case RoleName.capital:    return mod.UpkeepCapital;
+                case RoleName.freighter:  return mod.UpkeepFreighter;
+                case RoleName.platform:   return mod.UpkeepPlatform;
+                case RoleName.station:    return mod.UpkeepStation;
             }
 
             return mod.UpkeepBaseline;
@@ -903,7 +895,7 @@ namespace Ship_Game.Ships
 
         public float GetMaintCost(Empire empire)
         {
-            return GetMaintenanceCost(this, empire, TroopCount);
+            return ShipMaintenance.GetMaintenanceCost(this, empire, TroopCount);
         }
 
         public void DoEscort(Ship escortTarget)
@@ -1094,7 +1086,7 @@ namespace Ship_Game.Ships
         public void UpdateShipStatus(FixedSimTime timeStep)
         {
             if (!Empire.Universe.Paused && VelocityMaximum <= 0f
-                && !shipData.IsShipyard && shipData.Role <= ShipData.RoleName.station)
+                && !shipData.IsShipyard && shipData.Role <= RoleName.station)
             {
                 Rotation += 0.003f + RandomMath.AvgRandomBetween(0.0001f, 0.0005f);
             }
@@ -1325,7 +1317,7 @@ namespace Ship_Game.Ships
 
         public bool IsTroopShipAndRebasingOrAssaulting(Planet p)
         {
-            return (DesignRole == ShipData.RoleName.troop || DesignRole == ShipData.RoleName.troopShip)
+            return (DesignRole == RoleName.troop || DesignRole == RoleName.troopShip)
                    && AI.OrderQueue.Any(g => (g.Plan == ShipAI.Plan.Rebase || g.Plan == ShipAI.Plan.LandTroop) && g.TargetPlanet == p);
         }
 
@@ -1529,14 +1521,14 @@ namespace Ship_Game.Ships
             float size = Radius * (shipData.EventOnDeath?.NotEmpty() == true ? 3 : 1);
             switch (shipData.HullRole)
             {
-                case ShipData.RoleName.corvette:
-                case ShipData.RoleName.scout:
-                case ShipData.RoleName.fighter:
-                case ShipData.RoleName.frigate:   ExplodeShip(size * 10, cleanupOnly); break;
-                case ShipData.RoleName.battleship:
-                case ShipData.RoleName.capital:
-                case ShipData.RoleName.cruiser:
-                case ShipData.RoleName.station:   ExplodeShip(size * 8, true);         break;
+                case RoleName.corvette:
+                case RoleName.scout:
+                case RoleName.fighter:
+                case RoleName.frigate:   ExplodeShip(size * 10, cleanupOnly); break;
+                case RoleName.battleship:
+                case RoleName.capital:
+                case RoleName.cruiser:
+                case RoleName.station:   ExplodeShip(size * 8, true);         break;
                 default:                          ExplodeShip(size * 8, cleanupOnly);  break;
             }
 
@@ -1777,23 +1769,21 @@ namespace Ship_Game.Ships
             return ModuleSlotList.Count(m => m.DeployBuildingOnColonize.NotEmpty());
         }
 
-        ShipData.RoleName GetDesignRole() => new RoleData(this, ModuleSlotList).DesignRole;
-
         public void MarkShipRolesUsableForEmpire(Empire empire)
         {
             switch (DesignRole)
             {
-                case ShipData.RoleName.bomber:     empire.canBuildBombers      = true; break;
-                case ShipData.RoleName.carrier:    empire.canBuildCarriers     = true; break;
-                case ShipData.RoleName.support:    empire.canBuildSupportShips = true; break;
-                case ShipData.RoleName.troopShip:  empire.canBuildTroopShips   = true; break;
-                case ShipData.RoleName.corvette:   empire.canBuildCorvettes    = true; break;
-                case ShipData.RoleName.frigate:    empire.canBuildFrigates     = true; break;
-                case ShipData.RoleName.cruiser:    empire.canBuildCruisers     = true; break;
-                case ShipData.RoleName.battleship: empire.CanBuildBattleships  = true; break;
-                case ShipData.RoleName.capital:    empire.canBuildCapitals     = true; break;
-                case ShipData.RoleName.platform:   empire.CanBuildPlatforms    = true; break;
-                case ShipData.RoleName.station:    empire.CanBuildStations     = true; break;
+                case RoleName.bomber:     empire.canBuildBombers      = true; break;
+                case RoleName.carrier:    empire.canBuildCarriers     = true; break;
+                case RoleName.support:    empire.canBuildSupportShips = true; break;
+                case RoleName.troopShip:  empire.canBuildTroopShips   = true; break;
+                case RoleName.corvette:   empire.canBuildCorvettes    = true; break;
+                case RoleName.frigate:    empire.canBuildFrigates     = true; break;
+                case RoleName.cruiser:    empire.canBuildCruisers     = true; break;
+                case RoleName.battleship: empire.CanBuildBattleships  = true; break;
+                case RoleName.capital:    empire.canBuildCapitals     = true; break;
+                case RoleName.platform:   empire.CanBuildPlatforms    = true; break;
+                case RoleName.station:    empire.CanBuildStations     = true; break;
             }
             if (shipData.IsShipyard)
                 empire.CanBuildShipyards = true;
@@ -1945,15 +1935,15 @@ namespace Ship_Game.Ships
             get
             {
                 ShipRole role = shipData.ShipRole;
-                return  !shipData.CarrierShip && !Deleted
+                return  !shipData.IsCarrierOnly && !shipData.Deleted
                     && !role.Protected && !role.NoBuild
-                    && (GlobalStats.ShowAllDesigns || IsPlayerDesign);
+                    && (GlobalStats.ShowAllDesigns || shipData.IsPlayerDesign);
             }
         }
 
         public bool ShipGoodToBuild(Empire empire)
         {
-            if (IsPlatformOrStation || shipData.CarrierShip)
+            if (IsPlatformOrStation || shipData.IsCarrierOnly)
                 return true;
 
             NetPower = Power.Calculate(ModuleSlotList, empire);

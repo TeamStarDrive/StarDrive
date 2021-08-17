@@ -7,6 +7,11 @@ Size=10,17
 GridCenter=5,9
 DefaultAIState=AwaitingOrders
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=OrdnanceLockerSmall;Railgun2x5;NuclearBombBay2x2;Shield_1KW;Cockpit;FrigateEngine;Railgun1x3;NuclearReactorSmall;NuclearReactorMed;Engine
 Modules=33

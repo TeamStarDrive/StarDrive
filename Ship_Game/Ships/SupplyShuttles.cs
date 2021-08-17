@@ -168,7 +168,7 @@ namespace Ship_Game.Ships
             Ship[] shipsInNeed = Owner.AI.FriendliesNearby.Filter(ship =>
             {
                 return ship.Active &&
-                       ship.shipData.Role != ShipData.RoleName.supply
+                       ship.shipData.Role != RoleName.supply
                        && ship != Owner
                        && ship.Supply.AcceptExternalSupply(SupplyType.Rearm);
             });

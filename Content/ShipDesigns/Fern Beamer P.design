@@ -5,7 +5,13 @@ Role=frigate
 Style=Pollops
 Size=16,8
 GridCenter=8,4
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;PhasorBeam2x3;Shield_1KW;LaserCannon;NuclearReactorSmall;BasicFuelCell;NuclearReactorMed;WarpEngine_2x2;Bridge;FrigateEngine
 Modules=49

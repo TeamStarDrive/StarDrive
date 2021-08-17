@@ -43,7 +43,7 @@ namespace Ship_Game.AI
             if (State == AIState.SystemDefender && Target == toAttack)
                 return;
 
-            if (Owner.Weapons.Count == 0 || Owner.shipData.Role == ShipData.RoleName.troop)
+            if (Owner.Weapons.Count == 0 || Owner.shipData.Role == RoleName.troop)
             {
                 OrderInterceptShip(toAttack);
                 return;
@@ -403,7 +403,7 @@ namespace Ship_Game.AI
                         return;
                     if (State == AIState.SystemDefender && Target == toAttack)
                         return;
-                    if (Owner.Weapons.Count == 0 || Owner.shipData.Role == ShipData.RoleName.troop)
+                    if (Owner.Weapons.Count == 0 || Owner.shipData.Role == RoleName.troop)
                     {
                         OrderInterceptShip(toAttack);
                         return;
@@ -566,7 +566,7 @@ namespace Ship_Game.AI
 
         public void GoOrbitNearestPlanetAndResupply(bool cancelOrders)
         {
-            if (Owner.shipData.HullRole == ShipData.RoleName.drone)
+            if (Owner.shipData.HullRole == RoleName.drone)
             {
                 Owner.Die(null, true);
                 return; // Drones never go to resupply, using hull role in case someone makes a drone module which changes the DesignRole
@@ -594,7 +594,7 @@ namespace Ship_Game.AI
             // FB - this will give priority order for the movement. if offensiveMove is false,
             // it means the player ordered this specifically wanting combat ships to engage targets
             // of opportunity, even dropping our of warp to engage them.
-            if (!offensiveMove || Owner.shipData.ShipCategory == ShipData.Category.Civilian)
+            if (!offensiveMove || Owner.shipData.ShipCategory == ShipCategory.Civilian)
             {
                 // only order to move if we are too far, no need to waste time here.
                 float threshold = toOrbit.ObjectRadius + 1000 * toOrbit.Scale;
@@ -686,7 +686,7 @@ namespace Ship_Game.AI
             if (Owner.IsPlatformOrStation) 
                 return;
 
-            if (Owner.shipData.CarrierShip)
+            if (Owner.shipData.IsCarrierOnly)
                 return;
 
             if (State != AIState.Resupply)

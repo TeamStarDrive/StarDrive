@@ -36,7 +36,7 @@ namespace Ship_Game
         {
             public Ship Ship;
             public readonly string ShipName;
-            readonly ShipData Design;
+            readonly ShipDesign Design;
             readonly ShipHull Hull;
             readonly bool CanBuild;
             readonly bool CanModifyDesign;
@@ -46,7 +46,7 @@ namespace Ship_Game
                 ShipName = template.Name;
                 Design = template.shipData;
                 CanBuild = canBuild;
-                CanModifyDesign = template.IsPlayerDesign;
+                CanModifyDesign = Design.IsPlayerDesign;
             }
             public ShipDesignListItem(ShipHull hull)
             {
@@ -58,7 +58,7 @@ namespace Ship_Game
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 string reserved = CanModifyDesign ? "" : ("(Reserved Name)");
-                string role = Design?.GetRole() ?? ShipData.GetRole(Hull.Role);
+                string role = Design?.GetRole() ?? ShipDesign.GetRole(Hull.Role);
                 SubTexture icon = Design?.Icon ?? Hull?.Icon;
 
                 batch.Draw(icon, new Rectangle((int)X, (int)Y, 48, 48));
@@ -115,7 +115,7 @@ namespace Ship_Game
             else
             {
                 Ship[] shipList = ResourceManager.GetShipTemplates()
-                    .Filter(s => !s.Deleted && s.Name.ToLower().Contains(filter));
+                    .Filter(s => !s.shipData.Deleted && s.Name.ToLower().Contains(filter));
 
                 ShipDesigns.SetItems(shipList.Select(s => 
                     new ShipDesignListItem(s, EmpireManager.Player.ShipsWeCanBuild.Contains(s.Name))));
@@ -219,9 +219,9 @@ namespace Ship_Game
             }
             else
             {
-                Ship ship = ResourceManager.GetShipTemplates().FirstOrDefault(s => s.Name == shipOrHullName);
+                ShipDesign ship = ResourceManager.GetShipDesigns().FirstOrDefault(s => s.Name == shipOrHullName);
                 exists = ship != null;
-                source = ship?.shipData.Source;
+                source = ship?.Source;
                 reserved = ship?.IsReadonlyDesign == true;
 
                 if (reserved && !Screen.EnableDebugFeatures)

@@ -17,7 +17,7 @@ namespace Ship_Game
 
         public struct RoleNames
         {
-            public ShipData.RoleName Role;
+            public RoleName Role;
             public Array<string> Names;
         }
 
@@ -28,7 +28,7 @@ namespace Ship_Game
 
         // Refactored by RedFox
         // Check to see if there are names to use
-        public bool CheckForName(string empire, ShipData.RoleName role)
+        public bool CheckForName(string empire, RoleName role)
         {
             foreach (EmpireEntry e in EmpireEntries)
             {
@@ -41,7 +41,7 @@ namespace Ship_Game
         }
 
         // Grab random name from list to use
-        public string GetName(string empire, ShipData.RoleName role)
+        public string GetName(string empire, RoleName role)
         {
             if (EmpireEntries.IsEmpty)
                 return string.Empty;

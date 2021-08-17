@@ -27,7 +27,7 @@ namespace Ship_Game.Universe
 
             if (targetShip.loyalty == Universe.player)
             {
-                if (selectedShip.DesignRole == ShipData.RoleName.troop)
+                if (selectedShip.DesignRole == RoleName.troop)
                 {
                     if (targetShip.TroopCount < targetShip.TroopCapacity)
                         selectedShip.AI.OrderTroopToShip(targetShip);
@@ -37,7 +37,7 @@ namespace Ship_Game.Universe
                 else
                     selectedShip.AI.AddEscortGoal(targetShip);
             }
-            else if (selectedShip.DesignRole == ShipData.RoleName.troop)
+            else if (selectedShip.DesignRole == RoleName.troop)
                 selectedShip.AI.OrderTroopToBoardShip(targetShip);
             else if (Input.QueueAction)
                 selectedShip.AI.OrderQueueSpecificTarget(targetShip);
@@ -69,7 +69,7 @@ namespace Ship_Game.Universe
                 if (audio)
                     GameAudio.AffirmativeClick();
 
-                if (ship.isColonyShip)
+                if (ship.shipData.IsColonyShip)
                     PlanetRightClickColonyShip(ship, planet); // This ship can colonize planets
                 else if (ship.Carrier.AnyAssaultOpsAvailable)
                     PlanetRightClickTroopShip(ship, planet); // This ship can assault planets
@@ -154,7 +154,7 @@ namespace Ship_Game.Universe
         public bool AttackSpecificShip(Ship ship, Ship target)
         {
             if (ship.IsConstructor ||
-                ship.shipData.Role == ShipData.RoleName.supply)
+                ship.shipData.Role == RoleName.supply)
             {
                 GameAudio.NegativeClick();
                 return false;
@@ -163,7 +163,7 @@ namespace Ship_Game.Universe
             GameAudio.AffirmativeClick();
             if (target.loyalty == Universe.player)
             {
-                if (ship.shipData.Role == ShipData.RoleName.troop)
+                if (ship.shipData.Role == RoleName.troop)
                 {
                     if (ship.TroopCount < ship.TroopCapacity)
                         ship.AI.OrderTroopToShip(target);
@@ -177,7 +177,7 @@ namespace Ship_Game.Universe
 
             //if (ship.loyalty == player)
             {
-                if (ship.shipData.Role == ShipData.RoleName.troop)
+                if (ship.shipData.Role == RoleName.troop)
                     ship.AI.OrderTroopToBoardShip(target);
                 else if (Input.QueueAction)
                     ship.AI.OrderQueueSpecificTarget(target);

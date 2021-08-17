@@ -926,22 +926,22 @@ namespace Ship_Game.Gameplay
             return damageModifier;
         }
 
-        public bool TargetValid(ShipData.RoleName role)
+        public bool TargetValid(RoleName role)
         {
             switch (role)
             {
-                case ShipData.RoleName.fighter    when Excludes_Fighters:
-                case ShipData.RoleName.scout      when Excludes_Fighters:
-                case ShipData.RoleName.drone      when Excludes_Fighters:
-                case ShipData.RoleName.corvette   when Excludes_Corvettes:
-                case ShipData.RoleName.gunboat    when Excludes_Corvettes:
-                case ShipData.RoleName.frigate    when Excludes_Capitals:
-                case ShipData.RoleName.destroyer  when Excludes_Capitals:
-                case ShipData.RoleName.cruiser    when Excludes_Capitals:
-                case ShipData.RoleName.battleship when Excludes_Capitals:
-                case ShipData.RoleName.capital    when Excludes_Capitals:
-                case ShipData.RoleName.platform   when Excludes_Stations:
-                case ShipData.RoleName.station    when Excludes_Stations: return false;
+                case RoleName.fighter    when Excludes_Fighters:
+                case RoleName.scout      when Excludes_Fighters:
+                case RoleName.drone      when Excludes_Fighters:
+                case RoleName.corvette   when Excludes_Corvettes:
+                case RoleName.gunboat    when Excludes_Corvettes:
+                case RoleName.frigate    when Excludes_Capitals:
+                case RoleName.destroyer  when Excludes_Capitals:
+                case RoleName.cruiser    when Excludes_Capitals:
+                case RoleName.battleship when Excludes_Capitals:
+                case RoleName.capital    when Excludes_Capitals:
+                case RoleName.platform   when Excludes_Stations:
+                case RoleName.station    when Excludes_Stations: return false;
                 default: return true;
             }
         }

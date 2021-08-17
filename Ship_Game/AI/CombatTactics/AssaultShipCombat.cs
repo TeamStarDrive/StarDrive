@@ -21,7 +21,7 @@ namespace Ship_Game.AI.CombatTactics
 
             if (!Owner.Carrier.HasActiveTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
                 return;
-            if (!Owner.loyalty.isFaction && Target?.shipData.Role <= ShipData.RoleName.drone)
+            if (!Owner.loyalty.isFaction && Target?.shipData.Role <= RoleName.drone)
                 return;
 
             float totalTroopStrengthToCommit = Owner.Carrier.MaxTroopStrengthInShipToCommit + Owner.Carrier.MaxTroopStrengthInSpaceToCommit;

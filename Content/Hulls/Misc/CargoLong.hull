@@ -8,6 +8,9 @@ MeshOffset=0,-16
 IconPath=ShipIcons/terran_cargo3
 ModelPath=Model/Ships/CargoShips/CargoHaulerLong
 SelectIcon=06
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=232,536,0,56
 Thruster=280,536,0,56

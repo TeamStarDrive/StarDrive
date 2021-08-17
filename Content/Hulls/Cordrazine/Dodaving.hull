@@ -4,10 +4,13 @@ VisibleName=Dodaving
 Role=capital
 Style=Cordrazine
 Size=22,31
-MeshOffset=0,2
+MeshOffset=0,8
 IconPath=ShipIcons/Dodaving
 ModelPath=Model/Ships/Cordrazine/ship16e
 SelectIcon=16e
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=235,462,0,69
 Thruster=272,461,0,69

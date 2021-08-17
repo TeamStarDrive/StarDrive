@@ -34,9 +34,9 @@ namespace Ship_Game.Ships
         public bool IsPrimaryCarrierRoleForLaunchRange => 
                                             HasActiveHangars &&
                                             (Owner.WeaponsMaxRange.AlmostZero()
-                                            || Owner.DesignRole == ShipData.RoleName.carrier
-                                            || Owner.DesignRole == ShipData.RoleName.support
-                                            || Owner.DesignRoleType == ShipData.RoleType.Orbital);
+                                            || Owner.DesignRole == RoleName.carrier
+                                            || Owner.DesignRole == RoleName.support
+                                            || Owner.DesignRoleType == RoleType.Orbital);
 
         AssaultShipCombat TroopTactics;
 
@@ -79,10 +79,10 @@ namespace Ship_Game.Ships
 
         public static CarrierBays Create(Ship owner, ShipModule[] slots)
         {
-            ShipData.RoleName role = owner.shipData.Role;
+            RoleName role = owner.shipData.Role;
             if (slots.Any(m => m.ModuleType == ShipModuleType.Hangar
                             || m.ModuleType == ShipModuleType.Transporter)
-                            || role == ShipData.RoleName.troop)
+                            || role == RoleName.troop)
             {
                 return new CarrierBays(owner, slots);
             }
@@ -388,8 +388,8 @@ namespace Ship_Game.Ships
                 if (Owner == null || !Owner.HasOurTroops)
                     return 0.0f;
 
-                int assaultSpots = Owner.DesignRole == ShipData.RoleName.troop
-                                || Owner.DesignRole == ShipData.RoleName.troopShip ? Owner.TroopCount : 0;
+                int assaultSpots = Owner.DesignRole == RoleName.troop
+                                || Owner.DesignRole == RoleName.troopShip ? Owner.TroopCount : 0;
 
                 assaultSpots += AllActiveHangars.Filter(sm => sm.IsTroopBay).Length;  // FB: inspect this
                 assaultSpots += AllTransporters.Sum(sm => sm.TransporterTroopLanding);
@@ -502,7 +502,7 @@ namespace Ship_Game.Ships
                         || rangeToCarrier > Owner.SensorRange)
                     {
                         recallFighters = false;
-                        if (hangarShip.DesignRole == ShipData.RoleName.drone && hangarShip.ScuttleTimer <= 0f && hangarShip.Stats.WarpThrust < 1f)
+                        if (hangarShip.DesignRole == RoleName.drone && hangarShip.ScuttleTimer <= 0f && hangarShip.Stats.WarpThrust < 1f)
                             hangarShip.ScuttleTimer = 10f; // FB: this will scuttle hanger ships if they cant reach the mothership
                         continue;
                     }
@@ -625,13 +625,13 @@ namespace Ship_Game.Ships
             return readyHangars;
         }
 
-        private static ShipData.HangarOptions GetCategoryFromHangarType(DynamicHangarOptions hangarType)
+        private static HangarOptions GetCategoryFromHangarType(DynamicHangarOptions hangarType)
         {
             switch (hangarType)
             {
-                case DynamicHangarOptions.DynamicInterceptor: return ShipData.HangarOptions.Interceptor;
-                case DynamicHangarOptions.DynamicAntiShip:    return ShipData.HangarOptions.AntiShip;
-                default:                                      return ShipData.HangarOptions.General;
+                case DynamicHangarOptions.DynamicInterceptor: return HangarOptions.Interceptor;
+                case DynamicHangarOptions.DynamicAntiShip:    return HangarOptions.AntiShip;
+                default:                                      return HangarOptions.General;
             }
         }
 
@@ -639,7 +639,7 @@ namespace Ship_Game.Ships
 
         static string GetDynamicShipName(ShipModule hangar, Empire empire)
         {
-            ShipData.HangarOptions desiredShipCategory = GetCategoryFromHangarType(hangar.DynamicHangar);
+            HangarOptions desiredShipCategory = GetCategoryFromHangarType(hangar.DynamicHangar);
             float strongest = 0;
             string bestShip = string.Empty;
             foreach (var role in hangar.HangarRoles)

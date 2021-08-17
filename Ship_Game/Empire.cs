@@ -325,12 +325,12 @@ namespace Ship_Game
         /// 1 is above average. 0.2 is below average.
         /// the default is below average. not recommended to set above 1 but you can.
         /// </summary>
-        public bool FindPlanetToBuildShipAt(IReadOnlyList<Planet> ports, Ship ship, out Planet chosen, float priority = 1f)
+        public bool FindPlanetToBuildShipAt(IReadOnlyList<Planet> ports, ShipDesign ship, out Planet chosen, float priority = 1f)
         {
             if (ports.Count != 0)
             {
                 float cost = ship.GetCost(this);
-                chosen     = FindPlanetToBuildAt(ports, cost, ship.shipData, priority);
+                chosen     = FindPlanetToBuildAt(ports, cost, ship, priority);
                 return chosen != null;
             }
 
@@ -365,7 +365,7 @@ namespace Ship_Game
             return false;
         }
 
-        Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, ShipData sData, float priority = 1f)
+        Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, ShipDesign sData, float priority = 1f)
         {
             // focus on the best producing planets (number depends on the empire size)
             if (GetBestPorts(ports, out Planet[] bestPorts))
@@ -627,8 +627,8 @@ namespace Ship_Game
             var planets = new Array<Planet>();
             foreach(var station in OwnedShips)
             {
-                if (station.BaseHull.Role != ShipData.RoleName.station
-                    && station.BaseHull.Role != ShipData.RoleName.platform) continue;
+                if (station.BaseHull.Role != RoleName.station
+                    && station.BaseHull.Role != RoleName.platform) continue;
                 if (station.IsTethered)
                 {
                     planets.Add(station.GetTether());
@@ -1284,12 +1284,12 @@ namespace Ship_Game
                 tech.SetDiscovered(this);
         }
 
-        public void IncreaseEmpireShipRoleLevel(ShipData.RoleName role, int bonus)
+        public void IncreaseEmpireShipRoleLevel(RoleName role, int bonus)
         {
             IncreaseEmpireShipRoleLevel(new[] { role }, bonus);
         }
 
-        public void IncreaseEmpireShipRoleLevel(ShipData.RoleName[] role, int bonus)
+        public void IncreaseEmpireShipRoleLevel(RoleName[] role, int bonus)
         {
             for (int i = 0; i < OwnedShips.Count; i++)
             {
@@ -1580,9 +1580,9 @@ namespace Ship_Game
                     if (ship.fleet == null && ship.InCombat && !ship.IsHangarShip) //fbedard: total ships in combat
                         empireShipCombat++;
 
-                    if (ship.IsHangarShip || ship.DesignRole == ShipData.RoleName.troop
-                                          || ship.DesignRole == ShipData.RoleName.freighter
-                                          || ship.shipData.ShipCategory == ShipData.Category.Civilian)
+                    if (ship.IsHangarShip || ship.DesignRole == RoleName.troop
+                                          || ship.DesignRole == RoleName.freighter
+                                          || ship.shipData.ShipCategory == ShipCategory.Civilian)
                     {
                         continue;
                     }
@@ -1765,8 +1765,8 @@ namespace Ship_Game
         private void UpdateBestOrbitals()
         {
             // FB - this is done here for more performance. having set values here prevents calling shipbuilder by every planet every turn
-            BestPlatformWeCanBuild = BestShipWeCanBuild(ShipData.RoleName.platform, this);
-            BestStationWeCanBuild  = BestShipWeCanBuild(ShipData.RoleName.station, this);
+            BestPlatformWeCanBuild = BestShipWeCanBuild(RoleName.platform, this);
+            BestStationWeCanBuild  = BestShipWeCanBuild(RoleName.station, this);
         }
 
         public void UpdateDefenseShipBuildingOffense()
@@ -1949,21 +1949,21 @@ namespace Ship_Game
                     TotalMaintenanceInScrap += maintenance;
                     continue;
                 }
-                if (data.DefenseBudget > 0 && ((ship.shipData.HullRole == ShipData.RoleName.platform && ship.IsTethered)
-                                               || (ship.shipData.HullRole == ShipData.RoleName.station &&
+                if (data.DefenseBudget > 0 && ((ship.shipData.HullRole == RoleName.platform && ship.IsTethered)
+                                               || (ship.shipData.HullRole == RoleName.station &&
                                                    (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
                 {
                     data.DefenseBudget -= maintenance;
                 }
                 switch (ship.DesignRoleType)
                 {
-                    case ShipData.RoleType.WarSupport:
-                    case ShipData.RoleType.Warship: TotalWarShipMaintenance             += maintenance; break;
-                    case ShipData.RoleType.Civilian: TotalCivShipMaintenance            += maintenance; break;
-                    case ShipData.RoleType.EmpireSupport: TotalEmpireSupportMaintenance += maintenance; break;
-                    case ShipData.RoleType.Orbital: TotalOrbitalMaintenance             += maintenance; break;
-                    case ShipData.RoleType.Troop: TotalTroopShipMaintenance             += maintenance; break;
-                    case ShipData.RoleType.NotApplicable: break;
+                    case RoleType.WarSupport:
+                    case RoleType.Warship: TotalWarShipMaintenance             += maintenance; break;
+                    case RoleType.Civilian: TotalCivShipMaintenance            += maintenance; break;
+                    case RoleType.EmpireSupport: TotalEmpireSupportMaintenance += maintenance; break;
+                    case RoleType.Orbital: TotalOrbitalMaintenance             += maintenance; break;
+                    case RoleType.Troop: TotalTroopShipMaintenance             += maintenance; break;
+                    case RoleType.NotApplicable: break;
                     default:
                         Log.Warning($"Type not included in maintenance and not in notapplicable {ship.DesignRoleType}\n    {ship} ");
                         break;
@@ -2037,7 +2037,7 @@ namespace Ship_Game
 
                 if (WeCanBuildThis(ship.Name))
                 {
-                    if (ship.shipData.Role <= ShipData.RoleName.station)
+                    if (ship.shipData.Role <= RoleName.station)
                         structuresWeCanBuild.Add(ship.Name);
 
                     bool shipAdded = ShipsWeCanBuild.Add(ship.Name);
@@ -2063,7 +2063,7 @@ namespace Ship_Game
                 return false;
             }
 
-            ShipData shipData = ship.shipData;
+            ShipDesign shipData = ship.shipData;
             if (shipData == null)
             {
                 Log.Warning($"{data.PortraitName} : shipData is null : '{shipName}'");
@@ -2095,12 +2095,13 @@ namespace Ship_Game
             else
             {
                 // check if all modules in the ship are unlocked
-                foreach (DesignSlot moduleSlotData in shipData.ModuleSlots)
+                foreach (string moduleUID in shipData.UniqueModuleUIDs)
                 {
-                    if (UnlockedModulesDict[moduleSlotData.ModuleUID])
-                        continue;
-                    //Log.Info($"Locked module : '{moduleSlotData.InstalledModuleUID}' in design : '{ship}'");
-                    return false; // can't build this ship because it contains a locked Module
+                    if (!UnlockedModulesDict[moduleUID])
+                    {
+                        //Log.Info($"Locked module : '{moduleSlotData.InstalledModuleUID}' in design : '{ship}'");
+                        return false; // can't build this ship because it contains a locked Module
+                    }
                 }
 
             }
@@ -2126,11 +2127,8 @@ namespace Ship_Game
             {
                 foreach (Technology.UnlockedMod entry in tech.ModulesUnlocked)
                 {
-                    foreach (DesignSlot moduleSlotData in ship.shipData.ModuleSlots)
-                    {
-                        if (entry.ModuleUID == moduleSlotData.ModuleUID)
-                            return true;
-                    }
+                    if (ship.shipData.UniqueModuleUIDs.Contains(entry.ModuleUID))
+                        return true;
                 }
             }
             return false;
@@ -2846,7 +2844,7 @@ namespace Ship_Game
         public void TryUnlockByScrap(Ship ship)
         {
             string hullName = ship.shipData.Hull;
-            if (IsHullUnlocked(hullName) || ship.shipData.Role == ShipData.RoleName.prototype)
+            if (IsHullUnlocked(hullName) || ship.shipData.Role == RoleName.prototype)
                 return; // It's ours or we got it elsewhere
 
 
@@ -2883,12 +2881,12 @@ namespace Ship_Game
             float unlockChance;
             switch (ship.shipData.HullRole)
             {
-                case ShipData.RoleName.fighter:    unlockChance = 90; break;
-                case ShipData.RoleName.corvette:   unlockChance = 80; break;
-                case ShipData.RoleName.frigate:    unlockChance = 60; break;
-                case ShipData.RoleName.cruiser:    unlockChance = 40; break;
-                case ShipData.RoleName.battleship: unlockChance = 30; break;
-                case ShipData.RoleName.capital:    unlockChance = 20; break;
+                case RoleName.fighter:    unlockChance = 90; break;
+                case RoleName.corvette:   unlockChance = 80; break;
+                case RoleName.frigate:    unlockChance = 60; break;
+                case RoleName.cruiser:    unlockChance = 40; break;
+                case RoleName.battleship: unlockChance = 30; break;
+                case RoleName.capital:    unlockChance = 20; break;
                 default:                           unlockChance = 50; break;
             }
 
@@ -3190,16 +3188,16 @@ namespace Ship_Game
                 EmpireAI.Goals.Add(new ScoutSystem(this));
         }
 
-        public bool ChooseScoutShipToBuild(out Ship scout)
+        public bool ChooseScoutShipToBuild(out ShipDesign scout)
         {
-            if (isPlayer && ResourceManager.GetShipTemplate(EmpireManager.Player.data.CurrentAutoScout, out scout))
+            if (isPlayer && ResourceManager.Ships.GetDesign(EmpireManager.Player.data.CurrentAutoScout, out scout))
                 return true;
 
-            var scoutShipsWeCanBuild = new Array<Ship>();
+            var scoutShipsWeCanBuild = new Array<ShipDesign>();
             foreach (string shipName in ShipsWeCanBuild)
             {
-                if (ResourceManager.GetShipTemplate(shipName, out Ship ship) &&
-                    ship.shipData.Role == ShipData.RoleName.scout)
+                if (ResourceManager.Ships.GetDesign(shipName, out ShipDesign ship) &&
+                    ship.Role == RoleName.scout)
                 {
                     scoutShipsWeCanBuild.Add(ship);
                 }
@@ -3211,8 +3209,8 @@ namespace Ship_Game
                 return false;
             }
 
-            // pick most power efficient scout
-            scout = scoutShipsWeCanBuild.FindMax(s => s.PowerFlowMax - s.NetPower.NetSubLightPowerDraw);
+            // pick the scout with fastest FTL speed
+            scout = scoutShipsWeCanBuild.FindMax(s => s.BaseWarpThrust);
             return scout != null;
         }
 
@@ -3260,14 +3258,14 @@ namespace Ship_Game
             // local
             bool IsIdleScout(Ship s)
             {
-                if (s.shipData.Role == ShipData.RoleName.supply)
+                if (s.shipData.Role == RoleName.supply)
                     return false; // FB - this is a workaround, since supply shuttle register as scouts design role.
 
                 return s.AI.State != AIState.Flee
                        && s.AI.State != AIState.Scrap
                        && s.AI.State != AIState.Explore
                        && (isPlayer && s.Name == data.CurrentAutoScout
-                           || !isPlayer && s.DesignRole == ShipData.RoleName.scout && s.fleet == null);
+                           || !isPlayer && s.DesignRole == RoleName.scout && s.fleet == null);
             }
         }
 

@@ -5,7 +5,13 @@ Role=frigate
 Style=Draylok
 Size=14,10
 GridCenter=7,5
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=OrdnanceLockerSmall;PlasmaThrower;Shield_1KW;TractorBeamTurret2x2;NuclearReactorSmall;PowerConduit;NuclearReactorMed;WarpEngine_1x1;Bridge;CombatEngine_2x2
 Modules=55
