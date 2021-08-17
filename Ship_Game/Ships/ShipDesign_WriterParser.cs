@@ -51,16 +51,9 @@ namespace Ship_Game.Ships
             if (FixedUpkeep > 0f)
                 sw.Write("FixedUpkeep", FixedUpkeep);
 
-            if (DefaultAIState != Ship_Game.AI.AIState.DoNothing)
-                sw.Write("DefaultAIState", DefaultAIState);
+            sw.Write("DefaultAIState", DefaultAIState);
             sw.Write("DefaultCombatState", DefaultCombatState);
-            if (ShipCategory != ShipCategory.Unclassified)
-                sw.Write("ShipCategory", ShipCategory);
-            if (HangarDesignation != HangarOptions.General)
-                sw.Write("HangarDesignation", HangarDesignation);
-
-            sw.Write("IsShipyard", IsShipyard);
-            sw.Write("IsOrbitalDefense", IsOrbitalDefense);
+            sw.Write("ShipCategory", ShipCategory);
             sw.Write("EventOnDeath", EventOnDeath); // "DefeatedMothership" remnant event
 
             ushort[] slotModuleUIDAndIndex = CreateModuleIndexMapping(DesignSlots, out Array<string> moduleUIDs);
@@ -199,14 +192,9 @@ namespace Ship_Game.Ships
                     else if (key == "DefaultAIState")     Enum.TryParse(value.Text, out DefaultAIState);
                     else if (key == "DefaultCombatState") Enum.TryParse(value.Text, out DefaultCombatState);
                     else if (key == "ShipCategory")       Enum.TryParse(value.Text, out ShipCategory);
-                    else if (key == "HangarDesignation")  Enum.TryParse(value.Text, out HangarDesignation);
-                    else if (key == "IsShipyard")         IsShipyard       = value.ToBool();
-                    else if (key == "IsOrbitalDefense")   IsOrbitalDefense = value.ToBool();
-                    else if (key == "EventOnDeath")       EventOnDeath     = value.Text;
+                    else if (key == "EventOnDeath")       EventOnDeath = value.Text;
                     else if (key == "ModuleUIDs")
-                    {
                         moduleUIDs = value.Split(';').Select(s => string.Intern(s.Text));
-                    }
                     else if (key == "Modules")
                     {
                         modules = new DesignSlot[value.ToInt()];
@@ -224,6 +212,8 @@ namespace Ship_Game.Ships
 
             BaseHull = hull;
             Bonuses = hull.Bonuses;
+            IsShipyard = hull.IsShipyard;
+            IsOrbitalDefense = hull.IsOrbitalDefense;
 
             // if lazy loading, throw away the modules to free up memory
             if (!GlobalStats.LazyLoadShipDesignSlots)
