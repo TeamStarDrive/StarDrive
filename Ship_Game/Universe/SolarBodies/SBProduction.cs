@@ -214,7 +214,7 @@ namespace Ship_Game.Universe.SolarBodies
                 shipAt.AllowInterEmpireTrade  &= q.AllowInterEmpireTrade;
             }
 
-            if (shipAt.isColonyShip)
+            if (shipAt.shipData.IsColonyShip)
             {
                 float amount = shipAt.CargoSpaceFree.UpperBound(P.Population / 10);
                 P.Population -= shipAt.LoadColonists(amount);
@@ -287,7 +287,7 @@ namespace Ship_Game.Universe.SolarBodies
             return false;
         }
 
-        public void Enqueue(Ship platform, Ship constructor, Goal goal = null)
+        public void Enqueue(Ship platform, ShipDesign constructor, Goal goal = null)
         {
             var qi = new QueueItem(P)
             {
@@ -297,7 +297,7 @@ namespace Ship_Game.Universe.SolarBodies
                 NotifyOnEmpty = false,
                 DisplayName   = $"{constructor.Name} ({platform.Name})",
                 QueueNumber   = ConstructionQueue.Count,
-                sData         = constructor.shipData,
+                sData         = constructor,
                 Cost          = platform.GetCost(Owner),
                 Rush          = P.Owner.RushAllConstruction
             };
@@ -305,7 +305,7 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue.Add(qi);
         }
 
-        public void Enqueue(Ship orbitalRefit, Ship constructor, float refitCost, Goal goal)
+        public void Enqueue(Ship orbitalRefit, ShipDesign constructor, float refitCost, Goal goal)
         {
             var qi = new QueueItem(P)
             {
@@ -315,7 +315,7 @@ namespace Ship_Game.Universe.SolarBodies
                 NotifyOnEmpty = false,
                 DisplayName   = $"{constructor.Name} ({orbitalRefit.Name})",
                 QueueNumber   = ConstructionQueue.Count,
-                sData         = constructor.shipData,
+                sData         = constructor,
                 Cost          = refitCost,
                 Rush          = P.Owner.RushAllConstruction,
             };
@@ -323,14 +323,14 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue.Add(qi);
         }
 
-        public void Enqueue(Ship ship, Goal goal = null, bool notifyOnEmpty = true, string displayName = "")
+        public void Enqueue(ShipDesign ship, Goal goal = null, bool notifyOnEmpty = true, string displayName = "")
         {
             var qi = new QueueItem(P)
             {
                 isShip        = true,
                 isOrbital     = ship.IsPlatformOrStation,
                 Goal          = goal,
-                sData         = ship.shipData,
+                sData         = ship,
                 Cost          = ship.GetCost(Owner),
                 NotifyOnEmpty = notifyOnEmpty,
                 QueueNumber   = ConstructionQueue.Count,
@@ -420,14 +420,14 @@ namespace Ship_Game.Universe.SolarBodies
             q.OnComplete?.Invoke(success: false);
         }
 
-        public void PrioritizeShip(Ship ship, int atPeace, int atWar = 4)
+        public void PrioritizeShip(ShipDesign ship, int atPeace, int atWar = 4)
         {
             int queueOffset = Owner.IsAtWar ? atWar : atPeace;
             if (ConstructionQueue.Count > queueOffset + 1)
                 for (int i = queueOffset; i < ConstructionQueue.Count; ++i)
                 {
                     QueueItem q = ConstructionQueue[i];
-                    if (q.isShip && q.sData == ship.shipData)
+                    if (q.isShip && q.sData == ship)
                     {
                         MoveTo(queueOffset, i);
                         break;

@@ -69,7 +69,7 @@ namespace Ship_Game.Universe
                 if (audio)
                     GameAudio.AffirmativeClick();
 
-                if (ship.isColonyShip)
+                if (ship.shipData.IsColonyShip)
                     PlanetRightClickColonyShip(ship, planet); // This ship can colonize planets
                 else if (ship.Carrier.AnyAssaultOpsAvailable)
                     PlanetRightClickTroopShip(ship, planet); // This ship can assault planets

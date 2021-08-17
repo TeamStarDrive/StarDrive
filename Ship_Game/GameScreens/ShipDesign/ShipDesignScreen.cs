@@ -339,14 +339,14 @@ namespace Ship_Game
 
         public void UpdateDesignedShip()
         {
-            DesignedShip?.UpdateDesign(CreateModuleSlots());
+            DesignedShip?.UpdateDesign(CreateDesignSlots());
         }
 
         void InstallModulesFromDesign(ShipDesign design)
         {
             Point offset = design.BaseHull.GridCenter.Sub(design.GridInfo.Center);
 
-            foreach (DesignSlot designSlot in design.ModuleSlots)
+            foreach (DesignSlot designSlot in design.GetOrLoadDesignSlots())
             {
                 Point pos = designSlot.Pos.Add(offset);
                 if (!ModuleGrid.Get(pos, out SlotStruct targetSlot))

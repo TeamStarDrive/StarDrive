@@ -1,4 +1,5 @@
-﻿using Ship_Game;
+﻿using System.Collections.Generic;
+using Ship_Game;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.NewGame;
 using Ship_Game.Ships;
@@ -88,33 +89,30 @@ namespace UnitTests.Ships
 
         static void MarkShipsUnlockable(Map<Technology, Array<string>> shipTechs, ProgressCounter step)
         {
-            var templates = ResourceManager.GetShipTemplates();
+            IReadOnlyList<ShipDesign> templates = ResourceManager.GetShipDesigns();
             step?.Start(templates.Count);
 
-            foreach (Ship ship in templates)
+            foreach (ShipDesign ship in templates)
             {
                 step?.Advance();
 
-                ShipDesign shipData = ship.shipData;
-                if (shipData == null)
-                    continue;
-                shipData.Unlockable = false;
-                if (shipData.HullRole == RoleName.disabled)
+                ship.Unlockable = false;
+                if (ship.HullRole == RoleName.disabled)
                     continue;
 
                 bool hullUnlockable = false;
                 bool allModulesUnlockable = false;
-                if (shipData.BaseHull.Unlockable)
+                if (ship.BaseHull.Unlockable)
                 {
-                    foreach (string str in shipData.BaseHull.TechsNeeded)
-                        shipData.TechsNeeded.Add(str);
+                    foreach (string str in ship.BaseHull.TechsNeeded)
+                        ship.TechsNeeded.Add(str);
                     hullUnlockable = true;
                 }
 
                 if (hullUnlockable)
                 {
                     allModulesUnlockable = true;
-                    foreach (DesignSlot slot in ship.shipData.ModuleSlots)
+                    foreach (DesignSlot slot in ship.GetOrLoadDesignSlots())
                     {
                         bool modUnlockable = false;
                         foreach (Technology technology in shipTechs.Keys)
@@ -123,9 +121,9 @@ namespace UnitTests.Ships
                             {
                                 if (mods.ModuleUID != slot.ModuleUID) continue;
                                 modUnlockable = true;
-                                shipData.TechsNeeded.Add(technology.UID);
+                                ship.TechsNeeded.Add(technology.UID);
                                 foreach (string tree in shipTechs[technology])
-                                    shipData.TechsNeeded.Add(tree);
+                                    ship.TechsNeeded.Add(tree);
                                 break;
                             }
 
@@ -143,7 +141,7 @@ namespace UnitTests.Ships
 
                 if (allModulesUnlockable)
                 {
-                    shipData.Unlockable = true;
+                    ship.Unlockable = true;
 
                     // REMOVED from new version, so not needed here either
                     //shipData.TechScore = 0;
@@ -155,8 +153,8 @@ namespace UnitTests.Ships
                 }
                 else
                 {
-                    shipData.Unlockable = false;
-                    shipData.TechsNeeded.Clear();
+                    ship.Unlockable = false;
+                    ship.TechsNeeded.Clear();
                 }
             }
         }
