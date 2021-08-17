@@ -7,6 +7,9 @@ Size=20,19
 MeshOffset=0,-8
 IconPath=ShipIcons/terran_platform
 ModelPath=Model/Asteroids/asteroid1
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|___|___|___|___|O  |O  |O  |O  |O  |O  |O  |O  |O  |___|___|___|___|___|___

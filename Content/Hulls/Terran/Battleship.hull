@@ -8,6 +8,9 @@ MeshOffset=0,-16
 IconPath=ShipIcons/10c
 ModelPath=Model/Ships/Terran/CruiserCarrier/CruiserCarrier
 SelectIcon=10c
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=200,616,0,108
 Thruster=248,632,0,108

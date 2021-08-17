@@ -7,6 +7,9 @@ Size=4,8
 MeshOffset=0,0
 IconPath=ShipIcons/DraylokTxSmall
 ModelPath=Model/Ships/Draylok/Ship18g
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=255,296,0,42
 Slots
