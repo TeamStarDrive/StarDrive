@@ -107,29 +107,24 @@ namespace Ship_Game.GameScreens.NewGame
         static void MarkShipsUnlockable(Map<string, string> moduleUnlocks,
                                         Map<string, string[]> techTreePaths, ProgressCounter step)
         {
-            var templates = ResourceManager.GetShipTemplates();
+            IReadOnlyList<Ships.ShipDesign> templates = ResourceManager.GetShipDesigns();
             step?.Start(templates.Count);
 
-            foreach (Ship ship in templates)
+            foreach (Ships.ShipDesign ship in templates)
             {
                 step?.Advance();
 
-                Ships.ShipDesign shipData = ship.shipData;
-                if (shipData == null)
-                    continue;
-                
-                shipData.TechsNeeded.Clear(); // always clear techs list
-                shipData.Unlockable = false;
+                ship.TechsNeeded.Clear(); // always clear techs list
+                ship.Unlockable = false;
 
-                if (!shipData.BaseHull.Unlockable ||
-                    shipData.HullRole == RoleName.disabled)
+                if (!ship.BaseHull.Unlockable || ship.HullRole == RoleName.disabled)
                     continue;
                 
                 // These are the leaf technologies which actually unlock our modules
                 var leafTechsNeeds = new HashSet<string>();
                 bool allModulesUnlockable = true;
 
-                foreach (string moduleUID in ship.shipData.UniqueModuleUIDs)
+                foreach (string moduleUID in ship.UniqueModuleUIDs)
                 {
                     if (moduleUnlocks.TryGetValue(moduleUID, out string requiredTech))
                     {
@@ -149,14 +144,14 @@ namespace Ship_Game.GameScreens.NewGame
 
                 if (allModulesUnlockable)
                 {
-                    shipData.Unlockable = true;
+                    ship.Unlockable = true;
 
                     // add the full tree of techs to TechsNeeded
                     foreach (string techName in leafTechsNeeds)
-                        AddRange(shipData.TechsNeeded, techTreePaths[techName]);
+                        AddRange(ship.TechsNeeded, techTreePaths[techName]);
 
                     // also add techs from basehull (already full tree)
-                    AddRange(shipData.TechsNeeded, shipData.BaseHull.TechsNeeded);
+                    AddRange(ship.TechsNeeded, ship.BaseHull.TechsNeeded);
                 }
             }
         }

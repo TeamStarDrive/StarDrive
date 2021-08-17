@@ -1434,30 +1434,23 @@ namespace Ship_Game
                 AddHull(hull);
         }
 
-        static readonly ShipsManager Ships = new ShipsManager();
+        public static readonly ShipsManager Ships = new ShipsManager();
 
         public static void AddShipTemplate(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)
         {
             Ships.Add(shipDesign, playerDesign, readOnly);
         }
 
+        public static bool ShipTemplateExists(string shipName) => Ships.Exists(shipName);
+        public static bool GetShipTemplate(string shipName, out Ship template) => Ships.Get(shipName, out template);
         public static Ship GetShipTemplate(string shipName, bool throwIfError = true)
         {
             return Ships.Get(shipName, throwIfError);
         }
 
-        public static bool GetShipTemplate(string shipName, out Ship template) => Ships.Get(shipName, out template);
-        public static bool ShipTemplateExists(string shipName) => Ships.Exists(shipName);
-
-        public static Map<string, Ship>.ValueCollection GetShipTemplates()
-        {
-            return Ships.GetShips();
-        }
-
-        public static HashSet<string> GetShipTemplateIds()
-        {
-            return Ships.GetShipNames();
-        }
+        public static IReadOnlyList<Ship> GetShipTemplates() => Ships.GetShips();
+        public static IReadOnlyList<ShipDesign> GetShipDesigns() => Ships.GetDesigns();
+        public static HashSet<string> GetShipTemplateIds() => Ships.GetShipNames();
 
         static void UnloadShipTemplates()
         {
@@ -1478,7 +1471,6 @@ namespace Ship_Game
             var designs = GetAllShipDesigns();
             LoadShipTemplates(designs.Values.ToArray());
         }
-
 
         struct ShipDesignInfo
         {
