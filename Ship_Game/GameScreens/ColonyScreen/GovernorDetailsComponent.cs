@@ -565,8 +565,8 @@ namespace Ship_Game
             }
 
             int rank             = Planet.GetColonyRank();
-            int currentPlatforms = Planet.NumPlatforms + Planet.OrbitalsBeingBuilt(ShipData.RoleName.platform);
-            int currentStations  = Planet.NumStations + Planet.OrbitalsBeingBuilt(ShipData.RoleName.station);
+            int currentPlatforms = Planet.NumPlatforms + Planet.OrbitalsBeingBuilt(RoleName.platform);
+            int currentStations  = Planet.NumStations + Planet.OrbitalsBeingBuilt(RoleName.station);
             int currentShipyards = Planet.NumShipyards + Planet.ShipyardsBeingBuilt();
             ColonyRank.Text      = $"{Localizer.Token(GameText.GovernorColonyRank)} {rank}/15";
 

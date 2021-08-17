@@ -5,7 +5,13 @@ Role=frigate
 Style=Kulrathi
 Size=18,15
 GridCenter=9,7
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;LaserTurret;SteelArmorMed;NuclearReactorSmall;FrigateEngine;LaserCannon;BasicFuelCell;Shield_1KW;Internal Bulkhead;Bridge;NuclearReactorMed
 Modules=76

@@ -150,14 +150,15 @@ namespace Ship_Game.Commands.Goals
             if (FinishedShip != null)
                 return GoalStep.GoToNextStep;
 
-            if (!ShipBuilder.PickColonyShip(empire, out Ship colonyShip))
+            if (!ShipBuilder.PickColonyShip(empire, out ShipDesign colonyShip))
                 return GoalStep.GoalFailed;
 
             if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, colonyShip, out Planet planet))
                 return GoalStep.TryAgain;
 
-            planet.Construction.Enqueue(colonyShip, this, notifyOnEmpty:empire.isPlayer,
-                displayName: $"{colonyShip.Name} ({ColonizationTarget.Name})");
+            planet.Construction.Enqueue(colonyShip, this,
+                                        notifyOnEmpty:empire.isPlayer,
+                                        displayName: $"{colonyShip.Name} ({ColonizationTarget.Name})");
 
             planet.Construction.PrioritizeShip(colonyShip, 1);
             return GoalStep.GoToNextStep;
@@ -275,9 +276,9 @@ namespace Ship_Game.Commands.Goals
 
             foreach (Ship ship in empire.OwnedShips)
             {
-                if (ship.isColonyShip && !ship.DoingRefit
-                                      && ship.AI != null && !ship.AI.FindGoal(ShipAI.Plan.Colonize, out _)
-                                      && NotAssignedToColonizationGoal(ship))
+                if (ship.shipData.IsColonyShip && !ship.DoingRefit
+                    && ship.AI != null && !ship.AI.FindGoal(ShipAI.Plan.Colonize, out _)
+                    && NotAssignedToColonizationGoal(ship))
                 {
                     return ship;
                 }

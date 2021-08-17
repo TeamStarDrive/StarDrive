@@ -6,7 +6,7 @@ namespace Ship_Game
 {
     public sealed partial class ShipDesignScreen
     {
-        class CategoryDropDown : DropOptions<ShipData.Category>
+        class CategoryDropDown : DropOptions<ShipCategory>
         {
             public CategoryDropDown(in Rectangle dropdownRect) : base(dropdownRect)
             {

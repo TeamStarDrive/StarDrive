@@ -128,6 +128,12 @@ namespace Ship_Game
         // into new .design files. This should only be enabled on demand because it's slow.
         public static bool GenerateNewShipDesignFiles = false;
 
+        // If TRUE, then all ShipDesign's DesignSlot[] arrays will be lazy-loaded on demand
+        // this is done to greatly reduce memory usage
+        //
+        // TODO: This is still experimental, since Ship Templates also need to be lazily instantiated
+        public static bool LazyLoadShipDesignSlots = false;
+
 
         public static int CameraPanSpeed    = 2;
         public static float DamageIntensity = 1;

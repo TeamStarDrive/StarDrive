@@ -520,7 +520,7 @@ namespace Ship_Game.AI
             if (!Owner.IsHangarShip || !Owner.Mothership.Active)
             {
                 ClearOrders(State);
-                if (Owner.shipData.Role == ShipData.RoleName.supply)
+                if (Owner.shipData.Role == RoleName.supply)
                     OrderScrapShip();
                 else
                     GoOrbitNearestPlanetAndResupply(true);
@@ -528,7 +528,7 @@ namespace Ship_Game.AI
             }
 
             // scrap drones which fall outside of Mothership's control radius
-            if (Owner.DesignRole == ShipData.RoleName.drone && 
+            if (Owner.DesignRole == RoleName.drone && 
                 !Owner.InRadius(Owner.Mothership.Position, Owner.Mothership.SensorRange))
             {
                 Owner.Die(null, true);
@@ -542,7 +542,7 @@ namespace Ship_Game.AI
             {
                 Owner.LandTroopsOnShip(Owner.Mothership);
 
-                if (Owner.shipData.Role == ShipData.RoleName.supply) // fbedard: Supply ship return with Ordinance
+                if (Owner.shipData.Role == RoleName.supply) // fbedard: Supply ship return with Ordinance
                     Owner.Mothership.ChangeOrdnance(Owner.Ordinance);
 
                 Owner.Mothership.ChangeOrdnance(Owner.ShipRetrievalOrd); // Get back the ordnance it took to launch the ship

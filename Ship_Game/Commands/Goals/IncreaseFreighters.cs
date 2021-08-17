@@ -26,7 +26,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FindPlanetToBuildAt()
         {
-            if (!GetFreighter(out Ship freighter))
+            if (!GetFreighter(out ShipDesign freighter))
                 return GoalStep.GoalFailed;
 
             if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, freighter, out Planet planet, priority: 0.1f))

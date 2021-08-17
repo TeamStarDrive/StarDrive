@@ -791,7 +791,7 @@ namespace Ship_Game
             foreach (GameplayObject go in orbitingShips)
             {
                 var ship = (Ship)go;
-                if (ship.shipData.Role != ShipData.RoleName.troop)
+                if (ship.shipData.Role != RoleName.troop)
                 {
                     if (ship.HasOurTroops && (ship.Carrier.HasActiveTroopBays || ship.Carrier.HasTransporters || P.HasSpacePort && P.Owner == ship.loyalty))  // fbedard
                     {

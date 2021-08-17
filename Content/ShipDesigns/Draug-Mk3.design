@@ -5,7 +5,13 @@ Role=cruiser
 Style=Draugar
 Size=16,15
 GridCenter=8,8
+DefaultAIState=DoNothing
 DefaultCombatState=ShortRange
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;NuclearReactorSmall;RemnantSmallFuelCell;LaserCannon;HeavyLaserCannon;DisintegratorArray;AntiMatterReactor;WarpEngine_3x3;PlaSteelArmorMed;AncientShield2kw;Bridge;CapEngines
 Modules=60

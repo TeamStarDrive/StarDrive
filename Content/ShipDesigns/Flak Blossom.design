@@ -5,7 +5,13 @@ Role=cruiser
 Style=Pollops
 Size=20,13
 GridCenter=10,7
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;SteelArmorMed;OrdnanceLocker;Shield_1KW;BasicFuelCell;NuclearReactorSmall;VulcanCannon;FlakTurret;FlakTurret3x3;NuclearReactorMed;CapEngines;Bridge;WarpEngine_3x3;OrdnanceLockerSmall
 Modules=71

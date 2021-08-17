@@ -5,7 +5,13 @@ Role=station
 Style=Corsairs
 Size=20,19
 GridCenter=10,9
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorLarge;SteelArmorSmall;SteelArmorMed;LaserTurretHeavy;LaserCannon;LaserTurret;PowerConduit;NuclearReactorMed;BasicFuelCell;Bridge;FighterBay
 Modules=79

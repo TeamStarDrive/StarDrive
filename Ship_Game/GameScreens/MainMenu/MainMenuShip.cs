@@ -159,7 +159,7 @@ namespace Ship_Game.GameScreens.MainMenu
             UpdateTransform();
         }
 
-        static ShipHull ChooseShip(IEmpireData empire, ShipData.RoleName role)
+        static ShipHull ChooseShip(IEmpireData empire, RoleName role)
         {
             string shipType = empire.ShipType;
 
@@ -176,7 +176,7 @@ namespace Ship_Game.GameScreens.MainMenu
                 return roleHulls.RandItem();
             }
 
-            ShipHull[] fighters = empireShips.Filter(s => s.Role == ShipData.RoleName.fighter);
+            ShipHull[] fighters = empireShips.Filter(s => s.Role == RoleName.fighter);
             if (fighters.Length != 0)
             {
                 return fighters.RandItem();
