@@ -8,6 +8,9 @@ MeshOffset=0,-8
 IconPath=ShipIcons/Owl1
 ModelPath=Model/Ships/Cordrazine/ship16g
 SelectIcon=16g
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=256,296,0,34
 Slots

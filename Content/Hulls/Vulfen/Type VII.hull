@@ -8,6 +8,9 @@ MeshOffset=0,0
 IconPath=ShipIcons/typeVII
 ModelPath=Model/Ships/Vulfen/TypeVII
 SelectIcon=14a
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=254,410,0,89
 Slots
