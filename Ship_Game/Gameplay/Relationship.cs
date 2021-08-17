@@ -107,6 +107,7 @@ namespace Ship_Game.Gameplay
         [Serialize(63)] public bool IsHostile = true; // New: If target empire is hostile and might attack us
         [Serialize(64)] public int NumTechsWeGave; // number of tech they have given us, through tech trade or demands.
         [Serialize(65)] public EmpireInformation.InformationLevel IntelligenceLevel = EmpireInformation.InformationLevel.Full;
+        [Serialize(66)] public bool RefusedMerge; // Refused merge or surrenders from us (mostly the player can refuse)
 
         [XmlIgnore][JsonIgnore] public EmpireRiskAssessment Risk;
         [XmlIgnore][JsonIgnore] public Empire Them => EmpireManager.GetEmpireByName(Name);
@@ -1181,6 +1182,19 @@ namespace Ship_Game.Gameplay
                 DiplomacyScreen.Show(us, dialogue, ourOffer, offerPeace);
             else
                 them.GetEmpireAI().AnalyzeOffer(ourOffer, offerPeace, us, Offer.Attitude.Respectful);
+        }
+
+        public void OfferMergeOrSurrenderToPlayer(Empire us, string dialogue)
+        {
+            var offer = new Offer
+            {
+                AcceptDL = "OFFERPEACE_ACCEPTED",
+                RejectDL = "OFFERPEACE_REJECTED",
+                ValueToModify = new Ref<bool>(() => true, x => EmpireManager.Player.AbsorbEmpire(us))
+            };
+
+            Offer ourOffer = new Offer();
+            DiplomacyScreen.Show(us, dialogue, ourOffer, offer);
         }
 
         void DemandTech(Empire us)
