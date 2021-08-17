@@ -5,7 +5,13 @@ Role=corvette
 Style=Draylok
 Size=10,6
 GridCenter=5,3
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;OrdnanceLockerSmall;RocketLauncher;PowerConduit;NuclearReactorSmall;WarpEngine_1x1;Cockpit;engine_fighter_1x1
 Modules=30

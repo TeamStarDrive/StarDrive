@@ -5,7 +5,13 @@ Role=frigate
 Style=Terran
 Size=6,18
 GridCenter=3,9
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;PhotonTurret;Engine;FuelCellSmallArmored;Shield_10KW;Main Engineering;CombatEngine_2x2;OrdnanceLockerSmall;Shield_1KW;BasicFuelCell;Bridge;NuclearReactorSmall;WarpEngine_2x2
 Modules=44

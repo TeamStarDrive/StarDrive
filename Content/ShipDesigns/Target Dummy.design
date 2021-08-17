@@ -7,6 +7,11 @@ Size=14,21
 GridCenter=7,11
 DefaultAIState=AttackRunner
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorLarge;SteelArmorSmall;LaserCannon;Bridge;Main Engineering
 Modules=126

@@ -5,7 +5,13 @@ Role=capital
 Style=Terran
 Size=40,64
 GridCenter=20,31
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;SteelArmorLarge;SteelArmorMed;FlakTurret3x3;FlakTurret;PowerConduit;Shield_1KW;VulcanCannon;Internal Bulkhead;NuclearReactorMed;Bridge;CombatEngine_2x2;WarpEngine_3x3;Reinforced Bulkhead;OrdnanceLocker;WarpEngine_1x1;WarpEngine_4x4;OrdnanceLockerSmall
 Modules=504

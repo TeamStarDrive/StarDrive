@@ -686,7 +686,7 @@ namespace Ship_Game.AI
             if (Owner.IsPlatformOrStation) 
                 return;
 
-            if (Owner.shipData.CarrierShip)
+            if (Owner.shipData.IsCarrierOnly)
                 return;
 
             if (State != AIState.Resupply)

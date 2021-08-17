@@ -5,7 +5,13 @@ Role=cruiser
 Style=Ralyeh
 Size=26,14
 GridCenter=13,5
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;PhasorBeam2x3;PhasorTurret2x2;LaserCannon;PlaSteelArmorMed;Shield_10KW;Main Engineering;CapEngines;Cockpit;WarpEngine_2x2;Engine;WarpEngine_1x1;Bridge
 Modules=110

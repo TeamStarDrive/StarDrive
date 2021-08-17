@@ -38,10 +38,7 @@ namespace Ship_Game.Ships
         public int FixedCost;
         public readonly bool IsShipyard;
         public readonly bool IsOrbitalDefense;
-        // The Doctor: intending to use this as a user-toggled
-        // flag which tells the AI not to build a design as a stand-alone vessel
-        // from a planet; only for use in a hangar
-        public bool CarrierShip; // aka "Carrier Only"
+        public bool IsCarrierOnly; // this ship is restricted to Carriers only
 
         public ShipCategory ShipCategory = ShipCategory.Unclassified;
         public HangarOptions HangarDesignation = HangarOptions.General;

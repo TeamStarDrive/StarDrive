@@ -8,6 +8,9 @@ MeshOffset=0,-8
 IconPath=ShipIcons/Queen
 ModelPath=Model/Ships/Opteris/Ship19f
 SelectIcon=19f
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=120,616,0,119
 Thruster=392,616,0,119

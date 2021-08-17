@@ -5,7 +5,13 @@ Role=fighter
 Style=Opteris
 Size=4,4
 GridCenter=2,3
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=Fighter Shield;RocketLauncher;NuclearReactorSmall;OrdnanceLockerSmall;WarpEngine_1x1;Cockpit;engine_fighter_1x1
 Modules=14

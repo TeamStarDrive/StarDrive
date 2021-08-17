@@ -7,6 +7,11 @@ Size=6,18
 GridCenter=3,9
 DefaultAIState=AttackRunner
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicFuelCell;EMPTurret2x2;DisruptorTurret2x2;LaserCannon;SteelArmorSmall;WarpEngine_1x1;NuclearReactorSmall;NuclearReactorMed;FrigateEngine;Shield_1KW;Bridge
 Modules=43

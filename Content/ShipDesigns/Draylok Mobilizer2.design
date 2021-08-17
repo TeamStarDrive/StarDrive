@@ -5,8 +5,13 @@ Role=freighter
 Style=Draylok
 Size=8,32
 GridCenter=4,16
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 ShipCategory=Civilian
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicCargoHold;CapEngines;NuclearReactorMed;NuclearReactorSmall;PowerConduit;Inertial Damper;Cockpit;WarpEngine_3x3
 Modules=206

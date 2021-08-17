@@ -5,7 +5,13 @@ Role=station
 Style=Draugar
 Size=27,28
 GridCenter=13,13
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;SteelArmorMed;PhotonTurret3x3;PhasorTurret2x2;OrdnanceLockerSmall;Shield_10KW;FighterBay;FuelCellMediumArmored;LaserCannon;Internal Bulkhead;Main Engineering;FuelCellSmallArmored;Bridge;MarineBarracks2x2;Fabricator;NuclearReactorMed;PowerConduit;MissileLauncher3x3;OrdnanceSupplyBay
 Modules=157

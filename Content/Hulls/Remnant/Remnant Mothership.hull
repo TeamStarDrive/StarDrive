@@ -8,6 +8,9 @@ MeshOffset=0,-24
 IconPath=ShipIcons/xeno gunship
 ModelPath=Model/Ships/Remnant/ship09e
 SelectIcon=09e
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=199,579,0,81
 Thruster=252,575,0,81

@@ -8,6 +8,9 @@ MeshOffset=0,-8
 IconPath=ShipIcons/hunter
 ModelPath=Model/Ships/Terran/Hunter/Fighter1
 SelectIcon=02
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=248,344,0,50
 Slots

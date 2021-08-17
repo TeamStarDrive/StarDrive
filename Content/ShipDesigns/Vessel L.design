@@ -5,8 +5,13 @@ Role=freighter
 Style=Ralyeh
 Size=8,27
 GridCenter=4,13
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 ShipCategory=Civilian
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicCargoHold;PowerConduit;NuclearReactorSmall;NuclearReactorMed;WarpEngine_2x2;Cockpit
 Modules=121

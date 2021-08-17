@@ -8,6 +8,9 @@ MeshOffset=0,0
 IconPath=ShipIcons/10b
 ModelPath=Model/Ships/Terran/HeavyGunboat/ship10b
 SelectIcon=10b
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=232,360,0,75
 Thruster=280,360,0,75
