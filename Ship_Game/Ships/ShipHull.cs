@@ -217,6 +217,8 @@ namespace Ship_Game.Ships
                                     if      (col == "IOC") r = Restrictions.IO;
                                     else if (col == "OC ") r = Restrictions.O;
                                     else if (col == "EC ") r = Restrictions.E;
+                                    else if (col == "IEC") r = Restrictions.IE;
+                                    else if (col == "OEC") r = Restrictions.OE;
                                     slots.Add(new HullSlot(x, height, r));
                                 }
                             }
@@ -324,6 +326,8 @@ namespace Ship_Game.Ships
                             if      (slot.R == Restrictions.IO) r = "IOC";
                             else if (slot.R == Restrictions.O)  r = "OC ";
                             else if (slot.R == Restrictions.E)  r = "EC ";
+                            else if (slot.R == Restrictions.IE) r = "IEC";
+                            else if (slot.R == Restrictions.OE) r = "OEC";
                             else                                r = "IC ";
                         }
                         else
