@@ -40,7 +40,7 @@ namespace Ship_Game.Commands.Goals
             // ShipToBuild will be the constructor ship -- usually a freighter
             // once the freighter is deployed, it will mutate into ToBuildUID
 
-            ShipToBuild = ShipBuilder.PickConstructor(empire).shipData;
+            ShipToBuild = ShipBuilder.PickConstructor(empire)?.shipData;
 
             if (ShipToBuild == null)
                 return GoalStep.GoalFailed;
