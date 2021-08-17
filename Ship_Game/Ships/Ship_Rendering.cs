@@ -248,8 +248,8 @@ namespace Ship_Game.Ships
         }
 
         void DrawFlagIcons(UniverseScreen us, Vector2 screenPos, float screenRadius)
-        {            
-            if (isColonyShip)
+        {
+            if (shipData.IsColonyShip)
             {
                 float size = ScaleIconSize(screenRadius, 16f, 16f);
                 Vector2 offSet = new Vector2(-screenRadius *.75f, -screenRadius * .75f);

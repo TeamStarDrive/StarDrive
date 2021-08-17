@@ -290,7 +290,6 @@ namespace Ship_Game
                     if (g.TargetSystem != null)       gdata.TargetSystemGuid          = g.TargetSystem.guid;
                     if (g.TargetPlanet != null)       gdata.TargetPlanetGuid          = g.TargetPlanet.guid;
                     if (g.Fleet != null)              gdata.fleetGuid                 = g.Fleet.Guid;
-                    if (g.ShipToBuild != null)        gdata.beingBuiltGUID            = g.ShipToBuild.guid;
                     if (g.OldShip != null)            gdata.OldShipGuid               = g.OldShip.guid;
                     if (g.TargetShip != null)         gdata.TargetShipGuid            = g.TargetShip.guid;
                     if (g.TargetEmpire != null)       gdata.TargetEmpireId            = g.TargetEmpire.Id;
@@ -656,7 +655,6 @@ namespace Ship_Game
             [Serialize(5)] public string ToBuildUID;
             [Serialize(6)] public Guid planetWhereBuildingAtGuid;
             [Serialize(7)] public string GoalName;
-            [Serialize(8)] public Guid beingBuiltGUID;
             [Serialize(9)] public Guid fleetGuid;
             [Serialize(10)] public Guid GoalGuid;
             [Serialize(11)] public Guid OldShipGuid;

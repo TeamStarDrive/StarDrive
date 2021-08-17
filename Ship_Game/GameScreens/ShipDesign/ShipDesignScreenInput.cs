@@ -566,7 +566,7 @@ namespace Ship_Game
         }
 
         // Create full modules list for SAVING the design
-        DesignSlot[] CreateModuleSlots()
+        DesignSlot[] CreateDesignSlots()
         {
             var placed = new Array<DesignSlot>();
             ShipModule[] modules = ModuleGrid.CopyModulesList();
@@ -579,10 +579,10 @@ namespace Ship_Game
 
         ShipDesign CloneCurrentDesign(string newName)
         {
-            ShipDesign hull = CurrentDesign.GetClone();
-            hull.Name = newName;
-            hull.ModuleSlots = CreateModuleSlots();
-            return hull;
+            ShipDesign design = CurrentDesign.GetClone();
+            design.Name = newName;
+            design.SetDesignSlots(CreateDesignSlots());
+            return design;
         }
 
         ShipHull CloneCurrentHull(string newName)
@@ -599,6 +599,7 @@ namespace Ship_Game
             {
                 design.Save(designFile);
                 ShipSaved = true;
+                Log.Write($"Share it with your friends: {design.Name}\n{design.GetBase64DesignString()}\n");
             }
             catch (Exception e)
             {
@@ -627,11 +628,11 @@ namespace Ship_Game
             bool playerDesign = overwriteProtected == null;
             bool readOnlyDesign = overwriteProtected != null;
 
-            Ship newTemplate = ResourceManager.AddShipTemplate(toSave, playerDesign: playerDesign, readOnly: readOnlyDesign);
+            ResourceManager.AddShipTemplate(toSave, playerDesign: playerDesign, readOnly: readOnlyDesign);
             EmpireManager.Player.UpdateShipsWeCanBuild();
-            if (!UnlockAllFactionDesigns && !EmpireManager.Player.WeCanBuildThis(newTemplate.Name))
+            if (!UnlockAllFactionDesigns && !EmpireManager.Player.WeCanBuildThis(toSave.Name))
                 Log.Error("WeCanBuildThis check failed after SaveShipDesign");
-            ChangeHull(newTemplate.shipData);
+            ChangeHull(toSave);
         }
 
         public void SaveHullDesign(string hullName, FileInfo overwriteProtected)

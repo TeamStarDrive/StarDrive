@@ -591,7 +591,7 @@ namespace Ship_Game
                 return;
             }
 
-            ShipCosts.Add(type, ship.BaseCost);
+            ShipCosts.Add(type, ship.shipData.BaseCost);
         }
 
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 

@@ -53,11 +53,13 @@ namespace UnitTests.Ships
 
             if (checkModules)
             {
-                Assert.AreEqual(a.ModuleSlots.Length, b.ModuleSlots.Length);
-                for (int i = 0; i < a.ModuleSlots.Length; ++i)
+                var aSlots = a.GetOrLoadDesignSlots();
+                var bSlots = b.GetOrLoadDesignSlots();
+                Assert.AreEqual(aSlots.Length, bSlots.Length);
+                for (int i = 0; i < aSlots.Length; ++i)
                 {
-                    DesignSlot sa = a.ModuleSlots[i];
-                    DesignSlot sb = b.ModuleSlots[i];
+                    DesignSlot sa = aSlots[i];
+                    DesignSlot sb = bSlots[i];
                     ShipModuleTests.AssertAreEqual(sa, sb);
                 }
             }
@@ -147,7 +149,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("ShipIcons/shuttle", design.IconPath);
             Assert.AreEqual(RoleName.fighter, design.Role);
             Assert.AreEqual(true, design.Unlockable);
-            Assert.AreEqual(10, design.ModuleSlots.Length);
+            Assert.AreEqual(10, design.GetOrLoadDesignSlots().Length);
             Assert.AreEqual(10, design.GridInfo.SurfaceArea);
             Assert.AreEqual(new Point(4,4), design.GridInfo.Size);
         }
@@ -163,7 +165,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("ShipIcons/10a", design.IconPath);
             Assert.AreEqual(RoleName.prototype, design.Role);
             Assert.AreEqual(true, design.Unlockable);
-            Assert.AreEqual(40, design.ModuleSlots.Length);
+            Assert.AreEqual(40, design.GetOrLoadDesignSlots().Length);
             Assert.AreEqual(70, design.GridInfo.SurfaceArea);
         }
 
@@ -184,7 +186,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("ShipIcons/10a", design.IconPath);
             Assert.AreEqual(RoleName.prototype, design.Role);
             Assert.AreEqual(true, design.Unlockable);
-            Assert.AreEqual(40, design.ModuleSlots.Length); // new designs don't have dummy modules
+            Assert.AreEqual(40, design.GetOrLoadDesignSlots().Length); // new designs don't have dummy modules
             Assert.AreEqual(70, design.GridInfo.SurfaceArea);
         }
 
@@ -230,7 +232,7 @@ namespace UnitTests.Ships
 
             Log.Info(Encoding.ASCII.GetString(Convert.FromBase64String(base64save)));
 
-            ModuleSaveData[] loaded = ShipDesign.GetModuleSaveFromBase64String(base64save);
+            (ModuleSaveData[] loaded, _) = ShipDesign.GetModuleSaveFromBase64String(base64save);
 
             for (int i = 0; i < toSave.Length && i < loaded.Length; ++i)
             {

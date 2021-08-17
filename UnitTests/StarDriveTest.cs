@@ -155,10 +155,12 @@ namespace UnitTests
         public void PrepareShipAndEmpireForShipTechTests()
         {
             ShipDesignUtils.MarkDesignsUnlockable();
-            foreach (var ship in ResourceManager.GetShipTemplates())
+
+            // why??
+            foreach (var design in ResourceManager.GetShipDesigns())
             {
-                ship.shipData.ShipStyle = Enemy.data.PortraitName;
-                ship.BaseHull.Style = Enemy.data.PortraitName;
+                design.ShipStyle = Enemy.data.PortraitName;
+                design.BaseHull.Style = Enemy.data.PortraitName;
             }
 
             Player.ShipsWeCanBuild.Clear();
