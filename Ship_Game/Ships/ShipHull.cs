@@ -289,9 +289,9 @@ namespace Ship_Game.Ships
             sw.Write("ModelPath", ModelPath);
             sw.Write("SelectIcon", SelectIcon);
 
-            if (Animated)         sw.Write("Animated", Animated);
-            if (IsShipyard)       sw.Write("IsShipyard", IsShipyard);
-            if (IsOrbitalDefense) sw.Write("IsOrbitalDefense", IsOrbitalDefense);
+            sw.Write("Animated", Animated);
+            sw.Write("IsShipyard", IsShipyard);
+            sw.Write("IsOrbitalDefense", IsOrbitalDefense);
 
             sw.WriteLine("#Thruster PosX,PosY,PosZ,Scale");
             foreach (ThrusterZone t in Thrusters)
