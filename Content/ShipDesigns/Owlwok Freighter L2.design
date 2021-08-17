@@ -5,8 +5,13 @@ Role=freighter
 Style=Cordrazine
 Size=8,25
 GridCenter=4,13
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 ShipCategory=Civilian
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicCargoHold;NuclearReactorMed;NuclearReactorSmall;Inertial Damper;BasicFuelCell;Engine;WarpEngine_1x1;WarpEngine_2x2;Cockpit
 Modules=89

@@ -5,7 +5,13 @@ Role=cruiser
 Style=Vulfen
 Size=12,41
 GridCenter=6,21
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;PolaronTurret3x3;EMPTurret3x3;SteelArmorMed;PolaronTurret2x2;WarpEngine_1x1;EMPTurret2x2;CombatEngine_2x2;LaserCannon;Shield_10KW;BasicFuelCell;CIC;Main Engineering;NuclearReactorSmall;MediumFuelCell;NuclearReactorMed;WarpEngine_3x3;PowerConduit;HeavyLaserCannon
 Modules=109

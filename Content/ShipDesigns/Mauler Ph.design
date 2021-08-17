@@ -5,7 +5,13 @@ Role=cruiser
 Style=Kulrathi
 Size=18,31
 GridCenter=9,15
+DefaultAIState=DoNothing
 DefaultCombatState=OrbitRight
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;OrdnanceLocker;PhotonTurret3x3;OrdnanceLockerSmall;NuclearBombBay2x2;SteelArmorMed;PhotonTurret;Internal Bulkhead;Shield_1KW;Reinforced Bulkhead;WarpEngine_3x3;NuclearReactorMed;NuclearReactorSmall;PowerConduit;Bridge
 Modules=129

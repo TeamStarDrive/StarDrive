@@ -5,7 +5,13 @@ Role=fighter
 Style=Terran
 Size=4,4
 GridCenter=2,2
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=TEST_ModuleShield;TEST_ModuleAmplifier;Cockpit;NuclearReactorSmall;engine_fighter_1x1
 Modules=10

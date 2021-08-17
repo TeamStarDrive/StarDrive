@@ -5,7 +5,13 @@ Role=carrier
 Style=Vulfen
 Size=24,63
 GridCenter=12,32
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;SteelArmorMed;LaserTurretHeavy;LaserTurret;LaserCannon;Shield_1KW;Bridge;Internal Bulkhead;PowerConduit;WarpEngine_3x3;CapEngines;NuclearReactorMed;MediumFuelCell;WarpEngine_1x1;CombatEngine_2x2;HeavyLaserCannon;NuclearReactorSmall;BasicFuelCell
 Modules=297

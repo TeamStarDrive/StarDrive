@@ -5,7 +5,13 @@ Role=cruiser
 Style=Cordrazine
 Size=16,15
 GridCenter=8,8
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;SteelArmorMed;BasicFuelCell;FusionTurret2x2;Shield_1KW;FusionBeam2x3;WarpEngine_3x3;LaserCannon;NuclearReactorMed;NuclearReactorSmall;Internal Bulkhead;Bridge;PowerConduit;CapEngines
 Modules=77

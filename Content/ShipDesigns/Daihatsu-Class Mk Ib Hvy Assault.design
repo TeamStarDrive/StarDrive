@@ -5,7 +5,13 @@ Role=carrier
 Style=Kulrathi
 Size=32,50
 GridCenter=16,24
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;PlaSteelArmorLarge;PlaSteelArmorMed;FlakTurret3x3;VulcanCannon;MarineBarracks2x2;MRLS;Shield_1KW;NuclearBombBay2x2;PowerConduit;Internal Bulkhead;OrdnanceLocker;TroopAssaultBay;WarpEngine_1x1;CombatEngine_2x2;Reinforced Bulkhead;OrdnanceLockerSmall;Bridge;NuclearReactorSmall;NuclearReactorMed;WarpEngine_3x3
 Modules=348
