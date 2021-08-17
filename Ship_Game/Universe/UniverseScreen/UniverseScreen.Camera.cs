@@ -231,11 +231,11 @@ namespace Ship_Game
             {
                 if (ShipToView == null)
                     snappingToShip = false;
-                
+
                 transitionElapsedTime += elapsedTime;
                 double amount = Math.Pow(transitionElapsedTime / (double)transDuration, 0.7);
 
-                if (snappingToShip)
+                if (snappingToShip && ShipToView != null)
                 {
                     CamDestination.X = ShipToView.Position.X;
                     CamDestination.Y = ShipToView.Position.Y;
@@ -282,13 +282,37 @@ namespace Ship_Game
 
             //Log.Write(ConsoleColor.Green, $"CamPos {CamPos.X:0.00} {CamPos.Y:0.00} {CamPos.Z:0.00}  Dest {CamDestination.X:0.00} {CamDestination.Y:0.00} {CamDestination.Z:0.00}");
 
-            foreach (UnivScreenState screenHeight in Enum.GetValues(typeof(UnivScreenState)))
+            var newViewState = UnivScreenState.DetailView;
+            foreach (UnivScreenState state in Enum.GetValues(typeof(UnivScreenState)))
             {
-                if (CamPos.Z <= GetZfromScreenState(screenHeight))
+                if (CamPos.Z <= GetZfromScreenState(state))
                 {
-                    viewState = screenHeight;
+                    newViewState = state;
                     break;
                 }
+            }
+
+            // We reset the Perspective Matrix because at close zoom levels
+            // we need to reduce the MaxDistance of the Projection matrix
+            // Otherwise our screen projection is extremely inaccurate due to float errors
+            if (viewState != newViewState)
+            {
+                viewState = newViewState;
+
+                const double maxDetailNebulaDist = 15_000_000;
+                double maxDistance = maxDetailNebulaDist;
+                switch (newViewState)
+                {
+                    case UnivScreenState.DetailView: maxDistance += (int)UnivScreenState.ShipView; break;
+                    case UnivScreenState.ShipView:   maxDistance += (int)UnivScreenState.PlanetView; break;
+                    case UnivScreenState.PlanetView: maxDistance += (int)UnivScreenState.SystemView; break;
+                    case UnivScreenState.SystemView: maxDistance += (int)UnivScreenState.SectorView; break;
+                    case UnivScreenState.SectorView: maxDistance += (int)UnivScreenState.GalaxyView; break;
+                    case UnivScreenState.GalaxyView: maxDistance += maxDetailNebulaDist; break;
+                }
+
+                //Log.Info($"View: {newViewState} MaxDistance: {maxDistance}  CamHeight: {CamPos.Z}");
+                SetPerspectiveProjection(maxDistance: maxDistance);
             }
         }
 
