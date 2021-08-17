@@ -318,7 +318,6 @@ namespace Ship_Game.Ships
             return ship;
         }
 
-        // Added by RedFox - Debug, Hangar Ship, and Platform creation
         public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 position)
         {
             Ship template = GetShipTemplate(shipName);
@@ -327,7 +326,12 @@ namespace Ship_Game.Ships
                 Log.Warning($"CreateShip failed, no such design: {shipName}");
                 return null;
             }
-            
+            return CreateShipAtPoint(template, owner, position);
+        }
+
+        // Added by RedFox - Debug, Hangar Ship, and Platform creation
+        public static Ship CreateShipAtPoint(Ship template, Empire owner, Vector2 position)
+        {
             if (!template.shipData.IsValidForCurrentMod)
             {
                 Log.Info($"Design {template.shipData.Name} [Mod:{template.shipData.ModName}] is not valid for [{GlobalStats.ModOrVanillaName}]");
@@ -335,8 +339,11 @@ namespace Ship_Game.Ships
             }
 
             var ship = new Ship(template, owner, position);
+            if (!ship.HasModules)
+                return null;
+
             Empire.Universe?.Objects.Add(ship);
-            return ship.HasModules ? ship : null;
+            return ship;
         }
 
         public static Ship CreateShipAt(string shipName, Empire owner, Planet p, Vector2 deltaPos, bool doOrbit)

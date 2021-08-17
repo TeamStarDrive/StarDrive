@@ -119,12 +119,9 @@ namespace Ship_Game.Ships
 
         public DesignSlot[] GetOrLoadDesignSlots()
         {
-            if (DesignSlots == null || DesignSlots.Length == 0)
+            if (DesignSlots == null && Source != null)
             {
-                if (Source != null)
-                {
-                    DesignSlots = LoadDesignSlots(Source, UniqueModuleUIDs);
-                }
+                DesignSlots = LoadDesignSlots(Source, UniqueModuleUIDs);
             }
             return DesignSlots;
         }
