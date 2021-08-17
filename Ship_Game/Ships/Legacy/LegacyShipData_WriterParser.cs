@@ -47,14 +47,13 @@ namespace Ship_Game.Ships.Legacy
             if (FixedUpkeep > 0f)
                 sw.Write("FixedUpkeep", FixedUpkeep);
 
-            if (DefaultAIState != AIState.DoNothing)   sw.Write("DefaultAIState", DefaultAIState);
-            if (CombatState != CombatState.Artillery)  sw.Write("DefaultCombatState", CombatState);
-            if (ShipCategory != Category.Unclassified) sw.Write("ShipCategory", ShipCategory);
-            if (HangarDesignation != HangarOptions.General) sw.Write("HangarDesignation", HangarDesignation);
-            if (IsShipyard)       sw.Write("IsShipyard", IsShipyard);
-            if (IsOrbitalDefense) sw.Write("IsOrbitalDefense", IsOrbitalDefense);
-            if (CarrierShip)      sw.Write("IsCarrierOnly", CarrierShip);
-
+            sw.Write("DefaultAIState", DefaultAIState);
+            sw.Write("DefaultCombatState", CombatState);
+            sw.Write("ShipCategory", ShipCategory);
+            sw.Write("HangarDesignation", HangarDesignation);
+            sw.Write("IsShipyard", IsShipyard);
+            sw.Write("IsOrbitalDefense", IsOrbitalDefense);
+            sw.Write("IsCarrierOnly", CarrierShip);
             sw.Write("EventOnDeath", EventOnDeath); // "DefeatedMothership" remnant event
 
             var moduleUIDsToIdx = new Array<string>();
