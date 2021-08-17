@@ -245,7 +245,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    P.Construction.Enqueue(ship);
+                    P.Construction.Enqueue(ship.shipData);
                 }
             }
 

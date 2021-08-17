@@ -26,7 +26,7 @@ namespace Ship_Game.Commands.Goals
         {
             empire      = owner;
             ToBuildUID  = shipName;
-            ShipToBuild = ResourceManager.GetShipTemplate(shipName);
+            ShipToBuild = ResourceManager.Ships.GetDesign(shipName);
             Rush        = rush;
 
             Evaluate();

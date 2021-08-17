@@ -126,23 +126,24 @@ namespace Ship_Game.AI
             return pickedShip;
         }
 
-        public static bool PickColonyShip(Empire empire, out Ship colonyShip)
+        public static bool PickColonyShip(Empire empire, out ShipDesign colonyShip)
         {
             if (empire.isPlayer && !empire.AutoPickBestColonizer)
             {
-                ResourceManager.GetShipTemplate(empire.data.CurrentAutoColony, out colonyShip);
+                ResourceManager.Ships.GetDesign(empire.data.CurrentAutoColony, out colonyShip);
             }
             else
             {
-                colonyShip = ShipsWeCanBuild(empire).FindMaxFiltered(s => s.isColonyShip,
-                                                                     s => s.StartingColonyGoods() + 
-                                                                          s.NumBuildingsDeployedOnColonize() * 20 + 
-                                                                          s.MaxFTLSpeed / 1000);
+                var ship = ShipsWeCanBuild(empire).FindMaxFiltered(s => s.shipData.IsColonyShip,
+                                                                   s => s.StartingColonyGoods() + 
+                                                                            s.NumBuildingsDeployedOnColonize() * 20 + 
+                                                                            s.MaxFTLSpeed / 1000);
+                colonyShip = ship?.shipData;
             }
 
             if (colonyShip == null)
             {
-                if (!ResourceManager.GetShipTemplate(empire.data.DefaultColonyShip, out colonyShip))
+                if (!ResourceManager.Ships.GetDesign(empire.data.DefaultColonyShip, out colonyShip))
                 {
                     Log.Error($"{empire} failed to find a ColonyShip template! AutoColony:{empire.data.CurrentAutoColony}" +
                               $"  Default:{empire.data.DefaultColonyShip}");

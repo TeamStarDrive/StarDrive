@@ -76,7 +76,7 @@ namespace Ship_Game.AI
         public int ShipLevel;
         public Planet PlanetBuildingAt;
         public Planet ColonizationTarget { get; set; }
-        public Ship ShipToBuild;  // this is a template
+        public ShipDesign ShipToBuild;  // this is a template
         private Ship ShipBuilt; // this is the actual ship that was built
         public Ship OldShip;      // this is the ship which needs refit
         public Ship TargetShip;      // this is targeted by this goal (raids)

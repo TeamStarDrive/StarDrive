@@ -325,12 +325,12 @@ namespace Ship_Game
         /// 1 is above average. 0.2 is below average.
         /// the default is below average. not recommended to set above 1 but you can.
         /// </summary>
-        public bool FindPlanetToBuildShipAt(IReadOnlyList<Planet> ports, Ship ship, out Planet chosen, float priority = 1f)
+        public bool FindPlanetToBuildShipAt(IReadOnlyList<Planet> ports, ShipDesign ship, out Planet chosen, float priority = 1f)
         {
             if (ports.Count != 0)
             {
                 float cost = ship.GetCost(this);
-                chosen     = FindPlanetToBuildAt(ports, cost, ship.shipData, priority);
+                chosen     = FindPlanetToBuildAt(ports, cost, ship, priority);
                 return chosen != null;
             }
 
@@ -3188,16 +3188,16 @@ namespace Ship_Game
                 EmpireAI.Goals.Add(new ScoutSystem(this));
         }
 
-        public bool ChooseScoutShipToBuild(out Ship scout)
+        public bool ChooseScoutShipToBuild(out ShipDesign scout)
         {
-            if (isPlayer && ResourceManager.GetShipTemplate(EmpireManager.Player.data.CurrentAutoScout, out scout))
+            if (isPlayer && ResourceManager.Ships.GetDesign(EmpireManager.Player.data.CurrentAutoScout, out scout))
                 return true;
 
-            var scoutShipsWeCanBuild = new Array<Ship>();
+            var scoutShipsWeCanBuild = new Array<ShipDesign>();
             foreach (string shipName in ShipsWeCanBuild)
             {
-                if (ResourceManager.GetShipTemplate(shipName, out Ship ship) &&
-                    ship.shipData.Role == RoleName.scout)
+                if (ResourceManager.Ships.GetDesign(shipName, out ShipDesign ship) &&
+                    ship.Role == RoleName.scout)
                 {
                     scoutShipsWeCanBuild.Add(ship);
                 }
@@ -3209,8 +3209,8 @@ namespace Ship_Game
                 return false;
             }
 
-            // pick most power efficient scout
-            scout = scoutShipsWeCanBuild.FindMax(s => s.PowerFlowMax - s.NetPower.NetSubLightPowerDraw);
+            // pick the scout with fastest FTL speed
+            scout = scoutShipsWeCanBuild.FindMax(s => s.BaseWarpThrust);
             return scout != null;
         }
 
