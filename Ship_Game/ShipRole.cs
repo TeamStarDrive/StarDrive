@@ -66,7 +66,7 @@ namespace Ship_Game
             }
             return max;
         }
-        public static LocalizedText GetRoleName(ShipData.RoleName role, string shipType)
+        public static LocalizedText GetRoleName(RoleName role, string shipType)
         {
             if (!ResourceManager.ShipRoles.TryGetValue(role, out ShipRole shipRole))
                 return LocalizedText.None;

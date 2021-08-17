@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
-using Newtonsoft.Json;
 using Ship_Game.Data;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Serialization.Types;
@@ -14,6 +12,14 @@ using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Ships
 {
+    /// <summary>
+    /// This describes an unique StarShip Hull. Ship Designs are built upon
+    /// the slots described by this Hull definition
+    ///
+    /// It also describes visual aspects of the StarShip, such as the Mesh and its visual offset
+    ///
+    /// This class is Serialized/Deserialized using a custom text-based format
+    /// </summary>
     public class ShipHull
     {
         // Current version of ShipData files
@@ -35,25 +41,31 @@ namespace Ship_Game.Ships
         public string IconPath; // "ShipIcons/shuttle"
         public string ModelPath; // "Model/Ships/Terran/Shuttle/ship08"
 
-        public ShipData.RoleName Role = ShipData.RoleName.fighter;
+        public RoleName Role = RoleName.fighter;
         public string SelectIcon = "";
         public bool Animated;
         public bool IsShipyard;
         public bool IsOrbitalDefense;
-        public ShipData.ThrusterZone[] Thrusters = Empty<ShipData.ThrusterZone>.Array;
+        public ThrusterZone[] Thrusters = Empty<ThrusterZone>.Array;
         public HullSlot[] HullSlots;
 
         // offset from grid TopLeft to the Center slot
-        [XmlIgnore][JsonIgnore] public Point GridCenter;
+        public Point GridCenter;
 
-        [XmlIgnore][JsonIgnore] public bool Unlockable = true;
-        [XmlIgnore][JsonIgnore] public HashSet<string> TechsNeeded = new HashSet<string>();
+        public bool Unlockable = true;
+        public HashSet<string> TechsNeeded = new HashSet<string>();
 
-        [XmlIgnore][JsonIgnore] public FileInfo Source;
-        [XmlIgnore][JsonIgnore] public SubTexture Icon => ResourceManager.Texture(IconPath);
-        [XmlIgnore][JsonIgnore] public Vector3 Volume { get; private set; }
-        [XmlIgnore][JsonIgnore] public float ModelZ { get; private set; }
-        [XmlIgnore][JsonIgnore] public HullBonus Bonuses { get; private set; }
+        public FileInfo Source;
+        public SubTexture Icon => ResourceManager.Texture(IconPath);
+        public Vector3 Volume { get; private set; }
+        public float ModelZ { get; private set; }
+        public HullBonus Bonuses { get; private set; }
+
+        public struct ThrusterZone
+        {
+            public Vector3 Position;
+            public float Scale;
+        }
 
         public HullSlot FindSlot(Point p)
         {
@@ -97,11 +109,11 @@ namespace Ship_Game.Ships
             IconPath = sd.IconPath;
             ModelPath = sd.ModelPath;
 
-            Role = (ShipData.RoleName)(int)sd.Role;
+            Role = (RoleName)(int)sd.Role;
             SelectIcon = sd.SelectionGraphic;
             Animated = sd.Animated;
 
-            Thrusters = new ShipData.ThrusterZone[sd.ThrusterList.Length];
+            Thrusters = new ThrusterZone[sd.ThrusterList.Length];
             for (int i = 0; i < sd.ThrusterList.Length; ++i)
             {
                 Thrusters[i].Position = sd.ThrusterList[i].Position;
@@ -175,7 +187,7 @@ namespace Ship_Game.Ships
                         case "IsOrbitalDefense": IsOrbitalDefense = (val == "true"); break;
                         case "Thruster":
                             Array.Resize(ref Thrusters, Thrusters.Length + 1);
-                            ref ShipData.ThrusterZone tz = ref Thrusters[Thrusters.Length - 1];
+                            ref ThrusterZone tz = ref Thrusters[Thrusters.Length - 1];
                             Vector4 t = Vector4Serializer.FromString(val);
                             tz.Position = new Vector3(t.X, t.Y, t.Z);
                             tz.Scale = t.W;
@@ -260,7 +272,7 @@ namespace Ship_Game.Ships
 
         public void Save(FileInfo file)
         {
-            var sw = new ShipDataWriter();
+            var sw = new ShipDesignWriter();
             sw.Write("Version", Version);
             sw.Write("HullName", HullName);
             sw.Write("VisibleName", VisibleName);
@@ -280,7 +292,7 @@ namespace Ship_Game.Ships
             if (IsOrbitalDefense) sw.Write("IsOrbitalDefense", IsOrbitalDefense);
 
             sw.WriteLine("#Thruster PosX,PosY,PosZ,Scale");
-            foreach (ShipData.ThrusterZone t in Thrusters)
+            foreach (ThrusterZone t in Thrusters)
                 sw.Write("Thruster", $"{t.Position.X},{t.Position.Y},{t.Position.Z},{t.Scale}");
 
             sw.WriteLine("Slots");

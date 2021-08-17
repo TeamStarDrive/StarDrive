@@ -70,7 +70,7 @@ namespace Ship_Game.Commands.Goals
         public struct ShipInfo
         {
             public float Upkeep { get;}
-            public ShipData.RoleName Role { get;}
+            public RoleName Role { get;}
 
             public ShipInfo(Goal goal) : this(goal as BuildOffensiveShips){ }
 
@@ -83,7 +83,7 @@ namespace Ship_Game.Commands.Goals
                 }
                 else
                 {
-                    Role = ShipData.RoleName.disabled;
+                    Role = RoleName.disabled;
                     Upkeep = 0;
                 }
             }

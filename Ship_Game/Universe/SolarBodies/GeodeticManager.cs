@@ -188,7 +188,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         private void SupplyShip(Ship ship)
         {
-            if (ship.shipData.Role == ShipData.RoleName.platform) // platforms always get max ordnance to retain platforms Vanilla functionality
+            if (ship.shipData.Role == RoleName.platform) // platforms always get max ordnance to retain platforms Vanilla functionality
             {
                 ship.ChangeOrdnance(ship.OrdinanceMax);
                 ship.AddPower(ship.PowerStoreMax);

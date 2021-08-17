@@ -6,7 +6,7 @@ namespace Ship_Game
 {
     public sealed partial class ShipDesignScreen
     {
-        class HangarDesignationDropDown : DropOptions<ShipData.HangarOptions>
+        class HangarDesignationDropDown : DropOptions<HangarOptions>
         {
             public HangarDesignationDropDown(in Rectangle hangarRect) : base(hangarRect)
             {

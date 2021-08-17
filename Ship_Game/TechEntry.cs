@@ -840,10 +840,10 @@ namespace Ship_Game
                 case "Bonus Fighter Levels":
                     {
                         data.BonusFighterLevels += (int)unlockedBonus.Bonus;
-                        data.RoleLevels[(int)ShipData.RoleName.corvette - 1] += (int)unlockedBonus.Bonus;
-                        data.RoleLevels[(int)ShipData.RoleName.drone - 1]    += (int)unlockedBonus.Bonus;
+                        data.RoleLevels[(int)RoleName.corvette - 1] += (int)unlockedBonus.Bonus;
+                        data.RoleLevels[(int)RoleName.drone - 1]    += (int)unlockedBonus.Bonus;
 
-                        var roles = new[]{ ShipData.RoleName.fighter, ShipData.RoleName.corvette, ShipData.RoleName.drone};
+                        var roles = new[]{ RoleName.fighter, RoleName.corvette, RoleName.drone};
 
                         empire.IncreaseEmpireShipRoleLevel(roles, (int)unlockedBonus.Bonus);
                         break;
@@ -920,10 +920,10 @@ namespace Ship_Game
                                                                        + unlockedBonus.Bonus).Clamped(0, 0.75f); break;
                 case "ShipRoleLevels":
                 {
-                        var roles = new Array<ShipData.RoleName>();
+                        var roles = new Array<RoleName>();
                         foreach (var tag in unlockedBonus.Tags)
                         {
-                            bool foundRole = Enum.TryParse(tag, out ShipData.RoleName roleName);
+                            bool foundRole = Enum.TryParse(tag, out RoleName roleName);
                             if (foundRole)
                             {
                                 roles.Add(roleName);

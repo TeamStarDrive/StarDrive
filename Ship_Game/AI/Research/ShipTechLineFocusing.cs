@@ -41,34 +41,34 @@ namespace Ship_Game.AI.Research
             return availableTechs;
         }
 
-        private static bool IsRoleValid(ShipData.RoleName role)
+        private static bool IsRoleValid(RoleName role)
         {
             switch (role)
             {
-                case ShipData.RoleName.disabled:
-                case ShipData.RoleName.supply:
-                case ShipData.RoleName.troop:
-                case ShipData.RoleName.prototype:
-                case ShipData.RoleName.construction: return false;
-                case ShipData.RoleName.freighter:
-                case ShipData.RoleName.colony:
-                case ShipData.RoleName.ssp:
-                case ShipData.RoleName.platform:
-                case ShipData.RoleName.station:
-                case ShipData.RoleName.troopShip:
-                case ShipData.RoleName.support:
-                case ShipData.RoleName.bomber:
-                case ShipData.RoleName.carrier:
-                case ShipData.RoleName.fighter:
-                case ShipData.RoleName.scout:
-                case ShipData.RoleName.gunboat:
-                case ShipData.RoleName.drone:
-                case ShipData.RoleName.corvette:
-                case ShipData.RoleName.frigate:
-                case ShipData.RoleName.destroyer:
-                case ShipData.RoleName.cruiser:
-                case ShipData.RoleName.battleship:
-                case ShipData.RoleName.capital: break;
+                case RoleName.disabled:
+                case RoleName.supply:
+                case RoleName.troop:
+                case RoleName.prototype:
+                case RoleName.construction: return false;
+                case RoleName.freighter:
+                case RoleName.colony:
+                case RoleName.ssp:
+                case RoleName.platform:
+                case RoleName.station:
+                case RoleName.troopShip:
+                case RoleName.support:
+                case RoleName.bomber:
+                case RoleName.carrier:
+                case RoleName.fighter:
+                case RoleName.scout:
+                case RoleName.gunboat:
+                case RoleName.drone:
+                case RoleName.corvette:
+                case RoleName.frigate:
+                case RoleName.destroyer:
+                case RoleName.cruiser:
+                case RoleName.battleship:
+                case RoleName.capital: break;
 
                 default:
                     throw new ArgumentOutOfRangeException();

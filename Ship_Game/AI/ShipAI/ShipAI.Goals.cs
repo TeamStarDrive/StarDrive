@@ -60,7 +60,7 @@ namespace Ship_Game.AI
             switch (State)
             {
                 case AIState.Ferrying:
-                    if (Owner.shipData.Role == ShipData.RoleName.supply)
+                    if (Owner.shipData.Role == RoleName.supply)
                         EscortTarget?.Supply.ChangeIncomingSupply(SupplyType.Rearm, -Owner.Ordinance);
                     break;
             }

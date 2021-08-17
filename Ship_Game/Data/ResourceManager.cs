@@ -66,7 +66,7 @@ namespace Ship_Game
         public static ShipNames ShipNames                        = new ShipNames();
         public static AgentMissionData AgentMissionData          = new AgentMissionData();
         public static MainMenuShipList MainMenuShipList          = new MainMenuShipList();
-        public static Map<ShipData.RoleName, ShipRole> ShipRoles = new Map<ShipData.RoleName, ShipRole>();
+        public static Map<RoleName, ShipRole> ShipRoles = new Map<RoleName, ShipRole>();
         public static Map<string, HullBonus> HullBonuses         = new Map<string, HullBonus>();
         public static Map<string, PlanetEdict> PlanetaryEdicts   = new Map<string, PlanetEdict>();
 
@@ -1441,7 +1441,7 @@ namespace Ship_Game
                 AddHull(hull);
         }
 
-        public static Ship AddShipTemplate(ShipData shipData, bool playerDesign, bool readOnly = false)
+        public static Ship AddShipTemplate(ShipDesign shipData, bool playerDesign, bool readOnly = false)
         {
             Ship shipTemplate = Ship.CreateNewShipTemplate(shipData);
             if (shipTemplate == null) // happens if module creation failed
@@ -1505,8 +1505,8 @@ namespace Ship_Game
                     try
                     {
                         GameLoadingScreen.SetStatus("LoadShipTemplate", info.RelPath());
-                        ShipData shipData = ShipData.Parse(info);
-                        if (shipData == null || shipData.Role == ShipData.RoleName.disabled)
+                        ShipDesign shipData = ShipDesign.Parse(info);
+                        if (shipData == null || shipData.Role == RoleName.disabled)
                             continue;
 
                         if (info.NameNoExt() != shipData.Name)
@@ -1788,7 +1788,7 @@ namespace Ship_Game
             ShipRoles.Clear();
             foreach (ShipRole shipRole in LoadEntities<ShipRole>("ShipRoles", "LoadShipRoles"))
             {
-                if (Enum.TryParse(shipRole.Name, out ShipData.RoleName key))
+                if (Enum.TryParse(shipRole.Name, out RoleName key))
                     ShipRoles[key] = shipRole;
             }
             if (ShipRoles.Count == 0)
