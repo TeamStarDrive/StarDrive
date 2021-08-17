@@ -58,5 +58,45 @@ namespace Ship_Game.Data.Texture
             }
             return LoadXna(fullPath);
         }
+
+        // Converts a Base64 AlphaOnly string into a 1:1 aspect ratio RGBA texture
+        // The base value for pixels will be 255
+        public unsafe Texture2D FromBase64AlphaOnlyString(string rgbaBase64)
+        {
+            try
+            {
+                // convert from Base64 to raw bytes
+                byte[] alphas = Convert.FromBase64String(rgbaBase64);
+                int width = (int)Math.Sqrt(alphas.Length);
+
+                // allocate temporary buffer for pixels
+                int numPixels = width*width;
+                var pixels = new byte[numPixels*4];
+
+                // copy alphas
+                fixed (byte* pAlphas = alphas)
+                fixed (byte* pPixels = pixels)
+                {
+                    for (int i = 0; i < numPixels; ++i)
+                    {
+                        pPixels[i*4]     = 255;
+                        pPixels[i*4 + 1] = 255;
+                        pPixels[i*4 + 2] = 255;
+                        pPixels[i*4 + 3] = pAlphas[i];
+                    }
+                }
+
+                // finally create the texture and set the image pixels
+                var t = new Texture2D(Device, width, width, 0, TextureUsage.Linear, SurfaceFormat.Color);
+                t.SetData(pixels);
+                t.Save(Dir.StarDriveAppData + "/Saved Games/fog.debug.png", ImageFileFormat.Png);
+                return t;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "TextureImporter FromBase64String failed");
+                return null;
+            }
+        }
     }
 }

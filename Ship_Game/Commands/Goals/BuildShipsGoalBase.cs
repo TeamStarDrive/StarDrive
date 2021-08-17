@@ -25,7 +25,13 @@ namespace Ship_Game.Commands.Goals
         {
             if (ShipTemplate == null)
             {
-                ShipTemplate = ShipBuilder.PickFreighter(empire, empire.FastVsBigFreighterRatio).shipData;
+                var design = ShipBuilder.PickFreighter(empire, empire.FastVsBigFreighterRatio);
+                if (design == null)
+                {
+                    freighterTemplate = null;
+                    return false;
+                }
+                ShipTemplate = design.shipData;
             }
             return (freighterTemplate = ShipTemplate) != null;
         }

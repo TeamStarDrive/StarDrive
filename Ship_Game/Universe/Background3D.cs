@@ -14,14 +14,14 @@ namespace Ship_Game
             Screen = screen;
             float universeSize = screen.UniverseSize;
 
-            int size = (int) RandomMath.AvgRandomBetween(1000000 + universeSize / 4f, universeSize);
+            int size = (int) RandomMath.AvgRandomBetween(1_000_000 + universeSize / 4f, universeSize);
             
             CreateRandomLargeNebula(new Rectangle(
                 (int) RandomMath.AvgRandomBetween(-universeSize * 1.5f, universeSize * 2 - size),
                 (int) RandomMath.AvgRandomBetween(-universeSize * 1.5f, universeSize * 2 - size),
                 size, size));
 
-            for (int i = 0; i < 4 + (int) (universeSize / 4000000); i++)
+            for (int i = 0; i < 4 + (int) (universeSize / 4_000_000); i++)
             {
                 CreateRandomSmallObject(universeSize);
             }
@@ -58,15 +58,15 @@ namespace Ship_Game
                 var position = new Vector3(
                     RandomMath.RandomBetween(-1.5f * universeSize, 1.5f * universeSize),
                     RandomMath.RandomBetween(-1.5f * universeSize, 1.5f * universeSize),
-                    RandomMath.RandomBetween(-200000f, -2E+07f));
+                    RandomMath.RandomBetween(-200_000f, -15_000_000f));
                 Screen.Particles.StarParticles.AddParticle(position);
             }
         }
 
         void CreateRandomLargeNebula(Rectangle r)
         {
-            const float startz = 1500000f;
-            float zPos = 1500000f;
+            const float startz = 1_500_000f;
+            float zPos = 1_500_000f;
 
             float CreateNebulaPart(Rectangle nebrect, float nebZ, SubTexture nebTexure, float minZ, float maxZ, bool starParts = false)
             {
@@ -82,11 +82,11 @@ namespace Ship_Game
                 return nebZ;
             }
             zPos = CreateNebulaPart(r, zPos, ResourceManager.Texture("hqspace/neb_pointy"), 0, 0);
-            zPos = CreateNebulaPart(r, zPos, ResourceManager.BigNebula(2), -200000, -600000);
-            zPos = CreateNebulaPart(r, zPos, ResourceManager.Texture("hqspace/neb_floaty"), -200000, -600000);
+            zPos = CreateNebulaPart(r, zPos, ResourceManager.BigNebula(2), -200_000, -600_000);
+            zPos = CreateNebulaPart(r, zPos, ResourceManager.Texture("hqspace/neb_floaty"), -200_000, -600_000);
             zPos = CreateNebulaPart(r, zPos, ResourceManager.NebulaMedRandom(), 0, 0);
-            zPos = CreateNebulaPart(r, zPos, ResourceManager.NebulaMedRandom(), 250000, 800000);
-            zPos = CreateNebulaPart(r, zPos, ResourceManager.NebulaMedRandom(), 250000, 800000);
+            zPos = CreateNebulaPart(r, zPos, ResourceManager.NebulaMedRandom(), 250_000, 800_000);
+            zPos = CreateNebulaPart(r, zPos, ResourceManager.NebulaMedRandom(), 250_000, 800_000);
 
             SubTexture smoke = ResourceManager.Texture("smoke");
             for (int i = 0; i < 50; i++)
@@ -107,8 +107,8 @@ namespace Ship_Game
             var nebUpperLeft = new Vector2(
                 RandomMath.RandomBetween(-universeSize * 1.5f, universeSize * 0.75f),
                 RandomMath.RandomBetween(-universeSize * 1.5f, universeSize * 0.75f));
-            float zPos = RandomMath.RandomBetween(500000f, 5000000f);
-            float xSize = RandomMath.RandomBetween(800000f, universeSize * 0.75f);
+            float zPos = RandomMath.RandomBetween(500_000f, 5_000_000f);
+            float xSize = RandomMath.RandomBetween(800_000f, universeSize * 0.75f);
             float ySize = (float)neb1.Texture.Height / neb1.Texture.Width * xSize;
             neb1.UpperLeft = new Vector3(nebUpperLeft, zPos);
             neb1.LowerLeft = neb1.UpperLeft + new Vector3(0f, ySize, 0f);
@@ -119,8 +119,8 @@ namespace Ship_Game
             BGItems.Add(neb1);
 
             var neb2 = new BackgroundItem(ResourceManager.SmallNebulaRandom());
-            zPos += RandomMath.RandomBetween(300000f, 500000f);
-            xSize = RandomMath.RandomBetween(800000f, universeSize * 0.75f);
+            zPos += RandomMath.RandomBetween(300_000f, 500_000f);
+            xSize = RandomMath.RandomBetween(800_000f, universeSize * 0.75f);
             ySize = (float)neb2.Texture.Height / neb2.Texture.Width * xSize;
             neb2.UpperLeft = new Vector3(nebUpperLeft, zPos);
             neb2.LowerLeft = neb2.UpperLeft + new Vector3(0f, ySize, 0f);
@@ -131,8 +131,8 @@ namespace Ship_Game
             BGItems.Add(neb2);
 
             var neb3 = new BackgroundItem(ResourceManager.SmallNebulaRandom());
-            zPos += RandomMath.RandomBetween(300000f, 500000f);
-            xSize = RandomMath.RandomBetween(800000f, universeSize * 0.75f);
+            zPos += RandomMath.RandomBetween(300_000f, 500_000f);
+            xSize = RandomMath.RandomBetween(800_000f, universeSize * 0.75f);
             ySize = neb3.Texture.Height / (float)neb3.Texture.Width * xSize;
             neb3.UpperLeft = new Vector3(nebUpperLeft, zPos);
             neb3.LowerLeft = neb3.UpperLeft + new Vector3(0f, ySize, 0f);
