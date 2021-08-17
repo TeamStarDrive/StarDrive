@@ -5,8 +5,13 @@ Role=cruiser
 Style=Remnant
 Size=22,23
 GridCenter=11,11
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 ShipCategory=Kamikaze
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorLarge;SteelArmorSmall;RemnantSmallFuelCell;FighterBay;SteelArmorMed;IonCannon1x3;AncientShield2kw;Engine;CapEngines;PowerConduit;DisruptorTurret3x3;PhotonTurret3x3;AncientReactorMed;WarpEngine_1x1;Pulse Capacitor;MarineBarracks2x2;Bridge
 Modules=102

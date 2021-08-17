@@ -8,6 +8,9 @@ MeshOffset=0,-8
 IconPath=ShipIcons/Sower
 ModelPath=Model/Ships/Pollops/ship15h
 SelectIcon=15h
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|I  |I  |I  |I  |I  |I  |___

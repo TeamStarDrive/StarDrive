@@ -7,6 +7,11 @@ Size=20,19
 GridCenter=10,9
 DefaultAIState=AwaitingOrders
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorLarge;SteelArmorSmall;LaserCannon;SteelArmorMed;DisruptorTurret3x3;LaserTurret;BasicFuelCell;AntiMatterReactor;PowerConduit;Bridge;FighterBay;FuelCellSmallArmored
 Modules=84

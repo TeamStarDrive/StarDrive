@@ -5,7 +5,13 @@ Role=carrier
 Style=Opteris
 Size=30,44
 GridCenter=15,22
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;PlaSteelArmorMed;PlaSteelArmorLarge;OrdnanceLocker;Shield_10KW;PhasorBeam2x3;MissileLauncher3x3;DisintegratorArray;Phalanx PD;EMPTorpedo;WarpEngine_3x3;PhasorTurret2x2;MRLS;BasicFuelCell;CapEngines;TractorBeam2x3;MediumFuelCell;LaserCannon;Internal Bulkhead;Main Engineering;WarpEngine_1x1;CombatEngine_2x2;Fabricator;CIC;TractorBeamTurret2x2
 Modules=219

@@ -5,7 +5,13 @@ Role=fighter
 Style=Draylok
 Size=6,2
 GridCenter=3,1
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=VulcanCannon;Powerplant_nuke_1x1;OrdnanceLockerSmall;Combat_Thruster_1x1;Cockpit
 Modules=10

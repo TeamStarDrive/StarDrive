@@ -5,7 +5,13 @@ Role=frigate
 Style=Draugar
 Size=16,8
 GridCenter=8,4
+DefaultAIState=DoNothing
 DefaultCombatState=ShortRange
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;LaserTurretHeavy;LaserCannon;NuclearReactorSmall;FuelCellSmallArmored;Shield_1KW;CombatEngine_2x2;NuclearReactorMed;Bridge;WarpEngine_2x2
 Modules=46

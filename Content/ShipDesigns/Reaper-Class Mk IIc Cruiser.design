@@ -5,7 +5,13 @@ Role=cruiser
 Style=Draylok
 Size=24,30
 GridCenter=12,15
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;SteelArmorMed;Shield_1KW;MissileLauncher1x3;NuclearReactorSmall;OrdnanceLockerSmall;MRLS;OrdnanceLocker;CombatEngine_2x2;MissileLauncher3x3;NuclearReactorMed;Internal Bulkhead;WarpEngine_1x1;WarpEngine_3x3;PowerConduit;Bridge
 Modules=141

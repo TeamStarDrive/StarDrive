@@ -5,7 +5,13 @@ Role=capital
 Style=Draylok
 Size=44,43
 GridCenter=22,21
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;Shield_1KW;LaserBeamTurret2x2;PowerConduit;LaserCannon;SteelArmorLarge;SteelArmorMed;BasicFuelCell;LaserBeam2x3;MediumFuelCell;CapEngines;Reinforced Bulkhead;WarpEngine_1x1;Internal Bulkhead;NuclearReactorMed;WarpEngine_3x3;Bridge;CombatEngine_2x2
 Modules=467

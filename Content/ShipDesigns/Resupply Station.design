@@ -5,7 +5,13 @@ Role=station
 Style=Misc
 Size=48,46
 GridCenter=24,21
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorMed;SteelArmorSmall;FlakTurret;OrdnanceLockerSmall;TroopAssaultBay;OrdnanceSupplyBay;NuclearReactorSmall;Fabricator;MarineBarracks2x2;VulcanCannon;RepairDrone;Bridge;NuclearReactorMed;Sickbay
 Modules=347

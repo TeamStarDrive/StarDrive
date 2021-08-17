@@ -7,6 +7,9 @@ Size=48,46
 MeshOffset=0,-32
 IconPath=ShipIcons/station_blue
 ModelPath=Model/Stations/spacestation01_outer
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|___|___|___|___|___|___|___|___|O  |O  |O  |O  |O  |___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|O  |O  |O  |O  |O  |___|___|___|___|___|___|___|___|___
