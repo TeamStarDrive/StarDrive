@@ -9,10 +9,7 @@ namespace Ship_Game.AI
 
         private void RunDiplomaticPlanner()
         {
-            if (OwnerEmpire.isPlayer)
-                return;
-
-            if (OwnerEmpire.GetAverageWarGrade() < 2 && TryMergeOrSurrender())
+            if (OwnerEmpire.isPlayer || OwnerEmpire.GetAverageWarGrade() < 2 && TryMergeOrSurrender())
                 return;
 
             switch (OwnerEmpire.Personality)
@@ -35,7 +32,13 @@ namespace Ship_Game.AI
         bool TryMergeOrSurrender()
         {
             float ratio = OwnerEmpire.PersonalityModifiers.PopRatioBeforeMerge;
-            //if (EmpireManager.MajorEmpiresAtWarWith(OwnerEmpire).Any(e => e.TotalPopBillion * ratio > OwnerEmpire.TotalPopBillion))
+            var enemies =  EmpireManager.MajorEmpiresAtWarWith(OwnerEmpire).Filter(e => e.TotalPopBillion * ratio > OwnerEmpire.TotalPopBillion);
+            if (enemies.Length > 0)
+            {
+                Empire biggest = enemies.FindMax(e => e.TotalPopBillion);
+                OwnerEmpire.TryMergeOrSurrender(biggest);
+            }
+
             return false;
         }
 

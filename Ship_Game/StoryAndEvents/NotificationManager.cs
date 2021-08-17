@@ -263,6 +263,15 @@ namespace Ship_Game
             }, "sd_troop_march_01");
         }
 
+        public void AddEmpireMergedOrSurrendered(Empire empire, Empire mergedWith, string msg)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire = empire,
+                Message = msg,
+            }, "sd_troop_march_01");
+        }
+
         public void AddWeProtectedYou(Empire pirates)
         {
             AddNotification(new Notification

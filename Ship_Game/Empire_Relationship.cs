@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.GamerServices;
 using Ship_Game.AI;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Empires.Components;
 using Ship_Game.Gameplay;
+using Ship_Game.GameScreens.DiplomacyScreen;
 
 namespace Ship_Game
 {
@@ -24,15 +23,15 @@ namespace Ship_Game
     {
         public PersonalityType Personality => data.DiplomaticPersonality.TraitName;
 
-        public bool IsCunning    => Personality == PersonalityType.Cunning;
+        public bool IsCunning => Personality == PersonalityType.Cunning;
         public bool IsXenophobic => Personality == PersonalityType.Xenophobic;
-        public bool IsRuthless   => Personality == PersonalityType.Ruthless;
+        public bool IsRuthless => Personality == PersonalityType.Ruthless;
         public bool IsAggressive => Personality == PersonalityType.Aggressive;
-        public bool IsHonorable  => Personality == PersonalityType.Honorable;
-        public bool IsPacifist   => Personality == PersonalityType.Pacifist;
+        public bool IsHonorable => Personality == PersonalityType.Honorable;
+        public bool IsPacifist => Personality == PersonalityType.Pacifist;
 
         public War[] AllActiveWars { get; private set; } = Array.Empty<War>();
-        public int ActiveWarPreparations { get; private set; } 
+        public int ActiveWarPreparations { get; private set; }
 
 
         void SignBilateralTreaty(Empire them, TreatyType type, bool value)
@@ -50,7 +49,7 @@ namespace Ship_Game
         {
             SignBilateralTreaty(them, type, true);
         }
-        
+
         // Break Bilateral treaty
         public void BreakTreatyWith(Empire them, TreatyType type)
         {
@@ -66,11 +65,11 @@ namespace Ship_Game
             bool notify;
             switch (type)
             {
-                case TreatyType.Alliance:      notify = IsAlliedWith(them);        break;
-                case TreatyType.OpenBorders:   notify = IsOpenBordersTreaty(them); break;
-                case TreatyType.Trade:         notify = IsTradeTreaty(them);       break;
-                case TreatyType.NonAggression: notify = IsNAPactWith(them);        break;
-                default:                       notify = false;                     break;
+                case TreatyType.Alliance: notify = IsAlliedWith(them); break;
+                case TreatyType.OpenBorders: notify = IsOpenBordersTreaty(them); break;
+                case TreatyType.Trade: notify = IsTradeTreaty(them); break;
+                case TreatyType.NonAggression: notify = IsNAPactWith(them); break;
+                default: notify = false; break;
             }
 
             if (notify)
@@ -117,17 +116,17 @@ namespace Ship_Game
         public float GetWarOffensiveRatio()
         {
             float territorialism = 1 - (data.DiplomaticPersonality?.Territorialism ?? 100) / 100f;
-            float militaryRatio  = Research.Strategy.MilitaryRatio;
-            float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
+            float militaryRatio = Research.Strategy.MilitaryRatio;
+            float opportunism = data.DiplomaticPersonality?.Opportunism ?? 1;
             return (territorialism + militaryRatio + opportunism) / 3;
         }
 
         public float GetExpansionRatio()
         {
             float territorialism = (data.DiplomaticPersonality?.Territorialism ?? 1) / 100f;
-            float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
-            float expansion      = Research.Strategy.ExpansionRatio;
-            float cybernetic     = IsCybernetic ? 1 : 0;
+            float opportunism = data.DiplomaticPersonality?.Opportunism ?? 1;
+            float expansion = Research.Strategy.ExpansionRatio;
+            float cybernetic = IsCybernetic ? 1 : 0;
 
             return (territorialism + expansion + opportunism + cybernetic);
         }
@@ -173,7 +172,7 @@ namespace Ship_Game
         OurRelationsToThem[] ActiveRelations = Empty<OurRelationsToThem>.Array;
 
         public OurRelationsToThem[] AllRelations => ActiveRelations;
-        
+
         /// <returns>Get relations with another empire. NULL if there is no relations</returns> 
         public Relationship GetRelationsOrNull(Empire withEmpire)
         {
@@ -214,14 +213,14 @@ namespace Ship_Game
 
             if (RelationsMap[index].Them != null)
                 throw new InvalidOperationException($"Empire RelationsMap already contains '{them}'");
-            
-            var usToThem = new OurRelationsToThem{ Them = them, Rel = rel };
+
+            var usToThem = new OurRelationsToThem { Them = them, Rel = rel };
             RelationsMap[index] = usToThem;
 
             Array.Resize(ref ActiveRelations, ActiveRelations.Length + 1);
             ActiveRelations[ActiveRelations.Length - 1] = usToThem;
         }
-        
+
         // TRUE if we know the other empire
         public bool IsKnown(Empire otherEmpire)
         {
@@ -325,7 +324,7 @@ namespace Ship_Game
 
                     if (them.isPlayer && difficulty > UniverseData.GameDifficulty.Normal) // TODO see if this increased anger bit can be removed
                     {
-                        float difficultyRatio = (int) difficulty / 10f;
+                        float difficultyRatio = (int)difficulty / 10f;
                         float trustMod = difficultyRatio * (100 - ourEmpire.data.DiplomaticPersonality.Trustworthiness).LowerBound(0);
                         rel.Trust -= trustMod;
 
@@ -367,7 +366,7 @@ namespace Ship_Game
         public float AlliancesValueMultiplierThirdParty(Empire them, out bool decline)
         {
             float multiplier = 1;
-            decline          = false;
+            decline = false;
             Relationship rel = GetRelations(them);
             if (TheyAreAlliedWithOurEnemies(them, out _))
             {
@@ -405,7 +404,7 @@ namespace Ship_Game
             if (!them.isPlayer)
                 return; // works only for player
 
-            string dialog    = treatySigned ? "CUTTING_DEALS_WITH_ENEMY" : "TRIED_CUTTING_DEALS_WITH_ENEMY";
+            string dialog = treatySigned ? "CUTTING_DEALS_WITH_ENEMY" : "TRIED_CUTTING_DEALS_WITH_ENEMY";
             float multiplier = treatySigned ? 1 : 0.5f;
             float spyDefense = GetSpyDefense();
             Relationship rel = GetRelations(them);
@@ -475,7 +474,7 @@ namespace Ship_Game
 
         public void RespondPlayerStoleColony(Relationship usToPlayer)
         {
-            Empire player     = EmpireManager.Player;
+            Empire player = EmpireManager.Player;
             switch (usToPlayer.StolenSystems.Count)
             {
                 case 0:
@@ -484,8 +483,8 @@ namespace Ship_Game
                 case 1:
                     switch (Personality)
                     {
-                        case PersonalityType.Xenophobic: BreakAllTreatiesWith(player);                 break;
-                        case PersonalityType.Honorable:  BreakTreatyWith(player, TreatyType.Alliance); break;
+                        case PersonalityType.Xenophobic: BreakAllTreatiesWith(player); break;
+                        case PersonalityType.Honorable: BreakTreatyWith(player, TreatyType.Alliance); break;
                     }
 
                     break;
@@ -495,8 +494,8 @@ namespace Ship_Game
                         case PersonalityType.Aggressive:
                         case PersonalityType.Honorable:
                         case PersonalityType.Cunning:
-                            BreakTreatyWith(player, TreatyType.Alliance); 
-                            BreakTreatyWith(player, TreatyType.OpenBorders); 
+                            BreakTreatyWith(player, TreatyType.Alliance);
+                            BreakTreatyWith(player, TreatyType.OpenBorders);
                             break;
                         case PersonalityType.Ruthless:
                             BreakTreatyWith(player, TreatyType.Alliance);
@@ -510,13 +509,13 @@ namespace Ship_Game
                 default: // 3 and above
                     switch (Personality)
                     {
-                        case PersonalityType.Pacifist    when usToPlayer.StolenSystems.Count >= 4:
-                        case PersonalityType.Cunning:    usToPlayer.PrepareForWar(WarType.DefensiveWar, player);   break;
-                        case PersonalityType.Aggressive: 
-                        case PersonalityType.Ruthless:   usToPlayer.PrepareForWar(WarType.ImperialistWar, player); break;
+                        case PersonalityType.Pacifist when usToPlayer.StolenSystems.Count >= 4:
+                        case PersonalityType.Cunning: usToPlayer.PrepareForWar(WarType.DefensiveWar, player); break;
+                        case PersonalityType.Aggressive:
+                        case PersonalityType.Ruthless: usToPlayer.PrepareForWar(WarType.ImperialistWar, player); break;
                         case PersonalityType.Xenophobic:
-                        case PersonalityType.Honorable:  player.AddToDiplomacyContactView(this, "DECLAREWAR");     break;
-                        case PersonalityType.Pacifist:   BreakAllTreatiesWith(player);                             break;
+                        case PersonalityType.Honorable: player.AddToDiplomacyContactView(this, "DECLAREWAR"); break;
+                        case PersonalityType.Pacifist: BreakAllTreatiesWith(player); break;
                     }
 
                     break;
@@ -534,10 +533,10 @@ namespace Ship_Game
         public float ColonizationDetectionChance(Relationship usToThem, Empire them)
         {
             float chance = 0;
-            if (usToThem.Treaty_NAPact) chance      = 0.5f;
-            if (usToThem.Treaty_Trade) chance       = 1;
+            if (usToThem.Treaty_NAPact) chance = 0.5f;
+            if (usToThem.Treaty_Trade) chance = 1;
             if (usToThem.Treaty_OpenBorders) chance = 1.5f;
-            if (usToThem.Treaty_Alliance) chance    = 2;
+            if (usToThem.Treaty_Alliance) chance = 2;
 
             return IsCunning ? chance * 2 : chance;
         }
@@ -582,12 +581,12 @@ namespace Ship_Game
                     case PersonalityType.Honorable:
                         dialog = "JoinWar_Allied_DECLINE";
                         return false;
-                    case PersonalityType.Aggressive when OffensiveStrength > enemy.CurrentMilitaryStrength: 
-                    case PersonalityType.Ruthless   when combinedStr > enemy.CurrentMilitaryStrength:
+                    case PersonalityType.Aggressive when OffensiveStrength > enemy.CurrentMilitaryStrength:
+                    case PersonalityType.Ruthless when combinedStr > enemy.CurrentMilitaryStrength:
                         dialog = "JoinWar_Allied_OK";
                         return true;
-                    case PersonalityType.Xenophobic when combinedStr > enemy.CurrentMilitaryStrength:       break;
-                    case PersonalityType.Cunning    when combinedStr > enemy.CurrentMilitaryStrength:       break;
+                    case PersonalityType.Xenophobic when combinedStr > enemy.CurrentMilitaryStrength: break;
+                    case PersonalityType.Cunning when combinedStr > enemy.CurrentMilitaryStrength: break;
                 }
 
             }
@@ -634,6 +633,163 @@ namespace Ship_Game
         {
             Relationship rel = GetRelations(them);
             return rel?.WarnedSystemsList.Contains(s.guid) == true;
+        }
+
+        /// <summary>
+        /// Will try to merge to other empires or surrender to the enemy, based on personality
+        /// </summary>
+        /// <param name="enemy"></param>
+        /// <returns></returns>
+        public bool TryMergeOrSurrender(Empire enemy)
+        {
+            var potentialEmpires = EmpireManager.ActiveMajorEmpires
+                .Filter(e => e != this && !e.GetRelationsOrNull(this)?.RefusedMerge == true);
+
+            switch (Personality)
+            {
+                default:
+                case PersonalityType.Aggressive: return TryMergeOrSurrenderAggressive(enemy, potentialEmpires);
+                case PersonalityType.Ruthless:   return TryMergeOrSurrenderRuthless(enemy, potentialEmpires);
+                case PersonalityType.Xenophobic: return TryMergeOrSurrenderXenophobic(enemy, potentialEmpires);
+                case PersonalityType.Honorable:  return TryMergeOrSurrenderHonorable(enemy, potentialEmpires);
+                case PersonalityType.Cunning:    return TryMergeOrSurrenderCunning(enemy, potentialEmpires);
+                case PersonalityType.Pacifist:   return TryMergeOrSurrenderPacifist(enemy, potentialEmpires);
+            }
+        }
+
+        bool TryMergeOrSurrenderAggressive(Empire enemy, Empire[] potentialEmpires)
+        {
+            if (enemy.IsAggressive)
+            {
+                ExecuteMerge(enemy, enemy);
+                return true;
+            }
+
+            var strongest = potentialEmpires.FindMax(e => e.CurrentMilitaryStrength);
+            if (strongest.IsAlliedWith(this) || strongest.IsAtWarWithMajorEmpire)
+            {
+                ExecuteMerge(strongest, enemy);
+                return true;
+            }
+
+            return false;
+        }
+
+        bool TryMergeOrSurrenderRuthless(Empire enemy, Empire[] potentialEmpires)
+        {
+            var closest = potentialEmpires.FindMin(e => e.WeightedCenter.SqDist(WeightedCenter));
+            if (closest.IsRuthless || closest.IsAlliedWith(this))
+            {
+                ExecuteMerge(closest, enemy);
+                return true;
+            }
+
+            return false;
+        }
+
+        bool TryMergeOrSurrenderXenophobic(Empire enemy, Empire[] potentialEmpires)
+        {
+            var strongest = potentialEmpires.FindMax(e => e.CurrentMilitaryStrength);
+            if (strongest.IsAlliedWith(this))
+            {
+                ExecuteMerge(strongest, enemy);
+                return true;
+            }
+
+            return false;
+        }
+
+        bool TryMergeOrSurrenderHonorable(Empire enemy, Empire[] potentialEmpires)
+        {
+            var closestAllyOrHonorable = potentialEmpires
+                .FindMinFiltered(e => e.IsAlliedWith(this) || e.IsHonorable && !e.IsAtWarWith(this)
+                , e => e.WeightedCenter.SqDist(WeightedCenter));
+
+            if (closestAllyOrHonorable != null)
+            {
+                ExecuteMerge(closestAllyOrHonorable, enemy);
+                return true;
+            }
+
+            return false;
+        }
+
+        bool TryMergeOrSurrenderPacifist(Empire enemy, Empire[] potentialEmpires)
+        {
+            var closestNotAtWar = potentialEmpires
+                .FindMinFiltered(e => !e.IsAtWarWithMajorEmpire, e => e.WeightedCenter.SqDist(WeightedCenter));
+
+            if (closestNotAtWar == null)
+            {
+                var closestPacifist = potentialEmpires
+                    .FindMinFiltered(e => e.IsPacifist, e => e.WeightedCenter.SqDist(WeightedCenter));
+
+                if (closestPacifist != null)
+                {
+                    ExecuteMerge(closestPacifist, enemy);
+                    return true;
+                }
+            }
+            else
+            {
+                ExecuteMerge(closestNotAtWar, enemy);
+                return true;
+            }
+
+            return false;
+        }
+
+        bool TryMergeOrSurrenderCunning(Empire enemy, Empire[] potentialEmpires)
+        {
+            var biggest = potentialEmpires.FindMax(e => e.TotalPopBillion);
+            return ExecuteMerge(biggest, enemy);
+        }
+
+        bool ExecuteMerge(Empire toMerge, Empire enemy)
+        {
+            if (toMerge == this)
+                return false;
+
+            if (toMerge.isPlayer)
+            {
+                string dialogue = enemy.isPlayer ? "SURRENDER" : "OFFERMERGE";
+
+                // default is refusal if the player agrees, the empire will be merged anyway
+                GetRelationsOrNull(EmpireManager.Player).RefusedMerge = true; 
+                OfferMergeOrSurrenderToPlayer(dialogue);
+            }
+            else
+            {
+                toMerge.AbsorbEmpire(this);
+                // Message the player
+                string msg;
+                if (toMerge == enemy)
+                    // AI A surrendered to AI B due to losing war with them
+                    msg = $"{Name} has surrendered to {toMerge.Name}";
+                else if (enemy.isPlayer)
+                    // AI A merged with AI B due to a losing war with the player
+                    msg = $"{Name} has merged with {toMerge.Name} due to a losing war with us";
+                else
+                    // AI A merged with AI B due to a losing war with AI C
+                    msg = $"{Name} has merged with {toMerge} due to a losing war with {enemy.Name}";
+
+                Universe.NotificationManager.AddEmpireMergedOrSurrendered(this, toMerge, msg);
+            }
+
+            return true;
+        }
+
+        void OfferMergeOrSurrenderToPlayer(string dialogue)
+        {
+            var offer = new Offer
+            {
+                AcceptDL = "OFFERPEACE_ACCEPTED",
+                RejectDL = "OFFERPEACE_REJECTED",
+                ValueToModify = new Ref<bool>(() => true, x => EmpireManager.Player.AbsorbEmpire(this))
+            };
+
+            Offer ourOffer = new Offer();
+            DiplomacyScreen.Show(this, dialogue, ourOffer, offer);
         }
     }
 }
