@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Ship_Game.Ships
 {
-    public sealed class ShipDataWriter
+    public sealed class ShipDesignWriter
     {
         StringBuilder Sb;
 
-        public ShipDataWriter()
+        public ShipDesignWriter()
         {
             Sb = new StringBuilder();
         }

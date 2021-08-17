@@ -391,14 +391,14 @@ namespace Ship_Game
                     if (hull.IsShipyard)
                         types.Add(TechnologyType.Industry);
 
-                    if (hull.Role == ShipData.RoleName.construction ||
-                        hull.Role == ShipData.RoleName.freighter)
+                    if (hull.Role == RoleName.construction ||
+                        hull.Role == RoleName.freighter)
                         types.Add(TechnologyType.Industry);
 
-                    if (hull.Role == ShipData.RoleName.station ||
-                        hull.Role == ShipData.RoleName.platform ||
-                        hull.Role == ShipData.RoleName.freighter ||
-                        hull.Role >= ShipData.RoleName.fighter)
+                    if (hull.Role == RoleName.station ||
+                        hull.Role == RoleName.platform ||
+                        hull.Role == RoleName.freighter ||
+                        hull.Role >= RoleName.fighter)
                         types.Add(TechnologyType.ShipHull);
                 }
             }

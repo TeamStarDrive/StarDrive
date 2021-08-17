@@ -18,21 +18,21 @@ namespace Ship_Game
 
         void UpdateCarrierShip()
         {
-            ShipData design = CurrentDesign;
-            if (design.HullRole == ShipData.RoleName.drone)
+            ShipDesign design = CurrentDesign;
+            if (design.HullRole == RoleName.drone)
                 design.CarrierShip = true;
 
             if (CarrierOnlyCheckBox == null)
                 return; // it is null the first time ship design screen is loaded
 
-            CarrierOnlyCheckBox.Visible = design.HullRole != ShipData.RoleName.drone
-                                          && design.HullRole != ShipData.RoleName.platform
-                                          && design.HullRole != ShipData.RoleName.station;
+            CarrierOnlyCheckBox.Visible = design.HullRole != RoleName.drone
+                                          && design.HullRole != RoleName.platform
+                                          && design.HullRole != RoleName.station;
         }
 
         void BindListsToActiveHull()
         {
-            ShipData design = CurrentDesign;
+            ShipDesign design = CurrentDesign;
             CategoryList.Visible = design != null;
             HangarOptionsList.Visible = design != null;
 
@@ -44,17 +44,17 @@ namespace Ship_Game
 
             CategoryList.PropertyBinding = () => design.ShipCategory;
 
-            if (design.ShipCategory == ShipData.Category.Unclassified)
+            if (design.ShipCategory == ShipCategory.Unclassified)
             {
                 // Defaults based on hull types
                 // Freighter hull type defaults to Civilian behaviour when the hull is selected, player has to actively opt to change classification to disable flee/freighter behaviour
-                if (design.Role == ShipData.RoleName.freighter)
-                    CategoryList.SetActiveValue(ShipData.Category.Civilian);
+                if (design.Role == RoleName.freighter)
+                    CategoryList.SetActiveValue(ShipCategory.Civilian);
                 // Scout hull type defaults to Recon behaviour. Not really important, as the 'Recon' tag is going to supplant the notion of having 'Fighter' class hulls automatically be scouts, but it makes things easier when working with scout hulls without existing categorisation.
-                else if (design.Role == ShipData.RoleName.scout)
-                    CategoryList.SetActiveValue(ShipData.Category.Recon);
+                else if (design.Role == RoleName.scout)
+                    CategoryList.SetActiveValue(ShipCategory.Recon);
                 else
-                    CategoryList.SetActiveValue(ShipData.Category.Unclassified);
+                    CategoryList.SetActiveValue(ShipCategory.Unclassified);
             }
             else
             {
@@ -74,7 +74,7 @@ namespace Ship_Game
                     return false; // empty slots not allowed!
                 hasBridge |= slot.Module?.IsCommandModule == true;
             }
-            return (hasBridge || Role == ShipData.RoleName.platform || Role == ShipData.RoleName.station);
+            return (hasBridge || Role == RoleName.platform || Role == RoleName.station);
         }
 
         void CreateSOFromCurrentHull()
@@ -577,9 +577,9 @@ namespace Ship_Game
             return placed.ToArray();
         }
 
-        ShipData CloneCurrentDesign(string newName)
+        ShipDesign CloneCurrentDesign(string newName)
         {
-            ShipData hull = CurrentDesign.GetClone();
+            ShipDesign hull = CurrentDesign.GetClone();
             hull.Name = newName;
             hull.ModuleSlots = CreateModuleSlots();
             return hull;
@@ -593,7 +593,7 @@ namespace Ship_Game
             return toSave;
         }
 
-        void SaveDesign(ShipData design, FileInfo designFile)
+        void SaveDesign(ShipDesign design, FileInfo designFile)
         {
             try
             {
@@ -621,7 +621,7 @@ namespace Ship_Game
 
         public void SaveShipDesign(string name, FileInfo overwriteProtected)
         {
-            ShipData toSave = CloneCurrentDesign(name);
+            ShipDesign toSave = CloneCurrentDesign(name);
             SaveDesign(toSave, overwriteProtected ?? new FileInfo($"{Dir.StarDriveAppData}/Saved Designs/{name}.design"));
 
             bool playerDesign = overwriteProtected == null;
@@ -647,7 +647,7 @@ namespace Ship_Game
         {
             if (CurrentDesign != null)
             {
-                ShipData toSave = CloneCurrentDesign($"{DateTime.Now:yyyy-MM-dd}__{DesignOrHullName}");
+                ShipDesign toSave = CloneCurrentDesign($"{DateTime.Now:yyyy-MM-dd}__{DesignOrHullName}");
                 SaveDesign(toSave, new FileInfo($"{Dir.StarDriveAppData}/WIP/{toSave.Name}.design"));
             }
             else

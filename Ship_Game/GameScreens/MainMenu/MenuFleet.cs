@@ -16,7 +16,7 @@ namespace Ship_Game.GameScreens.MainMenu
     class ShipSpawnInfo
     {
         #pragma warning disable 649
-        [StarData] public ShipData.RoleName Role = ShipData.RoleName.fighter;
+        [StarData] public RoleName Role = RoleName.fighter;
         [StarData] public Vector3 Position;
         [StarData] public float Speed = 10f;
         public IEmpireData Empire;
@@ -30,7 +30,7 @@ namespace Ship_Game.GameScreens.MainMenu
     class ShipGroupInfo
     {
         #pragma warning disable 649
-        [StarData] public ShipData.RoleName Role = ShipData.RoleName.fighter;
+        [StarData] public RoleName Role = RoleName.fighter;
         [StarData] public int Count = 1;
         #pragma warning restore 649
     }

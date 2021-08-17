@@ -7,12 +7,12 @@ namespace Ship_Game.Ships
     public struct RoleData
     {
         readonly ShipModule[] Modules;
-        readonly ShipData.RoleName HullRole;
-        readonly ShipData.RoleName DataRole;
+        readonly RoleName HullRole;
+        readonly RoleName DataRole;
         readonly int SurfaceArea;
         readonly Ship Ship;
-        readonly ShipData.Category Category;
-        public ShipData.RoleName DesignRole;
+        readonly ShipCategory Category;
+        public RoleName DesignRole;
 
         public RoleData(Ship ship, ShipModule[] modules)
         {
@@ -22,94 +22,94 @@ namespace Ship_Game.Ships
             SurfaceArea = ship.SurfaceArea;
             Ship        = ship;
             Category    = ship.shipData.ShipCategory;
-            DesignRole  = ShipData.RoleName.disabled;
+            DesignRole  = RoleName.disabled;
             DesignRole  = GetDesignRole();
         }
 
-        ShipData.RoleName GetDesignRole()
+        RoleName GetDesignRole()
         {
             if (Ship != null)
             {
-                if (Ship.shipData.Role == ShipData.RoleName.prototype)
-                    return ShipData.RoleName.prototype;
-                if (Ship.shipData.Role == ShipData.RoleName.supply)
-                    return ShipData.RoleName.supply;
+                if (Ship.shipData.Role == RoleName.prototype)
+                    return RoleName.prototype;
+                if (Ship.shipData.Role == RoleName.supply)
+                    return RoleName.supply;
 
                 if (Ship.IsConstructor)
-                    return ShipData.RoleName.construction;
+                    return RoleName.construction;
                 if (Ship.IsSubspaceProjector)
-                    return ShipData.RoleName.ssp;
+                    return RoleName.ssp;
                 if (Ship.shipData.IsShipyard)
-                    return ShipData.RoleName.shipyard;
+                    return RoleName.shipyard;
 
                 if (Ship.isColonyShip || Modules.Any(ShipModuleType.Colony))
-                    return ShipData.RoleName.colony;
+                    return RoleName.colony;
 
                 switch (Ship.shipData.Role)
                 {
-                    case ShipData.RoleName.station:
-                    case ShipData.RoleName.platform: return Ship.shipData.Role;
-                    case ShipData.RoleName.scout:    return ShipData.RoleName.scout;
-                    case ShipData.RoleName.troop:    return ShipData.RoleName.troop;
+                    case RoleName.station:
+                    case RoleName.platform: return Ship.shipData.Role;
+                    case RoleName.scout:    return RoleName.scout;
+                    case RoleName.troop:    return RoleName.troop;
                 }
 
                 if (Ship.IsSupplyShip && Ship.Weapons.Count == 0)
-                    return ShipData.RoleName.supply;
+                    return RoleName.supply;
                 
-                if (HullRole == ShipData.RoleName.freighter && Category == ShipData.Category.Civilian
-                                && SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f)
+                if (HullRole == RoleName.freighter && Category == ShipCategory.Civilian
+                                                   && SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f)
                 {
-                    return ShipData.RoleName.freighter;
+                    return RoleName.freighter;
                 }
             }
 
             // troops ship
-            if (HullRole >= ShipData.RoleName.freighter)
+            if (HullRole >= RoleName.freighter)
             {
                 if (Modules.Any(ShipModuleType.Construction))
-                    return ShipData.RoleName.construction;
+                    return RoleName.construction;
 
                 if (SurfaceAreaPercentOf(m => m.IsTroopBay || m.TransporterTroopLanding > 0 || m.TroopCapacity > 0) > 0.1f
                     && Modules.Any(m => m.IsTroopBay) // At least 1 troop bay as well
                     && Modules.Any(m => m.TroopCapacity > 0)) // At least 1 troop capacity
                 {
-                    return ShipData.RoleName.troopShip;
+                    return RoleName.troopShip;
                 }
 
                 if (SurfaceAreaPercentOf(ShipModuleType.Bomb) > 0.05f)
-                    return ShipData.RoleName.bomber;
+                    return RoleName.bomber;
 
                 if (SurfaceAreaPercentOf(m => m.ModuleType == ShipModuleType.Hangar && !m.IsSupplyBay && !m.IsTroopBay) > 0.1f)
-                    return ShipData.RoleName.carrier;
+                    return RoleName.carrier;
 
                 if (SurfaceAreaPercentOf(m => m.ModuleType == ShipModuleType.Hangar && (m.IsSupplyBay || m.IsTroopBay)) > 0.1f)
-                    return ShipData.RoleName.support;
+                    return RoleName.support;
                 // check freighter role. If ship is unclassified or is not a freighter hull and is classified civilian
                 // check for useability as freighter.
                 // small issue is that ships that are classified civilian will behave as civilian ships.
                 // currently the category can not be set here while in the shipyard.
-                if (Ship == null || Category <= ShipData.Category.Civilian)
+                if (Ship == null || Category <= ShipCategory.Civilian)
                 {
                     // non freighter hull must be set to civilian to be set as freighters.
-                    if (HullRole > ShipData.RoleName.freighter)
+                    if (HullRole > RoleName.freighter)
                     {
-                        if (SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f && Category == ShipData.Category.Civilian)
-                            return ShipData.RoleName.freighter;
+                        if (SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f && Category == ShipCategory.Civilian)
+                            return RoleName.freighter;
                     }
                     // freighter hull will be set to civilian if useable as freighter.
                     // if not useable as freighter it will set the cat to Unclassified
-                    else if (HullRole == ShipData.RoleName.freighter)
+                    else if (HullRole == RoleName.freighter)
                     {
                         if (SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.01f)
                         {
                             if (Ship != null)
-                                Ship.shipData.ShipCategory = ShipData.Category.Civilian;
-                            return ShipData.RoleName.freighter;
+                                Ship.shipData.ShipCategory = ShipCategory.Civilian;
+                            return RoleName.freighter;
                         }
                         // This is for updating the ship and no use if there is no ship. 
-                        if (Ship?.shipData.ShipCategory == ShipData.Category.Civilian)
+                        if (Ship?.shipData.ShipCategory == ShipCategory.Civilian)
                         {
-                            Ship.shipData.ShipCategory = ShipData.Category.Unclassified;
+                            Ship.shipData.ShipCategory = ShipCategory.Unclassified;
                             Log.Warning($"Freighter {Ship.Name} category was reverted to unclassified as it cant be used as civilian ship");
                         }
                     }
@@ -131,45 +131,45 @@ namespace Ship_Game.Ships
             );
 
             if (pSpecial > 0.10f)
-                return ShipData.RoleName.support;
+                return RoleName.support;
 
-            if (Category != ShipData.Category.Unclassified)
+            if (Category != ShipCategory.Unclassified)
             {
                 switch (Category)
                 {
-                    case ShipData.Category.Unclassified:
+                    case ShipCategory.Unclassified:
                         break;
-                    case ShipData.Category.Civilian:
+                    case ShipCategory.Civilian:
                         break;
-                    case ShipData.Category.Recon:
-                        return ShipData.RoleName.scout;
-                    case ShipData.Category.Conservative:
+                    case ShipCategory.Recon:
+                        return RoleName.scout;
+                    case ShipCategory.Conservative:
                         break;
-                    case ShipData.Category.Neutral:
+                    case ShipCategory.Neutral:
                         break;
-                    case ShipData.Category.Reckless:
+                    case ShipCategory.Reckless:
                         break;
-                    case ShipData.Category.Kamikaze:
+                    case ShipCategory.Kamikaze:
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             }
 
-            ShipData.RoleName fixRole = DataRole == ShipData.RoleName.prototype ? DataRole : HullRole;
+            RoleName fixRole = DataRole == RoleName.prototype ? DataRole : HullRole;
             switch (fixRole)
             {
-                case ShipData.RoleName.corvette:
-                case ShipData.RoleName.gunboat: return ShipData.RoleName.corvette;
-                case ShipData.RoleName.carrier: return ShipData.RoleName.battleship;
-                case ShipData.RoleName.capital: return ShipData.RoleName.capital;
-                case ShipData.RoleName.destroyer:
-                case ShipData.RoleName.frigate: return ShipData.RoleName.frigate;
-                case ShipData.RoleName.scout:
-                case ShipData.RoleName.fighter:
+                case RoleName.corvette:
+                case RoleName.gunboat: return RoleName.corvette;
+                case RoleName.carrier: return RoleName.battleship;
+                case RoleName.capital: return RoleName.capital;
+                case RoleName.destroyer:
+                case RoleName.frigate: return RoleName.frigate;
+                case RoleName.scout:
+                case RoleName.fighter:
                     return Modules.Any(weapons => weapons.InstalledWeapon != null)
-                        ? ShipData.RoleName.fighter
-                        : ShipData.RoleName.scout;
+                        ? RoleName.fighter
+                        : RoleName.scout;
             }
             return HullRole;
         }
@@ -184,7 +184,7 @@ namespace Ship_Game.Ships
             return Modules.SurfaceArea(moduleType) / (float)SurfaceArea;
         }
 
-        public static void CreateDesignRoleToolTip(ShipData.RoleName role, Rectangle designRoleRect, bool floatingText, Vector2 pos)
+        public static void CreateDesignRoleToolTip(RoleName role, Rectangle designRoleRect, bool floatingText, Vector2 pos)
         {
             Graphics.Font roleFont = Fonts.Arial12;
             string text = $"Ship Role was Changed to {RoleDesignString(role)}";
@@ -200,34 +200,34 @@ namespace Ship_Game.Ships
             ToolTip.CreateFloatingText(text, "", pos, floatTime.UpperBound(7));
         }
 
-        static string RoleDesignString(ShipData.RoleName role)
+        static string RoleDesignString(RoleName role)
         {
             switch (role)
             {
                 default:
-                case ShipData.RoleName.troop:
-                case ShipData.RoleName.disabled:     return "";
-                case ShipData.RoleName.platform:     return "'Platform'";
-                case ShipData.RoleName.station:      return "'Station'";
-                case ShipData.RoleName.construction: return "'Construction'";
-                case ShipData.RoleName.colony:       return "'Colony' (has a Colony Module)";
-                case ShipData.RoleName.supply:       return "'Supply'";
-                case ShipData.RoleName.freighter:    return "'Freighter'";
-                case ShipData.RoleName.troopShip:    return "'Troop Ship', as 10% of the ship space is taken by troop launch bays or barracks";
-                case ShipData.RoleName.support:      return "'Support', as 10% of ship space is taken by support modules";
-                case ShipData.RoleName.bomber:       return "'Bomber', as 10% of ship space is taken by bomb modules";
-                case ShipData.RoleName.carrier:      return "'Carrier', as 10% of ship space is taken by hangar modules";
-                case ShipData.RoleName.fighter:      return "'Fighter'";
-                case ShipData.RoleName.scout:        return "'Scout' since it has";
-                case ShipData.RoleName.gunboat:      return "'Gunboat'";
-                case ShipData.RoleName.drone:        return "'Drone'";
-                case ShipData.RoleName.corvette:     return "'Corvette'";
-                case ShipData.RoleName.frigate:      return "'Frigate'";
-                case ShipData.RoleName.destroyer:    return "'Destroyer'";
-                case ShipData.RoleName.cruiser:      return "'Cruiser'";
-                case ShipData.RoleName.battleship:   return "'battleship'";
-                case ShipData.RoleName.capital:      return "'Capital'";
-                case ShipData.RoleName.prototype:    return "'Prototype'";
+                case RoleName.troop:
+                case RoleName.disabled:     return "";
+                case RoleName.platform:     return "'Platform'";
+                case RoleName.station:      return "'Station'";
+                case RoleName.construction: return "'Construction'";
+                case RoleName.colony:       return "'Colony' (has a Colony Module)";
+                case RoleName.supply:       return "'Supply'";
+                case RoleName.freighter:    return "'Freighter'";
+                case RoleName.troopShip:    return "'Troop Ship', as 10% of the ship space is taken by troop launch bays or barracks";
+                case RoleName.support:      return "'Support', as 10% of ship space is taken by support modules";
+                case RoleName.bomber:       return "'Bomber', as 10% of ship space is taken by bomb modules";
+                case RoleName.carrier:      return "'Carrier', as 10% of ship space is taken by hangar modules";
+                case RoleName.fighter:      return "'Fighter'";
+                case RoleName.scout:        return "'Scout' since it has";
+                case RoleName.gunboat:      return "'Gunboat'";
+                case RoleName.drone:        return "'Drone'";
+                case RoleName.corvette:     return "'Corvette'";
+                case RoleName.frigate:      return "'Frigate'";
+                case RoleName.destroyer:    return "'Destroyer'";
+                case RoleName.cruiser:      return "'Cruiser'";
+                case RoleName.battleship:   return "'battleship'";
+                case RoleName.capital:      return "'Capital'";
+                case RoleName.prototype:    return "'Prototype'";
             }
         }
     }

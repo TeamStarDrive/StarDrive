@@ -52,7 +52,7 @@ namespace UnitTests.Ships
             }
         }
 
-        static void AssertAreEqual(ShipData a, ShipHull b)
+        static void AssertAreEqual(ShipDesign a, ShipHull b)
         {
             Assert.AreEqual(a.Hull, b.HullName);
             Assert.AreEqual(a.ModName, b.ModName);

@@ -36,7 +36,7 @@ namespace Ship_Game
         {
             public Ship Ship;
             public readonly string ShipName;
-            readonly ShipData Design;
+            readonly ShipDesign Design;
             readonly ShipHull Hull;
             readonly bool CanBuild;
             readonly bool CanModifyDesign;
@@ -58,7 +58,7 @@ namespace Ship_Game
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 string reserved = CanModifyDesign ? "" : ("(Reserved Name)");
-                string role = Design?.GetRole() ?? ShipData.GetRole(Hull.Role);
+                string role = Design?.GetRole() ?? ShipDesign.GetRole(Hull.Role);
                 SubTexture icon = Design?.Icon ?? Hull?.Icon;
 
                 batch.Draw(icon, new Rectangle((int)X, (int)Y, 48, 48));

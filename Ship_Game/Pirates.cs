@@ -583,7 +583,7 @@ namespace Ship_Game
             {
                 ShipsWeCanSpawn.AddUnique(shipToAdd);
                 Ship fighter = ResourceManager.GetShipTemplate(shipToAdd);
-                if (fighter != null && fighter.shipData.HullRole == ShipData.RoleName.fighter
+                if (fighter != null && fighter.shipData.HullRole == RoleName.fighter
                                     && !ShipsWeCanBuild.Contains(shipToAdd))
                 {
                     ShipsWeCanBuild.Add(shipToAdd); // For carriers to spawn the default fighters
@@ -851,9 +851,9 @@ namespace Ship_Game
             if (ShipsWeCanSpawn.Contains(ship.Name))
                 return false;
 
-            return ship.shipData.HullRole != ShipData.RoleName.capital
-                   || ship.shipData.HullRole != ShipData.RoleName.battleship
-                   || ship.shipData.HullRole != ShipData.RoleName.cruiser;
+            return ship.shipData.HullRole != RoleName.capital
+                   || ship.shipData.HullRole != RoleName.battleship
+                   || ship.shipData.HullRole != RoleName.cruiser;
         }
 
         void PopulateDefaultBasicShips(bool fromSave)

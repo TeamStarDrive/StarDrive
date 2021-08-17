@@ -64,7 +64,7 @@ namespace Ship_Game
             for (int i = 0; i < fleetShips.Count; i++)
             {
                 Ship ship = fleetShips[i];
-                if (ship?.Active != true || ship.AI.Target == null || ship.DesignRoleType != ShipData.RoleType.Warship) 
+                if (ship?.Active != true || ship.AI.Target == null || ship.DesignRoleType != RoleType.Warship) 
                     continue;
 
                 if (potential.AI.Target == ship) defend = true;
