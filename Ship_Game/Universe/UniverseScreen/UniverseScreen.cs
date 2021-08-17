@@ -357,11 +357,17 @@ namespace Ship_Game
             InitializeUniverse();
         }
 
+        // So this should be the absolute max height for the camera
+        // And this also defines the limit to Perspective Matrix's MaxDistance
+        // The bigger Perspective project MaxDistance is, the less accurate our screen coordinates
+        const double CAM_MAX = 15_000_000;
+
         void InitializeCamera()
         {
             float univSizeOnScreen = 10f;
-            MaxCamHeight = 15000000.0;
-            SetPerspectiveProjection(maxDistance: MaxCamHeight);
+
+            MaxCamHeight = CAM_MAX;
+            SetPerspectiveProjection(maxDistance: CAM_MAX);
 
             while (univSizeOnScreen < (ScreenWidth + 50))
             {
@@ -372,17 +378,11 @@ namespace Ship_Game
                 Vector3 univBotRight = Viewport.Project(new Vector3(UniverseSize * 1.25f, UniverseSize * 1.25f, 0.0f), Projection, camMaxToUnivCenter, Matrix.Identity);
                 univSizeOnScreen = Math.Abs(univBotRight.X - univTopLeft.X);
                 if (univSizeOnScreen < (ScreenWidth + 50))
-                {
                     MaxCamHeight -= 0.1 * MaxCamHeight;
-                    SetPerspectiveProjection(maxDistance: MaxCamHeight);
-                }
             }
 
-            if (MaxCamHeight > 15000000.0)
-            {
-                MaxCamHeight = 15000000.0;
-                SetPerspectiveProjection(maxDistance: MaxCamHeight);
-            }
+            if (MaxCamHeight > CAM_MAX)
+                MaxCamHeight = CAM_MAX;
 
             if (!loading)
                 CamPos = new Vector3d(PlayerEmpire.GetPlanets()[0].Center, 2750);
