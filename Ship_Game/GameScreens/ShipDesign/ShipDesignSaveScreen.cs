@@ -219,10 +219,10 @@ namespace Ship_Game
             }
             else
             {
-                Ship ship = ResourceManager.GetShipTemplates().FirstOrDefault(s => s.Name == shipOrHullName);
+                ShipDesign ship = ResourceManager.GetShipDesigns().FirstOrDefault(s => s.Name == shipOrHullName);
                 exists = ship != null;
-                source = ship?.shipData.Source;
-                reserved = ship?.shipData.IsReadonlyDesign == true;
+                source = ship?.Source;
+                reserved = ship?.IsReadonlyDesign == true;
 
                 if (reserved && !Screen.EnableDebugFeatures)
                 {
