@@ -133,7 +133,7 @@ namespace Ship_Game.GameScreens.LoadGame
             ScreenManager.Instance.RemoveAllObjects();
             var data = new UniverseData
             {
-                loadFogPath           = saveData.FogMapName,
+                FogMapBase64          = saveData.FogMapBase64,
                 difficulty            = saveData.gameDifficulty,
                 GalaxySize            = saveData.GalaxySize,
                 Size                  = saveData.Size,
