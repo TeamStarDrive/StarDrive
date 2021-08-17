@@ -52,14 +52,13 @@ namespace Ship_Game.Ships
             if (FixedUpkeep > 0f)
                 sw.Write("FixedUpkeep", FixedUpkeep);
 
-            if (DefaultAIState != AIState.DoNothing)         sw.Write("DefaultAIState", DefaultAIState);
-            if (DefaultCombatState != CombatState.Artillery) sw.Write("DefaultCombatState", DefaultCombatState);
-            if (ShipCategory != ShipCategory.Unclassified)   sw.Write("ShipCategory", ShipCategory);
-            if (HangarDesignation != HangarOptions.General)  sw.Write("HangarDesignation", HangarDesignation);
-            if (IsShipyard)       sw.Write("IsShipyard", IsShipyard);
-            if (IsOrbitalDefense) sw.Write("IsOrbitalDefense", IsOrbitalDefense);
-            if (IsCarrierOnly)    sw.Write("IsCarrierOnly", IsCarrierOnly);
-
+            sw.Write("DefaultAIState", DefaultAIState);
+            sw.Write("DefaultCombatState", DefaultCombatState);
+            sw.Write("ShipCategory", ShipCategory);
+            sw.Write("HangarDesignation", HangarDesignation);
+            sw.Write("IsShipyard", IsShipyard);
+            sw.Write("IsOrbitalDefense", IsOrbitalDefense);
+            sw.Write("IsCarrierOnly", IsCarrierOnly);
             sw.Write("EventOnDeath", EventOnDeath); // "DefeatedMothership" remnant event
 
             ushort[] slotModuleUIDAndIndex = CreateModuleIndexMapping(DesignSlots, out Array<string> moduleUIDs);
