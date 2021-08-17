@@ -105,7 +105,7 @@ namespace Ship_Game.AI.Research
                 // don't try to research ships we have all the tech for.
                 if (!ShipHasResearchableTech(shortTermBest)) continue;
                 // Don't build ships intended for carriers if there arent any carriers.
-                if (!OwnerEmpire.canBuildCarriers && shortTermBest.shipData.CarrierShip)
+                if (!OwnerEmpire.canBuildCarriers && shortTermBest.shipData.IsCarrierOnly)
                     continue;
                 // filter out bad roles....
                 if (!IsRoleValid(shortTermBest.shipData.HullRole)) continue;

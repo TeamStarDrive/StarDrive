@@ -58,6 +58,7 @@ namespace Ship_Game.Ships
             if (HangarDesignation != HangarOptions.General)  sw.Write("HangarDesignation", HangarDesignation);
             if (IsShipyard)       sw.Write("IsShipyard", IsShipyard);
             if (IsOrbitalDefense) sw.Write("IsOrbitalDefense", IsOrbitalDefense);
+            if (IsCarrierOnly)    sw.Write("IsCarrierOnly", IsCarrierOnly);
 
             sw.Write("EventOnDeath", EventOnDeath); // "DefeatedMothership" remnant event
 
@@ -200,6 +201,7 @@ namespace Ship_Game.Ships
                     else if (key == "HangarDesignation")  Enum.TryParse(value.Text, out HangarDesignation);
                     else if (key == "IsShipyard")         IsShipyard       = value.ToBool();
                     else if (key == "IsOrbitalDefense")   IsOrbitalDefense = value.ToBool();
+                    else if (key == "IsCarrierOnly")      IsCarrierOnly    = value.ToBool();
                     else if (key == "EventOnDeath")       EventOnDeath     = value.Text;
                     else if (key == "ModuleUIDs")
                     {
