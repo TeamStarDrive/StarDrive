@@ -312,6 +312,8 @@ namespace Ship_Game
             else
             {
                 ChangeHull(new ShipDesign(hullTemplate));
+                if (!Empire.Universe.Debug)
+                    CurrentDesign.Name = CurrentHull.VisibleName;
             }
         }
 
