@@ -660,17 +660,11 @@ namespace Ship_Game
         bool TryMergeOrSurrenderAggressive(Empire enemy, Empire[] potentialEmpires)
         {
             if (enemy.IsAggressive)
-            {
-                ExecuteMerge(enemy, enemy);
-                return true;
-            }
-
+                return ExecuteMerge(enemy, enemy);
+            
             var strongest = potentialEmpires.FindMax(e => e.CurrentMilitaryStrength);
             if (strongest.IsAlliedWith(this) || strongest.IsAtWarWithMajorEmpire)
-            {
-                ExecuteMerge(strongest, enemy);
-                return true;
-            }
+                return ExecuteMerge(strongest, enemy);
 
             return false;
         }
@@ -679,10 +673,7 @@ namespace Ship_Game
         {
             var closest = potentialEmpires.FindMin(e => e.WeightedCenter.SqDist(WeightedCenter));
             if (closest.IsRuthless || closest.IsAlliedWith(this))
-            {
-                ExecuteMerge(closest, enemy);
-                return true;
-            }
+                return ExecuteMerge(closest, enemy); 
 
             return false;
         }
@@ -691,10 +682,7 @@ namespace Ship_Game
         {
             var strongest = potentialEmpires.FindMax(e => e.CurrentMilitaryStrength);
             if (strongest.IsAlliedWith(this))
-            {
-                ExecuteMerge(strongest, enemy);
-                return true;
-            }
+                return ExecuteMerge(strongest, enemy); 
 
             return false;
         }
@@ -706,10 +694,7 @@ namespace Ship_Game
                 , e => e.WeightedCenter.SqDist(WeightedCenter));
 
             if (closestAllyOrHonorable != null)
-            {
-                ExecuteMerge(closestAllyOrHonorable, enemy);
-                return true;
-            }
+                return ExecuteMerge(closestAllyOrHonorable, enemy); 
 
             return false;
         }
@@ -725,15 +710,11 @@ namespace Ship_Game
                     .FindMinFiltered(e => e.IsPacifist, e => e.WeightedCenter.SqDist(WeightedCenter));
 
                 if (closestPacifist != null)
-                {
-                    ExecuteMerge(closestPacifist, enemy);
-                    return true;
-                }
+                    return ExecuteMerge(closestPacifist, enemy);
             }
             else
             {
-                ExecuteMerge(closestNotAtWar, enemy);
-                return true;
+                return ExecuteMerge(closestNotAtWar, enemy);
             }
 
             return false;
@@ -745,12 +726,15 @@ namespace Ship_Game
             return ExecuteMerge(biggest, enemy);
         }
 
-        bool ExecuteMerge(Empire toMerge, Empire enemy)
+        bool ExecuteMerge(Empire absorber, Empire enemy)
         {
-            if (toMerge == this)
+            if (absorber == this)
+            {
+                Log.Warning($"Execute merge tried merge with self: {Name}");
                 return false;
+            }
 
-            if (toMerge.isPlayer)
+            if (absorber.isPlayer)
             {
                 string dialogue = enemy.isPlayer ? "SURRENDER" : "OFFERMERGE";
 
@@ -760,31 +744,31 @@ namespace Ship_Game
             }
             else
             {
-                toMerge.AbsorbEmpire(this);
+                absorber.AbsorbEmpire(this);
                 // Message the player
                 string msg;
-                if (toMerge == enemy)
+                if (absorber == enemy)
                     // AI A surrendered to AI B due to losing war with them
-                    msg = $"{Name} has surrendered to {toMerge.Name}";
+                    msg = $"{Name} {Localizer.Token(4360)} {absorber.Name}";
                 else if (enemy.isPlayer)
                     // AI A merged with AI B due to a losing war with the player
-                    msg = $"{Name} has merged with {toMerge.Name} due to a losing war with us";
+                    msg = $"{Name} {Localizer.Token(4361)} {absorber.Name}\n{Localizer.Token(4362)}";
                 else
                     // AI A merged with AI B due to a losing war with AI C
-                    msg = $"{Name} has merged with {toMerge} due to a losing war with {enemy.Name}";
+                    msg = $"{Name} {Localizer.Token(4361)} {absorber}\n{Localizer.Token(4363)} {enemy.Name}";
 
-                Universe.NotificationManager.AddEmpireMergedOrSurrendered(this, toMerge, msg);
+                Universe.NotificationManager.AddEmpireMergedOrSurrendered(this, absorber, msg);
             }
 
-            return true;
+            return true; // return data.defeated // in case the player refused
         }
 
         void OfferMergeOrSurrenderToPlayer(string dialogue)
         {
             var offer = new Offer
             {
-                AcceptDL = "OFFERPEACE_ACCEPTED",
-                RejectDL = "OFFERPEACE_REJECTED",
+                AcceptDL = "OFFERMERGE_ACCEPTED",
+                RejectDL = "OFFERMERGE_REJECTED",
                 ValueToModify = new Ref<bool>(() => true, x => EmpireManager.Player.AbsorbEmpire(this))
             };
 
