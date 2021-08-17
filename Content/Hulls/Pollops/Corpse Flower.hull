@@ -8,6 +8,9 @@ MeshOffset=0,-48
 IconPath=ShipIcons/corpseflower
 ModelPath=Model/Ships/Pollops/CorpseFlower
 SelectIcon=15e
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=216,392,0,99
 Thruster=248,392,0,99

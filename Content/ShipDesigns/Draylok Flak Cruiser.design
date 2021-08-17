@@ -5,7 +5,13 @@ Role=cruiser
 Style=Draylok
 Size=24,30
 GridCenter=12,15
+DefaultAIState=DoNothing
 DefaultCombatState=OrbitRight
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorLarge;SteelArmorSmall;SteelArmorMed;OrdnanceLockerSmall;Flechette AF Turret;BasicFuelCell;FrigateEngine;FlakTurret3x3;NuclearBombBay2x2;Shield_1KW;Phalanx PD;WarpEngine_1x1;CapEngines;FlakTurret;Internal Bulkhead;PowerConduit;Bridge;Reinforced Bulkhead;NuclearReactorMed;NuclearReactorSmall;WarpEngine_2x2
 Modules=138

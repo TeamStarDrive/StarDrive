@@ -3,14 +3,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Ship_Game.AI;
 using Ship_Game.Data;
 using Ship_Game.Data.Serialization.Types;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.Ships
 {
-    // NOTE: public variables are SERIALIZED
-    public partial class ShipData
+    public partial class ShipDesign
     {
         public void Save(string filePath)
         {
@@ -19,20 +19,20 @@ namespace Ship_Game.Ships
 
         public void Save(FileInfo file)
         {
-            ShipDataWriter sw = CreateShipDataText();
+            ShipDesignWriter sw = CreateShipDataText();
             sw.FlushToFile(file);
         }
 
         public string GetBase64DesignString()
         {
-            ShipDataWriter sw = CreateShipDataText();
+            ShipDesignWriter sw = CreateShipDataText();
             byte[] ascii = sw.GetASCIIBytes();
             return Convert.ToBase64String(ascii, Base64FormattingOptions.None);
         }
 
-        ShipDataWriter CreateShipDataText()
+        ShipDesignWriter CreateShipDataText()
         {
-            var sw = new ShipDataWriter();
+            var sw = new ShipDesignWriter();
             sw.Write("Version", Version);
             sw.Write("Name", Name);
             sw.Write("Hull", Hull);
@@ -55,14 +55,18 @@ namespace Ship_Game.Ships
             sw.Write("DefaultAIState", DefaultAIState);
             sw.Write("DefaultCombatState", DefaultCombatState);
             sw.Write("ShipCategory", ShipCategory);
+            sw.Write("HangarDesignation", HangarDesignation);
+            sw.Write("IsShipyard", IsShipyard);
+            sw.Write("IsOrbitalDefense", IsOrbitalDefense);
+            sw.Write("IsCarrierOnly", IsCarrierOnly);
             sw.Write("EventOnDeath", EventOnDeath); // "DefeatedMothership" remnant event
 
-            ushort[] slotModuleUIDAndIndex = CreateModuleIndexMapping(ModuleSlots, out Array<string> moduleUIDs);
+            ushort[] slotModuleUIDAndIndex = CreateModuleIndexMapping(DesignSlots, out Array<string> moduleUIDs);
 
             var moduleLines = new Array<string>();
-            for (int i = 0; i < ModuleSlots.Length; ++i)
+            for (int i = 0; i < DesignSlots.Length; ++i)
             {
-                string slotString = DesignSlotString(ModuleSlots[i], slotModuleUIDAndIndex[i]);
+                string slotString = DesignSlotString(DesignSlots[i], slotModuleUIDAndIndex[i]);
                 moduleLines.Add(slotString);
             }
 
@@ -131,7 +135,7 @@ namespace Ship_Game.Ships
             return slotModuleUIDAndIndex;
         }
 
-        static ShipData ParseDesign(FileInfo file)
+        static ShipDesign ParseDesign(FileInfo file)
         {
             using (var p = new GenericStringViewParser(file))
             {
@@ -148,20 +152,20 @@ namespace Ship_Game.Ships
                     // TODO: convert from this version to newer version
                 }
 
-                var data = new ShipData(p);
+                var data = new ShipDesign(p, source:file);
                 if (data.BaseHull == null)
                 {
                     Log.Warning(ConsoleColor.Red, $"Hull='{data.Hull}' does not exist for Design: {file.FullName}");
                     return null;
                 }
-
-                data.Source = file;
                 return data;
             }
         }
 
-        ShipData(GenericStringViewParser p)
+        ShipDesign(GenericStringViewParser p, FileInfo source = null)
         {
+            Source = source;
+
             string[] moduleUIDs = null;
             DesignSlot[] modules = null;
             int numModules = 0;
@@ -193,11 +197,19 @@ namespace Ship_Game.Ships
                     else if (key == "DefaultAIState")     Enum.TryParse(value.Text, out DefaultAIState);
                     else if (key == "DefaultCombatState") Enum.TryParse(value.Text, out DefaultCombatState);
                     else if (key == "ShipCategory")       Enum.TryParse(value.Text, out ShipCategory);
-                    else if (key == "EventOnDeath")       EventOnDeath = value.Text;
+                    else if (key == "HangarDesignation")  Enum.TryParse(value.Text, out HangarDesignation);
+                    else if (key == "IsShipyard")         IsShipyard       = value.ToBool();
+                    else if (key == "IsOrbitalDefense")   IsOrbitalDefense = value.ToBool();
+                    else if (key == "IsCarrierOnly")      IsCarrierOnly    = value.ToBool();
+                    else if (key == "EventOnDeath")       EventOnDeath     = value.Text;
                     else if (key == "ModuleUIDs")
+                    {
                         moduleUIDs = value.Split(';').Select(s => string.Intern(s.Text));
+                    }
                     else if (key == "Modules")
+                    {
                         modules = new DesignSlot[value.ToInt()];
+                    }
                 }
                 else
                 {
@@ -211,23 +223,44 @@ namespace Ship_Game.Ships
 
             BaseHull = hull;
             Bonuses = hull.Bonuses;
-            IsShipyard = hull.IsShipyard;
-            IsOrbitalDefense = hull.IsOrbitalDefense;
-            
-            if (ShipStyle.IsEmpty()) ShipStyle = hull.Style;
-            if (IconPath.IsEmpty()) IconPath = hull.IconPath;
+            IsShipyard |= hull.IsShipyard;
+            IsOrbitalDefense |= hull.IsOrbitalDefense;
 
-            // NOTE: we can't "fix" the slots here without expanding the ModuleGrid
-            //       instead we use GridCenter in ShipDesignScreen InstallModules
-            //Point center = GridInfo.Center;
-            //if (center != hull.GridCenter)
-            //{
-            //    var offset = new Point(center.X - hull.GridCenter.X, center.Y - hull.GridCenter.Y);
-            //    Log.Warning(ConsoleColor.Cyan, $"Center={center} != Hull.Center={hull.GridCenter} Offset={offset} Ship={Name}");
-            //}
+            // if lazy loading, throw away the modules to free up memory
+            if (!GlobalStats.LazyLoadShipDesignSlots)
+                DesignSlots = modules;
+            UniqueModuleUIDs = moduleUIDs;
 
-            GridInfo.SurfaceArea = hull.SurfaceArea;
-            ModuleSlots = modules;
+            InitializeCommonStats(hull, modules);
+        }
+
+        // Implemented for Lazy-Loading, only load the design slots and nothing else
+        public static DesignSlot[] LoadDesignSlots(FileInfo file, string[] moduleUIDs)
+        {
+            using (var p = new GenericStringViewParser(file))
+            {
+                DesignSlot[] modules = null;
+                int numModules = 0;
+
+                while (p.ReadLine(out StringView line))
+                {
+                    if (modules == null)
+                    {
+                        StringView key = line.Next('=');
+                        if (key == "Modules")
+                            modules = new DesignSlot[line.ToInt()];
+                    }
+                    else
+                    {
+                        if (numModules == modules.Length)
+                            throw new InvalidDataException($"Ship design module count is incorrect: {p.Name}");
+
+                        DesignSlot slot = ParseDesignSlot(line, moduleUIDs);
+                        modules[numModules++] = slot;
+                    }
+                }
+                return modules;
+            }
         }
 
         public static DesignSlot ParseDesignSlot(StringView line, string[] moduleUIDs)
@@ -260,7 +293,7 @@ namespace Ship_Game.Ships
         {
             ushort[] slotModuleUIDAndIndex = CreateModuleIndexMapping(saved, out Array<string> moduleUIDs);
 
-            var sw = new ShipDataWriter();
+            var sw = new ShipDesignWriter();
             sw.Write("1\n"); // first line is version
 
             // module1;module2;module3\n
@@ -298,7 +331,7 @@ namespace Ship_Game.Ships
             return Convert.ToBase64String(ascii, Base64FormattingOptions.None);
         }
 
-        public static ModuleSaveData[] GetModuleSaveFromBase64String(string base64string)
+        public static (ModuleSaveData[] modules, string[] moduleUIDs) GetModuleSaveFromBase64String(string base64string)
         {
             byte[] bytes = Convert.FromBase64String(base64string);
             //Log.Info(Encoding.ASCII.GetString(bytes));
@@ -328,12 +361,12 @@ namespace Ship_Game.Ships
                 var msd = new ModuleSaveData(s,
                     hp.IsEmpty ? 0 : hp.ToFloat(),
                     sp.IsEmpty ? 0 : sp.ToFloat(),
-                    hs.IsEmpty ? "" : hs.ToString()
+                    hs.IsEmpty ? "" : hs.Text
                 );
                 modules[i] = msd;
             }
 
-            return modules;
+            return (modules, moduleUIDs);
         }
     }
 }

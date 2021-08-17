@@ -47,9 +47,6 @@ namespace Ship_Game
         // the dictionary uses the file name as the key for the item. Case in these cases is not useful
         static readonly Map<string, SubTexture> Textures = new Map<string, SubTexture>();
 
-        // Ship designs, mapped by ship.Name
-        static readonly Map<string, Ship> ShipsDict = new Map<string, Ship>();
-
         public static Map<string, Technology> TechTree          = new Map<string, Technology>(GlobalStats.CaseControl);
         public static Array<Encounter> Encounters               = new Array<Encounter>();
         public static Map<string, Building> BuildingsDict       = new Map<string, Building>();
@@ -66,7 +63,7 @@ namespace Ship_Game
         public static ShipNames ShipNames                        = new ShipNames();
         public static AgentMissionData AgentMissionData          = new AgentMissionData();
         public static MainMenuShipList MainMenuShipList          = new MainMenuShipList();
-        public static Map<ShipData.RoleName, ShipRole> ShipRoles = new Map<ShipData.RoleName, ShipRole>();
+        public static Map<RoleName, ShipRole> ShipRoles = new Map<RoleName, ShipRole>();
         public static Map<string, HullBonus> HullBonuses         = new Map<string, HullBonus>();
         public static Map<string, PlanetEdict> PlanetaryEdicts   = new Map<string, PlanetEdict>();
 
@@ -689,11 +686,7 @@ namespace Ship_Game
             DeleteShipFromDir(appData + "/Saved Designs", shipName);
             DeleteShipFromDir(appData + "/WIP", shipName);
 
-            if (GetShipTemplate(shipName, out Ship template))
-            {
-                template.Deleted = true;
-                ShipsDict.Remove(shipName);
-            }
+            Ships.Delete(shipName);
 
             foreach (Empire e in EmpireManager.Empires)
             {
@@ -1441,48 +1434,42 @@ namespace Ship_Game
                 AddHull(hull);
         }
 
-        public static Ship AddShipTemplate(ShipData shipData, bool playerDesign, bool readOnly = false)
+        public static readonly ShipsManager Ships = new ShipsManager();
+
+        public static void AddShipTemplate(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)
         {
-            Ship shipTemplate = Ship.CreateNewShipTemplate(shipData);
-            if (shipTemplate == null) // happens if module creation failed
-                return null;
-
-            shipTemplate.IsPlayerDesign   = playerDesign;
-            shipTemplate.IsReadonlyDesign = readOnly;
-
-            lock (ShipsDict)
-            {
-                ShipsDict[shipTemplate.Name] = shipTemplate;
-            }
-            return shipTemplate;
+            Ships.Add(shipDesign, playerDesign, readOnly);
         }
 
+        public static bool ShipTemplateExists(string shipName) => Ships.Exists(shipName);
+        public static bool GetShipTemplate(string shipName, out Ship template) => Ships.Get(shipName, out template);
         public static Ship GetShipTemplate(string shipName, bool throwIfError = true)
         {
-            if (throwIfError)
-                return ShipsDict[shipName];
-            ShipsDict.TryGetValue(shipName, out Ship ship);
-            return ship;
+            return Ships.Get(shipName, throwIfError);
         }
 
-        public static bool ShipTemplateExists(string shipName)
+        public static IReadOnlyList<Ship> GetShipTemplates() => Ships.GetShips();
+        public static IReadOnlyList<ShipDesign> GetShipDesigns() => Ships.GetDesigns();
+        public static HashSet<string> GetShipTemplateIds() => Ships.GetShipNames();
+
+        static void UnloadShipTemplates()
         {
-            return ShipsDict.ContainsKey(shipName);
+            Ships.Clear();
         }
 
-        public static bool GetShipTemplate(string shipName, out Ship template)
+        // Refactored by RedFox
+        static void LoadShipTemplates()
         {
-            return ShipsDict.TryGetValue(shipName, out template);
-        }
+            UnloadShipTemplates();
 
-        public static Map<string, Ship>.ValueCollection GetShipTemplates()
-        {
-            return ShipsDict.Values;
-        }
+            if (GlobalStats.GenerateNewShipDesignFiles)
+            {
+                var oldDesigns = GetLegacyShipDesigns();
+                ConvertOldDesigns(oldDesigns.Values.ToArray());
+            }
 
-        public static Map<string, Ship>.KeyCollection GetShipTemplateIds()
-        {
-            return ShipsDict.Keys;
+            var designs = GetAllShipDesigns();
+            LoadShipTemplates(designs.Values.ToArray());
         }
 
         struct ShipDesignInfo
@@ -1505,17 +1492,17 @@ namespace Ship_Game
                     try
                     {
                         GameLoadingScreen.SetStatus("LoadShipTemplate", info.RelPath());
-                        ShipData shipData = ShipData.Parse(info);
-                        if (shipData == null || shipData.Role == ShipData.RoleName.disabled)
+                        ShipDesign shipDesign = ShipDesign.Parse(info);
+                        if (shipDesign == null || shipDesign.Role == RoleName.disabled)
                             continue;
 
-                        if (info.NameNoExt() != shipData.Name)
-                            Log.Warning($"File name '{info.NameNoExt()}' does not match ship name '{shipData.Name}'." +
+                        if (info.NameNoExt() != shipDesign.Name)
+                            Log.Warning($"File name '{info.NameNoExt()}' does not match ship name '{shipDesign.Name}'." +
                                          "\n This can prevent loading of ships that have this filename in the XML :" +
                                         $"\n path '{info.PathNoExt()}'");
 
-                        AddShipTemplate(shipData, playerDesign: shipDescriptors[i].IsPlayerDesign,
-                                                  readOnly: shipDescriptors[i].IsReadonlyDesign);
+                        AddShipTemplate(shipDesign, playerDesign: shipDescriptors[i].IsPlayerDesign,
+                                                    readOnly:     shipDescriptors[i].IsReadonlyDesign);
                     }
                     catch (Exception e)
                     {
@@ -1550,42 +1537,6 @@ namespace Ship_Game
             Parallel.ForEach(shipDescriptors, ConvertOldDesign);
         }
 
-        static void CombineOverwrite(Map<string, ShipDesignInfo> designs, FileInfo[] filesToAdd, bool readOnly, bool playerDesign)
-        {
-            foreach (FileInfo info in filesToAdd)
-            {
-                string commonIdentifier = info.NameNoExt();
-                designs[commonIdentifier] = new ShipDesignInfo
-                {
-                    File             = info,
-                    IsPlayerDesign   = playerDesign,
-                    IsReadonlyDesign = readOnly
-                };
-            }
-        }
-
-        static void UnloadShipTemplates()
-        {
-            foreach (var s in ShipsDict)
-                s.Value.Dispose();
-            ShipsDict.Clear();
-        }
-
-        // Refactored by RedFox
-        static void LoadShipTemplates()
-        {
-            UnloadShipTemplates();
-
-            if (GlobalStats.GenerateNewShipDesignFiles)
-            {
-                var oldDesigns = GetLegacyShipDesigns();
-                ConvertOldDesigns(oldDesigns.Values.ToArray());
-            }
-
-            var designs = GetAllShipDesigns();
-            LoadShipTemplates(designs.Values.ToArray());
-        }
-
         static Map<string, ShipDesignInfo> GetAllShipDesigns()
         {
             var designs = new Map<string, ShipDesignInfo>();
@@ -1607,14 +1558,30 @@ namespace Ship_Game
                 CombineOverwrite(designs, Dir.GetFiles(ModContentDirectory + "StarterShips", "xml"), readOnly: true, playerDesign: false);
                 CombineOverwrite(designs, Dir.GetFiles(ModContentDirectory + "SavedDesigns", "xml"), readOnly: true, playerDesign: false);
                 CombineOverwrite(designs, Dir.GetFiles(ModContentDirectory + "ShipDesigns", "xml"), readOnly: true, playerDesign: false);
+                CombineOverwrite(designs, Dir.GetFiles(ModContentDirectory + "ShipDesignsXML", "xml"), readOnly: true, playerDesign: false);
             }
             else
             {
                 CombineOverwrite(designs, GatherFilesUnified("StarterShips", "xml"), readOnly: true, playerDesign: false);
                 CombineOverwrite(designs, GatherFilesUnified("SavedDesigns", "xml"), readOnly: true, playerDesign: false);
                 CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "xml"), readOnly: true, playerDesign: false);
+                CombineOverwrite(designs, GatherFilesUnified("ShipDesignsXML", "xml"), readOnly: true, playerDesign: false);
             }
             return designs;
+        }
+
+        static void CombineOverwrite(Map<string, ShipDesignInfo> designs, FileInfo[] filesToAdd, bool readOnly, bool playerDesign)
+        {
+            foreach (FileInfo info in filesToAdd)
+            {
+                string commonIdentifier = info.NameNoExt();
+                designs[commonIdentifier] = new ShipDesignInfo
+                {
+                    File             = info,
+                    IsPlayerDesign   = playerDesign,
+                    IsReadonlyDesign = readOnly
+                };
+            }
         }
 
         // @note This is used for Unit Tests and is not part of the core game
@@ -1788,7 +1755,7 @@ namespace Ship_Game
             ShipRoles.Clear();
             foreach (ShipRole shipRole in LoadEntities<ShipRole>("ShipRoles", "LoadShipRoles"))
             {
-                if (Enum.TryParse(shipRole.Name, out ShipData.RoleName key))
+                if (Enum.TryParse(shipRole.Name, out RoleName key))
                     ShipRoles[key] = shipRole;
             }
             if (ShipRoles.Count == 0)

@@ -42,7 +42,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             OldShip.RemoveFromPoolAndFleet(clearOrders: false);
 
-            if (OldShip.shipData.Role <= ShipData.RoleName.station && OldShip.ScuttleTimer < 0
+            if (OldShip.shipData.Role <= RoleName.station && OldShip.ScuttleTimer < 0
                 || !empire.FindPlanetToScrapIn(OldShip, out PlanetBuildingAt))
             {
                 // No planet to refit, scuttling ship

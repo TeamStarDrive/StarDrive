@@ -5,7 +5,13 @@ Role=corvette
 Style=Terran
 Size=10,11
 GridCenter=5,5
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicFuelCell;LaserCannon;NuclearReactorSmall;HeavyLaserCannon;NuclearReactorMed;AncientShield2kw;FrigateEngine;Cockpit
 Modules=29

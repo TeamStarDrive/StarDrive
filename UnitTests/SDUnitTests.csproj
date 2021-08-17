@@ -156,6 +156,7 @@
     <Compile Include="Universe\TestNativeSpatial.cs" />
     <Compile Include="Universe\TestSpatialCommon.cs" />
     <Compile Include="Collections\DoubleBufferedArrayTests.cs" />
+    <Compile Include="Universe\UniverseObjectManagerTests.cs" />
     <Compile Include="Utils\BitArrayTests.cs" />
     <Compile Include="Utils\PerfTimerTests.cs" />
   </ItemGroup>

@@ -31,19 +31,19 @@ namespace Ship_Game.Ships
                 IncomingSupply.Add(supply, 0);
         }
 
-        public static float DamageThreshold(ShipData.Category category)
+        public static float DamageThreshold(ShipCategory category)
         {
             float threshold;
             switch (category)
             {
                 default:
-                case ShipData.Category.Civilian:     threshold = 0.95f; break;
-                case ShipData.Category.Recon:        threshold = 0.85f; break;
-                case ShipData.Category.Neutral:      threshold = 0.75f; break;
-                case ShipData.Category.Unclassified: threshold = 0.7f;  break;
-                case ShipData.Category.Conservative: threshold = 0.8f;  break;
-                case ShipData.Category.Reckless:     threshold = 0.5f;  break;
-                case ShipData.Category.Kamikaze:     threshold = 0.0f;  break;
+                case ShipCategory.Civilian:     threshold = 0.95f; break;
+                case ShipCategory.Recon:        threshold = 0.85f; break;
+                case ShipCategory.Neutral:      threshold = 0.75f; break;
+                case ShipCategory.Unclassified: threshold = 0.7f;  break;
+                case ShipCategory.Conservative: threshold = 0.8f;  break;
+                case ShipCategory.Reckless:     threshold = 0.5f;  break;
+                case ShipCategory.Kamikaze:     threshold = 0.0f;  break;
             }
 
             threshold = threshold * (1 - ShipDestroyThreshold) + ShipDestroyThreshold;
@@ -52,9 +52,9 @@ namespace Ship_Game.Ships
 
         public ResupplyReason Resupply()
         {
-            if (Ship.DesignRole == ShipData.RoleName.construction 
-                || Ship.DesignRole == ShipData.RoleName.troop
-                || Ship.DesignRole == ShipData.RoleName.supply
+            if (Ship.DesignRole == RoleName.construction 
+                || Ship.DesignRole == RoleName.troop
+                || Ship.DesignRole == RoleName.supply
                 || (Ship.AI.HasPriorityOrder || Ship.AI.HasPriorityTarget) && Ship.AI.State != AIState.Bombard && !Ship.Resupplying)
             {
                 return ResupplyReason.NotNeeded;
@@ -221,7 +221,7 @@ namespace Ship_Game.Ships
             return Ship.Carrier.TroopsMissingVsTroopCapacity >= 1f;
         }
 
-        bool PlayerKamikaze => Ship.shipData.ShipCategory == ShipData.Category.Kamikaze && Ship.loyalty.isPlayer;
+        bool PlayerKamikaze => Ship.shipData.ShipCategory == ShipCategory.Kamikaze && Ship.loyalty.isPlayer;
 
         public void ChangeIncomingSupply(SupplyType supplyType, float amount)
         {
@@ -237,7 +237,7 @@ namespace Ship_Game.Ships
                 case SupplyType.All:
                     break;
                 case SupplyType.Rearm:
-                    if (Ship.IsSupplyShip)
+                    if (Ship.shipData.IsSupplyShip)
                         return false;
                     Status status = ShipStatusWithPendingResupply(supplyType);
                     return status < (Ship.AI.BadGuysNear ? ResupplyShuttleOrdnanceThreshold : Status.Maximum);

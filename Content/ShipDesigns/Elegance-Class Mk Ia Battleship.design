@@ -5,7 +5,13 @@ Role=capital
 Style=Cordrazine
 Size=22,31
 GridCenter=11,16
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;SteelArmorMed;Shield_1KW;MRLS;OrdnanceLockerSmall;FlakTurret;NuclearReactorSmall;VulcanCannon;Internal Bulkhead;PowerConduit;WarpEngine_1x1;WarpEngine_3x3;NuclearReactorMed;OrdnanceLocker;Bridge;CombatEngine_2x2
 Modules=174

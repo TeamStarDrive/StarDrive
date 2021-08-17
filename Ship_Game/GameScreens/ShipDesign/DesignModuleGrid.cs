@@ -18,7 +18,7 @@ namespace Ship_Game
         public readonly Point GridCenter;
 
         // this constructs a [GridWidth][GridHeight] array of current hull
-        public DesignModuleGrid(ShipDesignScreen screen, ShipData design)
+        public DesignModuleGrid(ShipDesignScreen screen, ShipDesign design)
             : this(screen, design.Name, design.BaseHull)
         {
         }

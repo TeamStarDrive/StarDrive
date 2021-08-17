@@ -33,15 +33,14 @@ namespace UnitTests.Ships
             return techs;
         }
 
-        static Ship GetFirstShipTemplate() => ResourceManager.GetShipTemplates().ToArray()[0];
-        static ShipData GetFirstShipData() => GetFirstShipTemplate().shipData;
+        static ShipDesign GetFirstShipData() => ResourceManager.GetShipDesigns()[0];
         static ShipHull GetFirstBaseHull() => GetFirstShipData().BaseHull;
         static string ToString(HashSet<string> techsNeeded) => string.Join(",", ToArray(techsNeeded));
 
         void PrintInfo(string prefix)
         {
             ShipHull firstBase = GetFirstBaseHull();
-            ShipData firstShip = GetFirstShipData();
+            ShipDesign firstShip = GetFirstShipData();
             Log.Info($"{prefix} Hull {firstBase.HullName} Unlockable: {firstBase.Unlockable} TechsNeeded: {ToString(firstBase.TechsNeeded)}");
             Log.Info($"{prefix} Ship {firstShip.Name} Unlockable: {firstShip.Unlockable} TechsNeeded: {ToString(firstShip.TechsNeeded)}");
         }
@@ -60,10 +59,10 @@ namespace UnitTests.Ships
             ShipDesignUtilsOld.MarkDesignsUnlockable();
             PrintInfo("2");
 
-            var legacyUnlockable = new Dictionary<string, ShipData>();
-            foreach (Ship tOld in ResourceManager.GetShipTemplates())
+            var legacyUnlockable = new Dictionary<string, ShipDesign>();
+            foreach (ShipDesign tOld in ResourceManager.GetShipDesigns())
             {
-                legacyUnlockable.Add(tOld.Name, tOld.shipData.GetClone()); //Because it gets disposed later on and we get a NPE
+                legacyUnlockable.Add(tOld.Name, tOld.GetClone()); //Because it gets disposed later on and we get a NPE
             }
 
             // now try with the new optimized algorithm and make sure it matches
@@ -71,18 +70,17 @@ namespace UnitTests.Ships
             ShipDesignUtils.MarkDesignsUnlockable();
             PrintInfo("3");
 
-            foreach (Ship template in ResourceManager.GetShipTemplates())
+            foreach (ShipDesign @new in ResourceManager.GetShipDesigns())
             {
-                if (legacyUnlockable.TryGetValue(template.Name, out ShipData legacy))
+                if (legacyUnlockable.TryGetValue(@new.Name, out ShipDesign legacy))
                 {
-                    ShipData @new = template.shipData;
                     Assert.That.Equal(ToArray(legacy.TechsNeeded), ToArray(@new.TechsNeeded),
-                                      $"{template.Name} TechsNeeded must be equal");
-                    Assert.AreEqual(legacy.Unlockable, @new.Unlockable, $"{template.Name} Not same Unlockable");
+                                      $"{@new.Name} TechsNeeded must be equal");
+                    Assert.AreEqual(legacy.Unlockable, @new.Unlockable, $"{@new.Name} Not same Unlockable");
                 } 
                 else
                 {
-                    throw new AssertFailedException($"{template.Name} Not found after ReloadStarterShips");
+                    throw new AssertFailedException($"{@new.Name} Not found after ReloadStarterShips");
                 }
             }
         }

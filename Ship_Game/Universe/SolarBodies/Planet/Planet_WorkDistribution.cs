@@ -248,9 +248,9 @@ namespace Ship_Game
             {
                 switch (item.sData.Role)
                 {
-                    case ShipData.RoleName.freighter:    workerPercentage += Owner.Research.Strategy.IndustryRatio;  break;
-                    case ShipData.RoleName.station:      workerPercentage += Owner.Research.Strategy.IndustryRatio;  break;
-                    case ShipData.RoleName.construction: workerPercentage += Owner.Research.Strategy.ExpansionRatio; break;
+                    case RoleName.freighter:    workerPercentage += Owner.Research.Strategy.IndustryRatio;  break;
+                    case RoleName.station:      workerPercentage += Owner.Research.Strategy.IndustryRatio;  break;
+                    case RoleName.construction: workerPercentage += Owner.Research.Strategy.ExpansionRatio; break;
                     default:                             workerPercentage += Owner.Research.Strategy.MilitaryRatio;  break;
                 }
             }

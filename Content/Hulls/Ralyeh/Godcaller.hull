@@ -9,6 +9,8 @@ IconPath=ShipIcons/Godcaller
 ModelPath=Model/Ships/Ralyeh/Ship17f
 SelectIcon=17f
 Animated=true
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|___|___|___|___|___|___|___|O  |___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|O  |___|___|___|___|___|___|___|___

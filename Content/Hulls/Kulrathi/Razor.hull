@@ -7,6 +7,9 @@ Size=10,7
 MeshOffset=0,8
 IconPath=ShipIcons/razor
 ModelPath=Model/Ships/Kulrathi/ship11b
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=255,277,0,36
 Slots

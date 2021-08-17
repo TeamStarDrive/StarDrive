@@ -5,8 +5,13 @@ Role=freighter
 Style=Pollops
 Size=6,6
 GridCenter=3,3
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 ShipCategory=Civilian
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicFuelCell;NuclearReactorSmall;ColonyModule;WarpEngine_1x1;Engine;Cockpit
 Modules=21

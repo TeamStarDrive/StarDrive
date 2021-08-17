@@ -22,7 +22,7 @@ namespace Ship_Game.Ships
             // loyalty must be set before modules are initialized
             LoyaltyTracker = new Components.LoyaltyChanges(this, owner);
 
-            if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots))
+            if (!CreateModuleSlotsFromData(template.shipData.GetOrLoadDesignSlots()))
                 return; // return and crash again...
 
             // ship must not be added to empire ship list until after modules are validated.
@@ -42,7 +42,7 @@ namespace Ship_Game.Ships
         // Create a ship from a savegame or a template or in shipyard
         // You can also call Ship.CreateShip... functions to spawn ships
         // @param shipyardDesign This is a potentially incomplete design from Shipyard
-        protected Ship(Empire empire, ShipData data, SavedGame.ShipSaveData save, ModuleSaveData[] savedModules) : base(GameObjectType.Ship)
+        protected Ship(Empire empire, ShipDesign data, SavedGame.ShipSaveData save, ModuleSaveData[] savedModules) : base(GameObjectType.Ship)
         {
             Position   = new Vector2(200f, 200f);
             Name       = save.Name;
@@ -71,7 +71,7 @@ namespace Ship_Game.Ships
         // Create a ship as a template in shipyard or from a save
         // You can also call Ship.CreateShip... functions to spawn ships
         // @param shipyardDesign This is a potentially incomplete design from Shipyard
-        protected Ship(Empire empire, ShipData data, bool isTemplate, bool shipyardDesign = false)
+        protected Ship(Empire empire, ShipDesign data, bool isTemplate, bool shipyardDesign = false)
             : base(GameObjectType.Ship)
         {
             if (!data.IsValidForCurrentMod)
@@ -87,7 +87,7 @@ namespace Ship_Game.Ships
             // loyalty must be set before modules are initialized
             LoyaltyTracker = new Components.LoyaltyChanges(this, empire);
 
-            if (!CreateModuleSlotsFromData(data.ModuleSlots, isTemplate, shipyardDesign))
+            if (!CreateModuleSlotsFromData(data.GetOrLoadDesignSlots(), isTemplate, shipyardDesign))
                 return;
 
             // ship must not be added to empire ship list until after modules are validated.
@@ -102,7 +102,7 @@ namespace Ship_Game.Ships
             InitializeStatus(fromSave: false);
 
             if (isTemplate && !shipyardDesign && !BaseCanWarp &&
-                DesignRoleType == ShipData.RoleType.Warship && !Name.Contains("STL"))
+                DesignRoleType == RoleType.Warship && !Name.Contains("STL"))
             {
                 Log.Warning($"Ship.BaseCanWarp is false: {this}");
             }
@@ -195,7 +195,7 @@ namespace Ship_Game.Ships
             TradeRoutes               = save.TradeRoutes ?? new Array<Guid>(); // the null check is here in order to not break saves.
             MechanicalBoardingDefense = save.MechanicalBoardingDefense;
 
-            VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty
+            VanityName = shipData.Role == RoleName.troop && save.TroopList.NotEmpty
                             ? save.TroopList[0].Name : save.VanityName;
 
             HealthMax = RecalculateMaxHealth();
@@ -235,7 +235,7 @@ namespace Ship_Game.Ships
         void SetInitialCrewLevel()
         {
             Level = 0;
-            if (shipData.Role == ShipData.RoleName.fighter)
+            if (shipData.Role == RoleName.fighter)
                 Level += loyalty.data.BonusFighterLevels;
 
             Level += loyalty.data.BaseShipLevel;
@@ -245,7 +245,7 @@ namespace Ship_Game.Ships
                 Level += loyalty.DifficultyModifiers.ShipLevel;
         }
 
-        void InitializeThrusters(ShipData data)
+        void InitializeThrusters(ShipDesign data)
         {
             ThrusterList = data.BaseHull.Thrusters.Select(t => new Thruster(this, t.Scale, t.Position));
 
@@ -269,7 +269,7 @@ namespace Ship_Game.Ships
             ThrusterList = Empty<Thruster>.Array;
         }
         
-        public static Ship CreateNewShipTemplate(ShipData data)
+        public static Ship CreateNewShipTemplate(ShipDesign data)
         {
             var ship = new Ship(EmpireManager.Void, data, isTemplate:true);
             return ship.HasModules ? ship : null;
@@ -278,9 +278,10 @@ namespace Ship_Game.Ships
         public static Ship CreateShipFromSave(Empire empire, SavedGame.ShipSaveData save)
         {
             ModuleSaveData[] savedModules;
+            string[] moduleUIDs;
             try
             {
-                savedModules = ShipData.GetModuleSaveFromBase64String(save.ModulesBase64);
+                (savedModules, moduleUIDs) = ShipDesign.GetModuleSaveFromBase64String(save.ModulesBase64);
             }
             catch (Exception e)
             {
@@ -288,14 +289,14 @@ namespace Ship_Game.Ships
                 return null;
             }
 
-            ShipData data;
+            ShipDesign data;
             if (ResourceManager.GetShipTemplate(save.Name, out Ship template))
             {
                 // savedModules are equal to existing ship template? then use that
                 if (template.shipData.AreModulesEqual(savedModules))
                     data = template.shipData;
-                else
-                    data = ShipData.FromSave(savedModules, template.shipData);
+                else // the ship from the save is not the same as the template
+                    data = ShipDesign.FromSave(savedModules, moduleUIDs, template.shipData);
             }
             else
             {
@@ -306,7 +307,7 @@ namespace Ship_Game.Ships
                 }
                 
                 // this ShipData doesn't exist in the game designs, it comes from the savegame only
-                data = ShipData.FromSave(savedModules, save, hull);
+                data = ShipDesign.FromSave(savedModules, moduleUIDs, save, hull);
                 ResourceManager.AddShipTemplate(data, playerDesign: true);
             }
 
@@ -317,7 +318,6 @@ namespace Ship_Game.Ships
             return ship;
         }
 
-        // Added by RedFox - Debug, Hangar Ship, and Platform creation
         public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 position)
         {
             Ship template = GetShipTemplate(shipName);
@@ -326,7 +326,12 @@ namespace Ship_Game.Ships
                 Log.Warning($"CreateShip failed, no such design: {shipName}");
                 return null;
             }
-            
+            return CreateShipAtPoint(template, owner, position);
+        }
+
+        // Added by RedFox - Debug, Hangar Ship, and Platform creation
+        public static Ship CreateShipAtPoint(Ship template, Empire owner, Vector2 position)
+        {
             if (!template.shipData.IsValidForCurrentMod)
             {
                 Log.Info($"Design {template.shipData.Name} [Mod:{template.shipData.ModName}] is not valid for [{GlobalStats.ModOrVanillaName}]");
@@ -334,8 +339,11 @@ namespace Ship_Game.Ships
             }
 
             var ship = new Ship(template, owner, position);
+            if (!ship.HasModules)
+                return null;
+
             Empire.Universe?.Objects.Add(ship);
-            return ship.HasModules ? ship : null;
+            return ship;
         }
 
         public static Ship CreateShipAt(string shipName, Empire owner, Planet p, Vector2 deltaPos, bool doOrbit)
@@ -367,13 +375,13 @@ namespace Ship_Game.Ships
             ship.Velocity   = parent.Velocity;
 
             if (hangar.IsSupplyBay)
-                ship.SetSpecialRole(ShipData.RoleName.supply, "Supply Shuttle");
+                ship.SetSpecialRole(RoleName.supply, "Supply Shuttle");
             else if (hangar.IsTroopBay)
-                ship.SetSpecialRole(ShipData.RoleName.troop, "");
+                ship.SetSpecialRole(RoleName.troop, "");
             return ship;
         }
 
-        void SetSpecialRole(ShipData.RoleName role, string vanityName)
+        void SetSpecialRole(RoleName role, string vanityName)
         {
             DesignRole = role;
             if (vanityName.NotEmpty())
@@ -394,8 +402,8 @@ namespace Ship_Game.Ships
             Ship ship = CreateShipAtPoint(shipName, owner, point);
             ship.VanityName = troop.DisplayName;
             troop.LandOnShip(ship);
-            if (ship.shipData.Role == ShipData.RoleName.troop)
-                ship.shipData.ShipCategory = ShipData.Category.Conservative;
+            if (ship.shipData.Role == RoleName.troop)
+                ship.shipData.ShipCategory = ShipCategory.Conservative;
             return ship;
         }
 
@@ -425,12 +433,10 @@ namespace Ship_Game.Ships
             if (VanityName.IsEmpty())
                 VanityName = Name;
 
-            if (shipData.Role == ShipData.RoleName.platform)
+            if (shipData.Role == RoleName.platform)
                 IsPlatform = true;
 
-            if (ResourceManager.GetShipTemplate(Name, out Ship template))
-                IsPlayerDesign = template.IsPlayerDesign;
-            else
+            if (!ResourceManager.ShipTemplateExists(Name))
                 FromSave = true; // this is a design which is only available from the savegame
 
             // Begin: ShipSubClass Initialization. Put all ship sub class initializations here
@@ -537,7 +543,6 @@ namespace Ship_Game.Ships
             Health = 0f;
             TroopCapacity = 0;
             RepairBeams.Clear();
-            BaseCost = ShipStats.GetBaseCost(ModuleSlotList);
             MaxBank = GetMaxBank();
             if (!fromSave)
                 KillAllTroops();
@@ -562,13 +567,10 @@ namespace Ship_Game.Ships
                 {
                     case ShipModuleType.Construction:
                         IsConstructor = true;
-                        shipData.Role = ShipData.RoleName.construction;
+                        shipData.Role = RoleName.construction;
                         break;
                     case ShipModuleType.PowerConduit:
                         module.IconTexturePath = PwrGrid.GetConduitGraphic(module);
-                        break;
-                    case ShipModuleType.Colony:
-                        isColonyShip = true;
                         break;
                     case ShipModuleType.Hangar:
                         module.InitHangar();
@@ -611,14 +613,14 @@ namespace Ship_Game.Ships
 
             Carrier.PrepShipHangars(loyalty);
 
-            if (shipData.Role == ShipData.RoleName.troop)
+            if (shipData.Role == RoleName.troop)
                 TroopCapacity = 1; // set troopship and assault shuttle not to have 0 TroopCapacity since they have no modules with TroopCapacity
 
             if (InhibitionRadius.Greater(0))
                 loyalty.Inhibitors.Add(this); // Start inhibiting at spawn
 
             MechanicalBoardingDefense = MechanicalBoardingDefense.LowerBound(1);
-            DesignRole = GetDesignRole();
+            DesignRole = shipData.DesignRole;
             BaseCanWarp = Stats.WarpThrust > 0;
         }
 
@@ -638,11 +640,11 @@ namespace Ship_Game.Ships
             {
                 default:
                     return mBank;
-                case ShipData.RoleName.drone:
-                case ShipData.RoleName.scout:
-                case ShipData.RoleName.fighter:
+                case RoleName.drone:
+                case RoleName.scout:
+                case RoleName.fighter:
                     return mBank * 2.1f;
-                case ShipData.RoleName.corvette:
+                case RoleName.corvette:
                     return mBank * 1.5f;
             }
         }

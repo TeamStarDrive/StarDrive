@@ -494,7 +494,7 @@ namespace Ship_Game.GameScreens.LoadGame
 
                 if (qisave.isShip && qi.Goal != null)
                 {
-                    qi.Goal.ShipToBuild = ResourceManager.GetShipTemplate(qisave.UID);
+                    qi.Goal.ShipToBuild = ResourceManager.Ships.GetDesign(qisave.UID);
                 }
 
                 qi.ProductionSpent = qisave.ProgressTowards;
@@ -654,14 +654,13 @@ namespace Ship_Game.GameScreens.LoadGame
                 foreach (Ship s in data.MasterShipList)
                 {
                     if      (gsave.colonyShipGuid == s.guid) g.FinishedShip = s;
-                    else if (gsave.beingBuiltGUID == s.guid) g.ShipToBuild  = s;
                     else if (gsave.OldShipGuid    == s.guid) g.OldShip      = s;
                     else if (gsave.TargetShipGuid == s.guid) g.TargetShip   = s;
                 }
 
                 if (g.type == GoalType.Refit && gsave.ToBuildUID != null)
                 {
-                    Ship shipToBuild = ResourceManager.GetShipTemplate(gsave.ToBuildUID, false);
+                    Ships.ShipDesign shipToBuild = ResourceManager.Ships.GetDesign(gsave.ToBuildUID, false);
                     if (shipToBuild != null)
                         g.ShipToBuild = shipToBuild;
                     else

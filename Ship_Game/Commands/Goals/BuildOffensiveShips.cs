@@ -70,20 +70,20 @@ namespace Ship_Game.Commands.Goals
         public struct ShipInfo
         {
             public float Upkeep { get;}
-            public ShipData.RoleName Role { get;}
+            public RoleName Role { get;}
 
             public ShipInfo(Goal goal) : this(goal as BuildOffensiveShips){ }
 
             public ShipInfo(BuildOffensiveShips goal)
             {
-                if (goal.GetShipTemplate(goal.ToBuildUID, out Ship template))
+                if (goal.GetShipTemplate(goal.ToBuildUID, out ShipDesign template))
                 {
                     Role = template.DesignRole;
-                    Upkeep = template.GetMaintCost();
+                    Upkeep = template.GetMaintenanceCost();
                 }
                 else
                 {
-                    Role = ShipData.RoleName.disabled;
+                    Role = RoleName.disabled;
                     Upkeep = 0;
                 }
             }

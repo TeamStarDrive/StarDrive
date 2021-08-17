@@ -4,7 +4,7 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using static Ship_Game.Ships.ShipData;
+using static Ship_Game.Ships.ShipDesign;
 
 namespace Ship_Game.AI
 {

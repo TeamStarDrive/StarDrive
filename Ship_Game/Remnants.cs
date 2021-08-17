@@ -332,14 +332,14 @@ namespace Ship_Game
 
             if (bombersNeeded > 0)
             {
-                var bombers = availableShips.Filter(s => s.DesignRole == ShipData.RoleName.bomber);
+                var bombers = availableShips.Filter(s => s.DesignRole == RoleName.bomber);
                 if (bombers.Length > 0)
                     ships = bombers.Take(bombersNeeded).ToArrayList();
             }
             else
             {
                 float totalStr = 0;
-                var nonBombers = availableShips.Filter(s => s.DesignRole != ShipData.RoleName.bomber);
+                var nonBombers = availableShips.Filter(s => s.DesignRole != RoleName.bomber);
                 for (int i = 0; i < nonBombers.Length; i++)
                 {
                     Ship s = nonBombers[i];
@@ -360,7 +360,7 @@ namespace Ship_Game
 
         public int NumBombersInFleet(Fleet fleet)
         {
-           return fleet?.Ships.Count(s => s.DesignRole == ShipData.RoleName.bomber) ?? 0;
+           return fleet?.Ships.Count(s => s.DesignRole == RoleName.bomber) ?? 0;
         }
 
         public GoalStep ReleaseFleet(Fleet fleet, GoalStep goalStep)
@@ -591,7 +591,7 @@ namespace Ship_Game
                 return;
             }
 
-            ShipCosts.Add(type, ship.BaseCost);
+            ShipCosts.Add(type, ship.shipData.BaseCost);
         }
 
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 

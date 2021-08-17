@@ -5,7 +5,13 @@ Role=frigate
 Style=Ralyeh
 Size=8,9
 GridCenter=4,5
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=LaserCannon;SteelArmorSmall;Shield_1KW;Cockpit;NuclearReactorSmall;NuclearReactorMed;WarpEngine_1x1;FrigateEngine
 Modules=37

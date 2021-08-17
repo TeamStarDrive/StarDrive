@@ -21,7 +21,7 @@ namespace UnitTests.Ships
         }
 
         // Makes sure two ShipData are absolutely equal
-        static void AssertAreEqual(ShipData a, ShipData b, bool checkModules)
+        static void AssertAreEqual(ShipDesign a, ShipDesign b, bool checkModules)
         {
             Assert.AreEqual(a.Name, b.Name);
             Assert.AreEqual(a.ModName, b.ModName);
@@ -36,7 +36,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.FixedCost, b.FixedCost);
             Assert.AreEqual(a.IsShipyard, b.IsShipyard);
             Assert.AreEqual(a.IsOrbitalDefense, b.IsOrbitalDefense);
-            Assert.AreEqual(a.CarrierShip, b.CarrierShip);
+            Assert.AreEqual(a.IsCarrierOnly, b.IsCarrierOnly);
 
             Assert.AreEqual(a.Role, b.Role);
             Assert.AreEqual(a.ShipCategory, b.ShipCategory);
@@ -53,17 +53,19 @@ namespace UnitTests.Ships
 
             if (checkModules)
             {
-                Assert.AreEqual(a.ModuleSlots.Length, b.ModuleSlots.Length);
-                for (int i = 0; i < a.ModuleSlots.Length; ++i)
+                var aSlots = a.GetOrLoadDesignSlots();
+                var bSlots = b.GetOrLoadDesignSlots();
+                Assert.AreEqual(aSlots.Length, bSlots.Length);
+                for (int i = 0; i < aSlots.Length; ++i)
                 {
-                    DesignSlot sa = a.ModuleSlots[i];
-                    DesignSlot sb = b.ModuleSlots[i];
+                    DesignSlot sa = aSlots[i];
+                    DesignSlot sb = bSlots[i];
                     ShipModuleTests.AssertAreEqual(sa, sb);
                 }
             }
         }
 
-        static void AssertAreEqual(LegacyShipData a, ShipData b)
+        static void AssertAreEqual(LegacyShipData a, ShipDesign b)
         {
             Assert.AreEqual(a.Name, b.Name);
             Assert.AreEqual(a.ModName, b.ModName);
@@ -78,7 +80,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.FixedCost, b.FixedCost);
             Assert.AreEqual(a.IsShipyard, b.IsShipyard);
             Assert.AreEqual(a.IsOrbitalDefense, b.IsOrbitalDefense);
-            Assert.AreEqual(a.CarrierShip, b.CarrierShip);
+            Assert.AreEqual(a.CarrierShip, b.IsCarrierOnly);
 
             Assert.AreEqual(a.Role.ToString(), b.Role.ToString());
             Assert.AreEqual(a.ShipCategory.ToString(), b.ShipCategory.ToString());
@@ -111,7 +113,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("Terran", hull.Style);
             Assert.AreEqual("ShipIcons/shuttle", hull.IconPath);
             Assert.AreEqual("Model/Ships/Terran/Shuttle/ship08", hull.ModelPath);
-            Assert.AreEqual(ShipData.RoleName.fighter, hull.Role);
+            Assert.AreEqual(RoleName.fighter, hull.Role);
             Assert.AreEqual(1, hull.Thrusters.Length);
             Assert.AreEqual(true, hull.Unlockable);
             Assert.AreEqual(10, hull.HullSlots.Length);
@@ -129,7 +131,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("Terran", hull.Style);
             Assert.AreEqual("ShipIcons/10a", hull.IconPath);
             Assert.AreEqual("Model/Ships/Terran/Gunboat/Gunboat", hull.ModelPath);
-            Assert.AreEqual(ShipData.RoleName.frigate, hull.Role);
+            Assert.AreEqual(RoleName.frigate, hull.Role);
             Assert.AreEqual(1, hull.Thrusters.Length);
             Assert.AreEqual(true, hull.Unlockable);
             Assert.AreEqual(70, hull.HullSlots.Length);
@@ -139,15 +141,15 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipDesign_LoadVanilla_VulcanScout()
         {
-            ShipData design = ShipData.Parse("Content/ShipDesigns/Vulcan Scout.design");
+            ShipDesign design = ShipDesign.Parse("Content/ShipDesigns/Vulcan Scout.design");
             Assert.AreEqual("Vulcan Scout", design.Name);
             Assert.AreEqual("", design.ModName);
             Assert.AreEqual("Terran", design.ShipStyle);
             Assert.AreEqual("Terran/Shuttle", design.Hull);
             Assert.AreEqual("ShipIcons/shuttle", design.IconPath);
-            Assert.AreEqual(ShipData.RoleName.fighter, design.Role);
+            Assert.AreEqual(RoleName.fighter, design.Role);
             Assert.AreEqual(true, design.Unlockable);
-            Assert.AreEqual(10, design.ModuleSlots.Length);
+            Assert.AreEqual(10, design.GetOrLoadDesignSlots().Length);
             Assert.AreEqual(10, design.GridInfo.SurfaceArea);
             Assert.AreEqual(new Point(4,4), design.GridInfo.Size);
         }
@@ -155,15 +157,15 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipDesign_LoadVanilla_PrototypeFrigate()
         {
-            ShipData design = ShipData.Parse("Content/ShipDesigns/Prototype Frigate.design");
+            ShipDesign design = ShipDesign.Parse("Content/ShipDesigns/Prototype Frigate.design");
             Assert.AreEqual("Prototype Frigate", design.Name);
             Assert.AreEqual("", design.ModName);
             Assert.AreEqual("Terran", design.ShipStyle);
             Assert.AreEqual("Terran/Gunboat", design.Hull);
             Assert.AreEqual("ShipIcons/10a", design.IconPath);
-            Assert.AreEqual(ShipData.RoleName.prototype, design.Role);
+            Assert.AreEqual(RoleName.prototype, design.Role);
             Assert.AreEqual(true, design.Unlockable);
-            Assert.AreEqual(40, design.ModuleSlots.Length);
+            Assert.AreEqual(40, design.GetOrLoadDesignSlots().Length);
             Assert.AreEqual(70, design.GridInfo.SurfaceArea);
         }
 
@@ -176,23 +178,23 @@ namespace UnitTests.Ships
                 old.SaveDesign("Content/ShipDesigns/Prototype Frigate.design");
             }
 
-            ShipData design = ShipData.Parse("Content/ShipDesigns/Prototype Frigate.design");
+            ShipDesign design = ShipDesign.Parse("Content/ShipDesigns/Prototype Frigate.design");
             Assert.AreEqual("Prototype Frigate", design.Name);
             Assert.AreEqual("", design.ModName);
             Assert.AreEqual("Terran", design.ShipStyle);
             Assert.AreEqual("Terran/Gunboat", design.Hull);
             Assert.AreEqual("ShipIcons/10a", design.IconPath);
-            Assert.AreEqual(ShipData.RoleName.prototype, design.Role);
+            Assert.AreEqual(RoleName.prototype, design.Role);
             Assert.AreEqual(true, design.Unlockable);
-            Assert.AreEqual(40, design.ModuleSlots.Length); // new designs don't have dummy modules
+            Assert.AreEqual(40, design.GetOrLoadDesignSlots().Length); // new designs don't have dummy modules
             Assert.AreEqual(70, design.GridInfo.SurfaceArea);
         }
 
         [TestMethod]
         public void ShipDesign_Clone_EqualToOriginal()
         {
-            ShipData original = ShipData.Parse("Content/ShipDesigns/Prototype Frigate.design");
-            ShipData clone = original.GetClone();
+            ShipDesign original = ShipDesign.Parse("Content/ShipDesigns/Prototype Frigate.design");
+            ShipDesign clone = original.GetClone();
             AssertAreEqual(original, clone, true);
         }
 
@@ -202,7 +204,7 @@ namespace UnitTests.Ships
             LegacyShipData legacy = LegacyShipData.Parse("Content/ShipDesigns/Prototype Frigate.xml", isHullDefinition:false);
             legacy.SaveDesign("Content/ShipDesigns/Prototype Frigate.design");
             
-            ShipData neu = ShipData.Parse("Content/ShipDesigns/Prototype Frigate.design");
+            ShipDesign neu = ShipDesign.Parse("Content/ShipDesigns/Prototype Frigate.design");
             AssertAreEqual(legacy, neu);
         }
 
@@ -212,7 +214,7 @@ namespace UnitTests.Ships
             LegacyShipData legacy = LegacyShipData.Parse("Content/ShipDesigns/Ancient Torpedo Cruiser.xml", isHullDefinition: false);
             legacy.SaveDesign("Content/ShipDesigns/Ancient Torpedo Cruiser.design");
 
-            ShipData neu = ShipData.Parse("Content/ShipDesigns/Ancient Torpedo Cruiser.design");
+            ShipDesign neu = ShipDesign.Parse("Content/ShipDesigns/Ancient Torpedo Cruiser.design");
             AssertAreEqual(legacy, neu);
         }
 
@@ -226,11 +228,11 @@ namespace UnitTests.Ships
             ship.Modules[5].Health = 0f;
 
             ModuleSaveData[] toSave = ship.GetModuleSaveData();
-            string base64save = ShipData.GetBase64ModulesString(toSave);
+            string base64save = ShipDesign.GetBase64ModulesString(toSave);
 
             Log.Info(Encoding.ASCII.GetString(Convert.FromBase64String(base64save)));
 
-            ModuleSaveData[] loaded = ShipData.GetModuleSaveFromBase64String(base64save);
+            (ModuleSaveData[] loaded, _) = ShipDesign.GetModuleSaveFromBase64String(base64save);
 
             for (int i = 0; i < toSave.Length && i < loaded.Length; ++i)
             {

@@ -12,7 +12,7 @@ namespace Ship_Game
         void StressTestShipLoading()
         {
             var spawnedMeshes = new HashSet<string>();
-            void SpawnUniqueMeshes(ShipData.RoleName role)
+            void SpawnUniqueMeshes(RoleName role)
             {
                 foreach (Ship ship in ResourceManager.GetShipTemplates())
                 {
@@ -27,25 +27,25 @@ namespace Ship_Game
             switch (StressTestLoadIndex++)
             {
                 case 0:
-                    SpawnUniqueMeshes(ShipData.RoleName.fighter);
-                    SpawnUniqueMeshes(ShipData.RoleName.scout);
-                    SpawnUniqueMeshes(ShipData.RoleName.freighter);
+                    SpawnUniqueMeshes(RoleName.fighter);
+                    SpawnUniqueMeshes(RoleName.scout);
+                    SpawnUniqueMeshes(RoleName.freighter);
                     break;
                 case 1:
-                    SpawnUniqueMeshes(ShipData.RoleName.corvette);
-                    SpawnUniqueMeshes(ShipData.RoleName.gunboat);
+                    SpawnUniqueMeshes(RoleName.corvette);
+                    SpawnUniqueMeshes(RoleName.gunboat);
                     break;
                 case 2:
-                    SpawnUniqueMeshes(ShipData.RoleName.frigate);
+                    SpawnUniqueMeshes(RoleName.frigate);
                     break;
                 case 3:
-                    SpawnUniqueMeshes(ShipData.RoleName.cruiser);
+                    SpawnUniqueMeshes(RoleName.cruiser);
                     break;
                 case 4:
-                    SpawnUniqueMeshes(ShipData.RoleName.capital);
-                    SpawnUniqueMeshes(ShipData.RoleName.carrier);
-                    SpawnUniqueMeshes(ShipData.RoleName.battleship);
-                    SpawnUniqueMeshes(ShipData.RoleName.station);
+                    SpawnUniqueMeshes(RoleName.capital);
+                    SpawnUniqueMeshes(RoleName.carrier);
+                    SpawnUniqueMeshes(RoleName.battleship);
+                    SpawnUniqueMeshes(RoleName.station);
                     break;
                 default:
                     StressTestLoadIndex = 0;
