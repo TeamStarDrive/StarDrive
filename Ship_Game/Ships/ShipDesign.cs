@@ -36,14 +36,13 @@ namespace Ship_Game.Ships
 
         public float FixedUpkeep;
         public int FixedCost;
-        public bool IsShipyard;
-        public bool IsOrbitalDefense;
+        public readonly bool IsShipyard;
+        public readonly bool IsOrbitalDefense;
         // The Doctor: intending to use this as a user-toggled
         // flag which tells the AI not to build a design as a stand-alone vessel
         // from a planet; only for use in a hangar
         public bool CarrierShip; // aka "Carrier Only"
 
-        public RoleName Role = RoleName.fighter;
         public ShipCategory ShipCategory = ShipCategory.Unclassified;
         public HangarOptions HangarDesignation = HangarOptions.General;
         public AIState DefaultAIState;
@@ -60,10 +59,6 @@ namespace Ship_Game.Ships
 
         public bool Unlockable = true; // unlocked=true by default
         public HashSet<string> TechsNeeded = new HashSet<string>();
-
-        static readonly string[] RoleArray = typeof(RoleName).GetEnumNames();
-        public RoleName HullRole => BaseHull.Role;
-        public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
 
         // BaseHull is the template layout of the ship hull design
         public ShipHull BaseHull { get; }
@@ -197,17 +192,6 @@ namespace Ship_Game.Ships
         public ShipDesign GetClone()
         {
             return (ShipDesign)MemberwiseClone();
-        }
-
-        public string GetRole()
-        {
-            return RoleArray[(int)Role -1];
-        }
-
-        public static string GetRole(RoleName role)
-        {
-            int roleNum = (int)role - 1;
-            return RoleArray[roleNum];
         }
 
         public void LoadModel(out SceneObject shipSO, GameContentManager content)

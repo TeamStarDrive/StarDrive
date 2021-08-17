@@ -237,7 +237,7 @@ namespace Ship_Game.Ships
                 case SupplyType.All:
                     break;
                 case SupplyType.Rearm:
-                    if (Ship.IsSupplyShip)
+                    if (Ship.shipData.IsSupplyShip)
                         return false;
                     Status status = ShipStatusWithPendingResupply(supplyType);
                     return status < (Ship.AI.BadGuysNear ? ResupplyShuttleOrdnanceThreshold : Status.Maximum);

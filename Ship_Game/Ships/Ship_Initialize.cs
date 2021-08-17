@@ -536,7 +536,6 @@ namespace Ship_Game.Ships
             Health = 0f;
             TroopCapacity = 0;
             RepairBeams.Clear();
-            BaseCost = ShipStats.GetBaseCost(ModuleSlotList);
             MaxBank = GetMaxBank();
             if (!fromSave)
                 KillAllTroops();
@@ -565,9 +564,6 @@ namespace Ship_Game.Ships
                         break;
                     case ShipModuleType.PowerConduit:
                         module.IconTexturePath = PwrGrid.GetConduitGraphic(module);
-                        break;
-                    case ShipModuleType.Colony:
-                        isColonyShip = true;
                         break;
                     case ShipModuleType.Hangar:
                         module.InitHangar();
@@ -617,7 +613,7 @@ namespace Ship_Game.Ships
                 loyalty.Inhibitors.Add(this); // Start inhibiting at spawn
 
             MechanicalBoardingDefense = MechanicalBoardingDefense.LowerBound(1);
-            DesignRole = GetDesignRole();
+            DesignRole = shipData.DesignRole;
             BaseCanWarp = Stats.WarpThrust > 0;
         }
 
