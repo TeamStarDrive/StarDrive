@@ -518,8 +518,8 @@ namespace Ship_Game
 
             var carrierOnlyPos  = new Vector2(dropdownRect.X - 200, dropdownRect.Y);
             CarrierOnlyCheckBox = Checkbox(carrierOnlyPos,
-                () => CurrentDesign?.CarrierShip == true,
-                (b) => { if (CurrentDesign != null) CurrentDesign.CarrierShip = b; }, "Carrier Only", GameText.WhenMarkedThisShipCan);
+                () => CurrentDesign?.IsCarrierOnly == true,
+                (b) => { if (CurrentDesign != null) CurrentDesign.IsCarrierOnly = b; }, "Carrier Only", GameText.WhenMarkedThisShipCan);
 
             ArcsButton = new GenericButton(new Vector2(HullSelectList.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
 

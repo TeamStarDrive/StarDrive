@@ -8,6 +8,9 @@ MeshOffset=0,0
 IconPath=ShipIcons/Hiver
 ModelPath=Model/Ships/Opteris/Ship19e
 SelectIcon=19e
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=184,504,0,132
 Thruster=360,504,0,132

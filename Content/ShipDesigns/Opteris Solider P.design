@@ -5,7 +5,13 @@ Role=frigate
 Style=Opteris
 Size=10,17
 GridCenter=5,9
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;PhasorTurret2x2;LaserCannon;BasicFuelCell;NuclearReactorSmall;PowerConduit;WarpEngine_2x2;PhasorBeam2x3;Shield_1KW;NuclearReactorMed;Bridge;WarpEngine_1x1;FrigateEngine
 Modules=56

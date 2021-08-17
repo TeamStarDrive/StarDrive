@@ -7,6 +7,11 @@ Size=30,44
 GridCenter=15,22
 DefaultAIState=AwaitingOrders
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;SteelArmorMed;SteelArmorLarge;LaserCannon;SubspaceSensors;FighterBay;PhasorTurret2x2;PhasorBeam2x3;BasicFuelCell;Shield_10KW;CapEngines;AntiMatterReactor;MarineBarracks8x4;Bridge;Engine;CIC;FrigateEngine;Main Engineering
 Modules=179

@@ -5,7 +5,13 @@ Role=fighter
 Style=Kulrathi
 Size=6,4
 GridCenter=3,2
+DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=LaserCannon;SteelArmorSmall;NuclearReactorSmall;Cockpit;WarpEngine_1x1;BasicFuelCell;Engine;LaserTurret
 Modules=13

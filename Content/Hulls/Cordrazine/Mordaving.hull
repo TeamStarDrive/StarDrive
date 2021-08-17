@@ -4,10 +4,13 @@ VisibleName=Mordaving
 Role=capital
 Style=Cordrazine
 Size=32,46
-MeshOffset=0,2
+MeshOffset=0,16
 IconPath=ShipIcons/Mordaving
 ModelPath=Model/Ships/Cordrazine/ship16f
 SelectIcon=16f
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=248,536,0,98
 Thruster=264,536,0,98

@@ -8,6 +8,9 @@ MeshOffset=0,-16
 IconPath=ShipIcons/10e
 ModelPath=Model/Ships/Terran/Battleship/Battleship
 SelectIcon=10e
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=168,680,0,134
 Thruster=248,712,0,196

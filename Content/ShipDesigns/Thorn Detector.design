@@ -7,6 +7,11 @@ Size=4,4
 GridCenter=2,2
 DefaultAIState=AwaitingOrders
 DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=BasicFuelCell;SubspaceSensors;NuclearReactorSmall;Engine;Cockpit
 Modules=7

@@ -20,7 +20,7 @@ namespace Ship_Game
         {
             ShipDesign design = CurrentDesign;
             if (design.HullRole == RoleName.drone)
-                design.CarrierShip = true;
+                design.IsCarrierOnly = true;
 
             if (CarrierOnlyCheckBox == null)
                 return; // it is null the first time ship design screen is loaded

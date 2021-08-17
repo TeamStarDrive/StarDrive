@@ -5,7 +5,13 @@ Role=corvette
 Style=Vulfen
 Size=12,13
 GridCenter=6,6
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;VulcanCannon;MissileLauncher3x3;OrdnanceLocker;MissileLauncher1x3;Shield_10KW;NuclearReactorMed;engine_fighter_1x1;CombatEngine_2x2;Bridge;WarpEngine_1x1;WarpEngine_2x2;OrdnanceLockerSmall;PowerConduit
 Modules=45

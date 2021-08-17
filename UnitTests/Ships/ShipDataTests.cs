@@ -36,7 +36,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.FixedCost, b.FixedCost);
             Assert.AreEqual(a.IsShipyard, b.IsShipyard);
             Assert.AreEqual(a.IsOrbitalDefense, b.IsOrbitalDefense);
-            Assert.AreEqual(a.CarrierShip, b.CarrierShip);
+            Assert.AreEqual(a.IsCarrierOnly, b.IsCarrierOnly);
 
             Assert.AreEqual(a.Role, b.Role);
             Assert.AreEqual(a.ShipCategory, b.ShipCategory);
@@ -80,7 +80,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.FixedCost, b.FixedCost);
             Assert.AreEqual(a.IsShipyard, b.IsShipyard);
             Assert.AreEqual(a.IsOrbitalDefense, b.IsOrbitalDefense);
-            Assert.AreEqual(a.CarrierShip, b.CarrierShip);
+            Assert.AreEqual(a.CarrierShip, b.IsCarrierOnly);
 
             Assert.AreEqual(a.Role.ToString(), b.Role.ToString());
             Assert.AreEqual(a.ShipCategory.ToString(), b.ShipCategory.ToString());

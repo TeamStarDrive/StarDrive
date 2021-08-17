@@ -8,6 +8,9 @@ MeshOffset=0,-8
 IconPath=ShipIcons/Warbird
 ModelPath=Model/Ships/Draylok/Ship18e
 SelectIcon=18e
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=152,504,0,89
 Thruster=200,552,0,89

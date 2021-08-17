@@ -8,6 +8,9 @@ MeshOffset=0,0
 IconPath=ShipIcons/Crawler
 ModelPath=Model/Ships/Opteris/Ship19i
 SelectIcon=19i
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=255,423,0,65
 Slots

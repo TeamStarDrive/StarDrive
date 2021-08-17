@@ -5,7 +5,13 @@ Role=capital
 Style=Terran
 Size=40,64
 GridCenter=20,31
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;FighterBay;PlaSteelArmorMed;Phalanx PD;PlaSteelArmorLarge;NuclearReactorSmall;Raider Bay;MarineBarracks2x2;OrdnanceLockerSmall;Shield_10KW;MissileLauncher3x3;OrdnanceSupplyBay;Internal Bulkhead;CombatEngine_2x2;WarpEngine_3x3;VulcanCannon;Main Engineering;OrdnanceLocker;Reinforced Bulkhead;WarpEngine_1x1;Fabricator;SubspaceSensors;CapEngines;Titan Engine;PowerConduit;Inertial Damper;CIC;NuclearReactorMed;WarpEngine_4x4
 Modules=395

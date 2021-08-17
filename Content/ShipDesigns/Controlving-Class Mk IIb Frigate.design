@@ -5,7 +5,13 @@ Role=frigate
 Style=Cordrazine
 Size=12,14
 GridCenter=6,7
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;Shield_1KW;HeavyLaserCannon;BasicFuelCell;LaserCannon;NuclearReactorMed;WarpEngine_2x2;CombatEngine_2x2;SteelArmorMed;Bridge
 Modules=35
