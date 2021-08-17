@@ -1558,12 +1558,14 @@ namespace Ship_Game
                 CombineOverwrite(designs, Dir.GetFiles(ModContentDirectory + "StarterShips", "xml"), readOnly: true, playerDesign: false);
                 CombineOverwrite(designs, Dir.GetFiles(ModContentDirectory + "SavedDesigns", "xml"), readOnly: true, playerDesign: false);
                 CombineOverwrite(designs, Dir.GetFiles(ModContentDirectory + "ShipDesigns", "xml"), readOnly: true, playerDesign: false);
+                CombineOverwrite(designs, Dir.GetFiles(ModContentDirectory + "ShipDesignsXML", "xml"), readOnly: true, playerDesign: false);
             }
             else
             {
                 CombineOverwrite(designs, GatherFilesUnified("StarterShips", "xml"), readOnly: true, playerDesign: false);
                 CombineOverwrite(designs, GatherFilesUnified("SavedDesigns", "xml"), readOnly: true, playerDesign: false);
                 CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "xml"), readOnly: true, playerDesign: false);
+                CombineOverwrite(designs, GatherFilesUnified("ShipDesignsXML", "xml"), readOnly: true, playerDesign: false);
             }
             return designs;
         }
