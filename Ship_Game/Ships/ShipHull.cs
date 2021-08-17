@@ -44,8 +44,6 @@ namespace Ship_Game.Ships
         public RoleName Role = RoleName.fighter;
         public string SelectIcon = "";
         public bool Animated;
-        public bool IsShipyard;
-        public bool IsOrbitalDefense;
         public ThrusterZone[] Thrusters = Empty<ThrusterZone>.Array;
         public HullSlot[] HullSlots;
 
@@ -183,8 +181,6 @@ namespace Ship_Game.Ships
                         case "ModelPath":  ModelPath = val; break;
                         case "SelectIcon": SelectIcon = val; break;
                         case "Animated":   Animated = (val == "true"); break;
-                        case "IsShipyard": IsShipyard = (val == "true"); break;
-                        case "IsOrbitalDefense": IsOrbitalDefense = (val == "true"); break;
                         case "Thruster":
                             Array.Resize(ref Thrusters, Thrusters.Length + 1);
                             ref ThrusterZone tz = ref Thrusters[Thrusters.Length - 1];
@@ -217,6 +213,8 @@ namespace Ship_Game.Ships
                                     if      (col == "IOC") r = Restrictions.IO;
                                     else if (col == "OC ") r = Restrictions.O;
                                     else if (col == "EC ") r = Restrictions.E;
+                                    else if (col == "IEC") r = Restrictions.IE;
+                                    else if (col == "OEC") r = Restrictions.OE;
                                     slots.Add(new HullSlot(x, height, r));
                                 }
                             }
@@ -287,9 +285,8 @@ namespace Ship_Game.Ships
             sw.Write("ModelPath", ModelPath);
             sw.Write("SelectIcon", SelectIcon);
 
-            if (Animated)         sw.Write("Animated", Animated);
-            if (IsShipyard)       sw.Write("IsShipyard", IsShipyard);
-            if (IsOrbitalDefense) sw.Write("IsOrbitalDefense", IsOrbitalDefense);
+            if (Animated)
+                sw.Write("Animated", Animated);
 
             sw.WriteLine("#Thruster PosX,PosY,PosZ,Scale");
             foreach (ThrusterZone t in Thrusters)
@@ -324,6 +321,8 @@ namespace Ship_Game.Ships
                             if      (slot.R == Restrictions.IO) r = "IOC";
                             else if (slot.R == Restrictions.O)  r = "OC ";
                             else if (slot.R == Restrictions.E)  r = "EC ";
+                            else if (slot.R == Restrictions.IE) r = "IEC";
+                            else if (slot.R == Restrictions.OE) r = "OEC";
                             else                                r = "IC ";
                         }
                         else
