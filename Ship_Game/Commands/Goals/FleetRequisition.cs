@@ -22,17 +22,6 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public FleetRequisition(ShipAI.ShipGoal goal, ShipAI ai) : this()
-        {
-            FleetDataNode node              = ai.Owner.fleet.DataNodes.Find(n => n.Ship == ai.Owner);
-            ToBuildUID                      = goal.VariableString;
-            ShipToBuild                     = ResourceManager.GetShipTemplate(ToBuildUID);
-            ShipToBuild.fleet               = ai.Owner.fleet;
-            ShipToBuild.RelativeFleetOffset = node.FleetOffset;
-            Fleet                           = ai.Owner.fleet;
-            PlanetBuildingAt                = ai.OrbitTarget;
-        }
-
         public FleetRequisition(string shipName, Empire owner, bool rush) : this()
         {
             empire      = owner;

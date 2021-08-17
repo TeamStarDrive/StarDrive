@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ship_Game.Ships
 {
@@ -11,11 +8,13 @@ namespace Ship_Game.Ships
     /// </summary>
     public class ShipsManager
     {
+        readonly HashSet<string> Names = new HashSet<string>();
+
         // Ship designs, mapped by ship.Name
         readonly Map<string, Ship> ShipsMap = new Map<string, Ship>();
         readonly Map<string, ShipDesign> DesignsMap = new Map<string, ShipDesign>();
 
-        readonly HashSet<string> Names = new HashSet<string>();
+        readonly Array<Ship> Ships = new Array<Ship>();
         readonly Array<ShipDesign> Designs = new Array<ShipDesign>();
 
         readonly object Sync = new object();
@@ -29,21 +28,18 @@ namespace Ship_Game.Ships
             foreach (var s in ShipsMap)
                 s.Value.Dispose();
 
+            Names.Clear();
+
             ShipsMap.Clear();
             DesignsMap.Clear();
-            Names.Clear();
+
+            Ships.Clear();
             Designs.Clear();
         }
 
-        public IReadOnlyList<ShipDesign> GetShips()
-        {
-            return Designs;
-        }
-
-        public HashSet<string> GetShipNames()
-        {
-            return Names;
-        }
+        public HashSet<string> GetShipNames() => Names;
+        public IReadOnlyList<Ship> GetShips() => Ships;
+        public IReadOnlyList<ShipDesign> GetDesigns() => Designs;
 
         public void Add(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)
         {
@@ -58,9 +54,10 @@ namespace Ship_Game.Ships
             {
                 if (!Names.Contains(shipDesign.Name))
                 {
+                    Names.Add(shipDesign.Name);
                     ShipsMap.Add(shipTemplate.Name, shipTemplate);
                     DesignsMap.Add(shipDesign.Name, shipDesign);
-                    Names.Add(shipDesign.Name);
+                    Ships.Add(shipTemplate);
                     Designs.Add(shipDesign);
                 }
             }
@@ -68,14 +65,27 @@ namespace Ship_Game.Ships
 
         public void Delete(string shipName)
         {
-            if (DesignsMap.TryGetValue(shipName, out ShipDesign template))
+            if (DesignsMap.TryGetValue(shipName, out ShipDesign design))
             {
-                template.Deleted = true;
+                ShipsMap.TryGetValue(shipName, out Ship ship);
+                design.Deleted = true;
+
+                Names.Remove(shipName);
                 ShipsMap.Remove(shipName);
                 DesignsMap.Remove(shipName);
-                Names.Remove(shipName);
-                Designs.Remove(template);
+                Ships.Remove(ship);
+                Designs.Remove(design);
             }
+        }
+
+        public bool Exists(string shipName)
+        {
+            return Names.Contains(shipName);
+        }
+
+        public bool Get(string shipName, out Ship template)
+        {
+            return ShipsMap.TryGetValue(shipName, out template);
         }
 
         public Ship Get(string shipName, bool throwIfError = true)
@@ -87,14 +97,18 @@ namespace Ship_Game.Ships
             return ship;
         }
 
-        public bool Get(string shipName, out Ship template)
+        public bool GetDesign(string shipName, out ShipDesign template)
         {
-            return ShipsMap.TryGetValue(shipName, out template);
+            return DesignsMap.TryGetValue(shipName, out template);
         }
 
-        public bool Exists(string shipName)
+        public ShipDesign GetDesign(string shipName, bool throwIfError = true)
         {
-            return ShipsMap.ContainsKey(shipName);
+            if (throwIfError)
+                return DesignsMap[shipName];
+
+            DesignsMap.TryGetValue(shipName, out ShipDesign ship);
+            return ship;
         }
     }
 }
