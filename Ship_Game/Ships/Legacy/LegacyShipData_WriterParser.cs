@@ -53,6 +53,7 @@ namespace Ship_Game.Ships.Legacy
             if (HangarDesignation != HangarOptions.General) sw.Write("HangarDesignation", HangarDesignation);
             if (IsShipyard)       sw.Write("IsShipyard", IsShipyard);
             if (IsOrbitalDefense) sw.Write("IsOrbitalDefense", IsOrbitalDefense);
+            if (CarrierShip)      sw.Write("IsCarrierOnly", CarrierShip);
 
             sw.Write("EventOnDeath", EventOnDeath); // "DefeatedMothership" remnant event
 

@@ -216,7 +216,7 @@ namespace Ship_Game.Ships
         public bool ShouldNotBeAddedToForcePools()
         {
             return !Active || IsInAFleet || IsHangarShip || IsHomeDefense
-                || shipData.CarrierShip || IsEmpireSupport || IsOrbital
+                || shipData.IsCarrierOnly || IsEmpireSupport || IsOrbital
                 || DoingRefit || DoingScrap || DoingScuttle || shipData.IsColonyShip
                 || IsFreighter || IsSupplyShuttle || Resupplying;
         }
@@ -1935,7 +1935,7 @@ namespace Ship_Game.Ships
             get
             {
                 ShipRole role = shipData.ShipRole;
-                return  !shipData.CarrierShip && !shipData.Deleted
+                return  !shipData.IsCarrierOnly && !shipData.Deleted
                     && !role.Protected && !role.NoBuild
                     && (GlobalStats.ShowAllDesigns || shipData.IsPlayerDesign);
             }
@@ -1943,7 +1943,7 @@ namespace Ship_Game.Ships
 
         public bool ShipGoodToBuild(Empire empire)
         {
-            if (IsPlatformOrStation || shipData.CarrierShip)
+            if (IsPlatformOrStation || shipData.IsCarrierOnly)
                 return true;
 
             NetPower = Power.Calculate(ModuleSlotList, empire);
