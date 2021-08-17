@@ -5,7 +5,13 @@ Role=fighter
 Style=Remnant
 Size=8,8
 GridCenter=4,4
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=TractorBeamTurret2x2;PlaSteelArmorSmall;BasicFuelCell;AncientReactorMed;FrigateEngine;DisruptorTurret;Cockpit;AncientShield2kw
 Modules=23

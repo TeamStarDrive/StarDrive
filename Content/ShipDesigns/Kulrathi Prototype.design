@@ -5,7 +5,13 @@ Role=prototype
 Style=Kulrathi
 Size=18,15
 GridCenter=9,7
+DefaultAIState=DoNothing
 DefaultCombatState=OrbitRight
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;Flechette AF Turret;NuclearReactorSmall;FlakTurret3x3;WarpEngine_2x2;OrdnanceLockerSmall;Shield_1KW;VulcanCannon;Internal Bulkhead;FrigateEngine;FlakTurret;Bridge;NuclearReactorMed
 Modules=78

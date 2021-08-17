@@ -5,7 +5,13 @@ Role=frigate
 Style=Corsairs
 Size=14,21
 GridCenter=7,11
+DefaultAIState=DoNothing
 DefaultCombatState=ShortRange
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;LaserCannon;IonCannon1x3;PhotonTurret3x3;Phalanx PD;EMPTorpedo;OrdnanceLockerSmall;CapEngines;Fighter Shield;Main Engineering;Shield_1KW;FuelCellSmallArmored;ConventionalTorpedo;Bridge;WarpEngine_3x3
 Modules=84

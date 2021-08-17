@@ -5,7 +5,13 @@ Role=frigate
 Style=Vulfen
 Size=10,26
 GridCenter=5,13
+DefaultAIState=DoNothing
 DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;BasicFuelCell;FusionTurret2x2;NuclearReactorMed;LaserCannon;WarpEngine_2x2;Engine;SteelArmorMed;FusionBeam2x3;PowerConduit;NuclearReactorSmall;Shield_1KW;MediumFuelCell;Bridge;CombatEngine_2x2
 Modules=73
