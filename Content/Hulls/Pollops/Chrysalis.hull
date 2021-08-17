@@ -8,6 +8,9 @@ MeshOffset=0,8
 IconPath=ShipIcons/chrysalis
 ModelPath=Model/Ships/Pollops/ship15d
 SelectIcon=15d
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=232,328,0,53
 Thruster=248,328,0,64

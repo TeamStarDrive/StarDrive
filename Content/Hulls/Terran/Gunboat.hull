@@ -8,6 +8,9 @@ MeshOffset=0,0
 IconPath=ShipIcons/10a
 ModelPath=Model/Ships/Terran/Gunboat/Gunboat
 SelectIcon=10a
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=257,362,0,74
 Slots
