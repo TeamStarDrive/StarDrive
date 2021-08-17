@@ -327,7 +327,7 @@ namespace Ship_Game.Ships
                 var msd = new ModuleSaveData(s,
                     hp.IsEmpty ? 0 : hp.ToFloat(),
                     sp.IsEmpty ? 0 : sp.ToFloat(),
-                    hs.IsEmpty ? "" : hs.ToString()
+                    hs.IsEmpty ? "" : hs.Text
                 );
                 modules[i] = msd;
             }
