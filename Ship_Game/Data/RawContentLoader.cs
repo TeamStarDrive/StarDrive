@@ -15,8 +15,8 @@ namespace Ship_Game.Data
     public class RawContentLoader
     {
         readonly GameContentManager Content;
-        readonly TextureImporter TexImport;
-        readonly TextureExporter TexExport;
+        public readonly TextureImporter TexImport;
+        public readonly TextureExporter TexExport;
         readonly MeshImporter MeshImport;
         readonly MeshExporter MeshExport;
 
