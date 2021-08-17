@@ -112,6 +112,8 @@ namespace Ship_Game.Ships
 
             DesignSlots = slots;
             UniqueModuleUIDs = moduleUIDs.ToArray();
+
+            InitializeCommonStats(BaseHull, slots);
         }
 
         public DesignSlot[] GetOrLoadDesignSlots()
@@ -180,6 +182,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < saved.Length; ++i)
                 data.DesignSlots[i] = saved[i].ToDesignSlot();
 
+            data.InitializeCommonStats(hull, data.DesignSlots);
             return data;
         }
 

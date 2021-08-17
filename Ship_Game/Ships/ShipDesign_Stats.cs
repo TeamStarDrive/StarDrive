@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,6 +30,8 @@ namespace Ship_Game.Ships
         public bool IsSubspaceProjector { get; private set; }
         public bool IsColonyShip        { get; private set; }
         public bool IsSupplyShip        { get; private set; }
+        public bool IsFreighter         { get; private set; }
+        public bool IsCandidateForTradingBuild { get; private set; }
 
         public float BaseCost { get; private set; }
         public float BaseWarpThrust { get; private set; }
@@ -77,7 +80,12 @@ namespace Ship_Game.Ships
             IsConstructor = Role == RoleName.construction;
             IsSubspaceProjector = Name == "Subspace Projector";
 
-            DesignRole = new RoleData(this, modules).DesignRole;
+            var roleData = new RoleData(this, modules);
+            DesignRole = roleData.DesignRole;
+            ShipCategory = roleData.Category;
+
+            IsFreighter = DesignRole == RoleName.freighter && ShipCategory == ShipCategory.Civilian;
+            IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
         }
 
         public float GetCost(Empire e)
