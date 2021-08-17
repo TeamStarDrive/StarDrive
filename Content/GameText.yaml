@@ -10282,16 +10282,16 @@ DesignIssueOrbitalHangarHoldPositionRemidiation:
  ENG: "It is recommended to use Long / Short range combat stance for orbitals with hangars."
 HasSurrenderedTo2:
  Id: 4360
- ENG: "has surrendered to" 
+ ENG: "has surrendered to"
 HasMergedWith:
  Id: 4361
  ENG: "has merged with"
-DueToLosingWarThem:
+DueToLosingWarUS:
  Id: 4362
- ENG: "due to a losing war with us" 
+ ENG: "due to a losing war with us"
 DueToLosingWarThem:
  Id: 4363
- ENG: "due to a losing war with"  
+ ENG: "due to a losing war with"
 OnSurface:
  Id: 4993
  ENG: "on surface"

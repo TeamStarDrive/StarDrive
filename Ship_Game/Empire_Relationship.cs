@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Ship_Game.AI;
 using Ship_Game.AI.StrategyAI.WarGoals;
@@ -749,13 +749,15 @@ namespace Ship_Game
                 string msg;
                 if (absorber == enemy)
                     // AI A surrendered to AI B due to losing war with them
-                    msg = $"{Name} {Localizer.Token(4360)} {absorber.Name}";
+                    msg = $"{Name} {Localizer.Token(GameText.HasSurrenderedTo2)} {absorber.Name}";
                 else if (enemy.isPlayer)
                     // AI A merged with AI B due to a losing war with the player
-                    msg = $"{Name} {Localizer.Token(4361)} {absorber.Name}\n{Localizer.Token(4362)}";
+                    msg = $"{Name} {Localizer.Token(GameText.HasMergedWith)} {absorber.Name}" +
+                          $"\n{Localizer.Token(GameText.DueToLosingWarUS)}";
                 else
                     // AI A merged with AI B due to a losing war with AI C
-                    msg = $"{Name} {Localizer.Token(4361)} {absorber}\n{Localizer.Token(4363)} {enemy.Name}";
+                    msg = $"{Name} {Localizer.Token(GameText.HasMergedWith)} {absorber}" +
+                          $"\n{Localizer.Token(GameText.DueToLosingWarThem)} {enemy.Name}";
 
                 Universe.NotificationManager.AddEmpireMergedOrSurrendered(this, absorber, msg);
             }
