@@ -283,7 +283,7 @@ namespace Ship_Game
                 SlotStruct slot = slotUnderCursor.Parent ?? slotUnderCursor;
                 if (ActiveModule == null && slot.Module != null)
                 {
-                    SetActiveModule(slot.Module.UID, slot.Module.ModuleRot, slot.Module.TurretAngle);
+                    SetActiveModule(slot.Module.UID, slot.Module.ModuleRot, slot.Module.TurretAngle, slot.Module.HangarShipUID);
                     return true;
                 }
 

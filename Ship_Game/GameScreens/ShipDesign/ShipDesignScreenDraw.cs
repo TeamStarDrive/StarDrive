@@ -229,9 +229,7 @@ namespace Ship_Game
                         ToolTip.ShipYardArcTip();
                 }
 
-                if (s.Module.ModuleType == ShipModuleType.Hangar)
-                    DrawHangarShipText(s);
-
+                DrawHangarShipText(s.Module, s.WorldRect);
                 DrawWeaponArcs(batch, s);
 
                 if (IsSymmetricDesignMode && GetMirrorSlotStruct(s, out SlotStruct mirrored))
@@ -283,16 +281,18 @@ namespace Ship_Game
             DrawStringProjected(slot.Center, 0, 1, Color.Orange, slot.Module.TurretAngle.ToString());
         }
 
-        void DrawHangarShipText(SlotStruct s)
+        void DrawHangarShipText(ShipModule m, in RectF worldRect)
         {
-            string hangarShipUID = s.Module.HangarShipUID;
-            Color color = Color.Black.Alpha(0.33f);
-            Color textC = ShipBuilder.GetHangarTextColor(hangarShipUID);
-            DrawRectangleProjected(s.WorldRect, textC, color);
+            if (m.ModuleType != ShipModuleType.Hangar)
+                return;
 
-            if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship hangarShip))
+            Color color = Color.Black.Alpha(0.33f);
+            Color textC = ShipBuilder.GetHangarTextColor(m.HangarShipUID);
+            DrawRectangleProjected(worldRect, textC, color);
+
+            if (ResourceManager.GetShipTemplate(m.HangarShipUID, out Ship hangarShip))
             {
-                DrawStringProjected(s.Center, 6, textC, hangarShip.Name, Fonts.Arial20Bold, shadow:true, center:true);
+                DrawStringProjected(worldRect.Center, 6, textC, hangarShip.Name, Fonts.Arial20Bold, shadow:true, center:true);
             }
         }
 
@@ -372,6 +372,7 @@ namespace Ship_Game
 
             DrawModuleTex(ActiveModule.ModuleRot, batch, null, worldRect, template);
             DrawWeaponArcs(batch, ActiveModule, moduleWorldPos, 0, ActiveModule.TurretAngle);
+            DrawHangarShipText(ActiveModule, worldRect);
 
             if (IsSymmetricDesignMode)
             {
@@ -385,6 +386,7 @@ namespace Ship_Game
 
                     int turretAngle = GetMirroredTurretAngle(ActiveModule.TurretAngle);
                     DrawWeaponArcs(batch, ActiveModule, mirrorWorldPos, 0f, turretAngle);
+                    DrawHangarShipText(ActiveModule, mirrorWorldRect);
                 }
             }
 
