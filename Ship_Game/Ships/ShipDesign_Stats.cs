@@ -46,7 +46,7 @@ namespace Ship_Game.Ships
         // Weapon Templates
         public Weapon[] Weapons { get; private set; }
 
-        void InitializeCommonStats(ShipHull hull, DesignSlot[] designSlots)
+        void InitializeCommonStats(ShipHull hull, DesignSlot[] designSlots, bool updateRole = false)
         {
             if (ShipStyle.IsEmpty()) ShipStyle = hull.Style;
             if (IconPath.IsEmpty())  IconPath  = hull.IconPath;
