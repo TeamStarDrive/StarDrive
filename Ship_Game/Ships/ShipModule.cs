@@ -442,11 +442,11 @@ namespace Ship_Game.Ships
         }
 
         public static ShipModule CreateDesignModule(ShipModule template, ModuleOrientation moduleRot, 
-                                                    int turretAngle, ShipHull hull)
+                                                    int turretAngle, string hangarShipUID, ShipHull hull)
         {
             ShipModule m = CreateNoParent(template, EmpireManager.Player, hull);
             m.SetModuleRotation(m.XSIZE, m.YSIZE, moduleRot, turretAngle);
-            m.HangarShipUID = m.IsTroopBay ? EmpireManager.Player.GetAssaultShuttleName() : template.HangarShipUID;
+            m.HangarShipUID = m.IsTroopBay ? EmpireManager.Player.GetAssaultShuttleName() : hangarShipUID;
             return m;
         }
 

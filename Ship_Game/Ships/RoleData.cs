@@ -8,8 +8,8 @@ namespace Ship_Game.Ships
     {
         readonly ShipDesign Ship;
         readonly ShipModule[] Modules;
-        readonly RoleName HullRole;
-        readonly RoleName DataRole;
+        readonly RoleName HullRole; // role defined in the .hull file
+        readonly RoleName DataRole; // role defined in the .design file
         readonly int SurfaceArea;
 
         // these are the outputs:
@@ -30,34 +30,24 @@ namespace Ship_Game.Ships
 
         RoleName GetDesignRole()
         {
-            if (DataRole == RoleName.prototype)
-                return RoleName.prototype;
-            if (DataRole == RoleName.supply)
-                return RoleName.supply;
-
-            if (Ship.IsConstructor)
-                return RoleName.construction;
-            if (Ship.IsSubspaceProjector)
-                return RoleName.ssp;
-            if (Ship.IsShipyard)
-                return RoleName.shipyard;
+            if (DataRole == RoleName.prototype)    return RoleName.prototype;
+            if (DataRole == RoleName.supply)       return RoleName.supply;
+            if (DataRole == RoleName.construction) return RoleName.construction;
+            if (DataRole == RoleName.station)      return RoleName.station;
+            if (DataRole == RoleName.platform)     return RoleName.platform;
+            if (DataRole == RoleName.scout)        return RoleName.scout;
+            if (DataRole == RoleName.troop)        return RoleName.troop;
+            if (Ship.Name == "Subspace Projector") return RoleName.ssp;
+            if (Ship.IsShipyard)                   return RoleName.shipyard;
 
             if (Ship.IsColonyShip || Modules.Any(ShipModuleType.Colony))
                 return RoleName.colony;
 
-            switch (DataRole)
-            {
-                case RoleName.station:
-                case RoleName.platform: return DataRole;
-                case RoleName.scout:    return RoleName.scout;
-                case RoleName.troop:    return RoleName.troop;
-            }
-
-            if (Ship.IsSupplyShip && Ship.Weapons.Length == 0)
+            if (Ship.IsSupplyCarrier && Ship.Weapons.Length == 0)
                 return RoleName.supply;
-            
-            if (HullRole == RoleName.freighter && Category == ShipCategory.Civilian
-                                               && SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f)
+
+            if (DataRole == RoleName.freighter && Category == ShipCategory.Civilian &&
+                SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f)
             {
                 return RoleName.freighter;
             }

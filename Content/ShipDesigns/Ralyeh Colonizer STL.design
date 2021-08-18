@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Ralyeh Colonizer STL
 Hull=Ralyeh/Vessel S
-Role=freighter
+Role=colony
 Style=Ralyeh
 Size=4,9
 GridCenter=2,4

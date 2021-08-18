@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Conjurer-Class Mk II Bomber
 Hull=Draylok/Crescent
-Role=corvette
+Role=bomber
 Style=Draylok
 Size=10,6
 GridCenter=5,3

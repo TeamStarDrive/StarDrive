@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Yari-Class Mk IIId Cruiser
 Hull=Kulrathi/Mauler
-Role=cruiser
+Role=support
 Style=Kulrathi
 Size=18,31
 GridCenter=9,15

@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Storving Cruiser
 Hull=Cordrazine/Storving
-Role=cruiser
+Role=bomber
 Style=Cordrazine
 Size=16,15
 GridCenter=8,8

@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Owlwok Artillery
 Hull=Cordrazine/Metving
-Role=frigate
+Role=bomber
 Style=Cordrazine
 Size=12,14
 GridCenter=6,7

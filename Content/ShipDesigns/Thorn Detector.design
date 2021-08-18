@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Thorn Detector
 Hull=Pollops/Thorn
-Role=fighter
+Role=scout
 Style=Pollops
 Size=4,4
 GridCenter=2,2

@@ -63,8 +63,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (FinishedShip == null)
                 return GoalStep.GoalFailed; // Ship was removed or destroyed
 
-            BuildPosition              = FindNewOrbitalLocation();
-            FinishedShip.IsConstructor = true;
+            BuildPosition = FindNewOrbitalLocation();
             FinishedShip.AI.OrderDeepSpaceBuild(this);
             return GoalStep.GoToNextStep;
         }

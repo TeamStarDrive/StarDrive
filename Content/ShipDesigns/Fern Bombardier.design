@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Fern Bombardier
 Hull=Pollops/Fern
-Role=frigate
+Role=bomber
 Style=Pollops
 Size=16,8
 GridCenter=8,4

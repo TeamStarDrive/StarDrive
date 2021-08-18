@@ -4,15 +4,15 @@ namespace Ship_Game.Ships
 {
     public static class ShipMaintenance // Created by Fat Bastard - to unify and provide a baseline for future maintenance features
     {
-        private const float MaintModifierByCost  = 0.004f;
-        private const float MaintModifierBySize  = 0.01f;
-        public static float TroopMaint           = 0.1f;
+        const float MaintModifierByCost = 0.004f;
+        const float MaintModifierBySize = 0.01f;
+        public const float TroopMaint = 0.1f;
 
-        private static bool IsFreeUpkeepShip(Empire empire, Ship ship)
+        static bool IsFreeUpkeepShip(Empire empire, Ship ship)
         {
             return empire.WeAreRemnants
                    || empire?.data == null
-                   || ship.Name == ship.loyalty.data.PrototypeShip
+                   || ship.Name == empire.data.PrototypeShip
                    || !ship.CanBeRefitted;
         }
 
@@ -20,37 +20,26 @@ namespace Ship_Game.Ships
         {
             if (IsFreeUpkeepShip(empire, ship))
                 return 0;
-
-            float maintenance = GetBaseMaintenance(ship, empire, troopCount);
-
-            // Projectors do not get any more modifiers
-            if (ship.IsSubspaceProjector)
-                 return maintenance;
-
-            // Reduced maintenance for shipyards (sitting ducks, no offense) Shipyards are limited to 3.
-            if (ship.shipData.IsShipyard)
-                maintenance *= 0.4f;
-
-            return maintenance;
+            return GetBaseMaintenance(ship.shipData, empire, troopCount);
         }
 
-        static float GetBaseMaintenance(Ship ship, Empire empire, int numTroops)
+        public static float GetBaseMaintenance(ShipDesign ship, Empire empire, int numTroops)
         {
             bool hullUpkeep = GlobalStats.UseUpkeepByHullSize;
             float maint;
-            if (ship.shipData.FixedUpkeep > 0)
+            if (ship.FixedUpkeep > 0)
             {
-                maint = ship.shipData.FixedUpkeep;
+                maint = ship.FixedUpkeep;
             }
             else
             {
                 float shipCost    = ship.GetCost(empire);
-                float hangarsArea = ship.Carrier.AllFighterHangars.Sum(m => m.MaximumHangarShipSize);
-                float surfaceArea = ship.SurfaceArea + hangarsArea;
+                float hangarsArea = ship.AllFighterHangars.Sum(m => m.MaximumHangarShipSize);
+                float surfaceArea = ship.BaseHull.SurfaceArea + hangarsArea;
                 maint = hullUpkeep ? surfaceArea * MaintModifierBySize : shipCost * MaintModifierByCost;
             }
 
-            RoleName role = ship.shipData.HullRole;
+            RoleName role = ship.HullRole;
             switch (role)
             {
                 case RoleName.station    when !hullUpkeep:
@@ -75,7 +64,17 @@ namespace Ship_Game.Ships
             }
 
             maint += maint * empire.data.Traits.MaintMod + numTroops * TroopMaint;
-            return maint * GlobalStats.ShipMaintenanceMulti;
+            maint *= GlobalStats.ShipMaintenanceMulti;
+
+            // Projectors do not get any more modifiers
+            if (ship.IsSubspaceProjector)
+                 return maint;
+
+            // Reduced maintenance for shipyards (sitting ducks, no offense) Shipyards are limited to 3.
+            if (ship.IsShipyard)
+                maint *= 0.4f;
+
+            return maint;
         }
     }
 }

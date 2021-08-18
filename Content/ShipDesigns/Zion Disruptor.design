@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Zion Disruptor
 Hull=Ralyeh/Zion
-Role=frigate
+Role=support
 Style=Ralyeh
 Size=8,9
 GridCenter=4,5
