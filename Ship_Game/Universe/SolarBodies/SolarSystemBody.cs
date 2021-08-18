@@ -60,7 +60,7 @@ namespace Ship_Game
 
             DamageTile(hardDamage);
             DamageTroops(softDamage, bomb.Owner);
-            DamageBuildings(hardDamage);
+            DamageBuildings(hardDamage, bomb.ShipLevel);
             TryCreateVolcano(hardDamage);
             Surface.ApplyBombEnvEffects(popKilled, envDamage, bomb.Owner); // Fertility and pop loss
             Surface.AddBombingIntensity(1);
@@ -108,11 +108,11 @@ namespace Ship_Game
                 {
                     // Try to hit the troop, high level troops have better chance to evade
                     Troop troop = TargetTile.TroopsHere[i];
-                    int troopHitChance = 100 - (troop.Level * 10).Clamped(20, 80);
+                    int troopHitChance = 50 - troop.Level*4;
 
-                    // Reduce friendly fire chance (10%) if bombing a tile with multiple troops
+                    // Reduce friendly fire chance (25%) if bombing a tile with multiple troops
                     if (troop.Loyalty == bombOwner)
-                        troopHitChance = (int)(troopHitChance * 0.1f);
+                        troopHitChance = (int)(troopHitChance * 0.25f);
 
                     if (RandomMath.RollDice(troopHitChance))
                         troop.DamageTroop(damage, Surface, TargetTile, out _);
@@ -120,20 +120,27 @@ namespace Ship_Game
             }
         }
 
-        private void DamageBuildings(int damage)
+        void DamageBuildings(int damage, int shipLevel)
         {
             if (!TargetTile.BuildingOnTile || TargetTile.Building.CannotBeBombed)
                 return;
 
-            Building building = TargetTile.Building;
-            building.Strength -= damage;
-            if (building.IsAttackable)
-                building.CombatStrength = building.Strength;
 
-            if (TargetTile.BuildingDestroyed)
+            Building building = TargetTile.Building;
+            int hitChance = 50 + shipLevel * 5;
+            hitChance = (hitChance - building.Defense).Clamped(10, 95);
+
+            if (RandomMath.RollDice(hitChance))
             {
-                Surface.BuildingList.Remove(building);
-                TargetTile.Building = null;
+                building.Strength -= damage;
+                if (building.IsAttackable)
+                    building.CombatStrength = building.Strength;
+
+                if (TargetTile.BuildingDestroyed)
+                {
+                    Surface.BuildingList.Remove(building);
+                    TargetTile.Building = null;
+                }
             }
         }
     }

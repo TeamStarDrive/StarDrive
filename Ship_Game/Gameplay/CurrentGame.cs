@@ -16,6 +16,7 @@
         public static int ExtraPlanets;
         public static float StarsModifier = 1f;
         public static float SettingsResearchModifier = 1f;
+        public static float RemnantPaceModifier = 20;
 
         public static void StartNew(UniverseData data, float pace, float starsMod, int extraPlanets, int numEmpires)
         {
@@ -26,8 +27,20 @@
             ExtraPlanets    = extraPlanets;
 
             SettingsResearchModifier = GetResearchMultiplier(GalaxySize, StarsModifier, ExtraPlanets, numEmpires);
+            RemnantPaceModifier      = CalcRemnantPace(GalaxySize, StarsModifier, ExtraPlanets, numEmpires);
 
             RandomEventManager.ActiveEvent = null; // This is a bug that will reset ongoing event upon game load (like hyperspace flux)
+        }
+
+        static float CalcRemnantPace(GalSize galaxySize, float starsModifier, int extraPlanets, int numMajorEmpires)
+        {
+            float stars      = starsModifier * 4; // 1-8
+            float size       = (int)galaxySize + 1; // 1-7
+            int extra        = extraPlanets; // 1-3
+            float numEmpires = numMajorEmpires / 2f; // 1-4.5
+
+            float pace = 20 - stars - size - extra - numEmpires;
+            return pace.LowerBound(1);
         }
 
         static float GetResearchMultiplier(GalSize galaxySize, float starsModifier, int extraPlanets, int numMajorEmpires)
