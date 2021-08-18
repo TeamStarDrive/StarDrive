@@ -27,17 +27,19 @@ namespace Ship_Game
         public readonly string SpecialAction;
         public Empire Owner;
         private float PlanetRadius;
+        public int ShipLevel { get; }
 
         public SubTexture Texture { get; }
         public Model      Model   { get; }
 
-        public Bomb(Vector3 position, Empire empire, string weaponName)
+        public Bomb(Vector3 position, Empire empire, string weaponName, int shipLevel)
         {
             Owner       = empire;
             Texture     = ResourceManager.ProjTexture(TextureName);
             Model       = ResourceManager.ProjectileModelDict[ModelName];
             Position    = position;
             Weapon      = ResourceManager.GetWeaponTemplate(weaponName) ?? ResourceManager.GetWeaponTemplate("NuclearBomb");
+            ShipLevel   = shipLevel;
 
             TroopDamageMin  = Weapon.BombTroopDamage_Min;
             TroopDamageMax  = Weapon.BombTroopDamage_Max;
