@@ -1944,7 +1944,7 @@ namespace Ship_Game
                 Assert(e, e.DefaultShipyard,    "DefaultShipyard",    s => s.IsShipyard,    "IsShipyard");
 
                 Assert(e, e.DefaultAssaultShuttle, "DefaultAssaultShuttle");
-                Assert(e, e.DefaultSupplyShuttle,  "DefaultSupplyShuttle", s => s.IsSupplyShuttle, "IsSupplyShip");
+                Assert(e, e.DefaultSupplyShuttle,  "DefaultSupplyShuttle", s => s.IsSupplyShuttle, "IsSupplyShuttle");
             }
 
             string[] requiredShips =
