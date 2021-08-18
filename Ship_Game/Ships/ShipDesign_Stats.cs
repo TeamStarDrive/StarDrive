@@ -12,10 +12,11 @@ namespace Ship_Game.Ships
     // that are common across this ShipDesign
     public partial class ShipDesign
     {
-        // Role assigned to the Hull, such as Cruiser
+        // Role assigned to the Hull, such as `Cruiser`
         public RoleName HullRole => BaseHull.Role;
 
-        // Role expressed by this ShipDesign's modules, such as Carrier
+        // Role expressed by this ShipDesign's modules, such as `Carrier`
+        // This is saved in Shipyard, or can be updated via --fix-roles
         public RoleName Role { get; private set; } = RoleName.fighter;
 
         static readonly string[] RoleArray = typeof(RoleName).GetEnumNames();
@@ -82,7 +83,10 @@ namespace Ship_Game.Ships
             AllFighterHangars = Hangars.Filter(h => h.IsFighterHangar);
             Weapons = weapons.ToArray();
 
-            if (GlobalStats.FixDesignRoleAndCategory)
+
+            // Updating the Design Role is always done in the Shipyard
+            // However, it can be overriden with --fix-roles to update all ship designs
+            if (updateRole || GlobalStats.FixDesignRoleAndCategory)
             {
                 var roleData = new RoleData(this, modules);
                 Role = roleData.DesignRole;
