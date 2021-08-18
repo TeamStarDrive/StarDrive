@@ -38,6 +38,7 @@ namespace Ship_Game.Ships
 
         // Hangar Templates
         public ShipModule[] Hangars { get; private set; }
+        public ShipModule[] AllFighterHangars { get; private set; }
 
         // Weapon Templates
         public Weapon[] Weapons { get; private set; }
@@ -73,6 +74,7 @@ namespace Ship_Game.Ships
             BaseCost = baseCost;
             BaseWarpThrust = baseWarp;
             Hangars = hangars.ToArray();
+            AllFighterHangars = Hangars.Filter(h => h.IsFighterHangar);
             Weapons = weapons.ToArray();
 
             IsPlatformOrStation = Role == RoleName.platform || Role == RoleName.station;
@@ -103,9 +105,9 @@ namespace Ship_Game.Ships
             return (int)cost;
         }
 
-        public float GetMaintenanceCost()
+        public float GetMaintenanceCost(Empire empire, int troopCount)
         {
-            return 0f;
+            return ShipMaintenance.GetBaseMaintenance(this, empire, troopCount);
         }
 
         public string GetRole()
