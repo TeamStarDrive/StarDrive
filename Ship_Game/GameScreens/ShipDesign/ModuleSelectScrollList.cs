@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -20,7 +21,8 @@ namespace Ship_Game
             var weaponItem = (ModuleSelectListItem)item;
             if (weaponItem.Module != null)
             {
-                Screen.SetActiveModule(weaponItem.Module.UID, ModuleOrientation.Normal, 0);
+                string hangarShipUID = DynamicHangarOptions.DynamicLaunch.ToString();
+                Screen.SetActiveModule(weaponItem.Module.UID, ModuleOrientation.Normal, 0, hangarShipUID);
             }
             base.OnItemClicked(item);
         }
