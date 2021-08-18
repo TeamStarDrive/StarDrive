@@ -80,7 +80,7 @@ namespace Ship_Game.Commands.Goals
             {
                 if (goal.GetShipTemplate(goal.ToBuildUID, out ShipDesign template))
                 {
-                    Role = template.DesignRole;
+                    Role = template.Role;
                     Upkeep = template.GetMaintenanceCost(owner, 0);
                 }
                 else

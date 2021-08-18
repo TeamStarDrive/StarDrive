@@ -8,8 +8,8 @@ namespace Ship_Game.Ships
     {
         readonly ShipDesign Ship;
         readonly ShipModule[] Modules;
-        readonly RoleName HullRole;
-        readonly RoleName DataRole;
+        readonly RoleName HullRole; // role defined in the .hull file
+        readonly RoleName DataRole; // role defined in the .design file
         readonly int SurfaceArea;
 
         // these are the outputs:
