@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Draylok Colonizer STL
 Hull=Draylok/Draylok Tx Small
-Role=freighter
+Role=colony
 Style=Draylok
 Size=4,8
 GridCenter=2,4
