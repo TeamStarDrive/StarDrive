@@ -153,6 +153,9 @@ namespace Ship_Game.Ships
                 }
 
                 var data = new ShipDesign(p, source:file);
+                if (data.Role == RoleName.disabled)
+                    return null;
+
                 if (data.BaseHull == null)
                 {
                     Log.Warning(ConsoleColor.Red, $"Hull='{data.Hull}' does not exist for Design: {file.FullName}");
@@ -178,14 +181,29 @@ namespace Ship_Game.Ships
                     StringView key = line.Next('=');
                     StringView value = line;
 
-                    if      (key == "Name") Name = value.Text;
+                    if (key == "Name") Name = value.Text;
                     else if (key == "Hull")
                     {
                         Hull = value.Text;
                         if (!ResourceManager.Hull(Hull, out hull)) // If the hull is invalid, then ship loading fails!
                             return;
                     }
-                    else if (key == "Role")  { Enum.TryParse(value.Text, out RoleName role); Role = role; }
+                    else if (key == "ModName")
+                    {
+                        ModName = value.Text;
+                        if (!IsValidForCurrentMod || !hull.IsValidForCurrentMod)
+                        {
+                            Role = RoleName.disabled;
+                            return; // this design doesn't need to be parsed
+                        }
+                    }
+                    else if (key == "Role")
+                    {
+                        Enum.TryParse(value.Text, out RoleName role);
+                        Role = role;
+                        if (role == RoleName.disabled)
+                            return; // no need to parse further
+                    }
                     else if (key == "Style")       ShipStyle = value.Text;
                     else if (key == "Description") Description = value.Text;
                     else if (key == "Size")        GridInfo.Size = PointSerializer.FromString(value);
