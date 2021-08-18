@@ -220,7 +220,7 @@ namespace Ship_Game
                 alreadyDrawn.Add(s);
 
                 if (s.Module.shield_power_max > 0f)
-                    DrawShieldRadius(batch, s);
+                    DrawCircleProjected(s.Center, s.Module.ShieldHitRadius, Color.LightGreen);
 
                 if (s.Module.ModuleType == ShipModuleType.Turret && Input.LeftMouseHeld())
                 {
@@ -257,7 +257,7 @@ namespace Ship_Game
             if (DesignedShip == null)
                 return;
 
-            var unpowered = ResourceManager.Texture("UI/lightningBolt");
+            var unPowered = ResourceManager.Texture("UI/lightningBolt");
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
                 ShipModule m = slot.Module;
@@ -268,17 +268,11 @@ namespace Ship_Game
                     && m.ModuleType != ShipModuleType.PowerConduit
                     && !DesignedShip.PwrGrid.IsPowered(slot.Pos))
                 {
-                    batch.Draw(unpowered,
-                        slot.Center, Color.White, 0f, unpowered.CenterF, 1f, SpriteEffects.None, 1f);
+                    ProjectToScreenCoordsF(slot.Center, new Vector2(10), out Vector2 pos, out Vector2 size);
+                    var screenRect = new RectF(pos - size/2, size);
+                    batch.Draw(unPowered, screenRect, Color.White);
                 }
             }
-        }
-
-        void DrawShieldRadius(SpriteBatch batch, SlotStruct slot)
-        {
-            ProjectToScreenCoords(slot.Center, slot.Module.ShieldHitRadius,
-                                  out Vector2d pos, out double radius);
-            batch.DrawCircle(pos, radius, Color.LightGreen);
         }
 
         void DrawFireArcText(SlotStruct slot)
@@ -298,7 +292,7 @@ namespace Ship_Game
 
             if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship hangarShip))
             {
-                DrawStringProjected(s.Center, 0, 0.4f, textC, hangarShip.Name);
+                DrawStringProjected(s.Center, 6, textC, hangarShip.Name, Fonts.Arial20Bold, shadow:true, center:true);
             }
         }
 
