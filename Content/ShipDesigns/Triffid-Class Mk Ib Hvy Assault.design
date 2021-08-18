@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Triffid-Class Mk Ib Hvy Assault
 Hull=Pollops/Corpse Flower
-Role=capital
+Role=troopShip
 Style=Pollops
 Size=36,26
 GridCenter=18,10

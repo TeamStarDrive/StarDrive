@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Colony Ship STL
 Hull=Misc/HaulerSmall
-Role=freighter
+Role=colony
 Style=Misc
 Size=4,10
 GridCenter=2,4
