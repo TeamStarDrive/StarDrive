@@ -72,14 +72,16 @@ namespace Ship_Game.Commands.Goals
             public float Upkeep { get;}
             public RoleName Role { get;}
 
-            public ShipInfo(Goal goal) : this(goal as BuildOffensiveShips){ }
+            public ShipInfo(Empire owner, Goal goal) : this(owner, goal as BuildOffensiveShips)
+            {
+            }
 
-            public ShipInfo(BuildOffensiveShips goal)
+            public ShipInfo(Empire owner, BuildOffensiveShips goal)
             {
                 if (goal.GetShipTemplate(goal.ToBuildUID, out ShipDesign template))
                 {
                     Role = template.DesignRole;
-                    Upkeep = template.GetMaintenanceCost();
+                    Upkeep = template.GetMaintenanceCost(owner, 0);
                 }
                 else
                 {
