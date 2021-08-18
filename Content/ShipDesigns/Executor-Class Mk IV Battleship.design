@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Executor-Class Mk IV Battleship
 Hull=Vulfen/Type XIII
-Role=carrier
+Role=battleship
 Style=Vulfen
 Size=24,63
 GridCenter=12,32

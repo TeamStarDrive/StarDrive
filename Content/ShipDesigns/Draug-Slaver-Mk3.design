@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Draug-Slaver-Mk3
 Hull=Kulrathi/Claw
-Role=frigate
+Role=troopShip
 Style=Draugar
 Size=18,17
 GridCenter=9,9

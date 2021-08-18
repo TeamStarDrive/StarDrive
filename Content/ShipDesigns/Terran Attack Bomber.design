@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Terran Attack Bomber
 Hull=Terran/Hunter
-Role=corvette
+Role=bomber
 Style=Terran
 Size=10,11
 GridCenter=5,5

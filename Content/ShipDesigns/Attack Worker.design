@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Attack Worker
 Hull=Opteris/Worker
-Role=corvette
+Role=bomber
 Style=Opteris
 Size=8,6
 GridCenter=4,5
