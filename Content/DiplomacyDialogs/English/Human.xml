@@ -644,5 +644,24 @@
       <DL_Pac>It is preferable you thrive to improve relations with our allies, though.</DL_Pac>
       <DL_Hon>'Semper Fi' is a strange term for you. We are deeply disappointed.</DL_Hon>
     </DialogLine>
+	
+	<!-- Merge and Surrender -->
+	
+    <DialogLine>
+      <DialogType>SURRENDER</DialogType>
+      <Default>This war proved to be lethal for us. We surrender.</Default>
+    </DialogLine>	
+    <DialogLine>
+      <DialogType>OFFER_MERGE</DialogType>
+      <Default>PLURAL, it seems we are losing our wars and our race is in danger. Will you accept a merge offer?</Default>
+    </DialogLine>		
+    <DialogLine>
+      <DialogType>OFFER_MERGE_ACCEPTED</DialogType>
+      <Default>Then it is done!</Default>
+    </DialogLine>			
+    <DialogLine>
+      <DialogType>OFFER_MERGE_REJECTED</DialogType>
+      <Default>This is unfortunate. We will try to come up with a something else.</Default>
+    </DialogLine>				
   </Dialogs>
 </DiplomacyDialog>
