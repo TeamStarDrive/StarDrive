@@ -465,10 +465,10 @@ namespace Ship_Game.GameScreens.LoadGame
                 if (qisave.isShip)
                 {
                     qi.isShip = true;
-                    if (!ResourceManager.GetShipTemplate(qisave.UID, out Ship shipTemplate))
+                    if (!ResourceManager.Ships.GetDesign(qisave.UID, out Ships.ShipDesign shipTemplate))
                         continue;
 
-                    qi.sData           = shipTemplate.shipData;
+                    qi.sData           = shipTemplate;
                     qi.DisplayName     = qisave.DisplayName;
                     qi.Cost            = qisave.Cost;
                     qi.TradeRoutes     = qisave.TradeRoutes;
