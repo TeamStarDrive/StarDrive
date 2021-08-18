@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Polaris-Class Mk IIIa Battleship
 Hull=Terran/Heavy Cruiser
-Role=capital
+Role=cruiser
 Style=Terran
 Size=26,48
 GridCenter=13,23

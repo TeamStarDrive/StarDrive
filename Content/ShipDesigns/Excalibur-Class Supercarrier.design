@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Excalibur-Class Supercarrier
 Hull=Terran/Dreadnought
-Role=capital
+Role=carrier
 Style=Terran
 Size=40,64
 GridCenter=20,31

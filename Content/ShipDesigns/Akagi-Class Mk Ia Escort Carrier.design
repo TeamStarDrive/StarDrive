@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Akagi-Class Mk Ia Escort Carrier
 Hull=Kulrathi/Mauler
-Role=cruiser
+Role=carrier
 Style=Kulrathi
 Size=18,31
 GridCenter=9,15

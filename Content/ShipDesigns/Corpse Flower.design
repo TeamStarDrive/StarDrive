@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Corpse Flower
 Hull=Pollops/Corpse Flower
-Role=capital
+Role=bomber
 Style=Pollops
 Size=36,26
 GridCenter=18,10

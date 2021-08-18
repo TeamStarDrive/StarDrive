@@ -251,10 +251,11 @@ namespace Ship_Game
             else
             {
                 float limit = 2000f;
-                if (input.WASDLeft  && CameraPos.X > -limit) CameraPos.X -= GlobalStats.CameraPanSpeed;
-                if (input.WASDRight && CameraPos.X < +limit) CameraPos.X += GlobalStats.CameraPanSpeed;
-                if (input.WASDUp   && CameraPos.Y > -limit) CameraPos.Y -= GlobalStats.CameraPanSpeed;
-                if (input.WASDDown && CameraPos.Y < +limit) CameraPos.Y += GlobalStats.CameraPanSpeed;
+                float cameraPanSpeed = GlobalStats.CameraPanSpeed * 2;
+                if (input.WASDLeft  && CameraPos.X > -limit) CameraPos.X -= cameraPanSpeed;
+                if (input.WASDRight && CameraPos.X < +limit) CameraPos.X += cameraPanSpeed;
+                if (input.WASDUp   && CameraPos.Y > -limit) CameraPos.Y -= cameraPanSpeed;
+                if (input.WASDDown && CameraPos.Y < +limit) CameraPos.Y += cameraPanSpeed;
             }
         }
 
@@ -282,7 +283,7 @@ namespace Ship_Game
                 SlotStruct slot = slotUnderCursor.Parent ?? slotUnderCursor;
                 if (ActiveModule == null && slot.Module != null)
                 {
-                    SetActiveModule(slot.Module.UID, slot.Module.ModuleRot, slot.Module.TurretAngle);
+                    SetActiveModule(slot.Module.UID, slot.Module.ModuleRot, slot.Module.TurretAngle, slot.Module.HangarShipUID);
                     return true;
                 }
 

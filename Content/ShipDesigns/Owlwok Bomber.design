@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Owlwok Bomber
 Hull=Cordrazine/Litving
-Role=corvette
+Role=bomber
 Style=Cordrazine
 Size=6,7
 GridCenter=3,4

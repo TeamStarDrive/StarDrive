@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Werewolf-Class Mk IIId Cruiser
 Hull=Vulfen/Type X
-Role=cruiser
+Role=support
 Style=Vulfen
 Size=12,41
 GridCenter=6,21

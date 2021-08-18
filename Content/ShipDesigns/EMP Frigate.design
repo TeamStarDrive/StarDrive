@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=EMP Frigate
 Hull=Terran/HeavyGunboat
-Role=frigate
+Role=support
 Style=Terran
 Size=6,18
 GridCenter=3,9

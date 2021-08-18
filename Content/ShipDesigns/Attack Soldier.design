@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Attack Soldier
 Hull=Opteris/Soldier
-Role=frigate
+Role=bomber
 Style=Opteris
 Size=10,17
 GridCenter=5,9

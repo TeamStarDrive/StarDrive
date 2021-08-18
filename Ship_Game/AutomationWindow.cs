@@ -192,7 +192,7 @@ namespace Ship_Game
                 ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.shipData.IsColonyShip);
 
             InitDropOptions(ConstructorDropDown, ref playerData.CurrentConstructor, playerData.DefaultConstructor,
-                ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.DesignRole == RoleName.construction);
+                ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.IsConstructor);
 
             InitDropOptions(ScoutDropDown, ref playerData.CurrentAutoScout, playerData.StartingScout, 
                 ship =>

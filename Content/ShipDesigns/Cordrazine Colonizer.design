@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Cordrazine Colonizer
 Hull=Cordrazine/Owl1
-Role=freighter
+Role=colony
 Style=Cordrazine
 Size=4,7
 GridCenter=2,3

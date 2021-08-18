@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=TEST_ShipShield
 Hull=Terran/Shuttle
-Role=fighter
+Role=scout
 Style=Terran
 Size=4,4
 GridCenter=2,2

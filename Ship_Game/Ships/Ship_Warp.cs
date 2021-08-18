@@ -34,7 +34,7 @@ namespace Ship_Game.Ships
          // [0.0 to 1.0], current Warp thrust percentage
         public float WarpPercent { get; private set; } = 1f;
 
-        public bool BaseCanWarp;
+        public bool BaseCanWarp => shipData.BaseCanWarp;
 
         public bool IsSpoolingOrInWarp => IsSpooling || engineState == MoveState.Warp;
         public bool IsInWarp => engineState == MoveState.Warp;
