@@ -395,12 +395,10 @@ namespace Ship_Game.AI
                 IReadOnlyList<Goal> goals = eAI.SearchForGoals(GoalType.BuildOffensiveShips);
                 foreach (Goal goal in goals)
                 {
-                    var ship = new BuildOffensiveShips.ShipInfo(goal);
+                    var ship = new BuildOffensiveShips.ShipInfo(eAI.OwnerEmpire, goal);
                     var combatRole = RoleCounts.ShipRoleToCombatRole(ship.Role);
                     if (shipsBuilding.TryGetValue(combatRole, out RoleCounts roleCounts))
-                    {
                         roleCounts.AddToBuildingCost(ship.Upkeep);
-                    }
                 }
             }
 

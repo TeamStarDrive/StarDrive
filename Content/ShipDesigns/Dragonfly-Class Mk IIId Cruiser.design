@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Dragonfly-Class Mk IIId Cruiser
 Hull=Opteris/Chitin
-Role=cruiser
+Role=support
 Style=Opteris
 Size=20,31
 GridCenter=10,16

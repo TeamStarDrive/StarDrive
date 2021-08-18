@@ -62,7 +62,6 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
 
             FinishedShip.AI.OrderDeepSpaceBuild(this);
-            FinishedShip.IsConstructor = true;
             return GoalStep.GoToNextStep;
         }
 

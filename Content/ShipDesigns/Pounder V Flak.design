@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Pounder V Flak
 Hull=Vulfen/Type V
-Role=corvette
+Role=bomber
 Style=Vulfen
 Size=12,13
 GridCenter=6,6

@@ -220,7 +220,7 @@ namespace Ship_Game
                 alreadyDrawn.Add(s);
 
                 if (s.Module.shield_power_max > 0f)
-                    DrawShieldRadius(batch, s);
+                    DrawCircleProjected(s.Center, s.Module.ShieldHitRadius, Color.LightGreen);
 
                 if (s.Module.ModuleType == ShipModuleType.Turret && Input.LeftMouseHeld())
                 {
@@ -229,9 +229,7 @@ namespace Ship_Game
                         ToolTip.ShipYardArcTip();
                 }
 
-                if (s.Module.ModuleType == ShipModuleType.Hangar)
-                    DrawHangarShipText(s);
-
+                DrawHangarShipText(s.Module, s.WorldRect);
                 DrawWeaponArcs(batch, s);
 
                 if (IsSymmetricDesignMode && GetMirrorSlotStruct(s, out SlotStruct mirrored))
@@ -257,7 +255,7 @@ namespace Ship_Game
             if (DesignedShip == null)
                 return;
 
-            var unpowered = ResourceManager.Texture("UI/lightningBolt");
+            var unPowered = ResourceManager.Texture("UI/lightningBolt");
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
                 ShipModule m = slot.Module;
@@ -268,17 +266,11 @@ namespace Ship_Game
                     && m.ModuleType != ShipModuleType.PowerConduit
                     && !DesignedShip.PwrGrid.IsPowered(slot.Pos))
                 {
-                    batch.Draw(unpowered,
-                        slot.Center, Color.White, 0f, unpowered.CenterF, 1f, SpriteEffects.None, 1f);
+                    ProjectToScreenCoordsF(slot.Center, new Vector2(10), out Vector2 pos, out Vector2 size);
+                    var screenRect = new RectF(pos - size/2, size);
+                    batch.Draw(unPowered, screenRect, Color.White);
                 }
             }
-        }
-
-        void DrawShieldRadius(SpriteBatch batch, SlotStruct slot)
-        {
-            ProjectToScreenCoords(slot.Center, slot.Module.ShieldHitRadius,
-                                  out Vector2d pos, out double radius);
-            batch.DrawCircle(pos, radius, Color.LightGreen);
         }
 
         void DrawFireArcText(SlotStruct slot)
@@ -289,16 +281,18 @@ namespace Ship_Game
             DrawStringProjected(slot.Center, 0, 1, Color.Orange, slot.Module.TurretAngle.ToString());
         }
 
-        void DrawHangarShipText(SlotStruct s)
+        void DrawHangarShipText(ShipModule m, in RectF worldRect)
         {
-            string hangarShipUID = s.Module.HangarShipUID;
-            Color color = Color.Black.Alpha(0.33f);
-            Color textC = ShipBuilder.GetHangarTextColor(hangarShipUID);
-            DrawRectangleProjected(s.WorldRect, textC, color);
+            if (m.ModuleType != ShipModuleType.Hangar)
+                return;
 
-            if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship hangarShip))
+            Color color = Color.Black.Alpha(0.33f);
+            Color textC = ShipBuilder.GetHangarTextColor(m.HangarShipUID);
+            DrawRectangleProjected(worldRect, textC, color);
+
+            if (ResourceManager.GetShipTemplate(m.HangarShipUID, out Ship hangarShip))
             {
-                DrawStringProjected(s.Center, 0, 0.4f, textC, hangarShip.Name);
+                DrawStringProjected(worldRect.Center, 6, textC, hangarShip.Name, Fonts.Arial20Bold, shadow:true, center:true);
             }
         }
 
@@ -378,6 +372,7 @@ namespace Ship_Game
 
             DrawModuleTex(ActiveModule.ModuleRot, batch, null, worldRect, template);
             DrawWeaponArcs(batch, ActiveModule, moduleWorldPos, 0, ActiveModule.TurretAngle);
+            DrawHangarShipText(ActiveModule, worldRect);
 
             if (IsSymmetricDesignMode)
             {
@@ -391,6 +386,7 @@ namespace Ship_Game
 
                     int turretAngle = GetMirroredTurretAngle(ActiveModule.TurretAngle);
                     DrawWeaponArcs(batch, ActiveModule, mirrorWorldPos, 0f, turretAngle);
+                    DrawHangarShipText(ActiveModule, mirrorWorldRect);
                 }
             }
 

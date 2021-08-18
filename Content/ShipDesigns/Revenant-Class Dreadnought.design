@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Revenant-Class Dreadnought
 Hull=Draylok/Sentinel
-Role=carrier
+Role=battleship
 Style=Draylok
 Size=66,61
 GridCenter=33,31

@@ -134,6 +134,9 @@ namespace Ship_Game
         // TODO: This is still experimental, since Ship Templates also need to be lazily instantiated
         public static bool LazyLoadShipDesignSlots = false;
 
+        // If enabled, this will fix all .design file's Role and Category fields
+        // modifying all ship designs
+        public static bool FixDesignRoleAndCategory = false;
 
         public static int CameraPanSpeed    = 2;
         public static float DamageIntensity = 1;

@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Evergreen-Class Mk II Carrier
 Hull=Pollops/Corpse Flower
-Role=capital
+Role=carrier
 Style=Pollops
 Size=36,26
 GridCenter=18,10

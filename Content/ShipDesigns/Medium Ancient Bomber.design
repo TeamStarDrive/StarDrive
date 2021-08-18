@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Medium Ancient Bomber
 Hull=Remnant/AncientFrigate
-Role=frigate
+Role=bomber
 Style=Remnant
 Size=14,16
 GridCenter=7,8

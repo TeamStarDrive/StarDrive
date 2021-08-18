@@ -87,6 +87,10 @@ namespace Ship_Game
                 {
                     GlobalStats.GenerateNewShipDesignFiles = true;
                 }
+                else if (key == "--fix-roles")
+                {
+                    GlobalStats.FixDesignRoleAndCategory = true;
+                }
                 else if (key.StartsWith("--run-localizer"))
                 {
                     GlobalStats.RunLocalizer = value.IsEmpty() ? 1 : int.Parse(value);
@@ -112,6 +116,7 @@ namespace Ship_Game
             Log.Write("  --export-meshes    Exports all mesh files as FBX");
             Log.Write("  --generate-hulls   Generates new .hull files from old XML hulls");
             Log.Write("  --generate-ships   Generates new ship .design files from old XML ships");
+            Log.Write("  --fix-roles        Fixes Role and Category for all .design ships");
             Log.Write("  --run-localizer=[0-2] Run localization tool to merge missing translations and generate id-s");
             Log.Write("                        0: disabled  1: generate with YAML NameIds  2: generate with C# NameIds");
             PressAnyKey();
