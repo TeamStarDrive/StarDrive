@@ -1496,7 +1496,7 @@ namespace Ship_Game
                     {
                         GameLoadingScreen.SetStatus("LoadShipTemplate", info.RelPath());
                         ShipDesign shipDesign = ShipDesign.Parse(info);
-                        if (shipDesign == null || shipDesign.Role == RoleName.disabled)
+                        if (shipDesign == null)
                             continue;
 
                         if (info.NameNoExt() != shipDesign.Name)
