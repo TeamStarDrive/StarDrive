@@ -195,7 +195,6 @@ namespace Ship_Game.Universe.SolarBodies
             q.Goal?.ReportShipComplete(shipAt);
             if (q.Goal is BuildConstructionShip || q.Goal is BuildOrbital)
             {
-                shipAt.IsConstructor = true;
                 shipAt.VanityName = q.sData.Name;
                 shipAt.AI.SetPriorityOrder(true);
             }

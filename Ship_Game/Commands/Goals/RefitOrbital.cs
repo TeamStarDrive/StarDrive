@@ -104,7 +104,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 BuildPosition = OldShip.Position;
             }
 
-            FinishedShip.IsConstructor = true;
             FinishedShip.AI.OrderDeepSpaceBuild(this);
             return GoalStep.GoToNextStep;
         }
