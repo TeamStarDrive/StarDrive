@@ -41,9 +41,9 @@ namespace Ship_Game.Commands.Goals
             // once the freighter is deployed, it will mutate into ToBuildUID
 
             ShipToBuild = ShipBuilder.PickConstructor(empire)?.shipData;
-
             if (ShipToBuild == null)
-                return GoalStep.GoalFailed;
+                throw new Exception($"PickConstructor failed for {empire.Name}."+
+                                    "This is a FATAL bug in data files, where Empire is not able to do space construction!");
 
             if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, toBuild.shipData, out Planet planet, priority: 0.25f))
                 return GoalStep.TryAgain;
