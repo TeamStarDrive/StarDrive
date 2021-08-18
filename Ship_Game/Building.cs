@@ -47,7 +47,7 @@ namespace Ship_Game
         [Serialize(36)] public int CombatStrength;
         [Serialize(37)] public int SoftAttack;
         [Serialize(38)] public int HardAttack;
-        [Serialize(39)] public int Defense;
+        [Serialize(39)] public int Defense; // Defense vs bombardment
         [Serialize(40)] public float PlusTaxPercentage;
         [Serialize(41)] public bool AllowInfantry;
         [Serialize(42)] public float Maintenance;
@@ -160,7 +160,7 @@ namespace Ship_Game
             AttackTimer = 10;
         }
 
-        public float ActualFireDelay(Planet p) => TheWeapon != null ? TheWeapon.fireDelay / (p.Level.LowerBound(1) / 2f) : 1;
+        public float ActualFireDelay(Planet p) => TheWeapon != null ? TheWeapon.fireDelay / (p.Level.LowerBound(1)) : 1;
 
         bool CanLaunchDefenseShips(Empire empire) => !HasLaunchedAllDefenseShips && empire.Money > 100;
 
@@ -195,7 +195,7 @@ namespace Ship_Game
         private void UpdateOffense(int planetLevel = 1)
         {
             if (isWeapon)
-                Offense = TheWeapon.CalculateOffense() * (planetLevel/2f); // fire delay is shorter when planet level is higher
+                Offense = TheWeapon.CalculateOffense() * planetLevel; // fire delay is shorter when planet level is higher
         }
 
         public void UpdateOffense(Planet p) => UpdateOffense(p.Level);
@@ -419,7 +419,7 @@ namespace Ship_Game
             float score = 0;
             if (CanAttack)
             {
-                score += Strength + Defense + CombatStrength + SoftAttack + HardAttack;
+                score += Strength + Defense/2 + CombatStrength + SoftAttack + HardAttack;
                 score += PlanetaryShieldStrengthAdded;
                 score += InvadeInjurePoints * 20;
                 if (AllowInfantry)
@@ -443,7 +443,7 @@ namespace Ship_Game
                 case RoleName.fighter:  defenseShipScore = 5f;  break;
                 case RoleName.corvette: defenseShipScore = 10f; break;
                 case RoleName.frigate:  defenseShipScore = 20f; break;
-                default:                         defenseShipScore = 50f; break;
+                default:                defenseShipScore = 50f; break;
             }
 
             return defenseShipScore * DefenseShipsCapacity;
