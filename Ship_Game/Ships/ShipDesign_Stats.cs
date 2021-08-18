@@ -27,7 +27,7 @@ namespace Ship_Game.Ships
         public bool IsConstructor       { get; private set; }
         public bool IsSubspaceProjector { get; private set; }
         public bool IsColonyShip        { get; private set; }
-        public bool IsSupplyShip        { get; private set; } // this ship launches supply ships
+        public bool IsSupplyCarrier     { get; private set; } // this ship launches supply ships
         public bool IsSupplyShuttle     { get; private set; }
         public bool IsFreighter         { get; private set; }
         public bool IsCandidateForTradingBuild { get; private set; }
@@ -72,7 +72,7 @@ namespace Ship_Game.Ships
                     weapons.Add(m.InstalledWeapon);
 
                 if (m.IsSupplyBay)
-                    IsSupplyShip = true;
+                    IsSupplyCarrier = true;
             }
 
             BaseCost = baseCost;

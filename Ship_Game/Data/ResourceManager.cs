@@ -1910,7 +1910,7 @@ namespace Ship_Game
             if (Ships.GetDesign(shipName, out ShipDesign design))
                 return design;
             string empire = e == null ? "" : $" empire={e.Name,-20}";
-            Log.Error($"Assert Ship Exists failed! {usage,-20}  ship={design.Name,-20} {empire}");
+            Log.Error($"Assert Ship Exists failed! {usage,-20}  ship={shipName,-20} {empire}");
             return null;
         }
 
@@ -1944,7 +1944,7 @@ namespace Ship_Game
                 Assert(e, e.DefaultShipyard,    "DefaultShipyard",    s => s.IsShipyard,    "IsShipyard");
 
                 Assert(e, e.DefaultAssaultShuttle, "DefaultAssaultShuttle");
-                Assert(e, e.DefaultSupplyShuttle,  "DefaultSupplyShuttle", s => s.IsSupplyShip, "IsSupplyShip");
+                Assert(e, e.DefaultSupplyShuttle,  "DefaultSupplyShuttle", s => s.IsSupplyShuttle, "IsSupplyShip");
             }
 
             string[] requiredShips =
