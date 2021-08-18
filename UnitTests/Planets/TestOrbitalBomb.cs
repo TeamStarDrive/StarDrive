@@ -12,11 +12,11 @@ namespace UnitTests.Planets
             CreateUniverseAndPlayerEmpire();
             AddDummyPlanetToEmpire(Player);
             AddHomeWorldToEmpire(Player, out P);
-            B = new Bomb(Vector3.Zero, Player, "NuclearBomb");
+            B = new Bomb(Vector3.Zero, Player, "NuclearBomb", shipLevel: 1);
         }
 
-        private Planet P; // Player.Capital
-        private Bomb B;
+        readonly Planet P; // Player.Capital
+        readonly Bomb B;
 
 
         PlanetGridSquare FindHabitableTargetTile(SolarSystemBody p)
