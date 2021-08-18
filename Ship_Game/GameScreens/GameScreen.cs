@@ -786,13 +786,14 @@ namespace Ship_Game
             }
         }
 
-        public void DrawStringProjected(Vector2 posInWorld, float sizeInWorld, Color textColor, string text)
+        public void DrawStringProjected(Vector2 posInWorld, float sizeInWorld, Color textColor, string text, bool shadow = false)
         {
-            DrawStringProjected(posInWorld, sizeInWorld, textColor, text, Fonts.Arial11Bold);
+            DrawStringProjected(posInWorld, sizeInWorld, textColor, text, Fonts.Arial11Bold, shadow);
         }
 
         // draws a string with 
-        public void DrawStringProjected(Vector2 posInWorld, float sizeInWorld, Color textColor, string text, Font font)
+        public void DrawStringProjected(Vector2 posInWorld, float sizeInWorld, Color textColor, string text, Font font,
+                                        bool shadow = false, bool center = false)
         {
             Vector2d screenPos = ProjectToScreenPosition(posInWorld);
             Vector2 pos = screenPos.ToVec2f();
@@ -803,7 +804,12 @@ namespace Ship_Game
                 Vector2d screenPos2 = ProjectToScreenPosition(posInWorld + new Vector2(sizeInWorld, 0f));
                 double widthOnScreen = Math.Abs(screenPos2.X - screenPos.X);
                 double scale = widthOnScreen / size.Y;
-                ScreenManager.SpriteBatch.DrawString(font, text, pos, textColor, 0f, Vector2.Zero, (float)scale);
+                Vector2 origin = center ? size * 0.5f : Vector2.Zero;
+                if (shadow)
+                {
+                    ScreenManager.SpriteBatch.DrawString(font, text, pos+new Vector2(2), Color.Black, 0f, origin, (float)scale);
+                }
+                ScreenManager.SpriteBatch.DrawString(font, text, pos, textColor, 0f, origin, (float)scale);
             }
         }
 
