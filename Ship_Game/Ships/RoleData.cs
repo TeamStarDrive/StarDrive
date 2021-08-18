@@ -6,21 +6,23 @@ namespace Ship_Game.Ships
 {
     public struct RoleData
     {
+        readonly ShipDesign Ship;
         readonly ShipModule[] Modules;
         readonly RoleName HullRole;
         readonly RoleName DataRole;
         readonly int SurfaceArea;
-        readonly ShipDesign Ship;
-        readonly ShipCategory Category;
+
+        // these are the outputs:
+        public ShipCategory Category;
         public RoleName DesignRole;
 
         public RoleData(ShipDesign ship, ShipModule[] modules)
         {
+            Ship        = ship;
             Modules     = modules;
             HullRole    = ship.HullRole;
             DataRole    = ship.Role;
             SurfaceArea = ship.BaseHull.SurfaceArea;
-            Ship        = ship;
             Category    = ship.ShipCategory;
             DesignRole  = RoleName.disabled;
             DesignRole  = GetDesignRole();
@@ -28,39 +30,36 @@ namespace Ship_Game.Ships
 
         RoleName GetDesignRole()
         {
-            if (Ship != null)
+            if (DataRole == RoleName.prototype)
+                return RoleName.prototype;
+            if (DataRole == RoleName.supply)
+                return RoleName.supply;
+
+            if (Ship.IsConstructor)
+                return RoleName.construction;
+            if (Ship.IsSubspaceProjector)
+                return RoleName.ssp;
+            if (Ship.IsShipyard)
+                return RoleName.shipyard;
+
+            if (Ship.IsColonyShip || Modules.Any(ShipModuleType.Colony))
+                return RoleName.colony;
+
+            switch (DataRole)
             {
-                if (Ship.Role == RoleName.prototype)
-                    return RoleName.prototype;
-                if (Ship.Role == RoleName.supply)
-                    return RoleName.supply;
+                case RoleName.station:
+                case RoleName.platform: return DataRole;
+                case RoleName.scout:    return RoleName.scout;
+                case RoleName.troop:    return RoleName.troop;
+            }
 
-                if (Ship.IsConstructor)
-                    return RoleName.construction;
-                if (Ship.IsSubspaceProjector)
-                    return RoleName.ssp;
-                if (Ship.IsShipyard)
-                    return RoleName.shipyard;
-
-                if (Ship.IsColonyShip || Modules.Any(ShipModuleType.Colony))
-                    return RoleName.colony;
-
-                switch (Ship.Role)
-                {
-                    case RoleName.station:
-                    case RoleName.platform: return Ship.Role;
-                    case RoleName.scout:    return RoleName.scout;
-                    case RoleName.troop:    return RoleName.troop;
-                }
-
-                if (Ship.IsSupplyShip && Ship.Weapons.Length == 0)
-                    return RoleName.supply;
-                
-                if (HullRole == RoleName.freighter && Category == ShipCategory.Civilian
-                                                   && SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f)
-                {
-                    return RoleName.freighter;
-                }
+            if (Ship.IsSupplyShip && Ship.Weapons.Length == 0)
+                return RoleName.supply;
+            
+            if (HullRole == RoleName.freighter && Category == ShipCategory.Civilian
+                                               && SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f)
+            {
+                return RoleName.freighter;
             }
 
             // troops ship
@@ -88,7 +87,7 @@ namespace Ship_Game.Ships
                 // check for useability as freighter.
                 // small issue is that ships that are classified civilian will behave as civilian ships.
                 // currently the category can not be set here while in the shipyard.
-                if (Ship == null || Category <= ShipCategory.Civilian)
+                if (Category <= ShipCategory.Civilian)
                 {
                     // non freighter hull must be set to civilian to be set as freighters.
                     if (HullRole > RoleName.freighter)
@@ -102,14 +101,13 @@ namespace Ship_Game.Ships
                     {
                         if (SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.01f)
                         {
-                            if (Ship != null)
-                                Ship.ShipCategory = ShipCategory.Civilian;
+                            Category = ShipCategory.Civilian;
                             return RoleName.freighter;
                         }
                         // This is for updating the ship and no use if there is no ship. 
-                        if (Ship?.ShipCategory == ShipCategory.Civilian)
+                        if (Category == ShipCategory.Civilian)
                         {
-                            Ship.ShipCategory = ShipCategory.Unclassified;
+                            Category = ShipCategory.Unclassified;
                             Log.Warning($"Freighter {Ship.Name} category was reverted to unclassified as it cant be used as civilian ship");
                         }
                     }

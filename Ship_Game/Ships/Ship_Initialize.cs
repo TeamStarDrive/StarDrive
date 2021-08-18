@@ -289,14 +289,12 @@ namespace Ship_Game.Ships
                 return null;
             }
 
-            ShipDesign data;
-            if (ResourceManager.GetShipTemplate(save.Name, out Ship template))
+            if (ResourceManager.Ships.GetDesign(save.Name, out ShipDesign data))
             {
-                // savedModules are equal to existing ship template? then use that
-                if (template.shipData.AreModulesEqual(savedModules))
-                    data = template.shipData;
-                else // the ship from the save is not the same as the template
-                    data = ShipDesign.FromSave(savedModules, moduleUIDs, template.shipData);
+                // the ship from the save is not the same as the template
+                // this will be a unique snowflake in the universe
+                if (!data.AreModulesEqual(savedModules))
+                    data = ShipDesign.FromSave(savedModules, moduleUIDs, data);
             }
             else
             {
@@ -305,7 +303,7 @@ namespace Ship_Game.Ships
                     Log.Error($"CreateShipFromSave failed: no hull named {save.Hull}");
                     return null;
                 }
-                
+
                 // this ShipData doesn't exist in the game designs, it comes from the savegame only
                 data = ShipDesign.FromSave(savedModules, moduleUIDs, save, hull);
                 ResourceManager.AddShipTemplate(data, playerDesign: true);
