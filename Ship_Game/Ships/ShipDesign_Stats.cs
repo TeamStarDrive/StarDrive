@@ -33,6 +33,10 @@ namespace Ship_Game.Ships
         public bool IsFreighter         { get; private set; }
         public bool IsCandidateForTradingBuild { get; private set; }
 
+        public bool IsSingleTroopShip { get; private set; }
+        public bool IsTroopShip       { get; private set; }
+        public bool IsBomber          { get; private set; }
+
         public float BaseCost { get; private set; }
         public float BaseWarpThrust { get; private set; }
 
@@ -64,11 +68,11 @@ namespace Ship_Game.Ships
                     hangars.Add(m);
                 else if (m.Is(ShipModuleType.Colony))
                     IsColonyShip = true;
+                else if (m.InstalledWeapon != null)
+                    weapons.Add(m.InstalledWeapon);
 
                 if (m.IsSupplyBay)
                     IsSupplyShip = true;
-                if (m.InstalledWeapon != null)
-                    weapons.Add(m.InstalledWeapon);
             }
 
             BaseCost = baseCost;
@@ -77,16 +81,17 @@ namespace Ship_Game.Ships
             AllFighterHangars = Hangars.Filter(h => h.IsFighterHangar);
             Weapons = weapons.ToArray();
 
-            IsPlatformOrStation = Role == RoleName.platform || Role == RoleName.station;
-            IsStation = Role == RoleName.station && !IsShipyard;
-            IsConstructor = Role == RoleName.construction;
-            IsSubspaceProjector = Name == "Subspace Projector";
-
             var roleData = new RoleData(this, modules);
             DesignRole = roleData.DesignRole;
             ShipCategory = roleData.Category;
-
-            IsFreighter = DesignRole == RoleName.freighter && ShipCategory == ShipCategory.Civilian;
+            IsPlatformOrStation = DesignRole == RoleName.platform || DesignRole == RoleName.station;
+            IsStation           = DesignRole == RoleName.station && !IsShipyard;
+            IsConstructor       = DesignRole == RoleName.construction;
+            IsSubspaceProjector = DesignRole == RoleName.ssp;
+            IsSingleTroopShip = DesignRole == RoleName.troop;
+            IsTroopShip       = DesignRole == RoleName.troop || DesignRole == RoleName.troopShip;
+            IsBomber          = DesignRole == RoleName.bomber;
+            IsFreighter       = DesignRole == RoleName.freighter && ShipCategory == ShipCategory.Civilian;
             IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
         }
 

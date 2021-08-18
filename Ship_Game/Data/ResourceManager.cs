@@ -239,6 +239,7 @@ namespace Ship_Game
             Profiled(LoadBuildRatios);
             Profiled(LoadEcoResearchStrats);
             Profiled(LoadBlackboxSpecific);
+            Profiled(CheckForRequiredShipDesigns);
         }
 
         public static void LoadGraphicsResources(ScreenManager manager)
@@ -1891,6 +1892,64 @@ namespace Ship_Game
             }
 
             return encounter != null;
+        }
+
+        static ShipDesign Assert(IEmpireData e, string shipName, string usage)
+        {
+            if (shipName == null) // the ship is not defined
+                return null;
+            if (Ships.GetDesign(shipName, out ShipDesign design))
+                return design;
+            string empire = e == null ? "" : $" empire={e.Name,-20}";
+            Log.Error($"Assert Ship Exists failed! {usage,-20}  ship={design.Name,-20} {empire}");
+            return null;
+        }
+
+        static void Assert(IEmpireData e, string shipName, string usage, Func<ShipDesign, bool> flag, string flagName)
+        {
+            ShipDesign design = Assert(e, shipName, usage);
+            if (design != null && !flag(design))
+                Log.Error($"Assert Ship.{flagName} failed! {usage,-20}  ship={design.Name,-20}  role={design.DesignRole,-12}  empire={e.Name,-20}");
+        }
+
+        // Added by RedFox: makes sure all required ship designs are present
+        static void CheckForRequiredShipDesigns()
+        {
+            foreach (EmpireData e in Empires)
+            {
+                Assert(e, e.StartingShip,  "StartingShip");
+                Assert(e, e.StartingScout, "StartingScout");
+                Assert(e, e.ScoutShip,     "ScoutShip");
+                Assert(e, e.PrototypeShip, "PrototypeShip");
+
+                Assert(e, e.DefaultSmallTransport, "DefaultSmallTransport", s => s.IsFreighter, "IsFreighter");
+                Assert(e, e.DefaultSmallTransport, "DefaultSmallTransport", s => s.IsCandidateForTradingBuild, "IsCandidateForTradingBuild");
+                Assert(e, e.FreighterShip, "FreighterShip", s => s.IsFreighter, "IsFreighter");
+                Assert(e, e.FreighterShip, "FreighterShip", s => s.IsCandidateForTradingBuild, "IsCandidateForTradingBuild");
+
+                Assert(e, e.DefaultTroopShip,  "DefaultTroopShip",  s => s.IsSingleTroopShip, "IsSingleTroopShip");
+                Assert(e, e.DefaultColonyShip, "DefaultColonyShip", s => s.IsColonyShip, "IsColonyShip");
+                Assert(e, e.ColonyShip,        "ColonyShip",        s => s.IsColonyShip, "IsColonyShip");
+                Assert(e, e.DefaultConstructor, "DefaultConstructor", s => s.IsConstructor, "IsConstructor");
+                Assert(e, e.ConstructorShip,    "ConstructorShip",    s => s.IsConstructor, "IsConstructor");
+                Assert(e, e.DefaultShipyard,    "DefaultShipyard",    s => s.IsShipyard,    "IsShipyard");
+
+                Assert(e, e.DefaultAssaultShuttle, "DefaultAssaultShuttle");
+                Assert(e, e.DefaultSupplyShuttle,  "DefaultSupplyShuttle", s => s.IsSupplyShip, "IsSupplyShip");
+            }
+
+            string[] requiredShips =
+            {
+                /*meteors*/"Meteor A", "Meteor B", "Meteor C", "Meteor D", "Meteor E", "Meteor F", "Meteor G",
+                /*debug*/"Bondage-Class Mk IIIa Cruiser", "Target Dummy",
+                /*hangarhack*/"DynamicAntiShip", "DynamicInterceptor", "DynamicLaunch",
+                /*defaults*/"Subspace Projector", "Supply Shuttle", "Assault Shuttle", "Terran Constructor"
+            };
+
+            foreach (string requiredShip in requiredShips)
+            {
+                Assert(null, requiredShip, "RequiredShip");
+            }
         }
     }
 }
