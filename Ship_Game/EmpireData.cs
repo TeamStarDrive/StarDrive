@@ -345,7 +345,7 @@ namespace Ship_Game
         public string ConstructorShip => CurrentConstructor.NotEmpty()    ? CurrentConstructor
                                        : DefaultConstructor.NotEmpty()    ? DefaultConstructor
                                        : DefaultSmallTransport.NotEmpty() ? DefaultSmallTransport
-                                       : "Small Transport";
+                                       : "Terran Constructor";
 
         [XmlIgnore][JsonIgnore]
         public bool IsCybernetic => Traits.Cybernetic > 0;

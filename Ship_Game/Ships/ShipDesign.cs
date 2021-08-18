@@ -100,6 +100,8 @@ namespace Ship_Game.Ships
 
             Unlockable = hull.Unlockable;
             DesignSlots = Array.Empty<DesignSlot>();
+
+            InitializeCommonStats(BaseHull, DesignSlots);
         }
 
 

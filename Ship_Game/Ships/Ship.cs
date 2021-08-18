@@ -163,9 +163,9 @@ namespace Ship_Game.Ships
         public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || Empire.DefaultBoardingShuttleName == Name;
         public bool IsDefaultTroopShip      => !IsDefaultAssaultShuttle && (loyalty.data.DefaultTroopShip == Name || DesignRole == RoleName.troop);
         public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
-        public bool IsSingleTroopShip       => DesignRole == RoleName.troop;
-        public bool IsTroopShip             => DesignRole == RoleName.troop || DesignRole == RoleName.troopShip;
-        public bool IsBomber                => DesignRole == RoleName.bomber;
+        public bool IsSingleTroopShip       => shipData.IsSingleTroopShip;
+        public bool IsTroopShip             => shipData.IsTroopShip;
+        public bool IsBomber                => shipData.IsBomber;
         public bool IsSubspaceProjector     => shipData.IsSubspaceProjector;
         public bool HasBombs                => BombBays.Count > 0;
         public bool IsEmpireSupport         => DesignRoleType == RoleType.EmpireSupport;
