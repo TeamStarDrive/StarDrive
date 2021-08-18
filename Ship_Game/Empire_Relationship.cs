@@ -736,7 +736,7 @@ namespace Ship_Game
 
             if (absorber.isPlayer)
             {
-                string dialogue = enemy.isPlayer ? "SURRENDER" : "OFFERMERGE";
+                string dialogue = enemy.isPlayer ? "SURRENDER" : "OFFER_MERGE";
 
                 // default is refusal if the player agrees, the empire will be merged anyway
                 GetRelationsOrNull(EmpireManager.Player).RefusedMerge = true; 
@@ -769,8 +769,8 @@ namespace Ship_Game
         {
             var offer = new Offer
             {
-                AcceptDL = "OFFERMERGE_ACCEPTED",
-                RejectDL = "OFFERMERGE_REJECTED",
+                AcceptDL = "OFFER_MERGE_ACCEPTED",
+                RejectDL = "OFFER_MERGE_REJECTED",
                 ValueToModify = new Ref<bool>(() => true, x => EmpireManager.Player.AbsorbEmpire(this))
             };
 
