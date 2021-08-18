@@ -12,24 +12,22 @@ namespace Ship_Game.Ships
     // that are common across this ShipDesign
     public partial class ShipDesign
     {
-        static readonly string[] RoleArray = typeof(RoleName).GetEnumNames();
-
-        // Role assigned to the Hull
+        // Role assigned to the Hull, such as Cruiser
         public RoleName HullRole => BaseHull.Role;
 
-        // TODO: Wtf is this?? DataRole ?
-        public RoleName Role = RoleName.fighter;
-        public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
+        // Role expressed by this ShipDesign's modules, such as Carrier
+        public RoleName Role { get; private set; } = RoleName.fighter;
 
-        // Role expressed by this ShipDesign's modules, calculated dynamically
-        public RoleName DesignRole { get; private set; }
+        static readonly string[] RoleArray = typeof(RoleName).GetEnumNames();
+        public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
 
         public bool IsPlatformOrStation { get; private set; }
         public bool IsStation           { get; private set; }
         public bool IsConstructor       { get; private set; }
         public bool IsSubspaceProjector { get; private set; }
         public bool IsColonyShip        { get; private set; }
-        public bool IsSupplyShip        { get; private set; }
+        public bool IsSupplyShip        { get; private set; } // this ship launches supply ships
+        public bool IsSupplyShuttle     { get; private set; }
         public bool IsFreighter         { get; private set; }
         public bool IsCandidateForTradingBuild { get; private set; }
 
@@ -37,8 +35,9 @@ namespace Ship_Game.Ships
         public bool IsTroopShip       { get; private set; }
         public bool IsBomber          { get; private set; }
 
-        public float BaseCost { get; private set; }
+        public float BaseCost       { get; private set; }
         public float BaseWarpThrust { get; private set; }
+        public bool  BaseCanWarp    { get; private set; }
 
         // Hangar Templates
         public ShipModule[] Hangars { get; private set; }
@@ -77,21 +76,28 @@ namespace Ship_Game.Ships
 
             BaseCost = baseCost;
             BaseWarpThrust = baseWarp;
+            BaseCanWarp = baseWarp > 0;
+
             Hangars = hangars.ToArray();
             AllFighterHangars = Hangars.Filter(h => h.IsFighterHangar);
             Weapons = weapons.ToArray();
 
-            var roleData = new RoleData(this, modules);
-            DesignRole = roleData.DesignRole;
-            ShipCategory = roleData.Category;
-            IsPlatformOrStation = DesignRole == RoleName.platform || DesignRole == RoleName.station;
-            IsStation           = DesignRole == RoleName.station && !IsShipyard;
-            IsConstructor       = DesignRole == RoleName.construction;
-            IsSubspaceProjector = DesignRole == RoleName.ssp;
-            IsSingleTroopShip = DesignRole == RoleName.troop;
-            IsTroopShip       = DesignRole == RoleName.troop || DesignRole == RoleName.troopShip;
-            IsBomber          = DesignRole == RoleName.bomber;
-            IsFreighter       = DesignRole == RoleName.freighter && ShipCategory == ShipCategory.Civilian;
+            if (GlobalStats.FixDesignRoleAndCategory)
+            {
+                var roleData = new RoleData(this, modules);
+                Role = roleData.DesignRole;
+                ShipCategory = roleData.Category;
+            }
+
+            IsPlatformOrStation = Role == RoleName.platform || Role == RoleName.station;
+            IsStation           = Role == RoleName.station && !IsShipyard;
+            IsConstructor       = Role == RoleName.construction;
+            IsSubspaceProjector = Role == RoleName.ssp;
+            IsSupplyShuttle     = Role == RoleName.supply;
+            IsSingleTroopShip = Role == RoleName.troop;
+            IsTroopShip       = Role == RoleName.troop || Role == RoleName.troopShip;
+            IsBomber          = Role == RoleName.bomber;
+            IsFreighter       = Role == RoleName.freighter && ShipCategory == ShipCategory.Civilian;
             IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
         }
 

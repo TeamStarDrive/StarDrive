@@ -224,7 +224,10 @@ namespace Ship_Game
             Profiled(LoadGoods);
             Profiled(LoadShipRoles);
             if (loadShips)
-                Profiled(LoadShipTemplates); // Hotspot #1  502.9ms  22.75%
+            {
+                Profiled(LoadShipDesigns); // Hotspot #1  502.9ms  22.75%
+                Profiled(CheckForRequiredShipDesigns);
+            }
             Profiled(LoadBuildings);
             Profiled(LoadRandomItems);
             Profiled(LoadDialogs);
@@ -239,7 +242,6 @@ namespace Ship_Game
             Profiled(LoadBuildRatios);
             Profiled(LoadEcoResearchStrats);
             Profiled(LoadBlackboxSpecific);
-            Profiled(CheckForRequiredShipDesigns);
         }
 
         public static void LoadGraphicsResources(ScreenManager manager)
@@ -334,7 +336,7 @@ namespace Ship_Game
             BuildingsDict.Clear();
             BuildingsById.Clear();
 
-            UnloadShipTemplates();
+            UnloadShipDesigns();
 
             foreach (var m in ModuleTemplates)
                 m.Value.Dispose();
@@ -1453,15 +1455,15 @@ namespace Ship_Game
         public static IReadOnlyList<ShipDesign> GetShipDesigns() => Ships.GetDesigns();
         public static HashSet<string> GetShipTemplateIds() => Ships.GetShipNames();
 
-        static void UnloadShipTemplates()
+        static void UnloadShipDesigns()
         {
             Ships.Clear();
         }
 
         // Refactored by RedFox
-        static void LoadShipTemplates()
+        static void LoadShipDesigns()
         {
-            UnloadShipTemplates();
+            UnloadShipDesigns();
 
             if (GlobalStats.GenerateNewShipDesignFiles)
             {
@@ -1470,7 +1472,7 @@ namespace Ship_Game
             }
 
             var designs = GetAllShipDesigns();
-            LoadShipTemplates(designs.Values.ToArray());
+            LoadShipDesigns(designs.Values.ToArray());
         }
 
         struct ShipDesignInfo
@@ -1480,14 +1482,14 @@ namespace Ship_Game
             public bool IsReadonlyDesign;
         }
 
-        static void LoadShipTemplates(ShipDesignInfo[] shipDescriptors)
+        static void LoadShipDesigns(ShipDesignInfo[] descriptors)
         {
-            Log.Info($"Loading {shipDescriptors.Length} Ship Templates");
+            Log.Info($"Loading {descriptors.Length} Ship Templates");
             void LoadShips(int start, int end)
             {
                 for (int i = start; i < end; ++i)
                 {
-                    FileInfo info = shipDescriptors[i].File;
+                    FileInfo info = descriptors[i].File;
                     if (info.DirectoryName?.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) != -1)
                         continue;
                     try
@@ -1502,8 +1504,15 @@ namespace Ship_Game
                                          "\n This can prevent loading of ships that have this filename in the XML :" +
                                         $"\n path '{info.PathNoExt()}'");
 
-                        AddShipTemplate(shipDesign, playerDesign: shipDescriptors[i].IsPlayerDesign,
-                                                    readOnly:     shipDescriptors[i].IsReadonlyDesign);
+                        if (GlobalStats.FixDesignRoleAndCategory)
+                        {
+                            // the appropriate fixes are already made to Role and Category
+                            // during ShipDesign.InitializeCommonStats()
+                            shipDesign.Save(info);
+                        }
+
+                        AddShipTemplate(shipDesign, playerDesign: descriptors[i].IsPlayerDesign,
+                                                    readOnly:     descriptors[i].IsReadonlyDesign);
                     }
                     catch (Exception e)
                     {
@@ -1512,7 +1521,7 @@ namespace Ship_Game
                 }
             }
 
-            Parallel.For(shipDescriptors.Length, LoadShips);
+            Parallel.For(descriptors.Length, LoadShips);
             //LoadShips(0, shipDescriptors.Length); // test without parallel for
         }
 
@@ -1591,7 +1600,7 @@ namespace Ship_Game
         public static void LoadStarterShipsForTesting(string[] shipsList = null, bool clearAll = false)
         {
             if (clearAll)
-                UnloadShipTemplates();
+                UnloadShipDesigns();
 
             var ships = new Array<FileInfo>();
 
@@ -1605,7 +1614,7 @@ namespace Ship_Game
             {
                 var designs = new Map<string, ShipDesignInfo>();
                 CombineOverwrite(designs, ships.ToArray(), readOnly: true, playerDesign: false);
-                LoadShipTemplates(designs.Values.ToArray());
+                LoadShipDesigns(designs.Values.ToArray());
             }
         }
 
@@ -1909,7 +1918,7 @@ namespace Ship_Game
         {
             ShipDesign design = Assert(e, shipName, usage);
             if (design != null && !flag(design))
-                Log.Error($"Assert Ship.{flagName} failed! {usage,-20}  ship={design.Name,-20}  role={design.DesignRole,-12}  empire={e.Name,-20}");
+                Log.Error($"Assert Ship.{flagName} failed! {usage,-20}  ship={design.Name,-20}  role={design.Role,-12}  empire={e.Name,-20}");
         }
 
         // Added by RedFox: makes sure all required ship designs are present

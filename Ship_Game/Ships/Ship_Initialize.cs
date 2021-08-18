@@ -16,7 +16,6 @@ namespace Ship_Game.Ships
             Position     = position;
             Name         = template.Name;
             BaseStrength = template.BaseStrength;
-            BaseCanWarp  = template.BaseCanWarp;
             shipData     = template.shipData;
 
             // loyalty must be set before modules are initialized
@@ -373,17 +372,18 @@ namespace Ship_Game.Ships
             ship.Velocity   = parent.Velocity;
 
             if (hangar.IsSupplyBay)
-                ship.SetSpecialRole(RoleName.supply, "Supply Shuttle");
+            {
+                if (!ship.IsSupplyShuttle)
+                    Log.Error("Expected ship to be a SupplyShuttle !");
+                ship.VanityName = "Supply Shuttle";
+            }
             else if (hangar.IsTroopBay)
-                ship.SetSpecialRole(RoleName.troop, "");
+            {
+                if (!ship.IsSingleTroopShip)
+                    Log.Error("Expected ship to be a SingleTroopShip !");
+                ship.VanityName = "";
+            }
             return ship;
-        }
-
-        void SetSpecialRole(RoleName role, string vanityName)
-        {
-            DesignRole = role;
-            if (vanityName.NotEmpty())
-                VanityName = vanityName;
         }
 
         public static Ship CreateDefenseShip(string shipName, Empire owner, Vector2 p, Planet planet)
@@ -563,10 +563,6 @@ namespace Ship_Game.Ships
 
                 switch (module.ModuleType)
                 {
-                    case ShipModuleType.Construction:
-                        IsConstructor = true;
-                        shipData.Role = RoleName.construction;
-                        break;
                     case ShipModuleType.PowerConduit:
                         module.IconTexturePath = PwrGrid.GetConduitGraphic(module);
                         break;
@@ -618,8 +614,6 @@ namespace Ship_Game.Ships
                 loyalty.Inhibitors.Add(this); // Start inhibiting at spawn
 
             MechanicalBoardingDefense = MechanicalBoardingDefense.LowerBound(1);
-            DesignRole = shipData.DesignRole;
-            BaseCanWarp = Stats.WarpThrust > 0;
         }
 
         void InitShieldsPower(float shieldAmplify)

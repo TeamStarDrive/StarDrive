@@ -692,9 +692,6 @@ namespace Ship_Game.GameScreens.LoadGame
 
                 foreach (SavedGame.ShipGoalSave sg in shipData.AISave.ShipGoalsList)
                 {
-                    if (sg.Plan == ShipAI.Plan.DeployStructure || sg.Plan == ShipAI.Plan.DeployOrbital)
-                        ship.IsConstructor = true;
-
                     ship.AI.AddGoalFromSave(sg, data);
                 }
             }

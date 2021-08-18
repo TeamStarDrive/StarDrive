@@ -185,7 +185,7 @@ namespace Ship_Game.Ships
                         if (!ResourceManager.Hull(Hull, out hull)) // If the hull is invalid, then ship loading fails!
                             return;
                     }
-                    else if (key == "Role") Enum.TryParse(value.Text, out Role);
+                    else if (key == "Role")  { Enum.TryParse(value.Text, out RoleName role); Role = role; }
                     else if (key == "Style")       ShipStyle = value.Text;
                     else if (key == "Description") Description = value.Text;
                     else if (key == "Size")        GridInfo.Size = PointSerializer.FromString(value);
