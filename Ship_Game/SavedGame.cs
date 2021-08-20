@@ -62,14 +62,13 @@ namespace Ship_Game
     {
         // Every time the savegame layout changes significantly,
         // this version needs to be bumped to avoid loading crashes
-        public const int SaveGameVersion = 7;
+        public const int SaveGameVersion = 8;
         public const string ZipExt = ".sav.gz";
 
         public readonly UniverseSaveData SaveData = new UniverseSaveData();
         public FileInfo SaveFile;
         public FileInfo PackedFile;
         public FileInfo HeaderFile;
-        public FileInfo FogMapFile;
         
         public static bool IsSaving  => GetIsSaving();
         public static bool NotSaving => !IsSaving;
@@ -336,28 +335,15 @@ namespace Ship_Game
             SaveData.Size = new Vector2(Screen.UniverseSize);
             SaveData.path = Dir.StarDriveAppData;
             SaveData.SaveAs = saveAs;
-            SaveData.FogMapName = saveAs + "fog";
 
             string destFolder = DefaultSaveGameFolder;
             SaveFile = new FileInfo($"{destFolder}{saveAs}.sav");
             PackedFile = new FileInfo(SaveFile.FullName + ".gz");
-            HeaderFile = new FileInfo($"{destFolder}Headers/{saveAs}.xml");
-            FogMapFile = new FileInfo($"{destFolder}Fog Maps/{saveAs}fog.png");
+            HeaderFile = new FileInfo($"{destFolder}Headers/{saveAs}.json");
 
-            // this happens sometimes, not exactly sure why though
-            // to prevent players from crashing to desktop, I'd rather have the fogmap not saved
-            Texture2D fogMap = Screen.FogMap;
-            if (fogMap != null && !fogMap.IsDisposed)
-            {
-                try
-                {
-                    fogMap.Save(FogMapFile.FullName, ImageFileFormat.Png);
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e, "SavedGame FogMap.Save failed");
-                }
-            }
+            // FogMap is converted to a Base64 string so that it can be included in the savegame
+            var exporter = Screen.ContentManager.RawContent.TexExport;
+            SaveData.FogMapBase64 = exporter.ToBase64StringAlphaOnly(Screen.FogMap);
 
             // All of this data can be serialized in parallel,
             // because we already built `SaveData` object, which no longer depends on UniverseScreen
@@ -505,20 +491,17 @@ namespace Ship_Game
         static void SaveUniverseData(UniverseSaveData data, FileInfo saveFile, 
                                      FileInfo compressedSave, FileInfo headerFile)
         {
-            using (FileStream writeStream = saveFile.OpenWrite())
+            var t = new PerfTimer();
+            using (var textWriter = new StreamWriter(saveFile.FullName))
             {
-                var t = new PerfTimer();
-                using (var textWriter = new StreamWriter(writeStream))
+                var ser = new JsonSerializer
                 {
-                    var ser = new JsonSerializer
-                    {
-                        NullValueHandling = NullValueHandling.Ignore,
-                        DefaultValueHandling = DefaultValueHandling.Ignore
-                    };
-                    ser.Serialize(textWriter, data);
-                }
-                Log.Warning($"JSON Total Save elapsed: {t.Elapsed}s");
+                    NullValueHandling = NullValueHandling.Ignore,
+                    DefaultValueHandling = DefaultValueHandling.Ignore
+                };
+                ser.Serialize(textWriter, data);
             }
+            Log.Warning($"JSON Total Save elapsed: {t.Elapsed}s");
 
             HelperFunctions.Compress(saveFile, compressedSave); // compress into .sav.gz
             saveFile.Delete(); // delete the bigger .sav file
@@ -538,9 +521,14 @@ namespace Ship_Game
                 Version    = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"])
             };
 
-            using (var headerSw = new StreamWriter(headerFile.FullName))
+            using (var textWriter = new StreamWriter(headerFile.FullName))
             {
-                new XmlSerializer(typeof(HeaderData)).Serialize(headerSw, header);
+                var ser = new JsonSerializer
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    DefaultValueHandling = DefaultValueHandling.Ignore
+                };
+                ser.Serialize(textWriter, header);
             }
 
             SaveTask = null;
@@ -972,7 +960,7 @@ namespace Ship_Game
             public string path;
             public string SaveAs;
             public string FileName;
-            public string FogMapName;
+            public string FogMapBase64;
             public string PlayerLoyalty;
             public Vector3 CamPos;
             public Vector2 Size;

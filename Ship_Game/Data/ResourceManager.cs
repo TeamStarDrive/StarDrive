@@ -224,7 +224,10 @@ namespace Ship_Game
             Profiled(LoadGoods);
             Profiled(LoadShipRoles);
             if (loadShips)
-                Profiled(LoadShipTemplates); // Hotspot #1  502.9ms  22.75%
+            {
+                Profiled(LoadShipDesigns); // Hotspot #1  502.9ms  22.75%
+                Profiled(CheckForRequiredShipDesigns);
+            }
             Profiled(LoadBuildings);
             Profiled(LoadRandomItems);
             Profiled(LoadDialogs);
@@ -333,7 +336,7 @@ namespace Ship_Game
             BuildingsDict.Clear();
             BuildingsById.Clear();
 
-            UnloadShipTemplates();
+            UnloadShipDesigns();
 
             foreach (var m in ModuleTemplates)
                 m.Value.Dispose();
@@ -1452,15 +1455,15 @@ namespace Ship_Game
         public static IReadOnlyList<ShipDesign> GetShipDesigns() => Ships.GetDesigns();
         public static HashSet<string> GetShipTemplateIds() => Ships.GetShipNames();
 
-        static void UnloadShipTemplates()
+        static void UnloadShipDesigns()
         {
             Ships.Clear();
         }
 
         // Refactored by RedFox
-        static void LoadShipTemplates()
+        static void LoadShipDesigns()
         {
-            UnloadShipTemplates();
+            UnloadShipDesigns();
 
             if (GlobalStats.GenerateNewShipDesignFiles)
             {
@@ -1469,7 +1472,7 @@ namespace Ship_Game
             }
 
             var designs = GetAllShipDesigns();
-            LoadShipTemplates(designs.Values.ToArray());
+            LoadShipDesigns(designs.Values.ToArray());
         }
 
         struct ShipDesignInfo
@@ -1479,21 +1482,21 @@ namespace Ship_Game
             public bool IsReadonlyDesign;
         }
 
-        static void LoadShipTemplates(ShipDesignInfo[] shipDescriptors)
+        static void LoadShipDesigns(ShipDesignInfo[] descriptors)
         {
-            Log.Info($"Loading {shipDescriptors.Length} Ship Templates");
+            Log.Info($"Loading {descriptors.Length} Ship Templates");
             void LoadShips(int start, int end)
             {
                 for (int i = start; i < end; ++i)
                 {
-                    FileInfo info = shipDescriptors[i].File;
+                    FileInfo info = descriptors[i].File;
                     if (info.DirectoryName?.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) != -1)
                         continue;
                     try
                     {
                         GameLoadingScreen.SetStatus("LoadShipTemplate", info.RelPath());
                         ShipDesign shipDesign = ShipDesign.Parse(info);
-                        if (shipDesign == null || shipDesign.Role == RoleName.disabled)
+                        if (shipDesign == null)
                             continue;
 
                         if (info.NameNoExt() != shipDesign.Name)
@@ -1501,8 +1504,15 @@ namespace Ship_Game
                                          "\n This can prevent loading of ships that have this filename in the XML :" +
                                         $"\n path '{info.PathNoExt()}'");
 
-                        AddShipTemplate(shipDesign, playerDesign: shipDescriptors[i].IsPlayerDesign,
-                                                    readOnly:     shipDescriptors[i].IsReadonlyDesign);
+                        if (GlobalStats.FixDesignRoleAndCategory)
+                        {
+                            // the appropriate fixes are already made to Role and Category
+                            // during ShipDesign.InitializeCommonStats()
+                            shipDesign.Save(info);
+                        }
+
+                        AddShipTemplate(shipDesign, playerDesign: descriptors[i].IsPlayerDesign,
+                                                    readOnly:     descriptors[i].IsReadonlyDesign);
                     }
                     catch (Exception e)
                     {
@@ -1511,7 +1521,7 @@ namespace Ship_Game
                 }
             }
 
-            Parallel.For(shipDescriptors.Length, LoadShips);
+            Parallel.For(descriptors.Length, LoadShips);
             //LoadShips(0, shipDescriptors.Length); // test without parallel for
         }
 
@@ -1590,7 +1600,7 @@ namespace Ship_Game
         public static void LoadStarterShipsForTesting(string[] shipsList = null, bool clearAll = false)
         {
             if (clearAll)
-                UnloadShipTemplates();
+                UnloadShipDesigns();
 
             var ships = new Array<FileInfo>();
 
@@ -1604,7 +1614,7 @@ namespace Ship_Game
             {
                 var designs = new Map<string, ShipDesignInfo>();
                 CombineOverwrite(designs, ships.ToArray(), readOnly: true, playerDesign: false);
-                LoadShipTemplates(designs.Values.ToArray());
+                LoadShipDesigns(designs.Values.ToArray());
             }
         }
 
@@ -1891,6 +1901,64 @@ namespace Ship_Game
             }
 
             return encounter != null;
+        }
+
+        static ShipDesign Assert(IEmpireData e, string shipName, string usage)
+        {
+            if (shipName == null) // the ship is not defined
+                return null;
+            if (Ships.GetDesign(shipName, out ShipDesign design))
+                return design;
+            string empire = e == null ? "" : $" empire={e.Name,-20}";
+            Log.Error($"Assert Ship Exists failed! {usage,-20}  ship={shipName,-20} {empire}");
+            return null;
+        }
+
+        static void Assert(IEmpireData e, string shipName, string usage, Func<ShipDesign, bool> flag, string flagName)
+        {
+            ShipDesign design = Assert(e, shipName, usage);
+            if (design != null && !flag(design))
+                Log.Error($"Assert Ship.{flagName} failed! {usage,-20}  ship={design.Name,-20}  role={design.Role,-12}  empire={e.Name,-20}");
+        }
+
+        // Added by RedFox: makes sure all required ship designs are present
+        static void CheckForRequiredShipDesigns()
+        {
+            foreach (EmpireData e in Empires)
+            {
+                Assert(e, e.StartingShip,  "StartingShip");
+                Assert(e, e.StartingScout, "StartingScout");
+                Assert(e, e.ScoutShip,     "ScoutShip");
+                Assert(e, e.PrototypeShip, "PrototypeShip");
+
+                Assert(e, e.DefaultSmallTransport, "DefaultSmallTransport", s => s.IsFreighter, "IsFreighter");
+                Assert(e, e.DefaultSmallTransport, "DefaultSmallTransport", s => s.IsCandidateForTradingBuild, "IsCandidateForTradingBuild");
+                Assert(e, e.FreighterShip, "FreighterShip", s => s.IsFreighter, "IsFreighter");
+                Assert(e, e.FreighterShip, "FreighterShip", s => s.IsCandidateForTradingBuild, "IsCandidateForTradingBuild");
+
+                Assert(e, e.DefaultTroopShip,  "DefaultTroopShip",  s => s.IsSingleTroopShip, "IsSingleTroopShip");
+                Assert(e, e.DefaultColonyShip, "DefaultColonyShip", s => s.IsColonyShip, "IsColonyShip");
+                Assert(e, e.ColonyShip,        "ColonyShip",        s => s.IsColonyShip, "IsColonyShip");
+                Assert(e, e.DefaultConstructor, "DefaultConstructor", s => s.IsConstructor, "IsConstructor");
+                Assert(e, e.ConstructorShip,    "ConstructorShip",    s => s.IsConstructor, "IsConstructor");
+                Assert(e, e.DefaultShipyard,    "DefaultShipyard",    s => s.IsShipyard,    "IsShipyard");
+
+                Assert(e, e.DefaultAssaultShuttle, "DefaultAssaultShuttle");
+                Assert(e, e.DefaultSupplyShuttle,  "DefaultSupplyShuttle", s => s.IsSupplyShuttle, "IsSupplyShuttle");
+            }
+
+            string[] requiredShips =
+            {
+                /*meteors*/"Meteor A", "Meteor B", "Meteor C", "Meteor D", "Meteor E", "Meteor F", "Meteor G",
+                /*debug*/"Bondage-Class Mk IIIa Cruiser", "Target Dummy",
+                /*hangarhack*/"DynamicAntiShip", "DynamicInterceptor", "DynamicLaunch",
+                /*defaults*/"Subspace Projector", "Supply Shuttle", "Assault Shuttle", "Terran Constructor"
+            };
+
+            foreach (string requiredShip in requiredShips)
+            {
+                Assert(null, requiredShip, "RequiredShip");
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Hvy Drone Mk IV
 Hull=Remnant/XenoGunship
-Role=frigate
+Role=corvette
 Style=Remnant
 Size=8,8
 GridCenter=4,4

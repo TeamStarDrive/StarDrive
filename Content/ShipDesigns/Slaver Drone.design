@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Slaver Drone
 Hull=Remnant/XenoGunship
-Role=fighter
+Role=support
 Style=Remnant
 Size=8,8
 GridCenter=4,4

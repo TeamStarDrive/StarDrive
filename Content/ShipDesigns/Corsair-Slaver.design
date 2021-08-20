@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Corsair-Slaver
 Hull=Misc/speeder
-Role=frigate
+Role=troopShip
 Style=Corsairs
 Size=14,22
 GridCenter=7,14

@@ -100,8 +100,9 @@ namespace Ship_Game.Ships
 
             Unlockable = hull.Unlockable;
             DesignSlots = Array.Empty<DesignSlot>();
-        }
 
+            InitializeCommonStats(BaseHull, DesignSlots);
+        }
 
         // Sets the new design slots and calculates Unique Module UIDs
         public void SetDesignSlots(DesignSlot[] slots)
@@ -112,6 +113,9 @@ namespace Ship_Game.Ships
 
             DesignSlots = slots;
             UniqueModuleUIDs = moduleUIDs.ToArray();
+
+            Role = HullRole; // make sure to reset ship role before recalculating it
+            InitializeCommonStats(BaseHull, slots, updateRole:true);
         }
 
         public DesignSlot[] GetOrLoadDesignSlots()
@@ -180,6 +184,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < saved.Length; ++i)
                 data.DesignSlots[i] = saved[i].ToDesignSlot();
 
+            data.InitializeCommonStats(hull, data.DesignSlots);
             return data;
         }
 

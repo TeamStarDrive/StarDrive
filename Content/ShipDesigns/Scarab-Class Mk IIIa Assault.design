@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Scarab-Class Mk IIIa Assault
 Hull=Opteris/Chitin
-Role=cruiser
+Role=bomber
 Style=Opteris
 Size=20,31
 GridCenter=10,16

@@ -195,7 +195,6 @@ namespace Ship_Game.Universe.SolarBodies
             q.Goal?.ReportShipComplete(shipAt);
             if (q.Goal is BuildConstructionShip || q.Goal is BuildOrbital)
             {
-                shipAt.IsConstructor = true;
                 shipAt.VanityName = q.sData.Name;
                 shipAt.AI.SetPriorityOrder(true);
             }
@@ -459,10 +458,10 @@ namespace Ship_Game.Universe.SolarBodies
                 if (q.isShip && q.sData.Name == oldShip.Name)
                 {
                     float percentCompleted = q.ProductionSpent / q.ActualCost;
-                    q.sData                = newShip.shipData;
-                    q.Cost                 = percentCompleted.AlmostZero() 
-                                            ? newShip.GetCost(Owner) 
-                                            : q.Cost + refitCost * percentCompleted * P.ShipBuildingModifier;
+                    q.sData = newShip.shipData;
+                    q.Cost = percentCompleted.AlmostZero() 
+                           ? newShip.GetCost(Owner) 
+                           : q.Cost + refitCost * percentCompleted * P.ShipBuildingModifier;
 
                 }
             }

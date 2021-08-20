@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Shelob-Class Dreadnought
 Hull=Opteris/Queen
-Role=capital
+Role=support
 Style=Opteris
 Size=52,65
 GridCenter=26,32

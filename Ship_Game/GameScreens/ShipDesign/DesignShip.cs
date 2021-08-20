@@ -22,6 +22,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 return;
 
             PrevSlots = placedSlots;
+            shipData.SetDesignSlots(placedSlots);
             CreateModuleSlotsFromData(placedSlots, isTemplate:true, shipyardDesign:true);
             InitializeShip();
             DesignStats.Update();

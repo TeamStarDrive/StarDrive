@@ -2057,16 +2057,9 @@ namespace Ship_Game
 
         public bool WeCanBuildThis(string shipName)
         {
-            if (!ResourceManager.GetShipTemplate(shipName, out Ship ship))
+            if (!ResourceManager.Ships.GetDesign(shipName, out ShipDesign shipData))
             {
                 Log.Warning($"Ship does not exist: {shipName}");
-                return false;
-            }
-
-            ShipDesign shipData = ship.shipData;
-            if (shipData == null)
-            {
-                Log.Warning($"{data.PortraitName} : shipData is null : '{shipName}'");
                 return false;
             }
 

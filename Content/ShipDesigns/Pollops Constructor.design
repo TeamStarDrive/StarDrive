@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Pollops Constructor
 Hull=Pollops/Seeder
-Role=freighter
+Role=construction
 Style=Pollops
 Size=6,6
 GridCenter=3,3

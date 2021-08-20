@@ -133,7 +133,7 @@ namespace Ship_Game.GameScreens.LoadGame
             ScreenManager.Instance.RemoveAllObjects();
             var data = new UniverseData
             {
-                loadFogPath           = saveData.FogMapName,
+                FogMapBase64          = saveData.FogMapBase64,
                 difficulty            = saveData.gameDifficulty,
                 GalaxySize            = saveData.GalaxySize,
                 Size                  = saveData.Size,
@@ -465,10 +465,10 @@ namespace Ship_Game.GameScreens.LoadGame
                 if (qisave.isShip)
                 {
                     qi.isShip = true;
-                    if (!ResourceManager.GetShipTemplate(qisave.UID, out Ship shipTemplate))
+                    if (!ResourceManager.Ships.GetDesign(qisave.UID, out Ships.ShipDesign shipTemplate))
                         continue;
 
-                    qi.sData           = shipTemplate.shipData;
+                    qi.sData           = shipTemplate;
                     qi.DisplayName     = qisave.DisplayName;
                     qi.Cost            = qisave.Cost;
                     qi.TradeRoutes     = qisave.TradeRoutes;
@@ -692,9 +692,6 @@ namespace Ship_Game.GameScreens.LoadGame
 
                 foreach (SavedGame.ShipGoalSave sg in shipData.AISave.ShipGoalsList)
                 {
-                    if (sg.Plan == ShipAI.Plan.DeployStructure || sg.Plan == ShipAI.Plan.DeployOrbital)
-                        ship.IsConstructor = true;
-
                     ship.AI.AddGoalFromSave(sg, data);
                 }
             }

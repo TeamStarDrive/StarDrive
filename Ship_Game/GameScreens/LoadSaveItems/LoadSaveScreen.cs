@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
 
@@ -9,23 +10,22 @@ namespace Ship_Game
 {
     public sealed class LoadSaveScreen : GenericLoadSaveScreen
     {
-        UniverseScreen screen;
-        MainMenuScreen mmscreen;
+        GameScreen Screen;
 
-        public LoadSaveScreen(UniverseScreen screen) : base(screen, SLMode.Load, "", Localizer.Token(GameText.LoadSavedGame), "Saved Games", true)
+        public LoadSaveScreen(UniverseScreen screen)
+            : base(screen, SLMode.Load, "", Localizer.Token(GameText.LoadSavedGame), "Saved Games", true)
         {
-            this.screen = screen;
+            Screen = screen;
             Path = Dir.StarDriveAppData +  "/Saved Games/";
         }
-        public LoadSaveScreen(MainMenuScreen mmscreen) : base(mmscreen, SLMode.Load, "", Localizer.Token(GameText.LoadSavedGame), "Saved Games", true)
+
+        public LoadSaveScreen(MainMenuScreen screen)
+            : base(screen, SLMode.Load, "", Localizer.Token(GameText.LoadSavedGame), "Saved Games", true)
         {
-            this.mmscreen = mmscreen;
+            Screen = screen;
             Path = Dir.StarDriveAppData + "/Saved Games/";
         }
-        public LoadSaveScreen(GameScreen screen) : base(screen, SLMode.Load, "", Localizer.Token(GameText.LoadSavedGame), "Saved Games")
-        {
-            Path = Dir.StarDriveAppData + "/Saved Games/";
-        }
+
         protected override void DeleteFile()
         {
             try
@@ -43,9 +43,8 @@ namespace Ship_Game
         {
             if (SelectedFile != null)
             {
-                screen?.ExitScreen();
+                Screen?.ExitScreen();
                 ScreenManager.AddScreen(new LoadUniverseScreen(SelectedFile.FileLink));
-                mmscreen?.ExitScreen();
             }
             else
             {
@@ -59,32 +58,24 @@ namespace Ship_Game
             if (SelectedFile != null)
             {
                 string fileName = SelectedFile.FileName;
-                var dirInfo     = new DirectoryInfo(Path + "/" + fileName);
+                var dirInfo = new DirectoryInfo(Path + "/" + fileName);
                 dirInfo.Create();
                 SelectedFile.FileLink.CopyTo(dirInfo.FullName + "/" + SelectedFile.FileLink.Name, true);
-                var header = new FileInfo(Path + "/Headers/" + fileName + ".xml");
-                var fog    = new FileInfo(Path + "/Fog Maps/" + fileName + "fog.png");
+                var header = new FileInfo(Path + "/Headers/" + fileName + ".json");
 
-                string error = "";
                 if (!header.Exists)
-                    error = "header.xml file does not exist.";
-
-                if (!fog.Exists)
-                    error = $"{error}. Fog map does not exist.";
-
-                if (error.NotEmpty())
                 {
-                    error = $"{error} For {fileName}";
-                    ScreenManager.AddScreen(new MessageBoxScreen(this, error, MessageBoxButtons.Ok));
+                    string err = $"Header does not exist: 'Headers/{fileName}.json' for '{fileName}'";
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, err, MessageBoxButtons.Ok));
                 }
                 else
                 {
                     header.CopyTo(dirInfo.FullName + "/" + header.Name, true);
-                    fog.CopyTo(dirInfo.FullName + "/" + fog.Name, true);
                     string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
                     string savedFileName = $"{GetDebugVers()}{dirInfo.Name}.zip";
                     HelperFunctions.CompressDir(dirInfo, path + "/" + savedFileName);
                     dirInfo.Delete(true);
+
                     string message = $"The selected save was exported to your desktop as {savedFileName}";
                     int messageWidth = ((int)Fonts.Arial12Bold.MeasureString(savedFileName).X + 20).UpperBound(400);
                     ScreenManager.AddScreen(new MessageBoxScreen(this, message, MessageBoxButtons.Ok, messageWidth));
@@ -116,25 +107,31 @@ namespace Ship_Game
             return $"{blackBox}_{modTitle}_"; 
         }
 
-        protected override void InitSaveList()        // Set list of files to show
+        // Set list of files to show
+        protected override void InitSaveList()
         {
-            var ser = new XmlSerializer(typeof(HeaderData));
+            var ser = new JsonSerializer
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Ignore
+            };
+
             var saves = new Array<FileData>();
-            foreach (FileInfo saveHeaderFile in Dir.GetFiles(Path + "Headers", "xml"))
+            foreach (FileInfo saveHeaderFile in Dir.GetFiles(Path + "Headers", "json"))
             {
                 try
                 {
-                    var data = ser.Deserialize<HeaderData>(saveHeaderFile);
-                    if (data.SaveGameVersion != SavedGame.SaveGameVersion)
-                        continue;
-                    if (string.IsNullOrEmpty(data.SaveName))
+                    HeaderData data;
+                    using (var reader = new JsonTextReader(new StreamReader(saveHeaderFile.FullName)))
+                        data = ser.Deserialize<HeaderData>(reader);
+
+                    if (data.SaveGameVersion != SavedGame.SaveGameVersion || string.IsNullOrEmpty(data.SaveName))
                         continue;
 
                     data.FI = new FileInfo(Path + data.SaveName + SavedGame.ZipExt);
-
                     if (!data.FI.Exists)
                     {
-                        Log.Info($"Savegame missing payload: {data.FI.FullName}");
+                        Log.Warning($"Missing save payload: {data.FI.FullName}");
                         continue;
                     }
                     
@@ -147,17 +144,21 @@ namespace Ship_Game
                     }
                     else if (data.Version > 0 && !string.IsNullOrEmpty(data.ModPath) ||
                              data.Version == 0 && !string.IsNullOrEmpty(data.ModName))
+                    {
                         continue; // skip non-mod savegames
-
-                    string info = data.PlayerName + " StarDate " + data.StarDate + " (sav)"; ;
+                    }
+                    
+                    string info = $"{data.PlayerName} StarDate {data.StarDate}";
                     string extraInfo = data.RealDate;
 
                     IEmpireData empire = ResourceManager.AllRaces.FirstOrDefault(e => e.Name == data.PlayerName)
                                       ?? ResourceManager.AllRaces[0];
-                    saves.Add(new FileData(data.FI, data, data.SaveName, info, extraInfo, empire.Traits.FlagIcon, empire.Traits.Color));
+                    saves.Add(new FileData(data.FI, data, data.SaveName, info, extraInfo,
+                                           empire.Traits.FlagIcon, empire.Traits.Color));
                 }
-                catch
+                catch (Exception e)
                 {
+                    Log.Warning($"Error parsing SaveHeader {saveHeaderFile.Name}: {e.Message}");
                 }
             }
 
