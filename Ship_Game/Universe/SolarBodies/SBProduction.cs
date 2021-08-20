@@ -421,7 +421,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void PrioritizeShip(ShipDesign ship, int atPeace, int atWar = 4)
         {
-            int queueOffset = Owner.IsAtWar ? atWar : atPeace;
+            int queueOffset = Owner.IsAtWarWithMajorEmpire ? atWar : atPeace;
             if (ConstructionQueue.Count > queueOffset + 1)
                 for (int i = queueOffset; i < ConstructionQueue.Count; ++i)
                 {
