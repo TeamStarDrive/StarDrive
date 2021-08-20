@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Adv Zion Rkt
 Hull=Ralyeh/Zion
-Role=frigate
+Role=bomber
 Style=Ralyeh
 Size=8,9
 GridCenter=4,5

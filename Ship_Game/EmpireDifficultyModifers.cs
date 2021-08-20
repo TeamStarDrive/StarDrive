@@ -84,7 +84,7 @@
                     ExpansionMultiplier  = 1.25f;
                     MinStartingColonies  = 2;
                     ExpandSearchTurns    = 75;
-                    RemnantTurnsLevelUp  = 600;
+                    RemnantTurnsLevelUp  = 500;
                     RemnantResourceMod   = 0.2f;
                     RemnantNumBombers    = 0.5f;
                     BaseColonyGoals      = 2;
@@ -123,7 +123,7 @@
                     ExpansionMultiplier  = 0.75f;
                     MinStartingColonies  = 3;
                     ExpandSearchTurns    = 50;
-                    RemnantTurnsLevelUp  = 540;
+                    RemnantTurnsLevelUp  = 400;
                     RemnantResourceMod   = 0.35f;
                     RemnantNumBombers    = 0.75f;
                     BaseColonyGoals      = 2;
@@ -159,7 +159,7 @@
                     ExpansionMultiplier  = 0.25f;
                     MinStartingColonies  = 5;
                     ExpandSearchTurns    = 30;
-                    RemnantTurnsLevelUp  = 480;
+                    RemnantTurnsLevelUp  = 350;
                     RemnantResourceMod   = 0.45f;
                     RemnantNumBombers    = 1f;
                     BaseColonyGoals      = 4;
@@ -200,7 +200,7 @@
                     ExpansionMultiplier  = 0.1f;
                     MinStartingColonies  = 6;
                     ExpandSearchTurns    = 20;
-                    RemnantTurnsLevelUp  = 400;
+                    RemnantTurnsLevelUp  = 300;
                     RemnantResourceMod   = 0.6f;
                     RemnantNumBombers    = 1.5f;
                     BaseColonyGoals      = 5;

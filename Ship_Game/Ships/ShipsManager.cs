@@ -50,15 +50,24 @@ namespace Ship_Game.Ships
             if (shipTemplate == null) // happens if module creation failed
                 return;
 
+            string name = shipDesign.Name;
+
             lock (Sync)
             {
-                if (!Names.Contains(shipDesign.Name))
+                if (!Names.Contains(name))
                 {
-                    Names.Add(shipDesign.Name);
-                    ShipsMap.Add(shipTemplate.Name, shipTemplate);
-                    DesignsMap.Add(shipDesign.Name, shipDesign);
+                    Names.Add(name);
+                    ShipsMap.Add(name, shipTemplate);
+                    DesignsMap.Add(name, shipDesign);
                     Ships.Add(shipTemplate);
                     Designs.Add(shipDesign);
+                }
+                else // overwrite existing
+                {
+                    ShipsMap[name] = shipTemplate;
+                    DesignsMap[name] = shipDesign;
+                    Ships.RemoveFirst(s => s.Name == name);
+                    Designs.RemoveFirst(s => s.Name == name);
                 }
             }
         }

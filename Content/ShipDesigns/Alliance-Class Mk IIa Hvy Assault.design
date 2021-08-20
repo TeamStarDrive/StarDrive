@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Alliance-Class Mk IIa Hvy Assault
 Hull=Terran/Heavy Cruiser
-Role=capital
+Role=troopShip
 Style=Terran
 Size=26,48
 GridCenter=13,23

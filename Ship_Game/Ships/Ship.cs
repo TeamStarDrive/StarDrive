@@ -163,9 +163,9 @@ namespace Ship_Game.Ships
         public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || Empire.DefaultBoardingShuttleName == Name;
         public bool IsDefaultTroopShip      => !IsDefaultAssaultShuttle && (loyalty.data.DefaultTroopShip == Name || DesignRole == RoleName.troop);
         public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
-        public bool IsSingleTroopShip       => DesignRole == RoleName.troop;
-        public bool IsTroopShip             => DesignRole == RoleName.troop || DesignRole == RoleName.troopShip;
-        public bool IsBomber                => DesignRole == RoleName.bomber;
+        public bool IsSingleTroopShip       => shipData.IsSingleTroopShip;
+        public bool IsTroopShip             => shipData.IsTroopShip;
+        public bool IsBomber                => shipData.IsBomber;
         public bool IsSubspaceProjector     => shipData.IsSubspaceProjector;
         public bool HasBombs                => BombBays.Count > 0;
         public bool IsEmpireSupport         => DesignRoleType == RoleType.EmpireSupport;
@@ -204,11 +204,7 @@ namespace Ship_Game.Ships
         public void ClearFleet(bool returnToManagedPools = true) => fleet?.RemoveShip(this, returnToManagedPools);
         public void UnsafeClearFleet() => fleet?.UnSafeRemoveShip(this);
 
-        public bool IsConstructor
-        {
-            get => DesignRole == RoleName.construction;
-            set => DesignRole = value ? RoleName.construction : shipData.DesignRole;
-        }
+        public bool IsConstructor => shipData.IsConstructor;
 
         /// <summary>
         /// Where this is true the force pool add will reject these ships.
@@ -390,7 +386,7 @@ namespace Ship_Game.Ships
             KillAllTroops();
         }
 
-        public RoleName DesignRole { get; private set; }
+        public RoleName DesignRole => shipData.Role;
         public RoleType DesignRoleType => ShipDesign.ShipRoleToRoleType(DesignRole);
         public string DesignRoleName => ShipDesign.GetRole(DesignRole);
 
@@ -1321,7 +1317,7 @@ namespace Ship_Game.Ships
                    && AI.OrderQueue.Any(g => (g.Plan == ShipAI.Plan.Rebase || g.Plan == ShipAI.Plan.LandTroop) && g.TargetPlanet == p);
         }
 
-        public bool IsSupplyShuttle => Name == loyalty.GetSupplyShuttleName();
+        public bool IsSupplyShuttle => shipData.IsSupplyShuttle;
 
         public int RefitCost(Ship newShip)
         {

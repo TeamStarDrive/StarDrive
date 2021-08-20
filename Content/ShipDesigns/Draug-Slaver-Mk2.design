@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Draug-Slaver-Mk2
 Hull=Vulfen/Type VII
-Role=frigate
+Role=troopShip
 Style=Draugar
 Size=10,26
 GridCenter=5,13
