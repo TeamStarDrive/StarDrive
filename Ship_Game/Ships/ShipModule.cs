@@ -446,7 +446,9 @@ namespace Ship_Game.Ships
         {
             ShipModule m = CreateNoParent(template, EmpireManager.Player, hull);
             m.SetModuleRotation(m.XSIZE, m.YSIZE, moduleRot, turretAngle);
-            m.HangarShipUID = m.IsTroopBay ? EmpireManager.Player.GetAssaultShuttleName() : hangarShipUID;
+            // don't set HangarShipUID if this isn't actually a Hangar (because Shipyard sets default to DynamicLaunch)
+            if (m.ModuleType == ShipModuleType.Hangar)
+                m.HangarShipUID = m.IsTroopBay ? EmpireManager.Player.GetAssaultShuttleName() : hangarShipUID;
             return m;
         }
 
