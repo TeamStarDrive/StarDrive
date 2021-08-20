@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=CT-Light Support T
 Hull=Ralyeh/Missionary
-Role=corvette
+Role=support
 Style=Ralyeh
 Size=4,6
 GridCenter=2,3

@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Glorious-Class Mk Ia Hvy Assault
 Hull=Cordrazine/Dodaving
-Role=capital
+Role=bomber
 Style=Cordrazine
 Size=22,31
 GridCenter=11,16

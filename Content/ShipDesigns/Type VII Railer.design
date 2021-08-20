@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Type VII Railer
 Hull=Vulfen/Type VII
-Role=frigate
+Role=bomber
 Style=Vulfen
 Size=10,26
 GridCenter=5,13

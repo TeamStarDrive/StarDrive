@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Remnant Exterminator
 Hull=Remnant/Remnant Mothership
-Role=carrier
+Role=battleship
 Style=Remnant
 Size=42,45
 GridCenter=21,21

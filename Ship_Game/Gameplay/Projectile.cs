@@ -514,14 +514,25 @@ namespace Ship_Game.Gameplay
                 {
                     if (ProjSO == null)
                     {
-                        ProjSO = new SceneObject(ResourceManager.ProjectileMeshDict[ModelPath])
+                        if (ResourceManager.ProjectileMeshDict.TryGetValue(ModelPath, out ModelMesh mesh))
                         {
-                            Visibility = ObjectVisibility.Rendered,
-                            ObjectType = ObjectType.Dynamic
-                        };
-                        Empire.Universe.AddObject(ProjSO);
+                            ProjSO = new SceneObject(mesh)
+                            {
+                                Visibility = ObjectVisibility.Rendered,
+                                ObjectType = ObjectType.Dynamic,
+                                World = WorldMatrix
+                            };
+                            Empire.Universe.AddObject(ProjSO);
+                        }
+                        else
+                        {
+                            Log.Warning($"No such mesh: '{ModelPath}'");
+                        }
                     }
-                    ProjSO.World = WorldMatrix;
+                    else
+                    {
+                        ProjSO.World = WorldMatrix;
+                    }
                 }
             }
             var newPosition = new Vector3(Position.X, Position.Y, -ZStart);

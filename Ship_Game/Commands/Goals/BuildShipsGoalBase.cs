@@ -1,4 +1,5 @@
-﻿using Ship_Game.AI;
+﻿using System;
+using Ship_Game.AI;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
@@ -25,7 +26,10 @@ namespace Ship_Game.Commands.Goals
         {
             if (ShipTemplate == null)
             {
-                ShipTemplate = ShipBuilder.PickFreighter(empire, empire.FastVsBigFreighterRatio).shipData;
+                ShipTemplate = ShipBuilder.PickFreighter(empire, empire.FastVsBigFreighterRatio)?.shipData;
+                if (ShipTemplate == null)
+                    throw new Exception($"PickFreighter failed for {empire.Name}."+
+                                        "This is a FATAL bug in data files, where Empire is not able to build any freighters!");
             }
             return (freighterTemplate = ShipTemplate) != null;
         }

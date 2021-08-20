@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Owlwok Constructor
 Hull=Cordrazine/Owl1
-Role=freighter
+Role=construction
 Style=Cordrazine
 Size=4,7
 GridCenter=2,3

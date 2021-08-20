@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,35 +12,42 @@ namespace Ship_Game.Ships
     // that are common across this ShipDesign
     public partial class ShipDesign
     {
-        static readonly string[] RoleArray = typeof(RoleName).GetEnumNames();
-
-        // Role assigned to the Hull
+        // Role assigned to the Hull, such as `Cruiser`
         public RoleName HullRole => BaseHull.Role;
 
-        // TODO: Wtf is this?? DataRole ?
-        public RoleName Role = RoleName.fighter;
-        public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
+        // Role expressed by this ShipDesign's modules, such as `Carrier`
+        // This is saved in Shipyard, or can be updated via --fix-roles
+        public RoleName Role { get; private set; } = RoleName.fighter;
 
-        // Role expressed by this ShipDesign's modules, calculated dynamically
-        public RoleName DesignRole { get; private set; }
+        static readonly string[] RoleArray = typeof(RoleName).GetEnumNames();
+        public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
 
         public bool IsPlatformOrStation { get; private set; }
         public bool IsStation           { get; private set; }
         public bool IsConstructor       { get; private set; }
         public bool IsSubspaceProjector { get; private set; }
         public bool IsColonyShip        { get; private set; }
-        public bool IsSupplyShip        { get; private set; }
+        public bool IsSupplyCarrier     { get; private set; } // this ship launches supply ships
+        public bool IsSupplyShuttle     { get; private set; }
+        public bool IsFreighter         { get; private set; }
+        public bool IsCandidateForTradingBuild { get; private set; }
 
-        public float BaseCost { get; private set; }
+        public bool IsSingleTroopShip { get; private set; }
+        public bool IsTroopShip       { get; private set; }
+        public bool IsBomber          { get; private set; }
+
+        public float BaseCost       { get; private set; }
         public float BaseWarpThrust { get; private set; }
+        public bool  BaseCanWarp    { get; private set; }
 
         // Hangar Templates
         public ShipModule[] Hangars { get; private set; }
+        public ShipModule[] AllFighterHangars { get; private set; }
 
         // Weapon Templates
         public Weapon[] Weapons { get; private set; }
 
-        void InitializeCommonStats(ShipHull hull, DesignSlot[] designSlots)
+        void InitializeCommonStats(ShipHull hull, DesignSlot[] designSlots, bool updateRole = false)
         {
             if (ShipStyle.IsEmpty()) ShipStyle = hull.Style;
             if (IconPath.IsEmpty())  IconPath  = hull.IconPath;
@@ -60,24 +68,41 @@ namespace Ship_Game.Ships
                     hangars.Add(m);
                 else if (m.Is(ShipModuleType.Colony))
                     IsColonyShip = true;
+                else if (m.InstalledWeapon != null)
+                    weapons.Add(m.InstalledWeapon);
 
                 if (m.IsSupplyBay)
-                    IsSupplyShip = true;
-                if (m.InstalledWeapon != null)
-                    weapons.Add(m.InstalledWeapon);
+                    IsSupplyCarrier = true;
             }
 
             BaseCost = baseCost;
             BaseWarpThrust = baseWarp;
+            BaseCanWarp = baseWarp > 0;
+
             Hangars = hangars.ToArray();
+            AllFighterHangars = Hangars.Filter(h => h.IsFighterHangar);
             Weapons = weapons.ToArray();
 
-            IsPlatformOrStation = Role == RoleName.platform || Role == RoleName.station;
-            IsStation = Role == RoleName.station && !IsShipyard;
-            IsConstructor = Role == RoleName.construction;
-            IsSubspaceProjector = Name == "Subspace Projector";
 
-            DesignRole = new RoleData(this, modules).DesignRole;
+            // Updating the Design Role is always done in the Shipyard
+            // However, it can be overriden with --fix-roles to update all ship designs
+            if (updateRole || GlobalStats.FixDesignRoleAndCategory)
+            {
+                var roleData = new RoleData(this, modules);
+                Role = roleData.DesignRole;
+                ShipCategory = roleData.Category;
+            }
+
+            IsPlatformOrStation = Role == RoleName.platform || Role == RoleName.station;
+            IsStation           = Role == RoleName.station && !IsShipyard;
+            IsConstructor       = Role == RoleName.construction;
+            IsSubspaceProjector = Role == RoleName.ssp;
+            IsSupplyShuttle     = Role == RoleName.supply;
+            IsSingleTroopShip = Role == RoleName.troop;
+            IsTroopShip       = Role == RoleName.troop || Role == RoleName.troopShip;
+            IsBomber          = Role == RoleName.bomber;
+            IsFreighter       = Role == RoleName.freighter && ShipCategory == ShipCategory.Civilian;
+            IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
         }
 
         public float GetCost(Empire e)
@@ -95,9 +120,9 @@ namespace Ship_Game.Ships
             return (int)cost;
         }
 
-        public float GetMaintenanceCost()
+        public float GetMaintenanceCost(Empire empire, int troopCount)
         {
-            return 0f;
+            return ShipMaintenance.GetBaseMaintenance(this, empire, troopCount);
         }
 
         public string GetRole()

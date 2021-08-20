@@ -13,10 +13,8 @@ namespace Ship_Game.Ships
         public bool AllowInterEmpireTrade  { get; set; }
         public Array<Guid> TradeRoutes     { get; private set; } = new Array<Guid>();
 
-        public bool IsCandidateForTradingBuild => IsFreighter && !IsConstructor;
-
-        public bool IsFreighter => DesignRole == RoleName.freighter
-                                && shipData.ShipCategory == ShipCategory.Civilian;
+        public bool IsCandidateForTradingBuild => shipData.IsCandidateForTradingBuild;
+        public bool IsFreighter => shipData.IsFreighter;
 
         public bool IsIdleFreighter => IsFreighter
                                        && AI != null

@@ -316,20 +316,21 @@ namespace Ship_Game
             device.Clear(Color.TransparentWhite);
             batch.Begin(SpriteBlendMode.Additive);
             batch.Draw(FogMap, new Rectangle(0, 0, 512, 512), Color.White);
-            float num = 512f / UniverseSize;
+            double universeWidth = UniverseSize * 2.0;
+            double worldSizeToMaskSize = (512.0 / universeWidth);
+
             var uiNode = ResourceManager.Texture("UI/node");
             var ships = player.OwnedShips;
+            var shipSensorMask = new Color(255, 0, 0, 255);
             foreach (Ship ship in ships)
             {
                 if (ship != null && ship.InFrustum)
                 {
-                    Rectangle destinationRectangle = new Rectangle(
-                        (int) (ship.Position.X * num),
-                        (int) (ship.Position.Y * num),
-                        (int) (ship.SensorRange * num * 2.0),
-                        (int) (ship.SensorRange * num * 2.0));
-                    batch.Draw(uiNode, destinationRectangle, new Color(255, 0, 0, 255), 0.0f,
-                               uiNode.CenterF, SpriteEffects.None, 1f);
+                    double posX = ship.Position.X * worldSizeToMaskSize + 256;
+                    double posY = ship.Position.Y * worldSizeToMaskSize + 256;
+                    double size = (ship.SensorRange * 2.0) * worldSizeToMaskSize;
+                    var rect = new RectF(posX, posY, size, size);
+                    batch.Draw(uiNode, rect, shipSensorMask, 0f, uiNode.CenterF, SpriteEffects.None, 1f);
                 }
             }
             batch.End();
@@ -342,7 +343,7 @@ namespace Ship_Game
             batch.Begin(SpriteBlendMode.AlphaBlend);
             if (!Debug) // don't draw fog of war in debug
             {
-                Rectangle fogRect = ProjectToScreenCoords(Vector2.Zero, UniverseSize);
+                Rectangle fogRect = ProjectToScreenCoords(new Vector2(-UniverseSize), UniverseSize*2f);
                 batch.FillRectangle(new Rectangle(0, 0, ScreenWidth, ScreenHeight), new Color(0, 0, 0, 170));
                 batch.Draw(FogMap, fogRect, new Color(255, 255, 255, 55));
             }
