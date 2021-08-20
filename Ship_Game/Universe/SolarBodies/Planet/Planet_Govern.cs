@@ -72,7 +72,7 @@ namespace Ship_Game
                     DetermineProdState(0.25f, 0.99f); // This planet will export when stores reach 100%
                     break;
                 case ColonyType.Agricultural:
-                    AssignOtherWorldsWorkers(1, 0.333f, 2, 1);
+                    AssignOtherWorldsWorkers(1, 0.333f, 0, 1);
                     BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.15f, 0.5f); // Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 50%, and dont stop unless below 33%.
                     DetermineProdState(0.25f, 0.99f);    // Start Importing if prod drops below 25%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
