@@ -28,11 +28,12 @@ namespace Ship_Game
         public Empire Owner;
         private float PlanetRadius;
         public int ShipLevel { get; }
+        public float ShipHealthPercent { get; }
 
         public SubTexture Texture { get; }
         public Model      Model   { get; }
 
-        public Bomb(Vector3 position, Empire empire, string weaponName, int shipLevel)
+        public Bomb(Vector3 position, Empire empire, string weaponName, int shipLevel, float shipHealthPercent)
         {
             Owner       = empire;
             Texture     = ResourceManager.ProjTexture(TextureName);
@@ -48,6 +49,7 @@ namespace Ship_Game
             PopKilled       = Weapon.BombPopulationKillPerHit;
             FertilityDamage = Weapon.FertilityDamage;
             SpecialAction   = Weapon.HardCodedAction;
+            ShipHealthPercent = shipHealthPercent;
         }
 
         public void DoImpact()
