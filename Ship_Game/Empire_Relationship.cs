@@ -23,12 +23,12 @@ namespace Ship_Game
     {
         public PersonalityType Personality => data.DiplomaticPersonality.TraitName;
 
-        public bool IsCunning => Personality == PersonalityType.Cunning;
+        public bool IsCunning    => Personality == PersonalityType.Cunning;
         public bool IsXenophobic => Personality == PersonalityType.Xenophobic;
-        public bool IsRuthless => Personality == PersonalityType.Ruthless;
+        public bool IsRuthless   => Personality == PersonalityType.Ruthless;
         public bool IsAggressive => Personality == PersonalityType.Aggressive;
-        public bool IsHonorable => Personality == PersonalityType.Honorable;
-        public bool IsPacifist => Personality == PersonalityType.Pacifist;
+        public bool IsHonorable  => Personality == PersonalityType.Honorable;
+        public bool IsPacifist   => Personality == PersonalityType.Pacifist;
 
         public War[] AllActiveWars { get; private set; } = Array.Empty<War>();
         public int ActiveWarPreparations { get; private set; }
@@ -65,11 +65,11 @@ namespace Ship_Game
             bool notify;
             switch (type)
             {
-                case TreatyType.Alliance: notify = IsAlliedWith(them); break;
-                case TreatyType.OpenBorders: notify = IsOpenBordersTreaty(them); break;
-                case TreatyType.Trade: notify = IsTradeTreaty(them); break;
-                case TreatyType.NonAggression: notify = IsNAPactWith(them); break;
-                default: notify = false; break;
+                case TreatyType.Alliance:      notify = IsAlliedWith(them);        break;
+                case TreatyType.OpenBorders:   notify = IsOpenBordersTreaty(them); break;
+                case TreatyType.Trade:         notify = IsTradeTreaty(them);       break;
+                case TreatyType.NonAggression: notify = IsNAPactWith(them);        break;
+                default:                       notify = false;                     break;
             }
 
             if (notify)
@@ -116,17 +116,17 @@ namespace Ship_Game
         public float GetWarOffensiveRatio()
         {
             float territorialism = 1 - (data.DiplomaticPersonality?.Territorialism ?? 100) / 100f;
-            float militaryRatio = Research.Strategy.MilitaryRatio;
-            float opportunism = data.DiplomaticPersonality?.Opportunism ?? 1;
+            float militaryRatio  = Research.Strategy.MilitaryRatio;
+            float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
             return (territorialism + militaryRatio + opportunism) / 3;
         }
 
         public float GetExpansionRatio()
         {
             float territorialism = (data.DiplomaticPersonality?.Territorialism ?? 1) / 100f;
-            float opportunism = data.DiplomaticPersonality?.Opportunism ?? 1;
-            float expansion = Research.Strategy.ExpansionRatio;
-            float cybernetic = IsCybernetic ? 1 : 0;
+            float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
+            float expansion      = Research.Strategy.ExpansionRatio;
+            float cybernetic     = IsCybernetic ? 1 : 0;
 
             return (territorialism + expansion + opportunism + cybernetic);
         }
@@ -324,7 +324,7 @@ namespace Ship_Game
 
                     if (them.isPlayer && difficulty > UniverseData.GameDifficulty.Normal) // TODO see if this increased anger bit can be removed
                     {
-                        float difficultyRatio = (int)difficulty / 10f;
+                        float difficultyRatio = (int) difficulty / 10f;
                         float trustMod = difficultyRatio * (100 - ourEmpire.data.DiplomaticPersonality.Trustworthiness).LowerBound(0);
                         rel.Trust -= trustMod;
 
@@ -366,7 +366,7 @@ namespace Ship_Game
         public float AlliancesValueMultiplierThirdParty(Empire them, out bool decline)
         {
             float multiplier = 1;
-            decline = false;
+            decline          = false;
             Relationship rel = GetRelations(them);
             if (TheyAreAlliedWithOurEnemies(them, out _))
             {
@@ -404,7 +404,7 @@ namespace Ship_Game
             if (!them.isPlayer)
                 return; // works only for player
 
-            string dialog = treatySigned ? "CUTTING_DEALS_WITH_ENEMY" : "TRIED_CUTTING_DEALS_WITH_ENEMY";
+            string dialog    = treatySigned ? "CUTTING_DEALS_WITH_ENEMY" : "TRIED_CUTTING_DEALS_WITH_ENEMY";
             float multiplier = treatySigned ? 1 : 0.5f;
             float spyDefense = GetSpyDefense();
             Relationship rel = GetRelations(them);
@@ -483,8 +483,8 @@ namespace Ship_Game
                 case 1:
                     switch (Personality)
                     {
-                        case PersonalityType.Xenophobic: BreakAllTreatiesWith(player); break;
-                        case PersonalityType.Honorable: BreakTreatyWith(player, TreatyType.Alliance); break;
+                        case PersonalityType.Xenophobic: BreakAllTreatiesWith(player);                 break;
+                        case PersonalityType.Honorable:  BreakTreatyWith(player, TreatyType.Alliance); break;
                     }
 
                     break;
@@ -509,13 +509,13 @@ namespace Ship_Game
                 default: // 3 and above
                     switch (Personality)
                     {
-                        case PersonalityType.Pacifist when usToPlayer.StolenSystems.Count >= 4:
-                        case PersonalityType.Cunning: usToPlayer.PrepareForWar(WarType.DefensiveWar, player); break;
+                        case PersonalityType.Pacifist   when usToPlayer.StolenSystems.Count >= 4:
+                        case PersonalityType.Cunning:   usToPlayer.PrepareForWar(WarType.DefensiveWar, player);   break;
                         case PersonalityType.Aggressive:
-                        case PersonalityType.Ruthless: usToPlayer.PrepareForWar(WarType.ImperialistWar, player); break;
+                        case PersonalityType.Ruthless:  usToPlayer.PrepareForWar(WarType.ImperialistWar, player); break;
                         case PersonalityType.Xenophobic:
-                        case PersonalityType.Honorable: player.AddToDiplomacyContactView(this, "DECLAREWAR"); break;
-                        case PersonalityType.Pacifist: BreakAllTreatiesWith(player); break;
+                        case PersonalityType.Honorable: player.AddToDiplomacyContactView(this, "DECLAREWAR");     break;
+                        case PersonalityType.Pacifist:  BreakAllTreatiesWith(player);                             break;
                     }
 
                     break;
@@ -533,10 +533,10 @@ namespace Ship_Game
         public float ColonizationDetectionChance(Relationship usToThem, Empire them)
         {
             float chance = 0;
-            if (usToThem.Treaty_NAPact) chance = 0.5f;
-            if (usToThem.Treaty_Trade) chance = 1;
+            if (usToThem.Treaty_NAPact)      chance = 0.5f;
+            if (usToThem.Treaty_Trade)       chance = 1;
             if (usToThem.Treaty_OpenBorders) chance = 1.5f;
-            if (usToThem.Treaty_Alliance) chance = 2;
+            if (usToThem.Treaty_Alliance)    chance = 2;
 
             return IsCunning ? chance * 2 : chance;
         }
@@ -582,11 +582,11 @@ namespace Ship_Game
                         dialog = "JoinWar_Allied_DECLINE";
                         return false;
                     case PersonalityType.Aggressive when OffensiveStrength > enemy.CurrentMilitaryStrength:
-                    case PersonalityType.Ruthless when combinedStr > enemy.CurrentMilitaryStrength:
+                    case PersonalityType.Ruthless   when combinedStr > enemy.CurrentMilitaryStrength:
                         dialog = "JoinWar_Allied_OK";
                         return true;
                     case PersonalityType.Xenophobic when combinedStr > enemy.CurrentMilitaryStrength: break;
-                    case PersonalityType.Cunning when combinedStr > enemy.CurrentMilitaryStrength: break;
+                    case PersonalityType.Cunning    when combinedStr > enemy.CurrentMilitaryStrength: break;
                 }
 
             }
