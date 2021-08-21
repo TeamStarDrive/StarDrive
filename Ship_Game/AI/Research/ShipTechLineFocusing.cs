@@ -123,7 +123,7 @@ namespace Ship_Game.AI.Research
         Array<Ship> FilterRacialShips()
         {
             var racialShips = new Array<Ship>();
-            foreach (Ship shortTermBest in ResourceManager.GetShipTemplates())
+            foreach (Ship shortTermBest in ResourceManager.ShipTemplates)
             {
                 // restrict to to ships available to this empire.
                 string shipStyle = shortTermBest.shipData.ShipStyle ?? shortTermBest.shipData.BaseHull?.Style;

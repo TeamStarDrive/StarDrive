@@ -117,7 +117,7 @@ namespace Ship_Game
 
             // enable all ships in the sandbox
             if (Empire.Universe.Debug && Empire.Universe is DeveloperUniverse)
-                buildableShips = ResourceManager.GetShipTemplates().ToArray();
+                buildableShips = ResourceManager.ShipTemplates.ToArray();
             else
                 buildableShips = P.Owner.ShipsWeCanBuild
                                 .Select(shipName => ResourceManager.GetShipTemplate(shipName))
