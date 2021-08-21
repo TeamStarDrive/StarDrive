@@ -12,7 +12,7 @@ namespace UnitTests.Planets
             CreateUniverseAndPlayerEmpire();
             AddDummyPlanetToEmpire(Player);
             AddHomeWorldToEmpire(Player, out P);
-            B = new Bomb(Vector3.Zero, Player, "NuclearBomb", shipLevel: 1);
+            B = new Bomb(Vector3.Zero, Player, "NuclearBomb", shipLevel: 15, shipHealthPercent: 1);
         }
 
         readonly Planet P; // Player.Capital
@@ -23,8 +23,6 @@ namespace UnitTests.Planets
             => p.TilesList.Find(tile => tile.Habitable && !tile.Biosphere);
         PlanetGridSquare FindUnhabitableTargetTile(SolarSystemBody p) 
             => p.TilesList.Find(tile => !tile.Habitable);
-        PlanetGridSquare FindBiospheres(SolarSystemBody p)
-            => p.TilesList.Find(tile => tile.Biosphere);
 
         void CreateOrbitalDrop(out OrbitalDrop ob, PlanetGridSquare tile)
         {

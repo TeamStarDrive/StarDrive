@@ -33,6 +33,8 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
 
             planet.Construction.Enqueue(freighter, this, notifyOnEmpty: false);
+            if (empire.TotalFreighters < empire.GetPlanets().Count)
+                planet.Construction.PrioritizeShip(freighter, 1);
 
             return GoalStep.GoToNextStep;
         }

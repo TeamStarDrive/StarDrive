@@ -3280,7 +3280,7 @@ namespace Ship_Game
         AddOrdnanceStoresOrOrdnance = 2515,
         /// <summary>Low Warp Time</summary>
         LowWarpTime = 2516,
-        /// <summary>The ship's ability to sustain Warp Speed is limited</summary>
+        /// <summary>The ship's ability to sustain Warp Speed is limited, it</summary>
         TheShipsAbilityToSustain = 2517,
         /// <summary>Add Reactors to increase the power output of the ship</summary>
         AddReactorsToIncreaseThe = 2518,
@@ -4362,6 +4362,16 @@ namespace Ship_Game
         DesignIssueOrbitalHangarHoldPositionProblem = 4358,
         /// <summary>It is recommended to use Long / Short range combat</summary>
         DesignIssueOrbitalHangarHoldPositionRemidiation = 4359,
+        /// <summary>has surrendered to</summary>
+        HasSurrenderedTo2 = 4360,
+        /// <summary>has merged with</summary>
+        HasMergedWith = 4361,
+        /// <summary>due to a losing war with us</summary>
+        DueToLosingWarUS = 4362,
+        /// <summary>due to a losing war with</summary>
+        DueToLosingWarThem = 4363,
+        /// <summary>were accepted into our empire!</summary>
+        AcceptedIntoOurEmpire = 4364,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>

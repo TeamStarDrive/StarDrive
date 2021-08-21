@@ -633,5 +633,24 @@
       <DL_Pac>The Elder God welcomes peaceful solutions, but you should wait until we are not at war with them as well.</DL_Pac>
       <DL_Hon>Have you thought of your death, SING? What death shall it be? In the name of the Elder God, we will dispatch of you.</DL_Hon>
     </DialogLine>
+	
+	<!-- Merge and Surrender -->
+	
+    <DialogLine>
+      <DialogType>SURRENDER</DialogType>
+      <Default>You are the Elder God! We surrender.</Default>
+    </DialogLine>	
+    <DialogLine>
+      <DialogType>OFFER_MERGE</DialogType>
+      <Default>The Elder God has commanded us to join you. Will you accept?</Default>
+    </DialogLine>		
+    <DialogLine>
+      <DialogType>OFFER_MERGE_ACCEPTED</DialogType>
+      <Default>The Elder God is pleased!</Default>
+    </DialogLine>			
+    <DialogLine>
+      <DialogType>OFFER_MERGE_REJECTED</DialogType>
+      <Default>The Elder God is not pleased.</Default>
+    </DialogLine>						
   </Dialogs>
 </DiplomacyDialog>
