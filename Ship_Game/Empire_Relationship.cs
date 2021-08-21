@@ -754,29 +754,25 @@ namespace Ship_Game
             else
             {
                 absorber.AbsorbEmpire(this);
-                Universe.NotificationManager.AddEmpireMergedOrSurrendered(this, GetNotificationMessage());
-            }
-
-            // Message the player
-            string GetNotificationMessage()
-            {
-                string msg;
-                if (absorber == enemy)
-                    // AI A surrendered to AI B due to losing war with them
-                    msg = $"{Name} {Localizer.Token(GameText.HasSurrenderedTo2)} {absorber.Name}";
-                else if (enemy.isPlayer)
-                    // AI A merged with AI B due to a losing war with the player
-                    msg = $"{Name} {Localizer.Token(GameText.HasMergedWith)} {absorber.Name}" +
-                          $"\n{Localizer.Token(GameText.DueToLosingWarUS)}";
-                else
-                    // AI A merged with AI B due to a losing war with AI C
-                    msg = $"{Name} {Localizer.Token(GameText.HasMergedWith)} {absorber}" +
-                          $"\n{Localizer.Token(GameText.DueToLosingWarThem)} {enemy.Name}";
-
-                return msg;
+                Universe.NotificationManager.AddEmpireMergedOrSurrendered(this,
+                    GetMergeNotificationMessage(absorber, enemy));
             }
 
             return true; // return data.defeated // in case the player refused
+        }
+
+        string GetMergeNotificationMessage(Empire absorber, Empire enemy)
+        {
+            if (absorber == enemy) // AI A surrendered to AI B due to losing war with them
+                return $"{Name} {Localizer.Token(GameText.HasSurrenderedTo2)} {absorber.Name}";
+
+            if (enemy.isPlayer) // AI A merged with AI B due to a losing war with the player
+                return  $"{Name} {Localizer.Token(GameText.HasMergedWith)} {absorber.Name}" +
+                      $"\n{Localizer.Token(GameText.DueToLosingWarUS)}";
+
+            // AI A merged with AI B due to a losing war with AI C
+            return $"{Name} {Localizer.Token(GameText.HasMergedWith)} {absorber}" +
+                      $"\n{Localizer.Token(GameText.DueToLosingWarThem)} {enemy.Name}";
         }
     }
 }
