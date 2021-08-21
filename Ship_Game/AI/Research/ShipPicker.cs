@@ -43,7 +43,7 @@ namespace Ship_Game.AI.Research
 
             PopulateKnownTechs(empire);
 
-            var buildableShips = ResourceManager.GetShipTemplates().Filter(t => empire.ShipsWeCanBuild.Contains(t.Name));
+            var buildableShips = ResourceManager.ShipTemplates.Filter(t => empire.ShipsWeCanBuild.Contains(t.Name));
 
             PopulateMostTechs(buildableShips, KnownTechs);
             PopulateMostTechs(ships, KnownTechs);

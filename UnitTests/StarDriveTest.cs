@@ -126,7 +126,7 @@ namespace UnitTests
 
         public void UnlockAllShipsFor(Empire empire)
         {
-            foreach (string uid in ResourceManager.GetShipTemplateIds())
+            foreach (string uid in ResourceManager.ShipTemplateIds)
                 empire.ShipsWeCanBuild.Add(uid);
         }
         
@@ -157,7 +157,7 @@ namespace UnitTests
             ShipDesignUtils.MarkDesignsUnlockable();
 
             // why??
-            foreach (var design in ResourceManager.GetShipDesigns())
+            foreach (var design in ResourceManager.ShipDesigns)
             {
                 design.ShipStyle = Enemy.data.PortraitName;
                 design.BaseHull.Style = Enemy.data.PortraitName;

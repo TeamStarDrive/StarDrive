@@ -112,7 +112,7 @@ namespace Ship_Game
             }
             else
             {
-                ShipDesign[] shipList = ResourceManager.Ships.GetDesigns()
+                ShipDesign[] shipList = ResourceManager.Ships.Designs
                     .Filter(s => !s.Deleted && s.Name.ToLower().Contains(filter));
 
                 ShipDesigns.SetItems(shipList.Select(s => 
@@ -217,7 +217,7 @@ namespace Ship_Game
             }
             else
             {
-                ShipDesign ship = ResourceManager.GetShipDesigns().FirstOrDefault(s => s.Name == shipOrHullName);
+                ShipDesign ship = ResourceManager.ShipDesigns.FirstOrDefault(s => s.Name == shipOrHullName);
                 exists = ship != null;
                 source = ship?.Source;
                 reserved = ship?.IsReadonlyDesign == true;
