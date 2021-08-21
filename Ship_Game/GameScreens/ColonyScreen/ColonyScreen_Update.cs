@@ -1,8 +1,5 @@
-using System.Linq;
+using System;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.AI;
-using Ship_Game.AI.Budget;
-using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -62,12 +59,12 @@ namespace Ship_Game
             IncomingProdAmount.Text = $"({IncomingProd.String()})";
             IncomingColoAmount.Text = $"({IncomingPopString})";
 
-            P.SetManualFoodImportSlots((int)ImportFoodSlotSlider.AbsoluteValue);
-            P.SetManualProdImportSlots((int)ImportProdSlotSlider.AbsoluteValue);
-            P.SetManualColoImportSlots((int)ImportColoSlotSlider.AbsoluteValue);
-            P.SetManualFoodExportSlots((int)ExportFoodSlotSlider.AbsoluteValue);
-            P.SetManualProdExportSlots((int)ExportProdSlotSlider.AbsoluteValue);
-            P.SetManualColoExportSlots((int)ExportColoSlotSlider.AbsoluteValue);
+            P.SetManualFoodImportSlots((int)Math.Round(ImportFoodSlotSlider.AbsoluteValue));
+            P.SetManualProdImportSlots((int)Math.Round(ImportProdSlotSlider.AbsoluteValue));
+            P.SetManualColoImportSlots((int)Math.Round(ImportColoSlotSlider.AbsoluteValue));
+            P.SetManualFoodExportSlots((int)Math.Round(ExportFoodSlotSlider.AbsoluteValue));
+            P.SetManualProdExportSlots((int)Math.Round(ExportProdSlotSlider.AbsoluteValue));
+            P.SetManualColoExportSlots((int)Math.Round(ExportColoSlotSlider.AbsoluteValue));
 
             IncomingTradeTitle.Color = GetIncomingTradeTitleColor();
             OutgoingTradeTitle.Color = GetOutgoingTradeTitleColor();
