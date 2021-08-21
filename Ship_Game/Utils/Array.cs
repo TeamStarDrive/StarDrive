@@ -426,6 +426,28 @@ namespace Ship_Game
             Items[last]  = default;
         }
 
+        // Finds and replaces an old item with a new item
+        // @return True if item was replaced
+        public bool Replace(T oldItem, T newItem)
+        {
+            int index = IndexOf(oldItem);
+            if (index == -1)
+                return false;
+            Items[index] = newItem;
+            return true;
+        }
+
+        // Finds and replaces an old item with a new item
+        // @return True if item was replaced
+        public bool ReplaceFirst(T newItem, Predicate<T> predicate)
+        {
+            int index = FirstIndexOf(predicate);
+            if (index == -1)
+                return false;
+            Items[index] = newItem;
+            return true;
+        }
+
         public T PopFirst()
         {
             if (Count == 0)
