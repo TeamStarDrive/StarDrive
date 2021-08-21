@@ -1074,6 +1074,27 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        public void OfferMergeOrSurrenderToPlayer(Empire us, string dialogue)
+        {
+            var offer = new Offer
+            {
+                AcceptDL = "OFFER_MERGE_ACCEPTED",
+                RejectDL = "OFFER_MERGE_REJECTED",
+                ValueToModify = new Ref<bool>(() => RefusedMerge, x =>
+                {
+                    RefusedMerge = x;
+                    if (!RefusedMerge)
+                    {
+                        EmpireManager.Player.AbsorbEmpire(us);
+                        Empire.Universe.NotificationManager.AddMergeWithPlayer(us);
+                    }
+                })
+            };
+
+            Offer ourOffer = new Offer();
+            DiplomacyScreen.Show(us, dialogue, ourOffer, offer);
+        }
+
         void ReferToMilitary(Empire us, float threatForInsult, bool compliment = true)
         {
             Empire them = Them;
@@ -1182,19 +1203,6 @@ namespace Ship_Game.Gameplay
                 DiplomacyScreen.Show(us, dialogue, ourOffer, offerPeace);
             else
                 them.GetEmpireAI().AnalyzeOffer(ourOffer, offerPeace, us, Offer.Attitude.Respectful);
-        }
-
-        public void OfferMergeOrSurrenderToPlayer(Empire us, string dialogue)
-        {
-            var offer = new Offer
-            {
-                AcceptDL = "OFFERPEACE_ACCEPTED",
-                RejectDL = "OFFERPEACE_REJECTED",
-                ValueToModify = new Ref<bool>(() => true, x => EmpireManager.Player.AbsorbEmpire(us))
-            };
-
-            Offer ourOffer = new Offer();
-            DiplomacyScreen.Show(us, dialogue, ourOffer, offer);
         }
 
         void DemandTech(Empire us)

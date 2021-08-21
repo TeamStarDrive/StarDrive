@@ -4370,6 +4370,8 @@ namespace Ship_Game
         DueToLosingWarUS = 4362,
         /// <summary>due to a losing war with</summary>
         DueToLosingWarThem = 4363,
+        /// <summary>were accepted into our empire!</summary>
+        AcceptedIntoOurEmpire = 4364,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>
