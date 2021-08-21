@@ -410,6 +410,9 @@ namespace Ship_Game.Universe.SolarBodies
                     q.Goal.Fleet.RemoveGoalGuid(q.Goal.guid);
                     Owner.GetEmpireAI().Goals.Remove(q.Goal);
                 }
+
+                if (q.Goal is RefitOrbital)
+                    q.Goal.OldShip?.AI.ClearOrders();
             }
 
             ConstructionQueue.Remove(q);
