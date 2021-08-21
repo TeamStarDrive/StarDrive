@@ -757,9 +757,9 @@ namespace Ship_Game
                 Universe.NotificationManager.AddEmpireMergedOrSurrendered(this, GetNotificationMessage());
             }
 
+            // Message the player
             string GetNotificationMessage()
             {
-                // Message the player
                 string msg;
                 if (absorber == enemy)
                     // AI A surrendered to AI B due to losing war with them
