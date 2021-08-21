@@ -99,9 +99,19 @@ namespace Ship_Game.Ships
             Bonuses  = hull.Bonuses;
 
             Unlockable = hull.Unlockable;
-            DesignSlots = Array.Empty<DesignSlot>();
+            DesignSlots = Empty<DesignSlot>.Array;
 
             InitializeCommonStats(BaseHull, DesignSlots);
+        }
+
+        // Aggressive cleanup of ShipDesign to assist the Garbage Collector
+        // Which is not always able to clean up everything due to dangling references
+        public void Dispose()
+        {
+            DesignSlots = Empty<DesignSlot>.Array;
+            Hangars = Empty<ShipModule>.Array;
+            AllFighterHangars = Empty<ShipModule>.Array;
+            Weapons = Empty<Weapon>.Array;
         }
 
         // Sets the new design slots and calculates Unique Module UIDs
