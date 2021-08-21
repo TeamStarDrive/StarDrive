@@ -53,15 +53,19 @@ namespace Ship_Game.Ships
             if (IconPath.IsEmpty())  IconPath  = hull.IconPath;
             GridInfo.SurfaceArea = hull.SurfaceArea;
 
-            ShipModule[] modules = designSlots.Select(ds => ResourceManager.GetModuleTemplate(ds.ModuleUID));
             float baseCost = 0f;
             float baseWarp = 0f;
             var hangars = new Array<ShipModule>();
             var weapons = new Array<Weapon>();
 
-            for (int i = 0; i < modules.Length; i++)
+            for (int i = 0; i < designSlots.Length; i++)
             {
-                ShipModule m = modules[i];
+                if (!ResourceManager.GetModuleTemplate(designSlots[i].ModuleUID, out ShipModule m))
+                {
+                    Log.Warning(ConsoleColor.Red, $"ShipDesign invalid module='{designSlots[i].ModuleUID}' ship='{Name}'");
+                    continue;
+                }
+
                 baseCost += m.Cost;
                 baseWarp += m.WarpThrust;
                 if (m.Is(ShipModuleType.Hangar))
@@ -88,6 +92,7 @@ namespace Ship_Game.Ships
             // However, it can be overriden with --fix-roles to update all ship designs
             if (updateRole || GlobalStats.FixDesignRoleAndCategory)
             {
+                var modules = designSlots.Select(ds => ResourceManager.GetModuleTemplate(ds.ModuleUID));
                 var roleData = new RoleData(this, modules);
                 Role = roleData.DesignRole;
                 ShipCategory = roleData.Category;
