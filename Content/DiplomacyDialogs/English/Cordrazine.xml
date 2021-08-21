@@ -643,5 +643,24 @@
       <DL_Pac>Master says next time sign treaties with our friends and not our enemies.</DL_Pac>
       <DL_Hon>master is very very angry. Having sneaky sneaky friends is not good. You are jerky jerky friends.</DL_Hon>
     </DialogLine>
+	
+	<!-- Merge and Surrender -->
+	
+    <DialogLine>
+      <DialogType>SURRENDER</DialogType>
+      <Default>Ohwhahaha! PLURAL are too strong for us. Master says we surrender!</Default>
+    </DialogLine>	
+    <DialogLine>
+      <DialogType>OFFER_MERGE</DialogType>
+      <Default>Ohwhahaha! We are losing in our wars. Master said he wants to merge with you. It is a good deal!</Default>
+    </DialogLine>		
+    <DialogLine>
+      <DialogType>OFFER_MERGE_ACCEPTED</DialogType>
+      <Default>Master is happy!</Default>
+    </DialogLine>			
+    <DialogLine>
+      <DialogType>OFFER_MERGE_REJECTED</DialogType>
+      <Default>Master is sad!</Default>
+    </DialogLine>				
   </Dialogs>
 </DiplomacyDialog>

@@ -262,7 +262,7 @@ namespace Ship_Game.Gameplay
                 SetSystem(Planet.ParentSystem);
             }
 
-            if (playSound && Owner != null && Owner.IsVisibleToPlayer)
+            if (playSound && IsInFrustum)
             {
                 Weapon.PlayToggleAndFireSfx(Emitter);
                 string cueName = ResourceManager.GetWeaponTemplate(Weapon.UID).dieCue;

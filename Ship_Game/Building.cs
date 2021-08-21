@@ -238,7 +238,7 @@ namespace Ship_Game
             if (canFireWeapon || canLaunchShips)
             {
                 // this scan is pretty expensive
-                Ship target = p.ScanForSpaceCombatTargets(SpaceRange);
+                Ship target = p.ScanForSpaceCombatTargets(TheWeapon, SpaceRange);
                 if (target != null)
                 {
                     if (canFireWeapon)

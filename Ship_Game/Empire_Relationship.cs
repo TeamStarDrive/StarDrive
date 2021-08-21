@@ -1,11 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.GamerServices;
 using Ship_Game.AI;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Empires.Components;
 using Ship_Game.Gameplay;
+using Ship_Game.GameScreens.DiplomacyScreen;
 
 namespace Ship_Game
 {
@@ -31,8 +30,8 @@ namespace Ship_Game
         public bool IsHonorable  => Personality == PersonalityType.Honorable;
         public bool IsPacifist   => Personality == PersonalityType.Pacifist;
 
-        public War[] AllActiveWars { get; private set; } = new War[0];
-        public int ActiveWarPreparations { get; private set; } 
+        public War[] AllActiveWars { get; private set; } = Array.Empty<War>();
+        public int ActiveWarPreparations { get; private set; }
 
 
         void SignBilateralTreaty(Empire them, TreatyType type, bool value)
@@ -50,7 +49,7 @@ namespace Ship_Game
         {
             SignBilateralTreaty(them, type, true);
         }
-        
+
         // Break Bilateral treaty
         public void BreakTreatyWith(Empire them, TreatyType type)
         {
@@ -173,7 +172,7 @@ namespace Ship_Game
         OurRelationsToThem[] ActiveRelations = Empty<OurRelationsToThem>.Array;
 
         public OurRelationsToThem[] AllRelations => ActiveRelations;
-        
+
         /// <returns>Get relations with another empire. NULL if there is no relations</returns> 
         public Relationship GetRelationsOrNull(Empire withEmpire)
         {
@@ -214,14 +213,14 @@ namespace Ship_Game
 
             if (RelationsMap[index].Them != null)
                 throw new InvalidOperationException($"Empire RelationsMap already contains '{them}'");
-            
-            var usToThem = new OurRelationsToThem{ Them = them, Rel = rel };
+
+            var usToThem = new OurRelationsToThem { Them = them, Rel = rel };
             RelationsMap[index] = usToThem;
 
             Array.Resize(ref ActiveRelations, ActiveRelations.Length + 1);
             ActiveRelations[ActiveRelations.Length - 1] = usToThem;
         }
-        
+
         // TRUE if we know the other empire
         public bool IsKnown(Empire otherEmpire)
         {
@@ -475,7 +474,7 @@ namespace Ship_Game
 
         public void RespondPlayerStoleColony(Relationship usToPlayer)
         {
-            Empire player     = EmpireManager.Player;
+            Empire player = EmpireManager.Player;
             switch (usToPlayer.StolenSystems.Count)
             {
                 case 0:
@@ -495,8 +494,8 @@ namespace Ship_Game
                         case PersonalityType.Aggressive:
                         case PersonalityType.Honorable:
                         case PersonalityType.Cunning:
-                            BreakTreatyWith(player, TreatyType.Alliance); 
-                            BreakTreatyWith(player, TreatyType.OpenBorders); 
+                            BreakTreatyWith(player, TreatyType.Alliance);
+                            BreakTreatyWith(player, TreatyType.OpenBorders);
                             break;
                         case PersonalityType.Ruthless:
                             BreakTreatyWith(player, TreatyType.Alliance);
@@ -510,13 +509,13 @@ namespace Ship_Game
                 default: // 3 and above
                     switch (Personality)
                     {
-                        case PersonalityType.Pacifist    when usToPlayer.StolenSystems.Count >= 4:
-                        case PersonalityType.Cunning:    usToPlayer.PrepareForWar(WarType.DefensiveWar, player);   break;
-                        case PersonalityType.Aggressive: 
-                        case PersonalityType.Ruthless:   usToPlayer.PrepareForWar(WarType.ImperialistWar, player); break;
+                        case PersonalityType.Pacifist   when usToPlayer.StolenSystems.Count >= 4:
+                        case PersonalityType.Cunning:   usToPlayer.PrepareForWar(WarType.DefensiveWar, player);   break;
+                        case PersonalityType.Aggressive:
+                        case PersonalityType.Ruthless:  usToPlayer.PrepareForWar(WarType.ImperialistWar, player); break;
                         case PersonalityType.Xenophobic:
-                        case PersonalityType.Honorable:  player.AddToDiplomacyContactView(this, "DECLAREWAR");     break;
-                        case PersonalityType.Pacifist:   BreakAllTreatiesWith(player);                             break;
+                        case PersonalityType.Honorable: player.AddToDiplomacyContactView(this, "DECLAREWAR");     break;
+                        case PersonalityType.Pacifist:  BreakAllTreatiesWith(player);                             break;
                     }
 
                     break;
@@ -534,10 +533,10 @@ namespace Ship_Game
         public float ColonizationDetectionChance(Relationship usToThem, Empire them)
         {
             float chance = 0;
-            if (usToThem.Treaty_NAPact) chance      = 0.5f;
-            if (usToThem.Treaty_Trade) chance       = 1;
+            if (usToThem.Treaty_NAPact)      chance = 0.5f;
+            if (usToThem.Treaty_Trade)       chance = 1;
             if (usToThem.Treaty_OpenBorders) chance = 1.5f;
-            if (usToThem.Treaty_Alliance) chance    = 2;
+            if (usToThem.Treaty_Alliance)    chance = 2;
 
             return IsCunning ? chance * 2 : chance;
         }
@@ -582,12 +581,12 @@ namespace Ship_Game
                     case PersonalityType.Honorable:
                         dialog = "JoinWar_Allied_DECLINE";
                         return false;
-                    case PersonalityType.Aggressive when OffensiveStrength > enemy.CurrentMilitaryStrength: 
+                    case PersonalityType.Aggressive when OffensiveStrength > enemy.CurrentMilitaryStrength:
                     case PersonalityType.Ruthless   when combinedStr > enemy.CurrentMilitaryStrength:
                         dialog = "JoinWar_Allied_OK";
                         return true;
-                    case PersonalityType.Xenophobic when combinedStr > enemy.CurrentMilitaryStrength:       break;
-                    case PersonalityType.Cunning    when combinedStr > enemy.CurrentMilitaryStrength:       break;
+                    case PersonalityType.Xenophobic when combinedStr > enemy.CurrentMilitaryStrength: break;
+                    case PersonalityType.Cunning    when combinedStr > enemy.CurrentMilitaryStrength: break;
                 }
 
             }
@@ -634,6 +633,146 @@ namespace Ship_Game
         {
             Relationship rel = GetRelations(them);
             return rel?.WarnedSystemsList.Contains(s.guid) == true;
+        }
+
+        /// <summary>
+        /// Will try to merge into other empires or surrender to the enemy, based on personality
+        /// it returns true if the empire was absorbed to another
+        /// </summary>
+        /// <param name="enemy"></param>
+        /// <returns></returns>
+        public bool TryMergeOrSurrender(Empire enemy)
+        {
+            var potentialEmpires = EmpireManager.ActiveMajorEmpires
+                .Filter(e => e != this && !GetRelationsOrNull(e)?.RefusedMerge == true);
+
+            switch (Personality)
+            {
+                default:
+                case PersonalityType.Aggressive: return TryMergeOrSurrenderAggressive(enemy, potentialEmpires);
+                case PersonalityType.Ruthless:   return TryMergeOrSurrenderRuthless(enemy, potentialEmpires);
+                case PersonalityType.Xenophobic: return TryMergeOrSurrenderXenophobic(enemy, potentialEmpires);
+                case PersonalityType.Honorable:  return TryMergeOrSurrenderHonorable(enemy, potentialEmpires);
+                case PersonalityType.Cunning:    return TryMergeOrSurrenderCunning(enemy, potentialEmpires);
+                case PersonalityType.Pacifist:   return TryMergeOrSurrenderPacifist(enemy, potentialEmpires);
+            }
+        }
+
+        // Aggressive AIs will surrender to the enemy if the enemy is aggressive.
+        // If not, they will try to merge with the strongest allied empire or
+        // the strongets empire which is at war.
+        bool TryMergeOrSurrenderAggressive(Empire enemy, Empire[] potentialEmpires)
+        {
+            if (enemy.IsAggressive)
+                return MergeWith(enemy, enemy);
+            
+            var strongest = potentialEmpires.FindMax(e => e.CurrentMilitaryStrength);
+            if (strongest.IsAlliedWith(this) || strongest.IsAtWarWithMajorEmpire)
+                return MergeWith(strongest, enemy);
+
+            return false;
+        }
+
+        // Ruthless AIs will try to merge with the closest ruthless empire or closest allied empire
+        bool TryMergeOrSurrenderRuthless(Empire enemy, Empire[] potentialEmpires)
+        {
+            var closest = potentialEmpires.FindMin(e => e.WeightedCenter.SqDist(WeightedCenter));
+            if (closest.IsRuthless || closest.IsAlliedWith(this))
+                return MergeWith(closest, enemy);
+
+            return false;
+        }
+
+        // Xenophobic AIs will try to merge with the strongest empire, if they are allied with it.
+        bool TryMergeOrSurrenderXenophobic(Empire enemy, Empire[] potentialEmpires)
+        {
+            var strongest = potentialEmpires.FindMax(e => e.CurrentMilitaryStrength);
+            if (strongest.IsAlliedWith(this))
+                return MergeWith(strongest, enemy); 
+
+            return false;
+        }
+
+        // Honorable AIs will try to merge with the closest allied empire or closest 
+        // honoable empire, if not at war with it.
+        bool TryMergeOrSurrenderHonorable(Empire enemy, Empire[] potentialEmpires)
+        {
+            var closestAllyOrHonorable = potentialEmpires
+                .FindMinFiltered(e => e.IsAlliedWith(this) || e.IsHonorable && !e.IsAtWarWith(this)
+                , e => e.WeightedCenter.SqDist(WeightedCenter));
+
+            if (closestAllyOrHonorable != null)
+                return MergeWith(closestAllyOrHonorable, enemy); 
+
+            return false;
+        }
+
+        // Pacifist AIs will try to merge with the closest empires which are not at war
+        // or with closest Pacifist empire.
+        bool TryMergeOrSurrenderPacifist(Empire enemy, Empire[] potentialEmpires)
+        {
+            var closestNotAtWar = potentialEmpires
+                .FindMinFiltered(e => !e.IsAtWarWithMajorEmpire, e => e.WeightedCenter.SqDist(WeightedCenter));
+
+            if (closestNotAtWar == null)
+            {
+                var closestPacifist = potentialEmpires
+                    .FindMinFiltered(e => e.IsPacifist, e => e.WeightedCenter.SqDist(WeightedCenter));
+
+                if (closestPacifist != null)
+                    return MergeWith(closestPacifist, enemy);
+            }
+            else
+            {
+                return MergeWith(closestNotAtWar, enemy);
+            }
+
+            return false;
+        }
+
+        // Cunning AIs will try to merge with the biggest empire around
+        bool TryMergeOrSurrenderCunning(Empire enemy, Empire[] potentialEmpires)
+        {
+            var biggest = potentialEmpires.FindMax(e => e.TotalPopBillion);
+            return MergeWith(biggest, enemy);
+        }
+
+        bool MergeWith(Empire absorber, Empire enemy)
+        {
+            if (absorber == this)
+            {
+                Log.Warning($"Execute merge tried merge with self: {Name}");
+                return false;
+            }
+
+            if (absorber.isPlayer)
+            {
+                string dialogue = enemy.isPlayer ? "SURRENDER" : "OFFER_MERGE";
+                Relationship rel = GetRelationsOrNull(EmpireManager.Player);
+                rel?. OfferMergeOrSurrenderToPlayer(this, dialogue);
+            }
+            else
+            {
+                absorber.AbsorbEmpire(this);
+                Universe.NotificationManager.AddEmpireMergedOrSurrendered(this,
+                    GetMergeNotificationMessage(absorber, enemy));
+            }
+
+            return true; // return data.defeated // in case the player refused
+        }
+
+        string GetMergeNotificationMessage(Empire absorber, Empire enemy)
+        {
+            if (absorber == enemy) // AI A surrendered to AI B due to losing war with them
+                return $"{Name} {Localizer.Token(GameText.HasSurrenderedTo2)} {absorber.Name}";
+
+            if (enemy.isPlayer) // AI A merged with AI B due to a losing war with the player
+                return  $"{Name} {Localizer.Token(GameText.HasMergedWith)} {absorber.Name}" +
+                      $"\n{Localizer.Token(GameText.DueToLosingWarUS)}";
+
+            // AI A merged with AI B due to a losing war with AI C
+            return $"{Name} {Localizer.Token(GameText.HasMergedWith)} {absorber}" +
+                      $"\n{Localizer.Token(GameText.DueToLosingWarThem)} {enemy.Name}";
         }
     }
 }

@@ -441,7 +441,7 @@ namespace UnitTests.AITests.Empire
             SpawnShip(shipName, Enemy, Vector2.Zero);
             Universe.Objects.UpdateLists();
             Assert.IsTrue(Enemy.OwnedShips.Count == 1);
-            Player.AbsorbEmpire(Enemy, false);
+            Player.AbsorbEmpire(Enemy);
             Universe.Objects.UpdateLists();
             // test that ship is added to empire on merge
             Assert.IsTrue(Player.OwnedShips.Count == 1);

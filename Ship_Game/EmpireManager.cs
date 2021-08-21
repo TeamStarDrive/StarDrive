@@ -57,6 +57,9 @@ namespace Ship_Game
         public static Empire[] MajorEmpiresAtWarWith(Empire empire) 
             => ActiveMajorEmpires.Filter(e => e.IsAtWarWith(empire));
 
+        public static Empire[] MajorEmpiresWithPersonality(PersonalityType type)
+            => ActiveNonPlayerMajorEmpires.Filter(e => e.Personality == type);
+
         public static Empire FindDuplicateEmpire(Empire empire)
         {
             if (Empires.ContainsRef(empire))

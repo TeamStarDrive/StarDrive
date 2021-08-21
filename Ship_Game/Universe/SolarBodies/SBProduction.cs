@@ -431,6 +431,9 @@ namespace Ship_Game.Universe.SolarBodies
                     q.Goal.Fleet.RemoveGoalGuid(q.Goal.guid);
                     Owner.GetEmpireAI().Goals.Remove(q.Goal);
                 }
+
+                if (q.Goal is RefitOrbital)
+                    q.Goal.OldShip?.AI.ClearOrders();
             }
 
             ConstructionQueue.Remove(q);
@@ -442,7 +445,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void PrioritizeShip(ShipDesign ship, int atPeace, int atWar = 4)
         {
-            int queueOffset = Owner.IsAtWar ? atWar : atPeace;
+            int queueOffset = Owner.IsAtWarWithMajorEmpire ? atWar : atPeace;
             if (ConstructionQueue.Count > queueOffset + 1)
                 for (int i = queueOffset; i < ConstructionQueue.Count; ++i)
                 {
