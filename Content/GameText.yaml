@@ -10292,6 +10292,9 @@ DueToLosingWarUS:
 DueToLosingWarThem:
  Id: 4363
  ENG: "due to a losing war with"
+AcceptedIntoOurEmpire:
+ Id: 4364
+ ENG: "were accepted into our empire!"
 OnSurface:
  Id: 4993
  ENG: "on surface"

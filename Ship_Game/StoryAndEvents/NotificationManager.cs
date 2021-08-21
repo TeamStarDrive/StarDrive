@@ -263,7 +263,7 @@ namespace Ship_Game
             }, "sd_troop_march_01");
         }
 
-        public void AddEmpireMergedOrSurrendered(Empire empire, Empire mergedWith, string msg)
+        public void AddEmpireMergedOrSurrendered(Empire empire, string msg)
         {
             AddNotification(new Notification
             {
@@ -520,6 +520,16 @@ namespace Ship_Game
                 RelevantEmpire = absorber,
                 Message        = absorber.data.Traits.Name + " " + Localizer.Token(GameText.HasPeacefullyMergedIntoA) + target.data.Traits.Name,
                 IconPath       = "NewUI/icon_planet_terran_01_mid"
+            }, "sd_troop_march_01");
+        }
+
+        public void AddMergeWithPlayer(Empire target)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire = target,
+                Message = $"{target.data.Traits.Name} {Localizer.Token(GameText.AcceptedIntoOurEmpire)}",
+                IconPath = "NewUI/icon_planet_terran_01_mid"
             }, "sd_troop_march_01");
         }
 

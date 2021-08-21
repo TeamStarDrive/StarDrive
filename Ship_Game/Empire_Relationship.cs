@@ -643,7 +643,7 @@ namespace Ship_Game
         public bool TryMergeOrSurrender(Empire enemy)
         {
             var potentialEmpires = EmpireManager.ActiveMajorEmpires
-                .Filter(e => e != this && !e.GetRelationsOrNull(this)?.RefusedMerge == true);
+                .Filter(e => e != this && !GetRelationsOrNull(e)?.RefusedMerge == true);
 
             switch (Personality)
             {
@@ -673,7 +673,7 @@ namespace Ship_Game
         {
             var closest = potentialEmpires.FindMin(e => e.WeightedCenter.SqDist(WeightedCenter));
             if (closest.IsRuthless || closest.IsAlliedWith(this))
-                return ExecuteMerge(closest, enemy); 
+                return ExecuteMerge(closest, enemy);
 
             return false;
         }
@@ -737,10 +737,8 @@ namespace Ship_Game
             if (absorber.isPlayer)
             {
                 string dialogue = enemy.isPlayer ? "SURRENDER" : "OFFER_MERGE";
-
-                // default is refusal if the player agrees, the empire will be merged anyway
-                GetRelationsOrNull(EmpireManager.Player).RefusedMerge = true; 
-                OfferMergeOrSurrenderToPlayer(dialogue);
+                Relationship rel = GetRelationsOrNull(EmpireManager.Player);
+                rel?. OfferMergeOrSurrenderToPlayer(this, dialogue);
             }
             else
             {
@@ -759,23 +757,10 @@ namespace Ship_Game
                     msg = $"{Name} {Localizer.Token(GameText.HasMergedWith)} {absorber}" +
                           $"\n{Localizer.Token(GameText.DueToLosingWarThem)} {enemy.Name}";
 
-                Universe.NotificationManager.AddEmpireMergedOrSurrendered(this, absorber, msg);
+                Universe.NotificationManager.AddEmpireMergedOrSurrendered(this, msg);
             }
 
             return true; // return data.defeated // in case the player refused
-        }
-
-        void OfferMergeOrSurrenderToPlayer(string dialogue)
-        {
-            var offer = new Offer
-            {
-                AcceptDL = "OFFER_MERGE_ACCEPTED",
-                RejectDL = "OFFER_MERGE_REJECTED",
-                ValueToModify = new Ref<bool>(() => true, x => EmpireManager.Player.AbsorbEmpire(this))
-            };
-
-            Offer ourOffer = new Offer();
-            DiplomacyScreen.Show(this, dialogue, ourOffer, offer);
         }
     }
 }
