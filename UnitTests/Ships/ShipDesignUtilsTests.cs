@@ -33,7 +33,7 @@ namespace UnitTests.Ships
             return techs;
         }
 
-        static ShipDesign GetFirstShipData() => ResourceManager.GetShipDesigns()[0];
+        static ShipDesign GetFirstShipData() => ResourceManager.ShipDesigns[0];
         static ShipHull GetFirstBaseHull() => GetFirstShipData().BaseHull;
         static string ToString(HashSet<string> techsNeeded) => string.Join(",", ToArray(techsNeeded));
 
@@ -60,7 +60,7 @@ namespace UnitTests.Ships
             PrintInfo("2");
 
             var legacyUnlockable = new Dictionary<string, ShipDesign>();
-            foreach (ShipDesign tOld in ResourceManager.GetShipDesigns())
+            foreach (ShipDesign tOld in ResourceManager.ShipDesigns)
             {
                 legacyUnlockable.Add(tOld.Name, tOld.GetClone()); //Because it gets disposed later on and we get a NPE
             }
@@ -70,7 +70,7 @@ namespace UnitTests.Ships
             ShipDesignUtils.MarkDesignsUnlockable();
             PrintInfo("3");
 
-            foreach (ShipDesign @new in ResourceManager.GetShipDesigns())
+            foreach (ShipDesign @new in ResourceManager.ShipDesigns)
             {
                 if (legacyUnlockable.TryGetValue(@new.Name, out ShipDesign legacy))
                 {

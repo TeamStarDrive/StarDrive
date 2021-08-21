@@ -14,10 +14,14 @@ namespace Ship_Game.Ships
         readonly Map<string, Ship> ShipsMap = new Map<string, Ship>();
         readonly Map<string, ShipDesign> DesignsMap = new Map<string, ShipDesign>();
 
-        readonly Array<Ship> Ships = new Array<Ship>();
-        readonly Array<ShipDesign> Designs = new Array<ShipDesign>();
+        readonly Array<Ship> AllShips = new Array<Ship>();
+        readonly Array<ShipDesign> AllDesigns = new Array<ShipDesign>();
 
         readonly object Sync = new object();
+
+        public IReadOnlyCollection<string> ShipNames => Names;
+        public IReadOnlyList<Ship> Ships => AllShips;
+        public IReadOnlyList<ShipDesign> Designs => AllDesigns;
 
         public ShipsManager()
         {
@@ -33,13 +37,9 @@ namespace Ship_Game.Ships
             ShipsMap.Clear();
             DesignsMap.Clear();
 
-            Ships.Clear();
-            Designs.Clear();
+            AllShips.Clear();
+            AllDesigns.Clear();
         }
-
-        public HashSet<string> GetShipNames() => Names;
-        public IReadOnlyList<Ship> GetShips() => Ships;
-        public IReadOnlyList<ShipDesign> GetDesigns() => Designs;
 
         public void Add(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)
         {
@@ -59,15 +59,15 @@ namespace Ship_Game.Ships
                     Names.Add(name);
                     ShipsMap.Add(name, shipTemplate);
                     DesignsMap.Add(name, shipDesign);
-                    Ships.Add(shipTemplate);
-                    Designs.Add(shipDesign);
+                    AllShips.Add(shipTemplate);
+                    AllDesigns.Add(shipDesign);
                 }
                 else // overwrite existing
                 {
                     ShipsMap[name] = shipTemplate;
                     DesignsMap[name] = shipDesign;
-                    Ships.RemoveFirst(s => s.Name == name);
-                    Designs.RemoveFirst(s => s.Name == name);
+                    AllShips.RemoveFirst(s => s.Name == name);
+                    AllDesigns.RemoveFirst(s => s.Name == name);
                 }
             }
         }
@@ -82,8 +82,8 @@ namespace Ship_Game.Ships
                 Names.Remove(shipName);
                 ShipsMap.Remove(shipName);
                 DesignsMap.Remove(shipName);
-                Ships.Remove(ship);
-                Designs.Remove(design);
+                AllShips.Remove(ship);
+                AllDesigns.Remove(design);
             }
         }
 

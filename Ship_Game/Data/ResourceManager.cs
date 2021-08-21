@@ -1439,6 +1439,10 @@ namespace Ship_Game
 
         public static readonly ShipsManager Ships = new ShipsManager();
 
+        public static IReadOnlyList<Ship>         ShipTemplates   => Ships.Ships;
+        public static IReadOnlyList<ShipDesign>   ShipDesigns     => Ships.Designs;
+        public static IReadOnlyCollection<string> ShipTemplateIds => Ships.ShipNames;
+
         public static void AddShipTemplate(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)
         {
             Ships.Add(shipDesign, playerDesign, readOnly);
@@ -1450,10 +1454,6 @@ namespace Ship_Game
         {
             return Ships.Get(shipName, throwIfError);
         }
-
-        public static IReadOnlyList<Ship> GetShipTemplates() => Ships.GetShips();
-        public static IReadOnlyList<ShipDesign> GetShipDesigns() => Ships.GetDesigns();
-        public static HashSet<string> GetShipTemplateIds() => Ships.GetShipNames();
 
         static void UnloadShipDesigns()
         {
