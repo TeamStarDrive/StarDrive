@@ -4,24 +4,23 @@ using System.Collections.Generic;
 namespace Ship_Game.Ships
 {
     /// <summary>
-    /// Container for ShipTemplate's
+    /// Container for ShipTemplates
     /// </summary>
     public class ShipsManager
     {
         readonly HashSet<string> Names = new HashSet<string>();
 
         // Ship designs, mapped by ship.Name
-        readonly Map<string, Ship> ShipsMap = new Map<string, Ship>();
         readonly Map<string, ShipDesign> DesignsMap = new Map<string, ShipDesign>();
-
-        readonly Array<Ship> AllShips = new Array<Ship>();
+        readonly Map<string, Ship> ShipsMap = new Map<string, Ship>();
         readonly Array<ShipDesign> AllDesigns = new Array<ShipDesign>();
+        readonly Array<Ship> AllShips = new Array<Ship>();
 
         readonly object Sync = new object();
 
         public IReadOnlyCollection<string> ShipNames => Names;
-        public IReadOnlyList<Ship> Ships => AllShips;
         public IReadOnlyList<ShipDesign> Designs => AllDesigns;
+        public IReadOnlyList<Ship> Ships => AllShips;
 
         public ShipsManager()
         {
@@ -29,8 +28,11 @@ namespace Ship_Game.Ships
 
         public void Clear()
         {
-            foreach (var s in ShipsMap)
-                s.Value.Dispose();
+            foreach (Ship s in AllShips)
+                s.Dispose();
+
+            foreach (ShipDesign s in AllDesigns)
+                s.Dispose();
 
             Names.Clear();
 
@@ -41,6 +43,7 @@ namespace Ship_Game.Ships
             AllDesigns.Clear();
         }
 
+        // Add a new Design or replace an existing one
         public void Add(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)
         {
             shipDesign.IsPlayerDesign   = playerDesign;
@@ -54,21 +57,20 @@ namespace Ship_Game.Ships
 
             lock (Sync)
             {
-                if (!Names.Contains(name))
+                // Delete existing, to allow overwrite
+                if (DesignsMap.TryGetValue(name, out ShipDesign design))
                 {
-                    Names.Add(name);
-                    ShipsMap.Add(name, shipTemplate);
-                    DesignsMap.Add(name, shipDesign);
-                    AllShips.Add(shipTemplate);
-                    AllDesigns.Add(shipDesign);
+                    if (shipDesign == design)
+                        return; // it's already added, deleting would corrupt it
+                    else
+                        Delete(name);
                 }
-                else // overwrite existing
-                {
-                    ShipsMap[name] = shipTemplate;
-                    DesignsMap[name] = shipDesign;
-                    AllShips.RemoveFirst(s => s.Name == name);
-                    AllDesigns.RemoveFirst(s => s.Name == name);
-                }
+
+                Names.Add(name);
+                ShipsMap.Add(name, shipTemplate);
+                DesignsMap.Add(name, shipDesign);
+                AllShips.Add(shipTemplate);
+                AllDesigns.Add(shipDesign);
             }
         }
 
@@ -76,8 +78,10 @@ namespace Ship_Game.Ships
         {
             if (DesignsMap.TryGetValue(shipName, out ShipDesign design))
             {
-                ShipsMap.TryGetValue(shipName, out Ship ship);
+                Ship ship = ShipsMap[shipName];
                 design.Deleted = true;
+                design.Dispose();
+                ship.Dispose();
 
                 Names.Remove(shipName);
                 ShipsMap.Remove(shipName);
