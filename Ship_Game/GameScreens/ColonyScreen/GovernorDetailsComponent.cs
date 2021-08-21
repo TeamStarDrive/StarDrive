@@ -334,7 +334,7 @@ namespace Ship_Game
                 GovNoScrap.Visible = GovernorTabView && Planet.colonyType != Planet.ColonyType.TradeHub && GovernorOn && Planet.Owner.isPlayer;
 
                 int numTroopsCanLaunch    = Planet.NumTroopsCanLaunchFor(EmpireManager.Player);
-                Planet.GarrisonSize       = (int)Garrison.AbsoluteValue;
+                Planet.GarrisonSize       = (int)Math.Round(Garrison.AbsoluteValue);
                 CallTroops.Visible        = DefenseTabView && Planet.Owner.isPlayer;
                 LaunchSingleTroop.Visible = DefenseTabView && CallTroops.Visible && numTroopsCanLaunch > 0;
                 LaunchAllTroops.Visible   = DefenseTabView && CallTroops.Visible && numTroopsCanLaunch > 1;
