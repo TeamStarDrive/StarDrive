@@ -9,7 +9,7 @@ namespace Ship_Game.AI
 
         private void RunDiplomaticPlanner()
         {
-            if (OwnerEmpire.isPlayer)
+            if (OwnerEmpire.isPlayer || OwnerEmpire.GetAverageWarGrade() < 2 && TryMergeOrSurrender())
                 return;
 
             switch (OwnerEmpire.Personality)
@@ -27,6 +27,19 @@ namespace Ship_Game.AI
                 if (!them.isFaction && !OwnerEmpire.isFaction && !them.data.Defeated)
                     CheckColonizationClaims(them, rel);
             }
+        }
+
+        bool TryMergeOrSurrender()
+        {
+            float ratio = OwnerEmpire.PersonalityModifiers.PopRatioBeforeMerge;
+            var enemies =  EmpireManager.MajorEmpiresAtWarWith(OwnerEmpire).Filter(e => e.TotalPopBillion * ratio > OwnerEmpire.TotalPopBillion);
+            if (enemies.Length > 0)
+            {
+                Empire biggest = enemies.FindMax(e => e.TotalPopBillion);
+                OwnerEmpire.TryMergeOrSurrender(biggest);
+            }
+
+            return false;
         }
 
         void DoConservativeRelations()

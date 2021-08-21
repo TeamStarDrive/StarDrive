@@ -203,7 +203,7 @@ namespace Ship_Game.Ships
                 case RoleName.freighter:    return "'Freighter'";
                 case RoleName.troopShip:    return "'Troop Ship', as 10% of the ship space is taken by troop launch bays or barracks";
                 case RoleName.support:      return "'Support', as 10% of ship space is taken by support modules";
-                case RoleName.bomber:       return "'Bomber', as 10% of ship space is taken by bomb modules";
+                case RoleName.bomber:       return "'Bomber', as 5% of ship space is taken by bomb modules";
                 case RoleName.carrier:      return "'Carrier', as 10% of ship space is taken by hangar modules";
                 case RoleName.fighter:      return "'Fighter'";
                 case RoleName.scout:        return "'Scout' since it has";

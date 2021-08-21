@@ -10280,6 +10280,21 @@ DesignIssueOrbitalHangarHoldPositionProblem:
 DesignIssueOrbitalHangarHoldPositionRemidiation:
  Id: 4359
  ENG: "It is recommended to use Long / Short range combat stance for orbitals with hangars."
+HasSurrenderedTo2:
+ Id: 4360
+ ENG: "has surrendered to"
+HasMergedWith:
+ Id: 4361
+ ENG: "has merged with"
+DueToLosingWarUS:
+ Id: 4362
+ ENG: "due to a losing war with us"
+DueToLosingWarThem:
+ Id: 4363
+ ENG: "due to a losing war with"
+AcceptedIntoOurEmpire:
+ Id: 4364
+ ENG: "were accepted into our empire!"
 OnSurface:
  Id: 4993
  ENG: "on surface"

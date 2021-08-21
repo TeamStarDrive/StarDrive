@@ -2981,7 +2981,7 @@ namespace Ship_Game
             data.EnvBarren  = Math.Max(data.EnvBarren, target.data.EnvBarren);
         }
 
-        public void AbsorbEmpire(Empire target, bool addNotification = true)
+        public void AbsorbEmpire(Empire target)
         {
             AbsorbAllEnvPreferences(target);
             foreach (Planet planet in target.GetPlanets())
@@ -3010,14 +3010,14 @@ namespace Ship_Game
             for (int i = ships.Count - 1; i >= 0; i--)
             {
                 Ship ship = ships[i];
-                ship.LoyaltyChangeByGift(this, addNotification);
+                ship.LoyaltyChangeByGift(this, addNotification: false);
             }
 
             var projectors = target.OwnedProjectors;
             for (int i = projectors.Count - 1; i >= 0; i--)
             {
                 Ship ship = projectors[i];
-                ship.LoyaltyChangeByGift(this, addNotification);
+                ship.LoyaltyChangeByGift(this, addNotification: false);
             }
 
             target.AIManagedShips.Clear();
