@@ -636,7 +636,8 @@ namespace Ship_Game
         }
 
         /// <summary>
-        /// Will try to merge to other empires or surrender to the enemy, based on personality
+        /// Will try to merge into other empires or surrender to the enemy, based on personality
+        /// it returns true if the empire was absorbed to another
         /// </summary>
         /// <param name="enemy"></param>
         /// <returns></returns>
@@ -657,36 +658,43 @@ namespace Ship_Game
             }
         }
 
+        // Aggressive AIs will surrender to the enemy if the enemy is aggressive.
+        // If not, they will try to merge with the strongest allied empire or
+        // the strongets empire which is at war.
         bool TryMergeOrSurrenderAggressive(Empire enemy, Empire[] potentialEmpires)
         {
             if (enemy.IsAggressive)
-                return ExecuteMerge(enemy, enemy);
+                return MergeWith(enemy, enemy);
             
             var strongest = potentialEmpires.FindMax(e => e.CurrentMilitaryStrength);
             if (strongest.IsAlliedWith(this) || strongest.IsAtWarWithMajorEmpire)
-                return ExecuteMerge(strongest, enemy);
+                return MergeWith(strongest, enemy);
 
             return false;
         }
 
+        // Ruthless AIs will try to merge with the closest ruthless empire or closest allied empire
         bool TryMergeOrSurrenderRuthless(Empire enemy, Empire[] potentialEmpires)
         {
             var closest = potentialEmpires.FindMin(e => e.WeightedCenter.SqDist(WeightedCenter));
             if (closest.IsRuthless || closest.IsAlliedWith(this))
-                return ExecuteMerge(closest, enemy);
+                return MergeWith(closest, enemy);
 
             return false;
         }
 
+        // Xenophobic AIs will try to merge with the strongest empire, if they are allied with it.
         bool TryMergeOrSurrenderXenophobic(Empire enemy, Empire[] potentialEmpires)
         {
             var strongest = potentialEmpires.FindMax(e => e.CurrentMilitaryStrength);
             if (strongest.IsAlliedWith(this))
-                return ExecuteMerge(strongest, enemy); 
+                return MergeWith(strongest, enemy); 
 
             return false;
         }
 
+        // Honorable AIs will try to merge with the closest allied empire or closest 
+        // honoable empire, if not at war with it.
         bool TryMergeOrSurrenderHonorable(Empire enemy, Empire[] potentialEmpires)
         {
             var closestAllyOrHonorable = potentialEmpires
@@ -694,11 +702,13 @@ namespace Ship_Game
                 , e => e.WeightedCenter.SqDist(WeightedCenter));
 
             if (closestAllyOrHonorable != null)
-                return ExecuteMerge(closestAllyOrHonorable, enemy); 
+                return MergeWith(closestAllyOrHonorable, enemy); 
 
             return false;
         }
 
+        // Pacifist AIs will try to merge with the closest empires which are not at war
+        // or with closest Pacifist empire.
         bool TryMergeOrSurrenderPacifist(Empire enemy, Empire[] potentialEmpires)
         {
             var closestNotAtWar = potentialEmpires
@@ -710,23 +720,24 @@ namespace Ship_Game
                     .FindMinFiltered(e => e.IsPacifist, e => e.WeightedCenter.SqDist(WeightedCenter));
 
                 if (closestPacifist != null)
-                    return ExecuteMerge(closestPacifist, enemy);
+                    return MergeWith(closestPacifist, enemy);
             }
             else
             {
-                return ExecuteMerge(closestNotAtWar, enemy);
+                return MergeWith(closestNotAtWar, enemy);
             }
 
             return false;
         }
 
+        // Cunning AIs will try to merge with the biggest empire around
         bool TryMergeOrSurrenderCunning(Empire enemy, Empire[] potentialEmpires)
         {
             var biggest = potentialEmpires.FindMax(e => e.TotalPopBillion);
-            return ExecuteMerge(biggest, enemy);
+            return MergeWith(biggest, enemy);
         }
 
-        bool ExecuteMerge(Empire absorber, Empire enemy)
+        bool MergeWith(Empire absorber, Empire enemy)
         {
             if (absorber == this)
             {
@@ -743,6 +754,11 @@ namespace Ship_Game
             else
             {
                 absorber.AbsorbEmpire(this);
+                Universe.NotificationManager.AddEmpireMergedOrSurrendered(this, GetNotificationMessage());
+            }
+
+            string GetNotificationMessage()
+            {
                 // Message the player
                 string msg;
                 if (absorber == enemy)
@@ -757,7 +773,7 @@ namespace Ship_Game
                     msg = $"{Name} {Localizer.Token(GameText.HasMergedWith)} {absorber}" +
                           $"\n{Localizer.Token(GameText.DueToLosingWarThem)} {enemy.Name}";
 
-                Universe.NotificationManager.AddEmpireMergedOrSurrendered(this, msg);
+                return msg;
             }
 
             return true; // return data.defeated // in case the player refused
