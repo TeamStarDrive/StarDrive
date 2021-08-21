@@ -1713,7 +1713,10 @@
   <PropertyGroup>
     <PostBuildEvent>
 :: Copy Game content from BB/Content and BB/Mods into StarDrive/Content and StarDrive/Mods
-py -3 "$(SolutionDir)CopyGameContent.py" --root_dir $(SolutionDir) --configuration $(ConfigurationName) --copy_mods
+py -3 "$(SolutionDir)CopyGameContent.py" ^
+    --root_dir $(SolutionDir) ^
+    --configuration $(ConfigurationName) ^
+    --copy_mods
 
 if "$(ConfigurationName)" == "Deploy"  (
   :: run the installer generator script with Python 3
