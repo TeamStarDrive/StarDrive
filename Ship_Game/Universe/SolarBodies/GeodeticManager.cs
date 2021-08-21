@@ -111,7 +111,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         private PlanetGridSquare SelectTargetTile(Bomb bomb)
         {
-            float baseHitChance = ((85 + bomb.ShipLevel) * bomb.ShipHealthPercent).Clamped(10,100);
+            float baseHitChance = ((85 + bomb.ShipLevel) * bomb.ShipHealthPercent).Clamped(10, 100);
             if (!RandomMath.RollDice(baseHitChance))
                 return TilesList.RandItem();
 
