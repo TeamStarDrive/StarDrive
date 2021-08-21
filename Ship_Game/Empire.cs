@@ -1144,7 +1144,7 @@ namespace Ship_Game
         public Array<Ship> GetOurFactionShips()
         {
             var ourFactionShips = new Array<Ship>();
-            foreach (Ship template in ResourceManager.GetShipTemplates())
+            foreach (Ship template in ResourceManager.ShipTemplates)
             {
                 if (ShipStyleMatch(template.shipData.ShipStyle)
                     || template.shipData.ShipStyle == "Platforms" || template.shipData.ShipStyle == "Misc")
@@ -1993,7 +1993,7 @@ namespace Ship_Game
         public void FactionShipsWeCanBuild()
         {
             if (!isFaction) return;
-            foreach (Ship ship in ResourceManager.GetShipTemplates())
+            foreach (Ship ship in ResourceManager.ShipTemplates)
             {
                 if ((data.Traits.ShipType == ship.shipData.ShipStyle
                     || ship.shipData.ShipStyle == "Misc"
@@ -2024,7 +2024,7 @@ namespace Ship_Game
                 return;
             }
 
-            foreach (Ship ship in ResourceManager.GetShipTemplates())
+            foreach (Ship ship in ResourceManager.ShipTemplates)
             {
                 if (hulls != null && !hulls.Contains(ship.shipData.Hull))
                     continue;
