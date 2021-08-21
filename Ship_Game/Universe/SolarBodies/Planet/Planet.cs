@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.Spatial;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -585,7 +586,7 @@ namespace Ship_Game
             return false;
         }
 
-        public Ship ScanForSpaceCombatTargets(float weaponRange) // @todo FB - need to work on this
+        public Ship ScanForSpaceCombatTargets(Weapon w,  float weaponRange) // @todo FB - need to work on this
         {
             // don't do this expensive scan if there are no hostiles
             if (!ParentSystem.HostileForcesPresent(Owner))
@@ -607,8 +608,14 @@ namespace Ship_Game
             for (int j = 0; j < enemyShips.Length; ++j)
             {
                 var ship = (Ship)enemyShips[j];
-                if (ship.dying || ship.IsInWarp || !Owner.IsEmpireAttackable(ship.loyalty))
+                if (ship.dying
+                    || ship.IsInWarp
+                    || ship.EMPdisabled && w?.EMPDamage > 0 && enemyShips.Length > 1
+                    || w != null && !w.TargetValid(ship)
+                    || !Owner.IsEmpireAttackable(ship.loyalty))
+                {
                     continue;
+                }
 
                 float dist = Center.SqDist(ship.Position);
                 if (dist < closestTroop && (ship.IsSingleTroopShip || ship.IsDefaultAssaultShuttle || ship.IsBomber))
