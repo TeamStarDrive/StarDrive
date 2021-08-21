@@ -35,9 +35,9 @@ namespace Ship_Game.SpriteSystem
         
         TextureBinding[] Sorted = Empty<TextureBinding>.Array;
         readonly Map<string, TextureBinding> Lookup = new Map<string, TextureBinding>();
-        
+
         public override string ToString() => $"{Name,-32} {$"{Width}x{Height}",-9} n:{Lookup.Count,-3} pack:{NumPacked,-3} nopack:{NonPacked,-3}";
-        
+
         public int Count => Sorted.Length;
 
         public SubTexture this[int index] => Sorted[index].GetOrLoadTexture();
@@ -95,16 +95,17 @@ namespace Ship_Game.SpriteSystem
         {
             if (Atlas == null)
             {
-                var atlasFile = new FileInfo(Path.Texture);
-                if (atlasFile.Exists)
+                string path = Path.PrePackedTex ?? Path.CacheAtlasTex;
+                var atlasTex = new FileInfo(path);
+                if (atlasTex.Exists)
                 {
-                    Atlas = ResourceManager.RootContent.LoadUncachedTexture(atlasFile, "dds");
+                    Atlas = ResourceManager.RootContent.LoadUncachedTexture(atlasTex, "dds");
                     Width = Atlas.Width;
                     Height = Atlas.Height;
                 }
                 else
                 {
-                    Log.Error($"Atlas texture does not exist: {Path.Texture}");
+                    Log.Error($"Atlas texture does not exist: {path}");
                 }
             }
             return Atlas;
@@ -157,6 +158,20 @@ namespace Ship_Game.SpriteSystem
                 if (GetLoadedAtlas(folder, out atlas))
                     return atlas;
 
+                var path = new AtlasPath(folder);
+                atlas.Path = path;
+
+                if (path.PrePackedFile != null)
+                {
+                    Log.Info(ConsoleColor.White, $"PrePacked: {path.PrePackedFile}");
+                    if (!atlas.LoadAtlasFile(path.PrePackedFile, path.PrePackedTex, checkHash:false))
+                    {
+                        Log.Warning($"{Mod} TextureAtlas prepacked load failed: {path.PrePackedFile} ");
+                        return null;
+                    }
+                    return atlas;
+                }
+
                 FileInfo[] files = GatherUniqueTextures(folder);
                 if (files.Length == 0)
                 {
@@ -164,12 +179,10 @@ namespace Ship_Game.SpriteSystem
                     return null;
                 }
 
-                atlas.Path = new AtlasPath(folder);
                 atlas.Hash = CreateHash(files);
-
-                if (useTextureCache && atlas.TryLoadCache())
+                if (useTextureCache && atlas.LoadCacheAtlas())
                     return atlas;
-                
+
                 GameLoadingScreen.SetStatus("CreateAtlas", folder);
                 atlas.CreateAtlas(files);
                 HelperFunctions.CollectMemorySilent();
