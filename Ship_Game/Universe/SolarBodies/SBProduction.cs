@@ -330,11 +330,11 @@ namespace Ship_Game.Universe.SolarBodies
                 isOrbital     = ship.IsPlatformOrStation,
                 Goal          = goal,
                 sData         = ship,
-                Cost          = ship.GetCost(Owner),
+                Cost          = GetShipCost(),
                 NotifyOnEmpty = notifyOnEmpty,
                 QueueNumber   = ConstructionQueue.Count,
                 Rush          = P.Owner.RushAllConstruction
-            };
+            };  
 
             if (displayName.NotEmpty())
                 qi.DisplayName = displayName;
@@ -343,6 +343,27 @@ namespace Ship_Game.Universe.SolarBodies
                 goal.PlanetBuildingAt = P;
 
             ConstructionQueue.Add(qi);
+
+            float GetShipCost()
+            {
+                if (!ship.IsSingleTroopShip)
+                {
+                    return ship.GetCost(Owner);
+                }
+                else // for when a player requisitions a single troop ship in a fleet
+                {
+                    Troop troopTemplate = Owner.GetUnlockedTroops().FindMax(troop => troop.SoftAttack);
+                    if (troopTemplate != null)
+                    {
+                        return troopTemplate.ActualCost;
+                    }
+                    else
+                    {
+                        Log.Warning($"{Owner.Name} does not have any unlocked troops. Using troopship base cost.");
+                        return ship.GetCost(Owner);
+                    }
+                }
+            }
         }
 
         public void Enqueue(Troop template, Goal goal = null)

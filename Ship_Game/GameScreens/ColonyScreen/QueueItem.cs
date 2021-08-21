@@ -103,7 +103,9 @@ namespace Ship_Game
             get
             {
                 float cost = Cost;
-                if (isShip) cost *= Planet.ShipBuildingModifier;
+                if (isShip && !sData.IsSingleTroopShip)
+                    cost *= Planet.ShipBuildingModifier; // single troop ships do not get shipyard bonus
+
                 return (int)cost; // FB - int to avoid float issues in release which prevent items from being complete
             }
         }
