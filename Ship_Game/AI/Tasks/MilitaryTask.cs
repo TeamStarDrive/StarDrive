@@ -30,6 +30,7 @@ namespace Ship_Game.AI.Tasks
         [Serialize(15)] public Array<Vector2> PatrolPoints;
         [Serialize(16)] public int TargetEmpireId = -1;
         [Serialize(17)] public int TargetPlanetWarValue; // Used for doom fleets to affect colony lost value in war
+        [Serialize(18)] public Guid TargetSystemGuid = Guid.Empty;
 
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
 
@@ -222,14 +223,14 @@ namespace Ship_Game.AI.Tasks
         public MilitaryTask(Empire owner, Vector2 center, float radius, SolarSystem system, float strengthWanted, TaskType taskType)
         {
             Empire dominant = owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(system);
-
             AO                       = center;
             AORadius                 = radius;
             Type                     = taskType;
             MinimumTaskForceStrength = strengthWanted.LowerBound(500) * owner.GetFleetStrEmpireMultiplier(dominant);
             EnemyStrength            = MinimumTaskForceStrength;
-            TargetSystem             = system;
             Owner                    = owner;
+
+            SetTargetSystem(system);
 
             if (dominant != null)
                 TargetEmpire = dominant;
@@ -556,6 +557,12 @@ namespace Ship_Game.AI.Tasks
             TargetPlanetGuid = p?.guid ?? Guid.Empty;
         }
 
+        public void SetTargetSystem(SolarSystem s)
+        {
+            TargetSystem = s;
+            TargetSystemGuid = s?.guid ?? Guid.Empty;
+        }
+
         public void SetTargetShip(Ship ship)
         {
             TargetShip     = ship;
@@ -640,36 +647,32 @@ namespace Ship_Game.AI.Tasks
         {
             data.FindPlanet(TargetPlanetGuid, out Planet p);
             data.FindShip(TargetShipGuid, out Ship ship);
-            RestoreFromSaveFromSave(e, ship, p);
+            data.FindSystem(TargetSystemGuid, out SolarSystem system);
+            RestoreFromSaveFromSave(e, ship, p, system);
 
-            foreach (var system in data.SolarSystemsList)
+            if (system == null)
             {
-                if (IsTaskAOInSystem(system))
-                    TargetSystem = system;
+                foreach (var sys in data.SolarSystemsList)
+                {
+                    if (IsTaskAOInSystem(sys))
+                        SetTargetSystem(sys);
+                }
             }
         }
 
-        public void RestoreFromSaveFromUniverse(Empire e)
-        {
-            Ship ship = Empire.Universe.Objects.FindShip(TargetShipGuid);
-            var planet = Planet.GetPlanetFromGuid(TargetPlanetGuid);
-            RestoreFromSaveFromSave(e, ship, planet);
-            foreach (var system in Empire.Universe.SolarSystemDict.Values)
-            {
-                if (IsTaskAOInSystem(system))
-                    TargetSystem = system;
-            }
-        }
-
-        void RestoreFromSaveFromSave(Empire e, Ship ship, Planet p)
+        void RestoreFromSaveFromSave(Empire e, Ship ship, Planet p, SolarSystem sys)
         {
             SetEmpire(e);
 
             if (PatrolPoints == null) PatrolPoints = new Array<Vector2>();
 
             if (p != null)
+            {
                 SetTargetPlanet(p);
-            
+            }
+
+            SetTargetSystem(sys);
+
             if (ship != null)
                 SetTargetShip(ship);
 
