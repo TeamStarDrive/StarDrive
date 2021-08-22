@@ -143,8 +143,9 @@ SectionGroup /e "BlackBox"
         File /r ${SOURCE_DIR}\Content\*.*
 
         ;; Remove junk files from previous versions
-        ;;Delete "$INSTDIR\????0"
-		SetOutPath "$INSTDIR"
+        !include "LegacyRemove.nsh"
+
+        SetOutPath "$INSTDIR"
     SectionEnd
 
     Section "-Finish Install" SECFinish
