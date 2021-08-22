@@ -1092,7 +1092,7 @@ namespace Ship_Game
 
         void DrawTacticalIcon(Ship ship)
         {
-            if (!LookingAtPlanet && (!ship.IsPlatform ||
+            if (!LookingAtPlanet && (!ship.IsPlatform  && !ship.IsSubspaceProjector || 
                                      ((showingFTLOverlay || viewState != UnivScreenState.GalaxyView) &&
                                       (!showingFTLOverlay || ship.IsSubspaceProjector))))
             {
