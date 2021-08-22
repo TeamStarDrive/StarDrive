@@ -65,7 +65,6 @@ namespace Ship_Game
         public static MainMenuShipList MainMenuShipList          = new MainMenuShipList();
         public static Map<RoleName, ShipRole> ShipRoles = new Map<RoleName, ShipRole>();
         public static Map<string, HullBonus> HullBonuses         = new Map<string, HullBonus>();
-        public static Map<string, PlanetEdict> PlanetaryEdicts   = new Map<string, PlanetEdict>();
 
         static RacialTraits RacialTraits;
         static DiplomaticTraits DiplomacyTraits;
@@ -236,7 +235,6 @@ namespace Ship_Game
             Profiled(LoadExpEvents);
 
             Profiled(LoadArtifacts);
-            Profiled(LoadPlanetEdicts);
             Profiled(LoadPlanetTypes);
             Profiled(LoadSunZoneData);
             Profiled(LoadBuildRatios);
@@ -358,7 +356,6 @@ namespace Ship_Game
             ShipNames.Clear();
             MainMenuShipList.ModelPaths.Clear();
 
-            PlanetaryEdicts.Clear();
             EconStrategies.Clear();
             ZoneDistribution.Clear();
             BuildRatios.Clear();
@@ -1771,14 +1768,6 @@ namespace Ship_Game
             if (ShipRoles.Count == 0)
                 Log.Error("Failed to load any ShipRoles! Make sure Content/ShipRoles/*.xml exist!");
         }
-
-        static void LoadPlanetEdicts()
-        {
-            PlanetaryEdicts.Clear();
-            foreach (var planetEdict in LoadEntities<PlanetEdict>("PlanetEdicts", "LoadPlanetEdicts"))
-                PlanetaryEdicts[planetEdict.Name] = planetEdict;
-        }
-
 
         static readonly Map<string, EconomicResearchStrategy> EconStrategies = new Map<string, EconomicResearchStrategy>();
         public static EconomicResearchStrategy GetEconomicStrategy(string name) => EconStrategies[name];

@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import os, argparse
+import os, argparse, shutil
 
 #########
 # Since most Content is not part of the main repository,
@@ -13,12 +13,15 @@ parser.add_argument('--root_dir', type=str, help='BlackBox/ root directory')
 parser.add_argument('--configuration', type=str,
                     help='Build Configuration, Debug, Release or Deploy', default="Debug")
 parser.add_argument('--copy_mods', action='store_true', help='copy BlackBox/Mods into StarDrive/Mods')
+parser.add_argument('--delete_legacy', action='store_true', help='deletes several legacy files/folders that interfere with new content')
 args = parser.parse_args()
+
+def console(message):
+    print(message, flush=True)
 
 def robocopy(source, destination, force_overwrite = False):
     type = 'overwrite-all' if force_overwrite else 'copy-if-newer'
-    print(f"Copy {source} to {destination}  ({type})")
-
+    console(f"Copy {source} to {destination}  ({type})")
     # RoboCopy "source" "destination" /options...
     # /e=recursive
     # /xo=eclude-older-files(copy-if-newer), the default behaviour is (overwrite-all)
@@ -28,32 +31,65 @@ def robocopy(source, destination, force_overwrite = False):
     f = '' if force_overwrite else '/xo'
     cmd = f'robocopy "{source}" "{destination}" /e {f} /NFL /NDL /NJH /nc /ns /NP /MT:8'
     ret = os.system(cmd)
-
-    # robocopy return vals:
-    # 0 - no files were copied, no failure was met
-    # 1 - all files copied successfully
-    # 2 - Extra files in dst dir? No files were copied
-    # 3 - Some file were copied, Additional files present. No failure was met
-    # 5 - Some files were mismatched. No failure was met
-    # 6 - Additional files and mismatched files exist. No files were copied, no failures met.
-    # 7 - Files were copied, a file mismatch was present, and additional files were present
-    # 8 - Several files didn't copy
-    # Any value greater than 8 indicates that there was at least one failure during copy op
+    # Any retval greater than 8 indicates that there was at least one failure during copy op
     if ret >= 8:
-        print(f'command failed with exitcode={ret}: {cmd}')
+        console(f'command failed with exitcode={ret}: {cmd}')
         exit(-1)
 
 def path_combine(a, b):
     return os.path.normpath(os.path.join(a, b))
 
+def get_files_to_delete(del_list_file):
+    files = []
+    with open(del_list_file, 'r') as f:
+        for line in f.readlines():
+            line = line.strip()
+            if len(line) != 0 and not line.startswith('#'):
+                files.append(line)
+    return files
+
+def generate_installer_rm_list(files_to_delete, outfile):
+    lines = [';; These files will be deleted:\n']
+    for delete in files_to_delete:
+        root, ext = os.path.splitext(delete)
+        if ext: lines.append(f'Delete "$INSTDIR\\{delete}"\n')  # file
+        else: lines.append(f'RMDir "$INSTDIR\\{delete}"\n')  # folder
+    with open(outfile, 'w') as f:
+        f.writelines(lines)
+
+def delete_files(game_folder, files_to_delete):
+    for delete in files_to_delete:
+        delete = path_combine(game_folder, delete)
+        if os.path.exists(delete):
+            root, ext = os.path.splitext(delete)
+            if ext:
+                console(f'Delete file: {delete}')
+                os.remove(delete)
+            else:
+                console(f'Delete dir: {delete}')
+                shutil.rmtree(delete)
+
+
 blackbox_dir = args.root_dir
 content_src = path_combine(blackbox_dir, "Content")
 content_dst = path_combine(blackbox_dir, "StarDrive/Content")
+game_folder = path_combine(blackbox_dir, "StarDrive")
+del_list_file = path_combine(blackbox_dir, "Content/LegacyContent.txt")
+rm_script_file = path_combine(blackbox_dir, "Deploy/LegacyRemove.nsh")
 
-if args.configuration == "Deploy":
-    robocopy(content_src, content_dst, force_overwrite=True)
-else:
-    robocopy(content_src, content_dst, force_overwrite=False)
+if args.delete_legacy:
+    # Load the delete listing file
+    files_to_delete = get_files_to_delete(del_list_file)
+
+    # Generate NSIS install script's RMDir commands
+    console(f'Generating installer RM script: {rm_script_file}')
+    generate_installer_rm_list(files_to_delete, rm_script_file)
+
+    # Delete the files locally as well
+    delete_files(game_folder, files_to_delete)
+
+# Copy game content files
+robocopy(content_src, content_dst, force_overwrite=(args.configuration == "Deploy"))
 
 if args.copy_mods:
     mod_src = path_combine(blackbox_dir, "Mods")
