@@ -36,7 +36,7 @@
             if (targetEmpire == null || isPlayer)
                 return;
 
-            if (targetEmpire.WeAreRemnants)
+            if (targetEmpire.WeAreRemnants && value > 0)
                 value *= DifficultyModifiers.RemnantStrModifier;
 
             if (FleetStrEmpireMultiplier.ContainsKey(targetEmpire.Id))
