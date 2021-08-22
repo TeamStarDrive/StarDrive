@@ -759,7 +759,7 @@ namespace Ship_Game.Debug
                 if (e.data.Defeated)
                     continue;
 
-                SetTextCursor(Win.X + 10 + 300 * column, Win.Y + 95, e.EmpireColor);
+                SetTextCursor(Win.X + 10 + 300 * column, Win.Y + 200, e.EmpireColor);
                 DrawString("--------------------------");
                 DrawString(e.Name);
                 DrawString($"{e.Personality}");
@@ -807,7 +807,8 @@ namespace Ship_Game.Debug
                 Color color   = t.TargetEmpire?.EmpireColor ?? e.EmpireColor;
                 string target = t.TargetPlanet?.Name ?? t.TargetSystem?.Name ?? "";
                 string fleet  = t.Fleet != null ? $"Fleet Step: {t.Fleet.TaskStep}" : "";
-                DrawString(color, $"({t.Priority}) {t.Type}, {target}, str: {(int)t.MinimumTaskForceStrength}, {fleet}");
+                float str     = t.Fleet?.GetStrength() ?? t.MinimumTaskForceStrength;
+                DrawString(color, $"({t.Priority}) {t.Type}, {target}, str: {(int)str}, {fleet}");
             }
         }
 

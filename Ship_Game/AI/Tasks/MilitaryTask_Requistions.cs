@@ -246,8 +246,8 @@ namespace Ship_Game.AI.Tasks
             {
                 AO                    = TargetPlanet.Center;
                 requiredTroopStrength = (int)TargetPlanet.GetGroundStrengthOther(Owner) - (int)TargetPlanet.GetGroundStrength(Owner);
-                EnemyStrength         = Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem);
-                UpdateMinimumTaskForceStrength(TargetPlanet.BuildingGeodeticOffense);
+                EnemyStrength         = Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem) + TargetPlanet.BuildingGeodeticOffense;
+                UpdateMinimumTaskForceStrength();
             }
 
             if (requiredTroopStrength > 0) // If we need troops, we must have a minimum
@@ -356,7 +356,7 @@ namespace Ship_Game.AI.Tasks
             }
         }
 
-        void RequisitionAssaultForces(bool strike = false)
+        void RequisitionAssaultForces()
         {
             if (AO.AlmostZero())
                 Log.Error($"no area of operation set for task: {Type}");
@@ -374,9 +374,9 @@ namespace Ship_Game.AI.Tasks
             AO = TargetPlanet.Center;
             float geodeticOffense = TargetPlanet.BuildingGeodeticOffense;
             float lowerBound      = GetMinimumStrLowerBound(geodeticOffense, enemy);
-            EnemyStrength         = GetEnemyShipStrengthInAO() + geodeticOffense;
+            EnemyStrength         = (GetEnemyShipStrengthInAO() + geodeticOffense).LowerBound(EnemyStrength);
 
-            UpdateMinimumTaskForceStrength(geodeticOffense, lowerBound);
+            UpdateMinimumTaskForceStrength(lowerBound);
             InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 40 ,minBombMinutes: 3);
             if (CreateTaskFleet(Completeness, true) == RequisitionStatus.Complete)
                 NeedEvaluation = false;
@@ -401,9 +401,9 @@ namespace Ship_Game.AI.Tasks
             AO = TargetPlanet.Center;
             float geodeticOffense = TargetPlanet.BuildingGeodeticOffense;
             float lowerBound      = GetMinimumStrLowerBound(geodeticOffense, enemy);
-            EnemyStrength         = GetEnemyShipStrengthInAO() + geodeticOffense;
+            EnemyStrength         = (GetEnemyShipStrengthInAO() + geodeticOffense).LowerBound(EnemyStrength);
 
-            UpdateMinimumTaskForceStrength(TargetPlanet.BuildingGeodeticOffense, lowerBound);
+            UpdateMinimumTaskForceStrength(lowerBound);
             int bombTimeNeeded = (TargetPlanet.TotalDefensiveStrength / 5).LowerBound(5) + (int)Math.Ceiling(TargetPlanet.PopulationBillion) * 2;
             InitFleetRequirements(minFleetStrength: MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: bombTimeNeeded);
 
@@ -415,24 +415,24 @@ namespace Ship_Game.AI.Tasks
         {
             float initialStr     = geodeticOffense + Owner.KnownEmpireOffensiveStrength(enemy) / 10;
             float enemyStrNearby = geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.ParentSystem, Owner, enemy);
-            float multiplier     = Type == TaskType.StrikeForce ? 2 : 1; // Todo advanced tasks also get multiplier;
-            return initialStr.LowerBound(enemyStrNearby) * multiplier;
+            // Todo advanced tasks also get multiplier;
+            float multiplier     = Type == TaskType.StrikeForce || Type == TaskType.StageFleet ? 2 : 1; 
+            return initialStr.LowerBound(enemyStrNearby).LowerBound(Owner.OffensiveStrength/10) * multiplier;
         }
 
-        void UpdateMinimumTaskForceStrength(float buildingsSpaceOffense = 0, float lowerBound = 0)
+        void UpdateMinimumTaskForceStrength(float lowerBound = 0)
         {
             if (EnemyStrength.AlmostEqual(100) && TargetShip != null)
                 EnemyStrength += TargetShip.BaseStrength;
 
-            MinimumTaskForceStrength = (EnemyStrength + buildingsSpaceOffense).LowerBound(lowerBound);
+            MinimumTaskForceStrength = EnemyStrength.LowerBound(lowerBound);
             float multiplier         = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
-
             MinimumTaskForceStrength = (MinimumTaskForceStrength * multiplier)
                 .UpperBound(Owner.OffensiveStrength / GetBuildCapacityDivisor());
 
             float lifeTimeMax = IsWarTask ? Owner.PersonalityModifiers.WarTasksLifeTime : 10;
             float goalLifeTime = Goal?.LifeTime ?? 0;
-                MinimumTaskForceStrength *= (lifeTimeMax - goalLifeTime).LowerBound(1) / lifeTimeMax;
+                MinimumTaskForceStrength *= (lifeTimeMax - goalLifeTime).LowerBound(lifeTimeMax*0.5f) / lifeTimeMax;
         }
         
         float GetBuildCapacityDivisor()

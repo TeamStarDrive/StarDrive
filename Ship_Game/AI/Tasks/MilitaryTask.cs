@@ -426,15 +426,15 @@ namespace Ship_Game.AI.Tasks
             switch (Type)
             {
                 case TaskType.StrikeForce:
-                case TaskType.StageFleet:          RequisitionAssaultForces(strike: true);                 break;
-                case TaskType.AssaultPlanet:       RequisitionAssaultForces(Type == TaskType.StrikeForce); break;
-                case TaskType.GuardBeforeColonize: RequisitionGuardBeforeColonize();                       break;
-                case TaskType.AssaultPirateBase:   RequisitionAssaultPirateBase();                         break;
-                case TaskType.DefendVsRemnants:    RequisitionDefendVsRemnants();                          break;
-                case TaskType.ClearAreaOfEnemies:  RequisitionDefenseForce();                              break;
-                case TaskType.Exploration:         RequisitionExplorationForce();                          break;
-                case TaskType.DefendClaim:         RequisitionClaimForce();                                break;
-                case TaskType.GlassPlanet:         RequisitionGlassForce();                                break;
+                case TaskType.StageFleet:
+                case TaskType.AssaultPlanet:       RequisitionAssaultForces();       break;
+                case TaskType.GuardBeforeColonize: RequisitionGuardBeforeColonize(); break;
+                case TaskType.AssaultPirateBase:   RequisitionAssaultPirateBase();   break;
+                case TaskType.DefendVsRemnants:    RequisitionDefendVsRemnants();    break;
+                case TaskType.ClearAreaOfEnemies:  RequisitionDefenseForce();        break;
+                case TaskType.Exploration:         RequisitionExplorationForce();    break;
+                case TaskType.DefendClaim:         RequisitionClaimForce();          break;
+                case TaskType.GlassPlanet:         RequisitionGlassForce();          break;
             }
 
             return true;
