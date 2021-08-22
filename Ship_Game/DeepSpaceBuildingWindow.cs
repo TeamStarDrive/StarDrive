@@ -186,8 +186,8 @@ namespace Ship_Game
                 foreach (UniverseScreen.ClickablePlanets cplanet in Screen.ClickPlanetList)
                 {
                     float radius = 2500f * cplanet.planetToClick.Scale;
-                    Screen.DrawCircleProjected(cplanet.planetToClick.Center, radius, new Color(255, 165, 0, 150), 1f,
-                        nodeTex, new Color(0, 0, 255, 50));
+                    Screen.DrawCircleProjected(cplanet.planetToClick.Center, radius, new Color(255, 165, 0, 100), 2f,
+                        nodeTex, new Color(0, 0, 255, 100));
                 }
             }
 

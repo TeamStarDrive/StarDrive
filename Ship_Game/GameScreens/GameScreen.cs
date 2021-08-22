@@ -694,7 +694,7 @@ namespace Ship_Game
             double scale = screenRadius / (overlay.Width * .5f);
             Vector2 pos = screenPos.ToVec2f();
 
-            ScreenManager.SpriteBatch.Draw(overlay, pos, color, 0f, overlay.CenterF, (float)scale, SpriteEffects.None, 1f);
+            ScreenManager.SpriteBatch.Draw(overlay, pos, overlayColor, 0f, overlay.CenterF, (float)scale, SpriteEffects.None, 1f);
             ScreenManager.SpriteBatch.DrawCircle(screenPos, screenRadius, color, thickness);
         } 
 
