@@ -64,7 +64,7 @@ namespace Ship_Game.Ships
             S.OrdAddedPerSecond       = 0f;
             S.HealPerTurn             = 0;
             S.ECMValue                = 0f;
-            S.hasCommand              = S.IsPlatform;
+            S.hasCommand              = S.IsPlatform || S.IsSubspaceProjector;
             S.TrackingPower           = 0;
             S.TargetingAccuracy       = 0;
 
