@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Subspace Projector
 Hull=Platforms/Platform Base
-Role=platform
+Role=ssp
 Style=Platforms
 Size=8,7
 GridCenter=4,4
