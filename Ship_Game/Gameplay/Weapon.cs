@@ -867,6 +867,9 @@ namespace Ship_Game.Gameplay
         public float GetActualRange(Empire owner = null)
         {
             owner = owner ?? Owner?.loyalty ?? Player;
+            if (Owner != null && !CanFireWeapon())
+                return 1; // the ship does not have enough ordnance to fire this weapon. Range 1 to avoid div by 0
+
             float range = BaseRange;
             for (int i = 0; i < ActiveWeaponTags.Length; ++i)
             {

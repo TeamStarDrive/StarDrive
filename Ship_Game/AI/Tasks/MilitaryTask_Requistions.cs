@@ -217,6 +217,7 @@ namespace Ship_Game.AI.Tasks
                 Log.Error($"no area of operation set for task: {Type}");
 
             AO = TargetPlanet?.Center ?? AO;
+            EnemyStrength = Owner.KnownEnemyStrengthIn(TargetSystem).LowerBound(EnemyStrength);
             UpdateMinimumTaskForceStrength();
             if (CreateTaskFleet(Completeness) == RequisitionStatus.Complete)
                 NeedEvaluation = false;
