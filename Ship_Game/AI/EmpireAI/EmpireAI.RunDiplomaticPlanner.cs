@@ -32,7 +32,10 @@ namespace Ship_Game.AI
         bool TryMergeOrSurrender()
         {
             float ratio = OwnerEmpire.PersonalityModifiers.PopRatioBeforeMerge;
-            var enemies =  EmpireManager.MajorEmpiresAtWarWith(OwnerEmpire).Filter(e => e.TotalPopBillion * ratio > OwnerEmpire.TotalPopBillion);
+            var enemies =  EmpireManager.MajorEmpiresAtWarWith(OwnerEmpire)
+                .Filter(e => e.TotalPopBillion * ratio > OwnerEmpire.TotalPopBillion 
+                             || e.OffensiveStrength * ratio > OwnerEmpire.CurrentMilitaryStrength);
+
             if (enemies.Length > 0)
             {
                 Empire biggest = enemies.FindMax(e => e.TotalPopBillion);
