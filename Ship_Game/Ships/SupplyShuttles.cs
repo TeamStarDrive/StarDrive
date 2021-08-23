@@ -165,21 +165,19 @@ namespace Ship_Game.Ships
 
         Ship[] ShipsInNeedOfSupplyByPriority(float sensorRange)
         {
-            Ship[] shipsInNeed = Owner.AI.FriendliesNearby.Filter(ship =>
-            {
-                return ship.Active &&
-                       ship.shipData.Role != RoleName.supply
-                       && ship != Owner
-                       && ship.Supply.AcceptExternalSupply(SupplyType.Rearm);
-            });
+            Ship[] shipsInNeed = Owner.AI.FriendliesNearby
+                .Filter(ship => ship.Active
+                                && !ship.IsSupplyShuttle
+                                && ship != Owner
+                                && ship.Supply.AcceptExternalSupply(SupplyType.Rearm));
 
-            shipsInNeed.Sort((System.Func<Ship, float>)(ship =>
+            shipsInNeed.Sort(ship =>
             {
-                var distance = Vectors.Distance(Owner.Position, (Microsoft.Xna.Framework.Vector2)ship.Position);
+                var distance = Owner.Position.Distance(ship.Position);
                 distance = (int)distance * 10 / sensorRange;
                 var supplyStatus = ship.Supply.ShipStatusWithPendingResupply(SupplyType.Rearm);
                 return (int)supplyStatus * distance + (ship.fleet == Owner.fleet ? 0 : 10);
-            }));
+            });
             return shipsInNeed;
         }
     }

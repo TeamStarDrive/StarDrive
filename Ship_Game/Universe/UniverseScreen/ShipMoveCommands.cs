@@ -154,7 +154,7 @@ namespace Ship_Game.Universe
         public bool AttackSpecificShip(Ship ship, Ship target)
         {
             if (ship.IsConstructor ||
-                ship.shipData.Role == RoleName.supply)
+                ship.IsSupplyShuttle)
             {
                 GameAudio.NegativeClick();
                 return false;

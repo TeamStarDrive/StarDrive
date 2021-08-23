@@ -619,7 +619,9 @@ namespace Ship_Game
         bool UnselectableShip(Ship ship = null)
         {
             ship = ship ?? SelectedShip;
-            if (!ship.IsConstructor && ship.shipData.Role != RoleName.supply) return false;
+            if (!ship.IsConstructor && !ship.IsSupplyShuttle)
+                return false;
+
             GameAudio.NegativeClick();
             return true;
         }
