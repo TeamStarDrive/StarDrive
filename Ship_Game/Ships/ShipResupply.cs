@@ -53,8 +53,8 @@ namespace Ship_Game.Ships
         public ResupplyReason Resupply()
         {
             if (Ship.DesignRole == RoleName.construction 
-                || Ship.DesignRole == RoleName.troop
-                || Ship.DesignRole == RoleName.supply
+                || Ship.IsSingleTroopShip
+                || Ship.IsSupplyShuttle
                 || (Ship.AI.HasPriorityOrder || Ship.AI.HasPriorityTarget) && Ship.AI.State != AIState.Bombard && !Ship.Resupplying)
             {
                 return ResupplyReason.NotNeeded;
