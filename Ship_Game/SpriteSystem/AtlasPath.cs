@@ -5,10 +5,16 @@ namespace Ship_Game.SpriteSystem
     public class AtlasPath
     {
         public readonly string OriginalName;
-        public readonly string Texture;
-        public readonly string Descriptor;
+
+        public readonly string CacheAtlasTex;
+        public readonly string CacheAtlasFile;
+
+        public readonly string PrePackedTex;
+        public readonly string PrePackedFile;
+
         readonly string AtlasName;
         readonly string CacheDir;
+
         public AtlasPath(string name)
         {
             OriginalName = Path.GetFileName(name);
@@ -18,8 +24,13 @@ namespace Ship_Game.SpriteSystem
             string cache = GlobalStats.HasMod ? $"/TC-{GlobalStats.ModName}" : "/TextureCache";
             CacheDir = Dir.StarDriveAppData + cache;
             Directory.CreateDirectory(CacheDir);
-            Texture    = $"{CacheDir}/{AtlasName}.dds";
-            Descriptor = $"{CacheDir}/{AtlasName}.atlas";
+            CacheAtlasTex  = $"{CacheDir}/{AtlasName}.dds";
+            CacheAtlasFile = $"{CacheDir}/{AtlasName}.atlas";
+            
+            FileInfo atlasTex  = ResourceManager.GetModOrVanillaFile($"{name}/{OriginalName}.dds");
+            FileInfo prePacked = ResourceManager.GetModOrVanillaFile($"{name}/{OriginalName}.atlas");
+            PrePackedTex = atlasTex?.FullName;
+            PrePackedFile = prePacked?.FullName;
         }
         public string GetExportPath(TextureInfo t)
         {
