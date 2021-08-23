@@ -542,7 +542,7 @@ namespace Ship_Game.AI
             {
                 Owner.LandTroopsOnShip(Owner.Mothership);
 
-                if (Owner.shipData.Role == RoleName.supply) // fbedard: Supply ship return with Ordinance
+                if (Owner.IsSupplyShuttle) // fbedard: Supply ship return with Ordinance
                     Owner.Mothership.ChangeOrdnance(Owner.Ordinance);
 
                 Owner.Mothership.ChangeOrdnance(Owner.ShipRetrievalOrd); // Get back the ordnance it took to launch the ship
