@@ -54,7 +54,7 @@ namespace Ship_Game.SpriteSystem
             Stopwatch total = Stopwatch.StartNew();
             TextureInfo[] textures = CreateTextureInfos(Path, textureFiles);
 
-            var packer = new TexturePacker(Path.Texture);
+            var packer = new TexturePacker(Path.CacheAtlasTex);
             NumPacked = packer.PackTextures(textures);
             NonPacked = textures.Length - NumPacked;
             Width = packer.Width;
@@ -99,28 +99,37 @@ namespace Ship_Game.SpriteSystem
                 }
 
                 packer.DrawDebug(atlasPixels, Width, Height);
-                CreateAtlasTexture(atlasPixels, flags, Path.Texture);
+                CreateAtlasTexture(atlasPixels, flags, Path.CacheAtlasTex);
             }
 
             CreateLookup(textures);
-            SaveAtlasDescriptor(textures, Path.Descriptor);
+            SaveAtlasDescriptor(textures, Path.CacheAtlasFile);
 
             int elapsed = total.NextMillis();
-            Log.Write(ConsoleColor.Blue, $"{Mod} Create {this} t:{elapsed,4}ms");
+            Log.Write(ConsoleColor.Blue, $"{Mod} Create {this.ToString()} t:{elapsed,4}ms");
         }
 
-        bool TryLoadCache()
+        bool LoadCacheAtlas()
         {
-            if (!File.Exists(Path.Descriptor))
+            if (!File.Exists(Path.CacheAtlasFile))
                 return false; // regenerate!!
+            return LoadAtlasFile(Path.CacheAtlasFile, Path.CacheAtlasTex, checkHash:true);
+        }
 
-            using (var fs = new StreamReader(Path.Descriptor))
+        bool LoadAtlasFile(string atlasFile, string atlasTex, bool checkHash)
+        {
+            using (var fs = new StreamReader(atlasFile))
             {
                 int.TryParse(fs.ReadLine(), out int version);
                 ulong.TryParse(fs.ReadLine(), out ulong oldHash);
-                if (version != Version || oldHash != Hash)
+                if (version != Version)
                 {
-                    Log.Write(ConsoleColor.Cyan, $"{Mod} AtlasCache  {Name}  INVALIDATED");
+                    Log.Write(ConsoleColor.Cyan, $"{Mod} AtlasCache  {Name}  INVALIDATED  (version-mismatch)");
+                    return false;
+                }
+                if (checkHash && oldHash != Hash)
+                {
+                    Log.Write(ConsoleColor.Cyan, $"{Mod} AtlasCache  {Name}  INVALIDATED  (hash-mismatch)");
                     return false; // hash mismatch, we need to regenerate cache
                 }
 
@@ -133,8 +142,12 @@ namespace Ship_Game.SpriteSystem
                 Atlas = null; // we will lazy-load it later
                 Width = width;
                 Height = height;
-                if (NumPacked > 0 && !File.Exists(Path.Texture))
+
+                if (NumPacked > 0 && !File.Exists(atlasTex))
+                {
+                    Log.Write(ConsoleColor.Cyan, $"{Mod} AtlasCache  {Name}  INVALIDATED  (texture-missing)");
                     return false; // regenerate!!
+                }
 
                 string compressedCacheDir = NonPacked > 0 ? Path.GetCompressedCacheDir() : "";
 
@@ -159,7 +172,7 @@ namespace Ship_Game.SpriteSystem
                 CreateLookup(textures);
             }
 
-            Log.Write(ConsoleColor.Blue, $"{Mod} Load   {this}");
+            Log.Write(ConsoleColor.Blue, $"{Mod} Load   {this.ToString()}");
             return true; // we loaded everything
         }
 
