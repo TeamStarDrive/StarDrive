@@ -605,7 +605,7 @@ namespace Ship_Game.Ships
                 || AI.State == AIState.Resupply
                 || AI.State == AIState.Refit 
                 || !CanBeRefitted
-                || shipData.Role == RoleName.supply
+                || IsSupplyShuttle
                 || shipData.HullRole < RoleName.fighter && shipData.HullRole != RoleName.station
                 || OrdinanceMax < 1
                 || IsTethered && shipData.HullRole == RoleName.platform)

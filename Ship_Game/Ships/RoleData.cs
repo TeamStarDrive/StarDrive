@@ -43,9 +43,6 @@ namespace Ship_Game.Ships
             if (Ship.IsColonyShip || Modules.Any(ShipModuleType.Colony))
                 return RoleName.colony;
 
-            if (Ship.IsSupplyCarrier && Ship.Weapons.Length == 0)
-                return RoleName.supply;
-
             if (DataRole == RoleName.freighter && Category == ShipCategory.Civilian &&
                 SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f)
             {

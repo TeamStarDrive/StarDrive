@@ -51,7 +51,7 @@ namespace Ship_Game
             }
             else if (SelectedShip != null && SelectedShip.loyalty == player)
             {
-                if (SelectedShip.IsConstructor || SelectedShip.shipData.Role == RoleName.supply)
+                if (SelectedShip.IsConstructor || SelectedShip.IsSupplyShuttle)
                 {
                     if (SelectedShip != null && previousSelection != SelectedShip) // fbedard
                         previousSelection = SelectedShip;
