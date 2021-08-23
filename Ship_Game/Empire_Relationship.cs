@@ -643,8 +643,11 @@ namespace Ship_Game
         /// <returns></returns>
         public bool TryMergeOrSurrender(Empire enemy)
         {
-            var potentialEmpires = EmpireManager.ActiveMajorEmpires
-                .Filter(e => e != this && !GetRelationsOrNull(e)?.RefusedMerge == true);
+            var potentialEmpires = GlobalStats.RestrictAIPlayerInteraction
+                ? EmpireManager.ActiveNonPlayerMajorEmpires
+                : EmpireManager.ActiveMajorEmpires;
+
+            potentialEmpires = potentialEmpires.Filter(e => e != this && !GetRelationsOrNull(e)?.RefusedMerge == true);
 
             switch (Personality)
             {
