@@ -533,10 +533,10 @@ namespace Ship_Game
         public float ColonizationDetectionChance(Relationship usToThem, Empire them)
         {
             float chance = 0;
-            if (usToThem.Treaty_NAPact)      chance = 0.5f;
-            if (usToThem.Treaty_Trade)       chance = 1;
-            if (usToThem.Treaty_OpenBorders) chance = 1.5f;
-            if (usToThem.Treaty_Alliance)    chance = 2;
+            if (usToThem.Treaty_NAPact)      chance = 0.25f;
+            if (usToThem.Treaty_Trade)       chance = 0.5f;
+            if (usToThem.Treaty_OpenBorders) chance = 0.75f;
+            if (usToThem.Treaty_Alliance)    chance = 1;
 
             return IsCunning ? chance * 2 : chance;
         }

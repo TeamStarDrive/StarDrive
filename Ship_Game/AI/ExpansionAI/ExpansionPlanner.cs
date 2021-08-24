@@ -259,21 +259,26 @@ namespace Ship_Game.AI.ExpansionAI
 
         public void CheckClaim(Empire thievingEmpire, Relationship thiefRelationship, Planet claimedPlanet)
         {
-            if (Owner.isPlayer
-                || Owner.isFaction
-                || !thiefRelationship.Known
-                || thiefRelationship.AtWar
-                || !claimedPlanet.ParentSystem.HasPlanetsOwnedBy(thievingEmpire)) // this empire does not have planets here
+            SolarSystem system = claimedPlanet.ParentSystem;
+            if (!Owner.isPlayer
+                && !Owner.isFaction
+                && thiefRelationship.Known
+                && !thiefRelationship.AtWar
+                && system.HasPlanetsOwnedBy(thievingEmpire))
             {
-                return;
+                bool warnedThem = thiefRelationship.WarnedSystemsList.Contains(claimedPlanet.ParentSystem.guid);
+                float distanceToUs   = system.Position.SqDist(Owner.WeightedCenter);
+                float distanceToThem = system.Position.SqDist(thievingEmpire.WeightedCenter) 
+                                       * Owner.PersonalityModifiers.CloserToUsClaimWarn;
+
+                bool closerToUs = thievingEmpire.isPlayer && distanceToUs < distanceToThem;
+                if (warnedThem || closerToUs)
+                {
+                    thiefRelationship.StoleOurColonyClaim(Owner, claimedPlanet, out bool newTheft);
+                    if (thievingEmpire.isPlayer && newTheft)
+                        thiefRelationship.WarnClaimThiefPlayer(claimedPlanet, Owner);
+                }
             }
-
-            bool newTheft = false;
-            if (thiefRelationship.WarnedSystemsList.Contains(claimedPlanet.ParentSystem.guid))
-                thiefRelationship.StoleOurColonyClaim(Owner, claimedPlanet, out newTheft);
-
-            if (thievingEmpire.isPlayer && newTheft)
-                thiefRelationship.WarnClaimThiefPlayer(claimedPlanet, Owner);
         }
 
         public bool AssignScoutSystemTarget(Ship ship, out SolarSystem targetSystem)

@@ -227,28 +227,28 @@ namespace Ship_Game.AI
             // Local method
             bool DetectAndWarn(Goal goal, bool warnExclusive)
             {
-                if (!RandomMath.RollDice(detectionChance)
-                    && !goal.FinishedShip?.KnownByEmpires.KnownBy(OwnerEmpire) == true)
+                if (RandomMath.RollDice(detectionChance)
+                    || goal.FinishedShip != null && goal.FinishedShip.KnownByEmpires.KnownBy(OwnerEmpire))
                 {
-                    return false;
+                    // Detected their colonization efforts
+                    if (warnExclusive || warnAnyway)
+                        return true;
+
+                    if (themToUs.WarnedSystemsList.Contains(goal.ColonizationTarget.ParentSystem.guid))
+                        return false; // They warned us, so no need to warn them
+
+                    // If they stole planets from us, we will value our targets more.
+                    // If we have more pop then them, we will cut them some slack.
+                    Planet p = goal.ColonizationTarget;
+                    float popRatio = OwnerEmpire.MaxPopBillion / them.MaxPopBillion.LowerBound(1);
+                    float valueToUs = p.ColonyPotentialValue(OwnerEmpire) * (usToThem.NumberStolenClaims + 1);
+                    float valueToThem = p.ColonyPotentialValue(them) * popRatio;
+                    float ratio = valueToUs / valueToThem.LowerBound(1);
+
+                    return ratio > OwnerEmpire.PersonalityModifiers.ColonizationClaimRatioWarningThreshold;
                 }
 
-                // Detected their colonization efforts
-                if (warnExclusive || warnAnyway)
-                    return true;
-
-                if (themToUs.WarnedSystemsList.Contains(goal.ColonizationTarget.ParentSystem.guid))
-                    return false; // They warned us, so no need to warn them
-
-                // If they stole planets from us, we will value our targets more.
-                // If we have more pop then them, we will cut them some slack.
-                Planet p          = goal.ColonizationTarget;
-                float popRatio    = OwnerEmpire.MaxPopBillion / them.MaxPopBillion.LowerBound(1);
-                float valueToUs   = p.ColonyPotentialValue(OwnerEmpire) * (usToThem.NumberStolenClaims + 1);
-                float valueToThem = p.ColonyPotentialValue(them) * popRatio;
-                float ratio       = valueToUs / valueToThem.LowerBound(1);
-
-                return ratio > OwnerEmpire.PersonalityModifiers.ColonizationClaimRatioWarningThreshold;
+                return false;
             }
         }
 
