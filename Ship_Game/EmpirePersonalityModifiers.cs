@@ -27,6 +27,7 @@ namespace Ship_Game
         public readonly int WarSneakiness; // modifier to prepare for war detection by the player (player will need better spy network to detect war plot)
         public readonly float HullTechMultiplier; // used in ship progression to modify hull tech cost if needed
         public readonly float PopRatioBeforeMerge; // If enemy has pop bigger then this ratio, consider merge with other empires or surrender
+        public readonly float CloserToUsClaimWarn; // Multiplier for distance of new system colonized from empire center, for warning
 
         public PersonalityModifiers(PersonalityType type)
         {
@@ -41,6 +42,7 @@ namespace Ship_Game
                     PlanetStoleTrustMultiplier   = 0.75f;
                     WarGradeThresholdForPeace    = 0.5f * War.MaxWarGrade;
                     AddAngerAlliedWithEnemy      = 0;
+                    CloserToUsClaimWarn   = 0.3f;
                     DefenseTaskWeight     = 1;
                     FleetStrMultiplier    = 1;
                     FederationPopRatioWar = 2f;
@@ -66,6 +68,7 @@ namespace Ship_Game
                     WarGradeThresholdForPeace    = 0.4f * War.MaxWarGrade;
                     PlanetStoleTrustMultiplier   = 0.5f;
                     AddAngerAlliedWithEnemy      = 50;
+                    CloserToUsClaimWarn   = 0.5f;
                     DefenseTaskWeight     = 1.2f;
                     FleetStrMultiplier    = 1.15f;
                     FederationPopRatioWar = 1.6f;
@@ -91,6 +94,7 @@ namespace Ship_Game
                     WarGradeThresholdForPeace    = 0.4f * War.MaxWarGrade;
                     PlanetStoleTrustMultiplier   = 0.6f;
                     AddAngerAlliedWithEnemy      = 25;
+                    CloserToUsClaimWarn   = 0.4f;
                     DefenseTaskWeight     = 1;
                     FleetStrMultiplier    = 1.1f;
                     FederationPopRatioWar = 1.5f;
@@ -116,6 +120,7 @@ namespace Ship_Game
                     PlanetStoleTrustMultiplier   = 0.1f;
                     WarGradeThresholdForPeace    = 0.3f * War.MaxWarGrade;
                     AddAngerAlliedWithEnemy      = 100;
+                    CloserToUsClaimWarn   = 0.6f;
                     DefenseTaskWeight     = 1.2f;
                     FleetStrMultiplier    = 1.05f;
                     FederationPopRatioWar = 1.7f;
@@ -141,6 +146,7 @@ namespace Ship_Game
                     PlanetStoleTrustMultiplier   = 0.7f;
                     WarGradeThresholdForPeace    = 0.7f * War.MaxWarGrade;
                     AddAngerAlliedWithEnemy      = 0;
+                    CloserToUsClaimWarn   = 0.3f;
                     DefenseTaskWeight     = 1.3f;
                     FleetStrMultiplier    = 0.95f;
                     FederationPopRatioWar = 1.3f;
@@ -166,6 +172,7 @@ namespace Ship_Game
                     PlanetStoleTrustMultiplier   = 0.4f;
                     WarGradeThresholdForPeace    = 0.5f * War.MaxWarGrade;
                     AddAngerAlliedWithEnemy      = 75;
+                    CloserToUsClaimWarn   = 0.4f;
                     DefenseTaskWeight     = 1.5f;
                     FleetStrMultiplier    = 1f;
                     FederationPopRatioWar = 1.45f;
@@ -191,6 +198,7 @@ namespace Ship_Game
                     WarGradeThresholdForPeace    = 0.85f * War.MaxWarGrade;
                     PlanetStoleTrustMultiplier   = 0.8f;
                     AddAngerAlliedWithEnemy      = 0;
+                    CloserToUsClaimWarn   = 0.2f;
                     DefenseTaskWeight     = 2;
                     FleetStrMultiplier    = 0.9f;
                     FederationPopRatioWar = 1.4f;
