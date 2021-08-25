@@ -424,6 +424,10 @@ namespace Ship_Game.Ships
             ShipModule m = CreateNoParent(template, parent.loyalty, parent.BaseHull);
             m.SetModuleSizeRotAngle(slot.Size, slot.ModuleRot, slot.TurretAngle);
             m.Initialize(parent, slot.Pos, isTemplate);
+
+            if (m.ModuleType == ShipModuleType.Hangar && !m.IsTroopBay)
+                m.HangarShipUID = slot.HangarShipUID;
+
             return m;
         }
 
