@@ -657,10 +657,10 @@
     <DialogLine>
       <DialogType>OFFER_MERGE_ACCEPTED</DialogType>
       <Default>Master is happy!</Default>
-    </DialogLine>			
+    </DialogLine>
     <DialogLine>
       <DialogType>OFFER_MERGE_REJECTED</DialogType>
-      <Default>Master is sad!</Default>
-    </DialogLine>				
+      <Default>Oh nooo! Master will beat us bad for this!</Default>
+    </DialogLine>
   </Dialogs>
 </DiplomacyDialog>
