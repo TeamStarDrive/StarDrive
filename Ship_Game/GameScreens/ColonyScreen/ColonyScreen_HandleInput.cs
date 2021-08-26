@@ -57,7 +57,7 @@ namespace Ship_Game
             // If there is a detail info, display the Description TAB, else display last tab the player selected.
             PFacilities.SelectedIndex = DetailInfo == null ? PFacilitiesPlayerTabSelected : 1;
 
-            if (!FilterBuildableItems.HandlingInput && HandleCycleColoniesLeftRight(input))
+            if (!FilterBuildableItems.HandlingInput && !PlanetName.HandlingInput &&  HandleCycleColoniesLeftRight(input))
                 return true;
 
             FilterBuildableItemsLabel.Color = FilterBuildableItems.HandlingInput ? Color.White : Color.Gray;
