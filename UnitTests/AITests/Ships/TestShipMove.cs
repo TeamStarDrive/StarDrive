@@ -86,5 +86,14 @@ namespace UnitTests.AITests.Ships
             Assert.IsTrue(ship.AI.BadGuysNear, "Bad guys near was not set");
             Assert.IsTrue(ship.Position.InRadius(enemy.Position, 7500), $"CombatMove failed: {ship} not at {enemy}");
         }
+
+        [TestMethod]
+        public void ShipYRotation()
+        {
+            Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
+            ship.AI.OrderMoveTo(new Vector2(10000, 10000), Vector2.Zero, false, Ship_Game.AI.AIState.MoveTo);
+            Universe.Objects.Update(TestSimStep);
+            Assert.IsTrue(ship.yRotation.NotZero(), "Ship's Y rotation should chance as it rotates");
+        }
     }
 }
