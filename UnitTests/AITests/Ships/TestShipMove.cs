@@ -92,7 +92,10 @@ namespace UnitTests.AITests.Ships
         {
             Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
             Assert.IsTrue(ship.yRotation.AlmostZero(), "Ship's Y rotation should be 0 when spawned");
+
             Vector2 newPos = new Vector2(2000, 2000);
+            ship.InFrustum = true; // Allow rotation logic to perform Y Rotation changes
+
             ship.AI.OrderMoveTo(newPos, Vector2.Zero, false, Ship_Game.AI.AIState.MoveTo);
             Universe.Objects.Update(TestSimStep);
             Assert.IsTrue(ship.yRotation.NotZero(), "Ship's Y rotation should change as it rotates");
@@ -102,8 +105,8 @@ namespace UnitTests.AITests.Ships
             float yBankReached    = 0;
             for (int i = 0; i <= 2000; i++)  
             {
+                ship.InFrustum = true; // Allow rotation logic to perform Y Rotation changes
                 Universe.Objects.Update(TestSimStep);
-                ship.InFrustum = true; // Allow rotation logic to perform y Rotation changes
                 yBankReached = Math.Abs(ship.yRotation).LowerBound(yBankReached);
                 if (ship.Position.InRadius(newPos, 100)) // Current Vulcan scout speed should achieve this in less than 800 ticks
                     break;
