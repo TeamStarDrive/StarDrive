@@ -123,15 +123,18 @@ namespace Ship_Game.Ships
             float rotAmount = rotationDir * timeStep.FixedTime * RotationRadiansPerSecond;
             IsTurning = angleDiff > minDiff+0.05f; // slight threshold to start restoring y rotation
 
-            if (rotAmount > 0f) // Y-bank:
+            if (IsVisibleToPlayer)
             {
-                if (yRotation > -MaxBank)
-                    yRotation -= GetYBankAmount(timeStep);
-            }
-            else if (rotAmount < 0f)
-            {
-                if (yRotation <  MaxBank)
-                    yRotation += GetYBankAmount(timeStep);
+                if (rotAmount > 0f) // Y-bank:
+                {
+                    if (yRotation > -MaxBank)
+                        yRotation -= GetYBankAmount(timeStep);
+                }
+                else if (rotAmount < 0f)
+                {
+                    if (yRotation < MaxBank)
+                        yRotation += GetYBankAmount(timeStep);
+                }
             }
 
             Rotation += rotAmount;
