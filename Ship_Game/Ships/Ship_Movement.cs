@@ -118,18 +118,10 @@ namespace Ship_Game.Ships
             MaxSTLSpeed = Stats.MaxSTLSpeed;
         }
 
-        public void RotateToFacing(FixedSimTime timeStep, float angleDiff, float rotationDir)
+        public void RotateToFacing(FixedSimTime timeStep, float angleDiff, float rotationDir, float minDiff)
         {
             float rotAmount = rotationDir * timeStep.FixedTime * RotationRadiansPerSecond;
-            if (Math.Abs(rotAmount) > angleDiff)
-            {
-                rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
-                IsTurning = true;
-            }
-            else
-            {
-                IsTurning = false;
-            }
+            IsTurning = angleDiff > minDiff+0.05f; // slight threshold to start restoring y rotation
 
             if (rotAmount > 0f) // Y-bank:
             {
