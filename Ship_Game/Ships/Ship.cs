@@ -955,8 +955,13 @@ namespace Ship_Game.Ships
             for (int i = 0; i < Weapons.Count; ++i) // using raw loops for perf
             {
                 Weapon w = Weapons[i];
-                if (w.Module?.Active == true && w.DamageAmount > 0.1f && !w.TruePD)
+                if (w.Module?.Active == true
+                    && w.DamageAmount > 0.1f
+                    && !w.TruePD
+                    && Ordinance >= w.OrdinanceRequiredToFire)
+                {
                     weapons.Add(w);
+                }
             }
 
             // maybe we are equipped with Phalanx PD's only?
