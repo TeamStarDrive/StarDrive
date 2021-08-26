@@ -109,7 +109,7 @@ namespace UnitTests.AITests.Ships
                     break;
             }
 
-            Assert.IsTrue(yBankReached <= maxAllowedYBank, "Ship should not exceed its max allowed Y bank");
+            Assert.IsTrue(yBankReached <= maxAllowedYBank, "Ship should not exceed its max allowed Y bank by more than 10%");
             Assert.IsTrue(ship.yRotation.AlmostZero(), "Ship should reach 0 Y rotation at this point");
         }
     }
