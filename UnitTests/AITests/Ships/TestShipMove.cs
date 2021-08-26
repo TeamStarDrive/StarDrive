@@ -91,9 +91,26 @@ namespace UnitTests.AITests.Ships
         public void ShipYRotation()
         {
             Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
-            ship.AI.OrderMoveTo(new Vector2(10000, 10000), Vector2.Zero, false, Ship_Game.AI.AIState.MoveTo);
+            Assert.IsTrue(ship.yRotation.AlmostZero(), "Ship's Y rotation should be 0 when spawned");
+            Vector2 newPos = new Vector2(2000, 2000);
+            ship.AI.OrderMoveTo(newPos, Vector2.Zero, false, Ship_Game.AI.AIState.MoveTo);
             Universe.Objects.Update(TestSimStep);
-            Assert.IsTrue(ship.yRotation.NotZero(), "Ship's Y rotation should chance as it rotates");
+            Assert.IsTrue(ship.yRotation.NotZero(), "Ship's Y rotation should change as it rotates");
+
+            // Allow 10% bank (saves performance in game since not using lower/high bounds)
+            float maxAllowedYBank = ship.GetMaxBank() * 1.1f; 
+            float yBankReached    = 0;
+            for (int i = 0; i <= 2000; i++)  
+            {
+                Universe.Objects.Update(TestSimStep);
+                ship.InFrustum = true; // Allow rotation logic to perform y Rotation changes
+                yBankReached = Math.Abs(ship.yRotation).LowerBound(yBankReached);
+                if (ship.Position.InRadius(newPos, 100)) // Current Vulcan scout speed should achieve this in less than 800 ticks
+                    break;
+            }
+
+            Assert.IsTrue(yBankReached <= maxAllowedYBank, "Ship should not exceed its max allowed Y bank");
+            Assert.IsTrue(ship.yRotation.AlmostZero(), "Ship should reach 0 Y rotation at this point");
         }
     }
 }
