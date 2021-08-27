@@ -107,7 +107,7 @@ namespace UnitTests.AITests.Ships
             {
                 ship.InFrustum = true; // Allow rotation logic to perform Y Rotation changes
                 Universe.Objects.Update(TestSimStep);
-                yBankReached = Math.Abs(ship.yRotation).LowerBound(yBankReached);
+                yBankReached = Math.Abs(Math.Max(ship.yRotation,yBankReached));
                 if (ship.Position.InRadius(newPos, 100)) // Current Vulcan scout speed should achieve this in less than 800 ticks
                     break;
             }
