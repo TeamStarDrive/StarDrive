@@ -650,18 +650,18 @@
     <DialogLine>
       <DialogType>SURRENDER</DialogType>
       <Default>This war proved to be lethal for us. We surrender.</Default>
-    </DialogLine>	
+    </DialogLine>
     <DialogLine>
       <DialogType>OFFER_MERGE</DialogType>
       <Default>PLURAL, it seems we are losing our wars and our race is in danger. Will you accept a merge offer?</Default>
-    </DialogLine>		
+    </DialogLine>
     <DialogLine>
       <DialogType>OFFER_MERGE_ACCEPTED</DialogType>
       <Default>Then it is done!</Default>
-    </DialogLine>			
+    </DialogLine>
     <DialogLine>
       <DialogType>OFFER_MERGE_REJECTED</DialogType>
-      <Default>This is unfortunate. We will try to come up with a something else.</Default>
-    </DialogLine>				
+      <Default>This is unfortunate. We will try to come up with something else.</Default>
+    </DialogLine>
   </Dialogs>
 </DiplomacyDialog>
