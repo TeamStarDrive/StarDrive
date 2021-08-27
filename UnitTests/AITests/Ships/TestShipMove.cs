@@ -103,7 +103,7 @@ namespace UnitTests.AITests.Ships
             // Allow 10% extra bank (saves performance in game since not using lower/higher bounds)
             float maxAllowedYBank = ship.GetMaxBank() * 1.1f; 
             float yBankReached    = 0;
-            LoopWhile((timeout: 1000, fatal: true), () => ship.Position.OutsideRadius(newPos, 100), () =>
+            LoopWhile((timeout: 10, fatal: true), () => ship.Position.OutsideRadius(newPos, 100), () =>
             {
                 Universe.Objects.Update(TestSimStep);
                 yBankReached = Math.Max(Math.Abs(ship.yRotation), yBankReached);
