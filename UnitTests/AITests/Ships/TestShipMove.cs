@@ -91,29 +91,28 @@ namespace UnitTests.AITests.Ships
         public void ShipYRotation()
         {
             Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
-            Assert.IsTrue(ship.yRotation.AlmostZero(), "Ship's Y rotation should be 0 when spawned");
+            Assert.AreEqual(ship.yRotation, 0, "Ship's Y rotation should be 0 when spawned");
 
             Vector2 newPos = new Vector2(2000, 2000);
             ship.InFrustum = true; // Allow rotation logic to perform Y Rotation changes
 
             ship.AI.OrderMoveTo(newPos, Vector2.Zero, false, Ship_Game.AI.AIState.MoveTo);
             Universe.Objects.Update(TestSimStep);
-            Assert.IsTrue(ship.yRotation.NotZero(), "Ship's Y rotation should change as it rotates");
+            Assert.AreNotEqual(ship.yRotation, 0, "Ship's Y rotation should change as it rotates");
 
             // Allow 10% extra bank (saves performance in game since not using lower/higher bounds)
             float maxAllowedYBank = ship.GetMaxBank() * 1.1f; 
             float yBankReached    = 0;
-            for (int i = 0; i <= 2000; i++)  
+
+            LoopWhile((timeout: 10, fatal: true), () => ship.Position.OutsideRadius(newPos, 100), () =>
             {
                 ship.InFrustum = true; // Allow rotation logic to perform Y Rotation changes
                 Universe.Objects.Update(TestSimStep);
-                yBankReached = Math.Abs(Math.Max(ship.yRotation,yBankReached));
-                if (ship.Position.InRadius(newPos, 100)) // Current Vulcan scout speed should achieve this in less than 800 ticks
-                    break;
-            }
+                yBankReached = Math.Abs(Math.Max(ship.yRotation, yBankReached));
+            });
 
             Assert.IsTrue(yBankReached <= maxAllowedYBank, "Ship should not exceed its max allowed Y bank by more than 10%");
-            Assert.IsTrue(ship.yRotation.AlmostZero(), "Ship should reach 0 Y rotation at this point");
+            Assert.AreEqual(ship.yRotation, 0, "Ship should reach 0 Y rotation at this point");
         }
     }
 }
