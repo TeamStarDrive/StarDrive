@@ -91,27 +91,25 @@ namespace UnitTests.AITests.Ships
         public void ShipYRotation()
         {
             Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
-            Assert.AreEqual(ship.yRotation, 0, "Ship's Y rotation should be 0 when spawned");
-            Universe.viewState = UniverseScreen.UnivScreenState.PlanetView;
+            Assert.AreEqual(0, ship.yRotation, "Ship's Y rotation should be 0 when spawned");
             Vector2 newPos = new Vector2(2000, 2000);
-            ship.InFrustum = true; // Allow rotation logic to perform initial Y Rotation changes (visible to player needs InFrustum)
-
+            Universe.Objects.Update(TestSimStep);
             ship.AI.OrderMoveTo(newPos, Vector2.Zero, false, Ship_Game.AI.AIState.MoveTo);
             Universe.Objects.Update(TestSimStep);
-            Assert.AreNotEqual(ship.yRotation, 0, "Ship's Y rotation should change as it rotates");
+            Assert.That.GreaterThan(Math.Abs(ship.yRotation), 0);
 
-            // Allow 10% extra bank (saves performance in game since not using lower/higher bounds)
-            float maxAllowedYBank = ship.GetMaxBank() * 1.1f; 
-            float yBankReached    = 0;
+            float maxYBank     = ship.GetMaxBank(); 
+            float yBankReached = 0;
             LoopWhile((timeout: 10, fatal: true), () => ship.Position.OutsideRadius(newPos, 100), () =>
             {
                 Universe.Objects.Update(TestSimStep);
                 yBankReached = Math.Max(Math.Abs(ship.yRotation), yBankReached);
             });
 
-            Assert.IsTrue(yBankReached <= maxAllowedYBank, "Ship should not exceed its max allowed Y bank by more than 10%");
-            Assert.IsTrue(yBankReached > maxAllowedYBank*0.9f, "Ship should reach a good portion of the allowed y bank");
-            Assert.AreEqual(ship.yRotation, 0, "Ship should reach 0 Y rotation at this point");
+            // Allow 10% tolerance in max bank (saves performance in game since not using lower/higher bounds)
+            Assert.That.LessThan(yBankReached, maxYBank * 1.1f);
+            Assert.That.GreaterThan(yBankReached, maxYBank * 0.95f);
+            Assert.AreEqual(0, ship.yRotation, "Ship should reach 0 Y rotation at this point");
         }
     }
 }
