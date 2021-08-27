@@ -154,9 +154,6 @@ namespace Ship_Game.Ships
                 if (yRotation > 0f)
                     yRotation = 0f;
             }
-
-            if (yRotation == 0) 
-                ShouldBank = false;
         }
 
         public float GetMinDecelerationDistance(float velocity)
