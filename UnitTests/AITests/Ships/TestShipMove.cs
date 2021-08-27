@@ -100,7 +100,7 @@ namespace UnitTests.AITests.Ships
             Universe.Objects.Update(TestSimStep);
             Assert.IsTrue(ship.yRotation.NotZero(), "Ship's Y rotation should change as it rotates");
 
-            // Allow 10% bank (saves performance in game since not using lower/higher bounds)
+            // Allow 10% extra bank (saves performance in game since not using lower/higher bounds)
             float maxAllowedYBank = ship.GetMaxBank() * 1.1f; 
             float yBankReached    = 0;
             for (int i = 0; i <= 2000; i++)  
