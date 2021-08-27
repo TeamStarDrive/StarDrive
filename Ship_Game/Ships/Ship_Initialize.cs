@@ -625,7 +625,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        float GetMaxBank()
+        public float GetMaxBank()
         {
             const float mBank = 0.5236f;
             switch (shipData.Role)

@@ -118,30 +118,24 @@ namespace Ship_Game.Ships
             MaxSTLSpeed = Stats.MaxSTLSpeed;
         }
 
-        public void RotateToFacing(FixedSimTime timeStep, float angleDiff, float rotationDir)
+        public void RotateToFacing(FixedSimTime timeStep, float angleDiff, float rotationDir, float minDiff)
         {
             float rotAmount = rotationDir * timeStep.FixedTime * RotationRadiansPerSecond;
-            if (Math.Abs(rotAmount) > angleDiff)
-            {
-                rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
-                IsTurning = true;
-            }
-            else
-            {
-                IsTurning = false;
-            }
+            ShouldBank = IsVisibleToPlayer && angleDiff > minDiff+0.2f; // slight threshold to start restoring y rotation
 
-            if (rotAmount > 0f) // Y-bank:
+            if (ShouldBank)
             {
-                if (yRotation > -MaxBank)
-                    yRotation -= GetYBankAmount(timeStep);
+                if (rotAmount > 0f) // Y-bank:
+                {
+                    if (yRotation > -MaxBank)
+                        yRotation -= GetYBankAmount(timeStep);
+                }
+                else if (rotAmount < 0f)
+                {
+                    if (yRotation < MaxBank)
+                        yRotation += GetYBankAmount(timeStep);
+                }
             }
-            else if (rotAmount < 0f)
-            {
-                if (yRotation <  MaxBank)
-                    yRotation += GetYBankAmount(timeStep);
-            }
-
             Rotation += rotAmount;
             Rotation = Rotation.AsNormalizedRadians();
         }
@@ -160,7 +154,6 @@ namespace Ship_Game.Ships
                 if (yRotation > 0f)
                     yRotation = 0f;
             }
-            if (yRotation.AlmostZero()) IsTurning = false;
         }
 
         public float GetMinDecelerationDistance(float velocity)
@@ -449,7 +442,7 @@ namespace Ship_Game.Ships
                 }
             }
 
-            if (!IsTurning)
+            if (!ShouldBank)
             {
                 RestoreYBankRotation(timeStep);
             }
