@@ -255,7 +255,7 @@ namespace Ship_Game
 
                     return string.Concat(Localizer.Token(GameText.EnRouteToColonize), " ", ship.AI.ColonizeTarget.Name);
                 case AIState.MoveTo:
-                    if (ship.Velocity.NotZero() || ship.IsTurning)
+                    if (ship.Velocity.NotZero())
                     {
                         string moveText = $"{Localizer.Token(GameText.MovingTo)} ";
                         if (!ship.AI.HasPriorityOrder)
