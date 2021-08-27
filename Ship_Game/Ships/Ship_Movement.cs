@@ -121,9 +121,9 @@ namespace Ship_Game.Ships
         public void RotateToFacing(FixedSimTime timeStep, float angleDiff, float rotationDir, float minDiff)
         {
             float rotAmount = rotationDir * timeStep.FixedTime * RotationRadiansPerSecond;
-            IsTurning = angleDiff > minDiff+0.05f; // slight threshold to start restoring y rotation
+            ShouldBank = IsVisibleToPlayer && angleDiff > minDiff+0.2f; // slight threshold to start restoring y rotation
 
-            if (IsVisibleToPlayer)
+            if (ShouldBank)
             {
                 if (rotAmount > 0f) // Y-bank:
                 {
@@ -136,7 +136,6 @@ namespace Ship_Game.Ships
                         yRotation += GetYBankAmount(timeStep);
                 }
             }
-
             Rotation += rotAmount;
             Rotation = Rotation.AsNormalizedRadians();
         }
@@ -155,7 +154,7 @@ namespace Ship_Game.Ships
                 if (yRotation > 0f)
                     yRotation = 0f;
             }
-            if (yRotation.AlmostZero()) IsTurning = false;
+            if (yRotation.AlmostZero()) ShouldBank = false;
         }
 
         public float GetMinDecelerationDistance(float velocity)
@@ -444,7 +443,7 @@ namespace Ship_Game.Ships
                 }
             }
 
-            if (!IsTurning)
+            if (!ShouldBank)
             {
                 RestoreYBankRotation(timeStep);
             }

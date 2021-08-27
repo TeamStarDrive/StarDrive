@@ -92,9 +92,9 @@ namespace UnitTests.AITests.Ships
         {
             Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
             Assert.AreEqual(ship.yRotation, 0, "Ship's Y rotation should be 0 when spawned");
-
+            Universe.viewState = UniverseScreen.UnivScreenState.PlanetView;
             Vector2 newPos = new Vector2(2000, 2000);
-            ship.InFrustum = true; // Allow rotation logic to perform Y Rotation changes
+            ship.InFrustum = true; // Allow rotation logic to perform initial Y Rotation changes (visible to player needs InFrustum)
 
             ship.AI.OrderMoveTo(newPos, Vector2.Zero, false, Ship_Game.AI.AIState.MoveTo);
             Universe.Objects.Update(TestSimStep);
@@ -103,15 +103,14 @@ namespace UnitTests.AITests.Ships
             // Allow 10% extra bank (saves performance in game since not using lower/higher bounds)
             float maxAllowedYBank = ship.GetMaxBank() * 1.1f; 
             float yBankReached    = 0;
-
-            LoopWhile((timeout: 10, fatal: true), () => ship.Position.OutsideRadius(newPos, 100), () =>
+            LoopWhile((timeout: 1000, fatal: true), () => ship.Position.OutsideRadius(newPos, 100), () =>
             {
-                ship.InFrustum = true; // Allow rotation logic to perform Y Rotation changes
                 Universe.Objects.Update(TestSimStep);
-                yBankReached = Math.Abs(Math.Max(ship.yRotation, yBankReached));
+                yBankReached = Math.Max(Math.Abs(ship.yRotation), yBankReached);
             });
 
             Assert.IsTrue(yBankReached <= maxAllowedYBank, "Ship should not exceed its max allowed Y bank by more than 10%");
+            Assert.IsTrue(yBankReached > maxAllowedYBank*0.9f, "Ship should reach a good portion of the allowed y bank");
             Assert.AreEqual(ship.yRotation, 0, "Ship should reach 0 Y rotation at this point");
         }
     }
