@@ -263,5 +263,19 @@ namespace UnitTests
                 throw new AssertFailedException($"LessThan failed: {actual} < {lessThan}");
             }
         }
+
+        /// <summary>
+        /// Asserts that `actual` value is greater than provided value
+        /// e.g. Assert.That.GreaterThan(healthPercent, 0.5f);
+        /// </summary>
+        public static void GreaterThan<T>(this Assert assert, T actual, T greaterThan)
+            where T : IComparable<T>
+        {
+            int difference = actual.CompareTo(greaterThan);
+            if (difference <= 0)
+            {
+                throw new AssertFailedException($"Greater Than failed: {actual} > {greaterThan}");
+            }
+        }
     }
 }

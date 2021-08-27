@@ -61,9 +61,10 @@ namespace Ship_Game.AI
             if (angleDiff > minDiff)
             {
                 float rotationDir = wantedForward.Dot(currentForward.RightVector()) > 0f ? 1f : -1f;
-                Owner.RotateToFacing(timeStep, angleDiff, rotationDir);
+                Owner.RotateToFacing(timeStep, angleDiff, rotationDir, minDiff);
                 return true;
             }
+
             return false;
         }
 
@@ -431,7 +432,7 @@ namespace Ship_Game.AI
 
             if (predictionDiff > angleCheck) // do we need to rotate ourselves before thrusting?
             {
-                Owner.RotateToFacing(timeStep, predictionDiff, rotationDir);
+                Owner.RotateToFacing(timeStep, predictionDiff, rotationDir, angleCheck);
                 return; // don't accelerate until we're faced correctly
             }
 

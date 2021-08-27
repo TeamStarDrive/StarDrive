@@ -82,6 +82,7 @@ namespace UnitTests
             Player = data.CreateEmpire(playerData, isPlayer:true);
             Enemy = data.CreateEmpire(enemyData, isPlayer:false);
             Empire.Universe = Universe = new UniverseScreen(data, Player);
+            Universe.viewState = UniverseScreen.UnivScreenState.PlanetView;
             Player.TestInitModifiers();
 
             Player.SetRelationsAsKnown(Enemy);
