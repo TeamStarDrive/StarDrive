@@ -4372,6 +4372,8 @@ namespace Ship_Game
         DueToLosingWarThem = 4363,
         /// <summary>were accepted into our empire!</summary>
         AcceptedIntoOurEmpire = 4364,
+        /// <summary>Planned to be constructed, but no planet could take the</summary>
+        NoPortsFoundForBuild = 4365,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>

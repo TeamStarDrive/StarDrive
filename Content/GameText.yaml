@@ -10295,6 +10295,9 @@ DueToLosingWarThem:
 AcceptedIntoOurEmpire:
  Id: 4364
  ENG: "were accepted into our empire!"
+NoPortsFoundForBuild:
+ Id: 4365
+ ENG: "Planned to be constructed, but no planet could take the order. It is possible you have no planet with a space port, your planets are sabotaged or are in combat."
 OnSurface:
  Id: 4993
  ENG: "on surface"

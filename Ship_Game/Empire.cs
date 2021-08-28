@@ -413,11 +413,13 @@ namespace Ship_Game
         bool GetBestPorts(IReadOnlyList<Planet> ports, out Planet[] bestPorts, float portQuality = 0.2f)
         {
             bestPorts = null;
+            // If all the ports are research colonies, do not filter them
+            bool filterResearchPorts = ports.Any(p => p.colonyType != Planet.ColonyType.Research);
             if (ports.Count > 0)
             {
                 float averageMaxProd = ports.Average(p => p.Prod.NetMaxPotential);
                 bestPorts            = ports.Filter(p => !p.IsCrippled
-                                                         && p.colonyType != Planet.ColonyType.Research
+                                                         && (p.colonyType != Planet.ColonyType.Research || !filterResearchPorts)
                                                          && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd * portQuality));
             }
 
