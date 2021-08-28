@@ -370,12 +370,17 @@ namespace Ship_Game.AI
                 LandingOffset = FindLandingOffset(planet);
 
             Vector2 landingSpot = planet.Center + LandingOffset;
-            // force the ship out of warp if we get too close
-            // this is a balance feature
-            ThrustOrWarpToPos(landingSpot, timeStep, warpExitDistance: Owner.WarpOutDistance);
-            if (Owner.IsDefaultAssaultShuttle)      LandTroopsViaSingleTransport(planet, landingSpot, timeStep);
-            else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, landingSpot, timeStep);
-            else                                    LaunchShuttlesFromTroopShip(timeStep, planet, landingSpot);
+            if (Owner.IsDefaultAssaultShuttle || Owner.IsDefaultTroopShip)
+            {
+                // force the ship out of warp if we get too close
+                // this is a balance feature
+                ThrustOrWarpToPos(landingSpot, timeStep, warpExitDistance: Owner.WarpOutDistance);
+                LandTroopsViaSingleTransport(planet, landingSpot, timeStep);
+            }
+            else
+            {
+                LaunchShuttlesFromTroopShip(timeStep, planet, landingSpot);
+            }
         }
 
         // Assault Shuttles will dump troops on the surface and return back to the troop ship to transport additional troops
@@ -397,18 +402,19 @@ namespace Ship_Game.AI
         // Big Troop Ships will launch their own Assault Shuttles to land them on the planet
         void LaunchShuttlesFromTroopShip(FixedSimTime timeStep, Planet planet, Vector2 launchPos)
         {
-            if (Owner.Position.InRadius(launchPos, Owner.Radius))
+            if (!Orbit.InOrbit && Owner.Position.InRadius(planet.Center, planet.ObjectRadius *1.4f))
+                ThrustOrWarpToPos(launchPos, timeStep, warpExitDistance: Owner.WarpOutDistance);
+            else // Doing orbit with AssaultPlanet state to continue landing troops if possible
+                Orbit.Orbit(planet, timeStep); 
+
+            if (Orbit.InOrbit)
             {
                 if (planet.WeCanLandTroopsViaSpacePort(Owner.loyalty))
                     Owner.LandTroopsOnPlanet(planet); // We can land all our troops without assault bays since its our planet with space port
                 else
                     Owner.Carrier.AssaultPlanet(planet); // Launch Assault shuttles or use Transporters (STSA)
 
-                if (Owner.HasOurTroops)
-                {
-                    Orbit.Orbit(planet, timeStep); // Doing orbit with AssaultPlanet state to continue landing troops if possible
-                }
-                else
+                if (!Owner.HasOurTroops)
                 {
                     ClearOrders();
                     OrderOrbitPlanet(planet);
@@ -422,7 +428,7 @@ namespace Ship_Game.AI
             if (Owner.IsSingleTroopShip || Owner.IsDefaultAssaultShuttle)
                 pos = RandomMath.Vector2D(planet.ObjectRadius);
             else
-                pos = planet.Center - planet.Center.GenerateRandomPointOnCircle(planet.GravityWellRadius / 3);
+                pos = planet.Center - planet.Center.GenerateRandomPointOnCircle(planet.ObjectRadius * 1.5f);
 
             return pos;
         }
