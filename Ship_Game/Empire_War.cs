@@ -160,15 +160,16 @@ namespace Ship_Game
             if (them.data.Defeated || !rel.PreparingForWar || rel.AtWar || IsPeaceTreaty(them))
                 return false;
 
-            var currentWarInformation = AllActiveWars.FilterSelect(w => !w.Them.isFaction,
-                                          w => GetRelations(w.Them).KnownInformation);
+            var currentWarInformation = AllActiveWars.FilterSelect(w => !w.Them.isFaction, 
+                w => GetRelations(w.Them).KnownInformation);
 
-            float currentEnemyStr    = currentWarInformation.Sum(i => i.OffensiveStrength);
-            float currentEnemyBuild  = currentWarInformation.Sum(i => i.EconomicStrength);
-            float ourCurrentStrength = AIManagedShips.EmpireReadyFleets.AccumulatedStrength;
-            float theirKnownStrength = rel.KnownInformation.AllianceTotalStrength.LowerBound(15000) + currentEnemyStr;
-            float theirBuildCapacity = rel.KnownInformation.AllianceEconomicStrength.LowerBound(10) + currentEnemyBuild;
-            float ourBuildCapacity   = GetEmpireAI().BuildCapacity;
+            int minStr                = (int)(CurrentGame.GalaxySize + 1) * 5000;
+            float currentEnemyStr     = currentWarInformation.Sum(i => i.OffensiveStrength);
+            float currentEnemyBuild   = currentWarInformation.Sum(i => i.EconomicStrength);
+            float ourCurrentStrength  = AIManagedShips.EmpireReadyFleets.AccumulatedStrength;
+            float theirKnownStrength  = (rel.KnownInformation.AllianceTotalStrength + currentEnemyStr).LowerBound(minStr);
+            float theirBuildCapacity  = (rel.KnownInformation.AllianceEconomicStrength + currentEnemyBuild).LowerBound(10);
+            float ourBuildCapacity    = GetEmpireAI().BuildCapacity;
 
             var array = EmpireManager.GetAllies(this);
             for (int i = 0; i < array.Count; i++)

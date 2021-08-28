@@ -1433,13 +1433,13 @@ namespace Ship_Game.Gameplay
 
         bool TheyArePotentialTargetRuthless(Empire us, Empire them)
         {
-            if (!Treaty_Peace || AtWar || PreparingForWar )
+            if (Treaty_Peace || AtWar || PreparingForWar )
                 return false;
 
             if (Threat > 0f || TurnsKnown < SecondDemand)
                 return false;
 
-            if (Threat < -75f && !Treaty_Alliance)
+            if (Threat < -50f && !Treaty_Alliance)
                 return true;
 
             // Ruthless will break alliances if the other party does not have strong military but valuable colonies
