@@ -1666,7 +1666,7 @@ namespace Ship_Game
         /// <summary>
         /// Initializes non-serialized empire values after save load
         /// </summary>
-        public void InitEmpireFromSave()
+        public void InitEmpireFromSave() // todo FB - why is this called on new game?
         {
             EmpireShips.UpdatePublicLists();
             Research.UpdateNetResearch();
@@ -1681,7 +1681,8 @@ namespace Ship_Game
             UpdateShipMaintenance();
             UpdateMaxColonyValues();
             EmpireAI.RunEconomicPlanner(fromSave: true);
-            EmpireAI.OffensiveForcePoolManager.ManageAOs();
+            if (!isPlayer)
+                EmpireAI.OffensiveForcePoolManager.ManageAOs();
         }
 
         public void UpdateMilitaryStrengths()
