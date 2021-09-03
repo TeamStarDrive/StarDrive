@@ -17,7 +17,6 @@ namespace Ship_Game.AI
 
         public void ManageAOs()
         {
-            
             if (ThreatTimer < 0) ThreatTimer = 2f;
 
             for (int index = EmpireAI.AreasOfOperations.Count - 1; index >= 0; index--)
