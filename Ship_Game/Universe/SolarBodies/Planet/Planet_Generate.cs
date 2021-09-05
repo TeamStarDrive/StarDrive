@@ -101,8 +101,7 @@ namespace Ship_Game
                 else if (richness >= 12.5f) MineralRichness = RandomBetween(0.25f, 0.75f);
                 else if (richness < 12.5f)  MineralRichness = RandomBetween(0.10f, 0.25f);
 
-                float habitableChance = GlobalStats.ActiveModInfo?.ChanceForCategory(Category)
-                                        ?? Type.HabitableTileChance.Generate();
+                float habitableChance = Type.HabitableTileChance.Generate();
 
                 SetTileHabitability(habitableChance, out int numHabitableTiles);
                 if (preDefinedPop > 0)

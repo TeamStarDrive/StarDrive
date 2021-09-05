@@ -57,14 +57,6 @@ namespace Ship_Game
 
         public string SupportedBlackBoxVersions;
 
-        // Doctor: Planet generation: % chance of each tile on this planet type being habitable. Default values as vanilla.
-        public int BarrenHab = 0;
-        public int IceHab    = 15;
-        public int OceanHab  = 50;
-        public int SteppeHab = 67;
-        public int SwampHab  = 67;
-        public int TerranHab = 75;
-
         // Research costs will be increased based on map size to balance the increased capacity of larger maps
         public bool ChangeResearchCostBasedOnSize;
         public int CostBasedOnSizeThreshold = 2500;  // Allow tuning the change up/down
@@ -76,24 +68,5 @@ namespace Ship_Game
         // TRUE by default, but if set false, no vanilla designs will be loaded
         // from StarDrive/Content/ShipDesigns and the mod is responsible to provide all required designs
         public bool UseVanillaShips = true;
-
-        public int ChanceForCategory(PlanetCategory category)
-        {
-            switch (category)
-            {
-                default:
-                case PlanetCategory.Other: return BarrenHab;
-                case PlanetCategory.Volcanic: return BarrenHab;
-                case PlanetCategory.GasGiant: return BarrenHab;
-                case PlanetCategory.Barren: return BarrenHab;
-                case PlanetCategory.Desert: return OceanHab;
-                case PlanetCategory.Tundra: return OceanHab;
-                case PlanetCategory.Oceanic: return OceanHab;
-                case PlanetCategory.Steppe: return SteppeHab;
-                case PlanetCategory.Terran: return TerranHab;
-                case PlanetCategory.Ice:    return IceHab;
-                case PlanetCategory.Swamp:  return SwampHab;
-            }
-        }
     }
 }
