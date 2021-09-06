@@ -1073,8 +1073,7 @@ namespace Ship_Game.Ships
         void ConfigWeapon(string weaponType)
         {
             InstalledWeapon = ResourceManager.CreateWeapon(weaponType);
-            InstalledWeapon.Module = this;
-            InstalledWeapon.Owner  = Parent;
+            InstalledWeapon.Initialize(this, Parent);
         }
 
         public void SetHangarShip(Ship ship)
