@@ -838,7 +838,6 @@ namespace Ship_Game
                 "Textures/TroopIcons",
                 "Textures/Portraits",
                 "Textures/Ground_UI",
-                "Textures/Troops",
                 "Textures/OrderButtons",
             };
 
