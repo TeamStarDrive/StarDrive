@@ -614,7 +614,6 @@ namespace Ship_Game.Ships
                 loyalty.Inhibitors.Add(this); // Start inhibiting at spawn
 
             MechanicalBoardingDefense = MechanicalBoardingDefense.LowerBound(1);
-            InitWeaponFireDelaysHullBonus();
         }
 
         void InitShieldsPower(float shieldAmplify)
@@ -623,15 +622,6 @@ namespace Ship_Game.Ships
             {
                 ShipModule shield = Shields[i];
                 shield.InitShieldPower(shieldAmplify);
-            }
-        }
-
-        void InitWeaponFireDelaysHullBonus()
-        {
-            if (GlobalStats.ActiveModInfo?.UseHullBonuses == true)
-            {
-                foreach (Weapon weapon in Weapons)
-                    weapon.fireDelay *= 1f - shipData.Bonuses.FireRateBonus;
             }
         }
 
