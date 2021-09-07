@@ -83,7 +83,7 @@ namespace Ship_Game.Ships
         {
             Name = hull.HullName;
             Hull = hull.HullName;
-            ModName = hull.ModName;
+            ModName = GlobalStats.ModName;
             ShipStyle = hull.Style;
             Description = hull.Description;
             IconPath = hull.IconPath;
