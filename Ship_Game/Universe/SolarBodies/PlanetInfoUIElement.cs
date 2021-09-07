@@ -236,14 +236,11 @@ namespace Ship_Game
 
             DrawPlanetStats(TilesRect, $"{numHabitableTile}", "NewUI/icon_tiles", Color.White, Color.White);
             DrawPlanetStats(PopPerTileRect, $"{popPerTile.String(0)}m", "NewUI/icon_poppertile", Color.White, Color.White);
-            DrawPlanetStats(BiospheredPopRect, biospherePop.String(1), "NewUI/icon_biospheres", Color.White, Color.White);
+            DrawPlanetStats(BiospheredPopRect, biospherePop.String(2), "NewUI/icon_biospheres", Color.White, Color.White);
 
-            if (EmpireManager.Player.CanFullTerraformPlanets)
-            {
-                float terraformedPop = P.PotentialMaxPopBillionsFor(EmpireManager.Player);
-                DrawPlanetStats(TerraformedPopRect, terraformedPop.String(1),
-                    "NewUI/icon_terraformer", Color.White, Color.White);
-            }
+            float terraformedPop = P.PotentialMaxPopBillionsWithTerraformFor(EmpireManager.Player);
+            DrawPlanetStats(TerraformedPopRect, terraformedPop.String(1),
+                "NewUI/icon_terraformer", Color.White, Color.White);
 
             DrawColonization(batch, mousePos);
             DrawSendTroops(batch, mousePos);

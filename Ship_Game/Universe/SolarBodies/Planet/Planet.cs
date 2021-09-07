@@ -155,44 +155,52 @@ namespace Ship_Game
         public float PotentialMaxPopBillionsFor(Empire empire, bool forceOnlyBiospheres = false)
             => PotentialMaxPopFor(empire, forceOnlyBiospheres) / 1000;
 
-        float PotentialMaxPopFor(Empire empire, bool forceOnlyBiospheres = false)
+        public float PotentialMaxPopBillionsWithTerraformFor(Empire empire)
+            => PotentialMaxPopFor(empire, withTerraformers: true) / 1000; // with Biospheres and Terraformers researched
+
+        float PotentialMaxPopFor(Empire empire, bool forceOnlyBiospheres = false, bool withTerraformers = false)
         {
-            bool bioSpheresResearched = empire.IsBuildingUnlocked(Building.BiospheresId);
-            bool terraformResearched  = empire.CanFullTerraformPlanets;
+            bool bioSpheresResearched = withTerraformers || empire.IsBuildingUnlocked(Building.BiospheresId);
+            bool terraformResearched  = withTerraformers || empire.CanFullTerraformPlanets;
 
             // We calculate this and not using MaxPop since it might be an enemy planet with biospheres
             int numNaturalHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
             float racialEnvModifier      = Empire.RacialEnvModifer(Category, empire);
             float naturalMaxPop          = BasePopPerTile * numNaturalHabitableTiles * racialEnvModifier;
             if (!forceOnlyBiospheres && !bioSpheresResearched && !terraformResearched)
-                return naturalMaxPop + PopulationBonus;
+                return (naturalMaxPop + PopulationBonus).LowerBound(MinimumPop);
 
             // Only Biosphere researched so we are checking specifically for biospheres alone
             if (bioSpheresResearched  && !terraformResearched || forceOnlyBiospheres)
             {
                 int numBiospheresNeeded = TileArea - numNaturalHabitableTiles;
                 float bioSphereMaxPop   = PopPerBiosphere(empire) * numBiospheresNeeded;
-                return bioSphereMaxPop + naturalMaxPop + PopulationBonus;
+                return (bioSphereMaxPop + naturalMaxPop + PopulationBonus).LowerBound(MinimumPop);
             }
 
             if (bioSpheresResearched) // Biospheres and terraformers researched
             {
                 int terraformableTiles  = TilesList.Count(t => t.CanTerraform);
                 int numBiospheresNeeded = TileArea - numNaturalHabitableTiles - terraformableTiles;
-                float bioSphereMaxPop   = PopPerBiosphere(empire) * numBiospheresNeeded;
                 float preferredEnvMod   = empire.PlayerPreferredEnvModifier;
+                float bioSphereMaxPop   = PopPerBiosphere(empire, preferredEnvMod) * numBiospheresNeeded;
                 naturalMaxPop           = BasePopPerTile * (numNaturalHabitableTiles + terraformableTiles) * preferredEnvMod;
-                return bioSphereMaxPop + naturalMaxPop + PopulationBonus;
+                return (bioSphereMaxPop + naturalMaxPop + PopulationBonus).LowerBound(MinimumPop);
             }
 
             // Only Terraformers researched
             int potentialTiles = TilesList.Count(t => t.Terraformable);
-            return BasePopPerTile*potentialTiles*racialEnvModifier + PopulationBonus;
+            return (BasePopPerTile*potentialTiles*racialEnvModifier + PopulationBonus).LowerBound(MinimumPop);
         }
 
         public float PopPerBiosphere(Empire empire)
         {
             return BasePopPerBioSphere * Empire.RacialEnvModifer(Category, empire);
+        }
+
+        public float PopPerBiosphere(Empire empire, float prefEnvMod)
+        {
+            return BasePopPerBioSphere * prefEnvMod;
         }
 
         public float BasePopPerBioSphere => BasePopPerTile / 2;
@@ -203,12 +211,15 @@ namespace Ship_Game
             return MaxFertilityFor(empire).LowerBound(minimumMaxFertilityPotential);
         }
 
+        public float MinimumPop => BasePopPerTile / 2; // At least 1/2 tile's worth population and any max pop bonus buildings have
+        public float MinimumPopBillion => MinimumPop / 1000;
+
         public float MaxPopulationFor(Empire empire)
         {
             if (!Habitable)
                 return 0;
 
-            float minimumPop = BasePopPerTile/2; // At least 1/2 tile's worth population and any max pop bonus buildings have
+            float minimumPop = MinimumPop; 
             if (empire == null)
                 return (MaxPopValFromTiles + PopulationBonus).LowerBound(minimumPop);
 
