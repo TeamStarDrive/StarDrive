@@ -84,7 +84,7 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("Buildings/icon_biosphere_48x48"), biosphere, Color.White);
             }
 
-            if (BioSpheresResearched && (pgs.CanTerraform || pgs.BioCanTerraform))
+            if (pgs.CanTerraform || pgs.BioCanTerraform)
             {
                 var terraform = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 20, pgs.ClickRect.Y, 20, 20);
                 batch.Draw(ResourceManager.Texture("Buildings/icon_terraformer_48x48"), terraform, Color.White);

@@ -606,10 +606,10 @@ namespace Ship_Game
         void TryBuildTerraformers(float budget)
         {
             if (PopulationRatio < 0.95f
-                || HabitableBuiltCoverage < 0.5f
                 || !AreTerraformersNeeded
                 || IsStarving
-                || TerraformerInTheWorks)
+                || TerraformerInTheWorks
+                || Owner.data.Traits.TerraformingLevel == 0)
             {
                 return;
             }
