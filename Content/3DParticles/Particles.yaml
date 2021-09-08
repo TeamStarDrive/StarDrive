@@ -140,7 +140,6 @@
   MaxHorizontalVelocity: 15
   MinVerticalVelocity: -10
   MaxVerticalVelocity: 10
-  #Gravity: [0,15,0]
   EndVelocity: 1
   MinColor: [255,255,255,10]
   MaxColor: [255,255,255,40]
@@ -166,7 +165,6 @@
   MaxHorizontalVelocity: 0
   MinVerticalVelocity: 0
   MaxVerticalVelocity: 0
-  Gravity: [0,0,0]
   EndVelocity: 1
   MinColor: [128,128,128,255]
   MaxColor: [169,169,169,255]
@@ -192,7 +190,6 @@
   MaxHorizontalVelocity: 0
   MinVerticalVelocity: -5
   MaxVerticalVelocity: 6
-  Gravity: [0,0,0]
   EndVelocity: 0
   MinColor: [128,128,128,255]
   MaxColor: [169,169,169,255]
@@ -218,7 +215,6 @@
   MaxHorizontalVelocity: 0
   MinVerticalVelocity: 0
   MaxVerticalVelocity: 0
-  Gravity: [0,0,0]
   EndVelocity: 0
   MinColor: [255,255,255,255]
   MaxColor: [255,255,255,255]
