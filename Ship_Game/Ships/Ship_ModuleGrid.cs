@@ -173,11 +173,13 @@ namespace Ship_Game.Ships
             {
                 for (int x = 0; x < GridWidth; ++x)
                 {
-                    int idx = x + y*GridWidth;
-                    if (ExternalModuleGrid[idx] != null || !CheckIfShouldBeExternal(x, y))
-                        continue;
-                    // ReSharper disable once PossibleNullReferenceException
-                    x += ExternalModuleGrid[idx].XSIZE - 1; // skip slots that span this module
+                    int idx = x + y * GridWidth;
+                    if (ExternalModuleGrid[idx] == null && CheckIfShouldBeExternal(x, y))
+                    {
+                        // ReSharper disable once PossibleNullReferenceException
+                        // NOTE about ReSharper: CheckIfShouldBeExternal modifies ExternalModuleGrid
+                        x += ExternalModuleGrid[idx].XSIZE - 1; // skip slots that span this module
+                    }
                 }
             }
         }

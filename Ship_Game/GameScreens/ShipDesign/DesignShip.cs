@@ -6,7 +6,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 {
     public class DesignShip : Ship
     {
-        DesignSlot[] PrevSlots;
+        Array<ShipModule> PrevModules;
 
         public ShipDesignStats DesignStats;
 
@@ -16,24 +16,23 @@ namespace Ship_Game.GameScreens.ShipDesign
             DesignStats = new ShipDesignStats(this);
         }
 
-        public void UpdateDesign(DesignSlot[] placedSlots)
+        public void UpdateDesign(Array<ShipModule> placedModules)
         {
-            if (PrevSlots != null && AreEqual(PrevSlots, placedSlots))
+            if (PrevModules != null && AreEqual(PrevModules, placedModules))
                 return;
 
-            PrevSlots = placedSlots;
-            shipData.SetDesignSlots(placedSlots);
-            CreateModuleSlotsFromData(placedSlots, isTemplate:true, shipyardDesign:true);
+            PrevModules = placedModules;
+            CreateModuleSlotsFromShipyardModules(placedModules);
             InitializeShip();
             DesignStats.Update();
         }
 
-        static bool AreEqual(DesignSlot[] slotsA, DesignSlot[] slotsB)
+        static bool AreEqual(Array<ShipModule> a, Array<ShipModule> b)
         {
-            if (slotsA.Length != slotsB.Length)
+            if (a.Count != b.Count)
                 return false;
-            for (int i = 0; i < slotsA.Length; ++i)
-                if (!slotsA[i].Equals(slotsB[i]))
+            for (int i = 0; i < a.Count; ++i)
+                if (!a[i].Equals(b[i]))
                     return false;
             return true;
         }

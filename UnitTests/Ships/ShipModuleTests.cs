@@ -54,8 +54,44 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
-        public void Load_ShipModule()
+        public void CreateModule_WithWeapon()
         {
+            Ship ship = SpawnShip("Vulcan Scout", Player, new Vector2(1000, 1000));
+            var m = ShipModule.Create(new DesignSlot(new Point(1, 2), "LaserBeam2x3", new Point(3,2), 45, ModuleOrientation.Left, null), ship, false);
+            Assert.AreEqual("LaserBeam2x3", m.UID);
+            Assert.AreEqual(new Point(3,2), m.GetSize()); // DesignSlot size is always already oriented
+            Assert.AreEqual(new Point(1, 2), m.Pos, "Module Grid Position was not set");
+
+            Assert.AreEqual(new Point(2,2), ship.BaseHull.GridCenter, "Following calculations require GridCenter 2,2");
+            Assert.AreEqual(new Vector2(8, 16), m.LocalCenter);
+            Assert.AreEqual(new Vector2(1008, 1016), m.Position, "Initial module position should be offset from ship center");
+
+            Assert.AreEqual(45, m.TurretAngle);
+            Assert.AreEqual(ModuleOrientation.Left, m.ModuleRot);
+            Assert.AreEqual(m.ActualMaxHealth, m.Health);
+            Assert.That.GreaterThan(m.TargetValue, 1, "Weapon module LaserBeam2x3 should have a reasonably high target value");
+            Assert.AreEqual(3 * 11.5f, m.Radius, "Bounding Radius should use the biggest Size Axis");
+
+            Assert.IsNotNull(m.InstalledWeapon);
+            Assert.AreEqual("HeavyLaserBeam", m.WeaponType);
+            Assert.AreNotSame(m.InstalledWeapon, ResourceManager.GetWeaponTemplate(m.WeaponType), "Installed weapon was not cloned! This is a bug!");
+
+            Assert.AreEqual(m, m.InstalledWeapon.Module, "Installed weapon Module ref was not set");
+            Assert.AreEqual(ship, m.InstalledWeapon.Owner, "Installed weapon Owner ref was not set");
+        }
+
+        
+        [TestMethod]
+        public void Module_Uninstall()
+        {
+            Ship ship = SpawnShip("Vulcan Scout", Player, new Vector2(1000, 1000));
+            var m = ShipModule.Create(new DesignSlot(new Point(1, 2), "LaserBeam2x3", new Point(3,2), 45, ModuleOrientation.Left, null), ship, false);
+            m.isExternal = true;
+            m.Powered = true;
+
+            m.UninstallModule();
+            Assert.IsFalse(m.isExternal, "isExternal must be reset after module uninstall");
+            Assert.IsFalse(m.Powered, "Powered must be reset after module uninstall");
         }
 
         [TestMethod]

@@ -94,7 +94,7 @@ namespace Ship_Game.Gameplay
             ModuleRot = s.ModuleRot;
             HangarShipUID = s.HangarShipUID;
         }
-        
+
         public bool Equals(DesignSlot s)
         {
             if (s == null) return false;
@@ -104,6 +104,14 @@ namespace Ship_Game.Gameplay
                 && TurretAngle == s.TurretAngle
                 && ModuleRot == s.ModuleRot
                 && HangarShipUID == s.HangarShipUID;
+        }
+
+        public static DesignSlot[] FromModules(Array<ShipModule> modules)
+        {
+            var slots = new Array<DesignSlot>();
+            for (int i = 0; i < modules.Count; ++i)
+                slots.Add(new DesignSlot(modules[i]));
+            return slots.ToArray();
         }
 
         /// <summary>

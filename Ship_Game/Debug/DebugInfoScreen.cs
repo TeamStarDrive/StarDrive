@@ -54,7 +54,6 @@ namespace Ship_Game.Debug
         public static int ShipsDied;
         public static int ProjDied;
         public static int ProjCreated;
-        public static int ModulesCreated;
         public static int ModulesDied;
 
         int ShipsNotInForcePool;
