@@ -14,6 +14,8 @@ namespace Ship_Game.Ships.Legacy
         public Point GridCenter; // offset from grid TopLeft to the Center slot
 
         public override string ToString() => $"surface={SurfaceArea} size={Size} Vorigin={VirtualOrigin} span={Span}";
+        
+        public const float ModuleSlotOffset = 264f;
 
         public LegacyShipGridInfo(string name, LegacyModuleSlotData[] templateSlots, bool isHull, LegacyShipData baseHull)
         {
@@ -32,7 +34,7 @@ namespace Ship_Game.Ships.Legacy
                     if (slot.ModuleUID != null)
                         throw new Exception($"A ShipHull cannot have ModuleUID! uid={slot.ModuleUID}");
 
-                    var topLeft = slot.Position - new Vector2(ShipModule.ModuleSlotOffset);
+                    var topLeft = slot.Position - new Vector2(ModuleSlotOffset);
                     var botRight = new Vector2(topLeft.X + 16f, topLeft.Y + 16f);
                     if (topLeft.X  < min.X) min.X = topLeft.X;
                     if (topLeft.Y  < min.Y) min.Y = topLeft.Y;
@@ -99,7 +101,7 @@ namespace Ship_Game.Ships.Legacy
                 // Now we should have a list of unique slots, normalized to 1x1
                 foreach (LegacyModuleSlotData slot in slotsMap.Values)
                 {
-                    var topLeft = slot.Position - new Vector2(ShipModule.ModuleSlotOffset);
+                    var topLeft = slot.Position - new Vector2(ModuleSlotOffset);
                     var botRight = new Vector2(topLeft.X + 16f, topLeft.Y + 16f);
                     if (topLeft.X  < min.X) min.X = topLeft.X;
                     if (topLeft.Y  < min.Y) min.Y = topLeft.Y;

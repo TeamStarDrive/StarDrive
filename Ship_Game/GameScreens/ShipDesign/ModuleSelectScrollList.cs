@@ -21,8 +21,7 @@ namespace Ship_Game
             var weaponItem = (ModuleSelectListItem)item;
             if (weaponItem.Module != null)
             {
-                string hangarShipUID = DynamicHangarOptions.DynamicLaunch.ToString();
-                Screen.SetActiveModule(weaponItem.Module.UID, ModuleOrientation.Normal, 0, hangarShipUID);
+                Screen.SetActiveModule(weaponItem.Module.UID, ModuleOrientation.Normal, 0, DynamicHangarOptions.DynamicLaunch.ToString());
             }
             base.OnItemClicked(item);
         }
