@@ -1174,24 +1174,6 @@ namespace Ship_Game.Ships
 
         void UpdateModulesAndStatus(FixedSimTime timeSinceLastUpdate)
         {
-            if (InCombat && !EMPdisabled && hasCommand && Weapons.Count > 0)
-            {
-                foreach (Weapon weapon in Weapons)
-                {
-                    if (GlobalStats.HasMod)
-                    {
-                        Weapon weaponTemplate = ResourceManager.GetWeaponTemplate(weapon.UID);
-                        weapon.fireDelay = weaponTemplate.fireDelay;
-
-                        //Added by McShooterz: Hull bonus Fire Rate
-                        if (GlobalStats.ActiveModInfo.UseHullBonuses)
-                        {
-                            weapon.fireDelay *= 1f - shipData.Bonuses.FireRateBonus;
-                        }
-                    }
-                }
-            }
-
             for (int i = 0; i < ModuleSlotList.Length; ++i)
                 ModuleSlotList[i].Update(timeSinceLastUpdate);
 
