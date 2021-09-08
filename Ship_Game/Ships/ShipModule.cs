@@ -1073,7 +1073,7 @@ namespace Ship_Game.Ships
         void ConfigWeapon(string weaponType)
         {
             InstalledWeapon = ResourceManager.CreateWeapon(weaponType);
-            InstalledWeapon.Initialize(this, Parent);
+            InstalledWeapon.Initialize(this, Parent, Parent?.BaseHull);
         }
 
         public void SetHangarShip(Ship ship)

@@ -242,13 +242,13 @@ namespace Ship_Game.Gameplay
             return wep;
         }
 
-        public void Initialize(ShipModule m, Ship owner)
+        public void Initialize(ShipModule m, Ship owner, ShipHull hull)
         {
             Module = m;
             Owner  = owner;
 
-            if (Owner != null && GlobalStats.ActiveModInfo?.UseHullBonuses == true)
-                fireDelay *= 1f - Owner.shipData.Bonuses.FireRateBonus;
+            if (hull != null && GlobalStats.ActiveModInfo?.UseHullBonuses == true)
+                fireDelay *= 1f - hull.Bonuses.FireRateBonus;
         }
 
         [XmlIgnore][JsonIgnore]
