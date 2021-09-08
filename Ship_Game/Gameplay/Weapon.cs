@@ -242,6 +242,15 @@ namespace Ship_Game.Gameplay
             return wep;
         }
 
+        public void Initialize(ShipModule m, Ship owner, ShipHull hull)
+        {
+            Module = m;
+            Owner  = owner;
+
+            if (hull != null && GlobalStats.ActiveModInfo?.UseHullBonuses == true)
+                fireDelay *= 1f - hull.Bonuses.FireRateBonus;
+        }
+
         [XmlIgnore][JsonIgnore]
         public float NetFireDelay => isBeam ? fireDelay+BeamDuration : fireDelay+SalvoDuration;
 
