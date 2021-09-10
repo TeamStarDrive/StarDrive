@@ -1272,11 +1272,16 @@ namespace Ship_Game.Ships
             if (resupplyReason != ResupplyReason.NotNeeded)
             {
                 if (Mothership?.Active == true)
+                {
                     AI.OrderReturnToHangar(); // dealing with hangar ships needing resupply
-                else if (DesignRole == RoleName.drone)
-                    AI.OrderScuttleShip(); // drones just scuttle if they have no mothership to resupply
+                    return;
+                }
 
-                return;
+                if (DesignRole == RoleName.drone)
+                { 
+                    AI.OrderScuttleShip(); // drones just scuttle if they have no mothership to resupply
+                    return;
+                }
             }
 
             AI.ProcessResupply(resupplyReason);
