@@ -1129,7 +1129,7 @@ namespace Ship_Game.Ships
 
             if (Parent.ShieldRechargeTimer > shield_recharge_delay)
                 shieldPower += shield_recharge_rate * timeStep.FixedTime;
-            else if (ShieldPower > 0)
+            else 
                 shieldPower += shield_recharge_combat_rate * timeStep.FixedTime;
             return shieldPower.Clamped(0, shieldMax);
         }
