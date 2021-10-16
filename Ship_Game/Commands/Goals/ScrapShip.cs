@@ -96,9 +96,12 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep ImmediateScuttleSelfDestruct()
         {
-            OldShip.ScuttleTimer = 1;
-            OldShip.AI.ClearOrders(AIState.Scuttle, priority: true);
-            OldShip.QueueTotalRemoval(); // fbedard
+            if (OldShip?.Active == true)
+            {
+                OldShip.ScuttleTimer = 1;
+                OldShip.AI.ClearOrders(AIState.Scuttle, priority: true);
+                OldShip.QueueTotalRemoval(); // fbedard
+            }
             return GoalStep.GoalComplete;
         }
     }
