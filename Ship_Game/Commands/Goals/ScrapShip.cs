@@ -96,7 +96,11 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep ImmediateScuttleSelfDestruct()
         {
-            if (OldShip?.Active != true)
+            // Possible Hack. The ship should not be able to go null here. 
+            // the error message was a null ref here "OldShip.ScuttleTimer = 1;" which indicates that the OldShip was null.
+            // there may be a deeper problem.
+
+            if (OldShip?.Active == true)
             {
                 OldShip.ScuttleTimer = 1;
                 OldShip.AI.ClearOrders(AIState.Scuttle, priority: true);
