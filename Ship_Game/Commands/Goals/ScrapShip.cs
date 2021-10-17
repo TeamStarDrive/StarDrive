@@ -96,7 +96,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep ImmediateScuttleSelfDestruct()
         {
-            if (OldShipOnPlan)
+            if (OldShip?.Active != true)
             {
                 OldShip.ScuttleTimer = 1;
                 OldShip.AI.ClearOrders(AIState.Scuttle, priority: true);
