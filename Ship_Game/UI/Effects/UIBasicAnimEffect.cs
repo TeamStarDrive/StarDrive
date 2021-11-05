@@ -25,8 +25,7 @@ namespace Ship_Game
         public float DurationOut = 0.25f;
 
         public bool AnimateAlpha; // Are we animating ALPHA?
-        public float MinAlpha = 0f; // min/max alpha [0.0 - 1.0] range
-        public float MaxAlpha = 1f;
+        public Range AlphaRange = new Range(0,1); // min/max alpha [0.0 - 1.0] range
 
         // if TRUE, then original color will be animated instead
         // by default, animates from black to white, no alpha
@@ -34,10 +33,19 @@ namespace Ship_Game
         public Color MinColor = Microsoft.Xna.Framework.Graphics.Color.Black;
         public Color MaxColor = Microsoft.Xna.Framework.Graphics.Color.White;
 
-        // if TRUE, then position 
+        // if TRUE, then position is being animated
         public bool AnimatePosition;
         public Vector2 StartPos;
         public Vector2 EndPos;
+        
+        // Are we animating SCALE
+        public bool AnimateScale;
+        public Range CenterScaleRange;
+        
+        // Are we animating SIZE
+        public bool AnimateSize;
+        public Vector2 StartSize;
+        public Vector2 EndSize;
 
         public AnimPattern AnimPattern = AnimPattern.None;
 
@@ -112,11 +120,10 @@ namespace Ship_Game
         }
 
         // enable animating alpha
-        public UIBasicAnimEffect Alpha(float min=0f, float max=1f) // [0.0 - 1.0]
+        public UIBasicAnimEffect Alpha(Range alphaRange)
         {
             AnimateAlpha = true;
-            MinAlpha     = min;
-            MaxAlpha     = max;
+            AlphaRange = alphaRange;
             return this;
         }
 
@@ -144,6 +151,31 @@ namespace Ship_Game
             Element.Pos     = startPos;
             StartPos        = startPos;
             EndPos          = endPos;
+            return this;
+        }
+
+        // Enable size change animation
+        // @note The UIElement will default back to startSize after end of animation
+        public UIBasicAnimEffect Size(Vector2 startSize, Vector2 endSize)
+        {
+            AnimateSize = true;
+            Element.Size = startSize;
+            StartSize    = startSize;
+            EndSize      = endSize;
+            return this;
+        }
+
+        // Enable scale change animation
+        // The UIElement will default back to min scale after end of animation
+        // WARNING: Size must be initialized for this UI element
+        public UIBasicAnimEffect CenterScale(Range scaleRange)
+        {
+            AnimateScale = true;
+            CenterScaleRange = scaleRange;
+            StartPos = Element.Pos;
+            StartSize = Element.Size;
+            if (StartSize.AlmostZero())
+                Log.Error($"UIBasicAnimEffect.Scale {Element.Name} Element.Size={Element.Size} cannot be Zero!");
             return this;
         }
 
@@ -203,7 +235,7 @@ namespace Ship_Game
                 Color color = ce.Color;
                 if (AnimateAlpha)
                 {
-                    color = new Color(color, MinAlpha.LerpTo(MaxAlpha, ratio));
+                    color = new Color(color, AlphaRange.Min.LerpTo(AlphaRange.Max, ratio));
                 }
                 if (AnimateColor)
                 {
@@ -211,14 +243,38 @@ namespace Ship_Game
                 }
                 ce.Color = color;
             }
+
+            Vector2 pos = Element.Pos;
+            Vector2 size = Element.Size;
+            Vector2 newPos = pos;
+            Vector2 newSize = size;
+
             if (AnimatePosition)
             {
-                Vector2 pos = Element.Pos;
-                Element.Pos = StartPos.LerpTo(EndPos, Animation);
-                if (Element.Pos.NotEqual(pos))
-                {
-                    Element.PerformLayout();
-                }
+                newPos = StartPos.LerpTo(EndPos, Animation);
+            }
+
+            if (AnimateSize)
+            {
+                newSize = StartSize.LerpTo(EndSize, Animation);
+            }
+
+            if (AnimateScale)
+            {
+                float scale = CenterScaleRange.Min.LerpTo(CenterScaleRange.Max, Animation);
+                Vector2 startSize = AnimateSize ? newSize : StartSize;
+                newSize = startSize * scale;
+
+                Vector2 startPos = AnimatePosition ? newPos : StartPos;
+                Vector2 offset = startSize * ((1.0f - scale)*0.5f);
+                newPos = startPos + offset; // center to current
+            }
+
+            if (newPos.NotEqual(pos) || newSize.NotEqual(size))
+            {
+                Element.Pos = newPos;
+                Element.Size = newSize;
+                Element.PerformLayout();
             }
         }
 
