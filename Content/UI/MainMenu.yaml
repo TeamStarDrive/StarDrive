@@ -6,6 +6,29 @@
 # Some ID-s have hardcoded default behaviours like the buttons
 #
 Name: main_menu
+
+
+# attribute Animation:
+#   NOTE: Animations are hardcoded into a timeline 
+#     | --- StartDelay ---- | FadeInTime | Duration-FadeInTime-FadeOutTime | FadeOutTime |  --------- | loop time <-- |
+#   - StartDelay: Initial delay before main animation sequence starts
+#   - Duration: Duration of the whole fadeIn/stay/fadeOut main animation sequence
+#   - LoopTime: If > 0, then restart with time=0 after LoopTime seconds, default value = Delay+Duration
+#   - FadeInTime: Duration of main animation sequence fadeIn period
+#   - FadeOutTime: Duration of main animation sequence fadeOut period
+# fields:
+#   Params: [StartDelay(0), Duration(1), LoopTime(Delay+Duration), FadeInTime(0.25), FadeOutTime(0.25)]
+#   Pattern: None | Sine | Cosine
+#   MinColor: [R,G,B,A]
+#   MaxColor: [R,G,B,A]
+#   Alpha: [MinAlpha,MaxAlpha]
+#   CenterScale: [MinScale,MaxScale]  !!! Always scales from element CENTER
+#   StartSize: [X,Y]
+#   EndSize: [X,Y]
+#   StartPos: [X,Y]
+#   EndPos: [X,Y]
+
+
 # virtual size sets up the entire screen coordinate system
 # these coordinates will be translated into actual screen coordinates automatically
 # even if the game is running at 2560x1440 or 1280x720, all coordinates in this file

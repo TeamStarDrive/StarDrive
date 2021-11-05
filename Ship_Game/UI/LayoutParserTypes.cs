@@ -55,7 +55,6 @@ namespace Ship_Game.UI
         #pragma warning restore 649
 
         // these are initialized after parsing:
-        public Rectangle R;
         public SubTexture Tex;
         public SpriteAnimation Spr;
         public string ElementName => Name ?? Texture ?? "";
@@ -68,10 +67,18 @@ namespace Ship_Game.UI
         #pragma warning disable 649
         // Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
         [StarData] public readonly float[] Params;
+        [StarData] public readonly AnimPattern Pattern = AnimPattern.None;
+
         [StarData] public readonly Color? MinColor;
         [StarData] public readonly Color? MaxColor;
-        [StarData] public readonly AnimPattern Pattern = AnimPattern.None;
-        [StarData] public readonly Range Alpha = new Range(1f);
+        [StarData] public readonly Range Alpha = new Range(1f); // animation alpha range
+        [StarData] public readonly Range CenterScale = new Range(1f); // animation scale range
+
+        [StarData] public readonly Vector2? StartSize; // starting size of the animated UIElement
+        [StarData] public readonly Vector2? EndSize;
+
+        [StarData] public readonly Vector2? StartPos; // starting pos of the animated UIElement
+        [StarData] public readonly Vector2? EndPos;
         #pragma warning restore 649
     }
 

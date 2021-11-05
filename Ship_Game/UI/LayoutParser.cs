@@ -49,7 +49,6 @@ namespace Ship_Game.UI
         readonly RootElementInfo RootInfo;
         readonly string Name;
         readonly Vector2 VirtualXForm; // multiplier to transform virtual coordinates to actual coordinates
-        readonly YamlSerializer ElementSerializer = new YamlSerializer(typeof(ElementInfo));
 
         LayoutParser(UIElementContainer mainContainer, Vector2 size, FileInfo file)
         {
@@ -82,59 +81,7 @@ namespace Ship_Game.UI
             }
         }
 
-        Vector2 AbsoluteSize(ElementInfo info, Vector2 size, Vector2 parentSize)
-        {
-            if (size.X < 0f)
-            {
-                Log.Error($"Element {info.ElementName} Width cannot be negative: {size.X} ! Using default value 64.");
-                size.X = 64;
-            }
-            if (size.Y < 0f)
-            {
-                Log.Error($"Element {info.ElementName} Height cannot be negative: {size.Y} ! Using default value 64.");
-                size.Y = 64;
-            }
-            Vector2 result = size;
-            if (size.X <= 1f) result.X *= parentSize.X;
-            else              result.X *= VirtualXForm.X;
-            if (size.Y <= 1f) result.Y *= parentSize.Y;
-            else              result.Y *= VirtualXForm.Y;
-            return result;
-        }
-
-        static Vector2 AlignValue(Align align)
-        {
-            switch (align)
-            {
-                default:
-                case Align.TopLeft:      return new Vector2(0.0f, 0.0f);
-                case Align.TopCenter:    return new Vector2(0.5f, 0.0f);
-                case Align.TopRight:     return new Vector2(1.0f, 0.0f);
-                case Align.CenterLeft:   return new Vector2(0.0f, 0.5f);
-                case Align.Center:       return new Vector2(0.5f, 0.5f);
-                case Align.CenterRight:  return new Vector2(1.0f, 0.5f);
-                case Align.BottomLeft:   return new Vector2(0.0f, 1.0f);
-                case Align.BottomCenter: return new Vector2(0.5f, 1.0f);
-                case Align.BottomRight:  return new Vector2(1.0f, 1.0f);
-            }
-        }
-
-        Vector2 AbsolutePos(Vector2 pos, Vector2 absSize, Vector2 parent, Vector2 parentSize, Align axisAlign)
-        {
-            // @note parent size is already transformed, so we only need to transform non-relative positions
-            Vector2 p = pos;
-            if (-1f <= pos.X && pos.X <= 1f) p.X *= absSize.X;
-            else                             p.X *= VirtualXForm.X;
-            if (-1f <= pos.Y && pos.Y <= 1f) p.Y *= absSize.Y;
-            else                             p.Y *= VirtualXForm.Y;
-
-            Vector2 align = AlignValue(axisAlign);
-            p -= align * absSize;
-            return parent + align*parentSize + p;
-        }
-
-
-        Rectangle ParseRect(UIElementV2 parent, ElementInfo info)
+        void ParseRect(UIElementV2 parent, UIElementV2 element, ElementInfo info)
         {
             Vector2 pos = default, size = default;
 
@@ -159,7 +106,8 @@ namespace Ship_Game.UI
                     size = info.Size;
             }
 
-            Vector2 absSize = AbsoluteSize(info, size, parent.Size);
+            Vector2 absSize = UIElementV2.AbsoluteSize(info.ElementName, size, parent.Size,
+                                                       VirtualXForm.X, VirtualXForm.Y);
 
             int texWidth = 0, texHeight = 0;
             if (info.Spr != null)
@@ -192,14 +140,13 @@ namespace Ship_Game.UI
                 }
             }
 
-            Vector2 absPos = AbsolutePos(pos, absSize, parent.Pos, parent.Size, info.AxisAlign);
-            return new Rectangle
+            Vector2 absPos = UIElementV2.AbsolutePos(pos, absSize, parent.Pos, parent.Size, info.AxisAlign,
+                                                     VirtualXForm.X, VirtualXForm.Y);
+            var r = new Rectangle((int)absPos.X, (int)absPos.Y, (int)absSize.X, (int)absSize.Y);
+            if (!r.IsEmpty)
             {
-                X = (int) absPos.X,
-                Y = (int) absPos.Y,
-                Width  = (int) absSize.X,
-                Height = (int) absSize.Y
-            };
+                element.Rect = r;
+            }
         }
 
         SubTexture LoadTexture(string texturePath)
@@ -221,70 +168,65 @@ namespace Ship_Game.UI
             return sa;
         }
 
-        void LoadElementResources(UIElementV2 parent, ElementInfo info)
+        void LoadElementResources(UIElementV2 parent, UIElementV2 element, ElementInfo info)
         {
             info.Tex = LoadTexture(info.Texture);
             info.Spr = LoadSpriteAnim(info.SpriteAnim);
 
             // init texture for size information, so buttons can be auto-resized
             if (info.Tex == null && info.Type == "Button")
-            {
                 info.Tex = UIButton.StyleTexture(info.ButtonStyle);
-            }
+        }
 
-            info.R = ParseRect(parent, info);
+        static UIElementV2 GetOrCreateElement(UIElementContainer parent, ElementInfo info)
+        {
+            switch (info.Type)
+            {
+                case "Panel":
+                    return new UIPanel();
+                case "List":
+                    return new UIList
+                    {
+                        Padding = info.Padding,
+                        LayoutStyle = info.ListLayout,
+                    };
+                case "Label":
+                    return new UILabel(info.Title);
+                case "Button":
+                    return new UIButton(info.ButtonStyle, info.Title)
+                    {
+                        Tooltip = info.Tooltip,
+                        ClickSfx = info.ClickSfx,
+                    };
+                case "Checkbox":
+                    {
+                        bool dummy = false;
+                        return new UICheckBox(() => dummy, Fonts.Arial12Bold, info.Title, info.Tooltip);
+                    }
+                case "Override":
+                    if (parent.Find(info.ElementName, out UIElementV2 element))
+                        return element;
+                    Log.Warning($"Override '{info.ElementName}' failed. Element not found in '{parent.Name}'!");
+                    break;
+                default:
+                    Log.Warning($"Unrecognized UIElement {info.Type}");
+                    break;
+            }
+            return null;
         }
 
         void CreateElement(UIElementContainer parent, ElementInfo info)
         {
-            LoadElementResources(parent, info);
+            UIElementV2 element = GetOrCreateElement(parent, info);
+            if (element == null)
+                return;
 
-            bool newElement = true;
-            UIElementV2 element;
-            
-            if (info.Type == "Panel")
-            {
-                element = new UIPanel();
-            }
-            else if (info.Type == "List")
-            {
-                element = new UIList
-                {
-                    Padding = info.Padding,
-                    LayoutStyle = info.ListLayout,
-                };
-            }
-            else if (info.Type == "Label")
-            {
-                element = new UILabel(info.Title);
-            }
-            else if (info.Type == "Button")
-            {
-                element = new UIButton(info.ButtonStyle, info.Title)
-                {
-                    Tooltip = info.Tooltip,
-                    ClickSfx = info.ClickSfx,
-                };
-            }
-            else if (info.Type == "Checkbox")
-            {
-                bool dummy = false;
-                element = new UICheckBox(() => dummy, Fonts.Arial12Bold, info.Title, info.Tooltip);
-            }
-            else if (info.Type == "Override")
-            {
-                if (!parent.Find(info.ElementName, out element))
-                {
-                    Log.Warning($"Override '{info.ElementName}' failed. Element not found in '{parent.Name}'!");
-                    return;
-                }
-                newElement = false;
-            }
-            else
-            {
-                Log.Warning($"Unrecognized UIElement {info.Type}");
-                return; // meh
-            }
+            if (info.Type != "Override")
+                parent.Add(element);
+
+            element.Name = info.ElementName;
+            LoadElementResources(parent, element, info);
+            ParseRect(parent, element, info);
 
             if (element is ISpriteElement sprite)
             {
@@ -299,20 +241,11 @@ namespace Ship_Game.UI
                 colorElement.Color = info.Color.Value;
             }
 
-            if (newElement)
+            if (info.DrawDepth != null)
             {
-                element.Name = info.ElementName;
-                element.Rect = info.R;
-                parent.Add(element);
-            }
-            else // OVERRIDE
-            {
-                if (info.R.IsEmpty == false)
-                    element.Rect = info.R;
+                element.DrawDepth = info.DrawDepth.Value;
             }
 
-            if (info.DrawDepth != null)
-                element.DrawDepth = info.DrawDepth.Value;
             element.Visible = info.Visible;
             ParseAnimation(element, info);
 
@@ -352,20 +285,33 @@ namespace Ship_Game.UI
                 float fadeOut  = p.Length >= 5 ? p[4] : 0.25f;
 
                 UIBasicAnimEffect a = element.Anim(delay, duration, fadeIn, fadeOut);
-                
+
                 a.AnimPattern = data.Pattern;
 
                 if (loop.NotZero())
                     a.Loop(loop);
 
-                if (data.Alpha.Min.NotEqual(1f) || data.Alpha.Max.NotEqual(1f))
-                    a.Alpha(data.Alpha.Min, data.Alpha.Max);
+                if (!data.Alpha.AlmostEqual(minMax:1f))
+                    a.Alpha(data.Alpha);
+
+                if (!data.CenterScale.AlmostEqual(minMax:1f))
+                    a.CenterScale(data.CenterScale);
 
                 if (data.MinColor != null || data.MaxColor != null)
                 {
                     Color min = data.MinColor ?? Color.Black;
                     Color max = data.MaxColor ?? Color.White;
                     a.Color(min, max);
+                }
+
+                if (data.StartPos != null && data.EndPos != null)
+                {
+                    a.Pos(data.StartPos.Value, data.EndPos.Value);
+                }
+
+                if (data.StartSize != null && data.EndSize != null)
+                {
+                    a.Size(data.StartSize.Value, data.EndSize.Value);
                 }
             }
         }

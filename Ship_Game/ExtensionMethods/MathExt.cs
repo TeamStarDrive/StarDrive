@@ -46,9 +46,13 @@ namespace Ship_Game
         {
             Min = min; Max = max;
         }
-        public bool Equals(Range other)
+        [Pure] public bool Equals(Range other)
         {
             return Min == other.Min && Max == other.Max;
+        }
+        [Pure] public bool AlmostEqual(float minMax)
+        {
+            return Min.AlmostEqual(minMax) && Max.AlmostEqual(minMax);
         }
         [Pure] public float Generate()
         {
