@@ -57,8 +57,9 @@ namespace Ship_Game
         public RelPos RelPos; // relative position on parent, in absolute coordinates
         protected bool UseRelPos; // if TRUE, uses RelPos during PerformLayout()
 
-        //protected Vector2 AxisOffset = Vector2.Zero;
-        //protected Vector2 ParentOffset = Vector2.Zero;
+        // TODO: Work in progress axis alignment for this UIElementV2
+        //       it does not work outside of LayoutParser yet
+        public Align AxisAlign;
 
         // If set TRUE, this.PerformLayout() will be triggered during next Update()
         // After layout is complete, RequiresLayout should be set false
@@ -179,6 +180,62 @@ namespace Ship_Game
             return this;
         }
 
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public static Vector2 AlignValue(Align align)
+        {
+            switch (align)
+            {
+                default:
+                case Align.TopLeft:      return new Vector2(0.0f, 0.0f);
+                case Align.TopCenter:    return new Vector2(0.5f, 0.0f);
+                case Align.TopRight:     return new Vector2(1.0f, 0.0f);
+                case Align.CenterLeft:   return new Vector2(0.0f, 0.5f);
+                case Align.Center:       return new Vector2(0.5f, 0.5f);
+                case Align.CenterRight:  return new Vector2(1.0f, 0.5f);
+                case Align.BottomLeft:   return new Vector2(0.0f, 1.0f);
+                case Align.BottomCenter: return new Vector2(0.5f, 1.0f);
+                case Align.BottomRight:  return new Vector2(1.0f, 1.0f);
+            }
+        }
+
+        public static Vector2 AbsoluteSize(string elementName, Vector2 size, Vector2 parentSize,
+                                           float virtualTransformX = 1f, float virtualTransformY = 1f)
+        {
+            if (size.X < 0f)
+            {
+                Log.Error($"Element {elementName} Width cannot be negative: {size.X} ! Using default value 64.");
+                size.X = 64;
+            }
+            if (size.Y < 0f)
+            {
+                Log.Error($"Element {elementName} Height cannot be negative: {size.Y} ! Using default value 64.");
+                size.Y = 64;
+            }
+            Vector2 result = size;
+            if (size.X <= 1f) result.X *= parentSize.X;
+            else              result.X *= virtualTransformX;
+            if (size.Y <= 1f) result.Y *= parentSize.Y;
+            else              result.Y *= virtualTransformY;
+            return result;
+        }
+
+        public static Vector2 AbsolutePos(Vector2 pos, Vector2 absSize, Vector2 parent, Vector2 parentSize, Align axisAlign,
+                                          float virtualTransformX = 1f, float virtualTransformY = 1f)
+        {
+            // @note parent size is already transformed, so we only need to transform non-relative positions
+            Vector2 p = pos;
+            if (-1f <= pos.X && pos.X <= 1f) p.X *= absSize.X;
+            else                             p.X *= virtualTransformX;
+            if (-1f <= pos.Y && pos.Y <= 1f) p.Y *= absSize.Y;
+            else                             p.Y *= virtualTransformY;
+
+            Vector2 align = AlignValue(axisAlign);
+            p -= align * absSize;
+            return parent + align*parentSize + p;
+        }
+
+        
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
         protected UIElementV2()
