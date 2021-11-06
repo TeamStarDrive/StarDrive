@@ -226,7 +226,7 @@ namespace Ship_Game
             const int containerMarginBottom = 10;
             const int containerPaddingLeft = 10;
             DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked)
-                .SetRelPos(containerPaddingLeft, DescriptionTextList.Height + containerMarginBottom);
+                .SetLocalPos(containerPaddingLeft, DescriptionTextList.Height + containerMarginBottom);
 
             DoRaceDescription();
             SetRacialTraits(SelectedData.Traits);
@@ -236,9 +236,9 @@ namespace Ship_Game
             EnvMenu.Visible = GlobalStats.HasMod && GlobalStats.ActiveModInfo.DisplayEnvPerfInRaceDesign;
 
             ChooseRaceList.ButtonMedium("Load Race", OnLoadRaceClicked)
-                .SetRelPos(ChooseRaceList.Width / 2 - 142, ChooseRaceList.Height + 10);
+                .SetLocalPos(ChooseRaceList.Width / 2 - 142, ChooseRaceList.Height + 10);
             ChooseRaceList.ButtonMedium("Save Race", OnSaveRaceClicked)
-                .SetRelPos(ChooseRaceList.Width / 2 + 10, ChooseRaceList.Height + 10);
+                .SetLocalPos(ChooseRaceList.Width / 2 + 10, ChooseRaceList.Height + 10);
 
             var pos = new Vector2(ScreenWidth / 2 - 84, traitsList.Y + traitsList.Height + 10);
             ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked);

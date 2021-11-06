@@ -44,7 +44,7 @@ namespace Ship_Game
         protected UIElementContainer(in Vector2 pos, in Vector2 size) : base(pos, size)
         {
         }
-        protected UIElementContainer(in RelPos pos, in Vector2 size) : base(pos, size)
+        protected UIElementContainer(in LocalPos pos, in Vector2 size) : base(pos, size)
         {
         }
         protected UIElementContainer(in Rectangle rect) : base(rect)
@@ -366,7 +366,7 @@ namespace Ship_Game
         public UILabel LabelRel(in LocalizedText text, Graphics.Font font, Color color, float x, float y)
         {
             UILabel label = Add(new UILabel(text, font, color));
-            label.SetRelPos(x, y);
+            label.SetLocalPos(x, y);
             return label;
         }
 
@@ -390,7 +390,7 @@ namespace Ship_Game
         public UIPanel PanelRel(in Rectangle r, SubTexture s)
         {
             var panel = Add(new UIPanel(r, s));
-            panel.SetRelPos(r.X, r.Y);
+            panel.SetLocalPos(r.X, r.Y);
             return panel;
         }
 
