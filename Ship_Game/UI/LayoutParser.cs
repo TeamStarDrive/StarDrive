@@ -109,15 +109,33 @@ namespace Ship_Game.UI
                 }
                 else if (size.Y.AlmostZero())
                 {
-                    float aspectRatio = (texSize.Y / (float)texSize.X);
-                    size.Y = size.X * aspectRatio;
-                    if (abs) size.Y = (float)Math.Round(size.Y);
+                    if (abs)
+                    {
+                        float aspectRatio = (texSize.Y / (float)texSize.X);
+                        size.Y = (float)Math.Round(size.X * aspectRatio);
+                    }
+                    else
+                    {
+                        size.Y = size.X;
+                    }
+                    //float aspectRatio = (texSize.Y / (float)texSize.X);
+                    //size.Y = size.X * aspectRatio;
+                    //if (abs) size.Y = (float)Math.Round(size.X * aspectRatio);
                 }
                 else if (size.X.AlmostZero())
                 {
-                    float aspectRatio = (texSize.X / (float)texSize.Y);
-                    size.X = size.Y * aspectRatio;
-                    if (abs) size.X = (float)Math.Round(size.X);
+                    if (abs)
+                    {
+                        float aspectRatio = (texSize.X / (float)texSize.Y);
+                        size.X = (float)Math.Round(size.Y * aspectRatio);
+                    }
+                    else
+                    {
+                        size.X = size.Y;
+                    }
+                    //float aspectRatio = (texSize.X / (float)texSize.Y);
+                    //size.X = size.Y * aspectRatio;
+                    //if (abs) size.X = (float)Math.Round(size.Y * aspectRatio);
                 }
             }
             return size;
@@ -178,7 +196,7 @@ namespace Ship_Game.UI
             return sa;
         }
 
-        void LoadElementResources(UIElementV2 parent, UIElementV2 element, ElementInfo info)
+        void LoadElementResources(ElementInfo info)
         {
             info.Tex = LoadTexture(info.Texture);
             info.Spr = LoadSpriteAnim(info.SpriteAnim);
@@ -235,10 +253,10 @@ namespace Ship_Game.UI
                 parent.Add(element);
 
             element.Name = info.ElementName;
-            LoadElementResources(parent, element, info);
+            LoadElementResources(info); // need texture info for Pos and Size
 
             SetPosAndSize(element, info);
-            element.PerformLayout();
+            element.PerformLayout(); // calculate current absolute Pos & Size
 
             if (element is ISpriteElement sprite)
             {

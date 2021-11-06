@@ -7,6 +7,35 @@
 #
 Name: main_menu
 
+# Pos and Size attributes are defined in this order:
+# 
+#  AbsPos: [800,400]   # absolute position in VIRTUAL COORDINATES, defined by `VirtualSize` attribute
+#                      # RESOLUTION=VirtualSize;   then [800,400] is equal to X=800px Y=400px
+#                      # RESOLUTION=2*VirtualSize; then [800,400] is equal to X=1600px Y=800px
+#
+#  AbsSize: [400,400]  # absolute size in VIRTUAL COORDINATES, defined by `VirtualSize` attribute
+#                      # RESOLUTION=VirtualSize;   then [400,200] is equal to width=400px height=200px
+#                      # RESOLUTION=2*VirtualSize; then [400,200] is equal to width=800px height=400px
+#                      # AbsSize=[0,0] means auto-detect virtual size from texture size
+#                      # AbsSize=[0,200] means auto-detect Width only
+#                      # AbsSize=[100,0] means auto-detect Height only
+#
+#  LocalPos: [20,10]   # local position relative to parent, in VIRTUAL coordinates, can be modified by `ParentAlign`, `LocalAxis`, `AxisAlign`
+#                      # LocalPos=[20,10], Parent.Pos=[200,100]; then Pos=[220,110]
+#
+#  RelPos:  [0.2,0.1]  # relative position on the parent, in relative coordinate range [0.0, 1.0]
+#                      # default formula: Pos = Parent.Pos + Parent.Size * RelPos
+#                      # [0.5, 0.5] means center of Parent, if ParentAlign=TopLeft (default)
+#
+#  RelSize: [0.5,0.5]  # relative size on the parent, in relative coordinate range [0.0, 1.0]
+#                      # if there's no Parent, RESOLUTION size is used instead
+#                      # [0.5, 0.5] means half the width and height of Parent
+#                      # [0,0] is invalid
+#                      # [0, 0.5] means auto-detect Width, Height is half the height of Parent
+#
+# NOTE: default position is RelPos [0.0, 0.0]
+# NOTE: default size is AbsSize [0, 0]
+
 # attribute `Animation`:
 #   NOTE: Animations are hardcoded into a timeline 
 #     | --- StartDelay ---- | FadeInTime | Duration-FadeInTime-FadeOutTime | FadeOutTime |  --------- | loop time <-- |
@@ -29,7 +58,7 @@ Name: main_menu
 #
 
 # attribute `Animations`:
-#   Allows for multiple animations for a single UI element
+#   Allows for MULTIPLE animations for a single UI element
 # Animations:
 #   - Animation:
 #     Params: [0, 2, 2, 0.5, 0.5] # delay, duration, end-time, fadein, fadeout
@@ -46,23 +75,15 @@ Name: main_menu
 # even if the game is running at 2560x1440 or 1280x720, all coordinates in this file
 # are defined by this. Different aspect ratios get automatically repositioned.
 VirtualSize: [1920,1080]
+
 Elements:
   - Panel:
     Name: background
-    Texture: MMenu/new_background.png # Textures/MainMenu/xxxx.png
+    Texture: MMenu/new_background.png # Textures/MMenu/xxxx.png
     Color: [1.0,1.0,1.0] # default color
-    # [x, y, w, h] these are relative coordinates
-    # 
-    # Examples:
-    #   x: 0.5 means X is at center of parent
-    #   x: 1.0 means X is at right edge of parent
-    #   w: 1.0 means fill the parent
-    #   w: 0.5 means half size 
-    #   h: 0.0 means auto-detect height from texture aspect ratio OR set to w if no texture
-    #   w: 0 h: 0 means auto-detect width and height from texture size
-    # 
-    # [0,0,1,1] -- this will aspect fill the entire screen
     Rect: [0.0, 0.0, 1.0, 0.0]
+    AbsPos: [0, 0]
+    RelSize: [1, 0] # fill width, auto-detect height from aspect ratio
     # Draw depth controls when the UI element is being drawn:
     # Foreground   -- draw 2D on top of 3D objects -- default value
     # Background   -- draw 2D behind 3D objects
@@ -79,16 +100,16 @@ Elements:
   - Panel:
     Name: planet
     Texture: MMenu/new_planet.png
-    #Size: [1, 0] # fill to width, auto-pick height
-    Size: [0, 0.8] # set relative height, auto-aspect width
+    RelPos: [0, 0]
+    RelSize: [0, 0.8] # set relative height, auto-aspect width
     AxisAlign: BottomCenter # Align our Pos and Axis
     DrawDepth: Background
-    DebugDraw: false
+    DebugDraw: true
     Children:
       - Panel:
         Name: citylights
         Texture: MMenu/citylights3.png
-        Size: [1, 0]
+        RelSize: [1, 0] # fill width, auto-detect height from aspect ratio
         Color: [0.45,0.45,0.45,1.0]
         AxisAlign: BottomCenter
         DrawDepth: BackAdditive
@@ -102,8 +123,8 @@ Elements:
       - Panel:
         Name: planet_flare
         Texture: MMenu/new_flare.png
-        Size: [0.62, 0]
-        Pos: [0, -0.45]
+        RelSize: [0.62, 0] # auto-detect height from aspect ratio
+        RelPos: [0, -0.45]
         Visible: true
         AxisAlign: TopCenter
         DrawDepth: BackAdditive
@@ -114,8 +135,8 @@ Elements:
       - Panel:
         Name: optical_sun_flare
         Texture: MMenu/optical_flare.png
-        Size: [1, 0]
-        Pos: [0.01, -0.06]
+        RelSize: [1, 0] # fill width, auto-detect height from aspect ratio
+        RelPos: [0.01, -0.06]
         Visible: true
         AxisAlign: Center
         DrawDepth: BackAdditive
@@ -126,8 +147,8 @@ Elements:
 
   - Panel:
     Name: stardrive_animated_logo
-    Size: [0.3, 0]
-    Pos: [-0.06, 60]
+    RelSize: [0.3, 0] # auto-detect height from aspect ratio
+    RelPos: [-0.06, 60]
     AxisAlign: TopRight
     DrawDepth: Foreground
     SpriteAnim:
@@ -138,8 +159,8 @@ Elements:
 
   - Panel:
     Name: blacbox_animated_logo
-    Size: [0.25, 0]
-    Pos: [-0.06, 170]
+    RelSize: [0.25, 0] # auto-detect height from aspect ratio
+    RelPos: [-0.06, 170]
     Color: [0.8,0.8,0.8,0.0] # start with alpha 0.0
     AxisAlign: TopRight
     DrawDepth: Foreground
@@ -156,10 +177,10 @@ Elements:
       Alpha: [0, 1]
 
   - Panel:
-    Name: blackvox_sub_version
+    Name: blackbox_sub_version
     Texture: MMenu/subver.png
-    Size: [0, 0.035]
-    Pos: [-335, 213]
+    RelSize: [0, 0.035]
+    AbsPos: [-335, 213]
     AxisAlign: TopRight
     DrawDepth: Foreground
     Animation:
@@ -169,14 +190,15 @@ Elements:
   - Panel:
     Name: vignette
     Texture: MainMenu/vignette
-    Rect: [0, 0, 1, 1] # fill entire Screen
+    RelSize: [1, 1] # fill screen
     DrawDepth: Foreground # on top of everything
 
   - Panel:
     Name: corner_top_left
     Visible: False
     Texture: MMenu/corner_TL2.png
-    Rect: [16, 16, 0.2, 0]
+    AbsPos: [16, 16]
+    RelSize: [0.2, 0] # auto-detect height
     Animation:
       Params: [2, 6, 9, 1, 1] # delay, duration, end-time, fadein, fadeout
       Alpha: [0.5, 1.0]
@@ -198,7 +220,7 @@ Elements:
     Name: logo_text_1
     Visible: False
     Texture: MainMenu/moon_1
-    Pos: [-385,-170]
+    AbsPos: [-385,-170]
     Animation:
       Params: [1.5, 2, 12, 0.4, 0.7] # delay, duration, end-time, fadein, fadeout
       Alpha: [0.0, 1.0]
@@ -207,7 +229,7 @@ Elements:
     Name: logo_text_2
     Visible: False
     Texture: MainMenu/moon_2
-    Pos: [-350,10]
+    AbsPos: [-350,10]
     Animation:
       Params:  [5.5, 2, 12, 0.4, 0.7] # delay, duration, end-time, fadein, fadeout
       Alpha: [0.0, 1.0]
@@ -216,12 +238,12 @@ Elements:
     Name: logo_text_3
     Visible: False
     Texture: MainMenu/moon_3
-    Pos: [45, 10]
+    AbsPos: [45, 10]
     Animation:
       Params:  [7.5, 2, 12, 0.4, 0.7] # delay, duration, end-time, fadein, fadeout
       Alpha: [0.0, 1.0]
 
-  - List: 
+  - List:
     Name: buttons
     Rect: [-20, 0.22, 200, 600]
     AxisAlign: CenterRight
@@ -234,46 +256,46 @@ Elements:
       - Button:
           Name: new_game
           ButtonStyle: Default
-          Size: [1.0, 0] # aspect fill width
+          RelSize: [1, 0] # aspect fill width
           Title: "{1}" # "New Game"
           ClickSfx: sd_ui_tactical_pause
       - Button:
           Name: tutorials
           Title: "{3}" # "Tutorials"
-          Size: [1.0, 0]
+          RelSize: [1, 0] # aspect fill width
           ClickSfx: sd_ui_tactical_pause
       - Button:
           Name: load_game
           Title: "{2}" # "Load Game"
-          Size: [1.0, 0]
+          RelSize: [1, 0] # aspect fill width
           ClickSfx: sd_ui_tactical_pause
       - Button:
           Name: options
           Title: "{4}" # "Options"
-          Size: [1.0, 0]
+          RelSize: [1, 0] # aspect fill width
           ClickSfx: sd_ui_tactical_pause
       - Button:
           Name: mods
           Title: "Mods"
-          Size: [1.0, 0]
+          RelSize: [1, 0] # aspect fill width
           ClickSfx: sd_ui_tactical_pause
       - Button:
           Name: sandbox
           Title: "Dev Sandbox"
-          Size: [1.0, 0]
+          RelSize: [1, 0] # aspect fill width
           ClickSfx: sd_ui_tactical_pause
       - Button:
           Name: info
           Title: "BlackBox Info"
-          Size: [1.0, 0]
+          RelSize: [1, 0] # aspect fill width
           ClickSfx: sd_ui_tactical_pause
       - Button:
           Name: version
           Title: "Version Check"
-          Size: [1.0, 0]
+          RelSize: [1, 0] # aspect fill width
           ClickSfx: sd_ui_tactical_pause
       - Button:
           Name: exit
           Title: "{5}" # "Exit"
-          Size: [1.0, 0]
+          RelSize: [1, 0] # aspect fill width
           ClickSfx: sd_ui_tactical_pause
