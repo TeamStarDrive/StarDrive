@@ -166,8 +166,8 @@ namespace Ship_Game
                 Title = title;
                 UILabel lblTitle = Add(new UILabel(title));
                 UILabel lblValue = Add(new UILabel(GetText));
-                lblTitle.SetRelPos(titleX, 0);
-                lblValue.SetRelPos(valueX, 0);
+                lblTitle.SetLocalPos(titleX, 0);
+                lblValue.SetLocalPos(valueX, 0);
             }
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
