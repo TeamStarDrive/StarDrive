@@ -198,6 +198,18 @@ namespace Ship_Game
             DrawLine(batch, bl, tl, color, thickness); // |    left
         }
 
+        public static void DrawRectangle(this SpriteBatch batch, in RectF rect, Color color, float thickness = 1f)
+        {
+            var tl = new Vector2(rect.X, rect.Y);
+            var bl = new Vector2(rect.X, rect.Bottom);
+            var tr = new Vector2(rect.Right, rect.Y);
+            var br = new Vector2(rect.Right, rect.Bottom);
+            DrawLine(batch, tl, tr, color, thickness); // ---- top
+            DrawLine(batch, tr, br, color, thickness); //    | right
+            DrawLine(batch, br, bl, color, thickness); // ____ bottom
+            DrawLine(batch, bl, tl, color, thickness); // |    left
+        }
+
         public static void DrawRectangle(this SpriteBatch batch, Vector2 center, Vector2 size, float rotation, Color color, float thickness = 1f)
         {
             Vector2 halfSize = size * 0.5f;
@@ -307,19 +319,25 @@ namespace Ship_Game
             SubTexture texture = ResourceManager.Texture(complete
                                ? "ResearchMenu/grid_vert_complete"
                                : "ResearchMenu/grid_vert");
-            
+
             var r = new Rectangle((int)top.X - 2, (int)top.Y, 5, (int)top.Distance(bottom));
             batch.Draw(texture, r, Color.White);
         }
 
-        public static void FillRectangle(this SpriteBatch batch, Rectangle rect, Color color)
+        public static void FillRectangle(this SpriteBatch batch, in Rectangle rect, Color color)
         {
+            // TODO: This is the legacy draw with no sub-pixel capabilities
             batch.Draw(ResourceManager.WhitePixel, rect, color);
+        }
+
+        public static void FillRectangle(this SpriteBatch batch, in RectF rect, Color color)
+        {
+            SpriteExtensions.Draw(batch, ResourceManager.WhitePixel, rect, color);
         }
 
         public static void FillRectangle(this SpriteBatch batch, Vector2 location, Vector2 size, Color color, float angle)
         {
-            batch.Draw(ResourceManager.WhitePixel, location, null, color, angle, Vector2.Zero, size, SpriteEffects.None, 0f);
+            SpriteExtensions.Draw(batch, ResourceManager.WhitePixel, location, size, color, angle);
         }
     }
 }

@@ -108,7 +108,7 @@ namespace Ship_Game.SpriteSystem
             }
         }
 
-        public void Draw(SpriteBatch batch, in Rectangle rect, Color color)
+        public void Draw(SpriteBatch batch, in RectF rect, Color color)
         {
             if (Anim != null)
             {
