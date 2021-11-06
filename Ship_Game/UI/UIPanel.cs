@@ -120,16 +120,16 @@ namespace Ship_Game
         {
             if (Sprite != null)
             {
-                Sprite.Draw(batch, Rect, Color);
+                Sprite.Draw(batch, RectF, Color);
             }
             else if (Color.A > 0)
             {
-                batch.FillRectangle(Rect, Color);
+                batch.FillRectangle(RectF, Color);
             }
 
             if (Border.A > 0)
             {
-                batch.DrawRectangle(Rect, Border);
+                batch.DrawRectangle(RectF, Border);
             }
 
             base.Draw(batch, elapsed);
