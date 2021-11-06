@@ -66,7 +66,28 @@ namespace Ship_Game.UI
         public SubTexture Tex;
         public SpriteAnimation Spr;
         public string ElementName => Name ?? Texture ?? "";
-        public override string ToString() => ElementName;
+        public override string ToString() => $"{ElementName} {PosString} {SizeString}";
+
+        string PosString
+        {
+            get
+            {
+                if (AbsPos != null)   return $"AbsPos X:{AbsPos.Value.X} Y:{AbsPos.Value.Y}";
+                if (LocalPos != null) return $"LocalPos X:{LocalPos.Value.X} Y:{LocalPos.Value.Y}";
+                if (RelPos != null)   return $"RelPos X:{RelPos.Value.X} Y:{RelPos.Value.Y}";
+                return "RelPos X:0 Y:0";
+            }
+        }
+
+        string SizeString
+        {
+            get
+            {
+                if (AbsSize != null) return $"AbsSize W:{AbsSize.Value.X} H:{AbsSize.Value.Y}";
+                if (RelSize != null) return $"RelSize W:{RelSize.Value.X} H:{RelSize.Value.Y}";
+                return "AbsSize X:? Y:?";
+            }
+        }
     }
 
     [StarDataType]
