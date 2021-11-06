@@ -29,18 +29,18 @@ namespace Ship_Game.GameScreens.ShipDesign
         {
             S = screen;
             var toggleEdit = Button(ButtonStyle.Low100, "Hull Editor", b => ToggleHullEditMode());
-            toggleEdit.SetRelPos(0,0);
+            toggleEdit.SetLocalPos(0,0);
             Title = LabelRel("EDITING HULL", Fonts.Arial14Bold, 120, 0);
 
             StatLabels = Add(new UIList(ListLayoutStyle.ResizeList));
-            StatLabels.SetRelPos(0, 20);
+            StatLabels.SetLocalPos(0, 20);
             StatLabels.Padding = new Vector2(2, 8);
             AddStatLabel(() => $"GridPos [{S.GridPosUnderCursor.X},{S.GridPosUnderCursor.Y}] slot: {S.SlotUnderCursor}");
             AddStatLabel(() => $"MeshOffset {S.CurrentHull?.MeshOffset}");
             AddStatLabel(() => $"GridCenter {S.CurrentHull?.GridCenter}");
 
             EditList = Add(new UIList(ListLayoutStyle.ResizeList));
-            EditList.SetRelPos(0, 100);
+            EditList.SetLocalPos(0, 100);
             EditList.Padding = new Vector2(2, 8);
 
             MeshOffsetY = EditList.Add(new FloatSlider(SliderStyle.Decimal, new Vector2(200, 30),

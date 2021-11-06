@@ -181,7 +181,7 @@ namespace Ship_Game
         {
             if (UseRelPos && Parent != null)
             {
-                Pos = Parent.Pos + new Vector2(RelPos.X, RelPos.Y);
+                Pos = Parent.Pos + new Vector2(LocalPos.X, LocalPos.Y);
             }
 
             Vector2 pos = Pos + Padding;

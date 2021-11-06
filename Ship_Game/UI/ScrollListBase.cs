@@ -94,7 +94,7 @@ namespace Ship_Game
                 if (background != null)
                 {
                     // attach with relative position, so it moves along with us
-                    Add(background).SetRelPos(Pos - background.Pos);
+                    Add(background).SetLocalPos(Pos - background.Pos);
                 }
             }
         }

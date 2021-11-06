@@ -29,9 +29,13 @@ namespace Ship_Game.UI
         [StarData] public readonly string Texture;
         [StarData] public readonly bool Visible = true; // Visible by default
         [StarData] public readonly DrawDepth? DrawDepth;
-        [StarData] public readonly Vector4 Rect;
-        [StarData] public readonly Vector2 Pos;
-        [StarData] public readonly Vector2 Size;
+
+        [StarData] public readonly Vector2? AbsPos;
+        [StarData] public readonly Vector2? AbsSize;
+        [StarData] public readonly Vector2? LocalPos;
+        [StarData] public readonly Vector2? RelPos;
+        [StarData] public readonly Vector2? RelSize;
+
         [StarData] public readonly Vector2 Padding = new Vector2(5f, 5f);
         [StarData] public readonly ListLayoutStyle ListLayout = ListLayoutStyle.ResizeList;
         [StarData] public readonly ButtonStyle ButtonStyle = ButtonStyle.Default;
@@ -44,7 +48,10 @@ namespace Ship_Game.UI
          * By changing this value, you can align element Pos:[0,0] to parent BottomLeft
          * @example Align.Center will perfectly center to parent center
          */
-        [StarData] public readonly Align AxisAlign; 
+        [StarData] public readonly Align? AxisAlign; // sets both ParentAlign and LocalAxis
+        [StarData] public readonly Align? ParentAlign;
+        [StarData] public readonly Align? LocalAxis;
+
         [StarData] public readonly Color? Color;
         [StarData] public readonly LocalizedText Title;
         [StarData] public readonly LocalizedText Tooltip;
@@ -59,7 +66,7 @@ namespace Ship_Game.UI
         public SubTexture Tex;
         public SpriteAnimation Spr;
         public string ElementName => Name ?? Texture ?? "";
-        public override string ToString() => $"{ElementName} Rect:{Rect}";
+        public override string ToString() => ElementName;
     }
 
     [StarDataType]
