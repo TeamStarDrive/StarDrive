@@ -388,31 +388,22 @@ namespace Ship_Game
                     Size.X = parentSize.X * RelSize.W;
                     Size.Y = parentSize.Y * RelSize.H;
                 }
-            }
 
-            if (parent != null)
-            {
                 if (UseRelPos)
                 {
-                    Pos.X = parentPos.X + parentSize.X * RelPos.X;
-                    Pos.Y = parentPos.Y + parentSize.Y * RelPos.Y;
+                    // default for both is TopLeft [0.0, 0.0]
+                    Vector2 parentAlign = AlignValue(ParentAlign);
+                    Vector2 localAxis   = AlignValue(LocalAxis);
+                    Pos.X = (parentPos.X + parentSize.X*parentAlign.X) + (parentSize.X*RelPos.X - Size.X*localAxis.X);
+                    Pos.Y = (parentPos.Y + parentSize.Y*parentAlign.Y) + (parentSize.Y*RelPos.Y - Size.X*localAxis.X);
                 }
                 else if (UseLocalPos)
                 {
-                    Pos.X = parentPos.X + LocalPos.X;
-                    Pos.Y = parentPos.Y + LocalPos.Y;
+                    Vector2 parentAlign = AlignValue(ParentAlign);
+                    Vector2 localAxis   = AlignValue(LocalAxis);
+                    Pos.X = (parentPos.X + parentSize.X*parentAlign.X) + (LocalPos.X - Size.X*localAxis.X);
+                    Pos.Y = (parentPos.Y + parentSize.Y*parentAlign.Y) + (LocalPos.Y - Size.X*localAxis.X);
                 }
-
-                if (UseRelSize)
-                {
-                    Size.X = parentSize.X * RelSize.W;
-                    Size.Y = parentSize.Y * RelSize.H;
-                }
-
-                // @note parent size is already transformed, so we only need to transform non-relative positions
-                Vector2 align = AlignValue(AxisAlign);
-                Vector2 p = Pos - align*Size;
-                Pos = parentPos + align*parentSize + p;
             }
         }
 
