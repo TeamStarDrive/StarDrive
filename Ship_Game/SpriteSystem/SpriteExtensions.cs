@@ -99,18 +99,46 @@ namespace Ship_Game
         public static void Draw(this SpriteBatch batch, SubTexture texture,
                                 Vector2 position, Vector2 size)
         {
-            CheckSubTextureDisposed(texture);
             var r = new RectF(position, size);
             Draw(batch, texture, r, Color.White);
         }
 
         public static void Draw(this SpriteBatch batch, Texture2D texture,
-                                Vector2 position, Vector2 size)
+                                in RectF r)
         {
             CheckTextureDisposed(texture);
-            var r = new RectF(position, size);
             InternalDraw(batch, texture, r, false, NullRectangle, Color.White,
                          0f, Vector2.Zero, SpriteEffects.None, 0f);
+        }
+
+        public static void Draw(this SpriteBatch batch, Texture2D texture,
+                                in RectF r, Color color)
+        {
+            CheckTextureDisposed(texture);
+            InternalDraw(batch, texture, r, false, NullRectangle, color,
+                         0f, Vector2.Zero, SpriteEffects.None, 0f);
+        }
+
+        public static void Draw(this SpriteBatch batch, Texture2D texture,
+                                in RectF r, Color color, float angle)
+        {
+            CheckTextureDisposed(texture);
+            InternalDraw(batch, texture, r, false, NullRectangle, color,
+                         angle, Vector2.Zero, SpriteEffects.None, 0f);
+        }
+
+        public static void Draw(this SpriteBatch batch, Texture2D texture,
+                                Vector2 position, Vector2 size)
+        {
+            var r = new RectF(position, size);
+            Draw(batch, texture, r);
+        }
+
+        public static void Draw(this SpriteBatch batch, Texture2D texture,
+                                Vector2 position, Vector2 size, Color color, float angle)
+        {
+            var r = new RectF(position, size);
+            Draw(batch, texture, r, color, angle);
         }
 
         public static void Draw(this SpriteBatch batch, SubTexture texture,
