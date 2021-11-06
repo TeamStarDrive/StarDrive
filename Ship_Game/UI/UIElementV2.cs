@@ -94,6 +94,18 @@ namespace Ship_Game
             }
         }
 
+        public RectF RectF
+        {
+            get => new RectF(Pos, Size);
+            set
+            {
+                Pos.X = value.X;
+                Pos.Y = value.Y;
+                Size.X = value.W;
+                Size.Y = value.H;
+            }
+        }
+
         public float X { get => Pos.X; set => Pos.X = value; }
         public float Y { get => Pos.Y; set => Pos.Y = value; }
         public float Width  { get => Size.X; set => Size.X = value; }
