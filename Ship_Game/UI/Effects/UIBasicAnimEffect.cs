@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
@@ -323,6 +324,39 @@ namespace Ship_Game
                 }
             }
             return 1.0f; // stay
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder("UIEffect");
+            sb.Append(" Delay:").Append(Delay);
+            sb.Append(" Duration:").Append(Duration);
+            sb.Append(" EndT:").Append(EndTime);
+            sb.Append(" In:").Append(DurationIn);
+            sb.Append(" Out:").Append(DurationOut);
+
+            if (Looping)
+                sb.Append(" Looping");
+
+            if (AnimateAlpha)
+                sb.Append(" Alpha:").Append(AlphaRange.Min).Append(",").Append(AlphaRange.Max);
+
+            if (AnimateColor)
+                sb.Append(" Color:").Append(MinColor).Append(",").Append(MaxColor);
+
+            if (AnimatePosition)
+                sb.Append(" Position:").Append(StartPos).Append(EndPos);
+
+            if (AnimateScale)
+                sb.Append(" CenterScale:").Append(CenterScaleRange.Min).Append(",").Append(CenterScaleRange.Max);
+
+            if (AnimateSize)
+                sb.Append(" Size:").Append(StartSize).Append(",").Append(EndSize);
+
+            if (SoundEffects)
+                sb.Append(" SFX:").Append(StartSfx).Append(",").Append(EndSfx);
+
+            return sb.ToString();
         }
     }
 }

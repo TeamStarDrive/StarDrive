@@ -312,14 +312,12 @@ namespace Ship_Game.UI
             }
 
             if (data.StartPos != null && data.EndPos != null)
-            {
                 a.Pos(data.StartPos.Value, data.EndPos.Value);
-            }
 
             if (data.StartSize != null && data.EndSize != null)
-            {
                 a.Size(data.StartSize.Value, data.EndSize.Value);
-            }
+
+            Log.Info($"Add {element.Name} {a}");
         }
     }
 }

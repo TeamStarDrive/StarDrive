@@ -7,26 +7,38 @@
 #
 Name: main_menu
 
-
-# attribute Animation:
+# attribute `Animation`:
 #   NOTE: Animations are hardcoded into a timeline 
 #     | --- StartDelay ---- | FadeInTime | Duration-FadeInTime-FadeOutTime | FadeOutTime |  --------- | loop time <-- |
 #   - StartDelay: Initial delay before main animation sequence starts
 #   - Duration: Duration of the whole fadeIn/stay/fadeOut main animation sequence
-#   - LoopTime: If > 0, then restart with time=0 after LoopTime seconds, default value = Delay+Duration
+#   - LoopTime: If > 0, then restart with time=0 after LoopTime seconds
 #   - FadeInTime: Duration of main animation sequence fadeIn period
 #   - FadeOutTime: Duration of main animation sequence fadeOut period
-# fields:
-#   Params: [StartDelay(0), Duration(1), LoopTime(Delay+Duration), FadeInTime(0.25), FadeOutTime(0.25)]
+# Animation:
+#   Params: [StartDelay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)]
 #   Pattern: None | Sine | Cosine
 #   MinColor: [R,G,B,A]
 #   MaxColor: [R,G,B,A]
 #   Alpha: [MinAlpha,MaxAlpha]
-#   CenterScale: [MinScale,MaxScale]  !!! Always scales from element CENTER
+#   CenterScale: [MinScale,MaxScale]  # !!! Always scales from element CENTER
 #   StartSize: [X,Y]
 #   EndSize: [X,Y]
 #   StartPos: [X,Y]
 #   EndPos: [X,Y]
+#
+
+# attribute `Animations`:
+#   Allows for multiple animations for a single UI element
+# Animations:
+#   - Animation:
+#     Params: [0, 2, 2, 0.5, 0.5] # delay, duration, end-time, fadein, fadeout
+#     MinColor: [0.20,0.20,0.20,0.5] # vary the color from A to B
+#     MaxColor: [0.45,0.45,0.45,1.0]
+#   - Animation:
+#     Params: [0, 4, 4, 1, 1] # delay, duration, end-time, fadein, fadeout
+#     CenterScale: [0.8,1.0]
+#
 
 
 # virtual size sets up the entire screen coordinate system

@@ -72,8 +72,8 @@ namespace Ship_Game.UI
 
         [StarData] public readonly Color? MinColor;
         [StarData] public readonly Color? MaxColor;
-        [StarData] public readonly Range? Alpha = new Range(1f); // animation alpha range
-        [StarData] public readonly Range? CenterScale = new Range(1f); // animation scale range
+        [StarData] public readonly Range? Alpha; // animation alpha range
+        [StarData] public readonly Range? CenterScale; // animation scale range
 
         [StarData] public readonly Vector2? StartSize; // starting size of the animated UIElement
         [StarData] public readonly Vector2? EndSize;
