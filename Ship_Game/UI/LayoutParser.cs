@@ -247,7 +247,19 @@ namespace Ship_Game.UI
             }
 
             element.Visible = info.Visible;
-            ParseAnimation(element, info);
+
+            if (info.Animation != null || info.Animations != null)
+            {
+                if (info.Type == "Override")
+                    element.ClearEffects();
+
+                if (info.Animation != null)
+                    ParseAnimation(element, info.Animation);
+
+                if (info.Animations != null)
+                    foreach (var anim in info.Animations)
+                        ParseAnimation(element, anim);
+            }
 
             var container = element as UIElementContainer;
             if (container != null)
@@ -268,51 +280,45 @@ namespace Ship_Game.UI
             }
         }
 
-        static void ParseAnimation(UIElementV2 element, ElementInfo info)
+        static void ParseAnimation(UIElementV2 element, AnimInfo data)
         {
-            AnimInfo data = info.Animation;
-            if (data != null)
+            // Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
+            float[] p = data.Params ?? Empty<float>.Array;
+
+            float delay    = p.Length >= 1 ? p[0] : 0f;
+            float duration = p.Length >= 2 ? p[1] : 1f;
+            float loop     = p.Length >= 3 ? p[2] : 0f;
+            float fadeIn   = p.Length >= 4 ? p[3] : 0.25f;
+            float fadeOut  = p.Length >= 5 ? p[4] : 0.25f;
+
+            UIBasicAnimEffect a = element.Anim(delay, duration, fadeIn, fadeOut);
+
+            a.AnimPattern = data.Pattern;
+
+            if (loop.NotZero())
+                a.Loop(loop);
+
+            if (data.Alpha != null)
+                a.Alpha(data.Alpha.Value);
+
+            if (data.CenterScale != null)
+                a.CenterScale(data.CenterScale.Value);
+
+            if (data.MinColor != null || data.MaxColor != null)
             {
-                element.ClearEffects();
+                Color min = data.MinColor ?? Color.Black;
+                Color max = data.MaxColor ?? Color.White;
+                a.Color(min, max);
+            }
 
-                // Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
-                float[] p = data.Params ?? Empty<float>.Array;
+            if (data.StartPos != null && data.EndPos != null)
+            {
+                a.Pos(data.StartPos.Value, data.EndPos.Value);
+            }
 
-                float delay    = p.Length >= 1 ? p[0] : 0f;
-                float duration = p.Length >= 2 ? p[1] : 1f;
-                float loop     = p.Length >= 3 ? p[2] : 0f;
-                float fadeIn   = p.Length >= 4 ? p[3] : 0.25f;
-                float fadeOut  = p.Length >= 5 ? p[4] : 0.25f;
-
-                UIBasicAnimEffect a = element.Anim(delay, duration, fadeIn, fadeOut);
-
-                a.AnimPattern = data.Pattern;
-
-                if (loop.NotZero())
-                    a.Loop(loop);
-
-                if (!data.Alpha.AlmostEqual(minMax:1f))
-                    a.Alpha(data.Alpha);
-
-                if (!data.CenterScale.AlmostEqual(minMax:1f))
-                    a.CenterScale(data.CenterScale);
-
-                if (data.MinColor != null || data.MaxColor != null)
-                {
-                    Color min = data.MinColor ?? Color.Black;
-                    Color max = data.MaxColor ?? Color.White;
-                    a.Color(min, max);
-                }
-
-                if (data.StartPos != null && data.EndPos != null)
-                {
-                    a.Pos(data.StartPos.Value, data.EndPos.Value);
-                }
-
-                if (data.StartSize != null && data.EndSize != null)
-                {
-                    a.Size(data.StartSize.Value, data.EndSize.Value);
-                }
+            if (data.StartSize != null && data.EndSize != null)
+            {
+                a.Size(data.StartSize.Value, data.EndSize.Value);
             }
         }
     }
