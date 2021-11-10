@@ -49,6 +49,7 @@ namespace Ship_Game.UI
         [StarData] public readonly LocalizedText Title;
         [StarData] public readonly LocalizedText Tooltip;
         [StarData] public readonly AnimInfo Animation = null;
+        [StarData] public readonly AnimInfo[] Animations = null;
         [StarData] public readonly SpriteAnimInfo SpriteAnim = null;
         [StarData] public readonly bool DebugDraw;
         [StarData] public readonly ElementInfo[] Children = new ElementInfo[0];
@@ -71,8 +72,8 @@ namespace Ship_Game.UI
 
         [StarData] public readonly Color? MinColor;
         [StarData] public readonly Color? MaxColor;
-        [StarData] public readonly Range Alpha = new Range(1f); // animation alpha range
-        [StarData] public readonly Range CenterScale = new Range(1f); // animation scale range
+        [StarData] public readonly Range? Alpha = new Range(1f); // animation alpha range
+        [StarData] public readonly Range? CenterScale = new Range(1f); // animation scale range
 
         [StarData] public readonly Vector2? StartSize; // starting size of the animated UIElement
         [StarData] public readonly Vector2? EndSize;
