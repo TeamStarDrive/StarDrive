@@ -1719,7 +1719,7 @@ if "$(ConfigurationName)" == "Deploy"  (
 </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>
+    <PreBuildEvent>echo Pre Build Event
 :: Copy Game content from BB/Content into StarDrive/Content
 py -3 "$(SolutionDir)CopyGameContent.py" ^
     --root_dir $(SolutionDir) ^
