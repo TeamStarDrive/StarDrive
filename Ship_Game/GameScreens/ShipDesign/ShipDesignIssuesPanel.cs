@@ -38,9 +38,9 @@ namespace Ship_Game.GameScreens.ShipDesign
             BtnInformation.OnClick = b => AddDesignIssuesScreen();
             //DebugDraw = true;
 
-            DesignCompletion.SetRelPos(20, 0);
-            BtnDesignIssues.SetRelPos(16, 18);
-            BtnInformation.SetRelPos(16, 18);
+            DesignCompletion.SetLocalPos(20, 0);
+            BtnDesignIssues.SetLocalPos(16, 18);
+            BtnInformation.SetLocalPos(16, 18);
         }
 
         public int CompletionPercent

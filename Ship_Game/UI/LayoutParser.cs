@@ -81,72 +81,104 @@ namespace Ship_Game.UI
             }
         }
 
-        void ParseRect(UIElementV2 parent, UIElementV2 element, ElementInfo info)
+        static Point GetTextureSize(ElementInfo info)
         {
-            Vector2 pos = default, size = default;
-
-            bool hasRectDefinition = info.Rect.LengthSquared().NotZero();
-            if (hasRectDefinition)
-            {
-                pos = new Vector2(info.Rect.X, info.Rect.Y);
-                size = new Vector2(info.Rect.Z, info.Rect.W);
-            }
-            if (info.Pos.NotZero())
-            {
-                if (hasRectDefinition)
-                    Log.Warning($"Attribute 'Pos' ignored in '{info.ElementName}' because 'Rect' overrides it!");
-                else
-                    pos = info.Pos;
-            }
-            if (info.Size.NotZero())
-            {
-                if (hasRectDefinition)
-                    Log.Warning($"Attribute 'Size' ignored in '{info.ElementName}' because 'Rect' overrides it!");
-                else
-                    size = info.Size;
-            }
-
-            Vector2 absSize = UIElementV2.AbsoluteSize(info.ElementName, size, parent.Size,
-                                                       VirtualXForm.X, VirtualXForm.Y);
-
-            int texWidth = 0, texHeight = 0;
             if (info.Spr != null)
+                return new Point((int)info.Spr.Size.X, (int)info.Spr.Size.Y);
+            if (info.Tex != null)
+                return new Point(info.Tex.Width, info.Tex.Height);
+            return default;
+        }
+
+        static Vector2 GetAutoAspectSize(UIElementV2 element, Vector2 size, ElementInfo info, bool abs)
+        {
+            if (!abs && size.AlmostZero())
             {
-                texWidth  = (int)info.Spr.Size.X;
-                texHeight = (int)info.Spr.Size.Y;
+                Log.Error($"Element {element.Name} RelSize cannot be [0,0] using default [0.5,0.5]");
+                return new Vector2(0.5f, 0.5f);
             }
-            else if (info.Tex != null)
+            
+            Point texSize = GetTextureSize(info);
+            if (texSize.X != 0 && texSize.Y != 0)
             {
-                texWidth  = info.Tex.Width;
-                texHeight = info.Tex.Height;
+                if (size.AlmostZero())
+                {
+                    // always abs value
+                    size.X = texSize.X;
+                    size.Y = texSize.Y;
+                }
+                else if (size.Y.AlmostZero()) // only X SIZE provided
+                {
+                    float aspectRatio = (texSize.Y / (float)texSize.X);
+                    if (abs)
+                    {
+                        size.Y = (float)Math.Round(size.X * aspectRatio);
+                    }
+                    else
+                    {
+                        Vector2 parentSize = element.ParentSize;
+                        // this is absolute size in screen coordinates, not virtual size
+                        float absSizeX = size.X * parentSize.X;
+                        float absSizeY = (float)Math.Round(absSizeX * aspectRatio);
+                        size.Y = absSizeY / parentSize.Y;
+                    }
+                }
+                else if (size.X.AlmostZero()) // only Y SIZE provided
+                {
+                    float aspectRatio = (texSize.X / (float)texSize.Y);
+                    if (abs)
+                    {
+                        size.X = (float)Math.Round(size.Y * aspectRatio);
+                    }
+                    else
+                    {
+                        Vector2 parentSize = element.ParentSize;
+                        // this is absolute size in screen coordinates, not virtual size
+                        float absSizeY = size.Y * parentSize.Y;
+                        float absSizeX = (float)Math.Round(absSizeY * aspectRatio);
+                        size.X = absSizeX / parentSize.X;
+                    }
+                }
+            }
+            return size;
+        }
+
+        void SetPosAndSize(UIElementV2 element, ElementInfo info)
+        {
+            if (info.Type != "Override") // set defaults
+            {
+                element.SetRelPos(0, 0);
+                element.SetAbsSize(0, 0);
             }
 
-            if (texWidth != 0 && texHeight != 0)
+            if (info.AbsPos != null)
+                element.SetAbsPos(info.AbsPos.Value * VirtualXForm);
+            
+            if (info.AbsSize != null)
+                element.SetAbsSize(GetAutoAspectSize(element, info.AbsSize.Value, info, abs:true) * VirtualXForm);
+
+            if (info.LocalPos != null)
+                element.SetLocalPos(info.LocalPos.Value * VirtualXForm);
+
+            if (info.RelPos != null)
+                element.SetRelPos(info.RelPos.Value);
+
+            if (info.RelSize != null)
+                element.SetRelSize(GetAutoAspectSize(element, info.RelSize.Value, info, abs:false));
+
+            if (info.AxisAlign != null)
             {
-                if (absSize.AlmostZero())
-                {
-                    absSize.X = (float)Math.Round(texWidth  * VirtualXForm.X);
-                    absSize.Y = (float)Math.Round(texHeight * VirtualXForm.Y);
-                }
-                else if (absSize.Y.AlmostZero())
-                {
-                    float aspectRatio = (texHeight / (float)texWidth);
-                    absSize.Y = (float)Math.Round(absSize.X * aspectRatio);
-                }
-                else if (absSize.X.AlmostZero())
-                {
-                    float aspectRatio = (texWidth / (float)texHeight);
-                    absSize.X = (float)Math.Round(absSize.Y * aspectRatio);
-                }
+                element.ParentAlign = info.AxisAlign.Value;
+                element.LocalAxis = info.AxisAlign.Value;
             }
 
-            Vector2 absPos = UIElementV2.AbsolutePos(pos, absSize, parent.Pos, parent.Size, info.AxisAlign,
-                                                     VirtualXForm.X, VirtualXForm.Y);
-            var r = new Rectangle((int)absPos.X, (int)absPos.Y, (int)absSize.X, (int)absSize.Y);
-            if (!r.IsEmpty)
-            {
-                element.Rect = r;
-            }
+            if (info.ParentAlign != null)
+                element.ParentAlign = info.ParentAlign.Value;
+
+            if (info.LocalAxis != null)
+                element.LocalAxis = info.LocalAxis.Value;
+
+            element.UpdatePosAndSize(); // calculate current absolute Pos & Size
         }
 
         SubTexture LoadTexture(string texturePath)
@@ -168,7 +200,7 @@ namespace Ship_Game.UI
             return sa;
         }
 
-        void LoadElementResources(UIElementV2 parent, UIElementV2 element, ElementInfo info)
+        void LoadElementResources(ElementInfo info)
         {
             info.Tex = LoadTexture(info.Texture);
             info.Spr = LoadSpriteAnim(info.SpriteAnim);
@@ -225,8 +257,9 @@ namespace Ship_Game.UI
                 parent.Add(element);
 
             element.Name = info.ElementName;
-            LoadElementResources(parent, element, info);
-            ParseRect(parent, element, info);
+            LoadElementResources(info); // need texture info for Pos and Size
+
+            SetPosAndSize(element, info);
 
             if (element is ISpriteElement sprite)
             {

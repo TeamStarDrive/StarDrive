@@ -52,7 +52,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         {
             StatsList = Add(new UIList(Pos, Size));
             StatsList.Padding = Vector2.Zero;
-            StatsList.SetRelPos(0, 0);
+            StatsList.SetLocalPos(0, 0);
             TitleWidth = Width - ValueWidth;
 
             Color good = Color.LightGreen;

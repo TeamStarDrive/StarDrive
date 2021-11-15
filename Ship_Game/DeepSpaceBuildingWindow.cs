@@ -109,7 +109,7 @@ namespace Ship_Game
 
             // we have itemToBuild, so we are in placement mode
 
-            bool hovered = Rect.HitTest(input.CursorPosition);
+            bool hovered = HitTest(input.CursorPosition);
             if (hovered) // disallow input while in placement and hovering our window
             {
                 if (input.RightMouseClick)

@@ -28,7 +28,7 @@ namespace Ship_Game.Debug.Page
                 TextColumns.Add(Label(x, y, "", TextFont));
             else
             {
-                TextColumns[column].SetRelPos(x, y);
+                TextColumns[column].SetLocalPos(x, y);
             }
 
             TextColumns[column].Show();
