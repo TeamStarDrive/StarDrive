@@ -81,7 +81,6 @@ Elements:
     Name: background
     Texture: MMenu/new_background.png # Textures/MMenu/xxxx.png
     Color: [1.0,1.0,1.0] # default color
-    Rect: [0.0, 0.0, 1.0, 0.0]
     AbsPos: [0, 0]
     RelSize: [1, 0] # fill width, auto-detect height from aspect ratio
     # Draw depth controls when the UI element is being drawn:
@@ -208,7 +207,8 @@ Elements:
     Name: corner_bottom_right
     Visible: False
     Texture: MMenu/corner_BR2.png
-    Rect: [-16, -16, 0.15, 0]
+    LocalPos: [-16,-16]
+    RelSize: [0.15, 0]
     AxisAlign: BottomRight
     Animation:
       Params: [2.5, 6, 9, 1, 1] # delay, duration, end-time, fadein, fadeout
@@ -245,7 +245,8 @@ Elements:
 
   - List:
     Name: buttons
-    Rect: [-20, 0.22, 200, 600]
+    RelPos: [-200, 0.22]
+    AbsSize: [200, 600]
     AxisAlign: CenterRight
     Padding: [5,15]
     # Fill -- fill to width of the list
