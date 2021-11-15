@@ -103,7 +103,6 @@ Elements:
     RelSize: [0, 0.8] # set relative height, auto-aspect width
     AxisAlign: BottomCenter # Align our Pos and Axis
     DrawDepth: Background
-    DebugDraw: true
     Children:
       - Panel:
         Name: citylights
@@ -123,7 +122,7 @@ Elements:
         Name: planet_flare
         Texture: MMenu/new_flare.png
         RelSize: [0.62, 0] # auto-detect height from aspect ratio
-        RelPos: [0, -0.45]
+        RelPos: [0, -0.21]
         Visible: true
         AxisAlign: TopCenter
         DrawDepth: BackAdditive
@@ -147,7 +146,7 @@ Elements:
   - Panel:
     Name: stardrive_animated_logo
     RelSize: [0.3, 0] # auto-detect height from aspect ratio
-    RelPos: [-0.06, 60]
+    LocalPos: [-60, 60]
     AxisAlign: TopRight
     DrawDepth: Foreground
     SpriteAnim:
@@ -155,36 +154,36 @@ Elements:
       Delay: 0
       Duration: 3
       FreezeAtLastFrame: true
-
-  - Panel:
-    Name: blacbox_animated_logo
-    RelSize: [0.25, 0] # auto-detect height from aspect ratio
-    RelPos: [-0.06, 170]
-    Color: [0.8,0.8,0.8,0.0] # start with alpha 0.0
-    AxisAlign: TopRight
-    DrawDepth: Foreground
-    SpriteAnim:
-      Path: MMenu/bb_logo_animated
-      Delay: 0
-      Duration: 7
-      StartAt: 0
-      Looping: true
-      FreezeAtLastFrame: false
-      VisibleBeforeDelay: true
-    Animation:
-      Params: [1, 2, 0, 2, 0] # delay, duration, end-time, fadein, fadeout
-      Alpha: [0, 1]
-
-  - Panel:
-    Name: blackbox_sub_version
-    Texture: MMenu/subver.png
-    RelSize: [0, 0.035]
-    AbsPos: [-335, 213]
-    AxisAlign: TopRight
-    DrawDepth: Foreground
-    Animation:
-      Params: [3, 2, 0, 2, 0] # delay, duration, end-time, fadein, fadeout
-      Alpha: [0, 1]
+    Children:
+      - Panel:
+        Name: blacbox_animated_logo
+        RelSize: [0.7, 0] # auto-detect height from aspect ratio
+        RelPos: [0.03, 0.45]
+        Color: [0.8,0.8,0.8,0.0] # start with alpha 0.0
+        AxisAlign: Center
+        DrawDepth: Foreground
+        SpriteAnim:
+          Path: MMenu/bb_logo_animated
+          Delay: 0
+          Duration: 7
+          StartAt: 0
+          Looping: true
+          FreezeAtLastFrame: false
+          VisibleBeforeDelay: true
+        Animation:
+          Params: [1, 2, 0, 2, 0] # delay, duration, end-time, fadein, fadeout
+          Alpha: [0, 1]
+        Children:
+          - Panel:
+            Name: blackbox_subver
+            Texture: MMenu/subver.png
+            RelSize: [0, 0.75]
+            RelPos: [0.015, -0.2]
+            ParentAlign: BottomLeft
+            DrawDepth: Foreground
+            Animation:
+              Params: [3, 2, 0, 2, 0] # delay, duration, end-time, fadein, fadeout
+              Alpha: [0, 1]
 
   - Panel:
     Name: vignette
@@ -192,62 +191,12 @@ Elements:
     RelSize: [1, 1] # fill screen
     DrawDepth: Foreground # on top of everything
 
-  - Panel:
-    Name: corner_top_left
-    Visible: False
-    Texture: MMenu/corner_TL2.png
-    AbsPos: [16, 16]
-    RelSize: [0.2, 0] # auto-detect height
-    Animation:
-      Params: [2, 6, 9, 1, 1] # delay, duration, end-time, fadein, fadeout
-      Alpha: [0.5, 1.0]
-      Pattern: Sine
-
-  - Panel:
-    Name: corner_bottom_right
-    Visible: False
-    Texture: MMenu/corner_BR2.png
-    LocalPos: [-16,-16]
-    RelSize: [0.15, 0]
-    AxisAlign: BottomRight
-    Animation:
-      Params: [2.5, 6, 9, 1, 1] # delay, duration, end-time, fadein, fadeout
-      Alpha: [0.5, 1.0]
-      Pattern: Sine
-
-  # logo text elements are automatically translated to logo center
-  - Panel:
-    Name: logo_text_1
-    Visible: False
-    Texture: MainMenu/moon_1
-    AbsPos: [-385,-170]
-    Animation:
-      Params: [1.5, 2, 12, 0.4, 0.7] # delay, duration, end-time, fadein, fadeout
-      Alpha: [0.0, 1.0]
-
-  - Panel: 
-    Name: logo_text_2
-    Visible: False
-    Texture: MainMenu/moon_2
-    AbsPos: [-350,10]
-    Animation:
-      Params:  [5.5, 2, 12, 0.4, 0.7] # delay, duration, end-time, fadein, fadeout
-      Alpha: [0.0, 1.0]
-
-  - Panel: 
-    Name: logo_text_3
-    Visible: False
-    Texture: MainMenu/moon_3
-    AbsPos: [45, 10]
-    Animation:
-      Params:  [7.5, 2, 12, 0.4, 0.7] # delay, duration, end-time, fadein, fadeout
-      Alpha: [0.0, 1.0]
-
   - List:
     Name: buttons
-    RelPos: [-200, 0.22]
+    LocalPos: [-100, 150]
     AbsSize: [200, 600]
-    AxisAlign: CenterRight
+    ParentAlign: CenterRight
+    LocalAxis: CenterRight
     Padding: [5,15]
     # Fill -- fill to width of the list
     # Clip -- clip elements to width of the list
@@ -257,46 +206,46 @@ Elements:
       - Button:
           Name: new_game
           ButtonStyle: Default
-          RelSize: [1, 0] # aspect fill width
+          AbsSize: [200, 0] # aspect fill width
           Title: "{1}" # "New Game"
           ClickSfx: sd_ui_tactical_pause
       - Button:
           Name: tutorials
           Title: "{3}" # "Tutorials"
-          RelSize: [1, 0] # aspect fill width
+          AbsSize: [200, 0] # aspect fill width
           ClickSfx: sd_ui_tactical_pause
       - Button:
           Name: load_game
           Title: "{2}" # "Load Game"
-          RelSize: [1, 0] # aspect fill width
+          AbsSize: [200, 0] # aspect fill width
           ClickSfx: sd_ui_tactical_pause
       - Button:
           Name: options
           Title: "{4}" # "Options"
-          RelSize: [1, 0] # aspect fill width
+          AbsSize: [200, 0] # aspect fill width
           ClickSfx: sd_ui_tactical_pause
       - Button:
           Name: mods
           Title: "Mods"
-          RelSize: [1, 0] # aspect fill width
+          AbsSize: [200, 0] # aspect fill width
           ClickSfx: sd_ui_tactical_pause
       - Button:
           Name: sandbox
           Title: "Dev Sandbox"
-          RelSize: [1, 0] # aspect fill width
+          AbsSize: [200, 0] # aspect fill width
           ClickSfx: sd_ui_tactical_pause
       - Button:
           Name: info
           Title: "BlackBox Info"
-          RelSize: [1, 0] # aspect fill width
+          AbsSize: [200, 0] # aspect fill width
           ClickSfx: sd_ui_tactical_pause
       - Button:
           Name: version
           Title: "Version Check"
-          RelSize: [1, 0] # aspect fill width
+          AbsSize: [200, 0] # aspect fill width
           ClickSfx: sd_ui_tactical_pause
       - Button:
           Name: exit
           Title: "{5}" # "Exit"
-          RelSize: [1, 0] # aspect fill width
+          AbsSize: [200, 0] # aspect fill width
           ClickSfx: sd_ui_tactical_pause

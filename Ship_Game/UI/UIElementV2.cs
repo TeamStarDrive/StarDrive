@@ -332,45 +332,39 @@ namespace Ship_Game
         public virtual void PerformLayout()
         {
             RequiresLayout = false;
+            UpdatePosAndSize();
+        }
 
-            // using relative positions and stuff?
-            if (StateBits != StateFlags.None)
+        public void UpdatePosAndSize()
+        {
+            // using relpos, relsize or localpos?
+            if (StateBits == StateFlags.None)
+                return;
+
+            UIElementV2 parent = Parent;
+            Vector2 parentPos = parent?.Pos ?? Vector2.Zero;
+            Vector2 parentSize = parent?.Size ?? GameBase.ScreenSize;
+            
+            if (UseRelSize)
             {
-                Vector2 parentPos, parentSize;
+                Size.X = parentSize.X * RelSize.W;
+                Size.Y = parentSize.Y * RelSize.H;
+            }
 
-                UIElementV2 parent = Parent;
-                if (parent != null)
-                {
-                    parentPos = parent.Pos;
-                    parentSize = parent.Size;
-                }
-                else
-                {
-                    parentPos = Vector2.Zero;
-                    parentSize = GameBase.ScreenSize;
-                }
-
-                if (UseRelSize)
-                {
-                    Size.X = parentSize.X * RelSize.W;
-                    Size.Y = parentSize.Y * RelSize.H;
-                }
-
-                if (UseRelPos)
-                {
-                    // default for both is TopLeft [0.0, 0.0]
-                    Vector2 parentAlign = AlignValue(ParentAlign);
-                    Vector2 localAxis   = AlignValue(LocalAxis);
-                    Pos.X = (parentPos.X + parentSize.X*parentAlign.X) + (parentSize.X*RelPos.X - Size.X*localAxis.X);
-                    Pos.Y = (parentPos.Y + parentSize.Y*parentAlign.Y) + (parentSize.Y*RelPos.Y - Size.Y*localAxis.Y);
-                }
-                else if (UseLocalPos)
-                {
-                    Vector2 parentAlign = AlignValue(ParentAlign);
-                    Vector2 localAxis   = AlignValue(LocalAxis);
-                    Pos.X = (parentPos.X + parentSize.X*parentAlign.X) + (LocalPos.X - Size.X*localAxis.X);
-                    Pos.Y = (parentPos.Y + parentSize.Y*parentAlign.Y) + (LocalPos.Y - Size.Y*localAxis.Y);
-                }
+            if (UseRelPos)
+            {
+                // default for both is TopLeft [0.0, 0.0]
+                Vector2 parentAlign = AlignValue(ParentAlign);
+                Vector2 localAxis = AlignValue(LocalAxis);
+                Pos.X = (parentPos.X + parentSize.X * parentAlign.X) + (parentSize.X * RelPos.X - Size.X * localAxis.X);
+                Pos.Y = (parentPos.Y + parentSize.Y * parentAlign.Y) + (parentSize.Y * RelPos.Y - Size.Y * localAxis.Y);
+            }
+            else if (UseLocalPos)
+            {
+                Vector2 parentAlign = AlignValue(ParentAlign);
+                Vector2 localAxis = AlignValue(LocalAxis);
+                Pos.X = (parentPos.X + parentSize.X * parentAlign.X) + (LocalPos.X - Size.X * localAxis.X);
+                Pos.Y = (parentPos.Y + parentSize.Y * parentAlign.Y) + (LocalPos.Y - Size.Y * localAxis.Y);
             }
         }
 

@@ -177,6 +177,8 @@ namespace Ship_Game.UI
 
             if (info.LocalAxis != null)
                 element.LocalAxis = info.LocalAxis.Value;
+
+            element.UpdatePosAndSize(); // calculate current absolute Pos & Size
         }
 
         SubTexture LoadTexture(string texturePath)
@@ -258,7 +260,6 @@ namespace Ship_Game.UI
             LoadElementResources(info); // need texture info for Pos and Size
 
             SetPosAndSize(element, info);
-            element.PerformLayout(); // calculate current absolute Pos & Size
 
             if (element is ISpriteElement sprite)
             {
