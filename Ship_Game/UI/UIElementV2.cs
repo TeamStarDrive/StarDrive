@@ -64,6 +64,9 @@ namespace Ship_Game
         public RelPos RelPos;     // relative pos  on parent, in RELATIVE coordinates [0.0, 1.0]
         public RelSize RelSize;   // relative size on parent, in RELATIVE coordinates [0.0, 1.0]
 
+        // Absolute size of the Parent (or Screen if no parent)
+        public Vector2 ParentSize => Parent?.Size ?? GameBase.ScreenSize;
+
         [Flags]
         protected enum StateFlags
         {
@@ -284,42 +287,6 @@ namespace Ship_Game
             }
         }
 
-        public static Vector2 AbsoluteSize(string elementName, Vector2 size, Vector2 parentSize,
-                                           float virtualTransformX = 1f, float virtualTransformY = 1f)
-        {
-            if (size.X < 0f)
-            {
-                Log.Error($"Element {elementName} Width cannot be negative: {size.X} ! Using default value 64.");
-                size.X = 64;
-            }
-            if (size.Y < 0f)
-            {
-                Log.Error($"Element {elementName} Height cannot be negative: {size.Y} ! Using default value 64.");
-                size.Y = 64;
-            }
-            Vector2 result = size;
-            if (size.X <= 1f) result.X *= parentSize.X;
-            else              result.X *= virtualTransformX;
-            if (size.Y <= 1f) result.Y *= parentSize.Y;
-            else              result.Y *= virtualTransformY;
-            return result;
-        }
-
-        public static Vector2 AbsolutePos(Vector2 pos, Vector2 absSize, Vector2 parent, Vector2 parentSize, Align axisAlign,
-                                          float virtualTransformX = 1f, float virtualTransformY = 1f)
-        {
-            // @note parent size is already transformed, so we only need to transform non-relative positions
-            Vector2 p = pos;
-            if (-1f <= pos.X && pos.X <= 1f) p.X *= absSize.X;
-            else                             p.X *= virtualTransformX;
-            if (-1f <= pos.Y && pos.Y <= 1f) p.Y *= absSize.Y;
-            else                             p.Y *= virtualTransformY;
-
-            Vector2 align = AlignValue(axisAlign);
-            p -= align * absSize;
-            return parent + align*parentSize + p;
-        }
-
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
         protected UIElementV2()
@@ -395,14 +362,14 @@ namespace Ship_Game
                     Vector2 parentAlign = AlignValue(ParentAlign);
                     Vector2 localAxis   = AlignValue(LocalAxis);
                     Pos.X = (parentPos.X + parentSize.X*parentAlign.X) + (parentSize.X*RelPos.X - Size.X*localAxis.X);
-                    Pos.Y = (parentPos.Y + parentSize.Y*parentAlign.Y) + (parentSize.Y*RelPos.Y - Size.X*localAxis.X);
+                    Pos.Y = (parentPos.Y + parentSize.Y*parentAlign.Y) + (parentSize.Y*RelPos.Y - Size.Y*localAxis.Y);
                 }
                 else if (UseLocalPos)
                 {
                     Vector2 parentAlign = AlignValue(ParentAlign);
                     Vector2 localAxis   = AlignValue(LocalAxis);
                     Pos.X = (parentPos.X + parentSize.X*parentAlign.X) + (LocalPos.X - Size.X*localAxis.X);
-                    Pos.Y = (parentPos.Y + parentSize.Y*parentAlign.Y) + (LocalPos.Y - Size.X*localAxis.X);
+                    Pos.Y = (parentPos.Y + parentSize.Y*parentAlign.Y) + (LocalPos.Y - Size.Y*localAxis.Y);
                 }
             }
         }
