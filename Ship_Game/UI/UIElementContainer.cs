@@ -181,7 +181,7 @@ namespace Ship_Game
         // UIElementContainer default implementation performs layout on all child elements
         public override void PerformLayout()
         {
-            // update RelPos
+            // update RelPos and RelSize for UIElementV2:
             base.PerformLayout();
             for (int i = 0; i < Elements.Count; ++i)
                 Elements[i].PerformLayout();

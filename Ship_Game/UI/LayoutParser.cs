@@ -107,35 +107,37 @@ namespace Ship_Game.UI
                     size.X = texSize.X;
                     size.Y = texSize.Y;
                 }
-                else if (size.Y.AlmostZero())
+                else if (size.Y.AlmostZero()) // only X SIZE provided
                 {
+                    float aspectRatio = (texSize.Y / (float)texSize.X);
                     if (abs)
                     {
-                        float aspectRatio = (texSize.Y / (float)texSize.X);
                         size.Y = (float)Math.Round(size.X * aspectRatio);
                     }
                     else
                     {
-                        size.Y = size.X;
+                        Vector2 parentSize = element.ParentSize;
+                        // this is absolute size in screen coordinates, not virtual size
+                        float absSizeX = size.X * parentSize.X;
+                        float absSizeY = (float)Math.Round(absSizeX * aspectRatio);
+                        size.Y = absSizeY / parentSize.Y;
                     }
-                    //float aspectRatio = (texSize.Y / (float)texSize.X);
-                    //size.Y = size.X * aspectRatio;
-                    //if (abs) size.Y = (float)Math.Round(size.X * aspectRatio);
                 }
-                else if (size.X.AlmostZero())
+                else if (size.X.AlmostZero()) // only Y SIZE provided
                 {
+                    float aspectRatio = (texSize.X / (float)texSize.Y);
                     if (abs)
                     {
-                        float aspectRatio = (texSize.X / (float)texSize.Y);
                         size.X = (float)Math.Round(size.Y * aspectRatio);
                     }
                     else
                     {
-                        size.X = size.Y;
+                        Vector2 parentSize = element.ParentSize;
+                        // this is absolute size in screen coordinates, not virtual size
+                        float absSizeY = size.Y * parentSize.Y;
+                        float absSizeX = (float)Math.Round(absSizeY * aspectRatio);
+                        size.X = absSizeX / parentSize.X;
                     }
-                    //float aspectRatio = (texSize.X / (float)texSize.Y);
-                    //size.X = size.Y * aspectRatio;
-                    //if (abs) size.X = (float)Math.Round(size.Y * aspectRatio);
                 }
             }
             return size;
