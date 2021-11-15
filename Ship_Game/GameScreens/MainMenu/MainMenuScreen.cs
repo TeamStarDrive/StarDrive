@@ -89,13 +89,6 @@ namespace Ship_Game.GameScreens.MainMenu
             SetViewMatrix(Matrix.CreateLookAt(CamPos, lookAt, Vector3.Down));
             SetPerspectiveProjection(maxDistance: 35000);
 
-            if (Find("blacbox_animated_logo", out UIPanel logo))
-            {
-                if (Find("logo_text_1", out UIPanel text1)) text1.Pos += logo.Center;
-                if (Find("logo_text_2", out UIPanel text2)) text2.Pos += logo.Center;
-                if (Find("logo_text_3", out UIPanel text3)) text3.Pos += logo.Center;
-            }
-
             CreateVersionArea();
 
             base.LoadContent();
