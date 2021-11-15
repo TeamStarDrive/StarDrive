@@ -20,22 +20,22 @@ namespace Ship_Game.GameScreens.NewGame
             Data = Screen.SelectedData;
 
             bool lo = parent.LowRes;
-            Add(new Menu1(rect, withSub: false)).SetRelPos(0,0);
+            Add(new Menu1(rect, withSub: false)).SetLocalPos(0,0);
 
             var font = lo ? Fonts.Arial8Bold : Fonts.Arial12Bold;
             Title = Add(new UILabel("Environment Preferences", font, Color.BurlyWood));
-            Title.SetRelPos(35, 15);
+            Title.SetLocalPos(35, 15);
             Title.Tooltip = "Some races have modifiers to their Max Population and Fertility based on the planet type.";
 
             BestType = Add(new UILabel("Best Planet Type", font, Color.BurlyWood));
-            BestType.SetRelPos(35 + (lo ? 175 : 275), 15);
+            BestType.SetLocalPos(35 + (lo ? 175 : 275), 15);
             BestType.Tooltip = "This is the best suited environment for this race, Terraforming a planet will transform it to this planet type.";
             
 
             UIList column1 = Add(new UIList(ListLayoutStyle.ResizeList));
             UIList column2 = Add(new UIList(ListLayoutStyle.ResizeList));
-            column1.SetRelPos(15, 45);
-            column2.SetRelPos(15 + (lo ? 60 : 140), 45);
+            column1.SetLocalPos(15, 45);
+            column2.SetLocalPos(15 + (lo ? 60 : 140), 45);
             column1.Padding = column2.Padding = new Vector2(4, 4);
 
             UILabel AddEnvSplitter(UIList list, string title, Func<float> getValue)
@@ -78,7 +78,7 @@ namespace Ship_Game.GameScreens.NewGame
             PlanetIcon?.RemoveFromParent(true);
 
             int size = Screen.LowRes ? 80 : 100;
-            PlanetIcon = Add(new UIPanel(BestType.RelPos.Add(0, 20), new Vector2(size),
+            PlanetIcon = Add(new UIPanel(BestType.LocalPos.Add(0, 20), new Vector2(size),
                                          GetPlanetIcon(data))
             {
                 Name = "EnvPref.PlanetIcon",

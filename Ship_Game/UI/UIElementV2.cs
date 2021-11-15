@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
@@ -54,12 +55,61 @@ namespace Ship_Game
         public Vector2 Pos;    // absolute position in the UI
         public Vector2 Size;   // absolute size in the UI
 
-        public RelPos RelPos; // relative position on parent, in absolute coordinates
-        protected bool UseRelPos; // if TRUE, uses RelPos during PerformLayout()
+        // these are all custom types to prevent type-conversion bugs and mixing
+        // relative coordinates with absolute coordinates
+        // ABSOLUTE COORDINATES: Vector2, Point
+        // LOCAL COORDINATES:    LocalPos
+        // RELATIVE COORDINATES: RelPos, RelSize
+        public LocalPos LocalPos; // local pos on parent, in absolute coordinates
+        public RelPos RelPos;     // relative pos  on parent, in RELATIVE coordinates [0.0, 1.0]
+        public RelSize RelSize;   // relative size on parent, in RELATIVE coordinates [0.0, 1.0]
 
-        // TODO: Work in progress axis alignment for this UIElementV2
-        //       it does not work outside of LayoutParser yet
-        public Align AxisAlign;
+        // Absolute size of the Parent (or Screen if no parent)
+        public Vector2 ParentSize => Parent?.Size ?? GameBase.ScreenSize;
+
+        [Flags]
+        protected enum StateFlags
+        {
+            None = 0,
+
+            // local pos on parent, in absolute coordinates
+            // if set, use LocalPos during PerformLayout() which means it will move with Parent
+            UseLocalPos = (1<<1), 
+
+            // relative pos on parent, in relative coordinates [0.0, 1.0]
+            // if set, uses RelPos during PerformLayout() which means it will move with Parent
+            UseRelPos = (1<<2),
+
+            // relative size on parent, in RELATIVE coordinates [0.0, 1.0]
+            // if set, RelSize during PerformLayout() which means it will resize with Parent
+            UseRelSize = (1<<3),
+        }
+
+        protected StateFlags StateBits;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void Bit(StateFlags tag, bool value) => StateBits = value ? StateBits|tag : StateBits & ~tag;
+
+        public bool UseLocalPos
+        { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (StateBits & StateFlags.UseLocalPos) != 0;
+          [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(StateFlags.UseLocalPos, value); }
+        
+        public bool UseRelPos
+        { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (StateBits & StateFlags.UseRelPos) != 0;
+          [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(StateFlags.UseRelPos, value); }
+
+        public bool UseRelSize
+        { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (StateBits & StateFlags.UseRelSize) != 0;
+          [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(StateFlags.UseRelSize, value); }
+
+        // When using Local or Relative positions, where is the parent's center?
+        // PRECONDITION: UseLocalPos || UseRelPos
+        public Align ParentAlign;
+
+        // When using Local or Relative positions, where is this UIElement's Position axis?
+        // Default is TOPLEFT
+        // PRECONDITION: UseLocalPos || UseRelPos
+        public Align LocalAxis;
 
         // If set TRUE, this.PerformLayout() will be triggered during next Update()
         // After layout is complete, RequiresLayout should be set false
@@ -120,51 +170,77 @@ namespace Ship_Game
         public float CenterX => Pos.X + Size.X*0.5f;
         public float CenterY => Pos.Y + Size.Y*0.5f;
         public Vector2 Center => Pos + Size*0.5f;
-
-        protected string TypeName => GetType().GetTypeName();
-        protected string ElementDescr => $"{Name} {{{PosDescr} {Size.X}x{Size.Y}}} {(Visible?"Vis":"Hid")}";
-        protected string PosDescr => UseRelPos ? $"Rel {RelPos.X},{RelPos.Y}" : $"{Pos.X},{Pos.Y}";
+        
         public override string ToString() => $"{TypeName} {ElementDescr}";
 
-        static Vector2 RelativeToAbsolute(UIElementV2 parent, float x, float y)
+        protected string TypeName => GetType().GetTypeName();
+        protected string ElementDescr => $"{Name} {{{PosDescr} {SizeDescr}}} {(Visible?"Vis":"Hid")}";
+        
+        protected string PosDescr
         {
-            if      (x < 0f) x += parent.Size.X;
-            else if (x <=1f) x *= parent.Size.X;
-            if      (y < 0f) y += parent.Size.Y;
-            else if (y <=1f) y *= parent.Size.Y;
-            return new Vector2(x, y);
+            get
+            {
+                if (UseRelPos)
+                    return $"Rel {Pos.X},{Pos.Y}";
+                if (UseLocalPos)
+                    return $"Local {LocalPos.X},{LocalPos.Y}";
+                return $"{Pos.X},{Pos.Y}";
+            }
         }
 
-        public Vector2 RelativeToAbsolute(float x, float y)
+        protected string SizeDescr
         {
-            return RelativeToAbsolute(Parent ?? this, x, y);
+            get
+            {
+                if (UseRelSize)
+                    return $"Rel {RelSize.W}x{RelSize.H}";
+                return $"{Size.X}x{Size.Y}";
+            }
         }
 
         // This has a special behaviour,
         // if x < 0 or y < 0, then it will be evaluated as Parent.Size.X - x
-        public void SetAbsPos(float x, float y)
+        public void SetAbsPos(float x, float y) => SetAbsPos(new Vector2(x, y));
+        public void SetAbsPos(in Vector2 absPos)
         {
-            Pos = new Vector2(x, y);
-        }
-        public void SetSize(float width, float height)
-        {
-            Size = new Vector2(width, height);
-        }
-
-        public void SetRelPos(float x, float y)
-        {
-            SetRelPos(new RelPos(x, y));
+            UseLocalPos = false;
+            UseRelPos = false;
+            Pos = absPos;
         }
 
-        public void SetRelPos(in Vector2 relPos)
+        public void SetAbsSize(float w, float h) => SetAbsSize(new Vector2(w, h));
+        public void SetAbsSize(in Vector2 absSize)
         {
-            SetRelPos(new RelPos(relPos));
+            UseRelSize = false;
+            Size = absSize;
         }
 
+        public void SetLocalPos(float x, float y)    => SetLocalPos(new LocalPos(x, y));
+        public void SetLocalPos(in Vector2 localPos) => SetLocalPos(new LocalPos(localPos));
+        public void SetLocalPos(in LocalPos localPos)
+        {
+            LocalPos = localPos;
+            UseLocalPos = true;
+            UseRelPos = false;
+            RequiresLayout = true;
+        }
+
+        public void SetRelPos(float x, float y)  => SetRelPos(new RelPos(x, y));
+        public void SetRelPos(in Vector2 relPos) => SetRelPos(new RelPos(relPos));
         public void SetRelPos(in RelPos relPos)
         {
             RelPos = relPos;
+            UseLocalPos = false;
             UseRelPos = true;
+            RequiresLayout = true;
+        }
+
+        public void SetRelSize(float w, float h)   => SetRelSize(new RelSize(w, h));
+        public void SetRelSize(in Vector2 relSize) => SetRelSize(new RelSize(relSize));
+        public void SetRelSize(in RelSize relSize)
+        {
+            RelSize = relSize;
+            UseRelSize = true;
             RequiresLayout = true;
         }
 
@@ -211,43 +287,6 @@ namespace Ship_Game
             }
         }
 
-        public static Vector2 AbsoluteSize(string elementName, Vector2 size, Vector2 parentSize,
-                                           float virtualTransformX = 1f, float virtualTransformY = 1f)
-        {
-            if (size.X < 0f)
-            {
-                Log.Error($"Element {elementName} Width cannot be negative: {size.X} ! Using default value 64.");
-                size.X = 64;
-            }
-            if (size.Y < 0f)
-            {
-                Log.Error($"Element {elementName} Height cannot be negative: {size.Y} ! Using default value 64.");
-                size.Y = 64;
-            }
-            Vector2 result = size;
-            if (size.X <= 1f) result.X *= parentSize.X;
-            else              result.X *= virtualTransformX;
-            if (size.Y <= 1f) result.Y *= parentSize.Y;
-            else              result.Y *= virtualTransformY;
-            return result;
-        }
-
-        public static Vector2 AbsolutePos(Vector2 pos, Vector2 absSize, Vector2 parent, Vector2 parentSize, Align axisAlign,
-                                          float virtualTransformX = 1f, float virtualTransformY = 1f)
-        {
-            // @note parent size is already transformed, so we only need to transform non-relative positions
-            Vector2 p = pos;
-            if (-1f <= pos.X && pos.X <= 1f) p.X *= absSize.X;
-            else                             p.X *= virtualTransformX;
-            if (-1f <= pos.Y && pos.Y <= 1f) p.Y *= absSize.Y;
-            else                             p.Y *= virtualTransformY;
-
-            Vector2 align = AlignValue(axisAlign);
-            p -= align * absSize;
-            return parent + align*parentSize + p;
-        }
-
-        
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
         protected UIElementV2()
@@ -262,13 +301,13 @@ namespace Ship_Game
             Pos = pos;
             Size = size;
         }
-        protected UIElementV2(in RelPos relPos)
+        protected UIElementV2(in LocalPos localPos)
         {
-            SetRelPos(relPos);
+            SetLocalPos(localPos);
         }
-        protected UIElementV2(in RelPos relPos, in Vector2 size)
+        protected UIElementV2(in LocalPos localPos, in Vector2 size)
         {
-            SetRelPos(relPos);
+            SetLocalPos(localPos);
             Size = size;
         }
         protected UIElementV2(in Rectangle rect)
@@ -286,10 +325,6 @@ namespace Ship_Game
             Pos = new Vector2(x, y);
             Size = new Vector2(w, h);
         }
-        // TODO: deprecated
-        protected UIElementV2(UIElementV2 parent, in Rectangle rect) : this(rect)
-        {
-        }
 
         protected virtual int NextZOrder() { return ZOrder + 1; }
 
@@ -297,9 +332,39 @@ namespace Ship_Game
         public virtual void PerformLayout()
         {
             RequiresLayout = false;
-            if (UseRelPos && Parent != null)
+            UpdatePosAndSize();
+        }
+
+        public void UpdatePosAndSize()
+        {
+            // using relpos, relsize or localpos?
+            if (StateBits == StateFlags.None)
+                return;
+
+            UIElementV2 parent = Parent;
+            Vector2 parentPos = parent?.Pos ?? Vector2.Zero;
+            Vector2 parentSize = parent?.Size ?? GameBase.ScreenSize;
+            
+            if (UseRelSize)
             {
-                Pos = Parent.Pos + new Vector2(RelPos.X, RelPos.Y);
+                Size.X = parentSize.X * RelSize.W;
+                Size.Y = parentSize.Y * RelSize.H;
+            }
+
+            if (UseRelPos)
+            {
+                // default for both is TopLeft [0.0, 0.0]
+                Vector2 parentAlign = AlignValue(ParentAlign);
+                Vector2 localAxis = AlignValue(LocalAxis);
+                Pos.X = (parentPos.X + parentSize.X * parentAlign.X) + (parentSize.X * RelPos.X - Size.X * localAxis.X);
+                Pos.Y = (parentPos.Y + parentSize.Y * parentAlign.Y) + (parentSize.Y * RelPos.Y - Size.Y * localAxis.Y);
+            }
+            else if (UseLocalPos)
+            {
+                Vector2 parentAlign = AlignValue(ParentAlign);
+                Vector2 localAxis = AlignValue(LocalAxis);
+                Pos.X = (parentPos.X + parentSize.X * parentAlign.X) + (LocalPos.X - Size.X * localAxis.X);
+                Pos.Y = (parentPos.Y + parentSize.Y * parentAlign.Y) + (LocalPos.Y - Size.Y * localAxis.Y);
             }
         }
 

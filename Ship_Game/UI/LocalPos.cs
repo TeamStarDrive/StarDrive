@@ -5,61 +5,61 @@ namespace Ship_Game.UI
 {
     /// <summary>
     /// Represents a relative UI position which
-    /// depends on the Parent element's Pos AND Size (!)
+    /// depends on the Parent element's position
     ///
-    /// These coordinates are in RELATIVE values
+    /// These coordinates are in pixel values
     ///
     /// Example:
-    ///   Parent AbsPos = 100,100  AbsSize = 40,40
-    ///     Child RelPos = 0.25,0.25  --> AbsPos = 110,110
+    ///   Parent AbsPos = 100,100
+    ///     Child LocalPos = 15,15  --> AbsPos = 115,115
     /// </summary>
-    public struct RelPos : IEquatable<RelPos>
+    public struct LocalPos : IEquatable<LocalPos>
     {
         public float X;
         public float Y;
 
-        public RelPos(float x, float y)
+        public LocalPos(float x, float y)
         {
             X = x;
             Y = y;
         }
 
-        public RelPos(Vector2 pos)
+        public LocalPos(Vector2 pos)
         {
             X = pos.X;
             Y = pos.Y;
         }
 
-        public override string ToString() => $"RelX:{X.String(2)} RelY:{Y.String(2)}";
+        public override string ToString() => $"LocalX:{X.String(2)} LocalY:{Y.String(2)}";
 
-        public static RelPos operator+(in RelPos a, in RelPos b)
+        public static LocalPos operator+(in LocalPos a, in LocalPos b)
         {
-            return new RelPos(a.X + b.X, a.Y + b.Y);
+            return new LocalPos(a.X + b.X, a.Y + b.Y);
         }
 
-        public RelPos Add(float x, float y)
+        public LocalPos Add(float x, float y)
         {
-            return new RelPos(X + x, Y + y);
+            return new LocalPos(X + x, Y + y);
         }
 
-        public static bool operator==(in RelPos a, in RelPos b)
+        public static bool operator==(in LocalPos a, in LocalPos b)
         {
             return a.X == b.X && a.Y == b.Y;
         }
 
-        public static bool operator!=(in RelPos a, in RelPos b)
+        public static bool operator!=(in LocalPos a, in LocalPos b)
         {
             return a.X != b.X || a.Y != b.Y;
         }
 
-        public bool Equals(RelPos other)
+        public bool Equals(LocalPos other)
         {
             return X.Equals(other.X) && Y.Equals(other.Y);
         }
 
         public override bool Equals(object obj)
         {
-            return obj is RelPos other && Equals(other);
+            return obj is LocalPos other && Equals(other);
         }
 
         public override int GetHashCode()

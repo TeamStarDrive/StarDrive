@@ -114,7 +114,7 @@ namespace Ship_Game
             bool updated = false;
             if (item.Pos.NotEqual(pos))
             {
-                item.Pos = pos;
+                item.SetAbsPos(pos);
                 updated = true;
             }
 
@@ -139,12 +139,12 @@ namespace Ship_Game
 
             if (itemSize.X.NotZero() && item.Width.NotEqual(itemSize.X))
             {
-                item.Width = itemSize.X;
+                item.SetAbsSize(itemSize.X, item.Height);
                 updated = true;
             }
             if (itemSize.Y.NotZero() && item.Height.NotEqual(itemSize.Y))
             {
-                item.Height = itemSize.Y;
+                item.SetAbsSize(item.Width, itemSize.Y);
                 updated = true;
             }
 
@@ -179,10 +179,8 @@ namespace Ship_Game
 
         public override void PerformLayout()
         {
-            if (UseRelPos && Parent != null)
-            {
-                Pos = Parent.Pos + new Vector2(RelPos.X, RelPos.Y);
-            }
+            RequiresLayout = false;
+            UpdatePosAndSize();
 
             Vector2 pos = Pos + Padding;
             Vector2 maxElemSize = MaxDimensions();

@@ -51,8 +51,8 @@ namespace Ship_Game
             Sprite = sprite;
         }
 
-        public UIPanel(in RelPos rel, in Vector2 size, Color color, DrawableSprite sprite = null)
-            : base(rel, size)
+        public UIPanel(in LocalPos localPos, in Vector2 size, Color color, DrawableSprite sprite = null)
+            : base(localPos, size)
         {
             Color = color;
             Sprite = sprite;
@@ -73,8 +73,8 @@ namespace Ship_Game
         {
         }
 
-        public UIPanel(in RelPos pos, in Vector2 size, SubTexture texture)
-            : this(pos, size, Color.White, new DrawableSprite(texture))
+        public UIPanel(in LocalPos localPos, in Vector2 size, SubTexture texture)
+            : this(localPos, size, Color.White, new DrawableSprite(texture))
         {
         }
 
