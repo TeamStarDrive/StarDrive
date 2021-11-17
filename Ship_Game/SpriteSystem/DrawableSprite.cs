@@ -10,9 +10,9 @@ namespace Ship_Game.SpriteSystem
     // Within a single abstract entity
     public class DrawableSprite
     {
-        readonly SpriteAnimation Anim;
-        readonly SubTexture Tex;
-        readonly ScreenMediaPlayer Vid;
+        public readonly SpriteAnimation Anim;
+        public readonly SubTexture Tex;
+        public readonly ScreenMediaPlayer Vid;
 
         public SpriteEffects Effects;
         public float Rotation;
@@ -37,7 +37,7 @@ namespace Ship_Game.SpriteSystem
         public DrawableSprite(GameContentManager content, string texture)
         {
             var tex = content.Load<Texture2D>("Textures/" + texture);
-            Tex = new SubTexture(texture, tex);
+            Tex = new SubTexture(texture, tex, texture);
             Size = Tex.SizeF;
         }
 

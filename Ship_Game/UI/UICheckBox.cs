@@ -9,9 +9,9 @@ namespace Ship_Game
 
     public sealed class UICheckBox : UIElementV2
     {
-        readonly Graphics.Font Font;
-        readonly LocalizedText Text;
-        readonly LocalizedText Tooltip;
+        public readonly Graphics.Font Font;
+        public readonly LocalizedText Text;
+        public readonly LocalizedText Tooltip;
         Ref<bool> Binding;
 
         public Action<UICheckBox> OnChange;

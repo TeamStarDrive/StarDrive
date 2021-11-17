@@ -92,12 +92,16 @@ namespace Ship_Game.Data.YamlSerializer
 
             foreach (KeyValuePair<string, DataField> kv in Mapping)
             {
-                var childNode = new YamlNode
+                object value = kv.Value.Get(obj);
+                if (value != null)
                 {
-                    Key = kv.Key
-                };
-                parent.AddSubNode(childNode);
-                kv.Value.Serialize(childNode, obj);
+                    var childNode = new YamlNode
+                    {
+                        Key = kv.Key
+                    };
+                    parent.AddSubNode(childNode);
+                    kv.Value.Serializer.Serialize(childNode, value);
+                }
             }
         }
 
