@@ -207,7 +207,7 @@ namespace Ship_Game.UI
 
             // init texture for size information, so buttons can be auto-resized
             if (info.Tex == null && info.Type == "Button")
-                info.Tex = UIButton.StyleTexture(info.ButtonStyle);
+                info.Tex = UIButton.StyleTexture(info.ButtonStyle ?? ButtonStyle.Default);
         }
 
         static UIElementV2 GetOrCreateElement(UIElementContainer parent, ElementInfo info)
@@ -219,21 +219,28 @@ namespace Ship_Game.UI
                 case "List":
                     return new UIList
                     {
-                        Padding = info.Padding,
-                        LayoutStyle = info.ListLayout,
+                        Padding = info.Padding ?? new Vector2(5,5),
+                        LayoutStyle = info.ListLayout ?? ListLayoutStyle.ResizeList,
                     };
                 case "Label":
-                    return new UILabel(info.Title);
-                case "Button":
-                    return new UIButton(info.ButtonStyle, info.Title)
+                    return new UILabel(info.Title ?? LocalizedText.None)
                     {
-                        Tooltip = info.Tooltip,
-                        ClickSfx = info.ClickSfx,
+                        Tooltip = info.Tooltip ?? LocalizedText.None,
+                    };
+                case "Button":
+                    return new UIButton(
+                        info.ButtonStyle ?? ButtonStyle.Default,
+                        info.Title ?? LocalizedText.None)
+                    {
+                        Tooltip = info.Tooltip ?? LocalizedText.None,
+                        ClickSfx = info.ClickSfx ?? ElementInfo.DefaultClickSfx,
                     };
                 case "Checkbox":
                     {
                         bool dummy = false;
-                        return new UICheckBox(() => dummy, Fonts.Arial12Bold, info.Title, info.Tooltip);
+                        return new UICheckBox(() => dummy, Fonts.Arial12Bold,
+                            info.Title ?? LocalizedText.None,
+                            info.Tooltip ?? LocalizedText.None);
                     }
                 case "Override":
                     if (parent.Find(info.ElementName, out UIElementV2 element))

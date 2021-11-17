@@ -18,11 +18,16 @@ namespace Ship_Game
         public readonly int Height;
         public readonly Texture2D Texture;
 
+        // path to the source of the texture
+        // this could be a stand-alone file before being packed to an atlas
+        // or it might be a pre-packed atlas file
+        public readonly string TexturePath;
+
         public Rectangle Rect => new Rectangle(X, Y, Width, Height);
         public int Right  => X + Width;
         public int Bottom => Y + Height;
 
-        public SubTexture(string name, int x, int y, int w, int h, Texture2D texture)
+        public SubTexture(string name, int x, int y, int w, int h, Texture2D texture, string texturePath)
         {
             Name = name;
             X = x;
@@ -30,15 +35,17 @@ namespace Ship_Game
             Width = w;
             Height = h;
             Texture = texture;
+            TexturePath = texturePath;
         }
 
         // special case: SubTexture is a container for a full texture
-        public SubTexture(string name, Texture2D fullTexture)
+        public SubTexture(string name, Texture2D fullTexture, string texturePath)
         {
             Name = name;
             Width = fullTexture.Width;
             Height = fullTexture.Height;
             Texture = fullTexture;
+            TexturePath = texturePath;
         }
 
         // UV-coordinates
