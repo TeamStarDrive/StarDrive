@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -251,8 +252,15 @@ namespace Ship_Game
         /// </summary>
         public UIElementV2 SetPosToCenterOf(UIElementV2 target)
         {
-            Vector2 centered = (target.Center - Size*0.5f).Rounded();
-            SetAbsPos(centered.X, centered.Y);
+            if (target == Parent)
+            {
+                SetLocalPos((target.Size * 0.5f).Rounded());
+            }
+            else
+            {
+                Vector2 centered = (target.Center - Size * 0.5f).Rounded();
+                SetAbsPos(centered.X, centered.Y);
+            }
             return this;
         }
 
@@ -263,8 +271,15 @@ namespace Ship_Game
         /// </summary>
         public UIElementV2 SetDistanceFromBottomOf(UIElementV2 target, float distance)
         {
-            float y = (float)Math.Round(target.Bottom - distance - Height);
-            SetAbsPos(X, y);
+            if (target == Parent)
+            {
+                SetLocalPos(LocalPos.X, target.Size.Y - distance - Height);
+            }
+            else
+            {
+                float y = (float)Math.Round(target.Bottom - distance - Height);
+                SetAbsPos(X, y);
+            }
             return this;
         }
 
@@ -392,10 +407,10 @@ namespace Ship_Game
                 container.Remove(this);
         }
 
-
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-            
+        public IReadOnlyList<UIEffect> GetEffects() => Effects;
+
         public T AddEffect<T>(T effect) where T : UIEffect
         {
             Log.Assert(effect != null, "UIEffect cannot be null");

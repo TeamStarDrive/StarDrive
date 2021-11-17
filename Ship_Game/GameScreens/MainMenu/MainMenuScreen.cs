@@ -93,6 +93,8 @@ namespace Ship_Game.GameScreens.MainMenu
 
             base.LoadContent();
             Log.Info($"MainMenuScreen GameContent {TransientContent.GetLoadedAssetMegabytes():0.0}MB");
+        
+            LayoutExporter.Export(this, "MainMenu.export.yaml");
         }
 
         void SetupMainMenuLightRig()

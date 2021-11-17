@@ -166,6 +166,7 @@ namespace Ship_Game.SpriteSystem
                     int.TryParse(entry[5], out t.Height);
                     t.Name = entry[6];
                     t.UnpackedPath = t.NoPack ? $"{compressedCacheDir}{t.Name}.dds" : null;
+                    t.SourcePath = Path.OriginalName + "/" + t.Name + "." + t.Type;
                     textures.Add(t);
                 }
 
