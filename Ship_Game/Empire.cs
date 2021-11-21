@@ -1086,7 +1086,7 @@ namespace Ship_Game
                 ThrustColor1 = Color.OrangeRed;
         }
 
-        private void ResetTechsUsableByShips(Array<Ship> ourShips, bool unlockBonuses)
+        public void ResetTechsUsableByShips(Array<Ship> ourShips, bool unlockBonuses)
         {
             foreach (var entry in TechnologyDict)
             {
@@ -3078,7 +3078,19 @@ namespace Ship_Game
             EmpireAI.DefensiveCoordinator.ManageForcePool();
             target.data.AgentList.Clear();
             target.data.AbsorbedBy = data.Traits.Name;
+            ThirdPartyAbsorb(target);
             CalculateScore();
+        }
+
+        // If we are absorbing an empire which absorbed another empire in the past
+        // their absorbed empires will become absobred by us - to get all relevant tech content (like hulls and troops)
+        void ThirdPartyAbsorb(Empire target)
+        {
+            foreach (Empire e in EmpireManager.MajorEmpires)
+            {
+                if (e.data.AbsorbedBy == target.data.Traits.Name)
+                    e.data.AbsorbedBy = data.Traits.Name;
+            }
         }
 
         public bool HavePreReq(string techId) => GetTechEntry(techId).HasPreReq(this);

@@ -716,6 +716,10 @@ namespace Ship_Game.GameScreens.LoadGame
 
                 EmpireManager.Add(e);
             }
+
+            // FB: moved from empire int to after all empires created otherwise it wont work
+            foreach (Empire e in EmpireManager.Empires)
+                e.ResetTechsUsableByShips(e.GetOurFactionShips(), unlockBonuses: false);
         }
 
         static void GiftShipsFromServantEmpire(UniverseData data)
