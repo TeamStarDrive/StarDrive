@@ -25,12 +25,10 @@ namespace Ship_Game
         public static Font Arial20Bold   { get; private set; }
         public static Font Arial8Bold    { get; private set; }
         public static Font Consolas18    { get; private set; }
-        //public static Graphics.Font Corbel14      { get; private set; }
         public static Font Laserian14    { get; private set; }
         public static Font Pirulen12     { get; private set; }
         public static Font Pirulen16     { get; private set; }
         public static Font Pirulen20     { get; private set; }
-        //public static Graphics.Font Stratum72     { get; private set; }
         public static Font Tahoma10      { get; private set; }
         public static Font Tahoma11      { get; private set; }
         public static Font TahomaBold9   { get; private set; }
@@ -39,16 +37,33 @@ namespace Ship_Game
         public static Font Verdana10     { get; private set; }
         public static Font Verdana14Bold { get; private set; }
         public static Font Visitor10     { get; private set; }
-        //public static Font Visitor12     { get; private set; }
 
-        public static Font LoadFont(GameContentManager content, string name)
+        static readonly Map<string, Font> FontsLookup = new Map<string, Font>();
+
+        public static Font GetFont(string name)
         {
-            return new Font(content, name);
+            return FontsLookup[name];
+        }
+        
+        static Font LoadFont(GameContentManager content, string name)
+        {
+            var font = new Font(content, name, name);
+            FontsLookup.Add(name, font);
+            return font;
         }
 
-        public static Font LoadFont(GameContentManager content, string name, float monoSpaceSpacing)
+        static Font LoadFont(GameContentManager content, string name, string fontName)
         {
-            return new Font(content, name, monoSpaceSpacing);
+            var font = new Font(content, name, fontName);
+            FontsLookup.Add(name, font);
+            return font;
+        }
+
+        static Font LoadFont(GameContentManager content, string name, string fontName, float monoSpaceSpacing)
+        {
+            var font = new Font(content, name, fontName, monoSpaceSpacing);
+            FontsLookup.Add(name, font);
+            return font;
         }
 
         public static void LoadFonts(GameContentManager c, Language language)
@@ -56,33 +71,31 @@ namespace Ship_Game
             bool russian = language == Language.Russian;
             bool notEnglish = language != Language.English;
             GameLoadingScreen.SetStatus("LoadFonts");
-            Arial20Bold   = LoadFont(c, "Arial20Bold");
-            Arial14Bold   = LoadFont(c, "Arial14Bold");
-            Arial12Bold   = LoadFont(c, "Arial12Bold");
+            FontsLookup.Clear();
 
-            // hack fix for french, Polish and Russian font error. 
-            Arial10       = LoadFont(c, "Arial10");
-            Arial11Bold   = notEnglish ? Arial10 : LoadFont(c, "Arial11Bold");
-            Arial8Bold    = LoadFont(c, "Arial8Bold");
-            Arial12       = LoadFont(c, "Arial12");
-            //Stratum72     = LoadFont(c, "stratum72");
-            //Corbel14      = LoadFont(c, "Corbel14");
-            Laserian14    = LoadFont(c, "Laserian14");
-            Pirulen16     = LoadFont(c, "Pirulen16");
-            Pirulen20     = LoadFont(c, "Pirulen20");
-            Consolas18    = LoadFont(c, "consolas18");
-            Tahoma10      = LoadFont(c, "Tahoma10");
-            Tahoma11    = russian ? Tahoma10 : LoadFont(c, "Tahoma11");
-            TahomaBold9 = russian ? Tahoma10 : LoadFont(c, "TahomaBold9");
-            Visitor10   = russian ? LoadFont(c, "Arial10", 1f) : LoadFont(c, "Visitor10", 1f);
+            Arial20Bold = LoadFont(c, "Arial20Bold");
+            Arial14Bold = LoadFont(c, "Arial14Bold");
+            Arial12Bold = LoadFont(c, "Arial12Bold");
 
-            //Visitor12     = LoadFont(c, "Visitor12");
+            // hack fix for french, Polish and Russian font error.
+            Arial10     = LoadFont(c, "Arial10");
+            Arial11Bold = LoadFont(c, "Arial11Bold", fontName: (notEnglish ? "Arial10" : "Arial11Bold"));
+            Arial8Bold  = LoadFont(c, "Arial8Bold");
+            Arial12     = LoadFont(c, "Arial12");
+            Laserian14  = LoadFont(c, "Laserian14");
+            Pirulen12   = LoadFont(c, "Pirulen12",   fontName: (russian ? "Arial12Bold" : "Pirulen12a"));
+            Pirulen16   = LoadFont(c, "Pirulen16");
+            Pirulen20   = LoadFont(c, "Pirulen20");
+            Consolas18  = LoadFont(c, "consolas18");
+            Tahoma10    = LoadFont(c, "Tahoma10");
+            Tahoma11    = LoadFont(c, "Tahoma11",    fontName: (russian ? "Tahoma10" : "Tahoma11"));
+            TahomaBold9 = LoadFont(c, "TahomaBold9", fontName: (russian ? "Tahoma10" : "TahomaBold9"));
+            Visitor10   = LoadFont(c, "Visitor10",   fontName: (russian ? "Arial10" : "Visitor10"), 1f);
+
             Verdana14Bold = LoadFont(c, "Verdana14Bold");
             Verdana12     = LoadFont(c, "Verdana12");
             Verdana12Bold = LoadFont(c, "Verdana12Bold");
             Verdana10     = LoadFont(c, "Verdana10");
-
-            Pirulen12 = russian ? LoadFont(c, "Arial12Bold") : LoadFont(c, "Pirulen12a");
         }
     }
 }

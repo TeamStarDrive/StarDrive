@@ -9,40 +9,39 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ship_Game.GameScreens.MainMenu;
 
 namespace Ship_Game.UI
 {
     /// <summary>
-    /// Utility for taking an active GameScreen
+    /// Utility for taking an active GameScreen/UIElementContainer
     /// and converting it into a reusable YAML file
     /// 
     /// Also generates the necessary C# binding boilerplate code
     /// </summary>
     public class LayoutExporter
     {
-        public static void Export(GameScreen screen, string layoutFile)
+        public static void Export(UIElementContainer container, string layoutFile)
         {
-            var exporter = new LayoutExporter(screen, layoutFile);
+            var exporter = new LayoutExporter(container, layoutFile);
             exporter.SaveLayout();
         }
 
-        GameScreen Screen;
-        FileInfo OutFile;
-        RootElementInfo Root;
+        readonly FileInfo OutFile;
+        readonly RootElementInfo Root;
 
-        LayoutExporter(GameScreen screen, string layoutFile)
+        LayoutExporter(UIElementContainer container, string layoutFile)
         {
-            Screen = screen;
             OutFile = ResourceManager.ContentInfo(layoutFile);
 
             var elements = new Array<ElementInfo>();
 
-            foreach (UIElementV2 rootElement in Screen.GetElements())
+            foreach (UIElementV2 rootElement in container.GetElements())
                 elements.Add(CreateElement(rootElement));
 
             Root = new RootElementInfo
             {
-                Name = Screen.Name,
+                Name = container.Name,
                 VirtualSize = GameBase.ScreenSize,
                 Elements = elements.ToArray()
             };
@@ -59,7 +58,7 @@ namespace Ship_Game.UI
             }
         }
 
-        ElementInfo CreateElement(UIElementV2 element)
+        static ElementInfo CreateElement(UIElementV2 element)
         {
             var info = new ElementInfo();
 
@@ -69,17 +68,25 @@ namespace Ship_Game.UI
                 info.Type = "List";
                 info.Padding = list.Padding;
                 info.ListLayout = list.LayoutStyle;
+                if (list.Color != Color.TransparentBlack)
+                    info.Color = list.Color;
                 SetPanelInfo(info, list);
             }
             else if (element is UIPanel panel)
             {
                 info.Type = "Panel";
+                if (panel.Color != Color.White)
+                    info.Color = panel.Color;
                 SetPanelInfo(info, panel);
             }
             else if(element is UILabel label)
             {
                 info.Type = "Label";
+                if (label is VersionLabel)
+                    info.Type = "VersionLabel";
                 info.Title = label.Text;
+                if (label.Font != Fonts.Arial12Bold)
+                    info.Font = label.Font.Name;
                 if (label.Tooltip.NotEmpty)
                     info.Tooltip = label.Tooltip;
                 if (label.Color != Color.White)
@@ -88,8 +95,11 @@ namespace Ship_Game.UI
             else if (element is UIButton button)
             {
                 info.Type = "Button";
-                info.ButtonStyle = button.Style;
                 info.Title = button.Text;
+                if (button.Font != Fonts.Arial12Bold)
+                    info.Font = button.Font.Name;
+                if (button.Style != ButtonStyle.Default)
+                    info.ButtonStyle = button.Style;
                 if (button.Tooltip.NotEmpty)
                     info.Tooltip = button.Tooltip;
                 if (button.ClickSfx != ElementInfo.DefaultClickSfx)
@@ -114,43 +124,66 @@ namespace Ship_Game.UI
 
             if (element is UIElementContainer container)
             {
-                info.Children = container.GetElements().Select(CreateElement);
+                var elements = container.GetElements();
+                if (elements.Count > 0) // only set if there are children
+                    info.Children = elements.Select(CreateElement);
             }
             return info;
         }
 
-        void SetPanelInfo(ElementInfo info, UIPanel panel)
+        static void SetPanelInfo(ElementInfo info, UIPanel panel)
         {
-            info.Color = panel.Color;
-            info.BorderColor = panel.Border;
-            info.Tooltip = panel.Tooltip;
+
+            if (panel.Border != Color.TransparentBlack)
+                info.BorderColor = panel.Border;
+
+            if (panel.Tooltip.NotEmpty)
+                info.Tooltip = panel.Tooltip;
 
             if (panel.Sprite?.Tex != null)
             {
-                info.Texture = panel.Sprite.Tex.TexturePath;
+                info.Texture = GetTexturePath(panel.Sprite.Tex.TexturePath);
             }
             else if (panel.Sprite?.Anim != null)
             {
                 SpriteAnimation a = panel.Sprite.Anim;
-                info.SpriteAnim = new SpriteAnimInfo
+                var sa = new SpriteAnimInfo
                 {
-                    Path = a.Name,
-                    Delay = a.Delay,
+                    Path = GetTexturePath(a.Name),
                     Duration = a.Duration,
-                    StartAt = a.CurrentTime,
-                    Looping = a.Looping,
-                    FreezeAtLastFrame = a.FreezeAtLastFrame,
-                    VisibleBeforeDelay = a.VisibleBeforeDelay,
                 };
+
+                if (a.Delay > 0)
+                    sa.Delay = a.Delay;
+
+                if (a.CurrentTime > 0)
+                    sa.StartAt = a.CurrentTime;
+
+                if (a.Looping)
+                    sa.Looping = a.Looping;
+
+                if (a.FreezeAtLastFrame)
+                    sa.FreezeAtLastFrame = a.FreezeAtLastFrame;
+
+                if (a.VisibleBeforeDelay)
+                    sa.VisibleBeforeDelay = a.VisibleBeforeDelay;
+
+                info.SpriteAnim = sa;
             }
         }
 
-        void SetCommonFields(ElementInfo info, UIElementV2 e)
+        static void SetCommonFields(ElementInfo info, UIElementV2 e)
         {
             info.Name = e.Name;
-            info.Visible = e.Visible;
-            info.DrawDepth = e.DrawDepth;
-            info.DebugDraw = (e as UIElementContainer)?.DebugDraw ?? false;
+
+            if (!e.Visible)
+                info.Visible = e.Visible;
+
+            if (e.DrawDepth != DrawDepth.Foreground)
+                info.DrawDepth = e.DrawDepth;
+
+            if ((e as UIElementContainer)?.DebugDraw == true)
+                info.DebugDraw = true;
 
             if (e.ParentAlign == e.LocalAxis)
             {
@@ -161,17 +194,21 @@ namespace Ship_Game.UI
             {
                 if (e.ParentAlign != Align.TopLeft)
                     info.ParentAlign = e.ParentAlign;
+
                 if (e.LocalAxis != Align.TopLeft)
                     info.LocalAxis = e.LocalAxis;
             }
 
             // POS
-            if (e.UseRelPos)
-                info.RelPos = new Vector2(e.RelPos.X, e.RelPos.Y);
-            else if (e.UseLocalPos)
-                info.LocalPos = new Vector2(e.LocalPos.X, e.LocalPos.Y);
-            else
-                info.AbsPos = e.Pos;
+            if (!(e.Parent is UIList)) // UIList sets pos automatically
+            {
+                if (e.UseRelPos)
+                    info.RelPos = new Vector2(e.RelPos.X, e.RelPos.Y);
+                else if (e.UseLocalPos)
+                    info.LocalPos = new Vector2(e.LocalPos.X, e.LocalPos.Y);
+                else
+                    info.AbsPos = e.Pos;
+            }
 
             // SIZE
             if (e.UseRelSize)
@@ -190,25 +227,27 @@ namespace Ship_Game.UI
             }
         }
 
-        AnimInfo GetAnimInfo(UIBasicAnimEffect a)
+        static AnimInfo GetAnimInfo(UIBasicAnimEffect a)
         {
             var ai = new AnimInfo()
             {
-                Params = new float[] { a.Delay, a.Duration, a.Looping ? a.EndTime : 0, a.DurationIn, a.DurationOut },
-                Pattern = a.AnimPattern,
+                Params = new [] { a.Delay, a.Duration, (a.Looping ? a.EndTime : 0), a.DurationIn, a.DurationOut },
             };
 
-            if (a.AnimateColor)
-            {
-                ai.MinColor = a.MinColor;
-                ai.MaxColor = a.MaxColor;
-            }
+            if (a.AnimPattern != AnimPattern.None)
+                ai.Pattern = a.AnimPattern;
 
             if (a.AnimateAlpha)
                 ai.Alpha = a.AlphaRange;
 
             if (a.AnimateScale)
                 ai.CenterScale = a.CenterScaleRange;
+
+            if (a.AnimateColor)
+            {
+                ai.MinColor = a.MinColor;
+                ai.MaxColor = a.MaxColor;
+            }
 
             if (a.AnimateSize)
             {
@@ -223,6 +262,13 @@ namespace Ship_Game.UI
             }
 
             return ai;
+        }
+
+        static string GetTexturePath(string path)
+        {
+            if (path.StartsWith("Textures/"))
+                return path.Substring("Textures/".Length);
+            return path;
         }
     }
 }

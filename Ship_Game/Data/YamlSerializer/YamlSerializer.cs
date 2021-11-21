@@ -95,12 +95,19 @@ namespace Ship_Game.Data.YamlSerializer
                 object value = kv.Value.Get(obj);
                 if (value != null)
                 {
-                    var childNode = new YamlNode
+                    // handle primary key in a special way so we can have
+                    // - Panel:    instead of    - Type: Panel
+                    if (kv.Value == PrimaryKeyName)
                     {
-                        Key = kv.Key
-                    };
-                    parent.AddSubNode(childNode);
-                    kv.Value.Serializer.Serialize(childNode, value);
+                        var childNode = new YamlNode { Key = value };
+                        parent.AddSubNode(childNode);
+                    }
+                    else
+                    {
+                        var childNode = new YamlNode { Key = kv.Key };
+                        parent.AddSubNode(childNode);
+                        kv.Value.Serializer.Serialize(childNode, value);
+                    }
                 }
             }
         }
