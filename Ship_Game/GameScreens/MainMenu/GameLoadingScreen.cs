@@ -125,7 +125,7 @@ namespace Ship_Game
             int w = ScreenWidth, h = ScreenHeight;
             int screenCx = w / 2, screenCy = h / 2;
 
-            StatusFont = Fonts.LoadFont(TransientContent, "Arial12");
+            StatusFont = new Graphics.Font(TransientContent, "Arial12", "Arial12");
 
             BridgeTexture = TransientContent.Load<Texture2D>("Textures/GameScreens/Bridge");
             // fit to screen width

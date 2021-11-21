@@ -2,10 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Ship_Game.Graphics
 {
@@ -17,19 +14,21 @@ namespace Ship_Game.Graphics
         public readonly float SpaceWidth; // width of a single whitespace " " character in fractions of a pixel
         public int NumCharacters => XnaFont.Characters.Count;
 
-        public Font(GameContentManager content, string name)
+        public override string ToString() => $"{Name} LineHeight={LineSpacing}";
+
+        public Font(GameContentManager content, string name, string fontPath)
         {
             Name = name;
-            XnaFont = content.Load<SpriteFont>("Fonts/" + name);
+            XnaFont = content.Load<SpriteFont>("Fonts/" + fontPath);
 
             LineSpacing = XnaFont.LineSpacing;
             SpaceWidth = XnaFont.MeasureString(" ").X;
         }
 
-        public Font(GameContentManager content, string name, float monoSpaceSpacing)
+        public Font(GameContentManager content, string name, string fontPath, float monoSpaceSpacing)
         {
             Name = name;
-            XnaFont = content.Load<SpriteFont>("Fonts/" + name);
+            XnaFont = content.Load<SpriteFont>("Fonts/" + fontPath);
             XnaFont.Spacing = monoSpaceSpacing;
 
             LineSpacing = XnaFont.LineSpacing;
