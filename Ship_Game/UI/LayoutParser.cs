@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
 using Ship_Game.Data.Yaml;
 using Ship_Game.Data.YamlSerializer;
+using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.SpriteSystem;
 
 namespace Ship_Game.UI
@@ -192,11 +193,11 @@ namespace Ship_Game.UI
             if (sprite == null || sprite.Path.IsEmpty()) return null;
             var sa = new SpriteAnimation(Content, "Textures/" + sprite.Path, autoStart: false)
             {
-                Looping = sprite.Looping,
-                FreezeAtLastFrame  = sprite.FreezeAtLastFrame,
-                VisibleBeforeDelay = sprite.VisibleBeforeDelay,
+                Looping = sprite.Looping ?? false,
+                FreezeAtLastFrame  = sprite.FreezeAtLastFrame ?? false,
+                VisibleBeforeDelay = sprite.VisibleBeforeDelay ?? false,
             };
-            sa.Start(sprite.Duration, sprite.StartAt, sprite.Delay);
+            sa.Start(sprite.Duration, sprite.StartAt ?? 0, sprite.Delay ?? 0);
             return sa;
         }
 
@@ -217,30 +218,37 @@ namespace Ship_Game.UI
                 case "Panel":
                     return new UIPanel();
                 case "List":
-                    return new UIList
+                    return new UIList()
                     {
-                        Padding = info.Padding ?? new Vector2(5,5),
+                        Padding     = info.Padding ?? new Vector2(5,5),
                         LayoutStyle = info.ListLayout ?? ListLayoutStyle.ResizeList,
                     };
                 case "Label":
                     return new UILabel(info.Title ?? LocalizedText.None)
                     {
                         Tooltip = info.Tooltip ?? LocalizedText.None,
+                        Font = info.Font != null ? Fonts.GetFont(info.Font) : Fonts.Arial12Bold,
                     };
-                case "Button":
-                    return new UIButton(
-                        info.ButtonStyle ?? ButtonStyle.Default,
-                        info.Title ?? LocalizedText.None)
+                case "VersionLabel":
+                    return new VersionLabel(parent, info.Title ?? LocalizedText.None)
                     {
                         Tooltip = info.Tooltip ?? LocalizedText.None,
+                        Font = info.Font != null ? Fonts.GetFont(info.Font) : Fonts.Arial12Bold,
+                    };
+                case "Button":
+                    return new UIButton(info.ButtonStyle ?? ButtonStyle.Default,
+                                        info.Title ?? LocalizedText.None)
+                    {
+                        Tooltip  = info.Tooltip ?? LocalizedText.None,
                         ClickSfx = info.ClickSfx ?? ElementInfo.DefaultClickSfx,
+                        Font = info.Font != null ? Fonts.GetFont(info.Font) : Fonts.Arial12Bold,
                     };
                 case "Checkbox":
                     {
                         bool dummy = false;
                         return new UICheckBox(() => dummy, Fonts.Arial12Bold,
-                            info.Title ?? LocalizedText.None,
-                            info.Tooltip ?? LocalizedText.None);
+                                              info.Title ?? LocalizedText.None,
+                                              info.Tooltip ?? LocalizedText.None);
                     }
                 case "Override":
                     if (parent.Find(info.ElementName, out UIElementV2 element))
@@ -281,12 +289,12 @@ namespace Ship_Game.UI
                 colorElement.Color = info.Color.Value;
             }
 
-            if (info.DrawDepth != null)
+            if (info.DrawDepth.HasValue)
             {
                 element.DrawDepth = info.DrawDepth.Value;
             }
 
-            element.Visible = info.Visible;
+            element.Visible = info.Visible ?? true; // visible by default
 
             if (info.Animation != null || info.Animations != null)
             {
@@ -304,7 +312,7 @@ namespace Ship_Game.UI
             var container = element as UIElementContainer;
             if (container != null)
             {
-                container.DebugDraw = info.DebugDraw;
+                container.DebugDraw = info.DebugDraw ?? false;
             }
 
             if (info.Children != null && info.Children.Length != 0)
@@ -333,7 +341,7 @@ namespace Ship_Game.UI
 
             UIBasicAnimEffect a = element.Anim(delay, duration, fadeIn, fadeOut);
 
-            a.AnimPattern = data.Pattern;
+            a.AnimPattern = data.Pattern ?? AnimPattern.None;
 
             if (loop.NotZero())
                 a.Loop(loop);

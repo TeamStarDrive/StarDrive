@@ -23,24 +23,21 @@ namespace Ship_Game.UI
     {
         [StarDataKeyName] public string Type;
         [StarData] public string Name;
-        [StarData] public bool Visible = true; // Visible by default
+        [StarData] public bool? Visible; // Visible by default
+        [StarData] public bool? DebugDraw;
         [StarData] public DrawDepth? DrawDepth;
+        
+        // UILabel/UIButton
+        [StarData] public LocalizedText? Title;
+        [StarData] public LocalizedText? Tooltip;
+        [StarData] public string Font;
 
+        // Common position/size
         [StarData] public Vector2? AbsPos;
         [StarData] public Vector2? AbsSize;
         [StarData] public Vector2? LocalPos;
         [StarData] public Vector2? RelPos;
         [StarData] public Vector2? RelSize;
-
-        // UIList
-        [StarData] public Vector2? Padding;
-        [StarData] public ListLayoutStyle? ListLayout;
-        
-        // UIButton
-        [StarData] public ButtonStyle? ButtonStyle;
-        [StarData] public string ClickSfx = null;
-
-        public const string DefaultClickSfx = "echo_affirm";
 
         /**
          * Sets the auto-layout axis of the UIElement. Default is Align.TopLeft
@@ -54,20 +51,27 @@ namespace Ship_Game.UI
         [StarData] public Align? ParentAlign;
         [StarData] public Align? LocalAxis;
 
+        // UIList
+        [StarData] public Vector2? Padding;
+        [StarData] public ListLayoutStyle? ListLayout;
+        
+        // UIButton
+        [StarData] public ButtonStyle? ButtonStyle;
+        [StarData] public string ClickSfx = null;
+
+        public const string DefaultClickSfx = "echo_affirm";
+
         // UIPanel
         [StarData] public string Texture;
-        [StarData] public SpriteAnimInfo SpriteAnim = null;
         [StarData] public Color? Color;
         [StarData] public Color? BorderColor;
-        
-        // UILabel/UIButton
-        [StarData] public LocalizedText? Title;
-        [StarData] public LocalizedText? Tooltip;
+        [StarData] public SpriteAnimInfo SpriteAnim = null;
 
+        // UIElementV2
         [StarData] public AnimInfo Animation = null;
         [StarData] public AnimInfo[] Animations = null;
-        [StarData] public bool DebugDraw;
-
+        
+        // UIElementContainer
         [StarData] public ElementInfo[] Children = null;
 
         // these are initialized after parsing:
@@ -103,7 +107,7 @@ namespace Ship_Game.UI
     {
         // Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
         [StarData] public float[] Params;
-        [StarData] public AnimPattern Pattern = AnimPattern.None;
+        [StarData] public AnimPattern? Pattern;
 
         [StarData] public Color? MinColor;
         [StarData] public Color? MaxColor;
@@ -121,11 +125,11 @@ namespace Ship_Game.UI
     internal class SpriteAnimInfo
     {
         [StarData] public string Path;
-        [StarData] public float Delay;
+        [StarData] public float? Delay;
         [StarData] public float Duration;
-        [StarData] public float StartAt;
-        [StarData] public bool Looping;
-        [StarData] public bool FreezeAtLastFrame;
-        [StarData] public bool VisibleBeforeDelay;
+        [StarData] public float? StartAt;
+        [StarData] public bool? Looping;
+        [StarData] public bool? FreezeAtLastFrame;
+        [StarData] public bool? VisibleBeforeDelay;
     }
 }
