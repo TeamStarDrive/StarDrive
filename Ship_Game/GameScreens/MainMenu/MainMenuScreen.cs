@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Data.Yaml;
-using Ship_Game.UI;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
@@ -48,7 +47,7 @@ namespace Ship_Game.GameScreens.MainMenu
             ResetMusic();
             SetupMainMenuLightRig();
 
-            LayoutParser.LoadLayout(this, "UI/MainMenu.yaml", clearElements: true);
+            UI.LayoutParser.LoadLayout(this, "UI/MainMenu.yaml", clearElements: true);
 
             if (GlobalStats.HasMod)
             {

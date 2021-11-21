@@ -25,14 +25,17 @@ namespace Ship_Game.UI
         {
             var exporter = new LayoutExporter(container, layoutFile);
             exporter.SaveLayout();
+            exporter.SaveTypeBindings();
         }
 
         readonly FileInfo OutFile;
+        readonly FileInfo OutBindingsFile;
         readonly RootElementInfo Root;
 
         LayoutExporter(UIElementContainer container, string layoutFile)
         {
             OutFile = ResourceManager.ContentInfo(layoutFile);
+            OutBindingsFile = new FileInfo(Path.ChangeExtension(OutFile.FullName, "cs"));
 
             var elements = new Array<ElementInfo>();
 
@@ -52,10 +55,47 @@ namespace Ship_Game.UI
             var serializer = new YamlSerializer(typeof(RootElementInfo));
             using (var writer = new StreamWriter(OutFile.FullName, append:false, Encoding.UTF8))
             {
-                var root = new YamlNode();
-                serializer.Serialize(root, Root);
-                root.SerializeTo(writer, depth:-2, noSpacePrefix:true);
+                serializer.SerializeRoot(writer, Root);
             }
+        }
+
+        void SaveTypeBindings()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"    public class {Root.Name} : GameScreen");
+            sb.AppendLine( "    {");
+            foreach (ElementInfo element in Root.Elements)
+                CreateBindingFields(sb, element);
+            sb.AppendLine( "        public override void LoadContent()");
+            sb.AppendLine( "        {");
+            foreach (ElementInfo element in Root.Elements)
+                CreateBindingStatements(sb, element);
+            sb.AppendLine( "        }");
+            sb.AppendLine( "    }");
+            File.WriteAllText(OutBindingsFile.FullName, sb.ToString());
+        }
+
+        static string GetTypeName(ElementInfo element)
+        {
+            if (element.Type == "VersionLabel")
+                return element.Type;
+            return "UI" + element.Type;
+        }
+
+        static void CreateBindingFields(StringBuilder sb, ElementInfo element)
+        {
+            sb.AppendLine($"        {GetTypeName(element)} {element.Name};");
+            if (element.Children != null)
+                foreach (ElementInfo child in element.Children)
+                    CreateBindingFields(sb, child);
+        }
+
+        static void CreateBindingStatements(StringBuilder sb, ElementInfo element)
+        {
+            sb.AppendLine($"            Find(\"{element.Name}\", out {GetTypeName(element)} {element.Name});");
+            if (element.Children != null)
+                foreach (ElementInfo child in element.Children)
+                    CreateBindingStatements(sb, child);
         }
 
         static ElementInfo CreateElement(UIElementV2 element)
@@ -116,7 +156,7 @@ namespace Ship_Game.UI
             }
             else
             {
-                Log.Warning($"Unsupported UIElement Type: {element}");
+                Log.Warning(ConsoleColor.Red, $"Unsupported UIElement Type: {element}");
                 info.Type = "Panel";
             }
 

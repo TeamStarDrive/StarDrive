@@ -112,6 +112,14 @@ namespace Ship_Game.Data.YamlSerializer
             }
         }
 
+        // Serializes root object without outputting its Key
+        public void SerializeRoot(TextWriter writer, object obj)
+        {
+            var root = new YamlNode();
+            Serialize(root, obj);
+            root.SerializeTo(writer, depth:-2, noSpacePrefix:true);
+        }
+
         public override void Serialize(TextWriter writer, object obj)
         {
             var root = new YamlNode
