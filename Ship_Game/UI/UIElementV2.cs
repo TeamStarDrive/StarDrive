@@ -182,7 +182,7 @@ namespace Ship_Game
             get
             {
                 if (UseRelPos)
-                    return $"Rel {Pos.X},{Pos.Y}";
+                    return $"Rel {RelPos.X},{RelPos.Y}";
                 if (UseLocalPos)
                     return $"Local {LocalPos.X},{LocalPos.Y}";
                 return $"{Pos.X},{Pos.Y}";
@@ -209,13 +209,6 @@ namespace Ship_Game
             Pos = absPos;
         }
 
-        public void SetAbsSize(float w, float h) => SetAbsSize(new Vector2(w, h));
-        public void SetAbsSize(in Vector2 absSize)
-        {
-            UseRelSize = false;
-            Size = absSize;
-        }
-
         public void SetLocalPos(float x, float y)    => SetLocalPos(new LocalPos(x, y));
         public void SetLocalPos(in Vector2 localPos) => SetLocalPos(new LocalPos(localPos));
         public void SetLocalPos(in LocalPos localPos)
@@ -236,6 +229,29 @@ namespace Ship_Game
             RequiresLayout = true;
         }
 
+        // depending on current element configuration, sets RelPos/LocalPos/AbsPos
+        public void SetAutoPos(float x, float y)
+        {
+            if (UseRelPos)        SetRelPos(x, y);
+            else if (UseLocalPos) SetLocalPos(x, y);
+            else                  SetAbsPos(x, y);
+        }
+        
+        // depending on current element configuration, gets RelPos/LocalPos/AbsPos
+        public Vector2 GetAutoPos()
+        {
+            if (UseRelPos)        return new Vector2(RelPos.X, RelPos.Y);
+            else if (UseLocalPos) return new Vector2(LocalPos.X, LocalPos.Y);
+            else                  return Pos;
+        }
+        
+        public void SetAbsSize(float w, float h) => SetAbsSize(new Vector2(w, h));
+        public void SetAbsSize(in Vector2 absSize)
+        {
+            UseRelSize = false;
+            Size = absSize;
+        }
+
         public void SetRelSize(float w, float h)   => SetRelSize(new RelSize(w, h));
         public void SetRelSize(in Vector2 relSize) => SetRelSize(new RelSize(relSize));
         public void SetRelSize(in RelSize relSize)
@@ -243,6 +259,20 @@ namespace Ship_Game
             RelSize = relSize;
             UseRelSize = true;
             RequiresLayout = true;
+        }
+        
+        // depending on current element configuration, sets RelSize/AbsSize
+        public void SetAutoSize(float w, float h)
+        {
+            if (UseRelSize) SetRelSize(w, h);
+            else            SetAbsSize(w, h);
+        }
+
+        // depending on current element configuration, gets RelSize/AbsSize
+        public Vector2 GetAutoSize()
+        {
+            if (UseRelSize) return new Vector2(RelSize.W, RelSize.H);
+            else            return Size;
         }
 
         /// <summary>
@@ -284,6 +314,9 @@ namespace Ship_Game
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public Vector2 ParentAlignOffset => AlignValue(ParentAlign);
+        public Vector2 LocalAxisOffset => AlignValue(LocalAxis);
 
         public static Vector2 AlignValue(Align align)
         {
