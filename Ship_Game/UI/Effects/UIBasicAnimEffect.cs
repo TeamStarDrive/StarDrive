@@ -149,9 +149,9 @@ namespace Ship_Game
         public UIBasicAnimEffect Pos(Vector2 startPos, Vector2 endPos)
         {
             AnimatePosition = true;
-            Element.Pos     = startPos;
-            StartPos        = startPos;
-            EndPos          = endPos;
+            Element.SetAutoPos(startPos.X, startPos.Y);
+            StartPos = startPos;
+            EndPos   = endPos;
             return this;
         }
 
@@ -160,9 +160,9 @@ namespace Ship_Game
         public UIBasicAnimEffect Size(Vector2 startSize, Vector2 endSize)
         {
             AnimateSize = true;
-            Element.Size = startSize;
-            StartSize    = startSize;
-            EndSize      = endSize;
+            Element.SetAutoSize(startSize.X, startSize.Y);
+            StartSize = startSize;
+            EndSize   = endSize;
             return this;
         }
 
@@ -173,8 +173,8 @@ namespace Ship_Game
         {
             AnimateScale = true;
             CenterScaleRange = scaleRange;
-            StartPos = Element.Pos;
-            StartSize = Element.Size;
+            StartPos = Element.GetAutoPos();
+            StartSize = Element.GetAutoSize();
             if (StartSize.AlmostZero())
                 Log.Error($"UIBasicAnimEffect.Scale {Element.Name} Element.Size={Element.Size} cannot be Zero!");
             return this;
@@ -245,8 +245,8 @@ namespace Ship_Game
                 ce.Color = color;
             }
 
-            Vector2 pos = Element.Pos;
-            Vector2 size = Element.Size;
+            Vector2 pos = Element.GetAutoPos();
+            Vector2 size = Element.GetAutoSize();
             Vector2 newPos = pos;
             Vector2 newSize = size;
 
@@ -267,14 +267,15 @@ namespace Ship_Game
                 newSize = startSize * scale;
 
                 Vector2 startPos = AnimatePosition ? newPos : StartPos;
-                Vector2 offset = startSize * ((1.0f - scale)*0.5f);
-                newPos = startPos + offset; // center to current
+                Vector2 centerOffset = Element.LocalAxisOffset - new Vector2(0.5f, 0.5f);
+                Vector2 offset = startSize * (1f - scale) * centerOffset;
+                newPos = startPos - offset; // center to current
             }
 
             if (newPos.NotEqual(pos) || newSize.NotEqual(size))
             {
-                Element.Pos = newPos;
-                Element.Size = newSize;
+                Element.SetAutoPos(newPos.X, newPos.Y);
+                Element.SetAutoSize(newSize.X, newSize.Y);
                 Element.PerformLayout();
             }
         }
