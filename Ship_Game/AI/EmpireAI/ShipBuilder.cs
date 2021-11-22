@@ -272,7 +272,10 @@ namespace Ship_Game.AI
 
         public static DynamicHangarOptions GetDynamicHangarOptions(string compare)
         {
-            return Enum.TryParse(compare, out DynamicHangarOptions result) ? result : DynamicHangarOptions.Static;
+            if (Enum.TryParse(compare, out DynamicHangarOptions result))
+                return result;
+
+            return DynamicHangarOptions.Static;
         }
 
         public static bool IsDynamicHangar(string compare)
