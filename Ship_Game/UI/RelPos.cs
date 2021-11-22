@@ -30,6 +30,8 @@ namespace Ship_Game.UI
             Y = pos.Y;
         }
 
+        public Vector2 ToVec2() => new Vector2(X, Y);
+
         public override string ToString() => $"RelX:{X.String(2)} RelY:{Y.String(2)}";
 
         public static RelPos operator+(in RelPos a, in RelPos b)

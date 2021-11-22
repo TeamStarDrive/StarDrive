@@ -31,6 +31,8 @@ namespace Ship_Game.UI
             H = size.Y;
         }
 
+        public Vector2 ToVec2() => new Vector2(W, H);
+
         public override string ToString() => $"RelW:{W.String(2)} RelH:{H.String(2)}";
 
         public static bool operator==(in RelSize a, in RelSize b)

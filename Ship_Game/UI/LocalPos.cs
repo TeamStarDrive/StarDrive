@@ -30,6 +30,8 @@ namespace Ship_Game.UI
             Y = pos.Y;
         }
 
+        public Vector2 ToVec2() => new Vector2(X, Y);
+
         public override string ToString() => $"LocalX:{X.String(2)} LocalY:{Y.String(2)}";
 
         public static LocalPos operator+(in LocalPos a, in LocalPos b)
