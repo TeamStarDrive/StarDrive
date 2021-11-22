@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -68,6 +69,9 @@ namespace Ship_Game
             elements = Elements.GetInternalArrayItems();
             return Elements.Count;
         }
+
+        /// NOTE: This is thread-unsafe
+        public IReadOnlyList<UIElementV2> GetElements() => Elements;
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {

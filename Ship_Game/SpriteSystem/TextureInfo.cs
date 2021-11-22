@@ -16,6 +16,8 @@ namespace Ship_Game.SpriteSystem
         public Texture2D Texture;
         public bool NoPack; // This texture should not be packed
 
+        public string SourcePath;
+
         public int Bottom => Y + Height;
 
         public TextureInfo()

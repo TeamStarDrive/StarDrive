@@ -8,7 +8,14 @@ namespace Ship_Game.GameScreens.MainMenu
     {
         readonly SubTexture VersionBar;
 
-        public VersionLabel(UIElementV2 parent, int x, int y, string text)
+        public VersionLabel(UIElementV2 parent, in LocalizedText text)
+                            : base(Vector2.Zero, text, Fonts.Pirulen12)
+        {
+            VersionBar = parent.ContentManager.LoadSubTexture("Textures/MainMenu/version_bar");
+            TextAlign = TextAlign.FlipRight;
+        }
+
+        public VersionLabel(UIElementV2 parent, int x, int y, in LocalizedText text)
                             : base(new Vector2(x, y), text, Fonts.Pirulen12)
         {
             VersionBar = parent.ContentManager.LoadSubTexture("Textures/MainMenu/version_bar");

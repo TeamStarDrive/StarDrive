@@ -409,7 +409,7 @@ namespace Ship_Game.Data
             if (!File.Exists(modTexPath) && !File.Exists(modTexPath+".xnb"))
                 return DefaultTexture();
             var texture = Load<Texture2D>(modTexPath);
-            return new SubTexture(texture.Name, texture);
+            return new SubTexture(texture.Name, texture, modTexPath);
         }
 
         // Load and compile an .fx file
