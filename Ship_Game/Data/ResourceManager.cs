@@ -407,7 +407,7 @@ namespace Ship_Game
         }
 
         static FileInfo ModInfo(string file)     => new FileInfo( ModContentDirectory + file );
-        static FileInfo ContentInfo(string file) => new FileInfo( ContentDirectory + file );
+        public static FileInfo ContentInfo(string file) => new FileInfo( ContentDirectory + file );
 
         // Gets FileInfo for Mod or Vanilla file. Mod file is checked first
         // Example relativePath: "Textures/myAtlas.xml"
@@ -756,7 +756,7 @@ namespace Ship_Game
         public static SubTexture ProjTexture(string texturePath)
         {
             if (ProjTextDict.TryGetValue(texturePath, out Texture2D proj))
-                return new SubTexture(texturePath, proj);
+                return new SubTexture(texturePath, proj, texturePath);
             return RootContent.DefaultTexture();
         }
 

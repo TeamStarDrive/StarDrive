@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Data.Yaml;
-using Ship_Game.UI;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
@@ -48,7 +47,7 @@ namespace Ship_Game.GameScreens.MainMenu
             ResetMusic();
             SetupMainMenuLightRig();
 
-            LayoutParser.LoadLayout(this, "UI/MainMenu.yaml", clearElements: true);
+            UI.LayoutParser.LoadLayout(this, "UI/MainMenu.yaml", clearElements: true);
 
             if (GlobalStats.HasMod)
             {
@@ -139,6 +138,7 @@ namespace Ship_Game.GameScreens.MainMenu
         void CreateVersionArea()
         {
             VersionArea = Panel(Rectangle.Empty, Color.TransparentBlack);
+            VersionArea.Name = "version_area";
             VersionArea.StartFadeIn(3.0f, delay: 2.0f);
 
             string starDrive = "StarDrive BlackBox";
@@ -154,10 +154,10 @@ namespace Ship_Game.GameScreens.MainMenu
 
             string longest = new []{starDrive,blackBox,modTitle}.FindMax(s => s.Length);
             int offset = Math.Max(300, Fonts.Pirulen12.TextWidth(longest).RoundUpToMultipleOf(10) + 10);
-            VersionArea.Add(new VersionLabel(this, offset, ScreenHeight - 90, starDrive));
-            VersionArea.Add(new VersionLabel(this, offset, ScreenHeight - 64, blackBox));
+            VersionArea.Add(new VersionLabel(this, offset, ScreenHeight - 90, starDrive) { Name = "bb_ver_title"});
+            VersionArea.Add(new VersionLabel(this, offset, ScreenHeight - 64, blackBox) { Name = "bb_ver_number" });
             if (modTitle.NotEmpty())
-                VersionArea.Add(new VersionLabel(this, offset, ScreenHeight - 38, modTitle));
+                VersionArea.Add(new VersionLabel(this, offset, ScreenHeight - 38, modTitle) { Name = "mod_title" });
         }
 
         void CreateMainMenuFleet()

@@ -92,13 +92,32 @@ namespace Ship_Game.Data.YamlSerializer
 
             foreach (KeyValuePair<string, DataField> kv in Mapping)
             {
-                var childNode = new YamlNode
+                object value = kv.Value.Get(obj);
+                if (value != null)
                 {
-                    Key = kv.Key
-                };
-                parent.AddSubNode(childNode);
-                kv.Value.Serialize(childNode, obj);
+                    // handle primary key in a special way so we can have
+                    // - Panel:    instead of    - Type: Panel
+                    if (kv.Value == PrimaryKeyName)
+                    {
+                        var childNode = new YamlNode { Key = value };
+                        parent.AddSubNode(childNode);
+                    }
+                    else
+                    {
+                        var childNode = new YamlNode { Key = kv.Key };
+                        parent.AddSubNode(childNode);
+                        kv.Value.Serializer.Serialize(childNode, value);
+                    }
+                }
             }
+        }
+
+        // Serializes root object without outputting its Key
+        public void SerializeRoot(TextWriter writer, object obj)
+        {
+            var root = new YamlNode();
+            Serialize(root, obj);
+            root.SerializeTo(writer, depth:-2, noSpacePrefix:true);
         }
 
         public override void Serialize(TextWriter writer, object obj)
