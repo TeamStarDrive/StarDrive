@@ -13,33 +13,32 @@ namespace Ship_Game.UI
     [StarDataType]
     internal class RootElementInfo
     {
-        #pragma warning disable 649
-        [StarData] public readonly string Name;
-        [StarData] public readonly Vector2 VirtualSize;
-        [StarData] public readonly ElementInfo[] Elements = new ElementInfo[0];
-        #pragma warning restore 649
+        [StarData] public string Name;
+        [StarData] public Vector2 VirtualSize;
+        [StarData] public ElementInfo[] Elements = new ElementInfo[0];
     }
 
     [StarDataType]
     internal class ElementInfo // generic info for all elements (I'm just lazy)
     {
-        #pragma warning disable 649
-        [StarDataKeyName] public readonly string Type;
-        [StarData] public readonly string Name;
-        [StarData] public readonly string Texture;
-        [StarData] public readonly bool Visible = true; // Visible by default
-        [StarData] public readonly DrawDepth? DrawDepth;
+        [StarDataKeyName] public string Type;
+        [StarData] public string Name;
+        [StarData] public bool? Visible; // Visible by default
+        [StarData] public bool? DebugDraw;
+        [StarData] public DrawDepth? DrawDepth;
+        
+        // UILabel/UIButton
+        [StarData] public LocalizedText? Title;
+        [StarData] public LocalizedText? Tooltip;
+        [StarData] public string Font;
 
-        [StarData] public readonly Vector2? AbsPos;
-        [StarData] public readonly Vector2? AbsSize;
-        [StarData] public readonly Vector2? LocalPos;
-        [StarData] public readonly Vector2? RelPos;
-        [StarData] public readonly Vector2? RelSize;
+        // Common position/size
+        [StarData] public Vector2? AbsPos;
+        [StarData] public Vector2? AbsSize;
+        [StarData] public Vector2? LocalPos;
+        [StarData] public Vector2? RelPos;
+        [StarData] public Vector2? RelSize;
 
-        [StarData] public readonly Vector2 Padding = new Vector2(5f, 5f);
-        [StarData] public readonly ListLayoutStyle ListLayout = ListLayoutStyle.ResizeList;
-        [StarData] public readonly ButtonStyle ButtonStyle = ButtonStyle.Default;
-        [StarData] public readonly string ClickSfx = "echo_affirm";
         /**
          * Sets the auto-layout axis of the UIElement. Default is Align.TopLeft
          * Changing the axis will change the position and rotation axis of the object.
@@ -48,19 +47,32 @@ namespace Ship_Game.UI
          * By changing this value, you can align element Pos:[0,0] to parent BottomLeft
          * @example Align.Center will perfectly center to parent center
          */
-        [StarData] public readonly Align? AxisAlign; // sets both ParentAlign and LocalAxis
-        [StarData] public readonly Align? ParentAlign;
-        [StarData] public readonly Align? LocalAxis;
+        [StarData] public Align? AxisAlign; // sets both ParentAlign and LocalAxis
+        [StarData] public Align? ParentAlign;
+        [StarData] public Align? LocalAxis;
 
-        [StarData] public readonly Color? Color;
-        [StarData] public readonly LocalizedText Title;
-        [StarData] public readonly LocalizedText Tooltip;
-        [StarData] public readonly AnimInfo Animation = null;
-        [StarData] public readonly AnimInfo[] Animations = null;
-        [StarData] public readonly SpriteAnimInfo SpriteAnim = null;
-        [StarData] public readonly bool DebugDraw;
-        [StarData] public readonly ElementInfo[] Children = new ElementInfo[0];
-        #pragma warning restore 649
+        // UIList
+        [StarData] public Vector2? Padding;
+        [StarData] public ListLayoutStyle? ListLayout;
+        
+        // UIButton
+        [StarData] public ButtonStyle? ButtonStyle;
+        [StarData] public string ClickSfx = null;
+
+        public const string DefaultClickSfx = "echo_affirm";
+
+        // UIPanel
+        [StarData] public string Texture;
+        [StarData] public Color? Color;
+        [StarData] public Color? BorderColor;
+        [StarData] public SpriteAnimInfo SpriteAnim = null;
+
+        // UIElementV2
+        [StarData] public AnimInfo Animation = null;
+        [StarData] public AnimInfo[] Animations = null;
+        
+        // UIElementContainer
+        [StarData] public ElementInfo[] Children = null;
 
         // these are initialized after parsing:
         public SubTexture Tex;
@@ -93,35 +105,31 @@ namespace Ship_Game.UI
     [StarDataType]
     internal class AnimInfo
     {
-        #pragma warning disable 649
         // Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
-        [StarData] public readonly float[] Params;
-        [StarData] public readonly AnimPattern Pattern = AnimPattern.None;
+        [StarData] public float[] Params;
+        [StarData] public AnimPattern? Pattern;
 
-        [StarData] public readonly Color? MinColor;
-        [StarData] public readonly Color? MaxColor;
-        [StarData] public readonly Range? Alpha; // animation alpha range
-        [StarData] public readonly Range? CenterScale; // animation scale range
+        [StarData] public Color? MinColor;
+        [StarData] public Color? MaxColor;
+        [StarData] public Range? Alpha; // animation alpha range
+        [StarData] public Range? CenterScale; // animation scale range
 
-        [StarData] public readonly Vector2? StartSize; // starting size of the animated UIElement
-        [StarData] public readonly Vector2? EndSize;
+        [StarData] public Vector2? StartSize; // starting size of the animated UIElement
+        [StarData] public Vector2? EndSize;
 
-        [StarData] public readonly Vector2? StartPos; // starting pos of the animated UIElement
-        [StarData] public readonly Vector2? EndPos;
-        #pragma warning restore 649
+        [StarData] public Vector2? StartPos; // starting pos of the animated UIElement
+        [StarData] public Vector2? EndPos;
     }
 
     [StarDataType]
     internal class SpriteAnimInfo
     {
-        #pragma warning disable 649
-        [StarData] public readonly string Path;
-        [StarData] public readonly float Delay;
-        [StarData] public readonly float Duration;
-        [StarData] public readonly float StartAt;
-        [StarData] public readonly bool Looping;
-        [StarData] public readonly bool FreezeAtLastFrame;
-        [StarData] public readonly bool VisibleBeforeDelay;
-        #pragma warning restore 649
+        [StarData] public string Path;
+        [StarData] public float? Delay;
+        [StarData] public float Duration;
+        [StarData] public float? StartAt;
+        [StarData] public bool? Looping;
+        [StarData] public bool? FreezeAtLastFrame;
+        [StarData] public bool? VisibleBeforeDelay;
     }
 }

@@ -150,7 +150,7 @@ Elements:
     AxisAlign: TopRight
     DrawDepth: Foreground
     SpriteAnim:
-      Path: ../MainMenu/Stardrive logo
+      Path: MMenu/stardrive_logo
       Delay: 0
       Duration: 3
       FreezeAtLastFrame: true
@@ -205,7 +205,6 @@ Elements:
     Children:
       - Button:
           Name: new_game
-          ButtonStyle: Default
           AbsSize: [200, 0] # aspect fill width
           Title: "{1}" # "New Game"
           ClickSfx: sd_ui_tactical_pause

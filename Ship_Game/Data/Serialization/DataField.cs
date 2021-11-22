@@ -39,16 +39,26 @@ namespace Ship_Game.Data.Serialization
             else               return Prop.GetValue(instance);
         }
 
-        public void Serialize(YamlNode parent, object instance)
+        public bool Serialize(YamlNode parent, object instance)
         {
             object value = Get(instance);
-            Serializer.Serialize(parent, value);
+            if (value != null)
+            {
+                Serializer.Serialize(parent, value);
+                return true;
+            }
+            return false;
         }
 
-        public void Serialize(BinaryWriter writer, object instance)
+        public bool Serialize(BinaryWriter writer, object instance)
         {
             object value = Get(instance);
-            Serializer.Serialize(writer, value);
+            if (value != null)
+            {
+                Serializer.Serialize(writer, value);
+                return true;
+            }
+            return false;
         }
 
         public void Deserialize(BinaryReader reader, object instance)

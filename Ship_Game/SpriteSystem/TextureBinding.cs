@@ -17,6 +17,7 @@ namespace Ship_Game.SpriteSystem
         readonly int X, Y;
         public readonly int Width, Height;
         readonly TextureAtlas Atlas;
+        readonly string SourcePath;
 
         public TextureBinding(TextureAtlas atlas, TextureInfo t)
         {
@@ -28,6 +29,7 @@ namespace Ship_Game.SpriteSystem
             Width = t.Width;
             Height = t.Height;
             Atlas = atlas;
+            SourcePath = t.SourcePath;
         }
 
         public SubTexture GetOrLoadTexture()
@@ -37,7 +39,7 @@ namespace Ship_Game.SpriteSystem
 
             if (UnpackedPath == null) // texture is packed into atlas
             {
-                SubTex = new SubTexture(Name, X, Y, Width, Height, Atlas.GetAtlasTexture());
+                SubTex = new SubTexture(Name, X, Y, Width, Height, Atlas.GetAtlasTexture(), SourcePath);
             }
             // load the unpacked texture if we already didn't
             else if (Texture == null)
@@ -48,7 +50,7 @@ namespace Ship_Game.SpriteSystem
                     Log.Warning(ConsoleColor.Red, $"NonPacked Texture does not exist: {UnpackedPath}");
                 }
                 Texture = ResourceManager.RootContent.LoadUncachedTexture(file, Atlas.Name);
-                SubTex = new SubTexture(Name, Texture);
+                SubTex = new SubTexture(Name, Texture, SourcePath);
             }
             
             return SubTex;
