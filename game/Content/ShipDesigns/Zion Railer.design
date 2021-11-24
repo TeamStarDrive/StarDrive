@@ -1,0 +1,46 @@
+﻿Version=1
+Name=Zion Railer
+Hull=Ralyeh/Zion
+Role=frigate
+Style=Ralyeh
+Size=8,9
+GridCenter=4,5
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=Phalanx PD;LaserCannon;SteelArmorSmall;Shield_1KW;Cockpit;OrdnanceLockerSmall;NuclearReactorMed;FrigateEngine;WarpEngine_1x1;NuclearReactorSmall
+Modules=28
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,2;0;2,2;236
+0,4;1;;268
+0,5;1;;216
+0,6;2
+1,4;3;2,2
+2,1;1
+2,2;1
+2,3;4
+2,6;5
+2,7;5
+2,8;5
+3,0;0;2,2
+3,2;6;2,2
+3,4;6;2,2
+3,6;7;2,2
+3,8;8
+4,8;8
+5,1;1
+5,2;1
+5,3;9
+5,4;3;2,2
+5,6;5
+5,7;5
+5,8;5
+6,2;0;2,2;122
+7,4;1;;88
+7,5;1;;143
+7,6;2

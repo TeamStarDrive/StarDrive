@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>EMPTorpedo</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>2250</Cost>
+  <RootNode>0</RootNode>
+  <Name>EMP Torpedoes</Name>
+  <NameIndex>552</NameIndex>
+  <DescriptionIndex>553</DescriptionIndex>
+  <LongDescription>Electromagnetic pulse torpedoes deliver a massive shock to an area of effect that includes friendly targets. If this blast overwhelms a ship's EMP defenses, the ship will be stunned for 3 seconds. </LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>EMPTorpedo</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

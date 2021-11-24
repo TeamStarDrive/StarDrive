@@ -1,0 +1,33 @@
+﻿Version=1
+Name=Crescent Cannon Mk II
+Hull=Draylok/Crescent
+Role=corvette
+Style=Draylok
+Size=10,6
+GridCenter=5,3
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=BasicFuelCell;DisruptorTurret2x2;LaserCannon;Cockpit;engine_fighter_1x1;NuclearReactorMed;FrigateEngine;NuclearReactorSmall
+Modules=15
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,2;0
+0,3;1;2,2
+2,4;2
+3,3;0
+3,4;3
+3,5;4
+4,0;1;2,2
+4,2;5;2,2
+4,4;6;2,2
+6,3;0
+6,4;7
+6,5;4
+7,4;2
+8,3;1;2,2
+9,2;0

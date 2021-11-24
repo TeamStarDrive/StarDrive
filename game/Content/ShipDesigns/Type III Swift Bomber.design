@@ -1,0 +1,35 @@
+﻿Version=1
+Name=Type III Swift Bomber
+Hull=Vulfen/Type III
+Role=bomber
+Style=Vulfen
+Size=6,6
+GridCenter=3,3
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=OrdnanceLockerSmall;NuclearBombBay2x2;NuclearReactorSmall;NuclearReactorMed;Engine;WarpEngine_1x1;Cockpit
+Modules=17
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,2;0
+0,3;1;2,2
+1,1;0
+1,2;0
+2,0;0
+2,1;2
+2,2;3;2,2
+2,4;4
+2,5;5
+3,0;0
+3,1;6
+3,4;4
+3,5;5
+4,1;0
+4,2;0
+4,3;1;2,2
+5,2;0

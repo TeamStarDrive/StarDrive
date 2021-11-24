@@ -1,0 +1,20 @@
+﻿Version=1
+HullName=Pollops/Seeder
+VisibleName=Seeder
+Role=freighter
+Style=Pollops
+Size=6,6
+MeshOffset=0,0
+IconPath=ShipIcons/Seeder
+ModelPath=Model/Ships/Pollops/ship15g
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
+#Thruster PosX,PosY,PosZ,Scale
+Slots
+___|I  |I  |I  |I  |___
+___|I  |I  |I  |I  |___
+___|I  |I  |I  |I  |___
+___|I  |I  |IC |I  |___
+___|I  |E  |E  |I  |___
+I  |I  |E  |E  |I  |I  

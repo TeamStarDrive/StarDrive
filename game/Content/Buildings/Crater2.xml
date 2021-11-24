@@ -1,0 +1,12 @@
+﻿<Building>
+  <Name>Crater2</Name>
+  <Maintenance>0</Maintenance>
+  <Cost>0</Cost>
+  <Icon>Crater2</Icon>
+  <Scrappable>false</Scrappable>
+  <CreditsPerColonist>1</CreditsPerColonist>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <NameTranslationIndex>4289</NameTranslationIndex>
+  <DescriptionIndex>4292</DescriptionIndex>
+  <ShortDescriptionIndex>4293</ShortDescriptionIndex>
+</Building>

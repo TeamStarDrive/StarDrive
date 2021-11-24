@@ -1,0 +1,19 @@
+﻿<ExplorationEvent>
+  <Name>ExpEvent_BuiltRDA_Name</Name>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <TitleText>ExpEvent_BuiltRDA_Outcome1_Title</TitleText>
+      <DescriptionText>ExpEvent_BuiltRDA_Outcome1_Descr</DescriptionText>
+      <SelectRandomPlanet>true</SelectRandomPlanet>
+      <SpawnBuildingOnPlanet>Signal Origin</SpawnBuildingOnPlanet>
+      <SpawnFleetInOrbitOfPlanet>Planetary Shield</SpawnFleetInOrbitOfPlanet>
+      <TroopsToSpawn>
+        <string>Remnant Defender</string>
+        <string>Remnant Defender</string>
+        <string>Remnant Defender</string>
+        <string>Remnant Defender</string>
+      </TroopsToSpawn>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>

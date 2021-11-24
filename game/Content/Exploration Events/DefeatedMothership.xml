@@ -1,0 +1,14 @@
+﻿<ExplorationEvent>
+  <Name>Race to Ascension</Name>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <TitleText>You have destroyed the Ancient Vessel</TitleText>
+      <DescriptionText>As the hull of the Ancient Mothership is torn apart, a horrible sound filters through the galaxy. On every ship, in every system, on every communicator, a wailing call of death is heard. There are secrets to be heard in this call! It is a data-rich stream that must obviously be of great importance. But what was the purpose of the call? \n \n You will need to find out quickly. Strange sensor readings are popping up all over the galaxy. \n \n You may now research Ascension in the "Secrets" tech tree.</DescriptionText>
+      <SecretTechDiscovered>Ascension</SecretTechDiscovered>
+      <BeginArmageddon>true</BeginArmageddon>
+    </Outcome>
+    
+  </PotentialOutcomes>
+  
+</ExplorationEvent>

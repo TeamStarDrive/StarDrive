@@ -1,0 +1,37 @@
+﻿<ExplorationEvent>
+  <Name>Discover Ancient Tomb</Name>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>Riches of the Ancients</TitleText>
+      <DescriptionText>Your forces enter the mysterious tomb and find evidence of a long dead civilization. The artifacts and other curiosities found there will sell well on the open market. </DescriptionText>
+      <ConfirmText>Apparently reproduction was deemed racist.</ConfirmText>
+      <MoneyGranted>750</MoneyGranted>
+      <RemoveTrigger>true</RemoveTrigger>
+    </Outcome>
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>Secrets of the Ancients</TitleText>
+      <DescriptionText>Your forces enter the mysterious tomb and find evidence of a long dead civilization. The complex is incredibly well preserved. Yet even more curious is the fact that this site seems to have been the target of an earlier archaeological expedition by a second alien race -- very likely starfarers based on the evidence found. \n \n The wealth of information presented here will pay dividends to our scientists for years to come. Your race gains a 3% bonus to all scientific efforts for the discovery.</DescriptionText>
+      <ConfirmText>Fascinating artwork.</ConfirmText>
+      <ScienceBonus>.03</ScienceBonus>
+      <RemoveTrigger>true</RemoveTrigger>
+    </Outcome>
+    <Outcome>
+      <Chance>60</Chance>
+      <TitleText>Horrors of the Ancients</TitleText>
+      <DescriptionText>Your forces enter the mysterious tomb and find evidence of a long dead civilization. Deep within the tomb's halls they discover a mysterious artifact encased in some sort of energy shield. They disable the shield and take the artifact. \n \n Upon returning to the planet's surface, they find themselves surrounded by the skeletons of the long dead, seemingly animated by the same energy field that had encased the artifact! </DescriptionText>
+      <ConfirmText>Death is only the beginning.</ConfirmText>
+      <GrantArtifact>true</GrantArtifact>
+      <RemoveTrigger>true</RemoveTrigger>
+      <TroopsToSpawn>
+        <string>Skeleton</string>
+        <string>Skeleton</string>
+        <string>Skeleton</string>
+        <string>Skeleton</string>
+      </TroopsToSpawn>
+    </Outcome>
+    
+  </PotentialOutcomes>
+  
+</ExplorationEvent>

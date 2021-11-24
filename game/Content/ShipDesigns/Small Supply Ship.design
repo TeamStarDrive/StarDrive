@@ -1,0 +1,35 @@
+﻿Version=1
+Name=Small Supply Ship
+Hull=Misc/HaulerSmall
+Role=supply
+Style=Misc
+Size=4,10
+GridCenter=2,4
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=SteelArmorSmall;OrdnanceLocker;OrdnanceSupplyBay;OrdnanceLockerSmall;NuclearReactorMed;Engine;Cockpit;WarpEngine_1x1
+Modules=17
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,4;0
+0,5;0
+0,6;0
+1,0;1;2,2
+1,2;2;2,2
+1,4;3
+1,5;4;2,2
+1,7;3
+1,8;5
+1,9;5
+2,4;6
+2,7;3
+2,8;7
+2,9;5
+3,4;0
+3,5;0
+3,6;0

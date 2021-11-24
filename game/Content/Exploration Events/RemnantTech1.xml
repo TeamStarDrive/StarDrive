@@ -1,0 +1,13 @@
+﻿<ExplorationEvent>
+  <Name>Reverse Engineering</Name>
+  <StoryStep>1</StoryStep>
+  <Story>None</Story>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <TitleText>Secrets of the Remnant</TitleText>
+      <DescriptionText>We have encountered a strange group of decidedly hostile aliens in our exploration efforts. These aliens are aggressive, unwilling or unable to communicate, and have no regard for their personal safety. The leading theory is that these ships are the remains of some former and now fallen space empire. For this reason, we haved named this race "The Remnant." \n \n By destroying Remnant vessels, our scientists should be able to study the advanced technologies that power them. We will need to assign our scientists to the task of reverse engineering these secrets. A new "Secrets" technology path has been added to the research screen.</DescriptionText>
+      <SecretTechDiscovered>Remnant Studies</SecretTechDiscovered>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>

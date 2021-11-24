@@ -1,0 +1,34 @@
+﻿Version=1
+HullName=Remnant/AncientFrigate
+VisibleName=Ancient Frigate
+Role=frigate
+Style=Remnant
+Size=14,16
+MeshOffset=0,0
+IconPath=ShipIcons/xeno gunship
+ModelPath=Model/Ships/Remnant/SharedTextures/AncientFrigate
+SelectIcon=09b
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=242,316,0,27
+Thruster=253,315,0,27
+Thruster=266,316,0,27
+Slots
+___|___|___|___|___|___|O  |O  |___|___|___|___|___|___
+___|___|___|___|___|O  |O  |O  |O  |___|___|___|___|___
+___|___|___|___|O  |IO |IO |IO |IO |O  |___|___|___|___
+___|___|O  |O  |IO |IO |IO |IO |IO |IO |O  |O  |___|___
+___|O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |O  |___
+O  |O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |O  |O  
+O  |O  |O  |IO |I  |I  |I  |I  |I  |I  |IO |O  |O  |O  
+___|O  |O  |IO |I  |I  |I  |I  |I  |I  |IO |O  |O  |___
+___|O  |O  |O  |I  |I  |I  |IC |I  |I  |O  |O  |O  |___
+___|O  |O  |O  |I  |I  |I  |I  |I  |I  |O  |O  |O  |___
+___|___|O  |O  |IO |I  |I  |I  |I  |IO |O  |O  |___|___
+___|___|___|O  |IO |I  |I  |I  |I  |IO |O  |___|___|___
+___|___|___|O  |O  |E  |E  |E  |E  |O  |O  |___|___|___
+___|___|___|O  |O  |E  |E  |E  |E  |O  |O  |___|___|___
+___|___|___|O  |O  |E  |E  |E  |E  |O  |O  |___|___|___
+___|___|___|___|___|E  |E  |E  |E  |___|___|___|___|___

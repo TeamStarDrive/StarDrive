@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ShipRole xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>shipyard</Name>
+  <Localization>6009</Localization>
+  <Upkeep>1.0</Upkeep>
+  <KillExp>1.0</KillExp>
+  <KillExpPerLevel>2.5</KillExpPerLevel>
+  <ExpPerLevel>5.0</ExpPerLevel>
+  <DamageRelations>2.0</DamageRelations>
+  <RaceList>
+    <Race>
+      <ShipType>Terran</ShipType>
+      <Localization>6009</Localization>
+      <Upkeep>1.0</Upkeep>
+      <KillExp>1.0</KillExp>
+      <KillExpPerLevel>2.5</KillExpPerLevel>
+      <ExpPerLevel>5.0</ExpPerLevel>
+    </Race>
+  </RaceList>
+</ShipRole>

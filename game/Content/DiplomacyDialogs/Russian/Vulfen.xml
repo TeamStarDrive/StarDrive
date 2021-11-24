@@ -1,0 +1,633 @@
+﻿<DiplomacyDialog>
+  <Dialogs>
+    <DialogLine>
+      <DialogType>First Contact</DialogType>
+      <Friendly>Мы - Вульфары. Неплохой кораблик.</Friendly>
+      <Neutral>Мы - Вульфары. У вас броня слабовата.</Neutral>
+      <Hostile>Рррр! Мы понятия не имели, что в Галактики есть существа вроде вас. Ничего - Империя Вульфен скоро это исправит!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Colonized Warning</DialogType>
+      <Friendly>Друг, колонизация вам системы TARSYS видится нами как акт агрессии! Уходите с нашей территории!</Friendly>
+      <Neutral>SING, ррр... Вы организовали логово в системе TARSYS. Это плохо. Для вас.</Neutral>
+      <Hostile>Ррр... Что низшая раса делает в системе TARSYS? Это наша система!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Aggression Warning</DialogType>
+      <Friendly>Ррр... Вы уничтожаете наши корабли в то время, как мы считали вас друзьями? Гррр....</Friendly>
+      <Neutral>Грррр... На одного Вульфара напасть легко - но вы забыли про стаю, SING. Остерегайтесь.</Neutral>
+      <Hostile>Грязные гнусные PLURAL... Агрессия не останется безнаказанной!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships</DialogType>
+      <Friendly>Рррр! Почему ваши стаи задержались возле наших логов? Вы нам нравитесь, но... Держитесь лучше подальше!</Friendly>
+      <Neutral>Рррр... Отвратительные PLURAL. Ваши корабли в нашем пространстве подстегивают молодняк к опрометчивым действиям. Уходите!</Neutral>
+      <Hostile>ррр... Отвратительные PLURAL. Ваши корабли в нашем пространстве подстегивают молодняк к опрометчивым действиям. Уходите сейчас же!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>Мы говорим вам:Покиньте наше пространство!Мы хотим по-хорошему. И тут вы колонизируете систему TARSYS в нашем пространстве. Ррррр.</Friendly>
+      <Neutral>Система TARSYS не для вас, PLURAL! Вы прилетели к нам на своих кораблях - а теперь отбираете у нас наши планеты! Грррррр!</Neutral>
+      <Hostile>Ваша стая нарушила наши границы, и мы сказали вам убираться! Теперь вы основали логово в системе TARSYS! Империя Вульфен готовится к войне!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Colonized then Ships</DialogType>
+      <Friendly>Вы бросили нам вызов в системе TARSYS, и мы это стерпели. Теперь ваши стаи блуждают в нашем космосе. Мы сердимся... Ррррр.</Friendly>
+      <Neutral>Сперва вы забрали у нас логово в системе TARSYS, а теперь ваши корабли шныряют в нашем пространстве. Ррррр!</Neutral>
+      <Hostile>Сперва вы забрали у нас логово в системе TARSYS, а теперь ваши корабли нарушают наши границы самым наглым образом! Ауууууу!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War</DialogType> <misc1> Аааууууууу!!! Скоро Вульфары заберут ваши земли </misc1> <misc2>Бегите, если можете! Вульфары любят преследовать своих жертвы. </misc2>> 
+</DialogLine>
+    <DialogLine>
+      <DialogType>Greeting</DialogType>
+      <Friendly>Это ты. Чего хочешь?</Friendly>
+      <Neutral>Щенок пришел облизывать ноги господам. Выкладывай!</Neutral>
+      <Hostile>Ррррр.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Dunno_Anybody</DialogType>
+      <Default>А что, есть ЕЩЕ такие, как вы? Нам больше никто не попадался.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AboutUS</DialogType>
+      <DL_Xeno>Ты хочешь лучше узнать Вульфаров? Тогде знай: мы - это стая, имя нам легион, и мы лучше... лучше вас, кто бы вы там ни были.</DL_Xeno>
+      <DL_Agg>Ты хочешь лучше узнать Вульфаров? Рррр. Мы чистокровные воины. Стая - это все. Если ты нас не боишься - бойся.</DL_Agg>
+      <DL_Ruth>Ты хочешь лучше узнать Вульфаров? Во вселенной полно блохастых дворняг и слюнявых щенков. Мы очистим ее от слабаков, и наша великая раса возвысится над всеми.</DL_Ruth>
+      <DL_Exp>Захватить множество новых миров - такова воля стаи.</DL_Exp>
+      <DL_Mil>Трепещи от ужаса, глядя на наши могучие корабли!</DL_Mil>
+      <DL_Ind>Скоро ты поймешь, что в стае ты куда сильнее, чем в одиночку. В нашем единстве мы черпаем силу и на наших заводах и шахтах, и на поле сражения.</DL_Ind>
+      <DL_Gen>Величайшие стаи и мудры, и сильны; и гибки, и стойки. Мы - величайшая стая.</DL_Gen>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Inquiry_1</DialogType>
+      <Default>Ваша команда выглядит очень свирепой!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Response_1</DialogType>
+      <Default>Рррр...</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientTrust</DialogType>
+      <Default>Нет.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
+      <Default>Ха-ха-ха. PLURAL такие глупые! Конечно, мы примем это предложение. Не забывайте почаще делать их нам в дальнейшем.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_LowTrust</DialogType>
+      <Default>Нет. Вы глупые, а мы умные, и мы видим, что вы думаете, что мы глупые. Вот какие мы умные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_EnoughTrust</DialogType>
+      <Default>Рррр... Мы не так глупы, как вам кажется! Сделайте предложение получше!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_Insulting</DialogType>
+      <Default>Рррррр! Нет!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair</DialogType>
+      <Default>Да, эта сделка усилит нас. Мы согласны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Good</DialogType>
+      <Default>Да, эта сделка усилит нас. Мы согласны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Great</DialogType>
+      <Default>Stupid PLURAL! You give us too much! We accept, of course!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Gift</DialogType>
+      <Default>Хм. Да. Мы принимаем дань.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Pleading</DialogType>
+      <Default>Забирайте эти объедки. Как у вас появится что-то повкуснее - отдавайте нам.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientFear</DialogType>
+      <Default>Гррр... Ну придите и возьмите, если сможете.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Threatening</DialogType>
+      <Default>Да,хорошо.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Bad_Threatening</DialogType>
+      <Default>Грррр... Забирайте ваши объедки!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_Generic</DialogType>
+      <Default>Глупые PLURAL. Мы бы скоро и так пришли за вами. Значит, война.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting_AtWar</DialogType>
+      <Default>Нет времени на разговоры! Мы должны воевать! Говори быстро!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense</DialogType>
+      <Default>Вы подогнали на войну с нами слабенькие корабли - а мы выставим против них сильные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense BrokenNA</DialogType>
+      <Default>Хмм... Ну, мы все равно не особо доверяли этому глупому договору. Война!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC</DialogType>
+      <Default>Почему PLURAL такие глупые? Вы вторглись на нашу территорию - а мы говорили вам, что не надо этого делать! Теперь война!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC TarSys</DialogType>
+      <Default>PLURAL такие глупые - решили остаться в системе TARSYS, когда это территория Вульфаров. Теперь мы воюем!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer NAPact</DialogType>
+      <Default>Гррм. Мы думаем, что вы должны пообещать нам никогда не нападать на нас! Давай заключим пакт о ненападении!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Accepted</DialogType>
+      <Default>Грр... Грр... Отличная идея.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Rejected</DialogType>
+      <Default>Гррр? Гррр... Ну, может вы позже надумаете или типа того.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Trade</DialogType>
+      <Default>Вульфары делают лучшие штуки! Вы должны с нами торговать! Давай торговать!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Accepted</DialogType>
+      <Default>Грммм... Хорошо. Идите теперь.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Rejected</DialogType>
+      <Default>ГРРР... Что?! Почему вы сказали нет? PLURAL такие глупые.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_NAPACT</DialogType>
+      <Default>PLURAL такие непонятные. То вы не хотите пакт, то хотите?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_TRADE</DialogType>
+      <Default>Grr? А чего вы раньше не хотели торговать с Вульфарами? Хотите обмануть нас?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech</DialogType>
+      <Default>Вы даете нам технологию TECH_DEMAND, иначе мы не друзья.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Accepted</DialogType>
+      <Default>Рррр! Может, вы не настолко глупые, насколько страшные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Rejected</DialogType>
+      <Default>ГРРРР?! Гррррр.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Insult Military</DialogType>
+      <Default>РРР, ррр, ррр! PLURAL слабые и глупые! Когда мы решим завоевать вас, это будет плевое дело.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military</DialogType>
+      <Default>Грррр. Ваш флот выглядит сильным. Наверное, нам надо выбрать жертву послабее.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military Better</DialogType>
+      <Default>Глупые PLURAL, зачем вы усилили свой флот? Вы нам больше нравились со слабым флотом.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism</DialogType>
+      <Default>Вы слишком слабы, чтобы выжить, SING. Мы идем захватывать ваши планеты!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Terran</DialogType>
+      <Default>Люди хорошие, и мы их любим. Иногда они бросают нам палку, а мы ее ловим и приносим им, и среди нашего народа это считается большой честью.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Terran</DialogType>
+      <Default>У людей нет шерсти, и они некрасивые - а кроме этого, мы о них ничего не знаем.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Terran</DialogType>
+      <Default>Гррр! Мы не любим людей! Они говорят с нами, будто мы идиоты. А мы не идиоты!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Pollops</DialogType>
+      <Default>Гммм... Мы любим говорящих траволюдей. Нам нравятся их песни.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Pollops</DialogType>
+      <Default>Гррм. Мы не особо хорошо знаем траволюдей. Трава не такая умная, как мы.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Pollops</DialogType>
+      <Default>Гррр. Мы траву не едим. Их музыка нас бесит. Надо их убить и забрать себе их планеты.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Kulrathi</DialogType>
+      <Default>Мы и Кулрати - одна стая. Они сильные и умные - как мы.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Kulrathi</DialogType>
+      <Default>Мы их знаем - и не знаем. Но вроде они не такие умные, как мы.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Kulrathi</DialogType>
+      <Default>Гррр! Они с нами не стая! Они жертвы! Они считают себя хищниками, но они ЖЕРТВЫ!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Cordrazine</DialogType>
+      <Default>Кордразины сильны, и мы уважаем их за это.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Cordrazine</DialogType>
+      <Default>Мы их плохо знаем.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Cordrazine</DialogType>
+      <Default>Их соворки очень вкусные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism Break NA</DialogType>
+      <Default>Рррр, рррр. PLURAL думают, что жалкие слова остановят могучих Вульфаров. Рррр. Рррр. Большинство Вульфаров и читать-то не умеют. Договор расторгнут - война началась!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Conquered_Player</DialogType>
+      <Default>Гррр. Гррр. Глупые PLURAL МЕРТВЫ! Вульфары сильнее всех! Ты проиграл, SING!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders</DialogType>
+      <Default>Гррр! Вы, PLURAL, хорошо с нами обращались, и нам не надо с вами драться, если только вы сдуру не заключите с нами договор об открытии границ. Это нас порадует.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Accepted</DialogType>
+      <Default>Хорошо, что вы умные, как мы!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Rejected</DialogType>
+      <Default>Глупые PLURAL такие глупые. Скоро будет уже слишком поздно.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded NA Pact</DialogType>
+      <Default>Рррр! У нас был глупый договор - и вы же его нарушили?! ВОЙНАААА!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded Start War</DialogType>
+      <Default>Рррр. Система TARSYS НАША! ВОЙНААААА!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Opteris</DialogType>
+      <Default>Жуколюди! Отличные воины!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Opteris</DialogType>
+      <Default>Гррм. Нам нет до них дела.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Opteris</DialogType>
+      <Default>Глупые жукороботы!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Claim System</DialogType>
+      <Friendly>Эй! Система TARSYS наша, а не ваша! Держитесь от нее подальше!</Friendly>
+      <Neutral>Ррр. Система TARSYS наша, а не ваша! Держитесь от нее подальше!</Neutral>
+      <Hostile>Рррр. Система TARSYS наша, а не ваша, глупые PLURAL. Держитесь от нее подальше!</Hostile>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>Opinion_JustMetUs</DialogType>
+      <Default>Рррр. Зачем такие громкие слова? PLURAL, у нас с вами нет никаких проблем.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NoProblems</DialogType>
+      <Default>PLURAL, вы нам нравитесь. Вы хорошо к нам относитесь.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Problems</DialogType>
+      <Default>Грррр.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_JustTerritorial</DialogType>
+      <Default>Вы забрали миры, которые должны были быть нашими!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_Territorial</DialogType>
+      <Default>Вы забрали миры, которые должны были быть нашими!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitary</DialogType>
+      <Default>Ваш флот, он такой большой!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitaryWeak</DialogType>
+      <Default>Ваш флот мал, жалок и слаб.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_MilitaryWeak</DialogType>
+      <Default>Ваш флот мал, жалок и слаб.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_PrimaryMilitary</DialogType>
+      <Default>Ваш флот, он такой большой!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlliedWithEnemy</DialogType>
+      <Default>TAREMP - ваши друзья, а они тупые.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoAlliedWithEnemy</DialogType>
+      <Default>TAREMP - ваши друзья, а они тупые.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NothingMajor</DialogType>
+      <Default>Ррр? Мы на вас не злимся.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Winning</DialogType>
+      <Default>Ррр, ррр, ррр! Ты можешь бежать, SING - но ты просто умрешь от усталости! Ррррр! Говори, если у тебя еще не села дыхалка!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Losing</DialogType>
+      <Default>Ррррр. ГОВОРИ!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War</DialogType>
+      <Default>Эй! TAREMP должны умереть. Давай прикончим их вместе.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_Yes</DialogType>
+      <Default>АУУУУУУ!!! ВОЙНАААА!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No</DialogType>
+      <Default>РРРРР. Глупые PLURAL.</Default>    
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Draylok</DialogType>
+      <Default>Нам нравится смотреть, как они перекидываются. Это забавно.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Draylok</DialogType>
+      <Default>Гррр.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Draylok</DialogType>
+      <Default>ГРРРРР!!!</Default>
+    </DialogLine><!-- Second Run Localization --><DialogLine>
+      <DialogType>OFFERPEACE_FAIR</DialogType>
+      <Default>Грр! Мы думаем, войну пора уже и кончать. Заключим мир?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR_WINNING</DialogType>
+      <Default>Гррр! Мы выигрываем эту войну, но вожаки говорят, что пора остановиться. Заключим мир?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_EVENLY_MATCHED</DialogType>
+      <Default>Мы сражаемся с вами, вы с нами, и толку никакого ни нам, ни вам. Пора прекратить.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_PLEADING</DialogType>
+      <Default>Ррр... Вы одолеваете нас. Мы хотим мира, если вы не против.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_LOSINGBC</DialogType>
+      <Default>Гррр... Оставляйте себе ваши планеты и давайте заключим мир. Пока что.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_WINNINGBC</DialogType>
+      <Default>Гррр! Гррр! Мы оставляем себе ваши планеты, и можно заключить мир.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_REJECTED</DialogType>
+      <Default>Хорошо. Мы все равно не хотели мира.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_ACCEPTED</DialogType>
+      <Default>Рррр. Хорошо, пусть будет мир.</Default>
+    </DialogLine>
+    
+    
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE</DialogType>
+      <Default>Гррр. Хороший вариант. Пускай будет мир.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_POOROFFER</DialogType>
+      <Default>НИКАКОГО МИРА.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_UNWILLING_BC</DialogType>
+      <Default>Системы, которые нужны Вульфарам, все еще ваши. НЕ БУДЕТ МИРА.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE_RELUCTANT</DialogType>
+      <Default>Грр... Мы заключаем мир, но он нам не нравится.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>PROBLEM_RECENTWAR</DialogType>
+      <Default>Гм... Вы еще живы, хоть мы недавно и воевали с вами.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE</DialogType>
+      <Default>Вульфары и PLURAL - хорошие друзья. Нам надо заключить альянс, да?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_ACCEPTED</DialogType>
+      <Default>Гррр. Хорошо!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_REJECTED</DialogType>
+      <Default>Выходит, мы не друзья? Надо это все получше обдумать.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE_TOO_COMPLICATED</DialogType>
+      <Default>Это все слишком сложно! Если вы предлагаете альянс - значит, только альянс!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_ACCEPT</DialogType>
+      <Default>Грррр! Ладно! Мы будем вашими союзниками!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT</DialogType>
+      <Default>Гррр! Думаете, мы с вами друзья? А вот и нет!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
+      <Default>Рррр! Рррр! Нет! Никакого мира!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_PEACE_COLDWAR</DialogType>
+      <Default>Гррр. Хорошая сделка. Выльфары не погибли и PLURAL не погибли. Ладно. Будет мир.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_FeelsBetrayed</DialogType>
+      <Default>А? Зачем глупые PLURAL заключали с нами пакт, чтобы потом его нарушать? Рррр! Война!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No_BreakAlliance</DialogType>
+      <Default>Рррр! Грррр! Мы должны быть одной стаей! Если вы нам не помогаете, вы не из нашей стаи!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim</DialogType>
+      <Default>РРРР! ГРРРР! Система TARSYS была наша! Вульфары ее застолбили!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 2</DialogType>
+      <Default>Вы уже второй раз злите Вульфаров! Мало кто доживает до третьего раза!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 3</DialogType>
+      <Default>Рррр! Вы украли у нас уже слишком много! УМРИТЕ!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Ralyeh</DialogType>
+      <Default>Рыболюди нас не парят.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Ralyeh</DialogType>
+      <Default>Нам до рыболюдей нет никакого дела.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Ralyeh</DialogType>
+      <Default>А, эти, с рыбьими харями! Скажем так - мы любим морепродукты!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_1</DialogType>
+      <Default>Рррр! Мы знаем, что вы хотите красть у нас наши секреты, потому что мы очень умные, но это нас жутко бесит, так что прекращайте.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_2</DialogType>
+      <Default>РРРРР! ГЛУПЫЕ PLURAL умеют слышать? Мы же сказали - хватит шпионить!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_3</DialogType>
+      <Default>РРРР!!! ХВАТИТ ШПИОНИТЬ ЗА НАМИ! Все, мы с вами больше не договариваемся! (Договоры расторгнуты)</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Killed_Spy_1</DialogType>
+      <Default>Рррр. Рррр. Мы съели вашего шпиона. Он оказался невкусным.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_1</DialogType>
+      <Default>Гррррр? Мы друзья? А зачем тогда мы поймали вашего шпиона? Завязывайте с этим.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_2</DialogType>
+      <Default>Мы НЕ друзья! Все договоры отменяются!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders Friends</DialogType>
+      <Default>Грррр! Как насчет того, чтобы открыть нам ваши границы, SING? Нам это будет хорошо.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Friends Rejected</DialogType>
+      <Default>Вы, PLURAL, очень любите метить территорию...</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_JustMet</DialogType>
+      <Default>Ррр! Нет! Мы даже еще толком не учуяли ваш запах. Плохая идея.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_NoAlliance</DialogType>
+      <Default>Мммм... Вы нам нравитесь, но мы пока даже не союзники. Надо все делать постепенно. Сначала альянс.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_AllianceTooYoung</DialogType>
+      <Default>Гррр. Мы теперь союзники. Хорошо. Но нам нужно дольше пробыть союзниками. Тогда мы будем стаей.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreTooStrong</DialogType>
+      <Default>А почему вы хотите быть главными? Мы сильнее вас.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Accept</DialogType>
+      <Default>Вы хотите стать с нами одной стаей! Да! Мы согласны! Отныне PLURAL и Вульфары - одна стая! Ауууу!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_DestroyEnemy</DialogType>
+      <Default>Вы хотите стать с Вульфарами одной стаей? Докажите сперва вашу преданность. Империя TAREMP должна быть уничтожена! Помогите нам - и мы будем стаей!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_KilledEnemy</DialogType>
+      <Default>TAREMP теперь все. Вы хорошие друзья. Мы теперь стая, и мы присоединяемся к вашей Федерации.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_RelationsPoor</DialogType>
+      <Default>Ррр! Вы хотите стать с нами одной стаей? Вы нам даже не нравитесь!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_AllyFriend</DialogType>
+      <Default>Мы станем с вами одной стаей, но пускай TAREMP будут ваши друзья. Заключите с ними альянс, и мы присоединимся к вам.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_AllyFriend</DialogType>
+      <Default>Вы нам нравитесь! Вы были с нами стаей - теперь мы станем с вами стаей!</Default>
+    </DialogLine>
+    
+    <DialogLine>
+      <DialogType>JoinWar_YouAreNotAtWar</DialogType>
+      <Default>PLURAL думают, что мы, Вульфары, такие глупые? TAREMP даже не воюют с вами. Зачем нам воевать за вас?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_WeAreAtWar</DialogType>
+      <Default>А? Что? Глупые PLURAL! TAREMP и мы давно воюем.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_OK</DialogType>
+      <Default>Мы всегда будем охотиться в стае! TAREMP падут!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_DECLINE</DialogType>
+      <Default>Эээ... Но... Мы и TAREMP - одна стая! Мы... Мы не можем. Никак.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_PoorRelations</DialogType>
+      <Default>Рррр! Рррр! Глупые PLURAL! Зачем нам вам помогать? Когда TAREMP уничтожит вас, нам достанется больше объедков!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_Pacifist</DialogType>
+      <Default>Поверить не могу, что это мои слова, но мы пацифисты. Мы и TAREMP не будем воевать.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_TooDangerous</DialogType>
+      <Default>Грррр. TAREMP очень сильные. Наверное, нам с ними воевать на стоит.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_OK</DialogType>
+      <Default>Гррр... Ладно! Мы поохотимся на них.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_ALLIED_WITH_ENEMY</DialogType>
+      <Default>Гы-ррр... Нет! Вы вместе с нашими врагами. Миру не бывать!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT_ALLIED_WITH_ENEMY</DialogType>
+      <Default>Гыррр-ваф? Вы хотите быть нашими друзьями,но вы в союзе с этими вражескими шакалами. Нет!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Чтооо? Вы нам не лояльны. Ваша стая заключила соглашения с нашими врагами!</Default>
+      <DL_Agg>Мы с вами больше не соратники.</DL_Agg>
+      <DL_Ruth>Гыыыыр! Мы отрежем PLURAL от Вульфаров. Остерегайтесь,или вы станете нашей добычей.</DL_Ruth>
+      <DL_Xeno>Вы мерзкие дураки! Мы отрежем PLURAL от Вульфаров. Остерегайтесь,или вы станете нашей добычей.</DL_Xeno>
+      <DL_Cunn>Нам это не нравится,гррр!</DL_Cunn>
+      <DL_Pac>Вы жалкие щенки. В следующий раз попробуй подружиться с нашими друзьями.</DL_Pac>
+      <DL_Hon>Гыыыыр! Война!Бойня-я-я...!</DL_Hon>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>TRIED_CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Чтооо? Вы нам не лояльны. Ваша шайка пыталась договориться с нашими врагами! Вы думали,мы слишком глупы,чтобы это выяснить,а? Гррррррр!</Default>
+      <DL_Agg>Мы с вами больше не соратники.</DL_Agg>
+      <DL_Ruth>Гыыыыр! Мы отрежем PLURAL от Вульфаров. Остерегайтесь,или вы станете нашей добычей.</DL_Ruth>
+      <DL_Xeno>Вы мерзкие дураки! Мы отрежем PLURAL от Вульфаров. Остерегайтесь,или вы станете нашей добычей.</DL_Xeno>
+      <DL_Cunn>Нам это не нравится,гррр!</DL_Cunn>
+      <DL_Pac>Вы жалкие щенки. В следующий раз попробуй подружиться с нашими друзьями.</DL_Pac>
+      <DL_Hon>Гыыыыр! Война!Бойня-я-я...!</DL_Hon>
+    </DialogLine>
+  </Dialogs>
+</DiplomacyDialog>

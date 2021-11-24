@@ -1,0 +1,635 @@
+﻿<DiplomacyDialog>
+  <Dialogs>
+    <DialogLine>
+      <DialogType>First Contact</DialogType>
+      <Friendly>Мне снится утро,теплый ветер над равниной  усеянной телами врагов Мы, могучие Кулрати, приветствуем вас и надеемся, что со временем мы станем друзьями на Пути Битвы.</Friendly>
+      <Neutral>Весенние дожди / смывают в озера и реки / кровь наших врагов Внимай нашим воинам-поэтам, SING, и не гневи могучих Кулрати</Neutral>
+      <Hostile>Ты не достоин того, чтобы слагать для тебя стихи. Держись подальше от наших систем, животное.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting</DialogType>
+      <Friendly>Приветствуем тебя, почтенный друг. Что тебе угодно?</Friendly>
+      <Neutral>Приветствуем тебя, SING. А я сейчас как раз раздумывал о будущем, что ждет наши народы. Что тебе нужно?</Neutral>
+      <Hostile>Трусливые PLURAL приползли к своим господам. Говори быстрее, ибо наше терпение коротко.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Colonized Warning</DialogType>
+      <Friendly>Друг, вы основали колонию в системе TARSYS, которую мы ранее объявили своей. Мы всегда рады поделиться сдрузьями нашими охотничьими угодьями, но в будущем отнеситесь к нашим границам с большим уважением.</Friendly>
+      <Neutral>Я так понял, мы с вами соперничаем за систему TARSYS? Не стоит давить на нас, воин. Мы в состоянии защитить свое.</Neutral>
+      <Hostile>Жалкие трусливые жертвы! Вы посмели колонизировать систему TARSYS? Немедленно откажитесь от ваших притязаний на нее!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Aggression Warning</DialogType>
+      <Friendly>Досточтимый воин - возможно, ваши системы вооружения уничтожили один из наших кораблей случайно из-за ложного срабатывания? Постарайтесь, чтобы в будущем этого не повторилось.</Friendly>
+      <Neutral>Ваша ничем не спровоцированная агрессия - достаточно ясный сигнал, SING. Мы не хотим войны, но если вы сами принесете ее нам, мы с радостью сразимся с вами.</Neutral>
+      <Hostile>Дерзкие негодяи? Как вы осмелились атаковать корабль Сегуната Кулрати?!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships</DialogType>
+      <Friendly>Воин! Ваши корабли в нашем пространстве - несомненный признак вашей боевой доблести. Однако их пребывание у нас затянулось, что вызывает тревогу. Вам надлежит отозвать их.</Friendly>
+      <Neutral>SING, твои корабли не являются желанными гостями в пространстве Кулрати. Вы испытываете терпение наших воинов, и вам следует отозвать их ради вашей же безопасности.</Neutral>
+      <Hostile>SING, ты либо слишком смел, либо глуп, если осмелился направить свои боевые корабли в пространство Кулрати. Скоро мы померяемся силами!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>Вы вторглись в наше пространство, а теперь еще и колонизировали систему TARSYS, прекрасно зная, что мы уже заявили на нее права? Неужели наша дружба для вас совсем ничего не значит?</Friendly>
+      <Neutral>SING, только железная дисциплина удерживает наших воинов от проявлений ярости в связи с постоянными нарушениями вами наших границ. Основав колонию в системе TARSYS, вы просто напрашиваетесь на войну.</Neutral>
+      <Hostile>Ррррррраааа!!! Мало того что ваш флот по-прежнему нарушает границы Сегуната, вы еще и осмелились украсть у нас систему TARSYS! Кулрати этого не потерпят! Немедленно откажитесь от своих притязаний на нее, иначе война будет неизбежна!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Colonized then Ships</DialogType>
+      <Friendly>SING, разве мы не друзья? Как друзья могли отнять у нас систему TARSYS, а потом еще и наводнить наше пространство своими боевыми кораблями?</Friendly>
+      <Neutral>SING, только железная дисциплина удерживает наших воинов от проявлений ярости в связи с постоянными нарушениями вами наших границ. Сперва вы испытывали наше терпение, основав колонию в системе TARSYS - теперь вы еще и наводнили наше пространство своими кораблями. Вы просто напрашиваетесь на войну.</Neutral>
+      <Hostile>Ррррррраааа!!! Мало того что вы и осмелились украсть у нас систему TARSYS - ваш флот по-прежнему нарушает границы Сегуната! Кулрати этого не потерпят! Немедленно откажитесь от своих притязаний на нее, иначе война будет неизбежна!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War</DialogType> <misc1> Барабаны войны бьют без устали, и грохот их подобен накатывающимся на берег морским волнам! Кулрати начинают войну! Вы посягнули на наши системы - и теперь за это вы будете уничтожены! </misc1> <misc2> Вы посмели напасть на Сегунат Кулрати, и мы покажем вам, насколько роковым для вас было это решение!
+ </misc2>> </DialogLine>
+    <DialogLine>
+      <DialogType>Dunno_Anybody</DialogType>
+      <Default>Как? Есть еще и другие? Мы должны поразмыслить об этом. Мы пока еще не встречались с ними, и нам интересно знать, друзьями они окажутся или врагами?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AboutUS</DialogType>
+      <DL_Agg>Сталь и клыки, мех и кровь - все, что вам нужно знать о могучих Кулрати! Перед нами никто не устоит!</DL_Agg>
+      <DL_Hon>Честь и кровь. Друзья и родня. Красота. Вот ценности Кулрати.</DL_Hon>
+      <DL_Pac></DL_Pac>
+      <DL_Ruth></DL_Ruth>
+      <DL_Cunn>Мы верим лишь в один закон - закон природы. Скорость и сила могут выиграть битву, но лишь ум способен выиграть войну.</DL_Cunn>
+      <DL_Xeno>А почему мы должны доверять вам, когда ваши ценности и помыслы нам совершенно чужды? Знайте лишь то, что вам нужно знать - мы сильны. Вот так...</DL_Xeno>
+      <DL_Exp>Наше предназначение - заселить галактику, и горе тем глупцам, что осмелятся встать у нас на пути.</DL_Exp>
+      <DL_Tech>Мы верим, что один выкованный мастером клинок стоит сотни ржавых мечей. Те, кто обладают знанием, обладают и лучшим оружием, а оружие, как и воины, выигрывает войны.</DL_Tech>
+      <DL_Mil>Огромный флот, летящий к далеким звездам, вселяющий ужас в сердца наших врагов... И СОКРУШАЮЩИЙ ИХ! Вот наша главная цель.</DL_Mil>
+      <DL_Ind>Многие из нас видят своей целью в жизни стяжание славы в битвах. Однако все Кулрати любят труд, и мы очень ценим удовлетворение от безупречно сделанной работы, будь то срудленная голова врага или произведение искусства. Для нас это все едино.</DL_Ind>
+      <DL_Gen>Однако во всем должен быть баланс. Выживает тот, кто умеет адаптироваться, SING.</DL_Gen>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Inquiry_1</DialogType>
+      <Default>А как вы держите меч, если у вас нет больших пальцев?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Response_1</DialogType>
+      <Default>А? Что? А что такое эти ваши большие пальцы? Кулрати обычно держат по мечу в каждой лапе, а некоторые - еще и в зубах. Молитесь, чтобы вам никогда не пришлось столкнуться с нашими берсеркерами на поле брани.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientTrust</DialogType>
+      <Default>Доверие надо заслужить, SING - оно не дается просто так. Возможно, со временем мы и сможем заключить сделку такого масштаба - но не сейчас.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
+      <Default>SING, хоть мы пока и не очень хорошо знаем вас, вы делаете нам честь столь щедрым предложением. Мы принимаем его.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_LowTrust</DialogType>
+      <Default>SING полагает, что мы - жалкие несмышленыши? Мы и раньше не особо-то доверяли вам - а после этого кошмарного предложения доверяем вам и того меньше.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_EnoughTrust</DialogType>
+      <Default>Вы предлагете нам хрупкий чугун в обмен на закаленную сталь Кулрати. Нет, SING, мы не можем согласиться на эту сделку в таком виде.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_Insulting</DialogType>
+      <Default>Свинец за золото, железо за сталь, мусор за сокровища - это вы нам предлагаете?! (Далее неразборчиво - вероятно, ругательства).</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair</DialogType>
+      <Default>Мы видим мудрость в вашем предложении. Мы согласны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Good</DialogType>
+      <Default>Да, это соглашение весьма выгодно для народа Кулрати. Мы согласны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Great</DialogType>
+      <Default>Вы делате нам честь, предлагая нам столь выгодные условия. Мы согласны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Gift</DialogType>
+      <Default>Вы делаете нам честь столь щедрым подарком. Мы благодарим вас.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Pleading</DialogType>
+      <Default>Да, помочь друзьям в беде - дело благородное.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientFear</DialogType>
+      <Default>Бесчестная угроза, которую можно услышать лишь от самого бесчестного врага. Нет, SING, мы не поддадимся на нее.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Threatening</DialogType>
+      <Default>Это честная сделка, SING, но твой тон нам не нравится.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Bad_Threatening</DialogType>
+      <Default>Это унизительно, SING. Забирай свой трофей и ступай прочь с наших глаз.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_FeelsBetrayed</DialogType>
+      <Default>Жалкий сопляк! Глупец! Ты разбудил спящего великана! Беги скорее, пока можешь!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_Generic</DialogType>
+      <Default>Да! Война! Пусть все споры решатся в достойном сражении! Мы уже идем за тобой, глупый SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting_AtWar</DialogType>
+      <Default>Что, вас уже начало тошнить от вида вашей крови? Мы надеялись, что вы окажетесь сильнее. Чего тебе нужно от нас, враг мой?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense</DialogType>
+      <Default>Кулрати не будут бездействовать, молча наблюдая, как вы уничтожаете их корабли. Отныне мы находимся в состоянии войны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense BrokenNA</DialogType>
+      <Default>Клятвопреступники! Вы нарушили пакт о ненападении и покрыли себя бесчестьем! Если вы хотели войны, вы ее получите!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC</DialogType>
+      <Default>Вероятно, вы не восприняли нас всерьез, когда мы предупредили вас, что вам стоит убраться с нашей территории. Это было вашей ошибкой! Мы объявляем войну!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC TarSys</DialogType>
+      <Default>Кулрати застолбили систему TARSYS и поставили вас в известность об этом, однако вы неотказались от своих притязаний. Теперь нам придется решать разногласия кровью.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer NAPact</DialogType>
+      <Default>Эта галактика полна опасностей, SING, и ваша сила нам очевидна. Давайте заключим пакт о ненападении и пойдем дальше как друзья, рука об лапу.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Accepted</DialogType>
+      <Default>Нам приятно слышать это, SING. Однако предупреждаем сразу: мы к своим обещаниям относимся крайне серьезно и того же ожидаем и от вас. Кровь и честь!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Rejected</DialogType>
+      <Default>Стало быть, вы наш потенциальный противник? Что ж, ваша открытость делает вам честь. Но даже в этом случае мы пока еще не дошли до вражды - быть может, никогда и не дойдем. Время покажут, но мы будем держать мечи наготове.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Trade</DialogType>
+      <Default>Мы рады тепло приветствовать тебя, SING. Мы как раз раздумывали над совместным будущим наших народов, и мы считаем, что будет мудро начать торговать друг с другом. Вы согласны?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Accepted</DialogType>
+      <Default>Ваша мудрость несомненна. Кулрати производят лучшую сталь во всей галактике. Надеемся, что PLURAL тоже не ударят в грязь лицом!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Rejected</DialogType>
+      <Default>Хорошо, SING. Но имей в виду - мы сделали вам такое выгодное предложение только по дружбе. Возможно, со временем вы тоже научитесь доверять нам и тогда измените свое мнение.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_NAPACT</DialogType>
+      <Default>Что же такого случилось, что теперь вы готовы заключить с нами пакт о ненападении, хотя раньше никак не соглашались?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_TRADE</DialogType>
+      <Default>Мы должны признать, что PLURAL не перестают нас удивлять. Мы же сами хотели торговать с вами - а вы отказались. Не припоминаете?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech</DialogType>
+      <Default>Вы очень странные, SING. Ваш физической облик нам странен и непонятен. Мы понимаем, что нам в галактике нужны друзья, но наша раса небыстро обзаводится ими. Может быть, вы готовы поделиться с нами технологией TECH_DEMAND в качестве жеста доброй воли?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Accepted</DialogType>
+      <Default>Вы поступили очень благородно и достойно. Спасибо. Мы будем помнить это.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Rejected</DialogType>
+      <Default>Ничего иного мы и не ожидали. Еще одно подтверждение тому, что дружбу и доверие нельзя заслужить быстро, SING. Счастливо.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Insult Military</DialogType>
+      <Default>Глупые PLURAL! Вы что, не знаете, что галактика полна опасностей? Ваша армия совершенно не готова к ним - и очень скоро вы убедитесь в этом сами.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military</DialogType>
+      <Default>Приветствуем, SING. Хотели сделать комплименит вашему могучему флоту. Мы уважаем вашу силу и надеемся, что останемся друзьями.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military Better</DialogType>
+      <Default>Нам отрадно видеть, что вы прислушались к нашим советам. Теперь ваш флот намного сильнее и готов к самым серьезным битвам!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism</DialogType>
+      <Default>SING, ваша военная мощь просто смешна в сравнении с нашей. Мы хотим отобрать у вас ваши миры. Готовьтесь, ибо приближается час вашей погибели.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Terran</DialogType>
+      <Default>Ах, да, люди. Мы с ними в целом вполне дружны. Но они всегда называют нас 'Космомишки'. Скажи мне, SING, кто такие эти космомишки?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Terran</DialogType>
+      <Default>Пока что мы не очень много общались с людьми. Может, со временем мы станем друзьями или врагами; может быть, будем и дальше сохранять дистанцию. Время покажет.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Terran</DialogType>
+      <Default>Честно говоря, нам ни разу еще не доводилось встретить расу более жадную, жестокую и развращенную, чем люди. Они очень опасны, SING! Мы тебя предупредили.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Pollops</DialogType>
+      <Default>А, Поллопы. Это очень милая и дружелюбная раса. Они любят музыку и поэзию. Они нам нравятся.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Pollops</DialogType>
+      <Default>К сожалению, нам пока не удалось сойтись с Поллопами ближе. Но, кажется, они добры и дружелюбны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Pollops</DialogType>
+      <Default>Кулрати называют Поллопо в одним словом: салат. Мы не любим салат.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Vulfen</DialogType>
+      <Default>Вульфары! Какой дух, какая целеустремленность! Мы прекрасно понимаем их жажду битвы! Жаль только, что они жутко бестолковые - но вообще они нам очень нравятся!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Vulfen</DialogType>
+      <Default>Мы не слишком хорошо знаем Вульфаров, но ходят слухи, что интеллектуально они развиты не так, как Кулрати.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Vulfen</DialogType>
+      <Default>Эти дикие собаки? Да, мы знаем их. Очень неплохи на вкус.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Cordrazine</DialogType>
+      <Default>Кордразины ценят красоту, и, несмотря на то, что они совершенно не умеют общаться с другими на равных, мы уважаем их и считаем своими друзьями.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Cordrazine</DialogType>
+      <Default>Мы видели их лишь мельком и поэтому не можем сказать о них ничего конкретного.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Cordrazine</DialogType>
+      <Default>Эти моллюски... Они жутко нас раздражают. Они владеют рабами и не видят вокруг ничего, кроме себя. Они нам не нравятся.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Ralyeh</DialogType>
+      <Default>Их убеждения крепки, и они верны своей философии. ЗА это они, безусловно, достойны уважения.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Ralyeh</DialogType>
+      <Default>Мы мало что можем сказать об этих существах, которых почти не знаем.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Ralyeh</DialogType>
+      <Default>Несущие смерть стали на нашем пути. И им, и нам очевидно, что для нас обоих в галактике места не хватит.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism Break NA</DialogType>
+      <Default>Вы глупцы, SING. Пока вы думали, что ваша бумажная броня защитит вас, мы копили силы. Наш пакт о ненападении расторгнут. Мы идем завоевывать ваши миры!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Conquered_Player</DialogType>
+      <Default>Вот он, тот момент, когда меч опустился, отделив твою голову от туловища. Ты страдаешь? Ты чувствуешь, как твоя голова катится по полу? Если бы ты мог рассказать нам... Но ты не уже не можешь. Ты пал жертвой могучих Кулрати.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders</DialogType>
+      <Default>Мы, Кулрати, знаем толк в войнах, но при этом мы желаем мира и для себя, и для наших друзей. Мне кажется, наши территориальные споры не ведут ни к чему хорошему, поэтому мы предлагаем вам договор об открытых границах, чтобы положить конец распрям.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Accepted</DialogType>
+      <Default>И на этом мы ослабляем свою хватку на эфесе меча и вздыхаем с облегчением. Для нас честь быть вашими друзьями.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Rejected</DialogType>
+      <Default>Тогда крепче стисни эфес своего меча и готовься обнажить его, SING. Гнев Кулрати растет.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded NA Pact</DialogType>
+      <Default>Бесчестные предатели атакуют! Клятвопреступники! Готовьтесь к смерти!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded Start War</DialogType>
+      <Default>Бесчестные предатели не выигрывают войн, SING. Их выигрывают сильные! Готовьтесь!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Opteris</DialogType>
+      <Default>Их машинной логике не чуждо понятие чести. Мы уважаем их за это.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Opteris</DialogType>
+      <Default>Мы знаем их недостаточно хорошо, чтобы сформировать о них представление.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Opteris</DialogType>
+      <Default>Оптерисы - опасные враги. Враг, не ведающий страха - враг вдвойне.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Claim System</DialogType>
+      <Friendly>Приветствуем, SING. Мы обнаружили твоих разведчиков в системе TARSYS. Ставим тебя в известность, что мы уже заявили свои права на эту систему, и рекомендуем оставить попытки колонизировать ее.</Friendly>
+      <Neutral>SING. Мы обнаружили твоих разведчиков в системе TARSYS. Ставим тебя в известность, что мы уже заявили свои права на эту систему, и рекомендуем оставить попытки колонизировать ее.</Neutral>
+      <Hostile>Бесчестный пес - мы обнаружили твоих разведчиков в системе TARSYS. Ставим тебя в известность, что мы уже заявили свои права на эту систему, и если ты не хочешь встретить свой смертный час раньше срока, даже не думай соваться туда.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim</DialogType>
+      <Default>Ваша дерзость, с которой вы игнорируете требования Кулрати, достойна восхищения. Но вот соответствует ли вашей дерзости ваша сила?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_JustMetUs</DialogType>
+      <Default>Кто знает, насколько красивым вырастет цветок, пока он еще семя в земле? У нас нет никаких проблем с вашей расой, SING. Во всяком случае, сейчас - а может быть, их и никогда не будет. Время покажет.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NoProblems</DialogType>
+      <Default>Наши связи становятся крепче, SING. Мы счастливы быть вашими друзьями.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Problems</DialogType>
+      <Default>Ну что ж, SING. Ты спросил - мы отвечаем. Да, у нас есть обиды на твой народ.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_JustTerritorial</DialogType>
+      <Default>Наши основные проблемы с вами заключаются в том, что вы оспариваете наши территории - а мы, Кулрати, очень болезненно воспринимаем посягательства на наши территории.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_Territorial</DialogType>
+      <Default>В первую очередь вы должны понять, что мы, Кулрати, очень ревностно оберегаем свои территории. То, что мы претендуем на одни и те же системы, очень беспокоит нас.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitary</DialogType>
+      <Default>Кроме того, вы располагаете очень мощным флотом, и многие из нас воспринимают это как признак надвигающейся войны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitaryWeak</DialogType>
+      <Default>Во-вторых, мы, Кулрати, очень уважаем силу - а вы по сравнению с нами слишком слабы.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_MilitaryWeak</DialogType>
+      <Default>Если вы хотите, чтобы Кулрати уважали вас, вы должны быть сильными! А вы слабы, SING. Вам еще предстоит набраться сил.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_PrimaryMilitary</DialogType>
+      <Default>Хоть мы и уважаем силу, но размер нашего флота вызывает некоторые опасения. Мы точно остаемся друзьями?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlliedWithEnemy</DialogType>
+      <Default>TAREMP - ваши союзники, а это самая бесчестная раса во Вселенной.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoAlliedWithEnemy</DialogType>
+      <Default>Кроме того, TAREMP - ваши союзники, а это самая бесчестная раса во Вселенной.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NothingMajor</DialogType>
+      <Default>Ничего плохого, ничего хорошего. Вот наше мнение о расе PLURAL на текущий момент.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Winning</DialogType>
+      <Default>Что, храбрость покинула тебя, SING? Отчего бы еще ты пришел к нам в последний час твоего народа?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Losing</DialogType>
+      <Default>Ты... Ты могучий воин, SING. Мы уважаем доблесть. Но даже не думай, что ты заставишь нас сдаться. Чего ты от нас хочешь?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War</DialogType>
+      <Default>SING! Сражаться в славных битвах бок о бок с друзьями - вот чего мы желаем! TAREMP должны пасть пред нашей объединенной мощью! Что скажешь?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_Yes</DialogType>
+      <Default>Раааа! На войну! Бейте в барабаны и затачивайте ваши мечи, PLURAL!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No</DialogType>
+      <Default>Мы поняли вас, SING. Что ж - будь по вашему.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Draylok</DialogType>
+      <Default>Драйлоки - благородная раса и друзья Кулрати.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Draylok</DialogType>
+      <Default>Мы не особо хорошо знаем их, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Draylok</DialogType>
+      <Default>Эти бесчестные твари скрываются в тени и дерутся, как трусы.</Default>
+    </DialogLine><!-- Second Run Localization Efforts --><DialogLine>
+      <DialogType>OFFERPEACE_FAIR</DialogType>
+      <Default>Боевая ярость поутихла, и теперь мы видим все ясно. Война не в интересах никого из нас. Заключи с нами мир, SING - это будет в наших общих интересах.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR_WINNING</DialogType>
+      <Default>Ваши флоты пали под натиском нашей мощи. Не нужно продолжать губить своих подданных, SING. Мы заключим с вами мир, если вы тоже этого хотите.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_EVENLY_MATCHED</DialogType>
+      <Default>Ты достойный противник, SING. Если эта войны продолжится, один из нас точно будет уничтожен. Давай положим этой войне конец и заключим мир, чтобы у обоих наших народов было будущее.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_PLEADING</DialogType>
+      <Default>Твоя мощь неоспорима. Мы посрамлены. Прошу тебя, SING, подпиши с нами мирный договор.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_WINNINGBC</DialogType>
+      <Default>Вы сражались достойно, но уступили. В достойном поражении нет ничего постыдного. Подпишите с нами мир, и давайте уже положим конец этим распрям.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_LOSINGBC</DialogType>
+      <Default>Вы ревностно защищаете свои интересы! Мы уступим вашим требованиям, если вы согласитесь заключить с нами мир.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_REJECTED</DialogType>
+      <Default>Сила вашего боевого духа впечатляет, SING. Ну будь по-вашему!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_ACCEPTED</DialogType>
+      <Default>Это мудрое решение. Мы убираем мечи в ножны.</Default>
+    </DialogLine>
+    
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE</DialogType>
+      <Default>Принять мудрое предложение будет мудрым поступком. Мы согласны сложить оружие и заключить мир.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_POOROFFER</DialogType>
+      <Default>Ваше предложение нам самим прыгнуть на ваши мечи вежливо отклонено. Что-нибудь еще?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_UNWILLING_BC</DialogType>
+      <Default>Мы, Кулрати, очень серьезно относимся к своим территориальным притязаниям. Между нами не может быть мира, пока этот спор не будет разрешен.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE_RELUCTANT</DialogType>
+      <Default>Для нас позорно соглашаться на ваши условия, но здравый смысл диктует нам сделать это. Да будет мир.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>PROBLEM_RECENTWAR</DialogType>
+      <Default>Мы до сих пор носим на своих телах шрамы недавней войны, SING. Наши отношения не наладятся, пока эти раны не затянутся. Нужно время.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE</DialogType>
+      <Default>Настало время нам объединить силы, SING! Давайте заключим альянс, и пусть об этом знает вся галактика!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_ACCEPTED</DialogType>
+      <Default>Значит, решено! Отныне и навеки PLURAL и Кулрати братья навек! Клан и кровь!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_REJECTED</DialogType>
+      <Default>Ваше нежелание печалит нас. Но, может быть, позже.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE_TOO_COMPLICATED</DialogType>
+      <Default>Хммм. Возможно, SING. Но мы не можем принять решение об альянсе, когда ты выдвигаешь нам столько дополнительных условий. МЫ рассмотрели бы его отдельно.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_ACCEPT</DialogType>
+      <Default>Кулрати уважают вашу силу и честь. Мы присоединимс к вашему альянсу.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT</DialogType>
+      <Default>Мы признательны вам за это предложение. Однако сейчас мы пока не можем его принять, потому что, честно говоря, пока что мы не настолько вам доверяем.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
+      <Default>Барабаны войны уже пробили. Наши клинки остры, и они жаждут крови. Сейчас уже ничего не изменить.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_PEACE_COLDWAR</DialogType>
+      <Default>Хмм. Вы просите нас оставить клинки в ножнах, пока они еще не пролили вашу кровь. И вы предлагаете нам за это дары. После долгих раздумий мы согласны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No_BreakAlliance</DialogType>
+      <Default>Своим отказом помочь союзнику вы покрыли себя позором. Мы расторгаем наш альянс с вами.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 2</DialogType>
+      <Default>Рррр... Ваше неуважение к нам... очень злит многих Кулрати... Уважай наши требования, SING. Рррр.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 3</DialogType>
+      <Default>РРРРААРРРРРААРРР! РРРРРАААРРРГХХХ!!!!!! (неразборчиво - видимо, непристойная брань на языке Кулрати)</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_1</DialogType>
+      <Default>...Шпионство... это недостойно.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_2</DialogType>
+      <Default>Ррррр! Не стоит злить нас шпионажем, SING!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_3</DialogType>
+      <Default>РРРРААРРРРРААРРР! РРРРРАААРРРГХХХ!!!!!! (неразборчиво - видимо, непристойная брань на языке Кулрати) (Договоры расторгнуты)</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Killed_Spy_1</DialogType>
+      <Default>Ваш агент был схвачен и убит, SING. Мы будем беспощадны ко всем, кто пытается красть наши секреты!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_1</DialogType>
+      <Default>Шпионить за своими друзьями - верх бесчестья. Мы простим вас на этот раз - но это в последний раз.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_2</DialogType>
+      <Default>Мы предупреждали тебя, SING, но ты снова поставил под удар нашу дружбу бесчестными актиами шпионажа. Наш альянс теперь в прошлом.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders Friends</DialogType>
+      <Default>Для Кулрати открытие границ - великая честь, Которой удостаиваются лишь наши лучшие друзья. SING, ты готов заключить с нами такой договор?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Friends Rejected</DialogType>
+      <Default>Ну что ж, мы понимаем. Для нас наша территория священна, так что мы не в обиде на вас.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_JustMet</DialogType>
+      <Default>Хмм! Ваше желание укрепить нашу дружбу не осталось незамеченным, SING. Однако мы, Кулрати, более осторожны в таких вопросах. Может быть, в будущем.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_NoAlliance</DialogType>
+      <Default>То, о чем вы просите, возможно, ибо мы считаем, что PLURAL наши друзья. Но сперва нам следует заключить альянс, а потом можно будет вернуться и к этому вопросу.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_AllianceTooYoung</DialogType>
+      <Default>Скоро, SING - но не сейчас! Мы лишь недавно стали союзниками. Давай сначала убедимся, что у нас все в порядке, а потом вернемся к обсуждению этого вопроса.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreTooStrong</DialogType>
+      <Default>Кулрати уважают силу, SING! Силу, которая есть у нас - а у вас нет! Нам жаль, но мы не можем объединиться с империей, которая слабее нас.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Accept</DialogType>
+      <Default>Да. Наши связи окрепли. Ваш народ - это наш народ. Ваша кровь - это наша кровь. Вместе мы будем править галактикой. Да здравствует Федерация!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_DestroyEnemy</DialogType>
+      <Default>Мы присоединимся к вам - но перед этим вы должны будете показать нам свою мощь, победив наших врагов. Когда TAREMP будут уничтожены, мы объединимся!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_KilledEnemy</DialogType>
+      <Default>Вы доказали свою силу! TAREMP уничтожены, и мы останемся верны узам чести. Наши мечи отныне ваши! Да здравствует Федерация!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_RelationsPoor</DialogType>
+      <Default>Хммм. Нет, SING. У нас пока не настолько хорошие отношения.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_AllyFriend</DialogType>
+      <Default>Ваш народ нравится нам - но дело в том, что наши друзья, TAREMP - ваши враги. Если вы сможете заключить с ними союз, мы с радостью вступим в вашу Федерацию.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_AllyFriend</DialogType>
+      <Default>Да! Вы верны законам чести! Теперь TAREMP - ваши союзники, и мы можем присоединиться к вашей Федерации.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>JoinWar_YouAreNotAtWar</DialogType>
+      <Default>SING. Просить других воевать вместо тебя - бесчестно!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_WeAreAtWar</DialogType>
+      <Default>Мы и TAREMP УЖЕ воюем!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_OK</DialogType>
+      <Default>Да, союзник. Мы присоединимся к тебе.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_DECLINE</DialogType>
+      <Default>Прости, друг, но TAREMP и наши друзья тоже. Если мы станем в этом конфликте на чью-то сторону, наша дружба будет под угрозой.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_PoorRelations</DialogType>
+      <Default>Нет, SING. Ты многого просишь и мало предлагаешь.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_Pacifist</DialogType>
+      <Default>Я не верю в то, что имеет смысл воевать за других. Может, вы и TAREMP лучше попытаетесь уладить дело миром?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_TooDangerous</DialogType>
+      <Default>Нет. Вступить в эту войну будет ошибкой. У нас другие интересы!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_OK</DialogType>
+      <Default>Хмм. Да! Наши воины скучают по славной битве, а TAREMP сейчас как раз уязвимы. Пусть загремят барабаны! Война!</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_ALLIED_WITH_ENEMY</DialogType>
+      <Default>Мы не примем мирного предложения,пока вы в союзе с нашими врагами, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT_ALLIED_WITH_ENEMY</DialogType>
+      <Default>Быть союзниками,когда ты в союзе с нашими врагами...У тебя нет чести!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Опускать мечи перед нашими врагами? Сила и мощь покинула тебя, SING?</Default>
+      <DL_Agg>Кулрати решили расторгнуть наш союз. Ты испорчен!</DL_Agg>
+      <DL_Ruth>Кулрати решили прекратить наши дипломатические отношения. Скоро мы столкнемся клинок к клинку.</DL_Ruth>
+      <DL_Xeno>Кулрати Сегунат решили прекратить наши дипломатические отношения. Мы догадывались,что ты предашь нас, SING. Осторожней!</DL_Xeno>
+      <DL_Cunn>Но если ты хочешь начать битву с предательства,так и будет.</DL_Cunn>
+      <DL_Pac>Наверное нам желательно улучшить отношения с нашими союзниками.</DL_Pac>
+      <DL_Hon>Ибо Ваше бесчестье позорит вас,как позорит империю Кулрати за то,что вы являетесь нашими друзьями.</DL_Hon>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>TRIED_CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Опускать мечи перед нашими врагами? Даже они видят,что твои клинки больше не острые.</Default>
+      <DL_Agg>Кулрати решили расторгнуть наш союз. Ты испорчен!</DL_Agg>
+      <DL_Ruth>Кулрати решили прекратить наши дипломатические отношения. Скоро мы столкнемся клинок к клинку.</DL_Ruth>
+      <DL_Xeno>Кулрати Сегунат решили прекратить наши дипломатические отношения. Мы догадывались,что ты предашь нас, SING. Осторожней!</DL_Xeno>
+      <DL_Cunn>Но если ты хочешь начать битву с предательства,так и будет.</DL_Cunn>
+      <DL_Pac>Однако желательно, чтобы вы попытались улучшить отношения с нашими союзниками.</DL_Pac>
+      <DL_Hon>Ваше бесчестье стыдит вас,как стыдит и нас за то,что вы являетесь нашими друзьями.</DL_Hon>
+    </DialogLine>
+  </Dialogs>
+</DiplomacyDialog>

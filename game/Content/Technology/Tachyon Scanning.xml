@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Tachyon Scanning</UID>
+  <TechnologyType>General</TechnologyType>
+  <Cost>1500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Tachyon Scanning</Name>
+  <NameIndex>680</NameIndex>
+  <DescriptionIndex>681</DescriptionIndex>
+  <LongDescription>Tachyons are particles that move substantially faster than the speed of light. By retuning our sensors to detect Tachyons we can substantially increase their effectiveness. </LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Tachyons</Name>
+      <BonusType>Sensor Range Bonus</BonusType>
+      <Bonus>1</Bonus>
+      <Description>Doubles the range of all sensors</Description>
+      <BonusIndex>682</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

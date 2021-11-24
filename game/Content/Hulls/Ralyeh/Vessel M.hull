@@ -1,0 +1,32 @@
+﻿Version=1
+HullName=Ralyeh/Vessel M
+VisibleName=Vessel M
+Role=freighter
+Style=Ralyeh
+Size=6,16
+MeshOffset=0,0
+IconPath=ShipIcons/Vessel M
+ModelPath=Model/Ships/Ralyeh/ship17h
+SelectIcon=17i
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=257,355,0,52
+Slots
+___|IO |I  |I  |IO |___
+___|I  |I  |I  |I  |___
+I  |I  |I  |I  |I  |I  
+I  |I  |I  |I  |I  |I  
+___|I  |I  |I  |I  |___
+___|I  |I  |I  |I  |___
+___|I  |I  |I  |I  |___
+___|___|I  |I  |___|___
+___|___|I  |IC |___|___
+___|___|I  |I  |___|___
+___|___|I  |I  |___|___
+___|___|I  |I  |___|___
+___|___|I  |I  |___|___
+___|___|E  |E  |___|___
+___|___|E  |E  |___|___
+___|___|E  |E  |___|___

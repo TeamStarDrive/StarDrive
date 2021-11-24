@@ -1,0 +1,31 @@
+﻿Version=1
+HullName=Cordrazine/Metving
+VisibleName=Metving
+Role=frigate
+Style=Cordrazine
+Size=12,14
+MeshOffset=0,0
+IconPath=ShipIcons/Metving
+ModelPath=Model/Ships/Cordrazine/ship16c
+SelectIcon=16c
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=238,302,0,50
+Thruster=276,303,0,50
+Slots
+___|___|___|___|___|O  |O  |___|___|___|___|___
+___|___|___|___|___|IO |IO |___|___|___|___|___
+___|___|___|O  |O  |IO |IO |O  |O  |___|___|___
+___|___|___|IO |IO |I  |I  |IO |IO |___|___|___
+___|O  |O  |IO |I  |I  |I  |I  |IO |O  |O  |___
+O  |O  |O  |IO |I  |I  |I  |I  |IO |O  |O  |O  
+O  |___|___|O  |I  |I  |I  |I  |O  |___|___|O  
+___|___|___|O  |IO |I  |IC |IO |O  |___|___|___
+___|___|___|O  |IO |E  |E  |IO |O  |___|___|___
+___|___|O  |O  |O  |E  |E  |O  |O  |O  |___|___
+___|___|___|___|___|E  |E  |___|___|___|___|___
+___|___|___|___|___|E  |E  |___|___|___|___|___
+___|___|___|___|___|IO |IO |___|___|___|___|___
+___|___|___|___|___|O  |O  |___|___|___|___|___

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Fighter Shields</UID>
+  <TechnologyType>ShipDefense</TechnologyType>
+  <Cost>450</Cost>
+  <RootNode>0</RootNode>
+  <Name>Fighter Shields</Name>
+  <NameIndex>562</NameIndex>
+  <DescriptionIndex>563</DescriptionIndex>
+  <LongDescription>Some fleet commanders question the prudence of shielding fighters, believing it to be a waste of resources for a disposable asset. Even so, there is no quesiton that a fighter with a shield is better than one without, and perhaps other uses can be found for these small shields. </LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>Fighter Shield</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

@@ -1,0 +1,25 @@
+﻿Version=1
+Name=Thorn Detector
+Hull=Pollops/Thorn
+Role=scout
+Style=Pollops
+Size=4,4
+GridCenter=2,2
+DefaultAIState=AwaitingOrders
+DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=BasicFuelCell;SubspaceSensors;NuclearReactorSmall;Engine;Cockpit
+Modules=7
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,1;0;;;;NotApplicable
+1,0;1;2,2;;;NotApplicable
+1,2;2;;;;NotApplicable
+1,3;3;;;;NotApplicable
+2,2;2;;;;NotApplicable
+2,3;3;;;;NotApplicable
+3,1;4;;;;NotApplicable

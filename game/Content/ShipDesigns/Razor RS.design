@@ -1,0 +1,46 @@
+﻿Version=1
+Name=Razor RS
+Hull=Kulrathi/Razor
+Role=corvette
+Style=Kulrathi
+Size=10,7
+GridCenter=5,4
+DefaultAIState=DoNothing
+DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=MRLS;Fighter Shield;SteelArmorSmall;NuclearReactorSmall;WarpEngine_1x1;OrdnanceLockerSmall;Cockpit;RocketLauncher;Internal Bulkhead;Engine
+Modules=28
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,5;0;2,2;294
+1,4;1
+2,3;2
+2,4;3
+2,5;4
+3,0;2
+3,1;5
+3,2;5
+3,3;3
+3,4;6
+4,2;7
+4,3;3
+4,4;8
+4,5;9
+5,2;7
+5,3;3
+5,4;8
+5,5;9
+6,0;2
+6,1;5
+6,2;5
+6,3;3
+6,4;6
+7,3;2
+7,4;3
+7,5;4
+8,4;1
+8,5;0;2,2;64

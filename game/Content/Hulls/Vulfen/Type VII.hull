@@ -1,0 +1,42 @@
+﻿Version=1
+HullName=Vulfen/Type VII
+VisibleName=Type VII
+Role=frigate
+Style=Vulfen
+Size=10,26
+MeshOffset=0,0
+IconPath=ShipIcons/typeVII
+ModelPath=Model/Ships/Vulfen/TypeVII
+SelectIcon=14a
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=254,410,0,89
+Slots
+___|___|___|___|O  |O  |___|___|___|___
+___|___|___|___|O  |O  |___|___|___|___
+___|___|___|___|O  |O  |___|___|___|___
+___|___|___|O  |IO |IO |O  |___|___|___
+___|___|___|O  |IO |IO |O  |___|___|___
+___|___|___|O  |IO |IO |O  |___|___|___
+___|___|___|O  |IO |IO |O  |___|___|___
+___|___|___|O  |IO |IO |O  |___|___|___
+___|___|___|O  |I  |I  |O  |___|___|___
+___|___|___|O  |I  |I  |O  |___|___|___
+___|___|___|O  |I  |I  |O  |___|___|___
+___|___|___|O  |I  |I  |O  |___|___|___
+___|___|___|O  |I  |I  |O  |___|___|___
+___|___|___|O  |I  |IC |O  |___|___|___
+___|___|___|O  |I  |I  |O  |___|___|___
+___|___|___|O  |I  |I  |O  |___|___|___
+___|___|___|O  |I  |I  |O  |___|___|___
+___|___|___|O  |I  |I  |O  |___|___|___
+___|___|O  |O  |I  |I  |O  |O  |___|___
+___|O  |IO |IO |I  |I  |IO |IO |O  |___
+O  |O  |IO |IO |I  |I  |IO |IO |O  |O  
+O  |O  |IO |IO |I  |I  |IO |IO |O  |O  
+O  |O  |O  |E  |E  |E  |E  |O  |O  |O  
+___|___|___|E  |E  |E  |E  |___|___|___
+___|___|O  |E  |E  |E  |E  |O  |___|___
+___|___|___|___|E  |E  |___|___|___|___

@@ -1,0 +1,116 @@
+﻿<DiplomaticTraits>
+  <DiplomaticTraitsList>
+    <DTrait>
+      <Name>Xenophobic</Name>
+      <Description>Xenophobic races are slow to trust and quick to take offense, but can make strong allies if treated well.</Description>
+      <Territorialism>30</Territorialism>
+      <Opportunism>.5</Opportunism>
+      <NAPact>10</NAPact>
+      <Alliance>45</Alliance>
+      <Trade>15</Trade>
+      <Trustworthiness>50</Trustworthiness>
+      <NaturalRelChange>-.1</NaturalRelChange>
+      <WeaknessDecline>.1</WeaknessDecline>
+      <PowerIncrease>-.1</PowerIncrease>
+      <AngerDissipation>.1</AngerDissipation>
+      <TrustGainedAtPeace>.1</TrustGainedAtPeace>
+    </DTrait>
+    <DTrait>
+      <Name>Honorable</Name>
+      <Description>Honorable races are generally trustworthy and can make staunch allies. Unprovoked hostility against Honorable races can make them very angry. </Description>
+      <Territorialism>40</Territorialism>
+      <Opportunism>.2</Opportunism>
+      <NAPact>0</NAPact>
+      <Alliance>25</Alliance>
+      <Trade>5</Trade>
+      <Trustworthiness>80</Trustworthiness>
+      <NaturalRelChange>0</NaturalRelChange>
+      <WeaknessDecline>0</WeaknessDecline>
+      <PowerIncrease>.1</PowerIncrease>
+      <AngerDissipation>.1</AngerDissipation>
+      <TrustGainedAtPeace>.1</TrustGainedAtPeace>
+    </DTrait>
+    <DTrait>
+      <Name>Cunning</Name>
+      <Description>Cunning races love diplomacy and espionage, and will use these tools frequently to achieve their ends. </Description>
+      <Territorialism>35</Territorialism>
+      <Opportunism>.4</Opportunism>
+      <NAPact>0</NAPact>
+      <Alliance>15</Alliance>
+      <Trade>2</Trade>
+      <Trustworthiness>25</Trustworthiness>
+      <NaturalRelChange>0</NaturalRelChange>
+      <AngerDissipation>.1</AngerDissipation>
+      <TrustGainedAtPeace>.1</TrustGainedAtPeace>
+    </DTrait>
+    <DTrait>
+      <Name>Aggressive</Name>
+      <Description>Aggressive races respect power and loathe weakness. Do not let your guard down when facing an aggressive opponent. </Description>
+      <Territorialism>25</Territorialism>
+      <Opportunism>.75</Opportunism>
+      <NAPact>10</NAPact>
+      <Alliance>35</Alliance>
+      <Trade>12</Trade>
+      <Trustworthiness>60</Trustworthiness>
+      <NaturalRelChange>0</NaturalRelChange>
+      <WeaknessDecline>.2</WeaknessDecline>
+      <PowerIncrease>.1</PowerIncrease>
+      <AngerDissipation>.1</AngerDissipation>
+      <TrustGainedAtPeace>.1</TrustGainedAtPeace>
+    </DTrait>
+    <DTrait>
+      <Name>Pacifist</Name>
+      <Description>Pacifist races are not interested in conquering the galaxy and are easy to befriend. </Description>
+      <Territorialism>60</Territorialism>
+      <Opportunism>.2</Opportunism>
+      <NAPact>0</NAPact>
+      <Alliance>15</Alliance>
+      <Trade>2</Trade>
+      <Trustworthiness>80</Trustworthiness>
+      <NaturalRelChange>.1</NaturalRelChange>
+      <AngerDissipation>.2</AngerDissipation>
+      <TrustGainedAtPeace>.2</TrustGainedAtPeace>
+    </DTrait>
+    <DTrait>
+      <Name>Ruthless</Name>
+      <Description>Ruthless races are unpredictable and aggressive. </Description>
+      <Territorialism>25</Territorialism>
+      <Opportunism>.75</Opportunism>
+      <NAPact>13</NAPact>
+      <Alliance>50</Alliance>
+      <Trade>15</Trade>
+      <Trustworthiness>0</Trustworthiness>
+      <WeaknessDecline>.3</WeaknessDecline>
+      <PowerIncrease>.1</PowerIncrease>
+    </DTrait>
+  </DiplomaticTraitsList>
+  <EconomicTraitsList>
+    <ETrait>
+      <Name>Generalists</Name>
+      <Description>Generalist races take a balanced approach to the development of their empire</Description>
+      <EconomicResearchStrategy>Balanced</EconomicResearchStrategy>
+    </ETrait>
+    <ETrait>
+      <Name>Industrialists</Name>
+      <Description>Industrialists prioritize the development of technologies and infrastructure that will increase their industrial capacity</Description>
+      <EconomicResearchStrategy>Balanced</EconomicResearchStrategy>
+    </ETrait>
+    <ETrait>
+      <Name>Technologists</Name>
+      <Description>Technologists hunger for knowledge, and will prioritize the acquisition of new advancements in their diplomatic and industrial efforts</Description>
+      <EconomicResearchStrategy>Balanced</EconomicResearchStrategy>
+    </ETrait>
+    <ETrait>
+      <Name>Militarists</Name>
+      <Description>Militarists focus their development efforts on the acquisition of new weapons technologies, and like to maintain a strong military at all times.</Description>
+      <EconomicResearchStrategy>Balanced</EconomicResearchStrategy>
+      <ShipGoalsPlus>6</ShipGoalsPlus>
+    </ETrait>
+    <ETrait>
+      <Name>Expansionists</Name>
+      <Description>Expansionists above all else desire to acquire new planets and to increase their populations as rapidly as possible.</Description>
+      <EconomicResearchStrategy>Balanced</EconomicResearchStrategy>
+      <ColonyGoalsPlus>1</ColonyGoalsPlus>
+    </ETrait>
+  </EconomicTraitsList>
+</DiplomaticTraits>

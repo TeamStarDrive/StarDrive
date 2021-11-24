@@ -1,0 +1,48 @@
+﻿Version=1
+HullName=Draylok/Draylok Tx Lg
+VisibleName=Draylok Tx Lg
+Role=freighter
+Style=Draylok
+Size=8,32
+MeshOffset=0,0
+IconPath=ShipIcons/DraylokTxLg
+ModelPath=Model/Ships/Draylok/Ship18i
+SelectIcon=18i
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=256,461,0,67
+Slots
+___|___|IO |IO |IO |IO |___|___
+___|___|IO |IO |IO |IO |___|___
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |IC |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+IO |I  |I  |I  |I  |I  |I  |IO 
+___|I  |I  |I  |I  |I  |I  |___
+___|E  |E  |E  |E  |E  |E  |___
+___|E  |E  |E  |E  |E  |E  |___
+___|E  |E  |E  |E  |E  |E  |___

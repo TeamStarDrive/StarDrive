@@ -1,0 +1,37 @@
+﻿Version=1
+Name=Missilitving II
+Hull=Cordrazine/Litving
+Role=corvette
+Style=Cordrazine
+Size=6,7
+GridCenter=3,4
+DefaultAIState=AwaitingOrders
+DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=MissileLauncher1x3;BasicFuelCell;OrdnanceLockerSmall;NuclearReactorSmall;VulcanCannon;Shield_1KW;NuclearReactorMed;FrigateEngine;Cockpit
+Modules=19
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,1;0;1,3
+0,6;1
+1,1;2;;259
+1,2;3
+1,3;3
+1,5;2;;225
+1,6;1
+2,0;4;;302
+2,1;5;2,2
+2,3;6;2,2
+2,5;7;2,2
+3,0;4;;57
+4,1;2;;95
+4,2;8
+4,3;3
+4,5;2;;132
+4,6;1
+5,1;0;1,3
+5,6;1

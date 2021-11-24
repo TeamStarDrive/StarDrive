@@ -1,0 +1,28 @@
+﻿Version=1
+Name=Rocket Thorn
+Hull=Pollops/Thorn
+Role=fighter
+Style=Pollops
+Size=4,4
+GridCenter=2,2
+DefaultAIState=DoNothing
+DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=RocketLauncher;OrdnanceLockerSmall;NuclearReactorSmall;Engine;Cockpit;WarpEngine_1x1
+Modules=10
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,1;0
+1,0;0
+1,1;1
+1,2;2
+1,3;3
+2,0;1
+2,1;4
+2,2;2
+2,3;5
+3,1;0

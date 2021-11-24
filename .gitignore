@@ -46,3 +46,5 @@ Microsoft.Xna.Framework.Game/bin/
 SynapseGaming-SunBurn-Pro/bin/
 UnitTests/bin/
 *.pyc
+game/Content/GameText.Missing.RUS.yaml
+game/Content/GameText.Missing.SPA.yaml

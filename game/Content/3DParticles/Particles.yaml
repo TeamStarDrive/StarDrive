@@ -1,0 +1,387 @@
+####
+# This file contains all particle types in the game
+# It is hotloaded whenever this file changes
+
+- ParticleSettings:
+  Name: BeamFlash
+  TextureName: "star_yellow.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 200
+  Duration: 0.1
+  DurationRandomness: 1
+  EmitterVelocitySensitivity: 1
+  MinHorizontalVelocity: 0
+  MaxHorizontalVelocity: 0
+  MinVerticalVelocity: 0
+  MaxVerticalVelocity: 0
+  EndVelocity: 0
+  MinColor: [255,255,255,255]
+  MaxColor: [255,255,255,255]
+  MinRotateSpeed: -1
+  MaxRotateSpeed: 1
+  MinStartSize: 200
+  MaxStartSize: 200
+  MinEndSize: 200
+  MaxEndSize: 200
+  SourceBlend: SourceAlpha
+  DestinationBlend: One
+
+- ParticleSettings:
+  Name: ThrustEffect
+  TextureName: "Glow.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 16000
+  Duration: 0.25
+  DurationRandomness: 0.05
+  EmitterVelocitySensitivity: 1
+  MinHorizontalVelocity: 0
+  MaxHorizontalVelocity: 0
+  MinVerticalVelocity: 0
+  MaxVerticalVelocity: 0
+  EndVelocity: 0
+  MinColor: [255,255,255,100]
+  MaxColor: [255,255,255,100]
+  MinRotateSpeed: 0
+  MaxRotateSpeed: 0
+  MinStartSize: 28
+  MaxStartSize: 32
+  MinEndSize: 6
+  MaxEndSize: 8
+  SourceBlend: SourceAlpha
+  DestinationBlend: One
+
+- ParticleSettings:
+  Name: EngineTrail
+  TextureName: "Glow.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 32000
+  Duration: 1.66
+  DurationRandomness: 0
+  EmitterVelocitySensitivity: 1
+  MinHorizontalVelocity: 0
+  MaxHorizontalVelocity: 0
+  MinVerticalVelocity: 0
+  MaxVerticalVelocity: 0
+  EndVelocity: 0
+  MinColor: [255,255,255,50]
+  MaxColor: [255,255,255,50]
+  MinRotateSpeed: 0
+  MaxRotateSpeed: 0
+  MinStartSize: 15
+  MaxStartSize: 17
+  MinEndSize: 3
+  MaxEndSize: 5
+  SourceBlend: SourceAlpha
+  DestinationBlend: One
+
+- ParticleSettings:
+  Name: Explosion
+  TextureName: "explosion.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 3000
+  Duration: 1.5
+  DurationRandomness: 1
+  EmitterVelocitySensitivity: 0.1
+  MinHorizontalVelocity: -50
+  MaxHorizontalVelocity: 50
+  MinVerticalVelocity: -50
+  MaxVerticalVelocity: 50
+  EndVelocity: 0
+  MinColor: [128,128,128,255]
+  MaxColor: [169,169,169,255]
+  MinRotateSpeed: -1
+  MaxRotateSpeed: 1
+  MinStartSize: 5
+  MaxStartSize: 30
+  MinEndSize: 75
+  MaxEndSize: 150
+  SourceBlend: SourceAlpha
+  DestinationBlend: One
+
+- ParticleSettings:
+  Name: ExplosionSmoke
+  TextureName: "smoke.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 3000
+  Duration: 2.5
+  DurationRandomness: 0
+  EmitterVelocitySensitivity: 1
+  MinHorizontalVelocity: -50
+  MaxHorizontalVelocity: 50
+  MinVerticalVelocity: -50
+  MaxVerticalVelocity: 50
+  EndVelocity: 0
+  MinColor: [0,0,0,255]
+  MaxColor: [0,0,0,255]
+  MinRotateSpeed: -2
+  MaxRotateSpeed: 2
+  MinStartSize: 10
+  MaxStartSize: 30
+  MinEndSize: 10
+  MaxEndSize: 300
+  SourceBlend: SourceAlpha
+  DestinationBlend: InverseSourceAlpha
+
+- ParticleSettings:
+  Name: Fire
+  TextureName: "fire.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 10000
+  Duration: 2
+  DurationRandomness: 1
+  EmitterVelocitySensitivity: 1
+  MinHorizontalVelocity: 0
+  MaxHorizontalVelocity: 15
+  MinVerticalVelocity: -10
+  MaxVerticalVelocity: 10
+  EndVelocity: 1
+  MinColor: [255,255,255,10]
+  MaxColor: [255,255,255,40]
+  MinRotateSpeed: 0
+  MaxRotateSpeed: 0
+  MinStartSize: 5
+  MaxStartSize: 10
+  MinEndSize: 10
+  MaxEndSize: 40
+  SourceBlend: SourceAlpha
+  DestinationBlend: One
+
+- ParticleSettings:
+  Name: FireTrail
+  TextureName: "fire.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 10000
+  Duration: 0.2
+  DurationRandomness: 0
+  EmitterVelocitySensitivity: 0
+  MinHorizontalVelocity: 0
+  MaxHorizontalVelocity: 0
+  MinVerticalVelocity: 0
+  MaxVerticalVelocity: 0
+  EndVelocity: 1
+  MinColor: [128,128,128,255]
+  MaxColor: [169,169,169,255]
+  MinRotateSpeed: -4
+  MaxRotateSpeed: 4
+  MinStartSize: 1
+  MaxStartSize: 5
+  MinEndSize: 20
+  MaxEndSize: 40
+  SourceBlend: SourceAlpha
+  DestinationBlend: One
+
+- ParticleSettings:
+  Name: Flame
+  TextureName: "explosion.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 8000
+  Duration: 0.8
+  DurationRandomness: 1
+  EmitterVelocitySensitivity: 0.5
+  MinHorizontalVelocity: 0
+  MaxHorizontalVelocity: 0
+  MinVerticalVelocity: -5
+  MaxVerticalVelocity: 6
+  EndVelocity: 0
+  MinColor: [128,128,128,255]
+  MaxColor: [169,169,169,255]
+  MinRotateSpeed: -1
+  MaxRotateSpeed: 1
+  MinStartSize: 1
+  MaxStartSize: 1
+  MinEndSize: 100
+  MaxEndSize: 300
+  SourceBlend: SourceAlpha
+  DestinationBlend: One
+
+- ParticleSettings:
+  Name: Flash
+  TextureName: "Particle005.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 200
+  Duration: 0.3
+  DurationRandomness: 1
+  EmitterVelocitySensitivity: 1
+  MinHorizontalVelocity: 0
+  MaxHorizontalVelocity: 0
+  MinVerticalVelocity: 0
+  MaxVerticalVelocity: 0
+  EndVelocity: 0
+  MinColor: [255,255,255,255]
+  MaxColor: [255,255,255,255]
+  MinRotateSpeed: -1
+  MaxRotateSpeed: 1
+  MinStartSize: 300
+  MaxStartSize: 300
+  MinEndSize: 300
+  MaxEndSize: 300
+  SourceBlend: SourceAlpha
+  DestinationBlend: One
+
+- ParticleSettings:
+  Name: Lightning
+  TextureName: "lightning_particle.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 20000
+  Duration: 0.2
+  DurationRandomness: 1
+  EmitterVelocitySensitivity: 1
+  MinHorizontalVelocity: -50
+  MaxHorizontalVelocity: 50
+  MinVerticalVelocity: -50
+  MaxVerticalVelocity: 50
+  EndVelocity: 0
+  MinColor: [0,0,255,255]
+  MaxColor: [255,255,255,255]
+  MinRotateSpeed: -100
+  MaxRotateSpeed: 100
+  MinStartSize: 100
+  MaxStartSize: 150
+  MinEndSize: 100
+  MaxEndSize: 150
+  SourceBlend: SourceAlpha
+  DestinationBlend: One
+
+- ParticleSettings:
+  Name: PhotonExplosion
+  TextureName: "explosion.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 3000
+  Duration: 1.5
+  DurationRandomness: 1
+  EmitterVelocitySensitivity: 1
+  MinHorizontalVelocity: -50
+  MaxHorizontalVelocity: 50
+  MinVerticalVelocity: -50
+  MaxVerticalVelocity: 50
+  EndVelocity: 0
+  MinColor: [0,0,255,255]
+  MaxColor: [0,255,255,255]
+  MinRotateSpeed: -1
+  MaxRotateSpeed: 1
+  MinStartSize: 5
+  MaxStartSize: 30
+  MinEndSize: 200
+  MaxEndSize: 250
+  SourceBlend: SourceAlpha
+  DestinationBlend: One
+
+- ParticleSettings:
+  Name: ProjectileTrail
+  TextureName: "smoke.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 10000
+  Duration: 3
+  DurationRandomness: 1.5
+  EmitterVelocitySensitivity: 0.1
+  MinHorizontalVelocity: 0
+  MaxHorizontalVelocity: 1
+  MinVerticalVelocity: -1
+  MaxVerticalVelocity: 1
+  EndVelocity: 1
+  MinColor: [64,96,128,255]
+  MaxColor: [255,255,255,128]
+  MinRotateSpeed: -4
+  MaxRotateSpeed: 4
+  MinStartSize: 4
+  MaxStartSize: 8
+  MinEndSize: 15
+  MaxEndSize: 45
+  SourceBlend: SourceAlpha
+  DestinationBlend: InverseSourceAlpha
+
+- ParticleSettings:
+  Name: SmokePlume
+  TextureName: "smoke.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 3000
+  Duration: 10
+  DurationRandomness: 0
+  EmitterVelocitySensitivity: 1
+  MinHorizontalVelocity: -15
+  MaxHorizontalVelocity: 15
+  MinVerticalVelocity: -20
+  MaxVerticalVelocity: 20
+  EndVelocity: 0.8
+  MinColor: [143,109,86,255]
+  MaxColor: [143,109,86,255]
+  MinRotateSpeed: -1
+  MaxRotateSpeed: 1
+  MinStartSize: 50
+  MaxStartSize: 150
+  MinEndSize: 5
+  MaxEndSize: 10
+  SourceBlend: SourceAlpha
+  DestinationBlend: InverseSourceAlpha
+
+- ParticleSettings:
+  Name: Sparks
+  TextureName: "particle.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 20000
+  Duration: 0.7
+  DurationRandomness: 1
+  EmitterVelocitySensitivity: 1
+  MinHorizontalVelocity: -50
+  MaxHorizontalVelocity: 50
+  MinVerticalVelocity: -50
+  MaxVerticalVelocity: 50
+  EndVelocity: 0
+  MinColor: [0,0,255,255]
+  MaxColor: [255,255,255,255]
+  MinRotateSpeed: 0
+  MaxRotateSpeed: 0
+  MinStartSize: 1
+  MaxStartSize: 5
+  MinEndSize: 1
+  MaxEndSize: 2
+  SourceBlend: SourceAlpha
+  DestinationBlend: One
+
+- ParticleSettings:
+  Name: Galaxy
+  TextureName: "smoke.png"
+  Effect: ParticleEffect.fx
+  Static: true
+  MaxParticles: 50000
+  MinColor: [0,0,255,255]
+  MaxColor: [255,255,255,255]
+  MinRotateSpeed: -0.2
+  MaxRotateSpeed: 0.2
+  MinStartSize: 120000000
+  MaxStartSize: 120000000
+  MinEndSize: 100000000
+  MaxEndSize: 100000000
+  SourceBlend: SourceAlpha
+  DestinationBlend: One
+
+- ParticleSettings:
+  Name: StarParticles
+  TextureName: "Particle005.png"
+  Effect: ParticleEffect.fx
+  Static: true
+  MaxParticles: 50000
+  MinColor: [255,255,255,255]
+  MaxColor: [255,255,255,255]
+  MinRotateSpeed: -0.2
+  MaxRotateSpeed: 0.2
+  MinStartSize: 12000
+  MaxStartSize: 12000
+  MinEndSize: 12000
+  MaxEndSize: 12000
+  SourceBlend: SourceAlpha
+  DestinationBlend: One

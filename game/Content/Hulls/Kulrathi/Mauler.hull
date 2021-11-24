@@ -1,0 +1,47 @@
+﻿Version=1
+HullName=Kulrathi/Mauler
+VisibleName=Mauler
+Role=cruiser
+Style=Kulrathi
+Size=18,31
+MeshOffset=0,-8
+IconPath=ShipIcons/mauler
+ModelPath=Model/Ships/Kulrathi/ship12a
+SelectIcon=12a
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=248,472,0,119
+Slots
+___|___|___|___|___|___|___|___|O  |O  |___|___|___|___|___|___|___|___
+___|___|___|___|___|___|___|O  |IO |IO |O  |___|___|___|___|___|___|___
+___|___|___|___|___|___|___|O  |IO |IO |O  |___|___|___|___|___|___|___
+___|___|___|___|___|___|___|O  |IO |IO |O  |___|___|___|___|___|___|___
+___|___|___|___|___|___|___|O  |IO |IO |O  |___|___|___|___|___|___|___
+___|___|___|___|___|___|O  |IO |IO |IO |IO |O  |___|___|___|___|___|___
+___|___|___|___|___|___|O  |IO |IO |IO |IO |O  |___|___|___|___|___|___
+___|___|___|___|___|___|O  |IO |IO |IO |IO |O  |___|___|___|___|___|___
+___|___|___|___|___|O  |IO |IO |IO |IO |IO |IO |O  |___|___|___|___|___
+___|___|___|___|___|O  |IO |IO |IO |IO |IO |IO |O  |___|___|___|___|___
+___|___|___|___|___|O  |IO |IO |IO |IO |IO |IO |O  |___|___|___|___|___
+___|___|___|___|___|O  |IO |I  |I  |I  |I  |IO |O  |___|___|___|___|___
+___|___|___|___|___|O  |IO |I  |I  |I  |I  |IO |O  |___|___|___|___|___
+___|___|___|___|O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |___|___|___|___
+___|___|___|O  |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |O  |___|___|___
+___|___|O  |IO |IO |IO |IO |I  |I  |IC |I  |IO |IO |IO |IO |O  |___|___
+___|___|O  |IO |O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |IO |O  |___|___
+___|___|O  |O  |___|IO |IO |I  |I  |I  |I  |IO |IO |___|O  |O  |___|___
+___|___|___|___|___|IO |IO |I  |I  |I  |I  |IO |IO |___|___|___|___|___
+___|___|___|___|O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |___|___|___|___
+___|___|___|O  |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |O  |___|___|___
+___|___|O  |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |O  |___|___
+O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  
+O  |IO |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |IO |O  
+___|O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |___
+___|O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |___
+___|O  |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |O  |___
+___|___|O  |O  |O  |O  |IO |I  |I  |I  |I  |IO |O  |O  |O  |O  |___|___
+___|___|___|___|___|___|E  |E  |E  |E  |E  |E  |___|___|___|___|___|___
+___|___|___|___|___|___|E  |E  |E  |E  |E  |E  |___|___|___|___|___|___
+___|___|___|___|___|___|E  |E  |E  |E  |E  |E  |___|___|___|___|___|___

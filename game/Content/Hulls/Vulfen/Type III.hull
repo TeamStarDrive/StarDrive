@@ -1,0 +1,22 @@
+﻿Version=1
+HullName=Vulfen/Type III
+VisibleName=Type III
+Role=corvette
+Style=Vulfen
+Size=6,6
+MeshOffset=0,0
+IconPath=ShipIcons/typeIII
+ModelPath=Model/Ships/Vulfen/TypeIII
+SelectIcon=13c
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=256,289,0,47
+Slots
+___|___|O  |O  |___|___
+___|O  |IO |IO |O  |___
+O  |O  |I  |I  |O  |O  
+O  |IO |I  |IC |IO |O  
+O  |IO |E  |E  |IO |O  
+___|___|E  |E  |___|___

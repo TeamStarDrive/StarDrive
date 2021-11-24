@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>FighterTheory</UID>
+  <TechnologyType>ShipGeneral</TechnologyType>
+  <Cost>320</Cost>
+  <RootNode>0</RootNode>
+  <Name>Fighter Theory</Name>
+  <NameIndex>564</NameIndex>
+  <DescriptionIndex>565</DescriptionIndex>
+  <LongDescription>As our ability to build larger ships improves, we can begin to build motherships capable of providing berths to smaller ships.  Ultimately, we envision large cruisers capable of deploying dozens of fighters or bombers into a combat situation.</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Ace Training</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>FighterBay</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

@@ -1,0 +1,20 @@
+﻿Version=1
+HullName=Draugar/Draug Fighter Improved
+VisibleName=Draug Fighter Improved
+Role=fighter
+Style=Draugar
+Size=4,4
+MeshOffset=0,-16
+IconPath=ShipIcons/shuttle
+ModelPath=Model/Viper
+SelectIcon=8
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=257,251,0,32
+Slots
+___|IO |IO |___
+___|IO |IOC|___
+O  |I  |I  |O  
+IO |E  |E  |IO 

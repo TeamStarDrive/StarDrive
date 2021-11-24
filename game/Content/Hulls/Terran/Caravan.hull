@@ -1,0 +1,38 @@
+﻿Version=1
+HullName=Terran/Caravan
+VisibleName=Military Transport
+Role=frigate
+Style=Terran
+Size=14,21
+MeshOffset=0,8
+IconPath=ShipIcons/caravan
+ModelPath=Model/Ships/Terran/Caravan/Caravan
+SelectIcon=03
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=218,379,0,70
+Thruster=291,379,0,70
+Slots
+___|___|___|___|___|___|O  |O  |___|___|___|___|___|___
+___|___|___|___|___|O  |I  |I  |O  |___|___|___|___|___
+___|___|___|___|___|O  |I  |I  |O  |___|___|___|___|___
+___|___|___|___|___|O  |I  |I  |O  |___|___|___|___|___
+___|___|___|___|___|O  |I  |I  |O  |___|___|___|___|___
+___|___|___|___|O  |IO |I  |I  |IO |O  |___|___|___|___
+___|___|___|O  |IO |IO |I  |I  |IO |IO |O  |___|___|___
+___|___|O  |IO |IO |IO |I  |I  |IO |IO |IO |O  |___|___
+___|___|O  |IO |IO |IO |I  |I  |IO |IO |IO |O  |___|___
+___|___|O  |IO |IO |IO |I  |I  |IO |IO |IO |O  |___|___
+___|___|O  |IO |IO |IO |I  |I  |IO |IO |IO |O  |___|___
+O  |O  |IO |IO |IO |I  |I  |IC |I  |IO |IO |IO |O  |O  
+O  |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |O  
+O  |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |O  
+___|O  |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |O  |___
+O  |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |O  
+O  |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |O  
+O  |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |O  
+O  |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |O  
+O  |O  |___|O  |E  |E  |E  |E  |E  |E  |O  |___|O  |O  
+___|___|___|___|E  |E  |E  |E  |E  |E  |___|___|___|___

@@ -1,0 +1,13 @@
+﻿<Building>
+  <Name>Remnant Detection Array</Name>
+  <Cost>100</Cost>
+  <Maintenance>2</Maintenance>
+  <Icon>rda</Icon>
+  <DetectsRemnantFleet>true</DetectsRemnantFleet>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>2148</NameTranslationIndex>
+  <DescriptionIndex>2149</DescriptionIndex>
+  <ShortDescriptionIndex>2150</ShortDescriptionIndex>
+  <!-- Tells the Solar System Generator that this is not to be placed randomly-->
+  <NoRandomSpawn>true</NoRandomSpawn>
+</Building>

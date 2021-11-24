@@ -1,0 +1,100 @@
+# specifies cost multipliers or weights for research
+# Omitting a value will set it to 1 or the hardcorded values which are the same as in this document
+# note that specific techs can be given a cost multiplier in the tech XML
+-ResearchSettings:
+# The portrait name of the empire.
+# "All" applies to all empires and is applied first.
+# PortraitName is foind in the Race xml
+ PortraitName:All
+ 
+ # Technology Type modifiers
+ # To see the available types of technology types check here:
+ # https://bitbucket.org/codegremlins/stardrive-blackbox/src/e429f2804c33dc578f77d0d29905232aba2e40bf/Ship_Game/TechnologyType.cs#lines-3
+ TechnologyTypeModifiers: 
+    General:        1 
+    Colonization:   1
+    Economic:       1
+    Industry:       1
+    Research:       1
+    GroundCombat:   1
+    ShipHull:       1
+    ShipDefense:    1
+    ShipWeapons:    1
+    ShipGeneral:    1
+ # Ship cost modifiers used with ship picker.
+ # Decreases or increases the tech cost of ship
+ # making it more or less likely to be choosen.
+ # to verify these options for changes check here
+ # https://bitbucket.org/codegremlins/stardrive-blackbox/src/develop/Ship_Game/AI/Research/ResearchOptions.cs#lines-26
+ ShipCostModifiers: 
+    Carrier:        0.95
+    Bomber:         0.95
+    TroopShip:      0.95
+    Support:        0.95
+    ColonyShip:     2
+    Freighter:      2
+    AllHulls:       1
+    Orbitals:       2
+    GroundCombat:   0.95
+# Randomize is a percentage cost of a ship used to generate 
+# a random ranging from -percentage to postive pecentage.
+# The percentage is then added to the cost of the ship.
+    Randomize: 0.1
+# Line Focus effectively decreases the cost of a ship
+# by the number of already known techs the ship has 
+# when deciding to research its technologies. 
+# this value is the weight added for each known tech. 
+# Line Focus is calculated for each ship role. 
+# Line focusing can be disabled by setting this to 0
+    LineFocusIntensity: 1
+    
+ # Empires divide research into areas when choosing what
+ # to research. This value is the random percent range to
+ # choose this area. its modified internally by need calculations
+ # and empire personality. 
+ # The base percentage of 1 means 1-100%
+ # these values can be seen in the debug info "tech" screen.
+ # To verify these values for changes check here
+ # https://bitbucket.org/codegremlins/stardrive-blackbox/src/develop/Ship_Game/AI/Research/ResearchOptions.cs#lines-53
+ ResearchAreaModifiers: 
+  Colonization:     1.00
+  Economic:         1.00
+  GroundCombat:     0.5
+  Industry:         1.00
+  General:          1.00
+  Research:         1.00
+  ShipTech:         1.00
+  
+ #WeaponModifiers are used to modify the cost of a ship based on the kind of weapons it has on board.   
+ # we dont currently have a description of these tags. if its not clear ask in the discord chat. 
+ #https://bitbucket.org/codegremlins/stardrive-blackbox/src/5bb3a64dc86413c2c1add1ab41504d51d3acbd5d/Ship_Game/Gameplay/Weapon.cs?at=develop#Weapon.cs-18  
+ WeaponModifiers:
+    Kinetic:  1.00
+    Energy:   1.00
+    Guided:   1.00
+    Missile:  1.00
+    Hybrid:   1.00
+    Beam:     1.00
+    Explosive:1.00
+    Intercept:1.00
+    Railgun:  1.00
+    Bomb:     1.00
+    SpaceBomb:1.00
+    BioWeapon:1.00
+    Drone:    1.00
+    Warp:     1.00
+    Torpedo:  1.00
+    Cannon:   1.00
+    Subspace: 1.00
+    PD:       1.00
+    Flak:     1.00
+    Array:    1.00
+    Tractor:  1.00
+    
+# Empire specific modifiers. 
+# these will override the "All" settings.
+-ResearchSettings:
+ PortraitName:Cordrazine
+ 
+ TechnologyTypeModifiers: 
+  General: 1  

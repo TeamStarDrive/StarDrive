@@ -1,0 +1,32 @@
+﻿Version=1
+Name=Stalker IIIb Flak
+Hull=Vulfen/Type III
+Role=corvette
+Style=Vulfen
+Size=6,6
+GridCenter=3,3
+DefaultAIState=AwaitingOrders
+DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=SteelArmorMed;SteelArmorSmall;OrdnanceLockerSmall;VulcanCannon;FlakTurret;NuclearReactorSmall;PowerConduit;FrigateEngine;Cockpit
+Modules=14
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,2;0;2,2;;;NotApplicable
+0,4;1;;;;NotApplicable
+1,1;2;;;;NotApplicable
+1,4;3;;259;;NotApplicable
+2,0;4;2,2;;;NotApplicable
+2,2;5;;;;NotApplicable
+2,3;6;;;;NotApplicable
+2,4;7;2,2;;;NotApplicable
+3,2;5;;;;NotApplicable
+3,3;6;;;;NotApplicable
+4,1;8;;;;NotApplicable
+4,2;0;2,2;;;NotApplicable
+4,4;3;;93;;NotApplicable
+5,4;1;;;;NotApplicable

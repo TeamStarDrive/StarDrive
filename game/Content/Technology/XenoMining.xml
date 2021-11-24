@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>XenoMining</UID>
+  <TechnologyType>Industry</TechnologyType>
+  <Cost>450</Cost>
+  <RootNode>0</RootNode>
+  <Name>Xeno Mining</Name>
+  <NameIndex>705</NameIndex>
+  <DescriptionIndex>706</DescriptionIndex>
+  <LongDescription>With the proper industrial foundations laid, exploitation of an alien world's mineral resources can begin in earnest.  </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Deep Core Mining</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Xeno Mine</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

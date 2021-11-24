@@ -1,0 +1,630 @@
+﻿<DiplomacyDialog>
+  <Dialogs>
+    <DialogLine>
+      <DialogType>First Contact</DialogType>
+      <Friendly>...Все возможно. Мы - Ральехи, несущие смерть. Но вы... Вы впечатлили нас. Возможно, судьбой вам уготована иная участь - кто знает?</Friendly>
+      <Neutral>Скажи мне, SING - лично тебе доводилось хоть раз задуматься о часе, когда придет твоя смерть и ничего не станет? Боишься ли ты страданий? Стоило бы бояться, ибо мы - Ральехи, предвестники смерти и слуги Древнего Бога.</Neutral>
+      <Hostile>Скажи мне, SING - лично тебе доводилось хоть раз задуматься о часе, когда придет твоя смерть и ничего не станет? Боишься ли ты страданий? Стоило бы бояться, ибо мы - Ральехи, предвестники смерти и слуги Древнего Бога.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Colonized Warning</DialogType>
+      <Friendly>Вы и правда так спешите отправиться в забвение, что дразните Древнего Бога у подножия Его трона? Ваше вторжение в наше пространство - дерзкий выпад.</Friendly>
+      <Neutral>Вторгаясь в наши владения, вы искушаете Древнего Бога. Вы что, думаете, что мы не раздавим вас, как букашек, от которых вы совсем недалеко ушли?</Neutral>
+      <Hostile>Вы оскорбили Древнего Бога, и это не ускользнуло от нашего внимания. Ваши действия в системе TARSYS не будут забыты.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Aggression Warning</DialogType>
+      <Friendly>Вы и правда так спешите отправиться в забвение, что дразните Древнего Бога, атакуя его служителей? Что за безумие движет вами?</Friendly>
+      <Neutral>Ваши нападения на Ральехов, как бы жалко они ни выглядели, оскорбляют Древнего Бога. Берегитесь.</Neutral>
+      <Hostile>Безмозглые PLURAL! Вы так жаждете смерти, что зовете ее, даже когда ваш черед еще не подошел?</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships</DialogType>
+      <Friendly>SING, выведите ваши корабли из нашего пространства, или мы рассердимся.</Friendly>
+      <Neutral>SING, выведите ваши корабли из нашего пространства, или мы рассердимся. Мы и так уже терпели слишком долго.</Neutral>
+      <Hostile>SING, ваши корабли находятся в нашем пространстве, и это недопустимо. Отзовите ваши корабли, или мы займемся ими сами.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>Очевидно, вы насмехаетесь над нами? Насколько же обезумели PLURAL, если они так легко отказываются от дружбы с Ральехами? Отдайте нам систему TARSYS - или готовьтесь к последствиям.</Friendly>
+      <Neutral>Как мы и предполагали, ваши вторжения в наше пространство стали носить все более дерзкий характер. Колонизация вами системы TARSYS - очень серьезное нарушение.</Neutral>
+      <Hostile>...скоро, SING. Скоро Древний Бог огласит свой вердикт. Готовьтесь.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Colonized then Ships</DialogType>
+      <Friendly>Очевидно, вы насмехаетесь над нами? Насколько же обезумели PLURAL, если они так легко отказываются от дружбы с Ральехами? Отдайте нам систему TARSYS - или готовьтесь к последствиям.</Friendly>
+      <Neutral>Как мы и предполагали, ваши вторжения в наше пространство стали носить все более дерзкий характер. Колонизация вами системы TARSYS - очень серьезное нарушение, а ваше присутствие в нашем пространстве - еще более серьезное.</Neutral>
+      <Hostile>...скоро, SING. Скоро Древний Бог огласит свой вердикт. Готовьтесь.</Hostile></DialogLine>
+    <DialogLine>
+      <DialogType>Declare War</DialogType> <misc1> Не строй иллюзий, SING. Когда придет час твоей смерти, тебя не станет. Все, что ты знал; все, где ты был - ничего этого не будет, все это будет стерто навеки. Нет бога, кроме Древнего Бога, но даже Он - раб смерти. Но я отвлекся. Твой смертный час близок. Отныне мы с вами воюем. </misc1> <misc2> Отнять жизнь - большая честь и тяжкое бремя. Несущий смерть уничтожает целые миры и вселенные. Все, чем ты был при жизни, внезапно превращается в ничто. Мы сделаем это с вами. Мы уничтожим ваши миры и ввергнем ваши вселенные в небытие. Отныне мы с вами воюем.</misc2>> </DialogLine>
+    <DialogLine>
+      <DialogType>Dunno_Anybody</DialogType>
+      <Default>Глаза Древнего Бога пока не видели иных рас, кроме нашей собственной и вашей. Однако скоро Он узрит всех.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting</DialogType>
+      <Friendly>Приветствую, SING. Ты уже размышлял о своей смерти? Это будет достойная смерть?</Friendly>
+      <Neutral>Как ты умрешь, SING? В своей постели, окруженный домочадцами, старый и немощный? Погибнешь в сражении? В несчастном случае? Может, быть, тебя настигнет рука убийцы? Нам это крайне любопытно - так для чего же ты отвлек нас от этих мрачных раздумий?</Neutral>
+      <Hostile>PLURAL пришли целовать Смерти ноги. Чего вам надо?</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Inquiry_1</DialogType>
+      <Default>А что это за посох у тебя в руке?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Response_1</DialogType>
+      <Default>Это скипетр Древнего Бога, свидетельствующий, что я являюсь вождем своего народа. Я интерпретирую волю Древнего Бога и слежу за тем, чтобы она была исполнена.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AboutUS</DialogType>
+      <DL_Agg>Мы - несущие смерть, SING,</DL_Agg>
+      <DL_Hon>Мы - несущие смерть, SING,</DL_Hon>
+      <DL_Pac>Мы - несущие смерть, SING,</DL_Pac>
+      <DL_Ruth>Мы - несущие смерть, SING,</DL_Ruth>
+      <DL_Cunn>Мы - несущие смерть, SING,</DL_Cunn>
+      <DL_Xeno>Мы - несущие смерть, SING,</DL_Xeno>
+      <DL_Exp>и мы пронесем свое тяжкое бремя сквозь безграничные пространства до самого края известной Вселенной.</DL_Exp>
+      <DL_Tech>и в смерти тех, кем недоволен Древний Бог, мы обретем знание, как победить смерть!</DL_Tech>
+      <DL_Mil>и наши могучие флоты донесут наше тяжкое бремя до всех иных миров.</DL_Mil>
+      <DL_Ind>и наша промышленность даст нам такую силу, что никто более не посмеет помешать нам исполнить наш священный долг.</DL_Ind>
+      <DL_Gen>но все же мы любим жизнь. Жизнь и смерть, свет и тьма, порядок и хаос.</DL_Gen>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientTrust</DialogType>
+      <Default>У нас нет оснований доверять вам в таком деле, PLURAL.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
+      <Default>Ваше пожертвование Древнему Богу заставляет нас доверять вам больше, чем продиктовано здравым смыслом. Принято.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_LowTrust</DialogType>
+      <Default>Вы, верно, считаете Ральехов имбецилами. No.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_EnoughTrust</DialogType>
+      <Default>Вы злоупотребляете нашим расположением, выдвигая такие нелепые условия. Подкиньте что-нибудь еще, если вас интересует эта сделка.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_Insulting</DialogType>
+      <Default>Вы гневите Древнего Бога столь оскорбительными условиями!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair</DialogType>
+      <Default>Значит, договорились.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Good</DialogType>
+      <Default>Ваши условия приятны Древнему Богу. Мы согласны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Great</DialogType>
+      <Default>Ваши выгодные условия приняты, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Gift</DialogType>
+      <Default>Древний Бог порадуется вашему подношению.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Pleading</DialogType>
+      <Default>Вы хотите честной сделки? Вы жалки. Но в любом случае мы согласны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientFear</DialogType>
+      <Default>Отзвуки хохота Древнего Бога взорвали бы тебе череп, если бы ты мог слышать Его. Но знай, что Он насмехается над твоими далкими угрозами.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Threatening</DialogType>
+      <Default>Твои угрозы жалки. Мы принимаем твое предложение, но тон, в котором оно было сделано, нам не нравится.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Bad_Threatening</DialogType>
+      <Default>Неужели Древний Бог покинул нас? Как существа, подобные тебе, могут заставлять нас отдавать так много в обмен ни на что? Увы, в эти темные времена у нас нет выбора, кроме как согласиться.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_FeelsBetrayed</DialogType>
+      <Default>Вы нарушили свою клятву - но мы свою сдержим. Мы клянемся убивать вас. Мы клянемся раздробить ваши кости и высосать ваши внутренности. Мы клянемся пить кровь из черепов ваших детей. Пред лицом Древнего Бога - клянемся.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_Generic</DialogType>
+      <Default>Хорошо. Смерть придет за всеми нами, SING. Такова жизнь.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting_AtWar</DialogType>
+      <Default>Ты видишь черноту, что ожидает тебя впереди? Она уже так близка, SING. Ты доволен тем, как ты прожил жизнь? Нашел ли ты в ней смысл? Говори - мы выслушаем тебя.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense</DialogType>
+      <Default>Мы бы выждали еще, прежде чем начинать войну с вами, но обстоятельства вынуждают нас сделать это немедленно. Вы слишком сильно досаждали нам, так что теперь мы воюем.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC</DialogType>
+      <Default>Мы бы выждали еще, прежде чем начинать войну с вами, но обстоятельства вынуждают нас сделать это немедленно. Вы слишком сильно досаждали нам, так что теперь мы воюем.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC TarSys</DialogType>
+      <Default>Мы бы выждали еще, прежде чем начинать войну с вами, но обстоятельства вынуждают нас сделать это немедленно. Вы слишком сильно досаждали нам в системе TARSYS, так что теперь мы воюем.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer NAPact</DialogType>
+      <Default>Древний Бог предлагает вам заключить пакт о ненападении, чтобы наши народы могли вместе пытаться побороть смерть.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Accepted</DialogType>
+      <Default>И да будет так. PLURAL и Ральехи будут жить, а смерть пусть подождет до завтра.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Rejected</DialogType>
+      <Default>Все как Он и предвидел. Пусть так - вы умрете одинокими, жалкими, всеми покинутые и забытые.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Trade</DialogType>
+      <Default>Приветствуем, SING. Нам угодно торговать с вашим народом. Вы согласны принять это предложение?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Accepted</DialogType>
+      <Default>Древний Бог доволен. Мы начнем подготовительные операции.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Rejected</DialogType>
+      <Default>Ну и ладно. Мы и так наслышаны о низком качестве ваших товаров.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_NAPACT</DialogType>
+      <Default>Ну что, наши слова убедили вас? Вы все же выбираете жизнь, а не смерть?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_TRADE</DialogType>
+      <Default>Сперва вы отказали нам, а теперь предлагаете нам ровно то же самое? PLURAL такие странные...</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech</DialogType>
+      <Default>Вы сделаете мудрый выбор, отдав нам технологию TECH_DEMAND. Это позволит вам прожить значительно дольше.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Accepted</DialogType>
+      <Default>Все как и предвидел Древний Бог. Возможно, мы с вами попадем в объятия смерти несколько позже.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Rejected</DialogType>
+      <Default>Неважно. Это был всего лишь тест - и ты его провалил. Прощай, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Insult Military</DialogType>
+      <Default>Взор Древнего Бога обращен к вашему флоту. Он находит его неспособным и думает - не PLURAL ли умрут следующими?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military</DialogType>
+      <Default>Древний Бог оценил ваш флот и счел его достойным. Живите пока.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military Better</DialogType>
+      <Default>Нам отрадно, что вы вняли предостережению Древнего Бога, и Он тоже рад. Теперь ваш флот выглядит куда пристойнее.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism</DialogType>
+      <Default>Мы пришли к вам со священной миссией. Мы заберем ваши жизни, SING. Мы захватим ваши планеты, ваши товары - а вас самих отправим в небытие. Готовьтесь.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Kulrathi</DialogType>
+      <Default>Мы уважаем их философию и силу. Пока что они могут жить.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Kulrathi</DialogType>
+      <Default>На данный момент взор Древнего Бога обращен в иную сторону.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Kulrathi</DialogType>
+      <Default>Зверовоины оскорбили Древнего Бога - а за такое преступление предусмотрено лишь одно наказание.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Pollops</DialogType>
+      <Default>Эти существа... нравятся нам, как бы абсурдно это ни звучало.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Pollops</DialogType>
+      <Default>Эти Поллопы - любопытные создания, но нам до них, по большому счету, дела нет.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Pollops</DialogType>
+      <Default>Они просто сорняки! Мы не испытываем никаких эмоций, выдирая их с корнем.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Vulfen</DialogType>
+      <Default>Порой мы задаемся вопросом - как вообще Вульфары научились путешествовать между звездами? Но они свирепы и сильны, а это достойно уважения.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Vulfen</DialogType>
+      <Default>Мы как-то не задумывались о Вульфарах.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Vulfen</DialogType>
+      <Default>Эти псы недостойны дара жизни.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Terran</DialogType>
+      <Default>Да, люди нам, в принципе, нравятся. Древний Бог однажды побывал в их родном мире, давным давно. Человеческая легенда гласит, что Он был изгнан из него - но мы, Ральехи, лучше знаем, как все было на самом деле.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Terran</DialogType>
+      <Default>Мы не думали о людях с тех пор, как Древний Бог покинул их родной мир много-много лет назад.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Terran</DialogType>
+      <Default>У людей есть легенда о Древнем Боге. Они возомнили, будто способны победить Его. Как же они глупы и жалки!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism Break NA</DialogType>
+      <Default>Для Ральехов существует лишь одна клятва: клятва служения Древнему Богу. Мы решили, что наш пакт о ненападении идет с ней вразрез. Тем самым, пакт денонсирован, и мы теперь воюем.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Conquered_Player</DialogType>
+      <Default>Ваши планеты стали нашими, ваши флоты разгромлены. Круг замкнулся, и воля Древнего Бога исполнена. PLURAL отправились в объятия смерти, и мы скорбим об этой утрате.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders</DialogType>
+      <Default>Вы были хорошими друзьями Древнего Бога и Его послушников. Мы не хотим, чтобы какие-то границы мешали нащшему сотрудничеству. Давайте подпишем договор об открытых границах и оставим все распри в прошлом.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Accepted</DialogType>
+      <Default>Мудрое решение, SING. Теперь мы можем передать наше сообщение тем, кто аслуживает этого больше, верно?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Rejected</DialogType>
+      <Default>Очень печально. Своим вызовом вы привлекли к себе взор Древнего Бога - а он несет только смерть.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded NA Pact</DialogType>
+      <Default>Хм... Смело, SING, и это заслуживает восхищения. Мы не думали, что вы способны на такое, полагая вас выше этого. Но теперь это неважно - мы видим вас насквозь. Это война.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded Start War</DialogType>
+      <Default>Вот как. Своим вторжением в систему TARSYS вы решили постучаться в дверь к самой Смерти. Ничего - скоро Она окроет вам.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Opteris</DialogType>
+      <Default>Эти Оптерисы - удивительные создания. Они вообще живые? Они могут умереть? Но в любом случае мы с ними дружны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Opteris</DialogType>
+      <Default>У нас нет четкого представления об этих машинах.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Opteris</DialogType>
+      <Default>Они - вызов Древнему Богу.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>Opinion_JustMetUs</DialogType>
+      <Default>Вы еще живы? Тогда проблемы есть.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NoProblems</DialogType>
+      <Default>Пока что взор Древнего Бога отвернут от вас, и в этом Его благословение вам.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Problems</DialogType>
+      <Default>Древний Бог недоволен вами во множестве аспектов.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_JustTerritorial</DialogType>
+      <Default>Наша основная проблема - споры за одни и те же системы.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_Territorial</DialogType>
+      <Default>Наша основная проблема - споры за одни и те же системы.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitary</DialogType>
+      <Default>Однако кроме этого мы также обеспокоены размерами вашего флота и вашими намерениями в связи с этим.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitaryWeak</DialogType>
+      <Default>Кроме того, ваш флот жалок, и мы не можем уважать вас.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_MilitaryWeak</DialogType>
+      <Default>Основная проблема - ваша слабость. Древний Бог презирает слабых.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_PrimaryMilitary</DialogType>
+      <Default>Основная проблема связана с размерами вашего флота и вашими намерениями в связи с этим.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlliedWithEnemy</DialogType>
+      <Default>TAREMP - враги Древнего Бога, и ваш альянс с ними тревожит нас.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoAlliedWithEnemy</DialogType>
+      <Default>Кроме того, нам неприятно то, что TAREMP, враги Древнего Бога, являются вашими союзниками.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NothingMajor</DialogType>
+      <Default>Нам неприятен тот факт, что вы живы. Помимо этого, у нас к вам нет претензий.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Winning</DialogType>
+      <Default>Слышите колокольный звон? Это поминки по вам. Скоро вы отправитесь в мир иной. Совсем скоро, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Losing</DialogType>
+      <Default>Древний Бог зовет вас, но вы сопротивляетесь Его зову, и это возмутительно. Чего тебе нужно, SING?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War</DialogType>
+      <Default>TAREMP ведут с нами войну, и Древний Бог будет счастлив, если вы вступите в нее на нашей стороне. Что скажете?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_Yes</DialogType>
+      <Default>Прекрасно. Вместе мы донесем до них нашу тяжкую ношу.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No</DialogType>
+      <Default>Глупцы! Зря вы думаете, что мы вас не достанем.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Draylok</DialogType>
+      <Default>Пока что они не успели разгневать Древнего Бога. Мы ими довольны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Draylok</DialogType>
+      <Default>Нам нет дела до низших существ.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Draylok</DialogType>
+      <Default>Они у нас в списке, SING. И это не сулит им ничего хорошего.</Default>
+    </DialogLine><!-- Second Run Localization --><DialogLine>
+      <DialogType>OFFERPEACE_FAIR</DialogType>
+      <Default>В силу причин, недоступных моему пониманию, Древний Бог решил пощадить вас. Мы предлагаем мирный договор.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR_WINNING</DialogType>
+      <Default>В силу причин, недоступных моему пониманию, и несмотря на наши успехи в этой войне, Древний Бог решил пощадить вас. Мы предлагаем мирный договор.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_EVENLY_MATCHED</DialogType>
+      <Default>Древний Бог признает вашу воинскую доблесть. В знак уважения к вашей силе мы предлагаем вам договор, который положит конец вражде между нами.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_PLEADING</DialogType>
+      <Default>Мы... Мы вынуждены просить вас прекратить эту войну. Наша миссия слишком важна, а вы ставите под угрозу сам факт нашего существования. Пожалуйста, давайте закончим эту войну.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_LOSINGBC</DialogType>
+      <Default>Древний Бог признает вашу доблесть, с которой вы защищаете свои интересы. В знак уважения к вашей силе мы предлагаем вам договор, который положит конец вражде между нами.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_WINNINGBC</DialogType>
+      <Default>Эти пограничные конфликты изрядно утомили нас. Мы считаем, что победа осталась за нами, но готовы сами положить конец этой вражде.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_REJECTED</DialogType>
+      <Default>Что ж... Заключение мира изначально было не лучшей идеей.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_ACCEPTED</DialogType>
+      <Default>Да будет так, как записано здесь. Отныне между нами заключен мир.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE</DialogType>
+      <Default>Пусть колокол пробьет дважды - за упокой павших и за здравие спасенных. Отныне у нас мир.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_POOROFFER</DialogType>
+      <Default>Слугам Древнего Бога не нужен дар всеведения, чтобы понять, за каких идиотов вы держите на, если полагаете, что мы согласимся на столь ужасные условия. Нет.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_UNWILLING_BC</DialogType>
+      <Default>Требования Древнего Бога остались невыполненными - и мы не отступимся от них буз веской причины.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE_RELUCTANT</DialogType>
+      <Default>Вы заставляете нас склониться перед вашей волей, SING. Мы восхищены. Что ж - ваша взяла.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>PROBLEM_RECENTWAR</DialogType>
+      <Default>Мы опечалены тем, что вы до сих пор живы - несмотря на то, что в той войне мы приложили все усилия к тому, чтобы уничтожить вас.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE</DialogType>
+      <Default>Галактика нынче стала очень опасной, SING. Мы полагаем, что настало время скрепить нашу дружбу альянсом, дабы противостоять опасностям вместе. Что скажете?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_ACCEPTED</DialogType>
+      <Default>Ваша мудрость радует нас.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_REJECTED</DialogType>
+      <Default>Мы удивлены отсутствием в вас здравого смысла.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE_TOO_COMPLICATED</DialogType>
+      <Default>Согласиться на альянс - само по себе сложное решение. Дополнительные условия сбивают нас с толку. Предлагайте только альянс сам по себе, и мы обдумаем это.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_ACCEPT</DialogType>
+      <Default>Да... Да! Это будет мудро! Альянс заключен.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT</DialogType>
+      <Default>Ох. Нет, SING. Мы не будем вашими союзниками.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
+      <Default>И какую дань вы принесли Древнему Богу за его прощение? Какие миры вы отдадите Ему? Подумайте об этом, прежде чем просить Его сохранить вам ваши жалкие жизни.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_PEACE_COLDWAR</DialogType>
+      <Default>Мир? До того, как успеет пролиться кровь? Что ж, ваш дар сочтен достаточным. Хорошо. Да будет мир.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No_BreakAlliance</DialogType>
+      <Default>Вы разгневали нас, SING. Союзники так себя не ведут. Но хорошо. Альянс расторгнут.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim</DialogType>
+      <Default>SING, у тебя нет никакого уважения к БОГУ! Система TARSYS предназначена для Него, и своей дерзостью ты гневишь Его!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 2</DialogType>
+      <Default>Глупцы! Нам казалось, что PLURAL всеми силами цепляются за мирское существование - но ваша дерзость заставляет нас предположить, что на самом деле вы жаждете получить от нас наш смертельный дар как можно скорее!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 3</DialogType>
+      <Default>И снова вы уводите то, что принадлежит нам, прямо у нас из-под щупалец. Древний Бог пробудился, SING - и Он не обрадуется, узнав об этом.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Claim System</DialogType>
+      <Friendly>Поскольку мы друзья, SING, имейте в виду - мы заявили свои права на систему TARSYS. Держитесь от нее подальше, ибо она принадлежит нашему Богу.</Friendly>
+      <Neutral>Именем Древнего Бога мы заявили свои права на систему TARSYS. Держитесь от нее подальше, SING.</Neutral>
+      <Hostile>Знайте, что Ральехи заявили свои права на систему TARSYS. Можете колонизировать ее на свой страх и риск!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Cordrazine</DialogType>
+      <Default>Странная раса... И эти их спутники, меховые зверушки... Тоже странные. Но они нам нравятся.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Cordrazine</DialogType>
+      <Default>У нас нет представления об этих рабовладельцах.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Cordrazine</DialogType>
+      <Default>А, рабовладельцы. Мы не согласны с их методами и считаем их врагами.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_1</DialogType>
+      <Default>PLURAL. Скрывающиеся в тени, ворующие секреты у тех, кто лучше них... Отвратительно.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_2</DialogType>
+      <Default>Нам все известно, SING. Мы знаем, что вы шпионите за нами. Разозлив нас, вы только приблизите свой конец.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_3</DialogType>
+      <Default>Древний Бог не потерпит этого! Ваш шпионаж в своей дерзости перешел все границы! Мы расторгаем наши договоры!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Killed_Spy_1</DialogType>
+      <Default>Подношение Древнему Богу! Ваш агент оказался вкусным.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_1</DialogType>
+      <Default>...зачем вы шпионите за нами, SING? Зачем было создавать альянс, если он вам совершенно не дорог? Мы даем вам последний шанс одуматься.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_2</DialogType>
+      <Default>вы не воспользовались своим последним шансом. Альянс расторгнут.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders Friends</DialogType>
+      <Default>Присоединяйтесь к нам, SING. Мы откроем вам свои границы в знак нашей дружбы - а вы нам свои. Вы согласны?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Friends Rejected</DialogType>
+      <Default>Как скажете. Но Смерть не знает границ, и она беспристрастна.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_JustMet</DialogType>
+      <Default>Нет. Этот не те отношения, в которые мы готовы вступать с первым встречным.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_NoAlliance</DialogType>
+      <Default>Друзья... Вы многого от нас просите, в то время как официально мы даже не союзниуи. Возможно, в будущем так и будет, но сперва нужно построить базу для наших будущих взаимоотношений.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_AllianceTooYoung</DialogType>
+      <Default>Снова торопитесь... Давайте сперва создадим альянс и убедимся, что мы ладим друг с другом. Потом мы сможем вернуться к вашему предложению.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreTooStrong</DialogType>
+      <Default>А зачем нам это, если мы сильны, а вы... не настолько сильны? Мы не согласны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Accept</DialogType>
+      <Default>Это прекрасный день. Сегодня вы помогли нам разглядеть жизнь в непроглядной тьме. Сегодня мы присоединимся к вам. Да здравствует Федерация!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_DestroyEnemy</DialogType>
+      <Default>Вы просите от нас многого, SING. Мы присоединимся к вам - но только в том случае, если вы сперва поможете нам одолеть наших врагов. Когда TAREMP падут, вы подтвердите, что вы преданы нам, и мы станем едины.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_KilledEnemy</DialogType>
+      <Default>Итак, свершилось. TAREMP побеждены, и мы сдержим свое слово и присоединимся к вашей Федерации.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_RelationsPoor</DialogType>
+      <Default>Наверное, сперва вам стоит обратить внимание на разрешение текущих проблем и улаживание конфликтов с нами, прежде чем делать столь грандиозные предложения.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_AllyFriend</DialogType>
+      <Default>Мы присоединимся к вас, SING - но сперва вы должны подружиться с нашими друзьями. Когда TAREMP станут вашими союзниками, мы присоединимся к вашей Федерации.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_AllyFriend</DialogType>
+      <Default>Вы сделали то, о чем мы вас просили. Теперь, когда наши друзья TAREMP стали вашими союзниками, мы присоединимся к вашей Федерации.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>JoinWar_YouAreNotAtWar</DialogType>
+      <Default>Мы отметили ваш энтузиазм по части создания конфликтов на ровном месте. Но солдаты Древнего Бога - не наемники. Наш ответ - нет.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_WeAreAtWar</DialogType>
+      <Default>TAREMP уже воюют с нами, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_OK</DialogType>
+      <Default>Будучи вашими союзниками, мы обязаны откликнуться на ваш призыв. Стало быть, война.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_DECLINE</DialogType>
+      <Default>TAREMP - наши друзья и союзники, и мы не можем воевать с ними.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_PoorRelations</DialogType>
+      <Default>Нет, SING. Кстати - может, лучше мы повоюем с вами? Весело будет, не так ли? А теперь уходите.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_Pacifist</DialogType>
+      <Default>Мы не одобряем войну - разве что в целях самообороны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_TooDangerous</DialogType>
+      <Default>Нет. Они слишком сильны. Мы не можем на это пойти.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_OK</DialogType>
+      <Default>Ты читаешь мои мысли! Они слабы, уязвимы... Самое время напасть на них и покончить с ними раз и навегда.</Default>
+    </DialogLine>
+
+     <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_ALLIED_WITH_ENEMY</DialogType>
+      <Default>Вы хотите мира с Рельехами,но вы в союзе с нашими врагами. Беги, SING!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT_ALLIED_WITH_ENEMY</DialogType>
+      <Default>Вы оскорбляете Древнего Бога,предлагая союз будучи в союзе с нашими врагами. Мы отказываемся.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Что это за мерзость?! Вы идете за нашей спиной,подписывая договоры с нашими общими врагами?</Default>
+      <DL_Agg>Наш Альянс расторгнут.</DL_Agg>
+      <DL_Ruth>Наши отношения разорваны. Скоро ты почувствуешь наш дух, SING.</DL_Ruth>
+      <DL_Xeno>Это ожидаемо,но неприемлемо. Мы прерываем наши отношения с вами.</DL_Xeno>
+      <DL_Cunn>Древний Бог недоволен.</DL_Cunn>
+      <DL_Pac>Древний Бог приветствует мирные решения, но вам следует подождать,пока мы перестанем воевать с ними.</DL_Pac>
+      <DL_Hon>Вы думали о своей смерти, SING? Какая это будет смерть? Во имя Древнего Бога мы похороним вас.</DL_Hon>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>TRIED_CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Что это за мерзость?! Вы идете за нашей спиной, пытаетесь заключать договоры с нашими общими врагами?</Default>
+      <DL_Agg>Наш Альянс расторгнут.</DL_Agg>
+      <DL_Ruth>Наши отношения разорваны. Скоро ты почувствуешь наш дух, SING.</DL_Ruth>
+      <DL_Xeno>Это ожидаемо,но неприемлемо. Мы прерываем наши отношения с вами.</DL_Xeno>
+      <DL_Cunn>Древний Бог недоволен.</DL_Cunn>
+      <DL_Pac>Древний Бог приветствует мирные решения, но вам следует подождать,пока мы перестанем воевать с ними.</DL_Pac>
+      <DL_Hon>Вы думали о своей смерти, SING? Какая это будет смерть? Во имя Древнего Бога мы похороним вас.</DL_Hon>
+    </DialogLine>
+  </Dialogs>
+</DiplomacyDialog>

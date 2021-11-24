@@ -1,0 +1,25 @@
+﻿Version=1
+HullName=Ralyeh/Vessel S
+VisibleName=Vessel S
+Role=freighter
+Style=Ralyeh
+Size=4,9
+MeshOffset=0,-8
+IconPath=ShipIcons/Vessel S
+ModelPath=Model/Ships/Ralyeh/ship17g
+SelectIcon=17g
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=257,292,0,44
+Slots
+___|I  |I  |___
+I  |I  |I  |I  
+___|I  |I  |___
+___|I  |I  |___
+___|I  |IC |___
+___|I  |I  |___
+___|I  |I  |___
+___|E  |E  |___
+___|E  |E  |___

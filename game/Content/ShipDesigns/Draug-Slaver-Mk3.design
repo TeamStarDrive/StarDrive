@@ -1,0 +1,76 @@
+﻿Version=1
+Name=Draug-Slaver-Mk3
+Hull=Kulrathi/Claw
+Role=troopShip
+Style=Draugar
+Size=18,17
+GridCenter=9,9
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=PlaSteelArmorSmall;PirateAssaultBay;TractorBeamTurret2x2;LaserCannon;AncientShield2kw;PowerConduit;ThalaronBeam2x3;RemnantSmallReactor;OrdnanceLockerSmall;AntiMatterReactor;Pirate Inhibitor;CapEngines;Bridge;Inertial Damper;WarpEngine_1x1
+Modules=58
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,14;0
+1,13;1;2,3;;;Assault Shuttle
+2,12;0
+2,16;0
+3,11;2;2,2
+3,13;1;2,3;;;Assault Shuttle
+3,16;0
+4,8;0
+4,9;3;;330
+4,10;0
+5,7;1;2,3;;;Assault Shuttle
+5,10;4;2,2
+5,12;5
+5,13;3;;210
+5,14;0
+6,0;0
+6,1;0
+6,2;2;2,2
+6,4;6;2,3
+6,12;7
+6,13;8
+7,1;0
+7,7;9;3,3
+7,10;10;2,2
+7,12;11;3,3
+8,2;4;2,2
+8,4;7
+8,5;12;2,2
+9,4;7
+9,10;13;2,2
+10,1;0
+10,2;2;2,2
+10,4;6;2,3
+10,7;7
+10,8;7
+10,9;7
+10,12;14
+10,13;14
+10,14;14
+11,0;0
+11,1;0
+11,7;1;2,3;;;Assault Shuttle
+11,10;4;2,2
+11,12;7
+11,13;8
+12,12;5
+12,13;3;;150
+12,14;0
+13,8;0
+13,9;3;;30
+13,10;0
+13,11;2;2,2
+13,13;1;2,3;;;Assault Shuttle
+14,16;0
+15,12;0
+15,13;1;2,3;;;Assault Shuttle
+15,16;0
+17,14;0

@@ -1,0 +1,41 @@
+﻿Version=1
+Name=Draylok Colonizer STL
+Hull=Draylok/Draylok Tx Small
+Role=colony
+Style=Draylok
+Size=4,8
+GridCenter=2,4
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+ShipCategory=Civilian
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=BasicFuelCell;ColonyModule;Powerplant_nuke_1x1;Range_Thruster_1x1;Maneuvering_Thruster_1x1;Cockpit
+Modules=23
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+0,1;0
+0,2;0
+0,3;0
+0,4;0
+0,5;0
+0,6;0
+1,0;0
+1,1;1;2,3
+1,4;2
+1,5;2
+1,6;3
+1,7;4
+2,0;0
+2,4;2
+2,5;2
+2,6;3
+2,7;4
+3,1;0
+3,2;0
+3,3;0
+3,4;0
+3,5;5
+3,6;0

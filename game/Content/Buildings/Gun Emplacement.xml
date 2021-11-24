@@ -1,0 +1,17 @@
+﻿<Building>
+  <Name>Gun Emplacement</Name>
+  <Description>Gun Emplacements fire standard flak rounds and provide significant defensive bonuses to a planet in two ways. First, gun emplacements deal 1 guaranteed damage to each landing troop. Multiple gun emplacements provide cumulative bonusess. Second, gun emplacements act as defensive units in ground invasions and are capable of performing moderate hard-target attacks.</Description>
+  <Cost>75</Cost>
+  <Icon>gunemplacement</Icon>
+  <Strength>15</Strength>
+  <CombatStrength>15</CombatStrength>
+  <SoftAttack>20</SoftAttack>
+  <HardAttack>50</HardAttack>
+  <ShortDescription>Defensive building; injures landing troops</ShortDescription>
+  <InvadeInjurePoints>1</InvadeInjurePoints>
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>424</NameTranslationIndex>
+  <DescriptionIndex>425</DescriptionIndex>
+  <ShortDescriptionIndex>426</ShortDescriptionIndex>
+</Building>

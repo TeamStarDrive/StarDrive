@@ -1,0 +1,13 @@
+﻿<Building>
+  <Name>Lava3</Name>
+  <Maintenance>0</Maintenance>
+  <Cost>0</Cost>
+  <Icon>Lava3</Icon>
+  <PlusFlatResearchAmount>0.2</PlusFlatResearchAmount>
+  <Scrappable>false</Scrappable>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <Strength>30</Strength>
+  <NameTranslationIndex>4251</NameTranslationIndex>
+  <DescriptionIndex>4268</DescriptionIndex>
+  <ShortDescriptionIndex>4269</ShortDescriptionIndex>
+</Building>

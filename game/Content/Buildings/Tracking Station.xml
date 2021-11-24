@@ -1,0 +1,18 @@
+﻿<Building>
+  <Name>Tracking Station</Name>
+  <Description>These massive subspace telescopes greatly increase a colony's default sensor range. </Description>
+  <Cost>100</Cost>
+  <Maintenance>2</Maintenance>
+  <Icon>tracking_station</Icon>
+  <ShortDescription>Provides massive sensor range boost</ShortDescription>
+  
+  <IsSensor>true</IsSensor> <!-- Does this building provide galactic sensor coverage from the planet of origin? -->
+  <!-- SensorRange requires a decimal point, because A) Hodor and B) Float -->
+  <SensorRange>80000.0</SensorRange> <!--  Define the sensor radius -->
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>464</NameTranslationIndex>
+  <DescriptionIndex>465</DescriptionIndex>
+  <ShortDescriptionIndex>466</ShortDescriptionIndex>
+
+</Building>
